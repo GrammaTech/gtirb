@@ -1,7 +1,35 @@
 //
-// -Class nesting to show parent/child relationships only.
-// -Word wrap at column 100.
-//
+// - Class nesting to show parent/child relationships only.
+// - Word wrap at column 100.
+// - API Functions use action words and positive tests:
+//   - get[Foo]
+//   - set[Foo] (for single values)
+//   - add[Foo] (for containers)
+//   - remove[Foo] (for containers)
+//   - getIs[Foo]Enabled
+//   - apply[Foo]
+// - Member variable names should be identical to their set/get functions in the API.
+//   - `setFoo(Bar x) { this->foo = x; }`
+// - Specialized exception types shall inherit from gtirb::Exception and be suffixed with "Error".
+// - API Size functions are called "size".  Do not use "count", "num", etc.
+// - When possible, STL-compatability is provided with the same semantics.
+//   - push_back, begin, end, size, empty, clear.
+// - There shall be one class per header file.
+// - The name of the header file and the class it declares shall be identical.
+// - Generally, there shall be one way to do something.  
+//   - "helper" types of functions shall be avoided inside classes.
+//   - "helper" free functions in their own headers is acceptable.
+// - There shall be no inlining of functions without measurements proving it is useful.
+// - There shall be no unnecessary implementation code in headers.
+// - Unit tests shall be written for each class and each function in each class.
+// - Doxygen-style documentation should be provided for each class and each public function within the class.
+// - #ifdef to conditionally compile code is not desireable.
+// - All code should compile on gcc, clang, and visual studio.
+// - Implementation shall not rely on user paths, environment variables, or other externals.
+// - Reduce (aim to eliminate) use of 3rd party libraries.
+//   - Limited use of Boost is expected.
+// - Generally aim to conform to the C++ Core Guidelines.
+// 
 
 ///
 /// \namespace gtirb
@@ -296,14 +324,16 @@ public:
     /// Given the templated iterators, this violates the principle of "minimally complete" API 
     /// design.
     ///
+    /// Similar to the STL "::data()" member function.
+    ///
     template<typename T>
-    std::vector<std::sT*> getData()
+    std::vector<T*> getChildren()
     {
         return std::vector<T*>(this->begin<T>(), this->end<T>())
     }
 
     template<typename T>
-    const std::vector<T*> getData() const
+    const std::vector<T*> getChildren() const
     {
         return std::vector<T*>(this->begin<T>(), this->end<T>())
     }
@@ -354,11 +384,13 @@ protected:
     /// This should validate the tree structure as well as the node's construction.
     /// Throws a "NodeError" exepction and a "NodeStructureError" exception.
     /// These functions should be added in the object constructor.
+    /// These are stored on the node themselves.
     ///
     void addCustomValidator(std::function<bool(gtirb::Node const * const self)> f) const;
-    
+
     ///
     /// Adds a custom validation function.
+    /// These are stored on the node themselves.
     ///
     void addPushBackValidator(std::function<bool(gtirb::Node const * const parent)> f) const;
 
@@ -896,8 +928,8 @@ public:
         ///
         /// Extract an eight bit vector of data starting at a given EA for a given number of bytes.
         ///
-        std::vector<uint8_t> getDataBytes8(gtirb::EA x, size_t nbytes) const;
-        std::vector<uint8_t> getDataBytesUntil(gtirb::EA x, size_t nbytes, std::function<bool(uint8_t)> passFunction) const;
+        std::vector<uint8_t> getChildrenBytes8(gtirb::EA x, size_t nbytes) const;
+        std::vector<uint8_t> getChildrenBytesUntil(gtirb::EA x, size_t nbytes, std::function<bool(uint8_t)> passFunction) const;
     };
 
     bool operator<(IR& x);
@@ -909,7 +941,7 @@ public:
     ///
     /// \return true if all validation functions returned true.
     ///
-    bool runValidation(std::vector<std::function<bool(const Node* const, ostream& os = std::cerr)>> validators);
+    bool applyValidation(std::vector<std::function<bool(const Node* const, ostream& os = std::cerr)>> validators);
 };
 
 ///
@@ -1004,7 +1036,7 @@ void DecorateAllSymbols()
     ir.push_back(gtirb::LoadModule("/foo/bar"));
     
     auto module = ir[0];
-    auto symbols = module->getData<Symbols>();
+    auto symbols = module->getChildren<Symbols>();
 
     for(auto symbol : symbols)
     {
@@ -1014,7 +1046,7 @@ void DecorateAllSymbols()
         symbol->push_back(foo);
 
         std::cout << static_cast<std::string>(*symbol) << ", ";
-        std::cout << symbol->getData<Foo>()[0]->getMyData() << std::endl;
+        std::cout << symbol->getChildren<Foo>()[0]->getMyData() << std::endl;
     }
 }
 
@@ -1050,7 +1082,7 @@ void AddAndGetCustomProperty()
     ir.push_back(gtirb::LoadModule("/foo/bar"));
     
     auto module = ir[0];
-    auto globalRegion = module->getData<gtirb::RegionGlobal>();
+    auto globalRegion = module->getChildren<gtirb::RegionGlobal>();
 
     if(globalRegion != nullptr)
     {
@@ -1126,10 +1158,10 @@ void UseFATTypes(ModuleIR* mir);
 
     //...
 
-    auto symbolContainer = gtirbModule->getData<Symbols>();
+    auto symbolContainer = gtirbModule->getChildren<Symbols>();
     if(symbolContainer.size() == 1)
     {
-        auto allSymbols = symbolContainer->getData<Symbol>();
+        auto allSymbols = symbolContainer->getChildren<Symbol>();
         for(auto s : allSymbols)
         {
             // Allow GTIRB to hold FAT Types.
@@ -1201,10 +1233,10 @@ void BuildAndUseTable()
 
     // Build out a table.
 
-    const auto symbolContainer = module->getData<Symbols>();
+    const auto symbolContainer = module->getChildren<Symbols>();
     if(symbolContainer.size() == 1)
     {
-        const auto allSymbols = symbolContainer->getData<Symbol>();
+        const auto allSymbols = symbolContainer->getChildren<Symbol>();
         for(auto s : allSymbols)
         {
             auto globalRegion = mir->get_global_region();
