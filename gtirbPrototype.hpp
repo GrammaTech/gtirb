@@ -86,6 +86,37 @@ class NodeStructureError : public NodeError
 public:
 }
 
+///
+/// \class TableStore
+///
+/// The TableStore acts like a look-up table for data for either cross-module or intra-module data.
+/// While some data may be very node-specific, the table stores arbitrary data that spans many nodes.
+///
+template<typename R = std::weak_ptr<gtirb::Node>, typename C = std::string, typename T = std::any> 
+class TableStore
+{
+public:
+    void TableStore(std::string x);
+    virtual ~TableStore();
+
+    std::string getTableName() const;
+
+    /// Creates the row if it doesn't exist.
+    /// Creates the column if it doesn't exist.
+    void setTableData(const R& row, const C& column, T data);
+    void setTableData(const R& row, const C& column, T&& data);
+
+    T getTableData(const R& row, const C& column) const;
+    std::vector<std::pair<C, T>> getTableColumn(const R& row) const;
+    std::vector<std::pair<R, T>> getTableRow(const C& column) const;
+
+    std::unordered_map<R, std::unordered_map<C, T>>& getTable();
+    const std::unordered_map<R, std::unordered_map<C, T>>& getTable() const;
+
+private:
+    static std::set<std::string> uniqueTableNames;
+    std::unordered_map<R, std::unordered_map<C, T>> table;
+};
 
 ///
 /// \class Node
@@ -95,6 +126,7 @@ public:
 /// Allows constructing an STL-like tree of arbitrary types and complexity.
 /// 
 /// IR(1)
+/// |
 /// |
 /// |
 /// Module(N)
@@ -111,6 +143,7 @@ public:
     ///
     /// Default constructor.
     /// Add custom validation functions inside the constructor.
+    /// Automatically assigns the node a default UUID.
     ///
     Node();
     
@@ -139,17 +172,17 @@ public:
     /// Universally Unique ID (UUID)
     /// Though automatically assigned on construction, it can be manually set.
     ///
-    void setUUID(boost::uuid x);
+    void setUUID(boost::uuids::uuid x);
 
     ///
     /// Universally Unique ID (UUID)
     ///
-    boost::uuid getUUID() const;
+    boost::uuids::uuid getUUID() const;
 
     ///
     /// \return     Null if it is a root node.
     ///
-    Node* getParent() const;
+    Node* getOwner() const;
 
     ///
     /// Be able to limit who a node can be a child of.
@@ -280,14 +313,30 @@ public:
     ///
     /// Sets an arbitrary property on the node.
     ///
-    void setProperty(std::string name, std::any value);
-    std::any getProperty(const std::string& name);
-    bool removeProperty(const std::string& name);
+    void setLocalProperty(std::string name, std::any value);
+    std::any getLocalProperty(const std::string& name);
+    bool removeLocalProperty(const std::string& name);
 
     ///
     /// This is not ideal as it exposes internal implementation.
     ///
-    const std::map<std::string, std::any>& getProperties() const;
+    const std::map<std::string, std::any>& getLocalProperties() const;
+
+    ///
+    /// Create a table store owned by this node.
+    ///
+    void addTableStore(std::unique_ptr<TableStore*>&& x);
+
+    ///
+    /// Remove a table store owned by this node.
+    ///
+    bool removeTableStore(TableStore* x);
+
+    ///
+    /// Get a table store by name.
+    /// Starting at this node, will search "up" the tree until the given table is found or return null.
+    ///
+    TableStore* getTableStore(const std::string& x);
 
     void traverseDepthFirst(std::function<void(gsl::not_null<Node*>)> x);
     void traverseBreadthFirst(std::function<void(gsl::not_null<Node*>)> x);
@@ -307,6 +356,9 @@ protected:
     /// Adds a custom validation function.
     ///
     void addPushBackValidator(std::function<bool(Node const * const parent)> f) const;
+
+private:
+    boost::uuids::uuid uuid;
 };
 
 ///
@@ -354,7 +406,7 @@ private:
 /// This is the top-level node for a binary.
 /// It can contain multiple Modules.
 ///
-class IR : public Node
+class IR final : public Node
 {
 public:
     ///
@@ -362,7 +414,7 @@ public:
     ///
     /// A module represents the binary for a single "library" file within the IR.
     ///
-    class Module : public Node
+    class Module final : public Node
     {
     public:
         ///
@@ -397,7 +449,7 @@ public:
         ///
         /// \class Functions
         ///
-        class Functions : public ModuleBase
+        class Functions final : public ModuleBase
         {
         public:
             // No special functions.
@@ -407,7 +459,7 @@ public:
         ///
         /// \class Globals
         ///
-        class Globals : public ModuleBase
+        class Globals final : public ModuleBase
         {
         public:
             // No special functions.
@@ -428,7 +480,7 @@ public:
             /// Users can inherit from this and build their own custom symbol types, if required.
             /// Classes such as XType could be added by the user via properties or children.
             ///
-            class Symbol : public ModuleData
+            class Symbol final : public ModuleData
             {
             public:
                 enum class Type
@@ -525,7 +577,7 @@ public:
 
                 // Should we make this our parent in the tree or forward to it?
                 void setParentSymbol(std::weak_ptr<Symbol> x);
-                Symbol* getParentSymbol() const;
+                Symbol* getOwnerSymbol() const;
 
                 void setForwardSymbol(std::weak_ptr<Symbol> x);
                 Symbol* getForwardSymbol() const;
@@ -566,7 +618,7 @@ public:
         ///
         /// \class ProcedureInfo
         ///
-        class ProcedureInfo : public ModuleData
+        class ProcedureInfo final : public ModuleData
         {
         public:
             bool operator<(ModuleData& x);
@@ -624,19 +676,19 @@ public:
             bool operator<(Region& x);
         };
 
-        class RegionGlobal : public Region
+        class RegionGlobal final : public Region
         {
         public:
             // What goes here?
         };
 
-        class RegionModule : public RegionGlobal
+        class RegionModule final : public RegionGlobal
         {
         public:
             // What goes here?
         };
 
-        class RegionAbstract : public Region
+        class RegionAbstract final : public Region
         {
         public:
             class Scope : public ModuleData
@@ -668,7 +720,7 @@ public:
             const std::vector<gsl::not_null<Symbol*>>& getLocals() const;
         };
 
-        class RegionHeap : public Region
+        class RegionHeap final : public Region
         {
         public:
             enum class HeapSubtype 
@@ -691,19 +743,19 @@ public:
             HeapSubtype getHeapSubtype() const;
         };
 
-        class RegionStack : public Region
+        class RegionStack final : public Region
         {
         public:
             // What goes here?
         };
 
-        class RegionExtern : public Region
+        class RegionExtern final : public Region
         {
         public:
             // What goes here?
         };
 
-        class CFGNode : public ModuleData
+        class CFGNode final : public ModuleData
         {
         public:
             enum Kind {
@@ -995,16 +1047,16 @@ void AddAndGetCustomProperty()
 
     if(globalRegion != nullptr)
     {
-        globalRegion->setProperty("specialInteger", int(21));
-        globalRegion->setProperty("specialVector", std::vector<int>{2, 1, 1, 2});
+        globalRegion->setLocalProperty("specialInteger", int(21));
+        globalRegion->setLocalProperty("specialVector", std::vector<int>{2, 1, 1, 2});
     }
 
     // Do some other work...
 
     if(globalRegion != nullptr)
     {
-        auto siProperty = globalRegion->getProperty("specialInteger");
-        auto svProperty = globalRegion->getProperty("specialVector");
+        auto siProperty = globalRegion->getLocalProperty("specialInteger");
+        auto svProperty = globalRegion->getLocalProperty("specialVector");
 
         if(siProperty.has_value() == true)
         {
@@ -1062,8 +1114,8 @@ void UseFATTypes(ModuleIR* mir);
     auto gtirbModule = ir[0];
 
     // Allow GTIRB to hold pointers into the existing data structures.
-    gtirbModule->setProperty("ModuleIR", mir);
-    gtirbModule->setProperty("ASTDataManager", mir->get_ast_manager());
+    gtirbModule->setLocalProperty("ModuleIR", mir);
+    gtirbModule->setLocalProperty("ASTDataManager", mir->get_ast_manager());
 
     //...
 
@@ -1076,7 +1128,7 @@ void UseFATTypes(ModuleIR* mir);
             // Allow GTIRB to hold FAT Types.
             auto globalRegion = mir->get_global_region();
             fSymbol_LGrip fsym_lgrip = globalRegion->lookup_symbol(s->getEA());
-            s->setProperty("fSymbol", fsym_lgrip);
+            s->setLocalProperty("fSymbol", fsym_lgrip);
         }
     }
 }
@@ -1098,7 +1150,7 @@ void ConvertToFat(gsl::not_null<Node*> x, FATOBJ_STORE_ID store_id)
         // Wire things up as necessary. 
         // f->(...)
 
-        x->addProperty("AnalysisEnvironment", f);
+        x->setLocalProperty("AnalysisEnvironment", f);
     }
     else if(symbol != nullptr)
     {
@@ -1107,7 +1159,7 @@ void ConvertToFat(gsl::not_null<Node*> x, FATOBJ_STORE_ID store_id)
         // Wire things up as necessary. 
         // f->(...)
 
-        symbol->addProperty("fSymbol", f);
+        symbol->setLocalProperty("fSymbol", f);
     }
     else if(module != nullptr)
     {
@@ -1116,13 +1168,55 @@ void ConvertToFat(gsl::not_null<Node*> x, FATOBJ_STORE_ID store_id)
         // Wire things up as necessary. 
         // f->(...)
 
-        symbol->addProperty("ModuleIR", f);
-
+        symbol->setLocalProperty("ModuleIR", f);
     }
 }
 
 AnalysisEnvironment_LGrip GTIRB2AnalysisEnvironment(gtirb::IR* ir, FATOBJ_STORE_ID store_id);
 {
     ir->traverseDepthFirst([store_id](gsl::not_null<Node*> x){ ConvertToFat(x, store_id);});
-    return std::any_cast<AnalysisEnvironment_LGrip>(f->getProperty("AnalysisEnvironment"));
+    return std::any_cast<AnalysisEnvironment_LGrip>(f->getLocalProperty("AnalysisEnvironment"));
+}
+
+// -------------------------------------------------------------------------------------------------
+// Example
+
+void BuildAndUseTable()
+{
+    auto ir = std::make_shared<gtirb::IR>();
+    ir.push_back(gtirb::LoadModule("/foo/bar"));
+    
+    auto module = ir[0];
+
+    using SymbolTable = gtirb::TableStore<std::weak_ptr<Symbol>, std::string, std::any>>;
+    auto symbolTable = std::make_shared<SymbolTable>("Symbol Table");
+    module->addTable(std::move(symbolTable));
+
+    // Build out a table.
+
+    auto symbolContainer = module->getData<Symbols>();
+    if(symbolContainer.size() == 1)
+    {
+        auto allSymbols = symbolContainer->getData<Symbol>();
+        for(auto s : allSymbols)
+        {
+            auto globalRegion = mir->get_global_region();
+            fSymbol_LGrip fsym_lgrip = globalRegion->lookup_symbol(s->getEA());
+
+            auto symbolTable = dynamic_cast<SymbolTable*>(s->getTableStore("Symbol Table"));
+            symbolTable->setTableData(s->shared_from_this(), "fSymbol", fsym_lgrip);
+            symbolTable->setTableData(s->shared_from_this(), "globalRegion", globalRegion);
+        }
+    }
+
+    // Work with the table.
+
+    auto allFsymbols = symbolTable->getTableColumn("fSymbol");
+    for(auto& nodeSymbolPair : allFsymbols)
+    {
+        auto gtirSymbol = nodeSymbolPair.first.lock();
+        auto fSymbol = std::any_cast<fSymbol_LGrip>(nodeSymbolPair.second);
+
+        // ...
+    }
 }
