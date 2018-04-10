@@ -113,6 +113,11 @@ public:
     std::unordered_map<R, std::unordered_map<C, T>>& getTable();
     const std::unordered_map<R, std::unordered_map<C, T>>& getTable() const;
 
+    ///
+    /// Swaps rows and columns and returns a new data structure.
+    ///
+    std::unordered_map<C, std::unordered_map<R, T>> getRotated();
+
 private:
     static std::set<std::string> uniqueTableNames;
     std::unordered_map<R, std::unordered_map<C, T>> table;
@@ -156,12 +161,12 @@ public:
     /// Add the contents of another node to this node.
     /// Children will share ownship of resources.
     ///
-    void operator+=(Node& x);
+    void operator+=(gtirb::Node& x);
 
     ///
     /// Support STL algorithms and sorting of nodes.
     ///
-    virtual bool operator<(Node& x);
+    virtual bool operator<(gtirb::Node& x);
 
     ///
     /// Support string conversion.
@@ -182,7 +187,7 @@ public:
     ///
     /// \return     Null if it is a root node.
     ///
-    Node* getOwner() const;
+    gtirb::Node* getOwner() const;
 
     ///
     /// Be able to limit who a node can be a child of.
@@ -215,7 +220,7 @@ public:
     /// Will return false if "x" cannot be a child of this Node type (Using RTTI).
     ///
     ///
-    bool push_back(std::unique_ptr<Node>&& x);
+    bool push_back(std::unique_ptr<gtirb::Node>&& x);
     
     ///
     /// Determines if there are any child nodes.
@@ -294,13 +299,13 @@ public:
     template<typename T>
     std::vector<std::sT*> getData()
     {
-        return std::vector<T*>(node->begin<T>(), node->end<T>())
+        return std::vector<T*>(this->begin<T>(), this->end<T>())
     }
 
     template<typename T>
     const std::vector<T*> getData() const
     {
-        return std::vector<T*>(node->begin<T>(), node->end<T>())
+        return std::vector<T*>(this->begin<T>(), this->end<T>())
     }
 
     ///
@@ -308,7 +313,7 @@ public:
     ///
     /// \param      f   A std::function object which takes a non-null pointer to a Node.
     ///
-    void addPushBackCallback(std::function<void(gsl::not_null<Node*>)> f);
+    void addPushBackCallback(std::function<void(gsl::not_null<gtirb::Node*>)> f);
 
     ///
     /// Sets an arbitrary property on the node.
@@ -325,21 +330,21 @@ public:
     ///
     /// Create a table store owned by this node.
     ///
-    void addTableStore(std::unique_ptr<TableStore*>&& x);
+    void addTableStore(std::unique_ptr<gtirb::TableStore*>&& x);
 
     ///
     /// Remove a table store owned by this node.
     ///
-    bool removeTableStore(TableStore* x);
+    bool removeTableStore(gtirb::TableStore* x);
 
     ///
     /// Get a table store by name.
     /// Starting at this node, will search "up" the tree until the given table is found or return null.
     ///
-    TableStore* getTableStore(const std::string& x);
+    gtirb::TableStore* getTableStore(const std::string& x);
 
-    void traverseDepthFirst(std::function<void(gsl::not_null<Node*>)> x);
-    void traverseBreadthFirst(std::function<void(gsl::not_null<Node*>)> x);
+    void traverseDepthFirst(std::function<void(gsl::not_null<gtirb::Node*>)> x);
+    void traverseBreadthFirst(std::function<void(gsl::not_null<gtirb::Node*>)> x);
 
 protected:
     ///
@@ -350,12 +355,12 @@ protected:
     /// Throws a "NodeError" exepction and a "NodeStructureError" exception.
     /// These functions should be added in the object constructor.
     ///
-    void addCustomValidator(std::function<bool(Node const * const self)> f) const;
+    void addCustomValidator(std::function<bool(gtirb::Node const * const self)> f) const;
     
     ///
     /// Adds a custom validation function.
     ///
-    void addPushBackValidator(std::function<bool(Node const * const parent)> f) const;
+    void addPushBackValidator(std::function<bool(gtirb::Node const * const parent)> f) const;
 
 private:
     boost::uuids::uuid uuid;
@@ -527,16 +532,16 @@ public:
                     Normal,
                     Static,
                     Extern
-                }
+                };
 
                 void setName(std::string x);
                 std::string getName() const;
 
-                void setEA(uint64_t x);
-                uint64_t getEA() const;
+                void setEA(gtirb::EA x);
+                gtirb::EA getEA() const;
 
-                void setType(SymbolType x);
-                SymbolType getType() const;
+                void setType(Symbol::SymbolType x);
+                Symbol::SymbolType getType() const;
 
                 void setOffset(int64_t x);
                 int64_t getOffset();
@@ -560,30 +565,30 @@ public:
                 void setIsNameOnly(bool x);
                 bool getIsNameOnly() const;
 
-                void setRegion(std::weak_ptr<Region> x);
-                Region* getRegion() const;
+                void setRegion(std::weak_ptr<Symbol::Region> x);
+                Symbol::Region* getRegion() const;
 
-                void setDeclarationKind(DeclarationKind x);
-                DeclarationKind getDeclarationKind() const;
+                void setDeclarationKind(Symbol::DeclarationKind x);
+                Symbol::DeclarationKind getDeclarationKind() const;
 
-                void setLinkType(LinkType x);
-                LinkType getLinkType() const;
+                void setLinkType(Symbol::LinkType x);
+                Symbol::LinkType getLinkType() const;
 
-                void setStorageKind(StorageKind x);
-                StorageKind getStorageKind() const;
+                void setStorageKind(Symbol::StorageKind x);
+                Symbol::StorageKind getStorageKind() const;
 
                 void setIsGlobal(bool x);
                 bool getIsGlobal() const;
 
                 // Should we make this our parent in the tree or forward to it?
-                void setParentSymbol(std::weak_ptr<Symbol> x);
-                Symbol* getOwnerSymbol() const;
+                void setParentSymbol(std::weak_ptr<gtirb::Symbol> x);
+                gtirb::Symbol* getOwnerSymbol() const;
 
-                void setForwardSymbol(std::weak_ptr<Symbol> x);
-                Symbol* getForwardSymbol() const;
+                void setForwardSymbol(std::weak_ptr<gtirb::Symbol> x);
+                gtirb::Symbol* getForwardSymbol() const;
 
-                void setReplacementSymbol(std::weak_ptr<Symbol> x);
-                Symbol* getReplacementSymbol() const;
+                void setReplacementSymbol(std::weak_ptr<gtirb::Symbol> x);
+                gtirb::Symbol* getReplacementSymbol() const;
 
             };
         };
@@ -599,12 +604,12 @@ public:
             ///
             /// Get all of the ranges that have been added.
             ///
-            std::vector<std::pair<EA, EA>>& getRangeVector();
+            std::vector<std::pair<gtirb::EA, gtirb::EA>>& getRangeVector();
             
             ///
             /// Get all of the ranges that have been added.
             ///
-            const std::vector<std::pair<EA, EA>>& getRangeVector() const;
+            const std::vector<std::pair<gtirb::EA, gtirb::EA>>& getRangeVector() const;
 
             ///
             /// Given all of the ranges, how many bytes exist between all pairs?
@@ -621,33 +626,33 @@ public:
         class ProcedureInfo final : public ModuleData
         {
         public:
-            bool operator<(ModuleData& x);
+            bool operator<(gtirb::ModuleData& x);
             virtual operator std::string() const override;
 
             /// Symbols are owned by the IR->Module->Symbols
-            void setProcedureNameSymbol(std::weak_ptr<Symbol> x)
-            Symbol* getProcedureNameSymbol() const;
+            void setProcedureNameSymbol(std::weak_ptr<gtirb::Symbol> x)
+            gtirb::Symbol* getProcedureNameSymbol() const;
 
             // Can there be more than one per Module?  That is, do we need to set this or can we 
             // just walk up the tree and get it?
-            void setModuleSummary(std::weak_ptr<ModuleSummary> x);
-            ModuleSummary* getModuleSummary();
+            void setModuleSummary(std::weak_ptr<gtirb::ModuleSummary> x);
+            gtirb::ModuleSummary* getModuleSummary();
 
             /// Symbols are owned by the IR->Module->Symbols
-            std::map<std::weak_ptr<Symbol>, std::weak_ptr<Symbol>>& getSymbolToSymbolMap();
-            const std::map<std::weak_ptr<Symbol>, std::weak_ptr<Symbol>>& getSymbolToSymbolMap() const;
+            std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSymbolToSymbolMap();
+            const std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSymbolToSymbolMap() const;
 
             /// Symbols are owned by the IR->Module->Symbols
-            std::map<std::weak_ptr<Symbol>, std::weak_ptr<Symbol>>& getSaveToRestoreSymbolMap();
-            const std::map<std::weak_ptr<Symbol>, std::weak_ptr<Symbol>>& getSaveToRestoreSymbolMap() const;
+            std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSaveToRestoreSymbolMap();
+            const std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSaveToRestoreSymbolMap() const;
 
             /// The RegionHeap is owned by the IR->Module
-            std::map<EA, std::weak_ptr<RegionHeap>>& getEAToHeapRegionMap();
-            const std::map<EA, std::weak_ptr<RegionHeap>>& getEAToHeapRegionMap() const;
+            std::map<gtirb::EA, std::weak_ptr<gtirb::RegionHeap>>& getEAToHeapRegionMap();
+            const std::map<gtirb::EA, std::weak_ptr<gtirb::RegionHeap>>& getEAToHeapRegionMap() const;
 
             /// Symbols are owned by the IR->Module->Symbols
-            void addSummarizedRegisterConditionalKills(std::weak_ptr<Symbol> x);
-            std::weak_ptr<Symbol> getSummarizedRegisterConditionalKills() const;
+            void addSummarizedRegisterConditionalKills(std::weak_ptr<gtirb::Symbol> x);
+            std::weak_ptr<gtirb::Symbol> getSummarizedRegisterConditionalKills() const;
 
             /// Address relative to?
             void setFrameBase(int64_t);
@@ -695,6 +700,8 @@ public:
             {
             public:
                 ///
+                /// Should these be EAs instead of int64_t?
+                ///
                 /// \return     False if the lower bound is greater than the upper bound.
                 ///
                 bool setBounds(std::pair<int64_t, int64_t> lowerUpper);
@@ -739,8 +746,8 @@ public:
             gsl::not_null<Symbol*> getCountSymbol();
             gsl::not_null<Symbol*> getSizeSymbol();
 
-            void setHeapSubtype(HeapSubtype x);
-            HeapSubtype getHeapSubtype() const;
+            void setHeapSubtype(RegionHeap::HeapSubtype x);
+            RegionHeap::HeapSubtype getHeapSubtype() const;
         };
 
         class RegionStack final : public Region
@@ -793,8 +800,8 @@ public:
             {
             public:
                 /// Symbols are owned by the IR->Module->Symbols.
-                void set(std::weak_ptr<Symbol> x);
-                Symbol* get() const;
+                void set(std::weak_ptr<gtirb::Symbol> x);
+                gtirb::Symbol* get() const;
             }
 
             constexpr DecodeModeDefault{0};
@@ -809,11 +816,11 @@ public:
             void setKind(int x);
             int getKind() const;
 
-            void setEA(EA x);
-            EA getEA() const;
+            void setEA(gtirb::EA x);
+            gtirb::EA getEA() const;
 
-            void setAffiliatedEA(EA x);
-            EA getAffiliatedEA() const;
+            void setAffiliatedEA(gtirb::EA x);
+            gtirb::EA getAffiliatedEA() const;
 
             void setInstructionStackPointerDelta(int64_t x);
             int64_t getInstructionStackPointerDelta() const;
@@ -859,8 +866,8 @@ public:
         void setBinaryPath(std::filesystem::path x);
         std::filesystem::path getBinaryPath() const;
 
-        void setFileFormat(FileFormat x);
-        FileFormat getFileFormat() const;
+        void setFileFormat(CFGNode::FileFormat x);
+        CFGNode::FileFormat getFileFormat() const;
 
         void setRebaseDelta(int64_t x);
         int64_t getRebaseDelta() const;
@@ -880,17 +887,17 @@ public:
         ///
         /// \return     False if the pair's first is > the pair's second.
         ///
-        bool setEAMinMax(std::pair<EA, EA> x);
-        std::pair<EA, EA> getEAMinMax() const;
+        bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x);
+        std::pair<gtirb::EA, gtirb::EA> getEAMinMax() const;
 
-        void setPreferredEA(EA x);
-        EA getPreferredEA() const;
+        void setPreferredEA(gtirb::EA x);
+        gtirb::EA getPreferredEA() const;
 
         ///
         /// Extract an eight bit vector of data starting at a given EA for a given number of bytes.
         ///
-        std::vector<uint8_t> getDataBytes8(EA x, size_t nbytes) const;
-        std::vector<uint8_t> getDataBytesUntil(EA x, size_t nbytes, std::function<bool(uint8_t)> passFunction) const;
+        std::vector<uint8_t> getDataBytes8(gtirb::EA x, size_t nbytes) const;
+        std::vector<uint8_t> getDataBytesUntil(gtirb::EA x, size_t nbytes, std::function<bool(uint8_t)> passFunction) const;
     };
 
     bool operator<(IR& x);
@@ -902,7 +909,7 @@ public:
     ///
     /// \return true if all validation functions returned true.
     ///
-    bool runValidation(std::vector<std::function<bool(const Node* const, ostream& = std::cerr)>> validators);
+    bool runValidation(std::vector<std::function<bool(const Node* const, ostream& os = std::cerr)>> validators);
 };
 
 ///
@@ -946,8 +953,8 @@ struct ASTHash
 {
     std::size_t operator()(AST const& x) const noexcept
     {
-        std::size_t h1 = std::hash<std::string>{}(x.getClassName());
-        std::size_t h2 = std::hash<int64_t>{}(x.getClassID());
+        const auto h1 = std::hash<std::string>{}(x.getClassName());
+        const auto h2 = std::hash<int64_t>{}(x.getClassID());
 
         // or use boost::hash_combine (see Discussion)
         return h1 ^ (h2 << 1); 
@@ -1055,20 +1062,20 @@ void AddAndGetCustomProperty()
 
     if(globalRegion != nullptr)
     {
-        auto siProperty = globalRegion->getLocalProperty("specialInteger");
-        auto svProperty = globalRegion->getLocalProperty("specialVector");
+        const auto siProperty = globalRegion->getLocalProperty("specialInteger");
+        const auto svProperty = globalRegion->getLocalProperty("specialVector");
 
         if(siProperty.has_value() == true)
         {
-            auto specialInteger = std::any_cast<int>(siProperty);
+            const auto specialInteger = std::any_cast<int>(siProperty);
             std::cout << "Special Integer: " << specialInteger << std::endl;
         }
 
         if(svProperty.has_value() == true)
         {
-            auto specialVector = std::any_cast<std::vector<int>>(svProperty);
+            const auto specialVector = std::any_cast<std::vector<int>>(svProperty);
 
-            for(auto i : specialVector)
+            for(const auto i : specialVector)
             {
                 std::cout << "Special Vector: " << i << std::endl;
             }
@@ -1093,15 +1100,15 @@ void IgnoreUserTypes()
     // ...
 
     // Supports non-member begin and end.
-    auto allChildren = std::vector<Node*>(std::begin(*module), std::end(*module));
+    auto allChildren = std::vector<gtirb::Node*>(std::begin(*module), std::end(*module));
 
     // Supports regular member begin and end.
-    auto allChildrenAgain = std::vector<Node*>(module->begin(), module->end());
+    auto allChildrenAgain = std::vector<gtirb::Node*>(module->begin(), module->end());
 
     // Has a special tempalted member begin and end to filter out object types.
-    auto justSymbols = std::vector<Node*>(module->begin<Symbols>(), module->end<Symbols>());
-    auto justFoos = std::vector<Node*>(module->begin<Foo>(), module->end<Foo>());
-    auto justBars = std::vector<Node*>(module->begin<Bar>(), module->end<Bar>());
+    auto justSymbols = std::vector<gtirb::Symbol*>(module->begin<Symbol>(), module->end<Symbol>());
+    auto justFoos = std::vector<Foo*>(module->begin<Foo>(), module->end<Foo>());
+    auto justBars = std::vector<Bar*>(module->begin<Bar>(), module->end<Bar>());
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -1110,7 +1117,7 @@ void IgnoreUserTypes()
 void UseFATTypes(ModuleIR* mir);
 {
     auto ir = std::make_shared<gtirb::IR>();
-    ir.push_back(std::make_unique<Module>());
+    ir.push_back(std::make_unique<gtirb::Module>());
     auto gtirbModule = ir[0];
 
     // Allow GTIRB to hold pointers into the existing data structures.
@@ -1194,15 +1201,16 @@ void BuildAndUseTable()
 
     // Build out a table.
 
-    auto symbolContainer = module->getData<Symbols>();
+    const auto symbolContainer = module->getData<Symbols>();
     if(symbolContainer.size() == 1)
     {
-        auto allSymbols = symbolContainer->getData<Symbol>();
+        const auto allSymbols = symbolContainer->getData<Symbol>();
         for(auto s : allSymbols)
         {
             auto globalRegion = mir->get_global_region();
             fSymbol_LGrip fsym_lgrip = globalRegion->lookup_symbol(s->getEA());
 
+            // The table is stored on the module, so "getTableStore" will walk up until it finds it.
             auto symbolTable = dynamic_cast<SymbolTable*>(s->getTableStore("Symbol Table"));
             symbolTable->setTableData(s->shared_from_this(), "fSymbol", fsym_lgrip);
             symbolTable->setTableData(s->shared_from_this(), "globalRegion", globalRegion);
@@ -1210,6 +1218,7 @@ void BuildAndUseTable()
     }
 
     // Work with the table.
+    // Note the IR itself is not being used.
 
     auto allFsymbols = symbolTable->getTableColumn("fSymbol");
     for(auto& nodeSymbolPair : allFsymbols)
