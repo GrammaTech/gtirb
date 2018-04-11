@@ -129,17 +129,21 @@ public:
 
     std::string getTableName() const;
 
+    ///
+    /// Natural API
     /// Creates the row if it doesn't exist.
     /// Creates the column if it doesn't exist.
-    void setTableData(const R& row, const C& column, T data);
-    void setTableData(const R& row, const C& column, T&& data);
+    ///
+    std::unordered_map<C, T>& operator[](R x)
+    {
+        return this->table[x];
+    }
 
-    T getTableData(const R& row, const C& column) const;
     std::vector<std::pair<C, T>> getTableColumn(const R& row) const;
     std::vector<std::pair<R, T>> getTableRow(const C& column) const;
 
-    std::unordered_map<R, std::unordered_map<C, T>>& getTable();
-    const std::unordered_map<R, std::unordered_map<C, T>>& getTable() const;
+    std::unordered_map<R, std::unordered_map<C, T>>& data();
+    const std::unordered_map<R, std::unordered_map<C, T>>& data() const;
 
     ///
     /// Swaps rows and columns and returns a new data structure.
@@ -1244,8 +1248,15 @@ void BuildAndUseTable()
 
             // The table is stored on the module, so "getTableStore" will walk up until it finds it.
             auto symbolTable = dynamic_cast<SymbolTable*>(s->getTableStore("Symbol Table"));
-            symbolTable->setTableData(s->shared_from_this(), "fSymbol", fsym_lgrip);
-            symbolTable->setTableData(s->shared_from_this(), "globalRegion", globalRegion);
+
+            // Two ways to get to and set the data.
+
+            // Method 1:
+            (*symbolTable)[s->shared_from_this()]["fSymbol"] = fsym_lgrip;
+
+            // Method 2:
+            auto rawTable = symbolTable->data();
+            rawTable[s->shared_from_this()]["globalRegion"] = globalRegion;
         }
     }
 
