@@ -8,12 +8,14 @@
 //   - remove[Foo] (for containers)
 //   - getIs[Foo]Enabled
 //   - apply[Foo]
+// - The default value for an enumeration class should be `Undefined`.
+// - Non-class enums can use `UserDefined` as their last value to indicate a starting offset for user-defined values.
 // - Member variable names should be identical to their set/get functions in the API.
 //   - `setFoo(Bar x) { this->foo = x; }`
-// - Specialized exception types shall inherit from gtirb::Exception and be suffixed with "Error".
+// - Specialized exception types shall inherit from `gtirb::Exception `and be suffixed with "Error".
 // - API Size functions are called "size".  Do not use "count", "num", etc.
 // - When possible, STL-compatability is provided with the same semantics.
-//   - push_back, begin, end, size, empty, clear.
+//   - `push_back`, `begin`, `end`, `size`, `empty`, `clear`.
 // - There shall be one class per header file.
 // - The name of the header file and the class it declares shall be identical.
 // - Generally, there shall be one way to do something.  
@@ -23,12 +25,13 @@
 // - There shall be no unnecessary implementation code in headers.
 // - Unit tests shall be written for each class and each function in each class.
 // - Doxygen-style documentation should be provided for each class and each public function within the class.
-// - #ifdef to conditionally compile code is not desireable.
+// - `#ifdef` to conditionally compile code is not desireable.  It should be avoided especially in header files.
 // - All code should compile on gcc, clang, and visual studio.
 // - Implementation shall not rely on user paths, environment variables, or other externals.
 // - Reduce (aim to eliminate) use of 3rd party libraries.
 //   - Limited use of Boost is expected.
 // - Generally aim to conform to the C++ Core Guidelines.
+// - Do not hold raw pointers external to the IR.  Use them with a local scope (limited lifetime) only.
 // 
 
 ///
@@ -115,6 +118,50 @@ public:
 }
 
 ///
+/// \enum FileFormat
+///
+enum class FileFormat
+{
+    Undefined,
+    COFF,
+    ELF,
+    PE,
+    IdaProDb32, /// IDA Pro database file
+    IdaProDb64, /// IDA Pro database file
+    XCOFF, /// Non-COFF (files start with ANON_OBJECT_HEADER*)
+    MACHO
+};
+
+///
+/// \enum FileFunction
+///
+/// Also known as the file type.
+/// "File Type" was not used to avoid confusion with FileFormat.
+///
+enum class FileFunction
+{
+    Undefined,
+    Object,
+    DynamicLibrary,
+    Executable
+};
+
+///
+/// \enum ISAID
+///
+/// ISA ID
+///
+enum class ISAID
+{
+    Undefined,
+    IA32,
+    PPC32,
+    X64,
+    ARM,
+    ValidButUnsupported
+};
+
+///
 /// \class TableStore
 ///
 /// The TableStore acts like a look-up table for data for either cross-module or intra-module data.
@@ -171,8 +218,10 @@ private:
 /// |---------------------------------------------------------------------------
 /// |          | | |                 | |                 | |                 | |
 /// Symbols    | | RegionGlobal      | RegionHeap        | RegionModule      | RegionAbstract      
-///            | ProcedureInfo       CFGNode(N)          RegionStack         RegionExtern        
-///            Procedure(N)
+///            | |                   |                   |                   | 
+///            | ProcedureInfo       CFG                 RegionStack         RegionExtern        
+///            |                       |
+///            Procedure(N)            CFGNode 
 /// 
 class Node
 {
@@ -495,6 +544,7 @@ public:
         public:
             // No special functions.
             // What goes here?
+            // https://api.binary.ninja/binaryninja.function.Function.html
         };
 
         ///
@@ -601,7 +651,10 @@ public:
                 void setIsNameOnly(bool x);
                 bool getIsNameOnly() const;
 
-                void setRegion(std::weak_ptr<Symbol::Region> x);
+                ///
+                /// \param x A reference owned externally as a shared_ptr.
+                ///
+                void setRegion(Symbol::Region* x);
                 Symbol::Region* getRegion() const;
 
                 void setDeclarationKind(Symbol::DeclarationKind x);
@@ -617,13 +670,23 @@ public:
                 bool getIsGlobal() const;
 
                 // Should we make this our parent in the tree or forward to it?
-                void setParentSymbol(std::weak_ptr<gtirb::Symbol> x);
+
+                ///
+                /// \param x A reference owned externally as a shared_ptr.
+                ///
+                void setParentSymbol(gtirb::Symbol* x);
                 gtirb::Symbol* getOwnerSymbol() const;
 
-                void setForwardSymbol(std::weak_ptr<gtirb::Symbol> x);
+                ///
+                /// \param x A reference owned externally as a shared_ptr.
+                ///
+                void setForwardSymbol(gtirb::Symbol* x);
                 gtirb::Symbol* getForwardSymbol() const;
 
-                void setReplacementSymbol(std::weak_ptr<gtirb::Symbol> x);
+                ///
+                /// \param x A reference owned externally as a shared_ptr.
+                ///
+                void setReplacementSymbol(gtirb::Symbol* x);
                 gtirb::Symbol* getReplacementSymbol() const;
 
             };
@@ -659,36 +722,67 @@ public:
         ///
         /// \class ProcedureInfo
         ///
+        /// Does this belong in the ir?  When reduced to its core, it seems to be the pre-CFG 
+        /// information about a procedure, that is, the information that we have before we begin 
+        /// disassembly.  Anything that is needed after disassembly should properly be in the CFG, 
+        /// at which point, this is no longer needed. However, currently, fProcInfo is very 
+        /// pervasive.  How much of that is just for information that we would move to CFG, I don't 
+        /// know.
+        ///
         class ProcedureInfo final : public ModuleData
         {
         public:
             bool operator<(gtirb::ModuleData& x);
             virtual operator std::string() const override;
 
+            ///
             /// Symbols are owned by the IR->Module->Symbols
-            void setProcedureNameSymbol(std::weak_ptr<gtirb::Symbol> x)
+            ///
+            /// \param x A reference owned externally as a shared_ptr.
+            ///
+            void setProcedureNameSymbol(gtirb::Symbol* x);
             gtirb::Symbol* getProcedureNameSymbol() const;
 
             // Can there be more than one per Module?  That is, do we need to set this or can we 
             // just walk up the tree and get it?
-            void setModuleSummary(std::weak_ptr<gtirb::ModuleSummary> x);
+
+            ///
+            /// \param x A reference owned externally as a shared_ptr.
+            ///
+            void setModuleSummary(gtirb::ModuleSummary* x);
             gtirb::ModuleSummary* getModuleSummary();
 
+            ///
             /// Symbols are owned by the IR->Module->Symbols
-            std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSymbolToSymbolMap();
-            const std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSymbolToSymbolMap() const;
+            ///
+            /// \param x A reference owned externally as a shared_ptr.
+            ///
+            std::map<gsl::not_null<gtirb::Symbol*>, gsl::not_null<gtirb::Symbol*>>& getSymbolToSymbolMap();
+            const std::map<gsl::not_null<gtirb::Symbol*>, gsl::not_null<gtirb::Symbol*>>& getSymbolToSymbolMap() const;
 
+            ///
             /// Symbols are owned by the IR->Module->Symbols
-            std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSaveToRestoreSymbolMap();
-            const std::map<std::weak_ptr<gtirb::Symbol>, std::weak_ptr<gtirb::Symbol>>& getSaveToRestoreSymbolMap() const;
+            ///
+            /// \param x A reference owned externally as a shared_ptr.
+            ///
+            std::map<gsl::not_null<gtirb::Symbol*>, gsl::not_null<gtirb::Symbol*>>& getSaveToRestoreSymbolMap();
+            const std::map<gsl::not_null<gtirb::Symbol*>, gsl::not_null<gtirb::Symbol*>>& getSaveToRestoreSymbolMap() const;
 
-            /// The RegionHeap is owned by the IR->Module
-            std::map<gtirb::EA, std::weak_ptr<gtirb::RegionHeap>>& getEAToHeapRegionMap();
-            const std::map<gtirb::EA, std::weak_ptr<gtirb::RegionHeap>>& getEAToHeapRegionMap() const;
-
+            ///
             /// Symbols are owned by the IR->Module->Symbols
-            void addSummarizedRegisterConditionalKills(std::weak_ptr<gtirb::Symbol> x);
-            std::weak_ptr<gtirb::Symbol> getSummarizedRegisterConditionalKills() const;
+            ///
+            /// \param x A reference owned externally as a shared_ptr.
+            ///
+            std::map<gtirb::EA, gsl::not_null<gtirb::RegionHeap*>>& getEAToHeapRegionMap();
+            const std::map<gtirb::EA, gsl::not_null<gtirb::RegionHeap*>>& getEAToHeapRegionMap() const;
+
+            ///
+            /// Symbols are owned by the IR->Module->Symbols
+            ///
+            /// \param x A reference owned externally as a shared_ptr.
+            ///
+            void addSummarizedRegisterConditionalKills(gtirb::Symbol* x);
+            gtirb::Symbol* getSummarizedRegisterConditionalKills() const;
 
             /// Address relative to?
             void setFrameBase(int64_t);
@@ -711,7 +805,7 @@ public:
         {
         public:
             // Convienence function.
-            std::vector<std::weak_ptr<Symbol>> getSymbols();
+            std::vector<gsl::not_null<Symbol*>> getSymbols();
 
             void operator+=(Region& x);
             bool operator<(Region& x);
@@ -749,11 +843,11 @@ public:
             };
 
             /// Symbols are owned by the IR->Module->Symbols
-            gsl::not_null<Symbol*> getReturnSymbol() const;
-            gsl::not_null<Symbol*> getResultSymbol() const;
+            Symbol* getReturnSymbol() const;
+            Symbol* getResultSymbol() const;
 
             /// Symbols are owned by the IR->Module
-            gsl::not_null<ProcedureInfo*> getProcedureInfo() const;
+            ProcedureInfo* getProcedureInfo() const;
 
             void setProcID(int64_t x);
             int64_t getProcID() const;
@@ -768,19 +862,20 @@ public:
         public:
             enum class HeapSubtype 
             {
+                Undefined,
                 MRAB,
                 NMRAB,
                 Distinct,
             };
 
-            gsl::not_null<RegionHeap*> getCompanionMRAB() const;
-            gsl::not_null<RegionHeap*> getCompanionNMRAB() const;
+            RegionHeap* getCompanionMRAB() const;
+            RegionHeap* getCompanionNMRAB() const;
 
-            gsl::not_null<RegionHeap*> getCompanionDistinct(size_t x) const;
+            RegionHeap* getCompanionDistinct(size_t x) const;
             size_t getCompanionDistinctSize() const;
 
-            gsl::not_null<Symbol*> getCountSymbol();
-            gsl::not_null<Symbol*> getSizeSymbol();
+            Symbol* getCountSymbol();
+            Symbol* getSizeSymbol();
 
             void setHeapSubtype(RegionHeap::HeapSubtype x);
             RegionHeap::HeapSubtype getHeapSubtype() const;
@@ -798,89 +893,227 @@ public:
             // What goes here?
         };
 
-        class CFGNode final : public ModuleData
+        class CFG final : public ModuleData
         {
         public:
-            enum Kind {
-                Unknown, /// Default
-                ActualIn,
-                ActualOut,
-                Call,
-                ControlPoint,
-                ControlTarget,
-                Goto,
-                Break,
-                Label,
-                VarDecl,
-                EndCall,
-                Enter,
-                Exit,
-                Exp,
-                FormalIn,
-                FormalOut,
-                Return,
-                Switch,
-                EndReturn,
-                Indirect,
-                UserDefined /// The last slot in the enumeration so users can add their own types 
-                            /// using this as an offset.
-            };
-
-            class CFGNodeAttribute : public ModuleData
+            class CFGNode final : public ModuleData
             {
             public:
-                // What goes here?
+                enum Kind {
+                    Unknown, /// Default
+                    ActualIn,
+                    ActualOut,
+                    Break,
+                    Call,
+                    ControlPoint,
+                    ControlTarget,
+                    EndCall,
+                    EndReturn,
+                    Enter,
+                    Exit,
+                    Exp,
+                    FormalIn,
+                    FormalOut,
+                    Goto,
+                    Indirect,
+                    Label,
+                    Return,
+                    Switch,
+                    VarDecl,
+                    UserDefined /// The last slot in the enumeration so users can add their own types 
+                                /// using this as an offset.
+                };
+
+                class BasicBlock : public ModuleData
+                {
+                public:
+                    class ClientField
+                    {
+                    public:
+                        class ClientFieldX86 : public ClientField
+                        {
+                        public:
+                            ///
+                            /// Position info (index in .pos file)
+                            ///
+                            void setPosition(int64_t x);
+                            int64_t getPosition() const;
+
+                            ///
+                            /// Dataflow analysis iteration priority (intra-procedural)
+                            ///
+                            void setPriority(uint64_t x);
+                            uint64_t getPriority() const;
+
+                            ///
+                            /// Additional user/client data
+                            ///
+                            void setUserData(void* x);
+                            void* getUserData() const;
+                        }
+                    }
+
+                    // https://api.binary.ninja/_modules/binaryninja/basicblock.html#BasicBlockEdge.__init__
+                    class BasicBlockEdge
+                    {
+                    public:
+                        // Branch Type
+                        // Source
+                        // Target
+                        // Back Edge
+                    };
+
+                    void setLeader(CFGNode* x);
+                    CFGNode* getLeader() const;
+
+                    void setTail(CFGNode* x);
+                    CFGNode* getTail() const;
+
+                    void setParent(CFGNode* x);
+                    CFGNode* getParent() const;
+
+                    void setClientField(std::unique_ptr<ClientField>&& x);
+                    ClientField* getClientField() const;
+
+                    ///
+                    /// Whether basic block can return or is tagged as ‘No Return’ (read-only)
+                    /// Based on Binary Ninja.
+                    ///
+                    void setCanExit(bool x);
+                    bool getCanExit() const;
+
+                    ///
+                    /// List of basic block incoming edges (read-only)
+                    /// Based on Binary Ninja.
+                    /// https://api.binary.ninja/binaryninja.basicblock.BasicBlock.html
+                    ///
+                    std::vector<BasicBlockEdge*> getIncomingEdges() const;
+                    
+                    ///
+                    /// List of basic block outgoing edges (read-only)
+                    /// Based on Binary Ninja.
+                    /// https://api.binary.ninja/binaryninja.basicblock.BasicBlock.html
+                    ///
+                    std::vector<BasicBlockEdge*> getOutgoingEdges() const;
+                };
+
+                class CFGNodeAttribute : public ModuleData
+                {
+                public:
+                    // What goes here?
+                };
+
+                class RegisterType : public CFGNodeAttribute
+                {
+                public:
+                    /// Symbols are owned by the IR->Module->Symbols.
+                    void set(gtirb::Symbol* x);
+                    gtirb::Symbol* get() const;
+                }
+
+                ///
+                /// \class NodeSpecificInfo
+                ///
+                /// Node-Specific Information (NSI)
+                ///
+                class NodeSpecificInfo
+                {
+                public:
+                    class NodeSpecificInfoCall : public NodeSpecificInfo
+                    {
+                    public:
+                        void setKey(int64_t x);
+                        int64_t getKey() const;
+
+                        // Where are these flags defined?
+                        void setFlags(uint64_t x);
+                        uint64_t getFlags() const;
+
+                        void setReturnSpAdjust(int64_t x);
+                        int64_t getReturnSpAdjust() const;
+
+                        void setImportTableEntryEA(gtirb::EA x);
+                        gtirb::EA getImportTableEntryEA() const;
+                    };
+
+                    class NodeSpecificInfoEntry : public NodeSpecificInfo
+                    {
+                    public:
+                        /// Symbols are owned by the IR->Module->Symbols
+                        void setProcedureNameSymbol(gtirb::Symbol* x);
+                        gtirb::Symbol* getProcedureNameSymbol() const;
+                    }
+
+                    class NodeSpecificInfoDeclares : public NodeSpecificInfo
+                    {
+                    public:
+                        /// Symbols are owned by the IR->Module->Symbols
+                        void setProcedureNameSymbol(gtirb::Symbol* x);
+                        gtirb::Symbol* getProcedureNameSymbol() const;
+                    }
+
+                    class NodeSpecificInfoActualIn : public NodeSpecificInfo
+                    {
+                    public:
+                        /// Symbols are owned by the IR->Module->Symbols
+                        void setProcedureNameSymbol(gtirb::Symbol* x);
+                        gtirb::Symbol* getProcedureNameSymbol() const;
+                    }
+
+                    class NodeSpecificInfoFormalIn : public NodeSpecificInfo
+                    {
+                    public:
+                        /// Symbols are owned by the IR->Module->Symbols
+                        void setProcedureNameSymbol(gtirb::Symbol* x);
+                        gtirb::Symbol* getProcedureNameSymbol() const;
+                    }
+                };
+
+                constexpr DecodeModeDefault{0};
+                constexpr DecodeModeUnknown{std::limits<uint64_t>::max()};
+
+                void setVertexID(int64_t);
+                int64_t getVertexID() const;
+
+                ///
+                /// Based on CFGNode::Kind enumeration.
+                ///
+                void setKind(int x);
+                int getKind() const;
+
+                void setEA(gtirb::EA x);
+                gtirb::EA getEA() const;
+
+                void setAffiliatedEA(gtirb::EA x);
+                gtirb::EA getAffiliatedEA() const;
+
+                void setInstructionStackPointerDelta(int64_t x);
+                int64_t getInstructionStackPointerDelta() const;
+
+                void setRelativeStackPointer(int64_t x);
+                int64_t getRelativeStackPointer() const;
+
+                void setRelativeBasePointer(int64_t x);
+                int64_t getRelativeBasePointer() const;
+
+                void setFrameDelta(int64_t x);
+                int64_t getFrameDelta() const;
+
+                void setReturnSpAdjust(int64_t x);
+                int64_t getReturnSpAdjust() const;
+
+                void setSpAdjust(int64_t x);
+                int64_t getSpAdjust() const;
+
+                void setIsWideningPoint(bool x);
+                bool getIsWideningPoint() const;
+
+                void setDecodeMode(uint64_t x);
+                uint64_t getDecodeMode();
+
+                void setNodeSpecificInfo(std::unique_ptr<NodeSpecificInfo>&& x);
+                NodeSpecificInfo* getNodeSpecificInfo() const;
             };
-
-            class RegisterType : public CFGNodeAttribute
-            {
-            public:
-                /// Symbols are owned by the IR->Module->Symbols.
-                void set(std::weak_ptr<gtirb::Symbol> x);
-                gtirb::Symbol* get() const;
-            }
-
-            constexpr DecodeModeDefault{0};
-            constexpr DecodeModeUnknown{std::limits<uint64_t>::max()};
-
-            void setVertexID(int64_t);
-            int64_t getVertexID() const;
-
-            ///
-            /// Based on CFGNode::Kind enumeration.
-            ///
-            void setKind(int x);
-            int getKind() const;
-
-            void setEA(gtirb::EA x);
-            gtirb::EA getEA() const;
-
-            void setAffiliatedEA(gtirb::EA x);
-            gtirb::EA getAffiliatedEA() const;
-
-            void setInstructionStackPointerDelta(int64_t x);
-            int64_t getInstructionStackPointerDelta() const;
-
-            void setRelativeStackPointer(int64_t x);
-            int64_t getRelativeStackPointer() const;
-
-            void setRelativeBasePointer(int64_t x);
-            int64_t getRelativeBasePointer() const;
-
-            void setFrameDelta(int64_t x);
-            int64_t getFrameDelta() const;
-
-            void setReturnSpAdjust(int64_t x);
-            int64_t getReturnSpAdjust() const;
-
-            void setSpAdjust(int64_t x);
-            int64_t getSpAdjust() const;
-
-            void setIsWideningPoint(bool x);
-            bool getIsWideningPoint() const;
-
-            void setDecodeMode(uint64_t x);
-            uint64_t getDecodeMode();
         };
 
         class Procedure : public ModuleData
@@ -889,13 +1122,48 @@ public:
             class Instruction : public ModuleData
             {
             public:
+                void setEA(gtirb::EA x);
+                gtirb::EA getEA() const;
+
+                ///
+                /// From WALA.
+                /// https://github.com/wala/WALA/wiki/Intermediate-Representation-(IR)
+                ///
+                void setIsFallthrough(bool x);
+                bool getIsFallthrough() const;
+
+                ///
+                /// From WALA.
+                /// Can this instruction thrown an exception?
+                /// https://github.com/wala/WALA/wiki/Intermediate-Representation-(IR)
+                ///
+                void setIsPEI(bool x);
+                bool getIsPEI() const;
+
+                void setNumberOfUses(int64_t x);
+                int64_t getNumberOfUses() const;
             };
 
+            ///
             /// Procedure Linkage Table.
             /// These entries are basically the "thunks" for calls to things in shared libraries.
+            ///
             std::set<EA>& getPLTEntries();
             const std::set<EA>& getPLTEntries() const;
         };
+
+        // Is this correct? (content and placement in hierarchy)
+        class ImportTableEntry
+        {
+        public:
+            // dll name
+            // function name
+            // section relative EA
+            // section number
+            // absolute EA
+            // hint ordinal
+            // copy
+        }
 
         virtual operator std::string() const;
 
@@ -908,14 +1176,14 @@ public:
         void setRebaseDelta(int64_t x);
         int64_t getRebaseDelta() const;
 
-        gsl::not_null<ModuleSummary*> getModuleSummary();
-        gsl::not_null<ModuleSummary const * const> getModuleSummary() const;
+        ModuleSummary* getModuleSummary();
+        ModuleSummary const * const getModuleSummary() const;
         
-        gsl::not_null<ModuleCore*> getModuleCore();
-        gsl::not_null<ModuleCore const * const> getModuleCore() const;
+        ModuleCore* getModuleCore();
+        ModuleCore const * const getModuleCore() const;
 
-        gsl::not_null<ModuleAux*> getModuleAux();
-        gsl::not_null<ModuleAux const * const> getModuleAux() const;
+        ModuleAux* getModuleAux();
+        ModuleAux const * const getModuleAux() const;
 
         void setCacheModuleName(std::string x);
         std::string getCacheModuleName() const;
@@ -934,6 +1202,11 @@ public:
         ///
         std::vector<uint8_t> getChildrenBytes8(gtirb::EA x, size_t nbytes) const;
         std::vector<uint8_t> getChildrenBytesUntil(gtirb::EA x, size_t nbytes, std::function<bool(uint8_t)> passFunction) const;
+
+        // Is this correct?
+        void addImportTableEntry(std::unique_ptr<ImportTableEntry>&& x);
+        std::set<gsl::not_null<ImportTableEntry*>>& getImportTable();
+        const std::set<gsl::not_null<ImportTableEntry*>>& getImportTable() const;
     };
 
     bool operator<(IR& x);
@@ -1004,21 +1277,67 @@ struct ASTHash
 
 namespace gtirb
 {
-std::vector<uint16_t> ByteArray8To16(const std::vector<uint8_t>& x);
-std::vector<uint32_t> ByteArray8To32(const std::vector<uint8_t>& x);
-std::vector<uint64_t> ByteArray8To64(const std::vector<uint8_t>& x);
+    namespace utilities
+    {
+        std::vector<uint16_t> ByteArray8To16(const std::vector<uint8_t>& x);
+        std::vector<uint32_t> ByteArray8To32(const std::vector<uint8_t>& x);
+        std::vector<uint64_t> ByteArray8To64(const std::vector<uint8_t>& x);
 
-void PrettyPrint(gsl::not_null<gtirb::IR*>, std::filesystem::path outFile);
-Value* GTIRB2LLVM(gsl::not_null<gtirb::IR*>);
-std::unique_ptr<gtirb::Module> LoadModule(std::filesystem::path& x);
+        void PrettyPrint(gsl::not_null<const gtirb::IR* const> x, const std::filesystem::path outFile);
+ 
+        gsl::not_null<llvm::Value*> GTIRB2LLVM(gsl::not_null<const gtirb::IR* const>);
+
+        std::unique_ptr<gtirb::Module> LoadModule(const std::filesystem::path& x);
+        bool LoadModuleSummary(gsl::not_null<gtirb::Module*> m, const std::filesystem::path& x);
+        bool LoadModuleCore(gsl::not_null<gtirb::Module*> m, const std::filesystem::path& x);
+
+        ///
+        /// Given a file name, attempt to determine the file's format, function, and ISA type.
+        ///
+        /// \param p        The path to the file to check.
+        /// \param offset   Used for suspected MACO Image files.
+        ///
+        /// \return         Check the return tuple values for their "Unknown" state on failure. The return 
+        ///                 tuple's integer value will be set only for ELF format files (nbits).
+        ///
+        std::tuple<gtirb::FileFormat, gtirb::FileFunction, gtirb::ISAID, int> 
+        GetFileFormat(const std::filesystem::path& p, int64_t offset = 0);
+
+        ///
+        /// Convert COFF machine type to ISAID.
+        ///
+        gtirb::ISAID CoffCPUTypeToISAID(uint16_t x);
+
+        ///
+        /// Convert Mach-O machine type to ISAID.
+        ///
+        gtirb::ISAID MachOCPUTypeToISAID(uint32_t x);
+
+        ///
+        /// C++ Name Demangling
+        ///
+        std::string DemangleCPPVisualStudio(const std::string& x);
+        std::string DemangleCPPGNU(const std::string& x);
+
+        ///
+        /// Symbol Computations
+        ///
+        std::set<Symbol*> GetSymbolsDefd(gsl::not_null<gtirb::Module*> x);
+        std::set<Symbol*> GetSymbolsConditionallyKilled(gsl::not_null<gtirb::Module*> x);
+        std::set<Symbol*> GetSymbolsUsed(gsl::not_null<gtirb::Module*> x);
+        std::set<Symbol*> GetSymbolsDeclUsed(gsl::not_null<gtirb::Module*> x);
+    }
 }
 
-// Conversion with legacy IR types.
-AnalysisEnvironment* GTIRB2AnalysisEnvironment(gsl::not_null<gtirb::IR*>, FATOBJ_STORE_ID store_id);
-ModuleIR* GTIRB2ModuleIR(gsl::not_null<gtirb::Module*>, FATOBJ_STORE_ID store_id);
+namespace gtProprietary
+{
+    // Conversion with legacy IR types.
+    AnalysisEnvironment* GTIRB2AnalysisEnvironment(gsl::not_null<const gtirb::IR* const > x, FATOBJ_STORE_ID store_id);
+    ModuleIR* GTIRB2ModuleIR(gsl::not_null<const gtirb::Module* const> x, FATOBJ_STORE_ID store_id);
 
-std::unique_ptr<gtirb::IR> ModuleIR2GTIRB(ModuleIR* x);
-std::unique_ptr<gtirb::IR> AnalysisEnvironment2GTIRB(AnalysisEnvironment* x);
+    std::unique_ptr<gtirb::IR> ModuleIR2GTIRB(gsl::not_null<const ModuleIR* const> x);
+    std::unique_ptr<gtirb::IR> AnalysisEnvironment2GTIRB(gsl::not_null<const AnalysisEnvironment* const> x);
+}
 
 // -------------------------------------------------------------------------------------------------
 // EXAMPLE USEAGE
