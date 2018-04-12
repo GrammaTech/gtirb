@@ -162,17 +162,17 @@ enum class ISAID
 };
 
 ///
-/// \class TableStore
+/// \class Table
 ///
-/// The TableStore acts like a look-up table for data for either cross-module or intra-module data.
+/// The Table acts like a look-up table for data for either cross-module or intra-module data.
 /// While some data may be very node-specific, the table stores arbitrary data that spans many nodes.
 ///
 template<typename R = std::weak_ptr<gtirb::Node>, typename C = std::string, typename T = std::any> 
-class TableStore
+class Table
 {
 public:
-    void TableStore(std::string x);
-    virtual ~TableStore();
+    void Table(std::string x);
+    virtual ~Table();
 
     std::string getTableName() const;
 
@@ -413,18 +413,18 @@ public:
     ///
     /// Create a table store owned by this node.
     ///
-    void addTableStore(std::unique_ptr<gtirb::TableStore*>&& x);
+    void addTable(std::unique_ptr<gtirb::Table*>&& x);
 
     ///
     /// Remove a table store owned by this node.
     ///
-    bool removeTableStore(gtirb::TableStore* x);
+    bool removeTable(gtirb::Table* x);
 
     ///
     /// Get a table store by name.
     /// Starting at this node, will search "up" the tree until the given table is found or return null.
     ///
-    gtirb::TableStore* getTableStore(const std::string& x);
+    gtirb::Table* getTable(const std::string& x);
 
     void traverseDepthFirst(std::function<void(gsl::not_null<gtirb::Node*>)> x);
     void traverseBreadthFirst(std::function<void(gsl::not_null<gtirb::Node*>)> x);
@@ -558,11 +558,11 @@ public:
         };
 
         ///
-        /// \class Symbols
+        /// \class SymbolSet
         ///
         /// Owns all symbols.
         ///
-        class Symbols : public ModuleBase
+        class SymbolSet : public ModuleBase
         {
         public:
             ///
@@ -801,7 +801,7 @@ public:
             int64_t getOffsetOfSaveRegisterSlot() const;
         };
 
-        class Region : public ModuleData
+        class Region : public ModuleBase
         {
         public:
             // Convienence function.
@@ -826,7 +826,7 @@ public:
         class RegionAbstract final : public Region
         {
         public:
-            class Scope : public ModuleData
+            class Scope : public ModuleBase
             {
             public:
                 ///
@@ -893,10 +893,10 @@ public:
             // What goes here?
         };
 
-        class CFG final : public ModuleData
+        class CFG final : public ModuleBase
         {
         public:
-            class CFGNode final : public ModuleData
+            class CFGNode final : public ModuleBase
             {
             public:
                 enum Kind {
@@ -1550,7 +1550,7 @@ void BuildAndUseTable()
     
     auto module = ir[0];
 
-    using SymbolTable = gtirb::TableStore<std::weak_ptr<Symbol>, std::string, std::any>>;
+    using SymbolTable = gtirb::Table<std::weak_ptr<Symbol>, std::string, std::any>>;
     auto symbolTable = std::make_shared<SymbolTable>("Symbol Table");
     module->addTable(std::move(symbolTable));
 
@@ -1565,8 +1565,8 @@ void BuildAndUseTable()
             auto globalRegion = mir->get_global_region();
             fSymbol_LGrip fsym_lgrip = globalRegion->lookup_symbol(s->getEA());
 
-            // The table is stored on the module, so "getTableStore" will walk up until it finds it.
-            auto symbolTable = dynamic_cast<SymbolTable*>(s->getTableStore("Symbol Table"));
+            // The table is stored on the module, so "getTable" will walk up until it finds it.
+            auto symbolTable = dynamic_cast<SymbolTable*>(s->getTable("Symbol Table"));
 
             // Two ways to get to and set the data.
 
