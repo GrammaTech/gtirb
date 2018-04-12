@@ -4,14 +4,14 @@
 
 namespace gtirb
 {
-	class GTIRB_GTIRB_EXPORT_API NodeStructureError : public gtirb::NodeError
-	{
-	public:
-		NodeStructureError() = default;
-		NodeStructureError(std::string file, int line);
-		
-		virtual ~NodeStructureError() = default;
+    class GTIRB_GTIRB_EXPORT_API NodeStructureError : public gtirb::NodeError
+    {
+    public:
+        NodeStructureError() = default;
+        NodeStructureError(std::string file, int line);
 
-		virtual const char* what() const noexcept override;
-	};
+        virtual ~NodeStructureError() = default;
+
+        virtual const char* what() const noexcept override;
+    };
 }
