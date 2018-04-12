@@ -8,5 +8,5 @@ NodeStructureError::NodeStructureError(std::string file, int line) : gtirb::Node
 
 const char* NodeStructureError::what() const noexcept
 {
-	return "GT-IRB Node Structure Error.";
+    return "GT-IRB Node Structure Error.";
 }

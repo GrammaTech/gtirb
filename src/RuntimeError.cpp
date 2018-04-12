@@ -8,5 +8,5 @@ RuntimeError::RuntimeError(std::string file, int line) : gtirb::Exception{file, 
 
 const char* RuntimeError::what() const noexcept
 {
-	return "GT-IRB Runtime Error.";
+    return "GT-IRB Runtime Error.";
 }
