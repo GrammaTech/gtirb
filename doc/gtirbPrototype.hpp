@@ -508,25 +508,25 @@ public:
     {
     public:
         ///
-        /// \class ModuleData
+        /// \class ModuleNode
         ///
         /// This class exists to create the type.  The type can then be controlled as only being 
         /// able to be a child of a module, thus controlling the structure.
         ///
-        class ModuleData : public Node
+        class ModuleNode : public Node
         {
             // No special functions.
         };
 
         ///
-        /// \class ModuleBase
+        /// \class ModuleSectionBase
         ///
         /// A base class for Module sections (Summary, Core, Aux).
         ///
-        class ModuleBase : public ModuleData
+        class ModuleSectionBase : public ModuleNode
         {
         public:
-            virtual ~ModuleBase();
+            virtual ~ModuleSectionBase();
 
             bool getIsSetupComplete() const;
             bool getIsReadOnly() const;
@@ -539,7 +539,7 @@ public:
         ///
         /// \class Functions
         ///
-        class Functions final : public ModuleBase
+        class Functions final : public ModuleNode
         {
         public:
             // No special functions.
@@ -550,7 +550,7 @@ public:
         ///
         /// \class Globals
         ///
-        class Globals final : public ModuleBase
+        class Globals final : public ModuleNode
         {
         public:
             // No special functions.
@@ -562,7 +562,7 @@ public:
         ///
         /// Owns all symbols.
         ///
-        class SymbolSet : public ModuleBase
+        class SymbolSet : public ModuleNode
         {
         public:
             ///
@@ -571,7 +571,7 @@ public:
             /// Users can inherit from this and build their own custom symbol types, if required.
             /// Classes such as XType could be added by the user via properties or children.
             ///
-            class Symbol final : public ModuleData
+            class Symbol final : public ModuleNode
             {
             public:
                 enum class Type
@@ -695,7 +695,7 @@ public:
         ///
         /// \class AddrRanges
         ///
-        class AddrRanges : public ModuleData
+        class AddrRanges : public ModuleNode
         {
         public:
             virtual operator std::string() const;
@@ -729,10 +729,10 @@ public:
         /// pervasive.  How much of that is just for information that we would move to CFG, I don't 
         /// know.
         ///
-        class ProcedureInfo final : public ModuleData
+        class ProcedureInfo final : public ModuleNode
         {
         public:
-            bool operator<(gtirb::ModuleData& x);
+            bool operator<(gtirb::ModuleNode& x);
             virtual operator std::string() const override;
 
             ///
@@ -801,7 +801,7 @@ public:
             int64_t getOffsetOfSaveRegisterSlot() const;
         };
 
-        class Region : public ModuleBase
+        class Region : public ModuleNode
         {
         public:
             // Convienence function.
@@ -826,7 +826,7 @@ public:
         class RegionAbstract final : public Region
         {
         public:
-            class Scope : public ModuleBase
+            class Scope : public ModuleNode
             {
             public:
                 ///
@@ -893,10 +893,10 @@ public:
             // What goes here?
         };
 
-        class CFG final : public ModuleBase
+        class CFG final : public ModuleNode
         {
         public:
-            class CFGNode final : public ModuleBase
+            class CFGNode final : public ModuleNode
             {
             public:
                 enum Kind {
@@ -924,7 +924,7 @@ public:
                                 /// using this as an offset.
                 };
 
-                class BasicBlock : public ModuleData
+                class BasicBlock : public ModuleNode
                 {
                 public:
                     class ClientField
@@ -997,7 +997,7 @@ public:
                     std::vector<BasicBlockEdge*> getOutgoingEdges() const;
                 };
 
-                class CFGNodeAttribute : public ModuleData
+                class CFGNodeAttribute : public ModuleNode
                 {
                 public:
                     // What goes here?
@@ -1109,17 +1109,17 @@ public:
                 bool getIsWideningPoint() const;
 
                 void setDecodeMode(uint64_t x);
-                uint64_t getDecodeMode();
+                uint64_t getDecodeMode() const;
 
                 void setNodeSpecificInfo(std::unique_ptr<NodeSpecificInfo>&& x);
                 NodeSpecificInfo* getNodeSpecificInfo() const;
             };
         };
 
-        class Procedure : public ModuleData
+        class Procedure : public ModuleNode
         {
         public:
-            class Instruction : public ModuleData
+            class Instruction : public ModuleNode
             {
             public:
                 void setEA(gtirb::EA x);
@@ -1163,7 +1163,38 @@ public:
             // absolute EA
             // hint ordinal
             // copy
-        }
+        };
+
+        class ModuleSummary : public ModuleSectionBase
+        {
+        public:
+            void setName(std::string x);
+            std::string getName() const;
+
+            void setFilePath(std::filesystem::path x);
+            std::filesystem::path getFilePath() const;
+
+            void setPreferredEA(EA x);
+            EA getPreferredEA() const;
+
+            void setDecodeMode(uint64_t x);
+            uint64_t getDecodeMode() const;
+
+            void setRegionGlobal(RegionGlobal* x);
+            RegionGlobal* getRegionGlobal() const;
+        };
+
+        class ModuleCore : public ModuleSectionBase
+        {
+        public:
+            // What goes here?
+        };
+
+        class ModuleAux : public ModuleSectionBase
+        {
+        public:
+            // What goes here?
+        };
 
         virtual operator std::string() const;
 
@@ -1343,7 +1374,7 @@ namespace gtProprietary
 // EXAMPLE USEAGE
 // -------------------------------------------------------------------------------------------------
 
-class Foo : public ModuleData
+class Foo : public ModuleNode
 {
 public:
     void setMyData(int64_t x);

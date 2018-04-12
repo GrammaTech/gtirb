@@ -15,7 +15,6 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">IR</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
-			<tr><td port="" border="1">int64_t</td></tr>
 		</table>>
 	]
 
@@ -23,27 +22,24 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Module</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
-			<tr><td port="" border="1">int64_t</td></tr>
 		</table>>
 	]
 
 	IR:class -> Module:class [headport=left, tailport=right];
 
-	ModuleBase [shape=none, label=
+	ModuleNode [shape=none, label=
 		<<table border="0" cellspacing="0">
-			<tr><td port="class" border="1" bgcolor="gold">ModuleBase</td></tr>
+			<tr><td port="class" border="1" bgcolor="gold">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
-			<tr><td port="" border="1">isSetupComplete</td></tr>
-			<tr><td port="" border="1">isReadOnly</td></tr>
 		</table>>
 	]
 
-	Module:class -> ModuleBase:class [headport=left, tailport=right];
+	Module:class -> ModuleNode:class [headport=left, tailport=right];
 
 	Functions [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Functions</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -53,7 +49,7 @@ digraph quadtree {
 	Globals [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Globals</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -63,7 +59,7 @@ digraph quadtree {
 	SymbolSet [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">SymbolSet</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -73,18 +69,22 @@ digraph quadtree {
 	Symbol [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Symbol</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
 
 	SymbolSet:class -> Symbol:class [headport=left, tailport=right];
-	Symbol:region -> Region:class [headport=left, tailport=right, style=dashed];
+	Symbol:region -> RegionGlobal:class [headport=left, tailport=right, style=dashed];
+	Symbol:region -> RegionModule:class [headport=left, tailport=right, style=dashed];
+	Symbol:region -> RegionStack:class [headport=left, tailport=right, style=dashed];
+	Symbol:region -> RegionExtern:class [headport=left, tailport=right, style=dashed];
+	Symbol:region -> RegionHeap:class [headport=left, tailport=right, style=dashed];
 
 	AddrRanges [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">AddrRanges</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -94,7 +94,7 @@ digraph quadtree {
 	ProcedureInfo [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">ProcedureInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -108,7 +108,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegionGlobal</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Region</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -119,7 +119,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegionModule</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Region</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -130,7 +130,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegionAbstract</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Region</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -140,7 +140,7 @@ digraph quadtree {
 	Scope [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Scope</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -153,7 +153,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegionHeap</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Region</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -165,7 +165,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegionStack</td></tr>
 			<tr><td port="class" border="1" bgcolor="grey64">Region</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -176,7 +176,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegionExtern</td></tr>
 			<tr><td port="class" border="1" bgcolor="grey64">Region</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -186,7 +186,7 @@ digraph quadtree {
 	CFG [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">CFG</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -196,7 +196,7 @@ digraph quadtree {
 	CFGNode [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">CFGNode</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -206,7 +206,7 @@ digraph quadtree {
 	BasicBlock [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">BasicBlock</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -232,7 +232,7 @@ digraph quadtree {
 	CFGNodeAttribute [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">CFGNodeAttribute</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -242,7 +242,7 @@ digraph quadtree {
 	RegisterType [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">RegisterType</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -252,7 +252,7 @@ digraph quadtree {
 	NodeSpecificInfo [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">NodeSpecificInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -263,7 +263,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">NodeSpecificInfoCall</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">NodeSpecificInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -274,7 +274,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">NodeSpecificInfoEntry</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">NodeSpecificInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -285,7 +285,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">NodeSpecificInfoDeclares</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">NodeSpecificInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -296,7 +296,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">NodeSpecificInfoActualIn</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">NodeSpecificInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -307,7 +307,7 @@ digraph quadtree {
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">NodeSpecificInfoFormalIn</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">NodeSpecificInfo</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -317,7 +317,7 @@ digraph quadtree {
 	Procedure [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Procedure</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -327,7 +327,7 @@ digraph quadtree {
 	Instruction [shape=none, label=
 		<<table border="0" cellspacing="0">
 			<tr><td port="class" border="1" bgcolor="gold">Instruction</td></tr>
-			<tr><td port="" border="1" bgcolor="grey64">ModuleBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
 			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
 		</table>>
 	]
@@ -341,7 +341,34 @@ digraph quadtree {
 	]
 
 	Module:class -> ImportTableEntry:class [headport=left, tailport=right];
-	Module:class -> ModuleSummary:class [headport=left, tailport=right, style=dashed];
-	Module:class -> ModuleCore:class [headport=left, tailport=right, style=dashed];
-	Module:class -> ModuleAux:class [headport=left, tailport=right, style=dashed];
+	Module:class -> ModuleSummary:class [headport=left, tailport=right];
+	Module:class -> ModuleCore:class [headport=left, tailport=right];
+	Module:class -> ModuleAux:class [headport=left, tailport=right];
+
+	ModuleSummary [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="gold">ModuleSummary</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleSectionBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
+		</table>>
+	]
+
+	ModuleCore [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="gold">ModuleCore</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleSectionBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
+		</table>>
+	]
+
+	ModuleAux [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="gold">ModuleAux</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleSectionBase</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">ModuleNode</td></tr>
+			<tr><td port="" border="1" bgcolor="grey64">Node</td></tr>
+		</table>>
+	]
 }
