@@ -23,6 +23,8 @@ set(${PROJECT_NAME}_H
 
 set(${PROJECT_NAME}_SRC
 	Exception.test.cpp
+	NodeError.test.cpp
+	TypedExceptionTest.cpp
 )
 
 IF(UNIX AND NOT WIN32)

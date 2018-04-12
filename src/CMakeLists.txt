@@ -29,10 +29,19 @@ endif()
 
 set(${PROJECT_NAME}_H
 	../include/gtirb/Exception.hpp
+	../include/gtirb/Export.hpp
+	../include/gtirb/LogicError.hpp
+	../include/gtirb/NodeError.hpp
+	../include/gtirb/NodeStructureError.hpp
+	../include/gtirb/RuntimeError.hpp
 )
 
 set(${PROJECT_NAME}_SRC
 	Exception.cpp
+	NodeError.cpp
+	NodeStructureError.cpp
+	LogicError.cpp
+	RuntimeError.cpp
 )
 
 IF(UNIX AND NOT WIN32)
