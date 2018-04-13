@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <gtirb/Exception.hpp>
+#include <memory>
 
 TEST(Unit_Exception, ctor_0)
 {

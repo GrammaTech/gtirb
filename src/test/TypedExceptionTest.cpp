@@ -4,6 +4,7 @@
 #include <gtirb/NodeError.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
+#include <memory>
 
 using testing::Types;
 

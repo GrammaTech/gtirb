@@ -12,10 +12,6 @@ include(CheckIncludeFile)
 include(Macros.cmake)
 include(AlignOf.cmake)
 
-if(POLICY CMP0042)
-	cmake_policy(SET CMP0042 OLD) # MACOSX_RPATH migration
-endif()
-
 #
 # Global Options (CMake)
 #
@@ -38,7 +34,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 set(GTIRB_THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/third-party" CACHE PATH "")
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #
@@ -71,6 +66,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	add_compile_options(-W4)
 	add_compile_options(-WX)
 
+	add_compile_options(-wd4251) # 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2' 
 	add_compile_options(-wd4275) # Non-dll interface base classes.
 	add_compile_options(-wd4996) # VC8: Deprecated libc functions.
 	add_compile_options(-wd4351) # This is a warning about a change in behavior from old versions of visual c++.  We want the new (standard-compliant) behavior, so we don't want the warning.  The warning is that using an array in a class initializer list will cause its elements to be default initialized.
@@ -110,6 +106,10 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	# Shove in some linker flags to support using 64-bit memory.
 	# 4099 -PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LARGEADDRESSAWARE")
+
+	# Microsoft VCPKG
+	set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE PATH "")
+	include(${CMAKE_TOOLCHAIN_FILE})
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	# add_compile_options(-Wall)
 	add_compile_options(-fPIC)
@@ -135,7 +135,7 @@ if(GTIRB_ENABLE_TESTS)
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
 
 	if(result)
-		message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+		message(WARNING "CMake step for googletest failed: ${result}")
 	endif()
 
 	execute_process(COMMAND ${CMAKE_COMMAND} --build .
@@ -143,7 +143,7 @@ if(GTIRB_ENABLE_TESTS)
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
 	
 	if(result)
-		message(FATAL_ERROR "Build step for googletest failed: ${result}")
+		message(WARNING "Build step for googletest failed: ${result}")
 	endif()
 
 	# Prevent overriding the parent project's compiler/linker
