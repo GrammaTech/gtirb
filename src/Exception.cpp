@@ -3,7 +3,17 @@
 
 using namespace gtirb;
 
-Exception::Exception(std::string f, int l) : file{f}, line{l}
+Exception::Exception(const char* what) : std::logic_error(what)
+{
+	
+}
+
+Exception::Exception(const std::string& what) : std::logic_error(what)
+{
+
+}
+
+Exception::Exception(const std::string& what, std::string f, int l) : std::logic_error(what), file{f}, line{l}
 {
 }
 
@@ -16,9 +26,4 @@ void Exception::setLocation(std::string f, int l)
 std::pair<std::string, int> Exception::getLocation() const
 {
     return std::make_pair(this->file, this->line);
-}
-
-const char* Exception::what() const noexcept
-{
-    return "GT-IRB Exception.";
 }

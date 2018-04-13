@@ -15,6 +15,8 @@ elseif(${CMAKE_CXX_COMPILEUR_ID} STREQUAL Clang)
 endif()
 
 set(${PROJECT_NAME}_H
+	../include/gtirb/Constants.hpp
+	../include/gtirb/EA.hpp
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
@@ -27,6 +29,7 @@ set(${PROJECT_NAME}_H
 )
 
 set(${PROJECT_NAME}_SRC
+	EA.cpp
 	Exception.cpp
 	LogicError.cpp
 	NodeError.cpp

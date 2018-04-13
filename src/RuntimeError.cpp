@@ -2,11 +2,14 @@
 
 using namespace gtirb;
 
-RuntimeError::RuntimeError(std::string file, int line) : gtirb::Exception{file, line}
+RuntimeError::RuntimeError(const char* what) : gtirb::Exception(what)
 {
 }
 
-const char* RuntimeError::what() const noexcept
+RuntimeError::RuntimeError(const std::string& what) : gtirb::Exception(what)
 {
-    return "GT-IRB Runtime Error.";
+}
+
+RuntimeError::RuntimeError(const std::string& what, std::string file, int line) : gtirb::Exception{what, file, line}
+{
 }

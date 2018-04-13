@@ -2,11 +2,14 @@
 
 using namespace gtirb;
 
-LogicError::LogicError(std::string file, int line) : gtirb::Exception{file, line}
+LogicError::LogicError(const char* what) : gtirb::Exception(what)
 {
 }
 
-const char* LogicError::what() const noexcept
+LogicError::LogicError(const std::string& what) : gtirb::Exception(what)
 {
-    return "GT-IRB Logic Error.";
+}
+
+LogicError::LogicError(const std::string& what, std::string file, int line) : gtirb::Exception{what, file, line}
+{
 }

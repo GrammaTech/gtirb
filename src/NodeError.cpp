@@ -2,7 +2,15 @@
 
 using namespace gtirb;
 
-NodeError::NodeError(std::string file, int line) : gtirb::Exception{file, line}
+NodeError::NodeError(const char* what) : gtirb::Exception(what)
+{
+}
+
+NodeError::NodeError(const std::string& what) : gtirb::Exception(what)
+{
+}
+
+NodeError::NodeError(const std::string& what, std::string file, int line) : gtirb::Exception{what, file, line}
 {
 }
 
@@ -14,9 +22,4 @@ void NodeError::setNodeType(std::string x)
 std::string NodeError::getNodeType() const
 {
     return this->nodeType;
-}
-
-const char* NodeError::what() const noexcept
-{
-    return "GT-IRB Node Error.";
 }
