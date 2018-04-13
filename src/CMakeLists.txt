@@ -15,12 +15,14 @@ elseif(${CMAKE_CXX_COMPILEUR_ID} STREQUAL Clang)
 endif()
 
 set(${PROJECT_NAME}_H
+	../include/gtirb/Any.hpp
 	../include/gtirb/Constants.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/LogicError.hpp
+	../include/gtirb/Node.hpp
 	../include/gtirb/NodeError.hpp
 	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/RuntimeError.hpp
@@ -32,6 +34,7 @@ set(${PROJECT_NAME}_SRC
 	EA.cpp
 	Exception.cpp
 	LogicError.cpp
+	Node.cpp
 	NodeError.cpp
 	NodeStructureError.cpp
 	RuntimeError.cpp

@@ -34,6 +34,22 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 set(GTIRB_THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/third-party" CACHE PATH "")
+
+# The user can toggle between boost and std implementaiton of "any".
+# This is not a feature, but a work-around for older compiler support.
+# Once all compilers support std::any, this should go away. 
+set(GTIRB_ANY_IMPLEMENTATION "std" CACHE STRING "'any' implementaiton to use chosen by the user at CMake configure time")
+set_property(CACHE GTIRB_ANY_IMPLEMENTATION PROPERTY STRINGS std boost)
+
+if(${GTIRB_ANY_IMPLEMENTATION} STREQUAL "boost")
+	add_compile_options(-DGTIRB_USE_ANY_IMPL_NAMESPACE=boost)
+	add_compile_options(-DGTIRB_USE_ANY_IMPL_HEADER=<boost/any.hpp>)
+else()
+	add_compile_options(-DGTIRB_USE_ANY_IMPL_NAMESPACE=std)
+	add_compile_options(-DGTIRB_USE_ANY_IMPL_HEADER=<any>)
+endif()
+
+# Base include path for the GT-IRB library.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #

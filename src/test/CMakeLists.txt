@@ -24,6 +24,7 @@ set(${PROJECT_NAME}_H
 set(${PROJECT_NAME}_SRC
 	EA.test.cpp
 	Exception.test.cpp
+	Node.test.cpp
 	NodeError.test.cpp
 	Table.test.cpp
 	TypedExceptionTest.cpp
