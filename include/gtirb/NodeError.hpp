@@ -8,12 +8,11 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API NodeError : public gtirb::Exception
     {
     public:
-        NodeError() = default;
-        NodeError(std::string file, int line);
+        NodeError(const char* what = "GT-IRB Node Error.");
+        NodeError(const std::string& what);
+        NodeError(const std::string& what, std::string file, int line);
 
         virtual ~NodeError() = default;
-
-        virtual const char* what() const noexcept override;
 
         template <typename T>
         void setNodeType()

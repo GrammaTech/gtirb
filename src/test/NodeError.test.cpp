@@ -10,7 +10,7 @@ TEST(Unit_NodeError, setNodeType)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = gtirb::NodeError(fileName, lineNumber);
+    auto e = gtirb::NodeError("Test Exception.", fileName, lineNumber);
 
     EXPECT_EQ(std::string{""}, e.getNodeType());
 

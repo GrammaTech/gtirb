@@ -2,11 +2,14 @@
 
 using namespace gtirb;
 
-NodeStructureError::NodeStructureError(std::string file, int line) : gtirb::NodeError{file, line}
+NodeStructureError::NodeStructureError(const char* what) : gtirb::NodeError(what)
 {
 }
 
-const char* NodeStructureError::what() const noexcept
+NodeStructureError::NodeStructureError(const std::string& what) : gtirb::NodeError(what)
 {
-    return "GT-IRB Node Structure Error.";
+}
+
+NodeStructureError::NodeStructureError(const std::string& what, std::string file, int line) : gtirb::NodeError{what, file, line}
+{
 }

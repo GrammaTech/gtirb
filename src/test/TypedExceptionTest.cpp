@@ -36,7 +36,7 @@ TYPED_TEST_P(TypedExceptionTest, ctor_1)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = TypeParam(fileName, lineNumber);
+    auto e = TypeParam("Test Exception.", fileName, lineNumber);
 
     auto location = e.getLocation();
     EXPECT_EQ(fileName, location.first);
@@ -89,7 +89,7 @@ TYPED_TEST_P(TypedExceptionTest, LineNumber)
 
 TYPED_TEST_P(TypedExceptionTest, What)
 {
-    const auto e = TypeParam{__FILE__, __LINE__};
+    const auto e = TypeParam{"Test Exception.", __FILE__, __LINE__};
     const auto what = std::string{e.what()};
     EXPECT_FALSE(what.empty());
 }
@@ -99,7 +99,7 @@ TYPED_TEST_P(TypedExceptionTest, Assignment)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = TypeParam(fileName, lineNumber);
+    auto e = TypeParam("Test Exception.", fileName, lineNumber);
 
     auto location = e.getLocation();
     EXPECT_EQ(fileName, location.first);
@@ -117,7 +117,7 @@ TYPED_TEST_P(TypedExceptionTest, CopyCtor)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = TypeParam(fileName, lineNumber);
+    auto e = TypeParam("Test Exception.", fileName, lineNumber);
 
     auto location = e.getLocation();
     EXPECT_EQ(fileName, location.first);

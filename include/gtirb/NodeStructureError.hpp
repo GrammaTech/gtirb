@@ -7,11 +7,10 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API NodeStructureError : public gtirb::NodeError
     {
     public:
-        NodeStructureError() = default;
-        NodeStructureError(std::string file, int line);
+        NodeStructureError(const char* what = "GT-IRB Node Structure Error.");
+        NodeStructureError(const std::string& what);
+        NodeStructureError(const std::string& what, std::string file, int line);
 
         virtual ~NodeStructureError() = default;
-
-        virtual const char* what() const noexcept override;
     };
 }

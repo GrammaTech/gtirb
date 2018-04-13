@@ -12,7 +12,7 @@ TEST(Unit_Exception, ctor_1)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = gtirb::Exception(fileName, lineNumber);
+    auto e = gtirb::Exception("Test Exception.", fileName, lineNumber);
 
     auto location = e.getLocation();
     EXPECT_EQ(fileName, location.first);
@@ -59,7 +59,7 @@ TEST(Unit_Exception, assignment)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = gtirb::Exception(fileName, lineNumber);
+    auto e = gtirb::Exception("Test Exception.", fileName, lineNumber);
 
     auto location = e.getLocation();
     EXPECT_EQ(fileName, location.first);
@@ -77,7 +77,7 @@ TEST(Unit_Exception, copyCtor)
     const std::string fileName{__FILE__};
     const int lineNumber{__LINE__};
 
-    auto e = gtirb::Exception(fileName, lineNumber);
+    auto e = gtirb::Exception("Test Exception.", fileName, lineNumber);
 
     auto location = e.getLocation();
     EXPECT_EQ(fileName, location.first);
@@ -92,7 +92,7 @@ TEST(Unit_Exception, copyCtor)
 
 TEST(Unit_Exception, what)
 {
-    const auto e = gtirb::Exception{__FILE__, __LINE__};
+    const auto e = gtirb::Exception{"Test Exception.", __FILE__, __LINE__};
     const auto what = std::string{e.what()};
     EXPECT_FALSE(what.empty());
 }
