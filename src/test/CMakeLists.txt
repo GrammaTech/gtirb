@@ -26,6 +26,7 @@ set(${PROJECT_NAME}_SRC
 	NodeError.test.cpp
 	Table.test.cpp
 	TypedExceptionTest.cpp
+	Utilities.test.cpp
 )
 
 IF(UNIX AND NOT WIN32)
