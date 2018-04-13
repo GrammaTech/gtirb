@@ -23,14 +23,16 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/RuntimeError.hpp
 	../include/gtirb/Table.hpp
+	../include/gtirb/Utilities.hpp
 )
 
 set(${PROJECT_NAME}_SRC
 	Exception.cpp
+	LogicError.cpp
 	NodeError.cpp
 	NodeStructureError.cpp
-	LogicError.cpp
 	RuntimeError.cpp
+	Utilities.cpp
 )
 
 IF(UNIX AND NOT WIN32)
