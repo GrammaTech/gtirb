@@ -24,9 +24,10 @@ set(${PROJECT_NAME}_H
 set(${PROJECT_NAME}_SRC
 	EA.test.cpp
 	Exception.test.cpp
+	LocalProperties.test.cpp
 	Node.test.cpp
 	NodeError.test.cpp
-	Table.test.cpp
+	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
 	Utilities.test.cpp
 )

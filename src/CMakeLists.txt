@@ -21,11 +21,13 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
+	../include/gtirb/LocalProperties.hpp
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Node.hpp
 	../include/gtirb/NodeError.hpp
 	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/RuntimeError.hpp
+	../include/gtirb/TableTemplate.hpp
 	../include/gtirb/Table.hpp
 	../include/gtirb/Utilities.hpp
 )
@@ -33,6 +35,7 @@ set(${PROJECT_NAME}_H
 set(${PROJECT_NAME}_SRC
 	EA.cpp
 	Exception.cpp
+	LocalProperties.cpp
 	LogicError.cpp
 	Node.cpp
 	NodeError.cpp
