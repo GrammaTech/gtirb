@@ -1,9 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <gtirb/Constants.hpp>
+#include <gtirb/Export.hpp>
 #include <limits>
 #include <string>
-#include <gtirb/Constants.hpp>
 
 namespace gtirb
 {
@@ -14,7 +15,7 @@ namespace gtirb
     /// This is initialized to `gtirb::constants::BadAddress`.
     /// It is compatible with a uint64_t for 64-bit address storage.
     ///
-    class EA
+    class GTIRB_GTIRB_EXPORT_API EA
     {
     public:
         EA() = default;
@@ -54,7 +55,7 @@ namespace gtirb
 
         uint64_t ea{gtirb::constants::BadAddress};
     };
-}
+} // namespace gtirb
 
 inline bool operator==(const uint64_t rhs, const gtirb::EA lhs)
 {
