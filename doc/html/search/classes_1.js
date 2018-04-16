@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['localproperties',['LocalProperties',['../classgtirb_1_1_local_properties.html',1,'gtirb']]],
-  ['logicerror',['LogicError',['../classgtirb_1_1_logic_error.html',1,'gtirb']]]
+  ['ea',['EA',['../classgtirb_1_1_e_a.html',1,'gtirb']]],
+  ['exception',['Exception',['../classgtirb_1_1_exception.html',1,'gtirb']]]
 ];

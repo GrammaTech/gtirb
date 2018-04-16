@@ -1207,13 +1207,13 @@ public:
         void setRebaseDelta(int64_t x);
         int64_t getRebaseDelta() const;
 
-        ModuleSummary* getModuleSummary();
+        ModuleSummary* const getModuleSummary();
         ModuleSummary const * const getModuleSummary() const;
         
-        ModuleCore* getModuleCore();
+        ModuleCore* const getModuleCore();
         ModuleCore const * const getModuleCore() const;
 
-        ModuleAux* getModuleAux();
+        ModuleAux* const getModuleAux();
         ModuleAux const * const getModuleAux() const;
 
         void setCacheModuleName(std::string x);

@@ -1,3 +1,8 @@
 <map id="gtirb::Node" name="gtirb::Node">
-<area shape="rect" id="node2" href="$classgtirb_1_1_local_properties.html" title="gtirb::LocalProperties" alt="" coords="5,5,151,32"/>
+<area shape="rect" id="node3" href="$classgtirb_1_1_module.html" title="gtirb::Module" alt="" coords="5,155,103,181"/>
+<area shape="rect" id="node4" href="$classgtirb_1_1_module_section_base.html" title="gtirb::ModuleSectionBase" alt="" coords="127,155,298,181"/>
+<area shape="rect" id="node2" href="$classgtirb_1_1_local_properties.html" title="gtirb::LocalProperties" alt="" coords="60,5,205,32"/>
+<area shape="rect" id="node5" href="$classgtirb_1_1_module_aux.html" title="gtirb::ModuleAux" alt="" coords="6,229,126,256"/>
+<area shape="rect" id="node6" href="$classgtirb_1_1_module_core.html" title="gtirb::ModuleCore" alt="" coords="150,229,275,256"/>
+<area shape="rect" id="node7" href="$classgtirb_1_1_module_summary.html" title="gtirb::ModuleSummary" alt="" coords="300,229,453,256"/>
 </map>

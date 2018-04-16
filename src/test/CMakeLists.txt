@@ -25,10 +25,16 @@ set(${PROJECT_NAME}_SRC
 	EA.test.cpp
 	Exception.test.cpp
 	LocalProperties.test.cpp
+	Module.test.cpp
+	ModuleAux.test.cpp
+	ModuleCore.test.cpp
+	ModuleSectionBase.test.cpp
+	ModuleSummary.test.cpp
 	Node.test.cpp
 	NodeError.test.cpp
 	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
+	TypedNodeTest.cpp
 	Utilities.test.cpp
 )
 
@@ -46,6 +52,7 @@ GTIRB_ADD_EXECUTABLE_GTEST()
 target_link_libraries(
 	${PROJECT_NAME} 
 	${SYSLIBS}
+	${Boost_LIBRARIES}
 	gtest 
 	gtest_main
 	GTIRB

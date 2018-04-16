@@ -56,8 +56,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Boost Options (CMake)
 #
 
-# set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/third-party/boost)
-find_package(Boost 1.58.0 REQUIRED COMPONENTS serialization filesystem)
+# https://stackoverflow.com/questions/9723793/undefined-reference-to-boostsystemsystem-category-when-compiling
+add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
+find_package(Boost 1.58.0 REQUIRED COMPONENTS serialization filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 
 #

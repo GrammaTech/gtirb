@@ -5,6 +5,7 @@ var searchData=
   ['ea_2ehpp',['EA.hpp',['../_e_a_8hpp.html',1,'']]],
   ['elf',['ELF',['../namespacegtirb.html#ace3936ecef5d128a2bace5ac6f80c5a9ab61b2d6c6fa62903b882aaa53452c111',1,'gtirb']]],
   ['empty',['empty',['../classgtirb_1_1_node.html#a8c558fc901e13cf60380d24d5b9b6008',1,'gtirb::Node']]],
+  ['end',['end',['../classgtirb_1_1_node.html#a464925312eeb38eaf354dd9859f14299',1,'gtirb::Node::end()'],['../classgtirb_1_1_node.html#adc3d5773a19b020b7b2ed6b9ed9cb8e5',1,'gtirb::Node::end() const ']]],
   ['endlocalproperties',['endLocalProperties',['../classgtirb_1_1_local_properties.html#ae15e45323f9c74ce0cc11a3c9b89ee8c',1,'gtirb::LocalProperties::endLocalProperties()'],['../classgtirb_1_1_local_properties.html#a540f745d2b834efb442662fa4f2de809',1,'gtirb::LocalProperties::endLocalProperties() const ']]],
   ['enums_2ehpp',['Enums.hpp',['../_enums_8hpp.html',1,'']]],
   ['exception',['Exception',['../classgtirb_1_1_exception.html',1,'gtirb']]],
