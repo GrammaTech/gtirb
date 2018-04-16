@@ -176,3 +176,71 @@ TEST(Unit_Node, clear)
     EXPECT_TRUE(node.empty());
     EXPECT_EQ(size_t(0), node.size());
 }
+
+TEST(Unit_Node, iterator)
+{
+    const int totalChildren = 8;
+
+    auto node = gtirb::Node();
+
+    EXPECT_TRUE(node.empty());
+    EXPECT_EQ(size_t(0), node.size());
+
+    for(int i = 0; i < totalChildren; i++)
+    {
+        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
+        EXPECT_FALSE(node.empty());
+        EXPECT_EQ(size_t(i+1), node.size());
+    }
+
+    // We should now be able to use our begin iterator "totalChildren" times.
+    auto nodeIterator = std::begin(node);
+    for(int i = 0; i < totalChildren; i++)
+    {
+        EXPECT_TRUE(nodeIterator != std::end(node));
+        
+        EXPECT_EQ(node.at(i)->getUUID(), nodeIterator->getUUID());
+        ++nodeIterator;
+
+        EXPECT_NE(nodeIterator, std::begin(node));
+    }
+
+    EXPECT_NE(nodeIterator, std::begin(node));
+    EXPECT_EQ(nodeIterator, std::end(node));
+}
+
+
+TEST(Unit_Node, const_iterator)
+{
+    const int totalChildren = 8;
+
+    auto node = gtirb::Node();
+
+    EXPECT_TRUE(node.empty());
+    EXPECT_EQ(size_t(0), node.size());
+
+    for(int i = 0; i < totalChildren; i++)
+    {
+        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
+        EXPECT_FALSE(node.empty());
+        EXPECT_EQ(size_t(i+1), node.size());
+    }
+
+    // Make a const node by copy construction.
+    const auto constNode{node};
+
+    // We should now be able to use our begin iterator "totalChildren" times.
+    auto nodeIterator = std::begin(constNode);
+    for(int i = 0; i < totalChildren; i++)
+    {
+        EXPECT_TRUE(nodeIterator != std::end(constNode));
+        
+        EXPECT_EQ(constNode.at(i)->getUUID(), nodeIterator->getUUID());
+        ++nodeIterator;
+
+        EXPECT_NE(nodeIterator, std::begin(constNode));
+    }
+
+    EXPECT_NE(nodeIterator, std::begin(constNode));
+    EXPECT_EQ(nodeIterator, std::end(constNode));
+}

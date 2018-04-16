@@ -19,6 +19,56 @@ namespace gtirb
     {
     public:
         ///
+        /// A custom STL-compatible iterator for Node children.
+        ///
+        class iterator
+        {
+            public:
+                typedef iterator self_type;
+                typedef gtirb::Node* const value_type;
+                typedef gtirb::Node* const reference;
+                typedef gtirb::Node* const pointer;
+                typedef std::forward_iterator_tag iterator_category;
+                typedef int difference_type;
+
+                iterator(std::vector<std::shared_ptr<Node>>::iterator x) : it(x) { }
+                self_type operator++() { self_type i = *this; this->it++; return i; }
+                self_type operator++(int) { this->it++; return *this; }
+                reference operator*() { return this->it->get(); }
+                pointer operator->() { return this->it->get(); }
+                bool operator==(const self_type& rhs) const { return this->it == rhs.it; }
+                bool operator!=(const self_type& rhs) const { return this->it != rhs.it; }
+
+            private:
+                std::vector<std::shared_ptr<Node>>::iterator it;
+        };
+
+        ///
+        /// A custom STL-compatible const_iterator for Node children.
+        ///
+        class const_iterator
+        {
+            public:
+                typedef const_iterator self_type;
+                typedef gtirb::Node* const value_type;
+                typedef gtirb::Node* const reference;
+                typedef gtirb::Node* const pointer;
+                typedef std::forward_iterator_tag iterator_category;
+                typedef int difference_type;
+
+                const_iterator(std::vector<std::shared_ptr<Node>>::const_iterator x) : it(x) { }
+                self_type operator++() { self_type i = *this; this->it++; return i; }
+                self_type operator++(int) { this->it++; return *this; }
+                const reference operator*() { return this->it->get(); }
+                const pointer operator->() { return this->it->get(); }
+                bool operator==(const self_type& rhs) const { return this->it == rhs.it; }
+                bool operator!=(const self_type& rhs) const { return this->it != rhs.it; }
+
+            private:
+                std::vector<std::shared_ptr<Node>>::const_iterator it;
+        };
+
+        ///
         /// Automatically assigns the Node a UUID.
         ///
         Node();
@@ -91,6 +141,58 @@ namespace gtirb
         /// API is modeled after the STL.
         ///
         void clear();
+
+        ///
+        /// Access specified element with bounds checking.
+        ///
+        /// \param      x   The position of the element to return.
+        /// \return     A pointer to the Node child at the given index.
+        ///
+        Node* const at(size_t x);
+        
+        ///
+        /// Access specified element with bounds checking.
+        ///
+        /// \param      x   The position of the element to return.
+        /// \return     A const pointer to the Node child at the given index.
+        ///
+        const Node* const at(size_t x) const;
+
+        ///
+        /// Returns a Node::iterator to the first child Node.
+        ///
+        /// If the container is empty, the returned iterator will be equal to end().
+        ///
+        /// \return     An iterator to the first child Node.
+        ///
+        Node::iterator begin();
+
+        ///
+        /// Returns a Node::iterator to the element following the last element of the container.
+        ///
+        /// This element acts as a placeholder; attempting to access it results in undefined behavior.
+        ///
+        /// \return     An iterator to the element following the last element of the container.
+        ///
+        Node::iterator end();
+
+        ///
+        /// Returns a Node::const_iterator to the first child Node.
+        ///
+        /// If the container is empty, the returned iterator will be equal to end().
+        ///
+        /// \return     An iterator to the first child Node.
+        ///
+        Node::const_iterator begin() const;
+
+        ///
+        /// Returns a Node::const_iterator to the element following the last element of the container.
+        ///
+        /// This element acts as a placeholder; attempting to access it results in undefined behavior.
+        ///
+        /// \return     An iterator to the element following the last element of the container.
+        ///
+        Node::const_iterator end() const;
 
     protected:
         // ----------------------------------------------------------------------------------------

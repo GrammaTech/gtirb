@@ -98,3 +98,33 @@ void Node::clearTables()
 {
 	this->tables.clear();
 }
+
+gtirb::Node* const Node::at(size_t x)
+{
+    return this->children.at(x).get();
+}
+
+const gtirb::Node* const Node::at(size_t x) const
+{
+    return this->children.at(x).get();
+}
+
+Node::iterator Node::begin()
+{
+    return Node::iterator(std::begin(this->children));
+}
+
+Node::iterator Node::end()
+{
+    return Node::iterator(std::end(this->children));
+}
+
+Node::const_iterator Node::begin() const
+{
+    return Node::const_iterator(std::begin(this->children));
+}
+
+Node::const_iterator Node::end() const
+{
+    return Node::const_iterator(std::end(this->children));
+}
