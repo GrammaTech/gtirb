@@ -38,13 +38,15 @@ set(GTIRB_THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/third-party" CACHE PA
 # The user can toggle between boost and std implementaiton of "any".
 # This is not a feature, but a work-around for older compiler support.
 # Once all compilers support std::any, this should go away. 
-set(GTIRB_ANY_IMPLEMENTATION "std" CACHE STRING "'any' implementaiton to use chosen by the user at CMake configure time")
-set_property(CACHE GTIRB_ANY_IMPLEMENTATION PROPERTY STRINGS std boost)
+set(GTIRB_ISO_CPP_VERSION "C++17" CACHE STRING "C++ ISO Standard to use.")
+set_property(CACHE GTIRB_ISO_CPP_VERSION PROPERTY STRINGS C++17 C++14)
 
-if(${GTIRB_ANY_IMPLEMENTATION} STREQUAL "boost")
+if(${GTIRB_ISO_CPP_VERSION} STREQUAL "C++14")
+	set(CMAKE_CXX_STANDARD 14)
 	add_compile_options(-DGTIRB_USE_ANY_IMPL_NAMESPACE=boost)
 	add_compile_options(-DGTIRB_USE_ANY_IMPL_HEADER=<boost/any.hpp>)
 else()
+	set(CMAKE_CXX_STANDARD 17)
 	add_compile_options(-DGTIRB_USE_ANY_IMPL_NAMESPACE=std)
 	add_compile_options(-DGTIRB_USE_ANY_IMPL_HEADER=<any>)
 endif()
@@ -65,7 +67,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Global Options (Compile / Link)
 #
 
-set(CMAKE_CXX_STANDARD 14)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
