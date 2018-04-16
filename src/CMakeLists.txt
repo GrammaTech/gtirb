@@ -15,6 +15,7 @@ elseif(${CMAKE_CXX_COMPILEUR_ID} STREQUAL Clang)
 endif()
 
 set(${PROJECT_NAME}_H
+	../include/gtirb/AddrRanges.hpp
 	../include/gtirb/Any.hpp
 	../include/gtirb/Constants.hpp
 	../include/gtirb/EA.hpp
@@ -38,6 +39,7 @@ set(${PROJECT_NAME}_H
 )
 
 set(${PROJECT_NAME}_SRC
+	AddrRanges.cpp
 	EA.cpp
 	Exception.cpp
 	LocalProperties.cpp
