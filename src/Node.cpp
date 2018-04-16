@@ -3,11 +3,12 @@
 
 using namespace gtirb;
 
+// UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
 Node::Node() : uuid(boost::uuids::random_generator()())
 {
 }
 
-Node* Node::getNodeParent() const
+Node* const Node::getNodeParent() const
 {
 	return this->nodeParent;
 }
@@ -25,6 +26,28 @@ void Node::setUUID(boost::uuids::uuid x)
 boost::uuids::uuid Node::getUUID() const
 {
     return this->uuid;
+}
+
+bool Node::push_back(std::unique_ptr<gtirb::Node>&& x)
+{
+	assert(x->getNodeParent() == nullptr);
+	x->nodeParent = this;
+	this->children.push_back(std::move(x));
+}
+
+bool Node::empty() const
+{
+	return this->children.empty();
+}
+
+size_t Node::size() const
+{
+	return this->children.size();
+}
+
+void Node::clear()
+{
+	this->children.clear();
 }
 
 void Node::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)

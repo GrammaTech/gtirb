@@ -17,6 +17,11 @@ uint64_t EA::get() const
 	return this->ea;
 }
 
+EA::operator uint64_t() const
+{
+	return this->ea;
+}
+
 EA EA::operator=(EA x)
 {
 	this->ea = x.ea;

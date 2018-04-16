@@ -126,3 +126,53 @@ TEST(Unit_Node, clearLocalProperties)
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
 }
+
+TEST(Unit_Node, push_back)
+{
+    auto node = gtirb::Node();
+
+    EXPECT_TRUE(node.empty());
+    EXPECT_EQ(size_t(0), node.size());
+
+    EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
+
+    EXPECT_FALSE(node.empty());
+    EXPECT_EQ(size_t(1), node.size());
+}
+
+TEST(Unit_Node, size)
+{
+    const int totalChildren = 512;
+    auto node = gtirb::Node();
+
+    EXPECT_TRUE(node.empty());
+    EXPECT_EQ(size_t(0), node.size());
+
+    for(int i = 0; i < totalChildren; i++)
+    {
+        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
+        EXPECT_FALSE(node.empty());
+        EXPECT_EQ(size_t(i+1), node.size());
+    }
+}
+
+TEST(Unit_Node, clear)
+{
+    const int totalChildren = 512;
+    auto node = gtirb::Node();
+
+    EXPECT_TRUE(node.empty());
+    EXPECT_EQ(size_t(0), node.size());
+
+    for(int i = 0; i < totalChildren; i++)
+    {
+        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
+        EXPECT_FALSE(node.empty());
+        EXPECT_EQ(size_t(i+1), node.size());
+    }
+
+    EXPECT_NO_THROW(node.clear());
+
+    EXPECT_TRUE(node.empty());
+    EXPECT_EQ(size_t(0), node.size());
+}

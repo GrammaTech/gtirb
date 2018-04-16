@@ -35,6 +35,9 @@ TEST(Unit_TableTemplate, size_1)
     t[2][0] = {"Foo"};
 
     EXPECT_EQ(size_t{3}, t.size());
+
+    // Check base class access.
+    EXPECT_EQ(size_t{3}, dynamic_cast<gtirb::Table*>(&t)->size());
 }
 
 TEST(Unit_TableTemplate, size_2)
@@ -46,6 +49,9 @@ TEST(Unit_TableTemplate, size_2)
     t[2][1] = {"Foo"};
 
     EXPECT_EQ(size_t{4}, t.size());
+    
+    // Check base class access.
+    EXPECT_EQ(size_t{4}, dynamic_cast<gtirb::Table*>(&t)->size());
 }
 
 TEST(Unit_TableTemplate, clear)
@@ -60,6 +66,9 @@ TEST(Unit_TableTemplate, clear)
     t[2][0] = {"Foo"};
 
     EXPECT_EQ(size_t{3}, t.size());
+   
+    // Check base class access.
+    EXPECT_EQ(size_t{3}, dynamic_cast<gtirb::Table*>(&t)->size());
 
     EXPECT_NO_THROW(t.clear());
     EXPECT_EQ(size_t{0}, t.size());
