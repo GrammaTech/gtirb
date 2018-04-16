@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gtirb/AddrRanges.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/ModuleCore.hpp>
@@ -10,7 +11,7 @@
 using testing::Types;
 
 typedef Types<gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore, gtirb::ModuleAux,
-              gtirb::ModuleSummary>
+              gtirb::ModuleSummary, gtirb::AddrRanges>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------
@@ -308,9 +309,9 @@ TYPED_TEST_P(TypedNodeTest, GetChildrenOfType)
 }
 
 REGISTER_TYPED_TEST_CASE_P(TypedNodeTest, ctor_0, clear, clearLocalProperties, const_iterator,
-                           iterator, push_back, removeLocalProperty,
-                           setLocalProperties, setLocalProperty, setLocalPropertyReset, size,
-                           uniqueUuids, GetChildrenOfType);
+                           iterator, push_back, removeLocalProperty, setLocalProperties,
+                           setLocalProperty, setLocalPropertyReset, size, uniqueUuids,
+                           GetChildrenOfType);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Exceptions,      // Instance name
                               TypedNodeTest,        // Test case name

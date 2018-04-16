@@ -22,6 +22,7 @@ set(${PROJECT_NAME}_H
 )
 
 set(${PROJECT_NAME}_SRC
+	AddrRanges.test.cpp
 	EA.test.cpp
 	Exception.test.cpp
 	LocalProperties.test.cpp
