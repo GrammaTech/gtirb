@@ -14,9 +14,20 @@ var dir_c86b75cb8f2866058b6d144d4f2bb9a5 =
     [ "LogicError.hpp", "_logic_error_8hpp.html", [
       [ "LogicError", "classgtirb_1_1_logic_error.html", "classgtirb_1_1_logic_error" ]
     ] ],
-    [ "Node.hpp", "_node_8hpp.html", [
-      [ "Node", "classgtirb_1_1_node.html", "classgtirb_1_1_node" ]
+    [ "Module.hpp", "_module_8hpp.html", "_module_8hpp" ],
+    [ "ModuleAux.hpp", "_module_aux_8hpp.html", [
+      [ "ModuleAux", "classgtirb_1_1_module_aux.html", "classgtirb_1_1_module_aux" ]
     ] ],
+    [ "ModuleCore.hpp", "_module_core_8hpp.html", [
+      [ "ModuleCore", "classgtirb_1_1_module_core.html", "classgtirb_1_1_module_core" ]
+    ] ],
+    [ "ModuleSectionBase.hpp", "_module_section_base_8hpp.html", [
+      [ "ModuleSectionBase", "classgtirb_1_1_module_section_base.html", "classgtirb_1_1_module_section_base" ]
+    ] ],
+    [ "ModuleSummary.hpp", "_module_summary_8hpp.html", [
+      [ "ModuleSummary", "classgtirb_1_1_module_summary.html", "classgtirb_1_1_module_summary" ]
+    ] ],
+    [ "Node.hpp", "_node_8hpp.html", "_node_8hpp" ],
     [ "NodeError.hpp", "_node_error_8hpp.html", [
       [ "NodeError", "classgtirb_1_1_node_error.html", "classgtirb_1_1_node_error" ]
     ] ],

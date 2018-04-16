@@ -1,8 +1,17 @@
 var hierarchy =
 [
+    [ "gtirb::Node::const_iterator", "classgtirb_1_1_node_1_1const__iterator.html", null ],
     [ "gtirb::EA", "classgtirb_1_1_e_a.html", null ],
+    [ "gtirb::Node::iterator", "classgtirb_1_1_node_1_1iterator.html", null ],
     [ "gtirb::LocalProperties", "classgtirb_1_1_local_properties.html", [
-      [ "gtirb::Node", "classgtirb_1_1_node.html", null ]
+      [ "gtirb::Node", "classgtirb_1_1_node.html", [
+        [ "gtirb::Module", "classgtirb_1_1_module.html", null ],
+        [ "gtirb::ModuleSectionBase", "classgtirb_1_1_module_section_base.html", [
+          [ "gtirb::ModuleAux", "classgtirb_1_1_module_aux.html", null ],
+          [ "gtirb::ModuleCore", "classgtirb_1_1_module_core.html", null ],
+          [ "gtirb::ModuleSummary", "classgtirb_1_1_module_summary.html", null ]
+        ] ]
+      ] ]
     ] ],
     [ "logic_error", null, [
       [ "gtirb::Exception", "classgtirb_1_1_exception.html", [

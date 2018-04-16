@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "GT-IRB", "index.html", [
+    [ "Todo List", "todo.html", null ],
     [ "Namespaces", null, [
       [ "Namespace List", "namespaces.html", "namespaces" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -16,7 +17,8 @@ var NAVTREE =
       [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
       [ "Class Members", "functions.html", [
         [ "All", "functions.html", null ],
-        [ "Functions", "functions_func.html", null ]
+        [ "Functions", "functions_func.html", null ],
+        [ "Typedefs", "functions_type.html", null ]
       ] ]
     ] ],
     [ "Files", null, [
@@ -32,7 +34,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_any_8hpp.html"
+"_any_8hpp.html",
+"todo.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

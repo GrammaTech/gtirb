@@ -23,12 +23,17 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Export.hpp
 	../include/gtirb/LocalProperties.hpp
 	../include/gtirb/LogicError.hpp
+	../include/gtirb/Module.hpp
+	../include/gtirb/ModuleAux.hpp
+	../include/gtirb/ModuleCore.hpp
+	../include/gtirb/ModuleSectionBase.hpp
+	../include/gtirb/ModuleSummary.hpp
 	../include/gtirb/Node.hpp
 	../include/gtirb/NodeError.hpp
 	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/RuntimeError.hpp
-	../include/gtirb/TableTemplate.hpp
 	../include/gtirb/Table.hpp
+	../include/gtirb/TableTemplate.hpp
 	../include/gtirb/Utilities.hpp
 )
 
@@ -37,6 +42,11 @@ set(${PROJECT_NAME}_SRC
 	Exception.cpp
 	LocalProperties.cpp
 	LogicError.cpp
+	Module.cpp
+	ModuleAux.cpp
+	ModuleCore.cpp
+	ModuleSectionBase.cpp
+	ModuleSummary.cpp
 	Node.cpp
 	NodeError.cpp
 	NodeStructureError.cpp

@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['table',['Table',['../classgtirb_1_1_table.html',1,'gtirb']]],
-  ['tabletemplate',['TableTemplate',['../classgtirb_1_1_table_template.html',1,'gtirb']]]
+  ['module',['Module',['../classgtirb_1_1_module.html',1,'gtirb']]],
+  ['moduleaux',['ModuleAux',['../classgtirb_1_1_module_aux.html',1,'gtirb']]],
+  ['modulecore',['ModuleCore',['../classgtirb_1_1_module_core.html',1,'gtirb']]],
+  ['modulesectionbase',['ModuleSectionBase',['../classgtirb_1_1_module_section_base.html',1,'gtirb']]],
+  ['modulesummary',['ModuleSummary',['../classgtirb_1_1_module_summary.html',1,'gtirb']]]
 ];
