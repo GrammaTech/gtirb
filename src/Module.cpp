@@ -3,6 +3,7 @@
 #include <gtirb/ModuleCore.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/AddrRanges.hpp>
 
 using namespace gtirb;
 
@@ -121,6 +122,27 @@ gtirb::ModuleAux* gtirb::GetOrCreateModuleAux(Module* const x)
     }
 
     auto moduleSummary = std::make_unique<gtirb::ModuleAux>();
+    auto moduleSummaryPtr = moduleSummary.get();
+    x->push_back(std::move(moduleSummary));
+    return moduleSummaryPtr;
+}
+
+gtirb::AddrRanges* gtirb::GetOrCreateAddrRanges(Module* const x)
+{
+    const auto children = GetChildrenOfType<gtirb::AddrRanges>(x);
+    if(children.empty() == false)
+    {
+        if(children.size() == 1)
+        {
+            return children[0];
+        }
+        else
+        {
+            throw gtirb::NodeStructureError("Multiple \"AddrRanges\" children were found under one Module.");
+        }
+    }
+
+    auto moduleSummary = std::make_unique<gtirb::AddrRanges>();
     auto moduleSummaryPtr = moduleSummary.get();
     x->push_back(std::move(moduleSummary));
     return moduleSummaryPtr;

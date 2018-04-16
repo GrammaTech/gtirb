@@ -11,6 +11,7 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API ModuleAux : public ModuleSectionBase
     {
     public:
+    	ModuleAux();
         virtual ~ModuleAux() = default;
     };
 }

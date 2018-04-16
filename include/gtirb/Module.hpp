@@ -10,6 +10,7 @@ namespace gtirb
     class ModuleSummary;
     class ModuleCore;
     class ModuleAux;
+    class AddrRanges;
 
     ///
     /// \class Module
@@ -100,4 +101,5 @@ namespace gtirb
     GTIRB_GTIRB_EXPORT_API ModuleSummary* GetOrCreateModuleSummary(Module* const x);
     GTIRB_GTIRB_EXPORT_API ModuleCore* GetOrCreateModuleCore(Module* const x);
     GTIRB_GTIRB_EXPORT_API ModuleAux* GetOrCreateModuleAux(Module* const x);
+    GTIRB_GTIRB_EXPORT_API AddrRanges* GetOrCreateAddrRanges(Module* const x);
 }

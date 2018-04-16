@@ -44,24 +44,37 @@ TEST(Unit_ModuleSummary, getDecodeMode)
 TEST(Unit_ModuleSummary, validParent)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto moduleSummary = std::make_unique<gtirb::ModuleSummary>();
-    EXPECT_TRUE(moduleSummary->getIsValidParent(module.get()));
-    EXPECT_TRUE(module->push_back(std::move(moduleSummary)));
+    auto child = std::make_unique<gtirb::ModuleSummary>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_TRUE(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleSummary, validParent_noException)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto moduleSummary = std::make_unique<gtirb::ModuleSummary>();
-    EXPECT_TRUE(moduleSummary->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(moduleSummary)));
+    auto child = std::make_unique<gtirb::ModuleSummary>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleSummary, invalidParent)
 {
     auto notAModule = std::make_unique<gtirb::Node>();
-    auto moduleSummary = std::make_unique<gtirb::ModuleSummary>();
+    auto child = std::make_unique<gtirb::ModuleSummary>();
 
-    EXPECT_FALSE(moduleSummary->getIsValidParent(notAModule.get()));
-    EXPECT_THROW(notAModule->push_back(std::move(moduleSummary)), gtirb::NodeStructureError);
+    EXPECT_FALSE(child->getIsValidParent(notAModule.get()));
+    EXPECT_THROW(notAModule->push_back(std::move(child)), gtirb::NodeStructureError);
+}
+
+TEST(Unit_ModuleSummary, alreadyAdded)
+{
+    auto module = std::make_unique<gtirb::Module>();
+
+    auto child = std::make_unique<gtirb::ModuleSummary>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
+
+    auto childAgain = std::make_unique<gtirb::ModuleSummary>();
+    EXPECT_FALSE(childAgain->getIsValidParent(module.get()));
+    EXPECT_THROW(module->push_back(std::move(childAgain)), gtirb::NodeStructureError);
 }

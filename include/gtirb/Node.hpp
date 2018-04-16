@@ -367,7 +367,7 @@ namespace gtirb
     /// \return     A vector of all the children of the input node which are of the templated type.
     ///
     template <typename T>
-    std::vector<T*> GetChildrenOfType(Node* const x)
+    std::vector<T*> GetChildrenOfType(const Node* const x)
     {
         static_assert(std::is_base_of<gtirb::Node, T>::value,
                       "T must be a descendant of gtirb::Node.");
