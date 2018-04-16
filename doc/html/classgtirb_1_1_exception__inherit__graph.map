@@ -1,0 +1,6 @@
+<map id="gtirb::Exception" name="gtirb::Exception">
+<area shape="rect" id="node3" href="$classgtirb_1_1_logic_error.html" title="gtirb::LogicError" alt="" coords="5,155,120,181"/>
+<area shape="rect" id="node4" href="$classgtirb_1_1_node_error.html" title="gtirb::NodeError" alt="" coords="144,155,259,181"/>
+<area shape="rect" id="node6" href="$classgtirb_1_1_runtime_error.html" title="gtirb::RuntimeError" alt="" coords="283,155,415,181"/>
+<area shape="rect" id="node5" href="$classgtirb_1_1_node_structure_error.html" title="gtirb::NodeStructureError" alt="" coords="118,229,285,256"/>
+</map>

@@ -8,7 +8,6 @@ namespace gtirb
 {
     ///
     /// \class Table
-    ///
     /// \author John E. Farrier
     ///
     /// This is just a simple base class for TableTemplate.  This allows us to store pointers to tables without any
@@ -37,6 +36,7 @@ namespace gtirb
 
         ///
         /// Clears all elements from the table.
+        ///
         /// Mirrors the STL API.
         ///
         virtual void clear() = 0;
