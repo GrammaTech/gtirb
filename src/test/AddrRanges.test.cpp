@@ -13,26 +13,39 @@ TEST(Unit_AddrRanges, ctor_0)
 TEST(Unit_AddrRanges, validParent)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto moduleSection = std::make_unique<gtirb::AddrRanges>();
-    EXPECT_TRUE(moduleSection->getIsValidParent(module.get()));
-    EXPECT_TRUE(module->push_back(std::move(moduleSection)));
+    auto child = std::make_unique<gtirb::AddrRanges>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_TRUE(module->push_back(std::move(child)));
 }
 
 TEST(Unit_AddrRanges, validParent_noException)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto moduleSection = std::make_unique<gtirb::AddrRanges>();
-    EXPECT_TRUE(moduleSection->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(moduleSection)));
+    auto child = std::make_unique<gtirb::AddrRanges>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
 TEST(Unit_AddrRanges, invalidParent)
 {
     auto notAModule = std::make_unique<gtirb::Node>();
-    auto moduleSection = std::make_unique<gtirb::AddrRanges>();
+    auto child = std::make_unique<gtirb::AddrRanges>();
 
-    EXPECT_FALSE(moduleSection->getIsValidParent(notAModule.get()));
-    EXPECT_THROW(notAModule->push_back(std::move(moduleSection)), gtirb::NodeStructureError);
+    EXPECT_FALSE(child->getIsValidParent(notAModule.get()));
+    EXPECT_THROW(notAModule->push_back(std::move(child)), gtirb::NodeStructureError);
+}
+
+TEST(Unit_AddrRanges, alreadyAdded)
+{
+    auto module = std::make_unique<gtirb::Module>();
+
+    auto child = std::make_unique<gtirb::AddrRanges>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
+
+    auto childAgain = std::make_unique<gtirb::AddrRanges>();
+    EXPECT_FALSE(childAgain->getIsValidParent(module.get()));
+    EXPECT_THROW(module->push_back(std::move(childAgain)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_AddrRanges, validRange)

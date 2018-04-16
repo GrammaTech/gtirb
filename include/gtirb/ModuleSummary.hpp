@@ -11,6 +11,7 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API ModuleSummary : public ModuleSectionBase
     {
     public:
+        ModuleSummary();
         virtual ~ModuleSummary() = default;
 
         void setName(std::string x);

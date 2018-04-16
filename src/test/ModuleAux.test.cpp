@@ -12,24 +12,37 @@ TEST(Unit_ModuleAux, ctor_0)
 TEST(Unit_ModuleAux, validParent)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto ModuleAux = std::make_unique<gtirb::ModuleAux>();
-    EXPECT_TRUE(ModuleAux->getIsValidParent(module.get()));
-    EXPECT_TRUE(module->push_back(std::move(ModuleAux)));
+    auto child = std::make_unique<gtirb::ModuleAux>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_TRUE(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleAux, validParent_noException)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto ModuleAux = std::make_unique<gtirb::ModuleAux>();
-    EXPECT_TRUE(ModuleAux->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(ModuleAux)));
+    auto child = std::make_unique<gtirb::ModuleAux>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleAux, invalidParent)
 {
     auto notAModule = std::make_unique<gtirb::Node>();
-    auto ModuleAux = std::make_unique<gtirb::ModuleAux>();
+    auto child = std::make_unique<gtirb::ModuleAux>();
 
-    EXPECT_FALSE(ModuleAux->getIsValidParent(notAModule.get()));
-    EXPECT_THROW(notAModule->push_back(std::move(ModuleAux)), gtirb::NodeStructureError);
+    EXPECT_FALSE(child->getIsValidParent(notAModule.get()));
+    EXPECT_THROW(notAModule->push_back(std::move(child)), gtirb::NodeStructureError);
+}
+
+TEST(Unit_ModuleAux, alreadyAdded)
+{
+    auto module = std::make_unique<gtirb::Module>();
+
+    auto child = std::make_unique<gtirb::ModuleAux>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
+
+    auto childAgain = std::make_unique<gtirb::ModuleAux>();
+    EXPECT_FALSE(childAgain->getIsValidParent(module.get()));
+    EXPECT_THROW(module->push_back(std::move(childAgain)), gtirb::NodeStructureError);
 }

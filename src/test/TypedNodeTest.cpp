@@ -41,7 +41,7 @@ TYPED_TEST_P(TypedNodeTest, uniqueUuids)
 
     // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
-    for(size_t i = 0; i < 512; ++i)
+    for(size_t i = 0; i < 64; ++i)
     {
         const auto n = TypeParam{};
         uuids.push_back(n.getUUID());
@@ -170,7 +170,7 @@ TYPED_TEST_P(TypedNodeTest, push_back)
 
 TYPED_TEST_P(TypedNodeTest, size)
 {
-    const int totalChildren = 512;
+    const int totalChildren = 64;
     auto node = TypeParam{};
 
     EXPECT_TRUE(node.empty());
@@ -186,7 +186,7 @@ TYPED_TEST_P(TypedNodeTest, size)
 
 TYPED_TEST_P(TypedNodeTest, clear)
 {
-    const int totalChildren = 512;
+    const int totalChildren = 64;
     auto node = TypeParam{};
 
     EXPECT_TRUE(node.empty());

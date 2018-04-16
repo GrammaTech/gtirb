@@ -6,10 +6,17 @@ using namespace gtirb;
 
 AddrRanges::AddrRanges() : Node()
 {
-    this->addParentValidator([](const Node* const x) {
+     this->addParentValidator([](const Node* const x) {
         // We can only be a child to a gtirb::Module.
         const auto parent = dynamic_cast<const gtirb::Module* const>(x);
-        return parent != nullptr;
+        if(parent != nullptr)
+        {
+        	// We should have no siblings.
+        	const auto siblings = GetChildrenOfType<gtirb::AddrRanges>(parent);
+        	return siblings.empty();
+        }
+
+        return false;
     });
 }
 
