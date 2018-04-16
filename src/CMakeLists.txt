@@ -68,4 +68,5 @@ GTIRB_ADD_LIBRARY()
 target_link_libraries(
 	${PROJECT_NAME} 
 	${SYSLIBS}
+	${Boost_LIBRARIES}
 	)

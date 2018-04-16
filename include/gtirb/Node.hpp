@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/uuid/uuid.hpp>
+#include <functional>
 #include <gtirb/LocalProperties.hpp>
 #include <gtirb/Table.hpp>
 #include <memory>
@@ -41,28 +42,28 @@ namespace gtirb
                 this->it++;
                 return i;
             }
-            
+
             self_type operator++(int)
             {
                 this->it++;
                 return *this;
             }
-            
+
             reference operator*()
             {
                 return this->it->get();
             }
-            
+
             pointer operator->()
             {
                 return this->it->get();
             }
-            
+
             bool operator==(const self_type& rhs) const
             {
                 return this->it == rhs.it;
             }
-            
+
             bool operator!=(const self_type& rhs) const
             {
                 return this->it != rhs.it;
@@ -88,35 +89,35 @@ namespace gtirb
             const_iterator(std::vector<std::shared_ptr<Node>>::const_iterator x) : it(x)
             {
             }
-           
+
             self_type operator++()
             {
                 self_type i = *this;
                 this->it++;
                 return i;
             }
-           
+
             self_type operator++(int)
             {
                 this->it++;
                 return *this;
             }
-           
+
             const reference operator*()
             {
                 return this->it->get();
             }
-           
+
             const pointer operator->()
             {
                 return this->it->get();
             }
-          
+
             bool operator==(const self_type& rhs) const
             {
                 return this->it == rhs.it;
             }
-           
+
             bool operator!=(const self_type& rhs) const
             {
                 return this->it != rhs.it;
@@ -368,7 +369,8 @@ namespace gtirb
     template <typename T>
     std::vector<T*> GetChildrenOfType(Node* const x)
     {
-        static_assert(std::is_base_of<gtirb::Node, T>::value, "T must be a descendant of gtirb::Node.");
+        static_assert(std::is_base_of<gtirb::Node, T>::value,
+                      "T must be a descendant of gtirb::Node.");
 
         std::vector<T*> children;
 
@@ -382,4 +384,4 @@ namespace gtirb
 
         return children;
     }
-}
+} // namespace gtirb
