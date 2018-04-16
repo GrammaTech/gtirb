@@ -12,7 +12,3 @@ We have promised to deliver a "binary code IR tailored for rewriting" called GT-
 3.  Implementation of translation facilities to produce GT-IRB from the CSurf/SWYX front-end and consume GT-IRB in CSurf/SWYX back-end.
 4.  Ongoing modularization of CSurf/SWYX into separately compilable components which communicate via GT-IRB.  An initial set of useful components may be: (i) a COTS-binary to GT-IRB front-end, (ii) a GT-IRB to GT-IRB back-end, and (iii) a GT-IRB to assembler pretty printer.
 
-## API Documentation
-
-[Doxygen-Generated API Documentation](./doc/html/index.html)
-
