@@ -83,6 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>All</span></a></li>
       <li class="current"><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_type.html"><span>Typedefs</span></a></li>
+      <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -218,23 +219,48 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>getBinaryPath()
 : <a class="el" href="classgtirb_1_1_module.html#a9555c01503ef3adda010060d2f8e51db">gtirb::Module</a>
 </li>
+<li>getBitSize()
+: <a class="el" href="classgtirb_1_1_symbol.html#a0851a19a4486c7f8acc62a19d97f893f">gtirb::Symbol</a>
+</li>
 <li>getBytesCoveredByRanges()
 : <a class="el" href="classgtirb_1_1_addr_ranges.html#aa813b0929f194b60f0daa832680af7d7">gtirb::AddrRanges</a>
+</li>
+<li>getDeclarationKind()
+: <a class="el" href="classgtirb_1_1_symbol.html#a566c74734fdf8dee27fb549830358848">gtirb::Symbol</a>
 </li>
 <li>getDecodeMode()
 : <a class="el" href="classgtirb_1_1_module_summary.html#a7a24822e57da61c21dbca1497d23634b">gtirb::ModuleSummary</a>
 </li>
 <li>getEA()
 : <a class="el" href="classgtirb_1_1_instruction.html#a822c8c1d59fe780cddba7ae862aee0e4">gtirb::Instruction</a>
+, <a class="el" href="classgtirb_1_1_symbol.html#a53f392df3e319bfeefd81a757d43a3d3">gtirb::Symbol</a>
 </li>
 <li>getEAMinMax()
 : <a class="el" href="classgtirb_1_1_module.html#a33b02bf5c93be2bfd3c8cc8b151fb6b6">gtirb::Module</a>
+</li>
+<li>getElementSize()
+: <a class="el" href="classgtirb_1_1_symbol.html#abf36873807fdfcb2811f0a9836c0373c">gtirb::Symbol</a>
+</li>
+<li>getEnableForceName()
+: <a class="el" href="classgtirb_1_1_symbol.html#a1ef593e7c8c299e65695515ad4e0c511">gtirb::Symbol</a>
+</li>
+<li>getEnableGapSize()
+: <a class="el" href="classgtirb_1_1_symbol.html#ad3b495e73c456f5815e6cd3f605733c4">gtirb::Symbol</a>
 </li>
 <li>getFileFormat()
 : <a class="el" href="classgtirb_1_1_module.html#a50aace62b7f0dfb765986a7419114b14">gtirb::Module</a>
 </li>
 <li>getIsFallthrough()
 : <a class="el" href="classgtirb_1_1_instruction.html#addd8d4f74f98fe4f2c4c86b431a65d71">gtirb::Instruction</a>
+</li>
+<li>getIsFormal()
+: <a class="el" href="classgtirb_1_1_symbol.html#a0061927e2f6a34940d15bb913a0f7db1">gtirb::Symbol</a>
+</li>
+<li>getIsGlobal()
+: <a class="el" href="classgtirb_1_1_symbol.html#a979535b2a0e2aa9c401547fa0ffff91c">gtirb::Symbol</a>
+</li>
+<li>getIsNameOnly()
+: <a class="el" href="classgtirb_1_1_symbol.html#aba5e9bd09b8ea09b914c53bf737d5fdc">gtirb::Symbol</a>
 </li>
 <li>getIsPEI()
 : <a class="el" href="classgtirb_1_1_instruction.html#a18c75ece10e0ff5b6020d02ebacaea56">gtirb::Instruction</a>
@@ -247,6 +273,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>getIsValidParent()
 : <a class="el" href="classgtirb_1_1_node.html#a88989600c916b30a6b72b11b839b9c37">gtirb::Node</a>
+</li>
+<li>getLinkType()
+: <a class="el" href="classgtirb_1_1_symbol.html#ada53328fb0f4768ab8da576e1e8fa009">gtirb::Symbol</a>
 </li>
 <li>getLocalProperty()
 : <a class="el" href="classgtirb_1_1_local_properties.html#a8c3277e2251dca4df09dafba65d22163">gtirb::LocalProperties</a>
@@ -262,6 +291,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>getName()
 : <a class="el" href="classgtirb_1_1_module_summary.html#add781ea43892ad21ac5661b51aef5614">gtirb::ModuleSummary</a>
+, <a class="el" href="classgtirb_1_1_symbol.html#a2baf362644dd52a8547806b068f30055">gtirb::Symbol</a>
 </li>
 <li>getNodeParent()
 : <a class="el" href="classgtirb_1_1_node.html#a10f6901a05234615424174944819ca42">gtirb::Node</a>
@@ -271,6 +301,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>getNumberOfUses()
 : <a class="el" href="classgtirb_1_1_instruction.html#a99b012fbb6f6ae20115b23afaf41d5e5">gtirb::Instruction</a>
+</li>
+<li>getOffset()
+: <a class="el" href="classgtirb_1_1_symbol.html#a03cdec63a4916658793824687316fe56">gtirb::Symbol</a>
 </li>
 <li>getOrCreateAddrRanges()
 : <a class="el" href="classgtirb_1_1_module.html#a7ba18ce14d3c55e73d5a97c752a28f62">gtirb::Module</a>
@@ -287,6 +320,12 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>getOrCreateModuleSummary()
 : <a class="el" href="classgtirb_1_1_module.html#a195aec420d73cdbf65910e73ab5bd50e">gtirb::Module</a>
 </li>
+<li>getOrCreateSymbol()
+: <a class="el" href="classgtirb_1_1_symbol_set.html#a03df025130a4159d8a919d81bc9003a5">gtirb::SymbolSet</a>
+</li>
+<li>getOrCreateSymbolSet()
+: <a class="el" href="classgtirb_1_1_module.html#af80df8d46529558b16b603449557dfee">gtirb::Module</a>
+</li>
 <li>getPLTEntries()
 : <a class="el" href="classgtirb_1_1_procedure.html#aeddc095c2acc78fda68dbb96a280db4a">gtirb::Procedure</a>
 </li>
@@ -302,6 +341,12 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>getRotated()
 : <a class="el" href="classgtirb_1_1_table_template.html#a6ba099ae8404c2e0439ca08b07976cdb">gtirb::TableTemplate&lt; R, C, T &gt;</a>
 </li>
+<li>getStorageKind()
+: <a class="el" href="classgtirb_1_1_symbol.html#a90f379be705a93a36aba1c4e3f21bb9a">gtirb::Symbol</a>
+</li>
+<li>getSymbol()
+: <a class="el" href="classgtirb_1_1_symbol_set.html#ae5bd90d842c7fe2f09f24206c9f8cce1">gtirb::SymbolSet</a>
+</li>
 <li>getTable()
 : <a class="el" href="classgtirb_1_1_node.html#a31698338365a91cd2efd77d71bb08d63">gtirb::Node</a>
 </li>
@@ -310,6 +355,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>getTableSize()
 : <a class="el" href="classgtirb_1_1_node.html#ab65b93fc0c8366865314ed083ca12291">gtirb::Node</a>
+</li>
+<li>getType()
+: <a class="el" href="classgtirb_1_1_symbol.html#a450a65a92482e4789fe795c685317bb1">gtirb::Symbol</a>
 </li>
 <li>getUUID()
 : <a class="el" href="classgtirb_1_1_node.html#a5ad582c738dfd4769f010450f77bc71a">gtirb::Node</a>
@@ -320,6 +368,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
 <li>Instruction()
 : <a class="el" href="classgtirb_1_1_instruction.html#ae8d19515b60764caa8ec4e0f8607b74e">gtirb::Instruction</a>
+</li>
+<li>IR()
+: <a class="el" href="classgtirb_1_1_i_r.html#a9f20b3c301545755f2a74eb1e128a2a0">gtirb::IR</a>
 </li>
 <li>iterator()
 : <a class="el" href="classgtirb_1_1_node_1_1iterator.html#a13d6e0866ab253366aca01594b049a9d">gtirb::Node::iterator</a>
@@ -449,20 +500,45 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>setBinaryPath()
 : <a class="el" href="classgtirb_1_1_module.html#a088cf24524e8e7ca24463cc408bbd810">gtirb::Module</a>
 </li>
+<li>setBitSize()
+: <a class="el" href="classgtirb_1_1_symbol.html#aa72177ed407d6ed7242b25edf5552669">gtirb::Symbol</a>
+</li>
+<li>setDeclarationKind()
+: <a class="el" href="classgtirb_1_1_symbol.html#adad59ceea3236024ad297a874afc8eba">gtirb::Symbol</a>
+</li>
 <li>setDecodeMode()
 : <a class="el" href="classgtirb_1_1_module_summary.html#a0c146b0fa26ae50091cdc90db7f53f08">gtirb::ModuleSummary</a>
 </li>
 <li>setEA()
 : <a class="el" href="classgtirb_1_1_instruction.html#a3acac6a426847bde589190ad4199285c">gtirb::Instruction</a>
+, <a class="el" href="classgtirb_1_1_symbol.html#a55a617ff7f723492c9dcc9d440ef8cc7">gtirb::Symbol</a>
 </li>
 <li>setEAMinMax()
 : <a class="el" href="classgtirb_1_1_module.html#a194fef28dadc20cb6a9a2c571e66a11a">gtirb::Module</a>
+</li>
+<li>setElementSize()
+: <a class="el" href="classgtirb_1_1_symbol.html#af3192c89038ae227fec28e8baa1c37df">gtirb::Symbol</a>
+</li>
+<li>setEnableForceName()
+: <a class="el" href="classgtirb_1_1_symbol.html#a83d3964e00fdb2ff2b4f336ac87d22dc">gtirb::Symbol</a>
+</li>
+<li>setEnableGapSize()
+: <a class="el" href="classgtirb_1_1_symbol.html#a97749e9edb483ae50670aa8fa700aef5">gtirb::Symbol</a>
 </li>
 <li>setFileFormat()
 : <a class="el" href="classgtirb_1_1_module.html#a836ed1e8bc19b27479b30300f9e6c96c">gtirb::Module</a>
 </li>
 <li>setIsFallthrough()
 : <a class="el" href="classgtirb_1_1_instruction.html#a9ecc0ddf382a3c4697b00f0a30ed8e92">gtirb::Instruction</a>
+</li>
+<li>setIsFormal()
+: <a class="el" href="classgtirb_1_1_symbol.html#ad996af6926e20df6e708dfbfc8065a59">gtirb::Symbol</a>
+</li>
+<li>setIsGlobal()
+: <a class="el" href="classgtirb_1_1_symbol.html#a7702b99dc0cc341c8feae35803eacf9f">gtirb::Symbol</a>
+</li>
+<li>setIsNameOnly()
+: <a class="el" href="classgtirb_1_1_symbol.html#aafa9f73a5fc9e97986faa7c5b153e36f">gtirb::Symbol</a>
 </li>
 <li>setIsPEI()
 : <a class="el" href="classgtirb_1_1_instruction.html#a187e1d37f06c5c1374e0625a23fad0fe">gtirb::Instruction</a>
@@ -473,6 +549,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>setIsSetupComplete()
 : <a class="el" href="classgtirb_1_1_module_section_base.html#a89523eda797aaa34d6335d067b9ba9ef">gtirb::ModuleSectionBase</a>
 </li>
+<li>setLinkType()
+: <a class="el" href="classgtirb_1_1_symbol.html#ab9445d7fcc7f950f85ece7e271100790">gtirb::Symbol</a>
+</li>
 <li>setLocalProperty()
 : <a class="el" href="classgtirb_1_1_local_properties.html#a5f7c3175bba124eef82f397720038632">gtirb::LocalProperties</a>
 </li>
@@ -481,6 +560,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>setName()
 : <a class="el" href="classgtirb_1_1_module_summary.html#a2e6b5c9a4bb34ddd31ea0d1746a6fda1">gtirb::ModuleSummary</a>
+, <a class="el" href="classgtirb_1_1_symbol.html#a2b837dc5b60785fa1e53cfd8d3946ed3">gtirb::Symbol</a>
 </li>
 <li>setNodeType()
 : <a class="el" href="classgtirb_1_1_node_error.html#a86a63c714cb52cf0148d66c743a38a1f">gtirb::NodeError</a>
@@ -488,11 +568,20 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>setNumberOfUses()
 : <a class="el" href="classgtirb_1_1_instruction.html#a93c86c19ccbb0278124db114f8641291">gtirb::Instruction</a>
 </li>
+<li>setOffset()
+: <a class="el" href="classgtirb_1_1_symbol.html#a05e91ed210f411de07d8b48aac1dd306">gtirb::Symbol</a>
+</li>
 <li>setPreferredEA()
 : <a class="el" href="classgtirb_1_1_module.html#adf2c13213f6cbd3ca5b73654ed05d874">gtirb::Module</a>
 </li>
 <li>setRebaseDelta()
 : <a class="el" href="classgtirb_1_1_module.html#a06bb0c0cd26681693b645f94d9d1f14b">gtirb::Module</a>
+</li>
+<li>setStorageKind()
+: <a class="el" href="classgtirb_1_1_symbol.html#a770b6c6d26d1d12262bbff55c7729ee7">gtirb::Symbol</a>
+</li>
+<li>setType()
+: <a class="el" href="classgtirb_1_1_symbol.html#adcafb6a04ff0ee5ba99d198df927b655">gtirb::Symbol</a>
 </li>
 <li>setUUID()
 : <a class="el" href="classgtirb_1_1_node.html#a166a0db2c6246696ececd2cbb0bd420e">gtirb::Node</a>
@@ -501,6 +590,12 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 : <a class="el" href="classgtirb_1_1_node.html#a41ad268b23e3899f96d3a7637048c7eb">gtirb::Node</a>
 , <a class="el" href="classgtirb_1_1_table.html#a53e6190b390e2ca0db4e343207b50d67">gtirb::Table</a>
 , <a class="el" href="classgtirb_1_1_table_template.html#a733e29fdba394134bbf7638bacc02831">gtirb::TableTemplate&lt; R, C, T &gt;</a>
+</li>
+<li>Symbol()
+: <a class="el" href="classgtirb_1_1_symbol.html#af9f5f5283e181c1c13df663d93e4ed88">gtirb::Symbol</a>
+</li>
+<li>SymbolSet()
+: <a class="el" href="classgtirb_1_1_symbol_set.html#a78908315adf11c0947048002d514ad14">gtirb::SymbolSet</a>
 </li>
 </ul>
 
@@ -521,6 +616,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>~Instruction()
 : <a class="el" href="classgtirb_1_1_instruction.html#a591d169b0bd75b41aa08994de6a14f26">gtirb::Instruction</a>
+</li>
+<li>~IR()
+: <a class="el" href="classgtirb_1_1_i_r.html#a515a3d7feb90f121192eeaa65fd17573">gtirb::IR</a>
 </li>
 <li>~LocalProperties()
 : <a class="el" href="classgtirb_1_1_local_properties.html#a77169b420dd546f68f23b802a067a2a2">gtirb::LocalProperties</a>
@@ -557,6 +655,12 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>~RuntimeError()
 : <a class="el" href="classgtirb_1_1_runtime_error.html#aaa0d2a8a63a733102cfa5445f22d2ebe">gtirb::RuntimeError</a>
+</li>
+<li>~Symbol()
+: <a class="el" href="classgtirb_1_1_symbol.html#a8eaadcff8bbb36c7222dcdb2a77053a0">gtirb::Symbol</a>
+</li>
+<li>~SymbolSet()
+: <a class="el" href="classgtirb_1_1_symbol_set.html#abddb487a8950f1dc770ad15a0e105747">gtirb::SymbolSet</a>
 </li>
 <li>~Table()
 : <a class="el" href="classgtirb_1_1_table.html#a8e616b603f69b34267bfab50d455fb03">gtirb::Table</a>

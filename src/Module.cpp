@@ -1,12 +1,20 @@
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/ModuleCore.hpp>
 #include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
+#include <gtirb/NodeValidators.hpp>
+#include <gtirb/SymbolSet.hpp>
 
 using namespace gtirb;
+
+Module::Module()
+{
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::IR>());
+}
 
 void Module::setBinaryPath(boost::filesystem::path x)
 {
@@ -83,4 +91,9 @@ gtirb::ModuleAux* Module::getOrCreateModuleAux()
 gtirb::AddrRanges* Module::getOrCreateAddrRanges()
 {
     return gtirb::GetOrCreateChildOfType<gtirb::AddrRanges>(this);
+}
+
+gtirb::SymbolSet* Module::getOrCreateSymbolSet()
+{
+    return gtirb::GetOrCreateChildOfType<gtirb::SymbolSet>(this);
 }

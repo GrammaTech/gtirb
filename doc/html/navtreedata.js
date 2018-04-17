@@ -16,9 +16,10 @@ var NAVTREE =
       [ "Class Index", "classes.html", null ],
       [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
       [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
+        [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", null ],
-        [ "Typedefs", "functions_type.html", null ]
+        [ "Typedefs", "functions_type.html", null ],
+        [ "Enumerations", "functions_enum.html", null ]
       ] ]
     ] ],
     [ "Files", null, [
@@ -35,7 +36,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_addr_ranges_8hpp.html",
-"classgtirb_1_1_runtime_error.html#a27bed233158ce61e5c8dc3b31cac6646"
+"classgtirb_1_1_node_structure_error.html#ab8801393f62ed41f7eff7a7ee01b4575"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['ia32',['IA32',['../namespacegtirb.html#af6d8ab445c410df6c921a06de0743a58a50aa92f578dda2d269ba8322de12dc8d',1,'gtirb']]],
-  ['idaprodb32',['IdaProDb32',['../namespacegtirb.html#ace3936ecef5d128a2bace5ac6f80c5a9af61bd36b950eb2948679ce4086e0f28c',1,'gtirb']]],
-  ['idaprodb64',['IdaProDb64',['../namespacegtirb.html#ace3936ecef5d128a2bace5ac6f80c5a9a50c06f7aaa0483040219652e5248e1ec',1,'gtirb']]]
+  ['elf',['ELF',['../namespacegtirb.html#ace3936ecef5d128a2bace5ac6f80c5a9ab61b2d6c6fa62903b882aaa53452c111',1,'gtirb']]],
+  ['enumerator',['Enumerator',['../classgtirb_1_1_symbol.html#a826ec104840f3b95fc6fe0e2f2433165a30309b565fa53a27f30668e22f7cf058',1,'gtirb::Symbol']]],
+  ['executable',['Executable',['../namespacegtirb.html#aa5a989e9d5efebb0d79d4f21b5ee95bca38492e6b60e40c59a376e2151778e2c7',1,'gtirb']]],
+  ['extern',['Extern',['../classgtirb_1_1_symbol.html#ab376ad7b7a216e73b54565187b7d95ffa498ab78ee0b25ce33c83714c1a453831',1,'gtirb::Symbol']]]
 ];

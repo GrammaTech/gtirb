@@ -14,6 +14,9 @@ var dir_c86b75cb8f2866058b6d144d4f2bb9a5 =
     [ "Instruction.hpp", "_instruction_8hpp.html", [
       [ "Instruction", "classgtirb_1_1_instruction.html", "classgtirb_1_1_instruction" ]
     ] ],
+    [ "IR.hpp", "_i_r_8hpp.html", [
+      [ "IR", "classgtirb_1_1_i_r.html", "classgtirb_1_1_i_r" ]
+    ] ],
     [ "LocalProperties.hpp", "_local_properties_8hpp.html", [
       [ "LocalProperties", "classgtirb_1_1_local_properties.html", "classgtirb_1_1_local_properties" ]
     ] ],
@@ -53,6 +56,12 @@ var dir_c86b75cb8f2866058b6d144d4f2bb9a5 =
     ] ],
     [ "RuntimeError.hpp", "_runtime_error_8hpp.html", [
       [ "RuntimeError", "classgtirb_1_1_runtime_error.html", "classgtirb_1_1_runtime_error" ]
+    ] ],
+    [ "Symbol.hpp", "_symbol_8hpp.html", [
+      [ "Symbol", "classgtirb_1_1_symbol.html", "classgtirb_1_1_symbol" ]
+    ] ],
+    [ "SymbolSet.hpp", "_symbol_set_8hpp.html", [
+      [ "SymbolSet", "classgtirb_1_1_symbol_set.html", "classgtirb_1_1_symbol_set" ]
     ] ],
     [ "Table.hpp", "_table_8hpp.html", [
       [ "Table", "classgtirb_1_1_table.html", "classgtirb_1_1_table" ]

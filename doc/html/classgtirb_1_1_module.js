@@ -8,6 +8,7 @@ var classgtirb_1_1_module =
     [ "getOrCreateModuleAux", "classgtirb_1_1_module.html#adbc15a6ed0a1f29c1a17505bb325aeee", null ],
     [ "getOrCreateModuleCore", "classgtirb_1_1_module.html#a8f1ce54ea28b3ffa50febff4ea31d7d5", null ],
     [ "getOrCreateModuleSummary", "classgtirb_1_1_module.html#a195aec420d73cdbf65910e73ab5bd50e", null ],
+    [ "getOrCreateSymbolSet", "classgtirb_1_1_module.html#af80df8d46529558b16b603449557dfee", null ],
     [ "getPreferredEA", "classgtirb_1_1_module.html#a8cc1bcec3f3aff476746ebf9aa78d1ae", null ],
     [ "getRebaseDelta", "classgtirb_1_1_module.html#a080dcaf377e8025198176e64bcaea30b", null ],
     [ "setBinaryPath", "classgtirb_1_1_module.html#a088cf24524e8e7ca24463cc408bbd810", null ],

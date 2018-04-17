@@ -1,10 +1,34 @@
 #include <gtest/gtest.h>
+#include <gtirb/AddrRanges.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/ModuleAux.hpp>
+#include <gtirb/ModuleCore.hpp>
+#include <gtirb/ModuleSummary.hpp>
+#include <gtirb/NodeUtilities.hpp>
+#include <gtirb/SymbolSet.hpp>
 #include <memory>
 
 TEST(Unit_Module, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::Module());
+}
+
+TEST(Unit_Module, validParent)
+{
+    auto parent = std::make_unique<gtirb::IR>();
+    auto child = std::make_unique<gtirb::Module>();
+    EXPECT_TRUE(child->getIsValidParent(parent.get()));
+    EXPECT_NO_THROW(parent->push_back(std::move(child)));
+}
+
+TEST(Unit_Module, invalidParent)
+{
+    auto notAParent = std::make_unique<gtirb::Node>();
+    auto child = std::make_unique<gtirb::Module>();
+
+    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
+    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_Module, setBinaryPath)
@@ -76,10 +100,10 @@ TEST(Unit_Module, getEAMinMaxDefault)
 TEST(Unit_Module, setEAMinMax)
 {
     auto m = std::make_shared<gtirb::Module>();
-    
+
     gtirb::EA minimum{64};
     gtirb::EA maximum{1024};
-    
+
     EXPECT_TRUE(m->setEAMinMax({minimum, maximum}));
     EXPECT_EQ(minimum, m->getEAMinMax().first);
     EXPECT_EQ(maximum, m->getEAMinMax().second);
@@ -106,4 +130,69 @@ TEST(Unit_Module, setPreferredEA)
     EXPECT_NO_THROW(m->setPreferredEA(preferred));
 
     EXPECT_EQ(preferred, m->getPreferredEA());
+}
+
+TEST(Unit_Module, getOrCreateModuleSummary)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::ModuleSummary>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateModuleSummary());
+    EXPECT_TRUE(m->getOrCreateModuleSummary() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::ModuleSummary>(m.get());
+    EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getOrCreateModuleCore)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::ModuleCore>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateModuleCore());
+    EXPECT_TRUE(m->getOrCreateModuleCore() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::ModuleCore>(m.get());
+    EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getOrCreateModuleAux)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::ModuleAux>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateModuleAux());
+    EXPECT_TRUE(m->getOrCreateModuleAux() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::ModuleAux>(m.get());
+    EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getOrCreateAddrRanges)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::AddrRanges>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateAddrRanges());
+    EXPECT_TRUE(m->getOrCreateAddrRanges() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::AddrRanges>(m.get());
+    EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getOrCreateSymbolSet)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::SymbolSet>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateSymbolSet());
+    EXPECT_TRUE(m->getOrCreateSymbolSet() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::SymbolSet>(m.get());
+    EXPECT_FALSE(children.empty());
 }

@@ -7,13 +7,16 @@ var hierarchy =
       [ "gtirb::Node", "classgtirb_1_1_node.html", [
         [ "gtirb::AddrRanges", "classgtirb_1_1_addr_ranges.html", null ],
         [ "gtirb::Instruction", "classgtirb_1_1_instruction.html", null ],
+        [ "gtirb::IR", "classgtirb_1_1_i_r.html", null ],
         [ "gtirb::Module", "classgtirb_1_1_module.html", null ],
         [ "gtirb::ModuleSectionBase", "classgtirb_1_1_module_section_base.html", [
           [ "gtirb::ModuleAux", "classgtirb_1_1_module_aux.html", null ],
           [ "gtirb::ModuleCore", "classgtirb_1_1_module_core.html", null ],
           [ "gtirb::ModuleSummary", "classgtirb_1_1_module_summary.html", null ]
         ] ],
-        [ "gtirb::Procedure", "classgtirb_1_1_procedure.html", null ]
+        [ "gtirb::Procedure", "classgtirb_1_1_procedure.html", null ],
+        [ "gtirb::Symbol", "classgtirb_1_1_symbol.html", null ],
+        [ "gtirb::SymbolSet", "classgtirb_1_1_symbol_set.html", null ]
       ] ]
     ] ],
     [ "logic_error", null, [
