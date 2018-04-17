@@ -1,0 +1,59 @@
+variables:
+  DOCKER_REGISTRY: "docker.grammatech.com:14850"
+  LOCAL_IMAGE_NAME: '$CI_BUILD_REF_NAME-$CI_PIPELINE_ID'
+  GIT_SUBMODULE_STRATEGY: recursive
+
+before_script:
+  - docker info
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
+
+stages:
+  # - build-test-deploy-cleanup-ubuntu16
+  # - build-test-deploy-cleanup-ubuntu14
+  - build-test-deploy-cleanup-arch
+  - deploy-and-cleanup
+
+.build-template: &build
+  script:
+    - docker build -f .ci/Dockerfile.$OS -t ${LOCAL_IMAGE_NAME}-${OS} .
+    - docker run ${LOCAL_IMAGE_NAME}-${OS} TestGTIRB
+    - docker tag ${LOCAL_IMAGE_NAME}-${OS} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS};
+    - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS};
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}
+
+# build-ubuntu16:
+#   stage: build-test-deploy-cleanup-ubuntu16
+#   variables:
+#     OS: 'ubuntu16'
+#   <<: *build
+
+# build-ubuntu14:
+#   stage: build-test-deploy-cleanup-ubuntu14
+#   variables:
+#     OS: 'ubuntu14'
+#   <<: *build
+
+build-arch:
+  stage: build-test-deploy-cleanup-arch
+  variables:
+    OS: 'arch'
+  <<: *build
+
+pages:
+  stage: deploy-and-cleanup
+  script:
+    - docker run ${LOCAL_IMAGE_NAME}-${OS} /bin/bash -c "mkdir -p /public && cp -R doc/html/* /public/"
+    - docker cp $(docker ps -alq):/public ./
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+cleanup:
+  stage: deploy-and-cleanup
+  script:
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}
+  except:
+    - master
