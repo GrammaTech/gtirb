@@ -1,5 +1,4 @@
 MACRO(ALIGNOF TYPE LANG NAME)
-
 	IF(NOT ALIGNOF_${NAME})
 		#
 		# Try to compile and run a foo grogram. 
