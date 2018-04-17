@@ -71,17 +71,23 @@ Do not do an in-source build.  Specify the location for where to build the binar
 
 If you insist on using the command line, then you can do this:
 
-`/path/to/gtirb> cmake ./ -Bbuild`
+```
+/path/to/gtirb> cmake ./ -Bbuild
+```
 
-By default, GT-IRB is built with C++17 enable.d  If you get an error stating "`CXX_STANDARD is set to invalid value '17'`", then you have an old compiler.  You can either update your compiler or you can use C++14 instead.  Use the variable `GTIRB_ISO_CPP_VERSION` and set it to `C++14`.  This is a simple drop-down in the GUI, or you can set it from the command line.
+By default, GT-IRB is built with C++17 enabled,  If you get an error stating "`CXX_STANDARD is set to invalid value '17'`", then you have an old compiler.  You can either update your compiler or you can use C++14 instead.  Use the variable `GTIRB_ISO_CPP_VERSION` and set it to `C++14`.  This is a simple drop-down in the GUI, or you can set it from the command line.
 
-`/path/to/gtirb> cmake ./ -Bbuild -DGTIRB_ISO_CPP_VERSION=C++14`
+```
+/path/to/gtirb> cmake ./ -Bbuild -DGTIRB_ISO_CPP_VERSION=C++14
+```
 
 Once CMake configures and generates the project, you will have a native Makefile or Visual Studio Solution inside of `/path/to/gtirb/build`.  
 
-On linux, simply run `make`.
+On Linux, simply run `make`.
 
-`/path/to/gtirb/build> make -j`
+```
+/path/to/gtirb/build> make -j
+```
 
 ### Building with SCons
 
@@ -91,4 +97,7 @@ On linux, simply run `make`.
 
 Go into the `bin` folder and execute `TestGTIRB`.
 
-`/path/to/gtirb/bin> ./TestGTIRB`
+```
+/path/to/gtirb/bin> ./TestGTIRB
+```
+
