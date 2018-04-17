@@ -1,0 +1,77 @@
+FROM ubuntu:16.04
+
+# Build Directions:	
+#	You can override the Ubuntu, LLVM, and CMake versions via the command line.
+#	
+#	Defaults:
+# 		ARG UBUNTU_VERSION=16.04
+#		ARG LLVM_VERSION=5.0.1
+#		ARG CMAKE_VERSION=3.10	
+#	
+#   Example: 
+#		docker build -t clang501 --build-arg LLVM_VERSION=501 ./
+#	
+
+# Run Directions:
+# 	Mount your repository to /repo.
+#
+#	Example:
+#		docker run --security-opt seccomp=unconfined -it -e LOCAL_USER=$USER -e LOCAL_USER_ID=`id -u $USER -v /home/myuser/projects/myrepo:/repo clang501
+#
+
+ARG UBUNTU_VERSION=16.04
+ARG LLVM_VERSION=5.0.1
+ARG CMAKE_VERSION=3.10
+
+MAINTAINER John Farrier <jfarrier@grammatech.com>
+
+CMD bash
+
+# Install packages handy for development, but not the compiler itself.
+RUN apt-get update && apt-get -y install \
+	apt-utils \
+	binfmt-support \
+	build-essential \
+	curl \
+	doxygen \
+	git \
+	libffi-dev \
+	libncurses-dev \
+	libobjc-4.8-dev \
+	libobjc4 \
+	libpipeline1 \
+	libpython-stdlib \
+	libpython2.7-minimal \
+	libpython2.7-stdlib \
+	libtinfo-dev \
+	python \
+	python-dev \
+	python-minimal \
+	python2.7 \
+	python2.7-minimal \
+	software-properties-common \
+	sudo \
+	tar \
+	vim \
+	wget \
+	xz-utils
+
+# Install CMake
+RUN wget -q -O /tmp/cmake.tar.gz --no-check-certificate \
+	https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz && \
+	tar -xaf /tmp/cmake.tar.gz --strip-components=1 -C /usr/local && \
+	rm /tmp/cmake.tar.gz
+
+# Install the Compiler
+RUN wget -q -O /tmp/clang.tar.xz --no-check-certificate http://releases.llvm.org/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-$UBUNTU_VERSION.tar.xz && \
+	tar -xaf /tmp/clang.tar.xz --strip-components=1 -C /usr/local && \
+	rm /tmp/clang.tar.xz 
+
+# Make a respository directory to mount to.
+RUN mkdir /repo
+
+# Define working directory.
+WORKDIR /repo
+
+# Define default command.
+CMD ["bash", "-c", "rm -rf builddocker; mkdir builddocker; cd builddocker; export CC=/usr/local/bin/clang; export CXX=/usr/local/bin/clang++; cmake -D_CMAKE_TOOLCHAIN_PREFIX=llvm- ..; bash"]

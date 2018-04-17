@@ -8,43 +8,53 @@ before_script:
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
 
 stages:
-  # - build-test-deploy-cleanup-ubuntu16
-  # - build-test-deploy-cleanup-ubuntu14
-  - build-test-deploy-cleanup-arch
+  - build-test-deploy-cleanup-ubuntu16-gcc
+  - build-test-deploy-cleanup-ubuntu16-clang
+# - build-test-deploy-cleanup-ubuntu14-gcc
+  - build-test-deploy-cleanup-arch-gcc
   - deploy-and-cleanup
 
 .build-template: &build
   script:
-    - docker build -f .ci/Dockerfile.$OS -t ${LOCAL_IMAGE_NAME}-${OS} .
+    - docker build -f .ci/Dockerfile.$OS -t ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} .
     - docker run ${LOCAL_IMAGE_NAME}-${OS} TestGTIRB
-    - docker tag ${LOCAL_IMAGE_NAME}-${OS} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS};
-    - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS};
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}
+    - docker tag ${LOCAL_IMAGE_NAME}-${OS} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
+    - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
 
-# build-ubuntu16:
-#   stage: build-test-deploy-cleanup-ubuntu16
-#   variables:
-#     OS: 'ubuntu16'
-#   <<: *build
+build-ubuntu16-gcc:
+  stage: build-test-deploy-cleanup-ubuntu16-gcc
+  variables:
+    OS: 'ubuntu16'
+    COMPILER: 'gcc'
+  <<: *build
+
+build-ubuntu16-clang:
+  stage: build-test-deploy-cleanup-ubuntu16-clang
+  variables:
+    OS: 'ubuntu16'
+    COMPILER: 'clang'
+  <<: *build
 
 # build-ubuntu14:
-#   stage: build-test-deploy-cleanup-ubuntu14
+#   stage: build-test-deploy-cleanup-ubuntu14-gcc
 #   variables:
 #     OS: 'ubuntu14'
 #   <<: *build
 
 build-arch:
-  stage: build-test-deploy-cleanup-arch
+  stage: build-test-deploy-cleanup-arch-gcc
   variables:
     OS: 'arch'
+    COMPILER: 'gcc'
   <<: *build
 
 pages:
   stage: deploy-and-cleanup
   script:
-    - docker run ${LOCAL_IMAGE_NAME}-${OS} /bin/bash -c "mkdir -p /public && cp -R doc/html/* /public/"
+    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p /public && cp -R doc/html/* /public/"
     - docker cp $(docker ps -alq):/public ./
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
   artifacts:
     paths:
       - public
@@ -54,6 +64,6 @@ pages:
 cleanup:
   stage: deploy-and-cleanup
   script:
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
   except:
     - master
