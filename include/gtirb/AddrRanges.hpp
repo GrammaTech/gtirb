@@ -9,7 +9,7 @@ namespace gtirb
     /// \class AddrRanges
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API AddrRanges : public Node
+    class GTIRB_GTIRB_EXPORT_API AddrRanges final : public Node
     {
     public:
         ///

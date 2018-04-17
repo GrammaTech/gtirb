@@ -8,7 +8,7 @@ namespace gtirb
     /// \class ModuleCore
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API ModuleCore : public ModuleSectionBase
+    class GTIRB_GTIRB_EXPORT_API ModuleCore final : public ModuleSectionBase
     {
     public:
     	ModuleCore();

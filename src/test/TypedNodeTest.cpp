@@ -1,17 +1,20 @@
 #include <gtest/gtest.h>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/ModuleCore.hpp>
 #include <gtirb/ModuleSectionBase.hpp>
 #include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/NodeUtilities.hpp>
+#include <gtirb/Procedure.hpp>
 #include <memory>
 
 using testing::Types;
 
 typedef Types<gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore, gtirb::ModuleAux,
-              gtirb::ModuleSummary, gtirb::AddrRanges>
+              gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure, gtirb::Instruction>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------

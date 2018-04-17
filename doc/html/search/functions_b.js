@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['push_5fback',['push_back',['../classgtirb_1_1_node.html#ac9b922603219c59130d79f918dbd09c9',1,'gtirb::Node']]]
+  ['procedure',['Procedure',['../classgtirb_1_1_procedure.html#a06fcf7806279d73c60232b06eea5e388',1,'gtirb::Procedure']]],
+  ['push_5fback',['push_back',['../classgtirb_1_1_node.html#afe1d88ea972870ff23c6cc2e25ddeb2d',1,'gtirb::Node']]]
 ];

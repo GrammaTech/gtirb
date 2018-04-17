@@ -25,6 +25,7 @@ set(${PROJECT_NAME}_SRC
 	AddrRanges.test.cpp
 	EA.test.cpp
 	Exception.test.cpp
+	Instruction.test.cpp
 	LocalProperties.test.cpp
 	Module.test.cpp
 	ModuleAux.test.cpp
@@ -33,6 +34,9 @@ set(${PROJECT_NAME}_SRC
 	ModuleSummary.test.cpp
 	Node.test.cpp
 	NodeError.test.cpp
+	NodeUtilities.test.cpp
+	NodeValidators.test.cpp
+	Procedure.test.cpp
 	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
 	TypedNodeTest.cpp

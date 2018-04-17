@@ -15,7 +15,7 @@ namespace gtirb
     /// many Node objects.
     ///
     template <typename R = int, typename C = int, typename T = std::string>
-    class TableTemplate : public Table
+    class TableTemplate final : public Table
     {
     public:
         ///

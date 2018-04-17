@@ -22,6 +22,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
+	../include/gtirb/Instruction.hpp
 	../include/gtirb/LocalProperties.hpp
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
@@ -32,6 +33,9 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Node.hpp
 	../include/gtirb/NodeError.hpp
 	../include/gtirb/NodeStructureError.hpp
+	../include/gtirb/NodeUtilities.hpp
+	../include/gtirb/NodeValidators.hpp
+	../include/gtirb/Procedure.hpp
 	../include/gtirb/RuntimeError.hpp
 	../include/gtirb/Table.hpp
 	../include/gtirb/TableTemplate.hpp
@@ -42,6 +46,7 @@ set(${PROJECT_NAME}_SRC
 	AddrRanges.cpp
 	EA.cpp
 	Exception.cpp
+	Instruction.cpp
 	LocalProperties.cpp
 	LogicError.cpp
 	Module.cpp
@@ -52,6 +57,7 @@ set(${PROJECT_NAME}_SRC
 	Node.cpp
 	NodeError.cpp
 	NodeStructureError.cpp
+	Procedure.cpp
 	RuntimeError.cpp
 	Utilities.cpp
 )

@@ -108,13 +108,13 @@ $(document).ready(function(){initNavTree('_node_8hpp.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#namespaces">Namespaces</a>  </div>
   <div class="headertitle">
 <div class="title">Node.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;boost/uuid/uuid.hpp&gt;</code><br />
+<code>#include &lt;functional&gt;</code><br />
 <code>#include &lt;<a class="el" href="_local_properties_8hpp_source.html">gtirb/LocalProperties.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_table_8hpp_source.html">gtirb/Table.hpp</a>&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
@@ -124,10 +124,10 @@ Include dependency graph for Node.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="_node_8hpp__incl.png" border="0" usemap="#include_2gtirb_2_node_8hpp" alt=""/></div>
 <map name="include_2gtirb_2_node_8hpp" id="include_2gtirb_2_node_8hpp">
-<area shape="rect" id="node3" href="_local_properties_8hpp.html" title="gtirb/LocalProperties.hpp" alt="" coords="164,80,331,107"/>
-<area shape="rect" id="node8" href="_table_8hpp.html" title="gtirb/Table.hpp" alt="" coords="355,80,463,107"/>
-<area shape="rect" id="node4" href="_any_8hpp.html" title="gtirb/Any.hpp" alt="" coords="83,155,182,181"/>
-<area shape="rect" id="node5" href="_export_8hpp.html" title="gtirb/Export.hpp" alt="" coords="206,155,321,181"/>
+<area shape="rect" id="node4" href="_local_properties_8hpp.html" title="gtirb/LocalProperties.hpp" alt="" coords="267,80,433,107"/>
+<area shape="rect" id="node9" href="_table_8hpp.html" title="gtirb/Table.hpp" alt="" coords="509,80,617,107"/>
+<area shape="rect" id="node5" href="_any_8hpp.html" title="gtirb/Any.hpp" alt="" coords="301,155,399,181"/>
+<area shape="rect" id="node6" href="_export_8hpp.html" title="gtirb/Export.hpp" alt="" coords="505,155,619,181"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -135,11 +135,16 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="_node_8hpp__dep__incl.png" border="0" usemap="#include_2gtirb_2_node_8hppdep" alt=""/></div>
 <map name="include_2gtirb_2_node_8hppdep" id="include_2gtirb_2_node_8hppdep">
-<area shape="rect" id="node2" href="_module_8hpp.html" title="include/gtirb/Module.hpp" alt="" coords="33,87,196,114"/>
-<area shape="rect" id="node3" href="_module_section_base_8hpp.html" title="include/gtirb/ModuleSection\lBase.hpp" alt="" coords="221,80,403,121"/>
-<area shape="rect" id="node4" href="_module_aux_8hpp.html" title="include/gtirb/ModuleAux.hpp" alt="" coords="5,169,192,196"/>
-<area shape="rect" id="node5" href="_module_core_8hpp.html" title="include/gtirb/ModuleCore.hpp" alt="" coords="217,169,407,196"/>
-<area shape="rect" id="node6" href="_module_summary_8hpp.html" title="include/gtirb/ModuleSummary.hpp" alt="" coords="432,169,651,196"/>
+<area shape="rect" id="node2" href="_addr_ranges_8hpp.html" title="include/gtirb/AddrRanges.hpp" alt="" coords="5,87,199,114"/>
+<area shape="rect" id="node3" href="_instruction_8hpp.html" title="include/gtirb/Instruction.hpp" alt="" coords="223,87,405,114"/>
+<area shape="rect" id="node4" href="_module_8hpp.html" title="include/gtirb/Module.hpp" alt="" coords="430,87,593,114"/>
+<area shape="rect" id="node5" href="_module_section_base_8hpp.html" title="include/gtirb/ModuleSection\lBase.hpp" alt="" coords="617,80,800,121"/>
+<area shape="rect" id="node9" href="_node_utilities_8hpp.html" title="include/gtirb/NodeUtilities.hpp" alt="" coords="824,87,1020,114"/>
+<area shape="rect" id="node10" href="_node_validators_8hpp.html" title="include/gtirb/NodeValidators.hpp" alt="" coords="953,169,1163,196"/>
+<area shape="rect" id="node11" href="_procedure_8hpp.html" title="include/gtirb/Procedure.hpp" alt="" coords="1096,87,1276,114"/>
+<area shape="rect" id="node6" href="_module_aux_8hpp.html" title="include/gtirb/ModuleAux.hpp" alt="" coords="283,169,470,196"/>
+<area shape="rect" id="node7" href="_module_core_8hpp.html" title="include/gtirb/ModuleCore.hpp" alt="" coords="495,169,685,196"/>
+<area shape="rect" id="node8" href="_module_summary_8hpp.html" title="include/gtirb/ModuleSummary.hpp" alt="" coords="710,169,929,196"/>
 </map>
 </div>
 </div>
@@ -158,12 +163,6 @@ Classes</h2></td></tr>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacegtirb"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacegtirb.html">gtirb</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a73b0028498487e8c4f14814223cf54d2"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a73b0028498487e8c4f14814223cf54d2"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T * &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacegtirb.html#a73b0028498487e8c4f14814223cf54d2">gtirb::GetChildrenOfType</a> (Node *const x)</td></tr>
-<tr class="separator:a73b0028498487e8c4f14814223cf54d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

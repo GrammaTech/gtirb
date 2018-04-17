@@ -59,7 +59,7 @@ bool Node::getIsValidParent(const Node* const x) const
     return true;
 }
 
-bool Node::push_back(std::unique_ptr<gtirb::Node>&& x)
+void Node::push_back(std::unique_ptr<gtirb::Node>&& x)
 {
     assert(x->getNodeParent() == nullptr);
 
@@ -72,8 +72,6 @@ bool Node::push_back(std::unique_ptr<gtirb::Node>&& x)
     {
         throw gtirb::NodeStructureError("Invalid parent/child relationship.", __FILE__, __LINE__);
     }
-
-    return true;
 }
 
 bool Node::empty() const

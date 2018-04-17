@@ -16,7 +16,7 @@ namespace gtirb
     /// `gtirb::constants::BadAddress`. It is compatible with a uint64_t for 64-bit address storage.
     /// An EA cannot store a relative address as it cannot contain a negative number.
     ///
-    class GTIRB_GTIRB_EXPORT_API EA
+    class GTIRB_GTIRB_EXPORT_API EA final
     {
     public:
         ///
