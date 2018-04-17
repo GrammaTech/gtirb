@@ -22,6 +22,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
+	../include/gtirb/FileMap.hpp
 	../include/gtirb/Instruction.hpp
 	../include/gtirb/IR.hpp
 	../include/gtirb/LocalProperties.hpp
@@ -50,6 +51,7 @@ set(${PROJECT_NAME}_SRC
 	AddrRanges.cpp
 	EA.cpp
 	Exception.cpp
+	FileMap.cpp
 	Instruction.cpp
 	IR.cpp
 	LocalProperties.cpp

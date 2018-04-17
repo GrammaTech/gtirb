@@ -25,6 +25,7 @@ set(${PROJECT_NAME}_SRC
 	AddrRanges.test.cpp
 	EA.test.cpp
 	Exception.test.cpp
+	FileMap.test.cpp
 	Instruction.test.cpp
 	IR.test.cpp
 	LocalProperties.test.cpp
