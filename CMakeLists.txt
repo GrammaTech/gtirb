@@ -134,7 +134,7 @@ endif()
 
 # https://stackoverflow.com/questions/9723793/undefined-reference-to-boostsystemsystem-category-when-compiling
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-find_package(Boost 1.66.0 REQUIRED COMPONENTS serialization filesystem)
+find_package(Boost REQUIRED COMPONENTS serialization filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------

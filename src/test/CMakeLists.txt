@@ -38,6 +38,7 @@ set(${PROJECT_NAME}_SRC
 	NodeUtilities.test.cpp
 	NodeValidators.test.cpp
 	Procedure.test.cpp
+	Region.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
 	TableTemplate.test.cpp
@@ -63,8 +64,7 @@ target_link_libraries(
 	${Boost_LIBRARIES}
 	gtest 
 	gtest_main
-	GTIRB
+	gtirb
 )
 
-add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "GTIRB/Test")
+add_subdirectory(testInputBinary)

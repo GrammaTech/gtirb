@@ -1,4 +1,4 @@
-SET(PROJECT_NAME GTIRB)
+SET(PROJECT_NAME gtirb)
 
 add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 
@@ -37,6 +37,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/NodeUtilities.hpp
 	../include/gtirb/NodeValidators.hpp
 	../include/gtirb/Procedure.hpp
+	../include/gtirb/Region.hpp
 	../include/gtirb/RuntimeError.hpp
 	../include/gtirb/Symbol.hpp
 	../include/gtirb/SymbolSet.hpp
@@ -62,6 +63,7 @@ set(${PROJECT_NAME}_SRC
 	NodeError.cpp
 	NodeStructureError.cpp
 	Procedure.cpp
+	Region.cpp
 	RuntimeError.cpp
 	Symbol.cpp
 	SymbolSet.cpp
