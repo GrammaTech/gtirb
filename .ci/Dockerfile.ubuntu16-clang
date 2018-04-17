@@ -67,11 +67,12 @@ RUN wget -q -O /tmp/clang.tar.xz --no-check-certificate http://releases.llvm.org
 	tar -xaf /tmp/clang.tar.xz --strip-components=1 -C /usr/local && \
 	rm /tmp/clang.tar.xz 
 
-# Make a respository directory to mount to.
-RUN mkdir /repo
+COPY . /gt/gt-irb/
+RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
+RUN mkdir -p /gt/gt-irb/build
+WORKDIR /gt/gt-irb/build
+RUN cmake ../
+RUN make -j
 
-# Define working directory.
-WORKDIR /repo
-
-# Define default command.
-CMD ["bash", "-c", "rm -rf builddocker; mkdir builddocker; cd builddocker; export CC=/usr/local/bin/clang; export CXX=/usr/local/bin/clang++; cmake -D_CMAKE_TOOLCHAIN_PREFIX=llvm- ..; bash"]
+WORKDIR /gt/gt-irb/
+ENV PATH=/gt/gt-irb/bin:$PATH
