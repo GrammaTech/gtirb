@@ -1,0 +1,13 @@
+FROM base/archlinux
+RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pacman.conf
+RUN pacman --noconfirm -Syu archlinux-keyring
+RUN pacman --noconfirm -Syu base-devel gcc gcc-libs git make cmake boost
+COPY . /gt/gt-irb/
+RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
+RUN mkdir -p /gt/gt-irb/build
+WORKDIR /gt/gt-irb/build
+RUN cmake ../
+RUN make -j
+
+WORKDIR /gt/gt-irb/
+ENV PATH=/gt/gt-irb/bin:$PATH

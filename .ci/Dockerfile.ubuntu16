@@ -1,0 +1,18 @@
+FROM ubuntu:16.04
+RUN apt-get -y update && \
+    apt-get -y install software-properties-common && \
+    add-apt-repository ppa:jonathonf/gcc-7.1 && \
+    apt-get -y update && \
+    apt-get -y install gcc-7 g++-7 make cmake git build-essential binutils libboost-all-dev
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-7 60
+RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-7 60
+COPY . /gt/gt-irb/
+RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
+RUN mkdir -p /gt/gt-irb/build
+WORKDIR /gt/gt-irb/build
+# RUN cmake ../
+# RUN cmake ../ -DGTIRB_ISO_CPP_VERSION="C++14"
+# RUN make -j
+
+WORKDIR /gt/gt-irb/
+ENV PATH=/gt/gt-irb/bin:$PATH

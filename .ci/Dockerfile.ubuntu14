@@ -1,0 +1,12 @@
+FROM ubuntu:14.04
+RUN apt-get -y update && \
+    apt-get -y install gcc make cmake git build-essential binutils libboost-all-dev
+COPY . /gt/gt-irb/
+RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
+RUN mkdir -p /gt/gt-irb/build
+WORKDIR /gt/gt-irb/build
+RUN cmake ../ -DGTIRB_ISO_CPP_VERSION="C++14"
+RUN make -j
+
+WORKDIR /gt/gt-irb/
+ENV PATH=/gt/gt-irb/bin:$PATH
