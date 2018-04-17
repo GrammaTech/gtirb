@@ -33,7 +33,6 @@ set(CMAKE_CXX_STANDARD 17)
 #
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
-set(GTIRB_BOOST_VERSION "1.58.0" CACHE STRING "")
 
 # The user can toggle between boost and std implementaiton of "any".
 # This is not a feature, but a work-around for older compiler support.
@@ -56,22 +55,10 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #
-# Boost Options (CMake)
-#
-
-# https://stackoverflow.com/questions/9723793/undefined-reference-to-boostsystemsystem-category-when-compiling
-add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-find_package(Boost ${GTIRB_BOOST_VERSION} REQUIRED COMPONENTS serialization filesystem)
-include_directories(${Boost_INCLUDE_DIRS})
-
-#
 # Global Options (Compile / Link)
 #
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-	set(GTIRB_MICROSOFT_VCPKG_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE PATH "Optional")
-	include(${GTIRB_MICROSOFT_VCPKG_TOOLCHAIN_FILE})
-
 	add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
 	add_compile_options(-D_MBCS)
 	add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
@@ -129,9 +116,8 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LARGEADDRESSAWARE")
 
 	# Microsoft VCPKG
-	set(CMAKE_TOOLCHAIN_FILE "${C:/vcpkg/scripts/buildsystems/vcpkg.cmake}" CACHE PATH "")
-	include(${CMAKE_TOOLCHAIN_FILE})
-	include(${CMAKE_TOOLCHAIN_FILE})
+	set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE PATH "")
+    include(${CMAKE_TOOLCHAIN_FILE})
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	# add_compile_options(-Wall)
 	add_compile_options(-fPIC)
@@ -141,6 +127,15 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	add_compile_options(-fPIC)
 	# add_compile_options(-Werror)
 endif()
+
+#
+# Boost Options (CMake)
+#
+
+# https://stackoverflow.com/questions/9723793/undefined-reference-to-boostsystemsystem-category-when-compiling
+add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
+find_package(Boost 1.66.0 REQUIRED COMPONENTS serialization filesystem)
+include_directories(${Boost_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------
 # Google Test Application
