@@ -1,6 +1,7 @@
 var searchData=
 [
   ['macho',['MACHO',['../namespacegtirb.html#ace3936ecef5d128a2bace5ac6f80c5a9af5493105a2282d93b187efae6d98a55e',1,'gtirb']]],
+  ['mallocsite',['MallocSite',['../classgtirb_1_1_symbol.html#a826ec104840f3b95fc6fe0e2f2433165aaa6f53673ff17b25a6123f09b8d7888a',1,'gtirb::Symbol']]],
   ['module',['Module',['../classgtirb_1_1_module.html',1,'gtirb']]],
   ['module_2ehpp',['Module.hpp',['../_module_8hpp.html',1,'']]],
   ['moduleaux',['ModuleAux',['../classgtirb_1_1_module_aux.html',1,'gtirb']]],
@@ -12,7 +13,7 @@ var searchData=
   ['modulesectionbase',['ModuleSectionBase',['../classgtirb_1_1_module_section_base.html',1,'gtirb']]],
   ['modulesectionbase',['ModuleSectionBase',['../classgtirb_1_1_module_section_base.html#a5470e19318de663de59e45b9a50d514b',1,'gtirb::ModuleSectionBase']]],
   ['modulesectionbase_2ehpp',['ModuleSectionBase.hpp',['../_module_section_base_8hpp.html',1,'']]],
-  ['modulesummary',['ModuleSummary',['../classgtirb_1_1_module_summary.html',1,'gtirb']]],
   ['modulesummary',['ModuleSummary',['../classgtirb_1_1_module_summary.html#abce4a82c6b8d2673b75fdd7a7b9fe7be',1,'gtirb::ModuleSummary']]],
+  ['modulesummary',['ModuleSummary',['../classgtirb_1_1_module_summary.html',1,'gtirb']]],
   ['modulesummary_2ehpp',['ModuleSummary.hpp',['../_module_summary_8hpp.html',1,'']]]
 ];

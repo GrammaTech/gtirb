@@ -27,11 +27,11 @@ TEST(Unit_Procedure, validParent_noException)
 
 TEST(Unit_Procedure, invalidParent)
 {
-    auto notAModule = std::make_unique<gtirb::Node>();
+    auto notAParent = std::make_unique<gtirb::Node>();
     auto child = std::make_unique<gtirb::Procedure>();
 
-    EXPECT_FALSE(child->getIsValidParent(notAModule.get()));
-    EXPECT_THROW(notAModule->push_back(std::move(child)), gtirb::NodeStructureError);
+    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
+    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_Procedure, getPLTEntries)

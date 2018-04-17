@@ -12,26 +12,26 @@ TEST(Unit_ModuleSectionBase, ctor_0)
 TEST(Unit_ModuleSectionBase, validParent)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto moduleSection = std::make_unique<gtirb::ModuleSectionBase>();
-    EXPECT_TRUE(moduleSection->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(moduleSection)));
+    auto child = std::make_unique<gtirb::ModuleSectionBase>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleSectionBase, validParent_noException)
 {
     auto module = std::make_unique<gtirb::Module>();
-    auto moduleSection = std::make_unique<gtirb::ModuleSectionBase>();
-    EXPECT_TRUE(moduleSection->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(moduleSection)));
+    auto child = std::make_unique<gtirb::ModuleSectionBase>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleSectionBase, invalidParent)
 {
-    auto notAModule = std::make_unique<gtirb::Node>();
-    auto moduleSection = std::make_unique<gtirb::ModuleSectionBase>();
+    auto notAParent = std::make_unique<gtirb::Node>();
+    auto child = std::make_unique<gtirb::ModuleSectionBase>();
 
-    EXPECT_FALSE(moduleSection->getIsValidParent(notAModule.get()));
-    EXPECT_THROW(notAModule->push_back(std::move(moduleSection)), gtirb::NodeStructureError);
+    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
+    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_ModuleSectionBase, getIsSetupComplete)

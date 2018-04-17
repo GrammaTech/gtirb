@@ -11,6 +11,7 @@ namespace gtirb
     class ModuleCore;
     class ModuleAux;
     class AddrRanges;
+    class SymbolSet;
 
     ///
     /// \class Module
@@ -23,6 +24,14 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API Module : public Node
     {
     public:
+        ///
+        /// Default constructor.
+        ///
+        Module();
+
+        ///
+        /// Trivial virtual destructor.
+        ///
         virtual ~Module() = default;
 
         ///
@@ -94,6 +103,7 @@ namespace gtirb
         gtirb::ModuleCore* getOrCreateModuleCore();
         gtirb::ModuleAux* getOrCreateModuleAux();
         gtirb::AddrRanges* getOrCreateAddrRanges();
+        gtirb::SymbolSet* getOrCreateSymbolSet();
         
     private:
         boost::filesystem::path binaryPath{};

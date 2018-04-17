@@ -9,12 +9,16 @@
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/Procedure.hpp>
+#include <gtirb/SymbolSet.hpp>
+#include <gtirb/Symbol.hpp>
+#include <gtirb/IR.hpp>
 #include <memory>
 
 using testing::Types;
 
 typedef Types<gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore, gtirb::ModuleAux,
-              gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure, gtirb::Instruction>
+              gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure, gtirb::Instruction,
+              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------

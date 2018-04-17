@@ -26,6 +26,7 @@ set(${PROJECT_NAME}_SRC
 	EA.test.cpp
 	Exception.test.cpp
 	Instruction.test.cpp
+	IR.test.cpp
 	LocalProperties.test.cpp
 	Module.test.cpp
 	ModuleAux.test.cpp
@@ -37,6 +38,8 @@ set(${PROJECT_NAME}_SRC
 	NodeUtilities.test.cpp
 	NodeValidators.test.cpp
 	Procedure.test.cpp
+	Symbol.test.cpp
+	SymbolSet.test.cpp
 	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
 	TypedNodeTest.cpp
