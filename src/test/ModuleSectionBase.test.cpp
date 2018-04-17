@@ -14,7 +14,7 @@ TEST(Unit_ModuleSectionBase, validParent)
     auto module = std::make_unique<gtirb::Module>();
     auto moduleSection = std::make_unique<gtirb::ModuleSectionBase>();
     EXPECT_TRUE(moduleSection->getIsValidParent(module.get()));
-    EXPECT_TRUE(module->push_back(std::move(moduleSection)));
+    EXPECT_NO_THROW(module->push_back(std::move(moduleSection)));
 }
 
 TEST(Unit_ModuleSectionBase, validParent_noException)

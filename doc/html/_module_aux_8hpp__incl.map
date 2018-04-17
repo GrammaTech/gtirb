@@ -1,11 +1,11 @@
 <map id="include/gtirb/ModuleAux.hpp" name="include/gtirb/ModuleAux.hpp">
-<area shape="rect" id="node2" href="$_module_section_base_8hpp.html" title="gtirb/ModuleSectionBase.hpp" alt="" coords="436,80,628,107"/>
+<area shape="rect" id="node2" href="$_module_section_base_8hpp.html" title="gtirb/ModuleSectionBase.hpp" alt="" coords="496,80,688,107"/>
 <area shape="rect" id="node4" href="$_e_a_8hpp.html" title="gtirb/EA.hpp" alt="" coords="197,229,291,256"/>
-<area shape="rect" id="node10" href="$_enums_8hpp.html" title="gtirb/Enums.hpp" alt="" coords="655,155,772,181"/>
-<area shape="rect" id="node11" href="$_node_8hpp.html" title="gtirb/Node.hpp" alt="" coords="524,155,631,181"/>
+<area shape="rect" id="node10" href="$_enums_8hpp.html" title="gtirb/Enums.hpp" alt="" coords="715,155,832,181"/>
+<area shape="rect" id="node11" href="$_node_8hpp.html" title="gtirb/Node.hpp" alt="" coords="584,155,691,181"/>
 <area shape="rect" id="node6" href="$_constants_8hpp.html" title="gtirb/Constants.hpp" alt="" coords="24,304,160,331"/>
 <area shape="rect" id="node8" href="$_export_8hpp.html" title="gtirb/Export.hpp" alt="" coords="235,304,349,331"/>
-<area shape="rect" id="node13" href="$_local_properties_8hpp.html" title="gtirb/LocalProperties.hpp" alt="" coords="554,229,721,256"/>
-<area shape="rect" id="node16" href="$_table_8hpp.html" title="gtirb/Table.hpp" alt="" coords="370,229,478,256"/>
-<area shape="rect" id="node14" href="$_any_8hpp.html" title="gtirb/Any.hpp" alt="" coords="588,304,687,331"/>
+<area shape="rect" id="node14" href="$_local_properties_8hpp.html" title="gtirb/LocalProperties.hpp" alt="" coords="554,229,721,256"/>
+<area shape="rect" id="node17" href="$_table_8hpp.html" title="gtirb/Table.hpp" alt="" coords="370,229,478,256"/>
+<area shape="rect" id="node15" href="$_any_8hpp.html" title="gtirb/Any.hpp" alt="" coords="588,304,687,331"/>
 </map>

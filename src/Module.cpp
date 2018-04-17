@@ -1,9 +1,10 @@
-#include <gtirb/Module.hpp>
-#include <gtirb/ModuleSummary.hpp>
-#include <gtirb/ModuleCore.hpp>
-#include <gtirb/ModuleAux.hpp>
-#include <gtirb/NodeStructureError.hpp>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/Module.hpp>
+#include <gtirb/ModuleAux.hpp>
+#include <gtirb/ModuleCore.hpp>
+#include <gtirb/ModuleSummary.hpp>
+#include <gtirb/NodeStructureError.hpp>
+#include <gtirb/NodeUtilities.hpp>
 
 using namespace gtirb;
 
@@ -64,86 +65,22 @@ gtirb::EA Module::getPreferredEA() const
     return this->preferredEA;
 }
 
-gtirb::ModuleSummary* gtirb::GetOrCreateModuleSummary(gtirb::Module* const x)
+gtirb::ModuleSummary* Module::getOrCreateModuleSummary()
 {
-    const auto children = GetChildrenOfType<gtirb::ModuleSummary>(x);
-    if(children.empty() == false)
-    {
-        if(children.size() == 1)
-        {
-            return children[0];
-        }
-        else
-        {
-            throw gtirb::NodeStructureError("Multiple \"ModuleSummary\" children were found under one Module.");
-        }
-    }
-
-    auto moduleSummary = std::make_unique<gtirb::ModuleSummary>();
-    auto moduleSummaryPtr = moduleSummary.get();
-    x->push_back(std::move(moduleSummary));
-    return moduleSummaryPtr;
+    return gtirb::GetOrCreateChildOfType<gtirb::ModuleSummary>(this);
 }
 
-gtirb::ModuleCore* gtirb::GetOrCreateModuleCore(Module* const x)
+gtirb::ModuleCore* Module::getOrCreateModuleCore()
 {
-    const auto children = GetChildrenOfType<gtirb::ModuleCore>(x);
-    if(children.empty() == false)
-    {
-        if(children.size() == 1)
-        {
-            return children[0];
-        }
-        else
-        {
-            throw gtirb::NodeStructureError("Multiple \"ModuleCore\" children were found under one Module.");
-        }
-    }
-
-    auto moduleSummary = std::make_unique<gtirb::ModuleCore>();
-    auto moduleSummaryPtr = moduleSummary.get();
-    x->push_back(std::move(moduleSummary));
-    return moduleSummaryPtr;
+    return gtirb::GetOrCreateChildOfType<gtirb::ModuleCore>(this);
 }
 
-gtirb::ModuleAux* gtirb::GetOrCreateModuleAux(Module* const x)
+gtirb::ModuleAux* Module::getOrCreateModuleAux()
 {
-    const auto children = GetChildrenOfType<gtirb::ModuleAux>(x);
-    if(children.empty() == false)
-    {
-        if(children.size() == 1)
-        {
-            return children[0];
-        }
-        else
-        {
-            throw gtirb::NodeStructureError("Multiple \"ModuleAux\" children were found under one Module.");
-        }
-    }
-
-    auto moduleSummary = std::make_unique<gtirb::ModuleAux>();
-    auto moduleSummaryPtr = moduleSummary.get();
-    x->push_back(std::move(moduleSummary));
-    return moduleSummaryPtr;
+    return gtirb::GetOrCreateChildOfType<gtirb::ModuleAux>(this);
 }
 
-gtirb::AddrRanges* gtirb::GetOrCreateAddrRanges(Module* const x)
+gtirb::AddrRanges* Module::getOrCreateAddrRanges()
 {
-    const auto children = GetChildrenOfType<gtirb::AddrRanges>(x);
-    if(children.empty() == false)
-    {
-        if(children.size() == 1)
-        {
-            return children[0];
-        }
-        else
-        {
-            throw gtirb::NodeStructureError("Multiple \"AddrRanges\" children were found under one Module.");
-        }
-    }
-
-    auto moduleSummary = std::make_unique<gtirb::AddrRanges>();
-    auto moduleSummaryPtr = moduleSummary.get();
-    x->push_back(std::move(moduleSummary));
-    return moduleSummaryPtr;
+    return gtirb::GetOrCreateChildOfType<gtirb::AddrRanges>(this);
 }

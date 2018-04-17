@@ -14,7 +14,7 @@ TEST(Unit_ModuleAux, validParent)
     auto module = std::make_unique<gtirb::Module>();
     auto child = std::make_unique<gtirb::ModuleAux>();
     EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_TRUE(module->push_back(std::move(child)));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
 TEST(Unit_ModuleAux, validParent_noException)

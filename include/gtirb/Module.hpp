@@ -90,6 +90,11 @@ namespace gtirb
         ///
         gtirb::EA getPreferredEA() const;
 
+        gtirb::ModuleSummary* getOrCreateModuleSummary();
+        gtirb::ModuleCore* getOrCreateModuleCore();
+        gtirb::ModuleAux* getOrCreateModuleAux();
+        gtirb::AddrRanges* getOrCreateAddrRanges();
+        
     private:
         boost::filesystem::path binaryPath{};
         std::pair<gtirb::EA, gtirb::EA> eaMinMax{};
@@ -97,9 +102,4 @@ namespace gtirb
         int64_t rebaseDelta{0};
         gtirb::FileFormat fileFormat{};
     };
-
-    GTIRB_GTIRB_EXPORT_API ModuleSummary* GetOrCreateModuleSummary(Module* const x);
-    GTIRB_GTIRB_EXPORT_API ModuleCore* GetOrCreateModuleCore(Module* const x);
-    GTIRB_GTIRB_EXPORT_API ModuleAux* GetOrCreateModuleAux(Module* const x);
-    GTIRB_GTIRB_EXPORT_API AddrRanges* GetOrCreateAddrRanges(Module* const x);
 }

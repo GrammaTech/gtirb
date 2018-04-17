@@ -1,7 +1,12 @@
 <map id="include/gtirb/Node.hpp" name="include/gtirb/Node.hpp">
-<area shape="rect" id="node2" href="$_module_8hpp.html" title="include/gtirb/Module.hpp" alt="" coords="33,87,196,114"/>
-<area shape="rect" id="node3" href="$_module_section_base_8hpp.html" title="include/gtirb/ModuleSection\lBase.hpp" alt="" coords="221,80,403,121"/>
-<area shape="rect" id="node4" href="$_module_aux_8hpp.html" title="include/gtirb/ModuleAux.hpp" alt="" coords="5,169,192,196"/>
-<area shape="rect" id="node5" href="$_module_core_8hpp.html" title="include/gtirb/ModuleCore.hpp" alt="" coords="217,169,407,196"/>
-<area shape="rect" id="node6" href="$_module_summary_8hpp.html" title="include/gtirb/ModuleSummary.hpp" alt="" coords="432,169,651,196"/>
+<area shape="rect" id="node2" href="$_addr_ranges_8hpp.html" title="include/gtirb/AddrRanges.hpp" alt="" coords="5,87,199,114"/>
+<area shape="rect" id="node3" href="$_instruction_8hpp.html" title="include/gtirb/Instruction.hpp" alt="" coords="223,87,405,114"/>
+<area shape="rect" id="node4" href="$_module_8hpp.html" title="include/gtirb/Module.hpp" alt="" coords="430,87,593,114"/>
+<area shape="rect" id="node5" href="$_module_section_base_8hpp.html" title="include/gtirb/ModuleSection\lBase.hpp" alt="" coords="617,80,800,121"/>
+<area shape="rect" id="node9" href="$_node_utilities_8hpp.html" title="include/gtirb/NodeUtilities.hpp" alt="" coords="824,87,1020,114"/>
+<area shape="rect" id="node10" href="$_node_validators_8hpp.html" title="include/gtirb/NodeValidators.hpp" alt="" coords="953,169,1163,196"/>
+<area shape="rect" id="node11" href="$_procedure_8hpp.html" title="include/gtirb/Procedure.hpp" alt="" coords="1096,87,1276,114"/>
+<area shape="rect" id="node6" href="$_module_aux_8hpp.html" title="include/gtirb/ModuleAux.hpp" alt="" coords="283,169,470,196"/>
+<area shape="rect" id="node7" href="$_module_core_8hpp.html" title="include/gtirb/ModuleCore.hpp" alt="" coords="495,169,685,196"/>
+<area shape="rect" id="node8" href="$_module_summary_8hpp.html" title="include/gtirb/ModuleSummary.hpp" alt="" coords="710,169,929,196"/>
 </map>

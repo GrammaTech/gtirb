@@ -124,12 +124,15 @@ Inheritance diagram for gtirb::Node:</div>
 <div class="dyncontent">
 <div class="center"><img src="classgtirb_1_1_node__inherit__graph.png" border="0" usemap="#gtirb_1_1_node_inherit__map" alt="Inheritance graph"/></div>
 <map name="gtirb_1_1_node_inherit__map" id="gtirb_1_1_node_inherit__map">
-<area shape="rect" id="node3" href="classgtirb_1_1_module.html" title="gtirb::Module" alt="" coords="5,155,103,181"/>
-<area shape="rect" id="node4" href="classgtirb_1_1_module_section_base.html" title="gtirb::ModuleSectionBase" alt="" coords="127,155,298,181"/>
-<area shape="rect" id="node2" href="classgtirb_1_1_local_properties.html" title="gtirb::LocalProperties" alt="" coords="60,5,205,32"/>
-<area shape="rect" id="node5" href="classgtirb_1_1_module_aux.html" title="gtirb::ModuleAux" alt="" coords="6,229,126,256"/>
-<area shape="rect" id="node6" href="classgtirb_1_1_module_core.html" title="gtirb::ModuleCore" alt="" coords="150,229,275,256"/>
-<area shape="rect" id="node7" href="classgtirb_1_1_module_summary.html" title="gtirb::ModuleSummary" alt="" coords="300,229,453,256"/>
+<area shape="rect" id="node3" href="classgtirb_1_1_addr_ranges.html" title="gtirb::AddrRanges" alt="" coords="355,5,482,32"/>
+<area shape="rect" id="node4" href="classgtirb_1_1_instruction.html" title="gtirb::Instruction" alt="" coords="361,56,477,83"/>
+<area shape="rect" id="node5" href="classgtirb_1_1_module.html" title="gtirb::Module" alt="" coords="370,107,467,133"/>
+<area shape="rect" id="node6" href="classgtirb_1_1_module_section_base.html" title="gtirb::ModuleSectionBase" alt="" coords="333,157,504,184"/>
+<area shape="rect" id="node10" href="classgtirb_1_1_procedure.html" title="gtirb::Procedure" alt="" coords="361,208,476,235"/>
+<area shape="rect" id="node2" href="classgtirb_1_1_local_properties.html" title="gtirb::LocalProperties" alt="" coords="5,107,151,133"/>
+<area shape="rect" id="node7" href="classgtirb_1_1_module_aux.html" title="gtirb::ModuleAux" alt="" coords="569,107,689,133"/>
+<area shape="rect" id="node8" href="classgtirb_1_1_module_core.html" title="gtirb::ModuleCore" alt="" coords="566,157,691,184"/>
+<area shape="rect" id="node9" href="classgtirb_1_1_module_summary.html" title="gtirb::ModuleSummary" alt="" coords="552,208,705,235"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -164,8 +167,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a5ad582c738dfd4769f010450f77bc71a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88989600c916b30a6b72b11b839b9c37"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgtirb_1_1_node.html#a88989600c916b30a6b72b11b839b9c37">getIsValidParent</a> (const <a class="el" href="classgtirb_1_1_node.html">Node</a> *const x) const </td></tr>
 <tr class="separator:a88989600c916b30a6b72b11b839b9c37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9b922603219c59130d79f918dbd09c9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgtirb_1_1_node.html#ac9b922603219c59130d79f918dbd09c9">push_back</a> (std::unique_ptr&lt; <a class="el" href="classgtirb_1_1_node.html">gtirb::Node</a> &gt; &amp;&amp;x)</td></tr>
-<tr class="separator:ac9b922603219c59130d79f918dbd09c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe1d88ea972870ff23c6cc2e25ddeb2d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgtirb_1_1_node.html#afe1d88ea972870ff23c6cc2e25ddeb2d">push_back</a> (std::unique_ptr&lt; <a class="el" href="classgtirb_1_1_node.html">gtirb::Node</a> &gt; &amp;&amp;x)</td></tr>
+<tr class="separator:afe1d88ea972870ff23c6cc2e25ddeb2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c558fc901e13cf60380d24d5b9b6008"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgtirb_1_1_node.html#a8c558fc901e13cf60380d24d5b9b6008">empty</a> () const </td></tr>
 <tr class="separator:a8c558fc901e13cf60380d24d5b9b6008"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41ad268b23e3899f96d3a7637048c7eb"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgtirb_1_1_node.html#a41ad268b23e3899f96d3a7637048c7eb">size</a> () const </td></tr>
@@ -659,12 +662,12 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac9b922603219c59130d79f918dbd09c9"></a>
+<a class="anchor" id="afe1d88ea972870ff23c6cc2e25ddeb2d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool gtirb::Node::push_back </td>
+          <td class="memname">void gtirb::Node::push_back </td>
           <td>(</td>
           <td class="paramtype">std::unique_ptr&lt; <a class="el" href="classgtirb_1_1_node.html">gtirb::Node</a> &gt; &amp;&amp;&#160;</td>
           <td class="paramname"><em>x</em></td><td>)</td>
@@ -673,9 +676,8 @@ Protected Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Adds a child node.</p>
-<p>API is modeled after the STL. Unlike the STL, this returns true on success. (STL returns void.) Executes functions added via Node::addPushBackValidator(). Will not add the node if the validator returns false.</p>
-<p>Throws <a class="el" href="classgtirb_1_1_node_structure_error.html">gtirb::NodeStructureError</a>.</p>
-<dl class="section return"><dt>Returns</dt><dd>False if "x" cannot be a child of this <a class="el" href="classgtirb_1_1_node.html">Node</a> type (Using RTTI). </dd></dl>
+<p>API is modeled after the STL. Executes functions added via Node::addPushBackValidator(). Will not add the <a class="el" href="classgtirb_1_1_node.html">Node</a> if the <a class="el" href="classgtirb_1_1_node.html">Node</a>'s validator returns false.</p>
+<p>Throws <a class="el" href="classgtirb_1_1_node_structure_error.html">gtirb::NodeStructureError</a>. </p>
 
 </div>
 </div>

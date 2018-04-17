@@ -173,16 +173,13 @@ namespace gtirb
         ///
         /// Adds a child node.
         ///
-        /// API is modeled after the STL.  Unlike the STL, this returns true on success.  (STL
-        /// returns void.)  Executes functions added via Node::addPushBackValidator().  Will not add
-        /// the node if the validator returns false.
+        /// API is modeled after the STL.  Executes functions added via
+        /// Node::addPushBackValidator().  Will not add the Node if the Node's validator returns
+        /// false.
         ///
         /// Throws gtirb::NodeStructureError.
         ///
-        /// \return     False if "x" cannot be a child of this Node type (Using RTTI).
-        ///
-        ///
-        bool push_back(std::unique_ptr<gtirb::Node>&& x);
+        void push_back(std::unique_ptr<gtirb::Node>&& x);
 
         ///
         /// Determines if there are any child nodes.
@@ -359,29 +356,4 @@ namespace gtirb
         std::vector<std::function<bool(const Node* const)>> parentValidators;
         std::vector<std::shared_ptr<Node>> children;
     };
-
-    ///
-    /// A free function to build a vector of Node children of a specific type.
-    ///
-    /// \param  x   A pointer to the node to get the children of.
-    /// \return     A vector of all the children of the input node which are of the templated type.
-    ///
-    template <typename T>
-    std::vector<T*> GetChildrenOfType(const Node* const x)
-    {
-        static_assert(std::is_base_of<gtirb::Node, T>::value,
-                      "T must be a descendant of gtirb::Node.");
-
-        std::vector<T*> children;
-
-        std::for_each(std::begin(*x), std::end(*x), [&children](Node* const child) {
-            auto correctType = dynamic_cast<T*>(child);
-            if(correctType != nullptr)
-            {
-                children.push_back(correctType);
-            }
-        });
-
-        return children;
-    }
 } // namespace gtirb

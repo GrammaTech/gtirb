@@ -1,15 +1,12 @@
 #include <gtirb/ModuleSectionBase.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
 
 ModuleSectionBase::ModuleSectionBase() : Node()
 {
-    this->addParentValidator([](const Node* const x) {
-        // We can only be a child to a gtirb::Module.
-        const auto parent = dynamic_cast<const gtirb::Module* const>(x);
-        return parent != nullptr;
-    });
+	this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
 }
 
 bool ModuleSectionBase::getIsSetupComplete() const
