@@ -12,13 +12,14 @@
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/IR.hpp>
+#include <gtirb/Region.hpp>
 #include <memory>
 
 using testing::Types;
 
 typedef Types<gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore, gtirb::ModuleAux,
               gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure, gtirb::Instruction,
-              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR>
+              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR, gtirb::Region>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------

@@ -63,7 +63,8 @@ macro(GTIRB_ADD_EXECUTABLE_GTEST)
 		${${PROJECT_NAME}_SRC}
 	)
 	
-	set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb/gtest")
+	add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+	set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb/test")
 endmacro()
 
 MACRO(GTIRB_GET_ALL_SUBDIRS result curdir)
