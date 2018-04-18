@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstring>
 #include <gtirb/ImageByteMap.hpp>
+#include <gtirb/Utilities.hpp>
 
 using namespace gtirb;
 
@@ -127,9 +128,33 @@ void ImageByteMap::setData(EA ea, uint8_t* const x, size_t len)
     assert(bytesRemaining >= 0);
 }
 
-uint8_t ImageByteMap::getData(EA x) const
+uint8_t ImageByteMap::getData8(EA x) const
 {
 	return this->getData(x, 1)[0];
+}
+
+uint16_t ImageByteMap::getData16(EA x) const
+{
+	const auto byteArray = this->getData(x, sizeof(uint16_t));
+    const auto wordArray = gtirb::utilities::ByteArray8To16(byteArray, false);
+    const auto word = wordArray[0];
+    return word;
+}
+
+uint32_t ImageByteMap::getData32(EA x) const
+{
+	const auto byteArray = this->getData(x, sizeof(uint32_t));
+    const auto wordArray = gtirb::utilities::ByteArray8To32(byteArray, false);
+    const auto word = wordArray[0];
+    return word;
+}
+
+uint64_t ImageByteMap::getData64(EA x) const
+{
+	const auto byteArray = this->getData(x, sizeof(uint64_t));
+    const auto wordArray = gtirb::utilities::ByteArray8To64(byteArray, false);
+    const auto word = wordArray[0];
+    return word;
 }
 
 std::vector<uint8_t> ImageByteMap::getData(EA x, size_t bytes) const
