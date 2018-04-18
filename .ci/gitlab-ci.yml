@@ -8,11 +8,14 @@ before_script:
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
 
 stages:
-  - build-test-deploy-cleanup-ubuntu16-gcc
-# - build-test-deploy-cleanup-ubuntu16-clang
-# - build-test-deploy-cleanup-ubuntu14-gcc
-  - build-test-deploy-cleanup-arch-gcc
-  - deploy-and-cleanup
+  - build-test-ubuntu16-gcc
+# - build-test-ubuntu16-clang
+# - build-test-ubuntu14-gcc
+  - build-test-arch-gcc
+  - cleanup-ubuntu16-gcc
+# - cleanup-ubuntu16-clang
+# - cleanup-ubuntu14-gcc
+  - cleanup-arch-gcc
 
 .build-template: &build
   script:
@@ -22,49 +25,78 @@ stages:
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
 
 build-ubuntu16-gcc:
-  stage: build-test-deploy-cleanup-ubuntu16-gcc
+  stage: build-test-ubuntu16-gcc
   variables:
     OS: 'ubuntu16'
     COMPILER: 'gcc'
   <<: *build
 
 # build-ubuntu16-clang:
-#   stage: build-test-deploy-cleanup-ubuntu16-clang
+#   stage: build-test-ubuntu16-clang
 #   variables:
 #     OS: 'ubuntu16'
 #     COMPILER: 'clang'
 #   <<: *build
 
 # build-ubuntu14:
-#   stage: build-test-deploy-cleanup-ubuntu14-gcc
+#   stage: build-test-ubuntu14-gcc
 #   variables:
 #     OS: 'ubuntu14'
 #   <<: *build
 
 build-arch:
-  stage: build-test-deploy-cleanup-arch-gcc
+  stage: build-test-arch-gcc
   variables:
     OS: 'arch'
     COMPILER: 'gcc'
   <<: *build
 
-pages:
-  stage: deploy-and-cleanup
+cleanup-ubuntu16-gcc:
+  stage: cleanup-ubuntu16-gcc
+  variables:
+    OS: 'ubuntu16'
+    COMPILER: 'gcc'
   script:
-    - if [ "$OS" = "arch" ];then
-        docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p /public && cp -R doc/html/* /public/";
-        docker cp $(docker ps -alq):/public ./;
-      fi
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
+
+# cleanup-ubuntu16-clang:
+#   stage: cleanup-ubuntu16-clang
+#   variables:
+#     OS: 'ubuntu16'
+#     COMPILER: 'clang'
+#   script:
+#     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
+
+# cleanup-ubuntu14-gcc:
+#   stage: cleanup-ubuntu14-gcc
+#   variables:
+#     OS: 'ubuntu14'
+#     COMPILER: 'gcc'
+#   script:
+#     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
+
+
+cleanup-arch-gcc:
+  stage: cleanup-arch-gcc
+  variables:
+    OS: 'arch'
+    COMPILER: 'gcc'
+  script:
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
+  except:
+    - master
+
+pages:
+  stage: cleanup-arch-gcc
+  variables:
+    OS: 'arch'
+    COMPILER: 'gcc'
+  script:
+    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "cp -R /gt/gt-irb/doc/html /public";
+    - docker cp $(docker ps -alq):/public ./;
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
   artifacts:
     paths:
       - public
   only:
-    - master
-
-cleanup:
-  stage: deploy-and-cleanup
-  script:
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
-  except:
     - master
