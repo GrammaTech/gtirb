@@ -9,7 +9,7 @@ before_script:
 
 stages:
   - build-test-deploy-cleanup-ubuntu16-gcc
-  - build-test-deploy-cleanup-ubuntu16-clang
+# - build-test-deploy-cleanup-ubuntu16-clang
 # - build-test-deploy-cleanup-ubuntu14-gcc
   - build-test-deploy-cleanup-arch-gcc
   - deploy-and-cleanup
@@ -28,12 +28,12 @@ build-ubuntu16-gcc:
     COMPILER: 'gcc'
   <<: *build
 
-build-ubuntu16-clang:
-  stage: build-test-deploy-cleanup-ubuntu16-clang
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'clang'
-  <<: *build
+# build-ubuntu16-clang:
+#   stage: build-test-deploy-cleanup-ubuntu16-clang
+#   variables:
+#     OS: 'ubuntu16'
+#     COMPILER: 'clang'
+#   <<: *build
 
 # build-ubuntu14:
 #   stage: build-test-deploy-cleanup-ubuntu14-gcc
