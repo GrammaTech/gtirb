@@ -20,7 +20,6 @@ stages:
     - docker run ${LOCAL_IMAGE_NAME}-${OS} TestGTIRB
     - docker tag ${LOCAL_IMAGE_NAME}-${OS} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
 
 build-ubuntu16-gcc:
   stage: build-test-deploy-cleanup-ubuntu16-gcc
@@ -52,8 +51,10 @@ build-arch:
 pages:
   stage: deploy-and-cleanup
   script:
-    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p /public && cp -R doc/html/* /public/"
-    - docker cp $(docker ps -alq):/public ./
+    - if [ "$OS" = "arch" ];then
+        docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p /public && cp -R doc/html/* /public/";
+        docker cp $(docker ps -alq):/public ./;
+      fi
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
   artifacts:
     paths:
