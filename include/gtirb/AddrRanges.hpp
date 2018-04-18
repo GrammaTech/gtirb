@@ -1,10 +1,14 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
+#include <cstdint>
 #include <gtirb/Node.hpp>
+#include <utility>
+#include <vector>
 
 namespace gtirb
 {
+    class EA;
+
     ///
     /// \class AddrRanges
     /// \author John E. Farrier
@@ -24,7 +28,8 @@ namespace gtirb
 
         ///
         /// Add a pair of EA's to the internal vector.
-        /// This will perform a check on the EA's to ensure that the first is less than or equal to the second.
+        /// This will perform a check on the EA's to ensure that the first is less than or equal to
+        /// the second.
         ///
         /// Throws a gtirb::RuntimeError if the EA's are not properly ordered.
         ///
@@ -36,7 +41,7 @@ namespace gtirb
         /// Get all of the ranges that have been added.
         ///
         std::vector<std::pair<gtirb::EA, gtirb::EA>>& getRangeVector();
-        
+
         ///
         /// Get all of the ranges that have been added.
         ///
