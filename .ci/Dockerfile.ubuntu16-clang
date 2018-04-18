@@ -39,6 +39,7 @@ RUN apt-get update && apt-get -y install \
 	libncurses-dev \
 	libobjc-4.8-dev \
 	libobjc4 \
+        libboost-all-dev \
 	libpipeline1 \
 	libpython-stdlib \
 	libpython2.7-minimal \
@@ -57,15 +58,12 @@ RUN apt-get update && apt-get -y install \
 	xz-utils
 
 # Install CMake
-RUN wget -q -O /tmp/cmake.tar.gz --no-check-certificate \
-	https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz && \
-	tar -xaf /tmp/cmake.tar.gz --strip-components=1 -C /usr/local && \
-	rm /tmp/cmake.tar.gz
+RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
+    |tar -xz --strip-components=1 -C /usr/local
 
 # Install the Compiler
-RUN wget -q -O /tmp/clang.tar.xz --no-check-certificate http://releases.llvm.org/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-$UBUNTU_VERSION.tar.xz && \
-	tar -xaf /tmp/clang.tar.xz --strip-components=1 -C /usr/local && \
-	rm /tmp/clang.tar.xz 
+RUN curl -SL http://releases.llvm.org/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-$UBUNTU_VERSION.tar.xz \
+    |tar -xJ --strip-components=1 -C /usr/local
 
 COPY . /gt/gt-irb/
 RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
