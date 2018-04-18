@@ -17,8 +17,8 @@ stages:
 .build-template: &build
   script:
     - docker build -f .ci/Dockerfile.$OS-$COMPILER -t ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} .
-    - docker run ${LOCAL_IMAGE_NAME}-${OS} TestGTIRB
-    - docker tag ${LOCAL_IMAGE_NAME}-${OS} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
+    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} TestGTIRB
+    - docker tag ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
 
 build-ubuntu16-gcc:
