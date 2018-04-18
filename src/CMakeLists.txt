@@ -22,9 +22,10 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
-	../include/gtirb/FileMap.hpp
+	../include/gtirb/ImageByteMap.hpp
 	../include/gtirb/Instruction.hpp
 	../include/gtirb/IR.hpp
+	../include/gtirb/LoadedFileMap.hpp
 	../include/gtirb/LocalProperties.hpp
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
@@ -51,9 +52,10 @@ set(${PROJECT_NAME}_SRC
 	AddrRanges.cpp
 	EA.cpp
 	Exception.cpp
-	FileMap.cpp
+	ImageByteMap.cpp
 	Instruction.cpp
 	IR.cpp
+	LoadedFileMap.cpp
 	LocalProperties.cpp
 	LogicError.cpp
 	Module.cpp

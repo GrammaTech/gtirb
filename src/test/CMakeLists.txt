@@ -25,9 +25,10 @@ set(${PROJECT_NAME}_SRC
 	AddrRanges.test.cpp
 	EA.test.cpp
 	Exception.test.cpp
-	FileMap.test.cpp
 	Instruction.test.cpp
+	ImageByteMap.test.cpp
 	IR.test.cpp
+	LoadedFileMap.test.cpp
 	LocalProperties.test.cpp
 	Module.test.cpp
 	ModuleAux.test.cpp

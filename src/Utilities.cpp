@@ -1,7 +1,7 @@
 #include <gtirb/Utilities.hpp>
 #include <iostream>
 
-std::vector<uint16_t> gtirb::util::ByteArray8To16(const std::vector<uint8_t>& x, bool swap)
+std::vector<uint16_t> gtirb::utilities::ByteArray8To16(const std::vector<uint8_t>& x, bool swap)
 {
     union Conversion {
         uint8_t Bytes[2];
