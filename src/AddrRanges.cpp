@@ -1,7 +1,8 @@
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/RuntimeError.hpp>
 #include <gtirb/NodeValidators.hpp>
+#include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;
 

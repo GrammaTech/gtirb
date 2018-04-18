@@ -6,6 +6,7 @@
 #include <gtirb/Table.hpp>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace gtirb
 {
