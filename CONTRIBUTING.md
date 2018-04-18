@@ -20,6 +20,7 @@ We use Gitflow as our branch management system. Please read up on it [here](http
 * All commits should involve logical units. Please do not put all changed code in one commit, unless it is a very minor change.
 * Work in progress pull requests should have `[WIP]` in front of the Pull Request title. 
 * Please document all code written. Write Doxygen style comments for methods in the header files, and use inline code comments where it makes sense, i.e. for non-obvious code chunks.
+* All commit messages should be client ready.  That is, they should all be brief, instructive, and professional.
 
 Testing Development
 -------------------
