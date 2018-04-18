@@ -23,13 +23,15 @@ namespace gtirb
         /// Default constructor.
         /// The default implementation provided by the compiler is used.
         ///
-        EA() = default;
+        constexpr EA() = default;
 
         ///
         /// Allow explicit conversion from a 'uint64_t' to an gtirb::EA object type.
         /// Do not allow other types of integers to be automatically converted.
         ///
-        explicit EA(uint64_t x);
+        constexpr explicit EA(uint64_t x) : ea(x)
+        {
+        }
 
         ///
         /// Explicitly set the value of the EA from a 'uint64_t'.
@@ -56,15 +58,15 @@ namespace gtirb
         ///
         bool operator==(uint64_t x) const;
 
-        bool operator==(EA x) const;
-        bool operator!=(EA x) const;
-        bool operator>(EA x) const;
-        bool operator<(EA x) const;
+        bool operator==(const EA x) const;
+        bool operator!=(const EA x) const;
+        bool operator>(const EA x) const;
+        bool operator<(const EA x) const;
 
-        EA operator+(EA x) const;
-        EA operator+=(EA x);
-        EA operator-(EA x) const;
-        EA operator-=(EA x);
+        EA operator+(const EA x) const;
+        EA operator+=(const EA x);
+        EA operator-(const EA x) const;
+        EA operator-=(const EA x);
 
         ///
         /// Provide for static casting to a 'std::string'.
@@ -86,7 +88,7 @@ namespace gtirb
         /// type conversions.
         ///
         template <typename T>
-        EA operator+(T);
+        EA operator+(const T) const;
 
         ///
         /// Prevent automatic type conversions.
@@ -94,7 +96,7 @@ namespace gtirb
         /// type conversions.
         ///
         template <typename T>
-        EA operator+=(T);
+        EA operator+=(const T);
 
         ///
         /// Prevent automatic type conversions.
@@ -102,7 +104,7 @@ namespace gtirb
         /// type conversions.
         ///
         template <typename T>
-        EA operator-(T);
+        EA operator-(const T) const;
 
         ///
         /// Prevent automatic type conversions.
@@ -110,7 +112,7 @@ namespace gtirb
         /// type conversions.
         ///
         template <typename T>
-        EA operator-=(T);
+        EA operator-=(const T);
 
         ///
         /// Internal storage for the effective address (EA).

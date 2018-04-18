@@ -3,10 +3,6 @@
 
 using namespace gtirb;
 
-EA::EA(uint64_t x) : ea(x)
-{
-}
-
 void EA::set(uint64_t x)
 {
 	this->ea = x;
@@ -33,42 +29,42 @@ bool EA::operator==(uint64_t x) const
 	return this->ea == x; 
 }
 
-bool EA::operator==(EA x) const
+bool EA::operator==(const EA x) const
 {
 	return this->ea == x.ea; 
 }
 
-bool EA::operator!=(EA x) const
+bool EA::operator!=(const EA x) const
 {
 	return this->ea != x.ea; 
 }
 
-bool EA::operator>(EA x) const
+bool EA::operator>(const EA x) const
 {
 	return this->ea > x.ea; 
 }
 
-bool EA::operator<(EA x) const
+bool EA::operator<(const EA x) const
 {
 	return this->ea < x.ea; 
 }
 
-EA EA::operator+(EA x) const
+EA EA::operator+(const EA x) const
 {
 	return EA(this->ea + x.ea); 
 }
 
-EA EA::operator+=(EA x)
+EA EA::operator+=(const EA x)
 {
 	return EA(this->ea += x.ea); 
 }
 
-EA EA::operator-(EA x) const
+EA EA::operator-(const EA x) const
 {
 	return EA(this->ea - x.ea); 
 }
 
-EA EA::operator-=(EA x)
+EA EA::operator-=(const EA x)
 {
 	return EA(this->ea -= x.ea); 
 }

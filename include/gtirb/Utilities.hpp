@@ -6,7 +6,7 @@
 
 namespace gtirb
 {
-    namespace util
+    namespace utilities
     {
     	///
     	/// Convert an array (vector) of 8-bit unsigned values to a vector of 16-bit unsigned values.
