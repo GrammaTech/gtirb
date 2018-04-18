@@ -1,8 +1,0 @@
-<map id="include/gtirb/Exception.hpp" name="include/gtirb/Exception.hpp">
-<area shape="rect" id="node2" href="$_logic_error_8hpp.html" title="include/gtirb/LogicError.hpp" alt="" coords="5,80,185,107"/>
-<area shape="rect" id="node3" href="$_node_error_8hpp.html" title="include/gtirb/NodeError.hpp" alt="" coords="209,80,389,107"/>
-<area shape="rect" id="node7" href="$_runtime_error_8hpp.html" title="include/gtirb/RuntimeError.hpp" alt="" coords="413,80,612,107"/>
-<area shape="rect" id="node4" href="$_node_structure_error_8hpp.html" title="include/gtirb/NodeStructure\lError.hpp" alt="" coords="209,155,389,196"/>
-<area shape="rect" id="node5" href="$_node_utilities_8hpp.html" title="include/gtirb/NodeUtilities.hpp" alt="" coords="201,244,397,271"/>
-<area shape="rect" id="node6" href="$_node_validators_8hpp.html" title="include/gtirb/NodeValidators.hpp" alt="" coords="194,319,405,345"/>
-</map>

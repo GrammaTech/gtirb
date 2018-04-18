@@ -11,7 +11,8 @@ public:
     {
         for(size_t i = 0; i < this->InitializedSize; ++i)
         {
-            this->byteMap.setData(Unit_ImageByteMapF::Offset + gtirb::EA{i}, static_cast<uint8_t>(this->InitialByte & i));
+            this->byteMap.setData(Unit_ImageByteMapF::Offset + gtirb::EA{i},
+                                  static_cast<uint8_t>(this->InitialByte & i));
         }
     }
 
@@ -29,177 +30,157 @@ TEST(Unit_ImageByteMap, ctor_0)
     EXPECT_NO_THROW(gtirb::ImageByteMap());
 }
 
-// Test ported from libswyx's test for fimage_this->byteMap
-TEST_F(Unit_ImageByteMapF, legacy_1)
+TEST_F(Unit_ImageByteMapF, legacy_byte)
 {
     for(size_t i = 0; i < this->InitializedSize; ++i)
     {
-        const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i+1)) << 8)));
+        const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
 
-        EXPECT_EQ(this->InitialByte & i, this->byteMap.getData(Unit_ImageByteMapF::Offset + gtirb::EA{static_cast<uint64_t>(i)}))
+        EXPECT_EQ(this->InitialByte & i,
+                  this->byteMap.getData8(Unit_ImageByteMapF::Offset
+                                         + gtirb::EA{static_cast<uint64_t>(i)}))
             << "Bad byte read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
 
         if(i < this->InitializedSize - 1)
         {
             EXPECT_NO_THROW(this->byteMap.getData(Unit_ImageByteMapF::Offset + gtirb::EA{i}, 2));
 
-            const auto byteArray = this->byteMap.getData(Unit_ImageByteMapF::Offset + gtirb::EA{i}, 2);
-            const auto wordArray = gtirb::utilities::ByteArray8To16(byteArray, false);
-            const auto word = wordArray[0];
+            const auto word = this->byteMap.getData16(Unit_ImageByteMapF::Offset + gtirb::EA{i});
 
-            EXPECT_EQ(expectedWord, word)
-                << "Bad word read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
+            EXPECT_EQ(expectedWord, word) << "Bad word read at : "
+                                          << Unit_ImageByteMapF::Offset + gtirb::EA{i};
         }
     }
 }
 
-/*
-    w_this->byteMap.set_uint16(gtirb::EA(0x401000), 0xDEAD);
-    if(this->byteMap.get_uint16(gtirb::EA(0x401000)) != 0xDEAD)
-    {
-        std::cerr << "Bad word read at : " << 0x401000 << std::endl;
-        return 3;
-    }
+TEST_F(Unit_ImageByteMapF, legacy_word)
+{
+    this->byteMap.setData(gtirb::EA(0x401000), uint16_t{0xDEAD});
+    EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000))) << "Bad word read at : "
+                                                                    << 0x401000;
+}
 
-    w_this->byteMap.set_uint32(gtirb::EA(0x402000), 0xCAFEBABE);
-    if(this->byteMap.get_uint32(gtirb::EA(0x402000)) != 0xCAFEBABE)
-    {
-        std::cerr << "Bad dword read at : " << 0x402000 << std::endl;
-        return 4;
-    }
+TEST_F(Unit_ImageByteMapF, legacy_dword)
+{
+    this->byteMap.setData(gtirb::EA(0x402000), uint32_t{0xCAFEBABE});
+    EXPECT_EQ(uint32_t{0xCAFEBABE}, this->byteMap.getData32(gtirb::EA(0x402000)))
+        << "Bad dword read at : " << 0x402000;
+}
 
-    w_this->byteMap.set_uint64(gtirb::EA(0x403000), CSUINT64_LIT(0x8BADF00D0D15EA5E));
-    if(this->byteMap.get_uint64(gtirb::EA(0x403000)) != CSUINT64_LIT(0x8BADF00D0D15EA5E))
-    {
-        std::cerr << "Bad qword read at : " << 0x403000 << std::endl;
-        return 5;
-    }
+TEST_F(Unit_ImageByteMapF, legacy_qword)
+{
+    this->byteMap.setData(gtirb::EA(0x403000), uint64_t(0x8BADF00D0D15EA5E));
+    EXPECT_EQ(uint64_t(0x8BADF00D0D15EA5E), this->byteMap.getData64(gtirb::EA(0x403000)))
+        << "Bad qword read at : " << 0x403000;
+}
 
+TEST_F(Unit_ImageByteMapF, legacy_boundariesWithZero_0)
+{
     // Boundaries w/ 0's.
-    uint8_t buf[32];
-    this->byteMap.get_byte_chunk(Unit_ImageByteMapF::Offset - 16, buf, 32);
+    const auto ea = Unit_ImageByteMapF::Offset - gtirb::EA{16};
+    const auto buf = this->byteMap.getData(ea, 32);
 
     for(size_t i = 0; i < 32; ++i)
     {
-        if(i < 16 && buf[i] != 0)
+        if(i < 16)
         {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset - 16 << " plus : " << i <<
-std::endl;
-            return 6;
+            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
         }
-        else if(i >= 16 && buf[i] != (this->InitialByte & (i - 16)))
+        else
         {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset - 16 << " plus : " << i <<
-std::endl;
-            return 7;
-        }
-    }
-
-    uint8_t buf2[32];
-    this->byteMap.get_byte_chunk(Unit_ImageByteMapF::Offset + InitializedSize - 16, buf2, 32);
-
-    for(size_t i = 0; i < 32; ++i)
-    {
-        if(i >= 16 && buf2[i] != 0)
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 8;
-        }
-        else if(i < 16 && buf2[i] != (this->InitialByte & (i + InitializedSize - 16)))
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 9;
-        }
-    }
-
-    // Sentinel search
-    // a. search for 0 -- should be at start of next page
-    uint8_t buf3[32];
-    size_t nread3 = this->byteMap.get_byte_chunk_until(Unit_ImageByteMapF::Offset + InitializedSize - 16, '\0',
-buf3, 32);
-
-    if(nread3 != 17)
-    {
-        std::cerr << "Expecting 17, read " << nread3 << std::endl;
-        return 10;
-    }
-    for(size_t i = 0; i < nread3; ++i)
-    {
-        if(i >= 16 && buf3[i] != 0)
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 11;
-        }
-        else if(i < 16 && buf3[i] != (this->InitialByte & (i + InitializedSize - 16)))
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 12;
-        }
-    }
-
-    // b. search for 2 -- not found, should reach limit (32)
-    uint8_t buf4[32];
-    size_t nread4 = this->byteMap.get_byte_chunk_until(Unit_ImageByteMapF::Offset + InitializedSize - 16, '\x02',
-buf4, 32);
-
-    if(nread4 != 32)
-    {
-        std::cerr << "Expecting 32, read " << nread4 << std::endl;
-        return 10;
-    }
-
-    for(size_t i = 0; i < nread4; ++i)
-    {
-        if(i >= 16 && buf4[i] != 0)
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 13;
-        }
-        else if(i < 16 && buf4[i] != (this->InitialByte & (i + InitializedSize - 16)))
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 14;
-        }
-    }
-
-    // c. search for 254 -- like a, but two fewer
-    uint8_t buf5[32];
-    size_t nread5 = this->byteMap.get_byte_chunk_until(Unit_ImageByteMapF::Offset + InitializedSize - 16, '\xfe',
-buf5, 32);
-
-    if(nread5 != 15)
-    {
-        std::cerr << "Expecting 15, read " << nread5 << std::endl;
-        return 10;
-    }
-    for(size_t i = 0; i < nread5; ++i)
-    {
-        if(i >= 16 && buf5[i] != 0)
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 15;
-        }
-        else if(i < 16 && buf5[i] != (this->InitialByte & (i + InitializedSize - 16)))
-        {
-            std::cerr << "Bad chunk read at : " << Unit_ImageByteMapF::Offset + InitializedSize - 16 << " plus : "
-<< i
-                      << std::endl;
-            return 16;
+            EXPECT_EQ((this->InitialByte & (i - 16)), buf[i]) << "Bad chunk read at : " << ea
+                                                              << " plus : " << i;
         }
     }
 }
-*/
+
+TEST_F(Unit_ImageByteMapF, legacy_boundariesWithZero_1)
+{
+    // Boundaries w/ 0's.
+    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{this->InitializedSize} - gtirb::EA{16};
+    const auto buf = this->byteMap.getData(ea, 32);
+
+    for(size_t i = 0; i < 32; ++i)
+    {
+        if(i >= 16)
+        {
+            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+        else
+        {
+            EXPECT_EQ(this->InitialByte & (i + InitializedSize - gtirb::EA{16}), buf[i])
+                << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+    }
+}
+
+TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_0)
+{
+    // a. search for 0 -- should be at start of next page
+    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
+    const auto buf = this->byteMap.getDataUntil(ea, '\0', 32);
+
+    const auto bytesRead = buf.size();
+
+    ASSERT_EQ(17, bytesRead);
+
+    for(size_t i = 0; i < bytesRead; ++i)
+    {
+        if(i >= 16)
+        {
+            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+        else
+        {
+            EXPECT_EQ(this->InitialByte & (i + InitializedSize - gtirb::EA{16}), buf[i])
+                << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+    }
+}
+
+TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_1)
+{
+    // b. search for 2 -- not found, should reach limit (32)
+    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{32};
+    const auto buf = this->byteMap.getDataUntil(ea, '\x02', 32);
+    const auto bytesRead = buf.size();
+
+    ASSERT_EQ(32, bytesRead);
+
+    for(size_t i = 0; i < bytesRead; ++i)
+    {
+        if(i >= 32)
+        {
+            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+        else
+        {
+            EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{32}), buf[i])
+                << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+    }
+}
+
+
+TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_2)
+{
+    // c. search for 254 -- like a, but two fewer
+    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
+    const auto buf = this->byteMap.getDataUntil(ea, '\xfe', 16);
+    const auto bytesRead = buf.size();
+
+    ASSERT_EQ(15, bytesRead);
+
+    for(size_t i = 0; i < bytesRead; ++i)
+    {
+        if(i >= 16)
+        {
+            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+        else
+        {
+            EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{16}), buf[i])
+                << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+    }
+}

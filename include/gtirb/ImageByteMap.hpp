@@ -78,12 +78,30 @@ namespace gtirb
 		///
         /// Get a byte of data at the given address.
         ///
-        /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-        /// or 64-bits.
+        /// \param  x       The starting address for the data.
+        ///
+        uint8_t getData8(EA x) const;
+
+        ///
+        /// Get a word of data at the given address.
         ///
         /// \param  x       The starting address for the data.
         ///
-        uint8_t getData(EA x) const;
+        uint16_t getData16(EA x) const;
+
+        ///
+        /// Get a dword of data at the given address.
+        ///
+        /// \param  x       The starting address for the data.
+        ///
+        uint32_t getData32(EA x) const;
+
+         ///
+        /// Get a qword of data at the given address.
+        ///
+        /// \param  x       The starting address for the data.
+        ///
+        uint64_t getData64(EA x) const;
 
         ///
         /// Get data at the given address.
