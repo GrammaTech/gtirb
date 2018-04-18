@@ -39,6 +39,7 @@ RUN apt-get update && apt-get -y install \
 	libncurses-dev \
 	libobjc-4.8-dev \
 	libobjc4 \
+        libboost-all-dev \
 	libpipeline1 \
 	libpython-stdlib \
 	libpython2.7-minimal \
