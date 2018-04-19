@@ -1,8 +1,16 @@
 #include <gtest/gtest.h>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/CFG.hpp>
+#include <gtirb/CFGNode.hpp>
+#include <gtirb/CFGNodeInfo.hpp>
+#include <gtirb/CFGNodeInfoActualIn.hpp>
+#include <gtirb/CFGNodeInfoCall.hpp>
+#include <gtirb/CFGNodeInfoDeclares.hpp>
+#include <gtirb/CFGNodeInfoEntry.hpp>
+#include <gtirb/CFGNodeInfoFormalIn.hpp>
 #include <gtirb/IR.hpp>
-#include <gtirb/Instruction.hpp>
 #include <gtirb/ImageByteMap.hpp>
+#include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/ModuleCore.hpp>
@@ -20,7 +28,10 @@ using testing::Types;
 
 typedef Types<gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore, gtirb::ModuleAux,
               gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure, gtirb::Instruction,
-              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR, gtirb::Region, gtirb::ImageByteMap>
+              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR, gtirb::Region, gtirb::ImageByteMap,
+              gtirb::CFG, gtirb::CFGNode, gtirb::CFGNodeInfo, gtirb::CFGNodeInfoActualIn,
+              gtirb::CFGNodeInfoDeclares, gtirb::CFGNodeInfoEntry, gtirb::CFGNodeInfoFormalIn,
+              gtirb::CFGNodeInfoCall>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------
@@ -281,6 +292,18 @@ TYPED_TEST_P(TypedNodeTest, const_iterator)
     EXPECT_EQ(nodeIterator, std::end(constNode));
 }
 
+TYPED_TEST_P(TypedNodeTest, shared_from_this)
+{
+    auto node = std::make_shared<TypeParam>();
+    auto nodePtr = node.get();
+
+    ASSERT_NO_THROW(nodePtr->shared_from_this())
+        << "The node did not inherit from std::enable_shared_from_this<Node>.";
+
+    auto nodeShared = nodePtr->shared_from_this();
+    EXPECT_TRUE(nodeShared != nullptr);
+}
+
 TYPED_TEST_P(TypedNodeTest, GetChildrenOfType)
 {
     class Foo : public gtirb::Node
@@ -320,7 +343,7 @@ TYPED_TEST_P(TypedNodeTest, GetChildrenOfType)
 REGISTER_TYPED_TEST_CASE_P(TypedNodeTest, ctor_0, clear, clearLocalProperties, const_iterator,
                            iterator, push_back, removeLocalProperty, setLocalProperties,
                            setLocalProperty, setLocalPropertyReset, size, uniqueUuids,
-                           GetChildrenOfType);
+                           shared_from_this, GetChildrenOfType);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Exceptions,      // Instance name
                               TypedNodeTest,        // Test case name

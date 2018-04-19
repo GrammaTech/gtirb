@@ -21,7 +21,7 @@ namespace gtirb
     {
     public:
         ///
-        /// \enum LFCMTypeMask
+        /// \enum gtirb::ImageByteMap::LFCMTypeMask
         ///
         /// Bit masks to pack pointer size, memory model, and calling convention into 8 bytes.
         ///
@@ -56,6 +56,9 @@ namespace gtirb
             CC_SPECIAL = 0xF0    /// locations of all arguments and the return
         };
 
+        ///
+        /// \enum gtirb::ImageByteMap::ContentSource
+        ///
         enum class ContentSource : uint8_t
         {
             Unknown,
