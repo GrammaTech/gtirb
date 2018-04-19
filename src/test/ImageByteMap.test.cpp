@@ -1,186 +1,35 @@
 #include <gtest/gtest.h>
-#include <gtirb/Constants.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Utilities.hpp>
+#include <gtirb/NodeStructureError.hpp>
 #include <memory>
-
-class Unit_ImageByteMapF : public ::testing::Test
-{
-public:
-    virtual void SetUp() override
-    {
-        for(size_t i = 0; i < this->InitializedSize; ++i)
-        {
-            this->byteMap.setData(Unit_ImageByteMapF::Offset + gtirb::EA{i},
-                                  static_cast<uint8_t>(this->InitialByte & i));
-        }
-    }
-
-    static constexpr uint8_t InitialByte{0xFF};
-    static gtirb::EA Offset;
-    static constexpr size_t InitializedSize{gtirb::constants::PageSize * 2};
-
-    gtirb::ImageByteMap byteMap{};
-};
-
-gtirb::EA Unit_ImageByteMapF::Offset{static_cast<uint64_t>(gtirb::constants::PageSize)};
 
 TEST(Unit_ImageByteMap, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::ImageByteMap());
 }
 
-TEST_F(Unit_ImageByteMapF, legacy_byte)
+TEST(Unit_ImageByteMap, validParent)
 {
-    for(size_t i = 0; i < this->InitializedSize; ++i)
-    {
-        const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
-
-        EXPECT_EQ(this->InitialByte & i,
-                  this->byteMap.getData8(Unit_ImageByteMapF::Offset
-                                         + gtirb::EA{static_cast<uint64_t>(i)}))
-            << "Bad byte read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
-
-        if(i < this->InitializedSize - 1)
-        {
-            EXPECT_NO_THROW(this->byteMap.getData(Unit_ImageByteMapF::Offset + gtirb::EA{i}, 2));
-
-            const auto word = this->byteMap.getData16(Unit_ImageByteMapF::Offset + gtirb::EA{i});
-
-            EXPECT_EQ(expectedWord, word) << "Bad word read at : "
-                                          << Unit_ImageByteMapF::Offset + gtirb::EA{i};
-        }
-    }
+    auto module = std::make_unique<gtirb::Module>();
+    auto child = std::make_unique<gtirb::ImageByteMap>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
-TEST_F(Unit_ImageByteMapF, legacy_word)
+TEST(Unit_ImageByteMap, validParent_noException)
 {
-    this->byteMap.setData(gtirb::EA(0x401000), uint16_t{0xDEAD});
-    EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000))) << "Bad word read at : "
-                                                                    << 0x401000;
+    auto module = std::make_unique<gtirb::Module>();
+    auto child = std::make_unique<gtirb::ImageByteMap>();
+    EXPECT_TRUE(child->getIsValidParent(module.get()));
+    EXPECT_NO_THROW(module->push_back(std::move(child)));
 }
 
-TEST_F(Unit_ImageByteMapF, legacy_dword)
+TEST(Unit_ImageByteMap, invalidParent)
 {
-    this->byteMap.setData(gtirb::EA(0x402000), uint32_t{0xCAFEBABE});
-    EXPECT_EQ(uint32_t{0xCAFEBABE}, this->byteMap.getData32(gtirb::EA(0x402000)))
-        << "Bad dword read at : " << 0x402000;
-}
+    auto notAParent = std::make_unique<gtirb::Node>();
+    auto child = std::make_unique<gtirb::ImageByteMap>();
 
-TEST_F(Unit_ImageByteMapF, legacy_qword)
-{
-    this->byteMap.setData(gtirb::EA(0x403000), uint64_t(0x8BADF00D0D15EA5E));
-    EXPECT_EQ(uint64_t(0x8BADF00D0D15EA5E), this->byteMap.getData64(gtirb::EA(0x403000)))
-        << "Bad qword read at : " << 0x403000;
-}
-
-TEST_F(Unit_ImageByteMapF, legacy_boundariesWithZero_0)
-{
-    // Boundaries w/ 0's.
-    const auto ea = Unit_ImageByteMapF::Offset - gtirb::EA{16};
-    const auto buf = this->byteMap.getData(ea, 32);
-
-    for(size_t i = 0; i < 32; ++i)
-    {
-        if(i < 16)
-        {
-            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-        else
-        {
-            EXPECT_EQ((this->InitialByte & (i - 16)), buf[i]) << "Bad chunk read at : " << ea
-                                                              << " plus : " << i;
-        }
-    }
-}
-
-TEST_F(Unit_ImageByteMapF, legacy_boundariesWithZero_1)
-{
-    // Boundaries w/ 0's.
-    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{this->InitializedSize} - gtirb::EA{16};
-    const auto buf = this->byteMap.getData(ea, 32);
-
-    for(size_t i = 0; i < 32; ++i)
-    {
-        if(i >= 16)
-        {
-            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-        else
-        {
-            EXPECT_EQ(this->InitialByte & (i + InitializedSize - gtirb::EA{16}), buf[i])
-                << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-    }
-}
-
-TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_0)
-{
-    // a. search for 0 -- should be at start of next page
-    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
-    const auto buf = this->byteMap.getDataUntil(ea, '\0', 32);
-
-    const auto bytesRead = buf.size();
-
-    ASSERT_EQ(17, bytesRead);
-
-    for(size_t i = 0; i < bytesRead; ++i)
-    {
-        if(i >= 16)
-        {
-            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-        else
-        {
-            EXPECT_EQ(this->InitialByte & (i + InitializedSize - gtirb::EA{16}), buf[i])
-                << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-    }
-}
-
-TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_1)
-{
-    // b. search for 2 -- not found, should reach limit (32)
-    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{32};
-    const auto buf = this->byteMap.getDataUntil(ea, '\x02', 32);
-    const auto bytesRead = buf.size();
-
-    ASSERT_EQ(32, bytesRead);
-
-    for(size_t i = 0; i < bytesRead; ++i)
-    {
-        if(i >= 32)
-        {
-            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-        else
-        {
-            EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{32}), buf[i])
-                << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-    }
-}
-
-
-TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_2)
-{
-    // c. search for 254 -- like a, but two fewer
-    const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
-    const auto buf = this->byteMap.getDataUntil(ea, '\xfe', 16);
-    const auto bytesRead = buf.size();
-
-    ASSERT_EQ(15, bytesRead);
-
-    for(size_t i = 0; i < bytesRead; ++i)
-    {
-        if(i >= 16)
-        {
-            EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-        else
-        {
-            EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{16}), buf[i])
-                << "Bad chunk read at : " << ea << " plus : " << i;
-        }
-    }
+    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
+    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }

@@ -1,11 +1,13 @@
 #pragma once
 
-#include <functional>
+#include <array>
+#include <boost/filesystem.hpp>
 #include <gsl.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
-#include <map>
-#include <vector>
+#include <gtirb/ByteMap.hpp>
+#include <gtirb/Node.hpp>
+#include <set>
 
 namespace gtirb
 {
@@ -13,137 +15,174 @@ namespace gtirb
     /// \class ImageByteMap
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API ImageByteMap final
+    /// Contains the loaded raw image data for the module (binary).
+    ///
+    class GTIRB_GTIRB_EXPORT_API ImageByteMap : public Node
     {
     public:
         ///
-        /// \class ImageByteMap::Impl
+        /// \enum LFCMTypeMask
         ///
-        /// Implementation details for ImageByteMap.
+        /// Bit masks to pack pointer size, memory model, and calling convention into 8 bytes.
         ///
-        /// They are exposed here to facilitate unit testing.
-        ///
-        class Impl
+        enum LFCMTypeMasks
         {
-        public:
-            ///
-            /// Align an address to a page boundary.
-            ///
-            static EA AddressToAlignedAddress(const EA x);
-
-            /// Give the offset within a page of an address
-            ///
-            static size_t AddressToOffset(const EA x);
-
-            ///
-            /// Number of bytes residing within the first page.
-            ///
-            static size_t BytesWithinFirstPage(const EA x, const size_t nbytes);
+            CM_MASK = 0x03,      /// The mask for size of pointers.
+            CM_UNKNOWN = 0x00,   /// Unknown pointer size.
+            CM_N8_F16 = 0x01,    /// 1: near 1byte, far 2bytes.
+            CM_N16_F32 = 0x02,   /// 2: near 2bytes, far 4bytes
+            CM_N32_F48 = 0x03,   /// 4: near 4bytes, far 6bytes
+            MM_MASK = 0x0C,      /// The mask for the memory model.
+            MM_NN = 0x00,        /// small:   code=near, data=near (or unknown if CM_UNKNOWN)
+            MM_FF = 0x04,        /// large:   code=far, data=far
+            MM_NF = 0x08,        /// compact: code=near, data=far
+            MM_FN = 0x0C,        /// medium:  code=far, data=near
+            CC_MASK = 0xF0,      /// A mask for just calling conventions.
+            CC_INVALID = 0x00,   /// this value is invalid
+            CC_UNKNOWN = 0x10,   /// unknown calling convention
+            CC_VOIDARG = 0x20,   /// function without arguments
+            CC_CDECL = 0x30,     /// stack
+            CC_ELLIPSIS = 0x40,  /// cdecl + ellipsis
+            CC_STDCALL = 0x50,   /// stack, purged
+            CC_PASCAL = 0x60,    /// stack, purged, reverse order of args
+            CC_FASTCALL = 0x70,  /// stack, first args are in regs (compiler-dependent)
+            CC_THISCALL = 0x80,  /// stack, first arg is in reg (compiler-dependent)
+            CC_MANUAL = 0x90,    /// special case for compiler specific
+            CC_RESERVED5 = 0xA0, /// reserved
+            CC_RESERVED4 = 0xB0, /// reserved
+            CC_RESERVED3 = 0xC0, /// reserved
+            CC_RESERVED2 = 0xD0, /// reserved
+            CC_RESERVED1 = 0xE0, /// reserved
+            CC_SPECIAL = 0xF0    /// locations of all arguments and the return
         };
-        ///
-        /// \typedef ImageByteMap::Page
-        ///
-        /// A page of data within an image's byte map.
-        ///
-        typedef std::array<uint8_t, gtirb::constants::PageSize> Page;
+
+        enum class ContentSource : uint8_t
+        {
+            Unknown,
+            Exe,
+            IDAFull,
+            IDAPartial
+        };
+
+        ImageByteMap();
+
+        virtual ~ImageByteMap() = default;
 
         ///
-        /// Tests the container for empty.
+        /// \return     The number of bytes loaded.
         ///
-        /// Modeled after the STL API.
-        ///
-        /// \return 	True if the container is empty.
-        ///
-        bool empty() const;
+        size_t load(boost::filesystem::path x);
 
         ///
-        /// The total number of bytes in the image map.
+        /// \return     The loaded file name and path.
         ///
-        /// Modeled after the STL API.
-        ///
-        size_t size() const;
+        boost::filesystem::path getFileName() const;
 
         ///
-        /// Sets data at the given address.
+        /// Sets the base addrress of loaded file.
         ///
-        /// \param  ea      The address to store the data.
-        /// \param  x       The data to store (honoring Endianness).
-        ///
-        void setData(EA ea, uint8_t x);
-        void setData(EA ea, uint16_t x);
-        void setData(EA ea, uint32_t x);
-        void setData(EA ea, uint64_t x);
-        void setData(EA ea, uint8_t* const x, size_t len);
-
-		///
-        /// Get a byte of data at the given address.
-        ///
-        /// \param  x       The starting address for the data.
-        ///
-        uint8_t getData8(EA x) const;
+        void setBaseAddress(EA x);
 
         ///
-        /// Get a word of data at the given address.
+        /// Gets the base addrress of loaded file.
         ///
-        /// \param  x       The starting address for the data.
-        ///
-        uint16_t getData16(EA x) const;
+        EA getBaseAddress() const;
 
         ///
-        /// Get a dword of data at the given address.
+        /// Sets the entry point of loaded file.
         ///
-        /// \param  x       The starting address for the data.
-        ///
-        uint32_t getData32(EA x) const;
-
-         ///
-        /// Get a qword of data at the given address.
-        ///
-        /// \param  x       The starting address for the data.
-        ///
-        uint64_t getData64(EA x) const;
+        void setEntryPoint(EA x);
 
         ///
-        /// Get data at the given address.
+        /// Gets the entry point of loaded file.
         ///
-        /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-        /// or 64-bits.
-        ///
-        /// \param  x       The starting address for the data.
-        /// \param  bytes   The number of bytes to read.
-        ///
-        std::vector<uint8_t> getData(EA x, size_t bytes) const;
+        EA getEntryPoint() const;
 
         ///
-        /// Get data at the given address until a sentinel is found or a limit is reached.
+        /// If an invalid pair is passed in, the min and max will be set to an invalid state
+        /// (gtirb::constants::BadAddress).
         ///
-        /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-        /// or 64-bits.
+        /// \param      x   The minimum and maximum effective address (EA) for this Module.
+        /// \return     False if the pair's first is > the pair's second.
         ///
-        /// \param  x       	The starting address for the data.
-        /// \param  sentinel   	A byte to stop the 'getData' routine for.
-        /// \param  len			The maximum number of bytes to read.
-        ///
-        std::vector<uint8_t> getDataUntil(EA x, uint8_t sentinel, size_t len = std::numeric_limits<size_t>::max()) const;
-
-    protected:
-        ///
-        /// Cached lookup of a page.
-        ///
-        /// Gets the page if it currently exists.
-        ///
-        /// \return 	A pointer to the page at the address, or nullptr if it does not exist.
-        ///
-        const ImageByteMap::Page* const getPage(const EA x) const;
+        bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x);
 
         ///
-        /// Adds a new page to be explicitly represented in the map.
+        /// Gets the minimum and maximum effective address (EA) for this Module.
         ///
-        /// \return 	A pointer to the newly created Page.
+        /// Check return values for gtirb::constants::BadAddress.
         ///
-        ImageByteMap::Page* getOrCreatePage(const EA x);
+        /// \return     The minimum and maximum effective address (EA) for this Module.
+        ///
+        std::pair<gtirb::EA, gtirb::EA> getEAMinMax() const;
+
+        ///
+        ///
+        ///
+        void setRebaseDelta(int64_t x);
+
+        ///
+        ///
+        ///
+        int64_t getRebaseDelta() const;
+
+        ///
+        /// Sets the memory model and calling convention word from the loaded file.
+        ///
+        /// Use the LFCMTypeMasks.
+        ///
+        void setLFCM(uint8_t x);
+
+        ///
+        /// Gets the memory model and calling convention word from the loaded file.
+        ///
+        /// Use LFCMTypeMasks to decode.
+        ///
+        uint8_t getLFCM() const;
+
+        ///
+        /// Marks the loaded image as having been relocated.
+        ///
+        /// This is primarily useful for loaders that load from sources that provide
+        /// already-relocated content, such as IDA.
+        ///
+        void setRelocated();
+
+        ///
+        /// \return     True if the loaded image has been relocated.
+        ///
+        bool getRelocated() const;
+
+        ///
+        /// Set the Global Offset Table EA.
+        ///
+        /// This is used for relocations expressed with "GOT".  It appears that it is the address of
+        /// the symbol _GLOBAL_OFFSET_TABLE_.
+        ///
+        void setGlobalOffsetTableEA(EA x);
+
+        ///
+        /// This is used for relocations expressed with "GOT".  It appears that it is the address of
+        /// the symbol _GLOBAL_OFFSET_TABLE_.
+        ///
+        EA getGlobalOffsetTableEA() const;
+
+        ///
+        ///
+        ///
+        void setContentSource(ContentSource x);
+
+        ///
+        ///
+        ///
+        ContentSource getContentSource() const;
+
+
 
     private:
-        std::map<gtirb::EA, ImageByteMap::Page> data;
+        // Storage for the entire contents of the loaded image.
+        gtirb::ByteMap byteMap;
+
+        boost::filesystem::path fileName;
     };
 }

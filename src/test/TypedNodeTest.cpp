@@ -2,7 +2,7 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/LoadedFileMap.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/ModuleCore.hpp>
@@ -20,7 +20,7 @@ using testing::Types;
 
 typedef Types<gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore, gtirb::ModuleAux,
               gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure, gtirb::Instruction,
-              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR, gtirb::Region, gtirb::LoadedFileMap>
+              gtirb::SymbolSet, gtirb::Symbol, gtirb::IR, gtirb::Region, gtirb::ImageByteMap>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------

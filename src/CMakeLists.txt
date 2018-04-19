@@ -17,6 +17,7 @@ endif()
 set(${PROJECT_NAME}_H
 	../include/gtirb/AddrRanges.hpp
 	../include/gtirb/Any.hpp
+	../include/gtirb/ByteMap.hpp
 	../include/gtirb/Constants.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Enums.hpp
@@ -25,7 +26,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/ImageByteMap.hpp
 	../include/gtirb/Instruction.hpp
 	../include/gtirb/IR.hpp
-	../include/gtirb/LoadedFileMap.hpp
 	../include/gtirb/LocalProperties.hpp
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
@@ -50,12 +50,12 @@ set(${PROJECT_NAME}_H
 
 set(${PROJECT_NAME}_SRC
 	AddrRanges.cpp
+	ByteMap.cpp
 	EA.cpp
 	Exception.cpp
 	ImageByteMap.cpp
 	Instruction.cpp
 	IR.cpp
-	LoadedFileMap.cpp
 	LocalProperties.cpp
 	LogicError.cpp
 	Module.cpp
