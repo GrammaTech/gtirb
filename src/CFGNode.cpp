@@ -42,7 +42,7 @@ void CFGNode::addSuccessor(CFGNode* x, bool isExecutable)
 {
     auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
     assert(sharedNode != nullptr);
-    this->predecessors.push_back({sharedNode, isExecutable});
+    this->successors.push_back({sharedNode, isExecutable});
 }
 
 void CFGNode::addSuccessor(std::unique_ptr<CFGNode>&& x, bool isExecutable)
@@ -55,7 +55,15 @@ void CFGNode::addSuccessor(std::unique_ptr<CFGNode>&& x, bool isExecutable)
 void CFGNode::setSuccessor(size_t index, CFGNode* x, bool isExecutable)
 {
     auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
-    this->predecessors[index] = {sharedNode, isExecutable};
+
+    if(index < this->successors.size())
+    {
+        this->successors[index] = {sharedNode, isExecutable};
+    }
+    else
+    {
+        throw std::out_of_range("Attempt to set a successor CFGNode by an index outside the range of successors.");
+    }
 }
 
 void CFGNode::setSuccessor(size_t index, std::unique_ptr<CFGNode>&& x, bool isExecutable)
@@ -67,43 +75,43 @@ void CFGNode::setSuccessor(size_t index, std::unique_ptr<CFGNode>&& x, bool isEx
 
 std::pair<CFGNode*, bool> CFGNode::getSuccessor(size_t x) const
 {
-    auto s = this->predecessors[x];
+    auto s = this->successors[x];
     return {s.first.lock().get(), s.second};
 }
 
 bool CFGNode::getSuccessorsEmpty() const
 {
-    return this->predecessors.empty();
+    return this->successors.empty();
 }
 
 size_t CFGNode::getSuccessorSize() const
 {
-    return this->predecessors.size();
+    return this->successors.size();
 }
 
 void CFGNode::removeSuccessor(size_t x)
 {
-    auto idx = std::begin(this->predecessors);
+    auto idx = std::begin(this->successors);
     std::advance(idx, x);
-    this->predecessors.erase(idx);
+    this->successors.erase(idx);
 }
 
 void CFGNode::removeSuccessor(const CFGNode* const x)
 {
-    this->predecessors.erase(
-        std::remove_if(std::begin(this->predecessors), std::end(this->predecessors),
+    this->successors.erase(
+        std::remove_if(std::begin(this->successors), std::end(this->successors),
                        [x](const auto& s) { return (s.first.lock().get() == x); }),
-        std::end(this->predecessors));
+        std::end(this->successors));
 }
 
 void CFGNode::removeSuccessor(const CFGNode* const x, bool isExecutable)
 {
-    this->predecessors.erase(std::remove_if(std::begin(this->predecessors), std::end(this->predecessors),
+    this->successors.erase(std::remove_if(std::begin(this->successors), std::end(this->successors),
                                           [x, isExecutable](const auto& s) {
                                               return (s.first.lock().get() == x)
                                                      && (s.second == isExecutable);
                                           }),
-                           std::end(this->predecessors));
+                           std::end(this->successors));
 }
 
 void CFGNode::addPredecessor(CFGNode* x, bool isExecutable)
