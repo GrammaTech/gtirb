@@ -26,7 +26,7 @@ Node::Node() : uuid(boost::uuids::random_generator()())
     });
 }
 
-Node* const Node::getNodeParent() const
+Node* Node::getNodeParent() const
 {
     return this->nodeParent;
 }
@@ -46,7 +46,7 @@ boost::uuids::uuid Node::getUUID() const
     return this->uuid;
 }
 
-bool Node::getIsValidParent(const Node* const x) const
+bool Node::getIsValidParent(gsl::not_null<const Node* const> x) const
 {
     for(const auto& i : this->parentValidators)
     {
@@ -61,6 +61,7 @@ bool Node::getIsValidParent(const Node* const x) const
 
 void Node::push_back(std::unique_ptr<gtirb::Node>&& x)
 {
+    assert(x != nullptr);
     assert(x->getNodeParent() == nullptr);
 
     if(x->getIsValidParent(this) == true)
@@ -138,7 +139,7 @@ void Node::clearTables()
     this->tables.clear();
 }
 
-gtirb::Node* const Node::at(size_t x)
+gtirb::Node* Node::at(size_t x)
 {
     return this->children.at(x).get();
 }

@@ -2,6 +2,7 @@
 
 #include <boost/uuid/uuid.hpp>
 #include <functional>
+#include <gsl.hpp>
 #include <gtirb/LocalProperties.hpp>
 #include <gtirb/Table.hpp>
 #include <memory>
@@ -17,7 +18,8 @@ namespace gtirb
     /// Copied Node objects will copy the references to the Table pointers they own.  This means
     /// that any tables owned by this node will now have at least two owners.
     ///
-    class GTIRB_GTIRB_EXPORT_API Node : public LocalProperties, public std::enable_shared_from_this<gtirb::Node>
+    class GTIRB_GTIRB_EXPORT_API Node : public LocalProperties,
+                                        public std::enable_shared_from_this<gtirb::Node>
     {
     public:
         ///
@@ -145,7 +147,7 @@ namespace gtirb
         /// This is not called "parent" because many node classes will want to use a "parent" type
         /// of relationship.
         ///
-        gtirb::Node* const getNodeParent() const;
+        gtirb::Node* getNodeParent() const;
 
         ///
         /// Generate and assign a new Universally Unique ID (UUID).
@@ -169,7 +171,7 @@ namespace gtirb
         ///
         /// Checks to see if 'x' can be a parent of this node.
         ///
-        bool getIsValidParent(const Node* const x) const;
+        bool getIsValidParent(gsl::not_null<const Node* const> x) const;
 
         ///
         /// Adds a child node.
@@ -212,7 +214,7 @@ namespace gtirb
         /// \param      x   The position of the element to return.
         /// \return     A pointer to the Node child at the given index.
         ///
-        Node* const at(size_t x);
+        Node* at(size_t x);
 
         ///
         /// Access specified element with bounds checking.
