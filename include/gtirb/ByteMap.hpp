@@ -64,12 +64,41 @@ namespace gtirb
         /// \param  x       The data to store (honoring Endianness).
         ///
         void setData(EA ea, uint8_t x);
-        void setData(EA ea, uint16_t x);
-        void setData(EA ea, uint32_t x);
-        void setData(EA ea, uint64_t x);
-        void setData(EA ea, uint8_t* const x, size_t len);
 
-		///
+        ///
+        /// Sets data at the given address.
+        ///
+        /// \param  ea      The address to store the data.
+        /// \param  x       The data to store (honoring Endianness).
+        ///
+        void setData(EA ea, uint16_t x);
+
+        ///
+        /// Sets data at the given address.
+        ///
+        /// \param  ea      The address to store the data.
+        /// \param  x       The data to store (honoring Endianness).
+        ///
+        void setData(EA ea, uint32_t x);
+
+        ///
+        /// Sets data at the given address.
+        ///
+        /// \param  ea      The address to store the data.
+        /// \param  x       The data to store (honoring Endianness).
+        ///
+        void setData(EA ea, uint64_t x);
+
+        ///
+        /// Sets byte map at the given address.
+        ///
+        /// \param  ea      The address to store the data.
+        /// \param  x       A pointer to the data to store (honoring Endianness).
+        /// \param  bytes   The length of the data at the pointer.
+        ///
+        void setData(EA ea, uint8_t* const x, size_t bytes);
+
+        ///
         /// Get a byte of data at the given address.
         ///
         /// \param  x       The starting address for the data.
@@ -90,7 +119,7 @@ namespace gtirb
         ///
         uint32_t getData32(EA x) const;
 
-         ///
+        ///
         /// Get a qword of data at the given address.
         ///
         /// \param  x       The starting address for the data.
@@ -106,7 +135,7 @@ namespace gtirb
         /// \param  x       The starting address for the data.
         /// \param  bytes   The number of bytes to read.
         ///
-        std::vector<uint8_t> getData(EA x, size_t bytes) const;
+        std::vector<uint8_t> getData(EA ea, size_t bytes) const;
 
         ///
         /// Get data at the given address until a sentinel is found or a limit is reached.
@@ -116,9 +145,10 @@ namespace gtirb
         ///
         /// \param  x       	The starting address for the data.
         /// \param  sentinel   	A byte to stop the 'getData' routine for.
-        /// \param  len			The maximum number of bytes to read.
+        /// \param  bytes	      The maximum number of bytes to read.
         ///
-        std::vector<uint8_t> getDataUntil(EA x, uint8_t sentinel, size_t len = std::numeric_limits<size_t>::max()) const;
+        std::vector<uint8_t> getDataUntil(EA ea, uint8_t sentinel,
+                                          size_t bytes = std::numeric_limits<size_t>::max()) const;
 
     protected:
         ///

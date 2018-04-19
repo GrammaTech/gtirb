@@ -1,4 +1,5 @@
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
@@ -96,4 +97,9 @@ gtirb::AddrRanges* Module::getOrCreateAddrRanges()
 gtirb::SymbolSet* Module::getOrCreateSymbolSet()
 {
     return gtirb::GetOrCreateChildOfType<gtirb::SymbolSet>(this);
+}
+
+gtirb::ImageByteMap* Module::getOrCreateImageByteMap()
+{
+    return gtirb::GetOrCreateChildOfType<gtirb::ImageByteMap>(this);
 }

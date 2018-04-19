@@ -7,10 +7,11 @@
 
 namespace gtirb
 {
-    class ModuleSummary;
-    class ModuleCore;
-    class ModuleAux;
     class AddrRanges;
+    class ImageByteMap;
+    class ModuleAux;
+    class ModuleCore;
+    class ModuleSummary;
     class SymbolSet;
 
     ///
@@ -104,6 +105,7 @@ namespace gtirb
         gtirb::ModuleAux* getOrCreateModuleAux();
         gtirb::AddrRanges* getOrCreateAddrRanges();
         gtirb::SymbolSet* getOrCreateSymbolSet();
+        gtirb::ImageByteMap* getOrCreateImageByteMap();
         
     private:
         boost::filesystem::path binaryPath{};
