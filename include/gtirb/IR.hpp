@@ -27,6 +27,15 @@ namespace gtirb
     ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
     ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
     ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
+    ///     procedure [label="gtirb::Procedure" URL="\ref Procedure"]
+    ///     instruction [label="gtirb::Instruction" URL="\ref Instruction"]
+    ///     cfg [label="gtirb::CFG" URL="\ref CFG"]
+    ///     cfgNode [label="gtirb::CFGNode" URL="\ref CFGNode"]
+    ///     cfgNodeInfoActualIn [label="gtirb::CFGNodeInfoActualIn" URL="\ref CFGNodeInfoActualIn"]
+    ///     cfgNodeInfoDeclares [label="gtirb::CFGNodeInfoDeclares" URL="\ref CFGNodeInfoDeclares"]
+    ///     cfgNodeInfoEntry [label="gtirb::CFGNodeInfoEntry" URL="\ref CFGNodeInfoEntry"]
+    ///     cfgNodeInfoFormalIn [label="gtirb::CFGNodeInfoFormalIn" URL="\ref CFGNodeInfoFormalIn"]
+    ///     cfgNodeInfoCall [label="gtirb::CFGNodeInfoCall" URL="\ref CFGNodeInfoCall"]
     ///
     ///     ir -> module;
     ///     module -> moduleSummary;
@@ -35,8 +44,17 @@ namespace gtirb
     ///     module -> addrRanges;
     ///     module -> region;
     ///     module -> symbolSet;
-    ///     module -> imageByteMap;
     ///     symbolSet -> symbol;
+    ///     module -> imageByteMap;
+    ///     module -> procedure;
+    ///     procedure -> instruction;
+    ///     module -> cfg;
+    ///     cfg -> cfgNode;
+    ///     cfgNode -> CFGNodeInfoActualIn;
+    ///     cfgNode -> CFGNodeInfoDeclares;
+    ///     cfgNode -> CFGNodeInfoEntry;
+    ///     cfgNode -> CFGNodeInfoFormalIn;
+    ///     cfgNode -> CFGNodeInfoCall;
     /// }
     /// \enddot
     ///

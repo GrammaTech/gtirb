@@ -17,7 +17,7 @@ namespace gtirb
     /// Copied Node objects will copy the references to the Table pointers they own.  This means
     /// that any tables owned by this node will now have at least two owners.
     ///
-    class GTIRB_GTIRB_EXPORT_API Node : public LocalProperties
+    class GTIRB_GTIRB_EXPORT_API Node : public LocalProperties, public std::enable_shared_from_this<gtirb::Node>
     {
     public:
         ///

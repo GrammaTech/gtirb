@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/CFG.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
@@ -208,5 +209,18 @@ TEST(Unit_Module, getOrCreateImageByteMap)
     EXPECT_TRUE(m->getOrCreateImageByteMap() != nullptr);
 
     children = gtirb::GetChildrenOfType<gtirb::ImageByteMap>(m.get());
+    EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getOrCreateCFG)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::CFG>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateCFG());
+    EXPECT_TRUE(m->getOrCreateCFG() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::CFG>(m.get());
     EXPECT_FALSE(children.empty());
 }

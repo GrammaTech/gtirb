@@ -24,6 +24,10 @@ set(${PROJECT_NAME}_H
 set(${PROJECT_NAME}_SRC
 	AddrRanges.test.cpp
 	ByteMap.test.cpp
+	CFG.test.cpp
+	CFGNode.test.cpp
+	CFGNodeInfo.test.cpp
+	CFGNodeInfoCall.test.cpp
 	EA.test.cpp
 	Exception.test.cpp
 	ImageByteMap.test.cpp

@@ -17,7 +17,7 @@ namespace gtirb
     {
     public:
         ///
-        /// \class ByteMap::Impl
+        /// \class gtirb::ByteMap::Impl
         ///
         /// Implementation details for ByteMap.
         ///

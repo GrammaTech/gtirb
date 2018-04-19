@@ -8,6 +8,7 @@
 namespace gtirb
 {
     class AddrRanges;
+    class CFG;
     class ImageByteMap;
     class ModuleAux;
     class ModuleCore;
@@ -106,6 +107,7 @@ namespace gtirb
         gtirb::AddrRanges* getOrCreateAddrRanges();
         gtirb::SymbolSet* getOrCreateSymbolSet();
         gtirb::ImageByteMap* getOrCreateImageByteMap();
+        gtirb::CFG* getOrCreateCFG();
         
     private:
         boost::filesystem::path binaryPath{};
