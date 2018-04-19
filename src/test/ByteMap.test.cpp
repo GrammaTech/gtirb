@@ -18,16 +18,39 @@ public:
 
     static constexpr uint8_t InitialByte{0xFF};
     static gtirb::EA Offset;
-    static constexpr size_t InitializedSize{gtirb::constants::PageSize * 2};
+    static size_t InitializedSize;
 
     gtirb::ByteMap byteMap{};
 };
 
 gtirb::EA Unit_ByteMapF::Offset{static_cast<uint64_t>(gtirb::constants::PageSize)};
+size_t Unit_ByteMapF::InitializedSize{gtirb::constants::PageSize * 2};
 
 TEST(Unit_ByteMap, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::ByteMap());
+}
+
+TEST(Unit_ByteMap, empty_0)
+{
+    auto byteMap = gtirb::ByteMap();
+    EXPECT_TRUE(byteMap.empty());
+}
+
+TEST(Unit_ByteMap, size_0)
+{
+    auto byteMap = gtirb::ByteMap();
+    EXPECT_EQ(size_t{0}, byteMap.size());
+}
+
+TEST_F(Unit_ByteMapF, empty)
+{
+    EXPECT_FALSE(this->byteMap.empty());
+}
+
+TEST_F(Unit_ByteMapF, size)
+{
+    EXPECT_EQ(this->InitializedSize, this->byteMap.size());
 }
 
 TEST_F(Unit_ByteMapF, legacy_byte)

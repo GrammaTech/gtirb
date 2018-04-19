@@ -7,6 +7,7 @@
 #include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/SymbolSet.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <memory>
 
 TEST(Unit_Module, ctor_0)
@@ -194,5 +195,18 @@ TEST(Unit_Module, getOrCreateSymbolSet)
     EXPECT_TRUE(m->getOrCreateSymbolSet() != nullptr);
 
     children = gtirb::GetChildrenOfType<gtirb::SymbolSet>(m.get());
+    EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getOrCreateImageByteMap)
+{
+    auto m = std::make_shared<gtirb::Module>();
+    auto children = gtirb::GetChildrenOfType<gtirb::ImageByteMap>(m.get());
+    EXPECT_TRUE(children.empty());
+
+    EXPECT_NO_THROW(m->getOrCreateImageByteMap());
+    EXPECT_TRUE(m->getOrCreateImageByteMap() != nullptr);
+
+    children = gtirb::GetChildrenOfType<gtirb::ImageByteMap>(m.get());
     EXPECT_FALSE(children.empty());
 }
