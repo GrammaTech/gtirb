@@ -21,8 +21,6 @@ stages:
   script:
     - docker build -f .ci/Dockerfile.$OS-$COMPILER -t ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} .
     - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} TestGTIRB
-    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} mkdir doc/html
-    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} doxygen Doxyfile
     - docker tag ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER};
 
@@ -94,7 +92,7 @@ pages:
     OS: 'arch'
     COMPILER: 'gcc'
   script:
-    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "cp -R /gt/gt-irb/doc/html /public";
+    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p doc/html; doxygen Doxyfile; cp -R doc/html /public";
     - docker cp $(docker ps -alq):/public ./;
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
   artifacts:
