@@ -7,7 +7,7 @@
 namespace gtirb
 {
     class CFGNodeInfo;
-    
+
     ///
     /// \class CFGNode
     /// \author John E. Farrier
@@ -90,7 +90,8 @@ namespace gtirb
         ///
         /// Sets the successor at the given index to a new pointer.
         ///
-        /// \param  index   The index of the existing successor to replace.
+        /// \param  index   The index of the existing successor to replace.  Special case: If the
+        /// index is one past the end of the list of successors, it will be appended to the end.
         /// \param  x   A non-owned pointer to a CFGNode to add as a successor.  If it has already
         /// been added, it will be added again.
         /// \param  isExecutable    True if the edge to the successor is executable.
@@ -103,7 +104,8 @@ namespace gtirb
         ///
         /// Sets the successor at the given index to a new pointer.
         ///
-        /// \param  index   The index of the existing successor to replace.
+        /// \param  index   The index of the existing successor to replace. Special case: If the
+        /// index is one past the end of the list of successors, it will be appended to the end.
         /// \param  x   An owned pointer to a CFGNode to add as a successor.
         /// \param  isExecutable    True if the edge to the successor is executable.
         ///
@@ -192,7 +194,8 @@ namespace gtirb
         ///
         /// Sets the predecessor at the given index to a new pointer.
         ///
-        /// \param  index   The index of the existing predecessor to replace.
+        /// \param  index   The index of the existing predecessor to replace. Special case: If the
+        /// index is one past the end of the list of successors, it will be appended to the end.
         /// \param  x   A non-owned pointer to a CFGNode to add as a predecessor.  If it has already
         /// been added, it will be added again.
         /// \param  isExecutable    True if the edge to the predecessor is executable.
@@ -205,7 +208,8 @@ namespace gtirb
         ///
         /// Sets the predecessor at the given index to a new pointer.
         ///
-        /// \param  index   The index of the existing predecessor to replace.
+        /// \param  index   The index of the existing predecessor to replace.  Special case: If the
+        /// index is one past the end of the list of successors, it will be appended to the end.
         /// \param  x   An owned pointer to a CFGNode to add as a predecessor.
         /// \param  isExecutable    True if the edge to the predecessor is executable.
         ///
@@ -273,11 +277,123 @@ namespace gtirb
         void removePredecessor(const CFGNode* const x, bool isExecutable);
 
         ///
-        /// Get a pointer to a base class for CFGNodeInfo, if one was added as a child (via Node::push_back).
+        /// Get a pointer to a base class for CFGNodeInfo, if one was added as a child (via
+        /// Node::push_back).
         ///
         /// \return     A pointer to the CFGNodeInfo child or nullptr.
         ///
         CFGNodeInfo* getCFGNodeInfo() const;
+
+    protected:
+        ///
+        /// Add an existing CFGNode as a new CFGNode.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// \param  x   A non-owned pointer to a CFGNode to add as a CFGNode.  If it has already
+        /// been added, it will be added again.
+        /// \param  isExecutable    True if the edge to the CFGNode is executable.
+        ///
+        /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
+        ///
+        void add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, CFGNode* x, bool isExecutable = false);
+
+        ///
+        /// Add a new CFGNode as a new CFGNode.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// \param  x   An owned pointer to a CFGNode to add as a CFGNode.
+        /// \param  isExecutable    True if the edge to the CFGNode is executable.
+        ///
+        void add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, std::unique_ptr<CFGNode>&& x, bool isExecutable = false);
+
+        ///
+        /// Sets the CFGNode at the given index to a new pointer.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// \param  index   The index of the existing CFGNode to replace. Special case: If the
+        /// index is one past the end of the list of successors, it will be appended to the end.
+        /// \param  x   A non-owned pointer to a CFGNode to add as a CFGNode.  If it has already
+        /// been added, it will be added again.
+        /// \param  isExecutable    True if the edge to the CFGNode is executable.
+        ///
+        /// \throws std::out_of_range if the index is out of range.
+        /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
+        ///
+        void set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index, CFGNode* x, bool isExecutable = false);
+
+        ///
+        /// Sets the CFGNode at the given index to a new pointer.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// \param  index   The index of the existing CFGNode to replace.  Special case: If the
+        /// index is one past the end of the list of successors, it will be appended to the end.
+        /// \param  x   An owned pointer to a CFGNode to add as a CFGNode.
+        /// \param  isExecutable    True if the edge to the CFGNode is executable.
+        ///
+        /// \throws std::out_of_range
+        ///
+        void set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index, std::unique_ptr<CFGNode>&& x, bool isExecutable = false);
+
+        ///
+        /// Get the CFGNode at the given index.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// \param x    The index of the CFGNode to get.
+        ///
+        /// \return     The pointer to the CFGNode at the given index, or nullptr.  The boolean
+        /// flag indicates if the forward edge is executable.
+        ///
+        std::pair<CFGNode*, bool> get(const std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t x) const;
+
+        ///
+        /// Removes the CFGNode at the given index.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// The CFGNode will be removed from the list of CFGNodes, but not deallocated.
+        ///
+        /// \param  x   The index of the CFGNode to remove.
+        ///
+        /// \return true on success.
+        ///
+        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t x);
+
+        ///
+        /// Removes the CFGNodes with the given address.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// The CFGNode will be removed from the list of CFGNodes, but not deallocated.
+        ///
+        /// \param  x   The address of the CFGNode to remove.
+        ///
+        /// \return true on success.
+        ///
+        /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
+        ///
+        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, const CFGNode* const x);
+
+        ///
+        /// Removes the CFGNode with the given address.
+        ///
+        /// Provides uniform implementation for successors and predecessors
+        ///
+        /// The CFGNode will be removed from the list of CFGNodes, but not deallocated.
+        ///
+        /// \param  x   The address of the CFGNode to remove.
+        /// \param  isExecutable   The executable edge test to apply when deciding if to remove a
+        /// CFGNode.
+        ///
+        /// \return true on success.
+        ///
+        /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
+        ///
+        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, const CFGNode* const x, bool isExecutable);
 
     private:
         EA ea;
