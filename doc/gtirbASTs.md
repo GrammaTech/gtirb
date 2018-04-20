@@ -288,3 +288,125 @@ TSL ASTs when we work with them.
 I'm not sure I've even sold myself on this proposal, but it might be the
 best of many not quite perfect options.
 
+## More concrete proposal
+
+```
+struct sym_info {
+    Symbol *base;
+    Symbol *minus; /* optional, if set, represents "base - minus"
+    int64 offset;
+};
+
+struct operand {
+    enum {
+        NONE,
+        REG_DIRECT,
+        IMM,
+        INDIRECT,
+        // TODO: arm reg+shift
+        SYMBOLIC = 0x80 /* or'd with above, or maybe just SYM_INDIRECT, etc */
+    } kind;
+
+    int8 size; /* 8, 16, 32, 64 */
+
+    union {
+        enum reg {
+           REG_NONE,
+           X86_RAX, X86_EAX, X86_AX, X86_AH,
+           X86_MM0, ...
+           X86_XMM0, ...
+           ARM_R0, ...
+        } reg_direct;
+
+        union {
+            uint64 imm;
+            sym_info *sym_imm;
+        };
+
+        struct indirect {
+            reg base;
+            reg index; /* ... */
+            int scale; /* or shift amount for arm */
+            union {
+                int64 offset;
+                sym_info *sym_offset;
+            };
+            union {
+                struct {
+                    int x86_seg; /* CS, SS, DS, ... */
+                };
+                struct {
+                    enum { NONE, LSL, LSR, ASR, ROR, RRX }  arm_shift_op;
+                };
+            };
+        } indirect;
+    }
+    /* IDA also has:
+        offb  // offset of operand relative to instruction start
+       whchi might be useful
+    */
+};
+
+struct instruction {
+    eaT ea;
+    int8 size;
+
+    /* 
+        X86_REP, X86_REPE, X86_REPNE, X86_LOCK
+        ARM_{NE,EQ} // condition codes
+    */
+    int flags;
+
+    int opcode; // union of {zero,one,two,three}OpInstr
+    uint8 noperands;
+    operand operands[4 /* four ought to be enough for anybody? */];
+
+    /* Nasm also has:
+        label (not needed, higher level)
+        prefixes (folded into operand size, flags, etc */
+        condition (for Jcc/SETcc, folded into opcode */
+        addr_size (folded into operand)
+        rep count (only for data)
+        some rex/vex/evec stuff, folded into opcode/operand for us
+    */
+
+    /* IDA also has a couple "processor dependent" fields (with no defined
+       use in the isa independent api), it isn't clear what can go here
+       (IDA docs are horrible)
+    */
+
+    /* Capstone has:
+        prefix bytes (see above)
+        address size (see above)
+        modrm/sib/disp (redundant with operands)
+        condition code (see above)
+    */        
+};
+```
+
+## ISAL spec
+
+Here is roughly how the isal tsl translations would map to the new structure
+(if we wanted to decode directly to these asts)
+
+Types of translation terms (in as TSL types => above):
+
+* reg -> reg enum
+* scale :: int8 -> unchanged
+* addr -> struct indirect
+* operand{8,16,32,64,...} -> struct operand
+* {one,two,three}OpInstr -> int opcode
+* offset :: int{8,16,32} -> unchanged
+* instruction -> struct instruction
+
+So the tsl types should directly line up with components of the above structure
+I think the could mostly automatically "convert" the TSL translation expressions
+to something to generate the above structure (some constructs would certainly need 
+manual intervention though). If we want to allow decoding to both representations
+we'd probably want to maintain both in the isal spec.
+
+I don't think ISAL can help at all with the translation between tsl and 'struct'.
+Well, *if* we had the capability of going "backwards" from the TSL ASTs back to isal
+rules (the exact piece we'd need for an encoder incidentally) then it could, but this
+piece probably isn't worth implementing just for the translation, the manual translation
+function is easy enough to implement. 
