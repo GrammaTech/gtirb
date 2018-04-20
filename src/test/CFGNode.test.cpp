@@ -75,7 +75,7 @@ TEST(Unit_CFGNode, addSuccessor_self)
 
     EXPECT_NO_THROW(node->addSuccessor(childPtr, true));
     EXPECT_EQ(size_t{2}, node->getSuccessorSize());
-    
+
     EXPECT_NO_THROW(node->addSuccessor(childPtr, false));
     EXPECT_EQ(size_t{3}, node->getSuccessorSize());
 
@@ -136,7 +136,7 @@ TEST(Unit_CFGNode, setSuccessor_0)
 
     auto child1 = std::make_unique<gtirb::CFGNode>();
     auto child1Ptr = child1.get();
-    
+
     auto child2 = std::make_unique<gtirb::CFGNode>();
     auto child2Ptr = child2.get();
 
@@ -170,13 +170,10 @@ TEST(Unit_CFGNode, setSuccessor_1)
 {
     auto node = std::make_unique<gtirb::CFGNode>();
     auto child0 = std::make_unique<gtirb::CFGNode>();
-    auto child0Ptr = child0.get();
 
     auto child1 = std::make_unique<gtirb::CFGNode>();
-    auto child1Ptr = child1.get();
-    
+
     auto child2 = std::make_unique<gtirb::CFGNode>();
-    auto child2Ptr = child2.get();
 
     auto childFoo = std::make_unique<gtirb::CFGNode>();
     auto childFooPtr = childFoo.get();
@@ -199,7 +196,7 @@ TEST(Unit_CFGNode, setSuccessor_1)
     EXPECT_EQ(size_t{3}, node->getSuccessorSize());
 
     EXPECT_NO_THROW(node->setSuccessor(size_t(0), childFooPtr, true));
-    
+
     EXPECT_EQ(childFooPtr, node->getSuccessor(size_t(0)).first);
     EXPECT_TRUE(node->getSuccessor(size_t(0)).second);
     EXPECT_NE(childFooPtr, node->getSuccessor(size_t(1)).first);
@@ -219,7 +216,7 @@ TEST(Unit_CFGNode, setSuccessor_1)
     EXPECT_EQ(size_t{3}, node->getSuccessorSize());
 
     EXPECT_NO_THROW(node->setSuccessor(size_t(1), childFooPtr, true));
-    
+
     EXPECT_EQ(childFooPtr, node->getSuccessor(size_t(0)).first);
     EXPECT_TRUE(node->getSuccessor(size_t(0)).second);
     EXPECT_EQ(childFooPtr, node->getSuccessor(size_t(1)).first);
@@ -234,13 +231,10 @@ TEST(Unit_CFGNode, setSuccessor_throws)
 {
     auto node = std::make_unique<gtirb::CFGNode>();
     auto child0 = std::make_unique<gtirb::CFGNode>();
-    auto child0Ptr = child0.get();
 
     auto child1 = std::make_unique<gtirb::CFGNode>();
-    auto child1Ptr = child1.get();
-    
+
     auto child2 = std::make_unique<gtirb::CFGNode>();
-    auto child2Ptr = child2.get();
 
     auto childFoo = std::make_unique<gtirb::CFGNode>();
     auto childFooPtr = childFoo.get();

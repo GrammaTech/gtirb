@@ -183,12 +183,8 @@ uint8_t ImageByteMap::getData8(EA x) const
     {
         return this->byteMap.getData8(x);
     }
-    else
-    {
-        throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-    }
 
-    return 0;
+    throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 uint16_t ImageByteMap::getData16(EA x) const
@@ -197,12 +193,8 @@ uint16_t ImageByteMap::getData16(EA x) const
     {
         return this->byteMap.getData16(x);
     }
-    else
-    {
-        throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-    }
 
-    return 0;
+    throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 uint32_t ImageByteMap::getData32(EA x) const
@@ -211,12 +203,8 @@ uint32_t ImageByteMap::getData32(EA x) const
     {
         return this->byteMap.getData32(x);
     }
-    else
-    {
-        throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-    }
 
-    return 0;
+    throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 uint64_t ImageByteMap::getData64(EA x) const
@@ -225,12 +213,8 @@ uint64_t ImageByteMap::getData64(EA x) const
     {
         return this->byteMap.getData64(x);
     }
-    else
-    {
-        throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-    }
 
-    return 0;
+    throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 std::vector<uint8_t> ImageByteMap::getData(EA x, size_t bytes) const
@@ -239,12 +223,8 @@ std::vector<uint8_t> ImageByteMap::getData(EA x, size_t bytes) const
     {
         return this->byteMap.getData(x, bytes);
     }
-    else
-    {
-        throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-    }
 
-    return std::vector<uint8_t>{};
+    throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 std::vector<uint8_t> ImageByteMap::getDataUntil(EA ea, uint8_t sentinel, size_t bytes) const
@@ -253,10 +233,6 @@ std::vector<uint8_t> ImageByteMap::getDataUntil(EA ea, uint8_t sentinel, size_t 
     {
         return this->byteMap.getDataUntil(ea, sentinel, bytes);
     }
-    else
-    {
-        throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-    }
 
-    return std::vector<uint8_t>{};
+    throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }

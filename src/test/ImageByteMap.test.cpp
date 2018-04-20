@@ -209,8 +209,8 @@ TEST_F(Unit_ImageByteMapF, legacy_byte)
 
             const auto word = this->byteMap.getData16(Unit_ImageByteMapF::Offset + gtirb::EA{i});
 
-            EXPECT_EQ(expectedWord, word) << "Bad word read at : "
-                                          << Unit_ImageByteMapF::Offset + gtirb::EA{i};
+            EXPECT_EQ(expectedWord, word)
+                << "Bad word read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
         }
     }
 }
@@ -219,13 +219,13 @@ TEST_F(Unit_ImageByteMapF, legacy_word)
 {
     const auto address = gtirb::EA(0x00001000);
 
-    ASSERT_NO_THROW(this->byteMap.setData(address, uint16_t{0xDEAD})) << "At Address " << address << ", min/max={"
-                                                      << this->byteMap.getEAMinMax().first << "/"
-                                                      << this->byteMap.getEAMinMax().second << "}.";
+    ASSERT_NO_THROW(this->byteMap.setData(address, uint16_t{0xDEAD}))
+        << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+        << this->byteMap.getEAMinMax().second << "}.";
 
-    ASSERT_NO_THROW(this->byteMap.getData16(address)) << "At Address " << address << ", min/max={"
-                                                      << this->byteMap.getEAMinMax().first << "/"
-                                                      << this->byteMap.getEAMinMax().second << "}.";
+    ASSERT_NO_THROW(this->byteMap.getData16(address))
+        << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+        << this->byteMap.getEAMinMax().second << "}.";
 
     const auto data = this->byteMap.getData16(address);
     EXPECT_EQ(0xDEAD, data) << "Bad word read at : " << address;
@@ -235,13 +235,13 @@ TEST_F(Unit_ImageByteMapF, legacy_dword)
 {
     const auto address = gtirb::EA(0x00001000);
 
-    ASSERT_NO_THROW(this->byteMap.setData(address, uint32_t{0xCAFEBABE})) << "At Address " << address << ", min/max={"
-                                                      << this->byteMap.getEAMinMax().first << "/"
-                                                      << this->byteMap.getEAMinMax().second << "}.";
+    ASSERT_NO_THROW(this->byteMap.setData(address, uint32_t{0xCAFEBABE}))
+        << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+        << this->byteMap.getEAMinMax().second << "}.";
 
-    ASSERT_NO_THROW(this->byteMap.getData32(address)) << "At Address " << address << ", min/max={"
-                                                      << this->byteMap.getEAMinMax().first << "/"
-                                                      << this->byteMap.getEAMinMax().second << "}.";
+    ASSERT_NO_THROW(this->byteMap.getData32(address))
+        << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+        << this->byteMap.getEAMinMax().second << "}.";
 
     const auto data = this->byteMap.getData32(address);
     EXPECT_EQ(0xCAFEBABE, data) << "Bad dword read at : " << address;
@@ -251,13 +251,13 @@ TEST_F(Unit_ImageByteMapF, legacy_qword)
 {
     const auto address = gtirb::EA(0x00001000);
 
-    ASSERT_NO_THROW(this->byteMap.setData(address, uint64_t{0x8BADF00D0D15EA5E})) << "At Address " << address << ", min/max={"
-                                                      << this->byteMap.getEAMinMax().first << "/"
-                                                      << this->byteMap.getEAMinMax().second << "}.";
+    ASSERT_NO_THROW(this->byteMap.setData(address, uint64_t{0x8BADF00D0D15EA5E}))
+        << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+        << this->byteMap.getEAMinMax().second << "}.";
 
-    ASSERT_NO_THROW(this->byteMap.getData64(address)) << "At Address " << address << ", min/max={"
-                                                      << this->byteMap.getEAMinMax().first << "/"
-                                                      << this->byteMap.getEAMinMax().second << "}.";
+    ASSERT_NO_THROW(this->byteMap.getData64(address))
+        << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+        << this->byteMap.getEAMinMax().second << "}.";
 
     const auto data = this->byteMap.getData64(address);
     EXPECT_EQ(0x8BADF00D0D15EA5E, data) << "Bad qword read at : " << address;
@@ -314,7 +314,7 @@ TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_2)
 {
     // c. search for 254 -- like a, but two fewer
     const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
-    const auto buf = this->byteMap.getDataUntil(ea, '\xfe', 16);
+    const auto buf = this->byteMap.getDataUntil(ea, static_cast<uint8_t>('\xfe'), 16);
     const auto bytesRead = buf.size();
 
     ASSERT_EQ(15, bytesRead);

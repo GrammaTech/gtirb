@@ -62,7 +62,11 @@ set(${PROJECT_NAME}_SRC
 	CFG.cpp
 	CFGNode.cpp
 	CFGNodeInfo.cpp
+	CFGNodeInfoActualIn.cpp
 	CFGNodeInfoCall.cpp
+	CFGNodeInfoDeclares.cpp
+	CFGNodeInfoEntry.cpp
+	CFGNodeInfoFormalIn.cpp
 	EA.cpp
 	Exception.cpp
 	ImageByteMap.cpp
