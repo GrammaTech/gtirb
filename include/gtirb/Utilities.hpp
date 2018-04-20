@@ -62,7 +62,7 @@ namespace gtirb
             union {
                 T u;
                 uint8_t u8[sizeof(T)];
-            } source, dest;
+            } source{0}, dest{0};
 
             source.u = u;
 
@@ -73,5 +73,5 @@ namespace gtirb
 
             return dest.u;
         }
-    }
+    } // namespace utilities
 } // namespace gtirb

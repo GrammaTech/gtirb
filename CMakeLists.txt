@@ -58,6 +58,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Global Options (Compile / Link)
 #
 
+add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
 	add_compile_options(-D_MBCS)

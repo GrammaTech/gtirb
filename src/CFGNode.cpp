@@ -1,11 +1,11 @@
+#include <cassert>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/NodeUtilities.hpp>
+#include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include <cassert>
 
 using namespace gtirb;
 
@@ -62,7 +62,8 @@ void CFGNode::setSuccessor(size_t index, CFGNode* x, bool isExecutable)
     }
     else
     {
-        throw std::out_of_range("Attempt to set a successor CFGNode by an index outside the range of successors.");
+        throw std::out_of_range(
+            "Attempt to set a successor CFGNode by an index outside the range of successors.");
     }
 }
 
@@ -174,21 +175,21 @@ void CFGNode::removePredecessor(const CFGNode* const x)
 
 void CFGNode::removePredecessor(const CFGNode* const x, bool isExecutable)
 {
-    this->predecessors.erase(std::remove_if(std::begin(this->predecessors), std::end(this->predecessors),
-                                          [x, isExecutable](const auto& s) {
-                                              return (s.first.lock().get() == x)
-                                                     && (s.second == isExecutable);
-                                          }),
-                           std::end(this->predecessors));
+    this->predecessors.erase(
+        std::remove_if(std::begin(this->predecessors), std::end(this->predecessors),
+                       [x, isExecutable](const auto& s) {
+                           return (s.first.lock().get() == x) && (s.second == isExecutable);
+                       }),
+        std::end(this->predecessors));
 }
 
 CFGNodeInfo* CFGNode::getCFGNodeInfo() const
 {
-    const auto children = GetChildrenOfType<CFGNodeInfo>(this);
+    const auto nodeInfoChildren = GetChildrenOfType<CFGNodeInfo>(this);
 
-    if(children.empty() == false)
+    if(nodeInfoChildren.empty() == false)
     {
-        return children[0];
+        return nodeInfoChildren[0];
     }
 
     return nullptr;
