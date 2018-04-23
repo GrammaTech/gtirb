@@ -440,10 +440,7 @@ TEST(Unit_CFGNode, removeSuccessor_ptr_isExecutable)
 {
     auto node = std::make_unique<gtirb::CFGNode>();
     auto child0 = std::make_unique<gtirb::CFGNode>();
-
     auto child1 = std::make_unique<gtirb::CFGNode>();
-    auto child1Ptr = child1.get();
-
     auto child2 = std::make_unique<gtirb::CFGNode>();
 
     auto childFoo = std::make_unique<gtirb::CFGNode>();
@@ -497,8 +494,8 @@ TEST(Unit_CFGNode, removeSuccessor_ptr_isExecutable)
     EXPECT_EQ(size_t{3}, node->getSuccessorSize());
     EXPECT_EQ(size_t{0}, node->getPredecessorSize());
 
-    // Now remove Child 1 from the list of successors...but we specify the WRONG isExecuable flag, so nothing happens.
-    // It will not be removed from the list of node children.
+    // Now remove Child 1 from the list of successors...but we specify the WRONG isExecuable flag,
+    // so nothing happens. It will not be removed from the list of node children.
     EXPECT_NO_THROW(node->removeSuccessor(childFooPtr, false));
     EXPECT_EQ(size_t{4}, node->size());
     EXPECT_EQ(size_t{3}, node->getSuccessorSize());
@@ -891,10 +888,7 @@ TEST(Unit_CFGNode, removePredecessor_ptr_isExecutable)
 {
     auto node = std::make_unique<gtirb::CFGNode>();
     auto child0 = std::make_unique<gtirb::CFGNode>();
-
     auto child1 = std::make_unique<gtirb::CFGNode>();
-    auto child1Ptr = child1.get();
-
     auto child2 = std::make_unique<gtirb::CFGNode>();
 
     auto childFoo = std::make_unique<gtirb::CFGNode>();
@@ -948,8 +942,8 @@ TEST(Unit_CFGNode, removePredecessor_ptr_isExecutable)
     EXPECT_EQ(size_t{3}, node->getPredecessorSize());
     EXPECT_EQ(size_t{0}, node->getSuccessorSize());
 
-    // Now remove Child 1 from the list of successors...but we specify the WRONG isExecuable flag, so nothing happens.
-    // It will not be removed from the list of node children.
+    // Now remove Child 1 from the list of successors...but we specify the WRONG isExecuable flag,
+    // so nothing happens. It will not be removed from the list of node children.
     EXPECT_NO_THROW(node->removePredecessor(childFooPtr, false));
     EXPECT_EQ(size_t{4}, node->size());
     EXPECT_EQ(size_t{3}, node->getPredecessorSize());
@@ -966,10 +960,10 @@ TEST(Unit_CFGNode, removePredecessor_ptr_isExecutable)
 TEST(Unit_CFGNode, preventSelfReferencesForPredecessors)
 {
     auto parent = std::make_unique<gtirb::CFGNode>();
-    
+
     auto node = std::make_unique<gtirb::CFGNode>();
     auto nodePtr = node.get();
-    
+
     EXPECT_NO_THROW(parent->push_back(std::move(node)));
 
     EXPECT_THROW(nodePtr->addPredecessor(nodePtr), gtirb::NodeStructureError);
@@ -978,10 +972,10 @@ TEST(Unit_CFGNode, preventSelfReferencesForPredecessors)
 TEST(Unit_CFGNode, preventSelfReferencesForSuccessors)
 {
     auto parent = std::make_unique<gtirb::CFGNode>();
-    
+
     auto node = std::make_unique<gtirb::CFGNode>();
     auto nodePtr = node.get();
-    
+
     EXPECT_NO_THROW(parent->push_back(std::move(node)));
 
     EXPECT_THROW(nodePtr->addSuccessor(nodePtr), gtirb::NodeStructureError);

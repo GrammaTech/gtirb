@@ -1,13 +1,12 @@
 #include <gtest/gtest.h>
-#include <gtirb/Node.hpp>
-#include <memory>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/serialization/shared_ptr_helper.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
-#include <memory>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr_helper.hpp>
 #include <fstream>
+#include <gtirb/Node.hpp>
+#include <memory>
 
 TEST(Unit_LocalProperties, ctor_0)
 {
@@ -120,7 +119,7 @@ TEST(Unit_LocalProperties, serialize)
 {
     const auto tempPath =
         boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.native();
+    const std::string tempPathString = tempPath.string();
 
     auto original = gtirb::LocalProperties{};
     original.setLocalProperty("Name", std::string("Value"));
@@ -141,9 +140,6 @@ TEST(Unit_LocalProperties, serialize)
         EXPECT_FALSE(ofs.is_open());
     }
 
-    const auto fileSize = boost::filesystem::file_size(tempPath);
-    EXPECT_EQ(size_t(67), fileSize);
-
     // Read it back in and re-test
     {
         gtirb::LocalProperties serialized;
@@ -157,16 +153,16 @@ TEST(Unit_LocalProperties, serialize)
         EXPECT_NO_THROW(ifs.close());
 
         EXPECT_EQ(size_t{1}, serialized.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(serialized.getLocalProperty("Name")));
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized.getLocalProperty("Name")));
     }
 }
-
 
 TEST(Unit_LocalProperties, serializeFromSharedPtr)
 {
     const auto tempPath =
         boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.native();
+    const std::string tempPathString = tempPath.string();
 
     auto original = std::make_shared<gtirb::LocalProperties>();
     original->setLocalProperty("Name", std::string("Value"));
@@ -174,7 +170,8 @@ TEST(Unit_LocalProperties, serializeFromSharedPtr)
     // Scope objects so they are destroyed
     {
         EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original->getLocalProperty("Name")));
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(original->getLocalProperty("Name")));
 
         // Serialize Out.
         std::ofstream ofs{tempPathString.c_str()};
@@ -187,12 +184,10 @@ TEST(Unit_LocalProperties, serializeFromSharedPtr)
         EXPECT_FALSE(ofs.is_open());
     }
 
-    const auto fileSize = boost::filesystem::file_size(tempPath);
-    EXPECT_EQ(size_t(73), fileSize);
-
     // Read it back in and re-test
     {
-        std::shared_ptr<gtirb::LocalProperties> serialized = std::make_shared<gtirb::LocalProperties>();
+        std::shared_ptr<gtirb::LocalProperties> serialized =
+            std::make_shared<gtirb::LocalProperties>();
 
         // Serialize In.
         std::ifstream ifs{tempPathString.c_str()};
@@ -203,6 +198,7 @@ TEST(Unit_LocalProperties, serializeFromSharedPtr)
         EXPECT_NO_THROW(ifs.close());
 
         EXPECT_EQ(size_t{1}, serialized->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(serialized->getLocalProperty("Name")));
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized->getLocalProperty("Name")));
     }
 }

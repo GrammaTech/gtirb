@@ -2,9 +2,9 @@
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
+#include <fstream>
 #include <gtirb/EA.hpp>
 #include <memory>
-#include <fstream>
 
 TEST(Unit_EA, ctor_0)
 {
@@ -52,7 +52,7 @@ TEST(Unit_EA, serialize)
 {
     const auto tempPath =
         boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.native();
+    const std::string tempPathString = tempPath.string();
 
     const auto original = gtirb::EA{2112};
 
