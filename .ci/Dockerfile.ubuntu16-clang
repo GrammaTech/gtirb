@@ -22,6 +22,8 @@ FROM ubuntu:16.04
 ARG UBUNTU_VERSION=16.04
 ARG LLVM_VERSION=5.0.1
 ARG CMAKE_VERSION=3.10
+ARG BOOST_VERSION=1.67.0
+ARG BOOST_VERSION_=1_67_0
 
 MAINTAINER John Farrier <jfarrier@grammatech.com>
 
@@ -40,7 +42,7 @@ RUN apt-get update && apt-get -y install \
 	libncurses-dev \
 	libobjc-4.8-dev \
 	libobjc4 \
-        libboost-all-dev \
+    libboost-all-dev \
 	libpipeline1 \
 	libpython-stdlib \
 	libpython2.7-minimal \
@@ -66,12 +68,24 @@ RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linu
 RUN curl -SL http://releases.llvm.org/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-$UBUNTU_VERSION.tar.xz \
     |tar -xJ --strip-components=1 -C /usr/local
 
+# Install Boost
+ENV BOOST_VERSION=${BOOST_VERSION}
+ENV BOOST_VERSION_=${BOOST_VERSION_}
+ENV BOOST_ROOT=/usr/include/boost
+RUN apt-get -qq update && apt-get install -q -y software-properties-common python-software-properties
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y
+RUN apt-get -qq update && apt-get install -qy g++-6 gcc git wget
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
+RUN wget --no-check-certificate --max-redirect 3 https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_}.tar.gz
+RUN mkdir -p /usr/include/boost && tar zxf boost_${BOOST_VERSION_}.tar.gz -C /usr/include/boost --strip-components=1
+RUN echo ${BOOST_ROOT}
+
+# Build GT-IRB
 COPY . /gt/gt-irb/
 RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
 RUN mkdir -p /gt/gt-irb/build
 WORKDIR /gt/gt-irb/build
 RUN cmake ../
 RUN make -j
-
 WORKDIR /gt/gt-irb/
 ENV PATH=/gt/gt-irb/bin:$PATH
