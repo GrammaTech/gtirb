@@ -4,7 +4,7 @@ ARG BOOST_VERSION=1.67.0
 ARG BOOST_VERSION_=1_67_0
 
 RUN apt-get -y update && \
-    apt-get -y install gcc make cmake git build-essential binutils doxygen graphviz
+    apt-get -y install gcc make cmake git build-essential binutils doxygen graphviz wget
 
 ENV BOOST_VERSION=${BOOST_VERSION}
 ENV BOOST_VERSION_=${BOOST_VERSION_}
