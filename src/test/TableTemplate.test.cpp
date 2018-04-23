@@ -2,8 +2,8 @@
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/serialization/string.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <fstream>
 #include <gtirb/TableTemplate.hpp>
@@ -11,17 +11,18 @@
 class TableIntIntString : public gtirb::TableTemplate<int, int, std::string>
 {
 public:
-    //template <typename Archive>
-    //void serialize(Archive& ar, const unsigned int version)
+    // template <typename Archive>
+    // void serialize(Archive& ar, const unsigned int version)
     //{
-    //    // ar & boost::serialization::base_object<gtirb::TableTemplate<int, int, std::string>>(*this);
-    //    ar & this->table;
+    //    // ar & boost::serialization::base_object<gtirb::TableTemplate<int, int,
+    //    std::string>>(*this); ar & this->table;
     //}
 
     ///
     /// Serialize this node (and all of its children).
     ///
-    virtual void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0) override
+    virtual void serialize(boost::archive::polymorphic_iarchive& ar,
+                           [[maybe_unused]] const unsigned int version = 0) override
     {
         ar & this->table;
     }
@@ -29,7 +30,8 @@ public:
     ///
     /// Serialize this node (and all of its children).
     ///
-    virtual void serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int version = 0) const override
+    virtual void serialize(boost::archive::polymorphic_oarchive& ar,
+                           [[maybe_unused]] const unsigned int version = 0) const override
     {
         ar & this->table;
     }
@@ -38,11 +40,6 @@ public:
 TEST(Unit_TableTemplate, ctor_0)
 {
     EXPECT_NO_THROW(TableIntIntString());
-}
-
-TEST(Unit_TableTemplate, sizeof)
-{
-    EXPECT_EQ(size_t(64), sizeof(TableIntIntString)) << "The default size of TableIntIntString has changed.";
 }
 
 TEST(Unit_TableTemplate, twoDimentionalIndex)
@@ -173,7 +170,7 @@ TEST(Unit_TableTemplate, serialize)
 {
     const auto tempPath =
         boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.native();
+    const std::string tempPathString = tempPath.string();
 
     // Scope objects so they are destroyed
     {

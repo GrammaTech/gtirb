@@ -1,9 +1,9 @@
-#include <boost/uuid/uuid_generators.hpp>
-#include <gtirb/LocalProperties.hpp>
-#include <boost/serialization/variant.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/serialization/variant.hpp>
 #include <boost/serialization/version.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <gtirb/LocalProperties.hpp>
 
 using namespace gtirb;
 
@@ -20,7 +20,7 @@ gtirb::variant LocalProperties::getLocalProperty(const std::string& x) const
 bool LocalProperties::removeLocalProperty(const std::string& x)
 {
     const auto found = this->localProperties.find(x);
-    
+
     if(found != std::end(this->localProperties))
     {
         this->localProperties.erase(found);
@@ -65,12 +65,12 @@ std::map<std::string, gtirb::variant>::const_iterator LocalProperties::endLocalP
     return std::end(this->localProperties);
 }
 
-void LocalProperties::serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version)
+void LocalProperties::serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int)
 {
     ar & this->localProperties;
 }
 
-void LocalProperties::serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int version) const
+void LocalProperties::serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int) const
 {
     ar & this->localProperties;
 }
