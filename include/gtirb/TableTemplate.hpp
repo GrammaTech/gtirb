@@ -1,7 +1,6 @@
 #pragma once
 
 #include <gtirb/Table.hpp>
-#include <string>
 #include <unordered_map>
 
 namespace gtirb
@@ -14,8 +13,8 @@ namespace gtirb
     /// While some data may be very node-specific, the table can store arbitrary data that spans
     /// many Node objects.
     ///
-    template <typename R = int, typename C = int, typename T = std::string>
-    class TableTemplate final : public Table
+    template <typename R, typename C, typename T>
+    class TableTemplate : public Table
     {
     public:
         ///
@@ -184,7 +183,18 @@ namespace gtirb
             return rotated;
         }
 
-    private:
+        ///
+        /// Serialization support.
+        ///
+        virtual void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0) override = 0;
+
+        ///
+        /// Serialization support.
+        ///
+        virtual void serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int version = 0) const override = 0;
+
+    protected:
+        /// Protected so that derived types can serialize it.
         std::unordered_map<R, std::unordered_map<C, T>> table;
     };
 }

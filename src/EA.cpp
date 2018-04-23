@@ -75,3 +75,15 @@ EA::operator std::string() const
 	ss << std::hex << this->ea;
 	return ss.str();
 }
+
+void EA::serialize(boost::archive::polymorphic_iarchive& ar,
+                       const unsigned int version)
+{
+	ar & this->ea;
+}
+
+void EA::serialize(boost::archive::polymorphic_oarchive& ar,
+                       const unsigned int version) const
+{
+	ar & this->ea;
+}

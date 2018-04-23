@@ -150,12 +150,30 @@ CFGNodeInfo* CFGNode::getCFGNodeInfo() const
     return nullptr;
 }
 
+void CFGNode::setLoadedInstructionBytes(uint8_t* x)
+{
+    this->loadedInstructionBytes = x;
+}
+
+uint8_t* CFGNode::getLoadedInstructionBytes() const
+{
+    return this->loadedInstructionBytes;
+}
+
 void CFGNode::add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, CFGNode* x,
                   bool isExecutable)
 {
-    auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
-    assert(sharedNode != nullptr);
-    vec.push_back({sharedNode, isExecutable});
+    if(x != this)
+    {
+        auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
+        assert(sharedNode != nullptr);
+        vec.push_back({sharedNode, isExecutable});
+    }
+    else
+    {
+        throw gtirb::NodeStructureError(
+            "Attempt to add a CFGNode to itself as a successor/predecessor.");
+    }
 }
 
 void CFGNode::add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
@@ -169,20 +187,29 @@ void CFGNode::add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
 void CFGNode::set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index,
                   CFGNode* x, bool isExecutable)
 {
-    auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
+    if(x != this)
+    {
+        auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
 
-    if(index < vec.size())
-    {
-        vec[index] = {sharedNode, isExecutable};
-    }
-    else if(index == vec.size())
-    {
-        vec.push_back({sharedNode, isExecutable});
+        if(index < vec.size())
+        {
+            vec[index] = {sharedNode, isExecutable};
+        }
+        else if(index == vec.size())
+        {
+            vec.push_back({sharedNode, isExecutable});
+        }
+        else
+        {
+            throw std::out_of_range(
+                "Attempt to set a CFGNode by an index outside the range of "
+                "successors/predecessors.");
+        }
     }
     else
     {
-        throw std::out_of_range(
-            "Attempt to set a CFGNode by an index outside the range of successors/predecessors.");
+        throw gtirb::NodeStructureError(
+            "Attempt to add a CFGNode to itself as a successor/predecessor.");
     }
 }
 

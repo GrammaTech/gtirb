@@ -284,6 +284,30 @@ namespace gtirb
         ///
         CFGNodeInfo* getCFGNodeInfo() const;
 
+        ///
+        /// The bytes for the loaded instruction associated with this CFGNode.
+        ///
+        /// It is suggested that this point to either loaded data elsewhere already in memory or a
+        /// user-owned std::vector's internal data.
+        ///
+        /// \param x    A non-owning pointer to storage for the loaded instruction bytes.  It is
+        /// owned (and thus has a lifetime) outside the control
+        /// of the CFGNode.
+        ///
+        void setLoadedInstructionBytes(uint8_t* x);
+
+        ///
+        /// The bytes for the loaded instruction associated with this CFGNode.
+        ///
+        /// It is suggested that this point to either loaded data elsewhere already in memory or a
+        /// user-owned std::vector's internal data.
+        ///
+        /// \return A non-owning pointer to storage for the loaded instruction bytes.  It is owned
+        /// (and thus has a lifetime) outside the control
+        /// of the CFGNode.
+        ///
+        uint8_t* getLoadedInstructionBytes() const;
+
     protected:
         ///
         /// Add an existing CFGNode as a new CFGNode.
@@ -296,7 +320,8 @@ namespace gtirb
         ///
         /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
         ///
-        void add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, CFGNode* x, bool isExecutable = false);
+        void add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, CFGNode* x,
+                 bool isExecutable = false);
 
         ///
         /// Add a new CFGNode as a new CFGNode.
@@ -306,7 +331,8 @@ namespace gtirb
         /// \param  x   An owned pointer to a CFGNode to add as a CFGNode.
         /// \param  isExecutable    True if the edge to the CFGNode is executable.
         ///
-        void add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, std::unique_ptr<CFGNode>&& x, bool isExecutable = false);
+        void add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
+                 std::unique_ptr<CFGNode>&& x, bool isExecutable = false);
 
         ///
         /// Sets the CFGNode at the given index to a new pointer.
@@ -322,7 +348,8 @@ namespace gtirb
         /// \throws std::out_of_range if the index is out of range.
         /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
         ///
-        void set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index, CFGNode* x, bool isExecutable = false);
+        void set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index,
+                 CFGNode* x, bool isExecutable = false);
 
         ///
         /// Sets the CFGNode at the given index to a new pointer.
@@ -336,7 +363,8 @@ namespace gtirb
         ///
         /// \throws std::out_of_range
         ///
-        void set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index, std::unique_ptr<CFGNode>&& x, bool isExecutable = false);
+        void set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t index,
+                 std::unique_ptr<CFGNode>&& x, bool isExecutable = false);
 
         ///
         /// Get the CFGNode at the given index.
@@ -348,7 +376,8 @@ namespace gtirb
         /// \return     The pointer to the CFGNode at the given index, or nullptr.  The boolean
         /// flag indicates if the forward edge is executable.
         ///
-        std::pair<CFGNode*, bool> get(const std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t x) const;
+        std::pair<CFGNode*, bool> get(
+            const std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, size_t x) const;
 
         ///
         /// Removes the CFGNode at the given index.
@@ -376,7 +405,8 @@ namespace gtirb
         ///
         /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
         ///
-        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, const CFGNode* const x);
+        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
+                    const CFGNode* const x);
 
         ///
         /// Removes the CFGNode with the given address.
@@ -393,7 +423,8 @@ namespace gtirb
         ///
         /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
         ///
-        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, const CFGNode* const x, bool isExecutable);
+        void remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
+                    const CFGNode* const x, bool isExecutable);
 
     private:
         EA ea;
@@ -404,5 +435,7 @@ namespace gtirb
 
         // Boolean if the backward edge "isExecutable"
         std::vector<std::pair<std::weak_ptr<CFGNode>, bool>> predecessors;
+
+        uint8_t* loadedInstructionBytes{nullptr};
     };
 }

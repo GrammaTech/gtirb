@@ -34,21 +34,21 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 
-# The user can toggle between boost and std implementaiton of "any".
+# The user can toggle between boost and std implementaiton of "variant".
 # This is not a feature, but a work-around for older compiler support.
-# Once all compilers support std::any, this should go away. 
+# Once all compilers support std::variant, this should go away. 
 set(GTIRB_ISO_CPP_VERSION "C++17" CACHE STRING "C++ ISO Standard to use.")
 set_property(CACHE GTIRB_ISO_CPP_VERSION PROPERTY STRINGS C++17 C++14)
 
 # Default to C++17, then override to C++14 if necessary.
 if(${GTIRB_ISO_CPP_VERSION} STREQUAL "C++14")
 	set(CMAKE_CXX_STANDARD 14)
-	add_compile_options(-DGTIRB_USE_ANY_IMPL_NAMESPACE=boost)
-	add_compile_options(-DGTIRB_USE_ANY_IMPL_HEADER=<boost/any.hpp>)
+	add_compile_options(-DGTIRB_USE_VARIANT_IMPL_NAMESPACE=boost)
+	add_compile_options(-DGTIRB_USE_VARIANT_IMPL_HEADER=<boost/variant.hpp>)
 else()
 	set(CMAKE_CXX_STANDARD 17)
-	add_compile_options(-DGTIRB_USE_ANY_IMPL_NAMESPACE=std)
-	add_compile_options(-DGTIRB_USE_ANY_IMPL_HEADER=<any>)
+	add_compile_options(-DGTIRB_USE_VARIANT_IMPL_NAMESPACE=std)
+	add_compile_options(-DGTIRB_USE_VARIANT_IMPL_HEADER=<variant>)
 endif()
 
 # Base include path for the GT-IRB library.
@@ -136,7 +136,7 @@ endif()
 
 # https://stackoverflow.com/questions/9723793/undefined-reference-to-boostsystemsystem-category-when-compiling
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-find_package(Boost REQUIRED COMPONENTS serialization filesystem)
+find_package(Boost 1.59 REQUIRED COMPONENTS serialization filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------
