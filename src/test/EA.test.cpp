@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/filesystem.hpp>
 #include <gtirb/EA.hpp>
 #include <memory>
+#include <fstream>
 
 TEST(Unit_EA, ctor_0)
 {
@@ -26,7 +30,7 @@ TEST(Unit_EA, comparison)
 
     EXPECT_NE(ea1, ea2);
     EXPECT_TRUE(ea1 != ea2);
-    
+
     EXPECT_LT(ea2, ea1);
     EXPECT_TRUE(ea2 < ea1);
 
@@ -42,4 +46,46 @@ TEST(Unit_EA, set)
 
     EXPECT_EQ(ea1, ea2);
     EXPECT_EQ(uint64_t(2112), ea2.get());
+}
+
+TEST(Unit_EA, serialize)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.native();
+
+    const auto original = gtirb::EA{2112};
+
+    // Scope objects so they are destroyed
+    {
+        EXPECT_EQ(gtirb::EA{2112}, original);
+
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        oa << original;
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    const auto fileSize = boost::filesystem::file_size(tempPath);
+    EXPECT_EQ(size_t(37), fileSize);
+
+    // Read it back in and re-test
+    {
+        gtirb::EA serialized;
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        ia >> serialized;
+
+        EXPECT_NO_THROW(ifs.close());
+
+        EXPECT_EQ(original, serialized);
+    }
 }

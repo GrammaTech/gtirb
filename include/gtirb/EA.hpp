@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 #include <cstdint>
 #include <gtirb/Constants.hpp>
 #include <gtirb/Export.hpp>
@@ -73,6 +75,17 @@ namespace gtirb
         ///
         operator std::string() const;
 
+        ///
+        /// Serialization support.
+        ///
+        void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0);
+
+        ///
+        /// Serialization support.
+        ///
+        void serialize(boost::archive::polymorphic_oarchive& ar,
+                       const unsigned int version = 0) const;
+
     private:
         ///
         /// Prevent automatic type conversions.
@@ -129,3 +142,5 @@ inline bool operator==(const uint64_t rhs, const gtirb::EA lhs)
 {
     return gtirb::EA(rhs) == lhs;
 }
+
+BOOST_IS_BITWISE_SERIALIZABLE(gtirb::EA)

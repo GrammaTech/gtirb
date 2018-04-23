@@ -3,6 +3,9 @@
 #include <string>
 #include <unordered_map>
 #include <gtirb/Export.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 
 namespace gtirb
 {
@@ -41,6 +44,17 @@ namespace gtirb
         ///
         virtual void clear() = 0;
 
+        ///
+        /// Serialization support.
+        ///
+        virtual void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0) = 0;
+
+        ///
+        /// Serialization support.
+        ///
+        virtual void serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int version = 0) const = 0;
     private:
     };
 }
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(gtirb::Table);

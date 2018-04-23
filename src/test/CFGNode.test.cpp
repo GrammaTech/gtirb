@@ -962,3 +962,27 @@ TEST(Unit_CFGNode, removePredecessor_ptr_isExecutable)
     EXPECT_EQ(size_t{0}, node->getPredecessorSize());
     EXPECT_EQ(size_t{0}, node->getSuccessorSize());
 }
+
+TEST(Unit_CFGNode, preventSelfReferencesForPredecessors)
+{
+    auto parent = std::make_unique<gtirb::CFGNode>();
+    
+    auto node = std::make_unique<gtirb::CFGNode>();
+    auto nodePtr = node.get();
+    
+    EXPECT_NO_THROW(parent->push_back(std::move(node)));
+
+    EXPECT_THROW(nodePtr->addPredecessor(nodePtr), gtirb::NodeStructureError);
+}
+
+TEST(Unit_CFGNode, preventSelfReferencesForSuccessors)
+{
+    auto parent = std::make_unique<gtirb::CFGNode>();
+    
+    auto node = std::make_unique<gtirb::CFGNode>();
+    auto nodePtr = node.get();
+    
+    EXPECT_NO_THROW(parent->push_back(std::move(node)));
+
+    EXPECT_THROW(nodePtr->addSuccessor(nodePtr), gtirb::NodeStructureError);
+}

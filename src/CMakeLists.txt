@@ -16,16 +16,15 @@ endif()
 
 set(${PROJECT_NAME}_H
 	../include/gtirb/AddrRanges.hpp
-	../include/gtirb/Any.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
 	../include/gtirb/CFGNode.hpp
 	../include/gtirb/CFGNodeInfo.hpp
 	../include/gtirb/CFGNodeInfoActualIn.hpp
+	../include/gtirb/CFGNodeInfoCall.hpp
 	../include/gtirb/CFGNodeInfoDeclares.hpp
 	../include/gtirb/CFGNodeInfoEntry.hpp
 	../include/gtirb/CFGNodeInfoFormalIn.hpp
-	../include/gtirb/CFGNodeInfoCall.hpp
 	../include/gtirb/Constants.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Enums.hpp
@@ -54,6 +53,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Table.hpp
 	../include/gtirb/TableTemplate.hpp
 	../include/gtirb/Utilities.hpp
+	../include/gtirb/Variant.hpp
 )
 
 set(${PROJECT_NAME}_SRC

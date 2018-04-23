@@ -1,7 +1,10 @@
 #pragma once
 
-#include <gtirb/Any.hpp>
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <gtirb/Export.hpp>
+#include <gtirb/Variant.hpp>
 #include <map>
 #include <string>
 
@@ -31,7 +34,7 @@ namespace gtirb
         /// \param name     An arbitrary (but unique) name for a property.
         /// \param value    Storage for an arbitrary type to associate with the property name.
         ///
-        void setLocalProperty(std::string name, gtirb::any value);
+        void setLocalProperty(std::string name, gtirb::variant value);
 
         ///
         /// Get a local property by name.
@@ -42,7 +45,7 @@ namespace gtirb
         /// this property should have a priori knowledge of the type so it can be appropriately
         /// cast.
         ///
-        gtirb::any getLocalProperty(const std::string& x) const;
+        gtirb::variant getLocalProperty(const std::string& x) const;
 
         ///
         /// Remove a property.
@@ -78,32 +81,47 @@ namespace gtirb
         ///
         /// \code{.cpp}
         /// std::for_each(x->beginLocalProperties(), x->endLocalProperties(), [](const
-        /// std::pair<std::string, gtirb::any>& foo){...});
+        /// std::pair<std::string, gtirb::variant>& foo){...});
         /// \endcode
         ///
         /// \sa gtirb::LocalProperties::endLocalProperties()
         ///
-        std::map<std::string, gtirb::any>::iterator beginLocalProperties();
+        std::map<std::string, gtirb::variant>::iterator beginLocalProperties();
 
         ///
         /// Constant "Begin" iterator for local properties.
         /// This allows iterating over the local properties with STL algorithms.
         ///
-        std::map<std::string, gtirb::any>::const_iterator beginLocalProperties() const;
+        std::map<std::string, gtirb::variant>::const_iterator beginLocalProperties() const;
 
         ///
         /// "End" iterator for local properties.
         /// This allows iterating over the local properties with STL algorithms.
         ///
-        std::map<std::string, gtirb::any>::iterator endLocalProperties();
+        std::map<std::string, gtirb::variant>::iterator endLocalProperties();
 
         ///
         /// Constant "End" iterator for local properties.
         /// This allows iterating over the local properties with STL algorithms.
         ///
-        std::map<std::string, gtirb::any>::const_iterator endLocalProperties() const;
+        std::map<std::string, gtirb::variant>::const_iterator endLocalProperties() const;
+
+        ///
+        /// Serialization support.
+        ///
+        virtual void serialize(boost::archive::polymorphic_iarchive& ar,
+                               const unsigned int version = 0);
+
+        ///
+        /// Serialization support.
+        ///
+        virtual void serialize(boost::archive::polymorphic_oarchive& ar,
+                               const unsigned int version = 0) const;
 
     private:
-        std::map<std::string, gtirb::any> localProperties;
+        std::map<std::string, gtirb::variant> localProperties;
     };
+
+    BOOST_SERIALIZATION_SHARED_PTR(LocalProperties);
 }
+
