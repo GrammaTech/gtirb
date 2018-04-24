@@ -73,13 +73,13 @@ ENV BOOST_VERSION=${BOOST_VERSION}
 ENV BOOST_VERSION_=${BOOST_VERSION_}
 ENV BOOST_ROOT=/usr/include/boost
 RUN cd /home && wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_}.tar.gz \
-  && tar xfz ${BOOST_VERSION_}.tar.gz \
-  && rm ${BOOST_VERSION_}.tar.gz \
-  && cd ${BOOST_VERSION_} \
+  && tar xfz boost_${BOOST_VERSION_}.tar.gz \
+  && rm boost_${BOOST_VERSION_}.tar.gz \
+  && cd boost_${BOOST_VERSION_} \
   && ./bootstrap.sh --prefix=/usr/local --with-libraries=program_options,filesystem,system,serialization \
   && ./b2 install \
   && cd /home \
-  && rm -rf ${BOOST_VERSION_}
+  && rm -rf boost_${BOOST_VERSION_}
 
 # Build GT-IRB
 COPY . /gt/gt-irb/
