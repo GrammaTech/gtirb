@@ -2,6 +2,7 @@ FROM ubuntu:16.04
 
 ARG BOOST_VERSION=1.67.0
 ARG BOOST_VERSION_=1_67_0
+ARG CMAKE_VERSION=3.10
 
 RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
@@ -23,6 +24,10 @@ RUN cd /home && wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/so
   && ./b2 install \
   && cd /home \
   && rm -rf boost_${BOOST_VERSION_}
+
+# Install CMake
+RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
+    |tar -xz --strip-components=1 -C /usr/local
 
 COPY . /gt/gt-irb/
 RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
