@@ -22,6 +22,14 @@ namespace gtirb
         bool getIsSetupComplete() const;
         bool getIsReadOnly() const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+            ar& isSetupComplete;
+            ar& isReadOnly;
+        }
+
     protected:
         ///
         /// Sets the internal "isSetupComplete" flag to true.
@@ -39,3 +47,5 @@ namespace gtirb
         bool isReadOnly{false};
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::ModuleSectionBase);

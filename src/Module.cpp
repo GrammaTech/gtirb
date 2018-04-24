@@ -10,8 +10,11 @@
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/SymbolSet.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace gtirb;
+
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 
 Module::Module()
 {

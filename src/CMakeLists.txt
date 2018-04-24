@@ -33,7 +33,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/ImageByteMap.hpp
 	../include/gtirb/Instruction.hpp
 	../include/gtirb/IR.hpp
-	../include/gtirb/LocalProperties.hpp
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
 	../include/gtirb/ModuleAux.hpp
@@ -72,7 +71,6 @@ set(${PROJECT_NAME}_SRC
 	ImageByteMap.cpp
 	Instruction.cpp
 	IR.cpp
-	LocalProperties.cpp
 	LogicError.cpp
 	Module.cpp
 	ModuleAux.cpp

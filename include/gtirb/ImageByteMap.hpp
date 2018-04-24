@@ -2,7 +2,7 @@
 
 #include <array>
 #include <boost/filesystem.hpp>
-#include <gsl.hpp>
+#include <gsl/gsl>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
@@ -341,6 +341,12 @@ namespace gtirb
         std::vector<uint8_t> getDataUntil(EA ea, uint8_t sentinel,
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+        }
+
     private:
         // Storage for the entire contents of the loaded image.
         gtirb::ByteMap byteMap;
@@ -356,3 +362,5 @@ namespace gtirb
         bool isRelocated{false};
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::ImageByteMap);

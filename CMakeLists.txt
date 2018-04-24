@@ -123,14 +123,40 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	# add_compile_options(-Werror)
 endif()
 
-#
-# Boost Options (CMake)
-#
+# ---------------------------------------------------------------------------
+# Boost
+# ---------------------------------------------------------------------------
 
-# https://stackoverflow.com/questions/9723793/undefined-reference-to-boostsystemsystem-category-when-compiling
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
 find_package(Boost 1.59 REQUIRED COMPONENTS serialization filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
+
+# ---------------------------------------------------------------------------
+# Microsoft GSL 
+# ---------------------------------------------------------------------------
+configure_file(CMakeLists.gsl gsl-download/CMakeLists.txt)
+
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" . 
+	RESULT_VARIABLE result
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/gsl-download )
+
+if(result)
+	message(WARNING "CMake step for gsl failed: ${result}")
+endif()
+
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+	RESULT_VARIABLE result
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/gsl-download )
+
+if(result)
+	message(WARNING "Build step for gsl failed: ${result}")
+endif()
+
+add_subdirectory(${CMAKE_BINARY_DIR}/gsl-src
+				 ${CMAKE_BINARY_DIR}/gsl-build
+				 EXCLUDE_FROM_ALL)
+
+include_directories("${CMAKE_BINARY_DIR}/gsl-src/include")
 
 # ---------------------------------------------------------------------------
 # Google Test Application
@@ -140,7 +166,7 @@ if(GTIRB_ENABLE_TESTS)
 	# https://github.com/google/googletest/tree/master/googletest#incorporating-into-an-existing-cmake-project
 
 	# Download and unpack googletest at configure time
-	configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+	configure_file(CMakeLists.googletest googletest-download/CMakeLists.txt)
 
 	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" . 
 		RESULT_VARIABLE result

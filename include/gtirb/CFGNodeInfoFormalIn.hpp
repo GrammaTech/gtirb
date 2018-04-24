@@ -8,7 +8,7 @@ namespace gtirb
     /// \class CFGNodeInfoEntry
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API CFGNodeInfoFormalIn final : public CFGNodeInfo
+    class GTIRB_GTIRB_EXPORT_API CFGNodeInfoFormalIn : public CFGNodeInfo
     {
     public:
         ///
@@ -16,6 +16,14 @@ namespace gtirb
         ///
         virtual ~CFGNodeInfoFormalIn() = default;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<CFGNodeInfo>(*this);
+        }
+
     private:
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::CFGNodeInfoFormalIn);

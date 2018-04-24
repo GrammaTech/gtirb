@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <gsl.hpp>
+#include <gsl/gsl>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
 #include <map>

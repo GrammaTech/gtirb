@@ -58,12 +58,20 @@ namespace gtirb
     /// }
     /// \enddot
     ///
-    class GTIRB_GTIRB_EXPORT_API IR final : public Node
+    class GTIRB_GTIRB_EXPORT_API IR : public Node
     {
     public:
         IR();
         virtual ~IR() = default;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+        }
+
     private:
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::IR);

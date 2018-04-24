@@ -9,7 +9,7 @@ namespace gtirb
     /// \class Symbol
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API Symbol final : public Node
+    class GTIRB_GTIRB_EXPORT_API Symbol : public Node
     {
     public:
         ///
@@ -127,6 +127,26 @@ namespace gtirb
         void setIsGlobal(bool x);
         bool getIsGlobal() const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+            ar & this->name;
+            ar & this->ea;
+            ar & this->offset;
+            ar & this->elementSize;
+            ar & this->bitSize;
+            ar & this->type;
+            ar & this->declarationKind;
+            ar & this->linkType;
+            ar & this->storageKind;
+            ar & this->enableForceName;
+            ar & this->enableGapSize;
+            ar & this->isFormal;
+            ar & this->isNameOnly;
+            ar & this->isGlobal;
+        }
+
     private:
         std::string name;
         gtirb::EA ea{};
@@ -147,3 +167,5 @@ namespace gtirb
         bool isGlobal{false};
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::Symbol);

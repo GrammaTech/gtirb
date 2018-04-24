@@ -21,7 +21,16 @@ namespace gtirb
         void addEA(gtirb::EA x);
         std::set<gtirb::EA> getEAs() const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+            ar& this->eas;
+        }
+
     private:
         std::set<gtirb::EA> eas;
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::Region);

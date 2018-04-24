@@ -9,6 +9,8 @@
 
 using namespace gtirb;
 
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNode);
+
 CFGNode::CFGNode() : Node()
 {
     this->addParentValidator([](const Node* const x) {

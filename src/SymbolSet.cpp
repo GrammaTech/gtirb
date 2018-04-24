@@ -5,6 +5,8 @@
 
 using namespace gtirb;
 
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::SymbolSet);
+
 SymbolSet::SymbolSet() : Node()
 {
 	this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
