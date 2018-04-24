@@ -22,7 +22,7 @@ namespace gtirb
         std::set<gtirb::EA> getEAs() const;
 
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
             ar& this->eas;

@@ -342,7 +342,7 @@ namespace gtirb
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
         }
