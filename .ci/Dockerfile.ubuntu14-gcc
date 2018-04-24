@@ -5,7 +5,7 @@ ARG BOOST_VERSION_=1_67_0
 ARG CMAKE_VERSION=3.10
 
 RUN apt-get -y update && \
-    apt-get -y install gcc make cmake git build-essential binutils doxygen graphviz wget
+    apt-get -y install gcc make cmake git build-essential binutils doxygen graphviz wget curl
 
 # Install Boost
 ENV BOOST_VERSION=${BOOST_VERSION}
