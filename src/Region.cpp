@@ -4,6 +4,8 @@
 
 using namespace gtirb;
 
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Region);
+
 Region::Region() : Node()
 {
 	this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());

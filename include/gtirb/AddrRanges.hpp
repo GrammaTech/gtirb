@@ -17,7 +17,7 @@ namespace gtirb
     /// lb but exclusive of ub. This class guarantees a canonical representation: no redundancy or
     /// overlaps, adjacent ranges are coalesced, empty ranges are excluded.
     ///
-    class GTIRB_GTIRB_EXPORT_API AddrRanges final : public Node
+    class GTIRB_GTIRB_EXPORT_API AddrRanges : public Node
     {
     public:
         ///
@@ -117,7 +117,16 @@ namespace gtirb
         ///
         const std::map<gtirb::EA, gtirb::EA>& data() const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+            ar& ranges;
+        }
+
     private:
         std::map<gtirb::EA, gtirb::EA> ranges;
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::AddrRanges);

@@ -40,6 +40,12 @@ namespace gtirb
         ///
         gtirb::Symbol* getProcedureNameSymbol() const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+        }
+
     private:
         std::weak_ptr<gtirb::Symbol> procedureNameSymbol;
     };

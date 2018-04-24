@@ -16,7 +16,7 @@ namespace gtirb
     ///
     /// This can live under either a CFG directly or under another CFGNode.
     ///
-    class GTIRB_GTIRB_EXPORT_API CFGNode final : public Node
+    class GTIRB_GTIRB_EXPORT_API CFGNode : public Node
     {
     public:
         ///
@@ -308,6 +308,12 @@ namespace gtirb
         ///
         uint8_t* getLoadedInstructionBytes() const;
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+        }
+
     protected:
         ///
         /// Add an existing CFGNode as a new CFGNode.
@@ -439,3 +445,5 @@ namespace gtirb
         uint8_t* loadedInstructionBytes{nullptr};
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::CFGNode);

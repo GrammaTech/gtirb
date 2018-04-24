@@ -11,7 +11,7 @@ namespace gtirb
     /// \class CFG
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API CFG final : public Node
+    class GTIRB_GTIRB_EXPORT_API CFG : public Node
     {
     public:
         ///
@@ -27,9 +27,17 @@ namespace gtirb
         //Procedure* getOrCreateProcedure();
         //CFGAttribute* getOrCreateCFGAttribute();
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+        }
+
     private:
         //std::weak_ptr<CFGNode> first;
         //std::weak_ptr<CFGNode> last;
         //SRPSet_T srpSet;
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::CFG);

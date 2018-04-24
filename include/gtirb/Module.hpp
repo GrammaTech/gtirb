@@ -1,9 +1,9 @@
 #pragma once
 
-#include <gtirb/Node.hpp>
-#include <gtirb/Enums.hpp>
-#include <gtirb/EA.hpp>
 #include <boost/filesystem.hpp>
+#include <gtirb/EA.hpp>
+#include <gtirb/Enums.hpp>
+#include <gtirb/Node.hpp>
 
 namespace gtirb
 {
@@ -19,7 +19,8 @@ namespace gtirb
     /// \class Module
     /// \author John E. Farrier
     ///
-    /// Upon construction, a Module will automatically build default ModuleSummary, ModuleCore, and ModuleAux children.
+    /// Upon construction, a Module will automatically build default ModuleSummary, ModuleCore, and
+    /// ModuleAux children.
     ///
     /// \todo Replace boost::filesystem with std::filesystem.
     ///
@@ -53,15 +54,17 @@ namespace gtirb
         ///
         /// Sets the format of the binary pointed to by getBinaryPath().
         ///
-        /// \param  x   The gtirb::FileFormat enumeration corresponding to the binary associated with this Module.
+        /// \param  x   The gtirb::FileFormat enumeration corresponding to the binary associated
+        /// with this Module.
         ///
         void setFileFormat(gtirb::FileFormat x);
 
         ///
         /// Gets the format of the binary pointed to by getBinaryPath().
-        /// 
-        /// \return     The gtirb::FileFormat enumeration corresponding to the binary associated with this Module.
-        /// 
+        ///
+        /// \return     The gtirb::FileFormat enumeration corresponding to the binary associated
+        /// with this Module.
+        ///
         gtirb::FileFormat getFileFormat() const;
 
         ///
@@ -75,7 +78,8 @@ namespace gtirb
         int64_t getRebaseDelta() const;
 
         ///
-        /// If an invalid pair is passed in, the min and max will be set to an invalid state (gtirb::constants::BadAddress).
+        /// If an invalid pair is passed in, the min and max will be set to an invalid state
+        /// (gtirb::constants::BadAddress).
         ///
         /// \param      x   The minimum and maximum effective address (EA) for this Module.
         /// \return     False if the pair's first is > the pair's second.
@@ -95,7 +99,7 @@ namespace gtirb
         ///
         ///
         void setPreferredEA(gtirb::EA x);
-        
+
         ///
         ///
         ///
@@ -108,7 +112,14 @@ namespace gtirb
         gtirb::SymbolSet* getOrCreateSymbolSet();
         gtirb::ImageByteMap* getOrCreateImageByteMap();
         gtirb::CFG* getOrCreateCFG();
-        
+
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+            ar& rebaseDelta;
+        }
+
     private:
         boost::filesystem::path binaryPath{};
         std::pair<gtirb::EA, gtirb::EA> eaMinMax{};
@@ -117,3 +128,5 @@ namespace gtirb
         gtirb::FileFormat fileFormat{};
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::Module);

@@ -1,6 +1,13 @@
 #include <gtest/gtest.h>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr_helper.hpp>
+#include <fstream>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <memory>
 #include <memory>
 
 TEST(Unit_Node, ctor_0)
@@ -10,7 +17,7 @@ TEST(Unit_Node, ctor_0)
 
 TEST(Unit_Node, uniqueUuids)
 {
-    std::vector<boost::uuids::uuid> uuids;
+    std::vector<std::string> uuids;
 
     // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
@@ -260,4 +267,155 @@ TEST(Unit_Node, const_iterator)
 
     EXPECT_NE(nodeIterator, std::begin(constNode));
     EXPECT_EQ(nodeIterator, std::end(constNode));
+}
+
+TEST(Unit_Node, serialize)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    auto original = gtirb::Node{};
+    original.setLocalProperty("Name", std::string("Value"));
+
+    // Scope objects so they are destroyed
+    {
+        EXPECT_EQ(size_t{1}, original.getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original.getLocalProperty("Name")));
+
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        oa << original;
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        gtirb::Node serialized;
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        ia >> serialized;
+
+        EXPECT_NO_THROW(ifs.close());
+
+        EXPECT_EQ(size_t{1}, serialized.getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized.getLocalProperty("Name")));
+    }
+}
+
+TEST(Unit_Node, serializeFromSharedPtr)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    auto original = std::make_shared<gtirb::Node>();
+    original->setLocalProperty("Name", std::string("Value"));
+
+    // Scope objects so they are destroyed
+    {
+        EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(original->getLocalProperty("Name")));
+
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        oa << original;
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        std::shared_ptr<gtirb::Node> serialized = std::make_shared<gtirb::Node>();
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        ia >> serialized;
+
+        EXPECT_NO_THROW(ifs.close());
+
+        EXPECT_EQ(size_t{1}, serialized->getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized->getLocalProperty("Name")));
+    }
+}
+
+TEST(Unit_Node, serializeFromSharedPtrWChildren)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    auto original = std::make_shared<gtirb::Node>();
+    original->setLocalProperty("Name", std::string("Value"));
+
+    auto foo = std::make_unique<gtirb::Node>();
+    foo->setLocalProperty("Name", std::string("Foo"));
+    original->push_back(std::move(foo));
+
+    auto bar = std::make_unique<gtirb::Node>();
+    bar->setLocalProperty("Name", std::string("Bar"));
+    original->push_back(std::move(bar));
+
+    EXPECT_EQ(size_t{2}, original->size());
+
+    // Scope objects so they are destroyed
+    {
+        EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(original->getLocalProperty("Name")));
+
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        oa << original;
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        std::shared_ptr<gtirb::Node> serialized = std::make_shared<gtirb::Node>();
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        ia >> serialized;
+
+        EXPECT_NO_THROW(ifs.close());
+
+        EXPECT_EQ(size_t{1}, serialized->getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized->getLocalProperty("Name")));
+
+        ASSERT_EQ(size_t{2}, serialized->size());
+
+        auto child0 = serialized->at(0);
+        EXPECT_EQ(std::string{"Foo"}, boost::get<std::string>(child0->getLocalProperty("Name")));
+        EXPECT_EQ(serialized.get(), child0->getNodeParent());
+
+        auto child1 = serialized->at(1);
+        EXPECT_EQ(std::string{"Bar"}, boost::get<std::string>(child1->getLocalProperty("Name")));
+        EXPECT_EQ(serialized.get(), child1->getNodeParent());
+    }
 }

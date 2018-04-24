@@ -12,7 +12,7 @@ namespace gtirb
     /// \class Procedure
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API Procedure final : public Node
+    class GTIRB_GTIRB_EXPORT_API Procedure : public Node
     {
     public:
         ///
@@ -39,7 +39,16 @@ namespace gtirb
 
         gtirb::Instruction* getOrCreateInstruction();
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+            ar& pltEntries;
+        }
+
     private:
         std::set<gtirb::EA> pltEntries;
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::Procedure);

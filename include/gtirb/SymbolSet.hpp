@@ -14,7 +14,7 @@ namespace gtirb
     /// Storage for all gtirb::Symbol objects for a single gtirb::Module.
     /// This has gtirb::Symbol children.
     ///
-    class GTIRB_GTIRB_EXPORT_API SymbolSet final : public Node
+    class GTIRB_GTIRB_EXPORT_API SymbolSet : public Node
     {
     public:
         ///
@@ -44,5 +44,13 @@ namespace gtirb
         /// \return     The Symbol at the given EA.  
         ///
         Symbol* getOrCreateSymbol(gtirb::EA x);
+
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& boost::serialization::base_object<Node>(*this);
+        }
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::SymbolSet);

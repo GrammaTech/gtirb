@@ -6,6 +6,8 @@
 
 using namespace gtirb;
 
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::AddrRanges);
+
 AddrRanges::AddrRanges() : Node()
 {
     this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());

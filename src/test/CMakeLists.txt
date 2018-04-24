@@ -33,7 +33,6 @@ set(${PROJECT_NAME}_SRC
 	ImageByteMap.test.cpp
 	Instruction.test.cpp
 	IR.test.cpp
-	LocalProperties.test.cpp
 	Module.test.cpp
 	ModuleAux.test.cpp
 	ModuleCore.test.cpp

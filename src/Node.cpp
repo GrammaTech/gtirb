@@ -1,11 +1,17 @@
+#include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 using namespace gtirb;
 
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Node);
+
 // UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
-Node::Node() : uuid(boost::uuids::random_generator()())
+Node::Node() : uuid(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
 {
     this->addParentValidator([this](const Node* const x) {
         // We should not become a parent to ourself.
@@ -33,20 +39,20 @@ Node* Node::getNodeParent() const
 
 void Node::setUUID()
 {
-    this->uuid = boost::uuids::random_generator()();
+    this->uuid = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 }
 
-void Node::setUUID(boost::uuids::uuid x)
+void Node::setUUID(std::string x)
 {
     this->uuid = x;
 }
 
-boost::uuids::uuid Node::getUUID() const
+std::string Node::getUUID() const
 {
     return this->uuid;
 }
 
-bool Node::getIsValidParent(gsl::not_null<const Node* const> x) const
+bool Node::getIsValidParent(const Node* const x) const
 {
     for(const auto& i : this->parentValidators)
     {
@@ -88,6 +94,64 @@ size_t Node::size() const
 void Node::clear()
 {
     this->children.clear();
+}
+
+void Node::setLocalProperty(std::string name, gtirb::variant value)
+{
+    this->localProperties[name] = std::move(value);
+}
+
+gtirb::variant Node::getLocalProperty(const std::string& x) const
+{
+    return this->localProperties.at(x);
+}
+
+bool Node::removeLocalProperty(const std::string& x)
+{
+    const auto found = this->localProperties.find(x);
+
+    if(found != std::end(this->localProperties))
+    {
+        this->localProperties.erase(found);
+        return true;
+    }
+
+    return false;
+}
+
+size_t Node::getLocalPropertySize() const
+{
+    return this->localProperties.size();
+}
+
+bool Node::getLocalPropertyEmpty() const
+{
+    return this->localProperties.empty();
+}
+
+void Node::clearLocalProperties()
+{
+    this->localProperties.clear();
+}
+
+std::map<std::string, gtirb::variant>::iterator Node::beginLocalProperties()
+{
+    return std::begin(this->localProperties);
+}
+
+std::map<std::string, gtirb::variant>::const_iterator Node::beginLocalProperties() const
+{
+    return std::begin(this->localProperties);
+}
+
+std::map<std::string, gtirb::variant>::iterator Node::endLocalProperties()
+{
+    return std::end(this->localProperties);
+}
+
+std::map<std::string, gtirb::variant>::const_iterator Node::endLocalProperties() const
+{
+    return std::end(this->localProperties);
 }
 
 void Node::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
