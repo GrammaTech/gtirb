@@ -359,7 +359,7 @@ namespace gtirb
         std::map<std::string, gtirb::variant>::const_iterator endLocalProperties() const;
 
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar & this->localProperties;
             ar & this->tables;

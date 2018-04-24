@@ -309,7 +309,7 @@ namespace gtirb
         uint8_t* getLoadedInstructionBytes() const;
 
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
         }

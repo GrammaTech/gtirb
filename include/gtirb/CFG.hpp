@@ -28,7 +28,7 @@ namespace gtirb
         //CFGAttribute* getOrCreateCFGAttribute();
 
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
         }
