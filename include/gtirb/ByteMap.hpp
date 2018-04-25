@@ -41,7 +41,7 @@ namespace gtirb
             ///
             /// Number of bytes residing within the first page.
             ///
-            static size_t BytesWithinFirstPage(const EA x, const size_t nbytes);
+            static size_t BytesWithinFirstPage(const EA x, const size_t bytes);
         };
 
         ///
@@ -97,9 +97,9 @@ namespace gtirb
         ///
         /// \param  ea      The address to store the data.
         /// \param  x       A pointer to the data to store (honoring Endianness).
-        /// \param  bytes   The length of the data at the pointer.
+        /// \param  len     The length of the data (the number of bytes) at the pointer.
         ///
-        void setData(EA ea, uint8_t* const x, size_t bytes);
+        void setData(EA ea, uint8_t* const x, size_t len);
 
         ///
         /// Get a byte of data at the given address.
@@ -157,7 +157,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& data;
         }

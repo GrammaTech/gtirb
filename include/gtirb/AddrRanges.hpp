@@ -28,7 +28,7 @@ namespace gtirb
         ///
         /// Defaulted trivial destructor.
         ///
-        virtual ~AddrRanges() = default;
+        ~AddrRanges() override = default;
 
         ///
         /// Add a pair of EA's to the ranges.
@@ -122,7 +122,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
             ar& ranges;

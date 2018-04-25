@@ -55,7 +55,7 @@ namespace gtirb
         ///
         /// Assignment operator overload
         ///
-        EA operator=(EA);
+        EA& operator=(EA x);
 
         ///
         /// Allow testing for equality with a 'uint64_t'.

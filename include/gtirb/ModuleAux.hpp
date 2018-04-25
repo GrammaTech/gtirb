@@ -12,13 +12,13 @@ namespace gtirb
     {
     public:
         ModuleAux();
-        virtual ~ModuleAux() = default;
+        ~ModuleAux() override = default;
 
         ///
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<ModuleSectionBase>(*this);
         }

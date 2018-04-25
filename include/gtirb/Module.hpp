@@ -37,7 +37,7 @@ namespace gtirb
         ///
         /// Trivial virtual destructor.
         ///
-        virtual ~Module() = default;
+        ~Module() override = default;
 
         ///
         /// Set the location of the corresponding binary on disk.
@@ -120,7 +120,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
             GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);

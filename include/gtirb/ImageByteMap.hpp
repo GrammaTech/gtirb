@@ -70,7 +70,7 @@ namespace gtirb
 
         ImageByteMap();
 
-        virtual ~ImageByteMap() = default;
+        ~ImageByteMap() override = default;
 
         ///
         /// \return     Sets the file name of the image.
@@ -324,7 +324,7 @@ namespace gtirb
         ///
         /// \sa gtirb::ByteMap
         ///
-        std::vector<uint8_t> getData(EA ea, size_t bytes) const;
+        std::vector<uint8_t> getData(EA x, size_t bytes) const;
 
         ///
         /// Get data from the byte map  at the given address until a sentinel is found or a limit is
@@ -339,14 +339,14 @@ namespace gtirb
         ///
         /// \sa gtirb::ByteMap
         ///
-        std::vector<uint8_t> getDataUntil(EA ea, uint8_t sentinel,
+        std::vector<uint8_t> getDataUntil(EA x, uint8_t sentinel,
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
         ///
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
             ar & this->byteMap;

@@ -41,6 +41,6 @@ namespace gtirb
         ///
         /// A defaulted trivial destructor.
         ///
-        virtual ~NodeStructureError() = default;
+        ~NodeStructureError() override = default;
     };
 }

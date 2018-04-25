@@ -16,7 +16,7 @@ namespace gtirb
     {
     public:
         Region();
-        virtual ~Region() = default;
+        ~Region() override = default;
 
         void addEA(gtirb::EA x);
         std::set<gtirb::EA> getEAs() const;
@@ -25,7 +25,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
             ar & this->eas;

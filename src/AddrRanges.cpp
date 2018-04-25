@@ -20,7 +20,7 @@ bool AddrRanges::addRange(std::pair<gtirb::EA, gtirb::EA> x)
     {
         if(this->ranges.empty() == true)
         {
-            this->ranges.insert(x).second;
+            this->ranges.insert(x);
             return true;
         }
 
@@ -136,7 +136,6 @@ bool AddrRanges::subtractRange(std::pair<gtirb::EA, gtirb::EA> x)
                 {
                     // case 2: truncate
                     it->second = x.first;
-                    return true;
                 }
                 else
                 {
@@ -146,8 +145,9 @@ bool AddrRanges::subtractRange(std::pair<gtirb::EA, gtirb::EA> x)
 
                     it->second = x.first;
                     this->ranges.insert({newLowerBound, newUpperBound});
-                    return true;
                 }
+
+                return true;
             }
             else
             {

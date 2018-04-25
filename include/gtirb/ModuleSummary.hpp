@@ -12,7 +12,7 @@ namespace gtirb
     {
     public:
         ModuleSummary();
-        virtual ~ModuleSummary() = default;
+        ~ModuleSummary() override = default;
 
         void setName(std::string x);
         std::string getName() const;
@@ -24,7 +24,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<ModuleSectionBase>(*this);
             ar & this->name;

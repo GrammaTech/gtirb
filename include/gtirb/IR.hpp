@@ -71,7 +71,7 @@ namespace gtirb
         ///
         /// Trivial virtual destructor.
         ///
-        virtual ~IR() = default;
+        ~IR() override = default;
 
         ///
         /// \todo Add "GetOrCreate" to gtirb::IR that returns a Module*.  What is the key to
@@ -82,7 +82,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
         }

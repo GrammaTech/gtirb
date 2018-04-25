@@ -15,7 +15,7 @@ namespace gtirb
         ///
         /// Defaulted trivial destructor.
         ///
-        virtual ~CFGNodeInfoCall() = default;
+        ~CFGNodeInfoCall() override = default;
 
         void setKey(int64_t x);
         int64_t getKey() const;
@@ -30,7 +30,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<CFGNodeInfo>(*this);
             ar & this->importTableEntryEa;

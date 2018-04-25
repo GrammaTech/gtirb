@@ -39,6 +39,6 @@ namespace gtirb
         ///
         /// A defaulted trivial destructor.
         ///
-        virtual ~LogicError() = default;
+        ~LogicError() = default;
     };
 }
