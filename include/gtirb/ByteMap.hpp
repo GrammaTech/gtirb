@@ -1,14 +1,14 @@
 #pragma once
 
+#include <boost/serialization/array.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
 #include <functional>
 #include <gsl/gsl>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
 #include <map>
 #include <vector>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/array.hpp>
 
 namespace gtirb
 {
@@ -157,7 +157,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& data;
         }
@@ -189,6 +189,6 @@ namespace gtirb
     private:
         std::map<gtirb::EA, ByteMap::Page> data;
     };
-}
+} // namespace gtirb
 
 BOOST_CLASS_EXPORT_KEY(gtirb::ByteMap);
