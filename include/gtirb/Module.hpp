@@ -118,7 +118,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
             GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);
