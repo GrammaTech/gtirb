@@ -15,6 +15,7 @@ namespace gtirb
     class ModuleCore;
     class ModuleSummary;
     class SymbolSet;
+    class ProcedureSet;
 
     ///
     /// \class Module
@@ -113,6 +114,8 @@ namespace gtirb
         gtirb::SymbolSet* getOrCreateSymbolSet();
         gtirb::ImageByteMap* getOrCreateImageByteMap();
         gtirb::CFG* getOrCreateCFG();
+        gtirb::ProcedureSet* getOrCreateProcedureSet();
+
 
         ///
         /// Serialization support.

@@ -18,6 +18,7 @@
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/ProcedureSet.hpp>
+#include <gtirb/RegionSet.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
 
@@ -28,6 +29,7 @@ typedef Types<gtirb::ModuleCore,    //
               gtirb::ModuleSummary, //
               gtirb::AddrRanges,    //
               gtirb::SymbolSet,     //
+              gtirb::RegionSet,     //
               gtirb::ImageByteMap,  //
               gtirb::ProcedureSet,  //
               gtirb::CFG>

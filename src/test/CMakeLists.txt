@@ -45,6 +45,7 @@ set(${PROJECT_NAME}_SRC
 	Procedure.test.cpp
 	ProcedureSet.test.cpp
 	Region.test.cpp
+	RegionSet.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
 	TableTemplate.test.cpp

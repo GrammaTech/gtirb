@@ -28,6 +28,7 @@
 #include <gtirb/Procedure.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Region.hpp>
+#include <gtirb/RegionSet.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
@@ -54,6 +55,7 @@ typedef Types<gtirb::AddrRanges,          //
               gtirb::Node,                //
               gtirb::Procedure,           //
               gtirb::Region,              //
+              gtirb::RegionSet,           //
               gtirb::Symbol,              //
               gtirb::ProcedureSet,        //
               gtirb::SymbolSet            //
