@@ -45,6 +45,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/NodeUtilities.hpp
 	../include/gtirb/NodeValidators.hpp
 	../include/gtirb/Procedure.hpp
+	../include/gtirb/ProcedureSet.hpp
 	../include/gtirb/Region.hpp
 	../include/gtirb/RuntimeError.hpp
 	../include/gtirb/Symbol.hpp
@@ -53,6 +54,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/TableTemplate.hpp
 	../include/gtirb/Utilities.hpp
 	../include/gtirb/Variant.hpp
+	../include/gtirb/FilesystemSerialization.hpp
 )
 
 set(${PROJECT_NAME}_SRC
@@ -81,6 +83,7 @@ set(${PROJECT_NAME}_SRC
 	NodeError.cpp
 	NodeStructureError.cpp
 	Procedure.cpp
+	ProcedureSet.cpp
 	Region.cpp
 	RuntimeError.cpp
 	Symbol.cpp

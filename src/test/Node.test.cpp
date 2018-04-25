@@ -8,7 +8,6 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <memory>
-#include <memory>
 
 TEST(Unit_Node, ctor_0)
 {

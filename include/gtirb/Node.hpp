@@ -6,12 +6,10 @@
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
-#include <boost/serialization/string.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/unordered_set.hpp>
 #include <boost/serialization/variant.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 #include <functional>
@@ -358,6 +356,9 @@ namespace gtirb
         ///
         std::map<std::string, gtirb::variant>::const_iterator endLocalProperties() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
@@ -457,34 +458,8 @@ namespace gtirb
         ///
         void addParentValidator(std::function<bool(const Node* const)> x);
 
-        ///
-        /// Used by classes which inherit from Serializable.
-        /// This allows any user-defined member to be serialzed.
-        ///
-        /// Usage:
-        ///
-        /// \verbatim
-        /// CFGNode::CFGNode()
-        /// {
-        ///     this->addToArchive(&this->pimpl->ea);
-        ///     this->addToArchive(&this->pimpl->flags);
-        /// }
-        /// \endverbatim
-        ///
-        template <typename T>
-        void addToArchive(T* x)
-        {
-            auto read = [this, x](boost::archive::polymorphic_iarchive& ar) { ar >> (*x); };
-            this->serializersRead.push_back(read);
-
-            auto write = [this, x](boost::archive::polymorphic_oarchive& ar) { ar << (*x); };
-            this->serializersWrite.push_back(write);
-        }
-
     private:
         std::vector<std::function<bool(const Node* const)>> parentValidators;
-        std::vector<std::function<void(boost::archive::polymorphic_iarchive&)>> serializersRead;
-        std::vector<std::function<void(boost::archive::polymorphic_oarchive&)>> serializersWrite;
 
         std::map<std::string, gtirb::variant> localProperties;
         std::map<std::string, std::shared_ptr<gtirb::Table>> tables;

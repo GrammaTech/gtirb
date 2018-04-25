@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <gtirb/Module.hpp>
+#include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <memory>
@@ -11,7 +11,7 @@ TEST(Unit_Procedure, ctor_0)
 
 TEST(Unit_Procedure, validParent)
 {
-    auto module = std::make_unique<gtirb::Module>();
+    auto module = std::make_unique<gtirb::ProcedureSet>();
     auto child = std::make_unique<gtirb::Procedure>();
     EXPECT_TRUE(child->getIsValidParent(module.get()));
     EXPECT_NO_THROW(module->push_back(std::move(child)));
@@ -19,7 +19,7 @@ TEST(Unit_Procedure, validParent)
 
 TEST(Unit_Procedure, validParent_noException)
 {
-    auto module = std::make_unique<gtirb::Module>();
+    auto module = std::make_unique<gtirb::ProcedureSet>();
     auto child = std::make_unique<gtirb::Procedure>();
     EXPECT_TRUE(child->getIsValidParent(module.get()));
     EXPECT_NO_THROW(module->push_back(std::move(child)));
@@ -32,6 +32,18 @@ TEST(Unit_Procedure, invalidParent)
 
     EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
     EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
+}
+
+TEST(Unit_Procedure, setEA)
+{
+    const gtirb::EA value{22678};
+
+    auto node = std::make_unique<gtirb::Procedure>();
+    EXPECT_NO_THROW(node->getEA());
+    EXPECT_EQ(gtirb::EA{}, node->getEA());
+
+    EXPECT_NO_THROW(node->setEA(value));
+    EXPECT_EQ(value, node->getEA());
 }
 
 TEST(Unit_Procedure, getPLTEntries)

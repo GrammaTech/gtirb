@@ -127,10 +127,14 @@ namespace gtirb
         void setIsGlobal(bool x);
         bool getIsGlobal() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
             ar& boost::serialization::base_object<Node>(*this);
+            
             ar & this->name;
             ar & this->ea;
             ar & this->offset;

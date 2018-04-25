@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <boost/serialization/weak_ptr.hpp>
 
 namespace gtirb
 {
@@ -308,10 +308,20 @@ namespace gtirb
         ///
         uint8_t* getLoadedInstructionBytes() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
             ar& boost::serialization::base_object<Node>(*this);
+            ar& this->ea;
+            ar& this->kind;
+            ar& this->successors;
+            ar& this->predecessors;
+
+            // This...we need to talk about.  Who owns this?
+            // uint8_t* loadedInstructionBytes{nullptr};
         }
 
     protected:

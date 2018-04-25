@@ -25,6 +25,9 @@ namespace gtirb
         ///
         virtual ~Procedure() = default;
 
+        void setEA(gtirb::EA x);
+        gtirb::EA getEA() const;
+
         ///
         /// Procedure Linkage Table.
         /// These entries are basically the "thunks" for calls to things in shared libraries.
@@ -37,16 +40,24 @@ namespace gtirb
         ///
         const std::set<gtirb::EA>* const getPLTEntries() const;
 
+        ///
+        /// Gets an instruction associated with this procedure.
+        ///
         gtirb::Instruction* getOrCreateInstruction();
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
             ar& boost::serialization::base_object<Node>(*this);
-            ar& pltEntries;
+            ar& this->ea;
+            ar& this->pltEntries;
         }
 
     private:
+        gtirb::EA ea;
         std::set<gtirb::EA> pltEntries;
     };
 }

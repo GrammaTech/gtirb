@@ -5,45 +5,45 @@
 
 namespace gtirb
 {
-    class Symbol;
+    class Procedure;
 
     ///
-    /// \class SymbolSet
+    /// \class ProcedureSet
     /// \author John E. Farrier
     ///
-    /// Storage for all gtirb::Symbol objects for a single gtirb::Module.
-    /// This has gtirb::Symbol children.
+    /// Storage for all gtirb::Procedure objects for a single gtirb::Module.
+    /// This has gtirb::Procedure children.
     ///
-    class GTIRB_GTIRB_EXPORT_API SymbolSet : public Node
+    class GTIRB_GTIRB_EXPORT_API ProcedureSet : public Node
     {
     public:
         ///
         /// Default constructor.
         ///
-        SymbolSet();
+        ProcedureSet();
 
         ///
         /// Defaulted trivial destructor.
         ///
-        virtual ~SymbolSet() = default;
+        virtual ~ProcedureSet() = default;
 
         ///
         /// Get the symbol at the given EA.
         ///
-        /// \param x    The EA of the gtirb::Symbol to get.
-        /// \return     The Symbol at the given EA or nullptr.
+        /// \param x    The EA of the gtirb::Procedure to get.
+        /// \return     The Procedure at the given EA or nullptr.
         ///
-        Symbol* getSymbol(gtirb::EA x) const;
+        Procedure* getProcedure(gtirb::EA x) const;
 
         ///
         /// Get or create the symbol at the given EA.
         ///
         /// This is preferable to adding symbols manually as it ensures no duplicate symbols are created.
         ///
-        /// \param x    The EA of the gtirb::Symbol to get (or create).
-        /// \return     The Symbol at the given EA.  
+        /// \param x    The EA of the gtirb::Procedure to get (or create).
+        /// \return     The Procedure at the given EA.  
         ///
-        Symbol* getOrCreateSymbol(gtirb::EA x);
+        Procedure* getOrCreateProcedure(gtirb::EA x);
 
         ///
         /// Serialization support.
@@ -56,4 +56,4 @@ namespace gtirb
     };
 }
 
-BOOST_CLASS_EXPORT_KEY(gtirb::SymbolSet);
+BOOST_CLASS_EXPORT_KEY(gtirb::ProcedureSet);
