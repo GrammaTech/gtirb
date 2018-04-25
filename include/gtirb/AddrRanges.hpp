@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <gtirb/Node.hpp>
-#include <utility>
 #include <map>
+#include <utility>
 
 namespace gtirb
 {
@@ -95,7 +95,8 @@ namespace gtirb
         ///
         /// \return std::end(std::map<gtirb::EA, gtirb::EA>) if there is no intersection.
         ///
-        std::map<gtirb::EA, gtirb::EA>::const_iterator getFirstIntersecting(gtirb::EA lb, gtirb::EA ub) const;
+        std::map<gtirb::EA, gtirb::EA>::const_iterator getFirstIntersecting(gtirb::EA lb,
+                                                                            gtirb::EA ub) const;
 
         ///
         ///

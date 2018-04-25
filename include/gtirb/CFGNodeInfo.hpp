@@ -1,9 +1,9 @@
 #pragma once
 
+#include <boost/serialization/weak_ptr.hpp>
 #include <cstdint>
 #include <gtirb/Node.hpp>
 #include <gtirb/Symbol.hpp>
-#include <boost/serialization/weak_ptr.hpp>
 
 namespace gtirb
 {

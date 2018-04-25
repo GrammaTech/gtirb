@@ -1,5 +1,5 @@
-#include <gtirb/ModuleSectionBase.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/ModuleSectionBase.hpp>
 #include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
@@ -8,7 +8,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ModuleSectionBase);
 
 ModuleSectionBase::ModuleSectionBase() : Node()
 {
-	this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
 }
 
 bool ModuleSectionBase::getIsSetupComplete() const

@@ -4,17 +4,18 @@
 
 namespace gtirb
 {
-	///
+    ///
     /// \class NodeStructureError
     /// \author John E. Farrier
     ///
-    /// An exception indicating a GT-IRB node has an error specific to the node's placement in the overall structure.  
-    /// An example would be when a node is forced into a position in the structure which is invalid.
+    /// An exception indicating a GT-IRB node has an error specific to the node's placement in the
+    /// overall structure. An example would be when a node is forced into a position in the
+    /// structure which is invalid.
     ///
     class GTIRB_GTIRB_EXPORT_API NodeStructureError : public gtirb::NodeError
     {
     public:
-    	///
+        ///
         /// Implements a constructor from the base type.
         ///
         /// \param  what    A helpful, descriptive message to pass along with this exception.
@@ -38,8 +39,8 @@ namespace gtirb
         NodeStructureError(const std::string& what, std::string file, int line);
 
         ///
-		/// A defaulted trivial destructor.
-		///
+        /// A defaulted trivial destructor.
+        ///
         virtual ~NodeStructureError() = default;
     };
 }

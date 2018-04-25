@@ -28,7 +28,7 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
-            ar& this->eas;
+            ar & this->eas;
         }
 
     private:

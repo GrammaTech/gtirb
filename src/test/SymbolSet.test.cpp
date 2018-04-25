@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gtirb/Module.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/SymbolSet.hpp>
 #include <memory>
 
 TEST(Unit_SymbolSet, ctor_0)

@@ -10,7 +10,8 @@ NodeError::NodeError(const std::string& what) : gtirb::Exception(what)
 {
 }
 
-NodeError::NodeError(const std::string& what, std::string file, int line) : gtirb::Exception{what, file, line}
+NodeError::NodeError(const std::string& what, std::string file, int line)
+    : gtirb::Exception{what, file, line}
 {
 }
 

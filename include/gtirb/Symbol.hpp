@@ -134,7 +134,7 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
-            
+
             ar & this->name;
             ar & this->ea;
             ar & this->offset;

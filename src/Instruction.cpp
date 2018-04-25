@@ -1,8 +1,8 @@
-#include <gtirb/Procedure.hpp>
-#include <gtirb/Module.hpp>
-#include <gtirb/RuntimeError.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/Instruction.hpp>
+#include <gtirb/Module.hpp>
+#include <gtirb/NodeValidators.hpp>
+#include <gtirb/Procedure.hpp>
+#include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;
 

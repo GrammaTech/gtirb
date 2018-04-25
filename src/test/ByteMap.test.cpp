@@ -73,8 +73,8 @@ TEST_F(Unit_ByteMapF, legacy_byte)
 
             const auto word = this->byteMap.getData16(Unit_ByteMapF::Offset + gtirb::EA{i});
 
-            EXPECT_EQ(expectedWord, word) << "Bad word read at : "
-                                          << Unit_ByteMapF::Offset + gtirb::EA{i};
+            EXPECT_EQ(expectedWord, word)
+                << "Bad word read at : " << Unit_ByteMapF::Offset + gtirb::EA{i};
         }
     }
 }
@@ -82,8 +82,8 @@ TEST_F(Unit_ByteMapF, legacy_byte)
 TEST_F(Unit_ByteMapF, legacy_word)
 {
     this->byteMap.setData(gtirb::EA(0x401000), uint16_t{0xDEAD});
-    EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000))) << "Bad word read at : "
-                                                                    << 0x401000;
+    EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000)))
+        << "Bad word read at : " << 0x401000;
 }
 
 TEST_F(Unit_ByteMapF, legacy_dword)
@@ -114,8 +114,8 @@ TEST_F(Unit_ByteMapF, legacy_boundariesWithZero_0)
         }
         else
         {
-            EXPECT_EQ((this->InitialByte & (i - 16)), buf[i]) << "Bad chunk read at : " << ea
-                                                              << " plus : " << i;
+            EXPECT_EQ((this->InitialByte & (i - 16)), buf[i])
+                << "Bad chunk read at : " << ea << " plus : " << i;
         }
     }
 }
@@ -279,8 +279,8 @@ TEST_F(Unit_ByteMapF, serialize)
 
                     const auto word = serialized.getData16(Unit_ByteMapF::Offset + gtirb::EA{i});
 
-                    EXPECT_EQ(expectedWord, word) << "Bad word read at : "
-                                                  << Unit_ByteMapF::Offset + gtirb::EA{i};
+                    EXPECT_EQ(expectedWord, word)
+                        << "Bad word read at : " << Unit_ByteMapF::Offset + gtirb::EA{i};
                 }
             }
         }

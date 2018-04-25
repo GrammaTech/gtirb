@@ -11,7 +11,7 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API ModuleCore : public ModuleSectionBase
     {
     public:
-    	ModuleCore();
+        ModuleCore();
         virtual ~ModuleCore() = default;
 
         ///

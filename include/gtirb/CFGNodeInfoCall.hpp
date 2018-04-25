@@ -1,7 +1,7 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
+#include <gtirb/EA.hpp>
 
 namespace gtirb
 {
@@ -33,9 +33,9 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<CFGNodeInfo>(*this);
-            ar& this->importTableEntryEa;
-            ar& this->key;
-            ar& this->returnSpAdjust;
+            ar & this->importTableEntryEa;
+            ar & this->key;
+            ar & this->returnSpAdjust;
         }
 
     private:

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gtirb/Module.hpp>
-#include <gtirb/RegionSet.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/RegionSet.hpp>
 #include <memory>
 
 TEST(Unit_RegionSet, ctor_0)

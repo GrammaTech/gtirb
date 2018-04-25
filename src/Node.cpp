@@ -1,10 +1,10 @@
+#include <boost/lexical_cast.hpp>
+#include <boost/serialization/export.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 using namespace gtirb;
 

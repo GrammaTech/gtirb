@@ -24,7 +24,7 @@ namespace gtirb
         {
             ar& boost::serialization::base_object<CFGNodeInfo>(*this);
         }
-        
+
     private:
     };
 }

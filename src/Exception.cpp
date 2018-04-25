@@ -5,15 +5,14 @@ using namespace gtirb;
 
 Exception::Exception(const char* what) : std::logic_error(what)
 {
-	
 }
 
 Exception::Exception(const std::string& what) : std::logic_error(what)
 {
-
 }
 
-Exception::Exception(const std::string& what, std::string f, int l) : std::logic_error(what), file{f}, line{l}
+Exception::Exception(const std::string& what, std::string f, int l)
+    : std::logic_error(what), file{f}, line{l}
 {
 }
 

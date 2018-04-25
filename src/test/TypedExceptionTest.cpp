@@ -8,7 +8,9 @@
 
 using testing::Types;
 
-typedef Types<gtirb::Exception, gtirb::LogicError, gtirb::NodeError, gtirb::NodeStructureError, gtirb::RuntimeError> TypeImplementations;
+typedef Types<gtirb::Exception, gtirb::LogicError, gtirb::NodeError, gtirb::NodeStructureError,
+              gtirb::RuntimeError>
+    TypeImplementations;
 
 // ----------------------------------------------------------------------------
 // Typed test fixture.
@@ -130,7 +132,8 @@ TYPED_TEST_P(TypedExceptionTest, CopyCtor)
     EXPECT_EQ(lineNumber, location.second);
 }
 
-REGISTER_TYPED_TEST_CASE_P(TypedExceptionTest, ctor_0, ctor_1, InheritanceStd, InheritanceGtirb, FileName, LineNumber, Assignment, What, CopyCtor);
+REGISTER_TYPED_TEST_CASE_P(TypedExceptionTest, ctor_0, ctor_1, InheritanceStd, InheritanceGtirb,
+                           FileName, LineNumber, Assignment, What, CopyCtor);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Exceptions,      // Instance name
                               TypedExceptionTest,   // Test case name

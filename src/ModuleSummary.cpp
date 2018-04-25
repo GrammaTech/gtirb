@@ -1,5 +1,5 @@
-#include <gtirb/ModuleSummary.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
