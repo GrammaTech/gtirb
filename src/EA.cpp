@@ -18,7 +18,7 @@ EA::operator uint64_t() const
     return this->ea;
 }
 
-EA EA::operator=(EA x)
+EA& EA::operator=(EA x)
 {
     this->ea = x.ea;
     return *this;
@@ -76,12 +76,12 @@ EA::operator std::string() const
     return ss.str();
 }
 
-void EA::serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int)
+void EA::serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int /*version*/)
 {
     ar & this->ea;
 }
 
-void EA::serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int) const
+void EA::serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int /*version*/) const
 {
     ar & this->ea;
 }

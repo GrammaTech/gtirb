@@ -45,7 +45,7 @@ namespace gtirb
         ///
         /// A defaulted trivial destructor.
         ///
-        virtual ~Exception() = default;
+        ~Exception() override = default;
 
         ///
         /// Explicitly set the location within the code that generated the exception.

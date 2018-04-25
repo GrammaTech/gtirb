@@ -26,7 +26,7 @@ namespace gtirb
         ///
         /// Defaulted trivial destructor.
         ///
-        virtual ~CFGNodeInfo() = default;
+        ~CFGNodeInfo() override = default;
 
         ///
         /// Symbols are owned by the IR->Module->Symbols
@@ -46,7 +46,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
             ar& procedureNameSymbol;

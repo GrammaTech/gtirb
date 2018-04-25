@@ -17,7 +17,7 @@ namespace gtirb
     {
     public:
         ModuleSectionBase();
-        virtual ~ModuleSectionBase() = default;
+        ~ModuleSectionBase() override = default;
 
         bool getIsSetupComplete() const;
         bool getIsReadOnly() const;
@@ -26,7 +26,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
             ar& isSetupComplete;

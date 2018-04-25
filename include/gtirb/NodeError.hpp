@@ -41,7 +41,7 @@ namespace gtirb
         ///
         /// A defaulted trivial destructor.
         ///
-        virtual ~NodeError() = default;
+        ~NodeError() override = default;
 
         ///
         /// A templated function to help set the type of node that generated the error.

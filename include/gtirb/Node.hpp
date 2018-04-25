@@ -47,7 +47,7 @@ namespace gtirb
             typedef std::forward_iterator_tag iterator_category;
             typedef int difference_type;
 
-            iterator(std::vector<std::shared_ptr<Node>>::iterator x) : it(x)
+            iterator(std::vector<std::shared_ptr<Node>>::iterator x) : it(std::move(x))
             {
             }
 
@@ -101,7 +101,7 @@ namespace gtirb
             typedef std::forward_iterator_tag iterator_category;
             typedef int difference_type;
 
-            const_iterator(std::vector<std::shared_ptr<Node>>::const_iterator x) : it(x)
+            const_iterator(std::vector<std::shared_ptr<Node>>::const_iterator x) : it(std::move(x))
             {
             }
 
@@ -360,7 +360,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar & this->localProperties;
             ar & this->tables;

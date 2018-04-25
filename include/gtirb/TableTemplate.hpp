@@ -27,7 +27,7 @@ namespace gtirb
         ///
         /// This class can be inherited from.
         ///
-        virtual ~TableTemplate(){};
+        ~TableTemplate() override = default;
 
         ///
         /// Computes the total number of elements stored in the table.

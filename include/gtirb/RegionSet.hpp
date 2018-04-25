@@ -25,7 +25,7 @@ namespace gtirb
         ///
         /// Defaulted trivial destructor.
         ///
-        virtual ~RegionSet() = default;
+        ~RegionSet() override = default;
 
         ///
         /// Get the symbol at the given EA.
@@ -50,7 +50,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
         }

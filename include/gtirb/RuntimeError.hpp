@@ -40,6 +40,6 @@ namespace gtirb
         ///
         /// A defaulted trivial destructor.
         ///
-        virtual ~RuntimeError() = default;
+        ~RuntimeError() override = default;
     };
 }

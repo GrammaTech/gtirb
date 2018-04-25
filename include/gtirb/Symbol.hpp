@@ -82,7 +82,7 @@ namespace gtirb
         ///
         /// Defaulted trivial destructor.
         ///
-        virtual ~Symbol() = default;
+        ~Symbol() override = default;
 
         void setEA(gtirb::EA x);
         gtirb::EA getEA() const;
@@ -131,7 +131,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int)
+        void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
 
