@@ -1,5 +1,5 @@
 #include <gtirb/Region.hpp>
-#include <gtirb/Module.hpp>
+#include <gtirb/RegionSet.hpp>
 #include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
@@ -8,7 +8,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Region);
 
 Region::Region() : Node()
 {
-	this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
+	this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::RegionSet>());
 }
 
 void Region::addEA(gtirb::EA x)

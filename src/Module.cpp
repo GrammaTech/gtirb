@@ -10,6 +10,7 @@
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/SymbolSet.hpp>
+#include <gtirb/ProcedureSet.hpp>
 #include <boost/serialization/export.hpp>
 
 using namespace gtirb;
@@ -101,6 +102,11 @@ gtirb::AddrRanges* Module::getOrCreateAddrRanges()
 gtirb::SymbolSet* Module::getOrCreateSymbolSet()
 {
     return gtirb::GetOrCreateChildOfType<gtirb::SymbolSet>(this);
+}
+
+gtirb::ProcedureSet* Module::getOrCreateProcedureSet()
+{
+    return gtirb::GetOrCreateChildOfType<gtirb::ProcedureSet>(this);
 }
 
 gtirb::ImageByteMap* Module::getOrCreateImageByteMap()

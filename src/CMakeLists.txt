@@ -47,6 +47,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Procedure.hpp
 	../include/gtirb/ProcedureSet.hpp
 	../include/gtirb/Region.hpp
+	../include/gtirb/RegionSet.hpp
 	../include/gtirb/RuntimeError.hpp
 	../include/gtirb/Symbol.hpp
 	../include/gtirb/SymbolSet.hpp
@@ -85,6 +86,7 @@ set(${PROJECT_NAME}_SRC
 	Procedure.cpp
 	ProcedureSet.cpp
 	Region.cpp
+	RegionSet.cpp
 	RuntimeError.cpp
 	Symbol.cpp
 	SymbolSet.cpp

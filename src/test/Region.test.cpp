@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <gtirb/Module.hpp>
-#include <gtirb/Region.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/Region.hpp>
+#include <gtirb/RegionSet.hpp>
 #include <memory>
 
 TEST(Unit_Region, ctor_0)
@@ -11,7 +11,7 @@ TEST(Unit_Region, ctor_0)
 
 TEST(Unit_Region, validParent)
 {
-    auto module = std::make_unique<gtirb::Module>();
+    auto module = std::make_unique<gtirb::RegionSet>();
     auto child = std::make_unique<gtirb::Region>();
     EXPECT_TRUE(child->getIsValidParent(module.get()));
     EXPECT_NO_THROW(module->push_back(std::move(child)));
@@ -19,7 +19,7 @@ TEST(Unit_Region, validParent)
 
 TEST(Unit_Region, validParent_noException)
 {
-    auto module = std::make_unique<gtirb::Module>();
+    auto module = std::make_unique<gtirb::RegionSet>();
     auto child = std::make_unique<gtirb::Region>();
     EXPECT_TRUE(child->getIsValidParent(module.get()));
     EXPECT_NO_THROW(module->push_back(std::move(child)));
