@@ -22,6 +22,9 @@ namespace gtirb
         bool getIsSetupComplete() const;
         bool getIsReadOnly() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

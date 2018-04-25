@@ -1,6 +1,7 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeValidators.hpp>
+#include <gtirb/FilesystemSerialization.hpp>
 
 using namespace gtirb;
 

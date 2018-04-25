@@ -1,4 +1,7 @@
 #include <gtest/gtest.h>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/filesystem.hpp>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/Utilities.hpp>
@@ -70,8 +73,8 @@ TEST_F(Unit_ByteMapF, legacy_byte)
 
             const auto word = this->byteMap.getData16(Unit_ByteMapF::Offset + gtirb::EA{i});
 
-            EXPECT_EQ(expectedWord, word)
-                << "Bad word read at : " << Unit_ByteMapF::Offset + gtirb::EA{i};
+            EXPECT_EQ(expectedWord, word) << "Bad word read at : "
+                                          << Unit_ByteMapF::Offset + gtirb::EA{i};
         }
     }
 }
@@ -79,8 +82,8 @@ TEST_F(Unit_ByteMapF, legacy_byte)
 TEST_F(Unit_ByteMapF, legacy_word)
 {
     this->byteMap.setData(gtirb::EA(0x401000), uint16_t{0xDEAD});
-    EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000)))
-        << "Bad word read at : " << 0x401000;
+    EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000))) << "Bad word read at : "
+                                                                    << 0x401000;
 }
 
 TEST_F(Unit_ByteMapF, legacy_dword)
@@ -111,8 +114,8 @@ TEST_F(Unit_ByteMapF, legacy_boundariesWithZero_0)
         }
         else
         {
-            EXPECT_EQ((this->InitialByte & (i - 16)), buf[i])
-                << "Bad chunk read at : " << ea << " plus : " << i;
+            EXPECT_EQ((this->InitialByte & (i - 16)), buf[i]) << "Bad chunk read at : " << ea
+                                                              << " plus : " << i;
         }
     }
 }
@@ -203,6 +206,83 @@ TEST_F(Unit_ByteMapF, legacy_sentinelSearch_2)
         {
             EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{16}), buf[i])
                 << "Bad chunk read at : " << ea << " plus : " << i;
+        }
+    }
+}
+
+TEST_F(Unit_ByteMapF, serialize)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    // Scope objects so they are destroyed
+    {
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        EXPECT_NO_THROW(oa << this->byteMap);
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        gtirb::ByteMap serialized;
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        EXPECT_NO_THROW(ia >> serialized);
+
+        EXPECT_NO_THROW(ifs.close());
+
+        // Copy-pasted test from above
+        {
+            // Boundaries w/ 0's.
+            const auto ea =
+                Unit_ByteMapF::Offset + gtirb::EA{this->InitializedSize} - gtirb::EA{16};
+            const auto buf = serialized.getData(ea, 32);
+
+            for(size_t i = 0; i < 32; ++i)
+            {
+                if(i >= 16)
+                {
+                    EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
+                }
+                else
+                {
+                    EXPECT_EQ(this->InitialByte & (i + InitializedSize - gtirb::EA{16}), buf[i])
+                        << "Bad chunk read at : " << ea << " plus : " << i;
+                }
+            }
+        }
+
+        // Copy-pasted test from above
+        {
+            for(size_t i = 0; i < this->InitializedSize; ++i)
+            {
+                const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
+
+                EXPECT_EQ(this->InitialByte & i,
+                          serialized.getData8(Unit_ByteMapF::Offset
+                                              + gtirb::EA{static_cast<uint64_t>(i)}))
+                    << "Bad byte read at : " << Unit_ByteMapF::Offset + gtirb::EA{i};
+
+                if(i < this->InitializedSize - 1)
+                {
+                    EXPECT_NO_THROW(serialized.getData(Unit_ByteMapF::Offset + gtirb::EA{i}, 2));
+
+                    const auto word = serialized.getData16(Unit_ByteMapF::Offset + gtirb::EA{i});
+
+                    EXPECT_EQ(expectedWord, word) << "Bad word read at : "
+                                                  << Unit_ByteMapF::Offset + gtirb::EA{i};
+                }
+            }
         }
     }
 }

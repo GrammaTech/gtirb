@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
@@ -24,6 +26,7 @@
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/Procedure.hpp>
+#include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Region.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
@@ -31,12 +34,30 @@
 
 using testing::Types;
 
-typedef Types<gtirb::Node, gtirb::Module, gtirb::ModuleSectionBase, gtirb::ModuleCore,
-              gtirb::ModuleAux, gtirb::ModuleSummary, gtirb::AddrRanges, gtirb::Procedure,
-              gtirb::Instruction, gtirb::SymbolSet, gtirb::Symbol, gtirb::IR, gtirb::Region,
-              gtirb::ImageByteMap, gtirb::CFG, gtirb::CFGNode, gtirb::CFGNodeInfo,
-              gtirb::CFGNodeInfoActualIn, gtirb::CFGNodeInfoDeclares, gtirb::CFGNodeInfoEntry,
-              gtirb::CFGNodeInfoFormalIn, gtirb::CFGNodeInfoCall>
+typedef Types<gtirb::AddrRanges,          //
+              gtirb::CFG,                 //
+              gtirb::CFGNode,             //
+              gtirb::CFGNodeInfo,         //
+              gtirb::CFGNodeInfoActualIn, //
+              gtirb::CFGNodeInfoCall,     //
+              gtirb::CFGNodeInfoDeclares, //
+              gtirb::CFGNodeInfoEntry,    //
+              gtirb::CFGNodeInfoFormalIn, //
+              gtirb::ImageByteMap,        //
+              gtirb::Instruction,         //
+              gtirb::IR,                  //
+              gtirb::Module,              //
+              gtirb::ModuleAux,           //
+              gtirb::ModuleCore,          //
+              gtirb::ModuleSectionBase,   //
+              gtirb::ModuleSummary,       //
+              gtirb::Node,                //
+              gtirb::Procedure,           //
+              gtirb::Region,              //
+              gtirb::Symbol,              //
+              gtirb::ProcedureSet,        //
+              gtirb::SymbolSet            //
+              >
     TypeImplementations;
 
 // ----------------------------------------------------------------------------
@@ -385,6 +406,55 @@ TYPED_TEST_P(TypedNodeTest, serialize)
         ASSERT_EQ(size_t{1}, serialized.getLocalPropertySize());
         EXPECT_EQ(std::string{"Value"},
                   boost::get<std::string>(serialized.getLocalProperty("Name")));
+        EXPECT_EQ(original.getUUID(), serialized.getUUID());
+        EXPECT_EQ(original.size(), serialized.size());
+        EXPECT_EQ(sizeof(original), sizeof(serialized));
+    }
+}
+
+TYPED_TEST_P(TypedNodeTest, serializeBinary)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    TypeParam original;
+    original.setLocalProperty("Name", std::string("Value"));
+
+    // Scope objects so they are destroyed
+    {
+        EXPECT_EQ(size_t{1}, original.getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original.getLocalProperty("Name")));
+
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str(), std::ofstream::binary};
+        boost::archive::polymorphic_binary_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        EXPECT_NO_THROW(oa << original);
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        TypeParam serialized;
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str(), std::ifstream::binary};
+        boost::archive::polymorphic_binary_iarchive ia{ifs};
+
+        EXPECT_NO_THROW(ia >> serialized);
+
+        EXPECT_NO_THROW(ifs.close());
+
+        ASSERT_EQ(size_t{1}, serialized.getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized.getLocalProperty("Name")));
+        EXPECT_EQ(original.getUUID(), serialized.getUUID());
+        EXPECT_EQ(original.size(), serialized.size());
+        EXPECT_EQ(sizeof(original), sizeof(serialized));
     }
 }
 
@@ -429,6 +499,12 @@ TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtr)
         ASSERT_EQ(size_t{1}, serialized->getLocalPropertySize());
         EXPECT_EQ(std::string{"Value"},
                   boost::get<std::string>(serialized->getLocalProperty("Name")));
+
+        EXPECT_EQ(original->getUUID(), serialized->getUUID());
+        EXPECT_EQ(original->size(), serialized->size());
+        EXPECT_EQ(sizeof(original), sizeof(serialized));
+        EXPECT_EQ(sizeof(*original), sizeof(*serialized));
+        EXPECT_EQ(typeid(*original), typeid(*serialized));
     }
 }
 
@@ -483,6 +559,11 @@ TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtrWChildren)
         ASSERT_EQ(size_t{1}, serialized->getLocalPropertySize());
         EXPECT_EQ(std::string{"Value"},
                   boost::get<std::string>(serialized->getLocalProperty("Name")));
+        EXPECT_EQ(original->getUUID(), serialized->getUUID());
+        EXPECT_EQ(original->size(), serialized->size());
+        EXPECT_EQ(sizeof(original), sizeof(serialized));
+        EXPECT_EQ(sizeof(*original), sizeof(*serialized));
+        EXPECT_EQ(typeid(*original), typeid(*serialized));
 
         ASSERT_EQ(size_t{2}, serialized->size());
 
@@ -496,12 +577,26 @@ TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtrWChildren)
     }
 }
 
-REGISTER_TYPED_TEST_CASE_P(TypedNodeTest, ctor_0, clear, clearLocalProperties, const_iterator,
-                           iterator, push_back, removeLocalProperty, setLocalProperties,
-                           setLocalProperty, setLocalPropertyReset, size, uniqueUuids,
-                           shared_from_this, GetChildrenOfType, serialize, serializeFromSharedPtr,
+REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,          //
+                           ctor_0,                 //
+                           clear,                  //
+                           clearLocalProperties,   //
+                           const_iterator,         //
+                           iterator,               //
+                           push_back,              //
+                           removeLocalProperty,    //
+                           setLocalProperties,     //
+                           setLocalProperty,       //
+                           setLocalPropertyReset,  //
+                           size,                   //
+                           uniqueUuids,            //
+                           shared_from_this,       //
+                           GetChildrenOfType,      //
+                           serialize,              //
+                           serializeBinary,        //
+                           serializeFromSharedPtr, //
                            serializeFromSharedPtrWChildren);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Unit_Exceptions,      // Instance name
+INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name
                               TypedNodeTest,        // Test case name
                               TypeImplementations); // Type list

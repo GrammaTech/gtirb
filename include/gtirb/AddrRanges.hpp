@@ -117,6 +117,9 @@ namespace gtirb
         ///
         const std::map<gtirb::EA, gtirb::EA>& data() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

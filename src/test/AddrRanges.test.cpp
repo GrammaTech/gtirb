@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
-#include <gtirb/Module.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/filesystem.hpp>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
@@ -157,7 +160,6 @@ TEST(Unit_AddrRanges, range)
     EXPECT_EQ(size_t{50}, ar.getBytesCoveredByRanges());
 }
 
-
 TEST(Unit_AddrRanges, subtractRange)
 {
     gtirb::AddrRanges ar;
@@ -188,4 +190,60 @@ TEST(Unit_AddrRanges, subtractRange)
     EXPECT_TRUE(ar.addRange({gtirb::EA{50}, gtirb::EA{60}}));
     EXPECT_EQ(size_t{2}, ar.data().size());
     EXPECT_EQ(size_t{45}, ar.getBytesCoveredByRanges());
+}
+
+TEST(Unit_AddrRanges, serialize)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    gtirb::AddrRanges original;
+
+    EXPECT_TRUE(original.data().empty());
+    EXPECT_EQ(size_t{0}, original.getBytesCoveredByRanges());
+
+    EXPECT_TRUE(original.addRange({gtirb::EA{10}, gtirb::EA{20}}));
+    EXPECT_TRUE(original.addRange({gtirb::EA{30}, gtirb::EA{40}}));
+    EXPECT_TRUE(original.addRange({gtirb::EA{50}, gtirb::EA{60}}));
+    EXPECT_TRUE(original.addRange({gtirb::EA{70}, gtirb::EA{80}}));
+    EXPECT_EQ(size_t{4}, original.data().size());
+    EXPECT_EQ(size_t{40}, original.getBytesCoveredByRanges());
+
+    original.setLocalProperty("Name", std::string("Value"));
+    EXPECT_EQ(size_t{1}, original.getLocalPropertySize());
+    EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original.getLocalProperty("Name")));
+
+    // Scope objects so they are destroyed
+    {
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        EXPECT_TRUE(ofs.is_open());
+
+        EXPECT_NO_THROW(oa << original);
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        gtirb::AddrRanges serialized;
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        EXPECT_NO_THROW(ia >> serialized);
+
+        EXPECT_NO_THROW(ifs.close());
+
+        EXPECT_EQ(size_t{4}, serialized.data().size());
+        EXPECT_EQ(size_t{40}, serialized.getBytesCoveredByRanges());
+
+        EXPECT_EQ(size_t{1}, serialized.getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized.getLocalProperty("Name")));
+    }
 }

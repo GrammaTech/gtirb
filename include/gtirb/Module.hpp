@@ -4,6 +4,7 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/FilesystemSerialization.hpp>
 
 namespace gtirb
 {
@@ -113,11 +114,18 @@ namespace gtirb
         gtirb::ImageByteMap* getOrCreateImageByteMap();
         gtirb::CFG* getOrCreateCFG();
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
             ar& boost::serialization::base_object<Node>(*this);
-            ar& rebaseDelta;
+            GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);
+            ar& this->eaMinMax;
+            ar& this->preferredEA;
+            ar& this->rebaseDelta;
+            ar& this->fileFormat;
         }
 
     private:

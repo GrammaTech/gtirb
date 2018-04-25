@@ -43,11 +43,13 @@ set(${PROJECT_NAME}_SRC
 	NodeUtilities.test.cpp
 	NodeValidators.test.cpp
 	Procedure.test.cpp
+	ProcedureSet.test.cpp
 	Region.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
 	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
+	TypedModuleChildTest.cpp
 	TypedNodeTest.cpp
 	Utilities.test.cpp
 )

@@ -6,6 +6,9 @@
 #include <gtirb/EA.hpp>
 #include <map>
 #include <vector>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/array.hpp>
 
 namespace gtirb
 {
@@ -13,7 +16,7 @@ namespace gtirb
     /// \class ByteMap
     /// \author John E. Farrier
     ///
-    class GTIRB_GTIRB_EXPORT_API ByteMap final
+    class GTIRB_GTIRB_EXPORT_API ByteMap
     {
     public:
         ///
@@ -150,6 +153,15 @@ namespace gtirb
         std::vector<uint8_t> getDataUntil(EA ea, uint8_t sentinel,
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar& data;
+        }
+
     protected:
         ///
         /// \typedef ByteMap::Page
@@ -178,3 +190,5 @@ namespace gtirb
         std::map<gtirb::EA, ByteMap::Page> data;
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::ByteMap);

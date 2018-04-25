@@ -5,6 +5,9 @@
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/filesystem.hpp>
 
 TEST(Unit_CFGNode, ctor_0)
 {
@@ -979,4 +982,69 @@ TEST(Unit_CFGNode, preventSelfReferencesForSuccessors)
     EXPECT_NO_THROW(parent->push_back(std::move(node)));
 
     EXPECT_THROW(nodePtr->addSuccessor(nodePtr), gtirb::NodeStructureError);
+}
+
+TEST(Unit_CFGNode, serialize)
+{
+    const auto tempPath =
+        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    const std::string tempPathString = tempPath.string();
+
+    auto original = std::make_unique<gtirb::CFGNode>();
+    auto child0 = std::make_unique<gtirb::CFGNode>();
+    auto child1 = std::make_unique<gtirb::CFGNode>();
+    auto child2 = std::make_unique<gtirb::CFGNode>();
+
+    auto childFoo = std::make_unique<gtirb::CFGNode>();
+    auto childFooPtr = childFoo.get();
+
+    EXPECT_NO_THROW(original->push_back(std::move(childFoo)));
+
+    EXPECT_EQ(size_t{1}, original->size());
+    EXPECT_EQ(size_t{0}, original->getPredecessorSize());
+
+    // We will add it as a child first, then add it as a successor.
+    EXPECT_NO_THROW(original->addPredecessor(std::move(child0)));
+    EXPECT_NO_THROW(original->addPredecessor(std::move(child1)));
+    EXPECT_NO_THROW(original->addPredecessor(std::move(child2)));
+    EXPECT_EQ(size_t{4}, original->size());
+    EXPECT_EQ(size_t{3}, original->getPredecessorSize());
+
+    EXPECT_NO_THROW(original->setLocalProperty("Name", std::string("Value")));
+    EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
+    EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original->getLocalProperty("Name")));
+
+    // Scope objects so they are destroyed
+    {
+        // Serialize Out.
+        std::ofstream ofs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_oarchive oa{ofs};
+        
+        EXPECT_TRUE(ofs.is_open());
+
+        EXPECT_NO_THROW(oa << original);
+
+        EXPECT_NO_THROW(ofs.close());
+        EXPECT_FALSE(ofs.is_open());
+    }
+
+    // Read it back in and re-test
+    {
+        auto serialized = std::make_unique<gtirb::CFGNode>();
+
+        // Serialize In.
+        std::ifstream ifs{tempPathString.c_str()};
+        boost::archive::polymorphic_text_iarchive ia{ifs};
+
+        EXPECT_NO_THROW(ia >> serialized);
+
+        EXPECT_NO_THROW(ifs.close());
+
+        EXPECT_EQ(size_t{4}, serialized->size());
+        EXPECT_EQ(size_t{3}, serialized->getPredecessorSize());
+
+        EXPECT_EQ(size_t{1}, serialized->getLocalPropertySize());
+        EXPECT_EQ(std::string{"Value"},
+                  boost::get<std::string>(serialized->getLocalProperty("Name")));
+    }
 }

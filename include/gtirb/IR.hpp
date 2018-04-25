@@ -28,6 +28,7 @@ namespace gtirb
     ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
     ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
     ///     procedure [label="gtirb::Procedure" URL="\ref Procedure"]
+    ///     procedureSet [label="gtirb::ProcedureSet" URL="\ref ProcedureSet"]
     ///     instruction [label="gtirb::Instruction" URL="\ref Instruction"]
     ///     cfg [label="gtirb::CFG" URL="\ref CFG"]
     ///     cfgNode [label="gtirb::CFGNode" URL="\ref CFGNode"]
@@ -46,7 +47,8 @@ namespace gtirb
     ///     module -> symbolSet;
     ///     symbolSet -> symbol;
     ///     module -> imageByteMap;
-    ///     module -> procedure;
+    ///     module -> procedureSet;
+    ///     procedureSet -> procedure;
     ///     procedure -> instruction;
     ///     module -> cfg;
     ///     cfg -> cfgNode;
@@ -61,9 +63,23 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API IR : public Node
     {
     public:
+        ///
+        /// Default constructor.
+        ///
         IR();
+
+        ///
+        /// Trivial virtual destructor.
+        ///
         virtual ~IR() = default;
 
+        ///
+        /// \todo Add "GetOrCreate" to gtirb::IR that returns a Module*.  What is the key to distinguish multiple modules?
+        ///
+
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

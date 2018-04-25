@@ -6,6 +6,7 @@
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
+#include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
 #include <set>
 
@@ -341,10 +342,23 @@ namespace gtirb
         std::vector<uint8_t> getDataUntil(EA ea, uint8_t sentinel,
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
             ar& boost::serialization::base_object<Node>(*this);
+            ar & this->byteMap;
+            GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->fileName);
+            ar & this->eaMinMax;
+            ar & this->baseAddress;
+            ar & this->entryPointAddress;
+            ar & this->globalOffsetTableAddress;
+            ar & this->rebaseDelta;
+            ar & this->lfcm;
+            ar & this->contentSource;
+            ar & this->isRelocated;
         }
 
     private:
@@ -356,7 +370,6 @@ namespace gtirb
         EA entryPointAddress{};
         EA globalOffsetTableAddress{};
         int64_t rebaseDelta{0};
-
         uint8_t lfcm{0x00};
         ContentSource contentSource{};
         bool isRelocated{false};

@@ -26,6 +26,9 @@ namespace gtirb
         void setImportTableEntryEA(gtirb::EA x);
         gtirb::EA getImportTableEntryEA() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

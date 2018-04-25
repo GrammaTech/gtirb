@@ -1,10 +1,12 @@
 #pragma once
 
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
-#include <cstdint>
 #include <gtirb/Constants.hpp>
 #include <gtirb/Export.hpp>
+
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+
+#include <cstdint>
 #include <limits>
 #include <string>
 
@@ -18,7 +20,7 @@ namespace gtirb
     /// `gtirb::constants::BadAddress`. It is compatible with a uint64_t for 64-bit address storage.
     /// An EA cannot store a relative address as it cannot contain a negative number.
     ///
-    class GTIRB_GTIRB_EXPORT_API EA final
+    class GTIRB_GTIRB_EXPORT_API EA
     {
     public:
         ///

@@ -20,12 +20,15 @@ namespace gtirb
         void setDecodeMode(uint64_t x);
         uint64_t getDecodeMode() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
             ar& boost::serialization::base_object<ModuleSectionBase>(*this);
-            ar& name;
-            ar& decodeMode;
+            ar& this->name;
+            ar& this->decodeMode;
         }
 
     private:

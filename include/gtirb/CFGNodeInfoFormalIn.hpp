@@ -16,6 +16,9 @@ namespace gtirb
         ///
         virtual ~CFGNodeInfoFormalIn() = default;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

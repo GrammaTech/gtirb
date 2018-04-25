@@ -21,6 +21,9 @@ namespace gtirb
         void addEA(gtirb::EA x);
         std::set<gtirb::EA> getEAs() const;
 
+        ///
+        /// Serialization support.
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
