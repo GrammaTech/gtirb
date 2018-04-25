@@ -1,8 +1,8 @@
+#include <gtirb/Instruction.hpp>
+#include <gtirb/NodeValidators.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include <gtirb/NodeValidators.hpp>
-#include <gtirb/Instruction.hpp>
 
 using namespace gtirb;
 
@@ -15,12 +15,12 @@ Procedure::Procedure() : Node()
 
 void Procedure::setEA(gtirb::EA x)
 {
-	this->ea = x;
+    this->ea = x;
 }
 
 gtirb::EA Procedure::getEA() const
 {
-	return this->ea;
+    return this->ea;
 }
 
 std::set<gtirb::EA>* Procedure::getPLTEntries()

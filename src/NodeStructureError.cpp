@@ -10,6 +10,7 @@ NodeStructureError::NodeStructureError(const std::string& what) : gtirb::NodeErr
 {
 }
 
-NodeStructureError::NodeStructureError(const std::string& what, std::string file, int line) : gtirb::NodeError{what, file, line}
+NodeStructureError::NodeStructureError(const std::string& what, std::string file, int line)
+    : gtirb::NodeError{what, file, line}
 {
 }

@@ -74,7 +74,8 @@ namespace gtirb
         virtual ~IR() = default;
 
         ///
-        /// \todo Add "GetOrCreate" to gtirb::IR that returns a Module*.  What is the key to distinguish multiple modules?
+        /// \todo Add "GetOrCreate" to gtirb::IR that returns a Module*.  What is the key to
+        /// distinguish multiple modules?
         ///
 
         ///

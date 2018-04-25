@@ -10,6 +10,7 @@ RuntimeError::RuntimeError(const std::string& what) : gtirb::Exception(what)
 {
 }
 
-RuntimeError::RuntimeError(const std::string& what, std::string file, int line) : gtirb::Exception{what, file, line}
+RuntimeError::RuntimeError(const std::string& what, std::string file, int line)
+    : gtirb::Exception{what, file, line}
 {
 }

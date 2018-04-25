@@ -1,9 +1,9 @@
+#include <cassert>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <gtirb/Symbol.hpp>
-#include <cassert>
 
 using namespace gtirb;
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <gtirb/Module.hpp>
 #include <gtirb/CFG.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>

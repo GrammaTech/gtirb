@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <gtirb/Procedure.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/Procedure.hpp>
 #include <memory>
 
 TEST(Unit_Instruction, ctor_0)
@@ -54,7 +54,7 @@ TEST(Unit_Instruction, getEA)
 TEST(Unit_Instruction, setIsFallthrough)
 {
     gtirb::Instruction node;
-    
+
     EXPECT_NO_THROW(node.setIsFallthrough(true));
     EXPECT_EQ(true, node.getIsFallthrough());
 
@@ -71,7 +71,7 @@ TEST(Unit_Instruction, getIsFallthrough)
 TEST(Unit_Instruction, setIsPEI)
 {
     gtirb::Instruction node;
-    
+
     EXPECT_NO_THROW(node.setIsPEI(true));
     EXPECT_EQ(true, node.getIsPEI());
 
@@ -88,7 +88,7 @@ TEST(Unit_Instruction, getIsPEI)
 TEST(Unit_Instruction, setNumberOfUses)
 {
     const int64_t numberOfUses{22678};
-    
+
     gtirb::Instruction node;
     EXPECT_NO_THROW(node.setNumberOfUses(numberOfUses));
     EXPECT_EQ(numberOfUses, node.getNumberOfUses());

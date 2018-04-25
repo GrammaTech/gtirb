@@ -2,14 +2,14 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/IR.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ModuleAux.hpp>
 #include <gtirb/ModuleCore.hpp>
 #include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeUtilities.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <gtirb/ProcedureSet.hpp>
-#include <gtirb/ImageByteMap.hpp>
+#include <gtirb/SymbolSet.hpp>
 #include <memory>
 
 TEST(Unit_Module, ctor_0)

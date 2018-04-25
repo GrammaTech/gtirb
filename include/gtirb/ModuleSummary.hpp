@@ -27,8 +27,8 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<ModuleSectionBase>(*this);
-            ar& this->name;
-            ar& this->decodeMode;
+            ar & this->name;
+            ar & this->decodeMode;
         }
 
     private:

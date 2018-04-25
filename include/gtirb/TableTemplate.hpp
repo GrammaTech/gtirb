@@ -186,12 +186,14 @@ namespace gtirb
         ///
         /// Serialization support.
         ///
-        virtual void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0) override = 0;
+        virtual void serialize(boost::archive::polymorphic_iarchive& ar,
+                               const unsigned int version = 0) override = 0;
 
         ///
         /// Serialization support.
         ///
-        virtual void serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int version = 0) const override = 0;
+        virtual void serialize(boost::archive::polymorphic_oarchive& ar,
+                               const unsigned int version = 0) const override = 0;
 
     protected:
         /// Protected so that derived types can serialize it.

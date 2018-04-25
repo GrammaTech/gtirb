@@ -3,8 +3,8 @@
 #include <boost/filesystem.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
-#include <gtirb/Node.hpp>
 #include <gtirb/FilesystemSerialization.hpp>
+#include <gtirb/Node.hpp>
 
 namespace gtirb
 {
@@ -116,7 +116,6 @@ namespace gtirb
         gtirb::CFG* getOrCreateCFG();
         gtirb::ProcedureSet* getOrCreateProcedureSet();
 
-
         ///
         /// Serialization support.
         ///
@@ -125,10 +124,10 @@ namespace gtirb
         {
             ar& boost::serialization::base_object<Node>(*this);
             GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);
-            ar& this->eaMinMax;
-            ar& this->preferredEA;
-            ar& this->rebaseDelta;
-            ar& this->fileFormat;
+            ar & this->eaMinMax;
+            ar & this->preferredEA;
+            ar & this->rebaseDelta;
+            ar & this->fileFormat;
         }
 
     private:

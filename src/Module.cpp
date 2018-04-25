@@ -1,3 +1,4 @@
+#include <boost/serialization/export.hpp>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/IR.hpp>
@@ -9,9 +10,8 @@
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <gtirb/ProcedureSet.hpp>
-#include <boost/serialization/export.hpp>
+#include <gtirb/SymbolSet.hpp>
 
 using namespace gtirb;
 

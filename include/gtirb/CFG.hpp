@@ -24,9 +24,9 @@ namespace gtirb
         ///
         virtual ~CFG() = default;
 
-        //Procedure* getOrCreateProcedure();
-        
-        //CFGAttribute* getOrCreateCFGAttribute();
+        // Procedure* getOrCreateProcedure();
+
+        // CFGAttribute* getOrCreateCFGAttribute();
 
         ///
         /// Serialization support.
@@ -38,9 +38,9 @@ namespace gtirb
         }
 
     private:
-        //std::weak_ptr<CFGNode> first;
-        //std::weak_ptr<CFGNode> last;
-        //SRPSet_T srpSet;
+        // std::weak_ptr<CFGNode> first;
+        // std::weak_ptr<CFGNode> last;
+        // SRPSet_T srpSet;
     };
 }
 

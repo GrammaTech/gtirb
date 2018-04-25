@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <gtirb/Export.hpp>
-#include <boost/serialization/export.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/export.hpp>
+#include <gtirb/Export.hpp>
+#include <string>
+#include <unordered_map>
 
 namespace gtirb
 {
@@ -13,11 +13,11 @@ namespace gtirb
     /// \class Table
     /// \author John E. Farrier
     ///
-    /// This is just a simple base class for TableTemplate.  This allows us to store pointers to tables without any
-    /// specific implementation details.
+    /// This is just a simple base class for TableTemplate.  This allows us to store pointers to
+    /// tables without any specific implementation details.
     ///
     /// \sa gtirb::TableTemplate
-    ///     
+    ///
     class GTIRB_GTIRB_EXPORT_API Table
     {
     public:
@@ -47,12 +47,15 @@ namespace gtirb
         ///
         /// Serialization support.
         ///
-        virtual void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0) = 0;
+        virtual void serialize(boost::archive::polymorphic_iarchive& ar,
+                               const unsigned int version = 0) = 0;
 
         ///
         /// Serialization support.
         ///
-        virtual void serialize(boost::archive::polymorphic_oarchive& ar, const unsigned int version = 0) const = 0;
+        virtual void serialize(boost::archive::polymorphic_oarchive& ar,
+                               const unsigned int version = 0) const = 0;
+
     private:
     };
 }
