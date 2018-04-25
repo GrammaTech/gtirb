@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/filesystem.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfoCall.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/filesystem.hpp>
 
 TEST(Unit_CFGNode, ctor_0)
 {
@@ -996,7 +996,6 @@ TEST(Unit_CFGNode, serialize)
     auto child2 = std::make_unique<gtirb::CFGNode>();
 
     auto childFoo = std::make_unique<gtirb::CFGNode>();
-    auto childFooPtr = childFoo.get();
 
     EXPECT_NO_THROW(original->push_back(std::move(childFoo)));
 
@@ -1019,7 +1018,7 @@ TEST(Unit_CFGNode, serialize)
         // Serialize Out.
         std::ofstream ofs{tempPathString.c_str()};
         boost::archive::polymorphic_text_oarchive oa{ofs};
-        
+
         EXPECT_TRUE(ofs.is_open());
 
         EXPECT_NO_THROW(oa << original);

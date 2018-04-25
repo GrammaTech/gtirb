@@ -38,10 +38,11 @@ namespace gtirb
         ///
         /// Get or create the symbol at the given EA.
         ///
-        /// This is preferable to adding symbols manually as it ensures no duplicate symbols are created.
+        /// This is preferable to adding symbols manually as it ensures no duplicate symbols are
+        /// created.
         ///
         /// \param x    The EA of the gtirb::Procedure to get (or create).
-        /// \return     The Procedure at the given EA.  
+        /// \return     The Procedure at the given EA.
         ///
         Procedure* getOrCreateProcedure(gtirb::EA x);
 
@@ -49,11 +50,11 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
+        void serialize(Archive& ar, const unsigned int)
         {
             ar& boost::serialization::base_object<Node>(*this);
         }
     };
-}
+} // namespace gtirb
 
 BOOST_CLASS_EXPORT_KEY(gtirb::ProcedureSet);
