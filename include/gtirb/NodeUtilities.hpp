@@ -9,21 +9,30 @@ namespace gtirb
     /// A free function to build a vector of Node children of a specific type.
     ///
     /// \param  x   A pointer to the node to get the children of.
+    /// \param  recursive   If true, it will search all children's children as well.
     /// \return     A vector of all the children of the input node which are of the templated type.
     ///
     template <typename T>
-    std::vector<T*> GetChildrenOfType(const Node* const x)
+    std::vector<T*> GetChildrenOfType(const Node* const x, bool recursive = false)
     {
         static_assert(std::is_base_of<gtirb::Node, T>::value,
                       "T must be a descendant of gtirb::Node.");
 
         std::vector<T*> children;
 
-        std::for_each(std::begin(*x), std::end(*x), [&children](Node* const child) {
+        std::for_each(std::begin(*x), std::end(*x), [&children, recursive](Node* const child) {
             auto correctType = dynamic_cast<T*>(child);
+
             if(correctType != nullptr)
             {
                 children.push_back(correctType);
+            }
+
+            if(recursive == true)
+            {
+                auto grandChildren = GetChildrenOfType<T>(child, true);
+                children.insert(std::end(children), std::begin(grandChildren),
+                                std::end(grandChildren));
             }
         });
 

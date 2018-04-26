@@ -28,7 +28,7 @@ namespace gtirb
         ~SymbolSet() override = default;
 
         ///
-        /// Get the symbol at the given EA.
+        /// Recursivly search for the symbol at the given EA.
         ///
         /// \param x    The EA of the gtirb::Symbol to get.
         /// \return     The Symbol at the given EA or nullptr.

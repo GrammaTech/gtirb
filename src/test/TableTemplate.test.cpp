@@ -22,7 +22,7 @@ public:
     /// Serialize this node (and all of its children).
     ///
     virtual void serialize(boost::archive::polymorphic_iarchive& ar,
-                           [[maybe_unused]] const unsigned int version = 0) override
+                           const unsigned int /*version*/) override
     {
         ar & this->table;
     }
@@ -31,7 +31,7 @@ public:
     /// Serialize this node (and all of its children).
     ///
     virtual void serialize(boost::archive::polymorphic_oarchive& ar,
-                           [[maybe_unused]] const unsigned int version = 0) const override
+                           const unsigned int /*version*/) const override
     {
         ar & this->table;
     }

@@ -4,9 +4,12 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
+#include <boost/serialization/weak_ptr.hpp>
 
 namespace gtirb
 {
+    class Module;
+
     ///
     /// \class IR
     /// \author John E. Farrier
@@ -74,9 +77,32 @@ namespace gtirb
         ~IR() override = default;
 
         ///
-        /// \todo Add "GetOrCreate" to gtirb::IR that returns a Module*.  What is the key to
-        /// distinguish multiple modules?
+        /// Gets a pointer to the module containing the program's "main".
         ///
+        /// \return     nullptr if no main module has been created.
+        ///
+        gtirb::Module* getMainModule() const;
+
+        ///
+        /// Get or create a module containin the program's "main".
+        ///
+        gtirb::Module* getOrCreateMainModule();
+
+        ///
+        /// Get all modules having the given Preferred EA
+        /// 
+        /// \sa Module::getPreferredEA()
+        ///
+        std::vector<gtirb::Module*> getModulesWithPreferredEA(EA x) const;
+
+        ///
+        /// Get all modules continaing the given EA.
+        ///
+        /// The test is [lower bound inclusive, upper bound exclusive)
+        /// 
+        /// \sa Module::getEAMinMax()
+        ///
+        std::vector<gtirb::Module*> getModulesContainingEA(EA x) const;
 
         ///
         /// Serialization support.
@@ -85,9 +111,11 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
+            ar& this->mainModule;
         }
 
     private:
+        std::weak_ptr<gtirb::Module> mainModule{};
     };
 }
 

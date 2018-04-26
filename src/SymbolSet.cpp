@@ -15,7 +15,10 @@ SymbolSet::SymbolSet() : Node()
 
 Symbol* SymbolSet::getSymbol(gtirb::EA x) const
 {
-    const auto symbols = GetChildrenOfType<Symbol>(this);
+    /// \todo   Implement a recursive find function for Nodes.
+
+    // This grabs all symbols every time, which could be slow (measure first).
+    const auto symbols = GetChildrenOfType<Symbol>(this, true);
     const auto found = std::find_if(std::begin(symbols), std::end(symbols),
                                     [x](Symbol* s) { return s->getEA() == x; });
 
