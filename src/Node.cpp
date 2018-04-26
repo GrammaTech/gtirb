@@ -15,7 +15,7 @@ Node::Node() : uuid(boost::lexical_cast<std::string>(boost::uuids::random_genera
 {
     this->addParentValidator([this](const Node* const x) {
         // We should not become a parent to ourself.
-        if(x->getUUID() != this->getUUID())
+        if((x != nullptr) && (x->getUUID() != this->getUUID()))
         {
             // Search all the way up just to make sure there isn't a circular reference.
             if(this->getNodeParent() != nullptr)

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gtirb/CFG.hpp>
-#include <gtirb/Module.hpp>
+#include <gtirb/CFGSet.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
@@ -12,7 +12,7 @@ TEST(Unit_CFG, ctor_0)
 
 TEST(Unit_CFG, validParent)
 {
-    auto parent = std::make_unique<gtirb::Module>();
+    auto parent = std::make_unique<gtirb::CFGSet>();
     auto child = std::make_unique<gtirb::CFG>();
     EXPECT_TRUE(child->getIsValidParent(parent.get()));
     EXPECT_NO_THROW(parent->push_back(std::move(child)));
@@ -20,7 +20,7 @@ TEST(Unit_CFG, validParent)
 
 TEST(Unit_CFG, validParent_noException)
 {
-    auto parent = std::make_unique<gtirb::Module>();
+    auto parent = std::make_unique<gtirb::CFGSet>();
     auto child = std::make_unique<gtirb::CFG>();
     EXPECT_TRUE(child->getIsValidParent(parent.get()));
     EXPECT_NO_THROW(parent->push_back(std::move(child)));
@@ -37,13 +37,37 @@ TEST(Unit_CFG, invalidParent)
 
 TEST(Unit_CFG, alreadyAdded)
 {
-    auto parent = std::make_unique<gtirb::Module>();
+    auto parent = std::make_unique<gtirb::CFGSet>();
 
     auto child = std::make_unique<gtirb::CFG>();
     EXPECT_TRUE(child->getIsValidParent(parent.get()));
     EXPECT_NO_THROW(parent->push_back(std::move(child)));
 
     auto childAgain = std::make_unique<gtirb::CFG>();
-    EXPECT_FALSE(childAgain->getIsValidParent(parent.get()));
-    EXPECT_THROW(parent->push_back(std::move(childAgain)), gtirb::NodeStructureError);
+    EXPECT_TRUE(childAgain->getIsValidParent(parent.get()));
+    EXPECT_NO_THROW(parent->push_back(std::move(childAgain)));
+}
+
+TEST(Unit_CFG, setEA)
+{
+    const gtirb::EA ea{22678};
+
+    auto node = std::make_unique<gtirb::CFG>();
+    EXPECT_TRUE(node != nullptr);
+    EXPECT_EQ(gtirb::EA{}, node->getEA());
+
+    EXPECT_NO_THROW(node->setEA(ea));
+    EXPECT_EQ(ea, node->getEA());
+}
+
+TEST(Unit_CFG, setProcedureName)
+{
+    const std::string procedureName{"Foo"};
+
+    auto node = std::make_unique<gtirb::CFG>();
+    EXPECT_TRUE(node != nullptr);
+    EXPECT_EQ(std::string{}, node->getProcedureName());
+
+    EXPECT_NO_THROW(node->setProcedureName(procedureName));
+    EXPECT_EQ(procedureName, node->getProcedureName());
 }

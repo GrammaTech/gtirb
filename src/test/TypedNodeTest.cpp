@@ -15,6 +15,7 @@
 #include <gtirb/CFGNodeInfoDeclares.hpp>
 #include <gtirb/CFGNodeInfoEntry.hpp>
 #include <gtirb/CFGNodeInfoFormalIn.hpp>
+#include <gtirb/CFGSet.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
@@ -37,6 +38,7 @@ using testing::Types;
 
 typedef Types<gtirb::AddrRanges,          //
               gtirb::CFG,                 //
+              gtirb::CFGSet,              //
               gtirb::CFGNode,             //
               gtirb::CFGNodeInfo,         //
               gtirb::CFGNodeInfoActualIn, //

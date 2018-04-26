@@ -7,7 +7,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr_helper.hpp>
 #include <gtirb/AddrRanges.hpp>
-#include <gtirb/CFG.hpp>
+#include <gtirb/CFGSet.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
@@ -32,7 +32,7 @@ typedef Types<gtirb::ModuleCore,    //
               gtirb::RegionSet,     //
               gtirb::ImageByteMap,  //
               gtirb::ProcedureSet,  //
-              gtirb::CFG>
+              gtirb::CFGSet>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------

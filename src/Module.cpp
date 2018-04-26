@@ -1,6 +1,6 @@
 #include <boost/serialization/export.hpp>
 #include <gtirb/AddrRanges.hpp>
-#include <gtirb/CFG.hpp>
+#include <gtirb/CFGSet.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
@@ -69,6 +69,16 @@ std::pair<gtirb::EA, gtirb::EA> Module::getEAMinMax() const
     return this->eaMinMax;
 }
 
+void Module::setISAID(gtirb::ISAID x)
+{
+    this->isaID = x;
+}
+
+gtirb::ISAID Module::getISAID() const
+{
+    return this->isaID;
+}
+
 void Module::setPreferredEA(gtirb::EA x)
 {
     this->preferredEA = x;
@@ -114,7 +124,33 @@ gtirb::ImageByteMap* Module::getOrCreateImageByteMap()
     return gtirb::GetOrCreateChildOfType<gtirb::ImageByteMap>(this);
 }
 
-gtirb::CFG* Module::getOrCreateCFG()
+gtirb::CFGSet* Module::getOrCreateCFGSet()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::CFG>(this);
+    return gtirb::GetOrCreateChildOfType<gtirb::CFGSet>(this);
+}
+
+gtirb::CFGSet* Module::getCFGSet()
+{
+    const auto children = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
+    assert(children.size() <= 1);
+
+    if(children.empty() == false)
+    {
+        return children[0];
+    }
+
+    return nullptr;
+}
+
+const gtirb::CFGSet* const Module::getCFGSet() const
+{
+     const auto children = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
+    assert(children.size() <= 1);
+
+    if(children.empty() == false)
+    {
+        return children[0];
+    }
+
+    return nullptr;
 }

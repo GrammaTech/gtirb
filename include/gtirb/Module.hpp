@@ -9,7 +9,7 @@
 namespace gtirb
 {
     class AddrRanges;
-    class CFG;
+    class CFGSet;
     class ImageByteMap;
     class ModuleAux;
     class ModuleCore;
@@ -105,16 +105,67 @@ namespace gtirb
         ///
         ///
         ///
+        void setISAID(gtirb::ISAID x);
+
+        ///
+        ///
+        ///
+        gtirb::ISAID getISAID() const;
+
+        ///
+        ///
+        ///
         gtirb::EA getPreferredEA() const;
 
-        gtirb::ModuleSummary* getOrCreateModuleSummary();
-        gtirb::ModuleCore* getOrCreateModuleCore();
-        gtirb::ModuleAux* getOrCreateModuleAux();
+        ///
+        /// A Module can have exactly one AddrRanges child.
+        ///
         gtirb::AddrRanges* getOrCreateAddrRanges();
-        gtirb::SymbolSet* getOrCreateSymbolSet();
+        
+        ///
+        /// A Module can have exactly one CFGSet child.
+        ///
+        gtirb::CFGSet* getOrCreateCFGSet();
+
+        ///
+        ///
+        ///
+        gtirb::CFGSet* getCFGSet();
+        
+        ///
+        ///
+        ///
+        const gtirb::CFGSet* const getCFGSet() const;
+        
+        ///
+        /// A Module can have exactly one ImageByteMap child.
+        ///
         gtirb::ImageByteMap* getOrCreateImageByteMap();
-        gtirb::CFG* getOrCreateCFG();
+        
+        ///
+        /// A Module can have exactly one ModuleAux child.
+        ///
+        gtirb::ModuleAux* getOrCreateModuleAux();
+        
+        ///
+        /// A Module can have exactly one ModuleCore child.
+        ///
+        gtirb::ModuleCore* getOrCreateModuleCore();
+        
+        ///
+        /// A Module can have exactly one ModuleSummary child.
+        ///
+        gtirb::ModuleSummary* getOrCreateModuleSummary();
+        
+        ///
+        /// A Module can have exactly one ProcedureSet child.
+        ///
         gtirb::ProcedureSet* getOrCreateProcedureSet();
+        
+        ///
+        /// A Module can have exactly one SymbolSet child.
+        ///
+        gtirb::SymbolSet* getOrCreateSymbolSet();
 
         ///
         /// Serialization support.
@@ -128,6 +179,7 @@ namespace gtirb
             ar & this->preferredEA;
             ar & this->rebaseDelta;
             ar & this->fileFormat;
+            ar & this->isaID;
         }
 
     private:
@@ -136,6 +188,7 @@ namespace gtirb
         gtirb::EA preferredEA{};
         int64_t rebaseDelta{0};
         gtirb::FileFormat fileFormat{};
+        gtirb::ISAID isaID{};
     };
 }
 

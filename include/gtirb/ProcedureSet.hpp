@@ -28,7 +28,7 @@ namespace gtirb
         ~ProcedureSet() override = default;
 
         ///
-        /// Get the symbol at the given EA.
+        /// Get the Procedure at the given EA.
         ///
         /// \param x    The EA of the gtirb::Procedure to get.
         /// \return     The Procedure at the given EA or nullptr.
@@ -36,9 +36,9 @@ namespace gtirb
         Procedure* getProcedure(gtirb::EA x) const;
 
         ///
-        /// Get or create the symbol at the given EA.
+        /// Get or create the Procedure at the given EA.
         ///
-        /// This is preferable to adding symbols manually as it ensures no duplicate symbols are
+        /// This is preferable to adding Procedures manually as it ensures no duplicate Procedures are
         /// created.
         ///
         /// \param x    The EA of the gtirb::Procedure to get (or create).
