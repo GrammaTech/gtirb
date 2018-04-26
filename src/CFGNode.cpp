@@ -7,6 +7,8 @@
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
 
+#include <iostream>
+
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNode);

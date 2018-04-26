@@ -5,7 +5,7 @@ namespace gtirb
     ///
     /// \enum FileFormat
     ///
-    enum class FileFormat
+    enum class FileFormat : uint8_t
     {
         Undefined, /// Default value to indicates an uninitialized state.
         COFF,      /// Common Object File Format (COFF)
@@ -23,7 +23,7 @@ namespace gtirb
     /// Also known as the file type.
     /// The name "FileType" was not used to avoid confusion with FileFormat.
     ///
-    enum class FileFunction
+    enum class FileFunction : uint8_t
     {
         Undefined, /// Default value to indicates an uninitialized state.
         Object,
@@ -36,7 +36,7 @@ namespace gtirb
     ///
     /// ISA ID
     ///
-    enum class ISAID
+    enum class ISAID : uint8_t
     {
         Undefined, /// Default value to indicates an uninitialized state.
         IA32,      /// Intel Architecture, 32-bit. Also known as i386.
@@ -52,7 +52,7 @@ namespace gtirb
     ///
     /// Instruction and Data Operand Type Information
     ///
-    enum class OperandKind
+    enum class OperandKind : uint8_t
     {
         Undefined,
         SymStackOffsetWConstant, /// Symbolic stack offset +/- Constant

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gtirb/AddrRanges.hpp>
-#include <gtirb/CFG.hpp>
+#include <gtirb/CFGSet.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
@@ -124,6 +124,17 @@ TEST(Unit_Module, getPreferredEADefault)
     EXPECT_EQ(gtirb::EA{}, m->getPreferredEA());
 }
 
+TEST(Unit_Module, getISAID)
+{
+    auto m = std::make_shared<gtirb::Module>();
+
+    EXPECT_NO_THROW(m->getISAID());
+    EXPECT_EQ(gtirb::ISAID::Undefined, m->getISAID());
+
+    EXPECT_NO_THROW(m->setISAID(gtirb::ISAID::X64));
+    EXPECT_EQ(gtirb::ISAID::X64, m->getISAID());
+}
+
 TEST(Unit_Module, setPreferredEA)
 {
     auto m = std::make_shared<gtirb::Module>();
@@ -226,15 +237,15 @@ TEST(Unit_Module, getOrCreateImageByteMap)
     EXPECT_FALSE(children.empty());
 }
 
-TEST(Unit_Module, getOrCreateCFG)
+TEST(Unit_Module, getOrCreateCFGSet)
 {
     auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::CFG>(m.get());
+    auto children = gtirb::GetChildrenOfType<gtirb::CFGSet>(m.get());
     EXPECT_TRUE(children.empty());
 
-    EXPECT_NO_THROW(m->getOrCreateCFG());
-    EXPECT_TRUE(m->getOrCreateCFG() != nullptr);
+    EXPECT_NO_THROW(m->getOrCreateCFGSet());
+    EXPECT_TRUE(m->getOrCreateCFGSet() != nullptr);
 
-    children = gtirb::GetChildrenOfType<gtirb::CFG>(m.get());
+    children = gtirb::GetChildrenOfType<gtirb::CFGSet>(m.get());
     EXPECT_FALSE(children.empty());
 }

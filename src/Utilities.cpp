@@ -1,5 +1,13 @@
+#include <gtirb/CFG.hpp>
+#include <gtirb/CFGNode.hpp>
+#include <gtirb/CFGNodeInfoCall.hpp>
+#include <gtirb/CFGSet.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/Utilities.hpp>
+#include <gtirb/NodeUtilities.hpp>
 #include <iostream>
+
+using namespace gtirb;
 
 std::vector<uint16_t> gtirb::utilities::ByteArray8To16(const std::vector<uint8_t>& x, bool swap)
 {
@@ -104,4 +112,103 @@ std::vector<uint64_t> gtirb::utilities::ByteArray8To64(const std::vector<uint8_t
     }
 
     return vec;
+}
+
+///
+/// Helper: Given that cfg is a thunk, discover its forward.
+/// This version walks the CFG (compare get_thunk_targets_via_asts).
+///
+std::pair<gtirb::EA, gtirb::Symbol*> x86GetThunkTarget(const Module* const module,
+                                                       const CFG* const cfg)
+{
+    // We find the thunk's target by exploring at the nCFGnode level.
+    // We assume that cfg contains a single relevant call or indrect node,
+    // and pick up the target from there.
+    // Note that this will pick up the names of imported callees (see
+    // update_imported_callees).
+    // (An alternative approach that examines the ASTs would fail to pick
+    // this up).
+
+    auto allNodes = gtirb::GetChildrenOfType<gtirb::CFGNode>(cfg, true);
+
+    for(auto node : allNodes)
+    {
+        const auto kind = node->getKind();
+
+        if((kind == CFGNode::Kind::Call) || (kind == CFGNode::Kind::Indirect))
+        {
+            auto call = dynamic_cast<CFGNodeInfoCall*>(node->getCFGNodeInfo());
+
+            if(call != nullptr)
+            {
+                /// \todo How is CFGNodeInfoCall->getProcedureName() wired in?  Do we have to set it
+                /// or can we compute it?
+                /// auto callee = call->getProcedureName();
+                auto ea = call->getImportTableEntryEA();
+                // return {ea, callee};
+                return std::pair<gtirb::EA, gtirb::Symbol*>{ea, nullptr};
+            }
+        }
+    }
+
+    return std::pair<gtirb::EA, gtirb::Symbol*>{gtirb::EA{}, nullptr};
+}
+
+std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
+{
+    std::set<CFG*> thunks;
+
+    if(module != nullptr)
+    {
+        auto cfgSet = module->getCFGSet();
+
+        if(cfgSet != nullptr)
+        {
+            // Function signature declaration.
+            std::pair<EA, Symbol*> (*getThunkTargetFunc)(const Module* const module,
+                                                         const CFG* const cfg);
+
+            switch(module->getISAID())
+            {
+                case gtirb::ISAID::IA32:
+                case gtirb::ISAID::X64:
+                    getThunkTargetFunc = &x86GetThunkTarget;
+                    break;
+                case gtirb::ISAID::ARM:
+                    /// \todo getThunkTargetFunc = &s_arm_get_thunk_target;
+                    break;
+                case gtirb::ISAID::PPC32:
+                    /// \todo getThunkTargetFunc = &s_ppc_get_thunk_target;
+                    break;
+                default:
+                    throw std::out_of_range("The ISA ID was invalid.");
+            }
+
+            // Collect thunk targets.
+            for(auto i : *cfgSet)
+            {
+                auto cfg = dynamic_cast<gtirb::CFG*>(i);
+
+                if(cfg != nullptr)
+                {
+                    if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
+                                                      CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK)
+                       == true)
+                    {
+                        auto indirectTarget = (*getThunkTargetFunc)(module, cfg);
+
+                        if(indirectTarget.second != nullptr)
+                        {
+                            // Simple sanity: this assert has been useful for noticing when we
+                            // screw up thunk renaming, for example.
+                            assert(cfg->getProcedureName() != indirectTarget.second->getName());
+                            thunks.insert(cfg);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return thunks;
 }

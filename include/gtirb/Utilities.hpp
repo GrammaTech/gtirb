@@ -2,10 +2,14 @@
 
 #include <cstdint>
 #include <gtirb/Export.hpp>
+#include <set>
 #include <vector>
 
 namespace gtirb
 {
+    class CFG;
+    class Module;
+
     namespace utilities
     {
         ///
@@ -46,6 +50,31 @@ namespace gtirb
         ///
         GTIRB_GTIRB_EXPORT_API std::vector<uint64_t> ByteArray8To64(const std::vector<uint8_t>& x,
                                                                     bool swap = false);
+
+        ///
+        /// \todo   Finish porting this from cfg_thunk_manager.
+        ///
+        GTIRB_GTIRB_EXPORT_API std::set<CFG*> CollectThunks(const Module* const module);
+
+        ///
+        /// Returns true if any of flags are set.
+        ///
+        /// This is a "loose" match.
+        ///
+        constexpr bool IsAnyFlagSet(const uint64_t value, const uint64_t flags)
+        {
+            return (value & flags) != 0x0;
+        }
+
+        ///
+        /// Returns true if all of flags are set.
+        ///
+        /// This is a "strict" match.
+        ///
+        constexpr bool IsFlagSet(const uint64_t value, const uint64_t flags)
+        {
+            return (value & flags) == flags;
+        }
 
         ///
         /// Swap the Endianness of a POD type.

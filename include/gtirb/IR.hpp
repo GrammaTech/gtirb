@@ -27,6 +27,7 @@ namespace gtirb
     ///     moduleAux [label="gtirb::ModuleAux" URL="\ref ModuleAux"]
     ///     addrRanges [label="gtirb::AddrRanges" URL="\ref AddrRanges"]
     ///     region [label="gtirb::Region" URL="\ref Region"]
+    ///     regionSet [label="gtirb::RegionSet" URL="\ref RegionSet"]
     ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
     ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
     ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
@@ -34,6 +35,7 @@ namespace gtirb
     ///     procedureSet [label="gtirb::ProcedureSet" URL="\ref ProcedureSet"]
     ///     instruction [label="gtirb::Instruction" URL="\ref Instruction"]
     ///     cfg [label="gtirb::CFG" URL="\ref CFG"]
+    ///     cfgSet [label="gtirb::CFGSet" URL="\ref CFGSet"]
     ///     cfgNode [label="gtirb::CFGNode" URL="\ref CFGNode"]
     ///     cfgNodeInfoActualIn [label="gtirb::CFGNodeInfoActualIn" URL="\ref CFGNodeInfoActualIn"]
     ///     cfgNodeInfoDeclares [label="gtirb::CFGNodeInfoDeclares" URL="\ref CFGNodeInfoDeclares"]
@@ -46,20 +48,22 @@ namespace gtirb
     ///     module -> moduleCore;
     ///     module -> moduleAux;
     ///     module -> addrRanges;
-    ///     module -> region;
+    ///     module -> regionSet;
+    ///     regionSet -> region;
     ///     module -> symbolSet;
     ///     symbolSet -> symbol;
     ///     module -> imageByteMap;
     ///     module -> procedureSet;
     ///     procedureSet -> procedure;
     ///     procedure -> instruction;
-    ///     module -> cfg;
+    ///     module -> cfgSet;
+    ///     cfgSet -> cfg;
     ///     cfg -> cfgNode;
-    ///     cfgNode -> CFGNodeInfoActualIn;
-    ///     cfgNode -> CFGNodeInfoDeclares;
-    ///     cfgNode -> CFGNodeInfoEntry;
-    ///     cfgNode -> CFGNodeInfoFormalIn;
-    ///     cfgNode -> CFGNodeInfoCall;
+    ///     cfgNode -> cfgNodeInfoActualIn;
+    ///     cfgNode -> cfgNodeInfoDeclares;
+    ///     cfgNode -> cfgNodeInfoEntry;
+    ///     cfgNode -> cfgNodeInfoFormalIn;
+    ///     cfgNode -> cfgNodeInfoCall;
     /// }
     /// \enddot
     ///
