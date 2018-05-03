@@ -128,7 +128,7 @@ endif()
 # ---------------------------------------------------------------------------
 
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-find_package(Boost 1.59 REQUIRED COMPONENTS serialization filesystem system)
+find_package(Boost 1.59 REQUIRED COMPONENTS serialization filesystem system program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------
@@ -200,3 +200,4 @@ if(GTIRB_ENABLE_TESTS)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(utilities)
