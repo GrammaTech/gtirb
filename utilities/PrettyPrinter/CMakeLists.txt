@@ -49,3 +49,7 @@ target_link_libraries(
 	${Boost_LIBRARIES}
 	gtirb
 )
+
+if(GTIRB_ENABLE_TESTS)
+	add_subdirectory(test)
+endif()

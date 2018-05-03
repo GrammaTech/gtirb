@@ -111,3 +111,7 @@ target_link_libraries(
 	${SYSLIBS}
 	${Boost_LIBRARIES}
 	)
+
+if(GTIRB_ENABLE_TESTS)
+	add_subdirectory(test)
+endif()

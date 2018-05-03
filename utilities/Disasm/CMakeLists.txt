@@ -41,10 +41,10 @@ if(NOT GTIRB_FOUND_DATALOG_DECODER)
 endif()
 
 # Find to warn the user...
-find_program(GTIRB_FOUND_DATALOG_DECODER souffle_disasm 
+find_program(GTIRB_FOUND_SOUFFLE_DISASM souffle_disasm 
 	HINTS $ENV{PATH}
 	DOC "souffle_disasm is required to be in your PATH for ${PROJECT_NAME} to execute.")
-if(NOT GTIRB_FOUND_DATALOG_DECODER)
+if(NOT GTIRB_FOUND_SOUFFLE_DISASM)
 	message(WARNING "souffle_disasm was not found in your PATH is required for ${PROJECT_NAME} to properly execute.")
 endif()
 
