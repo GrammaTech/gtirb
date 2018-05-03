@@ -196,8 +196,6 @@ if(GTIRB_ENABLE_TESTS)
 					 EXCLUDE_FROM_ALL)
 
 	include_directories("${gtest_SOURCE_DIR}/include")
-
-	add_subdirectory(src/test)
 endif()
 
 add_subdirectory(src)

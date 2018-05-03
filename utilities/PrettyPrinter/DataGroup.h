@@ -1,8 +1,9 @@
 #pragma once
 
+#include <PrettyPrinter/Export.h>
 #include <cstdint>
 #include <string>
-#include <PrettyPrinter/Export.h>
+#include <vector>
 
 ///
 /// \class DisasmData
