@@ -1,4 +1,4 @@
-#include "Table.h"
+#include <PrettyPrinter/Table.h>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <cassert>

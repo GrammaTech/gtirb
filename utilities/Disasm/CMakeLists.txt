@@ -1,6 +1,4 @@
-SET(PROJECT_NAME gtirbPrettyPrinter)
-
-add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
+SET(PROJECT_NAME gtirbDisasm)
 
 # Required warning suppression (TODO: Remove!)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -16,18 +14,11 @@ elseif(${CMAKE_CXX_COMPILEUR_ID} STREQUAL Clang)
 endif()
 
 set(${PROJECT_NAME}_H
-	DataGroup.h
-	DisasmData.h
-	DisasmTypes.h
-	Export.h
-	PrettyPrinter.h
-	Table.h
+	Logger.h
 )
 
 set(${PROJECT_NAME}_SRC
-	DisasmData.cpp
-	PrettyPrinter.cpp
-	Table.cpp
+	main.cpp
 )
 
 # Unix, but not Cygwin.
@@ -41,11 +32,17 @@ ELSE()
 	)
 endif()
 
-GTIRB_ADD_LIBRARY()
+GTIRB_ADD_EXECUTABLE()
+
+add_dependencies(
+	${PROJECT_NAME} 
+	gtirbPrettyPrinter
+	)
 
 target_link_libraries(
 	${PROJECT_NAME} 
 	${SYSLIBS}
 	${Boost_LIBRARIES}
+	gtirbPrettyPrinter
 	gtirb
 )

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <PrettyPrinter/DisasmTypes.h>
+#include <PrettyPrinter/Export.h>
+#include <PrettyPrinter/Table.h>
 #include <cstdint>
 #include <iosfwd>
 #include <list>
@@ -7,15 +10,12 @@
 #include <string>
 #include <vector>
 
-#include "Table.h"
-#include "DisasmTypes.h"
-
 ///
 /// \class DisasmData
 ///
 /// Port of the prolog disasm.
 ///
-class DisasmData
+class GTIRB_PRETTYPRINTER_EXPORT_API DisasmData
 {
 public:
     ///

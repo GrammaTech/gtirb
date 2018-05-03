@@ -1,1 +1,2 @@
 add_subdirectory(PrettyPrinter)
+add_subdirectory(Disasm)

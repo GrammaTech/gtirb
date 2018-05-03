@@ -1,11 +1,11 @@
+#include <PrettyPrinter/DisasmData.h>
+#include <PrettyPrinter/PrettyPrinter.h>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
 #include <boost/program_options.hpp>
 #include <iomanip>
 #include <iostream>
-#include "DisasmData.h"
 #include "Logger.h"
-#include "PrettyPrinter.h"
 
 int main(int argc, char** argv)
 {
@@ -67,9 +67,10 @@ int main(int argc, char** argv)
             {
                 std::stringstream cmd;
                 cmd << "datalog_decoder --file " << exe << " --dir " << disasmPath
-                   << " --sect .plt.got --sect .fini --sect .init --sect .plt --sect .text --data_sect "
-                      ".data --data_sect .rodata --data_sect .fini_array --data_sect .init_array "
-                      "--data_sect .data.rel.ro --data_sect .got.plt --data_sect .got";
+                    << " --sect .plt.got --sect .fini --sect .init --sect .plt --sect .text "
+                       "--data_sect "
+                       ".data --data_sect .rodata --data_sect .fini_array --data_sect .init_array "
+                       "--data_sect .data.rel.ro --data_sect .got.plt --data_sect .got";
 
                 LOG_DEBUG << cmd.str() << std::endl;
                 LOG_DEBUG << std::endl;
@@ -127,7 +128,6 @@ int main(int argc, char** argv)
                     return EXIT_FAILURE;
                 }
             }
-
         }
         else
         {

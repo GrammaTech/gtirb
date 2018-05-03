@@ -1,11 +1,11 @@
-#include "PrettyPrinter.h"
+#include <PrettyPrinter/DisasmData.h>
+#include <PrettyPrinter/PrettyPrinter.h>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include "DisasmData.h"
 
 ///
 /// Pring a comment that automatically scopes.

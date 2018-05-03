@@ -1,14 +1,13 @@
 #pragma once
 
+#include <PrettyPrinter/DataGroup.h>
+#include <PrettyPrinter/DisasmData.h>
 #include <cstdint>
 #include <iosfwd>
 #include <list>
 #include <map>
 #include <string>
 #include <vector>
-
-#include "DisasmData.h"
-#include "DataGroup.h"
 
 ///
 /// \class PrettyPrinter
@@ -49,14 +48,14 @@ protected:
          "frame_dummy", "__libc_csu_fini", "__libc_csu_init"}};
 
     // Name, Alignment.
-    const std::array<std::pair<std::string, int>, 7> DataSectionDescriptors {{
-        {".got", 8}, //
-        {".got.plt",8}, //
-        {".data.rel.ro",8}, //
-        {".init_array",8}, //
-        {".fini_array",8}, //
-        {".rodata",16}, //
-        {".data",16} //
+    const std::array<std::pair<std::string, int>, 7> DataSectionDescriptors{{
+        {".got", 8},         //
+        {".got.plt", 8},     //
+        {".data.rel.ro", 8}, //
+        {".init_array", 8},  //
+        {".fini_array", 8},  //
+        {".rodata", 16},     //
+        {".data", 16}        //
     }};
 
     void printBar(bool heavy = true);
@@ -96,7 +95,8 @@ protected:
     std::string avoidRegNameConflicts(const std::string& x);
     void printZeros(uint64_t x);
 
-    std::pair<std::string, char> getOffsetAndSign(int64_t offset, uint64_t ea, uint64_t index) const;
+    std::pair<std::string, char> getOffsetAndSign(int64_t offset, uint64_t ea,
+                                                  uint64_t index) const;
     bool getIsPointerToExcludedCode(DataGroup* dg, DataGroup* dgNext);
 
     // Static utility functions.
