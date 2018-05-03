@@ -1,7 +1,5 @@
 SET(PROJECT_NAME gtirbPrettyPrinter)
 
-include_directories(${GTEST_INCLUDE_DIRS})
-
 # Required warning suppression (TODO: Remove!)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	#add_compile_options(-wd4251)  # Non-exportable template classes.
@@ -30,9 +28,11 @@ set(${PROJECT_NAME}_SRC
 	Table.cpp
 )
 
+# Unix, but not Cygwin.
 IF(UNIX AND NOT WIN32)
 	SET(SYSLIBS
 		dl
+		pthread
 	)
 ELSE()
 	SET(SYSLIBS
