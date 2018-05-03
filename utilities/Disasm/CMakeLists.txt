@@ -32,6 +32,22 @@ ELSE()
 	)
 endif()
 
+# Find to warn the user...
+find_program(GTIRB_FOUND_DATALOG_DECODER datalog_decoder 
+	HINTS $ENV{PATH}
+	DOC "datalog_decoder is required to be in your PATH for ${PROJECT_NAME} to execute.")
+if(NOT GTIRB_FOUND_DATALOG_DECODER)
+	message(WARNING "datalog_decoder was not found in your PATH is required for ${PROJECT_NAME} to properly execute.")
+endif()
+
+# Find to warn the user...
+find_program(GTIRB_FOUND_DATALOG_DECODER souffle_disasm 
+	HINTS $ENV{PATH}
+	DOC "souffle_disasm is required to be in your PATH for ${PROJECT_NAME} to execute.")
+if(NOT GTIRB_FOUND_DATALOG_DECODER)
+	message(WARNING "souffle_disasm was not found in your PATH is required for ${PROJECT_NAME} to properly execute.")
+endif()
+
 GTIRB_ADD_EXECUTABLE()
 
 add_dependencies(
