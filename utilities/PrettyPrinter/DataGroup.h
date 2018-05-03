@@ -2,13 +2,14 @@
 
 #include <cstdint>
 #include <string>
+#include <PrettyPrinter/Export.h>
 
 ///
 /// \class DisasmData
 ///
 /// Port of the prolog disasm.
 ///
-class DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroup
 {
 public:
     enum class Type
@@ -48,7 +49,7 @@ private:
 ///
 /// \class DataGroupLabelMarker
 ///
-class DataGroupLabelMarker : public DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroupLabelMarker : public DataGroup
 {
 public:
     DataGroupLabelMarker(uint64_t x) : DataGroup(x)
@@ -68,7 +69,7 @@ private:
 ///
 /// \class DataGroupPLTReference
 ///
-class DataGroupPLTReference : public DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroupPLTReference : public DataGroup
 {
 public:
     DataGroupPLTReference(uint64_t x) : DataGroup(x)
@@ -90,7 +91,7 @@ private:
 ///
 /// \class DataGroupPointer
 ///
-class DataGroupPointer : public DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroupPointer : public DataGroup
 {
 public:
     DataGroupPointer(uint64_t x) : DataGroup(x)
@@ -112,7 +113,7 @@ private:
 ///
 /// \class DataGroupPointerDiff
 ///
-class DataGroupPointerDiff : public DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroupPointerDiff : public DataGroup
 {
 public:
     DataGroupPointerDiff(uint64_t x) : DataGroup(x)
@@ -135,7 +136,7 @@ private:
 ///
 /// \class DataGroupString
 ///
-class DataGroupString : public DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroupString : public DataGroup
 {
 public:
     DataGroupString(uint64_t x) : DataGroup(x)
@@ -157,7 +158,7 @@ private:
 ///
 /// \class DataGroupRawByte
 ///
-class DataGroupRawByte : public DataGroup
+class GTIRB_PRETTYPRINTER_EXPORT_API DataGroupRawByte : public DataGroup
 {
 public:
     DataGroupRawByte(uint64_t x) : DataGroup(x)

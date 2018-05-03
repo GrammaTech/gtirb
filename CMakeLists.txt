@@ -46,6 +46,7 @@ endif()
 
 # Base include path for the GT-IRB library.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utilities)
 
 #
 # Global Options (Compile / Link)
