@@ -9,19 +9,36 @@ GT-IRB is modeled on LLVM-IR, and seeks to serve a similar
 functionality of encouraging communication and interoperability
 between tools.
 
+The remainder of this file has information on GT-IRB's:
+- [Structure](#structure)
+- [Usage](#usage)
+- [Building](#building)
+
+## Structure
 GT-IRB has the following structure:
 
           IR    -----Symbols
-           |   /
-        Modules------Globals
-           |   \
-         IPCFG  -----ErrorHandling
-           |
-         Blocks
+           |   /                            Data Tables
+        Modules------Globals                ----+------
+           |   \                            ID1 | DATA1
+         IPCFG  -----ErrorHandling          ID2 | DATA2
+           |                                ID3 | DATA3
+         Blocks & Edges                     ...
            |
       Instructions-------Symbolic
                  \
                   --------Bytes
+
+### IR
+An instance of GT-IRB may include multiple `module`s which represent
+loadable objects such as executables or libraries.  Each `module`
+holds a list of `symbol`s, a list of `global`s, optional
+`error-handling` information, and an inter-procedural control flow
+graph (`IPCFG`).  The `IPCFG` consists of basic `block`s and control
+flow edges between these `blocks`.  Each `block` holds some number of
+`instructions`.
+
+### Instructions
 
 GT-IRB explicitly does NOT represent instructions but does provide
 symbolic operand information and access to the bytes.  There are many
@@ -33,6 +50,15 @@ Instruction bytes may easily be decoded/encoded using the popular
 [Capstone](https://www.capstone-engine.org)/[Keystone](https://www.keystone-engine.org)
 disassembler/assembler.
 
+### Data Tables
+
+Additional arbitrary information, e.g. analysis results, may be added
+to GT-IRB in the form of data tables.  These tables are keyed by IDs.
+Every element of GT-IRB (namely: `module`s, `symbol`s, `global`s,
+`block`s, and `instruction`s) has a unique associated ID.
+
+## Usage
+
 GT-IRB is designed to be serialized to/from JSON, enabling easy use
 from any programming language.  GT-IRB is also used as a C++ library
 implementing an efficient data structure suitable for use by binary
@@ -42,8 +68,8 @@ This repository defines the GT-IRB data structure and C++ library, and
 builds the following tools for the *manipulation*, *comparison*,
 *sub-setting*, and *validation* of GT-IRB:
 
-| Tool             | Description                                |
-|------------------+--------------------------------------------|
+| Tool               | Description                                |
+|--------------------|--------------------------------------------|
 | `gtirb validate` | Validate an instance of gt-irb             |
 | `gtirb compare`  | Compare two instances of gt-irb            |
 | `gtirb select`   | Select a subset of gt-irb                  |
