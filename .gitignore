@@ -1,8 +1,6 @@
-build/*
-bin/*
-doc/html/*
 *.o
 *.out
+*.pc
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
@@ -12,3 +10,11 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+
+build/
+bin/
+doc/html/
+googletest-download/
+googletest-src/
+gsl-download/
+gsl-src/
