@@ -199,4 +199,3 @@ if(GTIRB_ENABLE_TESTS)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(utilities)
