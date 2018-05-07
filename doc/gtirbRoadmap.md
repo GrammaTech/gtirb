@@ -401,7 +401,7 @@ Each task is focused so that it can be started, completed, and tested on a singl
 
 A single `ModuleIR` contains the IR for only one binary (E.g. a `.o` file).  To look at an entire binary, one must use the `AnalysisEnvironment`.  Currently, `AnalysisEnvironment` is used to group together multiple ModuleIR's.  Unfortunately, the implementation leverages a global _knowledge database_.  The use of the global must be eliminated.  GT-IRB's would begin as an independent structure which encompasses the capabilities of `AnalysisEnvironment` without requiring a global variables.  
 
-Existing code would be re-factored for the first time to use the `gt::Gtir` class in place of the `AnalysisEnvironment`.  On this, further restructuring would be built towards the goal of a complete GT-IRB implementation.
+Existing code would be re-factored for the first time to use the `gtirb::IR` class in place of the `AnalysisEnvironment`.  On this, further restructuring would be built towards the goal of a complete GT-IRB implementation.
 
 ### Segregate the Business Logic from the Data Structure
 
@@ -553,7 +553,7 @@ Phase 4 - Standard Types
 
 Phase 4 will focus on cleaning out the code base and eliminating technical debt. It will leverage the work done in previous phases building out the GT-IRB as stand-along project with a dedicated testing architecture. This phase will introduce some more invasive changes, laying the foundation for the modularization in Phase 5.
 
-Deobfuscation will be one of the primary goals of this phase.  By reducing redirection, renaming, and excessive use of `typedef`, we will be better prepared for re-engineering the architecture.  This phase will see some reduction in the total number of types and more explicitly spelled concepts.  IN the end, we will have fewer object types to manage and more use of standard types (E.g. STL) to leverage during Re-engineering in the next phase.
+De-obfuscation will be one of the primary goals of this phase.  By reducing redirection, renaming, and excessive use of `typedef`, we will be better prepared for re-engineering the architecture.  This phase will see some reduction in the total number of types and more explicitly spelled concepts.  IN the end, we will have fewer object types to manage and more use of standard types (E.g. STL) to leverage during Re-engineering in the next phase.
 
 In the execution of Phase 3, we are ensuring that we have done what we can to move towards our goals without breaking the codebase itself. We will further improve the testing and have processes in place to manage the change that will be introduced in the re-architecture in Phase 4.
 
@@ -595,6 +595,10 @@ Utilizing much of the same infrastructure for the binary on-disk serialization, 
 **ASCII**
 
 Another approach may be to develop our own plain text language, similar to LLVM’s IR. This would be more compact than an XML representation, but we would also have to implement and maintain our own parser.
+
+**JSON**
+
+Output JSON which is highly portable.  This is directly supported by ```boost::serialization```.
 
 Processes
 ---------

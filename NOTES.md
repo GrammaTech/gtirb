@@ -3,11 +3,13 @@
 
 * Tasks [0/8]
 ** TODO JSON serialization
+- Currently code is using a polymorphic serializer.  This can be a JSON serializer with zero code changes.
 
 ** TODO Protobuf serialization
 Maybe?  Not sure if this is worth the effort/complication.
 
 ** TODO Publish to github
+- A public repo on github.com?
 
 ** TODO Configure documentation [0/1]
 - [ ] gh-pages populated by CI system
@@ -21,6 +23,7 @@ Maybe?  Not sure if this is worth the effort/complication.
 ** TODO Be explicit about versioning
 - Include a version number in each instance of the IR.
 - Ensure we're always backwards compatible with previous versions.
+- Use the version number inside serialization functions to provide for backwards compatability.
 
 ** TODO Announcement email to TPCP
 
