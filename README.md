@@ -1,32 +1,98 @@
 GT-IRB
 ======
 
-The GrammaTech Intermediate Representation for Binaries (GT-IRB) is a machine code analysis and rewriting infrastructure.  The GT-IRB is based on GrammaTech's CSurf/SWYX IR.
+The GrammaTech Intermediate Representation for Binaries (GT-IRB) is a
+machine code analysis and rewriting data structure.  It is intended to
+facilitate the communication of binary IR between programs performing
+binary disassembly, analysis, transformation, and pretty printing.
+GT-IRB is modeled on LLVM-IR, and seeks to serve a similar
+functionality of encouraging communication and interoperability
+between tools.
 
-## Project Overview
+The remainder of this file has information on GT-IRB's:
+- [Structure](#structure)
+- [Usage](#usage)
+- [Building](#building)
 
-We have promised to deliver a "binary code IR tailored for rewriting" called GT-IRB.  GT-IRB will be published and available for other performers to write front-ends, analyses, and back-ends against. GT-IRB will be based as much as possible on our existing CSurf/SWYX IR, specifically it will be the subset of our existing IR which we determine to be (i) general and (ii) minimally sufficient for binary rewriting.  Our efforts will include the following:
+## Structure
+GT-IRB has the following structure:
 
-1.  Definition of a specification of GT-IRB.
-2.  Refactoring of CSurf/SWYX to use the specified GT-IRB.
-3.  Implementation of translation facilities to produce GT-IRB from the CSurf/SWYX front-end and consume GT-IRB in CSurf/SWYX back-end.
-4.  Ongoing modularization of CSurf/SWYX into separately compilable components which communicate via GT-IRB.  An initial set of useful components may be: (i) a COTS-binary to GT-IRB front-end, (ii) a GT-IRB to GT-IRB back-end, and (iii) a GT-IRB to assembler pretty printer.
+          IR    -----Symbols
+           |   /                            Data Tables
+        Modules------Globals                ----+------
+           |   \                            ID1 | DATA1
+         IPCFG  -----ErrorHandling          ID2 | DATA2
+           |                                ID3 | DATA3
+         Blocks & Edges                     ...
+           |
+      Instructions-------Symbolic
+                 \
+                  --------Bytes
+
+### IR
+An instance of GT-IRB may include multiple `module`s which represent
+loadable objects such as executables or libraries.  Each `module`
+holds a list of `symbol`s, a list of `global`s, optional
+`error-handling` information, and an inter-procedural control flow
+graph (`IPCFG`).  The `IPCFG` consists of basic `block`s and control
+flow edges between these `blocks`.  Each `block` holds some number of
+`instructions`.
+
+### Instructions
+
+GT-IRB explicitly does NOT represent instructions but does provide
+symbolic operand information and access to the bytes.  There are many
+options for representation of single instructions (e.g.,
+[BAP](https://github.com/BinaryAnalysisPlatform/bap)'s
+[BIL](https://github.com/BinaryAnalysisPlatform/bil/releases/download/v0.1/bil.pdf),
+or [Angr](http://angr.io)'s [Vex](https://github.com/angr/pyvex)).
+Instruction bytes may easily be decoded/encoded using the popular
+[Capstone](https://www.capstone-engine.org)/[Keystone](https://www.keystone-engine.org)
+disassembler/assembler.
+
+### Data Tables
+
+Additional arbitrary information, e.g. analysis results, may be added
+to GT-IRB in the form of data tables.  These tables are keyed by IDs.
+Every element of GT-IRB (namely: `module`s, `symbol`s, `global`s,
+`block`s, and `instruction`s) has a unique associated ID.
+
+## Usage
+
+GT-IRB is designed to be serialized to/from JSON, enabling easy use
+from any programming language.  GT-IRB is also used as a C++ library
+implementing an efficient data structure suitable for use by binary
+analysis and rewriting applications.
+
+This repository defines the GT-IRB data structure and C++ library, and
+builds the following tools for the *manipulation*, *comparison*,
+*sub-setting*, and *validation* of GT-IRB:
+
+| Tool               | Description                                |
+|--------------------|--------------------------------------------|
+| `gtirb validate` | Validate an instance of gt-irb             |
+| `gtirb compare`  | Compare two instances of gt-irb            |
+| `gtirb select`   | Select a subset of gt-irb                  |
+| `gtirb combine`  | Combine some number of instances of gt-irb |
 
 ## Building
 
-GT-IRB should successfully build in 64-bits with GCC, Clang, and Visual Studio compilers supporting at least C++14 (preferably C++17) and uses the Boost libraries.
+GT-IRB should successfully build in 64-bits with GCC, Clang, and
+Visual Studio compilers supporting at least C++14 (preferably C++17)
+and uses the Boost libraries.
 
 ### Installing CMake (For CMake builds only)
 
-The first thing to do is get hold of CMake. You can get it from here or via your package manager (e.g. `yum`, `apt-get`). It is advised to download a stable release and not a release candidate. For Mac/Windows check the option that adds CMake to the system path for all users.
-
-### Installing SCons (For SCons builds only)
-
-[TBD]
+The first thing to do is get hold of CMake. You can get it from here
+or via your package manager (e.g. `yum`, `apt-get`). It is advised to
+download a stable release and not a release candidate. For Mac/Windows
+check the option that adds CMake to the system path for all users.
 
 ### Installing Git
 
-Git is required to fetch the source code. Install with a package manager or from https://git-scm.com/download/win on Windows. Choose the option that adds git and minimal tools to the path.
+Git is required to fetch the source code. Install with a package
+manager or from https://git-scm.com/download/win on Windows. Choose
+the option that adds git and minimal tools to the path.
 
 ### Installing Dependencies
 
@@ -48,14 +114,18 @@ First, you have to install `vcpkg` from its git repository. From a command line,
 C:\vcpkg> git clone https://github.com/Microsoft/vcpkg.git .
 ```
 
-Then, you have to follow the instructions from the `vcpkg` documentation. Normally, during the installation process, it will detect the installed CMake.
+Then, you have to follow the instructions from the `vcpkg`
+documentation. Normally, during the installation process, it will
+detect the installed CMake.
 
 ```
 C:\vcpkg> .\bootstrap-vcpkg.bat
 C:\vcpkg> .\vcpkg integrate install
 ```
 
-This may give you the name of a file for use with CMake.  If so, note it.  You can use this in the CMake configuration later to help it find Boost.
+This may give you the name of a file for use with CMake.  If so, note
+it.  You can use this in the CMake configuration later to help it find
+Boost.
 
 Then, you can install the dependencies:
 
@@ -65,9 +135,11 @@ C:\vcpkg> .\vcpkg install boost
 
 ### Building with CMake
 
-I recommend using the CMake GUI. (`cmake-gui`) 
+I recommend using the CMake GUI. (`cmake-gui`)
 
-Do not do an in-source build.  Specify the location for where to build the binaries (typically a folder called `build`).  It will make the directory if it does not already exist.
+Do not do an in-source build.  Specify the location for where to build
+the binaries (typically a folder called `build`).  It will make the
+directory if it does not already exist.
 
 If you insist on using the command line, then you can do this:
 
@@ -75,13 +147,20 @@ If you insist on using the command line, then you can do this:
 /path/to/gtirb> cmake ./ -Bbuild
 ```
 
-By default, GT-IRB is built with C++17 enabled,  If you get an error stating "`CXX_STANDARD is set to invalid value '17'`", then you have an old compiler.  You can either update your compiler or you can use C++14 instead.  Use the variable `GTIRB_ISO_CPP_VERSION` and set it to `C++14`.  This is a simple drop-down in the GUI, or you can set it from the command line.
+By default, GT-IRB is built with C++17 enabled, If you get an error
+stating "`CXX_STANDARD is set to invalid value '17'`", then you have
+an old compiler.  You can either update your compiler or you can use
+C++14 instead.  Use the variable `GTIRB_ISO_CPP_VERSION` and set it to
+`C++14`.  This is a simple drop-down in the GUI, or you can set it
+from the command line.
 
 ```
 /path/to/gtirb> cmake ./ -Bbuild -DGTIRB_ISO_CPP_VERSION=C++14
 ```
 
-Once CMake configures and generates the project, you will have a native Makefile or Visual Studio Solution inside of `/path/to/gtirb/build`.  
+Once CMake configures and generates the project, you will have a
+native Makefile or Visual Studio Solution inside of
+`/path/to/gtirb/build`.
 
 On Linux, simply run `make`.
 
@@ -89,15 +168,12 @@ On Linux, simply run `make`.
 /path/to/gtirb/build> make -j
 ```
 
-### Building with SCons
-
-[TBD]
-
 ### Running the Tests
+
+**TODO**: Get CMake to provide a `make test` target.
 
 Go into the `bin` folder and execute `TestGTIRB`.
 
 ```
 /path/to/gtirb/bin> ./TestGTIRB
 ```
-
