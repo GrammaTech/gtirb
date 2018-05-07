@@ -7,8 +7,10 @@ ARG CMAKE_VERSION=3.10
 RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
-    apt-get -y update && \
-    apt-get -y install gcc-7 g++-7 make cmake git build-essential binutils doxygen graphviz wget curl
+    apt-get -y update
+RUN apt-get -y install gcc-7 g++-7 make cmake git 
+RUN apt-get -y install build-essential binutils 
+RUN apt-get -y install doxygen graphviz wget curl unzip
 RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-7 60
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-7 60
 
@@ -29,6 +31,20 @@ RUN cd /home && wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/so
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
     |tar -xz --strip-components=1 -C /usr/local
 
+# Install souffle (For the datalog disassembler)
+RUN apt-get -y install bison flex libncurses5-dev libtool libsqlite3-dev mcpp python sqlite zlib1g-dev
+RUN apt-get -y install autoconf automake
+RUN cd /usr/local/src \
+    && git clone https://github.com/souffle-lang/souffle.git \
+    && cd souffle \
+    && pwd \
+    && ls -l \
+    && ./bootstrap \
+    && ./configure \
+    && make \
+    && make install
+
+# Build GT-IRB
 COPY . /gt/gt-irb/
 RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
 RUN mkdir -p /gt/gt-irb/build
