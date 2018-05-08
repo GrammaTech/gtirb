@@ -136,7 +136,7 @@ TEST(Unit_Utilities, CollectThunks_simple)
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
     auto thunks = gtirb::utilities::CollectThunks(module.get());
 
-    ADD_FAILURE_AT("gtirb/src/Utilities.cpp", 147)
+    ADD_FAILURE_AT("src/Utilities.cpp", 147)
         << "This test will fail until we finish the implementation of CFGNode and "
            "CFGNodeInfoCall.  How do we associate "
            "the symbol?  Do we set it explictly within the CFGNode or do we look it up "
