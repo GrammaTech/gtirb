@@ -12,6 +12,10 @@ namespace gtirb
     ///
     /// A base class for Module Regions.
     ///
+    /// \todo   Several different gtirb::Region subclasses may be created to encompass Global,
+    /// Module, Abstract, Heap, Stack, and Extern regions.  What goes into these classes is
+    /// undefined in my notes.
+    ///
     class GTIRB_GTIRB_EXPORT_API Region : public Node
     {
     public:

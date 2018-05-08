@@ -8,6 +8,8 @@ namespace gtirb
     /// \class ModuleAux
     /// \author John E. Farrier
     ///
+    /// \todo   gtirb::ModuleAux can likely be combined into gtirb::Module.
+    ///
     class GTIRB_GTIRB_EXPORT_API ModuleAux : public ModuleSectionBase
     {
     public:

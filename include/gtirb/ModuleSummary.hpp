@@ -8,6 +8,8 @@ namespace gtirb
     /// \class ModuleSummary
     /// \author John E. Farrier
     ///
+    /// \todo   gtirb::ModuleSummary can likely be combined into gtirb::Module.
+    ///
     class GTIRB_GTIRB_EXPORT_API ModuleSummary : public ModuleSectionBase
     {
     public:
