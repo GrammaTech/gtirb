@@ -1,0 +1,180 @@
+digraph quadtree {
+	// title
+	labelloc="t";
+	label="GT-IR Draft Structure";
+	fontsize="48";
+	graph [splines=ortho, nodesep=1.0];
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+
+	GTIR [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="orange">GT-IR</td></tr>
+			<tr><td port="module" border="1">vector{unique_ptr{Module}}</td></tr>
+			<tr><td port="" border="1">{serialization}</td></tr>
+		</table>>
+	]
+
+	GTIR:module -> Module:class [headport=left, tailport=right];
+
+	Module [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">Module</td></tr>
+			<tr><td port="" border="1">Effective Addresses</td></tr>
+			<tr><td port="core" border="1">Core</td></tr>
+			<tr><td port="aux" border="1">Aux</td></tr>
+			<tr><td port="elf" border="1">ELF</td></tr>
+			<tr><td port="procinfo" border="1">Proc Info</td></tr>
+			<tr><td port="ast" border="1">Abstract Syntax Tree</td></tr>
+			<tr><td port="cfg" border="1">Control Flow Graph</td></tr>
+			<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]
+
+	Module:ast -> AST:class [headport=left, tailport=right];
+	Module:cfg -> CFG:class [headport=left, tailport=right];
+	Module:meta -> MetaData:class [headport=left, tailport=right];
+	Module:procinfo -> ProcInfo:class [headport=left, tailport=right];
+	Module:elf -> ELF:class [headport=left, tailport=right];
+	Module:aux -> ModuleAux:class [headport=left, tailport=right];
+	Module:core -> ModuleCore:class [headport=left, tailport=right];
+
+	ModuleAux [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ModuleAux</td></tr>
+			<tr><td port="module" border="1">Module*</td></tr>
+			<tr><td port="" border="1">State</td></tr>
+			<tr><td port="" border="1">LD Info</td></tr>
+			<tr><td port="" border="1">Indirect Targets</td></tr>
+			<tr><td port="" border="1">Jump Tables</td></tr>
+			<tr><td port="" border="1">...</td></tr>
+			<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]
+
+	ModuleAux:module -> Module:class [headport=left, tailport=right];
+	ModuleAux:meta -> MetaData:class [headport=left, tailport=right];
+
+	ModuleCore [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ModuleCore</td></tr>
+			<tr><td port="module" border="1">Module*</td></tr>
+			<tr><td port="" border="1">Debug Information</td></tr>
+			<tr><td port="exemap" border="1">Executable Map</td></tr>
+			<tr><td port="" border="1">...</td></tr>
+			<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]
+
+	ModuleCore:module -> Module:class [headport=left, tailport=right];
+	ModuleCore:meta -> MetaData:class [headport=left, tailport=right];
+	ModuleCore:exemap -> ExecutableMap:class [headport=left, tailport=right];
+
+	MetaData [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">MetaData</td></tr>
+			<tr><td port="" border="1">{Owner}*</td></tr>
+			<tr><td port="" border="1">vector{User Defined NVP}</td></tr>
+		</table>>
+	]
+
+	AST [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">AST</td></tr>
+				<tr><td port="module" border="1">Module*</td></tr>
+				<tr><td port="" border="1">ISA ID</td></tr>
+				<tr><td port="" border="1">Pattern Match Info</td></tr>
+				<tr><td port="" border="1">...</td></tr>
+				<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]
+
+	AST:module -> Module:class [headport=left, tailport=right];
+	AST:meta -> MetaData:class [headport=left, tailport=right];
+
+	CFG [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFG</td></tr>
+				<tr><td port="module" border="1">Module*</td></tr>
+				<tr><td port="" border="1">Number of Edges</td></tr>
+				<tr><td port="" border="1">Proc ID</td></tr>
+				<tr><td port="" border="1">Decl Nodes</td></tr>
+				<tr><td port="" border="1">Call Nodes</td></tr>
+				<tr><td port="" border="1">...</td></tr>
+				<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]
+
+	CFG:module -> Module:class [headport=left, tailport=right];
+	CFG:meta -> MetaData:class [headport=left, tailport=right];
+
+	ProcInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ProcInfo</td></tr>
+				<tr><td port="module" border="1">Module*</td></tr>
+				<tr><td port="" border="1">...</td></tr>
+				<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]
+
+	ProcInfo:module -> Module:class [headport=left, tailport=right];
+	ProcInfo:meta -> MetaData:class [headport=left, tailport=right];
+
+	ELF [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ELF</td></tr>
+			<tr><td port="module" border="1">Module*</td></tr>
+			<tr><td port="" border="1">Raw Data</td></tr>
+			<tr><td port="sections" border="1">Sections[]</td></tr>
+			<tr><td port="" border="1">...</td></tr>
+			<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]		
+
+	ELF:module -> Module:class [headport=left, tailport=right];
+	ELF:sections -> ELFSections:class [headport=left, tailport=right];
+	ELF:meta -> MetaData:class [headport=left, tailport=right];
+
+	ELFSections [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ELF Sections</td></tr>
+			<tr><td port="elf" border="1">ELF*</td></tr>
+			<tr><td port="" border="1">Code</td></tr>
+			<tr><td port="" border="1">Data</td></tr>
+			<tr><td port="" border="1">Names</td></tr>
+			<tr><td port="" border="1">...</td></tr>
+			<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+		</table>>
+	]	
+
+	ELFSections:elf -> ELF:class [headport=left, tailport=right];	
+	ELFSections:meta -> MetaData:class [headport=left, tailport=right];
+
+	ExecutableMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ExecutableMap</td></tr>
+				<tr><td port="owner" border="1">MoculeCore*</td></tr>
+				<tr><td port="meta" border="1">{User Meta Data}</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="COFF" border="1" bgcolor="lightblue">ExecutableMap::Coff</td></tr>
+				<tr><td port="COFF_Data" border="1">Data</td></tr>
+				<tr><td port="" border="1">...</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="ELF" border="1" bgcolor="lightblue">ExecutableMap::Elf</td></tr>
+				<tr><td port="ELF_Data" border="1">Data</td></tr>
+				<tr><td port="" border="1">...</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="MachO" border="1" bgcolor="lightblue">ExecutableMap::MachO</td></tr>
+				<tr><td port="MachO_Data" border="1">Data</td></tr>
+				<tr><td port="" border="1">...</td></tr>
+			<tr><td port="" border="2"></td></tr>
+		</table>>
+	]
+
+	ExecutableMap:owner -> ModuleCore:class [headport=left, tailport=right];
+	ExecutableMap:meta -> MetaData:class [headport=left, tailport=right];
+	ExecutableMap:COFF_Data -> ExecutableDataCoff:class [headport=left, tailport=right];
+	ExecutableMap:ELF_Data -> ExecutableDataElf:class [headport=left, tailport=right];
+	ExecutableMap:MachO_Data -> ExecutableDataMachO:class [headport=left, tailport=right];
+}

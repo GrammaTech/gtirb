@@ -1,0 +1,2528 @@
+digraph quadtree {
+	// title
+	labelloc="t";
+	label="SWYX-IR `Has A` Relationships";
+	fontsize="48";
+	graph [splines=ortho, nodesep=1.0];
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+
+	ModuleIR [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="orange">ModuleIR</td></tr>
+			<tr><td port="" border="1">Aux Read Only</td></tr>
+			<tr><td port="" border="1">Aux Setup Done</td></tr>
+			<tr><td port="" border="1">Cache of Module Name</td></tr>
+			<tr><td port="" border="1">Core Read Only</td></tr>
+			<tr><td port="" border="1">Core Setup Done</td></tr>
+			<tr><td port="" border="1">Module Max Effective Address</td></tr>
+			<tr><td port="" border="1">Module Min Effective Address</td></tr>
+			<tr><td port="" border="1">Node Attribute Map Valid</td></tr>
+			<tr><td port="" border="1">PLT Entries {set}</td></tr>
+			<tr><td port="" border="1">Summary Read Only</td></tr>
+			<tr><td port="" border="1">Summary Setup Done</td></tr>
+			<tr><td port="astmanager" border="1">AST Manager</td></tr>
+			<tr><td port="aux" border="1">Aux</td></tr>
+			<tr><td port="auxpersistentstate" border="1">Aux Persistent State</td></tr>
+			<tr><td port="auxpersistentstatecache" border="1">Aux Persistent State Cache</td></tr>
+			<tr><td port="cacheofnodeattributemap" border="1">Cache of Node Attribute Map {map}</td></tr>
+			<tr><td port="cfgmanager" border="1">CFG Manager</td></tr>
+			<tr><td port="conclanginterpobj" border="1">ConcLangInterpObj</td></tr>
+			<tr><td port="core" border="1">Core</td></tr>
+			<tr><td port="corepersistentstate" border="1">Core Persistent State</td></tr>
+			<tr><td port="corepersistentstatecache" border="1">Core Persistent State Cache</td></tr>
+			<tr><td port="decodermanager" border="1">Decoder Manager</td></tr>
+			<tr><td port="fuildrenumberingmap" border="1">FUID Renumbering Map {map}</td></tr>
+			<tr><td port="namesectionmap" border="1">Name Section Map</td></tr>
+			<tr><td port="namesmanager" border="1">Names Manager</td></tr>
+			<tr><td port="procinfomanager" border="1">ProcInfo Manager</td></tr>
+			<tr><td port="purposemanager" border="1">Purpose Manager</td></tr>
+			<tr><td port="sectioncachebasis" border="1">Section Cache Basis</td></tr>
+			<tr><td port="summary" border="1">Summary</td></tr>
+			<tr><td port="summarypersistentstate" border="1">Summary Persistent State</td></tr>
+			<tr><td port="summarypersistentstatecache" border="1">Summary Persistent State Cache</td></tr>
+			<tr><td port="tsaisaidcache" border="1">TSA ISA ID Cache</td></tr>
+			<tr><td port="typebuilder" border="1">Type Builder</td></tr>
+			<tr><td port="typetable" border="1">Type Table</td></tr>
+		</table>>
+	]
+
+	ModuleIR:astmanager -> ASTManager:class [headport=left, tailport=right];
+	ModuleIR:aux -> ModuleIR_Aux:class [headport=left, tailport=right];
+	ModuleIR:auxpersistentstate -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:auxpersistentstatecache -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:cacheofnodeattributemap -> fcfgnode_attribute_id:class [headport=left, tailport=right];
+	ModuleIR:cfgmanager -> CFGManager:class [headport=left, tailport=right];
+	ModuleIR:conclanginterpobj -> ConcLangInterpObj:class [headport=left, tailport=right];
+	ModuleIR:core -> ModuleIR_Core:class [headport=left, tailport=right];
+	ModuleIR:corepersistentstate -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:corepersistentstatecache -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:decodermanager -> DecoderManager:class [headport=left, tailport=right];
+	ModuleIR:fuildrenumberingmap -> FATUID:class [headport=left, tailport=right];
+	ModuleIR:namesectionmap -> StrSecMMap:class [headport=left, tailport=right];
+	ModuleIR:namesmanager -> NamesManager:class [headport=left, tailport=right];
+	ModuleIR:procinfomanager -> ProcInfoManager:class [headport=left, tailport=right];
+	ModuleIR:purposemanager -> PurposeManager:class [headport=left, tailport=right];
+	ModuleIR:sectioncachebasis -> secTableT:class [headport=left, tailport=right];
+	ModuleIR:summary -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:summarypersistentstate -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:summarypersistentstatecache -> ModuleIR_Summary:class [headport=left, tailport=right];
+	ModuleIR:typebuilder -> TypeBuilder:class [headport=left, tailport=right];
+	ModuleIR:typetable -> TypeTable:class [headport=left, tailport=right];
+	ModuleIR:tsaisaidcache -> tsl_isa_id:class [headport=left, tailport=right];
+
+	ModuleIR_Summary [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ModuleIR_Summary</td></tr>
+			<tr><td port="" border="1">Entry Effective Address</td></tr>
+			<tr><td port="" border="1">File Path</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Preferred Effective Address</td></tr>
+			<tr><td port="" border="1">Rebase Delta</td></tr>
+			<tr><td port="eaprocinfomap" border="1">Effective Address Info Map</td></tr>
+			<tr><td port="entrydecodemode" border="1">Entry Decode Mode</td></tr>
+			<tr><td port="exporttable" border="1">Export Table</td></tr>
+			<tr><td port="fileformat" border="1">File Format</td></tr>
+			<tr><td port="fileinfoast" border="1">File Info AST</td></tr>
+			<tr><td port="filetype" border="1">File Type</td></tr>
+			<tr><td port="globalregion" border="1">Global Region</td></tr>
+			<tr><td port="isaid" border="1">ISA ID</td></tr>
+			<tr><td port="labelmanager" border="1">Label Manager</td></tr>
+			<tr><td port="modulehash" border="1">Module Hash</td></tr>
+			<tr><td port="nodeattriddict" border="1">Node Attr Id Dict</td></tr>
+			<tr><td port="noeaprocinfomap" border="1">No Effective Address ProcInfo</td></tr>
+			<tr><td port="sectionmap" border="1">Section Map</td></tr>
+			<tr><td port="state" border="1">State</td></tr>
+			<tr><td port="uid" border="1">UID</td></tr>
+			<tr><td port="xtypedictionary" border="1">XType Dictionary</td></tr>
+		</table>>
+	]
+
+	ModuleIR_Summary:eaprocinfomap -> EaProcInfoMap:class [headport=left, tailport=right];
+	ModuleIR_Summary:entrydecodemode -> decode_mode_t:class [headport=left, tailport=right];
+	ModuleIR_Summary:exporttable -> fExportTable:class [headport=left, tailport=right];
+	ModuleIR_Summary:fileformat -> file_format_t:class [headport=left, tailport=right];
+	ModuleIR_Summary:fileinfoast -> NAST:class [headport=left, tailport=right];
+	ModuleIR_Summary:filetype -> file_type_t:class [headport=left, tailport=right];
+	ModuleIR_Summary:globalregion -> MemRegion:GlobalRegion:class [headport=left, tailport=right];
+	ModuleIR_Summary:isaid -> tsl_isa_id:class [headport=left, tailport=right];
+	ModuleIR_Summary:labelmanager -> MemRegion:LabelManager;
+	ModuleIR_Summary:modulehash -> cs_hash_t:class [headport=left, tailport=right];
+	ModuleIR_Summary:nodeattriddict -> fCFGNodeAttributeIDDict:class [headport=left, tailport=right];
+	ModuleIR_Summary:noeaprocinfomap -> ProcInfoDict:class [headport=left, tailport=right];
+	ModuleIR_Summary:sectionmap -> secTableT:class [headport=left, tailport=right];
+	ModuleIR_Summary:state -> IRStoreState:class [headport=left, tailport=right];
+	ModuleIR_Summary:uid -> cs_uid:class [headport=left, tailport=right];
+	ModuleIR_Summary:xtypedictionary -> XTypeDict:class [headport=left, tailport=right];
+
+	ModuleIR_Core [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ModuleIR_Core</td></tr>
+			<tr><td port="debuginformation" border="1">Debug Information</td></tr>
+			<tr><td port="dismodhints" border="1">Dismod Hints</td></tr>
+			<tr><td port="exemap" border="1">EXE Map</td></tr>
+			<tr><td port="importtable" border="1">Import Table</td></tr>
+			<tr><td port="loadedfilemap" border="1">Loaded File Map</td></tr>
+			<tr><td port="state" border="1">State</td></tr>
+			<tr><td port="xtypedatabase" border="1">XType Database</td></tr>
+		</table>>
+	]
+
+	ModuleIR_Core:debuginformation -> DialFatStoreT:class [headport=left, tailport=right];
+	ModuleIR_Core:dismodhints -> DisModHintsSet:class [headport=left, tailport=right];
+	ModuleIR_Core:exemap -> fExecutableMapper:class [headport=left, tailport=right];
+	ModuleIR_Core:importtable -> fImportTableMap:fImportTable;
+	ModuleIR_Core:loadedfilemap -> fLoadedFileMapper:class [headport=left, tailport=right];
+	ModuleIR_Core:state -> IRStoreState:class [headport=left, tailport=right];
+	ModuleIR_Core:xtypedatabase -> fXTypeDb:class [headport=left, tailport=right];
+
+	ModuleIR_Aux [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ModuleIR_Aux</td></tr>
+			<tr><td port="state" border="1">State</td></tr>
+			<tr><td port="astmanager" border="1">AST Manager</td></tr>
+			<tr><td port="cfgmanager" border="1">CFG Manager</td></tr>
+			<tr><td port="objinfotable" border="1">Object Info Table</td></tr>
+			<tr><td port="ldinfo" border="1">LD Info</td></tr>
+			<tr><td port="sectionnodeinfomap" border="1">Section Node Info Map</td></tr>
+			<tr><td port="indirecttargets" border="1">Indirect Targets</td></tr>
+			<tr><td port="jumptables" border="1">Jump Tables</td></tr>
+			<tr><td port="symboltopurposesmap" border="1">Symbol To Purposes Map</td></tr>
+			<tr><td port="earegionsourcemap" border="1">Effective Address Region Source Map</td></tr>
+			<tr><td port="hiddenexportmap" border="1">Hidden Export Map</td></tr>
+		</table>>
+	]
+
+	ModuleIR_Aux:state -> IRStoreState:class [headport=left, tailport=right];
+	ModuleIR_Aux:astmanager -> ASTManager:class [headport=left, tailport=right];
+	ModuleIR_Aux:cfgmanager -> CFGManager:class [headport=left, tailport=right];
+	ModuleIR_Aux:objinfotable -> ObjInfoTable:class [headport=left, tailport=right];
+	ModuleIR_Aux:ldinfo -> LdInfo:class [headport=left, tailport=right];
+	ModuleIR_Aux:sectionnodeinfomap -> SectNodeInfoMap:class [headport=left, tailport=right];
+	ModuleIR_Aux:indirecttargets -> EaIndirectflagsMap:class [headport=left, tailport=right];
+	ModuleIR_Aux:jumptables -> EaJtARSMap:class [headport=left, tailport=right];
+	ModuleIR_Aux:symboltopurposesmap -> fSymbolfPurposeSetMap:class [headport=left, tailport=right];
+	ModuleIR_Aux:earegionsourcemap -> EaRegionSourceMap:class [headport=left, tailport=right];
+	ModuleIR_Aux:hiddenexportmap -> HiddenExportMap:class [headport=left, tailport=right];
+
+	CFG [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFG</td></tr>
+			<tr><td port="" border="1">Client Field {void}</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Flags</td></tr>
+			<tr><td port="" border="1">Frame Base</td></tr>
+			<tr><td port="" border="1">Itterator Support</td></tr>
+			<tr><td port="" border="1">Num of Edges</td></tr>
+			<tr><td port="" border="1">Number of Formals</td></tr>
+			<tr><td port="" border="1">Proc ID</td></tr>
+			<tr><td port="attributeid" border="1">Attribute ID {map}</td></tr>
+			<tr><td port="basicblocks" border="1">Basic Blocks {vector}</td></tr>
+			<tr><td port="decodemode" border="1">Decode Mode</td></tr>
+			<tr><td port="fast" border="1">fAST</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+			<tr><td port="ncfgnode_01" border="1">First</td></tr>
+			<tr><td port="ncfgnode_02" border="1">Body</td></tr>
+			<tr><td port="ncfgnode_03" border="1">Pre-End</td></tr>
+			<tr><td port="ncfgnode_04" border="1">Last</td></tr>
+			<tr><td port="ncfgnode_05" border="1">Node {vector}</td></tr>
+			<tr><td port="ncfgnode_06" border="1">Decl Nodes {set}</td></tr>
+			<tr><td port="ncfgnode_07" border="1">Call Nodes {set}</td></tr>
+			<tr><td port="ncfgnode_08" border="1">Return Nodes {set}</td></tr>
+			<tr><td port="procinfo" border="1">Proc Info</td></tr>
+			<tr><td port="saverestore" border="1">Save Restore {set}</td></tr>
+			<tr><td port="thirdpartyattributes" border="1">3rd Party Attributes {vector}</td></tr>
+		</table>>
+	]
+
+	CFG:attributeid -> attribute_id:class [headport=left, tailport=right];
+	CFG:basicblocks -> nCFGBasicBlock:class [headport=left, tailport=right];
+	CFG:decodemode -> decode_mode_t:class [headport=left, tailport=right];
+	CFG:fast -> fAST:class [headport=left, tailport=right];
+	CFG:moduleir -> ModuleIR:class [headport=left, tailport=right];
+	CFG:ncfgnode_01 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:ncfgnode_02 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:ncfgnode_03 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:ncfgnode_04 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:ncfgnode_05 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:ncfgnode_06 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:ncfgnode_07 -> nCFGnode:class [headport=left, tailport=right];
+	CFG:procinfo -> fProcInfo:class [headport=left, tailport=right];
+	CFG:saverestore -> SaveRestore:class [headport=left, tailport=right];
+	CFG:thirdpartyattributes -> CFGAttribute:class [headport=left, tailport=right];
+
+	nCFGnode [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">nCFGnode</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Flags</td></tr>
+			<tr><td port="" border="1">Instruction SP Delta</td></tr>
+			<tr><td port="" border="1">Key in .pos</td></tr>
+			<tr><td port="" border="1">Model Name</td></tr>
+			<tr><td port="" border="1">Node Kind {enum}</td></tr>
+			<tr><td port="" border="1">P Assigned {array}</td></tr>
+			<tr><td port="" border="1">P Killed {array}</td></tr>
+			<tr><td port="" border="1">P Used {array}</td></tr>
+			<tr><td port="" border="1">Predecessors Exe {array}</td></tr>
+			<tr><td port="" border="1">Successors Exe {array}</td></tr>
+			<tr><td port="attributeidtable" border="1">Attr. ID Table {map}</td></tr>
+			<tr><td port="clientfield" border="1">Client Field</td></tr>
+			<tr><td port="decodemode" border="1">Decode Mode</td></tr>
+			<tr><td port="ehinfo" border="1">EH Info</td></tr>
+			<tr><td port="fast" border="1">fAST</td></tr>
+			<tr><td port="fatattributes" border="1">Fat Attributes {vector}</td></tr>
+			<tr><td port="fcfgnode" border="1">Fat CFG Node</td></tr>
+			<tr><td port="fsymbol_01" border="1">Def'd Sym {set}</td></tr>
+			<tr><td port="fsymbol_02" border="1">Cond Killed Sym {set}</td></tr>
+			<tr><td port="fsymbol_03" border="1">Decl Used Sym {set}</td></tr>
+			<tr><td port="ncfgnodeparent" border="1">Parent_t</td></tr>
+			<tr><td port="nodespecificinfo" border="1">Node Specific Info</td></tr>
+			<tr><td port="predecessors" border="1">Predecessors {array}</td></tr>
+			<tr><td port="relbpexpr" border="1">Rel BP Expr.</td></tr>
+			<tr><td port="relspexpr" border="1">Rel SP Expr.</td></tr>
+			<tr><td port="successors" border="1">Successors {array}</td></tr>
+			<tr><td port="thinattributes" border="1">Thin Attributes {vector}</td></tr>
+		</table>>
+	]
+
+	nCFGnode:attributeidtable -> attribute_id:class [headport=left, tailport=right];
+	nCFGnode:clientfield -> x86_client_field:class [headport=left, tailport=right];
+	nCFGnode:decodemode -> decode_mode_t:class [headport=left, tailport=right];
+	nCFGnode:ehinfo -> fEhInfo:class [headport=left, tailport=right];
+	nCFGnode:fast -> fAST:class [headport=left, tailport=right];
+	nCFGnode:fatattributes -> fCFGNodeAttribute:class [headport=left, tailport=right];
+	nCFGnode:fcfgnode -> fCFGnode:class [headport=left, tailport=right];
+	nCFGnode:fsymbol_01 -> fSymbol:class [headport=left, tailport=right];
+	nCFGnode:fsymbol_02 -> fSymbol:class [headport=left, tailport=right];
+	nCFGnode:fsymbol_03 -> fSymbol:class [headport=left, tailport=right];
+	nCFGnode:ncfgnodeparent -> nCFGnode:class [style=dashed, color=red];
+	nCFGnode:nodespecificinfo -> NSI:class [headport=left, tailport=right];
+	nCFGnode:predecessors -> nCFGnode:class [style=dashed, color=red];
+	nCFGnode:relbpexpr -> SpAdjLinearCombination:class [headport=left, tailport=right];
+	nCFGnode:relspexpr -> SpAdjLinearCombination:class [headport=left, tailport=right];
+	nCFGnode:successors -> nCFGnode:class [style=dashed, color=red];
+	nCFGnode:thinattributes -> CFGNodeAttribute:class [headport=left, tailport=right];
+
+	nCFGBasicBlock [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">nCFGBasicBlock</td></tr>
+			<tr><td port="" border="1">Client {void}</td></tr>
+			<tr><td port="leader" border="1">Leader</td></tr>
+			<tr><td port="parent" border="1">Parent</td></tr>
+			<tr><td port="tail" border="1">Tail</td></tr>
+		</table>>
+	]
+
+	nCFGBasicBlock:leader -> nCFGnode:class [headport=left, tailport=right];
+	nCFGBasicBlock:parent -> nCFG:class [headport=left, tailport=right];
+	nCFGBasicBlock:tail -> nCFGnode:class [headport=left, tailport=right];
+
+	SpAdjLinearCombination [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SpAdjLinearCombination</td></tr>
+			<tr><td port="" border="1">Constant Coefficient</td></tr>
+			<tr><td port="dictionary" border="1">Dictionary</td></tr>
+		</table>>
+	]
+
+	SpAdjLinearCombination:dictionary -> SAVar2CoeffDict:class [headport=left, tailport=right];
+
+	SAVar2CoeffDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SAVar2CoeffDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	SAVar2CoeffDict:struct -> SpAdjVarBase:class [headport=left, tailport=right];
+
+	fProcInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fProcInfo</td></tr>
+			<tr><td port="" border="1">Analysis Model Name</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Flags</td></tr>
+			<tr><td port="" border="1">Frame Base</td></tr>
+			<tr><td port="" border="1">Return Address Offset</td></tr>
+			<tr><td port="" border="1">Return Address Size</td></tr>
+			<tr><td port="" border="1">RTLM File Name</td></tr>
+			<tr><td port="" border="1">Save Register Offset</td></tr>
+			<tr><td port="" border="1">Save Register Size</td></tr>
+			<tr><td port="" border="1">Typestring ID</td></tr>
+			<tr><td port="eaaddressranges" border="1">EA Address Ranges</td></tr>
+			<tr><td port="earegionheapmap" border="1">EA Region Heap Map</td></tr>
+			<tr><td port="importentry" border="1">Import Entry</td></tr>
+			<tr><td port="moduleircache" border="1">Module IR Cache</td></tr>
+			<tr><td port="moduleirsummary" border="1">Module IR Summary</td></tr>
+			<tr><td port="procname" border="1">Proc Name</td></tr>
+			<tr><td port="registerlocalizations" border="1">Register Localizations</td></tr>
+			<tr><td port="savedrestoredsymbols" border="1">Saved Restored Symbols</td></tr>
+			<tr><td port="spadjust" border="1">SP Adjust</td></tr>
+			<tr><td port="summarizedregistercondkilled" border="1">Summarized Register Cond Killed</td></tr>
+			<tr><td port="summarizedregisteruncondkilled" border="1">Summarized Register Uncond Killed</td></tr>
+			<tr><td port="symboltable" border="1">Symbol Table</td></tr>
+			<tr><td port="xtype" border="1">XType</td></tr>
+		</table>>
+	]
+
+	fProcInfo:eaaddressranges -> FatAddrRanges:class [headport=left, tailport=right];
+	fProcInfo:earegionheapmap -> EaHeapRegionMap:class [headport=left, tailport=right];
+	fProcInfo:importentry -> fImportTableEntry:class [headport=left, tailport=right];
+	fProcInfo:moduleircache -> ModuleIR:class [headport=left, tailport=right];
+	fProcInfo:moduleirsummary -> ModuleIR_Summary:class [headport=left, tailport=right];
+	fProcInfo:procname -> fSymbol:class [headport=left, tailport=right];
+	fProcInfo:registerlocalizations -> fSymbolfSymbolMap:class [headport=left, tailport=right];
+	fProcInfo:savedrestoredsymbols -> fSymbolfSymbolMap:class [headport=left, tailport=right];
+	fProcInfo:spadjust -> fSymbol:class [headport=left, tailport=right];
+	fProcInfo:summarizedregistercondkilled -> fSymbolSet:class [headport=left, tailport=right];
+	fProcInfo:summarizedregisteruncondkilled -> fSymbolSet:class [headport=left, tailport=right];
+	fProcInfo:symboltable -> MemRegion:ARSymbolTable;
+	fProcInfo:xtype -> XType:class [headport=left, tailport=right];
+
+	NSI [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">NSI</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="NSI_call" border="1" bgcolor="lightblue">NSI_call</td></tr>
+				<tr><td port="" border="1">Flags</td></tr>
+				<tr><td port="" border="1">Import Table Entry Address</td></tr>
+				<tr><td port="" border="1">Return Adjustment</td></tr>
+				<tr><td port="" border="1">Standard Call Adjust</td></tr>
+				<tr><td port="NSI_call_callee" border="1">Callee</td></tr>
+				<tr><td port="NSI_call_procnamefordirectcalls" border="1">Proc Name for Direct Calls</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="NSI_entry" border="1" bgcolor="lightblue">NSI_entry</td></tr>
+				<tr><td port="NSI_entry_procname" border="1">Callee</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="NSI_decl" border="1" bgcolor="lightblue">NSI_decl</td></tr>
+				<tr><td port="NSI_decl_procname" border="1">Callee</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="NSI_actual_in" border="1" bgcolor="lightblue">NSI_actual_in</td></tr>
+				<tr><td port="" border="1">Flag for Non-Structs</td></tr>
+				<tr><td port="" border="1">Flag for Structs</td></tr>
+				<tr><td port="" border="1">Frame Offset of Actual</td></tr>
+				<tr><td port="" border="1">Frame Offset of Formal</td></tr>
+				<tr><td port="" border="1">Key</td></tr>
+				<tr><td port="" border="1">Rank</td></tr>
+				<tr><td port="" border="1">Size</td></tr>
+				<tr><td port="NSI_actual_in_reg" border="1">Reg</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="NSI_formal_in" border="1" bgcolor="lightblue">NSI_formal_in</td></tr>
+				<tr><td port="NSI_formal_in_name" border="1">Reg</td></tr>
+				<tr><td port="NSI_formal_in_reg" border="1">Name</td></tr>
+		</table>>
+	]
+
+	NSI:NSI_actual_in_reg -> fSymbol:class [headport=left, tailport=right];
+	NSI:NSI_call_callee -> nCFG:class [headport=left, tailport=right];
+	NSI:NSI_call_procnamefordirectcalls -> fSymbol:class [headport=left, tailport=right];
+	NSI:NSI_decl_procname -> fSymbol:class [headport=left, tailport=right];
+	NSI:NSI_entry_procname -> fSymbol:class [headport=left, tailport=right];
+	NSI:NSI_formal_in_name -> fSymbol:class [headport=left, tailport=right];
+	NSI:NSI_formal_in_reg -> fSymbol:class [headport=left, tailport=right];
+
+	fSymbol [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fSymbol</td></tr>
+			<tr><td port="" border="1">CSurf Name</td></tr>
+			<tr><td port="" border="1">Dec Kind {enum}</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Element Bits</td></tr>
+			<tr><td port="" border="1">Global Status {enum}</td></tr>
+			<tr><td port="" border="1">Is Imp</td></tr>
+			<tr><td port="" border="1">Is Thunk</td></tr>
+			<tr><td port="" border="1">Link Type {enum}</td></tr>
+			<tr><td port="" border="1">Misc. Flags</td></tr>
+			<tr><td port="" border="1">Name No Base Idx</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Offset</td></tr>
+			<tr><td port="" border="1">Register Index</td></tr>
+			<tr><td port="" border="1">Storage Kind {enum}</td></tr>
+			<tr><td port="" border="1">Total Bits</td></tr>
+			<tr><td port="codesurferbackendfcell" border="1">Codesurfer Back-End FCELL</td></tr>
+			<tr><td port="codesurfernamehashes" border="1">Codesurfer Name Hashes</td></tr>
+			<tr><td port="declarationast" border="1">Declaration AST</td></tr>
+			<tr><td port="memregion" border="1">Mem Region</td></tr>
+			<tr><td port="replacementsymbol" border="1">Replacement Symbol</td></tr>
+			<tr><td port="structchildren" border="1">Struct Children {map}</td></tr>
+			<tr><td port="structparent" border="1">Struct Parent</td></tr>
+			<tr><td port="symbolforwardto" border="1">Symbol Forward To</td></tr>
+			<tr><td port="symbolnamekind" border="1">Symbol Name Kind</td></tr>
+			<tr><td port="type" border="1">Type</td></tr>
+		</table>>
+	]
+
+	fSymbol:codesurferbackendfcell -> FCELL:class [headport=left, tailport=right];
+	fSymbol:codesurfernamehashes -> NameHashes:class [headport=left, tailport=right];
+	fSymbol:declarationast -> fAST:class [headport=left, tailport=right];
+	fSymbol:memregion -> MemRegion:class [headport=left, tailport=right];
+	fSymbol:replacementsymbol -> fSymbol:class [style=dashed, color=red];
+	fSymbol:structchildren -> fUintSymbolMap:class [headport=left, tailport=right];
+	fSymbol:structparent -> fSymbol:class [style=dashed, color=red];
+	fSymbol:symbolforwardto -> fSymbol:class [style=dashed, color=red];
+	fSymbol:symbolnamekind -> sym_name_kind:class [headport=left, tailport=right];
+	fSymbol:type -> XType:class [headport=left, tailport=right];
+
+	SaveRestore [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SaveRestore</td></tr>
+			<tr><td port="" border="1">Restored Register Range {pair}</td></tr>
+			<tr><td port="" border="1">Saved Register Range {pair}</td></tr>
+			<tr><td port="referencecount" border="1">Reference Count</td></tr>
+			<tr><td port="restoredregister" border="1">Restored Register</td></tr>
+			<tr><td port="restorenode" border="1">RestoreNode</td></tr>
+			<tr><td port="savedregister" border="1">Saved Register</td></tr>
+			<tr><td port="savenode" border="1">SaveNode</td></tr>
+		</table>>
+	]
+
+	SaveRestore:savenode -> nCFGnode:class [headport=left, tailport=right];
+	SaveRestore:restorenode -> nCFGnode:class [headport=left, tailport=right];
+	SaveRestore:savedregister -> regRefPtr:class [headport=left, tailport=right];
+	SaveRestore:restoredregister -> regRefPtr:class [headport=left, tailport=right];
+	SaveRestore:referencecount -> RefCounter:class [headport=left, tailport=right];
+
+	fCFGNodeAttribute  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fCFGNodeAttribute</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fsymbolsetattribute" border="1" bgcolor="lightblue">fSymbolSetAttribute</td></tr>
+				<tr><td port="fsymbolsetattribute_symbolset" border="1">Symbol Set</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="regtypes" border="1" bgcolor="lightblue">RegTypes</td></tr>
+				<tr><td port="regtypes_inlists" border="1">In Lists {list{pair}}</td></tr>
+				<tr><td port="regtypes_outlists" border="1">Out Lists {list{pair}}</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="flagset" border="1" bgcolor="lightblue">FlagSet</td></tr>
+				<tr><td port="" border="1">Data</td></tr>
+		</table>>
+	]
+
+	fCFGNodeAttribute:fsymbolsetattribute_symbolset -> fSymbolSet:class [headport=left, tailport=right];
+	fCFGNodeAttribute:regtypes_inlists -> fSymbol:class [headport=left, tailport=right];
+	fCFGNodeAttribute:regtypes_inlists -> XType:class [headport=left, tailport=right];
+	fCFGNodeAttribute:regtypes_outlists -> fSymbol:class [headport=left, tailport=right];
+	fCFGNodeAttribute:regtypes_outlists -> XType:class [headport=left, tailport=right];
+
+	XType [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">XType</td></tr>
+			<tr><td port="ast" border="1">AST</td></tr>
+		</table>>
+	]
+
+	XType:ast -> cs_ast:class [headport=left, tailport=right];
+
+	cs_ast [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">cs_ast</td></tr>
+			<tr><td port="struct" border="1">ast</td></tr>
+		</table>>
+	]
+
+	cs_ast:struct -> __cs_ast:class [headport=left, tailport=right];
+
+	__cs_ast [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">__cs_ast</td></tr>
+			<tr><td port="__cs_data_ast" border="1">__cs_data_ast</td></tr>
+			<tr><td port="__cs_data_ast_class" border="1">__cs_data_ast_class</td></tr>
+		</table>>
+	]
+
+	__cs_ast:__cs_data_ast -> cs_ast_value:class [headport=left, tailport=right];
+	__cs_ast:__cs_data_ast_class -> cs_ast_class:class [headport=left, tailport=right];
+
+	cs_ast_value [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">cs_ast_value</td></tr>
+			<tr><td port="struct" border="1">ast</td></tr>
+		</table>>
+	]
+
+	cs_ast_value:struct -> __cs_ast_value:class [headport=left, tailport=right];
+
+	cs_ast_class [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_ast_class</td></tr>
+			<tr><td port="struct" border="1">{typedef csuint32}</td></tr>
+		</table>>
+	]
+
+	__cs_ast_value [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">__cs_ast_value</td></tr>
+			<tr><td port="struct" border="1">{struct csuint64}</td></tr>
+		</table>>
+	]
+
+	CFGAttribute [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFGAttribute</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="cfgattributetemplate" border="1" bgcolor="lightblue">CFGAttributeTemplate</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="arasp0cfgattr" border="1" bgcolor="lightgray">AraSp0CFGAttr</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="dgasi_cfg_attributes" border="1" bgcolor="lightgray">DGASI_CFG_Attributes</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="gmodattributeforcfg" border="1" bgcolor="lightgray">GmodAttributeForCFG</td></tr>
+		</table>>
+	]
+
+	fCFGnode [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fCFGnode</td></tr>
+			<tr><td port="attributes" border="1">Attributes {vector}</td></tr>
+			<tr><td port="procinfo" border="1">Proc Info</td></tr>
+		</table>>
+	]
+
+	fCFGnode:procinfo -> fProcInfo:class [headport=left, tailport=right];
+	fCFGnode:attributes -> fCFGNodeAttribute:class [headport=left, tailport=right];
+
+	fEhInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fEhInfo</td></tr>
+			<tr><td port="" border="1">Actions {vector}</td></tr>
+			<tr><td port="" border="1">Landing Pad</td></tr>
+			<tr><td port="" border="1">Personality</td></tr>
+			<tr><td port="" border="1">Type Table 2</td></tr>
+			<tr><td port="row" border="1">Row</td></tr>
+			<tr><td port="typetable1" border="1">Type Table 1</td></tr>
+		</table>>
+	]
+
+	fEhInfo:typetable1 -> fIndexEaMap:class [headport=left, tailport=right];
+	fEhInfo:row -> Row:class [headport=left, tailport=right];
+
+	NameHashes [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">NameHashes</td></tr>
+			<tr><td port="" border="1">Hash Name</td></tr>
+			<tr><td port="" border="1">Hash Alpha</td></tr>
+			<tr><td port="" border="1">Hash Beta</td></tr>
+		</table>>
+	]
+
+	fSymbolSet [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fSymbolSet</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fSymbolSet:struct -> fSymbol:class [headport=left, tailport=right];
+
+	fImportTableEntry [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fImportTableEntry</td></tr>
+			<tr><td port="" border="1">Copy</td></tr>
+			<tr><td port="" border="1">DLL Name</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Function Name</td></tr>
+			<tr><td port="" border="1">Ordinal or Hint</td></tr>
+		</table>>
+	]
+
+	fSymbolfSymbolMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fSymbolfSymbolMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fSymbolfSymbolMap:struct -> fSymbol:class [headport=left, tailport=right];
+
+	MemRegion [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">MemRegion</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="AbstractRegion" border="1" bgcolor="lightblue">MemRegion::AbstractRegion</td></tr>
+				<tr><td port="" border="1">Name</td></tr>
+				<tr><td port="abstractregion_symboldictionary" border="1">Symbol Dictionary</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="ARSymbolTable" border="1" bgcolor="lightblue">MemRegion::ARSymbolTable</td></tr>
+				<tr><td port="" border="1">Process ID</td></tr>
+				<tr><td port="arsymboltable_namesymbolmap" border="1">Name Symbol Map</td></tr>
+				<tr><td port="arsymboltable_offsetregionscopeinfo" border="1">Offset Region Scope Information</td></tr>
+				<tr><td port="arsymboltable_offsetsymbolmap" border="1">Offset Symbol Map</td></tr>
+				<tr><td port="arsymboltable_procinfo" border="1">ProcInfo</td></tr>
+				<tr><td port="arsymboltable_resultsymbols" border="1">Result Symbols</td></tr>
+				<tr><td port="arsymboltable_returnsymbol" border="1">Return Symbol</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="ExternRegion" border="1" bgcolor="lightblue">MemRegion::ExternRegion</td></tr>
+				<tr><td port="externregion_data" border="1">Data</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="GlobalRegion" border="1" bgcolor="lightblue">MemRegion::GlobalRegion</td></tr>
+				<tr><td port="globalregion_easymbolmap" border="1">EA Symbol Map</td></tr>
+				<tr><td port="globalregion_dualcodesymbols" border="1">Dual Code Symbols</td></tr>
+				<tr><td port="globalregion_noeasymbols" border="1">No EA Symbols</td></tr>
+				<tr><td port="globalregion_namesymbolmap" border="1">Name Symbol Map</td></tr>
+				<tr><td port="globalregion_codesurfernamesymbolmap" border="1">Codesurfer Name Symbol Map</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="LabelManager" border="1" bgcolor="lightblue">MemRegion::GlobalRegion::LabelManager</td></tr>
+				<tr><td port="labelmanager_moduleir" border="1">ModuleIR</td></tr>
+				<tr><td port="labelmanager_moduleirsummary" border="1">ModuleIR Summary</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="HeapRegion" border="1" bgcolor="lightblue">MemRegion::HeapRegion</td></tr>
+				<tr><td port="" border="1">Heap Subtype {enum}</td></tr>
+				<tr><td port="" border="1">Name</td></tr>
+				<tr><td port="heapregion_companionmrab" border="1">Companion MRAB</td></tr>
+				<tr><td port="heapregion_companionnmrab" border="1">Companion NMRAB</td></tr>
+				<tr><td port="heapregion_companiondistinct" border="1">Companion Distinct {vector}</td></tr>
+				<tr><td port="heapregion_offsetsymbolmap" border="1">Offset Symbol Map</td></tr>
+				<tr><td port="heapregion_countsymbols" border="1">Count Symbols</td></tr>
+				<tr><td port="heapregion_sizesymbols" border="1">Size Symbols</td></tr>
+				<tr><td port="heapregion_callsiteprocinfo" border="1">Callsite Proc Info</td></tr>
+		</table>>
+	]
+
+	MemRegion:abstractregion_symboldictionary -> fSymbolDict:class [headport=left, tailport=right];
+	MemRegion:arsymboltable_offsetsymbolmap -> fIntSymbolMap:class [headport=left, tailport=right];
+	MemRegion:arsymboltable_returnsymbol -> fSymbol:class [headport=left, tailport=right];
+	MemRegion:arsymboltable_resultsymbols -> fSymbolDict:class [headport=left, tailport=right];
+	MemRegion:arsymboltable_namesymbolmap -> fSymbolDict:class [headport=left, tailport=right];
+	MemRegion:arsymboltable_procinfo -> fProcInfo:class [headport=left, tailport=right];
+	MemRegion:arsymboltable_offsetregionscopeinfo -> fScopeMap:class [headport=left, tailport=right];
+	MemRegion:externregion_data -> fSymbol:class [headport=left, tailport=right];
+	MemRegion:globalregion_easymbolmap -> fEaSymbolMap:class [headport=left, tailport=right];
+	MemRegion:globalregion_dualcodesymbols -> fEaSymbolMap:class [headport=left, tailport=right];
+	MemRegion:globalregion_noeasymbols -> fSymbolSet:class [headport=left, tailport=right];
+	MemRegion:globalregion_namesymbolmap -> fSymbolDictionary:class [headport=left, tailport=right];
+	MemRegion:globalregion_codesurfernamesymbolmap -> fSymbolDictionary:class [headport=left, tailport=right];
+	MemRegion:heapregion_companionmrab -> MemRegion:HeapRegion [style=dashed, color=red];
+	MemRegion:heapregion_companionnmrab -> MemRegion:HeapRegion [style=dashed, color=red];
+	MemRegion:heapregion_companiondistinct -> MemRegion:HeapRegion [style=dashed, color=red];
+	MemRegion:heapregion_offsetsymbolmap -> fIntSymbolMap:class [headport=left, tailport=right];
+	MemRegion:heapregion_countsymbols -> fSymbol:class [headport=left, tailport=right];
+	MemRegion:heapregion_sizesymbols -> fSymbol:class [headport=left, tailport=right];
+	MemRegion:heapregion_callsiteprocinfo -> fProcInfo:class [headport=left, tailport=right];
+	MemRegion:labelmanager_moduleir -> ModuleIR:class [headport=left, tailport=right];
+	MemRegion:labelmanager_moduleirsummary -> ModuleIR_Summary:class [headport=left, tailport=right];
+
+	fSymbolDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fSymbolDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fSymbolDict:struct -> fSymbol:class [headport=left, tailport=right];
+
+	ProcInfoDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ProcInfoDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	ProcInfoDict:struct -> fProcInfo:class [headport=left, tailport=right];
+
+	cs_hash_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_hash_t</td></tr>
+			<tr><td port="" border="1">{function ptr}</td></tr>
+		</table>>
+	]
+
+	DecoderManager [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DecoderManager</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+		</table>>
+	]
+
+	DecoderManager:moduleir -> ModuleIR:class [headport=left, tailport=right];
+
+	NamesManager [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">NamesManager</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+		</table>>
+	]
+
+	NamesManager:moduleir -> ModuleIR:class [headport=left, tailport=right];
+
+	ProcInfoManager [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ProcInfoManager</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+			<tr><td port="eaprocedureinfomap" border="1">EA Procedure Info Map</td></tr>
+			<tr><td port="noeaprocedureinfomap" border="1">No EA Procedure Dictionary</td></tr>
+		</table>>
+	]
+
+	ProcInfoManager:moduleir -> ModuleIR:class [headport=left, tailport=right];
+	ProcInfoManager:eaprocedureinfomap -> EaProcInfoMap:class [headport=left, tailport=right];
+	ProcInfoManager:noeaprocedureinfomap -> ProcInfoDict:class [headport=left, tailport=right];
+
+	CFGManager [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFGManager</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+			<tr><td port="cfgbuilder" border="1">CFG Builder</td></tr>
+			<tr><td port="detcfgset" border="1">Det CFG Set {set}</td></tr>
+			<tr><td port="cfgnamemap" border="1">CFG Name Map {map}</td></tr>
+			<tr><td port="eacfgmap" border="1">EA CFG Map {map}</td></tr>
+			<tr><td port="eaparentcfgandnodemap" border="1">EA Parent CFG and Node Nap {map{set{set{pair}}}}</td></tr>
+			<tr><td port="eanodemap" border="1">EA Node Map</td></tr>
+			<tr><td port="eaadditionalnodesmap" border="1">EA Additional Nodes Map</td></tr>
+		</table>>
+	]
+
+	CFGManager:moduleir -> ModuleIR:class [headport=left, tailport=right];
+	CFGManager:cfgbuilder -> CFGBuilder:class [headport=left, tailport=right];
+	CFGManager:detcfgset -> nCFG:class [headport=left, tailport=right];
+	CFGManager:cfgnamemap -> nCFG:class [headport=left, tailport=right];
+	CFGManager:eacfgmap -> nCFG:class [headport=left, tailport=right];
+	CFGManager:eaparentcfgandnodemap -> nCFG:class [headport=left, tailport=right];
+	CFGManager:eaparentcfgandnodemap -> nCFGnode:class [headport=left, tailport=right];
+	CFGManager:eanodemap -> fEaNodeMap:class [headport=left, tailport=right];
+	CFGManager:eaadditionalnodesmap -> fEaNodeSetMap:class [headport=left, tailport=right];
+
+	ASTManager [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ASTManager</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+			<tr><td port="isaid" border="1">ISA ID</td></tr>
+			<tr><td port="astpositioninfomap" border="1">AST Position Info Map {map}</td></tr>
+			<tr><td port="patternmatchinfo" border="1">Pattern Match Info</td></tr>
+			<tr><td port="writablestoreidcache" border="1">Writable Store ID Cache</td></tr>
+			<tr><td port="rootofthefatast" border="1">Root of the Fat AST</td></tr>
+			<tr><td port="mapeatoinstruction" border="1">Map EA to Instruction</td></tr>
+			<tr><td port="mapeatodata" border="1">Map EA to Data</td></tr>
+			<tr><td port="mapeatoproc" border="1">Map EA to Proc</td></tr>
+			<tr><td port="listofsyntheticstatements" border="1">List of Synthetic Statements</td></tr>
+		</table>>
+	]
+
+	ASTManager:moduleir -> ModuleIR:class [headport=left, tailport=right];
+	ASTManager:isaid -> tsl_isa_id:class [headport=left, tailport=right];
+	ASTManager:astpositioninfomap -> fAST:class [headport=left, tailport=right];
+	ASTManager:patternmatchinfo -> CfgNodeToPatternMatchInfoT:class [headport=left, tailport=right];
+	ASTManager:writablestoreidcache -> FATOBJ_STORE_ID:class [headport=left, tailport=right];
+	ASTManager:rootofthefatast -> fAST:class [headport=left, tailport=right];
+	ASTManager:mapeatoinstruction -> EaIstmtMap:class [headport=left, tailport=right];
+	ASTManager:mapeatodata -> EaIstmtMap:class [headport=left, tailport=right];
+	ASTManager:mapeatoproc -> EaIstmtMap:class [headport=left, tailport=right];
+	ASTManager:listofsyntheticstatements -> StmtList:class [headport=left, tailport=right];
+
+	fcfgnode_attribute_id [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fcfgnode_attribute_id</td></tr>
+			<tr><td port="" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	tsl_isa_id [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">tsl_isa_id</td></tr>
+			<tr><td port="" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	RefCounter [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">RefCounter</td></tr>
+			<tr><td port="" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	regRefPtr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">regRefPtr</td></tr>
+			<tr><td port="" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	attribute_id [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">attribute_id</td></tr>
+			<tr><td port="" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	x86_client_field [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">x86_client_field</td></tr>
+			<tr><td port="" border="1">Position</td></tr>
+			<tr><td port="" border="1">Priority</td></tr>
+			<tr><td port="" border="1">User Data</td></tr>
+		</table>>
+	]
+
+	CFGNodeAttribute [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFGNodeAttribute</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="CFGNodeAttributeTemplate" border="1" bgcolor="lightblue">CFGNodeAttributeTemplate</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="StringLiteralsAttribute" border="1" bgcolor="lightblue">StringLiteralsAttribute</td></tr>
+				<tr><td port="" border="1">Map {map{set}}</td></tr>
+		</table>>
+	]
+
+	fIndexEaMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fIndexEaMap</td></tr>
+			<tr><td port="" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	Row [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Row</td></tr>
+			<tr><td port="" border="1">Factory</td></tr>
+			<tr><td port="" border="1">Fence Variable</td></tr>
+			<tr><td port="" border="1">Lookahead Bits</td></tr>
+			<tr><td port="" border="1">Num Lookahead Bits</td></tr>
+			<tr><td port="" border="1">Num Rule Bits</td></tr>
+			<tr><td port="" border="1">Predictions</td></tr>
+		</table>>
+	]
+
+	fUintSymbolMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fUintSymbolMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fUintSymbolMap:struct -> fSymbol:class [headport=left, tailport=right];
+
+	fEaSymbolMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fEaSymbolMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fEaSymbolMap:struct -> fSymbol:class [headport=left, tailport=right];
+
+	sym_name_kind [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">sym_name_kind</td></tr>
+			<tr><td port="" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	FCELL [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FCELL</td></tr>
+		</table>>
+	]
+
+	fSymbolDictionary [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fSymbolDictionary</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fSymbolDictionary:struct -> fSymbol:class [headport=left, tailport=right];
+
+	fIntSymbolMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fIntSymbolMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fIntSymbolMap:struct -> fSymbol:class [headport=left, tailport=right];
+
+	fScopeMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fScopeMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fScopeMap:struct -> fScopeSummary:class [headport=left, tailport=right];
+
+	fScopeSummary [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fScopeSummary</td></tr>
+			<tr><td port="" border="1">Lower Bound</td></tr>
+			<tr><td port="" border="1">Upper BOund</td></tr>
+			<tr><td port="" border="1">Number of Scopes</td></tr>
+		</table>>
+	]
+
+	EaHeapRegionMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaHeapRegionMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaHeapRegionMap:struct -> MemRegion:HeapRegion;
+
+	PurposeManager [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">PurposeManager</td></tr>
+			<tr><td port="canonicalized" border="1">Canonicalized</td></tr>
+			<tr><td port="purposes" border="1">Purposes</td></tr>
+		</table>>
+	]
+
+	PurposeManager:canonicalized -> NameToPurposeMap:class [headport=left, tailport=right];
+	PurposeManager:purposes -> fSymbolfPurposeSetMap:class [headport=left, tailport=right];
+
+	StrSecMMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">StrSecMMap</td></tr>
+			<tr><td port="struct" border="1">{multimap}</td></tr>
+		</table>>
+	]
+
+	StrSecMMap:struct -> secInfoT:class [headport=left, tailport=right];
+
+	secInfoT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">secInfoT</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Size</td></tr>
+			<tr><td port="" border="1">Base Adress</td></tr>
+			<tr><td port="" border="1">Exe Section Map Index</td></tr>
+			<tr><td port="sectionkind" border="1">Section Kind</td></tr>
+			<tr><td port="sectiontype" border="1">Section Type</td></tr>
+			<tr><td port="sectionalignment" border="1">Section Alignment</td></tr>
+			<tr><td port="sectioncomb" border="1">Section Comb</td></tr>
+			<tr><td port="sectionast" border="1">Section AST</td></tr>
+		</table>>
+	]
+
+	secInfoT:sectionkind -> SEC_KIND:class [headport=left, tailport=right];
+	secInfoT:sectiontype -> SEC_TYPE:class [headport=left, tailport=right];
+	secInfoT:sectionalignment -> SEC_ALIGN:class [headport=left, tailport=right];
+	secInfoT:sectioncomb -> SEC_COMB:class [headport=left, tailport=right];
+	secInfoT:sectionast -> fAST:class [headport=left, tailport=right];
+
+	SEC_KIND [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SEC_KIND</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	SEC_TYPE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SEC_TYPE</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	SEC_ALIGN [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SEC_ALIGN</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	SEC_COMB [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SEC_COMB</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	ConcLangInterpObj [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ConcLangInterpObj</td></tr>
+			<tr><td port="struct" border="1">{virtual base class}</td></tr>
+		</table>>
+	]
+
+	TypeBuilder [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">TypeBuilder</td></tr>
+			<tr><td port="" border="1">Pointer Sizes []</td></tr>
+			<tr><td port="moduleir" border="1">ModuleIR</td></tr>
+			<tr><td port="tid2tt" border="1">TID 2 TT {map}</td></tr>
+		</table>>
+	]
+
+	TypeBuilder:moduleir -> ModuleIR:class [headport=left, tailport=right];
+	TypeBuilder:tid2tt -> fTypeId:class [headport=left, tailport=right];
+	TypeBuilder:tid2tt -> XType:class [headport=left, tailport=right];
+
+	TypeTable [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">TypeTable</td></tr>
+			<tr><td port="ctypemodel" border="1">C Type Model</td></tr>
+			<tr><td port="idatypemodel" border="1">Ida Type Model</td></tr>
+			<tr><td port="stdinttypemodel" border="1">Stdint Type Model</td></tr>
+			<tr><td port="x86typemodel" border="1">X86 Type Model</td></tr>
+			<tr><td port="types" border="1">Types</td></tr>
+		</table>>
+	]
+
+	TypeTable:ctypemodel -> ScalarTypeModel:class [headport=left, tailport=right];
+	TypeTable:idatypemodel -> ScalarTypeModel:class [headport=left, tailport=right];
+	TypeTable:stdinttypemodel -> ScalarTypeModel:class [headport=left, tailport=right];
+	TypeTable:x86typemodel -> ScalarTypeModel:class [headport=left, tailport=right];
+	TypeTable:types -> XTypeDict:class [headport=left, tailport=right];
+
+	FATUID [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FATUID</td></tr>
+			<tr><td port="struct" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	DisModHintsSet [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DisModHintsSet</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	DisModHintsSet:struct -> dismod_source_id:class [headport=left, tailport=right];
+	DisModHintsSet:struct -> DisModHints:class [headport=left, tailport=right];
+
+	DialFatStoreT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DialFatStoreT</td></tr>
+			<tr><td port="" border="1">Format</td></tr>
+			<tr><td port="filenames" border="1">File Names</td></tr>
+			<tr><td port="globalsymbols" border="1">Global Symbols</td></tr>
+			<tr><td port="eamap" border="1">EA Map</td></tr>
+			<tr><td port="sourcemap" border="1">Source Map</td></tr>
+		</table>>
+	]
+
+	DialFatStoreT:eamap -> DialEaSourceMapT:class [headport=left, tailport=right];
+	DialFatStoreT:sourcemap -> DialEaSourceMapT:class [headport=left, tailport=right];
+	DialFatStoreT:filenames -> DialFileNameSetT:class [headport=left, tailport=right];
+	DialFatStoreT:globalsymbols -> DialGlobalSymbolT:class [headport=left, tailport=right];
+
+	fExecutableMapper [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fExecutableMapper</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fCOFFMapper" border="1" bgcolor="lightblue">fExecutableMapper::fCOFFMapper {template}</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fElfMapper" border="1" bgcolor="lightblue">fExecutableMapper::fElfMapper {template}</td></tr>
+				<tr><td port="" border="1">Mapping 64</td></tr>
+				<tr><td port="" border="1">Mapping Succeeded</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fElfMapperXX" border="1" bgcolor="lightblue">fExecutableMapper::fElfMapperXX {template}</td></tr>
+				<tr><td port="" border="1">Mapping 64</td></tr>
+				<tr><td port="" border="1">Mapping Succeeded</td></tr>
+				<tr><td port="felfmapperxx_elfheader" border="1">Elf Header</td></tr>
+				<tr><td port="felfmapperxx_programheadertable" border="1">Program Header Table</td></tr>
+				<tr><td port="felfmapperxx_sectionheadertable" border="1">Section Header Table</td></tr>
+				<tr><td port="felfmapperxx_sections" border="1">Sections {vector}</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fMachOMapper" border="1" bgcolor="lightblue">fExecutableMapper::fMachOMapper {template}</td></tr>
+				<tr><td port="" border="1">Mapping 64</td></tr>
+				<tr><td port="" border="1">Mapping Succeeded</td></tr>
+				<tr><td port="" border="1">File Offset</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fMachOMapperXX" border="1" bgcolor="lightblue">fExecutableMapper::fMachOMapperXX {template}</td></tr>
+				<tr><td port="" border="1">Dy Libs {vector}</td></tr>
+				<tr><td port="" border="1">Entry Point</td></tr>
+				<tr><td port="" border="1">Export Symbols {vector}</td></tr>
+				<tr><td port="" border="1">File Name</td></tr>
+				<tr><td port="" border="1">Image Offset</td></tr>
+				<tr><td port="" border="1">Mapping Succeeded</td></tr>
+				<tr><td port="" border="1">Max EA</td></tr>
+				<tr><td port="" border="1">Num Sections</td></tr>
+				<tr><td port="fmachomapperxx_dyldinfo" border="1">Dy Ld Info</td></tr>
+				<tr><td port="fmachomapperxx_easymbolmap" border="1">EA Symbol Map</td></tr>
+				<tr><td port="fmachomapperxx_importtable" border="1">Import Table</td></tr>
+				<tr><td port="fmachomapperxx_mach0header" border="1">Mach-0 Header</td></tr>
+				<tr><td port="fmachomapperxx_segheaders" border="1">Seg Headers {vector}</td></tr>
+				<tr><td port="fmachomapperxx_symbolnameeadictionary" border="1">Symbol Name EA Dictionary</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fMapperXX" border="1" bgcolor="lightblue">fExecutableMapper::fMapperXX {template}</td></tr>
+				<tr><td port="" border="1">Image Path</td></tr>
+				<tr><td port="" border="1">Image {vector}</td></tr>
+				<tr><td port="" border="1">Machine</td></tr>
+				<tr><td port="" border="1">Number of Sections</td></tr>
+				<tr><td port="" border="1">Read Only</td></tr>
+				<tr><td port="" border="1">Symbol Count</td></tr>
+				<tr><td port="" border="1">Symbol Position</td></tr>
+				<tr><td port="" border="1">Symbol Table Entry Size</td></tr>
+				<tr><td port="fmapperxx_header" border="1">Header</td></tr>
+				<tr><td port="fmapperxx_sectiontable" border="1">Section Table</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fXCOFFMapper" border="1" bgcolor="lightblue">fExecutableMapper::fXCOFFMapper {template}</td></tr>
+				<tr><td port="fxcoffmapper_anonheader" border="1">Anon Header</td></tr>
+		</table>>
+	]
+
+	fExecutableMapper:felfmapperxx_elfheader -> fElfPartition:fElfHeaderXX;
+	fExecutableMapper:felfmapperxx_programheadertable -> fElfPartition:fElfProgramHeaderTableXX:class [headport=left, tailport=right];
+	fExecutableMapper:felfmapperxx_sectionheadertable -> fElfPartition:fElfSectionHeaderTableXX;
+	fExecutableMapper:felfmapperxx_sections -> fElfPartition:fElfSectionXX;
+	fExecutableMapper:fmachomapperxx_mach0header -> fMachOPartition:fMachOHeaderXX;
+	fExecutableMapper:fmachomapperxx_segheaders -> macho_load_command:MachOXX_SegHdr;
+	fExecutableMapper:fmachomapperxx_dyldinfo -> macho_load_command:macho_dyld_info_command;
+	fExecutableMapper:fmachomapperxx_importtable -> macho_dyld_bind_info:class [headport=left, tailport=right];
+	fExecutableMapper:fmachomapperxx_easymbolmap -> EaToMachOSymMap:class [headport=left, tailport=right];
+	fExecutableMapper:fmachomapperxx_symbolnameeadictionary -> SymNameToEaDict:class [headport=left, tailport=right];
+	fExecutableMapper:fmapperxx_header -> GT_IMAGE_NT_HEADERSXX:class [headport=left, tailport=right];
+	fExecutableMapper:fmapperxx_sectiontable -> GT_IMAGE_SECTION_HEADER:class [headport=left, tailport=right];
+	fExecutableMapper:fxcoffmapper_anonheader -> GT_ANON_OBJECT_HEADER_BIGOBJ:class [headport=left, tailport=right];
+
+	fLoadedFileMapper [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fLoadedFileMapper</td></tr>
+			<tr><td port="exemap" border="1">EXE Map</td></tr>
+			<tr><td port="bytemap" border="1">Byte Map</td></tr>
+			<tr><td port="contentsource" border="1">EXE Map</td></tr>
+			<tr><td port="" border="1">Byte Map</td></tr>
+			<tr><td port="" border="1">Content Source</td></tr>
+			<tr><td port="" border="1">Image Name</td></tr>
+			<tr><td port="" border="1">Image Size</td></tr>
+			<tr><td port="" border="1">EA Base Address</td></tr>
+			<tr><td port="" border="1">EA Entry Point</td></tr>
+			<tr><td port="" border="1">EA Min</td></tr>
+			<tr><td port="" border="1">EA Max</td></tr>
+			<tr><td port="" border="1">Rebase Delta</td></tr>
+			<tr><td port="lfcm" border="1">LF CM</td></tr>
+			<tr><td port="lfsecinfovector" border="1">Sections</td></tr>
+			<tr><td port="" border="1">EA to Section Index {map}</td></tr>
+			<tr><td port="externsymbols" border="1">Extern Symbols</td></tr>
+			<tr><td port="" border="1">GOT EA</td></tr>
+			<tr><td port="" border="1">Rename Sections</td></tr>
+			<tr><td port="" border="1">Relocated</td></tr>
+	</table>>
+	]	
+
+	fLoadedFileMapper:bytemap -> fImageByteMap:class [headport=left, tailport=right];
+	fLoadedFileMapper:contentsource -> LFContentSource:class [headport=left, tailport=right];
+	fLoadedFileMapper:exemap -> fExecutableMapper:class [headport=left, tailport=right];
+	fLoadedFileMapper:externsymbols -> Str2Ea_Map:class [headport=left, tailport=right];
+	fLoadedFileMapper:lfcm -> LF_CM_TYPE:class [headport=left, tailport=right];
+	fLoadedFileMapper:lfsecinfovector -> LFSec_Info_Vector:class [headport=left, tailport=right];
+
+	fImportTableMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fImportTableMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fImportTable" border="1" bgcolor="lightblue">fImportTableMap::fImportTable</td></tr>
+				<tr><td port="" border="1">Is Loaded</td></tr>
+	</table>>
+	]	
+
+	fImportTableMap:struct -> fImportTableEntry:class [headport=left, tailport=right];
+
+	cs_uid [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_uid</td></tr>
+			<tr><td port="struct" border="1">{POD}</td></tr>
+	</table>>
+	]	
+
+	fCFGNodeAttributeIDDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fCFGNodeAttributeIDDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+	</table>>
+	]	
+
+	fCFGNodeAttributeIDDict:struct -> fcfgnode_attribute_id:class [headport=left, tailport=right];
+
+	secTableT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">secTableT</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+	</table>>
+	]	
+
+	secTableT:struct -> secInfoT:class [headport=left, tailport=right];
+	secTableT:struct -> SecInfo_attrs:class [headport=left, tailport=right];
+
+	fTypeId [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fTypeId</td></tr>
+			<tr><td port="struct" border="1">{POD}</td></tr>
+	</table>>
+	]	
+
+	file_type_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">file_type_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+	</table>>
+	]	
+
+	NAST [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">NAST</td></tr>
+			<tr><td port="struct" border="1">{FATTYPE_DECLARE_REFTYPE_NOWALK}</td></tr>
+	</table>>
+	]
+
+	file_format_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">file_format_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+	</table>>
+	]	
+
+	fExportTable [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fExportTable</td></tr>
+			<tr><td port="" border="1">Is Loaded</td></tr>
+			<tr><td port="exports" border="1">Exports</td></tr>
+			<tr><td port="ordinalexportmap" border="1">Ordinal Export Map</td></tr>
+	</table>>
+	]	
+
+	fExportTable:exports -> fExportSet:class [headport=left, tailport=right];
+	fExportTable:ordinalexportmap -> fUintExportMap:class [headport=left, tailport=right];
+
+	EaProcInfoMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaProcInfoMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+	</table>>
+	]
+
+	EaProcInfoMap:struct -> fProcInfo:class [headport=left, tailport=right];
+
+	fXTypeDb [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fXTypeDb</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+	</table>>
+	]
+
+	fXTypeDb:struct -> fTypeId:class [headport=left, tailport=right];
+	fXTypeDb:struct -> XType:class [headport=left, tailport=right];
+
+	XTypeDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">XTypeDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+	</table>>
+	]
+
+	XTypeDict:struct -> XType:class [headport=left, tailport=right];
+
+	IRStoreState [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">IRStoreState</td></tr>
+			<tr><td port="" border="1">State</td></tr>
+			<tr><td port="" border="1">SDK Version</td></tr>
+			<tr><td port="" border="1">SWYX Version String</td></tr>
+	</table>>
+	]
+
+	ScalarTypeModel [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ScalarTypeModel</td></tr>
+			<tr><td port="" border="1">Number of Integral Types</td></tr>
+			<tr><td port="" border="1">Number of Misc Types</td></tr>
+			<tr><td port="" border="1">Integral Map</td></tr>
+			<tr><td port="" border="1">Misc Map</td></tr>
+			<tr><td port="" border="1">Pointer Spec</td></tr>
+			<tr><td port="integraltypes" border="1">Integral Types</td></tr>
+			<tr><td port="misctypes" border="1">Misc Types</td></tr>
+	</table>>
+	]
+
+	ScalarTypeModel:integaltypes -> XType:class [headport=left, tailport=right];
+	ScalarTypeModel:misctypes -> XType:class [headport=left, tailport=right];
+
+	NameToPurposeMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">NameToPurposeMap</td></tr>
+			<tr><td port="struct" border="1">{map{string, string}}</td></tr>
+		</table>>
+	]
+
+	fSymbolfPurposeSetMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fSymbolfPurposeSetMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fSymbolfPurposeSetMap:struct -> fSymbol:class [headport=left, tailport=right];
+	fSymbolfPurposeSetMap:struct -> fPurposeSet:class [headport=left, tailport=right];
+
+	EaIndirectflagsMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaIndirectflagsMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaIndirectflagsMap:struct -> cs_indirect_target_flags:class [headport=left, tailport=right];
+
+	EaJtARSMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaJtARSMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaJtARSMap:struct -> JtAddrRangeStrided:class [headport=left, tailport=right];
+
+	HiddenExportMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">HiddenExportMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaRegionSourceMap  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaRegionSourceMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaRegionSourceMap:struct -> BoolRangeInfo:class [headport=left, tailport=right];
+
+	BoolRangeInfo  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">BoolRangeInfo</td></tr>
+			<tr><td port="struct" border="1">{SerializableRangeInfo{eaT, bool}}</td></tr>
+		</table>>
+	]
+
+	SectNodeInfoMap  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SectNodeInfoMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	SectNodeInfoMap:struct -> sect_node_info:class [headport=left, tailport=right];
+	SectNodeInfoMap:struct -> sect_node_info_attrs:class [headport=left, tailport=right];
+
+	LdInfo  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">LdInfo</td></tr>
+			<tr><td port="ldargs" border="1">LD Args {vector}</td></tr>
+		</table>>
+	]
+
+	LdInfo:ldargs -> ld_objs:class [headport=left, tailport=right];
+
+	ld_objs  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">LdInfo</td></tr>
+			<tr><td port="" border="1">Origin Name</td></tr>
+			<tr><td port="" border="1">New Name</td></tr>
+		</table>>
+	]
+
+	ObjInfoTable [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ObjInfoTable</td></tr>
+			<tr><td port="fbtree" border="1">fBTree</td></tr>
+			<tr><td port="fdictobjsec" border="1">fDict Objsec</td></tr>
+			<tr><td port="fdicthavesource" border="1">fDict Have Source</td></tr>
+		</table>>
+	]
+
+	ObjInfoTable:fbtree -> EaRangeToObjfBtree;
+	ObjInfoTable:fdictobjsec -> NameToObjfDict;
+	ObjInfoTable:fdicthavesource -> NameToBoolfDict;
+
+	SpAdjVarBase [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SpAdjVarBase</td></tr>
+			<tr><td port="" border="1">Value</td></tr>
+			<tr><td port="confidence" border="1">Confidence</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="SpAdjVar" border="1" bgcolor="lightblue">SpAdjVarBase::SpAdjVar</td></tr>
+				<tr><td port="spadjvar_kind" border="1">Kind</td></tr>
+				<tr><td port="spadjvar_node" border="1">Node</td></tr>
+				<tr><td port="spadjvar_proc" border="1">Proc</td></tr>
+		</table>>
+	]
+
+	SpAdjVarBase:confidence -> sp_adj_value_confidence_t:class [headport=left, tailport=right];
+	SpAdjVarBase:spadjvar_kind -> sp_adj_var_kind_t:class [headport=left, tailport=right];
+	SpAdjVarBase:spadjvar_node -> nCFGnode:class [headport=left, tailport=right];
+	SpAdjVarBase:spadjvar_proc -> fProcInfo:class [headport=left, tailport=right];
+
+	fPurposeSet [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fPurposeSet</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	nCFG [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">nCFG</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="procid" border="1">Proc ID</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+			<tr><td port="first" border="1">First</td></tr>
+			<tr><td port="last" border="1">Last</td></tr>
+			<tr><td port="body" border="1">Body</td></tr>
+			<tr><td port="preend" border="1">Pre-End</td></tr>
+			<tr><td port="nodes" border="1">Nodes</td></tr>
+			<tr><td port="declnodes" border="1">Decl Nodes</td></tr>
+			<tr><td port="callnodes" border="1">Call Nodes</td></tr>
+			<tr><td port="returnnodes" border="1">Return Nodes</td></tr>
+			<tr><td port="basicblocks" border="1">Basic Blocks</td></tr>
+			<tr><td port="procinfo" border="1">Proc Info</td></tr>
+			<tr><td port="setofsrps" border="1">Set of SRP's</td></tr>
+			<tr><td port="" border="1">Number of Formals</td></tr>
+			<tr><td port="" border="1">Client Field {void}</td></tr>
+			<tr><td port="" border="1">Frame Base</td></tr>
+			<tr><td port="" border="1">Num Edges</td></tr>
+			<tr><td port="attributes" border="1">Attributes {vector}</td></tr>
+			<tr><td port="ast" border="1">AST</td></tr>
+			<tr><td port="decodemode" border="1">Deode Mode</td></tr>
+			<tr><td port="" border="1">Decode Mode Set Explicitly</td></tr>
+			<tr><td port="attributeidtable" border="1">Attribute ID Table {map}</td></tr>
+		</table>>
+	]
+
+	nCFG:procid -> proc_index_t:class [headport=left, tailport=right];
+	nCFG:moduleir -> ModuleIR:class [headport=left, tailport=right];
+	nCFG:first -> nCFGnode:class [headport=left, tailport=right];
+	nCFG:last -> nCFGnode:class [headport=left, tailport=right];
+	nCFG:body -> nCFGnode:class [headport=left, tailport=right];
+	nCFG:preend -> nCFGnode:class [headport=left, tailport=right];
+	nCFG:nodes -> nCFGnode:class [headport=left, tailport=right];
+	nCFG:declnodes -> FastDetNodeSet:class [headport=left, tailport=right];
+	nCFG:callnodes -> FastDetNodeSet:class [headport=left, tailport=right];
+	nCFG:returnnodes -> FastDetNodeSet:class [headport=left, tailport=right];
+	nCFG:basicblocks -> nCFGBasicBlock:class [headport=left, tailport=right];
+	nCFG:procinfo -> fProcInfo:class [headport=left, tailport=right];
+	nCFG:setofsrps -> SRPSet_T:class [headport=left, tailport=right];
+	nCFG:attributes -> CFGAttribute:class [headport=left, tailport=right];
+	nCFG:ast -> fAST:class [headport=left, tailport=right];
+	nCFG:decodemode -> decode_mode_t:class [headport=left, tailport=right];
+	nCFG:attributeidtable -> attribute_id:class [headport=left, tailport=right];
+
+	CFGBuilder [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFGBuilder</td></tr>
+			<tr><td port="cfgmanager" border="1">CFG Manager</td></tr>
+			<tr><td port="moduleir" border="1">Module IR</td></tr>
+		</table>>
+	]
+
+	CFGBuilder:cfgmanager -> CFGManager:class [headport=left, tailport=right];
+	CFGBuilder:moduleir -> ModuleIR:class [headport=left, tailport=right];
+
+	fEaNodeSetMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fEaNodeSetMap</td></tr>
+			<tr><td port="" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fEaNodeSetMap:struct -> fCFGnodeSet:class [headport=left, tailport=right];
+
+	fCFGnodeSet [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fCFGnodeSet</td></tr>
+			<tr><td port="" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fCFGnodeSet:struct -> fCFGnode:class [headport=left, tailport=right];
+
+	fEaNodeMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fEaNodeMap</td></tr>
+			<tr><td port="" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fEaNodeMap:struct -> fCFGnodeSet:class [headport=left, tailport=right];
+
+	cs_indirect_target_flags  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_indirect_target_flags</td></tr>
+			<tr><td port="struct" border="1">{uint32_t}</td></tr>
+		</table>>
+	]
+
+	JtAddrRangeStrided	[shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">JtAddrRangeStrided</td></tr>
+			<tr><td port="" border="1">Effective Address Start</td></tr>
+			<tr><td port="" border="1">Effective Address End</td></tr>
+			<tr><td port="" border="1">Stride</td></tr>
+			<tr><td port="" border="1">Tag</td></tr>
+		</table>>
+	]
+
+	sect_node_info_attrs [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">sect_node_info_attrs</td></tr>
+			<tr><td port="" border="1">{static}</td></tr>
+		</table>>
+	]
+
+	sect_node_info [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">sect_node_info</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Size</td></tr>
+			<tr><td port="" border="1">Effective Address Base Address</td></tr>
+		</table>>
+	]
+
+	EaRangeToObjfBtree [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaRangeToObjfBtree</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaRangeToObjfBtree:struct -> ObjRangeInfo:class [headport=left, tailport=right];
+
+	NameToBoolfDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">NameToBoolfDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	NameToObjfDict [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">NameToObjfDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	NameToObjfDict:struct -> ObjInfo:class [headport=left, tailport=right];
+
+	EaIstmtMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaIstmtMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaIstmtMap:struct -> fAST:class [headport=left, tailport=right];
+
+	fAST [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fAST</td></tr>
+			<tr><td port="ast" border="1">AST</td></tr>
+		</table>>
+	]
+
+	fAST:ast -> cs_ast:class [headport=left, tailport=right];
+
+	sp_adj_value_confidence_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">sp_adj_value_confidence_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	sp_adj_var_kind_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">sp_adj_var_kind_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	FastDetNodeSet [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">FastDetNodeSet</td></tr>
+			<tr><td port="struct" border="1">{set}</td></tr>
+		</table>>
+	]
+
+	FastDetNodeSet:struct -> nCFGnode:class [headport=left, tailport=right];
+
+	proc_index_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">proc_index_t</td></tr>
+			<tr><td port="struct" border="1">{unsigned int}</td></tr>
+		</table>>
+	]
+
+	SRPSet_T [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SRPSet_T</td></tr>
+			<tr><td port="struct" border="1">{set}</td></tr>
+		</table>>
+	]
+
+	SRPSet_T:struct -> SaveRestore:class [headport=left, tailport=right];
+
+	decode_mode_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">decode_mode_t</td></tr>
+			<tr><td port="struct" border="1">{size_t}</td></tr>
+		</table>>
+	]
+
+	ObjRangeInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ObjRangeInfo</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	ObjRangeInfo:struct -> ObjInfo:class [headport=left, tailport=right];
+
+	ObjInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ObjInfo</td></tr>
+			<tr><td port="" border="1">File Name</td></tr>
+			<tr><td port="" border="1">Section Name</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Total Bytes</td></tr>
+		</table>>
+	]
+
+	FatAddrRanges [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">FatAddrRanges</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	FatAddrRanges:struct -> EaRegionAttr:class [headport=left, tailport=right];
+
+	EaRegionAttr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">EaRegionAttr</td></tr>
+			<tr><td port="struct" border="1">{empty}</td></tr>
+		</table>>
+	]
+
+	dismod_source_id [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">dismod_source_id</td></tr>
+			<tr><td port="struct" border="1">{uint8_t}</td></tr>
+		</table>>
+	]
+
+	DisModHints [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DisModHints</td></tr>
+			<tr><td port="sourceid" border="1">Source ID</td></tr>
+			<tr><td port="confspec" border="1">Conf Spec</td></tr>
+			<tr><td port="prochints" border="1">Proc Hints</td></tr>
+			<tr><td port="instructionhints" border="1">Instruction Hints</td></tr>
+			<tr><td port="opndhints" border="1">OPND Hints</td></tr>
+			<tr><td port="usagehints" border="1">Usage Hints</td></tr>
+		</table>>
+	]
+
+	DisModHints:sourceid -> dismod_source_id:class [headport=left, tailport=right];
+	DisModHints:confspec -> HintsConfSpec:class [headport=left, tailport=right];
+	DisModHints:prochints -> EaProcHintMap:class [headport=left, tailport=right];
+	DisModHints:instructionhints -> EaTable:class [headport=left, tailport=right];
+	DisModHints:opndhints -> EaOpndHints:class [headport=left, tailport=right];
+	DisModHints:usagehints -> EaUsageHints:class [headport=left, tailport=right];
+
+	DialEaSourceMapT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DialEaSourceMapT</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	DialEaSourceMapT:struct -> DialSourceLocationWithUBT:class [headport=left, tailport=right];
+	DialEaSourceMapT:struct -> DialSourceLocationWithUB_attrs:class [headport=left, tailport=right];
+
+	DialSourceLocationWithUB_attrs [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">DialSourceLocationWithUB_attrs</td></tr>
+			<tr><td port="struct" border="1">{empty}</td></tr>
+		</table>>
+	]
+
+	DialSourceLocationWithUBT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DialSourceLocationWithUBT</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	DialSourceLocationWithUBT:struct -> DialSourceLocationT:class [headport=left, tailport=right];
+
+	DialSourceLocationT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">DialSourceLocationT</td></tr>
+			<tr><td port="struct" border="1">{std::pair{std::string, uint32_t}}</td></tr>
+		</table>>
+	]
+
+	LF_CM_TYPE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">LF_CM_TYPE</td></tr>
+			<tr><td port="struct" border="1">{unsigned char}</td></tr>
+		</table>>
+	]
+
+	LFSec_Info_Vector [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">LFSec_Info_Vector</td></tr>
+			<tr><td port="struct" border="1">{std::vector}</td></tr>
+		</table>>
+	]
+
+	LFSec_Info_Vector:struct -> LFSec_Info:class [headport=left, tailport=right];
+
+	LFSec_Info [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">LFSec_Info</td></tr>
+			<tr><td port="struct" border="1">{std::pair{eaT, uint32_t}}</td></tr>
+		</table>>
+	]
+
+	HintsConfSpec [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">HintsConfSpec</td></tr>
+			<tr><td port="" border="1">Hint Group</td></tr>
+			<tr><td port="confidencelevel" border="1">Confidence Level</td></tr>
+		</table>>
+	]
+
+	HintsConfSpec:confidencelevel -> swyx_conf_level:class [headport=left, tailport=right];
+
+	swyx_conf_level  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">swyx_conf_level</td></tr>
+			<tr><td port="struct" border="1">{uint8_t}</td></tr>
+		</table>>
+	]
+
+	DialGlobalSymbolT  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DialGlobalSymbolT</td></tr>
+			<tr><td port="localsymbols" border="1">Local Symbols</td></tr>
+		</table>>
+	]
+
+	DialGlobalSymbolT:localsymbols -> DialSymbolListT:class [headport=left, tailport=right];
+
+	DialSymbolListT  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DialSymbolListT</td></tr>
+			<tr><td port="struct" border="1">{vector}</td></tr>
+		</table>>
+	]
+
+	DialSymbolListT:struct -> DialBaseSymbolT:class [headport=left, tailport=right];
+
+	DialBaseSymbolT   [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">DialBaseSymbolT</td></tr>
+			<tr><td port="" border="1">Alloc Size</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Offset</td></tr>
+			<tr><td port="" border="1">Section</td></tr>
+			<tr><td port="flags" border="1">Flags</td></tr>
+		</table>>
+	]
+
+	DialBaseSymbolT:flags -> DialSymbolFlagsT:class [headport=left, tailport=right];
+
+	DialSymbolFlagsT  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">DialSymbolFlagsT</td></tr>
+			<tr><td port="struct" border="1">{uint32_t}</td></tr>
+		</table>>
+	]
+
+	DialFileNameSetT  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">DialFileNameSetT</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	Str2Ea_Map [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Str2Ea_Map</td></tr>
+			<tr><td port="struct" border="1">{std::map{std::string, eaT}}</td></tr>
+		</table>>
+	]
+
+	LFContentSource [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">LFContentSource</td></tr>
+			<tr><td port="struct" border="1">{uint8_t}</td></tr>
+		</table>>
+	]
+
+	fImageByteMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fImageByteMap</td></tr>
+			<tr><td port="" border="1">Cached Address</td></tr>
+			<tr><td port="btree" border="1">B Tree</td></tr>
+			<tr><td port="cachedpage" border="1">Cached Page</td></tr>
+		</table>>
+	]
+
+	fImageByteMap:btree -> fImageByteMapBTree:class [headport=left, tailport=right];
+	fImageByteMap:cachedpage -> fImageByteMapPage:class [headport=left, tailport=right];
+
+	fImageByteMapBTree [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fImageByteMapBTree</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fImageByteMapBTree:struct -> fImageByteMapPage:class [headport=left, tailport=right];
+
+	fImageByteMapPage [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fImageByteMapPage</td></tr>
+			<tr><td port="struct" border="1">{uint8_t[]}</td></tr>
+		</table>>
+	]
+
+	EaProcHintMap  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaProcHintMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaProcHintMap:struct -> fProcHint:class [headport=left, tailport=right];
+
+	fProcHint [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fProcHint</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Entry Points {vector}</td></tr>
+			<tr><td port="" border="1">Flags</td></tr>
+			<tr><td port="" border="1">Frame Pointer Delta</td></tr>
+			<tr><td port="" border="1">Procedure Name</td></tr>
+			<tr><td port="" border="1">Register Formals {vector}</td></tr>
+			<tr><td port="" border="1">Return Address Size</td></tr>
+			<tr><td port="" border="1">Save Register</td></tr>
+			<tr><td port="" border="1">SP Adjust</td></tr>
+			<tr><td port="formals" border="1">Formals</td></tr>
+			<tr><td port="locals" border="1">Locals</td></tr>
+			<tr><td port="addressranges" border="1">Address Ranges</td></tr>
+			<tr><td port="typestringid" border="1">Typestring ID</td></tr>
+		</table>>
+	]
+
+	fProcHint:addressranges -> AddrRanges:class [headport=left, tailport=right];
+	fProcHint:formals -> StackVarList:class [headport=left, tailport=right];
+	fProcHint:locals -> StackVarList:class [headport=left, tailport=right];
+	fProcHint:typestringid -> fTypeId:class [headport=left, tailport=right];
+
+	EaTable  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaTable</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaTable:struct -> EaInfo:class [headport=left, tailport=right];
+
+	EaInfo  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaInfo</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Number of Bytes in Instruction</td></tr>
+			<tr><td port="" border="1">Symbolic Name</td></tr>
+			<tr><td port="flags" border="1">Flags</td></tr>
+		</table>>
+	]
+
+	EaInfo:flags -> fAsmFlag:class [headport=left, tailport=right];
+
+	fAsmFlag  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fAsmFlag</td></tr>
+			<tr><td port="struct" border="1">{uint16_t}</td></tr>
+		</table>>
+	]
+
+	AddrRanges  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">AddrRanges</td></tr>
+			<tr><td port="map" border="1">Map</td></tr>
+		</table>>
+	]
+
+	AddrRanges:map -> EaEaMap:class [headport=left, tailport=right];
+
+	EaEaMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">EaEaMap</td></tr>
+			<tr><td port="struct" border="1">{std::map{eaT, eaT}}</td></tr>
+		</table>>
+	]
+
+	StmtList [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">StmtList</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	StmtList:struct -> fAST_ListTraits:class [headport=left, tailport=right];
+	StmtList:struct -> fAST:class [headport=left, tailport=right];
+
+	fAST_ListTraits [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">fAST_ListTraits</td></tr>
+			<tr><td port="struct" border="1">{const char*}</td></tr>
+		</table>>
+	] 
+
+	FATOBJ_STORE_ID  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FATOBJ_STORE_ID</td></tr>
+			<tr><td port="struct" border="1">{int32_t}</td></tr>
+		</table>>
+	] 
+
+	EaOpndHints [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaOpndHints</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	EaOpndHints:struct -> SizedOpndSymbolicInfo:class [headport=left, tailport=right];
+
+	SizedOpndSymbolicInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SizedOpndSymbolicInfo</td></tr>
+			<tr><td port="" border="1">Number of Bits</td></tr>
+			<tr><td port="opndsymbolicinfo" border="1">Opnd Symbolic Info</td></tr>
+		</table>>
+	]
+
+	SizedOpndSymbolicInfo:opndsymbolicinfo -> OpndSymbolicInfo:class [headport=left, tailport=right];
+
+	OpndSymbolicInfo [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">OpndSymbolicInfo</td></tr>
+			<tr><td port="" border="1">Bool</td></tr>
+			<tr><td port="" border="1">Value 1</td></tr>
+			<tr><td port="" border="1">Value 2</td></tr>
+			<tr><td port="" border="1">Value 3</td></tr>
+			<tr><td port="" border="1">Value 4</td></tr>
+			<tr><td port="" border="1">Variable Name 1</td></tr>
+			<tr><td port="" border="1">Variable Name 2</td></tr>
+			<tr><td port="decodemode" border="1">Decode Mode</td></tr>
+			<tr><td port="opndkind" border="1">OPND Kind</td></tr>
+		</table>>
+	]
+
+	OpndSymbolicInfo:opndkind -> OP_KIND:class [headport=left, tailport=right];
+	OpndSymbolicInfo:decodemode -> decode_mode_t:class [headport=left, tailport=right];
+
+	OP_KIND  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">OP_KIND</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	] 
+
+	StackVarList [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">StackVarList</td></tr>
+			<tr><td port="struct" border="1">{std::vector{fStackVar}}</td></tr>
+		</table>>
+	]
+
+	StackVarList:struct -> fStackVar:class [headport=left, tailport=right];
+
+	fStackVar [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fStackVar</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Offset</td></tr>
+			<tr><td port="" border="1">Size</td></tr>
+			<tr><td port="idoftypestring" border="1">ID of Typestring</td></tr>
+			<tr><td port="scope" border="1">Scope</td></tr>
+		</table>>
+	]
+
+	fStackVar:idoftypestring -> fTypeId:class [headport=left, tailport=right];
+	fStackVar:scope -> AddrRange:class [headport=left, tailport=right];
+
+	AddrRange  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">AddrRange</td></tr>
+			<tr><td port="" border="1">Start Effective Address</td></tr>
+			<tr><td port="" border="1">End Effective Address</td></tr>
+		</table>>
+	] 
+
+	EaUsageHints  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">EaUsageHints</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	] 
+
+	fElfPartition [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fElfPartition</td></tr>
+			<tr><td port="kind" border="1">Kind</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fElfHeaderXX" border="1" bgcolor="lightblue">fElfPartition::fElfMapperXX</td></tr>
+				<tr><td port="felfheaderxx_header" border="1">Header</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fElfProgramHeaderTableXX" border="1" bgcolor="lightblue">fElfPartition::fElfProgramHeaderTableXX</td></tr>
+				<tr><td port="felfprogramheadertablexx_elfheader" border="1">ELF Header</td></tr>
+				<tr><td port="felfprogramheadertablexx_programheaders" border="1">Program Headers {std::vector}</td></tr>
+			<tr><td port="fElfSectionHeaderTableXX" border="1" bgcolor="lightblue">fElfPartition::fElfSectionHeaderTableXX</td></tr>
+				<tr><td port="felfsectionheadertablexx_elfheader" border="1">ELF Header</td></tr>
+				<tr><td port="felfsectionheadertablexx_sectionheader" border="1">Section Headers {std::vector}</td></tr>
+			<tr><td port="fElfSectionXX" border="1" bgcolor="lightblue">fElfPartition::fElfSectionXX {template}</td></tr>
+				<tr><td port="" border="1">Index into Shtab</td></tr>
+				<tr><td port="" border="1">Data {templated}</td></tr>
+				<tr><td port="felfsectionxx_shtabreference" border="1">Shtab Reference</td></tr>
+		</table>>
+	]
+
+	fElfPartition:kind -> elf_partition_t:class [headport=left, tailport=right];
+	
+	fElfPartition:felfheaderxx_header -> ElfXX_Ehdr:class [headport=left, tailport=right];
+	
+	fElfPartition:felfprogramheadertablexx_elfheader -> fElfPartition:fElfHeaderXX;
+	fElfPartition:felfprogramheadertablexx_programheaders -> ElfXX_Phdr:class [headport=left, tailport=right];
+	
+	fElfPartition:felfsectionheadertablexx_elfheader -> fElfPartition:fElfHeaderXX;
+	fElfPartition:felfsectionheadertablexx_sectionheader -> ElfXX_Shdr:class [headport=left, tailport=right];
+
+	fElfPartition:felfsectionxx_shtabreference -> fElfPartition:fElfHeaderXX;
+
+	elf_partition_t  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">elf_partition_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	] 
+
+	SymNameToEaDict  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SymNameToEaDict</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	] 
+
+	GT_IMAGE_NT_HEADERSXX [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">GT_IMAGE_NT_HEADERSXX</td></tr>
+			<tr><td port="" border="1">Signature</td></tr>
+			<tr><td port="optionalheader" border="1">Optional Header</td></tr>
+			<tr><td port="fileheader" border="1">File Header</td></tr>
+		</table>>
+	] 
+
+	GT_IMAGE_NT_HEADERSXX:fileheader -> GT_IMAGE_FILE_HEADER:class [headport=left, tailport=right];
+	GT_IMAGE_NT_HEADERSXX:optionalheader -> GT_IMAGE_OPTIONAL_HEADERXX:class [headport=left, tailport=right];
+
+	GT_IMAGE_OPTIONAL_HEADERXX  [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">GT_IMAGE_OPTIONAL_HEADERXX</td></tr>
+			<tr><td port="" border="1">Magic</td></tr>
+			<tr><td port="" border="1">Major Linker Version</td></tr>
+			<tr><td port="" border="1">Minor Linker Version</td></tr>
+			<tr><td port="" border="1">Size Of Code</td></tr>
+			<tr><td port="" border="1">Size Of Initialized Data</td></tr>
+			<tr><td port="" border="1">Size Of Uninitialized Data</td></tr>
+			<tr><td port="" border="1">Address Of Entry Point</td></tr>
+			<tr><td port="" border="1">Base Of Code</td></tr>
+			<tr><td port="" border="1">Base Of Data</td></tr>
+			<tr><td port="" border="1">Image Base</td></tr>
+			<tr><td port="" border="1">Image Base</td></tr>
+			<tr><td port="" border="1">Section Alignment</td></tr>
+			<tr><td port="" border="1">File Alignment</td></tr>
+			<tr><td port="" border="1">Major Operating System Version</td></tr>
+			<tr><td port="" border="1">Minor Operating System Version</td></tr>
+			<tr><td port="" border="1">Major Image Version</td></tr>
+			<tr><td port="" border="1">Minor Image Version</td></tr>
+			<tr><td port="" border="1">Major Subsystem Version</td></tr>
+			<tr><td port="" border="1">Minor Subsystem Version</td></tr>
+			<tr><td port="" border="1">Win32 Version Value</td></tr>
+			<tr><td port="" border="1">Size Of Image</td></tr>
+			<tr><td port="" border="1">Size Of Headers</td></tr>
+			<tr><td port="" border="1">CheckSum</td></tr>
+			<tr><td port="" border="1">Subsystem</td></tr>
+			<tr><td port="" border="1">Dll Characteristics</td></tr>
+			<tr><td port="" border="1">Size Of Stack Reserve</td></tr>
+			<tr><td port="" border="1">Size Of Stack Commit</td></tr>
+			<tr><td port="" border="1">Size Of Heap Reserve</td></tr>
+			<tr><td port="" border="1">Size Of Heap Commit</td></tr>
+			<tr><td port="" border="1">Size Of Stack Reserve</td></tr>
+			<tr><td port="" border="1">Size Of Stack Commit</td></tr>
+			<tr><td port="" border="1">Size Of Heap Reserve</td></tr>
+			<tr><td port="" border="1">Size Of Heap Commit</td></tr>
+			<tr><td port="" border="1">Loader Flags</td></tr>
+			<tr><td port="" border="1">Number Of Rva And Sizes</td></tr>
+			<tr><td port="datadirectory" border="1">DataDirectory {array}</td></tr>
+		</table>>
+	] 
+
+	GT_IMAGE_OPTIONAL_HEADERXX:datadirectory -> GT_IMAGE_DATA_DIRECTORY:class [headport=left, tailport=right];
+
+	GT_IMAGE_FILE_HEADER   [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">GT_IMAGE_FILE_HEADER</td></tr>
+			<tr><td port="" border="1">Characteristics</td></tr>
+			<tr><td port="" border="1">Machine</td></tr>
+			<tr><td port="" border="1">Number Of Sections</td></tr>
+			<tr><td port="" border="1">Number Of Symbols</td></tr>
+			<tr><td port="" border="1">Pointer To Symbol Table</td></tr>
+			<tr><td port="" border="1">Size Of OptionalHeader</td></tr>
+			<tr><td port="" border="1">Time Date Stamp</td></tr>
+		</table>>
+	] 
+
+	GT_IMAGE_DATA_DIRECTORY   [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">GT_IMAGE_DATA_DIRECTORY</td></tr>
+			<tr><td port="" border="1">Virtual Address</td></tr>
+			<tr><td port="" border="1">Size</td></tr>
+		</table>>
+	] 
+
+	macho_load_command [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">macho_load_command</td></tr>
+			<tr><td port="" border="1">Command</td></tr>
+			<tr><td port="" border="1">Command Size</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="macho_dyld_info_command" border="1" bgcolor="lightgray">macho_load_command::macho_dyld_info_command</td></tr>
+				<tr><td port="" border="1">Bind Off</td></tr>
+				<tr><td port="" border="1">Bind Size</td></tr>
+				<tr><td port="" border="1">Export Off</td></tr>
+				<tr><td port="" border="1">Export Size</td></tr>
+				<tr><td port="" border="1">Lazy Bind Off</td></tr>
+				<tr><td port="" border="1">Lazy Bind Size</td></tr>
+				<tr><td port="" border="1">Rebase Off</td></tr>
+				<tr><td port="" border="1">Rebase Size</td></tr>
+				<tr><td port="" border="1">Weak Bind Off</td></tr>
+				<tr><td port="" border="1">Weak Bind Size</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="MachOXX_SegHdr" border="1" bgcolor="lightgray">macho_load_command::MachOXX_SegHdr</td></tr>
+				<tr><td port="" border="1">File Offset</td></tr>
+				<tr><td port="" border="1">File Size</td></tr>
+				<tr><td port="" border="1">Flags</td></tr>
+				<tr><td port="" border="1">Initial VM Protection</td></tr>
+				<tr><td port="" border="1">Maximum VM Protection</td></tr>
+				<tr><td port="" border="1">Number of Sections in Segment</td></tr>
+				<tr><td port="" border="1">Segment Name</td></tr>
+				<tr><td port="" border="1">Virtual Memory Address</td></tr>
+				<tr><td port="" border="1">Virtual Memory Size</td></tr>
+		</table>>
+	] 
+
+	macho_dyld_bind_info[shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">macho_dyld_bind_info</td></tr>
+			<tr><td port="" border="1">Add End</td></tr>
+			<tr><td port="" border="1">Dylib   </td></tr>
+			<tr><td port="" border="1">Is Weak</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Offset</td></tr>
+			<tr><td port="" border="1">Section Index</td></tr>
+			<tr><td port="" border="1">Segment Index</td></tr>
+			<tr><td port="" border="1">Type</td></tr>
+		</table>>
+	] 
+
+	EaToMachOSymMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">EaToMachOSymMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	] 
+
+	EaToMachOSymMap:struct -> gtMachOSymbol:class
+
+	gtMachOSymbol [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">gtMachOSymbol</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">STRX</td></tr>
+			<tr><td port="" border="1">Type</td></tr>
+			<tr><td port="" border="1">Section</td></tr>
+			<tr><td port="" border="1">Desc</td></tr>
+			<tr><td port="" border="1">Value</td></tr>
+		</table>>
+	] 
+
+	GT_IMAGE_SECTION_HEADER [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">GT_IMAGE_SECTION_HEADER</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Physical Address / Virtual Size</td></tr>
+			<tr><td port="" border="1">Virtual Address</td></tr>
+			<tr><td port="" border="1">Size Of Raw Data</td></tr>
+			<tr><td port="" border="1">Pointer To Raw Data</td></tr>
+			<tr><td port="" border="1">Pointer To Relocations</td></tr>
+			<tr><td port="" border="1">Pointer To Linenumbers</td></tr>
+			<tr><td port="" border="1">Number Of Relocations</td></tr>
+			<tr><td port="" border="1">Number Of Linenumbers</td></tr>
+			<tr><td port="" border="1">Characteristics</td></tr>
+		</table>>
+	] 
+
+	GT_ANON_OBJECT_HEADER_BIGOBJ [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">GT_ANON_OBJECT_HEADER_BIGOBJ</td></tr>
+			<tr><td port="" border="1">Flags</td></tr>
+			<tr><td port="" border="1">Machine</td></tr>
+			<tr><td port="" border="1">Meta Data Offset</td></tr>
+			<tr><td port="" border="1">Meta Data Size</td></tr>
+			<tr><td port="" border="1">Number Of Sections</td></tr>
+			<tr><td port="" border="1">Number Of Symbols</td></tr>
+			<tr><td port="" border="1">Pointer To Symbol Table</td></tr>
+			<tr><td port="" border="1">Sig1</td></tr>
+			<tr><td port="" border="1">Sig2</td></tr>
+			<tr><td port="" border="1">Size Of Data</td></tr>
+			<tr><td port="" border="1">TimeDateStamp</td></tr>
+			<tr><td port="" border="1">Version</td></tr>
+			<tr><td port="classid" border="1">ClassID</td></tr>
+		</table>>
+	] 
+
+	GT_ANON_OBJECT_HEADER_BIGOBJ:classid -> GT_CLSID:class [headport=left, tailport=right];
+
+	GT_CLSID [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">GT_CLSID</td></tr>
+			<tr><td port="" border="1">X</td></tr>
+			<tr><td port="" border="1">S1</td></tr>
+			<tr><td port="" border="1">S2</td></tr>
+			<tr><td port="" border="1">C[8]</td></tr>
+		</table>>
+	]  
+
+	fMachOPartition [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fMachOPartition</td></tr>
+			<tr><td port="kind" border="1">Kind</td></tr>
+			<tr><td port="" border="2"></td></tr>
+			<tr><td port="fMachOHeaderXX" border="1" bgcolor="lightblue">fMachOPartition::fMachOHeaderXX</td></tr>
+				<tr><td port="" border="1">File Offset</td></tr>
+				<tr><td port="fmachoheaderxx_header" border="1">Header</td></tr>
+		</table>>
+	]
+
+	fMachOPartition:kind -> macho_partition_t:class [headport=left, tailport=right];
+	fMachOPartition:fmachoheaderxx_header -> MachOXX_Hdr:class [headport=left, tailport=right];
+
+	macho_partition_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">macho_partition_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]  
+
+	ElfXX_Shdr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ElfXX_Shdr</td></tr>
+			<tr><td port="name" border="1">Name</td></tr>
+			<tr><td port="type" border="1">Type</td></tr>
+			<tr><td port="flags" border="1">Flags</td></tr>
+			<tr><td port="address" border="1">Address</td></tr>
+			<tr><td port="offset" border="1">Offset</td></tr>
+			<tr><td port="size" border="1">Size</td></tr>
+			<tr><td port="link" border="1">Link</td></tr>
+			<tr><td port="info" border="1">Info</td></tr>
+			<tr><td port="addressalignment" border="1">Address Alignment</td></tr>
+			<tr><td port="entrysize" border="1">Entry Size</td></tr>
+		</table>>
+	]
+
+	ElfXX_Shdr:name -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Shdr:type -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Shdr:flags -> Elf64_XWord:class [headport=left, tailport=right];
+	ElfXX_Shdr:address -> Elf64_Addr:class [headport=left, tailport=right];
+	ElfXX_Shdr:offset -> Elf64_Off:class [headport=left, tailport=right];
+	ElfXX_Shdr:size -> Elf64_XWord:class [headport=left, tailport=right];
+	ElfXX_Shdr:link -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Shdr:info -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Shdr:addressalignment -> Elf64_XWord:class [headport=left, tailport=right];
+	ElfXX_Shdr:entrysize -> Elf64_XWord:class [headport=left, tailport=right];
+
+	Elf64_Word [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Elf64_Word</td></tr>
+			<tr><td port="name" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	Elf64_XWord [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Elf64_XWord</td></tr>
+			<tr><td port="name" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	Elf64_Addr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Elf64_Addr</td></tr>
+			<tr><td port="name" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	Elf64_Off [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Elf64_Off</td></tr>
+			<tr><td port="name" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	Elf64_Half [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">Elf64_Half</td></tr>
+			<tr><td port="name" border="1">{POD}</td></tr>
+		</table>>
+	]
+
+	ElfXX_Ehdr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ElfXX_Ehdr</td></tr>
+			<tr><td port="" border="1">Identity</td></tr>
+			<tr><td port="type" border="1">Type</td></tr>
+			<tr><td port="machine" border="1">Machine</td></tr>
+			<tr><td port="version" border="1">Version</td></tr>
+			<tr><td port="entry" border="1">Entry</td></tr>
+			<tr><td port="phoffset" border="1">PH Offset</td></tr>
+			<tr><td port="shoffset" border="1">SH Offset</td></tr>
+			<tr><td port="flags" border="1">Flags</td></tr>
+			<tr><td port="ehsize" border="1">EH Size</td></tr>
+			<tr><td port="phentrysize" border="1">PH Entry Size</td></tr>
+			<tr><td port="shentrysize" border="1">SH Entry Size</td></tr>
+			<tr><td port="shnumber" border="1">SH Number</td></tr>
+			<tr><td port="shstringindex" border="1">SH String Index</td></tr>
+		</table>>
+	]
+
+	ElfXX_Ehdr:type -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:machine -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:version -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Ehdr:entry -> Elf64_Addr:class [headport=left, tailport=right];
+	ElfXX_Ehdr:phoffset -> Elf64_Off:class [headport=left, tailport=right];
+	ElfXX_Ehdr:shoffset -> Elf64_Off:class [headport=left, tailport=right];
+	ElfXX_Ehdr:flags -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:ehsize -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:phentrysize -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:shentrysize -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:shnumber -> Elf64_Half:class [headport=left, tailport=right];
+	ElfXX_Ehdr:shstringindex -> Elf64_Half:class [headport=left, tailport=right];
+
+	ElfXX_Phdr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">ElfXX_Phdr</td></tr>
+			<tr><td port="type" border="1">Type</td></tr>
+			<tr><td port="flags" border="1">Flags</td></tr>
+			<tr><td port="offset" border="1">Offset</td></tr>
+			<tr><td port="vaddress" border="1">V Address</td></tr>
+			<tr><td port="paddress" border="1">P Address</td></tr>
+			<tr><td port="filessize" border="1">Files Size</td></tr>
+			<tr><td port="memsize" border="1">Mem Size</td></tr>
+			<tr><td port="alignment" border="1">Alignment</td></tr>
+		</table>>
+	]
+
+	ElfXX_Ehdr:type -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Ehdr:flags -> Elf64_Word:class [headport=left, tailport=right];
+	ElfXX_Ehdr:offset -> Elf64_Off:class [headport=left, tailport=right];
+	ElfXX_Ehdr:vaddress -> Elf64_Addr:class [headport=left, tailport=right];
+	ElfXX_Ehdr:paddress -> Elf64_Addr:class [headport=left, tailport=right];
+	ElfXX_Ehdr:filessize -> Elf64_XWord:class [headport=left, tailport=right];
+	ElfXX_Ehdr:memsize -> Elf64_XWord:class [headport=left, tailport=right];
+	ElfXX_Ehdr:alignment -> Elf64_XWord:class [headport=left, tailport=right];
+
+	fUintExportMap [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fUintExportMap</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fUintExportMap:struct -> fExportEntry:class [headport=left, tailport=right];
+
+	fExportEntry [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fExportEntry</td></tr>
+			<tr><td port="" border="1">Effective Address</td></tr>
+			<tr><td port="" border="1">Forward DLL</td></tr>
+			<tr><td port="" border="1">Forward Name</td></tr>
+			<tr><td port="" border="1">Name</td></tr>
+			<tr><td port="" border="1">Ordinal</td></tr>
+			<tr><td port="flags" border="1">Flags</td></tr>
+		</table>>
+	]
+
+	fExportEntry:flags -> export_flags_t:class [headport=left, tailport=right];
+
+	export_flags_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">export_flags_t</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	SecInfo_attrs [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SecInfo_attrs</td></tr>
+			<tr><td port="struct" border="1">{static func}</td></tr>
+		</table>>
+	]
+
+	fExportSet [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">fExportSet</td></tr>
+			<tr><td port="struct" border="1">{struct}</td></tr>
+		</table>>
+	]
+
+	fExportSet:struct -> fExportEntry:class [headport=left, tailport=right];
+
+	CfgNodeToPatternMatchInfoT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CfgNodeToPatternMatchInfoT</td></tr>
+			<tr><td port="struct" border="1">{std:map{nCFGNode*, PatternMatchInfoItemT}}</td></tr>
+		</table>>
+	]
+
+	CfgNodeToPatternMatchInfoT:struct -> nCFGnode:class [headport=left, tailport=right];
+	CfgNodeToPatternMatchInfoT:struct -> PatternMatchInfoItemT:class [headport=left, tailport=right];
+
+	PatternMatchInfoItemT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">PatternMatchInfoItemT</td></tr>
+			<tr><td port="struct" border="1">{std:pair{int, PatternMatchInfoRefPtr}}</td></tr>
+		</table>>
+	]
+
+	PatternMatchInfoItemT:struct -> PatternMatchInfoRefPtr:class [headport=left, tailport=right];
+
+	PatternMatchInfoRefPtr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">PatternMatchInfoRefPtr</td></tr>
+			<tr><td port="struct" border="1">{refptr{PatternMatchInfoT}}</td></tr>
+		</table>>
+	]
+
+	PatternMatchInfoRefPtr:struct -> PatternMatchInfoT:class [headport=left, tailport=right];
+
+	PatternMatchInfoT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">PatternMatchInfoRefPtr</td></tr>
+			<tr><td port="cfg" border="1">CFG</td></tr>
+			<tr><td port="" border="1">Pattern ID</td></tr>
+			<tr><td port="nodes" border="1">Nodes {vector}</td></tr>
+			<tr><td port="commentgenerator" border="1">Comment Generator</td></tr>
+		</table>>
+	]
+
+	PatternMatchInfoT:cfg -> nCFG:class [headport=left, tailport=right];
+	PatternMatchInfoT:nodes -> PMNI_NodeT:class [headport=left, tailport=right];
+	PatternMatchInfoT:commentgenerator -> CommentGenerator:class [headport=left, tailport=right];
+
+	CommentGenerator [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">CommentGenerator</td></tr>
+			<tr><td port="struct" border="1">{empty}</td></tr>
+		</table>>
+	]
+
+	PMNI_NodeT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">PMNI_NodeT</td></tr>
+			<tr><td port="" border="1">Delete from IR</td></tr>
+			<tr><td port="matchednode" border="1">Matched Node</td></tr>
+			<tr><td port="insertfirst" border="1">Insert First</td></tr>
+			<tr><td port="insertlast" border="1">Insert Last</td></tr>
+			<tr><td port="" border="1">Position Begin</td></tr>
+			<tr><td port="" border="1">Position End</td></tr>
+		</table>>
+	]
+
+	PMNI_NodeT:matchednode -> nCFGnode:class [headport=left, tailport=right];
+	PMNI_NodeT:insertfirst -> nCFGnode:class [headport=left, tailport=right];
+	PMNI_NodeT:insertlast -> nCFGnode:class [headport=left, tailport=right];
+
+
+	MachOXX_Hdr [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">MachOXX_Hdr</td></tr>
+			<tr><td port="" border="1">Magic</td></tr>
+			<tr><td port="" border="1">CPU Type</td></tr>
+			<tr><td port="" border="1">CPU Subtype</td></tr>
+			<tr><td port="" border="1">File Type</td></tr>
+			<tr><td port="" border="1">Number of Load Commands</td></tr>
+			<tr><td port="" border="1">Size of All Load Commands</td></tr>
+			<tr><td port="" border="1">Flags</td></tr>
+			<tr><td port="" border="1">Reserved</td></tr>
+		</table>>
+	]
+}

@@ -1,0 +1,61 @@
+digraph quadtree {
+	// title
+	labelloc="t";
+	label="Rewriting and Analysis over GT-IR\n(Mixed GT and 3rd Party)";
+	fontsize="48";
+	rankdir="LR";
+	graph [splines=ortho, nodesep=0.33];
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+
+	subgraph cluster_gt
+	{
+		label="GT";
+		fontsize="24";
+		color=lightgrey;
+
+		node [shape=box, style=filled, color=lightgrey]; "SWYX FE", "SWYX BE", "SWYX Analysis", GTx, "SWYX PP"
+		node [shape=box, style=hollow, color=lightgrey]; gtir_swyxfe2swyxbe [label="GT-IR"]
+		node [shape=box, style=hollow, color=lightgrey]; gtir_swyxfe2gtx [label="GT-IR"]
+		node [shape=box, style=hollow, color=lightgrey]; gtir_swyxanalysis2swyxbe [label="GT-IR"]
+	}
+
+	node [shape=box, style=hollow, color=lightgrey]; gtir_feplugin2swyxfe [label="GT-IR"]
+
+	subgraph cluster_thirdparty
+	{
+		label="3rd Party";
+		fontsize="24";
+		color=cornflowerblue;
+
+		node [shape=box, style=filled, color=cornflowerblue]; "FE Plugin", "Analysis Plugin", "Rewrite Plugin", "PP Plugin"
+		node [shape=box, style=hollow, color=lightgrey]; gtir_fe2analysis [label="GT-IR"]
+		node [shape=box, style=hollow, color=lightgrey]; gtir_fe2rewrite [label="GT-IR"]
+		node [shape=box, style=hollow, color=lightgrey]; gtir_rewrite2pp [label="GT-IR"]
+	}
+
+	"FE Plugin" -> gtir_feplugin2swyxfe;
+	gtir_feplugin2swyxfe -> "SWYX FE";
+
+	"SWYX FE" -> gtir_swyxfe2swyxbe;
+	gtir_swyxfe2swyxbe -> "SWYX BE";
+
+	"SWYX FE" -> gtir_swyxfe2gtx;
+	gtir_swyxfe2gtx -> GTx;
+
+	GTx -> "SWYX PP";
+	"SWYX BE" -> "SWYX Analysis";
+
+	"SWYX Analysis" -> gtir_swyxanalysis2swyxbe;
+	gtir_swyxanalysis2swyxbe -> "SWYX BE";
+
+	"FE Plugin" -> gtir_fe2analysis;
+	gtir_fe2analysis -> "Analysis Plugin";
+
+	"FE Plugin" -> gtir_fe2rewrite;
+	gtir_fe2rewrite -> "Rewrite Plugin";
+
+	"Rewrite Plugin" -> gtir_rewrite2pp;
+	gtir_rewrite2pp -> "PP Plugin";
+}

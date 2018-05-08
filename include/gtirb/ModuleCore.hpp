@@ -8,6 +8,8 @@ namespace gtirb
     /// \class ModuleCore
     /// \author John E. Farrier
     ///
+    /// \todo   gtirb::ModuleCore can likely be combined into gtirb::Module.
+    ///
     class GTIRB_GTIRB_EXPORT_API ModuleCore : public ModuleSectionBase
     {
     public:

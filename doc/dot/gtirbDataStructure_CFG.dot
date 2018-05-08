@@ -1,0 +1,598 @@
+digraph quadtree {
+	// title
+	labelloc="t";
+	label="CFG `Has A` Relationships";
+	fontsize="48";
+	graph [splines=ortho, nodesep=1.0];
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+
+	CFG [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="orange">CFG</td></tr>
+			<tr><td port="" border="1">_cfg_block_count</td></tr>
+			<tr><td port="" border="1">_cfg_param_in_count</td></tr>
+			<tr><td port="" border="1">_cfg_param_out_count</td></tr>
+
+  			<tr><td port="_cfg_next" border="1">_cfg_next</td></tr>
+  			<tr><td port="_cfg_asts" border="1">_cfg_asts</td></tr>
+  			<tr><td port="_cfg_decls" border="1">_cfg_decls</td></tr>
+  			<tr><td port="_cfg_friendly_name" border="1">_cfg_friendly_name</td></tr>
+  			<tr><td port="_cfg_fe_cfg" border="1">_cfg_fe_cfg</td></tr>
+  			<tr><td port="_cfg_vertex_set" border="1">_cfg_vertex_set</td></tr>
+  			<tr><td port="_cfg_procedure_name" border="1">_cfg_procedure_name</td></tr>
+  			<tr><td port="_cfg_procedure_id" border="1">_cfg_procedure_id</td></tr>
+  			<tr><td port="_cfg_blocks" border="1">_cfg_blocks</td></tr>
+  			<tr><td port="_cfg_system_id" border="1">_cfg_system_id</td></tr>
+  			<tr><td port="_cfg_kind" border="1">_cfg_kind</td></tr>
+  			<tr><td port="_cfg_compilation_uid" border="1">_cfg_compilation_uid</td></tr>
+  			<tr><td port="_cfg_body_vertex_id" border="1">_cfg_body_vertex_id</td></tr>
+  			<tr><td port="_cfg_entry_vertex_id" border="1">_cfg_entry_vertex_id</td></tr>
+  			<tr><td port="_cfg_preend_vertex_id" border="1">_cfg_preend_vertex_id</td></tr>
+		</table>>
+	]
+
+	CFG:_cfg_asts -> _LMI_AST_GROUP:class [headport=left, tailport=right];
+	CFG:_cfg_decls -> ABS_LOC_TO_VERTEX_ID_T:class [headport=left, tailport=right];
+	CFG:_cfg_friendly_name -> FATSTRING_IMMUTABLE:class [headport=left, tailport=right];
+	CFG:_cfg_fe_cfg -> FE_CFG:class [headport=left, tailport=right];
+	CFG:_cfg_vertex_set -> HT_TABLE:class [headport=left, tailport=right];
+	CFG:_cfg_procedure_name -> PROC_NAME:class [headport=left, tailport=right];
+	CFG:_cfg_procedure_id -> PROCEDURE_ID:class [headport=left, tailport=right];
+	CFG:_cfg_next -> CFG:class [headport=left, tailport=right];
+	CFG:_cfg_blocks -> CFG_BLOCK:class [headport=left, tailport=right];
+	CFG:_cfg_system_id -> SYSTEM_ID:class [headport=left, tailport=right];
+	CFG:_cfg_kind -> SYSTEM_PROC_KIND:class [headport=left, tailport=right];
+	CFG:_cfg_compilation_uid -> UID:class [headport=left, tailport=right];
+	CFG:_cfg_body_vertex_id -> VERTEX_ID:class [headport=left, tailport=right];
+	CFG:_cfg_entry_vertex_id -> VERTEX_ID:class [headport=left, tailport=right];
+	CFG:_cfg_preend_vertex_id -> VERTEX_ID:class [headport=left, tailport=right];
+
+	SYSTEM_ID [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SYSTEM_ID</td></tr>
+			<tr><td port="" border="1">{typedef csint32;}</td></tr>
+		</table>>
+	]
+
+	PROCEDURE_ID [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">PROCEDURE_ID</td></tr>
+			<tr><td port="" border="1">{typedef csint32;}</td></tr>
+		</table>>
+	]
+
+	PROC_NAME [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">PROC_NAME</td></tr>
+			<tr><td port="name" border="1">name</td></tr>
+			<tr><td port="nhashes" border="1">nhashes</td></tr>
+			<tr><td port="uid" border="1">uid</td></tr>
+			<tr><td port="attrs" border="1">attrs</td></tr>
+		</table>>
+	]
+
+	PROC_NAME:name -> FATSTRING_IMMUTABLE:class [headport=left, tailport=right];
+	PROC_NAME:nhashes -> NameHashes:class [headport=left, tailport=right];
+	PROC_NAME:uid -> UID:class [headport=left, tailport=right];
+	PROC_NAME:attrs -> cs_func_attrs:class [headport=left, tailport=right];
+
+	UID [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">UID</td></tr>
+			<tr><td port="" border="1">struct {csuint32}</td></tr>
+		</table>>
+	]
+
+	CFG_BLOCK [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFG_BLOCK</td></tr>
+			<tr><td port="" border="1">_cfg_block_pd_depth</td></tr>
+			<tr><td port="" border="1">_cfg_block_visit</td></tr>
+			<tr><td port="_cfg_block_df" border="1">_cfg_block_df</td></tr>
+			<tr><td port="_cfg_block_dom_children" border="1">_cfg_block_dom_children</td></tr>
+			<tr><td port="_cfg_block_dom_parent" border="1">_cfg_block_dom_parent</td></tr>
+			<tr><td port="_cfg_block_header" border="1">_cfg_block_header</td></tr>
+			<tr><td port="_cfg_block_killed" border="1">_cfg_block_killed</td></tr>
+			<tr><td port="_cfg_block_last" border="1">_cfg_block_last</td></tr>
+			<tr><td port="_cfg_block_ne_predlinks" border="1">_cfg_block_ne_predlinks</td></tr>
+			<tr><td port="_cfg_block_pd_parent" border="1">_cfg_block_pd_parent</td></tr>
+			<tr><td port="_cfg_block_phi" border="1">_cfg_block_phi</td></tr>
+			<tr><td port="_cfg_block_predlinks" border="1">_cfg_block_predlinks</td></tr>
+			<tr><td port="_cfg_block_pseudo_predlinks" border="1">_cfg_block_pseudo_predlinks</td></tr>
+			<tr><td port="_cfg_block_succlinks" border="1">_cfg_block_succlinks</td></tr>
+		</table>>
+	]
+
+	CFG_BLOCK:_cfg_block_header -> CFG_VERTEX:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_last -> CFG_VERTEX:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_predlinks -> SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_ne_predlinks -> SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_pseudo_predlinks -> SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_pd_parent -> CFG_BLOCK:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_succlinks -> SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_dom_children -> SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_dom_parent -> CFG_BLOCK:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_df -> SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_phi -> ABS_LOC_SET:class [headport=left, tailport=right];
+	CFG_BLOCK:_cfg_block_killed -> ABS_LOC_SET:class [headport=left, tailport=right];
+
+	CFG_VERTEX [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">CFG_VERTEX</td></tr>
+			<tr><td port="" border="1">_cfg_vertex_mark</td></tr>
+			<tr><td port="" border="1">_cfg_vertex_parameter_rank</td></tr>
+			<tr><td port="" border="1">_cfg_vertex_syntax_element</td></tr>
+			<tr><td port="" border="1">_cfg_vertex_syntax_kind</td></tr>
+			<tr><td port="_cfg_vertex_asts" border="1"> _cfg_vertex_asts</td></tr>
+			<tr><td port="_cfg_vertex_called_sym" border="1">_cfg_vertex_called_sym</td></tr>
+			<tr><td port="_cfg_vertex_decl_abs_loc" border="1">_cfg_vertex_decl_abs_loc</td></tr>
+			<tr><td port="_cfg_vertex_decl_uses" border="1">_cfg_vertex_decl_uses</td></tr>
+			<tr><td port="_cfg_vertex_excpt_key" border="1">_cfg_vertex_excpt_key</td></tr>
+			<tr><td port="_cfg_vertex_id" border="1">_cfg_vertex_id</td></tr>
+			<tr><td port="_cfg_vertex_ids_cond_killing" border="1"> _cfg_vertex_ids_cond_killing</td></tr>
+			<tr><td port="_cfg_vertex_ids_killing" border="1">_cfg_vertex_ids_killing</td></tr>
+			<tr><td port="_cfg_vertex_ids_used" border="1">_cfg_vertex_ids_used</td></tr>
+			<tr><td port="_cfg_vertex_kind" border="1">_cfg_vertex_kind</td></tr>
+			<tr><td port="_cfg_vertex_loop_independent_sources" border="1">_cfg_vertex_loop_independent_sources</td></tr>
+			<tr><td port="_cfg_vertex_multicall" border="1">_cfg_vertex_multicall</td></tr>
+			<tr><td port="_cfg_vertex_positions" border="1">         _cfg_vertex_positions</td></tr>
+			<tr><td port="_cfg_vertex_procedure_called" border="1">_cfg_vertex_procedure_called</td></tr>
+			<tr><td port="_cfg_vertex_successors" border="1">_cfg_vertex_successors</td></tr>
+			<tr><td port="_cfg_vertex_succlinks" border="1">_cfg_vertex_succlinks</td></tr>
+			<tr><td port="CS_VATTR_BITS" border="1">CS_VATTR_BITS</td></tr>
+			<tr><td port="fe_node" border="1">         fe_node</td></tr>
+    	</table>>
+	]
+
+	CFG_VERTEX:_cfg_vertex_id -> VERTEX_ID:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_kind -> VERTEX_KIND:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_decl_abs_loc -> ABS_LOC:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_procedure_called -> PROC_NAME:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_called_sym -> BFE_SYMBOL:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_excpt_key -> FATSTRING_IMMUTABLE:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_multicall -> PROC_NAME_SET_T:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_successors -> CFG_EDGES:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_succlinks -> SET:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_ids_cond_killing -> FUNIQUE_ABS_LOC_SET:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_ids_killing -> FUNIQUE_ABS_LOC_SET:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_ids_used -> FUNIQUE_ABS_LOC_SET:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_decl_uses -> FUNIQUE_ABS_LOC_SET:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_loop_independent_sources -> SET:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_asts -> _LMI_AST_GROUP:class [headport=left, tailport=right];
+	CFG_VERTEX:_cfg_vertex_positions -> FE_POSITION:class [headport=left, tailport=right];
+	CFG_VERTEX:fe_node -> FE_CFG_NODE:class [headport=left, tailport=right];
+
+	NameHashes [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">NameHashes</td></tr>
+			<tr><td port="" border="1">Hash Name</td></tr>
+			<tr><td port="" border="1">Hash Alpha</td></tr>
+			<tr><td port="" border="1">Hash Beta</td></tr>
+		</table>>
+	]
+
+	SYSTEM_PROC_KIND [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">SYSTEM_PROC_KIND</td></tr>
+			<tr><td port="" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	/*
+	system_abs_loc_kind_tag [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">system_abs_loc_kind_tag</td></tr>
+			<tr><td port="" border="1">{enum}</td></tr>
+		</table>>
+	]
+	*/
+
+	/*
+	system_abs_loc_kind [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">system_abs_loc_kind</td></tr>
+			<tr><td port="" border="1">{char}</td></tr>
+		</table>>
+	]
+	*/
+
+	/* HT_TABLE == _ht_table_head == HT_TABLE_NODE */
+	HT_TABLE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">HT_TABLE</td></tr>
+			<tr><td port="_ht_bucket_array" border="1">_ht_bucket_array</td></tr>
+			<tr><td port="_ht_compare" border="1"> _ht_compare</td></tr>
+			<tr><td port="_ht_hash" border="1"> _ht_hash</td></tr>
+			<tr><td port="_iteration_support" border="1">_iteration_support</td></tr>
+			<tr><td port="" border="1">_creation_file</td></tr>
+			<tr><td port="" border="1">_creation_line</td></tr>
+			<tr><td port="" border="1">_ht_bucket_mask</td></tr>
+			<tr><td port="" border="1">_ht_num_items</td></tr>
+			<tr><td port="" border="1">_no_buckets</td></tr>
+			<tr><td port="" border="1">_ht_decr_rc</td></tr>
+			<tr><td port="" border="1">_ht_incr_rc</td></tr>
+		</table>>
+	]
+
+	HT_TABLE:_ht_bucket_array -> HT_BUCKET_ARRAY:class [headport=left, tailport=right];
+	HT_TABLE:_ht_compare -> ht_compare_fn_t:class [headport=left, tailport=right];
+	HT_TABLE:_ht_hash -> ht_hash_fn_t:class [headport=left, tailport=right];
+	HT_TABLE:_iteration_support -> HT_ITERATION_SUPPORT:class [headport=left, tailport=right];
+
+	HT_BUCKET_ARRAY [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">HT_BUCKET_ARRAY</td></tr>
+			<tr><td port="struct" border="1">{typedef}</td></tr>
+		</table>>
+	]
+
+	HT_BUCKET_ARRAY:struct -> HT_ITEM:class [headport=left, tailport=right];
+
+	/* HT_ITEM == _ht_item */
+	HT_ITEM [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">HT_ITEM</td></tr>
+			<tr><td port="_hti_next_in_bucket" border="1">_hti_next_in_bucket</td></tr>
+			<tr><td port="_hti_datum" border="1">_hti_datum</td></tr>
+			<tr><td port="_hti_hashed_key" border="1">_hti_hashed_key</td></tr>
+		</table>>
+	]
+
+	HT_ITEM:_hti_datum -> HT_DATUM:class [headport=left, tailport=right];
+	HT_ITEM:_hti_next_in_bucket -> HT_ITEM:class [headport=left, tailport=right];
+	HT_ITEM:_hti_hashed_key -> cs_hash_t:class [headport=left, tailport=right];
+
+	HT_DATUM [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">HT_DATUM</td></tr>
+			<tr><td port="" border="1">{void*}</td></tr>
+		</table>>
+	]
+
+	cs_hash_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_hash_t</td></tr>
+			<tr><td port="" border="1">{csuint32_t}</td></tr>
+		</table>>
+	]
+
+	ht_compare_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ht_compare_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	/*
+	ht_incr_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ht_incr_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+	*/
+
+	/*
+	ht_decr_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ht_decr_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+	*/
+
+	ht_hash_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ht_hash_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	HT_ITERATION_SUPPORT [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">HT_ITERATION_SUPPORT</td></tr>
+			<tr><td port="" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	FE_CFG [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FE_CFG</td></tr>
+			<tr><td port="" border="1">{FAT TYPE}</td></tr>
+		</table>>
+	]
+
+	VERTEX_ID [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">VERTEX_ID</td></tr>
+			<tr><td port="" border="1">{csint32}</td></tr>
+		</table>>
+	]
+
+	/* set_head_node == SET */
+	SET [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SET</td></tr>
+			<tr><td port="" border="1">_set_count</td></tr>
+			<tr><td port="" border="1">_set_data_node_count</td></tr>
+			<tr><td port="" border="1">_set_rc</td></tr>
+			<tr><td port="" border="1">{csint32}</td></tr>
+			<tr><td port="_set_data_head" border="1">_set_data_head</td></tr>
+			<tr><td port="_set_descriptor" border="1">_set_descriptor</td></tr>
+			<tr><td port="wide_head" border="1">wide_head</td></tr>
+		</table>>
+	]
+
+	SET:_set_descriptor -> SET_DESCRIPTOR:class [headport=left, tailport=right];
+	SET:_set_data_head -> SET_DATUM_NODE:class [headport=left, tailport=right];
+	SET:wide_head -> FATREF:class [headport=left, tailport=right];
+
+	/* SET_DESCRIPTOR == set_kind_descriptor */
+	SET_DESCRIPTOR [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SET_DESCRIPTOR</td></tr>
+			<tr><td port="" border="1">_creation_file</td></tr>
+			<tr><td port="" border="1">_creation_line</td></tr>
+			<tr><td port="" border="1">_is_dynamic</td></tr>
+			<tr><td port="" border="1">_set_iteration_support</td></tr>
+			<tr><td port="" border="1">_set_kind</td></tr>
+			<tr><td port="_set_compare" border="1">_set_compare</td></tr>
+			<tr><td port="_set_decr_rc" border="1">_set_decr_rc</td></tr>
+			<tr><td port="_set_hash" border="1">_set_hash</td></tr>
+			<tr><td port="_set_incr_rc" border="1">_set_incr_rc</td></tr>
+			<tr><td port="_set_serialize" border="1">_set_serialize</td></tr>
+			<tr><td port="_set_unserialize" border="1">_set_unserialize</td></tr>
+			<tr><td port="_set_walk_to" border="1">_set_walk_to</td></tr>
+		</table>>
+	]
+
+	SET_DESCRIPTOR:_set_compare -> set_compare_fn_t:class [headport=left, tailport=right];
+	SET_DESCRIPTOR:_set_hash -> set_hash_fn_t:class [headport=left, tailport=right];
+	SET_DESCRIPTOR:_set_incr_rc -> set_incr_rc_fn_t:class [headport=left, tailport=right];
+	SET_DESCRIPTOR:_set_decr_rc -> set_decr_rc_fn_t:class [headport=left, tailport=right];
+	SET_DESCRIPTOR:_set_serialize -> set_datum_serialize_fn_t:class [headport=left, tailport=right];
+	SET_DESCRIPTOR:_set_unserialize -> set_datum_unserialize_fn_t:class [headport=left, tailport=right];
+	SET_DESCRIPTOR:_set_walk_to -> set_datum_walk_to_fn_t:class [headport=left, tailport=right];
+
+	set_compare_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_compare_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	set_hash_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_hash_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	set_incr_rc_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_incr_rc_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	set_decr_rc_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_decr_rc_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	set_datum_serialize_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_datum_serialize_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	set_datum_unserialize_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_datum_unserialize_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	set_datum_walk_to_fn_t [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">set_datum_walk_to_fn_t</td></tr>
+			<tr><td port="" border="1">{function pointer}</td></tr>
+		</table>>
+	]
+
+	/* SET_DATUM_NODE == set_datum_node */
+	SET_DATUM_NODE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">SET_DATUM_NODE</td></tr>
+			<tr><td port="_set_node_next" border="1">_set_node_next</td></tr>
+			<tr><td port="_set_node_datum" border="1">_set_node_datum</td></tr>
+		</table>>
+	]
+
+	SET_DATUM_NODE:_set_node_next -> SET_DATUM_NODE:class [headport=left, tailport=right];
+	SET_DATUM_NODE:_set_node_datum -> BIT_VECTOR_ARRAY_BASE_TYPE:class [headport=left, tailport=right];
+
+	BIT_VECTOR_ARRAY_BASE_TYPE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">BIT_VECTOR_ARRAY_BASE_TYPE</td></tr>
+			<tr><td port="" border="1">{typedef size_t}</td></tr>
+		</table>>
+	]
+
+	_LMI_AST_GROUP [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">_LMI_AST_GROUP</td></tr>
+			<tr><td port="struct" border="1">ast</td></tr>
+		</table>>
+	]
+
+	_LMI_AST_GROUP:struct -> cs_ast:class [headport=left, tailport=right];
+
+	cs_ast [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">cs_ast</td></tr>
+			<tr><td port="struct" border="1">ast</td></tr>
+		</table>>
+	]
+
+	cs_ast:struct -> __cs_ast:class [headport=left, tailport=right];
+
+	__cs_ast [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">__cs_ast</td></tr>
+			<tr><td port="__cs_data_ast" border="1">__cs_data_ast</td></tr>
+			<tr><td port="__cs_data_ast_class" border="1">__cs_data_ast_class</td></tr>
+		</table>>
+	]
+
+	__cs_ast:__cs_data_ast -> cs_ast_value:class [headport=left, tailport=right];
+	__cs_ast:__cs_data_ast_class -> cs_ast_class:class [headport=left, tailport=right];
+
+	cs_ast_value [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">cs_ast_value</td></tr>
+			<tr><td port="struct" border="1">ast</td></tr>
+		</table>>
+	]
+
+	cs_ast_value:struct -> __cs_ast_value:class [headport=left, tailport=right];
+
+	cs_ast_class [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_ast_class</td></tr>
+			<tr><td port="struct" border="1">{typedef csuint32}</td></tr>
+		</table>>
+	]
+
+	__cs_ast_value [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">__cs_ast_value</td></tr>
+			<tr><td port="struct" border="1">{struct csuint64}</td></tr>
+		</table>>
+	]
+
+	cs_func_attrs [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">cs_func_attrs</td></tr>
+			<tr><td port="struct" border="1">{typedef unsigned}</td></tr>
+		</table>>
+	]
+
+	FATREF [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FATREF</td></tr>
+			<tr><td port="struct" border="1">{typedef csuint64t}</td></tr>
+		</table>>
+	]
+
+	FATSTRING_IMMUTABLE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FATSTRING_IMMUTABLE</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	/* cfg_edges_t == CFG_EDGES */
+	CFG_EDGES [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">CFG_EDGES</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	VERTEX_KIND [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">VERTEX_KIND</td></tr>
+			<tr><td port="struct" border="1">{enum}</td></tr>
+		</table>>
+	]
+
+	BFE_SYMBOL [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">BFE_SYMBOL</td></tr>
+			<tr><td port="sym" border="1">sym</td></tr>
+			<tr><td port="uid" border="1">uid</td></tr>
+		</table>>
+	]
+
+	BFE_SYMBOL:sym -> FE_SYMBOL:class [headport=left, tailport=right];
+	BFE_SYMBOL:uid -> UID:class [headport=left, tailport=right];
+
+	FE_SYMBOL [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FE_SYMBOL</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	FE_CFG_NODE [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FE_CFG_NODE</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	FE_POSITION [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">FE_POSITION</td></tr>
+			<tr><td port="" border="1">sfid_idx</td></tr>
+			<tr><td port="fips" border="1">fips</td></tr>
+		</table>>
+	]
+
+	FE_POSITION:fips -> FINT_PAIR_SET:class [headport=left, tailport=right];
+
+	FINT_PAIR_SET [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FINT_PAIR_SET</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	FUNIQUE_ABS_LOC_SET [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">FUNIQUE_ABS_LOC_SET</td></tr>
+			<tr><td port="struct" border="1">{typedef}</td></tr>
+		</table>>
+	]
+
+	FABS_LOC_SET [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">FABS_LOC_SET</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	ABS_LOC_SET [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ABS_LOC_SET</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	ABS_LOC [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ABS_LOC</td></tr>
+			<tr><td port="struct" border="1">{ast_field_type ABS_LOC;}</td></tr>
+		</table>>
+	]
+
+	PROC_NAME_SET_T [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">PROC_NAME_SET_T</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+
+	ABS_LOC_TO_VERTEX_ID_T [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightgray">ABS_LOC_TO_VERTEX_ID_T</td></tr>
+			<tr><td port="struct" border="1">{pp_defined class}</td></tr>
+		</table>>
+	]
+}

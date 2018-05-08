@@ -56,6 +56,11 @@ namespace gtirb
             ar & this->pltEntries;
         }
 
+        /// \todo Several pieces of information probably need added to gtirb::Procedure.  This
+        /// includes a pointer to its name symbol, a symbol-to-symbol map, a save-to-restore-symbol
+        /// map, an ea-to-RegionHeap map, a frame base EA, a return address EA, the size of the Save
+        /// Register slot, and the offset of the Save Register Slot.
+
     private:
         gtirb::EA ea;
         std::set<gtirb::EA> pltEntries;

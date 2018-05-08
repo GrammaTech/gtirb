@@ -1,0 +1,98 @@
+digraph quadtree {
+	// title
+	labelloc="t";
+	label="GT-IR Development Scope";
+	fontsize="48";
+	rankdir="LR";
+	graph [splines=ortho, nodesep=1.0];
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+	
+	subgraph cluster_asmir
+	{
+		label="Disassembly";
+		fontsize="24";
+		color=lightgrey;
+		node [shape=box, style=filled, color=lightgrey]; IDA, First, DVT
+		node [shape=diamond, style=filled, color=lightgrey]; "ASM IR"
+	}
+
+	IDA -> "ASM IR";
+	First -> "ASM IR";
+	DVT -> "ASM IR";
+
+	subgraph cluster_gtir
+	{
+		label="GT-IR Ecosystem";
+		fontsize="24";
+		color=lightgrey;
+		node [shape=box, style=filled, color=cornflowerblue]; PIRB, "SWYX CS-IR", "SWYX Lang Mod"
+		node [shape=diamond, style=filled, color=cornflowerblue]; "SWYX\n\"GT-IR\""
+
+		subgraph cluster_gtir_3rdparty
+		{
+			label="3rd Party Plugins";
+			fontsize="12";
+			color=cornflowerblue;
+			node [shape=box, style=filled, color=cornflowerblue]; "IR Builders", "Analyzers"
+		}
+
+		subgraph cluster_gtir_analysis
+		{
+			label="Analysis";
+			fontsize="12";
+			color=cornflowerblue;
+			node [shape=box, style=filled, color=cornflowerblue]; VSA, ASI
+		}
+
+		subgraph cluster_gtir_rewriting
+		{
+			label="Rewriting";
+			fontsize="12";
+			color=crimson;
+			node [shape=box, style=filled, color=crimson]; Tools
+		}
+	}
+
+	"ASM IR" -> PIRB;
+	PIRB -> "SWYX\n\"GT-IR\"";
+
+	VSA -> "SWYX\n\"GT-IR\"";
+	"SWYX\n\"GT-IR\"" -> VSA;
+
+	ASI -> "SWYX\n\"GT-IR\"";
+	"SWYX\n\"GT-IR\"" -> ASI;
+
+	Tools -> "SWYX\n\"GT-IR\"";
+	"SWYX\n\"GT-IR\"" -> Tools;
+
+	"IR Builders" -> "SWYX\n\"GT-IR\"";
+	"Analyzers" -> "SWYX\n\"GT-IR\"";
+	"SWYX\n\"GT-IR\"" -> "Analyzers";
+
+	"SWYX\n\"GT-IR\"" -> "SWYX CS-IR";
+	"SWYX\n\"GT-IR\"" -> "SWYX Lang Mod";
+
+	subgraph cluster_legacy
+	{
+		label="Legacy FE/BEIR";
+		fontsize="24";
+		color=lightgrey;
+		node [shape=box, style=filled, color=lightgrey]; "CSURF Builder", "BE API", "Code Sonar", "Rewriting Tools", "3rd Party Analyses", "SWYX API"
+		node [shape=diamond, style=filled, color=lightgrey]; FEIR, BEIR
+	}
+
+	"SWYX\n\"GT-IR\"" -> FEIR;
+	FEIR -> "CSURF Builder";
+	"CSURF Builder" -> BEIR;
+	BEIR -> "BE API";
+	"BE API" -> "Code Sonar";
+	"BE API" -> "Rewriting Tools";
+	"BE API" -> "3rd Party Analyses";
+
+	"SWYX Lang Mod" -> "SWYX API";
+	"SWYX API" -> "Code Sonar";
+	"SWYX API" -> "Rewriting Tools";
+	"SWYX API" -> "3rd Party Analyses";
+}

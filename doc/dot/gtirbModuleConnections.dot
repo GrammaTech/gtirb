@@ -1,0 +1,52 @@
+digraph quadtree {
+	rankdir="LR";
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+
+	Disassembler [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">Disassembler</td></tr>
+			<tr><td port="" border="1">GT Legacy Disassembler</td></tr>
+			<tr><td port="" border="1">GT Experimental Disassembler</td></tr>
+			<tr><td port="" border="1">External Disassembler</td></tr>
+			<tr><td port="" border="1">LLVM-IR Importer</td></tr>
+		</table>>
+	]
+
+	Analyzer [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">Analyzer</td></tr>
+			<tr><td port="" border="1">Static Analysis Check 1</td></tr>
+			<tr><td port="" border="1">Static Analysis Check 2</td></tr>
+			<tr><td port="" border="1">Annotator 1</td></tr>
+			<tr><td port="" border="1">Annotator 2</td></tr>
+		</table>>
+	]
+
+	Rewriter [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">Rewriter</td></tr>
+			<tr><td port="" border="1">Security Vulnerability 1</td></tr>
+			<tr><td port="" border="1">Security Vulnerability 2</td></tr>
+			<tr><td port="" border="1">Obfuscator 1</td></tr>
+			<tr><td port="" border="1">Obfuscator 2</td></tr>
+		</table>>
+	]
+
+	Renderer [shape=none, label=
+		<<table border="0" cellspacing="0">
+			<tr><td port="class" border="1" bgcolor="lightblue">Renderer</td></tr>
+			<tr><td port="" border="1">Pretty Brinter</td></tr>
+			<tr><td port="" border="1">Binary Output</td></tr>
+			<tr><td port="" border="1">LLVM-IR Exporter</td></tr>
+		</table>>
+	]
+
+	Disassembler:class -> Analyzer:class;
+	
+	Analyzer:class -> Rewriter:class;
+	Rewriter:class -> Analyzer:class;
+	
+	Rewriter:class -> Renderer:class;
+}

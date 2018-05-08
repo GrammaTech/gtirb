@@ -13,6 +13,8 @@ namespace gtirb
     ///
     /// A base class for ModuleSummary, ModuleCore, and ModuleAux.
     ///
+    /// \todo   gtirb::ModuleSectionBase can likely be combined into gtirb::Module.
+    ///
     class GTIRB_GTIRB_EXPORT_API ModuleSectionBase : public Node
     {
     public:

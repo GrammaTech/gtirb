@@ -1,0 +1,73 @@
+digraph quadtree {
+	// title
+	labelloc="t";
+	label="SWYX Front End Over GT-IR\nPopulating CodeSonar";
+	fontsize="48";
+	rankdir="LR";
+	rank=same;
+	graph [splines=ortho, nodesep=0.33];
+	graph [fontname = "arial"];
+ 	node [fontname = "arial"];
+ 	edge [fontname = "arial"];
+
+	subgraph cluster_swyxfe
+	{
+		label="SWYX-FE";
+		fontsize="24";
+		color=lightgrey;
+
+		node [shape=box, style=filled, color=lightgrey]; EXE, Disasm, Analysis
+		node [shape=box, style=hollow, color=lightgrey]; VSA, "Symbol/Literal", "Functional Boundary"
+		node [shape=box, style=filled, color=cornflowerblue]; gtir_disasm2analysis [label="GT-IR\n(Basic)"]
+		node [shape=box, style=filled, color=cornflowerblue]; gtir_analysis [label="GT-IR\n(Decorated)"]
+
+		{rank=same; Disasm, "Functional Boundary"}
+		{rank=same; gtir_disasm2analysis, "Symbol/Literal"}
+		{rank=same; VSA, Analysis}
+	}
+
+	//node [shape=box, style=filled, color=cornflowerblue]; gtir_analysis2swyx [label="GT-IR\n(Decorated)"]
+
+	EXE -> Disasm;
+
+	Disasm -> gtir_disasm2analysis;
+	gtir_disasm2analysis -> Analysis;
+
+	Analysis -> gtir_analysis [dir="both"];
+	gtir_analysis -> VSA [dir="both", style="dashed"];
+	gtir_analysis -> "Symbol/Literal" [dir="both", style="dashed"];
+	gtir_analysis -> "Functional Boundary"  [dir="both", style="dashed"];
+
+	subgraph cluster_swyxbe
+	{
+		label="SWYX-BE";
+		fontsize="24";
+		color=lightgrey;
+		rank=0;
+
+		node [shape=box, style=filled, color=lightgrey]; cluster_swyxbe_analysis [label="Analysis"]
+		node [shape=box, style=filled, color=lightgrey]; cluster_swyxbe_convert [label="Convert to\nFEIR"]
+	}
+
+	node [shape=box, style=hollow, color=lightgrey]; feir_convert2beir [label="FE-IR"]
+
+	gtir_analysis -> cluster_swyxbe_analysis;
+
+	cluster_swyxbe_analysis -> cluster_swyxbe_analysis;
+	cluster_swyxbe_analysis -> cluster_swyxbe_convert;
+
+	cluster_swyxbe_convert -> feir_convert2beir;
+
+	subgraph cluster_codesonar
+	{
+		label="CodeSonar";
+		fontsize="24";
+		color=lightgrey;
+
+		node [shape=box, style=filled, color=lightgrey]; cluster_codesonar_convert [label="Convert to\nBEIR"]
+		node [shape=box, style=filled, color=lightgrey]; "FAT Store"
+	}
+
+	feir_convert2beir -> cluster_codesonar_convert;
+	cluster_codesonar_convert -> "FAT Store";
+}
