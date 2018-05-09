@@ -3,8 +3,8 @@
 #include <gtirb/CFGNodeInfoCall.hpp>
 #include <gtirb/CFGSet.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/Utilities.hpp>
 #include <gtirb/NodeUtilities.hpp>
+#include <gtirb/Utilities.hpp>
 #include <iostream>
 
 using namespace gtirb;
@@ -118,9 +118,7 @@ std::vector<uint64_t> gtirb::utilities::ByteArray8To64(const std::vector<uint8_t
 /// Helper: Given that cfg is a thunk, discover its forward.
 /// This version walks the CFG (compare get_thunk_targets_via_asts).
 ///
-std::pair<gtirb::EA, gtirb::Symbol*> x86GetThunkTarget(const Module* const module,
-                                                       const CFG* const cfg)
-{
+const auto X86GetThunkTarget = [](const Module* const /*module*/, const CFG* const cfg) {
     // We find the thunk's target by exploring at the nCFGnode level.
     // We assume that cfg contains a single relevant call or indrect node,
     // and pick up the target from there.
@@ -141,9 +139,8 @@ std::pair<gtirb::EA, gtirb::Symbol*> x86GetThunkTarget(const Module* const modul
 
             if(call != nullptr)
             {
-                /// \todo How is CFGNodeInfoCall->getProcedureName() wired in?  Do we have to set it
-                /// or can we compute it?
-                /// auto callee = call->getProcedureName();
+                /// \todo How is CFGNodeInfoCall->getProcedureName() wired in?  Do we have to
+                /// set it or can we compute it? auto callee = call->getProcedureName();
                 auto ea = call->getImportTableEntryEA();
                 // return {ea, callee};
                 return std::pair<gtirb::EA, gtirb::Symbol*>{ea, nullptr};
@@ -152,7 +149,7 @@ std::pair<gtirb::EA, gtirb::Symbol*> x86GetThunkTarget(const Module* const modul
     }
 
     return std::pair<gtirb::EA, gtirb::Symbol*>{gtirb::EA{}, nullptr};
-}
+};
 
 std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
 {
@@ -165,14 +162,16 @@ std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
         if(cfgSet != nullptr)
         {
             // Function signature declaration.
-            std::pair<EA, Symbol*> (*getThunkTargetFunc)(const Module* const module,
-                                                         const CFG* const cfg);
+            std::function<std::pair<EA, Symbol*>(const Module* const m, const CFG* const cfg)>
+                getThunkTargetFunc = [](const Module* const /*m*/, const CFG* const /*cfg*/) {
+                    return std::pair<EA, Symbol*>{gtirb::EA{}, nullptr};
+                };
 
             switch(module->getISAID())
             {
                 case gtirb::ISAID::IA32:
                 case gtirb::ISAID::X64:
-                    getThunkTargetFunc = &x86GetThunkTarget;
+                    getThunkTargetFunc = X86GetThunkTarget;
                     break;
                 case gtirb::ISAID::ARM:
                     /// \todo getThunkTargetFunc = &s_arm_get_thunk_target;
@@ -195,7 +194,7 @@ std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
                                                       CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK)
                        == true)
                     {
-                        auto indirectTarget = (*getThunkTargetFunc)(module, cfg);
+                        const auto indirectTarget = getThunkTargetFunc(module, cfg);
 
                         if(indirectTarget.second != nullptr)
                         {

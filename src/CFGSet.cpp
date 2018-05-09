@@ -1,7 +1,7 @@
-#include <gtirb/Module.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGSet.hpp>
+#include <gtirb/Module.hpp>
+#include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
 
@@ -15,11 +15,11 @@ CFGSet::CFGSet() : Node()
 
 CFG* CFGSet::getCFG(gtirb::EA x) const
 {
-    const auto children = GetChildrenOfType<CFG>(this);
-    const auto found = std::find_if(std::begin(children), std::end(children),
+    const auto allChildren = GetChildrenOfType<CFG>(this);
+    const auto found = std::find_if(std::begin(allChildren), std::end(allChildren),
                                     [x](CFG* s) { return s->getEA() == x; });
 
-    if(found != std::end(children))
+    if(found != std::end(allChildren))
     {
         return *found;
     }
@@ -29,11 +29,11 @@ CFG* CFGSet::getCFG(gtirb::EA x) const
 
 CFG* CFGSet::getCFG(const std::string& x) const
 {
-    const auto children = GetChildrenOfType<CFG>(this);
-    const auto found = std::find_if(std::begin(children), std::end(children),
+    const auto allChildren = GetChildrenOfType<CFG>(this);
+    const auto found = std::find_if(std::begin(allChildren), std::end(allChildren),
                                     [x](CFG* s) { return s->getProcedureName() == x; });
 
-    if(found != std::end(children))
+    if(found != std::end(allChildren))
     {
         return *found;
     }
