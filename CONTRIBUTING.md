@@ -50,3 +50,20 @@ Documentation
 - Render `.dot` files to the same file name with a `.png` extension.
 	* Example: `dot -Tpng gtirbScope.dot > gtirbScope.png`
 - Use the `arial` font.
+
+Code Requirements
+-----------------
+
+- Code should generally follow the C++ Core Guidelines recommendations.
+- Code should generally allow for thread safety.
+	- No static variables.
+	- No globals
+	- Free functions should not maintain state.
+	- Use caution when using iterators to guard against invalidation.
+- There should be a single way to express something in the API.
+	- Avoid "helper" functions.
+	- "Helper" types of functions, if absolutely necessary, should be free functions vs. embedded into classes.
+- Code should be automatically formatted using clang-format.
+- Code should be tested on Linux using GCC and Clang and on Windows using Visual Studio.
+- Maintain const-correctness.
+	

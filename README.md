@@ -100,7 +100,7 @@ the option that adds git and minimal tools to the path.
 
 Use your local package manager to install Boost libraries.
 
-```
+```bash
 > sudo apt-get install boost
 ```
 
@@ -143,7 +143,7 @@ directory if it does not already exist.
 
 If you insist on using the command line, then you can do this:
 
-```
+```bash
 /path/to/gtirb> cmake ./ -Bbuild
 ```
 
@@ -154,7 +154,7 @@ C++14 instead.  Use the variable `GTIRB_ISO_CPP_VERSION` and set it to
 `C++14`.  This is a simple drop-down in the GUI, or you can set it
 from the command line.
 
-```
+```bash
 /path/to/gtirb> cmake ./ -Bbuild -DGTIRB_ISO_CPP_VERSION=C++14
 ```
 
@@ -164,16 +164,19 @@ native Makefile or Visual Studio Solution inside of
 
 On Linux, simply run `make`.
 
-```
+```bash
 /path/to/gtirb/build> make -j
 ```
 
 ### Running the Tests
 
-**TODO**: Get CMake to provide a `make test` target.
-
 Go into the `bin` folder and execute `TestGTIRB`.
 
-```
+```bash
 /path/to/gtirb/bin> ./TestGTIRB
+```
+Alternately, a CMake target called `test` was created that mimics Autotools.  This can be used to automatically run the tests after a build.
+
+```bash
+/path/to/gtirb/build> make test
 ```
