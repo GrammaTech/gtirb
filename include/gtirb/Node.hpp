@@ -359,6 +359,11 @@ namespace gtirb
         ///
         /// Serialization support.
         ///
+        /// This is built for boost::serialization.  
+        ///
+        /// \note
+        /// The Cereal library was also considered, but does not handle std::shared_ptr as nicely. (May 2017)
+        ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/)
         {
