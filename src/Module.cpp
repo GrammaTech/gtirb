@@ -131,12 +131,12 @@ gtirb::CFGSet* Module::getOrCreateCFGSet()
 
 gtirb::CFGSet* Module::getCFGSet()
 {
-    const auto children = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
-    assert(children.size() <= 1);
+    const auto allChildren = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
+    assert(allChildren.size() <= 1);
 
-    if(children.empty() == false)
+    if(allChildren.empty() == false)
     {
-        return children[0];
+        return allChildren[0];
     }
 
     return nullptr;
@@ -144,12 +144,12 @@ gtirb::CFGSet* Module::getCFGSet()
 
 const gtirb::CFGSet* const Module::getCFGSet() const
 {
-     const auto children = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
-    assert(children.size() <= 1);
+    const auto allChildren = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
+    assert(allChildren.size() <= 1);
 
-    if(children.empty() == false)
+    if(allChildren.empty() == false)
     {
-        return children[0];
+        return allChildren[0];
     }
 
     return nullptr;

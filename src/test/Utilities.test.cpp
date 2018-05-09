@@ -129,7 +129,6 @@ TEST(Unit_Utilities, CollectThunks_simple)
 
     auto cfgNodeInfoCall = std::make_unique<gtirb::CFGNodeInfoCall>();
     ASSERT_TRUE(cfgNodeInfoCall != nullptr);
-    auto cfgNodeInfoCallPtr = cfgNodeInfoCall.get();
     EXPECT_NO_THROW(cfgNodePtr->push_back(std::move(cfgNodeInfoCall)));
 
     EXPECT_TRUE(cfgNodePtr->getCFGNodeInfo() != nullptr);
@@ -137,10 +136,11 @@ TEST(Unit_Utilities, CollectThunks_simple)
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
     auto thunks = gtirb::utilities::CollectThunks(module.get());
 
-    ADD_FAILURE_AT("gtirb/src/Utilities.cpp", 147) << "This test will fail until we finish the implementation of CFGNode and "
-                     "CFGNodeInfoCall.  How do we associate "
-                     "the symbol?  Do we set it explictly within the CFGNode or do we look it up "
-                     "based on EA?";
+    ADD_FAILURE_AT("gtirb/src/Utilities.cpp", 147)
+        << "This test will fail until we finish the implementation of CFGNode and "
+           "CFGNodeInfoCall.  How do we associate "
+           "the symbol?  Do we set it explictly within the CFGNode or do we look it up "
+           "based on EA?";
 
     EXPECT_FALSE(thunks.empty());
     EXPECT_EQ(size_t{1}, thunks.size());
