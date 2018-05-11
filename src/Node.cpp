@@ -5,6 +5,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -67,8 +68,8 @@ bool Node::getIsValidParent(const Node* const x) const
 
 void Node::push_back(std::unique_ptr<gtirb::Node>&& x)
 {
-    assert(x != nullptr);
-    assert(x->getNodeParent() == nullptr);
+    Expects(x != nullptr);
+    Expects(x->getNodeParent() == nullptr);
 
     if(x->getIsValidParent(this) == true)
     {

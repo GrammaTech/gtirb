@@ -1,4 +1,3 @@
-#include <cassert>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
@@ -6,7 +5,7 @@
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
-
+#include <gsl/gsl>
 #include <iostream>
 
 using namespace gtirb;
@@ -170,7 +169,7 @@ void CFGNode::add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, CFG
     if(x != this)
     {
         auto sharedNode = std::dynamic_pointer_cast<CFGNode>(x->shared_from_this());
-        assert(sharedNode != nullptr);
+        Expects(sharedNode != nullptr);
         vec.push_back({sharedNode, isExecutable});
     }
     else

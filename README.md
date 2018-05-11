@@ -83,7 +83,7 @@ and uses the Boost libraries.
 
 ### Installing CMake (For CMake builds only)
 
-The first thing to do is get hold of CMake. You can get it from here
+The first thing to do is get hold of CMake. You can get it from [here](https://cmake.org/download/)
 or via your package manager (e.g. `yum`, `apt-get`). It is advised to
 download a stable release and not a release candidate. For Mac/Windows
 check the option that adds CMake to the system path for all users.
@@ -175,6 +175,7 @@ Go into the `bin` folder and execute `TestGTIRB`.
 ```bash
 /path/to/gtirb/bin> ./TestGTIRB
 ```
+
 Alternately, a CMake target called `test` was created that mimics Autotools.  This can be used to automatically run the tests after a build.
 
 ```bash
