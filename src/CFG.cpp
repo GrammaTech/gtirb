@@ -36,10 +36,10 @@ std::string CFG::getProcedureName() const
 
 void CFG::setFlags(uint64_t x)
 {
-	this->flags = x;
+    this->flags = x;
 }
 
 uint64_t CFG::getFlags() const
 {
-	return this->flags;
+    return this->flags;
 }

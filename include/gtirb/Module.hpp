@@ -121,7 +121,7 @@ namespace gtirb
         /// A Module can have exactly one AddrRanges child.
         ///
         gtirb::AddrRanges* getOrCreateAddrRanges();
-        
+
         ///
         /// A Module can have exactly one CFGSet child.
         ///
@@ -131,37 +131,37 @@ namespace gtirb
         ///
         ///
         gtirb::CFGSet* getCFGSet();
-        
+
         ///
         ///
         ///
         const gtirb::CFGSet* const getCFGSet() const;
-        
+
         ///
         /// A Module can have exactly one ImageByteMap child.
         ///
         gtirb::ImageByteMap* getOrCreateImageByteMap();
-        
+
         ///
         /// A Module can have exactly one ModuleAux child.
         ///
         gtirb::ModuleAux* getOrCreateModuleAux();
-        
+
         ///
         /// A Module can have exactly one ModuleCore child.
         ///
         gtirb::ModuleCore* getOrCreateModuleCore();
-        
+
         ///
         /// A Module can have exactly one ModuleSummary child.
         ///
         gtirb::ModuleSummary* getOrCreateModuleSummary();
-        
+
         ///
         /// A Module can have exactly one ProcedureSet child.
         ///
         gtirb::ProcedureSet* getOrCreateProcedureSet();
-        
+
         ///
         /// A Module can have exactly one SymbolSet child.
         ///

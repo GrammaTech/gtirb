@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
+#include <gtirb/CFGSet.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeStructureError.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <memory>
 
 TEST(Unit_CFGSet, ctor_0)

@@ -15,14 +15,14 @@ namespace gtirb
     /// instruction representations, even including the ability to have
     /// multiple "instructions" per actual machine code instruction.  What
     /// would be interface for a drop-in instruction representation look like?
-    /// 
+    ///
     /// - It would need to be able to disassemble (assuming we give it a
     ///     starting point in a binary).
-    /// 
+    ///
     /// - It would need to have an idea of operands so that we could hold
     ///     facts about individual operands such as their type, literal/ref,
     ///     stack offset, range, etc...
-    /// 
+    ///
     /// Then the GT-IRB layer would sit on top.  It would provide the structure
     /// holding these instructions, and it would contain information about
     /// function boundaries, and stack offsets, and maybe types.
