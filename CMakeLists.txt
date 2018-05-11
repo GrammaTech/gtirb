@@ -114,14 +114,14 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	# Microsoft VCPKG
 	set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE PATH "")
     include(${CMAKE_TOOLCHAIN_FILE})
-elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-	# add_compile_options(-Wall)
+elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+       OR (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang))
+    add_compile_options(-Wall -Wpointer-arith)
+        # Note: disabled due to constructor arguments aliasing member
+        # variables in some classes.
+        # add_compile_options(-Wshadow)
+    add_compile_options(-Werror)
 	add_compile_options(-fPIC)
-	# add_compile_options(-Werror)
-elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-	# add_compile_options(-Wall)
-	add_compile_options(-fPIC)
-	# add_compile_options(-Werror)
 endif()
 
 # ---------------------------------------------------------------------------
