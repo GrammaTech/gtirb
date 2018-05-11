@@ -1,9 +1,9 @@
-#include <cassert>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <gtirb/Symbol.hpp>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -18,7 +18,7 @@ CFGNodeInfo::CFGNodeInfo() : Node()
 void CFGNodeInfo::setProcedureNameSymbol(gtirb::Symbol* x)
 {
     auto sharedNode = std::dynamic_pointer_cast<Symbol>(x->shared_from_this());
-    assert(sharedNode != nullptr);
+    Expects(sharedNode != nullptr);
     this->procedureNameSymbol = sharedNode;
 }
 

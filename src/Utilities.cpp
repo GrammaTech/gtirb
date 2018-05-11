@@ -6,6 +6,7 @@
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/Utilities.hpp>
 #include <iostream>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -200,7 +201,7 @@ std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
                         {
                             // Simple sanity: this assert has been useful for noticing when we
                             // screw up thunk renaming, for example.
-                            assert(cfg->getProcedureName() != indirectTarget.second->getName());
+                            Expects(cfg->getProcedureName() != indirectTarget.second->getName());
                             thunks.insert(cfg);
                         }
                     }

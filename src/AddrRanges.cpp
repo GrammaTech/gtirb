@@ -3,6 +3,7 @@
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -122,7 +123,7 @@ bool AddrRanges::subtractRange(std::pair<gtirb::EA, gtirb::EA> x)
 
         while(true)
         {
-            assert(it->first < x.second);
+            Expects(it->first < x.second);
 
             if(it->first < x.first)
             {

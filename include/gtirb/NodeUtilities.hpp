@@ -2,6 +2,7 @@
 
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gsl/gsl>
 
 namespace gtirb
 {

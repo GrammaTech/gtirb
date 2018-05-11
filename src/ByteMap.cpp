@@ -1,8 +1,8 @@
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Utilities.hpp>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -127,7 +127,7 @@ void ByteMap::setData(EA ea, uint8_t* const x, size_t len)
     }
 
     // If we went to negative bytes remaining, something went wrong.
-    assert(bytesRemaining >= 0);
+    Expects(bytesRemaining >= 0);
 }
 
 uint8_t ByteMap::getData8(EA x) const
@@ -194,7 +194,7 @@ std::vector<uint8_t> ByteMap::getData(EA x, size_t bytes) const
     }
 
     // If we went to negative bytes remaining, something went wrong.
-    assert(bytesRemaining >= 0);
+    Expects(bytesRemaining >= 0);
 
     return buffer;
 }
@@ -242,14 +242,14 @@ std::vector<uint8_t> ByteMap::getDataUntil(EA x, uint8_t sentinel, size_t maxByt
     }
 
     // If we went to negative bytes remaining, something went wrong.
-    assert(bytesRemaining >= 0);
+    Expects(bytesRemaining >= 0);
 
     return buffer;
 }
 
 const ByteMap::Page* const ByteMap::getPage(const EA x) const
 {
-    assert(ByteMap::Impl::AddressToOffset(x) == 0);
+    Expects(ByteMap::Impl::AddressToOffset(x) == 0);
 
     const auto it = this->data.find(x);
     if(it != std::end(this->data))
@@ -262,7 +262,7 @@ const ByteMap::Page* const ByteMap::getPage(const EA x) const
 
 ByteMap::Page* ByteMap::getOrCreatePage(const EA x)
 {
-    assert(ByteMap::Impl::AddressToOffset(x) == 0);
+    Expects(ByteMap::Impl::AddressToOffset(x) == 0);
     auto page = &(this->data[x]);
     return page;
 }

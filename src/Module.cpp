@@ -12,6 +12,7 @@
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/SymbolSet.hpp>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -132,7 +133,7 @@ gtirb::CFGSet* Module::getOrCreateCFGSet()
 gtirb::CFGSet* Module::getCFGSet()
 {
     const auto allChildren = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
-    assert(allChildren.size() <= 1);
+    Expects(allChildren.size() <= 1);
 
     if(allChildren.empty() == false)
     {
@@ -145,7 +146,7 @@ gtirb::CFGSet* Module::getCFGSet()
 const gtirb::CFGSet* const Module::getCFGSet() const
 {
     const auto allChildren = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
-    assert(allChildren.size() <= 1);
+    Expects(allChildren.size() <= 1);
 
     if(allChildren.empty() == false)
     {
