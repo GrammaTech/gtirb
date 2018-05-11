@@ -346,7 +346,6 @@ TYPED_TEST_P(TypedNodeTest, GetChildrenOfType)
 
     const int fooChildren = 3;
     const int barChildren = 5;
-    const int typeChildren = 8;
 
     TypeParam node;
 
