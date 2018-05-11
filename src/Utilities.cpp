@@ -29,7 +29,7 @@ std::vector<uint16_t> gtirb::utilities::ByteArray8To16(const std::vector<uint8_t
     {
         Conversion cvt{0};
 
-        for(int j = 0; j < sizeof(uint16_t); ++j)
+        for(size_t j = 0; j < sizeof(uint16_t); ++j)
         {
             cvt.Bytes[j] = x[i + j];
         }
@@ -64,7 +64,7 @@ std::vector<uint32_t> gtirb::utilities::ByteArray8To32(const std::vector<uint8_t
     {
         Conversion cvt{0};
 
-        for(int j = 0; j < sizeof(uint32_t); ++j)
+        for(size_t j = 0; j < sizeof(uint32_t); ++j)
         {
             cvt.Bytes[j] = x[i + j];
         }
@@ -99,7 +99,7 @@ std::vector<uint64_t> gtirb::utilities::ByteArray8To64(const std::vector<uint8_t
     {
         Conversion cvt{0};
 
-        for(int j = 0; j < sizeof(uint64_t); ++j)
+        for(size_t j = 0; j < sizeof(uint64_t); ++j)
         {
             cvt.Bytes[j] = x[i + j];
         }
