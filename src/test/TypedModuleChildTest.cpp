@@ -100,7 +100,7 @@ REGISTER_TYPED_TEST_CASE_P(TypedModuleChildTest,    //
                            validParent_noException, //
                            invalidParent,           //
                            alreadyAdded             //
-);
+                           );
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_ModuleChildren,  // Instance name
                               TypedModuleChildTest, // Test case name

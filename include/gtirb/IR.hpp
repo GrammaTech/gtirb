@@ -1,10 +1,10 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
+#include <boost/serialization/weak_ptr.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
-#include <boost/serialization/weak_ptr.hpp>
 
 namespace gtirb
 {
@@ -94,7 +94,7 @@ namespace gtirb
 
         ///
         /// Get all modules having the given Preferred EA
-        /// 
+        ///
         /// \sa Module::getPreferredEA()
         ///
         std::vector<gtirb::Module*> getModulesWithPreferredEA(EA x) const;
@@ -103,7 +103,7 @@ namespace gtirb
         /// Get all modules continaing the given EA.
         ///
         /// The test is [lower bound inclusive, upper bound exclusive)
-        /// 
+        ///
         /// \sa Module::getEAMinMax()
         ///
         std::vector<gtirb::Module*> getModulesContainingEA(EA x) const;
@@ -115,7 +115,7 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
-            ar& this->mainModule;
+            ar & this->mainModule;
         }
 
     private:

@@ -38,7 +38,8 @@ namespace gtirb
         ///
         /// Get or create the Procedure at the given EA.
         ///
-        /// This is preferable to adding Procedures manually as it ensures no duplicate Procedures are
+        /// This is preferable to adding Procedures manually as it ensures no duplicate Procedures
+        /// are
         /// created.
         ///
         /// \param x    The EA of the gtirb::Procedure to get (or create).

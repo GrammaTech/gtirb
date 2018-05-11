@@ -9,7 +9,7 @@ namespace gtirb
     /// \class Symbol
     /// \author John E. Farrier
     ///
-    /// \note 
+    /// \note
     /// Renaming can lead to bugs, we probably want to separate symbols and
     /// abs-locs and have *both* in the IR.  Many current symbol fields would
     /// actually live in the abs-loc and be access from a symbol through the
