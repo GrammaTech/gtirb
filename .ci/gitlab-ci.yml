@@ -92,8 +92,10 @@ pages:
     OS: 'arch'
     COMPILER: 'gcc'
   script:
-    - docker run ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p doc/html; doxygen Doxyfile; cp -R doc/html /public";
-    - docker cp $(docker ps -alq):/public ./;
+    - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-arch.container
+    - mkdir -p $(dirname ${CONTAINER_FILE})
+    - docker run --cidfile=${CONTAINER_FILE} ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER} /bin/bash -c "mkdir -p doc/html; doxygen Doxyfile; cp -R doc/html /public";
+    - docker cp  $(cat ${CONTAINER_FILE}):/public ./;
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER}
   artifacts:
     paths:
