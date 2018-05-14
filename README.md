@@ -19,9 +19,9 @@ GT-IRB has the following structure:
 
           IR    -----Symbols
            |   /                            Data Tables
-        Modules------Globals                ----+------
+        Modules------Data                   ----+------
            |   \                            ID1 | DATA1
-         IPCFG  -----ErrorHandling          ID2 | DATA2
+         ICFG   -----ErrorHandling          ID2 | DATA2
            |                                ID3 | DATA3
          Blocks & Edges                     ...
            |
@@ -34,7 +34,7 @@ An instance of GT-IRB may include multiple `module`s which represent
 loadable objects such as executables or libraries.  Each `module`
 holds a list of `symbol`s, a list of `global`s, optional
 `error-handling` information, and an inter-procedural control flow
-graph (`IPCFG`).  The `IPCFG` consists of basic `block`s and control
+graph (`ICFG`).  The `ICFG` consists of basic `block`s and control
 flow edges between these `blocks`.  Each `block` holds some number of
 `instructions`.
 
@@ -55,7 +55,10 @@ disassembler/assembler.
 Additional arbitrary information, e.g. analysis results, may be added
 to GT-IRB in the form of data tables.  These tables are keyed by IDs.
 Every element of GT-IRB (namely: `module`s, `symbol`s, `global`s,
-`block`s, and `instruction`s) has a unique associated ID.
+`block`s, and `instruction`s) has a unique associated ID.  Two common
+data table will be a table of function information and a table of
+section information.  This repository will describe the anticipated
+structure for very common data tables.
 
 ## Usage
 
