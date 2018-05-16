@@ -382,6 +382,7 @@ namespace gtirb
         ///
         /// Locally ownership of a table.
         /// The table can be populated from anywhere.
+        //// Returns a non-owning pointer to the added table.
         ///
         /// This is used to manage Table pointers.  Derived node types should expose
         /// specific functions for the tables that they own or want to provide access to.
@@ -390,7 +391,7 @@ namespace gtirb
         /// \param name     The name to assign to the table so it can be found later.
         /// \param x        An owning pointer to the table itself.
         ///
-        void addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
+        Table* addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
 
         ///
         /// A table by name.

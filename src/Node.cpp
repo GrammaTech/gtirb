@@ -3,9 +3,9 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <gsl/gsl>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
-#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -155,9 +155,9 @@ std::map<std::string, gtirb::variant>::const_iterator Node::endLocalProperties()
     return std::end(this->localProperties);
 }
 
-void Node::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
+Table* Node::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
 {
-    this->tables[std::move(name)] = std::move(x);
+    return (this->tables[std::move(name)] = std::move(x)).get();
 }
 
 gtirb::Table* const Node::getTable(const std::string& x) const
