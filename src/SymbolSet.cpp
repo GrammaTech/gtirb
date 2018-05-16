@@ -13,33 +13,25 @@ SymbolSet::SymbolSet() : Node()
     this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::SymbolSet>());
 }
 
-Symbol* SymbolSet::getSymbol(gtirb::EA x) const
+std::vector<Symbol*> SymbolSet::getSymbols() const
 {
-    /// \todo   Implement a recursive find function for Nodes.
-
-    // This grabs all symbols every time, which could be slow (measure first).
-    const auto symbols = GetChildrenOfType<Symbol>(this, true);
-    const auto found = std::find_if(std::begin(symbols), std::end(symbols),
-                                    [x](Symbol* s) { return s->getEA() == x; });
-
-    if(found != std::end(symbols))
-    {
-        return *found;
-    }
-
-    return nullptr;
+    return GetChildrenOfType<Symbol>(this, true);
 }
 
-Symbol* SymbolSet::getOrCreateSymbol(gtirb::EA x)
+std::vector<Symbol*> SymbolSet::getSymbols(gtirb::EA x) const
 {
-    auto symbol = this->getSymbol(x);
+    // This grabs all symbols every time, which could be slow (measure first).
+    auto symbols = getSymbols();
 
-    if(symbol == nullptr)
-    {
-        auto newSymbol = std::make_unique<Symbol>(x);
-        symbol = newSymbol.get();
-        this->push_back(std::move(newSymbol));
-    }
+    symbols.erase(std::remove_if(std::begin(symbols), std::end(symbols),
+                                 [x](Symbol* s) { return s->getEA() != x; }),
+                  symbols.end());
+    return symbols;
+}
 
-    return symbol;
+Symbol* SymbolSet::addSymbol(std::unique_ptr<Symbol>&& s)
+{
+    auto non_owning = s.get();
+    this->push_back(std::move(s));
+    return non_owning;
 }
