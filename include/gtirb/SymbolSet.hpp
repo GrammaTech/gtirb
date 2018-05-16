@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <vector>
 
 namespace gtirb
 {
@@ -28,23 +29,27 @@ namespace gtirb
         ~SymbolSet() override = default;
 
         ///
-        /// Recursivly search for the symbol at the given EA.
+        /// Recursively find all symbols.
         ///
-        /// \param x    The EA of the gtirb::Symbol to get.
-        /// \return     The Symbol at the given EA or nullptr.
+        /// \return     All symbols in the set.
         ///
-        Symbol* getSymbol(gtirb::EA x) const;
+        std::vector<Symbol*> getSymbols() const;
 
         ///
-        /// Get or create the symbol at the given EA.
+        /// Recursively search for symbols at the given EA.
         ///
-        /// This is preferable to adding symbols manually as it ensures no duplicate symbols are
-        /// created.
+        /// \param x    The EA to search for.
+        /// \return     All symbols at the given EA.
         ///
-        /// \param x    The EA of the gtirb::Symbol to get (or create).
-        /// \return     The Symbol at the given EA.
+        std::vector<Symbol*> getSymbols(gtirb::EA x) const;
+
         ///
-        Symbol* getOrCreateSymbol(gtirb::EA x);
+        /// Add a symbol to the set.
+        ///
+        /// \param s    The symbol to add.
+        /// \return     A non-owning pointer to the new symbol.
+        ///
+        Symbol* addSymbol(std::unique_ptr<Symbol>&& s);
 
         ///
         /// Serialization support.
