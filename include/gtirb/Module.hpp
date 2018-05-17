@@ -15,6 +15,7 @@ namespace gtirb
     class ModuleCore;
     class ModuleSummary;
     class SymbolSet;
+    class SectionTable;
     class ProcedureSet;
 
     ///
@@ -166,6 +167,11 @@ namespace gtirb
         /// A Module can have exactly one SymbolSet child.
         ///
         gtirb::SymbolSet* getOrCreateSymbolSet();
+
+        ///
+        /// A Module can have exactly one section table.
+        ///
+        SectionTable& getOrCreateSectionTable();
 
         ///
         /// Serialization support.

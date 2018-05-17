@@ -1,4 +1,5 @@
 #include <boost/serialization/export.hpp>
+#include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/CFGSet.hpp>
 #include <gtirb/IR.hpp>
@@ -11,8 +12,9 @@
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/ProcedureSet.hpp>
+#include <gtirb/SectionTable.hpp>
 #include <gtirb/SymbolSet.hpp>
-#include <gsl/gsl>
+#include <gtirb/Table.hpp>
 
 using namespace gtirb;
 
@@ -20,7 +22,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 
 Module::Module()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::IR>());
+    this->addParentValidator(NodeValidatorHasParentOfType<gtirb::IR>());
 }
 
 void Module::setBinaryPath(boost::filesystem::path x)
@@ -154,4 +156,19 @@ const gtirb::CFGSet* const Module::getCFGSet() const
     }
 
     return nullptr;
+}
+
+SectionTable& Module::getOrCreateSectionTable()
+{
+    const std::string name{"sections"};
+    auto table = getTable(name);
+    if(!table)
+    {
+        table = addTable(name, std::make_unique<SectionTable>());
+    }
+
+    auto result = dynamic_cast<SectionTable*>(table);
+    assert(result);
+
+    return *result;
 }
