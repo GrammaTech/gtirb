@@ -1,0 +1,42 @@
+#pragma once
+
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/string.hpp>
+#include <cstdint>
+#include <gtirb/EA.hpp>
+
+namespace gtirb
+{
+    ///
+    /// \class Section
+    /// \author Nathan Weston
+    struct GTIRB_GTIRB_EXPORT_API Section
+    {
+    public:
+        std::string name;
+        uint64_t size{0};
+        EA startingAddress{0};
+
+        /// The exclusive limit of the section. I.e. the smallest EA which is
+        /// past the end.
+        EA addressLimit() const;
+
+        /// Is this address within the section?
+        bool contains(EA ea) const;
+
+        bool operator==(const Section& other) const;
+        bool operator!=(const Section& other) const;
+
+    private:
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/)
+        {
+            ar & this->name;
+            ar & this->size;
+            ar & this->startingAddress;
+        }
+    };
+}
+
+BOOST_CLASS_EXPORT_KEY(gtirb::Section);
