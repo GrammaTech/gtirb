@@ -9,7 +9,11 @@ class Block;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Instruction);
 
-Instruction::Instruction() : Node()
+Instruction::Instruction() : Instruction(EA())
+{
+}
+
+Instruction::Instruction(EA ea) : Node(), ea(ea)
 {
     this->addParentValidator(NodeValidatorHasParentOfType<Block>);
 }

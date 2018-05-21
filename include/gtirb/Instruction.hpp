@@ -35,6 +35,8 @@ namespace gtirb
         ///
         Instruction();
 
+        Instruction(EA ea);
+
         ///
         /// Defaulted trivial destructor.
         ///
