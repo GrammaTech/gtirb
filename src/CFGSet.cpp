@@ -9,8 +9,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGSet);
 
 CFGSet::CFGSet() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::CFGSet>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::CFGSet>);
 }
 
 CFG* CFGSet::getCFG(gtirb::EA x) const

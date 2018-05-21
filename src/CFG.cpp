@@ -11,7 +11,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFG);
 
 CFG::CFG() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::CFGSet>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::CFGSet>);
 }
 
 void CFG::setEA(EA x)

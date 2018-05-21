@@ -8,7 +8,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Region);
 
 Region::Region() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::RegionSet>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::RegionSet>);
 }
 
 void Region::addEA(gtirb::EA x)

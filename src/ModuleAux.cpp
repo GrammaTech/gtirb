@@ -8,6 +8,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ModuleAux);
 
 ModuleAux::ModuleAux() : ModuleSectionBase()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ModuleAux>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ModuleAux>);
 }

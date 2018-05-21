@@ -463,10 +463,10 @@ namespace gtirb
         ///
         /// Derived types should call this in their constructors.
         ///
-        void addParentValidator(std::function<bool(const Node* const)> x);
+        void addParentValidator(std::function<bool(const Node* const, const Node* const)> x);
 
     private:
-        std::vector<std::function<bool(const Node* const)>> parentValidators;
+        std::vector<std::function<bool(const Node* const, const Node* const)>> parentValidators;
 
         std::map<std::string, gtirb::variant> localProperties;
         std::map<std::string, std::shared_ptr<gtirb::Table>> tables;

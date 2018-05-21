@@ -1,9 +1,9 @@
+#include <gsl/gsl>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -11,8 +11,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNodeInfo);
 
 CFGNodeInfo::CFGNodeInfo() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::CFGNode>());
-    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::CFGNodeInfo>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::CFGNode>);
+    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::CFGNodeInfo>);
 }
 
 void CFGNodeInfo::setProcedureNameSymbol(gtirb::Symbol* x)

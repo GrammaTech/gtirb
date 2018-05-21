@@ -14,7 +14,7 @@ TEST(Unit_NodeValidators, NodeValidatorHasParentOfType_Pass)
         Bar()
         {
             // We must have a "Foo" type parent.
-            this->addParentValidator(gtirb::NodeValidatorHasParentOfType<Foo>());
+            this->addParentValidator(gtirb::NodeValidatorHasParentOfType<Foo>);
         }
     };
 
@@ -35,7 +35,7 @@ TEST(Unit_NodeValidators, NodeValidatorHasParentOfType_Fail)
         Bar()
         {
             // We must have a "Foo" type parent.
-            this->addParentValidator(gtirb::NodeValidatorHasParentOfType<Foo>());
+            this->addParentValidator(gtirb::NodeValidatorHasParentOfType<Foo>);
         }
     };
 
@@ -59,7 +59,7 @@ TEST(Unit_NodeValidators, NodeValidatorHasNoSiblingsOfType_Pass)
         Bar()
         {
             // We must be the only "Bar" child.
-            this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<Bar>());
+            this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<Bar>);
         }
     };
 
@@ -79,7 +79,7 @@ TEST(Unit_NodeValidators, NodeValidatorHasNoSiblingsOfType_Fail)
         Bar()
         {
             // We must be the only "Bar" child.
-            this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<Bar>());
+            this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<Bar>);
         }
     };
 

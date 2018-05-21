@@ -9,8 +9,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ProcedureSet);
 
 ProcedureSet::ProcedureSet() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::ProcedureSet>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::ProcedureSet>);
 }
 
 Procedure* ProcedureSet::getProcedure(gtirb::EA x) const

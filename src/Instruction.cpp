@@ -1,16 +1,17 @@
+#include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeValidators.hpp>
-#include <gtirb/Procedure.hpp>
 #include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;
+class Block;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Instruction);
 
 Instruction::Instruction() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Procedure>());
+    this->addParentValidator(NodeValidatorHasParentOfType<Block>);
 }
 
 void Instruction::setEA(gtirb::EA x)

@@ -8,8 +8,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ModuleSummary);
 
 ModuleSummary::ModuleSummary() : ModuleSectionBase()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ModuleSummary>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ModuleSummary>);
 }
 
 void ModuleSummary::setName(std::string x)

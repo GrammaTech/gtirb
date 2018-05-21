@@ -1,9 +1,9 @@
+#include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -11,8 +11,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::AddrRanges);
 
 AddrRanges::AddrRanges() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::AddrRanges>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::AddrRanges>);
 }
 
 bool AddrRanges::addRange(std::pair<gtirb::EA, gtirb::EA> x)

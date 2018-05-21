@@ -1,3 +1,4 @@
+#include <gsl/gsl>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
@@ -5,7 +6,6 @@
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include <gsl/gsl>
 #include <iostream>
 
 using namespace gtirb;
@@ -14,7 +14,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNode);
 
 CFGNode::CFGNode() : Node()
 {
-    this->addParentValidator([](const Node* const x) {
+    this->addParentValidator([](const Node* const, const Node* const x) {
         const auto parentCFG = dynamic_cast<const gtirb::CFG* const>(x);
         const auto parentCFGNode = dynamic_cast<const gtirb::CFGNode* const>(x);
         return ((parentCFG != nullptr) || (parentCFGNode != nullptr));
