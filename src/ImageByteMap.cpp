@@ -9,8 +9,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ImageByteMap);
 
 ImageByteMap::ImageByteMap() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ImageByteMap>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ImageByteMap>);
 }
 
 void ImageByteMap::setFileName(boost::filesystem::path x)

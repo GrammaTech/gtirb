@@ -6,6 +6,7 @@
 #include <gsl/gsl>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeStructureError.hpp>
+#include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
 
@@ -14,14 +15,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Node);
 // UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
 Node::Node() : uuid(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
 {
-    this->addParentValidator([this](const Node* const x) {
+    this->addParentValidator([](const Node* const node, const Node* const parent) {
         // We should not become a parent to ourself.
-        if((x != nullptr) && (x->getUUID() != this->getUUID()))
+        if((parent != nullptr) && (parent->getUUID() != node->getUUID()))
         {
             // Search all the way up just to make sure there isn't a circular reference.
-            if(this->getNodeParent() != nullptr)
+            if(node->getNodeParent() != nullptr)
             {
-                return this->getNodeParent()->getIsValidParent(x);
+                return node->getNodeParent()->getIsValidParent(parent);
             }
 
             // We are the root and all is still valid.
@@ -57,7 +58,7 @@ bool Node::getIsValidParent(const Node* const x) const
 {
     for(const auto& i : this->parentValidators)
     {
-        if(i(x) == false)
+        if(!i(this, x))
         {
             return false;
         }
@@ -234,7 +235,7 @@ Node::const_iterator Node::end() const
     return Node::const_iterator(std::end(this->children));
 }
 
-void Node::addParentValidator(std::function<bool(const Node* const)> x)
+void Node::addParentValidator(std::function<bool(const Node* const, const Node* const)> x)
 {
     this->parentValidators.push_back(x);
 }

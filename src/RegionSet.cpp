@@ -9,8 +9,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::RegionSet);
 
 RegionSet::RegionSet() : Node()
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>());
-    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::RegionSet>());
+    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
+    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::RegionSet>);
 }
 
 Region* RegionSet::getRegion(gtirb::EA x) const

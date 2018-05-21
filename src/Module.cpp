@@ -22,7 +22,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 
 Module::Module()
 {
-    this->addParentValidator(NodeValidatorHasParentOfType<gtirb::IR>());
+    this->addParentValidator(NodeValidatorHasParentOfType<gtirb::IR>);
 }
 
 void Module::setBinaryPath(boost::filesystem::path x)

@@ -80,10 +80,3 @@ TEST(Unit_Procedure, getPLTEntries_ref)
     EXPECT_EQ(size_t{1}, pltEntries->size());
     EXPECT_EQ(std::begin(*pltEntries), pltEntries->find(entry));
 }
-
-TEST(Unit_Procedure, getOrCreateInstruction)
-{
-    const auto procedure = std::make_unique<gtirb::Procedure>();
-    EXPECT_TRUE(procedure->getOrCreateInstruction() != nullptr);
-    EXPECT_NO_THROW(procedure->getOrCreateInstruction());
-}
