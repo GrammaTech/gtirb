@@ -4,8 +4,20 @@
 #include <gtirb/Node.hpp>
 #include <set>
 
+#if __cplusplus >= 201703L
+#include <optional>
+template <typename T>
+using optional = std::optional<T>;
+#else
+#include <boost/optional.hpp>
+template <typename T>
+using optional = boost::optional<T>;
+#endif
+
 namespace gtirb
 {
+    class Symbol;
+
     ///
     /// \class Instruction
     /// \author John E. Farrier
@@ -30,6 +42,27 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API Instruction : public Node
     {
     public:
+        struct MovedLabel
+        {
+            int64_t offset1{0};
+            int64_t offset2{0};
+        };
+
+        /// \class SymbolicOperand
+        ///
+        /// \todo This lines up with the datalog-disassembler/pretty-printer,
+        /// is it the right design for gt-irb?
+        ///
+        /// Typically only one of these fields will be set. Maybe this should
+        /// be a union/variant instead?
+        struct SymbolicOperand
+        {
+            optional<std::string> pltReferenceName;
+            optional<EA> directCallDestination;
+            optional<MovedLabel> movedLabel;
+            bool isGlobalSymbol;
+        };
+
         ///
         /// Default Constructor.
         ///
@@ -63,6 +96,9 @@ namespace gtirb
         void setNumberOfUses(int64_t x);
         int64_t getNumberOfUses() const;
 
+        std::vector<SymbolicOperand>& getSymbolicOperands();
+        const std::vector<SymbolicOperand>& getSymbolicOperands() const;
+
         ///
         /// Serialization support.
         ///
@@ -81,6 +117,7 @@ namespace gtirb
         int64_t numberOfUses{0};
         bool isFallthrough{false};
         bool isPEI{false};
+        std::vector<SymbolicOperand> symbolicOperands;
     };
 }
 
