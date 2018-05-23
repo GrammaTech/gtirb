@@ -20,10 +20,6 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/ModuleAux.hpp>
-#include <gtirb/ModuleCore.hpp>
-#include <gtirb/ModuleSectionBase.hpp>
-#include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/Procedure.hpp>
@@ -50,10 +46,6 @@ typedef Types<gtirb::AddrRanges,          //
               gtirb::Instruction,         //
               gtirb::IR,                  //
               gtirb::Module,              //
-              gtirb::ModuleAux,           //
-              gtirb::ModuleCore,          //
-              gtirb::ModuleSectionBase,   //
-              gtirb::ModuleSummary,       //
               gtirb::Node,                //
               gtirb::Procedure,           //
               gtirb::Region,              //

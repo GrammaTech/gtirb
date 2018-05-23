@@ -11,10 +11,6 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/ModuleAux.hpp>
-#include <gtirb/ModuleCore.hpp>
-#include <gtirb/ModuleSectionBase.hpp>
-#include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/ProcedureSet.hpp>
@@ -24,14 +20,11 @@
 
 using testing::Types;
 
-typedef Types<gtirb::ModuleCore,    //
-              gtirb::ModuleAux,     //
-              gtirb::ModuleSummary, //
-              gtirb::AddrRanges,    //
-              gtirb::SymbolSet,     //
-              gtirb::RegionSet,     //
-              gtirb::ImageByteMap,  //
-              gtirb::ProcedureSet,  //
+typedef Types<gtirb::AddrRanges,   //
+              gtirb::SymbolSet,    //
+              gtirb::RegionSet,    //
+              gtirb::ImageByteMap, //
+              gtirb::ProcedureSet, //
               gtirb::CFGSet>
     TypeImplementations;
 

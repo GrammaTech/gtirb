@@ -5,9 +5,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/ModuleAux.hpp>
-#include <gtirb/ModuleCore.hpp>
-#include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/NodeValidators.hpp>
@@ -92,21 +89,6 @@ gtirb::EA Module::getPreferredEA() const
     return this->preferredEA;
 }
 
-gtirb::ModuleSummary* Module::getOrCreateModuleSummary()
-{
-    return gtirb::GetOrCreateChildOfType<gtirb::ModuleSummary>(this);
-}
-
-gtirb::ModuleCore* Module::getOrCreateModuleCore()
-{
-    return gtirb::GetOrCreateChildOfType<gtirb::ModuleCore>(this);
-}
-
-gtirb::ModuleAux* Module::getOrCreateModuleAux()
-{
-    return gtirb::GetOrCreateChildOfType<gtirb::ModuleAux>(this);
-}
-
 gtirb::AddrRanges* Module::getOrCreateAddrRanges()
 {
     return gtirb::GetOrCreateChildOfType<gtirb::AddrRanges>(this);
@@ -171,4 +153,44 @@ SectionTable& Module::getOrCreateSectionTable()
     assert(result);
 
     return *result;
+}
+
+bool Module::getIsSetupComplete() const
+{
+    return this->isSetupComplete;
+}
+
+bool Module::getIsReadOnly() const
+{
+    return this->isReadOnly;
+}
+
+void Module::setIsSetupComplete()
+{
+    this->isSetupComplete = true;
+}
+
+void Module::setIsReadOnly(bool x)
+{
+    this->isReadOnly = x;
+}
+
+void Module::setName(std::string x)
+{
+    this->name = std::move(x);
+}
+
+std::string Module::getName() const
+{
+    return this->name;
+}
+
+void Module::setDecodeMode(uint64_t x)
+{
+    this->decodeMode = x;
+}
+
+uint64_t Module::getDecodeMode() const
+{
+    return this->decodeMode;
 }

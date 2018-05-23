@@ -37,10 +37,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/IR.hpp
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
-	../include/gtirb/ModuleAux.hpp
-	../include/gtirb/ModuleCore.hpp
-	../include/gtirb/ModuleSectionBase.hpp
-	../include/gtirb/ModuleSummary.hpp
 	../include/gtirb/Node.hpp
 	../include/gtirb/NodeError.hpp
 	../include/gtirb/NodeStructureError.hpp
@@ -82,10 +78,6 @@ set(${PROJECT_NAME}_SRC
 	IR.cpp
 	LogicError.cpp
 	Module.cpp
-	ModuleAux.cpp
-	ModuleCore.cpp
-	ModuleSectionBase.cpp
-	ModuleSummary.cpp
 	Node.cpp
 	NodeError.cpp
 	NodeStructureError.cpp
