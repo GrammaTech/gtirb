@@ -144,21 +144,6 @@ namespace gtirb
         gtirb::ImageByteMap* getOrCreateImageByteMap();
 
         ///
-        /// A Module can have exactly one ModuleAux child.
-        ///
-        gtirb::ModuleAux* getOrCreateModuleAux();
-
-        ///
-        /// A Module can have exactly one ModuleCore child.
-        ///
-        gtirb::ModuleCore* getOrCreateModuleCore();
-
-        ///
-        /// A Module can have exactly one ModuleSummary child.
-        ///
-        gtirb::ModuleSummary* getOrCreateModuleSummary();
-
-        ///
         /// A Module can have exactly one ProcedureSet child.
         ///
         gtirb::ProcedureSet* getOrCreateProcedureSet();
@@ -173,6 +158,15 @@ namespace gtirb
         ///
         SectionTable& getOrCreateSectionTable();
 
+        bool getIsSetupComplete() const;
+        bool getIsReadOnly() const;
+
+        void setName(std::string x);
+        std::string getName() const;
+
+        void setDecodeMode(uint64_t x);
+        uint64_t getDecodeMode() const;
+
         ///
         /// Serialization support.
         ///
@@ -186,7 +180,23 @@ namespace gtirb
             ar & this->rebaseDelta;
             ar & this->fileFormat;
             ar & this->isaID;
+            ar & this->isSetupComplete;
+            ar & this->isReadOnly;
+            ar & this->name;
+            ar & this->decodeMode;
         }
+
+    protected:
+        ///
+        /// Sets the internal "isSetupComplete" flag to true.
+        /// Once this is set to "true", it cannot be set back to false.
+        ///
+        void setIsSetupComplete();
+
+        ///
+        /// Sets the state of the section's "isReadOnly" flag.
+        ///
+        void setIsReadOnly(bool x);
 
     private:
         boost::filesystem::path binaryPath{};
@@ -195,6 +205,10 @@ namespace gtirb
         int64_t rebaseDelta{0};
         gtirb::FileFormat fileFormat{};
         gtirb::ISAID isaID{};
+        bool isSetupComplete{false};
+        bool isReadOnly{false};
+        std::string name{};
+        uint64_t decodeMode{0};
     };
 }
 

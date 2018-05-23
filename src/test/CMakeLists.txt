@@ -35,10 +35,6 @@ set(${PROJECT_NAME}_SRC
 	Instruction.test.cpp
 	IR.test.cpp
 	Module.test.cpp
-	ModuleAux.test.cpp
-	ModuleCore.test.cpp
-	ModuleSectionBase.test.cpp
-	ModuleSummary.test.cpp
 	Node.test.cpp
 	NodeError.test.cpp
 	NodeUtilities.test.cpp

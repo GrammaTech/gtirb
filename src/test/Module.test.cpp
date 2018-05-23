@@ -4,9 +4,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/ModuleAux.hpp>
-#include <gtirb/ModuleCore.hpp>
-#include <gtirb/ModuleSummary.hpp>
 #include <gtirb/NodeUtilities.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/SymbolSet.hpp>
@@ -146,45 +143,6 @@ TEST(Unit_Module, setPreferredEA)
     EXPECT_EQ(preferred, m->getPreferredEA());
 }
 
-TEST(Unit_Module, getOrCreateModuleSummary)
-{
-    auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::ModuleSummary>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateModuleSummary());
-    EXPECT_TRUE(m->getOrCreateModuleSummary() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::ModuleSummary>(m.get());
-    EXPECT_FALSE(children.empty());
-}
-
-TEST(Unit_Module, getOrCreateModuleCore)
-{
-    auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::ModuleCore>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateModuleCore());
-    EXPECT_TRUE(m->getOrCreateModuleCore() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::ModuleCore>(m.get());
-    EXPECT_FALSE(children.empty());
-}
-
-TEST(Unit_Module, getOrCreateModuleAux)
-{
-    auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::ModuleAux>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateModuleAux());
-    EXPECT_TRUE(m->getOrCreateModuleAux() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::ModuleAux>(m.get());
-    EXPECT_FALSE(children.empty());
-}
-
 TEST(Unit_Module, getOrCreateAddrRanges)
 {
     auto m = std::make_shared<gtirb::Module>();
@@ -248,4 +206,50 @@ TEST(Unit_Module, getOrCreateCFGSet)
 
     children = gtirb::GetChildrenOfType<gtirb::CFGSet>(m.get());
     EXPECT_FALSE(children.empty());
+}
+
+TEST(Unit_Module, getIsSetupComplete)
+{
+    auto m = std::make_unique<gtirb::Module>();
+    EXPECT_NO_THROW(m->getIsSetupComplete());
+    EXPECT_FALSE(m->getIsSetupComplete());
+}
+
+TEST(Unit_Module, getIsReadOnly)
+{
+    auto m = std::make_unique<gtirb::Module>();
+    EXPECT_NO_THROW(m->getIsReadOnly());
+    EXPECT_FALSE(m->getIsReadOnly());
+}
+
+TEST(Unit_Module, setName)
+{
+    const std::string name{"foo"};
+    auto m = std::make_unique<gtirb::Module>();
+
+    EXPECT_NO_THROW(m->setName(name));
+    EXPECT_EQ(name, m->getName());
+}
+
+TEST(Unit_Module, getName)
+{
+    auto m = std::make_unique<gtirb::Module>();
+    EXPECT_NO_THROW(m->getName());
+    EXPECT_TRUE(m->getName().empty());
+}
+
+TEST(Unit_Module, setDecodeMode)
+{
+    const uint64_t decodeMode{0x10101010};
+    auto m = std::make_unique<gtirb::Module>();
+
+    EXPECT_NO_THROW(m->setDecodeMode(decodeMode));
+    EXPECT_EQ(decodeMode, m->getDecodeMode());
+}
+
+TEST(Unit_Module, getDecodeMode)
+{
+    auto m = std::make_unique<gtirb::Module>();
+    EXPECT_NO_THROW(m->getDecodeMode());
+    EXPECT_EQ(uint64_t{0}, m->getDecodeMode());
 }
