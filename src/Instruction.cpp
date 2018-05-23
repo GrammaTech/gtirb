@@ -57,3 +57,13 @@ int64_t Instruction::getNumberOfUses() const
 {
     return this->numberOfUses;
 }
+
+std::vector<Instruction::SymbolicOperand>& Instruction::getSymbolicOperands()
+{
+    return this->symbolicOperands;
+}
+
+const std::vector<Instruction::SymbolicOperand>& Instruction::getSymbolicOperands() const
+{
+    return this->symbolicOperands;
+}
