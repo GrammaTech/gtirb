@@ -43,15 +43,17 @@ namespace gtirb
         CFG* getCFG(const std::string& x) const;
 
         ///
-        /// Get or create the CFG at the given EA.
+        /// Create the CFG at the given EA.
         ///
         /// This is preferable to adding CFGs manually as it ensures no duplicate CFGs are
         /// created.
         ///
+        /// \pre No CFG currently exists at the given EA.
+        ///
         /// \param x    The EA of the gtirb::CFG to get (or create).
         /// \return     The CFG at the given EA.
         ///
-        CFG* getOrCreateCFG(gtirb::EA x);
+        CFG* createCFG(gtirb::EA x);
 
         const std::vector<std::shared_ptr<CFG>>& getCFGs() const;
 

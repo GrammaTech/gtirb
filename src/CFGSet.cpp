@@ -34,21 +34,16 @@ CFG* CFGSet::getCFG(const std::string& x) const
     return nullptr;
 }
 
-CFG* CFGSet::getOrCreateCFG(gtirb::EA x)
+CFG* CFGSet::createCFG(gtirb::EA x)
 {
-    auto child = this->getCFG(x);
-
-    if(child)
-    {
-        return child;
-    }
+    Expects(this->getCFG(x) == nullptr);
 
     auto newChild = std::make_shared<CFG>();
     newChild->setEA(x);
-    child = newChild.get();
+    auto non_owning = newChild.get();
     contents.push_back(std::move(newChild));
 
-    return this->getCFG(x);
+    return non_owning;
 }
 
 template <class Archive>

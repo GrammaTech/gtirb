@@ -21,7 +21,7 @@ TEST(Unit_CFGSet, getCFG_EA)
     EXPECT_TRUE(node->empty());
     EXPECT_EQ(size_t{0}, node->size());
 
-    child = node->getOrCreateCFG(ea);
+    child = node->createCFG(ea);
     EXPECT_TRUE(child != nullptr);
     EXPECT_FALSE(node->empty());
     EXPECT_EQ(size_t{1}, node->size());
@@ -32,7 +32,7 @@ TEST(Unit_CFGSet, getCFG_EA)
     EXPECT_EQ(size_t{1}, node->size());
 
     // Make sure we don't create it again.
-    child = node->getOrCreateCFG(ea);
+    child = node->createCFG(ea);
     EXPECT_TRUE(child != nullptr);
     EXPECT_FALSE(node->empty());
     EXPECT_EQ(size_t{1}, node->size());
@@ -48,7 +48,7 @@ TEST(Unit_CFGSet, getCFG_ProcedureName)
     EXPECT_TRUE(node->empty());
     EXPECT_EQ(size_t{0}, node->size());
 
-    child = node->getOrCreateCFG(ea);
+    child = node->createCFG(ea);
     EXPECT_TRUE(child != nullptr);
     EXPECT_FALSE(node->empty());
     EXPECT_EQ(size_t{1}, node->size());

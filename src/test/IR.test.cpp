@@ -10,23 +10,9 @@ TEST(Unit_IR, ctor_0)
 
 TEST(Unit_IR, getMainModule)
 {
+    // Main module is created in the constructor
     auto ir = gtirb::IR();
-    EXPECT_TRUE(ir.getMainModule() == nullptr);
-
-    auto main = ir.getOrCreateMainModule();
-    EXPECT_TRUE(main != nullptr);
-
-    EXPECT_EQ(main, ir.getMainModule());
-}
-
-TEST(Unit_IR, getOrCreateMainModule)
-{
-    auto ir = gtirb::IR();
-    EXPECT_TRUE(ir.getMainModule() == nullptr);
-
-    EXPECT_NO_THROW(ir.getOrCreateMainModule());
-    auto main = ir.getOrCreateMainModule();
-    EXPECT_TRUE(main != nullptr);
+    EXPECT_NE(ir.getMainModule(), nullptr);
 }
 
 TEST(Unit_IR, getModulesWithPreferredEA)

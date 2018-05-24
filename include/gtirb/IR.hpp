@@ -92,7 +92,7 @@ namespace gtirb
         ///
         /// Get or create a module containin the program's "main".
         ///
-        gtirb::Module* getOrCreateMainModule();
+        gtirb::Module* createMainModule();
 
         ///
         /// Get all modules having the given Preferred EA

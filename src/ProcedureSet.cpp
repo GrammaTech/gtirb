@@ -17,17 +17,14 @@ Procedure* ProcedureSet::getProcedure(gtirb::EA x) const
     return nullptr;
 }
 
-Procedure* ProcedureSet::getOrCreateProcedure(gtirb::EA x)
+Procedure* ProcedureSet::createProcedure(gtirb::EA x)
 {
-    auto procedure = this->getProcedure(x);
+    Expects(this->getProcedure(x) == nullptr);
 
-    if(procedure == nullptr)
-    {
-        auto newProcedure = std::make_shared<Procedure>();
-        newProcedure->setEA(x);
-        procedure = newProcedure.get();
-        this->contents.insert({x, std::move(newProcedure)});
-    }
+    auto newProcedure = std::make_shared<Procedure>();
+    newProcedure->setEA(x);
+    auto procedure = newProcedure.get();
+    this->contents.insert({x, std::move(newProcedure)});
 
     return procedure;
 }
