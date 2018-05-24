@@ -17,16 +17,11 @@ TEST(Unit_RegionSet, getRegion)
     auto region = node->getRegion(ea);
     EXPECT_TRUE(region == nullptr);
 
-    region = node->getOrCreateRegion(ea);
+    region = node->createRegion(ea);
     EXPECT_TRUE(region != nullptr);
 
     region = node->getRegion(ea);
     EXPECT_TRUE(region != nullptr);
-
-    // Make sure we don't create it again.
-    auto region2 = node->getOrCreateRegion(ea);
-    EXPECT_TRUE(region2 != nullptr);
-    EXPECT_EQ(region, region2);
 }
 
 TEST(Unit_RegionSet, getRegion_invalid)

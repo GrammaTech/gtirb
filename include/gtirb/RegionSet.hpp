@@ -37,15 +37,15 @@ namespace gtirb
         Region* getRegion(gtirb::EA x) const;
 
         ///
-        /// Get or create the symbol at the given EA.
+        /// Create a region with the given EA.
         ///
         /// This is preferable to adding regions manually as it ensures no duplicate regions are
         /// created.
         ///
         /// \param x    The EA of the gtirb::Region to get (or create).
-        /// \return     The Region at the given EA.
+        /// \return     A non-owning pointer to the new region.
         ///
-        Region* getOrCreateRegion(gtirb::EA x);
+        Region* createRegion(gtirb::EA x);
 
         ///
         /// Serialization support.

@@ -38,16 +38,18 @@ namespace gtirb
         Procedure* getProcedure(gtirb::EA x) const;
 
         ///
-        /// Get or create the Procedure at the given EA.
+        /// Create the Procedure at the given EA.
         ///
         /// This is preferable to adding Procedures manually as it ensures no duplicate Procedures
         /// are
         /// created.
         ///
+        /// \pre No procedure currently exists at the given EA.
+        ///
         /// \param x    The EA of the gtirb::Procedure to get (or create).
         /// \return     The Procedure at the given EA.
         ///
-        Procedure* getOrCreateProcedure(gtirb::EA x);
+        Procedure* createProcedure(gtirb::EA x);
 
         ///
         /// Serialization support.

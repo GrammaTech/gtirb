@@ -7,27 +7,15 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::IR);
 
 IR::IR() : Node()
 {
+    // Create a main module
+    auto mm = std::make_shared<Module>();
+    this->mainModule = mm;
+    this->modules.push_back(std::move(mm));
 }
 
 Module* IR::getMainModule() const
 {
     return this->mainModule.lock().get();
-}
-
-Module* IR::getOrCreateMainModule()
-{
-    auto main = this->mainModule.lock().get();
-
-    if(main == nullptr)
-    {
-        // Create a new Main Module then get its pointer value to return.
-        auto mm = std::make_shared<Module>();
-        this->mainModule = mm;
-        main = mm.get();
-        this->modules.push_back(std::move(mm));
-    }
-
-    return main;
 }
 
 std::vector<Module*> IR::getModulesWithPreferredEA(EA x) const

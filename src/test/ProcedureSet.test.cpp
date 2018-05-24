@@ -18,16 +18,11 @@ TEST(Unit_ProcedureSet, getProcedure)
     auto procedure = node->getProcedure(ea);
     EXPECT_TRUE(procedure == nullptr);
 
-    procedure = node->getOrCreateProcedure(ea);
+    procedure = node->createProcedure(ea);
     EXPECT_TRUE(procedure != nullptr);
 
     procedure = node->getProcedure(ea);
     EXPECT_TRUE(procedure != nullptr);
-
-    // Make sure we don't create it again.
-    auto procedure2 = node->getOrCreateProcedure(ea);
-    EXPECT_TRUE(procedure != nullptr);
-    EXPECT_EQ(procedure, procedure2);
 }
 
 TEST(Unit_ProcedureSet, getProcedure_invalid)

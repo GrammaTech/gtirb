@@ -21,17 +21,14 @@ Region* RegionSet::getRegion(EA x) const
     return nullptr;
 }
 
-Region* RegionSet::getOrCreateRegion(gtirb::EA x)
+Region* RegionSet::createRegion(gtirb::EA x)
 {
-    auto region = this->getRegion(x);
+    Expects(this->getRegion(x) == nullptr);
 
-    if(region == nullptr)
-    {
-        auto newRegion = std::make_unique<Region>();
-        newRegion->addEA(x);
-        region = newRegion.get();
-        this->contents.push_back(std::move(newRegion));
-    }
+    auto newRegion = std::make_unique<Region>();
+    newRegion->addEA(x);
+    auto non_owning = newRegion.get();
+    this->contents.push_back(std::move(newRegion));
 
-    return region;
+    return non_owning;
 }

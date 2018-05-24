@@ -62,7 +62,7 @@ TEST(Unit_Utilities, CollectThunks_noThunks_noISAID)
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_THROW(gtirb::utilities::CollectThunks(module.get()), std::out_of_range);
 
-    cfgSet->getOrCreateCFG(EA());
+    cfgSet->createCFG(EA());
     EXPECT_THROW(gtirb::utilities::CollectThunks(module.get()), std::out_of_range);
 }
 
@@ -77,7 +77,7 @@ TEST(Unit_Utilities, CollectThunks_noThunks_0)
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    cfgSet->getOrCreateCFG(EA());
+    cfgSet->createCFG(EA());
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 }
 
@@ -92,7 +92,7 @@ TEST(Unit_Utilities, CollectThunks_noThunks_1)
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfgPtr = cfgSet->getOrCreateCFG(EA());
+    auto cfgPtr = cfgSet->createCFG(EA());
 
     EXPECT_NO_THROW(cfgPtr->setFlags(gtirb::CFG::Flags::IS_ITHUNK));
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
@@ -113,7 +113,7 @@ TEST(Unit_Utilities, CollectThunks_simple)
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfgPtr = cfgSet->getOrCreateCFG(EA());
+    auto cfgPtr = cfgSet->createCFG(EA());
     ASSERT_TRUE(cfgPtr != nullptr);
 
     EXPECT_NO_THROW(cfgPtr->setFlags(gtirb::CFG::Flags::IS_ITHUNK));
