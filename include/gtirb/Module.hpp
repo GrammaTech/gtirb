@@ -121,37 +121,28 @@ namespace gtirb
         ///
         /// A Module can have exactly one AddrRanges child.
         ///
-        gtirb::AddrRanges* getOrCreateAddrRanges();
-
-        ///
-        /// A Module can have exactly one CFGSet child.
-        ///
-        gtirb::CFGSet* getOrCreateCFGSet();
+        gtirb::AddrRanges* getAddrRanges();
 
         ///
         ///
         ///
-        gtirb::CFGSet* getCFGSet();
-
-        ///
-        ///
-        ///
-        const gtirb::CFGSet* const getCFGSet() const;
+        CFGSet* getCFGSet();
+        const CFGSet* getCFGSet() const;
 
         ///
         /// A Module can have exactly one ImageByteMap child.
         ///
-        gtirb::ImageByteMap* getOrCreateImageByteMap();
+        gtirb::ImageByteMap* getImageByteMap();
 
         ///
         /// A Module can have exactly one ProcedureSet child.
         ///
-        gtirb::ProcedureSet* getOrCreateProcedureSet();
+        gtirb::ProcedureSet* getProcedureSet();
 
         ///
         /// A Module can have exactly one SymbolSet child.
         ///
-        gtirb::SymbolSet* getOrCreateSymbolSet();
+        gtirb::SymbolSet* getSymbolSet();
 
         ///
         /// A Module can have exactly one section table.
@@ -171,20 +162,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);
-            ar & this->eaMinMax;
-            ar & this->preferredEA;
-            ar & this->rebaseDelta;
-            ar & this->fileFormat;
-            ar & this->isaID;
-            ar & this->isSetupComplete;
-            ar & this->isReadOnly;
-            ar & this->name;
-            ar & this->decodeMode;
-        }
+        void serialize(Archive& ar, const unsigned int /*version*/);
 
     protected:
         ///
@@ -209,6 +187,11 @@ namespace gtirb
         bool isReadOnly{false};
         std::string name{};
         uint64_t decodeMode{0};
+        std::shared_ptr<AddrRanges> addrRanges;
+        std::shared_ptr<CFGSet> cfgSet;
+        std::shared_ptr<ImageByteMap> imageByteMap;
+        std::shared_ptr<ProcedureSet> procedureSet;
+        std::shared_ptr<SymbolSet> symbolSet;
     };
 }
 

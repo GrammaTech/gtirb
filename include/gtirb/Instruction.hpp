@@ -66,8 +66,7 @@ namespace gtirb
         ///
         /// Default Constructor.
         ///
-        Instruction();
-
+        Instruction() = default;
         Instruction(EA ea);
 
         ///

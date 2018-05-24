@@ -23,7 +23,7 @@ namespace gtirb
         ///
         /// Default Constructor.
         ///
-        AddrRanges();
+        AddrRanges() = default;
 
         ///
         /// Defaulted trivial destructor.

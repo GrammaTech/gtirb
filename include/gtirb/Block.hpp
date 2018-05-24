@@ -1,13 +1,12 @@
 #pragma once
 
 #include <gtirb/Export.hpp>
+#include <gtirb/Instruction.hpp>
 #include <gtirb/Node.hpp>
 #include <vector>
 
 namespace gtirb
 {
-    class Instruction;
-
     ///
     /// \class Block
     /// \author Nathan Weston
@@ -18,7 +17,7 @@ namespace gtirb
     {
     public:
         // Default constructor required by boost::serialize
-        Block();
+        Block() = default;
 
         ///
         /// Construct an empty block
@@ -39,7 +38,7 @@ namespace gtirb
         EA getStartingAddress() const;
         EA getEndingAddress() const;
 
-        std::vector<const Instruction*> getInstructions() const;
+        const std::vector<Instruction>& getInstructions() const;
 
         ///
         /// Serialization support.
@@ -55,6 +54,7 @@ namespace gtirb
     private:
         EA startingAddress{};
         EA endingAddress{};
+        std::vector<Instruction> instructions;
     };
 }
 

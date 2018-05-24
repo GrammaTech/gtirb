@@ -1,5 +1,4 @@
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/ProcedureSet.hpp>
 
@@ -7,21 +6,12 @@ using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ProcedureSet);
 
-ProcedureSet::ProcedureSet() : Node()
-{
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
-    this->addParentValidator(NodeValidatorHasNoSiblingsOfType<gtirb::ProcedureSet>);
-}
-
 Procedure* ProcedureSet::getProcedure(gtirb::EA x) const
 {
-    const auto procedures = GetChildrenOfType<Procedure>(this);
-    const auto found = std::find_if(std::begin(procedures), std::end(procedures),
-                                    [x](Procedure* s) { return s->getEA() == x; });
-
-    if(found != std::end(procedures))
+    const auto found = this->contents.find(x);
+    if(found != std::end(this->contents))
     {
-        return *found;
+        return found->second.get();
     }
 
     return nullptr;
@@ -33,10 +23,10 @@ Procedure* ProcedureSet::getOrCreateProcedure(gtirb::EA x)
 
     if(procedure == nullptr)
     {
-        auto newProcedure = std::make_unique<Procedure>();
+        auto newProcedure = std::make_shared<Procedure>();
         newProcedure->setEA(x);
         procedure = newProcedure.get();
-        this->push_back(std::move(newProcedure));
+        this->contents.insert({x, std::move(newProcedure)});
     }
 
     return procedure;

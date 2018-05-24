@@ -2,14 +2,12 @@
 #include <gtirb/Exception.hpp>
 #include <gtirb/LogicError.hpp>
 #include <gtirb/NodeError.hpp>
-#include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
 
 using testing::Types;
 
-typedef Types<gtirb::Exception, gtirb::LogicError, gtirb::NodeError, gtirb::NodeStructureError,
-              gtirb::RuntimeError>
+typedef Types<gtirb::Exception, gtirb::LogicError, gtirb::NodeError, gtirb::RuntimeError>
     TypeImplementations;
 
 // ----------------------------------------------------------------------------

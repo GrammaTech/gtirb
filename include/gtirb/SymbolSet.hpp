@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <memory>
 #include <vector>
 
 namespace gtirb
@@ -21,7 +22,7 @@ namespace gtirb
         ///
         /// Default constructor.
         ///
-        SymbolSet();
+        SymbolSet() = default;
 
         ///
         /// Defaulted trivial destructor.
@@ -58,7 +59,11 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
+            ar& contents;
         }
+
+    private:
+        std::vector<std::shared_ptr<Symbol>> contents;
     };
 }
 

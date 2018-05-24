@@ -41,16 +41,15 @@ TEST(Unit_IR, getModulesWithPreferredEA)
     {
         auto m = std::make_unique<gtirb::Module>();
         m->setPreferredEA(preferredEA);
-        EXPECT_NO_THROW(ir.push_back(std::move(m)));
+        EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
     for(size_t i = 0; i < modulesWithoutEA; ++i)
     {
         auto m = std::make_unique<gtirb::Module>();
-        EXPECT_NO_THROW(ir.push_back(std::move(m)));
+        EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
-    EXPECT_EQ(modulesWithEA + modulesWithoutEA, ir.size());
     const auto modules = ir.getModulesWithPreferredEA(preferredEA);
     EXPECT_FALSE(modules.empty());
     EXPECT_EQ(modulesWithEA, modules.size());
@@ -67,24 +66,23 @@ TEST(Unit_IR, getModulesContainingEA)
     {
         auto m = std::make_unique<gtirb::Module>();
         m->setEAMinMax({ea, ea + eaOffset});
-        EXPECT_NO_THROW(ir.push_back(std::move(m)));
+        EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
     // EA inside range
     {
         auto m = std::make_unique<gtirb::Module>();
         m->setEAMinMax({ea - eaOffset, ea + eaOffset});
-        EXPECT_NO_THROW(ir.push_back(std::move(m)));
+        EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
     // EA at max (should not be returned)
     {
         auto m = std::make_unique<gtirb::Module>();
         m->setEAMinMax({ea - eaOffset, ea});
-        EXPECT_NO_THROW(ir.push_back(std::move(m)));
+        EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
-    EXPECT_EQ(size_t(3), ir.size());
     const auto modules = ir.getModulesContainingEA(ea);
     EXPECT_FALSE(modules.empty());
     EXPECT_EQ(size_t(2), modules.size());

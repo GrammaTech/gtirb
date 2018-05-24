@@ -1,37 +1,11 @@
 #include <gtest/gtest.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/NodeStructureError.hpp>
 #include <memory>
 
 TEST(Unit_Instruction, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::Instruction());
-}
-
-TEST(Unit_Instruction, validParent)
-{
-    auto parent = std::make_unique<gtirb::Block>();
-    auto child = std::make_unique<gtirb::Instruction>();
-    EXPECT_TRUE(child->getIsValidParent(parent.get()));
-    EXPECT_NO_THROW(parent->push_back(std::move(child)));
-}
-
-TEST(Unit_Instruction, validParent_noException)
-{
-    auto parent = std::make_unique<gtirb::Block>();
-    auto child = std::make_unique<gtirb::Instruction>();
-    EXPECT_TRUE(child->getIsValidParent(parent.get()));
-    EXPECT_NO_THROW(parent->push_back(std::move(child)));
-}
-
-TEST(Unit_Instruction, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::Instruction>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_Instruction, setEA)

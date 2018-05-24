@@ -4,7 +4,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeUtilities.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
@@ -12,23 +11,6 @@
 TEST(Unit_Module, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::Module());
-}
-
-TEST(Unit_Module, validParent)
-{
-    auto parent = std::make_unique<gtirb::IR>();
-    auto child = std::make_unique<gtirb::Module>();
-    EXPECT_TRUE(child->getIsValidParent(parent.get()));
-    EXPECT_NO_THROW(parent->push_back(std::move(child)));
-}
-
-TEST(Unit_Module, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::Module>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_Module, setBinaryPath)
@@ -143,69 +125,39 @@ TEST(Unit_Module, setPreferredEA)
     EXPECT_EQ(preferred, m->getPreferredEA());
 }
 
-TEST(Unit_Module, getOrCreateAddrRanges)
+TEST(Unit_Module, getAddrRanges)
 {
     auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::AddrRanges>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateAddrRanges());
-    EXPECT_TRUE(m->getOrCreateAddrRanges() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::AddrRanges>(m.get());
-    EXPECT_FALSE(children.empty());
+    EXPECT_NO_THROW(m->getAddrRanges());
+    EXPECT_TRUE(m->getAddrRanges() != nullptr);
 }
 
-TEST(Unit_Module, getOrCreateSymbolSet)
+TEST(Unit_Module, getSymbolSet)
 {
     auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::SymbolSet>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateSymbolSet());
-    EXPECT_TRUE(m->getOrCreateSymbolSet() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::SymbolSet>(m.get());
-    EXPECT_FALSE(children.empty());
+    EXPECT_NO_THROW(m->getSymbolSet());
+    EXPECT_TRUE(m->getSymbolSet() != nullptr);
 }
 
-TEST(Unit_Module, getOrCreateProcedureSet)
+TEST(Unit_Module, getProcedureSet)
 {
     auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::ProcedureSet>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateProcedureSet());
-    EXPECT_TRUE(m->getOrCreateProcedureSet() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::ProcedureSet>(m.get());
-    EXPECT_FALSE(children.empty());
+    EXPECT_NO_THROW(m->getProcedureSet());
+    EXPECT_TRUE(m->getProcedureSet() != nullptr);
 }
 
-TEST(Unit_Module, getOrCreateImageByteMap)
+TEST(Unit_Module, getImageByteMap)
 {
     auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::ImageByteMap>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateImageByteMap());
-    EXPECT_TRUE(m->getOrCreateImageByteMap() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::ImageByteMap>(m.get());
-    EXPECT_FALSE(children.empty());
+    EXPECT_NO_THROW(m->getImageByteMap());
+    EXPECT_TRUE(m->getImageByteMap() != nullptr);
 }
 
-TEST(Unit_Module, getOrCreateCFGSet)
+TEST(Unit_Module, getCFGSet)
 {
     auto m = std::make_shared<gtirb::Module>();
-    auto children = gtirb::GetChildrenOfType<gtirb::CFGSet>(m.get());
-    EXPECT_TRUE(children.empty());
-
-    EXPECT_NO_THROW(m->getOrCreateCFGSet());
-    EXPECT_TRUE(m->getOrCreateCFGSet() != nullptr);
-
-    children = gtirb::GetChildrenOfType<gtirb::CFGSet>(m.get());
-    EXPECT_FALSE(children.empty());
+    EXPECT_NO_THROW(m->getCFGSet());
+    EXPECT_TRUE(m->getCFGSet() != nullptr);
 }
 
 TEST(Unit_Module, getIsSetupComplete)

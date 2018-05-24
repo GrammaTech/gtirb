@@ -4,51 +4,12 @@
 #include <boost/filesystem.hpp>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
 
 TEST(Unit_AddrRanges, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::AddrRanges());
-}
-
-TEST(Unit_AddrRanges, validParent)
-{
-    auto module = std::make_unique<gtirb::Module>();
-    auto child = std::make_unique<gtirb::AddrRanges>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-}
-
-TEST(Unit_AddrRanges, validParent_noException)
-{
-    auto module = std::make_unique<gtirb::Module>();
-    auto child = std::make_unique<gtirb::AddrRanges>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-}
-
-TEST(Unit_AddrRanges, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::AddrRanges>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
-}
-
-TEST(Unit_AddrRanges, alreadyAdded)
-{
-    auto module = std::make_unique<gtirb::Module>();
-
-    auto child = std::make_unique<gtirb::AddrRanges>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-
-    auto childAgain = std::make_unique<gtirb::AddrRanges>();
-    EXPECT_FALSE(childAgain->getIsValidParent(module.get()));
-    EXPECT_THROW(module->push_back(std::move(childAgain)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_AddrRanges, validRange)

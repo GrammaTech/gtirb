@@ -40,8 +40,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Node.hpp
 	../include/gtirb/NodeError.hpp
 	../include/gtirb/NodeStructureError.hpp
-	../include/gtirb/NodeUtilities.hpp
-	../include/gtirb/NodeValidators.hpp
 	../include/gtirb/Procedure.hpp
 	../include/gtirb/ProcedureSet.hpp
 	../include/gtirb/Region.hpp

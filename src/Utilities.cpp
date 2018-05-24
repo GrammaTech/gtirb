@@ -1,12 +1,11 @@
+#include <gsl/gsl>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfoCall.hpp>
 #include <gtirb/CFGSet.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeUtilities.hpp>
 #include <gtirb/Utilities.hpp>
 #include <iostream>
-#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -128,9 +127,7 @@ const auto X86GetThunkTarget = [](const Module* const /*module*/, const CFG* con
     // (An alternative approach that examines the ASTs would fail to pick
     // this up).
 
-    auto allNodes = gtirb::GetChildrenOfType<gtirb::CFGNode>(cfg, true);
-
-    for(auto node : allNodes)
+    for(auto& node : cfg->getNodes())
     {
         const auto kind = node->getKind();
 
@@ -185,25 +182,19 @@ std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
             }
 
             // Collect thunk targets.
-            for(auto i : *cfgSet)
+            for(auto cfg : cfgSet->getCFGs())
             {
-                auto cfg = dynamic_cast<gtirb::CFG*>(i);
-
-                if(cfg != nullptr)
+                if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
+                                                  CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK))
                 {
-                    if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
-                                                      CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK)
-                       == true)
-                    {
-                        const auto indirectTarget = getThunkTargetFunc(module, cfg);
+                    const auto indirectTarget = getThunkTargetFunc(module, cfg.get());
 
-                        if(indirectTarget.second != nullptr)
-                        {
-                            // Simple sanity: this assert has been useful for noticing when we
-                            // screw up thunk renaming, for example.
-                            Expects(cfg->getProcedureName() != indirectTarget.second->getName());
-                            thunks.insert(cfg);
-                        }
+                    if(indirectTarget.second != nullptr)
+                    {
+                        // Simple sanity: this assert has been useful for noticing when we
+                        // screw up thunk renaming, for example.
+                        Expects(cfg->getProcedureName() != indirectTarget.second->getName());
+                        thunks.insert(cfg.get());
                     }
                 }
             }

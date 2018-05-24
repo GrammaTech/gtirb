@@ -19,7 +19,7 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API Region : public Node
     {
     public:
-        Region();
+        Region() = default;
         ~Region() override = default;
 
         void addEA(gtirb::EA x);

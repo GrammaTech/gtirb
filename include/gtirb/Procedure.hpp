@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gtirb/EA.hpp>
+#include <gtirb/Instruction.hpp>
 #include <gtirb/Node.hpp>
 #include <set>
 
@@ -18,7 +19,7 @@ namespace gtirb
         ///
         /// Default Constructor.
         ///
-        Procedure();
+        Procedure() = default;
 
         ///
         /// Defaulted trivial destructor.
@@ -41,9 +42,9 @@ namespace gtirb
         const std::set<gtirb::EA>* const getPLTEntries() const;
 
         ///
-        /// Gets an instruction associated with this procedure.
+        /// Add a new instruction to this procedure.
         ///
-        gtirb::Instruction* getOrCreateInstruction();
+        Instruction* createInstruction();
 
         ///
         /// Serialization support.
@@ -63,7 +64,8 @@ namespace gtirb
 
     private:
         gtirb::EA ea;
-        std::set<gtirb::EA> pltEntries;
+        std::set<EA> pltEntries;
+        std::vector<Instruction> instructions;
     };
 }
 

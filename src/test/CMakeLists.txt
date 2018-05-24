@@ -37,8 +37,6 @@ set(${PROJECT_NAME}_SRC
 	Module.test.cpp
 	Node.test.cpp
 	NodeError.test.cpp
-	NodeUtilities.test.cpp
-	NodeValidators.test.cpp
 	Procedure.test.cpp
 	ProcedureSet.test.cpp
 	Region.test.cpp
@@ -49,7 +47,6 @@ set(${PROJECT_NAME}_SRC
 	SymbolSet.test.cpp
 	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
-	TypedModuleChildTest.cpp
 	TypedNodeTest.cpp
 	Utilities.test.cpp
 )

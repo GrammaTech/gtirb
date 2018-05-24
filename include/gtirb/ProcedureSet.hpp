@@ -2,6 +2,8 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <map>
+#include <memory>
 
 namespace gtirb
 {
@@ -20,7 +22,7 @@ namespace gtirb
         ///
         /// Default constructor.
         ///
-        ProcedureSet();
+        ProcedureSet() = default;
 
         ///
         /// Defaulted trivial destructor.
@@ -55,6 +57,9 @@ namespace gtirb
         {
             ar& boost::serialization::base_object<Node>(*this);
         }
+
+    private:
+        std::map<EA, std::shared_ptr<Procedure>> contents;
     };
 } // namespace gtirb
 

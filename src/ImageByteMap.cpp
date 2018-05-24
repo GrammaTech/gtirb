@@ -1,17 +1,10 @@
 #include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeValidators.hpp>
 
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ImageByteMap);
-
-ImageByteMap::ImageByteMap() : Node()
-{
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::Module>);
-    this->addParentValidator(gtirb::NodeValidatorHasNoSiblingsOfType<gtirb::ImageByteMap>);
-}
 
 void ImageByteMap::setFileName(boost::filesystem::path x)
 {
