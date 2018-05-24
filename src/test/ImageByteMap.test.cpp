@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeStructureError.hpp>
 #include <memory>
 
 class Unit_ImageByteMapF : public ::testing::Test
@@ -37,44 +36,6 @@ size_t Unit_ImageByteMapF::InitializedSize{gtirb::constants::PageSize * 2};
 TEST(Unit_ImageByteMap, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::ImageByteMap());
-}
-
-TEST(Unit_ImageByteMap, validParent)
-{
-    auto module = std::make_unique<gtirb::Module>();
-    auto child = std::make_unique<gtirb::ImageByteMap>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-}
-
-TEST(Unit_ImageByteMap, validParent_noException)
-{
-    auto module = std::make_unique<gtirb::Module>();
-    auto child = std::make_unique<gtirb::ImageByteMap>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-}
-
-TEST(Unit_ImageByteMap, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::ImageByteMap>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
-}
-
-TEST(Unit_ImageByteMap, alreadyAdded)
-{
-    auto module = std::make_unique<gtirb::Module>();
-
-    auto child = std::make_unique<gtirb::ImageByteMap>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-
-    auto childAgain = std::make_unique<gtirb::ImageByteMap>();
-    EXPECT_FALSE(childAgain->getIsValidParent(module.get()));
-    EXPECT_THROW(module->push_back(std::move(childAgain)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_ImageByteMap, setFileName)

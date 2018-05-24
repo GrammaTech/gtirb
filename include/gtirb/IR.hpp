@@ -5,6 +5,8 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
+#include <memory>
+#include <vector>
 
 namespace gtirb
 {
@@ -109,6 +111,11 @@ namespace gtirb
         std::vector<gtirb::Module*> getModulesContainingEA(EA x) const;
 
         ///
+        /// Add a new module to the IR.
+        ///
+        void addModule(std::unique_ptr<gtirb::Module>&& x);
+
+        ///
         /// Serialization support.
         ///
         template <class Archive>
@@ -119,6 +126,7 @@ namespace gtirb
         }
 
     private:
+        std::vector<std::shared_ptr<Module>> modules;
         std::weak_ptr<gtirb::Module> mainModule{};
     };
 }

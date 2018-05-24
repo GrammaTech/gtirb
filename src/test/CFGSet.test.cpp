@@ -1,47 +1,11 @@
 #include <gtest/gtest.h>
 #include <gtirb/CFGSet.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeStructureError.hpp>
 #include <memory>
 
 TEST(Unit_CFGSet, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::CFGSet());
-}
-
-TEST(Unit_CFGSet, validParent)
-{
-    auto parent = std::make_unique<gtirb::Module>();
-    auto child = std::make_unique<gtirb::CFGSet>();
-    EXPECT_TRUE(child->getIsValidParent(parent.get()));
-    EXPECT_NO_THROW(parent->push_back(std::move(child)));
-}
-
-TEST(Unit_CFGSet, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::CFGSet>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
-}
-
-TEST(Unit_CFGSet, noSiblings)
-{
-    auto parent = std::make_unique<gtirb::Module>();
-
-    // Only the first child is valid.
-    {
-        auto child = std::make_unique<gtirb::CFGSet>();
-        EXPECT_TRUE(child->getIsValidParent(parent.get()));
-        EXPECT_NO_THROW(parent->push_back(std::move(child)));
-    }
-
-    {
-        auto child = std::make_unique<gtirb::CFGSet>();
-        EXPECT_FALSE(child->getIsValidParent(parent.get()));
-        EXPECT_THROW(parent->push_back(std::move(child)), gtirb::NodeStructureError);
-    }
 }
 
 TEST(Unit_CFGSet, getCFG_EA)

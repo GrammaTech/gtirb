@@ -21,60 +21,48 @@ Module* IR::getOrCreateMainModule()
     if(main == nullptr)
     {
         // Create a new Main Module then get its pointer value to return.
-        auto mm = std::make_unique<Module>();
+        auto mm = std::make_shared<Module>();
+        this->mainModule = mm;
         main = mm.get();
-        this->push_back(std::move(mm));
-        this->mainModule = std::dynamic_pointer_cast<gtirb::Module>(main->shared_from_this());
+        this->modules.push_back(std::move(mm));
     }
 
     return main;
 }
 
-std::vector<gtirb::Module*> IR::getModulesWithPreferredEA(EA x) const
+std::vector<Module*> IR::getModulesWithPreferredEA(EA x) const
 {
-    std::vector<gtirb::Module*> modules;
-    std::vector<gtirb::Node*> nodes;
+    std::vector<Module*> results;
 
-    std::copy_if(this->begin(), this->end(), std::back_inserter(nodes), [x](auto m) {
-        const auto module = dynamic_cast<Module*>(m);
-        return (module != nullptr) && (module->getPreferredEA() == x);
-    });
-
-    if(nodes.empty() == false)
+    for(const auto& m : this->modules)
     {
-        for(auto n : nodes)
+        if(m->getPreferredEA() == x)
         {
-            modules.push_back(dynamic_cast<Module*>(n));
+            results.push_back(m.get());
         }
     }
 
-    return modules;
+    return results;
 }
 
-std::vector<gtirb::Module*> IR::getModulesContainingEA(EA x) const
+std::vector<Module*> IR::getModulesContainingEA(EA x) const
 {
-    std::vector<gtirb::Module*> modules;
-    std::vector<gtirb::Node*> nodes;
+    std::vector<Module*> results;
 
-    std::copy_if(this->begin(), this->end(), std::back_inserter(nodes), [x](auto m) {
-        const auto module = dynamic_cast<Module*>(m);
-
-        if(module != nullptr)
-        {
-            auto minmax = module->getEAMinMax();
-            return (x >= minmax.first) && (x < minmax.second);
-        }
-
-        return false;
-    });
-
-    if(nodes.empty() == false)
+    for(const auto& m : this->modules)
     {
-        for(auto n : nodes)
+        auto minmax = m->getEAMinMax();
+        if((x >= minmax.first) && (x < minmax.second))
         {
-            modules.push_back(dynamic_cast<Module*>(n));
+            results.push_back(m.get());
         }
     }
 
-    return modules;
+    return results;
+}
+
+void IR::addModule(std::unique_ptr<gtirb::Module>&& x)
+{
+    Expects(x != nullptr);
+    this->modules.push_back(std::move(x));
 }

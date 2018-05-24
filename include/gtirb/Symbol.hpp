@@ -78,7 +78,7 @@ namespace gtirb
         ///
         /// Default constructor.
         ///
-        Symbol();
+        Symbol() = default;
 
         ///
         /// This constructor sets the Effective Address on construction.

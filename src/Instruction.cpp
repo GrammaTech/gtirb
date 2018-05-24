@@ -1,7 +1,6 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;
@@ -9,13 +8,8 @@ class Block;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Instruction);
 
-Instruction::Instruction() : Instruction(EA())
-{
-}
-
 Instruction::Instruction(EA ea) : Node(), ea(ea)
 {
-    this->addParentValidator(NodeValidatorHasParentOfType<Block>);
 }
 
 void Instruction::setEA(gtirb::EA x)

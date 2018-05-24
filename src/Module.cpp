@@ -5,9 +5,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeStructureError.hpp>
-#include <gtirb/NodeUtilities.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/SectionTable.hpp>
 #include <gtirb/SymbolSet.hpp>
@@ -18,8 +15,13 @@ using namespace gtirb;
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 
 Module::Module()
+    : Node(),
+      addrRanges(std::make_shared<AddrRanges>()),
+      cfgSet(std::make_shared<CFGSet>()),
+      imageByteMap(std::make_shared<ImageByteMap>()),
+      procedureSet(std::make_shared<ProcedureSet>()),
+      symbolSet(std::make_shared<SymbolSet>())
 {
-    this->addParentValidator(NodeValidatorHasParentOfType<gtirb::IR>);
 }
 
 void Module::setBinaryPath(boost::filesystem::path x)
@@ -89,55 +91,34 @@ gtirb::EA Module::getPreferredEA() const
     return this->preferredEA;
 }
 
-gtirb::AddrRanges* Module::getOrCreateAddrRanges()
+gtirb::AddrRanges* Module::getAddrRanges()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::AddrRanges>(this);
+    return this->addrRanges.get();
 }
 
-gtirb::SymbolSet* Module::getOrCreateSymbolSet()
+gtirb::SymbolSet* Module::getSymbolSet()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::SymbolSet>(this);
+    return this->symbolSet.get();
 }
 
-gtirb::ProcedureSet* Module::getOrCreateProcedureSet()
+gtirb::ProcedureSet* Module::getProcedureSet()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::ProcedureSet>(this);
+    return this->procedureSet.get();
 }
 
-gtirb::ImageByteMap* Module::getOrCreateImageByteMap()
+gtirb::ImageByteMap* Module::getImageByteMap()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::ImageByteMap>(this);
+    return this->imageByteMap.get();
 }
 
-gtirb::CFGSet* Module::getOrCreateCFGSet()
+CFGSet* Module::getCFGSet()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::CFGSet>(this);
+    return this->cfgSet.get();
 }
 
-gtirb::CFGSet* Module::getCFGSet()
+const CFGSet* Module::getCFGSet() const
 {
-    const auto allChildren = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
-    Expects(allChildren.size() <= 1);
-
-    if(allChildren.empty() == false)
-    {
-        return allChildren[0];
-    }
-
-    return nullptr;
-}
-
-const gtirb::CFGSet* const Module::getCFGSet() const
-{
-    const auto allChildren = gtirb::GetChildrenOfType<gtirb::CFGSet>(this);
-    Expects(allChildren.size() <= 1);
-
-    if(allChildren.empty() == false)
-    {
-        return allChildren[0];
-    }
-
-    return nullptr;
+    return this->cfgSet.get();
 }
 
 SectionTable& Module::getOrCreateSectionTable()
@@ -193,4 +174,25 @@ void Module::setDecodeMode(uint64_t x)
 uint64_t Module::getDecodeMode() const
 {
     return this->decodeMode;
+}
+
+template <class Archive>
+void Module::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar& boost::serialization::base_object<Node>(*this);
+    GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);
+    ar & this->eaMinMax;
+    ar & this->preferredEA;
+    ar & this->rebaseDelta;
+    ar & this->fileFormat;
+    ar & this->isaID;
+    ar & this->isSetupComplete;
+    ar & this->isReadOnly;
+    ar & this->name;
+    ar & this->decodeMode;
+    ar & this->addrRanges;
+    ar & this->cfgSet;
+    ar & this->imageByteMap;
+    ar & this->procedureSet;
+    ar & this->symbolSet;
 }

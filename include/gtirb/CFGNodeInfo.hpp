@@ -21,7 +21,7 @@ namespace gtirb
         ///
         /// Default Constructor.
         ///
-        CFGNodeInfo();
+        CFGNodeInfo() = default;
 
         ///
         /// Defaulted trivial destructor.

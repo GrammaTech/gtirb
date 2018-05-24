@@ -1,5 +1,4 @@
 #include <gtirb/Instruction.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/RuntimeError.hpp>
@@ -7,11 +6,6 @@
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Procedure);
-
-Procedure::Procedure() : Node()
-{
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::ProcedureSet>);
-}
 
 void Procedure::setEA(gtirb::EA x)
 {
@@ -33,7 +27,8 @@ const std::set<gtirb::EA>* const Procedure::getPLTEntries() const
     return &this->pltEntries;
 }
 
-Instruction* Procedure::getOrCreateInstruction()
+Instruction* Procedure::createInstruction()
 {
-    return gtirb::GetOrCreateChildOfType<gtirb::Instruction>(this);
+    this->instructions.emplace_back();
+    return &this->instructions.back();
 }

@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <vector>
 
 namespace gtirb
 {
@@ -20,7 +21,7 @@ namespace gtirb
         ///
         /// Default constructor.
         ///
-        RegionSet();
+        RegionSet() = default;
 
         ///
         /// Defaulted trivial destructor.
@@ -54,6 +55,9 @@ namespace gtirb
         {
             ar& boost::serialization::base_object<Node>(*this);
         }
+
+    private:
+        std::vector<std::shared_ptr<Region>> contents;
     };
 } // namespace gtirb
 

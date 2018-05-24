@@ -2,6 +2,8 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <memory>
+#include <vector>
 
 namespace gtirb
 {
@@ -17,11 +19,6 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API CFGSet : public Node
     {
     public:
-        ///
-        /// Default constructor.
-        ///
-        CFGSet();
-
         ///
         /// Defaulted trivial destructor.
         ///
@@ -56,14 +53,16 @@ namespace gtirb
         ///
         CFG* getOrCreateCFG(gtirb::EA x);
 
+        const std::vector<std::shared_ptr<CFG>>& getCFGs() const;
+
         ///
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-        }
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
+    private:
+        std::vector<std::shared_ptr<CFG>> contents;
     };
 }
 

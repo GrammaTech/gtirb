@@ -3,9 +3,12 @@
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfoCall.hpp>
 #include <gtirb/CFGSet.hpp>
+#include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Utilities.hpp>
 #include <memory>
+
+using namespace gtirb;
 
 TEST(Unit_Utilities, ByteArray8To16)
 {
@@ -47,6 +50,7 @@ TEST(Unit_Utilities, CollectThunks_nullModule)
 TEST(Unit_Utilities, CollectThunks_noCFGs)
 {
     auto module = std::make_unique<gtirb::Module>();
+    module->setISAID(gtirb::ISAID::X64);
     EXPECT_TRUE(module != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 }
@@ -54,14 +58,11 @@ TEST(Unit_Utilities, CollectThunks_noCFGs)
 TEST(Unit_Utilities, CollectThunks_noThunks_noISAID)
 {
     auto module = std::make_unique<gtirb::Module>();
-    ASSERT_TRUE(module != nullptr);
-    EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
-
-    auto cfgSet = module->getOrCreateCFGSet();
+    auto cfgSet = module->getCFGSet();
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_THROW(gtirb::utilities::CollectThunks(module.get()), std::out_of_range);
 
-    cfgSet->push_back(std::make_unique<gtirb::CFG>());
+    cfgSet->getOrCreateCFG(EA());
     EXPECT_THROW(gtirb::utilities::CollectThunks(module.get()), std::out_of_range);
 }
 
@@ -72,11 +73,11 @@ TEST(Unit_Utilities, CollectThunks_noThunks_0)
     EXPECT_NO_THROW(module->setISAID(gtirb::ISAID::X64));
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfgSet = module->getOrCreateCFGSet();
+    auto cfgSet = module->getCFGSet();
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    cfgSet->push_back(std::make_unique<gtirb::CFG>());
+    cfgSet->getOrCreateCFG(EA());
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 }
 
@@ -87,13 +88,11 @@ TEST(Unit_Utilities, CollectThunks_noThunks_1)
     EXPECT_NO_THROW(module->setISAID(gtirb::ISAID::X64));
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfgSet = module->getOrCreateCFGSet();
+    auto cfgSet = module->getCFGSet();
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfg = std::make_unique<gtirb::CFG>();
-    auto cfgPtr = cfg.get();
-    EXPECT_NO_THROW(cfgSet->push_back(std::move(cfg)));
+    auto cfgPtr = cfgSet->getOrCreateCFG(EA());
 
     EXPECT_NO_THROW(cfgPtr->setFlags(gtirb::CFG::Flags::IS_ITHUNK));
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
@@ -102,6 +101,7 @@ TEST(Unit_Utilities, CollectThunks_noThunks_1)
     EXPECT_TRUE(thunks.empty());
 }
 
+#if 0
 TEST(Unit_Utilities, CollectThunks_simple)
 {
     auto module = std::make_unique<gtirb::Module>();
@@ -109,14 +109,12 @@ TEST(Unit_Utilities, CollectThunks_simple)
     EXPECT_NO_THROW(module->setISAID(gtirb::ISAID::X64));
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfgSet = module->getOrCreateCFGSet();
+    auto cfgSet = module->getCFGSet();
     ASSERT_TRUE(cfgSet != nullptr);
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
 
-    auto cfg = std::make_unique<gtirb::CFG>();
-    ASSERT_TRUE(cfg != nullptr);
-    auto cfgPtr = cfg.get();
-    EXPECT_NO_THROW(cfgSet->push_back(std::move(cfg)));
+    auto cfgPtr = cfgSet->getOrCreateCFG(EA());
+    ASSERT_TRUE(cfgPtr != nullptr);
 
     EXPECT_NO_THROW(cfgPtr->setFlags(gtirb::CFG::Flags::IS_ITHUNK));
 
@@ -129,14 +127,13 @@ TEST(Unit_Utilities, CollectThunks_simple)
 
     auto cfgNodeInfoCall = std::make_unique<gtirb::CFGNodeInfoCall>();
     ASSERT_TRUE(cfgNodeInfoCall != nullptr);
-    EXPECT_NO_THROW(cfgNodePtr->push_back(std::move(cfgNodeInfoCall)));
+    EXPECT_NO_THROW(cfgNodePtr->setCFGNodeInfo(std::move(cfgNodeInfoCall)));
 
     EXPECT_TRUE(cfgNodePtr->getCFGNodeInfo() != nullptr);
 
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(module.get()));
     auto thunks = gtirb::utilities::CollectThunks(module.get());
 
-#if 0
     ADD_FAILURE_AT("src/Utilities.cpp", 147)
         << "This test will fail until we finish the implementation of CFGNode and "
            "CFGNodeInfoCall.  How do we associate "
@@ -145,5 +142,5 @@ TEST(Unit_Utilities, CollectThunks_simple)
 
     EXPECT_FALSE(thunks.empty());
     EXPECT_EQ(size_t{1}, thunks.size());
-#endif
 }
+#endif

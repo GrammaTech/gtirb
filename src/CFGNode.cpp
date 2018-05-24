@@ -3,23 +3,13 @@
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/NodeUtilities.hpp>
-#include <gtirb/NodeValidators.hpp>
+#include <gtirb/NodeStructureError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <iostream>
 
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNode);
-
-CFGNode::CFGNode() : Node()
-{
-    this->addParentValidator([](const Node* const, const Node* const x) {
-        const auto parentCFG = dynamic_cast<const gtirb::CFG* const>(x);
-        const auto parentCFGNode = dynamic_cast<const gtirb::CFGNode* const>(x);
-        return ((parentCFG != nullptr) || (parentCFGNode != nullptr));
-    });
-}
 
 void CFGNode::setEA(EA x)
 {
@@ -39,6 +29,11 @@ void CFGNode::setKind(CFGNode::Kind x)
 CFGNode::Kind CFGNode::getKind() const
 {
     return this->kind;
+}
+
+void CFGNode::addChild(std::unique_ptr<gtirb::CFGNode>&& x)
+{
+    this->children.push_back(std::move(x));
 }
 
 void CFGNode::addSuccessor(CFGNode* x, bool isExecutable)
@@ -141,16 +136,14 @@ void CFGNode::removePredecessor(const CFGNode* const x, bool isExecutable)
     this->remove(this->predecessors, x, isExecutable);
 }
 
+void CFGNode::setCFGNodeInfo(std::unique_ptr<CFGNodeInfo>&& x)
+{
+    this->info = std::move(x);
+}
+
 CFGNodeInfo* CFGNode::getCFGNodeInfo() const
 {
-    const auto nodeInfoChildren = GetChildrenOfType<CFGNodeInfo>(this);
-
-    if(nodeInfoChildren.empty() == false)
-    {
-        return nodeInfoChildren[0];
-    }
-
-    return nullptr;
+    return this->info.get();
 }
 
 void CFGNode::setLoadedInstructionBytes(uint8_t* x)
@@ -183,7 +176,7 @@ void CFGNode::add(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
                   std::unique_ptr<CFGNode>&& x, bool isExecutable)
 {
     auto xPtr = x.get();
-    this->push_back(std::move(x));
+    this->children.push_back(std::move(x));
     this->add(vec, xPtr, isExecutable);
 }
 
@@ -220,7 +213,7 @@ void CFGNode::set(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec, siz
                   std::unique_ptr<CFGNode>&& x, bool isExecutable)
 {
     auto xPtr = x.get();
-    this->push_back(std::move(x));
+    this->children.push_back(std::move(x));
     this->set(vec, index, xPtr, isExecutable);
 }
 
@@ -258,4 +251,9 @@ void CFGNode::remove(std::vector<std::pair<std::weak_ptr<CFGNode>, bool>>& vec,
                                  return (s.first.lock().get() == x) && (s.second == isExecutable);
                              }),
               std::end(vec));
+}
+
+size_t CFGNode::getChildrenSize() const
+{
+    return this->children.size();
 }

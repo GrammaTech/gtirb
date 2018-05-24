@@ -1,18 +1,14 @@
 #include <gtirb/CFG.hpp>
+#include <gtirb/CFGNode.hpp>
+#include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/CFGSet.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFG);
-
-CFG::CFG() : Node()
-{
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::CFGSet>);
-}
 
 void CFG::setEA(EA x)
 {
@@ -42,4 +38,9 @@ void CFG::setFlags(uint64_t x)
 uint64_t CFG::getFlags() const
 {
     return this->flags;
+}
+
+const std::vector<std::shared_ptr<CFGNode>>& CFG::getNodes() const
+{
+    return this->nodes;
 }

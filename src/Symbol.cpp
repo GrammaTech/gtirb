@@ -1,4 +1,3 @@
-#include <gtirb/NodeValidators.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 
@@ -6,14 +5,8 @@ using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Symbol);
 
-Symbol::Symbol() : Node()
+Symbol::Symbol(EA x) : Node(), ea(x)
 {
-    this->addParentValidator(gtirb::NodeValidatorHasParentOfType<gtirb::SymbolSet>);
-}
-
-Symbol::Symbol(EA x) : Symbol()
-{
-    this->setEA(x);
 }
 
 void Symbol::setEA(gtirb::EA x)

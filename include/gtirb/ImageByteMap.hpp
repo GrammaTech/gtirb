@@ -68,7 +68,7 @@ namespace gtirb
             IDAPartial
         };
 
-        ImageByteMap();
+        ImageByteMap() = default;
 
         ~ImageByteMap() override = default;
 

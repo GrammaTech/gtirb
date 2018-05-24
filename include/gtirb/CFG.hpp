@@ -2,10 +2,12 @@
 
 #include <cstdint>
 #include <gtirb/Node.hpp>
+#include <memory>
+#include <vector>
 
 namespace gtirb
 {
-    class EA;
+    class CFGNode;
 
     ///
     /// \class CFG
@@ -87,7 +89,7 @@ namespace gtirb
         ///
         /// Default Constructor.
         ///
-        CFG();
+        CFG() = default;
 
         ///
         /// Defaulted trivial destructor.
@@ -125,6 +127,11 @@ namespace gtirb
         uint64_t getFlags() const;
 
         ///
+        /// CFG nodes owned by this CFG.
+        ///
+        const std::vector<std::shared_ptr<CFGNode>>& getNodes() const;
+
+        ///
         /// Serialization support.
         ///
         template <class Archive>
@@ -133,12 +140,14 @@ namespace gtirb
             ar& boost::serialization::base_object<Node>(*this);
             ar & this->ea;
             ar & this->flags;
+            ar & this->nodes;
         }
 
     private:
         std::string procedureName{};
         EA ea{};
         uint64_t flags{0};
+        std::vector<std::shared_ptr<CFGNode>> nodes;
     };
 }
 

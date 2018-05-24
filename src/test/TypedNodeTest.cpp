@@ -20,8 +20,6 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeStructureError.hpp>
-#include <gtirb/NodeUtilities.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Region.hpp>
@@ -197,123 +195,6 @@ TYPED_TEST_P(TypedNodeTest, clearLocalProperties)
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
 }
 
-TYPED_TEST_P(TypedNodeTest, push_back)
-{
-    auto node = TypeParam{};
-
-    EXPECT_TRUE(node.empty());
-    EXPECT_EQ(size_t(0), node.size());
-
-    EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
-
-    EXPECT_FALSE(node.empty());
-    EXPECT_EQ(size_t(1), node.size());
-}
-
-TYPED_TEST_P(TypedNodeTest, size)
-{
-    const int totalChildren = 64;
-    auto node = TypeParam{};
-
-    EXPECT_TRUE(node.empty());
-    EXPECT_EQ(size_t(0), node.size());
-
-    for(int i = 0; i < totalChildren; i++)
-    {
-        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
-        EXPECT_FALSE(node.empty());
-        EXPECT_EQ(size_t(i + 1), node.size());
-    }
-}
-
-TYPED_TEST_P(TypedNodeTest, clear)
-{
-    const int totalChildren = 64;
-    auto node = TypeParam{};
-
-    EXPECT_TRUE(node.empty());
-    EXPECT_EQ(size_t(0), node.size());
-
-    for(int i = 0; i < totalChildren; i++)
-    {
-        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
-        EXPECT_FALSE(node.empty());
-        EXPECT_EQ(size_t(i + 1), node.size());
-    }
-
-    EXPECT_NO_THROW(node.clear());
-
-    EXPECT_TRUE(node.empty());
-    EXPECT_EQ(size_t(0), node.size());
-}
-
-TYPED_TEST_P(TypedNodeTest, iterator)
-{
-    const int totalChildren = 8;
-
-    auto node = TypeParam{};
-
-    EXPECT_TRUE(node.empty());
-    EXPECT_EQ(size_t(0), node.size());
-
-    for(int i = 0; i < totalChildren; i++)
-    {
-        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
-        EXPECT_FALSE(node.empty());
-        EXPECT_EQ(size_t(i + 1), node.size());
-    }
-
-    // We should now be able to use our begin iterator "totalChildren" times.
-    auto nodeIterator = std::begin(node);
-    for(int i = 0; i < totalChildren; i++)
-    {
-        EXPECT_TRUE(nodeIterator != std::end(node));
-
-        EXPECT_EQ(node.at(i)->getUUID(), nodeIterator->getUUID());
-        ++nodeIterator;
-
-        EXPECT_NE(nodeIterator, std::begin(node));
-    }
-
-    EXPECT_NE(nodeIterator, std::begin(node));
-    EXPECT_EQ(nodeIterator, std::end(node));
-}
-
-TYPED_TEST_P(TypedNodeTest, const_iterator)
-{
-    const int totalChildren = 8;
-
-    auto node = TypeParam{};
-
-    EXPECT_TRUE(node.empty());
-    EXPECT_EQ(size_t(0), node.size());
-
-    for(int i = 0; i < totalChildren; i++)
-    {
-        EXPECT_NO_THROW(node.push_back(std::make_unique<gtirb::Node>()));
-        EXPECT_FALSE(node.empty());
-        EXPECT_EQ(size_t(i + 1), node.size());
-    }
-
-    // Make a const node by copy construction.
-    const auto constNode{node};
-
-    // We should now be able to use our begin iterator "totalChildren" times.
-    auto nodeIterator = std::begin(constNode);
-    for(int i = 0; i < totalChildren; i++)
-    {
-        EXPECT_TRUE(nodeIterator != std::end(constNode));
-
-        EXPECT_EQ(constNode.at(i)->getUUID(), nodeIterator->getUUID());
-        ++nodeIterator;
-
-        EXPECT_NE(nodeIterator, std::begin(constNode));
-    }
-
-    EXPECT_NE(nodeIterator, std::begin(constNode));
-    EXPECT_EQ(nodeIterator, std::end(constNode));
-}
-
 TYPED_TEST_P(TypedNodeTest, shared_from_this)
 {
     auto node = std::make_shared<TypeParam>();
@@ -324,41 +205,6 @@ TYPED_TEST_P(TypedNodeTest, shared_from_this)
 
     auto nodeShared = nodePtr->shared_from_this();
     EXPECT_TRUE(nodeShared != nullptr);
-}
-
-TYPED_TEST_P(TypedNodeTest, GetChildrenOfType)
-{
-    class Foo : public gtirb::Node
-    {
-    };
-
-    class Bar : public gtirb::Node
-    {
-    };
-
-    const int fooChildren = 3;
-    const int barChildren = 5;
-
-    TypeParam node;
-
-    for(int i = 0; i < fooChildren; i++)
-    {
-        node.push_back(std::make_unique<Foo>());
-    }
-
-    for(int i = 0; i < barChildren; i++)
-    {
-        node.push_back(std::make_unique<Bar>());
-    }
-
-    const auto childrenOfTypeFoo = gtirb::GetChildrenOfType<Foo>(&node);
-    EXPECT_EQ(size_t(fooChildren), childrenOfTypeFoo.size());
-
-    const auto childrenOfTypeBar = gtirb::GetChildrenOfType<Bar>(&node);
-    EXPECT_EQ(size_t(barChildren), childrenOfTypeBar.size());
-
-    const auto allChildren = gtirb::GetChildrenOfType<gtirb::Node>(&node);
-    EXPECT_EQ(size_t(fooChildren + barChildren), allChildren.size());
 }
 
 TYPED_TEST_P(TypedNodeTest, serialize)
@@ -402,7 +248,6 @@ TYPED_TEST_P(TypedNodeTest, serialize)
         EXPECT_EQ(std::string{"Value"},
                   boost::get<std::string>(serialized.getLocalProperty("Name")));
         EXPECT_EQ(original.getUUID(), serialized.getUUID());
-        EXPECT_EQ(original.size(), serialized.size());
         EXPECT_EQ(sizeof(original), sizeof(serialized));
     }
 }
@@ -448,7 +293,6 @@ TYPED_TEST_P(TypedNodeTest, serializeBinary)
         EXPECT_EQ(std::string{"Value"},
                   boost::get<std::string>(serialized.getLocalProperty("Name")));
         EXPECT_EQ(original.getUUID(), serialized.getUUID());
-        EXPECT_EQ(original.size(), serialized.size());
         EXPECT_EQ(sizeof(original), sizeof(serialized));
     }
 }
@@ -496,101 +340,24 @@ TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtr)
                   boost::get<std::string>(serialized->getLocalProperty("Name")));
 
         EXPECT_EQ(original->getUUID(), serialized->getUUID());
-        EXPECT_EQ(original->size(), serialized->size());
         EXPECT_EQ(sizeof(original), sizeof(serialized));
         EXPECT_EQ(sizeof(*original), sizeof(*serialized));
         EXPECT_EQ(typeid(*original), typeid(*serialized));
     }
 }
 
-TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtrWChildren)
-{
-    const auto tempPath =
-        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.string();
-
-    auto original = std::make_shared<TypeParam>();
-    original->setLocalProperty("Name", std::string("Value"));
-
-    auto foo = std::make_unique<gtirb::Node>();
-    foo->setLocalProperty("Name", std::string("Foo"));
-    original->push_back(std::move(foo));
-
-    auto bar = std::make_unique<gtirb::Node>();
-    bar->setLocalProperty("Name", std::string("Bar"));
-    original->push_back(std::move(bar));
-
-    EXPECT_EQ(size_t{2}, original->size());
-
-    // Scope objects so they are destroyed
-    {
-        EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(original->getLocalProperty("Name")));
-
-        // Serialize Out.
-        std::ofstream ofs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_oarchive oa{ofs};
-        EXPECT_TRUE(ofs.is_open());
-
-        oa << original;
-
-        EXPECT_NO_THROW(ofs.close());
-        EXPECT_FALSE(ofs.is_open());
-    }
-
-    // Read it back in and re-test
-    {
-        auto serialized = std::make_shared<TypeParam>();
-
-        // Serialize In.
-        std::ifstream ifs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_iarchive ia{ifs};
-
-        EXPECT_NO_THROW(ia >> serialized);
-
-        EXPECT_NO_THROW(ifs.close());
-
-        ASSERT_EQ(size_t{1}, serialized->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(serialized->getLocalProperty("Name")));
-        EXPECT_EQ(original->getUUID(), serialized->getUUID());
-        EXPECT_EQ(original->size(), serialized->size());
-        EXPECT_EQ(sizeof(original), sizeof(serialized));
-        EXPECT_EQ(sizeof(*original), sizeof(*serialized));
-        EXPECT_EQ(typeid(*original), typeid(*serialized));
-
-        ASSERT_EQ(size_t{2}, serialized->size());
-
-        auto child0 = serialized->at(0);
-        EXPECT_EQ(std::string{"Foo"}, boost::get<std::string>(child0->getLocalProperty("Name")));
-        EXPECT_EQ(serialized.get(), child0->getNodeParent());
-
-        auto child1 = serialized->at(1);
-        EXPECT_EQ(std::string{"Bar"}, boost::get<std::string>(child1->getLocalProperty("Name")));
-        EXPECT_EQ(serialized.get(), child1->getNodeParent());
-    }
-}
-
-REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,          //
-                           ctor_0,                 //
-                           clear,                  //
-                           clearLocalProperties,   //
-                           const_iterator,         //
-                           iterator,               //
-                           push_back,              //
-                           removeLocalProperty,    //
-                           setLocalProperties,     //
-                           setLocalProperty,       //
-                           setLocalPropertyReset,  //
-                           size,                   //
-                           uniqueUuids,            //
-                           shared_from_this,       //
-                           GetChildrenOfType,      //
-                           serialize,              //
-                           serializeBinary,        //
-                           serializeFromSharedPtr, //
-                           serializeFromSharedPtrWChildren);
+REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,         //
+                           ctor_0,                //
+                           clearLocalProperties,  //
+                           removeLocalProperty,   //
+                           setLocalProperties,    //
+                           setLocalProperty,      //
+                           setLocalPropertyReset, //
+                           uniqueUuids,           //
+                           shared_from_this,      //
+                           serialize,             //
+                           serializeBinary,       //
+                           serializeFromSharedPtr);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name
                               TypedNodeTest,        // Test case name

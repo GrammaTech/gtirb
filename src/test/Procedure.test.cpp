@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <gtirb/NodeStructureError.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <memory>
@@ -7,31 +6,6 @@
 TEST(Unit_Procedure, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::Procedure());
-}
-
-TEST(Unit_Procedure, validParent)
-{
-    auto module = std::make_unique<gtirb::ProcedureSet>();
-    auto child = std::make_unique<gtirb::Procedure>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-}
-
-TEST(Unit_Procedure, validParent_noException)
-{
-    auto module = std::make_unique<gtirb::ProcedureSet>();
-    auto child = std::make_unique<gtirb::Procedure>();
-    EXPECT_TRUE(child->getIsValidParent(module.get()));
-    EXPECT_NO_THROW(module->push_back(std::move(child)));
-}
-
-TEST(Unit_Procedure, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::Procedure>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_Procedure, setEA)

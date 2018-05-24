@@ -55,7 +55,7 @@ namespace gtirb
         ///
         /// Default Constructor.
         ///
-        CFGNode();
+        CFGNode() = default;
 
         ///
         /// Defaulted trivial destructor.
@@ -67,6 +67,13 @@ namespace gtirb
 
         void setKind(CFGNode::Kind x);
         CFGNode::Kind getKind() const;
+
+        ///
+        /// Add a new CFGNode as a child, without making it a successor or
+        /// predecessor.
+        ///
+        /// \todo Why would you want to use this?
+        void addChild(std::unique_ptr<gtirb::CFGNode>&& x);
 
         ///
         /// Add an existing CFGNode as a new successor.
@@ -277,10 +284,14 @@ namespace gtirb
         void removePredecessor(const CFGNode* const x, bool isExecutable);
 
         ///
-        /// Get a pointer to a base class for CFGNodeInfo, if one was added as a child (via
-        /// Node::push_back).
+        /// Add set the CFGNodeInfo for this node.
         ///
-        /// \return     A pointer to the CFGNodeInfo child or nullptr.
+        void setCFGNodeInfo(std::unique_ptr<CFGNodeInfo>&& x);
+
+        ///
+        /// Get a pointer to a base class for CFGNodeInfo, if one is set.
+        ///
+        /// \return     A pointer to the CFGNodeInfo or nullptr.
         ///
         CFGNodeInfo* getCFGNodeInfo() const;
 
@@ -309,6 +320,11 @@ namespace gtirb
         uint8_t* getLoadedInstructionBytes() const;
 
         ///
+        /// The number of children owned by this node.
+        ///
+        size_t getChildrenSize() const;
+
+        ///
         /// Serialization support.
         ///
         template <class Archive>
@@ -319,7 +335,8 @@ namespace gtirb
             ar & this->kind;
             ar & this->successors;
             ar & this->predecessors;
-
+            ar & this->info;
+            ar & this->children;
             // This...we need to talk about.  Who owns this?
             // uint8_t* loadedInstructionBytes{nullptr};
         }
@@ -445,6 +462,9 @@ namespace gtirb
     private:
         EA ea;
         CFGNode::Kind kind;
+        std::shared_ptr<CFGNodeInfo> info;
+        // Other nodes owned by this one.
+        std::vector<std::shared_ptr<CFGNode>> children;
 
         // Boolean if the edge "isExecutable"
         std::vector<std::pair<std::weak_ptr<CFGNode>, bool>> successors;

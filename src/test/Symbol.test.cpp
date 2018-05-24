@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <gtirb/NodeStructureError.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
@@ -7,31 +6,6 @@
 TEST(Unit_Symbol, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::Symbol());
-}
-
-TEST(Unit_Symbol, validParent)
-{
-    auto parent = std::make_unique<gtirb::SymbolSet>();
-    auto child = std::make_unique<gtirb::Symbol>();
-    EXPECT_TRUE(child->getIsValidParent(parent.get()));
-    EXPECT_NO_THROW(parent->push_back(std::move(child)));
-}
-
-TEST(Unit_Symbol, validParent_noException)
-{
-    auto parent = std::make_unique<gtirb::SymbolSet>();
-    auto child = std::make_unique<gtirb::Symbol>();
-    EXPECT_TRUE(child->getIsValidParent(parent.get()));
-    EXPECT_NO_THROW(parent->push_back(std::move(child)));
-}
-
-TEST(Unit_Symbol, invalidParent)
-{
-    auto notAParent = std::make_unique<gtirb::Node>();
-    auto child = std::make_unique<gtirb::Symbol>();
-
-    EXPECT_FALSE(child->getIsValidParent(notAParent.get()));
-    EXPECT_THROW(notAParent->push_back(std::move(child)), gtirb::NodeStructureError);
 }
 
 TEST(Unit_Symbol, setName)
