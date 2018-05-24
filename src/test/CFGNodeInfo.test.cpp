@@ -17,11 +17,3 @@ TEST(Unit_CFGNodeInfo, setProcedureNameSymbol)
 
     EXPECT_NO_THROW(node->setProcedureNameSymbol(symbol.get()));
 }
-
-TEST(Unit_CFGNodeInfo, setProcedureNameSymbol_exception)
-{
-    auto symbol = std::make_unique<gtirb::Symbol>();
-    auto node = std::make_unique<gtirb::CFGNodeInfo>();
-
-    EXPECT_THROW(node->setProcedureNameSymbol(symbol.get()), std::bad_weak_ptr);
-}

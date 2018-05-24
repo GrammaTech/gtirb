@@ -10,12 +10,10 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNodeInfo);
 
 void CFGNodeInfo::setProcedureNameSymbol(gtirb::Symbol* x)
 {
-    auto sharedNode = std::dynamic_pointer_cast<Symbol>(x->shared_from_this());
-    Expects(sharedNode != nullptr);
-    this->procedureNameSymbol = sharedNode;
+    this->procedureNameSymbol = x;
 }
 
 gtirb::Symbol* CFGNodeInfo::getProcedureNameSymbol() const
 {
-    return this->procedureNameSymbol.lock().get();
+    return this->procedureNameSymbol;
 }

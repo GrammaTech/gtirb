@@ -31,9 +31,7 @@ namespace gtirb
         ///
         /// Symbols are owned by the IR->Module->Symbols
         ///
-        /// \param  x   A non-owned pointer to a symbol to assicate with this node.
-        ///
-        /// \throws std::bad_weak_ptr if 'x' is not owned by the GTIR (a shared_ptr).
+        /// \param  x   A non-owned pointer to a symbol to associate with this node.
         ///
         void setProcedureNameSymbol(gtirb::Symbol* x);
 
@@ -53,7 +51,7 @@ namespace gtirb
         }
 
     private:
-        std::weak_ptr<gtirb::Symbol> procedureNameSymbol;
+        Symbol* procedureNameSymbol{nullptr};
     };
 }
 
