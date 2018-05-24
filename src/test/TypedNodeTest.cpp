@@ -195,18 +195,6 @@ TYPED_TEST_P(TypedNodeTest, clearLocalProperties)
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
 }
 
-TYPED_TEST_P(TypedNodeTest, shared_from_this)
-{
-    auto node = std::make_shared<TypeParam>();
-    auto nodePtr = node.get();
-
-    ASSERT_NO_THROW(nodePtr->shared_from_this())
-        << "The node did not inherit from std::enable_shared_from_this<Node>.";
-
-    auto nodeShared = nodePtr->shared_from_this();
-    EXPECT_TRUE(nodeShared != nullptr);
-}
-
 TYPED_TEST_P(TypedNodeTest, serialize)
 {
     const auto tempPath =
@@ -354,7 +342,6 @@ REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,         //
                            setLocalProperty,      //
                            setLocalPropertyReset, //
                            uniqueUuids,           //
-                           shared_from_this,      //
                            serialize,             //
                            serializeBinary,       //
                            serializeFromSharedPtr);

@@ -3,6 +3,7 @@
 #include <boost/serialization/weak_ptr.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <memory>
 
 namespace gtirb
 {
@@ -16,7 +17,7 @@ namespace gtirb
     ///
     /// This can live under either a CFG directly or under another CFGNode.
     ///
-    class GTIRB_GTIRB_EXPORT_API CFGNode : public Node
+    class GTIRB_GTIRB_EXPORT_API CFGNode : public Node, public std::enable_shared_from_this<CFGNode>
     {
     public:
         ///
