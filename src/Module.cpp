@@ -6,6 +6,7 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/ProcedureSet.hpp>
+#include <gtirb/Relocation.hpp>
 #include <gtirb/SectionTable.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/Table.hpp>
@@ -178,14 +179,24 @@ uint64_t Module::getDecodeMode() const
     return this->decodeMode;
 }
 
-const std::vector<Block>& Module::getBlocks() const
+const std::vector<Block>* Module::getBlocks() const
 {
-    return *this->blocks;
+    return this->blocks.get();
 }
 
 void Module::setBlocks(const std::vector<Block> x)
 {
     this->blocks = std::make_unique<std::vector<Block>>(x);
+}
+
+const std::vector<Relocation>* Module::getRelocations() const
+{
+    return this->relocations.get();
+}
+
+void Module::setRelocations(const std::vector<Relocation> x)
+{
+    this->relocations = std::make_unique<std::vector<Relocation>>(x);
 }
 
 template <class Archive>
@@ -208,4 +219,5 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->procedureSet;
     ar & this->symbolSet;
     ar & this->blocks;
+    ar & this->relocations;
 }

@@ -6,19 +6,19 @@
 #include <gtirb/Enums.hpp>
 #include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Relocation.hpp>
 
 namespace gtirb
 {
     class AddrRanges;
-    class Block;
     class CFGSet;
     class ImageByteMap;
     class ModuleAux;
     class ModuleCore;
     class ModuleSummary;
+    class ProcedureSet;
     class SymbolSet;
     class SectionTable;
-    class ProcedureSet;
 
     ///
     /// \class Module
@@ -161,8 +161,10 @@ namespace gtirb
         uint64_t getDecodeMode() const;
 
         // Note: these will probably move and/or get a different interface.
-        const std::vector<Block>& getBlocks() const;
+        const std::vector<Block>* getBlocks() const;
         void setBlocks(std::vector<Block> x);
+        const std::vector<Relocation>* getRelocations() const;
+        void setRelocations(std::vector<Relocation> x);
 
         ///
         /// Serialization support.
@@ -199,6 +201,7 @@ namespace gtirb
         std::unique_ptr<ProcedureSet> procedureSet;
         std::unique_ptr<SymbolSet> symbolSet;
         std::unique_ptr<std::vector<Block>> blocks;
+        std::unique_ptr<std::vector<Relocation>> relocations;
     };
 }
 
