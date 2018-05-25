@@ -44,6 +44,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/ProcedureSet.hpp
 	../include/gtirb/Region.hpp
 	../include/gtirb/RegionSet.hpp
+	../include/gtirb/Relocation.hpp
 	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
         ../include/gtirb/SectionTable.hpp
