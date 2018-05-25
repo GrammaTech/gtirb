@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Region.hpp>
 #include <vector>
 
 namespace gtirb
@@ -34,7 +35,7 @@ namespace gtirb
         /// \param x    The EA of the gtirb::Region to get.
         /// \return     The Region at the given EA or nullptr.
         ///
-        Region* getRegion(gtirb::EA x) const;
+        const Region* getRegion(gtirb::EA x) const;
 
         ///
         /// Create a region with the given EA.
@@ -43,9 +44,9 @@ namespace gtirb
         /// created.
         ///
         /// \param x    The EA of the gtirb::Region to get (or create).
-        /// \return     A non-owning pointer to the new region.
+        /// \return     A reference to the new region.
         ///
-        Region* createRegion(gtirb::EA x);
+        Region& createRegion(gtirb::EA x);
 
         ///
         /// Serialization support.
@@ -57,7 +58,7 @@ namespace gtirb
         }
 
     private:
-        std::vector<std::shared_ptr<Region>> contents;
+        std::vector<Region> contents;
     };
 } // namespace gtirb
 

@@ -94,7 +94,7 @@ namespace gtirb
         ///
         /// Defaulted trivial destructor.
         ///
-        ~CFG() override = default;
+        ~CFG() override;
 
         ///
         ///

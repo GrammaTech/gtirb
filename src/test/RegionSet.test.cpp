@@ -17,8 +17,7 @@ TEST(Unit_RegionSet, getRegion)
     auto region = node->getRegion(ea);
     EXPECT_TRUE(region == nullptr);
 
-    region = node->createRegion(ea);
-    EXPECT_TRUE(region != nullptr);
+    node->createRegion(ea);
 
     region = node->getRegion(ea);
     EXPECT_TRUE(region != nullptr);

@@ -8,6 +8,9 @@ using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGSet);
 
+CFGSet::CFGSet() = default;
+CFGSet::~CFGSet() = default;
+
 CFG* CFGSet::getCFG(gtirb::EA x) const
 {
     auto found = std::find_if(contents.begin(), contents.end(),
@@ -38,7 +41,7 @@ CFG* CFGSet::createCFG(gtirb::EA x)
 {
     Expects(this->getCFG(x) == nullptr);
 
-    auto newChild = std::make_shared<CFG>();
+    auto newChild = std::make_unique<CFG>();
     newChild->setEA(x);
     auto non_owning = newChild.get();
     contents.push_back(std::move(newChild));
@@ -53,7 +56,7 @@ void CFGSet::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->contents;
 }
 
-const std::vector<std::shared_ptr<CFG>>& CFGSet::getCFGs() const
+const std::vector<std::unique_ptr<CFG>>& CFGSet::getCFGs() const
 {
     return this->contents;
 }

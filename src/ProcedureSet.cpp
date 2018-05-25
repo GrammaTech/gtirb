@@ -6,25 +6,41 @@ using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ProcedureSet);
 
-Procedure* ProcedureSet::getProcedure(gtirb::EA x) const
+ProcedureSet::ProcedureSet() = default;
+
+ProcedureSet::~ProcedureSet() = default;
+
+Procedure* ProcedureSet::getProcedure(gtirb::EA x)
 {
     const auto found = this->contents.find(x);
     if(found != std::end(this->contents))
     {
-        return found->second.get();
+        return &found->second;
     }
 
     return nullptr;
 }
 
-Procedure* ProcedureSet::createProcedure(gtirb::EA x)
+const Procedure* ProcedureSet::getProcedure(gtirb::EA x) const
+{
+    auto result = getProcedure(x);
+    return result;
+}
+
+Procedure& ProcedureSet::createProcedure(gtirb::EA x)
 {
     Expects(this->getProcedure(x) == nullptr);
 
-    auto newProcedure = std::make_shared<Procedure>();
-    newProcedure->setEA(x);
-    auto procedure = newProcedure.get();
+    Procedure newProcedure;
+    newProcedure.setEA(x);
     this->contents.insert({x, std::move(newProcedure)});
 
-    return procedure;
+    return *this->getProcedure(x);
+}
+
+template <class Archive>
+void ProcedureSet::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar& boost::serialization::base_object<Node>(*this);
+    ar & this->contents;
 }

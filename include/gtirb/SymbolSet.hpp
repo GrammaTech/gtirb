@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Symbol.hpp>
 #include <memory>
 #include <vector>
 
@@ -30,27 +31,27 @@ namespace gtirb
         ~SymbolSet() override = default;
 
         ///
-        /// Recursively find all symbols.
+        /// Return all symbols.
         ///
         /// \return     All symbols in the set.
         ///
-        std::vector<Symbol*> getSymbols() const;
+        const std::vector<Symbol>& getSymbols() const;
 
         ///
-        /// Recursively search for symbols at the given EA.
+        /// Search for symbols at the given EA.
         ///
         /// \param x    The EA to search for.
         /// \return     All symbols at the given EA.
         ///
-        std::vector<Symbol*> getSymbols(gtirb::EA x) const;
+        std::vector<const Symbol*> getSymbols(gtirb::EA x) const;
 
         ///
         /// Add a symbol to the set.
         ///
         /// \param s    The symbol to add.
-        /// \return     A non-owning pointer to the new symbol.
+        /// \return     A reference to the new symbol.
         ///
-        Symbol* addSymbol(std::unique_ptr<Symbol>&& s);
+        Symbol& addSymbol(Symbol&& s);
 
         ///
         /// Serialization support.
@@ -63,7 +64,7 @@ namespace gtirb
         }
 
     private:
-        std::vector<std::shared_ptr<Symbol>> contents;
+        std::vector<Symbol> contents;
     };
 }
 

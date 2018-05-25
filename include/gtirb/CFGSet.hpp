@@ -19,10 +19,14 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API CFGSet : public Node
     {
     public:
+        CFGSet();
+        CFGSet(const CFGSet& other) = delete;
+        CFGSet& operator=(const CFGSet& rhs) = delete;
+
         ///
         /// Defaulted trivial destructor.
         ///
-        ~CFGSet() override = default;
+        ~CFGSet() override;
 
         ///
         /// Get the CFG at the given EA.
@@ -55,7 +59,7 @@ namespace gtirb
         ///
         CFG* createCFG(gtirb::EA x);
 
-        const std::vector<std::shared_ptr<CFG>>& getCFGs() const;
+        const std::vector<std::unique_ptr<CFG>>& getCFGs() const;
 
         ///
         /// Serialization support.
@@ -64,7 +68,7 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int /*version*/);
 
     private:
-        std::vector<std::shared_ptr<CFG>> contents;
+        std::vector<std::unique_ptr<CFG>> contents;
     };
 }
 

@@ -78,12 +78,11 @@ TYPED_TEST_P(TypedNodeTest, ctor_0)
 TYPED_TEST_P(TypedNodeTest, uniqueUuids)
 {
     std::vector<std::string> uuids;
-
     // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
     for(size_t i = 0; i < 64; ++i)
     {
-        const auto n = TypeParam{};
+        const TypeParam n{};
         uuids.push_back(n.getUUID());
     }
 
@@ -95,7 +94,7 @@ TYPED_TEST_P(TypedNodeTest, uniqueUuids)
 
 TYPED_TEST_P(TypedNodeTest, setLocalProperty)
 {
-    auto node = TypeParam{};
+    TypeParam node{};
 
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
@@ -108,7 +107,7 @@ TYPED_TEST_P(TypedNodeTest, setLocalProperty)
 
 TYPED_TEST_P(TypedNodeTest, setLocalPropertyReset)
 {
-    auto node = TypeParam{};
+    TypeParam node{};
 
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
@@ -127,7 +126,7 @@ TYPED_TEST_P(TypedNodeTest, setLocalPropertyReset)
 
 TYPED_TEST_P(TypedNodeTest, setLocalProperties)
 {
-    auto node = TypeParam{};
+    TypeParam node{};
 
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
@@ -146,7 +145,7 @@ TYPED_TEST_P(TypedNodeTest, setLocalProperties)
 
 TYPED_TEST_P(TypedNodeTest, removeLocalProperty)
 {
-    auto node = TypeParam{};
+    TypeParam node{};
 
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
@@ -173,7 +172,7 @@ TYPED_TEST_P(TypedNodeTest, removeLocalProperty)
 
 TYPED_TEST_P(TypedNodeTest, clearLocalProperties)
 {
-    auto node = TypeParam{};
+    TypeParam node{};
 
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());

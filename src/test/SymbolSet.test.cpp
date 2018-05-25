@@ -4,6 +4,8 @@
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
 
+using namespace gtirb;
+
 TEST(Unit_SymbolSet, ctor_0)
 {
     EXPECT_NO_THROW(gtirb::SymbolSet());
@@ -17,13 +19,14 @@ TEST(Unit_SymbolSet, getSymbols)
     EXPECT_NO_THROW(node->getSymbols());
     EXPECT_TRUE(node->getSymbols().empty());
 
-    auto s1 = node->addSymbol(std::make_unique<gtirb::Symbol>(ea));
-    auto s2 = node->addSymbol(std::make_unique<gtirb::Symbol>(ea));
+    auto s1 = node->addSymbol(Symbol(ea));
+    auto s2 = node->addSymbol(Symbol(ea));
 
     // Can store multiple symbols with the same EA
     EXPECT_NO_THROW(node->getSymbols());
     EXPECT_EQ(size_t{2}, node->getSymbols().size());
-    EXPECT_EQ(node->getSymbols(), (std::vector<gtirb::Symbol*>{s1, s2}));
+    EXPECT_EQ(node->getSymbols()[0].getEA(), ea);
+    EXPECT_EQ(node->getSymbols()[1].getEA(), ea);
 }
 
 TEST(Unit_SymbolSet, getSymbolsByEA)
@@ -32,15 +35,23 @@ TEST(Unit_SymbolSet, getSymbolsByEA)
     gtirb::EA ea2{33678};
     auto node = std::make_unique<gtirb::SymbolSet>();
 
-    auto s1 = node->addSymbol(std::make_unique<gtirb::Symbol>(ea1));
-    auto s2 = node->addSymbol(std::make_unique<gtirb::Symbol>(ea1));
+    auto& s1 = node->addSymbol(Symbol(ea1));
+    s1.setName("s1");
+    auto& s2 = node->addSymbol(Symbol(ea1));
+    s2.setName("s2");
 
-    EXPECT_EQ(node->getSymbols(ea1), (std::vector<gtirb::Symbol*>{s1, s2}));
+    EXPECT_EQ(node->getSymbols(ea1).size(), 2);
+    EXPECT_EQ(node->getSymbols(ea1)[0]->getName(), "s1");
+    EXPECT_EQ(node->getSymbols(ea1)[1]->getName(), "s2");
     EXPECT_TRUE(node->getSymbols(ea2).empty());
 
-    auto s3 = node->addSymbol(std::make_unique<gtirb::Symbol>(ea2));
-    EXPECT_EQ(node->getSymbols(ea1), (std::vector<gtirb::Symbol*>{s1, s2}));
-    EXPECT_EQ(node->getSymbols(ea2), (std::vector<gtirb::Symbol*>{s3}));
+    auto& s3 = node->addSymbol(Symbol(ea2));
+    s3.setName("s3");
+    EXPECT_EQ(node->getSymbols(ea1).size(), 2);
+    EXPECT_EQ(node->getSymbols(ea1)[0]->getName(), "s1");
+    EXPECT_EQ(node->getSymbols(ea1)[1]->getName(), "s2");
+    EXPECT_EQ(node->getSymbols(ea2).size(), 1);
+    EXPECT_EQ(node->getSymbols(ea2)[0]->getName(), "s3");
 }
 
 TEST(Unit_SymbolSet, getSymbolsInvalid)
