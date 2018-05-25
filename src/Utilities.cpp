@@ -182,7 +182,7 @@ std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
             }
 
             // Collect thunk targets.
-            for(auto cfg : cfgSet->getCFGs())
+            for(const auto& cfg : cfgSet->getCFGs())
             {
                 if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
                                                   CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK))

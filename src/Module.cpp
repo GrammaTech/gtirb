@@ -16,13 +16,15 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 
 Module::Module()
     : Node(),
-      addrRanges(std::make_shared<AddrRanges>()),
-      cfgSet(std::make_shared<CFGSet>()),
-      imageByteMap(std::make_shared<ImageByteMap>()),
-      procedureSet(std::make_shared<ProcedureSet>()),
-      symbolSet(std::make_shared<SymbolSet>())
+      addrRanges(std::make_unique<AddrRanges>()),
+      cfgSet(std::make_unique<CFGSet>()),
+      imageByteMap(std::make_unique<ImageByteMap>()),
+      procedureSet(std::make_unique<ProcedureSet>()),
+      symbolSet(std::make_unique<SymbolSet>())
 {
 }
+
+Module::~Module() = default;
 
 void Module::setBinaryPath(boost::filesystem::path x)
 {

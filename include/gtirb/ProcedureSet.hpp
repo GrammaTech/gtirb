@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Procedure.hpp>
 #include <map>
 #include <memory>
 
@@ -14,7 +15,6 @@ namespace gtirb
     /// \author John E. Farrier
     ///
     /// Storage for all gtirb::Procedure objects for a single gtirb::Module.
-    /// This has gtirb::Procedure children.
     ///
     class GTIRB_GTIRB_EXPORT_API ProcedureSet : public Node
     {
@@ -22,12 +22,12 @@ namespace gtirb
         ///
         /// Default constructor.
         ///
-        ProcedureSet() = default;
+        ProcedureSet();
 
         ///
         /// Defaulted trivial destructor.
         ///
-        ~ProcedureSet() override = default;
+        ~ProcedureSet() override;
 
         ///
         /// Get the Procedure at the given EA.
@@ -35,7 +35,8 @@ namespace gtirb
         /// \param x    The EA of the gtirb::Procedure to get.
         /// \return     The Procedure at the given EA or nullptr.
         ///
-        Procedure* getProcedure(gtirb::EA x) const;
+        Procedure* getProcedure(gtirb::EA x);
+        const Procedure* getProcedure(gtirb::EA x) const;
 
         ///
         /// Create the Procedure at the given EA.
@@ -47,21 +48,18 @@ namespace gtirb
         /// \pre No procedure currently exists at the given EA.
         ///
         /// \param x    The EA of the gtirb::Procedure to get (or create).
-        /// \return     The Procedure at the given EA.
+        /// \return     A reference to Procedure at the given EA.
         ///
-        Procedure* createProcedure(gtirb::EA x);
+        Procedure& createProcedure(gtirb::EA x);
 
         ///
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-        }
+        void serialize(Archive& ar, const unsigned int /*version*/);
 
     private:
-        std::map<EA, std::shared_ptr<Procedure>> contents;
+        std::map<EA, Procedure> contents;
     };
 } // namespace gtirb
 

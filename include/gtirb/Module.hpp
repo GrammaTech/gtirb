@@ -38,7 +38,7 @@ namespace gtirb
         ///
         /// Trivial virtual destructor.
         ///
-        ~Module() override = default;
+        ~Module() override;
 
         ///
         /// Set the location of the corresponding binary on disk.
@@ -187,11 +187,11 @@ namespace gtirb
         bool isReadOnly{false};
         std::string name{};
         uint64_t decodeMode{0};
-        std::shared_ptr<AddrRanges> addrRanges;
-        std::shared_ptr<CFGSet> cfgSet;
-        std::shared_ptr<ImageByteMap> imageByteMap;
-        std::shared_ptr<ProcedureSet> procedureSet;
-        std::shared_ptr<SymbolSet> symbolSet;
+        std::unique_ptr<AddrRanges> addrRanges;
+        std::unique_ptr<CFGSet> cfgSet;
+        std::unique_ptr<ImageByteMap> imageByteMap;
+        std::unique_ptr<ProcedureSet> procedureSet;
+        std::unique_ptr<SymbolSet> symbolSet;
     };
 }
 

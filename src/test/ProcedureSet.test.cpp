@@ -18,8 +18,7 @@ TEST(Unit_ProcedureSet, getProcedure)
     auto procedure = node->getProcedure(ea);
     EXPECT_TRUE(procedure == nullptr);
 
-    procedure = node->createProcedure(ea);
-    EXPECT_TRUE(procedure != nullptr);
+    node->createProcedure(ea);
 
     procedure = node->getProcedure(ea);
     EXPECT_TRUE(procedure != nullptr);
