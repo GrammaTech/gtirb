@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
+#include <gtirb/Block.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/FilesystemSerialization.hpp>
@@ -9,6 +10,7 @@
 namespace gtirb
 {
     class AddrRanges;
+    class Block;
     class CFGSet;
     class ImageByteMap;
     class ModuleAux;
@@ -158,6 +160,10 @@ namespace gtirb
         void setDecodeMode(uint64_t x);
         uint64_t getDecodeMode() const;
 
+        // Note: these will probably move and/or get a different interface.
+        const std::vector<Block>& getBlocks() const;
+        void setBlocks(std::vector<Block> x);
+
         ///
         /// Serialization support.
         ///
@@ -192,6 +198,7 @@ namespace gtirb
         std::unique_ptr<ImageByteMap> imageByteMap;
         std::unique_ptr<ProcedureSet> procedureSet;
         std::unique_ptr<SymbolSet> symbolSet;
+        std::unique_ptr<std::vector<Block>> blocks;
     };
 }
 

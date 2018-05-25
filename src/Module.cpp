@@ -178,6 +178,16 @@ uint64_t Module::getDecodeMode() const
     return this->decodeMode;
 }
 
+const std::vector<Block>& Module::getBlocks() const
+{
+    return *this->blocks;
+}
+
+void Module::setBlocks(const std::vector<Block> x)
+{
+    this->blocks = std::make_unique<std::vector<Block>>(x);
+}
+
 template <class Archive>
 void Module::serialize(Archive& ar, const unsigned int /*version*/)
 {
@@ -197,4 +207,5 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->imageByteMap;
     ar & this->procedureSet;
     ar & this->symbolSet;
+    ar & this->blocks;
 }
