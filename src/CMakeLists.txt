@@ -28,6 +28,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/CFGNodeInfoFormalIn.hpp
 	../include/gtirb/CFGSet.hpp
 	../include/gtirb/Constants.hpp
+	../include/gtirb/Data.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Enums.hpp
 	../include/gtirb/Exception.hpp
@@ -70,7 +71,8 @@ set(${PROJECT_NAME}_SRC
 	CFGNodeInfoEntry.cpp
 	CFGNodeInfoFormalIn.cpp
 	CFGSet.cpp
-	EA.cpp
+        Data.cpp
+        EA.cpp
 	Exception.cpp
 	ImageByteMap.cpp
 	Instruction.cpp
