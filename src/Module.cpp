@@ -99,17 +99,17 @@ gtirb::AddrRanges* Module::getAddrRanges()
     return this->addrRanges.get();
 }
 
-gtirb::SymbolSet* Module::getSymbolSet()
+gtirb::SymbolSet* Module::getSymbolSet() const
 {
     return this->symbolSet.get();
 }
 
-gtirb::ProcedureSet* Module::getProcedureSet()
+gtirb::ProcedureSet* Module::getProcedureSet() const
 {
     return this->procedureSet.get();
 }
 
-gtirb::ImageByteMap* Module::getImageByteMap()
+gtirb::ImageByteMap* Module::getImageByteMap() const
 {
     return this->imageByteMap.get();
 }
