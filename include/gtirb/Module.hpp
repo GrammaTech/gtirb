@@ -134,17 +134,17 @@ namespace gtirb
         ///
         /// A Module can have exactly one ImageByteMap child.
         ///
-        gtirb::ImageByteMap* getImageByteMap();
+        gtirb::ImageByteMap* getImageByteMap() const;
 
         ///
         /// A Module can have exactly one ProcedureSet child.
         ///
-        gtirb::ProcedureSet* getProcedureSet();
+        gtirb::ProcedureSet* getProcedureSet() const;
 
         ///
         /// A Module can have exactly one SymbolSet child.
         ///
-        gtirb::SymbolSet* getSymbolSet();
+        gtirb::SymbolSet* getSymbolSet() const;
 
         ///
         /// A Module can have exactly one section table.
@@ -160,7 +160,7 @@ namespace gtirb
         void setDecodeMode(uint64_t x);
         uint64_t getDecodeMode() const;
 
-        // Note: these will probably move and/or get a different interface.
+        // Note: all of these will probably move and/or get a different interface.
         const std::vector<Block>* getBlocks() const;
         void setBlocks(std::vector<Block> x);
         const std::vector<Relocation>* getRelocations() const;
