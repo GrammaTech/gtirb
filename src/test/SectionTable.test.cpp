@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/SectionTable.hpp>
 #include <sstream>
@@ -82,6 +83,44 @@ TEST(Unit_SectionTable, serialize)
     {
         auto result = from_archive.find(data.startingAddress);
         ASSERT_FALSE(result == from_archive.end());
+        EXPECT_EQ(result->second, data);
+    }
+}
+
+TEST(Unit_SectionTable, serializeFromBasePtr)
+{
+    std::unique_ptr<Table> original_base = std::make_unique<SectionTable>();
+
+    Section text{".text", 100, EA{1234}}, data{".data", 200, EA{1334}};
+    auto original = dynamic_cast<SectionTable*>(original_base.get());
+    original->addSection(text);
+    original->addSection(data);
+
+    // Serialize
+    std::ostringstream out;
+    boost::archive::polymorphic_text_oarchive oa{out};
+    EXPECT_NO_THROW(oa << original_base);
+    auto archived = out.str();
+
+    // Deserialize and check
+    std::unique_ptr<Table> from_archive_base;
+    std::istringstream in{archived};
+    boost::archive::polymorphic_text_iarchive ia{in};
+    EXPECT_NO_THROW(ia >> from_archive_base);
+
+    auto from_archive = dynamic_cast<SectionTable*>(from_archive_base.get());
+    EXPECT_NE(from_archive, nullptr);
+
+    EXPECT_EQ(from_archive->size(), original->size());
+    {
+        auto result = from_archive->find(text.startingAddress);
+        ASSERT_FALSE(result == from_archive->end());
+        EXPECT_EQ(result->second, text);
+    }
+
+    {
+        auto result = from_archive->find(data.startingAddress);
+        ASSERT_FALSE(result == from_archive->end());
         EXPECT_EQ(result->second, data);
     }
 }

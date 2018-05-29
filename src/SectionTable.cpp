@@ -17,12 +17,14 @@ void SectionTable::clear()
 
 void SectionTable::serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version)
 {
+    boost::serialization::void_cast_register<SectionTable, Table>();
     ar & this->data;
 }
 
 void SectionTable::serialize(boost::archive::polymorphic_oarchive& ar,
                              const unsigned int version) const
 {
+    boost::serialization::void_cast_register<SectionTable, Table>();
     ar & this->data;
 }
 
