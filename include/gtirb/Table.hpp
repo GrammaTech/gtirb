@@ -4,29 +4,39 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/export.hpp>
 #include <gtirb/Export.hpp>
+#include <gtirb/Variant.hpp>
+#include <map>
 #include <string>
-#include <unordered_map>
 
 namespace gtirb
 {
+    class Node;
+
     ///
     /// \class Table
-    /// \author John E. Farrier
     ///
-    /// This is just a simple base class for TableTemplate.  This allows us to store pointers to
-    /// tables without any specific implementation details.
+    /// A generic table for storing additional, client-specific data.
     ///
-    /// \sa gtirb::TableTemplate
+    /// This is a map between variants, allowing the storage of most GT-IRB
+    /// types.
     ///
     class GTIRB_GTIRB_EXPORT_API Table
     {
     public:
-        ///
-        /// Virtual destructor.
-        ///
-        /// This class can be inherited from.
-        ///
-        virtual ~Table() = default;
+        ~Table();
+
+        /// Table keys can be any of these types.
+        using KeyType = boost::variant<EA, uint64_t, std::string>;
+        using InnerValueType = boost::variant<EA, uint64_t, std::string, std::vector<EA>,
+                                              std::vector<uint64_t>, std::vector<std::string>>;
+        /// Table values can also be maps, but they can only store a limited
+        /// set of value types.
+        using InnerMapType = std::map<KeyType, InnerValueType>;
+        /// Table values can be any of these types.
+        using ValueType =
+            boost::variant<EA, uint64_t, std::string, InnerMapType, std::vector<InnerMapType>,
+                           std::vector<EA>, std::vector<uint64_t>, std::vector<std::string>>;
+        using MapType = std::map<KeyType, ValueType>;
 
         ///
         /// Computes the total number of elements stored in the table.
@@ -35,29 +45,30 @@ namespace gtirb
         ///
         /// \return The total number of elements stored in the table.
         ///
-        virtual size_t size() const = 0;
+        size_t size() const;
 
         ///
         /// Clears all elements from the table.
         ///
         /// Mirrors the STL API.
         ///
-        virtual void clear() = 0;
+        void clear();
 
         ///
         /// Serialization support.
         ///
-        virtual void serialize(boost::archive::polymorphic_iarchive& ar,
-                               const unsigned int version = 0) = 0;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
 
         ///
-        /// Serialization support.
+        /// The contents of the table.
         ///
-        virtual void serialize(boost::archive::polymorphic_oarchive& ar,
-                               const unsigned int version = 0) const = 0;
+        /// \todo Make this private and provide an STL-style API.
+        ///
+        MapType contents;
 
     private:
     };
 }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(gtirb::Table);
+BOOST_CLASS_EXPORT_KEY(gtirb::Table);

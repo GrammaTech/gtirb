@@ -5,6 +5,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <gsl/gsl>
 #include <gtirb/Node.hpp>
+#include <gtirb/Table.hpp>
 
 using namespace gtirb;
 
@@ -14,6 +15,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Node);
 Node::Node() : uuid(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
 {
 }
+
+Node::~Node() = default;
 
 void Node::setUUID()
 {
@@ -130,4 +133,12 @@ bool Node::getTablesEmpty() const
 void Node::clearTables()
 {
     this->tables.clear();
+}
+
+template <class Archive>
+void Node::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar & this->localProperties;
+    ar & this->tables;
+    ar & this->uuid;
 }

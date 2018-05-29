@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/set.hpp>
@@ -15,7 +16,6 @@
 #include <functional>
 #include <gsl/gsl>
 #include <gtirb/Export.hpp>
-#include <gtirb/Table.hpp>
 #include <gtirb/Variant.hpp>
 #include <map>
 #include <memory>
@@ -24,6 +24,8 @@
 
 namespace gtirb
 {
+    class Table;
+
     ///
     /// \class Node
     /// \author John E. Farrier
@@ -43,7 +45,7 @@ namespace gtirb
         /// This will serve as a base class for other nodes.
         /// The destructor is trivial and defaulted.
         ///
-        virtual ~Node() = default;
+        virtual ~Node();
 
         ///
         /// Generate and assign a new Universally Unique ID (UUID).
@@ -155,41 +157,23 @@ namespace gtirb
         /// (May 2017)
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar & this->localProperties;
-            ar & this->tables;
-            ar & this->uuid;
-        }
+        void serialize(Archive& ar, const unsigned int /*version*/);
 
-    protected:
         // ----------------------------------------------------------------------------------------
         // Table Properties
 
         ///
-        /// Locally ownership of a table.
+        /// Add a new table, transferring ownership.
         /// The table can be populated from anywhere.
-        //// Returns a non-owning pointer to the added table.
-        ///
-        /// This is used to manage Table pointers.  Derived node types should expose
-        /// specific functions for the tables that they own or want to provide access to.
-        /// They should then return strongly typed pointers to those tables.
         ///
         /// \param name     The name to assign to the table so it can be found later.
         /// \param x        An owning pointer to the table itself.
+        /// \return a non-owning pointer to the added table.
         ///
         Table* addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
 
         ///
-        /// A table by name.
-        ///
-        /// This is used to manage Table pointers.  Derived node types should expose
-        /// specific functions for the tables that they own or want to provide access to.
-        /// They should then return strongly typed pointers to those tables.
-        ///
-        /// Throws std::out_of_range if the container does not have an element with the specified
-        /// key. This will search up the node hierarchy until the table is found or the top node is
-        /// reached.
+        /// Get a table by name.
         ///
         /// \param  x   The name of the table to search for.
         /// \return     A pointer to the table if found, or nullptr.
@@ -197,11 +181,7 @@ namespace gtirb
         gtirb::Table* const getTable(const std::string& x) const;
 
         ///
-        /// Remove a table.
-        ///
-        /// This is used to manage Table pointers.  Derived node types should expose
-        /// specific functions for the tables that they own or want to provide access to.
-        /// They should then return strongly typed pointers to those tables.
+        /// Remove a table by name.
         ///
         /// This will invalidate any pointers that may have been held externally.
         ///
@@ -213,12 +193,6 @@ namespace gtirb
         ///
         /// Get the total number of tables at this Node.
         ///
-        /// This is used to manage Table pointers.  Derived node types should expose
-        /// specific functions for the tables that they own or want to provide access to.
-        /// They should then return strongly typed pointers to those tables.
-        ///
-        /// This does not search up the tree.  This is the number of locally owned tables.
-        ///
         /// \return     The total number of tables this node owns.
         ///
         size_t getTableSize() const;
@@ -226,22 +200,12 @@ namespace gtirb
         ///
         /// Test to see if the number of tables at this Node is zero.
         ///
-        /// This is used to manage Table pointers.  Derived node types should expose
-        /// specific functions for the tables that they own or want to provide access to.
-        /// They should then return strongly typed pointers to those tables.
-        ///
-        /// This does not search up the tree.  This is based on locally owned tables.
-        ///
-        /// \return     True if this node owns at least one table.
+        /// \return     True if this node does not own any tables.
         ///
         bool getTablesEmpty() const;
 
         ///
         /// Clear all locally owned tables.
-        ///
-        /// This is used to manage Table pointers.  Derived node types should expose
-        /// specific functions for the tables that they own or want to provide access to.
-        /// They should then return strongly typed pointers to those tables.
         ///
         void clearTables();
 
