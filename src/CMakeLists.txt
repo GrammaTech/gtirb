@@ -51,7 +51,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Symbol.hpp
 	../include/gtirb/SymbolSet.hpp
 	../include/gtirb/Table.hpp
-	../include/gtirb/TableTemplate.hpp
 	../include/gtirb/Utilities.hpp
 	../include/gtirb/Variant.hpp
 	../include/gtirb/FilesystemSerialization.hpp
@@ -90,6 +89,7 @@ set(${PROJECT_NAME}_SRC
 	Symbol.cpp
 	SymbolSet.cpp
 	Utilities.cpp
+        Table.cpp
 )
 
 IF(UNIX AND NOT WIN32)

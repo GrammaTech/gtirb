@@ -44,7 +44,6 @@ set(${PROJECT_NAME}_SRC
         Section.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
-	TableTemplate.test.cpp
 	TypedExceptionTest.cpp
 	TypedNodeTest.cpp
 	Utilities.test.cpp
