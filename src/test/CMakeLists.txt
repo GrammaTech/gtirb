@@ -42,7 +42,6 @@ set(${PROJECT_NAME}_SRC
 	Region.test.cpp
 	RegionSet.test.cpp
         Section.test.cpp
-        SectionTable.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
 	TableTemplate.test.cpp

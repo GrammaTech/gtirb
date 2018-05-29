@@ -7,6 +7,7 @@
 #include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Relocation.hpp>
+#include <gtirb/Section.hpp>
 
 namespace gtirb
 {
@@ -19,7 +20,6 @@ namespace gtirb
     class ModuleSummary;
     class ProcedureSet;
     class SymbolSet;
-    class SectionTable;
 
     ///
     /// \class Module
@@ -147,11 +147,6 @@ namespace gtirb
         ///
         gtirb::SymbolSet* getSymbolSet() const;
 
-        ///
-        /// A Module can have exactly one section table.
-        ///
-        SectionTable& getOrCreateSectionTable();
-
         bool getIsSetupComplete() const;
         bool getIsReadOnly() const;
 
@@ -168,6 +163,8 @@ namespace gtirb
         void setRelocations(std::vector<Relocation> x);
         std::vector<const Data*> getData() const;
         const Data* addData(std::unique_ptr<Data>&& x);
+        const std::vector<Section>& getSections() const;
+        const Section& addSection(Section&& x);
 
         ///
         /// Serialization support.
@@ -206,6 +203,7 @@ namespace gtirb
         std::unique_ptr<std::vector<Block>> blocks;
         std::unique_ptr<std::vector<Relocation>> relocations;
         std::vector<std::unique_ptr<Data>> data;
+        std::unique_ptr<std::vector<Section>> sections;
     };
 }
 

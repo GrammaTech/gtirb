@@ -48,7 +48,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Relocation.hpp
 	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
-        ../include/gtirb/SectionTable.hpp
 	../include/gtirb/Symbol.hpp
 	../include/gtirb/SymbolSet.hpp
 	../include/gtirb/Table.hpp
@@ -88,7 +87,6 @@ set(${PROJECT_NAME}_SRC
 	RegionSet.cpp
 	RuntimeError.cpp
         Section.cpp
-        SectionTable.cpp
 	Symbol.cpp
 	SymbolSet.cpp
 	Utilities.cpp
