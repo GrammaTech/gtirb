@@ -31,6 +31,12 @@ void Data::serialize(Archive& ar, const unsigned int /*version*/)
 }
 
 template <class Archive>
+void DataLabelMarker::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar& boost::serialization::base_object<Data>(*this);
+}
+
+template <class Archive>
 void DataPLTReference::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar& boost::serialization::base_object<Data>(*this);
@@ -57,4 +63,10 @@ void DataString::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar& boost::serialization::base_object<Data>(*this);
     ar & this->size;
+}
+
+template <class Archive>
+void DataRawByte::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar& boost::serialization::base_object<Data>(*this);
 }

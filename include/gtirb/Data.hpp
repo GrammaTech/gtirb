@@ -71,6 +71,12 @@ namespace gtirb
         {
             return Data::Type::LabelMarker;
         }
+
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
     };
 
     ///
@@ -212,6 +218,12 @@ namespace gtirb
         }
 
         uint8_t getByte(const Module& module) const;
+
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
     };
 }
 

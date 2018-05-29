@@ -122,6 +122,7 @@ namespace gtirb
         void serialize(Archive& ar, const unsigned int /*version*/)
         {
             ar& boost::serialization::base_object<Node>(*this);
+            ar& modules;
             ar & this->mainModule;
         }
 
