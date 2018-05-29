@@ -26,7 +26,8 @@ namespace gtirb
             RawByte
         };
 
-        Data() = delete;
+        // Default constructor required for serialization.
+        Data() = default;
 
         Data(EA x) : ea(x)
         {
@@ -41,6 +42,12 @@ namespace gtirb
             return this->ea;
         }
 
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
     private:
         EA ea{0};
     };
@@ -51,6 +58,9 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API DataLabelMarker : public Data
     {
     public:
+        // Default constructor required for serialization;
+        DataLabelMarker() = default;
+
         DataLabelMarker(EA x) : Data(x)
         {
         }
@@ -69,6 +79,9 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API DataPLTReference : public Data
     {
     public:
+        // Default constructor required for serialization;
+        DataPLTReference() = default;
+
         DataPLTReference(EA x) : Data(x)
         {
         }
@@ -80,6 +93,12 @@ namespace gtirb
             return Data::Type::PLTReference;
         }
 
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
         std::string function;
     };
 
@@ -89,6 +108,9 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API DataPointer : public Data
     {
     public:
+        // Default constructor required for serialization;
+        DataPointer() = default;
+
         DataPointer(EA x) : Data(x)
         {
         }
@@ -100,6 +122,12 @@ namespace gtirb
             return Data::Type::Pointer;
         }
 
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
         EA content{0};
     };
 
@@ -109,6 +137,9 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API DataPointerDiff : public Data
     {
     public:
+        // Default constructor required for serialization;
+        DataPointerDiff() = default;
+
         DataPointerDiff(EA x) : Data(x)
         {
         }
@@ -120,6 +151,12 @@ namespace gtirb
             return Data::Type::PointerDiff;
         }
 
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
         EA symbol1{0};
         EA symbol2{0};
     };
@@ -130,6 +167,9 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API DataString : public Data
     {
     public:
+        // Default constructor required for serialization;
+        DataString() = default;
+
         DataString(EA x) : Data(x)
         {
         }
@@ -141,6 +181,12 @@ namespace gtirb
             return Data::Type::String;
         }
 
+        ///
+        /// Serialization support.
+        ///
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
         std::vector<uint8_t> getStringBytes(const Module& module) const;
         size_t size;
     };
@@ -151,6 +197,9 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API DataRawByte : public Data
     {
     public:
+        // Default constructor required for serialization;
+        DataRawByte() = default;
+
         DataRawByte(EA x) : Data(x)
         {
         }
@@ -165,3 +214,11 @@ namespace gtirb
         uint8_t getByte(const Module& module) const;
     };
 }
+
+BOOST_CLASS_EXPORT_KEY(gtirb::Data);
+BOOST_CLASS_EXPORT_KEY(gtirb::DataLabelMarker);
+BOOST_CLASS_EXPORT_KEY(gtirb::DataPLTReference);
+BOOST_CLASS_EXPORT_KEY(gtirb::DataPointer);
+BOOST_CLASS_EXPORT_KEY(gtirb::DataPointerDiff);
+BOOST_CLASS_EXPORT_KEY(gtirb::DataString);
+BOOST_CLASS_EXPORT_KEY(gtirb::DataRawByte);
