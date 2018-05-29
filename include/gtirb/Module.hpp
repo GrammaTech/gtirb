@@ -12,6 +12,7 @@ namespace gtirb
 {
     class AddrRanges;
     class CFGSet;
+    class Data;
     class ImageByteMap;
     class ModuleAux;
     class ModuleCore;
@@ -165,6 +166,8 @@ namespace gtirb
         void setBlocks(std::vector<Block> x);
         const std::vector<Relocation>* getRelocations() const;
         void setRelocations(std::vector<Relocation> x);
+        std::vector<const Data*> getData() const;
+        const Data* addData(std::unique_ptr<Data>&& x);
 
         ///
         /// Serialization support.
@@ -202,6 +205,7 @@ namespace gtirb
         std::unique_ptr<SymbolSet> symbolSet;
         std::unique_ptr<std::vector<Block>> blocks;
         std::unique_ptr<std::vector<Relocation>> relocations;
+        std::vector<std::unique_ptr<Data>> data;
     };
 }
 

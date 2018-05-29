@@ -2,6 +2,7 @@
 #include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/CFGSet.hpp>
+#include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
@@ -199,6 +200,22 @@ void Module::setRelocations(const std::vector<Relocation> x)
     this->relocations = std::make_unique<std::vector<Relocation>>(x);
 }
 
+std::vector<const Data*> Module::getData() const
+{
+    std::vector<const Data*> results;
+    for(const auto& d : this->data)
+    {
+        results.push_back(d.get());
+    }
+    return results;
+}
+
+const Data* Module::addData(std::unique_ptr<Data>&& x)
+{
+    this->data.push_back(std::move(x));
+    return this->data.back().get();
+}
+
 template <class Archive>
 void Module::serialize(Archive& ar, const unsigned int /*version*/)
 {
@@ -220,4 +237,5 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->symbolSet;
     ar & this->blocks;
     ar & this->relocations;
+    ar & this->data;
 }
