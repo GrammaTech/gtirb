@@ -4,15 +4,19 @@
 #include <boost/serialization/string.hpp>
 #include <cstdint>
 #include <gtirb/EA.hpp>
+#include <gtirb/Node.hpp>
 
 namespace gtirb
 {
     ///
     /// \class Section
     /// \author Nathan Weston
-    struct GTIRB_GTIRB_EXPORT_API Section
+    struct GTIRB_GTIRB_EXPORT_API Section : public Node
     {
     public:
+        Section() = default;
+        Section(std::string n, uint64_t size, EA address);
+
         std::string name;
         uint64_t size{0};
         EA startingAddress{0};
@@ -32,6 +36,7 @@ namespace gtirb
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/)
         {
+            ar& boost::serialization::base_object<Node>(*this);
             ar & this->name;
             ar & this->size;
             ar & this->startingAddress;

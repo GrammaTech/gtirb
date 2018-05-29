@@ -8,7 +8,6 @@
 #include <gtirb/Module.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Relocation.hpp>
-#include <gtirb/SectionTable.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/Table.hpp>
 
@@ -22,7 +21,8 @@ Module::Module()
       cfgSet(std::make_unique<CFGSet>()),
       imageByteMap(std::make_unique<ImageByteMap>()),
       procedureSet(std::make_unique<ProcedureSet>()),
-      symbolSet(std::make_unique<SymbolSet>())
+      symbolSet(std::make_unique<SymbolSet>()),
+      sections(std::make_unique<std::vector<Section>>())
 {
 }
 
@@ -125,21 +125,6 @@ const CFGSet* Module::getCFGSet() const
     return this->cfgSet.get();
 }
 
-SectionTable& Module::getOrCreateSectionTable()
-{
-    const std::string name{"sections"};
-    auto table = getTable(name);
-    if(!table)
-    {
-        table = addTable(name, std::make_unique<SectionTable>());
-    }
-
-    auto result = dynamic_cast<SectionTable*>(table);
-    assert(result);
-
-    return *result;
-}
-
 bool Module::getIsSetupComplete() const
 {
     return this->isSetupComplete;
@@ -216,6 +201,17 @@ const Data* Module::addData(std::unique_ptr<Data>&& x)
     return this->data.back().get();
 }
 
+const std::vector<Section>& Module::getSections() const
+{
+    return *this->sections;
+}
+
+const Section& Module::addSection(Section&& x)
+{
+    this->sections->push_back(std::move(x));
+    return this->sections->back();
+}
+
 template <class Archive>
 void Module::serialize(Archive& ar, const unsigned int /*version*/)
 {
@@ -238,4 +234,5 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->blocks;
     ar & this->relocations;
     ar & this->data;
+    ar & this->sections;
 }
