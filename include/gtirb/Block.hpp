@@ -49,6 +49,7 @@ namespace gtirb
             ar& boost::serialization::base_object<Node>(*this);
             ar & this->startingAddress;
             ar & this->endingAddress;
+            ar & this->instructions;
         }
 
     private:

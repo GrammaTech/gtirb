@@ -1,3 +1,4 @@
+#include <boost/serialization/optional.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
@@ -60,4 +61,32 @@ std::vector<Instruction::SymbolicOperand>& Instruction::getSymbolicOperands()
 const std::vector<Instruction::SymbolicOperand>& Instruction::getSymbolicOperands() const
 {
     return this->symbolicOperands;
+}
+
+template <class Archive>
+void Instruction::MovedLabel::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar & this->offset1;
+    ar & this->offset2;
+}
+
+template <class Archive>
+void Instruction::SymbolicOperand::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar & this->pltReferenceName;
+    ar & this->directCallDestination;
+    ar & this->movedLabel;
+    ar & this->movedLabel;
+    ar & this->isGlobalSymbol;
+}
+
+template <class Archive>
+void Instruction::serialize(Archive& ar, const unsigned int /*version*/)
+{
+    ar& boost::serialization::base_object<Node>(*this);
+    ar& ea;
+    ar& numberOfUses;
+    ar& isFallthrough;
+    ar& isPEI;
+    ar & this->symbolicOperands;
 }
