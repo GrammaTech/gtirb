@@ -46,6 +46,9 @@ namespace gtirb
         {
             int64_t offset1{0};
             int64_t offset2{0};
+
+            template <class Archive>
+            void serialize(Archive& ar, const unsigned int /*version*/);
         };
 
         /// \class SymbolicOperand
@@ -61,6 +64,9 @@ namespace gtirb
             optional<EA> directCallDestination;
             optional<MovedLabel> movedLabel;
             bool isGlobalSymbol;
+
+            template <class Archive>
+            void serialize(Archive& ar, const unsigned int /*version*/);
         };
 
         ///
@@ -102,14 +108,7 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar& ea;
-            ar& numberOfUses;
-            ar& isFallthrough;
-            ar& isPEI;
-        }
+        void serialize(Archive& ar, const unsigned int /*version*/);
 
     private:
         gtirb::EA ea;
