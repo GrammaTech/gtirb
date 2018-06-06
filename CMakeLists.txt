@@ -34,7 +34,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 
-set(GTIRB_ISO_CPP_VERSION "C++17" CACHE STRING "C++ ISO Standard to use.")
+set(GTIRB_ISO_CPP_VERSION "C++14" CACHE STRING "C++ ISO Standard to use.")
 set_property(CACHE GTIRB_ISO_CPP_VERSION PROPERTY STRINGS C++17 C++14)
 
 # Default to C++17, then override to C++14 if necessary.
