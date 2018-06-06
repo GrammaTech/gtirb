@@ -13,3 +13,9 @@ ExternalProject_Add(gsl
   INSTALL_COMMAND   ""
   TEST_COMMAND      ""
 )
+
+# Install into our include directory so other projects don't need
+# their own copy.
+add_custom_command(TARGET gsl POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_BINARY_DIR}/gsl-src/include/ ${CMAKE_BINARY_DIR}/../include)
