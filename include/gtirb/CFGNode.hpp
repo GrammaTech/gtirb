@@ -17,6 +17,9 @@ namespace gtirb
     ///
     /// This can live under either a CFG directly or under another CFGNode.
     ///
+    /// \todo Remove.  Eventually the ICFG will point directly to
+    /// basic blocks.
+    ///
     class GTIRB_GTIRB_EXPORT_API CFGNode : public Node, public std::enable_shared_from_this<CFGNode>
     {
     public:

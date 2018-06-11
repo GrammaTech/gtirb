@@ -15,6 +15,10 @@ namespace gtirb
     ///
     /// A child of a CFGSet.
     ///
+    /// \todo Remove.  Eventually we will only have the ICFG which
+    /// will be a graph of basic blocks and edges between basic
+    /// blocks.
+    ///
     class GTIRB_GTIRB_EXPORT_API CFG : public Node
     {
     public:
