@@ -22,22 +22,16 @@ namespace gtirb
     /// \class Instruction
     /// \author John E. Farrier
     ///
-    /// There's this question about how the instructions are actually
-    /// represented.  Maybe we should try to be *general* across multiple
-    /// instruction representations, even including the ability to have
-    /// multiple "instructions" per actual machine code instruction.  What
-    /// would be interface for a drop-in instruction representation look like?
+    /// Instructions have two fields, a pointer to the raw bytes of
+    /// the instruction (including any instruction prefix) and a list
+    /// of pairs of operand indices and associated pointers to
+    /// symbolic information for that operand.
     ///
-    /// - It would need to be able to disassemble (assuming we give it a
-    ///     starting point in a binary).
+    /// Byte pointers are offsets into the ImageByteMap.
     ///
-    /// - It would need to have an idea of operands so that we could hold
-    ///     facts about individual operands such as their type, literal/ref,
-    ///     stack offset, range, etc...
-    ///
-    /// Then the GT-IRB layer would sit on top.  It would provide the structure
-    /// holding these instructions, and it would contain information about
-    /// function boundaries, and stack offsets, and maybe types.
+    /// Symbolic information is an expression which may combine
+    /// references as symbols of type gtirb::Symbol with simple
+    /// mathematical expressions including numeric constants.
     ///
     class GTIRB_GTIRB_EXPORT_API Instruction : public Node
     {
@@ -87,6 +81,8 @@ namespace gtirb
         /// From WALA.
         /// https://github.com/wala/WALA/wiki/Intermediate-Representation-(IR)
         ///
+        /// \todo Remove.
+        ///
         void setIsFallthrough(bool x);
         bool getIsFallthrough() const;
 
@@ -94,6 +90,8 @@ namespace gtirb
         /// From WALA.
         /// Can this instruction thrown an exception?
         /// https://github.com/wala/WALA/wiki/Intermediate-Representation-(IR)
+        ///
+        /// \todo Remove.
         ///
         void setIsPEI(bool x);
         bool getIsPEI() const;

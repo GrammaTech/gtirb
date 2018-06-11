@@ -16,6 +16,9 @@ namespace gtirb
     /// Storage for all gtirb::CFG objects for a single gtirb::Module.
     /// This has gtirb::CFG children.
     ///
+    /// \todo Remove.  Instead we just want to use the ICFG graph data
+    /// structure.
+    ///
     class GTIRB_GTIRB_EXPORT_API CFGSet : public Node
     {
     public:

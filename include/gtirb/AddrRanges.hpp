@@ -13,9 +13,11 @@ namespace gtirb
     /// \class AddrRanges
     /// \author John E. Farrier
     ///
-    /// Thin list of non-overlapping non-adjacent EA ranges.  Each range is [lb, ub), inclusive of
-    /// lb but exclusive of ub. This class guarantees a canonical representation: no redundancy or
-    /// overlaps, adjacent ranges are coalesced, empty ranges are excluded.
+    /// Thin list of non-overlapping non-adjacent EA ranges.  Each
+    /// range is [lb, ub), inclusive of lb but exclusive of ub.  This
+    /// class guarantees a canonical representation: no redundancy or
+    /// overlaps, adjacent ranges are coalesced, empty ranges are
+    /// excluded.
     ///
     class GTIRB_GTIRB_EXPORT_API AddrRanges : public Node
     {
@@ -33,8 +35,8 @@ namespace gtirb
         ///
         /// Add a pair of EA's to the ranges.
         ///
-        /// This will perform a check on the EA's to ensure that the first is less than or equal to
-        /// the second.
+        /// This will perform a check on the EA's to ensure that the
+        /// first is less than or equal to the second.
         ///
         /// Throws a gtirb::RuntimeError if the EA's are not properly ordered.
         ///
@@ -54,8 +56,8 @@ namespace gtirb
         ///
         /// Subtract a pair of EA's from the ranges.
         ///
-        /// This will perform a check on the EA's to ensure that the first is less than or equal to
-        /// the second.
+        /// This will perform a check on the EA's to ensure that the
+        /// first is less than or equal to the second.
         ///
         /// Throws a gtirb::RuntimeError if the EA's are not properly ordered.
         ///
@@ -91,9 +93,11 @@ namespace gtirb
         void swap(gtirb::AddrRanges& x);
 
         ///
-        /// Return an iterator pointing to the first region that intersects with the given [lb,ub).
+        /// Return an iterator pointing to the first region that
+        /// intersects with the given [lb,ub).
         ///
-        /// \return std::end(std::map<gtirb::EA, gtirb::EA>) if there is no intersection.
+        /// \return std::end(std::map<gtirb::EA, gtirb::EA>) if there
+        /// is no intersection.
         ///
         std::map<gtirb::EA, gtirb::EA>::const_iterator getFirstIntersecting(gtirb::EA lb,
                                                                             gtirb::EA ub) const;

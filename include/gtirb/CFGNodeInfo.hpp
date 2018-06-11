@@ -15,6 +15,8 @@ namespace gtirb
     ///
     /// A base class for Node Specific Information (NSI) for a CFGNode.
     ///
+    /// \todo Remove.  I don't think we will have anything to store here.
+    ///
     class GTIRB_GTIRB_EXPORT_API CFGNodeInfo : public Node
     {
     public:
