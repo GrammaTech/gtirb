@@ -73,11 +73,10 @@ void Instruction::MovedLabel::serialize(Archive& ar, const unsigned int /*versio
 template <class Archive>
 void Instruction::SymbolicOperand::serialize(Archive& ar, const unsigned int /*version*/)
 {
+    ar & this->kind;
     ar & this->pltReferenceName;
     ar & this->directCallDestination;
     ar & this->movedLabel;
-    ar & this->movedLabel;
-    ar & this->isGlobalSymbol;
 }
 
 template <class Archive>
