@@ -4,16 +4,6 @@
 #include <gtirb/Node.hpp>
 #include <set>
 
-#if __cplusplus >= 201703L
-#include <optional>
-template <typename T>
-using optional = std::optional<T>;
-#else
-#include <boost/optional.hpp>
-template <typename T>
-using optional = boost::optional<T>;
-#endif
-
 namespace gtirb
 {
     class Symbol;
@@ -45,6 +35,15 @@ namespace gtirb
             void serialize(Archive& ar, const unsigned int /*version*/);
         };
 
+        enum class SymbolicKind
+        {
+            PLTReference,
+            DirectCall,
+            MovedLabel,
+            GlobalSymbol,
+            None
+        };
+
         /// \class SymbolicOperand
         ///
         /// \todo This lines up with the datalog-disassembler/pretty-printer,
@@ -54,10 +53,10 @@ namespace gtirb
         /// be a union/variant instead?
         struct SymbolicOperand
         {
-            optional<std::string> pltReferenceName;
-            optional<EA> directCallDestination;
-            optional<MovedLabel> movedLabel;
-            bool isGlobalSymbol;
+            SymbolicKind kind;
+            std::string pltReferenceName;
+            EA directCallDestination;
+            MovedLabel movedLabel;
 
             template <class Archive>
             void serialize(Archive& ar, const unsigned int /*version*/);
