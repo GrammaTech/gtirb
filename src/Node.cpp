@@ -91,54 +91,9 @@ std::map<std::string, gtirb::variant>::const_iterator Node::endLocalProperties()
     return std::end(this->localProperties);
 }
 
-Table* Node::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
-{
-    return (this->tables[std::move(name)] = std::move(x)).get();
-}
-
-gtirb::Table* const Node::getTable(const std::string& x) const
-{
-    const auto found = this->tables.find(x);
-    if(found != std::end(this->tables))
-    {
-        return (*found).second.get();
-    }
-
-    return nullptr;
-}
-
-bool Node::removeTable(const std::string& x)
-{
-    const auto found = this->tables.find(x);
-
-    if(found != std::end(this->tables))
-    {
-        this->tables.erase(found);
-        return true;
-    }
-
-    return false;
-}
-
-size_t Node::getTableSize() const
-{
-    return this->tables.size();
-}
-
-bool Node::getTablesEmpty() const
-{
-    return this->tables.empty();
-}
-
-void Node::clearTables()
-{
-    this->tables.clear();
-}
-
 template <class Archive>
 void Node::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar & this->localProperties;
-    ar & this->tables;
     ar & this->uuid;
 }
