@@ -163,8 +163,8 @@ namespace gtirb
         void setRelocations(std::vector<Relocation> x);
         std::vector<const Data*> getData() const;
         const Data* addData(std::unique_ptr<Data>&& x);
+        std::vector<Section>& getSections();
         const std::vector<Section>& getSections() const;
-        const Section& addSection(Section&& x);
 
         ///
         /// Serialization support.
@@ -205,6 +205,6 @@ namespace gtirb
         std::vector<std::unique_ptr<Data>> data;
         std::unique_ptr<std::vector<Section>> sections;
     };
-}
+} // namespace gtirb
 
 BOOST_CLASS_EXPORT_KEY(gtirb::Module);

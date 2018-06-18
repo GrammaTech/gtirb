@@ -201,15 +201,14 @@ const Data* Module::addData(std::unique_ptr<Data>&& x)
     return this->data.back().get();
 }
 
-const std::vector<Section>& Module::getSections() const
+std::vector<Section>& Module::getSections()
 {
     return *this->sections;
 }
 
-const Section& Module::addSection(Section&& x)
+const std::vector<Section>& Module::getSections() const
 {
-    this->sections->push_back(std::move(x));
-    return this->sections->back();
+    return *this->sections;
 }
 
 template <class Archive>
