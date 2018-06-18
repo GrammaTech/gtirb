@@ -119,17 +119,63 @@ namespace gtirb
         /// Serialization support.
         ///
         template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar& modules;
-            ar & this->mainModule;
-        }
+        void serialize(Archive& ar, const unsigned int /*version*/);
+
+        // ----------------------------------------------------------------------------------------
+        // Table Properties
+
+        ///
+        /// Add a new table, transferring ownership.
+        /// The table can be populated from anywhere.
+        ///
+        /// \param name     The name to assign to the table so it can be found later.
+        /// \param x        An owning pointer to the table itself.
+        /// \return a non-owning pointer to the added table.
+        ///
+        Table* addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
+
+        ///
+        /// Get a table by name.
+        ///
+        /// \param  x   The name of the table to search for.
+        /// \return     A pointer to the table if found, or nullptr.
+        ///
+        gtirb::Table* const getTable(const std::string& x) const;
+
+        ///
+        /// Remove a table by name.
+        ///
+        /// This will invalidate any pointers that may have been held externally.
+        ///
+        /// \param  x   The name of the table to search for.
+        /// \return     True on success.
+        ///
+        bool removeTable(const std::string& x);
+
+        ///
+        /// Get the total number of tables at this Node.
+        ///
+        /// \return     The total number of tables this node owns.
+        ///
+        size_t getTableSize() const;
+
+        ///
+        /// Test to see if the number of tables at this Node is zero.
+        ///
+        /// \return     True if this node does not own any tables.
+        ///
+        bool getTablesEmpty() const;
+
+        ///
+        /// Clear all locally owned tables.
+        ///
+        void clearTables();
 
     private:
+        std::map<std::string, std::shared_ptr<gtirb::Table>> tables;
         std::vector<std::shared_ptr<Module>> modules;
         std::weak_ptr<gtirb::Module> mainModule{};
     };
-}
+} // namespace gtirb
 
 BOOST_CLASS_EXPORT_KEY(gtirb::IR);
