@@ -18,3 +18,4 @@ googletest-download/
 googletest-src/
 gsl-download/
 gsl-src/
+include/gsl/
