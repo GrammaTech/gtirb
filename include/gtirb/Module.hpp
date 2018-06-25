@@ -9,6 +9,7 @@
 #include <gtirb/NodeReference.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
+#include <gtirb/SymbolicOperand.hpp>
 
 namespace gtirb
 {
@@ -166,6 +167,8 @@ namespace gtirb
         const Data* addData(std::unique_ptr<Data>&& x);
         std::vector<Section>& getSections();
         const std::vector<Section>& getSections() const;
+        SymbolicOperandSet& getSymbolicOperands();
+        const SymbolicOperandSet& getSymbolicOperands() const;
 
         ///
         /// Serialization support.
@@ -205,6 +208,7 @@ namespace gtirb
         std::unique_ptr<std::vector<Relocation>> relocations;
         std::vector<std::unique_ptr<Data>> data;
         std::unique_ptr<std::vector<Section>> sections;
+        std::unique_ptr<SymbolicOperandSet> symbolicOperands;
     };
 } // namespace gtirb
 
