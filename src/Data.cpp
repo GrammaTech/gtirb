@@ -13,11 +13,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataPointerDiff);
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataString);
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataRawByte);
 
-std::vector<uint8_t> DataString::getStringBytes(const Module& module) const
-{
-    return module.getImageByteMap()->getData(this->getEA(), this->size);
-}
-
 uint8_t DataRawByte::getByte(const Module& module) const
 {
     return module.getImageByteMap()->getData8(this->getEA());
@@ -28,6 +23,7 @@ void Data::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar& boost::serialization::base_object<Node>(*this);
     ar & this->ea;
+    ar & this->size;
 }
 
 template <class Archive>
@@ -62,11 +58,15 @@ template <class Archive>
 void DataString::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar& boost::serialization::base_object<Data>(*this);
-    ar & this->size;
 }
 
 template <class Archive>
 void DataRawByte::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar& boost::serialization::base_object<Data>(*this);
+}
+
+std::vector<uint8_t> Data::getBytes(const Module& module) const
+{
+    return module.getImageByteMap()->getData(this->getEA(), this->getSize());
 }

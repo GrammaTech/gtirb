@@ -40,11 +40,14 @@ namespace gtirb
         // Default constructor required for serialization.
         Data() = default;
 
-        Data(EA x) : ea(x)
+        Data(EA ea_, uint64_t size_) : ea(ea_), size(size_)
         {
         }
 
-        virtual Data::Type getType() const = 0;
+        virtual Data::Type getType() const
+        {
+            return Data::Type::RawByte;
+        }
 
         virtual ~Data() = default;
 
@@ -52,6 +55,13 @@ namespace gtirb
         {
             return this->ea;
         }
+
+        uint64_t getSize() const
+        {
+            return this->size;
+        }
+
+        std::vector<uint8_t> getBytes(const Module& module) const;
 
         ///
         /// Serialization support.
@@ -61,6 +71,7 @@ namespace gtirb
 
     private:
         EA ea{0};
+        uint64_t size{0};
     };
 
     ///
@@ -72,7 +83,7 @@ namespace gtirb
         // Default constructor required for serialization;
         DataLabelMarker() = default;
 
-        DataLabelMarker(EA x) : Data(x)
+        DataLabelMarker(EA x) : Data(x, 0)
         {
         }
 
@@ -99,7 +110,7 @@ namespace gtirb
         // Default constructor required for serialization;
         DataPLTReference() = default;
 
-        DataPLTReference(EA x) : Data(x)
+        DataPLTReference(EA x) : Data(x, 0)
         {
         }
 
@@ -128,7 +139,7 @@ namespace gtirb
         // Default constructor required for serialization;
         DataPointer() = default;
 
-        DataPointer(EA x) : Data(x)
+        DataPointer(EA x) : Data(x, 0)
         {
         }
 
@@ -157,7 +168,7 @@ namespace gtirb
         // Default constructor required for serialization;
         DataPointerDiff() = default;
 
-        DataPointerDiff(EA x) : Data(x)
+        DataPointerDiff(EA x) : Data(x, 0)
         {
         }
 
@@ -187,7 +198,7 @@ namespace gtirb
         // Default constructor required for serialization;
         DataString() = default;
 
-        DataString(EA x) : Data(x)
+        DataString(EA ea_, uint64_t size_) : Data(ea_, size_)
         {
         }
 
@@ -203,9 +214,6 @@ namespace gtirb
         ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/);
-
-        std::vector<uint8_t> getStringBytes(const Module& module) const;
-        size_t size;
     };
 
     ///
@@ -217,7 +225,7 @@ namespace gtirb
         // Default constructor required for serialization;
         DataRawByte() = default;
 
-        DataRawByte(EA x) : Data(x)
+        DataRawByte(EA x) : Data(x, 1)
         {
         }
 

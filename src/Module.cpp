@@ -9,6 +9,7 @@
 #include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/SymbolSet.hpp>
+#include <gtirb/SymbolicOperand.hpp>
 #include <gtirb/Table.hpp>
 
 using namespace gtirb;
@@ -22,7 +23,8 @@ Module::Module()
       imageByteMap(std::make_unique<ImageByteMap>()),
       procedureSet(std::make_unique<ProcedureSet>()),
       symbolSet(std::make_unique<SymbolSet>()),
-      sections(std::make_unique<std::vector<Section>>())
+      sections(std::make_unique<std::vector<Section>>()),
+      symbolicOperands(std::make_unique<SymbolicOperandSet>())
 {
 }
 
@@ -211,6 +213,16 @@ const std::vector<Section>& Module::getSections() const
     return *this->sections;
 }
 
+SymbolicOperandSet& Module::getSymbolicOperands()
+{
+    return *this->symbolicOperands;
+}
+
+const SymbolicOperandSet& Module::getSymbolicOperands() const
+{
+    return *this->symbolicOperands;
+}
+
 template <class Archive>
 void Module::serialize(Archive& ar, const unsigned int /*version*/)
 {
@@ -234,4 +246,5 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->relocations;
     ar & this->data;
     ar & this->sections;
+    ar & this->symbolicOperands;
 }

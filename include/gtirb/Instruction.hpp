@@ -19,10 +19,6 @@ namespace gtirb
     ///
     /// Byte pointers are offsets into the ImageByteMap.
     ///
-    /// Symbolic information is an expression which may combine
-    /// references as symbols of type gtirb::Symbol with simple
-    /// mathematical expressions including numeric constants.
-    ///
     class GTIRB_GTIRB_EXPORT_API Instruction : public Node
     {
     public:
@@ -30,33 +26,6 @@ namespace gtirb
         {
             int64_t offset1{0};
             int64_t offset2{0};
-
-            template <class Archive>
-            void serialize(Archive& ar, const unsigned int /*version*/);
-        };
-
-        enum class SymbolicKind
-        {
-            PLTReference,
-            DirectCall,
-            MovedLabel,
-            GlobalSymbol,
-            None
-        };
-
-        /// \class SymbolicOperand
-        ///
-        /// \todo This lines up with the datalog-disassembler/pretty-printer,
-        /// is it the right design for gt-irb?
-        ///
-        /// Typically only one of these fields will be set. Maybe this should
-        /// be a union/variant instead?
-        struct SymbolicOperand
-        {
-            SymbolicKind kind;
-            std::string pltReferenceName;
-            EA directCallDestination;
-            MovedLabel movedLabel;
 
             template <class Archive>
             void serialize(Archive& ar, const unsigned int /*version*/);
@@ -98,9 +67,6 @@ namespace gtirb
         void setNumberOfUses(int64_t x);
         int64_t getNumberOfUses() const;
 
-        std::vector<SymbolicOperand>& getSymbolicOperands();
-        const std::vector<SymbolicOperand>& getSymbolicOperands() const;
-
         ///
         /// Serialization support.
         ///
@@ -112,7 +78,6 @@ namespace gtirb
         int64_t numberOfUses{0};
         bool isFallthrough{false};
         bool isPEI{false};
-        std::vector<SymbolicOperand> symbolicOperands;
     };
 }
 
