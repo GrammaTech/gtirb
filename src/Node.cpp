@@ -1,8 +1,6 @@
-#include <boost/lexical_cast.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <gsl/gsl>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
@@ -12,7 +10,7 @@ using namespace gtirb;
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Node);
 
 // UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
-Node::Node() : uuid(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
+Node::Node() : uuid(boost::uuids::random_generator()())
 {
 }
 
@@ -20,15 +18,15 @@ Node::~Node() = default;
 
 void Node::setUUID()
 {
-    this->uuid = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+    this->uuid = boost::uuids::random_generator()();
 }
 
-void Node::setUUID(std::string x)
+void Node::setUUID(UUID x)
 {
     this->uuid = x;
 }
 
-std::string Node::getUUID() const
+UUID Node::getUUID() const
 {
     return this->uuid;
 }
@@ -95,5 +93,5 @@ template <class Archive>
 void Node::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar & this->localProperties;
-    ar & this->uuid;
+    ar & this->uuid.data;
 }
