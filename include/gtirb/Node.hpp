@@ -13,6 +13,7 @@
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <functional>
 #include <gsl/gsl>
 #include <gtirb/Export.hpp>
@@ -25,6 +26,7 @@
 namespace gtirb
 {
     class Table;
+    using UUID = boost::uuids::uuid;
 
     ///
     /// \class Node
@@ -59,12 +61,12 @@ namespace gtirb
         ///
         /// Though automatically assigned on construction, it can be manually set.
         ///
-        void setUUID(std::string x);
+        void setUUID(UUID x);
 
         ///
         /// Retrieve the Node's Universally Unique ID (UUID).
         ///
-        std::string getUUID() const;
+        UUID getUUID() const;
 
         ///
         /// Create or set a local property (NVP, Name Value Pair).
@@ -161,7 +163,7 @@ namespace gtirb
 
     private:
         std::map<std::string, gtirb::variant> localProperties;
-        std::string uuid;
+        UUID uuid;
     };
 } // namespace gtirb
 

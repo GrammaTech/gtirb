@@ -15,7 +15,7 @@ TEST(Unit_Node, ctor_0)
 
 TEST(Unit_Node, uniqueUuids)
 {
-    std::vector<std::string> uuids;
+    std::vector<gtirb::UUID> uuids;
 
     // Create a bunch of UUID's, then make sure we don't have any duplicates.
 

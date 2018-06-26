@@ -77,7 +77,7 @@ TYPED_TEST_P(TypedNodeTest, ctor_0)
 
 TYPED_TEST_P(TypedNodeTest, uniqueUuids)
 {
-    std::vector<std::string> uuids;
+    std::vector<gtirb::UUID> uuids;
     // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
     for(size_t i = 0; i < 64; ++i)
