@@ -6,6 +6,7 @@
 #include <gtirb/Enums.hpp>
 #include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/NodeReference.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 

@@ -6,6 +6,7 @@
 #include <boost/serialization/shared_ptr_helper.hpp>
 #include <fstream>
 #include <gtirb/Node.hpp>
+#include <gtirb/NodeReference.hpp>
 #include <memory>
 
 TEST(Unit_Node, ctor_0)
@@ -259,4 +260,40 @@ TEST(Unit_Node, deserializeUpdatesUUIDMap)
     ia >> newNode;
 
     EXPECT_EQ(gtirb::Node::getByUUID(id), &newNode);
+}
+
+TEST(Unit_Node, symbolReference)
+{
+    gtirb::Node sym;
+    gtirb::NodeReference<gtirb::Node> ref(sym);
+
+    gtirb::Node *ptr = ref;
+    EXPECT_EQ(ptr, &sym);
+    EXPECT_EQ(ref->getUUID(), sym.getUUID());
+}
+
+TEST(Unit_Node, badReference)
+{
+    gtirb::Node sym;
+    gtirb::NodeReference<gtirb::Node> ref(gtirb::UUID{});
+
+    gtirb::Node *ptr = ref;
+    EXPECT_EQ(ptr, nullptr);
+}
+
+TEST(Unit_Node, serializeNodeReference)
+{
+    gtirb::Node sym;
+    gtirb::NodeReference<gtirb::Node> ref(sym);
+
+    std::stringstream out;
+    boost::archive::polymorphic_text_oarchive oa{out};
+    oa << ref;
+
+    std::istringstream in(out.str());
+    boost::archive::polymorphic_text_iarchive ia{out};
+    gtirb::NodeReference<gtirb::Node> ref2;
+    ia >> ref2;
+
+    EXPECT_EQ(&*ref2, &*ref);
 }
