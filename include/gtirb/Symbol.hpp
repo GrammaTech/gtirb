@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/NodeReference.hpp>
 
 namespace gtirb
 {
@@ -176,6 +177,13 @@ namespace gtirb
         bool isNameOnly{false};
         bool isGlobal{false};
     };
+
+    class SymbolReference : public NodeReference<Symbol>
+    {
+    public:
+        using NodeReference::NodeReference;
+    };
 }
 
 BOOST_CLASS_EXPORT_KEY(gtirb::Symbol);
+BOOST_CLASS_EXPORT_KEY(gtirb::SymbolReference);

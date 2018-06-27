@@ -1,7 +1,11 @@
 #include <gtest/gtest.h>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
+#include <sstream>
 
 TEST(Unit_Symbol, ctor_0)
 {

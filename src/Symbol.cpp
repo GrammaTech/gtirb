@@ -1,9 +1,11 @@
+#include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Symbol);
+BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::SymbolReference);
 
 Symbol::Symbol(EA x) : Node(), ea(x)
 {
