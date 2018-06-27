@@ -9,21 +9,44 @@ using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Node);
 
+std::map<UUID, Node*> Node::uuidMap;
+
+Node* Node::getByUUID(UUID uuid)
+{
+    auto found = Node::uuidMap.find(uuid);
+    if(found != Node::uuidMap.end())
+    {
+        return found->second;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 // UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
 Node::Node() : uuid(boost::uuids::random_generator()())
 {
+    Node::uuidMap[this->uuid] = this;
 }
 
-Node::~Node() = default;
+Node::~Node()
+{
+    Node::uuidMap.erase(this->uuid);
+}
 
 void Node::setUUID()
 {
+    Node::uuidMap.erase(this->uuid);
     this->uuid = boost::uuids::random_generator()();
+    Node::uuidMap[this->uuid] = this;
 }
 
 void Node::setUUID(UUID x)
 {
+    Node::uuidMap.erase(this->uuid);
     this->uuid = x;
+    Node::uuidMap[this->uuid] = this;
 }
 
 UUID Node::getUUID() const
@@ -92,6 +115,15 @@ std::map<std::string, gtirb::variant>::const_iterator Node::endLocalProperties()
 template <class Archive>
 void Node::serialize(Archive& ar, const unsigned int /*version*/)
 {
+    UUID oldId = this->uuid;
+
     ar & this->localProperties;
     ar & this->uuid.data;
+
+    // When deserializing, update uuidMap
+    if(this->uuid != oldId)
+    {
+        Node::uuidMap.erase(oldId);
+        Node::uuidMap[this->uuid] = this;
+    }
 }
