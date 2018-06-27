@@ -39,6 +39,12 @@ namespace gtirb
     {
     public:
         ///
+        /// Retrieve a node by its UUID.
+        ///
+        /// \return node with the given UUID, or nullptr if none exists.
+        static Node* getByUUID(UUID uuid);
+
+        ///
         /// Automatically assigns the Node a UUID.
         ///
         Node();
@@ -164,6 +170,8 @@ namespace gtirb
     private:
         std::map<std::string, gtirb::variant> localProperties;
         UUID uuid;
+
+        static std::map<UUID, Node*> uuidMap;
     };
 } // namespace gtirb
 

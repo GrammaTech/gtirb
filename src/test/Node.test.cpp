@@ -219,3 +219,44 @@ TEST(Unit_Node, serializeFromSharedPtr)
                   boost::get<std::string>(serialized->getLocalProperty("Name")));
     }
 }
+
+TEST(Unit_node, getByUUID)
+{
+    gtirb::Node node;
+    EXPECT_EQ(gtirb::Node::getByUUID(node.getUUID()), &node);
+}
+
+TEST(Unit_node, setUUIDUpdatesUUIDMap)
+{
+    gtirb::Node node;
+    gtirb::UUID oldId(node.getUUID());
+    gtirb::UUID newId;
+
+    node.setUUID(newId);
+
+    EXPECT_EQ(gtirb::Node::getByUUID(newId), &node);
+    EXPECT_EQ(gtirb::Node::getByUUID(oldId), nullptr);
+}
+
+TEST(Unit_Node, deserializeUpdatesUUIDMap)
+{
+    std::stringstream out;
+    gtirb::UUID id;
+
+    {
+        gtirb::Node node;
+        id = node.getUUID();
+
+        boost::archive::polymorphic_text_oarchive oa{out};
+        oa << node;
+    }
+
+    EXPECT_EQ(gtirb::Node::getByUUID(id), nullptr);
+
+    std::istringstream in(out.str());
+    boost::archive::polymorphic_text_iarchive ia{out};
+    gtirb::Node newNode;
+    ia >> newNode;
+
+    EXPECT_EQ(gtirb::Node::getByUUID(id), &newNode);
+}
