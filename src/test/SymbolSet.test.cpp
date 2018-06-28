@@ -18,7 +18,7 @@ TEST(Unit_SymbolSet, findSymbols)
     gtirb::SymbolSet symbols;
 
     symbols.emplace_back(ea1, "s1");
-    symbols.emplace_back(ea2, "s2");
+    symbols.emplace_back(ea1, "s2");
 
     EXPECT_EQ(findSymbols(symbols, ea1).size(), 2);
     EXPECT_EQ(findSymbols(symbols, ea1)[0]->getName(), "s1");
