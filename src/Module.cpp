@@ -23,6 +23,7 @@ Module::Module()
       imageByteMap(std::make_unique<ImageByteMap>()),
       procedureSet(std::make_unique<ProcedureSet>()),
       symbolSet(std::make_unique<SymbolSet>()),
+      data(std::make_unique<std::vector<Data>>()),
       sections(std::make_unique<std::vector<Section>>()),
       symbolicOperands(std::make_unique<SymbolicOperandSet>())
 {
@@ -187,20 +188,14 @@ void Module::setRelocations(const std::vector<Relocation> x)
     this->relocations = std::make_unique<std::vector<Relocation>>(x);
 }
 
-std::vector<const Data*> Module::getData() const
+const std::vector<Data>& Module::getData() const
 {
-    std::vector<const Data*> results;
-    for(const auto& d : this->data)
-    {
-        results.push_back(d.get());
-    }
-    return results;
+    return *this->data;
 }
 
-const Data* Module::addData(std::unique_ptr<Data>&& x)
+std::vector<Data>& Module::getData()
 {
-    this->data.push_back(std::move(x));
-    return this->data.back().get();
+    return *this->data;
 }
 
 std::vector<Section>& Module::getSections()
