@@ -85,6 +85,7 @@ namespace gtirb
         /// This constructor sets the Effective Address on construction.
         ///
         Symbol(EA x);
+        Symbol(EA x, std::string name);
 
         ///
         /// Defaulted trivial destructor.
@@ -159,8 +160,8 @@ namespace gtirb
         }
 
     private:
-        std::string name;
         gtirb::EA ea{};
+        std::string name;
 
         int64_t offset{0};
         int64_t elementSize{0};
