@@ -15,24 +15,20 @@
 #include <gtirb/CFGNodeInfoDeclares.hpp>
 #include <gtirb/CFGNodeInfoEntry.hpp>
 #include <gtirb/CFGNodeInfoFormalIn.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Procedure.hpp>
-#include <gtirb/ProcedureSet.hpp>
 #include <gtirb/Region.hpp>
 #include <gtirb/RegionSet.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <memory>
 
 using testing::Types;
 
 typedef Types<gtirb::AddrRanges,          //
               gtirb::CFG,                 //
-              gtirb::CFGSet,              //
               gtirb::CFGNode,             //
               gtirb::CFGNodeInfo,         //
               gtirb::CFGNodeInfoActualIn, //
@@ -48,9 +44,7 @@ typedef Types<gtirb::AddrRanges,          //
               gtirb::Procedure,           //
               gtirb::Region,              //
               gtirb::RegionSet,           //
-              gtirb::Symbol,              //
-              gtirb::ProcedureSet,        //
-              gtirb::SymbolSet            //
+              gtirb::Symbol               //
               >
     TypeImplementations;
 

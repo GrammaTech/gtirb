@@ -1,9 +1,7 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/Module.hpp>
 
 using namespace gtirb;
-class Module;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Block);
 

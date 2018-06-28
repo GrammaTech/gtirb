@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <gtirb/CFG.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
 

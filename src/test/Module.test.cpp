@@ -1,11 +1,8 @@
 #include <gtest/gtest.h>
 #include <gtirb/AddrRanges.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/ProcedureSet.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <memory>
 
 TEST(Unit_Module, ctor_0)
@@ -134,9 +131,8 @@ TEST(Unit_Module, getAddrRanges)
 
 TEST(Unit_Module, getSymbolSet)
 {
-    auto m = std::make_shared<gtirb::Module>();
-    EXPECT_NO_THROW(m->getSymbolSet());
-    EXPECT_TRUE(m->getSymbolSet() != nullptr);
+    gtirb::Module m;
+    EXPECT_NO_THROW(m.getSymbolSet());
 }
 
 TEST(Unit_Module, getProcedureSet)
@@ -151,13 +147,6 @@ TEST(Unit_Module, getImageByteMap)
     auto m = std::make_shared<gtirb::Module>();
     EXPECT_NO_THROW(m->getImageByteMap());
     EXPECT_TRUE(m->getImageByteMap() != nullptr);
-}
-
-TEST(Unit_Module, getCFGSet)
-{
-    auto m = std::make_shared<gtirb::Module>();
-    EXPECT_NO_THROW(m->getCFGSet());
-    EXPECT_TRUE(m->getCFGSet() != nullptr);
 }
 
 TEST(Unit_Module, getIsSetupComplete)

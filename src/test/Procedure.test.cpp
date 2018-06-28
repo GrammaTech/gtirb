@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <gtirb/Procedure.hpp>
-#include <gtirb/ProcedureSet.hpp>
 #include <memory>
 
 TEST(Unit_Procedure, ctor_0)

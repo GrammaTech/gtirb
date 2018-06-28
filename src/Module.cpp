@@ -1,14 +1,15 @@
 #include <boost/serialization/export.hpp>
 #include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
-#include <gtirb/CFGSet.hpp>
+#include <gtirb/Block.hpp>
 #include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/ProcedureSet.hpp>
+#include <gtirb/Procedure.hpp>
 #include <gtirb/Relocation.hpp>
-#include <gtirb/SymbolSet.hpp>
+#include <gtirb/Section.hpp>
+#include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicOperand.hpp>
 #include <gtirb/Table.hpp>
 
@@ -19,7 +20,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 Module::Module()
     : Node(),
       addrRanges(std::make_unique<AddrRanges>()),
-      cfgSet(std::make_unique<CFGSet>()),
       imageByteMap(std::make_unique<ImageByteMap>()),
       procedureSet(std::make_unique<ProcedureSet>()),
       symbolSet(std::make_unique<SymbolSet>()),
@@ -103,9 +103,14 @@ gtirb::AddrRanges* Module::getAddrRanges()
     return this->addrRanges.get();
 }
 
-gtirb::SymbolSet* Module::getSymbolSet() const
+gtirb::SymbolSet& Module::getSymbolSet()
 {
-    return this->symbolSet.get();
+    return *this->symbolSet;
+}
+
+const gtirb::SymbolSet& Module::getSymbolSet() const
+{
+    return *this->symbolSet;
 }
 
 gtirb::ProcedureSet* Module::getProcedureSet() const
@@ -116,16 +121,6 @@ gtirb::ProcedureSet* Module::getProcedureSet() const
 gtirb::ImageByteMap* Module::getImageByteMap() const
 {
     return this->imageByteMap.get();
-}
-
-CFGSet* Module::getCFGSet()
-{
-    return this->cfgSet.get();
-}
-
-const CFGSet* Module::getCFGSet() const
-{
-    return this->cfgSet.get();
 }
 
 bool Module::getIsSetupComplete() const
@@ -233,7 +228,6 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->name;
     ar & this->decodeMode;
     ar & this->addrRanges;
-    ar & this->cfgSet;
     ar & this->imageByteMap;
     ar & this->procedureSet;
     ar & this->symbolSet;

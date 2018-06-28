@@ -26,7 +26,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/CFGNodeInfoDeclares.hpp
 	../include/gtirb/CFGNodeInfoEntry.hpp
 	../include/gtirb/CFGNodeInfoFormalIn.hpp
-	../include/gtirb/CFGSet.hpp
 	../include/gtirb/Constants.hpp
 	../include/gtirb/Data.hpp
 	../include/gtirb/EA.hpp
@@ -43,15 +42,16 @@ set(${PROJECT_NAME}_H
         ../include/gtirb/NodeReference.hpp
 	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/Procedure.hpp
-	../include/gtirb/ProcedureSet.hpp
+        ../include/gtirb/ProcedureSet.hpp
 	../include/gtirb/Region.hpp
 	../include/gtirb/RegionSet.hpp
 	../include/gtirb/Relocation.hpp
 	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
 	../include/gtirb/Symbol.hpp
-	../include/gtirb/SymbolSet.hpp
+        ../include/gtirb/SymbolSet.hpp
 	../include/gtirb/SymbolicOperand.hpp
+	../include/gtirb/SymbolicOperandSet.hpp
 	../include/gtirb/Table.hpp
 	../include/gtirb/Utilities.hpp
 	../include/gtirb/Variant.hpp
@@ -70,7 +70,6 @@ set(${PROJECT_NAME}_SRC
 	CFGNodeInfoDeclares.cpp
 	CFGNodeInfoEntry.cpp
 	CFGNodeInfoFormalIn.cpp
-	CFGSet.cpp
         Data.cpp
         EA.cpp
 	Exception.cpp
@@ -83,13 +82,12 @@ set(${PROJECT_NAME}_SRC
 	NodeError.cpp
 	NodeStructureError.cpp
 	Procedure.cpp
-	ProcedureSet.cpp
 	Region.cpp
 	RegionSet.cpp
 	RuntimeError.cpp
         Section.cpp
 	Symbol.cpp
-	SymbolSet.cpp
+        SymbolSet.cpp
         SymbolicOperand.cpp
 	Utilities.cpp
         Table.cpp

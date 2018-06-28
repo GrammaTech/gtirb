@@ -1,32 +1,19 @@
-#include <algorithm>
-#include <gtirb/Module.hpp>
+#include <gtirb/EA.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 
-using namespace gtirb;
-
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::SymbolSet);
-
-const std::vector<Symbol>& SymbolSet::getSymbols() const
+namespace gtirb
 {
-    return this->contents;
-}
-
-std::vector<const Symbol*> SymbolSet::getSymbols(gtirb::EA x) const
-{
-    std::vector<const Symbol*> results;
-    for(const auto& s : this->contents)
+    std::vector<const Symbol*> findSymbols(const SymbolSet& symbols, gtirb::EA x)
     {
-        if(s.getEA() == x)
+        std::vector<const Symbol*> results;
+        for(const auto& s : symbols)
         {
-            results.push_back(&s);
+            if(s.getEA() == x)
+            {
+                results.push_back(&s);
+            }
         }
+        return results;
     }
-    return results;
-}
-
-Symbol& SymbolSet::addSymbol(Symbol&& s)
-{
-    this->contents.push_back(std::move(s));
-    return this->contents.back();
 }

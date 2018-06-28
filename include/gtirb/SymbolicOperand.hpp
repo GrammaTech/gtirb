@@ -52,7 +52,6 @@ namespace gtirb
     };
 
     using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
-    using SymbolicOperandSet = std::map<EA, SymbolicOperand>;
 } // namespace gtirb
 
 BOOST_CLASS_EXPORT_KEY(gtirb::SymStackConst);
