@@ -41,12 +41,12 @@ TEST(Unit_Utilities, ByteArray8To16Error)
     EXPECT_THROW(gtirb::utilities::ByteArray8To16(input), std::range_error);
 }
 
+#if 0
 TEST(Unit_Utilities, CollectThunks_nullModule)
 {
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(nullptr));
 }
 
-#if 0
 TEST(Unit_Utilities, CollectThunks_noCFGs)
 {
     auto module = std::make_unique<gtirb::Module>();
