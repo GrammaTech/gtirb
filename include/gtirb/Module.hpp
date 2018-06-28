@@ -1,35 +1,32 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
-#include <gtirb/Block.hpp>
-#include <gtirb/Data.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeReference.hpp>
-#include <gtirb/Relocation.hpp>
-#include <gtirb/Section.hpp>
-#include <gtirb/SymbolicOperand.hpp>
+#include <gtirb/ProcedureSet.hpp>
+#include <gtirb/SymbolSet.hpp>
+#include <gtirb/SymbolicOperandSet.hpp>
 
 namespace gtirb
 {
     class AddrRanges;
-    class CFGSet;
     class Data;
     class ImageByteMap;
-    class ModuleAux;
-    class ModuleCore;
-    class ModuleSummary;
-    class ProcedureSet;
-    class SymbolSet;
+    class Block;
+    using BlockSet = std::vector<Block>;
+    class Data;
+    using DataSet = std::vector<Data>;
+    class Relocation;
+    using RelocationSet = std::vector<Relocation>;
+    class Section;
+    using SectionSet = std::vector<Section>;
 
     ///
     /// \class Module
     /// \author John E. Farrier
-    ///
-    /// Upon construction, a Module will automatically build default ModuleSummary, ModuleCore, and
-    /// ModuleAux children.
     ///
     /// \todo Replace boost::filesystem with std::filesystem.
     ///
@@ -130,12 +127,6 @@ namespace gtirb
         gtirb::AddrRanges* getAddrRanges();
 
         ///
-        ///
-        ///
-        CFGSet* getCFGSet();
-        const CFGSet* getCFGSet() const;
-
-        ///
         /// A Module can have exactly one ImageByteMap child.
         ///
         gtirb::ImageByteMap* getImageByteMap() const;
@@ -148,7 +139,8 @@ namespace gtirb
         ///
         /// A Module can have exactly one SymbolSet child.
         ///
-        gtirb::SymbolSet* getSymbolSet() const;
+        gtirb::SymbolSet& getSymbolSet();
+        const gtirb::SymbolSet& getSymbolSet() const;
 
         bool getIsSetupComplete() const;
         bool getIsReadOnly() const;
@@ -201,14 +193,13 @@ namespace gtirb
         std::string name{};
         uint64_t decodeMode{0};
         std::unique_ptr<AddrRanges> addrRanges;
-        std::unique_ptr<CFGSet> cfgSet;
         std::unique_ptr<ImageByteMap> imageByteMap;
         std::unique_ptr<ProcedureSet> procedureSet;
         std::unique_ptr<SymbolSet> symbolSet;
-        std::unique_ptr<std::vector<Block>> blocks;
-        std::unique_ptr<std::vector<Relocation>> relocations;
-        std::unique_ptr<std::vector<Data>> data;
-        std::unique_ptr<std::vector<Section>> sections;
+        std::unique_ptr<BlockSet> blocks;
+        std::unique_ptr<RelocationSet> relocations;
+        std::unique_ptr<DataSet> data;
+        std::unique_ptr<SectionSet> sections;
         std::unique_ptr<SymbolicOperandSet> symbolicOperands;
     };
 } // namespace gtirb

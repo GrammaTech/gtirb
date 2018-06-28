@@ -38,7 +38,6 @@ set(${PROJECT_NAME}_SRC
 	Node.test.cpp
 	NodeError.test.cpp
 	Procedure.test.cpp
-	ProcedureSet.test.cpp
 	Region.test.cpp
 	RegionSet.test.cpp
         Section.test.cpp

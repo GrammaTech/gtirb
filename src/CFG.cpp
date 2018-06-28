@@ -1,7 +1,6 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/RuntimeError.hpp>

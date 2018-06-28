@@ -2,7 +2,6 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfoCall.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Utilities.hpp>
@@ -47,6 +46,7 @@ TEST(Unit_Utilities, CollectThunks_nullModule)
     EXPECT_NO_THROW(gtirb::utilities::CollectThunks(nullptr));
 }
 
+#if 0
 TEST(Unit_Utilities, CollectThunks_noCFGs)
 {
     auto module = std::make_unique<gtirb::Module>();
@@ -101,7 +101,6 @@ TEST(Unit_Utilities, CollectThunks_noThunks_1)
     EXPECT_TRUE(thunks.empty());
 }
 
-#if 0
 TEST(Unit_Utilities, CollectThunks_simple)
 {
     auto module = std::make_unique<gtirb::Module>();

@@ -1,7 +1,5 @@
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Procedure.hpp>
-#include <gtirb/ProcedureSet.hpp>
-#include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;
 

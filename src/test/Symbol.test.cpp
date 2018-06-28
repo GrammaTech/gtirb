@@ -3,7 +3,6 @@
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <memory>
 #include <sstream>
 

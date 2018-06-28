@@ -2,7 +2,6 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfoCall.hpp>
-#include <gtirb/CFGSet.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Utilities.hpp>
 #include <iostream>
@@ -151,55 +150,56 @@ const auto X86GetThunkTarget = [](const Module* const /*module*/, const CFG* con
 
 std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
 {
-    std::set<CFG*> thunks;
+    assert(false);
+    // std::set<CFG*> thunks;
 
-    if(module != nullptr)
-    {
-        auto cfgSet = module->getCFGSet();
+    // if(module != nullptr)
+    // {
+    //     auto cfgSet = module->getCFGSet();
 
-        if(cfgSet != nullptr)
-        {
-            // Function signature declaration.
-            std::function<std::pair<EA, Symbol*>(const Module* const m, const CFG* const cfg)>
-                getThunkTargetFunc = [](const Module* const /*m*/, const CFG* const /*cfg*/) {
-                    return std::pair<EA, Symbol*>{gtirb::EA{}, nullptr};
-                };
+    //     if(cfgSet != nullptr)
+    //     {
+    //         // Function signature declaration.
+    //         std::function<std::pair<EA, Symbol*>(const Module* const m, const CFG* const cfg)>
+    //             getThunkTargetFunc = [](const Module* const /*m*/, const CFG* const /*cfg*/) {
+    //                 return std::pair<EA, Symbol*>{gtirb::EA{}, nullptr};
+    //             };
 
-            switch(module->getISAID())
-            {
-                case gtirb::ISAID::IA32:
-                case gtirb::ISAID::X64:
-                    getThunkTargetFunc = X86GetThunkTarget;
-                    break;
-                case gtirb::ISAID::ARM:
-                    /// \todo getThunkTargetFunc = &s_arm_get_thunk_target;
-                    break;
-                case gtirb::ISAID::PPC32:
-                    /// \todo getThunkTargetFunc = &s_ppc_get_thunk_target;
-                    break;
-                default:
-                    throw std::out_of_range("The ISA ID was invalid.");
-            }
+    //         switch(module->getISAID())
+    //         {
+    //             case gtirb::ISAID::IA32:
+    //             case gtirb::ISAID::X64:
+    //                 getThunkTargetFunc = X86GetThunkTarget;
+    //                 break;
+    //             case gtirb::ISAID::ARM:
+    //                 /// \todo getThunkTargetFunc = &s_arm_get_thunk_target;
+    //                 break;
+    //             case gtirb::ISAID::PPC32:
+    //                 /// \todo getThunkTargetFunc = &s_ppc_get_thunk_target;
+    //                 break;
+    //             default:
+    //                 throw std::out_of_range("The ISA ID was invalid.");
+    //         }
 
-            // Collect thunk targets.
-            for(const auto& cfg : cfgSet->getCFGs())
-            {
-                if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
-                                                  CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK))
-                {
-                    const auto indirectTarget = getThunkTargetFunc(module, cfg.get());
+    //         // Collect thunk targets.
+    //         for(const auto& cfg : cfgSet->getCFGs())
+    //         {
+    //             if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
+    //                                               CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK))
+    //             {
+    //                 const auto indirectTarget = getThunkTargetFunc(module, cfg.get());
 
-                    if(indirectTarget.second != nullptr)
-                    {
-                        // Simple sanity: this assert has been useful for noticing when we
-                        // screw up thunk renaming, for example.
-                        Expects(cfg->getProcedureName() != indirectTarget.second->getName());
-                        thunks.insert(cfg.get());
-                    }
-                }
-            }
-        }
-    }
+    //                 if(indirectTarget.second != nullptr)
+    //                 {
+    //                     // Simple sanity: this assert has been useful for noticing when we
+    //                     // screw up thunk renaming, for example.
+    //                     Expects(cfg->getProcedureName() != indirectTarget.second->getName());
+    //                     thunks.insert(cfg.get());
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    return thunks;
+    // return thunks;
 }
