@@ -6,17 +6,6 @@
 using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Data);
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataLabelMarker);
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataPLTReference);
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataPointer);
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataPointerDiff);
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataString);
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::DataRawByte);
-
-uint8_t DataRawByte::getByte(const Module& module) const
-{
-    return module.getImageByteMap()->getData8(this->getEA());
-}
 
 template <class Archive>
 void Data::serialize(Archive& ar, const unsigned int /*version*/)
@@ -25,45 +14,14 @@ void Data::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->ea;
     ar & this->size;
 }
-
-template <class Archive>
-void DataLabelMarker::serialize(Archive& ar, const unsigned int /*version*/)
+EA Data::getEA() const
 {
-    ar& boost::serialization::base_object<Data>(*this);
+    return this->ea;
 }
 
-template <class Archive>
-void DataPLTReference::serialize(Archive& ar, const unsigned int /*version*/)
+uint64_t Data::getSize() const
 {
-    ar& boost::serialization::base_object<Data>(*this);
-    ar & this->function;
-}
-
-template <class Archive>
-void DataPointer::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Data>(*this);
-    ar & this->content;
-}
-
-template <class Archive>
-void DataPointerDiff::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Data>(*this);
-    ar & this->symbol1;
-    ar & this->symbol2;
-}
-
-template <class Archive>
-void DataString::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Data>(*this);
-}
-
-template <class Archive>
-void DataRawByte::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Data>(*this);
+    return this->size;
 }
 
 std::vector<uint8_t> Data::getBytes(const Module& module) const

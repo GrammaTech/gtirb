@@ -2,6 +2,7 @@
 
 #include <boost/filesystem.hpp>
 #include <gtirb/Block.hpp>
+#include <gtirb/Data.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/FilesystemSerialization.hpp>
@@ -163,8 +164,8 @@ namespace gtirb
         void setBlocks(std::vector<Block> x);
         const std::vector<Relocation>* getRelocations() const;
         void setRelocations(std::vector<Relocation> x);
-        std::vector<const Data*> getData() const;
-        const Data* addData(std::unique_ptr<Data>&& x);
+        const std::vector<Data>& getData() const;
+        std::vector<Data>& getData();
         std::vector<Section>& getSections();
         const std::vector<Section>& getSections() const;
         SymbolicOperandSet& getSymbolicOperands();
@@ -206,7 +207,7 @@ namespace gtirb
         std::unique_ptr<SymbolSet> symbolSet;
         std::unique_ptr<std::vector<Block>> blocks;
         std::unique_ptr<std::vector<Relocation>> relocations;
-        std::vector<std::unique_ptr<Data>> data;
+        std::unique_ptr<std::vector<Data>> data;
         std::unique_ptr<std::vector<Section>> sections;
         std::unique_ptr<SymbolicOperandSet> symbolicOperands;
     };
