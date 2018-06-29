@@ -26,5 +26,5 @@ uint64_t Data::getSize() const
 
 std::vector<uint8_t> Data::getBytes(const Module& module) const
 {
-    return module.getImageByteMap()->getData(this->getEA(), this->getSize());
+    return module.getImageByteMap().getData(this->getEA(), this->getSize());
 }

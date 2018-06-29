@@ -77,7 +77,7 @@ namespace gtirb
         ///
         /// Create or set a local property (NVP, Name Value Pair).
         ///
-        /// Getter's of this property should have a priori knowledge of the type so it can be
+        /// Getters of this property should have a priori knowledge of the type so it can be
         /// appropriately cast.
         ///
         /// \param name     An arbitrary (but unique) name for a property.
@@ -90,7 +90,7 @@ namespace gtirb
         /// Throws std::out_of_range if the container does not have an element with the specified
         /// key.
         ///
-        /// \return Storage for an arbitrary type to associate with the property name.  Getter's of
+        /// \return Storage for an arbitrary type to associate with the property name.  Getters of
         /// this property should have a priori knowledge of the type so it can be appropriately
         /// cast.
         ///

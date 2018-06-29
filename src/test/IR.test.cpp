@@ -12,7 +12,7 @@ TEST(Unit_IR, getMainModule)
 {
     // Main module is created in the constructor
     auto ir = gtirb::IR();
-    EXPECT_NE(ir.getMainModule(), nullptr);
+    EXPECT_NO_THROW(ir.getMainModule());
 }
 
 TEST(Unit_IR, getModulesWithPreferredEA)

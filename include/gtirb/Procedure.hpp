@@ -33,13 +33,13 @@ namespace gtirb
         /// Procedure Linkage Table.
         /// These entries are basically the "thunks" for calls to things in shared libraries.
         ///
-        std::set<gtirb::EA>* getPLTEntries();
+        std::set<gtirb::EA>& getPLTEntries();
 
         ///
         /// Procedure Linkage Table.
         /// These entries are basically the "thunks" for calls to things in shared libraries.
         ///
-        const std::set<gtirb::EA>* const getPLTEntries() const;
+        const std::set<gtirb::EA>& getPLTEntries() const;
 
         ///
         /// Add a new instruction to this procedure.

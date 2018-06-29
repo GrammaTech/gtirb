@@ -15,14 +15,14 @@ gtirb::EA Procedure::getEA() const
     return this->ea;
 }
 
-std::set<gtirb::EA>* Procedure::getPLTEntries()
+std::set<gtirb::EA>& Procedure::getPLTEntries()
 {
-    return &this->pltEntries;
+    return this->pltEntries;
 }
 
-const std::set<gtirb::EA>* const Procedure::getPLTEntries() const
+const std::set<gtirb::EA>& Procedure::getPLTEntries() const
 {
-    return &this->pltEntries;
+    return this->pltEntries;
 }
 
 Instruction* Procedure::createInstruction()

@@ -98,9 +98,14 @@ gtirb::EA Module::getPreferredEA() const
     return this->preferredEA;
 }
 
-gtirb::AddrRanges* Module::getAddrRanges()
+gtirb::AddrRanges& Module::getAddrRanges()
 {
-    return this->addrRanges.get();
+    return *this->addrRanges.get();
+}
+
+const gtirb::AddrRanges& Module::getAddrRanges() const
+{
+    return *this->addrRanges.get();
 }
 
 gtirb::SymbolSet& Module::getSymbolSet()
@@ -113,14 +118,24 @@ const gtirb::SymbolSet& Module::getSymbolSet() const
     return *this->symbolSet;
 }
 
-gtirb::ProcedureSet* Module::getProcedureSet() const
+gtirb::ProcedureSet& Module::getProcedureSet()
 {
-    return this->procedureSet.get();
+    return *this->procedureSet.get();
 }
 
-gtirb::ImageByteMap* Module::getImageByteMap() const
+const gtirb::ProcedureSet& Module::getProcedureSet() const
 {
-    return this->imageByteMap.get();
+    return *this->procedureSet.get();
+}
+
+gtirb::ImageByteMap& Module::getImageByteMap()
+{
+    return *this->imageByteMap.get();
+}
+
+const gtirb::ImageByteMap& Module::getImageByteMap() const
+{
+    return *this->imageByteMap.get();
 }
 
 bool Module::getIsSetupComplete() const

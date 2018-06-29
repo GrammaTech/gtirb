@@ -12,9 +12,7 @@ TEST(Unit_Block, ctor)
 
 TEST(Unit_Block, getInstructions)
 {
-    std::vector<Instruction> instructions{Instruction(EA(123)), Instruction(EA(456)),
-                                          Instruction(EA(789))};
-    Block block(EA(), EA(), instructions);
+    Block block(EA(), EA(), {Instruction(EA(123)), Instruction(EA(456)), Instruction(EA(789))});
 
     // Instructions were copied by the Block constructor but their contents
     // should be the same.
