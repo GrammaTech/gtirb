@@ -46,18 +46,4 @@ namespace gtirb
         ARM,   /// Advanced RISC Machine. also known as Acorn RISC Machine.
         ValidButUnsupported
     };
-
-    ///
-    /// \enum OperandKind
-    ///
-    /// Instruction and Data Operand Type Information
-    ///
-    enum class OperandKind : uint8_t
-    {
-        Undefined,
-        SymStackOffsetWConstant, /// Symbolic stack offset +/- Constant
-        SymAddrGlobalWConstant,  /// Symbolic address (global) +/- Constant
-        SymAddrSymAddr,          /// Symbolic address - Symbolic address
-        SymAddrARMMov,           /// Symbolic address for ARM movw/movt/movl
-    };
 }
