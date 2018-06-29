@@ -14,9 +14,14 @@ IR::IR() : Node()
     this->modules.push_back(std::move(mm));
 }
 
-Module* IR::getMainModule() const
+Module& IR::getMainModule()
 {
-    return this->mainModule.lock().get();
+    return *this->mainModule.lock().get();
+}
+
+const Module& IR::getMainModule() const
+{
+    return *this->mainModule.lock().get();
 }
 
 std::vector<Module*> IR::getModulesWithPreferredEA(EA x) const
@@ -56,9 +61,9 @@ void IR::addModule(std::unique_ptr<gtirb::Module>&& x)
     this->modules.push_back(std::move(x));
 }
 
-Table* IR::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
+Table& IR::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
 {
-    return (this->tables[std::move(name)] = std::move(x)).get();
+    return *(this->tables[std::move(name)] = std::move(x)).get();
 }
 
 gtirb::Table* const IR::getTable(const std::string& x) const

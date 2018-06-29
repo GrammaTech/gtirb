@@ -3,6 +3,7 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/Procedure.hpp>
 #include <memory>
 
 TEST(Unit_Module, ctor_0)
@@ -126,7 +127,6 @@ TEST(Unit_Module, getAddrRanges)
 {
     auto m = std::make_shared<gtirb::Module>();
     EXPECT_NO_THROW(m->getAddrRanges());
-    EXPECT_TRUE(m->getAddrRanges() != nullptr);
 }
 
 TEST(Unit_Module, getSymbolSet)
@@ -139,14 +139,12 @@ TEST(Unit_Module, getProcedureSet)
 {
     auto m = std::make_shared<gtirb::Module>();
     EXPECT_NO_THROW(m->getProcedureSet());
-    EXPECT_TRUE(m->getProcedureSet() != nullptr);
 }
 
 TEST(Unit_Module, getImageByteMap)
 {
     auto m = std::make_shared<gtirb::Module>();
     EXPECT_NO_THROW(m->getImageByteMap());
-    EXPECT_TRUE(m->getImageByteMap() != nullptr);
 }
 
 TEST(Unit_Module, getIsSetupComplete)

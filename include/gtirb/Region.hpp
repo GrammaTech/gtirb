@@ -22,8 +22,8 @@ namespace gtirb
         Region() = default;
         ~Region() override = default;
 
-        void addEA(gtirb::EA x);
-        std::set<gtirb::EA> getEAs() const;
+        std::set<gtirb::EA>& getEAs();
+        const std::set<gtirb::EA>& getEAs() const;
 
         ///
         /// Serialization support.

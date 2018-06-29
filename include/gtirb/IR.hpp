@@ -87,12 +87,8 @@ namespace gtirb
         ///
         /// \return     nullptr if no main module has been created.
         ///
-        gtirb::Module* getMainModule() const;
-
-        ///
-        /// Get or create a module containin the program's "main".
-        ///
-        gtirb::Module* createMainModule();
+        Module& getMainModule();
+        const Module& getMainModule() const;
 
         ///
         /// Get all modules having the given Preferred EA
@@ -130,15 +126,15 @@ namespace gtirb
         ///
         /// \param name     The name to assign to the table so it can be found later.
         /// \param x        An owning pointer to the table itself.
-        /// \return a non-owning pointer to the added table.
+        /// \return         a reference to the added table.
         ///
-        Table* addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
+        Table& addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
 
         ///
         /// Get a table by name.
         ///
         /// \param  x   The name of the table to search for.
-        /// \return     A pointer to the table if found, or nullptr.
+        /// \return     A non-owning pointer to the table if found, or nullptr.
         ///
         gtirb::Table* const getTable(const std::string& x) const;
 

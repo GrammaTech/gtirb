@@ -39,17 +39,17 @@ TEST(Unit_Procedure, getPLTEntries_ref)
 
     // Scope so we can get the same reference again
     {
-        auto pltEntries = procedure->getPLTEntries();
-        EXPECT_TRUE(pltEntries->empty());
-        pltEntries->insert(entry);
+        auto &pltEntries = procedure->getPLTEntries();
+        EXPECT_TRUE(pltEntries.empty());
+        pltEntries.insert(entry);
 
-        EXPECT_FALSE(pltEntries->empty());
-        EXPECT_EQ(size_t{1}, pltEntries->size());
-        EXPECT_EQ(std::begin(*pltEntries), pltEntries->find(entry));
+        EXPECT_FALSE(pltEntries.empty());
+        EXPECT_EQ(size_t{1}, pltEntries.size());
+        EXPECT_EQ(std::begin(pltEntries), pltEntries.find(entry));
     }
 
-    auto pltEntries = procedure->getPLTEntries();
-    EXPECT_FALSE(pltEntries->empty());
-    EXPECT_EQ(size_t{1}, pltEntries->size());
-    EXPECT_EQ(std::begin(*pltEntries), pltEntries->find(entry));
+    auto &pltEntries = procedure->getPLTEntries();
+    EXPECT_FALSE(pltEntries.empty());
+    EXPECT_EQ(size_t{1}, pltEntries.size());
+    EXPECT_EQ(std::begin(pltEntries), pltEntries.find(entry));
 }

@@ -10,7 +10,7 @@ Block::Block(EA startingAddress, EA endingAddress)
 {
 }
 
-Block::Block(EA startingAddress, EA endingAddress, std::vector<Instruction>& instructions)
+Block::Block(EA startingAddress, EA endingAddress, std::vector<Instruction>&& instructions)
     : Node(),
       startingAddress(startingAddress),
       endingAddress(endingAddress),
@@ -25,6 +25,11 @@ EA Block::getStartingAddress() const
 EA Block::getEndingAddress() const
 {
     return this->endingAddress;
+}
+
+std::vector<Instruction>& Block::getInstructions()
+{
+    return this->instructions;
 }
 
 const std::vector<Instruction>& Block::getInstructions() const

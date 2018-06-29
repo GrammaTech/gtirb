@@ -27,7 +27,7 @@ Region& RegionSet::createRegion(gtirb::EA x)
     Expects(this->getRegion(x) == nullptr);
 
     Region newRegion;
-    newRegion.addEA(x);
+    newRegion.getEAs().insert(x);
     this->contents.push_back(std::move(newRegion));
 
     return this->contents.back();

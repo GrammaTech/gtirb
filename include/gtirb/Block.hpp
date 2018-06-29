@@ -28,7 +28,7 @@ namespace gtirb
         /// Construct a block with some instructions.
         /// Instructions are copied and added as children.
         ///
-        Block(EA startingAddress, EA endingAddress, std::vector<Instruction>& instructions);
+        Block(EA startingAddress, EA endingAddress, std::vector<Instruction>&& instructions);
 
         ///
         /// Defaulted trivial destructor.
@@ -38,6 +38,7 @@ namespace gtirb
         EA getStartingAddress() const;
         EA getEndingAddress() const;
 
+        std::vector<Instruction>& getInstructions();
         const std::vector<Instruction>& getInstructions() const;
 
         ///

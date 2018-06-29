@@ -16,7 +16,7 @@ TEST(Unit_Region, addEA)
     auto eaSet = region->getEAs();
     EXPECT_TRUE(eaSet.empty());
 
-    EXPECT_NO_THROW(region->addEA(gtirb::EA{2112}));
+    EXPECT_NO_THROW(region->getEAs().insert(gtirb::EA{2112}));
     EXPECT_NO_THROW(eaSet = region->getEAs());
     EXPECT_FALSE(eaSet.empty());
 }

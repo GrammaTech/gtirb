@@ -5,12 +5,12 @@ using namespace gtirb;
 
 BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Region);
 
-void Region::addEA(gtirb::EA x)
+std::set<gtirb::EA>& Region::getEAs()
 {
-    this->eas.insert(x);
+    return this->eas;
 }
 
-std::set<gtirb::EA> Region::getEAs() const
+const std::set<gtirb::EA>& Region::getEAs() const
 {
     return this->eas;
 }
