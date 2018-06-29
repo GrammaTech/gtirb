@@ -54,13 +54,6 @@ int64_t Instruction::getNumberOfUses() const
 }
 
 template <class Archive>
-void Instruction::MovedLabel::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar & this->offset1;
-    ar & this->offset2;
-}
-
-template <class Archive>
 void Instruction::serialize(Archive& ar, const unsigned int /*version*/)
 {
     ar& boost::serialization::base_object<Node>(*this);

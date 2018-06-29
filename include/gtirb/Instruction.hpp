@@ -22,15 +22,6 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API Instruction : public Node
     {
     public:
-        struct MovedLabel
-        {
-            int64_t offset1{0};
-            int64_t offset2{0};
-
-            template <class Archive>
-            void serialize(Archive& ar, const unsigned int /*version*/);
-        };
-
         ///
         /// Default Constructor.
         ///
