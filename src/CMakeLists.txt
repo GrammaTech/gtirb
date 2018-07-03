@@ -90,7 +90,6 @@ set(${PROJECT_NAME}_SRC
         SymbolSet.cpp
         SymbolicOperand.cpp
 	Utilities.cpp
-        Table.cpp
 )
 
 IF(UNIX AND NOT WIN32)
