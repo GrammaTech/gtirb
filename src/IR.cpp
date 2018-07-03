@@ -61,7 +61,7 @@ void IR::addModule(std::unique_ptr<gtirb::Module>&& x)
     this->modules.push_back(std::move(x));
 }
 
-Table& IR::addTable(std::string name, std::unique_ptr<gtirb::Table>&& x)
+Table& IR::addTable(std::string name, std::unique_ptr<Table>&& x)
 {
     return *(this->tables[std::move(name)] = std::move(x)).get();
 }

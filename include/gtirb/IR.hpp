@@ -5,6 +5,7 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Table.hpp>
 #include <memory>
 #include <vector>
 
@@ -128,7 +129,7 @@ namespace gtirb
         /// \param x        An owning pointer to the table itself.
         /// \return         a reference to the added table.
         ///
-        Table& addTable(std::string name, std::unique_ptr<gtirb::Table>&& x);
+        Table& addTable(std::string name, std::unique_ptr<Table>&& x);
 
         ///
         /// Get a table by name.
