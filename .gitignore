@@ -19,3 +19,4 @@ googletest-src/
 gsl-download/
 gsl-src/
 include/gsl/
+include/proto/

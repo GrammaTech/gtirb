@@ -1,4 +1,18 @@
 #include <gtest/gtest.h>
+#include <proto/AddrRanges.pb.h>
+#include <proto/Block.pb.h>
+#include <proto/ByteMap.pb.h>
+#include <proto/Data.pb.h>
+#include <proto/IR.pb.h>
+#include <proto/ImageByteMap.pb.h>
+#include <proto/Instruction.pb.h>
+#include <proto/Module.pb.h>
+#include <proto/Procedure.pb.h>
+#include <proto/Region.pb.h>
+#include <proto/RegionSet.pb.h>
+#include <proto/Relocation.pb.h>
+#include <proto/Section.pb.h>
+#include <proto/Symbol.pb.h>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -7,6 +21,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr_helper.hpp>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
@@ -15,36 +30,33 @@
 #include <gtirb/CFGNodeInfoDeclares.hpp>
 #include <gtirb/CFGNodeInfoEntry.hpp>
 #include <gtirb/CFGNodeInfoFormalIn.hpp>
+#include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/NodeReference.hpp>
 #include <gtirb/Procedure.hpp>
 #include <gtirb/Region.hpp>
 #include <gtirb/RegionSet.hpp>
+#include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <memory>
 
 using testing::Types;
 
-typedef Types<gtirb::AddrRanges,          //
-              gtirb::CFG,                 //
-              gtirb::CFGNode,             //
-              gtirb::CFGNodeInfo,         //
-              gtirb::CFGNodeInfoActualIn, //
-              gtirb::CFGNodeInfoCall,     //
-              gtirb::CFGNodeInfoDeclares, //
-              gtirb::CFGNodeInfoEntry,    //
-              gtirb::CFGNodeInfoFormalIn, //
-              gtirb::ImageByteMap,        //
-              gtirb::Instruction,         //
-              gtirb::IR,                  //
-              gtirb::Module,              //
-              gtirb::Node,                //
-              gtirb::Procedure,           //
-              gtirb::Region,              //
-              gtirb::RegionSet,           //
-              gtirb::Symbol               //
+typedef Types<gtirb::AddrRanges,   //
+              gtirb::Block,        //
+              gtirb::Data,         //
+              gtirb::IR,           //
+              gtirb::ImageByteMap, //
+              gtirb::Instruction,  //
+              gtirb::Module,       //
+              gtirb::Procedure,    //
+              gtirb::Region,       //
+              gtirb::RegionSet,    //
+              gtirb::Section,      //
+              gtirb::Symbol        //
               >
     TypeImplementations;
 
@@ -327,17 +339,76 @@ TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtr)
     }
 }
 
-REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,         //
-                           ctor_0,                //
-                           clearLocalProperties,  //
-                           removeLocalProperty,   //
-                           setLocalProperties,    //
-                           setLocalProperty,      //
-                           setLocalPropertyReset, //
-                           uniqueUuids,           //
-                           serialize,             //
-                           serializeBinary,       //
-                           serializeFromSharedPtr);
+TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip)
+{
+    typename TypeParam::MessageType message;
+    gtirb::UUID origId;
+    {
+        TypeParam node1;
+        origId = node1.getUUID();
+        node1.toProtobuf(&message);
+    }
+
+    TypeParam node2;
+    node2.fromProtobuf(message);
+
+    EXPECT_EQ(node2.getUUID(), origId);
+}
+
+TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap)
+{
+    gtirb::UUID id;
+    typename TypeParam::MessageType message;
+
+    {
+        TypeParam node1;
+        id = node1.getUUID();
+
+        node1.toProtobuf(&message);
+    }
+
+    EXPECT_EQ(TypeParam::getByUUID(id), nullptr);
+
+    TypeParam node2;
+    node2.fromProtobuf(message);
+
+    EXPECT_EQ(TypeParam::getByUUID(id), &node2);
+}
+
+TYPED_TEST_P(TypedNodeTest, nodeReference)
+{
+    TypeParam node;
+    gtirb::NodeReference<TypeParam> ref(node);
+
+    TypeParam *ptr = ref;
+    EXPECT_EQ(ptr, &node);
+    EXPECT_EQ(ref->getUUID(), node.getUUID());
+}
+
+TYPED_TEST_P(TypedNodeTest, badReference)
+{
+    TypeParam sym;
+    gtirb::NodeReference<TypeParam> ref(gtirb::UUID{});
+
+    TypeParam *ptr = ref;
+    EXPECT_EQ(ptr, nullptr);
+}
+
+REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
+                           protobufUUIDRoundTrip,     //
+                           ctor_0,                    //
+                           clearLocalProperties,      //
+                           removeLocalProperty,       //
+                           setLocalProperties,        //
+                           setLocalProperty,          //
+                           setLocalPropertyReset,     //
+                           uniqueUuids,               //
+                           serialize,                 //
+                           serializeBinary,           //
+                           serializeFromSharedPtr,    //
+                           deserializeUpdatesUUIDMap, //
+                           nodeReference,             //
+                           badReference);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name
                               TypedNodeTest,        // Test case name

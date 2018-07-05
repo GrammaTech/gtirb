@@ -198,4 +198,10 @@ if(GTIRB_ENABLE_TESTS)
 	include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
+# ---------------------------------------------------------------------------
+# protobuf
+# ---------------------------------------------------------------------------
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+
 add_subdirectory(src)

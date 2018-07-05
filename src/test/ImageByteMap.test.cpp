@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
+#include <proto/ImageByteMap.pb.h>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <memory>
+
+using namespace gtirb;
 
 class Unit_ImageByteMapF : public ::testing::Test
 {
@@ -292,4 +295,37 @@ TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_2)
                 << "Bad chunk read at : " << ea << " plus : " << i;
         }
     }
+}
+
+TEST_F(Unit_ImageByteMapF, protobufRoundTrip)
+{
+    auto &original = this->byteMap;
+    const auto address = EA(0x00001000);
+    ASSERT_NO_THROW(this->byteMap.setData(address, uint16_t{0xDEAD}));
+
+    original.setFileName("test");
+    original.setBaseAddress(EA(2));
+    original.setEntryPointAddress(EA(3));
+    original.setRebaseDelta(7);
+    original.setLFCM(ImageByteMap::MM_MASK);
+    original.setIsRelocated();
+    original.setGlobalOffsetTableAddress(EA(8));
+    original.setContentSource(ImageByteMap::ContentSource::IDAFull);
+
+    gtirb::ImageByteMap result;
+    proto::ImageByteMap message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.getDataSize(), original.getDataSize());
+    EXPECT_EQ(result.getData16(address), 0xDEAD);
+    EXPECT_EQ(result.getFileName(), "test");
+    EXPECT_EQ(result.getBaseAddress(), EA(2));
+    EXPECT_EQ(result.getEntryPointAddress(), EA(3));
+    EXPECT_EQ(result.getEAMinMax(), original.getEAMinMax());
+    EXPECT_EQ(result.getRebaseDelta(), 7);
+    EXPECT_EQ(result.getLFCM(), ImageByteMap::MM_MASK);
+    EXPECT_EQ(result.getIsRelocated(), true);
+    EXPECT_EQ(result.getGlobalOffsetTableAddress(), EA(8));
+    EXPECT_EQ(result.getContentSource(), ImageByteMap::ContentSource::IDAFull);
 }

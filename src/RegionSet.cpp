@@ -1,6 +1,8 @@
+#include <proto/RegionSet.pb.h>
 #include <gtirb/Module.hpp>
 #include <gtirb/Region.hpp>
 #include <gtirb/RegionSet.hpp>
+#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
@@ -31,4 +33,16 @@ Region& RegionSet::createRegion(gtirb::EA x)
     this->contents.push_back(std::move(newRegion));
 
     return this->contents.back();
+}
+
+void RegionSet::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+    containerToProtobuf(this->contents, message->mutable_contents());
+}
+
+void RegionSet::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+    containerFromProtobuf(this->contents, message.contents());
 }

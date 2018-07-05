@@ -1,8 +1,9 @@
+#include <proto/ByteMap.pb.h>
 #include <algorithm>
 #include <cstring>
 #include <gtirb/ByteMap.hpp>
+#include <gtirb/Serialization.hpp>
 #include <gtirb/Utilities.hpp>
-#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -265,4 +266,14 @@ ByteMap::Page* ByteMap::getOrCreatePage(const EA x)
     Expects(ByteMap::Impl::AddressToOffset(x) == 0);
     auto page = &(this->data[x]);
     return page;
+}
+
+void ByteMap::toProtobuf(MessageType* message) const
+{
+    containerToProtobuf(this->data, message->mutable_data());
+}
+
+void ByteMap::fromProtobuf(const MessageType& message)
+{
+    containerFromProtobuf(this->data, message.data());
 }

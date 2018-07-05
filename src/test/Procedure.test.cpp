@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
+#include <proto/Procedure.pb.h>
 #include <gtirb/Procedure.hpp>
 #include <memory>
+
+using namespace gtirb;
 
 TEST(Unit_Procedure, ctor_0)
 {
@@ -52,4 +55,19 @@ TEST(Unit_Procedure, getPLTEntries_ref)
     EXPECT_FALSE(pltEntries.empty());
     EXPECT_EQ(size_t{1}, pltEntries.size());
     EXPECT_EQ(std::begin(pltEntries), pltEntries.find(entry));
+}
+
+TEST(Unit_Procedure, protobufRoundTrip)
+{
+    Procedure original;
+    original.setEA(EA(1));
+    original.getPLTEntries().insert(EA(2));
+
+    gtirb::Procedure result;
+    proto::Procedure message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.getEA(), EA(1));
+    EXPECT_EQ(result.getPLTEntries(), std::set<EA>({EA(2)}));
 }

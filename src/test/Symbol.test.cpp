@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
+#include <proto/Symbol.pb.h>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <memory>
 #include <sstream>
+
+using namespace gtirb;
 
 TEST(Unit_Symbol, ctor_0)
 {
@@ -177,4 +180,41 @@ TEST(Unit_Symbol, setIsGlobal)
 
     EXPECT_NO_THROW(node->setIsGlobal(value));
     EXPECT_EQ(value, node->getIsGlobal());
+}
+
+TEST(Unit_Symbol, protobufRoundTrip)
+{
+    Symbol original(EA(1), "test");
+    original.setOffset(2);
+    original.setElementSize(3);
+    original.setBitSize(4);
+    original.setType(Symbol::Type::Normal);
+    original.setDeclarationKind(Symbol::DeclarationKind::Var);
+    original.setLinkType(Symbol::LinkType::InitializedData);
+    original.setStorageKind(Symbol::StorageKind::Static);
+    original.setEnableForceName(true);
+    original.setEnableGapSize(true);
+    original.setIsFormal(true);
+    original.setIsNameOnly(true);
+    original.setIsGlobal(true);
+
+    gtirb::Symbol result;
+    proto::Symbol message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.getEA(), EA(1));
+    EXPECT_EQ(result.getName(), "test");
+    EXPECT_EQ(result.getOffset(), 2);
+    EXPECT_EQ(result.getElementSize(), 3);
+    EXPECT_EQ(result.getBitSize(), 4);
+    EXPECT_EQ(result.getType(), Symbol::Type::Normal);
+    EXPECT_EQ(result.getDeclarationKind(), Symbol::DeclarationKind::Var);
+    EXPECT_EQ(result.getLinkType(), Symbol::LinkType::InitializedData);
+    EXPECT_EQ(result.getStorageKind(), Symbol::StorageKind::Static);
+    EXPECT_EQ(result.getEnableForceName(), true);
+    EXPECT_EQ(result.getEnableGapSize(), true);
+    EXPECT_EQ(result.getIsFormal(), true);
+    EXPECT_EQ(result.getIsNameOnly(), true);
+    EXPECT_EQ(result.getIsGlobal(), true);
 }

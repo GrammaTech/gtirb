@@ -6,6 +6,10 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 
+namespace proto
+{
+    class Section;
+}
 namespace gtirb
 {
     ///
@@ -30,6 +34,10 @@ namespace gtirb
 
         bool operator==(const Section& other) const;
         bool operator!=(const Section& other) const;
+
+        using MessageType = proto::Section;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         friend class boost::serialization::access;

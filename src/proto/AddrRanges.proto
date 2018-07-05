@@ -1,0 +1,7 @@
+syntax = "proto3";
+package proto;
+
+message AddrRanges {
+    bytes uuid = 1;
+    map<uint64, uint64> ranges = 2;
+}

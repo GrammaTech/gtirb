@@ -5,6 +5,11 @@
 #include <gtirb/Node.hpp>
 #include <vector>
 
+namespace proto
+{
+    class Block;
+}
+
 namespace gtirb
 {
     ///
@@ -52,6 +57,10 @@ namespace gtirb
             ar & this->endingAddress;
             ar & this->instructions;
         }
+
+        using MessageType = proto::Block;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         EA startingAddress{};

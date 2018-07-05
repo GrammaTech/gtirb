@@ -1,0 +1,28 @@
+syntax = "proto3";
+package proto;
+
+import "ByteMap.proto";
+
+enum ContentSource
+{
+    ContentSource_Unknown = 0;
+    Exe = 1;
+    IDAFull = 2;
+    IDAPartial = 3;
+}
+
+message ImageByteMap
+{
+    bytes uuid = 1;
+    ByteMap byte_map = 2;
+    string file_name = 3;
+    uint64 ea_min = 4;
+    uint64 ea_max = 5;
+    uint64 base_address = 6;
+    uint64 entry_point_address = 7;
+    uint64 global_offset_table_address = 8;
+    int64 rebase_delta = 9;
+    int32 lfcm = 10;
+    ContentSource content_source = 11;
+    bool is_relocated = 12;
+}

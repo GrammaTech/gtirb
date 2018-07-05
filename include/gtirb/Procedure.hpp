@@ -5,6 +5,10 @@
 #include <gtirb/Node.hpp>
 #include <set>
 
+namespace proto
+{
+    class Procedure;
+}
 namespace gtirb
 {
     class Instruction;
@@ -56,6 +60,10 @@ namespace gtirb
             ar & this->ea;
             ar & this->pltEntries;
         }
+
+        using MessageType = proto::Procedure;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
         /// \todo Several pieces of information probably need added to gtirb::Procedure.  This
         /// includes a pointer to its name symbol, a symbol-to-symbol map, a save-to-restore-symbol

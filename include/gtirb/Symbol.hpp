@@ -1,5 +1,6 @@
 #pragma once
 
+#include <proto/Symbol.pb.h>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeReference.hpp>
@@ -24,10 +25,10 @@ namespace gtirb
         ///
         enum class Type : uint8_t
         {
-            Undefined,
-            Normal,
-            DualCode,
-            NoEA
+            Undefined = proto::Type_Undefined,
+            Normal = proto::Normal,
+            DualCode = proto::DualCode,
+            NoEA = proto::NoEA
         };
 
         ///
@@ -35,21 +36,21 @@ namespace gtirb
         ///
         enum class DeclarationKind : uint8_t
         {
-            Undefined,
-            Var,
-            Func,
-            Type,
-            Param,
-            MallocSite,
-            Result,
-            Return,
-            ParamTemp,
-            Enumerator,
-            StringLiteral,
-            Temporary,
-            Uninit,
-            Label,
-            IndirectFunc
+            Undefined = proto::Decl_Undefined,
+            Var = proto::Var,
+            Func = proto::Func,
+            Type = proto::Decl_Type,
+            Param = proto::Param,
+            MallocSite = proto::MallocSite,
+            Result = proto::Result,
+            Return = proto::Return,
+            ParamTemp = proto::ParamTemp,
+            Enumerator = proto::Enumerator,
+            StringLiteral = proto::StringLiteral,
+            Temporary = proto::Temporary,
+            Uninit = proto::Uninit,
+            Label = proto::Label,
+            IndirectFunc = proto::IndirectFunc
         };
 
         ///
@@ -57,12 +58,12 @@ namespace gtirb
         ///
         enum class LinkType : uint8_t
         {
-            Undefined,       /// undefined
-            InitializedData, /// initialized data
-            BSS,             /// BSS
-            Common,          /// common
-            WeakObject,      /// weak object
-            ReadOnly         /// read-only
+            Undefined = proto::Link_Undefined,        /// undefined
+            InitializedData = proto::InitializedData, /// initialized data
+            BSS = proto::BSS,                         /// BSS
+            Common = proto::Common,                   /// common
+            WeakObject = proto::WeakObject,           /// weak object
+            ReadOnly = proto::ReadOnly                /// read-only
         };
 
         ///
@@ -70,10 +71,10 @@ namespace gtirb
         ///
         enum class StorageKind : uint8_t
         {
-            Undefined,
-            Normal,
-            Static,
-            Extern
+            Undefined = proto::Storage_Undefined,
+            Normal = proto::Storage_Normal,
+            Static = proto::Storage_Static,
+            Extern = proto::Storage_Extern
         };
 
         ///
@@ -158,6 +159,10 @@ namespace gtirb
             ar & this->isNameOnly;
             ar & this->isGlobal;
         }
+
+        using MessageType = proto::Symbol;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         gtirb::EA ea{};

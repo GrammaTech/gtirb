@@ -51,6 +51,11 @@ namespace gtirb
             ar & this->uuid.data;
         }
 
+        UUID getUUID() const
+        {
+            return this->uuid;
+        }
+
     private:
         UUID uuid;
 

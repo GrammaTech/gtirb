@@ -1,4 +1,5 @@
 #include <gtirb/Module.hpp>
+#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 
 using namespace gtirb;
@@ -152,4 +153,42 @@ void Symbol::setIsGlobal(bool x)
 bool Symbol::getIsGlobal() const
 {
     return this->isGlobal;
+}
+
+void Symbol::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+    message->set_ea(this->ea);
+    message->set_name(this->name);
+    message->set_offset(this->offset);
+    message->set_element_size(this->elementSize);
+    message->set_bit_size(this->bitSize);
+    message->set_type(static_cast<proto::Type>(this->type));
+    message->set_declaration_kind(static_cast<proto::DeclarationKind>(this->declarationKind));
+    message->set_link_type(static_cast<proto::LinkType>(this->linkType));
+    message->set_storage_kind(static_cast<proto::StorageKind>(this->storageKind));
+    message->set_enable_force_name(this->enableForceName);
+    message->set_enable_gap_size(this->enableGapSize);
+    message->set_is_formal(this->isFormal);
+    message->set_is_name_only(this->isNameOnly);
+    message->set_is_global(this->isGlobal);
+}
+
+void Symbol::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+    this->ea = EA(message.ea());
+    this->name = message.name();
+    this->offset = message.offset();
+    this->elementSize = message.element_size();
+    this->bitSize = message.bit_size();
+    this->type = static_cast<Type>(message.type());
+    this->declarationKind = static_cast<DeclarationKind>(message.declaration_kind());
+    this->linkType = static_cast<LinkType>(message.link_type());
+    this->storageKind = static_cast<StorageKind>(message.storage_kind());
+    this->enableForceName = message.enable_force_name();
+    this->enableGapSize = message.enable_gap_size();
+    this->isFormal = message.is_formal();
+    this->isNameOnly = message.is_name_only();
+    this->isGlobal = message.is_global();
 }

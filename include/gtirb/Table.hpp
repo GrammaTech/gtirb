@@ -6,6 +6,11 @@
 #include <string>
 #include <vector>
 
+namespace proto
+{
+    class Table;
+}
+
 namespace gtirb
 {
     namespace table
@@ -22,11 +27,10 @@ namespace gtirb
         using InnerMapType = std::map<std::string, InnerValueType>;
 
         /// Table values can be any of these types.
-        using ValueType = boost::variant<EA,           //
-                                         int64_t,      //
-                                         std::string,  //
-                                         InnerMapType, //
-                                         std::vector<InnerMapType>>;
+        using ValueType = boost::variant<EA,          //
+                                         int64_t,     //
+                                         std::string, //
+                                         InnerMapType>;
     }
 
     ///
@@ -41,4 +45,7 @@ namespace gtirb
                                  std::vector<EA>,                         //
                                  std::vector<int64_t>,                    //
                                  std::vector<std::string>>;
+
+    proto::Table toProtobuf(const Table& table);
+    void fromProtobuf(Table& result, const proto::Table& message);
 }

@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <proto/ByteMap.pb.h>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
@@ -6,6 +7,8 @@
 #include <gtirb/Constants.hpp>
 #include <gtirb/Utilities.hpp>
 #include <memory>
+
+using namespace gtirb;
 
 class Unit_ByteMapF : public ::testing::Test
 {
@@ -285,4 +288,22 @@ TEST_F(Unit_ByteMapF, serialize)
             }
         }
     }
+}
+
+TEST(Unit_ByteMap, protobufRoundTrip)
+{
+    ByteMap original;
+    original.setData(EA(1), uint8_t('a'));
+    original.setData(EA(2), uint8_t('b'));
+    original.setData(EA(5000), uint8_t('c'));
+
+    gtirb::ByteMap result;
+    proto::ByteMap message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.size(), original.size());
+    EXPECT_EQ(result.getData8(EA(1)), 'a');
+    EXPECT_EQ(result.getData8(EA(2)), 'b');
+    EXPECT_EQ(result.getData8(EA(5000)), 'c');
 }

@@ -1,8 +1,10 @@
+#include <proto/AddrRanges.pb.h>
 #include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/RuntimeError.hpp>
+#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
@@ -296,4 +298,16 @@ std::map<gtirb::EA, gtirb::EA>& AddrRanges::data()
 const std::map<gtirb::EA, gtirb::EA>& AddrRanges::data() const
 {
     return this->ranges;
+}
+
+void AddrRanges::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+    containerToProtobuf(this->ranges, message->mutable_ranges());
+}
+
+void AddrRanges::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+    containerFromProtobuf(this->ranges, message.ranges());
 }

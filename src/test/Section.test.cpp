@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <proto/Section.pb.h>
 #include <gtirb/Section.hpp>
 #include <limits>
 
@@ -45,4 +46,18 @@ TEST(Unit_Section, contains)
     EXPECT_FALSE(bad.contains(EA(0)));
     EXPECT_FALSE(bad.contains(EA(std::numeric_limits<uint64_t>::max() - 1)));
     EXPECT_FALSE(bad.contains(EA()));
+}
+
+TEST(Unit_Section, protobufRoundTrip)
+{
+    Section original("name", 1234, EA(1));
+
+    gtirb::Section result;
+    proto::Section message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.name, "name");
+    EXPECT_EQ(result.size, 1234);
+    EXPECT_EQ(result.startingAddress, EA(1));
 }

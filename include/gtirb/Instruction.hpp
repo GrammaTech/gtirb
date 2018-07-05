@@ -4,6 +4,11 @@
 #include <gtirb/Node.hpp>
 #include <set>
 
+namespace proto
+{
+    class Instruction;
+}
+
 namespace gtirb
 {
     class Symbol;
@@ -63,6 +68,10 @@ namespace gtirb
         ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/);
+
+        using MessageType = proto::Instruction;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         gtirb::EA ea;

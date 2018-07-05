@@ -1,0 +1,7 @@
+syntax = "proto3";
+package proto;
+
+message Region {
+    bytes uuid = 1;
+    repeated uint64 eas = 2;
+}

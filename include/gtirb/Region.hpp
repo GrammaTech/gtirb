@@ -4,6 +4,10 @@
 #include <gtirb/Node.hpp>
 #include <set>
 
+namespace proto
+{
+    class Region;
+}
 namespace gtirb
 {
     ///
@@ -34,6 +38,10 @@ namespace gtirb
             ar& boost::serialization::base_object<Node>(*this);
             ar & this->eas;
         }
+
+        using MessageType = proto::Region;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         std::set<gtirb::EA> eas;

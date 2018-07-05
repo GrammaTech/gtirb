@@ -3,7 +3,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <gsl/gsl>
 #include <gtirb/Node.hpp>
-#include <gtirb/Table.hpp>
 
 using namespace gtirb;
 

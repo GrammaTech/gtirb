@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <proto/AddrRanges.pb.h>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
@@ -207,4 +208,18 @@ TEST(Unit_AddrRanges, serialize)
         EXPECT_EQ(std::string{"Value"},
                   boost::get<std::string>(serialized.getLocalProperty("Name")));
     }
+}
+
+TEST(Unit_AddrRanges, protobufRoundTrip)
+{
+    gtirb::AddrRanges ranges1;
+    ranges1.addRange({gtirb::EA(1), gtirb::EA(2)});
+    ranges1.addRange({gtirb::EA(6), gtirb::EA(7)});
+
+    gtirb::AddrRanges ranges2;
+    proto::AddrRanges message;
+    ranges1.toProtobuf(&message);
+    ranges2.fromProtobuf(message);
+
+    EXPECT_EQ(ranges1.data(), ranges2.data());
 }

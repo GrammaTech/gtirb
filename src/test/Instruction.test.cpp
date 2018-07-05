@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
+#include <proto/Instruction.pb.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <memory>
+
+using namespace gtirb;
 
 TEST(Unit_Instruction, ctor_0)
 {
@@ -72,4 +75,22 @@ TEST(Unit_Instruction, getNumberOfUses)
 {
     gtirb::Instruction node;
     EXPECT_EQ(int64_t{0}, node.getNumberOfUses());
+}
+
+TEST(Unit_Instruction, protobufRoundTrip)
+{
+    Instruction original(EA(1));
+    original.setNumberOfUses(2);
+    original.setIsFallthrough(true);
+    original.setIsPEI(true);
+
+    gtirb::Instruction result;
+    proto::Instruction message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.getEA(), EA(1));
+    EXPECT_EQ(result.getNumberOfUses(), 2);
+    EXPECT_EQ(result.getIsFallthrough(), true);
+    EXPECT_EQ(result.getIsPEI(), true);
 }

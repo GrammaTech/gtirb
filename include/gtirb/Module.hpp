@@ -10,6 +10,11 @@
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicOperandSet.hpp>
 
+namespace proto
+{
+    class Module;
+}
+
 namespace gtirb
 {
     class AddrRanges;
@@ -155,9 +160,9 @@ namespace gtirb
         uint64_t getDecodeMode() const;
 
         // Note: all of these will probably move and/or get a different interface.
-        const std::vector<Block>* getBlocks() const;
+        const std::vector<Block>& getBlocks() const;
         void setBlocks(std::vector<Block> x);
-        const std::vector<Relocation>* getRelocations() const;
+        const std::vector<Relocation>& getRelocations() const;
         void setRelocations(std::vector<Relocation> x);
         const std::vector<Data>& getData() const;
         std::vector<Data>& getData();
@@ -171,6 +176,10 @@ namespace gtirb
         ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/);
+
+        using MessageType = proto::Module;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     protected:
         ///

@@ -1,4 +1,6 @@
+#include <proto/Section.pb.h>
 #include <gtirb/Section.hpp>
+#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
@@ -35,4 +37,20 @@ bool Section::operator==(const Section& other) const
 bool Section::operator!=(const Section& other) const
 {
     return !(*this == other);
+}
+
+void Section::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+    message->set_name(this->name);
+    message->set_size(this->size);
+    message->set_starting_address(this->startingAddress);
+}
+
+void Section::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+    this->name = message.name();
+    this->size = message.size();
+    this->startingAddress = EA(message.starting_address());
 }
