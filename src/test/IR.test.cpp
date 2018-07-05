@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
+#include <proto/IR.pb.h>
 #include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <memory>
+
+using namespace gtirb;
 
 TEST(Unit_IR, ctor_0)
 {
@@ -72,4 +75,23 @@ TEST(Unit_IR, getModulesContainingEA)
     const auto modules = ir.getModulesContainingEA(ea);
     EXPECT_FALSE(modules.empty());
     EXPECT_EQ(size_t(2), modules.size());
+}
+
+TEST(Unit_IR, protobufRoundTrip)
+{
+    IR original;
+    auto m = std::make_unique<Module>();
+    m->setEAMinMax({EA(100), EA(200)});
+    original.addModule(std::move(m));
+    original.addTable("test", std::make_unique<Table>());
+
+    IR result;
+    proto::IR message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.getMainModule().getUUID(), original.getMainModule().getUUID());
+    EXPECT_EQ(result.getModulesContainingEA(EA(100)).size(), 1);
+    EXPECT_EQ(result.getTableSize(), 1);
+    EXPECT_NE(result.getTable("test"), nullptr);
 }

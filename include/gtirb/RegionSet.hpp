@@ -5,6 +5,10 @@
 #include <gtirb/Region.hpp>
 #include <vector>
 
+namespace proto
+{
+    class RegionSet;
+}
 namespace gtirb
 {
     class Region;
@@ -56,6 +60,10 @@ namespace gtirb
         {
             ar& boost::serialization::base_object<Node>(*this);
         }
+
+        using MessageType = proto::RegionSet;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         std::vector<Region> contents;

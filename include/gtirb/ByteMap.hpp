@@ -10,6 +10,11 @@
 #include <map>
 #include <vector>
 
+namespace proto
+{
+    class ByteMap;
+}
+
 namespace gtirb
 {
     ///
@@ -165,6 +170,10 @@ namespace gtirb
         {
             ar& data;
         }
+
+        using MessageType = proto::ByteMap;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     protected:
         ///

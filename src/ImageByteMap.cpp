@@ -1,6 +1,8 @@
+#include <proto/ImageByteMap.pb.h>
 #include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
@@ -231,4 +233,35 @@ std::vector<uint8_t> ImageByteMap::getDataUntil(EA ea, uint8_t sentinel, size_t 
     }
 
     throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
+}
+
+void ImageByteMap::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+    this->byteMap.toProtobuf(message->mutable_byte_map());
+    message->set_file_name(this->fileName.generic_string());
+    message->set_ea_min(this->eaMinMax.first);
+    message->set_ea_max(this->eaMinMax.second);
+    message->set_base_address(this->baseAddress);
+    message->set_entry_point_address(this->entryPointAddress);
+    message->set_global_offset_table_address(this->globalOffsetTableAddress);
+    message->set_rebase_delta(this->rebaseDelta);
+    message->set_lfcm(this->lfcm);
+    message->set_content_source(static_cast<proto::ContentSource>(this->contentSource));
+    message->set_is_relocated(this->isRelocated);
+}
+
+void ImageByteMap::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+    this->byteMap.fromProtobuf(message.byte_map());
+    this->fileName = message.file_name();
+    this->eaMinMax = {EA(message.ea_min()), EA(message.ea_max())};
+    this->baseAddress = EA(message.base_address());
+    this->entryPointAddress = EA(message.entry_point_address());
+    this->globalOffsetTableAddress = EA(message.global_offset_table_address());
+    this->rebaseDelta = message.rebase_delta();
+    this->lfcm = message.lfcm();
+    this->contentSource = static_cast<ContentSource>(message.content_source());
+    this->isRelocated = message.is_relocated();
 }

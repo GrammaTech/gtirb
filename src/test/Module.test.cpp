@@ -1,10 +1,21 @@
 #include <gtest/gtest.h>
+#include <proto/Module.pb.h>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/Block.hpp>
+#include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Procedure.hpp>
+#include <gtirb/Relocation.hpp>
+#include <gtirb/Section.hpp>
+#include <gtirb/Serialization.hpp>
+#include <gtirb/Symbol.hpp>
+#include <gtirb/SymbolicOperand.hpp>
+
 #include <memory>
+
+using namespace gtirb;
 
 TEST(Unit_Module, ctor_0)
 {
@@ -191,4 +202,66 @@ TEST(Unit_Module, getDecodeMode)
     auto m = std::make_unique<gtirb::Module>();
     EXPECT_NO_THROW(m->getDecodeMode());
     EXPECT_EQ(uint64_t{0}, m->getDecodeMode());
+}
+
+TEST(Unit_Module, protobufRoundTrip)
+{
+    Module original;
+    original.setBinaryPath("test");
+    original.setEAMinMax({EA(1), EA(2)});
+    original.setPreferredEA(EA(3));
+    original.setRebaseDelta(4);
+    original.setFileFormat(FileFormat::ELF);
+    original.setISAID(ISAID::X64);
+    original.setName("module");
+    original.setDecodeMode(5);
+    original.getProcedureSet().insert({EA(6), {}});
+    original.getSymbolSet().push_back({});
+    original.setBlocks({{}});
+    original.setRelocations({{EA(8), "foo", "bar", 1}});
+    original.getData().push_back({});
+    original.getSections().push_back({});
+    original.getSymbolicOperands().insert({EA(7), {SymAddrConst()}});
+
+    gtirb::Module result;
+    proto::Module message;
+    original.toProtobuf(&message);
+    result.fromProtobuf(message);
+
+    EXPECT_EQ(result.getBinaryPath(), "test");
+    EXPECT_EQ(result.getEAMinMax(), original.getEAMinMax());
+    EXPECT_EQ(result.getPreferredEA(), EA(3));
+    EXPECT_EQ(result.getRebaseDelta(), 4);
+    EXPECT_EQ(result.getFileFormat(), FileFormat::ELF);
+    EXPECT_EQ(result.getISAID(), ISAID::X64);
+    EXPECT_EQ(result.getName(), "module");
+    EXPECT_EQ(result.getDecodeMode(), 5);
+
+    // Make sure various collections and node members are serialized, but
+    // don't check in detail as they have their own unit tests.
+    EXPECT_EQ(result.getAddrRanges().getUUID(), original.getAddrRanges().getUUID());
+    EXPECT_EQ(result.getImageByteMap().getUUID(), original.getImageByteMap().getUUID());
+
+    EXPECT_EQ(result.getProcedureSet().size(), 1);
+    EXPECT_EQ(result.getProcedureSet().begin()->second.getUUID(),
+              original.getProcedureSet().begin()->second.getUUID());
+
+    EXPECT_EQ(result.getSymbolSet().size(), 1);
+    EXPECT_EQ(result.getSymbolSet().begin()->getUUID(), original.getSymbolSet().begin()->getUUID());
+
+    EXPECT_EQ(result.getBlocks().size(), 1);
+    EXPECT_EQ(result.getBlocks().begin()->getUUID(), original.getBlocks().begin()->getUUID());
+
+    EXPECT_EQ(result.getRelocations().size(), 1);
+    EXPECT_EQ(result.getRelocations().begin()->ea, original.getRelocations().begin()->ea);
+
+    EXPECT_EQ(result.getData().size(), 1);
+    EXPECT_EQ(result.getData().begin()->getUUID(), original.getData().begin()->getUUID());
+
+    EXPECT_EQ(result.getSections().size(), 1);
+    EXPECT_EQ(result.getSections().begin()->getUUID(), original.getSections().begin()->getUUID());
+
+    EXPECT_EQ(result.getSymbolicOperands().size(), 1);
+    EXPECT_EQ(result.getSymbolicOperands().begin()->second.which(),
+              original.getSymbolicOperands().begin()->second.which());
 }

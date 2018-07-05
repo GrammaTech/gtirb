@@ -1,0 +1,9 @@
+syntax = "proto3";
+package proto;
+
+import "Region.proto";
+
+message RegionSet {
+    bytes uuid = 1;
+    repeated Region contents = 2;
+}

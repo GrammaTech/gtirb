@@ -1,0 +1,37 @@
+syntax = "proto3";
+package proto;
+
+import "AddrRanges.proto";
+import "Enums.proto";
+import "ImageByteMap.proto";
+import "Symbol.proto";
+import "Procedure.proto";
+import "Block.proto";
+import "Relocation.proto";
+import "Data.proto";
+import "Section.proto";
+import "SymbolicOperand.proto";
+
+message Module {
+    bytes uuid = 1;
+    string binary_path = 2;
+    uint64 ea_min = 3;
+    uint64 ea_max = 4;
+    uint64 preferred_ea = 5;
+    int64 rebase_delta = 6;
+    FileFormat file_format = 7;
+    ISAID isa_id = 8;
+    bool is_setup_complete = 9;
+    bool is_read_only = 10;
+    string name = 11;
+    uint64 decode_mode = 12;
+    AddrRanges addr_ranges = 13;
+    ImageByteMap image_byte_map = 14;
+    map<uint64, Procedure> procedure_set = 15;
+    repeated Symbol symbol_set = 16;
+    repeated Block blocks = 17;
+    repeated Relocation relocations = 18;
+    repeated Data data = 19;
+    repeated Section sections = 20;
+    map<uint64, SymbolicOperand> symbolic_operands = 21;
+}

@@ -1,5 +1,7 @@
 SET(PROJECT_NAME gtirb)
 
+add_subdirectory(proto)
+
 add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -48,6 +50,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Relocation.hpp
 	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
+        ../include/gtirb/Serialization.hpp
 	../include/gtirb/Symbol.hpp
         ../include/gtirb/SymbolSet.hpp
 	../include/gtirb/SymbolicOperand.hpp
@@ -86,10 +89,12 @@ set(${PROJECT_NAME}_SRC
 	RegionSet.cpp
 	RuntimeError.cpp
         Section.cpp
+        Serialization.cpp
 	Symbol.cpp
         SymbolSet.cpp
         SymbolicOperand.cpp
 	Utilities.cpp
+        Table.cpp
 )
 
 IF(UNIX AND NOT WIN32)
@@ -107,6 +112,8 @@ target_link_libraries(
 	${PROJECT_NAME} 
 	${SYSLIBS}
 	${Boost_LIBRARIES}
+        ${PROTOBUF_LIBRARIES}
+        proto
 	)
 
 if(GTIRB_ENABLE_TESTS)

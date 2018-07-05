@@ -25,7 +25,6 @@
 
 namespace gtirb
 {
-    class Table;
     using UUID = boost::uuids::uuid;
 
     ///

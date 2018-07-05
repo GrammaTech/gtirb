@@ -1,3 +1,4 @@
+#include <proto/Module.pb.h>
 #include <boost/serialization/export.hpp>
 #include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
@@ -9,9 +10,9 @@
 #include <gtirb/Procedure.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
+#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicOperand.hpp>
-#include <gtirb/Table.hpp>
 
 using namespace gtirb;
 
@@ -23,6 +24,8 @@ Module::Module()
       imageByteMap(std::make_unique<ImageByteMap>()),
       procedureSet(std::make_unique<ProcedureSet>()),
       symbolSet(std::make_unique<SymbolSet>()),
+      blocks(std::make_unique<BlockSet>()),
+      relocations(std::make_unique<RelocationSet>()),
       data(std::make_unique<std::vector<Data>>()),
       sections(std::make_unique<std::vector<Section>>()),
       symbolicOperands(std::make_unique<SymbolicOperandSet>())
@@ -178,9 +181,9 @@ uint64_t Module::getDecodeMode() const
     return this->decodeMode;
 }
 
-const std::vector<Block>* Module::getBlocks() const
+const std::vector<Block>& Module::getBlocks() const
 {
-    return this->blocks.get();
+    return *this->blocks;
 }
 
 void Module::setBlocks(const std::vector<Block> x)
@@ -188,9 +191,9 @@ void Module::setBlocks(const std::vector<Block> x)
     this->blocks = std::make_unique<std::vector<Block>>(x);
 }
 
-const std::vector<Relocation>* Module::getRelocations() const
+const std::vector<Relocation>& Module::getRelocations() const
 {
-    return this->relocations.get();
+    return *this->relocations;
 }
 
 void Module::setRelocations(const std::vector<Relocation> x)
@@ -251,4 +254,54 @@ void Module::serialize(Archive& ar, const unsigned int /*version*/)
     ar & this->data;
     ar & this->sections;
     ar & this->symbolicOperands;
+}
+
+void Module::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+    message->set_binary_path(this->binaryPath.generic_string());
+    message->set_ea_min(this->eaMinMax.first);
+    message->set_ea_max(this->eaMinMax.second);
+    message->set_preferred_ea(this->preferredEA);
+    message->set_rebase_delta(this->rebaseDelta);
+    message->set_file_format(static_cast<proto::FileFormat>(this->fileFormat));
+    message->set_isa_id(static_cast<proto::ISAID>(this->isaID));
+    message->set_is_setup_complete(this->isSetupComplete);
+    message->set_is_read_only(this->isReadOnly);
+    message->set_name(this->name);
+    message->set_decode_mode(this->decodeMode);
+    this->addrRanges->toProtobuf(message->mutable_addr_ranges());
+    this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
+    containerToProtobuf(*this->procedureSet, message->mutable_procedure_set());
+    containerToProtobuf(*this->symbolSet, message->mutable_symbol_set());
+    containerToProtobuf(*this->blocks, message->mutable_blocks());
+    containerToProtobuf(*this->data, message->mutable_data());
+    containerToProtobuf(*this->relocations, message->mutable_relocations());
+    containerToProtobuf(*this->sections, message->mutable_sections());
+    containerToProtobuf(*this->symbolicOperands, message->mutable_symbolic_operands());
+}
+
+void Module::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+    this->binaryPath = message.binary_path();
+    this->eaMinMax.first = gtirb::EA(message.ea_min());
+    this->eaMinMax.second = gtirb::EA(message.ea_max());
+    this->preferredEA = gtirb::EA(message.preferred_ea());
+    this->rebaseDelta = message.rebase_delta();
+    this->fileFormat = static_cast<FileFormat>(message.file_format());
+    this->isaID = static_cast<ISAID>(message.isa_id());
+    this->isSetupComplete = message.is_setup_complete();
+    this->isReadOnly = message.is_read_only();
+    this->name = message.name();
+    this->decodeMode = message.decode_mode();
+    this->addrRanges->fromProtobuf(message.addr_ranges());
+    this->imageByteMap->fromProtobuf(message.image_byte_map());
+    containerFromProtobuf(*this->procedureSet, message.procedure_set());
+    containerFromProtobuf(*this->symbolSet, message.symbol_set());
+    containerFromProtobuf(*this->blocks, message.blocks());
+    containerFromProtobuf(*this->data, message.data());
+    containerFromProtobuf(*this->relocations, message.relocations());
+    containerFromProtobuf(*this->sections, message.sections());
+    containerFromProtobuf(*this->symbolicOperands, message.symbolic_operands());
 }

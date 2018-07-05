@@ -1,0 +1,11 @@
+syntax = "proto3";
+package proto;
+
+import "Instruction.proto";
+
+message Block {
+    bytes uuid = 1;
+    uint64 starting_address = 2;
+    uint64 ending_address = 3;
+    repeated Instruction instructions = 4;
+}

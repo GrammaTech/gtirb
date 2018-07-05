@@ -8,6 +8,10 @@
 #include <map>
 #include <string>
 
+namespace proto
+{
+    class SymbolicOperand;
+}
 namespace gtirb
 {
     ///
@@ -52,6 +56,10 @@ namespace gtirb
     };
 
     using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+
+    void fromProtobuf(SymbolicOperand& result, const proto::SymbolicOperand& message);
+    proto::SymbolicOperand toProtobuf(const SymbolicOperand& operand);
+
 } // namespace gtirb
 
 BOOST_CLASS_EXPORT_KEY(gtirb::SymStackConst);

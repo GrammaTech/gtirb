@@ -3,6 +3,10 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 
+namespace proto
+{
+    class Data;
+}
 namespace gtirb
 {
     class Module;
@@ -45,6 +49,10 @@ namespace gtirb
         ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/);
+
+        using MessageType = proto::Data;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         EA ea{0};

@@ -29,6 +29,7 @@ set(${PROJECT_NAME}_SRC
 	CFGNode.test.cpp
 	CFGNodeInfo.test.cpp
 	CFGNodeInfoCall.test.cpp
+        Data.test.cpp
 	EA.test.cpp
 	Exception.test.cpp
 	ImageByteMap.test.cpp
@@ -40,9 +41,12 @@ set(${PROJECT_NAME}_SRC
 	Procedure.test.cpp
 	Region.test.cpp
 	RegionSet.test.cpp
+        Relocation.test.cpp
         Section.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
+        SymbolicOperand.test.cpp
+        Table.test.cpp
 	TypedExceptionTest.cpp
 	TypedNodeTest.cpp
 	Utilities.test.cpp

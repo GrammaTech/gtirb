@@ -1,5 +1,7 @@
+#include <proto/IR.pb.h>
 #include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/Serialization.hpp>
 #include <gtirb/Table.hpp>
 
 using namespace gtirb;
@@ -112,4 +114,53 @@ void IR::serialize(Archive& ar, const unsigned int /*version*/)
     ar& modules;
     ar & this->mainModule;
     ar & this->tables;
+}
+
+void IR::toProtobuf(MessageType* message) const
+{
+    nodeUUIDToBytes(this, *message->mutable_uuid());
+
+    auto* modules = message->mutable_modules();
+    modules->Clear();
+    modules->Reserve(this->modules.size());
+    std::for_each(this->modules.begin(), this->modules.end(),
+                  [modules](const auto& n) { n->toProtobuf(modules->Add()); });
+
+    nodeUUIDToBytes(this->mainModule.lock().get(), *message->mutable_main_module_id());
+    containerToProtobuf(this->tables, message->mutable_tables());
+}
+
+void IR::fromProtobuf(const MessageType& message)
+{
+    setNodeUUIDFromBytes(this, message.uuid());
+
+    const auto& messages = message.modules();
+    this->modules.clear();
+    this->modules.reserve(messages.size());
+    std::for_each(messages.begin(), messages.end(), [this](const auto& message) {
+        auto val = std::make_shared<Module>();
+        val->fromProtobuf(message);
+        this->modules.push_back(std::move(val));
+    });
+
+    UUID mainId = uuidFromBytes(message.main_module_id());
+    auto foundMain = std::find_if(this->modules.begin(), this->modules.end(),
+                                  [mainId](const auto& m) { return m->getUUID() == mainId; });
+    assert(foundMain != this->modules.end());
+    this->mainModule = *foundMain;
+    containerFromProtobuf(this->tables, message.tables());
+}
+
+void IR::save(std::ostream& out) const
+{
+    MessageType message;
+    this->toProtobuf(&message);
+    message.SerializeToOstream(&out);
+}
+
+void IR::load(std::istream& in)
+{
+    MessageType message;
+    message.ParseFromIstream(&in);
+    this->fromProtobuf(message);
 }

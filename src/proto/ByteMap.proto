@@ -1,0 +1,6 @@
+syntax = "proto3";
+package proto;
+
+message ByteMap {
+    map<uint64, bytes> data = 2;
+}

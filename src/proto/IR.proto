@@ -1,0 +1,12 @@
+syntax = "proto3";
+package proto;
+
+import "Table.proto";
+import "Module.proto";
+
+message IR {
+    bytes uuid = 1;
+    map<string, Table> tables = 2;
+    repeated Module modules = 3;
+    bytes main_module_id = 4;
+}

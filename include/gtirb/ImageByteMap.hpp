@@ -1,5 +1,6 @@
 #pragma once
 
+#include <proto/ImageByteMap.pb.h>
 #include <array>
 #include <boost/filesystem.hpp>
 #include <gsl/gsl>
@@ -62,10 +63,10 @@ namespace gtirb
         ///
         enum class ContentSource : uint8_t
         {
-            Unknown,
-            Exe,
-            IDAFull,
-            IDAPartial
+            Unknown = proto::ContentSource_Unknown,
+            Exe = proto::Exe,
+            IDAFull = proto::IDAFull,
+            IDAPartial = proto::IDAPartial
         };
 
         ImageByteMap() = default;
@@ -360,6 +361,10 @@ namespace gtirb
             ar & this->contentSource;
             ar & this->isRelocated;
         }
+
+        using MessageType = proto::ImageByteMap;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         // Storage for the entire contents of the loaded image.

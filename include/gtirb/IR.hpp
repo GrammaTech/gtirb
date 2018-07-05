@@ -9,6 +9,10 @@
 #include <memory>
 #include <vector>
 
+namespace proto
+{
+    class IR;
+}
 namespace gtirb
 {
     class Module;
@@ -113,10 +117,24 @@ namespace gtirb
         void addModule(std::unique_ptr<gtirb::Module>&& x);
 
         ///
+        /// Serialize IR to an output stream.
+        ///
+        void save(std::ostream& out) const;
+
+        ///
+        /// Deserialize IR from an input stream.
+        ///
+        void load(std::istream& in);
+
+        ///
         /// Serialization support.
         ///
         template <class Archive>
         void serialize(Archive& ar, const unsigned int /*version*/);
+
+        using MessageType = proto::IR;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
         // ----------------------------------------------------------------------------------------
         // Table Properties

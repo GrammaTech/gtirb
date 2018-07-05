@@ -1,0 +1,67 @@
+syntax = "proto3";
+package proto;
+
+message InnerMap {
+    map<string, InnerValue> contents = 1;
+}
+
+message MapVector {
+    repeated InnerMap contents = 1;
+}
+
+message EAVector {
+    repeated uint64 contents = 1;
+}
+
+message IntVector {
+    repeated int64 contents = 1;
+}
+
+message StringVector {
+    repeated string contents = 1;
+}
+
+message InnerValue
+{
+    oneof value {
+        uint64 ea = 1;
+        uint64 int = 2;
+        string str = 3;
+        EAVector ea_vector = 4;
+        IntVector int_vector = 5;
+        StringVector string_vector = 6;
+    }
+}
+
+message Value {
+    oneof value {
+        uint64 ea = 1;
+        int64 int = 2;
+        string str = 3;
+        InnerMap map = 4;
+    }
+}
+
+message EAMap {
+    map<uint64, Value> contents = 1;
+}
+
+message IntMap {
+    map<int64, Value> contents = 1;
+}
+
+message StringMap {
+    map<string, Value> contents = 1;
+}
+
+message Table {
+    oneof value {
+        EAMap by_ea = 1;
+        IntMap by_int = 2;
+        StringMap by_string = 3;
+        MapVector map_vector = 4;
+        EAVector ea_vector = 5;
+        IntVector int_vector = 6;
+        StringVector string_vector = 7;
+    }
+}

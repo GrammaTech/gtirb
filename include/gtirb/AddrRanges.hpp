@@ -5,6 +5,11 @@
 #include <map>
 #include <utility>
 
+namespace proto
+{
+    class AddrRanges;
+}
+
 namespace gtirb
 {
     class EA;
@@ -131,6 +136,10 @@ namespace gtirb
             ar& boost::serialization::base_object<Node>(*this);
             ar& ranges;
         }
+
+        using MessageType = proto::AddrRanges;
+        void toProtobuf(MessageType* message) const;
+        void fromProtobuf(const MessageType& message);
 
     private:
         std::map<gtirb::EA, gtirb::EA> ranges;
