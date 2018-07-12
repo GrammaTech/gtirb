@@ -36,6 +36,28 @@ namespace gtirb
         Node();
 
         ///
+        /// Copy constructor. New node will replace the old in the UUID map.
+        ///
+        Node(const Node&);
+
+        ///
+        /// Assignment operator. LHS node will replace RHS node in the UUID map.
+        ///
+        Node& operator=(const Node&);
+
+        ///
+        /// Move constructor. Clears the UUID of the moved node and updates
+        /// the UUID to node mapping.
+        ///
+        Node(Node&& other);
+
+        ///
+        /// Move assignment. Clears the UUID of the moved node and updates
+        /// the UUID to node mapping.
+        ///
+        Node& operator=(Node&& other);
+
+        ///
         /// This will serve as a base class for other nodes.
         /// The destructor is trivial and defaulted.
         ///
