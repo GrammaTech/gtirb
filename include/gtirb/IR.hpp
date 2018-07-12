@@ -140,7 +140,7 @@ namespace gtirb
         /// \param x        An owning pointer to the table itself.
         /// \return         a reference to the added table.
         ///
-        Table& addTable(std::string name, std::unique_ptr<Table>&& x);
+        void addTable(std::string name, std::unique_ptr<Table>&& x);
 
         ///
         /// Get a table by name.
@@ -148,7 +148,7 @@ namespace gtirb
         /// \param  x   The name of the table to search for.
         /// \return     A non-owning pointer to the table if found, or nullptr.
         ///
-        gtirb::Table* const getTable(const std::string& x) const;
+        gtirb::Table* getTable(const std::string& x);
 
         ///
         /// Remove a table by name.
@@ -180,7 +180,7 @@ namespace gtirb
         void clearTables();
 
     private:
-        std::map<std::string, std::shared_ptr<gtirb::Table>> tables;
+        std::map<std::string, gtirb::Table> tables;
         std::vector<std::shared_ptr<Module>> modules;
         std::weak_ptr<gtirb::Module> mainModule{};
     };
