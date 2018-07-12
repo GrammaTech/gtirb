@@ -77,17 +77,6 @@ namespace gtirb
         ///
         operator std::string() const;
 
-        ///
-        /// Serialization support.
-        ///
-        void serialize(boost::archive::polymorphic_iarchive& ar, const unsigned int version = 0);
-
-        ///
-        /// Serialization support.
-        ///
-        void serialize(boost::archive::polymorphic_oarchive& ar,
-                       const unsigned int version = 0) const;
-
     private:
         ///
         /// Prevent automatic type conversions.

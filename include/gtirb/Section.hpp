@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include <cstdint>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
@@ -38,18 +36,5 @@ namespace gtirb
         using MessageType = proto::Section;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
-
-    private:
-        friend class boost::serialization::access;
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->name;
-            ar & this->size;
-            ar & this->startingAddress;
-        }
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Section);

@@ -6,8 +6,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::RegionSet);
-
 const Region* RegionSet::getRegion(EA x) const
 {
     const auto found =

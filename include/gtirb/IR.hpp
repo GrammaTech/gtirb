@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
-#include <boost/serialization/weak_ptr.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
@@ -126,12 +125,6 @@ namespace gtirb
         ///
         void load(std::istream& in);
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
-
         using MessageType = proto::IR;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -192,5 +185,3 @@ namespace gtirb
         std::weak_ptr<gtirb::Module> mainModule{};
     };
 } // namespace gtirb
-
-BOOST_CLASS_EXPORT_KEY(gtirb::IR);

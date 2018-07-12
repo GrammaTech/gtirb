@@ -52,15 +52,6 @@ namespace gtirb
         ///
         Region& createRegion(gtirb::EA x);
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-        }
-
         using MessageType = proto::RegionSet;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -69,5 +60,3 @@ namespace gtirb
         std::vector<Region> contents;
     };
 } // namespace gtirb
-
-BOOST_CLASS_EXPORT_KEY(gtirb::RegionSet);

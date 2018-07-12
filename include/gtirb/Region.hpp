@@ -29,16 +29,6 @@ namespace gtirb
         std::set<gtirb::EA>& getEAs();
         const std::set<gtirb::EA>& getEAs() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->eas;
-        }
-
         using MessageType = proto::Region;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -47,5 +37,3 @@ namespace gtirb
         std::set<gtirb::EA> eas;
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Region);

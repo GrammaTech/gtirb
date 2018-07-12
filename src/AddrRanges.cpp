@@ -8,8 +8,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::AddrRanges);
-
 bool AddrRanges::addRange(std::pair<gtirb::EA, gtirb::EA> x)
 {
     if(x.first <= x.second)

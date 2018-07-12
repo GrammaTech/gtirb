@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/serialization/export.hpp>
 #include <gtirb/Node.hpp>
 
 namespace gtirb
@@ -43,12 +42,6 @@ namespace gtirb
         NodeT *operator->()
         {
             return this->get();
-        }
-
-        template <class Archive>
-        void serialize(Archive &ar, const unsigned int /*version*/)
-        {
-            ar & this->uuid.data;
         }
 
         UUID getUUID() const

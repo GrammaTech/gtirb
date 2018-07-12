@@ -1,12 +1,9 @@
 #include <proto/ImageByteMap.pb.h>
-#include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
-
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ImageByteMap);
 
 void ImageByteMap::setFileName(boost::filesystem::path x)
 {

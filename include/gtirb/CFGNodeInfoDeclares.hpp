@@ -18,18 +18,5 @@ namespace gtirb
         /// Defaulted trivial destructor.
         ///
         ~CFGNodeInfoDeclares() override = default;
-
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<CFGNodeInfo>(*this);
-        }
-
-    private:
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::CFGNodeInfoDeclares);

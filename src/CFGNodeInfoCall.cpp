@@ -2,8 +2,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNodeInfoCall);
-
 void CFGNodeInfoCall::setKey(int64_t x)
 {
     this->key = x;

@@ -136,30 +136,6 @@ namespace gtirb
         void setIsGlobal(bool x);
         bool getIsGlobal() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-
-            ar & this->name;
-            ar & this->ea;
-            ar & this->offset;
-            ar & this->elementSize;
-            ar & this->bitSize;
-            ar & this->type;
-            ar & this->declarationKind;
-            ar & this->linkType;
-            ar & this->storageKind;
-            ar & this->enableForceName;
-            ar & this->enableGapSize;
-            ar & this->isFormal;
-            ar & this->isNameOnly;
-            ar & this->isGlobal;
-        }
-
         using MessageType = proto::Symbol;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -190,6 +166,3 @@ namespace gtirb
         using NodeReference::NodeReference;
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Symbol);
-BOOST_CLASS_EXPORT_KEY(gtirb::SymbolReference);

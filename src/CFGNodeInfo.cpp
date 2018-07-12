@@ -6,8 +6,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNodeInfo);
-
 void CFGNodeInfo::setProcedureNameSymbol(gtirb::Symbol* x)
 {
     this->procedureNameSymbol = x;

@@ -1,5 +1,4 @@
 #include <proto/Instruction.pb.h>
-#include <boost/serialization/optional.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
@@ -8,8 +7,6 @@
 
 using namespace gtirb;
 class Block;
-
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Instruction);
 
 Instruction::Instruction(EA ea) : Node(), ea(ea)
 {
@@ -53,16 +50,6 @@ void Instruction::setNumberOfUses(int64_t x)
 int64_t Instruction::getNumberOfUses() const
 {
     return this->numberOfUses;
-}
-
-template <class Archive>
-void Instruction::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Node>(*this);
-    ar& ea;
-    ar& numberOfUses;
-    ar& isFallthrough;
-    ar& isPEI;
 }
 
 void Instruction::toProtobuf(MessageType* message) const

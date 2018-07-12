@@ -7,8 +7,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFG);
-
 CFG::~CFG() = default;
 
 void CFG::setEA(EA x)

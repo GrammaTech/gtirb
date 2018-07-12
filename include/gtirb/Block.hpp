@@ -21,7 +21,7 @@ namespace gtirb
     class GTIRB_GTIRB_EXPORT_API Block : public Node
     {
     public:
-        // Default constructor required by boost::serialize
+        // Default constructor
         Block() = default;
 
         ///
@@ -46,18 +46,6 @@ namespace gtirb
         std::vector<Instruction>& getInstructions();
         const std::vector<Instruction>& getInstructions() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->startingAddress;
-            ar & this->endingAddress;
-            ar & this->instructions;
-        }
-
         using MessageType = proto::Block;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -68,5 +56,3 @@ namespace gtirb
         std::vector<Instruction> instructions;
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Block);

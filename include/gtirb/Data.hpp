@@ -44,12 +44,6 @@ namespace gtirb
 
         std::vector<uint8_t> getBytes(const Module& module) const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
-
         using MessageType = proto::Data;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -59,5 +53,3 @@ namespace gtirb
         uint64_t size{0};
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Data);

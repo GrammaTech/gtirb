@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/serialization/export.hpp>
 #include <boost/variant.hpp>
 #include <cstdint>
 #include <gtirb/EA.hpp>
@@ -24,9 +23,6 @@ namespace gtirb
         int offset;
         int displacement;
         SymbolReference symbol;
-
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
     };
 
     ///
@@ -36,9 +32,6 @@ namespace gtirb
     {
         int64_t displacement;
         SymbolReference symbol;
-
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
     };
 
     ///
@@ -50,9 +43,6 @@ namespace gtirb
         int64_t offset;
         SymbolReference symbol1;
         SymbolReference symbol2;
-
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
     };
 
     using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
@@ -61,7 +51,3 @@ namespace gtirb
     proto::SymbolicOperand toProtobuf(const SymbolicOperand& operand);
 
 } // namespace gtirb
-
-BOOST_CLASS_EXPORT_KEY(gtirb::SymStackConst);
-BOOST_CLASS_EXPORT_KEY(gtirb::SymAddrConst);
-BOOST_CLASS_EXPORT_KEY(gtirb::SymAddrAddr);

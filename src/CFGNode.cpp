@@ -9,8 +9,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::CFGNode);
-
 void CFGNode::setEA(EA x)
 {
     this->ea = x;

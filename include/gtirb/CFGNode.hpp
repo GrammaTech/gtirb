@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/serialization/weak_ptr.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <memory>
@@ -328,23 +327,6 @@ namespace gtirb
         ///
         size_t getChildrenSize() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->ea;
-            ar & this->kind;
-            ar & this->successors;
-            ar & this->predecessors;
-            ar & this->info;
-            ar & this->children;
-            // This...we need to talk about.  Who owns this?
-            // uint8_t* loadedInstructionBytes{nullptr};
-        }
-
     protected:
         ///
         /// Add an existing CFGNode as a new CFGNode.
@@ -479,5 +461,3 @@ namespace gtirb
         uint8_t* loadedInstructionBytes{nullptr};
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::CFGNode);
