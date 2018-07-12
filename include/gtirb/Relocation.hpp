@@ -1,7 +1,6 @@
 #pragma once
 
 #include <proto/Relocation.pb.h>
-#include <boost/serialization/export.hpp>
 #include <gtirb/EA.hpp>
 #include <string>
 
@@ -17,15 +16,6 @@ namespace gtirb
         std::string type;
         std::string name;
         uint64_t offset{0};
-
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar & this->ea;
-            ar & this->type;
-            ar & this->name;
-            ar & this->offset;
-        }
 
         using MessageType = proto::Relocation;
         void toProtobuf(MessageType* message) const

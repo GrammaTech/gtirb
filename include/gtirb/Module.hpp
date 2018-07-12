@@ -3,7 +3,6 @@
 #include <boost/filesystem.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
-#include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeReference.hpp>
 #include <gtirb/ProcedureSet.hpp>
@@ -171,12 +170,6 @@ namespace gtirb
         SymbolicOperandSet& getSymbolicOperands();
         const SymbolicOperandSet& getSymbolicOperands() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
-
         using MessageType = proto::Module;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -215,5 +208,3 @@ namespace gtirb
         std::unique_ptr<SymbolicOperandSet> symbolicOperands;
     };
 } // namespace gtirb
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Module);

@@ -1,5 +1,4 @@
 #include <proto/Module.pb.h>
-#include <boost/serialization/export.hpp>
 #include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
@@ -15,8 +14,6 @@
 #include <gtirb/SymbolicOperand.hpp>
 
 using namespace gtirb;
-
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Module);
 
 Module::Module()
     : Node(),
@@ -229,31 +226,6 @@ SymbolicOperandSet& Module::getSymbolicOperands()
 const SymbolicOperandSet& Module::getSymbolicOperands() const
 {
     return *this->symbolicOperands;
-}
-
-template <class Archive>
-void Module::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Node>(*this);
-    GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->binaryPath);
-    ar & this->eaMinMax;
-    ar & this->preferredEA;
-    ar & this->rebaseDelta;
-    ar & this->fileFormat;
-    ar & this->isaID;
-    ar & this->isSetupComplete;
-    ar & this->isReadOnly;
-    ar & this->name;
-    ar & this->decodeMode;
-    ar & this->addrRanges;
-    ar & this->imageByteMap;
-    ar & this->procedureSet;
-    ar & this->symbolSet;
-    ar & this->blocks;
-    ar & this->relocations;
-    ar & this->data;
-    ar & this->sections;
-    ar & this->symbolicOperands;
 }
 
 void Module::toProtobuf(MessageType* message) const

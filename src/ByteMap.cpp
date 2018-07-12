@@ -7,8 +7,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::ByteMap);
-
 constexpr uint64_t PageOffsetMask{static_cast<uint64_t>(gtirb::constants::PageSize) - 1};
 constexpr uint64_t PageIndexMask{~PageOffsetMask};
 

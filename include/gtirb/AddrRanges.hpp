@@ -127,16 +127,6 @@ namespace gtirb
         ///
         const std::map<gtirb::EA, gtirb::EA>& data() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar& ranges;
-        }
-
         using MessageType = proto::AddrRanges;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -145,5 +135,3 @@ namespace gtirb
         std::map<gtirb::EA, gtirb::EA> ranges;
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::AddrRanges);

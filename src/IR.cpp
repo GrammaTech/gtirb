@@ -6,8 +6,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::IR);
-
 IR::IR() : Node()
 {
     // Create a main module
@@ -105,15 +103,6 @@ bool IR::getTablesEmpty() const
 void IR::clearTables()
 {
     this->tables.clear();
-}
-
-template <class Archive>
-void IR::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    ar& boost::serialization::base_object<Node>(*this);
-    ar& modules;
-    ar & this->mainModule;
-    ar & this->tables;
 }
 
 void IR::toProtobuf(MessageType* message) const

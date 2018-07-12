@@ -63,12 +63,6 @@ namespace gtirb
         void setNumberOfUses(int64_t x);
         int64_t getNumberOfUses() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
-
         using MessageType = proto::Instruction;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -80,5 +74,3 @@ namespace gtirb
         bool isPEI{false};
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Instruction);

@@ -2,8 +2,6 @@
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/shared_ptr_helper.hpp>
 #include <fstream>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeReference.hpp>
@@ -134,93 +132,6 @@ TEST(Unit_Node, clearLocalProperties)
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
 }
 
-TEST(Unit_Node, serialize)
-{
-    const auto tempPath =
-        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.string();
-
-    auto original = gtirb::Node{};
-    original.setLocalProperty("Name", std::string("Value"));
-
-    // Scope objects so they are destroyed
-    {
-        EXPECT_EQ(size_t{1}, original.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original.getLocalProperty("Name")));
-
-        // Serialize Out.
-        std::ofstream ofs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_oarchive oa{ofs};
-        EXPECT_TRUE(ofs.is_open());
-
-        oa << original;
-
-        EXPECT_NO_THROW(ofs.close());
-        EXPECT_FALSE(ofs.is_open());
-    }
-
-    // Read it back in and re-test
-    {
-        gtirb::Node serialized;
-
-        // Serialize In.
-        std::ifstream ifs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_iarchive ia{ifs};
-
-        ia >> serialized;
-
-        EXPECT_NO_THROW(ifs.close());
-
-        EXPECT_EQ(size_t{1}, serialized.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(serialized.getLocalProperty("Name")));
-    }
-}
-
-TEST(Unit_Node, serializeFromSharedPtr)
-{
-    const auto tempPath =
-        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.string();
-
-    auto original = std::make_shared<gtirb::Node>();
-    original->setLocalProperty("Name", std::string("Value"));
-
-    // Scope objects so they are destroyed
-    {
-        EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(original->getLocalProperty("Name")));
-
-        // Serialize Out.
-        std::ofstream ofs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_oarchive oa{ofs};
-        EXPECT_TRUE(ofs.is_open());
-
-        oa << original;
-
-        EXPECT_NO_THROW(ofs.close());
-        EXPECT_FALSE(ofs.is_open());
-    }
-
-    // Read it back in and re-test
-    {
-        std::shared_ptr<gtirb::Node> serialized = std::make_shared<gtirb::Node>();
-
-        // Serialize In.
-        std::ifstream ifs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_iarchive ia{ifs};
-
-        ia >> serialized;
-
-        EXPECT_NO_THROW(ifs.close());
-
-        EXPECT_EQ(size_t{1}, serialized->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(serialized->getLocalProperty("Name")));
-    }
-}
-
 TEST(Unit_node, getByUUID)
 {
     gtirb::Node node;
@@ -237,63 +148,4 @@ TEST(Unit_node, setUUIDUpdatesUUIDMap)
 
     EXPECT_EQ(gtirb::Node::getByUUID(newId), &node);
     EXPECT_EQ(gtirb::Node::getByUUID(oldId), nullptr);
-}
-
-TEST(Unit_Node, deserializeUpdatesUUIDMap)
-{
-    std::stringstream out;
-    gtirb::UUID id;
-
-    {
-        gtirb::Node node;
-        id = node.getUUID();
-
-        boost::archive::polymorphic_text_oarchive oa{out};
-        oa << node;
-    }
-
-    EXPECT_EQ(gtirb::Node::getByUUID(id), nullptr);
-
-    std::istringstream in(out.str());
-    boost::archive::polymorphic_text_iarchive ia{out};
-    gtirb::Node newNode;
-    ia >> newNode;
-
-    EXPECT_EQ(gtirb::Node::getByUUID(id), &newNode);
-}
-
-TEST(Unit_Node, symbolReference)
-{
-    gtirb::Node sym;
-    gtirb::NodeReference<gtirb::Node> ref(sym);
-
-    gtirb::Node *ptr = ref;
-    EXPECT_EQ(ptr, &sym);
-    EXPECT_EQ(ref->getUUID(), sym.getUUID());
-}
-
-TEST(Unit_Node, badReference)
-{
-    gtirb::Node sym;
-    gtirb::NodeReference<gtirb::Node> ref(gtirb::UUID{});
-
-    gtirb::Node *ptr = ref;
-    EXPECT_EQ(ptr, nullptr);
-}
-
-TEST(Unit_Node, serializeNodeReference)
-{
-    gtirb::Node sym;
-    gtirb::NodeReference<gtirb::Node> ref(sym);
-
-    std::stringstream out;
-    boost::archive::polymorphic_text_oarchive oa{out};
-    oa << ref;
-
-    std::istringstream in(out.str());
-    boost::archive::polymorphic_text_iarchive ia{out};
-    gtirb::NodeReference<gtirb::Node> ref2;
-    ia >> ref2;
-
-    EXPECT_EQ(&*ref2, &*ref);
 }

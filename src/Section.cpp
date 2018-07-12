@@ -4,8 +4,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Section);
-
 Section::Section(std::string n, uint64_t s, EA ea) : Node(), name(n), size(s), startingAddress(ea)
 {
 }

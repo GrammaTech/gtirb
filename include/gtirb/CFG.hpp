@@ -135,18 +135,6 @@ namespace gtirb
         ///
         const std::vector<std::shared_ptr<CFGNode>>& getNodes() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->ea;
-            ar & this->flags;
-            ar & this->nodes;
-        }
-
     private:
         std::string procedureName{};
         EA ea{};
@@ -154,5 +142,3 @@ namespace gtirb
         std::vector<std::shared_ptr<CFGNode>> nodes;
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::CFG);

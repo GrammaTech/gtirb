@@ -5,8 +5,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Procedure);
-
 void Procedure::setEA(gtirb::EA x)
 {
     this->ea = x;

@@ -58,7 +58,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Table.hpp
 	../include/gtirb/Utilities.hpp
 	../include/gtirb/Variant.hpp
-	../include/gtirb/FilesystemSerialization.hpp
 )
 
 set(${PROJECT_NAME}_SRC

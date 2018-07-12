@@ -5,8 +5,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Block);
-
 Block::Block(EA startingAddress, EA endingAddress)
     : Node(), startingAddress(startingAddress), endingAddress(endingAddress)
 {

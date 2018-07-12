@@ -18,8 +18,6 @@
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/shared_ptr_helper.hpp>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
@@ -200,145 +198,6 @@ TYPED_TEST_P(TypedNodeTest, clearLocalProperties)
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
 }
 
-TYPED_TEST_P(TypedNodeTest, serialize)
-{
-    const auto tempPath =
-        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.string();
-
-    TypeParam original;
-    original.setLocalProperty("Name", std::string("Value"));
-
-    // Scope objects so they are destroyed
-    {
-        EXPECT_EQ(size_t{1}, original.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original.getLocalProperty("Name")));
-
-        // Serialize Out.
-        std::ofstream ofs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_oarchive oa{ofs};
-        EXPECT_TRUE(ofs.is_open());
-
-        EXPECT_NO_THROW(oa << original);
-
-        EXPECT_NO_THROW(ofs.close());
-        EXPECT_FALSE(ofs.is_open());
-    }
-
-    // Read it back in and re-test
-    {
-        TypeParam serialized;
-
-        // Serialize In.
-        std::ifstream ifs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_iarchive ia{ifs};
-
-        EXPECT_NO_THROW(ia >> serialized);
-
-        EXPECT_NO_THROW(ifs.close());
-
-        ASSERT_EQ(size_t{1}, serialized.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(serialized.getLocalProperty("Name")));
-        EXPECT_EQ(original.getUUID(), serialized.getUUID());
-        EXPECT_EQ(sizeof(original), sizeof(serialized));
-    }
-}
-
-TYPED_TEST_P(TypedNodeTest, serializeBinary)
-{
-    const auto tempPath =
-        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.string();
-
-    TypeParam original;
-    original.setLocalProperty("Name", std::string("Value"));
-
-    // Scope objects so they are destroyed
-    {
-        EXPECT_EQ(size_t{1}, original.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"}, boost::get<std::string>(original.getLocalProperty("Name")));
-
-        // Serialize Out.
-        std::ofstream ofs{tempPathString.c_str(), std::ofstream::binary};
-        boost::archive::polymorphic_binary_oarchive oa{ofs};
-        EXPECT_TRUE(ofs.is_open());
-
-        EXPECT_NO_THROW(oa << original);
-
-        EXPECT_NO_THROW(ofs.close());
-        EXPECT_FALSE(ofs.is_open());
-    }
-
-    // Read it back in and re-test
-    {
-        TypeParam serialized;
-
-        // Serialize In.
-        std::ifstream ifs{tempPathString.c_str(), std::ifstream::binary};
-        boost::archive::polymorphic_binary_iarchive ia{ifs};
-
-        EXPECT_NO_THROW(ia >> serialized);
-
-        EXPECT_NO_THROW(ifs.close());
-
-        ASSERT_EQ(size_t{1}, serialized.getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(serialized.getLocalProperty("Name")));
-        EXPECT_EQ(original.getUUID(), serialized.getUUID());
-        EXPECT_EQ(sizeof(original), sizeof(serialized));
-    }
-}
-
-TYPED_TEST_P(TypedNodeTest, serializeFromSharedPtr)
-{
-    const auto tempPath =
-        boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-    const std::string tempPathString = tempPath.string();
-
-    auto original = std::make_shared<TypeParam>();
-    original->setLocalProperty("Name", std::string("Value"));
-
-    // Scope objects so they are destroyed
-    {
-        EXPECT_EQ(size_t{1}, original->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(original->getLocalProperty("Name")));
-
-        // Serialize Out.
-        std::ofstream ofs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_oarchive oa{ofs};
-        EXPECT_TRUE(ofs.is_open());
-
-        EXPECT_NO_THROW(oa << original);
-
-        EXPECT_NO_THROW(ofs.close());
-        EXPECT_FALSE(ofs.is_open());
-    }
-
-    // Read it back in and re-test
-    {
-        auto serialized = std::make_shared<TypeParam>();
-
-        // Serialize In.
-        std::ifstream ifs{tempPathString.c_str()};
-        boost::archive::polymorphic_text_iarchive ia{ifs};
-
-        EXPECT_NO_THROW(ia >> serialized);
-
-        EXPECT_NO_THROW(ifs.close());
-
-        ASSERT_EQ(size_t{1}, serialized->getLocalPropertySize());
-        EXPECT_EQ(std::string{"Value"},
-                  boost::get<std::string>(serialized->getLocalProperty("Name")));
-
-        EXPECT_EQ(original->getUUID(), serialized->getUUID());
-        EXPECT_EQ(sizeof(original), sizeof(serialized));
-        EXPECT_EQ(sizeof(*original), sizeof(*serialized));
-        EXPECT_EQ(typeid(*original), typeid(*serialized));
-    }
-}
-
 TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip)
 {
     typename TypeParam::MessageType message;
@@ -403,9 +262,6 @@ REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
                            setLocalProperty,          //
                            setLocalPropertyReset,     //
                            uniqueUuids,               //
-                           serialize,                 //
-                           serializeBinary,           //
-                           serializeFromSharedPtr,    //
                            deserializeUpdatesUUIDMap, //
                            nodeReference,             //
                            badReference);

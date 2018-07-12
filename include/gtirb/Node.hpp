@@ -1,18 +1,5 @@
 #pragma once
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/set.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/unordered_set.hpp>
-#include <boost/serialization/variant.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <functional>
 #include <gsl/gsl>
@@ -154,18 +141,6 @@ namespace gtirb
         ///
         std::map<std::string, gtirb::variant>::const_iterator endLocalProperties() const;
 
-        ///
-        /// Serialization support.
-        ///
-        /// This is built for boost::serialization.
-        ///
-        /// \note
-        /// The Cereal library was also considered, but does not handle std::shared_ptr as nicely.
-        /// (May 2017)
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/);
-
     private:
         std::map<std::string, gtirb::variant> localProperties;
         UUID uuid;
@@ -173,5 +148,3 @@ namespace gtirb
         static std::map<UUID, Node*> uuidMap;
     };
 } // namespace gtirb
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Node);

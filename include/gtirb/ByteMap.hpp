@@ -1,8 +1,5 @@
 #pragma once
 
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
 #include <functional>
 #include <gsl/gsl>
 #include <gtirb/Constants.hpp>
@@ -162,15 +159,6 @@ namespace gtirb
         std::vector<uint8_t> getDataUntil(EA ea, uint8_t sentinel,
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& data;
-        }
-
         using MessageType = proto::ByteMap;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -203,5 +191,3 @@ namespace gtirb
         std::map<gtirb::EA, ByteMap::Page> data;
     };
 } // namespace gtirb
-
-BOOST_CLASS_EXPORT_KEY(gtirb::ByteMap);

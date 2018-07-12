@@ -50,17 +50,6 @@ namespace gtirb
         ///
         Instruction* createInstruction();
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->ea;
-            ar & this->pltEntries;
-        }
-
         using MessageType = proto::Procedure;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -76,5 +65,3 @@ namespace gtirb
         std::vector<Instruction> instructions;
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::Procedure);

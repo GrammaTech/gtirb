@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/serialization/weak_ptr.hpp>
 #include <cstdint>
 #include <gtirb/Node.hpp>
 #include <gtirb/Symbol.hpp>
@@ -42,19 +41,7 @@ namespace gtirb
         ///
         gtirb::Symbol* getProcedureNameSymbol() const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar& procedureNameSymbol;
-        }
-
     private:
         Symbol* procedureNameSymbol{nullptr};
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::CFGNodeInfo);

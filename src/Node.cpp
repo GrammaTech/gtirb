@@ -1,12 +1,9 @@
-#include <boost/serialization/export.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <gsl/gsl>
 #include <gtirb/Node.hpp>
 
 using namespace gtirb;
-
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Node);
 
 std::map<UUID, Node*> Node::uuidMap;
 
@@ -109,20 +106,4 @@ std::map<std::string, gtirb::variant>::iterator Node::endLocalProperties()
 std::map<std::string, gtirb::variant>::const_iterator Node::endLocalProperties() const
 {
     return std::end(this->localProperties);
-}
-
-template <class Archive>
-void Node::serialize(Archive& ar, const unsigned int /*version*/)
-{
-    UUID oldId = this->uuid;
-
-    ar & this->localProperties;
-    ar & this->uuid.data;
-
-    // When deserializing, update uuidMap
-    if(this->uuid != oldId)
-    {
-        Node::uuidMap.erase(oldId);
-        Node::uuidMap[this->uuid] = this;
-    }
 }

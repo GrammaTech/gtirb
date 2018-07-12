@@ -5,8 +5,6 @@
 
 using namespace gtirb;
 
-BOOST_CLASS_EXPORT_IMPLEMENT(gtirb::Region);
-
 std::set<gtirb::EA>& Region::getEAs()
 {
     return this->eas;

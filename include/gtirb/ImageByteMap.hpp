@@ -7,7 +7,6 @@
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/FilesystemSerialization.hpp>
 #include <gtirb/Node.hpp>
 #include <set>
 
@@ -343,25 +342,6 @@ namespace gtirb
         std::vector<uint8_t> getDataUntil(EA x, uint8_t sentinel,
                                           size_t bytes = std::numeric_limits<size_t>::max()) const;
 
-        ///
-        /// Serialization support.
-        ///
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int /*version*/)
-        {
-            ar& boost::serialization::base_object<Node>(*this);
-            ar & this->byteMap;
-            GTIRB_SERIALIZE_FILESYSTEM_PATH(ar, this->fileName);
-            ar & this->eaMinMax;
-            ar & this->baseAddress;
-            ar & this->entryPointAddress;
-            ar & this->globalOffsetTableAddress;
-            ar & this->rebaseDelta;
-            ar & this->lfcm;
-            ar & this->contentSource;
-            ar & this->isRelocated;
-        }
-
         using MessageType = proto::ImageByteMap;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
@@ -380,5 +360,3 @@ namespace gtirb
         bool isRelocated{false};
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(gtirb::ImageByteMap);
