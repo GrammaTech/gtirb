@@ -57,7 +57,7 @@ TEST(Unit_Section, protobufRoundTrip)
     original.toProtobuf(&message);
     result.fromProtobuf(message);
 
-    EXPECT_EQ(result.name, "name");
-    EXPECT_EQ(result.size, 1234);
-    EXPECT_EQ(result.startingAddress, EA(1));
+    EXPECT_EQ(result.getName(), "name");
+    EXPECT_EQ(result.getSize(), 1234);
+    EXPECT_EQ(result.getStartingAddress(), EA(1));
 }

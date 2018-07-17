@@ -19,10 +19,6 @@ namespace gtirb
         Section() = default;
         Section(std::string n, uint64_t size, EA address);
 
-        std::string name;
-        uint64_t size{0};
-        EA startingAddress{0};
-
         /// The exclusive limit of the section. I.e. the smallest EA which is
         /// past the end.
         EA addressLimit() const;
@@ -33,8 +29,17 @@ namespace gtirb
         bool operator==(const Section& other) const;
         bool operator!=(const Section& other) const;
 
+        const std::string& getName() const;
+        const uint64_t getSize() const;
+        const EA getStartingAddress() const;
+
         using MessageType = proto::Section;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
+
+    private:
+        std::string name;
+        uint64_t size{0};
+        EA startingAddress{0};
     };
 }
