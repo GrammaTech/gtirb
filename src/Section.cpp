@@ -8,6 +8,21 @@ Section::Section(std::string n, uint64_t s, EA ea) : Node(), name(n), size(s), s
 {
 }
 
+const std::string& Section::getName() const
+{
+    return this->name;
+}
+
+const uint64_t Section::getSize() const
+{
+    return this->size;
+}
+
+const EA Section::getStartingAddress() const
+{
+    return this->startingAddress;
+}
+
 EA Section::addressLimit() const
 {
     // If base address is bad, return a bad EA.
