@@ -35,13 +35,20 @@ TEST(Unit_RegionSet, getRegion_invalid)
 
 TEST(Unit_RegionSet, protobufRoundTrip)
 {
-    RegionSet original;
-    original.createRegion(EA(1));
-
     gtirb::RegionSet result;
     proto::RegionSet message;
-    original.toProtobuf(&message);
+    std::set<EA> eas;
+
+    {
+        RegionSet original;
+        original.createRegion(EA(1));
+        eas = original.getRegion(EA(1))->getEAs();
+
+        original.toProtobuf(&message);
+    }
+
+    // original has been destroyed, so UUIDs can be reused
     result.fromProtobuf(message);
 
-    EXPECT_EQ(result.getRegion(EA(1))->getEAs(), original.getRegion(EA(1))->getEAs());
+    EXPECT_EQ(result.getRegion(EA(1))->getEAs(), eas);
 }

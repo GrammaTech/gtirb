@@ -43,6 +43,21 @@ namespace gtirb
         Module();
 
         ///
+        /// Modules can not be copied due to unique_ptrs.
+        ///
+        Module(const Module&) = delete;
+
+        ///
+        /// Move constructor
+        ///
+        Module(Module&&);
+
+        ///
+        /// Move assignment
+        ///
+        Module& operator=(Module&&) = default;
+
+        ///
         /// Trivial virtual destructor.
         ///
         ~Module() override;
@@ -160,9 +175,9 @@ namespace gtirb
 
         // Note: all of these will probably move and/or get a different interface.
         const std::vector<Block>& getBlocks() const;
-        void setBlocks(std::vector<Block> x);
+        std::vector<Block>& getBlocks();
         const std::vector<Relocation>& getRelocations() const;
-        void setRelocations(std::vector<Relocation> x);
+        std::vector<Relocation>& getRelocations();
         const std::vector<Data>& getData() const;
         std::vector<Data>& getData();
         std::vector<Section>& getSections();

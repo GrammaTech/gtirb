@@ -18,6 +18,7 @@
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
@@ -198,6 +199,43 @@ TYPED_TEST_P(TypedNodeTest, clearLocalProperties)
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
 }
 
+TYPED_TEST_P(TypedNodeTest, getByUUID)
+{
+    TypeParam node;
+    EXPECT_EQ(gtirb::Node::getByUUID(node.getUUID()), &node);
+}
+
+TYPED_TEST_P(TypedNodeTest, setUUIDUpdatesUUIDMap)
+{
+    TypeParam node;
+    auto oldId = node.getUUID();
+    auto newId = boost::uuids::random_generator()();
+    node.setUUID(newId);
+
+    EXPECT_EQ(gtirb::Node::getByUUID(newId), &node);
+    EXPECT_EQ(gtirb::Node::getByUUID(oldId), nullptr);
+}
+
+TYPED_TEST_P(TypedNodeTest, moveUpdatesUUIDMap)
+{
+    TypeParam node1;
+    auto id = node1.getUUID();
+    TypeParam node2(std::move(node1));
+
+    EXPECT_EQ(node2.getUUID(), id);
+    EXPECT_EQ(gtirb::Node::getByUUID(id), &node2);
+}
+
+TYPED_TEST_P(TypedNodeTest, moveAssignmentUpdatesUUIDMap)
+{
+    TypeParam node1;
+    auto id = node1.getUUID();
+    TypeParam node2 = std::move(node1);
+
+    EXPECT_EQ(node2.getUUID(), id);
+    EXPECT_EQ(gtirb::Node::getByUUID(id), &node2);
+}
+
 TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip)
 {
     typename TypeParam::MessageType message;
@@ -253,17 +291,21 @@ TYPED_TEST_P(TypedNodeTest, badReference)
     EXPECT_EQ(ptr, nullptr);
 }
 
-REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
-                           protobufUUIDRoundTrip,     //
-                           ctor_0,                    //
-                           clearLocalProperties,      //
-                           removeLocalProperty,       //
-                           setLocalProperties,        //
-                           setLocalProperty,          //
-                           setLocalPropertyReset,     //
-                           uniqueUuids,               //
-                           deserializeUpdatesUUIDMap, //
-                           nodeReference,             //
+REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,                //
+                           protobufUUIDRoundTrip,        //
+                           ctor_0,                       //
+                           clearLocalProperties,         //
+                           removeLocalProperty,          //
+                           setLocalProperties,           //
+                           setLocalProperty,             //
+                           setLocalPropertyReset,        //
+                           uniqueUuids,                  //
+                           deserializeUpdatesUUIDMap,    //
+                           getByUUID,                    //
+                           setUUIDUpdatesUUIDMap,        //
+                           moveUpdatesUUIDMap,           //
+                           moveAssignmentUpdatesUUIDMap, //
+                           nodeReference,                //
                            badReference);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name

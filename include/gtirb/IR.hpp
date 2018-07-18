@@ -82,6 +82,21 @@ namespace gtirb
         IR();
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit IR(const IR& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        IR(IR&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        IR& operator=(IR&&) = default;
+
+        ///
         /// Trivial virtual destructor.
         ///
         ~IR() override = default;

@@ -32,6 +32,7 @@ TEST(Unit_Region, protobufRoundTrip)
     gtirb::Region result;
     proto::Region message;
     original.toProtobuf(&message);
+    original.setUUID(); // Avoid UUID conflict
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getEAs(), std::set<EA>({EA(1), EA(2)}));

@@ -70,6 +70,21 @@ namespace gtirb
 
         ImageByteMap() = default;
 
+        ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit ImageByteMap(const ImageByteMap& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        ImageByteMap(ImageByteMap&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        ImageByteMap& operator=(ImageByteMap&&) = default;
+
         ~ImageByteMap() override = default;
 
         ///

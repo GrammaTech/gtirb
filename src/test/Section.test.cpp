@@ -55,6 +55,7 @@ TEST(Unit_Section, protobufRoundTrip)
     gtirb::Section result;
     proto::Section message;
     original.toProtobuf(&message);
+    original.setUUID(); // Avoid UUID conflict
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getName(), "name");

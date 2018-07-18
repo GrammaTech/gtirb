@@ -89,6 +89,21 @@ namespace gtirb
         Symbol(EA x, std::string name);
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Symbol(const Symbol& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        Symbol(Symbol&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Symbol& operator=(Symbol&&) = default;
+
+        ///
         /// Defaulted trivial destructor.
         ///
         ~Symbol() override = default;

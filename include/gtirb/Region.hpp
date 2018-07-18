@@ -24,6 +24,22 @@ namespace gtirb
     {
     public:
         Region() = default;
+
+        ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Region(const Region& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        Region(Region&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Region& operator=(Region&&) = default;
+
         ~Region() override = default;
 
         std::set<gtirb::EA>& getEAs();

@@ -201,6 +201,7 @@ TEST(Unit_Symbol, protobufRoundTrip)
     gtirb::Symbol result;
     proto::Symbol message;
     original.toProtobuf(&message);
+    original.setUUID(); // Avoid UUID conflict
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getEA(), EA(1));

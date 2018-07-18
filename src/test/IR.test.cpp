@@ -79,18 +79,24 @@ TEST(Unit_IR, getModulesContainingEA)
 
 TEST(Unit_IR, protobufRoundTrip)
 {
-    IR original;
-    auto m = std::make_unique<Module>();
-    m->setEAMinMax({EA(100), EA(200)});
-    original.addModule(std::move(m));
-    original.addTable("test", std::make_unique<Table>());
-
     IR result;
     proto::IR message;
-    original.toProtobuf(&message);
+    UUID mainID;
+
+    {
+        IR original;
+        auto m = std::make_unique<Module>();
+        m->setEAMinMax({EA(100), EA(200)});
+        original.addModule(std::move(m));
+        original.addTable("test", std::make_unique<Table>());
+
+        mainID = original.getMainModule().getUUID();
+        original.toProtobuf(&message);
+    }
+    // original has been destroyed, so UUIDs can be reused
     result.fromProtobuf(message);
 
-    EXPECT_EQ(result.getMainModule().getUUID(), original.getMainModule().getUUID());
+    EXPECT_EQ(result.getMainModule().getUUID(), mainID);
     EXPECT_EQ(result.getModulesContainingEA(EA(100)).size(), 1);
     EXPECT_EQ(result.getTableSize(), 1);
     EXPECT_NE(result.getTable("test"), nullptr);

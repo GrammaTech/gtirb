@@ -206,30 +206,51 @@ TEST(Unit_Module, getDecodeMode)
 
 TEST(Unit_Module, protobufRoundTrip)
 {
-    Module original;
-    original.setBinaryPath("test");
-    original.setEAMinMax({EA(1), EA(2)});
-    original.setPreferredEA(EA(3));
-    original.setRebaseDelta(4);
-    original.setFileFormat(FileFormat::ELF);
-    original.setISAID(ISAID::X64);
-    original.setName("module");
-    original.setDecodeMode(5);
-    original.getProcedureSet().insert({EA(6), {}});
-    original.getSymbolSet().push_back({});
-    original.setBlocks({{}});
-    original.setRelocations({{EA(8), "foo", "bar", 1}});
-    original.getData().push_back({});
-    original.getSections().push_back({});
-    original.getSymbolicOperands().insert({EA(7), {SymAddrConst()}});
-
     gtirb::Module result;
     proto::Module message;
-    original.toProtobuf(&message);
+
+    UUID addrRangesID, byteMapID, procedureID, symbolID, blockID, dataID, sectionID;
+    std::pair<EA, EA> eaMinMax;
+    EA relocationEA;
+    int whichSymbolic;
+
+    {
+        Module original;
+        original.setBinaryPath("test");
+        original.setEAMinMax({EA(1), EA(2)});
+        original.setPreferredEA(EA(3));
+        original.setRebaseDelta(4);
+        original.setFileFormat(FileFormat::ELF);
+        original.setISAID(ISAID::X64);
+        original.setName("module");
+        original.setDecodeMode(5);
+        original.getProcedureSet()[EA(6)] = {};
+        original.getSymbolSet().push_back({});
+        original.getBlocks().emplace_back();
+        original.getRelocations().push_back({EA(8), "foo", "bar", 1});
+        original.getData().push_back({});
+        original.getSections().push_back({});
+        original.getSymbolicOperands().insert({EA(7), {SymAddrConst()}});
+
+        addrRangesID = original.getAddrRanges().getUUID();
+        byteMapID = original.getImageByteMap().getUUID();
+        procedureID = original.getProcedureSet().begin()->second.getUUID();
+        symbolID = original.getSymbolSet().begin()->getUUID();
+        blockID = original.getBlocks().begin()->getUUID();
+        dataID = original.getData().begin()->getUUID();
+        sectionID = original.getSections().begin()->getUUID();
+        eaMinMax = original.getEAMinMax();
+        relocationEA = original.getRelocations().begin()->ea;
+        whichSymbolic = original.getSymbolicOperands().begin()->second.which();
+
+        original.toProtobuf(&message);
+    }
+
+    // original has been destroyed, so UUIDs can be reused
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getBinaryPath(), "test");
-    EXPECT_EQ(result.getEAMinMax(), original.getEAMinMax());
+    EXPECT_EQ(result.getEAMinMax(), eaMinMax);
     EXPECT_EQ(result.getPreferredEA(), EA(3));
     EXPECT_EQ(result.getRebaseDelta(), 4);
     EXPECT_EQ(result.getFileFormat(), FileFormat::ELF);
@@ -239,29 +260,27 @@ TEST(Unit_Module, protobufRoundTrip)
 
     // Make sure various collections and node members are serialized, but
     // don't check in detail as they have their own unit tests.
-    EXPECT_EQ(result.getAddrRanges().getUUID(), original.getAddrRanges().getUUID());
-    EXPECT_EQ(result.getImageByteMap().getUUID(), original.getImageByteMap().getUUID());
+    EXPECT_EQ(result.getAddrRanges().getUUID(), addrRangesID);
+    EXPECT_EQ(result.getImageByteMap().getUUID(), byteMapID);
 
     EXPECT_EQ(result.getProcedureSet().size(), 1);
-    EXPECT_EQ(result.getProcedureSet().begin()->second.getUUID(),
-              original.getProcedureSet().begin()->second.getUUID());
+    EXPECT_EQ(result.getProcedureSet().begin()->second.getUUID(), procedureID);
 
     EXPECT_EQ(result.getSymbolSet().size(), 1);
-    EXPECT_EQ(result.getSymbolSet().begin()->getUUID(), original.getSymbolSet().begin()->getUUID());
+    EXPECT_EQ(result.getSymbolSet().begin()->getUUID(), symbolID);
 
     EXPECT_EQ(result.getBlocks().size(), 1);
-    EXPECT_EQ(result.getBlocks().begin()->getUUID(), original.getBlocks().begin()->getUUID());
+    EXPECT_EQ(result.getBlocks().begin()->getUUID(), blockID);
 
     EXPECT_EQ(result.getRelocations().size(), 1);
-    EXPECT_EQ(result.getRelocations().begin()->ea, original.getRelocations().begin()->ea);
+    EXPECT_EQ(result.getRelocations().begin()->ea, relocationEA);
 
     EXPECT_EQ(result.getData().size(), 1);
-    EXPECT_EQ(result.getData().begin()->getUUID(), original.getData().begin()->getUUID());
+    EXPECT_EQ(result.getData().begin()->getUUID(), dataID);
 
     EXPECT_EQ(result.getSections().size(), 1);
-    EXPECT_EQ(result.getSections().begin()->getUUID(), original.getSections().begin()->getUUID());
+    EXPECT_EQ(result.getSections().begin()->getUUID(), sectionID);
 
     EXPECT_EQ(result.getSymbolicOperands().size(), 1);
-    EXPECT_EQ(result.getSymbolicOperands().begin()->second.which(),
-              original.getSymbolicOperands().begin()->second.which());
+    EXPECT_EQ(result.getSymbolicOperands().begin()->second.which(), whichSymbolic);
 }

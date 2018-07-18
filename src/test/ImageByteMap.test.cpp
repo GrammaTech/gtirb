@@ -315,6 +315,7 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip)
     gtirb::ImageByteMap result;
     proto::ImageByteMap message;
     original.toProtobuf(&message);
+    original.setUUID(); // Avoid UUID conflict
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getDataSize(), original.getDataSize());

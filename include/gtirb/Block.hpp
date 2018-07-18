@@ -25,6 +25,10 @@ namespace gtirb
         Block() = default;
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Block(const Block& other) = default;
+        ///
         /// Construct an empty block
         ///
         Block(EA startingAddress, EA endingAddress);
@@ -34,6 +38,16 @@ namespace gtirb
         /// Instructions are copied and added as children.
         ///
         Block(EA startingAddress, EA endingAddress, std::vector<Instruction>&& instructions);
+
+        ///
+        /// Move constructor
+        ///
+        Block(Block&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Block& operator=(Block&&) = default;
 
         ///
         /// Defaulted trivial destructor.
