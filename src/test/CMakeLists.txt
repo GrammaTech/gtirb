@@ -39,8 +39,6 @@ set(${PROJECT_NAME}_SRC
 	Node.test.cpp
 	NodeError.test.cpp
 	Procedure.test.cpp
-	Region.test.cpp
-	RegionSet.test.cpp
         Relocation.test.cpp
         Section.test.cpp
 	Symbol.test.cpp
