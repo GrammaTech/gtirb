@@ -66,6 +66,7 @@ TEST(Unit_Procedure, protobufRoundTrip)
     gtirb::Procedure result;
     proto::Procedure message;
     original.toProtobuf(&message);
+    original.setUUID(); // Avoid UUID conflict
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getEA(), EA(1));

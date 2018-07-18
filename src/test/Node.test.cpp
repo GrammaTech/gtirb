@@ -30,6 +30,16 @@ TEST(Unit_Node, uniqueUuids)
     EXPECT_EQ(std::end(uuids), end) << "Duplicate UUID's were generated.";
 }
 
+TEST(Unit_Node, copyGetsNewUUID)
+{
+    gtirb::Node node;
+    gtirb::Node copy(node);
+
+    EXPECT_NE(node.getUUID(), copy.getUUID());
+    EXPECT_EQ(gtirb::Node::getByUUID(node.getUUID()), &node);
+    EXPECT_EQ(gtirb::Node::getByUUID(copy.getUUID()), &copy);
+}
+
 TEST(Unit_Node, setLocalProperty)
 {
     auto node = gtirb::Node();
@@ -130,22 +140,4 @@ TEST(Unit_Node, clearLocalProperties)
 
     EXPECT_TRUE(node.getLocalPropertyEmpty());
     EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-}
-
-TEST(Unit_node, getByUUID)
-{
-    gtirb::Node node;
-    EXPECT_EQ(gtirb::Node::getByUUID(node.getUUID()), &node);
-}
-
-TEST(Unit_node, setUUIDUpdatesUUIDMap)
-{
-    gtirb::Node node;
-    gtirb::UUID oldId(node.getUUID());
-    gtirb::UUID newId;
-
-    node.setUUID(newId);
-
-    EXPECT_EQ(gtirb::Node::getByUUID(newId), &node);
-    EXPECT_EQ(gtirb::Node::getByUUID(oldId), nullptr);
 }

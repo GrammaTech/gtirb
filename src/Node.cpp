@@ -26,39 +26,37 @@ Node::Node() : uuid(boost::uuids::random_generator()())
     Node::uuidMap[this->uuid] = this;
 }
 
-Node::Node(Node&& other)
+Node::Node(const Node& other) : localProperties(other.localProperties)
+{
+    this->setUUID();
+}
+
+Node::Node(Node&& other) noexcept
     : localProperties(std::move(other.localProperties)), uuid(std::move(other.uuid))
 {
+    other.uuid = UUID();
     Node::uuidMap[this->uuid] = this;
 }
 
-Node::Node(const Node& other) : localProperties(other.localProperties), uuid(other.uuid)
+Node& Node::operator=(Node&& other) noexcept
 {
-    Node::uuidMap[this->uuid] = this;
-}
+    // Update UUID map
+    auto found = Node::uuidMap.find(other.uuid);
+    assert(found != Node::uuidMap.end());
+    this->uuid = other.uuid;
+    found->second = this;
+    other.uuid = UUID();
 
-Node& Node::operator=(const Node& other)
-{
-    this->setUUID(other.uuid);
-    this->localProperties = other.localProperties;
-    return *this;
-}
-
-Node& Node::operator=(Node&& other)
-{
-    this->setUUID(std::move(other.uuid));
     this->localProperties = std::move(other.localProperties);
     return *this;
 }
 
-Node::~Node()
+Node::~Node() noexcept
 {
     auto found = Node::uuidMap.find(this->uuid);
-    // NOTE: this is a hack to prevent issues with copied nodes.
-    // In the long run nodes should not be copyable, but expunging all code
-    // that relies on copies is a larger project.
-    if(found != Node::uuidMap.end() && found->second == this)
+    if(found != Node::uuidMap.end())
     {
+        assert(found->second == this);
         Node::uuidMap.erase(found);
     }
 }
@@ -72,9 +70,12 @@ void Node::setUUID()
 
 void Node::setUUID(UUID x)
 {
+    // UUID should not previously exist
+    assert(Node::uuidMap.find(x) == Node::uuidMap.end());
+
     Node::uuidMap.erase(this->uuid);
     this->uuid = x;
-    Node::uuidMap[this->uuid] = this;
+    Node::uuidMap.emplace(x, this);
 }
 
 UUID Node::getUUID() const

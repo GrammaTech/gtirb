@@ -19,6 +19,21 @@ namespace gtirb
         Section() = default;
         Section(std::string n, uint64_t size, EA address);
 
+        ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Section(const Section& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        Section(Section&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Section& operator=(Section&&) = default;
+
         /// The exclusive limit of the section. I.e. the smallest EA which is
         /// past the end.
         EA addressLimit() const;

@@ -163,6 +163,7 @@ TEST(Unit_AddrRanges, protobufRoundTrip)
     gtirb::AddrRanges ranges2;
     proto::AddrRanges message;
     ranges1.toProtobuf(&message);
+    ranges1.setUUID(); // Avoid UUID conflict
     ranges2.fromProtobuf(message);
 
     EXPECT_EQ(ranges1.data(), ranges2.data());

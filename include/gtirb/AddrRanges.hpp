@@ -33,6 +33,21 @@ namespace gtirb
         AddrRanges() = default;
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit AddrRanges(const AddrRanges& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        AddrRanges(AddrRanges&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        AddrRanges& operator=(AddrRanges&&) = default;
+
+        ///
         /// Defaulted trivial destructor.
         ///
         ~AddrRanges() override = default;

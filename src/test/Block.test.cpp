@@ -3,6 +3,7 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
@@ -13,11 +14,14 @@ TEST(Unit_Block, ctor)
 
 TEST(Unit_Block, getInstructions)
 {
-    Block block(EA(), EA(), {Instruction(EA(123)), Instruction(EA(456)), Instruction(EA(789))});
+    Block block{EA(), EA()};
+    block.getInstructions().emplace_back(EA(123));
+    block.getInstructions().emplace_back(EA(456));
+    block.getInstructions().emplace_back(EA(789));
 
     // Instructions were copied by the Block constructor but their contents
     // should be the same.
-    const auto instructions2 = block.getInstructions();
+    const auto& instructions2 = block.getInstructions();
     EXPECT_EQ(instructions2.size(), 3);
     EXPECT_EQ(instructions2[0].getEA(), EA(123));
     EXPECT_EQ(instructions2[1].getEA(), EA(456));
@@ -26,11 +30,18 @@ TEST(Unit_Block, getInstructions)
 
 TEST(Unit_Block, protobufRoundTrip)
 {
-    Block original(EA(1), EA(4), {Instruction(EA(1)), Instruction(EA(2)), Instruction(EA(3))});
-
     gtirb::Block result;
     proto::Block message;
-    original.toProtobuf(&message);
+
+    {
+        Block original{EA(1), EA(4)};
+        original.getInstructions().emplace_back(EA(1));
+        original.getInstructions().emplace_back(EA(2));
+        original.getInstructions().emplace_back(EA(3));
+
+        original.toProtobuf(&message);
+    }
+    // original has been destroyed, so UUIDs can be reused
     result.fromProtobuf(message);
 
     const auto& instructions = result.getInstructions();

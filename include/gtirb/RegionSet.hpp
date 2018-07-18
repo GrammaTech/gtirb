@@ -29,6 +29,21 @@ namespace gtirb
         RegionSet() = default;
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit RegionSet(const RegionSet& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        RegionSet(RegionSet&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        RegionSet& operator=(RegionSet&&) = default;
+
+        ///
         /// Defaulted trivial destructor.
         ///
         ~RegionSet() override = default;

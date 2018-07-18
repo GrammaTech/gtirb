@@ -14,7 +14,7 @@ Block::Block(EA startingAddress, EA endingAddress, std::vector<Instruction>&& in
     : Node(),
       startingAddress(startingAddress),
       endingAddress(endingAddress),
-      instructions(instructions)
+      instructions(std::move(instructions))
 {
 }
 

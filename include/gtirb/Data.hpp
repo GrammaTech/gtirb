@@ -34,6 +34,20 @@ namespace gtirb
         // Default constructor required for serialization.
         Data() = default;
 
+        ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Data(const Data& other) = default;
+        ///
+        /// Move constructor
+        ///
+        Data(Data&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Data& operator=(Data&&) = default;
+
         Data(EA ea_, uint64_t size_) : ea(ea_), size(size_)
         {
         }

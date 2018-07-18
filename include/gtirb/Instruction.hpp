@@ -34,9 +34,24 @@ namespace gtirb
         Instruction(EA ea);
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Instruction(const Instruction& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        Instruction(Instruction&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Instruction& operator=(Instruction&&) = default;
+
+        ///
         /// Defaulted trivial destructor.
         ///
-        ~Instruction() override = default;
+        // virtual ~Instruction() override = default;
 
         void setEA(gtirb::EA x);
         gtirb::EA getEA() const;

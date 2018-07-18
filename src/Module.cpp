@@ -29,6 +29,7 @@ Module::Module()
 {
 }
 
+Module::Module(Module&&) = default;
 Module::~Module() = default;
 
 void Module::setBinaryPath(boost::filesystem::path x)
@@ -183,9 +184,9 @@ const std::vector<Block>& Module::getBlocks() const
     return *this->blocks;
 }
 
-void Module::setBlocks(const std::vector<Block> x)
+std::vector<Block>& Module::getBlocks()
 {
-    this->blocks = std::make_unique<std::vector<Block>>(x);
+    return *this->blocks;
 }
 
 const std::vector<Relocation>& Module::getRelocations() const
@@ -193,9 +194,9 @@ const std::vector<Relocation>& Module::getRelocations() const
     return *this->relocations;
 }
 
-void Module::setRelocations(const std::vector<Relocation> x)
+std::vector<Relocation>& Module::getRelocations()
 {
-    this->relocations = std::make_unique<std::vector<Relocation>>(x);
+    return *this->relocations;
 }
 
 const std::vector<Data>& Module::getData() const

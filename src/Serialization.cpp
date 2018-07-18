@@ -13,6 +13,7 @@ namespace gtirb
 
     void uuidToBytes(UUID uuid, std::string& bytes)
     {
+        bytes.clear();
         bytes.reserve(sizeof(uuid.data));
         std::copy(std::begin(uuid.data), std::end(uuid.data), std::back_inserter(bytes));
     }

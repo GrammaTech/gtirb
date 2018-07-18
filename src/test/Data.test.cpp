@@ -11,6 +11,7 @@ TEST(Unit_Data, protobufRoundTrip)
     gtirb::Data result;
     proto::Data message;
     original.toProtobuf(&message);
+    original.setUUID(); // Avoid UUID conflict
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getEA(), EA(1));

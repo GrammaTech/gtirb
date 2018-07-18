@@ -26,6 +26,21 @@ namespace gtirb
         Procedure() = default;
 
         ///
+        /// Copy constructor. Assigns a new UUID to the copy.
+        ///
+        explicit Procedure(const Procedure& other) = default;
+
+        ///
+        /// Move constructor
+        ///
+        Procedure(Procedure&&) = default;
+
+        ///
+        /// Move assignment
+        ///
+        Procedure& operator=(Procedure&&) = default;
+
+        ///
         /// Defaulted trivial destructor.
         ///
         ~Procedure() override = default;
