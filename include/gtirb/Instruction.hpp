@@ -56,36 +56,11 @@ namespace gtirb
         void setEA(gtirb::EA x);
         gtirb::EA getEA() const;
 
-        ///
-        /// From WALA.
-        /// https://github.com/wala/WALA/wiki/Intermediate-Representation-(IR)
-        ///
-        /// \todo Remove.
-        ///
-        void setIsFallthrough(bool x);
-        bool getIsFallthrough() const;
-
-        ///
-        /// From WALA.
-        /// Can this instruction thrown an exception?
-        /// https://github.com/wala/WALA/wiki/Intermediate-Representation-(IR)
-        ///
-        /// \todo Remove.
-        ///
-        void setIsPEI(bool x);
-        bool getIsPEI() const;
-
-        void setNumberOfUses(int64_t x);
-        int64_t getNumberOfUses() const;
-
         using MessageType = proto::Instruction;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
 
     private:
         gtirb::EA ea;
-        int64_t numberOfUses{0};
-        bool isFallthrough{false};
-        bool isPEI{false};
     };
 }

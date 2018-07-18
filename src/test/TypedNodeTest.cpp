@@ -91,108 +91,6 @@ TYPED_TEST_P(TypedNodeTest, uniqueUuids)
     EXPECT_EQ(std::end(uuids), end) << "Duplicate UUID's were generated.";
 }
 
-TYPED_TEST_P(TypedNodeTest, setLocalProperty)
-{
-    TypeParam node{};
-
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-
-    const std::pair<std::string, std::string> nvp{"Foo", "Bar"};
-    EXPECT_NO_THROW(node.setLocalProperty(nvp.first, nvp.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-}
-
-TYPED_TEST_P(TypedNodeTest, setLocalPropertyReset)
-{
-    TypeParam node{};
-
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-
-    const std::pair<std::string, std::string> nvp1{"Foo", "Bar"};
-    const std::pair<std::string, std::string> nvp2{"Foo", "Bah"};
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp1.first, nvp1.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp2.first, nvp2.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-}
-
-TYPED_TEST_P(TypedNodeTest, setLocalProperties)
-{
-    TypeParam node{};
-
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-
-    const std::pair<std::string, std::string> nvp1{"Foo", "Bar"};
-    const std::pair<std::string, std::string> nvp2{"Bar", "Foo"};
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp1.first, nvp1.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp2.first, nvp2.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(2), node.getLocalPropertySize());
-}
-
-TYPED_TEST_P(TypedNodeTest, removeLocalProperty)
-{
-    TypeParam node{};
-
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-
-    const std::pair<std::string, std::string> nvp1{"Foo", "Bar"};
-    const std::pair<std::string, std::string> nvp2{"Bar", "Foo"};
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp1.first, nvp1.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp2.first, nvp2.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(2), node.getLocalPropertySize());
-
-    EXPECT_TRUE(node.removeLocalProperty("Foo"));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-
-    EXPECT_TRUE(node.removeLocalProperty("Bar"));
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-}
-
-TYPED_TEST_P(TypedNodeTest, clearLocalProperties)
-{
-    TypeParam node{};
-
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-
-    const std::pair<std::string, std::string> nvp1{"Foo", "Bar"};
-    const std::pair<std::string, std::string> nvp2{"Bar", "Foo"};
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp1.first, nvp1.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(1), node.getLocalPropertySize());
-
-    EXPECT_NO_THROW(node.setLocalProperty(nvp2.first, nvp2.second));
-    EXPECT_FALSE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(2), node.getLocalPropertySize());
-
-    EXPECT_NO_THROW(node.clearLocalProperties());
-
-    EXPECT_TRUE(node.getLocalPropertyEmpty());
-    EXPECT_EQ(size_t(0), node.getLocalPropertySize());
-}
-
 TYPED_TEST_P(TypedNodeTest, getByUUID)
 {
     TypeParam node;
@@ -288,11 +186,6 @@ TYPED_TEST_P(TypedNodeTest, badReference)
 REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,                //
                            protobufUUIDRoundTrip,        //
                            ctor_0,                       //
-                           clearLocalProperties,         //
-                           removeLocalProperty,          //
-                           setLocalProperties,           //
-                           setLocalProperty,             //
-                           setLocalPropertyReset,        //
                            uniqueUuids,                  //
                            deserializeUpdatesUUIDMap,    //
                            getByUUID,                    //
