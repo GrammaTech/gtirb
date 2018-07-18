@@ -45,8 +45,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/Procedure.hpp
         ../include/gtirb/ProcedureSet.hpp
-	../include/gtirb/Region.hpp
-	../include/gtirb/RegionSet.hpp
 	../include/gtirb/Relocation.hpp
 	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
@@ -84,8 +82,6 @@ set(${PROJECT_NAME}_SRC
 	NodeError.cpp
 	NodeStructureError.cpp
 	Procedure.cpp
-	Region.cpp
-	RegionSet.cpp
 	RuntimeError.cpp
         Section.cpp
         Serialization.cpp

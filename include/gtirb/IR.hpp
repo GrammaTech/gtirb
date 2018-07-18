@@ -33,7 +33,6 @@ namespace gtirb
     ///     moduleAux [label="gtirb::ModuleAux" URL="\ref ModuleAux"]
     ///     addrRanges [label="gtirb::AddrRanges" URL="\ref AddrRanges"]
     ///     region [label="gtirb::Region" URL="\ref Region"]
-    ///     regionSet [label="gtirb::RegionSet" URL="\ref RegionSet"]
     ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
     ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
     ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]

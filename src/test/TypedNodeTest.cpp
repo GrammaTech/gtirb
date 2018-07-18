@@ -8,8 +8,6 @@
 #include <proto/Instruction.pb.h>
 #include <proto/Module.pb.h>
 #include <proto/Procedure.pb.h>
-#include <proto/Region.pb.h>
-#include <proto/RegionSet.pb.h>
 #include <proto/Relocation.pb.h>
 #include <proto/Section.pb.h>
 #include <proto/Symbol.pb.h>
@@ -36,8 +34,6 @@
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeReference.hpp>
 #include <gtirb/Procedure.hpp>
-#include <gtirb/Region.hpp>
-#include <gtirb/RegionSet.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <memory>
@@ -52,8 +48,6 @@ typedef Types<gtirb::AddrRanges,   //
               gtirb::Instruction,  //
               gtirb::Module,       //
               gtirb::Procedure,    //
-              gtirb::Region,       //
-              gtirb::RegionSet,    //
               gtirb::Section,      //
               gtirb::Symbol        //
               >
