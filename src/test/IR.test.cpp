@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <proto/IR.pb.h>
 #include <gtirb/IR.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <memory>
 
@@ -54,21 +55,21 @@ TEST(Unit_IR, getModulesContainingEA)
     // EA at lower bound
     {
         auto m = std::make_unique<gtirb::Module>();
-        m->setEAMinMax({ea, ea + eaOffset});
+        m->getImageByteMap().setEAMinMax({ea, ea + eaOffset});
         EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
     // EA inside range
     {
         auto m = std::make_unique<gtirb::Module>();
-        m->setEAMinMax({ea - eaOffset, ea + eaOffset});
+        m->getImageByteMap().setEAMinMax({ea - eaOffset, ea + eaOffset});
         EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
     // EA at max (should not be returned)
     {
         auto m = std::make_unique<gtirb::Module>();
-        m->setEAMinMax({ea - eaOffset, ea});
+        m->getImageByteMap().setEAMinMax({ea - eaOffset, ea});
         EXPECT_NO_THROW(ir.addModule(std::move(m)));
     }
 
@@ -86,7 +87,7 @@ TEST(Unit_IR, protobufRoundTrip)
     {
         IR original;
         auto m = std::make_unique<Module>();
-        m->setEAMinMax({EA(100), EA(200)});
+        m->getImageByteMap().setEAMinMax({EA(100), EA(200)});
         original.addModule(std::move(m));
         original.addTable("test", std::make_unique<Table>());
 

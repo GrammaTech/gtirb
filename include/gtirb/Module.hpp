@@ -103,24 +103,6 @@ namespace gtirb
         int64_t getRebaseDelta() const;
 
         ///
-        /// If an invalid pair is passed in, the min and max will be set to an invalid state
-        /// (gtirb::constants::BadAddress).
-        ///
-        /// \param      x   The minimum and maximum effective address (EA) for this Module.
-        /// \return     False if the pair's first is > the pair's second.
-        ///
-        bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x);
-
-        ///
-        /// Gets the minimum and maximum effective address (EA) for this Module.
-        ///
-        /// Check return values for gtirb::constants::BadAddress.
-        ///
-        /// \return     The minimum and maximum effective address (EA) for this Module.
-        ///
-        std::pair<gtirb::EA, gtirb::EA> getEAMinMax() const;
-
-        ///
         ///
         ///
         void setPreferredEA(gtirb::EA x);
@@ -164,9 +146,6 @@ namespace gtirb
         gtirb::SymbolSet& getSymbolSet();
         const gtirb::SymbolSet& getSymbolSet() const;
 
-        bool getIsSetupComplete() const;
-        bool getIsReadOnly() const;
-
         void setName(std::string x);
         std::string getName() const;
 
@@ -189,21 +168,8 @@ namespace gtirb
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
 
-    protected:
-        ///
-        /// Sets the internal "isSetupComplete" flag to true.
-        /// Once this is set to "true", it cannot be set back to false.
-        ///
-        void setIsSetupComplete();
-
-        ///
-        /// Sets the state of the section's "isReadOnly" flag.
-        ///
-        void setIsReadOnly(bool x);
-
     private:
         boost::filesystem::path binaryPath{};
-        std::pair<gtirb::EA, gtirb::EA> eaMinMax{};
         gtirb::EA preferredEA{};
         int64_t rebaseDelta{0};
         gtirb::FileFormat fileFormat{};

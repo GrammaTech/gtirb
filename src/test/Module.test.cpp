@@ -79,31 +79,6 @@ TEST(Unit_Module, setRebaseDelta)
     EXPECT_EQ(std::numeric_limits<int64_t>::lowest(), m->getRebaseDelta());
 }
 
-TEST(Unit_Module, getEAMinMaxDefault)
-{
-    auto m = std::make_shared<gtirb::Module>();
-
-    EXPECT_NO_THROW(m->getEAMinMax());
-    EXPECT_EQ(gtirb::EA{}, m->getEAMinMax().first);
-    EXPECT_EQ(gtirb::EA{}, m->getEAMinMax().second);
-}
-
-TEST(Unit_Module, setEAMinMax)
-{
-    auto m = std::make_shared<gtirb::Module>();
-
-    gtirb::EA minimum{64};
-    gtirb::EA maximum{1024};
-
-    EXPECT_TRUE(m->setEAMinMax({minimum, maximum}));
-    EXPECT_EQ(minimum, m->getEAMinMax().first);
-    EXPECT_EQ(maximum, m->getEAMinMax().second);
-
-    EXPECT_FALSE(m->setEAMinMax({maximum, minimum}));
-    EXPECT_EQ(gtirb::EA{}, m->getEAMinMax().first);
-    EXPECT_EQ(gtirb::EA{}, m->getEAMinMax().second);
-}
-
 TEST(Unit_Module, getPreferredEADefault)
 {
     auto m = std::make_shared<gtirb::Module>();
@@ -158,20 +133,6 @@ TEST(Unit_Module, getImageByteMap)
     EXPECT_NO_THROW(m->getImageByteMap());
 }
 
-TEST(Unit_Module, getIsSetupComplete)
-{
-    auto m = std::make_unique<gtirb::Module>();
-    EXPECT_NO_THROW(m->getIsSetupComplete());
-    EXPECT_FALSE(m->getIsSetupComplete());
-}
-
-TEST(Unit_Module, getIsReadOnly)
-{
-    auto m = std::make_unique<gtirb::Module>();
-    EXPECT_NO_THROW(m->getIsReadOnly());
-    EXPECT_FALSE(m->getIsReadOnly());
-}
-
 TEST(Unit_Module, setName)
 {
     const std::string name{"foo"};
@@ -210,14 +171,12 @@ TEST(Unit_Module, protobufRoundTrip)
     proto::Module message;
 
     UUID addrRangesID, byteMapID, procedureID, symbolID, blockID, dataID, sectionID;
-    std::pair<EA, EA> eaMinMax;
     EA relocationEA;
     int whichSymbolic;
 
     {
         Module original;
         original.setBinaryPath("test");
-        original.setEAMinMax({EA(1), EA(2)});
         original.setPreferredEA(EA(3));
         original.setRebaseDelta(4);
         original.setFileFormat(FileFormat::ELF);
@@ -239,7 +198,6 @@ TEST(Unit_Module, protobufRoundTrip)
         blockID = original.getBlocks().begin()->getUUID();
         dataID = original.getData().begin()->getUUID();
         sectionID = original.getSections().begin()->getUUID();
-        eaMinMax = original.getEAMinMax();
         relocationEA = original.getRelocations().begin()->ea;
         whichSymbolic = original.getSymbolicOperands().begin()->second.which();
 
@@ -250,7 +208,6 @@ TEST(Unit_Module, protobufRoundTrip)
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getBinaryPath(), "test");
-    EXPECT_EQ(result.getEAMinMax(), eaMinMax);
     EXPECT_EQ(result.getPreferredEA(), EA(3));
     EXPECT_EQ(result.getRebaseDelta(), 4);
     EXPECT_EQ(result.getFileFormat(), FileFormat::ELF);

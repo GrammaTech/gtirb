@@ -1,5 +1,6 @@
 #include <proto/IR.pb.h>
 #include <gtirb/IR.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Serialization.hpp>
 #include <gtirb/Table.hpp>
@@ -45,7 +46,7 @@ std::vector<Module*> IR::getModulesContainingEA(EA x) const
 
     for(const auto& m : this->modules)
     {
-        auto minmax = m->getEAMinMax();
+        auto minmax = m->getImageByteMap().getEAMinMax();
         if((x >= minmax.first) && (x < minmax.second))
         {
             results.push_back(m.get());

@@ -26,13 +26,12 @@ Node::Node() : uuid(boost::uuids::random_generator()())
     Node::uuidMap[this->uuid] = this;
 }
 
-Node::Node(const Node& other) : localProperties(other.localProperties)
+Node::Node(const Node& other)
 {
     this->setUUID();
 }
 
-Node::Node(Node&& other) noexcept
-    : localProperties(std::move(other.localProperties)), uuid(std::move(other.uuid))
+Node::Node(Node&& other) noexcept : uuid(std::move(other.uuid))
 {
     other.uuid = UUID();
     Node::uuidMap[this->uuid] = this;
@@ -47,7 +46,6 @@ Node& Node::operator=(Node&& other) noexcept
     found->second = this;
     other.uuid = UUID();
 
-    this->localProperties = std::move(other.localProperties);
     return *this;
 }
 
@@ -81,62 +79,4 @@ void Node::setUUID(UUID x)
 UUID Node::getUUID() const
 {
     return this->uuid;
-}
-
-void Node::setLocalProperty(std::string name, gtirb::variant value)
-{
-    this->localProperties[name] = std::move(value);
-}
-
-gtirb::variant Node::getLocalProperty(const std::string& x) const
-{
-    return this->localProperties.at(x);
-}
-
-bool Node::removeLocalProperty(const std::string& x)
-{
-    const auto found = this->localProperties.find(x);
-
-    if(found != std::end(this->localProperties))
-    {
-        this->localProperties.erase(found);
-        return true;
-    }
-
-    return false;
-}
-
-size_t Node::getLocalPropertySize() const
-{
-    return this->localProperties.size();
-}
-
-bool Node::getLocalPropertyEmpty() const
-{
-    return this->localProperties.empty();
-}
-
-void Node::clearLocalProperties()
-{
-    this->localProperties.clear();
-}
-
-std::map<std::string, gtirb::variant>::iterator Node::beginLocalProperties()
-{
-    return std::begin(this->localProperties);
-}
-
-std::map<std::string, gtirb::variant>::const_iterator Node::beginLocalProperties() const
-{
-    return std::begin(this->localProperties);
-}
-
-std::map<std::string, gtirb::variant>::iterator Node::endLocalProperties()
-{
-    return std::end(this->localProperties);
-}
-
-std::map<std::string, gtirb::variant>::const_iterator Node::endLocalProperties() const
-{
-    return std::end(this->localProperties);
 }

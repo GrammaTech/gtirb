@@ -62,23 +62,6 @@ int64_t Module::getRebaseDelta() const
     return this->rebaseDelta;
 }
 
-bool Module::setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x)
-{
-    if(x.first <= x.second)
-    {
-        this->eaMinMax = std::move(x);
-        return true;
-    }
-
-    this->eaMinMax = std::pair<gtirb::EA, gtirb::EA>(gtirb::EA{}, gtirb::EA{});
-    return false;
-}
-
-std::pair<gtirb::EA, gtirb::EA> Module::getEAMinMax() const
-{
-    return this->eaMinMax;
-}
-
 void Module::setISAID(gtirb::ISAID x)
 {
     this->isaID = x;
@@ -137,26 +120,6 @@ gtirb::ImageByteMap& Module::getImageByteMap()
 const gtirb::ImageByteMap& Module::getImageByteMap() const
 {
     return *this->imageByteMap.get();
-}
-
-bool Module::getIsSetupComplete() const
-{
-    return this->isSetupComplete;
-}
-
-bool Module::getIsReadOnly() const
-{
-    return this->isReadOnly;
-}
-
-void Module::setIsSetupComplete()
-{
-    this->isSetupComplete = true;
-}
-
-void Module::setIsReadOnly(bool x)
-{
-    this->isReadOnly = x;
 }
 
 void Module::setName(std::string x)
@@ -233,14 +196,10 @@ void Module::toProtobuf(MessageType* message) const
 {
     nodeUUIDToBytes(this, *message->mutable_uuid());
     message->set_binary_path(this->binaryPath.generic_string());
-    message->set_ea_min(this->eaMinMax.first);
-    message->set_ea_max(this->eaMinMax.second);
     message->set_preferred_ea(this->preferredEA);
     message->set_rebase_delta(this->rebaseDelta);
     message->set_file_format(static_cast<proto::FileFormat>(this->fileFormat));
     message->set_isa_id(static_cast<proto::ISAID>(this->isaID));
-    message->set_is_setup_complete(this->isSetupComplete);
-    message->set_is_read_only(this->isReadOnly);
     message->set_name(this->name);
     message->set_decode_mode(this->decodeMode);
     this->addrRanges->toProtobuf(message->mutable_addr_ranges());
@@ -258,14 +217,10 @@ void Module::fromProtobuf(const MessageType& message)
 {
     setNodeUUIDFromBytes(this, message.uuid());
     this->binaryPath = message.binary_path();
-    this->eaMinMax.first = gtirb::EA(message.ea_min());
-    this->eaMinMax.second = gtirb::EA(message.ea_max());
     this->preferredEA = gtirb::EA(message.preferred_ea());
     this->rebaseDelta = message.rebase_delta();
     this->fileFormat = static_cast<FileFormat>(message.file_format());
     this->isaID = static_cast<ISAID>(message.isa_id());
-    this->isSetupComplete = message.is_setup_complete();
-    this->isReadOnly = message.is_read_only();
     this->name = message.name();
     this->decodeMode = message.decode_mode();
     this->addrRanges->fromProtobuf(message.addr_ranges());
