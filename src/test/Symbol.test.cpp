@@ -2,7 +2,6 @@
 #include <proto/Symbol.pb.h>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <memory>
 #include <sstream>

@@ -1,7 +1,6 @@
 #include <proto/Instruction.pb.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <gtirb/Serialization.hpp>
 
