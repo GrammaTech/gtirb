@@ -151,8 +151,7 @@ const auto X86GetThunkTarget = [](const Module* const /*module*/, const CFG* con
 std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
 {
     assert(false);
-    // std::set<CFG*> thunks;
-
+    return std::set<CFG*>();
     // if(module != nullptr)
     // {
     //     auto cfgSet = module->getCFGSet();
