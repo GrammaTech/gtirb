@@ -205,12 +205,17 @@ void Module::toProtobuf(MessageType* message) const
     this->addrRanges->toProtobuf(message->mutable_addr_ranges());
     this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
     containerToProtobuf(*this->procedureSet, message->mutable_procedure_set());
-    containerToProtobuf(*this->symbolSet, message->mutable_symbol_set());
     containerToProtobuf(*this->blocks, message->mutable_blocks());
     containerToProtobuf(*this->data, message->mutable_data());
     containerToProtobuf(*this->relocations, message->mutable_relocations());
     containerToProtobuf(*this->sections, message->mutable_sections());
     containerToProtobuf(*this->symbolicOperands, message->mutable_symbolic_operands());
+
+    // Special case for symbol set: uses a multimap internally, serialized as a repeated field.
+    auto m = message->mutable_symbol_set();
+    initContainer(m, this->symbolSet->size());
+    std::for_each(this->symbolSet->begin(), this->symbolSet->end(),
+                  [m](const auto& node) { addElement(m, gtirb::toProtobuf(node.second)); });
 }
 
 void Module::fromProtobuf(const MessageType& message)
@@ -226,10 +231,18 @@ void Module::fromProtobuf(const MessageType& message)
     this->addrRanges->fromProtobuf(message.addr_ranges());
     this->imageByteMap->fromProtobuf(message.image_byte_map());
     containerFromProtobuf(*this->procedureSet, message.procedure_set());
-    containerFromProtobuf(*this->symbolSet, message.symbol_set());
     containerFromProtobuf(*this->blocks, message.blocks());
     containerFromProtobuf(*this->data, message.data());
     containerFromProtobuf(*this->relocations, message.relocations());
     containerFromProtobuf(*this->sections, message.sections());
     containerFromProtobuf(*this->symbolicOperands, message.symbolic_operands());
+
+    // Special case for symbol set: serialized as a repeated field, uses a multimap internally.
+    this->symbolSet->clear();
+    const auto& m = message.symbol_set();
+    std::for_each(m.begin(), m.end(), [this](const auto& elt) {
+        Symbol sym;
+        gtirb::fromProtobuf(sym, elt);
+        addSymbol(*this->symbolSet, std::move(sym));
+    });
 }

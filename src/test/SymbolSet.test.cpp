@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <memory>
@@ -17,15 +16,15 @@ TEST(Unit_SymbolSet, findSymbols)
     gtirb::EA ea2{33678};
     gtirb::SymbolSet symbols;
 
-    symbols.emplace_back(ea1, "s1");
-    symbols.emplace_back(ea1, "s2");
+    addSymbol(symbols, Symbol(ea1, "s1"));
+    addSymbol(symbols, Symbol(ea1, "s2"));
 
     EXPECT_EQ(findSymbols(symbols, ea1).size(), 2);
     EXPECT_EQ(findSymbols(symbols, ea1)[0]->getName(), "s1");
     EXPECT_EQ(findSymbols(symbols, ea1)[1]->getName(), "s2");
     EXPECT_TRUE(findSymbols(symbols, ea2).empty());
 
-    symbols.emplace_back(ea2, "s3");
+    addSymbol(symbols, Symbol(ea2, "s3"));
     EXPECT_EQ(findSymbols(symbols, ea1).size(), 2);
     EXPECT_EQ(findSymbols(symbols, ea1)[0]->getName(), "s1");
     EXPECT_EQ(findSymbols(symbols, ea1)[1]->getName(), "s2");
