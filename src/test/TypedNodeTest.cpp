@@ -7,7 +7,6 @@
 #include <proto/ImageByteMap.pb.h>
 #include <proto/Instruction.pb.h>
 #include <proto/Module.pb.h>
-#include <proto/Procedure.pb.h>
 #include <proto/Relocation.pb.h>
 #include <proto/Section.pb.h>
 #include <proto/Symbol.pb.h>
@@ -33,7 +32,6 @@
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeReference.hpp>
-#include <gtirb/Procedure.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <memory>
@@ -47,7 +45,6 @@ typedef Types<gtirb::AddrRanges,   //
               gtirb::ImageByteMap, //
               gtirb::Instruction,  //
               gtirb::Module,       //
-              gtirb::Procedure,    //
               gtirb::Section,      //
               gtirb::Symbol        //
               >

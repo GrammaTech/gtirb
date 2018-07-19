@@ -6,7 +6,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/Procedure.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Serialization.hpp>
@@ -19,7 +18,6 @@ Module::Module()
     : Node(),
       addrRanges(std::make_unique<AddrRanges>()),
       imageByteMap(std::make_unique<ImageByteMap>()),
-      procedureSet(std::make_unique<ProcedureSet>()),
       symbolSet(std::make_unique<SymbolSet>()),
       blocks(std::make_unique<BlockSet>()),
       relocations(std::make_unique<RelocationSet>()),
@@ -100,16 +98,6 @@ gtirb::SymbolSet& Module::getSymbolSet()
 const gtirb::SymbolSet& Module::getSymbolSet() const
 {
     return *this->symbolSet;
-}
-
-gtirb::ProcedureSet& Module::getProcedureSet()
-{
-    return *this->procedureSet.get();
-}
-
-const gtirb::ProcedureSet& Module::getProcedureSet() const
-{
-    return *this->procedureSet.get();
 }
 
 gtirb::ImageByteMap& Module::getImageByteMap()
@@ -204,7 +192,6 @@ void Module::toProtobuf(MessageType* message) const
     message->set_decode_mode(this->decodeMode);
     this->addrRanges->toProtobuf(message->mutable_addr_ranges());
     this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
-    containerToProtobuf(*this->procedureSet, message->mutable_procedure_set());
     containerToProtobuf(*this->blocks, message->mutable_blocks());
     containerToProtobuf(*this->data, message->mutable_data());
     containerToProtobuf(*this->relocations, message->mutable_relocations());
@@ -230,7 +217,6 @@ void Module::fromProtobuf(const MessageType& message)
     this->decodeMode = message.decode_mode();
     this->addrRanges->fromProtobuf(message.addr_ranges());
     this->imageByteMap->fromProtobuf(message.image_byte_map());
-    containerFromProtobuf(*this->procedureSet, message.procedure_set());
     containerFromProtobuf(*this->blocks, message.blocks());
     containerFromProtobuf(*this->data, message.data());
     containerFromProtobuf(*this->relocations, message.relocations());

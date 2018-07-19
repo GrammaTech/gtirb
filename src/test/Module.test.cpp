@@ -6,7 +6,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/Procedure.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Serialization.hpp>
@@ -121,12 +120,6 @@ TEST(Unit_Module, getSymbolSet)
     EXPECT_NO_THROW(m.getSymbolSet());
 }
 
-TEST(Unit_Module, getProcedureSet)
-{
-    auto m = std::make_shared<gtirb::Module>();
-    EXPECT_NO_THROW(m->getProcedureSet());
-}
-
 TEST(Unit_Module, getImageByteMap)
 {
     auto m = std::make_shared<gtirb::Module>();
@@ -170,7 +163,7 @@ TEST(Unit_Module, protobufRoundTrip)
     gtirb::Module result;
     proto::Module message;
 
-    UUID addrRangesID, byteMapID, procedureID, symbolID, blockID, dataID, sectionID;
+    UUID addrRangesID, byteMapID, symbolID, blockID, dataID, sectionID;
     EA relocationEA;
     int whichSymbolic;
 
@@ -183,7 +176,6 @@ TEST(Unit_Module, protobufRoundTrip)
         original.setISAID(ISAID::X64);
         original.setName("module");
         original.setDecodeMode(5);
-        original.getProcedureSet()[EA(6)] = {};
         addSymbol(original.getSymbolSet(), {});
         original.getBlocks().emplace_back();
         original.getRelocations().push_back({EA(8), "foo", "bar", 1});
@@ -193,7 +185,6 @@ TEST(Unit_Module, protobufRoundTrip)
 
         addrRangesID = original.getAddrRanges().getUUID();
         byteMapID = original.getImageByteMap().getUUID();
-        procedureID = original.getProcedureSet().begin()->second.getUUID();
         symbolID = original.getSymbolSet().begin()->second.getUUID();
         blockID = original.getBlocks().begin()->getUUID();
         dataID = original.getData().begin()->getUUID();
@@ -219,9 +210,6 @@ TEST(Unit_Module, protobufRoundTrip)
     // don't check in detail as they have their own unit tests.
     EXPECT_EQ(result.getAddrRanges().getUUID(), addrRangesID);
     EXPECT_EQ(result.getImageByteMap().getUUID(), byteMapID);
-
-    EXPECT_EQ(result.getProcedureSet().size(), 1);
-    EXPECT_EQ(result.getProcedureSet().begin()->second.getUUID(), procedureID);
 
     EXPECT_EQ(result.getSymbolSet().size(), 1);
     EXPECT_EQ(result.getSymbolSet().begin()->second.getUUID(), symbolID);

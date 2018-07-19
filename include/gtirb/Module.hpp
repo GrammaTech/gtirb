@@ -5,7 +5,6 @@
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeReference.hpp>
-#include <gtirb/ProcedureSet.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicOperandSet.hpp>
 
@@ -135,12 +134,6 @@ namespace gtirb
         const gtirb::ImageByteMap& getImageByteMap() const;
 
         ///
-        /// A Module can have exactly one ProcedureSet child.
-        ///
-        gtirb::ProcedureSet& getProcedureSet();
-        const gtirb::ProcedureSet& getProcedureSet() const;
-
-        ///
         /// A Module can have exactly one SymbolSet child.
         ///
         gtirb::SymbolSet& getSymbolSet();
@@ -180,7 +173,6 @@ namespace gtirb
         uint64_t decodeMode{0};
         std::unique_ptr<AddrRanges> addrRanges;
         std::unique_ptr<ImageByteMap> imageByteMap;
-        std::unique_ptr<ProcedureSet> procedureSet;
         std::unique_ptr<SymbolSet> symbolSet;
         std::unique_ptr<BlockSet> blocks;
         std::unique_ptr<RelocationSet> relocations;

@@ -38,7 +38,6 @@ set(${PROJECT_NAME}_SRC
 	Module.test.cpp
 	Node.test.cpp
 	NodeError.test.cpp
-	Procedure.test.cpp
         Relocation.test.cpp
         Section.test.cpp
 	Symbol.test.cpp
