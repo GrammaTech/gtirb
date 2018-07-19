@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gtirb/EA.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 
 namespace proto
@@ -9,8 +10,6 @@ namespace proto
 }
 namespace gtirb
 {
-    class Module;
-
     ///
     /// \class Data
     ///

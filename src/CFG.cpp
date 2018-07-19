@@ -2,7 +2,6 @@
 #include <gtirb/CFGNode.hpp>
 #include <gtirb/CFGNodeInfo.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/RuntimeError.hpp>
 
 using namespace gtirb;

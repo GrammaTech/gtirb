@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <gtirb/Module.hpp>
 #include <gtirb/NodeStructureError.hpp>
 #include <gtirb/ProcedureSet.hpp>
 #include <memory>

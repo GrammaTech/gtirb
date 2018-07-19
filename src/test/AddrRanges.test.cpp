@@ -4,7 +4,6 @@
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include <gtirb/AddrRanges.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
 

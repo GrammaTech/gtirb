@@ -1,4 +1,3 @@
-#include <gtirb/Module.hpp>
 #include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 

@@ -2,7 +2,6 @@
 #include <proto/Block.pb.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
