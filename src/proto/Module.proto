@@ -5,7 +5,6 @@ import "AddrRanges.proto";
 import "Enums.proto";
 import "ImageByteMap.proto";
 import "Symbol.proto";
-import "Procedure.proto";
 import "Block.proto";
 import "Relocation.proto";
 import "Data.proto";
@@ -23,11 +22,10 @@ message Module {
     uint64 decode_mode = 8;
     AddrRanges addr_ranges = 9;
     ImageByteMap image_byte_map = 10;
-    map<uint64, Procedure> procedure_set = 11;
-    repeated Symbol symbol_set = 12;
-    repeated Block blocks = 13;
-    repeated Relocation relocations = 14;
-    repeated Data data = 15;
-    repeated Section sections = 16;
-    map<uint64, SymbolicOperand> symbolic_operands = 17;
+    repeated Symbol symbol_set = 11;
+    repeated Block blocks = 12;
+    repeated Relocation relocations = 13;
+    repeated Data data = 14;
+    repeated Section sections = 15;
+    map<uint64, SymbolicOperand> symbolic_operands = 16;
 }
