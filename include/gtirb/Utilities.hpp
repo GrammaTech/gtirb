@@ -102,5 +102,17 @@ namespace gtirb
 
             return dest.u;
         }
+
+        ///
+        /// Does object contain a given EA?
+        ///
+        /// Object can be any type which specifies a range of addresses via
+        /// getEA() and getSize() methods (e.g. Data).
+        ///
+        template <typename T>
+        bool containsEA(const T& object, EA ea)
+        {
+            return object.getEA() <= ea && object.getEA().get() + object.getSize() > ea;
+        }
     } // namespace utilities
 } // namespace gtirb

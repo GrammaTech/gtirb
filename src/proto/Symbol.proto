@@ -1,64 +1,20 @@
 syntax = "proto3";
 package proto;
 
-enum Type
-{
-    Type_Undefined = 0;
-    Normal = 1;
-    DualCode = 2;
-    NoEA = 4;
-};
-
-enum DeclarationKind
-{
-    Decl_Undefined = 0;
-    Var = 1;
-    Func = 2;
-    Decl_Type = 3;
-    Param = 4;
-    MallocSite = 5;
-    Result = 6;
-    Return = 7;
-    ParamTemp = 8;
-    Enumerator = 9;
-    StringLiteral = 10;
-    Temporary = 11;
-    Uninit = 12;
-    Label = 13;
-    IndirectFunc = 14;
-};
-
-enum LinkType {
-    Link_Undefined = 0;
-    InitializedData = 1;
-    BSS = 2;
-    Common = 3;
-    WeakObject = 4;
-    ReadOnly = 5;
-};
-
 enum StorageKind
 {
     Storage_Undefined = 0;
     Storage_Normal = 1;
     Storage_Static = 2;
     Storage_Extern = 3;
+    Storage_Local = 4;
 };
 
 message Symbol {
     bytes uuid = 1;
     uint64 ea = 2;
     string name = 3;
-    int64 offset = 4;
-    int64 element_size = 5;
-    int64 bit_size = 6;
-    Type type = 7;
-    DeclarationKind declaration_kind = 8;
-    LinkType link_type = 9;
-    StorageKind storage_kind = 10;
-    bool enable_force_name = 11;
-    bool enable_gap_size = 12;
-    bool is_formal = 13;
-    bool is_name_only = 14;
-    bool is_global = 15;
+    StorageKind storage_kind = 4;
+    bytes data_referent_uuid = 5;
+    bytes code_referent_uuid = 6;
 }
