@@ -22,7 +22,7 @@ namespace gtirb
         bool negate;
         int offset;
         int displacement;
-        SymbolReference symbol;
+        NodeReference<Symbol> symbol;
     };
 
     ///
@@ -31,7 +31,7 @@ namespace gtirb
     struct SymAddrConst
     {
         int64_t displacement;
-        SymbolReference symbol;
+        NodeReference<Symbol> symbol;
     };
 
     ///
@@ -41,8 +41,8 @@ namespace gtirb
     {
         int64_t scale;
         int64_t offset;
-        SymbolReference symbol1;
-        SymbolReference symbol2;
+        NodeReference<Symbol> symbol1;
+        NodeReference<Symbol> symbol2;
     };
 
     using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
