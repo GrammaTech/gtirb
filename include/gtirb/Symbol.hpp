@@ -103,10 +103,4 @@ namespace gtirb
         uint64_t size{0};
         gtirb::Symbol::StorageKind storageKind{};
     };
-
-    class SymbolReference : public NodeReference<Symbol>
-    {
-    public:
-        using NodeReference::NodeReference;
-    };
 }
