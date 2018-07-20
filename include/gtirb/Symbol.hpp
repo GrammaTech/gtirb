@@ -7,65 +7,17 @@
 
 namespace gtirb
 {
+    class Data;
+    class Instruction;
+
     ///
     /// \class Symbol
     /// \author John E. Farrier
-    ///
-    /// \note
-    /// Renaming can lead to bugs, we probably want to separate symbols and
-    /// abs-locs and have *both* in the IR.  Many current symbol fields would
-    /// actually live in the abs-loc and be accessed from a symbol through the
-    /// abs-loc.
     ///
     class GTIRB_GTIRB_EXPORT_API Symbol : public Node
     {
     public:
         ///
-        /// \enum gtirb::Symbol::Type
-        ///
-        enum class Type : uint8_t
-        {
-            Undefined = proto::Type_Undefined,
-            Normal = proto::Normal,
-            DualCode = proto::DualCode,
-            NoEA = proto::NoEA
-        };
-
-        ///
-        /// \enum gtirb::Symbol::DeclarationKind
-        ///
-        enum class DeclarationKind : uint8_t
-        {
-            Undefined = proto::Decl_Undefined,
-            Var = proto::Var,
-            Func = proto::Func,
-            Type = proto::Decl_Type,
-            Param = proto::Param,
-            MallocSite = proto::MallocSite,
-            Result = proto::Result,
-            Return = proto::Return,
-            ParamTemp = proto::ParamTemp,
-            Enumerator = proto::Enumerator,
-            StringLiteral = proto::StringLiteral,
-            Temporary = proto::Temporary,
-            Uninit = proto::Uninit,
-            Label = proto::Label,
-            IndirectFunc = proto::IndirectFunc
-        };
-
-        ///
-        /// \enum gtirb::Symbol::LinkType
-        ///
-        enum class LinkType : uint8_t
-        {
-            Undefined = proto::Link_Undefined,        /// undefined
-            InitializedData = proto::InitializedData, /// initialized data
-            BSS = proto::BSS,                         /// BSS
-            Common = proto::Common,                   /// common
-            WeakObject = proto::WeakObject,           /// weak object
-            ReadOnly = proto::ReadOnly                /// read-only
-        };
-
         ///
         /// \enum gtirb::Symbol::StorageKind
         ///
@@ -74,7 +26,8 @@ namespace gtirb
             Undefined = proto::Storage_Undefined,
             Normal = proto::Storage_Normal,
             Static = proto::Storage_Static,
-            Extern = proto::Storage_Extern
+            Extern = proto::Storage_Extern,
+            Local = proto::Storage_Local
         };
 
         ///
@@ -114,42 +67,28 @@ namespace gtirb
         void setName(std::string x);
         std::string getName() const;
 
-        void setType(gtirb::Symbol::Type x);
-        gtirb::Symbol::Type getType() const;
+        ///
+        /// Set the Data object to which this symbol refers.
+        ///
+        void setReferent(const Data& data);
 
-        void setOffset(int64_t x);
-        int64_t getOffset();
+        ///
+        /// Set the Instruction object to which this symbol refers.
+        ///
+        void setReferent(const Instruction& instruction);
 
-        void setElementSize(int64_t x);
-        int64_t getElementSize() const;
+        ///
+        /// Get the Data object to which this symbol refers.
+        ///
+        NodeReference<Data> getDataReferent() const;
 
-        /// The total number of bits for this symbol.
-        void setBitSize(int64_t x);
-        int64_t getBitSize() const;
-
-        void setIsFormal(bool x);
-        bool getIsFormal() const;
-
-        void setEnableForceName(bool x);
-        bool getEnableForceName() const;
-
-        void setEnableGapSize(bool x);
-        bool getEnableGapSize() const;
-
-        void setIsNameOnly(bool x);
-        bool getIsNameOnly() const;
-
-        void setDeclarationKind(gtirb::Symbol::DeclarationKind x);
-        gtirb::Symbol::DeclarationKind getDeclarationKind() const;
-
-        void setLinkType(Symbol::LinkType x);
-        gtirb::Symbol::LinkType getLinkType() const;
+        ///
+        /// Get the Instruction object to which this symbol refers.
+        ///
+        NodeReference<Instruction> getCodeReferent() const;
 
         void setStorageKind(Symbol::StorageKind x);
         gtirb::Symbol::StorageKind getStorageKind() const;
-
-        void setIsGlobal(bool x);
-        bool getIsGlobal() const;
 
         using MessageType = proto::Symbol;
         void toProtobuf(MessageType* message) const;
@@ -158,21 +97,11 @@ namespace gtirb
     private:
         gtirb::EA ea{};
         std::string name;
+        NodeReference<Data> dataReferent;
+        NodeReference<Instruction> codeReferent;
 
-        int64_t offset{0};
-        int64_t elementSize{0};
-        int64_t bitSize{0};
-
-        gtirb::Symbol::Type type{};
-        gtirb::Symbol::DeclarationKind declarationKind{};
-        gtirb::Symbol::LinkType linkType{};
+        uint64_t size{0};
         gtirb::Symbol::StorageKind storageKind{};
-
-        bool enableForceName{false};
-        bool enableGapSize{false};
-        bool isFormal{false};
-        bool isNameOnly{false};
-        bool isGlobal{false};
     };
 
     class SymbolReference : public NodeReference<Symbol>

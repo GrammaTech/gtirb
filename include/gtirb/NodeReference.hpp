@@ -12,7 +12,7 @@ namespace gtirb
         NodeReference(UUID uuid_) : uuid(uuid_)
         {
         }
-        NodeReference(const Node &node) : uuid(node.getUUID()){};
+        NodeReference(const NodeT &node) : uuid(node.getUUID()){};
         NodeReference(const NodeReference &) = default;
         NodeReference(NodeReference &&) = default;
         NodeReference &operator=(NodeReference &&data) = default;
@@ -20,6 +20,12 @@ namespace gtirb
 
         // Cast to pointer
         operator NodeT *()
+        {
+            return this->get();
+        }
+
+        // Cast to boolean
+        operator bool() const
         {
             return this->get();
         }

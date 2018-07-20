@@ -10,5 +10,6 @@ namespace gtirb
     using SymbolSet = std::multimap<EA, Symbol>;
 
     void addSymbol(SymbolSet& symbols, Symbol&& sym);
+    std::vector<Symbol*> findSymbols(SymbolSet& symbols, EA x);
     std::vector<const Symbol*> findSymbols(const SymbolSet& symbols, EA x);
 }
