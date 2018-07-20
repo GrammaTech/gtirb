@@ -11,7 +11,7 @@ namespace proto
 
 namespace gtirb
 {
-    class Symbol;
+    class Module;
 
     ///
     /// \class Instruction
@@ -31,7 +31,7 @@ namespace gtirb
         /// Default Constructor.
         ///
         Instruction() = default;
-        Instruction(EA ea);
+        Instruction(EA ea, uint64_t size = 0);
 
         ///
         /// Copy constructor. Assigns a new UUID to the copy.
@@ -48,19 +48,19 @@ namespace gtirb
         ///
         Instruction& operator=(Instruction&&) = default;
 
-        ///
-        /// Defaulted trivial destructor.
-        ///
-        // virtual ~Instruction() override = default;
-
         void setEA(gtirb::EA x);
         gtirb::EA getEA() const;
+
+        uint64_t getSize() const;
+
+        std::vector<uint8_t> getBytes(const Module& module) const;
 
         using MessageType = proto::Instruction;
         void toProtobuf(MessageType* message) const;
         void fromProtobuf(const MessageType& message);
 
     private:
-        gtirb::EA ea;
+        EA ea{0};
+        uint64_t size{0};
     };
 }

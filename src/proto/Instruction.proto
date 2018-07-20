@@ -4,4 +4,5 @@ package proto;
 message Instruction {
     bytes uuid = 1;
     uint64 ea = 2;
+    uint64 size = 3;
 }

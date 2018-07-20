@@ -22,15 +22,21 @@ TEST(Unit_Instruction, setEA)
 
 TEST(Unit_Instruction, getEA)
 {
-    const gtirb::EA ea{};
+    const gtirb::EA ea(1);
 
-    gtirb::Instruction node;
+    gtirb::Instruction node(ea);
     EXPECT_EQ(ea, node.getEA());
+}
+
+TEST(Unit_Instruction, getSize)
+{
+    gtirb::Instruction node(EA(), 2);
+    EXPECT_EQ(node.getSize(), 2);
 }
 
 TEST(Unit_Instruction, protobufRoundTrip)
 {
-    Instruction original(EA(1));
+    Instruction original(EA(1), 2);
 
     gtirb::Instruction result;
     proto::Instruction message;
@@ -39,4 +45,5 @@ TEST(Unit_Instruction, protobufRoundTrip)
     result.fromProtobuf(message);
 
     EXPECT_EQ(result.getEA(), EA(1));
+    EXPECT_EQ(result.getSize(), 2);
 }
