@@ -2,13 +2,13 @@ syntax = "proto3";
 package proto;
 
 import "AddrRanges.proto";
+import "CFG.proto";
+import "Data.proto";
 import "Enums.proto";
 import "ImageByteMap.proto";
-import "Symbol.proto";
-import "Block.proto";
 import "Relocation.proto";
-import "Data.proto";
 import "Section.proto";
+import "Symbol.proto";
 import "SymbolicOperand.proto";
 
 message Module {
@@ -23,7 +23,7 @@ message Module {
     AddrRanges addr_ranges = 9;
     ImageByteMap image_byte_map = 10;
     repeated Symbol symbol_set = 11;
-    repeated Block blocks = 12;
+    CFG cfg = 12;
     repeated Relocation relocations = 13;
     repeated Data data = 14;
     repeated Section sections = 15;

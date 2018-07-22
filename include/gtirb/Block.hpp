@@ -14,9 +14,8 @@ namespace gtirb
 {
     ///
     /// \class Block
-    /// \author Nathan Weston
     ///
-    /// A basic block. This will eventually be part of the ICFG.
+    /// A basic block.
     ///
     class GTIRB_GTIRB_EXPORT_API Block : public Node
     {

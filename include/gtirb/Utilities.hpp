@@ -7,9 +7,6 @@
 
 namespace gtirb
 {
-    class CFG;
-    class Module;
-
     namespace utilities
     {
         ///
@@ -50,11 +47,6 @@ namespace gtirb
         ///
         GTIRB_GTIRB_EXPORT_API std::vector<uint64_t> ByteArray8To64(const std::vector<uint8_t>& x,
                                                                     bool swap = false);
-
-        ///
-        /// \todo   Finish porting this from cfg_thunk_manager.
-        ///
-        GTIRB_GTIRB_EXPORT_API std::set<CFG*> CollectThunks(const Module* const module);
 
         ///
         /// Returns true if any of flags are set.

@@ -26,9 +26,6 @@ set(${PROJECT_NAME}_SRC
         Block.test.cpp
 	ByteMap.test.cpp
 	CFG.test.cpp
-	CFGNode.test.cpp
-	CFGNodeInfo.test.cpp
-	CFGNodeInfoCall.test.cpp
         Data.test.cpp
 	EA.test.cpp
 	Exception.test.cpp

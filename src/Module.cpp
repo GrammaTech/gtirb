@@ -2,6 +2,7 @@
 #include <gsl/gsl>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
+#include <gtirb/CFG.hpp>
 #include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
@@ -17,12 +18,12 @@ using namespace gtirb;
 Module::Module()
     : Node(),
       addrRanges(std::make_unique<AddrRanges>()),
-      imageByteMap(std::make_unique<ImageByteMap>()),
-      symbolSet(std::make_unique<SymbolSet>()),
-      blocks(std::make_unique<BlockSet>()),
-      relocations(std::make_unique<RelocationSet>()),
+      cfg(std::make_unique<CFG>()),
       data(std::make_unique<std::vector<Data>>()),
+      imageByteMap(std::make_unique<ImageByteMap>()),
+      relocations(std::make_unique<RelocationSet>()),
       sections(std::make_unique<std::vector<Section>>()),
+      symbolSet(std::make_unique<SymbolSet>()),
       symbolicOperands(std::make_unique<SymbolicOperandSet>())
 {
 }
@@ -130,14 +131,14 @@ uint64_t Module::getDecodeMode() const
     return this->decodeMode;
 }
 
-const std::vector<Block>& Module::getBlocks() const
+const CFG& Module::getCFG() const
 {
-    return *this->blocks;
+    return *this->cfg;
 }
 
-std::vector<Block>& Module::getBlocks()
+CFG& Module::getCFG()
 {
-    return *this->blocks;
+    return *this->cfg;
 }
 
 const std::vector<Relocation>& Module::getRelocations() const
@@ -192,7 +193,7 @@ void Module::toProtobuf(MessageType* message) const
     message->set_decode_mode(this->decodeMode);
     this->addrRanges->toProtobuf(message->mutable_addr_ranges());
     this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
-    containerToProtobuf(*this->blocks, message->mutable_blocks());
+    *message->mutable_cfg() = gtirb::toProtobuf(*this->cfg);
     containerToProtobuf(*this->data, message->mutable_data());
     containerToProtobuf(*this->relocations, message->mutable_relocations());
     containerToProtobuf(*this->sections, message->mutable_sections());
@@ -217,7 +218,7 @@ void Module::fromProtobuf(const MessageType& message)
     this->decodeMode = message.decode_mode();
     this->addrRanges->fromProtobuf(message.addr_ranges());
     this->imageByteMap->fromProtobuf(message.image_byte_map());
-    containerFromProtobuf(*this->blocks, message.blocks());
+    gtirb::fromProtobuf(*this->cfg, message.cfg());
     containerFromProtobuf(*this->data, message.data());
     containerFromProtobuf(*this->relocations, message.relocations());
     containerFromProtobuf(*this->sections, message.sections());
