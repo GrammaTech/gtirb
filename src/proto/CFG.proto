@@ -1,0 +1,16 @@
+syntax = "proto3";
+package proto;
+
+import "Block.proto";
+
+message Edge
+{
+    bytes source_uuid = 1;
+    bytes target_uuid = 2;
+}
+
+message CFG
+{
+    repeated Block blocks = 1;
+    repeated Edge edges = 2;
+}

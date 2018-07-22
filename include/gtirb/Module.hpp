@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
+#include <gtirb/CFG.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
@@ -18,8 +19,6 @@ namespace gtirb
     class AddrRanges;
     class Data;
     class ImageByteMap;
-    class Block;
-    using BlockSet = std::vector<Block>;
     class Data;
     using DataSet = std::vector<Data>;
     class Relocation;
@@ -145,9 +144,8 @@ namespace gtirb
         void setDecodeMode(uint64_t x);
         uint64_t getDecodeMode() const;
 
-        // Note: all of these will probably move and/or get a different interface.
-        const std::vector<Block>& getBlocks() const;
-        std::vector<Block>& getBlocks();
+        const CFG& getCFG() const;
+        CFG& getCFG();
         const std::vector<Relocation>& getRelocations() const;
         std::vector<Relocation>& getRelocations();
         const std::vector<Data>& getData() const;
@@ -172,12 +170,12 @@ namespace gtirb
         std::string name{};
         uint64_t decodeMode{0};
         std::unique_ptr<AddrRanges> addrRanges;
-        std::unique_ptr<ImageByteMap> imageByteMap;
-        std::unique_ptr<SymbolSet> symbolSet;
-        std::unique_ptr<BlockSet> blocks;
-        std::unique_ptr<RelocationSet> relocations;
+        std::unique_ptr<CFG> cfg;
         std::unique_ptr<DataSet> data;
+        std::unique_ptr<ImageByteMap> imageByteMap;
+        std::unique_ptr<RelocationSet> relocations;
         std::unique_ptr<SectionSet> sections;
+        std::unique_ptr<SymbolSet> symbolSet;
         std::unique_ptr<SymbolicOperandSet> symbolicOperands;
     };
 } // namespace gtirb

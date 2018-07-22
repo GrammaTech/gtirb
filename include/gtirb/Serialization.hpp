@@ -132,7 +132,7 @@ namespace gtirb
 
     // Convert the contents of a container into protobuf messages.
     template <typename ContainerT, typename MessageT>
-    void containerToProtobuf(ContainerT& values, MessageT* message)
+    void containerToProtobuf(const ContainerT& values, MessageT* message)
     {
         initContainer(message, values.size());
         std::for_each(values.begin(), values.end(),

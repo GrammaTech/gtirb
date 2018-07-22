@@ -1,7 +1,5 @@
 #include <gsl/gsl>
 #include <gtirb/CFG.hpp>
-#include <gtirb/CFGNode.hpp>
-#include <gtirb/CFGNodeInfoCall.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Utilities.hpp>
 #include <iostream>
@@ -111,94 +109,4 @@ std::vector<uint64_t> gtirb::utilities::ByteArray8To64(const std::vector<uint8_t
     }
 
     return vec;
-}
-
-///
-/// Helper: Given that cfg is a thunk, discover its forward.
-/// This version walks the CFG (compare get_thunk_targets_via_asts).
-///
-const auto X86GetThunkTarget = [](const Module* const /*module*/, const CFG* const cfg) {
-    // We find the thunk's target by exploring at the nCFGnode level.
-    // We assume that cfg contains a single relevant call or indrect node,
-    // and pick up the target from there.
-    // Note that this will pick up the names of imported callees (see
-    // update_imported_callees).
-    // (An alternative approach that examines the ASTs would fail to pick
-    // this up).
-
-    for(auto& node : cfg->getNodes())
-    {
-        const auto kind = node->getKind();
-
-        if((kind == CFGNode::Kind::Call) || (kind == CFGNode::Kind::Indirect))
-        {
-            auto call = dynamic_cast<CFGNodeInfoCall*>(node->getCFGNodeInfo());
-
-            if(call != nullptr)
-            {
-                /// \todo How is CFGNodeInfoCall->getProcedureName() wired in?  Do we have to
-                /// set it or can we compute it? auto callee = call->getProcedureName();
-                auto ea = call->getImportTableEntryEA();
-                // return {ea, callee};
-                return std::pair<gtirb::EA, gtirb::Symbol*>{ea, nullptr};
-            }
-        }
-    }
-
-    return std::pair<gtirb::EA, gtirb::Symbol*>{gtirb::EA{}, nullptr};
-};
-
-std::set<CFG*> gtirb::utilities::CollectThunks(const Module* const module)
-{
-    assert(false);
-    return std::set<CFG*>();
-    // if(module != nullptr)
-    // {
-    //     auto cfgSet = module->getCFGSet();
-
-    //     if(cfgSet != nullptr)
-    //     {
-    //         // Function signature declaration.
-    //         std::function<std::pair<EA, Symbol*>(const Module* const m, const CFG* const cfg)>
-    //             getThunkTargetFunc = [](const Module* const /*m*/, const CFG* const /*cfg*/) {
-    //                 return std::pair<EA, Symbol*>{gtirb::EA{}, nullptr};
-    //             };
-
-    //         switch(module->getISAID())
-    //         {
-    //             case gtirb::ISAID::IA32:
-    //             case gtirb::ISAID::X64:
-    //                 getThunkTargetFunc = X86GetThunkTarget;
-    //                 break;
-    //             case gtirb::ISAID::ARM:
-    //                 /// \todo getThunkTargetFunc = &s_arm_get_thunk_target;
-    //                 break;
-    //             case gtirb::ISAID::PPC32:
-    //                 /// \todo getThunkTargetFunc = &s_ppc_get_thunk_target;
-    //                 break;
-    //             default:
-    //                 throw std::out_of_range("The ISA ID was invalid.");
-    //         }
-
-    //         // Collect thunk targets.
-    //         for(const auto& cfg : cfgSet->getCFGs())
-    //         {
-    //             if(gtirb::utilities::IsAnyFlagSet(cfg->getFlags(),
-    //                                               CFG::Flags::IS_ITHUNK | CFG::Flags::IS_DTHUNK))
-    //             {
-    //                 const auto indirectTarget = getThunkTargetFunc(module, cfg.get());
-
-    //                 if(indirectTarget.second != nullptr)
-    //                 {
-    //                     // Simple sanity: this assert has been useful for noticing when we
-    //                     // screw up thunk renaming, for example.
-    //                     Expects(cfg->getProcedureName() != indirectTarget.second->getName());
-    //                     thunks.insert(cfg.get());
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // return thunks;
 }

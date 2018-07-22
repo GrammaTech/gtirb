@@ -21,13 +21,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Block.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
-	../include/gtirb/CFGNode.hpp
-	../include/gtirb/CFGNodeInfo.hpp
-	../include/gtirb/CFGNodeInfoActualIn.hpp
-	../include/gtirb/CFGNodeInfoCall.hpp
-	../include/gtirb/CFGNodeInfoDeclares.hpp
-	../include/gtirb/CFGNodeInfoEntry.hpp
-	../include/gtirb/CFGNodeInfoFormalIn.hpp
 	../include/gtirb/Constants.hpp
 	../include/gtirb/Data.hpp
 	../include/gtirb/EA.hpp
@@ -61,13 +54,6 @@ set(${PROJECT_NAME}_SRC
         Block.cpp
 	ByteMap.cpp
 	CFG.cpp
-	CFGNode.cpp
-	CFGNodeInfo.cpp
-	CFGNodeInfoActualIn.cpp
-	CFGNodeInfoCall.cpp
-	CFGNodeInfoDeclares.cpp
-	CFGNodeInfoEntry.cpp
-	CFGNodeInfoFormalIn.cpp
         Data.cpp
         EA.cpp
 	Exception.cpp
