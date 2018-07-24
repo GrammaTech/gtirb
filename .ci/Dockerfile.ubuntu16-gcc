@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
-ARG BOOST_VERSION=1.67.0
-ARG BOOST_VERSION_=1_67_0
+ARG BOOST_VERSION=1.59.0
+ARG BOOST_VERSION_=1_59_0
 ARG CMAKE_VERSION=3.10
 
 RUN apt-get -y update && \
@@ -18,7 +18,7 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-7 60
 ENV BOOST_VERSION=${BOOST_VERSION}
 ENV BOOST_VERSION_=${BOOST_VERSION_}
 ENV BOOST_ROOT=/usr/include/boost
-RUN cd /home && wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_}.tar.gz \
+RUN cd /home && wget http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION_}.tar.gz \
   && tar xfz boost_${BOOST_VERSION_}.tar.gz \
   && rm boost_${BOOST_VERSION_}.tar.gz \
   && cd boost_${BOOST_VERSION_} \
