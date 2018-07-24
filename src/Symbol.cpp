@@ -9,7 +9,8 @@ Symbol::Symbol(EA x) : Node(), ea(x)
 {
 }
 
-Symbol::Symbol(EA x, std::string name_) : Node(), ea(x), name(name_)
+Symbol::Symbol(EA x, std::string name_, StorageKind storageKind_)
+    : Node(), ea(x), name(name_), storageKind(storageKind_)
 {
 }
 

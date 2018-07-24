@@ -39,7 +39,7 @@ namespace gtirb
         /// This constructor sets the Effective Address on construction.
         ///
         Symbol(EA x);
-        Symbol(EA x, std::string name);
+        Symbol(EA x, std::string name, StorageKind storageKind = StorageKind::Extern);
 
         ///
         /// Copy constructor. Assigns a new UUID to the copy.
@@ -97,10 +97,8 @@ namespace gtirb
     private:
         gtirb::EA ea{};
         std::string name;
+        gtirb::Symbol::StorageKind storageKind{StorageKind::Extern};
         NodeReference<Data> dataReferent;
         NodeReference<Instruction> codeReferent;
-
-        uint64_t size{0};
-        gtirb::Symbol::StorageKind storageKind{};
     };
 }

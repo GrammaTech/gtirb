@@ -43,7 +43,7 @@ TEST(Unit_Symbol, setStorageKind)
 
     auto node = std::make_unique<gtirb::Symbol>();
     EXPECT_NO_THROW(node->getStorageKind());
-    EXPECT_EQ(gtirb::Symbol::StorageKind{}, node->getStorageKind());
+    EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, node->getStorageKind());
 
     EXPECT_NO_THROW(node->setStorageKind(value));
     EXPECT_EQ(value, node->getStorageKind());
