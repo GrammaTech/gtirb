@@ -2,6 +2,17 @@ FROM base/archlinux
 RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pacman.conf
 RUN pacman --noconfirm -Syu archlinux-keyring
 RUN pacman --noconfirm -Syu base-devel gcc gcc-libs git make cmake boost doxygen graphviz wget
+
+# Install protobuf
+RUN cd /usr/local/src \
+    && wget https://github.com/google/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.tar.gz \
+    && tar xf protobuf-cpp-3.6.0.tar.gz \
+    && cd protobuf-3.6.0 \
+    && ./configure \
+    && make \
+    && make install
+RUN ldconfig
+
 COPY . /gt/gt-irb/
 RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
 RUN mkdir -p /gt/gt-irb/build
