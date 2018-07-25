@@ -102,8 +102,7 @@ namespace gtirb
         /// Sets byte map at the given address.
         ///
         /// \param  ea      The address to store the data.
-        /// \param  x       A pointer to the data to store (honoring Endianness).
-        /// \param  len     The length of the data (the number of bytes) at the pointer.
+        /// \param  data    The data to store.
         ///
         void setData(EA ea, gsl::span<const gsl::byte> data);
 
@@ -141,7 +140,7 @@ namespace gtirb
         /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
         /// or 64-bits.
         ///
-        /// \param  x       The starting address for the data.
+        /// \param  ea       The starting address for the data.
         /// \param  bytes   The number of bytes to read.
         ///
         std::vector<uint8_t> getData(EA ea, size_t bytes) const;
@@ -152,7 +151,7 @@ namespace gtirb
         /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
         /// or 64-bits.
         ///
-        /// \param  x       	The starting address for the data.
+        /// \param  ea       	The starting address for the data.
         /// \param  sentinel   	A byte to stop the 'getData' routine for.
         /// \param  bytes	      The maximum number of bytes to read.
         ///

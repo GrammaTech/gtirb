@@ -19,7 +19,7 @@ namespace gtirb
     public:
         ///
         ///
-        /// \enum gtirb::Symbol::StorageKind
+        /// \enum StorageKind
         ///
         enum class StorageKind : uint8_t
         {

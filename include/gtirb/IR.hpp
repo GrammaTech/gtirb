@@ -28,47 +28,36 @@ namespace gtirb
     ///
     ///     ir [ label="gtirb::IR" URL="\ref IR"];
     ///     module [ label="gtirb::Module" URL="\ref Module"];
-    ///     moduleSummary [label="gtirb::ModuleSummary" URL="\ref ModuleSummary"]
-    ///     moduleCore [label="gtirb::ModuleCore" URL="\ref ModuleCore"]
-    ///     moduleAux [label="gtirb::ModuleAux" URL="\ref ModuleAux"]
+    ///     table [ label="gtirb::Table" URL="\ref Table"];
     ///     addrRanges [label="gtirb::AddrRanges" URL="\ref AddrRanges"]
-    ///     region [label="gtirb::Region" URL="\ref Region"]
-    ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
+    ///     dataSet [label="gtirb::DataSet" URL="\ref DataSet"]
     ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
-    ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
-    ///     procedure [label="gtirb::Procedure" URL="\ref Procedure"]
-    ///     procedureSet [label="gtirb::ProcedureSet" URL="\ref ProcedureSet"]
+    ///     sectionSet [label="gtirb::SectionSet" URL="\ref SectionSet"]
+    ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
+    ///     symbolicOperandSet [label="gtirb::SymbolicOperandSet" URL="\ref SymbolicOperandSet"]
     ///     instruction [label="gtirb::Instruction" URL="\ref Instruction"]
     ///     cfg [label="gtirb::CFG" URL="\ref CFG"]
-    ///     cfgSet [label="gtirb::CFGSet" URL="\ref CFGSet"]
-    ///     cfgNode [label="gtirb::CFGNode" URL="\ref CFGNode"]
-    ///     cfgNodeInfoActualIn [label="gtirb::CFGNodeInfoActualIn" URL="\ref CFGNodeInfoActualIn"]
-    ///     cfgNodeInfoDeclares [label="gtirb::CFGNodeInfoDeclares" URL="\ref CFGNodeInfoDeclares"]
-    ///     cfgNodeInfoEntry [label="gtirb::CFGNodeInfoEntry" URL="\ref CFGNodeInfoEntry"]
-    ///     cfgNodeInfoFormalIn [label="gtirb::CFGNodeInfoFormalIn" URL="\ref CFGNodeInfoFormalIn"]
-    ///     cfgNodeInfoCall [label="gtirb::CFGNodeInfoCall" URL="\ref CFGNodeInfoCall"]
+    ///     block [label="gtirb::Block" URL="\ref Block"]
+    ///     data [label="gtirb::Data" URL="\ref Data"]
+    ///     symbolicOperand [label="gtirb::SymbolicOperand" URL="\ref SymbolicOperand"]
+    ///     section [label="gtirb::Section" URL="\ref Section"]
+    ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
     ///
     ///     ir -> module;
-    ///     module -> moduleSummary;
-    ///     module -> moduleCore;
-    ///     module -> moduleAux;
+    ///     ir -> table;
     ///     module -> addrRanges;
-    ///     module -> regionSet;
-    ///     regionSet -> region;
-    ///     module -> symbolSet;
-    ///     symbolSet -> symbol;
+    ///     module -> cfg;
+    ///     module -> dataSet
     ///     module -> imageByteMap;
-    ///     module -> procedureSet;
-    ///     procedureSet -> procedure;
-    ///     procedure -> instruction;
-    ///     module -> cfgSet;
-    ///     cfgSet -> cfg;
-    ///     cfg -> cfgNode;
-    ///     cfgNode -> cfgNodeInfoActualIn;
-    ///     cfgNode -> cfgNodeInfoDeclares;
-    ///     cfgNode -> cfgNodeInfoEntry;
-    ///     cfgNode -> cfgNodeInfoFormalIn;
-    ///     cfgNode -> cfgNodeInfoCall;
+    ///     module -> sectionSet
+    ///     module -> symbolSet;
+    ///     module -> symbolicOperandSet
+    ///     cfg -> block;
+    ///     block -> instruction;
+    ///     dataSet -> data;
+    ///     sectionSet -> section;
+    ///     symbolSet -> symbol;
+    ///     symbolicOperandSet -> symbolicOperand;
     /// }
     /// \enddot
     ///
