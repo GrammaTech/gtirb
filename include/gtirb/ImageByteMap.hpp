@@ -22,7 +22,7 @@ namespace gtirb
     {
     public:
         ///
-        /// \enum gtirb::ImageByteMap::LFCMTypeMask
+        /// \enum LFCMTypeMasks
         ///
         /// Bit masks to pack pointer size, memory model, and calling convention into 8 bytes.
         ///
@@ -58,7 +58,7 @@ namespace gtirb
         };
 
         ///
-        /// \enum gtirb::ImageByteMap::ContentSource
+        /// \enum ContentSource
         ///
         enum class ContentSource : uint8_t
         {
