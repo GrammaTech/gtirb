@@ -23,7 +23,7 @@ Module::Module()
       imageByteMap(std::make_unique<ImageByteMap>()),
       relocations(std::make_unique<RelocationSet>()),
       sections(std::make_unique<std::vector<Section>>()),
-      symbolSet(std::make_unique<SymbolSet>()),
+      symbols(std::make_unique<SymbolSet>()),
       symbolicOperands(std::make_unique<SymbolicOperandSet>())
 {
 }
@@ -91,14 +91,14 @@ const gtirb::AddrRanges& Module::getAddrRanges() const
     return *this->addrRanges.get();
 }
 
-gtirb::SymbolSet& Module::getSymbolSet()
+gtirb::SymbolSet& Module::getSymbols()
 {
-    return *this->symbolSet;
+    return *this->symbols;
 }
 
-const gtirb::SymbolSet& Module::getSymbolSet() const
+const gtirb::SymbolSet& Module::getSymbols() const
 {
-    return *this->symbolSet;
+    return *this->symbols;
 }
 
 gtirb::ImageByteMap& Module::getImageByteMap()
@@ -200,9 +200,9 @@ void Module::toProtobuf(MessageType* message) const
     containerToProtobuf(*this->symbolicOperands, message->mutable_symbolic_operands());
 
     // Special case for symbol set: uses a multimap internally, serialized as a repeated field.
-    auto m = message->mutable_symbol_set();
-    initContainer(m, this->symbolSet->size());
-    std::for_each(this->symbolSet->begin(), this->symbolSet->end(),
+    auto m = message->mutable_symbols();
+    initContainer(m, this->symbols->size());
+    std::for_each(this->symbols->begin(), this->symbols->end(),
                   [m](const auto& node) { addElement(m, gtirb::toProtobuf(node.second)); });
 }
 
@@ -225,11 +225,11 @@ void Module::fromProtobuf(const MessageType& message)
     containerFromProtobuf(*this->symbolicOperands, message.symbolic_operands());
 
     // Special case for symbol set: serialized as a repeated field, uses a multimap internally.
-    this->symbolSet->clear();
-    const auto& m = message.symbol_set();
+    this->symbols->clear();
+    const auto& m = message.symbols();
     std::for_each(m.begin(), m.end(), [this](const auto& elt) {
         Symbol sym;
         gtirb::fromProtobuf(sym, elt);
-        addSymbol(*this->symbolSet, std::move(sym));
+        addSymbol(*this->symbols, std::move(sym));
     });
 }

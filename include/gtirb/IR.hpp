@@ -151,10 +151,9 @@ namespace gtirb
         /// The table can be populated from anywhere.
         ///
         /// \param name     The name to assign to the table so it can be found later.
-        /// \param x        An owning pointer to the table itself.
-        /// \return         a reference to the added table.
+        /// \param x        The table itself.
         ///
-        void addTable(std::string name, std::unique_ptr<Table>&& x);
+        void addTable(std::string name, Table&& x);
 
         ///
         /// Get a table by name.

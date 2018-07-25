@@ -62,9 +62,9 @@ void IR::addModule(std::unique_ptr<gtirb::Module>&& x)
     this->modules.push_back(std::move(x));
 }
 
-void IR::addTable(std::string name, std::unique_ptr<Table>&& x)
+void IR::addTable(std::string name, Table&& x)
 {
-    this->tables[std::move(name)] = std::move(*x);
+    this->tables[std::move(name)] = std::move(x);
 }
 
 gtirb::Table* IR::getTable(const std::string& x)

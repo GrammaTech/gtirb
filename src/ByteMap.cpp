@@ -46,8 +46,8 @@ void ByteMap::setData(EA ea, uint8_t x)
     const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
     const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
 
-    auto page = this->getOrCreatePage(pageAddress);
-    (*page)[pageOffset] = x;
+    auto &page = this->getOrCreatePage(pageAddress);
+    page[pageOffset] = x;
 }
 
 // The implementation of this function uses decltype so that its contents can be easily copy/pasted
@@ -58,15 +58,15 @@ void ByteMap::setData(EA ea, uint16_t x)
 
     if(bytesThisPage < sizeof(decltype(x)))
     {
-        this->setData(ea, reinterpret_cast<uint8_t*>(&x), sizeof(decltype(x)));
+        this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
         return;
     }
 
     const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
     const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
 
-    auto page = this->getOrCreatePage(pageAddress);
-    *(decltype(x)*)&((*page)[pageOffset]) = x;
+    auto &page = this->getOrCreatePage(pageAddress);
+    *(decltype(x) *)&(page[pageOffset]) = x;
 }
 
 void ByteMap::setData(EA ea, uint32_t x)
@@ -75,15 +75,15 @@ void ByteMap::setData(EA ea, uint32_t x)
 
     if(bytesThisPage < sizeof(decltype(x)))
     {
-        this->setData(ea, reinterpret_cast<uint8_t*>(&x), sizeof(decltype(x)));
+        this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
         return;
     }
 
     const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
     const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
 
-    auto page = this->getOrCreatePage(pageAddress);
-    *(decltype(x)*)&((*page)[pageOffset]) = x;
+    auto &page = this->getOrCreatePage(pageAddress);
+    *(decltype(x) *)&(page[pageOffset]) = x;
 }
 
 void ByteMap::setData(EA ea, uint64_t x)
@@ -92,21 +92,21 @@ void ByteMap::setData(EA ea, uint64_t x)
 
     if(bytesThisPage < sizeof(decltype(x)))
     {
-        this->setData(ea, reinterpret_cast<uint8_t*>(&x), sizeof(decltype(x)));
+        this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
         return;
     }
 
     const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
     const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
 
-    auto page = this->getOrCreatePage(pageAddress);
-    *(decltype(x)*)&((*page)[pageOffset]) = x;
+    auto &page = this->getOrCreatePage(pageAddress);
+    *(decltype(x) *)&(page[pageOffset]) = x;
 }
 
-void ByteMap::setData(EA ea, uint8_t* const x, size_t len)
+void ByteMap::setData(EA ea, gsl::span<const gsl::byte> data)
 {
-    int64_t bytesRemaining = static_cast<int64_t>(len);
-    auto currentBuffer = x;
+    int64_t bytesRemaining = data.size_bytes();
+    auto currentBuffer = data.data();
     auto currentAddress = ea;
 
     while(bytesRemaining > 0)
@@ -116,7 +116,7 @@ void ByteMap::setData(EA ea, uint8_t* const x, size_t len)
         const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(currentAddress);
         const auto pageOffset = ByteMap::Impl::AddressToOffset(currentAddress);
 
-        auto page = this->getOrCreatePage(pageAddress);
+        auto &page = this->getOrCreatePage(pageAddress);
 
         std::memcpy(&(page[pageOffset]), currentBuffer, bytesThisPage);
 
@@ -246,7 +246,7 @@ std::vector<uint8_t> ByteMap::getDataUntil(EA x, uint8_t sentinel, size_t maxByt
     return buffer;
 }
 
-const ByteMap::Page* const ByteMap::getPage(const EA x) const
+const ByteMap::Page *const ByteMap::getPage(const EA x) const
 {
     Expects(ByteMap::Impl::AddressToOffset(x) == 0);
 
@@ -259,19 +259,18 @@ const ByteMap::Page* const ByteMap::getPage(const EA x) const
     return nullptr;
 }
 
-ByteMap::Page* ByteMap::getOrCreatePage(const EA x)
+ByteMap::Page &ByteMap::getOrCreatePage(const EA x)
 {
     Expects(ByteMap::Impl::AddressToOffset(x) == 0);
-    auto page = &(this->data[x]);
-    return page;
+    return this->data[x];
 }
 
-void ByteMap::toProtobuf(MessageType* message) const
+void ByteMap::toProtobuf(MessageType *message) const
 {
     containerToProtobuf(this->data, message->mutable_data());
 }
 
-void ByteMap::fromProtobuf(const MessageType& message)
+void ByteMap::fromProtobuf(const MessageType &message)
 {
     containerFromProtobuf(this->data, message.data());
 }

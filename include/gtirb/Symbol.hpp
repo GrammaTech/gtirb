@@ -40,6 +40,10 @@ namespace gtirb
         ///
         Symbol(EA x);
         Symbol(EA x, std::string name, StorageKind storageKind = StorageKind::Extern);
+        Symbol(EA x, std::string name, const Data& referent,
+               StorageKind storageKind = StorageKind::Extern);
+        Symbol(EA x, std::string name, const Instruction& referent,
+               StorageKind storageKind = StorageKind::Extern);
 
         ///
         /// Copy constructor. Assigns a new UUID to the copy.

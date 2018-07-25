@@ -22,7 +22,7 @@ message Module {
     uint64 decode_mode = 8;
     AddrRanges addr_ranges = 9;
     ImageByteMap image_byte_map = 10;
-    repeated Symbol symbol_set = 11;
+    repeated Symbol symbols = 11;
     CFG cfg = 12;
     repeated Relocation relocations = 13;
     repeated Data data = 14;
