@@ -89,7 +89,7 @@ TEST(Unit_IR, protobufRoundTrip)
         auto m = std::make_unique<Module>();
         m->getImageByteMap().setEAMinMax({EA(100), EA(200)});
         original.addModule(std::move(m));
-        original.addTable("test", std::make_unique<Table>());
+        original.addTable("test", Table());
 
         mainID = original.getMainModule().getUUID();
         original.toProtobuf(&message);

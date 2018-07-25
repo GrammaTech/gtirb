@@ -159,11 +159,12 @@ void ImageByteMap::setData(EA ea, uint64_t x)
     }
 }
 
-void ImageByteMap::setData(EA ea, uint8_t* const x, size_t bytes)
+void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data)
 {
-    if(ea >= this->eaMinMax.first && (ea + EA{bytes} - EA{1}) <= this->eaMinMax.second)
+    if(ea >= this->eaMinMax.first
+       && (ea + EA{(uint64_t)data.size_bytes()} - EA{1}) <= this->eaMinMax.second)
     {
-        this->byteMap.setData(ea, x, bytes);
+        this->byteMap.setData(ea, data);
     }
     else
     {

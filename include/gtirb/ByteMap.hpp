@@ -105,7 +105,7 @@ namespace gtirb
         /// \param  x       A pointer to the data to store (honoring Endianness).
         /// \param  len     The length of the data (the number of bytes) at the pointer.
         ///
-        void setData(EA ea, uint8_t* const x, size_t len);
+        void setData(EA ea, gsl::span<const gsl::byte> data);
 
         ///
         /// Get a byte of data at the given address.
@@ -185,7 +185,7 @@ namespace gtirb
         ///
         /// \return 	A pointer to the newly created Page.
         ///
-        ByteMap::Page* getOrCreatePage(const EA x);
+        ByteMap::Page& getOrCreatePage(const EA x);
 
     private:
         std::map<gtirb::EA, ByteMap::Page> data;

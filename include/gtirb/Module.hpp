@@ -132,11 +132,8 @@ namespace gtirb
         gtirb::ImageByteMap& getImageByteMap();
         const gtirb::ImageByteMap& getImageByteMap() const;
 
-        ///
-        /// A Module can have exactly one SymbolSet child.
-        ///
-        gtirb::SymbolSet& getSymbolSet();
-        const gtirb::SymbolSet& getSymbolSet() const;
+        gtirb::SymbolSet& getSymbols();
+        const gtirb::SymbolSet& getSymbols() const;
 
         void setName(std::string x);
         std::string getName() const;
@@ -175,7 +172,7 @@ namespace gtirb
         std::unique_ptr<ImageByteMap> imageByteMap;
         std::unique_ptr<RelocationSet> relocations;
         std::unique_ptr<SectionSet> sections;
-        std::unique_ptr<SymbolSet> symbolSet;
+        std::unique_ptr<SymbolSet> symbols;
         std::unique_ptr<SymbolicOperandSet> symbolicOperands;
     };
 } // namespace gtirb

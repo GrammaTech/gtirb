@@ -285,12 +285,11 @@ namespace gtirb
         /// minimum and maximum EA.
         ///
         /// \param  ea      The address to store the data.
-        /// \param  x       A pointer to the data to store (honoring Endianness).
-        /// \param  bytes   The length of the data at the pointer.
+        /// \param  data    A pointer to the data to store (honoring Endianness).
         ///
         /// \sa gtirb::ByteMap
         ///
-        void setData(EA ea, uint8_t* const x, size_t bytes);
+        void setData(EA ea, gsl::span<const gsl::byte> data);
 
         ///
         /// Get a byte of data from the byte map at the given address.

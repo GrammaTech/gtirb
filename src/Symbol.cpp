@@ -14,6 +14,18 @@ Symbol::Symbol(EA x, std::string name_, StorageKind storageKind_)
 {
 }
 
+Symbol::Symbol(EA x, std::string name, const Data& referent, StorageKind storageKind)
+    : Symbol(x, name, storageKind)
+{
+    this->setReferent(referent);
+}
+
+Symbol::Symbol(EA x, std::string name, const Instruction& referent, StorageKind storageKind)
+    : Symbol(x, name, storageKind)
+{
+    this->setReferent(referent);
+}
+
 void Symbol::setEA(gtirb::EA x)
 {
     this->ea = x;

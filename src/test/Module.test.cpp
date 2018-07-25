@@ -117,7 +117,7 @@ TEST(Unit_Module, getAddrRanges)
 TEST(Unit_Module, getSymbolSet)
 {
     gtirb::Module m;
-    EXPECT_NO_THROW(m.getSymbolSet());
+    EXPECT_NO_THROW(m.getSymbols());
 }
 
 TEST(Unit_Module, getImageByteMap)
@@ -176,7 +176,7 @@ TEST(Unit_Module, protobufRoundTrip)
         original.setISAID(ISAID::X64);
         original.setName("module");
         original.setDecodeMode(5);
-        addSymbol(original.getSymbolSet(), {});
+        addSymbol(original.getSymbols(), {});
         addBlock(original.getCFG(), {});
         original.getRelocations().push_back({EA(8), "foo", "bar", 1});
         original.getData().push_back({});
@@ -185,7 +185,7 @@ TEST(Unit_Module, protobufRoundTrip)
 
         addrRangesID = original.getAddrRanges().getUUID();
         byteMapID = original.getImageByteMap().getUUID();
-        symbolID = original.getSymbolSet().begin()->second.getUUID();
+        symbolID = original.getSymbols().begin()->second.getUUID();
         blockID = blocks(original.getCFG()).begin()->getUUID();
         dataID = original.getData().begin()->getUUID();
         sectionID = original.getSections().begin()->getUUID();
@@ -214,8 +214,8 @@ TEST(Unit_Module, protobufRoundTrip)
     EXPECT_EQ(num_vertices(result.getCFG()), 1);
     EXPECT_EQ(blocks(result.getCFG()).begin()->getUUID(), blockID);
 
-    EXPECT_EQ(result.getSymbolSet().size(), 1);
-    EXPECT_EQ(result.getSymbolSet().begin()->second.getUUID(), symbolID);
+    EXPECT_EQ(result.getSymbols().size(), 1);
+    EXPECT_EQ(result.getSymbols().begin()->second.getUUID(), symbolID);
 
     EXPECT_EQ(result.getRelocations().size(), 1);
     EXPECT_EQ(result.getRelocations().begin()->ea, relocationEA);
