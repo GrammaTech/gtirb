@@ -1,14 +1,12 @@
 #include <gtest/gtest.h>
 #include <gtirb/Exception.hpp>
 #include <gtirb/LogicError.hpp>
-#include <gtirb/NodeError.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
 
 using testing::Types;
 
-typedef Types<gtirb::Exception, gtirb::LogicError, gtirb::NodeError, gtirb::RuntimeError>
-    TypeImplementations;
+typedef Types<gtirb::Exception, gtirb::LogicError, gtirb::RuntimeError> TypeImplementations;
 
 // ----------------------------------------------------------------------------
 // Typed test fixture.
