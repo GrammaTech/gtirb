@@ -110,11 +110,11 @@ void IR::toProtobuf(MessageType* message) const
 {
     nodeUUIDToBytes(this, *message->mutable_uuid());
 
-    auto* modules = message->mutable_modules();
-    modules->Clear();
-    modules->Reserve(this->modules.size());
+    auto* messages = message->mutable_modules();
+    messages->Clear();
+    messages->Reserve(this->modules.size());
     std::for_each(this->modules.begin(), this->modules.end(),
-                  [modules](const auto& n) { n->toProtobuf(modules->Add()); });
+                  [messages](const auto& n) { n->toProtobuf(messages->Add()); });
 
     nodeUUIDToBytes(this->mainModule.lock().get(), *message->mutable_main_module_id());
     containerToProtobuf(this->tables, message->mutable_tables());
@@ -127,9 +127,9 @@ void IR::fromProtobuf(const MessageType& message)
     const auto& messages = message.modules();
     this->modules.clear();
     this->modules.reserve(messages.size());
-    std::for_each(messages.begin(), messages.end(), [this](const auto& message) {
+    std::for_each(messages.begin(), messages.end(), [this](const auto& m) {
         auto val = std::make_shared<Module>();
-        val->fromProtobuf(message);
+        val->fromProtobuf(m);
         this->modules.push_back(std::move(val));
     });
 

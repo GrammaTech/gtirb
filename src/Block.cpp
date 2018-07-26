@@ -5,16 +5,16 @@
 
 using namespace gtirb;
 
-Block::Block(EA startingAddress, EA endingAddress)
-    : Node(), startingAddress(startingAddress), endingAddress(endingAddress)
+Block::Block(EA startingAddress_, EA endingAddress_)
+    : Node(), startingAddress(startingAddress_), endingAddress(endingAddress_)
 {
 }
 
-Block::Block(EA startingAddress, EA endingAddress, std::vector<Instruction>&& instructions)
+Block::Block(EA startingAddress_, EA endingAddress_, std::vector<Instruction>&& instructions_)
     : Node(),
-      startingAddress(startingAddress),
-      endingAddress(endingAddress),
-      instructions(std::move(instructions))
+      startingAddress(startingAddress_),
+      endingAddress(endingAddress_),
+      instructions(std::move(instructions_))
 {
 }
 

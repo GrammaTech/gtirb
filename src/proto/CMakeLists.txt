@@ -1,4 +1,5 @@
 file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
+add_compile_options(-Wno-shadow)
 PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${ProtoFiles})
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
