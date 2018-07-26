@@ -33,9 +33,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
 	../include/gtirb/Node.hpp
-	../include/gtirb/NodeError.hpp
         ../include/gtirb/NodeReference.hpp
-	../include/gtirb/NodeStructureError.hpp
 	../include/gtirb/Relocation.hpp
 	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
@@ -63,8 +61,6 @@ set(${PROJECT_NAME}_SRC
 	LogicError.cpp
 	Module.cpp
 	Node.cpp
-	NodeError.cpp
-	NodeStructureError.cpp
 	RuntimeError.cpp
         Section.cpp
         Serialization.cpp
