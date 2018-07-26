@@ -4,54 +4,53 @@
 
 using namespace gtirb;
 
-TEST(Unit_SymbolicOperand, protobufRoundTripStackConst)
-{
-    Symbol sym1(EA(1), "test1");
-    Symbol sym2(EA(2), "test2");
+TEST(Unit_SymbolicOperand, protobufRoundTripStackConst) {
+  Symbol sym1(EA(1), "test1");
+  Symbol sym2(EA(2), "test2");
 
-    // SymStackConst
-    {
-        SymbolicOperand original(SymStackConst{true, 1, 2, {sym1}});
+  // SymStackConst
+  {
+    SymbolicOperand original(SymStackConst{true, 1, 2, {sym1}});
 
-        gtirb::SymbolicOperand result;
-        auto message = toProtobuf(original);
-        fromProtobuf(result, message);
+    gtirb::SymbolicOperand result;
+    auto message = toProtobuf(original);
+    fromProtobuf(result, message);
 
-        SymStackConst s;
-        EXPECT_NO_THROW(s = boost::get<SymStackConst>(result));
-        EXPECT_EQ(s.negate, true);
-        EXPECT_EQ(s.offset, 1);
-        EXPECT_EQ(s.displacement, 2);
-        EXPECT_EQ(s.symbol->getName(), "test1");
-    }
+    SymStackConst s;
+    EXPECT_NO_THROW(s = boost::get<SymStackConst>(result));
+    EXPECT_EQ(s.negate, true);
+    EXPECT_EQ(s.offset, 1);
+    EXPECT_EQ(s.displacement, 2);
+    EXPECT_EQ(s.symbol->getName(), "test1");
+  }
 
-    // SymAddrConst
-    {
-        SymbolicOperand original(SymAddrConst{1, {sym1}});
+  // SymAddrConst
+  {
+    SymbolicOperand original(SymAddrConst{1, {sym1}});
 
-        gtirb::SymbolicOperand result;
-        auto message = toProtobuf(original);
-        fromProtobuf(result, message);
+    gtirb::SymbolicOperand result;
+    auto message = toProtobuf(original);
+    fromProtobuf(result, message);
 
-        SymAddrConst s;
-        EXPECT_NO_THROW(s = boost::get<SymAddrConst>(result));
-        EXPECT_EQ(s.displacement, 1);
-        EXPECT_EQ(s.symbol->getName(), "test1");
-    }
+    SymAddrConst s;
+    EXPECT_NO_THROW(s = boost::get<SymAddrConst>(result));
+    EXPECT_EQ(s.displacement, 1);
+    EXPECT_EQ(s.symbol->getName(), "test1");
+  }
 
-    // SymAddrAddr
-    {
-        SymbolicOperand original(SymAddrAddr{1, 2, {sym1}, {sym2}});
+  // SymAddrAddr
+  {
+    SymbolicOperand original(SymAddrAddr{1, 2, {sym1}, {sym2}});
 
-        gtirb::SymbolicOperand result;
-        auto message = toProtobuf(original);
-        fromProtobuf(result, message);
+    gtirb::SymbolicOperand result;
+    auto message = toProtobuf(original);
+    fromProtobuf(result, message);
 
-        SymAddrAddr s;
-        EXPECT_NO_THROW(s = boost::get<SymAddrAddr>(result));
-        EXPECT_EQ(s.scale, 1);
-        EXPECT_EQ(s.offset, 2);
-        EXPECT_EQ(s.symbol1->getName(), "test1");
-        EXPECT_EQ(s.symbol2->getName(), "test2");
-    }
+    SymAddrAddr s;
+    EXPECT_NO_THROW(s = boost::get<SymAddrAddr>(result));
+    EXPECT_EQ(s.scale, 1);
+    EXPECT_EQ(s.offset, 2);
+    EXPECT_EQ(s.symbol1->getName(), "test1");
+    EXPECT_EQ(s.symbol2->getName(), "test2");
+  }
 }
