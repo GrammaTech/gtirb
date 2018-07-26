@@ -1,17 +1,24 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
-ARG BOOST_VERSION=1.67.0
-ARG BOOST_VERSION_=1_67_0
+ARG BOOST_VERSION=1.59.0
+ARG BOOST_VERSION_=1_59_0
 ARG CMAKE_VERSION=3.10
+ARG CXX_COMPILER=g++-7
 
 RUN apt-get -y update && \
-    apt-get -y install gcc make cmake git build-essential binutils doxygen graphviz wget curl
+    apt-get -y install software-properties-common && \
+    add-apt-repository ppa:jonathonf/gcc-7.1 && \
+    apt-get -y update
+RUN apt-get -y install gcc-7 g++-7 make git
+RUN apt-get -y install build-essential binutils 
+RUN apt-get -y install doxygen graphviz wget curl unzip
+RUN apt-get -y install clang
 
 # Install Boost
 ENV BOOST_VERSION=${BOOST_VERSION}
 ENV BOOST_VERSION_=${BOOST_VERSION_}
 ENV BOOST_ROOT=/usr/include/boost
-RUN cd /home && wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_}.tar.gz \
+RUN cd /home && wget http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION_}.tar.gz \
   && tar xfz boost_${BOOST_VERSION_}.tar.gz \
   && rm boost_${BOOST_VERSION_}.tar.gz \
   && cd boost_${BOOST_VERSION_} \
@@ -24,11 +31,22 @@ RUN cd /home && wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/so
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
     |tar -xz --strip-components=1 -C /usr/local
 
+# Install protobuf
+RUN cd /usr/local/src \
+    && wget https://github.com/google/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.tar.gz \
+    && tar xf protobuf-cpp-3.6.0.tar.gz \
+    && cd protobuf-3.6.0 \
+    && ./configure \
+    && make \
+    && make install
+RUN ldconfig
+
+# Build GT-IRB
 COPY . /gt/gt-irb/
 RUN rm -rf /gt/gt-irb/build /gt/gt-irb/CMakeCache.txt /gt/gt-irb/CMakeFiles /gt/gt-irb/CMakeScripts
 RUN mkdir -p /gt/gt-irb/build
 WORKDIR /gt/gt-irb/build
-RUN cmake ../ -DGTIRB_ISO_CPP_VERSION=C++14
+RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
 RUN make -j
 
 WORKDIR /gt/gt-irb/
