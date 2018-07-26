@@ -103,10 +103,10 @@ void ByteMap::setData(EA ea, uint64_t x)
     *(decltype(x) *)&(page[pageOffset]) = x;
 }
 
-void ByteMap::setData(EA ea, gsl::span<const gsl::byte> data)
+void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes)
 {
-    int64_t bytesRemaining = data.size_bytes();
-    auto currentBuffer = data.data();
+    int64_t bytesRemaining = bytes.size_bytes();
+    auto currentBuffer = bytes.data();
     auto currentAddress = ea;
 
     while(bytesRemaining > 0)

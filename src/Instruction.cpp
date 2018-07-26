@@ -6,7 +6,7 @@
 
 using namespace gtirb;
 
-Instruction::Instruction(EA ea, uint64_t size) : Node(), ea(ea), size(size)
+Instruction::Instruction(EA ea_, uint64_t size_) : Node(), ea(ea_), size(size_)
 {
 }
 

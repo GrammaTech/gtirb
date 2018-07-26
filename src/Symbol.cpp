@@ -14,14 +14,14 @@ Symbol::Symbol(EA x, std::string name_, StorageKind storageKind_)
 {
 }
 
-Symbol::Symbol(EA x, std::string name, const Data& referent, StorageKind storageKind)
-    : Symbol(x, name, storageKind)
+Symbol::Symbol(EA x, std::string name_, const Data& referent, StorageKind storageKind_)
+    : Symbol(x, name_, storageKind_)
 {
     this->setReferent(referent);
 }
 
-Symbol::Symbol(EA x, std::string name, const Instruction& referent, StorageKind storageKind)
-    : Symbol(x, name, storageKind)
+Symbol::Symbol(EA x, std::string name_, const Instruction& referent, StorageKind storageKind_)
+    : Symbol(x, name_, storageKind_)
 {
     this->setReferent(referent);
 }
