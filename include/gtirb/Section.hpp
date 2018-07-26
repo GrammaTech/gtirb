@@ -13,7 +13,7 @@ namespace gtirb
     ///
     /// \class Section
     /// \author Nathan Weston
-    struct GTIRB_GTIRB_EXPORT_API Section : public Node
+    class GTIRB_GTIRB_EXPORT_API Section : public Node
     {
     public:
         Section() = default;

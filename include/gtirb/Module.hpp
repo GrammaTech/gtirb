@@ -21,7 +21,7 @@ namespace gtirb
     class ImageByteMap;
     class Data;
     using DataSet = std::vector<Data>;
-    class Relocation;
+    struct Relocation;
     using RelocationSet = std::vector<Relocation>;
     class Section;
     using SectionSet = std::vector<Section>;
@@ -162,8 +162,6 @@ namespace gtirb
         int64_t rebaseDelta{0};
         gtirb::FileFormat fileFormat{};
         gtirb::ISAID isaID{};
-        bool isSetupComplete{false};
-        bool isReadOnly{false};
         std::string name{};
         uint64_t decodeMode{0};
         std::unique_ptr<AddrRanges> addrRanges;

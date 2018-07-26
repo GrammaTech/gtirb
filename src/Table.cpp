@@ -157,7 +157,7 @@ namespace gtirb
                 value = v;
                 break;
             }
-            case proto::Value::VALUE_NOT_SET:
+            case proto::InnerValue::VALUE_NOT_SET:
                 assert(false);
                 break;
         }
