@@ -13,7 +13,6 @@
 namespace gtirb {
 ///
 /// \class ImageByteMap
-/// \author John E. Farrier
 ///
 /// Contains the loaded raw image data for the module (binary).
 ///

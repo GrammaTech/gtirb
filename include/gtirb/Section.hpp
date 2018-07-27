@@ -10,7 +10,6 @@ class Section;
 namespace gtirb {
 ///
 /// \class Section
-/// \author Nathan Weston
 class GTIRB_GTIRB_EXPORT_API Section : public Node {
 public:
   Section() = default;

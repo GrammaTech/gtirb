@@ -26,7 +26,6 @@ using SectionSet = std::vector<Section>;
 
 ///
 /// \class Module
-/// \author John E. Farrier
 ///
 /// \todo Replace boost::filesystem with std::filesystem.
 ///

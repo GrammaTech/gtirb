@@ -14,7 +14,6 @@ class EA;
 
 ///
 /// \class AddrRanges
-/// \author John E. Farrier
 ///
 /// Thin list of non-overlapping non-adjacent EA ranges.  Each
 /// range is [lb, ub), inclusive of lb but exclusive of ub.  This

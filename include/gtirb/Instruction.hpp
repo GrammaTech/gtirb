@@ -13,7 +13,6 @@ class Module;
 
 ///
 /// \class Instruction
-/// \author John E. Farrier
 ///
 /// Instructions have two fields, a pointer to the raw bytes of
 /// the instruction (including any instruction prefix) and a list

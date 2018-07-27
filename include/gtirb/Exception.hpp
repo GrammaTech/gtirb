@@ -8,7 +8,6 @@
 namespace gtirb {
 ///
 /// \class Exception
-/// \author John E. Farrier
 ///
 /// The base class for all GT-IRB exceptions.
 /// Compatible with 'std::exception'. Provide an error message in the constructor for better

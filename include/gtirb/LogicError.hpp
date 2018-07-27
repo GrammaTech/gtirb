@@ -5,7 +5,6 @@
 namespace gtirb {
 ///
 /// \class LogicError
-/// \author John E. Farrier
 ///
 /// An exception indicating a GT-IRB internal logic error.
 ///

@@ -13,7 +13,6 @@
 namespace gtirb {
 ///
 /// \class EA
-/// \author John E. Farrier
 ///
 /// A special class to store an Effective Address. This is initialized to
 /// `gtirb::constants::BadAddress`. It is compatible with a uint64_t for 64-bit address storage.
