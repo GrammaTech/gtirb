@@ -69,7 +69,7 @@ GT-IRB should successfully build in 64-bits with GCC, Clang, and
 Visual Studio compilers supporting at least C++14. GT-IRB requires
 Boost.
 
-### Installing CMake (For CMake builds only)
+### Installing CMake
 
 The first thing to do is get hold of CMake. You can get it from
 [here](https://cmake.org/download/) or via your package manager
@@ -169,8 +169,11 @@ build.
 
 ## Usage
 
-GT-IRB is designed to be serialized to/from JSON, enabling easy use
-from any programming language.  GT-IRB is also used as a C++ library
+GT-IRB is designed to be serialized using [Google's protocol
+Buffers](https://developers.google.com/protocol-buffers/) (i.e.,
+[protobuf](https://github.com/google/protobuf/wiki)) and eventually
+JSON through protobuf's JSON output, enabling easy use from any
+programming language.  GT-IRB is may also be used as a C++ library
 implementing an efficient data structure suitable for use by binary
 analysis and rewriting applications.
 
@@ -231,7 +234,7 @@ GT-IRB can store multiple symbols with the same EA.
 addSymbol(symbols, Symbol(EA(2614), "duplicate", data[1], Symbol::StorageKind::Local));
 ```
 
-Instructions are organized into basic blocks .As without other GT-IRB
+Instructions are organized into basic blocks.  As with other GT-IRB
 objects, Blocks and Instructions don't directly hold any data.
 
 ```c++
@@ -240,8 +243,9 @@ Block b1(EA(466), EA(472),
 Block b2(EA(472), EA(480), {Instruction(EA(472), 4), Instruction(EA(476), 4)});
 ```
 
-Blocks are stored an interprocedural CFG. The CFG preserves the order
-of blocks, so it can be used without any edges simply to hold all the
+Blocks are stored in an interprocedural CFG.  The CFG preserves the
+order of blocks.  It can be populated with edges to denote control
+flow or populated without any edges simply to hold all the
 instructions in the binary.
 
 ```c++
@@ -249,8 +253,8 @@ auto vertex1 = addBlock(mainModule.getCFG(), std::move(b1));
 auto vertex2 = addBlock(mainModule.getCFG(), std::move(b2));
 ```
 
-`addBlock` returns a vertex descriptor which can be used to retrieve
-the block or add edges:
+The `addBlock` function returns a vertex descriptor which can be used
+to retrieve the block or add edges:
 
 ```c++
 add_edge(vertex1, vertex2, mainModule.getCFG());
@@ -265,9 +269,9 @@ mainModule.getSymbolicOperands().insert(
 ```
 
 
-Finally, tables can be used to store additional data at the IR
-level. These use variants to support a variety of maps and vectors of
-common GT-IRB types.
+Finally, data tables can be used to store any additional data at the
+IR level.  These use variants to support a variety of maps and vectors
+of common GT-IRB types.
 
 ```c++
 ir.addTable("eaTable", std::vector<EA>({EA(1), EA(2), EA(3)}));
@@ -280,9 +284,8 @@ ir.addTable("stringMap",
 Many components of GT-IRB are stored in standard containers for ease
 of use. However, some require special consideration.
 
-
-Symbols can be looked up by EA. Any number of symbols can share an EA,
-so be prepared to deal with multiple results.
+Symbols can be looked up by EA.  Any number of symbols can share an
+EA, so be prepared to deal with multiple results.
 
 ```c++
 std::vector<Symbol*> syms = findSymbols(mainModule.getSymbols(), EA(2614));
@@ -302,9 +305,9 @@ assert(referent->getEA() == EA(2614));
 assert(referent->getSize() == 2);
 ```
 
-The CFG uses
-[boost::graph](https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/). GT-IRB
-also provides a convenience function for iterating over blocks:
+The ICFG uses
+[boost::graph](https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/).
+GT-IRB also provides a convenience function for iterating over blocks:
 
 ```c++
 for(const auto& b : blocks(mainModule.getCFG()))
