@@ -17,26 +17,28 @@ The remainder of this file has information on GT-IRB's:
 ## Structure
 GT-IRB has the following structure:
 
-              IR
-            /    \        -----Symbols
-           /      \      /-----Relocations
-    Data Tables   Modules------ImageByteMap
-                         \-----Data
-                          -----Symbolic
-                          -----ICFG
-                               /  \
-                          Blocks  Edges
-                             |
-                        Instructions
-
+      Data Tables
+      /                /--Symbolic
+    IR        -----Data---Bytes
+      \      /-----Symbols
+      Modules------Relocations
+             \-----ImageByteMap
+              -----ICFG
+                   /  \
+              Blocks  Edges
+                 |
+            Instructions---Symbolic
+                        \--Bytes
 
 ### IR
 An instance of GT-IRB may include multiple `module`s which represent
 loadable objects such as executables or libraries.  Each `module`
-holds information such as `symbol`s, data objects, and an
-inter-procedural control flow graph (`ICFG`).  The `ICFG` consists of
-basic `block`s and control flow edges between these `blocks`.  Each
-`block` holds some number of `instructions`.
+holds information such as `symbol`s, `data`, and an inter-procedural
+control flow graph (`ICFG`).  The `ICFG` consists of basic `block`s
+and control flow edges between these `block`s.  Each `block` holds
+some number of `instruction`s.  Each `datum` and `instruction` holds
+both a pointer to a range of bytes in the `ImageByteMap` and
+`symbolic` information coverage that range.
 
 ### Instructions
 
@@ -224,7 +226,7 @@ addSymbol(symbols, Symbol(EA(2608), // address
 addSymbol(symbols, Symbol(EA(2614), "data2", data[1], Symbol::StorageKind::Extern));
 ```
 
-GT-IRB can store multiple symbols with the same EA. 
+GT-IRB can store multiple symbols with the same EA.
 ```c++
 addSymbol(symbols, Symbol(EA(2614), "duplicate", data[1], Symbol::StorageKind::Local));
 ```
