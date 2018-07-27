@@ -8,19 +8,19 @@ using namespace gtirb;
 
 TEST(Unit_Instruction, ctor_0) { EXPECT_NO_THROW(gtirb::Instruction()); }
 
-TEST(Unit_Instruction, setEA) {
+TEST(Unit_Instruction, setAddress) {
   const gtirb::EA ea{22678};
 
   gtirb::Instruction node;
-  EXPECT_NO_THROW(node.setEA(ea));
-  EXPECT_EQ(ea, node.getEA());
+  EXPECT_NO_THROW(node.setAddress(ea));
+  EXPECT_EQ(ea, node.getAddress());
 }
 
-TEST(Unit_Instruction, getEA) {
+TEST(Unit_Instruction, getAddress) {
   const gtirb::EA ea(1);
 
   gtirb::Instruction node(ea);
-  EXPECT_EQ(ea, node.getEA());
+  EXPECT_EQ(ea, node.getAddress());
 }
 
 TEST(Unit_Instruction, getSize) {
@@ -37,6 +37,6 @@ TEST(Unit_Instruction, protobufRoundTrip) {
   original.setUUID(); // Avoid UUID conflict
   result.fromProtobuf(message);
 
-  EXPECT_EQ(result.getEA(), EA(1));
+  EXPECT_EQ(result.getAddress(), EA(1));
   EXPECT_EQ(result.getSize(), 2);
 }

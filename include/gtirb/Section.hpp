@@ -13,7 +13,7 @@ namespace gtirb {
 class GTIRB_EXPORT_API Section : public Node {
 public:
   Section() = default;
-  Section(std::string n, uint64_t size, EA address);
+  Section(std::string n, EA address, uint64_t size);
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
@@ -30,19 +30,12 @@ public:
   ///
   Section& operator=(Section&&) = default;
 
-  /// The exclusive limit of the section. I.e. the smallest EA which is
-  /// past the end.
-  EA addressLimit() const;
-
-  /// Is this address within the section?
-  bool contains(EA ea) const;
-
   bool operator==(const Section& other) const;
   bool operator!=(const Section& other) const;
 
   const std::string& getName() const;
+  const EA getAddress() const;
   const uint64_t getSize() const;
-  const EA getStartingAddress() const;
 
   using MessageType = proto::Section;
   void toProtobuf(MessageType* message) const;
@@ -50,7 +43,7 @@ public:
 
 private:
   std::string name;
+  EA address{0};
   uint64_t size{0};
-  EA startingAddress{0};
 };
 }

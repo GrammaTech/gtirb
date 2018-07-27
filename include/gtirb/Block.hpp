@@ -27,13 +27,13 @@ public:
   ///
   /// Construct an empty block
   ///
-  Block(EA startingAddress, EA endingAddress);
+  Block(EA address, uint64_t size);
 
   ///
   /// Construct a block with some instructions.
   /// Instructions are copied and added as children.
   ///
-  Block(EA startingAddress, EA endingAddress, std::vector<Instruction>&& instructions);
+  Block(EA address, uint64_t size, std::vector<Instruction>&& instructions);
 
   ///
   /// Move constructor
@@ -50,8 +50,8 @@ public:
   ///
   ~Block() override = default;
 
-  EA getStartingAddress() const;
-  EA getEndingAddress() const;
+  EA getAddress() const;
+  uint64_t getSize() const;
 
   std::vector<Instruction>& getInstructions();
   const std::vector<Instruction>& getInstructions() const;
@@ -61,8 +61,8 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  EA startingAddress{};
-  EA endingAddress{};
+  EA address{};
+  uint64_t size{0};
   std::vector<Instruction> instructions;
 };
 }

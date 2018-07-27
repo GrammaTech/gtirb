@@ -15,34 +15,34 @@ TEST(Unit_CFG, ctor_0) { EXPECT_NO_THROW(CFG()); }
 TEST(Unit_CFG, addVertex) {
   CFG cfg;
   auto descriptor = add_vertex(cfg);
-  EXPECT_EQ(cfg[descriptor].getStartingAddress(), EA());
-  EXPECT_EQ(cfg[descriptor].getEndingAddress(), EA());
+  EXPECT_EQ(cfg[descriptor].getAddress(), EA());
+  EXPECT_EQ(cfg[descriptor].getSize(), 0);
   EXPECT_TRUE(cfg[descriptor].getInstructions().empty());
 }
 
 TEST(Unit_CFG, addBlock) {
   CFG cfg;
-  auto descriptor = addBlock(cfg, Block(EA(1), EA(2)));
-  EXPECT_EQ(cfg[descriptor].getStartingAddress(), EA(1));
-  EXPECT_EQ(cfg[descriptor].getEndingAddress(), EA(2));
+  auto descriptor = addBlock(cfg, Block(EA(1), 2));
+  EXPECT_EQ(cfg[descriptor].getAddress(), EA(1));
+  EXPECT_EQ(cfg[descriptor].getSize(), 2);
   EXPECT_TRUE(cfg[descriptor].getInstructions().empty());
 }
 
 TEST(Unit_CFG, blockIterator) {
   CFG cfg;
-  addBlock(cfg, Block(EA(1), EA(2)));
-  addBlock(cfg, Block(EA(3), EA(4)));
-  addBlock(cfg, Block(EA(5), EA(6)));
+  addBlock(cfg, Block(EA(1), 2));
+  addBlock(cfg, Block(EA(3), 2));
+  addBlock(cfg, Block(EA(5), 2));
 
   // Non-const graph produces a regular iterator
   boost::iterator_range<block_iterator> blockRange = blocks(cfg);
   EXPECT_EQ(std::distance(blockRange.begin(), blockRange.end()), 3);
   auto it = blockRange.begin();
-  EXPECT_EQ(it->getStartingAddress(), EA(1));
+  EXPECT_EQ(it->getAddress(), EA(1));
   ++it;
-  EXPECT_EQ(it->getStartingAddress(), EA(3));
+  EXPECT_EQ(it->getAddress(), EA(3));
   ++it;
-  EXPECT_EQ(it->getStartingAddress(), EA(5));
+  EXPECT_EQ(it->getAddress(), EA(5));
   ++it;
   EXPECT_EQ(it, blockRange.end());
 
@@ -51,11 +51,11 @@ TEST(Unit_CFG, blockIterator) {
   boost::iterator_range<const_block_iterator> constRange = blocks(const_cfg);
   EXPECT_EQ(std::distance(constRange.begin(), constRange.end()), 3);
   auto cit = constRange.begin();
-  EXPECT_EQ(cit->getStartingAddress(), EA(1));
+  EXPECT_EQ(cit->getAddress(), EA(1));
   ++cit;
-  EXPECT_EQ(cit->getStartingAddress(), EA(3));
+  EXPECT_EQ(cit->getAddress(), EA(3));
   ++cit;
-  EXPECT_EQ(cit->getStartingAddress(), EA(5));
+  EXPECT_EQ(cit->getAddress(), EA(5));
   ++cit;
   EXPECT_EQ(cit, constRange.end());
 }

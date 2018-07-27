@@ -1,52 +1,45 @@
 #include <gtest/gtest.h>
 #include <proto/Section.pb.h>
 #include <gtirb/Section.hpp>
+#include <gtirb/Utilities.hpp>
 #include <limits>
 
 using namespace gtirb;
 
 TEST(Unit_Section, equality) {
-  Section a{"foo", 1, EA{2}};
-  Section b{"foo", 1, EA{2}};
-  Section c{"bar", 1, EA{2}};
-  Section d{"foo", 3, EA{2}};
-  Section e{"foo", 1, EA{3}};
+  Section a{"foo", EA{2}, 1};
+  Section b{"foo", EA{2}, 1};
+  Section c{"bar", EA{2}, 1};
+  Section d{"foo", EA{2}, 3};
+  Section e{"foo", EA{3}, 1};
   EXPECT_EQ(a, b);
   EXPECT_NE(a, c);
   EXPECT_NE(a, d);
   EXPECT_NE(a, e);
 }
 
-TEST(Unit_Section, addressLimit) {
-  Section good{"foo", 100, EA{11}};
-  EXPECT_EQ(good.addressLimit(), EA(111));
+TEST(Unit_Section, containsEA) {
+  Section good{"good", EA{11}, 100};
+  EXPECT_FALSE(utilities::containsEA(good, EA(10)));
+  EXPECT_TRUE(utilities::containsEA(good, EA(11)));
+  EXPECT_TRUE(utilities::containsEA(good, EA(110)));
+  EXPECT_FALSE(utilities::containsEA(good, EA(111)));
 
-  Section bad{"foo", 100, EA{}};
-  EXPECT_EQ(bad.addressLimit(), EA());
-}
-
-TEST(Unit_Section, contains) {
-  Section good{"good", 100, EA{11}};
-  EXPECT_FALSE(good.contains(EA(10)));
-  EXPECT_TRUE(good.contains(EA(11)));
-  EXPECT_TRUE(good.contains(EA(110)));
-  EXPECT_FALSE(good.contains(EA(111)));
-
-  Section big{"big", std::numeric_limits<uint64_t>::max(), EA(0)};
-  EXPECT_TRUE(big.contains(EA(0)));
-  EXPECT_TRUE(big.contains(EA(std::numeric_limits<uint64_t>::max() - 1)));
+  Section big{"big", EA(0), std::numeric_limits<uint64_t>::max()};
+  EXPECT_TRUE(utilities::containsEA(big, EA(0)));
+  EXPECT_TRUE(utilities::containsEA(big, EA(std::numeric_limits<uint64_t>::max() - 1)));
   // No section contains a bad address
-  EXPECT_FALSE(big.contains(EA()));
+  EXPECT_FALSE(utilities::containsEA(big, EA()));
 
   // Bad section does not contain anything
-  Section bad{"bad", std::numeric_limits<uint64_t>::max(), EA()};
-  EXPECT_FALSE(bad.contains(EA(0)));
-  EXPECT_FALSE(bad.contains(EA(std::numeric_limits<uint64_t>::max() - 1)));
-  EXPECT_FALSE(bad.contains(EA()));
+  Section bad{"bad", EA(), std::numeric_limits<uint64_t>::max()};
+  EXPECT_FALSE(utilities::containsEA(bad, EA(0)));
+  EXPECT_FALSE(utilities::containsEA(bad, EA(std::numeric_limits<uint64_t>::max() - 1)));
+  EXPECT_FALSE(utilities::containsEA(bad, EA()));
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
-  Section original("name", 1234, EA(1));
+  Section original("name", EA(1), 1234);
 
   gtirb::Section result;
   proto::Section message;
@@ -56,5 +49,5 @@ TEST(Unit_Section, protobufRoundTrip) {
 
   EXPECT_EQ(result.getName(), "name");
   EXPECT_EQ(result.getSize(), 1234);
-  EXPECT_EQ(result.getStartingAddress(), EA(1));
+  EXPECT_EQ(result.getAddress(), EA(1));
 }

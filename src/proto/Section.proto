@@ -4,6 +4,6 @@ package proto;
 message Section {
     bytes uuid = 1;
     string name = 2;
-    uint64 size = 3;
-    uint64 starting_address = 4;
+    uint64 address = 3;
+    uint64 size = 4;
 }
