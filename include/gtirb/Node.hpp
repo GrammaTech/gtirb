@@ -15,10 +15,6 @@ using UUID = boost::uuids::uuid;
 
 ///
 /// \class Node
-/// \author John E. Farrier
-///
-/// Copied Node objects will copy the references to the Table pointers they own.  This means
-/// that any tables owned by this node will now have at least two owners.
 ///
 class GTIRB_GTIRB_EXPORT_API Node {
 public:

@@ -5,7 +5,6 @@
 namespace gtirb {
 ///
 /// \class RuntimeError
-/// \author John E. Farrier
 ///
 /// Defines a type of object to be thrown as exception. It reports errors that are due to events
 /// beyond the scope of the program and can not be easily predicted.

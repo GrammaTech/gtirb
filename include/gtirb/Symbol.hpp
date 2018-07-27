@@ -11,7 +11,6 @@ class Instruction;
 
 ///
 /// \class Symbol
-/// \author John E. Farrier
 ///
 class GTIRB_GTIRB_EXPORT_API Symbol : public Node {
 public:

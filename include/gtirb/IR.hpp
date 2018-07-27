@@ -16,7 +16,6 @@ class Module;
 
 ///
 /// \class IR
-/// \author John E. Farrier
 ///
 /// A complete IR consisting of Modules.
 ///

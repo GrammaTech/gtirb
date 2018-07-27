@@ -14,11 +14,10 @@ class ByteMap;
 namespace gtirb {
 ///
 /// \class ByteMap
-/// \author John E. Farrier
 ///
 /// Holds the bytes of the loaded image of the binary.  Every
 /// instruction represented by a gtirb::Instruction will point
-/// into this may to reference the raw bytes of the instruction.
+/// into this map to reference the raw bytes of the instruction.
 ///
 class GTIRB_GTIRB_EXPORT_API ByteMap {
 public:

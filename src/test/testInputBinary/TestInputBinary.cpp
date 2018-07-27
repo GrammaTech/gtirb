@@ -1,6 +1,5 @@
 ///
 /// \file 		TestInputBinary.cpp
-/// \author 	John E. Farrier
 ///
 /// References:
 /// 	http://www.boost.org/doc/libs/1_66_0/libs/preprocessor/doc/index.html
@@ -17,122 +16,86 @@
 #include <string>
 
 /// Compute a factorial
-int64_t Factorial(int64_t x)
-{
-    if(x <= 0)
-    {
-        return 1;
-    }
-    else
-    {
-        return x * Factorial(x - 1);
-    }
+int64_t Factorial(int64_t x) {
+  if (x <= 0) {
+    return 1;
+  } else {
+    return x * Factorial(x - 1);
+  }
 }
 
-std::string IndirectFoo()
-{
-    return "Foo";
-}
+std::string IndirectFoo() { return "Foo"; }
 
-std::string IndirectBar()
-{
-    return "Bar";
-}
+std::string IndirectBar() { return "Bar"; }
 
 const char* Index8[] = {"one", "two", "three", "four", "five", "six", "seven", "eight"};
 
-template <int N, int I>
-class GeneratedClass
-{
+template <int N, int I> class GeneratedClass {
 public:
-    GeneratedClass()
-    {
-        this->setName("GeneratedClass");
+  GeneratedClass() { this->setName("GeneratedClass"); }
+
+  /// Template function to print an integer.
+  void printInteger() {
+    std::cout << "Class<" << N << ", " << I << "> ";
+    std::cout << "Factorial: !" << I << " = " << Factorial(I) << "; ";
+    std::cout << "Throws: " << this->randomThrow() << "; ";
+    std::cout << "Index: " << this->randomIndex() << "; ";
+    std::cout << "Indirect: " << this->randomIndirect() << "; ";
+    std::cout << "Member: " << this->member << "; ";
+    std::cout << std::endl;
+  }
+
+  bool randomThrow() {
+    this->setName("VOID");
+    this->member += rand();
+
+    try {
+      if (rand() % 256 == 0) {
+        throw std::logic_error("Ramdom Throw");
+      }
+    } catch (...) {
+      return true;
     }
 
-    /// Template function to print an integer.
-    void printInteger()
-    {
-        std::cout << "Class<" << N << ", " << I << "> ";
-        std::cout << "Factorial: !" << I << " = " << Factorial(I) << "; ";
-        std::cout << "Throws: " << this->randomThrow() << "; ";
-        std::cout << "Index: " << this->randomIndex() << "; ";
-        std::cout << "Indirect: " << this->randomIndirect() << "; ";
-        std::cout << "Member: " << this->member << "; ";
-        std::cout << std::endl;
+    return false;
+  }
+
+  std::string randomIndex() const { return std::string(Index8[rand() % 8]); }
+
+  std::string randomIndirect() {
+    this->member -= rand();
+
+    if (rand() % 2 == 0) {
+      return IndirectFoo();
     }
 
-    bool randomThrow()
-    {
-        this->setName("VOID");
-        this->member += rand();
+    return IndirectBar();
+  }
 
-        try
-        {
-            if(rand() % 256 == 0)
-            {
-                throw std::logic_error("Ramdom Throw");
-            }
-        }
-        catch(...)
-        {
-            return true;
-        }
+  void operator()() {
+    this->printInteger();
 
-        return false;
-    }
+    // Generate small binaries.
+    GeneratedClass<N - 1, I>()();
 
-    std::string randomIndex() const
-    {
-        return std::string(Index8[rand() % 8]);
-    }
+    // Generate much bigger binaries
+    // GeneratedClass<N - 1, I + N>()();
+    // GeneratedClass<N - 1, I - N>()();
+  }
 
-    std::string randomIndirect()
-    {
-        this->member -= rand();
-
-        if(rand() % 2 == 0)
-        {
-            return IndirectFoo();
-        }
-
-        return IndirectBar();
-    }
-
-    void operator()()
-    {
-        this->printInteger();
-
-        // Generate small binaries.
-        GeneratedClass<N - 1, I>()();
-
-        // Generate much bigger binaries
-        // GeneratedClass<N - 1, I + N>()();
-        // GeneratedClass<N - 1, I - N>()();
-    }
-
-    void setName(const std::string& x)
-    {
-        this->name = x;
-    }
+  void setName(const std::string& x) { this->name = x; }
 
 private:
-    std::string name;
-    int64_t member{0};
+  std::string name;
+  int64_t member{0};
 };
 
 // The "Exit" case for macro expansion.
-template <int I>
-class GeneratedClass<0, I>
-{
+template <int I> class GeneratedClass<0, I> {
 public:
-    void operator()()
-    {
-        // Empty
-    }
+  void operator()() {
+    // Empty
+  }
 };
 
-int main()
-{
-    GeneratedClass<GENERATION_CONSTANT, 0>()();
-}
+int main() { GeneratedClass<GENERATION_CONSTANT, 0>()(); }
