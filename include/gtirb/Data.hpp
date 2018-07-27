@@ -25,7 +25,7 @@ namespace gtirb {
 /// Perhaps data and instruction should share a base class which
 /// provides the byte-pointer and symbolic expression support?
 ///
-class GTIRB_GTIRB_EXPORT_API Data : public Node {
+class GTIRB_EXPORT_API Data : public Node {
 public:
   // Default constructor required for serialization.
   Data() = default;

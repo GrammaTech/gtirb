@@ -12,7 +12,7 @@ class Instruction;
 ///
 /// \class Symbol
 ///
-class GTIRB_GTIRB_EXPORT_API Symbol : public Node {
+class GTIRB_EXPORT_API Symbol : public Node {
 public:
   ///
   ///

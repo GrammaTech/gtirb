@@ -16,7 +16,7 @@ namespace gtirb {
 ///
 /// Contains the loaded raw image data for the module (binary).
 ///
-class GTIRB_GTIRB_EXPORT_API ImageByteMap : public Node {
+class GTIRB_EXPORT_API ImageByteMap : public Node {
 public:
   ///
   /// \enum LFCMTypeMasks

@@ -14,7 +14,7 @@ namespace gtirb {
 /// tracking.  This class allows for setting and retrieving the source code location that
 /// generated the exception.
 ///
-class GTIRB_GTIRB_EXPORT_API Exception : public std::logic_error {
+class GTIRB_EXPORT_API Exception : public std::logic_error {
 public:
   ///
   /// Implements a constructor from the base type.

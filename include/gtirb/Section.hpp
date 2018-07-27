@@ -10,7 +10,7 @@ class Section;
 namespace gtirb {
 ///
 /// \class Section
-class GTIRB_GTIRB_EXPORT_API Section : public Node {
+class GTIRB_EXPORT_API Section : public Node {
 public:
   Section() = default;
   Section(std::string n, uint64_t size, EA address);

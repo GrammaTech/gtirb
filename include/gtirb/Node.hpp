@@ -16,7 +16,7 @@ using UUID = boost::uuids::uuid;
 ///
 /// \class Node
 ///
-class GTIRB_GTIRB_EXPORT_API Node {
+class GTIRB_EXPORT_API Node {
 public:
   ///
   /// Retrieve a node by its UUID.

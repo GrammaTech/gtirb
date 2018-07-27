@@ -58,7 +58,7 @@ class Module;
 /// }
 /// \enddot
 ///
-class GTIRB_GTIRB_EXPORT_API IR : public Node {
+class GTIRB_EXPORT_API IR : public Node {
 public:
   ///
   /// Default constructor.

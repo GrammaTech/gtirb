@@ -15,7 +15,7 @@ namespace gtirb {
 ///
 /// A basic block.
 ///
-class GTIRB_GTIRB_EXPORT_API Block : public Node {
+class GTIRB_EXPORT_API Block : public Node {
 public:
   // Default constructor
   Block() = default;
