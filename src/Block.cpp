@@ -5,15 +5,13 @@
 
 using namespace gtirb;
 
-Block::Block(EA startingAddress_, EA endingAddress_)
-    : Node(), startingAddress(startingAddress_), endingAddress(endingAddress_) {}
+Block::Block(EA address_, uint64_t size_) : Node(), address(address_), size(size_) {}
 
-Block::Block(EA startingAddress_, EA endingAddress_, std::vector<Instruction>&& instructions_)
-    : Node(), startingAddress(startingAddress_), endingAddress(endingAddress_),
-      instructions(std::move(instructions_)) {}
+Block::Block(EA address_, uint64_t size_, std::vector<Instruction>&& instructions_)
+    : Node(), address(address_), size(size_), instructions(std::move(instructions_)) {}
 
-EA Block::getStartingAddress() const { return this->startingAddress; }
-EA Block::getEndingAddress() const { return this->endingAddress; }
+EA Block::getAddress() const { return this->address; }
+uint64_t Block::getSize() const { return this->size; }
 
 std::vector<Instruction>& Block::getInstructions() { return this->instructions; }
 
@@ -21,14 +19,14 @@ const std::vector<Instruction>& Block::getInstructions() const { return this->in
 
 void Block::toProtobuf(MessageType* message) const {
   nodeUUIDToBytes(this, *message->mutable_uuid());
-  message->set_starting_address(this->startingAddress);
-  message->set_ending_address(this->endingAddress);
+  message->set_address(this->address);
+  message->set_size(this->size);
   containerToProtobuf(this->instructions, message->mutable_instructions());
 }
 
 void Block::fromProtobuf(const MessageType& message) {
   setNodeUUIDFromBytes(this, message.uuid());
-  this->startingAddress = EA(message.starting_address());
-  this->endingAddress = EA(message.ending_address());
+  this->address = EA(message.address());
+  this->size = EA(message.size());
   containerFromProtobuf(this->instructions, message.instructions());
 }

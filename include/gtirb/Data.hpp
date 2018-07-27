@@ -44,9 +44,9 @@ public:
   ///
   Data& operator=(Data&&) = default;
 
-  Data(EA ea_, uint64_t size_) : ea(ea_), size(size_) {}
+  Data(EA address_, uint64_t size_) : address(address_), size(size_) {}
 
-  EA getEA() const;
+  EA getAddress() const;
 
   uint64_t getSize() const;
 
@@ -57,7 +57,7 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  EA ea{0};
+  EA address{0};
   uint64_t size{0};
 };
 }

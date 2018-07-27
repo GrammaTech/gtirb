@@ -13,6 +13,6 @@ TEST(Unit_Data, protobufRoundTrip) {
   original.setUUID(); // Avoid UUID conflict
   result.fromProtobuf(message);
 
-  EXPECT_EQ(result.getEA(), EA(1));
+  EXPECT_EQ(result.getAddress(), EA(1));
   EXPECT_EQ(result.getSize(), 1234);
 }

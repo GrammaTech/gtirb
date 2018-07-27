@@ -3,6 +3,6 @@ package proto;
 
 message Data {
     bytes uuid = 1;
-    uint64 ea = 2;
+    uint64 address = 2;
     uint64 size = 3;
 }

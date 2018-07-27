@@ -27,7 +27,7 @@ public:
   /// Default Constructor.
   ///
   Instruction() = default;
-  Instruction(EA ea, uint64_t size = 0);
+  Instruction(EA address, uint64_t size = 0);
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
@@ -44,8 +44,8 @@ public:
   ///
   Instruction& operator=(Instruction&&) = default;
 
-  void setEA(gtirb::EA x);
-  gtirb::EA getEA() const;
+  void setAddress(gtirb::EA x);
+  gtirb::EA getAddress() const;
 
   uint64_t getSize() const;
 
@@ -56,7 +56,7 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  EA ea{0};
+  EA address{0};
   uint64_t size{0};
 };
 }
