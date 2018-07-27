@@ -9,7 +9,7 @@ namespace gtirb {
 /// Defines a type of object to be thrown as exception. It reports errors that are due to events
 /// beyond the scope of the program and can not be easily predicted.
 ///
-class GTIRB_GTIRB_EXPORT_API RuntimeError : public gtirb::Exception {
+class GTIRB_EXPORT_API RuntimeError : public gtirb::Exception {
 public:
   ///
   /// Implements a constructor from the base type.

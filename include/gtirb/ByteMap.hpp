@@ -19,7 +19,7 @@ namespace gtirb {
 /// instruction represented by a gtirb::Instruction will point
 /// into this map to reference the raw bytes of the instruction.
 ///
-class GTIRB_GTIRB_EXPORT_API ByteMap {
+class GTIRB_EXPORT_API ByteMap {
 public:
   ///
   /// \class gtirb::ByteMap::Impl

@@ -21,7 +21,7 @@ class EA;
 /// overlaps, adjacent ranges are coalesced, empty ranges are
 /// excluded.
 ///
-class GTIRB_GTIRB_EXPORT_API AddrRanges : public Node {
+class GTIRB_EXPORT_API AddrRanges : public Node {
 public:
   ///
   /// Default Constructor.

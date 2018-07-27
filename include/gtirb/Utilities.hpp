@@ -17,8 +17,8 @@ namespace utilities {
 /// \param x		A reference to the vector of bytes to merge.
 /// \param swap 	If true, bytes will be swapped as they are merged.
 ///
-GTIRB_GTIRB_EXPORT_API std::vector<uint16_t> ByteArray8To16(const std::vector<uint8_t>& x,
-                                                            bool swap = false);
+GTIRB_EXPORT_API std::vector<uint16_t> ByteArray8To16(const std::vector<uint8_t>& x,
+                                                      bool swap = false);
 
 ///
 /// Convert an array (vector) of 8-bit unsigned values to a vector of 32-bit unsigned
@@ -30,8 +30,8 @@ GTIRB_GTIRB_EXPORT_API std::vector<uint16_t> ByteArray8To16(const std::vector<ui
 /// \param x        A reference to the vector of bytes to merge.
 /// \param swap     If true, bytes will be swapped as they are merged.
 ///
-GTIRB_GTIRB_EXPORT_API std::vector<uint32_t> ByteArray8To32(const std::vector<uint8_t>& x,
-                                                            bool swap = false);
+GTIRB_EXPORT_API std::vector<uint32_t> ByteArray8To32(const std::vector<uint8_t>& x,
+                                                      bool swap = false);
 
 ///
 /// Convert an array (vector) of 8-bit unsigned values to a vector of 64-bit unsigned
@@ -43,8 +43,8 @@ GTIRB_GTIRB_EXPORT_API std::vector<uint32_t> ByteArray8To32(const std::vector<ui
 /// \param x        A reference to the vector of bytes to merge.
 /// \param swap     If true, bytes will be swapped as they are merged.
 ///
-GTIRB_GTIRB_EXPORT_API std::vector<uint64_t> ByteArray8To64(const std::vector<uint8_t>& x,
-                                                            bool swap = false);
+GTIRB_EXPORT_API std::vector<uint64_t> ByteArray8To64(const std::vector<uint8_t>& x,
+                                                      bool swap = false);
 
 ///
 /// Returns true if any of flags are set.

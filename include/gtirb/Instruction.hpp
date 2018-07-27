@@ -21,7 +21,7 @@ class Module;
 ///
 /// Byte pointers are offsets into the ImageByteMap.
 ///
-class GTIRB_GTIRB_EXPORT_API Instruction : public Node {
+class GTIRB_EXPORT_API Instruction : public Node {
 public:
   ///
   /// Default Constructor.

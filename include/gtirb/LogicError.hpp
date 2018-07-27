@@ -8,7 +8,7 @@ namespace gtirb {
 ///
 /// An exception indicating a GT-IRB internal logic error.
 ///
-class GTIRB_GTIRB_EXPORT_API LogicError : public gtirb::Exception {
+class GTIRB_EXPORT_API LogicError : public gtirb::Exception {
 public:
   ///
   /// Implements a constructor from the base type.

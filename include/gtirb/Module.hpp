@@ -29,7 +29,7 @@ using SectionSet = std::vector<Section>;
 ///
 /// \todo Replace boost::filesystem with std::filesystem.
 ///
-class GTIRB_GTIRB_EXPORT_API Module : public Node {
+class GTIRB_EXPORT_API Module : public Node {
 public:
   ///
   /// Default constructor.
