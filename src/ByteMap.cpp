@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <cstring>
 #include <gtirb/ByteMap.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/Utilities.hpp>
+#include "Serialization.hpp"
 
 using namespace gtirb;
 

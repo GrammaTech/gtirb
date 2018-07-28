@@ -1,5 +1,5 @@
+#include "Serialization.hpp"
 #include <gtirb/Node.hpp>
-#include <gtirb/Serialization.hpp>
 
 namespace gtirb {
 UUID uuidFromBytes(const std::string& bytes) {

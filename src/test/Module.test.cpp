@@ -8,7 +8,6 @@
 #include <gtirb/Module.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicOperand.hpp>
 

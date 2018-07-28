@@ -1,6 +1,6 @@
 #include <proto/ImageByteMap.pb.h>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Serialization.hpp>
+#include "Serialization.hpp"
 
 using namespace gtirb;
 

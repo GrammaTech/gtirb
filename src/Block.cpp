@@ -1,7 +1,7 @@
 #include <proto/Block.pb.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/Serialization.hpp>
+#include "Serialization.hpp"
 
 using namespace gtirb;
 

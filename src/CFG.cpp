@@ -3,8 +3,8 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include <gtirb/Serialization.hpp>
 #include <map>
+#include "Serialization.hpp"
 
 namespace gtirb {
 CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block) {
