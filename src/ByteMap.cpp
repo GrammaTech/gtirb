@@ -10,20 +10,20 @@ using namespace gtirb;
 constexpr uint64_t PageOffsetMask{static_cast<uint64_t>(gtirb::constants::PageSize) - 1};
 constexpr uint64_t PageIndexMask{~PageOffsetMask};
 
+namespace {
 // Align an address to a page boundary.
-EA ByteMap::Impl::AddressToAlignedAddress(const EA x) { return EA{x.get() & PageIndexMask}; }
+EA addressToAlignedAddress(const EA x) { return EA{x.get() & PageIndexMask}; }
 
 // Give the offset within a page of an address
-size_t ByteMap::Impl::AddressToOffset(const EA x) {
-  return static_cast<size_t>(x.get()) & PageOffsetMask;
-}
+size_t addressToOffset(const EA x) { return static_cast<size_t>(x.get()) & PageOffsetMask; }
 
 // Number of bytes residing within the first page.
-size_t ByteMap::Impl::BytesWithinFirstPage(const EA x, const size_t bytes) {
+size_t bytesWithinFirstPage(const EA x, const size_t bytes) {
   const size_t bytesToPageBoundary =
       gtirb::constants::PageSize - (static_cast<size_t>(x.get()) & PageOffsetMask);
 
   return bytes < bytesToPageBoundary ? bytes : bytesToPageBoundary;
+}
 }
 
 bool ByteMap::empty() const { return this->data.empty(); }
@@ -31,8 +31,8 @@ bool ByteMap::empty() const { return this->data.empty(); }
 size_t ByteMap::size() const { return this->data.size() * gtirb::constants::PageSize; }
 
 void ByteMap::setData(EA ea, uint8_t x) {
-  const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
-  const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
+  const auto pageAddress = addressToAlignedAddress(ea);
+  const auto pageOffset = addressToOffset(ea);
 
   auto& page = this->getOrCreatePage(pageAddress);
   page[pageOffset] = x;
@@ -41,45 +41,45 @@ void ByteMap::setData(EA ea, uint8_t x) {
 // The implementation of this function uses decltype so that its contents can be easily copy/pasted
 // to other sizes of 'x'.  Not templated because there's only three options here.
 void ByteMap::setData(EA ea, uint16_t x) {
-  const auto bytesThisPage = ByteMap::Impl::BytesWithinFirstPage(ea, sizeof(decltype(x)));
+  const auto bytesThisPage = bytesWithinFirstPage(ea, sizeof(decltype(x)));
 
   if (bytesThisPage < sizeof(decltype(x))) {
     this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
     return;
   }
 
-  const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
-  const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
+  const auto pageAddress = addressToAlignedAddress(ea);
+  const auto pageOffset = addressToOffset(ea);
 
   auto& page = this->getOrCreatePage(pageAddress);
   *(decltype(x)*)&(page[pageOffset]) = x;
 }
 
 void ByteMap::setData(EA ea, uint32_t x) {
-  const auto bytesThisPage = ByteMap::Impl::BytesWithinFirstPage(ea, sizeof(decltype(x)));
+  const auto bytesThisPage = bytesWithinFirstPage(ea, sizeof(decltype(x)));
 
   if (bytesThisPage < sizeof(decltype(x))) {
     this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
     return;
   }
 
-  const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
-  const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
+  const auto pageAddress = addressToAlignedAddress(ea);
+  const auto pageOffset = addressToOffset(ea);
 
   auto& page = this->getOrCreatePage(pageAddress);
   *(decltype(x)*)&(page[pageOffset]) = x;
 }
 
 void ByteMap::setData(EA ea, uint64_t x) {
-  const auto bytesThisPage = ByteMap::Impl::BytesWithinFirstPage(ea, sizeof(decltype(x)));
+  const auto bytesThisPage = bytesWithinFirstPage(ea, sizeof(decltype(x)));
 
   if (bytesThisPage < sizeof(decltype(x))) {
     this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
     return;
   }
 
-  const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(ea);
-  const auto pageOffset = ByteMap::Impl::AddressToOffset(ea);
+  const auto pageAddress = addressToAlignedAddress(ea);
+  const auto pageOffset = addressToOffset(ea);
 
   auto& page = this->getOrCreatePage(pageAddress);
   *(decltype(x)*)&(page[pageOffset]) = x;
@@ -91,9 +91,9 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
   auto currentAddress = ea;
 
   while (bytesRemaining > 0) {
-    const auto bytesThisPage = ByteMap::Impl::BytesWithinFirstPage(currentAddress, bytesRemaining);
-    const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(currentAddress);
-    const auto pageOffset = ByteMap::Impl::AddressToOffset(currentAddress);
+    const auto bytesThisPage = bytesWithinFirstPage(currentAddress, bytesRemaining);
+    const auto pageAddress = addressToAlignedAddress(currentAddress);
+    const auto pageOffset = addressToOffset(currentAddress);
 
     auto& page = this->getOrCreatePage(pageAddress);
 
@@ -139,13 +139,13 @@ std::vector<uint8_t> ByteMap::getData(EA x, size_t bytes) const {
   auto currentAddress = x;
 
   while (bytesRemaining > 0) {
-    const auto bytesThisPage = ByteMap::Impl::BytesWithinFirstPage(currentAddress, bytesRemaining);
-    const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(currentAddress);
+    const auto bytesThisPage = bytesWithinFirstPage(currentAddress, bytesRemaining);
+    const auto pageAddress = addressToAlignedAddress(currentAddress);
 
     const auto page = this->getPage(pageAddress);
 
     if (page != nullptr) {
-      const auto pageOffset = ByteMap::Impl::AddressToOffset(currentAddress);
+      const auto pageOffset = addressToOffset(currentAddress);
 
       auto pageBegin = std::begin(*page);
       std::advance(pageBegin, pageOffset);
@@ -173,12 +173,12 @@ std::vector<uint8_t> ByteMap::getDataUntil(EA x, uint8_t sentinel, size_t maxByt
   auto currentAddress = x;
 
   while (bytesRemaining > 0) {
-    const auto bytesThisPage = ByteMap::Impl::BytesWithinFirstPage(currentAddress, bytesRemaining);
-    const auto pageAddress = ByteMap::Impl::AddressToAlignedAddress(currentAddress);
+    const auto bytesThisPage = bytesWithinFirstPage(currentAddress, bytesRemaining);
+    const auto pageAddress = addressToAlignedAddress(currentAddress);
     const auto page = this->getPage(pageAddress);
 
     if (page != nullptr) {
-      const auto pageOffset = ByteMap::Impl::AddressToOffset(currentAddress);
+      const auto pageOffset = addressToOffset(currentAddress);
 
       for (size_t i = 0; i < bytesThisPage; ++i) {
         const auto byte = (*page)[pageOffset + i];
@@ -207,7 +207,7 @@ std::vector<uint8_t> ByteMap::getDataUntil(EA x, uint8_t sentinel, size_t maxByt
 }
 
 const ByteMap::Page* const ByteMap::getPage(const EA x) const {
-  Expects(ByteMap::Impl::AddressToOffset(x) == 0);
+  Expects(addressToOffset(x) == 0);
 
   const auto it = this->data.find(x);
   if (it != std::end(this->data)) {
@@ -218,7 +218,7 @@ const ByteMap::Page* const ByteMap::getPage(const EA x) const {
 }
 
 ByteMap::Page& ByteMap::getOrCreatePage(const EA x) {
-  Expects(ByteMap::Impl::AddressToOffset(x) == 0);
+  Expects(addressToOffset(x) == 0);
   return this->data[x];
 }
 

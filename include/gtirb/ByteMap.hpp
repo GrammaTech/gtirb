@@ -22,30 +22,6 @@ namespace gtirb {
 class GTIRB_EXPORT_API ByteMap {
 public:
   ///
-  /// \class gtirb::ByteMap::Impl
-  ///
-  /// Implementation details for ByteMap.
-  ///
-  /// They are exposed here to facilitate unit testing.
-  ///
-  class Impl {
-  public:
-    ///
-    /// Align an address to a page boundary.
-    ///
-    static EA AddressToAlignedAddress(const EA x);
-
-    /// Give the offset within a page of an address
-    ///
-    static size_t AddressToOffset(const EA x);
-
-    ///
-    /// Number of bytes residing within the first page.
-    ///
-    static size_t BytesWithinFirstPage(const EA x, const size_t bytes);
-  };
-
-  ///
   /// Tests the container for empty.
   ///
   /// Modeled after the STL API.
