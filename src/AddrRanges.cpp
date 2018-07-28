@@ -3,7 +3,7 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include <gtirb/Serialization.hpp>
+#include "Serialization.hpp"
 
 using namespace gtirb;
 

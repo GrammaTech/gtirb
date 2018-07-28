@@ -1,7 +1,7 @@
 #include <proto/Table.pb.h>
 #include <boost/variant/static_visitor.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/Table.hpp>
+#include "Serialization.hpp"
 
 namespace gtirb {
 template <typename MessageT> class TableVisitor : public boost::static_visitor<> {

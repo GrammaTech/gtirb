@@ -1,7 +1,7 @@
 #include <proto/Data.pb.h>
 #include <gtirb/Data.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Serialization.hpp>
+#include "Serialization.hpp"
 
 using namespace gtirb;
 

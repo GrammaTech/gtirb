@@ -1,8 +1,8 @@
 #include <proto/SymbolicOperand.pb.h>
 #include <boost/variant/static_visitor.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicOperand.hpp>
+#include "Serialization.hpp"
 
 namespace gtirb {
 class SymbolicVisitor : public boost::static_visitor<> {
