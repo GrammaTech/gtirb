@@ -38,7 +38,7 @@ set(${PROJECT_NAME}_SRC
         Section.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
-        SymbolicOperand.test.cpp
+        SymbolicExpression.test.cpp
         Table.test.cpp
 	TypedExceptionTest.cpp
 	TypedNodeTest.cpp

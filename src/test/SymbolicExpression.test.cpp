@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
-#include <proto/SymbolicOperand.pb.h>
-#include <gtirb/SymbolicOperand.hpp>
+#include <proto/SymbolicExpression.pb.h>
+#include <gtirb/SymbolicExpression.hpp>
 
 using namespace gtirb;
 
-TEST(Unit_SymbolicOperand, protobufRoundTripStackConst) {
+TEST(Unit_SymbolicExpression, protobufRoundTripStackConst) {
   Symbol sym1(EA(1), "test1");
   Symbol sym2(EA(2), "test2");
 
   // SymStackConst
   {
-    SymbolicOperand original(SymStackConst{true, 1, 2, {sym1}});
+    SymbolicExpression original(SymStackConst{true, 1, 2, {sym1}});
 
-    gtirb::SymbolicOperand result;
+    gtirb::SymbolicExpression result;
     auto message = toProtobuf(original);
     fromProtobuf(result, message);
 
@@ -26,9 +26,9 @@ TEST(Unit_SymbolicOperand, protobufRoundTripStackConst) {
 
   // SymAddrConst
   {
-    SymbolicOperand original(SymAddrConst{1, {sym1}});
+    SymbolicExpression original(SymAddrConst{1, {sym1}});
 
-    gtirb::SymbolicOperand result;
+    gtirb::SymbolicExpression result;
     auto message = toProtobuf(original);
     fromProtobuf(result, message);
 
@@ -40,9 +40,9 @@ TEST(Unit_SymbolicOperand, protobufRoundTripStackConst) {
 
   // SymAddrAddr
   {
-    SymbolicOperand original(SymAddrAddr{1, 2, {sym1}, {sym2}});
+    SymbolicExpression original(SymAddrAddr{1, 2, {sym1}, {sym2}});
 
-    gtirb::SymbolicOperand result;
+    gtirb::SymbolicExpression result;
     auto message = toProtobuf(original);
     fromProtobuf(result, message);
 

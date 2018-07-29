@@ -9,7 +9,7 @@
 #include <string>
 
 namespace proto {
-class SymbolicOperand;
+class SymbolicExpression;
 }
 namespace gtirb {
 ///
@@ -41,9 +41,9 @@ struct SymAddrAddr {
   NodeRef<Symbol> symbol2;
 };
 
-using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+using SymbolicExpression = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
-void fromProtobuf(SymbolicOperand& result, const proto::SymbolicOperand& message);
-proto::SymbolicOperand toProtobuf(const SymbolicOperand& operand);
+void fromProtobuf(SymbolicExpression& result, const proto::SymbolicExpression& message);
+proto::SymbolicExpression toProtobuf(const SymbolicExpression& operand);
 
 } // namespace gtirb

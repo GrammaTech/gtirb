@@ -7,7 +7,7 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/SymbolSet.hpp>
-#include <gtirb/SymbolicOperandSet.hpp>
+#include <gtirb/SymbolicExpressionSet.hpp>
 
 namespace gtirb {
 class AddrRanges;
@@ -173,8 +173,8 @@ public:
   std::vector<Data>& getData();
   std::vector<Section>& getSections();
   const std::vector<Section>& getSections() const;
-  SymbolicOperandSet& getSymbolicOperands();
-  const SymbolicOperandSet& getSymbolicOperands() const;
+  SymbolicExpressionSet& getSymbolicExpressions();
+  const SymbolicExpressionSet& getSymbolicExpressions() const;
 
   using MessageType = proto::Module;
   void toProtobuf(MessageType* message) const;
@@ -195,6 +195,6 @@ private:
   std::unique_ptr<RelocationSet> relocations;
   std::unique_ptr<SectionSet> sections;
   std::unique_ptr<SymbolSet> symbols;
-  std::unique_ptr<SymbolicOperandSet> symbolicOperands;
+  std::unique_ptr<SymbolicExpressionSet> symbolicOperands;
 };
 } // namespace gtirb

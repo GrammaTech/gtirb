@@ -9,7 +9,7 @@
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolicOperand.hpp>
+#include <gtirb/SymbolicExpression.hpp>
 
 #include <memory>
 
@@ -161,7 +161,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     original.getRelocations().push_back({EA(8), "foo", "bar", 1});
     original.getData().push_back({});
     original.getSections().push_back({});
-    original.getSymbolicOperands().insert({EA(7), {SymAddrConst()}});
+    original.getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
 
     addrRangesID = original.getAddrRanges().getUUID();
     byteMapID = original.getImageByteMap().getUUID();
@@ -170,7 +170,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     dataID = original.getData().begin()->getUUID();
     sectionID = original.getSections().begin()->getUUID();
     relocationEA = original.getRelocations().begin()->ea;
-    whichSymbolic = original.getSymbolicOperands().begin()->second.which();
+    whichSymbolic = original.getSymbolicExpressions().begin()->second.which();
 
     original.toProtobuf(&message);
   }
@@ -206,6 +206,6 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(result.getSections().size(), 1);
   EXPECT_EQ(result.getSections().begin()->getUUID(), sectionID);
 
-  EXPECT_EQ(result.getSymbolicOperands().size(), 1);
-  EXPECT_EQ(result.getSymbolicOperands().begin()->second.which(), whichSymbolic);
+  EXPECT_EQ(result.getSymbolicExpressions().size(), 1);
+  EXPECT_EQ(result.getSymbolicExpressions().begin()->second.which(), whichSymbolic);
 }

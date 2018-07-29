@@ -264,7 +264,7 @@ Information on symbolic operands and data is stored in a map by EA:
 
 ```c++
 const Symbol* data2 = findSymbols(mainModule.getSymbols(), EA(2614))[0];
-mainModule.getSymbolicOperands().insert(
+mainModule.getSymbolicExpressions().insert(
     {EA(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
 ```
 

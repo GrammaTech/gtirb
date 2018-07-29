@@ -8,6 +8,6 @@ struct SymStackConst;
 struct SymAddrConst;
 struct SymAddrAddr;
 
-using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
-using SymbolicOperandSet = std::map<EA, SymbolicOperand>;
+using SymbolicExpression = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+using SymbolicExpressionSet = std::map<EA, SymbolicExpression>;
 }

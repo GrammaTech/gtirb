@@ -8,7 +8,7 @@ import "ImageByteMap.proto";
 import "Relocation.proto";
 import "Section.proto";
 import "Symbol.proto";
-import "SymbolicOperand.proto";
+import "SymbolicExpression.proto";
 
 enum FileFormat {
   Format_Undefined = 0;
@@ -46,5 +46,5 @@ message Module {
     repeated Relocation relocations = 13;
     repeated Data data = 14;
     repeated Section sections = 15;
-    map<uint64, SymbolicOperand> symbolic_operands = 16;
+    map<uint64, SymbolicExpression> symbolic_operands = 16;
 }
