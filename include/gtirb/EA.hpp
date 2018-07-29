@@ -3,9 +3,6 @@
 #include <gtirb/Constants.hpp>
 #include <gtirb/Export.hpp>
 
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
-
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -126,5 +123,3 @@ inline bool operator==(const uint64_t rhs, const gtirb::EA lhs) { return gtirb::
 /// Print EA to a stream
 ///
 std::ostream& operator<<(std::ostream& os, const gtirb::EA& ea);
-
-BOOST_IS_BITWISE_SERIALIZABLE(gtirb::EA)
