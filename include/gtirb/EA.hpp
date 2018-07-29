@@ -7,6 +7,7 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 
 #include <cstdint>
+#include <iostream>
 #include <limits>
 #include <string>
 
@@ -120,5 +121,10 @@ private:
 /// Provide for testing equality between a gtirb::EA and a uint64_t.
 ///
 inline bool operator==(const uint64_t rhs, const gtirb::EA lhs) { return gtirb::EA(rhs) == lhs; }
+
+///
+/// Print EA to a stream
+///
+std::ostream& operator<<(std::ostream& os, const gtirb::EA& ea);
 
 BOOST_IS_BITWISE_SERIALIZABLE(gtirb::EA)
