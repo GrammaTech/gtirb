@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
 #include <proto/AddrRanges.pb.h>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/filesystem.hpp>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
