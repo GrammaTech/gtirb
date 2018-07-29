@@ -23,7 +23,7 @@ message SymAddrAddr
     bytes symbol2_uuid = 4;
 }
 
-message SymbolicOperand
+message SymbolicExpression
 {
     oneof value {
         SymStackConst stack_const = 1;

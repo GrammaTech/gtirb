@@ -10,7 +10,7 @@
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolicOperand.hpp>
+#include <gtirb/SymbolicExpression.hpp>
 #include "Serialization.hpp"
 
 using namespace gtirb;
@@ -20,7 +20,7 @@ Module::Module()
       data(std::make_unique<std::vector<Data>>()), imageByteMap(std::make_unique<ImageByteMap>()),
       relocations(std::make_unique<RelocationSet>()),
       sections(std::make_unique<std::vector<Section>>()), symbols(std::make_unique<SymbolSet>()),
-      symbolicOperands(std::make_unique<SymbolicOperandSet>()) {}
+      symbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
 
 Module::Module(Module&&) = default;
 Module::~Module() = default;
@@ -81,9 +81,11 @@ std::vector<Section>& Module::getSections() { return *this->sections; }
 
 const std::vector<Section>& Module::getSections() const { return *this->sections; }
 
-SymbolicOperandSet& Module::getSymbolicOperands() { return *this->symbolicOperands; }
+SymbolicExpressionSet& Module::getSymbolicExpressions() { return *this->symbolicOperands; }
 
-const SymbolicOperandSet& Module::getSymbolicOperands() const { return *this->symbolicOperands; }
+const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
+  return *this->symbolicOperands;
+}
 
 void Module::toProtobuf(MessageType* message) const {
   nodeUUIDToBytes(this, *message->mutable_uuid());

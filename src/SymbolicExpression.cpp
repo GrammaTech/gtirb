@@ -1,15 +1,15 @@
-#include <proto/SymbolicOperand.pb.h>
+#include <proto/SymbolicExpression.pb.h>
 #include <boost/variant/static_visitor.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolicOperand.hpp>
+#include <gtirb/SymbolicExpression.hpp>
 #include "Serialization.hpp"
 
 namespace gtirb {
 class SymbolicVisitor : public boost::static_visitor<> {
 public:
-  proto::SymbolicOperand* message;
+  proto::SymbolicExpression* message;
 
-  SymbolicVisitor(proto::SymbolicOperand* m) : message(m) {}
+  SymbolicVisitor(proto::SymbolicExpression* m) : message(m) {}
 
   void operator()(const SymStackConst& val) const {
     auto m = message->mutable_stack_const();
@@ -34,32 +34,32 @@ public:
   }
 };
 
-proto::SymbolicOperand toProtobuf(const SymbolicOperand& operand) {
-  proto::SymbolicOperand message;
+proto::SymbolicExpression toProtobuf(const SymbolicExpression& operand) {
+  proto::SymbolicExpression message;
   boost::apply_visitor(SymbolicVisitor(&message), operand);
   return message;
 }
 
-void fromProtobuf(SymbolicOperand& result, const proto::SymbolicOperand& message) {
+void fromProtobuf(SymbolicExpression& result, const proto::SymbolicExpression& message) {
   switch (message.value_case()) {
-  case proto::SymbolicOperand::kStackConst: {
+  case proto::SymbolicExpression::kStackConst: {
     auto val = message.stack_const();
     result = SymStackConst{val.negate(), val.offset(), val.displacement(),
                            uuidFromBytes(val.symbol_uuid())};
     break;
   }
-  case proto::SymbolicOperand::kAddrConst: {
+  case proto::SymbolicExpression::kAddrConst: {
     auto val = message.addr_const();
     result = SymAddrConst{val.displacement(), uuidFromBytes(val.symbol_uuid())};
     break;
   }
-  case proto::SymbolicOperand::kAddrAddr: {
+  case proto::SymbolicExpression::kAddrAddr: {
     auto val = message.addr_addr();
     result = SymAddrAddr{val.scale(), val.offset(), uuidFromBytes(val.symbol1_uuid()),
                          uuidFromBytes(val.symbol2_uuid())};
     break;
   }
-  case proto::SymbolicOperand::VALUE_NOT_SET:
+  case proto::SymbolicExpression::VALUE_NOT_SET:
     assert(false);
   }
 }
