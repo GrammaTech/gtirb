@@ -7,7 +7,6 @@
 #include <gtirb/Constants.hpp>
 #include <gtirb/Data.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/Enums.hpp>
 #include <gtirb/Exception.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/IR.hpp>

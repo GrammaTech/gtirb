@@ -2,7 +2,6 @@
 
 #include <boost/filesystem.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/Enums.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
 #include <memory>
