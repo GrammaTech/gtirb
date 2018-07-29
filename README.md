@@ -265,7 +265,7 @@ Information on symbolic operands and data is stored in a map by EA:
 ```c++
 const Symbol* data2 = findSymbols(mainModule.getSymbols(), EA(2614))[0];
 mainModule.getSymbolicOperands().insert(
-    {EA(472), SymAddrConst{0, NodeReference<Symbol>(*data2)}});
+    {EA(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
 ```
 
 
@@ -296,10 +296,10 @@ assert(syms[1]->getName() == "duplicate");
 
 Use a symbol's referent (either an Instruction or Data object) to get
 more information about the object to which the symbol
-points. `NodeReference` behaves like a pointer and may be null.
+points. `NodeRef` behaves like a pointer and may be null.
 
 ```c++
-NodeReference<Data> referent = syms[0]->getDataReferent();
+NodeRef<Data> referent = syms[0]->getDataReferent();
 assert(referent);
 assert(referent->getEA() == EA(2614));
 assert(referent->getSize() == 2);
