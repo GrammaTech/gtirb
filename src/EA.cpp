@@ -1,4 +1,5 @@
 #include <gtirb/EA.hpp>
+#include <iostream>
 #include <sstream>
 
 using namespace gtirb;
@@ -34,6 +35,13 @@ EA EA::operator-=(const EA x) { return EA(this->ea -= x.ea); }
 
 EA::operator std::string() const {
   std::stringstream ss;
-  ss << std::hex << this->ea;
+  ss << this;
   return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const EA& ea) {
+  auto flags = os.flags();
+  os << "0x" << std::hex << ea.get();
+  os.flags(flags);
+  return os;
 }
