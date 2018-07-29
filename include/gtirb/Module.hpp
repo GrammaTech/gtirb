@@ -5,7 +5,7 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/NodeReference.hpp>
+#include <gtirb/NodeRef.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicOperandSet.hpp>
 

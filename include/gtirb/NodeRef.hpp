@@ -3,15 +3,15 @@
 #include <gtirb/Node.hpp>
 
 namespace gtirb {
-template <typename NodeT> class NodeReference {
+template <typename NodeT> class NodeRef {
 public:
-  NodeReference() = default;
-  NodeReference(UUID uuid_) : uuid(uuid_) {}
-  NodeReference(const NodeT& node) : uuid(node.getUUID()){};
-  NodeReference(const NodeReference&) = default;
-  NodeReference(NodeReference&&) = default;
-  NodeReference& operator=(NodeReference&& data) = default;
-  NodeReference& operator=(const NodeReference& data) = default;
+  NodeRef() = default;
+  NodeRef(UUID uuid_) : uuid(uuid_) {}
+  NodeRef(const NodeT& node) : uuid(node.getUUID()){};
+  NodeRef(const NodeRef&) = default;
+  NodeRef(NodeRef&&) = default;
+  NodeRef& operator=(NodeRef&& data) = default;
+  NodeRef& operator=(const NodeRef& data) = default;
 
   // Cast to pointer
   operator NodeT*() { return this->get(); }

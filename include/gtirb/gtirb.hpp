@@ -15,7 +15,7 @@
 #include <gtirb/LogicError.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/NodeReference.hpp>
+#include <gtirb/NodeRef.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <gtirb/Section.hpp>

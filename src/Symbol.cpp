@@ -29,18 +29,18 @@ void Symbol::setName(std::string x) { this->name = x; }
 std::string Symbol::getName() const { return this->name; }
 
 void Symbol::setReferent(const Data& data) {
-  this->dataReferent = NodeReference<Data>(data);
+  this->dataReferent = NodeRef<Data>(data);
   this->codeReferent = {};
 }
 
 void Symbol::setReferent(const Instruction& instruction) {
-  this->codeReferent = NodeReference<Instruction>(instruction);
+  this->codeReferent = NodeRef<Instruction>(instruction);
   this->dataReferent = {};
 }
 
-NodeReference<Data> Symbol::getDataReferent() const { return this->dataReferent; }
+NodeRef<Data> Symbol::getDataReferent() const { return this->dataReferent; }
 
-NodeReference<Instruction> Symbol::getCodeReferent() const { return this->codeReferent; }
+NodeRef<Instruction> Symbol::getCodeReferent() const { return this->codeReferent; }
 
 void Symbol::setStorageKind(Symbol::StorageKind x) { this->storageKind = x; }
 

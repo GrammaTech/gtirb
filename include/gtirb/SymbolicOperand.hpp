@@ -3,6 +3,7 @@
 #include <boost/variant.hpp>
 #include <cstdint>
 #include <gtirb/EA.hpp>
+#include <gtirb/NodeRef.hpp>
 #include <gtirb/Symbol.hpp>
 #include <map>
 #include <string>
@@ -19,7 +20,7 @@ struct SymStackConst {
   bool negate;
   int offset;
   int displacement;
-  NodeReference<Symbol> symbol;
+  NodeRef<Symbol> symbol;
 };
 
 ///
@@ -27,7 +28,7 @@ struct SymStackConst {
 ///
 struct SymAddrConst {
   int64_t displacement;
-  NodeReference<Symbol> symbol;
+  NodeRef<Symbol> symbol;
 };
 
 ///
@@ -36,8 +37,8 @@ struct SymAddrConst {
 struct SymAddrAddr {
   int64_t scale;
   int64_t offset;
-  NodeReference<Symbol> symbol1;
-  NodeReference<Symbol> symbol2;
+  NodeRef<Symbol> symbol1;
+  NodeRef<Symbol> symbol2;
 };
 
 using SymbolicOperand = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;

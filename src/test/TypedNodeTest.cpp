@@ -18,7 +18,7 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeReference.hpp>
+#include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <memory>
@@ -137,7 +137,7 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
 
 TYPED_TEST_P(TypedNodeTest, nodeReference) {
   TypeParam node;
-  gtirb::NodeReference<TypeParam> ref(node);
+  gtirb::NodeRef<TypeParam> ref(node);
 
   TypeParam* ptr = ref;
   EXPECT_EQ(ptr, &node);
@@ -146,7 +146,7 @@ TYPED_TEST_P(TypedNodeTest, nodeReference) {
 
 TYPED_TEST_P(TypedNodeTest, badReference) {
   TypeParam sym;
-  gtirb::NodeReference<TypeParam> ref(gtirb::UUID{});
+  gtirb::NodeRef<TypeParam> ref(gtirb::UUID{});
 
   TypeParam* ptr = ref;
   EXPECT_EQ(ptr, nullptr);

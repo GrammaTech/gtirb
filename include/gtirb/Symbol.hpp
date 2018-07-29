@@ -3,7 +3,7 @@
 #include <proto/Symbol.pb.h>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/NodeReference.hpp>
+#include <gtirb/NodeRef.hpp>
 
 namespace gtirb {
 class Data;
@@ -80,12 +80,12 @@ public:
   ///
   /// Get the Data object to which this symbol refers.
   ///
-  NodeReference<Data> getDataReferent() const;
+  NodeRef<Data> getDataReferent() const;
 
   ///
   /// Get the Instruction object to which this symbol refers.
   ///
-  NodeReference<Instruction> getCodeReferent() const;
+  NodeRef<Instruction> getCodeReferent() const;
 
   void setStorageKind(Symbol::StorageKind x);
   gtirb::Symbol::StorageKind getStorageKind() const;
@@ -98,7 +98,7 @@ private:
   gtirb::EA ea{};
   std::string name;
   gtirb::Symbol::StorageKind storageKind{StorageKind::Extern};
-  NodeReference<Data> dataReferent;
-  NodeReference<Instruction> codeReferent;
+  NodeRef<Data> dataReferent;
+  NodeRef<Instruction> codeReferent;
 };
 }
