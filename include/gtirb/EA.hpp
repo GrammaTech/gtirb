@@ -25,10 +25,32 @@ public:
   constexpr EA() = default;
 
   ///
-  /// Allow explicit conversion from a 'uint64_t' to an gtirb::EA object type.
-  /// Do not allow other types of integers to be automatically converted.
+  /// Allow explicit conversion from all integer types to EA.
   ///
   constexpr explicit EA(uint64_t x) : ea(x) {}
+  constexpr explicit EA(int64_t x) : ea(x) {}
+  constexpr explicit EA(uint32_t x) : ea(x) {}
+  constexpr explicit EA(int32_t x) : ea(x) {}
+  constexpr explicit EA(uint16_t x) : ea(x) {}
+  constexpr explicit EA(int16_t x) : ea(x) {}
+  constexpr explicit EA(uint8_t x) : ea(x) {}
+  constexpr explicit EA(int8_t x) : ea(x) {}
+
+  ///
+  /// Allow implicit conversion from EA to uint64_t.
+  ///
+  operator uint64_t() const;
+
+  ///
+  /// Allow explicit conversion from EA to all other integer types.
+  ///
+  explicit operator int64_t() const;
+  explicit operator uint32_t() const;
+  explicit operator int32_t() const;
+  explicit operator uint16_t() const;
+  explicit operator int16_t() const;
+  explicit operator uint8_t() const;
+  explicit operator int8_t() const;
 
   ///
   /// Explicitly set the value of the EA from a 'uint64_t'.
@@ -41,11 +63,6 @@ public:
   uint64_t get() const;
 
   ///
-  /// Allow for static conversion of the EA to a 'uint64_t'.
-  ///
-  operator uint64_t() const;
-
-  ///
   /// Assignment operator overload
   ///
   EA& operator=(EA x);
@@ -55,15 +72,19 @@ public:
   ///
   bool operator==(uint64_t x) const;
 
-  bool operator==(const EA x) const;
-  bool operator!=(const EA x) const;
-  bool operator>(const EA x) const;
-  bool operator<(const EA x) const;
+  bool operator==(EA x) const;
+  bool operator!=(EA x) const;
+  bool operator>(EA x) const;
+  bool operator<(EA x) const;
 
-  EA operator+(const EA x) const;
-  EA operator+=(const EA x);
-  EA operator-(const EA x) const;
-  EA operator-=(const EA x);
+  EA operator+(EA x) const;
+  EA operator+(uint64_t x) const;
+  EA& operator+=(EA x);
+  EA& operator+=(uint64_t x);
+  EA operator-(EA x) const;
+  EA operator-(uint64_t x) const;
+  EA& operator-=(const EA x);
+  EA& operator-=(const uint64_t x);
 
   ///
   /// Provide for static casting to a 'std::string'.
