@@ -1,6 +1,5 @@
 #pragma once
 
-#include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
 #include <functional>
 #include <gsl/gsl>
@@ -12,6 +11,13 @@ class ByteMap;
 }
 
 namespace gtirb {
+///
+/// \var PageSize
+///
+/// The size of a page of data when mapping loaded file images.
+///
+static constexpr uint64_t PageSize{4096};
+
 ///
 /// \class ByteMap
 ///
@@ -139,7 +145,7 @@ protected:
   ///
   /// A page of data within an image's byte map.
   ///
-  typedef std::array<uint8_t, gtirb::constants::PageSize> Page;
+  typedef std::array<uint8_t, PageSize> Page;
 
   ///
   /// Cached lookup of a page.

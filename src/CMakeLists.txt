@@ -23,7 +23,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Block.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
-	../include/gtirb/Constants.hpp
 	../include/gtirb/Data.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Export.hpp

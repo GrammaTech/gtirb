@@ -7,7 +7,7 @@
 
 using namespace gtirb;
 
-constexpr uint64_t PageOffsetMask{static_cast<uint64_t>(gtirb::constants::PageSize) - 1};
+constexpr uint64_t PageOffsetMask{static_cast<uint64_t>(PageSize) - 1};
 constexpr uint64_t PageIndexMask{~PageOffsetMask};
 
 namespace {
@@ -19,8 +19,7 @@ size_t addressToOffset(const EA x) { return static_cast<size_t>(x.get()) & PageO
 
 // Number of bytes residing within the first page.
 size_t bytesWithinFirstPage(const EA x, const size_t bytes) {
-  const size_t bytesToPageBoundary =
-      gtirb::constants::PageSize - (static_cast<size_t>(x.get()) & PageOffsetMask);
+  const size_t bytesToPageBoundary = PageSize - (static_cast<size_t>(x.get()) & PageOffsetMask);
 
   return bytes < bytesToPageBoundary ? bytes : bytesToPageBoundary;
 }
@@ -28,7 +27,7 @@ size_t bytesWithinFirstPage(const EA x, const size_t bytes) {
 
 bool ByteMap::empty() const { return this->data.empty(); }
 
-size_t ByteMap::size() const { return this->data.size() * gtirb::constants::PageSize; }
+size_t ByteMap::size() const { return this->data.size() * PageSize; }
 
 void ByteMap::setData(EA ea, uint8_t x) {
   const auto pageAddress = addressToAlignedAddress(ea);

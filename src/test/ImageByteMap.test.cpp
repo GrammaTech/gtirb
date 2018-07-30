@@ -28,8 +28,8 @@ public:
   gtirb::ImageByteMap byteMap{};
 };
 
-gtirb::EA Unit_ImageByteMapF::Offset{static_cast<uint64_t>(gtirb::constants::PageSize)};
-size_t Unit_ImageByteMapF::InitializedSize{gtirb::constants::PageSize * 2};
+gtirb::EA Unit_ImageByteMapF::Offset{static_cast<uint64_t>(PageSize)};
+size_t Unit_ImageByteMapF::InitializedSize{PageSize * 2};
 
 TEST(Unit_ImageByteMap, ctor_0) { EXPECT_NO_THROW(gtirb::ImageByteMap()); }
 
