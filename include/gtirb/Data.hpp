@@ -30,6 +30,8 @@ public:
   // Default constructor required for serialization.
   Data() = default;
 
+  Data(EA address_, uint64_t size_) : address(address_), size(size_) {}
+
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
@@ -43,8 +45,6 @@ public:
   /// Move assignment
   ///
   Data& operator=(Data&&) = default;
-
-  Data(EA address_, uint64_t size_) : address(address_), size(size_) {}
 
   EA getAddress() const;
 

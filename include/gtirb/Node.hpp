@@ -34,7 +34,7 @@ public:
   explicit Node(const Node&);
 
   ///
-  /// Nodes are not copyable due to UUIDs.
+  /// Nodes are not assignable due to UUIDs.
   ///
   Node& operator=(const Node&) = delete;
 

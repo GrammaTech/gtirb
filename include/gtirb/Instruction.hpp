@@ -14,12 +14,8 @@ class Module;
 ///
 /// \class Instruction
 ///
-/// Instructions have two fields, a pointer to the raw bytes of
-/// the instruction (including any instruction prefix) and a list
-/// of pairs of operand indices and associated pointers to
-/// symbolic information for that operand.
-///
-/// Byte pointers are offsets into the ImageByteMap.
+/// Instructions store offsets into the ImageByteMap. They do not store their
+/// bytes directly.
 ///
 class GTIRB_EXPORT_API Instruction : public Node {
 public:
