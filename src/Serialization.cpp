@@ -29,5 +29,14 @@ int64_t toProtobuf(const int64_t& val) { return val; }
 
 uint64_t toProtobuf(const uint64_t& val) { return val; }
 
+std::string toProtobuf(const UUID& val) {
+  std::string result;
+  uuidToBytes(val, result);
+  return result;
+}
+
 void fromProtobuf(EA& result, const uint64_t& message) { result = EA(message); }
+
+void fromProtobuf(UUID& result, const std::string& message) { result = uuidFromBytes(message); }
+
 } // namespace gtirb

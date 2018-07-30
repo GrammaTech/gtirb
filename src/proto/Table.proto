@@ -21,15 +21,21 @@ message StringVector {
     repeated string contents = 1;
 }
 
+message UUIDVector {
+    repeated bytes contents = 1;
+}
+
 message InnerValue
 {
     oneof value {
         uint64 ea = 1;
         uint64 int = 2;
         string str = 3;
-        EAVector ea_vector = 4;
-        IntVector int_vector = 5;
-        StringVector string_vector = 6;
+        bytes uuid = 4;
+        EAVector ea_vector = 5;
+        IntVector int_vector = 6;
+        StringVector string_vector = 7;
+        UUIDVector uuid_vector = 8;
     }
 }
 
@@ -38,7 +44,8 @@ message Value {
         uint64 ea = 1;
         int64 int = 2;
         string str = 3;
-        InnerMap map = 4;
+        bytes uuid = 4;
+        InnerMap map = 5;
     }
 }
 
@@ -59,9 +66,13 @@ message Table {
         EAMap by_ea = 1;
         IntMap by_int = 2;
         StringMap by_string = 3;
-        MapVector map_vector = 4;
-        EAVector ea_vector = 5;
-        IntVector int_vector = 6;
-        StringVector string_vector = 7;
+        // bytes can't be used as map keys, so use the string form of UUIDs
+        // here.
+        StringMap by_uuid = 4;
+        MapVector map_vector = 5;
+        EAVector ea_vector = 6;
+        IntVector int_vector = 7;
+        StringVector string_vector = 8;
+        UUIDVector uuid_vector = 9;
     }
 }

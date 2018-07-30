@@ -16,6 +16,8 @@ public:
 
   void operator()(const std::string& val) const { message->set_str(val); }
 
+  void operator()(const UUID& val) const { uuidToBytes(val, *message->mutable_uuid()); }
+
   void operator()(const table::InnerMapType& val) const {
     containerToProtobuf(val, message->mutable_map()->mutable_contents());
   }
@@ -32,6 +34,10 @@ public:
     containerToProtobuf(val, message->mutable_string_vector()->mutable_contents());
   }
 
+  void operator()(const std::vector<UUID>& val) const {
+    containerToProtobuf(val, message->mutable_uuid_vector()->mutable_contents());
+  }
+
   void operator()(const std::map<EA, table::ValueType>& val) const {
     containerToProtobuf(val, message->mutable_by_ea()->mutable_contents());
   }
@@ -42,6 +48,14 @@ public:
 
   void operator()(const std::map<std::string, table::ValueType>& val) const {
     containerToProtobuf(val, message->mutable_by_string()->mutable_contents());
+  }
+
+  void operator()(const std::map<UUID, table::ValueType>& val) const {
+    // Special case, convert UUIDs to string form to make protobuf happy.
+    auto field = message->mutable_by_uuid()->mutable_contents();
+    field->clear();
+    std::for_each(val.begin(), val.end(),
+                  [field](auto v) { (*field)[uuidToString(v.first)] = toProtobuf(v.second); });
   }
 
   void operator()(const std::vector<table::InnerMapType>& val) const {
@@ -82,6 +96,9 @@ void fromProtobuf(table::ValueType& value, const proto::Value& message) {
   case proto::Value::kStr:
     value = message.str();
     break;
+  case proto::Value::kUuid:
+    value = uuidFromBytes(message.uuid());
+    break;
   case proto::Value::kMap: {
     table::InnerMapType map;
     containerFromProtobuf(map, message.map().contents());
@@ -105,6 +122,9 @@ void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message
   case proto::InnerValue::kStr:
     value = message.str();
     break;
+  case proto::InnerValue::kUuid:
+    value = uuidFromBytes(message.uuid());
+    break;
   case proto::InnerValue::kEaVector: {
     std::vector<EA> v;
     containerFromProtobuf(v, message.ea_vector().contents());
@@ -120,6 +140,12 @@ void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message
   case proto::InnerValue::kStringVector: {
     std::vector<std::string> v;
     containerFromProtobuf(v, message.string_vector().contents());
+    value = v;
+    break;
+  }
+  case proto::InnerValue::kUuidVector: {
+    std::vector<UUID> v;
+    containerFromProtobuf(v, message.uuid_vector().contents());
     value = v;
     break;
   }
@@ -146,6 +172,18 @@ void fromProtobuf(Table& result, const proto::Table& message) {
   case proto::Table::kByString: {
     std::map<std::string, table::ValueType> val;
     containerFromProtobuf(val, message.by_string().contents());
+    result = std::move(val);
+    break;
+  }
+  case proto::Table::kByUuid: {
+    // Special case, UUIDs stored in string form by protobuf
+    std::map<UUID, table::ValueType> val;
+    const auto& field = message.by_uuid().contents();
+    std::for_each(field.begin(), field.end(), [&val](const auto& m) {
+      table::ValueType v;
+      fromProtobuf(v, m.second);
+      val.emplace(uuidFromString(m.first), std::move(v));
+    });
     result = std::move(val);
     break;
   }
@@ -180,6 +218,13 @@ void fromProtobuf(Table& result, const proto::Table& message) {
     result = std::move(val);
     break;
   }
+  case proto::Table::kUuidVector: {
+    std::vector<UUID> v;
+    containerFromProtobuf(v, message.uuid_vector().contents());
+    result = v;
+    break;
+  }
+
   case proto::Table::VALUE_NOT_SET:
     assert(false);
     break;

@@ -79,4 +79,15 @@ private:
 
   static std::map<UUID, Node*> uuidMap;
 };
+
+///
+/// Return the text representation of a UUID.
+///
+std::string uuidToString(const UUID& uuid);
+
+///
+/// Create UUID from text representation.
+///
+UUID uuidFromString(const std::string& text);
+
 } // namespace gtirb
