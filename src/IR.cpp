@@ -7,45 +7,33 @@
 
 using namespace gtirb;
 
-IR::IR() : Node() {
-  // Create a main module
-  auto mm = std::make_shared<Module>();
-  this->mainModule = mm;
-  this->modules.push_back(std::move(mm));
-}
+std::vector<Module>& IR::getModules() { return this->modules; }
 
-Module& IR::getMainModule() { return *this->mainModule.lock().get(); }
+const std::vector<Module>& IR::getModules() const { return this->modules; }
 
-const Module& IR::getMainModule() const { return *this->mainModule.lock().get(); }
-
-std::vector<Module*> IR::getModulesWithPreferredEA(EA x) const {
-  std::vector<Module*> results;
+std::vector<const Module*> IR::getModulesWithPreferredEA(EA x) const {
+  std::vector<const Module*> results;
 
   for (const auto& m : this->modules) {
-    if (m->getPreferredEA() == x) {
-      results.push_back(m.get());
+    if (m.getPreferredEA() == x) {
+      results.push_back(&m);
     }
   }
 
   return results;
 }
 
-std::vector<Module*> IR::getModulesContainingEA(EA x) const {
-  std::vector<Module*> results;
+std::vector<const Module*> IR::getModulesContainingEA(EA x) const {
+  std::vector<const Module*> results;
 
   for (const auto& m : this->modules) {
-    auto minmax = m->getImageByteMap().getEAMinMax();
+    auto minmax = m.getImageByteMap().getEAMinMax();
     if ((x >= minmax.first) && (x < minmax.second)) {
-      results.push_back(m.get());
+      results.push_back(&m);
     }
   }
 
   return results;
-}
-
-void IR::addModule(std::unique_ptr<gtirb::Module>&& x) {
-  Expects(x != nullptr);
-  this->modules.push_back(std::move(x));
 }
 
 void IR::addTable(std::string name, Table&& x) { this->tables[std::move(name)] = std::move(x); }
@@ -78,34 +66,13 @@ void IR::clearTables() { this->tables.clear(); }
 
 void IR::toProtobuf(MessageType* message) const {
   nodeUUIDToBytes(this, *message->mutable_uuid());
-
-  auto* messages = message->mutable_modules();
-  messages->Clear();
-  messages->Reserve(this->modules.size());
-  std::for_each(this->modules.begin(), this->modules.end(),
-                [messages](const auto& n) { n->toProtobuf(messages->Add()); });
-
-  nodeUUIDToBytes(this->mainModule.lock().get(), *message->mutable_main_module_id());
+  containerToProtobuf(this->modules, message->mutable_modules());
   containerToProtobuf(this->tables, message->mutable_tables());
 }
 
 void IR::fromProtobuf(const MessageType& message) {
   setNodeUUIDFromBytes(this, message.uuid());
-
-  const auto& messages = message.modules();
-  this->modules.clear();
-  this->modules.reserve(messages.size());
-  std::for_each(messages.begin(), messages.end(), [this](const auto& m) {
-    auto val = std::make_shared<Module>();
-    val->fromProtobuf(m);
-    this->modules.push_back(std::move(val));
-  });
-
-  UUID mainId = uuidFromBytes(message.main_module_id());
-  auto foundMain = std::find_if(this->modules.begin(), this->modules.end(),
-                                [mainId](const auto& m) { return m->getUUID() == mainId; });
-  assert(foundMain != this->modules.end());
-  this->mainModule = *foundMain;
+  containerFromProtobuf(this->modules, message.modules());
   containerFromProtobuf(this->tables, message.tables());
 }
 

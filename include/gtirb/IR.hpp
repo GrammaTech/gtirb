@@ -62,7 +62,7 @@ public:
   ///
   /// Default constructor.
   ///
-  IR();
+  IR() = default;
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
@@ -84,20 +84,15 @@ public:
   ///
   ~IR() override = default;
 
-  ///
-  /// Gets a pointer to the module containing the program's "main".
-  ///
-  /// \return     nullptr if no main module has been created.
-  ///
-  Module& getMainModule();
-  const Module& getMainModule() const;
+  std::vector<Module>& getModules();
+  const std::vector<Module>& getModules() const;
 
   ///
   /// Get all modules having the given Preferred EA
   ///
   /// \sa Module::getPreferredEA()
   ///
-  std::vector<gtirb::Module*> getModulesWithPreferredEA(EA x) const;
+  std::vector<const Module*> getModulesWithPreferredEA(EA x) const;
 
   ///
   /// Get all modules continaing the given EA.
@@ -106,12 +101,7 @@ public:
   ///
   /// \sa Module::getEAMinMax()
   ///
-  std::vector<gtirb::Module*> getModulesContainingEA(EA x) const;
-
-  ///
-  /// Add a new module to the IR.
-  ///
-  void addModule(std::unique_ptr<gtirb::Module>&& x);
+  std::vector<const Module*> getModulesContainingEA(EA x) const;
 
   ///
   /// Serialize IR to an output stream.
@@ -178,7 +168,6 @@ public:
 
 private:
   std::map<std::string, gtirb::Table> tables;
-  std::vector<std::shared_ptr<Module>> modules;
-  std::weak_ptr<gtirb::Module> mainModule{};
+  std::vector<Module> modules;
 };
 } // namespace gtirb
