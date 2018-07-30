@@ -4,7 +4,6 @@
 #include <functional>
 #include <gsl/gsl>
 #include <gtirb/Export.hpp>
-#include <gtirb/Variant.hpp>
 #include <map>
 #include <memory>
 #include <string>
