@@ -3,6 +3,13 @@
 #include <gtirb/Node.hpp>
 
 namespace gtirb {
+///
+/// \class NodeRef
+///
+/// Reference a Node by UUID.
+///
+/// This behaves like a pointer, but it looks up the node by its UUID, which
+/// is persistent across serialization, moves, etc.
 template <typename NodeT> class NodeRef {
 public:
   NodeRef() = default;

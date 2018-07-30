@@ -17,7 +17,6 @@ Node* Node::getByUUID(UUID uuid) {
   }
 }
 
-// UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
 Node::Node() : uuid(boost::uuids::random_generator()()) { Node::uuidMap[this->uuid] = this; }
 
 Node::Node(const Node& other) : uuid(boost::uuids::random_generator()()) {

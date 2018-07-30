@@ -47,7 +47,7 @@ public:
   boost::filesystem::path getFileName() const;
 
   ///
-  /// Sets the base addrress of loaded file.
+  /// Sets the base address of loaded file.
   ///
   void setBaseAddress(EA x);
 
@@ -98,7 +98,7 @@ public:
   /// Marks the loaded image as having been relocated.
   ///
   /// This is primarily useful for loaders that load from sources that provide
-  /// already-relocated content, such as IDA.
+  /// already-relocated content.
   ///
   void setIsRelocated();
 
@@ -110,8 +110,6 @@ public:
   ///
   /// Tests the byte map for empty.
   ///
-  /// Modeled after the STL API.
-  ///
   /// \return     True if the byte map is empty.
   ///
   /// \sa gtirb::ByteMap
@@ -120,8 +118,6 @@ public:
 
   ///
   /// The total number of bytes in the image byte map.
-  ///
-  /// Modeled after the STL API.
   ///
   /// \sa gtirb::ByteMap
   ///
