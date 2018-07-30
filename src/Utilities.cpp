@@ -6,7 +6,7 @@
 
 using namespace gtirb;
 
-std::vector<uint16_t> gtirb::utilities::ByteArray8To16(const std::vector<uint8_t>& x, bool swap) {
+std::vector<uint16_t> gtirb::ByteArray8To16(const std::vector<uint8_t>& x, bool swap) {
   std::vector<uint16_t> vec;
 
   union Conversion {
@@ -27,7 +27,7 @@ std::vector<uint16_t> gtirb::utilities::ByteArray8To16(const std::vector<uint8_t
     }
 
     if (swap == true) {
-      cvt.Word = gtirb::utilities::SwapEndian(cvt.Word);
+      cvt.Word = SwapEndian(cvt.Word);
     }
 
     vec.push_back(cvt.Word);
@@ -36,7 +36,7 @@ std::vector<uint16_t> gtirb::utilities::ByteArray8To16(const std::vector<uint8_t
   return vec;
 }
 
-std::vector<uint32_t> gtirb::utilities::ByteArray8To32(const std::vector<uint8_t>& x, bool swap) {
+std::vector<uint32_t> gtirb::ByteArray8To32(const std::vector<uint8_t>& x, bool swap) {
   std::vector<uint32_t> vec;
 
   union Conversion {
@@ -57,7 +57,7 @@ std::vector<uint32_t> gtirb::utilities::ByteArray8To32(const std::vector<uint8_t
     }
 
     if (swap == true) {
-      cvt.Word = gtirb::utilities::SwapEndian(cvt.Word);
+      cvt.Word = SwapEndian(cvt.Word);
     }
 
     vec.push_back(cvt.Word);
@@ -66,7 +66,7 @@ std::vector<uint32_t> gtirb::utilities::ByteArray8To32(const std::vector<uint8_t
   return vec;
 }
 
-std::vector<uint64_t> gtirb::utilities::ByteArray8To64(const std::vector<uint8_t>& x, bool swap) {
+std::vector<uint64_t> gtirb::ByteArray8To64(const std::vector<uint8_t>& x, bool swap) {
   std::vector<uint64_t> vec;
 
   union Conversion {
@@ -87,7 +87,7 @@ std::vector<uint64_t> gtirb::utilities::ByteArray8To64(const std::vector<uint8_t
     }
 
     if (swap == true) {
-      cvt.Word = gtirb::utilities::SwapEndian(cvt.Word);
+      cvt.Word = SwapEndian(cvt.Word);
     }
 
     vec.push_back(cvt.Word);

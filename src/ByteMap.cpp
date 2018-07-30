@@ -112,21 +112,21 @@ uint8_t ByteMap::getData8(EA x) const { return this->getData(x, 1)[0]; }
 
 uint16_t ByteMap::getData16(EA x) const {
   const auto byteArray = this->getData(x, sizeof(uint16_t));
-  const auto wordArray = gtirb::utilities::ByteArray8To16(byteArray, false);
+  const auto wordArray = ByteArray8To16(byteArray, false);
   const auto word = wordArray[0];
   return word;
 }
 
 uint32_t ByteMap::getData32(EA x) const {
   const auto byteArray = this->getData(x, sizeof(uint32_t));
-  const auto wordArray = gtirb::utilities::ByteArray8To32(byteArray, false);
+  const auto wordArray = ByteArray8To32(byteArray, false);
   const auto word = wordArray[0];
   return word;
 }
 
 uint64_t ByteMap::getData64(EA x) const {
   const auto byteArray = this->getData(x, sizeof(uint64_t));
-  const auto wordArray = gtirb::utilities::ByteArray8To64(byteArray, false);
+  const auto wordArray = ByteArray8To64(byteArray, false);
   const auto word = wordArray[0];
   return word;
 }

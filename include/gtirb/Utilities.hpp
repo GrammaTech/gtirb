@@ -7,7 +7,6 @@
 #include <vector>
 
 namespace gtirb {
-namespace utilities {
 ///
 /// Convert an array (vector) of 8-bit unsigned values to a vector of 16-bit unsigned
 /// values.
@@ -112,5 +111,4 @@ template <typename T> bool containsEA(const T& object, EA ea) {
     return object.getAddress() <= ea && addressLimit(object) > ea;
   }
 }
-} // namespace utilities
 } // namespace gtirb

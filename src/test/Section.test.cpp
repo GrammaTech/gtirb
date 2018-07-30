@@ -20,22 +20,22 @@ TEST(Unit_Section, equality) {
 
 TEST(Unit_Section, containsEA) {
   Section good{"good", EA{11}, 100};
-  EXPECT_FALSE(utilities::containsEA(good, EA(10)));
-  EXPECT_TRUE(utilities::containsEA(good, EA(11)));
-  EXPECT_TRUE(utilities::containsEA(good, EA(110)));
-  EXPECT_FALSE(utilities::containsEA(good, EA(111)));
+  EXPECT_FALSE(containsEA(good, EA(10)));
+  EXPECT_TRUE(containsEA(good, EA(11)));
+  EXPECT_TRUE(containsEA(good, EA(110)));
+  EXPECT_FALSE(containsEA(good, EA(111)));
 
   Section big{"big", EA(0), std::numeric_limits<uint64_t>::max()};
-  EXPECT_TRUE(utilities::containsEA(big, EA(0)));
-  EXPECT_TRUE(utilities::containsEA(big, EA(std::numeric_limits<uint64_t>::max() - 1)));
+  EXPECT_TRUE(containsEA(big, EA(0)));
+  EXPECT_TRUE(containsEA(big, EA(std::numeric_limits<uint64_t>::max() - 1)));
   // No section contains a bad address
-  EXPECT_FALSE(utilities::containsEA(big, EA()));
+  EXPECT_FALSE(containsEA(big, EA()));
 
   // Bad section does not contain anything
   Section bad{"bad", EA(), std::numeric_limits<uint64_t>::max()};
-  EXPECT_FALSE(utilities::containsEA(bad, EA(0)));
-  EXPECT_FALSE(utilities::containsEA(bad, EA(std::numeric_limits<uint64_t>::max() - 1)));
-  EXPECT_FALSE(utilities::containsEA(bad, EA()));
+  EXPECT_FALSE(containsEA(bad, EA(0)));
+  EXPECT_FALSE(containsEA(bad, EA(std::numeric_limits<uint64_t>::max() - 1)));
+  EXPECT_FALSE(containsEA(bad, EA()));
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
