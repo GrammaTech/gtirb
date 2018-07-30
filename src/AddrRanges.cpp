@@ -1,77 +1,72 @@
 #include "AddrRanges.hpp"
 #include "Serialization.hpp"
 #include <gtirb/EA.hpp>
-#include <gtirb/RuntimeError.hpp>
 #include <proto/AddrRanges.pb.h>
 #include <gsl/gsl>
 
 using namespace gtirb;
 
 bool AddrRanges::addRange(std::pair<gtirb::EA, gtirb::EA> x) {
-  if (x.first <= x.second) {
-    if (this->ranges.empty() == true) {
-      this->ranges.insert(x);
+  Expects(x.first <= x.second);
+
+  if (this->ranges.empty() == true) {
+    this->ranges.insert(x);
+    return true;
+  }
+
+  auto next = this->ranges.upper_bound(x.first);
+
+  if (next != std::begin(this->ranges)) {
+    auto prev = next;
+    --prev;
+
+    if (prev->second >= x.first) {
+      // prev  next next2 ...
+      // case 1:  11
+      // case 2:  2222
+      // case 3:  333333
+      // case 4:  44444444444444
+
+      // Case 1:
+      if (prev->second >= x.second) {
+        return false;
+      }
+
+      // Cases 2-4:
+      while (next != std::end(this->ranges) && next->first <= x.second) {
+        if (x.second < next->second) {
+          x.second = next->second;
+        }
+
+        const auto tmp = next;
+        ++next;
+
+        this->ranges.erase(tmp);
+      }
+
+      prev->second = x.second;
       return true;
     }
-
-    auto next = this->ranges.upper_bound(x.first);
-
-    if (next != std::begin(this->ranges)) {
-      auto prev = next;
-      --prev;
-
-      if (prev->second >= x.first) {
-        // prev  next next2 ...
-        // case 1:  11
-        // case 2:  2222
-        // case 3:  333333
-        // case 4:  44444444444444
-
-        // Case 1:
-        if (prev->second >= x.second) {
-          return false;
-        }
-
-        // Cases 2-4:
-        while (next != std::end(this->ranges) && next->first <= x.second) {
-          if (x.second < next->second) {
-            x.second = next->second;
-          }
-
-          const auto tmp = next;
-          ++next;
-
-          this->ranges.erase(tmp);
-        }
-
-        prev->second = x.second;
-        return true;
-      }
-    }
-
-    // next  next2 ...
-    // case 5: 55
-    // case 6: 6666
-    // case 7: 77777777
-    // case 8: 888888888888
-
-    while (next != this->ranges.end() && next->first <= x.second) {
-      if (x.second < next->second) {
-        x.second = next->second;
-      }
-
-      const auto tmp = next;
-      ++next;
-
-      this->ranges.erase(tmp);
-    }
-
-    return this->ranges.insert(x).second;
-  } else {
-    throw gtirb::RuntimeError(
-        "Address range pairs must have the first value less than the second value.", __FILE__,
-        __LINE__);
   }
+
+  // next  next2 ...
+  // case 5: 55
+  // case 6: 6666
+  // case 7: 77777777
+  // case 8: 888888888888
+
+  while (next != this->ranges.end() && next->first <= x.second) {
+    if (x.second < next->second) {
+      x.second = next->second;
+    }
+
+    const auto tmp = next;
+    ++next;
+
+    this->ranges.erase(tmp);
+  }
+
+  return this->ranges.insert(x).second;
 }
 
 bool AddrRanges::addRange(const AddrRanges& x) {

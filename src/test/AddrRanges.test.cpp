@@ -1,6 +1,5 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/EA.hpp>
-#include <gtirb/RuntimeError.hpp>
 #include <proto/AddrRanges.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
@@ -20,7 +19,7 @@ TEST(Unit_AddrRanges, invalidRange) {
   auto node = std::make_unique<gtirb::AddrRanges>();
 
   EXPECT_TRUE(node->data().empty());
-  EXPECT_THROW(node->addRange({gtirb::EA{2112}, gtirb::EA{1221}}), gtirb::RuntimeError);
+  EXPECT_DEATH(node->addRange({gtirb::EA{2112}, gtirb::EA{1221}}), "");
   EXPECT_TRUE(node->data().empty());
   EXPECT_EQ(size_t{0}, node->data().size());
 }

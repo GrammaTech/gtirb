@@ -26,17 +26,14 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Constants.hpp
 	../include/gtirb/Data.hpp
 	../include/gtirb/EA.hpp
-	../include/gtirb/Exception.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/ImageByteMap.hpp
 	../include/gtirb/Instruction.hpp
 	../include/gtirb/IR.hpp
-	../include/gtirb/LogicError.hpp
 	../include/gtirb/Module.hpp
 	../include/gtirb/Node.hpp
         ../include/gtirb/NodeRef.hpp
 	../include/gtirb/Relocation.hpp
-	../include/gtirb/RuntimeError.hpp
         ../include/gtirb/Section.hpp
 	../include/gtirb/Symbol.hpp
         ../include/gtirb/SymbolSet.hpp
@@ -54,14 +51,11 @@ set(${PROJECT_NAME}_SRC
 	CFG.cpp
         Data.cpp
         EA.cpp
-	Exception.cpp
 	ImageByteMap.cpp
 	Instruction.cpp
 	IR.cpp
-	LogicError.cpp
 	Module.cpp
 	Node.cpp
-	RuntimeError.cpp
         Section.cpp
         Serialization.cpp
 	Symbol.cpp

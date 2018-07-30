@@ -28,7 +28,6 @@ set(${PROJECT_NAME}_SRC
 	CFG.test.cpp
         Data.test.cpp
 	EA.test.cpp
-	Exception.test.cpp
 	ImageByteMap.test.cpp
 	Instruction.test.cpp
 	IR.test.cpp
@@ -40,7 +39,6 @@ set(${PROJECT_NAME}_SRC
 	SymbolSet.test.cpp
         SymbolicExpression.test.cpp
         Table.test.cpp
-	TypedExceptionTest.cpp
 	TypedNodeTest.cpp
 	Utilities.test.cpp
 )
