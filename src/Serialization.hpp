@@ -2,6 +2,7 @@
 
 #include <google/protobuf/map.h>
 #include <google/protobuf/repeated_field.h>
+#include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <type_traits>
 

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <proto/AddrRanges.pb.h>
 #include <gtirb/AddrRanges.hpp>
+#include <gtirb/EA.hpp>
 #include <gtirb/RuntimeError.hpp>
 #include <memory>
 

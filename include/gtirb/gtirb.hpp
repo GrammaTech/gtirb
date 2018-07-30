@@ -25,4 +25,3 @@
 #include <gtirb/SymbolicExpressionSet.hpp>
 #include <gtirb/Table.hpp>
 #include <gtirb/Utilities.hpp>
-#include <gtirb/Variant.hpp>

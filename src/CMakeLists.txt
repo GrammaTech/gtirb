@@ -40,9 +40,8 @@ set(${PROJECT_NAME}_H
         ../include/gtirb/SymbolSet.hpp
     ../include/gtirb/SymbolicExpression.hpp
     ../include/gtirb/SymbolicExpressionSet.hpp
-	../include/gtirb/Table.hpp
-	../include/gtirb/Utilities.hpp
-	../include/gtirb/Variant.hpp
+    ../include/gtirb/Table.hpp
+    ../include/gtirb/Utilities.hpp
         ../src/Serialization.hpp
 )
 
