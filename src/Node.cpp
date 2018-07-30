@@ -1,7 +1,7 @@
+#include "Node.hpp"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <gsl/gsl>
-#include <gtirb/Node.hpp>
 
 using namespace gtirb;
 

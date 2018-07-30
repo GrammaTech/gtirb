@@ -65,4 +65,4 @@ private:
   uint64_t size{0};
   std::vector<Instruction> instructions;
 };
-}
+} // namespace gtirb

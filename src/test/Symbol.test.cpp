@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
-#include <proto/Symbol.pb.h>
 #include <gtirb/Data.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Symbol.hpp>
+#include <proto/Symbol.pb.h>
+#include <gtest/gtest.h>
 #include <memory>
 #include <sstream>
 

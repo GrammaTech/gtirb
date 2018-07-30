@@ -1,9 +1,9 @@
-#include <proto/AddrRanges.pb.h>
-#include <gsl/gsl>
-#include <gtirb/AddrRanges.hpp>
+#include "AddrRanges.hpp"
+#include "Serialization.hpp"
 #include <gtirb/EA.hpp>
 #include <gtirb/RuntimeError.hpp>
-#include "Serialization.hpp"
+#include <proto/AddrRanges.pb.h>
+#include <gsl/gsl>
 
 using namespace gtirb;
 

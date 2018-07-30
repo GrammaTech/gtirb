@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include <proto/SymbolicExpression.pb.h>
 #include <gtirb/SymbolicExpression.hpp>
+#include <proto/SymbolicExpression.pb.h>
+#include <gtest/gtest.h>
 
 using namespace gtirb;
 

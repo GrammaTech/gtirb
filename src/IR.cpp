@@ -1,9 +1,9 @@
-#include <proto/IR.pb.h>
-#include <gtirb/IR.hpp>
+#include "IR.hpp"
+#include "Serialization.hpp"
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Table.hpp>
-#include "Serialization.hpp"
+#include <proto/IR.pb.h>
 
 using namespace gtirb;
 

@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include <proto/Data.pb.h>
 #include <gtirb/Data.hpp>
+#include <proto/Data.pb.h>
+#include <gtest/gtest.h>
 
 using namespace gtirb;
 

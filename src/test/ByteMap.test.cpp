@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
-#include <proto/ByteMap.pb.h>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/Utilities.hpp>
+#include <proto/ByteMap.pb.h>
+#include <gtest/gtest.h>
 #include <memory>
 
 using namespace gtirb;

@@ -38,4 +38,4 @@ public:
   ///
   ~LogicError() = default;
 };
-}
+} // namespace gtirb

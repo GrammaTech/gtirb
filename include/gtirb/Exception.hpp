@@ -72,4 +72,4 @@ private:
   /// The line number within the file that generated the exception.
   int line{0};
 };
-}
+} // namespace gtirb

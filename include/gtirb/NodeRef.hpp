@@ -34,4 +34,4 @@ private:
 
   NodeT* get() const { return dynamic_cast<NodeT*>(Node::getByUUID(this->uuid)); }
 };
-}
+} // namespace gtirb

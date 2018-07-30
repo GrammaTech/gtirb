@@ -1,9 +1,9 @@
 #pragma once
 
+#include <gtirb/Export.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <functional>
 #include <gsl/gsl>
-#include <gtirb/Export.hpp>
 #include <map>
 #include <memory>
 #include <string>

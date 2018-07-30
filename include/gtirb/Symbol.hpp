@@ -1,9 +1,9 @@
 #pragma once
 
-#include <proto/Symbol.pb.h>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
+#include <proto/Symbol.pb.h>
 
 namespace gtirb {
 class Data;
@@ -101,4 +101,4 @@ private:
   NodeRef<Data> dataReferent;
   NodeRef<Instruction> codeReferent;
 };
-}
+} // namespace gtirb

@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
-#include <proto/CFG.pb.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
+#include <proto/CFG.pb.h>
+#include <gtest/gtest.h>
 
 //
 #include <boost/lexical_cast.hpp>

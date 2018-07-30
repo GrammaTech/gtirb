@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <gtirb/Export.hpp>
+#include <cstdint>
 #include <set>
 #include <vector>
 

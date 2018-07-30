@@ -1,4 +1,4 @@
-#include <gtirb/EA.hpp>
+#include "EA.hpp"
 #include <iostream>
 #include <sstream>
 

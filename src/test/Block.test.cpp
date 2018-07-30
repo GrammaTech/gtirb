@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
-#include <proto/Block.pb.h>
 #include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
+#include <proto/Block.pb.h>
+#include <gtest/gtest.h>
 
 using namespace gtirb;
 

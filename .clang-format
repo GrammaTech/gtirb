@@ -48,14 +48,15 @@ DerivePointerAlignment: false
 DisableFormat:   false
 ExperimentalAutoDetectBinPacking: false
 ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
+# IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^<.*\.h>'
+  - Regex:           '^".*"'
     Priority:        1
-  - Regex:           '^<.*'
+  - Regex:           '^<gtirb/.*'
     Priority:        2
-  - Regex:           '.*'
-    Priority:        3
-# IncludeIsMainRegex: '([-_](test|unittest))?$'
+  - Regex:           '^<proto/.*'
+    Priority:        2
+#IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentCaseLabels: false
 IndentWidth:     2
 IndentWrappedFunctionNames: false

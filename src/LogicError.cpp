@@ -1,4 +1,4 @@
-#include <gtirb/LogicError.hpp>
+#include "LogicError.hpp"
 
 using namespace gtirb;
 

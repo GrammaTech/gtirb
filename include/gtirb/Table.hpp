@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/variant.hpp>
 #include <gtirb/EA.hpp>
+#include <boost/variant.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -28,7 +28,7 @@ using ValueType = boost::variant<EA,          //
                                  int64_t,     //
                                  std::string, //
                                  InnerMapType>;
-}
+} // namespace table
 
 ///
 /// \class Table
@@ -45,4 +45,4 @@ using Table = boost::variant<std::map<EA, table::ValueType>,          //
 
 proto::Table toProtobuf(const Table& table);
 void fromProtobuf(Table& result, const proto::Table& message);
-}
+} // namespace gtirb

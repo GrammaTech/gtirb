@@ -1,17 +1,17 @@
-#include <proto/Module.pb.h>
-#include <gsl/gsl>
+#include "Module.hpp"
+#include "Serialization.hpp"
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include "Serialization.hpp"
+#include <proto/Module.pb.h>
+#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -104,7 +104,8 @@ void Module::toProtobuf(MessageType* message) const {
   containerToProtobuf(*this->sections, message->mutable_sections());
   containerToProtobuf(*this->symbolicOperands, message->mutable_symbolic_operands());
 
-  // Special case for symbol set: uses a multimap internally, serialized as a repeated field.
+  // Special case for symbol set: uses a multimap internally, serialized as a
+  // repeated field.
   auto m = message->mutable_symbols();
   initContainer(m, this->symbols->size());
   std::for_each(this->symbols->begin(), this->symbols->end(),
@@ -128,7 +129,8 @@ void Module::fromProtobuf(const MessageType& message) {
   containerFromProtobuf(*this->sections, message.sections());
   containerFromProtobuf(*this->symbolicOperands, message.symbolic_operands());
 
-  // Special case for symbol set: serialized as a repeated field, uses a multimap internally.
+  // Special case for symbol set: serialized as a repeated field, uses a
+  // multimap internally.
   this->symbols->clear();
   const auto& m = message.symbols();
   std::for_each(m.begin(), m.end(), [this](const auto& elt) {

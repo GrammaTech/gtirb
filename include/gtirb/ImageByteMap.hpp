@@ -1,13 +1,13 @@
 #pragma once
 
-#include <proto/ImageByteMap.pb.h>
-#include <array>
-#include <boost/filesystem.hpp>
-#include <gsl/gsl>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <proto/ImageByteMap.pb.h>
+#include <array>
+#include <boost/filesystem.hpp>
+#include <gsl/gsl>
 #include <set>
 
 namespace gtirb {
@@ -368,4 +368,4 @@ private:
   ContentSource contentSource{};
   bool isRelocated{false};
 };
-}
+} // namespace gtirb

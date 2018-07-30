@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <cstdint>
 
 namespace proto {
 class Section;
@@ -46,4 +46,4 @@ private:
   EA address{0};
   uint64_t size{0};
 };
-}
+} // namespace gtirb

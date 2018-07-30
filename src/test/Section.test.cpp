@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
-#include <proto/Section.pb.h>
 #include <gtirb/Section.hpp>
 #include <gtirb/Utilities.hpp>
+#include <proto/Section.pb.h>
+#include <gtest/gtest.h>
 #include <limits>
 
 using namespace gtirb;

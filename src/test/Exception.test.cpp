@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include <gtirb/Exception.hpp>
+#include <gtest/gtest.h>
 #include <memory>
 
 TEST(Unit_Exception, ctor_0) { EXPECT_NO_THROW(gtirb::Exception{}); }

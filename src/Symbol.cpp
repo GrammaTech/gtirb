@@ -1,7 +1,7 @@
+#include "Symbol.hpp"
+#include "Serialization.hpp"
 #include <gtirb/Data.hpp>
 #include <gtirb/Instruction.hpp>
-#include <gtirb/Symbol.hpp>
-#include "Serialization.hpp"
 
 using namespace gtirb;
 

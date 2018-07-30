@@ -39,4 +39,4 @@ public:
   ///
   ~RuntimeError() override = default;
 };
-}
+} // namespace gtirb
