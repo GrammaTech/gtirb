@@ -43,6 +43,7 @@ uint64_t toProtobuf(const EA val);
 std::string toProtobuf(const std::string& val);
 int64_t toProtobuf(const int64_t& val);
 uint64_t toProtobuf(const uint64_t& val);
+std::string toProtobuf(const UUID& val);
 
 template <size_t size> std::string toProtobuf(const std::array<uint8_t, size>& value) {
   return std::string(value.begin(), value.end());
@@ -134,6 +135,7 @@ void fromProtobuf(std::pair<T, U>& val, const google::protobuf::MapPair<V, W>& m
   fromProtobuf(val.second, message.second);
 }
 void fromProtobuf(EA& result, const uint64_t& message);
+void fromProtobuf(UUID& result, const std::string& message);
 
 // Convert the contents for a container into IR classes
 template <typename ContainerT, typename MessageT>
