@@ -32,21 +32,9 @@ void ImageByteMap::setRebaseDelta(int64_t x) { this->rebaseDelta = x; }
 
 int64_t ImageByteMap::getRebaseDelta() const { return this->rebaseDelta; }
 
-void ImageByteMap::setLFCM(uint8_t x) { this->lfcm = x; }
-
-uint8_t ImageByteMap::getLFCM() const { return this->lfcm; }
-
 void ImageByteMap::setIsRelocated() { this->isRelocated = true; }
 
 bool ImageByteMap::getIsRelocated() const { return this->isRelocated; }
-
-void ImageByteMap::setGlobalOffsetTableAddress(EA x) { this->globalOffsetTableAddress = x; }
-
-EA ImageByteMap::getGlobalOffsetTableAddress() const { return this->globalOffsetTableAddress; }
-
-void ImageByteMap::setContentSource(ImageByteMap::ContentSource x) { this->contentSource = x; }
-
-ImageByteMap::ContentSource ImageByteMap::getContentSource() const { return this->contentSource; }
 
 bool ImageByteMap::getDataEmpty() const { return this->byteMap.empty(); }
 
@@ -149,10 +137,7 @@ void ImageByteMap::toProtobuf(MessageType* message) const {
   message->set_ea_max(this->eaMinMax.second);
   message->set_base_address(this->baseAddress);
   message->set_entry_point_address(this->entryPointAddress);
-  message->set_global_offset_table_address(this->globalOffsetTableAddress);
   message->set_rebase_delta(this->rebaseDelta);
-  message->set_lfcm(this->lfcm);
-  message->set_content_source(static_cast<proto::ContentSource>(this->contentSource));
   message->set_is_relocated(this->isRelocated);
 }
 
@@ -163,9 +148,6 @@ void ImageByteMap::fromProtobuf(const MessageType& message) {
   this->eaMinMax = {EA(message.ea_min()), EA(message.ea_max())};
   this->baseAddress = EA(message.base_address());
   this->entryPointAddress = EA(message.entry_point_address());
-  this->globalOffsetTableAddress = EA(message.global_offset_table_address());
   this->rebaseDelta = message.rebase_delta();
-  this->lfcm = message.lfcm();
-  this->contentSource = static_cast<ContentSource>(message.content_source());
   this->isRelocated = message.is_relocated();
 }

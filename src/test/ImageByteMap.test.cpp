@@ -88,17 +88,6 @@ TEST(Unit_ImageByteMap, setRebaseDelta) {
   EXPECT_EQ(val, node->getRebaseDelta());
 }
 
-TEST(Unit_ImageByteMap, setLFCM) {
-  auto node = std::make_unique<gtirb::ImageByteMap>();
-  ASSERT_TRUE(node != nullptr);
-
-  const auto val = uint8_t{gtirb::ImageByteMap::CM_N8_F16 | gtirb::ImageByteMap::CC_CDECL |
-                           gtirb::ImageByteMap::MM_NN};
-
-  EXPECT_NO_THROW(node->setLFCM(val));
-  EXPECT_EQ(val, node->getLFCM());
-}
-
 TEST(Unit_ImageByteMap, setIsRelocated) {
   auto node = std::make_unique<gtirb::ImageByteMap>();
   ASSERT_TRUE(node != nullptr);
@@ -107,26 +96,6 @@ TEST(Unit_ImageByteMap, setIsRelocated) {
 
   EXPECT_NO_THROW(node->setIsRelocated());
   EXPECT_EQ(val, node->getIsRelocated());
-}
-
-TEST(Unit_ImageByteMap, setGlobalOffsetTableAddress) {
-  auto node = std::make_unique<gtirb::ImageByteMap>();
-  ASSERT_TRUE(node != nullptr);
-
-  const auto val = gtirb::EA{22678};
-
-  EXPECT_NO_THROW(node->setGlobalOffsetTableAddress(val));
-  EXPECT_EQ(val, node->getGlobalOffsetTableAddress());
-}
-
-TEST(Unit_ImageByteMap, setContentSource) {
-  auto node = std::make_unique<gtirb::ImageByteMap>();
-  ASSERT_TRUE(node != nullptr);
-
-  const auto val = gtirb::ImageByteMap::ContentSource::IDAPartial;
-
-  EXPECT_NO_THROW(node->setContentSource(val));
-  EXPECT_EQ(val, node->getContentSource());
 }
 
 TEST_F(Unit_ImageByteMapF, empty) { EXPECT_FALSE(this->byteMap.getDataEmpty()); }
@@ -263,10 +232,7 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   original.setBaseAddress(EA(2));
   original.setEntryPointAddress(EA(3));
   original.setRebaseDelta(7);
-  original.setLFCM(ImageByteMap::MM_MASK);
   original.setIsRelocated();
-  original.setGlobalOffsetTableAddress(EA(8));
-  original.setContentSource(ImageByteMap::ContentSource::IDAFull);
 
   gtirb::ImageByteMap result;
   proto::ImageByteMap message;
@@ -281,8 +247,5 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   EXPECT_EQ(result.getEntryPointAddress(), EA(3));
   EXPECT_EQ(result.getEAMinMax(), original.getEAMinMax());
   EXPECT_EQ(result.getRebaseDelta(), 7);
-  EXPECT_EQ(result.getLFCM(), ImageByteMap::MM_MASK);
   EXPECT_EQ(result.getIsRelocated(), true);
-  EXPECT_EQ(result.getGlobalOffsetTableAddress(), EA(8));
-  EXPECT_EQ(result.getContentSource(), ImageByteMap::ContentSource::IDAFull);
 }
