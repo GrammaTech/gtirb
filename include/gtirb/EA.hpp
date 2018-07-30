@@ -1,8 +1,6 @@
 #pragma once
 
-#include <gtirb/Constants.hpp>
 #include <gtirb/Export.hpp>
-
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -10,10 +8,17 @@
 
 namespace gtirb {
 ///
+/// \var BadAddress
+///
+/// The initial value for an EA.
+///
+constexpr uint64_t BadAddress{std::numeric_limits<uint64_t>::max()};
+
+///
 /// \class EA
 ///
 /// A special class to store an Effective Address. This is initialized to
-/// `gtirb::constants::BadAddress`. It is compatible with a uint64_t for 64-bit address storage.
+/// `BadAddress`. It is compatible with a uint64_t for 64-bit address storage.
 /// An EA cannot store a relative address as it cannot contain a negative number.
 ///
 class GTIRB_EXPORT_API EA {
@@ -129,9 +134,9 @@ private:
 
   ///
   /// Internal storage for the effective address (EA).
-  /// It is initialized with the constant gtirb::constants::BadAddress.
+  /// It is initialized with the constant BadAddress.
   ///
-  uint64_t ea{gtirb::constants::BadAddress};
+  uint64_t ea{BadAddress};
 };
 } // namespace gtirb
 

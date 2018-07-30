@@ -1,7 +1,6 @@
 #pragma once
 
 #include <gtirb/ByteMap.hpp>
-#include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <proto/ImageByteMap.pb.h>

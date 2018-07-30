@@ -6,7 +6,7 @@ using namespace gtirb;
 
 TEST(Unit_EA, ctor_0) {
   EXPECT_NO_THROW(EA());
-  EXPECT_EQ(EA(constants::BadAddress), EA());
+  EXPECT_EQ(EA(BadAddress), EA());
 }
 
 TEST(Unit_EA, ctor_1) {

@@ -68,7 +68,7 @@ CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block);
 boost::iterator_range<block_iterator> blocks(CFG& cfg);
 
 ///
-/// Iterates over Blocks on the graph (by const reference).
+/// Iterates over Blocks in the graph (by const reference).
 ///
 boost::iterator_range<const_block_iterator> blocks(const CFG& cfg);
 

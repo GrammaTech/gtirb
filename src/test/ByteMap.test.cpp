@@ -1,5 +1,4 @@
 #include <gtirb/ByteMap.hpp>
-#include <gtirb/Constants.hpp>
 #include <gtirb/Utilities.hpp>
 #include <proto/ByteMap.pb.h>
 #include <gtest/gtest.h>
@@ -23,8 +22,8 @@ public:
   gtirb::ByteMap byteMap{};
 };
 
-gtirb::EA Unit_ByteMapF::Offset{static_cast<uint64_t>(gtirb::constants::PageSize)};
-size_t Unit_ByteMapF::InitializedSize{gtirb::constants::PageSize * 2};
+gtirb::EA Unit_ByteMapF::Offset{static_cast<uint64_t>(PageSize)};
+size_t Unit_ByteMapF::InitializedSize{PageSize * 2};
 
 TEST(Unit_ByteMap, ctor_0) { EXPECT_NO_THROW(gtirb::ByteMap()); }
 
