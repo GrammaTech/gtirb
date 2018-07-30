@@ -20,7 +20,11 @@ Node* Node::getByUUID(UUID uuid) {
 // UUID construction is a bottleneck in the creation of Node.  (~0.5ms)
 Node::Node() : uuid(boost::uuids::random_generator()()) { Node::uuidMap[this->uuid] = this; }
 
-Node::Node(const Node& other) { this->setUUID(); }
+Node::Node(const Node& other) : uuid(boost::uuids::random_generator()()) {
+  // Note: do not call setUUID() here as it will try to erase the current
+  // (uninitialized) UUID from uuidMap.
+  Node::uuidMap[this->uuid] = this;
+}
 
 Node::Node(Node&& other) noexcept : uuid(std::move(other.uuid)) {
   other.uuid = UUID();
