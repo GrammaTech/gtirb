@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
-#include <proto/IR.pb.h>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
+#include <proto/IR.pb.h>
+#include <gtest/gtest.h>
 #include <memory>
 
 using namespace gtirb;

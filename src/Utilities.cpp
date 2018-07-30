@@ -1,7 +1,7 @@
-#include <gsl/gsl>
+#include "Utilities.hpp"
 #include <gtirb/CFG.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/Utilities.hpp>
+#include <gsl/gsl>
 #include <iostream>
 
 using namespace gtirb;

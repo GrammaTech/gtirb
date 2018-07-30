@@ -1,9 +1,9 @@
 #pragma once
 
-#include <functional>
-#include <gsl/gsl>
 #include <gtirb/Constants.hpp>
 #include <gtirb/EA.hpp>
+#include <functional>
+#include <gsl/gsl>
 #include <map>
 #include <vector>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <proto/Relocation.pb.h>
 #include <gtirb/EA.hpp>
+#include <proto/Relocation.pb.h>
 #include <string>
 
 namespace gtirb {
@@ -30,4 +30,4 @@ struct Relocation {
     this->offset = message.offset();
   }
 };
-}
+} // namespace gtirb

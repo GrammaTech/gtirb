@@ -1,9 +1,9 @@
+#include "ByteMap.hpp"
+#include "Serialization.hpp"
+#include <gtirb/Utilities.hpp>
 #include <proto/ByteMap.pb.h>
 #include <algorithm>
 #include <cstring>
-#include <gtirb/ByteMap.hpp>
-#include <gtirb/Utilities.hpp>
-#include "Serialization.hpp"
 
 using namespace gtirb;
 
@@ -24,7 +24,7 @@ size_t bytesWithinFirstPage(const EA x, const size_t bytes) {
 
   return bytes < bytesToPageBoundary ? bytes : bytesToPageBoundary;
 }
-}
+} // namespace
 
 bool ByteMap::empty() const { return this->data.empty(); }
 

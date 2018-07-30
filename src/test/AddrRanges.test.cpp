@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
-#include <proto/AddrRanges.pb.h>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/RuntimeError.hpp>
+#include <proto/AddrRanges.pb.h>
+#include <gtest/gtest.h>
 #include <memory>
 
 TEST(Unit_AddrRanges, ctor_0) { EXPECT_NO_THROW(gtirb::AddrRanges()); }

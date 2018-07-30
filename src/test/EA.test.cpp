@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include <gtirb/EA.hpp>
+#include <gtest/gtest.h>
 #include <sstream>
 
 using namespace gtirb;

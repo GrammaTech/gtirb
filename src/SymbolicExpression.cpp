@@ -1,8 +1,8 @@
+#include "SymbolicExpression.hpp"
+#include "Serialization.hpp"
+#include <gtirb/Symbol.hpp>
 #include <proto/SymbolicExpression.pb.h>
 #include <boost/variant/static_visitor.hpp>
-#include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolicExpression.hpp>
-#include "Serialization.hpp"
 
 namespace gtirb {
 class SymbolicVisitor : public boost::static_visitor<> {
@@ -63,4 +63,4 @@ void fromProtobuf(SymbolicExpression& result, const proto::SymbolicExpression& m
     assert(false);
   }
 }
-}
+} // namespace gtirb

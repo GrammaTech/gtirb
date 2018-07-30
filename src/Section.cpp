@@ -1,6 +1,6 @@
-#include <proto/Section.pb.h>
-#include <gtirb/Section.hpp>
+#include "Section.hpp"
 #include "Serialization.hpp"
+#include <proto/Section.pb.h>
 
 using namespace gtirb;
 

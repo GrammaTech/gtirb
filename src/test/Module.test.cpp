@@ -1,5 +1,3 @@
-#include <gtest/gtest.h>
-#include <proto/Module.pb.h>
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/Data.hpp>
@@ -10,6 +8,8 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
+#include <proto/Module.pb.h>
+#include <gtest/gtest.h>
 
 #include <memory>
 

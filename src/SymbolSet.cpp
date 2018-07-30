@@ -1,5 +1,5 @@
+#include "Symbol.hpp"
 #include <gtirb/EA.hpp>
-#include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 
 namespace gtirb {
@@ -20,4 +20,4 @@ std::vector<Symbol*> findSymbols(SymbolSet& symbols, gtirb::EA x) {
                 [&result](auto& node) { result.push_back(&node.second); });
   return result;
 }
-}
+} // namespace gtirb

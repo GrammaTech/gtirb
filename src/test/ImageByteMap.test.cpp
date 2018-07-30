@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include <proto/ImageByteMap.pb.h>
 #include <gtirb/ImageByteMap.hpp>
+#include <proto/ImageByteMap.pb.h>
+#include <gtest/gtest.h>
 #include <memory>
 
 using namespace gtirb;
@@ -139,9 +139,8 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
   for (size_t i = 0; i < Unit_ImageByteMapF::InitializedSize; ++i) {
     const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
 
-    EXPECT_EQ(
-        this->InitialByte & i,
-        this->byteMap.getData8(Unit_ImageByteMapF::Offset + gtirb::EA{static_cast<uint64_t>(i)}))
+    EXPECT_EQ(this->InitialByte & i, this->byteMap.getData8(Unit_ImageByteMapF::Offset +
+                                                            gtirb::EA{static_cast<uint64_t>(i)}))
         << "Bad byte read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
 
     if (i < Unit_ImageByteMapF::InitializedSize - 1) {

@@ -1,8 +1,8 @@
-#include <proto/Instruction.pb.h>
-#include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Instruction.hpp>
-#include <gtirb/Module.hpp>
+#include "Instruction.hpp"
 #include "Serialization.hpp"
+#include <gtirb/ImageByteMap.hpp>
+#include <gtirb/Module.hpp>
+#include <proto/Instruction.pb.h>
 
 using namespace gtirb;
 

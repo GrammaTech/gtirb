@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
 #include <gtirb/Exception.hpp>
 #include <gtirb/LogicError.hpp>
 #include <gtirb/RuntimeError.hpp>
+#include <gtest/gtest.h>
 #include <memory>
 
 using testing::Types;

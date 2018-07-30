@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include <proto/Table.pb.h>
 #include <gtirb/Table.hpp>
+#include <proto/Table.pb.h>
+#include <gtest/gtest.h>
 
 using namespace gtirb;
 

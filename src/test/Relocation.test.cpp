@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include <proto/Relocation.pb.h>
 #include <gtirb/Relocation.hpp>
+#include <proto/Relocation.pb.h>
+#include <gtest/gtest.h>
 
 using namespace gtirb;
 

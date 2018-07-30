@@ -1,9 +1,9 @@
 #pragma once
 
-#include <boost/filesystem.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
+#include <boost/filesystem.hpp>
 #include <memory>
 #include <vector>
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <google/protobuf/map.h>
-#include <google/protobuf/repeated_field.h>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <google/protobuf/map.h>
+#include <google/protobuf/repeated_field.h>
 #include <type_traits>
 
 // Utilities for serialization
@@ -160,4 +160,4 @@ void containerFromProtobuf(std::map<KeyType, ValueType>& values, MessageT& messa
     values.insert(std::move(val));
   });
 }
-}
+} // namespace gtirb

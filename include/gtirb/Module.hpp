@@ -1,13 +1,13 @@
 #pragma once
 
-#include <proto/Module.pb.h>
-#include <boost/filesystem.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicExpressionSet.hpp>
+#include <proto/Module.pb.h>
+#include <boost/filesystem.hpp>
 
 namespace gtirb {
 class AddrRanges;

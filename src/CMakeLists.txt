@@ -16,6 +16,8 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	add_compile_options(-pthread)
 endif()
 
+include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
+
 set(${PROJECT_NAME}_H
 	../include/gtirb/AddrRanges.hpp
 	../include/gtirb/Block.hpp

@@ -52,5 +52,5 @@ static constexpr uint64_t DeadDead{0xdeaddead};
 /// The size of a page of data when mapping loaded file images.
 ///
 static constexpr uint64_t PageSize{4096};
-}
-}
+} // namespace constants
+} // namespace gtirb

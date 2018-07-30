@@ -1,4 +1,4 @@
-#include <gtirb/Exception.hpp>
+#include "Exception.hpp"
 #include <iostream>
 
 using namespace gtirb;

@@ -59,4 +59,4 @@ private:
   EA address{0};
   uint64_t size{0};
 };
-}
+} // namespace gtirb

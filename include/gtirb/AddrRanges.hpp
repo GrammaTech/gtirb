@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <gtirb/Node.hpp>
+#include <cstdint>
 #include <map>
 #include <utility>
 
@@ -145,4 +145,4 @@ public:
 private:
   std::map<gtirb::EA, gtirb::EA> ranges;
 };
-}
+} // namespace gtirb

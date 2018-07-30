@@ -1,4 +1,4 @@
-#include <gtirb/RuntimeError.hpp>
+#include "RuntimeError.hpp"
 
 using namespace gtirb;
 

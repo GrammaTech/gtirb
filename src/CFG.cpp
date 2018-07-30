@@ -1,10 +1,10 @@
-#include <proto/CFG.pb.h>
+#include "CFG.hpp"
+#include "Serialization.hpp"
 #include <gtirb/Block.hpp>
-#include <gtirb/CFG.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/RuntimeError.hpp>
+#include <proto/CFG.pb.h>
 #include <map>
-#include "Serialization.hpp"
 
 namespace gtirb {
 CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block) {
@@ -55,4 +55,4 @@ void fromProtobuf(CFG& result, const proto::CFG& message) {
                            blockMap[uuidFromBytes(m.target_uuid())], result);
                 });
 }
-}
+} // namespace gtirb

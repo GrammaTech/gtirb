@@ -1,4 +1,13 @@
-#include <gtest/gtest.h>
+#include <gtirb/AddrRanges.hpp>
+#include <gtirb/Block.hpp>
+#include <gtirb/Data.hpp>
+#include <gtirb/IR.hpp>
+#include <gtirb/ImageByteMap.hpp>
+#include <gtirb/Instruction.hpp>
+#include <gtirb/Module.hpp>
+#include <gtirb/NodeRef.hpp>
+#include <gtirb/Section.hpp>
+#include <gtirb/Symbol.hpp>
 #include <proto/AddrRanges.pb.h>
 #include <proto/Block.pb.h>
 #include <proto/ByteMap.pb.h>
@@ -11,16 +20,7 @@
 #include <proto/Section.pb.h>
 #include <proto/Symbol.pb.h>
 #include <boost/uuid/uuid_generators.hpp>
-#include <gtirb/AddrRanges.hpp>
-#include <gtirb/Block.hpp>
-#include <gtirb/Data.hpp>
-#include <gtirb/IR.hpp>
-#include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Instruction.hpp>
-#include <gtirb/Module.hpp>
-#include <gtirb/NodeRef.hpp>
-#include <gtirb/Section.hpp>
-#include <gtirb/Symbol.hpp>
+#include <gtest/gtest.h>
 #include <memory>
 
 using testing::Types;

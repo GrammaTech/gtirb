@@ -1,5 +1,5 @@
 #include "Serialization.hpp"
-#include <gtirb/Node.hpp>
+#include "Node.hpp"
 
 namespace gtirb {
 UUID uuidFromBytes(const std::string& bytes) {
@@ -30,4 +30,4 @@ int64_t toProtobuf(const int64_t& val) { return val; }
 uint64_t toProtobuf(const uint64_t& val) { return val; }
 
 void fromProtobuf(EA& result, const uint64_t& message) { result = EA(message); }
-}
+} // namespace gtirb

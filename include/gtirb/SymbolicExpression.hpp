@@ -1,10 +1,10 @@
 #pragma once
 
-#include <boost/variant.hpp>
-#include <cstdint>
 #include <gtirb/EA.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Symbol.hpp>
+#include <boost/variant.hpp>
+#include <cstdint>
 #include <map>
 #include <string>
 
