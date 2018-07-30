@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
 #include <cstdint>
 #include <set>
