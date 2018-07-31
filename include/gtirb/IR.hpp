@@ -135,6 +135,7 @@ public:
   /// \param  x   The name of the table to search for.
   /// \return     A non-owning pointer to the table if found, or nullptr.
   ///
+  const gtirb::Table* getTable(const std::string& x) const;
   gtirb::Table* getTable(const std::string& x);
 
   ///

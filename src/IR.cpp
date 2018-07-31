@@ -38,6 +38,15 @@ std::vector<const Module*> IR::getModulesContainingEA(EA x) const {
 
 void IR::addTable(std::string name, Table&& x) { this->tables[std::move(name)] = std::move(x); }
 
+const gtirb::Table* IR::getTable(const std::string& x) const {
+  auto found = this->tables.find(x);
+  if (found != std::end(this->tables)) {
+    return &(found->second);
+  }
+
+  return nullptr;
+}
+
 gtirb::Table* IR::getTable(const std::string& x) {
   auto found = this->tables.find(x);
   if (found != std::end(this->tables)) {
