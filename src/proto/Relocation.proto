@@ -1,9 +1,0 @@
-syntax = "proto3";
-package proto;
-
-message Relocation {
-    uint64 ea = 1;
-    string type = 2;
-    string name = 3;
-    uint64 offset = 4;
-}

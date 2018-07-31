@@ -15,8 +15,6 @@ class Data;
 class ImageByteMap;
 class Data;
 using DataSet = std::vector<Data>;
-struct Relocation;
-using RelocationSet = std::vector<Relocation>;
 class Section;
 using SectionSet = std::vector<Section>;
 
@@ -167,8 +165,6 @@ public:
 
   const CFG& getCFG() const;
   CFG& getCFG();
-  const std::vector<Relocation>& getRelocations() const;
-  std::vector<Relocation>& getRelocations();
   const std::vector<Data>& getData() const;
   std::vector<Data>& getData();
   std::vector<Section>& getSections();
@@ -192,7 +188,6 @@ private:
   std::unique_ptr<CFG> cfg;
   std::unique_ptr<DataSet> data;
   std::unique_ptr<ImageByteMap> imageByteMap;
-  std::unique_ptr<RelocationSet> relocations;
   std::unique_ptr<SectionSet> sections;
   std::unique_ptr<SymbolSet> symbols;
   std::unique_ptr<SymbolicExpressionSet> symbolicOperands;

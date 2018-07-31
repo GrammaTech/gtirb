@@ -6,7 +6,6 @@
 #include <gtirb/Data.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
@@ -18,7 +17,6 @@ using namespace gtirb;
 Module::Module()
     : Node(), addrRanges(std::make_unique<AddrRanges>()), cfg(std::make_unique<CFG>()),
       data(std::make_unique<std::vector<Data>>()), imageByteMap(std::make_unique<ImageByteMap>()),
-      relocations(std::make_unique<RelocationSet>()),
       sections(std::make_unique<std::vector<Section>>()), symbols(std::make_unique<SymbolSet>()),
       symbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
 
@@ -69,10 +67,6 @@ const CFG& Module::getCFG() const { return *this->cfg; }
 
 CFG& Module::getCFG() { return *this->cfg; }
 
-const std::vector<Relocation>& Module::getRelocations() const { return *this->relocations; }
-
-std::vector<Relocation>& Module::getRelocations() { return *this->relocations; }
-
 const std::vector<Data>& Module::getData() const { return *this->data; }
 
 std::vector<Data>& Module::getData() { return *this->data; }
@@ -100,7 +94,6 @@ void Module::toProtobuf(MessageType* message) const {
   this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
   *message->mutable_cfg() = gtirb::toProtobuf(*this->cfg);
   containerToProtobuf(*this->data, message->mutable_data());
-  containerToProtobuf(*this->relocations, message->mutable_relocations());
   containerToProtobuf(*this->sections, message->mutable_sections());
   containerToProtobuf(*this->symbolicOperands, message->mutable_symbolic_operands());
 
@@ -125,7 +118,6 @@ void Module::fromProtobuf(const MessageType& message) {
   this->imageByteMap->fromProtobuf(message.image_byte_map());
   gtirb::fromProtobuf(*this->cfg, message.cfg());
   containerFromProtobuf(*this->data, message.data());
-  containerFromProtobuf(*this->relocations, message.relocations());
   containerFromProtobuf(*this->sections, message.sections());
   containerFromProtobuf(*this->symbolicOperands, message.symbolic_operands());
 

@@ -4,7 +4,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/Relocation.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
@@ -144,7 +143,6 @@ TEST(Unit_Module, protobufRoundTrip) {
   proto::Module message;
 
   UUID addrRangesID, byteMapID, symbolID, blockID, dataID, sectionID;
-  EA relocationEA;
   int whichSymbolic;
 
   {
@@ -158,7 +156,6 @@ TEST(Unit_Module, protobufRoundTrip) {
     original.setDecodeMode(5);
     addSymbol(original.getSymbols(), {});
     addBlock(original.getCFG(), {});
-    original.getRelocations().push_back({EA(8), "foo", "bar", 1});
     original.getData().push_back({});
     original.getSections().push_back({});
     original.getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
@@ -169,7 +166,6 @@ TEST(Unit_Module, protobufRoundTrip) {
     blockID = blocks(original.getCFG()).begin()->getUUID();
     dataID = original.getData().begin()->getUUID();
     sectionID = original.getSections().begin()->getUUID();
-    relocationEA = original.getRelocations().begin()->ea;
     whichSymbolic = original.getSymbolicExpressions().begin()->second.which();
 
     original.toProtobuf(&message);
@@ -196,9 +192,6 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   EXPECT_EQ(result.getSymbols().size(), 1);
   EXPECT_EQ(result.getSymbols().begin()->second.getUUID(), symbolID);
-
-  EXPECT_EQ(result.getRelocations().size(), 1);
-  EXPECT_EQ(result.getRelocations().begin()->ea, relocationEA);
 
   EXPECT_EQ(result.getData().size(), 1);
   EXPECT_EQ(result.getData().begin()->getUUID(), dataID);
