@@ -18,17 +18,16 @@ The remainder of this file has information on GT-IRB's:
 GT-IRB has the following structure:
 
       Data Tables
-      /                /--Symbolic
+      /
     IR        -----Data---Bytes
       \      /-----Symbols
-      Modules------Relocations
+      Modules------SymbolicExpressions
              \-----ImageByteMap
               -----ICFG
                    /  \
               Blocks  Edges
                  |
-            Instructions---Symbolic
-                        \--Bytes
+            Instructions---Bytes
 
 ### IR
 An instance of GT-IRB may include multiple `module`s which represent

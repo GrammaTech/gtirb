@@ -16,7 +16,6 @@
 #include <proto/ImageByteMap.pb.h>
 #include <proto/Instruction.pb.h>
 #include <proto/Module.pb.h>
-#include <proto/Relocation.pb.h>
 #include <proto/Section.pb.h>
 #include <proto/Symbol.pb.h>
 #include <boost/uuid/uuid_generators.hpp>

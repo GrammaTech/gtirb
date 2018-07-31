@@ -5,7 +5,6 @@ import "AddrRanges.proto";
 import "CFG.proto";
 import "Data.proto";
 import "ImageByteMap.proto";
-import "Relocation.proto";
 import "Section.proto";
 import "Symbol.proto";
 import "SymbolicExpression.proto";
@@ -43,8 +42,7 @@ message Module {
     ImageByteMap image_byte_map = 10;
     repeated Symbol symbols = 11;
     CFG cfg = 12;
-    repeated Relocation relocations = 13;
-    repeated Data data = 14;
-    repeated Section sections = 15;
-    map<uint64, SymbolicExpression> symbolic_operands = 16;
+    repeated Data data = 13;
+    repeated Section sections = 14;
+    map<uint64, SymbolicExpression> symbolic_operands = 15;
 }

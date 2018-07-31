@@ -33,7 +33,6 @@ set(${PROJECT_NAME}_SRC
 	IR.test.cpp
 	Module.test.cpp
 	Node.test.cpp
-        Relocation.test.cpp
         Section.test.cpp
 	Symbol.test.cpp
 	SymbolSet.test.cpp
