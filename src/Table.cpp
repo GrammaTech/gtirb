@@ -102,7 +102,7 @@ void fromProtobuf(table::ValueType& value, const proto::Value& message) {
   case proto::Value::kMap: {
     table::InnerMapType map;
     containerFromProtobuf(map, message.map().contents());
-    value = map;
+    value = std::move(map);
     break;
   }
   case proto::Value::VALUE_NOT_SET:
@@ -128,25 +128,25 @@ void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message
   case proto::InnerValue::kEaVector: {
     std::vector<EA> v;
     containerFromProtobuf(v, message.ea_vector().contents());
-    value = v;
+    value = std::move(v);
     break;
   }
   case proto::InnerValue::kIntVector: {
     std::vector<int64_t> v;
     containerFromProtobuf(v, message.int_vector().contents());
-    value = v;
+    value = std::move(v);
     break;
   }
   case proto::InnerValue::kStringVector: {
     std::vector<std::string> v;
     containerFromProtobuf(v, message.string_vector().contents());
-    value = v;
+    value = std::move(v);
     break;
   }
   case proto::InnerValue::kUuidVector: {
     std::vector<UUID> v;
     containerFromProtobuf(v, message.uuid_vector().contents());
-    value = v;
+    value = std::move(v);
     break;
   }
   case proto::InnerValue::VALUE_NOT_SET:
@@ -221,7 +221,7 @@ void fromProtobuf(Table& result, const proto::Table& message) {
   case proto::Table::kUuidVector: {
     std::vector<UUID> v;
     containerFromProtobuf(v, message.uuid_vector().contents());
-    result = v;
+    result = std::move(v);
     break;
   }
 
