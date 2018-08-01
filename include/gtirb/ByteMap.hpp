@@ -1,8 +1,11 @@
 #pragma once
 
 #include <gtirb/EA.hpp>
+#include <array>
+#include <cstdint>
 #include <functional>
 #include <gsl/gsl>
+#include <limits>
 #include <map>
 #include <vector>
 

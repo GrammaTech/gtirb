@@ -1,13 +1,15 @@
 #pragma once
 
 #include <gtirb/EA.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
+#include <vector>
 
 namespace proto {
 class Data;
 }
 namespace gtirb {
+class Module;
+
 ///
 /// \class Data
 ///

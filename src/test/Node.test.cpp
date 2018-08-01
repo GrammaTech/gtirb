@@ -1,7 +1,6 @@
 #include <gtirb/Node.hpp>
 #include <fstream>
 #include <gtest/gtest.h>
-#include <memory>
 
 TEST(Unit_Node, ctor_0) { EXPECT_NO_THROW(gtirb::Node()); }
 

@@ -1,7 +1,6 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 

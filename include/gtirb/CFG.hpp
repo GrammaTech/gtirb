@@ -1,13 +1,9 @@
 #pragma once
 
-#include <gtirb/Node.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <cstdint>
 #include <gsl/gsl>
-#include <memory>
-#include <vector>
 
 namespace proto {
 class CFG;

@@ -4,13 +4,13 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/Data.hpp>
-#include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
 #include <gsl/gsl>
+#include <map>
 
 using namespace gtirb;
 
