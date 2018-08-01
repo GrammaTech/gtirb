@@ -45,8 +45,6 @@ public:
 
   uint64_t getSize() const;
 
-  std::vector<uint8_t> getBytes(const Module& module) const;
-
   using MessageType = proto::Instruction;
   void toProtobuf(MessageType* message) const;
   void fromProtobuf(const MessageType& message);
