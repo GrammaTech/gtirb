@@ -8,6 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <gsl/gsl>
 #include <set>
+#include <type_traits>
 
 namespace gtirb {
 ///
@@ -132,56 +133,14 @@ public:
   /// minimum and maximum EA.
   ///
   /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
+  /// \param  data    The data to store. This may be any POD type.
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA ea, uint8_t x);
-
-  ///
-  /// Sets byte map at the given address.
-  ///
-  /// The given address must be within the minimum and maximum EA.
-  ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  void setData(EA ea, uint16_t x);
-
-  ///
-  /// Sets byte map at the given address.
-  ///
-  /// The given address must be within the minimum and maximum EA.
-  ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  void setData(EA ea, uint32_t x);
-
-  ///
-  /// Sets byte map at the given address.
-  ///
-  /// The given address must be within the minimum and maximum EA.
-  ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  void setData(EA ea, uint64_t x);
+  template <typename T> void setData(EA ea, const T& data) {
+    static_assert(std::is_pod<T>::value, "T must be a POD type");
+    this->byteMap.setData(ea, as_bytes(gsl::make_span(&data, 1)));
+  }
 
   ///
   /// Sets byte map at the given address.
@@ -199,46 +158,7 @@ public:
   void setData(EA ea, gsl::span<const gsl::byte> data);
 
   ///
-  /// Get a byte of data from the byte map at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  uint8_t getData8(EA x) const;
-
-  ///
-  /// Get a word of data from the byte map  at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  uint16_t getData16(EA x) const;
-
-  ///
-  /// Get a dword of data from the byte map  at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  uint32_t getData32(EA x) const;
-
-  ///
-  /// Get a qword of data from the byte map  at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  uint64_t getData64(EA x) const;
-
-  ///
   /// Get data from the byte map  at the given address.
-  ///
-  /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-  /// or 64-bits.
   ///
   /// \param  x       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
@@ -248,11 +168,34 @@ public:
   std::vector<uint8_t> getData(EA x, size_t bytes) const;
 
   ///
+  /// Get data from the byte map at the given address.
+  ///
+  /// Returns an object of type T, initialized from the byte map data.
+  /// T may be any POD type.
+  ///
+  /// \param  ea       The starting address for the data.
+  ///
+  /// \sa gtirb::ByteMap
+  ///
+  template <typename T> T getData(EA ea) {
+    static_assert(std::is_pod<T>::value, "T must be a POD type");
+
+    T result;
+    auto destSpan = as_writeable_bytes(gsl::make_span(&result, 1));
+    // Assign this to a variable so it isn't destroyed before we copy
+    // from it (because gsl::span is non-owning).
+    auto data = this->getData(ea, destSpan.size_bytes());
+    auto srcSpan = as_bytes(gsl::make_span(data));
+    assert(srcSpan.size() == destSpan.size());
+
+    std::copy(srcSpan.begin(), srcSpan.end(), destSpan.begin());
+
+    return result;
+  }
+
+  ///
   /// Get data from the byte map  at the given address until a sentinel is found or a limit is
   /// reached.
-  ///
-  /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-  /// or 64-bits.
   ///
   /// \param  x           The starting address for the data.
   /// \param  sentinel    A byte to stop the 'getData' routine for.

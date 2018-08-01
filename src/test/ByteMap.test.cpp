@@ -1,6 +1,7 @@
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/Utilities.hpp>
 #include <proto/ByteMap.pb.h>
+#include <gsl/span>
 #include <gtest/gtest.h>
 #include <memory>
 
@@ -10,8 +11,8 @@ class Unit_ByteMapF : public ::testing::Test {
 public:
   virtual void SetUp() override {
     for (size_t i = 0; i < this->InitializedSize; ++i) {
-      this->byteMap.setData(Unit_ByteMapF::Offset + gtirb::EA{i},
-                            static_cast<uint8_t>(this->InitialByte & i));
+      auto x = uint8_t(this->InitialByte & i);
+      this->byteMap.setData(Unit_ByteMapF::Offset + gtirb::EA{i}, as_bytes(gsl::make_span(&x, 1)));
     }
   }
 
@@ -40,43 +41,6 @@ TEST(Unit_ByteMap, size_0) {
 TEST_F(Unit_ByteMapF, empty) { EXPECT_FALSE(this->byteMap.empty()); }
 
 TEST_F(Unit_ByteMapF, size) { EXPECT_EQ(this->InitializedSize, this->byteMap.size()); }
-
-TEST_F(Unit_ByteMapF, legacy_byte) {
-  for (size_t i = 0; i < this->InitializedSize; ++i) {
-    const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
-
-    EXPECT_EQ(this->InitialByte & i,
-              this->byteMap.getData8(Unit_ByteMapF::Offset + gtirb::EA{static_cast<uint64_t>(i)}))
-        << "Bad byte read at : " << Unit_ByteMapF::Offset + gtirb::EA{i};
-
-    if (i < this->InitializedSize - 1) {
-      EXPECT_NO_THROW(this->byteMap.getData(Unit_ByteMapF::Offset + gtirb::EA{i}, 2));
-
-      const auto word = this->byteMap.getData16(Unit_ByteMapF::Offset + gtirb::EA{i});
-
-      EXPECT_EQ(expectedWord, word)
-          << "Bad word read at : " << Unit_ByteMapF::Offset + gtirb::EA{i};
-    }
-  }
-}
-
-TEST_F(Unit_ByteMapF, legacy_word) {
-  this->byteMap.setData(gtirb::EA(0x401000), uint16_t{0xDEAD});
-  EXPECT_EQ(0xDEAD, this->byteMap.getData16(gtirb::EA(0x401000)))
-      << "Bad word read at : " << 0x401000;
-}
-
-TEST_F(Unit_ByteMapF, legacy_dword) {
-  this->byteMap.setData(gtirb::EA(0x402000), uint32_t{0xCAFEBABE});
-  EXPECT_EQ(uint32_t{0xCAFEBABE}, this->byteMap.getData32(gtirb::EA(0x402000)))
-      << "Bad dword read at : " << 0x402000;
-}
-
-TEST_F(Unit_ByteMapF, legacy_qword) {
-  this->byteMap.setData(gtirb::EA(0x403000), uint64_t(0x8BADF00D0D15EA5E));
-  EXPECT_EQ(uint64_t(0x8BADF00D0D15EA5E), this->byteMap.getData64(gtirb::EA(0x403000)))
-      << "Bad qword read at : " << 0x403000;
-}
 
 TEST_F(Unit_ByteMapF, legacy_boundariesWithZero_0) {
   // Boundaries w/ 0's.
@@ -165,9 +129,12 @@ TEST_F(Unit_ByteMapF, legacy_sentinelSearch_2) {
 
 TEST(Unit_ByteMap, protobufRoundTrip) {
   ByteMap original;
-  original.setData(EA(1), uint8_t('a'));
-  original.setData(EA(2), uint8_t('b'));
-  original.setData(EA(5000), uint8_t('c'));
+  uint8_t a = 'a';
+  uint8_t b = 'b';
+  uint8_t c = 'c';
+  original.setData(EA(1), as_bytes(gsl::make_span(&a, 1)));
+  original.setData(EA(2), as_bytes(gsl::make_span(&b, 1)));
+  original.setData(EA(5000), as_bytes(gsl::make_span(&c, 1)));
 
   gtirb::ByteMap result;
   proto::ByteMap message;
@@ -175,7 +142,7 @@ TEST(Unit_ByteMap, protobufRoundTrip) {
   result.fromProtobuf(message);
 
   EXPECT_EQ(result.size(), original.size());
-  EXPECT_EQ(result.getData8(EA(1)), 'a');
-  EXPECT_EQ(result.getData8(EA(2)), 'b');
-  EXPECT_EQ(result.getData8(EA(5000)), 'c');
+  EXPECT_EQ(result.getData(EA(1), 1)[0], 'a');
+  EXPECT_EQ(result.getData(EA(2), 1)[0], 'b');
+  EXPECT_EQ(result.getData(EA(5000), 1)[0], 'c');
 }
