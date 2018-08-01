@@ -1,5 +1,4 @@
 #include <gtirb/ByteMap.hpp>
-#include <gtirb/Utilities.hpp>
 #include <proto/ByteMap.pb.h>
 #include <gsl/span>
 #include <gtest/gtest.h>
