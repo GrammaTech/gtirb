@@ -1,7 +1,5 @@
 #include "Data.hpp"
 #include "Serialization.hpp"
-#include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Module.hpp>
 #include <proto/Data.pb.h>
 
 using namespace gtirb;
@@ -9,10 +7,6 @@ using namespace gtirb;
 EA Data::getAddress() const { return this->address; }
 
 uint64_t Data::getSize() const { return this->size; }
-
-std::vector<uint8_t> Data::getBytes(const Module& module) const {
-  return module.getImageByteMap().getData(this->getAddress(), this->getSize());
-}
 
 void Data::toProtobuf(MessageType* message) const {
   nodeUUIDToBytes(this, *message->mutable_uuid());

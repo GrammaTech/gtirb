@@ -8,8 +8,6 @@ namespace proto {
 class Data;
 }
 namespace gtirb {
-class Module;
-
 ///
 /// \class Data
 ///
@@ -51,8 +49,6 @@ public:
   EA getAddress() const;
 
   uint64_t getSize() const;
-
-  std::vector<uint8_t> getBytes(const Module& module) const;
 
   using MessageType = proto::Data;
   void toProtobuf(MessageType* message) const;

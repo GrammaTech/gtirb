@@ -277,4 +277,15 @@ private:
   int64_t rebaseDelta{0};
   bool isRelocated{false};
 };
+
+///
+/// Retrieve the bytes associated with an object.
+///
+/// Object can be any type which specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. Data).
+///
+template <typename T> std::vector<uint8_t> getBytes(const ImageByteMap& byteMap, const T& object) {
+  return byteMap.getData(object.getAddress(), object.getSize());
+}
+
 } // namespace gtirb
