@@ -1,8 +1,10 @@
 #pragma once
 
+#include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Node.hpp>
+#include <cstdint>
 #include <vector>
 
 namespace proto {

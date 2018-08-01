@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gtirb/Node.hpp>
-#include <cstdint>
+#include <cstddef>
 #include <map>
 #include <utility>
 

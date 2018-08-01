@@ -1,8 +1,6 @@
-#include <gtirb/Block.hpp>
 #include <gtirb/Instruction.hpp>
 #include <proto/Instruction.pb.h>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 

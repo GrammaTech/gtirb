@@ -1,9 +1,5 @@
-#include <gtirb/CFG.hpp>
-#include <gtirb/EA.hpp>
-#include <gtirb/Module.hpp>
 #include <gtirb/Utilities.hpp>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 
