@@ -38,7 +38,6 @@ set(${PROJECT_NAME}_H
     ../include/gtirb/SymbolicExpression.hpp
     ../include/gtirb/SymbolicExpressionSet.hpp
     ../include/gtirb/Table.hpp
-    ../include/gtirb/Utilities.hpp
         ../src/Serialization.hpp
 )
 
@@ -59,7 +58,6 @@ set(${PROJECT_NAME}_SRC
 	Symbol.cpp
         SymbolSet.cpp
         SymbolicExpression.cpp
-	Utilities.cpp
         Table.cpp
 )
 

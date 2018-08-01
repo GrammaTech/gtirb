@@ -39,7 +39,6 @@ set(${PROJECT_NAME}_SRC
         SymbolicExpression.test.cpp
         Table.test.cpp
 	TypedNodeTest.cpp
-	Utilities.test.cpp
 )
 
 IF(UNIX AND NOT WIN32)

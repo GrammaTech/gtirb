@@ -19,4 +19,3 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/SymbolicExpressionSet.hpp>
 #include <gtirb/Table.hpp>
-#include <gtirb/Utilities.hpp>

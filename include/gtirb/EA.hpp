@@ -138,6 +138,30 @@ private:
   ///
   uint64_t ea{BadAddress};
 };
+
+///
+/// Exclusive limit of object's address range.
+///
+/// Object can be any type which specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. Data).
+///
+template <typename T> EA addressLimit(const T& object) {
+  return object.getAddress() + object.getSize();
+}
+
+///
+/// Does object contain a given EA?
+///
+/// Object can be any type which specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. Data).
+///
+template <typename T> bool containsEA(const T& object, EA ea) {
+  if (object.getAddress() == EA()) {
+    return false;
+  } else {
+    return object.getAddress() <= ea && addressLimit(object) > ea;
+  }
+}
 } // namespace gtirb
 
 ///

@@ -1,6 +1,5 @@
 #include "ByteMap.hpp"
 #include "Serialization.hpp"
-#include <gtirb/Utilities.hpp>
 #include <proto/ByteMap.pb.h>
 #include <algorithm>
 #include <cstring>
