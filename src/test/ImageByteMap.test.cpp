@@ -108,14 +108,15 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
   for (size_t i = 0; i < Unit_ImageByteMapF::InitializedSize; ++i) {
     const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
 
-    EXPECT_EQ(this->InitialByte & i, this->byteMap.getData8(Unit_ImageByteMapF::Offset +
-                                                            gtirb::EA{static_cast<uint64_t>(i)}))
+    EXPECT_EQ(this->InitialByte & i,
+              this->byteMap.getData<uint8_t>(Unit_ImageByteMapF::Offset +
+                                             gtirb::EA{static_cast<uint64_t>(i)}))
         << "Bad byte read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
 
     if (i < Unit_ImageByteMapF::InitializedSize - 1) {
       EXPECT_NO_THROW(this->byteMap.getData(Unit_ImageByteMapF::Offset + gtirb::EA{i}, 2));
 
-      const auto word = this->byteMap.getData16(Unit_ImageByteMapF::Offset + gtirb::EA{i});
+      const auto word = this->byteMap.getData<uint16_t>(Unit_ImageByteMapF::Offset + gtirb::EA{i});
 
       EXPECT_EQ(expectedWord, word)
           << "Bad word read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{i};
@@ -130,11 +131,11 @@ TEST_F(Unit_ImageByteMapF, legacy_word) {
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  ASSERT_NO_THROW(this->byteMap.getData16(address))
+  ASSERT_NO_THROW(this->byteMap.getData<uint16_t>(address))
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  const auto data = this->byteMap.getData16(address);
+  const auto data = this->byteMap.getData<uint16_t>(address);
   EXPECT_EQ(0xDEAD, data) << "Bad word read at : " << address;
 }
 
@@ -145,11 +146,11 @@ TEST_F(Unit_ImageByteMapF, legacy_dword) {
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  ASSERT_NO_THROW(this->byteMap.getData32(address))
+  ASSERT_NO_THROW(this->byteMap.getData<uint32_t>(address))
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  const auto data = this->byteMap.getData32(address);
+  const auto data = this->byteMap.getData<uint32_t>(address);
   EXPECT_EQ(0xCAFEBABE, data) << "Bad dword read at : " << address;
 }
 
@@ -160,11 +161,11 @@ TEST_F(Unit_ImageByteMapF, legacy_qword) {
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  ASSERT_NO_THROW(this->byteMap.getData64(address))
+  ASSERT_NO_THROW(this->byteMap.getData<uint64_t>(address))
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  const auto data = this->byteMap.getData64(address);
+  const auto data = this->byteMap.getData<uint64_t>(address);
   EXPECT_EQ(0x8BADF00D0D15EA5E, data) << "Bad qword read at : " << address;
 }
 
@@ -223,6 +224,47 @@ TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_2) {
   }
 }
 
+TEST_F(Unit_ImageByteMapF, arrayData) {
+  uint32_t base = std::numeric_limits<uint16_t>::max();
+  std::array<uint32_t, 5> data{{base, base + 1, base + 2, base + 3, base + 4}};
+
+  const auto address = gtirb::EA(0x00001000);
+
+  ASSERT_NO_THROW(this->byteMap.setData(address, data))
+      << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+      << this->byteMap.getEAMinMax().second << "}.";
+
+  ASSERT_NO_THROW(this->byteMap.getData<decltype(data)>(address))
+      << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+      << this->byteMap.getEAMinMax().second << "}.";
+
+  const auto result = this->byteMap.getData<decltype(data)>(address);
+  EXPECT_EQ(data, result) << "Bad array read at : " << address;
+}
+
+TEST_F(Unit_ImageByteMapF, structData) {
+  struct S {
+    uint32_t i;
+    float f;
+  };
+
+  S data = {std::numeric_limits<uint16_t>::max() + 1, 0.1234};
+
+  const auto address = gtirb::EA(0x00001000);
+
+  ASSERT_NO_THROW(this->byteMap.setData(address, data))
+      << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+      << this->byteMap.getEAMinMax().second << "}.";
+
+  ASSERT_NO_THROW(this->byteMap.getData<decltype(data)>(address))
+      << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+      << this->byteMap.getEAMinMax().second << "}.";
+
+  const auto result = this->byteMap.getData<decltype(data)>(address);
+  EXPECT_EQ(data.i, result.i) << "Bad struct read at : " << address;
+  EXPECT_EQ(data.f, result.f) << "Bad struct read at : " << address;
+}
+
 TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   auto& original = this->byteMap;
   const auto address = EA(0x00001000);
@@ -241,7 +283,7 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   result.fromProtobuf(message);
 
   EXPECT_EQ(result.getDataSize(), original.getDataSize());
-  EXPECT_EQ(result.getData16(address), 0xDEAD);
+  EXPECT_EQ(result.getData<uint16_t>(address), 0xDEAD);
   EXPECT_EQ(result.getFileName(), "test");
   EXPECT_EQ(result.getBaseAddress(), EA(2));
   EXPECT_EQ(result.getEntryPointAddress(), EA(3));

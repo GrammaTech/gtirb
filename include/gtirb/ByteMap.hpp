@@ -47,38 +47,6 @@ public:
   size_t size() const;
 
   ///
-  /// Sets data at the given address.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  void setData(EA ea, uint8_t x);
-
-  ///
-  /// Sets data at the given address.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  void setData(EA ea, uint16_t x);
-
-  ///
-  /// Sets data at the given address.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  void setData(EA ea, uint32_t x);
-
-  ///
-  /// Sets data at the given address.
-  ///
-  /// \param  ea      The address to store the data.
-  /// \param  x       The data to store (honoring Endianness).
-  ///
-  void setData(EA ea, uint64_t x);
-
-  ///
   /// Sets byte map at the given address.
   ///
   /// \param  ea      The address to store the data.
@@ -87,38 +55,7 @@ public:
   void setData(EA ea, gsl::span<const gsl::byte> data);
 
   ///
-  /// Get a byte of data at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  uint8_t getData8(EA x) const;
-
-  ///
-  /// Get a word of data at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  uint16_t getData16(EA x) const;
-
-  ///
-  /// Get a dword of data at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  uint32_t getData32(EA x) const;
-
-  ///
-  /// Get a qword of data at the given address.
-  ///
-  /// \param  x       The starting address for the data.
-  ///
-  uint64_t getData64(EA x) const;
-
-  ///
   /// Get data at the given address.
-  ///
-  /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-  /// or 64-bits.
   ///
   /// \param  ea       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
@@ -127,9 +64,6 @@ public:
 
   ///
   /// Get data at the given address until a sentinel is found or a limit is reached.
-  ///
-  /// Use the gtirb::utilities functions (i.e. ByteArray8To16) to translate this into 16, 32,
-  /// or 64-bits.
   ///
   /// \param  ea       	The starting address for the data.
   /// \param  sentinel   	A byte to stop the 'getData' routine for.

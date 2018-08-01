@@ -29,61 +29,6 @@ bool ByteMap::empty() const { return this->data.empty(); }
 
 size_t ByteMap::size() const { return this->data.size() * PageSize; }
 
-void ByteMap::setData(EA ea, uint8_t x) {
-  const auto pageAddress = addressToAlignedAddress(ea);
-  const auto pageOffset = addressToOffset(ea);
-
-  auto& page = this->getOrCreatePage(pageAddress);
-  page[pageOffset] = x;
-}
-
-// The implementation of this function uses decltype so that its contents can be easily copy/pasted
-// to other sizes of 'x'.  Not templated because there's only three options here.
-void ByteMap::setData(EA ea, uint16_t x) {
-  const auto bytesThisPage = bytesWithinFirstPage(ea, sizeof(decltype(x)));
-
-  if (bytesThisPage < sizeof(decltype(x))) {
-    this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
-    return;
-  }
-
-  const auto pageAddress = addressToAlignedAddress(ea);
-  const auto pageOffset = addressToOffset(ea);
-
-  auto& page = this->getOrCreatePage(pageAddress);
-  *(decltype(x)*)&(page[pageOffset]) = x;
-}
-
-void ByteMap::setData(EA ea, uint32_t x) {
-  const auto bytesThisPage = bytesWithinFirstPage(ea, sizeof(decltype(x)));
-
-  if (bytesThisPage < sizeof(decltype(x))) {
-    this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
-    return;
-  }
-
-  const auto pageAddress = addressToAlignedAddress(ea);
-  const auto pageOffset = addressToOffset(ea);
-
-  auto& page = this->getOrCreatePage(pageAddress);
-  *(decltype(x)*)&(page[pageOffset]) = x;
-}
-
-void ByteMap::setData(EA ea, uint64_t x) {
-  const auto bytesThisPage = bytesWithinFirstPage(ea, sizeof(decltype(x)));
-
-  if (bytesThisPage < sizeof(decltype(x))) {
-    this->setData(ea, as_bytes(gsl::make_span(&x, 1)));
-    return;
-  }
-
-  const auto pageAddress = addressToAlignedAddress(ea);
-  const auto pageOffset = addressToOffset(ea);
-
-  auto& page = this->getOrCreatePage(pageAddress);
-  *(decltype(x)*)&(page[pageOffset]) = x;
-}
-
 void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
   int64_t bytesRemaining = bytes.size_bytes();
   auto currentBuffer = bytes.data();
@@ -105,29 +50,6 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
 
   // If we went to negative bytes remaining, something went wrong.
   Expects(bytesRemaining >= 0);
-}
-
-uint8_t ByteMap::getData8(EA x) const { return this->getData(x, 1)[0]; }
-
-uint16_t ByteMap::getData16(EA x) const {
-  const auto byteArray = this->getData(x, sizeof(uint16_t));
-  const auto wordArray = ByteArray8To16(byteArray, false);
-  const auto word = wordArray[0];
-  return word;
-}
-
-uint32_t ByteMap::getData32(EA x) const {
-  const auto byteArray = this->getData(x, sizeof(uint32_t));
-  const auto wordArray = ByteArray8To32(byteArray, false);
-  const auto word = wordArray[0];
-  return word;
-}
-
-uint64_t ByteMap::getData64(EA x) const {
-  const auto byteArray = this->getData(x, sizeof(uint64_t));
-  const auto wordArray = ByteArray8To64(byteArray, false);
-  const auto word = wordArray[0];
-  return word;
 }
 
 std::vector<uint8_t> ByteMap::getData(EA x, size_t bytes) const {

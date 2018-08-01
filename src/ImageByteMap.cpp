@@ -40,38 +40,6 @@ bool ImageByteMap::getDataEmpty() const { return this->byteMap.empty(); }
 
 size_t ImageByteMap::getDataSize() const { return this->byteMap.size(); }
 
-void ImageByteMap::setData(EA ea, uint8_t x) {
-  if (ea >= this->eaMinMax.first && (ea + EA{sizeof(x)} - EA{1}) <= this->eaMinMax.second) {
-    this->byteMap.setData(ea, x);
-  } else {
-    throw std::out_of_range("Attempt to set data at an EA out of range of the min and max EA.");
-  }
-}
-
-void ImageByteMap::setData(EA ea, uint16_t x) {
-  if (ea >= this->eaMinMax.first && (ea + EA{sizeof(x)} - EA{1}) <= this->eaMinMax.second) {
-    this->byteMap.setData(ea, x);
-  } else {
-    throw std::out_of_range("Attempt to set data at an EA out of range of the min and max EA.");
-  }
-}
-
-void ImageByteMap::setData(EA ea, uint32_t x) {
-  if (ea >= this->eaMinMax.first && (ea + EA{sizeof(x)} - EA{1}) <= this->eaMinMax.second) {
-    this->byteMap.setData(ea, x);
-  } else {
-    throw std::out_of_range("Attempt to set data at an EA out of range of the min and max EA.");
-  }
-}
-
-void ImageByteMap::setData(EA ea, uint64_t x) {
-  if (ea >= this->eaMinMax.first && (ea + EA{sizeof(x)} - EA{1}) <= this->eaMinMax.second) {
-    this->byteMap.setData(ea, x);
-  } else {
-    throw std::out_of_range("Attempt to set data at an EA out of range of the min and max EA.");
-  }
-}
-
 void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   if (ea >= this->eaMinMax.first &&
       (ea + EA{(uint64_t)data.size_bytes()} - EA{1}) <= this->eaMinMax.second) {
@@ -79,38 +47,6 @@ void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   } else {
     throw std::out_of_range("Attempt to set data at an EA out of range of the min and max EA.");
   }
-}
-
-uint8_t ImageByteMap::getData8(EA x) const {
-  if (x >= this->eaMinMax.first && (x + EA{sizeof(uint8_t)} - EA{1}) <= this->eaMinMax.second) {
-    return this->byteMap.getData8(x);
-  }
-
-  throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-}
-
-uint16_t ImageByteMap::getData16(EA x) const {
-  if (x >= this->eaMinMax.first && (x + EA{sizeof(uint16_t)} - EA{1}) <= this->eaMinMax.second) {
-    return this->byteMap.getData16(x);
-  }
-
-  throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-}
-
-uint32_t ImageByteMap::getData32(EA x) const {
-  if (x >= this->eaMinMax.first && (x + EA{sizeof(uint32_t)} - EA{1}) <= this->eaMinMax.second) {
-    return this->byteMap.getData32(x);
-  }
-
-  throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-}
-
-uint64_t ImageByteMap::getData64(EA x) const {
-  if (x >= this->eaMinMax.first && (x + EA{sizeof(uint64_t)} - EA{1}) <= this->eaMinMax.second) {
-    return this->byteMap.getData64(x);
-  }
-
-  throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 std::vector<uint8_t> ImageByteMap::getData(EA x, size_t bytes) const {
