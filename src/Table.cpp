@@ -18,6 +18,10 @@ public:
 
   void operator()(const UUID& val) const { uuidToBytes(val, *message->mutable_uuid()); }
 
+  void operator()(const InstructionRef& val) const {
+    val.toProtobuf(message->mutable_instruction());
+  }
+
   void operator()(const table::InnerMapType& val) const {
     containerToProtobuf(val, message->mutable_map()->mutable_contents());
   }
@@ -36,6 +40,10 @@ public:
 
   void operator()(const std::vector<UUID>& val) const {
     containerToProtobuf(val, message->mutable_uuid_vector()->mutable_contents());
+  }
+
+  void operator()(const std::vector<InstructionRef>& val) const {
+    containerToProtobuf(val, message->mutable_instruction_vector()->mutable_contents());
   }
 
   void operator()(const std::map<EA, table::ValueType>& val) const {
@@ -99,6 +107,12 @@ void fromProtobuf(table::ValueType& value, const proto::Value& message) {
   case proto::Value::kUuid:
     value = uuidFromBytes(message.uuid());
     break;
+  case proto::Value::kInstruction: {
+    InstructionRef ref;
+    fromProtobuf(ref, message.instruction());
+    value = std::move(ref);
+    break;
+  }
   case proto::Value::kMap: {
     table::InnerMapType map;
     containerFromProtobuf(map, message.map().contents());
@@ -125,6 +139,12 @@ void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message
   case proto::InnerValue::kUuid:
     value = uuidFromBytes(message.uuid());
     break;
+  case proto::InnerValue::kInstruction: {
+    InstructionRef ref;
+    fromProtobuf(ref, message.instruction());
+    value = std::move(ref);
+    break;
+  }
   case proto::InnerValue::kEaVector: {
     std::vector<EA> v;
     containerFromProtobuf(v, message.ea_vector().contents());
@@ -149,6 +169,13 @@ void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message
     value = std::move(v);
     break;
   }
+  case proto::Table::kInstructionVector: {
+    std::vector<InstructionRef> v;
+    containerFromProtobuf(v, message.instruction_vector().contents());
+    value = std::move(v);
+    break;
+  }
+
   case proto::InnerValue::VALUE_NOT_SET:
     assert(false);
     break;
@@ -221,6 +248,12 @@ void fromProtobuf(Table& result, const proto::Table& message) {
   case proto::Table::kUuidVector: {
     std::vector<UUID> v;
     containerFromProtobuf(v, message.uuid_vector().contents());
+    result = std::move(v);
+    break;
+  }
+  case proto::Table::kInstructionVector: {
+    std::vector<InstructionRef> v;
+    containerFromProtobuf(v, message.instruction_vector().contents());
     result = std::move(v);
     break;
   }

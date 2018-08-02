@@ -3,12 +3,14 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/NodeRef.hpp>
 #include <cstdint>
 #include <vector>
 
 namespace proto {
 class Block;
-}
+class InstructionRef;
+} // namespace proto
 
 namespace gtirb {
 ///
@@ -56,4 +58,23 @@ private:
   EA address{};
   uint64_t size{0};
 };
+
+///
+/// \class InstructionRef
+///
+/// Describes the location of an instruction.
+///
+struct GTIRB_EXPORT_API InstructionRef {
+  NodeRef<Block> block;
+  uint64_t offset;
+
+  using MessageType = proto::InstructionRef;
+  void toProtobuf(MessageType* message) const;
+  void fromProtobuf(const MessageType& message);
+};
+
+// TODO:
+// serialization
+// add to Tables
+
 } // namespace gtirb
