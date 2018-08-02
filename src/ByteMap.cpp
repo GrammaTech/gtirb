@@ -6,146 +6,102 @@
 
 using namespace gtirb;
 
-constexpr uint64_t PageOffsetMask{static_cast<uint64_t>(PageSize) - 1};
-constexpr uint64_t PageIndexMask{~PageOffsetMask};
-
-namespace {
-// Align an address to a page boundary.
-EA addressToAlignedAddress(const EA x) { return EA{x.get() & PageIndexMask}; }
-
-// Give the offset within a page of an address
-size_t addressToOffset(const EA x) { return static_cast<size_t>(x.get()) & PageOffsetMask; }
-
-// Number of bytes residing within the first page.
-size_t bytesWithinFirstPage(const EA x, const size_t bytes) {
-  const size_t bytesToPageBoundary = PageSize - (static_cast<size_t>(x.get()) & PageOffsetMask);
-
-  return bytes < bytesToPageBoundary ? bytes : bytesToPageBoundary;
-}
-} // namespace
-
-bool ByteMap::empty() const { return this->data.empty(); }
-
-size_t ByteMap::size() const { return this->data.size() * PageSize; }
-
 void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
-  int64_t bytesRemaining = bytes.size_bytes();
-  auto currentBuffer = bytes.data();
-  auto currentAddress = ea;
+  // Look for a region to hold this data. If necessary, extend or merge
+  // existing regions to keep allocations contiguous.
+  EA limit = ea + uint64_t(bytes.size_bytes());
+  for (size_t i = 0; regions[i].address != BadAddress; i++) {
+    auto& current = regions[i];
 
-  while (bytesRemaining > 0) {
-    const auto bytesThisPage = bytesWithinFirstPage(currentAddress, bytesRemaining);
-    const auto pageAddress = addressToAlignedAddress(currentAddress);
-    const auto pageOffset = addressToOffset(currentAddress);
+    // Overwrite data in existing region
+    if (containsEA(current, ea) && limit <= addressLimit(current)) {
+      auto offset = ea - current.address;
+      std::transform(bytes.begin(), bytes.end(), current.data.begin() + offset,
+                     [](auto x) { return uint8_t(x); });
+      return;
+    }
 
-    auto& page = this->getOrCreatePage(pageAddress);
+    // Extend region
+    if (ea == addressLimit(current)) {
+      auto& next = regions[i + 1];
 
-    std::memcpy(&(page[pageOffset]), currentBuffer, bytesThisPage);
+      if (limit > next.address) {
+        throw std::invalid_argument("Request to setData which overlaps an existing region.");
+      }
 
-    currentBuffer += bytesThisPage;
-    currentAddress += EA{bytesThisPage};
-    bytesRemaining -= static_cast<int64_t>(bytesThisPage);
+      current.data.reserve(current.data.size() + bytes.size());
+      std::transform(bytes.begin(), bytes.end(), std::back_inserter(current.data),
+                     [](auto x) { return uint8_t(x); });
+      // Merge with subsequent region
+      if (limit == next.address) {
+        const auto& data = next.data;
+        current.data.reserve(current.data.size() + data.size());
+        std::copy(data.begin(), data.end(), std::back_inserter(current.data));
+        this->regions.erase(this->regions.begin() + i + 1);
+      }
+      return;
+    }
+
+    // Extend region backward
+    if (limit == current.address) {
+      // Note: this is probably O(N^2), moving existing data on each inserted
+      // element.
+      std::transform(bytes.begin(), bytes.end(), std::inserter(current.data, current.data.begin()),
+                     [](auto x) { return uint8_t(x); });
+      current.address = ea;
+      return;
+    }
+
+    if (containsEA(current, ea) || containsEA(current, limit - uint64_t(1))) {
+      throw std::invalid_argument("setData overlaps an existing region");
+    }
   }
 
-  // If we went to negative bytes remaining, something went wrong.
-  Expects(bytesRemaining >= 0);
+  // Not contiguous with any existing data. Create a new region.
+  Region region = {ea, std::vector<uint8_t>()};
+  region.data.reserve(bytes.size());
+  std::transform(bytes.begin(), bytes.end(), std::back_inserter(region.data),
+                 [](auto x) { return uint8_t(x); });
+  this->regions.insert(this->regions.end() - 1, std::move(region));
 }
 
-std::vector<uint8_t> ByteMap::getData(EA x, size_t bytes) const {
+std::vector<uint8_t> ByteMap::getData(EA ea, size_t bytes) const {
   std::vector<uint8_t> buffer(bytes, uint8_t{0});
 
-  size_t currentBufferPos{0};
-  int64_t bytesRemaining = static_cast<int64_t>(bytes);
-  auto currentAddress = x;
+  auto region = std::find_if(this->regions.begin(), this->regions.end(),
+                             [ea](const auto& r) { return containsEA(r, ea); });
 
-  while (bytesRemaining > 0) {
-    const auto bytesThisPage = bytesWithinFirstPage(currentAddress, bytesRemaining);
-    const auto pageAddress = addressToAlignedAddress(currentAddress);
-
-    const auto page = this->getPage(pageAddress);
-
-    if (page != nullptr) {
-      const auto pageOffset = addressToOffset(currentAddress);
-
-      auto pageBegin = std::begin(*page);
-      std::advance(pageBegin, pageOffset);
-
-      auto bufferBegin = std::begin(buffer);
-      std::advance(bufferBegin, currentBufferPos);
-
-      std::copy_n(pageBegin, bytesThisPage, bufferBegin);
-    }
-
-    currentBufferPos += bytesThisPage;
-    currentAddress += static_cast<EA>(bytesThisPage);
-    bytesRemaining -= static_cast<int64_t>(bytesThisPage);
+  if (region == this->regions.end() || ea < region->address ||
+      (ea + bytes > addressLimit(*region))) {
+    throw std::out_of_range("getData on unmapped address");
   }
 
-  // If we went to negative bytes remaining, something went wrong.
-  Expects(bytesRemaining >= 0);
+  auto begin = region->data.begin() + (ea - region->address);
+  std::copy(begin, begin + bytes, buffer.begin());
 
   return buffer;
 }
 
-std::vector<uint8_t> ByteMap::getDataUntil(EA x, uint8_t sentinel, size_t maxBytes) const {
-  std::vector<uint8_t> buffer;
-  auto bytesRemaining = static_cast<int64_t>(maxBytes);
-  auto currentAddress = x;
-
-  while (bytesRemaining > 0) {
-    const auto bytesThisPage = bytesWithinFirstPage(currentAddress, bytesRemaining);
-    const auto pageAddress = addressToAlignedAddress(currentAddress);
-    const auto page = this->getPage(pageAddress);
-
-    if (page != nullptr) {
-      const auto pageOffset = addressToOffset(currentAddress);
-
-      for (size_t i = 0; i < bytesThisPage; ++i) {
-        const auto byte = (*page)[pageOffset + i];
-        buffer.push_back(byte);
-
-        if (byte == sentinel) {
-          return buffer;
-        }
-      }
-
-      currentAddress += static_cast<EA>(bytesThisPage);
-      bytesRemaining -= static_cast<int64_t>(bytesThisPage);
-    } else {
-      if (sentinel == '\0') {
-        buffer.push_back('\0');
-      }
-
-      break;
-    }
-  }
-
-  // If we went to negative bytes remaining, something went wrong.
-  Expects(bytesRemaining >= 0);
-
-  return buffer;
+namespace gtirb {
+proto::Region toProtobuf(const ByteMap::Region& region) {
+  proto::Region message;
+  message.set_address(region.address);
+  message.set_data(std::string(region.data.begin(), region.data.end()));
+  return message;
 }
 
-const ByteMap::Page* const ByteMap::getPage(const EA x) const {
-  Expects(addressToOffset(x) == 0);
-
-  const auto it = this->data.find(x);
-  if (it != std::end(this->data)) {
-    return &(it->second);
-  }
-
-  return nullptr;
+void fromProtobuf(ByteMap::Region& val, const proto::Region& message) {
+  val.address = EA(message.address());
+  const auto& data = message.data();
+  val.data.reserve(data.size());
+  std::copy(data.begin(), data.end(), std::back_inserter(val.data));
 }
-
-ByteMap::Page& ByteMap::getOrCreatePage(const EA x) {
-  Expects(addressToOffset(x) == 0);
-  return this->data[x];
-}
+} // namespace gtirb
 
 void ByteMap::toProtobuf(MessageType* message) const {
-  containerToProtobuf(this->data, message->mutable_data());
+  containerToProtobuf(this->regions, message->mutable_regions());
 }
 
 void ByteMap::fromProtobuf(const MessageType& message) {
-  containerFromProtobuf(this->data, message.data());
+  containerFromProtobuf(this->regions, message.regions());
 }

@@ -28,8 +28,8 @@ public:
   gtirb::ImageByteMap byteMap{};
 };
 
-gtirb::EA Unit_ImageByteMapF::Offset{static_cast<uint64_t>(PageSize)};
-size_t Unit_ImageByteMapF::InitializedSize{PageSize * 2};
+gtirb::EA Unit_ImageByteMapF::Offset{static_cast<uint64_t>(4096)};
+size_t Unit_ImageByteMapF::InitializedSize{4096 * 2};
 
 TEST(Unit_ImageByteMap, ctor_0) { EXPECT_NO_THROW(gtirb::ImageByteMap()); }
 
@@ -98,12 +98,6 @@ TEST(Unit_ImageByteMap, setIsRelocated) {
   EXPECT_EQ(val, node->getIsRelocated());
 }
 
-TEST_F(Unit_ImageByteMapF, empty) { EXPECT_FALSE(this->byteMap.getDataEmpty()); }
-
-TEST_F(Unit_ImageByteMapF, size) {
-  EXPECT_EQ(Unit_ImageByteMapF::InitializedSize, this->byteMap.getDataSize());
-}
-
 TEST_F(Unit_ImageByteMapF, legacy_byte) {
   for (size_t i = 0; i < Unit_ImageByteMapF::InitializedSize; ++i) {
     const auto expectedWord = (((InitialByte & i) | ((InitialByte & (i + 1)) << 8)));
@@ -169,61 +163,6 @@ TEST_F(Unit_ImageByteMapF, legacy_qword) {
   EXPECT_EQ(0x8BADF00D0D15EA5E, data) << "Bad qword read at : " << address;
 }
 
-TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_0) {
-  // a. search for 0 -- should be at start of next page
-  const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
-  const auto buf = this->byteMap.getDataUntil(ea, '\0', 32);
-
-  const auto bytesRead = buf.size();
-
-  ASSERT_EQ(17, bytesRead);
-
-  for (size_t i = 0; i < bytesRead; ++i) {
-    if (i >= 16) {
-      EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-    } else {
-      EXPECT_EQ(this->InitialByte & (i + InitializedSize - gtirb::EA{16}), buf[i])
-          << "Bad chunk read at : " << ea << " plus : " << i;
-    }
-  }
-}
-
-TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_1) {
-  // b. search for 2 -- not found, should reach limit (32)
-  const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{32};
-  const auto buf = this->byteMap.getDataUntil(ea, '\x02', 32);
-  const auto bytesRead = buf.size();
-
-  ASSERT_EQ(32, bytesRead);
-
-  for (size_t i = 0; i < bytesRead; ++i) {
-    if (i >= 32) {
-      EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-    } else {
-      EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{32}), buf[i])
-          << "Bad chunk read at : " << ea << " plus : " << i;
-    }
-  }
-}
-
-TEST_F(Unit_ImageByteMapF, legacy_sentinelSearch_2) {
-  // c. search for 254 -- like a, but two fewer
-  const auto ea = Unit_ImageByteMapF::Offset + gtirb::EA{InitializedSize} - gtirb::EA{16};
-  const auto buf = this->byteMap.getDataUntil(ea, static_cast<uint8_t>('\xfe'), 16);
-  const auto bytesRead = buf.size();
-
-  ASSERT_EQ(15, bytesRead);
-
-  for (size_t i = 0; i < bytesRead; ++i) {
-    if (i >= 16) {
-      EXPECT_EQ(0, buf[i]) << "Bad chunk read at : " << ea << " plus : " << i;
-    } else {
-      EXPECT_EQ(this->InitialByte & (i + gtirb::EA{InitializedSize} - gtirb::EA{16}), buf[i])
-          << "Bad chunk read at : " << ea << " plus : " << i;
-    }
-  }
-}
-
 TEST_F(Unit_ImageByteMapF, arrayData) {
   uint32_t base = std::numeric_limits<uint16_t>::max();
   std::array<uint32_t, 5> data{{base, base + 1, base + 2, base + 3, base + 4}};
@@ -240,6 +179,22 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
 
   const auto result = this->byteMap.getData<decltype(data)>(address);
   EXPECT_EQ(data, result) << "Bad array read at : " << address;
+}
+
+TEST_F(Unit_ImageByteMapF, constantData) {
+  const auto address = gtirb::EA(0x00001000);
+
+  ASSERT_NO_THROW(this->byteMap.setData(address, 32, 1))
+      << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+      << this->byteMap.getEAMinMax().second << "}.";
+
+  std::vector<uint8_t> expected(32, 1);
+
+  ASSERT_NO_THROW(this->byteMap.getData(address, expected.size()))
+      << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
+      << this->byteMap.getEAMinMax().second << "}.";
+
+  EXPECT_EQ(this->byteMap.getData(address, expected.size()), expected);
 }
 
 TEST_F(Unit_ImageByteMapF, structData) {
@@ -282,7 +237,6 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   original.setUUID(); // Avoid UUID conflict
   result.fromProtobuf(message);
 
-  EXPECT_EQ(result.getDataSize(), original.getDataSize());
   EXPECT_EQ(result.getData<uint16_t>(address), 0xDEAD);
   EXPECT_EQ(result.getFileName(), "test");
   EXPECT_EQ(result.getBaseAddress(), EA(2));

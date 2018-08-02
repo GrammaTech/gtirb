@@ -109,22 +109,6 @@ public:
   bool getIsRelocated() const;
 
   ///
-  /// Tests the byte map for empty.
-  ///
-  /// \return     True if the byte map is empty.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  bool getDataEmpty() const;
-
-  ///
-  /// The total number of bytes in the image byte map.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  size_t getDataSize() const;
-
-  ///
   /// Sets byte map at the given address.
   ///
   /// The given address must be within the minimum and maximum EA.
@@ -158,7 +142,22 @@ public:
   void setData(EA ea, gsl::span<const gsl::byte> data);
 
   ///
-  /// Get data from the byte map  at the given address.
+  /// Sets byte map in the given range to a constant value.
+  ///
+  /// The given address must be within the minimum and maximum EA.
+  ///
+  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
+  /// minimum and maximum EA.
+  ///
+  /// \param  ea      The address to store the data.
+  /// \param  data    A pointer to the data to store (honoring Endianness).
+  ///
+  /// \sa gtirb::ByteMap
+  ///
+  void setData(EA ea, size_t bytes, uint8_t value);
+
+  ///
+  /// Get data from the byte map at the given address.
   ///
   /// \param  x       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
@@ -192,19 +191,6 @@ public:
 
     return result;
   }
-
-  ///
-  /// Get data from the byte map  at the given address until a sentinel is found or a limit is
-  /// reached.
-  ///
-  /// \param  x           The starting address for the data.
-  /// \param  sentinel    A byte to stop the 'getData' routine for.
-  /// \param  bytes         The maximum number of bytes to read.
-  ///
-  /// \sa gtirb::ByteMap
-  ///
-  std::vector<uint8_t> getDataUntil(EA x, uint8_t sentinel,
-                                    size_t bytes = std::numeric_limits<size_t>::max()) const;
 
   using MessageType = proto::ImageByteMap;
   void toProtobuf(MessageType* message) const;
