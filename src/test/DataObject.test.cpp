@@ -1,14 +1,14 @@
-#include <gtirb/Data.hpp>
-#include <proto/Data.pb.h>
+#include <gtirb/DataObject.hpp>
+#include <proto/DataObject.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
 
-TEST(Unit_Data, protobufRoundTrip) {
-  Data original(EA(1), 1234);
+TEST(Unit_DataObject, protobufRoundTrip) {
+  DataObject original(EA(1), 1234);
 
-  gtirb::Data result;
-  proto::Data message;
+  gtirb::DataObject result;
+  proto::DataObject message;
   original.toProtobuf(&message);
   original.setUUID(); // Avoid UUID conflict
   result.fromProtobuf(message);

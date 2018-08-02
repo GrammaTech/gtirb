@@ -3,7 +3,7 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
-#include <gtirb/Data.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
@@ -16,7 +16,8 @@ using namespace gtirb;
 
 Module::Module()
     : Node(), addrRanges(std::make_unique<AddrRanges>()), cfg(std::make_unique<CFG>()),
-      data(std::make_unique<std::vector<Data>>()), imageByteMap(std::make_unique<ImageByteMap>()),
+      data(std::make_unique<std::vector<DataObject>>()),
+      imageByteMap(std::make_unique<ImageByteMap>()),
       sections(std::make_unique<std::vector<Section>>()), symbols(std::make_unique<SymbolSet>()),
       symbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
 
@@ -67,9 +68,9 @@ const CFG& Module::getCFG() const { return *this->cfg; }
 
 CFG& Module::getCFG() { return *this->cfg; }
 
-const std::vector<Data>& Module::getData() const { return *this->data; }
+const std::vector<DataObject>& Module::getData() const { return *this->data; }
 
-std::vector<Data>& Module::getData() { return *this->data; }
+std::vector<DataObject>& Module::getData() { return *this->data; }
 
 std::vector<Section>& Module::getSections() { return *this->sections; }
 

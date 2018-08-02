@@ -143,7 +143,7 @@ private:
 /// Exclusive limit of object's address range.
 ///
 /// Object can be any type which specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. Data).
+/// getAddress() and getSize() methods (e.g. DataObject).
 ///
 template <typename T> EA addressLimit(const T& object) {
   return object.getAddress() + object.getSize();
@@ -153,7 +153,7 @@ template <typename T> EA addressLimit(const T& object) {
 /// Does object contain a given EA?
 ///
 /// Object can be any type which specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. Data).
+/// getAddress() and getSize() methods (e.g. DataObject).
 ///
 template <typename T> bool containsEA(const T& object, EA ea) {
   if (object.getAddress() == EA()) {

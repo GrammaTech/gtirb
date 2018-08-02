@@ -1,6 +1,6 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
-#include <gtirb/Data.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Instruction.hpp>
@@ -11,7 +11,7 @@
 #include <proto/AddrRanges.pb.h>
 #include <proto/Block.pb.h>
 #include <proto/ByteMap.pb.h>
-#include <proto/Data.pb.h>
+#include <proto/DataObject.pb.h>
 #include <proto/IR.pb.h>
 #include <proto/ImageByteMap.pb.h>
 #include <proto/Instruction.pb.h>
@@ -26,7 +26,7 @@ using testing::Types;
 
 typedef Types<gtirb::AddrRanges,   //
               gtirb::Block,        //
-              gtirb::Data,         //
+              gtirb::DataObject,   //
               gtirb::IR,           //
               gtirb::ImageByteMap, //
               gtirb::Instruction,  //
