@@ -154,7 +154,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA ea, size_t bytes, uint8_t value);
+  void setData(EA ea, size_t bytes, gsl::byte value);
 
   ///
   /// Get data from the byte map at the given address.
@@ -164,7 +164,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  std::vector<uint8_t> getData(EA x, size_t bytes) const;
+  std::vector<gsl::byte> getData(EA x, size_t bytes) const;
 
   ///
   /// Get data from the byte map at the given address.
@@ -213,7 +213,8 @@ private:
 /// Object can be any type which specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. Data).
 ///
-template <typename T> std::vector<uint8_t> getBytes(const ImageByteMap& byteMap, const T& object) {
+template <typename T>
+std::vector<gsl::byte> getBytes(const ImageByteMap& byteMap, const T& object) {
   return byteMap.getData(object.getAddress(), object.getSize());
 }
 

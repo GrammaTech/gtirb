@@ -184,11 +184,11 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
 TEST_F(Unit_ImageByteMapF, constantData) {
   const auto address = gtirb::EA(0x00001000);
 
-  ASSERT_NO_THROW(this->byteMap.setData(address, 32, 1))
+  ASSERT_NO_THROW(this->byteMap.setData(address, 32, gsl::byte(1)))
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"
       << this->byteMap.getEAMinMax().second << "}.";
 
-  std::vector<uint8_t> expected(32, 1);
+  std::vector<gsl::byte> expected(32, gsl::byte(1));
 
   ASSERT_NO_THROW(this->byteMap.getData(address, expected.size()))
       << "At Address " << address << ", min/max={" << this->byteMap.getEAMinMax().first << "/"

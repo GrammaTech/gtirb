@@ -35,7 +35,7 @@ public:
   /// \param  ea       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
   ///
-  std::vector<uint8_t> getData(EA ea, size_t bytes) const;
+  std::vector<gsl::byte> getData(EA ea, size_t bytes) const;
 
   using MessageType = proto::ByteMap;
   void toProtobuf(MessageType* message) const;
@@ -43,7 +43,7 @@ public:
 
   struct Region {
     EA address;
-    std::vector<uint8_t> data;
+    std::vector<gsl::byte> data;
 
     EA getAddress() const { return this->address; }
 
@@ -52,6 +52,6 @@ public:
 
 private:
   // Initialize with sentinel region
-  std::vector<Region> regions{{EA(), std::vector<uint8_t>()}};
+  std::vector<Region> regions{{EA(), std::vector<gsl::byte>()}};
 };
 } // namespace gtirb

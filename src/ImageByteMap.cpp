@@ -45,13 +45,13 @@ void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   }
 }
 
-void ImageByteMap::setData(EA ea, size_t bytes, uint8_t value) {
+void ImageByteMap::setData(EA ea, size_t bytes, gsl::byte value) {
   for (uint64_t i = 0; i < bytes; i++) {
     setData(ea + i, value);
   }
 }
 
-std::vector<uint8_t> ImageByteMap::getData(EA x, size_t bytes) const {
+std::vector<gsl::byte> ImageByteMap::getData(EA x, size_t bytes) const {
   if (x >= this->eaMinMax.first && (x + EA{bytes} - EA{1}) <= this->eaMinMax.second) {
     return this->byteMap.getData(x, bytes);
   }
