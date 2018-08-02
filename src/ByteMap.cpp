@@ -16,8 +16,7 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
     // Overwrite data in existing region
     if (containsEA(current, ea) && limit <= addressLimit(current)) {
       auto offset = ea - current.address;
-      std::transform(bytes.begin(), bytes.end(), current.data.begin() + offset,
-                     [](auto x) { return uint8_t(x); });
+      std::copy(bytes.begin(), bytes.end(), current.data.begin() + offset);
       return;
     }
 
@@ -30,8 +29,7 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
       }
 
       current.data.reserve(current.data.size() + bytes.size());
-      std::transform(bytes.begin(), bytes.end(), std::back_inserter(current.data),
-                     [](auto x) { return uint8_t(x); });
+      std::copy(bytes.begin(), bytes.end(), std::back_inserter(current.data));
       // Merge with subsequent region
       if (limit == next.address) {
         const auto& data = next.data;
@@ -46,8 +44,7 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
     if (limit == current.address) {
       // Note: this is probably O(N^2), moving existing data on each inserted
       // element.
-      std::transform(bytes.begin(), bytes.end(), std::inserter(current.data, current.data.begin()),
-                     [](auto x) { return uint8_t(x); });
+      std::copy(bytes.begin(), bytes.end(), std::inserter(current.data, current.data.begin()));
       current.address = ea;
       return;
     }
@@ -58,16 +55,13 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
   }
 
   // Not contiguous with any existing data. Create a new region.
-  Region region = {ea, std::vector<uint8_t>()};
+  Region region = {ea, std::vector<gsl::byte>()};
   region.data.reserve(bytes.size());
-  std::transform(bytes.begin(), bytes.end(), std::back_inserter(region.data),
-                 [](auto x) { return uint8_t(x); });
+  std::copy(bytes.begin(), bytes.end(), std::back_inserter(region.data));
   this->regions.insert(this->regions.end() - 1, std::move(region));
 }
 
-std::vector<uint8_t> ByteMap::getData(EA ea, size_t bytes) const {
-  std::vector<uint8_t> buffer(bytes, uint8_t{0});
-
+std::vector<gsl::byte> ByteMap::getData(EA ea, size_t bytes) const {
   auto region = std::find_if(this->regions.begin(), this->regions.end(),
                              [ea](const auto& r) { return containsEA(r, ea); });
 
@@ -77,16 +71,15 @@ std::vector<uint8_t> ByteMap::getData(EA ea, size_t bytes) const {
   }
 
   auto begin = region->data.begin() + (ea - region->address);
-  std::copy(begin, begin + bytes, buffer.begin());
-
-  return buffer;
+  return {begin, begin + bytes};
 }
 
 namespace gtirb {
 proto::Region toProtobuf(const ByteMap::Region& region) {
   proto::Region message;
   message.set_address(region.address);
-  message.set_data(std::string(region.data.begin(), region.data.end()));
+  std::transform(region.data.begin(), region.data.end(),
+                 std::back_inserter(*message.mutable_data()), [](auto x) { return char(x); });
   return message;
 }
 
@@ -94,7 +87,8 @@ void fromProtobuf(ByteMap::Region& val, const proto::Region& message) {
   val.address = EA(message.address());
   const auto& data = message.data();
   val.data.reserve(data.size());
-  std::copy(data.begin(), data.end(), std::back_inserter(val.data));
+  std::transform(data.begin(), data.end(), std::back_inserter(val.data),
+                 [](auto x) { return gsl::byte(x); });
 }
 } // namespace gtirb
 
