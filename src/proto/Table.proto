@@ -1,6 +1,8 @@
 syntax = "proto3";
 package proto;
 
+import "InstructionRef.proto";
+
 message InnerMap {
     map<string, InnerValue> contents = 1;
 }
@@ -25,6 +27,10 @@ message UUIDVector {
     repeated bytes contents = 1;
 }
 
+message InstructionVector {
+    repeated InstructionRef contents = 1;
+}
+
 message InnerValue
 {
     oneof value {
@@ -32,10 +38,12 @@ message InnerValue
         uint64 int = 2;
         string str = 3;
         bytes uuid = 4;
-        EAVector ea_vector = 5;
-        IntVector int_vector = 6;
-        StringVector string_vector = 7;
-        UUIDVector uuid_vector = 8;
+        InstructionRef instruction = 5;
+        EAVector ea_vector = 6;
+        IntVector int_vector = 7;
+        StringVector string_vector = 8;
+        UUIDVector uuid_vector = 9;
+        InstructionVector instruction_vector = 10;
     }
 }
 
@@ -45,7 +53,8 @@ message Value {
         int64 int = 2;
         string str = 3;
         bytes uuid = 4;
-        InnerMap map = 5;
+        InstructionRef instruction = 5;
+        InnerMap map = 6;
     }
 }
 
@@ -74,5 +83,6 @@ message Table {
         IntVector int_vector = 7;
         StringVector string_vector = 8;
         UUIDVector uuid_vector = 9;
+        InstructionVector instruction_vector = 10;
     }
 }

@@ -1,6 +1,7 @@
 #include "Block.hpp"
 #include "Serialization.hpp"
 #include <proto/Block.pb.h>
+#include <proto/InstructionRef.pb.h>
 
 using namespace gtirb;
 
@@ -19,4 +20,14 @@ void Block::fromProtobuf(const MessageType& message) {
   setNodeUUIDFromBytes(this, message.uuid());
   this->address = EA(message.address());
   this->size = EA(message.size());
+}
+
+void InstructionRef::toProtobuf(MessageType* message) const {
+  uuidToBytes(this->block.getUUID(), *message->mutable_block_id());
+  message->set_offset(this->offset);
+}
+
+void InstructionRef::fromProtobuf(const MessageType& message) {
+  this->block = uuidFromBytes(message.block_id());
+  this->offset = message.offset();
 }
