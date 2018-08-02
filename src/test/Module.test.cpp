@@ -1,4 +1,3 @@
-#include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
@@ -94,11 +93,6 @@ TEST(Unit_Module, setPreferredEA) {
   EXPECT_EQ(preferred, m->getPreferredEA());
 }
 
-TEST(Unit_Module, getAddrRanges) {
-  auto m = std::make_shared<gtirb::Module>();
-  EXPECT_NO_THROW(m->getAddrRanges());
-}
-
 TEST(Unit_Module, getSymbolSet) {
   gtirb::Module m;
   EXPECT_NO_THROW(m.getSymbols());
@@ -141,7 +135,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   gtirb::Module result;
   proto::Module message;
 
-  UUID addrRangesID, byteMapID, symbolID, blockID, dataID, sectionID;
+  UUID byteMapID, symbolID, blockID, dataID, sectionID;
   int whichSymbolic;
 
   {
@@ -159,7 +153,6 @@ TEST(Unit_Module, protobufRoundTrip) {
     original.getSections().push_back({});
     original.getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
 
-    addrRangesID = original.getAddrRanges().getUUID();
     byteMapID = original.getImageByteMap().getUUID();
     symbolID = original.getSymbols().begin()->second.getUUID();
     blockID = blocks(original.getCFG()).begin()->getUUID();
@@ -183,7 +176,6 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   // Make sure various collections and node members are serialized, but
   // don't check in detail as they have their own unit tests.
-  EXPECT_EQ(result.getAddrRanges().getUUID(), addrRangesID);
   EXPECT_EQ(result.getImageByteMap().getUUID(), byteMapID);
 
   EXPECT_EQ(num_vertices(result.getCFG()), 1);

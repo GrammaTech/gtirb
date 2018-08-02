@@ -13,7 +13,6 @@
 #include <string>
 
 namespace gtirb {
-class AddrRanges;
 class DataObject;
 class ImageByteMap;
 class DataObject;
@@ -146,12 +145,6 @@ public:
   gtirb::EA getPreferredEA() const;
 
   ///
-  /// A Module can have exactly one AddrRanges child.
-  ///
-  gtirb::AddrRanges& getAddrRanges();
-  const gtirb::AddrRanges& getAddrRanges() const;
-
-  ///
   /// A Module can have exactly one ImageByteMap child.
   ///
   gtirb::ImageByteMap& getImageByteMap();
@@ -187,7 +180,6 @@ private:
   gtirb::ISAID isaID{};
   std::string name{};
   uint64_t decodeMode{0};
-  std::unique_ptr<AddrRanges> addrRanges;
   std::unique_ptr<CFG> cfg;
   std::unique_ptr<DataSet> data;
   std::unique_ptr<ImageByteMap> imageByteMap;
