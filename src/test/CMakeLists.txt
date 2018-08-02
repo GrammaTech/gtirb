@@ -22,7 +22,6 @@ set(${PROJECT_NAME}_H
 )
 
 set(${PROJECT_NAME}_SRC
-	AddrRanges.test.cpp
         Block.test.cpp
 	ByteMap.test.cpp
 	CFG.test.cpp

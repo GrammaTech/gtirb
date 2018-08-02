@@ -1,6 +1,5 @@
 #pragma once
 
-#include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/CFG.hpp>

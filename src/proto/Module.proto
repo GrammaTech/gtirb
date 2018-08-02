@@ -1,7 +1,6 @@
 syntax = "proto3";
 package proto;
 
-import "AddrRanges.proto";
 import "CFG.proto";
 import "DataObject.proto";
 import "ImageByteMap.proto";
@@ -38,7 +37,6 @@ message Module {
     ISAID isa_id = 6;
     string name = 7;
     uint64 decode_mode = 8;
-    AddrRanges addr_ranges = 9;
     ImageByteMap image_byte_map = 10;
     repeated Symbol symbols = 11;
     CFG cfg = 12;

@@ -1,4 +1,3 @@
-#include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/IR.hpp>
@@ -8,7 +7,6 @@
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
-#include <proto/AddrRanges.pb.h>
 #include <proto/Block.pb.h>
 #include <proto/ByteMap.pb.h>
 #include <proto/DataObject.pb.h>
@@ -24,8 +22,7 @@
 
 using testing::Types;
 
-typedef Types<gtirb::AddrRanges,   //
-              gtirb::Block,        //
+typedef Types<gtirb::Block,        //
               gtirb::DataObject,   //
               gtirb::IR,           //
               gtirb::ImageByteMap, //

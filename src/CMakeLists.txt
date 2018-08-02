@@ -19,7 +19,6 @@ endif()
 include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
 
 set(${PROJECT_NAME}_H
-	../include/gtirb/AddrRanges.hpp
 	../include/gtirb/Block.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
@@ -42,7 +41,6 @@ set(${PROJECT_NAME}_H
 )
 
 set(${PROJECT_NAME}_SRC
-	AddrRanges.cpp
         Block.cpp
 	ByteMap.cpp
 	CFG.cpp

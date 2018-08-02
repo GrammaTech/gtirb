@@ -25,7 +25,6 @@ class Module;
 ///     ir [ label="gtirb::IR" URL="\ref IR"];
 ///     module [ label="gtirb::Module" URL="\ref Module"];
 ///     table [ label="gtirb::Table" URL="\ref Table"];
-///     addrRanges [label="gtirb::AddrRanges" URL="\ref AddrRanges"]
 ///     dataSet [label="gtirb::DataSet" URL="\ref DataSet"]
 ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
 ///     sectionSet [label="gtirb::SectionSet" URL="\ref SectionSet"]
@@ -41,7 +40,6 @@ class Module;
 ///
 ///     ir -> module;
 ///     ir -> table;
-///     module -> addrRanges;
 ///     module -> cfg;
 ///     module -> dataSet
 ///     module -> imageByteMap;
