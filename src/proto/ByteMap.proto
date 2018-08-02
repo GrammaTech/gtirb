@@ -1,6 +1,12 @@
 syntax = "proto3";
 package proto;
 
+message Region {
+  uint64 address = 1;
+  bytes data = 2;
+
+}
+
 message ByteMap {
-    map<uint64, bytes> data = 2;
+  repeated Region regions = 1;
 }

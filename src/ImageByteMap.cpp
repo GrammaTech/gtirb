@@ -36,10 +36,6 @@ void ImageByteMap::setIsRelocated() { this->isRelocated = true; }
 
 bool ImageByteMap::getIsRelocated() const { return this->isRelocated; }
 
-bool ImageByteMap::getDataEmpty() const { return this->byteMap.empty(); }
-
-size_t ImageByteMap::getDataSize() const { return this->byteMap.size(); }
-
 void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   if (ea >= this->eaMinMax.first &&
       (ea + EA{(uint64_t)data.size_bytes()} - EA{1}) <= this->eaMinMax.second) {
@@ -49,17 +45,15 @@ void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   }
 }
 
+void ImageByteMap::setData(EA ea, size_t bytes, uint8_t value) {
+  for (uint64_t i = 0; i < bytes; i++) {
+    setData(ea + i, value);
+  }
+}
+
 std::vector<uint8_t> ImageByteMap::getData(EA x, size_t bytes) const {
   if (x >= this->eaMinMax.first && (x + EA{bytes} - EA{1}) <= this->eaMinMax.second) {
     return this->byteMap.getData(x, bytes);
-  }
-
-  throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
-}
-
-std::vector<uint8_t> ImageByteMap::getDataUntil(EA ea, uint8_t sentinel, size_t bytes) const {
-  if (ea >= this->eaMinMax.first && (ea) <= this->eaMinMax.second) {
-    return this->byteMap.getDataUntil(ea, sentinel, bytes);
   }
 
   throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
