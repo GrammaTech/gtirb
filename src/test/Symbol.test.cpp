@@ -1,5 +1,5 @@
+#include <gtirb/Block.hpp>
 #include <gtirb/DataObject.hpp>
-#include <gtirb/Instruction.hpp>
 #include <gtirb/Symbol.hpp>
 #include <proto/Symbol.pb.h>
 #include <gtest/gtest.h>
@@ -45,14 +45,14 @@ TEST(Unit_Symbol, setStorageKind) {
 TEST(Unit_Symbol, setReferent) {
   Symbol sym;
   DataObject data;
-  Instruction inst;
+  Block block;
 
   sym.setReferent(data);
   EXPECT_EQ(&*sym.getDataReferent(), &data);
   EXPECT_FALSE(sym.getCodeReferent());
 
-  sym.setReferent(inst);
-  EXPECT_EQ(&*sym.getCodeReferent(), &inst);
+  sym.setReferent(block);
+  EXPECT_EQ(&*sym.getCodeReferent(), &block);
   // Setting code referent clears data referent
   EXPECT_FALSE(sym.getDataReferent());
 

@@ -2,7 +2,6 @@
 #include <gtirb/DataObject.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
@@ -12,7 +11,6 @@
 #include <proto/DataObject.pb.h>
 #include <proto/IR.pb.h>
 #include <proto/ImageByteMap.pb.h>
-#include <proto/Instruction.pb.h>
 #include <proto/Module.pb.h>
 #include <proto/Section.pb.h>
 #include <proto/Symbol.pb.h>
@@ -26,7 +24,6 @@ typedef Types<gtirb::Block,        //
               gtirb::DataObject,   //
               gtirb::IR,           //
               gtirb::ImageByteMap, //
-              gtirb::Instruction,  //
               gtirb::Module,       //
               gtirb::Section,      //
               gtirb::Symbol        //

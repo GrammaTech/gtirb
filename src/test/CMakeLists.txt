@@ -28,7 +28,6 @@ set(${PROJECT_NAME}_SRC
         DataObject.test.cpp
 	EA.test.cpp
 	ImageByteMap.test.cpp
-	Instruction.test.cpp
 	IR.test.cpp
 	Module.test.cpp
 	Node.test.cpp

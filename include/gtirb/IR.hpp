@@ -30,7 +30,6 @@ class Module;
 ///     sectionSet [label="gtirb::SectionSet" URL="\ref SectionSet"]
 ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
 ///     symbolicOperandSet [label="gtirb::SymbolicExpressionSet" URL="\ref SymbolicExpressionSet"]
-///     instruction [label="gtirb::Instruction" URL="\ref Instruction"]
 ///     cfg [label="gtirb::CFG" URL="\ref CFG"]
 ///     block [label="gtirb::Block" URL="\ref Block"]
 ///     data [label="gtirb::DataObject" URL="\ref DataObject"]
@@ -47,7 +46,6 @@ class Module;
 ///     module -> symbolSet;
 ///     module -> symbolicOperandSet
 ///     cfg -> block;
-///     block -> instruction;
 ///     dataSet -> data;
 ///     sectionSet -> section;
 ///     symbolSet -> symbol;

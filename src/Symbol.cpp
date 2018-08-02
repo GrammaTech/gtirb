@@ -1,7 +1,7 @@
 #include "Symbol.hpp"
 #include "Serialization.hpp"
+#include <gtirb/Block.hpp>
 #include <gtirb/DataObject.hpp>
-#include <gtirb/Instruction.hpp>
 
 using namespace gtirb;
 
@@ -15,7 +15,7 @@ Symbol::Symbol(EA x, std::string name_, const DataObject& referent, StorageKind 
   this->setReferent(referent);
 }
 
-Symbol::Symbol(EA x, std::string name_, const Instruction& referent, StorageKind storageKind_)
+Symbol::Symbol(EA x, std::string name_, const Block& referent, StorageKind storageKind_)
     : Symbol(x, name_, storageKind_) {
   this->setReferent(referent);
 }
@@ -33,14 +33,14 @@ void Symbol::setReferent(const DataObject& data) {
   this->codeReferent = {};
 }
 
-void Symbol::setReferent(const Instruction& instruction) {
-  this->codeReferent = NodeRef<Instruction>(instruction);
+void Symbol::setReferent(const Block& instruction) {
+  this->codeReferent = NodeRef<Block>(instruction);
   this->dataReferent = {};
 }
 
 NodeRef<DataObject> Symbol::getDataReferent() const { return this->dataReferent; }
 
-NodeRef<Instruction> Symbol::getCodeReferent() const { return this->codeReferent; }
+NodeRef<Block> Symbol::getCodeReferent() const { return this->codeReferent; }
 
 void Symbol::setStorageKind(Symbol::StorageKind x) { this->storageKind = x; }
 

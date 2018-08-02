@@ -2,7 +2,6 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
-#include <gtirb/Instruction.hpp>
 #include <gtirb/Node.hpp>
 #include <cstdint>
 #include <vector>
@@ -32,12 +31,6 @@ public:
   Block(EA address, uint64_t size);
 
   ///
-  /// Construct a block with some instructions.
-  /// Instructions are copied and added as children.
-  ///
-  Block(EA address, uint64_t size, std::vector<Instruction>&& instructions);
-
-  ///
   /// Move constructor
   ///
   Block(Block&&) = default;
@@ -55,9 +48,6 @@ public:
   EA getAddress() const;
   uint64_t getSize() const;
 
-  std::vector<Instruction>& getInstructions();
-  const std::vector<Instruction>& getInstructions() const;
-
   using MessageType = proto::Block;
   void toProtobuf(MessageType* message) const;
   void fromProtobuf(const MessageType& message);
@@ -65,6 +55,5 @@ public:
 private:
   EA address{};
   uint64_t size{0};
-  std::vector<Instruction> instructions;
 };
 } // namespace gtirb

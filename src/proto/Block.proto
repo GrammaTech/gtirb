@@ -1,11 +1,8 @@
 syntax = "proto3";
 package proto;
 
-import "Instruction.proto";
-
 message Block {
     bytes uuid = 1;
     uint64 address = 2;
     uint64 size = 3;
-    repeated Instruction instructions = 4;
 }

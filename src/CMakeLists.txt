@@ -26,7 +26,6 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/EA.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/ImageByteMap.hpp
-	../include/gtirb/Instruction.hpp
 	../include/gtirb/IR.hpp
 	../include/gtirb/Module.hpp
 	../include/gtirb/Node.hpp
@@ -47,7 +46,6 @@ set(${PROJECT_NAME}_SRC
         DataObject.cpp
         EA.cpp
 	ImageByteMap.cpp
-	Instruction.cpp
 	IR.cpp
 	Module.cpp
 	Node.cpp
