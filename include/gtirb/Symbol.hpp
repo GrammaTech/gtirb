@@ -7,7 +7,7 @@
 
 namespace gtirb {
 class DataObject;
-class Instruction;
+class Block;
 
 ///
 /// \class Symbol
@@ -38,7 +38,7 @@ public:
   Symbol(EA x, std::string name, StorageKind storageKind = StorageKind::Extern);
   Symbol(EA x, std::string name, const DataObject& referent,
          StorageKind storageKind = StorageKind::Extern);
-  Symbol(EA x, std::string name, const Instruction& referent,
+  Symbol(EA x, std::string name, const Block& referent,
          StorageKind storageKind = StorageKind::Extern);
 
   ///
@@ -73,9 +73,9 @@ public:
   void setReferent(const DataObject& data);
 
   ///
-  /// Set the Instruction object to which this symbol refers.
+  /// Set the Block to which this symbol refers.
   ///
-  void setReferent(const Instruction& instruction);
+  void setReferent(const Block& instruction);
 
   ///
   /// Get the DataObject to which this symbol refers.
@@ -83,9 +83,9 @@ public:
   NodeRef<DataObject> getDataReferent() const;
 
   ///
-  /// Get the Instruction object to which this symbol refers.
+  /// Get the Block object to which this symbol refers.
   ///
-  NodeRef<Instruction> getCodeReferent() const;
+  NodeRef<Block> getCodeReferent() const;
 
   void setStorageKind(Symbol::StorageKind x);
   gtirb::Symbol::StorageKind getStorageKind() const;
@@ -99,6 +99,6 @@ private:
   std::string name;
   gtirb::Symbol::StorageKind storageKind{StorageKind::Extern};
   NodeRef<DataObject> dataReferent;
-  NodeRef<Instruction> codeReferent;
+  NodeRef<Block> codeReferent;
 };
 } // namespace gtirb

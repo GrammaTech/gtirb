@@ -8,7 +8,6 @@
 #include <gtirb/Export.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Instruction.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>

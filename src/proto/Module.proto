@@ -37,10 +37,10 @@ message Module {
     ISAID isa_id = 6;
     string name = 7;
     uint64 decode_mode = 8;
-    ImageByteMap image_byte_map = 10;
-    repeated Symbol symbols = 11;
-    CFG cfg = 12;
-    repeated DataObject data = 13;
-    repeated Section sections = 14;
-    map<uint64, SymbolicExpression> symbolic_operands = 15;
+    ImageByteMap image_byte_map = 9;
+    repeated Symbol symbols = 10;
+    CFG cfg = 11;
+    repeated DataObject data = 12;
+    repeated Section sections = 13;
+    map<uint64, SymbolicExpression> symbolic_operands = 14;
 }

@@ -17,7 +17,6 @@ TEST(Unit_CFG, addVertex) {
   auto descriptor = add_vertex(cfg);
   EXPECT_EQ(cfg[descriptor].getAddress(), EA());
   EXPECT_EQ(cfg[descriptor].getSize(), 0);
-  EXPECT_TRUE(cfg[descriptor].getInstructions().empty());
 }
 
 TEST(Unit_CFG, addBlock) {
@@ -25,7 +24,6 @@ TEST(Unit_CFG, addBlock) {
   auto descriptor = addBlock(cfg, Block(EA(1), 2));
   EXPECT_EQ(cfg[descriptor].getAddress(), EA(1));
   EXPECT_EQ(cfg[descriptor].getSize(), 2);
-  EXPECT_TRUE(cfg[descriptor].getInstructions().empty());
 }
 
 TEST(Unit_CFG, blockIterator) {

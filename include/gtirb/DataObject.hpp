@@ -14,17 +14,6 @@ namespace gtirb {
 /// Represents a data object, possibly symbolic. Does not directly store
 /// the data bytes, which are kept in the ImageByteMap.
 ///
-/// \note
-/// This seems very similar to the Instruction class since each
-/// piece of data basically holds a pointer to bytes and some
-/// amount of symoblic information which may be comprised as a
-/// simple mathematical expression combining symobls.  The only
-/// addition is that data should have a `size` field (any other
-/// information like types should be stored in external tables).
-///
-/// Perhaps data and instruction should share a base class which
-/// provides the byte-pointer and symbolic expression support?
-///
 class GTIRB_EXPORT_API DataObject : public Node {
 public:
   // Default constructor required for serialization.
