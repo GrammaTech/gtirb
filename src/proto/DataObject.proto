@@ -1,7 +1,7 @@
 syntax = "proto3";
 package proto;
 
-message Data {
+message DataObject {
     bytes uuid = 1;
     uint64 address = 2;
     uint64 size = 3;

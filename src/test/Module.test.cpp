@@ -1,6 +1,6 @@
 #include <gtirb/AddrRanges.hpp>
 #include <gtirb/Block.hpp>
-#include <gtirb/Data.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>

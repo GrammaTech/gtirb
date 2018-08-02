@@ -4,7 +4,7 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/CFG.hpp>
-#include <gtirb/Data.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/IR.hpp>

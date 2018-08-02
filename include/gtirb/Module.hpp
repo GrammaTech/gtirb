@@ -14,10 +14,10 @@
 
 namespace gtirb {
 class AddrRanges;
-class Data;
+class DataObject;
 class ImageByteMap;
-class Data;
-using DataSet = std::vector<Data>;
+class DataObject;
+using DataSet = std::vector<DataObject>;
 class Section;
 using SectionSet = std::vector<Section>;
 
@@ -168,8 +168,8 @@ public:
 
   const CFG& getCFG() const;
   CFG& getCFG();
-  const std::vector<Data>& getData() const;
-  std::vector<Data>& getData();
+  const std::vector<DataObject>& getData() const;
+  std::vector<DataObject>& getData();
   std::vector<Section>& getSections();
   const std::vector<Section>& getSections() const;
   SymbolicExpressionSet& getSymbolicExpressions();

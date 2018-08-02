@@ -6,7 +6,7 @@
 #include <proto/Symbol.pb.h>
 
 namespace gtirb {
-class Data;
+class DataObject;
 class Instruction;
 
 ///
@@ -36,7 +36,7 @@ public:
   ///
   Symbol(EA x);
   Symbol(EA x, std::string name, StorageKind storageKind = StorageKind::Extern);
-  Symbol(EA x, std::string name, const Data& referent,
+  Symbol(EA x, std::string name, const DataObject& referent,
          StorageKind storageKind = StorageKind::Extern);
   Symbol(EA x, std::string name, const Instruction& referent,
          StorageKind storageKind = StorageKind::Extern);
@@ -68,9 +68,9 @@ public:
   std::string getName() const;
 
   ///
-  /// Set the Data object to which this symbol refers.
+  /// Set the DataObject to which this symbol refers.
   ///
-  void setReferent(const Data& data);
+  void setReferent(const DataObject& data);
 
   ///
   /// Set the Instruction object to which this symbol refers.
@@ -78,9 +78,9 @@ public:
   void setReferent(const Instruction& instruction);
 
   ///
-  /// Get the Data object to which this symbol refers.
+  /// Get the DataObject to which this symbol refers.
   ///
-  NodeRef<Data> getDataReferent() const;
+  NodeRef<DataObject> getDataReferent() const;
 
   ///
   /// Get the Instruction object to which this symbol refers.
@@ -98,7 +98,7 @@ private:
   gtirb::EA ea{};
   std::string name;
   gtirb::Symbol::StorageKind storageKind{StorageKind::Extern};
-  NodeRef<Data> dataReferent;
+  NodeRef<DataObject> dataReferent;
   NodeRef<Instruction> codeReferent;
 };
 } // namespace gtirb

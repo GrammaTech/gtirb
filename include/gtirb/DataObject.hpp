@@ -5,11 +5,11 @@
 #include <vector>
 
 namespace proto {
-class Data;
+class DataObject;
 }
 namespace gtirb {
 ///
-/// \class Data
+/// \class DataObject
 ///
 /// Represents a data object, possibly symbolic. Does not directly store
 /// the data bytes, which are kept in the ImageByteMap.
@@ -25,32 +25,32 @@ namespace gtirb {
 /// Perhaps data and instruction should share a base class which
 /// provides the byte-pointer and symbolic expression support?
 ///
-class GTIRB_EXPORT_API Data : public Node {
+class GTIRB_EXPORT_API DataObject : public Node {
 public:
   // Default constructor required for serialization.
-  Data() = default;
+  DataObject() = default;
 
-  Data(EA address_, uint64_t size_) : address(address_), size(size_) {}
+  DataObject(EA address_, uint64_t size_) : address(address_), size(size_) {}
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
-  explicit Data(const Data& other) = default;
+  explicit DataObject(const DataObject& other) = default;
   ///
   /// Move constructor
   ///
-  Data(Data&&) = default;
+  DataObject(DataObject&&) = default;
 
   ///
   /// Move assignment
   ///
-  Data& operator=(Data&&) = default;
+  DataObject& operator=(DataObject&&) = default;
 
   EA getAddress() const;
 
   uint64_t getSize() const;
 
-  using MessageType = proto::Data;
+  using MessageType = proto::DataObject;
   void toProtobuf(MessageType* message) const;
   void fromProtobuf(const MessageType& message);
 

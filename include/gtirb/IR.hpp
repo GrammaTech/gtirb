@@ -34,7 +34,7 @@ class Module;
 ///     instruction [label="gtirb::Instruction" URL="\ref Instruction"]
 ///     cfg [label="gtirb::CFG" URL="\ref CFG"]
 ///     block [label="gtirb::Block" URL="\ref Block"]
-///     data [label="gtirb::Data" URL="\ref Data"]
+///     data [label="gtirb::DataObject" URL="\ref DataObject"]
 ///     symbolicOperand [label="gtirb::SymbolicExpression" URL="\ref SymbolicExpression"]
 ///     section [label="gtirb::Section" URL="\ref Section"]
 ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]

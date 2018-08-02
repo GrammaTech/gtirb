@@ -23,7 +23,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Block.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
-	../include/gtirb/Data.hpp
+    ../include/gtirb/DataObject.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/ImageByteMap.hpp
@@ -46,7 +46,7 @@ set(${PROJECT_NAME}_SRC
         Block.cpp
 	ByteMap.cpp
 	CFG.cpp
-        Data.cpp
+        DataObject.cpp
         EA.cpp
 	ImageByteMap.cpp
 	Instruction.cpp

@@ -1,4 +1,4 @@
-#include <gtirb/Data.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/Instruction.hpp>
 #include <gtirb/Symbol.hpp>
 #include <proto/Symbol.pb.h>
@@ -44,7 +44,7 @@ TEST(Unit_Symbol, setStorageKind) {
 
 TEST(Unit_Symbol, setReferent) {
   Symbol sym;
-  Data data;
+  DataObject data;
   Instruction inst;
 
   sym.setReferent(data);
@@ -71,7 +71,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     Symbol original(EA(1), "test");
     original.setStorageKind(Symbol::StorageKind::Static);
 
-    Data data;
+    DataObject data;
     dataUUID = data.getUUID();
     original.setReferent(data);
 
