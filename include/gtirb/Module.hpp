@@ -156,9 +156,6 @@ public:
   void setName(std::string x);
   std::string getName() const;
 
-  void setDecodeMode(uint64_t x);
-  uint64_t getDecodeMode() const;
-
   const CFG& getCFG() const;
   CFG& getCFG();
   const std::vector<DataObject>& getData() const;
@@ -179,7 +176,6 @@ private:
   gtirb::FileFormat fileFormat{};
   gtirb::ISAID isaID{};
   std::string name{};
-  uint64_t decodeMode{0};
   std::unique_ptr<CFG> cfg;
   std::unique_ptr<DataSet> data;
   std::unique_ptr<ImageByteMap> imageByteMap;

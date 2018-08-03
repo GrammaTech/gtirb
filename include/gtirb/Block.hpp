@@ -30,7 +30,7 @@ public:
   ///
   /// Construct an empty block
   ///
-  Block(EA address, uint64_t size);
+  Block(EA address, uint64_t size, uint64_t decodeMode = 0);
 
   ///
   /// Move constructor
@@ -49,6 +49,7 @@ public:
 
   EA getAddress() const;
   uint64_t getSize() const;
+  uint64_t getDecodeMode() const;
 
   using MessageType = proto::Block;
   void toProtobuf(MessageType* message) const;
@@ -57,6 +58,7 @@ public:
 private:
   EA address{};
   uint64_t size{0};
+  uint64_t decodeMode{0};
 };
 
 ///

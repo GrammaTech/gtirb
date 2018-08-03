@@ -54,10 +54,6 @@ void Module::setName(std::string x) { this->name = std::move(x); }
 
 std::string Module::getName() const { return this->name; }
 
-void Module::setDecodeMode(uint64_t x) { this->decodeMode = x; }
-
-uint64_t Module::getDecodeMode() const { return this->decodeMode; }
-
 const CFG& Module::getCFG() const { return *this->cfg; }
 
 CFG& Module::getCFG() { return *this->cfg; }
@@ -84,7 +80,6 @@ void Module::toProtobuf(MessageType* message) const {
   message->set_file_format(static_cast<proto::FileFormat>(this->fileFormat));
   message->set_isa_id(static_cast<proto::ISAID>(this->isaID));
   message->set_name(this->name);
-  message->set_decode_mode(this->decodeMode);
   this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
   *message->mutable_cfg() = gtirb::toProtobuf(*this->cfg);
   containerToProtobuf(*this->data, message->mutable_data());
@@ -107,7 +102,6 @@ void Module::fromProtobuf(const MessageType& message) {
   this->fileFormat = static_cast<FileFormat>(message.file_format());
   this->isaID = static_cast<ISAID>(message.isa_id());
   this->name = message.name();
-  this->decodeMode = message.decode_mode();
   this->imageByteMap->fromProtobuf(message.image_byte_map());
   gtirb::fromProtobuf(*this->cfg, message.cfg());
   containerFromProtobuf(*this->data, message.data());

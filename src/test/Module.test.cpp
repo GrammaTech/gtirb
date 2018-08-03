@@ -117,20 +117,6 @@ TEST(Unit_Module, getName) {
   EXPECT_TRUE(m->getName().empty());
 }
 
-TEST(Unit_Module, setDecodeMode) {
-  const uint64_t decodeMode{0x10101010};
-  auto m = std::make_unique<gtirb::Module>();
-
-  EXPECT_NO_THROW(m->setDecodeMode(decodeMode));
-  EXPECT_EQ(decodeMode, m->getDecodeMode());
-}
-
-TEST(Unit_Module, getDecodeMode) {
-  auto m = std::make_unique<gtirb::Module>();
-  EXPECT_NO_THROW(m->getDecodeMode());
-  EXPECT_EQ(uint64_t{0}, m->getDecodeMode());
-}
-
 TEST(Unit_Module, protobufRoundTrip) {
   gtirb::Module result;
   proto::Module message;
@@ -146,7 +132,6 @@ TEST(Unit_Module, protobufRoundTrip) {
     original.setFileFormat(FileFormat::ELF);
     original.setISAID(ISAID::X64);
     original.setName("module");
-    original.setDecodeMode(5);
     addSymbol(original.getSymbols(), {});
     addBlock(original.getCFG(), {});
     original.getData().push_back({});
@@ -172,7 +157,6 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(result.getFileFormat(), FileFormat::ELF);
   EXPECT_EQ(result.getISAID(), ISAID::X64);
   EXPECT_EQ(result.getName(), "module");
-  EXPECT_EQ(result.getDecodeMode(), 5);
 
   // Make sure various collections and node members are serialized, but
   // don't check in detail as they have their own unit tests.
