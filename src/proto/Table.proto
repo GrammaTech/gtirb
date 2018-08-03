@@ -20,7 +20,7 @@ message IntVector {
 }
 
 message StringVector {
-    repeated string contents = 1;
+    repeated bytes contents = 1;
 }
 
 message UUIDVector {
@@ -36,7 +36,7 @@ message InnerValue
     oneof value {
         uint64 ea = 1;
         uint64 int = 2;
-        string str = 3;
+        bytes str = 3;
         bytes uuid = 4;
         InstructionRef instruction = 5;
         EAVector ea_vector = 6;
@@ -51,7 +51,7 @@ message Value {
     oneof value {
         uint64 ea = 1;
         int64 int = 2;
-        string str = 3;
+        bytes str = 3;
         bytes uuid = 4;
         InstructionRef instruction = 5;
         InnerMap map = 6;
