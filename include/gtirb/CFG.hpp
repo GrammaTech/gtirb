@@ -3,6 +3,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/variant.hpp>
 #include <gsl/gsl>
 
 namespace proto {
@@ -12,13 +13,16 @@ class CFG;
 namespace gtirb {
 class Block;
 
+using EdgeLabel = boost::variant<boost::blank, bool, uint64_t>;
+
 ///
 /// Interprocedural control flow graph, with Blocks as the vertices.
 ///
-using CFG = boost::adjacency_list<boost::setS,           // prevent parallel edges
+using CFG = boost::adjacency_list<boost::listS,          // allow parallel edges
                                   boost::vecS,           // preserve vertex order
                                   boost::bidirectionalS, // sucessor and predecessor edges
-                                  Block>;                // vertices are blocks
+                                  Block,                 // vertices are blocks
+                                  EdgeLabel>;            // edges have labels
 
 template <typename Value, typename Graph>
 class block_iter_base

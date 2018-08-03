@@ -7,6 +7,10 @@ message Edge
 {
     bytes source_uuid = 1;
     bytes target_uuid = 2;
+    oneof label {
+      bool boolean = 3;
+      uint64 integer = 4;
+    }
 }
 
 message CFG
