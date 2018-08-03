@@ -32,6 +32,19 @@ proto::CFG toProtobuf(const CFG& cfg) {
     auto m = messageEdges->Add();
     nodeUUIDToBytes(&cfg[source(e, cfg)], *m->mutable_source_uuid());
     nodeUUIDToBytes(&cfg[target(e, cfg)], *m->mutable_target_uuid());
+    auto label = cfg[e];
+    switch (label.which()) {
+    case 1:
+      m->set_boolean(boost::get<bool>(label));
+      break;
+    case 2:
+      m->set_integer(boost::get<uint64_t>(label));
+      break;
+    case 0:
+    default:
+      // Blank, nothing to do
+      break;
+    }
   });
 
   return message;
@@ -49,8 +62,19 @@ void fromProtobuf(CFG& result, const proto::CFG& message) {
                 });
   std::for_each(message.edges().begin(), message.edges().end(),
                 [&result, &blockMap](const auto& m) {
-                  add_edge(blockMap[uuidFromBytes(m.source_uuid())],
-                           blockMap[uuidFromBytes(m.target_uuid())], result);
+                  auto e = add_edge(blockMap[uuidFromBytes(m.source_uuid())],
+                                    blockMap[uuidFromBytes(m.target_uuid())], result)
+                               .first;
+                  switch (m.label_case()) {
+                  case proto::Edge::kBoolean:
+                    result[e] = m.boolean();
+                    break;
+                  case proto::Edge::kInteger:
+                    result[e] = m.integer();
+                  case proto::Edge::LABEL_NOT_SET:
+                    // Nothing to do. Default edge label is blank.
+                    break;
+                  }
                 });
 }
 } // namespace gtirb

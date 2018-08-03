@@ -79,11 +79,27 @@ TEST(Unit_CFG, edges) {
   EXPECT_EQ(target(e3.first, cfg), b1);
   EXPECT_TRUE(e3.second);
 
-  // Duplicate edge
+  // Parallel edge
   auto e4 = add_edge(b1, b3, cfg);
   EXPECT_EQ(source(e4.first, cfg), b1);
   EXPECT_EQ(target(e4.first, cfg), b3);
-  EXPECT_FALSE(e4.second);
+  EXPECT_TRUE(e4.second);
+}
+
+TEST(Unit_CFG, edgeLabels) {
+  CFG cfg;
+  auto b1 = addBlock(cfg, Block(EA(1), EA(2)));
+  auto b2 = addBlock(cfg, Block(EA(3), EA(4)));
+
+  // boolean label
+  auto e1 = add_edge(b1, b2, cfg).first;
+  cfg[e1] = true;
+  EXPECT_EQ(boost::get<bool>(cfg[e1]), true);
+
+  // numeric label
+  auto e2 = add_edge(b1, b2, cfg).first;
+  cfg[e2] = uint64_t(5);
+  EXPECT_EQ(boost::get<uint64_t>(cfg[e2]), 5);
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
@@ -97,9 +113,11 @@ TEST(Unit_CFG, protobufRoundTrip) {
     auto b2 = addBlock(original, Block(EA(3), EA(4)));
     auto b3 = addBlock(original, Block(EA(5), EA(6)));
 
-    add_edge(b1, b3, original);
-    add_edge(b2, b3, original);
+    auto e1 = add_edge(b1, b3, original).first;
+    auto e2 = add_edge(b2, b3, original).first;
     add_edge(b3, b1, original);
+    original[e1] = true;
+    original[e2] = uint64_t(5);
 
     id1 = original[b1].getUUID();
     id2 = original[b2].getUUID();
@@ -127,4 +145,11 @@ TEST(Unit_CFG, protobufRoundTrip) {
   EXPECT_FALSE(edge(vertex(0, result), vertex(1, result), result).second);
   EXPECT_FALSE(edge(vertex(1, result), vertex(0, result), result).second);
   EXPECT_FALSE(edge(vertex(2, result), vertex(1, result), result).second);
+
+  // Check labels
+  auto e1 = edge(vertex(0, result), vertex(2, result), result).first;
+  EXPECT_EQ(boost::get<bool>(result[e1]), true);
+
+  auto e2 = edge(vertex(1, result), vertex(2, result), result).first;
+  EXPECT_EQ(boost::get<uint64_t>(result[e2]), 5);
 }
