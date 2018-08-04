@@ -180,11 +180,11 @@ This repository defines the GT-IRB data structure and C++ library.
 
 ### Populating the IR
 
-Every IR begins with a single main module. Other modules can be
-created as needed.
+Every IR holds a set of modules.
 
 ```c++
-Module& mainModule = ir.getMainModule();
+ir.getModules().emplace_back();
+Module& module = ir.getModules().back();
 ```
 
 Effective addresses are represented by a distinct type which can be
@@ -196,31 +196,31 @@ EA textSectionAddress(1328);
 
 Create some sections:
 ```c++
-mainModule.getSections().emplace_back(".text", 466, textSectionAddress);
-mainModule.getSections().emplace_back(".data", 2048, textSectionAddress + EA(466));
+module.getSections().emplace_back(".text", textSectionAddress, 466);
+module.getSections().emplace_back(".data", textSectionAddress + EA(466), 2048);
 ```
 
 Create some data objects. These only define the layout and do not
 directly store any data.
 
 ```c++
-DataSet& data = mainModule.getData();
+DataSet& data = module.getData();
 data.emplace_back(EA(2608), 6);
 data.emplace_back(EA(2614), 2);
 ```
 
 The actual data is stored in the module's ImageByteMap:
 ```c++
-ImageByteMap& byteMap = mainModule.getImageByteMap();
-byteMap.setEAMinMax({EA(2608), EA(2616)});
+ImageByteMap& byteMap = module.getImageByteMap();
+teMap.setEAMinMax({EA(2608), EA(2616)});
 uint8_t bytes[] = {1, 0, 2, 0, 115, 116, 114, 108};
-byteMap.setData(EA(2608), as_bytes(gsl::make_span(bytes)));
+byteMap.setData(EA(2608), bytes);
 ```
 
 Symbols associate a name with an EA. They can also link to a Data
 object or Instruction.
 ```c++
-SymbolSet& symbols = mainModule.getSymbols();
+SymbolSet& symbols = module.getSymbols();
 addSymbol(symbols, Symbol(EA(2608), // address
                           "data1",  // name
                           data[0],  // referent
@@ -233,13 +233,12 @@ GT-IRB can store multiple symbols with the same EA.
 addSymbol(symbols, Symbol(EA(2614), "duplicate", data[1], Symbol::StorageKind::Local));
 ```
 
-Instructions are organized into basic blocks.  As with other GT-IRB
-objects, Blocks and Instructions don't directly hold any data.
+Create some basic blocks. Like DataObjects, Blocks don't directly hold
+any data. GT-IRB does not directly represent instructions.
 
 ```c++
-Block b1(EA(466), EA(472),
-         {Instruction(EA(466), 2), Instruction(EA(468), 2), Instruction(EA(470), 2)});
-Block b2(EA(472), EA(480), {Instruction(EA(472), 4), Instruction(EA(476), 4)});
+Block b1(EA(466), EA(472));
+Block b2(EA(472), EA(480));
 ```
 
 Blocks are stored in an interprocedural CFG.  The CFG preserves the
@@ -248,25 +247,28 @@ flow or populated without any edges simply to hold all the
 instructions in the binary.
 
 ```c++
-auto vertex1 = addBlock(mainModule.getCFG(), std::move(b1));
-auto vertex2 = addBlock(mainModule.getCFG(), std::move(b2));
+auto vertex1 = addBlock(module.getCFG(), std::move(b1));
+auto vertex2 = addBlock(module.getCFG(), std::move(b2));
 ```
 
 The `addBlock` function returns a vertex descriptor which can be used
 to retrieve the block or add edges:
 
 ```c++
-add_edge(vertex1, vertex2, mainModule.getCFG());
+auto edge1 add_edge(vertex1, vertex2, mainModule.getCFG()).first;
+```
+
+Edges can have boolean or numeric labels:
+```c++
+module.getCFG()[edge1] = true;
 ```
 
 Information on symbolic operands and data is stored in a map by EA:
 
 ```c++
-const Symbol* data2 = findSymbols(mainModule.getSymbols(), EA(2614))[0];
-mainModule.getSymbolicExpressions().insert(
-    {EA(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
+const Symbol* data2 = findSymbols(module.getSymbols(), EA(2614))[0];
+module.getSymbolicExpressions().insert({EA(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
 ```
-
 
 Finally, data tables can be used to store any additional data at the
 IR level.  These use variants to support a variety of maps and vectors
@@ -287,20 +289,20 @@ Symbols can be looked up by EA.  Any number of symbols can share an
 EA, so be prepared to deal with multiple results.
 
 ```c++
-std::vector<Symbol*> syms = findSymbols(mainModule.getSymbols(), EA(2614));
+std::vector<Symbol*> syms = findSymbols(module.getSymbols(), EA(2614));
 assert(syms.size() == 2);
 assert(syms[0]->getName() == "data2");
 assert(syms[1]->getName() == "duplicate");
 ```
 
-Use a symbol's referent (either an Instruction or Data object) to get
+Use a symbol's referent (either an InstructionRef or Data object) to get
 more information about the object to which the symbol
 points. `NodeRef` behaves like a pointer and may be null.
 
 ```c++
-NodeRef<Data> referent = syms[0]->getDataReferent();
+NodeRef<DataObject> referent = syms[0]->getDataReferent();
 assert(referent);
-assert(referent->getEA() == EA(2614));
+assert(referent->getAddress() == EA(2614));
 assert(referent->getSize() == 2);
 ```
 
@@ -309,10 +311,8 @@ The ICFG uses
 GT-IRB also provides a convenience function for iterating over blocks:
 
 ```c++
-for(const auto& b : blocks(mainModule.getCFG()))
-{
-    std::cout << "Block: " << b.getStartingAddress().get() << ".." << b.getEndingAddress().get()
-              << ", " << b.getInstructions().size() << " instructions\n";
+for (const auto& b : blocks(module.getCFG())) {
+  std::cout << "Block: " << b.getAddress() << ".." << addressLimit(b) << "\n";
 }
 ```
 
@@ -322,15 +322,13 @@ requested.
 
 ```c++
 auto eaTable = boost::get<std::vector<EA>>(ir.getTable("eaTable"));
-for(auto ea : *eaTable)
-{
-    std::cout << "EA: " << ea.get() << "\n";
+for (auto ea : *eaTable) {
+  std::cout << "EA: " << ea.get() << "\n";
 }
 
 auto stringMap = boost::get<std::map<std::string, table::ValueType>>(ir.getTable("stringMap"));
-for(auto p : *stringMap)
-{
-    std::cout << p.first << " => " << boost::get<std::string>(p.second) << "\n";
+for (auto p : *stringMap) {
+  std::cout << p.first << " => " << boost::get<std::string>(p.second) << "\n";
 }
 ```
 
