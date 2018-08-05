@@ -117,6 +117,25 @@ TEST(Unit_Module, getName) {
   EXPECT_TRUE(m->getName().empty());
 }
 
+TEST(Unit_Module, sections) {
+  Module m;
+  m.getSections().emplace_back("test", EA(), 123);
+  EXPECT_EQ(m.getSections().back().getName(), "test");
+}
+
+TEST(Unit_Module, dataObjects) {
+  Module m;
+  m.getData().emplace_back(EA(1), 123);
+  EXPECT_EQ(m.getData().back().getAddress(), EA(1));
+}
+
+TEST(Unit_Module, symbolicExpressions) {
+  Module m;
+  Symbol s;
+  m.getSymbolicExpressions().emplace(EA(1), SymAddrConst{0, s});
+  EXPECT_EQ(m.getSymbolicExpressions().size(), 1);
+}
+
 TEST(Unit_Module, protobufRoundTrip) {
   gtirb::Module result;
   proto::Module message;
