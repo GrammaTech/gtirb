@@ -4,7 +4,7 @@
 
 using namespace gtirb;
 
-TEST(Unit_SymbolicExpression, protobufRoundTripStackConst) {
+TEST(Unit_SymbolicExpression, protobufRoundTrip) {
   Symbol sym1(EA(1), "test1");
   Symbol sym2(EA(2), "test2");
 

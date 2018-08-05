@@ -4,11 +4,12 @@
 
 using namespace gtirb;
 
-TEST(Unit_Block, ctor) { EXPECT_NO_THROW(Block(EA(), EA())); }
+TEST(Unit_Block, ctor) { EXPECT_NO_THROW(Block(EA(), 0)); }
 
-TEST(Unit_Block, getDecodeMode) {
-  Block b(EA(), 2, 3);
-  EXPECT_NO_THROW(b.getDecodeMode());
+TEST(Unit_Block, getters) {
+  Block b(EA(1), 2, 3);
+  EXPECT_EQ(EA(1), b.getAddress());
+  EXPECT_EQ(uint64_t{2}, b.getSize());
   EXPECT_EQ(uint64_t{3}, b.getDecodeMode());
 }
 

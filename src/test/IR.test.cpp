@@ -64,6 +64,21 @@ TEST(Unit_IR, getModulesContainingEA) {
   EXPECT_EQ(size_t(2), modules.size());
 }
 
+TEST(Unit_IR, addTable) {
+  std::vector<int64_t> table = {1, 2, 3};
+  IR ir;
+  ir.addTable("test", std::move(table));
+
+  EXPECT_NE(ir.getTable("test"), nullptr);
+  EXPECT_EQ(boost::get<std::vector<int64_t>>(*ir.getTable("test")),
+            std::vector<int64_t>({1, 2, 3}));
+}
+
+TEST(Unit_IR, missingTable) {
+  IR ir;
+  EXPECT_EQ(ir.getTable("missing"), nullptr);
+}
+
 TEST(Unit_IR, protobufRoundTrip) {
   IR result;
   proto::IR message;
