@@ -36,6 +36,10 @@ void ImageByteMap::setIsRelocated() { this->isRelocated = true; }
 
 bool ImageByteMap::getIsRelocated() const { return this->isRelocated; }
 
+boost::endian::order ImageByteMap::getByteOrder() const { return this->byteOrder; }
+
+void ImageByteMap::setByteOrder(boost::endian::order value) { this->byteOrder = value; }
+
 void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   if (ea >= this->eaMinMax.first &&
       (ea + EA{(uint64_t)data.size_bytes()} - EA{1}) <= this->eaMinMax.second) {
@@ -46,8 +50,9 @@ void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
 }
 
 void ImageByteMap::setData(EA ea, size_t bytes, gsl::byte value) {
+  auto span = gsl::make_span(&value, 1);
   for (uint64_t i = 0; i < bytes; i++) {
-    setData(ea + i, value);
+    this->byteMap.setData(ea + i, span);
   }
 }
 
