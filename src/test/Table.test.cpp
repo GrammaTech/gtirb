@@ -229,3 +229,292 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
   EXPECT_EQ(Refs[1].BlockRef.getUUID(), Id2);
   EXPECT_EQ(Refs[1].Offset, 2);
 }
+
+#include <boost/type_index.hpp>
+#include <type_traits>
+
+class PodTableImpl {
+public:
+  virtual size_t objectSize(const void* object) const = 0;
+
+  virtual void toBytes(const void* object, std::string& bytes) const {
+    auto* srcBytes = static_cast<const char*>(object);
+    std::copy(srcBytes, srcBytes + this->objectSize(object), std::back_inserter(bytes));
+  }
+
+  virtual void fromBytes(void* object, const std::string& bytes) {
+    Expects(bytes.size() == this->objectSize(object));
+    char* destBytes = static_cast<char*>(object);
+    std::copy(bytes.begin(), bytes.end(), destBytes);
+  }
+
+  virtual boost::typeindex::type_index storedType() const = 0;
+};
+
+template <class T> class PodTableTemplate : public PodTableImpl {
+  virtual size_t objectSize(const void*) const override { return sizeof(T); }
+  virtual boost::typeindex::type_index storedType() const override {
+    return boost::typeindex::type_id<T>();
+  }
+};
+
+template <class T> class PodTableVector : public PodTableTemplate<T> {
+  using value_type = typename T::value_type;
+  virtual size_t objectSize(const void* object) const override {
+    return static_cast<const T*>(object)->size() * sizeof(value_type);
+  }
+
+  virtual void toBytes(const void* object, std::string& bytes) const override {
+    // XXX: why doesn't static_cast work here?
+    auto* srcBytes = reinterpret_cast<const char*>(static_cast<const T*>(object)->data());
+    std::copy(srcBytes, srcBytes + this->objectSize(object), std::back_inserter(bytes));
+  }
+
+  virtual void fromBytes(void* object, const std::string& bytes) override {
+    auto vec = static_cast<T*>(object);
+    const size_t elementSize = sizeof(value_type);
+
+    for (auto it = bytes.begin(); it != bytes.end(); it += elementSize) {
+      value_type element;
+      // XXX: why doesn't static_cast work here?
+      std::copy(it, it + elementSize, reinterpret_cast<char*>(&element));
+      vec->push_back(std::move(element));
+    }
+  }
+};
+
+template <class T> class PodTableMap : public PodTableTemplate<T> {
+  using value_type = typename T::value_type;
+  virtual size_t objectSize(const void* object) const override {
+    return static_cast<const T*>(object)->size() * sizeof(value_type);
+  }
+
+  virtual void toBytes(const void* object, std::string& bytes) const override {
+    for (const auto& elt : *static_cast<const T*>(object)) {
+      auto* srcBytes = reinterpret_cast<const char*>(&elt);
+      std::copy(srcBytes, srcBytes + sizeof(typename T::value_type), std::back_inserter(bytes));
+    }
+  }
+
+  virtual void fromBytes(void* object, const std::string& bytes) override {
+    auto m = static_cast<T*>(object);
+    const size_t elementSize = sizeof(value_type);
+
+    for (auto it = bytes.begin(); it != bytes.end(); it += elementSize) {
+      value_type element;
+      // XXX: why doesn't static_cast work here?
+      std::copy(it, it + elementSize, reinterpret_cast<char*>(&element));
+      m->insert(std::move(element));
+    }
+  }
+};
+
+template <class T> struct is_vector : std::false_type {};
+template <class T> struct is_vector<std::vector<T>> : std::true_type {};
+
+template <class T> struct is_map : std::false_type {};
+template <class T, class U> struct is_map<std::map<T, U>> : std::true_type {};
+
+class PodTable {
+public:
+  // TODO: destructor
+  // TODO: constructors, etc
+
+  // TODO: move/reference versions
+  template <typename T> void set(T value) {
+    // XXX: static assert of is_pod
+    this->object = new T(value);
+    this->impl = std::make_unique<PodTableTemplate<T>>();
+  }
+
+  template <typename T> void set(std::vector<T> value) {
+    using V = std::vector<T>;
+    this->object = new V(value);
+    this->impl = std::make_unique<PodTableVector<V>>();
+  }
+
+  template <typename T, typename U> void set(std::map<T, U> value) {
+    using V = std::map<T, U>;
+    this->object = new V(value);
+    this->impl = std::make_unique<PodTableMap<V>>();
+  }
+
+  template <typename T>
+  typename std::enable_if<!is_vector<T>::value && !is_map<T>::value, T>::type& get() {
+    if (!this->rawBytes.empty()) {
+      // Reconstruct from deserialized data
+      auto ti = boost::typeindex::type_id<T>();
+      Expects(ti.pretty_name() == this->typeName);
+
+      this->impl = std::make_unique<PodTableTemplate<T>>();
+      this->object = new T;
+      this->impl->fromBytes(static_cast<char*>(this->object), this->rawBytes);
+      this->rawBytes.clear();
+      this->typeName.clear();
+    } else {
+      Expects(this->object != nullptr);
+      Expects(boost::typeindex::type_id<T>() == this->impl->storedType());
+    }
+
+    return *static_cast<T*>(this->object);
+  }
+
+  template <typename T> typename std::enable_if<is_vector<T>::value, T>::type& get() {
+    if (!this->rawBytes.empty()) {
+      // Reconstruct from deserialized data
+      auto ti = boost::typeindex::type_id<T>();
+      Expects(ti.pretty_name() == this->typeName);
+
+      this->impl = std::make_unique<PodTableVector<T>>();
+      this->object = new T;
+      this->impl->fromBytes(static_cast<char*>(this->object), this->rawBytes);
+      this->rawBytes.clear();
+      this->typeName.clear();
+    } else {
+      Expects(this->object != nullptr);
+      Expects(boost::typeindex::type_id<T>() == this->impl->storedType());
+    }
+
+    return *static_cast<T*>(this->object);
+  }
+
+  template <typename T> typename std::enable_if<is_map<T>::value, T>::type& get() {
+    if (!this->rawBytes.empty()) {
+      // Reconstruct from deserialized data
+      auto ti = boost::typeindex::type_id<T>();
+      Expects(ti.pretty_name() == this->typeName);
+
+      this->impl = std::make_unique<PodTableMap<T>>();
+      this->object = new T;
+      this->impl->fromBytes(static_cast<char*>(this->object), this->rawBytes);
+      this->rawBytes.clear();
+      this->typeName.clear();
+    } else {
+      Expects(this->object != nullptr);
+      Expects(boost::typeindex::type_id<T>() == this->impl->storedType());
+    }
+
+    return *static_cast<T*>(this->object);
+  }
+
+  using MessageType = proto::PodTable;
+  void toProtobuf(MessageType* message) const;
+  void fromProtobuf(const MessageType& message);
+
+private:
+  std::unique_ptr<PodTableImpl> impl;
+  void* object{nullptr};
+  std::string rawBytes;
+  std::string typeName;
+};
+
+void PodTable::toProtobuf(MessageType* message) const {
+  if (this->object != nullptr) {
+    message->set_size(this->impl->objectSize(this->object));
+    message->set_type_name(this->impl->storedType().pretty_name());
+    this->impl->toBytes(this->object, *message->mutable_data());
+  }
+}
+
+void PodTable::fromProtobuf(const MessageType& message) {
+  this->object = nullptr;
+  this->typeName = message.type_name();
+  this->rawBytes = message.data();
+}
+
+TEST(Unit_PodTable, getPod) {
+  struct Test {
+    int x;
+    float y;
+  };
+
+  Test a = {1, 2.5};
+  PodTable p;
+  p.set(a);
+
+  auto& b = p.get<Test>();
+
+  EXPECT_EQ(a.x, b.x);
+  EXPECT_EQ(a.y, b.y);
+}
+
+TEST(Unit_PodTable, getVector) {
+  std::vector<int> orig({1, 2, 3});
+  PodTable p;
+  p.set(orig);
+
+  auto& result = p.get<std::vector<int>>();
+  EXPECT_EQ(result, orig);
+}
+
+TEST(Unit_PodTable, getMap) {
+  std::map<char, int> orig({{'a', 1}, {'b', 2}, {'c', 3}});
+  PodTable p;
+  p.set(orig);
+
+  auto& result = p.get<std::map<char, int>>();
+  EXPECT_EQ(result, orig);
+}
+
+TEST(Unit_PodTable, getUnsetValue) {
+  PodTable p;
+  EXPECT_DEATH(p.get<int>(), "");
+}
+
+TEST(Unit_PodTable, getWrongType) {
+  PodTable p;
+  p.set(uint64_t(1));
+  EXPECT_DEATH(p.get<float>(), "");
+}
+
+TEST(Unit_PodTable, protobufRoundTrip) {
+  struct Test {
+    int x;
+    float y;
+  };
+
+  Test a = {1, 2.5};
+  PodTable original;
+  original.set(a);
+
+  PodTable::MessageType message;
+  original.toProtobuf(&message);
+  PodTable result;
+  result.fromProtobuf(message);
+
+  auto& b = result.get<Test>();
+
+  EXPECT_EQ(a.x, b.x);
+  EXPECT_EQ(a.y, b.y);
+}
+
+TEST(Unit_PodTable, vectorProtobufRoundTrip) {
+  std::vector<int> v({1, 2, 3});
+  PodTable original;
+  original.set(v);
+
+  PodTable::MessageType message;
+  original.toProtobuf(&message);
+  PodTable result;
+  result.fromProtobuf(message);
+
+  EXPECT_EQ(result.get<decltype(v)>(), v);
+}
+
+TEST(Unit_PodTable, mapProtobufRoundTrip) {
+  std::map<char, int> m({{'a', 1}, {'b', 2}, {'c', 3}});
+  PodTable original;
+  original.set(m);
+
+  PodTable::MessageType message;
+  original.toProtobuf(&message);
+  PodTable result;
+  result.fromProtobuf(message);
+
+  EXPECT_EQ(result.get<decltype(m)>(), m);
+}
+
+// TODO:
+// Destructors/memory management
+// Byte order
+// Strings
