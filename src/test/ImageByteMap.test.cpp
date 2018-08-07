@@ -197,13 +197,15 @@ TEST_F(Unit_ImageByteMapF, constantData) {
   EXPECT_EQ(this->byteMap.getData(address, expected.size()), expected);
 }
 
-TEST_F(Unit_ImageByteMapF, structData) {
-  struct S {
-    uint32_t i;
-    float f;
-  };
+struct TestStruct {
+  uint32_t i;
+  uint8_t j;
+};
 
-  S data = {std::numeric_limits<uint16_t>::max() + 1, 0.1234};
+TestStruct endian_reverse(const TestStruct& x) { return {boost::endian::endian_reverse(x.i), x.j}; }
+
+TEST_F(Unit_ImageByteMapF, structData) {
+  TestStruct data = {std::numeric_limits<uint16_t>::max() + 1, 0xAB};
 
   const auto address = gtirb::EA(0x00001000);
 
@@ -217,7 +219,121 @@ TEST_F(Unit_ImageByteMapF, structData) {
 
   const auto result = this->byteMap.getData<decltype(data)>(address);
   EXPECT_EQ(data.i, result.i) << "Bad struct read at : " << address;
-  EXPECT_EQ(data.f, result.f) << "Bad struct read at : " << address;
+  EXPECT_EQ(data.j, result.j) << "Bad struct read at : " << address;
+}
+
+TEST_F(Unit_ImageByteMapF, littleEndian) {
+  this->byteMap.setByteOrder(boost::endian::order::little);
+
+  const uint16_t w = 0xABCD;
+  const uint32_t dw = 0xDEADBEEF;
+  const uint64_t qw = 0xFEEDFACEABCDEF01;
+  std::array<uint16_t, 2> a = {0xACAF, 0xBFAE};
+  const TestStruct s = {0xBAADF00D, 0xAB};
+
+  EA addr0(0x1000);
+  EA addr1 = addr0 + sizeof(w);
+  EA addr2 = addr1 + sizeof(dw);
+  EA addr3 = addr2 + sizeof(qw);
+  EA addr4 = addr3 + sizeof(a);
+  this->byteMap.setData(addr0, w);
+  this->byteMap.setData(addr1, dw);
+  this->byteMap.setData(addr2, qw);
+  this->byteMap.setData(addr3, a);
+  this->byteMap.setData(addr4, s);
+
+  // Confirm expected byte order
+  std::vector<gsl::byte> expected{
+      // w
+      gsl::byte(0xCD), gsl::byte(0xAB),
+      // dw
+      gsl::byte(0xEF), gsl::byte(0xBE), gsl::byte(0xAD), gsl::byte(0xDE),
+      // qw
+      gsl::byte(0x01), gsl::byte(0xEF), gsl::byte(0xCD), gsl::byte(0xAB), gsl::byte(0xCE),
+      gsl::byte(0xFA), gsl::byte(0xED), gsl::byte(0xFE),
+      // a
+      gsl::byte(0xAF), gsl::byte(0xAC), gsl::byte(0xAE), gsl::byte(0xBF),
+      // s
+      gsl::byte(0x0D), gsl::byte(0xF0), gsl::byte(0xAD), gsl::byte(0xBA), gsl::byte(0xAB)};
+
+  // Skip padding of s
+  size_t size = sizeof(w) + sizeof(dw) + sizeof(qw) + sizeof(a) + sizeof(s.i) + sizeof(s.j);
+  EXPECT_EQ(this->byteMap.getData(addr0, size), expected);
+
+  // Confirm that getData returns to native order.
+  EXPECT_EQ(this->byteMap.getData<uint16_t>(addr0), w);
+  EXPECT_EQ(this->byteMap.getData<uint32_t>(addr1), dw);
+  EXPECT_EQ(this->byteMap.getData<uint64_t>(addr2), qw);
+  EXPECT_EQ(this->byteMap.getData<decltype(a)>(addr3), a);
+  TestStruct s2 = this->byteMap.getData<TestStruct>(addr4);
+  EXPECT_EQ(s2.i, s.i);
+  EXPECT_EQ(s2.j, s.j);
+}
+
+TEST_F(Unit_ImageByteMapF, bigEndian) {
+  this->byteMap.setByteOrder(boost::endian::order::big);
+
+  const uint16_t w = 0xABCD;
+  const uint32_t dw = 0xDEADBEEF;
+  const uint64_t qw = 0xFEEDFACEABCDEF01;
+  std::array<uint16_t, 2> a = {0xACAF, 0xBFAE};
+  const TestStruct s = {0xBAADF00D, 0xAB};
+
+  EA addr0(0x1000);
+  EA addr1 = addr0 + sizeof(w);
+  EA addr2 = addr1 + sizeof(dw);
+  EA addr3 = addr2 + sizeof(qw);
+  EA addr4 = addr3 + sizeof(a);
+  this->byteMap.setData(addr0, w);
+  this->byteMap.setData(addr1, dw);
+  this->byteMap.setData(addr2, qw);
+  this->byteMap.setData(addr3, a);
+  this->byteMap.setData(addr4, s);
+
+  // Confirm expected byte order
+  std::vector<gsl::byte> expected{
+      // w
+      gsl::byte(0xAB),
+      gsl::byte(0xCD),
+      // dw
+      gsl::byte(0xDE),
+      gsl::byte(0xAD),
+      gsl::byte(0xBE),
+      gsl::byte(0xEF),
+      // qw
+      gsl::byte(0xFE),
+      gsl::byte(0xED),
+      gsl::byte(0xFA),
+      gsl::byte(0xCE),
+      gsl::byte(0xAB),
+      gsl::byte(0xCD),
+      gsl::byte(0xEF),
+      gsl::byte(0x01),
+      // a
+      gsl::byte(0xAC),
+      gsl::byte(0xAF),
+      gsl::byte(0xBF),
+      gsl::byte(0xAE),
+      // s
+      gsl::byte(0xBA),
+      gsl::byte(0xAD),
+      gsl::byte(0xF0),
+      gsl::byte(0x0D),
+      gsl::byte(0xAB),
+  };
+
+  // Skip padding of s
+  size_t size = sizeof(w) + sizeof(dw) + sizeof(qw) + sizeof(a) + sizeof(s.i) + sizeof(s.j);
+  EXPECT_EQ(this->byteMap.getData(addr0, size), expected);
+
+  // Confirm that getData returns to native order.
+  EXPECT_EQ(this->byteMap.getData<uint16_t>(addr0), w);
+  EXPECT_EQ(this->byteMap.getData<uint32_t>(addr1), dw);
+  EXPECT_EQ(this->byteMap.getData<uint64_t>(addr2), qw);
+  EXPECT_EQ(this->byteMap.getData<decltype(a)>(addr3), a);
+  TestStruct s2 = this->byteMap.getData<TestStruct>(addr4);
+  EXPECT_EQ(s2.i, s.i);
+  EXPECT_EQ(s2.j, s.j);
 }
 
 TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
