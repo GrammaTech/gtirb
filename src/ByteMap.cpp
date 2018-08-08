@@ -58,7 +58,10 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
   Region region = {ea, std::vector<gsl::byte>()};
   region.data.reserve(bytes.size());
   std::copy(bytes.begin(), bytes.end(), std::back_inserter(region.data));
-  this->regions.insert(this->regions.end() - 1, std::move(region));
+  this->regions.insert(
+      std::lower_bound(this->regions.begin(), this->regions.end(), region,
+                       [](const auto& a, const auto& b) { return a.address < b.address; }),
+      std::move(region));
 }
 
 std::vector<gsl::byte> ByteMap::getData(EA ea, size_t bytes) const {
