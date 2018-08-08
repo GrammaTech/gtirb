@@ -100,8 +100,8 @@ TEST(Unit_ByteMap, mergeRegions) {
   std::vector<gsl::byte> data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
   std::vector<gsl::byte> data3 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
 
-  byteMap.setData(EA(1000), as_bytes(gsl::make_span(data1)));
   byteMap.setData(EA(1000 + data1.size() + data2.size()), as_bytes(gsl::make_span(data3)));
+  byteMap.setData(EA(1000), as_bytes(gsl::make_span(data1)));
   byteMap.setData(EA(1000 + data1.size()), as_bytes(gsl::make_span(data2)));
 
   auto expected = data1;
