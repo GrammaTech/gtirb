@@ -228,7 +228,7 @@ TEST_F(Unit_ImageByteMapF, littleEndian) {
   const uint16_t w = 0xABCD;
   const uint32_t dw = 0xDEADBEEF;
   const uint64_t qw = 0xFEEDFACEABCDEF01;
-  std::array<uint16_t, 2> a = {0xACAF, 0xBFAE};
+  std::array<uint16_t, 2> a = {{0xACAF, 0xBFAE}};
   const TestStruct s = {0xBAADF00D, 0xAB};
 
   EA addr0(0x1000);
@@ -276,7 +276,7 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
   const uint16_t w = 0xABCD;
   const uint32_t dw = 0xDEADBEEF;
   const uint64_t qw = 0xFEEDFACEABCDEF01;
-  std::array<uint16_t, 2> a = {0xACAF, 0xBFAE};
+  std::array<uint16_t, 2> a = {{0xACAF, 0xBFAE}};
   const TestStruct s = {0xBAADF00D, 0xAB};
 
   EA addr0(0x1000);

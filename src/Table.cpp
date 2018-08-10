@@ -169,7 +169,7 @@ void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message
     value = std::move(v);
     break;
   }
-  case proto::Table::kInstructionVector: {
+  case proto::InnerValue::kInstructionVector: {
     std::vector<InstructionRef> v;
     containerFromProtobuf(v, message.instruction_vector().contents());
     value = std::move(v);
