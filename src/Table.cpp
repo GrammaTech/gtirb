@@ -69,7 +69,7 @@ public:
   void operator()(const std::vector<table::InnerMapType>& val) const {
     auto field = message->mutable_map_vector()->mutable_contents();
     field->Clear();
-    field->Reserve(val.size());
+    field->Reserve(static_cast<int>(val.size()));
     std::for_each(val.begin(), val.end(),
                   [field](auto v) { containerToProtobuf(v, field->Add()->mutable_contents()); });
   }

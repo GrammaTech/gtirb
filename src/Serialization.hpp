@@ -65,12 +65,12 @@ auto toProtobuf(const std::pair<T, U>& val)
 template <typename T>
 void initContainer(google::protobuf::RepeatedField<T>* container, size_t size) {
   container->Clear();
-  container->Reserve(size);
+  container->Reserve(static_cast<int>(size));
 }
 template <typename T>
 void initContainer(google::protobuf::RepeatedPtrField<T>* container, size_t size) {
   container->Clear();
-  container->Reserve(size);
+  container->Reserve(static_cast<int>(size));
 }
 template <typename T> void initContainer(std::vector<T>& container, size_t size) {
   container.clear();

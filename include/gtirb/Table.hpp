@@ -54,6 +54,6 @@ using Table = boost::variant<std::map<EA, table::ValueType>,          //
                              std::vector<UUID>,                       //
                              std::vector<InstructionRef>>;
 
-proto::Table toProtobuf(const Table& table);
-void fromProtobuf(Table& result, const proto::Table& message);
+GTIRB_EXPORT_API proto::Table toProtobuf(const Table& table);
+GTIRB_EXPORT_API void fromProtobuf(Table& result, const proto::Table& message);
 } // namespace gtirb

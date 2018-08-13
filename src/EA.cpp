@@ -10,12 +10,12 @@ uint64_t EA::get() const { return this->ea; }
 
 EA::operator uint64_t() const { return this->ea; }
 EA::operator int64_t() const { return this->ea; }
-EA::operator uint32_t() const { return this->ea; }
-EA::operator int32_t() const { return this->ea; }
-EA::operator uint16_t() const { return this->ea; }
-EA::operator int16_t() const { return this->ea; }
-EA::operator uint8_t() const { return this->ea; }
-EA::operator int8_t() const { return this->ea; }
+EA::operator uint32_t() const { return static_cast<uint32_t>(this->ea); }
+EA::operator int32_t() const { return static_cast<int32_t>(this->ea); }
+EA::operator uint16_t() const { return static_cast<uint16_t>(this->ea); }
+EA::operator int16_t() const { return static_cast<int16_t>(this->ea); }
+EA::operator uint8_t() const { return static_cast<uint8_t>(this->ea); }
+EA::operator int8_t() const { return static_cast<int8_t>(this->ea); }
 
 EA& EA::operator=(const EA x) {
   this->ea = x.ea;

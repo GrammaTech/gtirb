@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
+#include <cstdint>
 #include <vector>
 
 namespace proto {

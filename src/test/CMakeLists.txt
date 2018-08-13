@@ -8,6 +8,7 @@ add_compile_options(-DDEBUG)
 # Required warning suppression (TODO: Remove!)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	#add_compile_options(-wd4251)  # Non-exportable template classes.
+	add_compile_options(-wd4389)   # signed/unsigned mismatch (in gtest headers)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	add_compile_options(-fpermissive)
 	add_compile_options(-mtune=generic)
