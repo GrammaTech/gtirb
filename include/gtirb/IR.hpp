@@ -58,27 +58,27 @@ public:
   ///
   /// Default constructor.
   ///
-  IR() = default;
+  IR();
 
   ///
-  /// Copy constructor. Assigns a new UUID to the copy.
+  /// IR may not be copied due to Modules.
   ///
-  explicit IR(const IR& other) = default;
+  IR(const IR& other) = delete;
 
   ///
   /// Move constructor
   ///
-  IR(IR&&) = default;
+  IR(IR&&);
 
   ///
   /// Move assignment
   ///
-  IR& operator=(IR&&) = default;
+  IR& operator=(IR&&);
 
   ///
   /// Trivial virtual destructor.
   ///
-  ~IR() override = default;
+  ~IR() override;
 
   std::vector<Module>& getModules();
   const std::vector<Module>& getModules() const;

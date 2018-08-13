@@ -172,4 +172,4 @@ inline bool operator==(const uint64_t rhs, const gtirb::EA lhs) { return gtirb::
 ///
 /// Print EA to a stream
 ///
-std::ostream& operator<<(std::ostream& os, const gtirb::EA& ea);
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os, const gtirb::EA& ea);

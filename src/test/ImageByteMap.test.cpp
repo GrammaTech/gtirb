@@ -205,7 +205,7 @@ struct TestStruct {
 TestStruct endian_reverse(const TestStruct& x) { return {boost::endian::endian_reverse(x.i), x.j}; }
 
 TEST_F(Unit_ImageByteMapF, structData) {
-  TestStruct data = {std::numeric_limits<uint16_t>::max() + 1, 0xAB};
+  TestStruct data = {static_cast<uint32_t>(std::numeric_limits<uint16_t>::max() + 1), 0xAB};
 
   const auto address = gtirb::EA(0x00001000);
 

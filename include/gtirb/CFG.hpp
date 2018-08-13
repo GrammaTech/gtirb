@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gtirb/Block.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -60,18 +61,18 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 /// Move a basic block into the graph.
 ///
 /// \return a descriptor which can be used to retrieve the Block.
-CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block);
+GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block);
 
 ///
 /// Iterates over Blocks in the graph.
 ///
-boost::iterator_range<block_iterator> blocks(CFG& cfg);
+GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& cfg);
 
 ///
 /// Iterates over Blocks in the graph (by const reference).
 ///
-boost::iterator_range<const_block_iterator> blocks(const CFG& cfg);
+GTIRB_EXPORT_API boost::iterator_range<const_block_iterator> blocks(const CFG& cfg);
 
-proto::CFG toProtobuf(const CFG& cfg);
-void fromProtobuf(CFG& result, const proto::CFG& message);
+GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& cfg);
+GTIRB_EXPORT_API void fromProtobuf(CFG& result, const proto::CFG& message);
 } // namespace gtirb

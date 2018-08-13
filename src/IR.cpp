@@ -1,11 +1,20 @@
 #include "IR.hpp"
 #include "Serialization.hpp"
+#include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/Section.hpp>
+#include <gtirb/Symbol.hpp>
+#include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/Table.hpp>
 #include <proto/IR.pb.h>
 
 using namespace gtirb;
+
+IR::IR() = default;
+IR::IR(IR&&) = default;
+IR& IR::operator=(IR&&) = default;
+IR::~IR() = default;
 
 std::vector<Module>& IR::getModules() { return this->modules; }
 

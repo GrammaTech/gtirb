@@ -17,7 +17,7 @@
 /// The namespace for the GT-IRB library.
 ///
 
-#ifdef WIN32
+#ifdef _WIN32
 #if defined GTIRB_gtirb_EXPORTS
 #define GTIRB_EXPORT_API _declspec(dllexport)
 #else

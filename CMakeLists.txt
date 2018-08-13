@@ -74,6 +74,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	add_compile_options(-wd4275) # Non-dll interface base classes.
 	add_compile_options(-wd4996) # VC8: Deprecated libc functions.
 	add_compile_options(-wd4351) # This is a warning about a change in behavior from old versions of visual c++.  We want the new (standard-compliant) behavior, so we don't want the warning.  The warning is that using an array in a class initializer list will cause its elements to be default initialized.
+        add_compile_options(-wd4146) # unary minus operator applied to unsigned type, result still unsigned
 
 	# Per-configuration options
 	add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)

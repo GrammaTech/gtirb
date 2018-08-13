@@ -1,6 +1,11 @@
+#include <gtirb/DataObject.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/Section.hpp>
+#include <gtirb/Symbol.hpp>
+#include <gtirb/SymbolicExpression.hpp>
+#include <gtirb/Table.hpp>
 #include <proto/IR.pb.h>
 #include <gtest/gtest.h>
 #include <memory>

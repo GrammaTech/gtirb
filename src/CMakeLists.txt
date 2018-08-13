@@ -6,6 +6,8 @@ add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	#add_compile_options(-wd4251)  # Non-exportable template classes.
+        add_compile_options(-wd4100) # unreferenced formal parameter, for protobuf includes
+    add_compile_options(-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	#add_compile_options(-Wno-unused-function)
 	add_compile_options(-mtune=generic)

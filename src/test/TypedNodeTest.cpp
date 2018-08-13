@@ -6,6 +6,7 @@
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
+#include <gtirb/SymbolicExpression.hpp>
 #include <proto/Block.pb.h>
 #include <proto/ByteMap.pb.h>
 #include <proto/DataObject.pb.h>
