@@ -76,8 +76,4 @@ struct GTIRB_EXPORT_API InstructionRef {
   void fromProtobuf(const MessageType& message);
 };
 
-// TODO:
-// serialization
-// add to Tables
-
 } // namespace gtirb
