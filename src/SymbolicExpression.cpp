@@ -7,58 +7,58 @@
 namespace gtirb {
 class SymbolicVisitor : public boost::static_visitor<> {
 public:
-  proto::SymbolicExpression* message;
+  proto::SymbolicExpression* Message;
 
-  SymbolicVisitor(proto::SymbolicExpression* m) : message(m) {}
+  SymbolicVisitor(proto::SymbolicExpression* M) : Message(M) {}
 
-  void operator()(const SymStackConst& val) const {
-    auto m = message->mutable_stack_const();
-    m->set_negate(val.negate);
-    m->set_offset(val.offset);
-    m->set_displacement(val.displacement);
-    uuidToBytes(val.symbol.getUUID(), *m->mutable_symbol_uuid());
+  void operator()(const SymStackConst& Val) const {
+    auto M = Message->mutable_stack_const();
+    M->set_negate(Val.Negate);
+    M->set_offset(Val.Offset);
+    M->set_displacement(Val.Displacement);
+    uuidToBytes(Val.Sym.getUUID(), *M->mutable_symbol_uuid());
   }
 
-  void operator()(const SymAddrConst& val) const {
-    auto m = message->mutable_addr_const();
-    m->set_displacement(val.displacement);
-    uuidToBytes(val.symbol.getUUID(), *m->mutable_symbol_uuid());
+  void operator()(const SymAddrConst& Val) const {
+    auto M = Message->mutable_addr_const();
+    M->set_displacement(Val.Displacement);
+    uuidToBytes(Val.Sym.getUUID(), *M->mutable_symbol_uuid());
   }
 
-  void operator()(const SymAddrAddr& val) const {
-    auto m = message->mutable_addr_addr();
-    m->set_scale(val.scale);
-    m->set_offset(val.offset);
-    uuidToBytes(val.symbol1.getUUID(), *m->mutable_symbol1_uuid());
-    uuidToBytes(val.symbol2.getUUID(), *m->mutable_symbol2_uuid());
+  void operator()(const SymAddrAddr& Val) const {
+    auto M = Message->mutable_addr_addr();
+    M->set_scale(Val.Scale);
+    M->set_offset(Val.Offset);
+    uuidToBytes(Val.Sym1.getUUID(), *M->mutable_symbol1_uuid());
+    uuidToBytes(Val.Sym2.getUUID(), *M->mutable_symbol2_uuid());
   }
 };
 
-proto::SymbolicExpression toProtobuf(const SymbolicExpression& operand) {
-  proto::SymbolicExpression message;
-  boost::apply_visitor(SymbolicVisitor(&message), operand);
-  return message;
+proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
+  proto::SymbolicExpression Message;
+  boost::apply_visitor(SymbolicVisitor(&Message), Value);
+  return Message;
 }
 
-void fromProtobuf(SymbolicExpression& result,
-                  const proto::SymbolicExpression& message) {
-  switch (message.value_case()) {
+void fromProtobuf(SymbolicExpression& Result,
+                  const proto::SymbolicExpression& Message) {
+  switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
-    auto val = message.stack_const();
-    result = SymStackConst{val.negate(), val.offset(), val.displacement(),
-                           uuidFromBytes(val.symbol_uuid())};
+    auto Val = Message.stack_const();
+    Result = SymStackConst{Val.negate(), Val.offset(), Val.displacement(),
+                           uuidFromBytes(Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrConst: {
-    auto val = message.addr_const();
-    result = SymAddrConst{val.displacement(), uuidFromBytes(val.symbol_uuid())};
+    auto Val = Message.addr_const();
+    Result = SymAddrConst{Val.displacement(), uuidFromBytes(Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrAddr: {
-    auto val = message.addr_addr();
-    result = SymAddrAddr{val.scale(), val.offset(),
-                         uuidFromBytes(val.symbol1_uuid()),
-                         uuidFromBytes(val.symbol2_uuid())};
+    auto Val = Message.addr_addr();
+    Result = SymAddrAddr{Val.scale(), Val.offset(),
+                         uuidFromBytes(Val.symbol1_uuid()),
+                         uuidFromBytes(Val.symbol2_uuid())};
     break;
   }
   case proto::SymbolicExpression::VALUE_NOT_SET:

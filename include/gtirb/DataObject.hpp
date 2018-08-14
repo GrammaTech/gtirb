@@ -20,12 +20,12 @@ public:
   // Default constructor required for serialization.
   DataObject() = default;
 
-  DataObject(EA address_, uint64_t size_) : address(address_), size(size_) {}
+  DataObject(EA Address_, uint64_t Size_) : Address(Address_), Size(Size_) {}
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
-  explicit DataObject(const DataObject& other) = default;
+  explicit DataObject(const DataObject&) = default;
   ///
   /// Move constructor
   ///
@@ -41,11 +41,11 @@ public:
   uint64_t getSize() const;
 
   using MessageType = proto::DataObject;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
 private:
-  EA address{0};
-  uint64_t size{0};
+  EA Address{0};
+  uint64_t Size{0};
 };
 } // namespace gtirb

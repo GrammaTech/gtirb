@@ -5,20 +5,20 @@
 using namespace gtirb;
 
 TEST(Unit_DataObject, getters) {
-  DataObject d(EA(1), 1234);
-  EXPECT_EQ(d.getAddress(), EA(1));
-  EXPECT_EQ(d.getSize(), 1234);
+  DataObject D(EA(1), 1234);
+  EXPECT_EQ(D.getAddress(), EA(1));
+  EXPECT_EQ(D.getSize(), 1234);
 }
 
 TEST(Unit_DataObject, protobufRoundTrip) {
-  DataObject original(EA(1), 1234);
+  DataObject Original(EA(1), 1234);
 
-  gtirb::DataObject result;
-  proto::DataObject message;
-  original.toProtobuf(&message);
-  original.setUUID(); // Avoid UUID conflict
-  result.fromProtobuf(message);
+  gtirb::DataObject Result;
+  proto::DataObject Message;
+  Original.toProtobuf(&Message);
+  Original.setUUID(); // Avoid UUID conflict
+  Result.fromProtobuf(Message);
 
-  EXPECT_EQ(result.getAddress(), EA(1));
-  EXPECT_EQ(result.getSize(), 1234);
+  EXPECT_EQ(Result.getAddress(), EA(1));
+  EXPECT_EQ(Result.getSize(), 1234);
 }

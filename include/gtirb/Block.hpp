@@ -13,6 +13,7 @@ class InstructionRef;
 } // namespace proto
 
 namespace gtirb {
+
 ///
 /// \class Block
 ///
@@ -26,11 +27,11 @@ public:
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
-  explicit Block(const Block& other) = default;
+  explicit Block(const Block&) = default;
   ///
   /// Construct an empty block
   ///
-  Block(EA address, uint64_t size, uint64_t decodeMode = 0);
+  Block(EA Address, uint64_t Size, uint64_t DecodeMode = 0);
 
   ///
   /// Move constructor
@@ -52,13 +53,13 @@ public:
   uint64_t getDecodeMode() const;
 
   using MessageType = proto::Block;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
 private:
-  EA address{};
-  uint64_t size{0};
-  uint64_t decodeMode{0};
+  EA Address{};
+  uint64_t Size{0};
+  uint64_t DecodeMode{0};
 };
 
 ///
@@ -67,8 +68,8 @@ private:
 /// Describes the location of an instruction.
 ///
 struct GTIRB_EXPORT_API InstructionRef {
-  NodeRef<Block> block;
-  uint64_t offset;
+  NodeRef<Block> BlockRef;
+  uint64_t Offset;
 
   using MessageType = proto::InstructionRef;
   void toProtobuf(MessageType* message) const;

@@ -21,7 +21,7 @@ public:
   /// Retrieve a node by its UUID.
   ///
   /// \return node with the given UUID, or nullptr if none exists.
-  static Node* getByUUID(UUID uuid);
+  static Node* getByUUID(UUID Uuid);
 
   ///
   /// Automatically assigns the Node a UUID.
@@ -67,7 +67,7 @@ public:
   ///
   /// Though automatically assigned on construction, it can be manually set.
   ///
-  void setUUID(UUID x);
+  void setUUID(UUID X);
 
   ///
   /// Retrieve the Node's Universally Unique ID (UUID).
@@ -75,19 +75,19 @@ public:
   UUID getUUID() const;
 
 private:
-  UUID uuid;
+  UUID Uuid;
 
-  static std::map<UUID, Node*> uuidMap;
+  static std::map<UUID, Node*> UuidMap;
 };
 
 ///
 /// Return the text representation of a UUID.
 ///
-std::string uuidToString(const UUID& uuid);
+std::string uuidToString(const UUID& Uuid);
 
 ///
 /// Create UUID from text representation.
 ///
-UUID uuidFromString(const std::string& text);
+UUID uuidFromString(const std::string& Text);
 
 } // namespace gtirb

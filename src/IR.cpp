@@ -16,94 +16,94 @@ IR::IR(IR&&) = default;
 IR& IR::operator=(IR&&) = default;
 IR::~IR() = default;
 
-std::vector<Module>& IR::getModules() { return this->modules; }
+std::vector<Module>& IR::getModules() { return this->Modules; }
 
-const std::vector<Module>& IR::getModules() const { return this->modules; }
+const std::vector<Module>& IR::getModules() const { return this->Modules; }
 
-std::vector<const Module*> IR::getModulesWithPreferredEA(EA x) const {
-  std::vector<const Module*> results;
+std::vector<const Module*> IR::getModulesWithPreferredEA(EA X) const {
+  std::vector<const Module*> Results;
 
-  for (const auto& m : this->modules) {
-    if (m.getPreferredEA() == x) {
-      results.push_back(&m);
+  for (const auto& m : this->Modules) {
+    if (m.getPreferredEA() == X) {
+      Results.push_back(&m);
     }
   }
 
-  return results;
+  return Results;
 }
 
-std::vector<const Module*> IR::getModulesContainingEA(EA x) const {
-  std::vector<const Module*> results;
+std::vector<const Module*> IR::getModulesContainingEA(EA X) const {
+  std::vector<const Module*> Results;
 
-  for (const auto& m : this->modules) {
-    auto minmax = m.getImageByteMap().getEAMinMax();
-    if ((x >= minmax.first) && (x < minmax.second)) {
-      results.push_back(&m);
+  for (const auto& M : this->Modules) {
+    auto MinMax = M.getImageByteMap().getEAMinMax();
+    if ((X >= MinMax.first) && (X < MinMax.second)) {
+      Results.push_back(&M);
     }
   }
 
-  return results;
+  return Results;
 }
 
-void IR::addTable(std::string name, Table&& x) {
-  this->tables[std::move(name)] = std::move(x);
+void IR::addTable(std::string Name, Table&& X) {
+  this->Tables[std::move(Name)] = std::move(X);
 }
 
-const gtirb::Table* IR::getTable(const std::string& x) const {
-  auto found = this->tables.find(x);
-  if (found != std::end(this->tables)) {
-    return &(found->second);
+const gtirb::Table* IR::getTable(const std::string& X) const {
+  auto Found = this->Tables.find(X);
+  if (Found != std::end(this->Tables)) {
+    return &(Found->second);
   }
 
   return nullptr;
 }
 
-gtirb::Table* IR::getTable(const std::string& x) {
-  auto found = this->tables.find(x);
-  if (found != std::end(this->tables)) {
-    return &(found->second);
+gtirb::Table* IR::getTable(const std::string& X) {
+  auto Found = this->Tables.find(X);
+  if (Found != std::end(this->Tables)) {
+    return &(Found->second);
   }
 
   return nullptr;
 }
 
-bool IR::removeTable(const std::string& x) {
-  const auto found = this->tables.find(x);
+bool IR::removeTable(const std::string& X) {
+  const auto Found = this->Tables.find(X);
 
-  if (found != std::end(this->tables)) {
-    this->tables.erase(found);
+  if (Found != std::end(this->Tables)) {
+    this->Tables.erase(Found);
     return true;
   }
 
   return false;
 }
 
-size_t IR::getTableSize() const { return this->tables.size(); }
+size_t IR::getTableSize() const { return this->Tables.size(); }
 
-bool IR::getTablesEmpty() const { return this->tables.empty(); }
+bool IR::getTablesEmpty() const { return this->Tables.empty(); }
 
-void IR::clearTables() { this->tables.clear(); }
+void IR::clearTables() { this->Tables.clear(); }
 
-void IR::toProtobuf(MessageType* message) const {
-  nodeUUIDToBytes(this, *message->mutable_uuid());
-  containerToProtobuf(this->modules, message->mutable_modules());
-  containerToProtobuf(this->tables, message->mutable_tables());
+void IR::toProtobuf(MessageType* Message) const {
+  nodeUUIDToBytes(this, *Message->mutable_uuid());
+  containerToProtobuf(this->Modules, Message->mutable_modules());
+  containerToProtobuf(this->Tables, Message->mutable_tables());
 }
 
-void IR::fromProtobuf(const MessageType& message) {
-  setNodeUUIDFromBytes(this, message.uuid());
-  containerFromProtobuf(this->modules, message.modules());
-  containerFromProtobuf(this->tables, message.tables());
+void IR::fromProtobuf(const MessageType& Message) {
+  setNodeUUIDFromBytes(this, Message.uuid());
+  containerFromProtobuf(this->Modules, Message.modules());
+  containerFromProtobuf(this->Tables, Message.tables());
 }
 
-void IR::save(std::ostream& out) const {
-  MessageType message;
-  this->toProtobuf(&message);
-  message.SerializeToOstream(&out);
+void IR::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
 }
 
-void IR::load(std::istream& in) {
-  MessageType message;
-  message.ParseFromIstream(&in);
-  this->fromProtobuf(message);
+void IR::load(std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  this->fromProtobuf(Message);
 }

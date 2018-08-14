@@ -14,121 +14,121 @@
 using namespace gtirb;
 
 Module::Module()
-    : Node(), cfg(std::make_unique<CFG>()),
-      data(std::make_unique<std::vector<DataObject>>()),
-      imageByteMap(std::make_unique<ImageByteMap>()),
-      sections(std::make_unique<std::vector<Section>>()),
-      symbols(std::make_unique<SymbolSet>()),
-      symbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
+    : Node(), Cfg(std::make_unique<CFG>()),
+      Data(std::make_unique<std::vector<DataObject>>()),
+      ImageByteMap_(std::make_unique<gtirb::ImageByteMap>()),
+      Sections(std::make_unique<std::vector<Section>>()),
+      Symbols(std::make_unique<SymbolSet>()),
+      SymbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
 
 Module::Module(Module&&) = default;
 Module::~Module() = default;
 
-void Module::setBinaryPath(boost::filesystem::path x) { this->binaryPath = x; }
+void Module::setBinaryPath(boost::filesystem::path X) { this->BinaryPath = X; }
 
 boost::filesystem::path Module::getBinaryPath() const {
-  return this->binaryPath;
+  return this->BinaryPath;
 }
 
-void Module::setFileFormat(gtirb::FileFormat x) { this->fileFormat = x; }
+void Module::setFileFormat(gtirb::FileFormat X) { this->FileFormat = X; }
 
-gtirb::FileFormat Module::getFileFormat() const { return this->fileFormat; }
+gtirb::FileFormat Module::getFileFormat() const { return this->FileFormat; }
 
-void Module::setRebaseDelta(int64_t x) { this->rebaseDelta = x; }
+void Module::setRebaseDelta(int64_t X) { this->RebaseDelta = X; }
 
-int64_t Module::getRebaseDelta() const { return this->rebaseDelta; }
+int64_t Module::getRebaseDelta() const { return this->RebaseDelta; }
 
-void Module::setISAID(gtirb::ISAID x) { this->isaID = x; }
+void Module::setISAID(gtirb::ISAID X) { this->IsaID = X; }
 
-gtirb::ISAID Module::getISAID() const { return this->isaID; }
+gtirb::ISAID Module::getISAID() const { return this->IsaID; }
 
-void Module::setPreferredEA(gtirb::EA x) { this->preferredEA = x; }
+void Module::setPreferredEA(gtirb::EA X) { this->PreferredEA = X; }
 
-gtirb::EA Module::getPreferredEA() const { return this->preferredEA; }
+gtirb::EA Module::getPreferredEA() const { return this->PreferredEA; }
 
-gtirb::SymbolSet& Module::getSymbols() { return *this->symbols; }
+gtirb::SymbolSet& Module::getSymbols() { return *this->Symbols; }
 
-const gtirb::SymbolSet& Module::getSymbols() const { return *this->symbols; }
+const gtirb::SymbolSet& Module::getSymbols() const { return *this->Symbols; }
 
 gtirb::ImageByteMap& Module::getImageByteMap() {
-  return *this->imageByteMap.get();
+  return *this->ImageByteMap_.get();
 }
 
 const gtirb::ImageByteMap& Module::getImageByteMap() const {
-  return *this->imageByteMap.get();
+  return *this->ImageByteMap_.get();
 }
 
-void Module::setName(std::string x) { this->name = std::move(x); }
+void Module::setName(std::string X) { this->Name = std::move(X); }
 
-std::string Module::getName() const { return this->name; }
+std::string Module::getName() const { return this->Name; }
 
-const CFG& Module::getCFG() const { return *this->cfg; }
+const CFG& Module::getCFG() const { return *this->Cfg; }
 
-CFG& Module::getCFG() { return *this->cfg; }
+CFG& Module::getCFG() { return *this->Cfg; }
 
-const std::vector<DataObject>& Module::getData() const { return *this->data; }
+const std::vector<DataObject>& Module::getData() const { return *this->Data; }
 
-std::vector<DataObject>& Module::getData() { return *this->data; }
+std::vector<DataObject>& Module::getData() { return *this->Data; }
 
-std::vector<Section>& Module::getSections() { return *this->sections; }
+std::vector<Section>& Module::getSections() { return *this->Sections; }
 
 const std::vector<Section>& Module::getSections() const {
-  return *this->sections;
+  return *this->Sections;
 }
 
 SymbolicExpressionSet& Module::getSymbolicExpressions() {
-  return *this->symbolicOperands;
+  return *this->SymbolicOperands;
 }
 
 const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
-  return *this->symbolicOperands;
+  return *this->SymbolicOperands;
 }
 
-void Module::toProtobuf(MessageType* message) const {
-  nodeUUIDToBytes(this, *message->mutable_uuid());
-  message->set_binary_path(this->binaryPath.generic_string());
-  message->set_preferred_ea(this->preferredEA);
-  message->set_rebase_delta(this->rebaseDelta);
-  message->set_file_format(static_cast<proto::FileFormat>(this->fileFormat));
-  message->set_isa_id(static_cast<proto::ISAID>(this->isaID));
-  message->set_name(this->name);
-  this->imageByteMap->toProtobuf(message->mutable_image_byte_map());
-  *message->mutable_cfg() = gtirb::toProtobuf(*this->cfg);
-  containerToProtobuf(*this->data, message->mutable_data());
-  containerToProtobuf(*this->sections, message->mutable_sections());
-  containerToProtobuf(*this->symbolicOperands,
-                      message->mutable_symbolic_operands());
+void Module::toProtobuf(MessageType* Message) const {
+  nodeUUIDToBytes(this, *Message->mutable_uuid());
+  Message->set_binary_path(this->BinaryPath.generic_string());
+  Message->set_preferred_ea(this->PreferredEA);
+  Message->set_rebase_delta(this->RebaseDelta);
+  Message->set_file_format(static_cast<proto::FileFormat>(this->FileFormat));
+  Message->set_isa_id(static_cast<proto::ISAID>(this->IsaID));
+  Message->set_name(this->Name);
+  this->ImageByteMap_->toProtobuf(Message->mutable_image_byte_map());
+  *Message->mutable_cfg() = gtirb::toProtobuf(*this->Cfg);
+  containerToProtobuf(*this->Data, Message->mutable_data());
+  containerToProtobuf(*this->Sections, Message->mutable_sections());
+  containerToProtobuf(*this->SymbolicOperands,
+                      Message->mutable_symbolic_operands());
 
   // Special case for symbol set: uses a multimap internally, serialized as a
   // repeated field.
-  auto m = message->mutable_symbols();
-  initContainer(m, this->symbols->size());
+  auto M = Message->mutable_symbols();
+  initContainer(M, this->Symbols->size());
   std::for_each(
-      this->symbols->begin(), this->symbols->end(),
-      [m](const auto& node) { addElement(m, gtirb::toProtobuf(node.second)); });
+      this->Symbols->begin(), this->Symbols->end(),
+      [M](const auto& N) { addElement(M, gtirb::toProtobuf(N.second)); });
 }
 
-void Module::fromProtobuf(const MessageType& message) {
-  setNodeUUIDFromBytes(this, message.uuid());
-  this->binaryPath = message.binary_path();
-  this->preferredEA = gtirb::EA(message.preferred_ea());
-  this->rebaseDelta = message.rebase_delta();
-  this->fileFormat = static_cast<FileFormat>(message.file_format());
-  this->isaID = static_cast<ISAID>(message.isa_id());
-  this->name = message.name();
-  this->imageByteMap->fromProtobuf(message.image_byte_map());
-  gtirb::fromProtobuf(*this->cfg, message.cfg());
-  containerFromProtobuf(*this->data, message.data());
-  containerFromProtobuf(*this->sections, message.sections());
-  containerFromProtobuf(*this->symbolicOperands, message.symbolic_operands());
+void Module::fromProtobuf(const MessageType& Message) {
+  setNodeUUIDFromBytes(this, Message.uuid());
+  this->BinaryPath = Message.binary_path();
+  this->PreferredEA = gtirb::EA(Message.preferred_ea());
+  this->RebaseDelta = Message.rebase_delta();
+  this->FileFormat = static_cast<gtirb::FileFormat>(Message.file_format());
+  this->IsaID = static_cast<ISAID>(Message.isa_id());
+  this->Name = Message.name();
+  this->ImageByteMap_->fromProtobuf(Message.image_byte_map());
+  gtirb::fromProtobuf(*this->Cfg, Message.cfg());
+  containerFromProtobuf(*this->Data, Message.data());
+  containerFromProtobuf(*this->Sections, Message.sections());
+  containerFromProtobuf(*this->SymbolicOperands, Message.symbolic_operands());
 
   // Special case for symbol set: serialized as a repeated field, uses a
   // multimap internally.
-  this->symbols->clear();
-  const auto& m = message.symbols();
-  std::for_each(m.begin(), m.end(), [this](const auto& elt) {
-    Symbol sym;
-    gtirb::fromProtobuf(sym, elt);
-    addSymbol(*this->symbols, std::move(sym));
+  this->Symbols->clear();
+  const auto& M = Message.symbols();
+  std::for_each(M.begin(), M.end(), [this](const auto& Elt) {
+    Symbol Sym;
+    gtirb::fromProtobuf(Sym, Elt);
+    addSymbol(*this->Symbols, std::move(Sym));
   });
 }

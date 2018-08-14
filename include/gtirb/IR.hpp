@@ -63,7 +63,7 @@ public:
   ///
   /// IR may not be copied due to Modules.
   ///
-  IR(const IR& other) = delete;
+  IR(const IR&) = delete;
 
   ///
   /// Move constructor
@@ -88,7 +88,7 @@ public:
   ///
   /// \sa Module::getPreferredEA()
   ///
-  std::vector<const Module*> getModulesWithPreferredEA(EA x) const;
+  std::vector<const Module*> getModulesWithPreferredEA(EA X) const;
 
   ///
   /// Get all modules continaing the given EA.
@@ -97,21 +97,21 @@ public:
   ///
   /// \sa Module::getEAMinMax()
   ///
-  std::vector<const Module*> getModulesContainingEA(EA x) const;
+  std::vector<const Module*> getModulesContainingEA(EA X) const;
 
   ///
   /// Serialize IR to an output stream.
   ///
-  void save(std::ostream& out) const;
+  void save(std::ostream& Out) const;
 
   ///
   /// Deserialize IR from an input stream.
   ///
-  void load(std::istream& in);
+  void load(std::istream& In);
 
   using MessageType = proto::IR;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
   // ----------------------------------------------------------------------------------------
   // Table Properties
@@ -121,28 +121,28 @@ public:
   /// The table can be populated from anywhere.
   ///
   /// \param name     The name to assign to the table so it can be found later.
-  /// \param x        The table itself.
+  /// \param X        The table itself.
   ///
-  void addTable(std::string name, Table&& x);
+  void addTable(std::string Name, Table&& X);
 
   ///
   /// Get a table by name.
   ///
-  /// \param  x   The name of the table to search for.
+  /// \param  X   The name of the table to search for.
   /// \return     A non-owning pointer to the table if found, or nullptr.
   ///
-  const gtirb::Table* getTable(const std::string& x) const;
-  gtirb::Table* getTable(const std::string& x);
+  const gtirb::Table* getTable(const std::string& X) const;
+  gtirb::Table* getTable(const std::string& X);
 
   ///
   /// Remove a table by name.
   ///
   /// This will invalidate any pointers that may have been held externally.
   ///
-  /// \param  x   The name of the table to search for.
+  /// \param  X   The name of the table to search for.
   /// \return     True on success.
   ///
-  bool removeTable(const std::string& x);
+  bool removeTable(const std::string& X);
 
   ///
   /// Get the total number of tables at this Node.
@@ -164,7 +164,7 @@ public:
   void clearTables();
 
 private:
-  std::map<std::string, gtirb::Table> tables;
-  std::vector<Module> modules;
+  std::map<std::string, gtirb::Table> Tables;
+  std::vector<Module> Modules;
 };
 } // namespace gtirb

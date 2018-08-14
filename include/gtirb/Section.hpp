@@ -13,12 +13,12 @@ namespace gtirb {
 class GTIRB_EXPORT_API Section : public Node {
 public:
   Section() = default;
-  Section(std::string n, EA address, uint64_t size);
+  Section(std::string N, EA Address, uint64_t Size);
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
-  explicit Section(const Section& other) = default;
+  explicit Section(const Section& Other) = default;
 
   ///
   /// Move constructor
@@ -30,20 +30,20 @@ public:
   ///
   Section& operator=(Section&&) = default;
 
-  bool operator==(const Section& other) const;
-  bool operator!=(const Section& other) const;
+  bool operator==(const Section& Other) const;
+  bool operator!=(const Section& Other) const;
 
   const std::string& getName() const;
   const EA getAddress() const;
   const uint64_t getSize() const;
 
   using MessageType = proto::Section;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
 private:
-  std::string name;
-  EA address{0};
-  uint64_t size{0};
+  std::string Name;
+  EA Address{0};
+  uint64_t Size{0};
 };
 } // namespace gtirb

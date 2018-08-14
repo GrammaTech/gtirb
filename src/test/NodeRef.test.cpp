@@ -5,46 +5,46 @@
 using namespace gtirb;
 
 TEST(Unit_NodeRef, ctorFromUUID) {
-  UUID id = Node().getUUID();
-  NodeRef<Node> ref(id);
+  UUID Id = Node().getUUID();
+  NodeRef<Node> Ref(Id);
 
-  EXPECT_EQ(ref.getUUID(), id);
+  EXPECT_EQ(Ref.getUUID(), Id);
 }
 
 TEST(Unit_NodeRef, ctorFromNode) {
-  Node n;
-  NodeRef<Node> ref(n);
+  Node N;
+  NodeRef<Node> Ref(N);
 
-  EXPECT_EQ(ref.getUUID(), n.getUUID());
+  EXPECT_EQ(Ref.getUUID(), N.getUUID());
 }
 
 TEST(Unit_NodeRef, castToPointer) {
-  Node n;
-  NodeRef<Node> ref(n);
+  Node N;
+  NodeRef<Node> Ref(N);
 
-  EXPECT_EQ(static_cast<Node*>(ref), &n);
+  EXPECT_EQ(static_cast<Node*>(Ref), &N);
 }
 
 TEST(Unit_NodeRef, badRefCastsToNullptr) {
-  NodeRef<Node> ref(Node().getUUID());
+  NodeRef<Node> Ref(Node().getUUID());
 
-  EXPECT_EQ(static_cast<Node*>(ref), nullptr);
+  EXPECT_EQ(static_cast<Node*>(Ref), nullptr);
 }
 
-TEST(Unit_NodeRef, dereference) {
-  Node n;
-  NodeRef<Node> ref(n);
-  const NodeRef<Node> constRef(n);
+TEST(Unit_NodeRef, deReference) {
+  Node N;
+  NodeRef<Node> Ref(N);
+  const NodeRef<Node> ConstRef(N);
 
-  EXPECT_EQ((*ref).getUUID(), n.getUUID());
-  EXPECT_EQ((*constRef).getUUID(), n.getUUID());
+  EXPECT_EQ((*Ref).getUUID(), N.getUUID());
+  EXPECT_EQ((*ConstRef).getUUID(), N.getUUID());
 }
 
 TEST(Unit_NodeRef, arrowOperator) {
-  Node n;
-  NodeRef<Node> ref(n);
-  const NodeRef<Node> constRef(n);
+  Node N;
+  NodeRef<Node> Ref(N);
+  const NodeRef<Node> ConstRef(N);
 
-  EXPECT_EQ(ref->getUUID(), n.getUUID());
-  EXPECT_EQ(constRef->getUUID(), n.getUUID());
+  EXPECT_EQ(Ref->getUUID(), N.getUUID());
+  EXPECT_EQ(ConstRef->getUUID(), N.getUUID());
 }

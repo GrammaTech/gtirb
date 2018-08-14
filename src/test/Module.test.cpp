@@ -15,185 +15,185 @@ using namespace gtirb;
 TEST(Unit_Module, ctor_0) { EXPECT_NO_THROW(gtirb::Module()); }
 
 TEST(Unit_Module, setBinaryPath) {
-  const std::string strPath("/home/gt/irb/foo");
-  auto m = std::make_shared<gtirb::Module>();
+  const std::string StrPath("/home/gt/irb/foo");
+  auto M = std::make_shared<gtirb::Module>();
 
-  EXPECT_NO_THROW(m->setBinaryPath(strPath));
+  EXPECT_NO_THROW(M->setBinaryPath(StrPath));
 
-  auto path = m->getBinaryPath();
-  EXPECT_EQ(boost::filesystem::path(strPath), path);
+  auto Path = M->getBinaryPath();
+  EXPECT_EQ(boost::filesystem::path(StrPath), Path);
 }
 
 TEST(Unit_Module, getFileFormatDefault) {
-  auto m = std::make_shared<gtirb::Module>();
-  EXPECT_EQ(gtirb::FileFormat::Undefined, m->getFileFormat());
+  auto M = std::make_shared<gtirb::Module>();
+  EXPECT_EQ(gtirb::FileFormat::Undefined, M->getFileFormat());
 }
 
 TEST(Unit_Module, setFileFormat) {
-  auto m = std::make_shared<gtirb::Module>();
+  auto M = std::make_shared<gtirb::Module>();
 
-  EXPECT_NO_THROW(m->setFileFormat(gtirb::FileFormat::COFF));
-  EXPECT_EQ(gtirb::FileFormat::COFF, m->getFileFormat());
+  EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::COFF));
+  EXPECT_EQ(gtirb::FileFormat::COFF, M->getFileFormat());
 
-  EXPECT_NO_THROW(m->setFileFormat(gtirb::FileFormat::MACHO));
-  EXPECT_EQ(gtirb::FileFormat::MACHO, m->getFileFormat());
+  EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::MACHO));
+  EXPECT_EQ(gtirb::FileFormat::MACHO, M->getFileFormat());
 
-  EXPECT_NO_THROW(m->setFileFormat(gtirb::FileFormat::Undefined));
-  EXPECT_EQ(gtirb::FileFormat::Undefined, m->getFileFormat());
+  EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::Undefined));
+  EXPECT_EQ(gtirb::FileFormat::Undefined, M->getFileFormat());
 }
 
 TEST(Unit_Module, getRebaseDeltaDefault) {
-  auto m = std::make_shared<gtirb::Module>();
-  EXPECT_EQ(int64_t{0}, m->getRebaseDelta());
+  auto M = std::make_shared<gtirb::Module>();
+  EXPECT_EQ(int64_t{0}, M->getRebaseDelta());
 }
 
 TEST(Unit_Module, setRebaseDelta) {
-  auto m = std::make_shared<gtirb::Module>();
+  auto M = std::make_shared<gtirb::Module>();
 
-  EXPECT_NO_THROW(m->setRebaseDelta(1));
-  EXPECT_EQ(int64_t{1}, m->getRebaseDelta());
+  EXPECT_NO_THROW(M->setRebaseDelta(1));
+  EXPECT_EQ(int64_t{1}, M->getRebaseDelta());
 
-  EXPECT_NO_THROW(m->setRebaseDelta(-1));
-  EXPECT_EQ(int64_t{-1}, m->getRebaseDelta());
+  EXPECT_NO_THROW(M->setRebaseDelta(-1));
+  EXPECT_EQ(int64_t{-1}, M->getRebaseDelta());
 
-  EXPECT_NO_THROW(m->setRebaseDelta(std::numeric_limits<int64_t>::max()));
-  EXPECT_EQ(std::numeric_limits<int64_t>::max(), m->getRebaseDelta());
+  EXPECT_NO_THROW(M->setRebaseDelta(std::numeric_limits<int64_t>::max()));
+  EXPECT_EQ(std::numeric_limits<int64_t>::max(), M->getRebaseDelta());
 
-  EXPECT_NO_THROW(m->setRebaseDelta(std::numeric_limits<int64_t>::min()));
-  EXPECT_EQ(std::numeric_limits<int64_t>::min(), m->getRebaseDelta());
+  EXPECT_NO_THROW(M->setRebaseDelta(std::numeric_limits<int64_t>::min()));
+  EXPECT_EQ(std::numeric_limits<int64_t>::min(), M->getRebaseDelta());
 
-  EXPECT_NO_THROW(m->setRebaseDelta(std::numeric_limits<int64_t>::lowest()));
-  EXPECT_EQ(std::numeric_limits<int64_t>::lowest(), m->getRebaseDelta());
+  EXPECT_NO_THROW(M->setRebaseDelta(std::numeric_limits<int64_t>::lowest()));
+  EXPECT_EQ(std::numeric_limits<int64_t>::lowest(), M->getRebaseDelta());
 }
 
 TEST(Unit_Module, getPreferredEADefault) {
-  auto m = std::make_shared<gtirb::Module>();
+  auto M = std::make_shared<gtirb::Module>();
 
-  EXPECT_NO_THROW(m->getPreferredEA());
-  EXPECT_EQ(gtirb::EA{}, m->getPreferredEA());
+  EXPECT_NO_THROW(M->getPreferredEA());
+  EXPECT_EQ(gtirb::EA{}, M->getPreferredEA());
 }
 
 TEST(Unit_Module, getISAID) {
-  auto m = std::make_shared<gtirb::Module>();
+  auto M = std::make_shared<gtirb::Module>();
 
-  EXPECT_NO_THROW(m->getISAID());
-  EXPECT_EQ(gtirb::ISAID::Undefined, m->getISAID());
+  EXPECT_NO_THROW(M->getISAID());
+  EXPECT_EQ(gtirb::ISAID::Undefined, M->getISAID());
 
-  EXPECT_NO_THROW(m->setISAID(gtirb::ISAID::X64));
-  EXPECT_EQ(gtirb::ISAID::X64, m->getISAID());
+  EXPECT_NO_THROW(M->setISAID(gtirb::ISAID::X64));
+  EXPECT_EQ(gtirb::ISAID::X64, M->getISAID());
 }
 
 TEST(Unit_Module, setPreferredEA) {
-  auto m = std::make_shared<gtirb::Module>();
-  const gtirb::EA preferred{64};
+  auto M = std::make_shared<gtirb::Module>();
+  const gtirb::EA Preferred{64};
 
-  EXPECT_NO_THROW(m->getPreferredEA());
-  EXPECT_NO_THROW(m->setPreferredEA(preferred));
+  EXPECT_NO_THROW(M->getPreferredEA());
+  EXPECT_NO_THROW(M->setPreferredEA(Preferred));
 
-  EXPECT_EQ(preferred, m->getPreferredEA());
+  EXPECT_EQ(Preferred, M->getPreferredEA());
 }
 
 TEST(Unit_Module, getSymbolSet) {
-  gtirb::Module m;
-  EXPECT_NO_THROW(m.getSymbols());
+  gtirb::Module M;
+  EXPECT_NO_THROW(M.getSymbols());
 }
 
 TEST(Unit_Module, getImageByteMap) {
-  auto m = std::make_shared<gtirb::Module>();
-  EXPECT_NO_THROW(m->getImageByteMap());
+  auto M = std::make_shared<gtirb::Module>();
+  EXPECT_NO_THROW(M->getImageByteMap());
 }
 
 TEST(Unit_Module, setName) {
-  const std::string name{"foo"};
-  auto m = std::make_unique<gtirb::Module>();
+  const std::string Name{"foo"};
+  auto M = std::make_unique<gtirb::Module>();
 
-  EXPECT_NO_THROW(m->setName(name));
-  EXPECT_EQ(name, m->getName());
+  EXPECT_NO_THROW(M->setName(Name));
+  EXPECT_EQ(Name, M->getName());
 }
 
 TEST(Unit_Module, getName) {
-  auto m = std::make_unique<gtirb::Module>();
-  EXPECT_NO_THROW(m->getName());
-  EXPECT_TRUE(m->getName().empty());
+  auto M = std::make_unique<gtirb::Module>();
+  EXPECT_NO_THROW(M->getName());
+  EXPECT_TRUE(M->getName().empty());
 }
 
 TEST(Unit_Module, sections) {
-  Module m;
-  m.getSections().emplace_back("test", EA(), 123);
-  EXPECT_EQ(m.getSections().back().getName(), "test");
+  Module M;
+  M.getSections().emplace_back("test", EA(), 123);
+  EXPECT_EQ(M.getSections().back().getName(), "test");
 }
 
 TEST(Unit_Module, dataObjects) {
-  Module m;
-  m.getData().emplace_back(EA(1), 123);
-  EXPECT_EQ(m.getData().back().getAddress(), EA(1));
+  Module M;
+  M.getData().emplace_back(EA(1), 123);
+  EXPECT_EQ(M.getData().back().getAddress(), EA(1));
 }
 
 TEST(Unit_Module, symbolicExpressions) {
-  Module m;
-  Symbol s;
-  m.getSymbolicExpressions().emplace(EA(1), SymAddrConst{0, s});
-  EXPECT_EQ(m.getSymbolicExpressions().size(), 1);
+  Module M;
+  Symbol S;
+  M.getSymbolicExpressions().emplace(EA(1), SymAddrConst{0, S});
+  EXPECT_EQ(M.getSymbolicExpressions().size(), 1);
 }
 
 TEST(Unit_Module, protobufRoundTrip) {
-  gtirb::Module result;
-  proto::Module message;
+  gtirb::Module Result;
+  proto::Module Message;
 
-  UUID byteMapID, symbolID, blockID, dataID, sectionID;
-  int whichSymbolic;
+  UUID ByteMapID, SymbolID, BlockID, DataID, SectionID;
+  int WhichSymbolic;
 
   {
-    Module original;
-    original.setBinaryPath("test");
-    original.setPreferredEA(EA(3));
-    original.setRebaseDelta(4);
-    original.setFileFormat(FileFormat::ELF);
-    original.setISAID(ISAID::X64);
-    original.setName("module");
-    addSymbol(original.getSymbols(), {});
-    addBlock(original.getCFG(), {});
-    original.getData().push_back({});
-    original.getSections().push_back({});
-    original.getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
+    Module Original;
+    Original.setBinaryPath("test");
+    Original.setPreferredEA(EA(3));
+    Original.setRebaseDelta(4);
+    Original.setFileFormat(FileFormat::ELF);
+    Original.setISAID(ISAID::X64);
+    Original.setName("module");
+    addSymbol(Original.getSymbols(), {});
+    addBlock(Original.getCFG(), {});
+    Original.getData().push_back({});
+    Original.getSections().push_back({});
+    Original.getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
 
-    byteMapID = original.getImageByteMap().getUUID();
-    symbolID = original.getSymbols().begin()->second.getUUID();
-    blockID = blocks(original.getCFG()).begin()->getUUID();
-    dataID = original.getData().begin()->getUUID();
-    sectionID = original.getSections().begin()->getUUID();
-    whichSymbolic = original.getSymbolicExpressions().begin()->second.which();
+    ByteMapID = Original.getImageByteMap().getUUID();
+    SymbolID = Original.getSymbols().begin()->second.getUUID();
+    BlockID = blocks(Original.getCFG()).begin()->getUUID();
+    DataID = Original.getData().begin()->getUUID();
+    SectionID = Original.getSections().begin()->getUUID();
+    WhichSymbolic = Original.getSymbolicExpressions().begin()->second.which();
 
-    original.toProtobuf(&message);
+    Original.toProtobuf(&Message);
   }
 
-  // original has been destroyed, so UUIDs can be reused
-  result.fromProtobuf(message);
+  // Original has been destroyed, so UUIDs can be reused
+  Result.fromProtobuf(Message);
 
-  EXPECT_EQ(result.getBinaryPath(), "test");
-  EXPECT_EQ(result.getPreferredEA(), EA(3));
-  EXPECT_EQ(result.getRebaseDelta(), 4);
-  EXPECT_EQ(result.getFileFormat(), FileFormat::ELF);
-  EXPECT_EQ(result.getISAID(), ISAID::X64);
-  EXPECT_EQ(result.getName(), "module");
+  EXPECT_EQ(Result.getBinaryPath(), "test");
+  EXPECT_EQ(Result.getPreferredEA(), EA(3));
+  EXPECT_EQ(Result.getRebaseDelta(), 4);
+  EXPECT_EQ(Result.getFileFormat(), FileFormat::ELF);
+  EXPECT_EQ(Result.getISAID(), ISAID::X64);
+  EXPECT_EQ(Result.getName(), "module");
 
   // Make sure various collections and node members are serialized, but
   // don't check in detail as they have their own unit tests.
-  EXPECT_EQ(result.getImageByteMap().getUUID(), byteMapID);
+  EXPECT_EQ(Result.getImageByteMap().getUUID(), ByteMapID);
 
-  EXPECT_EQ(num_vertices(result.getCFG()), 1);
-  EXPECT_EQ(blocks(result.getCFG()).begin()->getUUID(), blockID);
+  EXPECT_EQ(num_vertices(Result.getCFG()), 1);
+  EXPECT_EQ(blocks(Result.getCFG()).begin()->getUUID(), BlockID);
 
-  EXPECT_EQ(result.getSymbols().size(), 1);
-  EXPECT_EQ(result.getSymbols().begin()->second.getUUID(), symbolID);
+  EXPECT_EQ(Result.getSymbols().size(), 1);
+  EXPECT_EQ(Result.getSymbols().begin()->second.getUUID(), SymbolID);
 
-  EXPECT_EQ(result.getData().size(), 1);
-  EXPECT_EQ(result.getData().begin()->getUUID(), dataID);
+  EXPECT_EQ(Result.getData().size(), 1);
+  EXPECT_EQ(Result.getData().begin()->getUUID(), DataID);
 
-  EXPECT_EQ(result.getSections().size(), 1);
-  EXPECT_EQ(result.getSections().begin()->getUUID(), sectionID);
+  EXPECT_EQ(Result.getSections().size(), 1);
+  EXPECT_EQ(Result.getSections().begin()->getUUID(), SectionID);
 
-  EXPECT_EQ(result.getSymbolicExpressions().size(), 1);
-  EXPECT_EQ(result.getSymbolicExpressions().begin()->second.which(),
-            whichSymbolic);
+  EXPECT_EQ(Result.getSymbolicExpressions().size(), 1);
+  EXPECT_EQ(Result.getSymbolicExpressions().begin()->second.which(),
+            WhichSymbolic);
 }

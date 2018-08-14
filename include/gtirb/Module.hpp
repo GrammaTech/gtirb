@@ -29,7 +29,7 @@ enum class FileFormat : uint8_t {
   COFF = proto::COFF,                  /// Common Object File Format (COFF)
   ELF = proto::ELF, /// Executable and Linkable Format (ELF, formerly named
                     /// Extensible Linking Format)
-  PE = proto::PE,                 /// Microsoft Portable Executable (PE) format.
+  PE = proto::PE,   /// Microsoft Portable Executable (PE) format.
   IdaProDb32 = proto::IdaProDb32, /// IDA Pro database file
   IdaProDb64 = proto::IdaProDb64, /// IDA Pro database file
   XCOFF = proto::XCOFF, /// Non-COFF (files start with ANON_OBJECT_HEADER*)
@@ -89,9 +89,9 @@ public:
   ///
   /// Set the location of the corresponding binary on disk.
   ///
-  /// \param  x   A path to the corresponding binary on disk.
+  /// \param  X   A path to the corresponding binary on disk.
   ///
-  void setBinaryPath(boost::filesystem::path x);
+  void setBinaryPath(boost::filesystem::path X);
 
   ///
   /// Get the location of the corresponding binary on disk.
@@ -103,10 +103,10 @@ public:
   ///
   /// Sets the format of the binary pointed to by getBinaryPath().
   ///
-  /// \param  x   The gtirb::FileFormat enumeration corresponding to the binary
+  /// \param  X   The gtirb::FileFormat enumeration corresponding to the binary
   /// associated with this Module.
   ///
-  void setFileFormat(gtirb::FileFormat x);
+  void setFileFormat(gtirb::FileFormat X);
 
   ///
   /// Gets the format of the binary pointed to by getBinaryPath().
@@ -119,7 +119,7 @@ public:
   ///
   ///
   ///
-  void setRebaseDelta(int64_t x);
+  void setRebaseDelta(int64_t X);
 
   ///
   ///
@@ -129,12 +129,12 @@ public:
   ///
   ///
   ///
-  void setPreferredEA(gtirb::EA x);
+  void setPreferredEA(gtirb::EA X);
 
   ///
   ///
   ///
-  void setISAID(gtirb::ISAID x);
+  void setISAID(gtirb::ISAID X);
 
   ///
   ///
@@ -155,7 +155,7 @@ public:
   gtirb::SymbolSet& getSymbols();
   const gtirb::SymbolSet& getSymbols() const;
 
-  void setName(std::string x);
+  void setName(std::string X);
   std::string getName() const;
 
   const CFG& getCFG() const;
@@ -172,17 +172,17 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  boost::filesystem::path binaryPath{};
-  gtirb::EA preferredEA{};
-  int64_t rebaseDelta{0};
-  gtirb::FileFormat fileFormat{};
-  gtirb::ISAID isaID{};
-  std::string name{};
-  std::unique_ptr<CFG> cfg;
-  std::unique_ptr<DataSet> data;
-  std::unique_ptr<ImageByteMap> imageByteMap;
-  std::unique_ptr<SectionSet> sections;
-  std::unique_ptr<SymbolSet> symbols;
-  std::unique_ptr<SymbolicExpressionSet> symbolicOperands;
+  boost::filesystem::path BinaryPath{};
+  gtirb::EA PreferredEA{};
+  int64_t RebaseDelta{0};
+  gtirb::FileFormat FileFormat{};
+  gtirb::ISAID IsaID{};
+  std::string Name{};
+  std::unique_ptr<CFG> Cfg;
+  std::unique_ptr<DataSet> Data;
+  std::unique_ptr<ImageByteMap> ImageByteMap_;
+  std::unique_ptr<SectionSet> Sections;
+  std::unique_ptr<SymbolSet> Symbols;
+  std::unique_ptr<SymbolicExpressionSet> SymbolicOperands;
 };
 } // namespace gtirb
