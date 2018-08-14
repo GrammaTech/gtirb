@@ -6,47 +6,47 @@
 using namespace gtirb;
 
 TEST(Unit_Section, equality) {
-  Section a{"foo", EA{2}, 1};
-  Section b{"foo", EA{2}, 1};
-  Section c{"bar", EA{2}, 1};
-  Section d{"foo", EA{2}, 3};
-  Section e{"foo", EA{3}, 1};
-  EXPECT_EQ(a, b);
-  EXPECT_NE(a, c);
-  EXPECT_NE(a, d);
-  EXPECT_NE(a, e);
+  Section A{"foo", EA{2}, 1};
+  Section B{"foo", EA{2}, 1};
+  Section C{"bar", EA{2}, 1};
+  Section D{"foo", EA{2}, 3};
+  Section E{"foo", EA{3}, 1};
+  EXPECT_EQ(A, B);
+  EXPECT_NE(A, C);
+  EXPECT_NE(A, D);
+  EXPECT_NE(A, E);
 }
 
 TEST(Unit_Section, containsEA) {
-  Section good{"good", EA{11}, 100};
-  EXPECT_FALSE(containsEA(good, EA(10)));
-  EXPECT_TRUE(containsEA(good, EA(11)));
-  EXPECT_TRUE(containsEA(good, EA(110)));
-  EXPECT_FALSE(containsEA(good, EA(111)));
+  Section Good{"good", EA{11}, 100};
+  EXPECT_FALSE(containsEA(Good, EA(10)));
+  EXPECT_TRUE(containsEA(Good, EA(11)));
+  EXPECT_TRUE(containsEA(Good, EA(110)));
+  EXPECT_FALSE(containsEA(Good, EA(111)));
 
-  Section big{"big", EA(0), std::numeric_limits<uint64_t>::max()};
-  EXPECT_TRUE(containsEA(big, EA(0)));
-  EXPECT_TRUE(containsEA(big, EA(std::numeric_limits<uint64_t>::max() - 1)));
+  Section Big{"big", EA(0), std::numeric_limits<uint64_t>::max()};
+  EXPECT_TRUE(containsEA(Big, EA(0)));
+  EXPECT_TRUE(containsEA(Big, EA(std::numeric_limits<uint64_t>::max() - 1)));
   // No section contains a bad address
-  EXPECT_FALSE(containsEA(big, EA()));
+  EXPECT_FALSE(containsEA(Big, EA()));
 
   // Bad section does not contain anything
-  Section bad{"bad", EA(), std::numeric_limits<uint64_t>::max()};
-  EXPECT_FALSE(containsEA(bad, EA(0)));
-  EXPECT_FALSE(containsEA(bad, EA(std::numeric_limits<uint64_t>::max() - 1)));
-  EXPECT_FALSE(containsEA(bad, EA()));
+  Section Bad{"bad", EA(), std::numeric_limits<uint64_t>::max()};
+  EXPECT_FALSE(containsEA(Bad, EA(0)));
+  EXPECT_FALSE(containsEA(Bad, EA(std::numeric_limits<uint64_t>::max() - 1)));
+  EXPECT_FALSE(containsEA(Bad, EA()));
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
-  Section original("name", EA(1), 1234);
+  Section Original("name", EA(1), 1234);
 
-  gtirb::Section result;
-  proto::Section message;
-  original.toProtobuf(&message);
-  original.setUUID(); // Avoid UUID conflict
-  result.fromProtobuf(message);
+  gtirb::Section Result;
+  proto::Section Message;
+  Original.toProtobuf(&Message);
+  Original.setUUID(); // Avoid UUID conflict
+  Result.fromProtobuf(Message);
 
-  EXPECT_EQ(result.getName(), "name");
-  EXPECT_EQ(result.getSize(), 1234);
-  EXPECT_EQ(result.getAddress(), EA(1));
+  EXPECT_EQ(Result.getName(), "name");
+  EXPECT_EQ(Result.getSize(), 1234);
+  EXPECT_EQ(Result.getAddress(), EA(1));
 }

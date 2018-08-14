@@ -6,104 +6,104 @@
 
 using namespace gtirb;
 
-void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
+void ByteMap::setData(EA Ea, gsl::span<const gsl::byte> Bytes) {
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
-  EA limit = ea + uint64_t(bytes.size_bytes());
-  for (size_t i = 0; regions[i].address != BadAddress; i++) {
-    auto& current = regions[i];
+  EA Limit = Ea + uint64_t(Bytes.size_bytes());
+  for (size_t i = 0; Regions[i].Address != BadAddress; i++) {
+    auto& Current = Regions[i];
 
     // Overwrite data in existing region
-    if (containsEA(current, ea) && limit <= addressLimit(current)) {
-      auto offset = ea - current.address;
-      std::copy(bytes.begin(), bytes.end(), current.data.begin() + offset);
+    if (containsEA(Current, Ea) && Limit <= addressLimit(Current)) {
+      auto Offset = Ea - Current.Address;
+      std::copy(Bytes.begin(), Bytes.end(), Current.Data.begin() + Offset);
       return;
     }
 
     // Extend region
-    if (ea == addressLimit(current)) {
-      auto& next = regions[i + 1];
+    if (Ea == addressLimit(Current)) {
+      auto& Next = Regions[i + 1];
 
-      if (limit > next.address) {
+      if (Limit > Next.Address) {
         throw std::invalid_argument(
             "Request to setData which overlaps an existing region.");
       }
 
-      current.data.reserve(current.data.size() + bytes.size());
-      std::copy(bytes.begin(), bytes.end(), std::back_inserter(current.data));
+      Current.Data.reserve(Current.Data.size() + Bytes.size());
+      std::copy(Bytes.begin(), Bytes.end(), std::back_inserter(Current.Data));
       // Merge with subsequent region
-      if (limit == next.address) {
-        const auto& data = next.data;
-        current.data.reserve(current.data.size() + data.size());
-        std::copy(data.begin(), data.end(), std::back_inserter(current.data));
-        this->regions.erase(this->regions.begin() + i + 1);
+      if (Limit == Next.Address) {
+        const auto& Data = Next.Data;
+        Current.Data.reserve(Current.Data.size() + Data.size());
+        std::copy(Data.begin(), Data.end(), std::back_inserter(Current.Data));
+        this->Regions.erase(this->Regions.begin() + i + 1);
       }
       return;
     }
 
     // Extend region backward
-    if (limit == current.address) {
+    if (Limit == Current.Address) {
       // Note: this is probably O(N^2), moving existing data on each inserted
       // element.
-      std::copy(bytes.begin(), bytes.end(),
-                std::inserter(current.data, current.data.begin()));
-      current.address = ea;
+      std::copy(Bytes.begin(), Bytes.end(),
+                std::inserter(Current.Data, Current.Data.begin()));
+      Current.Address = Ea;
       return;
     }
 
-    if (containsEA(current, ea) || containsEA(current, limit - uint64_t(1))) {
+    if (containsEA(Current, Ea) || containsEA(Current, Limit - uint64_t(1))) {
       throw std::invalid_argument("setData overlaps an existing region");
     }
   }
 
   // Not contiguous with any existing data. Create a new region.
-  Region region = {ea, std::vector<gsl::byte>()};
-  region.data.reserve(bytes.size());
-  std::copy(bytes.begin(), bytes.end(), std::back_inserter(region.data));
-  this->regions.insert(std::lower_bound(this->regions.begin(),
-                                        this->regions.end(), region,
-                                        [](const auto& a, const auto& b) {
-                                          return a.address < b.address;
+  Region R = {Ea, std::vector<gsl::byte>()};
+  R.Data.reserve(Bytes.size());
+  std::copy(Bytes.begin(), Bytes.end(), std::back_inserter(R.Data));
+  this->Regions.insert(std::lower_bound(this->Regions.begin(),
+                                        this->Regions.end(), R,
+                                        [](const auto& A, const auto& B) {
+                                          return A.Address < B.Address;
                                         }),
-                       std::move(region));
+                       std::move(R));
 }
 
-std::vector<gsl::byte> ByteMap::getData(EA ea, size_t bytes) const {
-  auto region = std::find_if(this->regions.begin(), this->regions.end(),
-                             [ea](const auto& r) { return containsEA(r, ea); });
+std::vector<gsl::byte> ByteMap::getData(EA Ea, size_t Bytes) const {
+  auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
+                          [Ea](const auto& R) { return containsEA(R, Ea); });
 
-  if (region == this->regions.end() || ea < region->address ||
-      (ea + bytes > addressLimit(*region))) {
+  if (Reg == this->Regions.end() || Ea < Reg->Address ||
+      (Ea + Bytes > addressLimit(*Reg))) {
     throw std::out_of_range("getData on unmapped address");
   }
 
-  auto begin = region->data.begin() + (ea - region->address);
-  return {begin, begin + bytes};
+  auto Begin = Reg->Data.begin() + (Ea - Reg->Address);
+  return {Begin, Begin + Bytes};
 }
 
 namespace gtirb {
-proto::Region toProtobuf(const ByteMap::Region& region) {
-  proto::Region message;
-  message.set_address(region.address);
-  std::transform(region.data.begin(), region.data.end(),
-                 std::back_inserter(*message.mutable_data()),
+proto::Region toProtobuf(const ByteMap::Region& Region) {
+  proto::Region Message;
+  Message.set_address(Region.Address);
+  std::transform(Region.Data.begin(), Region.Data.end(),
+                 std::back_inserter(*Message.mutable_data()),
                  [](auto x) { return char(x); });
-  return message;
+  return Message;
 }
 
-void fromProtobuf(ByteMap::Region& val, const proto::Region& message) {
-  val.address = EA(message.address());
-  const auto& data = message.data();
-  val.data.reserve(data.size());
-  std::transform(data.begin(), data.end(), std::back_inserter(val.data),
+void fromProtobuf(ByteMap::Region& Val, const proto::Region& Message) {
+  Val.Address = EA(Message.address());
+  const auto& Data = Message.data();
+  Val.Data.reserve(Data.size());
+  std::transform(Data.begin(), Data.end(), std::back_inserter(Val.Data),
                  [](auto x) { return gsl::byte(x); });
 }
 } // namespace gtirb
 
-void ByteMap::toProtobuf(MessageType* message) const {
-  containerToProtobuf(this->regions, message->mutable_regions());
+void ByteMap::toProtobuf(MessageType* Message) const {
+  containerToProtobuf(this->Regions, Message->mutable_regions());
 }
 
-void ByteMap::fromProtobuf(const MessageType& message) {
-  containerFromProtobuf(this->regions, message.regions());
+void ByteMap::fromProtobuf(const MessageType& Message) {
+  containerFromProtobuf(this->Regions, Message.regions());
 }

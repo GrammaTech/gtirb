@@ -72,7 +72,7 @@ Code Requirements
 - Maintain const-correctness.
 - Use UpperCamelCase for type names.
 - Use UpperCamelCase for enum members.
-- Use lowerCamelCase for variable and class members.
+- Use UpperCamelCase for variable and class members.
 - Use lowerCamelCase for function and method names.
 - Avoid `using namespace std`
 - Use `auto` to make code more readable, but prefer `auto &` or `auto *` 

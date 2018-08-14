@@ -48,102 +48,102 @@ TYPED_TEST_CASE_P(TypedNodeTest);
 TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NO_THROW(TypeParam{}); }
 
 TYPED_TEST_P(TypedNodeTest, uniqueUuids) {
-  std::vector<gtirb::UUID> uuids;
+  std::vector<gtirb::UUID> Uuids;
   // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
-  for (size_t i = 0; i < 64; ++i) {
-    const TypeParam n{};
-    uuids.push_back(n.getUUID());
+  for (size_t I = 0; I < 64; ++I) {
+    const TypeParam N{};
+    Uuids.push_back(N.getUUID());
   }
 
-  std::sort(std::begin(uuids), std::end(uuids));
-  const auto end = std::unique(std::begin(uuids), std::end(uuids));
+  std::sort(std::begin(Uuids), std::end(Uuids));
+  const auto end = std::unique(std::begin(Uuids), std::end(Uuids));
 
-  EXPECT_EQ(std::end(uuids), end) << "Duplicate UUID's were generated.";
+  EXPECT_EQ(std::end(Uuids), end) << "Duplicate UUID's were generated.";
 }
 
 TYPED_TEST_P(TypedNodeTest, getByUUID) {
-  TypeParam node;
-  EXPECT_EQ(gtirb::Node::getByUUID(node.getUUID()), &node);
+  TypeParam Node;
+  EXPECT_EQ(gtirb::Node::getByUUID(Node.getUUID()), &Node);
 }
 
 TYPED_TEST_P(TypedNodeTest, setUUIDUpdatesUUIDMap) {
-  TypeParam node;
-  auto oldId = node.getUUID();
-  auto newId = boost::uuids::random_generator()();
-  node.setUUID(newId);
+  TypeParam Node;
+  auto OldId = Node.getUUID();
+  auto NewId = boost::uuids::random_generator()();
+  Node.setUUID(NewId);
 
-  EXPECT_EQ(gtirb::Node::getByUUID(newId), &node);
-  EXPECT_EQ(gtirb::Node::getByUUID(oldId), nullptr);
+  EXPECT_EQ(gtirb::Node::getByUUID(NewId), &Node);
+  EXPECT_EQ(gtirb::Node::getByUUID(OldId), nullptr);
 }
 
 TYPED_TEST_P(TypedNodeTest, moveUpdatesUUIDMap) {
-  TypeParam node1;
-  auto id = node1.getUUID();
-  TypeParam node2(std::move(node1));
+  TypeParam Node1;
+  auto Id = Node1.getUUID();
+  TypeParam node2(std::move(Node1));
 
-  EXPECT_EQ(node2.getUUID(), id);
-  EXPECT_EQ(gtirb::Node::getByUUID(id), &node2);
+  EXPECT_EQ(node2.getUUID(), Id);
+  EXPECT_EQ(gtirb::Node::getByUUID(Id), &node2);
 }
 
 TYPED_TEST_P(TypedNodeTest, moveAssignmentUpdatesUUIDMap) {
-  TypeParam node1;
-  auto id = node1.getUUID();
-  TypeParam node2 = std::move(node1);
+  TypeParam Node1;
+  auto Id = Node1.getUUID();
+  TypeParam Node2 = std::move(Node1);
 
-  EXPECT_EQ(node2.getUUID(), id);
-  EXPECT_EQ(gtirb::Node::getByUUID(id), &node2);
+  EXPECT_EQ(Node2.getUUID(), Id);
+  EXPECT_EQ(gtirb::Node::getByUUID(Id), &Node2);
 }
 
 TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip) {
-  typename TypeParam::MessageType message;
-  gtirb::UUID origId;
+  typename TypeParam::MessageType Message;
+  gtirb::UUID OrigId;
   {
-    TypeParam node1;
-    origId = node1.getUUID();
-    node1.toProtobuf(&message);
+    TypeParam Node1;
+    OrigId = Node1.getUUID();
+    Node1.toProtobuf(&Message);
   }
 
-  TypeParam node2;
-  node2.fromProtobuf(message);
+  TypeParam Node2;
+  Node2.fromProtobuf(Message);
 
-  EXPECT_EQ(node2.getUUID(), origId);
+  EXPECT_EQ(Node2.getUUID(), OrigId);
 }
 
 TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
-  gtirb::UUID id;
+  gtirb::UUID Id;
   typename TypeParam::MessageType message;
 
   {
-    TypeParam node1;
-    id = node1.getUUID();
+    TypeParam Node1;
+    Id = Node1.getUUID();
 
-    node1.toProtobuf(&message);
+    Node1.toProtobuf(&message);
   }
 
-  EXPECT_EQ(TypeParam::getByUUID(id), nullptr);
+  EXPECT_EQ(TypeParam::getByUUID(Id), nullptr);
 
-  TypeParam node2;
-  node2.fromProtobuf(message);
+  TypeParam Node2;
+  Node2.fromProtobuf(message);
 
-  EXPECT_EQ(TypeParam::getByUUID(id), &node2);
+  EXPECT_EQ(TypeParam::getByUUID(Id), &Node2);
 }
 
 TYPED_TEST_P(TypedNodeTest, nodeReference) {
-  TypeParam node;
-  gtirb::NodeRef<TypeParam> ref(node);
+  TypeParam Node;
+  gtirb::NodeRef<TypeParam> ref(Node);
 
-  TypeParam* ptr = ref;
-  EXPECT_EQ(ptr, &node);
-  EXPECT_EQ(ref->getUUID(), node.getUUID());
+  TypeParam* Ptr = ref;
+  EXPECT_EQ(Ptr, &Node);
+  EXPECT_EQ(ref->getUUID(), Node.getUUID());
 }
 
 TYPED_TEST_P(TypedNodeTest, badReference) {
-  TypeParam sym;
-  gtirb::NodeRef<TypeParam> ref(gtirb::UUID{});
+  TypeParam Sym;
+  gtirb::NodeRef<TypeParam> Ref(gtirb::UUID{});
 
-  TypeParam* ptr = ref;
-  EXPECT_EQ(ptr, nullptr);
+  TypeParam* Ptr = Ref;
+  EXPECT_EQ(Ptr, nullptr);
 }
 
 REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,                //

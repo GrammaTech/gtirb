@@ -34,17 +34,17 @@ public:
   ///
   /// This constructor sets the Effective Address on construction.
   ///
-  Symbol(EA x);
-  Symbol(EA x, std::string name, StorageKind storageKind = StorageKind::Extern);
-  Symbol(EA x, std::string name, const DataObject& referent,
-         StorageKind storageKind = StorageKind::Extern);
-  Symbol(EA x, std::string name, const Block& referent,
-         StorageKind storageKind = StorageKind::Extern);
+  Symbol(EA X);
+  Symbol(EA X, std::string Name, StorageKind StorageKind = StorageKind::Extern);
+  Symbol(EA X, std::string Name, const DataObject& Referent,
+         StorageKind StorageKind = StorageKind::Extern);
+  Symbol(EA X, std::string Name, const Block& Referent,
+         StorageKind StorageKind = StorageKind::Extern);
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
-  explicit Symbol(const Symbol& other) = default;
+  explicit Symbol(const Symbol&) = default;
 
   ///
   /// Move constructor
@@ -61,21 +61,21 @@ public:
   ///
   ~Symbol() override = default;
 
-  void setEA(gtirb::EA x);
+  void setEA(gtirb::EA X);
   gtirb::EA getEA() const;
 
-  void setName(std::string x);
+  void setName(std::string X);
   std::string getName() const;
 
   ///
   /// Set the DataObject to which this symbol refers.
   ///
-  void setReferent(const DataObject& data);
+  void setReferent(const DataObject& Data);
 
   ///
   /// Set the Block to which this symbol refers.
   ///
-  void setReferent(const Block& instruction);
+  void setReferent(const Block& Instruction);
 
   ///
   /// Get the DataObject to which this symbol refers.
@@ -87,18 +87,18 @@ public:
   ///
   NodeRef<Block> getCodeReferent() const;
 
-  void setStorageKind(Symbol::StorageKind x);
+  void setStorageKind(Symbol::StorageKind X);
   gtirb::Symbol::StorageKind getStorageKind() const;
 
   using MessageType = proto::Symbol;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
 private:
-  gtirb::EA ea{};
-  std::string name;
-  gtirb::Symbol::StorageKind storageKind{StorageKind::Extern};
-  NodeRef<DataObject> dataReferent;
-  NodeRef<Block> codeReferent;
+  gtirb::EA Ea{};
+  std::string Name;
+  gtirb::Symbol::StorageKind Storage{StorageKind::Extern};
+  NodeRef<DataObject> DataReferent;
+  NodeRef<Block> CodeReferent;
 };
 } // namespace gtirb

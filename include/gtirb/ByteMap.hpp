@@ -27,7 +27,7 @@ public:
   /// \param  ea      The address to store the data.
   /// \param  data    The data to store.
   ///
-  void setData(EA ea, gsl::span<const gsl::byte> data);
+  void setData(EA Ea, gsl::span<const gsl::byte> Data);
 
   ///
   /// Get data at the given address.
@@ -35,23 +35,23 @@ public:
   /// \param  ea       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
   ///
-  std::vector<gsl::byte> getData(EA ea, size_t bytes) const;
+  std::vector<gsl::byte> getData(EA Ea, size_t Bytes) const;
 
   using MessageType = proto::ByteMap;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
   struct Region {
-    EA address;
-    std::vector<gsl::byte> data;
+    EA Address;
+    std::vector<gsl::byte> Data;
 
-    EA getAddress() const { return this->address; }
+    EA getAddress() const { return this->Address; }
 
-    uint64_t getSize() const { return this->data.size(); }
+    uint64_t getSize() const { return this->Data.size(); }
   };
 
 private:
   // Initialize with sentinel region
-  std::vector<Region> regions{{EA(), std::vector<gsl::byte>()}};
+  std::vector<Region> Regions{{EA(), std::vector<gsl::byte>()}};
 };
 } // namespace gtirb

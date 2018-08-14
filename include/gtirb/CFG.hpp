@@ -65,12 +65,12 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 /// Move a basic block into the graph.
 ///
 /// \return a descriptor which can be used to retrieve the Block.
-GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block);
+GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block&& Block);
 
 ///
 /// Iterates over Blocks in the graph.
 ///
-GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& cfg);
+GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
 ///
 /// Iterates over Blocks in the graph (by const reference).
@@ -78,6 +78,6 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& cfg);
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
-GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& cfg);
-GTIRB_EXPORT_API void fromProtobuf(CFG& result, const proto::CFG& message);
+GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
+GTIRB_EXPORT_API void fromProtobuf(CFG& result, const proto::CFG& Message);
 } // namespace gtirb

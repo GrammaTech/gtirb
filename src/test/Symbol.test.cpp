@@ -10,79 +10,79 @@ using namespace gtirb;
 TEST(Unit_Symbol, ctor_0) { EXPECT_NO_THROW(gtirb::Symbol()); }
 
 TEST(Unit_Symbol, setName) {
-  const std::string value{"Foo"};
+  const std::string Value{"Foo"};
 
-  auto node = std::make_unique<gtirb::Symbol>();
-  EXPECT_NO_THROW(node->getName());
-  EXPECT_TRUE(node->getName().empty());
+  auto Node = std::make_unique<gtirb::Symbol>();
+  EXPECT_NO_THROW(Node->getName());
+  EXPECT_TRUE(Node->getName().empty());
 
-  EXPECT_NO_THROW(node->setName(value));
-  EXPECT_EQ(value, node->getName());
+  EXPECT_NO_THROW(Node->setName(Value));
+  EXPECT_EQ(Value, Node->getName());
 }
 
 TEST(Unit_Symbol, setEA) {
-  const gtirb::EA value{22678};
+  const gtirb::EA Value{22678};
 
-  auto node = std::make_unique<gtirb::Symbol>();
-  EXPECT_NO_THROW(node->getEA());
-  EXPECT_EQ(gtirb::EA{}, node->getEA());
+  auto Node = std::make_unique<gtirb::Symbol>();
+  EXPECT_NO_THROW(Node->getEA());
+  EXPECT_EQ(gtirb::EA{}, Node->getEA());
 
-  EXPECT_NO_THROW(node->setEA(value));
-  EXPECT_EQ(value, node->getEA());
+  EXPECT_NO_THROW(Node->setEA(Value));
+  EXPECT_EQ(Value, Node->getEA());
 }
 
 TEST(Unit_Symbol, setStorageKind) {
-  const gtirb::Symbol::StorageKind value{gtirb::Symbol::StorageKind::Static};
+  const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
-  auto node = std::make_unique<gtirb::Symbol>();
-  EXPECT_NO_THROW(node->getStorageKind());
-  EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, node->getStorageKind());
+  auto Node = std::make_unique<gtirb::Symbol>();
+  EXPECT_NO_THROW(Node->getStorageKind());
+  EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
-  EXPECT_NO_THROW(node->setStorageKind(value));
-  EXPECT_EQ(value, node->getStorageKind());
+  EXPECT_NO_THROW(Node->setStorageKind(Value));
+  EXPECT_EQ(Value, Node->getStorageKind());
 }
 
 TEST(Unit_Symbol, setReferent) {
-  Symbol sym;
-  DataObject data;
-  Block block;
+  Symbol Sym;
+  DataObject Data;
+  Block Block;
 
-  sym.setReferent(data);
-  EXPECT_EQ(&*sym.getDataReferent(), &data);
-  EXPECT_FALSE(sym.getCodeReferent());
+  Sym.setReferent(Data);
+  EXPECT_EQ(&*Sym.getDataReferent(), &Data);
+  EXPECT_FALSE(Sym.getCodeReferent());
 
-  sym.setReferent(block);
-  EXPECT_EQ(&*sym.getCodeReferent(), &block);
+  Sym.setReferent(Block);
+  EXPECT_EQ(&*Sym.getCodeReferent(), &Block);
   // Setting code referent clears data referent
-  EXPECT_FALSE(sym.getDataReferent());
+  EXPECT_FALSE(Sym.getDataReferent());
 
-  sym.setReferent(data);
-  EXPECT_EQ(&*sym.getDataReferent(), &data);
+  Sym.setReferent(Data);
+  EXPECT_EQ(&*Sym.getDataReferent(), &Data);
   // Setting data referent clears code referent
-  EXPECT_FALSE(sym.getCodeReferent());
+  EXPECT_FALSE(Sym.getCodeReferent());
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
-  Symbol result;
-  proto::Symbol message;
-  UUID dataUUID;
+  Symbol Result;
+  proto::Symbol Message;
+  UUID DataUUID;
 
   {
-    Symbol original(EA(1), "test");
-    original.setStorageKind(Symbol::StorageKind::Static);
+    Symbol Original(EA(1), "test");
+    Original.setStorageKind(Symbol::StorageKind::Static);
 
-    DataObject data;
-    dataUUID = data.getUUID();
-    original.setReferent(data);
+    DataObject Data;
+    DataUUID = Data.getUUID();
+    Original.setReferent(Data);
 
-    original.toProtobuf(&message);
+    Original.toProtobuf(&Message);
   }
 
-  result.fromProtobuf(message);
+  Result.fromProtobuf(Message);
 
-  EXPECT_EQ(result.getEA(), EA(1));
-  EXPECT_EQ(result.getName(), "test");
-  EXPECT_EQ(result.getStorageKind(), Symbol::StorageKind::Static);
-  EXPECT_EQ(result.getDataReferent().getUUID(), dataUUID);
-  EXPECT_EQ(result.getCodeReferent().getUUID(), UUID());
+  EXPECT_EQ(Result.getEA(), EA(1));
+  EXPECT_EQ(Result.getName(), "test");
+  EXPECT_EQ(Result.getStorageKind(), Symbol::StorageKind::Static);
+  EXPECT_EQ(Result.getDataReferent().getUUID(), DataUUID);
+  EXPECT_EQ(Result.getCodeReferent().getUUID(), UUID());
 }

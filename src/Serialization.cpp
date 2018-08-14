@@ -2,46 +2,46 @@
 #include "Node.hpp"
 
 namespace gtirb {
-UUID uuidFromBytes(const std::string& bytes) {
-  UUID id;
-  Expects(bytes.size() == sizeof(id.data));
-  std::copy(bytes.begin(), bytes.end(), std::begin(id.data));
-  return id;
+UUID uuidFromBytes(const std::string& Bytes) {
+  UUID Id;
+  Expects(Bytes.size() == sizeof(Id.data));
+  std::copy(Bytes.begin(), Bytes.end(), std::begin(Id.data));
+  return Id;
 }
 
-void uuidToBytes(UUID uuid, std::string& bytes) {
-  bytes.clear();
-  bytes.reserve(sizeof(uuid.data));
-  std::copy(std::begin(uuid.data), std::end(uuid.data),
-            std::back_inserter(bytes));
+void uuidToBytes(UUID Uuid, std::string& Bytes) {
+  Bytes.clear();
+  Bytes.reserve(sizeof(Uuid.data));
+  std::copy(std::begin(Uuid.data), std::end(Uuid.data),
+            std::back_inserter(Bytes));
 }
 
-void nodeUUIDToBytes(const Node* node, std::string& bytes) {
-  uuidToBytes(node->getUUID(), bytes);
+void nodeUUIDToBytes(const Node* Node, std::string& Bytes) {
+  uuidToBytes(Node->getUUID(), Bytes);
 }
 
-void setNodeUUIDFromBytes(Node* node, const std::string& bytes) {
-  node->setUUID(uuidFromBytes(bytes));
+void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes) {
+  Node->setUUID(uuidFromBytes(Bytes));
 }
 
-uint64_t toProtobuf(const EA val) { return val.get(); }
+uint64_t toProtobuf(const EA Val) { return Val.get(); }
 
-std::string toProtobuf(const std::string& val) { return val; }
+std::string toProtobuf(const std::string& Val) { return Val; }
 
-int64_t toProtobuf(const int64_t& val) { return val; }
+int64_t toProtobuf(const int64_t& Val) { return Val; }
 
-uint64_t toProtobuf(const uint64_t& val) { return val; }
+uint64_t toProtobuf(const uint64_t& Val) { return Val; }
 
-std::string toProtobuf(const UUID& val) {
-  std::string result;
-  uuidToBytes(val, result);
-  return result;
+std::string toProtobuf(const UUID& Val) {
+  std::string Result;
+  uuidToBytes(Val, Result);
+  return Result;
 }
 
-void fromProtobuf(EA& result, const uint64_t& message) { result = EA(message); }
+void fromProtobuf(EA& Result, const uint64_t& Message) { Result = EA(Message); }
 
-void fromProtobuf(UUID& result, const std::string& message) {
-  result = uuidFromBytes(message);
+void fromProtobuf(UUID& Result, const std::string& Message) {
+  Result = uuidFromBytes(Message);
 }
 
 } // namespace gtirb

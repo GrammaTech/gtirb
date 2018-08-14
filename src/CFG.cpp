@@ -5,42 +5,42 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addBlock(CFG& cfg, Block&& block) {
-  auto descriptor = add_vertex(cfg);
-  cfg[descriptor] = std::move(block);
-  return descriptor;
+CFG::vertex_descriptor addBlock(CFG& Cfg, Block&& Block) {
+  auto Descriptor = add_vertex(Cfg);
+  Cfg[Descriptor] = std::move(Block);
+  return Descriptor;
 }
 
-boost::iterator_range<const_block_iterator> blocks(const CFG& cfg) {
-  auto vs = vertices(cfg);
+boost::iterator_range<const_block_iterator> blocks(const CFG& Cfg) {
+  auto Vs = vertices(Cfg);
   return boost::iterator_range<const_block_iterator>(
-      std::make_pair(const_block_iterator(vs.first, cfg),
-                     const_block_iterator(vs.second, cfg)));
+      std::make_pair(const_block_iterator(Vs.first, Cfg),
+                     const_block_iterator(Vs.second, Cfg)));
 }
 
-boost::iterator_range<block_iterator> blocks(CFG& cfg) {
-  auto vs = vertices(cfg);
+boost::iterator_range<block_iterator> blocks(CFG& Cfg) {
+  auto Vs = vertices(Cfg);
   return boost::iterator_range<block_iterator>(std::make_pair(
-      block_iterator(vs.first, cfg), block_iterator(vs.second, cfg)));
+      block_iterator(Vs.first, Cfg), block_iterator(Vs.second, Cfg)));
 }
 
-proto::CFG toProtobuf(const CFG& cfg) {
-  proto::CFG message;
-  containerToProtobuf(blocks(cfg), message.mutable_blocks());
-  auto messageEdges = message.mutable_edges();
-  auto edge_range = edges(cfg);
+proto::CFG toProtobuf(const CFG& Cfg) {
+  proto::CFG Message;
+  containerToProtobuf(blocks(Cfg), Message.mutable_blocks());
+  auto MessageEdges = Message.mutable_edges();
+  auto EdgeRange = edges(Cfg);
   std::for_each(
-      edge_range.first, edge_range.second, [messageEdges, &cfg](const auto& e) {
-        auto m = messageEdges->Add();
-        nodeUUIDToBytes(&cfg[source(e, cfg)], *m->mutable_source_uuid());
-        nodeUUIDToBytes(&cfg[target(e, cfg)], *m->mutable_target_uuid());
-        auto label = cfg[e];
-        switch (label.which()) {
+      EdgeRange.first, EdgeRange.second, [MessageEdges, &Cfg](const auto& E) {
+        auto M = MessageEdges->Add();
+        nodeUUIDToBytes(&Cfg[source(E, Cfg)], *M->mutable_source_uuid());
+        nodeUUIDToBytes(&Cfg[target(E, Cfg)], *M->mutable_target_uuid());
+        auto Label = Cfg[E];
+        switch (Label.which()) {
         case 1:
-          m->set_boolean(boost::get<bool>(label));
+          M->set_boolean(boost::get<bool>(Label));
           break;
         case 2:
-          m->set_integer(boost::get<uint64_t>(label));
+          M->set_integer(boost::get<uint64_t>(Label));
           break;
         case 0:
         default:
@@ -49,31 +49,31 @@ proto::CFG toProtobuf(const CFG& cfg) {
         }
       });
 
-  return message;
+  return Message;
 }
 
-void fromProtobuf(CFG& result, const proto::CFG& message) {
+void fromProtobuf(CFG& Result, const proto::CFG& Message) {
   // While adding blocks, remember UUID -> vertex mapping
-  std::map<UUID, CFG::vertex_descriptor> blockMap;
-  std::for_each(message.blocks().begin(), message.blocks().end(),
-                [&result, &blockMap](const auto& m) {
-                  Block b;
-                  fromProtobuf(b, m);
-                  auto id = b.getUUID();
-                  blockMap[id] = addBlock(result, std::move(b));
+  std::map<UUID, CFG::vertex_descriptor> BlockMap;
+  std::for_each(Message.blocks().begin(), Message.blocks().end(),
+                [&Result, &BlockMap](const auto& M) {
+                  Block B;
+                  fromProtobuf(B, M);
+                  auto Id = B.getUUID();
+                  BlockMap[Id] = addBlock(Result, std::move(B));
                 });
-  std::for_each(message.edges().begin(), message.edges().end(),
-                [&result, &blockMap](const auto& m) {
-                  auto e =
-                      add_edge(blockMap[uuidFromBytes(m.source_uuid())],
-                               blockMap[uuidFromBytes(m.target_uuid())], result)
+  std::for_each(Message.edges().begin(), Message.edges().end(),
+                [&Result, &BlockMap](const auto& M) {
+                  auto E =
+                      add_edge(BlockMap[uuidFromBytes(M.source_uuid())],
+                               BlockMap[uuidFromBytes(M.target_uuid())], Result)
                           .first;
-                  switch (m.label_case()) {
+                  switch (M.label_case()) {
                   case proto::Edge::kBoolean:
-                    result[e] = m.boolean();
+                    Result[E] = M.boolean();
                     break;
                   case proto::Edge::kInteger:
-                    result[e] = m.integer();
+                    Result[E] = M.integer();
                   case proto::Edge::LABEL_NOT_SET:
                     // Nothing to do. Default edge label is blank.
                     break;

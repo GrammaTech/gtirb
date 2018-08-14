@@ -3,24 +3,24 @@
 #include <gtirb/SymbolSet.hpp>
 
 namespace gtirb {
-void addSymbol(SymbolSet& symbols, Symbol&& sym) {
-  symbols.emplace(sym.getEA(), std::move(sym));
+void addSymbol(SymbolSet& Symbols, Symbol&& Sym) {
+  Symbols.emplace(Sym.getEA(), std::move(Sym));
 }
 
-std::vector<const Symbol*> findSymbols(const SymbolSet& symbols, gtirb::EA x) {
-  auto found = symbols.equal_range(x);
+std::vector<const Symbol*> findSymbols(const SymbolSet& Symbols, gtirb::EA X) {
+  auto Found = Symbols.equal_range(X);
   std::vector<const Symbol*> result;
-  std::for_each(found.first, found.second, [&result](const auto& node) {
+  std::for_each(Found.first, Found.second, [&result](const auto& node) {
     result.push_back(&node.second);
   });
   return result;
 }
 
-std::vector<Symbol*> findSymbols(SymbolSet& symbols, gtirb::EA x) {
-  auto found = symbols.equal_range(x);
-  std::vector<Symbol*> result;
-  std::for_each(found.first, found.second,
-                [&result](auto& node) { result.push_back(&node.second); });
-  return result;
+std::vector<Symbol*> findSymbols(SymbolSet& Symbols, gtirb::EA X) {
+  auto Found = Symbols.equal_range(X);
+  std::vector<Symbol*> Result;
+  std::for_each(Found.first, Found.second,
+                [&Result](auto& Node) { Result.push_back(&Node.second); });
+  return Result;
 }
 } // namespace gtirb

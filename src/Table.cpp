@@ -7,124 +7,124 @@ namespace gtirb {
 template <typename MessageT>
 class TableVisitor : public boost::static_visitor<> {
 public:
-  MessageT* message;
+  MessageT* Message;
 
-  TableVisitor(MessageT* m) : message(m) {}
+  TableVisitor(MessageT* m) : Message(m) {}
 
-  void operator()(EA val) const { message->set_ea(val.get()); }
+  void operator()(EA Val) const { Message->set_ea(Val.get()); }
 
-  void operator()(int64_t val) const { message->set_int_(val); }
+  void operator()(int64_t Val) const { Message->set_int_(Val); }
 
-  void operator()(const std::string& val) const { message->set_str(val); }
+  void operator()(const std::string& Val) const { Message->set_str(Val); }
 
-  void operator()(const UUID& val) const {
-    uuidToBytes(val, *message->mutable_uuid());
+  void operator()(const UUID& Val) const {
+    uuidToBytes(Val, *Message->mutable_uuid());
   }
 
-  void operator()(const InstructionRef& val) const {
-    val.toProtobuf(message->mutable_instruction());
+  void operator()(const InstructionRef& Val) const {
+    Val.toProtobuf(Message->mutable_instruction());
   }
 
-  void operator()(const table::InnerMapType& val) const {
-    containerToProtobuf(val, message->mutable_map()->mutable_contents());
+  void operator()(const table::InnerMapType& Val) const {
+    containerToProtobuf(Val, Message->mutable_map()->mutable_contents());
   }
 
-  void operator()(const std::vector<EA>& val) const {
-    containerToProtobuf(val, message->mutable_ea_vector()->mutable_contents());
+  void operator()(const std::vector<EA>& Val) const {
+    containerToProtobuf(Val, Message->mutable_ea_vector()->mutable_contents());
   }
 
-  void operator()(const std::vector<int64_t>& val) const {
-    containerToProtobuf(val, message->mutable_int_vector()->mutable_contents());
+  void operator()(const std::vector<int64_t>& Val) const {
+    containerToProtobuf(Val, Message->mutable_int_vector()->mutable_contents());
   }
 
-  void operator()(const std::vector<std::string>& val) const {
-    containerToProtobuf(val,
-                        message->mutable_string_vector()->mutable_contents());
+  void operator()(const std::vector<std::string>& Val) const {
+    containerToProtobuf(Val,
+                        Message->mutable_string_vector()->mutable_contents());
   }
 
-  void operator()(const std::vector<UUID>& val) const {
-    containerToProtobuf(val,
-                        message->mutable_uuid_vector()->mutable_contents());
+  void operator()(const std::vector<UUID>& Val) const {
+    containerToProtobuf(Val,
+                        Message->mutable_uuid_vector()->mutable_contents());
   }
 
-  void operator()(const std::vector<InstructionRef>& val) const {
+  void operator()(const std::vector<InstructionRef>& Val) const {
     containerToProtobuf(
-        val, message->mutable_instruction_vector()->mutable_contents());
+        Val, Message->mutable_instruction_vector()->mutable_contents());
   }
 
-  void operator()(const std::map<EA, table::ValueType>& val) const {
-    containerToProtobuf(val, message->mutable_by_ea()->mutable_contents());
+  void operator()(const std::map<EA, table::ValueType>& Val) const {
+    containerToProtobuf(Val, Message->mutable_by_ea()->mutable_contents());
   }
 
-  void operator()(const std::map<int64_t, table::ValueType>& val) const {
-    containerToProtobuf(val, message->mutable_by_int()->mutable_contents());
+  void operator()(const std::map<int64_t, table::ValueType>& Val) const {
+    containerToProtobuf(Val, Message->mutable_by_int()->mutable_contents());
   }
 
-  void operator()(const std::map<std::string, table::ValueType>& val) const {
-    containerToProtobuf(val, message->mutable_by_string()->mutable_contents());
+  void operator()(const std::map<std::string, table::ValueType>& Val) const {
+    containerToProtobuf(Val, Message->mutable_by_string()->mutable_contents());
   }
 
-  void operator()(const std::map<UUID, table::ValueType>& val) const {
+  void operator()(const std::map<UUID, table::ValueType>& Val) const {
     // Special case, convert UUIDs to string form to make protobuf happy.
-    auto field = message->mutable_by_uuid()->mutable_contents();
-    field->clear();
-    std::for_each(val.begin(), val.end(), [field](auto v) {
-      (*field)[uuidToString(v.first)] = toProtobuf(v.second);
+    auto Field = Message->mutable_by_uuid()->mutable_contents();
+    Field->clear();
+    std::for_each(Val.begin(), Val.end(), [Field](auto V) {
+      (*Field)[uuidToString(V.first)] = toProtobuf(V.second);
     });
   }
 
-  void operator()(const std::vector<table::InnerMapType>& val) const {
-    auto field = message->mutable_map_vector()->mutable_contents();
-    field->Clear();
-    field->Reserve(static_cast<int>(val.size()));
-    std::for_each(val.begin(), val.end(), [field](auto v) {
-      containerToProtobuf(v, field->Add()->mutable_contents());
+  void operator()(const std::vector<table::InnerMapType>& Val) const {
+    auto Field = Message->mutable_map_vector()->mutable_contents();
+    Field->Clear();
+    Field->Reserve(static_cast<int>(Val.size()));
+    std::for_each(Val.begin(), Val.end(), [Field](auto V) {
+      containerToProtobuf(V, Field->Add()->mutable_contents());
     });
   }
 };
 
-proto::Value toProtobuf(const table::ValueType& value) {
-  proto::Value message;
-  boost::apply_visitor(TableVisitor<proto::Value>(&message), value);
-  return message;
+proto::Value toProtobuf(const table::ValueType& Value) {
+  proto::Value Message;
+  boost::apply_visitor(TableVisitor<proto::Value>(&Message), Value);
+  return Message;
 }
 
-proto::InnerValue toProtobuf(const table::InnerValueType& value) {
-  proto::InnerValue message;
-  boost::apply_visitor(TableVisitor<proto::InnerValue>(&message), value);
-  return message;
+proto::InnerValue toProtobuf(const table::InnerValueType& Value) {
+  proto::InnerValue Message;
+  boost::apply_visitor(TableVisitor<proto::InnerValue>(&Message), Value);
+  return Message;
 }
 
 proto::Table toProtobuf(const Table& table) {
-  proto::Table message;
-  boost::apply_visitor(TableVisitor<proto::Table>(&message), table);
-  return message;
+  proto::Table Message;
+  boost::apply_visitor(TableVisitor<proto::Table>(&Message), table);
+  return Message;
 }
 
-void fromProtobuf(table::ValueType& value, const proto::Value& message) {
-  switch (message.value_case()) {
+void fromProtobuf(table::ValueType& Value, const proto::Value& Message) {
+  switch (Message.value_case()) {
   case proto::Value::kEa:
-    value = EA(message.ea());
+    Value = EA(Message.ea());
     break;
   case proto::Value::kInt:
-    value = message.int_();
+    Value = Message.int_();
     break;
   case proto::Value::kStr:
-    value = message.str();
+    Value = Message.str();
     break;
   case proto::Value::kUuid:
-    value = uuidFromBytes(message.uuid());
+    Value = uuidFromBytes(Message.uuid());
     break;
   case proto::Value::kInstruction: {
-    InstructionRef ref;
-    fromProtobuf(ref, message.instruction());
-    value = std::move(ref);
+    InstructionRef Ref;
+    fromProtobuf(Ref, Message.instruction());
+    Value = std::move(Ref);
     break;
   }
   case proto::Value::kMap: {
-    table::InnerMapType map;
-    containerFromProtobuf(map, message.map().contents());
-    value = std::move(map);
+    table::InnerMapType Map;
+    containerFromProtobuf(Map, Message.map().contents());
+    Value = std::move(Map);
     break;
   }
   case proto::Value::VALUE_NOT_SET:
@@ -133,55 +133,55 @@ void fromProtobuf(table::ValueType& value, const proto::Value& message) {
   }
 }
 
-void fromProtobuf(table::InnerValueType& value,
-                  const proto::InnerValue& message) {
-  switch (message.value_case()) {
+void fromProtobuf(table::InnerValueType& Value,
+                  const proto::InnerValue& Message) {
+  switch (Message.value_case()) {
   case proto::InnerValue::kEa:
-    value = EA(message.ea());
+    Value = EA(Message.ea());
     break;
   case proto::InnerValue::kInt:
-    value = message.int_();
+    Value = Message.int_();
     break;
   case proto::InnerValue::kStr:
-    value = message.str();
+    Value = Message.str();
     break;
   case proto::InnerValue::kUuid:
-    value = uuidFromBytes(message.uuid());
+    Value = uuidFromBytes(Message.uuid());
     break;
   case proto::InnerValue::kInstruction: {
-    InstructionRef ref;
-    fromProtobuf(ref, message.instruction());
-    value = std::move(ref);
+    InstructionRef Ref;
+    fromProtobuf(Ref, Message.instruction());
+    Value = std::move(Ref);
     break;
   }
   case proto::InnerValue::kEaVector: {
-    std::vector<EA> v;
-    containerFromProtobuf(v, message.ea_vector().contents());
-    value = std::move(v);
+    std::vector<EA> V;
+    containerFromProtobuf(V, Message.ea_vector().contents());
+    Value = std::move(V);
     break;
   }
   case proto::InnerValue::kIntVector: {
-    std::vector<int64_t> v;
-    containerFromProtobuf(v, message.int_vector().contents());
-    value = std::move(v);
+    std::vector<int64_t> V;
+    containerFromProtobuf(V, Message.int_vector().contents());
+    Value = std::move(V);
     break;
   }
   case proto::InnerValue::kStringVector: {
-    std::vector<std::string> v;
-    containerFromProtobuf(v, message.string_vector().contents());
-    value = std::move(v);
+    std::vector<std::string> V;
+    containerFromProtobuf(V, Message.string_vector().contents());
+    Value = std::move(V);
     break;
   }
   case proto::InnerValue::kUuidVector: {
-    std::vector<UUID> v;
-    containerFromProtobuf(v, message.uuid_vector().contents());
-    value = std::move(v);
+    std::vector<UUID> V;
+    containerFromProtobuf(V, Message.uuid_vector().contents());
+    Value = std::move(V);
     break;
   }
   case proto::InnerValue::kInstructionVector: {
     std::vector<InstructionRef> v;
-    containerFromProtobuf(v, message.instruction_vector().contents());
-    value = std::move(v);
+    containerFromProtobuf(v, Message.instruction_vector().contents());
+    Value = std::move(v);
     break;
   }
 
@@ -191,79 +191,79 @@ void fromProtobuf(table::InnerValueType& value,
   }
 }
 
-void fromProtobuf(Table& result, const proto::Table& message) {
-  switch (message.value_case()) {
+void fromProtobuf(Table& Result, const proto::Table& Message) {
+  switch (Message.value_case()) {
   case proto::Table::kByEa: {
-    std::map<EA, table::ValueType> val;
-    containerFromProtobuf(val, message.by_ea().contents());
-    result = std::move(val);
+    std::map<EA, table::ValueType> Val;
+    containerFromProtobuf(Val, Message.by_ea().contents());
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kByInt: {
-    std::map<int64_t, table::ValueType> val;
-    containerFromProtobuf(val, message.by_int().contents());
-    result = std::move(val);
+    std::map<int64_t, table::ValueType> Val;
+    containerFromProtobuf(Val, Message.by_int().contents());
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kByString: {
-    std::map<std::string, table::ValueType> val;
-    containerFromProtobuf(val, message.by_string().contents());
-    result = std::move(val);
+    std::map<std::string, table::ValueType> Val;
+    containerFromProtobuf(Val, Message.by_string().contents());
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kByUuid: {
     // Special case, UUIDs stored in string form by protobuf
-    std::map<UUID, table::ValueType> val;
-    const auto& field = message.by_uuid().contents();
-    std::for_each(field.begin(), field.end(), [&val](const auto& m) {
-      table::ValueType v;
-      fromProtobuf(v, m.second);
-      val.emplace(uuidFromString(m.first), std::move(v));
+    std::map<UUID, table::ValueType> Val;
+    const auto& field = Message.by_uuid().contents();
+    std::for_each(field.begin(), field.end(), [&Val](const auto& M) {
+      table::ValueType V;
+      fromProtobuf(V, M.second);
+      Val.emplace(uuidFromString(M.first), std::move(V));
     });
-    result = std::move(val);
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kMapVector: {
-    std::vector<table::InnerMapType> values;
-    auto& field = message.map_vector().contents();
+    std::vector<table::InnerMapType> Values;
+    auto& field = Message.map_vector().contents();
 
-    std::for_each(field.begin(), field.end(), [&values](auto v) {
-      table::InnerMapType map;
-      containerFromProtobuf(map, v.contents());
-      values.push_back(std::move(map));
+    std::for_each(field.begin(), field.end(), [&Values](auto V) {
+      table::InnerMapType Map;
+      containerFromProtobuf(Map, V.contents());
+      Values.push_back(std::move(Map));
     });
-    result = std::move(values);
+    Result = std::move(Values);
     break;
   }
 
   case proto::Table::kEaVector: {
-    std::vector<EA> val;
-    containerFromProtobuf(val, message.ea_vector().contents());
-    result = std::move(val);
+    std::vector<EA> Val;
+    containerFromProtobuf(Val, Message.ea_vector().contents());
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kIntVector: {
-    std::vector<int64_t> val;
-    containerFromProtobuf(val, message.int_vector().contents());
-    result = std::move(val);
+    std::vector<int64_t> Val;
+    containerFromProtobuf(Val, Message.int_vector().contents());
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kStringVector: {
-    std::vector<std::string> val;
-    containerFromProtobuf(val, message.string_vector().contents());
-    result = std::move(val);
+    std::vector<std::string> Val;
+    containerFromProtobuf(Val, Message.string_vector().contents());
+    Result = std::move(Val);
     break;
   }
   case proto::Table::kUuidVector: {
-    std::vector<UUID> v;
-    containerFromProtobuf(v, message.uuid_vector().contents());
-    result = std::move(v);
+    std::vector<UUID> V;
+    containerFromProtobuf(V, Message.uuid_vector().contents());
+    Result = std::move(V);
     break;
   }
   case proto::Table::kInstructionVector: {
-    std::vector<InstructionRef> v;
-    containerFromProtobuf(v, message.instruction_vector().contents());
-    result = std::move(v);
+    std::vector<InstructionRef> V;
+    containerFromProtobuf(V, Message.instruction_vector().contents());
+    Result = std::move(V);
     break;
   }
 

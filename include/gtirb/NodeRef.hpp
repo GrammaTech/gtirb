@@ -13,12 +13,12 @@ namespace gtirb {
 template <typename NodeT> class NodeRef {
 public:
   NodeRef() = default;
-  NodeRef(UUID uuid_) : uuid(uuid_) {}
-  NodeRef(const NodeT& node) : uuid(node.getUUID()){};
+  NodeRef(UUID Uuid_) : Uuid(Uuid_) {}
+  NodeRef(const NodeT& node) : Uuid(node.getUUID()){};
   NodeRef(const NodeRef&) = default;
   NodeRef(NodeRef&&) = default;
-  NodeRef& operator=(NodeRef&& data) = default;
-  NodeRef& operator=(const NodeRef& data) = default;
+  NodeRef& operator=(NodeRef&&) = default;
+  NodeRef& operator=(const NodeRef&) = default;
 
   // Cast to pointer
   operator NodeT*() { return this->get(); }
@@ -34,13 +34,13 @@ public:
 
   NodeT* operator->() { return this->get(); }
 
-  UUID getUUID() const { return this->uuid; }
+  UUID getUUID() const { return this->Uuid; }
 
 private:
-  UUID uuid;
+  UUID Uuid;
 
   NodeT* get() const {
-    return dynamic_cast<NodeT*>(Node::getByUUID(this->uuid));
+    return dynamic_cast<NodeT*>(Node::getByUUID(this->Uuid));
   }
 };
 } // namespace gtirb

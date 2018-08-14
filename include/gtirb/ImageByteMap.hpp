@@ -29,7 +29,7 @@ public:
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
   ///
-  explicit ImageByteMap(const ImageByteMap& other) = default;
+  explicit ImageByteMap(const ImageByteMap&) = default;
 
   ///
   /// Move constructor
@@ -46,7 +46,7 @@ public:
   ///
   /// \return     Sets the file name of the image.
   ///
-  void setFileName(boost::filesystem::path x);
+  void setFileName(boost::filesystem::path X);
 
   ///
   /// \return     The loaded file name and path.
@@ -56,7 +56,7 @@ public:
   ///
   /// Sets the base address of loaded file.
   ///
-  void setBaseAddress(EA x);
+  void setBaseAddress(EA X);
 
   ///
   /// Gets the base addrress of loaded file.
@@ -66,7 +66,7 @@ public:
   ///
   /// Sets the entry point of loaded file.
   ///
-  void setEntryPointAddress(EA x);
+  void setEntryPointAddress(EA X);
 
   ///
   /// Gets the entry point of loaded file.
@@ -81,7 +81,7 @@ public:
   /// \param      x   The minimum and maximum effective address (EA) for this
   /// Module. \return     False if the pair's first is > the pair's second.
   ///
-  bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x);
+  bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> X);
 
   ///
   /// Gets the minimum and maximum effective address (EA) for this Module.
@@ -96,7 +96,7 @@ public:
   ///
   ///
   ///
-  void setRebaseDelta(int64_t x);
+  void setRebaseDelta(int64_t X);
 
   ///
   ///
@@ -124,7 +124,7 @@ public:
   ///
   /// Get the byte order used when getting or setting data.
   ///
-  void setByteOrder(boost::endian::order value);
+  void setByteOrder(boost::endian::order Value);
 
   ///
   /// Sets byte map at the given address. Data is written directly without
@@ -140,7 +140,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA ea, gsl::span<const gsl::byte> data);
+  void setData(EA Ea, gsl::span<const gsl::byte> Data);
 
   ///
   /// Sets byte map in the given range to a constant value.
@@ -155,7 +155,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA ea, size_t bytes, gsl::byte value);
+  void setData(EA Ea, size_t Bytes, gsl::byte Value);
 
   ///
   /// Stores data in the byte map at the given address, converting from native
@@ -166,20 +166,20 @@ public:
   /// \throws std::out_of_range   Throws if the address to set data at is
   /// outside of the minimum and maximum EA.
   ///
-  /// \param  ea      The address to store the data.
-  /// \param  data    The data to store. This may be any endian-reversible POD
+  /// \param  Ea      The address to store the data.
+  /// \param  Data    The data to store. This may be any endian-reversible POD
   /// type.
   ///
   /// \sa gtirb::ByteMap
   ///
-  template <typename T> void setData(EA ea, const T& data) {
+  template <typename T> void setData(EA Ea, const T& Data) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
-    if (this->byteOrder != boost::endian::order::native) {
+    if (this->ByteOrder != boost::endian::order::native) {
       T reversed = boost::endian::conditional_reverse(
-          data, this->byteOrder, boost::endian::order::native);
-      this->byteMap.setData(ea, as_bytes(gsl::make_span(&reversed, 1)));
+          Data, this->ByteOrder, boost::endian::order::native);
+      this->ByteMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
     } else {
-      this->byteMap.setData(ea, as_bytes(gsl::make_span(&data, 1)));
+      this->ByteMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
     }
   }
 
@@ -190,18 +190,18 @@ public:
   /// \throws std::out_of_range   Throws if the address to set data at is
   /// outside of the minimum and maximum EA.
   ///
-  /// \param  ea      The address to store the data.
-  /// \param  data    The data to store. This may be a std::array of any
-  /// endian-reversible
-  ///                 POD type.
+  /// \param  Ea      The address to store the data.
+
+  /// \param Data     The data to store. This may be a std::array of any
+  ///                 endian-reversible POD type.
   ///
   /// \sa gtirb::ByteMap
   ///
   template <typename T, size_t Size>
-  void setData(EA ea, const std::array<T, Size>& data) {
-    for (const auto& elt : data) {
-      this->setData(ea, elt);
-      ea += sizeof(T);
+  void setData(EA Ea, const std::array<T, Size>& Data) {
+    for (const auto& Elt : Data) {
+      this->setData(Ea, Elt);
+      Ea += sizeof(T);
     }
   }
 
@@ -213,7 +213,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  std::vector<gsl::byte> getData(EA x, size_t bytes) const;
+  std::vector<gsl::byte> getData(EA X, size_t Bytes) const;
 
   ///
   /// Get data from the byte map at the given address, converting to native
@@ -222,16 +222,16 @@ public:
   /// Returns an object of type T, initialized from the byte map data.
   /// T may be any endian-reversible POD type.
   ///
-  /// \param  ea       The starting address for the data.
+  /// \param  Ea       The starting address for the data.
   ///
   /// \sa gtirb::ByteMap
   ///
   template <typename T>
-  typename std::enable_if<!is_std_array<T>::value, T>::type getData(EA ea) {
+  typename std::enable_if<!is_std_array<T>::value, T>::type getData(EA Ea) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
 
-    return boost::endian::conditional_reverse(this->getDataNoSwap<T>(ea),
-                                              this->byteOrder,
+    return boost::endian::conditional_reverse(this->getDataNoSwap<T>(Ea),
+                                              this->ByteOrder,
                                               boost::endian::order::native);
   }
 
@@ -247,16 +247,16 @@ public:
   /// \sa gtirb::ByteMap
   ///
   template <typename T>
-  typename std::enable_if<is_std_array<T>::value, T>::type getData(EA ea) {
+  typename std::enable_if<is_std_array<T>::value, T>::type getData(EA Ea) {
     static_assert(std::is_pod<T>::value, "T::value must be a POD type");
 
-    auto result = getDataNoSwap<T>(ea);
-    for (auto& elt : result) {
-      boost::endian::conditional_reverse_inplace(elt, this->byteOrder,
+    auto Result = getDataNoSwap<T>(Ea);
+    for (auto& Elt : Result) {
+      boost::endian::conditional_reverse_inplace(Elt, this->ByteOrder,
                                                  boost::endian::order::native);
-      ea += sizeof(T);
+      Ea += sizeof(T);
     }
-    return result;
+    return Result;
   }
 
   using MessageType = proto::ImageByteMap;
@@ -264,28 +264,28 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  template <typename T> T getDataNoSwap(EA ea) {
-    T result;
-    auto destSpan = as_writeable_bytes(gsl::make_span(&result, 1));
+  template <typename T> T getDataNoSwap(EA Ea) {
+    T Result;
+    auto destSpan = as_writeable_bytes(gsl::make_span(&Result, 1));
     // Assign this to a variable so it isn't destroyed before we copy
     // from it (because gsl::span is non-owning).
-    auto data = this->getData(ea, destSpan.size_bytes());
+    auto data = this->getData(Ea, destSpan.size_bytes());
     auto srcSpan = as_bytes(gsl::make_span(data));
     assert(srcSpan.size() == destSpan.size());
 
     std::copy(srcSpan.begin(), srcSpan.end(), destSpan.begin());
-    return result;
+    return Result;
   }
 
   // Storage for the entire contents of the loaded image.
-  gtirb::ByteMap byteMap;
-  boost::filesystem::path fileName;
-  std::pair<gtirb::EA, gtirb::EA> eaMinMax{};
-  EA baseAddress{};
-  EA entryPointAddress{};
-  int64_t rebaseDelta{0};
-  bool isRelocated{false};
-  boost::endian::order byteOrder{boost::endian::order::native};
+  gtirb::ByteMap ByteMap;
+  boost::filesystem::path FileName;
+  std::pair<gtirb::EA, gtirb::EA> EaMinMax{};
+  EA BaseAddress{};
+  EA EntryPointAddress{};
+  int64_t RebaseDelta{0};
+  bool IsRelocated{false};
+  boost::endian::order ByteOrder{boost::endian::order::native};
 };
 
 ///

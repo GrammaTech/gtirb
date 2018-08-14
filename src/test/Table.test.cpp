@@ -6,170 +6,170 @@ using namespace gtirb;
 
 TEST(Unit_Table, eaMapProtobufRoundTrip) {
   using MapT = std::map<EA, table::ValueType>;
-  Table original = MapT({{EA(1), {"a"}}, {EA(2), {"b"}}});
+  Table Original = MapT({{EA(1), {"a"}}, {EA(2), {"b"}}});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  MapT m = boost::get<MapT>(result);
-  EXPECT_EQ(m.size(), 2);
-  EXPECT_EQ(boost::get<std::string>(m[EA(1)]), "a");
-  EXPECT_EQ(boost::get<std::string>(m[EA(2)]), "b");
+  MapT M = boost::get<MapT>(Result);
+  EXPECT_EQ(M.size(), 2);
+  EXPECT_EQ(boost::get<std::string>(M[EA(1)]), "a");
+  EXPECT_EQ(boost::get<std::string>(M[EA(2)]), "b");
 }
 
 TEST(Unit_Table, intMapProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
-  Table original = MapT({{1, {"a"}}, {2, {"b"}}});
+  Table Original = MapT({{1, {"a"}}, {2, {"b"}}});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  MapT m = boost::get<MapT>(result);
-  EXPECT_EQ(m.size(), 2);
-  EXPECT_EQ(boost::get<std::string>(m[1]), "a");
-  EXPECT_EQ(boost::get<std::string>(m[2]), "b");
+  MapT M = boost::get<MapT>(Result);
+  EXPECT_EQ(M.size(), 2);
+  EXPECT_EQ(boost::get<std::string>(M[1]), "a");
+  EXPECT_EQ(boost::get<std::string>(M[2]), "b");
 }
 
 TEST(Unit_Table, stringMapProtobufRoundTrip) {
   using MapT = std::map<std::string, table::ValueType>;
-  Table original = MapT({{"1", {"a"}}, {"2", {"b"}}});
+  Table Original = MapT({{"1", {"a"}}, {"2", {"b"}}});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  MapT m = boost::get<MapT>(result);
-  EXPECT_EQ(m.size(), 2);
-  EXPECT_EQ(boost::get<std::string>(m["1"]), "a");
-  EXPECT_EQ(boost::get<std::string>(m["2"]), "b");
+  MapT M = boost::get<MapT>(Result);
+  EXPECT_EQ(M.size(), 2);
+  EXPECT_EQ(boost::get<std::string>(M["1"]), "a");
+  EXPECT_EQ(boost::get<std::string>(M["2"]), "b");
 }
 
 TEST(Unit_Table, uuidMapProtobufRoundTrip) {
   using MapT = std::map<UUID, table::ValueType>;
-  UUID id1 = Node().getUUID();
-  UUID id2 = Node().getUUID();
-  Table original = MapT({{id1, {"a"}}, {id2, {"b"}}});
+  UUID Id1 = Node().getUUID();
+  UUID Id2 = Node().getUUID();
+  Table Original = MapT({{Id1, {"a"}}, {Id2, {"b"}}});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  MapT m = boost::get<MapT>(result);
-  EXPECT_EQ(m.size(), 2);
-  EXPECT_EQ(boost::get<std::string>(m[id1]), "a");
-  EXPECT_EQ(boost::get<std::string>(m[id2]), "b");
+  MapT M = boost::get<MapT>(Result);
+  EXPECT_EQ(M.size(), 2);
+  EXPECT_EQ(boost::get<std::string>(M[Id1]), "a");
+  EXPECT_EQ(boost::get<std::string>(M[Id2]), "b");
 }
 
 TEST(Unit_Table, mapVectorProtobufRoundTrip) {
   table::InnerMapType item({{"key", {1}}});
-  Table original = std::vector<table::InnerMapType>({item});
+  Table Original = std::vector<table::InnerMapType>({item});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  auto v = boost::get<std::vector<table::InnerMapType>>(result);
+  auto v = boost::get<std::vector<table::InnerMapType>>(Result);
   EXPECT_EQ(v.size(), 1);
   EXPECT_EQ(boost::get<int64_t>(v[0]["key"]), 1);
 }
 
 TEST(Unit_Table, eaVectorProtobufRoundTrip) {
-  Table original = std::vector<EA>({EA(1), EA(2), EA(3)});
+  Table Original = std::vector<EA>({EA(1), EA(2), EA(3)});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  EXPECT_EQ(boost::get<std::vector<EA>>(result),
+  EXPECT_EQ(boost::get<std::vector<EA>>(Result),
             std::vector<EA>({EA(1), EA(2), EA(3)}));
 }
 
 TEST(Unit_Table, intVectorProtobufRoundTrip) {
-  Table original = std::vector<int64_t>({1, 2, 3});
+  Table Original = std::vector<int64_t>({1, 2, 3});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  EXPECT_EQ(boost::get<std::vector<int64_t>>(result),
+  EXPECT_EQ(boost::get<std::vector<int64_t>>(Result),
             std::vector<int64_t>({1, 2, 3}));
 }
 
 TEST(Unit_Table, stringVectorProtobufRoundTrip) {
-  Table original = std::vector<std::string>({"1", "2", "3"});
+  Table Original = std::vector<std::string>({"1", "2", "3"});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  EXPECT_EQ(boost::get<std::vector<std::string>>(result),
+  EXPECT_EQ(boost::get<std::vector<std::string>>(Result),
             std::vector<std::string>({"1", "2", "3"}));
 }
 
 TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
-  UUID id1 = Node().getUUID(), id2 = Node().getUUID(), id3 = Node().getUUID();
-  Table original = std::vector<UUID>({id1, id2, id3});
+  UUID Id1 = Node().getUUID(), Id2 = Node().getUUID(), Id3 = Node().getUUID();
+  Table Original = std::vector<UUID>({Id1, Id2, Id3});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  EXPECT_EQ(boost::get<std::vector<UUID>>(result),
-            std::vector<UUID>({id1, id2, id3}));
+  EXPECT_EQ(boost::get<std::vector<UUID>>(Result),
+            std::vector<UUID>({Id1, Id2, Id3}));
 }
 
 TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
-  UUID id1 = Node().getUUID(), id2 = Node().getUUID(), id3 = Node().getUUID();
-  std::vector<InstructionRef> vec({{id1, 1}, {id2, 2}, {id3, 3}});
-  Table original = vec;
+  UUID Id1 = Node().getUUID(), Id2 = Node().getUUID(), Id3 = Node().getUUID();
+  std::vector<InstructionRef> vec({{Id1, 1}, {Id2, 2}, {Id3, 3}});
+  Table Original = vec;
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  auto vec2 = boost::get<std::vector<InstructionRef>>(result);
-  EXPECT_EQ(vec2[0].block.getUUID(), vec[0].block.getUUID());
-  EXPECT_EQ(vec2[0].offset, vec[0].offset);
-  EXPECT_EQ(vec2[1].block.getUUID(), vec[1].block.getUUID());
-  EXPECT_EQ(vec2[1].offset, vec[1].offset);
-  EXPECT_EQ(vec2[2].block.getUUID(), vec[2].block.getUUID());
-  EXPECT_EQ(vec2[2].offset, vec[2].offset);
+  auto vec2 = boost::get<std::vector<InstructionRef>>(Result);
+  EXPECT_EQ(vec2[0].BlockRef.getUUID(), vec[0].BlockRef.getUUID());
+  EXPECT_EQ(vec2[0].Offset, vec[0].Offset);
+  EXPECT_EQ(vec2[1].BlockRef.getUUID(), vec[1].BlockRef.getUUID());
+  EXPECT_EQ(vec2[1].Offset, vec[1].Offset);
+  EXPECT_EQ(vec2[2].BlockRef.getUUID(), vec[2].BlockRef.getUUID());
+  EXPECT_EQ(vec2[2].Offset, vec[2].Offset);
 }
 
 TEST(Unit_Table, valueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
-  table::InnerMapType inner({{"a", 1}});
-  UUID id = Node().getUUID();
-  Table original = MapT({
+  table::InnerMapType Inner({{"a", 1}});
+  UUID Id = Node().getUUID();
+  Table Original = MapT({
       {1, EA(5)},                // EA
       {2, 6},                    // int64
       {3, "7"},                  // string
-      {4, inner},                // InnerMapType
-      {5, id},                   // UUID
-      {6, InstructionRef{id, 1}} // InstructionRef
+      {4, Inner},                // InnerMapType
+      {5, Id},                   // UUID
+      {6, InstructionRef{Id, 1}} // InstructionRef
   });
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  MapT m = boost::get<MapT>(result);
-  EXPECT_EQ(m.size(), 6);
-  EXPECT_EQ(boost::get<EA>(m[1]), EA(5));
-  EXPECT_EQ(boost::get<int64_t>(m[2]), 6);
-  EXPECT_EQ(boost::get<std::string>(m[3]), "7");
-  EXPECT_EQ(boost::get<int64_t>(boost::get<table::InnerMapType>(m[4])["a"]), 1);
-  EXPECT_EQ(boost::get<UUID>(m[5]), id);
-  auto ref = boost::get<InstructionRef>(m[6]);
-  EXPECT_EQ(ref.block.getUUID(), id);
-  EXPECT_EQ(ref.offset, 1);
+  MapT M = boost::get<MapT>(Result);
+  EXPECT_EQ(M.size(), 6);
+  EXPECT_EQ(boost::get<EA>(M[1]), EA(5));
+  EXPECT_EQ(boost::get<int64_t>(M[2]), 6);
+  EXPECT_EQ(boost::get<std::string>(M[3]), "7");
+  EXPECT_EQ(boost::get<int64_t>(boost::get<table::InnerMapType>(M[4])["a"]), 1);
+  EXPECT_EQ(boost::get<UUID>(M[5]), Id);
+  auto Ref = boost::get<InstructionRef>(M[6]);
+  EXPECT_EQ(Ref.BlockRef.getUUID(), Id);
+  EXPECT_EQ(Ref.Offset, 1);
 }
 
 TEST(Unit_Table, innerValueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
-  UUID id1 = Node().getUUID(), id2 = Node().getUUID();
+  UUID Id1 = Node().getUUID(), Id2 = Node().getUUID();
   table::InnerMapType inner({
       {"a", EA(1)},                           // EA
       {"b", 2},                               // int
@@ -177,38 +177,38 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
       {"d", std::vector<EA>({EA(4)})},        // EA vector
       {"e", std::vector<int64_t>({5})},       // int vector
       {"f", std::vector<std::string>({"6"})}, // string vector
-      {"g", id1},                             // UUID,
-      {"h", std::vector<UUID>({id2})},        // UUID vector
-      {"i", InstructionRef{id1, 1}},          // InstructionRef
+      {"g", Id1},                             // UUID,
+      {"h", std::vector<UUID>({Id2})},        // UUID vector
+      {"i", InstructionRef{Id1, 1}},          // InstructionRef
       {"j", std::vector<InstructionRef>(
-                {{id1, 1}, {id2, 2}})}, // InstructionRef vector
+                {{Id1, 1}, {Id2, 2}})}, // InstructionRef vector
   });
-  Table original = MapT({{1, inner}});
+  Table Original = MapT({{1, inner}});
 
-  gtirb::Table result;
-  auto message = toProtobuf(original);
-  fromProtobuf(result, message);
+  gtirb::Table Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Result, Message);
 
-  auto m = boost::get<table::InnerMapType>(boost::get<MapT>(result)[1]);
-  EXPECT_EQ(m.size(), 10);
-  EXPECT_EQ(boost::get<EA>(m["a"]), EA(1));
-  EXPECT_EQ(boost::get<int64_t>(m["b"]), 2);
-  EXPECT_EQ(boost::get<std::string>(m["c"]), "3");
-  EXPECT_EQ(boost::get<std::vector<EA>>(m["d"]), std::vector<EA>({EA(4)}));
-  EXPECT_EQ(boost::get<std::vector<int64_t>>(m["e"]),
+  auto M = boost::get<table::InnerMapType>(boost::get<MapT>(Result)[1]);
+  EXPECT_EQ(M.size(), 10);
+  EXPECT_EQ(boost::get<EA>(M["a"]), EA(1));
+  EXPECT_EQ(boost::get<int64_t>(M["b"]), 2);
+  EXPECT_EQ(boost::get<std::string>(M["c"]), "3");
+  EXPECT_EQ(boost::get<std::vector<EA>>(M["d"]), std::vector<EA>({EA(4)}));
+  EXPECT_EQ(boost::get<std::vector<int64_t>>(M["e"]),
             std::vector<int64_t>({5}));
-  EXPECT_EQ(boost::get<std::vector<std::string>>(m["f"]),
+  EXPECT_EQ(boost::get<std::vector<std::string>>(M["f"]),
             std::vector<std::string>({"6"}));
-  EXPECT_EQ(boost::get<UUID>(m["g"]), id1);
-  EXPECT_EQ(boost::get<std::vector<UUID>>(m["h"]), std::vector<UUID>({id2}));
+  EXPECT_EQ(boost::get<UUID>(M["g"]), Id1);
+  EXPECT_EQ(boost::get<std::vector<UUID>>(M["h"]), std::vector<UUID>({Id2}));
 
-  auto ref = boost::get<InstructionRef>(m["i"]);
-  EXPECT_EQ(ref.block.getUUID(), id1);
-  EXPECT_EQ(ref.offset, 1);
+  auto Ref = boost::get<InstructionRef>(M["i"]);
+  EXPECT_EQ(Ref.BlockRef.getUUID(), Id1);
+  EXPECT_EQ(Ref.Offset, 1);
 
-  auto refs = boost::get<std::vector<InstructionRef>>(m["j"]);
-  EXPECT_EQ(refs[0].block.getUUID(), id1);
-  EXPECT_EQ(refs[0].offset, 1);
-  EXPECT_EQ(refs[1].block.getUUID(), id2);
-  EXPECT_EQ(refs[1].offset, 2);
+  auto Refs = boost::get<std::vector<InstructionRef>>(M["j"]);
+  EXPECT_EQ(Refs[0].BlockRef.getUUID(), Id1);
+  EXPECT_EQ(Refs[0].Offset, 1);
+  EXPECT_EQ(Refs[1].BlockRef.getUUID(), Id2);
+  EXPECT_EQ(Refs[1].Offset, 2);
 }

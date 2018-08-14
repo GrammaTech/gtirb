@@ -4,34 +4,34 @@
 
 using namespace gtirb;
 
-Section::Section(std::string n, EA ea, uint64_t s)
-    : Node(), name(n), address(ea), size(s) {}
+Section::Section(std::string N, EA Ea, uint64_t S)
+    : Node(), Name(N), Address(Ea), Size(S) {}
 
-const std::string& Section::getName() const { return this->name; }
+const std::string& Section::getName() const { return this->Name; }
 
-const uint64_t Section::getSize() const { return this->size; }
+const uint64_t Section::getSize() const { return this->Size; }
 
-const EA Section::getAddress() const { return this->address; }
+const EA Section::getAddress() const { return this->Address; }
 
-bool Section::operator==(const Section& other) const {
-  return this->address == other.address && this->size == other.size &&
-         this->name == other.name;
+bool Section::operator==(const Section& Other) const {
+  return this->Address == Other.Address && this->Size == Other.Size &&
+         this->Name == Other.Name;
 }
 
-bool Section::operator!=(const Section& other) const {
-  return !(*this == other);
+bool Section::operator!=(const Section& Other) const {
+  return !(*this == Other);
 }
 
-void Section::toProtobuf(MessageType* message) const {
-  nodeUUIDToBytes(this, *message->mutable_uuid());
-  message->set_name(this->name);
-  message->set_size(this->size);
-  message->set_address(this->address);
+void Section::toProtobuf(MessageType* Message) const {
+  nodeUUIDToBytes(this, *Message->mutable_uuid());
+  Message->set_name(this->Name);
+  Message->set_size(this->Size);
+  Message->set_address(this->Address);
 }
 
-void Section::fromProtobuf(const MessageType& message) {
-  setNodeUUIDFromBytes(this, message.uuid());
-  this->name = message.name();
-  this->size = message.size();
-  this->address = EA(message.address());
+void Section::fromProtobuf(const MessageType& Message) {
+  setNodeUUIDFromBytes(this, Message.uuid());
+  this->Name = Message.name();
+  this->Size = Message.size();
+  this->Address = EA(Message.address());
 }
