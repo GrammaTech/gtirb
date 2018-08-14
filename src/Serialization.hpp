@@ -45,11 +45,13 @@ int64_t toProtobuf(const int64_t& val);
 uint64_t toProtobuf(const uint64_t& val);
 std::string toProtobuf(const UUID& val);
 
-template <size_t size> std::string toProtobuf(const std::array<uint8_t, size>& value) {
+template <size_t size>
+std::string toProtobuf(const std::array<uint8_t, size>& value) {
   return std::string(value.begin(), value.end());
 }
 
-template <typename T> auto toProtobuf(const std::shared_ptr<T>& val) -> decltype(toProtobuf(*val)) {
+template <typename T>
+auto toProtobuf(const std::shared_ptr<T>& val) -> decltype(toProtobuf(*val)) {
   return toProtobuf(*val);
 }
 
@@ -68,19 +70,26 @@ void initContainer(google::protobuf::RepeatedField<T>* container, size_t size) {
   container->Reserve(static_cast<int>(size));
 }
 template <typename T>
-void initContainer(google::protobuf::RepeatedPtrField<T>* container, size_t size) {
+void initContainer(google::protobuf::RepeatedPtrField<T>* container,
+                   size_t size) {
   container->Clear();
   container->Reserve(static_cast<int>(size));
 }
-template <typename T> void initContainer(std::vector<T>& container, size_t size) {
+template <typename T>
+void initContainer(std::vector<T>& container, size_t size) {
   container.clear();
   container.reserve(size);
 }
-template <typename T> void initContainer(T* container, size_t) { container->clear(); }
-template <typename T> void initContainer(T& container, size_t) { container.clear(); }
+template <typename T> void initContainer(T* container, size_t) {
+  container->clear();
+}
+template <typename T> void initContainer(T& container, size_t) {
+  container.clear();
+}
 
 // Generic interface for adding elements to a container.
-template <typename T> void addElement(google::protobuf::RepeatedField<T>* container, T&& element) {
+template <typename T>
+void addElement(google::protobuf::RepeatedField<T>* container, T&& element) {
   container->Add(std::move(element));
 }
 template <typename T>
@@ -96,11 +105,13 @@ template <typename T> void addElement(std::vector<T>& container, T&& element) {
   container.push_back(std::move(element));
 }
 template <typename T, typename U>
-void addElement(std::map<T, U>* container, typename std::map<T, U>::value_type&& element) {
+void addElement(std::map<T, U>* container,
+                typename std::map<T, U>::value_type&& element) {
   container->insert(std::move(element));
 }
 template <typename T>
-void addElement(std::set<T>& container, typename std::set<T>::value_type&& element) {
+void addElement(std::set<T>& container,
+                typename std::set<T>::value_type&& element) {
   container.insert(std::move(element));
 }
 
@@ -108,20 +119,25 @@ void addElement(std::set<T>& container, typename std::set<T>::value_type&& eleme
 template <typename ContainerT, typename MessageT>
 void containerToProtobuf(const ContainerT& values, MessageT* message) {
   initContainer(message, values.size());
-  std::for_each(values.begin(), values.end(),
-                [message](const auto& n) { addElement(message, toProtobuf(n)); });
+  std::for_each(values.begin(), values.end(), [message](const auto& n) {
+    addElement(message, toProtobuf(n));
+  });
 }
 
 // Generic conversion from protobuf for IR classes which implement fromProtobuf;
-template <typename T, typename U> void fromProtobuf(T& result, const U& message) {
+template <typename T, typename U>
+void fromProtobuf(T& result, const U& message) {
   result.fromProtobuf(message);
 }
 
 // Generic template for simple types which require no conversion.
-template <typename T> void fromProtobuf(T& result, const T& message) { result = message; }
+template <typename T> void fromProtobuf(T& result, const T& message) {
+  result = message;
+}
 
 // Overrides for various other types.
-template <typename T, typename U> void fromProtobuf(std::shared_ptr<T>& val, const U& message) {
+template <typename T, typename U>
+void fromProtobuf(std::shared_ptr<T>& val, const U& message) {
   val = std::make_shared<T>();
   fromProtobuf(*val, message);
 }
@@ -130,7 +146,8 @@ void fromProtobuf(std::array<uint8_t, size>& result, const std::string& value) {
   std::copy(value.begin(), value.end(), result.data());
 }
 template <typename T, typename U, typename V, typename W>
-void fromProtobuf(std::pair<T, U>& val, const google::protobuf::MapPair<V, W>& message) {
+void fromProtobuf(std::pair<T, U>& val,
+                  const google::protobuf::MapPair<V, W>& message) {
   fromProtobuf(val.first, message.first);
   fromProtobuf(val.second, message.second);
 }
@@ -150,7 +167,8 @@ void containerFromProtobuf(ContainerT& values, MessageT& message) {
 
 // Special case for std::map
 template <typename KeyType, typename ValueType, typename MessageT>
-void containerFromProtobuf(std::map<KeyType, ValueType>& values, MessageT& message) {
+void containerFromProtobuf(std::map<KeyType, ValueType>& values,
+                           MessageT& message) {
   values.clear();
   std::for_each(message.begin(), message.end(), [&values](const auto& m) {
     // NOTE: if we could use MapT::value_type here, then this could

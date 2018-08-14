@@ -10,12 +10,14 @@ Symbol::Symbol(EA x) : Node(), ea(x) {}
 Symbol::Symbol(EA x, std::string name_, StorageKind storageKind_)
     : Node(), ea(x), name(name_), storageKind(storageKind_) {}
 
-Symbol::Symbol(EA x, std::string name_, const DataObject& referent, StorageKind storageKind_)
+Symbol::Symbol(EA x, std::string name_, const DataObject& referent,
+               StorageKind storageKind_)
     : Symbol(x, name_, storageKind_) {
   this->setReferent(referent);
 }
 
-Symbol::Symbol(EA x, std::string name_, const Block& referent, StorageKind storageKind_)
+Symbol::Symbol(EA x, std::string name_, const Block& referent,
+               StorageKind storageKind_)
     : Symbol(x, name_, storageKind_) {
   this->setReferent(referent);
 }
@@ -38,21 +40,27 @@ void Symbol::setReferent(const Block& instruction) {
   this->dataReferent = {};
 }
 
-NodeRef<DataObject> Symbol::getDataReferent() const { return this->dataReferent; }
+NodeRef<DataObject> Symbol::getDataReferent() const {
+  return this->dataReferent;
+}
 
 NodeRef<Block> Symbol::getCodeReferent() const { return this->codeReferent; }
 
 void Symbol::setStorageKind(Symbol::StorageKind x) { this->storageKind = x; }
 
-gtirb::Symbol::StorageKind Symbol::getStorageKind() const { return this->storageKind; }
+gtirb::Symbol::StorageKind Symbol::getStorageKind() const {
+  return this->storageKind;
+}
 
 void Symbol::toProtobuf(MessageType* message) const {
   nodeUUIDToBytes(this, *message->mutable_uuid());
   message->set_ea(this->ea);
   message->set_name(this->name);
   message->set_storage_kind(static_cast<proto::StorageKind>(this->storageKind));
-  uuidToBytes(this->codeReferent.getUUID(), *message->mutable_code_referent_uuid());
-  uuidToBytes(this->dataReferent.getUUID(), *message->mutable_data_referent_uuid());
+  uuidToBytes(this->codeReferent.getUUID(),
+              *message->mutable_code_referent_uuid());
+  uuidToBytes(this->dataReferent.getUUID(),
+              *message->mutable_data_referent_uuid());
 }
 
 void Symbol::fromProtobuf(const MessageType& message) {

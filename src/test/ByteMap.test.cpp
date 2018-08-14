@@ -8,7 +8,8 @@ using namespace gtirb;
 
 TEST(Unit_ByteMap, newRegion) {
   ByteMap byteMap;
-  std::vector<gsl::byte> data = {gsl::byte(1), gsl::byte(2), gsl::byte(3), gsl::byte(4)};
+  std::vector<gsl::byte> data = {gsl::byte(1), gsl::byte(2), gsl::byte(3),
+                                 gsl::byte(4)};
 
   byteMap.setData(EA(1000), as_bytes(gsl::make_span(data)));
 
@@ -100,7 +101,8 @@ TEST(Unit_ByteMap, mergeRegions) {
   std::vector<gsl::byte> data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
   std::vector<gsl::byte> data3 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
 
-  byteMap.setData(EA(1000 + data1.size() + data2.size()), as_bytes(gsl::make_span(data3)));
+  byteMap.setData(EA(1000 + data1.size() + data2.size()),
+                  as_bytes(gsl::make_span(data3)));
   byteMap.setData(EA(1000), as_bytes(gsl::make_span(data1)));
   byteMap.setData(EA(1000 + data1.size()), as_bytes(gsl::make_span(data2)));
 
@@ -136,12 +138,17 @@ TEST(Unit_ByteMap, overlappingRegionsAreInvalid) {
   byteMap.setData(EA(1000), as_bytes(gsl::make_span(data1)));
   byteMap.setData(EA(2000), as_bytes(gsl::make_span(data2)));
 
-  EXPECT_THROW(byteMap.setData(EA(999), as_bytes(gsl::make_span(data1))), std::invalid_argument);
-  EXPECT_THROW(byteMap.setData(EA(1001), as_bytes(gsl::make_span(data1))), std::invalid_argument);
-  EXPECT_THROW(byteMap.setData(EA(1999), as_bytes(gsl::make_span(data1))), std::invalid_argument);
-  EXPECT_THROW(byteMap.setData(EA(2001), as_bytes(gsl::make_span(data1))), std::invalid_argument);
-  EXPECT_THROW(byteMap.setData(EA(1000) + data1.size(), as_bytes(gsl::make_span(big))),
+  EXPECT_THROW(byteMap.setData(EA(999), as_bytes(gsl::make_span(data1))),
                std::invalid_argument);
+  EXPECT_THROW(byteMap.setData(EA(1001), as_bytes(gsl::make_span(data1))),
+               std::invalid_argument);
+  EXPECT_THROW(byteMap.setData(EA(1999), as_bytes(gsl::make_span(data1))),
+               std::invalid_argument);
+  EXPECT_THROW(byteMap.setData(EA(2001), as_bytes(gsl::make_span(data1))),
+               std::invalid_argument);
+  EXPECT_THROW(
+      byteMap.setData(EA(1000) + data1.size(), as_bytes(gsl::make_span(big))),
+      std::invalid_argument);
 }
 
 TEST(Unit_ByteMap, getDataUnmapped) {

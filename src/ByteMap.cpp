@@ -25,7 +25,8 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
       auto& next = regions[i + 1];
 
       if (limit > next.address) {
-        throw std::invalid_argument("Request to setData which overlaps an existing region.");
+        throw std::invalid_argument(
+            "Request to setData which overlaps an existing region.");
       }
 
       current.data.reserve(current.data.size() + bytes.size());
@@ -44,7 +45,8 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
     if (limit == current.address) {
       // Note: this is probably O(N^2), moving existing data on each inserted
       // element.
-      std::copy(bytes.begin(), bytes.end(), std::inserter(current.data, current.data.begin()));
+      std::copy(bytes.begin(), bytes.end(),
+                std::inserter(current.data, current.data.begin()));
       current.address = ea;
       return;
     }
@@ -58,10 +60,12 @@ void ByteMap::setData(EA ea, gsl::span<const gsl::byte> bytes) {
   Region region = {ea, std::vector<gsl::byte>()};
   region.data.reserve(bytes.size());
   std::copy(bytes.begin(), bytes.end(), std::back_inserter(region.data));
-  this->regions.insert(
-      std::lower_bound(this->regions.begin(), this->regions.end(), region,
-                       [](const auto& a, const auto& b) { return a.address < b.address; }),
-      std::move(region));
+  this->regions.insert(std::lower_bound(this->regions.begin(),
+                                        this->regions.end(), region,
+                                        [](const auto& a, const auto& b) {
+                                          return a.address < b.address;
+                                        }),
+                       std::move(region));
 }
 
 std::vector<gsl::byte> ByteMap::getData(EA ea, size_t bytes) const {
@@ -82,7 +86,8 @@ proto::Region toProtobuf(const ByteMap::Region& region) {
   proto::Region message;
   message.set_address(region.address);
   std::transform(region.data.begin(), region.data.end(),
-                 std::back_inserter(*message.mutable_data()), [](auto x) { return char(x); });
+                 std::back_inserter(*message.mutable_data()),
+                 [](auto x) { return char(x); });
   return message;
 }
 

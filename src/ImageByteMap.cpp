@@ -4,9 +4,13 @@
 
 using namespace gtirb;
 
-void ImageByteMap::setFileName(boost::filesystem::path x) { this->fileName = x; }
+void ImageByteMap::setFileName(boost::filesystem::path x) {
+  this->fileName = x;
+}
 
-boost::filesystem::path ImageByteMap::getFileName() const { return this->fileName; }
+boost::filesystem::path ImageByteMap::getFileName() const {
+  return this->fileName;
+}
 
 void ImageByteMap::setBaseAddress(EA x) { this->baseAddress = x; }
 
@@ -14,7 +18,9 @@ EA ImageByteMap::getBaseAddress() const { return this->baseAddress; }
 
 void ImageByteMap::setEntryPointAddress(EA x) { this->entryPointAddress = x; }
 
-EA ImageByteMap::getEntryPointAddress() const { return this->entryPointAddress; }
+EA ImageByteMap::getEntryPointAddress() const {
+  return this->entryPointAddress;
+}
 
 bool ImageByteMap::setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x) {
   if (x.first <= x.second) {
@@ -26,7 +32,9 @@ bool ImageByteMap::setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x) {
   return false;
 }
 
-std::pair<gtirb::EA, gtirb::EA> ImageByteMap::getEAMinMax() const { return this->eaMinMax; }
+std::pair<gtirb::EA, gtirb::EA> ImageByteMap::getEAMinMax() const {
+  return this->eaMinMax;
+}
 
 void ImageByteMap::setRebaseDelta(int64_t x) { this->rebaseDelta = x; }
 
@@ -36,16 +44,21 @@ void ImageByteMap::setIsRelocated() { this->isRelocated = true; }
 
 bool ImageByteMap::getIsRelocated() const { return this->isRelocated; }
 
-boost::endian::order ImageByteMap::getByteOrder() const { return this->byteOrder; }
+boost::endian::order ImageByteMap::getByteOrder() const {
+  return this->byteOrder;
+}
 
-void ImageByteMap::setByteOrder(boost::endian::order value) { this->byteOrder = value; }
+void ImageByteMap::setByteOrder(boost::endian::order value) {
+  this->byteOrder = value;
+}
 
 void ImageByteMap::setData(EA ea, gsl::span<const gsl::byte> data) {
   if (ea >= this->eaMinMax.first &&
       (ea + EA{(uint64_t)data.size_bytes()} - EA{1}) <= this->eaMinMax.second) {
     this->byteMap.setData(ea, data);
   } else {
-    throw std::out_of_range("Attempt to set data at an EA out of range of the min and max EA.");
+    throw std::out_of_range(
+        "Attempt to set data at an EA out of range of the min and max EA.");
   }
 }
 
@@ -57,11 +70,13 @@ void ImageByteMap::setData(EA ea, size_t bytes, gsl::byte value) {
 }
 
 std::vector<gsl::byte> ImageByteMap::getData(EA x, size_t bytes) const {
-  if (x >= this->eaMinMax.first && (x + EA{bytes} - EA{1}) <= this->eaMinMax.second) {
+  if (x >= this->eaMinMax.first &&
+      (x + EA{bytes} - EA{1}) <= this->eaMinMax.second) {
     return this->byteMap.getData(x, bytes);
   }
 
-  throw std::out_of_range("Attempt to get data at an EA out of range of the min and max EA.");
+  throw std::out_of_range(
+      "Attempt to get data at an EA out of range of the min and max EA.");
 }
 
 void ImageByteMap::toProtobuf(MessageType* message) const {

@@ -19,7 +19,8 @@ constexpr uint64_t BadAddress{std::numeric_limits<uint64_t>::max()};
 ///
 /// A special class to store an Effective Address. This is initialized to
 /// `BadAddress`. It is compatible with a uint64_t for 64-bit address storage.
-/// An EA cannot store a relative address as it cannot contain a negative number.
+/// An EA cannot store a relative address as it cannot contain a negative
+/// number.
 ///
 class GTIRB_EXPORT_API EA {
 public:
@@ -99,36 +100,36 @@ public:
 private:
   ///
   /// Prevent automatic type conversions.
-  /// This template is not implemented as to provide compiler protection against automatic
-  /// type conversions.
+  /// This template is not implemented as to provide compiler protection against
+  /// automatic type conversions.
   ///
   template <typename T> void set(T);
 
   ///
   /// Prevent automatic type conversions.
-  /// This template is not implemented as to provide compiler protection against automatic
-  /// type conversions.
+  /// This template is not implemented as to provide compiler protection against
+  /// automatic type conversions.
   ///
   template <typename T> EA operator+(const T) const;
 
   ///
   /// Prevent automatic type conversions.
-  /// This template is not implemented as to provide compiler protection against automatic
-  /// type conversions.
+  /// This template is not implemented as to provide compiler protection against
+  /// automatic type conversions.
   ///
   template <typename T> EA operator+=(const T);
 
   ///
   /// Prevent automatic type conversions.
-  /// This template is not implemented as to provide compiler protection against automatic
-  /// type conversions.
+  /// This template is not implemented as to provide compiler protection against
+  /// automatic type conversions.
   ///
   template <typename T> EA operator-(const T) const;
 
   ///
   /// Prevent automatic type conversions.
-  /// This template is not implemented as to provide compiler protection against automatic
-  /// type conversions.
+  /// This template is not implemented as to provide compiler protection against
+  /// automatic type conversions.
   ///
   template <typename T> EA operator-=(const T);
 
@@ -167,9 +168,12 @@ template <typename T> bool containsEA(const T& object, EA ea) {
 ///
 /// Provide for testing equality between a gtirb::EA and a uint64_t.
 ///
-inline bool operator==(const uint64_t rhs, const gtirb::EA lhs) { return gtirb::EA(rhs) == lhs; }
+inline bool operator==(const uint64_t rhs, const gtirb::EA lhs) {
+  return gtirb::EA(rhs) == lhs;
+}
 
 ///
 /// Print EA to a stream
 ///
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os, const gtirb::EA& ea);
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+                                          const gtirb::EA& ea);

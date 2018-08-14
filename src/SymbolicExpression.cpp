@@ -40,7 +40,8 @@ proto::SymbolicExpression toProtobuf(const SymbolicExpression& operand) {
   return message;
 }
 
-void fromProtobuf(SymbolicExpression& result, const proto::SymbolicExpression& message) {
+void fromProtobuf(SymbolicExpression& result,
+                  const proto::SymbolicExpression& message) {
   switch (message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
     auto val = message.stack_const();
@@ -55,7 +56,8 @@ void fromProtobuf(SymbolicExpression& result, const proto::SymbolicExpression& m
   }
   case proto::SymbolicExpression::kAddrAddr: {
     auto val = message.addr_addr();
-    result = SymAddrAddr{val.scale(), val.offset(), uuidFromBytes(val.symbol1_uuid()),
+    result = SymAddrAddr{val.scale(), val.offset(),
+                         uuidFromBytes(val.symbol1_uuid()),
                          uuidFromBytes(val.symbol2_uuid())};
     break;
   }

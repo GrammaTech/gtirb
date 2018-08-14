@@ -14,7 +14,8 @@
 namespace gtirb {
 
 template <class T> struct is_std_array : std::false_type {};
-template <class T, std::size_t N> struct is_std_array<std::array<T, N>> : std::true_type {};
+template <class T, std::size_t N>
+struct is_std_array<std::array<T, N>> : std::true_type {};
 
 ///
 /// \class ImageByteMap
@@ -73,11 +74,12 @@ public:
   EA getEntryPointAddress() const;
 
   ///
-  /// If an invalid pair is passed in, the min and max will be set to an invalid state
-  /// (gtirb::constants::BadAddress).  The range's min and max values are inclusive.
+  /// If an invalid pair is passed in, the min and max will be set to an invalid
+  /// state (gtirb::constants::BadAddress).  The range's min and max values are
+  /// inclusive.
   ///
-  /// \param      x   The minimum and maximum effective address (EA) for this Module.
-  /// \return     False if the pair's first is > the pair's second.
+  /// \param      x   The minimum and maximum effective address (EA) for this
+  /// Module. \return     False if the pair's first is > the pair's second.
   ///
   bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> x);
 
@@ -86,7 +88,8 @@ public:
   ///
   /// Check return values for gtirb::constants::BadAddress.
   ///
-  /// \return     The minimum and maximum effective address (EA) for this Module.
+  /// \return     The minimum and maximum effective address (EA) for this
+  /// Module.
   ///
   std::pair<gtirb::EA, gtirb::EA> getEAMinMax() const;
 
@@ -129,8 +132,8 @@ public:
   ///
   /// The given address must be within the minimum and maximum EA.
   ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
+  /// \throws std::out_of_range   Throws if the address to set data at is
+  /// outside of the minimum and maximum EA.
   ///
   /// \param  ea      The address to store the data.
   /// \param  data    A pointer to the data to store.
@@ -144,8 +147,8 @@ public:
   ///
   /// The given address must be within the minimum and maximum EA.
   ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
+  /// \throws std::out_of_range   Throws if the address to set data at is
+  /// outside of the minimum and maximum EA.
   ///
   /// \param  ea      The address to store the data.
   /// \param  value   The value for all bytes in the range.
@@ -155,23 +158,25 @@ public:
   void setData(EA ea, size_t bytes, gsl::byte value);
 
   ///
-  /// Stores data in the byte map at the given address, converting from native byte order.
+  /// Stores data in the byte map at the given address, converting from native
+  /// byte order.
   ///
   /// The given address must be within the minimum and maximum EA.
   ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
+  /// \throws std::out_of_range   Throws if the address to set data at is
+  /// outside of the minimum and maximum EA.
   ///
   /// \param  ea      The address to store the data.
-  /// \param  data    The data to store. This may be any endian-reversible POD type.
+  /// \param  data    The data to store. This may be any endian-reversible POD
+  /// type.
   ///
   /// \sa gtirb::ByteMap
   ///
   template <typename T> void setData(EA ea, const T& data) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
     if (this->byteOrder != boost::endian::order::native) {
-      T reversed =
-          boost::endian::conditional_reverse(data, this->byteOrder, boost::endian::order::native);
+      T reversed = boost::endian::conditional_reverse(
+          data, this->byteOrder, boost::endian::order::native);
       this->byteMap.setData(ea, as_bytes(gsl::make_span(&reversed, 1)));
     } else {
       this->byteMap.setData(ea, as_bytes(gsl::make_span(&data, 1)));
@@ -182,16 +187,18 @@ public:
   /// Stores an array to the byte map at the given address, converting
   /// elements from native byte order.
   ///
-  /// \throws std::out_of_range   Throws if the address to set data at is outside of the
-  /// minimum and maximum EA.
+  /// \throws std::out_of_range   Throws if the address to set data at is
+  /// outside of the minimum and maximum EA.
   ///
   /// \param  ea      The address to store the data.
-  /// \param  data    The data to store. This may be a std::array of any endian-reversible
+  /// \param  data    The data to store. This may be a std::array of any
+  /// endian-reversible
   ///                 POD type.
   ///
   /// \sa gtirb::ByteMap
   ///
-  template <typename T, size_t Size> void setData(EA ea, const std::array<T, Size>& data) {
+  template <typename T, size_t Size>
+  void setData(EA ea, const std::array<T, Size>& data) {
     for (const auto& elt : data) {
       this->setData(ea, elt);
       ea += sizeof(T);
@@ -219,10 +226,12 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  template <typename T> typename std::enable_if<!is_std_array<T>::value, T>::type getData(EA ea) {
+  template <typename T>
+  typename std::enable_if<!is_std_array<T>::value, T>::type getData(EA ea) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
 
-    return boost::endian::conditional_reverse(this->getDataNoSwap<T>(ea), this->byteOrder,
+    return boost::endian::conditional_reverse(this->getDataNoSwap<T>(ea),
+                                              this->byteOrder,
                                               boost::endian::order::native);
   }
 
@@ -237,7 +246,8 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  template <typename T> typename std::enable_if<is_std_array<T>::value, T>::type getData(EA ea) {
+  template <typename T>
+  typename std::enable_if<is_std_array<T>::value, T>::type getData(EA ea) {
     static_assert(std::is_pod<T>::value, "T::value must be a POD type");
 
     auto result = getDataNoSwap<T>(ea);

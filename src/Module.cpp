@@ -14,9 +14,11 @@
 using namespace gtirb;
 
 Module::Module()
-    : Node(), cfg(std::make_unique<CFG>()), data(std::make_unique<std::vector<DataObject>>()),
+    : Node(), cfg(std::make_unique<CFG>()),
+      data(std::make_unique<std::vector<DataObject>>()),
       imageByteMap(std::make_unique<ImageByteMap>()),
-      sections(std::make_unique<std::vector<Section>>()), symbols(std::make_unique<SymbolSet>()),
+      sections(std::make_unique<std::vector<Section>>()),
+      symbols(std::make_unique<SymbolSet>()),
       symbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
 
 Module::Module(Module&&) = default;
@@ -24,7 +26,9 @@ Module::~Module() = default;
 
 void Module::setBinaryPath(boost::filesystem::path x) { this->binaryPath = x; }
 
-boost::filesystem::path Module::getBinaryPath() const { return this->binaryPath; }
+boost::filesystem::path Module::getBinaryPath() const {
+  return this->binaryPath;
+}
 
 void Module::setFileFormat(gtirb::FileFormat x) { this->fileFormat = x; }
 
@@ -46,9 +50,13 @@ gtirb::SymbolSet& Module::getSymbols() { return *this->symbols; }
 
 const gtirb::SymbolSet& Module::getSymbols() const { return *this->symbols; }
 
-gtirb::ImageByteMap& Module::getImageByteMap() { return *this->imageByteMap.get(); }
+gtirb::ImageByteMap& Module::getImageByteMap() {
+  return *this->imageByteMap.get();
+}
 
-const gtirb::ImageByteMap& Module::getImageByteMap() const { return *this->imageByteMap.get(); }
+const gtirb::ImageByteMap& Module::getImageByteMap() const {
+  return *this->imageByteMap.get();
+}
 
 void Module::setName(std::string x) { this->name = std::move(x); }
 
@@ -64,9 +72,13 @@ std::vector<DataObject>& Module::getData() { return *this->data; }
 
 std::vector<Section>& Module::getSections() { return *this->sections; }
 
-const std::vector<Section>& Module::getSections() const { return *this->sections; }
+const std::vector<Section>& Module::getSections() const {
+  return *this->sections;
+}
 
-SymbolicExpressionSet& Module::getSymbolicExpressions() { return *this->symbolicOperands; }
+SymbolicExpressionSet& Module::getSymbolicExpressions() {
+  return *this->symbolicOperands;
+}
 
 const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
   return *this->symbolicOperands;
@@ -84,14 +96,16 @@ void Module::toProtobuf(MessageType* message) const {
   *message->mutable_cfg() = gtirb::toProtobuf(*this->cfg);
   containerToProtobuf(*this->data, message->mutable_data());
   containerToProtobuf(*this->sections, message->mutable_sections());
-  containerToProtobuf(*this->symbolicOperands, message->mutable_symbolic_operands());
+  containerToProtobuf(*this->symbolicOperands,
+                      message->mutable_symbolic_operands());
 
   // Special case for symbol set: uses a multimap internally, serialized as a
   // repeated field.
   auto m = message->mutable_symbols();
   initContainer(m, this->symbols->size());
-  std::for_each(this->symbols->begin(), this->symbols->end(),
-                [m](const auto& node) { addElement(m, gtirb::toProtobuf(node.second)); });
+  std::for_each(
+      this->symbols->begin(), this->symbols->end(),
+      [m](const auto& node) { addElement(m, gtirb::toProtobuf(node.second)); });
 }
 
 void Module::fromProtobuf(const MessageType& message) {
