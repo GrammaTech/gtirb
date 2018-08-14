@@ -12,10 +12,13 @@ UUID uuidFromBytes(const std::string& bytes) {
 void uuidToBytes(UUID uuid, std::string& bytes) {
   bytes.clear();
   bytes.reserve(sizeof(uuid.data));
-  std::copy(std::begin(uuid.data), std::end(uuid.data), std::back_inserter(bytes));
+  std::copy(std::begin(uuid.data), std::end(uuid.data),
+            std::back_inserter(bytes));
 }
 
-void nodeUUIDToBytes(const Node* node, std::string& bytes) { uuidToBytes(node->getUUID(), bytes); }
+void nodeUUIDToBytes(const Node* node, std::string& bytes) {
+  uuidToBytes(node->getUUID(), bytes);
+}
 
 void setNodeUUIDFromBytes(Node* node, const std::string& bytes) {
   node->setUUID(uuidFromBytes(bytes));
@@ -37,6 +40,8 @@ std::string toProtobuf(const UUID& val) {
 
 void fromProtobuf(EA& result, const uint64_t& message) { result = EA(message); }
 
-void fromProtobuf(UUID& result, const std::string& message) { result = uuidFromBytes(message); }
+void fromProtobuf(UUID& result, const std::string& message) {
+  result = uuidFromBytes(message);
+}
 
 } // namespace gtirb

@@ -4,7 +4,8 @@
 
 using namespace gtirb;
 
-Section::Section(std::string n, EA ea, uint64_t s) : Node(), name(n), address(ea), size(s) {}
+Section::Section(std::string n, EA ea, uint64_t s)
+    : Node(), name(n), address(ea), size(s) {}
 
 const std::string& Section::getName() const { return this->name; }
 
@@ -13,10 +14,13 @@ const uint64_t Section::getSize() const { return this->size; }
 const EA Section::getAddress() const { return this->address; }
 
 bool Section::operator==(const Section& other) const {
-  return this->address == other.address && this->size == other.size && this->name == other.name;
+  return this->address == other.address && this->size == other.size &&
+         this->name == other.name;
 }
 
-bool Section::operator!=(const Section& other) const { return !(*this == other); }
+bool Section::operator!=(const Section& other) const {
+  return !(*this == other);
+}
 
 void Section::toProtobuf(MessageType* message) const {
   nodeUUIDToBytes(this, *message->mutable_uuid());

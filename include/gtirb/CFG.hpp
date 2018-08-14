@@ -19,18 +19,21 @@ using EdgeLabel = boost::variant<boost::blank, bool, uint64_t>;
 ///
 /// Interprocedural control flow graph, with Blocks as the vertices.
 ///
-using CFG = boost::adjacency_list<boost::listS,          // allow parallel edges
-                                  boost::vecS,           // preserve vertex order
-                                  boost::bidirectionalS, // sucessor and predecessor edges
+using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
+                                  boost::vecS,  // preserve vertex order
+                                  boost::bidirectionalS, // sucessor and
+                                                         // predecessor edges
                                   Block,                 // vertices are blocks
                                   EdgeLabel>;            // edges have labels
 
 template <typename Value, typename Graph>
 class block_iter_base
-    : public boost::iterator_facade<block_iter_base<Value, Graph>, Value,
-                                    typename Graph::vertex_iterator::iterator_category> {
+    : public boost::iterator_facade<
+          block_iter_base<Value, Graph>, Value,
+          typename Graph::vertex_iterator::iterator_category> {
 public:
-  block_iter_base(typename Graph::vertex_iterator& it_, Graph& cfg_) : it(it_), cfg(&cfg_) {}
+  block_iter_base(typename Graph::vertex_iterator& it_, Graph& cfg_)
+      : it(it_), cfg(&cfg_) {}
 
 private:
   friend class boost::iterator_core_access;
@@ -42,7 +45,8 @@ private:
 
   void advance(int n) { this->it += 1; }
 
-  typename Graph::vertex_iterator::difference_type distance_to(const self_type& other) const {
+  typename Graph::vertex_iterator::difference_type
+  distance_to(const self_type& other) const {
     return std::distance(this->it, other.it);
   }
 
@@ -71,7 +75,8 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& cfg);
 ///
 /// Iterates over Blocks in the graph (by const reference).
 ///
-GTIRB_EXPORT_API boost::iterator_range<const_block_iterator> blocks(const CFG& cfg);
+GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
+blocks(const CFG& cfg);
 
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& cfg);
 GTIRB_EXPORT_API void fromProtobuf(CFG& result, const proto::CFG& message);

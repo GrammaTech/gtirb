@@ -82,7 +82,8 @@ TEST(Unit_Table, eaVectorProtobufRoundTrip) {
   auto message = toProtobuf(original);
   fromProtobuf(result, message);
 
-  EXPECT_EQ(boost::get<std::vector<EA>>(result), std::vector<EA>({EA(1), EA(2), EA(3)}));
+  EXPECT_EQ(boost::get<std::vector<EA>>(result),
+            std::vector<EA>({EA(1), EA(2), EA(3)}));
 }
 
 TEST(Unit_Table, intVectorProtobufRoundTrip) {
@@ -92,7 +93,8 @@ TEST(Unit_Table, intVectorProtobufRoundTrip) {
   auto message = toProtobuf(original);
   fromProtobuf(result, message);
 
-  EXPECT_EQ(boost::get<std::vector<int64_t>>(result), std::vector<int64_t>({1, 2, 3}));
+  EXPECT_EQ(boost::get<std::vector<int64_t>>(result),
+            std::vector<int64_t>({1, 2, 3}));
 }
 
 TEST(Unit_Table, stringVectorProtobufRoundTrip) {
@@ -114,7 +116,8 @@ TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
   auto message = toProtobuf(original);
   fromProtobuf(result, message);
 
-  EXPECT_EQ(boost::get<std::vector<UUID>>(result), std::vector<UUID>({id1, id2, id3}));
+  EXPECT_EQ(boost::get<std::vector<UUID>>(result),
+            std::vector<UUID>({id1, id2, id3}));
 }
 
 TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
@@ -168,16 +171,17 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
   UUID id1 = Node().getUUID(), id2 = Node().getUUID();
   table::InnerMapType inner({
-      {"a", EA(1)},                                             // EA
-      {"b", 2},                                                 // int
-      {"c", "3"},                                               // string
-      {"d", std::vector<EA>({EA(4)})},                          // EA vector
-      {"e", std::vector<int64_t>({5})},                         // int vector
-      {"f", std::vector<std::string>({"6"})},                   // string vector
-      {"g", id1},                                               // UUID,
-      {"h", std::vector<UUID>({id2})},                          // UUID vector
-      {"i", InstructionRef{id1, 1}},                            // InstructionRef
-      {"j", std::vector<InstructionRef>({{id1, 1}, {id2, 2}})}, // InstructionRef vector
+      {"a", EA(1)},                           // EA
+      {"b", 2},                               // int
+      {"c", "3"},                             // string
+      {"d", std::vector<EA>({EA(4)})},        // EA vector
+      {"e", std::vector<int64_t>({5})},       // int vector
+      {"f", std::vector<std::string>({"6"})}, // string vector
+      {"g", id1},                             // UUID,
+      {"h", std::vector<UUID>({id2})},        // UUID vector
+      {"i", InstructionRef{id1, 1}},          // InstructionRef
+      {"j", std::vector<InstructionRef>(
+                {{id1, 1}, {id2, 2}})}, // InstructionRef vector
   });
   Table original = MapT({{1, inner}});
 
@@ -191,8 +195,10 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
   EXPECT_EQ(boost::get<int64_t>(m["b"]), 2);
   EXPECT_EQ(boost::get<std::string>(m["c"]), "3");
   EXPECT_EQ(boost::get<std::vector<EA>>(m["d"]), std::vector<EA>({EA(4)}));
-  EXPECT_EQ(boost::get<std::vector<int64_t>>(m["e"]), std::vector<int64_t>({5}));
-  EXPECT_EQ(boost::get<std::vector<std::string>>(m["f"]), std::vector<std::string>({"6"}));
+  EXPECT_EQ(boost::get<std::vector<int64_t>>(m["e"]),
+            std::vector<int64_t>({5}));
+  EXPECT_EQ(boost::get<std::vector<std::string>>(m["f"]),
+            std::vector<std::string>({"6"}));
   EXPECT_EQ(boost::get<UUID>(m["g"]), id1);
   EXPECT_EQ(boost::get<std::vector<UUID>>(m["h"]), std::vector<UUID>({id2}));
 

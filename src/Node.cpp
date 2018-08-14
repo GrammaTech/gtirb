@@ -17,7 +17,9 @@ Node* Node::getByUUID(UUID uuid) {
   }
 }
 
-Node::Node() : uuid(boost::uuids::random_generator()()) { Node::uuidMap[this->uuid] = this; }
+Node::Node() : uuid(boost::uuids::random_generator()()) {
+  Node::uuidMap[this->uuid] = this;
+}
 
 Node::Node(const Node& other) : uuid(boost::uuids::random_generator()()) {
   // Note: do not call setUUID() here as it will try to erase the current
@@ -66,7 +68,9 @@ void Node::setUUID(UUID x) {
 
 UUID Node::getUUID() const { return this->uuid; }
 
-std::string gtirb::uuidToString(const UUID& uuid) { return boost::uuids::to_string(uuid); }
+std::string gtirb::uuidToString(const UUID& uuid) {
+  return boost::uuids::to_string(uuid);
+}
 
 UUID gtirb::uuidFromString(const std::string& text) {
   return boost::uuids::string_generator()(text);

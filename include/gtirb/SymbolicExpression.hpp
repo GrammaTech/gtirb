@@ -41,10 +41,12 @@ struct SymAddrAddr {
   NodeRef<Symbol> symbol2;
 };
 
-using SymbolicExpression = boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+using SymbolicExpression =
+    boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
 GTIRB_EXPORT_API void fromProtobuf(SymbolicExpression& result,
                                    const proto::SymbolicExpression& message);
-GTIRB_EXPORT_API proto::SymbolicExpression toProtobuf(const SymbolicExpression& operand);
+GTIRB_EXPORT_API proto::SymbolicExpression
+toProtobuf(const SymbolicExpression& operand);
 
 } // namespace gtirb

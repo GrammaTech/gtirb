@@ -194,5 +194,6 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(result.getSections().begin()->getUUID(), sectionID);
 
   EXPECT_EQ(result.getSymbolicExpressions().size(), 1);
-  EXPECT_EQ(result.getSymbolicExpressions().begin()->second.which(), whichSymbolic);
+  EXPECT_EQ(result.getSymbolicExpressions().begin()->second.which(),
+            whichSymbolic);
 }

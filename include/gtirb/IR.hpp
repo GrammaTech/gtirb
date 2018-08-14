@@ -29,11 +29,11 @@ class Module;
 ///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
 ///     sectionSet [label="gtirb::SectionSet" URL="\ref SectionSet"]
 ///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
-///     symbolicOperandSet [label="gtirb::SymbolicExpressionSet" URL="\ref SymbolicExpressionSet"]
-///     cfg [label="gtirb::CFG" URL="\ref CFG"]
-///     block [label="gtirb::Block" URL="\ref Block"]
-///     data [label="gtirb::DataObject" URL="\ref DataObject"]
-///     symbolicOperand [label="gtirb::SymbolicExpression" URL="\ref SymbolicExpression"]
+///     symbolicOperandSet [label="gtirb::SymbolicExpressionSet" URL="\ref
+///     SymbolicExpressionSet"] cfg [label="gtirb::CFG" URL="\ref CFG"] block
+///     [label="gtirb::Block" URL="\ref Block"] data [label="gtirb::DataObject"
+///     URL="\ref DataObject"] symbolicOperand
+///     [label="gtirb::SymbolicExpression" URL="\ref SymbolicExpression"]
 ///     section [label="gtirb::Section" URL="\ref Section"]
 ///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
 ///

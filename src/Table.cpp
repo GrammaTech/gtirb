@@ -4,7 +4,8 @@
 #include <boost/variant/static_visitor.hpp>
 
 namespace gtirb {
-template <typename MessageT> class TableVisitor : public boost::static_visitor<> {
+template <typename MessageT>
+class TableVisitor : public boost::static_visitor<> {
 public:
   MessageT* message;
 
@@ -16,7 +17,9 @@ public:
 
   void operator()(const std::string& val) const { message->set_str(val); }
 
-  void operator()(const UUID& val) const { uuidToBytes(val, *message->mutable_uuid()); }
+  void operator()(const UUID& val) const {
+    uuidToBytes(val, *message->mutable_uuid());
+  }
 
   void operator()(const InstructionRef& val) const {
     val.toProtobuf(message->mutable_instruction());
@@ -35,15 +38,18 @@ public:
   }
 
   void operator()(const std::vector<std::string>& val) const {
-    containerToProtobuf(val, message->mutable_string_vector()->mutable_contents());
+    containerToProtobuf(val,
+                        message->mutable_string_vector()->mutable_contents());
   }
 
   void operator()(const std::vector<UUID>& val) const {
-    containerToProtobuf(val, message->mutable_uuid_vector()->mutable_contents());
+    containerToProtobuf(val,
+                        message->mutable_uuid_vector()->mutable_contents());
   }
 
   void operator()(const std::vector<InstructionRef>& val) const {
-    containerToProtobuf(val, message->mutable_instruction_vector()->mutable_contents());
+    containerToProtobuf(
+        val, message->mutable_instruction_vector()->mutable_contents());
   }
 
   void operator()(const std::map<EA, table::ValueType>& val) const {
@@ -62,16 +68,18 @@ public:
     // Special case, convert UUIDs to string form to make protobuf happy.
     auto field = message->mutable_by_uuid()->mutable_contents();
     field->clear();
-    std::for_each(val.begin(), val.end(),
-                  [field](auto v) { (*field)[uuidToString(v.first)] = toProtobuf(v.second); });
+    std::for_each(val.begin(), val.end(), [field](auto v) {
+      (*field)[uuidToString(v.first)] = toProtobuf(v.second);
+    });
   }
 
   void operator()(const std::vector<table::InnerMapType>& val) const {
     auto field = message->mutable_map_vector()->mutable_contents();
     field->Clear();
     field->Reserve(static_cast<int>(val.size()));
-    std::for_each(val.begin(), val.end(),
-                  [field](auto v) { containerToProtobuf(v, field->Add()->mutable_contents()); });
+    std::for_each(val.begin(), val.end(), [field](auto v) {
+      containerToProtobuf(v, field->Add()->mutable_contents());
+    });
   }
 };
 
@@ -125,7 +133,8 @@ void fromProtobuf(table::ValueType& value, const proto::Value& message) {
   }
 }
 
-void fromProtobuf(table::InnerValueType& value, const proto::InnerValue& message) {
+void fromProtobuf(table::InnerValueType& value,
+                  const proto::InnerValue& message) {
   switch (message.value_case()) {
   case proto::InnerValue::kEa:
     value = EA(message.ea());
