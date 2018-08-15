@@ -18,4 +18,4 @@ ExternalProject_Add(gsl
 # their own copy.
 add_custom_command(TARGET gsl POST_BUILD
                    COMMAND "${CMAKE_COMMAND}" -E copy_directory
-                       "${CMAKE_BINARY_DIR}/gsl-src/include/" "${CMAKE_BINARY_DIR}/../include")
+                       "${CMAKE_BINARY_DIR}/gsl-src/include/" "${CMAKE_SOURCE_DIR}/include")
