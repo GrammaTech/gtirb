@@ -33,16 +33,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
-
-set(GTIRB_ISO_CPP_VERSION "C++14" CACHE STRING "C++ ISO Standard to use.")
-set_property(CACHE GTIRB_ISO_CPP_VERSION PROPERTY STRINGS C++17 C++14)
-
-# Default to C++17, then override to C++14 if necessary.
-if(${GTIRB_ISO_CPP_VERSION} STREQUAL "C++14")
-	set(CMAKE_CXX_STANDARD 14)
-else()
-	set(CMAKE_CXX_STANDARD 17)
-endif()
+set(CMAKE_CXX_STANDARD 17)
 
 # Base include path for the GT-IRB library.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
