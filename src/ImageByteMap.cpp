@@ -4,13 +4,9 @@
 
 using namespace gtirb;
 
-void ImageByteMap::setFileName(boost::filesystem::path X) {
-  this->FileName = X;
-}
+void ImageByteMap::setFileName(std::string X) { this->FileName = X; }
 
-boost::filesystem::path ImageByteMap::getFileName() const {
-  return this->FileName;
-}
+std::string ImageByteMap::getFileName() const { return this->FileName; }
 
 void ImageByteMap::setBaseAddress(EA X) { this->BaseAddress = X; }
 
@@ -82,7 +78,7 @@ std::vector<gsl::byte> ImageByteMap::getData(EA X, size_t Bytes) const {
 void ImageByteMap::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   this->ByteMap.toProtobuf(Message->mutable_byte_map());
-  Message->set_file_name(this->FileName.generic_string());
+  Message->set_file_name(this->FileName);
   Message->set_ea_min(this->EaMinMax.first);
   Message->set_ea_max(this->EaMinMax.second);
   Message->set_base_address(this->BaseAddress);

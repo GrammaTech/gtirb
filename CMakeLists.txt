@@ -117,7 +117,7 @@ endif()
 # ---------------------------------------------------------------------------
 
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-find_package(Boost 1.59 REQUIRED COMPONENTS serialization filesystem system program_options)
+find_package(Boost 1.59 REQUIRED COMPONENTS)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------

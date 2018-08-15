@@ -40,7 +40,7 @@ TEST(Unit_ImageByteMap, setFileName) {
   auto Node = std::make_unique<gtirb::ImageByteMap>();
   ASSERT_TRUE(Node != nullptr);
 
-  const auto Val = boost::filesystem::path{"/usr/local/foo"};
+  const std::string Val("/usr/local/foo");
 
   EXPECT_NO_THROW(Node->setFileName(Val));
   EXPECT_EQ(Val, Node->getFileName());

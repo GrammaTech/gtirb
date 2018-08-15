@@ -4,8 +4,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/variant.hpp>
 #include <gsl/gsl>
+#include <variant>
 
 namespace proto {
 class CFG;
@@ -14,7 +14,7 @@ class CFG;
 namespace gtirb {
 class Block;
 
-using EdgeLabel = boost::variant<boost::blank, bool, uint64_t>;
+using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
 ///
 /// Interprocedural control flow graph, with Blocks as the vertices.

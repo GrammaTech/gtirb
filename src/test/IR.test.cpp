@@ -75,7 +75,7 @@ TEST(Unit_IR, addTable) {
   Ir.addTable("test", std::move(Table));
 
   EXPECT_NE(Ir.getTable("test"), nullptr);
-  EXPECT_EQ(boost::get<std::vector<int64_t>>(*Ir.getTable("test")),
+  EXPECT_EQ(std::get<std::vector<int64_t>>(*Ir.getTable("test")),
             std::vector<int64_t>({1, 2, 3}));
 }
 

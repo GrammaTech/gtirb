@@ -1,11 +1,10 @@
 #include "Table.hpp"
 #include "Serialization.hpp"
 #include <proto/Table.pb.h>
-#include <boost/variant/static_visitor.hpp>
+#include <variant>
 
 namespace gtirb {
-template <typename MessageT>
-class TableVisitor : public boost::static_visitor<> {
+template <typename MessageT> class TableVisitor {
 public:
   MessageT* Message;
 
@@ -85,19 +84,19 @@ public:
 
 proto::Value toProtobuf(const table::ValueType& Value) {
   proto::Value Message;
-  boost::apply_visitor(TableVisitor<proto::Value>(&Message), Value);
+  std::visit(TableVisitor<proto::Value>(&Message), Value);
   return Message;
 }
 
 proto::InnerValue toProtobuf(const table::InnerValueType& Value) {
   proto::InnerValue Message;
-  boost::apply_visitor(TableVisitor<proto::InnerValue>(&Message), Value);
+  std::visit(TableVisitor<proto::InnerValue>(&Message), Value);
   return Message;
 }
 
 proto::Table toProtobuf(const Table& table) {
   proto::Table Message;
-  boost::apply_visitor(TableVisitor<proto::Table>(&Message), table);
+  std::visit(TableVisitor<proto::Table>(&Message), table);
   return Message;
 }
 

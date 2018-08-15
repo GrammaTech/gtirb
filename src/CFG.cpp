@@ -35,12 +35,12 @@ proto::CFG toProtobuf(const CFG& Cfg) {
         nodeUUIDToBytes(&Cfg[source(E, Cfg)], *M->mutable_source_uuid());
         nodeUUIDToBytes(&Cfg[target(E, Cfg)], *M->mutable_target_uuid());
         auto Label = Cfg[E];
-        switch (Label.which()) {
+        switch (Label.index()) {
         case 1:
-          M->set_boolean(boost::get<bool>(Label));
+          M->set_boolean(std::get<bool>(Label));
           break;
         case 2:
-          M->set_integer(boost::get<uint64_t>(Label));
+          M->set_integer(std::get<uint64_t>(Label));
           break;
         case 0:
         default:

@@ -24,11 +24,9 @@ Module::Module()
 Module::Module(Module&&) = default;
 Module::~Module() = default;
 
-void Module::setBinaryPath(boost::filesystem::path X) { this->BinaryPath = X; }
+void Module::setBinaryPath(std::string X) { this->BinaryPath = X; }
 
-boost::filesystem::path Module::getBinaryPath() const {
-  return this->BinaryPath;
-}
+std::string Module::getBinaryPath() const { return this->BinaryPath; }
 
 void Module::setFileFormat(gtirb::FileFormat X) { this->FileFormat = X; }
 
@@ -86,7 +84,7 @@ const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
 
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_binary_path(this->BinaryPath.generic_string());
+  Message->set_binary_path(this->BinaryPath);
   Message->set_preferred_ea(this->PreferredEA);
   Message->set_rebase_delta(this->RebaseDelta);
   Message->set_file_format(static_cast<proto::FileFormat>(this->FileFormat));

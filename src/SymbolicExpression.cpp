@@ -2,10 +2,10 @@
 #include "Serialization.hpp"
 #include <gtirb/Symbol.hpp>
 #include <proto/SymbolicExpression.pb.h>
-#include <boost/variant/static_visitor.hpp>
+#include <variant>
 
 namespace gtirb {
-class SymbolicVisitor : public boost::static_visitor<> {
+class SymbolicVisitor {
 public:
   proto::SymbolicExpression* Message;
 
@@ -36,7 +36,7 @@ public:
 
 proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
   proto::SymbolicExpression Message;
-  boost::apply_visitor(SymbolicVisitor(&Message), Value);
+  std::visit(SymbolicVisitor(&Message), Value);
   return Message;
 }
 

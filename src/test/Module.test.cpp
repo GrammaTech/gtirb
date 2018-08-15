@@ -21,7 +21,7 @@ TEST(Unit_Module, setBinaryPath) {
   EXPECT_NO_THROW(M->setBinaryPath(StrPath));
 
   auto Path = M->getBinaryPath();
-  EXPECT_EQ(boost::filesystem::path(StrPath), Path);
+  EXPECT_EQ(StrPath, Path);
 }
 
 TEST(Unit_Module, getFileFormatDefault) {
@@ -162,7 +162,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     BlockID = blocks(Original.getCFG()).begin()->getUUID();
     DataID = Original.getData().begin()->getUUID();
     SectionID = Original.getSections().begin()->getUUID();
-    WhichSymbolic = Original.getSymbolicExpressions().begin()->second.which();
+    WhichSymbolic = Original.getSymbolicExpressions().begin()->second.index();
 
     Original.toProtobuf(&Message);
   }
@@ -194,6 +194,6 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result.getSections().begin()->getUUID(), SectionID);
 
   EXPECT_EQ(Result.getSymbolicExpressions().size(), 1);
-  EXPECT_EQ(Result.getSymbolicExpressions().begin()->second.which(),
+  EXPECT_EQ(Result.getSymbolicExpressions().begin()->second.index(),
             WhichSymbolic);
 }
