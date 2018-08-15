@@ -3,10 +3,10 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Symbol.hpp>
-#include <boost/variant.hpp>
 #include <cstdint>
 #include <map>
 #include <string>
+#include <variant>
 
 namespace proto {
 class SymbolicExpression;
@@ -42,7 +42,7 @@ struct SymAddrAddr {
 };
 
 using SymbolicExpression =
-    boost::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+    std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
 GTIRB_EXPORT_API void fromProtobuf(SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);

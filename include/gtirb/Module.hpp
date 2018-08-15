@@ -7,7 +7,6 @@
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicExpressionSet.hpp>
 #include <proto/Module.pb.h>
-#include <boost/filesystem.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -57,8 +56,6 @@ enum class ISAID : uint8_t {
 ///
 /// \class Module
 ///
-/// \todo Replace boost::filesystem with std::filesystem.
-///
 class GTIRB_EXPORT_API Module : public Node {
 public:
   ///
@@ -91,14 +88,14 @@ public:
   ///
   /// \param  X   A path to the corresponding binary on disk.
   ///
-  void setBinaryPath(boost::filesystem::path X);
+  void setBinaryPath(std::string X);
 
   ///
   /// Get the location of the corresponding binary on disk.
   ///
   /// \return   The path to the corresponding binary on disk.
   ///
-  boost::filesystem::path getBinaryPath() const;
+  std::string getBinaryPath() const;
 
   ///
   /// Sets the format of the binary pointed to by getBinaryPath().
@@ -172,7 +169,7 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  boost::filesystem::path BinaryPath{};
+  std::string BinaryPath{};
   gtirb::EA PreferredEA{};
   int64_t RebaseDelta{0};
   gtirb::FileFormat FileFormat{};

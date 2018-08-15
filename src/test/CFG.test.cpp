@@ -94,12 +94,12 @@ TEST(Unit_CFG, edgeLabels) {
   // boolean label
   auto E1 = add_edge(B1, B2, Cfg).first;
   Cfg[E1] = true;
-  EXPECT_EQ(boost::get<bool>(Cfg[E1]), true);
+  EXPECT_EQ(std::get<bool>(Cfg[E1]), true);
 
   // numeric label
   auto E2 = add_edge(B1, B2, Cfg).first;
   Cfg[E2] = uint64_t(5);
-  EXPECT_EQ(boost::get<uint64_t>(Cfg[E2]), 5);
+  EXPECT_EQ(std::get<uint64_t>(Cfg[E2]), 5);
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
@@ -148,8 +148,8 @@ TEST(Unit_CFG, protobufRoundTrip) {
 
   // Check labels
   auto E1 = edge(vertex(0, Result), vertex(2, Result), Result).first;
-  EXPECT_EQ(boost::get<bool>(Result[E1]), true);
+  EXPECT_EQ(std::get<bool>(Result[E1]), true);
 
   auto E2 = edge(vertex(1, Result), vertex(2, Result), Result).first;
-  EXPECT_EQ(boost::get<uint64_t>(Result[E2]), 5);
+  EXPECT_EQ(std::get<uint64_t>(Result[E2]), 5);
 }

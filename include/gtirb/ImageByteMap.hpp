@@ -6,7 +6,6 @@
 #include <proto/ImageByteMap.pb.h>
 #include <array>
 #include <boost/endian/conversion.hpp>
-#include <boost/filesystem.hpp>
 #include <gsl/gsl>
 #include <set>
 #include <type_traits>
@@ -46,12 +45,12 @@ public:
   ///
   /// \return     Sets the file name of the image.
   ///
-  void setFileName(boost::filesystem::path X);
+  void setFileName(std::string X);
 
   ///
   /// \return     The loaded file name and path.
   ///
-  boost::filesystem::path getFileName() const;
+  std::string getFileName() const;
 
   ///
   /// Sets the base address of loaded file.
@@ -279,7 +278,7 @@ private:
 
   // Storage for the entire contents of the loaded image.
   gtirb::ByteMap ByteMap;
-  boost::filesystem::path FileName;
+  std::string FileName;
   std::pair<gtirb::EA, gtirb::EA> EaMinMax{};
   EA BaseAddress{};
   EA EntryPointAddress{};
