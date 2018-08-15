@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <boost/variant.hpp>
+#include <map>
 
 namespace gtirb {
 struct SymStackConst;
