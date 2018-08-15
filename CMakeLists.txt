@@ -134,24 +134,24 @@ include_directories(${Boost_INCLUDE_DIRS})
 # ---------------------------------------------------------------------------
 configure_file(CMakeLists.gsl gsl-download/CMakeLists.txt)
 
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" . 
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
 	RESULT_VARIABLE result
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/gsl-download )
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gsl-download" )
 
 if(result)
 	message(WARNING "CMake step for gsl failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
 	RESULT_VARIABLE result
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/gsl-download )
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gsl-download" )
 
 if(result)
 	message(WARNING "Build step for gsl failed: ${result}")
 endif()
 
-add_subdirectory(${CMAKE_BINARY_DIR}/gsl-src
-				 ${CMAKE_BINARY_DIR}/gsl-build
+add_subdirectory("${CMAKE_BINARY_DIR}/gsl-src"
+				 "${CMAKE_BINARY_DIR}/gsl-build"
 				 EXCLUDE_FROM_ALL)
 
 include_directories("${CMAKE_BINARY_DIR}/gsl-src/include")
@@ -166,17 +166,17 @@ if(GTIRB_ENABLE_TESTS)
 	# Download and unpack googletest at configure time
 	configure_file(CMakeLists.googletest googletest-download/CMakeLists.txt)
 
-	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" . 
+	execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
 		RESULT_VARIABLE result
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download" )
 
 	if(result)
 		message(WARNING "CMake step for googletest failed: ${result}")
 	endif()
 
-	execute_process(COMMAND ${CMAKE_COMMAND} --build .
+	execute_process(COMMAND "${CMAKE_COMMAND}" --build .
 		RESULT_VARIABLE result
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download" )
 	
 	if(result)
 		message(WARNING "Build step for googletest failed: ${result}")
@@ -188,8 +188,8 @@ if(GTIRB_ENABLE_TESTS)
 
 	# Add googletest directly to our build. This defines
 	# the gtest and gtest_main targets.
-	add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
-					 ${CMAKE_BINARY_DIR}/googletest-build
+	add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
+					 "${CMAKE_BINARY_DIR}/googletest-build"
 					 EXCLUDE_FROM_ALL)
 
 	include_directories("${gtest_SOURCE_DIR}/include")
