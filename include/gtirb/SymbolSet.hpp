@@ -7,10 +7,8 @@
 namespace gtirb {
 class Symbol;
 
-
 /// \brief DOCFIXME
-using SymbolSet = std::multimap<Addr, Symbol>;
-
+using SymbolSet = std::multimap<Addr, Symbol *>;
 
 /// DOCFIXME[check all]
 ///
@@ -20,8 +18,7 @@ using SymbolSet = std::multimap<Addr, Symbol>;
 ///
 /// \param Sym      The Symbol to add.
 ///  
-GTIRB_EXPORT_API void addSymbol(SymbolSet& Symbols, Symbol&& Sym);
-
+GTIRB_EXPORT_API void addSymbol(SymbolSet& Symbols, Symbol *Sym);
 
 /// DOCFIXME[check all]
 ///
@@ -35,6 +32,7 @@ GTIRB_EXPORT_API void addSymbol(SymbolSet& Symbols, Symbol&& Sym);
 /// Symbol) in Symbols whose effective address is X.
 /// 
 GTIRB_EXPORT_API std::vector<Symbol*> findSymbols(SymbolSet& Symbols, Addr X);
+
 /// DOCFIXME[check all]
 ///
 /// \brief Find all symbols in a set that have the specified effective address. DOCFIXME[difference to previous]

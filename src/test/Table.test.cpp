@@ -1,8 +1,11 @@
+#include <gtirb/Context.hpp>
 #include <gtirb/Table.hpp>
 #include <proto/Table.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
+
+static Context Ctx;
 
 TEST(Unit_Table, eaMapProtobufRoundTrip) {
   using MapT = std::map<Addr, table::ValueType>;
@@ -10,7 +13,7 @@ TEST(Unit_Table, eaMapProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 2);
@@ -24,7 +27,7 @@ TEST(Unit_Table, intMapProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 2);
@@ -38,7 +41,7 @@ TEST(Unit_Table, stringMapProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 2);
@@ -48,13 +51,13 @@ TEST(Unit_Table, stringMapProtobufRoundTrip) {
 
 TEST(Unit_Table, uuidMapProtobufRoundTrip) {
   using MapT = std::map<UUID, table::ValueType>;
-  UUID Id1 = Node().getUUID();
-  UUID Id2 = Node().getUUID();
+  UUID Id1 = Node::Create(Ctx)->getUUID();
+  UUID Id2 = Node::Create(Ctx)->getUUID();
   Table Original = MapT({{Id1, {"a"}}, {Id2, {"b"}}});
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 2);
@@ -68,7 +71,7 @@ TEST(Unit_Table, mapVectorProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   auto v = std::get<std::vector<table::InnerMapType>>(Result);
   EXPECT_EQ(v.size(), 1);
@@ -80,7 +83,7 @@ TEST(Unit_Table, eaVectorProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(std::get<std::vector<Addr>>(Result),
             std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
@@ -91,7 +94,7 @@ TEST(Unit_Table, intVectorProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(std::get<std::vector<int64_t>>(Result),
             std::vector<int64_t>({1, 2, 3}));
@@ -102,32 +105,34 @@ TEST(Unit_Table, stringVectorProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(std::get<std::vector<std::string>>(Result),
             std::vector<std::string>({"1", "2", "3"}));
 }
 
 TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
-  UUID Id1 = Node().getUUID(), Id2 = Node().getUUID(), Id3 = Node().getUUID();
+  UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
+       Id3 = Node::Create(Ctx)->getUUID();
   Table Original = std::vector<UUID>({Id1, Id2, Id3});
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(std::get<std::vector<UUID>>(Result),
             std::vector<UUID>({Id1, Id2, Id3}));
 }
 
 TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
-  UUID Id1 = Node().getUUID(), Id2 = Node().getUUID(), Id3 = Node().getUUID();
+  UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
+       Id3 = Node::Create(Ctx)->getUUID();
   std::vector<InstructionRef> vec({{Id1, 1}, {Id2, 2}, {Id3, 3}});
   Table Original = vec;
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   auto vec2 = std::get<std::vector<InstructionRef>>(Result);
   EXPECT_EQ(vec2[0].BlockRef.getUUID(), vec[0].BlockRef.getUUID());
@@ -141,7 +146,7 @@ TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
 TEST(Unit_Table, valueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
   table::InnerMapType Inner({{"a", 1}});
-  UUID Id = Node().getUUID();
+  UUID Id = Node::Create(Ctx)->getUUID();
   Table Original = MapT({
       {1, Addr(5)},              // Addr
       {2, 6},                    // int64
@@ -153,7 +158,7 @@ TEST(Unit_Table, valueProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 6);
@@ -169,7 +174,7 @@ TEST(Unit_Table, valueProtobufRoundTrip) {
 
 TEST(Unit_Table, innerValueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
-  UUID Id1 = Node().getUUID(), Id2 = Node().getUUID();
+  UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID();
   table::InnerMapType inner({
       {"a", Addr(1)},                         // Addr
       {"b", 2},                               // int
@@ -187,7 +192,7 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
-  fromProtobuf(Result, Message);
+  fromProtobuf(Ctx, Result, Message);
 
   auto M = std::get<table::InnerMapType>(std::get<MapT>(Result)[1]);
   EXPECT_EQ(M.size(), 10);

@@ -16,7 +16,9 @@ class ByteMap;
 }
 
 namespace gtirb {
+class Context;
 
+///
 /// \class ByteMap
 ///
 /// \brief Holds the bytes of the loaded image of the binary.
@@ -59,11 +61,13 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param Message DOCFIXME
   ///
   /// \return void
   ///
-  void fromProtobuf(const MessageType& Message);
+  void fromProtobuf(Context &C, const MessageType& Message);
 
 
   /// \brief DOCFIXME

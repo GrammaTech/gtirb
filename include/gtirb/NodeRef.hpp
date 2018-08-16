@@ -24,7 +24,7 @@ public:
   ///
   /// \param Uuid_ The UUID to reference DOCFIXME[check].
   ///
-  NodeRef(UUID Uuid_) : Uuid(Uuid_) {}
+  NodeRef(const UUID& Uuid_) : Uuid(Uuid_) {}
 
 
   /// \brief Constructor
@@ -32,6 +32,9 @@ public:
   /// \param node The Node to reference DOCFIXME[check].
   ///
   NodeRef(const NodeT& node) : Uuid(node.getUUID()){};
+
+
+  NodeRef(const NodeT* node) : NodeRef(*node) {}
 
 
   /// \brief Copy constructor.
@@ -83,7 +86,7 @@ private:
   UUID Uuid;
 
   NodeT* get() const {
-    return dynamic_cast<NodeT*>(Node::getByUUID(this->Uuid));
+    return dyn_cast_or_null<NodeT>(Node::getByUUID(this->Uuid));
   }
 };
 } // namespace gtirb

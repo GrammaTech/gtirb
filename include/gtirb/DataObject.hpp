@@ -19,34 +19,16 @@ namespace gtirb {
 /// \ref ImageByteMap.
 ///
 class GTIRB_EXPORT_API DataObject : public Node {
+  DataObject() : Node(Kind::DataObject) {}
+
+  DataObject(Addr A, uint64_t S)
+      : Node(Kind::DataObject), Address(A), Size(S) {}
+
 public:
-  /// \brief Default constructor required for serialization.
-  DataObject() = default;
-
-
-
-  /// \brief Constructor DOCFIXME
-  ///
-  /// \param  Address_  DOCFIXME
-  /// \param  Size_     DOCFIXME
-  ///
-  DataObject(Addr Address_, uint64_t Size_) : Address(Address_), Size(Size_) {}
-
-
-  /// \brief Copy constructor.
-  /// Assigns a new UUID to the copy.
-  ///
-  explicit DataObject(const DataObject&) = default;
-
-
-  /// \brief Move constructor.
-  ///
-  DataObject(DataObject&&) = default;
-
-
-  /// \brief Move assignment.
-  ///
-  DataObject& operator=(DataObject&&) = default;
+  static DataObject *Create(Context &C) { return new (C) DataObject; }
+  static DataObject *Create(Context &C, Addr Address, uint64_t Size) {
+    return new (C) DataObject(Address, Size);
+  }
 
 
   /// \brief Get the address of DOCFIXME.
@@ -76,10 +58,16 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param Message DOCFIXME
   ///
-  /// \return void
-  void fromProtobuf(const MessageType& Message);
+  /// \return DOCFIXME
+  static DataObject *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node* N) {
+    return N->getKind() == Kind::DataObject;
+  }
 
 private:
   Addr Address{0};

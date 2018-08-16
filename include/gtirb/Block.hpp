@@ -21,42 +21,21 @@ namespace gtirb {
 /// \brief A basic block.
 ///
 class GTIRB_EXPORT_API Block : public Node {
+  Block() : Node(Kind::Block) {}
+
+  ///
+  /// Construct an empty block
+  ///
+  Block(Addr Addr, uint64_t S, uint64_t Decode)
+      : Node(Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
+
 public:
-  /// \brief Default constructor
-  Block() = default;
 
-
-  /// \brief Copy constructor.
-  /// Assigns a new UUID to the copy.
-  ///
-  explicit Block(const Block&) = default;
-
-
-  /// \brief Construct an empty block.
-  ///
-  /// \param Address    The address of the first program point in the block. DOCFIXME[check]
-  ///
-  /// \param Size       The size of the block, in DOCFIXME[bytes? program points?]
-  ///
-  /// \param DecodeMode DOCFIXME
-  ///
-  /// \return A new, empty block DOCFIXME
-  Block(Addr Address, uint64_t Size, uint64_t DecodeMode = 0);
-
-  ///
-  /// \brief Move constructor.
-  ///
-  Block(Block&&) = default;
-
-
-  /// \brief Move assignment.
-  ///
-  Block& operator=(Block&&) = default;
-
-
-  /// \brief Defaulted trivial destructor.
-  ///
-  ~Block() override = default;
+  static Block *Create(Context &C) { return new (C) Block; }
+  static Block *Create(Context &C, EA Address, uint64_t Size,
+                       uint64_t DecodeMode = 0) {
+    return new (C) Block(Address, Size, DecodeMode);
+  }
 
 
   /// DOCFIXME[check all]
@@ -94,11 +73,15 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param Message DOCFIXME
   ///
   /// \return DOCFIXME
   ///
-  void fromProtobuf(const MessageType& Message);
+  static Block *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::Block; }
 
 private:
   Addr Address;
@@ -127,13 +110,14 @@ struct GTIRB_EXPORT_API InstructionRef {
   ///
   void toProtobuf(MessageType* message) const;
 
+
   /// \brief DOCFIXME
   ///
   /// \param message DOCFIXME
   ///
   /// \return DOCFIXME
   ///
-  void fromProtobuf(const MessageType& message);
+  void fromProtobuf(Context &, const MessageType& message);
 };
 
 } // namespace gtirb

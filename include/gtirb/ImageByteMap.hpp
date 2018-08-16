@@ -35,31 +35,10 @@ struct is_std_array<std::array<T, N>> : std::true_type {};
 /// \brief Contains the loaded raw image data for the module (binary).
 ///
 class GTIRB_EXPORT_API ImageByteMap : public Node {
+  ImageByteMap() : Node(Kind::ImageByteMap) {}
+
 public:
-
-  /// \brief Default constructor.
-  ///
-  ImageByteMap() = default;
-
-
-  /// \brief Copy constructor.
-  /// Assigns a new UUID to the copy.
-  ///
-  explicit ImageByteMap(const ImageByteMap&) = default;
-
-
-  /// \brief Move constructor.
-  ///
-  ImageByteMap(ImageByteMap&&) = default;
-
-
-  /// \brief Move assignment.
-  ///
-  ImageByteMap& operator=(ImageByteMap&&) = default;
-
-
-  /// \brief Default destructor.
-  ~ImageByteMap() override = default;
+  static ImageByteMap *Create(Context &C) { return new (C) ImageByteMap; }
 
 
   /// \brief Set the file name of the image.
@@ -267,9 +246,9 @@ public:
     if (this->ByteOrder != boost::endian::order::native) {
       T reversed = boost::endian::conditional_reverse(
           Data, this->ByteOrder, boost::endian::order::native);
-      this->ByteMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
+      this->BMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
     } else {
-      this->ByteMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
+      this->BMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
     }
   }
 
@@ -389,10 +368,16 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param message DOCFIXME
   ///
-  /// \return void
-  void fromProtobuf(const MessageType& message);
+  /// \return DOCFIXME
+  static ImageByteMap *fromProtobuf(Context &C, const MessageType& message);
+
+  static bool classof(const Node* N) {
+    return N->getKind() == Kind::ImageByteMap;
+  }
 
 private:
   template <typename T> T getDataNoSwap(Addr Ea) {
@@ -409,7 +394,7 @@ private:
   }
 
   // Storage for the entire contents of the loaded image.
-  gtirb::ByteMap ByteMap;
+  gtirb::ByteMap BMap;
   std::string FileName;
   std::pair<Addr, Addr> EaMinMax;
   Addr BaseAddress;
