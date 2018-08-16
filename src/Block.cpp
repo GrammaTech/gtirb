@@ -5,10 +5,10 @@
 
 using namespace gtirb;
 
-Block::Block(EA Address_, uint64_t Size_, uint64_t DecodeMode_)
+Block::Block(Addr Address_, uint64_t Size_, uint64_t DecodeMode_)
     : Node(), Address(Address_), Size(Size_), DecodeMode(DecodeMode_) {}
 
-EA Block::getAddress() const { return this->Address; }
+Addr Block::getAddress() const { return this->Address; }
 
 uint64_t Block::getSize() const { return this->Size; }
 
@@ -23,8 +23,8 @@ void Block::toProtobuf(MessageType* Message) const {
 
 void Block::fromProtobuf(const MessageType& Message) {
   setNodeUUIDFromBytes(this, Message.uuid());
-  this->Address = EA(Message.address());
-  this->Size = EA(Message.size());
+  this->Address = Addr(Message.address());
+  this->Size = Addr(Message.size());
   this->DecodeMode = Message.decode_mode();
 }
 

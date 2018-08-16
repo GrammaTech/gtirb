@@ -4,11 +4,11 @@
 
 using namespace gtirb;
 
-TEST(Unit_Block, ctor) { EXPECT_NO_THROW(Block(EA(), 0)); }
+TEST(Unit_Block, ctor) { EXPECT_NO_THROW(Block(Addr(), 0)); }
 
 TEST(Unit_Block, getters) {
-  Block B(EA(1), 2, 3);
-  EXPECT_EQ(EA(1), B.getAddress());
+  Block B(Addr(1), 2, 3);
+  EXPECT_EQ(Addr(1), B.getAddress());
   EXPECT_EQ(uint64_t{2}, B.getSize());
   EXPECT_EQ(uint64_t{3}, B.getDecodeMode());
 }
@@ -18,13 +18,13 @@ TEST(Unit_Block, protobufRoundTrip) {
   proto::Block Message;
 
   {
-    Block Original{EA(1), 3, 5};
+    Block Original{Addr(1), 3, 5};
     Original.toProtobuf(&Message);
   }
   // original has been destroyed, so UUIDs can be reused
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.getAddress(), EA(1));
+  EXPECT_EQ(Result.getAddress(), Addr(1));
   EXPECT_EQ(Result.getSize(), 3);
   EXPECT_EQ(Result.getDecodeMode(), 5);
 }

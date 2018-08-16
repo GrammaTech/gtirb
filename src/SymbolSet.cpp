@@ -1,13 +1,13 @@
 #include "Symbol.hpp"
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/SymbolSet.hpp>
 
 namespace gtirb {
 void addSymbol(SymbolSet& Symbols, Symbol&& Sym) {
-  Symbols.emplace(Sym.getEA(), std::move(Sym));
+  Symbols.emplace(Sym.getAddress(), std::move(Sym));
 }
 
-std::vector<const Symbol*> findSymbols(const SymbolSet& Symbols, gtirb::EA X) {
+std::vector<const Symbol*> findSymbols(const SymbolSet& Symbols, Addr X) {
   auto Found = Symbols.equal_range(X);
   std::vector<const Symbol*> result;
   std::for_each(Found.first, Found.second, [&result](const auto& node) {
@@ -16,7 +16,7 @@ std::vector<const Symbol*> findSymbols(const SymbolSet& Symbols, gtirb::EA X) {
   return result;
 }
 
-std::vector<Symbol*> findSymbols(SymbolSet& Symbols, gtirb::EA X) {
+std::vector<Symbol*> findSymbols(SymbolSet& Symbols, Addr X) {
   auto Found = Symbols.equal_range(X);
   std::vector<Symbol*> Result;
   std::for_each(Found.first, Found.second,

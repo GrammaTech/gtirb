@@ -20,15 +20,15 @@ TEST(Unit_Symbol, setName) {
   EXPECT_EQ(Value, Node->getName());
 }
 
-TEST(Unit_Symbol, setEA) {
-  const gtirb::EA Value{22678};
+TEST(Unit_Symbol, setAddress) {
+  const Addr Value{22678};
 
   auto Node = std::make_unique<gtirb::Symbol>();
-  EXPECT_NO_THROW(Node->getEA());
-  EXPECT_EQ(gtirb::EA{}, Node->getEA());
+  EXPECT_NO_THROW(Node->getAddress());
+  EXPECT_EQ(Addr{}, Node->getAddress());
 
-  EXPECT_NO_THROW(Node->setEA(Value));
-  EXPECT_EQ(Value, Node->getEA());
+  EXPECT_NO_THROW(Node->setAddress(Value));
+  EXPECT_EQ(Value, Node->getAddress());
 }
 
 TEST(Unit_Symbol, setStorageKind) {
@@ -68,7 +68,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   UUID DataUUID;
 
   {
-    Symbol Original(EA(1), "test");
+    Symbol Original(Addr(1), "test");
     Original.setStorageKind(Symbol::StorageKind::Static);
 
     DataObject Data;
@@ -80,7 +80,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.getEA(), EA(1));
+  EXPECT_EQ(Result.getAddress(), Addr(1));
   EXPECT_EQ(Result.getName(), "test");
   EXPECT_EQ(Result.getStorageKind(), Symbol::StorageKind::Static);
   EXPECT_EQ(Result.getDataReferent().getUUID(), DataUUID);

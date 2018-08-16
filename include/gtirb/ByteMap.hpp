@@ -1,7 +1,7 @@
 #ifndef GTIRB_BYTEMAP_H
 #define GTIRB_BYTEMAP_H
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -29,7 +29,7 @@ public:
   /// \param  ea      The address to store the data.
   /// \param  data    The data to store.
   ///
-  void setData(EA Ea, gsl::span<const std::byte> Data);
+  void setData(Addr A, gsl::span<const std::byte> Data);
 
   ///
   /// Get data at the given address.
@@ -37,24 +37,24 @@ public:
   /// \param  ea       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
   ///
-  std::vector<std::byte> getData(EA Ea, size_t Bytes) const;
+  std::vector<std::byte> getData(Addr A, size_t Bytes) const;
 
   using MessageType = proto::ByteMap;
   void toProtobuf(MessageType* Message) const;
   void fromProtobuf(const MessageType& Message);
 
   struct Region {
-    EA Address;
+    Addr Address;
     std::vector<std::byte> Data;
 
-    EA getAddress() const { return this->Address; }
+    Addr getAddress() const { return this->Address; }
 
     uint64_t getSize() const { return this->Data.size(); }
   };
 
 private:
   // Initialize with sentinel region
-  std::vector<Region> Regions{{EA(), std::vector<std::byte>()}};
+  std::vector<Region> Regions{{Addr(), std::vector<std::byte>()}};
 };
 } // namespace gtirb
 

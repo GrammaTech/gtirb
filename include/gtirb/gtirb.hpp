@@ -1,11 +1,11 @@
 #ifndef GTIRB_GTIRB_H
 #define GTIRB_GTIRB_H
 
+#include <gtirb/Addr.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/DataObject.hpp>
-#include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>

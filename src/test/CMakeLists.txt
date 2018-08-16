@@ -27,7 +27,7 @@ set(${PROJECT_NAME}_SRC
 	ByteMap.test.cpp
 	CFG.test.cpp
         DataObject.test.cpp
-	EA.test.cpp
+    Addr.test.cpp
 	ImageByteMap.test.cpp
 	IR.test.cpp
 	Module.test.cpp

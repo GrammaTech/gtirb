@@ -5,26 +5,26 @@
 
 using namespace gtirb;
 
-Symbol::Symbol(EA X) : Node(), Ea(X) {}
+Symbol::Symbol(Addr X) : Node(), Address(X) {}
 
-Symbol::Symbol(EA X, std::string Name_, StorageKind StorageKind_)
-    : Node(), Ea(X), Name(Name_), Storage(StorageKind_) {}
+Symbol::Symbol(Addr X, std::string Name_, StorageKind StorageKind_)
+    : Node(), Address(X), Name(Name_), Storage(StorageKind_) {}
 
-Symbol::Symbol(EA X, std::string Name_, const DataObject& Referent,
+Symbol::Symbol(Addr X, std::string Name_, const DataObject& Referent,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
   this->setReferent(Referent);
 }
 
-Symbol::Symbol(EA X, std::string Name_, const Block& Referent,
+Symbol::Symbol(Addr X, std::string Name_, const Block& Referent,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
   this->setReferent(Referent);
 }
 
-void Symbol::setEA(gtirb::EA X) { this->Ea = X; }
+void Symbol::setAddress(Addr X) { this->Address = X; }
 
-gtirb::EA Symbol::getEA() const { return this->Ea; }
+Addr Symbol::getAddress() const { return this->Address; }
 
 void Symbol::setName(std::string X) { this->Name = X; }
 
@@ -54,7 +54,7 @@ gtirb::Symbol::StorageKind Symbol::getStorageKind() const {
 
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_ea(this->Ea);
+  Message->set_address(this->Address);
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
   uuidToBytes(this->CodeReferent.getUUID(),
@@ -65,7 +65,7 @@ void Symbol::toProtobuf(MessageType* Message) const {
 
 void Symbol::fromProtobuf(const MessageType& Message) {
   setNodeUUIDFromBytes(this, Message.uuid());
-  this->Ea = EA(Message.ea());
+  this->Address = Addr(Message.address());
   this->Name = Message.name();
   this->Storage = static_cast<StorageKind>(Message.storage_kind());
   this->CodeReferent = {uuidFromBytes(Message.code_referent_uuid())};

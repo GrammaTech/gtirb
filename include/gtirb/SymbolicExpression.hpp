@@ -1,7 +1,7 @@
 #ifndef GTIRB_SYMBOLICEXPRESSION_H
 #define GTIRB_SYMBOLICEXPRESSION_H
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Symbol.hpp>
 #include <cstdint>

@@ -8,27 +8,27 @@ void ImageByteMap::setFileName(std::string X) { this->FileName = X; }
 
 std::string ImageByteMap::getFileName() const { return this->FileName; }
 
-void ImageByteMap::setBaseAddress(EA X) { this->BaseAddress = X; }
+void ImageByteMap::setBaseAddress(Addr X) { this->BaseAddress = X; }
 
-EA ImageByteMap::getBaseAddress() const { return this->BaseAddress; }
+Addr ImageByteMap::getBaseAddress() const { return this->BaseAddress; }
 
-void ImageByteMap::setEntryPointAddress(EA X) { this->EntryPointAddress = X; }
+void ImageByteMap::setEntryPointAddress(Addr X) { this->EntryPointAddress = X; }
 
-EA ImageByteMap::getEntryPointAddress() const {
+Addr ImageByteMap::getEntryPointAddress() const {
   return this->EntryPointAddress;
 }
 
-bool ImageByteMap::setEAMinMax(std::pair<gtirb::EA, gtirb::EA> X) {
+bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
   if (X.first <= X.second) {
     this->EaMinMax = std::move(X);
     return true;
   }
 
-  this->EaMinMax = std::pair<gtirb::EA, gtirb::EA>(gtirb::EA{}, gtirb::EA{});
+  this->EaMinMax = std::pair<Addr, Addr>(Addr{}, Addr{});
   return false;
 }
 
-std::pair<gtirb::EA, gtirb::EA> ImageByteMap::getEAMinMax() const {
+std::pair<Addr, Addr> ImageByteMap::getAddrMinMax() const {
   return this->EaMinMax;
 }
 
@@ -48,39 +48,39 @@ void ImageByteMap::setByteOrder(boost::endian::order Value) {
   this->ByteOrder = Value;
 }
 
-void ImageByteMap::setData(EA Ea, gsl::span<const std::byte> Data) {
-  if (Ea >= this->EaMinMax.first &&
-      (Ea + EA{(uint64_t)Data.size_bytes()} - EA{1}) <= this->EaMinMax.second) {
+void ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
+  if (Ea >= this->EaMinMax.first && (Ea + Addr{(uint64_t)Data.size_bytes()} -
+                                     Addr{1}) <= this->EaMinMax.second) {
     this->ByteMap.setData(Ea, Data);
   } else {
     throw std::out_of_range(
-        "Attempt to set data at an EA out of range of the min and max EA.");
+        "Attempt to set data at an Addr out of range of the min and max Addr.");
   }
 }
 
-void ImageByteMap::setData(EA Ea, size_t Bytes, std::byte Value) {
+void ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
   auto Span = gsl::make_span(&Value, 1);
   for (uint64_t I = 0; I < Bytes; I++) {
     this->ByteMap.setData(Ea + I, Span);
   }
 }
 
-std::vector<std::byte> ImageByteMap::getData(EA X, size_t Bytes) const {
+std::vector<std::byte> ImageByteMap::getData(Addr X, size_t Bytes) const {
   if (X >= this->EaMinMax.first &&
-      (X + EA{Bytes} - EA{1}) <= this->EaMinMax.second) {
+      (X + Addr{Bytes} - Addr{1}) <= this->EaMinMax.second) {
     return this->ByteMap.getData(X, Bytes);
   }
 
   throw std::out_of_range(
-      "Attempt to get data at an EA out of range of the min and max EA.");
+      "Attempt to get data at an Addr out of range of the min and max Addr.");
 }
 
 void ImageByteMap::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   this->ByteMap.toProtobuf(Message->mutable_byte_map());
   Message->set_file_name(this->FileName);
-  Message->set_ea_min(this->EaMinMax.first);
-  Message->set_ea_max(this->EaMinMax.second);
+  Message->set_addr_min(this->EaMinMax.first);
+  Message->set_addr_max(this->EaMinMax.second);
   Message->set_base_address(this->BaseAddress);
   Message->set_entry_point_address(this->EntryPointAddress);
   Message->set_rebase_delta(this->RebaseDelta);
@@ -91,9 +91,9 @@ void ImageByteMap::fromProtobuf(const MessageType& Message) {
   setNodeUUIDFromBytes(this, Message.uuid());
   this->ByteMap.fromProtobuf(Message.byte_map());
   this->FileName = Message.file_name();
-  this->EaMinMax = {EA(Message.ea_min()), EA(Message.ea_max())};
-  this->BaseAddress = EA(Message.base_address());
-  this->EntryPointAddress = EA(Message.entry_point_address());
+  this->EaMinMax = {Addr(Message.addr_min()), Addr(Message.addr_max())};
+  this->BaseAddress = Addr(Message.base_address());
+  this->EntryPointAddress = Addr(Message.entry_point_address());
   this->RebaseDelta = Message.rebase_delta();
   this->IsRelocated = Message.is_relocated();
 }

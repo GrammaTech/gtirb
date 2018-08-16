@@ -5,8 +5,8 @@
 using namespace gtirb;
 
 TEST(Unit_Table, eaMapProtobufRoundTrip) {
-  using MapT = std::map<EA, table::ValueType>;
-  Table Original = MapT({{EA(1), {"a"}}, {EA(2), {"b"}}});
+  using MapT = std::map<Addr, table::ValueType>;
+  Table Original = MapT({{Addr(1), {"a"}}, {Addr(2), {"b"}}});
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
@@ -14,8 +14,8 @@ TEST(Unit_Table, eaMapProtobufRoundTrip) {
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 2);
-  EXPECT_EQ(std::get<std::string>(M[EA(1)]), "a");
-  EXPECT_EQ(std::get<std::string>(M[EA(2)]), "b");
+  EXPECT_EQ(std::get<std::string>(M[Addr(1)]), "a");
+  EXPECT_EQ(std::get<std::string>(M[Addr(2)]), "b");
 }
 
 TEST(Unit_Table, intMapProtobufRoundTrip) {
@@ -76,14 +76,14 @@ TEST(Unit_Table, mapVectorProtobufRoundTrip) {
 }
 
 TEST(Unit_Table, eaVectorProtobufRoundTrip) {
-  Table Original = std::vector<EA>({EA(1), EA(2), EA(3)});
+  Table Original = std::vector<Addr>({Addr(1), Addr(2), Addr(3)});
 
   gtirb::Table Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Result, Message);
 
-  EXPECT_EQ(std::get<std::vector<EA>>(Result),
-            std::vector<EA>({EA(1), EA(2), EA(3)}));
+  EXPECT_EQ(std::get<std::vector<Addr>>(Result),
+            std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
 }
 
 TEST(Unit_Table, intVectorProtobufRoundTrip) {
@@ -143,7 +143,7 @@ TEST(Unit_Table, valueProtobufRoundTrip) {
   table::InnerMapType Inner({{"a", 1}});
   UUID Id = Node().getUUID();
   Table Original = MapT({
-      {1, EA(5)},                // EA
+      {1, Addr(5)},              // Addr
       {2, 6},                    // int64
       {3, "7"},                  // string
       {4, Inner},                // InnerMapType
@@ -157,7 +157,7 @@ TEST(Unit_Table, valueProtobufRoundTrip) {
 
   MapT M = std::get<MapT>(Result);
   EXPECT_EQ(M.size(), 6);
-  EXPECT_EQ(std::get<EA>(M[1]), EA(5));
+  EXPECT_EQ(std::get<Addr>(M[1]), Addr(5));
   EXPECT_EQ(std::get<int64_t>(M[2]), 6);
   EXPECT_EQ(std::get<std::string>(M[3]), "7");
   EXPECT_EQ(std::get<int64_t>(std::get<table::InnerMapType>(M[4])["a"]), 1);
@@ -171,10 +171,10 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
   UUID Id1 = Node().getUUID(), Id2 = Node().getUUID();
   table::InnerMapType inner({
-      {"a", EA(1)},                           // EA
+      {"a", Addr(1)},                         // Addr
       {"b", 2},                               // int
       {"c", "3"},                             // string
-      {"d", std::vector<EA>({EA(4)})},        // EA vector
+      {"d", std::vector<Addr>({Addr(4)})},    // Addr vector
       {"e", std::vector<int64_t>({5})},       // int vector
       {"f", std::vector<std::string>({"6"})}, // string vector
       {"g", Id1},                             // UUID,
@@ -191,10 +191,10 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
 
   auto M = std::get<table::InnerMapType>(std::get<MapT>(Result)[1]);
   EXPECT_EQ(M.size(), 10);
-  EXPECT_EQ(std::get<EA>(M["a"]), EA(1));
+  EXPECT_EQ(std::get<Addr>(M["a"]), Addr(1));
   EXPECT_EQ(std::get<int64_t>(M["b"]), 2);
   EXPECT_EQ(std::get<std::string>(M["c"]), "3");
-  EXPECT_EQ(std::get<std::vector<EA>>(M["d"]), std::vector<EA>({EA(4)}));
+  EXPECT_EQ(std::get<std::vector<Addr>>(M["d"]), std::vector<Addr>({Addr(4)}));
   EXPECT_EQ(std::get<std::vector<int64_t>>(M["e"]), std::vector<int64_t>({5}));
   EXPECT_EQ(std::get<std::vector<std::string>>(M["f"]),
             std::vector<std::string>({"6"}));
