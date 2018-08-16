@@ -42,16 +42,18 @@ template <class T> class TypedNodeTest : public testing::Test {
 protected:
   TypedNodeTest() = default;
   virtual ~TypedNodeTest() = default;
-
-  using Type = std::remove_pointer_t<T>;
 };
 
 TYPED_TEST_CASE_P(TypedNodeTest);
 
+// I tried making this a member of TypedNodeTest, but the member is unavailable
+// within the tests themselves, so this macro is used as a hacky solution.
+#define Type  std::remove_pointer_t<TypeParam>
+
 // ----------------------------------------------------------------------------
 // Tests to run on all types.
 
-TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NO_THROW(TypeParam{}); }
+TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NO_THROW(Type::Create(Ctx)); }
 
 TYPED_TEST_P(TypedNodeTest, uniqueUuids) {
   std::vector<gtirb::UUID> Uuids;

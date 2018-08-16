@@ -25,8 +25,8 @@ class GTIRB_EXPORT_API Block : public Node {
   ///
   /// Construct an empty block
   ///
-  Block(EA Address, uint64_t Size, uint64_t DecodeMode)
-      : Node(), Address(Address), Size(Size), DecodeMode(DecodeMode) {}
+  Block(EA Addr, uint64_t S, uint64_t Decode)
+      : Node(), Address(Addr), Size(S), DecodeMode(Decode) {}
 
 public:
 
