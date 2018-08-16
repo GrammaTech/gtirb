@@ -43,7 +43,7 @@ private:
 
   void decrement() { this->it--; }
 
-  void advance(int n) { this->it += 1; }
+  void advance(int n) { this->it += n; }
 
   typename Graph::vertex_iterator::difference_type
   distance_to(const self_type& other) const {
