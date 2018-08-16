@@ -7,14 +7,12 @@ before_script:
   - docker info
 
 stages:
-  - build-test-ubuntu16-gcc5
   - build-test-ubuntu16-gcc7
-  - build-test-ubuntu16-clang
+  - build-test-ubuntu18-clang
   # - build-test-ubuntu14-gcc
   - build-test-arch-gcc
-  - cleanup-ubuntu16-gcc5
   - cleanup-ubuntu16-gcc7
-  - cleanup-ubuntu16-clang
+  - cleanup-ubuntu18-clang
   # - cleanup-ubuntu14-gcc
   - cleanup-arch-gcc
 
@@ -27,13 +25,6 @@ stages:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME};
 
-build-ubuntu16-gcc5:
-  stage: build-test-ubuntu16-gcc5
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-5'
-  <<: *build
-
 build-ubuntu16-gcc7:
   stage: build-test-ubuntu16-gcc7
   variables:
@@ -41,8 +32,8 @@ build-ubuntu16-gcc7:
     COMPILER: 'g++-7'
   <<: *build
 
-build-ubuntu16-clang:
-  stage: build-test-ubuntu16-clang
+build-ubuntu18-clang:
+  stage: build-test-ubuntu18-clang
   variables:
     OS: 'ubuntu16'
     COMPILER: 'clang++'
@@ -64,28 +55,19 @@ build-arch:
     COMPILER: 'g++'
   <<: *build
 
-cleanup-ubuntu16-gcc5:
-  stage: cleanup-ubuntu16-gcc5
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-5'
-  script:
-    - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
-
 cleanup-ubuntu16-gcc7:
   stage: cleanup-ubuntu16-gcc7
   variables:
     OS: 'ubuntu16'
-    COMPILER: 'gcc5'
+    COMPILER: 'gcc++-7'
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
 
-cleanup-ubuntu16-clang:
-  stage: cleanup-ubuntu16-clang
+cleanup-ubuntu18-clang:
+  stage: cleanup-ubuntu18-clang
   variables:
-    OS: 'ubuntu16'
+    OS: 'ubuntu18'
     COMPILER: 'clang++'
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
@@ -104,7 +86,7 @@ cleanup-arch-gcc:
   stage: cleanup-arch-gcc
   variables:
     OS: 'arch'
-    COMPILER: 'gcc'
+    COMPILER: 'g++'
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
@@ -115,7 +97,7 @@ pages:
   stage: cleanup-arch-gcc
   variables:
     OS: 'arch'
-    COMPILER: 'gcc'
+    COMPILER: 'g++'
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-arch.container
