@@ -198,12 +198,12 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
 TEST_F(Unit_ImageByteMapF, constantData) {
   const auto Address = gtirb::EA(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap.setData(Address, 32, gsl::byte(1)))
+  ASSERT_NO_THROW(this->ByteMap.setData(Address, 32, std::byte(1)))
       << "At Address " << Address << ", min/max={"
       << this->ByteMap.getEAMinMax().first << "/"
       << this->ByteMap.getEAMinMax().second << "}.";
 
-  std::vector<gsl::byte> Expected(32, gsl::byte(1));
+  std::vector<std::byte> Expected(32, std::byte(1));
 
   ASSERT_NO_THROW(this->ByteMap.getData(Address, Expected.size()))
       << "At Address " << Address << ", min/max={"
@@ -264,19 +264,19 @@ TEST_F(Unit_ImageByteMapF, littleEndian) {
   this->ByteMap.setData(Addr4, S);
 
   // Confirm expected byte order
-  std::vector<gsl::byte> expected{
+  std::vector<std::byte> expected{
       // w
-      gsl::byte(0xCD), gsl::byte(0xAB),
+      std::byte(0xCD), std::byte(0xAB),
       // dw
-      gsl::byte(0xEF), gsl::byte(0xBE), gsl::byte(0xAD), gsl::byte(0xDE),
+      std::byte(0xEF), std::byte(0xBE), std::byte(0xAD), std::byte(0xDE),
       // qw
-      gsl::byte(0x01), gsl::byte(0xEF), gsl::byte(0xCD), gsl::byte(0xAB),
-      gsl::byte(0xCE), gsl::byte(0xFA), gsl::byte(0xED), gsl::byte(0xFE),
+      std::byte(0x01), std::byte(0xEF), std::byte(0xCD), std::byte(0xAB),
+      std::byte(0xCE), std::byte(0xFA), std::byte(0xED), std::byte(0xFE),
       // a
-      gsl::byte(0xAF), gsl::byte(0xAC), gsl::byte(0xAE), gsl::byte(0xBF),
+      std::byte(0xAF), std::byte(0xAC), std::byte(0xAE), std::byte(0xBF),
       // s
-      gsl::byte(0x0D), gsl::byte(0xF0), gsl::byte(0xAD), gsl::byte(0xBA),
-      gsl::byte(0xAB)};
+      std::byte(0x0D), std::byte(0xF0), std::byte(0xAD), std::byte(0xBA),
+      std::byte(0xAB)};
 
   // Skip padding of s
   size_t Size = sizeof(W) + sizeof(Dw) + sizeof(Qw) + sizeof(A) + sizeof(S.I) +
@@ -314,35 +314,35 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
   this->ByteMap.setData(Addr4, S);
 
   // Confirm expected byte order
-  std::vector<gsl::byte> Expected{
+  std::vector<std::byte> Expected{
       // w
-      gsl::byte(0xAB),
-      gsl::byte(0xCD),
+      std::byte(0xAB),
+      std::byte(0xCD),
       // dw
-      gsl::byte(0xDE),
-      gsl::byte(0xAD),
-      gsl::byte(0xBE),
-      gsl::byte(0xEF),
+      std::byte(0xDE),
+      std::byte(0xAD),
+      std::byte(0xBE),
+      std::byte(0xEF),
       // qw
-      gsl::byte(0xFE),
-      gsl::byte(0xED),
-      gsl::byte(0xFA),
-      gsl::byte(0xCE),
-      gsl::byte(0xAB),
-      gsl::byte(0xCD),
-      gsl::byte(0xEF),
-      gsl::byte(0x01),
+      std::byte(0xFE),
+      std::byte(0xED),
+      std::byte(0xFA),
+      std::byte(0xCE),
+      std::byte(0xAB),
+      std::byte(0xCD),
+      std::byte(0xEF),
+      std::byte(0x01),
       // a
-      gsl::byte(0xAC),
-      gsl::byte(0xAF),
-      gsl::byte(0xBF),
-      gsl::byte(0xAE),
+      std::byte(0xAC),
+      std::byte(0xAF),
+      std::byte(0xBF),
+      std::byte(0xAE),
       // s
-      gsl::byte(0xBA),
-      gsl::byte(0xAD),
-      gsl::byte(0xF0),
-      gsl::byte(0x0D),
-      gsl::byte(0xAB),
+      std::byte(0xBA),
+      std::byte(0xAD),
+      std::byte(0xF0),
+      std::byte(0x0D),
+      std::byte(0xAB),
   };
 
   // Skip padding of s

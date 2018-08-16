@@ -4,6 +4,10 @@ add_subdirectory(proto)
 
 add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 
+# Force GSL to use std::byte instead of its own byte type.
+# This should be auto-detected but it doesn't seem to work reliably.
+add_compile_options(-DGSL_USE_STD_BYTE)
+
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	#add_compile_options(-wd4251)  # Non-exportable template classes.
         add_compile_options(-wd4100) # unreferenced formal parameter, for protobuf includes

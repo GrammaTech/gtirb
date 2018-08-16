@@ -48,7 +48,7 @@ void ImageByteMap::setByteOrder(boost::endian::order Value) {
   this->ByteOrder = Value;
 }
 
-void ImageByteMap::setData(EA Ea, gsl::span<const gsl::byte> Data) {
+void ImageByteMap::setData(EA Ea, gsl::span<const std::byte> Data) {
   if (Ea >= this->EaMinMax.first &&
       (Ea + EA{(uint64_t)Data.size_bytes()} - EA{1}) <= this->EaMinMax.second) {
     this->ByteMap.setData(Ea, Data);
@@ -58,14 +58,14 @@ void ImageByteMap::setData(EA Ea, gsl::span<const gsl::byte> Data) {
   }
 }
 
-void ImageByteMap::setData(EA Ea, size_t Bytes, gsl::byte Value) {
+void ImageByteMap::setData(EA Ea, size_t Bytes, std::byte Value) {
   auto Span = gsl::make_span(&Value, 1);
   for (uint64_t I = 0; I < Bytes; I++) {
     this->ByteMap.setData(Ea + I, Span);
   }
 }
 
-std::vector<gsl::byte> ImageByteMap::getData(EA X, size_t Bytes) const {
+std::vector<std::byte> ImageByteMap::getData(EA X, size_t Bytes) const {
   if (X >= this->EaMinMax.first &&
       (X + EA{Bytes} - EA{1}) <= this->EaMinMax.second) {
     return this->ByteMap.getData(X, Bytes);

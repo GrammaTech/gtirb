@@ -8,8 +8,8 @@ using namespace gtirb;
 
 TEST(Unit_ByteMap, newRegion) {
   ByteMap B;
-  std::vector<gsl::byte> data = {gsl::byte(1), gsl::byte(2), gsl::byte(3),
-                                 gsl::byte(4)};
+  std::vector<std::byte> data = {std::byte(1), std::byte(2), std::byte(3),
+                                 std::byte(4)};
 
   B.setData(EA(1000), as_bytes(gsl::make_span(data)));
 
@@ -20,8 +20,8 @@ TEST(Unit_ByteMap, newRegion) {
 
 TEST(Unit_ByteMap, secondRegionAfter) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
   B.setData(EA(1000), as_bytes(gsl::make_span(Data1)));
   B.setData(EA(2000), as_bytes(gsl::make_span(Data2)));
 
@@ -35,8 +35,8 @@ TEST(Unit_ByteMap, secondRegionAfter) {
 
 TEST(Unit_ByteMap, secondRegionBefore) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
 
   B.setData(EA(2000), as_bytes(gsl::make_span(Data2)));
   // Leave one byte in between
@@ -52,9 +52,9 @@ TEST(Unit_ByteMap, secondRegionBefore) {
 
 TEST(Unit_ByteMap, thirdRegionBetween) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
-  std::vector<gsl::byte> Data3 = {gsl::byte(7), gsl::byte(8), gsl::byte(9)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
+  std::vector<std::byte> Data3 = {std::byte(7), std::byte(8), std::byte(9)};
 
   B.setData(EA(1000), as_bytes(gsl::make_span(Data1)));
   B.setData(EA(2000), as_bytes(gsl::make_span(Data2)));
@@ -70,8 +70,8 @@ TEST(Unit_ByteMap, thirdRegionBetween) {
 
 TEST(Unit_ByteMap, extendRegionUp) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
 
   B.setData(EA(1000), as_bytes(gsl::make_span(Data1)));
   B.setData(EA(1000 + Data1.size()), as_bytes(gsl::make_span(Data2)));
@@ -83,8 +83,8 @@ TEST(Unit_ByteMap, extendRegionUp) {
 
 TEST(Unit_ByteMap, extendRegionDown) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
 
   B.setData(EA(1000 + Data1.size()), as_bytes(gsl::make_span(Data2)));
   B.setData(EA(1000), as_bytes(gsl::make_span(Data1)));
@@ -96,9 +96,9 @@ TEST(Unit_ByteMap, extendRegionDown) {
 
 TEST(Unit_ByteMap, mergeRegions) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
-  std::vector<gsl::byte> Data3 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
+  std::vector<std::byte> Data3 = {std::byte(4), std::byte(5), std::byte(6)};
 
   B.setData(EA(1000 + Data1.size() + Data2.size()),
             as_bytes(gsl::make_span(Data3)));
@@ -113,26 +113,26 @@ TEST(Unit_ByteMap, mergeRegions) {
 
 TEST(Unit_ByteMap, overwriteExistingData) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5)};
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5)};
 
   B.setData(EA(1000), as_bytes(gsl::make_span(Data1)));
   B.setData(EA(1000), as_bytes(gsl::make_span(Data2)));
 
-  std::vector<gsl::byte> Expected1 = {gsl::byte(4), gsl::byte(5), gsl::byte(3)};
+  std::vector<std::byte> Expected1 = {std::byte(4), std::byte(5), std::byte(3)};
   EXPECT_EQ(B.getData(EA(1000), Expected1.size()), Expected1);
 
   B.setData(EA(1001), as_bytes(gsl::make_span(Data2)));
 
-  std::vector<gsl::byte> Expected2 = {gsl::byte(4), gsl::byte(4), gsl::byte(5)};
+  std::vector<std::byte> Expected2 = {std::byte(4), std::byte(4), std::byte(5)};
   EXPECT_EQ(B.getData(EA(1000), Expected2.size()), Expected2);
 }
 
 TEST(Unit_ByteMap, overlappingRegionsAreInvalid) {
   ByteMap B;
-  std::vector<gsl::byte> Data1 = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
-  std::vector<gsl::byte> Data2 = {gsl::byte(4), gsl::byte(5), gsl::byte(6)};
-  std::vector<gsl::byte> Big(1000);
+  std::vector<std::byte> Data1 = {std::byte(1), std::byte(2), std::byte(3)};
+  std::vector<std::byte> Data2 = {std::byte(4), std::byte(5), std::byte(6)};
+  std::vector<std::byte> Big(1000);
 
   B.setData(EA(1000), as_bytes(gsl::make_span(Data1)));
   B.setData(EA(2000), as_bytes(gsl::make_span(Data2)));
@@ -152,7 +152,7 @@ TEST(Unit_ByteMap, overlappingRegionsAreInvalid) {
 
 TEST(Unit_ByteMap, getDataUnmapped) {
   ByteMap B;
-  std::vector<gsl::byte> Data = {gsl::byte(1), gsl::byte(2), gsl::byte(3)};
+  std::vector<std::byte> Data = {std::byte(1), std::byte(2), std::byte(3)};
 
   B.setData(EA(1000), as_bytes(gsl::make_span(Data)));
 
@@ -165,9 +165,9 @@ TEST(Unit_ByteMap, getDataUnmapped) {
 
 TEST(Unit_ByteMap, protobufRoundTrip) {
   ByteMap Original;
-  auto a = gsl::byte('a');
-  auto b = gsl::byte('b');
-  auto c = gsl::byte('c');
+  auto a = std::byte('a');
+  auto b = std::byte('b');
+  auto c = std::byte('c');
   Original.setData(EA(1), gsl::make_span(&a, 1));
   Original.setData(EA(2), gsl::make_span(&b, 1));
   Original.setData(EA(5000), gsl::make_span(&c, 1));
@@ -177,7 +177,7 @@ TEST(Unit_ByteMap, protobufRoundTrip) {
   Original.toProtobuf(&Message);
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.getData(EA(1), 1)[0], gsl::byte('a'));
-  EXPECT_EQ(Result.getData(EA(2), 1)[0], gsl::byte('b'));
-  EXPECT_EQ(Result.getData(EA(5000), 1)[0], gsl::byte('c'));
+  EXPECT_EQ(Result.getData(EA(1), 1)[0], std::byte('a'));
+  EXPECT_EQ(Result.getData(EA(2), 1)[0], std::byte('b'));
+  EXPECT_EQ(Result.getData(EA(5000), 1)[0], std::byte('c'));
 }
