@@ -15,9 +15,9 @@ namespace gtirb {
 class DataObject;
 class ImageByteMap;
 class DataObject;
-using DataSet = std::vector<DataObject>;
+using DataSet = std::vector<DataObject *>;
 class Section;
-using SectionSet = std::vector<Section>;
+using SectionSet = std::vector<Section *>;
 
 ///
 /// \enum FileFormat
@@ -57,31 +57,14 @@ enum class ISAID : uint8_t {
 /// \class Module
 ///
 class GTIRB_EXPORT_API Module : public Node {
-public:
   ///
   /// Default constructor.
   ///
-  Module();
+  Module(Context &C);
 
-  ///
-  /// Modules can not be copied due to unique_ptrs.
-  ///
-  Module(const Module&) = delete;
+public:
 
-  ///
-  /// Move constructor
-  ///
-  Module(Module&&);
-
-  ///
-  /// Move assignment
-  ///
-  Module& operator=(Module&&) = default;
-
-  ///
-  /// Trivial virtual destructor.
-  ///
-  ~Module() override;
+  static Module *Create(Context &C) { return new (C) Module(C); }
 
   ///
   /// Set the location of the corresponding binary on disk.
@@ -157,16 +140,16 @@ public:
 
   const CFG& getCFG() const;
   CFG& getCFG();
-  const std::vector<DataObject>& getData() const;
-  std::vector<DataObject>& getData();
-  std::vector<Section>& getSections();
-  const std::vector<Section>& getSections() const;
+  const DataSet& getData() const;
+  DataSet& getData();
+  SectionSet& getSections();
+  const SectionSet& getSections() const;
   SymbolicExpressionSet& getSymbolicExpressions();
   const SymbolicExpressionSet& getSymbolicExpressions() const;
 
   using MessageType = proto::Module;
   void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  static Module *fromProtobuf(Context &C, const MessageType& message);
 
 private:
   std::string BinaryPath{};
@@ -177,7 +160,7 @@ private:
   std::string Name{};
   std::unique_ptr<CFG> Cfg;
   std::unique_ptr<DataSet> Data;
-  std::unique_ptr<ImageByteMap> ImageByteMap_;
+  ImageByteMap *ImageBytes;
   std::unique_ptr<SectionSet> Sections;
   std::unique_ptr<SymbolSet> Symbols;
   std::unique_ptr<SymbolicExpressionSet> SymbolicOperands;

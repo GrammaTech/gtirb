@@ -146,8 +146,8 @@ private:
 /// Object can be any type which specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. DataObject).
 ///
-template <typename T> EA addressLimit(const T& Object) {
-  return Object.getAddress() + Object.getSize();
+template <typename T> EA addressLimit(const T *Object) {
+  return Object->getAddress() + Object->getSize();
 }
 
 ///
@@ -156,11 +156,11 @@ template <typename T> EA addressLimit(const T& Object) {
 /// Object can be any type which specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. DataObject).
 ///
-template <typename T> bool containsEA(const T& Object, EA Ea) {
-  if (Object.getAddress() == EA()) {
+template <typename T> bool containsEA(const T *Object, EA Ea) {
+  if (Object->getAddress() == EA()) {
     return false;
   } else {
-    return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
+    return Object->getAddress() <= Ea && addressLimit(Object) > Ea;
   }
 }
 } // namespace gtirb

@@ -5,11 +5,6 @@
 
 using namespace gtirb;
 
-Symbol::Symbol(EA X) : Node(), Ea(X) {}
-
-Symbol::Symbol(EA X, std::string Name_, StorageKind StorageKind_)
-    : Node(), Ea(X), Name(Name_), Storage(StorageKind_) {}
-
 Symbol::Symbol(EA X, std::string Name_, const DataObject& Referent,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
@@ -63,11 +58,11 @@ void Symbol::toProtobuf(MessageType* Message) const {
               *Message->mutable_data_referent_uuid());
 }
 
-void Symbol::fromProtobuf(const MessageType& Message) {
-  setNodeUUIDFromBytes(this, Message.uuid());
-  this->Ea = EA(Message.ea());
-  this->Name = Message.name();
-  this->Storage = static_cast<StorageKind>(Message.storage_kind());
-  this->CodeReferent = {uuidFromBytes(Message.code_referent_uuid())};
-  this->DataReferent = {uuidFromBytes(Message.data_referent_uuid())};
+Symbol *Symbol::fromProtobuf(Context &C, const MessageType& Message) {
+  Symbol* S = Symbol::Create(C, EA(Message.ea()), Message.name(),
+                             static_cast<StorageKind>(Message.storage_kind()));
+  setNodeUUIDFromBytes(S, Message.uuid());
+  S->CodeReferent = {uuidFromBytes(Message.code_referent_uuid())};
+  S->DataReferent = {uuidFromBytes(Message.data_referent_uuid())};
+  return S;
 }

@@ -13,8 +13,9 @@ namespace gtirb {
 template <typename NodeT> class NodeRef {
 public:
   NodeRef() = default;
-  NodeRef(UUID Uuid_) : Uuid(Uuid_) {}
-  NodeRef(const NodeT& node) : Uuid(node.getUUID()){};
+  NodeRef(const UUID& Uuid_) : Uuid(Uuid_) {}
+  NodeRef(const NodeT& node) : NodeRef(node.getUUID()){};
+  NodeRef(const NodeT* node) : NodeRef(*node) {}
   NodeRef(const NodeRef&) = default;
   NodeRef(NodeRef&&) = default;
   NodeRef& operator=(NodeRef&&) = default;

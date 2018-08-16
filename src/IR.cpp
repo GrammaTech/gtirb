@@ -11,21 +11,16 @@
 
 using namespace gtirb;
 
-IR::IR() = default;
-IR::IR(IR&&) = default;
-IR& IR::operator=(IR&&) = default;
-IR::~IR() = default;
+std::vector<Module *>& IR::getModules() { return this->Modules; }
 
-std::vector<Module>& IR::getModules() { return this->Modules; }
-
-const std::vector<Module>& IR::getModules() const { return this->Modules; }
+const std::vector<Module *>& IR::getModules() const { return this->Modules; }
 
 std::vector<const Module*> IR::getModulesWithPreferredEA(EA X) const {
   std::vector<const Module*> Results;
 
-  for (const auto& m : this->Modules) {
-    if (m.getPreferredEA() == X) {
-      Results.push_back(&m);
+  for (const auto *m : this->Modules) {
+    if (m->getPreferredEA() == X) {
+      Results.push_back(m);
     }
   }
 
@@ -35,10 +30,10 @@ std::vector<const Module*> IR::getModulesWithPreferredEA(EA X) const {
 std::vector<const Module*> IR::getModulesContainingEA(EA X) const {
   std::vector<const Module*> Results;
 
-  for (const auto& M : this->Modules) {
-    auto MinMax = M.getImageByteMap().getEAMinMax();
+  for (const auto *M : this->Modules) {
+    auto MinMax = M->getImageByteMap().getEAMinMax();
     if ((X >= MinMax.first) && (X < MinMax.second)) {
-      Results.push_back(&M);
+      Results.push_back(M);
     }
   }
 
@@ -90,10 +85,12 @@ void IR::toProtobuf(MessageType* Message) const {
   containerToProtobuf(this->Tables, Message->mutable_tables());
 }
 
-void IR::fromProtobuf(const MessageType& Message) {
-  setNodeUUIDFromBytes(this, Message.uuid());
-  containerFromProtobuf(this->Modules, Message.modules());
-  containerFromProtobuf(this->Tables, Message.tables());
+IR *IR::fromProtobuf(Context &C, const MessageType& Message) {
+  auto *I = IR::Create(C);
+  setNodeUUIDFromBytes(I, Message.uuid());
+  containerFromProtobuf(C, I->Modules, Message.modules());
+  containerFromProtobuf(C, I->Tables, Message.tables());
+  return I;
 }
 
 void IR::save(std::ostream& Out) const {
@@ -102,8 +99,8 @@ void IR::save(std::ostream& Out) const {
   Message.SerializeToOstream(&Out);
 }
 
-void IR::load(std::istream& In) {
+IR *IR::load(Context &C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  this->fromProtobuf(Message);
+  return IR::fromProtobuf(C, Message);
 }

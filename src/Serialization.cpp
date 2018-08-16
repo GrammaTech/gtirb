@@ -38,9 +38,9 @@ std::string toProtobuf(const UUID& Val) {
   return Result;
 }
 
-void fromProtobuf(EA& Result, const uint64_t& Message) { Result = EA(Message); }
+void fromProtobuf(Context &, EA& Result, const uint64_t& Message) { Result = EA(Message); }
 
-void fromProtobuf(UUID& Result, const std::string& Message) {
+void fromProtobuf(Context &, UUID& Result, const std::string& Message) {
   Result = uuidFromBytes(Message);
 }
 

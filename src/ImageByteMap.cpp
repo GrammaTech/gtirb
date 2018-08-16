@@ -51,7 +51,7 @@ void ImageByteMap::setByteOrder(boost::endian::order Value) {
 void ImageByteMap::setData(EA Ea, gsl::span<const std::byte> Data) {
   if (Ea >= this->EaMinMax.first &&
       (Ea + EA{(uint64_t)Data.size_bytes()} - EA{1}) <= this->EaMinMax.second) {
-    this->ByteMap.setData(Ea, Data);
+    this->BMap.setData(Ea, Data);
   } else {
     throw std::out_of_range(
         "Attempt to set data at an EA out of range of the min and max EA.");
@@ -61,14 +61,14 @@ void ImageByteMap::setData(EA Ea, gsl::span<const std::byte> Data) {
 void ImageByteMap::setData(EA Ea, size_t Bytes, std::byte Value) {
   auto Span = gsl::make_span(&Value, 1);
   for (uint64_t I = 0; I < Bytes; I++) {
-    this->ByteMap.setData(Ea + I, Span);
+    this->BMap.setData(Ea + I, Span);
   }
 }
 
 std::vector<std::byte> ImageByteMap::getData(EA X, size_t Bytes) const {
   if (X >= this->EaMinMax.first &&
       (X + EA{Bytes} - EA{1}) <= this->EaMinMax.second) {
-    return this->ByteMap.getData(X, Bytes);
+    return this->BMap.getData(X, Bytes);
   }
 
   throw std::out_of_range(
@@ -77,7 +77,7 @@ std::vector<std::byte> ImageByteMap::getData(EA X, size_t Bytes) const {
 
 void ImageByteMap::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  this->ByteMap.toProtobuf(Message->mutable_byte_map());
+  this->BMap.toProtobuf(Message->mutable_byte_map());
   Message->set_file_name(this->FileName);
   Message->set_ea_min(this->EaMinMax.first);
   Message->set_ea_max(this->EaMinMax.second);
@@ -87,13 +87,15 @@ void ImageByteMap::toProtobuf(MessageType* Message) const {
   Message->set_is_relocated(this->IsRelocated);
 }
 
-void ImageByteMap::fromProtobuf(const MessageType& Message) {
-  setNodeUUIDFromBytes(this, Message.uuid());
-  this->ByteMap.fromProtobuf(Message.byte_map());
-  this->FileName = Message.file_name();
-  this->EaMinMax = {EA(Message.ea_min()), EA(Message.ea_max())};
-  this->BaseAddress = EA(Message.base_address());
-  this->EntryPointAddress = EA(Message.entry_point_address());
-  this->RebaseDelta = Message.rebase_delta();
-  this->IsRelocated = Message.is_relocated();
+ImageByteMap *ImageByteMap::fromProtobuf(Context &C, const MessageType& Message) {
+  auto *IBM = ImageByteMap::Create(C);
+  setNodeUUIDFromBytes(IBM, Message.uuid());
+  IBM->BMap.fromProtobuf(C, Message.byte_map());
+  IBM->FileName = Message.file_name();
+  IBM->EaMinMax = {EA(Message.ea_min()), EA(Message.ea_max())};
+  IBM->BaseAddress = EA(Message.base_address());
+  IBM->EntryPointAddress = EA(Message.entry_point_address());
+  IBM->RebaseDelta = Message.rebase_delta();
+  IBM->IsRelocated = Message.is_relocated();
+  return IBM;
 }

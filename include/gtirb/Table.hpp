@@ -13,6 +13,8 @@ class Table;
 }
 
 namespace gtirb {
+class Context;
+
 namespace table {
 using InnerValueType = std::variant<EA,                       //
                                     int64_t,                  //
@@ -55,5 +57,6 @@ using Table = std::variant<std::map<EA, table::ValueType>,          //
                            std::vector<InstructionRef>>;
 
 GTIRB_EXPORT_API proto::Table toProtobuf(const Table& Table);
-GTIRB_EXPORT_API void fromProtobuf(Table& Result, const proto::Table& Message);
+GTIRB_EXPORT_API void fromProtobuf(Context& C, Table& Result,
+                                   const proto::Table& Message);
 } // namespace gtirb

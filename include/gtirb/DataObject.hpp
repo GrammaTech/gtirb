@@ -16,25 +16,15 @@ namespace gtirb {
 /// the data bytes, which are kept in the ImageByteMap.
 ///
 class GTIRB_EXPORT_API DataObject : public Node {
-public:
-  // Default constructor required for serialization.
   DataObject() = default;
 
-  DataObject(EA Address_, uint64_t Size_) : Address(Address_), Size(Size_) {}
+  DataObject(EA Address, uint64_t Size) : Node(), Address(Address), Size(Size) {}
 
-  ///
-  /// Copy constructor. Assigns a new UUID to the copy.
-  ///
-  explicit DataObject(const DataObject&) = default;
-  ///
-  /// Move constructor
-  ///
-  DataObject(DataObject&&) = default;
-
-  ///
-  /// Move assignment
-  ///
-  DataObject& operator=(DataObject&&) = default;
+public:
+  static DataObject *Create(Context &C) { return new (C) DataObject; }
+  static DataObject *Create(Context &C, EA Address, uint64_t Size) {
+    return new (C) DataObject(Address, Size);
+  }
 
   EA getAddress() const;
 
@@ -42,7 +32,7 @@ public:
 
   using MessageType = proto::DataObject;
   void toProtobuf(MessageType* Message) const;
-  void fromProtobuf(const MessageType& Message);
+  static DataObject *fromProtobuf(Context &C, const MessageType& Message);
 
 private:
   EA Address{0};

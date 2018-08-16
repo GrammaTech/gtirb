@@ -11,24 +11,16 @@ namespace gtirb {
 ///
 /// \class Section
 class GTIRB_EXPORT_API Section : public Node {
-public:
   Section() = default;
-  Section(std::string N, EA Address, uint64_t Size);
+  Section(const std::string &Name, EA Address, uint64_t Size)
+      : Node(), Name(Name), Address(Address), Size(Size) {}
 
-  ///
-  /// Copy constructor. Assigns a new UUID to the copy.
-  ///
-  explicit Section(const Section& Other) = default;
-
-  ///
-  /// Move constructor
-  ///
-  Section(Section&&) = default;
-
-  ///
-  /// Move assignment
-  ///
-  Section& operator=(Section&&) = default;
+public:
+  static Section* Create(Context& C) { return new (C) Section; }
+  static Section* Create(Context& C, const std::string& Name, EA Address,
+                         uint64_t Size) {
+    return new (C) Section(Name, Address, Size);
+  }
 
   bool operator==(const Section& Other) const;
   bool operator!=(const Section& Other) const;
@@ -39,7 +31,7 @@ public:
 
   using MessageType = proto::Section;
   void toProtobuf(MessageType* Message) const;
-  void fromProtobuf(const MessageType& Message);
+  static Section *fromProtobuf(Context &C, const MessageType& Message);
 
 private:
   std::string Name;

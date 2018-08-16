@@ -22,25 +22,10 @@ struct is_std_array<std::array<T, N>> : std::true_type {};
 /// Contains the loaded raw image data for the module (binary).
 ///
 class GTIRB_EXPORT_API ImageByteMap : public Node {
-public:
   ImageByteMap() = default;
 
-  ///
-  /// Copy constructor. Assigns a new UUID to the copy.
-  ///
-  explicit ImageByteMap(const ImageByteMap&) = default;
-
-  ///
-  /// Move constructor
-  ///
-  ImageByteMap(ImageByteMap&&) = default;
-
-  ///
-  /// Move assignment
-  ///
-  ImageByteMap& operator=(ImageByteMap&&) = default;
-
-  ~ImageByteMap() override = default;
+public:
+  static ImageByteMap *Create(Context &C) { return new (C) ImageByteMap; }
 
   ///
   /// \return     Sets the file name of the image.
@@ -176,9 +161,9 @@ public:
     if (this->ByteOrder != boost::endian::order::native) {
       T reversed = boost::endian::conditional_reverse(
           Data, this->ByteOrder, boost::endian::order::native);
-      this->ByteMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
+      this->BMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
     } else {
-      this->ByteMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
+      this->BMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
     }
   }
 
@@ -260,7 +245,7 @@ public:
 
   using MessageType = proto::ImageByteMap;
   void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  static ImageByteMap *fromProtobuf(Context &C, const MessageType& message);
 
 private:
   template <typename T> T getDataNoSwap(EA Ea) {
@@ -277,7 +262,7 @@ private:
   }
 
   // Storage for the entire contents of the loaded image.
-  gtirb::ByteMap ByteMap;
+  gtirb::ByteMap BMap;
   std::string FileName;
   std::pair<gtirb::EA, gtirb::EA> EaMinMax{};
   EA BaseAddress{};

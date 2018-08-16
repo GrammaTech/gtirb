@@ -4,9 +4,6 @@
 
 using namespace gtirb;
 
-Section::Section(std::string N, EA Ea, uint64_t S)
-    : Node(), Name(N), Address(Ea), Size(S) {}
-
 const std::string& Section::getName() const { return this->Name; }
 
 uint64_t Section::getSize() const { return this->Size; }
@@ -29,9 +26,9 @@ void Section::toProtobuf(MessageType* Message) const {
   Message->set_address(this->Address);
 }
 
-void Section::fromProtobuf(const MessageType& Message) {
-  setNodeUUIDFromBytes(this, Message.uuid());
-  this->Name = Message.name();
-  this->Size = Message.size();
-  this->Address = EA(Message.address());
+Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
+  auto* S =
+      Section::Create(C, Message.name(), EA(Message.address()), Message.size());
+  setNodeUUIDFromBytes(S, Message.uuid());
+  return S;
 }

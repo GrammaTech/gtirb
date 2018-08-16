@@ -20,33 +20,21 @@ namespace gtirb {
 /// A basic block.
 ///
 class GTIRB_EXPORT_API Block : public Node {
-public:
-  // Default constructor
   Block() = default;
 
   ///
-  /// Copy constructor. Assigns a new UUID to the copy.
-  ///
-  explicit Block(const Block&) = default;
-  ///
   /// Construct an empty block
   ///
-  Block(EA Address, uint64_t Size, uint64_t DecodeMode = 0);
+  Block(EA Address, uint64_t Size, uint64_t DecodeMode)
+      : Node(), Address(Address), Size(Size), DecodeMode(DecodeMode) {}
 
-  ///
-  /// Move constructor
-  ///
-  Block(Block&&) = default;
+public:
 
-  ///
-  /// Move assignment
-  ///
-  Block& operator=(Block&&) = default;
-
-  ///
-  /// Defaulted trivial destructor.
-  ///
-  ~Block() override = default;
+  static Block *Create(Context &C) { return new (C) Block; }
+  static Block *Create(Context &C, EA Address, uint64_t Size,
+                       uint64_t DecodeMode = 0) {
+    return new (C) Block(Address, Size, DecodeMode);
+  }
 
   EA getAddress() const;
   uint64_t getSize() const;
@@ -54,7 +42,7 @@ public:
 
   using MessageType = proto::Block;
   void toProtobuf(MessageType* Message) const;
-  void fromProtobuf(const MessageType& Message);
+  static Block *fromProtobuf(Context &C, const MessageType& Message);
 
 private:
   EA Address{};
@@ -73,7 +61,7 @@ struct GTIRB_EXPORT_API InstructionRef {
 
   using MessageType = proto::InstructionRef;
   void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void fromProtobuf(Context &, const MessageType& message);
 };
 
 } // namespace gtirb

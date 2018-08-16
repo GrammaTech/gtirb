@@ -15,6 +15,8 @@ class ByteMap;
 }
 
 namespace gtirb {
+class Context;
+
 ///
 /// \class ByteMap
 ///
@@ -40,7 +42,7 @@ public:
 
   using MessageType = proto::ByteMap;
   void toProtobuf(MessageType* Message) const;
-  void fromProtobuf(const MessageType& Message);
+  void fromProtobuf(Context &C, const MessageType& Message);
 
   struct Region {
     EA Address;

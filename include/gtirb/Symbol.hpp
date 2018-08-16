@@ -26,40 +26,22 @@ public:
     Local = proto::Storage_Local
   };
 
-  ///
-  /// Default constructor.
-  ///
-  Symbol() = default;
-
-  ///
-  /// This constructor sets the Effective Address on construction.
-  ///
-  Symbol(EA X);
-  Symbol(EA X, std::string Name, StorageKind StorageKind = StorageKind::Extern);
-  Symbol(EA X, std::string Name, const DataObject& Referent,
-         StorageKind StorageKind = StorageKind::Extern);
-  Symbol(EA X, std::string Name, const Block& Referent,
-         StorageKind StorageKind = StorageKind::Extern);
-
-  ///
-  /// Copy constructor. Assigns a new UUID to the copy.
-  ///
-  explicit Symbol(const Symbol&) = default;
-
-  ///
-  /// Move constructor
-  ///
-  Symbol(Symbol&&) = default;
-
-  ///
-  /// Move assignment
-  ///
-  Symbol& operator=(Symbol&&) = default;
-
-  ///
-  /// Defaulted trivial destructor.
-  ///
-  ~Symbol() override = default;
+  static Symbol* Create(Context& C) { return new (C) Symbol; }
+  static Symbol* Create(Context& C, EA X) { return new (C) Symbol(X); }
+  static Symbol* Create(Context& C, EA X, const std::string& Name,
+                        StorageKind Kind = StorageKind::Extern) {
+    return new (C) Symbol(X, Name, Kind);
+  }
+  static Symbol* Create(Context& C, EA X, const std::string& Name,
+                        const DataObject& Referent,
+                        StorageKind Kind = StorageKind::Extern) {
+    return new (C) Symbol(X, Name, Referent, Kind);
+  }
+  static Symbol* Create(Context& C, EA X, const std::string& Name,
+                        const Block& Referent,
+                        StorageKind Kind = StorageKind::Extern) {
+    return new (C) Symbol(X, Name, Referent, Kind);
+  }
 
   void setEA(gtirb::EA X);
   gtirb::EA getEA() const;
@@ -88,16 +70,32 @@ public:
   NodeRef<Block> getCodeReferent() const;
 
   void setStorageKind(Symbol::StorageKind X);
-  gtirb::Symbol::StorageKind getStorageKind() const;
+  Symbol::StorageKind getStorageKind() const;
 
   using MessageType = proto::Symbol;
   void toProtobuf(MessageType* Message) const;
-  void fromProtobuf(const MessageType& Message);
+  static Symbol *fromProtobuf(Context &C, const MessageType& Message);
 
 private:
-  gtirb::EA Ea{};
+  ///
+  /// Default constructor.
+  ///
+  Symbol() = default;
+
+  ///
+  /// This constructor sets the Effective Address on construction.
+  ///
+  Symbol(EA X) : Node(), Ea(X) {}
+  Symbol(EA X, std::string Name, StorageKind Kind = StorageKind::Extern)
+      : Node(), Ea(X), Name(Name), Storage(Kind) {}
+  Symbol(EA X, std::string Name, const DataObject& Referent,
+         StorageKind Kind = StorageKind::Extern);
+  Symbol(EA X, std::string Name, const Block& Referent,
+    StorageKind Kind = StorageKind::Extern);
+
+  EA Ea{};
   std::string Name;
-  gtirb::Symbol::StorageKind Storage{StorageKind::Extern};
+  Symbol::StorageKind Storage{StorageKind::Extern};
   NodeRef<DataObject> DataReferent;
   NodeRef<Block> CodeReferent;
 };

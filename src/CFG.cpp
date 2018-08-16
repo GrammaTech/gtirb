@@ -5,9 +5,9 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addBlock(CFG& Cfg, Block&& Block) {
+CFG::vertex_descriptor addBlock(CFG& Cfg, Block *Block) {
   auto Descriptor = add_vertex(Cfg);
-  Cfg[Descriptor] = std::move(Block);
+  Cfg[Descriptor] = Block;
   return Descriptor;
 }
 
@@ -32,8 +32,8 @@ proto::CFG toProtobuf(const CFG& Cfg) {
   std::for_each(
       EdgeRange.first, EdgeRange.second, [MessageEdges, &Cfg](const auto& E) {
         auto M = MessageEdges->Add();
-        nodeUUIDToBytes(&Cfg[source(E, Cfg)], *M->mutable_source_uuid());
-        nodeUUIDToBytes(&Cfg[target(E, Cfg)], *M->mutable_target_uuid());
+        nodeUUIDToBytes(Cfg[source(E, Cfg)], *M->mutable_source_uuid());
+        nodeUUIDToBytes(Cfg[target(E, Cfg)], *M->mutable_target_uuid());
         auto Label = Cfg[E];
         switch (Label.index()) {
         case 1:
@@ -52,15 +52,14 @@ proto::CFG toProtobuf(const CFG& Cfg) {
   return Message;
 }
 
-void fromProtobuf(CFG& Result, const proto::CFG& Message) {
+void fromProtobuf(Context &C, CFG& Result, const proto::CFG& Message) {
   // While adding blocks, remember UUID -> vertex mapping
   std::map<UUID, CFG::vertex_descriptor> BlockMap;
   std::for_each(Message.blocks().begin(), Message.blocks().end(),
-                [&Result, &BlockMap](const auto& M) {
-                  Block B;
-                  fromProtobuf(B, M);
-                  auto Id = B.getUUID();
-                  BlockMap[Id] = addBlock(Result, std::move(B));
+                [&Result, &BlockMap, &C](const auto& M) {
+                  Block *B = Block::fromProtobuf(C, M);
+                  auto Id = B->getUUID();
+                  BlockMap[Id] = addBlock(Result, B);
                 });
   std::for_each(Message.edges().begin(), Message.edges().end(),
                 [&Result, &BlockMap](const auto& M) {

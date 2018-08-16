@@ -53,34 +53,13 @@ class Module;
 /// \enddot
 ///
 class GTIRB_EXPORT_API IR : public Node {
+  IR() = default;
+
 public:
-  ///
-  /// Default constructor.
-  ///
-  IR();
+  static IR *Create(Context &C) { return new (C) IR; }
 
-  ///
-  /// IR may not be copied due to Modules.
-  ///
-  IR(const IR&) = delete;
-
-  ///
-  /// Move constructor
-  ///
-  IR(IR&&);
-
-  ///
-  /// Move assignment
-  ///
-  IR& operator=(IR&&);
-
-  ///
-  /// Trivial virtual destructor.
-  ///
-  ~IR() override;
-
-  std::vector<Module>& getModules();
-  const std::vector<Module>& getModules() const;
+  std::vector<Module *>& getModules();
+  const std::vector<Module *>& getModules() const;
 
   ///
   /// Get all modules having the given Preferred EA
@@ -106,11 +85,11 @@ public:
   ///
   /// Deserialize IR from an input stream.
   ///
-  void load(std::istream& In);
+  static IR *load(Context &C, std::istream& In);
 
   using MessageType = proto::IR;
   void toProtobuf(MessageType* Message) const;
-  void fromProtobuf(const MessageType& Message);
+  static IR *fromProtobuf(Context &C, const MessageType& Message);
 
   // ----------------------------------------------------------------------------------------
   // Table Properties
@@ -164,6 +143,6 @@ public:
 
 private:
   std::map<std::string, gtirb::Table> Tables;
-  std::vector<Module> Modules;
+  std::vector<Module *> Modules;
 };
 } // namespace gtirb

@@ -1,4 +1,5 @@
 #include "Table.hpp"
+#include "gtirb/Context.hpp"
 #include "Serialization.hpp"
 #include <proto/Table.pb.h>
 #include <variant>
@@ -100,7 +101,8 @@ proto::Table toProtobuf(const Table& table) {
   return Message;
 }
 
-void fromProtobuf(table::ValueType& Value, const proto::Value& Message) {
+void fromProtobuf(Context& C, table::ValueType& Value,
+                  const proto::Value& Message) {
   switch (Message.value_case()) {
   case proto::Value::kEa:
     Value = EA(Message.ea());
@@ -116,13 +118,13 @@ void fromProtobuf(table::ValueType& Value, const proto::Value& Message) {
     break;
   case proto::Value::kInstruction: {
     InstructionRef Ref;
-    fromProtobuf(Ref, Message.instruction());
+    Ref.fromProtobuf(C, Message.instruction());
     Value = std::move(Ref);
     break;
   }
   case proto::Value::kMap: {
     table::InnerMapType Map;
-    containerFromProtobuf(Map, Message.map().contents());
+    containerFromProtobuf(C, Map, Message.map().contents());
     Value = std::move(Map);
     break;
   }
@@ -132,7 +134,7 @@ void fromProtobuf(table::ValueType& Value, const proto::Value& Message) {
   }
 }
 
-void fromProtobuf(table::InnerValueType& Value,
+void fromProtobuf(Context& C, table::InnerValueType& Value,
                   const proto::InnerValue& Message) {
   switch (Message.value_case()) {
   case proto::InnerValue::kEa:
@@ -149,37 +151,37 @@ void fromProtobuf(table::InnerValueType& Value,
     break;
   case proto::InnerValue::kInstruction: {
     InstructionRef Ref;
-    fromProtobuf(Ref, Message.instruction());
+    Ref.fromProtobuf(C, Message.instruction());
     Value = std::move(Ref);
     break;
   }
   case proto::InnerValue::kEaVector: {
     std::vector<EA> V;
-    containerFromProtobuf(V, Message.ea_vector().contents());
+    containerFromProtobuf(C, V, Message.ea_vector().contents());
     Value = std::move(V);
     break;
   }
   case proto::InnerValue::kIntVector: {
     std::vector<int64_t> V;
-    containerFromProtobuf(V, Message.int_vector().contents());
+    containerFromProtobuf(C, V, Message.int_vector().contents());
     Value = std::move(V);
     break;
   }
   case proto::InnerValue::kStringVector: {
     std::vector<std::string> V;
-    containerFromProtobuf(V, Message.string_vector().contents());
+    containerFromProtobuf(C, V, Message.string_vector().contents());
     Value = std::move(V);
     break;
   }
   case proto::InnerValue::kUuidVector: {
     std::vector<UUID> V;
-    containerFromProtobuf(V, Message.uuid_vector().contents());
+    containerFromProtobuf(C, V, Message.uuid_vector().contents());
     Value = std::move(V);
     break;
   }
   case proto::InnerValue::kInstructionVector: {
     std::vector<InstructionRef> v;
-    containerFromProtobuf(v, Message.instruction_vector().contents());
+    containerFromProtobuf(C, v, Message.instruction_vector().contents());
     Value = std::move(v);
     break;
   }
@@ -190,23 +192,23 @@ void fromProtobuf(table::InnerValueType& Value,
   }
 }
 
-void fromProtobuf(Table& Result, const proto::Table& Message) {
+void fromProtobuf(Context &C, Table& Result, const proto::Table& Message) {
   switch (Message.value_case()) {
   case proto::Table::kByEa: {
     std::map<EA, table::ValueType> Val;
-    containerFromProtobuf(Val, Message.by_ea().contents());
+    containerFromProtobuf(C, Val, Message.by_ea().contents());
     Result = std::move(Val);
     break;
   }
   case proto::Table::kByInt: {
     std::map<int64_t, table::ValueType> Val;
-    containerFromProtobuf(Val, Message.by_int().contents());
+    containerFromProtobuf(C, Val, Message.by_int().contents());
     Result = std::move(Val);
     break;
   }
   case proto::Table::kByString: {
     std::map<std::string, table::ValueType> Val;
-    containerFromProtobuf(Val, Message.by_string().contents());
+    containerFromProtobuf(C, Val, Message.by_string().contents());
     Result = std::move(Val);
     break;
   }
@@ -214,9 +216,9 @@ void fromProtobuf(Table& Result, const proto::Table& Message) {
     // Special case, UUIDs stored in string form by protobuf
     std::map<UUID, table::ValueType> Val;
     const auto& field = Message.by_uuid().contents();
-    std::for_each(field.begin(), field.end(), [&Val](const auto& M) {
+    std::for_each(field.begin(), field.end(), [&Val, &C](const auto& M) {
       table::ValueType V;
-      fromProtobuf(V, M.second);
+      fromProtobuf(C, V, M.second);
       Val.emplace(uuidFromString(M.first), std::move(V));
     });
     Result = std::move(Val);
@@ -226,9 +228,9 @@ void fromProtobuf(Table& Result, const proto::Table& Message) {
     std::vector<table::InnerMapType> Values;
     auto& field = Message.map_vector().contents();
 
-    std::for_each(field.begin(), field.end(), [&Values](auto V) {
+    std::for_each(field.begin(), field.end(), [&Values, &C](auto V) {
       table::InnerMapType Map;
-      containerFromProtobuf(Map, V.contents());
+      containerFromProtobuf(C, Map, V.contents());
       Values.push_back(std::move(Map));
     });
     Result = std::move(Values);
@@ -237,31 +239,31 @@ void fromProtobuf(Table& Result, const proto::Table& Message) {
 
   case proto::Table::kEaVector: {
     std::vector<EA> Val;
-    containerFromProtobuf(Val, Message.ea_vector().contents());
+    containerFromProtobuf(C, Val, Message.ea_vector().contents());
     Result = std::move(Val);
     break;
   }
   case proto::Table::kIntVector: {
     std::vector<int64_t> Val;
-    containerFromProtobuf(Val, Message.int_vector().contents());
+    containerFromProtobuf(C, Val, Message.int_vector().contents());
     Result = std::move(Val);
     break;
   }
   case proto::Table::kStringVector: {
     std::vector<std::string> Val;
-    containerFromProtobuf(Val, Message.string_vector().contents());
+    containerFromProtobuf(C, Val, Message.string_vector().contents());
     Result = std::move(Val);
     break;
   }
   case proto::Table::kUuidVector: {
     std::vector<UUID> V;
-    containerFromProtobuf(V, Message.uuid_vector().contents());
+    containerFromProtobuf(C, V, Message.uuid_vector().contents());
     Result = std::move(V);
     break;
   }
   case proto::Table::kInstructionVector: {
     std::vector<InstructionRef> V;
-    containerFromProtobuf(V, Message.instruction_vector().contents());
+    containerFromProtobuf(C, V, Message.instruction_vector().contents());
     Result = std::move(V);
     break;
   }

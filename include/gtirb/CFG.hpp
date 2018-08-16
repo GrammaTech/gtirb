@@ -23,7 +23,7 @@ using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
                                   boost::vecS,  // preserve vertex order
                                   boost::bidirectionalS, // sucessor and
                                                          // predecessor edges
-                                  Block,                 // vertices are blocks
+                                  Block *,               // vertices are blocks
                                   EdgeLabel>;            // edges have labels
 
 template <typename Value, typename Graph>
@@ -52,8 +52,8 @@ private:
 
   bool equal(const self_type& other) const { return this->it == other.it; }
 
-  Value& dereference() const { return (*cfg)[*this->it]; }
-
+  Value &dereference() const { return *(*cfg)[*this->it]; }
+  
   typename Graph::vertex_iterator it;
   gsl::not_null<Graph*> cfg;
 };
@@ -65,7 +65,7 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 /// Move a basic block into the graph.
 ///
 /// \return a descriptor which can be used to retrieve the Block.
-GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block&& Block);
+GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block *Block);
 
 ///
 /// Iterates over Blocks in the graph.
@@ -79,5 +79,6 @@ GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
-GTIRB_EXPORT_API void fromProtobuf(CFG& result, const proto::CFG& Message);
+GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& result,
+                                   const proto::CFG& Message);
 } // namespace gtirb

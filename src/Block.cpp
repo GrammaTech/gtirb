@@ -5,9 +5,6 @@
 
 using namespace gtirb;
 
-Block::Block(EA Address_, uint64_t Size_, uint64_t DecodeMode_)
-    : Node(), Address(Address_), Size(Size_), DecodeMode(DecodeMode_) {}
-
 EA Block::getAddress() const { return this->Address; }
 
 uint64_t Block::getSize() const { return this->Size; }
@@ -21,11 +18,11 @@ void Block::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-void Block::fromProtobuf(const MessageType& Message) {
-  setNodeUUIDFromBytes(this, Message.uuid());
-  this->Address = EA(Message.address());
-  this->Size = EA(Message.size());
-  this->DecodeMode = Message.decode_mode();
+Block* Block::fromProtobuf(Context& C, const MessageType& Message) {
+  auto *B = Block::Create(C, EA(Message.address()), EA(Message.size()),
+                          Message.decode_mode());
+  setNodeUUIDFromBytes(B, Message.uuid());
+  return B;
 }
 
 void InstructionRef::toProtobuf(MessageType* Message) const {
@@ -33,7 +30,7 @@ void InstructionRef::toProtobuf(MessageType* Message) const {
   Message->set_offset(this->Offset);
 }
 
-void InstructionRef::fromProtobuf(const MessageType& Message) {
+void InstructionRef::fromProtobuf(Context &, const MessageType& Message) {
   this->BlockRef = uuidFromBytes(Message.block_id());
   this->Offset = Message.offset();
 }

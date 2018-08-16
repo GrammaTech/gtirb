@@ -1,4 +1,5 @@
 #include <gtirb/ByteMap.hpp>
+#include <gtirb/Context.hpp>
 #include <proto/ByteMap.pb.h>
 #include <gsl/span>
 #include <gtest/gtest.h>
@@ -175,7 +176,9 @@ TEST(Unit_ByteMap, protobufRoundTrip) {
   gtirb::ByteMap Result;
   proto::ByteMap Message;
   Original.toProtobuf(&Message);
-  Result.fromProtobuf(Message);
+
+  gtirb::Context Ctx;
+  Result.fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result.getData(EA(1), 1)[0], std::byte('a'));
   EXPECT_EQ(Result.getData(EA(2), 1)[0], std::byte('b'));

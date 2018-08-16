@@ -1,3 +1,4 @@
+#include <gtirb/Context.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
@@ -12,27 +13,29 @@
 
 using namespace gtirb;
 
-TEST(Unit_IR, ctor_0) { EXPECT_NO_THROW(gtirb::IR()); }
+static Context Ctx;
+
+TEST(Unit_IR, ctor_0) { EXPECT_NO_THROW(IR::Create(Ctx)); }
 
 TEST(Unit_IR, getModulesWithPreferredEA) {
   const gtirb::EA PreferredEA{22678};
   const size_t ModulesWithEA{3};
   const size_t ModulesWithoutEA{5};
 
-  auto Ir = gtirb::IR();
+  auto *Ir = IR::Create(Ctx);
 
   for (size_t I = 0; I < ModulesWithEA; ++I) {
-    Module M;
-    M.setPreferredEA(PreferredEA);
-    EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
+    Module *M = Module::Create(Ctx);
+    M->setPreferredEA(PreferredEA);
+    EXPECT_NO_THROW(Ir->getModules().push_back(M));
   }
 
   for (size_t I = 0; I < ModulesWithoutEA; ++I) {
-    Module M;
-    EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
+    Module *M = Module::Create(Ctx);
+    EXPECT_NO_THROW(Ir->getModules().push_back(M));
   }
 
-  const auto Modules = Ir.getModulesWithPreferredEA(PreferredEA);
+  const auto Modules = Ir->getModulesWithPreferredEA(PreferredEA);
   EXPECT_FALSE(Modules.empty());
   EXPECT_EQ(ModulesWithEA, Modules.size());
 }
@@ -41,69 +44,68 @@ TEST(Unit_IR, getModulesContainingEA) {
   const gtirb::EA Ea{22678};
   const gtirb::EA EaOffset{2112};
 
-  auto Ir = gtirb::IR();
+  auto *Ir = IR::Create(Ctx);
 
   // EA at lower bound
   {
-    Module M;
-    M.getImageByteMap().setEAMinMax({Ea, Ea + EaOffset});
-    EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
+    Module *M = Module::Create(Ctx);
+    M->getImageByteMap().setEAMinMax({Ea, Ea + EaOffset});
+    EXPECT_NO_THROW(Ir->getModules().push_back(M));
   }
 
   // EA inside range
   {
-    Module M;
-    M.getImageByteMap().setEAMinMax({Ea - EaOffset, Ea + EaOffset});
-    EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
+    Module *M = Module::Create(Ctx);
+    M->getImageByteMap().setEAMinMax({Ea - EaOffset, Ea + EaOffset});
+    EXPECT_NO_THROW(Ir->getModules().push_back(M));
   }
 
   // EA at max (should not be returned)
   {
-    Module M;
-    M.getImageByteMap().setEAMinMax({Ea - EaOffset, Ea});
-    EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
+    Module *M = Module::Create(Ctx);
+    M->getImageByteMap().setEAMinMax({Ea - EaOffset, Ea});
+    EXPECT_NO_THROW(Ir->getModules().push_back(M));
   }
 
-  const auto modules = Ir.getModulesContainingEA(Ea);
+  const auto modules = Ir->getModulesContainingEA(Ea);
   EXPECT_FALSE(modules.empty());
   EXPECT_EQ(size_t(2), modules.size());
 }
 
 TEST(Unit_IR, addTable) {
   std::vector<int64_t> Table = {1, 2, 3};
-  IR Ir;
-  Ir.addTable("test", std::move(Table));
+  IR *Ir = IR::Create(Ctx);
+  Ir->addTable("test", std::move(Table));
 
-  EXPECT_NE(Ir.getTable("test"), nullptr);
-  EXPECT_EQ(std::get<std::vector<int64_t>>(*Ir.getTable("test")),
+  EXPECT_NE(Ir->getTable("test"), nullptr);
+  EXPECT_EQ(std::get<std::vector<int64_t>>(*Ir->getTable("test")),
             std::vector<int64_t>({1, 2, 3}));
 }
 
 TEST(Unit_IR, missingTable) {
-  IR Ir;
-  EXPECT_EQ(Ir.getTable("missing"), nullptr);
+  IR *Ir = IR::Create(Ctx);
+  EXPECT_EQ(Ir->getTable("missing"), nullptr);
 }
 
 TEST(Unit_IR, protobufRoundTrip) {
-  IR Result;
   proto::IR Message;
   UUID MainID;
 
   {
-    IR Original;
-    Module M;
-    M.getImageByteMap().setEAMinMax({EA(100), EA(200)});
-    Original.getModules().push_back(std::move(M));
-    Original.addTable("test", Table());
+    IR *Original = IR::Create(Ctx);
+    Module *M = Module::Create(Ctx);
+    M->getImageByteMap().setEAMinMax({EA(100), EA(200)});
+    Original->getModules().push_back(M);
+    Original->addTable("test", Table());
 
-    MainID = Original.getModules()[0].getUUID();
-    Original.toProtobuf(&Message);
+    MainID = Original->getModules().front()->getUUID();
+    Original->toProtobuf(&Message);
   }
   // original has been destroyed, so UUIDs can be reused
-  Result.fromProtobuf(Message);
+  IR *Result = IR::fromProtobuf(Ctx, Message);
 
-  EXPECT_EQ(Result.getModules()[0].getUUID(), MainID);
-  EXPECT_EQ(Result.getModulesContainingEA(EA(100)).size(), 1);
-  EXPECT_EQ(Result.getTableSize(), 1);
-  EXPECT_NE(Result.getTable("test"), nullptr);
+  EXPECT_EQ(Result->getModules().front()->getUUID(), MainID);
+  EXPECT_EQ(Result->getModulesContainingEA(EA(100)).size(), 1);
+  EXPECT_EQ(Result->getTableSize(), 1);
+  EXPECT_NE(Result->getTable("test"), nullptr);
 }

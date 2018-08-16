@@ -21,28 +21,6 @@ Node::Node() : Uuid(boost::uuids::random_generator()()) {
   Node::UuidMap[this->Uuid] = this;
 }
 
-Node::Node(const Node&) : Uuid(boost::uuids::random_generator()()) {
-  // Note: do not call setUUID() here as it will try to erase the current
-  // (uninitialized) UUID from uuidMap.
-  Node::UuidMap[this->Uuid] = this;
-}
-
-Node::Node(Node&& Other) noexcept : Uuid(std::move(Other.Uuid)) {
-  Other.Uuid = UUID();
-  Node::UuidMap[this->Uuid] = this;
-}
-
-Node& Node::operator=(Node&& Other) noexcept {
-  // Update UUID map
-  auto Found = Node::UuidMap.find(Other.Uuid);
-  assert(Found != Node::UuidMap.end());
-  this->Uuid = Other.Uuid;
-  Found->second = this;
-  Other.Uuid = UUID();
-
-  return *this;
-}
-
 Node::~Node() noexcept {
   auto Found = Node::UuidMap.find(this->Uuid);
   if (Found != Node::UuidMap.end()) {
