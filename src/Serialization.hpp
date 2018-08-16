@@ -1,7 +1,7 @@
 #ifndef GTIRB_SERIALIZATION_H
 #define GTIRB_SERIALIZATION_H
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <google/protobuf/map.h>
 #include <google/protobuf/repeated_field.h>
@@ -37,8 +37,8 @@ template <typename T> typename T::MessageType toProtobuf(const T& Val) {
   return Message;
 }
 
-// Serialize EA to uint64_t
-uint64_t toProtobuf(const EA Val);
+// Serialize Addr to uint64_t
+uint64_t toProtobuf(const Addr Val);
 
 // Overloads for various standard types
 std::string toProtobuf(const std::string& Val);
@@ -152,7 +152,7 @@ void fromProtobuf(std::pair<T, U>& Val,
   fromProtobuf(Val.first, Message.first);
   fromProtobuf(Val.second, Message.second);
 }
-void fromProtobuf(EA& Result, const uint64_t& Message);
+void fromProtobuf(Addr& Result, const uint64_t& Message);
 void fromProtobuf(UUID& Result, const std::string& Message);
 
 // Convert the contents for a Container into IR classes

@@ -14,32 +14,32 @@ TEST(Unit_CFG, ctor_0) { EXPECT_NO_THROW(CFG()); }
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
   auto Descriptor = add_vertex(Cfg);
-  EXPECT_EQ(Cfg[Descriptor].getAddress(), EA());
+  EXPECT_EQ(Cfg[Descriptor].getAddress(), Addr());
   EXPECT_EQ(Cfg[Descriptor].getSize(), 0);
 }
 
 TEST(Unit_CFG, addBlock) {
   CFG Cfg;
-  auto Descriptor = addBlock(Cfg, Block(EA(1), 2));
-  EXPECT_EQ(Cfg[Descriptor].getAddress(), EA(1));
+  auto Descriptor = addBlock(Cfg, Block(Addr(1), 2));
+  EXPECT_EQ(Cfg[Descriptor].getAddress(), Addr(1));
   EXPECT_EQ(Cfg[Descriptor].getSize(), 2);
 }
 
 TEST(Unit_CFG, blockIterator) {
   CFG Cfg;
-  addBlock(Cfg, Block(EA(1), 2));
-  addBlock(Cfg, Block(EA(3), 2));
-  addBlock(Cfg, Block(EA(5), 2));
+  addBlock(Cfg, Block(Addr(1), 2));
+  addBlock(Cfg, Block(Addr(3), 2));
+  addBlock(Cfg, Block(Addr(5), 2));
 
   // Non-const graph produces a regular iterator
   boost::iterator_range<block_iterator> BlockRange = blocks(Cfg);
   EXPECT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 3);
   auto It = BlockRange.begin();
-  EXPECT_EQ(It->getAddress(), EA(1));
+  EXPECT_EQ(It->getAddress(), Addr(1));
   ++It;
-  EXPECT_EQ(It->getAddress(), EA(3));
+  EXPECT_EQ(It->getAddress(), Addr(3));
   ++It;
-  EXPECT_EQ(It->getAddress(), EA(5));
+  EXPECT_EQ(It->getAddress(), Addr(5));
   ++It;
   EXPECT_EQ(It, BlockRange.end());
 
@@ -48,20 +48,20 @@ TEST(Unit_CFG, blockIterator) {
   boost::iterator_range<const_block_iterator> ConstRange = blocks(ConstCfg);
   EXPECT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 3);
   auto Cit = ConstRange.begin();
-  EXPECT_EQ(Cit->getAddress(), EA(1));
+  EXPECT_EQ(Cit->getAddress(), Addr(1));
   ++Cit;
-  EXPECT_EQ(Cit->getAddress(), EA(3));
+  EXPECT_EQ(Cit->getAddress(), Addr(3));
   ++Cit;
-  EXPECT_EQ(Cit->getAddress(), EA(5));
+  EXPECT_EQ(Cit->getAddress(), Addr(5));
   ++Cit;
   EXPECT_EQ(Cit, ConstRange.end());
 }
 
 TEST(Unit_CFG, edges) {
   CFG Cfg;
-  auto B1 = addBlock(Cfg, Block(EA(1), EA(2)));
-  auto B2 = addBlock(Cfg, Block(EA(3), EA(4)));
-  auto B3 = addBlock(Cfg, Block(EA(5), EA(6)));
+  auto B1 = addBlock(Cfg, Block(Addr(1), Addr(2)));
+  auto B2 = addBlock(Cfg, Block(Addr(3), Addr(4)));
+  auto B3 = addBlock(Cfg, Block(Addr(5), Addr(6)));
 
   auto E1 = add_edge(B1, B3, Cfg);
   EXPECT_EQ(source(E1.first, Cfg), B1);
@@ -87,8 +87,8 @@ TEST(Unit_CFG, edges) {
 
 TEST(Unit_CFG, edgeLabels) {
   CFG Cfg;
-  auto B1 = addBlock(Cfg, Block(EA(1), EA(2)));
-  auto B2 = addBlock(Cfg, Block(EA(3), EA(4)));
+  auto B1 = addBlock(Cfg, Block(Addr(1), Addr(2)));
+  auto B2 = addBlock(Cfg, Block(Addr(3), Addr(4)));
 
   // boolean label
   auto E1 = add_edge(B1, B2, Cfg).first;
@@ -108,9 +108,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
 
   {
     CFG Original;
-    auto B1 = addBlock(Original, Block(EA(1), EA(2)));
-    auto B2 = addBlock(Original, Block(EA(3), EA(4)));
-    auto B3 = addBlock(Original, Block(EA(5), EA(6)));
+    auto B1 = addBlock(Original, Block(Addr(1), Addr(2)));
+    auto B2 = addBlock(Original, Block(Addr(3), Addr(4)));
+    auto B3 = addBlock(Original, Block(Addr(5), Addr(6)));
 
     auto E1 = add_edge(B1, B3, Original).first;
     auto E2 = add_edge(B2, B3, Original).first;

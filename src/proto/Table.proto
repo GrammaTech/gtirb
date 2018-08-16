@@ -11,7 +11,7 @@ message MapVector {
     repeated InnerMap contents = 1;
 }
 
-message EAVector {
+message AddrVector {
     repeated uint64 contents = 1;
 }
 
@@ -34,12 +34,12 @@ message InstructionVector {
 message InnerValue
 {
     oneof value {
-        uint64 ea = 1;
+        uint64 addr = 1;
         uint64 int = 2;
         bytes str = 3;
         bytes uuid = 4;
         InstructionRef instruction = 5;
-        EAVector ea_vector = 6;
+        AddrVector addr_vector = 6;
         IntVector int_vector = 7;
         StringVector string_vector = 8;
         UUIDVector uuid_vector = 9;
@@ -49,7 +49,7 @@ message InnerValue
 
 message Value {
     oneof value {
-        uint64 ea = 1;
+        uint64 addr = 1;
         int64 int = 2;
         bytes str = 3;
         bytes uuid = 4;
@@ -58,7 +58,7 @@ message Value {
     }
 }
 
-message EAMap {
+message AddrMap {
     map<uint64, Value> contents = 1;
 }
 
@@ -72,14 +72,14 @@ message StringMap {
 
 message Table {
     oneof value {
-        EAMap by_ea = 1;
+        AddrMap by_addr = 1;
         IntMap by_int = 2;
         StringMap by_string = 3;
         // bytes can't be used as map keys, so use the string form of UUIDs
         // here.
         StringMap by_uuid = 4;
         MapVector map_vector = 5;
-        EAVector ea_vector = 6;
+        AddrVector addr_vector = 6;
         IntVector int_vector = 7;
         StringVector string_vector = 8;
         UUIDVector uuid_vector = 9;

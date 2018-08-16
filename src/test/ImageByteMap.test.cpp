@@ -8,30 +8,30 @@ using namespace gtirb;
 class Unit_ImageByteMapF : public ::testing::Test {
 public:
   virtual void SetUp() override {
-    EXPECT_TRUE(this->ByteMap.setEAMinMax(
+    EXPECT_TRUE(this->ByteMap.setAddrMinMax(
         {Unit_ImageByteMapF::Offset,
          Unit_ImageByteMapF::Offset +
-             gtirb::EA{Unit_ImageByteMapF::InitializedSize}}));
+             Addr{Unit_ImageByteMapF::InitializedSize}}));
 
     for (size_t i = 0; i < Unit_ImageByteMapF::InitializedSize; ++i) {
-      const auto address = Unit_ImageByteMapF::Offset + gtirb::EA{i};
+      const auto address = Unit_ImageByteMapF::Offset + Addr{i};
 
       EXPECT_NO_THROW(this->ByteMap.setData(
           address, static_cast<uint8_t>(this->InitialByte & i)))
           << "At Address " << address << ", min/max={"
-          << this->ByteMap.getEAMinMax().first << "/"
-          << this->ByteMap.getEAMinMax().second << "}.";
+          << this->ByteMap.getAddrMinMax().first << "/"
+          << this->ByteMap.getAddrMinMax().second << "}.";
     }
   }
 
   static constexpr uint8_t InitialByte{0xFF};
-  static gtirb::EA Offset;
+  static Addr Offset;
   static size_t InitializedSize;
 
   gtirb::ImageByteMap ByteMap{};
 };
 
-gtirb::EA Unit_ImageByteMapF::Offset{static_cast<uint64_t>(4096)};
+Addr Unit_ImageByteMapF::Offset{static_cast<uint64_t>(4096)};
 size_t Unit_ImageByteMapF::InitializedSize{4096 * 2};
 
 TEST(Unit_ImageByteMap, ctor_0) { EXPECT_NO_THROW(gtirb::ImageByteMap()); }
@@ -50,7 +50,7 @@ TEST(Unit_ImageByteMap, setBaseAddress) {
   auto Node = std::make_unique<gtirb::ImageByteMap>();
   ASSERT_TRUE(Node != nullptr);
 
-  const auto Val = gtirb::EA{22678};
+  const auto Val = Addr{22678};
 
   EXPECT_NO_THROW(Node->setBaseAddress(Val));
   EXPECT_EQ(Val, Node->getBaseAddress());
@@ -60,25 +60,25 @@ TEST(Unit_ImageByteMap, setEntryPointAddress) {
   auto Node = std::make_unique<gtirb::ImageByteMap>();
   ASSERT_TRUE(Node != nullptr);
 
-  const auto Val = gtirb::EA{22678};
+  const auto Val = Addr{22678};
 
   EXPECT_NO_THROW(Node->setEntryPointAddress(Val));
   EXPECT_EQ(Val, Node->getEntryPointAddress());
 }
 
-TEST(Unit_ImageByteMap, setEAMinMax) {
+TEST(Unit_ImageByteMap, setAddrMinMax) {
   auto M = std::make_shared<gtirb::ImageByteMap>();
 
-  gtirb::EA Minimum{64};
-  gtirb::EA Maximum{1024};
+  Addr Minimum{64};
+  Addr Maximum{1024};
 
-  EXPECT_TRUE(M->setEAMinMax({Minimum, Maximum}));
-  EXPECT_EQ(Minimum, M->getEAMinMax().first);
-  EXPECT_EQ(Maximum, M->getEAMinMax().second);
+  EXPECT_TRUE(M->setAddrMinMax({Minimum, Maximum}));
+  EXPECT_EQ(Minimum, M->getAddrMinMax().first);
+  EXPECT_EQ(Maximum, M->getAddrMinMax().second);
 
-  EXPECT_FALSE(M->setEAMinMax({Maximum, Minimum}));
-  EXPECT_EQ(gtirb::EA{}, M->getEAMinMax().first);
-  EXPECT_EQ(gtirb::EA{}, M->getEAMinMax().second);
+  EXPECT_FALSE(M->setAddrMinMax({Maximum, Minimum}));
+  EXPECT_EQ(Addr{}, M->getAddrMinMax().first);
+  EXPECT_EQ(Addr{}, M->getAddrMinMax().second);
 }
 
 TEST(Unit_ImageByteMap, setRebaseDelta) {
@@ -106,70 +106,70 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
     const auto ExpectedWord =
         (((InitialByte & I) | ((InitialByte & (I + 1)) << 8)));
 
-    EXPECT_EQ(this->InitialByte & I, this->ByteMap.getData<uint8_t>(
-                                         Unit_ImageByteMapF::Offset +
-                                         gtirb::EA{static_cast<uint64_t>(I)}))
-        << "Bad byte read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{I};
+    EXPECT_EQ(this->InitialByte & I,
+              this->ByteMap.getData<uint8_t>(Unit_ImageByteMapF::Offset +
+                                             Addr{static_cast<uint64_t>(I)}))
+        << "Bad byte read at : " << Unit_ImageByteMapF::Offset + Addr{I};
 
     if (I < Unit_ImageByteMapF::InitializedSize - 1) {
       EXPECT_NO_THROW(
-          this->ByteMap.getData(Unit_ImageByteMapF::Offset + gtirb::EA{I}, 2));
+          this->ByteMap.getData(Unit_ImageByteMapF::Offset + Addr{I}, 2));
 
-      const auto Word = this->ByteMap.getData<uint16_t>(
-          Unit_ImageByteMapF::Offset + gtirb::EA{I});
+      const auto Word =
+          this->ByteMap.getData<uint16_t>(Unit_ImageByteMapF::Offset + Addr{I});
 
       EXPECT_EQ(ExpectedWord, Word)
-          << "Bad word read at : " << Unit_ImageByteMapF::Offset + gtirb::EA{I};
+          << "Bad word read at : " << Unit_ImageByteMapF::Offset + Addr{I};
     }
   }
 }
 
 TEST_F(Unit_ImageByteMapF, legacy_word) {
-  const auto Address = gtirb::EA(0x00001000);
+  const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint16_t{0xDEAD}))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<uint16_t>(Address))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   const auto Data = this->ByteMap.getData<uint16_t>(Address);
   EXPECT_EQ(0xDEAD, Data) << "Bad word read at : " << Address;
 }
 
 TEST_F(Unit_ImageByteMapF, legacy_dword) {
-  const auto Address = gtirb::EA(0x00001000);
+  const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint32_t{0xCAFEBABE}))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<uint32_t>(Address))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   const auto Data = this->ByteMap.getData<uint32_t>(Address);
   EXPECT_EQ(0xCAFEBABE, Data) << "Bad dword read at : " << Address;
 }
 
 TEST_F(Unit_ImageByteMapF, legacy_qword) {
-  const auto Address = gtirb::EA(0x00001000);
+  const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint64_t{0x8BADF00D0D15EA5E}))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<uint64_t>(Address))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   const auto Data = this->ByteMap.getData<uint64_t>(Address);
   EXPECT_EQ(0x8BADF00D0D15EA5E, Data) << "Bad qword read at : " << Address;
@@ -179,36 +179,36 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
   uint32_t base = std::numeric_limits<uint16_t>::max();
   std::array<uint32_t, 5> data{{base, base + 1, base + 2, base + 3, base + 4}};
 
-  const auto Address = gtirb::EA(0x00001000);
+  const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, data))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<decltype(data)>(Address))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   const auto Result = this->ByteMap.getData<decltype(data)>(Address);
   EXPECT_EQ(data, Result) << "Bad array read at : " << Address;
 }
 
 TEST_F(Unit_ImageByteMapF, constantData) {
-  const auto Address = gtirb::EA(0x00001000);
+  const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, 32, std::byte(1)))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   std::vector<std::byte> Expected(32, std::byte(1));
 
   ASSERT_NO_THROW(this->ByteMap.getData(Address, Expected.size()))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   EXPECT_EQ(this->ByteMap.getData(Address, Expected.size()), Expected);
 }
@@ -226,17 +226,17 @@ TEST_F(Unit_ImageByteMapF, structData) {
   TestStruct Data = {
       static_cast<uint32_t>(std::numeric_limits<uint16_t>::max() + 1), 0xAB};
 
-  const auto Address = gtirb::EA(0x00001000);
+  const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, Data))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<decltype(Data)>(Address))
       << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getEAMinMax().first << "/"
-      << this->ByteMap.getEAMinMax().second << "}.";
+      << this->ByteMap.getAddrMinMax().first << "/"
+      << this->ByteMap.getAddrMinMax().second << "}.";
 
   const auto Result = this->ByteMap.getData<decltype(Data)>(Address);
   EXPECT_EQ(Data.I, Result.I) << "Bad struct read at : " << Address;
@@ -252,11 +252,11 @@ TEST_F(Unit_ImageByteMapF, littleEndian) {
   std::array<uint16_t, 2> A = {{0xACAF, 0xBFAE}};
   const TestStruct S = {0xBAADF00D, 0xAB};
 
-  EA Addr0(0x1000);
-  EA Addr1 = Addr0 + sizeof(W);
-  EA Addr2 = Addr1 + sizeof(Dw);
-  EA Addr3 = Addr2 + sizeof(Qw);
-  EA Addr4 = Addr3 + sizeof(A);
+  Addr Addr0(0x1000);
+  Addr Addr1 = Addr0 + sizeof(W);
+  Addr Addr2 = Addr1 + sizeof(Dw);
+  Addr Addr3 = Addr2 + sizeof(Qw);
+  Addr Addr4 = Addr3 + sizeof(A);
   this->ByteMap.setData(Addr0, W);
   this->ByteMap.setData(Addr1, Dw);
   this->ByteMap.setData(Addr2, Qw);
@@ -302,11 +302,11 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
   std::array<uint16_t, 2> A = {{0xACAF, 0xBFAE}};
   const TestStruct S = {0xBAADF00D, 0xAB};
 
-  EA Addr0(0x1000);
-  EA Addr1 = Addr0 + sizeof(W);
-  EA Addr2 = Addr1 + sizeof(Dw);
-  EA Addr3 = Addr2 + sizeof(Qw);
-  EA Addr4 = Addr3 + sizeof(A);
+  Addr Addr0(0x1000);
+  Addr Addr1 = Addr0 + sizeof(W);
+  Addr Addr2 = Addr1 + sizeof(Dw);
+  Addr Addr3 = Addr2 + sizeof(Qw);
+  Addr Addr4 = Addr3 + sizeof(A);
   this->ByteMap.setData(Addr0, W);
   this->ByteMap.setData(Addr1, Dw);
   this->ByteMap.setData(Addr2, Qw);
@@ -362,12 +362,12 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
 
 TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   auto& Original = this->ByteMap;
-  const auto Address = EA(0x00001000);
+  const auto Address = Addr(0x00001000);
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint16_t{0xDEAD}));
 
   Original.setFileName("test");
-  Original.setBaseAddress(EA(2));
-  Original.setEntryPointAddress(EA(3));
+  Original.setBaseAddress(Addr(2));
+  Original.setEntryPointAddress(Addr(3));
   Original.setRebaseDelta(7);
   Original.setIsRelocated();
 
@@ -379,9 +379,9 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
 
   EXPECT_EQ(Result.getData<uint16_t>(Address), 0xDEAD);
   EXPECT_EQ(Result.getFileName(), "test");
-  EXPECT_EQ(Result.getBaseAddress(), EA(2));
-  EXPECT_EQ(Result.getEntryPointAddress(), EA(3));
-  EXPECT_EQ(Result.getEAMinMax(), Original.getEAMinMax());
+  EXPECT_EQ(Result.getBaseAddress(), Addr(2));
+  EXPECT_EQ(Result.getEntryPointAddress(), Addr(3));
+  EXPECT_EQ(Result.getAddrMinMax(), Original.getAddrMinMax());
   EXPECT_EQ(Result.getRebaseDelta(), 7);
   EXPECT_EQ(Result.getIsRelocated(), true);
 }

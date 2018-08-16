@@ -6,39 +6,41 @@
 using namespace gtirb;
 
 TEST(Unit_Section, equality) {
-  Section A{"foo", EA{2}, 1};
-  Section B{"foo", EA{2}, 1};
-  Section C{"bar", EA{2}, 1};
-  Section D{"foo", EA{2}, 3};
-  Section E{"foo", EA{3}, 1};
+  Section A{"foo", Addr{2}, 1};
+  Section B{"foo", Addr{2}, 1};
+  Section C{"bar", Addr{2}, 1};
+  Section D{"foo", Addr{2}, 3};
+  Section E{"foo", Addr{3}, 1};
   EXPECT_EQ(A, B);
   EXPECT_NE(A, C);
   EXPECT_NE(A, D);
   EXPECT_NE(A, E);
 }
 
-TEST(Unit_Section, containsEA) {
-  Section Good{"good", EA{11}, 100};
-  EXPECT_FALSE(containsEA(Good, EA(10)));
-  EXPECT_TRUE(containsEA(Good, EA(11)));
-  EXPECT_TRUE(containsEA(Good, EA(110)));
-  EXPECT_FALSE(containsEA(Good, EA(111)));
+TEST(Unit_Section, containsAddr) {
+  Section Good{"good", Addr{11}, 100};
+  EXPECT_FALSE(containsAddr(Good, Addr(10)));
+  EXPECT_TRUE(containsAddr(Good, Addr(11)));
+  EXPECT_TRUE(containsAddr(Good, Addr(110)));
+  EXPECT_FALSE(containsAddr(Good, Addr(111)));
 
-  Section Big{"big", EA(0), std::numeric_limits<uint64_t>::max()};
-  EXPECT_TRUE(containsEA(Big, EA(0)));
-  EXPECT_TRUE(containsEA(Big, EA(std::numeric_limits<uint64_t>::max() - 1)));
+  Section Big{"big", Addr(0), std::numeric_limits<uint64_t>::max()};
+  EXPECT_TRUE(containsAddr(Big, Addr(0)));
+  EXPECT_TRUE(
+      containsAddr(Big, Addr(std::numeric_limits<uint64_t>::max() - 1)));
   // No section contains a bad address
-  EXPECT_FALSE(containsEA(Big, EA()));
+  EXPECT_FALSE(containsAddr(Big, Addr()));
 
   // Bad section does not contain anything
-  Section Bad{"bad", EA(), std::numeric_limits<uint64_t>::max()};
-  EXPECT_FALSE(containsEA(Bad, EA(0)));
-  EXPECT_FALSE(containsEA(Bad, EA(std::numeric_limits<uint64_t>::max() - 1)));
-  EXPECT_FALSE(containsEA(Bad, EA()));
+  Section Bad{"bad", Addr(), std::numeric_limits<uint64_t>::max()};
+  EXPECT_FALSE(containsAddr(Bad, Addr(0)));
+  EXPECT_FALSE(
+      containsAddr(Bad, Addr(std::numeric_limits<uint64_t>::max() - 1)));
+  EXPECT_FALSE(containsAddr(Bad, Addr()));
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
-  Section Original("name", EA(1), 1234);
+  Section Original("name", Addr(1), 1234);
 
   gtirb::Section Result;
   proto::Section Message;
@@ -48,5 +50,5 @@ TEST(Unit_Section, protobufRoundTrip) {
 
   EXPECT_EQ(Result.getName(), "name");
   EXPECT_EQ(Result.getSize(), 1234);
-  EXPECT_EQ(Result.getAddress(), EA(1));
+  EXPECT_EQ(Result.getAddress(), Addr(1));
 }

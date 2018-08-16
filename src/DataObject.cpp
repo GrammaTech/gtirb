@@ -4,7 +4,7 @@
 
 using namespace gtirb;
 
-EA DataObject::getAddress() const { return this->Address; }
+Addr DataObject::getAddress() const { return this->Address; }
 
 uint64_t DataObject::getSize() const { return this->Size; }
 
@@ -16,6 +16,6 @@ void DataObject::toProtobuf(MessageType* Message) const {
 
 void DataObject::fromProtobuf(const MessageType& Message) {
   setNodeUUIDFromBytes(this, Message.uuid());
-  this->Address = EA(Message.address());
+  this->Address = Addr(Message.address());
   this->Size = Message.size();
 }

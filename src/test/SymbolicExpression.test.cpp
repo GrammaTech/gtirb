@@ -5,8 +5,8 @@
 using namespace gtirb;
 
 TEST(Unit_SymbolicExpression, protobufRoundTrip) {
-  Symbol Sym1(EA(1), "test1");
-  Symbol Sym2(EA(2), "test2");
+  Symbol Sym1(Addr(1), "test1");
+  Symbol Sym2(Addr(2), "test2");
 
   // SymStackConst
   {
