@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 
 //
-#include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 //
 

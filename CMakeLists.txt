@@ -116,9 +116,10 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 
-add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-find_package(Boost 1.59 REQUIRED COMPONENTS)
-include_directories(${Boost_INCLUDE_DIRS})
+# add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
+# find_package(Boost 1.59 REQUIRED COMPONENTS)
+# include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/boost/include")
 
 # ---------------------------------------------------------------------------
 # Microsoft GSL 
