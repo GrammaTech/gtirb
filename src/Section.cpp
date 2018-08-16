@@ -9,7 +9,7 @@ Section::Section(std::string N, EA Ea, uint64_t S)
 
 const std::string& Section::getName() const { return this->Name; }
 
-const uint64_t Section::getSize() const { return this->Size; }
+uint64_t Section::getSize() const { return this->Size; }
 
 const EA Section::getAddress() const { return this->Address; }
 

@@ -21,7 +21,7 @@ Node::Node() : Uuid(boost::uuids::random_generator()()) {
   Node::UuidMap[this->Uuid] = this;
 }
 
-Node::Node(const Node& Other) : Uuid(boost::uuids::random_generator()()) {
+Node::Node(const Node&) : Uuid(boost::uuids::random_generator()()) {
   // Note: do not call setUUID() here as it will try to erase the current
   // (uninitialized) UUID from uuidMap.
   Node::UuidMap[this->Uuid] = this;

@@ -108,7 +108,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     include(${CMAKE_TOOLCHAIN_FILE})
 elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
        OR (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang))
-    add_compile_options(-Wall -Wpointer-arith -Wshadow -Werror)
+    add_compile_options(-Wall -Wextra -Wpointer-arith -Wshadow -Werror)
     add_compile_options(-fPIC)
 endif()
 

@@ -35,7 +35,7 @@ public:
 
   const std::string& getName() const;
   const EA getAddress() const;
-  const uint64_t getSize() const;
+  uint64_t getSize() const;
 
   using MessageType = proto::Section;
   void toProtobuf(MessageType* Message) const;
