@@ -1,5 +1,6 @@
 #include "SymbolicExpression.hpp"
 #include "Serialization.hpp"
+#include <gtirb/Context.hpp>
 #include <gtirb/Symbol.hpp>
 #include <proto/SymbolicExpression.pb.h>
 #include <variant>
@@ -40,7 +41,7 @@ proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
   return Message;
 }
 
-void fromProtobuf(SymbolicExpression& Result,
+void fromProtobuf(Context &, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message) {
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {

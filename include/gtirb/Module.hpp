@@ -9,7 +9,6 @@
 #include <gtirb/SymbolicExpressionSet.hpp>
 #include <proto/Module.pb.h>
 #include <cstdint>
-#include <memory>
 #include <string>
 
 namespace gtirb {
@@ -19,12 +18,12 @@ class ImageByteMap;
 class DataObject;
 /// \brief DOCFIXME
 ///
-using DataSet = std::vector<DataObject>;
+using DataSet = std::vector<DataObject *>;
 
 class Section;
 /// \brief DOCFIXME
 ///
-using SectionSet = std::vector<Section>;
+using SectionSet = std::vector<Section *>;
 
 
 /// \enum FileFormat
@@ -68,31 +67,14 @@ enum class ISAID : uint8_t {
 /// \brief DOCFIXME
 ///
 class GTIRB_EXPORT_API Module : public Node {
+  ///
+  /// Default constructor.
+  ///
+  Module(Context &C);
+
 public:
 
-  /// \brief Default constructor.
-  ///
-  Module();
-
-
-  /// \brief Modules can not be copied due to unique_ptrs.
-  ///
-  Module(const Module&) = delete;
-
-
-  /// \brief Move constructor.
-  ///
-  Module(Module&&);
-
-
-  /// \brief Move assignment.
-  ///
-  Module& operator=(Module&&) = default;
-
-
-  /// \brief Trivial virtual destructor.
-  ///
-  ~Module() override;
+  static Module *Create(Context &C) { return new (C) Module(C); }
 
 
   /// \brief Set the location of the corresponding binary on disk.
@@ -177,10 +159,6 @@ public:
   gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
 
-  /// DOCFIXME[check all]
-  /// \brief Get the associated ImageByteMap.
-  ///
-  /// \return The ImageByteMap.
   ///
   /// A Module can have exactly one ImageByteMap child.
   ///
@@ -251,40 +229,10 @@ public:
   /// \return The associated CFG.
   ///
   CFG& getCFG();
-
-
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  ///
-  const std::vector<DataObject>& getData() const;
-
-
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  ///  
-  std::vector<DataObject>& getData();
-
-
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  ///
-  std::vector<Section>& getSections();
-
-
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  ///
-  const std::vector<Section>& getSections() const;
-
-
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  ///
+  const DataSet& getData() const;
+  DataSet& getData();
+  SectionSet& getSections();
+  const SectionSet& getSections() const;
   SymbolicExpressionSet& getSymbolicExpressions();
 
 
@@ -310,11 +258,15 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param message DOCFIXME
   ///
-  /// \return void
+  /// \return DOCFIXME
   ///
-  void fromProtobuf(const MessageType& message);
+  static Module *fromProtobuf(Context &C, const MessageType& message);
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::Module; }
 
 private:
   std::string BinaryPath{};
@@ -323,12 +275,12 @@ private:
   gtirb::FileFormat FileFormat{};
   gtirb::ISAID IsaID{};
   std::string Name{};
-  std::unique_ptr<CFG> Cfg;
-  std::unique_ptr<DataSet> Data;
-  std::unique_ptr<ImageByteMap> ImageByteMap_;
-  std::unique_ptr<SectionSet> Sections;
-  std::unique_ptr<SymbolSet> Symbols;
-  std::unique_ptr<SymbolicExpressionSet> SymbolicOperands;
+  CFG Cfg;
+  DataSet Data;
+  ImageByteMap *ImageBytes;
+  SectionSet Sections;
+  SymbolSet Symbols;
+  SymbolicExpressionSet SymbolicOperands;
 };
 } // namespace gtirb
 

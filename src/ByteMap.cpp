@@ -1,4 +1,5 @@
 #include "ByteMap.hpp"
+#include "gtirb/Context.hpp"
 #include "Serialization.hpp"
 #include <proto/ByteMap.pb.h>
 #include <algorithm>
@@ -14,16 +15,15 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
     auto& Current = Regions[i];
 
     // Overwrite data in existing region
-    if (containsAddr(Current, A) && Limit <= addressLimit(Current)) {
+    if (containsAddr(&Current, A) && Limit <= addressLimit(&Current)) {
       auto Offset = A - Current.Address;
       std::copy(Bytes.begin(), Bytes.end(), Current.Data.begin() + Offset);
       return;
     }
 
     // Extend region
-    if (A == addressLimit(Current)) {
+    if (A == addressLimit(&Current)) {
       bool HasNext = i + 1 < Regions.size();
-
       if (HasNext && Limit > Regions[i + 1].Address) {
         throw std::invalid_argument(
             "Request to setData which overlaps an existing region.");
@@ -51,8 +51,8 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
       return;
     }
 
-    if (containsAddr(Current, A) ||
-        containsAddr(Current, Limit - 1)) {
+    if (containsAddr(&Current, A) ||
+        containsAddr(&Current, Limit - 1)) {
       throw std::invalid_argument("setData overlaps an existing region");
     }
   }
@@ -71,10 +71,10 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
 
 std::vector<std::byte> ByteMap::getData(Addr A, size_t Bytes) const {
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
-                          [A](const auto& R) { return containsAddr(R, A); });
+                          [A](const auto& R) { return containsAddr(&R, A); });
 
   if (Reg == this->Regions.end() || A < Reg->Address ||
-      (A + Bytes > addressLimit(*Reg))) {
+      (A + Bytes > addressLimit(&*Reg))) {
     throw std::out_of_range("getData on unmapped address");
   }
 
@@ -92,7 +92,7 @@ proto::Region toProtobuf(const ByteMap::Region& Region) {
   return Message;
 }
 
-void fromProtobuf(ByteMap::Region& Val, const proto::Region& Message) {
+void fromProtobuf(Context &, ByteMap::Region& Val, const proto::Region& Message) {
   Val.Address = Addr(Message.address());
   const auto& Data = Message.data();
   Val.Data.reserve(Data.size());
@@ -105,6 +105,6 @@ void ByteMap::toProtobuf(MessageType* Message) const {
   containerToProtobuf(this->Regions, Message->mutable_regions());
 }
 
-void ByteMap::fromProtobuf(const MessageType& Message) {
-  containerFromProtobuf(this->Regions, Message.regions());
+void ByteMap::fromProtobuf(Context &C, const MessageType& Message) {
+  containerFromProtobuf(C, this->Regions, Message.regions());
 }

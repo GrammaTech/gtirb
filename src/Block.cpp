@@ -5,9 +5,6 @@
 
 using namespace gtirb;
 
-Block::Block(Addr Address_, uint64_t Size_, uint64_t DecodeMode_)
-    : Node(), Address(Address_), Size(Size_), DecodeMode(DecodeMode_) {}
-
 void Block::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_address(static_cast<uint64_t>(this->Address));
@@ -15,11 +12,11 @@ void Block::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-void Block::fromProtobuf(const MessageType& Message) {
-  setNodeUUIDFromBytes(this, Message.uuid());
-  this->Address = Addr(Message.address());
-  this->Size = Message.size();
-  this->DecodeMode = Message.decode_mode();
+Block* Block::fromProtobuf(Context& C, const MessageType& Message) {
+  auto *B = Block::Create(C, Addr(Message.address()), Addr(Message.size()),
+                          Message.decode_mode());
+  setNodeUUIDFromBytes(B, Message.uuid());
+  return B;
 }
 
 void InstructionRef::toProtobuf(MessageType* Message) const {
@@ -27,7 +24,7 @@ void InstructionRef::toProtobuf(MessageType* Message) const {
   Message->set_offset(this->Offset);
 }
 
-void InstructionRef::fromProtobuf(const MessageType& Message) {
+void InstructionRef::fromProtobuf(Context &, const MessageType& Message) {
   this->BlockRef = uuidFromBytes(Message.block_id());
   this->Offset = Message.offset();
 }

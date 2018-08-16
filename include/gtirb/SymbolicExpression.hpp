@@ -13,6 +13,7 @@ namespace proto {
 class SymbolicExpression;
 }
 namespace gtirb {
+class Context;
 
 /// \brief Represents a symbolic operand of the form "StackVar + Const".
 /// DOCFIXME[word in terms of the field names]
@@ -51,7 +52,6 @@ struct SymAddrAddr {
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
-
 /// \brief DOCFIXME
 ///
 /// \param  Result    DOCFIXME
@@ -60,7 +60,7 @@ using SymbolicExpression =
 ///
 /// \return void
 ///  
-GTIRB_EXPORT_API void fromProtobuf(SymbolicExpression& Result,
+GTIRB_EXPORT_API void fromProtobuf(Context &, SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);
 
 
