@@ -31,78 +31,22 @@ public:
     Local = proto::Storage_Local          ///< DOCFIXME
   };
 
-  ///
-  /// \brief Default constructor.
-  ///
-  Symbol() = default;
-
-
-  /// \brief Constructor.
-  ///
-  /// \param X The Effective Address for the new Symbol.
-  ///
-  Symbol(Addr X);
-
-
-  /// \brief Constructor.
-  ///
-  /// \param X           The symbol's Effective Address.
-  ///
-  /// \param Name        The symbol name. DOCFIXME[what happens on conflict?]
-  ///
-  /// \param StorageKind The storage kind for the symbol. DOCFIXME[parameter name could cause confusion]
-  ///
-  Symbol(Addr X, std::string Name,
-         StorageKind StorageKind = StorageKind::Extern);
-
-
-  /// \brief Constructor.
-  ///
-  /// \param X The symbol's Effective Address.
-  ///
-  /// \param Name        The symbol name. DOCFIXME[what happens on conflict?]
-  ///
-  /// \param Referent    DOCFIXME
-  ///
-  /// \param StorageKind The storage kind for the symbol. DOCFIXME[parameter name could cause confusion]
-  ///
-  Symbol(Addr X, std::string Name, const DataObject& Referent,
-         StorageKind StorageKind = StorageKind::Extern);
-
-
-  /// \brief Constructor.
-  ///
-  /// \param X The symbol's Effective Address.
-  ///
-  /// \param Name        The symbol name. DOCFIXME[what happens on conflict?]
-  ///
-  /// \param Referent    DOCFIXME
-  ///
-  /// \param StorageKind The storage kind for the symbol. DOCFIXME[parameter name could cause confusion]
-  ///
-  Symbol(Addr X, std::string Name, const Block& Referent,
-         StorageKind StorageKind = StorageKind::Extern);
-
-
-  /// \brief Copy constructor.
-  /// Assigns a new UUID to the copy.
-  ///
-  explicit Symbol(const Symbol&) = default;
-
-
-  /// \brief Move constructor.
-  ///
-  Symbol(Symbol&&) = default;
-
-
-  /// \brief Move assignment.
-  ///
-  Symbol& operator=(Symbol&&) = default;
-
-
-  /// Defaulted trivial destructor.
-  ///
-  ~Symbol() override = default;
+  static Symbol* Create(Context& C) { return new (C) Symbol; }
+  static Symbol* Create(Context& C, Addr X) { return new (C) Symbol(X); }
+  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+                        StorageKind Kind = StorageKind::Extern) {
+    return new (C) Symbol(X, Name, Kind);
+  }
+  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+                        const DataObject& Referent,
+                        StorageKind Kind = StorageKind::Extern) {
+    return new (C) Symbol(X, Name, Referent, Kind);
+  }
+  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+                        const Block& Referent,
+                        StorageKind Kind = StorageKind::Extern) {
+    return new (C) Symbol(X, Name, Referent, Kind);
+  }
 
 
   /// \brief Set the effective address.
@@ -184,7 +128,7 @@ public:
   ///
   /// \return The storage kind.
   ///
-  gtirb::Symbol::StorageKind getStorageKind() const { return Storage; }
+  Symbol::StorageKind getStorageKind() const { return Storage; }
 
 
   /// \brief DOCFIXME
@@ -202,16 +146,36 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C       DOCFIXME
+  ///
   /// \param Message DOCFIXME
   ///
   /// \return DOCFIXME
   ///
-  void fromProtobuf(const MessageType& Message);
+  static Symbol *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::Symbol; }
 
 private:
-  Addr Address;
+  ///
+  /// Default constructor.
+  ///
+  Symbol() : Node(Kind::Symbol) {}
+
+  ///
+  /// This constructor sets the Effective Address on construction.
+  ///
+  Symbol(Addr X) : Node(Kind::Symbol), Ea(X) {}
+  Symbol(Addr X, std::string N, StorageKind SK = StorageKind::Extern)
+      : Node(Kind::Symbol), Ea(X), Name(N), Storage(SK) {}
+  Symbol(Addr X, std::string Name, const DataObject& Referent,
+         StorageKind Kind = StorageKind::Extern);
+  Symbol(Addr X, std::string Name, const Block& Referent,
+    StorageKind Kind = StorageKind::Extern);
+
+  Addr Ea;
   std::string Name;
-  gtirb::Symbol::StorageKind Storage{StorageKind::Extern};
+  Symbol::StorageKind Storage{StorageKind::Extern};
   NodeRef<DataObject> DataReferent;
   NodeRef<Block> CodeReferent;
 };

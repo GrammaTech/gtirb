@@ -1,12 +1,15 @@
+#include <gtirb/Context.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/SymbolicExpression.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
 
+static Context Ctx;
+
 TEST(Unit_SymbolicExpression, protobufRoundTrip) {
-  Symbol Sym1(Addr(1), "test1");
-  Symbol Sym2(Addr(2), "test2");
+  Symbol *Sym1 = Symbol::Create(Ctx, Addr(1), "test1");
+  Symbol *Sym2 = Symbol::Create(Ctx, Addr(2), "test2");
 
   // SymStackConst
   {
@@ -14,7 +17,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
-    fromProtobuf(Result, Message);
+    fromProtobuf(Ctx, Result, Message);
 
     SymStackConst S;
     EXPECT_NO_THROW(S = std::get<SymStackConst>(Result));
@@ -30,7 +33,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
-    fromProtobuf(Result, Message);
+    fromProtobuf(Ctx, Result, Message);
 
     SymAddrConst S;
     EXPECT_NO_THROW(S = std::get<SymAddrConst>(Result));
@@ -44,7 +47,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
-    fromProtobuf(Result, Message);
+    fromProtobuf(Ctx, Result, Message);
 
     SymAddrAddr S;
     EXPECT_NO_THROW(S = std::get<SymAddrAddr>(Result));

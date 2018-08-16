@@ -15,37 +15,16 @@ namespace gtirb {
 /// \brief DOCFIXME  
   
 class GTIRB_EXPORT_API Section : public Node {
+  Section() : Node(Kind::Section) {}
+  Section(const std::string &N, Addr A, uint64_t S)
+      : Node(Kind::Section), Name(N), Address(A), Size(S) {}
+
 public:
-
-  /// \brief Default constructor.
-  Section() = default;
-
-
-  /// \brief Constructor.
-  ///
-  /// \param N DOCFIXME
-  ///
-  /// \param Address DOCFIXME
-  ///
-  /// \param Size DOCFIXME
-  ///
-  Section(std::string N, Addr Address, uint64_t Size);
-
-
-  /// \brief Copy constructor.
-  /// Assigns a new UUID to the copy.
-  ///
-  explicit Section(const Section& Other) = default;
-
-
-  /// \brief Move constructor.
-  ///
-  Section(Section&&) = default;
-
-
-  /// \brief Move assignment.
-  ///
-  Section& operator=(Section&&) = default;
+  static Section* Create(Context& C) { return new (C) Section; }
+  static Section* Create(Context& C, const std::string& Name, EA Address,
+                         uint64_t Size) {
+    return new (C) Section(Name, Address, Size);
+  }
 
 
   /// \brief Equality operator overload.
@@ -89,10 +68,14 @@ public:
 
   /// \brief DOCFIXME
   ///
+  /// \param C       DOCFIXME
+  ///
   /// \param Message DOCFIXME
   ///
   /// \return void
-  void fromProtobuf(const MessageType& Message);
+  static Section *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::Section; }
 
 private:
   std::string Name;

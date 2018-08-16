@@ -1,8 +1,16 @@
 #include "Node.hpp"
+// FIXME: SymbolicExpression.hpp must be included before including Module.hpp
+// due to a bug with our header include orders. This should be fixed before we
+// release GTIRB to the public.
+#include "gtirb/SymbolicExpression.hpp"
+#include "gtirb/DataObject.hpp"
+#include "gtirb/ImageByteMap.hpp"
+#include "gtirb/IR.hpp"
+#include "gtirb/Module.hpp"
+#include "gtirb/Section.hpp"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <gsl/gsl>
 
 using namespace gtirb;
 
@@ -17,30 +25,8 @@ Node* Node::getByUUID(UUID Uuid) {
   }
 }
 
-Node::Node() : Uuid(boost::uuids::random_generator()()) {
+Node::Node(Kind Knd) : K(Knd), Uuid(boost::uuids::random_generator()()) {
   Node::UuidMap[this->Uuid] = this;
-}
-
-Node::Node(const Node&) : Uuid(boost::uuids::random_generator()()) {
-  // Note: do not call setUUID() here as it will try to erase the current
-  // (uninitialized) UUID from uuidMap.
-  Node::UuidMap[this->Uuid] = this;
-}
-
-Node::Node(Node&& Other) noexcept : Uuid(std::move(Other.Uuid)) {
-  Other.Uuid = UUID();
-  Node::UuidMap[this->Uuid] = this;
-}
-
-Node& Node::operator=(Node&& Other) noexcept {
-  // Update UUID map
-  auto Found = Node::UuidMap.find(Other.Uuid);
-  assert(Found != Node::UuidMap.end());
-  this->Uuid = Other.Uuid;
-  Found->second = this;
-  Other.Uuid = UUID();
-
-  return *this;
 }
 
 Node::~Node() noexcept {
@@ -66,10 +52,36 @@ void Node::setUUID(UUID X) {
   Node::UuidMap.emplace(X, this);
 }
 
+UUID Node::getUUID() const { return this->Uuid; }
+
 std::string gtirb::uuidToString(const UUID& Uuid) {
   return boost::uuids::to_string(Uuid);
 }
 
 UUID gtirb::uuidFromString(const std::string& Text) {
   return boost::uuids::string_generator()(Text);
+}
+
+void GTIRB_EXPORT_API details::ClearUUIDs(Node *N) {
+  N->setUUID();
+
+  if (auto *I = dyn_cast<IR>(N)) {
+    for (auto *M : I->getModules()) {
+      details::ClearUUIDs(M);
+    }
+  } else if (auto *M = dyn_cast<Module>(N)) {
+    details::ClearUUIDs(&M->getImageByteMap());
+    for (auto *D : M->getData()) {
+      details::ClearUUIDs(D);
+    }
+    for (auto *S : M->getSections()) {
+      details::ClearUUIDs(S);
+    }
+    for (auto &S : M->getSymbols()) {
+      details::ClearUUIDs(S.second);
+    }
+    for (auto &B : blocks(M->getCFG())) {
+      details::ClearUUIDs(&B);
+    }
+  }
 }

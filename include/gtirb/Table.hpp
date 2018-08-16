@@ -14,6 +14,8 @@ class Table;
 }
 
 namespace gtirb {
+class Context;
+
 namespace table {
 
 /// \brief DOCFIXME  
@@ -71,13 +73,16 @@ GTIRB_EXPORT_API proto::Table toProtobuf(const Table& Table);
 ///
 /// \brief DOCFIXME
 ///
+/// \param C        DOCFIXME
+///
 /// \param Result   DOCFIXME
 ///
 /// \param Message  DOCFIXME
 ///
 /// \return void
 ///
-GTIRB_EXPORT_API void fromProtobuf(Table& Result, const proto::Table& Message);
+GTIRB_EXPORT_API void fromProtobuf(Context& C, Table& Result,
+                                   const proto::Table& Message);
 } // namespace gtirb
 
 #endif // GTIRB_TABLE_H

@@ -5,7 +5,7 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
 #include <map>
-#include <memory>
+#include <string>
 #include <vector>
 
 namespace proto {
@@ -56,51 +56,13 @@ class Module;
 /// \enddot
 ///
 class GTIRB_EXPORT_API IR : public Node {
+  IR() : Node(Kind::IR) {}
+
 public:
+  static IR *Create(Context &C) { return new (C) IR; }
 
-  /// \brief Default constructor.
-  ///
-  IR();
-
-
-  /// \brief IR may not be copied due to Modules. DOCFIXME[this is a bit mysterious]
-  ///
-  IR(const IR&) = delete;
-
-
-  /// \brief Move constructor.
-  ///
-  IR(IR&&);
-
-
-  /// \brief Move assignment.
-  ///
-  IR& operator=(IR&&);
-
-  ///
-  /// \brief Trivial virtual destructor.
-  ///
-  ~IR() override;
-
-
-  /// DOCFIXME[check all]
-  ///
-  /// \brief Get all modules (\ref Module).
-  ///
-  /// \return All modules associated with \c this, as a \c
-  /// std::vector<Module>.
-  ///
-  std::vector<Module>& getModules() { return Modules; }
-
-
-  /// DOCFIXME[check all]
-  ///
-  /// \brief Get all modules (\ref Module), as a const reference.
-  ///
-  /// \return All modules associated with \c this, as a 
-  /// <tt>const std::vector<Module></tt>.
-  ///
-  const std::vector<Module>& getModules() const { return Modules; }
+  std::vector<Module *>& getModules();
+  const std::vector<Module *>& getModules() const;
 
 
   /// \brief Get all modules with the specified Preferred Effective Address.
@@ -143,10 +105,8 @@ public:
   ///
   /// \return void
   ///
-  void load(std::istream& In);
+  static IR *load(Context &C, std::istream& In);
 
-
-  /// \brief DOCFIXME
   using MessageType = proto::IR;
 
   ///
@@ -158,14 +118,17 @@ public:
   ///
   void toProtobuf(MessageType* Message) const;
 
+
   ///
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param Message DOCFIXME
   ///
-  /// \return void
+  /// \return DOCFIXME
   ///
-  void fromProtobuf(const MessageType& Message);
+  static IR *fromProtobuf(Context &C, const MessageType& Message);
 
   // ----------------------------------------------------------------------
   // Table Properties
@@ -235,9 +198,11 @@ public:
   ///
   void clearTables() { Tables.clear(); }
 
+  static bool classof(const Node *N) { return N->getKind() == Kind::IR; }
+
 private:
   std::map<std::string, gtirb::Table> Tables;
-  std::vector<Module> Modules;
+  std::vector<Module *> Modules;
 };
 } // namespace gtirb
 
