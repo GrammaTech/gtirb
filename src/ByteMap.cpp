@@ -6,7 +6,7 @@
 
 using namespace gtirb;
 
-void ByteMap::setData(EA Ea, gsl::span<const gsl::byte> Bytes) {
+void ByteMap::setData(EA Ea, gsl::span<const std::byte> Bytes) {
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
   EA Limit = Ea + uint64_t(Bytes.size_bytes());
@@ -57,7 +57,7 @@ void ByteMap::setData(EA Ea, gsl::span<const gsl::byte> Bytes) {
   }
 
   // Not contiguous with any existing data. Create a new region.
-  Region R = {Ea, std::vector<gsl::byte>()};
+  Region R = {Ea, std::vector<std::byte>()};
   R.Data.reserve(Bytes.size());
   std::copy(Bytes.begin(), Bytes.end(), std::back_inserter(R.Data));
   this->Regions.insert(std::lower_bound(this->Regions.begin(),
@@ -68,7 +68,7 @@ void ByteMap::setData(EA Ea, gsl::span<const gsl::byte> Bytes) {
                        std::move(R));
 }
 
-std::vector<gsl::byte> ByteMap::getData(EA Ea, size_t Bytes) const {
+std::vector<std::byte> ByteMap::getData(EA Ea, size_t Bytes) const {
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
                           [Ea](const auto& R) { return containsEA(R, Ea); });
 
@@ -96,7 +96,7 @@ void fromProtobuf(ByteMap::Region& Val, const proto::Region& Message) {
   const auto& Data = Message.data();
   Val.Data.reserve(Data.size());
   std::transform(Data.begin(), Data.end(), std::back_inserter(Val.Data),
-                 [](auto x) { return gsl::byte(x); });
+                 [](auto x) { return std::byte(x); });
 }
 } // namespace gtirb
 

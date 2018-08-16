@@ -139,7 +139,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA Ea, gsl::span<const gsl::byte> Data);
+  void setData(EA Ea, gsl::span<const std::byte> Data);
 
   ///
   /// Sets byte map in the given range to a constant value.
@@ -154,7 +154,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA Ea, size_t Bytes, gsl::byte Value);
+  void setData(EA Ea, size_t Bytes, std::byte Value);
 
   ///
   /// Stores data in the byte map at the given address, converting from native
@@ -212,7 +212,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  std::vector<gsl::byte> getData(EA X, size_t Bytes) const;
+  std::vector<std::byte> getData(EA X, size_t Bytes) const;
 
   ///
   /// Get data from the byte map at the given address, converting to native
@@ -294,7 +294,7 @@ private:
 /// getAddress() and getSize() methods (e.g. Data).
 ///
 template <typename T>
-std::vector<gsl::byte> getBytes(const ImageByteMap& byteMap, const T& object) {
+std::vector<std::byte> getBytes(const ImageByteMap& byteMap, const T& object) {
   return byteMap.getData(object.getAddress(), object.getSize());
 }
 

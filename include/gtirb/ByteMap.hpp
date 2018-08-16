@@ -2,6 +2,7 @@
 
 #include <gtirb/EA.hpp>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <gsl/gsl>
@@ -27,7 +28,7 @@ public:
   /// \param  ea      The address to store the data.
   /// \param  data    The data to store.
   ///
-  void setData(EA Ea, gsl::span<const gsl::byte> Data);
+  void setData(EA Ea, gsl::span<const std::byte> Data);
 
   ///
   /// Get data at the given address.
@@ -35,7 +36,7 @@ public:
   /// \param  ea       The starting address for the data.
   /// \param  bytes   The number of bytes to read.
   ///
-  std::vector<gsl::byte> getData(EA Ea, size_t Bytes) const;
+  std::vector<std::byte> getData(EA Ea, size_t Bytes) const;
 
   using MessageType = proto::ByteMap;
   void toProtobuf(MessageType* Message) const;
@@ -43,7 +44,7 @@ public:
 
   struct Region {
     EA Address;
-    std::vector<gsl::byte> Data;
+    std::vector<std::byte> Data;
 
     EA getAddress() const { return this->Address; }
 
@@ -52,6 +53,6 @@ public:
 
 private:
   // Initialize with sentinel region
-  std::vector<Region> Regions{{EA(), std::vector<gsl::byte>()}};
+  std::vector<Region> Regions{{EA(), std::vector<std::byte>()}};
 };
 } // namespace gtirb
