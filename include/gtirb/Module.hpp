@@ -1,8 +1,8 @@
 #ifndef GTIRB_MODULE_H
 #define GTIRB_MODULE_H
 
+#include <gtirb/Addr.hpp>
 #include <gtirb/CFG.hpp>
-#include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/SymbolSet.hpp>
@@ -127,7 +127,7 @@ public:
   ///
   ///
   ///
-  void setPreferredEA(gtirb::EA X);
+  void setPreferredAddr(Addr X);
 
   ///
   ///
@@ -142,7 +142,7 @@ public:
   ///
   ///
   ///
-  gtirb::EA getPreferredEA() const;
+  Addr getPreferredAddr() const;
 
   ///
   /// A Module can have exactly one ImageByteMap child.
@@ -171,7 +171,7 @@ public:
 
 private:
   std::string BinaryPath{};
-  gtirb::EA PreferredEA{};
+  Addr PreferredAddr{};
   int64_t RebaseDelta{0};
   gtirb::FileFormat FileFormat{};
   gtirb::ISAID IsaID{};

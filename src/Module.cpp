@@ -40,9 +40,9 @@ void Module::setISAID(gtirb::ISAID X) { this->IsaID = X; }
 
 gtirb::ISAID Module::getISAID() const { return this->IsaID; }
 
-void Module::setPreferredEA(gtirb::EA X) { this->PreferredEA = X; }
+void Module::setPreferredAddr(Addr X) { this->PreferredAddr = X; }
 
-gtirb::EA Module::getPreferredEA() const { return this->PreferredEA; }
+Addr Module::getPreferredAddr() const { return this->PreferredAddr; }
 
 gtirb::SymbolSet& Module::getSymbols() { return *this->Symbols; }
 
@@ -85,7 +85,7 @@ const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);
-  Message->set_preferred_ea(this->PreferredEA);
+  Message->set_preferred_addr(this->PreferredAddr);
   Message->set_rebase_delta(this->RebaseDelta);
   Message->set_file_format(static_cast<proto::FileFormat>(this->FileFormat));
   Message->set_isa_id(static_cast<proto::ISAID>(this->IsaID));
@@ -109,7 +109,7 @@ void Module::toProtobuf(MessageType* Message) const {
 void Module::fromProtobuf(const MessageType& Message) {
   setNodeUUIDFromBytes(this, Message.uuid());
   this->BinaryPath = Message.binary_path();
-  this->PreferredEA = gtirb::EA(Message.preferred_ea());
+  this->PreferredAddr = Addr(Message.preferred_addr());
   this->RebaseDelta = Message.rebase_delta();
   this->FileFormat = static_cast<gtirb::FileFormat>(Message.file_format());
   this->IsaID = static_cast<ISAID>(Message.isa_id());

@@ -6,22 +6,22 @@
 
 using namespace gtirb;
 
-void ByteMap::setData(EA Ea, gsl::span<const std::byte> Bytes) {
+void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
-  EA Limit = Ea + uint64_t(Bytes.size_bytes());
+  Addr Limit = A + uint64_t(Bytes.size_bytes());
   for (size_t i = 0; Regions[i].Address != BadAddress; i++) {
     auto& Current = Regions[i];
 
     // Overwrite data in existing region
-    if (containsEA(Current, Ea) && Limit <= addressLimit(Current)) {
-      auto Offset = Ea - Current.Address;
+    if (containsAddr(Current, A) && Limit <= addressLimit(Current)) {
+      auto Offset = A - Current.Address;
       std::copy(Bytes.begin(), Bytes.end(), Current.Data.begin() + Offset);
       return;
     }
 
     // Extend region
-    if (Ea == addressLimit(Current)) {
+    if (A == addressLimit(Current)) {
       auto& Next = Regions[i + 1];
 
       if (Limit > Next.Address) {
@@ -47,37 +47,38 @@ void ByteMap::setData(EA Ea, gsl::span<const std::byte> Bytes) {
       // element.
       std::copy(Bytes.begin(), Bytes.end(),
                 std::inserter(Current.Data, Current.Data.begin()));
-      Current.Address = Ea;
+      Current.Address = A;
       return;
     }
 
-    if (containsEA(Current, Ea) || containsEA(Current, Limit - uint64_t(1))) {
+    if (containsAddr(Current, A) ||
+        containsAddr(Current, Limit - uint64_t(1))) {
       throw std::invalid_argument("setData overlaps an existing region");
     }
   }
 
   // Not contiguous with any existing data. Create a new region.
-  Region R = {Ea, std::vector<std::byte>()};
+  Region R = {A, std::vector<std::byte>()};
   R.Data.reserve(Bytes.size());
   std::copy(Bytes.begin(), Bytes.end(), std::back_inserter(R.Data));
-  this->Regions.insert(std::lower_bound(this->Regions.begin(),
-                                        this->Regions.end(), R,
-                                        [](const auto& A, const auto& B) {
-                                          return A.Address < B.Address;
-                                        }),
-                       std::move(R));
+  this->Regions.insert(
+      std::lower_bound(this->Regions.begin(), this->Regions.end(), R,
+                       [](const auto& Left, const auto& Right) {
+                         return Left.Address < Right.Address;
+                       }),
+      std::move(R));
 }
 
-std::vector<std::byte> ByteMap::getData(EA Ea, size_t Bytes) const {
+std::vector<std::byte> ByteMap::getData(Addr A, size_t Bytes) const {
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
-                          [Ea](const auto& R) { return containsEA(R, Ea); });
+                          [A](const auto& R) { return containsAddr(R, A); });
 
-  if (Reg == this->Regions.end() || Ea < Reg->Address ||
-      (Ea + Bytes > addressLimit(*Reg))) {
+  if (Reg == this->Regions.end() || A < Reg->Address ||
+      (A + Bytes > addressLimit(*Reg))) {
     throw std::out_of_range("getData on unmapped address");
   }
 
-  auto Begin = Reg->Data.begin() + (Ea - Reg->Address);
+  auto Begin = Reg->Data.begin() + (A - Reg->Address);
   return {Begin, Begin + Bytes};
 }
 
@@ -92,7 +93,7 @@ proto::Region toProtobuf(const ByteMap::Region& Region) {
 }
 
 void fromProtobuf(ByteMap::Region& Val, const proto::Region& Message) {
-  Val.Address = EA(Message.address());
+  Val.Address = Addr(Message.address());
   const auto& Data = Message.data();
   Val.Data.reserve(Data.size());
   std::transform(Data.begin(), Data.end(), std::back_inserter(Val.Data),

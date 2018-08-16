@@ -20,11 +20,11 @@ std::vector<Module>& IR::getModules() { return this->Modules; }
 
 const std::vector<Module>& IR::getModules() const { return this->Modules; }
 
-std::vector<const Module*> IR::getModulesWithPreferredEA(EA X) const {
+std::vector<const Module*> IR::getModulesWithPreferredAddr(Addr X) const {
   std::vector<const Module*> Results;
 
   for (const auto& m : this->Modules) {
-    if (m.getPreferredEA() == X) {
+    if (m.getPreferredAddr() == X) {
       Results.push_back(&m);
     }
   }
@@ -32,11 +32,11 @@ std::vector<const Module*> IR::getModulesWithPreferredEA(EA X) const {
   return Results;
 }
 
-std::vector<const Module*> IR::getModulesContainingEA(EA X) const {
+std::vector<const Module*> IR::getModulesContainingAddr(Addr X) const {
   std::vector<const Module*> Results;
 
   for (const auto& M : this->Modules) {
-    auto MinMax = M.getImageByteMap().getEAMinMax();
+    auto MinMax = M.getImageByteMap().getAddrMinMax();
     if ((X >= MinMax.first) && (X < MinMax.second)) {
       Results.push_back(&M);
     }

@@ -1,7 +1,7 @@
 #ifndef GTIRB_BLOCK_H
 #define GTIRB_BLOCK_H
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
@@ -32,7 +32,7 @@ public:
   ///
   /// Construct an empty block
   ///
-  Block(EA Address, uint64_t Size, uint64_t DecodeMode = 0);
+  Block(Addr Address, uint64_t Size, uint64_t DecodeMode = 0);
 
   ///
   /// Move constructor
@@ -49,7 +49,7 @@ public:
   ///
   ~Block() override = default;
 
-  EA getAddress() const;
+  Addr getAddress() const;
   uint64_t getSize() const;
   uint64_t getDecodeMode() const;
 
@@ -58,7 +58,7 @@ public:
   void fromProtobuf(const MessageType& Message);
 
 private:
-  EA Address{};
+  Addr Address{};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 };

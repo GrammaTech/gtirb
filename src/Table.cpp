@@ -10,7 +10,7 @@ public:
 
   TableVisitor(MessageT* m) : Message(m) {}
 
-  void operator()(EA Val) const { Message->set_ea(Val.get()); }
+  void operator()(Addr Val) const { Message->set_addr(Val.get()); }
 
   void operator()(int64_t Val) const { Message->set_int_(Val); }
 
@@ -28,8 +28,9 @@ public:
     containerToProtobuf(Val, Message->mutable_map()->mutable_contents());
   }
 
-  void operator()(const std::vector<EA>& Val) const {
-    containerToProtobuf(Val, Message->mutable_ea_vector()->mutable_contents());
+  void operator()(const std::vector<Addr>& Val) const {
+    containerToProtobuf(Val,
+                        Message->mutable_addr_vector()->mutable_contents());
   }
 
   void operator()(const std::vector<int64_t>& Val) const {
@@ -51,8 +52,8 @@ public:
         Val, Message->mutable_instruction_vector()->mutable_contents());
   }
 
-  void operator()(const std::map<EA, table::ValueType>& Val) const {
-    containerToProtobuf(Val, Message->mutable_by_ea()->mutable_contents());
+  void operator()(const std::map<Addr, table::ValueType>& Val) const {
+    containerToProtobuf(Val, Message->mutable_by_addr()->mutable_contents());
   }
 
   void operator()(const std::map<int64_t, table::ValueType>& Val) const {
@@ -102,8 +103,8 @@ proto::Table toProtobuf(const Table& table) {
 
 void fromProtobuf(table::ValueType& Value, const proto::Value& Message) {
   switch (Message.value_case()) {
-  case proto::Value::kEa:
-    Value = EA(Message.ea());
+  case proto::Value::kAddr:
+    Value = Addr(Message.addr());
     break;
   case proto::Value::kInt:
     Value = Message.int_();
@@ -135,8 +136,8 @@ void fromProtobuf(table::ValueType& Value, const proto::Value& Message) {
 void fromProtobuf(table::InnerValueType& Value,
                   const proto::InnerValue& Message) {
   switch (Message.value_case()) {
-  case proto::InnerValue::kEa:
-    Value = EA(Message.ea());
+  case proto::InnerValue::kAddr:
+    Value = Addr(Message.addr());
     break;
   case proto::InnerValue::kInt:
     Value = Message.int_();
@@ -153,9 +154,9 @@ void fromProtobuf(table::InnerValueType& Value,
     Value = std::move(Ref);
     break;
   }
-  case proto::InnerValue::kEaVector: {
-    std::vector<EA> V;
-    containerFromProtobuf(V, Message.ea_vector().contents());
+  case proto::InnerValue::kAddrVector: {
+    std::vector<Addr> V;
+    containerFromProtobuf(V, Message.addr_vector().contents());
     Value = std::move(V);
     break;
   }
@@ -192,9 +193,9 @@ void fromProtobuf(table::InnerValueType& Value,
 
 void fromProtobuf(Table& Result, const proto::Table& Message) {
   switch (Message.value_case()) {
-  case proto::Table::kByEa: {
-    std::map<EA, table::ValueType> Val;
-    containerFromProtobuf(Val, Message.by_ea().contents());
+  case proto::Table::kByAddr: {
+    std::map<Addr, table::ValueType> Val;
+    containerFromProtobuf(Val, Message.by_addr().contents());
     Result = std::move(Val);
     break;
   }
@@ -235,9 +236,9 @@ void fromProtobuf(Table& Result, const proto::Table& Message) {
     break;
   }
 
-  case proto::Table::kEaVector: {
-    std::vector<EA> Val;
-    containerFromProtobuf(Val, Message.ea_vector().contents());
+  case proto::Table::kAddrVector: {
+    std::vector<Addr> Val;
+    containerFromProtobuf(Val, Message.addr_vector().contents());
     Result = std::move(Val);
     break;
   }

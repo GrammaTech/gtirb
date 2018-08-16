@@ -1,7 +1,7 @@
 #ifndef GTIRB_IR_H
 #define GTIRB_IR_H
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
 #include <memory>
@@ -84,20 +84,20 @@ public:
   const std::vector<Module>& getModules() const;
 
   ///
-  /// Get all modules having the given Preferred EA
+  /// Get all modules having the given Preferred address
   ///
-  /// \sa Module::getPreferredEA()
+  /// \sa Module::getPreferredAddr()
   ///
-  std::vector<const Module*> getModulesWithPreferredEA(EA X) const;
+  std::vector<const Module*> getModulesWithPreferredAddr(Addr X) const;
 
   ///
-  /// Get all modules continaing the given EA.
+  /// Get all modules continaing the given address.
   ///
   /// The test is [lower bound inclusive, upper bound exclusive)
   ///
-  /// \sa Module::getEAMinMax()
+  /// \sa Module::getAddrMinMax()
   ///
-  std::vector<const Module*> getModulesContainingEA(EA X) const;
+  std::vector<const Module*> getModulesContainingAddr(Addr X) const;
 
   ///
   /// Serialize IR to an output stream.
