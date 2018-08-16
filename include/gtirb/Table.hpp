@@ -1,7 +1,7 @@
 #pragma once
 
+#include <gtirb/Addr.hpp>
 #include <gtirb/Block.hpp>
-#include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <map>
 #include <string>
@@ -14,12 +14,12 @@ class Table;
 
 namespace gtirb {
 namespace table {
-using InnerValueType = std::variant<EA,                       //
+using InnerValueType = std::variant<Addr,                     //
                                     int64_t,                  //
                                     std::string,              //
                                     UUID,                     //
                                     InstructionRef,           //
-                                    std::vector<EA>,          //
+                                    std::vector<Addr>,        //
                                     std::vector<int64_t>,     //
                                     std::vector<std::string>, //
                                     std::vector<UUID>,        //
@@ -30,7 +30,7 @@ using InnerValueType = std::variant<EA,                       //
 using InnerMapType = std::map<std::string, InnerValueType>;
 
 /// Table values can be any of these types.
-using ValueType = std::variant<EA,             //
+using ValueType = std::variant<Addr,           //
                                int64_t,        //
                                std::string,    //
                                UUID,           //
@@ -43,12 +43,12 @@ using ValueType = std::variant<EA,             //
 ///
 /// A generic table for storing additional, client-specific data.
 ///
-using Table = std::variant<std::map<EA, table::ValueType>,          //
+using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::map<int64_t, table::ValueType>,     //
                            std::map<std::string, table::ValueType>, //
                            std::map<UUID, table::ValueType>,        //
                            std::vector<table::InnerMapType>,        //
-                           std::vector<EA>,                         //
+                           std::vector<Addr>,                       //
                            std::vector<int64_t>,                    //
                            std::vector<std::string>,                //
                            std::vector<UUID>,                       //

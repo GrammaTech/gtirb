@@ -66,11 +66,11 @@ TEST(Unit_Module, setRebaseDelta) {
   EXPECT_EQ(std::numeric_limits<int64_t>::lowest(), M->getRebaseDelta());
 }
 
-TEST(Unit_Module, getPreferredEADefault) {
+TEST(Unit_Module, getPreferredAddrDefault) {
   auto M = std::make_shared<gtirb::Module>();
 
-  EXPECT_NO_THROW(M->getPreferredEA());
-  EXPECT_EQ(gtirb::EA{}, M->getPreferredEA());
+  EXPECT_NO_THROW(M->getPreferredAddr());
+  EXPECT_EQ(Addr{}, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getISAID) {
@@ -83,14 +83,14 @@ TEST(Unit_Module, getISAID) {
   EXPECT_EQ(gtirb::ISAID::X64, M->getISAID());
 }
 
-TEST(Unit_Module, setPreferredEA) {
+TEST(Unit_Module, setPreferredAddr) {
   auto M = std::make_shared<gtirb::Module>();
-  const gtirb::EA Preferred{64};
+  const Addr Preferred{64};
 
-  EXPECT_NO_THROW(M->getPreferredEA());
-  EXPECT_NO_THROW(M->setPreferredEA(Preferred));
+  EXPECT_NO_THROW(M->getPreferredAddr());
+  EXPECT_NO_THROW(M->setPreferredAddr(Preferred));
 
-  EXPECT_EQ(Preferred, M->getPreferredEA());
+  EXPECT_EQ(Preferred, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getSymbolSet) {
@@ -119,20 +119,20 @@ TEST(Unit_Module, getName) {
 
 TEST(Unit_Module, sections) {
   Module M;
-  M.getSections().emplace_back("test", EA(), 123);
+  M.getSections().emplace_back("test", Addr(), 123);
   EXPECT_EQ(M.getSections().back().getName(), "test");
 }
 
 TEST(Unit_Module, dataObjects) {
   Module M;
-  M.getData().emplace_back(EA(1), 123);
-  EXPECT_EQ(M.getData().back().getAddress(), EA(1));
+  M.getData().emplace_back(Addr(1), 123);
+  EXPECT_EQ(M.getData().back().getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, symbolicExpressions) {
   Module M;
   Symbol S;
-  M.getSymbolicExpressions().emplace(EA(1), SymAddrConst{0, S});
+  M.getSymbolicExpressions().emplace(Addr(1), SymAddrConst{0, S});
   EXPECT_EQ(M.getSymbolicExpressions().size(), 1);
 }
 
@@ -146,7 +146,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   {
     Module Original;
     Original.setBinaryPath("test");
-    Original.setPreferredEA(EA(3));
+    Original.setPreferredAddr(Addr(3));
     Original.setRebaseDelta(4);
     Original.setFileFormat(FileFormat::ELF);
     Original.setISAID(ISAID::X64);
@@ -155,7 +155,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     addBlock(Original.getCFG(), {});
     Original.getData().push_back({});
     Original.getSections().push_back({});
-    Original.getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
+    Original.getSymbolicExpressions().insert({Addr(7), {SymAddrConst()}});
 
     ByteMapID = Original.getImageByteMap().getUUID();
     SymbolID = Original.getSymbols().begin()->second.getUUID();
@@ -171,7 +171,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   Result.fromProtobuf(Message);
 
   EXPECT_EQ(Result.getBinaryPath(), "test");
-  EXPECT_EQ(Result.getPreferredEA(), EA(3));
+  EXPECT_EQ(Result.getPreferredAddr(), Addr(3));
   EXPECT_EQ(Result.getRebaseDelta(), 4);
   EXPECT_EQ(Result.getFileFormat(), FileFormat::ELF);
   EXPECT_EQ(Result.getISAID(), ISAID::X64);

@@ -5,13 +5,13 @@
 using namespace gtirb;
 
 TEST(Unit_DataObject, getters) {
-  DataObject D(EA(1), 1234);
-  EXPECT_EQ(D.getAddress(), EA(1));
+  DataObject D(Addr(1), 1234);
+  EXPECT_EQ(D.getAddress(), Addr(1));
   EXPECT_EQ(D.getSize(), 1234);
 }
 
 TEST(Unit_DataObject, protobufRoundTrip) {
-  DataObject Original(EA(1), 1234);
+  DataObject Original(Addr(1), 1234);
 
   gtirb::DataObject Result;
   proto::DataObject Message;
@@ -19,6 +19,6 @@ TEST(Unit_DataObject, protobufRoundTrip) {
   Original.setUUID(); // Avoid UUID conflict
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.getAddress(), EA(1));
+  EXPECT_EQ(Result.getAddress(), Addr(1));
   EXPECT_EQ(Result.getSize(), 1234);
 }

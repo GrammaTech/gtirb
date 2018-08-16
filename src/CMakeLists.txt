@@ -28,8 +28,8 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/Block.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
-    ../include/gtirb/DataObject.hpp
-	../include/gtirb/EA.hpp
+        ../include/gtirb/DataObject.hpp
+    ../include/gtirb/Addr.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/ImageByteMap.hpp
 	../include/gtirb/IR.hpp
@@ -39,9 +39,9 @@ set(${PROJECT_NAME}_H
         ../include/gtirb/Section.hpp
 	../include/gtirb/Symbol.hpp
         ../include/gtirb/SymbolSet.hpp
-    ../include/gtirb/SymbolicExpression.hpp
-    ../include/gtirb/SymbolicExpressionSet.hpp
-    ../include/gtirb/Table.hpp
+        ../include/gtirb/SymbolicExpression.hpp
+        ../include/gtirb/SymbolicExpressionSet.hpp
+        ../include/gtirb/Table.hpp
         ../src/Serialization.hpp
 )
 
@@ -50,7 +50,7 @@ set(${PROJECT_NAME}_SRC
 	ByteMap.cpp
 	CFG.cpp
         DataObject.cpp
-        EA.cpp
+        Addr.cpp
 	ImageByteMap.cpp
 	IR.cpp
 	Module.cpp

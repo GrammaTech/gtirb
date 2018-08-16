@@ -14,57 +14,57 @@ using namespace gtirb;
 
 TEST(Unit_IR, ctor_0) { EXPECT_NO_THROW(gtirb::IR()); }
 
-TEST(Unit_IR, getModulesWithPreferredEA) {
-  const gtirb::EA PreferredEA{22678};
-  const size_t ModulesWithEA{3};
-  const size_t ModulesWithoutEA{5};
+TEST(Unit_IR, getModulesWithPreferredAddr) {
+  const Addr PreferredAddr{22678};
+  const size_t ModulesWithAddr{3};
+  const size_t ModulesWithoutAddr{5};
 
   auto Ir = gtirb::IR();
 
-  for (size_t I = 0; I < ModulesWithEA; ++I) {
+  for (size_t I = 0; I < ModulesWithAddr; ++I) {
     Module M;
-    M.setPreferredEA(PreferredEA);
+    M.setPreferredAddr(PreferredAddr);
     EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
   }
 
-  for (size_t I = 0; I < ModulesWithoutEA; ++I) {
+  for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
     Module M;
     EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
   }
 
-  const auto Modules = Ir.getModulesWithPreferredEA(PreferredEA);
+  const auto Modules = Ir.getModulesWithPreferredAddr(PreferredAddr);
   EXPECT_FALSE(Modules.empty());
-  EXPECT_EQ(ModulesWithEA, Modules.size());
+  EXPECT_EQ(ModulesWithAddr, Modules.size());
 }
 
-TEST(Unit_IR, getModulesContainingEA) {
-  const gtirb::EA Ea{22678};
-  const gtirb::EA EaOffset{2112};
+TEST(Unit_IR, getModulesContainingAddr) {
+  const Addr Ea{22678};
+  const Addr EaOffset{2112};
 
   auto Ir = gtirb::IR();
 
-  // EA at lower bound
+  // Addr at lower bound
   {
     Module M;
-    M.getImageByteMap().setEAMinMax({Ea, Ea + EaOffset});
+    M.getImageByteMap().setAddrMinMax({Ea, Ea + EaOffset});
     EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
   }
 
-  // EA inside range
+  // Addr inside range
   {
     Module M;
-    M.getImageByteMap().setEAMinMax({Ea - EaOffset, Ea + EaOffset});
+    M.getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea + EaOffset});
     EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
   }
 
-  // EA at max (should not be returned)
+  // Addr at max (should not be returned)
   {
     Module M;
-    M.getImageByteMap().setEAMinMax({Ea - EaOffset, Ea});
+    M.getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea});
     EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
   }
 
-  const auto modules = Ir.getModulesContainingEA(Ea);
+  const auto modules = Ir.getModulesContainingAddr(Ea);
   EXPECT_FALSE(modules.empty());
   EXPECT_EQ(size_t(2), modules.size());
 }
@@ -92,7 +92,7 @@ TEST(Unit_IR, protobufRoundTrip) {
   {
     IR Original;
     Module M;
-    M.getImageByteMap().setEAMinMax({EA(100), EA(200)});
+    M.getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
     Original.getModules().push_back(std::move(M));
     Original.addTable("test", Table());
 
@@ -103,7 +103,7 @@ TEST(Unit_IR, protobufRoundTrip) {
   Result.fromProtobuf(Message);
 
   EXPECT_EQ(Result.getModules()[0].getUUID(), MainID);
-  EXPECT_EQ(Result.getModulesContainingEA(EA(100)).size(), 1);
+  EXPECT_EQ(Result.getModulesContainingAddr(Addr(100)).size(), 1);
   EXPECT_EQ(Result.getTableSize(), 1);
   EXPECT_NE(Result.getTable("test"), nullptr);
 }

@@ -7,8 +7,8 @@ using namespace gtirb;
 TEST(Unit_SymbolSet, ctor_0) { EXPECT_NO_THROW(gtirb::SymbolSet()); }
 
 TEST(Unit_SymbolSet, findSymbols) {
-  gtirb::EA Ea1{22678};
-  gtirb::EA Ea2{33678};
+  Addr Ea1{22678};
+  Addr Ea2{33678};
   gtirb::SymbolSet Symbols;
 
   addSymbol(Symbols, Symbol(Ea1, "s1"));
@@ -28,7 +28,7 @@ TEST(Unit_SymbolSet, findSymbols) {
 }
 
 TEST(Unit_SymbolSet, getSymbolsInvalid) {
-  gtirb::EA Ea{};
+  Addr Ea{};
   gtirb::SymbolSet Symbols;
 
   EXPECT_NO_THROW(findSymbols(Symbols, Ea));

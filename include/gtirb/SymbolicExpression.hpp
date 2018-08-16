@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Symbol.hpp>
 #include <cstdint>

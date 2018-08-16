@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <cstdint>
 
@@ -13,7 +13,7 @@ namespace gtirb {
 class GTIRB_EXPORT_API Section : public Node {
 public:
   Section() = default;
-  Section(std::string N, EA Address, uint64_t Size);
+  Section(std::string N, Addr Address, uint64_t Size);
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
@@ -34,7 +34,7 @@ public:
   bool operator!=(const Section& Other) const;
 
   const std::string& getName() const;
-  const EA getAddress() const;
+  const Addr getAddress() const;
   uint64_t getSize() const;
 
   using MessageType = proto::Section;
@@ -43,7 +43,7 @@ public:
 
 private:
   std::string Name;
-  EA Address{0};
+  Addr Address{0};
   uint64_t Size{0};
 };
 } // namespace gtirb

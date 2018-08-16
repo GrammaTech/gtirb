@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <proto/Symbol.pb.h>
@@ -34,11 +34,12 @@ public:
   ///
   /// This constructor sets the Effective Address on construction.
   ///
-  Symbol(EA X);
-  Symbol(EA X, std::string Name, StorageKind StorageKind = StorageKind::Extern);
-  Symbol(EA X, std::string Name, const DataObject& Referent,
+  Symbol(Addr X);
+  Symbol(Addr X, std::string Name,
          StorageKind StorageKind = StorageKind::Extern);
-  Symbol(EA X, std::string Name, const Block& Referent,
+  Symbol(Addr X, std::string Name, const DataObject& Referent,
+         StorageKind StorageKind = StorageKind::Extern);
+  Symbol(Addr X, std::string Name, const Block& Referent,
          StorageKind StorageKind = StorageKind::Extern);
 
   ///
@@ -61,8 +62,8 @@ public:
   ///
   ~Symbol() override = default;
 
-  void setEA(gtirb::EA X);
-  gtirb::EA getEA() const;
+  void setAddress(gtirb::Addr X);
+  gtirb::Addr getAddress() const;
 
   void setName(std::string X);
   std::string getName() const;
@@ -95,7 +96,7 @@ public:
   void fromProtobuf(const MessageType& Message);
 
 private:
-  gtirb::EA Ea{};
+  gtirb::Addr Address{};
   std::string Name;
   gtirb::Symbol::StorageKind Storage{StorageKind::Extern};
   NodeRef<DataObject> DataReferent;

@@ -24,7 +24,7 @@ void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes) {
   Node->setUUID(uuidFromBytes(Bytes));
 }
 
-uint64_t toProtobuf(const EA Val) { return Val.get(); }
+uint64_t toProtobuf(const Addr Val) { return Val.get(); }
 
 std::string toProtobuf(const std::string& Val) { return Val; }
 
@@ -38,7 +38,9 @@ std::string toProtobuf(const UUID& Val) {
   return Result;
 }
 
-void fromProtobuf(EA& Result, const uint64_t& Message) { Result = EA(Message); }
+void fromProtobuf(Addr& Result, const uint64_t& Message) {
+  Result = Addr(Message);
+}
 
 void fromProtobuf(UUID& Result, const std::string& Message) {
   Result = uuidFromBytes(Message);

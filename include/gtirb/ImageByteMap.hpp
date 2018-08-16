@@ -1,7 +1,7 @@
 #pragma once
 
+#include <gtirb/Addr.hpp>
 #include <gtirb/ByteMap.hpp>
-#include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <proto/ImageByteMap.pb.h>
 #include <array>
@@ -55,42 +55,42 @@ public:
   ///
   /// Sets the base address of loaded file.
   ///
-  void setBaseAddress(EA X);
+  void setBaseAddress(Addr X);
 
   ///
   /// Gets the base addrress of loaded file.
   ///
-  EA getBaseAddress() const;
+  Addr getBaseAddress() const;
 
   ///
   /// Sets the entry point of loaded file.
   ///
-  void setEntryPointAddress(EA X);
+  void setEntryPointAddress(Addr X);
 
   ///
   /// Gets the entry point of loaded file.
   ///
-  EA getEntryPointAddress() const;
+  Addr getEntryPointAddress() const;
 
   ///
   /// If an invalid pair is passed in, the min and max will be set to an invalid
   /// state (gtirb::constants::BadAddress).  The range's min and max values are
   /// inclusive.
   ///
-  /// \param      x   The minimum and maximum effective address (EA) for this
+  /// \param      x   The minimum and maximum effective address (Addr) for this
   /// Module. \return     False if the pair's first is > the pair's second.
   ///
-  bool setEAMinMax(std::pair<gtirb::EA, gtirb::EA> X);
+  bool setAddrMinMax(std::pair<Addr, Addr> X);
 
   ///
-  /// Gets the minimum and maximum effective address (EA) for this Module.
+  /// Gets the minimum and maximum effective address (Addr) for this Module.
   ///
   /// Check return values for gtirb::constants::BadAddress.
   ///
-  /// \return     The minimum and maximum effective address (EA) for this
+  /// \return     The minimum and maximum effective address (Addr) for this
   /// Module.
   ///
-  std::pair<gtirb::EA, gtirb::EA> getEAMinMax() const;
+  std::pair<Addr, Addr> getAddrMinMax() const;
 
   ///
   ///
@@ -129,41 +129,41 @@ public:
   /// Sets byte map at the given address. Data is written directly without
   /// any byte order conversions.
   ///
-  /// The given address must be within the minimum and maximum EA.
+  /// The given address must be within the minimum and maximum Addr.
   ///
   /// \throws std::out_of_range   Throws if the address to set data at is
-  /// outside of the minimum and maximum EA.
+  /// outside of the minimum and maximum Addr.
   ///
   /// \param  ea      The address to store the data.
   /// \param  data    A pointer to the data to store.
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA Ea, gsl::span<const std::byte> Data);
+  void setData(Addr Ea, gsl::span<const std::byte> Data);
 
   ///
   /// Sets byte map in the given range to a constant value.
   ///
-  /// The given address must be within the minimum and maximum EA.
+  /// The given address must be within the minimum and maximum Addr.
   ///
   /// \throws std::out_of_range   Throws if the address to set data at is
-  /// outside of the minimum and maximum EA.
+  /// outside of the minimum and maximum Addr.
   ///
   /// \param  ea      The address to store the data.
   /// \param  value   The value for all bytes in the range.
   ///
   /// \sa gtirb::ByteMap
   ///
-  void setData(EA Ea, size_t Bytes, std::byte Value);
+  void setData(Addr Ea, size_t Bytes, std::byte Value);
 
   ///
   /// Stores data in the byte map at the given address, converting from native
   /// byte order.
   ///
-  /// The given address must be within the minimum and maximum EA.
+  /// The given address must be within the minimum and maximum Addr.
   ///
   /// \throws std::out_of_range   Throws if the address to set data at is
-  /// outside of the minimum and maximum EA.
+  /// outside of the minimum and maximum Addr.
   ///
   /// \param  Ea      The address to store the data.
   /// \param  Data    The data to store. This may be any endian-reversible POD
@@ -171,7 +171,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  template <typename T> void setData(EA Ea, const T& Data) {
+  template <typename T> void setData(Addr Ea, const T& Data) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
     if (this->ByteOrder != boost::endian::order::native) {
       T reversed = boost::endian::conditional_reverse(
@@ -187,7 +187,7 @@ public:
   /// elements from native byte order.
   ///
   /// \throws std::out_of_range   Throws if the address to set data at is
-  /// outside of the minimum and maximum EA.
+  /// outside of the minimum and maximum Addr.
   ///
   /// \param  Ea      The address to store the data.
 
@@ -197,7 +197,7 @@ public:
   /// \sa gtirb::ByteMap
   ///
   template <typename T, size_t Size>
-  void setData(EA Ea, const std::array<T, Size>& Data) {
+  void setData(Addr Ea, const std::array<T, Size>& Data) {
     for (const auto& Elt : Data) {
       this->setData(Ea, Elt);
       Ea += sizeof(T);
@@ -212,7 +212,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  std::vector<std::byte> getData(EA X, size_t Bytes) const;
+  std::vector<std::byte> getData(Addr X, size_t Bytes) const;
 
   ///
   /// Get data from the byte map at the given address, converting to native
@@ -226,7 +226,7 @@ public:
   /// \sa gtirb::ByteMap
   ///
   template <typename T>
-  typename std::enable_if<!is_std_array<T>::value, T>::type getData(EA Ea) {
+  typename std::enable_if<!is_std_array<T>::value, T>::type getData(Addr Ea) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
 
     return boost::endian::conditional_reverse(this->getDataNoSwap<T>(Ea),
@@ -246,7 +246,7 @@ public:
   /// \sa gtirb::ByteMap
   ///
   template <typename T>
-  typename std::enable_if<is_std_array<T>::value, T>::type getData(EA Ea) {
+  typename std::enable_if<is_std_array<T>::value, T>::type getData(Addr Ea) {
     static_assert(std::is_pod<T>::value, "T::value must be a POD type");
 
     auto Result = getDataNoSwap<T>(Ea);
@@ -263,7 +263,7 @@ public:
   void fromProtobuf(const MessageType& message);
 
 private:
-  template <typename T> T getDataNoSwap(EA Ea) {
+  template <typename T> T getDataNoSwap(Addr Ea) {
     T Result;
     auto destSpan = as_writeable_bytes(gsl::make_span(&Result, 1));
     // Assign this to a variable so it isn't destroyed before we copy
@@ -279,9 +279,9 @@ private:
   // Storage for the entire contents of the loaded image.
   gtirb::ByteMap ByteMap;
   std::string FileName;
-  std::pair<gtirb::EA, gtirb::EA> EaMinMax{};
-  EA BaseAddress{};
-  EA EntryPointAddress{};
+  std::pair<Addr, Addr> EaMinMax{};
+  Addr BaseAddress{};
+  Addr EntryPointAddress{};
   int64_t RebaseDelta{0};
   bool IsRelocated{false};
   boost::endian::order ByteOrder{boost::endian::order::native};

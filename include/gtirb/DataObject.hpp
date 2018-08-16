@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
+#include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <cstdint>
 #include <vector>
@@ -20,7 +20,7 @@ public:
   // Default constructor required for serialization.
   DataObject() = default;
 
-  DataObject(EA Address_, uint64_t Size_) : Address(Address_), Size(Size_) {}
+  DataObject(Addr Address_, uint64_t Size_) : Address(Address_), Size(Size_) {}
 
   ///
   /// Copy constructor. Assigns a new UUID to the copy.
@@ -36,7 +36,7 @@ public:
   ///
   DataObject& operator=(DataObject&&) = default;
 
-  EA getAddress() const;
+  Addr getAddress() const;
 
   uint64_t getSize() const;
 
@@ -45,7 +45,7 @@ public:
   void fromProtobuf(const MessageType& Message);
 
 private:
-  EA Address{0};
+  Addr Address{0};
   uint64_t Size{0};
 };
 } // namespace gtirb

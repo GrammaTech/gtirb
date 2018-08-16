@@ -1,8 +1,8 @@
 #pragma once
 
-#include <gtirb/EA.hpp>
-#include <variant>
+#include <gtirb/Addr.hpp>
 #include <map>
+#include <variant>
 
 namespace gtirb {
 struct SymStackConst;
@@ -11,5 +11,5 @@ struct SymAddrAddr;
 
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
-using SymbolicExpressionSet = std::map<EA, SymbolicExpression>;
+using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
 } // namespace gtirb
