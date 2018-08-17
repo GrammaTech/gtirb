@@ -1,6 +1,7 @@
 SET(PROJECT_NAME gtirb)
 
 add_subdirectory(proto)
+include_directories(SYSTEM "${Protobuf_INCLUDE_DIRS}")
 
 add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 
