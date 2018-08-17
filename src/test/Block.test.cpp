@@ -21,8 +21,8 @@ TEST(Unit_Block, protobufRoundTrip) {
   {
     Block *Original = Block::Create(Ctx, EA(1), 3, 5);
     Original->toProtobuf(&Message);
+    Original->setUUID(); // Avoid UUID conflict
   }
-  // original has been destroyed, so UUIDs can be reused
   Block *Result = Block::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getAddress(), EA(1));

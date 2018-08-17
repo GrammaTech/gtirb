@@ -153,12 +153,11 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
     Original->setName("module");
-    addSymbol(Original->getSymbols(), {});
-    addBlock(Original->getCFG(), {});
-    Original->getData().push_back({});
-    Original->getSections().push_back({});
+    addSymbol(Original->getSymbols(), Symbol::Create(Ctx));
+    addBlock(Original->getCFG(), Block::Create(Ctx));
+    Original->getData().push_back(DataObject::Create(Ctx));
+    Original->getSections().push_back(Section::Create(Ctx));
     Original->getSymbolicExpressions().insert({EA(7), {SymAddrConst()}});
-
     ByteMapID = Original->getImageByteMap().getUUID();
     SymbolID = Original->getSymbols().begin()->second->getUUID();
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
@@ -167,9 +166,15 @@ TEST(Unit_Module, protobufRoundTrip) {
     WhichSymbolic = Original->getSymbolicExpressions().begin()->second.index();
 
     Original->toProtobuf(&Message);
+
+    Original->getSymbols().begin()->second->setUUID();
+    blocks(Original->getCFG()).begin()->setUUID();
+    Original->getImageByteMap().setUUID();
+    Original->getData().front()->setUUID();
+    Original->getSections().front()->setUUID();
+    Original->setUUID();
   }
 
-  // Original has been destroyed, so UUIDs can be reused
   Module *Result = Module::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getBinaryPath(), "test");

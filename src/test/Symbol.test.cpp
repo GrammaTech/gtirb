@@ -78,6 +78,9 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     Original->setReferent(*Data);
 
     Original->toProtobuf(&Message);
+
+    Data->setUUID();
+    Original->setUUID();
   }
 
   Symbol *Result = Symbol::fromProtobuf(Ctx, Message);

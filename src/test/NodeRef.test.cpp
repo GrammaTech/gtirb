@@ -1,6 +1,8 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
@@ -29,7 +31,7 @@ TEST(Unit_NodeRef, castToPointer) {
 }
 
 TEST(Unit_NodeRef, badRefCastsToNullptr) {
-  NodeRef<Node> Ref(Node::Create(Ctx)->getUUID());
+  NodeRef<Node> Ref{boost::uuids::random_generator()()};
 
   EXPECT_EQ(static_cast<Node*>(Ref), nullptr);
 }

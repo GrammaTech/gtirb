@@ -100,8 +100,10 @@ TEST(Unit_IR, protobufRoundTrip) {
 
     MainID = Original->getModules().front()->getUUID();
     Original->toProtobuf(&Message);
+    M->getImageByteMap().setUUID();
+    M->setUUID();
+    Original->setUUID(); // Avoid UUID conflict
   }
-  // original has been destroyed, so UUIDs can be reused
   IR *Result = IR::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getModules().front()->getUUID(), MainID);
