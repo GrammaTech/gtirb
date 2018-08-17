@@ -10,6 +10,7 @@ endif()
 PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${ProtoFiles})
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
+include_directories(SYSTEM "${Protobuf_INCLUDE_DIRS}")
 
 # Install includes
 add_custom_command(TARGET proto POST_BUILD
