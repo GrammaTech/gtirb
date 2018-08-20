@@ -38,11 +38,12 @@ public:
   virtual ~Node() noexcept;
 
   ///
-  /// Generate and assign a new Universally Unique ID (UUID).
+  /// Generate and assign a new Universally Unique ID (UUID) to this
+  /// object and any stored subobjects that also have a UUID.
   ///
   /// Though automatically assigned on construction, it can be manually set.
   ///
-  void setUUID();
+  virtual void setUUID();
 
   ///
   /// Manually assign Universally Unique ID (UUID).

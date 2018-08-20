@@ -167,11 +167,6 @@ TEST(Unit_Module, protobufRoundTrip) {
 
     Original->toProtobuf(&Message);
 
-    Original->getSymbols().begin()->second->setUUID();
-    blocks(Original->getCFG()).begin()->setUUID();
-    Original->getImageByteMap().setUUID();
-    Original->getData().front()->setUUID();
-    Original->getSections().front()->setUUID();
     Original->setUUID();
   }
 

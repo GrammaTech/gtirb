@@ -79,6 +79,32 @@ const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
   return *this->SymbolicOperands;
 }
 
+void Module::setUUID() {
+  Node::setUUID();
+  if (ImageBytes)
+    ImageBytes->setUUID();
+  if (Data) {
+    for (auto *D : *Data) {
+      D->setUUID();
+    }
+  }
+  if (Sections) {
+    for (auto *S : *Sections) {
+      S->setUUID();
+    }
+  }
+  if (Symbols) {
+    for (auto &P : *Symbols) {
+      P.second->setUUID();
+    }
+  }
+  if (Cfg) {
+    for (auto &B : blocks(*Cfg)) {
+      B.setUUID();
+    }
+  }
+}
+
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);

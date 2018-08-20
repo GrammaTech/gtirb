@@ -79,6 +79,13 @@ bool IR::getTablesEmpty() const { return this->Tables.empty(); }
 
 void IR::clearTables() { this->Tables.clear(); }
 
+void IR::setUUID() {
+  for (auto *M : Modules) {
+    M->setUUID();
+  }
+  Node::setUUID();
+}
+
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   containerToProtobuf(this->Modules, Message->mutable_modules());

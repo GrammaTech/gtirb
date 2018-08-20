@@ -126,6 +126,9 @@ public:
   ///
   gtirb::EA getPreferredEA() const;
 
+  void setUUID() override;
+  using Node::setUUID;
+
   ///
   /// A Module can have exactly one ImageByteMap child.
   ///
