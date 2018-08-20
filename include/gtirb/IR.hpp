@@ -53,7 +53,7 @@ class Module;
 /// \enddot
 ///
 class GTIRB_EXPORT_API IR : public Node {
-  IR() = default;
+  IR() : Node(Kind::IR) {}
 
 public:
   static IR *Create(Context &C) { return new (C) IR; }
@@ -143,6 +143,8 @@ public:
   /// Clear all locally owned tables.
   ///
   void clearTables();
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::IR; }
 
 private:
   std::map<std::string, gtirb::Table> Tables;

@@ -13,10 +13,9 @@
 
 using namespace gtirb;
 
-Module::Module(Context &C)
-    : Node(), Cfg(std::make_unique<CFG>()),
-      Data(std::make_unique<DataSet>()),
-      ImageBytes(ImageByteMap::Create(C)),
+Module::Module(Context& C)
+    : Node(Kind::Module), Cfg(std::make_unique<CFG>()),
+      Data(std::make_unique<DataSet>()), ImageBytes(ImageByteMap::Create(C)),
       Sections(std::make_unique<SectionSet>()),
       Symbols(std::make_unique<SymbolSet>()),
       SymbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}

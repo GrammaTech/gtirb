@@ -20,13 +20,13 @@ namespace gtirb {
 /// A basic block.
 ///
 class GTIRB_EXPORT_API Block : public Node {
-  Block() = default;
+  Block() : Node(Kind::Block) {}
 
   ///
   /// Construct an empty block
   ///
   Block(EA Addr, uint64_t S, uint64_t Decode)
-      : Node(), Address(Addr), Size(S), DecodeMode(Decode) {}
+      : Node(Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
 
 public:
 
@@ -43,6 +43,8 @@ public:
   using MessageType = proto::Block;
   void toProtobuf(MessageType* Message) const;
   static Block *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::Block; }
 
 private:
   EA Address{};

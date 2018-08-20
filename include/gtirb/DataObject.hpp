@@ -16,9 +16,10 @@ namespace gtirb {
 /// the data bytes, which are kept in the ImageByteMap.
 ///
 class GTIRB_EXPORT_API DataObject : public Node {
-  DataObject() = default;
+  DataObject() : Node(Kind::DataObject) {}
 
-  DataObject(EA Address, uint64_t Size) : Node(), Address(Address), Size(Size) {}
+  DataObject(EA Address, uint64_t Size)
+      : Node(Kind::DataObject), Address(Address), Size(Size) {}
 
 public:
   static DataObject *Create(Context &C) { return new (C) DataObject; }
@@ -33,6 +34,10 @@ public:
   using MessageType = proto::DataObject;
   void toProtobuf(MessageType* Message) const;
   static DataObject *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node* N) {
+    return N->getKind() == Kind::DataObject;
+  }
 
 private:
   EA Address{0};

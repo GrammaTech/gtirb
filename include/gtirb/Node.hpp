@@ -17,10 +17,18 @@ using UUID = boost::uuids::uuid;
 /// \class Node
 ///
 class GTIRB_EXPORT_API Node {
-protected:
-  Node();
-
 public:
+  enum class Kind {
+    Node,
+    Block,
+    DataObject,
+    ImageByteMap,
+    IR,
+    Module,
+    Section,
+    Symbol,
+  };
+
   Node(const Node &) = delete;
   void operator=(const Node &) = delete;
 
@@ -30,7 +38,7 @@ public:
   /// \return node with the given UUID, or nullptr if none exists.
   static Node* getByUUID(UUID Uuid);
 
-  static Node *Create(Context &C) { return new (C) Node; }
+  static Node *Create(Context &C) { return new (C) Node(Kind::Node); }
 
   ///
   /// This will serve as a base class for other nodes.
@@ -57,7 +65,14 @@ public:
   ///
   UUID getUUID() const;
 
+  Kind getKind() const { return K; }
+  static bool classof(const Node *N) { return N->getKind() == Kind::Node; }
+
+protected:
+  Node(Kind K);
+
 private:
+  Kind K;
   UUID Uuid;
 
   static std::map<UUID, Node*> UuidMap;

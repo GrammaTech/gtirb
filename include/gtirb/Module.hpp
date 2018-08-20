@@ -154,6 +154,8 @@ public:
   void toProtobuf(MessageType* message) const;
   static Module *fromProtobuf(Context &C, const MessageType& message);
 
+  static bool classof(const Node *N) { return N->getKind() == Kind::Module; }
+
 private:
   std::string BinaryPath{};
   gtirb::EA PreferredEA{};

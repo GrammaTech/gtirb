@@ -17,7 +17,7 @@ Node* Node::getByUUID(UUID Uuid) {
   }
 }
 
-Node::Node() : Uuid(boost::uuids::random_generator()()) {
+Node::Node(Kind K) : K(K), Uuid(boost::uuids::random_generator()()) {
   Node::UuidMap[this->Uuid] = this;
 }
 

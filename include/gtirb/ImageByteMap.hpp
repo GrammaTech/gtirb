@@ -22,7 +22,7 @@ struct is_std_array<std::array<T, N>> : std::true_type {};
 /// Contains the loaded raw image data for the module (binary).
 ///
 class GTIRB_EXPORT_API ImageByteMap : public Node {
-  ImageByteMap() = default;
+  ImageByteMap() : Node(Kind::ImageByteMap) {}
 
 public:
   static ImageByteMap *Create(Context &C) { return new (C) ImageByteMap; }
@@ -246,6 +246,10 @@ public:
   using MessageType = proto::ImageByteMap;
   void toProtobuf(MessageType* message) const;
   static ImageByteMap *fromProtobuf(Context &C, const MessageType& message);
+
+  static bool classof(const Node* N) {
+    return N->getKind() == Kind::ImageByteMap;
+  }
 
 private:
   template <typename T> T getDataNoSwap(EA Ea) {

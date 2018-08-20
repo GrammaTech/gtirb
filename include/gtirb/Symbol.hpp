@@ -76,18 +76,20 @@ public:
   void toProtobuf(MessageType* Message) const;
   static Symbol *fromProtobuf(Context &C, const MessageType& Message);
 
+  static bool classof(const Node *N) { return N->getKind() == Kind::Symbol; }
+
 private:
   ///
   /// Default constructor.
   ///
-  Symbol() = default;
+  Symbol() : Node(Kind::Symbol) {}
 
   ///
   /// This constructor sets the Effective Address on construction.
   ///
-  Symbol(EA X) : Node(), Ea(X) {}
+  Symbol(EA X) : Node(Kind::Symbol), Ea(X) {}
   Symbol(EA X, std::string Name, StorageKind Kind = StorageKind::Extern)
-      : Node(), Ea(X), Name(Name), Storage(Kind) {}
+      : Node(Kind::Symbol), Ea(X), Name(Name), Storage(Kind) {}
   Symbol(EA X, std::string Name, const DataObject& Referent,
          StorageKind Kind = StorageKind::Extern);
   Symbol(EA X, std::string Name, const Block& Referent,

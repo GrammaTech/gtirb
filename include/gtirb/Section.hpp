@@ -11,9 +11,9 @@ namespace gtirb {
 ///
 /// \class Section
 class GTIRB_EXPORT_API Section : public Node {
-  Section() = default;
+  Section() : Node(Kind::Section) {}
   Section(const std::string &Name, EA Address, uint64_t Size)
-      : Node(), Name(Name), Address(Address), Size(Size) {}
+      : Node(Kind::Section), Name(Name), Address(Address), Size(Size) {}
 
 public:
   static Section* Create(Context& C) { return new (C) Section; }
@@ -32,6 +32,8 @@ public:
   using MessageType = proto::Section;
   void toProtobuf(MessageType* Message) const;
   static Section *fromProtobuf(Context &C, const MessageType& Message);
+
+  static bool classof(const Node *N) { return N->getKind() == Kind::Section; }
 
 private:
   std::string Name;
