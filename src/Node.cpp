@@ -85,37 +85,4 @@ void GTIRB_EXPORT_API details::ClearUUIDs(Node *N) {
       details::ClearUUIDs(&B);
     }
   }
-
- /* void Module::setUUID() {
-    Node::setUUID();
-    if (ImageBytes)
-      ImageBytes->setUUID();
-    if (Data) {
-      for (auto *D : *Data) {
-        D->setUUID();
-      }
-    }
-    if (Sections) {
-      for (auto *S : *Sections) {
-        S->setUUID();
-      }
-    }
-    if (Symbols) {
-      for (auto &P : *Symbols) {
-        P.second->setUUID();
-      }
-    }
-    if (Cfg) {
-      for (auto &B : blocks(*Cfg)) {
-        B.setUUID();
-      }
-    }
-  }*/
-
-  /*void IR::setUUID() {
-    for (auto* M : Modules) {
-      M->setUUID();
-    }
-    Node::setUUID();
-  }*/
 }
