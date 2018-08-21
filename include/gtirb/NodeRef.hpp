@@ -41,7 +41,7 @@ private:
   UUID Uuid;
 
   NodeT* get() const {
-    return dyn_cast<NodeT>(Node::getByUUID(this->Uuid));
+    return dyn_cast_or_null<NodeT>(Node::getByUUID(this->Uuid));
   }
 };
 } // namespace gtirb
