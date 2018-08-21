@@ -21,7 +21,7 @@ TEST(Unit_Block, protobufRoundTrip) {
   {
     Block *Original = Block::Create(Ctx, EA(1), 3, 5);
     Original->toProtobuf(&Message);
-    Original->setUUID(); // Avoid UUID conflict
+    details::ClearUUIDs(Original); // Avoid UUID conflict
   }
   Block *Result = Block::fromProtobuf(Ctx, Message);
 

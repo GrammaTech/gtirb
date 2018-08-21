@@ -100,7 +100,7 @@ TEST(Unit_IR, protobufRoundTrip) {
 
     MainID = Original->getModules().front()->getUUID();
     Original->toProtobuf(&Message);
-    Original->setUUID(); // Avoid UUID conflict
+    details::ClearUUIDs(Original); // Avoid UUID conflict
   }
   IR *Result = IR::fromProtobuf(Ctx, Message);
 

@@ -167,7 +167,7 @@ TEST(Unit_Module, protobufRoundTrip) {
 
     Original->toProtobuf(&Message);
 
-    Original->setUUID();
+    details::ClearUUIDs(Original);
   }
 
   Module *Result = Module::fromProtobuf(Ctx, Message);

@@ -87,9 +87,6 @@ public:
   ///
   static IR *load(Context &C, std::istream& In);
 
-  using Node::setUUID;
-  void setUUID() override;
-
   using MessageType = proto::IR;
   void toProtobuf(MessageType* Message) const;
   static IR *fromProtobuf(Context &C, const MessageType& Message);

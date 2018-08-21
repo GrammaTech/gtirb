@@ -110,7 +110,7 @@ TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip) {
     TypeParam Node1 = Type::Create(Ctx);
     OrigId = Node1->getUUID();
     Node1->toProtobuf(&Message);
-    Node1->setUUID();
+    gtirb::details::ClearUUIDs(Node1);
   }
 
   TypeParam Node2 = Type::fromProtobuf(Ctx, Message);
@@ -126,7 +126,7 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
     Id = Node1->getUUID();
 
     Node1->toProtobuf(&Message);
-    Node1->setUUID();
+    gtirb::details::ClearUUIDs(Node1);
   }
 
   EXPECT_EQ(Type::getByUUID(Id), nullptr);

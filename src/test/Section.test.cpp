@@ -45,7 +45,7 @@ TEST(Unit_Section, protobufRoundTrip) {
 
   proto::Section Message;
   Original->toProtobuf(&Message);
-  Original->setUUID(); // Avoid UUID conflict
+  details::ClearUUIDs(Original); // Avoid UUID conflict
   Section *Result = Section::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getName(), "name");

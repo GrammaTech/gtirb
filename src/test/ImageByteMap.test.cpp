@@ -376,7 +376,7 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
 
   proto::ImageByteMap Message;
   Original->toProtobuf(&Message);
-  Original->setUUID(); // Avoid UUID conflict
+  details::ClearUUIDs(Original); // Avoid UUID conflict
   ImageByteMap *Result = ImageByteMap::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getData<uint16_t>(Address), 0xDEAD);

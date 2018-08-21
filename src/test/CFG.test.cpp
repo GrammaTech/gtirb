@@ -126,9 +126,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
     Id3 = Original[B3]->getUUID();
 
     Message = toProtobuf(Original);
-    Original[B1]->setUUID(); // Avoid UUID conflict
-    Original[B2]->setUUID(); // Avoid UUID conflict
-    Original[B3]->setUUID(); // Avoid UUID conflict
+    details::ClearUUIDs(Original[B1]); // Avoid UUID conflict
+    details::ClearUUIDs(Original[B2]); // Avoid UUID conflict
+    details::ClearUUIDs(Original[B3]); // Avoid UUID conflict
   }
   fromProtobuf(Ctx, Result, Message);
 

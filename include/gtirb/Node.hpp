@@ -12,6 +12,11 @@
 
 namespace gtirb {
 using UUID = boost::uuids::uuid;
+class Node;
+
+namespace details {
+void GTIRB_EXPORT_API ClearUUIDs(Node *);
+}
 
 ///
 /// \class Node
@@ -43,15 +48,7 @@ public:
   ///
   /// This will serve as a base class for other nodes.
   ///
-  virtual ~Node() noexcept;
-
-  ///
-  /// Generate and assign a new Universally Unique ID (UUID) to this
-  /// object and any stored subobjects that also have a UUID.
-  ///
-  /// Though automatically assigned on construction, it can be manually set.
-  ///
-  virtual void setUUID();
+  ~Node() noexcept;
 
   ///
   /// Manually assign Universally Unique ID (UUID).
@@ -74,6 +71,9 @@ protected:
 private:
   Kind K;
   UUID Uuid;
+
+  friend void details::ClearUUIDs(Node *);
+  void setUUID();
 
   static std::map<UUID, Node*> UuidMap;
 };

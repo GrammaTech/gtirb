@@ -79,8 +79,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 
     Original->toProtobuf(&Message);
 
-    Data->setUUID();
-    Original->setUUID();
+    details::ClearUUIDs(Data);
+    details::ClearUUIDs(Original);
   }
 
   Symbol *Result = Symbol::fromProtobuf(Ctx, Message);

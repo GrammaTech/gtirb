@@ -18,7 +18,7 @@ TEST(Unit_DataObject, protobufRoundTrip) {
 
   proto::DataObject Message;
   Original->toProtobuf(&Message);
-  Original->setUUID(); // Avoid UUID conflict
+  details::ClearUUIDs(Original); // Avoid UUID conflict
   DataObject *Result = DataObject::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getAddress(), EA(1));
