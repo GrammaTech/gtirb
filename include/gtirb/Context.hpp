@@ -17,7 +17,7 @@ inline void *operator new(size_t Size, const gtirb::Context &C) {
   return C.Allocate(Size);
 }
 
-inline void operator delete(void *, const gtirb::Context &C) {
+inline void operator delete(void *, const gtirb::Context &) {
   // Noop -- this is only called if the placement new using our Context object
   // throws; there is no way to call this directly.
 }

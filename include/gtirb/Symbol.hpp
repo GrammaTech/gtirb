@@ -88,8 +88,8 @@ private:
   /// This constructor sets the Effective Address on construction.
   ///
   Symbol(EA X) : Node(Kind::Symbol), Ea(X) {}
-  Symbol(EA X, std::string Name, StorageKind Kind = StorageKind::Extern)
-      : Node(Kind::Symbol), Ea(X), Name(Name), Storage(Kind) {}
+  Symbol(EA X, std::string N, StorageKind K = StorageKind::Extern)
+      : Node(Kind::Symbol), Ea(X), Name(N), Storage(K) {}
   Symbol(EA X, std::string Name, const DataObject& Referent,
          StorageKind Kind = StorageKind::Extern);
   Symbol(EA X, std::string Name, const Block& Referent,

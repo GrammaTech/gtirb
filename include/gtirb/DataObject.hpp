@@ -18,8 +18,8 @@ namespace gtirb {
 class GTIRB_EXPORT_API DataObject : public Node {
   DataObject() : Node(Kind::DataObject) {}
 
-  DataObject(EA Address, uint64_t Size)
-      : Node(Kind::DataObject), Address(Address), Size(Size) {}
+  DataObject(EA A, uint64_t S)
+      : Node(Kind::DataObject), Address(A), Size(S) {}
 
 public:
   static DataObject *Create(Context &C) { return new (C) DataObject; }

@@ -12,8 +12,8 @@ namespace gtirb {
 /// \class Section
 class GTIRB_EXPORT_API Section : public Node {
   Section() : Node(Kind::Section) {}
-  Section(const std::string &Name, EA Address, uint64_t Size)
-      : Node(Kind::Section), Name(Name), Address(Address), Size(Size) {}
+  Section(const std::string &N, EA A, uint64_t S)
+      : Node(Kind::Section), Name(N), Address(A), Size(S) {}
 
 public:
   static Section* Create(Context& C) { return new (C) Section; }

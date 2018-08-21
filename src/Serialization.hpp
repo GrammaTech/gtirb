@@ -157,7 +157,7 @@ void fromProtobuf(Context &C, std::shared_ptr<T>& Val, const U& Message) {
   fromProtobuf(C, *Val, Message);
 }
 template <size_t size>
-void fromProtobuf(Context& C, std::array<uint8_t, size>& Result,
+void fromProtobuf(Context&, std::array<uint8_t, size>& Result,
                   const std::string& Value) {
   std::copy(Value.begin(), Value.end(), Result.data());
 }
