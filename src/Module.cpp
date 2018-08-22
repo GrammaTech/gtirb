@@ -85,7 +85,7 @@ const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);
-  Message->set_preferred_addr(this->PreferredAddr);
+  Message->set_preferred_addr(static_cast<uint64_t>(this->PreferredAddr));
   Message->set_rebase_delta(this->RebaseDelta);
   Message->set_file_format(static_cast<proto::FileFormat>(this->FileFormat));
   Message->set_isa_id(static_cast<proto::ISAID>(this->IsaID));
