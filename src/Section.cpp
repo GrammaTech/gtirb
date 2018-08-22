@@ -26,7 +26,7 @@ void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
   Message->set_size(this->Size);
-  Message->set_address(this->Address);
+  Message->set_address(static_cast<uint64_t>(this->Address));
 }
 
 void Section::fromProtobuf(const MessageType& Message) {

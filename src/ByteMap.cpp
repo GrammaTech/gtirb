@@ -7,10 +7,12 @@
 using namespace gtirb;
 
 void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
+  using namespace std::rel_ops;
+
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
   Addr Limit = A + uint64_t(Bytes.size_bytes());
-  for (size_t i = 0; Regions[i].Address != BadAddress; i++) {
+  for (size_t i = 0; Regions[i].Address != Addr(); i++) {
     auto& Current = Regions[i];
 
     // Overwrite data in existing region
@@ -52,7 +54,7 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
     }
 
     if (containsAddr(Current, A) ||
-        containsAddr(Current, Limit - uint64_t(1))) {
+        containsAddr(Current, Limit - 1)) {
       throw std::invalid_argument("setData overlaps an existing region");
     }
   }
@@ -70,6 +72,7 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
 }
 
 std::vector<std::byte> ByteMap::getData(Addr A, size_t Bytes) const {
+  using namespace std::rel_ops;
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
                           [A](const auto& R) { return containsAddr(R, A); });
 
@@ -85,7 +88,7 @@ std::vector<std::byte> ByteMap::getData(Addr A, size_t Bytes) const {
 namespace gtirb {
 proto::Region toProtobuf(const ByteMap::Region& Region) {
   proto::Region Message;
-  Message.set_address(Region.Address);
+  Message.set_address(static_cast<uint64_t>(Region.Address));
   std::transform(Region.Data.begin(), Region.Data.end(),
                  std::back_inserter(*Message.mutable_data()),
                  [](auto x) { return char(x); });

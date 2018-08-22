@@ -11,16 +11,17 @@ public:
     EXPECT_TRUE(this->ByteMap.setAddrMinMax(
         {Unit_ImageByteMapF::Offset,
          Unit_ImageByteMapF::Offset +
-             Addr{Unit_ImageByteMapF::InitializedSize}}));
+             Unit_ImageByteMapF::InitializedSize}));
 
     for (size_t i = 0; i < Unit_ImageByteMapF::InitializedSize; ++i) {
-      const auto address = Unit_ImageByteMapF::Offset + Addr{i};
+      const auto address = Unit_ImageByteMapF::Offset + i;
 
       EXPECT_NO_THROW(this->ByteMap.setData(
           address, static_cast<uint8_t>(this->InitialByte & i)))
-          << "At Address " << address << ", min/max={"
-          << this->ByteMap.getAddrMinMax().first << "/"
-          << this->ByteMap.getAddrMinMax().second << "}.";
+          << "At Address " << static_cast<uint64_t>(address) << ", min/max={"
+          << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+          << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second)
+          << "}.";
     }
   }
 
@@ -107,19 +108,19 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
         (((InitialByte & I) | ((InitialByte & (I + 1)) << 8)));
 
     EXPECT_EQ(this->InitialByte & I,
-              this->ByteMap.getData<uint8_t>(Unit_ImageByteMapF::Offset +
-                                             Addr{static_cast<uint64_t>(I)}))
-        << "Bad byte read at : " << Unit_ImageByteMapF::Offset + Addr{I};
+              this->ByteMap.getData<uint8_t>(Unit_ImageByteMapF::Offset + I))
+        << "Bad byte read at : "
+        << static_cast<uint64_t>(Unit_ImageByteMapF::Offset + I);
 
     if (I < Unit_ImageByteMapF::InitializedSize - 1) {
-      EXPECT_NO_THROW(
-          this->ByteMap.getData(Unit_ImageByteMapF::Offset + Addr{I}, 2));
+      EXPECT_NO_THROW(this->ByteMap.getData(Unit_ImageByteMapF::Offset + I, 2));
 
       const auto Word =
-          this->ByteMap.getData<uint16_t>(Unit_ImageByteMapF::Offset + Addr{I});
+          this->ByteMap.getData<uint16_t>(Unit_ImageByteMapF::Offset + I);
 
       EXPECT_EQ(ExpectedWord, Word)
-          << "Bad word read at : " << Unit_ImageByteMapF::Offset + Addr{I};
+          << "Bad word read at : "
+          << static_cast<uint64_t>(Unit_ImageByteMapF::Offset + I);
     }
   }
 }
@@ -128,51 +129,54 @@ TEST_F(Unit_ImageByteMapF, legacy_word) {
   const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint16_t{0xDEAD}))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<uint16_t>(Address))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   const auto Data = this->ByteMap.getData<uint16_t>(Address);
-  EXPECT_EQ(0xDEAD, Data) << "Bad word read at : " << Address;
+  EXPECT_EQ(0xDEAD, Data) << "Bad word read at : "
+                          << static_cast<uint64_t>(Address);
 }
 
 TEST_F(Unit_ImageByteMapF, legacy_dword) {
   const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint32_t{0xCAFEBABE}))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<uint32_t>(Address))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   const auto Data = this->ByteMap.getData<uint32_t>(Address);
-  EXPECT_EQ(0xCAFEBABE, Data) << "Bad dword read at : " << Address;
+  EXPECT_EQ(0xCAFEBABE, Data)
+      << "Bad dword read at : " << static_cast<uint64_t>(Address);
 }
 
 TEST_F(Unit_ImageByteMapF, legacy_qword) {
   const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, uint64_t{0x8BADF00D0D15EA5E}))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<uint64_t>(Address))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   const auto Data = this->ByteMap.getData<uint64_t>(Address);
-  EXPECT_EQ(0x8BADF00D0D15EA5E, Data) << "Bad qword read at : " << Address;
+  EXPECT_EQ(0x8BADF00D0D15EA5E, Data)
+      << "Bad qword read at : " << static_cast<uint64_t>(Address);
 }
 
 TEST_F(Unit_ImageByteMapF, arrayData) {
@@ -182,33 +186,34 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
   const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, data))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<decltype(data)>(Address))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   const auto Result = this->ByteMap.getData<decltype(data)>(Address);
-  EXPECT_EQ(data, Result) << "Bad array read at : " << Address;
+  EXPECT_EQ(data, Result) << "Bad array read at : "
+                          << static_cast<uint64_t>(Address);
 }
 
 TEST_F(Unit_ImageByteMapF, constantData) {
   const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, 32, std::byte(1)))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   std::vector<std::byte> Expected(32, std::byte(1));
 
   ASSERT_NO_THROW(this->ByteMap.getData(Address, Expected.size()))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   EXPECT_EQ(this->ByteMap.getData(Address, Expected.size()), Expected);
 }
@@ -229,18 +234,20 @@ TEST_F(Unit_ImageByteMapF, structData) {
   const auto Address = Addr(0x00001000);
 
   ASSERT_NO_THROW(this->ByteMap.setData(Address, Data))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   ASSERT_NO_THROW(this->ByteMap.getData<decltype(Data)>(Address))
-      << "At Address " << Address << ", min/max={"
-      << this->ByteMap.getAddrMinMax().first << "/"
-      << this->ByteMap.getAddrMinMax().second << "}.";
+      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().first) << "/"
+      << static_cast<uint64_t>(this->ByteMap.getAddrMinMax().second) << "}.";
 
   const auto Result = this->ByteMap.getData<decltype(Data)>(Address);
-  EXPECT_EQ(Data.I, Result.I) << "Bad struct read at : " << Address;
-  EXPECT_EQ(Data.J, Result.J) << "Bad struct read at : " << Address;
+  EXPECT_EQ(Data.I, Result.I)
+      << "Bad struct read at : " << static_cast<uint64_t>(Address);
+  EXPECT_EQ(Data.J, Result.J)
+      << "Bad struct read at : " << static_cast<uint64_t>(Address);
 }
 
 TEST_F(Unit_ImageByteMapF, littleEndian) {
