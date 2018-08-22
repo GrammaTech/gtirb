@@ -34,4 +34,4 @@ RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
 RUN make -j
 
 WORKDIR /gt/gt-irb/
-ENV PATH=/gt/gt-irb/bin:$PATH
+ENV PATH=/gt/gt-irb/build/bin:$PATH
