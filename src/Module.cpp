@@ -14,11 +14,7 @@
 using namespace gtirb;
 
 Module::Module(Context& C)
-    : Node(Kind::Module), Cfg(std::make_unique<CFG>()),
-      Data(std::make_unique<DataSet>()), ImageBytes(ImageByteMap::Create(C)),
-      Sections(std::make_unique<SectionSet>()),
-      Symbols(std::make_unique<SymbolSet>()),
-      SymbolicOperands(std::make_unique<SymbolicExpressionSet>()) {}
+    : Node(Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
 
 void Module::setBinaryPath(std::string X) { this->BinaryPath = X; }
 
@@ -40,9 +36,9 @@ void Module::setPreferredEA(gtirb::EA X) { this->PreferredEA = X; }
 
 gtirb::EA Module::getPreferredEA() const { return this->PreferredEA; }
 
-gtirb::SymbolSet& Module::getSymbols() { return *this->Symbols; }
+gtirb::SymbolSet& Module::getSymbols() { return this->Symbols; }
 
-const gtirb::SymbolSet& Module::getSymbols() const { return *this->Symbols; }
+const gtirb::SymbolSet& Module::getSymbols() const { return this->Symbols; }
 
 gtirb::ImageByteMap& Module::getImageByteMap() {
   return *this->ImageBytes;
@@ -56,26 +52,26 @@ void Module::setName(std::string X) { this->Name = std::move(X); }
 
 std::string Module::getName() const { return this->Name; }
 
-const CFG& Module::getCFG() const { return *this->Cfg; }
+const CFG& Module::getCFG() const { return this->Cfg; }
 
-CFG& Module::getCFG() { return *this->Cfg; }
+CFG& Module::getCFG() { return this->Cfg; }
 
-const DataSet& Module::getData() const { return *this->Data; }
+const DataSet& Module::getData() const { return this->Data; }
 
-DataSet& Module::getData() { return *this->Data; }
+DataSet& Module::getData() { return this->Data; }
 
-SectionSet& Module::getSections() { return *this->Sections; }
+SectionSet& Module::getSections() { return this->Sections; }
 
 const SectionSet& Module::getSections() const {
-  return *this->Sections;
+  return this->Sections;
 }
 
 SymbolicExpressionSet& Module::getSymbolicExpressions() {
-  return *this->SymbolicOperands;
+  return this->SymbolicOperands;
 }
 
 const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
-  return *this->SymbolicOperands;
+  return this->SymbolicOperands;
 }
 
 void Module::toProtobuf(MessageType* Message) const {
@@ -87,18 +83,18 @@ void Module::toProtobuf(MessageType* Message) const {
   Message->set_isa_id(static_cast<proto::ISAID>(this->IsaID));
   Message->set_name(this->Name);
   this->ImageBytes->toProtobuf(Message->mutable_image_byte_map());
-  *Message->mutable_cfg() = gtirb::toProtobuf(*this->Cfg);
-  containerToProtobuf(*this->Data, Message->mutable_data());
-  containerToProtobuf(*this->Sections, Message->mutable_sections());
-  containerToProtobuf(*this->SymbolicOperands,
+  *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
+  containerToProtobuf(this->Data, Message->mutable_data());
+  containerToProtobuf(this->Sections, Message->mutable_sections());
+  containerToProtobuf(this->SymbolicOperands,
                       Message->mutable_symbolic_operands());
 
   // Special case for symbol set: uses a multimap internally, serialized as a
   // repeated field.
   auto M = Message->mutable_symbols();
-  initContainer(M, this->Symbols->size());
+  initContainer(M, this->Symbols.size());
   std::for_each(
-      this->Symbols->begin(), this->Symbols->end(),
+      this->Symbols.begin(), this->Symbols.end(),
       [M](const auto& N) { addElement(M, gtirb::toProtobuf(*N.second)); });
 }
 
@@ -112,17 +108,17 @@ Module *Module::fromProtobuf(Context &C, const MessageType& Message) {
   M->IsaID = static_cast<ISAID>(Message.isa_id());
   M->Name = Message.name();
   M->ImageBytes = ImageByteMap::fromProtobuf(C, Message.image_byte_map());
-  gtirb::fromProtobuf(C, *M->Cfg, Message.cfg());
-  containerFromProtobuf(C, *M->Data, Message.data());
-  containerFromProtobuf(C, *M->Sections, Message.sections());
-  containerFromProtobuf(C, *M->SymbolicOperands, Message.symbolic_operands());
+  gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
+  containerFromProtobuf(C, M->Data, Message.data());
+  containerFromProtobuf(C, M->Sections, Message.sections());
+  containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
 
   // Special case for symbol set: serialized as a repeated field, uses a
   // multimap internally.
-  M->Symbols->clear();
+  M->Symbols.clear();
   const auto& Syms = Message.symbols();
   std::for_each(Syms.begin(), Syms.end(), [M, &C](const auto& Elt) {
-    addSymbol(*M->Symbols, Symbol::fromProtobuf(C, Elt));
+    addSymbol(M->Symbols, Symbol::fromProtobuf(C, Elt));
   });
   return M;
 }

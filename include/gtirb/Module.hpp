@@ -8,7 +8,6 @@
 #include <gtirb/SymbolicExpressionSet.hpp>
 #include <proto/Module.pb.h>
 #include <cstdint>
-#include <memory>
 #include <string>
 
 namespace gtirb {
@@ -160,11 +159,11 @@ private:
   gtirb::FileFormat FileFormat{};
   gtirb::ISAID IsaID{};
   std::string Name{};
-  std::unique_ptr<CFG> Cfg;
-  std::unique_ptr<DataSet> Data;
+  CFG Cfg;
+  DataSet Data;
   ImageByteMap *ImageBytes;
-  std::unique_ptr<SectionSet> Sections;
-  std::unique_ptr<SymbolSet> Symbols;
-  std::unique_ptr<SymbolicExpressionSet> SymbolicOperands;
+  SectionSet Sections;
+  SymbolSet Symbols;
+  SymbolicExpressionSet SymbolicOperands;
 };
 } // namespace gtirb
