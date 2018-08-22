@@ -141,7 +141,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   proto::Module Message;
 
   UUID ByteMapID, SymbolID, BlockID, DataID, SectionID;
-  int WhichSymbolic;
+  size_t WhichSymbolic;
 
   {
     Module Original;

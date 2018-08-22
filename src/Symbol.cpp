@@ -54,7 +54,7 @@ gtirb::Symbol::StorageKind Symbol::getStorageKind() const {
 
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_address(this->Address);
+  Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
   uuidToBytes(this->CodeReferent.getUUID(),

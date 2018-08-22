@@ -39,7 +39,7 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
 
 TEST(Unit_IR, getModulesContainingAddr) {
   const Addr Ea{22678};
-  const Addr EaOffset{2112};
+  const uint64_t EaOffset{2112};
 
   auto Ir = gtirb::IR();
 

@@ -200,7 +200,7 @@ public:
   void setData(Addr Ea, const std::array<T, Size>& Data) {
     for (const auto& Elt : Data) {
       this->setData(Ea, Elt);
-      Ea += sizeof(T);
+      Ea = Ea + sizeof(T);
     }
   }
 
@@ -253,7 +253,7 @@ public:
     for (auto& Elt : Result) {
       boost::endian::conditional_reverse_inplace(Elt, this->ByteOrder,
                                                  boost::endian::order::native);
-      Ea += sizeof(T);
+      Ea = Ea + sizeof(T);
     }
     return Result;
   }

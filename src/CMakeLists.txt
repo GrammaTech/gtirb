@@ -29,7 +29,7 @@ set(${PROJECT_NAME}_H
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
         ../include/gtirb/DataObject.hpp
-    ../include/gtirb/Addr.hpp
+        ../include/gtirb/Addr.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/ImageByteMap.hpp
 	../include/gtirb/IR.hpp
@@ -50,7 +50,6 @@ set(${PROJECT_NAME}_SRC
 	ByteMap.cpp
 	CFG.cpp
         DataObject.cpp
-        Addr.cpp
 	ImageByteMap.cpp
 	IR.cpp
 	Module.cpp
