@@ -3,12 +3,9 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
 #include <boost/uuid/uuid.hpp>
-#include <functional>
 #include <gsl/gsl>
 #include <map>
-#include <memory>
 #include <string>
-#include <vector>
 
 namespace gtirb {
 using UUID = boost::uuids::uuid;
