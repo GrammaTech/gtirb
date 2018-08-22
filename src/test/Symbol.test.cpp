@@ -4,7 +4,6 @@
 #include <gtirb/Symbol.hpp>
 #include <proto/Symbol.pb.h>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 

@@ -2,7 +2,6 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <proto/ImageByteMap.pb.h>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 

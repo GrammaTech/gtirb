@@ -9,7 +9,6 @@
 #include <gtirb/Table.hpp>
 #include <proto/IR.pb.h>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 

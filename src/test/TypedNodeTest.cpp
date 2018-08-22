@@ -18,7 +18,6 @@
 #include <proto/Symbol.pb.h>
 #include <boost/uuid/uuid_generators.hpp>
 #include <gtest/gtest.h>
-#include <memory>
 #include <type_traits>
 
 using testing::Types;

@@ -3,7 +3,6 @@
 #include <proto/ByteMap.pb.h>
 #include <gsl/span>
 #include <gtest/gtest.h>
-#include <memory>
 
 using namespace gtirb;
 

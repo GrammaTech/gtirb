@@ -9,8 +9,6 @@
 #include <proto/Module.pb.h>
 #include <gtest/gtest.h>
 
-#include <memory>
-
 using namespace gtirb;
 
 static Context Ctx;

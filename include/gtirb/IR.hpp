@@ -3,7 +3,8 @@
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
-#include <memory>
+#include <map>
+#include <string>
 #include <vector>
 
 namespace proto {
