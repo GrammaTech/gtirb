@@ -1,7 +1,6 @@
 SET(PROJECT_NAME gtirb)
 
 add_subdirectory(proto)
-include_directories(SYSTEM "${Protobuf_INCLUDE_DIRS}")
 
 add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 
@@ -23,13 +22,17 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	add_compile_options(-pthread)
 endif()
 
+# Find our headers without gtirb/ prefix
 include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
+
+# Find protobuf generated headers in the build directory
+include_directories("${CMAKE_BINARY_DIR}/src/")
 
 set(${PROJECT_NAME}_H
 	../include/gtirb/Block.hpp
 	../include/gtirb/ByteMap.hpp
 	../include/gtirb/CFG.hpp
-    ../include/gtirb/DataObject.hpp
+        ../include/gtirb/DataObject.hpp
 	../include/gtirb/EA.hpp
 	../include/gtirb/Export.hpp
 	../include/gtirb/ImageByteMap.hpp
@@ -40,9 +43,9 @@ set(${PROJECT_NAME}_H
         ../include/gtirb/Section.hpp
 	../include/gtirb/Symbol.hpp
         ../include/gtirb/SymbolSet.hpp
-    ../include/gtirb/SymbolicExpression.hpp
-    ../include/gtirb/SymbolicExpressionSet.hpp
-    ../include/gtirb/Table.hpp
+        ../include/gtirb/SymbolicExpression.hpp
+        ../include/gtirb/SymbolicExpressionSet.hpp
+        ../include/gtirb/Table.hpp
         ../src/Serialization.hpp
 )
 
