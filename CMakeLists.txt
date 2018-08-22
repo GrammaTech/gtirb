@@ -208,7 +208,6 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 # ---------------------------------------------------------------------------
 add_subdirectory(src)
 
-
 # ---------------------------------------------------------------------------
 # Copy headers into build directory
 # ---------------------------------------------------------------------------
@@ -217,3 +216,21 @@ file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
   DESTINATION "${CMAKE_BINARY_DIR}/include/")
 file(COPY "${CMAKE_SOURCE_DIR}/include/gtirb/" DESTINATION "${CMAKE_BINARY_DIR}/include/gtirb/"
   FILES_MATCHING PATTERN "*.hpp")
+
+# ---------------------------------------------------------------------------
+# Export config for use by other CMake projects
+# ---------------------------------------------------------------------------
+file(
+  WRITE "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake"
+        "
+            include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")
+            set_property(
+                TARGET gtirb
+                APPEND PROPERTY
+                    INTERFACE_INCLUDE_DIRECTORIES \"${CMAKE_BINARY_DIR}/include\" ${PROTOBUF_INCLUDE_DIRS}
+            )
+        "
+    )
+
+export(TARGETS gtirb proto FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake")
+export(PACKAGE gtirb)
