@@ -5,6 +5,7 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <proto/Symbol.pb.h>
+#include <variant>
 
 namespace gtirb {
 class DataObject;
@@ -176,8 +177,7 @@ private:
   Addr Ea;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
-  NodeRef<DataObject> DataReferent;
-  NodeRef<Block> CodeReferent;
+  std::variant<NodeRef<DataObject>, NodeRef<Block>> Referent;
 };
 } // namespace gtirb
 
