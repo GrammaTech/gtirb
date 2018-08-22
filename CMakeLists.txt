@@ -2,7 +2,8 @@
 # Cmake Configuration
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5.1)
+# Need 3.7 to support CXX_STANDARD=17
+CMAKE_MINIMUM_REQUIRED(VERSION 3.7.0)
 
 PROJECT(GT-IRB)
 
@@ -28,12 +29,25 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Use C++17
+set(CMAKE_CXX_STANDARD 17)
+# Error if it's not available
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Specifically check for gcc-7 or later. gcc-5 is installed on many
+# systems and will accept -std=c++17, but does not fully support the
+# standard.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0.0")
+    message(FATAL_ERROR "gcc 7 or later is required to build gtirb")
+  endif()
+endif()
+
 #
 # Grammatech Options (CMake)
 #
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
-set(CMAKE_CXX_STANDARD 17)
 
 # Base include path for the GT-IRB library.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
