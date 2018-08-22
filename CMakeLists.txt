@@ -19,14 +19,15 @@ include(AlignOf.cmake)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(CMAKE_DEBUG_POSTFIX          "d" CACHE STRING "add a postfix, usually d on windows")
+if (WIN32)
+  set(CMAKE_DEBUG_POSTFIX          "d" CACHE STRING "add a postfix, usually d on windows")
+endif()
 set(CMAKE_RELEASE_POSTFIX        ""  CACHE STRING "add a postfix, usually empty on windows")
 set(CMAKE_RELWITHDEBINFO_POSTFIX ""  CACHE STRING "add a postfix, usually empty on windows")
 set(CMAKE_MINSIZEREL_POSTFIX     ""  CACHE STRING "add a postfix, usually empty on windows")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Use C++17
@@ -50,9 +51,7 @@ endif()
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 
 # Base include path for the GT-IRB library.
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utilities)
-
+include_directories(${CMAKE_SOURCE_DIR}/include)
 #
 # Global Options (Compile / Link)
 #
@@ -130,10 +129,7 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 
-# add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-# find_package(Boost 1.59 REQUIRED COMPONENTS)
-# include_directories(${Boost_INCLUDE_DIRS})
-include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/boost/include")
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/boost/include")
 
 # ---------------------------------------------------------------------------
 # Microsoft GSL 
@@ -207,4 +203,17 @@ endif()
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
+# ---------------------------------------------------------------------------
+# gtirb sources
+# ---------------------------------------------------------------------------
 add_subdirectory(src)
+
+
+# ---------------------------------------------------------------------------
+# Copy headers into build directory
+# ---------------------------------------------------------------------------
+
+file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
+  DESTINATION "${CMAKE_BINARY_DIR}/include/")
+file(COPY "${CMAKE_SOURCE_DIR}/include/gtirb/" DESTINATION "${CMAKE_BINARY_DIR}/include/gtirb/"
+  FILES_MATCHING PATTERN "*.hpp")
