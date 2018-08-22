@@ -18,13 +18,11 @@ Symbol::Symbol(Addr X, std::string Name_, const Block& Referent,
 }
 
 void Symbol::setReferent(const DataObject& Data) {
-  this->DataReferent = NodeRef<DataObject>(Data);
-  this->CodeReferent = {};
+  this->Referent = NodeRef<DataObject>(Data);
 }
 
 void Symbol::setReferent(const Block& Instruction) {
-  this->CodeReferent = NodeRef<Block>(Instruction);
-  this->DataReferent = {};
+  this->Referent = NodeRef<Block>(Instruction);
 }
 
 void Symbol::toProtobuf(MessageType* Message) const {
@@ -32,17 +30,28 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
-  uuidToBytes(this->CodeReferent.getUUID(),
-              *Message->mutable_code_referent_uuid());
-  uuidToBytes(this->DataReferent.getUUID(),
-              *Message->mutable_data_referent_uuid());
+  std::visit(
+      [Message](auto& Arg) {
+        using T = std::decay_t<decltype(Arg)>;
+        if constexpr (std::is_same_v<T, NodeRef<Block>>) {
+          uuidToBytes(Arg.getUUID(), *Message->mutable_code_referent_uuid());
+        } else if constexpr (std::is_same_v<T, NodeRef<DataObject>>) {
+          uuidToBytes(Arg.getUUID(), *Message->mutable_data_referent_uuid());
+        } else {
+          static_assert(false, "Unknown symbol referent");
+        }
+      },
+      this->Referent);
 }
 
-Symbol *Symbol::fromProtobuf(Context &C, const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, EA(Message.address()), Message.name(),
+Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
+  Symbol* S = Symbol::Create(C, Addr(Message.address()), Message.name(),
                              static_cast<StorageKind>(Message.storage_kind()));
   setNodeUUIDFromBytes(S, Message.uuid());
-  S->CodeReferent = {uuidFromBytes(Message.code_referent_uuid())};
-  S->DataReferent = {uuidFromBytes(Message.data_referent_uuid())};
+  if (!Message.code_referent_uuid().empty())
+    S->Referent = NodeRef<Block>(uuidFromBytes(Message.code_referent_uuid()));
+  else if (!Message.data_referent_uuid().empty())
+    S->Referent =
+        NodeRef<DataObject>(uuidFromBytes(Message.data_referent_uuid()));
   return S;
 }
