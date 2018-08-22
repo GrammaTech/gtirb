@@ -3,7 +3,6 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
 #include <boost/uuid/uuid.hpp>
-#include <gsl/gsl>
 #include <map>
 #include <string>
 
