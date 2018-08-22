@@ -19,6 +19,8 @@ Addr ImageByteMap::getEntryPointAddress() const {
 }
 
 bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
+  using namespace std::rel_ops;
+
   if (X.first <= X.second) {
     this->EaMinMax = std::move(X);
     return true;
@@ -49,8 +51,10 @@ void ImageByteMap::setByteOrder(boost::endian::order Value) {
 }
 
 void ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
-  if (Ea >= this->EaMinMax.first && (Ea + Addr{(uint64_t)Data.size_bytes()} -
-                                     Addr{1}) <= this->EaMinMax.second) {
+  using namespace std::rel_ops;
+
+  if (Ea >= this->EaMinMax.first &&
+      (Ea + Data.size_bytes() - 1) <= this->EaMinMax.second) {
     this->ByteMap.setData(Ea, Data);
   } else {
     throw std::out_of_range(
@@ -66,8 +70,9 @@ void ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
 }
 
 std::vector<std::byte> ImageByteMap::getData(Addr X, size_t Bytes) const {
-  if (X >= this->EaMinMax.first &&
-      (X + Addr{Bytes} - Addr{1}) <= this->EaMinMax.second) {
+  using namespace std::rel_ops;
+
+  if (X >= this->EaMinMax.first && (X + Bytes - 1) <= this->EaMinMax.second) {
     return this->ByteMap.getData(X, Bytes);
   }
 
@@ -79,10 +84,11 @@ void ImageByteMap::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   this->ByteMap.toProtobuf(Message->mutable_byte_map());
   Message->set_file_name(this->FileName);
-  Message->set_addr_min(this->EaMinMax.first);
-  Message->set_addr_max(this->EaMinMax.second);
-  Message->set_base_address(this->BaseAddress);
-  Message->set_entry_point_address(this->EntryPointAddress);
+  Message->set_addr_min(static_cast<uint64_t>(this->EaMinMax.first));
+  Message->set_addr_max(static_cast<uint64_t>(this->EaMinMax.second));
+  Message->set_base_address(static_cast<uint64_t>(this->BaseAddress));
+  Message->set_entry_point_address(
+      static_cast<uint64_t>(this->EntryPointAddress));
   Message->set_rebase_delta(this->RebaseDelta);
   Message->set_is_relocated(this->IsRelocated);
 }

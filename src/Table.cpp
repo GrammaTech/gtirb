@@ -10,7 +10,9 @@ public:
 
   TableVisitor(MessageT* m) : Message(m) {}
 
-  void operator()(Addr Val) const { Message->set_addr(Val.get()); }
+  void operator()(Addr Val) const {
+    Message->set_addr(static_cast<uint64_t>(Val));
+  }
 
   void operator()(int64_t Val) const { Message->set_int_(Val); }
 

@@ -16,7 +16,7 @@ uint64_t Block::getDecodeMode() const { return this->DecodeMode; }
 
 void Block::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_address(this->Address);
+  Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_size(this->Size);
   Message->set_decode_mode(this->DecodeMode);
 }
@@ -24,7 +24,7 @@ void Block::toProtobuf(MessageType* Message) const {
 void Block::fromProtobuf(const MessageType& Message) {
   setNodeUUIDFromBytes(this, Message.uuid());
   this->Address = Addr(Message.address());
-  this->Size = Addr(Message.size());
+  this->Size = Message.size();
   this->DecodeMode = Message.decode_mode();
 }
 
