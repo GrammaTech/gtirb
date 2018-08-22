@@ -5,16 +5,16 @@
 
 using namespace gtirb;
 
-Symbol::Symbol(EA X, std::string Name_, const DataObject& Referent,
+Symbol::Symbol(EA X, std::string Name_, const DataObject& DO,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
-  this->setReferent(Referent);
+  this->setReferent(DO);
 }
 
-Symbol::Symbol(EA X, std::string Name_, const Block& Referent,
+Symbol::Symbol(EA X, std::string Name_, const Block& B,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
-  this->setReferent(Referent);
+  this->setReferent(B);
 }
 
 void Symbol::setEA(gtirb::EA X) { this->Ea = X; }
@@ -34,11 +34,17 @@ void Symbol::setReferent(const Block& Instruction) {
 }
 
 NodeRef<DataObject> Symbol::getDataReferent() const {
-  return std::get<NodeRef<DataObject>>(this->Referent);
+  if (auto *P = std::get_if<NodeRef<DataObject>>(&this->Referent)) {
+    return *P;
+  }
+  return NodeRef<DataObject>();
 }
 
 NodeRef<Block> Symbol::getCodeReferent() const {
-  return std::get<NodeRef<Block>>(this->Referent);
+  if (auto *P = std::get_if<NodeRef<Block>>(&this->Referent)) {
+    return *P;
+  }
+  return NodeRef<Block>();
 }
 
 void Symbol::setStorageKind(Symbol::StorageKind X) { this->Storage = X; }
@@ -47,22 +53,25 @@ gtirb::Symbol::StorageKind Symbol::getStorageKind() const {
   return this->Storage;
 }
 
+namespace {
+template <typename... Ts> struct overload : Ts... {
+  using Ts::operator()...;
+};
+template <typename... Ts> overload(Ts...) -> overload<Ts...>;
+}
+
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_ea(this->Ea);
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
-  std::visit(
-      [Message](auto& Arg) {
-        using T = std::decay_t<decltype(Arg)>;
-        if constexpr (std::is_same_v<T, NodeRef<Block>>) {
-          uuidToBytes(Arg.getUUID(), *Message->mutable_code_referent_uuid());
-        } else if constexpr (std::is_same_v<T, NodeRef<DataObject>>) {
-          uuidToBytes(Arg.getUUID(), *Message->mutable_data_referent_uuid());
-        } else {
-          static_assert(false, "Unknown symbol referent");
-        }
+  std::visit(overload{
+      [Message](const NodeRef<Block> &B) {
+        uuidToBytes(B.getUUID(), *Message->mutable_code_referent_uuid());
       },
+      [Message](const NodeRef<DataObject> &DO) {
+        uuidToBytes(DO.getUUID(), *Message->mutable_data_referent_uuid());
+      }},
       this->Referent);
 }
 
