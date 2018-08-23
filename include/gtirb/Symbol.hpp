@@ -96,7 +96,7 @@ public:
   void fromProtobuf(const MessageType& Message);
 
 private:
-  gtirb::Addr Address{};
+  Addr Address;
   std::string Name;
   gtirb::Symbol::StorageKind Storage{StorageKind::Extern};
   NodeRef<DataObject> DataReferent;
