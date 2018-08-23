@@ -150,7 +150,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original.setFileFormat(FileFormat::ELF);
     Original.setISAID(ISAID::X64);
     Original.setName("module");
-    addSymbol(Original.getSymbols(), {});
+    addSymbol(Original.getSymbols(), {Addr{12}});
     addBlock(Original.getCFG(), {});
     Original.getData().push_back({});
     Original.getSections().push_back({});
