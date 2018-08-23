@@ -171,7 +171,7 @@ public:
 
 private:
   std::string BinaryPath{};
-  Addr PreferredAddr{};
+  Addr PreferredAddr;
   int64_t RebaseDelta{0};
   gtirb::FileFormat FileFormat{};
   gtirb::ISAID IsaID{};

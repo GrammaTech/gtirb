@@ -280,9 +280,9 @@ private:
   // Storage for the entire contents of the loaded image.
   gtirb::ByteMap ByteMap;
   std::string FileName;
-  std::pair<Addr, Addr> EaMinMax{};
-  Addr BaseAddress{};
-  Addr EntryPointAddress{};
+  std::pair<Addr, Addr> EaMinMax;
+  Addr BaseAddress;
+  Addr EntryPointAddress;
   int64_t RebaseDelta{0};
   bool IsRelocated{false};
   boost::endian::order ByteOrder{boost::endian::order::native};
