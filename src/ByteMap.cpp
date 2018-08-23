@@ -12,7 +12,7 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
   Addr Limit = A + uint64_t(Bytes.size_bytes());
-  for (size_t i = 0; Regions[i].Address != Addr(); i++) {
+  for (size_t i = 0; i < Regions.size(); i++) {
     auto& Current = Regions[i];
 
     // Overwrite data in existing region
@@ -24,9 +24,8 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
 
     // Extend region
     if (A == addressLimit(Current)) {
-      auto& Next = Regions[i + 1];
-
-      if (Limit > Next.Address) {
+      bool HasNext = i + 1 < Regions.size();
+      if (HasNext && Limit > Regions[i + 1].Address) {
         throw std::invalid_argument(
             "Request to setData which overlaps an existing region.");
       }
@@ -34,8 +33,8 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
       Current.Data.reserve(Current.Data.size() + Bytes.size());
       std::copy(Bytes.begin(), Bytes.end(), std::back_inserter(Current.Data));
       // Merge with subsequent region
-      if (Limit == Next.Address) {
-        const auto& Data = Next.Data;
+      if (HasNext && Limit == Regions[i + 1].Address) {
+        const auto& Data = Regions[i + 1].Data;
         Current.Data.reserve(Current.Data.size() + Data.size());
         std::copy(Data.begin(), Data.end(), std::back_inserter(Current.Data));
         this->Regions.erase(this->Regions.begin() + i + 1);

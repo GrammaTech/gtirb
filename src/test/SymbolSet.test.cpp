@@ -28,7 +28,7 @@ TEST(Unit_SymbolSet, findSymbols) {
 }
 
 TEST(Unit_SymbolSet, getSymbolsInvalid) {
-  Addr Ea{};
+  Addr Ea{12};
   gtirb::SymbolSet Symbols;
 
   EXPECT_NO_THROW(findSymbols(Symbols, Ea));

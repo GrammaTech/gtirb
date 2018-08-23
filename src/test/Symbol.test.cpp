@@ -25,8 +25,6 @@ TEST(Unit_Symbol, setAddress) {
 
   auto Node = std::make_unique<gtirb::Symbol>();
   EXPECT_NO_THROW(Node->getAddress());
-  EXPECT_EQ(Addr{}, Node->getAddress());
-
   EXPECT_NO_THROW(Node->setAddress(Value));
   EXPECT_EQ(Value, Node->getAddress());
 }

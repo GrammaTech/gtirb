@@ -53,6 +53,6 @@ public:
 
 private:
   // Initialize with sentinel region
-  std::vector<Region> Regions{{Addr(), std::vector<std::byte>()}};
+  std::vector<Region> Regions;
 };
 } // namespace gtirb

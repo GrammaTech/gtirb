@@ -6,7 +6,6 @@ using namespace gtirb;
 
 TEST(Unit_Addr, ctor_0) {
   EXPECT_NO_THROW(Addr());
-  EXPECT_EQ(Addr(), Addr());
 }
 
 TEST(Unit_Addr, ctor_1) {

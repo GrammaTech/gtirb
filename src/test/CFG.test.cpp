@@ -14,7 +14,6 @@ TEST(Unit_CFG, ctor_0) { EXPECT_NO_THROW(CFG()); }
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
   auto Descriptor = add_vertex(Cfg);
-  EXPECT_EQ(Cfg[Descriptor].getAddress(), Addr());
   EXPECT_EQ(Cfg[Descriptor].getSize(), 0);
 }
 

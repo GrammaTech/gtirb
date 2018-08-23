@@ -12,10 +12,10 @@ namespace gtirb {
 /// a uint64_t for 64-bit address storage. An Addr cannot store a relative
 /// address as it cannot contain a negative number.
 class GTIRB_EXPORT_API Addr {
-  uint64_t Address{std::numeric_limits<uint64_t>::max()};
+  uint64_t Address;
 
 public:
-  constexpr Addr() = default;
+  Addr() = default;
   constexpr explicit Addr(uint64_t X) : Address(X) {}
 
   explicit operator uint64_t() const { return Address; }
@@ -58,11 +58,7 @@ template <typename T> Addr addressLimit(const T& Object) {
 /// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T> bool containsAddr(const T& Object, Addr Ea) {
   using namespace std::rel_ops;
-  if (Object.getAddress() == Addr()) {
-    return false;
-  } else {
-    return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
-  }
+  return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
 }
 } // namespace gtirb
 

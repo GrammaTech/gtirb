@@ -70,7 +70,6 @@ TEST(Unit_Module, getPreferredAddrDefault) {
   auto M = std::make_shared<gtirb::Module>();
 
   EXPECT_NO_THROW(M->getPreferredAddr());
-  EXPECT_EQ(Addr{}, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getISAID) {
