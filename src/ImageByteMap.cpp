@@ -26,7 +26,7 @@ bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
     return true;
   }
 
-  this->EaMinMax = std::pair<Addr, Addr>(Addr{}, Addr{});
+  this->EaMinMax = std::make_pair(Addr{}, Addr{});
   return false;
 }
 
