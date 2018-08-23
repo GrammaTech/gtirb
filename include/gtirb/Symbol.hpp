@@ -4,7 +4,6 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
 #include <proto/Symbol.pb.h>
-#include <optional>
 
 namespace gtirb {
 class DataObject;
@@ -64,7 +63,7 @@ public:
   ~Symbol() override = default;
 
   void setAddress(gtirb::Addr X);
-  std::optional<Addr> getAddress() const { return Address; }
+  gtirb::Addr getAddress() const;
 
   void setName(std::string X);
   std::string getName() const;
@@ -97,7 +96,7 @@ public:
   void fromProtobuf(const MessageType& Message);
 
 private:
-  std::optional<Addr> Address;
+  gtirb::Addr Address{};
   std::string Name;
   gtirb::Symbol::StorageKind Storage{StorageKind::Extern};
   NodeRef<DataObject> DataReferent;

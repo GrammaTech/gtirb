@@ -24,6 +24,8 @@ Symbol::Symbol(Addr X, std::string Name_, const Block& Referent,
 
 void Symbol::setAddress(Addr X) { this->Address = X; }
 
+Addr Symbol::getAddress() const { return this->Address; }
+
 void Symbol::setName(std::string X) { this->Name = X; }
 
 std::string Symbol::getName() const { return this->Name; }
@@ -52,7 +54,7 @@ gtirb::Symbol::StorageKind Symbol::getStorageKind() const {
 
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_address(static_cast<uint64_t>(this->Address.value_or(Addr{0})));
+  Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
   uuidToBytes(this->CodeReferent.getUUID(),

@@ -57,7 +57,7 @@ public:
   void fromProtobuf(const MessageType& Message);
 
 private:
-  Addr Address;
+  Addr Address{};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 };

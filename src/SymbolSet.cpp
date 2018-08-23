@@ -4,8 +4,7 @@
 
 namespace gtirb {
 void addSymbol(SymbolSet& Symbols, Symbol&& Sym) {
-  if (Sym.getAddress())
-    Symbols.emplace(*Sym.getAddress(), std::move(Sym));
+  Symbols.emplace(Sym.getAddress(), std::move(Sym));
 }
 
 std::vector<const Symbol*> findSymbols(const SymbolSet& Symbols, Addr X) {

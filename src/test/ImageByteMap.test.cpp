@@ -78,6 +78,8 @@ TEST(Unit_ImageByteMap, setAddrMinMax) {
   EXPECT_EQ(Maximum, M->getAddrMinMax().second);
 
   EXPECT_FALSE(M->setAddrMinMax({Maximum, Minimum}));
+  EXPECT_EQ(Addr{}, M->getAddrMinMax().first);
+  EXPECT_EQ(Addr{}, M->getAddrMinMax().second);
 }
 
 TEST(Unit_ImageByteMap, setRebaseDelta) {

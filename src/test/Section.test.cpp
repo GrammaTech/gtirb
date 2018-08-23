@@ -28,6 +28,15 @@ TEST(Unit_Section, containsAddr) {
   EXPECT_TRUE(containsAddr(Big, Addr(0)));
   EXPECT_TRUE(
       containsAddr(Big, Addr(std::numeric_limits<uint64_t>::max() - 1)));
+  // No section contains a bad address
+  EXPECT_FALSE(containsAddr(Big, Addr()));
+
+  // Bad section does not contain anything
+  Section Bad{"bad", Addr(), std::numeric_limits<uint64_t>::max()};
+  EXPECT_FALSE(containsAddr(Bad, Addr(0)));
+  EXPECT_FALSE(
+      containsAddr(Bad, Addr(std::numeric_limits<uint64_t>::max() - 1)));
+  EXPECT_FALSE(containsAddr(Bad, Addr()));
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
