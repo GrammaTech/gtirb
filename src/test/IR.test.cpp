@@ -29,7 +29,6 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
 
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
     Module M;
-    M.setPreferredAddr(Addr{0});
     EXPECT_NO_THROW(Ir.getModules().push_back(std::move(M)));
   }
 
