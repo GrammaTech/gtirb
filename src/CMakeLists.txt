@@ -86,6 +86,17 @@ target_link_libraries(
         proto
 	)
 
+# Copy gtirb headers into build directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E remove_directory "${CMAKE_BINARY_DIR}/include/gtirb")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_BINARY_DIR}/include/gtirb")
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy
+                "${CMAKE_SOURCE_DIR}/include/gtirb/*.hpp"
+                "${CMAKE_BINARY_DIR}/include/gtirb")
+
 if(GTIRB_ENABLE_TESTS)
 	add_subdirectory(test)
 endif()

@@ -130,6 +130,8 @@ endif()
 # ---------------------------------------------------------------------------
 
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/boost/include")
+file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
+  DESTINATION "${CMAKE_BINARY_DIR}/include/")
 
 # ---------------------------------------------------------------------------
 # Microsoft GSL 
@@ -207,15 +209,6 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 # gtirb sources
 # ---------------------------------------------------------------------------
 add_subdirectory(src)
-
-# ---------------------------------------------------------------------------
-# Copy headers into build directory
-# ---------------------------------------------------------------------------
-
-file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
-  DESTINATION "${CMAKE_BINARY_DIR}/include/")
-file(COPY "${CMAKE_SOURCE_DIR}/include/gtirb/" DESTINATION "${CMAKE_BINARY_DIR}/include/gtirb/"
-  FILES_MATCHING PATTERN "*.hpp")
 
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
