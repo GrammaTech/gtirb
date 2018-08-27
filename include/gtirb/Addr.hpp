@@ -28,9 +28,9 @@ public:
     return Addr(A.Address - Offset);
   }
 
-  // Addr - Addr should result in a ptrdiff_t.
-  friend ptrdiff_t operator-(const Addr& A, const Addr& B) {
-    return static_cast<ptrdiff_t>(A.Address - B.Address);
+  // Addr - Addr should result in a int64_t.
+  friend int64_t operator-(const Addr& A, const Addr& B) {
+    return static_cast<int64_t>(A.Address - B.Address);
   }
 
   // Equality and relational operators; additional operations are provided
