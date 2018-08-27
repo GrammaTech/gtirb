@@ -28,24 +28,29 @@ include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
 # Find protobuf generated headers in the build directory
 include_directories("${CMAKE_BINARY_DIR}/src/")
 
+set(PUBLIC_HEADERS
+	${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/DataObject.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/ImageByteMap.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/NodeRef.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolSet.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpressionSet.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Table.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
+        )
+
 set(${PROJECT_NAME}_H
-	../include/gtirb/Block.hpp
-	../include/gtirb/ByteMap.hpp
-	../include/gtirb/CFG.hpp
-        ../include/gtirb/DataObject.hpp
-        ../include/gtirb/Addr.hpp
-	../include/gtirb/Export.hpp
-	../include/gtirb/ImageByteMap.hpp
-	../include/gtirb/IR.hpp
-	../include/gtirb/Module.hpp
-	../include/gtirb/Node.hpp
-        ../include/gtirb/NodeRef.hpp
-        ../include/gtirb/Section.hpp
-	../include/gtirb/Symbol.hpp
-        ../include/gtirb/SymbolSet.hpp
-        ../include/gtirb/SymbolicExpression.hpp
-        ../include/gtirb/SymbolicExpressionSet.hpp
-        ../include/gtirb/Table.hpp
+        ${PUBLIC_HEADERS}
         ../src/Serialization.hpp
 )
 
@@ -93,7 +98,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy
-                "${CMAKE_SOURCE_DIR}/include/gtirb/*.hpp"
+                ${PUBLIC_HEADERS}
                 "${CMAKE_BINARY_DIR}/include/gtirb")
 
 if(GTIRB_ENABLE_TESTS)
