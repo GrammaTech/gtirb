@@ -19,8 +19,6 @@ Addr ImageByteMap::getEntryPointAddress() const {
 }
 
 bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
-  using namespace std::rel_ops;
-
   if (X.first <= X.second) {
     this->EaMinMax = std::move(X);
     return true;
@@ -51,8 +49,6 @@ void ImageByteMap::setByteOrder(boost::endian::order Value) {
 }
 
 void ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
-  using namespace std::rel_ops;
-
   if (Ea >= this->EaMinMax.first &&
       (Ea + Data.size_bytes() - 1) <= this->EaMinMax.second) {
     this->ByteMap.setData(Ea, Data);
@@ -70,8 +66,6 @@ void ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
 }
 
 std::vector<std::byte> ImageByteMap::getData(Addr X, size_t Bytes) const {
-  using namespace std::rel_ops;
-
   if (X >= this->EaMinMax.first && (X + Bytes - 1) <= this->EaMinMax.second) {
     return this->ByteMap.getData(X, Bytes);
   }

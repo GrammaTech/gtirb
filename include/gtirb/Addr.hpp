@@ -4,7 +4,6 @@
 #include <gtirb/Export.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <utility>
 
 namespace gtirb {
 /// A special class to store an Effective Address. It is a thin wrapper around
@@ -33,13 +32,24 @@ public:
     return static_cast<int64_t>(A.Address - B.Address);
   }
 
-  // Equality and relational operators; additional operations are provided
-  // through std::rel_ops in <utility>.
+  // Equality and relational operators.
   friend bool operator==(const Addr& LHS, const Addr& RHS) {
     return LHS.Address == RHS.Address;
   }
+  friend bool operator!=(const Addr& LHS, const Addr& RHS) {
+    return !operator==(LHS, RHS);
+  }
   friend bool operator<(const Addr& LHS, const Addr& RHS) {
     return LHS.Address < RHS.Address;
+  }
+  friend bool operator>(const Addr& LHS, const Addr& RHS) {
+    return operator<(RHS, LHS);
+  }
+  friend bool operator<=(const Addr& LHS, const Addr& RHS) {
+    return !operator<(RHS, LHS);
+  }
+  friend bool operator>=(const Addr& LHS, const Addr& RHS) {
+    return !operator<(LHS, RHS);
   }
 };
 
@@ -56,7 +66,6 @@ template <typename T> Addr addressLimit(const T& Object) {
 /// Object can be any type which specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T> bool containsAddr(const T& Object, Addr Ea) {
-  using namespace std::rel_ops;
   return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
 }
 } // namespace gtirb

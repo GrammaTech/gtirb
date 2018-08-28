@@ -7,8 +7,6 @@
 using namespace gtirb;
 
 void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
-  using namespace std::rel_ops;
-
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
   Addr Limit = A + uint64_t(Bytes.size_bytes());
@@ -72,7 +70,6 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
 }
 
 std::vector<std::byte> ByteMap::getData(Addr A, size_t Bytes) const {
-  using namespace std::rel_ops;
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
                           [A](const auto& R) { return containsAddr(R, A); });
 
