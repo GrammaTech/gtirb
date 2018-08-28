@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_SERIALIZATION_H
+#define GTIRB_SERIALIZATION_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
@@ -181,3 +182,5 @@ void containerFromProtobuf(std::map<KeyType, ValueType>& Values,
   });
 }
 } // namespace gtirb
+
+#endif // GTIRB_SERIALIZATION_H

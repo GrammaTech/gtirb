@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_NODEREF_H
+#define GTIRB_NODEREF_H
 
 #include <gtirb/Node.hpp>
 
@@ -44,3 +45,5 @@ private:
   }
 };
 } // namespace gtirb
+
+#endif // GTIRB_NODEREF_H

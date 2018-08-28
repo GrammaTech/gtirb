@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_NODE_H
+#define GTIRB_NODE_H
 
 #include <gtirb/Export.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -91,3 +92,5 @@ std::string uuidToString(const UUID& Uuid);
 UUID uuidFromString(const std::string& Text);
 
 } // namespace gtirb
+
+#endif // GTIRB_NODE_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_DATAOBJECT_H
+#define GTIRB_DATAOBJECT_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
@@ -49,3 +50,5 @@ private:
   uint64_t Size{0};
 };
 } // namespace gtirb
+
+#endif // GTIRB_DATAOBJECT_H

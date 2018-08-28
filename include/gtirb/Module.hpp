@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_MODULE_H
+#define GTIRB_MODULE_H
 
 #include <gtirb/CFG.hpp>
 #include <gtirb/EA.hpp>
@@ -183,3 +184,5 @@ private:
   std::unique_ptr<SymbolicExpressionSet> SymbolicOperands;
 };
 } // namespace gtirb
+
+#endif // GTIRB_MODULE_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_BLOCK_H
+#define GTIRB_BLOCK_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Export.hpp>
@@ -77,3 +78,5 @@ struct GTIRB_EXPORT_API InstructionRef {
 };
 
 } // namespace gtirb
+
+#endif // GTIRB_BLOCK_H

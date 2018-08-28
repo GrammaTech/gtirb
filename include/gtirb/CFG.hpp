@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_CFG_H
+#define GTIRB_CFG_H
 
 #include <gtirb/Block.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -81,3 +82,5 @@ blocks(const CFG& cfg);
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 GTIRB_EXPORT_API void fromProtobuf(CFG& result, const proto::CFG& Message);
 } // namespace gtirb
+
+#endif // GTIRB_CFG_H

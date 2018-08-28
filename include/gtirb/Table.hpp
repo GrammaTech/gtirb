@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_TABLE_H
+#define GTIRB_TABLE_H
 
 #include <gtirb/Block.hpp>
 #include <gtirb/EA.hpp>
@@ -57,3 +58,5 @@ using Table = std::variant<std::map<EA, table::ValueType>,          //
 GTIRB_EXPORT_API proto::Table toProtobuf(const Table& Table);
 GTIRB_EXPORT_API void fromProtobuf(Table& Result, const proto::Table& Message);
 } // namespace gtirb
+
+#endif // GTIRB_TABLE_H
