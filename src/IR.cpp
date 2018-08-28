@@ -33,8 +33,6 @@ std::vector<const Module*> IR::getModulesWithPreferredAddr(Addr X) const {
 }
 
 std::vector<const Module*> IR::getModulesContainingAddr(Addr X) const {
-  using namespace std::rel_ops;
-
   std::vector<const Module*> Results;
 
   for (const auto& M : this->Modules) {
