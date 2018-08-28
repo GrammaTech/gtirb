@@ -4,20 +4,6 @@
 
 using namespace gtirb;
 
-void ImageByteMap::setFileName(std::string X) { this->FileName = X; }
-
-std::string ImageByteMap::getFileName() const { return this->FileName; }
-
-void ImageByteMap::setBaseAddress(Addr X) { this->BaseAddress = X; }
-
-Addr ImageByteMap::getBaseAddress() const { return this->BaseAddress; }
-
-void ImageByteMap::setEntryPointAddress(Addr X) { this->EntryPointAddress = X; }
-
-Addr ImageByteMap::getEntryPointAddress() const {
-  return this->EntryPointAddress;
-}
-
 bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
   if (X.first <= X.second) {
     this->EaMinMax = std::move(X);
@@ -26,26 +12,6 @@ bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
 
   this->EaMinMax = std::make_pair(Addr{}, Addr{});
   return false;
-}
-
-std::pair<Addr, Addr> ImageByteMap::getAddrMinMax() const {
-  return this->EaMinMax;
-}
-
-void ImageByteMap::setRebaseDelta(int64_t X) { this->RebaseDelta = X; }
-
-int64_t ImageByteMap::getRebaseDelta() const { return this->RebaseDelta; }
-
-void ImageByteMap::setIsRelocated() { this->IsRelocated = true; }
-
-bool ImageByteMap::getIsRelocated() const { return this->IsRelocated; }
-
-boost::endian::order ImageByteMap::getByteOrder() const {
-  return this->ByteOrder;
-}
-
-void ImageByteMap::setByteOrder(boost::endian::order Value) {
-  this->ByteOrder = Value;
 }
 
 void ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {

@@ -16,10 +16,6 @@ IR::IR(IR&&) = default;
 IR& IR::operator=(IR&&) = default;
 IR::~IR() = default;
 
-std::vector<Module>& IR::getModules() { return this->Modules; }
-
-const std::vector<Module>& IR::getModules() const { return this->Modules; }
-
 std::vector<const Module*> IR::getModulesWithPreferredAddr(Addr X) const {
   std::vector<const Module*> Results;
 
@@ -77,12 +73,6 @@ bool IR::removeTable(const std::string& X) {
 
   return false;
 }
-
-size_t IR::getTableSize() const { return this->Tables.size(); }
-
-bool IR::getTablesEmpty() const { return this->Tables.empty(); }
-
-void IR::clearTables() { this->Tables.clear(); }
 
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());

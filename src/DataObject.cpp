@@ -4,10 +4,6 @@
 
 using namespace gtirb;
 
-Addr DataObject::getAddress() const { return this->Address; }
-
-uint64_t DataObject::getSize() const { return this->Size; }
-
 void DataObject::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_address(static_cast<uint64_t>(this->Address));

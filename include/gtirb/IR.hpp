@@ -4,6 +4,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -80,8 +81,8 @@ public:
   ///
   ~IR() override;
 
-  std::vector<Module>& getModules();
-  const std::vector<Module>& getModules() const;
+  std::vector<Module>& getModules() { return Modules; }
+  const std::vector<Module>& getModules() const { return Modules; }
 
   ///
   /// Get all modules having the given Preferred address
@@ -149,19 +150,19 @@ public:
   ///
   /// \return     The total number of tables this node owns.
   ///
-  size_t getTableSize() const;
+  size_t getTableSize() const { return Tables.size(); }
 
   ///
   /// Test to see if the number of tables at this Node is zero.
   ///
   /// \return     True if this node does not own any tables.
   ///
-  bool getTablesEmpty() const;
+  bool getTablesEmpty() const { return Tables.empty(); }
 
   ///
   /// Clear all locally owned tables.
   ///
-  void clearTables();
+  void clearTables() { Tables.clear(); }
 
 private:
   std::map<std::string, gtirb::Table> Tables;

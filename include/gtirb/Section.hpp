@@ -34,9 +34,9 @@ public:
   bool operator==(const Section& Other) const;
   bool operator!=(const Section& Other) const;
 
-  const std::string& getName() const;
-  const Addr getAddress() const;
-  uint64_t getSize() const;
+  const std::string& getName() const { return Name; }
+  const Addr getAddress() const { return Address; }
+  uint64_t getSize() const { return Size; }
 
   using MessageType = proto::Section;
   void toProtobuf(MessageType* Message) const;
