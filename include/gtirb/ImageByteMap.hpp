@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_IMAGEBYTEMAP_H
+#define GTIRB_IMAGEBYTEMAP_H
 
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/EA.hpp>
@@ -299,3 +300,5 @@ std::vector<std::byte> getBytes(const ImageByteMap& byteMap, const T& object) {
 }
 
 } // namespace gtirb
+
+#endif // GTIRB_IMAGEBYTEMAP_H

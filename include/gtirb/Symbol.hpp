@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_SYMBOL_H
+#define GTIRB_SYMBOL_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
@@ -102,3 +103,5 @@ private:
   NodeRef<Block> CodeReferent;
 };
 } // namespace gtirb
+
+#endif // GTIRB_SYMBOL_H

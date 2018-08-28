@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_SYMBOLSET_H
+#define GTIRB_SYMBOLSET_H
 
 #include <gtirb/EA.hpp>
 #include <map>
@@ -13,3 +14,5 @@ GTIRB_EXPORT_API std::vector<Symbol*> findSymbols(SymbolSet& Symbols, EA X);
 GTIRB_EXPORT_API std::vector<const Symbol*>
 findSymbols(const SymbolSet& Symbols, EA X);
 } // namespace gtirb
+
+#endif // GTIRB_SYMBOLSET_H

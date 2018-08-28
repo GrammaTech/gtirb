@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_BYTEMAP_H
+#define GTIRB_BYTEMAP_H
 
 #include <gtirb/EA.hpp>
 #include <array>
@@ -56,3 +57,5 @@ private:
   std::vector<Region> Regions{{EA(), std::vector<std::byte>()}};
 };
 } // namespace gtirb
+
+#endif // GTIRB_BYTEMAP_H

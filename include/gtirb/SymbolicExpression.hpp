@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_SYMBOLICEXPRESSION_H
+#define GTIRB_SYMBOLICEXPRESSION_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/NodeRef.hpp>
@@ -50,3 +51,5 @@ GTIRB_EXPORT_API proto::SymbolicExpression
 toProtobuf(const SymbolicExpression& Expr);
 
 } // namespace gtirb
+
+#endif // GTIRB_SYMBOLICEXPRESSION_H

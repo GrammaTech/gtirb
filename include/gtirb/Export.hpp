@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_EXPORT_H
+#define GTIRB_EXPORT_H
 
 ///
 /// Defined by the build system (CMake or SCons).
@@ -26,3 +27,5 @@
 #else
 #define GTIRB_EXPORT_API __attribute__((visibility("default")))
 #endif
+
+#endif // GTIRB_EXPORT_H

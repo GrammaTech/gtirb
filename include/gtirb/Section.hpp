@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_SECTION_H
+#define GTIRB_SECTION_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
@@ -47,3 +48,5 @@ private:
   uint64_t Size{0};
 };
 } // namespace gtirb
+
+#endif // GTIRB_SECTION_H

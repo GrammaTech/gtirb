@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTIRB_IR_H
+#define GTIRB_IR_H
 
 #include <gtirb/EA.hpp>
 #include <gtirb/Node.hpp>
@@ -167,3 +168,5 @@ private:
   std::vector<Module> Modules;
 };
 } // namespace gtirb
+
+#endif // GTIRB_IR_H
