@@ -89,14 +89,14 @@ public:
   ///
   /// \param  X   A path to the corresponding binary on disk.
   ///
-  void setBinaryPath(std::string X);
+  void setBinaryPath(const std::string& X) { BinaryPath = X; }
 
   ///
   /// Get the location of the corresponding binary on disk.
   ///
   /// \return   The path to the corresponding binary on disk.
   ///
-  std::string getBinaryPath() const;
+  const std::string& getBinaryPath() const { return BinaryPath; }
 
   ///
   /// Sets the format of the binary pointed to by getBinaryPath().
@@ -104,7 +104,7 @@ public:
   /// \param  X   The gtirb::FileFormat enumeration corresponding to the binary
   /// associated with this Module.
   ///
-  void setFileFormat(gtirb::FileFormat X);
+  void setFileFormat(gtirb::FileFormat X) { this->FileFormat = X; }
 
   ///
   /// Gets the format of the binary pointed to by getBinaryPath().
@@ -112,37 +112,37 @@ public:
   /// \return     The gtirb::FileFormat enumeration corresponding to the binary
   /// associated with this Module.
   ///
-  gtirb::FileFormat getFileFormat() const;
+  gtirb::FileFormat getFileFormat() const { return this->FileFormat; }
 
   ///
   ///
   ///
-  void setRebaseDelta(int64_t X);
+  void setRebaseDelta(int64_t X) { RebaseDelta = X; }
 
   ///
   ///
   ///
-  int64_t getRebaseDelta() const;
+  int64_t getRebaseDelta() const { return RebaseDelta; }
 
   ///
   ///
   ///
-  void setPreferredAddr(Addr X);
+  void setPreferredAddr(gtirb::Addr X) { PreferredAddr = X; }
 
   ///
   ///
   ///
-  void setISAID(gtirb::ISAID X);
+  void setISAID(gtirb::ISAID X) { IsaID = X; }
 
   ///
   ///
   ///
-  gtirb::ISAID getISAID() const;
+  gtirb::ISAID getISAID() const { return IsaID; }
 
   ///
   ///
   ///
-  Addr getPreferredAddr() const;
+  gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
   ///
   /// A Module can have exactly one ImageByteMap child.
@@ -153,8 +153,8 @@ public:
   gtirb::SymbolSet& getSymbols();
   const gtirb::SymbolSet& getSymbols() const;
 
-  void setName(std::string X);
-  std::string getName() const;
+  void setName(const std::string& X) { Name = X; }
+  const std::string& getName() const { return Name; }
 
   const CFG& getCFG() const;
   CFG& getCFG();

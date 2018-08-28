@@ -49,9 +49,9 @@ public:
   ///
   ~Block() override = default;
 
-  Addr getAddress() const;
-  uint64_t getSize() const;
-  uint64_t getDecodeMode() const;
+  Addr getAddress() const { return Address; }
+  uint64_t getSize() const { return Size; }
+  uint64_t getDecodeMode() const { return DecodeMode; }
 
   using MessageType = proto::Block;
   void toProtobuf(MessageType* Message) const;

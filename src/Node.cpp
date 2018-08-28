@@ -66,8 +66,6 @@ void Node::setUUID(UUID X) {
   Node::UuidMap.emplace(X, this);
 }
 
-UUID Node::getUUID() const { return this->Uuid; }
-
 std::string gtirb::uuidToString(const UUID& Uuid) {
   return boost::uuids::to_string(Uuid);
 }

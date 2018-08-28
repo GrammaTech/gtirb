@@ -37,9 +37,9 @@ public:
   ///
   DataObject& operator=(DataObject&&) = default;
 
-  Addr getAddress() const;
+  Addr getAddress() const { return Address; }
 
-  uint64_t getSize() const;
+  uint64_t getSize() const { return Size; }
 
   using MessageType = proto::DataObject;
   void toProtobuf(MessageType* Message) const;
