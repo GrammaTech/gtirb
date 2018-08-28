@@ -33,21 +33,31 @@ TEST(Unit_Addr, toIntegers) {
 }
 
 TEST(Unit_Addr, comparison) {
-  using namespace std::rel_ops;
+  Addr Ea1(2112), Ea2(1221), Ea3(1000), Ea4(1000);
 
-  Addr Ea1(2112);
-  Addr Ea2(1221);
+  EXPECT_EQ(Ea3, Ea4);
+  EXPECT_TRUE(Ea3 == Ea4);
+  EXPECT_FALSE(Ea3 != Ea4);
 
-//  EXPECT_GT(Ea1, Ea2);
-  EXPECT_TRUE(Ea1 > Ea2);
-
-//  EXPECT_NE(Ea1, Ea2);
+  EXPECT_NE(Ea1, Ea2);
   EXPECT_TRUE(Ea1 != Ea2);
+  EXPECT_FALSE(Ea1 == Ea2);
 
   EXPECT_LT(Ea2, Ea1);
   EXPECT_TRUE(Ea2 < Ea1);
+  EXPECT_FALSE(Ea2 > Ea1);
+  
+  EXPECT_GT(Ea1, Ea2);
+  EXPECT_TRUE(Ea1 > Ea2);
+  EXPECT_FALSE(Ea1 < Ea2);
 
-  EXPECT_FALSE(Ea1 == Ea2);
+  EXPECT_LE(Ea3, Ea4);
+  EXPECT_TRUE(Ea3 <= Ea4);
+  EXPECT_FALSE(Ea3 > Ea4);
+
+  EXPECT_GE(Ea3, Ea4);
+  EXPECT_TRUE(Ea3 >= Ea4);
+  EXPECT_FALSE(Ea3 < Ea4);
 }
 
 TEST(Unit_Addr, arithmetic) {
