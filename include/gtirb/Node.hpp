@@ -73,7 +73,7 @@ public:
   ///
   /// Retrieve the Node's Universally Unique ID (UUID).
   ///
-  UUID getUUID() const;
+  UUID getUUID() const { return Uuid; }
 
 private:
   UUID Uuid;

@@ -63,11 +63,11 @@ public:
   ///
   ~Symbol() override = default;
 
-  void setAddress(gtirb::Addr X);
-  gtirb::Addr getAddress() const;
+  void setAddress(gtirb::Addr X) { Address = X; }
+  gtirb::Addr getAddress() const { return Address; }
 
-  void setName(std::string X);
-  std::string getName() const;
+  void setName(const std::string& X) { Name = X; }
+  const std::string& getName() const { return Name; }
 
   ///
   /// Set the DataObject to which this symbol refers.
@@ -82,15 +82,15 @@ public:
   ///
   /// Get the DataObject to which this symbol refers.
   ///
-  NodeRef<DataObject> getDataReferent() const;
+  NodeRef<DataObject> getDataReferent() const { return DataReferent; }
 
   ///
   /// Get the Block object to which this symbol refers.
   ///
-  NodeRef<Block> getCodeReferent() const;
+  NodeRef<Block> getCodeReferent() const { return CodeReferent; }
 
-  void setStorageKind(Symbol::StorageKind X);
-  gtirb::Symbol::StorageKind getStorageKind() const;
+  void setStorageKind(Symbol::StorageKind X) { Storage = X; }
+  gtirb::Symbol::StorageKind getStorageKind() const { return Storage; }
 
   using MessageType = proto::Symbol;
   void toProtobuf(MessageType* Message) const;

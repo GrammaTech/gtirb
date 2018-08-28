@@ -24,26 +24,6 @@ Module::Module()
 Module::Module(Module&&) = default;
 Module::~Module() = default;
 
-void Module::setBinaryPath(std::string X) { this->BinaryPath = X; }
-
-std::string Module::getBinaryPath() const { return this->BinaryPath; }
-
-void Module::setFileFormat(gtirb::FileFormat X) { this->FileFormat = X; }
-
-gtirb::FileFormat Module::getFileFormat() const { return this->FileFormat; }
-
-void Module::setRebaseDelta(int64_t X) { this->RebaseDelta = X; }
-
-int64_t Module::getRebaseDelta() const { return this->RebaseDelta; }
-
-void Module::setISAID(gtirb::ISAID X) { this->IsaID = X; }
-
-gtirb::ISAID Module::getISAID() const { return this->IsaID; }
-
-void Module::setPreferredAddr(Addr X) { this->PreferredAddr = X; }
-
-Addr Module::getPreferredAddr() const { return this->PreferredAddr; }
-
 gtirb::SymbolSet& Module::getSymbols() { return *this->Symbols; }
 
 const gtirb::SymbolSet& Module::getSymbols() const { return *this->Symbols; }
@@ -55,10 +35,6 @@ gtirb::ImageByteMap& Module::getImageByteMap() {
 const gtirb::ImageByteMap& Module::getImageByteMap() const {
   return *this->ImageByteMap_.get();
 }
-
-void Module::setName(std::string X) { this->Name = std::move(X); }
-
-std::string Module::getName() const { return this->Name; }
 
 const CFG& Module::getCFG() const { return *this->Cfg; }
 

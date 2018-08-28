@@ -46,32 +46,32 @@ public:
   ///
   /// \return     Sets the file name of the image.
   ///
-  void setFileName(std::string X);
+  void setFileName(const std::string& X) { FileName = X; }
 
   ///
   /// \return     The loaded file name and path.
   ///
-  std::string getFileName() const;
+  const std::string& getFileName() const { return FileName; }
 
   ///
   /// Sets the base address of loaded file.
   ///
-  void setBaseAddress(Addr X);
+  void setBaseAddress(Addr X) { BaseAddress = X; }
 
   ///
   /// Gets the base addrress of loaded file.
   ///
-  Addr getBaseAddress() const;
+  Addr getBaseAddress() const { return BaseAddress; }
 
   ///
   /// Sets the entry point of loaded file.
   ///
-  void setEntryPointAddress(Addr X);
+  void setEntryPointAddress(Addr X) { EntryPointAddress = X; }
 
   ///
   /// Gets the entry point of loaded file.
   ///
-  Addr getEntryPointAddress() const;
+  Addr getEntryPointAddress() const { return EntryPointAddress; }
 
   ///
   /// If an invalid pair is passed in, the min and max will be set to an invalid
@@ -91,17 +91,17 @@ public:
   /// \return     The minimum and maximum effective address (Addr) for this
   /// Module.
   ///
-  std::pair<Addr, Addr> getAddrMinMax() const;
+  std::pair<Addr, Addr> getAddrMinMax() const { return EaMinMax; }
 
   ///
   ///
   ///
-  void setRebaseDelta(int64_t X);
+  void setRebaseDelta(int64_t X) { RebaseDelta = X; }
 
   ///
   ///
   ///
-  int64_t getRebaseDelta() const;
+  int64_t getRebaseDelta() const { return RebaseDelta; }
 
   ///
   /// Marks the loaded image as having been relocated.
@@ -109,22 +109,22 @@ public:
   /// This is primarily useful for loaders that load from sources that provide
   /// already-relocated content.
   ///
-  void setIsRelocated();
+  void setIsRelocated() { IsRelocated = true; }
 
   ///
   /// \return     True if the loaded image has been relocated.
   ///
-  bool getIsRelocated() const;
+  bool getIsRelocated() const { return IsRelocated; }
 
   ///
   /// Set the byte order to use when getting or setting data.
   ///
-  boost::endian::order getByteOrder() const;
+  boost::endian::order getByteOrder() const { return ByteOrder; }
 
   ///
   /// Get the byte order used when getting or setting data.
   ///
-  void setByteOrder(boost::endian::order Value);
+  void setByteOrder(boost::endian::order Value) { ByteOrder = Value; }
 
   ///
   /// Sets byte map at the given address. Data is written directly without

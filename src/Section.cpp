@@ -7,12 +7,6 @@ using namespace gtirb;
 Section::Section(std::string N, Addr A, uint64_t S)
     : Node(), Name(N), Address(A), Size(S) {}
 
-const std::string& Section::getName() const { return this->Name; }
-
-uint64_t Section::getSize() const { return this->Size; }
-
-const Addr Section::getAddress() const { return this->Address; }
-
 bool Section::operator==(const Section& Other) const {
   return this->Address == Other.Address && this->Size == Other.Size &&
          this->Name == Other.Name;

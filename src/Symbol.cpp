@@ -22,14 +22,6 @@ Symbol::Symbol(Addr X, std::string Name_, const Block& Referent,
   this->setReferent(Referent);
 }
 
-void Symbol::setAddress(Addr X) { this->Address = X; }
-
-Addr Symbol::getAddress() const { return this->Address; }
-
-void Symbol::setName(std::string X) { this->Name = X; }
-
-std::string Symbol::getName() const { return this->Name; }
-
 void Symbol::setReferent(const DataObject& Data) {
   this->DataReferent = NodeRef<DataObject>(Data);
   this->CodeReferent = {};
@@ -38,18 +30,6 @@ void Symbol::setReferent(const DataObject& Data) {
 void Symbol::setReferent(const Block& Instruction) {
   this->CodeReferent = NodeRef<Block>(Instruction);
   this->DataReferent = {};
-}
-
-NodeRef<DataObject> Symbol::getDataReferent() const {
-  return this->DataReferent;
-}
-
-NodeRef<Block> Symbol::getCodeReferent() const { return this->CodeReferent; }
-
-void Symbol::setStorageKind(Symbol::StorageKind X) { this->Storage = X; }
-
-gtirb::Symbol::StorageKind Symbol::getStorageKind() const {
-  return this->Storage;
 }
 
 void Symbol::toProtobuf(MessageType* Message) const {

@@ -8,12 +8,6 @@ using namespace gtirb;
 Block::Block(Addr Address_, uint64_t Size_, uint64_t DecodeMode_)
     : Node(), Address(Address_), Size(Size_), DecodeMode(DecodeMode_) {}
 
-Addr Block::getAddress() const { return this->Address; }
-
-uint64_t Block::getSize() const { return this->Size; }
-
-uint64_t Block::getDecodeMode() const { return this->DecodeMode; }
-
 void Block::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_address(static_cast<uint64_t>(this->Address));
