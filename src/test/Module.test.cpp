@@ -8,6 +8,8 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
 #include <gtest/gtest.h>
+#include <iterator>
+#include <utility>
 
 using namespace gtirb;
 
@@ -96,7 +98,7 @@ TEST(Unit_Module, setPreferredAddr) {
 
 TEST(Unit_Module, getSymbolSet) {
   auto *M = Module::Create(Ctx);
-  EXPECT_NO_THROW(M->getSymbols());
+  EXPECT_NO_THROW(M->symbols());
 }
 
 TEST(Unit_Module, getImageByteMap) {
@@ -120,21 +122,21 @@ TEST(Unit_Module, getName) {
 
 TEST(Unit_Module, sections) {
   auto *M = Module::Create(Ctx);
-  M->getSections().push_back(Section::Create(Ctx, "test", Addr(), 123));
-  EXPECT_EQ(M->getSections().back()->getName(), "test");
+  M->addSection(Section::Create(Ctx, "test", Addr(), 123));
+  EXPECT_EQ(M->section_begin()->getName(), "test");
 }
 
 TEST(Unit_Module, dataObjects) {
   auto *M = Module::Create(Ctx);
-  M->getData().push_back(DataObject::Create(Ctx, Addr(1), 123));
-  EXPECT_EQ(M->getData().back()->getAddress(), Addr(1));
+  M->addData(DataObject::Create(Ctx, Addr(1), 123));
+  EXPECT_EQ(M->data_begin()->getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, symbolicExpressions) {
   auto *M = Module::Create(Ctx);
   Symbol *S = Symbol::Create(Ctx);
-  M->getSymbolicExpressions().emplace(Addr(1), SymAddrConst{0, S});
-  EXPECT_EQ(M->getSymbolicExpressions().size(), 1);
+  M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
+  EXPECT_EQ(std::distance(M->symbol_expr_begin(), M->symbol_expr_end()), 1);
 }
 
 TEST(Unit_Module, protobufRoundTrip) {
@@ -151,17 +153,17 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
     Original->setName("module");
-    addSymbol(Original->getSymbols(), Symbol::Create(Ctx));
+    Original->addSymbol(Symbol::Create(Ctx));
     addBlock(Original->getCFG(), Block::Create(Ctx));
-    Original->getData().push_back(DataObject::Create(Ctx));
-    Original->getSections().push_back(Section::Create(Ctx));
-    Original->getSymbolicExpressions().insert({Addr(7), {SymAddrConst()}});
+    Original->addData(DataObject::Create(Ctx));
+    Original->addSection(Section::Create(Ctx));
+    Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
     ByteMapID = Original->getImageByteMap().getUUID();
-    SymbolID = Original->getSymbols().begin()->second->getUUID();
+    SymbolID = Original->symbol_begin()->getUUID();
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
-    DataID = Original->getData().front()->getUUID();
-    SectionID = Original->getSections().front()->getUUID();
-    WhichSymbolic = Original->getSymbolicExpressions().begin()->second.index();
+    DataID = Original->data_begin()->getUUID();
+    SectionID = Original->section_begin()->getUUID();
+    WhichSymbolic = Original->symbol_expr_begin()->index();
 
     Original->toProtobuf(&Message);
 
@@ -184,16 +186,16 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(num_vertices(Result->getCFG()), 1);
   EXPECT_EQ(blocks(Result->getCFG()).begin()->getUUID(), BlockID);
 
-  EXPECT_EQ(Result->getSymbols().size(), 1);
-  EXPECT_EQ(Result->getSymbols().begin()->second->getUUID(), SymbolID);
+  EXPECT_EQ(std::distance(Result->symbol_begin(), Result->symbol_end()), 1);
+  EXPECT_EQ(Result->symbol_begin()->getUUID(), SymbolID);
 
-  EXPECT_EQ(Result->getData().size(), 1);
-  EXPECT_EQ(Result->getData().front()->getUUID(), DataID);
+  EXPECT_EQ(std::distance(Result->data_begin(), Result->data_end()), 1);
+  EXPECT_EQ(Result->data_begin()->getUUID(), DataID);
 
-  EXPECT_EQ(Result->getSections().size(), 1);
-  EXPECT_EQ(Result->getSections().front()->getUUID(), SectionID);
+  EXPECT_EQ(std::distance(Result->section_begin(), Result->section_end()), 1);
+  EXPECT_EQ(Result->section_begin()->getUUID(), SectionID);
 
-  EXPECT_EQ(Result->getSymbolicExpressions().size(), 1);
-  EXPECT_EQ(Result->getSymbolicExpressions().begin()->second.index(),
-            WhichSymbolic);
+  EXPECT_EQ(
+      std::distance(Result->symbol_expr_begin(), Result->symbol_expr_end()), 1);
+  EXPECT_EQ(Result->symbol_expr_begin()->index(), WhichSymbolic);
 }

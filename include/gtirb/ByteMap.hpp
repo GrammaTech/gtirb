@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <boost/range/iterator_range.hpp>
 #include <gsl/gsl>
 #include <limits>
 #include <map>
@@ -36,6 +37,8 @@ public:
   void setData(Addr A, gsl::span<const std::byte> Data);
 
 
+  using const_range =
+    boost::iterator_range<std::vector<std::byte>::const_iterator>;
   /// \brief Get the data at the specified address.
   ///
   /// \param  A       The starting address for the data.
@@ -43,7 +46,7 @@ public:
   ///
   /// \return DOCFIXME
   ///
-  std::vector<std::byte> getData(Addr A, size_t Bytes) const;
+  const_range getData(Addr A, size_t Bytes) const;
 
 
   /// \brief DOCFIXME

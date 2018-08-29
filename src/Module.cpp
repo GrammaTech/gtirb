@@ -2,10 +2,7 @@
 #include "Serialization.hpp"
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
-#include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
-#include <gtirb/Section.hpp>
-#include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
 #include <gsl/gsl>
@@ -15,10 +12,6 @@ using namespace gtirb;
 
 Module::Module(Context& C)
     : Node(Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
-
-gtirb::SymbolSet& Module::getSymbols() { return *this->Symbols; }
-
-const gtirb::SymbolSet& Module::getSymbols() const { return this->Symbols; }
 
 gtirb::ImageByteMap& Module::getImageByteMap() {
   return *this->ImageBytes;
@@ -31,24 +24,6 @@ const gtirb::ImageByteMap& Module::getImageByteMap() const {
 const CFG& Module::getCFG() const { return *this->Cfg; }
 
 CFG& Module::getCFG() { return this->Cfg; }
-
-const DataSet& Module::getData() const { return this->Data; }
-
-DataSet& Module::getData() { return this->Data; }
-
-SectionSet& Module::getSections() { return this->Sections; }
-
-const SectionSet& Module::getSections() const {
-  return this->Sections;
-}
-
-SymbolicExpressionSet& Module::getSymbolicExpressions() {
-  return this->SymbolicOperands;
-}
-
-const SymbolicExpressionSet& Module::getSymbolicExpressions() const {
-  return this->SymbolicOperands;
-}
 
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
@@ -94,7 +69,7 @@ Module *Module::fromProtobuf(Context &C, const MessageType& Message) {
   M->Symbols.clear();
   const auto& Syms = Message.symbols();
   std::for_each(Syms.begin(), Syms.end(), [M, &C](const auto& Elt) {
-    addSymbol(M->Symbols, Symbol::fromProtobuf(C, Elt));
+    M->addSymbol(Symbol::fromProtobuf(C, Elt));
   });
   return M;
 }

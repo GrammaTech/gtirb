@@ -25,17 +25,20 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
     Module *M = Module::Create(Ctx);
     M->setPreferredAddr(PreferredAddr);
-    EXPECT_NO_THROW(Ir->getModules().push_back(M));
+    EXPECT_NO_THROW(Ir->addModule(M));
   }
 
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
     Module *M = Module::Create(Ctx);
-    EXPECT_NO_THROW(Ir->getModules().push_back(M));
+    EXPECT_NO_THROW(Ir->addModule(M));
   }
 
-  const auto Modules = Ir->getModulesWithPreferredAddr(PreferredAddr);
-  EXPECT_FALSE(Modules.empty());
-  EXPECT_EQ(ModulesWithAddr, Modules.size());
+  size_t Count =
+      std::count_if(Ir->begin(), Ir->end(), [PreferredAddr](const Module& M) {
+        return hasPreferredEA(M, PreferredAddr);
+      });
+  EXPECT_FALSE(Count == 0);
+  EXPECT_EQ(ModulesWithAddr, Count);
 }
 
 TEST(Unit_IR, getModulesContainingAddr) {
@@ -48,26 +51,29 @@ TEST(Unit_IR, getModulesContainingAddr) {
   {
     Module *M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea, Ea + EaOffset});
-    EXPECT_NO_THROW(Ir->getModules().push_back(M));
+    EXPECT_NO_THROW(Ir->addModule(M));
   }
 
   // Addr inside range
   {
     Module *M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea + EaOffset});
-    EXPECT_NO_THROW(Ir->getModules().push_back(M));
+    EXPECT_NO_THROW(Ir->addModule(M));
   }
 
   // Addr at max (should not be returned)
   {
     Module *M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea});
-    EXPECT_NO_THROW(Ir->getModules().push_back(M));
+    EXPECT_NO_THROW(Ir->addModule(M));
   }
 
-  const auto modules = Ir->getModulesContainingAddr(Ea);
-  EXPECT_FALSE(modules.empty());
-  EXPECT_EQ(size_t(2), modules.size());
+  size_t Count =
+    std::count_if(Ir->begin(), Ir->end(), [Ea](const Module& M) {
+    return containsEA(M, Ea);
+  });
+  EXPECT_FALSE(Count == 0);
+  EXPECT_EQ(2, Count);
 }
 
 TEST(Unit_IR, addTable) {
@@ -93,17 +99,20 @@ TEST(Unit_IR, protobufRoundTrip) {
     IR *Original = IR::Create(Ctx);
     Module *M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
-    Original->getModules().push_back(M);
+    Original->addModule(M);
     Original->addTable("test", Table());
 
-    MainID = Original->getModules().front()->getUUID();
+    MainID = Original->begin()->getUUID();
     Original->toProtobuf(&Message);
     details::ClearUUIDs(Original); // Avoid UUID conflict
   }
   IR *Result = IR::fromProtobuf(Ctx, Message);
 
-  EXPECT_EQ(Result->getModules().front()->getUUID(), MainID);
-  EXPECT_EQ(Result->getModulesContainingAddr(Addr(100)).size(), 1);
+  EXPECT_EQ(Result->begin()->getUUID(), MainID);
+  size_t Count =
+      std::count_if(Result->begin(), Result->end(),
+                    [](const Module& M) { return containsEA(M, Addr(100)); });
+  EXPECT_EQ(Count, 1);
   EXPECT_EQ(Result->getTableSize(), 1);
   EXPECT_NE(Result->getTable("test"), nullptr);
 }

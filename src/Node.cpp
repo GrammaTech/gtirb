@@ -66,19 +66,19 @@ void GTIRB_EXPORT_API details::ClearUUIDs(Node *N) {
   N->setUUID();
 
   if (auto *I = dyn_cast<IR>(N)) {
-    for (auto *M : I->getModules()) {
-      details::ClearUUIDs(M);
+    for (auto &M : I->modules()) {
+      details::ClearUUIDs(&M);
     }
   } else if (auto *M = dyn_cast<Module>(N)) {
     details::ClearUUIDs(&M->getImageByteMap());
-    for (auto *D : M->getData()) {
-      details::ClearUUIDs(D);
+    for (auto &D : M->data()) {
+      details::ClearUUIDs(&D);
     }
-    for (auto *S : M->getSections()) {
-      details::ClearUUIDs(S);
+    for (auto &S : M->sections()) {
+      details::ClearUUIDs(&S);
     }
-    for (auto &S : M->getSymbols()) {
-      details::ClearUUIDs(S.second);
+    for (auto &S : M->symbols()) {
+      details::ClearUUIDs(&S);
     }
     for (auto &B : blocks(M->getCFG())) {
       details::ClearUUIDs(&B);
