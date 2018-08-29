@@ -115,7 +115,7 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
 
     if (I < Unit_ImageByteMapF::InitializedSize - 1) {
       EXPECT_NO_THROW(
-          this->ByteMap->getData(Unit_ImageByteMapF::Offset + I, 2));
+          this->ByteMap->data(Unit_ImageByteMapF::Offset + I, 2));
 
       const auto Word =
           this->ByteMap->getData<uint16_t>(Unit_ImageByteMapF::Offset + I);
@@ -212,12 +212,12 @@ TEST_F(Unit_ImageByteMapF, constantData) {
 
   std::vector<std::byte> Expected(32, std::byte(1));
 
-  ASSERT_NO_THROW(this->ByteMap->getData(Address, Expected.size()))
+  ASSERT_NO_THROW(this->ByteMap->data(Address, Expected.size()))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
 
-  EXPECT_EQ(this->ByteMap->getData(Address, Expected.size()), Expected);
+  EXPECT_EQ(this->ByteMap->data(Address, Expected.size()), Expected);
 }
 
 struct TestStruct {
@@ -290,7 +290,7 @@ TEST_F(Unit_ImageByteMapF, littleEndian) {
   // Skip padding of s
   size_t Size = sizeof(W) + sizeof(Dw) + sizeof(Qw) + sizeof(A) + sizeof(S.I) +
                 sizeof(S.J);
-  EXPECT_EQ(this->ByteMap->getData(Addr0, Size), expected);
+  EXPECT_EQ(this->ByteMap->data(Addr0, Size), expected);
 
   // Confirm that getData returns to native order.
   EXPECT_EQ(this->ByteMap->getData<uint16_t>(Addr0), W);
@@ -357,7 +357,7 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
   // Skip padding of s
   size_t Size = sizeof(W) + sizeof(Dw) + sizeof(Qw) + sizeof(A) + sizeof(S.I) +
                 sizeof(S.J);
-  EXPECT_EQ(this->ByteMap->getData(Addr0, Size), Expected);
+  EXPECT_EQ(this->ByteMap->data(Addr0, Size), Expected);
 
   // Confirm that getData returns to native order.
   EXPECT_EQ(this->ByteMap->getData<uint16_t>(Addr0), W);

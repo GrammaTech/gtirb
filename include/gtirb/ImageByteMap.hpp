@@ -7,6 +7,7 @@
 #include <proto/ImageByteMap.pb.h>
 #include <array>
 #include <boost/endian/conversion.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <gsl/gsl>
 #include <set>
 #include <type_traits>
@@ -287,6 +288,7 @@ public:
   }
 
 
+  using const_range = ByteMap::const_range;
   /// \brief Get data from the byte map at the specified address.
   ///
   /// \param  X       The starting address for the data.
@@ -294,12 +296,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
-  /// \return The bytes at address range [\p X, \p X + \p Bytes - 1]
-  /// in the byte map. DOCFIXME[check]
-  ///
-  /// DOCFIXME[no exceptions thrown for out-of-range parameters?]
-  ///
-  std::vector<std::byte> getData(Addr X, size_t Bytes) const;
+  const_range data(Addr X, size_t Bytes) const;
 
 
   /// \brief Get data from the byte map at the specified address,
@@ -385,11 +382,8 @@ private:
     auto destSpan = as_writeable_bytes(gsl::make_span(&Result, 1));
     // Assign this to a variable so it isn't destroyed before we copy
     // from it (because gsl::span is non-owning).
-    auto data = this->getData(Ea, destSpan.size_bytes());
-    auto srcSpan = as_bytes(gsl::make_span(data));
-    assert(srcSpan.size() == destSpan.size());
-
-    std::copy(srcSpan.begin(), srcSpan.end(), destSpan.begin());
+    auto data = this->data(Ea, destSpan.size_bytes());
+    std::copy(data.begin(), data.end(), destSpan.begin());
     return Result;
   }
 

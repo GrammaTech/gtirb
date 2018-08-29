@@ -31,9 +31,9 @@ void ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
   }
 }
 
-std::vector<std::byte> ImageByteMap::getData(Addr X, size_t Bytes) const {
+ImageByteMap::const_range ImageByteMap::data(Addr X, size_t Bytes) const {
   if (X >= this->EaMinMax.first && (X + Bytes - 1) <= this->EaMinMax.second) {
-    return this->BMap.getData(X, Bytes);
+    return this->BMap.data(X, Bytes);
   }
 
   throw std::out_of_range(

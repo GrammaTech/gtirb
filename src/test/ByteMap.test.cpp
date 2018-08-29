@@ -13,9 +13,9 @@ TEST(Unit_ByteMap, newRegion) {
 
   B.setData(Addr(1000), as_bytes(gsl::make_span(data)));
 
-  EXPECT_EQ(B.getData(Addr(1000), data.size()), data);
-  EXPECT_THROW(B.getData(Addr(999), data.size()), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1000), data.size() + 1), std::out_of_range);
+  EXPECT_EQ(B.data(Addr(1000), data.size()), data);
+  EXPECT_THROW(B.data(Addr(999), data.size()), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1000), data.size() + 1), std::out_of_range);
 }
 
 TEST(Unit_ByteMap, secondRegionAfter) {
@@ -25,12 +25,12 @@ TEST(Unit_ByteMap, secondRegionAfter) {
   B.setData(Addr(1000), as_bytes(gsl::make_span(Data1)));
   B.setData(Addr(2000), as_bytes(gsl::make_span(Data2)));
 
-  EXPECT_EQ(B.getData(Addr(1000), Data1.size()), Data1);
-  EXPECT_EQ(B.getData(Addr(2000), Data2.size()), Data2);
-  EXPECT_THROW(B.getData(Addr(999), Data1.size()), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1000), Data1.size() + 1), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1999), Data2.size()), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(2000), Data2.size() + 1), std::out_of_range);
+  EXPECT_EQ(B.data(Addr(1000), Data1.size()), Data1);
+  EXPECT_EQ(B.data(Addr(2000), Data2.size()), Data2);
+  EXPECT_THROW(B.data(Addr(999), Data1.size()), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1000), Data1.size() + 1), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1999), Data2.size()), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(2000), Data2.size() + 1), std::out_of_range);
 }
 
 TEST(Unit_ByteMap, secondRegionBefore) {
@@ -42,12 +42,12 @@ TEST(Unit_ByteMap, secondRegionBefore) {
   // Leave one byte in between
   B.setData(Addr(1996), as_bytes(gsl::make_span(Data1)));
 
-  EXPECT_EQ(B.getData(Addr(1996), Data1.size()), Data1);
-  EXPECT_EQ(B.getData(Addr(2000), Data2.size()), Data2);
-  EXPECT_THROW(B.getData(Addr(999), Data1.size()), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1996), Data1.size() + 1), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1999), Data2.size()), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(2000), Data2.size() + 1), std::out_of_range);
+  EXPECT_EQ(B.data(Addr(1996), Data1.size()), Data1);
+  EXPECT_EQ(B.data(Addr(2000), Data2.size()), Data2);
+  EXPECT_THROW(B.data(Addr(999), Data1.size()), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1996), Data1.size() + 1), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1999), Data2.size()), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(2000), Data2.size() + 1), std::out_of_range);
 }
 
 TEST(Unit_ByteMap, thirdRegionBetween) {
@@ -60,12 +60,12 @@ TEST(Unit_ByteMap, thirdRegionBetween) {
   B.setData(Addr(2000), as_bytes(gsl::make_span(Data2)));
   B.setData(Addr(1100), as_bytes(gsl::make_span(Data3)));
 
-  EXPECT_EQ(B.getData(Addr(1000), Data1.size()), Data1);
-  EXPECT_EQ(B.getData(Addr(2000), Data2.size()), Data2);
-  EXPECT_EQ(B.getData(Addr(1100), Data3.size()), Data3);
-  EXPECT_THROW(B.getData(Addr(1199), Data3.size()), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1100), Data3.size() + 1), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1105), 1), std::out_of_range);
+  EXPECT_EQ(B.data(Addr(1000), Data1.size()), Data1);
+  EXPECT_EQ(B.data(Addr(2000), Data2.size()), Data2);
+  EXPECT_EQ(B.data(Addr(1100), Data3.size()), Data3);
+  EXPECT_THROW(B.data(Addr(1199), Data3.size()), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1100), Data3.size() + 1), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1105), 1), std::out_of_range);
 }
 
 TEST(Unit_ByteMap, extendRegionUp) {
@@ -78,7 +78,7 @@ TEST(Unit_ByteMap, extendRegionUp) {
 
   auto Expected = Data1;
   Expected.insert(Expected.end(), Data2.begin(), Data2.end());
-  EXPECT_EQ(B.getData(Addr(1000), Expected.size()), Expected);
+  EXPECT_EQ(B.data(Addr(1000), Expected.size()), Expected);
 }
 
 TEST(Unit_ByteMap, extendRegionDown) {
@@ -91,7 +91,7 @@ TEST(Unit_ByteMap, extendRegionDown) {
 
   auto Expected = Data1;
   Expected.insert(Expected.end(), Data2.begin(), Data2.end());
-  EXPECT_EQ(B.getData(Addr(1000), Expected.size()), Expected);
+  EXPECT_EQ(B.data(Addr(1000), Expected.size()), Expected);
 }
 
 TEST(Unit_ByteMap, mergeRegions) {
@@ -108,7 +108,7 @@ TEST(Unit_ByteMap, mergeRegions) {
   auto Expected = Data1;
   Expected.insert(Expected.end(), Data2.begin(), Data2.end());
   Expected.insert(Expected.end(), Data3.begin(), Data3.end());
-  EXPECT_EQ(B.getData(Addr(1000), Expected.size()), Expected);
+  EXPECT_EQ(B.data(Addr(1000), Expected.size()), Expected);
 }
 
 TEST(Unit_ByteMap, overwriteExistingData) {
@@ -120,12 +120,12 @@ TEST(Unit_ByteMap, overwriteExistingData) {
   B.setData(Addr(1000), as_bytes(gsl::make_span(Data2)));
 
   std::vector<std::byte> Expected1 = {std::byte(4), std::byte(5), std::byte(3)};
-  EXPECT_EQ(B.getData(Addr(1000), Expected1.size()), Expected1);
+  EXPECT_EQ(B.data(Addr(1000), Expected1.size()), Expected1);
 
   B.setData(Addr(1001), as_bytes(gsl::make_span(Data2)));
 
   std::vector<std::byte> Expected2 = {std::byte(4), std::byte(4), std::byte(5)};
-  EXPECT_EQ(B.getData(Addr(1000), Expected2.size()), Expected2);
+  EXPECT_EQ(B.data(Addr(1000), Expected2.size()), Expected2);
 }
 
 TEST(Unit_ByteMap, overlappingRegionsAreInvalid) {
@@ -156,11 +156,11 @@ TEST(Unit_ByteMap, getDataUnmapped) {
 
   B.setData(Addr(1000), as_bytes(gsl::make_span(Data)));
 
-  EXPECT_THROW(B.getData(Addr(900), 3), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(999), 3), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(999), 10), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1000), Data.size() + 1), std::out_of_range);
-  EXPECT_THROW(B.getData(Addr(1000 + Data.size()), 1), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(900), 3), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(999), 3), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(999), 10), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1000), Data.size() + 1), std::out_of_range);
+  EXPECT_THROW(B.data(Addr(1000 + Data.size()), 1), std::out_of_range);
 }
 
 TEST(Unit_ByteMap, protobufRoundTrip) {
@@ -179,7 +179,7 @@ TEST(Unit_ByteMap, protobufRoundTrip) {
   gtirb::Context Ctx;
   Result.fromProtobuf(Ctx, Message);
 
-  EXPECT_EQ(Result.getData(Addr(1), 1)[0], std::byte('a'));
-  EXPECT_EQ(Result.getData(Addr(2), 1)[0], std::byte('b'));
-  EXPECT_EQ(Result.getData(Addr(5000), 1)[0], std::byte('c'));
+  EXPECT_EQ(Result.data(Addr(1), 1)[0], std::byte('a'));
+  EXPECT_EQ(Result.data(Addr(2), 1)[0], std::byte('b'));
+  EXPECT_EQ(Result.data(Addr(5000), 1)[0], std::byte('c'));
 }

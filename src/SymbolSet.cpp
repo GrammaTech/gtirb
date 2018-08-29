@@ -3,9 +3,6 @@
 #include <gtirb/SymbolSet.hpp>
 
 namespace gtirb {
-void addSymbol(SymbolSet& Symbols, Symbol *Sym) {
-  Symbols.emplace(Sym->getAddress(), Sym);
-}
 
 std::vector<const Symbol*> findSymbols(const SymbolSet& Symbols, Addr X) {
   auto Found = Symbols.equal_range(X);

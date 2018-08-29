@@ -10,15 +10,6 @@ class Symbol;
 /// \brief DOCFIXME
 using SymbolSet = std::multimap<Addr, Symbol *>;
 
-/// DOCFIXME[check all]
-///
-/// \brief Add a Symbol to a SymbolSet.
-///
-/// \param Symbols  The SymbolSet to be modified.
-///
-/// \param Sym      The Symbol to add.
-///  
-GTIRB_EXPORT_API void addSymbol(SymbolSet& Symbols, Symbol *Sym);
 
 /// DOCFIXME[check all]
 ///
