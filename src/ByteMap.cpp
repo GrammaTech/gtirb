@@ -69,7 +69,7 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
       std::move(R));
 }
 
-std::vector<std::byte> ByteMap::getData(Addr A, size_t Bytes) const {
+ByteMap::const_range ByteMap::data(Addr A, size_t Bytes) const {
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
                           [A](const auto& R) { return containsAddr(&R, A); });
 

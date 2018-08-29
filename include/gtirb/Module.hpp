@@ -3,16 +3,23 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/CFG.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/Export.hpp>
+#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Section.hpp>
+#include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicExpressionSet.hpp>
+#include <boost/iterator/indirect_iterator.hpp>
+#include <boost/iterator/iterator_traits.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <proto/Module.pb.h>
 #include <cstdint>
 #include <string>
 
 namespace gtirb {
-class DataObject;
 class ImageByteMap;
 
 class DataObject;
@@ -72,6 +79,23 @@ class GTIRB_EXPORT_API Module : public Node {
   ///
   Module(Context &C);
 
+  template <typename Iter>
+  struct SymSetTransform {
+    using ParamTy = decltype((*std::declval<Iter>()));
+    using RetTy = decltype((*std::declval<ParamTy>().second));
+    RetTy operator()(ParamTy V) const {
+      return *V.second;
+    }
+  };
+
+  template <typename Iter>
+  struct SymExprSetTransform {
+    using ParamTy = decltype((*std::declval<Iter>()));
+    using RetTy = decltype((std::declval<ParamTy>().second));
+    RetTy operator()(ParamTy V) const {
+      return V.second;
+    }
+  };
 public:
 
   static Module *Create(Context &C) { return new (C) Module(C); }
@@ -175,22 +199,52 @@ public:
   const gtirb::ImageByteMap& getImageByteMap() const;
 
 
-  /// DOCFIXME[check all]
-  ///
-  /// \brief Get the associated symbols (\ref Symbol).
-  ///
-  /// \return The associated symbols, as a \ref SymbolSet.
-  ///
-  gtirb::SymbolSet& getSymbols();
+  using symbol_iterator =
+      boost::transform_iterator<SymSetTransform<SymbolSet::iterator>,
+                                SymbolSet::iterator, Symbol&>;
+  using symbol_range = boost::iterator_range<symbol_iterator>;
+  using const_symbol_iterator =
+      boost::transform_iterator<SymSetTransform<SymbolSet::const_iterator>,
+                                SymbolSet::const_iterator, const Symbol&>;
+  using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
+  symbol_iterator symbol_begin() {
+    return symbol_iterator(Symbols.begin());
+  }
+  symbol_iterator symbol_end() {
+    return symbol_iterator(Symbols.end());
+  }
+  const_symbol_iterator symbol_begin() const {
+    return const_symbol_iterator(Symbols.begin());
+  }
+  const_symbol_iterator symbol_end() const {
+    return const_symbol_iterator(Symbols.end());
+  }
+  symbol_range symbols() {
+    return boost::make_iterator_range(symbol_begin(), symbol_end());
+  }
+  const_symbol_range symbols() const {
+    return boost::make_iterator_range(symbol_begin(), symbol_end());
+  }
 
-  /// DOCFIXME[check all]
-  ///
-  /// \brief Get the associated symbols (\ref Symbol). DOCFIXME[difference to previous]
-  ///
-  /// \return The associated symbols, as a \ref SymbolSet.
-  ///
-  const gtirb::SymbolSet& getSymbols() const;
+  void addSymbol(Symbol* S) { addSymbol({S}); }
+  void addSymbol(std::initializer_list<Symbol*> Ss) {
+    for (auto* S : Ss)
+      Symbols.emplace(S->getEA(), S);
+  }
+
+  symbol_range findSymbols(EA X) {
+    std::pair<SymbolSet::iterator, SymbolSet::iterator> Found =
+        Symbols.equal_range(X);
+    return boost::make_iterator_range(symbol_iterator(Found.first),
+                                      symbol_iterator(Found.second));
+  }
+  const_symbol_range findSymbols(EA X) const {
+    std::pair<SymbolSet::const_iterator, SymbolSet::const_iterator> Found =
+        Symbols.equal_range(X);
+    return boost::make_iterator_range(const_symbol_iterator(Found.first),
+                                      const_symbol_iterator(Found.second));
+  }
 
 
   /// DOCFIXME[check all]
@@ -229,18 +283,84 @@ public:
   /// \return The associated CFG.
   ///
   CFG& getCFG();
-  const DataSet& getData() const;
-  DataSet& getData();
-  SectionSet& getSections();
-  const SectionSet& getSections() const;
-  SymbolicExpressionSet& getSymbolicExpressions();
 
+  using data_object_iterator = boost::indirect_iterator<DataSet::iterator>;
+  using data_object_range = boost::iterator_range<data_object_iterator>;
+  using const_data_object_iterator =
+      boost::indirect_iterator<DataSet::const_iterator>;
+  using const_data_object_range =
+      boost::iterator_range<const_data_object_iterator>;
 
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  ///
-  const SymbolicExpressionSet& getSymbolicExpressions() const;
+  data_object_iterator data_begin() { return Data.begin(); }
+  const_data_object_iterator data_begin() const { return Data.begin(); }
+  data_object_iterator data_end() { return Data.end(); }
+  const_data_object_iterator data_end() const { return Data.end(); }
+  data_object_range data() {
+    return boost::make_iterator_range(data_begin(), data_end());
+  }
+  const_data_object_range data() const {
+    return boost::make_iterator_range(data_begin(), data_end());
+  }
+
+  void addData(DataObject* DO) { addData({DO}); }
+  void addData(std::initializer_list<DataObject*> Ds) {
+    Data.insert(Data.end(), Ds);
+  }
+
+  using section_iterator = boost::indirect_iterator<SectionSet::iterator>;
+  using section_range = boost::iterator_range<section_iterator>;
+  using const_section_iterator =
+      boost::indirect_iterator<SectionSet::const_iterator>;
+  using const_section_range = boost::iterator_range<const_section_iterator>;
+
+  section_iterator section_begin() { return Sections.begin(); }
+  const_section_iterator section_begin() const { return Sections.begin(); }
+  section_iterator section_end() { return Sections.end(); }
+  const_section_iterator section_end() const { return Sections.end(); }
+  section_range sections() {
+    return boost::make_iterator_range(section_begin(), section_end());
+  }
+  const_section_range sections() const {
+    return boost::make_iterator_range(section_begin(), section_end());
+  }
+
+  void addSection(Section* S) { addSection({S}); }
+  void addSection(std::initializer_list<Section*> Ss) {
+    Sections.insert(Sections.end(), Ss);
+  }
+
+  using symbol_expr_iterator = boost::transform_iterator<
+      SymExprSetTransform<SymbolicExpressionSet::iterator>,
+      SymbolicExpressionSet::iterator, SymbolicExpression&>;
+  using symbol_expr_range = boost::iterator_range<symbol_expr_iterator>;
+  using const_symbol_expr_iterator = boost::transform_iterator<
+      SymExprSetTransform<SymbolicExpressionSet::const_iterator>,
+      SymbolicExpressionSet::const_iterator, const SymbolicExpression&>;
+  using const_symbol_expr_range =
+      boost::iterator_range<const_symbol_expr_iterator>;
+
+  symbol_expr_iterator symbol_expr_begin() {
+    return symbol_expr_iterator(SymbolicOperands.begin());
+  }
+  symbol_expr_iterator symbol_expr_end() {
+    return symbol_expr_iterator(SymbolicOperands.end());
+  }
+  const_symbol_expr_iterator symbol_expr_begin() const {
+    return const_symbol_expr_iterator(SymbolicOperands.begin());
+  }
+  const_symbol_expr_iterator symbol_expr_end() const {
+    return const_symbol_expr_iterator(SymbolicOperands.end());
+  }
+  symbol_expr_range symbol_exprs() {
+    return boost::make_iterator_range(symbol_expr_begin(), symbol_expr_end());
+  }
+  const_symbol_expr_range symbol_exprs() const {
+    return boost::make_iterator_range(symbol_expr_begin(), symbol_expr_end());
+  }
+
+  void addSymbolicExpression(EA X, const SymbolicExpression &SE) {
+    SymbolicOperands.emplace(X, SE);
+  }
 
 
   /// \brief DOCFIXME
@@ -282,6 +402,15 @@ private:
   SymbolSet Symbols;
   SymbolicExpressionSet SymbolicOperands;
 };
+
+inline bool hasPreferredEA(const Module &M, EA X) {
+  return M.getPreferredEA() == X;
+}
+
+inline bool containsEA(const Module &M, EA X) {
+  const std::pair<EA, EA> &MinMax = M.getImageByteMap().getEAMinMax();
+  return X >= MinMax.first && X < MinMax.second;
+}
 } // namespace gtirb
 
 #endif // GTIRB_MODULE_H

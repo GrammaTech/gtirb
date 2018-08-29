@@ -1,4 +1,5 @@
 #include <gtirb/Context.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolSet.hpp>
 #include <gtest/gtest.h>
@@ -12,22 +13,26 @@ TEST(Unit_SymbolSet, ctor_0) { EXPECT_NO_THROW(gtirb::SymbolSet()); }
 TEST(Unit_SymbolSet, findSymbols) {
   Addr Ea1{22678};
   Addr Ea2{33678};
-  gtirb::SymbolSet Symbols;
+  gtirb::Module *M = Module::Create(Ctx);
 
-  addSymbol(Symbols, Symbol::Create(Ctx, Ea1, "s1"));
-  addSymbol(Symbols, Symbol::Create(Ctx, Ea1, "s2"));
+  M->addSymbol(
+      {Symbol::Create(Ctx, Ea1, "s1"), Symbol::Create(Ctx, Ea1, "s2")});
 
-  EXPECT_EQ(findSymbols(Symbols, Ea1).size(), 2);
-  EXPECT_EQ(findSymbols(Symbols, Ea1)[0]->getName(), "s1");
-  EXPECT_EQ(findSymbols(Symbols, Ea1)[1]->getName(), "s2");
-  EXPECT_TRUE(findSymbols(Symbols, Ea2).empty());
+  Module::symbol_range SR = M->findSymbols(Ea1);
+  EXPECT_EQ(std::distance(SR.begin(), SR.end()), 2);
+  EXPECT_EQ(SR.begin()->getName(), "s1");
+  EXPECT_EQ(std::next(SR.begin())->getName(), "s2");
+  SR = M->findSymbols(Ea2);
+  EXPECT_TRUE(SR.begin() == SR.end());
 
-  addSymbol(Symbols, Symbol::Create(Ctx, Ea2, "s3"));
-  EXPECT_EQ(findSymbols(Symbols, Ea1).size(), 2);
-  EXPECT_EQ(findSymbols(Symbols, Ea1)[0]->getName(), "s1");
-  EXPECT_EQ(findSymbols(Symbols, Ea1)[1]->getName(), "s2");
-  EXPECT_EQ(findSymbols(Symbols, Ea2).size(), 1);
-  EXPECT_EQ(findSymbols(Symbols, Ea2)[0]->getName(), "s3");
+  M->addSymbol(Symbol::Create(Ctx, Ea2, "s3"));
+  SR = M->findSymbols(Ea1);
+  EXPECT_EQ(std::distance(SR.begin(), SR.end()), 2);
+  EXPECT_EQ(SR.begin()->getName(), "s1");
+  EXPECT_EQ(std::next(SR.begin())->getName(), "s2");
+  SR = M->findSymbols(Ea2);
+  EXPECT_EQ(std::distance(SR.begin(), SR.end()), 1);
+  EXPECT_EQ(SR.begin()->getName(), "s3");
 }
 
 TEST(Unit_SymbolSet, getSymbolsInvalid) {

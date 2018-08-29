@@ -2,8 +2,11 @@
 #define GTIRB_IR_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Table.hpp>
+#include <boost/iterator/indirect_iterator.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -61,33 +64,27 @@ class GTIRB_EXPORT_API IR : public Node {
 public:
   static IR *Create(Context &C) { return new (C) IR; }
 
-  std::vector<Module *>& getModules();
-  const std::vector<Module *>& getModules() const;
+  using iterator = boost::indirect_iterator<std::vector<Module*>::iterator>;
+  using const_iterator =
+      boost::indirect_iterator<std::vector<Module*>::const_iterator>;
 
+  iterator begin() { return Modules.begin(); }
+  iterator end() { return Modules.end(); }
+  const_iterator begin() const { return Modules.begin(); }
+  const_iterator end() const { return Modules.end(); }
 
-  /// \brief Get all modules with the specified Preferred Effective Address.
-  ///
-  /// \param X The address of interest.
-  ///
-  /// \return A <tt>std::vector<const Module*></tt> containing all
-  /// modules whose Preferred Effective Address is \p X.
-  ///
-  /// \sa Module::getPreferredAddr()
-  ///
-  std::vector<const Module*> getModulesWithPreferredAddr(Addr X) const;
+  using range = boost::iterator_range<iterator>;
+  using const_range = boost::iterator_range<const_iterator>;
 
+  range modules() { return boost::make_iterator_range(begin(), end()); }
+  const_range modules() const {
+    return boost::make_iterator_range(begin(), end());
+  }
 
-  /// \brief Get all modules containing the specified address.
-  ///
-  /// \param X The address of interest.
-  ///
-  /// \return A <tt>std::vector<const Module*></tt> containing all
-  /// modules with (minimum,maximum) effective addresses such that
-  /// minimum <= X < maximum.
-  ///
-  /// \sa Module::getAddrMinMax()
-  ///
-  std::vector<const Module*> getModulesContainingAddr(Addr X) const;
+  void addModule(Module* M) { Modules.push_back(M); }
+  void addModule(std::initializer_list<Module*> Ms) {
+    Modules.insert(Modules.end(), Ms);
+  }
 
 
   /// \brief Serialize to an output stream.
