@@ -18,13 +18,42 @@ public:
 
   explicit operator uint64_t() const { return Address; }
 
+  // Increment and decrement Addr objects.
+  Addr& operator++() {
+    ++Address;
+    return *this;
+  }
+  Addr operator++(int) {
+    Addr R(*this);
+    ++Address;
+    return R;
+  }
+  Addr& operator--() {
+    --Address;
+    return *this;
+  }
+  Addr operator--(int) {
+    Addr R(*this);
+    --Address;
+    return R;
+  }
+
   // Addr + integral should result in an Addr.
   friend Addr operator+(const Addr& A, uint64_t Offset) {
     return Addr(A.Address + Offset);
   }
+  Addr& operator+=(uint64_t Offset) {
+    Address += Offset;
+    return *this;
+  }
+
   // Addr - integral should result in an Addr.
   friend Addr operator-(const Addr& A, uint64_t Offset) {
     return Addr(A.Address - Offset);
+  }
+  Addr& operator-=(uint64_t Offset) {
+    Address -= Offset;
+    return *this;
   }
 
   // Addr - Addr should result in a int64_t.
