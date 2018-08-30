@@ -398,18 +398,11 @@ private:
   boost::endian::order ByteOrder{boost::endian::order::native};
 };
 
-
-/// \brief Get the bytes associated with an object.
 ///
-/// \param  byteMap  DOCFIXME
+/// Retrieve the bytes associated with an object.
 ///
-/// \param  object   The object of interest.  
-///
-/// \tparam T        The type of \p object. Can be any type that specifies a
-///                  range of addresses via \c getAddress() and \c
-///                  getSize() methods (e.g. \ref DataObject).
-///
-/// \return          The bytes associated with \p object.
+/// Object can be any type which specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. Data).
 ///
 template <typename T>
 std::vector<std::byte> getBytes(const ImageByteMap& byteMap, const T& object) {
