@@ -66,6 +66,18 @@ TEST(Unit_Addr, arithmetic) {
   EXPECT_EQ(Ea + 5, Addr(15));
   EXPECT_EQ(Ea - Addr(5), 5);
   EXPECT_EQ(Ea - 5, Addr(5));
+
+  EXPECT_EQ(++Ea, Addr(11));
+  EXPECT_EQ(--Ea, Addr(10));
+
+  EXPECT_EQ(Ea++, Addr(10));
+  EXPECT_EQ(Ea, Addr(11));
+
+  EXPECT_EQ(Ea--, Addr(11));
+  EXPECT_EQ(Ea, Addr(10));
+
+  EXPECT_EQ(Ea += 5, Addr(15));
+  EXPECT_EQ(Ea -= 5, Addr(10));
 }
 
 TEST(Unit_Addr, ostream) {
