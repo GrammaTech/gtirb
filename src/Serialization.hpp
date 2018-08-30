@@ -47,16 +47,6 @@ int64_t toProtobuf(const int64_t& Val);
 uint64_t toProtobuf(const uint64_t& Val);
 std::string toProtobuf(const UUID& Val);
 
-template <size_t size>
-std::string toProtobuf(const std::array<uint8_t, size>& Value) {
-  return std::string(Value.begin(), Value.end());
-}
-
-template <typename T>
-auto toProtobuf(const std::shared_ptr<T>& Val) -> decltype(toProtobuf(*Val)) {
-  return toProtobuf(*Val);
-}
-
 template <typename T, typename U>
 auto toProtobuf(const std::pair<T, U>& Val)
     -> google::protobuf::MapPair<decltype(toProtobuf(Val.first)),
@@ -111,11 +101,6 @@ void addElement(std::map<T, U>* Container,
                 typename std::map<T, U>::value_type&& Element) {
   Container->insert(std::move(Element));
 }
-template <typename T>
-void addElement(std::set<T>& Container,
-                typename std::set<T>::value_type&& Element) {
-  Container.insert(std::move(Element));
-}
 
 template <typename T>
 T& deref_if_ptr(T &V) { return V; }
@@ -152,16 +137,6 @@ inline void fromProtobuf(Context& C, InstructionRef& Result,
 }
 
 // Overrides for various other types.
-template <typename T, typename U>
-void fromProtobuf(Context &C, std::shared_ptr<T>& Val, const U& Message) {
-  Val = std::make_shared<T>();
-  fromProtobuf(C, *Val, Message);
-}
-template <size_t size>
-void fromProtobuf(Context&, std::array<uint8_t, size>& Result,
-                  const std::string& Value) {
-  std::copy(Value.begin(), Value.end(), Result.data());
-}
 template <typename T, typename U, typename V, typename W>
 void fromProtobuf(Context& C, std::pair<T, U>& Val,
                   const google::protobuf::MapPair<V, W>& Message) {
