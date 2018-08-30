@@ -8,18 +8,6 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Section, equality) {
-  Section *A = Section::Create(Ctx, "foo", Addr{2}, 1);
-  Section *B = Section::Create(Ctx, "foo", Addr{2}, 1);
-  Section *C = Section::Create(Ctx, "bar", Addr{2}, 1);
-  Section *D = Section::Create(Ctx, "foo", Addr{2}, 3);
-  Section *E = Section::Create(Ctx, "foo", Addr{3}, 1);
-  EXPECT_EQ(*A, *B);
-  EXPECT_NE(*A, *C);
-  EXPECT_NE(*A, *D);
-  EXPECT_NE(*A, *E);
-}
-
 TEST(Unit_Section, containsEA) {
   Section *Good = Section::Create(Ctx, "good", Addr{11}, 100);
   EXPECT_FALSE(containsAddress(Good, Addr(10)));
