@@ -37,8 +37,9 @@ TEST(Unit_SymbolSet, findSymbols) {
 
 TEST(Unit_SymbolSet, getSymbolsInvalid) {
   Addr Ea{};
-  gtirb::SymbolSet Symbols;
+  gtirb::Module *M = Module::Create(Ctx);
 
-  EXPECT_NO_THROW(findSymbols(Symbols, Ea));
-  EXPECT_EQ(findSymbols(Symbols, Ea).size(), 0);
+  EXPECT_NO_THROW(M->findSymbols(Ea));
+  auto R = M->findSymbols(Ea);
+  EXPECT_EQ(std::distance(R.begin(), R.end()), 0);
 }
