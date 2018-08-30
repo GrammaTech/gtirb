@@ -66,7 +66,6 @@ set(${PROJECT_NAME}_SRC
         Section.cpp
         Serialization.cpp
 	Symbol.cpp
-        SymbolSet.cpp
         SymbolicExpression.cpp
         Table.cpp
 )
