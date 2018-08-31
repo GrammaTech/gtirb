@@ -160,9 +160,6 @@ TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
 TEST(Unit_Table, valueProtobufRoundTrip) {
   using MapT = std::map<int64_t, table::ValueType>;
   table::InnerMapType Inner({{"a", 1}});
-  UUID Id = Node::Create(Ctx)->getUUID();
-  Table Original = MapT({
-      {1, Addr(5)},              // Addr
       {2, 6},                    // int64
       {3, "7"},                  // string
       {4, Inner},                // InnerMapType
@@ -230,291 +227,608 @@ TEST(Unit_Table, innerValueProtobufRoundTrip) {
   EXPECT_EQ(Refs[1].Offset, 2);
 }
 
-#include <boost/type_index.hpp>
+#include <boost/endian/conversion.hpp>
+#include <list>
 #include <type_traits>
+#include <typeinfo>
+#include <vector>
+
+template <class T> struct is_sequence : std::false_type {};
+template <class T> struct is_sequence<std::vector<T>> : std::true_type {};
+template <class T> struct is_sequence<std::list<T>> : std::true_type {};
+
+template <class T> struct is_mapping : std::false_type {};
+template <class T, class U>
+struct is_mapping<std::map<T, U>> : std::true_type {};
+// Explicitly disable multimap since its semantics are different.
+template <class T, class U>
+struct is_mapping<std::multimap<T, U>> : std::false_type {};
+
+template <class T> struct is_tuple : std::false_type {};
+template <class... Args>
+struct is_tuple<std::tuple<Args...>> : std::true_type {};
+
+using to_iterator = std::back_insert_iterator<std::string>;
+using from_iterator = std::string::const_iterator;
+
+// Serialize and deserialize by copying the object representation directly.
+template <class T> struct default_serialization {
+  static void toBytes(const T& object, to_iterator it) {
+    // Store as little-endian.
+    T reversed = boost::endian::conditional_reverse<
+        boost::endian::order::little, boost::endian::order::native>(object);
+    auto srcBytes = as_bytes(gsl::make_span(&reversed, 1));
+    std::transform(srcBytes.begin(), srcBytes.end(), it,
+                   [](auto b) { return char(b); });
+  }
+
+  static from_iterator fromBytes(T& object, from_iterator it) {
+    auto dest = as_writeable_bytes(gsl::make_span(&object, 1));
+    std::for_each(dest.begin(), dest.end(), [&it](auto& b) {
+      b = std::byte(*it);
+      ++it;
+    });
+    // Data stored as little-endian.
+    boost::endian::conditional_reverse_inplace<boost::endian::order::little,
+                                               boost::endian::order::native>(
+        object);
+    return it;
+  }
+};
+
+template <class T, class Enable = void> struct table_traits {
+  static void toBytes(const T& Object, to_iterator it) = delete;
+  static from_iterator fromBytes(T& Object, from_iterator it) = delete;
+};
+template <class... Ts> struct TypeId {};
+
+template <> struct table_traits<std::byte> : default_serialization<std::byte> {
+  static std::string type_id() { return "byte"; }
+};
+
+template <> struct table_traits<Addr> : default_serialization<Addr> {
+  static std::string type_id() { return "Addr"; }
+};
+
+template <> struct table_traits<UUID> : default_serialization<UUID> {
+  static std::string type_id() { return "UUID"; }
+};
+
+template <class T>
+struct table_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
+                                                 std::is_signed<T>::value>>
+    : default_serialization<T> {
+  static std::string type_id() {
+    return "int" + std::to_string(8 * sizeof(T)) + "_t";
+  }
+};
+
+template <class T>
+struct table_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
+                                                 std::is_unsigned<T>::value>>
+    : default_serialization<T> {
+  static std::string type_id() {
+    return "uint" + std::to_string(8 * sizeof(T)) + "_t";
+  }
+};
+
+template <> struct table_traits<std::string> {
+  static std::string type_id() { return "string"; }
+
+  static void toBytes(const std::string& Object, to_iterator It) {
+    table_traits<uint64_t>::toBytes(Object.size(), It);
+    std::copy(Object.begin(), Object.end(), It);
+  }
+
+  static from_iterator fromBytes(std::string& Object, from_iterator It) {
+    size_t Count;
+    It = table_traits<uint64_t>::fromBytes(Count, It);
+
+    Object.resize(Count);
+    std::for_each(Object.begin(), Object.end(), [&It](auto& elt) {
+      It = table_traits<char>::fromBytes(elt, It);
+    });
+
+    return It;
+  }
+};
+
+template <> struct table_traits<InstructionRef> {
+  static std::string type_id() { return "InstructionRef"; }
+
+  static void toBytes(const InstructionRef& Object, to_iterator It) {
+    table_traits<UUID>::toBytes(Object.BlockRef.getUUID(), It);
+    table_traits<uint64_t>::toBytes(Object.Offset, It);
+  }
+
+  static from_iterator fromBytes(InstructionRef& Object, from_iterator It) {
+    UUID Id;
+    It = table_traits<UUID>::fromBytes(Id, It);
+    Object.BlockRef = NodeRef<Block>(Id);
+
+    It = table_traits<uint64_t>::fromBytes(Object.Offset, It);
+
+    return It;
+  }
+};
+
+template <class T>
+struct table_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
+  static std::string type_id() {
+    return "sequence<" + TypeId<typename T::value_type>::get() + ">";
+  }
+
+  static void toBytes(const T& Object, to_iterator It) {
+    table_traits<uint64_t>::toBytes(Object.size(), It);
+    std::for_each(Object.begin(), Object.end(), [&It](const auto& Elt) {
+      table_traits<typename T::value_type>::toBytes(Elt, It);
+    });
+  }
+
+  static from_iterator fromBytes(T& Object, from_iterator It) {
+    size_t Count;
+    It = table_traits<uint64_t>::fromBytes(Count, It);
+
+    Object.resize(Count);
+    std::for_each(Object.begin(), Object.end(), [&It](auto& Elt) {
+      It = table_traits<typename T::value_type>::fromBytes(Elt, It);
+    });
+
+    return It;
+  }
+};
+
+template <class T>
+struct table_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
+  static std::string type_id() {
+    return "mapping<" +
+           TypeId<typename T::key_type, typename T::mapped_type>::get() + ">";
+  }
+
+  static void toBytes(const T& Object, to_iterator It) {
+    table_traits<uint64_t>::toBytes(Object.size(), It);
+    std::for_each(Object.begin(), Object.end(), [&It](const auto& Elt) {
+      table_traits<typename T::key_type>::toBytes(Elt.first, It);
+      table_traits<typename T::mapped_type>::toBytes(Elt.second, It);
+    });
+  }
+
+  static from_iterator fromBytes(T& Object, from_iterator It) {
+    size_t Count;
+    It = table_traits<uint64_t>::fromBytes(Count, It);
+
+    for (size_t i = 0; i < Count; i++) {
+      typename T::key_type K;
+      It = table_traits<decltype(K)>::fromBytes(K, It);
+      typename T::mapped_type V;
+      It = table_traits<decltype(V)>::fromBytes(V, It);
+      Object.emplace(std::move(K), std::move(V));
+    }
+    return It;
+  }
+};
+
+// Prevent instantiation of table_traits for tuples we can't serialize.
+template <class... Ts> struct TupleCheck;
+template <> struct TupleCheck<> {};
+template <class T, class... Ts>
+struct TupleCheck<T, Ts...> : TupleCheck<Ts...> {
+  // If you see this error, it's because your tuple contains a type which does
+  // not use the default serialization method (probably a container or string).
+  // This is not currently supported.
+  static_assert(
+      std::is_base_of<default_serialization<T>, table_traits<T>>::value,
+      "Can't serialize a tuple containing this type.");
+  static void check() {}
+};
+
+template <class... Ts> std::string tupleId(const std::tuple<Ts...>&) {
+  TupleCheck<Ts...>::check();
+  return TypeId<Ts...>::get();
+}
+
+template <class T>
+struct table_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
+    : default_serialization<T> {
+  static std::string type_id() { return "tuple<" + tupleId(T()) + ">"; }
+};
+
+template <> struct TypeId<> {
+  static std::string get() { return ""; }
+};
+template <class T> struct TypeId<T> {
+  static std::string get() { return table_traits<T>::type_id(); }
+};
+
+template <class T, class... Ts> struct TypeId<T, Ts...> {
+  static std::string get() {
+    return table_traits<T>::type_id() + "," + TypeId<Ts...>::get();
+  }
+};
 
 class PodTableImpl {
 public:
-  virtual size_t objectSize(const void* object) const = 0;
-
-  virtual void toBytes(const void* object, std::string& bytes) const {
-    auto* srcBytes = static_cast<const char*>(object);
-    std::copy(srcBytes, srcBytes + this->objectSize(object), std::back_inserter(bytes));
-  }
-
-  virtual void fromBytes(void* object, const std::string& bytes) {
-    Expects(bytes.size() == this->objectSize(object));
-    char* destBytes = static_cast<char*>(object);
-    std::copy(bytes.begin(), bytes.end(), destBytes);
-  }
-
-  virtual boost::typeindex::type_index storedType() const = 0;
+  virtual void toBytes(std::string& Bytes) const = 0;
+  virtual void fromBytes(const std::string& Bytes) = 0;
+  virtual const std::type_info& storedType() const = 0;
+  virtual std::string typeName() const = 0;
+  virtual void* get() = 0;
 };
 
 template <class T> class PodTableTemplate : public PodTableImpl {
-  virtual size_t objectSize(const void*) const override { return sizeof(T); }
-  virtual boost::typeindex::type_index storedType() const override {
-    return boost::typeindex::type_id<T>();
+public:
+  PodTableTemplate() = default;
+  PodTableTemplate(const T& Val) : Object(Val){};
+  PodTableTemplate(T&& Val) : Object(std::move(Val)){};
+
+  void toBytes(std::string& Bytes) const override {
+    table_traits<T>::toBytes(Object, std::back_inserter(Bytes));
   }
+
+  void fromBytes(const std::string& Bytes) override {
+    table_traits<T>::fromBytes(Object, Bytes.begin());
+  }
+
+  const std::type_info& storedType() const override { return typeid(T); }
+
+  std::string typeName() const override { return TypeId<T>::get(); }
+
+  void* get() { return static_cast<void*>(&Object); }
+
+  T Object;
 };
-
-template <class T> class PodTableVector : public PodTableTemplate<T> {
-  using value_type = typename T::value_type;
-  virtual size_t objectSize(const void* object) const override {
-    return static_cast<const T*>(object)->size() * sizeof(value_type);
-  }
-
-  virtual void toBytes(const void* object, std::string& bytes) const override {
-    // XXX: why doesn't static_cast work here?
-    auto* srcBytes = reinterpret_cast<const char*>(static_cast<const T*>(object)->data());
-    std::copy(srcBytes, srcBytes + this->objectSize(object), std::back_inserter(bytes));
-  }
-
-  virtual void fromBytes(void* object, const std::string& bytes) override {
-    auto vec = static_cast<T*>(object);
-    const size_t elementSize = sizeof(value_type);
-
-    for (auto it = bytes.begin(); it != bytes.end(); it += elementSize) {
-      value_type element;
-      // XXX: why doesn't static_cast work here?
-      std::copy(it, it + elementSize, reinterpret_cast<char*>(&element));
-      vec->push_back(std::move(element));
-    }
-  }
-};
-
-template <class T> class PodTableMap : public PodTableTemplate<T> {
-  using value_type = typename T::value_type;
-  virtual size_t objectSize(const void* object) const override {
-    return static_cast<const T*>(object)->size() * sizeof(value_type);
-  }
-
-  virtual void toBytes(const void* object, std::string& bytes) const override {
-    for (const auto& elt : *static_cast<const T*>(object)) {
-      auto* srcBytes = reinterpret_cast<const char*>(&elt);
-      std::copy(srcBytes, srcBytes + sizeof(typename T::value_type), std::back_inserter(bytes));
-    }
-  }
-
-  virtual void fromBytes(void* object, const std::string& bytes) override {
-    auto m = static_cast<T*>(object);
-    const size_t elementSize = sizeof(value_type);
-
-    for (auto it = bytes.begin(); it != bytes.end(); it += elementSize) {
-      value_type element;
-      // XXX: why doesn't static_cast work here?
-      std::copy(it, it + elementSize, reinterpret_cast<char*>(&element));
-      m->insert(std::move(element));
-    }
-  }
-};
-
-template <class T> struct is_vector : std::false_type {};
-template <class T> struct is_vector<std::vector<T>> : std::true_type {};
-
-template <class T> struct is_map : std::false_type {};
-template <class T, class U> struct is_map<std::map<T, U>> : std::true_type {};
 
 class PodTable {
 public:
-  // TODO: destructor
-  // TODO: constructors, etc
-
-  // TODO: move/reference versions
-  template <typename T> void set(T value) {
-    // XXX: static assert of is_pod
-    this->object = new T(value);
-    this->impl = std::make_unique<PodTableTemplate<T>>();
+  template <typename T> void set(T&& Value) {
+    this->Impl = std::make_unique<PodTableTemplate<std::remove_reference_t<T>>>(
+        std::forward<T>(Value));
   }
 
-  template <typename T> void set(std::vector<T> value) {
-    using V = std::vector<T>;
-    this->object = new V(value);
-    this->impl = std::make_unique<PodTableVector<V>>();
-  }
-
-  template <typename T, typename U> void set(std::map<T, U> value) {
-    using V = std::map<T, U>;
-    this->object = new V(value);
-    this->impl = std::make_unique<PodTableMap<V>>();
-  }
-
-  template <typename T>
-  typename std::enable_if<!is_vector<T>::value && !is_map<T>::value, T>::type& get() {
-    if (!this->rawBytes.empty()) {
+  template <typename T> T& get() {
+    if (!this->RawBytes.empty()) {
       // Reconstruct from deserialized data
-      auto ti = boost::typeindex::type_id<T>();
-      Expects(ti.pretty_name() == this->typeName);
-
-      this->impl = std::make_unique<PodTableTemplate<T>>();
-      this->object = new T;
-      this->impl->fromBytes(static_cast<char*>(this->object), this->rawBytes);
-      this->rawBytes.clear();
-      this->typeName.clear();
+      this->Impl = std::make_unique<PodTableTemplate<T>>();
+      Expects(this->Impl->typeName() == this->TypeName);
+      this->Impl->fromBytes(this->RawBytes);
+      this->RawBytes.clear();
+      this->TypeName.clear();
     } else {
-      Expects(this->object != nullptr);
-      Expects(boost::typeindex::type_id<T>() == this->impl->storedType());
+      Expects(this->Impl != nullptr);
+      Expects(typeid(T) == this->Impl->storedType());
     }
 
-    return *static_cast<T*>(this->object);
-  }
-
-  template <typename T> typename std::enable_if<is_vector<T>::value, T>::type& get() {
-    if (!this->rawBytes.empty()) {
-      // Reconstruct from deserialized data
-      auto ti = boost::typeindex::type_id<T>();
-      Expects(ti.pretty_name() == this->typeName);
-
-      this->impl = std::make_unique<PodTableVector<T>>();
-      this->object = new T;
-      this->impl->fromBytes(static_cast<char*>(this->object), this->rawBytes);
-      this->rawBytes.clear();
-      this->typeName.clear();
-    } else {
-      Expects(this->object != nullptr);
-      Expects(boost::typeindex::type_id<T>() == this->impl->storedType());
-    }
-
-    return *static_cast<T*>(this->object);
-  }
-
-  template <typename T> typename std::enable_if<is_map<T>::value, T>::type& get() {
-    if (!this->rawBytes.empty()) {
-      // Reconstruct from deserialized data
-      auto ti = boost::typeindex::type_id<T>();
-      Expects(ti.pretty_name() == this->typeName);
-
-      this->impl = std::make_unique<PodTableMap<T>>();
-      this->object = new T;
-      this->impl->fromBytes(static_cast<char*>(this->object), this->rawBytes);
-      this->rawBytes.clear();
-      this->typeName.clear();
-    } else {
-      Expects(this->object != nullptr);
-      Expects(boost::typeindex::type_id<T>() == this->impl->storedType());
-    }
-
-    return *static_cast<T*>(this->object);
+    return *static_cast<T*>(this->Impl->get());
   }
 
   using MessageType = proto::PodTable;
-  void toProtobuf(MessageType* message) const;
-  void fromProtobuf(const MessageType& message);
+  void toProtobuf(MessageType* Message) const;
+  void fromProtobuf(const MessageType& Message);
 
 private:
-  std::unique_ptr<PodTableImpl> impl;
-  void* object{nullptr};
-  std::string rawBytes;
-  std::string typeName;
+  std::unique_ptr<PodTableImpl> Impl;
+  std::string RawBytes;
+  std::string TypeName;
 };
 
 void PodTable::toProtobuf(MessageType* message) const {
-  if (this->object != nullptr) {
-    message->set_size(this->impl->objectSize(this->object));
-    message->set_type_name(this->impl->storedType().pretty_name());
-    this->impl->toBytes(this->object, *message->mutable_data());
+  if (this->Impl != nullptr) {
+    message->set_type_name(this->Impl->typeName());
+    message->mutable_data()->clear();
+    this->Impl->toBytes(*message->mutable_data());
   }
 }
 
 void PodTable::fromProtobuf(const MessageType& message) {
-  this->object = nullptr;
-  this->typeName = message.type_name();
-  this->rawBytes = message.data();
+  this->Impl = nullptr;
+  this->TypeName = message.type_name();
+  this->RawBytes = message.data();
 }
 
-TEST(Unit_PodTable, getPod) {
-  struct Test {
-    int x;
-    float y;
-  };
+TEST(Unit_PodTable, typeName) {
+  EXPECT_EQ(PodTableTemplate<uint64_t>().typeName(), "uint64_t");
+  EXPECT_EQ(PodTableTemplate<std::vector<uint64_t>>().typeName(),
+            "sequence<uint64_t>");
+  std::string X = PodTableTemplate<std::map<int64_t, uint64_t>>().typeName();
+  EXPECT_EQ(X, "mapping<int64_t,uint64_t>");
 
-  Test a = {1, 2.5};
-  PodTable p;
-  p.set(a);
+  X = PodTableTemplate<std::map<int64_t, std::vector<uint64_t>>>().typeName();
+  EXPECT_EQ(X, "mapping<int64_t,sequence<uint64_t>>");
 
-  auto& b = p.get<Test>();
+  X = PodTableTemplate<std::vector<std::map<int64_t, uint64_t>>>().typeName();
+  EXPECT_EQ(X, "sequence<mapping<int64_t,uint64_t>>");
 
-  EXPECT_EQ(a.x, b.x);
-  EXPECT_EQ(a.y, b.y);
+  X = PodTableTemplate<std::vector<std::tuple<int64_t, uint64_t>>>().typeName();
+  EXPECT_EQ(X, "sequence<tuple<int64_t,uint64_t>>");
+}
+
+TEST(Unit_PodTable, getPrimitiveTypes) {
+  PodTable P;
+  P.set(char('a'));
+  EXPECT_EQ(P.get<char>(), 'a');
+
+  P.set(uint64_t(123));
+  EXPECT_EQ(P.get<uint64_t>(), 123);
+
+  P.set(int64_t(-123));
+  EXPECT_EQ(P.get<int64_t>(), -123);
+
+  P.set(uint8_t(123));
+  EXPECT_EQ(P.get<uint8_t>(), 123);
+
+  P.set(int(-123));
+  EXPECT_EQ(P.get<int>(), -123);
+
+  P.set(unsigned(123));
+  EXPECT_EQ(P.get<unsigned>(), 123);
+
+  P.set(std::byte(123));
+  EXPECT_EQ(P.get<std::byte>(), std::byte(123));
 }
 
 TEST(Unit_PodTable, getVector) {
-  std::vector<int> orig({1, 2, 3});
-  PodTable p;
-  p.set(orig);
+  std::vector<int64_t> Orig({1, 2, 3});
+  PodTable P;
+  P.set(Orig);
 
-  auto& result = p.get<std::vector<int>>();
-  EXPECT_EQ(result, orig);
+  auto& result = P.get<std::vector<int64_t>>();
+  EXPECT_EQ(result, Orig);
+}
+
+TEST(Unit_PodTable, getString) {
+  std::string Orig("abcd");
+  PodTable P;
+  P.set(Orig);
+
+  EXPECT_EQ(P.get<std::string>(), "abcd");
+}
+
+TEST(Unit_PodTable, getAddr) {
+  Addr Orig(0x1234);
+  PodTable P;
+  P.set(Orig);
+
+  EXPECT_EQ(P.get<Addr>(), Addr(0x1234));
 }
 
 TEST(Unit_PodTable, getMap) {
-  std::map<char, int> orig({{'a', 1}, {'b', 2}, {'c', 3}});
-  PodTable p;
-  p.set(orig);
+  std::map<char, int64_t> Orig({{'a', 1}, {'b', 2}, {'c', 3}});
+  PodTable P;
+  P.set(Orig);
 
-  auto& result = p.get<std::map<char, int>>();
-  EXPECT_EQ(result, orig);
+  auto& Result = P.get<std::map<char, int64_t>>();
+  EXPECT_EQ(Result, Orig);
+}
+
+TEST(Unit_PodTable, getTuple) {
+  std::tuple<char, int64_t> Orig('a', 1);
+  PodTable P;
+  P.set(Orig);
+
+  auto& Result = P.get<std::tuple<char, int64_t>>();
+  EXPECT_EQ(Result, Orig);
 }
 
 TEST(Unit_PodTable, getUnsetValue) {
-  PodTable p;
-  EXPECT_DEATH(p.get<int>(), "");
+  PodTable P;
+  EXPECT_DEATH(P.get<int64_t>(), "");
 }
 
 TEST(Unit_PodTable, getWrongType) {
-  PodTable p;
-  p.set(uint64_t(1));
-  EXPECT_DEATH(p.get<float>(), "");
+  PodTable P;
+  P.set(uint64_t(1));
+  EXPECT_DEATH(P.get<int64_t>(), "");
+}
+
+TEST(Unit_PodTable, getWrongContainer) {
+  PodTable P;
+  P.set(std::vector<int>());
+  EXPECT_DEATH(P.get<std::list<int>>(), "");
 }
 
 TEST(Unit_PodTable, protobufRoundTrip) {
-  struct Test {
-    int x;
-    float y;
-  };
+  int64_t A = 123;
+  PodTable Original;
+  Original.set(A);
 
-  Test a = {1, 2.5};
-  PodTable original;
-  original.set(a);
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
 
-  PodTable::MessageType message;
-  original.toProtobuf(&message);
-  PodTable result;
-  result.fromProtobuf(message);
-
-  auto& b = result.get<Test>();
-
-  EXPECT_EQ(a.x, b.x);
-  EXPECT_EQ(a.y, b.y);
+  EXPECT_EQ(A, Result.get<int64_t>());
 }
 
 TEST(Unit_PodTable, vectorProtobufRoundTrip) {
-  std::vector<int> v({1, 2, 3});
-  PodTable original;
-  original.set(v);
+  std::vector<int64_t> V({1, 2, 3});
+  PodTable Original;
+  Original.set(V);
 
-  PodTable::MessageType message;
-  original.toProtobuf(&message);
-  PodTable result;
-  result.fromProtobuf(message);
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
 
-  EXPECT_EQ(result.get<decltype(v)>(), v);
+  EXPECT_EQ(Result.get<decltype(V)>(), V);
+}
+
+TEST(Unit_PodTable, listProtobufRoundTrip) {
+  std::list<int64_t> V({1, 2, 3});
+  PodTable Original;
+  Original.set(V);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(V)>(), V);
+}
+
+TEST(Unit_PodTable, listToVectorProtobufRoundTrip) {
+  std::list<int64_t> Lst({1, 2, 3});
+  PodTable Original;
+  Original.set(Lst);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  auto vec = std::vector<int64_t>(Lst.begin(), Lst.end());
+  EXPECT_EQ(Result.get<decltype(vec)>(), vec);
+}
+
+TEST(Unit_PodTable, stringProtobufRoundTrip) {
+  std::string S("abcd");
+  PodTable Original;
+  Original.set(S);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(S)>(), S);
+}
+
+TEST(Unit_PodTable, addrProtobufRoundTrip) {
+  Addr A(0x1234);
+  PodTable Original;
+  Original.set(A);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(A)>(), A);
 }
 
 TEST(Unit_PodTable, mapProtobufRoundTrip) {
-  std::map<char, int> m({{'a', 1}, {'b', 2}, {'c', 3}});
-  PodTable original;
-  original.set(m);
+  std::map<char, int64_t> M({{'a', 1}, {'b', 2}, {'c', 3}});
+  PodTable Original;
+  Original.set(M);
 
-  PodTable::MessageType message;
-  original.toProtobuf(&message);
-  PodTable result;
-  result.fromProtobuf(message);
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
 
-  EXPECT_EQ(result.get<decltype(m)>(), m);
+  EXPECT_EQ(Result.get<decltype(M)>(), M);
 }
 
-// TODO:
-// Destructors/memory management
-// Byte order
-// Strings
+TEST(Unit_PodTable, tupleProtobufRoundTrip) {
+  std::tuple<char, int64_t> T('a', 1);
+  PodTable Original;
+  Original.set(T);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(T)>(), T);
+}
+
+TEST(Unit_PodTable, uuidProtobufRoundTrip) {
+  UUID Val = Node::Create(Ctx)->getUUID();
+  PodTable Original;
+  Original.set(Val);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(Val)>(), Val);
+}
+
+TEST(Unit_PodTable, instructionRefProtobufRoundTrip) {
+  InstructionRef Val{{Node::Create(Ctx)->getUUID()}, 123};
+  PodTable Original;
+  Original.set(Val);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  auto NewVal = Result.get<decltype(Val)>();
+  EXPECT_EQ(NewVal.BlockRef.getUUID(), Val.BlockRef.getUUID());
+  EXPECT_EQ(NewVal.Offset, Val.Offset);
+}
+
+TEST(Unit_PodTable, nestedProtobufRoundTrip) {
+  PodTable Original;
+  PodTable::MessageType Message;
+  PodTable Result;
+
+  // Outer vector
+  std::vector<std::map<char, std::tuple<int64_t, uint64_t>>> N1;
+  N1.push_back({{'a', {0, 1}}, {'b', {2, 3}}});
+  N1.push_back({{'c', {4, 5}}, {'d', {6, 7}}});
+
+  Original.set(N1);
+
+  Original.toProtobuf(&Message);
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(N1)>(), N1);
+
+  // Outer map
+  std::map<std::string, std::vector<int64_t>> N2{{"a", {1, 2, 3}}};
+  Original.set(N2);
+  Original.toProtobuf(&Message);
+  Result.fromProtobuf(Message);
+
+  EXPECT_EQ(Result.get<decltype(N2)>(), N2);
+}
+
+TEST(Unit_PodTable, wrongTypeAfterProtobufRoundTrip) {
+  PodTable Original;
+  Original.set(1234);
+
+  PodTable::MessageType Message;
+  Original.toProtobuf(&Message);
+  PodTable Result;
+  Result.fromProtobuf(Message);
+
+  EXPECT_DEATH(Result.get<std::string>(), "");
+}
+
+struct MoveTest {
+  MoveTest() = default;
+  MoveTest(int X) : Val(X) {}
+  MoveTest(const MoveTest& other) : Val(other.Val) { CopyCount++; };
+  MoveTest(MoveTest&& other) : Val(std::move(other.Val)) { MoveCount++; }
+  static int CopyCount;
+  static int MoveCount;
+  int Val{0};
+};
+int MoveTest::CopyCount;
+int MoveTest::MoveCount;
+
+template <> struct table_traits<MoveTest> : default_serialization<MoveTest> {
+  static std::string type_id() { return "MoveTest"; }
+};
+
+TEST(Unit_PodTable, movesAndCopies) {
+  MoveTest::CopyCount = 0;
+  MoveTest::MoveCount = 0;
+
+  MoveTest M(123);
+  EXPECT_EQ(MoveTest::CopyCount, 0);
+  EXPECT_EQ(MoveTest::MoveCount, 0);
+
+  PodTable Table;
+  Table.set(M);
+  EXPECT_EQ(Table.get<decltype(M)>().Val, 123);
+  EXPECT_EQ(MoveTest::CopyCount, 1);
+  EXPECT_EQ(MoveTest::MoveCount, 0);
+
+  Table.set(std::move(M));
+  EXPECT_EQ(Table.get<decltype(M)>().Val, 123);
+  EXPECT_EQ(MoveTest::CopyCount, 1);
+  EXPECT_EQ(MoveTest::MoveCount, 1);
+}
