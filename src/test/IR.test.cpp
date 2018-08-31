@@ -35,7 +35,7 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
 
   size_t Count =
       std::count_if(Ir->begin(), Ir->end(), [PreferredAddr](const Module& M) {
-        return hasPreferredEA(M, PreferredAddr);
+        return hasPreferredAddr(M, PreferredAddr);
       });
   EXPECT_FALSE(Count == 0);
   EXPECT_EQ(ModulesWithAddr, Count);
@@ -70,7 +70,7 @@ TEST(Unit_IR, getModulesContainingAddr) {
 
   size_t Count =
     std::count_if(Ir->begin(), Ir->end(), [Ea](const Module& M) {
-    return containsEA(M, Ea);
+    return containsAddr(M, Ea);
   });
   EXPECT_FALSE(Count == 0);
   EXPECT_EQ(2, Count);
@@ -111,7 +111,7 @@ TEST(Unit_IR, protobufRoundTrip) {
   EXPECT_EQ(Result->begin()->getUUID(), MainID);
   size_t Count =
       std::count_if(Result->begin(), Result->end(),
-                    [](const Module& M) { return containsEA(M, Addr(100)); });
+                    [](const Module& M) { return containsAddr(M, Addr(100)); });
   EXPECT_EQ(Count, 1);
   EXPECT_EQ(Result->getTableSize(), 1);
   EXPECT_NE(Result->getTable("test"), nullptr);

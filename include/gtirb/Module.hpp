@@ -230,16 +230,16 @@ public:
   void addSymbol(Symbol* S) { addSymbol({S}); }
   void addSymbol(std::initializer_list<Symbol*> Ss) {
     for (auto* S : Ss)
-      Symbols.emplace(S->getEA(), S);
+      Symbols.emplace(S->getAddress(), S);
   }
 
-  symbol_range findSymbols(EA X) {
+  symbol_range findSymbols(Addr X) {
     std::pair<SymbolSet::iterator, SymbolSet::iterator> Found =
         Symbols.equal_range(X);
     return boost::make_iterator_range(symbol_iterator(Found.first),
                                       symbol_iterator(Found.second));
   }
-  const_symbol_range findSymbols(EA X) const {
+  const_symbol_range findSymbols(Addr X) const {
     std::pair<SymbolSet::const_iterator, SymbolSet::const_iterator> Found =
         Symbols.equal_range(X);
     return boost::make_iterator_range(const_symbol_iterator(Found.first),
@@ -273,7 +273,7 @@ public:
   ///
   /// \return The associated CFG.
   ///
-  const CFG& getCFG() const;
+  const CFG& getCFG() const { return Cfg; }
 
 
   /// DOCFIXME[check all]
@@ -282,7 +282,7 @@ public:
   ///
   /// \return The associated CFG.
   ///
-  CFG& getCFG();
+  CFG& getCFG() { return Cfg; }
 
   using data_object_iterator = boost::indirect_iterator<DataSet::iterator>;
   using data_object_range = boost::iterator_range<data_object_iterator>;
@@ -358,7 +358,7 @@ public:
     return boost::make_iterator_range(symbol_expr_begin(), symbol_expr_end());
   }
 
-  void addSymbolicExpression(EA X, const SymbolicExpression &SE) {
+  void addSymbolicExpression(Addr X, const SymbolicExpression &SE) {
     SymbolicOperands.emplace(X, SE);
   }
 
@@ -403,12 +403,12 @@ private:
   SymbolicExpressionSet SymbolicOperands;
 };
 
-inline bool hasPreferredEA(const Module &M, EA X) {
-  return M.getPreferredEA() == X;
+inline bool hasPreferredAddr(const Module &M, Addr X) {
+  return M.getPreferredAddr() == X;
 }
 
-inline bool containsEA(const Module &M, EA X) {
-  const std::pair<EA, EA> &MinMax = M.getImageByteMap().getEAMinMax();
+inline bool containsAddr(const Module &M, Addr X) {
+  const std::pair<Addr, Addr> &MinMax = M.getImageByteMap().getAddrMinMax();
   return X >= MinMax.first && X < MinMax.second;
 }
 } // namespace gtirb
