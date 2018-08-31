@@ -31,6 +31,7 @@ include_directories("${CMAKE_BINARY_DIR}/src/")
 set(PUBLIC_HEADERS
 	${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
 	${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
+	${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
 	${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/DataObject.hpp
 	${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
