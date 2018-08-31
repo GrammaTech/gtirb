@@ -32,7 +32,7 @@ class GTIRB_EXPORT_API Block : public Node {
 public:
 
   static Block *Create(Context &C) { return new (C) Block; }
-  static Block *Create(Context &C, EA Address, uint64_t Size,
+  static Block *Create(Context &C, Addr Address, uint64_t Size,
                        uint64_t DecodeMode = 0) {
     return new (C) Block(Address, Size, DecodeMode);
   }

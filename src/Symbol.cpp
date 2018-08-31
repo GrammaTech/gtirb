@@ -5,16 +5,16 @@
 
 using namespace gtirb;
 
-Symbol::Symbol(Addr X, std::string Name_, const DataObject& Referent,
+Symbol::Symbol(Addr X, std::string Name_, const DataObject& DO,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
-  this->setReferent(Referent);
+  this->setReferent(DO);
 }
 
-Symbol::Symbol(Addr X, std::string Name_, const Block& Referent,
+Symbol::Symbol(Addr X, std::string Name_, const Block& B,
                StorageKind StorageKind_)
     : Symbol(X, Name_, StorageKind_) {
-  this->setReferent(Referent);
+  this->setReferent(B);
 }
 
 void Symbol::setReferent(const DataObject& Data) {
@@ -25,23 +25,33 @@ void Symbol::setReferent(const Block& Instruction) {
   this->Referent = NodeRef<Block>(Instruction);
 }
 
+NodeRef<DataObject> Symbol::getDataReferent() const {
+  auto *Ptr = std::get_if<NodeRef<DataObject>>(&this->Referent);
+  return Ptr ? *Ptr : NodeRef<DataObject>();
+}
+
+NodeRef<Block> Symbol::getCodeReferent() const {
+  auto *Ptr = std::get_if<NodeRef<Block>>(&this->Referent);
+  return Ptr ? *Ptr : NodeRef<Block>();
+}
+
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
-  std::visit(
-      [Message](auto& Arg) {
-        using T = std::decay_t<decltype(Arg)>;
-        if constexpr (std::is_same_v<T, NodeRef<Block>>) {
-          uuidToBytes(Arg.getUUID(), *Message->mutable_code_referent_uuid());
-        } else if constexpr (std::is_same_v<T, NodeRef<DataObject>>) {
-          uuidToBytes(Arg.getUUID(), *Message->mutable_data_referent_uuid());
-        } else {
-          static_assert(false, "Unknown symbol referent");
-        }
-      },
-      this->Referent);
+
+  struct {
+    MessageType &M;
+  
+    void operator()(const NodeRef<Block>& Arg) const {
+      uuidToBytes(Arg.getUUID(), *M.mutable_code_referent_uuid());
+    }
+    void operator()(const NodeRef<DataObject>& Arg) const {
+      uuidToBytes(Arg.getUUID(), *M.mutable_data_referent_uuid());
+    }
+  } Visitor{*Message};
+  std::visit(Visitor, this->Referent);
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {

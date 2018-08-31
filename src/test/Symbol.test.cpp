@@ -27,7 +27,7 @@ TEST(Unit_Symbol, setAddress) {
 
   auto *Node = Symbol::Create(Ctx);
   EXPECT_NO_THROW(Node->getAddress());
-  EXPECT_EQ(gtirb::EA{}, Node->getAddress());
+  EXPECT_EQ(Addr(), Node->getAddress());
 
   EXPECT_NO_THROW(Node->setAddress(Value));
   EXPECT_EQ(Value, Node->getAddress());

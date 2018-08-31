@@ -58,7 +58,7 @@ ImageByteMap *ImageByteMap::fromProtobuf(Context &C, const MessageType& Message)
   setNodeUUIDFromBytes(IBM, Message.uuid());
   IBM->BMap.fromProtobuf(C, Message.byte_map());
   IBM->FileName = Message.file_name();
-  IBM->EaMinMax = {Addr(Message.ea_min()), Addr(Message.ea_max())};
+  IBM->EaMinMax = {Addr(Message.addr_min()), Addr(Message.addr_max())};
   IBM->BaseAddress = Addr(Message.base_address());
   IBM->EntryPointAddress = Addr(Message.entry_point_address());
   IBM->RebaseDelta = Message.rebase_delta();
