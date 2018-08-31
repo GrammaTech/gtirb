@@ -49,7 +49,8 @@ enum class FileFormat : uint8_t {
   IdaProDb32 = proto::IdaProDb32, ///< IDA Pro database file
   IdaProDb64 = proto::IdaProDb64, ///< IDA Pro database file
   XCOFF = proto::XCOFF, ///< Non-COFF (files start with ANON_OBJECT_HEADER*)
-  MACHO = proto::MACHO  ///< Mach object file format
+  MACHO = proto::MACHO, ///< Mach object file format
+  RAW = proto::RAW      ///< Raw binary file (no format)
 };
 
 /// \enum ISAID
