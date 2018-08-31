@@ -103,6 +103,5 @@ message Table {
 
 message PodTable {
   string type_name = 1;
-  uint64 size = 2;
   bytes data = 3;
 }
