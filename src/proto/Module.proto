@@ -31,6 +31,7 @@ enum FileFormat {
   IdaProDb64 = 5;
   XCOFF = 6;
   MACHO = 7;
+  RAW = 8;
 };
 
 enum ISAID {
