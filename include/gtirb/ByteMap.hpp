@@ -46,7 +46,7 @@ public:
   ///
   /// \return DOCFIXME
   ///
-  const_range getData(Addr A, size_t Bytes) const;
+  const_range data(Addr A, size_t Bytes) const;
 
 
   /// \brief DOCFIXME

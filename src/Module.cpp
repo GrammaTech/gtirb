@@ -21,10 +21,6 @@ const gtirb::ImageByteMap& Module::getImageByteMap() const {
   return *this->ImageBytes;
 }
 
-const CFG& Module::getCFG() const { return *this->Cfg; }
-
-CFG& Module::getCFG() { return this->Cfg; }
-
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);

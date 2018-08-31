@@ -13,7 +13,7 @@ void Block::toProtobuf(MessageType* Message) const {
 }
 
 Block* Block::fromProtobuf(Context& C, const MessageType& Message) {
-  auto *B = Block::Create(C, Addr(Message.address()), Addr(Message.size()),
+  auto *B = Block::Create(C, Addr(Message.address()), Message.size(),
                           Message.decode_mode());
   setNodeUUIDFromBytes(B, Message.uuid());
   return B;

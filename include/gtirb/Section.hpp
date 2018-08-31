@@ -21,7 +21,7 @@ class GTIRB_EXPORT_API Section : public Node {
 
 public:
   static Section* Create(Context& C) { return new (C) Section; }
-  static Section* Create(Context& C, const std::string& Name, EA Address,
+  static Section* Create(Context& C, const std::string& Name, Addr Address,
                          uint64_t Size) {
     return new (C) Section(Name, Address, Size);
   }

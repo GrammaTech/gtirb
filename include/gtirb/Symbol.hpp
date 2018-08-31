@@ -107,6 +107,7 @@ public:
   /// DOCFIXME[what if the referent is a Block?]
   NodeRef<DataObject> getDataReferent() const { return DataReferent; }
 
+
   ///
   /// \brief Get the code to which this symbol refers.
   ///
@@ -166,15 +167,15 @@ private:
   ///
   /// This constructor sets the Effective Address on construction.
   ///
-  Symbol(Addr X) : Node(Kind::Symbol), Ea(X) {}
+  Symbol(Addr X) : Node(Kind::Symbol), Address(X) {}
   Symbol(Addr X, std::string N, StorageKind SK = StorageKind::Extern)
-      : Node(Kind::Symbol), Ea(X), Name(N), Storage(SK) {}
+      : Node(Kind::Symbol), Address(X), Name(N), Storage(SK) {}
   Symbol(Addr X, std::string Name, const DataObject& Referent,
          StorageKind Kind = StorageKind::Extern);
   Symbol(Addr X, std::string Name, const Block& Referent,
     StorageKind Kind = StorageKind::Extern);
 
-  Addr Ea;
+  Addr Address;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
   std::variant<NodeRef<DataObject>, NodeRef<Block>> Referent;

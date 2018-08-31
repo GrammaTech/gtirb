@@ -62,9 +62,9 @@ TEST(Unit_CFG, blockIterator) {
 
 TEST(Unit_CFG, edges) {
   CFG Cfg;
-  auto B1 = addBlock(Cfg, Block::Create(Ctx, Addr(1), Addr(2)));
-  auto B2 = addBlock(Cfg, Block::Create(Ctx, Addr(3), Addr(4)));
-  auto B3 = addBlock(Cfg, Block::Create(Ctx, Addr(5), Addr(6)));
+  auto B1 = addBlock(Cfg, Block::Create(Ctx, Addr(1), 2));
+  auto B2 = addBlock(Cfg, Block::Create(Ctx, Addr(3), 4));
+  auto B3 = addBlock(Cfg, Block::Create(Ctx, Addr(5), 6));
 
   auto E1 = add_edge(B1, B3, Cfg);
   EXPECT_EQ(source(E1.first, Cfg), B1);
@@ -90,8 +90,8 @@ TEST(Unit_CFG, edges) {
 
 TEST(Unit_CFG, edgeLabels) {
   CFG Cfg;
-  auto B1 = addBlock(Cfg, Block::Create(Ctx, Addr(1), Addr(2)));
-  auto B2 = addBlock(Cfg, Block::Create(Ctx, Addr(3), Addr(4)));
+  auto B1 = addBlock(Cfg, Block::Create(Ctx, Addr(1), 2));
+  auto B2 = addBlock(Cfg, Block::Create(Ctx, Addr(3), 4));
 
   // boolean label
   auto E1 = add_edge(B1, B2, Cfg).first;
@@ -111,9 +111,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
 
   {
     CFG Original;
-    auto B1 = addBlock(Original, Block::Create(Ctx, Addr(1), Addr(2)));
-    auto B2 = addBlock(Original, Block::Create(Ctx, Addr(3), Addr(4)));
-    auto B3 = addBlock(Original, Block::Create(Ctx, Addr(5), Addr(6)));
+    auto B1 = addBlock(Original, Block::Create(Ctx, Addr(1), 2));
+    auto B2 = addBlock(Original, Block::Create(Ctx, Addr(3), 4));
+    auto B3 = addBlock(Original, Block::Create(Ctx, Addr(5), 6));
 
     auto E1 = add_edge(B1, B3, Original).first;
     auto E2 = add_edge(B2, B3, Original).first;
