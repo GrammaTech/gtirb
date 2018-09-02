@@ -192,6 +192,8 @@ public:
 /// \return An address (\ref Addr) A such that A-1 is in \p Object and
 /// A is not.
 ///
+/// Object can be any type which specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T> Addr addressLimit(const T& Object) {
   return Object.getAddress() + Object.getSize();
 }
@@ -211,9 +213,12 @@ template <typename T> Addr addressLimit(const T& Object) {
 /// \return \c true if \p Ea is in the address range of \p Object, \c
 /// false otherwise.
 ///
+/// Object can be any type which specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T> bool containsAddr(const T& Object, Addr Ea) {
   return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
 }
+
 } // namespace gtirb
 
 #endif // GTIRB_ADDR_H
