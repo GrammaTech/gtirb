@@ -16,14 +16,14 @@ Overview
     - The threshold requirement is C++ 14. The objective is C++17.
     - Define a minimum compiler version which is to be supported. Test on this
       minimum version and the latest version at all stages.
-  *  Strongly favor following the C++ Core Guidelines. References to the Core Guidelines are shown in this document inside parentheses. (E.g ([CP.1](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rconc-multi)))
-  *  Follow _SOLID_ design principles.
+  * Strongly favor following the C++ Core Guidelines. References to the Core Guidelines are shown in this document inside parentheses. (E.g ([CP.1](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rconc-multi)))
+  * Follow _SOLID_ design principles.
     - **S**ingle Responsibility Principle
     - **O**pen/Closed Principle
     - **L**iskov Substitution Principle
     - **I**nterface Segregation Principle
     - **D**ependency Inversion Principle
-  *  Follow the DRY design principle:
+  * Follow the DRY design principle:
     -  The _Don’t Repeat Yourself_ (DRY) principle states that duplication in logic should be eliminated via abstraction; duplication in process should be eliminated via automation.
 - Develop meaningful, verifiable, and enforceable standards on practices and methods used to develop the GT-IRB.
   * Encourage the use of standards and modern language features.
@@ -41,6 +41,7 @@ Overview
   * Adapt the testing regime to meet new challenges that are discovered during development.
   * New code should be accompanied by new unit tests.
   * Changes to the API should be accompanied by new integration tests.  
+
 
 ### Business Requirements and Goals
 
