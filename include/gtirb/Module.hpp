@@ -358,7 +358,15 @@ public:
     return boost::make_iterator_range(symbol_expr_begin(), symbol_expr_end());
   }
 
-  void addSymbolicExpression(Addr X, const SymbolicExpression &SE) {
+  symbol_expr_iterator findSymbolicExpression(Addr X) {
+    return symbol_expr_iterator(SymbolicOperands.find(X));
+  }
+
+  const_symbol_expr_iterator findSymbolicExpression(Addr X) const {
+    return const_symbol_expr_iterator(SymbolicOperands.find(X));
+  }
+
+  void addSymbolicExpression(Addr X, const SymbolicExpression& SE) {
     SymbolicOperands.emplace(X, SE);
   }
 
