@@ -13,40 +13,63 @@ namespace proto {
 class SymbolicExpression;
 }
 namespace gtirb {
-///
-/// Represents a symbolic operand of the form "StackVar + Const".
+
+/// \brief Represents a symbolic operand of the form "StackVar + Const".
+/// DOCFIXME[word in terms of the field names]
 ///
 struct SymStackConst {
   // TODO: What's this?
-  bool Negate;
-  int Offset;
-  int Displacement;
-  NodeRef<Symbol> Sym;
+  bool Negate;          ///< DOCFIXME
+  int Offset;           ///< DOCFIXME
+  int Displacement;     ///< DOCFIXME
+  NodeRef<Symbol> Sym;  ///< DOCFIXME
 };
 
-///
-/// Represents a symbolic operand of the form "Addr + Const".
+
+/// \brief Represents a symbolic operand of the form "Addr + Const".
+/// DOCFIXME[word in terms of the field names]
 ///
 struct SymAddrConst {
-  int64_t Displacement;
-  NodeRef<Symbol> Sym;
+  int64_t Displacement;  ///< DOCFIXME
+  NodeRef<Symbol> Sym;   ///< DOCFIXME
 };
 
-///
-/// Represents a symbolic operand of the form "(Addr - Addr) / Scale + Offset"
+
+/// \brief Represents a symbolic operand of the form "(Addr - Addr) /
+/// Scale + Offset"
+/// DOCFIXME[word in terms of the field names]
 ///
 struct SymAddrAddr {
-  int64_t Scale;
-  int64_t Offset;
-  NodeRef<Symbol> Sym1;
-  NodeRef<Symbol> Sym2;
+  int64_t Scale;         ///< DOCFIXME
+  int64_t Offset;        ///< DOCFIXME
+  NodeRef<Symbol> Sym1;  ///< DOCFIXME
+  NodeRef<Symbol> Sym2;  ///< DOCFIXME
 };
 
+
+/// \brief DOCFIXME
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
+
+/// \brief DOCFIXME
+///
+/// \param  Result    DOCFIXME
+///
+/// \param  Message   DOCFIXME
+///
+/// \return void
+///  
 GTIRB_EXPORT_API void fromProtobuf(SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);
+
+
+/// \brief DOCFIXME
+///
+/// \param  Expr   DOCFIXME
+///
+/// \return DOCFIXME
+///    
 GTIRB_EXPORT_API proto::SymbolicExpression
 toProtobuf(const SymbolicExpression& Expr);
 
