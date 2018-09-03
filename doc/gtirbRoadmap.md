@@ -203,7 +203,7 @@ Each phase of development will work to pay off technical debt and, in the end, p
 Other debt impacts the ability to maintain the code. Maintenance can also impact the willingness for others to adopt the GT-IRB into their own code base. Examples of maintenance debt include:
 
 - **There are include order dependencies.**
-  * Examples are inside `module\_ir.cpp`.
+  * Examples are inside `module_ir.cpp`.
   * The `gtr_config.h` and `lang.h` dependency order is pervasive.
 - **The extensive use of macros in the code.** - Some of macros are are difficult to spot, define whole new types, and otherwise create _magic code_.
   * "hiding the macros in a header - as is not uncommon - makes this kind of _magic_ harder to spot.” - Stroustrup
