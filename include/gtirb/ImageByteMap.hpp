@@ -405,8 +405,9 @@ private:
 /// getAddress() and getSize() methods (e.g. Data).
 ///
 template <typename T>
-std::vector<std::byte> getBytes(const ImageByteMap& byteMap, const T& object) {
-  return byteMap.getData(object.getAddress(), object.getSize());
+ImageByteMap::const_range getBytes(const ImageByteMap& byteMap,
+                                   const T& object) {
+  return byteMap.data(object.getAddress(), object.getSize());
 }
 
 } // namespace gtirb
