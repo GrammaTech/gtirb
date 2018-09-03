@@ -10,8 +10,11 @@ struct SymStackConst;
 struct SymAddrConst;
 struct SymAddrAddr;
 
+/// \brief DOCFIXME  
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+
+/// \brief DOCFIXME  
 using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
 } // namespace gtirb
 
