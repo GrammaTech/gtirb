@@ -15,6 +15,8 @@ class Table;
 
 namespace gtirb {
 namespace table {
+
+/// \brief DOCFIXME  
 using InnerValueType = std::variant<Addr,                     //
                                     int64_t,                  //
                                     std::string,              //
@@ -26,11 +28,13 @@ using InnerValueType = std::variant<Addr,                     //
                                     std::vector<UUID>,        //
                                     std::vector<InstructionRef>>;
 
-/// Table values can also be maps, but they can only store a limited
-/// set of types.
+
+/// \brief Table values can also be maps, but they can only store a
+/// limited set of types.
 using InnerMapType = std::map<std::string, InnerValueType>;
 
-/// Table values can be any of these types.
+
+/// \brief Table values can be any of these types.
 using ValueType = std::variant<Addr,           //
                                int64_t,        //
                                std::string,    //
@@ -42,7 +46,7 @@ using ValueType = std::variant<Addr,           //
 ///
 /// \class Table
 ///
-/// A generic table for storing additional, client-specific data.
+/// \brief A generic table for storing additional, client-specific data.
 ///
 using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::map<int64_t, table::ValueType>,     //
@@ -55,7 +59,24 @@ using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::vector<UUID>,                       //
                            std::vector<InstructionRef>>;
 
+///
+/// \brief DOCFIXME
+///
+/// \param Table DOCFIXME
+///
+/// \return DOCFIXME
+///
 GTIRB_EXPORT_API proto::Table toProtobuf(const Table& Table);
+
+///
+/// \brief DOCFIXME
+///
+/// \param Result   DOCFIXME
+///
+/// \param Message  DOCFIXME
+///
+/// \return void
+///
 GTIRB_EXPORT_API void fromProtobuf(Table& Result, const proto::Table& Message);
 } // namespace gtirb
 
