@@ -52,42 +52,17 @@ public:
   /// \brief Assignment operator overload.
   NodeRef& operator=(const NodeRef&) = default;
 
+  const NodeT* get(Context& C) const {
+    return dyn_cast_or_null<NodeT>(Node::getByUUID(C, this->Uuid));
+  }
+  NodeT* get(Context& C) {
+    return dyn_cast_or_null<NodeT>(Node::getByUUID(C, this->Uuid));
+  }
 
-  /// \brief Cast to pointer.
-  operator NodeT*() { return this->get(); }
-
-
-  /// \brief Cast to boolean.
-  operator bool() const { return this->get(); }
-
-
-  /// \brief Dereference operator overload.
-  const NodeT& operator*() const { return *this->get(); }
-
-
-  /// \brief Dereference operator overload.
-  NodeT& operator*() { return *this->get(); }
-
-
-  /// \brief Member access operator overload.
-  const NodeT* operator->() const { return this->get(); }
-
-
-  /// \brief Member access operator overload.
-  NodeT* operator->() { return this->get(); }
-
-
-  /// \brief Get the associated UUID.
-  ///
-  /// \return The UUID.
-  UUID getUUID() const { return this->Uuid; }
+  const UUID& getUUID() const { return this->Uuid; }
 
 private:
   UUID Uuid;
-
-  NodeT* get() const {
-    return dyn_cast_or_null<NodeT>(Node::getByUUID(this->Uuid));
-  }
 };
 } // namespace gtirb
 

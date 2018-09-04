@@ -2,19 +2,34 @@
 #define GTIRB_CONTEXT_H
 
 #include <gtirb/Allocator.hpp>
+#include <gtirb/Export.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <cstdlib>
-#include <memory>
+#include <map>
 
 namespace gtirb {
-class Context {
+using UUID = boost::uuids::uuid;
+
+class Node;
+
+class GTIRB_EXPORT_API Context {
   mutable BumpPtrAllocator Allocator;
+
+  std::map<UUID, Node*> UuidMap;
+  friend class Node;
+
+  void registerNode(const UUID& ID, Node* N) { UuidMap[ID] = N; }
+
+  void unregisterNode(const Node* N);
+  const Node* findNode(const UUID& ID) const;
+  Node* findNode(const UUID& ID);
 
 public:
   void* Allocate(size_t Size, size_t Align) const {
     return Allocator.Allocate(Size, Align);
   }
 
-  void Deallocate(void* Ptr, size_t Size) const {
+  void Deallocate(void*, size_t) const {
     // Noop -- we don't want callers to deallocate individual allocations, but
     // should instead deallocate the entire Context object to free memory.
   }

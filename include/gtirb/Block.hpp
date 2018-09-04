@@ -21,20 +21,20 @@ namespace gtirb {
 /// \brief A basic block.
 ///
 class GTIRB_EXPORT_API Block : public Node {
-  Block() : Node(Kind::Block) {}
+  Block(Context& C) : Node(C, Kind::Block) {}
 
   ///
   /// Construct an empty block
   ///
-  Block(Addr Addr, uint64_t S, uint64_t Decode)
-      : Node(Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
+  Block(Context& C, Addr Addr, uint64_t S, uint64_t Decode)
+      : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
 
 public:
 
-  static Block *Create(Context &C) { return new (C) Block; }
+  static Block *Create(Context &C) { return new (C) Block(C); }
   static Block *Create(Context &C, Addr Address, uint64_t Size,
                        uint64_t DecodeMode = 0) {
-    return new (C) Block(Address, Size, DecodeMode);
+    return new (C) Block(C, Address, Size, DecodeMode);
   }
 
 
@@ -113,11 +113,13 @@ struct GTIRB_EXPORT_API InstructionRef {
 
   /// \brief DOCFIXME
   ///
+  /// \param C DOCFIXME
+  ///
   /// \param message DOCFIXME
   ///
   /// \return DOCFIXME
   ///
-  void fromProtobuf(Context &, const MessageType& message);
+  void fromProtobuf(Context &C, const MessageType& message);
 };
 
 } // namespace gtirb
