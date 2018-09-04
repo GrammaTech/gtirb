@@ -191,13 +191,13 @@ Effective addresses are represented by a distinct type which can be
 implicitly converted to uint64_t, but must be constructed explicitly.
 
 ```c++
-EA textSectionAddress(1328);
+Addr textSectionAddress(1328);
 ```
 
 Create some sections:
 ```c++
 module.getSections().emplace_back(".text", textSectionAddress, 466);
-module.getSections().emplace_back(".data", textSectionAddress + EA(466), 2048);
+module.getSections().emplace_back(".data", textSectionAddress + Addr(466), 2048);
 ```
 
 Create some data objects. These only define the layout and do not
@@ -205,40 +205,40 @@ directly store any data.
 
 ```c++
 DataSet& data = module.getData();
-data.emplace_back(EA(2608), 6);
-data.emplace_back(EA(2614), 2);
+data.emplace_back(Addr(2608), 6);
+data.emplace_back(Addr(2614), 2);
 ```
 
 The actual data is stored in the module's ImageByteMap:
 ```c++
 ImageByteMap& byteMap = module.getImageByteMap();
-teMap.setEAMinMax({EA(2608), EA(2616)});
+byteMap.setAddrMinMax({Addr(2608), Addr(2616)});
 uint8_t bytes[] = {1, 0, 2, 0, 115, 116, 114, 108};
-byteMap.setData(EA(2608), bytes);
+byteMap.setData(Addr(2608), bytes);
 ```
 
-Symbols associate a name with an EA. They can also link to a Data
-object or Instruction.
+Symbols associate a name with an effective address (Addr). They can
+also link to a Data object or Instruction.
 ```c++
 SymbolSet& symbols = module.getSymbols();
-addSymbol(symbols, Symbol(EA(2608), // address
-                          "data1",  // name
-                          data[0],  // referent
+addSymbol(symbols, Symbol(Addr(2608), // address
+                          "data1",    // name
+                          data[0],    // referent
                           Symbol::StorageKind::Extern));
-addSymbol(symbols, Symbol(EA(2614), "data2", data[1], Symbol::StorageKind::Extern));
+addSymbol(symbols, Symbol(Addr(2614), "data2", data[1], Symbol::StorageKind::Extern));
 ```
 
-GT-IRB can store multiple symbols with the same EA.
+GT-IRB can store multiple symbols with the same effective address.
 ```c++
-addSymbol(symbols, Symbol(EA(2614), "duplicate", data[1], Symbol::StorageKind::Local));
+addSymbol(symbols, Symbol(Addr(2614), "duplicate", data[1], Symbol::StorageKind::Local));
 ```
 
 Create some basic blocks. Like DataObjects, Blocks don't directly hold
 any data. GT-IRB does not directly represent instructions.
 
 ```c++
-Block b1(EA(466), EA(472));
-Block b2(EA(472), EA(480));
+Block b1(Addr(466), Addr(472));
+Block b2(Addr(472), Addr(480));
 ```
 
 Blocks are stored in an interprocedural CFG.  The CFG preserves the
@@ -266,8 +266,8 @@ module.getCFG()[edge1] = true;
 Information on symbolic operands and data is stored in a map by EA:
 
 ```c++
-const Symbol* data2 = findSymbols(module.getSymbols(), EA(2614))[0];
-module.getSymbolicExpressions().insert({EA(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
+const Symbol* data2 = findSymbols(module.getSymbols(), Addr(2614))[0];
+module.getSymbolicExpressions().insert({Addr(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
 ```
 
 Finally, data tables can be used to store any additional data at the
@@ -275,7 +275,7 @@ IR level.  These use variants to support a variety of maps and vectors
 of common GT-IRB types.
 
 ```c++
-ir.addTable("eaTable", std::vector<EA>({EA(1), EA(2), EA(3)}));
+ir.addTable("eaTable", std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
 ir.addTable("stringMap",
             std::map<std::string, table::ValueType>({{"a", "str1"}, {"b", "str2"}}));
 ```
@@ -285,24 +285,25 @@ ir.addTable("stringMap",
 Many components of GT-IRB are stored in standard containers for ease
 of use. However, some require special consideration.
 
-Symbols can be looked up by EA.  Any number of symbols can share an
-EA, so be prepared to deal with multiple results.
+Symbols can be looked up by effective address (Addr).  Any number of
+symbols can share an effective address, so be prepared to deal with
+multiple results.
 
 ```c++
-std::vector<Symbol*> syms = findSymbols(module.getSymbols(), EA(2614));
+std::vector<Symbol*> syms = findSymbols(module.getSymbols(), Addr(2614));
 assert(syms.size() == 2);
 assert(syms[0]->getName() == "data2");
 assert(syms[1]->getName() == "duplicate");
 ```
 
-Use a symbol's referent (either an InstructionRef or Data object) to get
+Use a symbol's referent (either an InstructionRef or DataObject) to get
 more information about the object to which the symbol
 points. `NodeRef` behaves like a pointer and may be null.
 
 ```c++
 NodeRef<DataObject> referent = syms[0]->getDataReferent();
 assert(referent);
-assert(referent->getAddress() == EA(2614));
+assert(referent->getAddress() == Addr(2614));
 assert(referent->getSize() == 2);
 ```
 
@@ -321,7 +322,7 @@ type before use. This will throw an exception if the wrong type is
 requested.
 
 ```c++
-auto eaTable = boost::get<std::vector<EA>>(ir.getTable("eaTable"));
+auto eaTable = boost::get<std::vector<Addr>>(ir.getTable("eaTable"));
 for (auto ea : *eaTable) {
   std::cout << "EA: " << ea.get() << "\n";
 }
