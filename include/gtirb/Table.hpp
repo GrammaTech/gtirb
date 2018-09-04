@@ -59,7 +59,7 @@ using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::vector<UUID>,                       //
                            std::vector<InstructionRef>>;
 
-///
+
 /// \brief DOCFIXME
 ///
 /// \param Table DOCFIXME

@@ -15,13 +15,21 @@
 namespace gtirb {
 class DataObject;
 class ImageByteMap;
+
 class DataObject;
+/// \brief DOCFIXME
+///
 using DataSet = std::vector<DataObject>;
+
 class Section;
+/// \brief DOCFIXME
+///
 using SectionSet = std::vector<Section>;
 
 
 /// \enum FileFormat
+///
+/// \brief DOCFIXME
 ///
 enum class FileFormat : uint8_t {
   Undefined = proto::Format_Undefined, ///< Default value to indicates an
@@ -39,7 +47,7 @@ enum class FileFormat : uint8_t {
 
 /// \enum ISAID
 ///
-/// ISA ID
+/// \brief ISA ID DOCFIXME[need more info?]
 ///
 enum class ISAID : uint8_t {
   Undefined = proto::ISA_Undefined, ///< Default value to indicates an

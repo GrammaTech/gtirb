@@ -13,7 +13,19 @@
 
 namespace gtirb {
 
+/// \brief DOCFIXME
+///
+/// \tparam   T   DOCFIXME
+///
 template <class T> struct is_std_array : std::false_type {};
+
+
+/// \brief DOCFIXME
+///
+/// \tparam   T   DOCFIXME
+///
+/// \tparam   N   DOCFIXME
+///
 template <class T, std::size_t N>
 struct is_std_array<std::array<T, N>> : std::true_type {};
 
@@ -99,7 +111,7 @@ public:
 
 
   /// \brief Set the minimum and maximum effective addresses (\ref
-  /// EA) for this \ref Module.
+  /// Addr) for this \ref Module.
   ///
   /// \param X A std::pair containing the (minimum, maximum) effective
   /// addresses to use.
@@ -197,7 +209,7 @@ public:
   /// Data is written directly without any byte order conversions.
   ///
   /// \sa gtirb::ByteMap
-  /// \sa getEAMinMax()
+  /// \sa getAddrMinMax()
   ///
   void setData(Addr Ea, gsl::span<const std::byte> Data);
 
@@ -222,7 +234,7 @@ public:
   /// \return void
   ///
   /// \sa gtirb::ByteMap
-  /// \sa getEAMinMax()
+  /// \sa getAddrMinMax()
   ///
   void setData(Addr Ea, size_t Bytes, std::byte Value);
 
@@ -248,7 +260,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   /// \sa getByteOrder()
-  /// \sa getEAMinMax()
+  /// \sa getAddrMinMax()
   ///
   template <typename T> void setData(Addr Ea, const T& Data) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
@@ -285,7 +297,7 @@ public:
   ///
   /// \sa gtirb::ByteMap
   /// \sa getByteOrder()
-  /// \sa getEAMinMax()
+  /// \sa getAddrMinMax()
   ///
   template <typename T, size_t Size>
   void setData(Addr Ea, const std::array<T, Size>& Data) {
