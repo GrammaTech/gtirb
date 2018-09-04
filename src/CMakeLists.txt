@@ -60,6 +60,7 @@ set(${PROJECT_NAME}_H
 set(${PROJECT_NAME}_SRC
         Block.cpp
 	ByteMap.cpp
+        Context.cpp
 	CFG.cpp
         DataObject.cpp
 	ImageByteMap.cpp

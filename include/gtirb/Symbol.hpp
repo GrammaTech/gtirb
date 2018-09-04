@@ -32,21 +32,21 @@ public:
     Local = proto::Storage_Local          ///< DOCFIXME
   };
 
-  static Symbol* Create(Context& C) { return new (C) Symbol; }
-  static Symbol* Create(Context& C, Addr X) { return new (C) Symbol(X); }
+  static Symbol* Create(Context& C) { return new (C) Symbol(C); }
+  static Symbol* Create(Context& C, Addr X) { return new (C) Symbol(C, X); }
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
-    return new (C) Symbol(X, Name, Kind);
+    return new (C) Symbol(C, X, Name, Kind);
   }
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         const DataObject& Referent,
                         StorageKind Kind = StorageKind::Extern) {
-    return new (C) Symbol(X, Name, Referent, Kind);
+    return new (C) Symbol(C, X, Name, Referent, Kind);
   }
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         const Block& Referent,
                         StorageKind Kind = StorageKind::Extern) {
-    return new (C) Symbol(X, Name, Referent, Kind);
+    return new (C) Symbol(C, X, Name, Referent, Kind);
   }
 
 
@@ -162,18 +162,19 @@ private:
   ///
   /// Default constructor.
   ///
-  Symbol() : Node(Kind::Symbol) {}
+  Symbol(Context& C) : Node(C, Kind::Symbol) {}
 
   ///
   /// This constructor sets the Effective Address on construction.
   ///
-  Symbol(Addr X) : Node(Kind::Symbol), Address(X) {}
-  Symbol(Addr X, std::string N, StorageKind SK = StorageKind::Extern)
-      : Node(Kind::Symbol), Address(X), Name(N), Storage(SK) {}
-  Symbol(Addr X, std::string Name, const DataObject& Referent,
+  Symbol(Context& C, Addr X) : Node(C, Kind::Symbol), Address(X) {}
+  Symbol(Context& C, Addr X, std::string N,
+         StorageKind SK = StorageKind::Extern)
+      : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK) {}
+  Symbol(Context& C, Addr X, std::string Name, const DataObject& Referent,
          StorageKind Kind = StorageKind::Extern);
-  Symbol(Addr X, std::string Name, const Block& Referent,
-    StorageKind Kind = StorageKind::Extern);
+  Symbol(Context& C, Addr X, std::string Name, const Block& Referent,
+         StorageKind Kind = StorageKind::Extern);
 
   Addr Address;
   std::string Name;

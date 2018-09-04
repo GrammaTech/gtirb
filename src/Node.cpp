@@ -14,42 +14,26 @@
 
 using namespace gtirb;
 
-std::map<UUID, Node*> Node::UuidMap;
-
-Node* Node::getByUUID(UUID Uuid) {
-  auto Found = Node::UuidMap.find(Uuid);
-  if (Found != Node::UuidMap.end()) {
-    return Found->second;
-  } else {
-    return nullptr;
-  }
-}
-
-Node::Node(Kind Knd) : K(Knd), Uuid(boost::uuids::random_generator()()) {
-  Node::UuidMap[this->Uuid] = this;
+Node::Node(Context& C, Kind Knd)
+    : K(Knd), Uuid(boost::uuids::random_generator()()), Ctx(C) {
+  Ctx.registerNode(Uuid, this);
 }
 
 Node::~Node() noexcept {
-  auto Found = Node::UuidMap.find(this->Uuid);
-  if (Found != Node::UuidMap.end()) {
-    assert(Found->second == this);
-    Node::UuidMap.erase(Found);
-  }
+  Ctx.unregisterNode(this);
 }
 
 void Node::setUUID() {
-  Node::UuidMap.erase(this->Uuid);
-  this->Uuid = boost::uuids::random_generator()();
-  Node::UuidMap[this->Uuid] = this;
+  setUUID(boost::uuids::random_generator()());
 }
 
 void Node::setUUID(UUID X) {
   // UUID should not previously exist
-  assert(Node::UuidMap.find(X) == Node::UuidMap.end());
+  assert(Ctx.findNode(X) == nullptr && "UUID already registered");
 
-  Node::UuidMap.erase(this->Uuid);
+  Ctx.unregisterNode(this);
   this->Uuid = X;
-  Node::UuidMap.emplace(X, this);
+  Ctx.registerNode(Uuid, this);
 }
 
 std::string gtirb::uuidToString(const UUID& Uuid) {

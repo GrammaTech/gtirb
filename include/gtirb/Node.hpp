@@ -4,7 +4,6 @@
 #include <gtirb/Casting.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
-#include <boost/uuid/uuid.hpp>
 #include <map>
 #include <string>
 
@@ -41,9 +40,11 @@ public:
   /// Retrieve a node by its UUID.
   ///
   /// \return The Node with the given UUID, or nullptr if none exists.
-  static Node* getByUUID(UUID Uuid);
+  static Node* getByUUID(Context& C, const UUID& Uuid) {
+    return C.findNode(Uuid);
+  }
 
-  static Node* Create(Context& C) { return new (C) Node(Kind::Node); }
+  static Node* Create(Context& C) { return new (C) Node(C, Kind::Node); }
 
   /// \brief This will serve as a base class for other nodes.
   ///
@@ -71,16 +72,15 @@ public:
   static bool classof(const Node* N) { return N->getKind() == Kind::Node; }
 
 protected:
-  Node(Kind K);
+  Node(Context& C, Kind K);
 
 private:
   Kind K;
   UUID Uuid;
+  Context& Ctx;
 
   friend void details::ClearUUIDs(Node*);
   void setUUID();
-
-  static std::map<UUID, Node*> UuidMap;
 };
 
 /// DOCFIXME[check all]

@@ -50,18 +50,18 @@ TEST(Unit_Symbol, setReferent) {
   Block *Block = Block::Create(Ctx);
 
   Sym->setReferent(*Data);
-  EXPECT_EQ(&*Sym->getDataReferent(), Data);
-  EXPECT_FALSE(Sym->getCodeReferent());
+  EXPECT_EQ(Sym->getDataReferent().get(Ctx), Data);
+  EXPECT_FALSE(Sym->getCodeReferent().get(Ctx));
 
   Sym->setReferent(*Block);
-  EXPECT_EQ(&*Sym->getCodeReferent(), Block);
+  EXPECT_EQ(Sym->getCodeReferent().get(Ctx), Block);
   // Setting code referent clears data referent
-  EXPECT_FALSE(Sym->getDataReferent());
+  EXPECT_FALSE(Sym->getDataReferent().get(Ctx));
 
   Sym->setReferent(*Data);
-  EXPECT_EQ(&*Sym->getDataReferent(), Data);
+  EXPECT_EQ(Sym->getDataReferent().get(Ctx), Data);
   // Setting data referent clears code referent
-  EXPECT_FALSE(Sym->getCodeReferent());
+  EXPECT_FALSE(Sym->getCodeReferent().get(Ctx));
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
