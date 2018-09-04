@@ -24,11 +24,12 @@ void Block::toProtobuf(MessageType* Message) const {
   Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_size(this->Size);
   Message->set_decode_mode(this->DecodeMode);
+  Message->set_exit_kind(proto::Exit(this->ExitKind));
 }
 
 Block* Block::fromProtobuf(Context& C, const MessageType& Message) {
   auto* B = Block::Create(C, Addr(Message.address()), Message.size(),
-                          Message.decode_mode());
+                          Exit(Message.exit_kind()), Message.decode_mode());
   setNodeUUIDFromBytes(B, Message.uuid());
   return B;
 }
