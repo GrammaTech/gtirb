@@ -15,9 +15,17 @@
 syntax = "proto3";
 package proto;
 
+enum Exit {
+    Fallthrough = 0;
+    Branch = 1;
+    Call = 2;
+    Return = 3;
+}
+
 message Block {
     bytes uuid = 1;
     uint64 address = 2;
     uint64 size = 3;
     uint64 decode_mode = 4;
+    Exit exit_kind = 5;
 }

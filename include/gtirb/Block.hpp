@@ -19,6 +19,7 @@
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
+#include <proto/Block.pb.h>
 #include <cstdint>
 #include <vector>
 
@@ -26,7 +27,6 @@
 /// \brief Classes gtirb::Block and gtirb::InstructionRef.
 
 namespace proto {
-class Block;
 class InstructionRef;
 } // namespace proto
 
@@ -37,11 +37,16 @@ namespace gtirb {
 /// \brief A basic block.
 /// \see \ref CFG_GROUP
 class GTIRB_EXPORT_API Block : public Node {
-  Block(Context& C) : Node(C, Kind::Block) {}
-  Block(Context& C, Addr A, uint64_t S, uint64_t Decode)
-      : Node(C, Kind::Block), Address(A), Size(S), DecodeMode(Decode) {}
-
 public:
+  /// \enum Exit
+  /// \brief Indicates how control flow exits a block.
+  enum class Exit : uint8_t {
+    Fallthrough = proto::Fallthrough,
+    Branch = proto::Branch,
+    Call = proto::Call,
+    Return = proto::Return
+  };
+
   /// \brief Create a Block object in its default state.
   ///
   /// \param C  The Context in which this object will be held.
@@ -51,15 +56,18 @@ public:
 
   /// \brief Create a Block object.
   ///
-  /// \param C        The Context in which this Block will be held.
-  /// \param Address  The address where the Block is located.
-  /// \param Size     The size of the Block in bytes.
+  /// \param C          The Context in which this Block will be held.
+  /// \param Address    The address where the Block is located.
+  /// \param Size       The size of the Block in bytes.
+  /// \param ExitKind   Indicates how control flow exits the block.
   /// \param DecodeMode The decode mode of the Block.
+
   ///
   /// \return The newly created Block.
   static Block* Create(Context& C, Addr Address, uint64_t Size,
+                       Exit ExitKind = Exit::Fallthrough,
                        uint64_t DecodeMode = 0) {
-    return new (C) Block(C, Address, Size, DecodeMode);
+    return new (C) Block(C, Address, Size, ExitKind, DecodeMode);
   }
 
   /// \brief Get the address from a \ref Block.
@@ -77,7 +85,11 @@ public:
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
-  /// \brief The protobuf message type used for serializing Block.
+  /// \brief Get the exit kind from a \ref Block.
+  ///
+  /// \return The exit kind.
+  Exit getExitKind() const { return ExitKind; }
+
   using MessageType = proto::Block;
 
   /// \brief Serialize into a protobuf message.
@@ -100,9 +112,15 @@ public:
   /// \endcond
 
 private:
+  Block(Context& C) : Node(C, Kind::Block) {}
+  Block(Context& C, Addr Addr, uint64_t S, Exit E, uint64_t Decode)
+      : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode),
+        ExitKind(E) {}
+
   Addr Address;
   uint64_t Size{0};
   uint64_t DecodeMode{0};
+  Exit ExitKind{Exit::Fallthrough};
 };
 
 /// \class InstructionRef
