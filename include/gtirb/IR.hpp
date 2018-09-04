@@ -17,7 +17,8 @@ class Module;
 ///
 /// \class IR
 ///
-/// \brief A complete IR consisting of Modules (\ref Module).
+/// \brief A complete internal representation consisting of Modules
+/// (\ref Module).
 ///
 /// \dot
 /// digraph example {
@@ -104,12 +105,12 @@ public:
 
   /// \brief Get all modules with the specified Preferred Effective Address.
   ///
-  /// \param X The EA of interest.
+  /// \param X The address of interest.
   ///
   /// \return A <tt>std::vector<const Module*></tt> containing all
   /// modules whose Preferred Effective Address is \p X.
   ///
-  /// \sa Module::getPreferredEA()
+  /// \sa Module::getPreferredAddr()
   ///
   std::vector<const Module*> getModulesWithPreferredAddr(Addr X) const;
 
@@ -122,7 +123,7 @@ public:
   /// modules with (minimum,maximum) effective addresses such that
   /// minimum <= X < maximum.
   ///
-  /// \sa Module::getEAMinMax()
+  /// \sa Module::getAddrMinMax()
   ///
   std::vector<const Module*> getModulesContainingAddr(Addr X) const;
 

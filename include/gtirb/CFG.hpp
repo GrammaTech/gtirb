@@ -15,10 +15,14 @@ class CFG;
 namespace gtirb {
 class Block;
 
+
+/// \brief DOCFIXME
+///
 using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
-///
-/// \brief Interprocedural control flow graph, with vertices of type \ref Block.
+
+/// \brief Interprocedural control flow graph, with vertices of type
+/// \ref Block.
 ///
 using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
                                   boost::vecS,  // preserve vertex order
@@ -39,6 +43,7 @@ class block_iter_base
           block_iter_base<Value, Graph>, Value,
           typename Graph::vertex_iterator::iterator_category> {
 public:
+
   /// \brief DOCFIXME constructor.
   ///
   /// \param it_   DOCFIXME
@@ -71,10 +76,17 @@ private:
   gsl::not_null<Graph*> cfg;
 };
 
+
+/// \brief DOCFIXME
+///
 using block_iterator = block_iter_base<Block, CFG>;
+
+
+/// \brief DOCFIXME
+///
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
-///
+
 /// \brief Move a basic block (\ref Block) into the graph.
 ///
 /// \param Cfg    DOCFIXME
@@ -83,6 +95,7 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 /// \return A descriptor which can be used to retrieve the \ref Block.
 ///
 GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block&& Block);
+
 
 ///DOCFIXME[check all]
 /// \brief Get an iterator over the \ref Block elements in the
@@ -94,16 +107,18 @@ GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block&& Block);
 ///
 GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
+
 ///DOCFIXME[check all]
 /// \brief Get an iterator over the \ref Block elements in the
 /// specified graph (by const reference).
 ///
 /// \param cfg  The graph to be iterated over.
 ///
-/// \return An iterator over \p Cfg
+/// \return An iterator over \p cfg
 ///
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
+
 
 /// \brief DOCFIXME
 ///
@@ -112,6 +127,7 @@ blocks(const CFG& cfg);
 /// \return DOCFIXME
 ///
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
+
 
 /// \brief DOCFIXME
 ///
