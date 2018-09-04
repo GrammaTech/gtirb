@@ -19,15 +19,15 @@ namespace gtirb {
 /// \ref ImageByteMap.
 ///
 class GTIRB_EXPORT_API DataObject : public Node {
-  DataObject() : Node(Kind::DataObject) {}
+  DataObject(Context& C) : Node(C, Kind::DataObject) {}
 
-  DataObject(Addr A, uint64_t S)
-      : Node(Kind::DataObject), Address(A), Size(S) {}
+  DataObject(Context& C, Addr A, uint64_t S)
+      : Node(C, Kind::DataObject), Address(A), Size(S) {}
 
 public:
-  static DataObject *Create(Context &C) { return new (C) DataObject; }
+  static DataObject *Create(Context &C) { return new (C) DataObject(C); }
   static DataObject *Create(Context &C, Addr Address, uint64_t Size) {
-    return new (C) DataObject(Address, Size);
+    return new (C) DataObject(C, Address, Size);
   }
 
 

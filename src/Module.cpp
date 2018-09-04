@@ -11,7 +11,7 @@
 using namespace gtirb;
 
 Module::Module(Context& C)
-    : Node(Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
+    : Node(C, Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
 
 gtirb::ImageByteMap& Module::getImageByteMap() {
   return *this->ImageBytes;

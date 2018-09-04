@@ -36,10 +36,10 @@ struct is_std_array<std::array<T, N>> : std::true_type {};
 /// \brief Contains the loaded raw image data for the module (binary).
 ///
 class GTIRB_EXPORT_API ImageByteMap : public Node {
-  ImageByteMap() : Node(Kind::ImageByteMap) {}
+  ImageByteMap(Context& C) : Node(C, Kind::ImageByteMap) {}
 
 public:
-  static ImageByteMap *Create(Context &C) { return new (C) ImageByteMap; }
+  static ImageByteMap *Create(Context &C) { return new (C) ImageByteMap(C); }
 
 
   /// \brief Set the file name of the image.

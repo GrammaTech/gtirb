@@ -15,15 +15,15 @@ namespace gtirb {
 /// \brief DOCFIXME  
   
 class GTIRB_EXPORT_API Section : public Node {
-  Section() : Node(Kind::Section) {}
-  Section(const std::string &N, Addr A, uint64_t S)
-      : Node(Kind::Section), Name(N), Address(A), Size(S) {}
+  Section(Context& C) : Node(C, Kind::Section) {}
+  Section(Context& C, const std::string &N, Addr A, uint64_t S)
+      : Node(C, Kind::Section), Name(N), Address(A), Size(S) {}
 
 public:
-  static Section* Create(Context& C) { return new (C) Section; }
+  static Section* Create(Context& C) { return new (C) Section(C); }
   static Section* Create(Context& C, const std::string& Name, Addr Address,
                          uint64_t Size) {
-    return new (C) Section(Name, Address, Size);
+    return new (C) Section(C, Name, Address, Size);
   }
 
 

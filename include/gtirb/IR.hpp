@@ -59,10 +59,10 @@ class Module;
 /// \enddot
 ///
 class GTIRB_EXPORT_API IR : public Node {
-  IR() : Node(Kind::IR) {}
+  IR(Context& C) : Node(C, Kind::IR) {}
 
 public:
-  static IR *Create(Context &C) { return new (C) IR; }
+  static IR *Create(Context &C) { return new (C) IR(C); }
 
   using iterator = boost::indirect_iterator<std::vector<Module*>::iterator>;
   using const_iterator =
