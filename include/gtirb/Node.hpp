@@ -11,9 +11,13 @@
 #include <vector>
 
 namespace gtirb {
+
+
+/// \brief DOCFIXME
+///
 using UUID = boost::uuids::uuid;
 
-///
+
 /// \class Node
 ///
 /// \brief DOCFIXME
