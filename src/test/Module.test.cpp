@@ -209,16 +209,15 @@ TEST(Unit_Module, sectionSorting) {
 
   M->addSection({S1, S2});
 
-  EXPECT_EQ(&*M->section_begin(), S1);
-  EXPECT_EQ(&*(M->section_begin() + 1), S2);
+  UUID U1 = S1->getUUID(), U2 = S2->getUUID();
+  EXPECT_EQ(M->section_begin()->getUUID(), U1);
+  EXPECT_EQ((M->section_begin() + 1)->getUUID(), U2);
 
   std::sort(M->section_begin(), M->section_end(),
             [](const Section& LHS, const Section& RHS) {
-              uint64_t LHSSize = LHS.getSize(), RHSSize = RHS.getSize();
-              return std::tie(LHS.getName(), LHS.getAddress(), LHSSize) <
-                     std::tie(RHS.getName(), RHS.getAddress(), RHSSize);
+              return LHS.getName() < RHS.getName();
             });
 
-  EXPECT_EQ(&*M->section_begin(), S2);
-  EXPECT_EQ(&*(M->section_begin() + 1), S1);
+  EXPECT_EQ(M->section_begin()->getUUID(), U2);
+  EXPECT_EQ((M->section_begin() + 1)->getUUID(), U1);
 }
