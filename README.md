@@ -68,103 +68,103 @@ GT-IRB should successfully build in 64-bits with GCC, Clang, and
 Visual Studio compilers supporting at least C++14. GT-IRB requires
 Boost.
 
-### Installing CMake
+1. **Install CMake**
 
-The first thing to do is get hold of CMake. You can get it from
-[here](https://cmake.org/download/) or via your package manager
-(e.g. `yum`, `apt-get`). It is advised to download a stable release
-and not a release candidate. For Mac/Windows check the option that
-adds CMake to the system path for all users.
+   Obtain CMake from [here](https://cmake.org/download/) or via your
+   package manager (e.g. `yum`, `apt-get`). It is advised to download a
+   stable release and not a release candidate. For Mac/Windows check
+   the option that adds CMake to the system path for all users.
 
-### Installing Git
+2. **Install Git**
 
 Git is required to fetch the source code. Install with a package
 manager or from https://git-scm.com/download/win on Windows. Choose
 the option that adds git and minimal tools to the path.
 
-### Installing Dependencies
+3. **Install Dependencies**
 
-#### Linux
+    - *Linux*
 
-Use your local package manager to install Boost libraries. Boost 1.59
-or later is required.
+      Use your local package manager to install Boost libraries. Boost
+      1.59 or later is required.
 
-```bash
-> sudo apt-get install boost
-```
+      ```bash
+      > sudo apt-get install boost
+      ```
 
-#### Windows
+    - *Windows*
 
-For Windows, `vcpkg` can handle the dependencies.
+      For Windows, `vcpkg` can handle the dependencies.
 
-First, you have to install `vcpkg` from its git repository. From a command line, in the working directory:
+      First, you have to install `vcpkg` from its git repository. From
+      a command line, in the working directory:
 
-```
-C:\vcpkg> git clone https://github.com/Microsoft/vcpkg.git .
-```
+      ```bash
+      C:\vcpkg> git clone https://github.com/Microsoft/vcpkg.git .
+      ```
 
-Then, you have to follow the instructions from the `vcpkg`
-documentation. Normally, during the installation process, it will
-detect the installed CMake.
+      Then, you have to follow the instructions from the `vcpkg`
+      documentation. Normally, during the installation process, it
+      will detect the installed CMake.
 
-```
-C:\vcpkg> .\bootstrap-vcpkg.bat
-C:\vcpkg> .\vcpkg integrate install
-```
+      ```bash
+      C:\vcpkg> .\bootstrap-vcpkg.bat
+      C:\vcpkg> .\vcpkg integrate install
+      ```
 
-This may give you the name of a file for use with CMake.  If so, note
-it.  You can use this in the CMake configuration later to help it find
-Boost.
+      This may give you the name of a file for use with CMake.  If so,
+      note it.  You can use this in the CMake configuration later to
+      help it find Boost.
 
-Then, you can install the dependencies:
+      Then, you can install the dependencies:
 
-```
-C:\vcpkg> .\vcpkg install boost
-```
+      ```bash
+      C:\vcpkg> .\vcpkg install boost
+      ```
 
-### Building with CMake
+4. **Build with CMake**
 
-I recommend using the CMake GUI. (`cmake-gui`)
+   We recommend using the CMake GUI. (`cmake-gui`)
 
-Do not do an in-source build.  Specify the location for where to build
-the binaries (typically a folder called `build`).  It will make the
-directory if it does not already exist.
+   Do not do an in-source build.  Specify the location for where to
+   build the binaries (typically a folder called `build`).  It will
+   make the directory if it does not already exist.
 
-If you insist on using the command line, then you can do this:
+   If you insist on using the command line, then you can do this:
 
-```bash
-/path/to/gtirb> cmake ./ -Bbuild
-```
+   ```bash
+   /path/to/gtirb> cmake ./ -Bbuild
+   ```
 
-By default, GT-IRB is built with C++14 enabled, If you get an error
-stating "`CXX_STANDARD is set to invalid value '14'`", then you have
-an old compiler and will need to update.
+   By default, GT-IRB is built with C++14 enabled, If you get an error
+   stating "`CXX_STANDARD is set to invalid value '14'`", then you have
+   an old compiler and will need to update.
+  
+   Once CMake configures and generates the project, you will have a
+   native Makefile or Visual Studio Solution inside of
+   `/path/to/gtirb/build`.
 
-Once CMake configures and generates the project, you will have a
-native Makefile or Visual Studio Solution inside of
-`/path/to/gtirb/build`.
+   On Linux, simply run `make`.
 
-On Linux, simply run `make`.
+   ```bash
+   /path/to/gtirb/build> make -j
+   ```
 
-```bash
-/path/to/gtirb/build> make -j
-```
+5. **Run the Tests**
 
-### Running the Tests
+   Go into the `bin` folder and execute `TestGTIRB`.
 
-Go into the `bin` folder and execute `TestGTIRB`.
+   ```bash
+   /path/to/gtirb/bin> ./TestGTIRB
+   ```
 
-```bash
-/path/to/gtirb/bin> ./TestGTIRB
-```
+   Alternately, a CMake target called `check` was created that mimics
+   Autotools.  This can be used to automatically run the tests after a
+   build.
 
-Alternately, a CMake target called `check` was created that mimics
-Autotools.  This can be used to automatically run the tests after a
-build.
-
-```bash
-/path/to/gtirb/build> make check
-```
+   ```bash
+   /path/to/gtirb/build> make check
+   ```
 
 ## Usage
 
@@ -210,6 +210,7 @@ data.emplace_back(Addr(2614), 2);
 ```
 
 The actual data is stored in the module's ImageByteMap:
+
 ```c++
 ImageByteMap& byteMap = module.getImageByteMap();
 byteMap.setAddrMinMax({Addr(2608), Addr(2616)});
@@ -219,6 +220,7 @@ byteMap.setData(Addr(2608), bytes);
 
 Symbols associate a name with an effective address (Addr). They can
 also link to a Data object or Instruction.
+
 ```c++
 SymbolSet& symbols = module.getSymbols();
 addSymbol(symbols, Symbol(Addr(2608), // address
@@ -229,6 +231,7 @@ addSymbol(symbols, Symbol(Addr(2614), "data2", data[1], Symbol::StorageKind::Ext
 ```
 
 GT-IRB can store multiple symbols with the same effective address.
+
 ```c++
 addSymbol(symbols, Symbol(Addr(2614), "duplicate", data[1], Symbol::StorageKind::Local));
 ```
@@ -259,6 +262,7 @@ auto edge1 add_edge(vertex1, vertex2, mainModule.getCFG()).first;
 ```
 
 Edges can have boolean or numeric labels:
+
 ```c++
 module.getCFG()[edge1] = true;
 ```

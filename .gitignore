@@ -14,9 +14,10 @@ CTestTestfile.cmake
 build/
 bin/
 doc/html/
-doxy/*.md
-doxy/dot/
-doxy/script.sed
+doc/doxy/*.md
+doc/doxy/*.original
+doc/doxy/dot/
+doc/doxy/script.sed
 googletest-download/
 googletest-src/
 gsl-download/
