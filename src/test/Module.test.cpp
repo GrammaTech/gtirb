@@ -8,7 +8,9 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <iterator>
+#include <tuple>
 #include <utility>
 
 using namespace gtirb;
@@ -198,4 +200,25 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(
       std::distance(Result->symbol_expr_begin(), Result->symbol_expr_end()), 1);
   EXPECT_EQ(Result->symbol_expr_begin()->index(), WhichSymbolic);
+}
+
+TEST(Unit_Module, sectionSorting) {
+  Section* S1 = Section::Create(Ctx, "second", Addr(0), 1);
+  Section* S2 = Section::Create(Ctx, "first", Addr(0), 1);
+  Module* M = Module::Create(Ctx);
+
+  M->addSection({S1, S2});
+
+  EXPECT_EQ(&*M->section_begin(), S1);
+  EXPECT_EQ(&*(M->section_begin() + 1), S2);
+
+  std::sort(M->section_begin(), M->section_end(),
+            [](const Section& LHS, const Section& RHS) {
+              uint64_t LHSSize = LHS.getSize(), RHSSize = RHS.getSize();
+              return std::tie(LHS.getName(), LHS.getAddress(), LHSSize) <
+                     std::tie(RHS.getName(), RHS.getAddress(), RHSSize);
+            });
+
+  EXPECT_EQ(&*M->section_begin(), S2);
+  EXPECT_EQ(&*(M->section_begin() + 1), S1);
 }
