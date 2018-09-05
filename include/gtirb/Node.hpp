@@ -4,7 +4,7 @@
 #include <gtirb/Casting.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
-#include <map>
+#include <gsl/gsl>
 #include <string>
 
 namespace gtirb {
@@ -77,7 +77,11 @@ protected:
 private:
   Kind K;
   UUID Uuid;
-  Context& Ctx;
+  // The Context object can never be null as it can only be passed to the Node
+  // constructor by reference. However, we don't want to store a reference to
+  // the Context object because we want to keep the Node class copyable and
+  // Context needs to own a move-only allocator.
+  gsl::not_null<Context*> Ctx;
 
   friend void details::ClearUUIDs(Node*);
   void setUUID();
