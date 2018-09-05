@@ -1,4 +1,4 @@
-## Binary Nina
+## Binary Ninja
 
 Binary ninja doesn't really have ASTs
 

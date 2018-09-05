@@ -39,15 +39,52 @@ Testing Development
 
 Documentation
 -------------
+
+The GT-IRB documentation consists of complete documentation for all
+components of the GT-IRB API, along with examples and other usage
+information.
+
 - Documentation is stored in the `/doc` folder.
 - Graphs located in the `/doc/dot` folder.
 - HTML API documentation (Doxygen) is located in the `/doc/html`
-  folder.  A Doxyfile is located inthe root directory for the project.
+  folder.
 
-### Markdown Documents
 
-- File names start with `gtirb`.  
-- Wrap your markdown documents at 80 columns.
+### Building Documentation
+
+We provide a script for building GT-IRB documentation. 
+
+1. From the top-level gtirb directory:
+
+   ```bash
+   > cd doc/doxy
+   > ./builddocs.sh
+   ```
+
+2. Open the documentation home page `gtirb/doc/html/index.html` 
+   in your browser.
+
+
+### Contributing Markdown Documentation
+
+To add a new markdown document to the documentation:
+
+1. Create the new document as a child of /doc.
+   - File names start with `gtirb`.
+   - File extension is `.md`.
+   - Use github markdown syntax.
+   - Wrap your markdown documents at 80 columns.
+
+2. Edit `/doxy/Doxyfile` to add the name of your new markdown document
+   to the `INPUT` rule setting. Note that the ordering of file names
+   here corresponds to table of contents ordering.
+
+3. [Build the documentation](#building-documentation) and check that
+   your new page is present and rendered correctly.
+   - If it is not rendered correctly, you may need to add a new 
+     preprocessing step to `/doxy/builddocs.sh` to rewrite the 
+     corresponding github-style markdown into something Doxygen 
+     can handle correctly.
 
 ### Graphviz
 

@@ -1,12 +1,16 @@
 #ifndef GTIRB_EXPORT_H
 #define GTIRB_EXPORT_H
 
+// DOXFIXME[What does this comment belong to? At the moment it's being
+// attached to namespace gtirb which seems definitely wrong]
 ///
 /// Defined by the build system (CMake or SCons).
 /// This should only be defined by the build system which generates the GT-IRB
 /// library.  Users of the library should NOT define this.
 ///
 
+// DOXFIXME[What does this comment belong to? At the moment it's being
+// attached to namespace gtirb which seems definitely wrong]
 ///
 /// This controls the visibility of exported symbols (i.e. classes) in Windows
 /// DLL's and Linux Shared Objects.
