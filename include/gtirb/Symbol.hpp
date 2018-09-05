@@ -105,7 +105,7 @@ public:
   /// \return The data, as a NodeRef<DataObject>.
   ///
   /// DOCFIXME[what if the referent is a Block?]
-  NodeRef<DataObject> getDataReferent() const { return DataReferent; }
+  NodeRef<DataObject> getDataReferent() const;
 
 
   ///
@@ -114,7 +114,7 @@ public:
   /// \return The code, as a NodeRef<Block>.
   ///
   /// DOCFIXME[what if the referent is a DataObject?]
-  NodeRef<Block> getCodeReferent() const { return CodeReferent; }
+  NodeRef<Block> getCodeReferent() const;
 
 
   /// \brief Set the storage kind.
