@@ -15,7 +15,6 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <gtirb/SymbolicExpressionSet.hpp>
 #include <gtirb/Table.hpp>
 
 #endif // GTIRB_GTIRB_H
