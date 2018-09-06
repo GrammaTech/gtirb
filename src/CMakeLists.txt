@@ -9,17 +9,17 @@ add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
 add_compile_options(-DGSL_USE_STD_BYTE)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-	#add_compile_options(-wd4251)  # Non-exportable template classes.
+        #add_compile_options(-wd4251)  # Non-exportable template classes.
         add_compile_options(-wd4100) # unreferenced formal parameter, for protobuf includes
     add_compile_options(-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-	#add_compile_options(-Wno-unused-function)
-	add_compile_options(-mtune=generic)
-	add_compile_options(-pthread)
+        #add_compile_options(-Wno-unused-function)
+        add_compile_options(-mtune=generic)
+        add_compile_options(-pthread)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-	#add_compile_options(-Wno-unused-function)
-	add_compile_options(-mtune=generic)
-	add_compile_options(-pthread)
+        #add_compile_options(-Wno-unused-function)
+        add_compile_options(-mtune=generic)
+        add_compile_options(-pthread)
 endif()
 
 # Find our headers without gtirb/ prefix
@@ -30,21 +30,21 @@ include_directories("${CMAKE_BINARY_DIR}/src/")
 
 set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/DataObject.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/ImageByteMap.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/ImageByteMap.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/NodeRef.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
-	${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Table.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
@@ -57,39 +57,39 @@ set(${PROJECT_NAME}_H
 
 set(${PROJECT_NAME}_SRC
         Block.cpp
-	ByteMap.cpp
+        ByteMap.cpp
         Context.cpp
-	CFG.cpp
+        CFG.cpp
         DataObject.cpp
-	ImageByteMap.cpp
-	IR.cpp
-	Module.cpp
-	Node.cpp
+        ImageByteMap.cpp
+        IR.cpp
+        Module.cpp
+        Node.cpp
         Section.cpp
         Serialization.cpp
-	Symbol.cpp
+        Symbol.cpp
         SymbolicExpression.cpp
         Table.cpp
 )
 
 IF(UNIX AND NOT WIN32)
-	SET(SYSLIBS
-		${CMAKE_DL_LIBS}
-	)
+        SET(SYSLIBS
+                ${CMAKE_DL_LIBS}
+        )
 ELSE()
-	SET(SYSLIBS
-	)
+        SET(SYSLIBS
+        )
 endif()
 
 GTIRB_ADD_LIBRARY()
 
 target_link_libraries(
-	${PROJECT_NAME} 
-	${SYSLIBS}
-	${Boost_LIBRARIES}
+        ${PROJECT_NAME} 
+        ${SYSLIBS}
+        ${Boost_LIBRARIES}
         ${PROTOBUF_LIBRARIES}
         proto
-	)
+        )
 
 # Copy gtirb headers into build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -103,5 +103,5 @@ add_custom_command(
                 "${CMAKE_BINARY_DIR}/include/gtirb")
 
 if(GTIRB_ENABLE_TESTS)
-	add_subdirectory(test)
+        add_subdirectory(test)
 endif()
