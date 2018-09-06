@@ -35,7 +35,6 @@ set(${PROJECT_NAME}_SRC
         NodeRef.test.cpp
         Section.test.cpp
 	Symbol.test.cpp
-	SymbolSet.test.cpp
         SymbolicExpression.test.cpp
         Table.test.cpp
 	TypedNodeTest.cpp
