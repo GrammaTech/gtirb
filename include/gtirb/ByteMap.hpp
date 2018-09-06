@@ -46,6 +46,8 @@ public:
   ///
   /// \return DOCFIXME
   ///
+  /// The iterator range returned encodes a contiguous block of memory that can
+  /// be accessed directly, such as via memcpy().
   const_range data(Addr A, size_t Bytes) const;
 
 
