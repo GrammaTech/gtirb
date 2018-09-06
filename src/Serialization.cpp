@@ -1,6 +1,5 @@
 #include "Serialization.hpp"
 #include "Node.hpp"
-#include <gsl/gsl>
 
 namespace gtirb {
 UUID uuidFromBytes(const std::string& Bytes) {
