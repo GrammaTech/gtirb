@@ -17,7 +17,6 @@ class IR;
 namespace gtirb {
 class Module;
 
-///
 /// \class IR
 ///
 /// \brief A complete internal representation consisting of Modules
@@ -57,31 +56,56 @@ class Module;
 ///     symbolicOperandSet -> symbolicOperand;
 /// }
 /// \enddot
-///
 class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 
 public:
+  /// \brief Create an IR object in its default state.
+  ///
+  /// \param C  The Context in which this object will be held.
+  ///
+  /// \return The newly created object.
   static IR* Create(Context& C) { return new (C) IR(C); }
 
+  /// \brief DOCFIXME
   using iterator = boost::indirect_iterator<std::vector<Module*>::iterator>;
+  /// \brief DOCFIXME
   using const_iterator =
       boost::indirect_iterator<std::vector<Module*>::const_iterator>;
 
+  /// \brief DOCFIXME
   iterator begin() { return Modules.begin(); }
+  /// \brief DOCFIXME
   iterator end() { return Modules.end(); }
+  /// \brief DOCFIXME
   const_iterator begin() const { return Modules.begin(); }
+  /// \brief DOCFIXME
   const_iterator end() const { return Modules.end(); }
 
+  /// \brief DOCFIXME
   using range = boost::iterator_range<iterator>;
+  /// \brief DOCFIXME
   using const_range = boost::iterator_range<const_iterator>;
 
+  /// \brief DOCFIXME
   range modules() { return boost::make_iterator_range(begin(), end()); }
+  /// \brief DOCFIXME
   const_range modules() const {
     return boost::make_iterator_range(begin(), end());
   }
 
+  /// \brief Adds a single module to the IR.
+  ///
+  /// \param M The Module object to add.
+  ///
+  /// \return void
   void addModule(Module* M) { Modules.push_back(M); }
+
+  /// \brief Adds one or more modules to the IR.
+  ///
+  /// \param Ms The list of Module objects to add.
+  ///
+  /// \return void
   void addModule(std::initializer_list<Module*> Ms) {
     Modules.insert(Modules.end(), Ms);
   }
@@ -91,7 +115,6 @@ public:
   /// \param Out The output stream.
   ///
   /// \return void
-  ///
   void save(std::ostream& Out) const;
 
   /// \brief Deserialize from an input stream.
@@ -99,29 +122,24 @@ public:
   /// \param In  The input stream.
   ///
   /// \return void
-  ///
   static IR* load(Context& C, std::istream& In);
 
+  /// \brief DOCFIXME
   using MessageType = proto::IR;
 
-  ///
   /// \brief DOCFIXME
   ///
   /// \param Message DOCFIXME
   ///
   /// \return void
-  ///
   void toProtobuf(MessageType* Message) const;
 
-  ///
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  ///
   /// \param Message DOCFIXME
   ///
   /// \return DOCFIXME
-  ///
   static IR* fromProtobuf(Context& C, const MessageType& Message);
 
   // ----------------------------------------------------------------------
@@ -133,7 +151,6 @@ public:
   /// \param Name     The name to assign to the table so it can be found later.
   /// \param X        The table itself.
   /// \return void
-  ///
   void addTable(std::string Name, Table&& X);
 
   /// \brief Get a table by name.
@@ -142,7 +159,6 @@ public:
   ///
   /// \return     A non-owning pointer to the table if found,
   ///             \c nullptr otherwise.
-  ///
   const gtirb::Table* getTable(const std::string& X) const;
 
   /// \brief Get a table by name.
@@ -152,7 +168,6 @@ public:
   ///
   /// \return     A non-owning pointer to the table if found,
   ///             \c nullptr otherwise.
-  ///
   gtirb::Table* getTable(const std::string& X);
 
   /// \brief Remove a table by name.
@@ -161,14 +176,12 @@ public:
   ///
   /// \param  X   The name of the table to search for.
   /// \return     \c true on success, \c false otherwise.
-  ///
   bool removeTable(const std::string& X);
 
   /// \brief Get the total number of tables at this Node.
   /// DOCFIXME[what Node?]
   ///
   /// \return     The total number of tables this node owns.
-  ///
   size_t getTableSize() const { return Tables.size(); }
 
   /// \brief Check: Is the number of tables at this Node zero?
@@ -176,13 +189,11 @@ public:
   ///
   /// \return \c true if this node does not own any tables, \c false
   /// if it owns one or more tables.
-  ///
   bool getTablesEmpty() const { return Tables.empty(); }
 
   /// \brief Clear all locally owned tables.
   ///
   /// \return void
-  ///
   void clearTables() { Tables.clear(); }
 
   static bool classof(const Node* N) { return N->getKind() == Kind::IR; }

@@ -16,12 +16,10 @@ namespace gtirb {
 class Block;
 
 /// \brief DOCFIXME
-///
 using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
-///
 using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
                                   boost::vecS,  // preserve vertex order
                                   boost::bidirectionalS, // successor and
@@ -34,7 +32,6 @@ using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
 /// \tparam Value   DOCFIXME
 ///
 /// \tparam Graph   DOCFIXME
-///
 template <typename Value, typename Graph>
 class block_iter_base
     : public boost::iterator_facade<
@@ -44,7 +41,6 @@ public:
   /// \brief DOCFIXME constructor.
   ///
   /// \param it_   DOCFIXME
-  ///
   /// \param cfg_   DOCFIXME
   ///
   block_iter_base(typename Graph::vertex_iterator& it_, Graph& cfg_)
@@ -74,11 +70,9 @@ private:
 };
 
 /// \brief DOCFIXME
-///
 using block_iterator = block_iter_base<Block, CFG>;
 
 /// \brief DOCFIXME
-///
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
 /// \brief Move a basic block (\ref Block) into the graph.
@@ -87,7 +81,6 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 /// \param Block  DOCFIXME[this name seems like it could cause confusion?]
 ///
 /// \return A descriptor which can be used to retrieve the \ref Block.
-///
 GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* Block);
 
 /// DOCFIXME[check all]
@@ -97,7 +90,6 @@ GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* Block);
 /// \param Cfg  The graph to be iterated over.
 ///
 /// \return An iterator over \p Cfg
-///
 GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
 /// DOCFIXME[check all]
@@ -107,7 +99,6 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 /// \param cfg  The graph to be iterated over.
 ///
 /// \return An iterator over \p cfg
-///
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
@@ -116,19 +107,15 @@ blocks(const CFG& cfg);
 /// \param Cfg    DOCFIXME
 ///
 /// \return DOCFIXME
-///
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 
 /// \brief DOCFIXME
 ///
 /// \param C DOCFIXME
-///
 /// \param result    DOCFIXME
-///
 /// \param Message   DOCFIXME
 ///
 /// \return void
-///
 GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& result,
                                    const proto::CFG& Message);
 } // namespace gtirb

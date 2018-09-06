@@ -43,11 +43,9 @@ using ValueType = std::variant<Addr,           //
                                InnerMapType>;
 } // namespace table
 
-///
 /// \class Table
 ///
 /// \brief A generic table for storing additional, client-specific data.
-///
 using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::map<int64_t, table::ValueType>,     //
                            std::map<std::string, table::ValueType>, //
@@ -64,20 +62,16 @@ using Table = std::variant<std::map<Addr, table::ValueType>,        //
 /// \param Table DOCFIXME
 ///
 /// \return DOCFIXME
-///
 GTIRB_EXPORT_API proto::Table toProtobuf(const Table& Table);
 
 ///
 /// \brief DOCFIXME
 ///
 /// \param C        DOCFIXME
-///
 /// \param Result   DOCFIXME
-///
 /// \param Message  DOCFIXME
 ///
 /// \return void
-///
 GTIRB_EXPORT_API void fromProtobuf(Context& C, Table& Result,
                                    const proto::Table& Message);
 } // namespace gtirb

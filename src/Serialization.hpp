@@ -11,24 +11,35 @@
 // Utilities for serialization
 
 namespace gtirb {
+/// \brief Create UUID from string containing raw bytes.
 ///
-/// Create UUID from string containing raw bytes.
+/// \param Bytes DOCFIXME
 ///
+/// \return DOCFIXME
 UUID uuidFromBytes(const std::string& Bytes);
 
+/// \brief Copy raw bytes of UUID into a string.
 ///
-/// Copy raw bytes of UUID into a string.
+/// \param Uuid DOCFIXME
+/// \param Bytes DOCFIXME
 ///
+/// \return void
 void uuidToBytes(UUID Uuid, std::string& Bytes);
 
+/// \brief Copy raw bytes of Node's UUID into a string.
 ///
-/// Copy raw bytes of Node's UUID into a string.
+/// \param Node DOCFIXME
+/// \param Bytes DOCFIXME
 ///
+/// \return void
 void nodeUUIDToBytes(const Node* Node, std::string& Bytes);
 
+/// \brief Set Node's UUID from a string containing raw bytes.
 ///
-/// Set Node's UUID from a string containing raw bytes.
+/// \param Node DOCFIXME
+/// \param Bytes DOCFIXME
 ///
+/// \return void
 void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 
 // Generic protobuf conversion for IR classes which implement toProtobuf.

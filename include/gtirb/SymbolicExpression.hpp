@@ -17,7 +17,6 @@ class Context;
 
 /// \brief Represents a symbolic operand of the form "StackVar + Const".
 /// DOCFIXME[word in terms of the field names]
-///
 struct SymStackConst {
   // TODO: What's this?
   bool Negate;         ///< DOCFIXME
@@ -28,7 +27,6 @@ struct SymStackConst {
 
 /// \brief Represents a symbolic operand of the form "Addr + Const".
 /// DOCFIXME[word in terms of the field names]
-///
 struct SymAddrConst {
   int64_t Displacement; ///< DOCFIXME
   NodeRef<Symbol> Sym;  ///< DOCFIXME
@@ -37,7 +35,6 @@ struct SymAddrConst {
 /// \brief Represents a symbolic operand of the form "(Addr - Addr) /
 /// Scale + Offset"
 /// DOCFIXME[word in terms of the field names]
-///
 struct SymAddrAddr {
   int64_t Scale;        ///< DOCFIXME
   int64_t Offset;       ///< DOCFIXME
@@ -51,12 +48,11 @@ using SymbolicExpression =
 
 /// \brief DOCFIXME
 ///
+/// \param <unnamed>  Not used.
 /// \param  Result    DOCFIXME
-///
 /// \param  Message   DOCFIXME
 ///
 /// \return void
-///
 GTIRB_EXPORT_API void fromProtobuf(Context&, SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);
 
@@ -65,7 +61,6 @@ GTIRB_EXPORT_API void fromProtobuf(Context&, SymbolicExpression& Result,
 /// \param  Expr   DOCFIXME
 ///
 /// \return DOCFIXME
-///
 GTIRB_EXPORT_API proto::SymbolicExpression
 toProtobuf(const SymbolicExpression& Expr);
 
