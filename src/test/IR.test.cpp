@@ -96,15 +96,15 @@ TEST(Unit_IR, protobufRoundTrip) {
   UUID MainID;
 
   {
-    IR *Original = IR::Create(Ctx);
-    Module *M = Module::Create(Ctx);
+    Context InnerCtx;
+    IR *Original = IR::Create(InnerCtx);
+    Module *M = Module::Create(InnerCtx);
     M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
     Original->addModule(M);
     Original->addTable("test", Table());
 
     MainID = Original->begin()->getUUID();
     Original->toProtobuf(&Message);
-    details::ClearUUIDs(Original); // Avoid UUID conflict
   }
   IR *Result = IR::fromProtobuf(Ctx, Message);
 

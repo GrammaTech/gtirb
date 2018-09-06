@@ -23,11 +23,13 @@ TEST(Unit_Section, containsAddr) {
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
-  Section* Original = Section::Create(Ctx, "name", Addr(1), 1234);
-
   proto::Section Message;
-  Original->toProtobuf(&Message);
-  details::ClearUUIDs(Original); // Avoid UUID conflict
+  
+  {
+    Context InnerCtx;
+    Section* Original = Section::Create(InnerCtx, "name", Addr(1), 1234);
+    Original->toProtobuf(&Message);
+  }
   Section* Result = Section::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getName(), "name");

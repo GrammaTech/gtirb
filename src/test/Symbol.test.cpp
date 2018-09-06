@@ -69,17 +69,15 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   UUID DataUUID;
 
   {
-    Symbol *Original = Symbol::Create(Ctx, Addr(1), "test");
+    Context InnerCtx;
+    Symbol *Original = Symbol::Create(InnerCtx, Addr(1), "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    DataObject *Data = DataObject::Create(Ctx);
+    DataObject *Data = DataObject::Create(InnerCtx);
     DataUUID = Data->getUUID();
     Original->setReferent(*Data);
 
     Original->toProtobuf(&Message);
-
-    details::ClearUUIDs(Data);
-    details::ClearUUIDs(Original);
   }
 
   Symbol *Result = Symbol::fromProtobuf(Ctx, Message);

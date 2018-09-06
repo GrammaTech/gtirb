@@ -23,10 +23,6 @@ Node::~Node() noexcept {
   Ctx->unregisterNode(this);
 }
 
-void Node::setUUID() {
-  setUUID(boost::uuids::random_generator()());
-}
-
 void Node::setUUID(UUID X) {
   // UUID should not previously exist
   assert(Ctx->findNode(X) == nullptr && "UUID already registered");
@@ -44,26 +40,3 @@ UUID gtirb::uuidFromString(const std::string& Text) {
   return boost::uuids::string_generator()(Text);
 }
 
-void GTIRB_EXPORT_API details::ClearUUIDs(Node *N) {
-  N->setUUID();
-
-  if (auto *I = dyn_cast<IR>(N)) {
-    for (auto &M : I->modules()) {
-      details::ClearUUIDs(&M);
-    }
-  } else if (auto *M = dyn_cast<Module>(N)) {
-    details::ClearUUIDs(&M->getImageByteMap());
-    for (auto &D : M->data()) {
-      details::ClearUUIDs(&D);
-    }
-    for (auto &S : M->sections()) {
-      details::ClearUUIDs(&S);
-    }
-    for (auto &S : M->symbols()) {
-      details::ClearUUIDs(&S);
-    }
-    for (auto &B : blocks(M->getCFG())) {
-      details::ClearUUIDs(&B);
-    }
-  }
-}

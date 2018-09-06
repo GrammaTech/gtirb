@@ -14,11 +14,12 @@ TEST(Unit_DataObject, getters) {
 }
 
 TEST(Unit_DataObject, protobufRoundTrip) {
-  DataObject *Original = DataObject::Create(Ctx, Addr(1), 1234);
-
   proto::DataObject Message;
-  Original->toProtobuf(&Message);
-  details::ClearUUIDs(Original); // Avoid UUID conflict
+  {
+    Context InnerCtx;
+    DataObject *Original = DataObject::Create(InnerCtx, Addr(1), 1234);
+    Original->toProtobuf(&Message);
+  }
   DataObject *Result = DataObject::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getAddress(), Addr(1));
