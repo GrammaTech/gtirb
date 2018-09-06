@@ -296,6 +296,8 @@ public:
   ///
   /// \sa gtirb::ByteMap
   ///
+  /// The iterator range returned encodes a contiguous block of memory that can
+  /// be accessed directly, such as via memcpy().
   const_range data(Addr X, size_t Bytes) const;
 
 
