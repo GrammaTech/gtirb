@@ -46,7 +46,7 @@ TEST(Unit_Addr, comparison) {
   EXPECT_LT(Ea2, Ea1);
   EXPECT_TRUE(Ea2 < Ea1);
   EXPECT_FALSE(Ea2 > Ea1);
-  
+
   EXPECT_GT(Ea1, Ea2);
   EXPECT_TRUE(Ea1 > Ea2);
   EXPECT_FALSE(Ea1 < Ea2);

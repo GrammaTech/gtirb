@@ -13,7 +13,7 @@ TEST(Unit_Node, uniqueUuids) {
   // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
   for (size_t I = 0; I < 512; ++I) {
-    const auto *N = gtirb::Node::Create(Ctx);
+    const auto* N = gtirb::Node::Create(Ctx);
     Uuids.push_back(N->getUUID());
   }
 
@@ -23,7 +23,7 @@ TEST(Unit_Node, uniqueUuids) {
   EXPECT_EQ(std::end(Uuids), end) << "Duplicate UUID's were generated.";
 }
 
-//TEST(Unit_Node, copyGetsNewUUID) {
+// TEST(Unit_Node, copyGetsNewUUID) {
 //  gtirb::Node *Node = gtirb::Node::Create(Ctx);
 //  gtirb::Node Copy(*Node);
 //

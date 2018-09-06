@@ -21,8 +21,8 @@ void Section::toProtobuf(MessageType* Message) const {
 }
 
 Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* S =
-      Section::Create(C, Message.name(), Addr(Message.address()), Message.size());
+  auto* S = Section::Create(C, Message.name(), Addr(Message.address()),
+                            Message.size());
   setNodeUUIDFromBytes(S, Message.uuid());
   return S;
 }

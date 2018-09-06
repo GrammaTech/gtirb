@@ -41,7 +41,7 @@ proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
   return Message;
 }
 
-void fromProtobuf(Context &, SymbolicExpression& Result,
+void fromProtobuf(Context&, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message) {
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {

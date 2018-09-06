@@ -13,9 +13,7 @@ using namespace gtirb;
 Module::Module(Context& C)
     : Node(C, Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
 
-gtirb::ImageByteMap& Module::getImageByteMap() {
-  return *this->ImageBytes;
-}
+gtirb::ImageByteMap& Module::getImageByteMap() { return *this->ImageBytes; }
 
 const gtirb::ImageByteMap& Module::getImageByteMap() const {
   return *this->ImageBytes;
@@ -40,13 +38,13 @@ void Module::toProtobuf(MessageType* Message) const {
   // repeated field.
   auto M = Message->mutable_symbols();
   initContainer(M, this->Symbols.size());
-  std::for_each(
-      this->Symbols.begin(), this->Symbols.end(),
-      [M](const auto& N) { addElement(M, gtirb::toProtobuf(*N.second)); });
+  std::for_each(this->Symbols.begin(), this->Symbols.end(), [M](const auto& N) {
+    addElement(M, gtirb::toProtobuf(*N.second));
+  });
 }
 
-Module *Module::fromProtobuf(Context &C, const MessageType& Message) {
-  Module *M = Module::Create(C);
+Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
+  Module* M = Module::Create(C);
   setNodeUUIDFromBytes(M, Message.uuid());
   M->BinaryPath = Message.binary_path();
   M->PreferredAddr = Addr(Message.preferred_addr());

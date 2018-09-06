@@ -15,11 +15,9 @@ class CFG;
 namespace gtirb {
 class Block;
 
-
 /// \brief DOCFIXME
 ///
 using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
-
 
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
@@ -28,7 +26,7 @@ using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
                                   boost::vecS,  // preserve vertex order
                                   boost::bidirectionalS, // successor and
                                                          // predecessor edges
-                                  Block *,               // vertices are blocks
+                                  Block*,                // vertices are blocks
                                   EdgeLabel>;            // edges have labels
 
 /// \brief DOCFIXME
@@ -36,14 +34,13 @@ using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
 /// \tparam Value   DOCFIXME
 ///
 /// \tparam Graph   DOCFIXME
-///  
+///
 template <typename Value, typename Graph>
 class block_iter_base
     : public boost::iterator_facade<
           block_iter_base<Value, Graph>, Value,
           typename Graph::vertex_iterator::iterator_category> {
 public:
-
   /// \brief DOCFIXME constructor.
   ///
   /// \param it_   DOCFIXME
@@ -70,22 +67,19 @@ private:
 
   bool equal(const self_type& other) const { return this->it == other.it; }
 
-  Value &dereference() const { return *(*cfg)[*this->it]; }
-  
+  Value& dereference() const { return *(*cfg)[*this->it]; }
+
   typename Graph::vertex_iterator it;
   gsl::not_null<Graph*> cfg;
 };
-
 
 /// \brief DOCFIXME
 ///
 using block_iterator = block_iter_base<Block, CFG>;
 
-
 /// \brief DOCFIXME
 ///
 using const_block_iterator = block_iter_base<const Block, const CFG>;
-
 
 /// \brief Move a basic block (\ref Block) into the graph.
 ///
@@ -94,12 +88,11 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 ///
 /// \return A descriptor which can be used to retrieve the \ref Block.
 ///
-GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block *Block);
+GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* Block);
 
-
-///DOCFIXME[check all]
+/// DOCFIXME[check all]
 /// \brief Get an iterator over the \ref Block elements in the
-/// specified graph. 
+/// specified graph.
 ///
 /// \param Cfg  The graph to be iterated over.
 ///
@@ -107,8 +100,7 @@ GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block *Block);
 ///
 GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
-
-///DOCFIXME[check all]
+/// DOCFIXME[check all]
 /// \brief Get an iterator over the \ref Block elements in the
 /// specified graph (by const reference).
 ///
@@ -119,7 +111,6 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
-
 /// \brief DOCFIXME
 ///
 /// \param Cfg    DOCFIXME
@@ -127,7 +118,6 @@ blocks(const CFG& cfg);
 /// \return DOCFIXME
 ///
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
-
 
 /// \brief DOCFIXME
 ///

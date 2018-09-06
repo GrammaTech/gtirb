@@ -7,8 +7,8 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
-#include <gtest/gtest.h>
 #include <algorithm>
+#include <gtest/gtest.h>
 #include <iterator>
 #include <tuple>
 #include <utility>
@@ -21,7 +21,7 @@ TEST(Unit_Module, ctor_0) { EXPECT_NO_THROW(Module::Create(Ctx)); }
 
 TEST(Unit_Module, setBinaryPath) {
   const std::string StrPath("/home/gt/irb/foo");
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
 
   EXPECT_NO_THROW(M->setBinaryPath(StrPath));
 
@@ -30,12 +30,12 @@ TEST(Unit_Module, setBinaryPath) {
 }
 
 TEST(Unit_Module, getFileFormatDefault) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   EXPECT_EQ(gtirb::FileFormat::Undefined, M->getFileFormat());
 }
 
 TEST(Unit_Module, setFileFormat) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
 
   EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::COFF));
   EXPECT_EQ(gtirb::FileFormat::COFF, M->getFileFormat());
@@ -48,12 +48,12 @@ TEST(Unit_Module, setFileFormat) {
 }
 
 TEST(Unit_Module, getRebaseDeltaDefault) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   EXPECT_EQ(int64_t{0}, M->getRebaseDelta());
 }
 
 TEST(Unit_Module, setRebaseDelta) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
 
   EXPECT_NO_THROW(M->setRebaseDelta(1));
   EXPECT_EQ(int64_t{1}, M->getRebaseDelta());
@@ -72,14 +72,14 @@ TEST(Unit_Module, setRebaseDelta) {
 }
 
 TEST(Unit_Module, getPreferredAddrDefault) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
 
   EXPECT_NO_THROW(M->getPreferredAddr());
   EXPECT_EQ(Addr{}, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getISAID) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
 
   EXPECT_NO_THROW(M->getISAID());
   EXPECT_EQ(gtirb::ISAID::Undefined, M->getISAID());
@@ -89,7 +89,7 @@ TEST(Unit_Module, getISAID) {
 }
 
 TEST(Unit_Module, setPreferredAddr) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   Addr Preferred{64};
 
   EXPECT_NO_THROW(M->getPreferredAddr());
@@ -99,44 +99,44 @@ TEST(Unit_Module, setPreferredAddr) {
 }
 
 TEST(Unit_Module, getSymbolSet) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   EXPECT_NO_THROW(M->symbols());
 }
 
 TEST(Unit_Module, getImageByteMap) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   EXPECT_NO_THROW(M->getImageByteMap());
 }
 
 TEST(Unit_Module, setName) {
   const std::string Name{"foo"};
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
 
   EXPECT_NO_THROW(M->setName(Name));
   EXPECT_EQ(Name, M->getName());
 }
 
 TEST(Unit_Module, getName) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   EXPECT_NO_THROW(M->getName());
   EXPECT_TRUE(M->getName().empty());
 }
 
 TEST(Unit_Module, sections) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   M->addSection(Section::Create(Ctx, "test", Addr(), 123));
   EXPECT_EQ(M->section_begin()->getName(), "test");
 }
 
 TEST(Unit_Module, dataObjects) {
-  auto *M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx);
   M->addData(DataObject::Create(Ctx, Addr(1), 123));
   EXPECT_EQ(M->data_begin()->getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, symbolicExpressions) {
-  auto *M = Module::Create(Ctx);
-  Symbol *S = Symbol::Create(Ctx);
+  auto* M = Module::Create(Ctx);
+  Symbol* S = Symbol::Create(Ctx);
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
   EXPECT_EQ(std::distance(M->symbolic_expr_begin(), M->symbolic_expr_end()), 1);
 }
@@ -149,7 +149,7 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Module *Original = Module::Create(InnerCtx);
+    Module* Original = Module::Create(InnerCtx);
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
@@ -171,7 +171,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->toProtobuf(&Message);
   }
 
-  Module *Result = Module::fromProtobuf(Ctx, Message);
+  Module* Result = Module::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getBinaryPath(), "test");
   EXPECT_EQ(Result->getPreferredAddr(), Addr(3));

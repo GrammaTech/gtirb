@@ -102,14 +102,10 @@ void addElement(std::map<T, U>* Container,
   Container->insert(std::move(Element));
 }
 
-template <typename T>
-T& deref_if_ptr(T &V) { return V; }
-template <typename T>
-const T& deref_if_ptr(const T &V) { return V; }
-template <typename T>
-T& deref_if_ptr(T *V) { return *V; }
-template <typename T>
-const T& deref_if_ptr(const T *V) { return *V; }
+template <typename T> T& deref_if_ptr(T& V) { return V; }
+template <typename T> const T& deref_if_ptr(const T& V) { return V; }
+template <typename T> T& deref_if_ptr(T* V) { return *V; }
+template <typename T> const T& deref_if_ptr(const T* V) { return *V; }
 
 // Convert the contents of a Container into protobuf messages.
 template <typename ContainerT, typename MessageT>
@@ -122,7 +118,7 @@ void containerToProtobuf(const ContainerT& Values, MessageT* Message) {
 
 // Generic conversion from protobuf for IR classes which implement fromProtobuf;
 template <typename T, typename U>
-T *fromProtobuf(Context &C, const U& Message) {
+T* fromProtobuf(Context& C, const U& Message) {
   return T::fromProtobuf(C, Message);
 }
 
@@ -143,8 +139,8 @@ void fromProtobuf(Context& C, std::pair<T, U>& Val,
   fromProtobuf(C, Val.first, Message.first);
   fromProtobuf(C, Val.second, Message.second);
 }
-void fromProtobuf(Context &, Addr& Result, const uint64_t& Message);
-void fromProtobuf(Context &, UUID& Result, const std::string& Message);
+void fromProtobuf(Context&, Addr& Result, const uint64_t& Message);
+void fromProtobuf(Context&, UUID& Result, const std::string& Message);
 
 namespace details {
 template <typename T> struct remove_pointer_ref_quals {
@@ -159,7 +155,7 @@ using remove_pointer_ref_quals_t = typename remove_pointer_ref_quals<T>::type;
 // in overload resolution if the container stores Node subclasses.
 template <typename ContainerT, typename MessageT>
 void containerFromProtobuf(
-    Context&C, ContainerT& Values, MessageT& Message,
+    Context& C, ContainerT& Values, MessageT& Message,
     std::enable_if_t<
         !std::is_base_of_v<Node, details::remove_pointer_ref_quals_t<
                                      typename ContainerT::value_type>>>* =
@@ -191,7 +187,7 @@ void containerFromProtobuf(
 
 // Special case for std::map
 template <typename KeyType, typename ValueType, typename MessageT>
-void containerFromProtobuf(Context &C, std::map<KeyType, ValueType>& Values,
+void containerFromProtobuf(Context& C, std::map<KeyType, ValueType>& Values,
                            MessageT& Message) {
   Values.clear();
   std::for_each(Message.begin(), Message.end(), [&Values, &C](const auto& M) {

@@ -62,7 +62,7 @@ class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 
 public:
-  static IR *Create(Context &C) { return new (C) IR(C); }
+  static IR* Create(Context& C) { return new (C) IR(C); }
 
   using iterator = boost::indirect_iterator<std::vector<Module*>::iterator>;
   using const_iterator =
@@ -86,7 +86,6 @@ public:
     Modules.insert(Modules.end(), Ms);
   }
 
-
   /// \brief Serialize to an output stream.
   ///
   /// \param Out The output stream.
@@ -95,14 +94,13 @@ public:
   ///
   void save(std::ostream& Out) const;
 
-
   /// \brief Deserialize from an input stream.
   ///
   /// \param In  The input stream.
   ///
   /// \return void
   ///
-  static IR *load(Context &C, std::istream& In);
+  static IR* load(Context& C, std::istream& In);
 
   using MessageType = proto::IR;
 
@@ -115,7 +113,6 @@ public:
   ///
   void toProtobuf(MessageType* Message) const;
 
-
   ///
   /// \brief DOCFIXME
   ///
@@ -125,11 +122,10 @@ public:
   ///
   /// \return DOCFIXME
   ///
-  static IR *fromProtobuf(Context &C, const MessageType& Message);
+  static IR* fromProtobuf(Context& C, const MessageType& Message);
 
   // ----------------------------------------------------------------------
   // Table Properties
-
 
   /// \brief Add a new table, transferring ownership.
   /// The table can be populated from anywhere.
@@ -140,7 +136,6 @@ public:
   ///
   void addTable(std::string Name, Table&& X);
 
-
   /// \brief Get a table by name.
   ///
   /// \param  X   The name of the table to search for.
@@ -149,7 +144,6 @@ public:
   ///             \c nullptr otherwise.
   ///
   const gtirb::Table* getTable(const std::string& X) const;
-
 
   /// \brief Get a table by name.
   /// DOCFIXME[distinction  from previous]
@@ -161,7 +155,6 @@ public:
   ///
   gtirb::Table* getTable(const std::string& X);
 
-
   /// \brief Remove a table by name.
   ///
   /// This will invalidate any pointers that may have been held externally.
@@ -171,14 +164,12 @@ public:
   ///
   bool removeTable(const std::string& X);
 
-
   /// \brief Get the total number of tables at this Node.
   /// DOCFIXME[what Node?]
   ///
   /// \return     The total number of tables this node owns.
   ///
   size_t getTableSize() const { return Tables.size(); }
-
 
   /// \brief Check: Is the number of tables at this Node zero?
   /// DOCFIXME[what Node?]
@@ -188,18 +179,17 @@ public:
   ///
   bool getTablesEmpty() const { return Tables.empty(); }
 
-
   /// \brief Clear all locally owned tables.
   ///
   /// \return void
   ///
   void clearTables() { Tables.clear(); }
 
-  static bool classof(const Node *N) { return N->getKind() == Kind::IR; }
+  static bool classof(const Node* N) { return N->getKind() == Kind::IR; }
 
 private:
   std::map<std::string, gtirb::Table> Tables;
-  std::vector<Module *> Modules;
+  std::vector<Module*> Modules;
 };
 } // namespace gtirb
 

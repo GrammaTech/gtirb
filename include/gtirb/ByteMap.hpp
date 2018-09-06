@@ -3,10 +3,10 @@
 
 #include <gtirb/Addr.hpp>
 #include <array>
+#include <boost/range/iterator_range.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <boost/range/iterator_range.hpp>
 #include <gsl/gsl>
 #include <limits>
 #include <map>
@@ -26,7 +26,6 @@ class Context;
 ///
 class GTIRB_EXPORT_API ByteMap {
 public:
-
   /// \brief Set the byte map at the specified address.
   ///
   /// \param  A       The address to store the data.
@@ -36,9 +35,8 @@ public:
   ///
   void setData(Addr A, gsl::span<const std::byte> Data);
 
-
   using const_range =
-    boost::iterator_range<std::vector<std::byte>::const_iterator>;
+      boost::iterator_range<std::vector<std::byte>::const_iterator>;
   /// \brief Get the data at the specified address.
   ///
   /// \param  A       The starting address for the data.
@@ -50,10 +48,8 @@ public:
   /// be accessed directly, such as via memcpy().
   const_range data(Addr A, size_t Bytes) const;
 
-
   /// \brief DOCFIXME
   using MessageType = proto::ByteMap;
-
 
   /// \brief DOCFIXME
   ///
@@ -63,7 +59,6 @@ public:
   ///
   void toProtobuf(MessageType* Message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
@@ -72,13 +67,12 @@ public:
   ///
   /// \return void
   ///
-  void fromProtobuf(Context &C, const MessageType& Message);
-
+  void fromProtobuf(Context& C, const MessageType& Message);
 
   /// \brief DOCFIXME
   struct Region {
-    Addr Address;                  ///< DOCFIXME
-    std::vector<std::byte> Data;   ///< DOCFIXME
+    Addr Address;                ///< DOCFIXME
+    std::vector<std::byte> Data; ///< DOCFIXME
 
     /// \brief DOCFIXME
     ///

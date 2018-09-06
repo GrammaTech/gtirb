@@ -18,7 +18,6 @@ class Block;
 ///
 class GTIRB_EXPORT_API Symbol : public Node {
 public:
-
   ///
   /// \enum StorageKind
   ///
@@ -49,7 +48,6 @@ public:
     return new (C) Symbol(C, X, Name, Referent, Kind);
   }
 
-
   /// \brief Set the effective address.
   ///
   /// \param X The effective address to use.
@@ -58,13 +56,11 @@ public:
   ///
   void setAddress(gtirb::Addr X) { Address = X; }
 
-
   /// \brief Get the effective address.
   ///
   /// \return The effective address.
   ///
   gtirb::Addr getAddress() const { return Address; }
-
 
   /// \brief Set the name.
   ///
@@ -74,13 +70,11 @@ public:
   ///
   void setName(const std::string& X) { Name = X; }
 
-
   /// \brief Get the name.
   ///
   /// \return The name.
   ///
   const std::string& getName() const { return Name; }
-
 
   /// \brief Set the DataObject to which this symbol refers.
   ///
@@ -90,7 +84,6 @@ public:
   ///
   void setReferent(const DataObject& Data);
 
-
   /// \brief Set the Block to which this symbol refers.
   ///
   /// \param Instruction The Block to use.
@@ -99,14 +92,12 @@ public:
   ///
   void setReferent(const Block& Instruction);
 
-
   /// \brief Get the data to which this symbol refers.
   ///
   /// \return The data, as a NodeRef<DataObject>.
   ///
   /// DOCFIXME[what if the referent is a Block?]
   NodeRef<DataObject> getDataReferent() const;
-
 
   ///
   /// \brief Get the code to which this symbol refers.
@@ -116,7 +107,6 @@ public:
   /// DOCFIXME[what if the referent is a DataObject?]
   NodeRef<Block> getCodeReferent() const;
 
-
   /// \brief Set the storage kind.
   ///
   /// \param X The storage kind to use.
@@ -125,17 +115,14 @@ public:
   ///
   void setStorageKind(Symbol::StorageKind X) { Storage = X; }
 
-
   /// \brief Get the storage kind.
   ///
   /// \return The storage kind.
   ///
   Symbol::StorageKind getStorageKind() const { return Storage; }
 
-
   /// \brief DOCFIXME
   using MessageType = proto::Symbol;
-
 
   /// \brief DOCFIXME
   ///
@@ -145,7 +132,6 @@ public:
   ///
   void toProtobuf(MessageType* Message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C       DOCFIXME
@@ -154,9 +140,9 @@ public:
   ///
   /// \return DOCFIXME
   ///
-  static Symbol *fromProtobuf(Context &C, const MessageType& Message);
+  static Symbol* fromProtobuf(Context& C, const MessageType& Message);
 
-  static bool classof(const Node *N) { return N->getKind() == Kind::Symbol; }
+  static bool classof(const Node* N) { return N->getKind() == Kind::Symbol; }
 
 private:
   ///

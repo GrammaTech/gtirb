@@ -20,20 +20,17 @@ public:
   ///
   constexpr Addr() = default;
 
-
   /// \brief Explicit conversion from \c uint64_t to \ref Addr.
   ///
   /// \param X The address.
   ///
   constexpr explicit Addr(uint64_t X) : Address(X) {}
 
-
   /// \brief Explicitly convert \ref Addr to \c uint64_t.
   ///
   /// \return An integer representation of the \ref Addr.
   ///
   explicit operator uint64_t() const { return Address; }
-
 
   /// \brief Preincrement for \ref Addr.
   ///
@@ -44,7 +41,6 @@ public:
     ++Address;
     return *this;
   }
-
 
   /// \brief Postincrement for \ref Addr.
   ///
@@ -58,7 +54,6 @@ public:
     return R;
   }
 
-
   /// \brief Predecrement for \ref Addr.
   ///
   /// \return The decremented \ref Addr.
@@ -70,9 +65,8 @@ public:
     return *this;
   }
 
-
   /// \brief Postdecrement for \ref Addr.
-  /// 
+  ///
   /// \return A new \ref Addr representing the decremented address.
   ///
   /// DOCFIXME[what happens if represented address == 0?]
@@ -82,9 +76,8 @@ public:
     return R;
   }
 
-
   /// \brief Binary + operator for \ref Addr + integral offset.
-  /// 
+  ///
   /// \param A        The \ref Addr operand to +.
   ///
   /// \param Offset   The offset to add to \p A.
@@ -95,12 +88,11 @@ public:
     return Addr(A.Address + Offset);
   }
 
-
   /// \brief Add-assign for \ref Addr.
-  /// 
+  ///
   /// \param Offset   The offset to add to the represented address.
   ///
-  /// \return \c *this 
+  /// \return \c *this
   ///
   /// DOCFIXME[what happens if represented address == max?]
   Addr& operator+=(uint64_t Offset) {
@@ -108,9 +100,8 @@ public:
     return *this;
   }
 
-
   /// \brief Binary - operator for \ref Addr - integral offset.
-  /// 
+  ///
   /// \param A        The \ref Addr operand to -.
   ///
   /// \param Offset   The offset to subtract from \p A.
@@ -122,12 +113,11 @@ public:
     return Addr(A.Address - Offset);
   }
 
-
   /// \brief Subtract-assign for \ref Addr.
-  /// 
+  ///
   /// \param Offset   The offset to subtract from the represented address.
   ///
-  /// \return \c *this 
+  /// \return \c *this
   ///
   /// DOCFIXME[what happens if offset > the represented address?]
   Addr& operator-=(uint64_t Offset) {
@@ -136,7 +126,7 @@ public:
   }
 
   /// \brief Binary - operator for \ref Addr - \ref Addr.
-  /// 
+  ///
   /// \param A        The minuend.
   ///
   /// \param B        The subtrahend.
@@ -179,13 +169,12 @@ public:
   }
 };
 
-
 /// DOCFIXME[check all]
 /// \brief Exclusive upper limit of object's address range.
 ///
 /// \param Object     DOCFIXME
 ///
-/// \tparam T         Any type that specifies a range of 
+/// \tparam T         Any type that specifies a range of
 ///                   addresses via getAddress() and getSize()
 ///                   methods (e.g. DataObject).
 ///
@@ -198,7 +187,6 @@ template <typename T> Addr addressLimit(const T& Object) {
   return Object.getAddress() + Object.getSize();
 }
 
-
 /// DOCFIXME[check all]
 /// \brief Check: Does the specified object contain the specified address?
 ///
@@ -206,7 +194,7 @@ template <typename T> Addr addressLimit(const T& Object) {
 ///
 /// \param Ea      The address of interest.
 ///
-/// \tparam T      Any type that specifies a range of 
+/// \tparam T      Any type that specifies a range of
 ///                addresses via getAddress() and getSize()
 ///                methods (e.g. DataObject).
 ///

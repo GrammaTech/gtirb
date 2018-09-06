@@ -20,7 +20,6 @@ namespace gtirb {
 ///
 template <class T> struct is_std_array : std::false_type {};
 
-
 /// \brief DOCFIXME
 ///
 /// \tparam   T   DOCFIXME
@@ -39,8 +38,7 @@ class GTIRB_EXPORT_API ImageByteMap : public Node {
   ImageByteMap(Context& C) : Node(C, Kind::ImageByteMap) {}
 
 public:
-  static ImageByteMap *Create(Context &C) { return new (C) ImageByteMap(C); }
-
+  static ImageByteMap* Create(Context& C) { return new (C) ImageByteMap(C); }
 
   /// \brief Set the file name of the image.
   ///
@@ -50,13 +48,12 @@ public:
   ///
   void setFileName(const std::string& X) { FileName = X; }
 
-
   /// \brief Get the loaded file name and path.
   ///
-  /// \return The file name and path, as a std::string. DOCFIXME[what kind of path?]
+  /// \return The file name and path, as a std::string. DOCFIXME[what kind of
+  /// path?]
   ///
   const std::string& getFileName() const { return FileName; }
-
 
   /// \brief Set the base address of the loaded file.
   ///
@@ -66,13 +63,11 @@ public:
   ///
   void setBaseAddress(Addr X) { BaseAddress = X; }
 
-
   /// \brief Get the base address of the loaded file.
   ///
   /// \return The address.
   ///
   Addr getBaseAddress() const { return BaseAddress; }
-
 
   /// \brief Set the entry point of the loaded file.
   ///
@@ -82,13 +77,11 @@ public:
   ///
   void setEntryPointAddress(Addr X) { EntryPointAddress = X; }
 
-
   /// \brief Get the entry point of the loaded file.
   ///
   /// \return The address of the entry point.
   ///
   Addr getEntryPointAddress() const { return EntryPointAddress; }
-
 
   /// \brief Set the minimum and maximum effective addresses (\ref
   /// Addr) for this \ref Module.
@@ -106,7 +99,6 @@ public:
   ///
   bool setAddrMinMax(std::pair<Addr, Addr> X);
 
-
   /// \brief Get the minimum and maximum effective address (Addr) for
   /// this \ref Module.
   ///
@@ -117,7 +109,6 @@ public:
   ///
   std::pair<Addr, Addr> getAddrMinMax() const { return EaMinMax; }
 
-
   /// \brief DOXFIXME
   ///
   /// \param X DOCFIXME
@@ -126,13 +117,11 @@ public:
   ///
   void setRebaseDelta(int64_t X) { RebaseDelta = X; }
 
-
   /// \brief DOXFIXME
   ///
   /// \return DOCFIXME
   ///
   int64_t getRebaseDelta() const { return RebaseDelta; }
-
 
   /// \brief Mark the loaded image as having been relocated.
   ///
@@ -143,14 +132,12 @@ public:
   ///
   void setIsRelocated() { IsRelocated = true; }
 
-
   /// \brief Check: has the loaded image been relocated?
   ///
   /// \return \c true if the loaded image has been relocated, \c false
   /// otherwise.
   ///
   bool getIsRelocated() const { return IsRelocated; }
-
 
   /// \brief Set the byte order to use when getting or setting data.
   ///
@@ -166,7 +153,6 @@ public:
   /// \return The byte order.
   ///
   boost::endian::order getByteOrder() const { return ByteOrder; }
-
 
   /// \brief Set the byte map at the specified address.
   ///
@@ -193,7 +179,6 @@ public:
   ///
   void setData(Addr Ea, gsl::span<const std::byte> Data);
 
-
   /// DOCFIXME[check all]
   /// \brief Set the byte map in the specified range to a constant value.
   ///
@@ -217,7 +202,6 @@ public:
   /// \sa getAddrMinMax()
   ///
   void setData(Addr Ea, size_t Bytes, std::byte Value);
-
 
   /// \brief Store data in the byte map at the given address,
   /// converting from native byte order.
@@ -253,7 +237,6 @@ public:
     }
   }
 
-
   /// \brief Store an array to the byte map at the specified address,
   /// converting elements from native byte order.
   ///
@@ -287,7 +270,6 @@ public:
     }
   }
 
-
   using const_range = ByteMap::const_range;
   /// \brief Get data from the byte map at the specified address.
   ///
@@ -299,7 +281,6 @@ public:
   /// The iterator range returned encodes a contiguous block of memory that can
   /// be accessed directly, such as via memcpy().
   const_range data(Addr X, size_t Bytes) const;
-
 
   /// \brief Get data from the byte map at the specified address,
   /// converting to native byte order.
@@ -324,7 +305,6 @@ public:
                                               boost::endian::order::native);
   }
 
-
   /// \brief Get an array from the byte map at the specified address,
   /// converting to native byte order.
   ///
@@ -333,11 +313,12 @@ public:
   /// \tparam T        The type of the value to be returned. May be a
   ///                  std::array of any endian-reversible POD type.
   ///
-  /// \return          An object of type \p T, initialized from the byte map data.
+  /// \return          An object of type \p T, initialized from the byte map
+  /// data.
   ///
   /// \sa gtirb::ByteMap
   ///
-  /// DOCFIXME[no exceptions thrown for out-of-range Ea, Ea+sizeof(T)-1?]  
+  /// DOCFIXME[no exceptions thrown for out-of-range Ea, Ea+sizeof(T)-1?]
   ///
   template <typename T>
   typename std::enable_if<is_std_array<T>::value, T>::type getData(Addr Ea) {
@@ -352,10 +333,8 @@ public:
     return Result;
   }
 
-
   /// \brief DOCFIXME
   using MessageType = proto::ImageByteMap;
-
 
   /// \brief DOCFIXME
   ///
@@ -364,7 +343,6 @@ public:
   /// \return void
   void toProtobuf(MessageType* message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
@@ -372,7 +350,7 @@ public:
   /// \param message DOCFIXME
   ///
   /// \return DOCFIXME
-  static ImageByteMap *fromProtobuf(Context &C, const MessageType& message);
+  static ImageByteMap* fromProtobuf(Context& C, const MessageType& message);
 
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ImageByteMap;

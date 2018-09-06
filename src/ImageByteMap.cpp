@@ -53,8 +53,9 @@ void ImageByteMap::toProtobuf(MessageType* Message) const {
   Message->set_is_relocated(this->IsRelocated);
 }
 
-ImageByteMap *ImageByteMap::fromProtobuf(Context &C, const MessageType& Message) {
-  auto *IBM = ImageByteMap::Create(C);
+ImageByteMap* ImageByteMap::fromProtobuf(Context& C,
+                                         const MessageType& Message) {
+  auto* IBM = ImageByteMap::Create(C);
   setNodeUUIDFromBytes(IBM, Message.uuid());
   IBM->BMap.fromProtobuf(C, Message.byte_map());
   IBM->FileName = Message.file_name();

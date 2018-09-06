@@ -50,8 +50,8 @@ void IR::toProtobuf(MessageType* Message) const {
   containerToProtobuf(this->Tables, Message->mutable_tables());
 }
 
-IR *IR::fromProtobuf(Context &C, const MessageType& Message) {
-  auto *I = IR::Create(C);
+IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
+  auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
   containerFromProtobuf(C, I->Modules, Message.modules());
   containerFromProtobuf(C, I->Tables, Message.tables());
@@ -64,7 +64,7 @@ void IR::save(std::ostream& Out) const {
   Message.SerializeToOstream(&Out);
 }
 
-IR *IR::load(Context &C, std::istream& In) {
+IR* IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   return IR::fromProtobuf(C, Message);

@@ -1,6 +1,6 @@
 #include "Table.hpp"
-#include "gtirb/Context.hpp"
 #include "Serialization.hpp"
+#include "gtirb/Context.hpp"
 #include <proto/Table.pb.h>
 #include <variant>
 
@@ -195,7 +195,7 @@ void fromProtobuf(Context& C, table::InnerValueType& Value,
   }
 }
 
-void fromProtobuf(Context &C, Table& Result, const proto::Table& Message) {
+void fromProtobuf(Context& C, Table& Result, const proto::Table& Message) {
   switch (Message.value_case()) {
   case proto::Table::kByAddr: {
     std::map<Addr, table::ValueType> Val;

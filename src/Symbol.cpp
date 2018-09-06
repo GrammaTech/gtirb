@@ -26,12 +26,12 @@ void Symbol::setReferent(const Block& Instruction) {
 }
 
 NodeRef<DataObject> Symbol::getDataReferent() const {
-  auto *Ptr = std::get_if<NodeRef<DataObject>>(&this->Referent);
+  auto* Ptr = std::get_if<NodeRef<DataObject>>(&this->Referent);
   return Ptr ? *Ptr : NodeRef<DataObject>();
 }
 
 NodeRef<Block> Symbol::getCodeReferent() const {
-  auto *Ptr = std::get_if<NodeRef<Block>>(&this->Referent);
+  auto* Ptr = std::get_if<NodeRef<Block>>(&this->Referent);
   return Ptr ? *Ptr : NodeRef<Block>();
 }
 
@@ -42,8 +42,8 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
 
   struct {
-    MessageType &M;
-  
+    MessageType& M;
+
     void operator()(const NodeRef<Block>& Arg) const {
       uuidToBytes(Arg.getUUID(), *M.mutable_code_referent_uuid());
     }

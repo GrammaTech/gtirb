@@ -10,8 +10,8 @@ void DataObject::toProtobuf(MessageType* Message) const {
   Message->set_size(this->Size);
 }
 
-DataObject *DataObject::fromProtobuf(Context &C, const MessageType& Message) {
-  auto *DO = DataObject::Create(C, Addr(Message.address()), Message.size());
+DataObject* DataObject::fromProtobuf(Context& C, const MessageType& Message) {
+  auto* DO = DataObject::Create(C, Addr(Message.address()), Message.size());
   setNodeUUIDFromBytes(DO, Message.uuid());
   return DO;
 }

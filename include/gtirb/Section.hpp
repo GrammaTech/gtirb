@@ -12,11 +12,11 @@ namespace gtirb {
 ///
 /// \class Section
 ///
-/// \brief DOCFIXME  
-  
+/// \brief DOCFIXME
+
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, const std::string &N, Addr A, uint64_t S)
+  Section(Context& C, const std::string& N, Addr A, uint64_t S)
       : Node(C, Kind::Section), Name(N), Address(A), Size(S) {}
 
 public:
@@ -26,14 +26,11 @@ public:
     return new (C) Section(C, Name, Address, Size);
   }
 
-
   /// \brief Equality operator overload.
   bool operator==(const Section& Other) const;
 
-
   /// \brief Inequality operator overload.
   bool operator!=(const Section& Other) const;
-
 
   /// \brief Get the name of a Section.
   ///
@@ -41,22 +38,18 @@ public:
   ///
   const std::string& getName() const { return Name; }
 
-
   /// \brief Get the address of a Section
   ///
   /// \return The address.
   const Addr getAddress() const { return Address; }
-
 
   /// \brief Get the size of a Section
   ///
   /// \return The size.
   uint64_t getSize() const { return Size; }
 
-
   /// \brief DOCFIXME
   using MessageType = proto::Section;
-
 
   /// \brief DOCFIXME
   ///
@@ -65,7 +58,6 @@ public:
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C       DOCFIXME
@@ -73,9 +65,9 @@ public:
   /// \param Message DOCFIXME
   ///
   /// \return void
-  static Section *fromProtobuf(Context &C, const MessageType& Message);
+  static Section* fromProtobuf(Context& C, const MessageType& Message);
 
-  static bool classof(const Node *N) { return N->getKind() == Kind::Section; }
+  static bool classof(const Node* N) { return N->getKind() == Kind::Section; }
 
 private:
   std::string Name;
