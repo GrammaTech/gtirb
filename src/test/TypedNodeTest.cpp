@@ -22,13 +22,13 @@
 
 using testing::Types;
 
-typedef Types<gtirb::Block *,        //
-              gtirb::DataObject *,   //
-              gtirb::IR *,           //
-              gtirb::ImageByteMap *, //
-              gtirb::Module *,       //
-              gtirb::Section *,      //
-              gtirb::Symbol *        //
+typedef Types<gtirb::Block*,        //
+              gtirb::DataObject*,   //
+              gtirb::IR*,           //
+              gtirb::ImageByteMap*, //
+              gtirb::Module*,       //
+              gtirb::Section*,      //
+              gtirb::Symbol*        //
               >
     TypeImplementations;
 
@@ -47,7 +47,7 @@ TYPED_TEST_CASE_P(TypedNodeTest);
 
 // I tried making this a member of TypedNodeTest, but the member is unavailable
 // within the tests themselves, so this macro is used as a hacky solution.
-#define Type  std::remove_pointer_t<TypeParam>
+#define Type std::remove_pointer_t<TypeParam>
 
 // ----------------------------------------------------------------------------
 // Tests to run on all types.
@@ -84,7 +84,7 @@ TYPED_TEST_P(TypedNodeTest, setUUIDUpdatesUUIDMap) {
   EXPECT_EQ(gtirb::Node::getByUUID(Ctx, OldId), nullptr);
 }
 
-//TYPED_TEST_P(TypedNodeTest, moveUpdatesUUIDMap) {
+// TYPED_TEST_P(TypedNodeTest, moveUpdatesUUIDMap) {
 //  TypeParam Node1;
 //  auto Id = Node1.getUUID();
 //  TypeParam node2(std::move(Node1));
@@ -93,7 +93,7 @@ TYPED_TEST_P(TypedNodeTest, setUUIDUpdatesUUIDMap) {
 //  EXPECT_EQ(gtirb::Node::getByUUID(Id), &node2);
 //}
 //
-//TYPED_TEST_P(TypedNodeTest, moveAssignmentUpdatesUUIDMap) {
+// TYPED_TEST_P(TypedNodeTest, moveAssignmentUpdatesUUIDMap) {
 //  TypeParam Node1;
 //  auto Id = Node1.getUUID();
 //  TypeParam Node2 = std::move(Node1);
@@ -150,16 +150,16 @@ TYPED_TEST_P(TypedNodeTest, badReference) {
   EXPECT_EQ(Ptr, nullptr);
 }
 
-REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,                //
-                           protobufUUIDRoundTrip,        //
-                           ctor_0,                       //
-                           uniqueUuids,                  //
-                           deserializeUpdatesUUIDMap,    //
-                           getByUUID,                    //
-                           setUUIDUpdatesUUIDMap,        //
-                           //moveUpdatesUUIDMap,           //
-                           //moveAssignmentUpdatesUUIDMap, //
-                           nodeReference,                //
+REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
+                           protobufUUIDRoundTrip,     //
+                           ctor_0,                    //
+                           uniqueUuids,               //
+                           deserializeUpdatesUUIDMap, //
+                           getByUUID,                 //
+                           setUUIDUpdatesUUIDMap,     //
+                           // moveUpdatesUUIDMap,           //
+                           // moveAssignmentUpdatesUUIDMap, //
+                           nodeReference, //
                            badReference);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name

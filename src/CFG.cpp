@@ -5,7 +5,7 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addBlock(CFG& Cfg, Block *Block) {
+CFG::vertex_descriptor addBlock(CFG& Cfg, Block* Block) {
   auto Descriptor = add_vertex(Cfg);
   Cfg[Descriptor] = Block;
   return Descriptor;
@@ -52,12 +52,12 @@ proto::CFG toProtobuf(const CFG& Cfg) {
   return Message;
 }
 
-void fromProtobuf(Context &C, CFG& Result, const proto::CFG& Message) {
+void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
   // While adding blocks, remember UUID -> vertex mapping
   std::map<UUID, CFG::vertex_descriptor> BlockMap;
   std::for_each(Message.blocks().begin(), Message.blocks().end(),
                 [&Result, &BlockMap, &C](const auto& M) {
-                  Block *B = Block::fromProtobuf(C, M);
+                  Block* B = Block::fromProtobuf(C, M);
                   auto Id = B->getUUID();
                   BlockMap[Id] = addBlock(Result, B);
                 });

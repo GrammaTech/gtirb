@@ -13,7 +13,7 @@ void Block::toProtobuf(MessageType* Message) const {
 }
 
 Block* Block::fromProtobuf(Context& C, const MessageType& Message) {
-  auto *B = Block::Create(C, Addr(Message.address()), Message.size(),
+  auto* B = Block::Create(C, Addr(Message.address()), Message.size(),
                           Message.decode_mode());
   setNodeUUIDFromBytes(B, Message.uuid());
   return B;
@@ -24,7 +24,7 @@ void InstructionRef::toProtobuf(MessageType* Message) const {
   Message->set_offset(this->Offset);
 }
 
-void InstructionRef::fromProtobuf(Context &, const MessageType& Message) {
+void InstructionRef::fromProtobuf(Context&, const MessageType& Message) {
   this->BlockRef = uuidFromBytes(Message.block_id());
   this->Offset = Message.offset();
 }

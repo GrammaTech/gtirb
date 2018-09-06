@@ -42,7 +42,7 @@ void fromProtobuf(Context&, Addr& Result, const uint64_t& Message) {
   Result = Addr(Message);
 }
 
-void fromProtobuf(Context &, UUID& Result, const std::string& Message) {
+void fromProtobuf(Context&, UUID& Result, const std::string& Message) {
   Result = uuidFromBytes(Message);
 }
 

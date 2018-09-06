@@ -17,7 +17,7 @@ TEST(Unit_NodeRef, ctorFromUUID) {
 }
 
 TEST(Unit_NodeRef, ctorFromNode) {
-  Node *N = Node::Create(Ctx);
+  Node* N = Node::Create(Ctx);
   NodeRef<Node> Ref(N);
 
   EXPECT_EQ(Ref.getUUID(), N->getUUID());

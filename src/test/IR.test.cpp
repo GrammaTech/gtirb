@@ -20,16 +20,16 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   const size_t ModulesWithAddr{3};
   const size_t ModulesWithoutAddr{5};
 
-  auto *Ir = IR::Create(Ctx);
+  auto* Ir = IR::Create(Ctx);
 
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
-    Module *M = Module::Create(Ctx);
+    Module* M = Module::Create(Ctx);
     M->setPreferredAddr(PreferredAddr);
     EXPECT_NO_THROW(Ir->addModule(M));
   }
 
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
-    Module *M = Module::Create(Ctx);
+    Module* M = Module::Create(Ctx);
     EXPECT_NO_THROW(Ir->addModule(M));
   }
 
@@ -45,31 +45,30 @@ TEST(Unit_IR, getModulesContainingAddr) {
   const Addr Ea{22678};
   const uint64_t EaOffset{2112};
 
-  auto *Ir = IR::Create(Ctx);
+  auto* Ir = IR::Create(Ctx);
 
   // Addr at lower bound
   {
-    Module *M = Module::Create(Ctx);
+    Module* M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea, Ea + EaOffset});
     EXPECT_NO_THROW(Ir->addModule(M));
   }
 
   // Addr inside range
   {
-    Module *M = Module::Create(Ctx);
+    Module* M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea + EaOffset});
     EXPECT_NO_THROW(Ir->addModule(M));
   }
 
   // Addr at max (should not be returned)
   {
-    Module *M = Module::Create(Ctx);
+    Module* M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea});
     EXPECT_NO_THROW(Ir->addModule(M));
   }
 
-  size_t Count =
-    std::count_if(Ir->begin(), Ir->end(), [Ea](const Module& M) {
+  size_t Count = std::count_if(Ir->begin(), Ir->end(), [Ea](const Module& M) {
     return containsAddr(M, Ea);
   });
   EXPECT_FALSE(Count == 0);
@@ -78,7 +77,7 @@ TEST(Unit_IR, getModulesContainingAddr) {
 
 TEST(Unit_IR, addTable) {
   std::vector<int64_t> Table = {1, 2, 3};
-  IR *Ir = IR::Create(Ctx);
+  IR* Ir = IR::Create(Ctx);
   Ir->addTable("test", std::move(Table));
 
   EXPECT_NE(Ir->getTable("test"), nullptr);
@@ -87,7 +86,7 @@ TEST(Unit_IR, addTable) {
 }
 
 TEST(Unit_IR, missingTable) {
-  IR *Ir = IR::Create(Ctx);
+  IR* Ir = IR::Create(Ctx);
   EXPECT_EQ(Ir->getTable("missing"), nullptr);
 }
 
@@ -97,8 +96,8 @@ TEST(Unit_IR, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    IR *Original = IR::Create(InnerCtx);
-    Module *M = Module::Create(InnerCtx);
+    IR* Original = IR::Create(InnerCtx);
+    Module* M = Module::Create(InnerCtx);
     M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
     Original->addModule(M);
     Original->addTable("test", Table());
@@ -106,7 +105,7 @@ TEST(Unit_IR, protobufRoundTrip) {
     MainID = Original->begin()->getUUID();
     Original->toProtobuf(&Message);
   }
-  IR *Result = IR::fromProtobuf(Ctx, Message);
+  IR* Result = IR::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->begin()->getUUID(), MainID);
   size_t Count =

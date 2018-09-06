@@ -14,7 +14,7 @@ TEST(Unit_Symbol, ctor_0) { EXPECT_NO_THROW(Symbol::Create(Ctx)); }
 TEST(Unit_Symbol, setName) {
   const std::string Value{"Foo"};
 
-  auto *Node = Symbol::Create(Ctx);
+  auto* Node = Symbol::Create(Ctx);
   EXPECT_NO_THROW(Node->getName());
   EXPECT_TRUE(Node->getName().empty());
 
@@ -25,7 +25,7 @@ TEST(Unit_Symbol, setName) {
 TEST(Unit_Symbol, setAddress) {
   const Addr Value{22678};
 
-  auto *Node = Symbol::Create(Ctx);
+  auto* Node = Symbol::Create(Ctx);
   EXPECT_NO_THROW(Node->getAddress());
   EXPECT_EQ(Addr(), Node->getAddress());
 
@@ -36,7 +36,7 @@ TEST(Unit_Symbol, setAddress) {
 TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
-  auto *Node = Symbol::Create(Ctx);
+  auto* Node = Symbol::Create(Ctx);
   EXPECT_NO_THROW(Node->getStorageKind());
   EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
@@ -45,9 +45,9 @@ TEST(Unit_Symbol, setStorageKind) {
 }
 
 TEST(Unit_Symbol, setReferent) {
-  Symbol *Sym = Symbol::Create(Ctx);
-  DataObject *Data = DataObject::Create(Ctx);
-  Block *Block = Block::Create(Ctx);
+  Symbol* Sym = Symbol::Create(Ctx);
+  DataObject* Data = DataObject::Create(Ctx);
+  Block* Block = Block::Create(Ctx);
 
   Sym->setReferent(*Data);
   EXPECT_EQ(Sym->getDataReferent().get(Ctx), Data);
@@ -70,17 +70,17 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Symbol *Original = Symbol::Create(InnerCtx, Addr(1), "test");
+    Symbol* Original = Symbol::Create(InnerCtx, Addr(1), "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    DataObject *Data = DataObject::Create(InnerCtx);
+    DataObject* Data = DataObject::Create(InnerCtx);
     DataUUID = Data->getUUID();
     Original->setReferent(*Data);
 
     Original->toProtobuf(&Message);
   }
 
-  Symbol *Result = Symbol::fromProtobuf(Ctx, Message);
+  Symbol* Result = Symbol::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->getAddress(), Addr(1));
   EXPECT_EQ(Result->getName(), "test");
