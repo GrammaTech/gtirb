@@ -15,22 +15,30 @@ class InstructionRef;
 
 namespace gtirb {
 
-///
 /// \class Block
 ///
 /// \brief A basic block.
-///
 class GTIRB_EXPORT_API Block : public Node {
   Block(Context& C) : Node(C, Kind::Block) {}
-
-  ///
-  /// Construct an empty block
-  ///
   Block(Context& C, Addr Addr, uint64_t S, uint64_t Decode)
       : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
 
 public:
+  /// \brief Create a Block object in its default state.
+  ///
+  /// \param C  The Context in which this object will be held.
+  ///
+  /// \return The newly created object.
   static Block* Create(Context& C) { return new (C) Block(C); }
+
+  /// \brief Create a Block object.
+  ///
+  /// \param C        The Context in which this Block will be held.
+  /// \param Address  DOCFIXME
+  /// \param Size     DOCFIXME
+  /// \param DecodeMode DOCFIXME
+  ///
+  /// \return The newly created Block.
   static Block* Create(Context& C, Addr Address, uint64_t Size,
                        uint64_t DecodeMode = 0) {
     return new (C) Block(C, Address, Size, DecodeMode);
@@ -40,14 +48,12 @@ public:
   /// \brief Get the address from a \ref Block.
   ///
   /// \return The address.
-  ///
   Addr getAddress() const { return Address; }
 
   /// DOCFIXME[check all]
   /// \brief Get the size from a \ref Block.
   ///
   /// \return The size DOCFIXME[defined how?]
-  ///
   uint64_t getSize() const { return Size; }
 
   /// \brief Get the decode mode from a \ref Block.
@@ -63,17 +69,14 @@ public:
   /// \param Message DOCFIXME
   ///
   /// \return DOCFIXME
-  ///
   void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  ///
   /// \param Message DOCFIXME
   ///
   /// \return DOCFIXME
-  ///
   static Block* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
@@ -87,7 +90,6 @@ private:
 /// \class InstructionRef
 ///
 /// \brief Describes the location of an instruction.
-///
 struct GTIRB_EXPORT_API InstructionRef {
   NodeRef<Block> BlockRef; ///< The block to which the instruction belongs.
                            ///< [DOCFIXME[check]
@@ -102,17 +104,14 @@ struct GTIRB_EXPORT_API InstructionRef {
   /// \param message DOCFIXME
   ///
   /// \return DOCFIXME
-  ///
   void toProtobuf(MessageType* message) const;
 
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  ///
   /// \param message DOCFIXME
   ///
   /// \return DOCFIXME
-  ///
   void fromProtobuf(Context& C, const MessageType& message);
 };
 

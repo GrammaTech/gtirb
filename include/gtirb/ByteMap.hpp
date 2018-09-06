@@ -19,11 +19,9 @@ class ByteMap;
 namespace gtirb {
 class Context;
 
-///
 /// \class ByteMap
 ///
 /// \brief Holds the bytes of the loaded image of the binary.
-///
 class GTIRB_EXPORT_API ByteMap {
 public:
   /// \brief Set the byte map at the specified address.
@@ -32,11 +30,12 @@ public:
   /// \param  Data    The data to store.
   ///
   /// \return  void
-  ///
   void setData(Addr A, gsl::span<const std::byte> Data);
 
+  /// \brief DOCFIXME
   using const_range =
-      boost::iterator_range<std::vector<std::byte>::const_iterator>;
+    boost::iterator_range<std::vector<std::byte>::const_iterator>;
+
   /// \brief Get the data at the specified address.
   ///
   /// \param  A       The starting address for the data.
@@ -56,17 +55,14 @@ public:
   /// \param Message DOCFIXME
   ///
   /// \return void
-  ///
   void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  ///
   /// \param Message DOCFIXME
   ///
   /// \return void
-  ///
   void fromProtobuf(Context& C, const MessageType& Message);
 
   /// \brief DOCFIXME
@@ -77,18 +73,15 @@ public:
     /// \brief DOCFIXME
     ///
     /// \return DOCFIXME
-    ///
     Addr getAddress() const { return this->Address; }
 
     /// \brief DOCFIXME
     ///
     /// \return DOCFIXME
-    ///
     uint64_t getSize() const { return this->Data.size(); }
   };
 
 private:
-  // Initialize with sentinel region
   std::vector<Region> Regions;
 };
 } // namespace gtirb

@@ -11,13 +11,11 @@ namespace gtirb {
 class Node;
 
 /// \brief DOCFIXME
-///
 using UUID = boost::uuids::uuid;
 
 /// \class Node
 ///
 /// \brief DOCFIXME
-///
 class GTIRB_EXPORT_API Node {
 public:
   enum class Kind {
@@ -31,18 +29,21 @@ public:
     Symbol,
   };
 
-  ///
-  /// Retrieve a node by its UUID.
+  /// \brief Retrieve a node by its UUID.
   ///
   /// \return The Node with the given UUID, or nullptr if none exists.
   static Node* getByUUID(Context& C, const UUID& Uuid) {
     return C.findNode(Uuid);
   }
 
+  /// \brief Create a Node object in its default state.
+  ///
+  /// \param C  The Context in which this object will be held.
+  ///
+  /// \return The newly created object.
   static Node* Create(Context& C) { return new (C) Node(C, Kind::Node); }
 
-  /// \brief This will serve as a base class for other nodes.
-  ///
+  /// \brief Cleans up resources no longer needed by the Node object.
   ~Node() noexcept;
 
   /// DOCFIXME[check all]
@@ -54,13 +55,11 @@ public:
   /// Each Node is automatically assigned a UUID on construction; this
   /// method allows a different UUID to be assigned later.
   /// DOCFIXME[what is the use case? how is uniqueness enforced on X?]
-  ///
   void setUUID(UUID X);
 
   /// \brief Get the Universally Unique ID (UUID) for \c this.
   ///
   /// \return The UUID.
-  ///
   UUID getUUID() const { return Uuid; }
 
   Kind getKind() const { return K; }
@@ -85,7 +84,6 @@ private:
 /// \param Uuid The UUID of interest.
 ///
 /// \return The text representation of \p Uuid.
-///
 std::string uuidToString(const UUID& Uuid);
 
 /// DOCFIXME[check all]
@@ -96,7 +94,6 @@ std::string uuidToString(const UUID& Uuid);
 /// \return A new UUID corresponding to \p Text.
 ///
 /// DOCFIXME[what if I call twice with the same Text?]
-///
 UUID uuidFromString(const std::string& Text);
 
 } // namespace gtirb
