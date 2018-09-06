@@ -9,7 +9,7 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolicExpressionSet.hpp>
+#include <gtirb/SymbolicExpression.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/transform_iterator.hpp>
@@ -74,6 +74,7 @@ enum class ISAID : uint8_t {
 ///
 class GTIRB_EXPORT_API Module : public Node {
   using SymbolSet = std::multimap<Addr, Symbol *>;
+  using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
 
   ///
   /// Default constructor.

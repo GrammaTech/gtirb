@@ -46,7 +46,6 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
 	${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpressionSet.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Table.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
         )
