@@ -148,17 +148,18 @@ TEST(Unit_Module, protobufRoundTrip) {
   size_t WhichSymbolic;
 
   {
-    Module *Original = Module::Create(Ctx);
+    Context InnerCtx;
+    Module *Original = Module::Create(InnerCtx);
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
     Original->setName("module");
-    Original->addSymbol(Symbol::Create(Ctx));
-    addBlock(Original->getCFG(), Block::Create(Ctx));
-    Original->addData(DataObject::Create(Ctx));
-    Original->addSection(Section::Create(Ctx));
+    Original->addSymbol(Symbol::Create(InnerCtx));
+    addBlock(Original->getCFG(), Block::Create(InnerCtx));
+    Original->addData(DataObject::Create(InnerCtx));
+    Original->addSection(Section::Create(InnerCtx));
     Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
     ByteMapID = Original->getImageByteMap().getUUID();
     SymbolID = Original->symbol_begin()->getUUID();
@@ -168,8 +169,6 @@ TEST(Unit_Module, protobufRoundTrip) {
     WhichSymbolic = Original->symbolic_expr_begin()->index();
 
     Original->toProtobuf(&Message);
-
-    details::ClearUUIDs(Original);
   }
 
   Module *Result = Module::fromProtobuf(Ctx, Message);
