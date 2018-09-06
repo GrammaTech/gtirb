@@ -138,7 +138,7 @@ TEST(Unit_Module, symbolicExpressions) {
   auto *M = Module::Create(Ctx);
   Symbol *S = Symbol::Create(Ctx);
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
-  EXPECT_EQ(std::distance(M->symbol_expr_begin(), M->symbol_expr_end()), 1);
+  EXPECT_EQ(std::distance(M->symbolic_expr_begin(), M->symbolic_expr_end()), 1);
 }
 
 TEST(Unit_Module, protobufRoundTrip) {
@@ -165,7 +165,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
     DataID = Original->data_begin()->getUUID();
     SectionID = Original->section_begin()->getUUID();
-    WhichSymbolic = Original->symbol_expr_begin()->index();
+    WhichSymbolic = Original->symbolic_expr_begin()->index();
 
     Original->toProtobuf(&Message);
 
@@ -198,8 +198,9 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result->section_begin()->getUUID(), SectionID);
 
   EXPECT_EQ(
-      std::distance(Result->symbol_expr_begin(), Result->symbol_expr_end()), 1);
-  EXPECT_EQ(Result->symbol_expr_begin()->index(), WhichSymbolic);
+      std::distance(Result->symbolic_expr_begin(), Result->symbolic_expr_end()),
+      1);
+  EXPECT_EQ(Result->symbolic_expr_begin()->index(), WhichSymbolic);
 }
 
 TEST(Unit_Module, sectionSorting) {

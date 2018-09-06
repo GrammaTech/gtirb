@@ -331,41 +331,43 @@ public:
     Sections.insert(Sections.end(), Ss);
   }
 
-  using symbol_expr_iterator = boost::transform_iterator<
+  using symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::iterator>,
       SymbolicExpressionSet::iterator, SymbolicExpression&>;
-  using symbol_expr_range = boost::iterator_range<symbol_expr_iterator>;
-  using const_symbol_expr_iterator = boost::transform_iterator<
+  using symbolic_expr_range = boost::iterator_range<symbolic_expr_iterator>;
+  using const_symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::const_iterator>,
       SymbolicExpressionSet::const_iterator, const SymbolicExpression&>;
-  using const_symbol_expr_range =
-      boost::iterator_range<const_symbol_expr_iterator>;
+  using const_symbolic_expr_range =
+      boost::iterator_range<const_symbolic_expr_iterator>;
 
-  symbol_expr_iterator symbol_expr_begin() {
-    return symbol_expr_iterator(SymbolicOperands.begin());
+  symbolic_expr_iterator symbolic_expr_begin() {
+    return symbolic_expr_iterator(SymbolicOperands.begin());
   }
-  symbol_expr_iterator symbol_expr_end() {
-    return symbol_expr_iterator(SymbolicOperands.end());
+  symbolic_expr_iterator symbolic_expr_end() {
+    return symbolic_expr_iterator(SymbolicOperands.end());
   }
-  const_symbol_expr_iterator symbol_expr_begin() const {
-    return const_symbol_expr_iterator(SymbolicOperands.begin());
+  const_symbolic_expr_iterator symbolic_expr_begin() const {
+    return const_symbolic_expr_iterator(SymbolicOperands.begin());
   }
-  const_symbol_expr_iterator symbol_expr_end() const {
-    return const_symbol_expr_iterator(SymbolicOperands.end());
+  const_symbolic_expr_iterator symbolic_expr_end() const {
+    return const_symbolic_expr_iterator(SymbolicOperands.end());
   }
-  symbol_expr_range symbol_exprs() {
-    return boost::make_iterator_range(symbol_expr_begin(), symbol_expr_end());
+  symbolic_expr_range symbolic_exprs() {
+    return boost::make_iterator_range(symbolic_expr_begin(),
+                                      symbolic_expr_end());
   }
-  const_symbol_expr_range symbol_exprs() const {
-    return boost::make_iterator_range(symbol_expr_begin(), symbol_expr_end());
-  }
-
-  symbol_expr_iterator findSymbolicExpression(Addr X) {
-    return symbol_expr_iterator(SymbolicOperands.find(X));
+  const_symbolic_expr_range symbolic_exprs() const {
+    return boost::make_iterator_range(symbolic_expr_begin(),
+                                      symbolic_expr_end());
   }
 
-  const_symbol_expr_iterator findSymbolicExpression(Addr X) const {
-    return const_symbol_expr_iterator(SymbolicOperands.find(X));
+  symbolic_expr_iterator findSymbolicExpression(Addr X) {
+    return symbolic_expr_iterator(SymbolicOperands.find(X));
+  }
+
+  const_symbolic_expr_iterator findSymbolicExpression(Addr X) const {
+    return const_symbolic_expr_iterator(SymbolicOperands.find(X));
   }
 
   void addSymbolicExpression(Addr X, const SymbolicExpression& SE) {
