@@ -14,7 +14,6 @@
 #include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
-#include <gtirb/SymbolSet.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/SymbolicExpressionSet.hpp>
 #include <gtirb/Table.hpp>
