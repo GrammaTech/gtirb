@@ -18,7 +18,7 @@ class Context;
 
 namespace table {
 
-/// \brief DOCFIXME  
+/// \brief DOCFIXME
 using InnerValueType = std::variant<Addr,                     //
                                     int64_t,                  //
                                     std::string,              //
@@ -30,11 +30,9 @@ using InnerValueType = std::variant<Addr,                     //
                                     std::vector<UUID>,        //
                                     std::vector<InstructionRef>>;
 
-
 /// \brief Table values can also be maps, but they can only store a
 /// limited set of types.
 using InnerMapType = std::map<std::string, InnerValueType>;
-
 
 /// \brief Table values can be any of these types.
 using ValueType = std::variant<Addr,           //
@@ -60,7 +58,6 @@ using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::vector<std::string>,                //
                            std::vector<UUID>,                       //
                            std::vector<InstructionRef>>;
-
 
 /// \brief DOCFIXME
 ///

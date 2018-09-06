@@ -1,9 +1,9 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <proto/ImageByteMap.pb.h>
+#include <cstring>
 #include <gsl/gsl>
 #include <gtest/gtest.h>
-#include <cstring>
 
 using namespace gtirb;
 
@@ -32,7 +32,7 @@ public:
   static Addr Offset;
   static size_t InitializedSize;
 
-  gtirb::ImageByteMap *ByteMap = ImageByteMap::Create(Ctx);
+  gtirb::ImageByteMap* ByteMap = ImageByteMap::Create(Ctx);
 };
 
 Addr Unit_ImageByteMapF::Offset{static_cast<uint64_t>(4096)};
@@ -41,7 +41,7 @@ size_t Unit_ImageByteMapF::InitializedSize{4096 * 2};
 TEST(Unit_ImageByteMap, ctor_0) { EXPECT_NO_THROW(ImageByteMap::Create(Ctx)); }
 
 TEST(Unit_ImageByteMap, setFileName) {
-  auto *Node = ImageByteMap::Create(Ctx);
+  auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
 
   const std::string Val("/usr/local/foo");
@@ -51,7 +51,7 @@ TEST(Unit_ImageByteMap, setFileName) {
 }
 
 TEST(Unit_ImageByteMap, setBaseAddress) {
-  auto *Node = ImageByteMap::Create(Ctx);
+  auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
 
   const auto Val = Addr{22678};
@@ -61,7 +61,7 @@ TEST(Unit_ImageByteMap, setBaseAddress) {
 }
 
 TEST(Unit_ImageByteMap, setEntryPointAddress) {
-  auto *Node = ImageByteMap::Create(Ctx);
+  auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
 
   const auto Val = Addr{22678};
@@ -71,7 +71,7 @@ TEST(Unit_ImageByteMap, setEntryPointAddress) {
 }
 
 TEST(Unit_ImageByteMap, setEAMinMax) {
-  auto *M = ImageByteMap::Create(Ctx);
+  auto* M = ImageByteMap::Create(Ctx);
 
   Addr Minimum{64};
   Addr Maximum{1024};
@@ -86,7 +86,7 @@ TEST(Unit_ImageByteMap, setEAMinMax) {
 }
 
 TEST(Unit_ImageByteMap, setRebaseDelta) {
-  auto *Node = ImageByteMap::Create(Ctx);
+  auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
 
   const auto Val = int64_t{22678};
@@ -96,7 +96,7 @@ TEST(Unit_ImageByteMap, setRebaseDelta) {
 }
 
 TEST(Unit_ImageByteMap, setIsRelocated) {
-  auto *Node = ImageByteMap::Create(Ctx);
+  auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
 
   const auto Val = bool{true};
@@ -116,8 +116,7 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
         << static_cast<uint64_t>(Unit_ImageByteMapF::Offset + I);
 
     if (I < Unit_ImageByteMapF::InitializedSize - 1) {
-      EXPECT_NO_THROW(
-          this->ByteMap->data(Unit_ImageByteMapF::Offset + I, 2));
+      EXPECT_NO_THROW(this->ByteMap->data(Unit_ImageByteMapF::Offset + I, 2));
 
       const auto Word =
           this->ByteMap->getData<uint16_t>(Unit_ImageByteMapF::Offset + I);
@@ -372,7 +371,7 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
 }
 
 TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
-  auto *Original = this->ByteMap;
+  auto* Original = this->ByteMap;
   const auto Address = Addr(0x00001000);
   ASSERT_NO_THROW(this->ByteMap->setData(Address, uint16_t{0xDEAD}));
 
@@ -386,7 +385,7 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   Original->toProtobuf(&Message);
 
   Context OuterCtx;
-  ImageByteMap *Result = ImageByteMap::fromProtobuf(OuterCtx, Message);
+  ImageByteMap* Result = ImageByteMap::fromProtobuf(OuterCtx, Message);
 
   EXPECT_EQ(Result->getData<uint16_t>(Address), 0xDEAD);
   EXPECT_EQ(Result->getFileName(), "test");
@@ -398,7 +397,7 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
 }
 
 TEST(Unit_ImageByteMap, contiguousIterators) {
-  ImageByteMap *IBM = ImageByteMap::Create(Ctx);
+  ImageByteMap* IBM = ImageByteMap::Create(Ctx);
 
   std::vector<uint8_t> OriginalBytes{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 

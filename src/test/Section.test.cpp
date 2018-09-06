@@ -24,7 +24,7 @@ TEST(Unit_Section, containsAddr) {
 
 TEST(Unit_Section, protobufRoundTrip) {
   proto::Section Message;
-  
+
   {
     Context InnerCtx;
     Section* Original = Section::Create(InnerCtx, "name", Addr(1), 1234);

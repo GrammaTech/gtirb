@@ -10,11 +10,11 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
+#include <proto/Module.pb.h>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <proto/Module.pb.h>
 #include <cstdint>
 #include <string>
 
@@ -24,13 +24,12 @@ class ImageByteMap;
 class DataObject;
 /// \brief DOCFIXME
 ///
-using DataSet = std::vector<DataObject *>;
+using DataSet = std::vector<DataObject*>;
 
 class Section;
 /// \brief DOCFIXME
 ///
-using SectionSet = std::vector<Section *>;
-
+using SectionSet = std::vector<Section*>;
 
 /// \enum FileFormat
 ///
@@ -49,7 +48,6 @@ enum class FileFormat : uint8_t {
   MACHO = proto::MACHO  ///< Mach object file format
 };
 
-
 /// \enum ISAID
 ///
 /// \brief ISA ID DOCFIXME[need more info?]
@@ -60,62 +58,55 @@ enum class ISAID : uint8_t {
   IA32 = proto::IA32,   ///< Intel Architecture, 32-bit. Also known as i386.
   PPC32 = proto::PPC32, ///< Performance Optimization With Enhanced RISC –
                         ///< Performance Computing, 32-bit.
-  X64 =
-      proto::X64, ///< The generic name for the 64-bit extensions to both Intel's
-                  ///< and AMD's 32-bit x86 instruction set architecture (ISA).
-  ARM = proto::ARM, ///< Advanced RISC Machine. also known as Acorn RISC Machine.
+  X64 = proto::X64,     ///< The generic name for the 64-bit extensions to both
+                    ///< Intel's and AMD's 32-bit x86 instruction set
+                    ///< architecture (ISA).
+  ARM =
+      proto::ARM, ///< Advanced RISC Machine. also known as Acorn RISC Machine.
   ValidButUnsupported = proto::ValidButUnsupported
 };
-
 
 /// \class Module
 ///
 /// \brief DOCFIXME
 ///
 class GTIRB_EXPORT_API Module : public Node {
-  using SymbolSet = std::multimap<Addr, Symbol *>;
+  using SymbolSet = std::multimap<Addr, Symbol*>;
   using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
 
   ///
   /// Default constructor.
   ///
-  Module(Context &C);
+  Module(Context& C);
 
-  template <typename Iter>
-  struct SymSetTransform {
+  template <typename Iter> struct SymSetTransform {
     using ParamTy = decltype((*std::declval<Iter>()));
     using RetTy = decltype((*std::declval<ParamTy>().second));
-    RetTy operator()(ParamTy V) const {
-      return *V.second;
-    }
+    RetTy operator()(ParamTy V) const { return *V.second; }
   };
 
-  template <typename Iter>
-  struct SymExprSetTransform {
+  template <typename Iter> struct SymExprSetTransform {
     using ParamTy = decltype((*std::declval<Iter>()));
     using RetTy = decltype((std::declval<ParamTy>().second));
-    RetTy operator()(ParamTy V) const {
-      return V.second;
-    }
+    RetTy operator()(ParamTy V) const { return V.second; }
   };
+
 public:
-
-  static Module *Create(Context &C) { return new (C) Module(C); }
-
+  static Module* Create(Context& C) { return new (C) Module(C); }
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
-  /// \param  X   A path to the corresponding binary on disk. DOCFIXME[any path requirements?]
+  /// \param  X   A path to the corresponding binary on disk. DOCFIXME[any path
+  /// requirements?]
   ///
   void setBinaryPath(const std::string& X) { BinaryPath = X; }
 
-
   /// \brief Get the location of the corresponding binary on disk.
   ///
-  /// \return   The path to the corresponding binary on disk. DOCFIXME[any path properties to note?]
+  /// \return   The path to the corresponding binary on disk. DOCFIXME[any path
+  /// properties to note?]
   ///
   const std::string& getBinaryPath() const { return BinaryPath; }
-
 
   /// \brief Set the format of the binary pointed to by getBinaryPath().
   ///
@@ -124,14 +115,12 @@ public:
   ///
   void setFileFormat(gtirb::FileFormat X) { this->FileFormat = X; }
 
-
   /// \brief Get the format of the binary pointed to by getBinaryPath().
   ///
   /// \return   The format of the binary associated with \c this, as a
   ///           gtirb::FileFormat enumerator.
   ///
   gtirb::FileFormat getFileFormat() const { return this->FileFormat; }
-
 
   /// \brief DOCFIXME
   ///
@@ -141,13 +130,11 @@ public:
   ///
   void setRebaseDelta(int64_t X) { RebaseDelta = X; }
 
-
   /// \brief DOCFIXME
   ///
   /// \return DOCFIXME
   ///
   int64_t getRebaseDelta() const { return RebaseDelta; }
-
 
   /// DOCFIXME[check all]
   ///
@@ -159,7 +146,6 @@ public:
   ///
   void setPreferredAddr(gtirb::Addr X) { PreferredAddr = X; }
 
-
   /// DOCFIXME[check all]
   /// \brief Set the ISA ID. DOCFIXME[needs more detail]
   ///
@@ -167,14 +153,12 @@ public:
   ///
   void setISAID(gtirb::ISAID X) { IsaID = X; }
 
-
   /// DOCFIXME[check all]
   /// \brief Get the ISA ID. DOCFIXME[needs more detail]
   ///
   /// \return The ISA ID.
   ///
   gtirb::ISAID getISAID() const { return IsaID; }
-
 
   /// DOCFIXME[check all]
   ///
@@ -184,22 +168,19 @@ public:
   ///
   gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
-
   ///
   /// A Module can have exactly one ImageByteMap child.
   ///
   gtirb::ImageByteMap& getImageByteMap();
 
-
   /// DOCFIXME[check all]
-  /// \brief Get the associated ImageByteMap. DOCFIXME[difference to previous]   
+  /// \brief Get the associated ImageByteMap. DOCFIXME[difference to previous]
   ///
   /// \return The ImageByteMap.
   ///
   /// A Module can have exactly one ImageByteMap child.
   ///
   const gtirb::ImageByteMap& getImageByteMap() const;
-
 
   using symbol_iterator =
       boost::transform_iterator<SymSetTransform<SymbolSet::iterator>,
@@ -210,12 +191,8 @@ public:
                                 SymbolSet::const_iterator, const Symbol&>;
   using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
-  symbol_iterator symbol_begin() {
-    return symbol_iterator(Symbols.begin());
-  }
-  symbol_iterator symbol_end() {
-    return symbol_iterator(Symbols.end());
-  }
+  symbol_iterator symbol_begin() { return symbol_iterator(Symbols.begin()); }
+  symbol_iterator symbol_end() { return symbol_iterator(Symbols.end()); }
   const_symbol_iterator symbol_begin() const {
     return const_symbol_iterator(Symbols.begin());
   }
@@ -248,7 +225,6 @@ public:
                                       const_symbol_iterator(Found.second));
   }
 
-
   /// DOCFIXME[check all]
   ///
   /// \brief Set the module name.
@@ -259,7 +235,6 @@ public:
   ///
   void setName(const std::string& X) { Name = X; }
 
-
   /// DOCFIXME[check all]
   ///
   /// \brief Get the module name.
@@ -267,7 +242,6 @@ public:
   /// \return The name.
   ///
   const std::string& getName() const { return Name; }
-
 
   /// DOCFIXME[check all]
   ///
@@ -277,10 +251,10 @@ public:
   ///
   const CFG& getCFG() const { return Cfg; }
 
-
   /// DOCFIXME[check all]
   ///
-  /// \brief Get the associated Control Flow Graph (\ref CFG). DOCFIXME[difference to previous]
+  /// \brief Get the associated Control Flow Graph (\ref CFG).
+  /// DOCFIXME[difference to previous]
   ///
   /// \return The associated CFG.
   ///
@@ -374,10 +348,8 @@ public:
     SymbolicOperands.emplace(X, SE);
   }
 
-
   /// \brief DOCFIXME
   using MessageType = proto::Module;
-
 
   /// \brief DOCFIXME
   ///
@@ -387,7 +359,6 @@ public:
   ///
   void toProtobuf(MessageType* message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
@@ -396,9 +367,9 @@ public:
   ///
   /// \return DOCFIXME
   ///
-  static Module *fromProtobuf(Context &C, const MessageType& message);
+  static Module* fromProtobuf(Context& C, const MessageType& message);
 
-  static bool classof(const Node *N) { return N->getKind() == Kind::Module; }
+  static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
 
 private:
   std::string BinaryPath{};
@@ -409,18 +380,18 @@ private:
   std::string Name{};
   CFG Cfg;
   DataSet Data;
-  ImageByteMap *ImageBytes;
+  ImageByteMap* ImageBytes;
   SectionSet Sections;
   SymbolSet Symbols;
   SymbolicExpressionSet SymbolicOperands;
 };
 
-inline bool hasPreferredAddr(const Module &M, Addr X) {
+inline bool hasPreferredAddr(const Module& M, Addr X) {
   return M.getPreferredAddr() == X;
 }
 
-inline bool containsAddr(const Module &M, Addr X) {
-  const std::pair<Addr, Addr> &MinMax = M.getImageByteMap().getAddrMinMax();
+inline bool containsAddr(const Module& M, Addr X) {
+  const std::pair<Addr, Addr>& MinMax = M.getImageByteMap().getAddrMinMax();
   return X >= MinMax.first && X < MinMax.second;
 }
 } // namespace gtirb

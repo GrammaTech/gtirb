@@ -30,13 +30,11 @@ class GTIRB_EXPORT_API Block : public Node {
       : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
 
 public:
-
-  static Block *Create(Context &C) { return new (C) Block(C); }
-  static Block *Create(Context &C, Addr Address, uint64_t Size,
+  static Block* Create(Context& C) { return new (C) Block(C); }
+  static Block* Create(Context& C, Addr Address, uint64_t Size,
                        uint64_t DecodeMode = 0) {
     return new (C) Block(C, Address, Size, DecodeMode);
   }
-
 
   /// DOCFIXME[check all]
   /// \brief Get the address from a \ref Block.
@@ -52,14 +50,12 @@ public:
   ///
   uint64_t getSize() const { return Size; }
 
-
   /// \brief Get the decode mode from a \ref Block.
   ///
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
-
-  /// \brief DOCFIXME 
+  /// \brief DOCFIXME
   using MessageType = proto::Block;
 
   /// \brief DOCFIXME
@@ -70,7 +66,6 @@ public:
   ///
   void toProtobuf(MessageType* Message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
@@ -79,9 +74,9 @@ public:
   ///
   /// \return DOCFIXME
   ///
-  static Block *fromProtobuf(Context &C, const MessageType& Message);
+  static Block* fromProtobuf(Context& C, const MessageType& Message);
 
-  static bool classof(const Node *N) { return N->getKind() == Kind::Block; }
+  static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
 
 private:
   Addr Address;
@@ -89,15 +84,15 @@ private:
   uint64_t DecodeMode{0};
 };
 
-
 /// \class InstructionRef
 ///
 /// \brief Describes the location of an instruction.
 ///
 struct GTIRB_EXPORT_API InstructionRef {
-  NodeRef<Block> BlockRef; ///< The block to which the instruction belongs. [DOCFIXME[check]
-  uint64_t Offset;         ///< The offset of the instruction in the block. DOCFIXME[in what? instructions? bytes?]
-
+  NodeRef<Block> BlockRef; ///< The block to which the instruction belongs.
+                           ///< [DOCFIXME[check]
+  uint64_t Offset; ///< The offset of the instruction in the block. DOCFIXME[in
+                   ///< what? instructions? bytes?]
 
   /// \brief DOCFIXME
   using MessageType = proto::InstructionRef;
@@ -110,7 +105,6 @@ struct GTIRB_EXPORT_API InstructionRef {
   ///
   void toProtobuf(MessageType* message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
@@ -119,7 +113,7 @@ struct GTIRB_EXPORT_API InstructionRef {
   ///
   /// \return DOCFIXME
   ///
-  void fromProtobuf(Context &C, const MessageType& message);
+  void fromProtobuf(Context& C, const MessageType& message);
 };
 
 } // namespace gtirb

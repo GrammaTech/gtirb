@@ -25,11 +25,10 @@ class GTIRB_EXPORT_API DataObject : public Node {
       : Node(C, Kind::DataObject), Address(A), Size(S) {}
 
 public:
-  static DataObject *Create(Context &C) { return new (C) DataObject(C); }
-  static DataObject *Create(Context &C, Addr Address, uint64_t Size) {
+  static DataObject* Create(Context& C) { return new (C) DataObject(C); }
+  static DataObject* Create(Context& C, Addr Address, uint64_t Size) {
     return new (C) DataObject(C, Address, Size);
   }
-
 
   /// \brief Get the address of DOCFIXME.
   ///
@@ -40,13 +39,11 @@ public:
   /// \brief Get the size of DOCFIXME.
   ///
   /// \return The size.
-  /// 
+  ///
   uint64_t getSize() const { return Size; }
-
 
   /// \brief DOCFIXME
   using MessageType = proto::DataObject;
-
 
   /// \brief DOCFIXME
   ///
@@ -55,7 +52,6 @@ public:
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
@@ -63,7 +59,7 @@ public:
   /// \param Message DOCFIXME
   ///
   /// \return DOCFIXME
-  static DataObject *fromProtobuf(Context &C, const MessageType& Message);
+  static DataObject* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) {
     return N->getKind() == Kind::DataObject;
