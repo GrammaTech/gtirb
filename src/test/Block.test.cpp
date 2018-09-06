@@ -19,9 +19,9 @@ TEST(Unit_Block, getters) {
 TEST(Unit_Block, protobufRoundTrip) {
   proto::Block Message;
   {
-    Block *Original = Block::Create(Ctx, Addr(1), 3, 5);
+    Context InnerCtx;
+    Block *Original = Block::Create(InnerCtx, Addr(1), 3, 5);
     Original->toProtobuf(&Message);
-    details::ClearUUIDs(Original); // Avoid UUID conflict
   }
   Block *Result = Block::fromProtobuf(Ctx, Message);
 

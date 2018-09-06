@@ -8,12 +8,7 @@
 #include <string>
 
 namespace gtirb {
-using UUID = boost::uuids::uuid;
 class Node;
-
-namespace details {
-void GTIRB_EXPORT_API ClearUUIDs(Node*);
-}
 
 /// \brief DOCFIXME
 ///
@@ -82,9 +77,6 @@ private:
   // the Context object because we want to keep the Node class copyable and
   // Context needs to own a move-only allocator.
   gsl::not_null<Context*> Ctx;
-
-  friend void details::ClearUUIDs(Node*);
-  void setUUID();
 };
 
 /// DOCFIXME[check all]

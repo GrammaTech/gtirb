@@ -110,10 +110,11 @@ TEST(Unit_CFG, protobufRoundTrip) {
   UUID Id1, Id2, Id3;
 
   {
+    Context InnerCtx;
     CFG Original;
-    auto B1 = addBlock(Original, Block::Create(Ctx, Addr(1), 2));
-    auto B2 = addBlock(Original, Block::Create(Ctx, Addr(3), 4));
-    auto B3 = addBlock(Original, Block::Create(Ctx, Addr(5), 6));
+    auto B1 = addBlock(Original, Block::Create(InnerCtx, Addr(1), 2));
+    auto B2 = addBlock(Original, Block::Create(InnerCtx, Addr(3), 4));
+    auto B3 = addBlock(Original, Block::Create(InnerCtx, Addr(5), 6));
 
     auto E1 = add_edge(B1, B3, Original).first;
     auto E2 = add_edge(B2, B3, Original).first;
@@ -126,9 +127,6 @@ TEST(Unit_CFG, protobufRoundTrip) {
     Id3 = Original[B3]->getUUID();
 
     Message = toProtobuf(Original);
-    details::ClearUUIDs(Original[B1]); // Avoid UUID conflict
-    details::ClearUUIDs(Original[B2]); // Avoid UUID conflict
-    details::ClearUUIDs(Original[B3]); // Avoid UUID conflict
   }
   fromProtobuf(Ctx, Result, Message);
 
