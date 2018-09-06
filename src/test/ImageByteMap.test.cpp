@@ -1,7 +1,9 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <proto/ImageByteMap.pb.h>
+#include <gsl/gsl>
 #include <gtest/gtest.h>
+#include <cstring>
 
 using namespace gtirb;
 
@@ -392,4 +394,22 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   EXPECT_EQ(Result->getAddrMinMax(), Original->getAddrMinMax());
   EXPECT_EQ(Result->getRebaseDelta(), 7);
   EXPECT_EQ(Result->getIsRelocated(), true);
+}
+
+TEST(Unit_ImageByteMap, contiguousIterators) {
+  ImageByteMap *IBM = ImageByteMap::Create(Ctx);
+
+  std::vector<uint8_t> OriginalBytes{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  IBM->setAddrMinMax(std::make_pair(Addr(0), Addr(10)));
+
+  IBM->setData(Addr(0), gsl::as_bytes(gsl::make_span(OriginalBytes)));
+
+  // Ensure that the iterators returned by ImageByteMap are contiguous.
+  std::vector<uint8_t> CopiedBytes(OriginalBytes.size());
+  auto R = IBM->data(Addr(0), OriginalBytes.size());
+  std::memcpy(&CopiedBytes[0], &*R.begin(), R.end() - R.begin());
+
+  EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
+                         CopiedBytes.begin(), CopiedBytes.end()));
 }
