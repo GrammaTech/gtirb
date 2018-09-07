@@ -5,9 +5,9 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addBlock(CFG& Cfg, Block* Block) {
+CFG::vertex_descriptor addBlock(CFG& Cfg, Block* B) {
   auto Descriptor = add_vertex(Cfg);
-  Cfg[Descriptor] = Block;
+  Cfg[Descriptor] = B;
   return Descriptor;
 }
 

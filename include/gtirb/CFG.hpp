@@ -78,10 +78,10 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 /// \brief Move a basic block (\ref Block) into the graph.
 ///
 /// \param Cfg    DOCFIXME
-/// \param Block  DOCFIXME[this name seems like it could cause confusion?]
+/// \param B      DOCFIXME
 ///
 /// \return A descriptor which can be used to retrieve the \ref Block.
-GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* Block);
+GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* B);
 
 /// DOCFIXME[check all]
 /// \brief Get an iterator over the \ref Block elements in the

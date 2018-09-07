@@ -82,10 +82,10 @@ ByteMap::const_range ByteMap::data(Addr A, size_t Bytes) const {
 }
 
 namespace gtirb {
-proto::Region toProtobuf(const ByteMap::Region& Region) {
+proto::Region toProtobuf(const ByteMap::Region& R) {
   proto::Region Message;
-  Message.set_address(static_cast<uint64_t>(Region.Address));
-  std::transform(Region.Data.begin(), Region.Data.end(),
+  Message.set_address(static_cast<uint64_t>(R.Address));
+  std::transform(R.Data.begin(), R.Data.end(),
                  std::back_inserter(*Message.mutable_data()),
                  [](auto x) { return char(x); });
   return Message;

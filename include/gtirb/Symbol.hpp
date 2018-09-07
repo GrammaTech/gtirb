@@ -175,12 +175,12 @@ public:
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
   Symbol(Context& C, Addr X) : Node(C, Kind::Symbol), Address(X) {}
-  Symbol(Context& C, Addr X, std::string N,
+  Symbol(Context& C, Addr X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK) {}
-  Symbol(Context& C, Addr X, std::string Name, const DataObject& Referent,
+  Symbol(Context& C, Addr X, const std::string& N, const DataObject& Referent,
          StorageKind Kind = StorageKind::Extern);
-  Symbol(Context& C, Addr X, std::string Name, const Block& Referent,
+  Symbol(Context& C, Addr X, const std::string& N, const Block& Referent,
          StorageKind Kind = StorageKind::Extern);
 
   Addr Address;

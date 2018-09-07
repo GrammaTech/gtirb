@@ -351,12 +351,19 @@ private:
 
 /// \brief Retrieve the bytes associated with an object.
 ///
+/// \tparam T     DOCFIXME
+///
+/// \param IBM    DOCFIXME
+/// \param Object DOCFIXME
+///
+/// \return DOCFIXME
+///
 /// Object can be any type which specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. Data).
 template <typename T>
-ImageByteMap::const_range getBytes(const ImageByteMap& byteMap,
-                                   const T& object) {
-  return byteMap.data(object.getAddress(), object.getSize());
+ImageByteMap::const_range getBytes(const ImageByteMap& IBM,
+                                   const T& Object) {
+  return IBM.data(Object.getAddress(), Object.getSize());
 }
 
 } // namespace gtirb
