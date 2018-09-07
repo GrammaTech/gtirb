@@ -74,34 +74,6 @@ TYPED_TEST_P(TypedNodeTest, getByUUID) {
   EXPECT_EQ(gtirb::Node::getByUUID(Ctx, Node->getUUID()), Node);
 }
 
-TYPED_TEST_P(TypedNodeTest, setUUIDUpdatesUUIDMap) {
-  TypeParam Node = Type::Create(Ctx);
-  auto OldId = Node->getUUID();
-  auto NewId = boost::uuids::random_generator()();
-  Node->setUUID(NewId);
-
-  EXPECT_EQ(gtirb::Node::getByUUID(Ctx, NewId), Node);
-  EXPECT_EQ(gtirb::Node::getByUUID(Ctx, OldId), nullptr);
-}
-
-// TYPED_TEST_P(TypedNodeTest, moveUpdatesUUIDMap) {
-//  TypeParam Node1;
-//  auto Id = Node1.getUUID();
-//  TypeParam node2(std::move(Node1));
-//
-//  EXPECT_EQ(node2.getUUID(), Id);
-//  EXPECT_EQ(gtirb::Node::getByUUID(Id), &node2);
-//}
-//
-// TYPED_TEST_P(TypedNodeTest, moveAssignmentUpdatesUUIDMap) {
-//  TypeParam Node1;
-//  auto Id = Node1.getUUID();
-//  TypeParam Node2 = std::move(Node1);
-//
-//  EXPECT_EQ(Node2.getUUID(), Id);
-//  EXPECT_EQ(gtirb::Node::getByUUID(Id), &Node2);
-//}
-
 TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip) {
   typename Type::MessageType Message;
   gtirb::UUID OrigId;
@@ -156,9 +128,6 @@ REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
                            uniqueUuids,               //
                            deserializeUpdatesUUIDMap, //
                            getByUUID,                 //
-                           setUUIDUpdatesUUIDMap,     //
-                           // moveUpdatesUUIDMap,           //
-                           // moveAssignmentUpdatesUUIDMap, //
                            nodeReference, //
                            badReference);
 
