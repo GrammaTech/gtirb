@@ -52,16 +52,30 @@ information.
 
 ### Building Documentation
 
-We provide a script for building GT-IRB documentation. 
 
-1. From the top-level gtirb directory:
+1. Create and change to a temporary build directory.
 
    ```bash
-   > cd doc/doxy
-   > ./builddocs.sh
+   > mkdir build
+   > cd build
    ```
 
-2. Open the documentation home page `gtirb/doc/html/index.html` 
+
+2. Build the documentation.
+
+   ```bash
+   build> cmake <PATH_TO_GTIRB>/doc/doxy/
+   build> make doc
+   ```
+
+3. Delete the temporary build directory
+
+   ```bash
+   build> cd ..
+   > rm -rf build
+   ```
+
+4. Open the documentation home page `gtirb/doc/html/index.html` 
    in your browser.
 
 
