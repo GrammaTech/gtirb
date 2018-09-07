@@ -20,8 +20,8 @@ namespace gtirb {
 /// \brief A basic block.
 class GTIRB_EXPORT_API Block : public Node {
   Block(Context& C) : Node(C, Kind::Block) {}
-  Block(Context& C, Addr Addr, uint64_t S, uint64_t Decode)
-      : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
+  Block(Context& C, Addr A, uint64_t S, uint64_t Decode)
+      : Node(C, Kind::Block), Address(A), Size(S), DecodeMode(Decode) {}
 
 public:
   /// \brief Create a Block object in its default state.
@@ -101,10 +101,10 @@ struct GTIRB_EXPORT_API InstructionRef {
 
   /// \brief DOCFIXME
   ///
-  /// \param message DOCFIXME
+  /// \param Message DOCFIXME
   ///
   /// \return void
-  void toProtobuf(MessageType* message) const;
+  void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
   ///

@@ -5,15 +5,15 @@
 
 using namespace gtirb;
 
-Symbol::Symbol(Context& C, Addr X, std::string Name_, const DataObject& DO,
-               StorageKind StorageKind_)
-    : Symbol(C, X, Name_, StorageKind_) {
+Symbol::Symbol(Context& C, Addr X, const std::string& N, const DataObject& DO,
+               StorageKind SK)
+    : Symbol(C, X, N, SK) {
   this->setReferent(DO);
 }
 
-Symbol::Symbol(Context& C, Addr X, std::string Name_, const Block& B,
-               StorageKind StorageKind_)
-    : Symbol(C, X, Name_, StorageKind_) {
+Symbol::Symbol(Context& C, Addr X, const std::string& N, const Block& B,
+               StorageKind SK)
+    : Symbol(C, X, N, SK) {
   this->setReferent(B);
 }
 

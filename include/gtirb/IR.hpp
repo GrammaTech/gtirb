@@ -119,9 +119,10 @@ public:
 
   /// \brief Deserialize from an input stream.
   ///
+  /// \param C   The Context in which this IR will be loaded.
   /// \param In  The input stream.
   ///
-  /// \return void
+  /// \return The deserialized IR object.
   static IR* load(Context& C, std::istream& In);
 
   /// \brief DOCFIXME
@@ -150,6 +151,7 @@ public:
   ///
   /// \param Name     The name to assign to the table so it can be found later.
   /// \param X        The table itself.
+  /// 
   /// \return void
   void addTable(std::string Name, Table&& X);
 
