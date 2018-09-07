@@ -7,6 +7,51 @@
 #include <cassert>
 #include <type_traits>
 
+/* Casting Synopsis
+
+Node and its subclasses support custom casting machinery that allows for type
+checking, safer static casting, and safe dynamic casting without needing the
+overhead of a vtable or RTTI. This file defines the various operations that
+apply to Node subclasses.
+
+isa<Ty>
+Performs a type check. Returns true if the given object is an instance of the
+template parameter type, and false otherwise. The given object cannot be null.
+Example usage:
+
+  void f(Node *N) { if (isa<Block>(N) { ... } }
+
+cast<Ty>
+Returns the given argument cast to the specified type. This function asserts
+that the types match and will not return null on failure. The given object
+cannot be null; consider using cast_or_null<Ty> in that case. Example usage:
+
+  void f(gsl::not_null<Node *> N) { auto *B = cast<Block>(N); }
+
+cast_or_null<Ty>
+Returns the given argument cast to the specified type. This function asserts
+that the types match and will not return null on failure. The given object can
+be null, in which case the result will be a null pointer cast to the given type.
+Example usage:
+
+  void f(Node *N) { auto *B = cast_or_null<Block>(N); }
+
+dyn_cast<Ty>
+Returns the given argument cast to the specified type, or null if the casting
+operation fails because the types do not match. The given object cannot be null;
+consider using dyn_cast_or_null<Ty> in that case. Example usage:
+
+  void f(gsl::not_null<Node *> N) { auto *B = dyn_cast<Block>(N); }
+
+dyn_cast_or_null<Ty>
+Returns the given argument cast to the specified type, or null if the casting
+operation fails because the types do not match. The given object can be null, in
+which case the result will be a null pointer cast to the given type. Example
+usage:
+
+  void f(Node *N) { auto *B = dyn_cast_or_null<Block>(N); }
+*/
+
 //===----------------------------------------------------------------------===//
 //                          isa<x> Support Templates
 //===----------------------------------------------------------------------===//
