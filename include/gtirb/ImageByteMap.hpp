@@ -310,18 +310,18 @@ public:
 
   /// \brief DOCFIXME
   ///
-  /// \param message DOCFIXME
+  /// \param Message DOCFIXME
   ///
   /// \return void
-  void toProtobuf(MessageType* message) const;
+  void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  /// \param message DOCFIXME
+  /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
-  static ImageByteMap* fromProtobuf(Context& C, const MessageType& message);
+  /// \return The deserialized ImageByteMap object, or null on failure.
+  static ImageByteMap* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ImageByteMap;

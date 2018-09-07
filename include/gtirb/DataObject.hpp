@@ -55,10 +55,9 @@ public:
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  ///
   /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return The deserialized DataObject object, or null on failure.
   static DataObject* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) {

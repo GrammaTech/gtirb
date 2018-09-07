@@ -76,7 +76,7 @@ public:
   /// \param C       DOCFIXME
   /// \param Message DOCFIXME
   ///
-  /// \return void
+  /// \return The deserialized Section object, or null on failure.
   static Section* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Section; }

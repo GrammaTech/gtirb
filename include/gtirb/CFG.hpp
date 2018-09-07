@@ -112,11 +112,11 @@ GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 /// \brief DOCFIXME
 ///
 /// \param C DOCFIXME
-/// \param result    DOCFIXME
+/// \param Result    DOCFIXME
 /// \param Message   DOCFIXME
 ///
 /// \return void
-GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& result,
+GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& Result,
                                    const proto::CFG& Message);
 } // namespace gtirb
 

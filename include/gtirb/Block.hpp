@@ -68,7 +68,7 @@ public:
   ///
   /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return void
   void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
@@ -76,7 +76,7 @@ public:
   /// \param C DOCFIXME
   /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return The deserialized Block object, or null on failure.
   static Block* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
@@ -103,16 +103,16 @@ struct GTIRB_EXPORT_API InstructionRef {
   ///
   /// \param message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return void
   void toProtobuf(MessageType* message) const;
 
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  /// \param message DOCFIXME
+  /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
-  void fromProtobuf(Context& C, const MessageType& message);
+  /// \return void
+  void fromProtobuf(Context& C, const MessageType& Message);
 };
 
 } // namespace gtirb
