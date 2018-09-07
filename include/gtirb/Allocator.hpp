@@ -165,7 +165,7 @@ public:
   // Bump pointer allocators are expected to never free their storage; and
   // clients expect pointers to remain valid for non-dereferencing uses even
   // after deallocation.
-  void Deallocate(const void* Ptr, size_t Size) {
+  void Deallocate(const void*, size_t) {
     //    __asan_poison_memory_region(Ptr, Size);
   }
 
