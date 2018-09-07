@@ -46,21 +46,10 @@ public:
   /// \brief Cleans up resources no longer needed by the Node object.
   ~Node() noexcept;
 
-  /// DOCFIXME[check all]
-  /// \brief Set the Universally Unique ID (UUID) for \c this to the
-  /// specified value.
-  ///
-  /// \return void
-  ///
-  /// Each Node is automatically assigned a UUID on construction; this
-  /// method allows a different UUID to be assigned later.
-  /// DOCFIXME[what is the use case? how is uniqueness enforced on X?]
-  void setUUID(UUID X);
-
   /// \brief Get the Universally Unique ID (UUID) for \c this.
   ///
   /// \return The UUID.
-  UUID getUUID() const { return Uuid; }
+  const UUID& getUUID() const { return Uuid; }
 
   Kind getKind() const { return K; }
   static bool classof(const Node* N) { return N->getKind() == Kind::Node; }
@@ -76,6 +65,12 @@ private:
   // the Context object because we want to keep the Node class copyable and
   // Context needs to own a move-only allocator.
   gsl::not_null<Context*> Ctx;
+
+  // Assign a new UUID to this node. This is only needed when deserializing
+  // objects, as there are no constructors allowing the user to set the UUID on
+  // construction.
+  void setUUID(UUID X);
+  friend void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 };
 
 /// DOCFIXME[check all]
