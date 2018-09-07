@@ -203,7 +203,7 @@ endif()
 # protobuf
 # ---------------------------------------------------------------------------
 find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
+include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------
 # gtirb sources
