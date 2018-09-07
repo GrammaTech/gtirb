@@ -139,7 +139,7 @@ public:
   /// \param C DOCFIXME
   /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return The deserialized IR object, or null on failure.
   static IR* fromProtobuf(Context& C, const MessageType& Message);
 
   // ----------------------------------------------------------------------

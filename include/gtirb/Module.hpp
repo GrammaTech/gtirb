@@ -438,18 +438,18 @@ public:
 
   /// \brief DOCFIXME
   ///
-  /// \param message DOCFIXME
+  /// \param Message DOCFIXME
   ///
   /// \return void
-  void toProtobuf(MessageType* message) const;
+  void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
   ///
   /// \param C DOCFIXME
-  /// \param message DOCFIXME
+  /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
-  static Module* fromProtobuf(Context& C, const MessageType& message);
+  /// \return The deserialized Module object, or null on failure.
+  static Module* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
 

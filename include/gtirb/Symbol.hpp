@@ -159,7 +159,7 @@ public:
   ///
   /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return void
   void toProtobuf(MessageType* Message) const;
 
   /// \brief DOCFIXME
@@ -167,7 +167,7 @@ public:
   /// \param C       DOCFIXME
   /// \param Message DOCFIXME
   ///
-  /// \return DOCFIXME
+  /// \return The deserialized Symbol object, or null on failure.
   static Symbol* fromProtobuf(Context& C, const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Symbol; }
