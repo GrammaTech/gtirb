@@ -53,7 +53,7 @@ information.
 ### Building Documentation
 
 
-1. Create and change to a temporary build directory.
+1. Create and change to a temporary build directory. 
 
    ```bash
    > mkdir build
@@ -68,7 +68,7 @@ information.
    build> make doc
    ```
 
-3. Delete the temporary build directory
+3. [optional] Delete the temporary build directory
 
    ```bash
    build> cd ..
@@ -89,14 +89,17 @@ To add a new markdown document to the documentation:
    - Use github markdown syntax.
    - Wrap your markdown documents at 80 columns.
 
-2. Edit `/doxy/Doxyfile` to add the name of your new markdown document
-   to the `INPUT` rule setting. Note that the ordering of file names
-   here corresponds to table of contents ordering.
+2. Edit `/doc/doxy/Doxyfile.in` to add the basename of your new markdown
+   document to the `INPUT` rule setting. Note that the ordering of
+   file names here corresponds to table of contents ordering.
 
-3. [Build the documentation](#building-documentation) and check that
+3. Edit `/doc/doxy/CMakeLists.txt` to add your new markdown document
+   to  `MDFILES_IN`. Ordering is not important.
+
+4. [Build the documentation](#building-documentation) and check that
    your new page is present and rendered correctly.
    - If it is not rendered correctly, you may need to add a new 
-     preprocessing step to `/doxy/builddocs.sh` to rewrite the 
+     preprocessing step to `doc/doxy/preprocmd.py` to rewrite the 
      corresponding github-style markdown into something Doxygen 
      can handle correctly.
 

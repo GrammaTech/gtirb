@@ -7,16 +7,18 @@ find_package(Doxygen)
 if(DOXYGEN_FOUND)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/preprocmd.py ${CMAKE_CURRENT_BINARY_DIR}/preprocmd.py @ONLY)
 
 set(DOC_INDIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 set(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 # adapted from https://gist.github.com/abravalheri/11214134
-macro(convert_basename file_list)
+
+macro(move_filename file_list newdir)
   foreach(src_file ${${file_list}})
     get_filename_component(src_file_name "${src_file}" NAME)
     list(REMOVE_ITEM ${file_list} "${src_file}")
-    list(APPEND ${file_list} "${src_file_name}")
+    list(APPEND ${file_list} "${newdir}/${src_file_name}")
   endforeach()
 endmacro()
 
@@ -25,17 +27,16 @@ endmacro()
 # ----------------------------------------------------------------------
 file(GLOB DOTFILES_IN "${DOC_INDIR}/dot/*")
 
-# string(REPLACE "${DOC_INDIR}/" "" DOTFILES "${DOTFILES_IN}")
-  
 set(DOTFILES ${DOTFILES_IN})
-convert_basename(DOTFILES)
+move_filename(DOTFILES  ${CMAKE_CURRENT_BINARY_DIR})
 
-# message("DOTFILES = ${DOTFILES}")
+#message("DOTFILES = ${DOTFILES}")
 
 add_custom_command(OUTPUT ${DOTFILES}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS ${DOTFILES_IN}
   COMMAND mkdir -p dot
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${DOC_INDIR}/dot  dot
-  DEPENDS ${DOTFILES_IN}
   COMMENT "copying dot dir"
   VERBATIM
  )
@@ -44,33 +45,25 @@ add_custom_command(OUTPUT ${DOTFILES}
 # copy md files into the working directory
 # ----------------------------------------------------------------------
 
-file(GLOB MDFILES_IN "${DOC_INDIR}/*.md")
-list(APPEND MDFILES_IN "${ROOTDIR}/CONTRIBUTING.md")
+
+set(MDFILES_IN "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/README.md")
 
 set(MDFILES ${MDFILES_IN})
-list(APPEND MDFILES "README_MAIN.md")
-
-convert_basename(MDFILES)
+move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
 # message("MDFILES = ${MDFILES}")
 
 foreach(_inmd ${MDFILES_IN})
    get_filename_component(_outmd "${_inmd}" NAME)
-   add_custom_command(OUTPUT "${_outmd}"
-     COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}"
-     COMMAND perl ${CMAKE_CURRENT_SOURCE_DIR}/preprocmd.pl ${_outmd} ${_outmd}
+   add_custom_COMMAND(OUTPUT ${_outmd}
+     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
      DEPENDS ${_inmd}
+     COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
+     COMMAND python preprocmd.py "${_outmd}.in" ${_outmd}
      COMMENT "processing ${_outmd}"
      VERBATIM
 )
 endforeach() 
    
-add_custom_command(OUTPUT "README_MAIN.md"
-     COMMAND ${CMAKE_COMMAND} -E copy ${} "${ROOTDIR}/README.md" "README_MAIN.md"
-     COMMAND perl ${CMAKE_CURRENT_SOURCE_DIR}/preprocmd.pl README_MAIN.md README_MAIN.md 
-     DEPENDS "${ROOTDIR}/README.md"
-     COMMENT "processing README_MAIN.md"
-     VERBATIM
-)
 
 #----------------------------------------------------------------------
 # Main target
