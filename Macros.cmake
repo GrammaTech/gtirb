@@ -30,6 +30,7 @@ macro(GTIRB_ADD_LIBRARY)
 	add_library(${PROJECT_NAME} SHARED
 		${${PROJECT_NAME}_H}
 		${${PROJECT_NAME}_SRC}
+		${${PROJECT_NAME}_PROTO}
 	)
 	
 	set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb")
