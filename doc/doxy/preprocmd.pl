@@ -15,7 +15,7 @@ my $contents = do {
 close $infh;
 
 $contents =~ s/\(\.\//(/g;                       # ./ -based relative paths
-$contents =~ s/##\s\+\[/* [/g;                   # links in headings
+$contents =~ s/\#\#\s+\[/* [/g;                   # links in headings
 $contents =~ s/src=\"\.\/dot\//SRC="..\/dot\//g; # relative locations of images
 
 my ($x, $y, $z);
