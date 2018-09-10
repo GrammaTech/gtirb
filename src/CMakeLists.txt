@@ -72,6 +72,10 @@ set(${PROJECT_NAME}_SRC
         Table.cpp
 )
 
+file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
+set(${PROJECT_NAME}_PROTO ${ProtoFiles})
+source_group("proto" FILES ${ProtoFiles})
+
 IF(UNIX AND NOT WIN32)
         SET(SYSLIBS
                 ${CMAKE_DL_LIBS}
