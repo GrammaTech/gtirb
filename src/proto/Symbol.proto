@@ -29,6 +29,5 @@ message Symbol {
     uint64 address = 2;
     string name = 3;
     StorageKind storage_kind = 4;
-    bytes data_referent_uuid = 5;
-    bytes code_referent_uuid = 6;
+    bytes referent_uuid = 5;
 }

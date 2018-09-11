@@ -16,14 +16,24 @@
 #define GTIRB_SYMBOL_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/Block.hpp>
+#include <gtirb/DataObject.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/NodeRef.hpp>
 #include <proto/Symbol.pb.h>
-#include <variant>
+#include <type_traits>
 
 namespace gtirb {
-class DataObject;
-class Block;
+template <typename NodeTy> struct NodeTraits {
+  static constexpr bool IsReferent = false;
+};
+
+template <> struct NodeTraits<DataObject> {
+  static constexpr bool IsReferent = true;
+};
+
+template <> struct NodeTraits<Block> {
+  static constexpr bool IsReferent = true;
+};
 
 /// \class Symbol
 ///
@@ -81,7 +91,7 @@ public:
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
-                        const DataObject& Referent,
+                        DataObject* Referent,
                         StorageKind Kind = StorageKind::Extern) {
     return new (C) Symbol(C, X, Name, Referent, Kind);
   }
@@ -97,7 +107,7 @@ public:
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
-                        const Block& Referent,
+                        Block* Referent,
                         StorageKind Kind = StorageKind::Extern) {
     return new (C) Symbol(C, X, Name, Referent, Kind);
   }
@@ -128,31 +138,52 @@ public:
 
   /// \brief Set the DataObject to which this symbol refers.
   ///
-  /// \param Data The DataObject to use.
+  /// \tparam NodeTy  A Node type of a supported referent; should be
+  /// automatically deduced.
+  ///
+  /// \param N The Node to refer to.
   ///
   /// \return void
-  void setReferent(const DataObject& Data);
+  template <typename NodeTy> void
+  setReferent(NodeTy* N,
+              std::enable_if_t<NodeTraits<NodeTy>::IsReferent>* = nullptr) {
+    Referent = N;
+  }
 
-  /// \brief Set the Block to which this symbol refers.
+  /// \brief Deleted overload used to prevent setting a referent of an
+  /// unsupported type.
   ///
-  /// \param Instruction The Block to use.
+  /// \tparam NodeTy  An arbitrary type; should be automatically deduced.
   ///
   /// \return void
-  void setReferent(const Block& Instruction);
+  template <typename NodeTy>
+  void setReferent(
+      NodeTy*,
+      std::enable_if_t<!NodeTraits<NodeTy>::IsReferent>* = nullptr) = delete;
 
-  /// \brief Get the data to which this symbol refers.
+  /// \brief Get the referent to which this symbol refers.
   ///
-  /// \return The data, as a NodeRef<DataObject>.
+  /// \tparam NodeTy A Node type of a supported referent.
   ///
-  /// DOCFIXME[what if the referent is a Block?]
-  NodeRef<DataObject> getDataReferent() const;
+  /// \return The data, dynamically typed as the given NodeTy, or null if there
+  /// is no referent of that type.
+  ///
+  /// DOCFIXME
+  template <typename NodeTy> NodeTy* getReferent() {
+    return dyn_cast_or_null<NodeTy>(Referent);
+  }
 
-  /// \brief Get the code to which this symbol refers.
+  /// \brief Get the referent to which this symbol refers.
   ///
-  /// \return The code, as a NodeRef<Block>.
+  /// \tparam NodeTy A Node type of a supported referent.
   ///
-  /// DOCFIXME[what if the referent is a DataObject?]
-  NodeRef<Block> getCodeReferent() const;
+  /// \return The data, dynamically typed as the given NodeTy, or null if there
+  /// is no referent of that type.
+  ///
+  /// DOCFIXME
+  template <typename NodeTy> const NodeTy* getReferent() const {
+    return dyn_cast_or_null<NodeTy>(Referent);
+  }
 
   /// \brief Set the storage kind.
   ///
@@ -192,15 +223,14 @@ private:
   Symbol(Context& C, Addr X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK) {}
-  Symbol(Context& C, Addr X, const std::string& N, const DataObject& Referent,
-         StorageKind Kind = StorageKind::Extern);
-  Symbol(Context& C, Addr X, const std::string& N, const Block& Referent,
-         StorageKind Kind = StorageKind::Extern);
+  Symbol(Context& C, Addr X, const std::string& N, Node* R,
+         StorageKind SK = StorageKind::Extern)
+      : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK), Referent(R) {}
 
   Addr Address;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
-  std::variant<NodeRef<DataObject>, NodeRef<Block>> Referent;
+  Node* Referent;
 };
 } // namespace gtirb
 
