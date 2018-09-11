@@ -15,6 +15,7 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataObject.hpp>
+#include <gtirb/Module.hpp>
 #include <gtirb/Symbol.hpp>
 #include <proto/Symbol.pb.h>
 #include <gtest/gtest.h>
@@ -58,21 +59,18 @@ TEST(Unit_Symbol, setStorageKind) {
 TEST(Unit_Symbol, setReferent) {
   Symbol* Sym = Symbol::Create(Ctx);
   DataObject* Data = DataObject::Create(Ctx);
-  Block* Block = Block::Create(Ctx);
+  Block* B = Block::Create(Ctx);
 
-  Sym->setReferent(*Data);
-  EXPECT_EQ(Sym->getDataReferent().get(Ctx), Data);
-  EXPECT_FALSE(Sym->getCodeReferent().get(Ctx));
+  // Symbol should have no referent yet.
+  EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
 
-  Sym->setReferent(*Block);
-  EXPECT_EQ(Sym->getCodeReferent().get(Ctx), Block);
-  // Setting code referent clears data referent
-  EXPECT_FALSE(Sym->getDataReferent().get(Ctx));
+  Sym->setReferent(Data);
+  EXPECT_EQ(Sym->getReferent<DataObject>(), Data);
+  EXPECT_EQ(Sym->getReferent<Block>(), nullptr);
 
-  Sym->setReferent(*Data);
-  EXPECT_EQ(Sym->getDataReferent().get(Ctx), Data);
-  // Setting data referent clears code referent
-  EXPECT_FALSE(Sym->getCodeReferent().get(Ctx));
+  Sym->setReferent(B);
+  EXPECT_EQ(Sym->getReferent<Block>(), B);
+  EXPECT_EQ(Sym->getReferent<DataObject>(), nullptr);
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
@@ -86,7 +84,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 
     DataObject* Data = DataObject::Create(InnerCtx);
     DataUUID = Data->getUUID();
-    Original->setReferent(*Data);
+    Original->setReferent(Data);
 
     Original->toProtobuf(&Message);
   }
@@ -96,6 +94,6 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   EXPECT_EQ(Result->getAddress(), Addr(1));
   EXPECT_EQ(Result->getName(), "test");
   EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Static);
-  EXPECT_EQ(Result->getDataReferent().getUUID(), DataUUID);
-  EXPECT_EQ(Result->getCodeReferent().getUUID(), UUID());
+  EXPECT_EQ(Result->getReferent<DataObject>()->getUUID(), DataUUID);
+  EXPECT_EQ(Result->getReferent<Block>(), nullptr);
 }
