@@ -89,10 +89,14 @@ GTIRB_ADD_LIBRARY()
 
 target_link_libraries(
         ${PROJECT_NAME} 
-        ${SYSLIBS}
+    PUBLIC
+    ${SYSLIBS}
         ${Boost_LIBRARIES}
         ${PROTOBUF_LIBRARIES}
-        proto
+    # Link in this static lib, but don't make it a transitive
+        # dependency of TestGTIRB, etc
+	PRIVATE
+    proto
         )
 
 # Copy gtirb headers into build directory
