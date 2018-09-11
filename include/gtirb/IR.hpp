@@ -153,7 +153,7 @@ public:
   /// \param X        The table itself.
   /// 
   /// \return void
-  void addTable(std::string Name, Table&& X);
+  void addTable(const std::string &Name, Table&& X);
 
   /// \brief Get a table by name.
   ///
