@@ -52,6 +52,7 @@ information.
 
 ### Building Documentation
 
+You will need `cmake` and `Doxygen`.
 
 1. Create and change to a temporary build directory. 
 
@@ -65,7 +66,7 @@ information.
 
    ```bash
    build> cmake <PATH_TO_GTIRB>/doc/doxy/
-   build> make doc
+   build> cmake --build . --target doc
    ```
 
 3. [optional] Delete the temporary build directory

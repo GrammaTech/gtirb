@@ -77,9 +77,9 @@ Boost.
 
 2. **Install Git**
 
-Git is required to fetch the source code. Install with a package
-manager or from https://git-scm.com/download/win on Windows. Choose
-the option that adds git and minimal tools to the path.
+   Git is required to fetch the source code. Install with a package
+   manager or from https://git-scm.com/download/win on Windows. Choose
+   the option that adds git and minimal tools to the path.
 
 3. **Install Dependencies**
 
