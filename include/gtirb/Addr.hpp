@@ -8,8 +8,12 @@
 namespace gtirb {
 /// \brief A special class to store an Effective Address.
 ///
-/// It is a thin wrapper around a uint64_t for 64-bit address storage. An Addr
-/// cannot store a relative address as it cannot contain a negative number.
+/// It is a thin wrapper around a uint64_t for 64-bit address storage. Its
+/// semantics in overflow situations are the same as semantics for unsigned
+/// integers.
+///
+/// An Addr cannot store a relative address as it cannot contain a negative
+/// number.
 class GTIRB_EXPORT_API Addr {
   uint64_t Address{0};
 
@@ -31,8 +35,6 @@ public:
   /// \brief Preincrement for \ref Addr.
   ///
   /// \return The incremented \ref Addr.
-  ///
-  /// DOCFIXME[what happens if represented address == max?]
   Addr& operator++() {
     ++Address;
     return *this;
@@ -40,9 +42,8 @@ public:
 
   /// \brief Postincrement for \ref Addr.
   ///
-  /// \return A new \ref Addr representing the incremented address.
-  ///
-  /// DOCFIXME[what happens if represented address == max?]
+  /// \return A new \ref Addr representing the address prior to being
+  /// incremented.
   Addr operator++(int) {
     Addr R(*this);
     ++Address;
@@ -52,8 +53,6 @@ public:
   /// \brief Predecrement for \ref Addr.
   ///
   /// \return The decremented \ref Addr.
-  ///
-  /// DOCFIXME[what happens if represented address == 0?]
   Addr& operator--() {
     --Address;
     return *this;
@@ -61,9 +60,8 @@ public:
 
   /// \brief Postdecrement for \ref Addr.
   ///
-  /// \return A new \ref Addr representing the decremented address.
-  ///
-  /// DOCFIXME[what happens if represented address == 0?]
+  /// \return A new \ref Addr representing the address prior to being
+  /// decremented.
   Addr operator--(int) {
     Addr R(*this);
     --Address;
@@ -85,8 +83,6 @@ public:
   /// \param Offset   The offset to add to the represented address.
   ///
   /// \return \c *this
-  ///
-  /// DOCFIXME[what happens if represented address == max?]
   Addr& operator+=(uint64_t Offset) {
     Address += Offset;
     return *this;
@@ -98,8 +94,6 @@ public:
   /// \param Offset   The offset to subtract from \p A.
   ///
   /// \return A new \ref Addr representing  \p A - \p Offset.
-  ///
-  /// DOCFIXME[what happens if offset > the represented address?]
   friend Addr operator-(const Addr& A, uint64_t Offset) {
     return Addr(A.Address - Offset);
   }
@@ -109,8 +103,6 @@ public:
   /// \param Offset   The offset to subtract from the represented address.
   ///
   /// \return \c *this
-  ///
-  /// DOCFIXME[what happens if offset > the represented address?]
   Addr& operator-=(uint64_t Offset) {
     Address -= Offset;
     return *this;
@@ -121,9 +113,8 @@ public:
   /// \param A        The minuend.
   /// \param B        The subtrahend.
   ///
-  /// \return         The \c int64_t difference \p A - \p B.
-  ///
-  /// DOCFIXME[what happens if offset > the represented address?]
+  /// \return         The \c int64_t difference \p A - \p B. NB: this is a
+  /// difference type and not a valid address.
   friend int64_t operator-(const Addr& A, const Addr& B) {
     return static_cast<int64_t>(A.Address - B.Address);
   }
@@ -159,39 +150,29 @@ public:
   }
 };
 
-/// DOCFIXME[check all]
-/// \brief Exclusive upper limit of object's address range.
+/// \brief Exclusive upper limit of an object's address range.
 ///
-/// \param Object     DOCFIXME
+/// \tparam T         Any type that specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. DataObject).
 ///
-/// \tparam T         Any type that specifies a range of
-///                   addresses via getAddress() and getSize()
-///                   methods (e.g. DataObject).
+/// \param Object     The object to interrogate.
 ///
 /// \return An address (\ref Addr) A such that A-1 is in \p Object and
 /// A is not.
-///
-/// Object can be any type which specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T> Addr addressLimit(const T& Object) {
   return Object.getAddress() + Object.getSize();
 }
 
-/// DOCFIXME[check all]
 /// \brief Check: Does the specified object contain the specified address?
+///
+/// \tparam T      Any type that specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g. DataObject).
 ///
 /// \param Object  The object of interest.
 /// \param Ea      The address of interest.
 ///
-/// \tparam T      Any type that specifies a range of
-///                addresses via getAddress() and getSize()
-///                methods (e.g. DataObject).
-///
 /// \return \c true if \p Ea is in the address range of \p Object, \c
 /// false otherwise.
-///
-/// Object can be any type which specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T> bool containsAddr(const T& Object, Addr Ea) {
   return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
 }
