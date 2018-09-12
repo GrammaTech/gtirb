@@ -5,9 +5,7 @@
 #include "gtirb/Module.hpp"
 #include "gtirb/Section.hpp"
 #include "gtirb/SymbolicExpression.hpp"
-#include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 using namespace gtirb;
 
@@ -25,12 +23,4 @@ void Node::setUUID(UUID X) {
   Ctx->unregisterNode(this);
   this->Uuid = X;
   Ctx->registerNode(Uuid, this);
-}
-
-std::string gtirb::uuidToString(const UUID& Uuid) {
-  return boost::uuids::to_string(Uuid);
-}
-
-UUID gtirb::uuidFromString(const std::string& Text) {
-  return boost::uuids::string_generator()(Text);
 }

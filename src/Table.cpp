@@ -1,8 +1,19 @@
 #include "Table.hpp"
 #include "Serialization.hpp"
 #include "gtirb/Context.hpp"
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <proto/Table.pb.h>
 #include <variant>
+
+
+static std::string uuidToString(const gtirb::UUID& Uuid) {
+  return boost::uuids::to_string(Uuid);
+}
+
+static gtirb::UUID uuidFromString(const std::string& Text) {
+  return boost::uuids::string_generator()(Text);
+}
 
 namespace gtirb {
 template <typename MessageT> class TableVisitor {

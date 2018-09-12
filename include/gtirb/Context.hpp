@@ -8,6 +8,8 @@
 #include <map>
 
 namespace gtirb {
+/// \brief Represents a universally unique identifier used to identify Node
+/// objects across serialization boundaries.
 using UUID = boost::uuids::uuid;
 
 class Node;
