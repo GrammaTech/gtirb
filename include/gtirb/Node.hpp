@@ -12,7 +12,11 @@ class Node;
 
 /// \class Node
 ///
-/// \brief DOCFIXME
+/// \brief Represents the base of the Node class hierarchy. Objects of Node
+/// types can be converted into more specific types by using the casting
+/// machinery from Casting.hpp. You can use static_cast<> and
+/// reinterpret_cast<>, but cast<> or dyn_cast<> is a safer alternative. You
+/// cannot use dynamic_cast<> cast Node objects, however.
 class GTIRB_EXPORT_API Node {
 public:
   enum class Kind {
