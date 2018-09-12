@@ -10,9 +10,6 @@
 namespace gtirb {
 class Node;
 
-/// \brief DOCFIXME
-using UUID = boost::uuids::uuid;
-
 /// \class Node
 ///
 /// \brief DOCFIXME
@@ -72,24 +69,6 @@ private:
   void setUUID(UUID X);
   friend void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 };
-
-/// DOCFIXME[check all]
-/// \brief Return the text representation of a UUID.
-///
-/// \param Uuid The UUID of interest.
-///
-/// \return The text representation of \p Uuid.
-std::string uuidToString(const UUID& Uuid);
-
-/// DOCFIXME[check all]
-/// \brief Create a UUID from a text representation.
-///
-/// \param Text The text representation. DOCFIXME[any constraints?]
-///
-/// \return A new UUID corresponding to \p Text.
-///
-/// DOCFIXME[what if I call twice with the same Text?]
-UUID uuidFromString(const std::string& Text);
 
 } // namespace gtirb
 
