@@ -137,6 +137,17 @@ TEST(Unit_Symbol, visitation) {
   };
   Sym->visit(ConstVoidVisitor{});
 
+  // Ensure that we can provide a visitor that uses a base type.
+  struct GenericVisitor {
+    void operator()(const Node* N) const {
+      EXPECT_NE(N, nullptr);
+      // This should still only be called once.
+      static int Counter;
+      EXPECT_EQ(Counter++, 0);
+    }
+  };
+  Sym->visit(GenericVisitor{});
+
   // The following is example code that should not compile. We cannot use gtest
   // to ensure that we get the appropriate compile errors, unfortunately.
   //struct NotEnoughOverloads {
