@@ -343,7 +343,7 @@ private:
   Addr Address;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
-  Node* Referent;
+  Node* Referent{nullptr};
 };
 } // namespace gtirb
 
