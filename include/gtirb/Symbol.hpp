@@ -47,7 +47,7 @@ template <typename... Ts> struct TypeList {};
 class GTIRB_EXPORT_API Symbol : public Node {
   // SFINAE overload handling a Callable with a void return type.
   template <typename Callable, typename Ty>
-  auto visit_impl_help(Callable&& Visitor) -> std::enable_if_t<
+  auto visit_impl_help(Callable&& Visitor) const -> std::enable_if_t<
       std::is_void_v<decltype(std::invoke(Visitor, (Ty*)0))>> {
     static_assert(std::is_invocable_v<Callable, Ty*>,
                   "Visitor must contain an overloaded function call operator "
@@ -59,7 +59,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
 
   // SFINAE overload handling a Callable with a non-void return type.
   template <typename Callable, typename Ty>
-  auto visit_impl_help(Callable&& Visitor) -> std::enable_if_t<
+  auto visit_impl_help(Callable&& Visitor) const -> std::enable_if_t<
       !std::is_void_v<decltype(std::invoke(Visitor, (Ty*)0))>,
       std::optional<decltype(std::invoke(Visitor, (Ty*)0))>> {
     static_assert(std::is_invocable_v<Callable, Ty*>,
@@ -99,7 +99,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
   // a compatible return type.
   template <typename Callable, template <typename...> typename TypeList,
             typename... Types>
-  auto visit_impl(Callable&& Visitor, TypeList<Types...>) {
+  auto visit_impl(Callable&& Visitor, TypeList<Types...>) const {
     // If this assertion fails, the return values from the Callable object are
     // not compatible enough. This can happen if they return incompatible types
     // or if there is not an overload for each referent type.
@@ -148,7 +148,7 @@ public:
   ///
   /// \param Visitor  A callable object that will be called with a nonnull
   /// symbol referent.
-  template <typename Callable> auto visit(Callable&& Visitor) {
+  template <typename Callable> auto visit(Callable&& Visitor) const {
     return visit_impl(std::forward<Callable>(Visitor),
                       std::decay_t<supported_referent_types>{});
   }

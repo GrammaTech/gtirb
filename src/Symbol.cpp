@@ -24,16 +24,19 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_address(static_cast<uint64_t>(this->Address));
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
-  if (this->Referent)
-    uuidToBytes(this->Referent->getUUID(), *Message->mutable_referent_uuid());
+  if (this->Referent) {
+    nodeUUIDToBytes(this->Referent, *Message->mutable_referent_uuid());
+  }
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   Symbol* S = Symbol::Create(C, Addr(Message.address()), Message.name(),
                              static_cast<StorageKind>(Message.storage_kind()));
   setNodeUUIDFromBytes(S, Message.uuid());
+
   if (!Message.referent_uuid().empty()) {
     S->Referent = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
   }
+
   return S;
 }
