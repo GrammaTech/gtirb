@@ -240,25 +240,11 @@ class GTIRB_EXPORT_API Symbol : public Node {
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
+  template <typename NodeTy>
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
-                        DataObject* Referent,
+                        NodeTy* Referent,
                         StorageKind Kind = StorageKind::Extern) {
-    return new (C) Symbol(C, X, Name, Referent, Kind);
-  }
-
-  /// \brief Create a Symbol object.
-  ///
-  /// \param C  The Context in which this object will be held.
-  /// \param X  The address of the symbol.
-  /// \param Name The name of the symbol.
-  /// \param Referent The Block this symbol refers to.
-  /// \param Kind The storage kind the symbol has; defaults to
-  /// StorageKind::Extern
-  ///
-  /// \return The newly created object.
-  static Symbol* Create(Context& C, Addr X, const std::string& Name,
-                        Block* Referent,
-                        StorageKind Kind = StorageKind::Extern) {
+    static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
     return new (C) Symbol(C, X, Name, Referent, Kind);
   }
 
