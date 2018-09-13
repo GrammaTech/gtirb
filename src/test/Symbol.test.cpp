@@ -105,22 +105,48 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  struct Visitor {
-    int operator()(Block*) { return 0; }
-    long operator()(DataObject*) { return 1; }
-  };
-
-  struct BadVisitor {
-    void operator()(const Block*) {}
-  };
-
-  struct ConstVoidVisitor {
-    void operator()(const Block*) const {}
-    void operator()(const DataObject*) const {}
-  };
-
   Symbol* Sym = Symbol::Create(Ctx, Addr(1), "test", Block::Create(Ctx));
-  (void)Sym->visit(Visitor{});
-  //Sym->visit(BadVisitor{}); // Error
+  Symbol* NoRef = Symbol::Create(Ctx);
+
+  struct Visitor {
+    int operator()(Block* B) {
+      // This should not be called with a null pointer.
+      EXPECT_NE(B, nullptr);
+      return 0;
+    }
+    long operator()(DataObject*) {
+      // This overload should never be called.
+      EXPECT_TRUE(false);
+      return 1;
+    }
+  };
+  EXPECT_EQ(0, *Sym->visit(Visitor{}));
+
+  // The version that has no referent should not call any of the visitor
+  // functions and the returned optional should not have a value.
+  struct NoRefVisitor {
+    int operator()(const Block*) const { EXPECT_TRUE(false); return 0; }
+    int operator()(const DataObject*) const { EXPECT_TRUE(false); return 1; }
+  };
+  EXPECT_FALSE(NoRef->visit(NoRefVisitor{}));
+
+  // Similar to the test above, but ensuring we can visit without a return type.
+  struct ConstVoidVisitor {
+    void operator()(const Block* B) const { EXPECT_NE(B, nullptr); }
+    void operator()(const DataObject*) const { EXPECT_TRUE(false); }
+  };
   Sym->visit(ConstVoidVisitor{});
+
+  // The following is example code that should not compile. We cannot use gtest
+  // to ensure that we get the appropriate compile errors, unfortunately.
+  //struct NotEnoughOverloads {
+  //  void operator()(const Block*) {}
+  //};
+  //Sym->visit(NotEnoughOverloads{}); // Error
+
+  //struct IncorrectReturnTypes {
+  //  std::string operator()(Block*) { return ""; }
+  //  int operator()(DataObject*) { return 0; }
+  //};
+  //Sym->visit(IncorrectReturnTypes{}); // Error
 }
