@@ -1,8 +1,8 @@
 SET(PROJECT_NAME gtirb)
 
-add_subdirectory(proto)
-
 add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
+
+add_subdirectory(proto)
 
 # Force GSL to use std::byte instead of its own byte type.
 # This should be auto-detected but it doesn't seem to work reliably.
