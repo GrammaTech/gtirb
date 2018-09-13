@@ -1,7 +1,5 @@
 SET(PROJECT_NAME gtirb)
 
-add_compile_options(-DGTIRB_${PROJECT_NAME}_EXPORTS)
-
 add_subdirectory(proto)
 
 # Force GSL to use std::byte instead of its own byte type.
@@ -98,6 +96,7 @@ target_link_libraries(
 	PRIVATE
     proto
         )
+target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 
 # Copy gtirb headers into build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
