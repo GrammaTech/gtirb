@@ -32,6 +32,8 @@ Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   Symbol* S = Symbol::Create(C, Addr(Message.address()), Message.name(),
                              static_cast<StorageKind>(Message.storage_kind()));
   setNodeUUIDFromBytes(S, Message.uuid());
-  S->Referent = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
+  if (!Message.referent_uuid().empty()) {
+    S->Referent = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
+  }
   return S;
 }
