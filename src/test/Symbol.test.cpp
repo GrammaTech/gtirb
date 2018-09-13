@@ -148,6 +148,14 @@ TEST(Unit_Symbol, visitation) {
   };
   Sym->visit(GenericVisitor{});
 
+  // Ensure that we can provide a lambda as a callable.
+  Sym->visit([](const Node* N) {
+    EXPECT_NE(N, nullptr);
+    // This should still only be called once.
+    static int Counter;
+    EXPECT_EQ(Counter++, 0);
+  });
+
   // The following is example code that should not compile. We cannot use gtest
   // to ensure that we get the appropriate compile errors, unfortunately.
   //struct NotEnoughOverloads {
