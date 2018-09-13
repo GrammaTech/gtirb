@@ -44,6 +44,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
 endif()
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
 #
 # Grammatech Options (CMake)
 #
