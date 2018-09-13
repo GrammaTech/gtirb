@@ -46,29 +46,33 @@ template <typename... Ts> struct TypeList {};
 /// \brief DOCFIXME
 class GTIRB_EXPORT_API Symbol : public Node {
   // SFINAE overload handling a Callable with a void return type.
-  template <typename Callable, typename Ty>
-  auto visit_impl_help(Callable&& Visitor) const -> std::enable_if_t<
-      std::is_void_v<decltype(std::invoke(Visitor, (Ty*)0))>> {
+  template <typename Callable, typename Ty, typename CommonRetTy>
+  auto visit_impl_help(Callable&& Visitor) const
+      -> std::enable_if_t<std::is_void_v<CommonRetTy>, bool> {
     static_assert(std::is_invocable_v<Callable, Ty*>,
                   "Visitor must contain an overloaded function call operator "
                   "for each of the types in supported_types");
     if (Ty* Obj = dyn_cast_or_null<Ty>(this->Referent)) {
       std::invoke(Visitor, Obj);
+      return true;
     }
+    return false;
   }
 
   // SFINAE overload handling a Callable with a non-void return type.
-  template <typename Callable, typename Ty>
-  auto visit_impl_help(Callable&& Visitor) const -> std::enable_if_t<
-      !std::is_void_v<decltype(std::invoke(Visitor, (Ty*)0))>,
-      std::optional<decltype(std::invoke(Visitor, (Ty*)0))>> {
+  template <typename Callable, typename Ty, typename CommonRetTy>
+  bool
+  visit_impl_help(Callable&& Visitor,
+                  std::enable_if_t<!std::is_void_v<CommonRetTy>,
+                                   std::optional<CommonRetTy>>& Ret) const {
     static_assert(std::is_invocable_v<Callable, Ty*>,
                   "Visitor must contain an overloaded function call operator "
                   "for each of the types in supported_types");
     if (Ty* Obj = dyn_cast_or_null<Ty>(this->Referent)) {
-      return std::invoke(Visitor, Obj);
+      Ret = std::invoke(Visitor, Obj);
+      return true;
     }
-    return std::nullopt;
+    return false;
   }
 
   // Helper type traits used to determine whether all of the Callable object's
@@ -87,7 +91,14 @@ class GTIRB_EXPORT_API Symbol : public Node {
             typename... Types>
   struct has_common_type_impl<std::void_t<std::common_type_t<
                                   std::invoke_result_t<Callable, Types*>...>>,
-                              Callable, TypeList, Types...> : std::true_type {};
+                              Callable, TypeList, Types...> : std::true_type {
+    using type = std::common_type_t<std::invoke_result_t<Callable, Types*>...>;
+  };
+
+  template <typename Callable, template <typename...> typename TypeList,
+            typename... Types>
+  using has_common_type_t =
+      typename has_common_type_impl<void, Callable, TypeList, Types...>::type;
 
   template <typename Callable, template <typename...> typename TypeList,
             typename... Types>
@@ -99,7 +110,10 @@ class GTIRB_EXPORT_API Symbol : public Node {
   // a compatible return type.
   template <typename Callable, template <typename...> typename TypeList,
             typename... Types>
-  auto visit_impl(Callable&& Visitor, TypeList<Types...>) const {
+  auto visit_impl(Callable&& Visitor, TypeList<Types...>) const
+      -> std::enable_if_t<
+          !std::is_void_v<has_common_type_t<Callable, TypeList, Types...>>,
+          std::optional<has_common_type_t<Callable, TypeList, Types...>>> {
     // If this assertion fails, the return values from the Callable object are
     // not compatible enough. This can happen if they return incompatible types
     // or if there is not an overload for each referent type.
@@ -114,8 +128,32 @@ class GTIRB_EXPORT_API Symbol : public Node {
     // If you get an error about there being no matching overloaded function for
     // the call to visit_impl_help, that is most likely because there are one
     // or more overloads missing for each referent type.
-    return (...,
-            visit_impl_help<Callable, Types>(std::forward<Callable>(Visitor)));
+    std::optional<has_common_type_t<Callable, TypeList, Types...>> Res;
+    (... ||
+     visit_impl_help<Callable, Types, typename decltype(Res)::value_type>(
+         std::forward<Callable>(Visitor), Res));
+    return Res;
+  }
+
+  // Helper function to unpack all of the types in the type list and attempt to
+  // visit Callable once per type. Verifies that the Callable objects all share
+  // a compatible return type.
+  template <typename Callable, template <typename...> typename TypeList,
+            typename... Types>
+  auto
+  visit_impl(Callable&& Visitor, TypeList<Types...>) const -> std::enable_if_t<
+      std::is_void_v<has_common_type_t<Callable, TypeList, Types...>>, void> {
+    // Instantiate a call to the Visitor once for each of the listed types, but
+    // only issue the call at runtime if the Referent can be dynamically cast to
+    // the given type. In this way, the Visitor needs to be able to handle any
+    // of the supported types, but will only be called once for the concrete
+    // type of the Referent.
+    //
+    // If you get an error about there being no matching overloaded function for
+    // the call to visit_impl_help, that is most likely because there are one
+    // or more overloads missing for each referent type.
+    (... ||
+     visit_impl_help<Callable, Types, void>(std::forward<Callable>(Visitor)));
   }
 
 public:
