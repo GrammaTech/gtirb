@@ -52,6 +52,15 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 
+# This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON
+# instead of OFF.
+option(GTIRB_BUILD_SHARED_LIBS "Build shared libraries." ON)
+if(GTIRB_BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON)
+else()
+  set(BUILD_SHARED_LIBS OFF)
+endif()
+
 # Base include path for the GT-IRB library.
 include_directories(${CMAKE_SOURCE_DIR}/include)
 #

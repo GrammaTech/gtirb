@@ -27,7 +27,7 @@ macro(GTIRB_ADD_CLANG_LINKER_FLAG flag)
 endmacro()
 
 macro(GTIRB_ADD_LIBRARY)
-	add_library(${PROJECT_NAME} SHARED
+        add_library(${PROJECT_NAME}
 		${${PROJECT_NAME}_H}
 		${${PROJECT_NAME}_SRC}
 		${${PROJECT_NAME}_PROTO}
