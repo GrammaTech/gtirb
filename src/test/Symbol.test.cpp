@@ -74,7 +74,8 @@ TEST(Unit_Symbol, setReferent) {
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
-  proto::Symbol Message;
+  proto::Symbol SMessage;
+  proto::DataObject DOMessage;
   UUID DataUUID;
 
   {
@@ -86,10 +87,15 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     DataUUID = Data->getUUID();
     Original->setReferent(Data);
 
-    Original->toProtobuf(&Message);
+    Original->toProtobuf(&SMessage);
+
+    // We must manually serialize the symbol referent. This would typically be
+    // done automatically for the user when they serialized the IR.
+    Data->toProtobuf(&DOMessage);
   }
 
-  Symbol* Result = Symbol::fromProtobuf(Ctx, Message);
+  (void)DataObject::fromProtobuf(Ctx, DOMessage); // See above.
+  Symbol* Result = Symbol::fromProtobuf(Ctx, SMessage);
 
   EXPECT_EQ(Result->getAddress(), Addr(1));
   EXPECT_EQ(Result->getName(), "test");
