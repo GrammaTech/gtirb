@@ -4,10 +4,15 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_compile_options(-wd4125) # decimal digit terminates octal escape sequence
     add_compile_options(-wd4456) # declaration of 'decl' hides previous local declaration
     add_compile_options(-wd4100) # unreferenced formal parameter
+    add_compile_options("/FIgtirb/Export.hpp")
 else()
     add_compile_options(-Wno-shadow)
+    add_compile_options(-include "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 endif()
-PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${ProtoFiles})
+PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders
+                      EXPORT_MACRO "GTIRB_EXPORT_API"
+                      ${ProtoFiles})
+
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
 include_directories(SYSTEM "${Protobuf_INCLUDE_DIRS}")
