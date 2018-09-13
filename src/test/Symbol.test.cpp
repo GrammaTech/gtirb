@@ -97,3 +97,24 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   EXPECT_EQ(Result->getReferent<DataObject>()->getUUID(), DataUUID);
   EXPECT_EQ(Result->getReferent<Block>(), nullptr);
 }
+
+TEST(Unit_Symbol, visitation) {
+  struct Visitor {
+    int operator()(Block*) { return 0; }
+    long operator()(DataObject*) { return 1; }
+  };
+
+  struct BadVisitor {
+    void operator()(const Block*) {}
+  };
+
+  struct ConstVoidVisitor {
+    void operator()(const Block*) const {}
+    void operator()(const DataObject*) const {}
+  };
+
+  Symbol* Sym = Symbol::Create(Ctx, Addr(1), "test", Block::Create(Ctx));
+  (void)Sym->visit(Visitor{});
+  //Sym->visit(BadVisitor{}); // Error
+  Sym->visit(ConstVoidVisitor{});
+}
