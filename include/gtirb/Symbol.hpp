@@ -185,6 +185,11 @@ class GTIRB_EXPORT_API Symbol : public Node {
   ///
   /// \param Visitor  A callable object that will be called with a nonnull
   /// symbol referent.
+  ///
+  /// \return The common type of each of the return types in the Callable
+  /// overload set. Notionally returns:
+  /// std::common_type_t<Overload1(Ty1), Overload2(Ty2), ...>
+  /// which can be void.
   template <typename Callable> auto visit(Callable&& Visitor) const {
     return visit_impl(std::forward<Callable>(Visitor),
                       std::decay_t<supported_referent_types>{});
