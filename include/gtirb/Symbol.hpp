@@ -25,26 +25,12 @@
 #include <type_traits>
 
 namespace gtirb {
-template <typename NodeTy> struct NodeTraits {
-  static constexpr bool IsReferent = false;
-};
-
-template <> struct NodeTraits<DataObject> {
-  static constexpr bool IsReferent = true;
-};
-
-template <> struct NodeTraits<Block> {
-  static constexpr bool IsReferent = true;
-};
-
-namespace details {
-template <typename... Ts> struct TypeList {};
-}
-
 /// \class Symbol
 ///
 /// \brief DOCFIXME
 class GTIRB_EXPORT_API Symbol : public Node {
+  template <typename... Ts> struct TypeList {};
+
   // SFINAE overload handling a Callable with a void return type.
   template <typename Callable, typename Ty, typename CommonRetTy>
   auto visit_impl_help(Callable&& Visitor) const
@@ -112,7 +98,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
   // a compatible return type.
   //
   // SFINAE overload handling a Callable where there is a common, non-void
-  // return type.
+  // return type. Returns a std::optional<common_type>.
   template <typename Callable, template <typename...> typename TypeList,
             typename... Types>
   auto visit_impl(Callable&& Visitor, TypeList<Types...>) const
@@ -141,6 +127,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
   }
 
   // SFINAE overload handling a Callable where every return type is void.
+  // Returns void.
   template <typename Callable, template <typename...> typename TypeList,
             typename... Types>
   auto visit_impl(Callable&& Visitor, TypeList<Types...>) const
@@ -153,9 +140,24 @@ class GTIRB_EXPORT_API Symbol : public Node {
      visit_impl_help<Callable, Types, void>(std::forward<Callable>(Visitor)));
   }
 
-public:
+  // Helper function that determines whether the passed NodeTy is the same as
+  // any of the types in the Types... list.
+  template <typename NodeTy, template <typename...> typename TypeList,
+            typename... Types>
+  static constexpr bool is_supported_type_impl(TypeList<Types...>) {
+    return (... || std::is_same_v<NodeTy, Types>);
+  }
+
+  // Helper function that determines whether the passed NodeTy is one of the
+  // supported referent types.
+  template <typename NodeTy> static constexpr bool is_supported_type() {
+    return is_supported_type_impl<NodeTy>(
+        std::decay_t<supported_referent_types>{});
+  }
+
+  public :
   /// \brief The list of supported referent types.
-  using supported_referent_types = details::TypeList<Block, DataObject>;
+  using supported_referent_types = TypeList<Block, DataObject>;
 
   /// \brief Visits the symbol's referent, if one is present, by concrete
   /// referent type. For example:
@@ -292,9 +294,9 @@ public:
   /// \param N The Node to refer to.
   ///
   /// \return void
-  template <typename NodeTy> void
-  setReferent(NodeTy* N,
-              std::enable_if_t<NodeTraits<NodeTy>::IsReferent>* = nullptr) {
+  template <typename NodeTy>
+  void setReferent(NodeTy* N,
+                   std::enable_if_t<is_supported_type<NodeTy>()>* = nullptr) {
     Referent = N;
   }
 
@@ -305,9 +307,9 @@ public:
   ///
   /// \return void
   template <typename NodeTy>
-  void setReferent(
-      NodeTy*,
-      std::enable_if_t<!NodeTraits<NodeTy>::IsReferent>* = nullptr) = delete;
+  void setReferent(NodeTy*,
+                   std::enable_if_t<!is_supported_type<NodeTy>(), NodeTy>* =
+                       nullptr) = delete;
 
   /// \brief Get the referent to which this symbol refers.
   ///
