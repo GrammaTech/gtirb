@@ -32,11 +32,15 @@ class ByteMap;
 
 namespace gtirb {
 class Context;
+class ImageByteMap;
 
 /// \class ByteMap
 ///
 /// \brief Holds the bytes of the loaded image of the binary.
 class GTIRB_EXPORT_API ByteMap {
+  friend class ImageByteMap;
+  bool willOverlapRegion(Addr A, size_t Bytes) const;
+
 public:
   /// \brief Set the byte map at the specified address.
   ///
