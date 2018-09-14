@@ -11,13 +11,16 @@
 //  reflect the position or policy of the Government and no official
 //  endorsement should be inferred.
 //
+//===-Addition License Information-----------------------------------------===//
+//
+// This file was initially written for the LLVM Compiler Infrastructure
+// project where it is distributed under the University of Illinois Open Source
+// License. See the LICENSE file in the project root for license terms.
+//
 //===----------------------------------------------------------------------===//
 #ifndef GTIRB_ALLOCATOR_H
 #define GTIRB_ALLOCATOR_H
 
-// FIXME: Implementation was taken from LLVM, need to retain licensing
-// information and expose it properly. This is currently a WIP and we should
-// not release GTIRB until this is resolved.
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
