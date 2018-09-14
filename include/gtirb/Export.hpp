@@ -23,6 +23,12 @@
 #define __has_attribute(x) 0
 #endif
 
+/// \def __has_attribute
+/// \brief DOCFIXME
+
+/// \def __has_declspec_attribute
+/// \brief DOCFIXME
+
 /// \def GTIRB_EXPORT_API
 /// \brief This macro controls the visibility of exported symbols (i.e. classes)
 /// in shared libraries. When producing the library, selects symbols to export,

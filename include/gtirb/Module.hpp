@@ -32,6 +32,9 @@
 #include <cstdint>
 #include <string>
 
+/// \file Module.hpp
+/// \brief Class gtirb::Module and related functions and types.
+
 namespace gtirb {
 /// \brief DOCFIXME
 using DataSet = std::vector<DataObject*>;
@@ -64,11 +67,11 @@ enum class ISAID : uint8_t {
   IA32 = proto::IA32,   ///< Intel Architecture, 32-bit. Also known as i386.
   PPC32 = proto::PPC32, ///< Performance Optimization With Enhanced RISC –
                         ///< Performance Computing, 32-bit.
-  X64 = proto::X64,     ///< The generic name for the 64-bit extensions to both
-                    ///< Intel's and AMD's 32-bit x86 instruction set
-                    ///< architecture (ISA).
-  ARM =
-      proto::ARM, ///< Advanced RISC Machine. also known as Acorn RISC Machine.
+  X64 = proto::X64,     ///< The generic name for the 64-bit
+                        ///< extensions to both Intel's and AMD's 32-bit
+                        ///< x86 instruction set architecture (ISA).
+  ARM = proto::ARM,     ///< Advanced RISC Machine. also known as Acorn RISC
+                        ///< Machine.
   ValidButUnsupported = proto::ValidButUnsupported
 };
 
@@ -415,7 +418,7 @@ public:
     return boost::make_iterator_range(symbolic_expr_begin(),
                                       symbolic_expr_end());
   }
-  
+
   /// \brief Finds symbolic expressions by address.
   ///
   /// \param X The address to look up.
@@ -482,24 +485,31 @@ private:
   SymbolicExpressionSet SymbolicOperands;
 };
 
-/// \brief Helper predicate function to check whether a module has the given
-/// preferred address. Can be used in algorithms iterating over Module objects.
+/// \relates Addr
+/// \brief Check: does the specified Module have the specified
+/// preferred address?
 ///
 /// \param M  The Module object to test.
 /// \param X  The address to test.
 ///
-/// \return \c true if the module has the preferred address, \c false otherwise.
+/// \return \c true if \p M has preferred address \p X, \c false
+/// otherwise.
+///
+/// Can be used in algorithms iterating over Module objects.
 inline bool hasPreferredAddr(const Module& M, Addr X) {
   return M.getPreferredAddr() == X;
 }
 
-/// \brief Helper predicate function to check whether a module contains the
-/// given address. Can be used in algorithms iterating over Module objects.
+/// \relates Addr
+/// \brief Check: does the specified Module contain the specified
+/// address?
 ///
 /// \param M  The Module object to test.
 /// \param X  The address to test.
 ///
-/// \return \c true if the module contains the address, \c false otherwise.
+/// \return \c true if \p M contains address \p X, \c false otherwise.
+///
+/// Can be used in algorithms iterating over Module objects.
 inline bool containsAddr(const Module& M, Addr X) {
   const std::pair<Addr, Addr>& MinMax = M.getImageByteMap().getAddrMinMax();
   return X >= MinMax.first && X < MinMax.second;

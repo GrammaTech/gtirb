@@ -19,6 +19,9 @@
 #include <cstddef>
 #include <cstdint>
 
+/// \file Addr.hpp
+/// \brief Class gtirb::Addr and related functions.
+
 namespace gtirb {
 /// \brief A special class to store an Effective Address.
 ///
@@ -164,6 +167,7 @@ public:
   }
 };
 
+/// \relates Addr
 /// \brief Exclusive upper limit of an object's address range.
 ///
 /// \tparam T         Any type that specifies a range of addresses via
@@ -177,6 +181,7 @@ template <typename T> Addr addressLimit(const T& Object) {
   return Object.getAddress() + Object.getSize();
 }
 
+/// \relates Addr
 /// \brief Check: Does the specified object contain the specified address?
 ///
 /// \tparam T      Any type that specifies a range of addresses via

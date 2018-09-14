@@ -15,6 +15,12 @@
 #ifndef GTIRB_GTIRB_H
 #define GTIRB_GTIRB_H
 
+/// \file gtirb.hpp
+/// \brief \c \#include this file to include all GT-IRB API headers.
+
+/// \namespace gtirb
+/// \brief DOCFIXME
+
 #include <gtirb/Addr.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/ByteMap.hpp>

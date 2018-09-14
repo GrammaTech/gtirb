@@ -19,6 +19,9 @@
 #include <gtirb/Node.hpp>
 #include <cstdint>
 
+/// \file Section.hpp
+/// \brief Class gtirb::Section.
+
 namespace proto {
 class Section;
 }

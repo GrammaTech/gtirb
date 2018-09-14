@@ -22,6 +22,9 @@
 #include <cstdint>
 #include <vector>
 
+/// \file Block.hpp
+/// \brief Classes gtirb::Block and gtirb::InstructionRef.
+
 namespace proto {
 class Block;
 class InstructionRef;
@@ -32,6 +35,7 @@ namespace gtirb {
 /// \class Block
 ///
 /// \brief A basic block.
+/// \see \ref CFG_GROUP
 class GTIRB_EXPORT_API Block : public Node {
   Block(Context& C) : Node(C, Kind::Block) {}
   Block(Context& C, Addr A, uint64_t S, uint64_t Decode)
@@ -105,10 +109,14 @@ private:
 ///
 /// \brief Describes the location of an instruction.
 struct GTIRB_EXPORT_API InstructionRef {
-  NodeRef<Block> BlockRef; ///< The block to which the instruction belongs.
-                           ///< [DOCFIXME[check]
-  uint64_t Offset; ///< The offset of the instruction in the block. DOCFIXME[in
-                   ///< what? instructions? bytes?]
+
+  /// \brief The block to which the instruction
+  /// belongs. [DOCFIXME[check]
+  NodeRef<Block> BlockRef;
+
+  /// \brief The offset of the instruction in the block. DOCFIXME[in
+  /// what? instructions? bytes?]
+  uint64_t Offset;
 
   /// \brief DOCFIXME
   using MessageType = proto::InstructionRef;

@@ -26,6 +26,10 @@
 #include <map>
 #include <vector>
 
+/// \file ByteMap.hpp
+/// \brief Class gtirb::ByteMap.
+
+
 namespace proto {
 class ByteMap;
 }
