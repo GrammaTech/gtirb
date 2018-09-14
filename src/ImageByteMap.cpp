@@ -37,9 +37,9 @@ bool ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
 }
 
 bool ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
-  // FIXME: this should determine if there will be overlap before partially
-  // mutating the contained data; when the function returns false, you don't
-  // know what state the contained data is in any longer.
+  if (this->BMap.willOverlapRegion(Ea, Bytes))
+    return false;
+
   auto Span = gsl::make_span(&Value, 1);
   for (uint64_t I = 0; I < Bytes; I++) {
     if (!this->BMap.setData(Ea + I, Span)) {

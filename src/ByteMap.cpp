@@ -21,6 +21,40 @@
 
 using namespace gtirb;
 
+bool ByteMap::willOverlapRegion(Addr A, size_t Bytes) const {
+  // Look for a region that contains the address and see whether that region
+  // can hold all of the data or not. If the region needs to be extended,
+  // that's fine so long as the extension doesn't overlap into another region.
+  Addr Limit = A + Bytes;
+  for (size_t i = 0; i < Regions.size(); i++) {
+    auto& Current = Regions[i];
+    // If the current region can fully contain the data, we're good.
+    if (containsAddr(Current, A) && Limit <= addressLimit(Current)) {
+      return false;
+    }
+
+    // If the address is at the end of the current region, ensure that extending
+    // into the next region doesn't cause overlap.
+    if (A == addressLimit(Current)) {
+      bool HasNext = i + 1 < Regions.size();
+      return HasNext && Limit > Regions[i + 1].Address;
+    }
+
+    // We can extend into the previous region.
+    if (Limit == Current.Address) {
+      return false;
+    }
+
+    // Test to ensure there's not overlap with the current region.
+    if (containsAddr(Current, A) || containsAddr(Current, Limit - 1)) {
+      return true;
+    }
+  }
+
+  // Not contiguous with any existing data.
+  return false;
+}
+
 bool ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
