@@ -160,7 +160,6 @@ public:
   /// \return The deserialized IR object, or null on failure.
   static IR* fromProtobuf(Context& C, const MessageType& Message);
 
-
   /// \name Table Properties
   /// @{
 
@@ -169,11 +168,11 @@ public:
   ///
   /// \param Name     The name to assign to the table so it can be found later.
   /// \param X        The table itself.
-  /// 
+  ///
   /// \return void
   ///
   /// \ingroup TABLE_GROUP
-  void addTable(const std::string &Name, Table&& X);
+  void addTable(const std::string& Name, Table&& X);
 
   /// \brief Get a table by name.
   ///
@@ -231,7 +230,6 @@ public:
   void clearTables() { Tables.clear(); }
 
   /// @}
-
 
   /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::IR; }
