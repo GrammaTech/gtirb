@@ -160,11 +160,6 @@ TEST_F(Unit_ImageByteMapF, legacy_word) {
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
 
-  ASSERT_NO_THROW(this->ByteMap->getData<uint16_t>(Address))
-      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
-
   const auto Data = this->ByteMap->getData<uint16_t>(Address);
   EXPECT_EQ(0xDEAD, Data) << "Bad word read at : "
                           << static_cast<uint64_t>(Address);
@@ -174,11 +169,6 @@ TEST_F(Unit_ImageByteMapF, legacy_dword) {
   const auto Address = Addr(0x00001000);
 
   EXPECT_TRUE(this->ByteMap->setData(Address, uint32_t{0xCAFEBABE}))
-      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
-
-  ASSERT_NO_THROW(this->ByteMap->getData<uint32_t>(Address))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -196,11 +186,6 @@ TEST_F(Unit_ImageByteMapF, legacy_qword) {
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
 
-  ASSERT_NO_THROW(this->ByteMap->getData<uint64_t>(Address))
-      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
-
   const auto Data = this->ByteMap->getData<uint64_t>(Address);
   EXPECT_EQ(0x8BADF00D0D15EA5E, Data)
       << "Bad qword read at : " << static_cast<uint64_t>(Address);
@@ -213,11 +198,6 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
   const auto Address = Addr(0x00001000);
 
   EXPECT_TRUE(this->ByteMap->setData(Address, data))
-      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
-
-  ASSERT_NO_THROW(this->ByteMap->getData<decltype(data)>(Address))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -259,15 +239,11 @@ TEST_F(Unit_ImageByteMapF, structData) {
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
 
-  ASSERT_NO_THROW(this->ByteMap->getData<decltype(Data)>(Address))
-      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
-
   const auto Result = this->ByteMap->getData<decltype(Data)>(Address);
-  EXPECT_EQ(Data.I, Result.I)
+  EXPECT_TRUE(Result.has_value());
+  EXPECT_EQ(Data.I, Result->I)
       << "Bad struct read at : " << static_cast<uint64_t>(Address);
-  EXPECT_EQ(Data.J, Result.J)
+  EXPECT_EQ(Data.J, Result->J)
       << "Bad struct read at : " << static_cast<uint64_t>(Address);
 }
 
@@ -316,9 +292,10 @@ TEST_F(Unit_ImageByteMapF, littleEndian) {
   EXPECT_EQ(this->ByteMap->getData<uint32_t>(Addr1), Dw);
   EXPECT_EQ(this->ByteMap->getData<uint64_t>(Addr2), Qw);
   EXPECT_EQ(this->ByteMap->getData<decltype(A)>(Addr3), A);
-  TestStruct S2 = this->ByteMap->getData<TestStruct>(Addr4);
-  EXPECT_EQ(S2.I, S.I);
-  EXPECT_EQ(S2.J, S.J);
+  std::optional<TestStruct> S2 = this->ByteMap->getData<TestStruct>(Addr4);
+  EXPECT_TRUE(S2.has_value());
+  EXPECT_EQ(S2->I, S.I);
+  EXPECT_EQ(S2->J, S.J);
 }
 
 TEST_F(Unit_ImageByteMapF, bigEndian) {
@@ -383,9 +360,10 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
   EXPECT_EQ(this->ByteMap->getData<uint32_t>(Addr1), Dw);
   EXPECT_EQ(this->ByteMap->getData<uint64_t>(Addr2), Qw);
   EXPECT_EQ(this->ByteMap->getData<decltype(A)>(Addr3), A);
-  TestStruct S2 = this->ByteMap->getData<TestStruct>(Addr4);
-  EXPECT_EQ(S2.I, S.I);
-  EXPECT_EQ(S2.J, S.J);
+  std::optional<TestStruct> S2 = this->ByteMap->getData<TestStruct>(Addr4);
+  EXPECT_TRUE(S2.has_value());
+  EXPECT_EQ(S2->I, S.I);
+  EXPECT_EQ(S2->J, S.J);
 }
 
 TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
