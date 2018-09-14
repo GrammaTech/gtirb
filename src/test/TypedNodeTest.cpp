@@ -66,7 +66,7 @@ TYPED_TEST_CASE_P(TypedNodeTest);
 // ----------------------------------------------------------------------------
 // Tests to run on all types.
 
-TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NO_THROW(Type::Create(Ctx)); }
+TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NE(Type::Create(Ctx), nullptr); }
 
 TYPED_TEST_P(TypedNodeTest, uniqueUuids) {
   std::vector<gtirb::UUID> Uuids;

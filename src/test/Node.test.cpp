@@ -19,7 +19,7 @@
 
 static gtirb::Context Ctx;
 
-TEST(Unit_Node, ctor_0) { EXPECT_NO_THROW(gtirb::Node::Create(Ctx)); }
+TEST(Unit_Node, ctor_0) { EXPECT_NE(gtirb::Node::Create(Ctx), nullptr); }
 
 TEST(Unit_Node, uniqueUuids) {
   std::vector<gtirb::UUID> Uuids;

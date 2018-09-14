@@ -27,7 +27,7 @@
 using namespace gtirb;
 
 static Context Ctx;
-TEST(Unit_IR, ctor_0) { EXPECT_NO_THROW(IR::Create(Ctx)); }
+TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
 TEST(Unit_IR, getModulesWithPreferredAddr) {
   const Addr PreferredAddr{22678};
@@ -39,12 +39,12 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
     Module* M = Module::Create(Ctx);
     M->setPreferredAddr(PreferredAddr);
-    EXPECT_NO_THROW(Ir->addModule(M));
+    Ir->addModule(M);
   }
 
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
     Module* M = Module::Create(Ctx);
-    EXPECT_NO_THROW(Ir->addModule(M));
+    Ir->addModule(M);
   }
 
   size_t Count =
@@ -65,21 +65,21 @@ TEST(Unit_IR, getModulesContainingAddr) {
   {
     Module* M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea, Ea + EaOffset});
-    EXPECT_NO_THROW(Ir->addModule(M));
+    Ir->addModule(M);
   }
 
   // Addr inside range
   {
     Module* M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea + EaOffset});
-    EXPECT_NO_THROW(Ir->addModule(M));
+    Ir->addModule(M);
   }
 
   // Addr at max (should not be returned)
   {
     Module* M = Module::Create(Ctx);
     M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea});
-    EXPECT_NO_THROW(Ir->addModule(M));
+    Ir->addModule(M);
   }
 
   size_t Count = std::count_if(Ir->begin(), Ir->end(), [Ea](const Module& M) {

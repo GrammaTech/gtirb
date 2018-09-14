@@ -26,8 +26,6 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_CFG, ctor_0) { EXPECT_NO_THROW(CFG()); }
-
 TEST(Unit_CFG, addVertex) {
   //  CFG Cfg;
   //  auto Descriptor = add_vertex(Cfg);
