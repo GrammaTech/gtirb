@@ -149,12 +149,6 @@ public:
 
   /// \brief Set the byte map at the specified address.
   ///
-  /// \throws std::out_of_range   Throws if the address to set data at is
-  ///                             outside of the minimum and maximum
-  ///                             EA. DOCFIXME[what about the
-  ///                             addresses you reach by writing
-  ///                             Data?]
-  ///
   /// \param  Ea      The address at which to store the data. Must be within
   ///                 the the minimum and maximum EA for \c this.
   /// \param  Data    A pointer to the data to store.
@@ -162,21 +156,18 @@ public:
   ///                 Data)+1 must be within the minimum and maximum
   ///                 EA for \c this."]
   ///
-  /// \return void
+  /// \return  Will return \c true if the data can be assigned at the given
+  /// Address, or \c false otherwise. The data passed in at the given address
+  /// cannot overlap another memory region (overlays are not supported).
   ///
   /// Data is written directly without any byte order conversions.
   ///
   /// \sa gtirb::ByteMap
   /// \sa getAddrMinMax()
-  void setData(Addr Ea, gsl::span<const std::byte> Data);
+  bool setData(Addr Ea, gsl::span<const std::byte> Data);
 
   /// DOCFIXME[check all]
   /// \brief Set the byte map in the specified range to a constant value.
-  ///
-  /// \throws std::out_of_range   Throws if \p Ea is
-  ///                             outside the address range for \c
-  ///                             this. DOCFIXME[just Ea? or also
-  ///                             (Ea+Bytes-1)?]
   ///
   /// \param  Ea      The first address in the range. Must be within the
   ///                 address range for \c this.
@@ -185,18 +176,16 @@ public:
   /// \param Value    The value to set for all bytes in the range [\p Ea,
   ///                 \p Ea + \p Bytes-1].
   ///
-  /// \return void
+  /// \return  Will return \c true if the data can be assigned at the given
+  /// Address, or \c false otherwise. The data passed in at the given address
+  /// cannot overlap another memory region (overlays are not supported).
   ///
   /// \sa gtirb::ByteMap
   /// \sa getAddrMinMax()
-  void setData(Addr Ea, size_t Bytes, std::byte Value);
+  bool setData(Addr Ea, size_t Bytes, std::byte Value);
 
   /// \brief Store data in the byte map at the given address,
   /// converting from native byte order.
-  ///
-  /// \throws std::out_of_range   Throws if \p Ea is outside the address
-  ///                             range for \c this.  DOCFIXME[just
-  ///                             Ea? or also Ea+sizeof(Data)-1?]
   ///
   /// \param  Ea      The address to store the data. Must be within the
   ///                 address range for \c this.
@@ -207,29 +196,25 @@ public:
   /// \tparam T       The type of the data to store. May be any
   ///                 endian-reversible POD type.
   ///
-  /// \return void
+  /// \return  Will return \c true if the data can be assigned at the given
+  /// Address, or \c false otherwise. The data passed in at the given address
+  /// cannot overlap another memory region (overlays are not supported).
   ///
   /// \sa gtirb::ByteMap
   /// \sa getByteOrder()
   /// \sa getAddrMinMax()
-  template <typename T> void setData(Addr Ea, const T& Data) {
+  template <typename T> bool setData(Addr Ea, const T& Data) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
     if (this->ByteOrder != boost::endian::order::native) {
       T reversed = boost::endian::conditional_reverse(
           Data, this->ByteOrder, boost::endian::order::native);
-      this->BMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
-    } else {
-      this->BMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
+      return this->BMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
     }
+    return this->BMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
   }
 
   /// \brief Store an array to the byte map at the specified address,
   /// converting elements from native byte order.
-  ///
-  /// \throws std::out_of_range Throws if \p Ea is outside the
-  ///                           address range for \c this.
-  ///                           DOCFIXME[just Ea? or also
-  ///                           (Ea+sizeof(Data)-1)?]
   ///
   /// \param  Ea      The address to store the data. Must be within the
   ///                 address range for \c this.
@@ -241,17 +226,24 @@ public:
   /// \tparam T       The type of the array elements. Can be any
   ///                 endian-reversible POD type.
   ///
-  /// \return void
+  /// \return  Will return \c true if the data can be assigned at the given
+  /// Address, or \c false otherwise. The data passed in at the given address
+  /// cannot overlap another memory region (overlays are not supported).
   ///
   /// \sa gtirb::ByteMap
   /// \sa getByteOrder()
   /// \sa getAddrMinMax()
   template <typename T, size_t Size>
-  void setData(Addr Ea, const std::array<T, Size>& Data) {
+  bool setData(Addr Ea, const std::array<T, Size>& Data) {
+    // FIXME: this should determine if there will be overlap before partially
+    // mutating the contained data; when the function returns false, you don't
+    // know what state the contained data is in any longer.
     for (const auto& Elt : Data) {
-      this->setData(Ea, Elt);
+      if (!this->setData(Ea, Elt))
+        return false;
       Ea = Ea + sizeof(T);
     }
+    return true;
   }
 
   /// \brief DOCFIXME
@@ -262,10 +254,11 @@ public:
   /// \param  X       The starting address for the data.
   /// \param  Bytes   The number of bytes to read.
   ///
-  /// \sa gtirb::ByteMap
+  /// \return An iterator range that encodes a contiguous block of memory that
+  /// can be accessed directly, such as via memcpy(). Will return an empty
+  /// range if the requested address or number of bytes cannot be retrieved.
   ///
-  /// The iterator range returned encodes a contiguous block of memory that can
-  /// be accessed directly, such as via memcpy().
+  /// \sa gtirb::ByteMap
   const_range data(Addr X, size_t Bytes) const;
 
   /// \brief Get data from the byte map at the specified address,
@@ -279,8 +272,6 @@ public:
   /// \return An object of type \p T, initialized from the byte map data.
   ///
   /// \sa gtirb::ByteMap
-  ///
-  /// DOCFIXME[no exceptions thrown for out-of-range Ea, Ea+sizeof(T)-1?]
   template <typename T>
   typename std::enable_if<!details::is_std_array<T>::value, T>::type
   getData(Addr Ea) {
@@ -303,8 +294,6 @@ public:
   /// data.
   ///
   /// \sa gtirb::ByteMap
-  ///
-  /// DOCFIXME[no exceptions thrown for out-of-range Ea, Ea+sizeof(T)-1?]
   template <typename T>
   typename std::enable_if<details::is_std_array<T>::value, T>::type
   getData(Addr Ea) {

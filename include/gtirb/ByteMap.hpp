@@ -41,10 +41,12 @@ public:
   /// \brief Set the byte map at the specified address.
   ///
   /// \param  A       The address to store the data.
-  /// \param  Data    The data to store.
+  /// \param  Data    The data to store; can be an empty range of data.
   ///
-  /// \return  void
-  void setData(Addr A, gsl::span<const std::byte> Data);
+  /// \return  Will return \c true if the data can be assigned at the given
+  /// Address, or \c false otherwise. The data passed in at the given address
+  /// cannot overlap another memory region (overlays are not supported).
+  bool setData(Addr A, gsl::span<const std::byte> Data);
 
   /// \brief DOCFIXME
   using const_range =
@@ -55,10 +57,9 @@ public:
   /// \param  A       The starting address for the data.
   /// \param  Bytes   The number of bytes to read.
   ///
-  /// \return DOCFIXME
-  ///
-  /// The iterator range returned encodes a contiguous block of memory that can
-  /// be accessed directly, such as via memcpy().
+  /// \return An iterator range that encodes a contiguous block of memory that
+  /// can be accessed directly, such as via memcpy(). Will return an empty
+  /// range if the requested address or number of bytes cannot be retrieved.
   const_range data(Addr A, size_t Bytes) const;
 
   /// \brief DOCFIXME
