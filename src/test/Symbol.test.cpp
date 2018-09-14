@@ -23,16 +23,15 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Symbol, ctor_0) { EXPECT_NO_THROW(Symbol::Create(Ctx)); }
+TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx), nullptr); }
 
 TEST(Unit_Symbol, setName) {
   const std::string Value{"Foo"};
 
   auto* Node = Symbol::Create(Ctx);
-  EXPECT_NO_THROW(Node->getName());
   EXPECT_TRUE(Node->getName().empty());
 
-  EXPECT_NO_THROW(Node->setName(Value));
+  Node->setName(Value);
   EXPECT_EQ(Value, Node->getName());
 }
 
@@ -40,10 +39,9 @@ TEST(Unit_Symbol, setAddress) {
   const Addr Value{22678};
 
   auto* Node = Symbol::Create(Ctx);
-  EXPECT_NO_THROW(Node->getAddress());
   EXPECT_EQ(Addr(), Node->getAddress());
 
-  EXPECT_NO_THROW(Node->setAddress(Value));
+  Node->setAddress(Value);
   EXPECT_EQ(Value, Node->getAddress());
 }
 
@@ -51,10 +49,9 @@ TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
   auto* Node = Symbol::Create(Ctx);
-  EXPECT_NO_THROW(Node->getStorageKind());
   EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
-  EXPECT_NO_THROW(Node->setStorageKind(Value));
+  Node->setStorageKind(Value);
   EXPECT_EQ(Value, Node->getStorageKind());
 }
 
