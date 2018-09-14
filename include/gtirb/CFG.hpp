@@ -22,6 +22,10 @@
 #include <gsl/gsl>
 #include <variant>
 
+/// \file CFG.hpp
+/// \brief Typedefs and operations for interprocedural
+/// \ref CFG_GROUP "control flow graphs" (CFGs).
+
 namespace proto {
 class CFG;
 }
@@ -32,8 +36,16 @@ class Block;
 /// \brief DOCFIXME
 using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
+
+/// \defgroup CFG_GROUP CFGs
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
+///
+/// @{ @}
+
+/// \ingroup CFG_GROUP
+/// \brief Interprocedural \ref CFG_GROUP "control flow graph", with
+/// vertices of type \ref Block.
 using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
                                   boost::vecS,  // preserve vertex order
                                   boost::bidirectionalS, // successor and
@@ -83,12 +95,15 @@ private:
   gsl::not_null<Graph*> cfg;
 };
 
+/// \ingroup CFG_GROUP
 /// \brief DOCFIXME
 using block_iterator = block_iter_base<Block, CFG>;
 
+/// \ingroup CFG_GROUP
 /// \brief DOCFIXME
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
+/// \ingroup CFG_GROUP
 /// \brief Move a basic block (\ref Block) into the graph.
 ///
 /// \param Cfg    DOCFIXME
@@ -98,6 +113,7 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* B);
 
 /// DOCFIXME[check all]
+/// \ingroup CFG_GROUP
 /// \brief Get an iterator over the \ref Block elements in the
 /// specified graph.
 ///
@@ -107,6 +123,7 @@ GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* B);
 GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
 /// DOCFIXME[check all]
+/// \ingroup CFG_GROUP
 /// \brief Get an iterator over the \ref Block elements in the
 /// specified graph (by const reference).
 ///
@@ -116,6 +133,7 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
+/// \ingroup CFG_GROUP
 /// \brief DOCFIXME
 ///
 /// \param Cfg    DOCFIXME
@@ -123,6 +141,7 @@ blocks(const CFG& cfg);
 /// \return DOCFIXME
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 
+/// \ingroup CFG_GROUP
 /// \brief DOCFIXME
 ///
 /// \param C DOCFIXME

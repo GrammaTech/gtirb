@@ -23,11 +23,18 @@
 #include <string>
 #include <variant>
 
+/// \file SymbolicExpression.hpp
+/// \brief \ref SYMBOLIC_EXPRESSION_GROUP.
+
 namespace proto {
 class SymbolicExpression;
 }
 namespace gtirb {
 class Context;
+
+/// \defgroup SYMBOLIC_EXPRESSION_GROUP Symbolic Expressions and Operands
+/// \brief DOCFIXME
+/// @{
 
 /// \brief Represents a symbolic operand of the form "StackVar + Const".
 /// DOCFIXME[word in terms of the field names]
@@ -77,6 +84,9 @@ GTIRB_EXPORT_API void fromProtobuf(Context&, SymbolicExpression& Result,
 /// \return DOCFIXME
 GTIRB_EXPORT_API proto::SymbolicExpression
 toProtobuf(const SymbolicExpression& Expr);
+
+/// @}
+// (end \defgroup SYMBOLIC_EXPRESSION_GROUP)
 
 } // namespace gtirb
 
