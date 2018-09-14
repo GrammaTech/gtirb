@@ -27,8 +27,12 @@
 #include <set>
 #include <type_traits>
 
+/// \file ImageByteMap.hpp
+/// \brief Class gtirb::ImageByteMap and related functions.
+
 namespace gtirb {
 
+/// \brief DOCFIXME
 namespace details {
 template <class T> struct is_std_array : std::false_type {};
 template <class T, std::size_t N>
@@ -363,6 +367,7 @@ private:
   boost::endian::order ByteOrder{boost::endian::order::native};
 };
 
+/// \relates ImageByteMap
 /// \brief Retrieve the bytes associated with an object.
 ///
 /// \tparam T     DOCFIXME

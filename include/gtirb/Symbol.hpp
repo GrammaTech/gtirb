@@ -24,6 +24,10 @@
 #include <optional>
 #include <type_traits>
 
+/// \file Symbol.hpp
+/// \brief Class gtirb::Symbol.
+
+
 namespace gtirb {
 /// \class Symbol
 ///

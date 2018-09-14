@@ -20,6 +20,9 @@
 #include <cstdint>
 #include <vector>
 
+/// \file DataObject.hpp
+/// \brief Class gtirb::DataObject.
+
 namespace proto {
 class DataObject;
 }

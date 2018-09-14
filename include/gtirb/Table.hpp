@@ -23,6 +23,9 @@
 #include <variant>
 #include <vector>
 
+/// \file Table.hpp
+/// \brief  Definitions and functions for \ref TABLE_GROUP.
+
 namespace proto {
 class Table;
 }
@@ -30,6 +33,12 @@ class Table;
 namespace gtirb {
 class Context;
 
+
+/// \defgroup TABLE_GROUP Tables
+/// \brief DOCFIXME
+/// @{
+
+/// \brief DOCFIXME
 namespace table {
 
 /// \brief DOCFIXME
@@ -57,9 +66,9 @@ using ValueType = std::variant<Addr,           //
                                InnerMapType>;
 } // namespace table
 
-/// \class Table
-///
-/// \brief A generic table for storing additional, client-specific data.
+
+/// \brief A generic \ref TABLE_GROUP "table" for storing additional,
+/// client-specific data.
 using Table = std::variant<std::map<Addr, table::ValueType>,        //
                            std::map<int64_t, table::ValueType>,     //
                            std::map<std::string, table::ValueType>, //
@@ -88,6 +97,11 @@ GTIRB_EXPORT_API proto::Table toProtobuf(const Table& Table);
 /// \return void
 GTIRB_EXPORT_API void fromProtobuf(Context& C, Table& Result,
                                    const proto::Table& Message);
+
+
+/// @}
+// (end \defgroup TABLE_GROUP)
+
 } // namespace gtirb
 
 #endif // GTIRB_TABLE_H

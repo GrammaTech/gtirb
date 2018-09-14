@@ -17,6 +17,9 @@
 
 #include <gtirb/Node.hpp>
 
+/// \file NodeRef.hpp
+/// \brief Class gtirb::NodeRef.
+
 namespace gtirb {
 
 /// \class NodeRef

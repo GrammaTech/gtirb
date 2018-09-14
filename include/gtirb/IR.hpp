@@ -25,6 +25,9 @@
 #include <string>
 #include <vector>
 
+/// \file IR.hpp
+/// \brief Class gtirb::IR.
+
 namespace proto {
 class IR;
 }
@@ -157,8 +160,9 @@ public:
   /// \return The deserialized IR object, or null on failure.
   static IR* fromProtobuf(Context& C, const MessageType& Message);
 
-  // ----------------------------------------------------------------------
-  // Table Properties
+
+  /// \name Table Properties
+  /// @{
 
   /// \brief Add a new table, transferring ownership.
   /// The table can be populated from anywhere.
@@ -167,6 +171,8 @@ public:
   /// \param X        The table itself.
   /// 
   /// \return void
+  ///
+  /// \ingroup TABLE_GROUP
   void addTable(const std::string &Name, Table&& X);
 
   /// \brief Get a table by name.
@@ -175,6 +181,8 @@ public:
   ///
   /// \return     A non-owning pointer to the table if found,
   ///             \c nullptr otherwise.
+  ///
+  /// \ingroup TABLE_GROUP
   const gtirb::Table* getTable(const std::string& X) const;
 
   /// \brief Get a table by name.
@@ -184,6 +192,8 @@ public:
   ///
   /// \return     A non-owning pointer to the table if found,
   ///             \c nullptr otherwise.
+  ///
+  /// \ingroup TABLE_GROUP
   gtirb::Table* getTable(const std::string& X);
 
   /// \brief Remove a table by name.
@@ -192,12 +202,16 @@ public:
   ///
   /// \param  X   The name of the table to search for.
   /// \return     \c true on success, \c false otherwise.
+  ///
+  /// \ingroup TABLE_GROUP
   bool removeTable(const std::string& X);
 
   /// \brief Get the total number of tables at this Node.
   /// DOCFIXME[what Node?]
   ///
   /// \return     The total number of tables this node owns.
+  ///
+  /// \ingroup TABLE_GROUP
   size_t getTableSize() const { return Tables.size(); }
 
   /// \brief Check: Is the number of tables at this Node zero?
@@ -205,12 +219,18 @@ public:
   ///
   /// \return \c true if this node does not own any tables, \c false
   /// if it owns one or more tables.
+  ///
+  /// \ingroup TABLE_GROUP
   bool getTablesEmpty() const { return Tables.empty(); }
 
   /// \brief Clear all locally owned tables.
   ///
   /// \return void
+  ///
+  /// \ingroup TABLE_GROUP
   void clearTables() { Tables.clear(); }
+
+  /// @}
 
   static bool classof(const Node* N) { return N->getKind() == Kind::IR; }
 
