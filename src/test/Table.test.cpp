@@ -355,7 +355,7 @@ template <> struct table_traits<InstructionRef> {
 template <class T>
 struct table_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
   static std::string type_id() {
-    return "sequence<" + TypeId<typename T::value_type>::get() + ">";
+    return "sequence<" + TypeId<typename T::value_type>::value() + ">";
   }
 
   static void toBytes(const T& Object, to_iterator It) {
@@ -382,7 +382,7 @@ template <class T>
 struct table_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
   static std::string type_id() {
     return "mapping<" +
-           TypeId<typename T::key_type, typename T::mapped_type>::get() + ">";
+           TypeId<typename T::key_type, typename T::mapped_type>::value() + ">";
   }
 
   static void toBytes(const T& Object, to_iterator It) {
@@ -424,7 +424,7 @@ struct TupleCheck<T, Ts...> : TupleCheck<Ts...> {
 
 template <class... Ts> std::string tupleId(const std::tuple<Ts...>&) {
   TupleCheck<Ts...>::check();
-  return TypeId<Ts...>::get();
+  return TypeId<Ts...>::value();
 }
 
 template <class T>
@@ -437,12 +437,12 @@ template <> struct TypeId<> {
   static std::string get() { return ""; }
 };
 template <class T> struct TypeId<T> {
-  static std::string get() { return table_traits<T>::type_id(); }
+  static std::string value() { return table_traits<T>::type_id(); }
 };
 
 template <class T, class... Ts> struct TypeId<T, Ts...> {
-  static std::string get() {
-    return table_traits<T>::type_id() + "," + TypeId<Ts...>::get();
+  static std::string value() {
+    return table_traits<T>::type_id() + "," + TypeId<Ts...>::value();
   }
 };
 
@@ -471,7 +471,7 @@ public:
 
   const std::type_info& storedType() const override { return typeid(T); }
 
-  std::string typeName() const override { return TypeId<T>::get(); }
+  std::string typeName() const override { return TypeId<T>::value(); }
 
   void* get() { return static_cast<void*>(&Object); }
 
@@ -480,26 +480,21 @@ public:
 
 class PodTable {
 public:
-  template <typename T> void set(T&& Value) {
+  PodTable() = default;
+
+  template <typename T>
+  PodTable(T&& Value)
+      : Impl(std::make_unique<PodTableTemplate<std::remove_reference_t<T>>>(
+            std::forward<T>(Value))) {}
+
+  template <typename T> PodTable& operator=(T&& Value) {
     this->Impl = std::make_unique<PodTableTemplate<std::remove_reference_t<T>>>(
         std::forward<T>(Value));
+    return *this;
   }
 
-  template <typename T> T& get() {
-    if (!this->RawBytes.empty()) {
-      // Reconstruct from deserialized data
-      this->Impl = std::make_unique<PodTableTemplate<T>>();
-      Expects(this->Impl->typeName() == this->TypeName);
-      this->Impl->fromBytes(this->RawBytes);
-      this->RawBytes.clear();
-      this->TypeName.clear();
-    } else {
-      Expects(this->Impl != nullptr);
-      Expects(typeid(T) == this->Impl->storedType());
-    }
-
-    return *static_cast<T*>(this->Impl->get());
-  }
+  template <typename T> friend T& get(PodTable& Table);
+  template <typename T> friend std::add_pointer_t<T> get_if(PodTable* Table);
 
   using MessageType = proto::PodTable;
   void toProtobuf(MessageType* Message) const;
@@ -510,6 +505,40 @@ private:
   std::string RawBytes;
   std::string TypeName;
 };
+
+template <typename T> T& get(PodTable& Table) {
+  if (!Table.RawBytes.empty()) {
+    // Reconstruct from deserialized data
+    Table.Impl = std::make_unique<PodTableTemplate<T>>();
+    Expects(Table.Impl->typeName() == Table.TypeName);
+    Table.Impl->fromBytes(Table.RawBytes);
+    Table.RawBytes.clear();
+    Table.TypeName.clear();
+  } else {
+    Expects(Table.Impl != nullptr);
+    Expects(typeid(T) == Table.Impl->storedType());
+  }
+
+  return *static_cast<T*>(Table.Impl->get());
+}
+
+template <typename T> std::add_pointer_t<T> get_if(PodTable* Table) {
+  if (Table == nullptr) {
+    return nullptr;
+  }
+
+  if (!Table->RawBytes.empty()) {
+    if (Table->Impl->typeName() != Table->TypeName) {
+      return nullptr;
+    }
+  } else {
+    if (Table->Impl == nullptr || typeid(T) != Table->Impl->storedType()) {
+      return nullptr;
+    }
+  }
+
+  return &get<T>(*Table);
+}
 
 void PodTable::toProtobuf(MessageType* message) const {
   if (this->Impl != nullptr) {
@@ -544,131 +573,126 @@ TEST(Unit_PodTable, typeName) {
 
 TEST(Unit_PodTable, getPrimitiveTypes) {
   PodTable P;
-  P.set(char('a'));
-  EXPECT_EQ(P.get<char>(), 'a');
+  P = char('a');
+  EXPECT_EQ(get<char>(P), 'a');
 
-  P.set(uint64_t(123));
-  EXPECT_EQ(P.get<uint64_t>(), 123);
+  P = uint64_t(123);
+  EXPECT_EQ(get<uint64_t>(P), 123);
 
-  P.set(int64_t(-123));
-  EXPECT_EQ(P.get<int64_t>(), -123);
+  P = int64_t(-123);
+  EXPECT_EQ(get<int64_t>(P), -123);
 
-  P.set(uint8_t(123));
-  EXPECT_EQ(P.get<uint8_t>(), 123);
+  P = uint8_t(123);
+  EXPECT_EQ(get<uint8_t>(P), 123);
 
-  P.set(int(-123));
-  EXPECT_EQ(P.get<int>(), -123);
+  P = int(-123);
+  EXPECT_EQ(get<int>(P), -123);
 
-  P.set(unsigned(123));
-  EXPECT_EQ(P.get<unsigned>(), 123);
+  P = unsigned(123);
+  EXPECT_EQ(get<unsigned>(P), 123);
 
-  P.set(std::byte(123));
-  EXPECT_EQ(P.get<std::byte>(), std::byte(123));
+  P = std::byte(123);
+  EXPECT_EQ(get<std::byte>(P), std::byte(123));
 }
 
 TEST(Unit_PodTable, getVector) {
   std::vector<int64_t> Orig({1, 2, 3});
-  PodTable P;
-  P.set(Orig);
+  PodTable P(Orig);
 
-  auto& result = P.get<std::vector<int64_t>>();
+  auto& result = get<std::vector<int64_t>>(P);
   EXPECT_EQ(result, Orig);
 }
 
 TEST(Unit_PodTable, getString) {
   std::string Orig("abcd");
-  PodTable P;
-  P.set(Orig);
+  PodTable P(Orig);
 
-  EXPECT_EQ(P.get<std::string>(), "abcd");
+  EXPECT_EQ(get<std::string>(P), "abcd");
 }
 
 TEST(Unit_PodTable, getAddr) {
   Addr Orig(0x1234);
-  PodTable P;
-  P.set(Orig);
+  PodTable P(Orig);
 
-  EXPECT_EQ(P.get<Addr>(), Addr(0x1234));
+  EXPECT_EQ(get<Addr>(P), Addr(0x1234));
 }
 
 TEST(Unit_PodTable, getMap) {
   std::map<char, int64_t> Orig({{'a', 1}, {'b', 2}, {'c', 3}});
-  PodTable P;
-  P.set(Orig);
+  PodTable P(Orig);
 
-  auto& Result = P.get<std::map<char, int64_t>>();
+  auto& Result = get<std::map<char, int64_t>>(P);
   EXPECT_EQ(Result, Orig);
 }
 
 TEST(Unit_PodTable, getTuple) {
   std::tuple<char, int64_t> Orig('a', 1);
-  PodTable P;
-  P.set(Orig);
+  PodTable P(Orig);
 
-  auto& Result = P.get<std::tuple<char, int64_t>>();
+  auto& Result = get<std::tuple<char, int64_t>>(P);
   EXPECT_EQ(Result, Orig);
 }
 
 TEST(Unit_PodTable, getUnsetValue) {
   PodTable P;
-  EXPECT_DEATH(P.get<int64_t>(), "");
+  EXPECT_DEATH(get<int64_t>(P), "");
 }
 
 TEST(Unit_PodTable, getWrongType) {
   PodTable P;
-  P.set(uint64_t(1));
-  EXPECT_DEATH(P.get<int64_t>(), "");
+  P = uint64_t(1);
+  EXPECT_DEATH(get<int64_t>(P), "");
 }
 
 TEST(Unit_PodTable, getWrongContainer) {
   PodTable P;
-  P.set(std::vector<int>());
-  EXPECT_DEATH(P.get<std::list<int>>(), "");
+  P = std::vector<int>();
+  EXPECT_DEATH(get<std::list<int>>(P), "");
 }
 
 TEST(Unit_PodTable, protobufRoundTrip) {
   int64_t A = 123;
   PodTable Original;
-  Original.set(A);
+  Original = A;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(A, Result.get<int64_t>());
+  EXPECT_EQ(A, get<int64_t>(Result));
 }
 
 TEST(Unit_PodTable, vectorProtobufRoundTrip) {
   std::vector<int64_t> V({1, 2, 3});
   PodTable Original;
-  Original.set(V);
+  Original = V;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(V)>(), V);
+  EXPECT_EQ(get<decltype(V)>(Result), V);
 }
 
 TEST(Unit_PodTable, listProtobufRoundTrip) {
   std::list<int64_t> V({1, 2, 3});
   PodTable Original;
-  Original.set(V);
+  Original = V;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(V)>(), V);
+  EXPECT_EQ(get<decltype(V)>(Result), V);
 }
 
 TEST(Unit_PodTable, listToVectorProtobufRoundTrip) {
   std::list<int64_t> Lst({1, 2, 3});
   PodTable Original;
-  Original.set(Lst);
+  Original = Lst;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
@@ -676,85 +700,85 @@ TEST(Unit_PodTable, listToVectorProtobufRoundTrip) {
   Result.fromProtobuf(Message);
 
   auto vec = std::vector<int64_t>(Lst.begin(), Lst.end());
-  EXPECT_EQ(Result.get<decltype(vec)>(), vec);
+  EXPECT_EQ(get<decltype(vec)>(Result), vec);
 }
 
 TEST(Unit_PodTable, stringProtobufRoundTrip) {
   std::string S("abcd");
   PodTable Original;
-  Original.set(S);
+  Original = S;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(S)>(), S);
+  EXPECT_EQ(get<decltype(S)>(Result), S);
 }
 
 TEST(Unit_PodTable, addrProtobufRoundTrip) {
   Addr A(0x1234);
   PodTable Original;
-  Original.set(A);
+  Original = A;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(A)>(), A);
+  EXPECT_EQ(get<decltype(A)>(Result), A);
 }
 
 TEST(Unit_PodTable, mapProtobufRoundTrip) {
   std::map<char, int64_t> M({{'a', 1}, {'b', 2}, {'c', 3}});
   PodTable Original;
-  Original.set(M);
+  Original = M;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(M)>(), M);
+  EXPECT_EQ(get<decltype(M)>(Result), M);
 }
 
 TEST(Unit_PodTable, tupleProtobufRoundTrip) {
   std::tuple<char, int64_t> T('a', 1);
   PodTable Original;
-  Original.set(T);
+  Original = T;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(T)>(), T);
+  EXPECT_EQ(get<decltype(T)>(Result), T);
 }
 
 TEST(Unit_PodTable, uuidProtobufRoundTrip) {
   UUID Val = Node::Create(Ctx)->getUUID();
   PodTable Original;
-  Original.set(Val);
+  Original = Val;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(Val)>(), Val);
+  EXPECT_EQ(get<decltype(Val)>(Result), Val);
 }
 
 TEST(Unit_PodTable, instructionRefProtobufRoundTrip) {
   InstructionRef Val{{Node::Create(Ctx)->getUUID()}, 123};
   PodTable Original;
-  Original.set(Val);
+  Original = Val;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  auto NewVal = Result.get<decltype(Val)>();
+  auto NewVal = get<decltype(Val)>(Result);
   EXPECT_EQ(NewVal.BlockRef.getUUID(), Val.BlockRef.getUUID());
   EXPECT_EQ(NewVal.Offset, Val.Offset);
 }
@@ -769,32 +793,32 @@ TEST(Unit_PodTable, nestedProtobufRoundTrip) {
   N1.push_back({{'a', {0, 1}}, {'b', {2, 3}}});
   N1.push_back({{'c', {4, 5}}, {'d', {6, 7}}});
 
-  Original.set(N1);
+  Original = N1;
 
   Original.toProtobuf(&Message);
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(N1)>(), N1);
+  EXPECT_EQ(get<decltype(N1)>(Result), N1);
 
   // Outer map
   std::map<std::string, std::vector<int64_t>> N2{{"a", {1, 2, 3}}};
-  Original.set(N2);
+  Original = N2;
   Original.toProtobuf(&Message);
   Result.fromProtobuf(Message);
 
-  EXPECT_EQ(Result.get<decltype(N2)>(), N2);
+  EXPECT_EQ(get<decltype(N2)>(Result), N2);
 }
 
 TEST(Unit_PodTable, wrongTypeAfterProtobufRoundTrip) {
   PodTable Original;
-  Original.set(1234);
+  Original = 1234;
 
   PodTable::MessageType Message;
   Original.toProtobuf(&Message);
   PodTable Result;
   Result.fromProtobuf(Message);
 
-  EXPECT_DEATH(Result.get<std::string>(), "");
+  EXPECT_DEATH(get<std::string>(Result), "");
 }
 
 struct MoveTest {
@@ -822,13 +846,23 @@ TEST(Unit_PodTable, movesAndCopies) {
   EXPECT_EQ(MoveTest::MoveCount, 0);
 
   PodTable Table;
-  Table.set(M);
-  EXPECT_EQ(Table.get<decltype(M)>().Val, 123);
+  Table = M;
+  EXPECT_EQ(get<decltype(M)>(Table).Val, 123);
   EXPECT_EQ(MoveTest::CopyCount, 1);
   EXPECT_EQ(MoveTest::MoveCount, 0);
 
-  Table.set(std::move(M));
-  EXPECT_EQ(Table.get<decltype(M)>().Val, 123);
+  Table = std::move(M);
+  EXPECT_EQ(get<decltype(M)>(Table).Val, 123);
   EXPECT_EQ(MoveTest::CopyCount, 1);
   EXPECT_EQ(MoveTest::MoveCount, 1);
+}
+
+TEST(Unit_PodTable, getIf) {
+  PodTable Table(int(123));
+  EXPECT_EQ(*get_if<int>(&Table), 123);
+  EXPECT_EQ(get_if<std::string>(&Table), nullptr);
+
+  PodTable Empty;
+  EXPECT_EQ(get_if<int>(&Empty), nullptr);
+  EXPECT_EQ(get_if<int>(nullptr), nullptr);
 }
