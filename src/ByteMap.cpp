@@ -21,7 +21,7 @@
 
 using namespace gtirb;
 
-void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
+bool ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
   // Look for a region to hold this data. If necessary, extend or merge
   // existing regions to keep allocations contiguous.
   Addr Limit = A + uint64_t(Bytes.size_bytes());
@@ -32,15 +32,14 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
     if (containsAddr(Current, A) && Limit <= addressLimit(Current)) {
       auto Offset = A - Current.Address;
       std::copy(Bytes.begin(), Bytes.end(), Current.Data.begin() + Offset);
-      return;
+      return true;
     }
 
     // Extend region
     if (A == addressLimit(Current)) {
       bool HasNext = i + 1 < Regions.size();
       if (HasNext && Limit > Regions[i + 1].Address) {
-        throw std::invalid_argument(
-            "Request to setData which overlaps an existing region.");
+        return false;
       }
 
       Current.Data.reserve(Current.Data.size() + Bytes.size());
@@ -52,7 +51,7 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
         std::copy(Data.begin(), Data.end(), std::back_inserter(Current.Data));
         this->Regions.erase(this->Regions.begin() + i + 1);
       }
-      return;
+      return true;
     }
 
     // Extend region backward
@@ -62,11 +61,11 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
       std::copy(Bytes.begin(), Bytes.end(),
                 std::inserter(Current.Data, Current.Data.begin()));
       Current.Address = A;
-      return;
+      return true;
     }
 
     if (containsAddr(Current, A) || containsAddr(Current, Limit - 1)) {
-      throw std::invalid_argument("setData overlaps an existing region");
+      return false;
     }
   }
 
@@ -80,6 +79,8 @@ void ByteMap::setData(Addr A, gsl::span<const std::byte> Bytes) {
                          return Left.Address < Right.Address;
                        }),
       std::move(R));
+
+  return true;
 }
 
 ByteMap::const_range ByteMap::data(Addr A, size_t Bytes) const {
@@ -88,7 +89,7 @@ ByteMap::const_range ByteMap::data(Addr A, size_t Bytes) const {
 
   if (Reg == this->Regions.end() || A < Reg->Address ||
       (A + Bytes > addressLimit(*Reg))) {
-    throw std::out_of_range("getData on unmapped address");
+    return ByteMap::const_range{};
   }
 
   auto Begin = Reg->Data.begin() + (A - Reg->Address);

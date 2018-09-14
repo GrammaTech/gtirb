@@ -18,8 +18,15 @@
 #include <cstring>
 #include <gsl/gsl>
 #include <gtest/gtest.h>
+#include <iterator>
+#include <type_traits>
 
 using namespace gtirb;
+
+template <typename RangeTy> static bool empty(RangeTy&& R) {
+  return std::distance(std::forward<RangeTy>(R).begin(),
+                       std::forward<RangeTy>(R).end()) == 0;
+}
 
 static Context Ctx;
 
@@ -33,7 +40,7 @@ public:
     for (size_t i = 0; i < Unit_ImageByteMapF::InitializedSize; ++i) {
       const auto address = Unit_ImageByteMapF::Offset + i;
 
-      EXPECT_NO_THROW(this->ByteMap->setData(
+      EXPECT_TRUE(this->ByteMap->setData(
           address, static_cast<uint8_t>(this->InitialByte & i)))
           << "At Address " << static_cast<uint64_t>(address) << ", min/max={"
           << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
@@ -130,7 +137,8 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
         << static_cast<uint64_t>(Unit_ImageByteMapF::Offset + I);
 
     if (I < Unit_ImageByteMapF::InitializedSize - 1) {
-      EXPECT_NO_THROW(this->ByteMap->data(Unit_ImageByteMapF::Offset + I, 2));
+      EXPECT_FALSE(
+          empty(this->ByteMap->data(Unit_ImageByteMapF::Offset + I, 2)));
 
       const auto Word =
           this->ByteMap->getData<uint16_t>(Unit_ImageByteMapF::Offset + I);
@@ -145,7 +153,7 @@ TEST_F(Unit_ImageByteMapF, legacy_byte) {
 TEST_F(Unit_ImageByteMapF, legacy_word) {
   const auto Address = Addr(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, uint16_t{0xDEAD}))
+  EXPECT_TRUE(this->ByteMap->setData(Address, uint16_t{0xDEAD}))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -163,7 +171,7 @@ TEST_F(Unit_ImageByteMapF, legacy_word) {
 TEST_F(Unit_ImageByteMapF, legacy_dword) {
   const auto Address = Addr(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, uint32_t{0xCAFEBABE}))
+  EXPECT_TRUE(this->ByteMap->setData(Address, uint32_t{0xCAFEBABE}))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -181,7 +189,7 @@ TEST_F(Unit_ImageByteMapF, legacy_dword) {
 TEST_F(Unit_ImageByteMapF, legacy_qword) {
   const auto Address = Addr(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, uint64_t{0x8BADF00D0D15EA5E}))
+  EXPECT_TRUE(this->ByteMap->setData(Address, uint64_t{0x8BADF00D0D15EA5E}))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -202,7 +210,7 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
 
   const auto Address = Addr(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, data))
+  EXPECT_TRUE(this->ByteMap->setData(Address, data))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -220,7 +228,7 @@ TEST_F(Unit_ImageByteMapF, arrayData) {
 TEST_F(Unit_ImageByteMapF, constantData) {
   const auto Address = Addr(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, 32, gsl::byte(1)))
+  EXPECT_TRUE(this->ByteMap->setData(Address, 32, gsl::byte(1)))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -250,7 +258,7 @@ TEST_F(Unit_ImageByteMapF, structData) {
 
   const auto Address = Addr(0x00001000);
 
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, Data))
+  EXPECT_TRUE(this->ByteMap->setData(Address, Data))
       << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
@@ -281,11 +289,11 @@ TEST_F(Unit_ImageByteMapF, littleEndian) {
   Addr Addr2 = Addr1 + sizeof(Dw);
   Addr Addr3 = Addr2 + sizeof(Qw);
   Addr Addr4 = Addr3 + sizeof(A);
-  this->ByteMap->setData(Addr0, W);
-  this->ByteMap->setData(Addr1, Dw);
-  this->ByteMap->setData(Addr2, Qw);
-  this->ByteMap->setData(Addr3, A);
-  this->ByteMap->setData(Addr4, S);
+  EXPECT_TRUE(this->ByteMap->setData(Addr0, W));
+  EXPECT_TRUE(this->ByteMap->setData(Addr1, Dw));
+  EXPECT_TRUE(this->ByteMap->setData(Addr2, Qw));
+  EXPECT_TRUE(this->ByteMap->setData(Addr3, A));
+  EXPECT_TRUE(this->ByteMap->setData(Addr4, S));
 
   // Confirm expected byte order
   std::vector<std::byte> expected{
@@ -331,11 +339,11 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
   Addr Addr2 = Addr1 + sizeof(Dw);
   Addr Addr3 = Addr2 + sizeof(Qw);
   Addr Addr4 = Addr3 + sizeof(A);
-  this->ByteMap->setData(Addr0, W);
-  this->ByteMap->setData(Addr1, Dw);
-  this->ByteMap->setData(Addr2, Qw);
-  this->ByteMap->setData(Addr3, A);
-  this->ByteMap->setData(Addr4, S);
+  EXPECT_TRUE(this->ByteMap->setData(Addr0, W));
+  EXPECT_TRUE(this->ByteMap->setData(Addr1, Dw));
+  EXPECT_TRUE(this->ByteMap->setData(Addr2, Qw));
+  EXPECT_TRUE(this->ByteMap->setData(Addr3, A));
+  EXPECT_TRUE(this->ByteMap->setData(Addr4, S));
 
   // Confirm expected byte order
   std::vector<std::byte> Expected{
@@ -387,7 +395,7 @@ TEST_F(Unit_ImageByteMapF, bigEndian) {
 TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   auto* Original = this->ByteMap;
   const auto Address = Addr(0x00001000);
-  ASSERT_NO_THROW(this->ByteMap->setData(Address, uint16_t{0xDEAD}));
+  EXPECT_TRUE(this->ByteMap->setData(Address, uint16_t{0xDEAD}));
 
   Original->setFileName("test");
   Original->setBaseAddress(Addr(2));
@@ -417,7 +425,8 @@ TEST(Unit_ImageByteMap, contiguousIterators) {
 
   IBM->setAddrMinMax(std::make_pair(Addr(0), Addr(10)));
 
-  IBM->setData(Addr(0), gsl::as_bytes(gsl::make_span(OriginalBytes)));
+  EXPECT_TRUE(
+      IBM->setData(Addr(0), gsl::as_bytes(gsl::make_span(OriginalBytes))));
 
   // Ensure that the iterators returned by ImageByteMap are contiguous.
   std::vector<uint8_t> CopiedBytes(OriginalBytes.size());

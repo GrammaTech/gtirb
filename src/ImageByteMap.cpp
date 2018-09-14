@@ -28,30 +28,32 @@ bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
   return false;
 }
 
-void ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
+bool ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
   if (Ea >= this->EaMinMax.first &&
       (Ea + Data.size_bytes() - 1) <= this->EaMinMax.second) {
-    this->BMap.setData(Ea, Data);
-  } else {
-    throw std::out_of_range(
-        "Attempt to set data at an Addr out of range of the min and max Addr.");
+    return this->BMap.setData(Ea, Data);
   }
+  return false;
 }
 
-void ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
+bool ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
+  // FIXME: this should determine if there will be overlap before partially
+  // mutating the contained data; when the function returns false, you don't
+  // know what state the contained data is in any longer.
   auto Span = gsl::make_span(&Value, 1);
   for (uint64_t I = 0; I < Bytes; I++) {
-    this->BMap.setData(Ea + I, Span);
+    if (!this->BMap.setData(Ea + I, Span)) {
+      return false;
+    }
   }
+  return true;
 }
 
 ImageByteMap::const_range ImageByteMap::data(Addr X, size_t Bytes) const {
   if (X >= this->EaMinMax.first && (X + Bytes - 1) <= this->EaMinMax.second) {
     return this->BMap.data(X, Bytes);
   }
-
-  throw std::out_of_range(
-      "Attempt to get data at an Addr out of range of the min and max Addr.");
+  return ImageByteMap::const_range{};
 }
 
 void ImageByteMap::toProtobuf(MessageType* Message) const {
