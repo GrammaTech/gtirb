@@ -21,7 +21,7 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Block, ctor) { EXPECT_NO_THROW(Block::Create(Ctx, Addr(), 0)); }
+TEST(Unit_Block, ctor) { EXPECT_NE(Block::Create(Ctx, Addr(), 0), nullptr); }
 
 TEST(Unit_Block, getters) {
   Block* B = Block::Create(Ctx, Addr(1), 2, 3);

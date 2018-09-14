@@ -59,7 +59,9 @@ public:
 Addr Unit_ImageByteMapF::Offset{static_cast<uint64_t>(4096)};
 size_t Unit_ImageByteMapF::InitializedSize{4096 * 2};
 
-TEST(Unit_ImageByteMap, ctor_0) { EXPECT_NO_THROW(ImageByteMap::Create(Ctx)); }
+TEST(Unit_ImageByteMap, ctor_0) {
+  EXPECT_NE(ImageByteMap::Create(Ctx), nullptr);
+}
 
 TEST(Unit_ImageByteMap, setFileName) {
   auto* Node = ImageByteMap::Create(Ctx);
@@ -67,7 +69,7 @@ TEST(Unit_ImageByteMap, setFileName) {
 
   const std::string Val("/usr/local/foo");
 
-  EXPECT_NO_THROW(Node->setFileName(Val));
+  Node->setFileName(Val);
   EXPECT_EQ(Val, Node->getFileName());
 }
 
@@ -77,7 +79,7 @@ TEST(Unit_ImageByteMap, setBaseAddress) {
 
   const auto Val = Addr{22678};
 
-  EXPECT_NO_THROW(Node->setBaseAddress(Val));
+  Node->setBaseAddress(Val);
   EXPECT_EQ(Val, Node->getBaseAddress());
 }
 
@@ -87,7 +89,7 @@ TEST(Unit_ImageByteMap, setEntryPointAddress) {
 
   const auto Val = Addr{22678};
 
-  EXPECT_NO_THROW(Node->setEntryPointAddress(Val));
+  Node->setEntryPointAddress(Val);
   EXPECT_EQ(Val, Node->getEntryPointAddress());
 }
 
@@ -112,7 +114,7 @@ TEST(Unit_ImageByteMap, setRebaseDelta) {
 
   const auto Val = int64_t{22678};
 
-  EXPECT_NO_THROW(Node->setRebaseDelta(Val));
+  Node->setRebaseDelta(Val);
   EXPECT_EQ(Val, Node->getRebaseDelta());
 }
 
@@ -122,7 +124,7 @@ TEST(Unit_ImageByteMap, setIsRelocated) {
 
   const auto Val = bool{true};
 
-  EXPECT_NO_THROW(Node->setIsRelocated());
+  Node->setIsRelocated();
   EXPECT_EQ(Val, Node->getIsRelocated());
 }
 
@@ -234,12 +236,6 @@ TEST_F(Unit_ImageByteMapF, constantData) {
       << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
 
   std::vector<std::byte> Expected(32, std::byte(1));
-
-  ASSERT_NO_THROW(this->ByteMap->data(Address, Expected.size()))
-      << "At Address " << static_cast<uint64_t>(Address) << ", min/max={"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().first) << "/"
-      << static_cast<uint64_t>(this->ByteMap->getAddrMinMax().second) << "}.";
-
   EXPECT_EQ(this->ByteMap->data(Address, Expected.size()), Expected);
 }
 

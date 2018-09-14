@@ -31,13 +31,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Module, ctor_0) { EXPECT_NO_THROW(Module::Create(Ctx)); }
+TEST(Unit_Module, ctor_0) { EXPECT_NE(Module::Create(Ctx), nullptr); }
 
 TEST(Unit_Module, setBinaryPath) {
   const std::string StrPath("/home/gt/irb/foo");
   auto* M = Module::Create(Ctx);
 
-  EXPECT_NO_THROW(M->setBinaryPath(StrPath));
+  M->setBinaryPath(StrPath);
 
   auto Path = M->getBinaryPath();
   EXPECT_EQ(StrPath, Path);
@@ -51,13 +51,13 @@ TEST(Unit_Module, getFileFormatDefault) {
 TEST(Unit_Module, setFileFormat) {
   auto* M = Module::Create(Ctx);
 
-  EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::COFF));
+  M->setFileFormat(gtirb::FileFormat::COFF);
   EXPECT_EQ(gtirb::FileFormat::COFF, M->getFileFormat());
 
-  EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::MACHO));
+  M->setFileFormat(gtirb::FileFormat::MACHO);
   EXPECT_EQ(gtirb::FileFormat::MACHO, M->getFileFormat());
 
-  EXPECT_NO_THROW(M->setFileFormat(gtirb::FileFormat::Undefined));
+  M->setFileFormat(gtirb::FileFormat::Undefined);
   EXPECT_EQ(gtirb::FileFormat::Undefined, M->getFileFormat());
 }
 
@@ -69,36 +69,33 @@ TEST(Unit_Module, getRebaseDeltaDefault) {
 TEST(Unit_Module, setRebaseDelta) {
   auto* M = Module::Create(Ctx);
 
-  EXPECT_NO_THROW(M->setRebaseDelta(1));
+  M->setRebaseDelta(1);
   EXPECT_EQ(int64_t{1}, M->getRebaseDelta());
 
-  EXPECT_NO_THROW(M->setRebaseDelta(-1));
+  M->setRebaseDelta(-1);
   EXPECT_EQ(int64_t{-1}, M->getRebaseDelta());
 
-  EXPECT_NO_THROW(M->setRebaseDelta(std::numeric_limits<int64_t>::max()));
+  M->setRebaseDelta(std::numeric_limits<int64_t>::max());
   EXPECT_EQ(std::numeric_limits<int64_t>::max(), M->getRebaseDelta());
 
-  EXPECT_NO_THROW(M->setRebaseDelta(std::numeric_limits<int64_t>::min()));
+  M->setRebaseDelta(std::numeric_limits<int64_t>::min());
   EXPECT_EQ(std::numeric_limits<int64_t>::min(), M->getRebaseDelta());
 
-  EXPECT_NO_THROW(M->setRebaseDelta(std::numeric_limits<int64_t>::lowest()));
+  M->setRebaseDelta(std::numeric_limits<int64_t>::lowest());
   EXPECT_EQ(std::numeric_limits<int64_t>::lowest(), M->getRebaseDelta());
 }
 
 TEST(Unit_Module, getPreferredAddrDefault) {
   auto* M = Module::Create(Ctx);
-
-  EXPECT_NO_THROW(M->getPreferredAddr());
   EXPECT_EQ(Addr{}, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getISAID) {
   auto* M = Module::Create(Ctx);
 
-  EXPECT_NO_THROW(M->getISAID());
   EXPECT_EQ(gtirb::ISAID::Undefined, M->getISAID());
 
-  EXPECT_NO_THROW(M->setISAID(gtirb::ISAID::X64));
+  M->setISAID(gtirb::ISAID::X64);
   EXPECT_EQ(gtirb::ISAID::X64, M->getISAID());
 }
 
@@ -106,33 +103,27 @@ TEST(Unit_Module, setPreferredAddr) {
   auto* M = Module::Create(Ctx);
   Addr Preferred{64};
 
-  EXPECT_NO_THROW(M->getPreferredAddr());
-  EXPECT_NO_THROW(M->setPreferredAddr(Preferred));
+  EXPECT_EQ(M->getPreferredAddr(), Addr(0));
 
+  M->setPreferredAddr(Preferred);
   EXPECT_EQ(Preferred, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getSymbolSet) {
   auto* M = Module::Create(Ctx);
-  EXPECT_NO_THROW(M->symbols());
-}
-
-TEST(Unit_Module, getImageByteMap) {
-  auto* M = Module::Create(Ctx);
-  EXPECT_NO_THROW(M->getImageByteMap());
+  EXPECT_EQ(std::distance(M->symbols().begin(), M->symbols().end()), 0);
 }
 
 TEST(Unit_Module, setName) {
   const std::string Name{"foo"};
   auto* M = Module::Create(Ctx);
 
-  EXPECT_NO_THROW(M->setName(Name));
+  M->setName(Name);
   EXPECT_EQ(Name, M->getName());
 }
 
 TEST(Unit_Module, getName) {
   auto* M = Module::Create(Ctx);
-  EXPECT_NO_THROW(M->getName());
   EXPECT_TRUE(M->getName().empty());
 }
 
