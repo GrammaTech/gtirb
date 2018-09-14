@@ -19,13 +19,10 @@
 using namespace gtirb;
 
 TEST(Unit_Addr, ctor_0) {
-  EXPECT_NO_THROW(Addr());
   EXPECT_EQ(Addr(), Addr());
 }
 
 TEST(Unit_Addr, ctor_1) {
-  EXPECT_NO_THROW(Addr(2112));
-
   auto Ea = Addr(2112);
   EXPECT_EQ(2112, uint64_t(Ea));
 }

@@ -33,8 +33,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     auto Message = toProtobuf(original);
     fromProtobuf(Ctx, Result, Message);
 
-    SymStackConst S;
-    EXPECT_NO_THROW(S = std::get<SymStackConst>(Result));
+    SymStackConst S = std::get<SymStackConst>(Result);
     EXPECT_EQ(S.Negate, true);
     EXPECT_EQ(S.Offset, 1);
     EXPECT_EQ(S.Displacement, 2);
@@ -49,8 +48,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     auto Message = toProtobuf(original);
     fromProtobuf(Ctx, Result, Message);
 
-    SymAddrConst S;
-    EXPECT_NO_THROW(S = std::get<SymAddrConst>(Result));
+    SymAddrConst S = std::get<SymAddrConst>(Result);
     EXPECT_EQ(S.Displacement, 1);
     EXPECT_EQ(S.Sym.get(Ctx)->getName(), "test1");
   }
@@ -63,8 +61,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     auto Message = toProtobuf(original);
     fromProtobuf(Ctx, Result, Message);
 
-    SymAddrAddr S;
-    EXPECT_NO_THROW(S = std::get<SymAddrAddr>(Result));
+    SymAddrAddr S = std::get<SymAddrAddr>(Result);
     EXPECT_EQ(S.Scale, 1);
     EXPECT_EQ(S.Offset, 2);
     EXPECT_EQ(S.Sym1.get(Ctx)->getName(), "test1");
