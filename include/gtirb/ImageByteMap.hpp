@@ -236,9 +236,9 @@ public:
   /// \sa getAddrMinMax()
   template <typename T, size_t Size>
   bool setData(Addr Ea, const std::array<T, Size>& Data) {
-    // FIXME: this should determine if there will be overlap before partially
-    // mutating the contained data; when the function returns false, you don't
-    // know what state the contained data is in any longer.
+    if (this->BMap.willOverlapRegion(Ea, Size * sizeof(T)))
+      return false;
+
     for (const auto& Elt : Data) {
       if (!this->setData(Ea, Elt))
         return false;

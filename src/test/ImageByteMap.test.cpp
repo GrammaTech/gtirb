@@ -410,3 +410,64 @@ TEST(Unit_ImageByteMap, contiguousIterators) {
   EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
                          CopiedBytes.begin(), CopiedBytes.end()));
 }
+
+TEST(Unit_ImageByteMap, overlappingRegions) {
+  // Ensure that you can not use the ImageByteMap to create an overlapping
+  // byte map region, and that failed attempts to do so do not mutate existing
+  // data.
+  ImageByteMap* IBM = ImageByteMap::Create(Ctx);
+
+  std::vector<uint8_t> OriginalBytes{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  IBM->setAddrMinMax(std::make_pair(Addr(0), Addr(25)));
+  EXPECT_TRUE(
+      IBM->setData(Addr(0), gsl::as_bytes(gsl::make_span(OriginalBytes))));
+  EXPECT_TRUE(
+      IBM->setData(Addr(12), gsl::as_bytes(gsl::make_span(OriginalBytes))));
+
+  // There should be data in regions [0..9] and [12..21], which means that
+  // setting six bytes between [8..13] should cause overlap.
+  std::array<std::uint8_t, 6> NewBytes{100, 101, 102, 103, 104, 105};
+  EXPECT_FALSE(IBM->setData(Addr(8), NewBytes));
+
+  auto Data = IBM->getData<std::array<uint8_t, 10>>(Addr(0));
+  EXPECT_TRUE(Data.has_value());
+  EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
+                         Data->begin(), Data->end()));
+
+  // Similar for memsetting bytes.
+  EXPECT_FALSE(IBM->setData(Addr(8), 6, std::byte{100}));
+
+  Data = IBM->getData<std::array<uint8_t, 10>>(Addr(0));
+  EXPECT_TRUE(Data.has_value());
+  EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
+                         Data->begin(), Data->end()));
+
+  // Setting [10..12] should also fail. [10..11] are available, but [12] is
+  // owned by the second region.
+  std::array<std::uint8_t, 3> OtherNewBytes{100, 101, 102};
+  EXPECT_FALSE(IBM->setData(Addr(10), OtherNewBytes));
+
+  Data = IBM->getData<std::array<uint8_t, 10>>(Addr(0));
+  EXPECT_TRUE(Data.has_value());
+  EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
+                         Data->begin(), Data->end()));
+
+  // Similar for memsetting bytes.
+  EXPECT_FALSE(IBM->setData(Addr(10), 3, std::byte{100}));
+
+  Data = IBM->getData<std::array<uint8_t, 10>>(Addr(0));
+  EXPECT_TRUE(Data.has_value());
+  EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
+                         Data->begin(), Data->end()));
+
+  // However, we can extend the first region with two more bytes.
+  EXPECT_TRUE(IBM->setData(Addr(10), 2, std::byte{100}));
+  
+  auto ExtendedData = IBM->getData<std::array<uint8_t, 12>>(Addr(0));
+  EXPECT_TRUE(ExtendedData.has_value());
+  EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
+    ExtendedData->begin(), ExtendedData->end() - 2));
+  EXPECT_EQ((*ExtendedData)[10], 100);
+  EXPECT_EQ((*ExtendedData)[11], 100);
+}
