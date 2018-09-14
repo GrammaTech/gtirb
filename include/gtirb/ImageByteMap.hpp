@@ -23,6 +23,7 @@
 #include <boost/endian/conversion.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <gsl/gsl>
+#include <optional>
 #include <set>
 #include <type_traits>
 
@@ -269,17 +270,23 @@ public:
   /// \tparam T        The type of the object to be returned. May be any
   ///                  endian-reversible POD type.
   ///
-  /// \return An object of type \p T, initialized from the byte map data.
+  /// \return If there is data available of the appropriate size at the given 
+  /// address, this returns an object of type \p T, initialized from the byte
+  /// map data. Otherwise, it returns nullopt.
   ///
   /// \sa gtirb::ByteMap
   template <typename T>
-  typename std::enable_if<!details::is_std_array<T>::value, T>::type
+  std::optional<
+      typename std::enable_if<!details::is_std_array<T>::value, T>::type>
   getData(Addr Ea) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
 
-    return boost::endian::conditional_reverse(this->getDataNoSwap<T>(Ea),
-                                              this->ByteOrder,
-                                              boost::endian::order::native);
+    T Data;
+    if (this->getDataNoSwap(Ea, Data)) {
+      return boost::endian::conditional_reverse(Data, this->ByteOrder,
+                                                boost::endian::order::native);
+    }
+    return std::nullopt;
   }
 
   /// \brief Get an array from the byte map at the specified address,
@@ -290,22 +297,27 @@ public:
   /// \tparam T        The type of the value to be returned. May be a
   ///                  std::array of any endian-reversible POD type.
   ///
-  /// \return          An object of type \p T, initialized from the byte map
-  /// data.
+  /// \return If there is data available of the appropriate size at the given 
+  /// address, this returns an object of type \p T, initialized from the byte
+  /// map data. Otherwise, it returns nullopt.
   ///
   /// \sa gtirb::ByteMap
   template <typename T>
-  typename std::enable_if<details::is_std_array<T>::value, T>::type
+  std::optional<
+      typename std::enable_if<details::is_std_array<T>::value, T>::type>
   getData(Addr Ea) {
     static_assert(std::is_pod<T>::value, "T::value must be a POD type");
 
-    auto Result = getDataNoSwap<T>(Ea);
-    for (auto& Elt : Result) {
-      boost::endian::conditional_reverse_inplace(Elt, this->ByteOrder,
-                                                 boost::endian::order::native);
-      Ea = Ea + sizeof(T);
+    T Result;
+    if (getDataNoSwap(Ea, Result)) {
+      for (auto& Elt : Result) {
+        boost::endian::conditional_reverse_inplace(
+            Elt, this->ByteOrder, boost::endian::order::native);
+        Ea = Ea + sizeof(T);
+      }
+      return Result;
     }
-    return Result;
+    return std::nullopt;
   }
 
   /// \brief DOCFIXME
@@ -331,14 +343,13 @@ public:
   }
 
 private:
-  template <typename T> T getDataNoSwap(Addr Ea) {
-    T Result;
-    auto destSpan = as_writeable_bytes(gsl::make_span(&Result, 1));
+  template <typename T> bool getDataNoSwap(Addr Ea, T& Result) {
+    auto DestSpan = as_writeable_bytes(gsl::make_span(&Result, 1));
     // Assign this to a variable so it isn't destroyed before we copy
     // from it (because gsl::span is non-owning).
-    auto data = this->data(Ea, destSpan.size_bytes());
-    std::copy(data.begin(), data.end(), destSpan.begin());
-    return Result;
+    const_range Data = this->data(Ea, DestSpan.size_bytes());
+    std::copy(Data.begin(), Data.end(), DestSpan.begin());
+    return Data.begin() != Data.end();
   }
 
   // Storage for the entire contents of the loaded image.
