@@ -275,7 +275,7 @@ public:
   /// \tparam T        The type of the object to be returned. May be any
   ///                  endian-reversible POD type.
   ///
-  /// \return If there is data available of the appropriate size at the given 
+  /// \return If there is data available of the appropriate size at the given
   /// address, this returns an object of type \p T, initialized from the byte
   /// map data. Otherwise, it returns nullopt.
   ///
@@ -302,7 +302,7 @@ public:
   /// \tparam T        The type of the value to be returned. May be a
   ///                  std::array of any endian-reversible POD type.
   ///
-  /// \return If there is data available of the appropriate size at the given 
+  /// \return If there is data available of the appropriate size at the given
   /// address, this returns an object of type \p T, initialized from the byte
   /// map data. Otherwise, it returns nullopt.
   ///
@@ -342,7 +342,6 @@ public:
   ///
   /// \return The deserialized ImageByteMap object, or null on failure.
   static ImageByteMap* fromProtobuf(Context& C, const MessageType& Message);
-
 
   /// \cond INTERNAL
   static bool classof(const Node* N) {
@@ -384,8 +383,7 @@ private:
 /// Object can be any type which specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T>
-ImageByteMap::const_range getBytes(const ImageByteMap& IBM,
-                                   const T& Object) {
+ImageByteMap::const_range getBytes(const ImageByteMap& IBM, const T& Object) {
   return IBM.data(Object.getAddress(), Object.getSize());
 }
 
