@@ -397,6 +397,14 @@ TEST(Unit_Table, nestedProtobufRoundTrip) {
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(get<decltype(N2)>(Result), N2);
+
+  // Outer tuple
+  std::tuple<std::string, std::vector<int64_t>> N3{"a", {1, 2, 3}};
+  Original = N3;
+  Message = toProtobuf(Original);
+  fromProtobuf(Ctx, Result, Message);
+
+  EXPECT_EQ(get<decltype(N3)>(Result), N3);
 }
 
 TEST(Unit_Table, wrongTypeAfterProtobufRoundTrip) {
