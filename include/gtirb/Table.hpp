@@ -215,29 +215,44 @@ struct table_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
   }
 };
 
-// Prevent instantiation of table_traits for tuples we can't serialize.
-template <class... Ts> struct TupleCheck;
-template <> struct TupleCheck<> {};
-template <class T, class... Ts>
-struct TupleCheck<T, Ts...> : TupleCheck<Ts...> {
-  // If you see this error, it's because your tuple contains a type which does
-  // not use the default serialization method (probably a container or string).
-  // This is not currently supported.
-  static_assert(
-      std::is_base_of<default_serialization<T>, table_traits<T>>::value,
-      "Can't serialize a tuple containing this type.");
-  static void check() {}
+template <class T> struct tuple_traits {};
+template <class... Ts> struct tuple_traits<std::tuple<Ts...>> {
+  using Tuple = std::tuple<Ts...>;
+
+  static std::string type_id() {
+    return "tuple<" + TypeId<Ts...>::value() + ">";
+  }
 };
 
-template <class... Ts> std::string tupleId(const std::tuple<Ts...>&) {
-  TupleCheck<Ts...>::check();
-  return TypeId<Ts...>::value();
+template <class Func, size_t... Is>
+constexpr void static_for(Func&& f, std::integer_sequence<size_t, Is...>) {
+  (f(std::integral_constant<size_t, Is>{}), ...);
 }
 
 template <class T>
 struct table_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
-    : default_serialization<T> {
-  static std::string type_id() { return "tuple<" + tupleId(T()) + ">"; }
+    : tuple_traits<T> {
+  static void toBytes(const T& Object, to_iterator It) {
+    static_for(
+        [&It, &Object](auto i) {
+          const auto& F = std::get<i>(Object);
+          table_traits<std::remove_cv_t<std::remove_reference_t<decltype(F)>>>::
+              toBytes(F, It);
+        },
+        std::make_index_sequence<std::tuple_size<T>::value>{});
+  }
+
+  static from_iterator fromBytes(T& Object, from_iterator It) {
+    static_for(
+        [&It, &Object](auto i) {
+          auto& F = std::get<i>(Object);
+          It = table_traits<std::remove_cv_t<
+              std::remove_reference_t<decltype(F)>>>::fromBytes(F, It);
+        },
+        std::make_index_sequence<std::tuple_size<T>::value>{});
+
+    return It;
+  }
 };
 
 template <class T> struct TypeId<T> {
