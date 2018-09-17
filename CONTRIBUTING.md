@@ -44,17 +44,13 @@ The GT-IRB documentation consists of complete documentation for all
 components of the GT-IRB API, along with examples and other usage
 information.
 
-- Documentation is stored in the `/doc` folder.
-- Graphs located in the `/doc/dot` folder.
-- HTML API documentation (Doxygen) is located in the `/doc/html`
-  folder.
-
 
 ### Building Documentation
 
 You will need `cmake` and `Doxygen`.
 
-1. Create and change to a temporary build directory. 
+1. Create and change to a temporary build directory. We will refer to
+   this directory as `build`.
 
    ```bash
    > mkdir build
@@ -69,14 +65,7 @@ You will need `cmake` and `Doxygen`.
    build> cmake --build . --target doc
    ```
 
-3. [optional] Delete the temporary build directory
-
-   ```bash
-   build> cd ..
-   > rm -rf build
-   ```
-
-4. Open the documentation home page `gtirb/doc/html/index.html` 
+3. Open the documentation home page `build/html/index.html` 
    in your browser.
 
 
