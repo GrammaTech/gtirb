@@ -37,14 +37,27 @@ class Table;
 namespace gtirb {
 class Context;
 
+/// \defgroup TABLE_GROUP Tables
+/// \brief DOCFIXME
+/// @{
+
+/// \struct is_sequence
+///
+/// \brief Trait class that identifies whether T is a sequential container type.
 template <class T> struct is_sequence : std::false_type {};
+
+/// @cond INTERNAL
 template <class T> struct is_sequence<std::vector<T>> : std::true_type {};
 template <class T> struct is_sequence<std::list<T>> : std::true_type {};
-/// @{
+/// @endcond
 
 /// \brief DOCFIXME
 
+/// \struct is_mapping
+///
+/// \brief Trait class that identifies whether T is a mapping container type.
 template <class T> struct is_mapping : std::false_type {};
+/// @cond INTERNAL
 template <class T, class U>
 struct is_mapping<std::map<T, U>> : std::true_type {};
 // Explicitly disable multimap since its semantics are different.
@@ -54,40 +67,66 @@ struct is_mapping<std::multimap<T, U>> : std::false_type {};
 template <class T> struct is_tuple : std::false_type {};
 template <class... Args>
 struct is_tuple<std::tuple<Args...>> : std::true_type {};
+///@endcond
 
 using to_iterator = std::back_insert_iterator<std::string>;
 using from_iterator = std::string::const_iterator;
 
+/// \struct table_traits
+///
+/// \brief Provides type information and serialization functions
+/// for types which can be stored in tables.
+template <class T, class Enable = void> struct table_traits {
+  /// \brief  Serialize an object to a sequence of bytes.
+  ///
+  /// \param Object  The object to serialize.
+  /// \param It      Store byte sequence here.
+  static void toBytes(const T& Object, to_iterator It) = delete;
+
+  /// \brief  Deserialize an object from a sequence of bytes.
+  ///
+  /// \param Object  The object to deserialize.
+  /// \param It      Read bytes from here.
+  /// \return An iterator pointing to the first byte after the representation
+  /// of \p Object.
+  static from_iterator fromBytes(T& Object, from_iterator It) = delete;
+
+  /// \brief String representation of the serialized type of T.
+  ///
+  /// This identifier is portable and independent of the specific container
+  /// types. Integral types are represented with an exact size (e.g.
+  /// "uint32_t"). Sequential containers are represented as "sequence<...>", and
+  /// mapping containers are represented as "mapping<...>".
+  static std::string type_id() = delete;
+};
+
+/// @cond INTERNAL
+template <class... Ts> struct TypeId {};
+
 // Serialize and deserialize by copying the object representation directly.
 template <class T> struct default_serialization {
-  static void toBytes(const T& object, to_iterator it) {
+  static void toBytes(const T& object, to_iterator It) {
     // Store as little-endian.
     T reversed = boost::endian::conditional_reverse<
         boost::endian::order::little, boost::endian::order::native>(object);
     auto srcBytes = as_bytes(gsl::make_span(&reversed, 1));
-    std::transform(srcBytes.begin(), srcBytes.end(), it,
+    std::transform(srcBytes.begin(), srcBytes.end(), It,
                    [](auto b) { return char(b); });
   }
 
-  static from_iterator fromBytes(T& object, from_iterator it) {
+  static from_iterator fromBytes(T& object, from_iterator It) {
     auto dest = as_writeable_bytes(gsl::make_span(&object, 1));
-    std::for_each(dest.begin(), dest.end(), [&it](auto& b) {
-      b = std::byte(*it);
-      ++it;
+    std::for_each(dest.begin(), dest.end(), [&It](auto& b) {
+      b = std::byte(*It);
+      ++It;
     });
     // Data stored as little-endian.
     boost::endian::conditional_reverse_inplace<boost::endian::order::little,
                                                boost::endian::order::native>(
         object);
-    return it;
+    return It;
   }
 };
-
-template <class T, class Enable = void> struct table_traits {
-  static void toBytes(const T& Object, to_iterator it) = delete;
-  static from_iterator fromBytes(T& Object, from_iterator it) = delete;
-};
-template <class... Ts> struct TypeId {};
 
 template <> struct table_traits<std::byte> : default_serialization<std::byte> {
   static std::string type_id() { return "byte"; }
@@ -264,7 +303,9 @@ template <class T, class... Ts> struct TypeId<T, Ts...> {
     return table_traits<T>::type_id() + "," + TypeId<Ts...>::value();
   }
 };
+/// @cond INTERNAL
 
+/// @cond INTERNAL
 class TableImpl {
 public:
   virtual void toBytes(std::string& Bytes) const = 0;
@@ -296,19 +337,62 @@ public:
 
   T Object;
 };
+/// @endcond
 
-
-/// \brief A generic \ref TABLE_GROUP "table" for storing additional,
+/// \brief A generic \ref TABLE_GROUP "table" for storing additional
 /// client-specific data.
+///
+/// Tables can store the following types:
+///   - all integral types
+///   - Addr
+///   - InstructionRef
+///   - UUID
+///   - sequential containers
+///   - mapping containers
+///   - std::tuple
+///
+/// \par Supporting Additional Types
+/// Support for additional containers can be added by specializing \ref
+/// is_sequence or \ref is_mapping. Once serialized, the table does not
+/// depend on any specific container type, and its contents can be
+/// deserialized into different containers of the same kind (e.g. \c std::list
+/// to \c std::vector).
+///
+/// \par
+/// Support for other types can be added by specializing \ref table_traits to
+/// provide serialization functions. However, tables containing these types
+/// will not be accessible to other clients which are not compiled with
+/// support for those types. It is preferable to store data using the basic
+/// table types whenever possible, in order to maximize interoperability.
+///
+/// \par Serialization Format
+/// Tables are serialized by packing their contents into a byte array, which
+/// is stored in a protobuf message along with a string which identifies the
+/// type in a portable fashion.
+
+/// \par
+/// Fixed-size types such as integers, Addr, etc are packed by swapping their
+/// bytes to little-endian order and writing them directly to the byte
+/// array. Containers first write out the number of elements (as a uint64_t),
+/// then write each element one after another. Tuples are similar but omit
+/// the size, since it can be inferred from the type.
+
 class Table {
 public:
+  /// \brief Construct an empty table.
   Table() = default;
 
+  /// \brief Construct a table containing a value.
+  ///
+  /// \param Value  The contents of the table.
   template <typename T>
   Table(T&& Value)
       : Impl(std::make_unique<TableTemplate<std::remove_reference_t<T>>>(
             std::forward<T>(Value))) {}
 
+  /// \brief Store a value in a table, destroying the previous contents.
+  ///
+  /// \param Value  The value to store.
   template <typename T> Table& operator=(T&& Value) {
     this->Impl = std::make_unique<TableTemplate<std::remove_reference_t<T>>>(
         std::forward<T>(Value));
@@ -318,21 +402,19 @@ public:
   template <typename T> friend T& get(Table& Table);
   template <typename T> friend std::add_pointer_t<T> get_if(Table* Table);
 
-  /// \brief DOCFIXME
+  /// \brief Initialize a Table from a protobuf message.
   ///
-  /// \param <unnamed>  Not used.
-  /// \param  Result    DOCFIXME
-  /// \param  Message   DOCFIXME
-  ///
-  /// \return void
+  /// \param <unnamed>   Not used.
+  /// \param Message     The protobuf message from which to deserialize.
+  /// \param[out] Table  The Table to initialize.
   GTIRB_EXPORT_API friend void fromProtobuf(Context&, Table& result,
                                             const proto::Table& Message);
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param  Expr   DOCFIXME
+  /// \param      Table     The Table to serialize.
   ///
-  /// \return DOCFIXME
+  /// \return A protobuf message representing the table.
   GTIRB_EXPORT_API friend proto::Table toProtobuf(const Table&);
 
 private:
@@ -341,6 +423,11 @@ private:
   std::string TypeName;
 };
 
+/// \brief Get the value of the table.
+///
+/// \pre Table contains an object of type T.
+///
+/// \param Table  The table to access.
 template <typename T> T& get(Table& Foo) {
   if (!Foo.RawBytes.empty()) {
     // Reconstruct from deserialized data
@@ -357,6 +444,12 @@ template <typename T> T& get(Table& Foo) {
   return *static_cast<T*>(Foo.Impl->get());
 }
 
+/// \brief Conditionally get the value of the table.
+///
+/// \param Table  A pointer to a table, or nullptr.
+///
+/// If Table is non-null and contains an object of type T, return a pointer
+/// to that object. Otherwise, return nullptr.
 template <typename T> std::add_pointer_t<T> get_if(Table* Foo) {
   if (Foo == nullptr) {
     return nullptr;
@@ -374,6 +467,10 @@ template <typename T> std::add_pointer_t<T> get_if(Table* Foo) {
 
   return &get<T>(*Foo);
 }
+
+/// @}
+// (end \defgroup TABLE_GROUP)
+
 } // namespace gtirb
 
 #endif // GTIRB_TABLE_H
