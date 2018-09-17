@@ -154,6 +154,16 @@ TEST(Unit_Module, findData) {
   EXPECT_EQ(M->findData(Addr(2)), M->data_end());
 }
 
+TEST(Unit_Module, findSymbols) {
+  auto* M = Module::Create(Ctx);
+  M->addSymbol(Symbol::Create(Ctx, Addr(1), "test"));
+  EXPECT_EQ(M->findSymbol("test")->getName(), "test");
+  EXPECT_EQ(M->findSymbol("notfound"), M->symbol_end());
+
+  EXPECT_EQ(M->findSymbols(Addr(1)).begin()->getName(), "test");
+  EXPECT_TRUE(M->findSymbols(Addr(2)).empty());
+}
+
 TEST(Unit_Module, symbolicExpressions) {
   auto* M = Module::Create(Ctx);
   Symbol* S = Symbol::Create(Ctx);

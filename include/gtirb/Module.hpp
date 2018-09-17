@@ -73,7 +73,8 @@ enum class ISAID : uint8_t {
 ///
 /// \brief DOCFIXME
 class GTIRB_EXPORT_API Module : public Node {
-  using SymbolSet = std::multimap<Addr, Symbol*>;
+  using SymbolSet = std::map<std::string, Symbol*>;
+  using SymbolAddrMap = std::multimap<Addr, Symbol*>;
   using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
   using DataSet = std::map<Addr, DataObject*>;
   using SectionSet = std::map<Addr, Section*>;
@@ -194,6 +195,23 @@ public:
   using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
   /// \brief DOCFIXME
+  using symbol_addr_iterator =
+      boost::transform_iterator<SymSetTransform<SymbolAddrMap::iterator>,
+                                SymbolAddrMap::iterator, Symbol&>;
+
+  /// \brief DOCFIXME
+  using symbol_addr_range = boost::iterator_range<symbol_addr_iterator>;
+
+  /// \brief DOCFIXME
+  using const_symbol_addr_iterator =
+      boost::transform_iterator<SymSetTransform<SymbolAddrMap::const_iterator>,
+                                SymbolAddrMap::const_iterator, const Symbol&>;
+
+  /// \brief DOCFIXME
+  using const_symbol_addr_range =
+      boost::iterator_range<const_symbol_addr_iterator>;
+
+  /// \brief DOCFIXME
   symbol_iterator symbol_begin() { return symbol_iterator(Symbols.begin()); }
   /// \brief DOCFIXME
   symbol_iterator symbol_end() { return symbol_iterator(Symbols.end()); }
@@ -227,8 +245,30 @@ public:
   ///
   /// \return void
   void addSymbol(std::initializer_list<Symbol*> Ss) {
-    for (auto* S : Ss)
-      Symbols.emplace(S->getAddress(), S);
+    for (auto* S : Ss) {
+      Symbols.emplace(S->getName(), S);
+      SymbolsByAddr.emplace(S->getAddress(), S);
+    }
+  }
+
+  /// \brief Finds symbols by name
+  ///
+  /// \param X The address to look up.
+  ///
+  /// \return An iterator to the found object, or \ref symbol_end() if not
+  /// found.
+  symbol_iterator findSymbol(const std::string& N) {
+    return symbol_iterator(Symbols.find(N));
+  }
+
+  /// \brief Finds symbols by name
+  ///
+  /// \param X The address to look up.
+  ///
+  /// \return An iterator to the found object, or \ref symbol_end() if not
+  /// found.
+  const_symbol_iterator findSymbol(const std::string& N) const {
+    return const_symbol_iterator(Symbols.find(N));
   }
 
   /// \brief Finds symbols by address.
@@ -237,23 +277,22 @@ public:
   ///
   /// \return A possibly empty range of all the symbols containing the given
   /// address.
-  symbol_range findSymbols(Addr X) {
-    std::pair<SymbolSet::iterator, SymbolSet::iterator> Found =
-        Symbols.equal_range(X);
-    return boost::make_iterator_range(symbol_iterator(Found.first),
-                                      symbol_iterator(Found.second));
+  symbol_addr_range findSymbols(Addr X) {
+    auto Found = SymbolsByAddr.equal_range(X);
+    return boost::make_iterator_range(symbol_addr_iterator(Found.first),
+                                      symbol_addr_iterator(Found.second));
   }
+
   /// \brief Finds symbols by address.
   ///
   /// \param X The address to look up.
   ///
   /// \return A possibly empty constant range of all the symbols containing the
   /// given address.
-  const_symbol_range findSymbols(Addr X) const {
-    std::pair<SymbolSet::const_iterator, SymbolSet::const_iterator> Found =
-        Symbols.equal_range(X);
-    return boost::make_iterator_range(const_symbol_iterator(Found.first),
-                                      const_symbol_iterator(Found.second));
+  const_symbol_addr_range findSymbols(Addr X) const {
+    auto Found = SymbolsByAddr.equal_range(X);
+    return boost::make_iterator_range(const_symbol_addr_iterator(Found.first),
+                                      const_symbol_addr_iterator(Found.second));
   }
 
   /// DOCFIXME[check all]
@@ -538,6 +577,7 @@ private:
   ImageByteMap* ImageBytes;
   SectionSet Sections;
   SymbolSet Symbols;
+  SymbolAddrMap SymbolsByAddr;
   SymbolicExpressionSet SymbolicOperands;
 };
 
