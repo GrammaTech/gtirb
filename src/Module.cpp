@@ -57,6 +57,20 @@ void Module::toProtobuf(MessageType* Message) const {
   });
 }
 
+// FIXME: improve containerFromProtobuf so it can handle a pair where one
+// element is a pointer to a Node subclass.
+template <class T, class U, class V, class W>
+static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
+                                const google::protobuf::Map<V, W>& Message) {
+  Values.clear();
+  std::for_each(Message.begin(), Message.end(), [&Values, &C](const auto& M) {
+    std::pair<T, U*> Val;
+    fromProtobuf(C, Val.first, M.first);
+    Val.second = U::fromProtobuf(C, M.second);
+    Values.insert(std::move(Val));
+  });
+}
+
 Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   Module* M = Module::Create(C);
   setNodeUUIDFromBytes(M, Message.uuid());
@@ -68,8 +82,8 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   M->Name = Message.name();
   M->ImageBytes = ImageByteMap::fromProtobuf(C, Message.image_byte_map());
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
-  containerFromProtobuf(C, M->Data, Message.data());
-  containerFromProtobuf(C, M->Sections, Message.sections());
+  nodeMapFromProtobuf(C, M->Data, Message.data());
+  nodeMapFromProtobuf(C, M->Sections, Message.sections());
   containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
 
   // Special case for symbol set: serialized as a repeated field, uses a

@@ -133,10 +133,25 @@ TEST(Unit_Module, sections) {
   EXPECT_EQ(M->section_begin()->getName(), "test");
 }
 
+TEST(Unit_Module, findSection) {
+  auto* M = Module::Create(Ctx);
+  M->addSection(Section::Create(Ctx, "test", Addr(1), 123));
+  EXPECT_EQ(M->findSection(Addr(1))->getName(), "test");
+  EXPECT_EQ(M->findSection(Addr(2)), M->section_end());
+}
+
 TEST(Unit_Module, dataObjects) {
   auto* M = Module::Create(Ctx);
   M->addData(DataObject::Create(Ctx, Addr(1), 123));
   EXPECT_EQ(M->data_begin()->getAddress(), Addr(1));
+}
+
+TEST(Unit_Module, findData) {
+  auto* M = Module::Create(Ctx);
+  M->addData(DataObject::Create(Ctx, Addr(1), 123));
+
+  EXPECT_EQ(M->findData(Addr(1))->getAddress(), Addr(1));
+  EXPECT_EQ(M->findData(Addr(2)), M->data_end());
 }
 
 TEST(Unit_Module, symbolicExpressions) {
@@ -205,24 +220,4 @@ TEST(Unit_Module, protobufRoundTrip) {
       std::distance(Result->symbolic_expr_begin(), Result->symbolic_expr_end()),
       1);
   EXPECT_EQ(Result->symbolic_expr_begin()->index(), WhichSymbolic);
-}
-
-TEST(Unit_Module, sectionSorting) {
-  Section* S1 = Section::Create(Ctx, "second", Addr(0), 1);
-  Section* S2 = Section::Create(Ctx, "first", Addr(0), 1);
-  Module* M = Module::Create(Ctx);
-
-  M->addSection({S1, S2});
-
-  UUID U1 = S1->getUUID(), U2 = S2->getUUID();
-  EXPECT_EQ(M->section_begin()->getUUID(), U1);
-  EXPECT_EQ((M->section_begin() + 1)->getUUID(), U2);
-
-  std::sort(M->section_begin(), M->section_end(),
-            [](const Section& LHS, const Section& RHS) {
-              return LHS.getName() < RHS.getName();
-            });
-
-  EXPECT_EQ(M->section_begin()->getUUID(), U2);
-  EXPECT_EQ((M->section_begin() + 1)->getUUID(), U1);
 }

@@ -72,11 +72,16 @@ int64_t toProtobuf(const int64_t& Val);
 uint64_t toProtobuf(const uint64_t& Val);
 std::string toProtobuf(const UUID& Val);
 
+template <typename T> T& deref_if_ptr(T& V) { return V; }
+template <typename T> const T& deref_if_ptr(const T& V) { return V; }
+template <typename T> T& deref_if_ptr(T* V) { return *V; }
+template <typename T> const T& deref_if_ptr(const T* V) { return *V; }
+
 template <typename T, typename U>
-auto toProtobuf(const std::pair<T, U>& Val)
-    -> google::protobuf::MapPair<decltype(toProtobuf(Val.first)),
-                                 decltype(toProtobuf(Val.second))> {
-  return {toProtobuf(Val.first), toProtobuf(Val.second)};
+auto toProtobuf(const std::pair<T, U>& Val) -> google::protobuf::MapPair<
+    decltype(toProtobuf(Val.first)),
+    decltype(toProtobuf(deref_if_ptr(Val.second)))> {
+  return {toProtobuf(Val.first), toProtobuf(deref_if_ptr(Val.second))};
 }
 
 // Generic interface for setting up a container. Clear and reserve space
@@ -127,11 +132,6 @@ void addElement(std::map<T, U>* Container,
   Container->insert(std::move(Element));
 }
 
-template <typename T> T& deref_if_ptr(T& V) { return V; }
-template <typename T> const T& deref_if_ptr(const T& V) { return V; }
-template <typename T> T& deref_if_ptr(T* V) { return *V; }
-template <typename T> const T& deref_if_ptr(const T* V) { return *V; }
-
 // Convert the contents of a Container into protobuf messages.
 template <typename ContainerT, typename MessageT>
 void containerToProtobuf(const ContainerT& Values, MessageT* Message) {
@@ -157,16 +157,6 @@ inline void fromProtobuf(Context& C, InstructionRef& Result,
   Result.fromProtobuf(C, Message);
 }
 
-// Overrides for various other types.
-template <typename T, typename U, typename V, typename W>
-void fromProtobuf(Context& C, std::pair<T, U>& Val,
-                  const google::protobuf::MapPair<V, W>& Message) {
-  fromProtobuf(C, Val.first, Message.first);
-  fromProtobuf(C, Val.second, Message.second);
-}
-void fromProtobuf(Context&, Addr& Result, const uint64_t& Message);
-void fromProtobuf(Context&, UUID& Result, const std::string& Message);
-
 namespace details {
 template <typename T> struct remove_pointer_ref_quals {
   using type =
@@ -175,6 +165,17 @@ template <typename T> struct remove_pointer_ref_quals {
 template <typename T>
 using remove_pointer_ref_quals_t = typename remove_pointer_ref_quals<T>::type;
 } // namespace details
+
+// Overrides for various other types.
+template <typename T, typename U, typename V, typename W>
+void fromProtobuf(Context& C, std::pair<T, U>& Val,
+                  const google::protobuf::MapPair<V, W>& Message) {
+  fromProtobuf(C, Val.first, Message.first);
+  fromProtobuf(C, Val.second, Message.second);
+}
+
+void fromProtobuf(Context&, Addr& Result, const uint64_t& Message);
+void fromProtobuf(Context&, UUID& Result, const std::string& Message);
 
 // Convert the contents for a Container into IR classes; does not participate
 // in overload resolution if the container stores Node subclasses.
