@@ -58,7 +58,7 @@ foreach(_inmd ${MDFILES_IN})
      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
      DEPENDS ${_inmd}
      COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
-     COMMAND python preprocmd.py "${_outmd}.in" ${_outmd}
+     COMMAND python2 preprocmd.py "${_outmd}.in" ${_outmd}
      COMMENT "processing ${_outmd}"
      VERBATIM
 )
