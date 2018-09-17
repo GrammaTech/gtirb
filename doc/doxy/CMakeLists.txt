@@ -6,11 +6,17 @@ cmake_minimum_required(VERSION 3.3)
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/preprocmd.py ${CMAKE_CURRENT_BINARY_DIR}/preprocmd.py @ONLY)
 
 set(DOC_INDIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 set(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
+
+set(BUILDFILES_IN preprocmd.py DoxygenLayout.xml)
+foreach(_inf ${BUILDFILES_IN})
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${_inf} ${CMAKE_CURRENT_BINARY_DIR}/${_inf} @ONLY)
+endforeach()
+
 
 # adapted from https://gist.github.com/abravalheri/11214134
 
