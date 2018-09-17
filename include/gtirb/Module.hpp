@@ -468,7 +468,9 @@ public:
   /// \return The deserialized Module object, or null on failure.
   static Module* fromProtobuf(Context& C, const MessageType& Message);
 
+  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
+  /// \endcond
 
 private:
   std::string BinaryPath{};

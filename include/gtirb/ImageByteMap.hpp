@@ -32,12 +32,13 @@
 
 namespace gtirb {
 
-/// \brief DOCFIXME
+/// \cond INTERNAL
 namespace details {
 template <class T> struct is_std_array : std::false_type {};
 template <class T, std::size_t N>
 struct is_std_array<std::array<T, N>> : std::true_type {};
 } // namespace details
+/// \endcond
 
 /// \class ImageByteMap
 ///
@@ -342,9 +343,12 @@ public:
   /// \return The deserialized ImageByteMap object, or null on failure.
   static ImageByteMap* fromProtobuf(Context& C, const MessageType& Message);
 
+
+  /// \cond INTERNAL
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ImageByteMap;
   }
+  /// \endcond
 
 private:
   template <typename T> bool getDataNoSwap(Addr Ea, T& Result) {

@@ -38,16 +38,16 @@ public:
   /// \brief Constructor.
   ///
   /// \param Uuid_ The UUID to reference DOCFIXME[check].
-  ///
   NodeRef(const UUID& Uuid_) : Uuid(Uuid_) {}
 
   /// \brief Constructor
   ///
   /// \param node The Node to reference DOCFIXME[check].
-  ///
   NodeRef(const NodeT& node) : Uuid(node.getUUID()){};
 
+  /// \cond INTERNAL
   NodeRef(const NodeT* node) : NodeRef(*node) {}
+  /// \endcond
 
   /// \brief Copy constructor.
   NodeRef(const NodeRef&) = default;
@@ -61,6 +61,7 @@ public:
   /// \brief Assignment operator overload.
   NodeRef& operator=(const NodeRef&) = default;
 
+  /// \cond INTERNAL
   const NodeT* get(Context& C) const {
     return dyn_cast_or_null<NodeT>(Node::getByUUID(C, this->Uuid));
   }
@@ -69,6 +70,7 @@ public:
   }
 
   const UUID& getUUID() const { return this->Uuid; }
+  /// \endcond
 
 private:
   UUID Uuid;
