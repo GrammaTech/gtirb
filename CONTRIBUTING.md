@@ -65,7 +65,7 @@ You will need `cmake` and `Doxygen`.
    build> cmake --build . --target doc
    ```
 
-3. Open the documentation home page `build/html/index.html` 
+3. Open the documentation home page `build/html/index.html`
    in your browser.
 
 
