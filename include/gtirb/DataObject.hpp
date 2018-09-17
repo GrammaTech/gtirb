@@ -36,13 +36,33 @@ namespace gtirb {
 /// \ref ImageByteMap.
 ///
 class GTIRB_EXPORT_API DataObject : public Node {
+
   DataObject(Context& C) : Node(C, Kind::DataObject) {}
 
   DataObject(Context& C, Addr A, uint64_t S)
       : Node(C, Kind::DataObject), Address(A), Size(S) {}
 
 public:
+
+  /// \brief Create a DataObject object in its default state.
+  ///
+  /// \param C  The Context in which the newly-created DataObject will
+  /// be held.
+  ///
+  /// \return The newly created DataObject.
   static DataObject* Create(Context& C) { return new (C) DataObject(C); }
+
+
+  /// \brief Create a DataObject object.
+  ///
+  /// \param C The Context in which the newly-created DataObject will
+  /// be held.
+  ///
+  /// \param Address  DOCFIXME
+  ///
+  /// \param Size     DOCFIXME
+  ///
+  /// \return The newly created DataObject.
   static DataObject* Create(Context& C, Addr Address, uint64_t Size) {
     return new (C) DataObject(C, Address, Size);
   }
@@ -77,9 +97,11 @@ public:
   /// \return The deserialized DataObject object, or null on failure.
   static DataObject* fromProtobuf(Context& C, const MessageType& Message);
 
+  /// \cond INTERNAL
   static bool classof(const Node* N) {
     return N->getKind() == Kind::DataObject;
   }
+  /// \endcond
 
 private:
   Addr Address{0};

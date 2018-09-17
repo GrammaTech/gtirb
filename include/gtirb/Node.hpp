@@ -38,6 +38,8 @@ class Node;
 /// objects.
 class GTIRB_EXPORT_API Node {
 public:
+
+  /// \cond internal
   enum class Kind {
     Node,
     Block,
@@ -48,6 +50,7 @@ public:
     Section,
     Symbol,
   };
+  /// \endcond
 
   /// \brief Retrieve a node by its UUID.
   ///
@@ -71,11 +74,19 @@ public:
   /// \return The UUID.
   const UUID& getUUID() const { return Uuid; }
 
+  /// \cond INTERNAL
   Kind getKind() const { return K; }
+  /// \endcond
+
+  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Node; }
+  /// \endcond
+
 
 protected:
+  /// \cond INTERNAL
   Node(Context& C, Kind K);
+  /// \endcond
 
 private:
   Kind K;

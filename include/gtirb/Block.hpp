@@ -97,7 +97,9 @@ public:
   /// \return The deserialized Block object, or null on failure.
   static Block* fromProtobuf(Context& C, const MessageType& Message);
 
+  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
+  /// \endcond
 
 private:
   Addr Address;

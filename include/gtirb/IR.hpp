@@ -232,7 +232,10 @@ public:
 
   /// @}
 
+
+  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::IR; }
+  /// \endcond
 
 private:
   std::map<std::string, gtirb::Table> Tables;

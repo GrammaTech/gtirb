@@ -360,7 +360,9 @@ class GTIRB_EXPORT_API Symbol : public Node {
   /// \return The deserialized Symbol object, or null on failure.
   static Symbol* fromProtobuf(Context& C, const MessageType& Message);
 
+  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Symbol; }
+  /// \endcond
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
