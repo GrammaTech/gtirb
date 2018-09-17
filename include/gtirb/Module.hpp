@@ -36,12 +36,6 @@
 /// \brief Class gtirb::Module and related functions and types.
 
 namespace gtirb {
-/// \brief DOCFIXME
-using DataSet = std::vector<DataObject*>;
-
-/// \brief DOCFIXME
-using SectionSet = std::vector<Section*>;
-
 /// \enum FileFormat
 ///
 /// \brief DOCFIXME
@@ -81,6 +75,8 @@ enum class ISAID : uint8_t {
 class GTIRB_EXPORT_API Module : public Node {
   using SymbolSet = std::multimap<Addr, Symbol*>;
   using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
+  using DataSet = std::map<Addr, DataObject*>;
+  using SectionSet = std::map<Addr, Section*>;
 
   Module(Context& C);
 
@@ -292,24 +288,33 @@ public:
   CFG& getCFG() { return Cfg; }
 
   /// \brief DOCFIXME
-  using data_object_iterator = boost::indirect_iterator<DataSet::iterator>;
+  using data_object_iterator =
+      boost::transform_iterator<SymSetTransform<DataSet::iterator>,
+                                DataSet::iterator, DataObject&>;
   /// \brief DOCFIXME
   using data_object_range = boost::iterator_range<data_object_iterator>;
   /// \brief DOCFIXME
   using const_data_object_iterator =
-      boost::indirect_iterator<DataSet::const_iterator>;
+      boost::transform_iterator<SymSetTransform<DataSet::const_iterator>,
+                                DataSet::const_iterator, const DataObject&>;
   /// \brief DOCFIXME
   using const_data_object_range =
       boost::iterator_range<const_data_object_iterator>;
 
   /// \brief DOCFIXME
-  data_object_iterator data_begin() { return Data.begin(); }
+  data_object_iterator data_begin() {
+    return data_object_iterator(Data.begin());
+  }
   /// \brief DOCFIXME
-  const_data_object_iterator data_begin() const { return Data.begin(); }
+  const_data_object_iterator data_begin() const {
+    return const_data_object_iterator(Data.begin());
+  }
   /// \brief DOCFIXME
-  data_object_iterator data_end() { return Data.end(); }
+  data_object_iterator data_end() { return data_object_iterator(Data.end()); }
   /// \brief DOCFIXME
-  const_data_object_iterator data_end() const { return Data.end(); }
+  const_data_object_iterator data_end() const {
+    return const_data_object_iterator(Data.end());
+  }
   /// \brief DOCFIXME
   data_object_range data() {
     return boost::make_iterator_range(data_begin(), data_end());
@@ -332,27 +337,55 @@ public:
   ///
   /// \return void
   void addData(std::initializer_list<DataObject*> Ds) {
-    Data.insert(Data.end(), Ds);
+    for (auto* D : Ds)
+      Data.emplace(D->getAddress(), D);
+  }
+
+  /// \brief Finds DataObjects by address.
+  ///
+  /// \param X The address to look up.
+  ///
+  /// \return An iterator to the found object, or \ref data_end() if not found.
+  data_object_iterator findData(Addr X) {
+    return data_object_iterator(Data.find(X));
+  }
+
+  /// \brief Finds DataObjects by address.
+  ///
+  /// \param X The address to look up.
+  ///
+  /// \return An iterator to the found object, or \ref data_end() if not found.
+  const_data_object_iterator findData(Addr X) const {
+    return const_data_object_iterator(Data.find(X));
   }
 
   /// \brief DOCFIXME
-  using section_iterator = boost::indirect_iterator<SectionSet::iterator>;
+  using section_iterator =
+      boost::transform_iterator<SymSetTransform<SectionSet::iterator>,
+                                SectionSet::iterator, Section&>;
   /// \brief DOCFIXME
   using section_range = boost::iterator_range<section_iterator>;
   /// \brief DOCFIXME
   using const_section_iterator =
-      boost::indirect_iterator<SectionSet::const_iterator>;
+      boost::transform_iterator<SymSetTransform<SectionSet::const_iterator>,
+                                SectionSet::const_iterator, const Section&>;
   /// \brief DOCFIXME
   using const_section_range = boost::iterator_range<const_section_iterator>;
 
   /// \brief DOCFIXME
-  section_iterator section_begin() { return Sections.begin(); }
+  section_iterator section_begin() {
+    return section_iterator(Sections.begin());
+  }
   /// \brief DOCFIXME
-  const_section_iterator section_begin() const { return Sections.begin(); }
+  const_section_iterator section_begin() const {
+    return const_section_iterator(Sections.begin());
+  }
   /// \brief DOCFIXME
-  section_iterator section_end() { return Sections.end(); }
+  section_iterator section_end() { return section_iterator(Sections.end()); }
   /// \brief DOCFIXME
-  const_section_iterator section_end() const { return Sections.end(); }
+  const_section_iterator section_end() const {
+    return const_section_iterator(Sections.end());
+  }
   /// \brief DOCFIXME
   section_range sections() {
     return boost::make_iterator_range(section_begin(), section_end());
@@ -375,7 +408,28 @@ public:
   ///
   /// \return void
   void addSection(std::initializer_list<Section*> Ss) {
-    Sections.insert(Sections.end(), Ss);
+    for (auto* S : Ss)
+      Sections.emplace(S->getAddress(), S);
+  }
+
+  /// \brief Finds Sections by address.
+  ///
+  /// \param X The address to look up.
+  ///
+  /// \return An iterator to the found object, or \ref section_end() if not
+  /// found.
+  section_iterator findSection(Addr X) {
+    return section_iterator(Sections.find(X));
+  }
+
+  /// \brief Finds Sections by address.
+  ///
+  /// \param X The address to look up.
+  ///
+  /// \return An iterator to the found object, or \ref section_end() if not
+  /// found.
+  const_section_iterator findSection(Addr X) const {
+    return const_section_iterator(Sections.find(X));
   }
 
   /// \brief DOCFIXME
