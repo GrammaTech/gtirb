@@ -240,8 +240,8 @@ public:
       return false;
 
     for (const auto& Elt : Data) {
-      if (!this->setData(Ea, Elt))
-        return false;
+      [[maybe_unused]] bool V = this->setData(Ea, Elt);
+      assert(V && "setting an individual data element failed unexpectedly");
       Ea = Ea + sizeof(T);
     }
     return true;
