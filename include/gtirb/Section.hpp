@@ -96,7 +96,9 @@ public:
   /// \return The deserialized Section object, or null on failure.
   static Section* fromProtobuf(Context& C, const MessageType& Message);
 
+  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Section; }
+  /// \endcond
 
 private:
   std::string Name;
