@@ -1,21 +1,21 @@
-GT-IRB
-======
+GTIRB
+=====
 
-The GrammaTech Intermediate Representation for Binaries (GT-IRB) is a
+The GrammaTech Intermediate Representation for Binaries (GTIRB) is a
 machine code analysis and rewriting data structure.  It is intended to
 facilitate the communication of binary IR between programs performing
 binary disassembly, analysis, transformation, and pretty printing.
-GT-IRB is modeled on LLVM-IR, and seeks to serve a similar
+GTIRB is modeled on LLVM-IR, and seeks to serve a similar
 functionality of encouraging communication and interoperability
 between tools.
 
-The remainder of this file has information on GT-IRB's:
+The remainder of this file has information on GTIRB's:
 - [Structure](#structure)
 - [Building](#building)
 - [Usage](#usage)
 
 ## Structure
-GT-IRB has the following structure:
+GTIRB has the following structure:
 
       Data Tables
       /
@@ -30,7 +30,7 @@ GT-IRB has the following structure:
             Instructions---Bytes
 
 ### IR
-An instance of GT-IRB may include multiple `module`s which represent
+An instance of GTIRB may include multiple `module`s which represent
 loadable objects such as executables or libraries.  Each `module`
 holds information such as `symbol`s, `data`, and an inter-procedural
 control flow graph (`ICFG`).  The `ICFG` consists of basic `block`s
@@ -41,7 +41,7 @@ both a pointer to a range of bytes in the `ImageByteMap` and
 
 ### Instructions
 
-GT-IRB explicitly does NOT represent instructions but does provide
+GTIRB explicitly does NOT represent instructions but does provide
 symbolic operand information and access to the bytes.  There are many
 options for representation of single instructions (e.g.,
 [BAP](https://github.com/BinaryAnalysisPlatform/bap)'s
@@ -54,18 +54,19 @@ disassembler/assembler.
 ### Data Tables
 
 Additional arbitrary information, e.g. analysis results, may be added
-to GT-IRB in the form of data tables.  These use variants to store
-maps and vectors of various common GT-IRB types. This repository will
+to GTIRB in the form of data tables.  These use variants to store
+maps and vectors of various common GTIRB types. This repository will
 describe the anticipated structure for very common data tables.
 
 ### UUIDs
-Every element of GT-IRB (namely: `module`s, `symbol`s, `global`s,
-`block`s, and `instruction`s) has a unique associated ID.
+Every element of GTIRB (namely: modules (`Module`), symbols
+(`Symbol`), globals, blocks (`Block`), and instructions
+(`InstructionRef`) has a unique associated ID.
 
 ## Building
 
-GT-IRB should successfully build in 64-bits with GCC, Clang, and
-Visual Studio compilers supporting at least C++14. GT-IRB requires
+GTIRB should successfully build in 64-bits with GCC, Clang, and
+Visual Studio compilers supporting at least C++14. GTIRB requires
 Boost.
 
 1. **Install CMake**
@@ -136,7 +137,7 @@ Boost.
    /path/to/gtirb> cmake ./ -Bbuild
    ```
 
-   By default, GT-IRB is built with C++14 enabled, If you get an error
+   By default, GTIRB is built with C++14 enabled, If you get an error
    stating "`CXX_STANDARD is set to invalid value '14'`", then you have
    an old compiler and will need to update.
   
@@ -168,15 +169,15 @@ Boost.
 
 ## Usage
 
-GT-IRB is designed to be serialized using [Google's protocol
+GTIRB is designed to be serialized using [Google's protocol
 Buffers](https://developers.google.com/protocol-buffers/) (i.e.,
 [protobuf](https://github.com/google/protobuf/wiki)) and eventually
 JSON through protobuf's JSON output, enabling easy use from any
-programming language.  GT-IRB is may also be used as a C++ library
+programming language.  GTIRB may also be used as a C++ library
 implementing an efficient data structure suitable for use by binary
 analysis and rewriting applications.
 
-This repository defines the GT-IRB data structure and C++ library.
+This repository defines the GTIRB data structure and C++ library.
 
 ### Populating the IR
 
@@ -230,14 +231,14 @@ addSymbol(symbols, Symbol(Addr(2608), // address
 addSymbol(symbols, Symbol(Addr(2614), "data2", data[1], Symbol::StorageKind::Extern));
 ```
 
-GT-IRB can store multiple symbols with the same effective address.
+GTIRB can store multiple symbols with the same effective address.
 
 ```c++
 addSymbol(symbols, Symbol(Addr(2614), "duplicate", data[1], Symbol::StorageKind::Local));
 ```
 
 Create some basic blocks. Like DataObjects, Blocks don't directly hold
-any data. GT-IRB does not directly represent instructions.
+any data. GTIRB does not directly represent instructions.
 
 ```c++
 Block b1(Addr(466), Addr(472));
@@ -276,7 +277,7 @@ module.getSymbolicExpressions().insert({Addr(472), SymAddrConst{0, NodeRef<Symbo
 
 Finally, data tables can be used to store any additional data at the
 IR level.  These use variants to support a variety of maps and vectors
-of common GT-IRB types.
+of common GTIRB types.
 
 ```c++
 ir.addTable("eaTable", std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
@@ -286,7 +287,7 @@ ir.addTable("stringMap",
 
 ### Querying the IR
 
-Many components of GT-IRB are stored in standard containers for ease
+Many components of GTIRB are stored in standard containers for ease
 of use. However, some require special consideration.
 
 Symbols can be looked up by effective address (Addr).  Any number of
@@ -313,7 +314,7 @@ assert(referent->getSize() == 2);
 
 The ICFG uses
 [boost::graph](https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/).
-GT-IRB also provides a convenience function for iterating over blocks:
+GTIRB also provides a convenience function for iterating over blocks:
 
 ```c++
 for (const auto& b : blocks(module.getCFG())) {

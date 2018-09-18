@@ -364,7 +364,7 @@ public:
 
   /// \brief Adds a single section object to the module.
   ///
-  /// \param DO The Section object to add.
+  /// \param S The Section object to add.
   ///
   /// \return void
   void addSection(Section* S) { addSection({S}); }

@@ -29,7 +29,7 @@
 /// This file defines the various casting and type checking operations
 /// that apply to gtirb::Node subclasses. For full details, see \ref casting.
 
-/// \page casting Casting
+/// \defgroup casting Casting
 ///
 /// gtirb::Node and its subclasses support custom casting machinery that
 /// allows for type checking, safer static casting, and safe dynamic
@@ -150,6 +150,7 @@
 /// \code
 /// void f(Node *N) { auto *B = dyn_cast_or_null<Block>(N); }
 /// \endcode
+/// @{ @}
 
 /// \fn isa(const Y& Val)
 /// See \ref ISA.
