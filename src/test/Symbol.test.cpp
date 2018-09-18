@@ -26,26 +26,6 @@ static Context Ctx;
 
 TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx), nullptr); }
 
-TEST(Unit_Symbol, setName) {
-  const std::string Value{"Foo"};
-
-  auto* Node = Symbol::Create(Ctx);
-  EXPECT_TRUE(Node->getName().empty());
-
-  Node->setName(Value);
-  EXPECT_EQ(Value, Node->getName());
-}
-
-TEST(Unit_Symbol, setAddress) {
-  const Addr Value{22678};
-
-  auto* Node = Symbol::Create(Ctx);
-  EXPECT_EQ(Addr(), Node->getAddress());
-
-  Node->setAddress(Value);
-  EXPECT_EQ(Value, Node->getAddress());
-}
-
 TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
