@@ -247,7 +247,9 @@ public:
   void addSymbol(std::initializer_list<Symbol*> Ss) {
     for (auto* S : Ss) {
       Symbols.emplace(S->getName(), S);
-      SymbolsByAddr.emplace(S->getAddress(), S);
+      if (const auto& A = S->getAddress()) {
+        SymbolsByAddr.emplace(A.value(), S);
+      }
     }
   }
 
