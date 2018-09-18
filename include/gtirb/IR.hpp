@@ -142,20 +142,20 @@ public:
   /// \return The deserialized IR object.
   static IR* load(Context& C, std::istream& In);
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing IR.
   using MessageType = proto::IR;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a IR from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized IR will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized IR object, or null on failure.
   static IR* fromProtobuf(Context& C, const MessageType& Message);
@@ -185,7 +185,6 @@ public:
   const gtirb::Table* getTable(const std::string& X) const;
 
   /// \brief Get a table by name.
-  /// DOCFIXME[distinction  from previous]
   ///
   /// \param  X   The name of the table to search for.
   ///
@@ -205,16 +204,14 @@ public:
   /// \ingroup TABLE_GROUP
   bool removeTable(const std::string& X);
 
-  /// \brief Get the total number of tables at this Node.
-  /// DOCFIXME[what Node?]
+  /// \brief Get the total number of tables in this IR.
   ///
   /// \return     The total number of tables this node owns.
   ///
   /// \ingroup TABLE_GROUP
   size_t getTableSize() const { return Tables.size(); }
 
-  /// \brief Check: Is the number of tables at this Node zero?
-  /// DOCFIXME[what Node?]
+  /// \brief Check: Is the number of tables in this IR zero?
   ///
   /// \return \c true if this node does not own any tables, \c false
   /// if it owns one or more tables.

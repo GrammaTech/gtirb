@@ -52,9 +52,9 @@ public:
   /// \brief Create a Block object.
   ///
   /// \param C        The Context in which this Block will be held.
-  /// \param Address  DOCFIXME
-  /// \param Size     DOCFIXME
-  /// \param DecodeMode DOCFIXME
+  /// \param Address  The address where the Block is located.
+  /// \param Size     The size of the Block in bytes.
+  /// \param DecodeMode The decode mode of the Block.
   ///
   /// \return The newly created Block.
   static Block* Create(Context& C, Addr Address, uint64_t Size,
@@ -62,16 +62,14 @@ public:
     return new (C) Block(C, Address, Size, DecodeMode);
   }
 
-  /// DOCFIXME[check all]
   /// \brief Get the address from a \ref Block.
   ///
   /// \return The address.
   Addr getAddress() const { return Address; }
 
-  /// DOCFIXME[check all]
   /// \brief Get the size from a \ref Block.
   ///
-  /// \return The size DOCFIXME[defined how?]
+  /// \return The size in bytes.
   uint64_t getSize() const { return Size; }
 
   /// \brief Get the decode mode from a \ref Block.
@@ -79,20 +77,20 @@ public:
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::Block;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a Block from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized Block will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Block object, or null on failure.
   static Block* fromProtobuf(Context& C, const MessageType& Message);
@@ -112,30 +110,30 @@ private:
 /// \brief Describes the location of an instruction.
 struct GTIRB_EXPORT_API InstructionRef {
 
-  /// \brief The block to which the instruction
-  /// belongs. [DOCFIXME[check]
+  /// \brief The block in which the instruction is located.
   NodeRef<Block> BlockRef;
 
-  /// \brief The offset of the instruction in the block. DOCFIXME[in
-  /// what? instructions? bytes?]
+  /// \brief The offset of the instruction from the start of tyhe block, in
+  /// bytes.
   uint64_t Offset;
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing InstructionRef.
   using MessageType = proto::InstructionRef;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a InstructionRef from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C  The Context in which the deserialized InstructionRef will be
+  ///           held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
-  /// \return void
+  /// \return The deserialized InstructionRef object, or null on failure.
   void fromProtobuf(Context& C, const MessageType& Message);
 };
 

@@ -30,7 +30,10 @@ namespace gtirb {
 
 /// \class Section
 ///
-/// \brief DOCFIXME
+/// \brief Represents a named section of the binary.
+///
+/// Does not directly store the contents of the section, which are kept in
+/// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
   Section(Context& C, const std::string& N, Addr A, uint64_t S)
@@ -78,20 +81,20 @@ public:
   /// \return The size.
   uint64_t getSize() const { return Size; }
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a Section from a protobuf message.
   ///
-  /// \param C       DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized Section will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Section object, or null on failure.
   static Section* fromProtobuf(Context& C, const MessageType& Message);

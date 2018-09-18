@@ -450,20 +450,20 @@ public:
     SymbolicOperands.emplace(X, SE);
   }
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a Module from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized Module will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Module object, or null on failure.
   static Module* fromProtobuf(Context& C, const MessageType& Message);
