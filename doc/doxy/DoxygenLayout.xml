@@ -3,23 +3,21 @@
   <!-- Navigation index tabs for HTML output -->
   <navindex>
     <tab type="mainpage" visible="yes" title=""/>
-    <tab type="pages" visible="yes" title="About GT-IRB" intro=""/>
-    <tab type="classes" visible="yes" title="GT-IRB API Classes and Modules">
+    <tab type="pages" visible="yes" title="More Information" intro=""/>
+    <tab type="classes" visible="yes" title="GTIRB API Classes and Modules">
       <tab type="classlist" visible="yes" title="" intro=""/>
       <tab type="classindex" visible="$ALPHABETICAL_INDEX" title=""/>
       <tab type="hierarchy" visible="yes" title="" intro=""/>
       <tab type="classmembers" visible="yes" title="" intro=""/>
       <tab type="modules" visible="yes" title="" intro=""/>
     </tab>
-    <tab type="usergroup" visible="yes" title="GT-IRB API Namespaces and Files">
-      <tab type="namespaces" visible="yes" title="">
-        <tab type="namespacelist" visible="yes" title="" intro=""/>
-        <tab type="namespacemembers" visible="yes" title="" intro=""/>
-      </tab>
-      <tab type="files" visible="yes" title="">
-        <tab type="filelist" visible="yes" title="" intro=""/>
-        <tab type="globals" visible="yes" title="" intro=""/>
-      </tab>
+    <tab type="namespaces" visible="yes" title="">
+      <tab type="namespacelist" visible="yes" title="" intro=""/>
+      <tab type="namespacemembers" visible="yes" title="" intro=""/>
+    </tab>
+    <tab type="files" visible="yes" title="">
+      <tab type="filelist" visible="yes" title="" intro=""/>
+      <tab type="globals" visible="yes" title="" intro=""/>
     </tab>
     <tab type="examples" visible="yes" title="" intro=""/>
   </navindex>
