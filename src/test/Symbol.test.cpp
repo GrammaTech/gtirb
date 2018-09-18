@@ -59,7 +59,7 @@ TEST(Unit_Symbol, setStorageKind) {
 TEST(Unit_Symbol, setReferent) {
   Symbol* Sym = Symbol::Create(Ctx);
   DataObject* Data = DataObject::Create(Ctx);
-  Block* B = Block::Create(Ctx);
+  Block* B = Block::Create(Ctx, 0, Addr(1), 2);
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
@@ -105,7 +105,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  Symbol* Sym = Symbol::Create(Ctx, Addr(1), "test", Block::Create(Ctx));
+  Symbol* Sym =
+      Symbol::Create(Ctx, Addr(1), "test", Block::Create(Ctx, 0, Addr(1), 2));
   Symbol* NoRef = Symbol::Create(Ctx);
 
   struct Visitor {
@@ -125,8 +126,14 @@ TEST(Unit_Symbol, visitation) {
   // The version that has no referent should not call any of the visitor
   // functions and the returned optional should not have a value.
   struct NoRefVisitor {
-    int operator()(const Block*) const { EXPECT_TRUE(false); return 0; }
-    int operator()(const DataObject*) const { EXPECT_TRUE(false); return 1; }
+    int operator()(const Block*) const {
+      EXPECT_TRUE(false);
+      return 0;
+    }
+    int operator()(const DataObject*) const {
+      EXPECT_TRUE(false);
+      return 1;
+    }
   };
   EXPECT_FALSE(NoRef->visit(NoRefVisitor{}));
 
@@ -158,14 +165,14 @@ TEST(Unit_Symbol, visitation) {
 
   // The following is example code that should not compile. We cannot use gtest
   // to ensure that we get the appropriate compile errors, unfortunately.
-  //struct NotEnoughOverloads {
+  // struct NotEnoughOverloads {
   //  void operator()(const Block*) {}
   //};
-  //Sym->visit(NotEnoughOverloads{}); // Error
+  // Sym->visit(NotEnoughOverloads{}); // Error
 
-  //struct IncorrectReturnTypes {
+  // struct IncorrectReturnTypes {
   //  std::string operator()(Block*) { return ""; }
   //  int operator()(DataObject*) { return 0; }
   //};
-  //Sym->visit(IncorrectReturnTypes{}); // Error
+  // Sym->visit(IncorrectReturnTypes{}); // Error
 }

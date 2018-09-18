@@ -27,12 +27,8 @@ void Block::toProtobuf(MessageType* Message) const {
   Message->set_exit_kind(proto::Exit(this->ExitKind));
 }
 
-Block* Block::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* B = Block::Create(C, Addr(Message.address()), Message.size(),
-                          Exit(Message.exit_kind()), Message.decode_mode());
-  setNodeUUIDFromBytes(B, Message.uuid());
-  return B;
-}
+// Note: in order to handle vertex descriptors correctly, Block
+// deserialization is done by CFG::fromProtobuf.
 
 void InstructionRef::toProtobuf(MessageType* Message) const {
   uuidToBytes(this->BlockRef.getUUID(), *Message->mutable_block_id());

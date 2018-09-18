@@ -16,6 +16,7 @@
 #define GTIRB_BLOCK_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/CFG.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/NodeRef.hpp>
@@ -31,7 +32,6 @@ class InstructionRef;
 } // namespace proto
 
 namespace gtirb {
-
 /// \class Block
 ///
 /// \brief A basic block.
@@ -47,15 +47,9 @@ public:
     Return = proto::Return
   };
 
-  /// \brief Create a Block object in its default state.
-  ///
-  /// \param C  The Context in which this object will be held.
-  ///
-  /// \return The newly created object.
-  static Block* Create(Context& C) { return new (C) Block(C); }
-
   /// \brief Create a Block object.
   ///
+  /// \param Vertex   The CFG vertex corresponding to this node.
   /// \param C          The Context in which this Block will be held.
   /// \param Address    The address where the Block is located.
   /// \param Size       The size of the Block in bytes.
@@ -64,10 +58,10 @@ public:
 
   ///
   /// \return The newly created Block.
-  static Block* Create(Context& C, Addr Address, uint64_t Size,
-                       Exit ExitKind = Exit::Fallthrough,
+  static Block* Create(Context& C, CFG::vertex_descriptor Vertex, Addr Address,
+                       uint64_t Size, Exit ExitKind = Exit::Fallthrough,
                        uint64_t DecodeMode = 0) {
-    return new (C) Block(C, Address, Size, ExitKind, DecodeMode);
+    return new (C) Block(C, Address, Size, Vertex, ExitKind, DecodeMode);
   }
 
   /// \brief Get the address from a \ref Block.
@@ -79,6 +73,12 @@ public:
   ///
   /// \return The size in bytes.
   uint64_t getSize() const { return Size; }
+
+  /// \brief Get a vertex descriptor which can be used to locate the Block
+  /// in the CFG.
+  ///
+  /// \return The vertex descriptor.
+  CFG::vertex_descriptor getVertex() const { return Vertex; };
 
   /// \brief Get the decode mode from a \ref Block.
   ///
@@ -99,29 +99,37 @@ public:
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief Construct a Block from a protobuf message.
-  ///
-  /// \param C   The Context in which the deserialized Block will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized Block object, or null on failure.
-  static Block* fromProtobuf(Context& C, const MessageType& Message);
-
   /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
   /// \endcond
 
 private:
   Block(Context& C) : Node(C, Kind::Block) {}
-  Block(Context& C, Addr Addr, uint64_t S, Exit E, uint64_t Decode)
-      : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode),
-        ExitKind(E) {}
+  Block(Context& C, Addr Addr, uint64_t S, CFG::vertex_descriptor V, Exit E,
+        uint64_t Decode)
+      : Node(C, Kind::Block), Address(Addr), Size(S), Vertex(V),
+        DecodeMode(Decode), ExitKind(E) {}
 
   Addr Address;
   uint64_t Size{0};
+  CFG::vertex_descriptor Vertex;
   uint64_t DecodeMode{0};
   Exit ExitKind{Exit::Fallthrough};
 };
+
+/// \ingroup CFG_GROUP
+/// \brief Create a new basic block and add it to the control-flow graph.
+///
+/// \param Cfg   The control-flow graph to modify
+/// \param Args  Forwarded to Block::Create
+///
+/// \return A descriptor which can be used to retrieve the \ref Block.
+template <class... Ts> Block* emplaceBlock(CFG& Cfg, Context& C, Ts&&... Args) {
+  auto Descriptor = add_vertex(Cfg);
+  auto* B = Block::Create(C, Descriptor, std::forward<Ts>(Args)...);
+  Cfg[Descriptor] = B;
+  return B;
+}
 
 /// \class InstructionRef
 ///

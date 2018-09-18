@@ -19,11 +19,9 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addBlock(CFG& Cfg, Block* B) {
-  auto Descriptor = add_vertex(Cfg);
-  Cfg[Descriptor] = B;
-  return Descriptor;
-}
+CFG::edge_descriptor addEdge(const Block* From, const Block* To, CFG& Cfg) {
+  return add_edge(From->getVertex(), To->getVertex(), Cfg).first;
+} // namespace gtirb
 
 boost::iterator_range<const_block_iterator> blocks(const CFG& Cfg) {
   auto Vs = vertices(Cfg);
@@ -67,29 +65,32 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 }
 
 void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
-  // While adding blocks, remember UUID -> vertex mapping
-  std::map<UUID, CFG::vertex_descriptor> BlockMap;
   std::for_each(Message.blocks().begin(), Message.blocks().end(),
-                [&Result, &BlockMap, &C](const auto& M) {
-                  Block* B = Block::fromProtobuf(C, M);
-                  auto Id = B->getUUID();
-                  BlockMap[Id] = addBlock(Result, B);
+                [&Result, &C](const auto& M) {
+                  auto* B =
+                      emplaceBlock(Result, C, Addr(M.address()), M.size(),
+                                   Block::Exit(M.exit_kind()), M.decode_mode());
+                  setNodeUUIDFromBytes(B, M.uuid());
                 });
   std::for_each(Message.edges().begin(), Message.edges().end(),
-                [&Result, &BlockMap](const auto& M) {
-                  auto E =
-                      add_edge(BlockMap[uuidFromBytes(M.source_uuid())],
-                               BlockMap[uuidFromBytes(M.target_uuid())], Result)
-                          .first;
-                  switch (M.label_case()) {
-                  case proto::Edge::kBoolean:
-                    Result[E] = M.boolean();
-                    break;
-                  case proto::Edge::kInteger:
-                    Result[E] = M.integer();
-                  case proto::Edge::LABEL_NOT_SET:
-                    // Nothing to do. Default edge label is blank.
-                    break;
+                [&Result, &C](const auto& M) {
+                  auto* Source = dyn_cast_or_null<Block>(
+                      Node::getByUUID(C, uuidFromBytes(M.source_uuid())));
+                  auto* Target = dyn_cast_or_null<Block>(
+                      Node::getByUUID(C, uuidFromBytes(M.target_uuid())));
+
+                  if (Source && Target) {
+                    auto E = addEdge(Source, Target, Result);
+                    switch (M.label_case()) {
+                    case proto::Edge::kBoolean:
+                      Result[E] = M.boolean();
+                      break;
+                    case proto::Edge::kInteger:
+                      Result[E] = M.integer();
+                    case proto::Edge::LABEL_NOT_SET:
+                      // Nothing to do. Default edge label is blank.
+                      break;
+                    }
                   }
                 });
 }
