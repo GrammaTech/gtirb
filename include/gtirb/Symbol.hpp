@@ -256,24 +256,10 @@ public:
     return new (C) Symbol(C, X, Name, Referent, Kind);
   }
 
-  /// \brief Set the effective address.
-  ///
-  /// \param X The effective address to use.
-  ///
-  /// \return void
-  void setAddress(gtirb::Addr X) { Address = X; }
-
   /// \brief Get the effective address.
   ///
   /// \return The effective address.
-  gtirb::Addr getAddress() const { return Address; }
-
-  /// \brief Set the name.
-  ///
-  /// \param X The name to use.
-  ///
-  /// \return void
-  void setName(const std::string& X) { Name = X; }
+  Addr getAddress() const { return Address; }
 
   /// \brief Get the name.
   ///
