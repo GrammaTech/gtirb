@@ -56,15 +56,17 @@ public:
 
   /// \brief Set the file name of the image.
   ///
-  /// \param X The file name to use. DOCFIXME[path requirements?]
+  /// This is for informational purposes only and will not be used to open
+  /// the image, so it does not need to be the path of an existing file.
+  ///
+  /// \param X The file name to use.
   ///
   /// \return void
   void setFileName(const std::string& X) { FileName = X; }
 
   /// \brief Get the loaded file name and path.
   ///
-  /// \return The file name and path, as a std::string. DOCFIXME[what kind of
-  /// path?]
+  /// \return The file name and path, as a std::string.
   const std::string& getFileName() const { return FileName; }
 
   /// \brief Set the base address of the loaded file.
@@ -81,7 +83,7 @@ public:
 
   /// \brief Set the entry point of the loaded file.
   ///
-  /// \param X The address of the entry point to use. DOCFIXME[check]
+  /// \param X The address of the entry point to use.
   ///
   /// \return void
   void setEntryPointAddress(Addr X) { EntryPointAddress = X; }
@@ -115,14 +117,14 @@ public:
   /// Check return values for gtirb::constants::BadAddress.
   std::pair<Addr, Addr> getAddrMinMax() const { return EaMinMax; }
 
-  /// \brief DOXFIXME
+  /// \brief DOCFIXME
   ///
   /// \param X DOCFIXME
   ///
   /// \return void
   void setRebaseDelta(int64_t X) { RebaseDelta = X; }
 
-  /// \brief DOXFIXME
+  /// \brief DOCFIXME
   ///
   /// \return DOCFIXME
   int64_t getRebaseDelta() const { return RebaseDelta; }
@@ -155,12 +157,11 @@ public:
 
   /// \brief Set the byte map at the specified address.
   ///
-  /// \param  Ea      The address at which to store the data. Must be within
-  ///                 the the minimum and maximum EA for \c this.
+  /// \param A        The address at which to store the data. Must be greater
+  ///                 than the minimum address for \c this.
   /// \param  Data    A pointer to the data to store.
-  ///                 DOCFIXME[something like "\p Ea + sizeof(\p
-  ///                 Data)+1 must be within the minimum and maximum
-  ///                 EA for \c this."]
+  ///                 \p A + Data.size() must be less than the
+  ///                 maximum address for \c this.
   ///
   /// \return  Will return \c true if the data can be assigned at the given
   /// Address, or \c false otherwise. The data passed in at the given address
@@ -170,17 +171,16 @@ public:
   ///
   /// \sa gtirb::ByteMap
   /// \sa getAddrMinMax()
-  bool setData(Addr Ea, gsl::span<const std::byte> Data);
+  bool setData(Addr A, gsl::span<const std::byte> Data);
 
-  /// DOCFIXME[check all]
   /// \brief Set the byte map in the specified range to a constant value.
   ///
-  /// \param  Ea      The first address in the range. Must be within the
-  ///                 address range for \c this.
-  /// \param  Bytes   The number of bytes to set. (\p Ea + \p Bytes - 1)
-  ///                 must be within the address range for \c this.
-  /// \param Value    The value to set for all bytes in the range [\p Ea,
-  ///                 \p Ea + \p Bytes-1].
+  /// \param  A       The first address in the range. Must be greater
+  ///                 than the minimum address for \c this.
+  /// \param  Bytes   The number of bytes to set. (\p A + \p Bytes)
+  ///                 must be less than the maximum address for \c this.
+  /// \param Value    The value to set for all bytes in the range [\p A,
+  ///                 \p A + \p Bytes-1].
   ///
   /// \return  Will return \c true if the data can be assigned at the given
   /// Address, or \c false otherwise. The data passed in at the given address
@@ -188,16 +188,16 @@ public:
   ///
   /// \sa gtirb::ByteMap
   /// \sa getAddrMinMax()
-  bool setData(Addr Ea, size_t Bytes, std::byte Value);
+  bool setData(Addr A, size_t Bytes, std::byte Value);
 
   /// \brief Store data in the byte map at the given address,
   /// converting from native byte order.
   ///
-  /// \param  Ea      The address to store the data. Must be within the
-  ///                 address range for \c this.
-  /// \param  Data    The data to store. DOCFIXME[something
-  ///                 like "\p Ea + sizeof(\p Data)-1 must be within
-  ///                 the address range for \c this."]
+  /// \param A        The address at which to store the data. Must be greater
+  ///                 than the minimum address for \c this.
+  /// \param  Data    The data to store.
+  ///                 \p A + sizeof(\p Data) must be less than the
+  ///                 maximum address for \c this.
   ///
   /// \tparam T       The type of the data to store. May be any
   ///                 endian-reversible POD type.
@@ -209,25 +209,26 @@ public:
   /// \sa gtirb::ByteMap
   /// \sa getByteOrder()
   /// \sa getAddrMinMax()
-  template <typename T> bool setData(Addr Ea, const T& Data) {
+  template <typename T> bool setData(Addr A, const T& Data) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
     if (this->ByteOrder != boost::endian::order::native) {
       T reversed = boost::endian::conditional_reverse(
           Data, this->ByteOrder, boost::endian::order::native);
-      return this->BMap.setData(Ea, as_bytes(gsl::make_span(&reversed, 1)));
+      return this->BMap.setData(A, as_bytes(gsl::make_span(&reversed, 1)));
     }
-    return this->BMap.setData(Ea, as_bytes(gsl::make_span(&Data, 1)));
+    return this->BMap.setData(A, as_bytes(gsl::make_span(&Data, 1)));
   }
 
   /// \brief Store an array to the byte map at the specified address,
   /// converting elements from native byte order.
   ///
-  /// \param  Ea      The address to store the data. Must be within the
-  ///                 address range for \c this.
+  /// \param A        The address at which to store the data. Must be greater
+  ///                 than the minimum address for \c this.
   /// \param Data     The data to store. This may be a std::array of any
-  ///                 endian-reversible POD type. DOCFIXME[something like
-  ///                 "\p Ea + sizeof(\p Data)-1 must be within the
-  ///                 address range for \c this."]
+  ///                 endian-reversible POD type.
+  ///                 \p A + sizeof(\p Data) must be less than the
+  ///                 maximum address for \c this.
+  ///
   ///
   /// \tparam T       The type of the array elements. Can be any
   ///                 endian-reversible POD type.
@@ -240,14 +241,14 @@ public:
   /// \sa getByteOrder()
   /// \sa getAddrMinMax()
   template <typename T, size_t Size>
-  bool setData(Addr Ea, const std::array<T, Size>& Data) {
-    if (this->BMap.willOverlapRegion(Ea, Size * sizeof(T)))
+  bool setData(Addr A, const std::array<T, Size>& Data) {
+    if (this->BMap.willOverlapRegion(A, Size * sizeof(T)))
       return false;
 
     for (const auto& Elt : Data) {
-      [[maybe_unused]] bool V = this->setData(Ea, Elt);
+      [[maybe_unused]] bool V = this->setData(A, Elt);
       assert(V && "setting an individual data element failed unexpectedly");
-      Ea = Ea + sizeof(T);
+      A = A + sizeof(T);
     }
     return true;
   }
@@ -270,7 +271,7 @@ public:
   /// \brief Get data from the byte map at the specified address,
   /// converting to native byte order.
   ///
-  /// \param  Ea       The starting address for the data.
+  /// \param  A       The starting address for the data.
   ///
   /// \tparam T        The type of the object to be returned. May be any
   ///                  endian-reversible POD type.
@@ -283,11 +284,11 @@ public:
   template <typename T>
   std::optional<
       typename std::enable_if<!details::is_std_array<T>::value, T>::type>
-  getData(Addr Ea) {
+  getData(Addr A) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
 
     T Data;
-    if (this->getDataNoSwap(Ea, Data)) {
+    if (this->getDataNoSwap(A, Data)) {
       return boost::endian::conditional_reverse(Data, this->ByteOrder,
                                                 boost::endian::order::native);
     }
@@ -297,7 +298,7 @@ public:
   /// \brief Get an array from the byte map at the specified address,
   /// converting to native byte order.
   ///
-  /// \param  Ea       The starting address for the data.
+  /// \param  A       The starting address for the data.
   ///
   /// \tparam T        The type of the value to be returned. May be a
   ///                  std::array of any endian-reversible POD type.
@@ -310,35 +311,35 @@ public:
   template <typename T>
   std::optional<
       typename std::enable_if<details::is_std_array<T>::value, T>::type>
-  getData(Addr Ea) {
+  getData(Addr A) {
     static_assert(std::is_pod<T>::value, "T::value must be a POD type");
 
     T Result;
-    if (getDataNoSwap(Ea, Result)) {
+    if (getDataNoSwap(A, Result)) {
       for (auto& Elt : Result) {
         boost::endian::conditional_reverse_inplace(
             Elt, this->ByteOrder, boost::endian::order::native);
-        Ea = Ea + sizeof(T);
+        A = A + sizeof(T);
       }
       return Result;
     }
     return std::nullopt;
   }
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing ImageByteMap.
   using MessageType = proto::ImageByteMap;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a ImageByteMap from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized ImageByteMap will be
+  /// held. \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ImageByteMap object, or null on failure.
   static ImageByteMap* fromProtobuf(Context& C, const MessageType& Message);
@@ -350,11 +351,11 @@ public:
   /// \endcond
 
 private:
-  template <typename T> bool getDataNoSwap(Addr Ea, T& Result) {
+  template <typename T> bool getDataNoSwap(Addr A, T& Result) {
     auto DestSpan = as_writeable_bytes(gsl::make_span(&Result, 1));
     // Assign this to a variable so it isn't destroyed before we copy
     // from it (because gsl::span is non-owning).
-    const_range Data = this->data(Ea, DestSpan.size_bytes());
+    const_range Data = this->data(A, DestSpan.size_bytes());
     std::copy(Data.begin(), Data.end(), DestSpan.begin());
     return Data.begin() != Data.end();
   }
@@ -373,15 +374,13 @@ private:
 /// \relates ImageByteMap
 /// \brief Retrieve the bytes associated with an object.
 ///
-/// \tparam T     DOCFIXME
-///
-/// \param IBM    DOCFIXME
-/// \param Object DOCFIXME
-///
-/// \return DOCFIXME
-///
-/// Object can be any type which specifies a range of addresses via
+/// \tparam T     Any type that specifies a range of addresses via
 /// getAddress() and getSize() methods (e.g. DataObject).
+///
+/// \param IBM    The ImageByteMap to retrieve data from.
+/// \param Object The object to retrieve bytes for.
+///
+/// \return The bytes associated with the \p Object.
 template <typename T>
 ImageByteMap::const_range getBytes(const ImageByteMap& IBM, const T& Object) {
   return IBM.data(Object.getAddress(), Object.getSize());

@@ -27,11 +27,10 @@
 /// \file Symbol.hpp
 /// \brief Class gtirb::Symbol.
 
-
 namespace gtirb {
 /// \class Symbol
 ///
-/// \brief DOCFIXME
+/// \brief Represents a Symbol, which maps a name to an object in the IR.
 class GTIRB_EXPORT_API Symbol : public Node {
   template <typename... Ts> struct TypeList {};
 
@@ -159,7 +158,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
         std::decay_t<supported_referent_types>{});
   }
 
-  public :
+public:
   /// \brief The list of supported referent types.
   using supported_referent_types = TypeList<Block, DataObject>;
 
@@ -312,8 +311,6 @@ class GTIRB_EXPORT_API Symbol : public Node {
   ///
   /// \return The data, dynamically typed as the given NodeTy, or null if there
   /// is no referent of that type.
-  ///
-  /// DOCFIXME
   template <typename NodeTy> NodeTy* getReferent() {
     return dyn_cast_or_null<NodeTy>(Referent);
   }
@@ -324,8 +321,6 @@ class GTIRB_EXPORT_API Symbol : public Node {
   ///
   /// \return The data, dynamically typed as the given NodeTy, or null if there
   /// is no referent of that type.
-  ///
-  /// DOCFIXME
   template <typename NodeTy> const NodeTy* getReferent() const {
     return dyn_cast_or_null<NodeTy>(Referent);
   }
@@ -342,20 +337,20 @@ class GTIRB_EXPORT_API Symbol : public Node {
   /// \return The storage kind.
   Symbol::StorageKind getStorageKind() const { return Storage; }
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a Symbol from a protobuf message.
   ///
-  /// \param C       DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized Symbol will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
   static Symbol* fromProtobuf(Context& C, const MessageType& Message);

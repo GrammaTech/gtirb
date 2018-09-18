@@ -43,7 +43,6 @@ class GTIRB_EXPORT_API DataObject : public Node {
       : Node(C, Kind::DataObject), Address(A), Size(S) {}
 
 public:
-
   /// \brief Create a DataObject object in its default state.
   ///
   /// \param C  The Context in which the newly-created DataObject will
@@ -52,47 +51,46 @@ public:
   /// \return The newly created DataObject.
   static DataObject* Create(Context& C) { return new (C) DataObject(C); }
 
-
   /// \brief Create a DataObject object.
   ///
   /// \param C The Context in which the newly-created DataObject will
   /// be held.
   ///
-  /// \param Address  DOCFIXME
+  /// \param Address  The initial address of the object.
   ///
-  /// \param Size     DOCFIXME
+  /// \param Size     The size of the object in bytes.
   ///
   /// \return The newly created DataObject.
   static DataObject* Create(Context& C, Addr Address, uint64_t Size) {
     return new (C) DataObject(C, Address, Size);
   }
 
-  /// \brief Get the address of DOCFIXME.
+  /// \brief Get the address of a DataObject.
   ///
   /// \return The address.
   ///
   Addr getAddress() const { return Address; }
 
-  /// \brief Get the size of DOCFIXME.
+  /// \brief Get the size of a DataObject.
   ///
   /// \return The size.
   ///
   uint64_t getSize() const { return Size; }
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing DataObject.
   using MessageType = proto::DataObject;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a DataObject from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized DataObject will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized DataObject object, or null on failure.
   static DataObject* fromProtobuf(Context& C, const MessageType& Message);

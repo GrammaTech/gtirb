@@ -27,31 +27,31 @@
 namespace gtirb {
 /// \brief Create UUID from string containing raw bytes.
 ///
-/// \param Bytes DOCFIXME
+/// \param Bytes  A string containing the raw bytes of the UUID.
 ///
-/// \return DOCFIXME
+/// \return A UUID constructed from the contents of Bytes.
 UUID uuidFromBytes(const std::string& Bytes);
 
 /// \brief Copy raw bytes of UUID into a string.
 ///
-/// \param Uuid DOCFIXME
-/// \param Bytes DOCFIXME
+/// \param Uuid   The UUID to store.
+/// \param Bytes  The string in which to store the UUID bytes.
 ///
 /// \return void
 void uuidToBytes(UUID Uuid, std::string& Bytes);
 
 /// \brief Copy raw bytes of Node's UUID into a string.
 ///
-/// \param Node DOCFIXME
-/// \param Bytes DOCFIXME
+/// \param Node   Store this Node's UUID.
+/// \param Bytes  The string in which to store the UUID bytes.
 ///
 /// \return void
 void nodeUUIDToBytes(const Node* Node, std::string& Bytes);
 
 /// \brief Set Node's UUID from a string containing raw bytes.
 ///
-/// \param Node DOCFIXME
-/// \param Bytes DOCFIXME
+/// \param Node   The Node to modify.
+/// \param Bytes  A string containing the raw bytes of the UUID.
 ///
 /// \return void
 void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);

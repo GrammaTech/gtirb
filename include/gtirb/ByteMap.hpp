@@ -29,7 +29,6 @@
 /// \file ByteMap.hpp
 /// \brief Class gtirb::ByteMap.
 
-
 namespace proto {
 class ByteMap;
 }
@@ -58,7 +57,7 @@ public:
 
   /// \brief DOCFIXME
   using const_range =
-    boost::iterator_range<std::vector<std::byte>::const_iterator>;
+      boost::iterator_range<std::vector<std::byte>::const_iterator>;
 
   /// \brief Get the data at the specified address.
   ///
@@ -70,39 +69,34 @@ public:
   /// range if the requested address or number of bytes cannot be retrieved.
   const_range data(Addr A, size_t Bytes) const;
 
-  /// \brief DOCFIXME
+  /// \brief The protobuf message type used for serializing ByteMap.
   using MessageType = proto::ByteMap;
 
-  /// \brief DOCFIXME
+  /// \brief Serialize into a protobuf message.
   ///
-  /// \param Message DOCFIXME
+  /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief DOCFIXME
+  /// \brief Construct a ByteMap from a protobuf message.
   ///
-  /// \param C DOCFIXME
-  /// \param Message DOCFIXME
+  /// \param C   The Context in which the deserialized ByteMap will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
-  /// \return void
+  /// \return The deserialized ByteMap object, or null on failure.
   void fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \brief DOCFIXME
+  /// \cond INTERNAL
   struct Region {
-    Addr Address;                ///< DOCFIXME
-    std::vector<std::byte> Data; ///< DOCFIXME
+    Addr Address;
+    std::vector<std::byte> Data;
 
-    /// \brief DOCFIXME
-    ///
-    /// \return DOCFIXME
     Addr getAddress() const { return this->Address; }
 
-    /// \brief DOCFIXME
-    ///
-    /// \return DOCFIXME
     uint64_t getSize() const { return this->Data.size(); }
   };
+  /// \endcond
 
 private:
   std::vector<Region> Regions;
