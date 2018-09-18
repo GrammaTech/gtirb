@@ -75,11 +75,6 @@ public:
 
   /// \brief Deallocates memory allocated through a call to Allocate().
   ///
-  /// \par Parameters
-  /// Anonymous parameters, in order of occurrence.
-  /// * DOCFIXME
-  /// * DOCFIXME
-  ///
   /// \return void
   ///
   /// Deallocation of individual pointers leads to memory fragmentation, which
@@ -110,12 +105,6 @@ inline void* operator new(size_t Size, const gtirb::Context& C,
 /// \relates  gtirb::Context
 /// \brief Custom placement delete operator that pairs with the
 /// custom new operator.
-///
-/// \par Parameters
-/// Anonymous parameters, in order of occurrence.
-/// * DOCFIXME
-/// * DOCFIXME
-/// * DOCFIXME
 ///
 /// \return void
 ///
