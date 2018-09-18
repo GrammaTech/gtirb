@@ -218,11 +218,13 @@ public:
 
   /// \brief Create a Symbol object.
   ///
-  /// \param C  The Context in which this object will be held.
-  /// \param X  The address of the symbol.
+  /// \param C    The Context in which this object will be held.
+  /// \param Name The name of the symbol.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Addr X) { return new (C) Symbol(C, X); }
+  static Symbol* Create(Context& C, const std::string& Name) {
+    return new (C) Symbol(C, std::nullopt, Name);
+  }
 
   /// \brief Create a Symbol object.
   ///
@@ -259,7 +261,7 @@ public:
   /// \brief Get the effective address.
   ///
   /// \return The effective address.
-  Addr getAddress() const { return Address; }
+  std::optional<Addr> getAddress() const { return Address; }
 
   /// \brief Get the name.
   ///
@@ -347,15 +349,14 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, Addr X) : Node(C, Kind::Symbol), Address(X) {}
-  Symbol(Context& C, Addr X, const std::string& N,
+  Symbol(Context& C, std::optional<Addr> X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK) {}
   Symbol(Context& C, Addr X, const std::string& N, Node* R,
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK), Referent(R) {}
 
-  Addr Address;
+  std::optional<Addr> Address;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
   Node* Referent{nullptr};

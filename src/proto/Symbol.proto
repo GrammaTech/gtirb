@@ -26,7 +26,9 @@ enum StorageKind
 
 message Symbol {
     bytes uuid = 1;
-    uint64 address = 2;
+    oneof optional_address {
+      uint64 address = 2;
+    }
     string name = 3;
     StorageKind storage_kind = 4;
     bytes referent_uuid = 5;
