@@ -30,7 +30,7 @@ class Node;
 
 /// \class Context
 ///
-/// \brief The context under which GT-IRB operations occur. This object is
+/// \brief The context under which GTIRB operations occur. This object is
 /// responsible for holding serialization and serialization state, allowing for
 /// control over when Node memory can be released and providing a mechanism for
 /// ensuring thread safety.

@@ -373,7 +373,7 @@ private:
 /// \return DOCFIXME
 ///
 /// Object can be any type which specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. Data).
+/// getAddress() and getSize() methods (e.g. DataObject).
 template <typename T>
 ImageByteMap::const_range getBytes(const ImageByteMap& IBM,
                                    const T& Object) {

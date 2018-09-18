@@ -29,7 +29,7 @@
 /// and when consuming the library, selects symbols to import.
 #if defined(_MSC_VER) || __has_declspec_attribute(dllexport)
 // Defined by the build system (CMake or SCons). This should only be defined by
-// the build system which generates the GT-IRB library. Users of the library
+// the build system which generates the GTIRB library. Users of the library
 // should NOT define this.
 #ifdef GTIRB_gtirb_EXPORTS
 #define GTIRB_EXPORT_API _declspec(dllexport)
