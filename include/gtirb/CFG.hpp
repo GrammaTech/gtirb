@@ -15,7 +15,8 @@
 #ifndef GTIRB_CFG_H
 #define GTIRB_CFG_H
 
-#include <gtirb/Block.hpp>
+#include <gtirb/Context.hpp>
+#include <gtirb/Export.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -104,14 +105,16 @@ using block_iterator = block_iter_base<Block, CFG>;
 /// \brief DOCFIXME
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
-/// \ingroup CFG_GROUP
-/// \brief Move a basic block (\ref Block) into the graph.
+/// \brief Create a new edge between two blocks.
 ///
-/// \param Cfg    DOCFIXME
-/// \param B      DOCFIXME
+/// \param Cfg   The graph to modify.
+/// \param From  The source block.
+/// \param To    The target block.
 ///
-/// \return A descriptor which can be used to retrieve the \ref Block.
-GTIRB_EXPORT_API CFG::vertex_descriptor addBlock(CFG& Cfg, Block* B);
+/// \return A descriptor which can be used to retrieve the edge from the
+/// graph or assign a label.
+GTIRB_EXPORT_API CFG::edge_descriptor addEdge(const Block* From,
+                                              const Block* To, CFG& Cfg);
 
 /// DOCFIXME[check all]
 /// \ingroup CFG_GROUP

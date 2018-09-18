@@ -187,7 +187,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setISAID(ISAID::X64);
     Original->setName("module");
     Original->addSymbol(Symbol::Create(InnerCtx));
-    addBlock(Original->getCFG(), Block::Create(InnerCtx));
+    emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
     Original->addData(DataObject::Create(InnerCtx));
     Original->addSection(Section::Create(InnerCtx));
     Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
