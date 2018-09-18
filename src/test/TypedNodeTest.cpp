@@ -36,8 +36,7 @@
 
 using testing::Types;
 
-typedef Types<gtirb::Block*,        //
-              gtirb::DataObject*,   //
+typedef Types<gtirb::DataObject*,   //
               gtirb::IR*,           //
               gtirb::ImageByteMap*, //
               gtirb::Module*,       //
@@ -142,7 +141,7 @@ REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
                            uniqueUuids,               //
                            deserializeUpdatesUUIDMap, //
                            getByUUID,                 //
-                           nodeReference, //
+                           nodeReference,             //
                            badReference);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name
