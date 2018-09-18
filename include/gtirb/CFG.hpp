@@ -33,15 +33,16 @@ class CFG;
 namespace gtirb {
 class Block;
 
-/// \brief DOCFIXME
-using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
-
 
 /// \defgroup CFG_GROUP CFGs
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
 ///
 /// @{ @}
+
+/// \ingroup CFG_GROUP
+/// \brief DOCFIXME
+using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
 /// \ingroup CFG_GROUP
 /// \brief Interprocedural \ref CFG_GROUP "control flow graph", with
