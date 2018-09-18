@@ -43,34 +43,27 @@ class Module;
 /// digraph example {
 ///     node [shape=record, fontname=Helvetica, fontsize=10];
 ///
-///     ir [ label="gtirb::IR" URL="\ref IR"];
-///     module [ label="gtirb::Module" URL="\ref Module"];
-///     table [ label="gtirb::Table" URL="\ref Table"];
-///     dataSet [label="gtirb::DataSet" URL="\ref DataSet"]
-///     imageByteMap [label="gtirb::ImageByteMap" URL="\ref ImageByteMap"]
-///     sectionSet [label="gtirb::SectionSet" URL="\ref SectionSet"]
-///     symbolSet [label="gtirb::SymbolSet" URL="\ref SymbolSet"]
-///     symbolicOperandSet [label="gtirb::SymbolicExpressionSet" URL="\ref
-///     SymbolicExpressionSet"] cfg [label="gtirb::CFG" URL="\ref CFG"] block
-///     [label="gtirb::Block" URL="\ref Block"] data [label="gtirb::DataObject"
-///     URL="\ref DataObject"] symbolicOperand
-///     [label="gtirb::SymbolicExpression" URL="\ref SymbolicExpression"]
-///     section [label="gtirb::Section" URL="\ref Section"]
-///     symbol [label="gtirb::Symbol" URL="\ref Symbol"]
+///     ir [ label="IR" URL="\ref IR"];
+///     module [ label="Module" URL="\ref Module"];
+///     table [ label="Table" URL="\ref Table"];
+///     imageByteMap [label="ImageByteMap" URL="\ref ImageByteMap"]
+///     blocks [label="Block" URL="\ref Block"]
+///     data [label="DataObject"  URL="\ref DataObject"]
+///     symbolicExpressions  [label="SymbolicExpression" URL="\ref
+///                            SymbolicExpression"]
+///     sections [label="Section" URL="\ref Section"]
+///     symbols [label="Symbol" URL="\ref Symbol"]
+///     cfg [label="CFG" URL="\ref CFG"]
 ///
 ///     ir -> module;
 ///     ir -> table;
 ///     module -> cfg;
-///     module -> dataSet
+///     module -> data
 ///     module -> imageByteMap;
-///     module -> sectionSet
-///     module -> symbolSet;
-///     module -> symbolicOperandSet
-///     cfg -> block;
-///     dataSet -> data;
-///     sectionSet -> section;
-///     symbolSet -> symbol;
-///     symbolicOperandSet -> symbolicOperand;
+///     module -> sections
+///     module -> symbols;
+///     module -> symbolicExpressions
+///     cfg -> blocks;
 /// }
 /// \enddot
 class GTIRB_EXPORT_API IR : public Node {
