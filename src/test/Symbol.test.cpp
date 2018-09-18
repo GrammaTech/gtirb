@@ -82,6 +82,16 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Static);
   EXPECT_EQ(Result->getReferent<DataObject>()->getUUID(), DataUUID);
   EXPECT_EQ(Result->getReferent<Block>(), nullptr);
+
+  // Symbol without address
+  {
+    Context InnerCtx;
+    Symbol* Original = Symbol::Create(InnerCtx, "test");
+    Original->toProtobuf(&SMessage);
+  }
+  Result = Symbol::fromProtobuf(Ctx, SMessage);
+  EXPECT_FALSE(Result->getAddress());
+  EXPECT_EQ(Result->getName(), "test");
 }
 
 TEST(Unit_Symbol, visitation) {

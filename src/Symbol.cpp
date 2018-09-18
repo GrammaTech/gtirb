@@ -21,7 +21,11 @@ using namespace gtirb;
 
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_address(static_cast<uint64_t>(this->Address));
+  if (this->Address) {
+    Message->set_address(static_cast<uint64_t>(this->Address.value()));
+  } else {
+    Message->clear_optional_address();
+  }
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
   if (this->Referent) {
@@ -30,8 +34,14 @@ void Symbol::toProtobuf(MessageType* Message) const {
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, Addr(Message.address()), Message.name(),
-                             static_cast<StorageKind>(Message.storage_kind()));
+  Symbol* S;
+
+  if (Message.optional_address_case() == proto::Symbol::kAddress) {
+    S = Symbol::Create(C, Addr(Message.address()), Message.name());
+  } else {
+    S = Symbol::Create(C, Message.name());
+  }
+  S->setStorageKind(static_cast<StorageKind>(Message.storage_kind()));
   setNodeUUIDFromBytes(S, Message.uuid());
 
   if (!Message.referent_uuid().empty()) {
