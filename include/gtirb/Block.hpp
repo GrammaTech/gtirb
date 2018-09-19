@@ -131,7 +131,7 @@ struct GTIRB_EXPORT_API InstructionRef {
   /// \brief The block in which the instruction is located.
   NodeRef<Block> BlockRef;
 
-  /// \brief The offset of the instruction from the start of tyhe block, in
+  /// \brief The offset of the instruction from the start of the block, in
   /// bytes.
   uint64_t Offset;
 
