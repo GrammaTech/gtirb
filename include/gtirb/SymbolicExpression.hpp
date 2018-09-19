@@ -16,7 +16,6 @@
 #define GTIRB_SYMBOLICEXPRESSION_H
 
 #include <gtirb/Addr.hpp>
-#include <gtirb/NodeRef.hpp>
 #include <gtirb/Symbol.hpp>
 #include <cstdint>
 #include <map>
@@ -40,27 +39,27 @@ class Context;
 /// DOCFIXME[word in terms of the field names]
 struct SymStackConst {
   // TODO: What's this?
-  bool Negate;         ///< DOCFIXME
-  int Offset;          ///< DOCFIXME
-  int Displacement;    ///< DOCFIXME
-  NodeRef<Symbol> Sym; ///< DOCFIXME
+  bool Negate;      ///< DOCFIXME
+  int Offset;       ///< DOCFIXME
+  int Displacement; ///< DOCFIXME
+  Symbol* Sym;      ///< DOCFIXME
 };
 
 /// \brief Represents a symbolic operand of the form "Addr + Const".
 /// DOCFIXME[word in terms of the field names]
 struct SymAddrConst {
   int64_t Displacement; ///< DOCFIXME
-  NodeRef<Symbol> Sym;  ///< DOCFIXME
+  Symbol* Sym;          ///< DOCFIXME
 };
 
 /// \brief Represents a symbolic operand of the form "(Addr - Addr) /
 /// Scale + Offset"
 /// DOCFIXME[word in terms of the field names]
 struct SymAddrAddr {
-  int64_t Scale;        ///< DOCFIXME
-  int64_t Offset;       ///< DOCFIXME
-  NodeRef<Symbol> Sym1; ///< DOCFIXME
-  NodeRef<Symbol> Sym2; ///< DOCFIXME
+  int64_t Scale;  ///< DOCFIXME
+  int64_t Offset; ///< DOCFIXME
+  Symbol* Sym1;   ///< DOCFIXME
+  Symbol* Sym2;   ///< DOCFIXME
 };
 
 /// \brief DOCFIXME
@@ -69,12 +68,12 @@ using SymbolicExpression =
 
 /// \brief DOCFIXME
 ///
-/// \param <unnamed>  Not used.
+/// \param  C         DOCFIXME
 /// \param  Result    DOCFIXME
 /// \param  Message   DOCFIXME
 ///
 /// \return void
-GTIRB_EXPORT_API void fromProtobuf(Context&, SymbolicExpression& Result,
+GTIRB_EXPORT_API void fromProtobuf(Context& C, SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);
 
 /// \brief DOCFIXME

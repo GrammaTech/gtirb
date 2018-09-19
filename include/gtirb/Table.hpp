@@ -183,17 +183,13 @@ template <> struct table_traits<InstructionRef> {
   static std::string type_id() { return "InstructionRef"; }
 
   static void toBytes(const InstructionRef& Object, to_iterator It) {
-    table_traits<UUID>::toBytes(Object.BlockRef.getUUID(), It);
+    table_traits<UUID>::toBytes(Object.BlockId, It);
     table_traits<uint64_t>::toBytes(Object.Offset, It);
   }
 
   static from_iterator fromBytes(InstructionRef& Object, from_iterator It) {
-    UUID Id;
-    It = table_traits<UUID>::fromBytes(Id, It);
-    Object.BlockRef = NodeRef<Block>(Id);
-
+    It = table_traits<UUID>::fromBytes(Object.BlockId, It);
     It = table_traits<uint64_t>::fromBytes(Object.Offset, It);
-
     return It;
   }
 };

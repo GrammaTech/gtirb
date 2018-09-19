@@ -237,3 +237,53 @@ TEST(Unit_Module, protobufRoundTrip) {
       1);
   EXPECT_EQ(Result->symbolic_expr_begin()->index(), WhichSymbolic);
 }
+
+TEST(Unit_Module, protobufNodePointers) {
+  // Ensure that deserialization handles node pointers (e.g. in Symbol and
+  // SymbolicExpression) correctly.
+  // This is order-dependent: the pointers are serialized as UUIDs, and
+  // Node::getByUUID will fail if the corresponding Node has not yet been
+  // deserialized.
+
+  proto::Module Message;
+
+  {
+    Context InnerCtx;
+    Module* Original = Module::Create(InnerCtx);
+    auto* Data = DataObject::Create(InnerCtx);
+    Original->addData(Data);
+    auto* DataSym = Symbol::Create(InnerCtx, Addr(1), "data", Data);
+    Original->addSymbol(DataSym);
+
+    // Not part of IR
+    auto* DanglingData = DataObject::Create(InnerCtx);
+    Original->addSymbol(
+        Symbol::Create(InnerCtx, Addr(1), "dangling", DanglingData));
+
+    auto* Code = emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
+    auto* CodeSym = Symbol::Create(InnerCtx, Addr(2), "code", Code);
+    Original->addSymbol(CodeSym);
+    Original->addSymbolicExpression(Addr(3), {SymAddrConst{0, DataSym}});
+
+    // Not part of IR
+    auto* DanglingSym = Symbol::Create(InnerCtx, Addr(1), "foo");
+    Original->addSymbolicExpression(Addr(4), {SymAddrConst{0, DanglingSym}});
+
+    Original->toProtobuf(&Message);
+  }
+
+  Module* Result = Module::fromProtobuf(Ctx, Message);
+  EXPECT_NE(Result->findSymbol("data")->getReferent<DataObject>(), nullptr);
+  EXPECT_NE(Result->findSymbol("code")->getReferent<Block>(), nullptr);
+  // Dangling reference becomes nullptr
+  EXPECT_EQ(Result->findSymbol("dangling")->getReferent<Block>(), nullptr);
+
+  const auto& Symbolic =
+      get<SymAddrConst>(*Result->findSymbolicExpression(Addr(3)));
+  EXPECT_NE(Symbolic.Sym, nullptr);
+  EXPECT_EQ(Symbolic.Sym->getName(), "data");
+
+  // Dangling reference becomes nullptr
+  EXPECT_EQ(get<SymAddrConst>(*Result->findSymbolicExpression(Addr(4))).Sym,
+            nullptr);
+}

@@ -31,21 +31,29 @@ public:
     M->set_negate(Val.Negate);
     M->set_offset(Val.Offset);
     M->set_displacement(Val.Displacement);
-    uuidToBytes(Val.Sym.getUUID(), *M->mutable_symbol_uuid());
+    if (Val.Sym) {
+      uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
+    }
   }
 
   void operator()(const SymAddrConst& Val) const {
     auto M = Message->mutable_addr_const();
     M->set_displacement(Val.Displacement);
-    uuidToBytes(Val.Sym.getUUID(), *M->mutable_symbol_uuid());
+    if (Val.Sym) {
+      uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
+    }
   }
 
   void operator()(const SymAddrAddr& Val) const {
     auto M = Message->mutable_addr_addr();
     M->set_scale(Val.Scale);
     M->set_offset(Val.Offset);
-    uuidToBytes(Val.Sym1.getUUID(), *M->mutable_symbol1_uuid());
-    uuidToBytes(Val.Sym2.getUUID(), *M->mutable_symbol2_uuid());
+    if (Val.Sym1) {
+      uuidToBytes(Val.Sym1->getUUID(), *M->mutable_symbol1_uuid());
+    }
+    if (Val.Sym2) {
+      uuidToBytes(Val.Sym2->getUUID(), *M->mutable_symbol2_uuid());
+    }
   }
 };
 
@@ -55,25 +63,36 @@ proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
   return Message;
 }
 
-void fromProtobuf(Context&, SymbolicExpression& Result,
+namespace {
+Symbol* symbolFromProto(Context& C, std::string Bytes) {
+  if (Bytes.empty()) {
+    return nullptr;
+  } else {
+    return dyn_cast_or_null<Symbol>(Node::getByUUID(C, uuidFromBytes(Bytes)));
+  }
+}
+} // namespace
+
+void fromProtobuf(Context& C, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message) {
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
     auto Val = Message.stack_const();
     Result = SymStackConst{Val.negate(), Val.offset(), Val.displacement(),
-                           uuidFromBytes(Val.symbol_uuid())};
+                           symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrConst: {
     auto Val = Message.addr_const();
-    Result = SymAddrConst{Val.displacement(), uuidFromBytes(Val.symbol_uuid())};
+    Result =
+        SymAddrConst{Val.displacement(), symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrAddr: {
     auto Val = Message.addr_addr();
     Result = SymAddrAddr{Val.scale(), Val.offset(),
-                         uuidFromBytes(Val.symbol1_uuid()),
-                         uuidFromBytes(Val.symbol2_uuid())};
+                         symbolFromProto(C, Val.symbol1_uuid()),
+                         symbolFromProto(C, Val.symbol2_uuid())};
     break;
   }
   case proto::SymbolicExpression::VALUE_NOT_SET:

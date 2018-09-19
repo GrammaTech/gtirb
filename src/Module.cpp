@@ -85,7 +85,6 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   nodeMapFromProtobuf(C, M->Data, Message.data());
   nodeMapFromProtobuf(C, M->Sections, Message.sections());
-  containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
 
   // Special case for symbol set: serialized as a map, uses multiple indices
   // internally.
@@ -94,5 +93,9 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   std::for_each(Syms.begin(), Syms.end(), [M, &C](const auto& Elt) {
     M->addSymbol(Symbol::fromProtobuf(C, Elt.second));
   });
+
+  // Create SymbolicExpressions after the Symbols they reference.
+  containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
+
   return M;
 }

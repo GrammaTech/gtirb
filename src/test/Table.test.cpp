@@ -137,25 +137,6 @@ TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
             std::vector<UUID>({Id1, Id2, Id3}));
 }
 
-TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
-  UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
-       Id3 = Node::Create(Ctx)->getUUID();
-  std::vector<InstructionRef> vec({{Id1, 1}, {Id2, 2}, {Id3, 3}});
-  Table Original = vec;
-
-  gtirb::Table Result;
-  auto Message = toProtobuf(Original);
-  fromProtobuf(Ctx, Result, Message);
-
-  auto vec2 = *Result.get<std::vector<InstructionRef>>();
-  EXPECT_EQ(vec2[0].BlockRef.getUUID(), vec[0].BlockRef.getUUID());
-  EXPECT_EQ(vec2[0].Offset, vec[0].Offset);
-  EXPECT_EQ(vec2[1].BlockRef.getUUID(), vec[1].BlockRef.getUUID());
-  EXPECT_EQ(vec2[1].Offset, vec[1].Offset);
-  EXPECT_EQ(vec2[2].BlockRef.getUUID(), vec[2].BlockRef.getUUID());
-  EXPECT_EQ(vec2[2].Offset, vec[2].Offset);
-}
-
 TEST(Unit_Table, typeName) {
   EXPECT_EQ(TableTemplate<uint64_t>().typeName(), "uint64_t");
   EXPECT_EQ(TableTemplate<std::vector<uint64_t>>().typeName(),
@@ -361,7 +342,7 @@ TEST(Unit_Table, uuidProtobufRoundTrip) {
 }
 
 TEST(Unit_Table, instructionRefProtobufRoundTrip) {
-  InstructionRef Val{{Node::Create(Ctx)->getUUID()}, 123};
+  InstructionRef Val{Node::Create(Ctx)->getUUID(), 123};
   Table Original;
   Original = Val;
 
@@ -370,7 +351,7 @@ TEST(Unit_Table, instructionRefProtobufRoundTrip) {
   fromProtobuf(Ctx, Result, Message);
 
   auto NewVal = *Result.get<decltype(Val)>();
-  EXPECT_EQ(NewVal.BlockRef.getUUID(), Val.BlockRef.getUUID());
+  EXPECT_EQ(NewVal.BlockId, Val.BlockId);
   EXPECT_EQ(NewVal.Offset, Val.Offset);
 }
 
