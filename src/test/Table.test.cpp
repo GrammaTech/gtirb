@@ -29,7 +29,7 @@ TEST(Unit_Table, eaMapProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  MapT M = get<MapT>(Result);
+  MapT M = *Result.get<MapT>();
   EXPECT_EQ(M.size(), 2);
   EXPECT_EQ(M[Addr(1)], "a");
   EXPECT_EQ(M[Addr(2)], "b");
@@ -43,7 +43,7 @@ TEST(Unit_Table, intMapProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  MapT M = get<MapT>(Result);
+  MapT M = *Result.get<MapT>();
   EXPECT_EQ(M.size(), 2);
   EXPECT_EQ(M[1], "a");
   EXPECT_EQ(M[2], "b");
@@ -57,7 +57,7 @@ TEST(Unit_Table, stringMapProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  MapT M = get<MapT>(Result);
+  MapT M = *Result.get<MapT>();
   EXPECT_EQ(M.size(), 2);
   EXPECT_EQ(M["1"], "a");
   EXPECT_EQ(M["2"], "b");
@@ -73,7 +73,7 @@ TEST(Unit_Table, uuidMapProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  MapT M = get<MapT>(Result);
+  MapT M = *Result.get<MapT>();
   EXPECT_EQ(M.size(), 2);
   EXPECT_EQ(M[Id1], "a");
   EXPECT_EQ(M[Id2], "b");
@@ -87,7 +87,7 @@ TEST(Unit_Table, mapVectorProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  auto New = get<decltype(Val)>(Result);
+  auto New = *Result.get<decltype(Val)>();
   EXPECT_EQ(New, Val);
 }
 
@@ -98,7 +98,7 @@ TEST(Unit_Table, eaVectorProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<std::vector<Addr>>(Result),
+  EXPECT_EQ(*Result.get<std::vector<Addr>>(),
             std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
 }
 
@@ -109,7 +109,8 @@ TEST(Unit_Table, intVectorProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<std::vector<int64_t>>(Result), std::vector<int64_t>({1, 2, 3}));
+  EXPECT_EQ(*Result.get<std::vector<int64_t>>(),
+            std::vector<int64_t>({1, 2, 3}));
 }
 
 TEST(Unit_Table, stringVectorProtobufRoundTrip) {
@@ -119,7 +120,7 @@ TEST(Unit_Table, stringVectorProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<std::vector<std::string>>(Result),
+  EXPECT_EQ(*Result.get<std::vector<std::string>>(),
             std::vector<std::string>({"1", "2", "3"}));
 }
 
@@ -132,7 +133,8 @@ TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<std::vector<UUID>>(Result), std::vector<UUID>({Id1, Id2, Id3}));
+  EXPECT_EQ(*Result.get<std::vector<UUID>>(),
+            std::vector<UUID>({Id1, Id2, Id3}));
 }
 
 TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
@@ -145,7 +147,7 @@ TEST(Unit_Table, instructionVectorProtobufRoundTrip) {
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  auto vec2 = get<std::vector<InstructionRef>>(Result);
+  auto vec2 = *Result.get<std::vector<InstructionRef>>();
   EXPECT_EQ(vec2[0].BlockRef.getUUID(), vec[0].BlockRef.getUUID());
   EXPECT_EQ(vec2[0].Offset, vec[0].Offset);
   EXPECT_EQ(vec2[1].BlockRef.getUUID(), vec[1].BlockRef.getUUID());
@@ -174,32 +176,32 @@ TEST(Unit_Table, typeName) {
 TEST(Unit_Table, getPrimitiveTypes) {
   Table P;
   P = char('a');
-  EXPECT_EQ(get<char>(P), 'a');
+  EXPECT_EQ(*P.get<char>(), 'a');
 
   P = uint64_t(123);
-  EXPECT_EQ(get<uint64_t>(P), 123);
+  EXPECT_EQ(*P.get<uint64_t>(), 123);
 
   P = int64_t(-123);
-  EXPECT_EQ(get<int64_t>(P), -123);
+  EXPECT_EQ(*P.get<int64_t>(), -123);
 
   P = uint8_t(123);
-  EXPECT_EQ(get<uint8_t>(P), 123);
+  EXPECT_EQ(*P.get<uint8_t>(), 123);
 
   P = int(-123);
-  EXPECT_EQ(get<int>(P), -123);
+  EXPECT_EQ(*P.get<int>(), -123);
 
   P = unsigned(123);
-  EXPECT_EQ(get<unsigned>(P), 123);
+  EXPECT_EQ(*P.get<unsigned>(), 123);
 
   P = std::byte(123);
-  EXPECT_EQ(get<std::byte>(P), std::byte(123));
+  EXPECT_EQ(*P.get<std::byte>(), std::byte(123));
 }
 
 TEST(Unit_Table, getVector) {
   std::vector<int64_t> Orig({1, 2, 3});
   Table P(Orig);
 
-  auto& result = get<std::vector<int64_t>>(P);
+  auto& result = *P.get<std::vector<int64_t>>();
   EXPECT_EQ(result, Orig);
 }
 
@@ -207,21 +209,21 @@ TEST(Unit_Table, getString) {
   std::string Orig("abcd");
   Table P(Orig);
 
-  EXPECT_EQ(get<std::string>(P), "abcd");
+  EXPECT_EQ(*P.get<std::string>(), "abcd");
 }
 
 TEST(Unit_Table, getAddr) {
   Addr Orig(0x1234);
   Table P(Orig);
 
-  EXPECT_EQ(get<Addr>(P), Addr(0x1234));
+  EXPECT_EQ(*P.get<Addr>(), Addr(0x1234));
 }
 
 TEST(Unit_Table, getMap) {
   std::map<char, int64_t> Orig({{'a', 1}, {'b', 2}, {'c', 3}});
   Table P(Orig);
 
-  auto& Result = get<std::map<char, int64_t>>(P);
+  auto& Result = *P.get<std::map<char, int64_t>>();
   EXPECT_EQ(Result, Orig);
 }
 
@@ -229,25 +231,24 @@ TEST(Unit_Table, getTuple) {
   std::tuple<char, int64_t> Orig('a', 1);
   Table P(Orig);
 
-  auto& Result = get<std::tuple<char, int64_t>>(P);
+  auto& Result = *P.get<std::tuple<char, int64_t>>();
   EXPECT_EQ(Result, Orig);
 }
 
-TEST(Unit_Table, getUnsetValue) {
-  Table P;
-  EXPECT_DEATH(get<int64_t>(P), "");
+TEST(Unit_Table, getWrongType) {
+  Table Table('a');
+  EXPECT_EQ(Table.get<int>(), nullptr);
 }
 
-TEST(Unit_Table, getWrongType) {
-  Table P;
-  P = uint64_t(1);
-  EXPECT_DEATH(get<int64_t>(P), "");
+TEST(Unit_Table, getEmpty) {
+  Table Empty;
+  EXPECT_EQ(Empty.get<int>(), nullptr);
 }
 
 TEST(Unit_Table, getWrongContainer) {
   Table P;
   P = std::vector<int>();
-  EXPECT_DEATH(get<std::list<int>>(P), "");
+  EXPECT_EQ(P.get<std::list<int>>(), nullptr);
 }
 
 TEST(Unit_Table, protobufRoundTrip) {
@@ -259,7 +260,7 @@ TEST(Unit_Table, protobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(A, get<int64_t>(Result));
+  EXPECT_EQ(A, *Result.get<int64_t>());
 }
 
 TEST(Unit_Table, vectorProtobufRoundTrip) {
@@ -271,7 +272,7 @@ TEST(Unit_Table, vectorProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(V)>(Result), V);
+  EXPECT_EQ(*Result.get<decltype(V)>(), V);
 }
 
 TEST(Unit_Table, listProtobufRoundTrip) {
@@ -283,7 +284,7 @@ TEST(Unit_Table, listProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(V)>(Result), V);
+  EXPECT_EQ(*Result.get<decltype(V)>(), V);
 }
 
 TEST(Unit_Table, listToVectorProtobufRoundTrip) {
@@ -296,7 +297,7 @@ TEST(Unit_Table, listToVectorProtobufRoundTrip) {
   fromProtobuf(Ctx, Result, Message);
 
   auto vec = std::vector<int64_t>(Lst.begin(), Lst.end());
-  EXPECT_EQ(get<decltype(vec)>(Result), vec);
+  EXPECT_EQ(*Result.get<decltype(vec)>(), vec);
 }
 
 TEST(Unit_Table, stringProtobufRoundTrip) {
@@ -308,7 +309,7 @@ TEST(Unit_Table, stringProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(S)>(Result), S);
+  EXPECT_EQ(*Result.get<decltype(S)>(), S);
 }
 
 TEST(Unit_Table, addrProtobufRoundTrip) {
@@ -320,7 +321,7 @@ TEST(Unit_Table, addrProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(A)>(Result), A);
+  EXPECT_EQ(*Result.get<decltype(A)>(), A);
 }
 
 TEST(Unit_Table, mapProtobufRoundTrip) {
@@ -332,7 +333,7 @@ TEST(Unit_Table, mapProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(M)>(Result), M);
+  EXPECT_EQ(*Result.get<decltype(M)>(), M);
 }
 
 TEST(Unit_Table, tupleProtobufRoundTrip) {
@@ -344,7 +345,7 @@ TEST(Unit_Table, tupleProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(T)>(Result), T);
+  EXPECT_EQ(*Result.get<decltype(T)>(), T);
 }
 
 TEST(Unit_Table, uuidProtobufRoundTrip) {
@@ -356,7 +357,7 @@ TEST(Unit_Table, uuidProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(Val)>(Result), Val);
+  EXPECT_EQ(*Result.get<decltype(Val)>(), Val);
 }
 
 TEST(Unit_Table, instructionRefProtobufRoundTrip) {
@@ -368,7 +369,7 @@ TEST(Unit_Table, instructionRefProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  auto NewVal = get<decltype(Val)>(Result);
+  auto NewVal = *Result.get<decltype(Val)>();
   EXPECT_EQ(NewVal.BlockRef.getUUID(), Val.BlockRef.getUUID());
   EXPECT_EQ(NewVal.Offset, Val.Offset);
 }
@@ -388,7 +389,7 @@ TEST(Unit_Table, nestedProtobufRoundTrip) {
   Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(N1)>(Result), N1);
+  EXPECT_EQ(*Result.get<decltype(N1)>(), N1);
 
   // Outer map
   std::map<std::string, std::vector<int64_t>> N2{{"a", {1, 2, 3}}};
@@ -396,7 +397,7 @@ TEST(Unit_Table, nestedProtobufRoundTrip) {
   Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(N2)>(Result), N2);
+  EXPECT_EQ(*Result.get<decltype(N2)>(), N2);
 
   // Outer tuple
   std::tuple<std::string, std::vector<int64_t>> N3{"a", {1, 2, 3}};
@@ -404,7 +405,7 @@ TEST(Unit_Table, nestedProtobufRoundTrip) {
   Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(get<decltype(N3)>(Result), N3);
+  EXPECT_EQ(*Result.get<decltype(N3)>(), N3);
 }
 
 TEST(Unit_Table, wrongTypeAfterProtobufRoundTrip) {
@@ -415,7 +416,7 @@ TEST(Unit_Table, wrongTypeAfterProtobufRoundTrip) {
   Table Result;
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_DEATH(get<std::string>(Result), "");
+  EXPECT_EQ(Result.get<std::string>(), nullptr);
 }
 
 struct MoveTest {
@@ -445,22 +446,12 @@ TEST(Unit_Table, movesAndCopies) {
 
   Table Table;
   Table = M;
-  EXPECT_EQ(get<decltype(M)>(Table).Val, 123);
+  EXPECT_EQ(Table.get<decltype(M)>()->Val, 123);
   EXPECT_EQ(MoveTest::CopyCount, 1);
   EXPECT_EQ(MoveTest::MoveCount, 0);
 
   Table = std::move(M);
-  EXPECT_EQ(get<decltype(M)>(Table).Val, 123);
+  EXPECT_EQ(Table.get<decltype(M)>()->Val, 123);
   EXPECT_EQ(MoveTest::CopyCount, 1);
   EXPECT_EQ(MoveTest::MoveCount, 1);
-}
-
-TEST(Unit_Table, getIf) {
-  Table T(int(123));
-  EXPECT_EQ(*get_if<int>(&T), 123);
-  EXPECT_EQ(get_if<std::string>(&T), nullptr);
-
-  Table Empty;
-  EXPECT_EQ(get_if<int>(&Empty), nullptr);
-  EXPECT_EQ(get_if<int>(nullptr), nullptr);
 }
