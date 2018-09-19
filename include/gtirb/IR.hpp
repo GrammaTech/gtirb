@@ -49,8 +49,8 @@ class Module;
 ///     imageByteMap [label="ImageByteMap" URL="\ref ImageByteMap"]
 ///     blocks [label="Block" URL="\ref Block"]
 ///     data [label="DataObject"  URL="\ref DataObject"]
-///     symbolicExpressions  [label="SymbolicExpression" URL="\ref
-///                            SymbolicExpression"]
+///     symbolicExpressions  [label="SymbolicExpression"
+///                           URL="\ref SymbolicExpression"]
 ///     sections [label="Section" URL="\ref Section"]
 ///     symbols [label="Symbol" URL="\ref Symbol"]
 ///     cfg [label="CFG" URL="\ref CFG"]
