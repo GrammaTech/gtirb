@@ -31,11 +31,11 @@ void Block::toProtobuf(MessageType* Message) const {
 // deserialization is done by CFG::fromProtobuf.
 
 void InstructionRef::toProtobuf(MessageType* Message) const {
-  uuidToBytes(this->BlockRef.getUUID(), *Message->mutable_block_id());
+  uuidToBytes(this->BlockId, *Message->mutable_block_id());
   Message->set_offset(this->Offset);
 }
 
 void InstructionRef::fromProtobuf(Context&, const MessageType& Message) {
-  this->BlockRef = uuidFromBytes(Message.block_id());
+  this->BlockId = uuidFromBytes(Message.block_id());
   this->Offset = Message.offset();
 }

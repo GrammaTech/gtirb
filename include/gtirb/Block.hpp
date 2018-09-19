@@ -19,7 +19,6 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/NodeRef.hpp>
 #include <proto/Block.pb.h>
 #include <cstdint>
 #include <vector>
@@ -136,10 +135,10 @@ template <class... Ts> Block* emplaceBlock(CFG& Cfg, Context& C, Ts&&... Args) {
 /// \brief Describes the location of an instruction.
 struct GTIRB_EXPORT_API InstructionRef {
 
-  /// \brief The block in which the instruction is located.
-  NodeRef<Block> BlockRef;
+  /// \brief The UUID of the block in which the instruction is located.
+  UUID BlockId;
 
-  /// \brief The offset of the instruction from the start of tyhe block, in
+  /// \brief The offset of the instruction from the start of the block, in
   /// bytes.
   uint64_t Offset;
 

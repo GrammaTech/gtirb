@@ -27,7 +27,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
 
   // SymStackConst
   {
-    SymbolicExpression original(SymStackConst{true, 1, 2, {Sym1}});
+    SymbolicExpression original(SymStackConst{true, 1, 2, Sym1});
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
@@ -37,12 +37,12 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     EXPECT_EQ(S.Negate, true);
     EXPECT_EQ(S.Offset, 1);
     EXPECT_EQ(S.Displacement, 2);
-    EXPECT_EQ(S.Sym.get(Ctx)->getName(), "test1");
+    EXPECT_EQ(S.Sym->getName(), "test1");
   }
 
   // SymAddrConst
   {
-    SymbolicExpression original(SymAddrConst{1, {Sym1}});
+    SymbolicExpression original(SymAddrConst{1, Sym1});
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
@@ -50,12 +50,12 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
 
     SymAddrConst S = std::get<SymAddrConst>(Result);
     EXPECT_EQ(S.Displacement, 1);
-    EXPECT_EQ(S.Sym.get(Ctx)->getName(), "test1");
+    EXPECT_EQ(S.Sym->getName(), "test1");
   }
 
   // SymAddrAddr
   {
-    SymbolicExpression original(SymAddrAddr{1, 2, {Sym1}, {Sym2}});
+    SymbolicExpression original(SymAddrAddr{1, 2, Sym1, Sym2});
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
@@ -64,7 +64,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     SymAddrAddr S = std::get<SymAddrAddr>(Result);
     EXPECT_EQ(S.Scale, 1);
     EXPECT_EQ(S.Offset, 2);
-    EXPECT_EQ(S.Sym1.get(Ctx)->getName(), "test1");
-    EXPECT_EQ(S.Sym2.get(Ctx)->getName(), "test2");
+    EXPECT_EQ(S.Sym1->getName(), "test1");
+    EXPECT_EQ(S.Sym2->getName(), "test2");
   }
 }
