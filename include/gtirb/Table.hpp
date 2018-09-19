@@ -399,8 +399,31 @@ public:
     return *this;
   }
 
-  template <typename T> friend T& get(Table& Table);
-  template <typename T> friend std::add_pointer_t<T> get_if(Table* Table);
+  /// \brief Get the contents of the table.
+  ///
+  /// \tparam T  The expected type of the contents.
+  ///
+  /// \returns  If Table contains an object of type T, return a pointer to
+  ///           it. Otherwise return nullptr.
+  //
+  template <typename T> T* get() {
+    if (!this->RawBytes.empty()) {
+      // Reconstruct from deserialized data
+      this->Impl = std::make_unique<TableTemplate<T>>();
+
+      if (this->Impl->typeName() != this->TypeName) {
+        return nullptr;
+      }
+
+      this->Impl->fromBytes(this->RawBytes);
+      this->RawBytes.clear();
+      this->TypeName.clear();
+    } else if (this->Impl == nullptr || typeid(T) != this->Impl->storedType()) {
+      return nullptr;
+    }
+
+    return static_cast<T*>(this->Impl->get());
+  }
 
   /// \brief Initialize a Table from a protobuf message.
   ///
@@ -422,51 +445,6 @@ private:
   std::string RawBytes;
   std::string TypeName;
 };
-
-/// \brief Get the value of the table.
-///
-/// \pre Table contains an object of type T.
-///
-/// \param Table  The table to access.
-template <typename T> T& get(Table& Foo) {
-  if (!Foo.RawBytes.empty()) {
-    // Reconstruct from deserialized data
-    Foo.Impl = std::make_unique<TableTemplate<T>>();
-    Expects(Foo.Impl->typeName() == Foo.TypeName);
-    Foo.Impl->fromBytes(Foo.RawBytes);
-    Foo.RawBytes.clear();
-    Foo.TypeName.clear();
-  } else {
-    Expects(Foo.Impl != nullptr);
-    Expects(typeid(T) == Foo.Impl->storedType());
-  }
-
-  return *static_cast<T*>(Foo.Impl->get());
-}
-
-/// \brief Conditionally get the value of the table.
-///
-/// \param Table  A pointer to a table, or nullptr.
-///
-/// If Table is non-null and contains an object of type T, return a pointer
-/// to that object. Otherwise, return nullptr.
-template <typename T> std::add_pointer_t<T> get_if(Table* Foo) {
-  if (Foo == nullptr) {
-    return nullptr;
-  }
-
-  if (!Foo->RawBytes.empty()) {
-    if (Foo->Impl->typeName() != Foo->TypeName) {
-      return nullptr;
-    }
-  } else {
-    if (Foo->Impl == nullptr || typeid(T) != Foo->Impl->storedType()) {
-      return nullptr;
-    }
-  }
-
-  return &get<T>(*Foo);
-}
 
 /// @}
 // (end \defgroup TABLE_GROUP)
