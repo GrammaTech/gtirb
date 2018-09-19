@@ -30,8 +30,8 @@
 /// that apply to gtirb::Node subclasses. For full details, see \ref casting.
 
 /// \defgroup casting Casting
-///
-/// gtirb::Node and its subclasses support custom casting machinery that
+/// 
+/// \brief gtirb::Node and its subclasses support custom casting machinery that
 /// allows for type checking, safer static casting, and safe dynamic
 /// casting without needing the overhead of a vtable or RTTI. File
 /// Casting.hpp defines the various operations that apply to gtirb::Node
