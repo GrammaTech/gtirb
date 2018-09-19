@@ -32,7 +32,6 @@ set(${PROJECT_NAME}_SRC
         IR.test.cpp
         Module.test.cpp
         Node.test.cpp
-        NodeRef.test.cpp
         Section.test.cpp
         Symbol.test.cpp
         SymbolicExpression.test.cpp

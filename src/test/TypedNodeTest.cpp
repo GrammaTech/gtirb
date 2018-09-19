@@ -18,7 +18,6 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
-#include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
@@ -119,30 +118,12 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
   EXPECT_EQ(Type::getByUUID(Ctx, Id), Node2);
 }
 
-TYPED_TEST_P(TypedNodeTest, nodeReference) {
-  TypeParam Node = Type::Create(Ctx);
-  gtirb::NodeRef<Type> ref(Node);
-
-  TypeParam Ptr = ref.get(Ctx);
-  EXPECT_EQ(Ptr, Node);
-  EXPECT_EQ(ref.get(Ctx)->getUUID(), Node->getUUID());
-}
-
-TYPED_TEST_P(TypedNodeTest, badReference) {
-  gtirb::NodeRef<Type> Ref(gtirb::UUID{});
-
-  TypeParam Ptr = Ref.get(Ctx);
-  EXPECT_EQ(Ptr, nullptr);
-}
-
 REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
                            protobufUUIDRoundTrip,     //
                            ctor_0,                    //
                            uniqueUuids,               //
                            deserializeUpdatesUUIDMap, //
-                           getByUUID,                 //
-                           nodeReference,             //
-                           badReference);
+                           getByUUID);
 
 INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name
                               TypedNodeTest,        // Test case name

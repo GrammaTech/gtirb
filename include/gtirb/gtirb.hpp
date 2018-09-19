@@ -31,7 +31,6 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/NodeRef.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>

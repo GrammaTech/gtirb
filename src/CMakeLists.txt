@@ -40,7 +40,6 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/NodeRef.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
