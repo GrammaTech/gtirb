@@ -255,7 +255,7 @@ public:
 
   /// \brief Finds symbols by name
   ///
-  /// \param X The address to look up.
+  /// \param N The address to look up.
   ///
   /// \return An iterator to the found object, or \ref symbol_end() if not
   /// found.
@@ -265,7 +265,7 @@ public:
 
   /// \brief Finds symbols by name
   ///
-  /// \param X The address to look up.
+  /// \param N The address to look up.
   ///
   /// \return An iterator to the found object, or \ref symbol_end() if not
   /// found.

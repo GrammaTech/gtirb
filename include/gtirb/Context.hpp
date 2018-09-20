@@ -26,10 +26,11 @@
 
 namespace gtirb {
 
-/// \relates Node
-/// \relatesalso Context
 /// \brief Represents a universally unique identifier used to identify Node
 /// objects across serialization boundaries.
+///
+/// \see Node
+/// \see Context 
 using UUID = boost::uuids::uuid;
 
 class Node;

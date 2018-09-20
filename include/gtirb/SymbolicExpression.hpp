@@ -35,8 +35,9 @@ class Context;
 /// \brief DOCFIXME
 /// @{
 
-/// \brief Represents a symbolic operand of the form "StackVar + Const".
-/// DOCFIXME[word in terms of the field names]
+/// \brief Represents a 
+/// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
+/// "StackVar + Const".  DOCFIXME[word in terms of the field names]
 struct SymStackConst {
   // TODO: What's this?
   bool Negate;      ///< DOCFIXME
@@ -45,16 +46,18 @@ struct SymStackConst {
   Symbol* Sym;      ///< DOCFIXME
 };
 
-/// \brief Represents a symbolic operand of the form "Addr + Const".
-/// DOCFIXME[word in terms of the field names]
+/// \brief Represents a 
+/// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
+/// "Addr + Const".  DOCFIXME[word in terms of the field names]
 struct SymAddrConst {
   int64_t Displacement; ///< DOCFIXME
   Symbol* Sym;          ///< DOCFIXME
 };
 
-/// \brief Represents a symbolic operand of the form "(Addr - Addr) /
-/// Scale + Offset"
-/// DOCFIXME[word in terms of the field names]
+/// \brief Represents a 
+/// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
+/// "(Addr - Addr) / Scale + Offset" DOCFIXME[word in terms of the
+/// field names]
 struct SymAddrAddr {
   int64_t Scale;  ///< DOCFIXME
   int64_t Offset; ///< DOCFIXME
@@ -62,7 +65,7 @@ struct SymAddrAddr {
   Symbol* Sym2;   ///< DOCFIXME
 };
 
-/// \brief DOCFIXME
+/// \brief DOCFIXME A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
