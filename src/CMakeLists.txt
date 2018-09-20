@@ -2,10 +2,6 @@ SET(PROJECT_NAME gtirb)
 
 add_subdirectory(proto)
 
-# Force GSL to use std::byte instead of its own byte type.
-# This should be auto-detected but it doesn't seem to work reliably.
-add_compile_options(-DGSL_USE_STD_BYTE)
-
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         #add_compile_options(-wd4251)  # Non-exportable template classes.
         add_compile_options(-wd4100) # unreferenced formal parameter, for protobuf includes
@@ -96,6 +92,9 @@ target_link_libraries(
     proto
         )
 target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
+# Force GSL to use std::byte instead of its own byte type.
+# This should be auto-detected but it doesn't seem to work reliably.
+target_compile_definitions(${PROJECT_NAME} PUBLIC GSL_USE_STD_BYTE)
 
 # Copy gtirb headers into build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
