@@ -119,8 +119,11 @@ private:
 /// \ingroup CFG_GROUP
 /// \brief Create a new basic block and add it to the control-flow graph.
 ///
+/// \tparam Ts DOCFIXME
+///
 /// \param Cfg   The control-flow graph to modify
-/// \param Args  Forwarded to Block::Create
+/// \param C DOCFIXME
+/// \param Args  Forwarded to Block::Create()
 ///
 /// \return A descriptor which can be used to retrieve the \ref Block.
 template <class... Ts> Block* emplaceBlock(CFG& Cfg, Context& C, Ts&&... Args) {

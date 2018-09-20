@@ -105,6 +105,7 @@ using block_iterator = block_iter_base<Block, CFG>;
 /// \brief DOCFIXME
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
+/// \ingroup CFG_GROUP
 /// \brief Create a new edge between two blocks.
 ///
 /// \param Cfg   The graph to modify.
