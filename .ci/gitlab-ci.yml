@@ -59,7 +59,7 @@ cleanup-ubuntu16-gcc7:
   stage: cleanup-ubuntu16-gcc7
   variables:
     OS: 'ubuntu16'
-    COMPILER: 'gcc++-7'
+    COMPILER: 'g++-7'
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
