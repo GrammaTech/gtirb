@@ -163,7 +163,22 @@ public:
   using supported_referent_types = TypeList<Block, DataObject>;
 
   /// \brief Visits the symbol's referent, if one is present, by concrete
-  /// referent type. For example:
+  /// referent type. 
+  ///
+  /// \tparam Callable  A callable function type. This type must be able to be
+  /// called with a pointer to all of the types listed in \ref
+  /// supported_referent_types. All overloaded functions must have a common,
+  /// compatible return type.
+  ///
+  /// \param Visitor  A callable object that will be called with a nonnull
+  /// symbol referent.
+  ///
+  /// \return The common type of each of the return types in the \p Callable
+  /// overload set. Notionally returns:
+  /// std::common_type_t<Overload1(Ty1), Overload2(Ty2), ...>
+  /// which can be void.
+  ///
+  /// For example:
   ///
   /// \code
   /// struct Visitor {
@@ -177,22 +192,9 @@ public:
   /// Symbol* SymN = Symbol::Create(Ctx);
   ///
   /// SymB->visit(Visitor{}); // Will call Visitor::operator()(Block*);
-  /// SymD->visit(Visitor{}); // Will call Visitor::operator()(DatObject*);
+  /// SymD->visit(Visitor{}); // Will call Visitor::operator()(DataObject*);
   /// SymN->visit(Visitor{}); // Will not call either overload
   /// \endcode
-  ///
-  /// \tparam Callable  A callable function type. This type must be able to be
-  /// called with a pointer to all of the types listed in \ref
-  /// supported_referent_types. All overloaded functions must have a common,
-  /// compatible return type.
-  ///
-  /// \param Visitor  A callable object that will be called with a nonnull
-  /// symbol referent.
-  ///
-  /// \return The common type of each of the return types in the Callable
-  /// overload set. Notionally returns:
-  /// std::common_type_t<Overload1(Ty1), Overload2(Ty2), ...>
-  /// which can be void.
   template <typename Callable> auto visit(Callable&& Visitor) const {
     return visit_impl(std::forward<Callable>(Visitor),
                       std::decay_t<supported_referent_types>{});
@@ -297,8 +299,8 @@ public:
   ///
   /// \tparam NodeTy A Node type of a supported referent.
   ///
-  /// \return The data, dynamically typed as the given NodeTy, or null if there
-  /// is no referent of that type.
+  /// \return The data, dynamically typed as the given \p NodeTy, or
+  /// null if there is no referent of that type.
   template <typename NodeTy> NodeTy* getReferent() {
     return dyn_cast_or_null<NodeTy>(Referent);
   }
@@ -307,8 +309,8 @@ public:
   ///
   /// \tparam NodeTy A Node type of a supported referent.
   ///
-  /// \return The data, dynamically typed as the given NodeTy, or null if there
-  /// is no referent of that type.
+  /// \return The data, dynamically typed as the given \p NodeTy, or
+  /// null if there is no referent of that type.
   template <typename NodeTy> const NodeTy* getReferent() const {
     return dyn_cast_or_null<NodeTy>(Referent);
   }

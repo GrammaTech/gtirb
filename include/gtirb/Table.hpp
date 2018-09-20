@@ -342,7 +342,7 @@ public:
 ///   - all integral types
 ///   - Addr
 ///   - InstructionRef
-///   - UUID
+///   - \ref UUID
 ///   - sequential containers
 ///   - mapping containers
 ///   - std::tuple
@@ -425,13 +425,13 @@ public:
   ///
   /// \param <unnamed>   Not used.
   /// \param Message     The protobuf message from which to deserialize.
-  /// \param[out] Table  The Table to initialize.
+  /// \param[out] result  The Table to initialize.
   GTIRB_EXPORT_API friend void fromProtobuf(Context&, Table& result,
                                             const proto::Table& Message);
 
   /// \brief Serialize into a protobuf message.
   ///
-  /// \param      Table     The Table to serialize.
+  /// \param <unnamed>     The Table to serialize.
   ///
   /// \return A protobuf message representing the table.
   GTIRB_EXPORT_API friend proto::Table toProtobuf(const Table&);
