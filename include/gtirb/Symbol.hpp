@@ -163,7 +163,7 @@ public:
   using supported_referent_types = TypeList<Block, DataObject>;
 
   /// \brief Visits the symbol's referent, if one is present, by concrete
-  /// referent type. 
+  /// referent type.
   ///
   /// \tparam Callable  A callable function type. This type must be able to be
   /// called with a pointer to all of the types listed in \ref

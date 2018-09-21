@@ -21,12 +21,12 @@
 /// Define GENERATION_CONSTANT to be between 1 and 65536.
 ///
 
-#include <stdio.h>
 #include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
+#include <stdio.h>
 #include <string>
 
 /// Compute a factorial
@@ -42,7 +42,8 @@ std::string IndirectFoo() { return "Foo"; }
 
 std::string IndirectBar() { return "Bar"; }
 
-const char* Index8[] = {"one", "two", "three", "four", "five", "six", "seven", "eight"};
+const char* Index8[] = {"one",  "two", "three", "four",
+                        "five", "six", "seven", "eight"};
 
 template <int N, int I> class GeneratedClass {
 public:

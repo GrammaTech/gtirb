@@ -18,9 +18,7 @@
 
 using namespace gtirb;
 
-TEST(Unit_Addr, ctor_0) {
-  EXPECT_EQ(Addr(), Addr());
-}
+TEST(Unit_Addr, ctor_0) { EXPECT_EQ(Addr(), Addr()); }
 
 TEST(Unit_Addr, ctor_1) {
   auto Ea = Addr(2112);

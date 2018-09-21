@@ -24,20 +24,20 @@
 #include <cassert>
 #include <type_traits>
 
-/// \file Casting.hpp 
+/// \file Casting.hpp
 ///
 /// This file defines the various casting and type checking operations
 /// that apply to gtirb::Node subclasses. For full details, see \ref casting.
 
 /// \defgroup casting Casting
-/// 
+///
 /// \brief gtirb::Node and its subclasses support custom casting machinery that
 /// allows for type checking, safer static casting, and safe dynamic
 /// casting without needing the overhead of a vtable or RTTI. File
 /// Casting.hpp defines the various operations that apply to gtirb::Node
 /// subclasses.
-/// 
-/// - \ref ISA "isa<Ty>" Performs a type check. 
+///
+/// - \ref ISA "isa<Ty>" Performs a type check.
 /// - \ref CAST "cast<Ty>" Returns the given argument cast to the
 ///   specified type;  the argument cannot be null.
 /// - \ref CAST_OR_NULL "cast_or_null<Ty>" Returns the given argument
@@ -46,7 +46,7 @@
 ///   the specified type, or null if the casting operation fails
 ///   because the types do not match; the argument cannot be null.
 /// - \ref DYN_CAST_OR_NULL "dyn_cast_or_null<Ty>" Returns the given
-///   argument cast to the specified type, or null if the casting 
+///   argument cast to the specified type, or null if the casting
 ///   operation fails because the types do not match; the argument can
 ///   be null.
 ///
@@ -54,12 +54,12 @@
 /// \section ISA isa<Ty>
 ///
 /// Perform a type check.
-/// 
+///
 /// \param Val The object to check. Cannot be null.
-/// 
+///
 /// \return \c true if \p Val is an instance of the template parameter
 /// type, \c false otherwise.
-/// 
+///
 /// - isa<Ty>(const Y& Val)
 ///
 /// Example usage:
@@ -88,7 +88,7 @@
 /// void f(gsl::not_null<Node *> N) { auto *B = cast<Block>(N); }
 /// \endcode
 ///
-/// 
+///
 /// \section CAST_OR_NULL cast_or_null<Ty>
 ///
 /// Cast to the specified type; the argument can be null.
@@ -130,7 +130,7 @@
 /// void f(gsl::not_null<Node *> N) { auto *B = dyn_cast<Block>(N); }
 /// \endcode
 ///
-/// 
+///
 /// \section DYN_CAST_OR_NULL dyn_cast_or_null<Ty>
 ///
 /// Cast to the specified type; the argument can be null.
@@ -141,7 +141,7 @@
 /// null if the casting operation fails because the types do not
 /// match. If \p Val is null, returns a null pointer cast to the given
 /// type.
-/// 
+///
 /// - dyn_cast_or_null<Ty>(Y* Val)
 /// - dyn_cast_or_null<Ty>(Y& Val)
 /// - dyn_cast_or_null<Ty>(const Y& Val)
@@ -206,7 +206,7 @@ template <typename From> struct simplify_type {
   // An accessor to get the real value...
   static SimpleType& getSimplifiedValue(From& Val) { return Val; }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 // The core of the implementation of isa<X> is here; To and From should be
@@ -215,7 +215,7 @@ template <typename From> struct simplify_type {
 template <typename To, typename From, typename Enabler = void> struct isa_impl {
   static inline bool doit(const From& Val) { return To::classof(&Val); }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 // Always allow upcasts, and perform no dynamic check for them.
@@ -224,7 +224,7 @@ struct isa_impl<
     To, From, typename std::enable_if<std::is_base_of<To, From>::value>::type> {
   static inline bool doit(const From&) { return true; }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 template <typename To, typename From> struct isa_impl_cl {
@@ -232,7 +232,7 @@ template <typename To, typename From> struct isa_impl_cl {
     return isa_impl<To, From>::doit(Val);
   }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond  INTERNAL
 template <typename To, typename From> struct isa_impl_cl<To, const From> {
@@ -240,7 +240,7 @@ template <typename To, typename From> struct isa_impl_cl<To, const From> {
     return isa_impl<To, From>::doit(Val);
   }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 template <typename To, typename From> struct isa_impl_cl<To, From*> {
@@ -249,7 +249,7 @@ template <typename To, typename From> struct isa_impl_cl<To, From*> {
     return isa_impl<To, From>::doit(*Val);
   }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 template <typename To, typename From> struct isa_impl_cl<To, From* const> {
@@ -258,7 +258,7 @@ template <typename To, typename From> struct isa_impl_cl<To, From* const> {
     return isa_impl<To, From>::doit(*Val);
   }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 template <typename To, typename From> struct isa_impl_cl<To, const From*> {
@@ -267,9 +267,9 @@ template <typename To, typename From> struct isa_impl_cl<To, const From*> {
     return isa_impl<To, From>::doit(*Val);
   }
 };
-/// @endcond 
+/// @endcond
 
-/// @cond INTERNAL 
+/// @cond INTERNAL
 template <typename To, typename From>
 struct isa_impl_cl<To, const From* const> {
   static inline bool doit(const From* Val) {
@@ -277,7 +277,7 @@ struct isa_impl_cl<To, const From* const> {
     return isa_impl<To, From>::doit(*Val);
   }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 template <typename To, typename From, typename SimpleFrom>
@@ -290,7 +290,7 @@ struct isa_impl_wrap {
         doit(simplify_type<const From>::getSimplifiedValue(Val));
   }
 };
-/// @endcond 
+/// @endcond
 
 /// @cond INTERNAL
 template <typename To, typename FromTy>
@@ -300,8 +300,7 @@ struct isa_impl_wrap<To, FromTy, FromTy> {
     return isa_impl_cl<To, FromTy>::doit(Val);
   }
 };
-/// @endcond 
-
+/// @endcond
 
 // isa<X> - Return true if the parameter to the template is an instance of the
 // template type argument.  Used like this:
