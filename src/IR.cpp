@@ -25,7 +25,7 @@
 
 using namespace gtirb;
 
-void IR::addTable(const std::string &Name, Table&& X) {
+void IR::addTable(const std::string& Name, Table&& X) {
   this->Tables[Name] = std::move(X);
 }
 

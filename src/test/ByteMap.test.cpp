@@ -73,7 +73,7 @@ TEST(Unit_ByteMap, secondRegionBefore) {
   EXPECT_TRUE(B.setData(Addr(1996), as_bytes(gsl::make_span(Data1))));
 
   EXPECT_EQ(B.data(Addr(1996), Data1.size()), Data1);
-  EXPECT_EQ(B.data(Addr(2000), Data2.size()), Data2);  
+  EXPECT_EQ(B.data(Addr(2000), Data2.size()), Data2);
   EXPECT_TRUE(empty(B.data(Addr(999), Data1.size())));
   EXPECT_TRUE(empty(B.data(Addr(1996), Data1.size() + 1)));
   EXPECT_TRUE(empty(B.data(Addr(1999), Data2.size())));

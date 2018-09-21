@@ -463,11 +463,11 @@ TEST(Unit_ImageByteMap, overlappingRegions) {
 
   // However, we can extend the first region with two more bytes.
   EXPECT_TRUE(IBM->setData(Addr(10), 2, std::byte{100}));
-  
+
   auto ExtendedData = IBM->getData<std::array<uint8_t, 12>>(Addr(0));
   EXPECT_TRUE(ExtendedData.has_value());
   EXPECT_TRUE(std::equal(OriginalBytes.begin(), OriginalBytes.end(),
-    ExtendedData->begin(), ExtendedData->end() - 2));
+                         ExtendedData->begin(), ExtendedData->end() - 2));
   EXPECT_EQ((*ExtendedData)[10], 100);
   EXPECT_EQ((*ExtendedData)[11], 100);
 }

@@ -30,7 +30,7 @@ namespace gtirb {
 /// objects across serialization boundaries.
 ///
 /// \see Node
-/// \see Context 
+/// \see Context
 using UUID = boost::uuids::uuid;
 
 class Node;
