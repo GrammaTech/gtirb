@@ -66,7 +66,7 @@ public:
 
   /// \brief Get the loaded file name and path.
   ///
-  /// \return The file name and path, as a std::string.
+  /// \return The file name and path.
   const std::string& getFileName() const { return FileName; }
 
   /// \brief Set the base address of the loaded file.
@@ -253,7 +253,8 @@ public:
     return true;
   }
 
-  /// \brief DOCFIXME
+  /// \brief A constant range of bytes, representing a contiguous block of
+  /// memory.
   using const_range = ByteMap::const_range;
 
   /// \brief Get data from the byte map at the specified address.

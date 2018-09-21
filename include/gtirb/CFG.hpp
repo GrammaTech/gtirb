@@ -34,7 +34,6 @@ class CFG;
 namespace gtirb {
 class Block;
 
-
 /// \defgroup CFG_GROUP CFGs
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
@@ -42,7 +41,13 @@ class Block;
 /// @{ @}
 
 /// \ingroup CFG_GROUP
-/// \brief DOCFIXME
+/// \brief A label on a CFG edge.
+///
+/// Boolean labels are used in the case of a conditional branch or call.
+/// A true label designates the non-local edge (e.g. when the condition is
+/// true), while a false label designates the fallthrough edge.
+///
+/// Integer labels are used for indirect branches.
 using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
 /// \ingroup CFG_GROUP
@@ -55,22 +60,13 @@ using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
                                   Block*,                // vertices are blocks
                                   EdgeLabel>;            // edges have labels
 
-/// \brief DOCFIXME
-///
-/// \tparam Value   DOCFIXME
-///
-/// \tparam Graph   DOCFIXME
+/// @cond INTERNAL
 template <typename Value, typename Graph>
 class block_iter_base
     : public boost::iterator_facade<
           block_iter_base<Value, Graph>, Value,
           typename Graph::vertex_iterator::iterator_category> {
 public:
-  /// \brief DOCFIXME constructor.
-  ///
-  /// \param it_   DOCFIXME
-  /// \param cfg_   DOCFIXME
-  ///
   block_iter_base(typename Graph::vertex_iterator& it_, Graph& cfg_)
       : it(it_), cfg(&cfg_) {}
 
@@ -96,13 +92,14 @@ private:
   typename Graph::vertex_iterator it;
   gsl::not_null<Graph*> cfg;
 };
+/// @endcond
 
 /// \ingroup CFG_GROUP
-/// \brief DOCFIXME
+/// \brief Iterator over \ref Block "Blocks".
 using block_iterator = block_iter_base<Block, CFG>;
 
 /// \ingroup CFG_GROUP
-/// \brief DOCFIXME
+/// \brief Constant iterator over \ref Block "Blocks".
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
 /// \ingroup CFG_GROUP
@@ -117,41 +114,38 @@ using const_block_iterator = block_iter_base<const Block, const CFG>;
 GTIRB_EXPORT_API CFG::edge_descriptor addEdge(const Block* From,
                                               const Block* To, CFG& Cfg);
 
-/// DOCFIXME[check all]
 /// \ingroup CFG_GROUP
-/// \brief Get an iterator over the \ref Block elements in the
-/// specified graph.
+/// \brief Get a range of the \ref Block elements in the specified graph.
 ///
 /// \param Cfg  The graph to be iterated over.
 ///
-/// \return An iterator over \p Cfg
+/// \return A range over \p Cfg
 GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
-/// DOCFIXME[check all]
 /// \ingroup CFG_GROUP
-/// \brief Get an iterator over the \ref Block elements in the
-/// specified graph (by const reference).
+/// \brief Get a constant range of the \ref Block elements in the specified
+/// graph.
 ///
-/// \param cfg  The graph to be iterated over.
+/// \param Cfg  The graph to be iterated over.
 ///
-/// \return An iterator over \p cfg
+/// \return A range over \p Cfg
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief DOCFIXME
+/// \brief Serialize a CFG into a protobuf message.
 ///
-/// \param Cfg    DOCFIXME
+/// \param Cfg   The CFG to serialize.
 ///
-/// \return DOCFIXME
+/// \return A protobuf message representing the CFG and its component Blocks.
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief DOCFIXME
+/// \brief Initialize a CFG from a protobuf message.
 ///
-/// \param C DOCFIXME
-/// \param Result    DOCFIXME
-/// \param Message   DOCFIXME
+/// \param      C        The Context in which the deserialized CFG will be held.
+/// \param      Message  The protobuf message from which to deserialize.
+/// \param[out] Result   The CFG to initialize.
 ///
 /// \return void
 GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& Result,

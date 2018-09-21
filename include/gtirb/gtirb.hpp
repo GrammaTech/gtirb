@@ -19,7 +19,7 @@
 /// \brief \c \#include this file to include all GT-IRB API headers.
 
 /// \namespace gtirb
-/// \brief DOCFIXME
+/// \brief Main namespace for the GT-IRB API.
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/Block.hpp>

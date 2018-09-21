@@ -77,29 +77,30 @@ public:
   /// \return The newly created object.
   static IR* Create(Context& C) { return new (C) IR(C); }
 
-  /// \brief DOCFIXME
+  /// \brief Iterator over \ref Module "Modules".
   using iterator = boost::indirect_iterator<std::vector<Module*>::iterator>;
-  /// \brief DOCFIXME
+  /// \brief Constant iterator over \ref Module "Modules".
   using const_iterator =
       boost::indirect_iterator<std::vector<Module*>::const_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the first Module.
   iterator begin() { return Modules.begin(); }
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the element following the last Module.
   iterator end() { return Modules.end(); }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the first Module.
   const_iterator begin() const { return Modules.begin(); }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the element following the last
+  /// Module.
   const_iterator end() const { return Modules.end(); }
 
-  /// \brief DOCFIXME
+  /// \brief Range of \ref Module "Modules".
   using range = boost::iterator_range<iterator>;
-  /// \brief DOCFIXME
+  /// \brief Constant range of \ref Module "Modules".
   using const_range = boost::iterator_range<const_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Returns a range of the \ref Module "Modules".
   range modules() { return boost::make_iterator_range(begin(), end()); }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant range of the \ref Module "Modules".
   const_range modules() const {
     return boost::make_iterator_range(begin(), end());
   }

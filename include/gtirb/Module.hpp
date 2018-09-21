@@ -38,9 +38,9 @@
 namespace gtirb {
 /// \enum FileFormat
 ///
-/// \brief DOCFIXME
+/// \brief Identifies an exectuable file format.
 enum class FileFormat : uint8_t {
-  Undefined = proto::Format_Undefined, ///< Default value to indicates an
+  Undefined = proto::Format_Undefined, ///< Default value indicates an
                                        ///< uninitialized state.
   COFF = proto::COFF,                  ///< Common Object File Format (COFF)
   ELF = proto::ELF, ///< Executable and Linkable Format (ELF, formerly named
@@ -54,7 +54,7 @@ enum class FileFormat : uint8_t {
 
 /// \enum ISAID
 ///
-/// \brief ISA ID DOCFIXME[need more info?]
+/// \brief Idenfities an instruction set.
 enum class ISAID : uint8_t {
   Undefined = proto::ISA_Undefined, ///< Default value to indicates an
                                     ///< uninitialized state.
@@ -71,7 +71,7 @@ enum class ISAID : uint8_t {
 
 /// \class Module
 ///
-/// \brief DOCFIXME
+/// \brief Represents a single binary (library or executable).
 class GTIRB_EXPORT_API Module : public Node {
   using SymbolSet = std::map<std::string, Symbol*>;
   using SymbolAddrMap = std::multimap<Addr, Symbol*>;
@@ -103,14 +103,15 @@ public:
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
-  /// \param  X   A path to the corresponding binary on disk. DOCFIXME[any path
-  /// requirements?]
+  /// This is for informational purposes only and will not be used to open
+  /// the image, so it does not need to be the path of an existing file.
+  ///
+  /// \param X The path name to use.
   void setBinaryPath(const std::string& X) { BinaryPath = X; }
 
   /// \brief Get the location of the corresponding binary on disk.
   ///
-  /// \return   The path to the corresponding binary on disk. DOCFIXME[any path
-  /// properties to note?]
+  /// \return   The path to the corresponding binary on disk.
   const std::string& getBinaryPath() const { return BinaryPath; }
 
   /// \brief Set the format of the binary pointed to by getBinaryPath().
@@ -146,14 +147,12 @@ public:
   /// \return void
   void setPreferredAddr(gtirb::Addr X) { PreferredAddr = X; }
 
-  /// DOCFIXME[check all]
-  /// \brief Set the ISA ID. DOCFIXME[needs more detail]
+  /// \brief Set the ISA of the instructions in this Module.
   ///
   /// \param X The ISA ID to set.
   void setISAID(gtirb::ISAID X) { IsaID = X; }
 
-  /// DOCFIXME[check all]
-  /// \brief Get the ISA ID. DOCFIXME[needs more detail]
+  /// \brief Get the ISA of the instructions in this Module.
   ///
   /// \return The ISA ID.
   gtirb::ISAID getISAID() const { return IsaID; }
@@ -165,69 +164,63 @@ public:
   /// \return The Preferred Effective Address.
   gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
-  /// DOCFIXME[check all]
   /// \brief Get the associated ImageByteMap.
   ///
   /// \return The ImageByteMap.
-  ///
-  /// A Module can have exactly one ImageByteMap child.
   gtirb::ImageByteMap& getImageByteMap();
 
-  /// DOCFIXME[check all]
-  /// \brief Get the associated ImageByteMap. DOCFIXME[difference to previous]
+  /// \brief Get a const reference to the associated ImageByteMap.
   ///
   /// \return The ImageByteMap.
   ///
   /// A Module can have exactly one ImageByteMap child.
   const gtirb::ImageByteMap& getImageByteMap() const;
 
-  /// \brief DOCFIXME
+  /// \brief Iterator over \ref Symbol "Symbols".
   using symbol_iterator =
       boost::transform_iterator<SymSetTransform<SymbolSet::iterator>,
                                 SymbolSet::iterator, Symbol&>;
-  /// \brief DOCFIXME
+  /// \brief Range of \ref Symbol "Symbols".
   using symbol_range = boost::iterator_range<symbol_iterator>;
-  /// \brief DOCFIXME
+  /// \brief Constant iterator over \ref Symbol "Symbols".
   using const_symbol_iterator =
       boost::transform_iterator<SymSetTransform<SymbolSet::const_iterator>,
                                 SymbolSet::const_iterator, const Symbol&>;
-  /// \brief DOCFIXME
+  /// \brief Constant range of \ref Symbol "Symbols".
   using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Iterator over \ref Symbol "Symbols".
   using symbol_addr_iterator =
       boost::transform_iterator<SymSetTransform<SymbolAddrMap::iterator>,
                                 SymbolAddrMap::iterator, Symbol&>;
-
-  /// \brief DOCFIXME
+  /// \brief Range of \ref Symbol "Symbols".
   using symbol_addr_range = boost::iterator_range<symbol_addr_iterator>;
-
-  /// \brief DOCFIXME
+  /// \brief Constant iterator over \ref Symbol "Symbols".
   using const_symbol_addr_iterator =
       boost::transform_iterator<SymSetTransform<SymbolAddrMap::const_iterator>,
                                 SymbolAddrMap::const_iterator, const Symbol&>;
-
-  /// \brief DOCFIXME
+  /// \brief Constant range of \ref Symbol "Symbols".
   using const_symbol_addr_range =
       boost::iterator_range<const_symbol_addr_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the first Symbol.
   symbol_iterator symbol_begin() { return symbol_iterator(Symbols.begin()); }
-  /// \brief DOCFIXME
-  symbol_iterator symbol_end() { return symbol_iterator(Symbols.end()); }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the first Symbol.
   const_symbol_iterator symbol_begin() const {
     return const_symbol_iterator(Symbols.begin());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the element following the last Symbol.
+  symbol_iterator symbol_end() { return symbol_iterator(Symbols.end()); }
+  /// \brief Returns a constant iterator to the element following the last
+  /// Symbol.
   const_symbol_iterator symbol_end() const {
     return const_symbol_iterator(Symbols.end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a range of the \ref Symbol "Symbols".
   symbol_range symbols() {
     return boost::make_iterator_range(symbol_begin(), symbol_end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant range of the \ref Symbol "Symbols".
   const_symbol_range symbols() const {
     return boost::make_iterator_range(symbol_begin(), symbol_end());
   }
@@ -297,8 +290,6 @@ public:
                                       const_symbol_addr_iterator(Found.second));
   }
 
-  /// DOCFIXME[check all]
-  ///
   /// \brief Set the module name.
   ///
   /// \param X The name to use.
@@ -306,61 +297,56 @@ public:
   /// \return void
   void setName(const std::string& X) { Name = X; }
 
-  /// DOCFIXME[check all]
-  ///
   /// \brief Get the module name.
   ///
   /// \return The name.
   const std::string& getName() const { return Name; }
 
-  /// DOCFIXME[check all]
-  ///
   /// \brief Get the associated Control Flow Graph (\ref CFG).
   ///
   /// \return The associated CFG.
   const CFG& getCFG() const { return Cfg; }
 
-  /// DOCFIXME[check all]
-  ///
-  /// \brief Get the associated Control Flow Graph (\ref CFG).
-  /// DOCFIXME[difference to previous]
+  /// \brief Get a const reference to the associated Control Flow Graph
+  /// (\ref CFG).
   ///
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
 
-  /// \brief DOCFIXME
+  /// \brief Iterator over \ref DataObject "DataObjects".
   using data_object_iterator =
       boost::transform_iterator<SymSetTransform<DataSet::iterator>,
                                 DataSet::iterator, DataObject&>;
-  /// \brief DOCFIXME
+  /// \brief Range of \ref DataObject "DataObjects".
   using data_object_range = boost::iterator_range<data_object_iterator>;
-  /// \brief DOCFIXME
+  /// \brief Constant iterator over \ref DataObject "DataObjects".
   using const_data_object_iterator =
       boost::transform_iterator<SymSetTransform<DataSet::const_iterator>,
                                 DataSet::const_iterator, const DataObject&>;
-  /// \brief DOCFIXME
+  /// \brief Constant range of \ref DataObject "DataObjects".
   using const_data_object_range =
       boost::iterator_range<const_data_object_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the first DataObject.
   data_object_iterator data_begin() {
     return data_object_iterator(Data.begin());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the first DataObject.
   const_data_object_iterator data_begin() const {
     return const_data_object_iterator(Data.begin());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the element following the last DataObject.
   data_object_iterator data_end() { return data_object_iterator(Data.end()); }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the element following the last
+  /// DataObject.
   const_data_object_iterator data_end() const {
     return const_data_object_iterator(Data.end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a range of the \ref DataObject "DataObjects".
   data_object_range data() {
     return boost::make_iterator_range(data_begin(), data_end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant range of the \ref DataObject "DataObjects".
   const_data_object_range data() const {
     return boost::make_iterator_range(data_begin(), data_end());
   }
@@ -400,38 +386,39 @@ public:
     return const_data_object_iterator(Data.find(X));
   }
 
-  /// \brief DOCFIXME
+  /// \brief Iterator over \ref Section "Sections".
   using section_iterator =
       boost::transform_iterator<SymSetTransform<SectionSet::iterator>,
                                 SectionSet::iterator, Section&>;
-  /// \brief DOCFIXME
+  /// \brief Range of \ref Section "Sections".
   using section_range = boost::iterator_range<section_iterator>;
-  /// \brief DOCFIXME
+  /// \brief Constant iterator over \ref Section "Sections".
   using const_section_iterator =
       boost::transform_iterator<SymSetTransform<SectionSet::const_iterator>,
                                 SectionSet::const_iterator, const Section&>;
-  /// \brief DOCFIXME
+  /// \brief Constant range of \ref Section "Sections".
   using const_section_range = boost::iterator_range<const_section_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the first Section.
   section_iterator section_begin() {
     return section_iterator(Sections.begin());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the first Section.
   const_section_iterator section_begin() const {
     return const_section_iterator(Sections.begin());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the element following the last Section.
   section_iterator section_end() { return section_iterator(Sections.end()); }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the element following the last
+  /// Section.
   const_section_iterator section_end() const {
     return const_section_iterator(Sections.end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a range of the \ref Section "Sections".
   section_range sections() {
     return boost::make_iterator_range(section_begin(), section_end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant range of the \ref Section "Sections".
   const_section_range sections() const {
     return boost::make_iterator_range(section_begin(), section_end());
   }
@@ -473,42 +460,47 @@ public:
     return const_section_iterator(Sections.find(X));
   }
 
-  /// \brief DOCFIXME
+  /// \brief Iterator over \ref SymbolicExpression "SymbolicExpressions".
   using symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::iterator>,
       SymbolicExpressionSet::iterator, SymbolicExpression&>;
-  /// \brief DOCFIXME
+  /// \brief Range of \ref SymbolicExpression "SymbolicExpressions".
   using symbolic_expr_range = boost::iterator_range<symbolic_expr_iterator>;
-  /// \brief DOCFIXME
+  /// \brief Constant iterator over
+  /// \ref SymbolicExpression "SymbolicExpressions".
   using const_symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::const_iterator>,
       SymbolicExpressionSet::const_iterator, const SymbolicExpression&>;
-  /// \brief DOCFIXME
+  /// \brief Constant range of \ref SymbolicExpression "SymbolicExpressions".
   using const_symbolic_expr_range =
       boost::iterator_range<const_symbolic_expr_iterator>;
 
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the first SymbolicExpression.
   symbolic_expr_iterator symbolic_expr_begin() {
     return symbolic_expr_iterator(SymbolicOperands.begin());
   }
-  /// \brief DOCFIXME
-  symbolic_expr_iterator symbolic_expr_end() {
-    return symbolic_expr_iterator(SymbolicOperands.end());
-  }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant iterator to the first SymbolicExpression.
   const_symbolic_expr_iterator symbolic_expr_begin() const {
     return const_symbolic_expr_iterator(SymbolicOperands.begin());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns an iterator to the element following the last
+  /// SymbolicExpression.
+  symbolic_expr_iterator symbolic_expr_end() {
+    return symbolic_expr_iterator(SymbolicOperands.end());
+  }
+  /// \brief Returns a constant iterator to the element following the last
+  /// SymbolicExpression.
   const_symbolic_expr_iterator symbolic_expr_end() const {
     return const_symbolic_expr_iterator(SymbolicOperands.end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a range of the
+  /// \ref SymbolicExpression "SymbolicExpressions".
   symbolic_expr_range symbolic_exprs() {
     return boost::make_iterator_range(symbolic_expr_begin(),
                                       symbolic_expr_end());
   }
-  /// \brief DOCFIXME
+  /// \brief Returns a constant range of the
+  /// \ref SymbolicExpression "SymbolicExpressions".
   const_symbolic_expr_range symbolic_exprs() const {
     return boost::make_iterator_range(symbolic_expr_begin(),
                                       symbolic_expr_end());

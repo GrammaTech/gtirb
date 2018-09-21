@@ -119,10 +119,10 @@ private:
 /// \ingroup CFG_GROUP
 /// \brief Create a new basic block and add it to the control-flow graph.
 ///
-/// \tparam Ts DOCFIXME
+/// \tparam Ts   Types of forwarded arguments.
 ///
 /// \param Cfg   The control-flow graph to modify
-/// \param C DOCFIXME
+/// \param C     The Context in which the Block will be held.
 /// \param Args  Forwarded to Block::Create()
 ///
 /// \return A descriptor which can be used to retrieve the \ref Block.
