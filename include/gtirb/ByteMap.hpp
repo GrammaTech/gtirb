@@ -55,7 +55,7 @@ public:
   /// cannot overlap another memory region (overlays are not supported).
   bool setData(Addr A, gsl::span<const std::byte> Data);
 
-  /// \brief DOCFIXME
+  /// \brief A constant range of bytes.
   using const_range =
       boost::iterator_range<std::vector<std::byte>::const_iterator>;
 

@@ -35,7 +35,7 @@ class Context;
 /// \brief DOCFIXME
 /// @{
 
-/// \brief Represents a 
+/// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
 /// "StackVar + Const".  DOCFIXME[word in terms of the field names]
 struct SymStackConst {
@@ -46,44 +46,45 @@ struct SymStackConst {
   Symbol* Sym;      ///< DOCFIXME
 };
 
-/// \brief Represents a 
+/// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
-/// "Addr + Const".  DOCFIXME[word in terms of the field names]
+/// "Sym + Displacement".
 struct SymAddrConst {
-  int64_t Displacement; ///< DOCFIXME
-  Symbol* Sym;          ///< DOCFIXME
+  int64_t Displacement; ///< Constant offset.
+  Symbol* Sym;          ///< Symbol.
 };
 
-/// \brief Represents a 
+/// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
-/// "(Addr - Addr) / Scale + Offset" DOCFIXME[word in terms of the
+/// "(Sym1 - Sym2) / Scale + Offset" DOCFIXME[word in terms of the
 /// field names]
 struct SymAddrAddr {
-  int64_t Scale;  ///< DOCFIXME
-  int64_t Offset; ///< DOCFIXME
-  Symbol* Sym1;   ///< DOCFIXME
-  Symbol* Sym2;   ///< DOCFIXME
+  int64_t Scale;  ///< Constant scale factor.
+  int64_t Offset; ///< Constant offset.
+  Symbol* Sym1;   ///< Base Symbol.
+  Symbol* Sym2;   ///< Symbol to subtract from \p Sym1.
 };
 
 /// \brief DOCFIXME A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
-/// \brief DOCFIXME
+/// \brief Initialize a SymbolicExpression from a protobuf message.
 ///
-/// \param  C         DOCFIXME
-/// \param  Result    DOCFIXME
-/// \param  Message   DOCFIXME
+/// \param      C        The Context in which the deserialized
+///                      SymbolicExpression will be held.
+/// \param      Message  The protobuf message from which to deserialize.
+/// \param[out] Result   The SymbolicExpression to initialize.
 ///
 /// \return void
 GTIRB_EXPORT_API void fromProtobuf(Context& C, SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);
 
-/// \brief DOCFIXME
+/// \brief Serialize a SymbolicExpression into a protobuf message.
 ///
-/// \param  Expr   DOCFIXME
+/// \param Cfg   The SymbolicExpression to serialize.
 ///
-/// \return DOCFIXME
+/// \return A protobuf message representing the SymbolicExpression.
 GTIRB_EXPORT_API proto::SymbolicExpression
 toProtobuf(const SymbolicExpression& Expr);
 

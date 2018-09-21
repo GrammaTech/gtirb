@@ -38,7 +38,44 @@ namespace gtirb {
 class Context;
 
 /// \defgroup TABLE_GROUP Tables
-/// \brief DOCFIXME
+/// \brief \ref Table "Tables" can be attached to the \ref IR to store
+/// additional client-specific data in a portable way.
+
+/// Tables can store the following types:
+///   - all integral types
+///   - Addr
+///   - InstructionRef
+///   - \ref UUID
+///   - sequential containers
+///   - mapping containers
+///   - std::tuple
+///
+/// \par Supporting Additional Types
+/// Support for additional containers can be added by specializing \ref
+/// is_sequence or \ref is_mapping. Once serialized, the table does not
+/// depend on any specific container type, and its contents can be
+/// deserialized into different containers of the same kind (e.g. \c std::list
+/// to \c std::vector).
+///
+/// \par
+/// Support for other types can be added by specializing \ref table_traits to
+/// provide serialization functions. However, tables containing these types
+/// will not be accessible to other clients which are not compiled with
+/// support for those types. It is preferable to store data using the basic
+/// table types whenever possible, in order to maximize interoperability.
+///
+/// \par Serialization Format
+/// Tables are serialized by packing their contents into a byte array, which
+/// is stored in a protobuf message along with a string which identifies the
+/// type in a portable fashion.
+
+/// \par
+/// Fixed-size types such as integers, Addr, etc are packed by swapping their
+/// bytes to little-endian order and writing them directly to the byte
+/// array. Containers first write out the number of elements (as a uint64_t),
+/// then write each element one after another. Tuples are similar but omit
+/// the size, since it can be inferred from the type.
+
 /// @{
 
 /// \struct is_sequence
@@ -50,8 +87,6 @@ template <class T> struct is_sequence : std::false_type {};
 template <class T> struct is_sequence<std::vector<T>> : std::true_type {};
 template <class T> struct is_sequence<std::list<T>> : std::true_type {};
 /// @endcond
-
-/// \brief DOCFIXME
 
 /// \struct is_mapping
 ///
@@ -67,10 +102,10 @@ struct is_mapping<std::multimap<T, U>> : std::false_type {};
 template <class T> struct is_tuple : std::false_type {};
 template <class... Args>
 struct is_tuple<std::tuple<Args...>> : std::true_type {};
-///@endcond
 
 using to_iterator = std::back_insert_iterator<std::string>;
 using from_iterator = std::string::const_iterator;
+///@endcond
 
 /// \struct table_traits
 ///
@@ -249,7 +284,9 @@ struct table_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
     return It;
   }
 };
+/// @endcond
 
+/// @cond INTERNAL
 template <class T> struct tuple_traits {};
 template <class... Ts> struct tuple_traits<std::tuple<Ts...>> {
   using Tuple = std::tuple<Ts...>;
@@ -289,7 +326,9 @@ struct table_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
     return It;
   }
 };
+/// @endcond
 
+/// @cond INTERNAL
 template <class T> struct TypeId<T> {
   static std::string value() { return table_traits<T>::type_id(); }
 };
@@ -299,7 +338,7 @@ template <class T, class... Ts> struct TypeId<T, Ts...> {
     return table_traits<T>::type_id() + "," + TypeId<Ts...>::value();
   }
 };
-/// @cond INTERNAL
+/// @endcond
 
 /// @cond INTERNAL
 class TableImpl {
@@ -338,40 +377,6 @@ public:
 /// \brief A generic \ref TABLE_GROUP "table" for storing additional
 /// client-specific data.
 ///
-/// Tables can store the following types:
-///   - all integral types
-///   - Addr
-///   - InstructionRef
-///   - \ref UUID
-///   - sequential containers
-///   - mapping containers
-///   - std::tuple
-///
-/// \par Supporting Additional Types
-/// Support for additional containers can be added by specializing \ref
-/// is_sequence or \ref is_mapping. Once serialized, the table does not
-/// depend on any specific container type, and its contents can be
-/// deserialized into different containers of the same kind (e.g. \c std::list
-/// to \c std::vector).
-///
-/// \par
-/// Support for other types can be added by specializing \ref table_traits to
-/// provide serialization functions. However, tables containing these types
-/// will not be accessible to other clients which are not compiled with
-/// support for those types. It is preferable to store data using the basic
-/// table types whenever possible, in order to maximize interoperability.
-///
-/// \par Serialization Format
-/// Tables are serialized by packing their contents into a byte array, which
-/// is stored in a protobuf message along with a string which identifies the
-/// type in a portable fashion.
-
-/// \par
-/// Fixed-size types such as integers, Addr, etc are packed by swapping their
-/// bytes to little-endian order and writing them directly to the byte
-/// array. Containers first write out the number of elements (as a uint64_t),
-/// then write each element one after another. Tuples are similar but omit
-/// the size, since it can be inferred from the type.
 
 class Table {
 public:
