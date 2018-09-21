@@ -7,6 +7,7 @@ before_script:
   - docker info
 
 stages:
+  - check-format
   - build-test-ubuntu16-gcc7
   # - build-test-ubuntu18-clang
   # - build-test-ubuntu14-gcc
@@ -15,6 +16,12 @@ stages:
   # - cleanup-ubuntu18-clang
   # - cleanup-ubuntu14-gcc
   - cleanup-arch-gcc
+
+check-format:
+  stage: check-format
+  script:
+    - docker build -f .ci/Dockerfile.formatter -t gtirb-formatter .
+    - docker run --rm gtirb-formatter ./format.py --check
 
 .build-template: &build
   script:
