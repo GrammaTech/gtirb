@@ -1,0 +1,7 @@
+FROM ubuntu:18.04
+
+RUN apt-get -y update && \
+    apt-get -y install python2.7 clang-format git
+
+COPY . /gt/gt-irb/
+WORKDIR /gt/gt-irb/
