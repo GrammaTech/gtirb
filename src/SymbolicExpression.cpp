@@ -28,9 +28,7 @@ public:
 
   void operator()(const SymStackConst& Val) const {
     auto M = Message->mutable_stack_const();
-    M->set_negate(Val.Negate);
     M->set_offset(Val.Offset);
-    M->set_displacement(Val.Displacement);
     if (Val.Sym) {
       uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
     }
@@ -38,7 +36,7 @@ public:
 
   void operator()(const SymAddrConst& Val) const {
     auto M = Message->mutable_addr_const();
-    M->set_displacement(Val.Displacement);
+    M->set_offset(Val.Offset);
     if (Val.Sym) {
       uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
     }
@@ -78,14 +76,12 @@ void fromProtobuf(Context& C, SymbolicExpression& Result,
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
     auto Val = Message.stack_const();
-    Result = SymStackConst{Val.negate(), Val.offset(), Val.displacement(),
-                           symbolFromProto(C, Val.symbol_uuid())};
+    Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrConst: {
     auto Val = Message.addr_const();
-    Result =
-        SymAddrConst{Val.displacement(), symbolFromProto(C, Val.symbol_uuid())};
+    Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrAddr: {
