@@ -126,26 +126,35 @@ public:
   ///           gtirb::FileFormat enumerator.
   gtirb::FileFormat getFileFormat() const { return this->FileFormat; }
 
-  /// \brief DOCFIXME
+  /// \brief Set the difference between this module's
+  /// \ref Module::setPreferredAddr "preferred address" and the address where it
+  /// was actually loaded.
   ///
-  /// \param X DOCFIXME
+  /// \param X The rebase delta.
   ///
   /// \return void
   void setRebaseDelta(int64_t X) { RebaseDelta = X; }
 
-  /// \brief DOCFIXME
+  /// \brief Get the difference between this module's
+  /// \ref Module::setPreferredAddr "preferred address" and
+  /// the address where it was actually loaded.
   ///
-  /// \return DOCFIXME
+  /// \return The rebase delta.
   int64_t getRebaseDelta() const { return RebaseDelta; }
 
-  /// DOCFIXME[check all]
+  /// \brief Set the preferred address for loading this module.
   ///
-  /// \brief Set the Preferred Effective Address.
-  ///
-  /// \param X The effective address to use.
+  /// \param X The address to use.
   ///
   /// \return void
+  /// \sa setRebaseDelta
   void setPreferredAddr(gtirb::Addr X) { PreferredAddr = X; }
+
+  /// \brief Get the preferred address for loading this module.
+  ///
+  /// \return The preferred address.
+  /// \sa getRebaseDelta
+  gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
   /// \brief Set the ISA of the instructions in this Module.
   ///
@@ -156,13 +165,6 @@ public:
   ///
   /// \return The ISA ID.
   gtirb::ISAID getISAID() const { return IsaID; }
-
-  /// DOCFIXME[check all]
-  ///
-  /// \brief Get the Preferred Effective Address.
-  ///
-  /// \return The Preferred Effective Address.
-  gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
   /// \brief Get the associated ImageByteMap.
   ///

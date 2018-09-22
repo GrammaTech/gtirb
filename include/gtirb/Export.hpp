@@ -15,6 +15,7 @@
 #ifndef GTIRB_EXPORT_H
 #define GTIRB_EXPORT_H
 
+/// @cond INTERNAL
 #ifndef __has_declspec_attribute
 #define __has_declspec_attribute(x) 0
 #endif
@@ -22,12 +23,7 @@
 #ifndef __has_attribute
 #define __has_attribute(x) 0
 #endif
-
-/// \def __has_attribute
-/// \brief DOCFIXME
-
-/// \def __has_declspec_attribute
-/// \brief DOCFIXME
+/// @endcond
 
 /// \def GTIRB_EXPORT_API
 /// \brief This macro controls the visibility of exported symbols (i.e. classes)

@@ -202,13 +202,14 @@ public:
 
   /// \enum StorageKind
   ///
-  /// \brief DOCFIXME
+  /// \brief Indicates how a symbol is stored and where it is accessible.
   enum class StorageKind : uint8_t {
-    Undefined = proto::Storage_Undefined, ///< DOCFIXME
-    Normal = proto::Storage_Normal,       ///< DOCFIXME
-    Static = proto::Storage_Static,       ///< DOCFIXME
-    Extern = proto::Storage_Extern,       ///< DOCFIXME
-    Local = proto::Storage_Local          ///< DOCFIXME
+    Undefined = proto::Storage_Undefined, ///< Symbol is not defined.
+    Normal = proto::Storage_Normal,       ///< Accessible outside the Module.
+    Static = proto::Storage_Static,       ///< Accessible within the Module.
+    Extern = proto::Storage_Extern,       ///< Defined outside the Module.
+    Local = proto::Storage_Local ///< Stored locally in the context of a
+                                 ///< function's activation frame.
   };
 
   /// \brief Create a Symbol object in its default state.

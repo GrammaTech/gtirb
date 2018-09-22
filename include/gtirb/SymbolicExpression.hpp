@@ -32,37 +32,37 @@ namespace gtirb {
 class Context;
 
 /// \defgroup SYMBOLIC_EXPRESSION_GROUP Symbolic Expressions and Operands
-/// \brief DOCFIXME
+/// \brief Represent data values or instruction operands which
+/// should be intepreted as referring to symbols.
 /// @{
 
 /// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
-/// "StackVar + Const".  DOCFIXME[word in terms of the field names]
+/// "Sym + Offset", representing an offset from a stack variable.
 struct SymStackConst {
-  int Offset;  ///< DOCFIXME
-  Symbol* Sym; ///< DOCFIXME
+  int Offset;  ///< Constant offset.
+  Symbol* Sym; ///< Symbol representing a stack variable.
 };
 
 /// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
-/// "Sym + Displacement".
+/// "Sym + Offset".
 struct SymAddrConst {
   int64_t Offset; ///< Constant offset.
-  Symbol* Sym;    ///< Symbol.
+  Symbol* Sym;    ///< Symbol representing an address.
 };
 
 /// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
-/// "(Sym1 - Sym2) / Scale + Offset" DOCFIXME[word in terms of the
-/// field names]
+/// "(Sym1 - Sym2) / Scale + Offset"
 struct SymAddrAddr {
   int64_t Scale;  ///< Constant scale factor.
   int64_t Offset; ///< Constant offset.
-  Symbol* Sym1;   ///< Base Symbol.
+  Symbol* Sym1;   ///< Symbol representing the base address.
   Symbol* Sym2;   ///< Symbol to subtract from \p Sym1.
 };
 
-/// \brief DOCFIXME A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
+/// \brief A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
