@@ -27,16 +27,14 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
 
   // SymStackConst
   {
-    SymbolicExpression original(SymStackConst{true, 1, 2, Sym1});
+    SymbolicExpression original(SymStackConst{1, Sym1});
 
     gtirb::SymbolicExpression Result;
     auto Message = toProtobuf(original);
     fromProtobuf(Ctx, Result, Message);
 
     SymStackConst S = std::get<SymStackConst>(Result);
-    EXPECT_EQ(S.Negate, true);
     EXPECT_EQ(S.Offset, 1);
-    EXPECT_EQ(S.Displacement, 2);
     EXPECT_EQ(S.Sym->getName(), "test1");
   }
 
@@ -49,7 +47,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     fromProtobuf(Ctx, Result, Message);
 
     SymAddrConst S = std::get<SymAddrConst>(Result);
-    EXPECT_EQ(S.Displacement, 1);
+    EXPECT_EQ(S.Offset, 1);
     EXPECT_EQ(S.Sym->getName(), "test1");
   }
 

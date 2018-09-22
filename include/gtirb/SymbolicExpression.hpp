@@ -39,19 +39,16 @@ class Context;
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
 /// "StackVar + Const".  DOCFIXME[word in terms of the field names]
 struct SymStackConst {
-  // TODO: What's this?
-  bool Negate;      ///< DOCFIXME
-  int Offset;       ///< DOCFIXME
-  int Displacement; ///< DOCFIXME
-  Symbol* Sym;      ///< DOCFIXME
+  int Offset;  ///< DOCFIXME
+  Symbol* Sym; ///< DOCFIXME
 };
 
 /// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
 /// "Sym + Displacement".
 struct SymAddrConst {
-  int64_t Displacement; ///< Constant offset.
-  Symbol* Sym;          ///< Symbol.
+  int64_t Offset; ///< Constant offset.
+  Symbol* Sym;    ///< Symbol.
 };
 
 /// \brief Represents a
