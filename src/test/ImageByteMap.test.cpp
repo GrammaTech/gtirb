@@ -108,16 +108,6 @@ TEST(Unit_ImageByteMap, setEAMinMax) {
   EXPECT_EQ(Addr{}, M->getAddrMinMax().second);
 }
 
-TEST(Unit_ImageByteMap, setRebaseDelta) {
-  auto* Node = ImageByteMap::Create(Ctx);
-  ASSERT_TRUE(Node != nullptr);
-
-  const auto Val = int64_t{22678};
-
-  Node->setRebaseDelta(Val);
-  EXPECT_EQ(Val, Node->getRebaseDelta());
-}
-
 TEST(Unit_ImageByteMap, setIsRelocated) {
   auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
@@ -374,7 +364,6 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   Original->setFileName("test");
   Original->setBaseAddress(Addr(2));
   Original->setEntryPointAddress(Addr(3));
-  Original->setRebaseDelta(7);
   Original->setIsRelocated();
 
   proto::ImageByteMap Message;
@@ -388,7 +377,6 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   EXPECT_EQ(Result->getBaseAddress(), Addr(2));
   EXPECT_EQ(Result->getEntryPointAddress(), Addr(3));
   EXPECT_EQ(Result->getAddrMinMax(), Original->getAddrMinMax());
-  EXPECT_EQ(Result->getRebaseDelta(), 7);
   EXPECT_EQ(Result->getIsRelocated(), true);
 }
 

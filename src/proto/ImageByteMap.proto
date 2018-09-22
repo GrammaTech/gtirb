@@ -26,6 +26,5 @@ message ImageByteMap
     uint64 addr_max = 5;
     uint64 base_address = 6;
     uint64 entry_point_address = 7;
-    int64 rebase_delta = 8;
-    bool is_relocated = 9;
+    bool is_relocated = 8;
 }
