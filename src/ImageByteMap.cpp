@@ -65,7 +65,6 @@ void ImageByteMap::toProtobuf(MessageType* Message) const {
   Message->set_base_address(static_cast<uint64_t>(this->BaseAddress));
   Message->set_entry_point_address(
       static_cast<uint64_t>(this->EntryPointAddress));
-  Message->set_rebase_delta(this->RebaseDelta);
   Message->set_is_relocated(this->IsRelocated);
 }
 
@@ -78,7 +77,6 @@ ImageByteMap* ImageByteMap::fromProtobuf(Context& C,
   IBM->EaMinMax = {Addr(Message.addr_min()), Addr(Message.addr_max())};
   IBM->BaseAddress = Addr(Message.base_address());
   IBM->EntryPointAddress = Addr(Message.entry_point_address());
-  IBM->RebaseDelta = Message.rebase_delta();
   IBM->IsRelocated = Message.is_relocated();
   return IBM;
 }

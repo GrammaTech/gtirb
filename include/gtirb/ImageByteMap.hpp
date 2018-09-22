@@ -117,18 +117,6 @@ public:
   /// Check return values for gtirb::constants::BadAddress.
   std::pair<Addr, Addr> getAddrMinMax() const { return EaMinMax; }
 
-  /// \brief DOCFIXME
-  ///
-  /// \param X DOCFIXME
-  ///
-  /// \return void
-  void setRebaseDelta(int64_t X) { RebaseDelta = X; }
-
-  /// \brief DOCFIXME
-  ///
-  /// \return DOCFIXME
-  int64_t getRebaseDelta() const { return RebaseDelta; }
-
   /// \brief Mark the loaded image as having been relocated.
   ///
   /// \return void
@@ -367,7 +355,6 @@ private:
   std::pair<Addr, Addr> EaMinMax;
   Addr BaseAddress;
   Addr EntryPointAddress;
-  int64_t RebaseDelta{0};
   bool IsRelocated{false};
   boost::endian::order ByteOrder{boost::endian::order::native};
 };
