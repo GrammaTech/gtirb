@@ -70,27 +70,23 @@ set(${PROJECT_NAME}_PROTO ${ProtoFiles})
 source_group("proto" FILES ${ProtoFiles})
 
 IF(UNIX AND NOT WIN32)
-        SET(SYSLIBS
-                ${CMAKE_DL_LIBS}
-        )
+        SET(SYSLIBS ${CMAKE_DL_LIBS})
 ELSE()
-        SET(SYSLIBS
-        )
+        SET(SYSLIBS)
 endif()
 
 GTIRB_ADD_LIBRARY()
 
 target_link_libraries(
-        ${PROJECT_NAME} 
-    PUBLIC
-    ${SYSLIBS}
-        ${Boost_LIBRARIES}
-        ${PROTOBUF_LIBRARIES}
-    # Link in this static lib, but don't make it a transitive
-        # dependency of TestGTIRB, etc
-	PRIVATE
-    proto
-        )
+  ${PROJECT_NAME}
+  PUBLIC
+  ${SYSLIBS}
+  ${Boost_LIBRARIES}
+  ${PROTOBUF_LIBRARIES}
+  # Link in this static lib, but don't make it a transitive
+  # dependency of TestGTIRB, etc
+  PRIVATE
+  proto)
 target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 # Force GSL to use std::byte instead of its own byte type.
 # This should be auto-detected but it doesn't seem to work reliably.
