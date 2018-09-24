@@ -181,15 +181,23 @@ This repository defines the GTIRB data structure and C++ library.
 
 ### Populating the IR
 
+GT-IRB objects are created within a `Context` object. Freeing the
+`Context` will also destroy all the objects within it.
+
+```c++
+Context C;
+IR& ir = *IR::Create(C);
+```
+
 Every IR holds a set of modules.
 
 ```c++
-ir.getModules().emplace_back();
-Module& module = ir.getModules().back();
+ir.addModule(Module::Create(C));
+Module& module = ir.modules()[0];
 ```
 
-Effective addresses are represented by a distinct type which can be
-implicitly converted to uint64_t, but must be constructed explicitly.
+Addresses are represented by a distinct type which can be
+explicitly converted to and from `uint64_t`.
 
 ```c++
 Addr textSectionAddress(1328);
@@ -197,17 +205,19 @@ Addr textSectionAddress(1328);
 
 Create some sections:
 ```c++
-module.getSections().emplace_back(".text", textSectionAddress, 466);
-module.getSections().emplace_back(".data", textSectionAddress + Addr(466), 2048);
+module.addSection(Section::Create(C, ".text", textSectionAddress, 466));
+module.addSection(
+    Section::Create(C, ".data", textSectionAddress + 466, 2048));
 ```
 
 Create some data objects. These only define the layout and do not
 directly store any data.
 
 ```c++
-DataSet& data = module.getData();
-data.emplace_back(Addr(2608), 6);
-data.emplace_back(Addr(2614), 2);
+auto* data1 = DataObject::Create(C, Addr(2608), 6);
+auto* data2 = DataObject::Create(C, Addr(2614), 2);
+module.addData(data1);
+module.addData(data2);
 ```
 
 The actual data is stored in the module's ImageByteMap:
@@ -215,48 +225,44 @@ The actual data is stored in the module's ImageByteMap:
 ```c++
 ImageByteMap& byteMap = module.getImageByteMap();
 byteMap.setAddrMinMax({Addr(2608), Addr(2616)});
-uint8_t bytes[] = {1, 0, 2, 0, 115, 116, 114, 108};
+std::array<uint8_t, 8> bytes{1, 0, 2, 0, 115, 116, 114, 108};
 byteMap.setData(Addr(2608), bytes);
 ```
 
-Symbols associate a name with an effective address (Addr). They can
-also link to a Data object or Instruction.
+Symbols associate a name with an object in the `IR`, such as a
+`DataObject` or `Block`. They can optionally store an address as well.
 
 ```c++
-SymbolSet& symbols = module.getSymbols();
-addSymbol(symbols, Symbol(Addr(2608), // address
-                          "data1",    // name
-                          data[0],    // referent
-                          Symbol::StorageKind::Extern));
-addSymbol(symbols, Symbol(Addr(2614), "data2", data[1], Symbol::StorageKind::Extern));
+auto data = module.data();
+module.addSymbol(Symbol::Create(C,
+                                Addr(2608), // address
+                                "data1",    // name
+                                data1,      // referent
+                                Symbol::StorageKind::Extern));
+module.addSymbol(Symbol::Create(C, Addr(2614), "data2", data2,
+                                Symbol::StorageKind::Extern));
 ```
 
-GTIRB can store multiple symbols with the same effective address.
+GTIRB can store multiple symbols with the same address.
 
 ```c++
-addSymbol(symbols, Symbol(Addr(2614), "duplicate", data[1], Symbol::StorageKind::Local));
+module.addSymbol(Symbol::Create(C, Addr(2614), "duplicate", data2,
+                                Symbol::StorageKind::Local));
 ```
 
-Create some basic blocks. Like DataObjects, Blocks don't directly hold
-any data. GTIRB does not directly represent instructions.
+
+Basic blocks are stored in an interprocedural CFG. Like `DataObjects`,
+`Blocks` reference data in the `ImageByteMap` but do not directly hold
+any data themselves. GTIRB does not directly represent instructions.
 
 ```c++
-Block b1(Addr(466), Addr(472));
-Block b2(Addr(472), Addr(480));
+auto& cfg = module.getCFG();
+auto* b1 = emplaceBlock(cfg, C, Addr(466), 6);
+auto* b2 = emplaceBlock(cfg, C, Addr(472), 8);
 ```
 
-Blocks are stored in an interprocedural CFG.  The CFG preserves the
-order of blocks.  It can be populated with edges to denote control
-flow or populated without any edges simply to hold all the
-instructions in the binary.
-
-```c++
-auto vertex1 = addBlock(module.getCFG(), std::move(b1));
-auto vertex2 = addBlock(module.getCFG(), std::move(b2));
-```
-
-The `addBlock` function returns a vertex descriptor which can be used
-to retrieve the block or add edges:
+The `CFG` can be populated with edges to denote control flow. Or edges
+can be omitted and the `CFG` used simply as a container for `Blocks`..
 
 ```c++
 auto edge1 add_edge(vertex1, vertex2, mainModule.getCFG()).first;
@@ -266,75 +272,103 @@ Edges can have boolean or numeric labels:
 
 ```c++
 module.getCFG()[edge1] = true;
+module.getCFG()[edge2] = 1;
 ```
 
-Information on symbolic operands and data is stored in a map by EA:
+Information on symbolic operands and data is indexed by address:
 
 ```c++
-const Symbol* data2 = findSymbols(module.getSymbols(), Addr(2614))[0];
-module.getSymbolicExpressions().insert({Addr(472), SymAddrConst{0, NodeRef<Symbol>(*data2)}});
+Symbol* dataSym = &*module.findSymbols(Addr(2614)).begin();
+module.addSymbolicExpression(Addr(472), SymAddrConst{0, dataSym});
 ```
 
-Finally, data tables can be used to store any additional data at the
-IR level.  These use variants to support a variety of maps and vectors
-of common GTIRB types.
+Finally, data tables can be used to store additional data at the IR
+level. A `Table` can store integers, strings, basic GTIRB types such
+as `Addr` and `UUID`, and tuples or containers over these types.
 
 ```c++
 ir.addTable("eaTable", std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
-ir.addTable("stringMap",
-            std::map<std::string, table::ValueType>({{"a", "str1"}, {"b", "str2"}}));
+ir.addTable("stringMap", std::map<std::string, std::string>(
+                             {{"a", "str1"}, {"b", "str2"}}));
 ```
 
 ### Querying the IR
-
-Many components of GTIRB are stored in standard containers for ease
-of use. However, some require special consideration.
-
-Symbols can be looked up by effective address (Addr).  Any number of
-symbols can share an effective address, so be prepared to deal with
-multiple results.
+Symbols can be looked up by address or name.  Any number of symbols
+can share an address, so be prepared to deal with multiple
+results.
 
 ```c++
-std::vector<Symbol*> syms = findSymbols(module.getSymbols(), Addr(2614));
-assert(syms.size() == 2);
-assert(syms[0]->getName() == "data2");
-assert(syms[1]->getName() == "duplicate");
+auto syms = module.findSymbols(Addr(2614));
+auto it = syms.begin();
+Symbol& sym1 = *it++;
+assert(sym1.getName() == "data2");
+assert((*it++).getName() == "duplicate");
+
+auto sym2 = *module.findSymbol("data1");
+assert(sym2.getAddress() == Addr(2608));
 ```
 
 Use a symbol's referent (either an InstructionRef or DataObject) to get
 more information about the object to which the symbol
-points. `NodeRef` behaves like a pointer and may be null.
+points.
 
 ```c++
-NodeRef<DataObject> referent = syms[0]->getDataReferent();
+DataObject* referent = sym1.getReferent<DataObject>();
 assert(referent);
 assert(referent->getAddress() == Addr(2614));
 assert(referent->getSize() == 2);
 ```
 
-The ICFG uses
+The CFG uses
 [boost::graph](https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/).
 GTIRB also provides a convenience function for iterating over blocks:
 
 ```c++
-for (const auto& b : blocks(module.getCFG())) {
-  std::cout << "Block: " << b.getAddress() << ".." << addressLimit(b) << "\n";
+for (const auto& b : blocks(cfg)) {
+  std::cout << "Block: " << uint64_t(b.getAddress()) << ".."
+            << uint64_t(addressLimit(b)) << "\n";
 }
 ```
 
-Data tables are variants, which have to be resolved to the correct
-type before use. This will throw an exception if the wrong type is
-requested.
+`Blocks` contain a `vertex_descriptor` which is used to look up
+corresponding information in the `CFG`:
 
 ```c++
-auto eaTable = boost::get<std::vector<Addr>>(ir.getTable("eaTable"));
-for (auto ea : *eaTable) {
-  std::cout << "EA: " << ea.get() << "\n";
+auto [edgeDescriptor, exists] = edge(b1->getVertex(), b2->getVertex(), cfg);
+assert(exists);
+```
+
+`edge_descriptors` can be used to look up labels and the source/target
+blocks:
+
+```c++
+auto edgeRange = edges(cfg);
+for (auto it = edgeRange.first; it != edgeRange.second; it++) {
+  auto e = *it;
+  auto v1 = source(e, cfg);
+  auto v2 = target(e, cfg);
+  std::cout << "Edge: " << uint64_t(cfg[v1]->getAddress()) << " => "
+            << uint64_t(cfg[v2]->getAddress());
+  if (auto* b = std::get_if<bool>(&cfg[e])) {
+    std::cout << ": " << *b;
+  }
+  std::cout << "\n";
+}
+```
+
+Data have to be resolved to the correct type with the `get()` method
+before use. This will return null if the wrong type is requested.
+
+```c++
+auto addrTable = ir.getTable("addrTable")->get<std::vector<Addr>>();
+for (auto addr : *addrTable) {
+  std::cout << "Addr: " << uint64_t(addr) << "\n";
 }
 
-auto stringMap = boost::get<std::map<std::string, table::ValueType>>(ir.getTable("stringMap"));
+auto* stringMap =
+    ir.getTable("stringMap")->get<std::map<std::string, std::string>>();
 for (auto p : *stringMap) {
-  std::cout << p.first << " => " << boost::get<std::string>(p.second) << "\n";
+  std::cout << p.first << " => " << p.second << "\n";
 }
 ```
 
@@ -350,7 +384,6 @@ ir.save(out);
 Deserialize from a file:
 
 ```c++
-IR newIR;
 std::ifstream in("path/to/file");
-newIR.load(in);
+IR& newIR = *IR::load(C, in);
 ```
