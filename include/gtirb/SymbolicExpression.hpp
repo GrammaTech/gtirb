@@ -23,8 +23,10 @@
 #include <variant>
 
 /// \file SymbolicExpression.hpp
-/// \brief \ref SYMBOLIC_EXPRESSION_GROUP.
-
+/// \ingroup SYMBOLIC_EXPRESSION_GROUP
+/// \brief Types and operations for symbolic expressions.
+///
+/// \see \ref SYMBOLIC_EXPRESSION_GROUP.
 namespace proto {
 class SymbolicExpression;
 }

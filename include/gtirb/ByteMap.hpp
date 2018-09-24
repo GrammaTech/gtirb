@@ -41,6 +41,7 @@ class ImageByteMap;
 ///
 /// \brief Holds the bytes of the loaded image of the binary.
 class GTIRB_EXPORT_API ByteMap {
+  /// \copybrief gtirb::ImageByteMap
   friend class ImageByteMap;
   bool willOverlapRegion(Addr A, size_t Bytes) const;
 

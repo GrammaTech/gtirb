@@ -53,6 +53,8 @@ class GTIRB_EXPORT_API Context {
   mutable BumpPtrAllocator Allocator;
 
   std::map<UUID, Node*> UuidMap;
+
+  /// \copybrief gtirb::Node
   friend class Node;
 
   void registerNode(const UUID& ID, Node* N) { UuidMap[ID] = N; }
