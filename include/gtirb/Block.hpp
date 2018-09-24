@@ -24,7 +24,9 @@
 #include <vector>
 
 /// \file Block.hpp
+/// \ingroup CFG_GROUP
 /// \brief Classes gtirb::Block and gtirb::InstructionRef.
+/// \see CFG_GROUP
 
 namespace proto {
 class InstructionRef;
@@ -89,6 +91,7 @@ public:
   /// \return The exit kind.
   Exit getExitKind() const { return ExitKind; }
 
+  /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::Block;
 
   /// \brief Serialize into a protobuf message.

@@ -25,18 +25,21 @@
 #include <type_traits>
 
 /// \file Casting.hpp
+/// \ingroup casting
+/// \brief The various casting and type checking operations that apply
+/// to gtirb::Node subclasses.
 ///
-/// This file defines the various casting and type checking operations
-/// that apply to gtirb::Node subclasses. For full details, see \ref casting.
+/// \see \ref casting.
 
 /// \defgroup casting Casting
 ///
-/// \brief gtirb::Node and its subclasses support custom casting machinery that
-/// allows for type checking, safer static casting, and safe dynamic
-/// casting without needing the overhead of a vtable or RTTI. File
-/// Casting.hpp defines the various operations that apply to gtirb::Node
-/// subclasses.
+/// \brief \ref gtirb::Node "Node" and its subclasses support custom casting
+/// machinery that allows for type checking, safer static casting, and
+/// safe dynamic casting without needing the overhead of a vtable or
+/// RTTI.
 ///
+/// File Casting.hpp defines the various operations that apply
+/// to \ref gtirb::Node "Node" subclasses.
 /// - \ref ISA "isa<Ty>" Performs a type check.
 /// - \ref CAST "cast<Ty>" Returns the given argument cast to the
 ///   specified type;  the argument cannot be null.
@@ -50,8 +53,9 @@
 ///   operation fails because the types do not match; the argument can
 ///   be null.
 ///
+/// \section casting_operations Casting Operations
 ///
-/// \section ISA isa<Ty>
+/// \subsection ISA isa<Ty>
 ///
 /// Perform a type check.
 ///
@@ -68,7 +72,7 @@
 /// \endcode
 ///
 ///
-/// \section  CAST cast<Ty>
+/// \subsection CAST cast<Ty>
 ///
 /// Cast to the specified type; the argument cannot be null.
 ///
@@ -89,7 +93,7 @@
 /// \endcode
 ///
 ///
-/// \section CAST_OR_NULL cast_or_null<Ty>
+/// \subsection CAST_OR_NULL cast_or_null<Ty>
 ///
 /// Cast to the specified type; the argument can be null.
 ///
@@ -110,7 +114,7 @@
 /// \endcode
 ///
 ///
-/// \section  DYN_CAST dyn_cast<Ty>
+/// \subsection  DYN_CAST dyn_cast<Ty>
 ///
 /// Dynamic cast to the specified type; the argument cannot be null.
 ///
@@ -131,7 +135,7 @@
 /// \endcode
 ///
 ///
-/// \section DYN_CAST_OR_NULL dyn_cast_or_null<Ty>
+/// \subsection DYN_CAST_OR_NULL dyn_cast_or_null<Ty>
 ///
 /// Cast to the specified type; the argument can be null.
 ///

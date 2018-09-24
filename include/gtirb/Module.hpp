@@ -178,63 +178,66 @@ public:
   /// A Module can have exactly one ImageByteMap child.
   const gtirb::ImageByteMap& getImageByteMap() const;
 
-  /// \brief Iterator over \ref Symbol "Symbols".
+  /// \name Symbol-Related Public Types and Functions
+  /// @{
+
+  /// \brief Iterator over symbols (\ref Symbol).
   using symbol_iterator =
       boost::transform_iterator<SymSetTransform<SymbolSet::iterator>,
                                 SymbolSet::iterator, Symbol&>;
-  /// \brief Range of \ref Symbol "Symbols".
+  /// \brief Range of symbols (\ref Symbol).
   using symbol_range = boost::iterator_range<symbol_iterator>;
-  /// \brief Constant iterator over \ref Symbol "Symbols".
+  /// \brief Constant iterator over symbols (\ref Symbol).
   using const_symbol_iterator =
       boost::transform_iterator<SymSetTransform<SymbolSet::const_iterator>,
                                 SymbolSet::const_iterator, const Symbol&>;
-  /// \brief Constant range of \ref Symbol "Symbols".
+  /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
-  /// \brief Iterator over \ref Symbol "Symbols".
+  /// \brief Iterator over symbols (\ref Symbol).
   using symbol_addr_iterator =
       boost::transform_iterator<SymSetTransform<SymbolAddrMap::iterator>,
                                 SymbolAddrMap::iterator, Symbol&>;
-  /// \brief Range of \ref Symbol "Symbols".
+  /// \brief Range of symbols (\ref Symbol).
   using symbol_addr_range = boost::iterator_range<symbol_addr_iterator>;
-  /// \brief Constant iterator over \ref Symbol "Symbols".
+  /// \brief Constant iterator over symbols (\ref Symbol).
   using const_symbol_addr_iterator =
       boost::transform_iterator<SymSetTransform<SymbolAddrMap::const_iterator>,
                                 SymbolAddrMap::const_iterator, const Symbol&>;
-  /// \brief Constant range of \ref Symbol "Symbols".
+  /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_addr_range =
       boost::iterator_range<const_symbol_addr_iterator>;
 
-  /// \brief Returns an iterator to the first Symbol.
+  /// \brief Return an iterator to the first Symbol.
   symbol_iterator symbol_begin() { return symbol_iterator(Symbols.begin()); }
-  /// \brief Returns a constant iterator to the first Symbol.
+  /// \brief Return a constant iterator to the first Symbol.
   const_symbol_iterator symbol_begin() const {
     return const_symbol_iterator(Symbols.begin());
   }
-  /// \brief Returns an iterator to the element following the last Symbol.
+  /// \brief Return an iterator to the element following the last Symbol.
   symbol_iterator symbol_end() { return symbol_iterator(Symbols.end()); }
-  /// \brief Returns a constant iterator to the element following the last
+  /// \brief Return a constant iterator to the element following the last
   /// Symbol.
   const_symbol_iterator symbol_end() const {
     return const_symbol_iterator(Symbols.end());
   }
-  /// \brief Returns a range of the \ref Symbol "Symbols".
+  /// \brief Return a range of the symbols (\ref Symbol).
   symbol_range symbols() {
     return boost::make_iterator_range(symbol_begin(), symbol_end());
   }
-  /// \brief Returns a constant range of the \ref Symbol "Symbols".
+  /// \brief Return a constant range of the symbols (\ref Symbol).
   const_symbol_range symbols() const {
     return boost::make_iterator_range(symbol_begin(), symbol_end());
   }
 
-  /// \brief Adds a single symbol to the module.
+  /// \brief Add a single symbol to the module.
   ///
   /// \param S The Symbol object to add.
   ///
   /// \return void
   void addSymbol(Symbol* S) { addSymbol({S}); }
 
-  /// \brief Adds one or more symbols to the module.
+  /// \brief Add one or more symbols to the module.
   ///
   /// \param Ss The list of Symbol objects to add.
   ///
@@ -248,7 +251,7 @@ public:
     }
   }
 
-  /// \brief Finds symbols by name
+  /// \brief Find symbols by name
   ///
   /// \param N The address to look up.
   ///
@@ -258,7 +261,7 @@ public:
     return symbol_iterator(Symbols.find(N));
   }
 
-  /// \brief Finds symbols by name
+  /// \brief Find symbols by name
   ///
   /// \param N The address to look up.
   ///
@@ -268,7 +271,7 @@ public:
     return const_symbol_iterator(Symbols.find(N));
   }
 
-  /// \brief Finds symbols by address.
+  /// \brief Find symbols by address.
   ///
   /// \param X The address to look up.
   ///
@@ -280,7 +283,7 @@ public:
                                       symbol_addr_iterator(Found.second));
   }
 
-  /// \brief Finds symbols by address.
+  /// \brief Find symbols by address.
   ///
   /// \param X The address to look up.
   ///
@@ -291,6 +294,8 @@ public:
     return boost::make_iterator_range(const_symbol_addr_iterator(Found.first),
                                       const_symbol_addr_iterator(Found.second));
   }
+  /// @}
+  // (end group of symbol-related type aliases and functions)
 
   /// \brief Set the module name.
   ///
@@ -315,52 +320,55 @@ public:
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
 
-  /// \brief Iterator over \ref DataObject "DataObjects".
+  /// \name DataObject-Related Public Types and Functions
+  /// @{
+
+  /// \brief Iterator over data objects (\ref DataObject).
   using data_object_iterator =
       boost::transform_iterator<SymSetTransform<DataSet::iterator>,
                                 DataSet::iterator, DataObject&>;
-  /// \brief Range of \ref DataObject "DataObjects".
+  /// \brief Range of data objects (\ref DataObject).
   using data_object_range = boost::iterator_range<data_object_iterator>;
-  /// \brief Constant iterator over \ref DataObject "DataObjects".
+  /// \brief Constant iterator over data objects (\ref DataObject).
   using const_data_object_iterator =
       boost::transform_iterator<SymSetTransform<DataSet::const_iterator>,
                                 DataSet::const_iterator, const DataObject&>;
-  /// \brief Constant range of \ref DataObject "DataObjects".
+  /// \brief Constant range of data objects (\ref DataObject).
   using const_data_object_range =
       boost::iterator_range<const_data_object_iterator>;
 
-  /// \brief Returns an iterator to the first DataObject.
+  /// \brief Return an iterator to the first DataObject.
   data_object_iterator data_begin() {
     return data_object_iterator(Data.begin());
   }
-  /// \brief Returns a constant iterator to the first DataObject.
+  /// \brief Return a constant iterator to the first DataObject.
   const_data_object_iterator data_begin() const {
     return const_data_object_iterator(Data.begin());
   }
-  /// \brief Returns an iterator to the element following the last DataObject.
+  /// \brief Return an iterator to the element following the last DataObject.
   data_object_iterator data_end() { return data_object_iterator(Data.end()); }
-  /// \brief Returns a constant iterator to the element following the last
+  /// \brief Return a constant iterator to the element following the last
   /// DataObject.
   const_data_object_iterator data_end() const {
     return const_data_object_iterator(Data.end());
   }
-  /// \brief Returns a range of the \ref DataObject "DataObjects".
+  /// \brief Return a range of the data objects (\ref DataObject).
   data_object_range data() {
     return boost::make_iterator_range(data_begin(), data_end());
   }
-  /// \brief Returns a constant range of the \ref DataObject "DataObjects".
+  /// \brief Return a constant range of the data objects (\ref DataObject).
   const_data_object_range data() const {
     return boost::make_iterator_range(data_begin(), data_end());
   }
 
-  /// \brief Adds a single data object to the module.
+  /// \brief Add a single data object to the module.
   ///
   /// \param DO The DataObject object to add.
   ///
   /// \return void
   void addData(DataObject* DO) { addData({DO}); }
 
-  /// \brief Adds one or more data objects to the module.
+  /// \brief Add one or more data objects to the module.
   ///
   /// \param Ds The list of DataObject objects to add.
   ///
@@ -370,7 +378,7 @@ public:
       Data.emplace(D->getAddress(), D);
   }
 
-  /// \brief Finds DataObjects by address.
+  /// \brief Find a DataObject by address.
   ///
   /// \param X The address to look up.
   ///
@@ -379,7 +387,7 @@ public:
     return data_object_iterator(Data.find(X));
   }
 
-  /// \brief Finds DataObjects by address.
+  /// \brief Find a DataObject by address.
   ///
   /// \param X The address to look up.
   ///
@@ -387,52 +395,57 @@ public:
   const_data_object_iterator findData(Addr X) const {
     return const_data_object_iterator(Data.find(X));
   }
+  /// @}
+  // (end group of DataObject-related types and functions)
 
-  /// \brief Iterator over \ref Section "Sections".
+  /// \name Section-Related Public Types and Functions
+  /// @{
+
+  /// \brief Iterator over sections (\ref Section).
   using section_iterator =
       boost::transform_iterator<SymSetTransform<SectionSet::iterator>,
                                 SectionSet::iterator, Section&>;
-  /// \brief Range of \ref Section "Sections".
+  /// \brief Range of sections (\ref Section).
   using section_range = boost::iterator_range<section_iterator>;
-  /// \brief Constant iterator over \ref Section "Sections".
+  /// \brief Constant iterator over sections (\ref Section).
   using const_section_iterator =
       boost::transform_iterator<SymSetTransform<SectionSet::const_iterator>,
                                 SectionSet::const_iterator, const Section&>;
-  /// \brief Constant range of \ref Section "Sections".
+  /// \brief Constant range of sections (\ref Section).
   using const_section_range = boost::iterator_range<const_section_iterator>;
 
-  /// \brief Returns an iterator to the first Section.
+  /// \brief Return an iterator to the first Section.
   section_iterator section_begin() {
     return section_iterator(Sections.begin());
   }
-  /// \brief Returns a constant iterator to the first Section.
+  /// \brief Return a constant iterator to the first Section.
   const_section_iterator section_begin() const {
     return const_section_iterator(Sections.begin());
   }
-  /// \brief Returns an iterator to the element following the last Section.
+  /// \brief Return an iterator to the element following the last Section.
   section_iterator section_end() { return section_iterator(Sections.end()); }
-  /// \brief Returns a constant iterator to the element following the last
+  /// \brief Return a constant iterator to the element following the last
   /// Section.
   const_section_iterator section_end() const {
     return const_section_iterator(Sections.end());
   }
-  /// \brief Returns a range of the \ref Section "Sections".
+  /// \brief Return a range of the sections (\ref Section).
   section_range sections() {
     return boost::make_iterator_range(section_begin(), section_end());
   }
-  /// \brief Returns a constant range of the \ref Section "Sections".
+  /// \brief Return a constant range of the sections (\ref Section).
   const_section_range sections() const {
     return boost::make_iterator_range(section_begin(), section_end());
   }
 
-  /// \brief Adds a single section object to the module.
+  /// \brief Add a single Section object to the module.
   ///
   /// \param S The Section object to add.
   ///
   /// \return void
   void addSection(Section* S) { addSection({S}); }
 
-  /// \brief Adds one or more section objects to the module.
+  /// \brief Add one or more section objects to the module.
   ///
   /// \param Ss The list of Section objects to add.
   ///
@@ -442,7 +455,7 @@ public:
       Sections.emplace(S->getAddress(), S);
   }
 
-  /// \brief Finds Sections by address.
+  /// \brief Find a Section by address.
   ///
   /// \param X The address to look up.
   ///
@@ -452,7 +465,7 @@ public:
     return section_iterator(Sections.find(X));
   }
 
-  /// \brief Finds Sections by address.
+  /// \brief Find a Section by address.
   ///
   /// \param X The address to look up.
   ///
@@ -461,54 +474,60 @@ public:
   const_section_iterator findSection(Addr X) const {
     return const_section_iterator(Sections.find(X));
   }
+  /// @}
+  // (end group of Section-related types and functions)
 
-  /// \brief Iterator over \ref SymbolicExpression "SymbolicExpressions".
+  /// \name SymbolicExpression-Related Public Types and Functions
+  /// @{
+
+  /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
   using symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::iterator>,
       SymbolicExpressionSet::iterator, SymbolicExpression&>;
-  /// \brief Range of \ref SymbolicExpression "SymbolicExpressions".
+  /// \brief Range of symbolic expressions (\ref SymbolicExpression).
   using symbolic_expr_range = boost::iterator_range<symbolic_expr_iterator>;
-  /// \brief Constant iterator over
-  /// \ref SymbolicExpression "SymbolicExpressions".
+  /// \brief Constant iterator over symbolic expressions
+  /// (\ref SymbolicExpression).
   using const_symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::const_iterator>,
       SymbolicExpressionSet::const_iterator, const SymbolicExpression&>;
-  /// \brief Constant range of \ref SymbolicExpression "SymbolicExpressions".
+  /// \brief Constant range of symbolic expressions (\ref SymbolicExpression).
   using const_symbolic_expr_range =
       boost::iterator_range<const_symbolic_expr_iterator>;
 
-  /// \brief Returns an iterator to the first SymbolicExpression.
+  /// \brief Return an iterator to the first \ref SymbolicExpression.
   symbolic_expr_iterator symbolic_expr_begin() {
     return symbolic_expr_iterator(SymbolicOperands.begin());
   }
-  /// \brief Returns a constant iterator to the first SymbolicExpression.
+  /// \brief Return a constant iterator to the first \ref SymbolicExpression.
   const_symbolic_expr_iterator symbolic_expr_begin() const {
     return const_symbolic_expr_iterator(SymbolicOperands.begin());
   }
-  /// \brief Returns an iterator to the element following the last
-  /// SymbolicExpression.
+  /// \brief Return an iterator to the element following the last
+  /// \ref SymbolicExpression.
   symbolic_expr_iterator symbolic_expr_end() {
     return symbolic_expr_iterator(SymbolicOperands.end());
   }
-  /// \brief Returns a constant iterator to the element following the last
-  /// SymbolicExpression.
+  /// \brief Return a constant iterator to the element following the last
+  /// \ref SymbolicExpression.
   const_symbolic_expr_iterator symbolic_expr_end() const {
     return const_symbolic_expr_iterator(SymbolicOperands.end());
   }
-  /// \brief Returns a range of the
-  /// \ref SymbolicExpression "SymbolicExpressions".
+  /// \brief Return a range of the symbolic expressions
+  /// (\ref SymbolicExpression).
   symbolic_expr_range symbolic_exprs() {
     return boost::make_iterator_range(symbolic_expr_begin(),
                                       symbolic_expr_end());
   }
-  /// \brief Returns a constant range of the
-  /// \ref SymbolicExpression "SymbolicExpressions".
+  /// \brief Return a constant range of the symbolic expressions
+  /// (\ref SymbolicExpression).
   const_symbolic_expr_range symbolic_exprs() const {
     return boost::make_iterator_range(symbolic_expr_begin(),
                                       symbolic_expr_end());
   }
 
-  /// \brief Finds symbolic expressions by address.
+  /// \brief Find symbolic expressions (\ref SymbolicExpression) by
+  /// address.
   ///
   /// \param X The address to look up.
   ///
@@ -518,7 +537,8 @@ public:
     return symbolic_expr_iterator(SymbolicOperands.find(X));
   }
 
-  /// \brief Finds symbolic expressions by address.
+  /// \brief Find symbolic expressions (\ref SymbolicExpression) by
+  /// address.
   ///
   /// \param X The address to look up.
   ///
@@ -529,7 +549,8 @@ public:
     return const_symbolic_expr_iterator(SymbolicOperands.find(X));
   }
 
-  /// \brief Adds a symbolic expression to the module.
+  /// \brief Add a symbolic expression (\ref SymbolicExpression) to
+  /// the module.
   ///
   /// \param X  The address of the symbolic expression.
   /// \param SE The SymbolicExpression object to add.
@@ -538,6 +559,8 @@ public:
   void addSymbolicExpression(Addr X, const SymbolicExpression& SE) {
     SymbolicOperands.emplace(X, SE);
   }
+  /// @}
+  // (end group of SymbolicExpression-related type aliases and methods)
 
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
