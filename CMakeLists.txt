@@ -13,9 +13,25 @@ include(CheckIncludeFile)
 include(Macros.cmake)
 include(AlignOf.cmake)
 
-#
-# Global Options (CMake)
-#
+# ---------------------------------------------------------------------------
+# Build options
+# ---------------------------------------------------------------------------
+
+option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
+
+# This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON
+# instead of OFF.
+option(GTIRB_BUILD_SHARED_LIBS "Build shared libraries." ON)
+if(GTIRB_BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON)
+else()
+  set(BUILD_SHARED_LIBS OFF)
+endif()
+
+
+# ---------------------------------------------------------------------------
+# Global settings
+# ---------------------------------------------------------------------------
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -45,21 +61,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-
-#
-# Grammatech Options (CMake)
-#
-
-option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
-
-# This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON
-# instead of OFF.
-option(GTIRB_BUILD_SHARED_LIBS "Build shared libraries." ON)
-if(GTIRB_BUILD_SHARED_LIBS)
-  set(BUILD_SHARED_LIBS ON)
-else()
-  set(BUILD_SHARED_LIBS OFF)
-endif()
 
 # Base include path for the GT-IRB library.
 include_directories(${CMAKE_SOURCE_DIR}/include)
