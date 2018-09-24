@@ -28,7 +28,9 @@
 #include <vector>
 
 /// \file Table.hpp
-/// \brief  Definitions and functions for \ref TABLE_GROUP.
+/// \ingroup TABLE_GROUP
+/// \brief  Types and operations for tables.
+/// \see TABLE_GROUP
 
 namespace proto {
 class Table;
@@ -38,9 +40,9 @@ namespace gtirb {
 class Context;
 
 /// \defgroup TABLE_GROUP Tables
-/// \brief \ref Table "Tables" can be attached to the \ref IR to store
+/// \brief Tables (\ref Table)  can be attached to the \ref IR to store
 /// additional client-specific data in a portable way.
-
+///
 /// Tables can store the following types:
 ///   - all integral types
 ///   - Addr
@@ -50,26 +52,26 @@ class Context;
 ///   - mapping containers
 ///   - std::tuple
 ///
-/// \par Supporting Additional Types
+/// ### Supporting Additional Types
+///
 /// Support for additional containers can be added by specializing \ref
 /// is_sequence or \ref is_mapping. Once serialized, the table does not
 /// depend on any specific container type, and its contents can be
 /// deserialized into different containers of the same kind (e.g. \c std::list
 /// to \c std::vector).
 ///
-/// \par
 /// Support for other types can be added by specializing \ref table_traits to
 /// provide serialization functions. However, tables containing these types
 /// will not be accessible to other clients which are not compiled with
 /// support for those types. It is preferable to store data using the basic
 /// table types whenever possible, in order to maximize interoperability.
 ///
-/// \par Serialization Format
+/// ### Serialization Format
+///
 /// Tables are serialized by packing their contents into a byte array, which
 /// is stored in a protobuf message along with a string which identifies the
 /// type in a portable fashion.
-
-/// \par
+///
 /// Fixed-size types such as integers, Addr, etc are packed by swapping their
 /// bytes to little-endian order and writing them directly to the byte
 /// array. Containers first write out the number of elements (as a uint64_t),
@@ -80,7 +82,10 @@ class Context;
 
 /// \struct is_sequence
 ///
-/// \brief Trait class that identifies whether T is a sequential container type.
+/// \brief Trait class that identifies whether T is a sequential
+/// container type.
+///
+/// \see TABLE_GROUP
 template <class T> struct is_sequence : std::false_type {};
 
 /// @cond INTERNAL
@@ -91,6 +96,8 @@ template <class T> struct is_sequence<std::list<T>> : std::true_type {};
 /// \struct is_mapping
 ///
 /// \brief Trait class that identifies whether T is a mapping container type.
+///
+/// \see TABLE_GROUP
 template <class T> struct is_mapping : std::false_type {};
 /// @cond INTERNAL
 template <class T, class U>
@@ -111,6 +118,8 @@ using from_iterator = std::string::const_iterator;
 ///
 /// \brief Provides type information and serialization functions
 /// for types which can be stored in tables.
+///
+/// \see TABLE_GROUP
 template <class T, class Enable = void> struct table_traits {
   /// \brief  Serialize an object to a sequence of bytes.
   ///
@@ -374,9 +383,10 @@ public:
 };
 /// @endcond
 
-/// \brief A generic \ref TABLE_GROUP "table" for storing additional
-/// client-specific data.
+/// \brief A generic table for storing additional client-specific
+/// data.
 ///
+/// \see \ref TABLE_GROUP
 
 class Table {
 public:
@@ -404,8 +414,8 @@ public:
   ///
   /// \tparam T  The expected type of the contents.
   ///
-  /// \returns  If Table contains an object of type T, return a pointer to
-  ///           it. Otherwise return nullptr.
+  /// \returns If the table contains an object of type T, return a
+  /// pointer to it. Otherwise return nullptr.
   //
   template <typename T> T* get() {
     if (!this->RawBytes.empty()) {

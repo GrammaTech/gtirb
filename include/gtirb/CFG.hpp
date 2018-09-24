@@ -24,8 +24,11 @@
 #include <variant>
 
 /// \file CFG.hpp
-/// \brief Typedefs and operations for interprocedural
-/// \ref CFG_GROUP "control flow graphs" (CFGs).
+/// \ingroup CFG_GROUP
+/// \brief Types and operations for interprocedural control flow
+/// graphs (CFGs).
+///
+/// \see CFG_GROUP
 
 namespace proto {
 class CFG;
@@ -34,14 +37,14 @@ class CFG;
 namespace gtirb {
 class Block;
 
-/// \defgroup CFG_GROUP CFGs
+/// \defgroup CFG_GROUP Control Flow Graphs (CFGs)
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
 ///
 /// @{ @}
 
 /// \ingroup CFG_GROUP
-/// \brief A label on a CFG edge.
+/// \brief A label on a \ref CFG edge.
 ///
 /// Boolean labels are used in the case of a conditional branch or call.
 /// A true label designates the non-local edge (e.g. when the condition is
@@ -95,11 +98,11 @@ private:
 /// @endcond
 
 /// \ingroup CFG_GROUP
-/// \brief Iterator over \ref Block "Blocks".
+/// \brief Iterator over blocks (\ref Block).
 using block_iterator = block_iter_base<Block, CFG>;
 
 /// \ingroup CFG_GROUP
-/// \brief Constant iterator over \ref Block "Blocks".
+/// \brief Constant iterator over blocks (\ref Block).
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
 /// \ingroup CFG_GROUP
@@ -133,15 +136,16 @@ GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief Serialize a CFG into a protobuf message.
+/// \brief Serialize a \ref CFG into a protobuf message.
 ///
 /// \param Cfg   The CFG to serialize.
 ///
-/// \return A protobuf message representing the CFG and its component Blocks.
+/// \return A protobuf message representing the \ref CFG and its
+/// component blocks (\ref Block).
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief Initialize a CFG from a protobuf message.
+/// \brief Initialize a \ref CFG from a protobuf message.
 ///
 /// \param      C        The Context in which the deserialized CFG will be held.
 /// \param      Message  The protobuf message from which to deserialize.

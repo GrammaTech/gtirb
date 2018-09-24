@@ -26,7 +26,9 @@
 #include <vector>
 
 /// \file IR.hpp
+/// \ingroup TABLE_GROUP
 /// \brief Class gtirb::IR.
+/// \see TABLE_GROUP
 
 namespace proto {
 class IR;
