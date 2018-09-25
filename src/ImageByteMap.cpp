@@ -19,13 +19,13 @@
 using namespace gtirb;
 
 bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
-  if (X.first <= X.second) {
-    this->EaMinMax = std::move(X);
-    return true;
+  // Invalid range
+  if (X.first > X.second) {
+    return false;
   }
 
-  this->EaMinMax = std::make_pair(Addr{}, Addr{});
-  return false;
+  this->EaMinMax = std::move(X);
+  return true;
 }
 
 bool ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {

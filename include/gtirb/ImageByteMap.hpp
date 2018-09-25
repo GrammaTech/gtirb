@@ -103,9 +103,7 @@ public:
   /// true otherwise
   ///
   /// If \p X is an invalid pair, this method returns \c false and the
-  /// min and max will be set to an invalid state
-  /// (gtirb::constants::BadAddress).  The range's min and max values
-  /// are inclusive.
+  /// min and max are not set.
   bool setAddrMinMax(std::pair<Addr, Addr> X);
 
   /// \brief Get the minimum and maximum effective address (Addr) for
@@ -113,8 +111,6 @@ public:
   ///
   /// \return A std::pair containing the (minimum, maximum) effective
   /// addresses.
-  ///
-  /// Check return values for gtirb::constants::BadAddress.
   std::pair<Addr, Addr> getAddrMinMax() const { return EaMinMax; }
 
   /// \brief Mark the loaded image as having been relocated.

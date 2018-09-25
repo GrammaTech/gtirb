@@ -93,7 +93,7 @@ TEST(Unit_ImageByteMap, setEntryPointAddress) {
   EXPECT_EQ(Val, Node->getEntryPointAddress());
 }
 
-TEST(Unit_ImageByteMap, setEAMinMax) {
+TEST(Unit_ImageByteMap, setAddrMinMax) {
   auto* M = ImageByteMap::Create(Ctx);
 
   Addr Minimum{64};
@@ -103,9 +103,10 @@ TEST(Unit_ImageByteMap, setEAMinMax) {
   EXPECT_EQ(Minimum, M->getAddrMinMax().first);
   EXPECT_EQ(Maximum, M->getAddrMinMax().second);
 
+  // Invalid range: return false and leave value unchanged.
   EXPECT_FALSE(M->setAddrMinMax({Maximum, Minimum}));
-  EXPECT_EQ(Addr{}, M->getAddrMinMax().first);
-  EXPECT_EQ(Addr{}, M->getAddrMinMax().second);
+  EXPECT_EQ(Minimum, M->getAddrMinMax().first);
+  EXPECT_EQ(Maximum, M->getAddrMinMax().second);
 }
 
 TEST(Unit_ImageByteMap, setIsRelocated) {
