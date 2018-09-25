@@ -352,6 +352,7 @@ template <class T, class... Ts> struct TypeId<T, Ts...> {
 /// @cond INTERNAL
 class TableImpl {
 public:
+  virtual ~TableImpl() = default;
   virtual void toBytes(std::string& Bytes) const = 0;
   virtual void fromBytes(const std::string& Bytes) = 0;
   virtual const std::type_info& storedType() const = 0;
@@ -377,7 +378,7 @@ public:
 
   std::string typeName() const override { return TypeId<T>::value(); }
 
-  void* get() { return static_cast<void*>(&Object); }
+  void* get() override { return static_cast<void*>(&Object); }
 
   T Object;
 };
