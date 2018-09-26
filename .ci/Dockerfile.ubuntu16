@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ARG CMAKE_VERSION=3.10
+ARG CMAKE_VERSION=3.9
 ARG CXX_COMPILER=g++-7
 
 RUN apt-get -y update && \
