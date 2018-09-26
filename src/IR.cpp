@@ -14,44 +14,44 @@
 //===----------------------------------------------------------------------===//
 #include "IR.hpp"
 #include "Serialization.hpp"
+#include <gtirb/AuxData.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <gtirb/Table.hpp>
 #include <proto/IR.pb.h>
 
 using namespace gtirb;
 
-void IR::addTable(const std::string& Name, Table&& X) {
-  this->Tables[Name] = std::move(X);
+void IR::addAuxData(const std::string& Name, AuxData&& X) {
+  this->AuxDatas[Name] = std::move(X);
 }
 
-const gtirb::Table* IR::getTable(const std::string& X) const {
-  auto Found = this->Tables.find(X);
-  if (Found != std::end(this->Tables)) {
+const gtirb::AuxData* IR::getAuxData(const std::string& X) const {
+  auto Found = this->AuxDatas.find(X);
+  if (Found != std::end(this->AuxDatas)) {
     return &(Found->second);
   }
 
   return nullptr;
 }
 
-gtirb::Table* IR::getTable(const std::string& X) {
-  auto Found = this->Tables.find(X);
-  if (Found != std::end(this->Tables)) {
+gtirb::AuxData* IR::getAuxData(const std::string& X) {
+  auto Found = this->AuxDatas.find(X);
+  if (Found != std::end(this->AuxDatas)) {
     return &(Found->second);
   }
 
   return nullptr;
 }
 
-bool IR::removeTable(const std::string& X) {
-  const auto Found = this->Tables.find(X);
+bool IR::removeAuxData(const std::string& X) {
+  const auto Found = this->AuxDatas.find(X);
 
-  if (Found != std::end(this->Tables)) {
-    this->Tables.erase(Found);
+  if (Found != std::end(this->AuxDatas)) {
+    this->AuxDatas.erase(Found);
     return true;
   }
 
@@ -61,14 +61,14 @@ bool IR::removeTable(const std::string& X) {
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   containerToProtobuf(this->Modules, Message->mutable_modules());
-  containerToProtobuf(this->Tables, Message->mutable_tables());
+  containerToProtobuf(this->AuxDatas, Message->mutable_aux_data());
 }
 
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
   containerFromProtobuf(C, I->Modules, Message.modules());
-  containerFromProtobuf(C, I->Tables, Message.tables());
+  containerFromProtobuf(C, I->AuxDatas, Message.aux_data());
   return I;
 }
 

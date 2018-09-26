@@ -1,4 +1,4 @@
-//===- Table.cpp ------------------------------------------------*- C++ -*-===//
+//===- AuxData.cpp ---------------------------------------------*- C++-*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -12,23 +12,23 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include "Table.hpp"
+#include "AuxData.hpp"
 #include "Serialization.hpp"
 #include "gtirb/Context.hpp"
-#include <proto/Table.pb.h>
+#include <proto/AuxData.pb.h>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <variant>
 
 namespace gtirb {
-void fromProtobuf(Context&, Table& Result, const proto::Table& Message) {
+void fromProtobuf(Context&, AuxData& Result, const proto::AuxData& Message) {
   Result.Impl = nullptr;
   Result.TypeName = Message.type_name();
   Result.RawBytes = Message.data();
 }
 
-proto::Table toProtobuf(const Table& T) {
-  proto::Table Message;
+proto::AuxData toProtobuf(const AuxData& T) {
+  proto::AuxData Message;
 
   if (T.Impl != nullptr) {
     Message.set_type_name(T.Impl->typeName());

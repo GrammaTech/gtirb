@@ -17,7 +17,7 @@ The remainder of this file has information on GTIRB's:
 ## Structure
 GTIRB has the following structure:
 
-      Data Tables
+      Aux Data
       /
     IR        -----Data---Bytes
       \      /-----Symbols
@@ -51,12 +51,12 @@ Instruction bytes may easily be decoded/encoded using the popular
 [Capstone](https://www.capstone-engine.org)/[Keystone](https://www.keystone-engine.org)
 disassembler/assembler.
 
-### Data Tables
+### Auxiliary Data
 
 Additional arbitrary information, e.g. analysis results, may be added
-to GTIRB in the form of data tables.  These use variants to store
-maps and vectors of various common GTIRB types. This repository will
-describe the anticipated structure for very common data tables.
+to GTIRB in the form of `AuxData` object.  These can store maps and
+vectors of basic GTIRB types in a portable way. This repository will
+describe the anticipated structure for very common auxiliary data.
 
 ### UUIDs
 Every element of GTIRB (namely: modules (`Module`), symbols
@@ -282,13 +282,14 @@ Symbol* dataSym = &*module.findSymbols(Addr(2614)).begin();
 module.addSymbolicExpression(Addr(472), SymAddrConst{0, dataSym});
 ```
 
-Finally, data tables can be used to store additional data at the IR
-level. A `Table` can store integers, strings, basic GTIRB types such
-as `Addr` and `UUID`, and tuples or containers over these types.
+Finally, auxiliary data can be used to store additional data at the IR
+level. An `AuxData` object can store integers, strings, basic GTIRB
+types such as `Addr` and `UUID`, and tuples or containers over these
+types.
 
 ```c++
-ir.addTable("eaTable", std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
-ir.addTable("stringMap", std::map<std::string, std::string>(
+ir.addAuxData("addrTable", std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
+ir.addAuxData("stringMap", std::map<std::string, std::string>(
                              {{"a", "str1"}, {"b", "str2"}}));
 ```
 
@@ -360,13 +361,13 @@ Data have to be resolved to the correct type with the `get()` method
 before use. This will return null if the wrong type is requested.
 
 ```c++
-auto addrTable = ir.getTable("addrTable")->get<std::vector<Addr>>();
+auto addrTable = ir.getAuxData("addrTable")->get<std::vector<Addr>>();
 for (auto addr : *addrTable) {
   std::cout << "Addr: " << uint64_t(addr) << "\n";
 }
 
 auto* stringMap =
-    ir.getTable("stringMap")->get<std::map<std::string, std::string>>();
+    ir.getAuxData("stringMap")->get<std::map<std::string, std::string>>();
 for (auto p : *stringMap) {
   std::cout << p.first << " => " << p.second << "\n";
 }

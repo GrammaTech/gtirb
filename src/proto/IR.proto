@@ -15,11 +15,11 @@
 syntax = "proto3";
 package proto;
 
-import "Table.proto";
+import "AuxData.proto";
 import "Module.proto";
 
 message IR {
     bytes uuid = 1;
-    map<string, Table> tables = 2;
+    map<string, AuxData> aux_data = 2;
     repeated Module modules = 3;
 }

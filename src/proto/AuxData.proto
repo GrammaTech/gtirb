@@ -1,4 +1,4 @@
-//===- Table.proto ----------------------------------------------*- C++ -*-===//
+//===- AuxData.proto ----------------------------------------------*- C++ -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -15,7 +15,7 @@
 syntax = "proto3";
 package proto;
 
-message Table {
+message AuxData {
   string type_name = 1;
   bytes data = 2;
 }
