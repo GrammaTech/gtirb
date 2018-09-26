@@ -62,12 +62,12 @@ proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
 }
 
 namespace {
-Symbol* symbolFromProto(Context& C, std::string Bytes) {
+Symbol* symbolFromProto(Context& C, const std::string& Bytes) {
   if (Bytes.empty()) {
     return nullptr;
-  } else {
-    return dyn_cast_or_null<Symbol>(Node::getByUUID(C, uuidFromBytes(Bytes)));
   }
+
+  return dyn_cast_or_null<Symbol>(Node::getByUUID(C, uuidFromBytes(Bytes)));
 }
 } // namespace
 
@@ -75,17 +75,17 @@ void fromProtobuf(Context& C, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message) {
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
-    auto Val = Message.stack_const();
+    const auto& Val = Message.stack_const();
     Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrConst: {
-    auto Val = Message.addr_const();
+    const auto& Val = Message.addr_const();
     Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrAddr: {
-    auto Val = Message.addr_addr();
+    const auto& Val = Message.addr_addr();
     Result = SymAddrAddr{Val.scale(), Val.offset(),
                          symbolFromProto(C, Val.symbol1_uuid()),
                          symbolFromProto(C, Val.symbol2_uuid())};

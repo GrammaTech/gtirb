@@ -133,7 +133,7 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 ///
 /// \return A range over \p Cfg
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
-blocks(const CFG& cfg);
+blocks(const CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Serialize a \ref CFG into a protobuf message.

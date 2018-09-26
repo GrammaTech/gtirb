@@ -83,7 +83,7 @@ public:
 
 protected:
   /// \cond INTERNAL
-  Node(Context& C, Kind K);
+  Node(Context& C, Kind Knd);
   /// \endcond
 
 private:

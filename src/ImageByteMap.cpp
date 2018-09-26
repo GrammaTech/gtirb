@@ -28,21 +28,22 @@ bool ImageByteMap::setAddrMinMax(std::pair<Addr, Addr> X) {
   return true;
 }
 
-bool ImageByteMap::setData(Addr Ea, gsl::span<const std::byte> Data) {
-  if (Ea >= this->EaMinMax.first &&
-      (Ea + Data.size_bytes() - 1) <= this->EaMinMax.second) {
-    return this->BMap.setData(Ea, Data);
+bool ImageByteMap::setData(Addr A, gsl::span<const std::byte> Data) {
+  if (A >= this->EaMinMax.first &&
+      (A + Data.size_bytes() - 1) <= this->EaMinMax.second) {
+    return this->BMap.setData(A, Data);
   }
   return false;
 }
 
-bool ImageByteMap::setData(Addr Ea, size_t Bytes, std::byte Value) {
-  if (this->BMap.willOverlapRegion(Ea, Bytes))
+bool ImageByteMap::setData(Addr A, size_t Bytes, std::byte Value) {
+  if (this->BMap.willOverlapRegion(A, Bytes)) {
     return false;
+  }
 
   auto Span = gsl::make_span(&Value, 1);
   for (uint64_t I = 0; I < Bytes; I++) {
-    if (!this->BMap.setData(Ea + I, Span)) {
+    if (!this->BMap.setData(A + I, Span)) {
       return false;
     }
   }

@@ -81,11 +81,11 @@ GTIRB_EXPORT_API void fromProtobuf(Context& C, SymbolicExpression& Result,
 
 /// \brief Serialize a SymbolicExpression into a protobuf message.
 ///
-/// \param Cfg   The SymbolicExpression to serialize.
+/// \param Value   The SymbolicExpression to serialize.
 ///
 /// \return A protobuf message representing the SymbolicExpression.
 GTIRB_EXPORT_API proto::SymbolicExpression
-toProtobuf(const SymbolicExpression& Expr);
+toProtobuf(const SymbolicExpression& Value);
 
 /// @}
 // (end \defgroup SYMBOLIC_EXPRESSION_GROUP)
