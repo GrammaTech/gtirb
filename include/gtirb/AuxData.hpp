@@ -1,4 +1,4 @@
-//===- Table.hpp ------------------------------------------------*- C++ -*-===//
+//===- AuxData.hpp ---------------------------------------------*- C++-*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -12,8 +12,8 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#ifndef GTIRB_TABLE_H
-#define GTIRB_TABLE_H
+#ifndef GTIRB_AUXDATA_H
+#define GTIRB_AUXDATA_H
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/Block.hpp>
@@ -27,23 +27,23 @@
 #include <variant>
 #include <vector>
 
-/// \file Table.hpp
-/// \ingroup TABLE_GROUP
-/// \brief  Types and operations for tables.
-/// \see TABLE_GROUP
+/// \file AuxData.hpp
+/// \ingroup AUXDATA_GROUP
+/// \brief  Types and operations for auxiliar data.
+/// \see AUXDATA_GROUP
 
 namespace proto {
-class Table;
+class AuxData;
 } // namespace proto
 
 namespace gtirb {
 class Context;
 
-/// \defgroup TABLE_GROUP Tables
-/// \brief Tables (\ref Table)  can be attached to the \ref IR to store
+/// \defgroup AUXDATA_GROUP AuxData
+/// \brief \ref AuxData objects can be attached to the \ref IR to store
 /// additional client-specific data in a portable way.
 ///
-/// Tables can store the following types:
+/// AuxData can store the following types:
 ///   - all integral types
 ///   - Addr
 ///   - InstructionRef
@@ -55,20 +55,20 @@ class Context;
 /// ### Supporting Additional Types
 ///
 /// Support for additional containers can be added by specializing \ref
-/// is_sequence or \ref is_mapping. Once serialized, the table does not
+/// is_sequence or \ref is_mapping. Once serialized, the data does not
 /// depend on any specific container type, and its contents can be
 /// deserialized into different containers of the same kind (e.g. \c std::list
 /// to \c std::vector).
 ///
-/// Support for other types can be added by specializing \ref table_traits to
-/// provide serialization functions. However, tables containing these types
-/// will not be accessible to other clients which are not compiled with
+/// Support for other types can be added by specializing \ref auxdata_traits to
+/// provide serialization functions. However, \ref AuxData containing these
+/// types will not be accessible to other clients which are not compiled with
 /// support for those types. It is preferable to store data using the basic
-/// table types whenever possible, in order to maximize interoperability.
+/// types whenever possible, in order to maximize interoperability.
 ///
 /// ### Serialization Format
 ///
-/// Tables are serialized by packing their contents into a byte array, which
+/// AuxData is serialized by packing the contents into a byte array, which
 /// is stored in a protobuf message along with a string which identifies the
 /// type in a portable fashion.
 ///
@@ -85,7 +85,7 @@ class Context;
 /// \brief Trait class that identifies whether T is a sequential
 /// container type.
 ///
-/// \see TABLE_GROUP
+/// \see AUXDATA_GROUP
 template <class T> struct is_sequence : std::false_type {};
 
 /// @cond INTERNAL
@@ -97,7 +97,7 @@ template <class T> struct is_sequence<std::list<T>> : std::true_type {};
 ///
 /// \brief Trait class that identifies whether T is a mapping container type.
 ///
-/// \see TABLE_GROUP
+/// \see AUXDATA_GROUP
 template <class T> struct is_mapping : std::false_type {};
 /// @cond INTERNAL
 template <class T, class U>
@@ -114,13 +114,13 @@ using to_iterator = std::back_insert_iterator<std::string>;
 using from_iterator = std::string::const_iterator;
 ///@endcond
 
-/// \struct table_traits
+/// \struct auxdata_traits
 ///
 /// \brief Provides type information and serialization functions
-/// for types which can be stored in tables.
+/// for types which can be stored in \ref AuxData.
 ///
-/// \see TABLE_GROUP
-template <class T, class Enable = void> struct table_traits {
+/// \see AUXDATA_GROUP
+template <class T, class Enable = void> struct auxdata_traits {
   /// \brief  Serialize an object to a sequence of bytes.
   ///
   /// \param Object  The object to serialize.
@@ -172,21 +172,22 @@ template <class T> struct default_serialization {
   }
 };
 
-template <> struct table_traits<std::byte> : default_serialization<std::byte> {
+template <>
+struct auxdata_traits<std::byte> : default_serialization<std::byte> {
   static std::string type_id() { return "byte"; }
 };
 
-template <> struct table_traits<Addr> : default_serialization<Addr> {
+template <> struct auxdata_traits<Addr> : default_serialization<Addr> {
   static std::string type_id() { return "Addr"; }
 };
 
-template <> struct table_traits<UUID> : default_serialization<UUID> {
+template <> struct auxdata_traits<UUID> : default_serialization<UUID> {
   static std::string type_id() { return "UUID"; }
 };
 
 template <class T>
-struct table_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
-                                                 std::is_signed<T>::value>>
+struct auxdata_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
+                                                   std::is_signed<T>::value>>
     : default_serialization<T> {
   static std::string type_id() {
     return "int" + std::to_string(8 * sizeof(T)) + "_t";
@@ -194,70 +195,70 @@ struct table_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
 };
 
 template <class T>
-struct table_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
-                                                 std::is_unsigned<T>::value>>
+struct auxdata_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
+                                                   std::is_unsigned<T>::value>>
     : default_serialization<T> {
   static std::string type_id() {
     return "uint" + std::to_string(8 * sizeof(T)) + "_t";
   }
 };
 
-template <> struct table_traits<std::string> {
+template <> struct auxdata_traits<std::string> {
   static std::string type_id() { return "string"; }
 
   static void toBytes(const std::string& Object, to_iterator It) {
-    table_traits<uint64_t>::toBytes(Object.size(), It);
+    auxdata_traits<uint64_t>::toBytes(Object.size(), It);
     std::copy(Object.begin(), Object.end(), It);
   }
 
   static from_iterator fromBytes(std::string& Object, from_iterator It) {
     size_t Count;
-    It = table_traits<uint64_t>::fromBytes(Count, It);
+    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
 
     Object.resize(Count);
     std::for_each(Object.begin(), Object.end(), [&It](auto& elt) {
-      It = table_traits<char>::fromBytes(elt, It);
+      It = auxdata_traits<char>::fromBytes(elt, It);
     });
 
     return It;
   }
 };
 
-template <> struct table_traits<InstructionRef> {
+template <> struct auxdata_traits<InstructionRef> {
   static std::string type_id() { return "InstructionRef"; }
 
   static void toBytes(const InstructionRef& Object, to_iterator It) {
-    table_traits<UUID>::toBytes(Object.BlockId, It);
-    table_traits<uint64_t>::toBytes(Object.Offset, It);
+    auxdata_traits<UUID>::toBytes(Object.BlockId, It);
+    auxdata_traits<uint64_t>::toBytes(Object.Offset, It);
   }
 
   static from_iterator fromBytes(InstructionRef& Object, from_iterator It) {
-    It = table_traits<UUID>::fromBytes(Object.BlockId, It);
-    It = table_traits<uint64_t>::fromBytes(Object.Offset, It);
+    It = auxdata_traits<UUID>::fromBytes(Object.BlockId, It);
+    It = auxdata_traits<uint64_t>::fromBytes(Object.Offset, It);
     return It;
   }
 };
 
 template <class T>
-struct table_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
+struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
   static std::string type_id() {
     return "sequence<" + TypeId<typename T::value_type>::value() + ">";
   }
 
   static void toBytes(const T& Object, to_iterator It) {
-    table_traits<uint64_t>::toBytes(Object.size(), It);
+    auxdata_traits<uint64_t>::toBytes(Object.size(), It);
     std::for_each(Object.begin(), Object.end(), [&It](const auto& Elt) {
-      table_traits<typename T::value_type>::toBytes(Elt, It);
+      auxdata_traits<typename T::value_type>::toBytes(Elt, It);
     });
   }
 
   static from_iterator fromBytes(T& Object, from_iterator It) {
     size_t Count;
-    It = table_traits<uint64_t>::fromBytes(Count, It);
+    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
 
     Object.resize(Count);
     std::for_each(Object.begin(), Object.end(), [&It](auto& Elt) {
-      It = table_traits<typename T::value_type>::fromBytes(Elt, It);
+      It = auxdata_traits<typename T::value_type>::fromBytes(Elt, It);
     });
 
     return It;
@@ -265,29 +266,29 @@ struct table_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
 };
 
 template <class T>
-struct table_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
+struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
   static std::string type_id() {
     return "mapping<" +
            TypeId<typename T::key_type, typename T::mapped_type>::value() + ">";
   }
 
   static void toBytes(const T& Object, to_iterator It) {
-    table_traits<uint64_t>::toBytes(Object.size(), It);
+    auxdata_traits<uint64_t>::toBytes(Object.size(), It);
     std::for_each(Object.begin(), Object.end(), [&It](const auto& Elt) {
-      table_traits<typename T::key_type>::toBytes(Elt.first, It);
-      table_traits<typename T::mapped_type>::toBytes(Elt.second, It);
+      auxdata_traits<typename T::key_type>::toBytes(Elt.first, It);
+      auxdata_traits<typename T::mapped_type>::toBytes(Elt.second, It);
     });
   }
 
   static from_iterator fromBytes(T& Object, from_iterator It) {
     size_t Count;
-    It = table_traits<uint64_t>::fromBytes(Count, It);
+    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
 
     for (size_t i = 0; i < Count; i++) {
       typename T::key_type K;
-      It = table_traits<decltype(K)>::fromBytes(K, It);
+      It = auxdata_traits<decltype(K)>::fromBytes(K, It);
       typename T::mapped_type V;
-      It = table_traits<decltype(V)>::fromBytes(V, It);
+      It = auxdata_traits<decltype(V)>::fromBytes(V, It);
       Object.emplace(std::move(K), std::move(V));
     }
     return It;
@@ -311,14 +312,14 @@ constexpr void static_for(Func&& f, std::integer_sequence<size_t, Is...>) {
 }
 
 template <class T>
-struct table_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
+struct auxdata_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
     : tuple_traits<T> {
   static void toBytes(const T& Object, to_iterator It) {
     static_for(
         [&It, &Object](auto i) {
           const auto& F = std::get<i>(Object);
-          table_traits<std::remove_cv_t<std::remove_reference_t<decltype(F)>>>::
-              toBytes(F, It);
+          auxdata_traits<std::remove_cv_t<
+              std::remove_reference_t<decltype(F)>>>::toBytes(F, It);
         },
         std::make_index_sequence<std::tuple_size<T>::value>{});
   }
@@ -327,7 +328,7 @@ struct table_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
     static_for(
         [&It, &Object](auto i) {
           auto& F = std::get<i>(Object);
-          It = table_traits<std::remove_cv_t<
+          It = auxdata_traits<std::remove_cv_t<
               std::remove_reference_t<decltype(F)>>>::fromBytes(F, It);
         },
         std::make_index_sequence<std::tuple_size<T>::value>{});
@@ -339,20 +340,20 @@ struct table_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
 
 /// @cond INTERNAL
 template <class T> struct TypeId<T> {
-  static std::string value() { return table_traits<T>::type_id(); }
+  static std::string value() { return auxdata_traits<T>::type_id(); }
 };
 
 template <class T, class... Ts> struct TypeId<T, Ts...> {
   static std::string value() {
-    return table_traits<T>::type_id() + "," + TypeId<Ts...>::value();
+    return auxdata_traits<T>::type_id() + "," + TypeId<Ts...>::value();
   }
 };
 /// @endcond
 
 /// @cond INTERNAL
-class TableImpl {
+class AuxDataImpl {
 public:
-  virtual ~TableImpl() = default;
+  virtual ~AuxDataImpl() = default;
   virtual void toBytes(std::string& Bytes) const = 0;
   virtual void fromBytes(const std::string& Bytes) = 0;
   virtual const std::type_info& storedType() const = 0;
@@ -360,18 +361,18 @@ public:
   virtual void* get() = 0;
 };
 
-template <class T> class TableTemplate : public TableImpl {
+template <class T> class AuxDataTemplate : public AuxDataImpl {
 public:
-  TableTemplate() = default;
-  TableTemplate(const T& Val) : Object(Val){};
-  TableTemplate(T&& Val) : Object(std::move(Val)){};
+  AuxDataTemplate() = default;
+  AuxDataTemplate(const T& Val) : Object(Val){};
+  AuxDataTemplate(T&& Val) : Object(std::move(Val)){};
 
   void toBytes(std::string& Bytes) const override {
-    table_traits<T>::toBytes(Object, std::back_inserter(Bytes));
+    auxdata_traits<T>::toBytes(Object, std::back_inserter(Bytes));
   }
 
   void fromBytes(const std::string& Bytes) override {
-    table_traits<T>::fromBytes(Object, Bytes.begin());
+    auxdata_traits<T>::fromBytes(Object, Bytes.begin());
   }
 
   const std::type_info& storedType() const override { return typeid(T); }
@@ -384,44 +385,43 @@ public:
 };
 /// @endcond
 
-/// \brief A generic table for storing additional client-specific
-/// data.
+/// \brief A generic object for storing additional client-specific data.
 ///
-/// \see \ref TABLE_GROUP
+/// \see \ref AUXDATA_GROUP
 
-class Table {
+class AuxData {
 public:
   /// \brief Construct an empty table.
-  Table() = default;
+  AuxData() = default;
 
-  /// \brief Construct a table containing a value.
+  /// \brief Construct an \ref AuxData containing a value.
   ///
-  /// \param Value  The contents of the table.
+  /// \param Value  The contents of the \ref AuxData.
   template <typename T>
-  Table(T&& Value)
-      : Impl(std::make_unique<TableTemplate<std::remove_reference_t<T>>>(
+  AuxData(T&& Value)
+      : Impl(std::make_unique<AuxDataTemplate<std::remove_reference_t<T>>>(
             std::forward<T>(Value))) {}
 
-  /// \brief Store a value in a table, destroying the previous contents.
+  /// \brief Store a new value, destroying the previous contents.
   ///
   /// \param Value  The value to store.
-  template <typename T> Table& operator=(T&& Value) {
-    this->Impl = std::make_unique<TableTemplate<std::remove_reference_t<T>>>(
+  template <typename T> AuxData& operator=(T&& Value) {
+    this->Impl = std::make_unique<AuxDataTemplate<std::remove_reference_t<T>>>(
         std::forward<T>(Value));
     return *this;
   }
 
-  /// \brief Get the contents of the table.
+  /// \brief Get the contents of the \ref AuxData.
   ///
   /// \tparam T  The expected type of the contents.
   ///
-  /// \returns If the table contains an object of type T, return a
+  /// \returns If the \ref AuxData contains an object of type T, return a
   /// pointer to it. Otherwise return nullptr.
   //
   template <typename T> T* get() {
     if (!this->RawBytes.empty()) {
       // Reconstruct from deserialized data
-      this->Impl = std::make_unique<TableTemplate<T>>();
+      this->Impl = std::make_unique<AuxDataTemplate<T>>();
 
       if (this->Impl->typeName() != this->TypeName) {
         return nullptr;
@@ -437,30 +437,30 @@ public:
     return static_cast<T*>(this->Impl->get());
   }
 
-  /// \brief Initialize a Table from a protobuf message.
+  /// \brief Initialize an AuxData from a protobuf message.
   ///
   /// \param <unnamed>   Not used.
   /// \param Message     The protobuf message from which to deserialize.
-  /// \param[out] result  The Table to initialize.
-  GTIRB_EXPORT_API friend void fromProtobuf(Context&, Table& result,
-                                            const proto::Table& Message);
+  /// \param[out] Result  The AuxData to initialize.
+  GTIRB_EXPORT_API friend void fromProtobuf(Context&, AuxData& Result,
+                                            const proto::AuxData& Message);
 
   /// \brief Serialize into a protobuf message.
   ///
-  /// \param <unnamed>     The Table to serialize.
+  /// \param <unnamed>     The AuxData to serialize.
   ///
-  /// \return A protobuf message representing the table.
-  GTIRB_EXPORT_API friend proto::Table toProtobuf(const Table&);
+  /// \return A protobuf message representing the AuxData.
+  GTIRB_EXPORT_API friend proto::AuxData toProtobuf(const AuxData&);
 
 private:
-  std::unique_ptr<TableImpl> Impl;
+  std::unique_ptr<AuxDataImpl> Impl;
   std::string RawBytes;
   std::string TypeName;
 };
 
 /// @}
-// (end \defgroup TABLE_GROUP)
+// (end \defgroup AUXDATA_GROUP)
 
 } // namespace gtirb
 
-#endif // GTIRB_TABLE_H
+#endif // GTIRB_AUXDATA_H

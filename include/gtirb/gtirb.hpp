@@ -22,6 +22,7 @@
 /// \brief Main namespace for the GT-IRB API.
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/AuxData.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/ByteMap.hpp>
 #include <gtirb/CFG.hpp>
@@ -34,6 +35,5 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <gtirb/Table.hpp>
 
 #endif // GTIRB_GTIRB_H

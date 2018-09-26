@@ -1,4 +1,4 @@
-//===- Table.test.cpp -------------------------------------------*- C++ -*-===//
+//===- AuxData.test.cpp ----------------------------------------*- C++-*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -12,20 +12,20 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
-#include <gtirb/Table.hpp>
-#include <proto/Table.pb.h>
+#include <proto/AuxData.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Table, eaMapProtobufRoundTrip) {
+TEST(Unit_AuxData, eaMapProtobufRoundTrip) {
   using MapT = std::map<Addr, std::string>;
-  Table Original = MapT({{Addr(1), {"a"}}, {Addr(2), {"b"}}});
+  AuxData Original = MapT({{Addr(1), {"a"}}, {Addr(2), {"b"}}});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -35,11 +35,11 @@ TEST(Unit_Table, eaMapProtobufRoundTrip) {
   EXPECT_EQ(M[Addr(2)], "b");
 }
 
-TEST(Unit_Table, intMapProtobufRoundTrip) {
+TEST(Unit_AuxData, intMapProtobufRoundTrip) {
   using MapT = std::map<int64_t, std::string>;
-  Table Original = MapT({{1, {"a"}}, {2, {"b"}}});
+  AuxData Original = MapT({{1, {"a"}}, {2, {"b"}}});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -49,11 +49,11 @@ TEST(Unit_Table, intMapProtobufRoundTrip) {
   EXPECT_EQ(M[2], "b");
 }
 
-TEST(Unit_Table, stringMapProtobufRoundTrip) {
+TEST(Unit_AuxData, stringMapProtobufRoundTrip) {
   using MapT = std::map<std::string, std::string>;
-  Table Original = MapT({{"1", {"a"}}, {"2", {"b"}}});
+  AuxData Original = MapT({{"1", {"a"}}, {"2", {"b"}}});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -63,13 +63,13 @@ TEST(Unit_Table, stringMapProtobufRoundTrip) {
   EXPECT_EQ(M["2"], "b");
 }
 
-TEST(Unit_Table, uuidMapProtobufRoundTrip) {
+TEST(Unit_AuxData, uuidMapProtobufRoundTrip) {
   using MapT = std::map<UUID, std::string>;
   UUID Id1 = Node::Create(Ctx)->getUUID();
   UUID Id2 = Node::Create(Ctx)->getUUID();
-  Table Original = MapT({{Id1, {"a"}}, {Id2, {"b"}}});
+  AuxData Original = MapT({{Id1, {"a"}}, {Id2, {"b"}}});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -79,11 +79,11 @@ TEST(Unit_Table, uuidMapProtobufRoundTrip) {
   EXPECT_EQ(M[Id2], "b");
 }
 
-TEST(Unit_Table, mapVectorProtobufRoundTrip) {
+TEST(Unit_AuxData, mapVectorProtobufRoundTrip) {
   auto Val = std::vector<std::map<std::string, int>>{{{"key", {1}}}};
 
-  Table Original(Val);
-  gtirb::Table Result;
+  AuxData Original(Val);
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -91,10 +91,10 @@ TEST(Unit_Table, mapVectorProtobufRoundTrip) {
   EXPECT_EQ(New, Val);
 }
 
-TEST(Unit_Table, eaVectorProtobufRoundTrip) {
-  Table Original = std::vector<Addr>({Addr(1), Addr(2), Addr(3)});
+TEST(Unit_AuxData, eaVectorProtobufRoundTrip) {
+  AuxData Original = std::vector<Addr>({Addr(1), Addr(2), Addr(3)});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -102,10 +102,10 @@ TEST(Unit_Table, eaVectorProtobufRoundTrip) {
             std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
 }
 
-TEST(Unit_Table, intVectorProtobufRoundTrip) {
-  Table Original = std::vector<int64_t>({1, 2, 3});
+TEST(Unit_AuxData, intVectorProtobufRoundTrip) {
+  AuxData Original = std::vector<int64_t>({1, 2, 3});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -113,10 +113,10 @@ TEST(Unit_Table, intVectorProtobufRoundTrip) {
             std::vector<int64_t>({1, 2, 3}));
 }
 
-TEST(Unit_Table, stringVectorProtobufRoundTrip) {
-  Table Original = std::vector<std::string>({"1", "2", "3"});
+TEST(Unit_AuxData, stringVectorProtobufRoundTrip) {
+  AuxData Original = std::vector<std::string>({"1", "2", "3"});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -124,12 +124,12 @@ TEST(Unit_Table, stringVectorProtobufRoundTrip) {
             std::vector<std::string>({"1", "2", "3"}));
 }
 
-TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
+TEST(Unit_AuxData, uuidVectorProtobufRoundTrip) {
   UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
        Id3 = Node::Create(Ctx)->getUUID();
-  Table Original = std::vector<UUID>({Id1, Id2, Id3});
+  AuxData Original = std::vector<UUID>({Id1, Id2, Id3});
 
-  gtirb::Table Result;
+  gtirb::AuxData Result;
   auto Message = toProtobuf(Original);
   fromProtobuf(Ctx, Result, Message);
 
@@ -137,25 +137,25 @@ TEST(Unit_Table, uuidVectorProtobufRoundTrip) {
             std::vector<UUID>({Id1, Id2, Id3}));
 }
 
-TEST(Unit_Table, typeName) {
-  EXPECT_EQ(TableTemplate<uint64_t>().typeName(), "uint64_t");
-  EXPECT_EQ(TableTemplate<std::vector<uint64_t>>().typeName(),
+TEST(Unit_AuxData, typeName) {
+  EXPECT_EQ(AuxDataTemplate<uint64_t>().typeName(), "uint64_t");
+  EXPECT_EQ(AuxDataTemplate<std::vector<uint64_t>>().typeName(),
             "sequence<uint64_t>");
-  std::string X = TableTemplate<std::map<int64_t, uint64_t>>().typeName();
+  std::string X = AuxDataTemplate<std::map<int64_t, uint64_t>>().typeName();
   EXPECT_EQ(X, "mapping<int64_t,uint64_t>");
 
-  X = TableTemplate<std::map<int64_t, std::vector<uint64_t>>>().typeName();
+  X = AuxDataTemplate<std::map<int64_t, std::vector<uint64_t>>>().typeName();
   EXPECT_EQ(X, "mapping<int64_t,sequence<uint64_t>>");
 
-  X = TableTemplate<std::vector<std::map<int64_t, uint64_t>>>().typeName();
+  X = AuxDataTemplate<std::vector<std::map<int64_t, uint64_t>>>().typeName();
   EXPECT_EQ(X, "sequence<mapping<int64_t,uint64_t>>");
 
-  X = TableTemplate<std::vector<std::tuple<int64_t, uint64_t>>>().typeName();
+  X = AuxDataTemplate<std::vector<std::tuple<int64_t, uint64_t>>>().typeName();
   EXPECT_EQ(X, "sequence<tuple<int64_t,uint64_t>>");
 }
 
-TEST(Unit_Table, getPrimitiveTypes) {
-  Table P;
+TEST(Unit_AuxData, getPrimitiveTypes) {
+  AuxData P;
   P = char('a');
   EXPECT_EQ(*P.get<char>(), 'a');
 
@@ -178,176 +178,176 @@ TEST(Unit_Table, getPrimitiveTypes) {
   EXPECT_EQ(*P.get<std::byte>(), std::byte(123));
 }
 
-TEST(Unit_Table, getVector) {
+TEST(Unit_AuxData, getVector) {
   std::vector<int64_t> Orig({1, 2, 3});
-  Table P(Orig);
+  AuxData P(Orig);
 
   auto& result = *P.get<std::vector<int64_t>>();
   EXPECT_EQ(result, Orig);
 }
 
-TEST(Unit_Table, getString) {
+TEST(Unit_AuxData, getString) {
   std::string Orig("abcd");
-  Table P(Orig);
+  AuxData P(Orig);
 
   EXPECT_EQ(*P.get<std::string>(), "abcd");
 }
 
-TEST(Unit_Table, getAddr) {
+TEST(Unit_AuxData, getAddr) {
   Addr Orig(0x1234);
-  Table P(Orig);
+  AuxData P(Orig);
 
   EXPECT_EQ(*P.get<Addr>(), Addr(0x1234));
 }
 
-TEST(Unit_Table, getMap) {
+TEST(Unit_AuxData, getMap) {
   std::map<char, int64_t> Orig({{'a', 1}, {'b', 2}, {'c', 3}});
-  Table P(Orig);
+  AuxData P(Orig);
 
   auto& Result = *P.get<std::map<char, int64_t>>();
   EXPECT_EQ(Result, Orig);
 }
 
-TEST(Unit_Table, getTuple) {
+TEST(Unit_AuxData, getTuple) {
   std::tuple<char, int64_t> Orig('a', 1);
-  Table P(Orig);
+  AuxData P(Orig);
 
   auto& Result = *P.get<std::tuple<char, int64_t>>();
   EXPECT_EQ(Result, Orig);
 }
 
-TEST(Unit_Table, getWrongType) {
-  Table Table('a');
-  EXPECT_EQ(Table.get<int>(), nullptr);
+TEST(Unit_AuxData, getWrongType) {
+  AuxData AuxData('a');
+  EXPECT_EQ(AuxData.get<int>(), nullptr);
 }
 
-TEST(Unit_Table, getEmpty) {
-  Table Empty;
+TEST(Unit_AuxData, getEmpty) {
+  AuxData Empty;
   EXPECT_EQ(Empty.get<int>(), nullptr);
 }
 
-TEST(Unit_Table, getWrongContainer) {
-  Table P;
+TEST(Unit_AuxData, getWrongContainer) {
+  AuxData P;
   P = std::vector<int>();
   EXPECT_EQ(P.get<std::list<int>>(), nullptr);
 }
 
-TEST(Unit_Table, protobufRoundTrip) {
+TEST(Unit_AuxData, protobufRoundTrip) {
   int64_t A = 123;
-  Table Original;
+  AuxData Original;
   Original = A;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(A, *Result.get<int64_t>());
 }
 
-TEST(Unit_Table, vectorProtobufRoundTrip) {
+TEST(Unit_AuxData, vectorProtobufRoundTrip) {
   std::vector<int64_t> V({1, 2, 3});
-  Table Original;
+  AuxData Original;
   Original = V;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(V)>(), V);
 }
 
-TEST(Unit_Table, listProtobufRoundTrip) {
+TEST(Unit_AuxData, listProtobufRoundTrip) {
   std::list<int64_t> V({1, 2, 3});
-  Table Original;
+  AuxData Original;
   Original = V;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(V)>(), V);
 }
 
-TEST(Unit_Table, listToVectorProtobufRoundTrip) {
+TEST(Unit_AuxData, listToVectorProtobufRoundTrip) {
   std::list<int64_t> Lst({1, 2, 3});
-  Table Original;
+  AuxData Original;
   Original = Lst;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   auto vec = std::vector<int64_t>(Lst.begin(), Lst.end());
   EXPECT_EQ(*Result.get<decltype(vec)>(), vec);
 }
 
-TEST(Unit_Table, stringProtobufRoundTrip) {
+TEST(Unit_AuxData, stringProtobufRoundTrip) {
   std::string S("abcd");
-  Table Original;
+  AuxData Original;
   Original = S;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(S)>(), S);
 }
 
-TEST(Unit_Table, addrProtobufRoundTrip) {
+TEST(Unit_AuxData, addrProtobufRoundTrip) {
   Addr A(0x1234);
-  Table Original;
+  AuxData Original;
   Original = A;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(A)>(), A);
 }
 
-TEST(Unit_Table, mapProtobufRoundTrip) {
+TEST(Unit_AuxData, mapProtobufRoundTrip) {
   std::map<char, int64_t> M({{'a', 1}, {'b', 2}, {'c', 3}});
-  Table Original;
+  AuxData Original;
   Original = M;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(M)>(), M);
 }
 
-TEST(Unit_Table, tupleProtobufRoundTrip) {
+TEST(Unit_AuxData, tupleProtobufRoundTrip) {
   std::tuple<char, int64_t> T('a', 1);
-  Table Original;
+  AuxData Original;
   Original = T;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(T)>(), T);
 }
 
-TEST(Unit_Table, uuidProtobufRoundTrip) {
+TEST(Unit_AuxData, uuidProtobufRoundTrip) {
   UUID Val = Node::Create(Ctx)->getUUID();
-  Table Original;
+  AuxData Original;
   Original = Val;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(*Result.get<decltype(Val)>(), Val);
 }
 
-TEST(Unit_Table, instructionRefProtobufRoundTrip) {
+TEST(Unit_AuxData, instructionRefProtobufRoundTrip) {
   InstructionRef Val{Node::Create(Ctx)->getUUID(), 123};
-  Table Original;
+  AuxData Original;
   Original = Val;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   auto NewVal = *Result.get<decltype(Val)>();
@@ -355,10 +355,10 @@ TEST(Unit_Table, instructionRefProtobufRoundTrip) {
   EXPECT_EQ(NewVal.Offset, Val.Offset);
 }
 
-TEST(Unit_Table, nestedProtobufRoundTrip) {
-  Table Original;
-  proto::Table Message;
-  Table Result;
+TEST(Unit_AuxData, nestedProtobufRoundTrip) {
+  AuxData Original;
+  proto::AuxData Message;
+  AuxData Result;
 
   // Outer vector
   std::vector<std::map<char, std::tuple<int64_t, uint64_t>>> N1;
@@ -389,12 +389,12 @@ TEST(Unit_Table, nestedProtobufRoundTrip) {
   EXPECT_EQ(*Result.get<decltype(N3)>(), N3);
 }
 
-TEST(Unit_Table, wrongTypeAfterProtobufRoundTrip) {
-  Table Original;
+TEST(Unit_AuxData, wrongTypeAfterProtobufRoundTrip) {
+  AuxData Original;
   Original = 1234;
 
   auto Message = toProtobuf(Original);
-  Table Result;
+  AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(Result.get<std::string>(), nullptr);
@@ -413,11 +413,11 @@ int MoveTest::CopyCount;
 int MoveTest::MoveCount;
 
 template <>
-struct gtirb::table_traits<MoveTest> : default_serialization<MoveTest> {
+struct gtirb::auxdata_traits<MoveTest> : default_serialization<MoveTest> {
   static std::string type_id() { return "MoveTest"; }
 };
 
-TEST(Unit_Table, movesAndCopies) {
+TEST(Unit_AuxData, movesAndCopies) {
   MoveTest::CopyCount = 0;
   MoveTest::MoveCount = 0;
 
@@ -425,14 +425,14 @@ TEST(Unit_Table, movesAndCopies) {
   EXPECT_EQ(MoveTest::CopyCount, 0);
   EXPECT_EQ(MoveTest::MoveCount, 0);
 
-  Table Table;
-  Table = M;
-  EXPECT_EQ(Table.get<decltype(M)>()->Val, 123);
+  AuxData AuxData;
+  AuxData = M;
+  EXPECT_EQ(AuxData.get<decltype(M)>()->Val, 123);
   EXPECT_EQ(MoveTest::CopyCount, 1);
   EXPECT_EQ(MoveTest::MoveCount, 0);
 
-  Table = std::move(M);
-  EXPECT_EQ(Table.get<decltype(M)>()->Val, 123);
+  AuxData = std::move(M);
+  EXPECT_EQ(AuxData.get<decltype(M)>()->Val, 123);
   EXPECT_EQ(MoveTest::CopyCount, 1);
   EXPECT_EQ(MoveTest::MoveCount, 1);
 }

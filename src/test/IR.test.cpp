@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/IR.hpp>
@@ -20,7 +21,6 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <gtirb/Table.hpp>
 #include <proto/IR.pb.h>
 #include <gtest/gtest.h>
 
@@ -89,19 +89,19 @@ TEST(Unit_IR, getModulesContainingAddr) {
   EXPECT_EQ(2, Count);
 }
 
-TEST(Unit_IR, addTable) {
-  std::vector<int64_t> Table = {1, 2, 3};
+TEST(Unit_IR, addAuxData) {
+  std::vector<int64_t> AuxData = {1, 2, 3};
   IR* Ir = IR::Create(Ctx);
-  Ir->addTable("test", std::move(Table));
+  Ir->addAuxData("test", std::move(AuxData));
 
-  EXPECT_NE(Ir->getTable("test"), nullptr);
-  EXPECT_EQ(*Ir->getTable("test")->get<std::vector<int64_t>>(),
+  EXPECT_NE(Ir->getAuxData("test"), nullptr);
+  EXPECT_EQ(*Ir->getAuxData("test")->get<std::vector<int64_t>>(),
             std::vector<int64_t>({1, 2, 3}));
 }
 
-TEST(Unit_IR, missingTable) {
+TEST(Unit_IR, missingAuxData) {
   IR* Ir = IR::Create(Ctx);
-  EXPECT_EQ(Ir->getTable("missing"), nullptr);
+  EXPECT_EQ(Ir->getAuxData("missing"), nullptr);
 }
 
 TEST(Unit_IR, protobufRoundTrip) {
@@ -114,7 +114,7 @@ TEST(Unit_IR, protobufRoundTrip) {
     Module* M = Module::Create(InnerCtx);
     M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
     Original->addModule(M);
-    Original->addTable("test", Table());
+    Original->addAuxData("test", AuxData());
 
     MainID = Original->begin()->getUUID();
     Original->toProtobuf(&Message);
@@ -126,6 +126,6 @@ TEST(Unit_IR, protobufRoundTrip) {
       std::count_if(Result->begin(), Result->end(),
                     [](const Module& M) { return containsAddr(M, Addr(100)); });
   EXPECT_EQ(Count, 1);
-  EXPECT_EQ(Result->getTableSize(), 1);
-  EXPECT_NE(Result->getTable("test"), nullptr);
+  EXPECT_EQ(Result->getAuxDataSize(), 1);
+  EXPECT_NE(Result->getAuxData("test"), nullptr);
 }

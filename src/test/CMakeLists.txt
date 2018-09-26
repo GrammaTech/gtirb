@@ -35,7 +35,7 @@ set(${PROJECT_NAME}_SRC
         Section.test.cpp
         Symbol.test.cpp
         SymbolicExpression.test.cpp
-        Table.test.cpp
+        AuxData.test.cpp
         TypedNodeTest.cpp
 )
 

@@ -16,9 +16,9 @@
 #define GTIRB_IR_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/AuxData.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/Table.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <map>
@@ -26,9 +26,9 @@
 #include <vector>
 
 /// \file IR.hpp
-/// \ingroup TABLE_GROUP
+/// \ingroup AUXDATA_GROUP
 /// \brief Class gtirb::IR.
-/// \see TABLE_GROUP
+/// \see AUXDATA_GROUP
 
 namespace proto {
 class IR;
@@ -47,7 +47,7 @@ class Module;
 ///
 ///     ir [ label="IR" URL="\ref IR"];
 ///     module [ label="Module" URL="\ref Module"];
-///     table [ label="Table" URL="\ref Table"];
+///     auxData [ label="AuxData" URL="\ref AuxData"];
 ///     imageByteMap [label="ImageByteMap" URL="\ref ImageByteMap"]
 ///     blocks [label="Block" URL="\ref Block"]
 ///     data [label="DataObject"  URL="\ref DataObject"]
@@ -58,7 +58,7 @@ class Module;
 ///     cfg [label="CFG" URL="\ref CFG"]
 ///
 ///     ir -> module;
-///     ir -> table;
+///     ir -> auxData;
 ///     module -> cfg;
 ///     module -> data
 ///     module -> imageByteMap;
@@ -156,71 +156,70 @@ public:
   /// \return The deserialized IR object, or null on failure.
   static IR* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \name Table Properties
+  /// \name AuxData Properties
   /// @{
 
-  /// \brief Add a new table, transferring ownership.
-  /// The table can be populated from anywhere.
+  /// \brief Add a new \ref AuxData, transferring ownership.
   ///
-  /// \param Name     The name to assign to the table so it can be found later.
-  /// \param X        The table itself.
+  /// \param Name     The name to assign to the data so it can be found later.
+  /// \param X        The data itself.
   ///
   /// \return void
   ///
-  /// \ingroup TABLE_GROUP
-  void addTable(const std::string& Name, Table&& X);
+  /// \ingroup AUXDATA_GROUP
+  void addAuxData(const std::string& Name, AuxData&& X);
 
-  /// \brief Get a table by name.
+  /// \brief Get an \ref AuxData by name.
   ///
-  /// \param  X   The name of the table to search for.
+  /// \param  X   The name of the data to search for.
   ///
-  /// \return     A non-owning pointer to the table if found,
+  /// \return     A non-owning pointer to the data if found,
   ///             \c nullptr otherwise.
   ///
-  /// \ingroup TABLE_GROUP
-  const gtirb::Table* getTable(const std::string& X) const;
+  /// \ingroup AUXDATA_GROUP
+  const gtirb::AuxData* getAuxData(const std::string& X) const;
 
-  /// \brief Get a table by name.
+  /// \brief Get an \ref AuxData by name.
   ///
-  /// \param  X   The name of the table to search for.
+  /// \param  X   The name of the data to search for.
   ///
-  /// \return     A non-owning pointer to the table if found,
+  /// \return     A non-owning pointer to the data if found,
   ///             \c nullptr otherwise.
   ///
-  /// \ingroup TABLE_GROUP
-  gtirb::Table* getTable(const std::string& X);
+  /// \ingroup AUXDATA_GROUP
+  gtirb::AuxData* getAuxData(const std::string& X);
 
-  /// \brief Remove a table by name.
+  /// \brief Remove an \ref AuxData by name.
   ///
   /// This will invalidate any pointers that may have been held externally.
   ///
-  /// \param  X   The name of the table to search for.
+  /// \param  X   The name of the data to search for.
   /// \return     \c true on success, \c false otherwise.
   ///
-  /// \ingroup TABLE_GROUP
-  bool removeTable(const std::string& X);
+  /// \ingroup AUXDATA_GROUP
+  bool removeAuxData(const std::string& X);
 
-  /// \brief Get the total number of tables in this IR.
+  /// \brief Get the total number of \ref AuxData objects in this IR.
   ///
-  /// \return     The total number of tables this node owns.
+  /// \return     The total number of \ref AuxData objects.
   ///
-  /// \ingroup TABLE_GROUP
-  size_t getTableSize() const { return Tables.size(); }
+  /// \ingroup AUXDATA_GROUP
+  size_t getAuxDataSize() const { return AuxDatas.size(); }
 
-  /// \brief Check: Is the number of tables in this IR zero?
+  /// \brief Check: Is the number of \ref AuxData objects in this IR zero?
   ///
-  /// \return \c true if this node does not own any tables, \c false
-  /// if it owns one or more tables.
+  /// \return \c true if this IR does not contain any \ref AuxData, otherwise \c
+  /// false
   ///
-  /// \ingroup TABLE_GROUP
-  bool getTablesEmpty() const { return Tables.empty(); }
+  /// \ingroup AUXDATA_GROUP
+  bool getAuxDataEmpty() const { return AuxDatas.empty(); }
 
-  /// \brief Clear all locally owned tables.
+  /// \brief Clear all \ref AuxData from the IR.
   ///
   /// \return void
   ///
-  /// \ingroup TABLE_GROUP
-  void clearTables() { Tables.clear(); }
+  /// \ingroup AUXDATA_GROUP
+  void clearAuxData() { AuxDatas.clear(); }
 
   /// @}
 
@@ -229,7 +228,7 @@ public:
   /// \endcond
 
 private:
-  std::map<std::string, gtirb::Table> Tables;
+  std::map<std::string, gtirb::AuxData> AuxDatas;
   std::vector<Module*> Modules;
 };
 } // namespace gtirb
