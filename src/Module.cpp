@@ -48,14 +48,12 @@ void Module::toProtobuf(MessageType* Message) const {
   containerToProtobuf(this->SymbolicOperands,
                       Message->mutable_symbolic_operands());
 
-  // Special case for symbol set: serialized as a map, uses multiple indices
-  // internally.
+  // Special case for symbol set: serialized as a repeated field, uses
+  // multiple indices internally.
   auto M = Message->mutable_symbols();
   initContainer(M, this->Symbols.size());
-  std::for_each(this->Symbols.begin(), this->Symbols.end(), [M](const auto& N) {
-    M->insert(google::protobuf::MapPair<std::string, proto::Symbol>(
-        N.first, gtirb::toProtobuf(*N.second)));
-  });
+  std::for_each(this->Symbols.begin(), this->Symbols.end(),
+                [M](const auto& N) { N.second->toProtobuf(M->Add()); });
 }
 
 // FIXME: improve containerFromProtobuf so it can handle a pair where one
@@ -86,12 +84,12 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   nodeMapFromProtobuf(C, M->Data, Message.data());
   nodeMapFromProtobuf(C, M->Sections, Message.sections());
 
-  // Special case for symbol set: serialized as a map, uses multiple indices
-  // internally.
+  // Special case for symbol set: serialized as a repeated field, uses
+  // multiple indices internally.
   M->Symbols.clear();
   const auto& Syms = Message.symbols();
   std::for_each(Syms.begin(), Syms.end(), [M, &C](const auto& Elt) {
-    M->addSymbol(Symbol::fromProtobuf(C, Elt.second));
+    M->addSymbol(Symbol::fromProtobuf(C, Elt));
   });
 
   // Create SymbolicExpressions after the Symbols they reference.
