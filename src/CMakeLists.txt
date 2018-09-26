@@ -2,6 +2,17 @@ SET(PROJECT_NAME gtirb)
 
 add_subdirectory(proto)
 
+find_program(
+  CLANG_TIDY_EXE
+  NAMES "clang-tidy"
+  DOC "Path to clang-tidy executable"
+  )
+if(NOT CLANG_TIDY_EXE)
+  message(STATUS "clang-tidy not found.")
+else()
+  message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+endif()
+
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         #add_compile_options(-wd4251)  # Non-exportable template classes.
         add_compile_options(-wd4100) # unreferenced formal parameter, for protobuf includes
@@ -102,6 +113,13 @@ add_custom_command(
         COMMAND "${CMAKE_COMMAND}" -E copy
                 ${PUBLIC_HEADERS}
                 "${CMAKE_BINARY_DIR}/include/gtirb")
+
+if(CLANG_TIDY_EXE)
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES
+    CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
+  )
+endif()
 
 if(GTIRB_ENABLE_TESTS)
         add_subdirectory(test)
