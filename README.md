@@ -294,7 +294,7 @@ ir.addTable("stringMap", std::map<std::string, std::string>(
 
 ### Querying the IR
 Symbols can be looked up by address or name.  Any number of symbols
-can share an address, so be prepared to deal with multiple
+can share an address or name, so be prepared to deal with multiple
 results.
 
 ```c++
@@ -304,7 +304,7 @@ Symbol& sym1 = *it++;
 assert(sym1.getName() == "data2");
 assert((*it++).getName() == "duplicate");
 
-auto sym2 = *module.findSymbol("data1");
+auto& sym2 = *module.findSymbols("data1").begin();
 assert(sym2.getAddress() == Addr(2608));
 ```
 

@@ -156,18 +156,48 @@ TEST(Unit_Module, findData) {
 
 TEST(Unit_Module, findSymbols) {
   auto* M = Module::Create(Ctx);
-  M->addSymbol(Symbol::Create(Ctx, Addr(1), "test"));
-  EXPECT_EQ(M->findSymbol("test")->getName(), "test");
-  EXPECT_EQ(M->findSymbol("notfound"), M->symbol_end());
+  auto* S1 = Symbol::Create(Ctx, Addr(1), "foo");
+  auto* S2 = Symbol::Create(Ctx, Addr(1), "bar");
+  auto* S3 = Symbol::Create(Ctx, Addr(2), "foo");
+  M->addSymbol(S1);
+  M->addSymbol(S2);
+  M->addSymbol(S3);
 
-  EXPECT_EQ(M->findSymbols(Addr(1)).begin()->getName(), "test");
-  EXPECT_TRUE(M->findSymbols(Addr(2)).empty());
+  {
+    auto F = M->findSymbols("foo");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), S1);
+    EXPECT_EQ(&*(++F.begin()), S3);
+  }
+
+  {
+    auto F = M->findSymbols("bar");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S2);
+  }
+
+  EXPECT_TRUE(M->findSymbols("notfound").empty());
+
+  {
+    auto F = M->findSymbols(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), S1);
+    EXPECT_EQ(&*(++F.begin()), S2);
+  }
+
+  {
+    auto F = M->findSymbols(Addr(2));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S3);
+  }
+
+  EXPECT_TRUE(M->findSymbols(Addr(3)).empty());
 }
 
 TEST(Unit_Module, symbolWithoutAddr) {
   auto* M = Module::Create(Ctx);
   M->addSymbol(Symbol::Create(Ctx, "test"));
-  EXPECT_EQ(M->findSymbol("test")->getName(), "test");
+  EXPECT_EQ(M->findSymbols("test").begin()->getName(), "test");
 }
 
 TEST(Unit_Module, symbolicExpressions) {
@@ -180,7 +210,7 @@ TEST(Unit_Module, symbolicExpressions) {
 TEST(Unit_Module, protobufRoundTrip) {
   proto::Module Message;
 
-  UUID ByteMapID, SymbolID, BlockID, DataID, SectionID;
+  UUID ByteMapID, BlockID, DataID, SectionID;
   size_t WhichSymbolic;
 
   {
@@ -192,13 +222,14 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
     Original->setName("module");
-    Original->addSymbol(Symbol::Create(InnerCtx));
+    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
+    Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
+    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
     emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
     Original->addData(DataObject::Create(InnerCtx));
     Original->addSection(Section::Create(InnerCtx));
     Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
     ByteMapID = Original->getImageByteMap().getUUID();
-    SymbolID = Original->symbol_begin()->getUUID();
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
     DataID = Original->data_begin()->getUUID();
     SectionID = Original->section_begin()->getUUID();
@@ -216,15 +247,23 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result->getISAID(), ISAID::X64);
   EXPECT_EQ(Result->getName(), "module");
 
+  // Make sure all symbols are present despite repeated names and addresses.
+  EXPECT_EQ(std::distance(Result->symbol_begin(), Result->symbol_end()), 3);
+  {
+    auto Found = Result->findSymbols("name1");
+    EXPECT_EQ(distance(Found.begin(), Found.end()), 2);
+  }
+  {
+    auto Found = Result->findSymbols(Addr(1));
+    EXPECT_EQ(distance(Found.begin(), Found.end()), 2);
+  }
+
   // Make sure various collections and node members are serialized, but
   // don't check in detail as they have their own unit tests.
   EXPECT_EQ(Result->getImageByteMap().getUUID(), ByteMapID);
 
   EXPECT_EQ(num_vertices(Result->getCFG()), 1);
   EXPECT_EQ(blocks(Result->getCFG()).begin()->getUUID(), BlockID);
-
-  EXPECT_EQ(std::distance(Result->symbol_begin(), Result->symbol_end()), 1);
-  EXPECT_EQ(Result->symbol_begin()->getUUID(), SymbolID);
 
   EXPECT_EQ(std::distance(Result->data_begin(), Result->data_end()), 1);
   EXPECT_EQ(Result->data_begin()->getUUID(), DataID);
@@ -273,10 +312,12 @@ TEST(Unit_Module, protobufNodePointers) {
   }
 
   Module* Result = Module::fromProtobuf(Ctx, Message);
-  EXPECT_NE(Result->findSymbol("data")->getReferent<DataObject>(), nullptr);
-  EXPECT_NE(Result->findSymbol("code")->getReferent<Block>(), nullptr);
+  EXPECT_NE(Result->findSymbols("data").begin()->getReferent<DataObject>(),
+            nullptr);
+  EXPECT_NE(Result->findSymbols("code").begin()->getReferent<Block>(), nullptr);
   // Dangling reference becomes nullptr
-  EXPECT_EQ(Result->findSymbol("dangling")->getReferent<Block>(), nullptr);
+  EXPECT_EQ(Result->findSymbols("dangling").begin()->getReferent<Block>(),
+            nullptr);
 
   const auto& Symbolic =
       get<SymAddrConst>(*Result->findSymbolicExpression(Addr(3)));

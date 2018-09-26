@@ -52,7 +52,7 @@ message Module {
     ISAID isa_id = 6;
     string name = 7;
     ImageByteMap image_byte_map = 8;
-    map<string, Symbol> symbols = 9;
+    repeated Symbol symbols = 9;
     CFG cfg = 10;
     map<uint64, DataObject> data = 11;
     map<uint64, Section> sections = 12;

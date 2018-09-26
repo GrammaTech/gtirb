@@ -74,7 +74,7 @@ enum class ISAID : uint8_t {
 ///
 /// \brief Represents a single binary (library or executable).
 class GTIRB_EXPORT_API Module : public Node {
-  using SymbolSet = std::map<std::string, Symbol*>;
+  using SymbolSet = std::multimap<std::string, Symbol*>;
   using SymbolAddrMap = std::multimap<Addr, Symbol*>;
   using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
   using DataSet = std::map<Addr, DataObject*>;
@@ -254,22 +254,26 @@ public:
 
   /// \brief Find symbols by name
   ///
-  /// \param N The address to look up.
+  /// \param N The name to look up.
   ///
-  /// \return An iterator to the found object, or \ref symbol_end() if not
-  /// found.
-  symbol_iterator findSymbol(const std::string& N) {
-    return symbol_iterator(Symbols.find(N));
+  /// \return A possibly empty range of all the symbols with the
+  /// given name.
+  symbol_range findSymbols(const std::string& N) {
+    auto Found = Symbols.equal_range(N);
+    return boost::make_iterator_range(symbol_iterator(Found.first),
+                                      symbol_iterator(Found.second));
   }
 
   /// \brief Find symbols by name
   ///
-  /// \param N The address to look up.
+  /// \param N The name to look up.
   ///
-  /// \return An iterator to the found object, or \ref symbol_end() if not
-  /// found.
-  const_symbol_iterator findSymbol(const std::string& N) const {
-    return const_symbol_iterator(Symbols.find(N));
+  /// \return A possibly empty constant range of all the symbols with the
+  /// given name.
+  const_symbol_range findSymbols(const std::string& N) const {
+    auto Found = Symbols.equal_range(N);
+    return boost::make_iterator_range(const_symbol_iterator(Found.first),
+                                      const_symbol_iterator(Found.second));
   }
 
   /// \brief Find symbols by address.
