@@ -96,3 +96,76 @@ TEST(Unit_Addr, ostream) {
      << " 789";
   EXPECT_EQ(Os.str(), "123 0x1c8 789");
 }
+
+TEST(Unit_Addr, Constexpr) {
+  // Test constexpr equality.
+  static_assert(Addr(10) == Addr(10));
+  static_assert(noexcept(Addr(10) == Addr(10)));
+  static_assert(Addr(10) != Addr(1));
+  static_assert(noexcept(Addr(10) != Addr(1)));
+
+  // Test constexpr conversion to int.
+  static_assert((uint64_t)Addr(10) == 10);
+  static_assert(noexcept((uint64_t)Addr(10)));
+
+  // Test constexpr comparisons.
+  static_assert(Addr(1) < Addr(10));
+  static_assert(noexcept(Addr(1) < Addr(10)));
+  static_assert(Addr(10) > Addr(1));
+  static_assert(noexcept(Addr(10) > Addr(1)));
+  static_assert(Addr(2) <= Addr(2));
+  static_assert(noexcept(Addr(2) <= Addr(2)));
+  static_assert(Addr(2) >= Addr(2));
+  static_assert(noexcept(Addr(2) >= Addr(2)));
+
+  // Test constexpr increment and decrement.
+  static_assert(++Addr(2) == Addr(3));
+  static_assert(noexcept(++Addr(2)));
+  static_assert(--Addr(2) == Addr(1));
+  static_assert(noexcept(--Addr(2)));
+  static_assert(Addr(2)++ == Addr(2));
+  static_assert(noexcept(Addr(2)++));
+  static_assert(Addr(2)-- == Addr(2));
+  static_assert(noexcept(Addr(2)--));
+
+  // Test unary operators.
+  static_assert(+Addr(12) == Addr(12));
+  static_assert(noexcept(+Addr(12)));
+  static_assert(~Addr(0) == Addr(std::numeric_limits<Addr::value_type>::max()));
+  static_assert(noexcept(~Addr(0)));
+
+  // Test arithmetic operators.
+  static_assert(Addr(10) + 1 == Addr(11));
+  static_assert(noexcept(Addr(10) + 1));
+  static_assert(1 + Addr(10) == Addr(11));
+  static_assert(noexcept(1 + Addr(10)));
+  static_assert(Addr(10) - 1 == Addr(9));
+  static_assert(noexcept(Addr(10) - 1));
+  static_assert(Addr(10) - Addr(9) == 1);
+  static_assert(noexcept(Addr(10) - Addr(9)));
+
+  // Test arithmetic compound assignment operators.
+  static_assert((Addr(10) += 1) == Addr(11));
+  static_assert(noexcept(Addr(10) += 1));
+  static_assert((Addr(10) -= 1) == Addr(9));
+  static_assert(noexcept(Addr(10) -= 1));
+
+  // Ensure that wrapping happens at compile time, in either direction, without
+  // triggering undefined behavior. Note, this explicitly disables compiler
+  // diagnostics about overflow as those may be warned on even with well-defined
+  // semantics.
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4307) // '+': integral constant overflow
+#endif
+  static_assert(Addr(0) - 1 ==
+                Addr(std::numeric_limits<Addr::value_type>::max()));
+  static_assert(noexcept(Addr(0) - 1));
+  static_assert(Addr(std::numeric_limits<Addr::value_type>::max()) + 1 ==
+                Addr(0));
+  static_assert(
+      noexcept(Addr(std::numeric_limits<Addr::value_type>::max()) + 1));
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+}

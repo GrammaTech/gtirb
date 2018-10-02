@@ -32,27 +32,42 @@ namespace gtirb {
 /// An Addr cannot store a relative address as it cannot contain a negative
 /// number.
 class GTIRB_EXPORT_API Addr {
-  uint64_t Address{0};
-
 public:
+  /// \brief The underlying type used to represent an Addr object.
+  typedef uint64_t value_type;
+  /// \brief The type used to represent a difference between two Addr objects.
+  typedef int64_t difference_type;
+
   /// \brief Default constructor.
   /// The default implementation provided by the compiler is used.
-  constexpr Addr() = default;
+  constexpr Addr() noexcept = default;
 
-  /// \brief Explicit conversion from \c uint64_t to \ref Addr.
+  /// \brief Explicit conversion from \c value_type to \ref Addr.
   ///
   /// \param X The address.
-  constexpr explicit Addr(uint64_t X) : Address(X) {}
+  constexpr explicit Addr(value_type X) noexcept : Address(X) {}
 
-  /// \brief Explicitly convert \ref Addr to \c uint64_t.
+  /// \brief Explicitly convert \ref Addr to \c value_type.
   ///
   /// \return An integer representation of the \ref Addr.
-  explicit operator uint64_t() const { return Address; }
+  constexpr explicit operator value_type() const noexcept { return Address; }
+
+  /// \brief Unary plus for \ref Addr. This is a noop because Addr objects
+  /// represent an unsigned address value.
+  ///
+  /// \return A copy of the implicit \ref Addr.
+  constexpr Addr operator+() const noexcept { return Addr(+Address); }
+
+  /// \brief Unary complement for \ref Addr. Flips the value of all bits in
+  /// the address.
+  ///
+  /// \return A copy of the implicit \ref Addr object, with all bits flipped.
+  constexpr Addr operator~() const noexcept { return Addr(~Address); }
 
   /// \brief Preincrement for \ref Addr.
   ///
   /// \return The incremented \ref Addr.
-  Addr& operator++() {
+  constexpr Addr& operator++() noexcept {
     ++Address;
     return *this;
   }
@@ -61,7 +76,7 @@ public:
   ///
   /// \return A new \ref Addr representing the address prior to being
   /// incremented.
-  Addr operator++(int) {
+  constexpr Addr operator++(int) noexcept {
     Addr R(*this);
     ++Address;
     return R;
@@ -70,7 +85,7 @@ public:
   /// \brief Predecrement for \ref Addr.
   ///
   /// \return The decremented \ref Addr.
-  Addr& operator--() {
+  constexpr Addr& operator--() noexcept {
     --Address;
     return *this;
   }
@@ -79,7 +94,7 @@ public:
   ///
   /// \return A new \ref Addr representing the address prior to being
   /// decremented.
-  Addr operator--(int) {
+  constexpr Addr operator--(int) noexcept {
     Addr R(*this);
     --Address;
     return R;
@@ -91,8 +106,18 @@ public:
   /// \param Offset   The offset to add to \p A.
   ///
   /// \return A new \ref Addr representing \p A + \p Offset.
-  friend Addr operator+(const Addr& A, uint64_t Offset) {
+  friend constexpr Addr operator+(const Addr& A, value_type Offset) noexcept {
     return Addr(A.Address + Offset);
+  }
+
+  /// \brief Binary + operator for integral offset + \ref Addr.
+  ///
+  /// \param Offset   The offset to add to \p A.
+  /// \param A        The \ref Addr operand to +.
+  ///
+  /// \return A new \ref Addr representing \p A + \p Offset.
+  friend constexpr Addr operator+(value_type Offset, const Addr& A) noexcept {
+    return A + Offset;
   }
 
   /// \brief Add-assign for \ref Addr.
@@ -100,7 +125,7 @@ public:
   /// \param Offset   The offset to add to the represented address.
   ///
   /// \return \c *this
-  Addr& operator+=(uint64_t Offset) {
+  constexpr Addr& operator+=(value_type Offset) noexcept {
     Address += Offset;
     return *this;
   }
@@ -111,7 +136,10 @@ public:
   /// \param Offset   The offset to subtract from \p A.
   ///
   /// \return A new \ref Addr representing  \p A - \p Offset.
-  friend Addr operator-(const Addr& A, uint64_t Offset) {
+  ///
+  /// NB: There is no overload for Offset - Addr like there is for Offset + Addr
+  /// because subtraction is not associative like addition is.
+  friend constexpr Addr operator-(const Addr& A, value_type Offset) noexcept {
     return Addr(A.Address - Offset);
   }
 
@@ -120,7 +148,7 @@ public:
   /// \param Offset   The offset to subtract from the represented address.
   ///
   /// \return \c *this
-  Addr& operator-=(uint64_t Offset) {
+  constexpr Addr& operator-=(value_type Offset) noexcept {
     Address -= Offset;
     return *this;
   }
@@ -130,41 +158,45 @@ public:
   /// \param A        The minuend.
   /// \param B        The subtrahend.
   ///
-  /// \return         The \c int64_t difference \p A - \p B. NB: this is a
-  /// difference type and not a valid address.
-  friend int64_t operator-(const Addr& A, const Addr& B) {
-    return static_cast<int64_t>(A.Address - B.Address);
+  /// \return         The difference \p A - \p B. NB: this is a difference type
+  /// and not a valid address.
+  friend constexpr difference_type operator-(const Addr& A,
+                                             const Addr& B) noexcept {
+    return static_cast<difference_type>(A.Address - B.Address);
   }
 
   /// \brief Equality operator for \ref Addr.
-  friend bool operator==(const Addr& LHS, const Addr& RHS) {
+  friend constexpr bool operator==(const Addr& LHS, const Addr& RHS) noexcept {
     return LHS.Address == RHS.Address;
   }
 
   /// \brief Inquality operator for \ref Addr.
-  friend bool operator!=(const Addr& LHS, const Addr& RHS) {
+  friend constexpr bool operator!=(const Addr& LHS, const Addr& RHS) noexcept {
     return !operator==(LHS, RHS);
   }
 
   /// \brief Less-than operator for \ref Addr.
-  friend bool operator<(const Addr& LHS, const Addr& RHS) {
+  friend constexpr bool operator<(const Addr& LHS, const Addr& RHS) noexcept {
     return LHS.Address < RHS.Address;
   }
 
   /// \brief Greater-than operator for \ref Addr.
-  friend bool operator>(const Addr& LHS, const Addr& RHS) {
+  friend constexpr bool operator>(const Addr& LHS, const Addr& RHS) noexcept {
     return operator<(RHS, LHS);
   }
 
   /// \brief Less-than-or-equal operator for \ref Addr.
-  friend bool operator<=(const Addr& LHS, const Addr& RHS) {
+  friend constexpr bool operator<=(const Addr& LHS, const Addr& RHS) noexcept {
     return !operator<(RHS, LHS);
   }
 
   /// \brief Greater-than-or-equal operator for \ref Addr.
-  friend bool operator>=(const Addr& LHS, const Addr& RHS) {
+  friend constexpr bool operator>=(const Addr& LHS, const Addr& RHS) noexcept {
     return !operator<(LHS, RHS);
   }
+
+private:
+  value_type Address{0};
 };
 
 /// \relates Addr
