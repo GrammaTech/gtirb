@@ -129,3 +129,15 @@ TEST(Unit_IR, protobufRoundTrip) {
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 }
+
+TEST(Unit_IR, move) {
+  IR *Original = IR::Create(Ctx);
+  EXPECT_TRUE(Original->getAuxDataEmpty());
+
+  Original->addAuxData("test", AuxData());
+
+  IR Moved(std::move(*Original));
+  EXPECT_FALSE(Moved.getAuxDataEmpty());
+  EXPECT_EQ(Moved.getAuxDataSize(), 1);
+  EXPECT_NE(Moved.getAuxData("test"), nullptr);
+}

@@ -72,6 +72,27 @@ class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 
 public:
+  /// \brief Explicitly deleted copy constructor. This is required to work
+  /// around a bug in MSVC where the implicitly defaulted copy constructor
+  /// causes an attempt to reference a deleted copy assignment operator on
+  /// std::pair because we have a std::map with a move-only value type.
+  IR(const IR&) = delete;
+
+  /// \brief An explicitly defaulted move constructor is required because we
+  /// have a user-provided copy constructor.
+  IR(IR&&) = default;
+
+  /// \brief Explicitly deleted copy assignment operator. This is required to
+  /// work around a bug in MSVC where the implicitly defaulted copy assignment
+  /// operator causes an attempt to reference a deleted copy assignment
+  /// operator on std::pair because we have a std::map with a move-only value
+  /// type.
+  IR& operator=(const IR&) = delete;
+
+  /// \brief An explicitly defaulted move assignment operator is required
+  /// because we have a user-provided copy constructor.
+  IR& operator=(IR&&) = default;
+
   /// \brief Create an IR object in its default state.
   ///
   /// \param C  The Context in which this object will be held.
