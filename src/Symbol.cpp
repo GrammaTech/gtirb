@@ -24,7 +24,7 @@ void Symbol::toProtobuf(MessageType* Message) const {
   if (this->Address) {
     Message->set_address(static_cast<uint64_t>(this->Address.value()));
   } else {
-    Message->clear_optional_address();
+    Message->clear_address();
   }
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
