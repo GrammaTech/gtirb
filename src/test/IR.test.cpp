@@ -131,7 +131,7 @@ TEST(Unit_IR, protobufRoundTrip) {
 }
 
 TEST(Unit_IR, move) {
-  IR *Original = IR::Create(Ctx);
+  IR* Original = IR::Create(Ctx);
   EXPECT_TRUE(Original->getAuxDataEmpty());
 
   Original->addAuxData("test", AuxData());
