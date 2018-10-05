@@ -20,8 +20,7 @@ stages:
 check-format:
   stage: check-format
   script:
-    - docker build -f .ci/Dockerfile.formatter -t gtirb-formatter .
-    - docker run --rm gtirb-formatter ./format.py --check
+    - docker build --rm -f .ci/Dockerfile.formatter .
 
 .build-template: &build
   script:
