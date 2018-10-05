@@ -65,107 +65,18 @@ Every element of GTIRB (namely: modules (`Module`), symbols
 
 ## Building
 
-GTIRB should successfully build in 64-bits with GCC, Clang, and
-Visual Studio compilers supporting at least C++14. GTIRB requires
-Boost.
+GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
+Studio compilers supporting at least C++17.  GTIRB uses CMake which
+must be installed.
 
-1. **Install CMake**
-
-   Obtain CMake from [here](https://cmake.org/download/) or via your
-   package manager (e.g. `yum`, `apt-get`). It is advised to download a
-   stable release and not a release candidate. For Mac/Windows check
-   the option that adds CMake to the system path for all users.
-
-2. **Install Git**
-
-   Git is required to fetch the source code. Install with a package
-   manager or from https://git-scm.com/download/win on Windows. Choose
-   the option that adds git and minimal tools to the path.
-
-3. **Install Dependencies**
-
-    - *Linux*
-
-      Use your local package manager to install Boost libraries. Boost
-      1.59 or later is required.
-
-      ```bash
-      > sudo apt-get install boost
-      ```
-
-    - *Windows*
-
-      For Windows, `vcpkg` can handle the dependencies.
-
-      First, you have to install `vcpkg` from its git repository. From
-      a command line, in the working directory:
-
-      ```bash
-      C:\vcpkg> git clone https://github.com/Microsoft/vcpkg.git .
-      ```
-
-      Then, you have to follow the instructions from the `vcpkg`
-      documentation. Normally, during the installation process, it
-      will detect the installed CMake.
-
-      ```bash
-      C:\vcpkg> .\bootstrap-vcpkg.bat
-      C:\vcpkg> .\vcpkg integrate install
-      ```
-
-      This may give you the name of a file for use with CMake.  If so,
-      note it.  You can use this in the CMake configuration later to
-      help it find Boost.
-
-      Then, you can install the dependencies:
-
-      ```bash
-      C:\vcpkg> .\vcpkg install boost
-      ```
-
-4. **Build with CMake**
-
-   We recommend using the CMake GUI. (`cmake-gui`)
-
-   Do not do an in-source build.  Specify the location for where to
-   build the binaries (typically a folder called `build`).  It will
-   make the directory if it does not already exist.
-
-   If you insist on using the command line, then you can do this:
-
-   ```bash
-   /path/to/gtirb> cmake ./ -Bbuild
-   ```
-
-   By default, GTIRB is built with C++14 enabled, If you get an error
-   stating "`CXX_STANDARD is set to invalid value '14'`", then you have
-   an old compiler and will need to update.
-  
-   Once CMake configures and generates the project, you will have a
-   native Makefile or Visual Studio Solution inside of
-   `/path/to/gtirb/build`.
-
-   On Linux, simply run `make`.
-
-   ```bash
-   /path/to/gtirb/build> make -j
-   ```
-
-5. **Run the Tests**
-
-   Go into the `bin` folder and execute `TestGTIRB`.
-
-   ```bash
-   /path/to/gtirb/bin> ./TestGTIRB
-   ```
-
-   Alternately, a CMake target called `check` was created that mimics
-   Autotools.  This can be used to automatically run the tests after a
-   build.
-
-   ```bash
-   /path/to/gtirb/build> make check
-   ```
+```sh
+mkdir build
+cd build
+cmake ../path/to/gtirb
+make -j
+# Run the test suite.
+./bin/TestGTIRB
+```
 
 ## Usage
 
