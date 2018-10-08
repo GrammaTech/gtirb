@@ -27,7 +27,11 @@ if(GTIRB_BUILD_SHARED_LIBS)
 else()
   set(BUILD_SHARED_LIBS OFF)
 endif()
-
+if(UNIX AND NOT BUILD_SHARED_LIBS)
+    # Find only static libraries
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    add_compile_options(-static)
+endif()
 
 # ---------------------------------------------------------------------------
 # Global settings
@@ -215,6 +219,9 @@ endif()
 # protobuf
 # ---------------------------------------------------------------------------
 find_package(Protobuf REQUIRED)
+if(NOT BUILD_SHARED_LIBS)
+  set(Protobuf_USE_STATIC_LIBS ON)
+endif()
 include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------
