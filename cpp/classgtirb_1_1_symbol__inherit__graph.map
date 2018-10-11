@@ -1,0 +1,4 @@
+<map id="gtirb::Symbol" name="gtirb::Symbol">
+<area shape="rect" id="node1" title="Represents a Symbol, which maps a name to an object in the IR." alt="" coords="5,80,104,107"/>
+<area shape="rect" id="node2" href="$classgtirb_1_1_node.html" title="Represents the base of the Node class hierarchy." alt="" coords="11,5,98,32"/>
+</map>

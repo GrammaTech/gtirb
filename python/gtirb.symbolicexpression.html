@@ -1,0 +1,442 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.symbolicexpression module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.util module" href="gtirb.util.html" />
+    <link rel="prev" title="gtirb.symbol module" href="gtirb.symbol.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.symbolicexpression">
+<span id="gtirb-symbolicexpression-module"></span><h1>gtirb.symbolicexpression module<a class="headerlink" href="#module-gtirb.symbolicexpression" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gtirb.symbolicexpression.SymAddrAddr">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.symbolicexpression.</span></code><code class="sig-name descname"><span class="pre">SymAddrAddr</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrAddr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrAddr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression" title="gtirb.symbolicexpression.SymbolicExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression</span></code></a></p>
+<p>Represents a symbolic expression of the form
+“(Sym1 - Sym2) / Scale + Offset”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> – Constant scale factor.</p></li>
+<li><p><strong>offset</strong> – Constant offset.</p></li>
+<li><p><strong>symbol1</strong> – Symbol representing the base address.</p></li>
+<li><p><strong>symbol2</strong> – Symbol to subtract from <code class="docutils literal notranslate"><span class="pre">symbol1</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrAddr.__eq__">
+<code class="sig-name descname"><span class="pre">__eq__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrAddr.__eq__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrAddr.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self==value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrAddr.__hash__">
+<code class="sig-name descname"><span class="pre">__hash__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrAddr.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrAddr.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return hash(self).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrAddr.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrAddr.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrAddr.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Constant scale factor.</p></li>
+<li><p><strong>offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Constant offset.</p></li>
+<li><p><strong>symbol1</strong> (<a class="reference internal" href="gtirb.symbol.html#gtirb.symbol.Symbol" title="gtirb.symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbol.Symbol</span></code></a>) – Symbol representing the base address.</p></li>
+<li><p><strong>symbol2</strong> (<a class="reference internal" href="gtirb.symbol.html#gtirb.symbol.Symbol" title="gtirb.symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbol.Symbol</span></code></a>) – Symbol to subtract from <code class="docutils literal notranslate"><span class="pre">symbol1</span></code>.</p></li>
+<li><p><strong>attributes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute" title="gtirb.symbolicexpression.SymbolicExpression.Attribute"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression.Attribute</span></code></a>]) – <code class="xref py py-class docutils literal notranslate"><span class="pre">SymobolicExpression.Attribute</span></code>s of this
+expression.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrAddr.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrAddr.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrAddr.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrAddr.symbols">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">symbols</span></code><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrAddr.symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols involved with this symbolic expression,
+regardless of role.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.symbolicexpression.SymAddrConst">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.symbolicexpression.</span></code><code class="sig-name descname"><span class="pre">SymAddrConst</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrConst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrConst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression" title="gtirb.symbolicexpression.SymbolicExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression</span></code></a></p>
+<p>Represents a symbolic expression of the form “Sym + Offset”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset</strong> – Constant offset.</p></li>
+<li><p><strong>symbol</strong> – Symbol representing an address.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrConst.__eq__">
+<code class="sig-name descname"><span class="pre">__eq__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrConst.__eq__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrConst.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self==value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrConst.__hash__">
+<code class="sig-name descname"><span class="pre">__hash__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrConst.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrConst.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return hash(self).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrConst.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrConst.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrConst.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Constant offset.</p></li>
+<li><p><strong>symbol</strong> (<a class="reference internal" href="gtirb.symbol.html#gtirb.symbol.Symbol" title="gtirb.symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbol.Symbol</span></code></a>) – Symbol representing an address.</p></li>
+<li><p><strong>attributes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute" title="gtirb.symbolicexpression.SymbolicExpression.Attribute"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression.Attribute</span></code></a>]) – <a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute" title="gtirb.symbolicexpression.SymbolicExpression.Attribute"><code class="xref py py-class docutils literal notranslate"><span class="pre">SymbolicExpression.Attribute</span></code></a>s of this
+expression.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrConst.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymAddrConst.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrConst.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymAddrConst.symbols">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">symbols</span></code><a class="headerlink" href="#gtirb.symbolicexpression.SymAddrConst.symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols involved with this symbolic expression,
+regardless of role.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.symbolicexpression.SymStackConst">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.symbolicexpression.</span></code><code class="sig-name descname"><span class="pre">SymStackConst</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymStackConst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymStackConst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression" title="gtirb.symbolicexpression.SymbolicExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression</span></code></a></p>
+<p>Represents a symbolic expression of the form “Sym + Offset”,
+representing an offset from a stack variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset</strong> – Constant offset.</p></li>
+<li><p><strong>symbol</strong> – Symbol representing a stack variable.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymStackConst.__eq__">
+<code class="sig-name descname"><span class="pre">__eq__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymStackConst.__eq__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymStackConst.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self==value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymStackConst.__hash__">
+<code class="sig-name descname"><span class="pre">__hash__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymStackConst.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymStackConst.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return hash(self).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymStackConst.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymStackConst.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymStackConst.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Constant offset.</p></li>
+<li><p><strong>symbol</strong> (<a class="reference internal" href="gtirb.symbol.html#gtirb.symbol.Symbol" title="gtirb.symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbol.Symbol</span></code></a>) – Symbol representing a stack variable.</p></li>
+<li><p><strong>attributes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute" title="gtirb.symbolicexpression.SymbolicExpression.Attribute"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression.Attribute</span></code></a>]) – <a class="reference internal" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute" title="gtirb.symbolicexpression.SymbolicExpression.Attribute"><code class="xref py py-class docutils literal notranslate"><span class="pre">SymbolicExpression.Attribute</span></code></a>s of this
+expression.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymStackConst.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymStackConst.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymStackConst.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymStackConst.symbols">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">symbols</span></code><a class="headerlink" href="#gtirb.symbolicexpression.SymStackConst.symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols involved with this symbolic expression,
+regardless of role.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.symbolicexpression.SymbolicExpression">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.symbolicexpression.</span></code><code class="sig-name descname"><span class="pre">SymbolicExpression</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymbolicExpression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class of symbolic expression types.</p>
+<dl class="py class">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Attribute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymbolicExpression.Attribute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Attributes representing a known property of a symbolic
+expression.</p>
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.AddrRelGot">
+<code class="sig-name descname"><span class="pre">AddrRelGot</span></code><em class="property"> <span class="pre">=</span> <span class="pre">8</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.AddrRelGot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.Adjusted">
+<code class="sig-name descname"><span class="pre">Adjusted</span></code><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.Adjusted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.GotPage">
+<code class="sig-name descname"><span class="pre">GotPage</span></code><em class="property"> <span class="pre">=</span> <span class="pre">10</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.GotPage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.GotPageOfst">
+<code class="sig-name descname"><span class="pre">GotPageOfst</span></code><em class="property"> <span class="pre">=</span> <span class="pre">11</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.GotPageOfst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRef">
+<code class="sig-name descname"><span class="pre">GotRef</span></code><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRelAddr">
+<code class="sig-name descname"><span class="pre">GotRelAddr</span></code><em class="property"> <span class="pre">=</span> <span class="pre">9</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRelAddr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRelGot">
+<code class="sig-name descname"><span class="pre">GotRelGot</span></code><em class="property"> <span class="pre">=</span> <span class="pre">7</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRelGot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRelPC">
+<code class="sig-name descname"><span class="pre">GotRelPC</span></code><em class="property"> <span class="pre">=</span> <span class="pre">6</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.GotRelPC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.Part0">
+<code class="sig-name descname"><span class="pre">Part0</span></code><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.Part0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.Part1">
+<code class="sig-name descname"><span class="pre">Part1</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.Part1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.Part2">
+<code class="sig-name descname"><span class="pre">Part2</span></code><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.Part2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.Part3">
+<code class="sig-name descname"><span class="pre">Part3</span></code><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.Part3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.Attribute.PltRef">
+<code class="sig-name descname"><span class="pre">PltRef</span></code><em class="property"> <span class="pre">=</span> <span class="pre">12</span></em><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.Attribute.PltRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbolicexpression.html#SymbolicExpression.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbolicexpression.SymbolicExpression.symbols">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">symbols</span></code><a class="headerlink" href="#gtirb.symbolicexpression.SymbolicExpression.symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols involved with this symbolic expression,
+regardless of role.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.symbol.html#gtirb.symbol.Symbol" title="gtirb.symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbol.Symbol</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gtirb.auxdata.html">gtirb.auxdata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.block.html">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.cfg.html">gtirb.cfg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.ir.html">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.section.html">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbol.html">gtirb.symbol module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.symbol.html" title="previous chapter">gtirb.symbol module</a></li>
+      <li>Next: <a href="gtirb.util.html" title="next chapter">gtirb.util module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.symbolicexpression.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

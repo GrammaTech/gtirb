@@ -1,0 +1,7 @@
+gtirb.symbolicexpression module
+===============================
+
+.. automodule:: gtirb.symbolicexpression
+   :members:
+   :undoc-members:
+   :show-inheritance:

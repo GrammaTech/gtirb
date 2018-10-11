@@ -1,0 +1,6 @@
+<map id="gtirb::CfgNode" name="gtirb::CfgNode">
+<area shape="rect" id="node1" title="Represents the base of types that can be inserted into the CFG." alt="" coords="83,80,190,107"/>
+<area shape="rect" id="node3" href="$classgtirb_1_1_code_block.html" title="A basic block." alt="" coords="5,155,124,181"/>
+<area shape="rect" id="node4" href="$classgtirb_1_1_proxy_block.html" title="A placeholder that serves as the endpoint (source or target) of a CFG edge." alt="" coords="149,155,271,181"/>
+<area shape="rect" id="node2" href="$classgtirb_1_1_node.html" title="Represents the base of the Node class hierarchy." alt="" coords="93,5,180,32"/>
+</map>

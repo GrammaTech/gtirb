@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.cfg module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.ir module" href="gtirb.ir.html" />
+    <link rel="prev" title="gtirb.byteinterval module" href="gtirb.byteinterval.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.cfg">
+<span id="gtirb-cfg-module"></span><h1>gtirb.cfg module<a class="headerlink" href="#module-gtirb.cfg" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gtirb.cfg.CFG">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.cfg.</span></code><code class="sig-name descname"><span class="pre">CFG</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MutableSet</span></code>[<a class="reference internal" href="#gtirb.cfg.Edge" title="gtirb.cfg.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.Edge</span></code></a>]</p>
+<p>A control-flow graph for an <code class="xref py py-class docutils literal notranslate"><span class="pre">IR</span></code>. Vertices are
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CfgNode</span></code>s, and edges may optionally contain
+<a class="reference internal" href="#gtirb.cfg.Edge.Label" title="gtirb.cfg.Edge.Label"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge.Label</span></code></a>s.</p>
+<p>The graph may be viewed simply as a set of <a class="reference internal" href="#gtirb.cfg.Edge" title="gtirb.cfg.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a>s. For
+convenience, the <a class="reference internal" href="#gtirb.cfg.CFG.out_edges" title="gtirb.cfg.CFG.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> and <a class="reference internal" href="#gtirb.cfg.CFG.in_edges" title="gtirb.cfg.CFG.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a> methods provide
+access to the outgoing or incoming edges of individual nodes.</p>
+<p>For efficency, only vertices with edges are guaranteed to be stored in this
+graph. If you want to find all vertices possible (that is, all
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CfgNode</span></code>s), use <code class="xref py py-meth docutils literal notranslate"><span class="pre">IR.cfg_nodes()</span></code> instead.</p>
+<p>Internally, the graph is stored as a NetworkX instance, which can be
+accessed using <a class="reference internal" href="#gtirb.cfg.CFG.nx" title="gtirb.cfg.CFG.nx"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nx()</span></code></a>. This allows NetworkX’s large library of graph
+algorithms to be used on CFGs, if desired.</p>
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.__contains__">
+<code class="sig-name descname"><span class="pre">__contains__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.__contains__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.__iter__">
+<code class="sig-name descname"><span class="pre">__iter__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.__iter__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="#gtirb.cfg.Edge" title="gtirb.cfg.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.Edge</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.__len__">
+<code class="sig-name descname"><span class="pre">__len__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.add">
+<code class="sig-name descname"><span class="pre">add</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.clear">
+<code class="sig-name descname"><span class="pre">clear</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is slow (creates N new iterators!) but effective.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.discard">
+<code class="sig-name descname"><span class="pre">discard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.discard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an element.  Do not raise an exception if absent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.in_edges">
+<code class="sig-name descname"><span class="pre">in_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.in_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.in_edges" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="#gtirb.cfg.Edge" title="gtirb.cfg.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.Edge</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.nx">
+<code class="sig-name descname"><span class="pre">nx</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.nx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.nx" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.out_edges">
+<code class="sig-name descname"><span class="pre">out_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.out_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.out_edges" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="#gtirb.cfg.Edge" title="gtirb.cfg.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.Edge</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.cfg.CFG.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#CFG.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.CFG.update" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.cfg.Edge">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.cfg.</span></code><code class="sig-name descname"><span class="pre">Edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="gtirb.block.html#gtirb.block.CfgNode" title="gtirb.block.CfgNode"><span class="pre">gtirb.block.CfgNode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="gtirb.block.html#gtirb.block.CfgNode" title="gtirb.block.CfgNode"><span class="pre">gtirb.block.CfgNode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">typing.Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#gtirb.cfg.Edge.Label" title="gtirb.cfg.Edge.Label"><span class="pre">Edge.Label</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#Edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.NamedTuple</span></code></p>
+<p>An edge in the CFG from <code class="docutils literal notranslate"><span class="pre">source</span></code> to <code class="docutils literal notranslate"><span class="pre">target</span></code>, with optional
+control-flow details in <code class="docutils literal notranslate"><span class="pre">label</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – The source CFG node.</p></li>
+<li><p><strong>target</strong> – The target CFG node.</p></li>
+<li><p><strong>label</strong> – An optional label containing more control flow information.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="gtirb.cfg.Edge.Label">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Label</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#gtirb.cfg.Edge.Type" title="gtirb.cfg.Edge.Type"><span class="pre">Edge.Type</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#Edge.Label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.Edge.Label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.NamedTuple</span></code></p>
+<p>Contains a more detailed description of a <a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a>
+in the CFG.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conditional</strong> – When this edge is part of a conditional branch,
+<code class="docutils literal notranslate"><span class="pre">conditional</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> when the edge represents the control
+flow taken when the branch’s condition is met, and <code class="docutils literal notranslate"><span class="pre">False</span></code>
+when it represents the control flow taken when the branch’s
+condition is not met. Otherwise, it is always <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>direct</strong> – <code class="docutils literal notranslate"><span class="pre">True</span></code> if the branch or call is direct,
+and <code class="docutils literal notranslate"><span class="pre">False</span></code> if it is indirect. If an edge is indirect,
+then all outgoing indirect edges represent the set of
+possible locations the edge may branch to. If there
+exists an indirect outgoing edge to a <a class="reference internal" href="gtirb.html#gtirb.ProxyBlock" title="gtirb.ProxyBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.ProxyBlock</span></code></a>
+without any <a class="reference internal" href="gtirb.html#gtirb.Symbol" title="gtirb.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Symbol</span></code></a> objects referring to it,
+then the set of all possible branch locations is unknown.</p></li>
+<li><p><strong>type</strong> – The type of control flow the <a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a>
+represents.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Label.__slots__">
+<code class="sig-name descname"><span class="pre">__slots__</span></code><em class="property"> <span class="pre">=</span> <span class="pre">()</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Label.__slots__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.cfg.Edge.Type">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/cfg.html#Edge.Type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.cfg.Edge.Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>The type of control flow transfer indicated by a
+<a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a>.</p>
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Type.Branch">
+<code class="sig-name descname"><span class="pre">Branch</span></code><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Type.Branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>This edge is the explicit target of a jump instruction.
+May be conditional or unconditional. If conditional, there will be
+a corresponding edge of type <a class="reference internal" href="gtirb.html#gtirb.Edge.Type.Fallthrough" title="gtirb.Edge.Type.Fallthrough"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gtirb.Edge.Type.Fallthrough</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Type.Call">
+<code class="sig-name descname"><span class="pre">Call</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Type.Call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This edge is the explicit target of a call instruction.
+Unless the function does not return, there will also be a
+corresponding edge of type <a class="reference internal" href="gtirb.html#gtirb.Edge.Type.Fallthrough" title="gtirb.Edge.Type.Fallthrough"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gtirb.Edge.Type.Fallthrough</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Type.Fallthrough">
+<code class="sig-name descname"><span class="pre">Fallthrough</span></code><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Type.Fallthrough" title="Permalink to this definition">¶</a></dt>
+<dd><p>This edge represents two blocks executing in sequence.
+This occurs on the non-branching paths of conditional branch
+instructions, after call instructons have returned, and when two
+blocks have no control flow between them, but another
+<a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a> targets the target block.
+If there exists a fallthrough edge from block <code class="docutils literal notranslate"><span class="pre">A</span></code> to block <code class="docutils literal notranslate"><span class="pre">B</span></code>,
+then <code class="docutils literal notranslate"><span class="pre">A</span></code> must immediately precede <code class="docutils literal notranslate"><span class="pre">B</span></code> in memory.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Type.Return">
+<code class="sig-name descname"><span class="pre">Return</span></code><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Type.Return" title="Permalink to this definition">¶</a></dt>
+<dd><p>This edge represents a return from a function, generally via a
+return instruction. Return edges may either go to a symbolless
+<a class="reference internal" href="gtirb.html#gtirb.ProxyBlock" title="gtirb.ProxyBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.ProxyBlock</span></code></a>, which indicates that the set of possible
+return targets is unknown, or there may be one return edge per
+return target, which indicates that the set of possible return targets
+if fully known.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Type.Syscall">
+<code class="sig-name descname"><span class="pre">Syscall</span></code><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Type.Syscall" title="Permalink to this definition">¶</a></dt>
+<dd><p>This edge is the explicit target of a system call instruction.
+Unless the function does not return, there will also be a
+corresponding edge of type <a class="reference internal" href="gtirb.html#gtirb.Edge.Type.Fallthrough" title="gtirb.Edge.Type.Fallthrough"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gtirb.Edge.Type.Fallthrough</span></code></a>. This
+is the system call equivalent to <a class="reference internal" href="gtirb.html#gtirb.Edge.Type.Call" title="gtirb.Edge.Type.Call"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge.Type.Call</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.Type.Sysret">
+<code class="sig-name descname"><span class="pre">Sysret</span></code><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#gtirb.cfg.Edge.Type.Sysret" title="Permalink to this definition">¶</a></dt>
+<dd><p>This edge represents a return from a system call, generally via a
+return instruction. Return edges may either go to a symbolless
+<a class="reference internal" href="gtirb.html#gtirb.ProxyBlock" title="gtirb.ProxyBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.ProxyBlock</span></code></a>, which indicates that the set of possible
+return targets is unknown, or there may be one return edge per
+return target, which indicates that the set of possible return targets
+if fully known. This is the system call equivalent to
+<a class="reference internal" href="gtirb.html#gtirb.Edge.Type.Return" title="gtirb.Edge.Type.Return"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge.Type.Return</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.cfg.Edge.__slots__">
+<code class="sig-name descname"><span class="pre">__slots__</span></code><em class="property"> <span class="pre">=</span> <span class="pre">()</span></em><a class="headerlink" href="#gtirb.cfg.Edge.__slots__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gtirb.auxdata.html">gtirb.auxdata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.block.html">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.cfg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.ir.html">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.section.html">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbol.html">gtirb.symbol module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbolicexpression.html">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.byteinterval.html" title="previous chapter">gtirb.byteinterval module</a></li>
+      <li>Next: <a href="gtirb.ir.html" title="next chapter">gtirb.ir module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.cfg.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

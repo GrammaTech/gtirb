@@ -1,0 +1,7 @@
+gtirb.cfg module
+================
+
+.. automodule:: gtirb.cfg
+   :members:
+   :undoc-members:
+   :show-inheritance:

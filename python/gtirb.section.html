@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.section module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.serialization module" href="gtirb.serialization.html" />
+    <link rel="prev" title="gtirb.offset module" href="gtirb.offset.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.section">
+<span id="gtirb-section-module"></span><h1>gtirb.section module<a class="headerlink" href="#module-gtirb.section" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gtirb.section.Section">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.section.</span></code><code class="sig-name descname"><span class="pre">Section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gtirb.node.html#gtirb.node.Node" title="gtirb.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.node.Node</span></code></a></p>
+<p>Represents a named section of the binary.</p>
+<p>Does not directly store the contents of the section, which are
+kept in a <code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.ImageByteMap</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The section name (E.g. “.text”, “.bss”, etc).</p></li>
+<li><p><strong>byte_intervals</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code>s in this section.</p></li>
+<li><p><strong>flags</strong> – The <a class="reference internal" href="#gtirb.section.Section.Flag" title="gtirb.section.Section.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Section.Flag</span></code></a>s this section has.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="gtirb.section.Section.Flag">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Flag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.Flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.Flag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>A flag representing a known property of a section.</p>
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.Executable">
+<code class="sig-name descname"><span class="pre">Executable</span></code><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.Executable" title="Permalink to this definition">¶</a></dt>
+<dd><p>This section contains executable code.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.Initialized">
+<code class="sig-name descname"><span class="pre">Initialized</span></code><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.Initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>This section has bytes allocated to it in the binary file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.Loaded">
+<code class="sig-name descname"><span class="pre">Loaded</span></code><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.Loaded" title="Permalink to this definition">¶</a></dt>
+<dd><p>This section is present in memory at runtime.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.Readable">
+<code class="sig-name descname"><span class="pre">Readable</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.Readable" title="Permalink to this definition">¶</a></dt>
+<dd><p>This section can be read from at runtime.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.ThreadLocal">
+<code class="sig-name descname"><span class="pre">ThreadLocal</span></code><em class="property"> <span class="pre">=</span> <span class="pre">6</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.ThreadLocal" title="Permalink to this definition">¶</a></dt>
+<dd><p>This section is created in memory once per thread.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.Undefined">
+<code class="sig-name descname"><span class="pre">Undefined</span></code><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.Undefined" title="Permalink to this definition">¶</a></dt>
+<dd><p>This value is defined for Protobuf compatibility. Do not use.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.section.Section.Flag.Writable">
+<code class="sig-name descname"><span class="pre">Writable</span></code><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#gtirb.section.Section.Flag.Writable" title="Permalink to this definition">¶</a></dt>
+<dd><p>This section can be written to at runtime.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of this section.</p></li>
+<li><p><strong>byte_intervals</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code>s in this section.</p></li>
+<li><p><strong>flags</strong> – The <a class="reference internal" href="#gtirb.section.Section.Flag" title="gtirb.section.Section.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Section.Flag</span></code></a>s this section has.</p></li>
+<li><p><strong>uuid</strong> – The UUID of this <code class="docutils literal notranslate"><span class="pre">Section</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+<li><p><strong>module</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> this section belongs to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.address">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">address</span></code><a class="headerlink" href="#gtirb.section.Section.address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the address of this section, if known.</p>
+<p>The address is calculated from the <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> objects in
+this section. More specifically, if the address of all byte intervals
+in this section are fixed, then it will return the address of the
+interval lowest in memory. If any one interval does not have an address
+then this will be <code class="docutils literal notranslate"><span class="pre">None</span></code>, as the address is not calculable in that
+case. Note that a section with no intervals in it has no address or
+size, so it will be <code class="docutils literal notranslate"><span class="pre">None</span></code> in that case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.byte_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">byte_blocks</span></code><a class="headerlink" href="#gtirb.section.Section.byte_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteBlock</span></code>s in this section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.byte_blocks_at">
+<code class="sig-name descname"><span class="pre">byte_blocks_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.byte_blocks_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.byte_blocks_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte blocks that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.byte_blocks_on">
+<code class="sig-name descname"><span class="pre">byte_blocks_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.byte_blocks_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.byte_blocks_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte blocks that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.byte_intervals_at">
+<code class="sig-name descname"><span class="pre">byte_intervals_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.byte_intervals_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.byte_intervals_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte intervals that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.byte_intervals_on">
+<code class="sig-name descname"><span class="pre">byte_intervals_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.byte_intervals_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.byte_intervals_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte intervals that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.code_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">code_blocks</span></code><a class="headerlink" href="#gtirb.section.Section.code_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">CodeBlock</span></code>s in this section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CodeBlock" title="gtirb.block.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CodeBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.code_blocks_at">
+<code class="sig-name descname"><span class="pre">code_blocks_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.code_blocks_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.code_blocks_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the code blocks that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CodeBlock" title="gtirb.block.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CodeBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.code_blocks_on">
+<code class="sig-name descname"><span class="pre">code_blocks_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.code_blocks_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.code_blocks_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the code blocks that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CodeBlock" title="gtirb.block.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CodeBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.data_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data_blocks</span></code><a class="headerlink" href="#gtirb.section.Section.data_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataBlock</span></code>s in this section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.DataBlock" title="gtirb.block.DataBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.DataBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.data_blocks_at">
+<code class="sig-name descname"><span class="pre">data_blocks_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.data_blocks_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.data_blocks_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the data blocks that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.DataBlock" title="gtirb.block.DataBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.DataBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.data_blocks_on">
+<code class="sig-name descname"><span class="pre">data_blocks_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.data_blocks_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.data_blocks_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the data blocks that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.DataBlock" title="gtirb.block.DataBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.DataBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check: is <code class="docutils literal notranslate"><span class="pre">self</span></code> structurally equal to <code class="docutils literal notranslate"><span class="pre">other</span></code>?</p>
+<p>This method should be used only when deep structural equality checks
+are actually needed, and not for all equality checks. Typically the
+default implmentation of __eq__, which checks pointer equality, is
+sufficient; Nodes are cached such that references to two Nodes with
+the same UUID refer to the same exact object. Use this method when
+you have manually constructed Nodes that may share the same UUID
+despite being different objects, and you need to check for structural
+equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.ir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ir</span></code><a class="headerlink" href="#gtirb.section.Section.ir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the IR this node ultimately belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“IR”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.module">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">module</span></code><a class="headerlink" href="#gtirb.section.Section.module" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> this section belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“Module”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.size">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">size</span></code><a class="headerlink" href="#gtirb.section.Section.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the size of this section, if known.</p>
+<p>The address is calculated from the <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> objects in
+this section. More specifically, if the address of all byte intervals
+in this section are fixed, then it will return the difference between
+the lowest and highest address among the intervals. If any one interval
+does not have an address, then this will be <code class="docutils literal notranslate"><span class="pre">None</span></code>, as the size is
+not calculable in that case. Note that a section with no intervals in
+it has no address or size, so it will be <code class="docutils literal notranslate"><span class="pre">None</span></code> in that case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.section.Section.symbolic_expressions_at">
+<code class="sig-name descname"><span class="pre">symbolic_expressions_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/section.html#Section.symbolic_expressions_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.section.Section.symbolic_expressions_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the symbolic expressions that begin at an address or
+range of addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Tuple</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <a class="reference internal" href="gtirb.symbolicexpression.html#gtirb.symbolicexpression.SymbolicExpression" title="gtirb.symbolicexpression.SymbolicExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression</span></code></a>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Yields <code class="docutils literal notranslate"><span class="pre">(interval,</span> <span class="pre">offset,</span> <span class="pre">symexpr)</span></code> tuples for every
+symbolic expression in the range.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gtirb.auxdata.html">gtirb.auxdata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.block.html">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.cfg.html">gtirb.cfg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.ir.html">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbol.html">gtirb.symbol module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbolicexpression.html">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.offset.html" title="previous chapter">gtirb.offset module</a></li>
+      <li>Next: <a href="gtirb.serialization.html" title="next chapter">gtirb.serialization module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.section.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,7 @@
+gtirb.proto.DataBlock\_pb2 module
+=================================
+
+.. automodule:: gtirb.proto.DataBlock_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

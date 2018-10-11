@@ -1,0 +1,7 @@
+gtirb.proto.Offset\_pb2 module
+==============================
+
+.. automodule:: gtirb.proto.Offset_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

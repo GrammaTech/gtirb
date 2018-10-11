@@ -1,0 +1,7 @@
+gtirb.symbol module
+===================
+
+.. automodule:: gtirb.symbol
+   :members:
+   :undoc-members:
+   :show-inheritance:

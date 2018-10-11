@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.ir module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.module module" href="gtirb.module.html" />
+    <link rel="prev" title="gtirb.cfg module" href="gtirb.cfg.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.ir">
+<span id="gtirb-ir-module"></span><h1>gtirb.ir module<a class="headerlink" href="#module-gtirb.ir" title="Permalink to this headline">¶</a></h1>
+<p>The IR is the core class for reading and writing GTIRB files.</p>
+<p>You can open a GTIRB Protobuf file and load it into an IR instance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ir</span> <span class="o">=</span> <span class="n">IR</span><span class="o">.</span><span class="n">load_protobuf</span><span class="p">(</span><span class="s1">&#39;filename.gtirb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And then you can write the IR instance as a Protobuf file:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ir</span><span class="o">.</span><span class="n">save_protobuf</span><span class="p">(</span><span class="s1">&#39;filename.gtirb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt id="gtirb.ir.IR">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.ir.</span></code><code class="sig-name descname"><span class="pre">IR</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aux_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gtirb.auxdata.html#gtirb.auxdata.AuxDataContainer" title="gtirb.auxdata.AuxDataContainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.auxdata.AuxDataContainer</span></code></a></p>
+<p>A complete internal representation consisting of multiple Modules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modules</strong> – A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>s contained in the IR.</p></li>
+<li><p><strong>cfg</strong> – The IR’s control flow graph.</p></li>
+<li><p><strong>version</strong> – The Protobuf version of this IR.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.ir.IR.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aux_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modules</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.module.html#gtirb.module.Module" title="gtirb.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.module.Module</span></code></a>]) – A list of Modules contained in the IR.</p></li>
+<li><p><strong>cfg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.cfg.html#gtirb.cfg.Edge" title="gtirb.cfg.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.cfg.Edge</span></code></a>]) – A set of <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code>s representing the IR’s control
+flow graph. Defaults to being empty.</p></li>
+<li><p><strong>aux_data</strong> (<a class="reference internal" href="gtirb.util.html#gtirb.util.DictLike" title="gtirb.util.DictLike"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.util.DictLike</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="gtirb.auxdata.html#gtirb.auxdata.AuxData" title="gtirb.auxdata.AuxData"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.auxdata.AuxData</span></code></a>]) – The initial auxiliary data to be associated
+with the object, as a mapping from names to
+<a class="reference internal" href="gtirb.html#gtirb.AuxData" title="gtirb.AuxData"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.AuxData</span></code></a>. Defaults to being empty.</p></li>
+<li><p><strong>version</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The Protobuf version of this IR.</p></li>
+<li><p><strong>uuid</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">uuid.UUID</span></code>]) – The UUID of this <code class="docutils literal notranslate"><span class="pre">IR</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.byte_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">byte_blocks</span></code><a class="headerlink" href="#gtirb.ir.IR.byte_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteBlock</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.byte_blocks_at">
+<code class="sig-name descname"><span class="pre">byte_blocks_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.byte_blocks_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.byte_blocks_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte blocks that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.byte_blocks_on">
+<code class="sig-name descname"><span class="pre">byte_blocks_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.byte_blocks_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.byte_blocks_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte blocks that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.byte_intervals">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">byte_intervals</span></code><a class="headerlink" href="#gtirb.ir.IR.byte_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.byte_intervals_at">
+<code class="sig-name descname"><span class="pre">byte_intervals_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.byte_intervals_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.byte_intervals_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte intervals that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.byte_intervals_on">
+<code class="sig-name descname"><span class="pre">byte_intervals_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.byte_intervals_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.byte_intervals_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the byte intervals that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.cfg_nodes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cfg_nodes</span></code><a class="headerlink" href="#gtirb.ir.IR.cfg_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">CfgNode</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CfgNode" title="gtirb.block.CfgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CfgNode</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.code_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">code_blocks</span></code><a class="headerlink" href="#gtirb.ir.IR.code_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">CodeBlock</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CodeBlock" title="gtirb.block.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CodeBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.code_blocks_at">
+<code class="sig-name descname"><span class="pre">code_blocks_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.code_blocks_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.code_blocks_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the code blocks that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CodeBlock" title="gtirb.block.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CodeBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.code_blocks_on">
+<code class="sig-name descname"><span class="pre">code_blocks_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.code_blocks_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.code_blocks_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the code blocks that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.CodeBlock" title="gtirb.block.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CodeBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.data_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data_blocks</span></code><a class="headerlink" href="#gtirb.ir.IR.data_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataBlock</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.DataBlock" title="gtirb.block.DataBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.DataBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.data_blocks_at">
+<code class="sig-name descname"><span class="pre">data_blocks_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.data_blocks_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.data_blocks_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the data blocks that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.DataBlock" title="gtirb.block.DataBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.DataBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.data_blocks_on">
+<code class="sig-name descname"><span class="pre">data_blocks_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.data_blocks_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.data_blocks_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the data blocks that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.DataBlock" title="gtirb.block.DataBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.DataBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>This overrides <a class="reference internal" href="gtirb.html#gtirb.Node.deep_eq" title="gtirb.Node.deep_eq"><code class="xref py py-func docutils literal notranslate"><span class="pre">gtirb.Node.deep_eq()</span></code></a> to check for
+AuxData equality.</p>
+<p>Because the values stored by AuxData are not necessarily
+amenable to deep checking, the auxiliary data dictionaries
+stored for <code class="docutils literal notranslate"><span class="pre">self</span></code> and <code class="docutils literal notranslate"><span class="pre">other</span></code> are not deeply checked. Instead,
+they are considered to be equal if their sets of keys are equal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.get_by_uuid">
+<code class="sig-name descname"><span class="pre">get_by_uuid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.get_by_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.get_by_uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look up a node by its UUID.</p>
+<p>This method will find any node currently attached to this IR.
+It will not find any nodes attached to other IRs, or not attached to
+any IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">uuid.UUID</span></code>) – The UUID to look up.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<a class="reference internal" href="gtirb.node.html#gtirb.node.Node" title="gtirb.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.node.Node</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Node this UUID corresponds to, or None if no node exists
+with that UUID.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.load_protobuf">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">load_protobuf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.load_protobuf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.load_protobuf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load IR from a Protobuf file at the specified path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the Protobuf file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#gtirb.ir.IR" title="gtirb.ir.IR"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.ir.IR</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A Python GTIRB IR object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.load_protobuf_file">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">load_protobuf_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protobuf_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.load_protobuf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.load_protobuf_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load IR from a Protobuf object.</p>
+<p>Use this function when you have a Protobuf object already loaded,
+and you want to parse it as a GTIRB IR.
+If the Protobuf object is stored in a file,
+use <a class="reference internal" href="gtirb.html#gtirb.IR.load_protobuf" title="gtirb.IR.load_protobuf"><code class="xref py py-func docutils literal notranslate"><span class="pre">gtirb.IR.load_protobuf()</span></code></a> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>protobuf_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.BinaryIO</span></code>) – A byte stream encoding a GTIRB Protobuf message.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#gtirb.ir.IR" title="gtirb.ir.IR"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.ir.IR</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An IR object representing the same
+information that is contained in <code class="docutils literal notranslate"><span class="pre">protobuf_file</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.modules_at">
+<code class="sig-name descname"><span class="pre">modules_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.modules_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.modules_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the modules that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.module.html#gtirb.module.Module" title="gtirb.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.module.Module</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.modules_on">
+<code class="sig-name descname"><span class="pre">modules_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.modules_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.modules_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the modules that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.module.html#gtirb.module.Module" title="gtirb.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.module.Module</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.proxy_blocks">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">proxy_blocks</span></code><a class="headerlink" href="#gtirb.ir.IR.proxy_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ProxyBlock</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.ProxyBlock" title="gtirb.block.ProxyBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ProxyBlock</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.save_protobuf">
+<code class="sig-name descname"><span class="pre">save_protobuf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.save_protobuf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.save_protobuf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save <code class="docutils literal notranslate"><span class="pre">self</span></code> to a Protobuf file at the specified path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The file path at which to
+save the Protobuf representation of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.save_protobuf_file">
+<code class="sig-name descname"><span class="pre">save_protobuf_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protobuf_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.save_protobuf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.save_protobuf_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save <code class="docutils literal notranslate"><span class="pre">self</span></code> to a Protobuf object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>protobuf_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">typing.BinaryIO</span></code>) – The byte stream to write the GTIRB Protobuf
+message to.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.sections">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sections</span></code><a class="headerlink" href="#gtirb.ir.IR.sections" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Section</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.section.html#gtirb.section.Section" title="gtirb.section.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.section.Section</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.sections_at">
+<code class="sig-name descname"><span class="pre">sections_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.sections_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.sections_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the sections that begin at an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.section.html#gtirb.section.Section" title="gtirb.section.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.section.Section</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.sections_on">
+<code class="sig-name descname"><span class="pre">sections_on</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.sections_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.sections_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the sections that overlap an address or range of
+addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<a class="reference internal" href="gtirb.section.html#gtirb.section.Section" title="gtirb.section.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.section.Section</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.symbolic_expressions_at">
+<code class="sig-name descname"><span class="pre">symbolic_expressions_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/ir.html#IR.symbolic_expressions_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.ir.IR.symbolic_expressions_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the symbolic expressions that begin at an address or
+range of addresses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addrs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">range</span></code>]) – Either a <code class="docutils literal notranslate"><span class="pre">range</span></code> object or a single address.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Tuple</span></code>[<a class="reference internal" href="gtirb.byteinterval.html#gtirb.byteinterval.ByteInterval" title="gtirb.byteinterval.ByteInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.byteinterval.ByteInterval</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <a class="reference internal" href="gtirb.symbolicexpression.html#gtirb.symbolicexpression.SymbolicExpression" title="gtirb.symbolicexpression.SymbolicExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbolicexpression.SymbolicExpression</span></code></a>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Yields <code class="docutils literal notranslate"><span class="pre">(interval,</span> <span class="pre">offset,</span> <span class="pre">symexpr)</span></code> tuples for every
+symbolic expression in the range.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.ir.IR.symbols">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">symbols</span></code><a class="headerlink" href="#gtirb.ir.IR.symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Symbol</span></code>s in this IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Iterator</span></code>[<a class="reference internal" href="gtirb.symbol.html#gtirb.symbol.Symbol" title="gtirb.symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.symbol.Symbol</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gtirb.auxdata.html">gtirb.auxdata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.block.html">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.cfg.html">gtirb.cfg module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.section.html">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbol.html">gtirb.symbol module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbolicexpression.html">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.cfg.html" title="previous chapter">gtirb.cfg module</a></li>
+      <li>Next: <a href="gtirb.module.html" title="next chapter">gtirb.module module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.ir.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

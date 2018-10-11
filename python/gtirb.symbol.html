@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.symbol module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.symbolicexpression module" href="gtirb.symbolicexpression.html" />
+    <link rel="prev" title="gtirb.serialization module" href="gtirb.serialization.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.symbol">
+<span id="gtirb-symbol-module"></span><h1>gtirb.symbol module<a class="headerlink" href="#module-gtirb.symbol" title="Permalink to this headline">¶</a></h1>
+<dl class="py data">
+<dt id="gtirb.symbol.Payload">
+<code class="sig-prename descclassname"><span class="pre">gtirb.symbol.</span></code><code class="sig-name descname"><span class="pre">Payload</span></code><a class="headerlink" href="#gtirb.symbol.Payload" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type hint representing the possible Symbol payloads.</p>
+<p>alias of Union[gtirb.block.Block, int]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.symbol.Symbol">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.symbol.</span></code><code class="sig-name descname"><span class="pre">Symbol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbol.html#Symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbol.Symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gtirb.node.html#gtirb.node.Node" title="gtirb.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.node.Node</span></code></a></p>
+<p>Represents a symbol, which maps a name to an object in the IR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of this symbol.</p></li>
+<li><p><strong>at_end</strong> – True if this symbol is at the end of its referent, rather
+than at the beginning. Has no meaning for integral symbols.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.symbol.Symbol.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbol.html#Symbol.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbol.Symbol.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of this symbol.</p></li>
+<li><p><strong>uuid</strong> – The UUID of this <code class="docutils literal notranslate"><span class="pre">Symbol</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+<li><p><strong>payload</strong> – The value this symbol points to.
+May be an address, a Node, or None.</p></li>
+<li><p><strong>at_end</strong> – True if this symbol is at the end of its referent,
+rather than at the beginning.</p></li>
+<li><p><strong>module</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> this symbol belongs to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbol.Symbol.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/symbol.html#Symbol.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.symbol.Symbol.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check: is <code class="docutils literal notranslate"><span class="pre">self</span></code> structurally equal to <code class="docutils literal notranslate"><span class="pre">other</span></code>?</p>
+<p>This method should be used only when deep structural equality checks
+are actually needed, and not for all equality checks. Typically the
+default implmentation of __eq__, which checks pointer equality, is
+sufficient; Nodes are cached such that references to two Nodes with
+the same UUID refer to the same exact object. Use this method when
+you have manually constructed Nodes that may share the same UUID
+despite being different objects, and you need to check for structural
+equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbol.Symbol.ir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ir</span></code><a class="headerlink" href="#gtirb.symbol.Symbol.ir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the IR this node ultimately belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“IR”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbol.Symbol.module">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">module</span></code><a class="headerlink" href="#gtirb.symbol.Symbol.module" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“Module”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbol.Symbol.referent">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">referent</span></code><a class="headerlink" href="#gtirb.symbol.Symbol.referent" title="Permalink to this definition">¶</a></dt>
+<dd><p>The object referred to by a Symbol, which is <code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code>
+or None. <code class="docutils literal notranslate"><span class="pre">value</span></code> and <code class="docutils literal notranslate"><span class="pre">referent</span></code> are mutually exclusive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<a class="reference internal" href="gtirb.block.html#gtirb.block.Block" title="gtirb.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.Block</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.symbol.Symbol.value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value</span></code><a class="headerlink" href="#gtirb.symbol.Symbol.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of a Symbol, which is an integer or None.
+<code class="docutils literal notranslate"><span class="pre">value</span></code> and <code class="docutils literal notranslate"><span class="pre">referent</span></code> are mutually exclusive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gtirb.auxdata.html">gtirb.auxdata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.block.html">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.cfg.html">gtirb.cfg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.ir.html">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.section.html">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.symbol module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbolicexpression.html">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.serialization.html" title="previous chapter">gtirb.serialization module</a></li>
+      <li>Next: <a href="gtirb.symbolicexpression.html" title="next chapter">gtirb.symbolicexpression module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.symbol.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

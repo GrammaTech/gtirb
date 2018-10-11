@@ -1,0 +1,7 @@
+gtirb.serialization module
+==========================
+
+.. automodule:: gtirb.serialization
+   :members:
+   :undoc-members:
+   :show-inheritance:

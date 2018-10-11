@@ -1,0 +1,5 @@
+<map id="CFG.hpp" name="CFG.hpp">
+<area shape="rect" id="node1" title="Types and operations for interprocedural control flow graphs (CFGs)." alt="" coords="5,5,80,32"/>
+<area shape="rect" id="node2" href="$gtirb_8hpp.html" title="#include this file to include all GTIRB API headers." alt="" coords="7,155,79,181"/>
+<area shape="rect" id="node3" href="$_i_r_8hpp.html" title="Class gtirb::IR." alt="" coords="47,80,108,107"/>
+</map>

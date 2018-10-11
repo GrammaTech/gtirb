@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.auxdata &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for gtirb.auxdata</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+
+<span class="kn">from</span> <span class="nn">.node</span> <span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span> <span class="nn">.proto</span> <span class="kn">import</span> <span class="n">AuxData_pb2</span>
+<span class="kn">from</span> <span class="nn">.serialization</span> <span class="kn">import</span> <span class="n">Serialization</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">DictLike</span>
+
+
+<div class="viewcode-block" id="AuxData"><a class="viewcode-back" href="../../gtirb.auxdata.html#gtirb.AuxData">[docs]</a><span class="k">class</span> <span class="nc">AuxData</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;AuxData objects can be attached to the :class:`gtirb.IR` or individual</span>
+<span class="sd">    :class:`gtirb.Module` s to store additional client-specific data in a</span>
+<span class="sd">    portable way.</span>
+
+<span class="sd">    AuxData represents a portable, language-independent manner of encoding</span>
+<span class="sd">    rich data. To do this, all data is stored on disk as a series of bytes</span>
+<span class="sd">    with a string describing the format of the data, called a *type name*. See</span>
+<span class="sd">    :mod:`gtirb.serialization` for the list of all default types. Types may</span>
+<span class="sd">    also be parameterized; for example, ``mapping&lt;string,UUID&gt;`` is a ``dict``</span>
+<span class="sd">    from ``str`` objects to ``UUID`` objects. All ``AuxData`` requires</span>
+<span class="sd">    a valid type name in order to be serialized.</span>
+
+<span class="sd">    :ivar ~.data: The value stored in this AuxData.</span>
+<span class="sd">    :ivar ~.type_name: A string describing the type of ``data``.</span>
+<span class="sd">        Used to determine the proper codec for serializing this AuxData.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">serializer</span> <span class="o">=</span> <span class="n">Serialization</span><span class="p">()</span>  <span class="c1"># type: typing.ClassVar[Serialization]</span>
+    <span class="sd">&quot;&quot;&quot;This is a :class:`gtirb.Serialization` instance, used to</span>
+<span class="sd">    encode and decode ``data`` fields of all ``AuxData``. See</span>
+<span class="sd">    :mod:`gtirb.serialization` for details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AuxData.__init__"><a class="viewcode-back" href="../../gtirb.auxdata.html#gtirb.AuxData.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Any, str) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: The value stored in this AuxData.</span>
+<span class="sd">        :param type_name: A string describing the type of ``data``.</span>
+<span class="sd">            Used to determine the proper codec for serializing this AuxData.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>  <span class="c1"># type: typing.Any</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_name</span> <span class="o">=</span> <span class="n">type_name</span>  <span class="c1"># type: str</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">aux_data</span><span class="p">,</span> <span class="n">ir</span><span class="p">):</span>
+        <span class="c1"># type: (AuxData_pb2.AuxData, typing.Optional[&quot;IR&quot;]) -&gt; AuxData</span>
+        <span class="sd">&quot;&quot;&quot;Deserialize AuxData from Protobuf.</span>
+
+<span class="sd">        :param aux_data: The Protobuf AuxData object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">AuxData</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+            <span class="n">BytesIO</span><span class="p">(</span><span class="n">aux_data</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">aux_data</span><span class="o">.</span><span class="n">type_name</span><span class="p">,</span> <span class="n">ir</span><span class="o">.</span><span class="n">get_by_uuid</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">type_name</span><span class="o">=</span><span class="n">aux_data</span><span class="o">.</span><span class="n">type_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; AuxData_pb2.AuxData</span>
+        <span class="sd">&quot;&quot;&quot;Get a Protobuf representation of the AuxData.&quot;&quot;&quot;</span>
+
+        <span class="n">out_bytes_array</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">AuxData</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">out_bytes_array</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_name</span><span class="p">)</span>
+        <span class="n">proto_auxdata</span> <span class="o">=</span> <span class="n">AuxData_pb2</span><span class="o">.</span><span class="n">AuxData</span><span class="p">()</span>
+        <span class="n">proto_auxdata</span><span class="o">.</span><span class="n">type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_name</span>
+        <span class="n">proto_auxdata</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">out_bytes_array</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">proto_auxdata</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">&quot;AuxData(&quot;</span>
+            <span class="s2">&quot;type_name=</span><span class="si">{type_name!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;data=</span><span class="si">{data!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AuxDataContainer"><a class="viewcode-back" href="../../gtirb.auxdata.html#gtirb.AuxDataContainer">[docs]</a><span class="k">class</span> <span class="nc">AuxDataContainer</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The base class for anything that holds AuxData tables; that is,</span>
+<span class="sd">    :class:`gtirb.IR` and :class:`gtirb.Module`.</span>
+
+<span class="sd">    :ivar ~.aux_data: The auxiliary data associated</span>
+<span class="sd">            with the object, as a mapping from names to</span>
+<span class="sd">            :class:`gtirb.AuxData`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AuxDataContainer.__init__"><a class="viewcode-back" href="../../gtirb.auxdata.html#gtirb.AuxDataContainer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">aux_data</span><span class="o">=</span><span class="p">{},</span>  <span class="c1"># type: DictLike[str, AuxData]</span>
+        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: typing.Optional[UUID]</span>
+    <span class="p">):</span>
+        <span class="c1"># type: (...) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param aux_data: The initial auxiliary data to be associated</span>
+<span class="sd">            with the object, as a mapping from names to</span>
+<span class="sd">            :class:`gtirb.AuxData`. Defaults to an empty :class:`dict`.</span>
+<span class="sd">        :param uuid: the UUID of this ``AuxDataContainer``,</span>
+<span class="sd">            or None if a new UUID needs generated via :func:`uuid.uuid4`.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aux_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">aux_data</span><span class="p">)</span>  <span class="c1"># type: typing.Dict[str, AuxData]</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_read_protobuf_aux_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">proto_container</span><span class="p">,</span> <span class="n">ir</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Any,typing.Optional[&quot;IR&quot;]) -&gt; typing.Dict[str, AuxData]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instead of the overrided _decode_protobuf, this method requires the</span>
+<span class="sd">        Protobuf message to read from. AuxDataContainers need to call this</span>
+<span class="sd">        method in their own _decode_protobuf overrides.</span>
+
+<span class="sd">        :param proto_container: A Protobuf message with a field called</span>
+<span class="sd">            ``aux_data``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">AuxData</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">proto_container</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_write_protobuf_aux_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proto_container</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Any) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instead of the overrided _to_protobuf, this method requires the</span>
+<span class="sd">        Protobuf message to write into. AuxDataContainers need to call this</span>
+<span class="sd">        method in their own _to_protobuf overrides.</span>
+
+<span class="sd">        :param proto_container: A Protobuf message with a field called</span>
+<span class="sd">            ``aux_data``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">proto_container</span><span class="o">.</span><span class="n">aux_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">())</span>
+
+<div class="viewcode-block" id="AuxDataContainer.deep_eq"><a class="viewcode-back" href="../../gtirb.auxdata.html#gtirb.AuxDataContainer.deep_eq">[docs]</a>    <span class="k">def</span> <span class="nf">deep_eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Any) -&gt; bool</span>
+        <span class="sd">&quot;&quot;&quot;This overrides :func:`gtirb.Node.deep_eq` to check for</span>
+<span class="sd">        AuxData equality.</span>
+
+<span class="sd">        Because the values stored by AuxData are not necessarily</span>
+<span class="sd">        amenable to deep checking, the auxiliary data dictionaries</span>
+<span class="sd">        stored for ``self`` and ``other`` are not deeply checked. Instead,</span>
+<span class="sd">        they are considered to be equal if their sets of keys are equal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">AuxDataContainer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">uuid</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gtirb.html">gtirb package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

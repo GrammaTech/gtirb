@@ -1,0 +1,18 @@
+<map id="Casting.hpp" name="Casting.hpp">
+<area shape="rect" id="node1" title="The various casting and type checking operations that apply to gtirb::Node subclasses." alt="" coords="275,5,367,32"/>
+<area shape="rect" id="node2" href="$_c_f_g_8hpp.html" title="Types and operations for interprocedural control flow graphs (CFGs)." alt="" coords="5,379,80,405"/>
+<area shape="rect" id="node5" href="$_node_8hpp.html" title="Class gtirb::Node." alt="" coords="609,80,687,107"/>
+<area shape="rect" id="node3" href="$gtirb_8hpp.html" title="#include this file to include all GTIRB API headers." alt="" coords="703,528,775,555"/>
+<area shape="rect" id="node4" href="$_i_r_8hpp.html" title="Class gtirb::IR." alt="" coords="303,453,364,480"/>
+<area shape="rect" id="node6" href="$_aux_data_8hpp.html" title="Types and operations for auxiliary data." alt="" coords="83,229,181,256"/>
+<area shape="rect" id="node7" href="$_aux_data_container_8hpp.html" title="Class gtirb::AuxDataContainer." alt="" coords="257,304,410,331"/>
+<area shape="rect" id="node8" href="$_module_8hpp.html" title="Class gtirb::Module and related functions and types." alt="" coords="525,379,614,405"/>
+<area shape="rect" id="node9" href="$_byte_interval_8hpp.html" title="Class gtirb::ByteInterval." alt="" coords="639,155,756,181"/>
+<area shape="rect" id="node10" href="$_code_block_8hpp.html" title="Class gtirb::CodeBlock." alt="" coords="923,229,1034,256"/>
+<area shape="rect" id="node11" href="$_section_8hpp.html" title="Class gtirb::Section." alt="" coords="587,304,677,331"/>
+<area shape="rect" id="node12" href="$_symbol_8hpp.html" title="Class gtirb::Symbol." alt="" coords="853,304,944,331"/>
+<area shape="rect" id="node13" href="$_data_block_8hpp.html" title="Class gtirb::DataBlock." alt="" coords="739,229,847,256"/>
+<area shape="rect" id="node14" href="$_cfg_node_8hpp.html" title="Base class for nodes of the CFG." alt="" coords="973,155,1072,181"/>
+<area shape="rect" id="node15" href="$_proxy_block_8hpp.html" title="Class gtirb::ProxyBlock." alt="" coords="1059,229,1173,256"/>
+<area shape="rect" id="node16" href="$_utility_8hpp.html" title=" " alt="" coords="433,229,511,256"/>
+</map>

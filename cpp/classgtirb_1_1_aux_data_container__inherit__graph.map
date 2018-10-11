@@ -1,0 +1,6 @@
+<map id="gtirb::AuxDataContainer" name="gtirb::AuxDataContainer">
+<area shape="rect" id="node1" title="Contains the AuxData Tables and serves as a base class." alt="" coords="12,80,175,107"/>
+<area shape="rect" id="node3" href="$classgtirb_1_1_i_r.html" title="A complete internal representation consisting of Modules (Module)." alt="" coords="5,155,75,181"/>
+<area shape="rect" id="node4" href="$classgtirb_1_1_module.html" title="Represents a single binary (library or executable)." alt="" coords="99,155,197,181"/>
+<area shape="rect" id="node2" href="$classgtirb_1_1_node.html" title="Represents the base of the Node class hierarchy." alt="" coords="50,5,137,32"/>
+</map>

@@ -1,0 +1,7 @@
+gtirb.auxdata module
+====================
+
+.. automodule:: gtirb.auxdata
+   :members:
+   :undoc-members:
+   :show-inheritance:

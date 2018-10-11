@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.cfg &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for gtirb.cfg</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span>
+
+<span class="kn">from</span> <span class="nn">.block</span> <span class="kn">import</span> <span class="n">CfgNode</span>
+<span class="kn">from</span> <span class="nn">.proto</span> <span class="kn">import</span> <span class="n">CFG_pb2</span>
+
+
+<div class="viewcode-block" id="Edge"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.Edge">[docs]</a><span class="k">class</span> <span class="nc">Edge</span><span class="p">(</span>
+    <span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">(</span>
+        <span class="s2">&quot;NamedTuple&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">CfgNode</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">CfgNode</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;typing.Optional[Edge.Label]&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An edge in the CFG from ``source`` to ``target``, with optional</span>
+<span class="sd">    control-flow details in ``label``.</span>
+
+<span class="sd">    :ivar ~.source: The source CFG node.</span>
+<span class="sd">    :ivar ~.target: The target CFG node.</span>
+<span class="sd">    :ivar ~.label: An optional label containing more control flow information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="Edge.Type"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.Edge.Type">[docs]</a>    <span class="k">class</span> <span class="nc">Type</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The type of control flow transfer indicated by a</span>
+<span class="sd">        :class:`gtirb.Edge`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Branch</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Type_Branch&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;This edge is the explicit target of a jump instruction.</span>
+<span class="sd">        May be conditional or unconditional. If conditional, there will be</span>
+<span class="sd">        a corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Call</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Type_Call&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;This edge is the explicit target of a call instruction.</span>
+<span class="sd">        Unless the function does not return, there will also be a</span>
+<span class="sd">        corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Fallthrough</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Type_Fallthrough&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;This edge represents two blocks executing in sequence.</span>
+<span class="sd">        This occurs on the non-branching paths of conditional branch</span>
+<span class="sd">        instructions, after call instructons have returned, and when two</span>
+<span class="sd">        blocks have no control flow between them, but another</span>
+<span class="sd">        :class:`gtirb.Edge` targets the target block.</span>
+<span class="sd">        If there exists a fallthrough edge from block ``A`` to block ``B``,</span>
+<span class="sd">        then ``A`` must immediately precede ``B`` in memory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Return</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Type_Return&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;This edge represents a return from a function, generally via a</span>
+<span class="sd">        return instruction. Return edges may either go to a symbolless</span>
+<span class="sd">        :class:`gtirb.ProxyBlock`, which indicates that the set of possible</span>
+<span class="sd">        return targets is unknown, or there may be one return edge per</span>
+<span class="sd">        return target, which indicates that the set of possible return targets</span>
+<span class="sd">        if fully known.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Syscall</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Type_Syscall&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;This edge is the explicit target of a system call instruction.</span>
+<span class="sd">        Unless the function does not return, there will also be a</span>
+<span class="sd">        corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`. This</span>
+<span class="sd">        is the system call equivalent to :class:`gtirb.Edge.Type.Call`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Sysret</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Type_Sysret&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;This edge represents a return from a system call, generally via a</span>
+<span class="sd">        return instruction. Return edges may either go to a symbolless</span>
+<span class="sd">        :class:`gtirb.ProxyBlock`, which indicates that the set of possible</span>
+<span class="sd">        return targets is unknown, or there may be one return edge per</span>
+<span class="sd">        return target, which indicates that the set of possible return targets</span>
+<span class="sd">        if fully known. This is the system call equivalent to</span>
+<span class="sd">        :class:`gtirb.Edge.Type.Return`.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Edge.Label"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.Edge.Label">[docs]</a>    <span class="k">class</span> <span class="nc">Label</span><span class="p">(</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">(</span>
+            <span class="s2">&quot;NamedTuple&quot;</span><span class="p">,</span>
+            <span class="p">((</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;Edge.Type&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;conditional&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;direct&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)),</span>
+        <span class="p">)</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Contains a more detailed description of a :class:`gtirb.Edge`</span>
+<span class="sd">        in the CFG.</span>
+
+<span class="sd">        :ivar ~.conditional: When this edge is part of a conditional branch,</span>
+<span class="sd">            ``conditional`` is ``True`` when the edge represents the control</span>
+<span class="sd">            flow taken when the branch&#39;s condition is met, and ``False``</span>
+<span class="sd">            when it represents the control flow taken when the branch&#39;s</span>
+<span class="sd">            condition is not met. Otherwise, it is always ``False``.</span>
+<span class="sd">        :ivar ~.direct: ``True`` if the branch or call is direct,</span>
+<span class="sd">                and ``False`` if it is indirect. If an edge is indirect,</span>
+<span class="sd">                then all outgoing indirect edges represent the set of</span>
+<span class="sd">                possible locations the edge may branch to. If there</span>
+<span class="sd">                exists an indirect outgoing edge to a :class:`gtirb.ProxyBlock`</span>
+<span class="sd">                without any :class:`gtirb.Symbol` objects referring to it,</span>
+<span class="sd">                then the set of all possible branch locations is unknown.</span>
+<span class="sd">        :ivar ~.type: The type of control flow the :class:`gtirb.Edge`</span>
+<span class="sd">            represents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+        <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c1"># type: () -&gt; str</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="s2">&quot;Edge.Label(&quot;</span>
+                <span class="s2">&quot;type=Edge.</span><span class="si">{type!s}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;conditional=</span><span class="si">{conditional!r}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;direct=</span><span class="si">{direct!r}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_asdict</span><span class="p">())</span>
+            <span class="p">)</span></div>
+
+    <span class="c1"># Default values for Label.conditional and Label.direct.</span>
+    <span class="n">Label</span><span class="o">.</span><span class="fm">__new__</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="o">=</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="c1"># Default value for Edge.label:</span>
+<span class="n">Edge</span><span class="o">.</span><span class="fm">__new__</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span>
+
+
+<div class="viewcode-block" id="CFG"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG">[docs]</a><span class="k">class</span> <span class="nc">CFG</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">Edge</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;A control-flow graph for an :class:`IR`. Vertices are</span>
+<span class="sd">    :class:`CfgNode`\\s, and edges may optionally contain</span>
+<span class="sd">    :class:`Edge.Label`\\s.</span>
+
+<span class="sd">    The graph may be viewed simply as a set of :class:`Edge`\\s. For</span>
+<span class="sd">    convenience, the :meth:`out_edges` and :meth:`in_edges` methods provide</span>
+<span class="sd">    access to the outgoing or incoming edges of individual nodes.</span>
+
+<span class="sd">    For efficency, only vertices with edges are guaranteed to be stored in this</span>
+<span class="sd">    graph. If you want to find all vertices possible (that is, all</span>
+<span class="sd">    :class:`CfgNode`\\s), use :meth:`IR.cfg_nodes` instead.</span>
+
+<span class="sd">    Internally, the graph is stored as a NetworkX instance, which can be</span>
+<span class="sd">    accessed using :meth:`nx`. This allows NetworkX&#39;s large library of graph</span>
+<span class="sd">    algorithms to be used on CFGs, if desired.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CFG.__init__"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Iterable[Edge]) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span> <span class="o">=</span> <span class="n">networkx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_edge_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+        <span class="c1"># type: (Edge) -&gt; typing.Optional[typing.Hashable]</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">target</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="CFG.__contains__"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.__contains__">[docs]</a>    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+        <span class="c1"># type: (Edge) -&gt; bool</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_key</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="CFG.__iter__"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.__iter__">[docs]</a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterable[Edge]</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Edge</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CFG.__len__"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="CFG.update"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Iterable[Edge]) -&gt; None</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CFG.add"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+        <span class="c1"># type: (Edge) -&gt; None</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CFG.clear"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CFG.discard"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+        <span class="c1"># type: (Edge) -&gt; None</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_key</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CFG.out_edges"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.out_edges">[docs]</a>    <span class="k">def</span> <span class="nf">out_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="c1"># type: (CfgNode) -&gt; typing.Iterable[Edge]</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Edge</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CFG.in_edges"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.in_edges">[docs]</a>    <span class="k">def</span> <span class="nf">in_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="c1"># type: (CfgNode) -&gt; typing.Iterable[Edge]</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Edge</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">ir</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Iterable[CFG_pb2.Edge]) -&gt; CFG</span>
+        <span class="k">return</span> <span class="n">CFG</span><span class="p">(</span>
+            <span class="n">Edge</span><span class="p">(</span>
+                <span class="n">ir</span><span class="o">.</span><span class="n">get_by_uuid</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="nb">bytes</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">source_uuid</span><span class="p">)),</span>
+                <span class="n">ir</span><span class="o">.</span><span class="n">get_by_uuid</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="nb">bytes</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">target_uuid</span><span class="p">)),</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">Edge</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span>
+                    <span class="n">Edge</span><span class="o">.</span><span class="n">Type</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
+                    <span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">conditional</span><span class="p">,</span>
+                    <span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">direct</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">HasField</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterable[CFG_pb2.Edge]</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">):</span>
+            <span class="n">proto_edge</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">Edge</span><span class="p">()</span>
+            <span class="n">proto_edge</span><span class="o">.</span><span class="n">source_uuid</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">bytes</span>
+            <span class="n">proto_edge</span><span class="o">.</span><span class="n">target_uuid</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">bytes</span>
+            <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
+                <span class="n">proto_edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">proto_edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">conditional</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">conditional</span>
+                <span class="n">proto_edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">direct</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">direct</span>
+            <span class="k">yield</span> <span class="n">proto_edge</span>
+
+<div class="viewcode-block" id="CFG.nx"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.nx">[docs]</a>    <span class="k">def</span> <span class="nf">nx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; networkx.MultiDiGraph</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span></div>
+
+<div class="viewcode-block" id="CFG.deep_eq"><a class="viewcode-back" href="../../gtirb.cfg.html#gtirb.CFG.deep_eq">[docs]</a>    <span class="k">def</span> <span class="nf">deep_eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># type: (CFG) -&gt; bool</span>
+        <span class="c1"># Do not move __eq__. See docstring for Node.deep_eq for more info.</span>
+
+        <span class="k">def</span> <span class="nf">edge_sort_key</span><span class="p">(</span><span class="n">edge</span><span class="p">):</span>
+            <span class="n">label_key</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">label_key</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                    <span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">conditional</span><span class="p">,</span>
+                    <span class="n">edge</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">direct</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">label_key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">CFG</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># We don&#39;t have to compare nodes for deep_eq because if an node has no</span>
+        <span class="c1"># edges, then we do not guarantee that graphs have that node as a</span>
+        <span class="c1"># vertex, and if it has edges, a failure of deep_eq will be detected</span>
+        <span class="c1"># when comparing edges.</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_nxg</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">self_edges</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">edge_sort_key</span><span class="p">)</span>
+        <span class="n">other_edges</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">edge_sort_key</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">self_edge</span><span class="p">,</span> <span class="n">other_edge</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">self_edges</span><span class="p">,</span> <span class="n">other_edges</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">self_edge</span><span class="o">.</span><span class="n">label</span> <span class="o">!=</span> <span class="n">other_edge</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">self_edge</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other_edge</span><span class="o">.</span><span class="n">source</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">self_edge</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other_edge</span><span class="o">.</span><span class="n">target</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="s2">&quot;CFG(</span><span class="si">%r</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gtirb.html">gtirb package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

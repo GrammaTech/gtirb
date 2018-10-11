@@ -1,0 +1,7 @@
+gtirb.proto.SymbolicExpression\_pb2 module
+==========================================
+
+.. automodule:: gtirb.proto.SymbolicExpression_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

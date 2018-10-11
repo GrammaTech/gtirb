@@ -1,0 +1,7 @@
+gtirb.proto.ProxyBlock\_pb2 module
+==================================
+
+.. automodule:: gtirb.proto.ProxyBlock_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

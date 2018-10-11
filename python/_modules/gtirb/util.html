@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.util &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for gtirb.util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;General utilities usable by any other GTIRB submoudle.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="n">K</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">)</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DictLike"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictLike">[docs]</a><span class="k">class</span> <span class="nc">DictLike</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Any value that can be passed to the constructor of ``dict``;</span>
+<span class="sd">    that is, a mapping or iterable yielding key-value tuples.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+    <span class="c1"># NOTE: this should inherit from:</span>
+    <span class="c1"># typing.Union[</span>
+    <span class="c1">#     typing.Mapping[K, V],</span>
+    <span class="c1">#     typing.Iterable[typing.Tuple[K, V]],</span>
+    <span class="c1"># ]</span>
+    <span class="c1"># but cannot, due to metaclass conflicts.</span>
+
+
+<div class="viewcode-block" id="ListWrapper"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper">[docs]</a><span class="k">class</span> <span class="nc">ListWrapper</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<div class="viewcode-block" id="ListWrapper.__init__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+    <span class="c1"># begin functions for ABC</span>
+<div class="viewcode-block" id="ListWrapper.__getitem__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ListWrapper.__setitem__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.__setitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span></div>
+
+<div class="viewcode-block" id="ListWrapper.__delitem__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.__delitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ListWrapper.__len__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ListWrapper.insert"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+    <span class="c1"># The version of typing.py which comes with python 3.5.2 doesn&#39;t provide</span>
+    <span class="c1"># definitions for append or remove on MutableList, so we have to do it</span>
+    <span class="c1"># ourselves.</span>
+<div class="viewcode-block" id="ListWrapper.append"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ListWrapper.remove"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span></div>
+
+    <span class="c1"># extend is not in every version of Python 3, so list wrapper adds it here</span>
+    <span class="c1"># itself.</span>
+<div class="viewcode-block" id="ListWrapper.extend"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.ListWrapper.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+    <span class="c1"># end functions for ABC</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SetWrapper"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper">[docs]</a><span class="k">class</span> <span class="nc">SetWrapper</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<div class="viewcode-block" id="SetWrapper.__init__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+    <span class="c1"># begin functions for ABC</span>
+<div class="viewcode-block" id="SetWrapper.__contains__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.__contains__">[docs]</a>    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span></div>
+
+<div class="viewcode-block" id="SetWrapper.__iter__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.__iter__">[docs]</a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SetWrapper.__len__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SetWrapper.add"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SetWrapper.discard"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+    <span class="c1"># end functions for ABC</span>
+
+    <span class="c1"># The version of typing.py which comes with python 3.5.2 doesn&#39;t provide</span>
+    <span class="c1"># definitions for __or__ or clear on MutableSet, so we have to do it</span>
+    <span class="c1"># ourselves.</span>
+<div class="viewcode-block" id="SetWrapper.__or__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.__or__">[docs]</a>    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">|</span> <span class="n">other</span></div>
+
+<div class="viewcode-block" id="SetWrapper.clear"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+    <span class="c1"># For whatever reason, update isn&#39;t included as part of abc.MutableSet.</span>
+<div class="viewcode-block" id="SetWrapper.update"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.SetWrapper.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DictWrapper"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper">[docs]</a><span class="k">class</span> <span class="nc">DictWrapper</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]):</span>
+<div class="viewcode-block" id="DictWrapper.__init__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span></div>
+
+    <span class="c1"># begin functions for ABC</span>
+<div class="viewcode-block" id="DictWrapper.__getitem__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DictWrapper.__setitem__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper.__setitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span></div>
+
+<div class="viewcode-block" id="DictWrapper.__delitem__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper.__delitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DictWrapper.__iter__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper.__iter__">[docs]</a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictWrapper.__len__"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.DictWrapper.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+    <span class="c1"># end functions for ABC</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_desired_range"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.get_desired_range">[docs]</a><span class="k">def</span> <span class="nf">get_desired_range</span><span class="p">(</span><span class="n">addrs</span><span class="p">):</span>
+    <span class="c1"># type: (typing.Union[int, range]) -&gt; range</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">addrs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="n">addrs</span><span class="p">,</span> <span class="n">addrs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">addrs</span></div>
+
+
+<div class="viewcode-block" id="nodes_on"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.nodes_on">[docs]</a><span class="k">def</span> <span class="nf">nodes_on</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="p">,</span>  <span class="c1"># type: typing.Iterable[T]</span>
+    <span class="n">addrs</span><span class="p">,</span>  <span class="c1"># type: typing.Union[int, range]</span>
+<span class="p">):</span>
+    <span class="c1"># type: (...) -&gt; typing.Iterable[T]</span>
+    <span class="n">desired_range</span> <span class="o">=</span> <span class="n">get_desired_range</span><span class="p">(</span><span class="n">addrs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">node_addr</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">address</span>
+        <span class="k">if</span> <span class="n">node_addr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">node_addr</span><span class="p">,</span> <span class="n">node_addr</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">range</span><span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span><span class="n">desired_range</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">node_range</span><span class="o">.</span><span class="n">start</span><span class="p">),</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">desired_range</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">node_range</span><span class="o">.</span><span class="n">stop</span><span class="p">),</span>
+            <span class="p">):</span>
+                <span class="k">yield</span> <span class="n">node</span></div>
+
+
+<div class="viewcode-block" id="nodes_at"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.nodes_at">[docs]</a><span class="k">def</span> <span class="nf">nodes_at</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="p">,</span>  <span class="c1"># type: typing.Iterable[T]</span>
+    <span class="n">addrs</span><span class="p">,</span>  <span class="c1"># type: typing.Union[int, range]</span>
+<span class="p">):</span>
+    <span class="c1"># type: (...) -&gt; typing.Iterable[T]</span>
+    <span class="n">desired_range</span> <span class="o">=</span> <span class="n">get_desired_range</span><span class="p">(</span><span class="n">addrs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">node_addr</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">address</span>
+        <span class="k">if</span> <span class="n">node_addr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">node_addr</span> <span class="ow">in</span> <span class="n">desired_range</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">node</span></div>
+
+
+<div class="viewcode-block" id="symbolic_expressions_at"><a class="viewcode-back" href="../../gtirb.util.html#gtirb.util.symbolic_expressions_at">[docs]</a><span class="k">def</span> <span class="nf">symbolic_expressions_at</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="p">,</span>  <span class="c1"># type: typing.Iterable</span>
+    <span class="n">addrs</span><span class="p">,</span>  <span class="c1"># type: typing.Union[int, range]</span>
+<span class="p">):</span>
+    <span class="c1"># type: (...) -&gt; typing.Iterable[typing.Tuple]</span>
+    <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">symbolic_expressions_at</span><span class="p">(</span><span class="n">addrs</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gtirb.html">gtirb package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

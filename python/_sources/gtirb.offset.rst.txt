@@ -1,0 +1,7 @@
+gtirb.offset module
+===================
+
+.. automodule:: gtirb.offset
+   :members:
+   :undoc-members:
+   :show-inheritance:

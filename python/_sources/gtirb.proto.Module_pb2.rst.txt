@@ -1,0 +1,7 @@
+gtirb.proto.Module\_pb2 module
+==============================
+
+.. automodule:: gtirb.proto.Module_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

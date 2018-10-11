@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for gtirb.module</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+
+<span class="kn">from</span> <span class="nn">.auxdata</span> <span class="kn">import</span> <span class="n">AuxData</span><span class="p">,</span> <span class="n">AuxDataContainer</span>
+<span class="kn">from</span> <span class="nn">.block</span> <span class="kn">import</span> <span class="n">ByteBlock</span><span class="p">,</span> <span class="n">CfgNode</span><span class="p">,</span> <span class="n">CodeBlock</span><span class="p">,</span> <span class="n">DataBlock</span><span class="p">,</span> <span class="n">ProxyBlock</span>
+<span class="kn">from</span> <span class="nn">.byteinterval</span> <span class="kn">import</span> <span class="n">ByteInterval</span><span class="p">,</span> <span class="n">SymbolicExpressionElement</span>
+<span class="kn">from</span> <span class="nn">.node</span> <span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span> <span class="nn">.proto</span> <span class="kn">import</span> <span class="n">Module_pb2</span>
+<span class="kn">from</span> <span class="nn">.section</span> <span class="kn">import</span> <span class="n">Section</span>
+<span class="kn">from</span> <span class="nn">.symbol</span> <span class="kn">import</span> <span class="n">Symbol</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DictLike</span><span class="p">,</span>
+    <span class="n">SetWrapper</span><span class="p">,</span>
+    <span class="n">nodes_at</span><span class="p">,</span>
+    <span class="n">nodes_on</span><span class="p">,</span>
+    <span class="n">symbolic_expressions_at</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Module"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module">[docs]</a><span class="k">class</span> <span class="nc">Module</span><span class="p">(</span><span class="n">AuxDataContainer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a loadable object, such as an executable or library.</span>
+
+<span class="sd">    :ivar ~.binary_path: The path to the loadable binary object</span>
+<span class="sd">        represented by this module. An empty string if not specified.</span>
+<span class="sd">        The file represented by this path is indicitave of what file</span>
+<span class="sd">        this ``Module`` was initially created from; it is not guaranteed to</span>
+<span class="sd">        currently exist or have the same contents.</span>
+<span class="sd">    :ivar ~.isa: The ISA of the binary.</span>
+<span class="sd">    :ivar ~.file_format: The file format of the binary.</span>
+<span class="sd">    :ivar ~.byte_order: The endianness of the binary.</span>
+<span class="sd">    :ivar ~.name: The name given to the binary. Some file formats use this</span>
+<span class="sd">        for linking and/or symbol resolution purposes. The file name (without</span>
+<span class="sd">        directory components) if not specified by the format.</span>
+<span class="sd">    :ivar ~.preferred_addr: The preferred loading address of the binary.</span>
+<span class="sd">    :ivar ~.proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s</span>
+<span class="sd">        in the binary.</span>
+<span class="sd">    :ivar ~.rebase_delta: The rebase delta of the binary.</span>
+<span class="sd">    :ivar ~.sections: A set containing all the :class:`gtirb.Section`\\s</span>
+<span class="sd">        in the binary.</span>
+<span class="sd">    :ivar ~.symbols: A set containing all the :class:`gtirb.Symbol`\\s</span>
+<span class="sd">        in the binary.</span>
+<span class="sd">    :ivar ~.entry_point: A :class:`CodeBlock` representing where</span>
+<span class="sd">        control flow of this module begins at, or None if not present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Module.FileFormat"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.FileFormat">[docs]</a>    <span class="k">class</span> <span class="nc">FileFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Identifies the executable file format of the binary represented</span>
+<span class="sd">        by a :class:`gtirb.Module`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Undefined</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Format_Undefined&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;A file format that has not yet been specified.</span>
+<span class="sd">        This is for unitialized modules; do not use to refer to</span>
+<span class="sd">        file formats without ``FileFormat`` values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">COFF</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;COFF&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The Common Object File Format.&quot;&quot;&quot;</span>
+
+        <span class="n">ELF</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;ELF&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The Executable and Linkable Format,</span>
+<span class="sd">        formerly the Extensible Linking Format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">IdaProDb32</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;IdaProDb32&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;A 32-bit IDA Pro database file.&quot;&quot;&quot;</span>
+
+        <span class="n">IdaProDb64</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;IdaProDb64&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;A 64-bit IDA Pro database file.&quot;&quot;&quot;</span>
+
+        <span class="n">MACHO</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;MACHO&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;A Mach object file.&quot;&quot;&quot;</span>
+
+        <span class="n">PE</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;PE&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Microsoft&#39;s Portable Executable format.&quot;&quot;&quot;</span>
+
+        <span class="n">RAW</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;RAW&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;A raw binary file, with no file format.&quot;&quot;&quot;</span>
+
+        <span class="n">XCOFF</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;XCOFF&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The Extended Common Object File Format.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Module.ISA"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.ISA">[docs]</a>    <span class="k">class</span> <span class="nc">ISA</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Identifies the instruction set architecture (ISA)</span>
+<span class="sd">        targeted by a :class:`gtirb.Module`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Undefined</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;ISA_Undefined&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;An ISA that has not yet been specified.</span>
+<span class="sd">        This is for unitialized modules;</span>
+<span class="sd">        use :class:`gtirb.Module.ISA.ValidButUnsupported`</span>
+<span class="sd">        instead for specifying undefined ISAs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ARM</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;ARM&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The Acorn RISC Machine, 32-bit.&quot;&quot;&quot;</span>
+
+        <span class="n">ARM64</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;ARM64&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The Acorn RISC Machine, 64-bit.&quot;&quot;&quot;</span>
+
+        <span class="n">IA32</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;IA32&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The 32-bit Intel Architecture. Also known as i386, x86, or x32.&quot;&quot;&quot;</span>
+
+        <span class="n">PPC32</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;PPC32&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;IBM&#39;s 32-bit PowerPC (Performance Optimization with Enhanced RISC /</span>
+<span class="sd">        Performance Computing) architecture.&quot;&quot;&quot;</span>
+
+        <span class="n">PPC64</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;PPC64&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;IBM&#39;s 64-bit PowerPC (Performance Optimization with Enhanced RISC /</span>
+<span class="sd">        Performance Computing) architecture.&quot;&quot;&quot;</span>
+
+        <span class="n">MIPS32</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;MIPS32&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Microprocessor without Interlocked Pipelined Stages, 32-bit.&quot;&quot;&quot;</span>
+
+        <span class="n">MIPS64</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;MIPS64&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Microprocessor without Interlocked Pipelined Stages, 64-bit.&quot;&quot;&quot;</span>
+
+        <span class="n">X64</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;X64&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;The 64-bit Intel Architecture. Also known as x86_64.&quot;&quot;&quot;</span>
+
+        <span class="n">ValidButUnsupported</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ISA</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;ValidButUnsupported&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;An unknown or undefined ISA.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Module.ByteOrder"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.ByteOrder">[docs]</a>    <span class="k">class</span> <span class="nc">ByteOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Identifies the endianness of a :class:`gtirb.Module`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Undefined</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ByteOrder</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;ByteOrder_Undefined&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;An unknown or uninitialized endianness.&quot;&quot;&quot;</span>
+
+        <span class="n">Big</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ByteOrder</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;BigEndian&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Big endian.&quot;&quot;&quot;</span>
+
+        <span class="n">Little</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">ByteOrder</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;LittleEndian&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Little endian.&quot;&quot;&quot;</span></div>
+
+    <span class="k">class</span> <span class="nc">_NodeSet</span><span class="p">(</span><span class="n">SetWrapper</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_node</span> <span class="o">=</span> <span class="n">node</span>  <span class="c1"># type: Module</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_field</span> <span class="o">=</span> <span class="n">field</span>  <span class="c1"># type: str</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">_module</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">_module</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field</span><span class="p">)</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">ir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">_add_to_uuid_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">ir</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">ir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">_remove_from_uuid_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">ir</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Module.__init__"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>  <span class="c1"># type: str</span>
+        <span class="n">aux_data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>  <span class="c1"># type: DictLike[str, AuxData]</span>
+        <span class="n">binary_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># type: str</span>
+        <span class="n">file_format</span><span class="o">=</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span>  <span class="c1"># type: Module.FileFormat</span>
+        <span class="n">isa</span><span class="o">=</span><span class="n">ISA</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span>  <span class="c1"># type: Module.ISA</span>
+        <span class="n">byte_order</span><span class="o">=</span><span class="n">ByteOrder</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span>  <span class="c1"># type: Module.ByteOrder</span>
+        <span class="n">preferred_addr</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># type: int</span>
+        <span class="n">proxies</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span>  <span class="c1"># type: typing.Iterable[ProxyBlock]</span>
+        <span class="n">rebase_delta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># type: int</span>
+        <span class="n">sections</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span>  <span class="c1"># type: typing.Iterable[Section]</span>
+        <span class="n">symbols</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span>  <span class="c1"># type: typing.Iterable[Symbol]</span>
+        <span class="n">entry_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: typing.Optional[CodeBlock]</span>
+        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: typing.Optional[UUID]</span>
+        <span class="n">ir</span><span class="o">=</span><span class="kc">None</span>  <span class="c1"># type: typing.Optional[&quot;IR&quot;]</span>
+    <span class="p">):</span>
+        <span class="c1"># type: (...) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param aux_data: The initial auxiliary data to be associated</span>
+<span class="sd">            with the object, as a mapping from names to</span>
+<span class="sd">            :class:`gtirb.AuxData`, defaults to an empty :class:`dict`.</span>
+<span class="sd">        :param binary_path: The path to the loadable binary object</span>
+<span class="sd">            represented by this module.</span>
+<span class="sd">        :param isa: The ISA of the binary.</span>
+<span class="sd">        :param byte_order: The endianness of the binary.</span>
+<span class="sd">        :param file_format: The file format of the binary.</span>
+<span class="sd">        :param name: The name given to the binary.</span>
+<span class="sd">        :param preferred_addr: The preferred loading address of the binary.</span>
+<span class="sd">        :param proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s</span>
+<span class="sd">            in the binary.</span>
+<span class="sd">        :param rebase_delta: The rebase delta of the binary.</span>
+<span class="sd">        :param sections: A set containing all the :class:`gtirb.Section`\\s</span>
+<span class="sd">            in the binary.</span>
+<span class="sd">        :param symbols: A set containing all the :class:`gtirb.Symbol`\\s</span>
+<span class="sd">            in the binary.</span>
+<span class="sd">        :param entry_point: A :class:`CodeBlock` representing where</span>
+<span class="sd">            control flow of this module begins at, or None if not present.</span>
+<span class="sd">        :param uuid: The UUID of this ``Module``,</span>
+<span class="sd">            or None if a new UUID needs generated via :func:`uuid.uuid4`.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        :param ir: The :class:`IR` this module belongs to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ir</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: &quot;IR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binary_path</span> <span class="o">=</span> <span class="n">binary_path</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isa</span> <span class="o">=</span> <span class="n">isa</span>  <span class="c1"># type: Module.ISA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">byte_order</span> <span class="o">=</span> <span class="n">byte_order</span>  <span class="c1"># type: Module.ByteOrder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_format</span> <span class="o">=</span> <span class="n">file_format</span>  <span class="c1"># type: Module.FileFormat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preferred_addr</span> <span class="o">=</span> <span class="n">preferred_addr</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span> <span class="o">=</span> <span class="n">Module</span><span class="o">.</span><span class="n">_NodeSet</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;proxies&quot;</span><span class="p">,</span> <span class="n">proxies</span>
+        <span class="p">)</span>  <span class="c1"># type: typing.Set[ProxyBlock]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rebase_delta</span> <span class="o">=</span> <span class="n">rebase_delta</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="n">Module</span><span class="o">.</span><span class="n">_NodeSet</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sections&quot;</span><span class="p">,</span> <span class="n">sections</span>
+        <span class="p">)</span>  <span class="c1"># type: typing.Set[Section]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span> <span class="o">=</span> <span class="n">Module</span><span class="o">.</span><span class="n">_NodeSet</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;symbols&quot;</span><span class="p">,</span> <span class="n">symbols</span>
+        <span class="p">)</span>  <span class="c1"># type: typing.Set[Symbol]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span> <span class="o">=</span> <span class="n">entry_point</span>  <span class="c1"># type: typing.Optional[CodeBlock]</span>
+        <span class="c1"># Initialize the aux data last so that the cache is populated</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aux_data</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span>
+
+        <span class="c1"># Use the property setter to ensure correct invariants.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ir</span> <span class="o">=</span> <span class="n">ir</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_decode_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">proto_module</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">ir</span><span class="p">):</span>
+        <span class="c1"># type: (Module_pb2.Module. UUID, typing.Optiona[&quot;IR&quot;]) -&gt; Module</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">binary_path</span><span class="o">=</span><span class="n">proto_module</span><span class="o">.</span><span class="n">binary_path</span><span class="p">,</span>
+            <span class="n">isa</span><span class="o">=</span><span class="n">Module</span><span class="o">.</span><span class="n">ISA</span><span class="p">(</span><span class="n">proto_module</span><span class="o">.</span><span class="n">isa</span><span class="p">),</span>
+            <span class="n">file_format</span><span class="o">=</span><span class="n">Module</span><span class="o">.</span><span class="n">FileFormat</span><span class="p">(</span><span class="n">proto_module</span><span class="o">.</span><span class="n">file_format</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">proto_module</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">preferred_addr</span><span class="o">=</span><span class="n">proto_module</span><span class="o">.</span><span class="n">preferred_addr</span><span class="p">,</span>
+            <span class="n">rebase_delta</span><span class="o">=</span><span class="n">proto_module</span><span class="o">.</span><span class="n">rebase_delta</span><span class="p">,</span>
+            <span class="n">byte_order</span><span class="o">=</span><span class="n">Module</span><span class="o">.</span><span class="n">ByteOrder</span><span class="p">(</span><span class="n">proto_module</span><span class="o">.</span><span class="n">byte_order</span><span class="p">),</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">_add_to_uuid_cache</span><span class="p">(</span><span class="n">ir</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="p">)</span>
+
+        <span class="c1"># proxies depend on nothing</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">proxies</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">ProxyBlock</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">proto_module</span><span class="o">.</span><span class="n">proxies</span>
+        <span class="p">)</span>
+        <span class="c1"># sections depend on symbolic expressions, so that step is split out</span>
+        <span class="c1"># from _decode_protobuf into _decode_symbolic_expressions</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">sections</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">Section</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">proto_module</span><span class="o">.</span><span class="n">sections</span>
+        <span class="p">)</span>
+        <span class="c1"># entry point is a code block, which depends on sections</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">entry_point</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ir</span><span class="o">.</span><span class="n">get_by_uuid</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="nb">bytes</span><span class="o">=</span><span class="n">proto_module</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">proto_module</span><span class="o">.</span><span class="n">entry_point</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="c1"># symbols depend on blocks</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">Symbol</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">proto_module</span><span class="o">.</span><span class="n">symbols</span>
+        <span class="p">)</span>
+        <span class="c1"># symbolic expressions depend on symbols</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">sections</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">byte_intervals</span><span class="p">:</span>
+                <span class="n">interval</span><span class="o">.</span><span class="n">_decode_symbolic_expressions</span><span class="p">(</span><span class="n">ir</span><span class="p">)</span>
+        <span class="c1"># aux data may depend on any node</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">AuxDataContainer</span><span class="o">.</span><span class="n">_read_protobuf_aux_data</span><span class="p">(</span><span class="n">proto_module</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m</span>
+
+    <span class="k">def</span> <span class="nf">_to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Module_pb2.Module</span>
+        <span class="n">proto_module</span> <span class="o">=</span> <span class="n">Module_pb2</span><span class="o">.</span><span class="n">Module</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_protobuf_aux_data</span><span class="p">(</span><span class="n">proto_module</span><span class="p">)</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">binary_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary_path</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">isa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isa</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">file_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_format</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">preferred_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preferred_addr</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">proxies</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">)</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">rebase_delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebase_delta</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">sections</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">)</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">proto_module</span><span class="o">.</span><span class="n">entry_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">bytes</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">byte_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">byte_order</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">proto_module</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">bytes</span>
+        <span class="k">return</span> <span class="n">proto_module</span>
+
+<div class="viewcode-block" id="Module.deep_eq"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.deep_eq">[docs]</a>    <span class="k">def</span> <span class="nf">deep_eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Any) -&gt; bool</span>
+        <span class="c1"># Do not move __eq__. See docstring for Node.deep_eq for more info.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Module</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;binary_path&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;isa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;byte_order&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;file_format&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;preferred_addr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rebase_delta&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;proxies&quot;</span><span class="p">,</span> <span class="s2">&quot;sections&quot;</span><span class="p">,</span> <span class="s2">&quot;symbols&quot;</span><span class="p">):</span>
+            <span class="n">self_nodes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="n">other_nodes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">attr</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">self_nodes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other_nodes</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">self_node</span><span class="p">,</span> <span class="n">other_node</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">self_nodes</span><span class="p">,</span> <span class="n">other_nodes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">self_node</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other_node</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">entry_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">entry_point</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">&quot;Module(&quot;</span>
+            <span class="s2">&quot;uuid=</span><span class="si">{uuid!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;name=</span><span class="si">{name!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;binary_path=</span><span class="si">{binary_path!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;isa=Module.</span><span class="si">{isa!s}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;byte_order=Module.</span><span class="si">{byte_order!s}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;file_format=Module.</span><span class="si">{file_format!s}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;preferred_addr=</span><span class="si">{preferred_addr:#x}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;rebase_delta=</span><span class="si">{rebase_delta:#x}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;proxies=</span><span class="si">{proxies!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;sections=</span><span class="si">{sections!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;symbols=</span><span class="si">{symbols!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;entry_point=</span><span class="si">{entry_point!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Optional[&quot;IR&quot;]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`IR` this module belongs to.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ir</span>
+
+    <span class="nd">@ir</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Optional[&quot;IR&quot;]) -&gt; None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ir</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Optional[int]</span>
+        <span class="sd">&quot;&quot;&quot;Get the address of this module, if known.</span>
+
+<span class="sd">        The address is calculated from the :class:`Section` objects in</span>
+<span class="sd">        this module. More specifically, if the address of all sections</span>
+<span class="sd">        in this module are fixed, then it will return the address of the</span>
+<span class="sd">        section lowest in memory. If any one section does not have an address,</span>
+<span class="sd">        then this will be ``None``, as the address is not calculable in that</span>
+<span class="sd">        case. Note that a module with no sections in it has no address or</span>
+<span class="sd">        size, so it will be ``None`` in that case.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lowest</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">lowest</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">lowest</span><span class="p">:</span>
+                <span class="n">lowest</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span>
+        <span class="k">return</span> <span class="n">lowest</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Optional[int]</span>
+        <span class="sd">&quot;&quot;&quot;Get the size of this module, if known.</span>
+
+<span class="sd">        The address is calculated from the :class:`Section` objects in</span>
+<span class="sd">        this module. More specifically, if the address of all sections</span>
+<span class="sd">        in this module are fixed, then it will return the difference between</span>
+<span class="sd">        the lowest and highest address among the sections. If any one section</span>
+<span class="sd">        does not have an address, then this will be ``None``, as the size is</span>
+<span class="sd">        not calculable in that case. Note that a module with no sections in</span>
+<span class="sd">        it has no address or size, so it will be ``None`` in that case.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lowest</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">lowest</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">lowest</span><span class="p">:</span>
+                <span class="n">lowest</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span>
+            <span class="k">if</span> <span class="n">highest</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">highest</span><span class="p">:</span>
+                <span class="n">highest</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">address</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="n">lowest</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">highest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">highest</span> <span class="o">-</span> <span class="n">lowest</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">byte_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[ByteInterval]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`ByteInterval`\\s in this module.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">byte_intervals</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">byte_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[ByteBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`ByteBlock`\\s in this module.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">byte_blocks</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">code_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[CodeBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`CodeBlock`\\s in this module.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">code_blocks</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[DataBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`DataBlock`\\s in this module.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">data_blocks</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cfg_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[CfgNode]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`CfgNode`\\s in this module.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code_blocks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Module.sections_on"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.sections_on">[docs]</a>    <span class="k">def</span> <span class="nf">sections_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[Section]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the sections that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.sections_at"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.sections_at">[docs]</a>    <span class="k">def</span> <span class="nf">sections_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[Section]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the sections that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.byte_intervals_on"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.byte_intervals_on">[docs]</a>    <span class="k">def</span> <span class="nf">byte_intervals_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteInterval]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte intervals that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_intervals</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.byte_intervals_at"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.byte_intervals_at">[docs]</a>    <span class="k">def</span> <span class="nf">byte_intervals_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteInterval]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte intervals that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_intervals</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.byte_blocks_on"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.byte_blocks_on">[docs]</a>    <span class="k">def</span> <span class="nf">byte_blocks_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte blocks that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.byte_blocks_at"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.byte_blocks_at">[docs]</a>    <span class="k">def</span> <span class="nf">byte_blocks_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte blocks that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.code_blocks_on"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.code_blocks_on">[docs]</a>    <span class="k">def</span> <span class="nf">code_blocks_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[CodeBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the code blocks that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.code_blocks_at"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.code_blocks_at">[docs]</a>    <span class="k">def</span> <span class="nf">code_blocks_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[CodeBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the code blocks that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.data_blocks_on"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.data_blocks_on">[docs]</a>    <span class="k">def</span> <span class="nf">data_blocks_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[DataBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the data blocks that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.data_blocks_at"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.data_blocks_at">[docs]</a>    <span class="k">def</span> <span class="nf">data_blocks_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[DataBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the data blocks that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Module.symbolic_expressions_at"><a class="viewcode-back" href="../../gtirb.module.html#gtirb.Module.symbolic_expressions_at">[docs]</a>    <span class="k">def</span> <span class="nf">symbolic_expressions_at</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span>  <span class="c1"># type: typing.Union[int, range]</span>
+    <span class="p">):</span>
+        <span class="c1"># type: (...) -&gt; typing.Iterable[SymbolicExpressionElement]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the symbolic expressions that begin at an address or</span>
+<span class="sd">        range of addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        :returns: Yields ``(interval, offset, symexpr)`` tuples for every</span>
+<span class="sd">            symbolic expression in the range.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">symbolic_expressions_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_add_to_uuid_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Dict[UUID, Node]) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Update the UUID cache when this node is added.&quot;&quot;&quot;</span>
+
+        <span class="n">cache</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">for</span> <span class="n">proxy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">:</span>
+            <span class="n">proxy</span><span class="o">.</span><span class="n">_add_to_uuid_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">:</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">_add_to_uuid_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="p">:</span>
+            <span class="n">symbol</span><span class="o">.</span><span class="n">_add_to_uuid_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_remove_from_uuid_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Dict[UUID, Node]) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Update the UUID cache when this node is removed.&quot;&quot;&quot;</span>
+
+        <span class="k">del</span> <span class="n">cache</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">proxy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">:</span>
+            <span class="n">proxy</span><span class="o">.</span><span class="n">_remove_from_uuid_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">:</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">_remove_from_uuid_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="p">:</span>
+            <span class="n">symbol</span><span class="o">.</span><span class="n">_remove_from_uuid_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gtirb.html">gtirb package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

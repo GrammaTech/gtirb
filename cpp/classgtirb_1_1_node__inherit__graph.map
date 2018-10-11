@@ -1,0 +1,13 @@
+<map id="gtirb::Node" name="gtirb::Node">
+<area shape="rect" id="node1" title="Represents the base of the Node class hierarchy." alt="" coords="5,169,92,196"/>
+<area shape="rect" id="node2" href="$classgtirb_1_1_aux_data_container.html" title="Contains the AuxData Tables and serves as a base class." alt="" coords="140,43,303,69"/>
+<area shape="rect" id="node5" href="$classgtirb_1_1_byte_interval.html" title="A contiguous region of bytes in a binary." alt="" coords="159,93,284,120"/>
+<area shape="rect" id="node6" href="$classgtirb_1_1_cfg_node.html" title="Represents the base of types that can be inserted into the CFG." alt="" coords="168,144,275,171"/>
+<area shape="rect" id="node9" href="$classgtirb_1_1_data_block.html" title="Represents a data object, possibly symbolic." alt="" coords="163,195,279,221"/>
+<area shape="rect" id="node10" href="$classgtirb_1_1_section.html" title="Represents a named section of the binary." alt="" coords="172,245,271,272"/>
+<area shape="rect" id="node11" href="$classgtirb_1_1_symbol.html" title="Represents a Symbol, which maps a name to an object in the IR." alt="" coords="172,296,271,323"/>
+<area shape="rect" id="node3" href="$classgtirb_1_1_i_r.html" title="A complete internal representation consisting of Modules (Module)." alt="" coords="377,5,447,32"/>
+<area shape="rect" id="node4" href="$classgtirb_1_1_module.html" title="Represents a single binary (library or executable)." alt="" coords="363,56,461,83"/>
+<area shape="rect" id="node7" href="$classgtirb_1_1_code_block.html" title="A basic block." alt="" coords="353,119,471,145"/>
+<area shape="rect" id="node8" href="$classgtirb_1_1_proxy_block.html" title="A placeholder that serves as the endpoint (source or target) of a CFG edge." alt="" coords="351,169,473,196"/>
+</map>

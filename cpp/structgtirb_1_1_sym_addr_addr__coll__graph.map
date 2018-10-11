@@ -1,0 +1,6 @@
+<map id="gtirb::SymAddrAddr" name="gtirb::SymAddrAddr">
+<area shape="rect" id="node1" title="Represents a symbolic operand of the form &quot;(Sym1 &#45; Sym2) / Scale + Offset&quot;." alt="" coords="61,185,197,212"/>
+<area shape="rect" id="node2" href="$classgtirb_1_1_symbol.html" title="Represents a Symbol, which maps a name to an object in the IR." alt="" coords="5,81,104,108"/>
+<area shape="rect" id="node3" href="$classgtirb_1_1_node.html" title="Represents the base of the Node class hierarchy." alt="" coords="11,5,98,32"/>
+<area shape="rect" id="node4" href="$classgtirb_1_1_sym_attribute_set.html" title="A class for tracking a set of boolean flags that represent attributes for SymbolicExpressions." alt="" coords="129,81,279,108"/>
+</map>

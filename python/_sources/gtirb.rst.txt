@@ -1,0 +1,39 @@
+gtirb package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gtirb.proto
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gtirb.auxdata
+   gtirb.block
+   gtirb.byteinterval
+   gtirb.cfg
+   gtirb.ir
+   gtirb.module
+   gtirb.node
+   gtirb.offset
+   gtirb.section
+   gtirb.serialization
+   gtirb.symbol
+   gtirb.symbolicexpression
+   gtirb.util
+   gtirb.version
+
+Module contents
+---------------
+
+.. automodule:: gtirb
+   :members:
+   :undoc-members:
+   :show-inheritance:

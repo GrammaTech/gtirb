@@ -1,0 +1,524 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.ir &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for gtirb.ir</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The IR is the core class for reading and writing GTIRB files.</span>
+
+<span class="sd">    You can open a GTIRB Protobuf file and load it into an IR instance:</span>
+
+<span class="sd">    &gt;&gt;&gt; ir = IR.load_protobuf(&#39;filename.gtirb&#39;)</span>
+
+<span class="sd">    And then you can write the IR instance as a Protobuf file:</span>
+
+<span class="sd">    &gt;&gt;&gt; ir.save_protobuf(&#39;filename.gtirb&#39;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+
+<span class="kn">from</span> <span class="nn">.auxdata</span> <span class="kn">import</span> <span class="n">AuxData</span><span class="p">,</span> <span class="n">AuxDataContainer</span>
+<span class="kn">from</span> <span class="nn">.block</span> <span class="kn">import</span> <span class="n">ByteBlock</span><span class="p">,</span> <span class="n">CfgNode</span><span class="p">,</span> <span class="n">CodeBlock</span><span class="p">,</span> <span class="n">DataBlock</span><span class="p">,</span> <span class="n">ProxyBlock</span>
+<span class="kn">from</span> <span class="nn">.byteinterval</span> <span class="kn">import</span> <span class="n">ByteInterval</span><span class="p">,</span> <span class="n">SymbolicExpressionElement</span>
+<span class="kn">from</span> <span class="nn">.cfg</span> <span class="kn">import</span> <span class="n">CFG</span><span class="p">,</span> <span class="n">Edge</span>
+<span class="kn">from</span> <span class="nn">.module</span> <span class="kn">import</span> <span class="n">Module</span>
+<span class="kn">from</span> <span class="nn">.node</span> <span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span> <span class="nn">.proto</span> <span class="kn">import</span> <span class="n">CFG_pb2</span><span class="p">,</span> <span class="n">IR_pb2</span>
+<span class="kn">from</span> <span class="nn">.section</span> <span class="kn">import</span> <span class="n">Section</span>
+<span class="kn">from</span> <span class="nn">.symbol</span> <span class="kn">import</span> <span class="n">Symbol</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DictLike</span><span class="p">,</span>
+    <span class="n">ListWrapper</span><span class="p">,</span>
+    <span class="n">nodes_at</span><span class="p">,</span>
+    <span class="n">nodes_on</span><span class="p">,</span>
+    <span class="n">symbolic_expressions_at</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">PROTOBUF_VERSION</span>
+
+
+<div class="viewcode-block" id="IR"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR">[docs]</a><span class="k">class</span> <span class="nc">IR</span><span class="p">(</span><span class="n">AuxDataContainer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A complete internal representation consisting of multiple Modules.</span>
+
+<span class="sd">    :ivar ~.modules: A list of :class:`Module`\\s contained in the IR.</span>
+<span class="sd">    :ivar ~.cfg: The IR&#39;s control flow graph.</span>
+<span class="sd">    :ivar ~.version: The Protobuf version of this IR.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_ModuleList</span><span class="p">(</span><span class="n">ListWrapper</span><span class="p">[</span><span class="n">Module</span><span class="p">]):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_node</span> <span class="o">=</span> <span class="n">node</span>  <span class="c1"># type: IR</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_ir</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_remove_from_uuid_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">_ir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">_ir</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_ir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_add_to_uuid_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__delitem__</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IR.__init__"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">modules</span><span class="o">=</span><span class="nb">list</span><span class="p">(),</span>  <span class="c1"># type: typing.Iterable[Module]</span>
+        <span class="n">aux_data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>  <span class="c1"># type: DictLike[str, AuxData]</span>
+        <span class="n">cfg</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span>  <span class="c1"># type: typing.Iterable[Edge]</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">PROTOBUF_VERSION</span><span class="p">,</span>  <span class="c1"># type: int</span>
+        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span>  <span class="c1"># type: typing.Optional[UUID]</span>
+    <span class="p">):</span>
+        <span class="c1"># type: (...) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param modules: A list of Modules contained in the IR.</span>
+<span class="sd">        :param cfg: A set of :class:`Edge`\\s representing the IR&#39;s control</span>
+<span class="sd">            flow graph. Defaults to being empty.</span>
+<span class="sd">        :param aux_data: The initial auxiliary data to be associated</span>
+<span class="sd">            with the object, as a mapping from names to</span>
+<span class="sd">            :class:`gtirb.AuxData`. Defaults to being empty.</span>
+<span class="sd">        :param version: The Protobuf version of this IR.</span>
+<span class="sd">        :param uuid: The UUID of this ``IR``,</span>
+<span class="sd">            or None if a new UUID needs generated via :func:`uuid.uuid4`.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_local_uuid_cache</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># type: typing.Dict[UUID, Node]</span>
+        <span class="c1"># Modules are decoded before the aux data, since the UUID decoder</span>
+        <span class="c1"># checks Node&#39;s cache.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">IR</span><span class="o">.</span><span class="n">_ModuleList</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">modules</span>
+        <span class="p">)</span>  <span class="c1"># type: typing.List[Module]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>  <span class="c1"># type: CFG</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>  <span class="c1"># type: int</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aux_data</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_decode_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">proto_ir</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+        <span class="c1"># type: (IR_pb2.IR, UUID, typing.Optional[&quot;IR&quot;]) -&gt; IR</span>
+        <span class="k">if</span> <span class="n">proto_ir</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">PROTOBUF_VERSION</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Attempt to decode IR of version </span><span class="si">%s</span><span class="s2"> (expected version </span><span class="si">%s</span><span class="s2">)&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">proto_ir</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">PROTOBUF_VERSION</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">ir</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">proto_ir</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="n">ir</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">Module</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">proto_ir</span><span class="o">.</span><span class="n">modules</span>
+        <span class="p">)</span>
+        <span class="n">ir</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">CFG</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">proto_ir</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span>
+        <span class="n">ir</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">AuxDataContainer</span><span class="o">.</span><span class="n">_read_protobuf_aux_data</span><span class="p">(</span><span class="n">proto_ir</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ir</span>
+
+    <span class="k">def</span> <span class="nf">_to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; IR_pb2.IR</span>
+        <span class="n">proto_ir</span> <span class="o">=</span> <span class="n">IR_pb2</span><span class="o">.</span><span class="n">IR</span><span class="p">()</span>
+        <span class="n">proto_ir</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">bytes</span>
+        <span class="n">proto_ir</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span>
+        <span class="n">proto_ir</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+        <span class="n">proto_cfg</span> <span class="o">=</span> <span class="n">CFG_pb2</span><span class="o">.</span><span class="n">CFG</span><span class="p">()</span>
+        <span class="n">proto_cfg</span><span class="o">.</span><span class="n">vertices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">bytes</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg_nodes</span><span class="p">)</span>
+        <span class="n">proto_cfg</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">())</span>
+        <span class="n">proto_ir</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">proto_cfg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_protobuf_aux_data</span><span class="p">(</span><span class="n">proto_ir</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">proto_ir</span>
+
+<div class="viewcode-block" id="IR.deep_eq"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.deep_eq">[docs]</a>    <span class="k">def</span> <span class="nf">deep_eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Any) -&gt; bool</span>
+        <span class="c1"># Do not move __eq__. See docstring for Node.deep_eq for more info.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">IR</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">self_modules</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="n">other_modules</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">self_modules</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other_modules</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">self_module</span><span class="p">,</span> <span class="n">other_module</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">self_modules</span><span class="p">,</span> <span class="n">other_modules</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">self_module</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other_module</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_eq</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.load_protobuf_file"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.load_protobuf_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_protobuf_file</span><span class="p">(</span><span class="n">protobuf_file</span><span class="p">):</span>
+        <span class="c1"># type: (typing.BinaryIO) -&gt; IR</span>
+        <span class="sd">&quot;&quot;&quot;Load IR from a Protobuf object.</span>
+
+<span class="sd">        Use this function when you have a Protobuf object already loaded,</span>
+<span class="sd">        and you want to parse it as a GTIRB IR.</span>
+<span class="sd">        If the Protobuf object is stored in a file,</span>
+<span class="sd">        use :func:`gtirb.IR.load_protobuf` instead.</span>
+
+<span class="sd">        :param protobuf_file: A byte stream encoding a GTIRB Protobuf message.</span>
+<span class="sd">        :returns: An IR object representing the same</span>
+<span class="sd">            information that is contained in ``protobuf_file``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ir</span> <span class="o">=</span> <span class="n">IR_pb2</span><span class="o">.</span><span class="n">IR</span><span class="p">()</span>
+        <span class="n">ir</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">protobuf_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">IR</span><span class="o">.</span><span class="n">_from_protobuf</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.load_protobuf"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.load_protobuf">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_protobuf</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; IR</span>
+        <span class="sd">&quot;&quot;&quot;Load IR from a Protobuf file at the specified path.</span>
+
+<span class="sd">        :param file_name: The path to the Protobuf file.</span>
+<span class="sd">        :returns: A Python GTIRB IR object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">IR</span><span class="o">.</span><span class="n">load_protobuf_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.save_protobuf_file"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.save_protobuf_file">[docs]</a>    <span class="k">def</span> <span class="nf">save_protobuf_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protobuf_file</span><span class="p">):</span>
+        <span class="c1"># type: (typing.BinaryIO) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Save ``self`` to a Protobuf object.</span>
+
+<span class="sd">        :param protobuf_file: The byte stream to write the GTIRB Protobuf</span>
+<span class="sd">            message to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">protobuf_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_protobuf</span><span class="p">()</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="IR.save_protobuf"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.save_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">save_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Save ``self`` to a Protobuf file at the specified path.</span>
+
+<span class="sd">        :param file_name: The file path at which to</span>
+<span class="sd">            save the Protobuf representation of ``self``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_protobuf_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">&quot;IR(&quot;</span>
+            <span class="s2">&quot;uuid=</span><span class="si">{uuid!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;modules=</span><span class="si">{modules!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;cfg=</span><span class="si">{cfg!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;version=</span><span class="si">{version}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">proxy_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[ProxyBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`ProxyBlock`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">proxies</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[Section]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`Section`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">sections</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[Symbol]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`Symbol`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">symbols</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">byte_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[ByteInterval]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`ByteInterval`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">byte_intervals</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">byte_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[ByteBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`ByteBlock`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">byte_blocks</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">code_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[CodeBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`CodeBlock`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">code_blocks</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[DataBlock]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`DataBlock`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">data_blocks</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cfg_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; typing.Iterator[CfgNode]</span>
+        <span class="sd">&quot;&quot;&quot;The :class:`CfgNode`\\s in this IR.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">cfg_nodes</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IR.modules_on"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.modules_on">[docs]</a>    <span class="k">def</span> <span class="nf">modules_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[Module]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the modules that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.modules_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.modules_at">[docs]</a>    <span class="k">def</span> <span class="nf">modules_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[Module]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the modules that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.sections_on"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.sections_on">[docs]</a>    <span class="k">def</span> <span class="nf">sections_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[Section]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the sections that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.sections_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.sections_at">[docs]</a>    <span class="k">def</span> <span class="nf">sections_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[Section]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the sections that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.byte_intervals_on"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.byte_intervals_on">[docs]</a>    <span class="k">def</span> <span class="nf">byte_intervals_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteInterval]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte intervals that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_intervals</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.byte_intervals_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.byte_intervals_at">[docs]</a>    <span class="k">def</span> <span class="nf">byte_intervals_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteInterval]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte intervals that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_intervals</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.byte_blocks_on"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.byte_blocks_on">[docs]</a>    <span class="k">def</span> <span class="nf">byte_blocks_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte blocks that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.byte_blocks_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.byte_blocks_at">[docs]</a>    <span class="k">def</span> <span class="nf">byte_blocks_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[ByteBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the byte blocks that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">byte_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.code_blocks_on"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.code_blocks_on">[docs]</a>    <span class="k">def</span> <span class="nf">code_blocks_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[CodeBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the code blocks that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.code_blocks_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.code_blocks_at">[docs]</a>    <span class="k">def</span> <span class="nf">code_blocks_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[CodeBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the code blocks that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.data_blocks_on"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.data_blocks_on">[docs]</a>    <span class="k">def</span> <span class="nf">data_blocks_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[DataBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the data blocks that overlap an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_on</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.data_blocks_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.data_blocks_at">[docs]</a>    <span class="k">def</span> <span class="nf">data_blocks_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span><span class="p">):</span>
+        <span class="c1"># type: (typing.Union[int, range]) -&gt; typing.Iterable[DataBlock]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the data blocks that begin at an address or range of</span>
+<span class="sd">        addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">nodes_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_blocks</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.symbolic_expressions_at"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.symbolic_expressions_at">[docs]</a>    <span class="k">def</span> <span class="nf">symbolic_expressions_at</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">addrs</span>  <span class="c1"># type: typing.Union[int, range]</span>
+    <span class="p">):</span>
+        <span class="c1"># type: (...) -&gt; typing.Iterable[SymbolicExpressionElement]</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the symbolic expressions that begin at an address or</span>
+<span class="sd">        range of addresses.</span>
+
+<span class="sd">        :param addrs: Either a ``range`` object or a single address.</span>
+<span class="sd">        :returns: Yields ``(interval, offset, symexpr)`` tuples for every</span>
+<span class="sd">            symbolic expression in the range.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">symbolic_expressions_at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IR.get_by_uuid"><a class="viewcode-back" href="../../gtirb.ir.html#gtirb.IR.get_by_uuid">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="c1"># type: (UUID) -&gt; typing.Optional[Node]</span>
+        <span class="sd">&quot;&quot;&quot;Look up a node by its UUID.</span>
+
+<span class="sd">        This method will find any node currently attached to this IR.</span>
+<span class="sd">        It will not find any nodes attached to other IRs, or not attached to</span>
+<span class="sd">        any IR.</span>
+
+<span class="sd">        :param uuid: The UUID to look up.</span>
+<span class="sd">        :returns: The Node this UUID corresponds to, or None if no node exists</span>
+<span class="sd">            with that UUID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_uuid_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gtirb.html">gtirb package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

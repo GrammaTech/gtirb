@@ -1,0 +1,7 @@
+gtirb.block module
+==================
+
+.. automodule:: gtirb.block
+   :members:
+   :undoc-members:
+   :show-inheritance:

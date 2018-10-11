@@ -1,0 +1,7 @@
+gtirb.proto.ByteInterval\_pb2 module
+====================================
+
+.. automodule:: gtirb.proto.ByteInterval_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

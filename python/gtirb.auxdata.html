@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.auxdata module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.block module" href="gtirb.block.html" />
+    <link rel="prev" title="gtirb.proto.SymbolicExpression_pb2 module" href="gtirb.proto.SymbolicExpression_pb2.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.auxdata">
+<span id="gtirb-auxdata-module"></span><h1>gtirb.auxdata module<a class="headerlink" href="#module-gtirb.auxdata" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gtirb.auxdata.AuxData">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.auxdata.</span></code><code class="sig-name descname"><span class="pre">AuxData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/auxdata.html#AuxData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.auxdata.AuxData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>AuxData objects can be attached to the <a class="reference internal" href="gtirb.html#gtirb.IR" title="gtirb.IR"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.IR</span></code></a> or individual
+<a class="reference internal" href="gtirb.html#gtirb.Module" title="gtirb.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Module</span></code></a> s to store additional client-specific data in a
+portable way.</p>
+<p>AuxData represents a portable, language-independent manner of encoding
+rich data. To do this, all data is stored on disk as a series of bytes
+with a string describing the format of the data, called a <em>type name</em>. See
+<a class="reference internal" href="gtirb.serialization.html#module-gtirb.serialization" title="gtirb.serialization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gtirb.serialization</span></code></a> for the list of all default types. Types may
+also be parameterized; for example, <code class="docutils literal notranslate"><span class="pre">mapping&lt;string,UUID&gt;</span></code> is a <code class="docutils literal notranslate"><span class="pre">dict</span></code>
+from <code class="docutils literal notranslate"><span class="pre">str</span></code> objects to <code class="docutils literal notranslate"><span class="pre">UUID</span></code> objects. All <code class="docutils literal notranslate"><span class="pre">AuxData</span></code> requires
+a valid type name in order to be serialized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The value stored in this AuxData.</p></li>
+<li><p><strong>type_name</strong> – A string describing the type of <code class="docutils literal notranslate"><span class="pre">data</span></code>.
+Used to determine the proper codec for serializing this AuxData.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.auxdata.AuxData.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/auxdata.html#AuxData.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.auxdata.AuxData.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Any</span></code>) – The value stored in this AuxData.</p></li>
+<li><p><strong>type_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A string describing the type of <code class="docutils literal notranslate"><span class="pre">data</span></code>.
+Used to determine the proper codec for serializing this AuxData.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.auxdata.AuxData.data">
+<code class="sig-name descname"><span class="pre">data</span></code><em class="property"><span class="pre">:</span> <span class="pre">Any</span></em><a class="headerlink" href="#gtirb.auxdata.AuxData.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.auxdata.AuxData.serializer">
+<code class="sig-name descname"><span class="pre">serializer</span></code><em class="property"><span class="pre">:</span> <span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gtirb.serialization.html#gtirb.serialization.Serialization" title="gtirb.serialization.Serialization"><span class="pre">gtirb.serialization.Serialization</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">&lt;gtirb.serialization.Serialization</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#gtirb.auxdata.AuxData.serializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a <a class="reference internal" href="gtirb.html#gtirb.Serialization" title="gtirb.Serialization"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Serialization</span></code></a> instance, used to
+encode and decode <code class="docutils literal notranslate"><span class="pre">data</span></code> fields of all <code class="docutils literal notranslate"><span class="pre">AuxData</span></code>. See
+<a class="reference internal" href="gtirb.serialization.html#module-gtirb.serialization" title="gtirb.serialization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gtirb.serialization</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="gtirb.auxdata.AuxData.type_name">
+<code class="sig-name descname"><span class="pre">type_name</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#gtirb.auxdata.AuxData.type_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.auxdata.AuxDataContainer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.auxdata.</span></code><code class="sig-name descname"><span class="pre">AuxDataContainer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/auxdata.html#AuxDataContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.auxdata.AuxDataContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gtirb.node.html#gtirb.node.Node" title="gtirb.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.node.Node</span></code></a></p>
+<p>The base class for anything that holds AuxData tables; that is,
+<a class="reference internal" href="gtirb.html#gtirb.IR" title="gtirb.IR"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.IR</span></code></a> and <a class="reference internal" href="gtirb.html#gtirb.Module" title="gtirb.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Module</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>aux_data</strong> – The auxiliary data associated
+with the object, as a mapping from names to
+<a class="reference internal" href="gtirb.html#gtirb.AuxData" title="gtirb.AuxData"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.AuxData</span></code></a>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.auxdata.AuxDataContainer.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/auxdata.html#AuxDataContainer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.auxdata.AuxDataContainer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aux_data</strong> (<a class="reference internal" href="gtirb.util.html#gtirb.util.DictLike" title="gtirb.util.DictLike"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.util.DictLike</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#gtirb.auxdata.AuxData" title="gtirb.auxdata.AuxData"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.auxdata.AuxData</span></code></a>]) – The initial auxiliary data to be associated
+with the object, as a mapping from names to
+<a class="reference internal" href="gtirb.html#gtirb.AuxData" title="gtirb.AuxData"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.AuxData</span></code></a>. Defaults to an empty <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>.</p></li>
+<li><p><strong>uuid</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">uuid.UUID</span></code>]) – the UUID of this <code class="docutils literal notranslate"><span class="pre">AuxDataContainer</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.auxdata.AuxDataContainer.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/auxdata.html#AuxDataContainer.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.auxdata.AuxDataContainer.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>This overrides <a class="reference internal" href="gtirb.html#gtirb.Node.deep_eq" title="gtirb.Node.deep_eq"><code class="xref py py-func docutils literal notranslate"><span class="pre">gtirb.Node.deep_eq()</span></code></a> to check for
+AuxData equality.</p>
+<p>Because the values stored by AuxData are not necessarily
+amenable to deep checking, the auxiliary data dictionaries
+stored for <code class="docutils literal notranslate"><span class="pre">self</span></code> and <code class="docutils literal notranslate"><span class="pre">other</span></code> are not deeply checked. Instead,
+they are considered to be equal if their sets of keys are equal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.auxdata module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.block.html">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.cfg.html">gtirb.cfg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.ir.html">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.section.html">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbol.html">gtirb.symbol module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbolicexpression.html">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.proto.SymbolicExpression_pb2.html" title="previous chapter">gtirb.proto.SymbolicExpression_pb2 module</a></li>
+      <li>Next: <a href="gtirb.block.html" title="next chapter">gtirb.block module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.auxdata.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gtirb.block module &#8212; gtirb  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gtirb.byteinterval module" href="gtirb.byteinterval.html" />
+    <link rel="prev" title="gtirb.auxdata module" href="gtirb.auxdata.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gtirb.block">
+<span id="gtirb-block-module"></span><h1>gtirb.block module<a class="headerlink" href="#module-gtirb.block" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gtirb.block.Block">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.block.</span></code><code class="sig-name descname"><span class="pre">Block</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#Block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.Block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gtirb.node.html#gtirb.node.Node" title="gtirb.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.node.Node</span></code></a></p>
+<p>The base class for blocks. Symbols may have references to any subclass
+of Block.</p>
+<dl class="py method">
+<dt id="gtirb.block.Block.references">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">references</span></code><a class="headerlink" href="#gtirb.block.Block.references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols that refer to this block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>typing.Iterable[“Symbol”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.block.ByteBlock">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.block.</span></code><code class="sig-name descname"><span class="pre">ByteBlock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ByteBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ByteBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.block.Block" title="gtirb.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.Block</span></code></a></p>
+<p>The base class for blocks that belong to a <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> and
+store their bytes there.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> – The size of the block in bytes.</p></li>
+<li><p><strong>offset</strong> – The offset from the beginning of the byte interval to which
+this block belongs. Multiple blocks in the same interval may have the
+same offset.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ByteBlock.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ByteBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> – The size of the data object in bytes.</p></li>
+<li><p><strong>offset</strong> – The offset from the beginning of the byte interval to
+which this block belongs.</p></li>
+<li><p><strong>uuid</strong> – The UUID of this <code class="docutils literal notranslate"><span class="pre">ByteBlock</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+<li><p><strong>byte_interval</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> this block belongs to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.address">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">address</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the address of this block, or None if not present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">typing.Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.byte_interval">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">byte_interval</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.byte_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> this block belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>typing.Optional[“ByteInterval”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.contains_address">
+<code class="sig-name descname"><span class="pre">contains_address</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ByteBlock.contains_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ByteBlock.contains_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if the provided address is within this block.
+Returns False if the block has no address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.contains_offset">
+<code class="sig-name descname"><span class="pre">contains_offset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ByteBlock.contains_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ByteBlock.contains_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if the provided offset is within this block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.contents">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">contents</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the bytes in this block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ByteBlock.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ByteBlock.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check: is <code class="docutils literal notranslate"><span class="pre">self</span></code> structurally equal to <code class="docutils literal notranslate"><span class="pre">other</span></code>?</p>
+<p>This method should be used only when deep structural equality checks
+are actually needed, and not for all equality checks. Typically the
+default implmentation of __eq__, which checks pointer equality, is
+sufficient; Nodes are cached such that references to two Nodes with
+the same UUID refer to the same exact object. Use this method when
+you have manually constructed Nodes that may share the same UUID
+despite being different objects, and you need to check for structural
+equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.ir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ir</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.ir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the IR this node ultimately belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“IR”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.module">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">module</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the module this node ultimately belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“Module”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.references">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">references</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols that refer to this block.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ByteBlock.section">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">section</span></code><a class="headerlink" href="#gtirb.block.ByteBlock.section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the section this node ultimately belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“Section”</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.block.CfgNode">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.block.</span></code><code class="sig-name descname"><span class="pre">CfgNode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#CfgNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.CfgNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.block.Block" title="gtirb.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.Block</span></code></a></p>
+<p>The base class for blocks that may appear as vertices in the CFG.</p>
+<dl class="py method">
+<dt id="gtirb.block.CfgNode.incoming_edges">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">incoming_edges</span></code><a class="headerlink" href="#gtirb.block.CfgNode.incoming_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edges that point to this CFG node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>typing.Iterable[“Edge”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.CfgNode.outgoing_edges">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">outgoing_edges</span></code><a class="headerlink" href="#gtirb.block.CfgNode.outgoing_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edges that start at this CFG node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>typing.Iterable[“Edge”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.block.CodeBlock">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.block.</span></code><code class="sig-name descname"><span class="pre">CodeBlock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#CodeBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.CodeBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a>, <a class="reference internal" href="#gtirb.block.CfgNode" title="gtirb.block.CfgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CfgNode</span></code></a></p>
+<p>A basic block in the binary.</p>
+<p>Does not directly store data bytes, which are kept in a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>decode_mode</strong> – The decode mode of the block,
+used in some ISAs to differentiate between sub-ISAs
+(e.g. differentiating blocks written in ARM and Thumb).</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gtirb.block.CodeBlock.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#CodeBlock.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.CodeBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>int</em>) – The length of the block in bytes.</p></li>
+<li><p><strong>decode_mode</strong> (<em>int</em>) – The decode mode of the block,
+used in some ISAs to differentiate between sub-ISAs
+(e.g. differentiating blocks written in ARM and Thumb).
+Defaults to 0.</p></li>
+<li><p><strong>offset</strong> (<em>int</em>) – The offset from the beginning of the byte interval to
+which this block belongs.</p></li>
+<li><p><strong>uuid</strong> (<em>typing.Optional</em><em>[</em><em>UUID</em><em>]</em>) – The UUID of this <code class="docutils literal notranslate"><span class="pre">CodeBlock</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+<li><p><strong>byte_interval</strong> (<em>typing.Optional</em><em>[</em><em>&quot;ByteInterval&quot;</em><em>]</em>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> this block belongs to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.CodeBlock.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#CodeBlock.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.CodeBlock.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check: is <code class="docutils literal notranslate"><span class="pre">self</span></code> structurally equal to <code class="docutils literal notranslate"><span class="pre">other</span></code>?</p>
+<p>This method should be used only when deep structural equality checks
+are actually needed, and not for all equality checks. Typically the
+default implmentation of __eq__, which checks pointer equality, is
+sufficient; Nodes are cached such that references to two Nodes with
+the same UUID refer to the same exact object. Use this method when
+you have manually constructed Nodes that may share the same UUID
+despite being different objects, and you need to check for structural
+equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.CodeBlock.incoming_edges">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">incoming_edges</span></code><a class="headerlink" href="#gtirb.block.CodeBlock.incoming_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edges that point to this CFG node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.CodeBlock.outgoing_edges">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">outgoing_edges</span></code><a class="headerlink" href="#gtirb.block.CodeBlock.outgoing_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edges that start at this CFG node.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.block.DataBlock">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.block.</span></code><code class="sig-name descname"><span class="pre">DataBlock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#DataBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.DataBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.block.ByteBlock" title="gtirb.block.ByteBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.ByteBlock</span></code></a></p>
+<p>Represents a data object, possibly symbolic.</p>
+<dl class="py method">
+<dt id="gtirb.block.DataBlock.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#DataBlock.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.DataBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>int</em>) – The size of the data object in bytes.</p></li>
+<li><p><strong>offset</strong> (<em>int</em>) – The offset from the beginning of the byte interval to
+which this block belongs.</p></li>
+<li><p><strong>uuid</strong> (<em>typing.Optional</em><em>[</em><em>UUID</em><em>]</em>) – The UUID of this <code class="docutils literal notranslate"><span class="pre">DataBlock</span></code>,
+or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p></li>
+<li><p><strong>byte_interval</strong> (<em>typing.Optional</em><em>[</em><em>&quot;ByteInterval&quot;</em><em>]</em>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">ByteInterval</span></code> this block belongs to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gtirb.block.ProxyBlock">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gtirb.block.</span></code><code class="sig-name descname"><span class="pre">ProxyBlock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ProxyBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ProxyBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gtirb.block.CfgNode" title="gtirb.block.CfgNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.block.CfgNode</span></code></a></p>
+<p>A placeholder that serves as the endpoint (source or target) of a
+<a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a>.</p>
+<p>ProxyBlock objects allow the construction of CFG edges to or from
+another node. For example, a call to a function in another module
+may be represented by a <a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a> that originates at the
+calling <a class="reference internal" href="gtirb.html#gtirb.CodeBlock" title="gtirb.CodeBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.CodeBlock</span></code></a> and targets a ProxyBlock. Another
+example would be a <a class="reference internal" href="gtirb.html#gtirb.Edge" title="gtirb.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">gtirb.Edge</span></code></a> that represents an indirect
+jump whose target is not known.</p>
+<p>A ProxyBlock does not represent any instructions and so has neither
+an address nor a size.</p>
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ProxyBlock.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ProxyBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – The UUID of this <code class="docutils literal notranslate"><span class="pre">Node</span></code>,</p>
+</dd>
+</dl>
+<p>or None if a new UUID needs generated via <code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>.
+Defaults to None.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.deep_eq">
+<code class="sig-name descname"><span class="pre">deep_eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gtirb/block.html#ProxyBlock.deep_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gtirb.block.ProxyBlock.deep_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check: is <code class="docutils literal notranslate"><span class="pre">self</span></code> structurally equal to <code class="docutils literal notranslate"><span class="pre">other</span></code>?</p>
+<p>This method should be used only when deep structural equality checks
+are actually needed, and not for all equality checks. Typically the
+default implmentation of __eq__, which checks pointer equality, is
+sufficient; Nodes are cached such that references to two Nodes with
+the same UUID refer to the same exact object. Use this method when
+you have manually constructed Nodes that may share the same UUID
+despite being different objects, and you need to check for structural
+equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.incoming_edges">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">incoming_edges</span></code><a class="headerlink" href="#gtirb.block.ProxyBlock.incoming_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edges that point to this CFG node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.ir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ir</span></code><a class="headerlink" href="#gtirb.block.ProxyBlock.ir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the IR this node ultimately belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“IR”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.module">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">module</span></code><a class="headerlink" href="#gtirb.block.ProxyBlock.module" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>“Module”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.outgoing_edges">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">outgoing_edges</span></code><a class="headerlink" href="#gtirb.block.ProxyBlock.outgoing_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edges that start at this CFG node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gtirb.block.ProxyBlock.references">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">references</span></code><a class="headerlink" href="#gtirb.block.ProxyBlock.references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the symbols that refer to this block.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">gtirb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gtirb.html">gtirb package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gtirb.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gtirb.auxdata.html">gtirb.auxdata module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gtirb.block module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.byteinterval.html">gtirb.byteinterval module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.cfg.html">gtirb.cfg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.ir.html">gtirb.ir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.module.html">gtirb.module module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.node.html">gtirb.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.offset.html">gtirb.offset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.section.html">gtirb.section module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.serialization.html">gtirb.serialization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbol.html">gtirb.symbol module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.symbolicexpression.html">gtirb.symbolicexpression module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.util.html">gtirb.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gtirb.version.html">gtirb.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gtirb.html#module-gtirb">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="gtirb.html">gtirb package</a><ul>
+      <li>Previous: <a href="gtirb.auxdata.html" title="previous chapter">gtirb.auxdata module</a></li>
+      <li>Next: <a href="gtirb.byteinterval.html" title="next chapter">gtirb.byteinterval module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Grammatech, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gtirb.block.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

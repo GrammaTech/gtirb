@@ -1,0 +1,29 @@
+gtirb.proto package
+===================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gtirb.proto.AuxData_pb2
+   gtirb.proto.ByteInterval_pb2
+   gtirb.proto.CFG_pb2
+   gtirb.proto.CodeBlock_pb2
+   gtirb.proto.DataBlock_pb2
+   gtirb.proto.IR_pb2
+   gtirb.proto.Module_pb2
+   gtirb.proto.Offset_pb2
+   gtirb.proto.ProxyBlock_pb2
+   gtirb.proto.Section_pb2
+   gtirb.proto.Symbol_pb2
+   gtirb.proto.SymbolicExpression_pb2
+
+Module contents
+---------------
+
+.. automodule:: gtirb.proto
+   :members:
+   :undoc-members:
+   :show-inheritance:

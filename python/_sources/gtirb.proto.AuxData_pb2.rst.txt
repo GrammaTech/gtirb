@@ -1,0 +1,7 @@
+gtirb.proto.AuxData\_pb2 module
+===============================
+
+.. automodule:: gtirb.proto.AuxData_pb2
+   :members:
+   :undoc-members:
+   :show-inheritance:

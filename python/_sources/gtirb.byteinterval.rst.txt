@@ -1,0 +1,7 @@
+gtirb.byteinterval module
+=========================
+
+.. automodule:: gtirb.byteinterval
+   :members:
+   :undoc-members:
+   :show-inheritance:
