@@ -10,7 +10,7 @@ COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
 
 ## Run clang-format on the last commit
-RUN git clang-format master
+RUN git clang-format origin/master --extensions cpp,hpp
 
 ## Run clang-format on all source files.
 # RUN (find src -name "*.cpp" -or -name "*.hpp";find include -name "*.hpp")|xargs -I{} clang-format -i {}
