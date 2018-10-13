@@ -68,6 +68,26 @@ class Module;
 ///     cfg -> blocks;
 /// }
 /// \enddot
+///
+
+// Examples
+// The location for these is arbitrary as Doxygen puts all examples in a
+// separate section.
+
+/// \example data-symbols.cpp
+/// Open an IR and print every symbol pointing to data.
+
+/// \example cfg-paths.cpp
+/// Open an IR and print every path from some point to some other point.
+
+/// \example functions.cpp
+/// Open an IR with function information in an auxiliary data store and print
+/// every function along with the number of other functions it calls.
+
+/// \example jumps.cpp
+/// Open an IR and print the Address of every jump instruction,
+/// along with the jump targets (if known).
+
 class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 

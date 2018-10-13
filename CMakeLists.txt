@@ -228,6 +228,8 @@ include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 # gtirb sources
 # ---------------------------------------------------------------------------
 add_subdirectory(src)
+add_subdirectory(doc/examples)
+
 
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
