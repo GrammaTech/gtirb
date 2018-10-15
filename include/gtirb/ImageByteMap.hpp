@@ -274,8 +274,9 @@ public:
 
     T Data;
     if (this->getDataNoSwap(A, Data)) {
-      return boost::endian::conditional_reverse(Data, this->ByteOrder,
-                                                boost::endian::order::native);
+      boost::endian::conditional_reverse_inplace(Data, this->ByteOrder,
+                                                 boost::endian::order::native);
+      return Data;
     }
     return std::nullopt;
   }
