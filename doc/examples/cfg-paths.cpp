@@ -2,7 +2,6 @@
 // from some basic block to another basic block.
 
 #include <gtirb/gtirb.hpp>
-#include <boost/graph/depth_first_search.hpp>
 #include <fstream>
 #include <iomanip>
 #include <set>
