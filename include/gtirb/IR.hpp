@@ -91,6 +91,8 @@ class Module;
 class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 
+  using AuxDataSet = std::map<std::string, gtirb::AuxData>;
+
 public:
   /// \brief Explicitly deleted copy constructor. This is required to work
   /// around a bug in MSVC where the implicitly defaulted copy constructor
@@ -240,6 +242,29 @@ public:
   /// \ingroup AUXDATA_GROUP
   bool removeAuxData(const std::string& X);
 
+  using aux_data_iterator = AuxDataSet::iterator;
+  using aux_data_range = boost::iterator_range<aux_data_iterator>;
+  using const_aux_data_iterator = AuxDataSet::const_iterator;
+  using const_aux_data_range = boost::iterator_range<const_aux_data_iterator>;
+
+  /// \brief Return an iterator to the first AuxData.
+  aux_data_iterator aux_data_begin() { return AuxDatas.begin(); }
+  /// \brief Return a constant iterator to the first AuxData.
+  const_aux_data_iterator aux_data_begin() const { return AuxDatas.begin(); }
+  /// \brief Return an iterator to the element following the last AuxData.
+  aux_data_iterator aux_data_end() { return AuxDatas.end(); }
+  /// \brief Return a constant iterator to the element following the last
+  /// AuxData.
+  const_aux_data_iterator aux_data_end() const { return AuxDatas.end(); }
+  /// \brief Return a range of the auxiliary data (\ref AuxData).
+  aux_data_range aux_data() {
+    return boost::make_iterator_range(aux_data_begin(), aux_data_end());
+  }
+  /// \brief Return a constant range of the auxiliary data (\ref AuxData).
+  const_aux_data_range aux_data() const {
+    return boost::make_iterator_range(aux_data_begin(), aux_data_end());
+  }
+
   /// \brief Get the total number of \ref AuxData objects in this IR.
   ///
   /// \return     The total number of \ref AuxData objects.
@@ -269,7 +294,7 @@ public:
   /// \endcond
 
 private:
-  std::map<std::string, gtirb::AuxData> AuxDatas;
+  AuxDataSet AuxDatas;
   std::vector<Module*> Modules;
 };
 } // namespace gtirb

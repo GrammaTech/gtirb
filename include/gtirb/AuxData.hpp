@@ -437,6 +437,17 @@ public:
     return static_cast<T*>(this->Impl->get());
   }
 
+  /// \brief A string representation of the type of the stored data.
+  ///
+  /// \returns The type name, or an empty string if no value is stored.
+  std::string typeName() const {
+    if (this->Impl) {
+      return this->Impl->typeName();
+    } else {
+      return this->TypeName;
+    }
+  }
+
   /// \brief Initialize an AuxData from a protobuf message.
   ///
   /// \param <unnamed>   Not used.

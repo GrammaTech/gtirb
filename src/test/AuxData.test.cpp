@@ -137,7 +137,7 @@ TEST(Unit_AuxData, uuidVectorProtobufRoundTrip) {
             std::vector<UUID>({Id1, Id2, Id3}));
 }
 
-TEST(Unit_AuxData, typeName) {
+TEST(Unit_AuxData, typeNameImpl) {
   EXPECT_EQ(AuxDataTemplate<uint64_t>().typeName(), "uint64_t");
   EXPECT_EQ(AuxDataTemplate<std::vector<uint64_t>>().typeName(),
             "sequence<uint64_t>");
@@ -152,6 +152,12 @@ TEST(Unit_AuxData, typeName) {
 
   X = AuxDataTemplate<std::vector<std::tuple<int64_t, uint64_t>>>().typeName();
   EXPECT_EQ(X, "sequence<tuple<int64_t,uint64_t>>");
+}
+
+TEST(Unit_AuxData, typeName) {
+  EXPECT_EQ(AuxData().typeName(), std::string());
+  EXPECT_EQ(AuxData(std::vector<int64_t>{1, 2, 3}).typeName(),
+            "sequence<int64_t>");
 }
 
 TEST(Unit_AuxData, getPrimitiveTypes) {

@@ -99,6 +99,18 @@ TEST(Unit_IR, addAuxData) {
             std::vector<int64_t>({1, 2, 3}));
 }
 
+TEST(Unit_IR, auxDataRange) {
+  IR* Ir = IR::Create(Ctx);
+  Ir->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
+  Ir->addAuxData("bar", std::vector<char>{'a', 'b', 'c'});
+
+  auto A = Ir->aux_data();
+  EXPECT_EQ(std::distance(A.begin(), A.end()), 2);
+  // AuxDatas are sorted by range, but this is an implementation detail
+  EXPECT_EQ(A.begin()->first, "bar");
+  EXPECT_EQ((++A.begin())->first, "foo");
+}
+
 TEST(Unit_IR, missingAuxData) {
   IR* Ir = IR::Create(Ctx);
   EXPECT_EQ(Ir->getAuxData("missing"), nullptr);
