@@ -157,6 +157,16 @@ public:
   /// \sa getRebaseDelta
   gtirb::Addr getPreferredAddr() const { return PreferredAddr; }
 
+  /// \brief Has the image been loaded somewhere other than its preferred
+  /// address?
+  ///
+  /// \return \c true if the loaded image has been relocated, \c false
+  /// otherwise.
+  ///
+  /// \sa getPreferredAddr
+  /// \sa getRebaseDelta
+  bool isRelocated() const { return RebaseDelta != 0; }
+
   /// \brief Set the ISA of the instructions in this Module.
   ///
   /// \param X The ISA ID to set.

@@ -63,16 +63,6 @@ TEST(Unit_ImageByteMap, ctor_0) {
   EXPECT_NE(ImageByteMap::Create(Ctx), nullptr);
 }
 
-TEST(Unit_ImageByteMap, setFileName) {
-  auto* Node = ImageByteMap::Create(Ctx);
-  ASSERT_TRUE(Node != nullptr);
-
-  const std::string Val("/usr/local/foo");
-
-  Node->setFileName(Val);
-  EXPECT_EQ(Val, Node->getFileName());
-}
-
 TEST(Unit_ImageByteMap, setBaseAddress) {
   auto* Node = ImageByteMap::Create(Ctx);
   ASSERT_TRUE(Node != nullptr);
@@ -107,16 +97,6 @@ TEST(Unit_ImageByteMap, setAddrMinMax) {
   EXPECT_FALSE(M->setAddrMinMax({Maximum, Minimum}));
   EXPECT_EQ(Minimum, M->getAddrMinMax().first);
   EXPECT_EQ(Maximum, M->getAddrMinMax().second);
-}
-
-TEST(Unit_ImageByteMap, setIsRelocated) {
-  auto* Node = ImageByteMap::Create(Ctx);
-  ASSERT_TRUE(Node != nullptr);
-
-  const auto Val = bool{true};
-
-  Node->setIsRelocated();
-  EXPECT_EQ(Val, Node->getIsRelocated());
 }
 
 TEST_F(Unit_ImageByteMapF, legacy_byte) {
@@ -362,10 +342,8 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   const auto Address = Addr(0x00001000);
   EXPECT_TRUE(this->ByteMap->setData(Address, uint16_t{0xDEAD}));
 
-  Original->setFileName("test");
   Original->setBaseAddress(Addr(2));
   Original->setEntryPointAddress(Addr(3));
-  Original->setIsRelocated();
 
   proto::ImageByteMap Message;
   Original->toProtobuf(&Message);
@@ -374,11 +352,9 @@ TEST_F(Unit_ImageByteMapF, protobufRoundTrip) {
   ImageByteMap* Result = ImageByteMap::fromProtobuf(OuterCtx, Message);
 
   EXPECT_EQ(Result->getData<uint16_t>(Address), 0xDEAD);
-  EXPECT_EQ(Result->getFileName(), "test");
   EXPECT_EQ(Result->getBaseAddress(), Addr(2));
   EXPECT_EQ(Result->getEntryPointAddress(), Addr(3));
   EXPECT_EQ(Result->getAddrMinMax(), Original->getAddrMinMax());
-  EXPECT_EQ(Result->getIsRelocated(), true);
 }
 
 TEST(Unit_ImageByteMap, contiguousIterators) {

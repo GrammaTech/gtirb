@@ -21,10 +21,8 @@ message ImageByteMap
 {
     bytes uuid = 1;
     ByteMap byte_map = 2;
-    string file_name = 3;
-    uint64 addr_min = 4;
-    uint64 addr_max = 5;
-    uint64 base_address = 6;
-    uint64 entry_point_address = 7;
-    bool is_relocated = 8;
+    uint64 addr_min = 3;
+    uint64 addr_max = 4;
+    uint64 base_address = 5;
+    uint64 entry_point_address = 6;
 }

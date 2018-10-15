@@ -69,20 +69,27 @@ TEST(Unit_Module, getRebaseDeltaDefault) {
 TEST(Unit_Module, setRebaseDelta) {
   auto* M = Module::Create(Ctx);
 
+  EXPECT_FALSE(M->isRelocated());
+
   M->setRebaseDelta(1);
   EXPECT_EQ(int64_t{1}, M->getRebaseDelta());
+  EXPECT_TRUE(M->isRelocated());
 
   M->setRebaseDelta(-1);
   EXPECT_EQ(int64_t{-1}, M->getRebaseDelta());
+  EXPECT_TRUE(M->isRelocated());
 
   M->setRebaseDelta(std::numeric_limits<int64_t>::max());
   EXPECT_EQ(std::numeric_limits<int64_t>::max(), M->getRebaseDelta());
+  EXPECT_TRUE(M->isRelocated());
 
   M->setRebaseDelta(std::numeric_limits<int64_t>::min());
   EXPECT_EQ(std::numeric_limits<int64_t>::min(), M->getRebaseDelta());
+  EXPECT_TRUE(M->isRelocated());
 
   M->setRebaseDelta(std::numeric_limits<int64_t>::lowest());
   EXPECT_EQ(std::numeric_limits<int64_t>::lowest(), M->getRebaseDelta());
+  EXPECT_TRUE(M->isRelocated());
 }
 
 TEST(Unit_Module, getPreferredAddrDefault) {

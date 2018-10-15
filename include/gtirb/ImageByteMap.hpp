@@ -54,21 +54,6 @@ public:
   /// \return The newly created object.
   static ImageByteMap* Create(Context& C) { return new (C) ImageByteMap(C); }
 
-  /// \brief Set the file name of the image.
-  ///
-  /// This is for informational purposes only and will not be used to open
-  /// the image, so it does not need to be the path of an existing file.
-  ///
-  /// \param X The file name to use.
-  ///
-  /// \return void
-  void setFileName(const std::string& X) { FileName = X; }
-
-  /// \brief Get the loaded file name and path.
-  ///
-  /// \return The file name and path.
-  const std::string& getFileName() const { return FileName; }
-
   /// \brief Set the base address of the loaded file.
   ///
   /// \param X The base address to use.
@@ -112,20 +97,6 @@ public:
   /// \return A std::pair containing the (minimum, maximum) effective
   /// addresses.
   std::pair<Addr, Addr> getAddrMinMax() const { return EaMinMax; }
-
-  /// \brief Mark the loaded image as having been relocated.
-  ///
-  /// \return void
-  ///
-  /// This is primarily useful for loaders that load from sources that provide
-  /// already-relocated content.
-  void setIsRelocated() { IsRelocated = true; }
-
-  /// \brief Check: has the loaded image been relocated?
-  ///
-  /// \return \c true if the loaded image has been relocated, \c false
-  /// otherwise.
-  bool getIsRelocated() const { return IsRelocated; }
 
   /// \brief Set the byte order to use when getting or setting data.
   ///
@@ -348,11 +319,9 @@ private:
 
   // Storage for the entire contents of the loaded image.
   gtirb::ByteMap BMap;
-  std::string FileName;
   std::pair<Addr, Addr> EaMinMax;
   Addr BaseAddress;
   Addr EntryPointAddress;
-  bool IsRelocated{false};
   boost::endian::order ByteOrder{boost::endian::order::native};
 };
 
