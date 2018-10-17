@@ -91,6 +91,7 @@ template <class T> struct is_sequence : std::false_type {};
 /// @cond INTERNAL
 template <class T> struct is_sequence<std::vector<T>> : std::true_type {};
 template <class T> struct is_sequence<std::list<T>> : std::true_type {};
+template <class T> struct is_sequence<std::deque<T>> : std::true_type {};
 /// @endcond
 
 /// \struct is_mapping
@@ -102,9 +103,14 @@ template <class T> struct is_mapping : std::false_type {};
 /// @cond INTERNAL
 template <class T, class U>
 struct is_mapping<std::map<T, U>> : std::true_type {};
-// Explicitly disable multimap since its semantics are different.
+template <class T, class U>
+struct is_mapping<std::unordered_map<T, U>> : std::true_type {};
+// Explicitly disable multimaps. Because they can contain multiple values for
+// a given key, they can't be used interchangeably with maps.
 template <class T, class U>
 struct is_mapping<std::multimap<T, U>> : std::false_type {};
+template <class T, class U>
+struct is_mapping<std::unordered_multimap<T, U>> : std::false_type {};
 
 template <class T> struct is_tuple : std::false_type {};
 template <class... Args>
