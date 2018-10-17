@@ -9,7 +9,10 @@ RUN apt-get -y update && \
 RUN apt-get -y install gcc-7 g++-7 make git
 RUN apt-get -y install build-essential binutils
 RUN apt-get -y install doxygen graphviz wget curl unzip
-RUN apt-get -y install clang
+# libstdc++-7 triggers a clang bug which leads to errors when
+# compiling variants. Install libstdc++-8-dev to avoid the problem.
+# https://bugs.llvm.org/show_bug.cgi?id=33222
+RUN apt-get -y install clang libstdc++-8-dev
 
 # Install CMake
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \

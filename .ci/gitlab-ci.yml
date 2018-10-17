@@ -9,11 +9,11 @@ before_script:
 stages:
   - check-format
   - build-test-ubuntu16-gcc7
-  # - build-test-ubuntu18-clang
+  - build-test-ubuntu18-clang
   # - build-test-ubuntu14-gcc
   - build-test-arch-gcc
   - cleanup-ubuntu16-gcc7
-  # - cleanup-ubuntu18-clang
+  - cleanup-ubuntu18-clang
   # - cleanup-ubuntu14-gcc
   - cleanup-arch-gcc
 
@@ -38,12 +38,12 @@ build-ubuntu16-gcc7:
     COMPILER: 'g++-7'
   <<: *build
 
-# build-ubuntu18-clang:
-#   stage: build-test-ubuntu18-clang
-#   variables:
-#     OS: 'ubuntu16'
-#     COMPILER: 'clang++'
-#   <<: *build
+build-ubuntu18-clang:
+  stage: build-test-ubuntu18-clang
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'clang++'
+  <<: *build
 
 # This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
 #
@@ -70,14 +70,14 @@ cleanup-ubuntu16-gcc7:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
 
-# cleanup-ubuntu18-clang:
-#   stage: cleanup-ubuntu18-clang
-#   variables:
-#     OS: 'ubuntu18'
-#     COMPILER: 'clang++'
-#   script:
-#     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
-#     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
+cleanup-ubuntu18-clang:
+  stage: cleanup-ubuntu18-clang
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'clang++'
+  script:
+    - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
 
 # cleanup-ubuntu14-gcc:
 #   stage: cleanup-ubuntu14-gcc
