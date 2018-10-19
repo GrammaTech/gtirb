@@ -22,6 +22,7 @@ option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 # This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON
 # instead of OFF.
 option(GTIRB_BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(GTIRB_USE_SYSTEM_BOOST "Use system-wide installation of Boost." ON)
 if(GTIRB_BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 else()
@@ -71,8 +72,6 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 #
 # Global Options (Compile / Link)
 #
-
-add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
@@ -145,9 +144,19 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 
-include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/boost/include")
-file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
-  DESTINATION "${CMAKE_BINARY_DIR}/include/")
+find_package(Boost 1.59)
+add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+
+# Use system-wide installation of Boost if it exists, to reduce the
+# chance of problems due to mismatched versions. If Boost is not
+# found, fall back to the partial copy bundled with gtirb.
+if(GTIRB_USE_SYSTEM_BOOST AND Boost_FOUND)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+else()
+  include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/boost/include")
+  file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
+    DESTINATION "${CMAKE_BINARY_DIR}/include/")
+endif()
 
 # ---------------------------------------------------------------------------
 # Microsoft GSL 
