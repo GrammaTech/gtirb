@@ -6,6 +6,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.9.0)
 
 PROJECT(GT-IRB)
+set(GTIRB_VERSION "0.1.0" CACHE STRING "version of gtirb" FORCE)
+
 
 include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
@@ -156,6 +158,8 @@ else()
   include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/boost/include")
   file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
     DESTINATION "${CMAKE_BINARY_DIR}/include/")
+  install(DIRECTORY "${CMAKE_SOURCE_DIR}/boost/include/boost" DESTINATION include)
+
 endif()
 
 # ---------------------------------------------------------------------------
@@ -184,6 +188,7 @@ add_subdirectory("${CMAKE_BINARY_DIR}/gsl-src"
                                  EXCLUDE_FROM_ALL)
 
 include_directories("${CMAKE_BINARY_DIR}/gsl-src/include")
+install(DIRECTORY "${CMAKE_BINARY_DIR}/include/gsl" DESTINATION include)
 
 # ---------------------------------------------------------------------------
 # Google Test Application
@@ -243,6 +248,11 @@ add_subdirectory(doc/examples)
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
 # ---------------------------------------------------------------------------
+
+# --- For direct use from the build directory/cmake registry ---
+# This exports the targets
+export(TARGETS gtirb proto FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake")
+# This is the main config file that find_package will look for.
 file(
   WRITE "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake"
         "
@@ -252,8 +262,28 @@ file(
                 APPEND PROPERTY
                     INTERFACE_INCLUDE_DIRECTORIES \"${CMAKE_BINARY_DIR}/include\" ${PROTOBUF_INCLUDE_DIRS}
             )
-        "
-    )
-
-export(TARGETS gtirb proto FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake")
+        ")
+# Add the build directory to the user CMake registry, so find_package
+# can locate it automatically.
 export(PACKAGE gtirb)
+
+
+# --- For the installed copy ---
+# Main config file for find_package, just includes the targets file.
+file(
+  WRITE "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake"
+        "include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")"
+    )
+# In this mode, find_package also seems to require a version file
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig-version.cmake")
+write_basic_package_version_file(${version_file}
+                                 VERSION ${GTIRB_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
+
+# Copy the config files to the install location
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake
+  ${version_file}
+  DESTINATION lib/gtirb)
+# This exports the targets to the install location.
+install(EXPORT gtirbTargets DESTINATION lib/gtirb)

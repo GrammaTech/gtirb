@@ -124,3 +124,10 @@ endif()
 if(GTIRB_ENABLE_TESTS)
         add_subdirectory(test)
 endif()
+
+install(TARGETS ${PROJECT_NAME} EXPORT gtirbTargets
+  INCLUDES DESTINATION include
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib)
+install(FILES ${PUBLIC_HEADERS} DESTINATION include/gtirb)
+install(DIRECTORY "${CMAKE_BINARY_DIR}/include/proto" DESTINATION include)
