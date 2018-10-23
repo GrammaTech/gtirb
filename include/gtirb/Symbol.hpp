@@ -217,7 +217,7 @@ public:
   /// \param C  The Context in which this object will be held.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C) { return new (C) Symbol(C); }
+  static Symbol* Create(Context& C) { return C.Create<Symbol>(C); }
 
   /// \brief Create a Symbol object.
   ///
@@ -226,7 +226,7 @@ public:
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, const std::string& Name) {
-    return new (C) Symbol(C, std::nullopt, Name);
+    return C.Create<Symbol>(C, std::nullopt, Name);
   }
 
   /// \brief Create a Symbol object.
@@ -240,7 +240,7 @@ public:
   /// \return The newly created object.
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
-    return new (C) Symbol(C, X, Name, Kind);
+    return C.Create<Symbol>(C, X, Name, Kind);
   }
 
   /// \brief Create a Symbol object.
@@ -258,7 +258,7 @@ public:
                         NodeTy* Referent,
                         StorageKind Kind = StorageKind::Extern) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return new (C) Symbol(C, X, Name, Referent, Kind);
+    return C.Create<Symbol>(C, X, Name, Referent, Kind);
   }
 
   /// \brief Get the effective address.
@@ -363,6 +363,8 @@ private:
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
   Node* Referent{nullptr};
+
+  friend class Context;
 };
 } // namespace gtirb
 

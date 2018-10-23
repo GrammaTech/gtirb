@@ -34,6 +34,13 @@ namespace gtirb {
 using UUID = boost::uuids::uuid;
 
 class Node;
+class Block;
+class DataObject;
+class ImageByteMap;
+class IR;
+class Module;
+class Section;
+class Symbol;
 
 /// \class Context
 ///
@@ -50,9 +57,19 @@ class Node;
 /// a Context object across multiple threads can introduce data races,
 /// so protecting the object with a locking primitive is recommended.
 class GTIRB_EXPORT_API Context {
-  mutable BumpPtrAllocator Allocator;
-
+  // Note: this must be declared first so it outlives the allocators. They
+  // will access the UuidMap during their destructors to unregister nodes.
   std::map<UUID, Node*> UuidMap;
+
+  // Allocate each node type in a separate arena.
+  mutable SpecificBumpPtrAllocator<Node> NodeAllocator;
+  mutable SpecificBumpPtrAllocator<Block> BlockAllocator;
+  mutable SpecificBumpPtrAllocator<DataObject> DataObjectAllocator;
+  mutable SpecificBumpPtrAllocator<ImageByteMap> ImageByteMapAllocator;
+  mutable SpecificBumpPtrAllocator<IR> IrAllocator;
+  mutable SpecificBumpPtrAllocator<Module> ModuleAllocator;
+  mutable SpecificBumpPtrAllocator<Section> SectionAllocator;
+  mutable SpecificBumpPtrAllocator<Symbol> SymbolAllocator;
 
   /// \copybrief gtirb::Node
   friend class Node;
@@ -63,18 +80,13 @@ class GTIRB_EXPORT_API Context {
   const Node* findNode(const UUID& ID) const;
   Node* findNode(const UUID& ID);
 
-public:
-  /// \brief Allocates a chunk of memory of the given size with the given
-  /// alignment requirements.
+  /// \brief Allocates a chunk of memory for an object of type \ref T.
   ///
-  /// \param Size   The amount of memory to allocate, in bytes.
-  /// \param Align  The alignment required for the return pointer, in bytes.
+  /// \tparam T   The type of object for which to allocate memory.
   ///
-  /// \return The newly allocated memory, suitably aligned for the given
-  /// alignment. Will return nullptr if the allocation cannot be honored.
-  void* Allocate(size_t Size, size_t Align) const {
-    return Allocator.Allocate(Size, Align);
-  }
+  /// \return The newly allocated memory, suitably sized for the given
+  /// type. Will return nullptr if the allocation cannot be honored.
+  template <class T> void* Allocate() const;
 
   /// \brief Deallocates memory allocated through a call to Allocate().
   ///
@@ -88,42 +100,33 @@ public:
     // Noop -- we don't want callers to deallocate individual allocations, but
     // should instead deallocate the entire Context object to free memory.
   }
+
+public:
+  Context();
+  ~Context();
+
+  /// \brief Create an object of type \ref T.
+  ///
+  /// \tparam NodeTy   The type of object for which to allocate memory.
+  /// \tparam Args     The types of the constructor arguments.
+  /// \param TheArgs   The constructor arguments.
+  ///
+  /// \return A newly created object, allocated within the Context.
+  template <typename NodeTy, typename... Args>
+  NodeTy* Create(Args&&... TheArgs) {
+    return new (Allocate<NodeTy>()) NodeTy(std::forward<Args>(TheArgs)...);
+  }
 };
+
+template <> GTIRB_EXPORT_API void* Context::Allocate<Node>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<Block>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<DataObject>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<ImageByteMap>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<IR>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<Module>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<Section>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<Symbol>() const;
+
 } // namespace gtirb
-
-/// \relates gtirb::Context
-/// \brief Custom placement new operator for performing allocations on
-/// a gtirb::Context object.
-///
-/// \param Size   The amount of memory to allocate, in bytes.
-/// \param C      The gtirb::Context object on which to perform the allocation.
-/// \param Align  The alignment required for the returned pointer.
-///
-/// \return The newly allocated memory, or nullptr on error.
-inline void* operator new(size_t Size, const gtirb::Context& C,
-                          size_t Align = 8) {
-  return C.Allocate(Size, Align);
-}
-
-/// \relates  gtirb::Context
-/// \brief Custom placement delete operator that pairs with the
-/// custom new operator.
-///
-/// \return void
-///
-/// This operator cannot be called manually and is only called in the
-/// event a constructor called via
-/// \ref operator new(size_t,const gtirb::Context&,size_t) "placement new"
-/// terminates with an exception.
-///
-/// gtirb::Context-allocated objects are expected to have non-throwing
-/// constructors and so this function should never be called
-/// implicitly. However, some compilers will diagnose definitions
-/// of placement new without a matching definition of placement
-/// delete.
-inline void operator delete(void*, const gtirb::Context&, size_t) {
-  // Noop -- this is only called if the placement new using our Context object
-  // throws; there is no way to call this directly.
-}
 
 #endif // GTIRB_CONTEXT_H

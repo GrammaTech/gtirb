@@ -52,7 +52,7 @@ public:
   /// \param C  The Context in which this object will be held.
   ///
   /// \return The newly created object.
-  static ImageByteMap* Create(Context& C) { return new (C) ImageByteMap(C); }
+  static ImageByteMap* Create(Context& C) { return C.Create<ImageByteMap>(C); }
 
   /// \brief Set the base address of the loaded file.
   ///
@@ -323,6 +323,8 @@ private:
   Addr BaseAddress;
   Addr EntryPointAddress;
   boost::endian::order ByteOrder{boost::endian::order::native};
+
+  friend class Context;
 };
 
 /// \relates ImageByteMap

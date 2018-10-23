@@ -100,7 +100,7 @@ public:
   /// \param C  The Context in which this object will be held.
   ///
   /// \return The newly created object.
-  static Module* Create(Context& C) { return new (C) Module(C); }
+  static Module* Create(Context& C) { return C.Create<Module>(C); }
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
@@ -613,6 +613,8 @@ private:
   SymbolSet Symbols;
   SymbolAddrMap SymbolsByAddr;
   SymbolicExpressionSet SymbolicOperands;
+
+  friend class Context;
 };
 
 /// \relates Addr

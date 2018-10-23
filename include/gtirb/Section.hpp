@@ -45,7 +45,7 @@ public:
   /// \param C  The Context in which this object will be held.
   ///
   /// \return The newly created object.
-  static Section* Create(Context& C) { return new (C) Section(C); }
+  static Section* Create(Context& C) { return C.Create<Section>(C); }
 
   /// \brief Create a Section object.
   ///
@@ -57,7 +57,7 @@ public:
   /// \return The newly created object.
   static Section* Create(Context& C, const std::string& Name, Addr Address,
                          uint64_t Size) {
-    return new (C) Section(C, Name, Address, Size);
+    return C.Create<Section>(C, Name, Address, Size);
   }
 
   /// \brief Equality operator overload.
@@ -107,6 +107,8 @@ private:
   std::string Name;
   Addr Address{0};
   uint64_t Size{0};
+
+  friend class Context;
 };
 } // namespace gtirb
 

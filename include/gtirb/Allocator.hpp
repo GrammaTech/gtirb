@@ -179,6 +179,11 @@ public:
     return AlignedPtr;
   }
 
+  /// Allocate space for a sequence of objects without constructing them.
+  template <typename T> T* Allocate(size_t Num = 1) {
+    return static_cast<T*>(Allocate(Num * sizeof(T), alignof(T)));
+  }
+
   // Bump pointer allocators are expected to never free their storage; and
   // clients expect pointers to remain valid for non-dereferencing uses even
   // after deallocation.
@@ -262,11 +267,69 @@ private:
       std::free(PtrAndSize.first);
     }
   }
+
+  template <typename T> friend class SpecificBumpPtrAllocator;
 };
 
 /// The standard BumpPtrAllocator which just uses the default template
 /// parameters.
 typedef BumpPtrAllocatorImpl<> BumpPtrAllocator;
+
+/// A BumpPtrAllocator that allows only elements of a specific type to be
+/// allocated.
+///
+/// This allows calling the destructor in DestroyAll() and when the allocator is
+/// destroyed.
+template <typename T> class SpecificBumpPtrAllocator {
+  BumpPtrAllocator Allocator;
+
+public:
+  SpecificBumpPtrAllocator() {
+    // Because SpecificBumpPtrAllocator walks the memory to call destructors,
+    // it can't have red zones between allocations.
+    Allocator.setRedZoneSize(0);
+  }
+  SpecificBumpPtrAllocator(SpecificBumpPtrAllocator&& Old)
+      : Allocator(std::move(Old.Allocator)) {}
+  ~SpecificBumpPtrAllocator() { DestroyAll(); }
+
+  SpecificBumpPtrAllocator& operator=(SpecificBumpPtrAllocator&& RHS) {
+    Allocator = std::move(RHS.Allocator);
+    return *this;
+  }
+
+  /// Allocate space for an array of objects without constructing them.
+  T* Allocate(size_t num = 1) { return Allocator.Allocate<T>(num); }
+
+private:
+  /// Call the destructor of each allocated object and deallocate all but the
+  /// current slab and reset the current pointer to the beginning of it, freeing
+  /// all memory allocated so far.
+  void DestroyAll() {
+    auto DestroyElements = [](char* Begin, char* End) {
+      assert(Begin == (char*)alignAddr(Begin, alignof(T)));
+      for (char* Ptr = Begin; Ptr + sizeof(T) <= End; Ptr += sizeof(T))
+        reinterpret_cast<T*>(Ptr)->~T();
+    };
+
+    for (auto I = Allocator.Slabs.begin(), E = Allocator.Slabs.end(); I != E;
+         ++I) {
+      size_t AllocatedSlabSize = BumpPtrAllocator::computeSlabSize(
+          std::distance(Allocator.Slabs.begin(), I));
+      char* Begin = (char*)alignAddr(*I, alignof(T));
+      char* End = *I == Allocator.Slabs.back() ? Allocator.CurPtr
+                                               : (char*)*I + AllocatedSlabSize;
+
+      DestroyElements(Begin, End);
+    }
+
+    for (auto& PtrAndSize : Allocator.CustomSizedSlabs) {
+      void* Ptr = PtrAndSize.first;
+      size_t Size = PtrAndSize.second;
+      DestroyElements((char*)alignAddr(Ptr, alignof(T)), (char*)Ptr + Size);
+    }
+  }
+};
 
 template <size_t SlabSize, size_t SizeThreshold>
 void* operator new(size_t Size,

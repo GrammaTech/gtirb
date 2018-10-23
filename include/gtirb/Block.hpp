@@ -62,7 +62,7 @@ public:
   static Block* Create(Context& C, CFG::vertex_descriptor Vertex, Addr Address,
                        uint64_t Size, Exit ExitKind = Exit::Fallthrough,
                        uint64_t DecodeMode = 0) {
-    return new (C) Block(C, Address, Size, Vertex, ExitKind, DecodeMode);
+    return C.Create<Block>(C, Address, Size, Vertex, ExitKind, DecodeMode);
   }
 
   /// \brief Get the address from a \ref Block.
@@ -117,6 +117,8 @@ private:
   CFG::vertex_descriptor Vertex;
   uint64_t DecodeMode{0};
   Exit ExitKind{Exit::Fallthrough};
+
+  friend class Context;
 };
 
 /// \ingroup CFG_GROUP
