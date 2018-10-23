@@ -49,7 +49,7 @@ public:
   /// be held.
   ///
   /// \return The newly created DataObject.
-  static DataObject* Create(Context& C) { return new (C) DataObject(C); }
+  static DataObject* Create(Context& C) { return C.Create<DataObject>(C); }
 
   /// \brief Create a DataObject object.
   ///
@@ -62,7 +62,7 @@ public:
   ///
   /// \return The newly created DataObject.
   static DataObject* Create(Context& C, Addr Address, uint64_t Size) {
-    return new (C) DataObject(C, Address, Size);
+    return C.Create<DataObject>(C, Address, Size);
   }
 
   /// \brief Get the address of a DataObject.
@@ -104,6 +104,8 @@ public:
 private:
   Addr Address{0};
   uint64_t Size{0};
+
+  friend class Context;
 };
 } // namespace gtirb
 

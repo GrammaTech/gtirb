@@ -120,7 +120,7 @@ public:
   /// \param C  The Context in which this object will be held.
   ///
   /// \return The newly created object.
-  static IR* Create(Context& C) { return new (C) IR(C); }
+  static IR* Create(Context& C) { return C.Create<IR>(C); }
 
   /// \brief Iterator over \ref Module "Modules".
   using iterator = boost::indirect_iterator<std::vector<Module*>::iterator>;
@@ -296,6 +296,8 @@ public:
 private:
   AuxDataSet AuxDatas;
   std::vector<Module*> Modules;
+
+  friend class Context;
 };
 } // namespace gtirb
 

@@ -63,7 +63,7 @@ public:
   /// \param C  The Context in which this object will be held.
   ///
   /// \return The newly created object.
-  static Node* Create(Context& C) { return new (C) Node(C, Kind::Node); }
+  static Node* Create(Context& C) { return C.Create<Node>(C, Kind::Node); }
 
   /// \brief Cleans up resources no longer needed by the Node object.
   ~Node() noexcept;
@@ -100,6 +100,8 @@ private:
   // construction.
   void setUUID(UUID X);
   friend void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
+
+  friend class Context;
 };
 
 } // namespace gtirb
