@@ -357,38 +357,12 @@ template <class T, class... Ts> struct TypeId<T, Ts...> {
 /// @endcond
 
 /// @cond INTERNAL
-
-// Uniquely identifies a type without RTTI.
-class type_id_t {
-  // Use a function pointer as an arbitrary unique identifier for the type.
-  using sig = type_id_t();
-
-  sig* Id;
-  explicit type_id_t(sig* I) : Id{I} {}
-
-public:
-  template <typename T> friend type_id_t type_id();
-
-  bool operator==(const type_id_t& Other) const { return Id == Other.Id; }
-  bool operator!=(const type_id_t& Other) const { return Id != Other.Id; }
-};
-
-template <typename T> type_id_t type_id() {
-  // Use a pointer to this function as the underlying ID. This is a template,
-  // so each instantiation will have a different address. The linker
-  // guarantees that there is only one definition of each instantiation
-  // across all compilation units.
-  return type_id_t(&type_id<T>);
-}
-/// @endcond
-
-/// @cond INTERNAL
 class AuxDataImpl {
 public:
   virtual ~AuxDataImpl() = default;
   virtual void toBytes(std::string& Bytes) const = 0;
   virtual void fromBytes(const std::string& Bytes) = 0;
-  virtual type_id_t storedType() const = 0;
+  virtual const std::type_info& storedType() const = 0;
   virtual std::string typeName() const = 0;
   virtual void* get() = 0;
 };
@@ -407,7 +381,7 @@ public:
     auxdata_traits<T>::fromBytes(Object, Bytes.begin());
   }
 
-  type_id_t storedType() const override { return type_id<T>(); }
+  const std::type_info& storedType() const override { return typeid(T); }
 
   std::string typeName() const override { return TypeId<T>::value(); }
 
@@ -462,8 +436,7 @@ public:
       this->Impl->fromBytes(this->RawBytes);
       this->RawBytes.clear();
       this->TypeName.clear();
-    } else if (this->Impl == nullptr ||
-               type_id<T>() != this->Impl->storedType()) {
+    } else if (this->Impl == nullptr || typeid(T) != this->Impl->storedType()) {
       return nullptr;
     }
 
