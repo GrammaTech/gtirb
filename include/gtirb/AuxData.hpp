@@ -19,6 +19,7 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/Node.hpp>
 #include <boost/endian/conversion.hpp>
+#include <deque>
 #include <list>
 #include <map>
 #include <string>
