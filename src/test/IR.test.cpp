@@ -142,6 +142,33 @@ TEST(Unit_IR, protobufRoundTrip) {
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 }
 
+TEST(Unit_IR, jsonRoundTrip) {
+  UUID MainID;
+  std::ostringstream Out;
+
+  {
+    Context InnerCtx;
+    IR* Original = IR::Create(InnerCtx);
+    Module* M = Module::Create(InnerCtx);
+    M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
+    Original->addModule(M);
+    Original->addAuxData("test", AuxData());
+
+    MainID = Original->begin()->getUUID();
+    Original->saveJSON(Out);
+  }
+  std::istringstream In(Out.str());
+  IR* Result = IR::loadJSON(Ctx, In);
+
+  EXPECT_EQ(Result->begin()->getUUID(), MainID);
+  size_t Count =
+      std::count_if(Result->begin(), Result->end(),
+                    [](const Module& M) { return containsAddr(M, Addr(100)); });
+  EXPECT_EQ(Count, 1);
+  EXPECT_EQ(Result->getAuxDataSize(), 1);
+  EXPECT_NE(Result->getAuxData("test"), nullptr);
+}
+
 TEST(Unit_IR, move) {
   IR* Original = IR::Create(Ctx);
   EXPECT_TRUE(Original->getAuxDataEmpty());

@@ -166,20 +166,35 @@ public:
     Modules.insert(Modules.end(), Ms);
   }
 
-  /// \brief Serialize to an output stream.
+  /// \brief Serialize to an output stream in binary format.
   ///
   /// \param Out The output stream.
   ///
   /// \return void
   void save(std::ostream& Out) const;
 
-  /// \brief Deserialize from an input stream.
+  /// \brief Serialize to an output stream in JSON format.
+  ///
+  /// \param Out The output stream.
+  ///
+  /// \return void
+  void saveJSON(std::ostream& Out) const;
+
+  /// \brief Deserialize binary format from an input stream.
   ///
   /// \param C   The Context in which this IR will be loaded.
   /// \param In  The input stream.
   ///
   /// \return The deserialized IR object.
   static IR* load(Context& C, std::istream& In);
+
+  /// \brief Deserialize JSON format from an input stream.
+  ///
+  /// \param C   The Context in which this IR will be loaded.
+  /// \param In  The input stream.
+  ///
+  /// \return The deserialized IR object.
+  static IR* loadJSON(Context& C, std::istream& In);
 
   /// \brief The protobuf message type used for serializing IR.
   using MessageType = proto::IR;

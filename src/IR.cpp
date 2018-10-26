@@ -22,6 +22,7 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/IR.pb.h>
+#include <google/protobuf/util/json_util.h>
 
 using namespace gtirb;
 
@@ -81,5 +82,21 @@ void IR::save(std::ostream& Out) const {
 IR* IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
+  return IR::fromProtobuf(C, Message);
+}
+
+void IR::saveJSON(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  std::string S;
+  google::protobuf::util::MessageToJsonString(Message, &S);
+  Out << S;
+}
+
+IR* IR::loadJSON(Context& C, std::istream& In) {
+  MessageType Message;
+  std::string S;
+  google::protobuf::util::JsonStringToMessage(
+      std::string(std::istreambuf_iterator<char>(In), {}), &Message);
   return IR::fromProtobuf(C, Message);
 }
