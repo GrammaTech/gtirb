@@ -88,6 +88,13 @@ class Module;
 /// Open an IR and print the Address of every jump instruction,
 /// along with the jump targets (if known).
 
+/// \example data-symbols.py
+/// Open an IR via protobuf and print every symbol pointing to data.
+
+/// \example cfg-paths.py
+/// Open an IR via protobuf and print every path from some point to some
+/// other point.
+
 class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 
