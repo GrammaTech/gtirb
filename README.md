@@ -14,7 +14,9 @@ The remainder of this file has information on GTIRB's:
 - [Building](#building)
 - [Usage](#usage)
 
+
 ## Structure
+
 GTIRB has the following structure:
 
       Aux Data
@@ -25,19 +27,19 @@ GTIRB has the following structure:
              \-----ImageByteMap
               -----ICFG
                    /  \
-              Blocks  Edges
-                 |
-            Instructions---Bytes
+               Edges  Blocks
+
 
 ### IR
+
 An instance of GTIRB may include multiple `module`s which represent
 loadable objects such as executables or libraries.  Each `module`
 holds information such as `symbol`s, `data`, and an inter-procedural
 control flow graph (`ICFG`).  The `ICFG` consists of basic `block`s
-and control flow edges between these `block`s.  Each `block` holds
-some number of `instruction`s.  Each `datum` and `instruction` holds
-both a pointer to a range of bytes in the `ImageByteMap` and
-`symbolic` information coverage that range.
+and control flow edges between these `block`s.  Each `datum` and
+`block` holds both a pointer to a range of bytes in the `ImageByteMap`
+and `symbolic` information coverage that range.
+
 
 ### Instructions
 
@@ -51,17 +53,22 @@ Instruction bytes may easily be decoded/encoded using the popular
 [Capstone](https://www.capstone-engine.org)/[Keystone](https://www.keystone-engine.org)
 disassembler/assembler.
 
+
 ### Auxiliary Data
 
 Additional arbitrary information, e.g. analysis results, may be added
-to GTIRB in the form of `AuxData` object.  These can store maps and
+to GTIRB in the form of `AuxData` objects.  These can store maps and
 vectors of basic GTIRB types in a portable way. This repository will
-describe the anticipated structure for very common auxiliary data.
+describe the anticipated structure for very common types of auxiliary
+data such as function boundary information.
+
 
 ### UUIDs
+
 Every element of GTIRB (namely: modules (`Module`), symbols
 (`Symbol`), globals, blocks (`Block`), and instructions
-(`InstructionRef`) has a unique associated ID.
+(`InstructionRef`) has a universally unique identifier (UUID).
+
 
 ## Building
 
@@ -78,21 +85,31 @@ make -j
 ./bin/TestGTIRB
 ```
 
+The gtirb library will be located in `lib/libgtirb.so` in the build
+directory.
+
+
 ## Usage
 
 GTIRB is designed to be serialized using [Google's protocol
 Buffers](https://developers.google.com/protocol-buffers/) (i.e.,
-[protobuf](https://github.com/google/protobuf/wiki)) and eventually
-JSON through protobuf's JSON output, enabling easy use from any
-programming language.  GTIRB may also be used as a C++ library
-implementing an efficient data structure suitable for use by binary
-analysis and rewriting applications.
+[protobuf](https://github.com/google/protobuf/wiki)) and using JSON
+through protobuf's JSON output.  These two options should enable easy
+and efficient use of GTIRB from any programming language.  GTIRB may
+also be used as a C++ library implementing an efficient data structure
+suitable for use by binary analysis and rewriting applications.
 
-This repository defines the GTIRB data structure and C++ library.
+This repository defines the GTIRB data structure and C++ library API.
+The remainder of this section provides examples walking through common
+tasks using the GTIRB C++ library API.
+
+- [Populating the IR](#populating-the-ir)
+- [Querying the IR](#querying-the-ir)
+- [Serialization](#serialization)
 
 ### Populating the IR
 
-GT-IRB objects are created within a `Context` object. Freeing the
+GTIRB objects are created within a `Context` object. Freeing the
 `Context` will also destroy all the objects within it.
 
 ```c++
@@ -204,7 +221,9 @@ ir.addAuxData("stringMap", std::map<std::string, std::string>(
                              {{"a", "str1"}, {"b", "str2"}}));
 ```
 
+
 ### Querying the IR
+
 Symbols can be looked up by address or name.  Any number of symbols
 can share an address or name, so be prepared to deal with multiple
 results.
@@ -283,6 +302,7 @@ for (auto p : *stringMap) {
   std::cout << p.first << " => " << p.second << "\n";
 }
 ```
+
 
 ### Serialization
 

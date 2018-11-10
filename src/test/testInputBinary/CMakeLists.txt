@@ -1,4 +1,4 @@
-# Generate several projects of increasing size and complexity for use in testing GT-IRB.
+# Generate several projects of increasing size and complexity for use in testing GTIRB.
 macro(GTIRB_BUILD_GTBINARY_MACRO)
 	SET(PROJECT_NAME gtirbTestInputBinary${_GENERATION_CONSTANT})
 

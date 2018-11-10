@@ -5,7 +5,7 @@
 # Need 3.9 to support CXX_STANDARD=17 and protobuf
 CMAKE_MINIMUM_REQUIRED(VERSION 3.9.0)
 
-PROJECT(GT-IRB)
+PROJECT(GTIRB)
 set(GTIRB_VERSION "0.1.0" CACHE STRING "version of gtirb" FORCE)
 
 
@@ -69,7 +69,7 @@ endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Base include path for the GT-IRB library.
+# Base include path for the GTIRB library.
 include_directories(${CMAKE_SOURCE_DIR}/include)
 #
 # Global Options (Compile / Link)

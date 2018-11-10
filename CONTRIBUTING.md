@@ -40,8 +40,8 @@ Testing Development
 Documentation
 -------------
 
-The GT-IRB documentation consists of complete documentation for all
-components of the GT-IRB API, along with examples and other usage
+The GTIRB documentation consists of complete documentation for all
+components of the GTIRB API, along with examples and other usage
 information.
 
 

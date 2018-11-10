@@ -16,10 +16,10 @@
 #define GTIRB_GTIRB_H
 
 /// \file gtirb.hpp
-/// \brief \c \#include this file to include all GT-IRB API headers.
+/// \brief \c \#include this file to include all GTIRB API headers.
 
 /// \namespace gtirb
-/// \brief Main namespace for the GT-IRB API.
+/// \brief Main namespace for the GTIRB API.
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/AuxData.hpp>
