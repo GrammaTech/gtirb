@@ -68,6 +68,10 @@ public:
   /// \return An iterator range that encodes a contiguous block of memory that
   /// can be accessed directly, such as via memcpy(). Will return an empty
   /// range if the requested address or number of bytes cannot be retrieved.
+  ///
+  /// For an interator over the contents of a \ref Block, use
+  /// Block::getAddress() and Block::getSize() to obtain the arguments
+  /// to this method.
   const_range data(Addr A, size_t Bytes) const;
 
   /// \brief The protobuf message type used for serializing ByteMap.

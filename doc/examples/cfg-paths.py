@@ -3,17 +3,34 @@
 # An example program which opens an IR and prints every control-flow
 # path from some basic block to another basic block.
 #
-# Before using this, install the python protobuf library and generate
-# message definitions:
+
+# To run this example, do the following.
 #
-# $ pip install protobuf
-# $ mkdir -p python
-# $ for f in src/proto/*.proto; do
-#      protoc -Isrc/proto --python_out=python $f
-#   done
+# 1. Install the protobuf compiler (protoc) from
+#    https://github.com/protocolbuffers/protobuf/releases (if you have
+#    not already done so).
 #
-# Then run the program like this:
-# $ PYTHONPATH=./python/ ./doc/examples/cfg-paths.py <path-to-ir> <source-addr> <target-addr>
+# 2. Install the Python protobuf library (if you have not already done so).
+#
+#    $ pip install protobuf
+#
+# 3. Generate message definitions.
+#
+#    $ mkdir -p python
+#    $ for f in src/proto/*.proto; do
+#         protoc -Isrc/proto --python_out=python $f
+#      done
+#
+#    This will create a number of files with names of the form
+#    <bn>_pb2.py in the python/ subdirectory of your working directory
+#    - one for each <bn>.proto in src/proto/ - including IR_pb2.py.
+#
+# 4. Execute the following command to run the program on the
+#    serialized GTIRB data located at <path-to-ir>, printing every
+#    control-flow path between the block with address <source-addr>
+#    and the block with address <target-addr>.
+#
+#    $ PYTHONPATH=./python/ ./doc/examples/cfg-paths.py <path-to-ir> <source-addr> <target-addr>
 
 
 from __future__ import print_function
@@ -46,7 +63,7 @@ def auto_int(x):
     return int(x, 0)
 
 parser = argparse.ArgumentParser(description='Print CFG paths between two blocks.')
-parser.add_argument('ir', type=argparse.FileType('r'),
+parser.add_argument('ir', type=argparse.FileType('rb'),
                     help='The IR to load')
 parser.add_argument('source', type=auto_int, help='Address of the source block')
 parser.add_argument('target', type=auto_int, help='Address of the target block')
