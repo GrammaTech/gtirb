@@ -95,6 +95,9 @@ class Module;
 /// Open an IR via protobuf and print every path from some point to some
 /// other point.
 
+/// \example datasymbols.java
+/// Open an IR via protobuf and print every symbol pointing to data.
+
 class GTIRB_EXPORT_API IR : public Node {
   IR(Context& C) : Node(C, Kind::IR) {}
 

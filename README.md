@@ -9,7 +9,7 @@ GTIRB is modeled on LLVM-IR, and seeks to serve a similar
 functionality of encouraging communication and interoperability
 between tools.
 
-The remainder of this file has information on GTIRB's:
+The remainder of this file describes various aspects of GTIRB:
 - [Structure](#structure)
 - [Building](#building)
 - [Usage](#usage)
@@ -32,13 +32,14 @@ GTIRB has the following structure:
 
 ### IR
 
-An instance of GTIRB may include multiple `module`s which represent
-loadable objects such as executables or libraries.  Each `module`
-holds information such as `symbol`s, `data`, and an inter-procedural
-control flow graph (`ICFG`).  The `ICFG` consists of basic `block`s
-and control flow edges between these `block`s.  Each `datum` and
-`block` holds both a pointer to a range of bytes in the `ImageByteMap`
-and `symbolic` information coverage that range.
+An instance of GTIRB may include multiple modules (`Module`) which
+represent loadable objects such as executables or libraries.  Each
+module holds information such as symbols (`Symbol`), data (`Data`),
+and an inter-procedural control flow graph (`ICFG`).  The ICFG
+consists of basic blocks (`Block`) and control flow edges between
+these blocks.  Each datum and each block holds both a pointer to a
+range of bytes in the `ImageByteMap` and symbolic (`Symbol`)
+information covering this range.
 
 
 ### Instructions
@@ -76,14 +77,13 @@ GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
 Studio compilers supporting at least C++17.  GTIRB uses CMake which
 must be installed.
 
-```sh
-mkdir build
-cd build
-cmake ../path/to/gtirb
-make -j
-# Run the test suite.
-./bin/TestGTIRB
-```
+    sh
+    mkdir build
+    cd build
+    cmake ../path/to/gtirb
+    make -j
+    # Run the test suite.
+    ./bin/TestGTIRB
 
 The gtirb library will be located in `lib/libgtirb.so` in the build
 directory.
@@ -92,22 +92,51 @@ directory.
 ## Usage
 
 GTIRB is designed to be serialized using [Google's protocol
-Buffers](https://developers.google.com/protocol-buffers/) (i.e.,
-[protobuf](https://github.com/google/protobuf/wiki)) and using JSON
-through protobuf's JSON output.  These two options should enable easy
-and efficient use of GTIRB from any programming language.  GTIRB may
-also be used as a C++ library implementing an efficient data structure
-suitable for use by binary analysis and rewriting applications.
+buffers](https://developers.google.com/protocol-buffers/) (i.e.,
+[protobuf](https://github.com/google/protobuf/wiki)), enabling [easy
+and efficient use from any programming language](#using-serialized-gtirb-data).
 
-This repository defines the GTIRB data structure and C++ library API.
+GTIRB may also be [used as a C++ library](#using-the-c++-api)
+implementing an efficient data structure suitable for use by binary
+analysis and rewriting applications.
+
+- [Using Serialized GTIRB Data](#using-serialized-gtirb-data)
+- [Using the C++ Library](#using-the-c++-library)
+
+### Using Serialized GTIRB Data
+
+The serialized [protobuf](https://github.com/google/protobuf/wiki)
+data produced by GTIRB allows for exploration and manipulation in the
+language of your choice. The [Google protocol
+buffers](https://developers.google.com/protocol-buffers/) homepage
+lists the languages in which protocol buffers can be used directly;
+users of other languages can convert the protobuf-formatted data to
+JSON format and then use the JSON data in their applications. In the future we intend to define a standard JSON schema for GTIRB.
+
+Directory `gtirb/src/proto' contains the protocol buffer message type
+definitions for GTIRB. You can inspect these `.proto` files to
+determine the structure of the various GTIRB message types. The
+top-level message type is `IR`.
+
+For more details, see [Using Serialized GTIRB Data](PROTOBUF.md)
+
+
+### Using the C++ Library
+
+We have provided several C++ examples in directory
+`gtirb/doc/examples`. See the [Examples tab](examples.html) for more
+information.
+
 The remainder of this section provides examples walking through common
 tasks using the GTIRB C++ library API.
+
 
 - [Populating the IR](#populating-the-ir)
 - [Querying the IR](#querying-the-ir)
 - [Serialization](#serialization)
 
-### Populating the IR
+
+#### Populating the IR
 
 GTIRB objects are created within a `Context` object. Freeing the
 `Context` will also destroy all the objects within it.
@@ -222,7 +251,7 @@ ir.addAuxData("stringMap", std::map<std::string, std::string>(
 ```
 
 
-### Querying the IR
+#### Querying the IR
 
 Symbols can be looked up by address or name.  Any number of symbols
 can share an address or name, so be prepared to deal with multiple
@@ -303,8 +332,7 @@ for (auto p : *stringMap) {
 }
 ```
 
-
-### Serialization
+#### Serialization
 
 Serialize IR to a file:
 

@@ -56,7 +56,6 @@ public:
   /// \param Size       The size of the Block in bytes.
   /// \param ExitKind   Indicates how control flow exits the block.
   /// \param DecodeMode The decode mode of the Block.
-
   ///
   /// \return The newly created Block.
   static Block* Create(Context& C, CFG::vertex_descriptor Vertex, Addr Address,
@@ -67,12 +66,18 @@ public:
 
   /// \brief Get the address from a \ref Block.
   ///
-  /// \return The address.
+  /// \return The address of the start of the block.
+  ///
+  /// Use with Block::getSize() to obtain arguments to pass to
+  /// ByteMap::data() for an iterator over the contents of a \ref Block.
   Addr getAddress() const { return Address; }
 
   /// \brief Get the size from a \ref Block.
   ///
   /// \return The size in bytes.
+  ///
+  /// Use with Block::getAddress() to obtain arguments to pass to
+  /// ByteMap::data() for an iterator over the contents of a \ref Block.
   uint64_t getSize() const { return Size; }
 
   /// \brief Get a vertex descriptor which can be used to locate the Block
