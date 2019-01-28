@@ -88,6 +88,14 @@ must be installed.
 The gtirb library will be located in `lib/libgtirb.so` in the build
 directory.
 
+Note that you may need to explicitly specify the path to the vcpkg installation
+when executing CMake. By default, GTIRB looks in
+C:\vcpkg\scripts\buildsystems\vcpkg.cmake to find the CMake support for the
+toolchain, but a different path can be specified by passing
+
+    -DCMAKE_TOOLCHAIN_FILE="C:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake"
+
+when executing the CMake command above.
 
 ## Usage
 
