@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/Symbol.hpp>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <string>
 #include <variant>
@@ -44,6 +45,10 @@ class Context;
 struct SymStackConst {
   int Offset;  ///< Constant offset.
   Symbol* Sym; ///< Symbol representing a stack variable.
+
+  friend bool operator==(const SymStackConst& LHS, const SymStackConst& RHS) {
+    return LHS.Offset == RHS.Offset && LHS.Sym == RHS.Sym;
+  }
 };
 
 /// \brief Represents a
@@ -52,6 +57,10 @@ struct SymStackConst {
 struct SymAddrConst {
   int64_t Offset; ///< Constant offset.
   Symbol* Sym;    ///< Symbol representing an address.
+
+  friend bool operator==(const SymAddrConst& LHS, const SymAddrConst& RHS) {
+    return LHS.Offset == RHS.Offset && LHS.Sym == RHS.Sym;
+  }
 };
 
 /// \brief Represents a
@@ -62,6 +71,11 @@ struct SymAddrAddr {
   int64_t Offset; ///< Constant offset.
   Symbol* Sym1;   ///< Symbol representing the base address.
   Symbol* Sym2;   ///< Symbol to subtract from \p Sym1.
+
+  friend bool operator==(const SymAddrAddr& LHS, const SymAddrAddr& RHS) {
+    return LHS.Scale == RHS.Scale && LHS.Offset == RHS.Offset &&
+           LHS.Sym1 == RHS.Sym1 && LHS.Sym2 == RHS.Sym2;
+  }
 };
 
 /// \brief A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
@@ -91,5 +105,47 @@ toProtobuf(const SymbolicExpression& Value);
 // (end \defgroup SYMBOLIC_EXPRESSION_GROUP)
 
 } // namespace gtirb
+
+namespace std {
+template <> struct hash<gtirb::SymStackConst> {
+  typedef gtirb::SymStackConst argument_type;
+  typedef std::size_t result_type;
+
+  result_type operator()(const argument_type& Obj) const noexcept {
+    const result_type O = std::hash<int>{}(Obj.Offset);
+    const result_type P = std::hash<gtirb::Symbol*>{}(Obj.Sym);
+    return O ^ (P << 1);
+  }
+};
+
+template <> struct hash<gtirb::SymAddrConst> {
+  typedef gtirb::SymAddrConst argument_type;
+  typedef std::size_t result_type;
+
+  result_type operator()(const argument_type& Obj) const noexcept {
+    const result_type O = std::hash<int64_t>{}(Obj.Offset);
+    const result_type P = std::hash<gtirb::Symbol*>{}(Obj.Sym);
+    return O ^ (P << 1);
+  }
+};
+
+template <> struct hash<gtirb::SymAddrAddr> {
+  typedef gtirb::SymAddrAddr argument_type;
+  typedef std::size_t result_type;
+
+  result_type operator()(const argument_type& Obj) const noexcept {
+    result_type S = std::hash<int64_t>{}(Obj.Scale);
+    comb(S, std::hash<int64_t>{}(Obj.Offset));
+    comb(S, std::hash<gtirb::Symbol*>{}(Obj.Sym1));
+    comb(S, std::hash<gtirb::Symbol*>{}(Obj.Sym2));
+    return S;
+  }
+
+private:
+  void comb(result_type& One, result_type Two) const noexcept {
+    One ^= Two + 0x9e3779b9 + (One << 6) + (One >> 2);
+  }
+};
+} // namespace std
 
 #endif // GTIRB_SYMBOLICEXPRESSION_H

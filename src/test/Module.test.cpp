@@ -199,6 +199,19 @@ TEST(Unit_Module, findSymbols) {
   }
 
   EXPECT_TRUE(M->findSymbols(Addr(3)).empty());
+
+  {
+    auto F = M->findSymbols(Addr(0), Addr(5));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
+    EXPECT_EQ(&*F.begin(), S1);
+    EXPECT_EQ(&*std::next(F.begin(), 1), S2);
+    EXPECT_EQ(&*std::next(F.begin(), 2), S3);
+  }
+
+  {
+    auto F = M->findSymbols(Addr(10), Addr(25));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
 }
 
 TEST(Unit_Module, symbolWithoutAddr) {
@@ -212,6 +225,55 @@ TEST(Unit_Module, symbolicExpressions) {
   Symbol* S = Symbol::Create(Ctx);
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
   EXPECT_EQ(std::distance(M->symbolic_expr_begin(), M->symbolic_expr_end()), 1);
+}
+
+TEST(Unit_Module, findSymbolicExpressions) {
+  auto* M = Module::Create(Ctx);
+  auto* S1 = Symbol::Create(Ctx, Addr(1), "foo");
+  auto* S2 = Symbol::Create(Ctx, Addr(5), "bar");
+
+  M->addSymbolicExpression(Addr(1), SymAddrConst{0, S1});
+  M->addSymbolicExpression(Addr(5), SymAddrConst{0, S2});
+
+  {
+    auto F = M->findSymbolicExpression(Addr(1), Addr(5));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
+    EXPECT_EQ(std::get<SymAddrConst>(*++F.begin()).Sym, S2);
+  }
+
+  {
+    auto F = M->findSymbolicExpression(Addr(1), Addr(3));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
+  }
+
+  {
+    auto F = M->findSymbolicExpression(Addr(6), Addr(50));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
+}
+
+TEST(Unit_Module, getAddrForSymbolicExpression) {
+  auto* M = Module::Create(Ctx);
+  SymAddrConst SAC1{0, Symbol::Create(Ctx, Addr(1), "foo")};
+  SymAddrConst SAC2{0, Symbol::Create(Ctx, Addr(5), "bar")};
+  SymAddrConst SAC3{0, Symbol::Create(Ctx, Addr(10), "baz")};
+
+  M->addSymbolicExpression(Addr(1), SAC1);
+  M->addSymbolicExpression(Addr(5), SAC2);
+  // Note: SAC3 is purposefully not added to the module.
+
+  std::optional<Addr> One = M->getAddrForSymbolicExpression(SAC1);
+  EXPECT_TRUE(One);
+  EXPECT_EQ(*One, Addr{1});
+
+  std::optional<Addr> Two = M->getAddrForSymbolicExpression(SAC2);
+  EXPECT_TRUE(Two);
+  EXPECT_EQ(*Two, Addr{5});
+
+  std::optional<Addr> Three = M->getAddrForSymbolicExpression(SAC3);
+  EXPECT_FALSE(Three);
 }
 
 TEST(Unit_Module, protobufRoundTrip) {

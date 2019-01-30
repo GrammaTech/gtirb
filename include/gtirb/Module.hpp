@@ -28,8 +28,15 @@
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/key_extractors.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <algorithm>
 #include <cstdint>
+#include <functional>
+#include <optional>
 #include <string>
 
 /// \file Module.hpp
@@ -76,7 +83,40 @@ enum class ISAID : uint8_t {
 class GTIRB_EXPORT_API Module : public Node {
   using SymbolSet = std::multimap<std::string, Symbol*>;
   using SymbolAddrMap = std::multimap<Addr, Symbol*>;
-  using SymbolicExpressionSet = std::map<Addr, SymbolicExpression>;
+  using SymbolicExpressionElement = std::pair<Addr, SymbolicExpression>;
+
+  // Used when you need a less-than, ordered comparison of two
+  // SymbolicExpressionElement objects. Orders by Addr.
+  struct SymbolicExpressionElementComparator {
+    bool operator()(const SymbolicExpressionElement& LHS,
+                    const SymbolicExpressionElement& RHS) const noexcept {
+      return LHS.first < RHS.first;
+    }
+  };
+
+  // Used when you need a less-than, ordered comparison of an Addr and a
+  // SymbolicExpressionElement, regardless of argument order. Orders by Addr.
+  struct SymbolicExpressionElementAddrComparator {
+    bool operator()(const SymbolicExpressionElement& LHS, Addr RHS) const
+        noexcept {
+      return LHS.first < RHS;
+    }
+    bool operator()(Addr LHS, const SymbolicExpressionElement& RHS) const
+        noexcept {
+      return LHS < RHS.first;
+    }
+  };
+
+  using SymbolicExpressionSet = boost::multi_index::multi_index_container<
+      SymbolicExpressionElement,
+      boost::multi_index::indexed_by<
+          boost::multi_index::ordered_unique<
+              boost::multi_index::identity<SymbolicExpressionElement>,
+              SymbolicExpressionElementComparator>,
+          boost::multi_index::hashed_non_unique<
+              BOOST_MULTI_INDEX_MEMBER(SymbolicExpressionElement,
+                                       SymbolicExpression, second),
+              std::hash<SymbolicExpression>>>>;
   using DataSet = std::map<Addr, DataObject*>;
   using SectionSet = std::map<Addr, Section*>;
 
@@ -309,6 +349,32 @@ public:
     return boost::make_iterator_range(const_symbol_addr_iterator(Found.first),
                                       const_symbol_addr_iterator(Found.second));
   }
+
+  /// \brief Find symbols by a range of addresses.
+  ///
+  /// \param Lower The lower-bounded address to look up.
+  /// \param Upper The upper-bounded address to look up.
+  ///
+  /// \return A possibly empty range of all the symbols within the given
+  /// address range.
+  symbol_addr_range findSymbols(Addr Lower, Addr Upper) {
+    return boost::make_iterator_range(
+        symbol_addr_iterator(SymbolsByAddr.lower_bound(Lower)),
+        symbol_addr_iterator(SymbolsByAddr.upper_bound(Upper)));
+  }
+
+  /// \brief Find symbols by a range of addresses.
+  ///
+  /// \param Lower The lower-bounded address to look up.
+  /// \param Upper The upper-bounded address to look up.
+  ///
+  /// \return A possibly empty constant range of all the symbols within the
+  /// given address range.
+  const_symbol_addr_range findSymbols(Addr Lower, Addr Upper) const {
+    return boost::make_iterator_range(
+        const_symbol_addr_iterator(SymbolsByAddr.lower_bound(Lower)),
+        const_symbol_addr_iterator(SymbolsByAddr.upper_bound(Upper)));
+  }
   /// @}
   // (end group of symbol-related type aliases and functions)
 
@@ -498,41 +564,46 @@ public:
   /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
   using symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::iterator>,
-      SymbolicExpressionSet::iterator, SymbolicExpression&>;
+      SymbolicExpressionSet::iterator>;
   /// \brief Range of symbolic expressions (\ref SymbolicExpression).
   using symbolic_expr_range = boost::iterator_range<symbolic_expr_iterator>;
   /// \brief Constant iterator over symbolic expressions
   /// (\ref SymbolicExpression).
   using const_symbolic_expr_iterator = boost::transform_iterator<
       SymExprSetTransform<SymbolicExpressionSet::const_iterator>,
-      SymbolicExpressionSet::const_iterator, const SymbolicExpression&>;
+      SymbolicExpressionSet::const_iterator>;
   /// \brief Constant range of symbolic expressions (\ref SymbolicExpression).
   using const_symbolic_expr_range =
       boost::iterator_range<const_symbolic_expr_iterator>;
 
   /// \brief Return an iterator to the first \ref SymbolicExpression.
   symbolic_expr_iterator symbolic_expr_begin() {
-    return symbolic_expr_iterator(SymbolicOperands.begin());
-  }
-  /// \brief Return a constant iterator to the first \ref SymbolicExpression.
-  const_symbolic_expr_iterator symbolic_expr_begin() const {
-    return const_symbolic_expr_iterator(SymbolicOperands.begin());
+    return symbolic_expr_iterator(
+        boost::multi_index::get<0>(SymbolicOperands).begin());
   }
   /// \brief Return an iterator to the element following the last
   /// \ref SymbolicExpression.
   symbolic_expr_iterator symbolic_expr_end() {
-    return symbolic_expr_iterator(SymbolicOperands.end());
-  }
-  /// \brief Return a constant iterator to the element following the last
-  /// \ref SymbolicExpression.
-  const_symbolic_expr_iterator symbolic_expr_end() const {
-    return const_symbolic_expr_iterator(SymbolicOperands.end());
+    return symbolic_expr_iterator(
+        boost::multi_index::get<0>(SymbolicOperands).end());
   }
   /// \brief Return a range of the symbolic expressions
   /// (\ref SymbolicExpression).
   symbolic_expr_range symbolic_exprs() {
     return boost::make_iterator_range(symbolic_expr_begin(),
                                       symbolic_expr_end());
+  }
+
+  /// \brief Return a constant iterator to the first \ref SymbolicExpression.
+  const_symbolic_expr_iterator symbolic_expr_begin() const {
+    return const_symbolic_expr_iterator(
+        boost::multi_index::get<0>(SymbolicOperands).begin());
+  }
+  /// \brief Return a constant iterator to the element following the last
+  /// \ref SymbolicExpression.
+  const_symbolic_expr_iterator symbolic_expr_end() const {
+    return const_symbolic_expr_iterator(
+        boost::multi_index::get<0>(SymbolicOperands).end());
   }
   /// \brief Return a constant range of the symbolic expressions
   /// (\ref SymbolicExpression).
@@ -549,9 +620,9 @@ public:
   /// \return an iterator representing the first symbolic expression found. The
   /// end of the iterator range can be obtained by calling symbolic_expr_end().
   symbolic_expr_iterator findSymbolicExpression(Addr X) {
-    return symbolic_expr_iterator(SymbolicOperands.find(X));
+    return symbolic_expr_iterator(
+        SymbolicOperands.find(X, SymbolicExpressionElementAddrComparator{}));
   }
-
   /// \brief Find symbolic expressions (\ref SymbolicExpression) by
   /// address.
   ///
@@ -561,7 +632,56 @@ public:
   /// found. The end of the iterator range can be obtained by calling
   /// symbolic_expr_end().
   const_symbolic_expr_iterator findSymbolicExpression(Addr X) const {
-    return const_symbolic_expr_iterator(SymbolicOperands.find(X));
+    return const_symbolic_expr_iterator(
+        SymbolicOperands.find(X, SymbolicExpressionElementAddrComparator{}));
+  }
+
+  /// \brief Find symbolic expressions (\ref SymbolicExpression) by a range of
+  /// addresses.
+  ///
+  /// \param Lower The lower-bound address to look up.
+  /// \param Upper The upper-bound address to look up.
+  ///
+  /// \return a range representing the symbolic expressions found.
+  symbolic_expr_range findSymbolicExpression(Addr Lower, Addr Upper) {
+    SymbolicExpressionElementAddrComparator Comp;
+    return boost::make_iterator_range(
+        symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower, Comp)),
+        symbolic_expr_iterator(SymbolicOperands.upper_bound(Upper, Comp)));
+  }
+
+  /// \brief Find symbolic expressions (\ref SymbolicExpression) by a range of
+  /// addresses.
+  ///
+  /// \param Lower The lower-bound address to look up.
+  /// \param Upper The upper-bound address to look up.
+  ///
+  /// \return a constant range representing the symbolic expressions found.
+  const_symbolic_expr_range findSymbolicExpression(Addr Lower,
+                                                   Addr Upper) const {
+    SymbolicExpressionElementAddrComparator Comp;
+    return boost::make_iterator_range(
+        const_symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower, Comp)),
+        const_symbolic_expr_iterator(
+            SymbolicOperands.upper_bound(Upper, Comp)));
+  }
+
+  /// \brief Finds the Addr used to register the given symbolic expression
+  /// (\ref SymbolicExpression) with the module.
+  ///
+  /// \param SE The symbolic expression to look up.
+  ///
+  /// \return an optional Addr object; if specified, the value is the address
+  /// used to register the found symbolic expression.
+  std::optional<Addr>
+  getAddrForSymbolicExpression(const SymbolicExpression& SE) const {
+    const auto& Index = boost::multi_index::get<1>(SymbolicOperands);
+    auto Iter = std::find_if(
+        Index.begin(), Index.end(),
+        [&](const SymbolicExpressionElement& E) { return E.second == SE; });
+    if (Iter != Index.end())
+      return Iter->first;
+    return std::nullopt;
   }
 
   /// \brief Add a symbolic expression (\ref SymbolicExpression) to
@@ -572,7 +692,7 @@ public:
   ///
   /// \return void
   void addSymbolicExpression(Addr X, const SymbolicExpression& SE) {
-    SymbolicOperands.emplace(X, SE);
+    SymbolicOperands.emplace(std::make_pair(X, SE));
   }
   /// @}
   // (end group of SymbolicExpression-related type aliases and methods)
@@ -597,6 +717,15 @@ public:
 
   /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
+  /// \endcond
+
+  /// \cond INTERNAL
+  /// Needed by the serialization engine to work with SymbolicExpressionSet,
+  /// which is a type private to Module.
+  friend void addElement(SymbolicExpressionSet& Container,
+    SymbolicExpressionElement&& Element) {
+    Container.insert(std::move(Element));
+  }
   /// \endcond
 
 private:
