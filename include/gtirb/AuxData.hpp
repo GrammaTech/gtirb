@@ -1,6 +1,6 @@
 //===- AuxData.hpp ---------------------------------------------*- C++-*-===//
 //
-//  Copyright (C) 2018 GrammaTech, Inc.
+//  Copyright (C) 2018-2019 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -219,7 +219,7 @@ template <> struct auxdata_traits<std::string> {
   }
 
   static from_iterator fromBytes(std::string& Object, from_iterator It) {
-    size_t Count;
+    uint64_t Count;
     It = auxdata_traits<uint64_t>::fromBytes(Count, It);
 
     Object.resize(Count);
@@ -260,7 +260,7 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
   }
 
   static from_iterator fromBytes(T& Object, from_iterator It) {
-    size_t Count;
+    uint64_t Count;
     It = auxdata_traits<uint64_t>::fromBytes(Count, It);
 
     Object.resize(Count);
@@ -288,10 +288,10 @@ struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
   }
 
   static from_iterator fromBytes(T& Object, from_iterator It) {
-    size_t Count;
+    uint64_t Count;
     It = auxdata_traits<uint64_t>::fromBytes(Count, It);
 
-    for (size_t i = 0; i < Count; i++) {
+    for (uint64_t i = 0; i < Count; i++) {
       typename T::key_type K;
       It = auxdata_traits<decltype(K)>::fromBytes(K, It);
       typename T::mapped_type V;
