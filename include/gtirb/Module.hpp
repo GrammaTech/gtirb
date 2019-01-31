@@ -134,6 +134,12 @@ class GTIRB_EXPORT_API Module : public Node {
     RetTy operator()(ParamTy V) const { return V.second; }
   };
 
+  template <typename Iter> struct SymExprSetAddrTransform {
+    using ParamTy = decltype((*std::declval<Iter>()));
+    using RetTy = decltype((std::declval<ParamTy>().first));
+    RetTy operator()(ParamTy V) const { return V.first; }
+  };
+
 public:
   /// \brief Create a Module object in its default state.
   ///
@@ -668,29 +674,33 @@ public:
             SymbolicOperands.lower_bound(Upper, Comp)));
   }
 
+  /// \brief Constant iterator over the address objects used to register a
+  /// symbolic expression (\ref SymbolicExpression).
+  using const_symbolic_expr_addr_iterator = boost::transform_iterator<
+      SymExprSetAddrTransform<boost::multi_index::nth_index_const_iterator<
+          SymbolicExpressionSet, 1>::type>,
+      boost::multi_index::nth_index_const_iterator<SymbolicExpressionSet,
+                                                   1>::type>;
+  /// \brief Constant range of addresses of symbolic expressions
+  /// (\ref SymbolicExpression).
+  using const_symbolic_expr_addr_range =
+      boost::iterator_range<const_symbolic_expr_addr_iterator>;
+
   /// \brief Finds the Addr values used to register the given symbolic
   /// expression (\ref SymbolicExpression) with the module. There may be
   /// multiple addresses associated with a given symbolic expression.
   ///
-  /// \tparam OutIter An output iterator type.
-  ///
   /// \param SE The symbolic expression to look up.
-  /// \param First The iterator location to store the results into.
   ///
-  /// \return The given output iterator, one past the last element retrieved.
-  template <typename OutIter>
-  OutIter getAddrsForSymbolicExpression(const SymbolicExpression& SE,
-                                        OutIter First) const {
-    // FIXME: Ideally, this would not need to do a linear scan over the entire
-    // set, but because SymbolicExpression objects are inherently unordered, we
-    // cannot use an API like equal_range() over this index because the
-    // elements would most likely form a discontinuous range.
+  /// \return A range of zero or more Addr objects for which the given symbolic
+  /// expression (\ref SymbolicExpression) was registered at.
+  const_symbolic_expr_addr_range
+  getAddrsForSymbolicExpression(const SymbolicExpression& SE) const {
     const auto& Index = boost::multi_index::get<1>(SymbolicOperands);
-    for (auto &V : Index) {
-      if (V.second == SE)
-        *First++ = V.first;
-    }
-    return First;
+    auto R = Index.equal_range(SE);
+    return boost::make_iterator_range(
+        const_symbolic_expr_addr_iterator(R.first),
+        const_symbolic_expr_addr_iterator(R.second));
   }
 
   /// \brief Add a symbolic expression (\ref SymbolicExpression) to

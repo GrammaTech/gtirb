@@ -26,7 +26,6 @@
 #include <iterator>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 using namespace gtirb;
 
@@ -281,9 +280,8 @@ TEST(Unit_Module, getAddrsForSymbolicExpression) {
   // twice at different addresses.
 
   {
-    std::vector<Addr> R;
-    M->getAddrsForSymbolicExpression(SAC1, std::back_inserter(R));
-    EXPECT_EQ(R.size(), 2);
+    auto R = M->getAddrsForSymbolicExpression(SAC1);
+    EXPECT_EQ(std::distance(R.begin(), R.end()), 2);
     // The order of the results is not guaranteed, so check that both of the
     // addresses are present but without relying on order.
     ptrdiff_t Count = std::count_if(R.begin(), R.end(), [](Addr A) {
@@ -293,16 +291,14 @@ TEST(Unit_Module, getAddrsForSymbolicExpression) {
   }
 
   {
-    std::vector<Addr> R;
-    M->getAddrsForSymbolicExpression(SAC2, std::back_inserter(R));
-    EXPECT_EQ(R.size(), 1);
-    EXPECT_EQ(R[0], Addr{5});
+    auto R = M->getAddrsForSymbolicExpression(SAC2);
+    EXPECT_EQ(std::distance(R.begin(), R.end()), 1);
+    EXPECT_EQ(*R.begin(), Addr{5});
   }
 
   {
-    std::vector<Addr> R;
-    M->getAddrsForSymbolicExpression(SAC3, std::back_inserter(R));
-    EXPECT_TRUE(R.empty());
+    auto R = M->getAddrsForSymbolicExpression(SAC3);
+    EXPECT_EQ(std::distance(R.begin(), R.end()), 0);
   }
 }
 
