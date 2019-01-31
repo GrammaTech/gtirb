@@ -356,11 +356,11 @@ public:
   /// \param Upper The upper-bounded address to look up.
   ///
   /// \return A possibly empty range of all the symbols within the given
-  /// address range.
+  /// address range. Searches the range [Lower, Upper).
   symbol_addr_range findSymbols(Addr Lower, Addr Upper) {
     return boost::make_iterator_range(
         symbol_addr_iterator(SymbolsByAddr.lower_bound(Lower)),
-        symbol_addr_iterator(SymbolsByAddr.upper_bound(Upper)));
+        symbol_addr_iterator(SymbolsByAddr.lower_bound(Upper)));
   }
 
   /// \brief Find symbols by a range of addresses.
@@ -369,11 +369,11 @@ public:
   /// \param Upper The upper-bounded address to look up.
   ///
   /// \return A possibly empty constant range of all the symbols within the
-  /// given address range.
+  /// given address range. Searches the range [Lower, Upper).
   const_symbol_addr_range findSymbols(Addr Lower, Addr Upper) const {
     return boost::make_iterator_range(
         const_symbol_addr_iterator(SymbolsByAddr.lower_bound(Lower)),
-        const_symbol_addr_iterator(SymbolsByAddr.upper_bound(Upper)));
+        const_symbol_addr_iterator(SymbolsByAddr.lower_bound(Upper)));
   }
   /// @}
   // (end group of symbol-related type aliases and functions)
@@ -642,12 +642,13 @@ public:
   /// \param Lower The lower-bound address to look up.
   /// \param Upper The upper-bound address to look up.
   ///
-  /// \return a range representing the symbolic expressions found.
+  /// \return a range representing the symbolic expressions found. Searches the
+  /// range [Lower, Upper).
   symbolic_expr_range findSymbolicExpression(Addr Lower, Addr Upper) {
     SymbolicExpressionElementAddrComparator Comp;
     return boost::make_iterator_range(
         symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower, Comp)),
-        symbolic_expr_iterator(SymbolicOperands.upper_bound(Upper, Comp)));
+        symbolic_expr_iterator(SymbolicOperands.lower_bound(Upper, Comp)));
   }
 
   /// \brief Find symbolic expressions (\ref SymbolicExpression) by a range of
@@ -657,31 +658,39 @@ public:
   /// \param Upper The upper-bound address to look up.
   ///
   /// \return a constant range representing the symbolic expressions found.
+  /// Searches the range [Lower, Upper).
   const_symbolic_expr_range findSymbolicExpression(Addr Lower,
                                                    Addr Upper) const {
     SymbolicExpressionElementAddrComparator Comp;
     return boost::make_iterator_range(
         const_symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower, Comp)),
         const_symbolic_expr_iterator(
-            SymbolicOperands.upper_bound(Upper, Comp)));
+            SymbolicOperands.lower_bound(Upper, Comp)));
   }
 
-  /// \brief Finds the Addr used to register the given symbolic expression
-  /// (\ref SymbolicExpression) with the module.
+  /// \brief Finds the Addr values used to register the given symbolic
+  /// expression (\ref SymbolicExpression) with the module. There may be
+  /// multiple addresses associated with a given symbolic expression.
+  ///
+  /// \tparam OutIter An output iterator type.
   ///
   /// \param SE The symbolic expression to look up.
+  /// \param First The iterator location to store the results into.
   ///
-  /// \return an optional Addr object; if specified, the value is the address
-  /// used to register the found symbolic expression.
-  std::optional<Addr>
-  getAddrForSymbolicExpression(const SymbolicExpression& SE) const {
+  /// \return The given output iterator, one past the last element retrieved.
+  template <typename OutIter>
+  OutIter getAddrsForSymbolicExpression(const SymbolicExpression& SE,
+                                        OutIter First) const {
+    // FIXME: Ideally, this would not need to do a linear scan over the entire
+    // set, but because SymbolicExpression objects are inherently unordered, we
+    // cannot use an API like equal_range() over this index because the
+    // elements would most likely form a discontinuous range.
     const auto& Index = boost::multi_index::get<1>(SymbolicOperands);
-    auto Iter = std::find_if(
-        Index.begin(), Index.end(),
-        [&](const SymbolicExpressionElement& E) { return E.second == SE; });
-    if (Iter != Index.end())
-      return Iter->first;
-    return std::nullopt;
+    for (auto &V : Index) {
+      if (V.second == SE)
+        *First++ = V.first;
+    }
+    return First;
   }
 
   /// \brief Add a symbolic expression (\ref SymbolicExpression) to
@@ -692,7 +701,7 @@ public:
   ///
   /// \return void
   void addSymbolicExpression(Addr X, const SymbolicExpression& SE) {
-    SymbolicOperands.emplace(std::make_pair(X, SE));
+    SymbolicOperands.emplace(X, SE);
   }
   /// @}
   // (end group of SymbolicExpression-related type aliases and methods)

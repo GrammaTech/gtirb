@@ -26,6 +26,7 @@
 #include <iterator>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 using namespace gtirb;
 
@@ -201,6 +202,13 @@ TEST(Unit_Module, findSymbols) {
   EXPECT_TRUE(M->findSymbols(Addr(3)).empty());
 
   {
+    auto F = M->findSymbols(Addr(0), Addr(2));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), S1);
+    EXPECT_EQ(&*std::next(F.begin(), 1), S2);
+  }
+
+  {
     auto F = M->findSymbols(Addr(0), Addr(5));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
     EXPECT_EQ(&*F.begin(), S1);
@@ -237,6 +245,12 @@ TEST(Unit_Module, findSymbolicExpressions) {
 
   {
     auto F = M->findSymbolicExpression(Addr(1), Addr(5));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
+  }
+
+  {
+    auto F = M->findSymbolicExpression(Addr(1), Addr(6));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
     EXPECT_EQ(std::get<SymAddrConst>(*++F.begin()).Sym, S2);
@@ -254,7 +268,7 @@ TEST(Unit_Module, findSymbolicExpressions) {
   }
 }
 
-TEST(Unit_Module, getAddrForSymbolicExpression) {
+TEST(Unit_Module, getAddrsForSymbolicExpression) {
   auto* M = Module::Create(Ctx);
   SymAddrConst SAC1{0, Symbol::Create(Ctx, Addr(1), "foo")};
   SymAddrConst SAC2{0, Symbol::Create(Ctx, Addr(5), "bar")};
@@ -262,18 +276,34 @@ TEST(Unit_Module, getAddrForSymbolicExpression) {
 
   M->addSymbolicExpression(Addr(1), SAC1);
   M->addSymbolicExpression(Addr(5), SAC2);
-  // Note: SAC3 is purposefully not added to the module.
+  M->addSymbolicExpression(Addr(10), SAC1);
+  // Note: SAC3 is purposefully not added to the module while SAC1 is added
+  // twice at different addresses.
 
-  std::optional<Addr> One = M->getAddrForSymbolicExpression(SAC1);
-  EXPECT_TRUE(One);
-  EXPECT_EQ(*One, Addr{1});
+  {
+    std::vector<Addr> R;
+    M->getAddrsForSymbolicExpression(SAC1, std::back_inserter(R));
+    EXPECT_EQ(R.size(), 2);
+    // The order of the results is not guaranteed, so check that both of the
+    // addresses are present but without relying on order.
+    ptrdiff_t Count = std::count_if(R.begin(), R.end(), [](Addr A) {
+      return A == Addr{10} || A == Addr{1};
+    });
+    EXPECT_EQ(Count, 2);
+  }
 
-  std::optional<Addr> Two = M->getAddrForSymbolicExpression(SAC2);
-  EXPECT_TRUE(Two);
-  EXPECT_EQ(*Two, Addr{5});
+  {
+    std::vector<Addr> R;
+    M->getAddrsForSymbolicExpression(SAC2, std::back_inserter(R));
+    EXPECT_EQ(R.size(), 1);
+    EXPECT_EQ(R[0], Addr{5});
+  }
 
-  std::optional<Addr> Three = M->getAddrForSymbolicExpression(SAC3);
-  EXPECT_FALSE(Three);
+  {
+    std::vector<Addr> R;
+    M->getAddrsForSymbolicExpression(SAC3, std::back_inserter(R));
+    EXPECT_TRUE(R.empty());
+  }
 }
 
 TEST(Unit_Module, protobufRoundTrip) {
