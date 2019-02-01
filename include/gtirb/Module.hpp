@@ -25,15 +25,15 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
+#include <algorithm>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
 #include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -742,7 +742,7 @@ public:
   /// Needed by the serialization engine to work with SymbolicExpressionSet,
   /// which is a type private to Module.
   friend void addElement(SymbolicExpressionSet& Container,
-    SymbolicExpressionElement&& Element) {
+                         SymbolicExpressionElement&& Element) {
     Container.insert(std::move(Element));
   }
   /// \endcond
