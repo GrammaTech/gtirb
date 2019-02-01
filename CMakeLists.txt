@@ -74,7 +74,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 #
 # Global Options (Compile / Link)
 #
-
+add_compile_options(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
         add_compile_options(-D_MBCS)
