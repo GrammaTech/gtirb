@@ -4,7 +4,7 @@ ARG CXX_COMPILER=g++
 
 RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pacman.conf
 RUN pacman --noconfirm -Syu archlinux-keyring
-RUN pacman --noconfirm -Syu base-devel gcc gcc-libs git make cmake doxygen graphviz wget
+RUN pacman --noconfirm -Syu base-devel gcc gcc-libs git make cmake doxygen graphviz wget clang
 
 # Install protobuf
 RUN cd /usr/local/src \
