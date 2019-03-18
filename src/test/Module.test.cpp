@@ -227,6 +227,89 @@ TEST(Unit_Module, symbolWithoutAddr) {
   EXPECT_EQ(M->findSymbols("test").begin()->getName(), "test");
 }
 
+TEST(Unit_Module, renameSymbol) {
+  auto* M = Module::Create(Ctx);
+  auto* S1 = Symbol::Create(Ctx, "foo");
+  auto* S2 = Symbol::Create(Ctx, Addr(1), "bar");
+  auto* S3 = Symbol::Create(Ctx, Addr(2), "bar");
+  M->addSymbol(S1);
+  M->addSymbol(S2);
+  M->addSymbol(S3);
+
+  renameSymbol(*M, *S1, "test1");
+  renameSymbol(*M, *S2, "test2");
+  {
+    auto F = M->findSymbols("foo");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+
+    F = M->findSymbols("bar");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S3);
+
+    F = M->findSymbols("test1");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S1);
+
+    F = M->findSymbols("test2");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S2);
+  }
+  {
+    auto F = M->findSymbols(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S2);
+  }
+}
+
+TEST(Unit_Module, setSymbolAddress) {
+  auto* M = Module::Create(Ctx);
+  auto* S1 = Symbol::Create(Ctx, "foo");
+  auto* S2 = Symbol::Create(Ctx, Addr(1), "bar");
+  auto* S3 = Symbol::Create(Ctx, Addr(1), "foo");
+  auto* S4 = Symbol::Create(Ctx, Addr(2), "bar");
+  M->addSymbol(S1);
+  M->addSymbol(S2);
+  M->addSymbol(S3);
+  M->addSymbol(S4);
+
+  setSymbolAddress(*M, *S1, Addr(3));
+  setSymbolAddress(*M, *S2, Addr(4));
+  setSymbolAddress(*M, *S4, Addr(5));
+
+  {
+    auto F = M->findSymbols("foo");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), S1);
+    EXPECT_EQ(&*(++F.begin()), S3);
+
+    F = M->findSymbols("bar");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), S2);
+    EXPECT_EQ(&*(++F.begin()), S4);
+  }
+
+  {
+    auto F = M->findSymbols(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S3);
+
+    F = M->findSymbols(Addr(2));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+
+    F = M->findSymbols(Addr(3));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S1);
+
+    F = M->findSymbols(Addr(4));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S2);
+
+    F = M->findSymbols(Addr(5));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), S4);
+  }
+}
+
 TEST(Unit_Module, symbolicExpressions) {
   auto* M = Module::Create(Ctx);
   Symbol* S = Symbol::Create(Ctx);

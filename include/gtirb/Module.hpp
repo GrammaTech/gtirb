@@ -762,7 +762,11 @@ private:
   SymbolAddrMap SymbolsByAddr;
   SymbolicExpressionSet SymbolicOperands;
 
-  friend class Context;
+  friend class Context; // Allow Context to construct new Modules
+
+  // Allow these methods to update Symbols and SymbolsByAddr
+  friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
+  friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
 };
 
 /// \relates Addr
@@ -793,6 +797,44 @@ inline bool hasPreferredAddr(const Module& M, Addr X) {
 inline bool containsAddr(const Module& M, Addr X) {
   const std::pair<Addr, Addr>& MinMax = M.getImageByteMap().getAddrMinMax();
   return X >= MinMax.first && X < MinMax.second;
+}
+
+/// \relates Module
+/// \relates Symbol
+/// \brief Change the name of a symbol.
+///
+/// \param M  The module containing the symbol.
+/// \param S  The symbol to rename.
+/// \param N  The new name to assign.
+inline void renameSymbol(Module& M, Symbol& S, const std::string& N) {
+  for (auto [it, end] = M.Symbols.equal_range(S.getName()); it != end;) {
+    if (it->second == &S)
+      it = M.Symbols.erase(it);
+    else
+      ++it;
+  }
+  S.Name = N;
+  M.Symbols.emplace(S.getName(), &S);
+}
+
+/// \relates Module
+/// \relates Symbol
+/// \brief Set the address of a symbol.
+///
+/// \param M  The module containing the symbol.
+/// \param S  The symbol to modify.
+/// \param A  The new address to assign.
+inline void setSymbolAddress(Module& M, Symbol& S, Addr A) {
+  if (std::optional<Addr> OldAddr = S.getAddress()) {
+    for (auto [it, end] = M.SymbolsByAddr.equal_range(*OldAddr); it != end;) {
+      if (it->second == &S)
+        it = M.SymbolsByAddr.erase(it);
+      else
+        ++it;
+    }
+  }
+  S.Payload = A;
+  M.SymbolsByAddr.emplace(A, &S);
 }
 } // namespace gtirb
 
