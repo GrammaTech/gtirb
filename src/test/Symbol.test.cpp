@@ -110,8 +110,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  Symbol* Sym =
-      Symbol::Create(Ctx, Block::Create(Ctx, 0, Addr(1), 2), "test");
+  Symbol* Sym = Symbol::Create(Ctx, Block::Create(Ctx, 0, Addr(1), 2), "test");
   Symbol* NoRef = Symbol::Create(Ctx, 1, "test2");
 
   struct Visitor {

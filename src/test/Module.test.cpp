@@ -398,8 +398,7 @@ TEST(Unit_Module, protobufNodePointers) {
 
     // Not part of IR
     auto* DanglingData = DataObject::Create(InnerCtx);
-    Original->addSymbol(
-        Symbol::Create(InnerCtx, DanglingData, "dangling"));
+    Original->addSymbol(Symbol::Create(InnerCtx, DanglingData, "dangling"));
 
     auto* Code = emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
     auto* CodeSym = Symbol::Create(InnerCtx, Code, "code");
