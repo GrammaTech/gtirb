@@ -41,9 +41,11 @@ class GTIRB_EXPORT_API Symbol : public Node {
     static_assert(std::is_invocable_v<Callable, Ty*>,
                   "Visitor must contain an overloaded function call operator "
                   "for each of the types in supported_types");
-    if (Ty* Obj = dyn_cast_or_null<Ty>(this->Referent)) {
-      std::invoke(Visitor, Obj);
-      return true;
+    if (Node* const* Ptr = std::get_if<Node*>(&Payload)) {
+      if (Ty* Obj = dyn_cast_or_null<Ty>(*Ptr)) {
+        std::invoke(Visitor, Obj);
+        return true;
+      }
     }
     return false;
   }
@@ -57,9 +59,11 @@ class GTIRB_EXPORT_API Symbol : public Node {
     static_assert(std::is_invocable_v<Callable, Ty*>,
                   "Visitor must contain an overloaded function call operator "
                   "for each of the types in supported_types");
-    if (Ty* Obj = dyn_cast_or_null<Ty>(this->Referent)) {
-      Ret = std::invoke(Visitor, Obj);
-      return true;
+    if (Node* const* Ptr = std::get_if<Node*>(&Payload)) {
+      if (Ty* Obj = dyn_cast_or_null<Ty>(*Ptr)) {
+        Ret = std::invoke(Visitor, Obj);
+        return true;
+      }
     }
     return false;
   }
@@ -187,13 +191,15 @@ public:
   /// };
   ///
   /// Context Ctx;
-  /// Symbol* SymB = Symbol::Create(Ctx, Addr(0), "", Block::Create(Ctx));
-  /// Symbol* SymD = Symbol::Create(Ctx, Addr(0), "", DataObject::Create(Ctx));
+  /// Symbol* SymB = Symbol::Create(Ctx, Block::Create(Ctx), "");
+  /// Symbol* SymD = Symbol::Create(Ctx, DataObject::Create(Ctx), "");
+  /// Symbol* SymX = Symbol::Create(Ctx, 42, "");
   /// Symbol* SymN = Symbol::Create(Ctx);
   ///
   /// SymB->visit(Visitor{}); // Will call Visitor::operator()(Block*);
   /// SymD->visit(Visitor{}); // Will call Visitor::operator()(DataObject*);
-  /// SymN->visit(Visitor{}); // Will not call either overload
+  /// SymX->visit(Visitor{}); // Will not call any overload
+  /// SymN->visit(Visitor{}); // Will not call any overload
   /// \endcode
   template <typename Callable> auto visit(Callable&& Visitor) const {
     return visit_impl(std::forward<Callable>(Visitor),
@@ -226,19 +232,19 @@ public:
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, const std::string& Name) {
-    return C.Create<Symbol>(C, std::nullopt, Name);
+    return C.Create<Symbol>(C, Name);
   }
 
   /// \brief Create a Symbol object.
   ///
   /// \param C  The Context in which this object will be held.
-  /// \param X  The address of the symbol.
+  /// \param X  The value of the symbol.
   /// \param Name The name of the symbol.
   /// \param Kind The storage kind the symbol has; defaults to
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+  static Symbol* Create(Context& C, uint64_t X, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
     return C.Create<Symbol>(C, X, Name, Kind);
   }
@@ -246,25 +252,27 @@ public:
   /// \brief Create a Symbol object.
   ///
   /// \param C  The Context in which this object will be held.
-  /// \param X  The address of the symbol.
-  /// \param Name The name of the symbol.
   /// \param Referent The DataObject this symbol refers to.
+  /// \param Name The name of the symbol.
   /// \param Kind The storage kind the symbol has; defaults to
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
   template <typename NodeTy>
-  static Symbol* Create(Context& C, Addr X, const std::string& Name,
-                        NodeTy* Referent,
+  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, X, Name, Referent, Kind);
+    return C.Create<Symbol>(C, Referent, Name, Kind);
   }
 
-  /// \brief Get the effective address.
+  /// \brief Get the value.
   ///
-  /// \return The effective address.
-  std::optional<Addr> getAddress() const { return Address; }
+  /// \return The value if one exists.
+  std::optional<uint64_t> getValue() const {
+    if (const uint64_t* value = std::get_if<uint64_t>(&Payload))
+      return *value;
+    return std::nullopt;
+  }
 
   /// \brief Get the name.
   ///
@@ -282,7 +290,7 @@ public:
   template <typename NodeTy>
   void setReferent(NodeTy* N,
                    std::enable_if_t<is_supported_type<NodeTy>()>* = nullptr) {
-    Referent = N;
+    Payload = N;
   }
 
   /// \brief Deleted overload used to prevent setting a referent of an
@@ -303,7 +311,9 @@ public:
   /// \return The data, dynamically typed as the given \p NodeTy, or
   /// null if there is no referent of that type.
   template <typename NodeTy> NodeTy* getReferent() {
-    return dyn_cast_or_null<NodeTy>(Referent);
+    if (Node* const* Ptr = std::get_if<Node*>(&Payload))
+      return dyn_cast_or_null<NodeTy>(*Ptr);
+    return nullptr;
   }
 
   /// \brief Get the referent to which this symbol refers.
@@ -313,8 +323,15 @@ public:
   /// \return The data, dynamically typed as the given \p NodeTy, or
   /// null if there is no referent of that type.
   template <typename NodeTy> const NodeTy* getReferent() const {
-    return dyn_cast_or_null<NodeTy>(Referent);
+    if (Node* const* Ptr = std::get_if<Node*>(&Payload))
+      return dyn_cast_or_null<NodeTy>(*Ptr);
+    return nullptr;
   }
+
+  /// \brief Check if this symbol has a referent.
+  ///
+  /// \return \p true if the symbol has a referent, \p false otherwise.
+  bool hasReferent() const { return std::get_if<Node*>(&Payload) != nullptr; }
 
   /// \brief Set the storage kind.
   ///
@@ -352,17 +369,19 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, std::optional<Addr> X, const std::string& N,
+  Symbol(Context& C, const std::string& N, StorageKind SK = StorageKind::Extern)
+      : Node(C, Kind::Symbol), Payload(), Name(N), Storage(SK) {}
+  Symbol(Context& C, uint64_t X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK) {}
-  Symbol(Context& C, Addr X, const std::string& N, Node* R,
+      : Node(C, Kind::Symbol), Payload(X), Name(N), Storage(SK) {}
+  template <typename NodeTy>
+  Symbol(Context& C, NodeTy* R, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Address(X), Name(N), Storage(SK), Referent(R) {}
+      : Node(C, Kind::Symbol), Payload(R), Name(N), Storage(SK) {}
 
-  std::optional<Addr> Address;
+  std::variant<std::monostate, uint64_t, Node*> Payload;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
-  Node* Referent{nullptr};
 
   friend class Context;
 };

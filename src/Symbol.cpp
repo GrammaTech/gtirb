@@ -19,34 +19,40 @@
 
 using namespace gtirb;
 
+class StorePayload {
+public:
+  StorePayload(Symbol::MessageType* Message) : M(Message) {}
+  void operator()(std::monostate) const { M->clear_value(); }
+  void operator()(uint64_t X) const { M->set_value(X); }
+  void operator()(const Node* Referent) const {
+    nodeUUIDToBytes(Referent, *M->mutable_referent_uuid());
+  }
+
+private:
+  Symbol::MessageType* M;
+};
+
 void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  if (this->Address) {
-    Message->set_address(static_cast<uint64_t>(this->Address.value()));
-  } else {
-    Message->clear_address();
-  }
+  std::visit(StorePayload(Message), Payload);
   Message->set_name(this->Name);
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
-  if (this->Referent) {
-    nodeUUIDToBytes(this->Referent, *Message->mutable_referent_uuid());
-  }
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
-  Symbol* S;
-
-  if (Message.optional_address_case() == proto::Symbol::kAddress) {
-    S = Symbol::Create(C, Addr(Message.address()), Message.name());
-  } else {
-    S = Symbol::Create(C, Message.name());
+  Symbol* S = Symbol::Create(C, Message.name());
+  switch (Message.optional_payload_case()) {
+  case proto::Symbol::kValue:
+    S->Payload = Message.value();
+    break;
+  case proto::Symbol::kReferentUuid:
+    S->Payload = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
+    break;
+  default:
+      /* nothing to do */;
   }
   S->setStorageKind(static_cast<StorageKind>(Message.storage_kind()));
   setNodeUUIDFromBytes(S, Message.uuid());
-
-  if (!Message.referent_uuid().empty()) {
-    S->Referent = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
-  }
 
   return S;
 }

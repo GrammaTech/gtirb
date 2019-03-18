@@ -163,9 +163,11 @@ TEST(Unit_Module, findData) {
 
 TEST(Unit_Module, findSymbols) {
   auto* M = Module::Create(Ctx);
-  auto* S1 = Symbol::Create(Ctx, Addr(1), "foo");
-  auto* S2 = Symbol::Create(Ctx, Addr(1), "bar");
-  auto* S3 = Symbol::Create(Ctx, Addr(2), "foo");
+  auto* B1 = emplaceBlock(M->getCFG(), Ctx, Addr(1), 1);
+  auto* B2 = emplaceBlock(M->getCFG(), Ctx, Addr(2), 1);
+  auto* S1 = Symbol::Create(Ctx, B1, "foo");
+  auto* S2 = Symbol::Create(Ctx, B1, "bar");
+  auto* S3 = Symbol::Create(Ctx, B2, "foo");
   M->addSymbol(S1);
   M->addSymbol(S2);
   M->addSymbol(S3);
@@ -229,15 +231,17 @@ TEST(Unit_Module, symbolWithoutAddr) {
 
 TEST(Unit_Module, symbolicExpressions) {
   auto* M = Module::Create(Ctx);
-  Symbol* S = Symbol::Create(Ctx);
+  Symbol* S = Symbol::Create(Ctx, "test");
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
   EXPECT_EQ(std::distance(M->symbolic_expr_begin(), M->symbolic_expr_end()), 1);
 }
 
 TEST(Unit_Module, findSymbolicExpressions) {
   auto* M = Module::Create(Ctx);
-  auto* S1 = Symbol::Create(Ctx, Addr(1), "foo");
-  auto* S2 = Symbol::Create(Ctx, Addr(5), "bar");
+  auto* B1 = emplaceBlock(M->getCFG(), Ctx, Addr(1), 1);
+  auto* B2 = emplaceBlock(M->getCFG(), Ctx, Addr(5), 1);
+  auto* S1 = Symbol::Create(Ctx, B1, "foo");
+  auto* S2 = Symbol::Create(Ctx, B2, "bar");
 
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S1});
   M->addSymbolicExpression(Addr(5), SymAddrConst{0, S2});
@@ -269,9 +273,12 @@ TEST(Unit_Module, findSymbolicExpressions) {
 
 TEST(Unit_Module, getAddrsForSymbolicExpression) {
   auto* M = Module::Create(Ctx);
-  SymAddrConst SAC1{0, Symbol::Create(Ctx, Addr(1), "foo")};
-  SymAddrConst SAC2{0, Symbol::Create(Ctx, Addr(5), "bar")};
-  SymAddrConst SAC3{0, Symbol::Create(Ctx, Addr(10), "baz")};
+  auto* B1 = emplaceBlock(M->getCFG(), Ctx, Addr(1), 1);
+  auto* B2 = emplaceBlock(M->getCFG(), Ctx, Addr(5), 1);
+  auto* B3 = emplaceBlock(M->getCFG(), Ctx, Addr(10), 1);
+  SymAddrConst SAC1{0, Symbol::Create(Ctx, B1, "foo")};
+  SymAddrConst SAC2{0, Symbol::Create(Ctx, B2, "bar")};
+  SymAddrConst SAC3{0, Symbol::Create(Ctx, B3, "baz")};
 
   M->addSymbolicExpression(Addr(1), SAC1);
   M->addSymbolicExpression(Addr(5), SAC2);
@@ -317,10 +324,10 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
     Original->setName("module");
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
-    emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
+    auto* B1 = emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
+    Original->addSymbol(Symbol::Create(InnerCtx, B1, "name1"));
+    Original->addSymbol(Symbol::Create(InnerCtx, 2, "name1"));
+    Original->addSymbol(Symbol::Create(InnerCtx, B1, "name3"));
     Original->addData(DataObject::Create(InnerCtx));
     Original->addSection(Section::Create(InnerCtx));
     Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
@@ -386,21 +393,22 @@ TEST(Unit_Module, protobufNodePointers) {
     Module* Original = Module::Create(InnerCtx);
     auto* Data = DataObject::Create(InnerCtx);
     Original->addData(Data);
-    auto* DataSym = Symbol::Create(InnerCtx, Addr(1), "data", Data);
+    auto* DataSym = Symbol::Create(InnerCtx, Data, "data");
     Original->addSymbol(DataSym);
 
     // Not part of IR
     auto* DanglingData = DataObject::Create(InnerCtx);
     Original->addSymbol(
-        Symbol::Create(InnerCtx, Addr(1), "dangling", DanglingData));
+        Symbol::Create(InnerCtx, DanglingData, "dangling"));
 
     auto* Code = emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
-    auto* CodeSym = Symbol::Create(InnerCtx, Addr(2), "code", Code);
+    auto* CodeSym = Symbol::Create(InnerCtx, Code, "code");
     Original->addSymbol(CodeSym);
     Original->addSymbolicExpression(Addr(3), {SymAddrConst{0, DataSym}});
 
     // Not part of IR
-    auto* DanglingSym = Symbol::Create(InnerCtx, Addr(1), "foo");
+    auto* DanglingBlock = Block::Create(InnerCtx, 0, Addr(1), 1);
+    auto* DanglingSym = Symbol::Create(InnerCtx, DanglingBlock, "foo");
     Original->addSymbolicExpression(Addr(4), {SymAddrConst{0, DanglingSym}});
 
     Original->toProtobuf(&Message);

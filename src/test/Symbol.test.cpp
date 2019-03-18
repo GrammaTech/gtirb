@@ -24,12 +24,12 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx), nullptr); }
+TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx, "test"), nullptr); }
 
 TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
-  auto* Node = Symbol::Create(Ctx);
+  auto* Node = Symbol::Create(Ctx, "test");
   EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
   Node->setStorageKind(Value);
@@ -37,7 +37,7 @@ TEST(Unit_Symbol, setStorageKind) {
 }
 
 TEST(Unit_Symbol, setReferent) {
-  Symbol* Sym = Symbol::Create(Ctx);
+  Symbol* Sym = Symbol::Create(Ctx, "test");
   DataObject* Data = DataObject::Create(Ctx);
   Block* B = Block::Create(Ctx, 0, Addr(1), 2);
 
@@ -58,9 +58,10 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   proto::DataObject DOMessage;
   UUID DataUUID;
 
+  // Symbol with referent
   {
     Context InnerCtx;
-    Symbol* Original = Symbol::Create(InnerCtx, Addr(1), "test");
+    Symbol* Original = Symbol::Create(InnerCtx, 1, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
     DataObject* Data = DataObject::Create(InnerCtx);
@@ -77,27 +78,41 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   (void)DataObject::fromProtobuf(Ctx, DOMessage); // See above.
   Symbol* Result = Symbol::fromProtobuf(Ctx, SMessage);
 
-  EXPECT_EQ(Result->getAddress(), Addr(1));
+  EXPECT_EQ(Result->getValue(), std::nullopt);
   EXPECT_EQ(Result->getName(), "test");
   EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Static);
   EXPECT_EQ(Result->getReferent<DataObject>()->getUUID(), DataUUID);
   EXPECT_EQ(Result->getReferent<Block>(), nullptr);
 
-  // Symbol without address
+  // Symbol with value
+  {
+    Context InnerCtx;
+    Symbol* Original = Symbol::Create(InnerCtx, 1, "test");
+    Original->toProtobuf(&SMessage);
+  }
+  Result = Symbol::fromProtobuf(Ctx, SMessage);
+
+  EXPECT_EQ(Result->getValue(), 1);
+  EXPECT_EQ(Result->getName(), "test");
+  EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Extern);
+  EXPECT_EQ(Result->getReferent<DataObject>(), nullptr);
+  EXPECT_EQ(Result->getReferent<Block>(), nullptr);
+
+  // Symbol without payload
   {
     Context InnerCtx;
     Symbol* Original = Symbol::Create(InnerCtx, "test");
     Original->toProtobuf(&SMessage);
   }
   Result = Symbol::fromProtobuf(Ctx, SMessage);
-  EXPECT_FALSE(Result->getAddress());
+  EXPECT_FALSE(Result->getValue());
   EXPECT_EQ(Result->getName(), "test");
 }
 
 TEST(Unit_Symbol, visitation) {
   Symbol* Sym =
-      Symbol::Create(Ctx, Addr(1), "test", Block::Create(Ctx, 0, Addr(1), 2));
-  Symbol* NoRef = Symbol::Create(Ctx);
+      Symbol::Create(Ctx, Block::Create(Ctx, 0, Addr(1), 2), "test");
+  Symbol* NoRef = Symbol::Create(Ctx, 1, "test2");
 
   struct Visitor {
     int operator()(Block* B) {
@@ -123,6 +138,10 @@ TEST(Unit_Symbol, visitation) {
     int operator()(const DataObject*) const {
       EXPECT_TRUE(false);
       return 1;
+    }
+    int operator()(uint64_t) {
+      EXPECT_TRUE(false);
+      return 2;
     }
   };
   EXPECT_FALSE(NoRef->visit(NoRefVisitor{}));
