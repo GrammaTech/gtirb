@@ -24,12 +24,12 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx, "test"), nullptr); }
+TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx), nullptr); }
 
 TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
-  auto* Node = Symbol::Create(Ctx, "test");
+  auto* Node = Symbol::Create(Ctx);
   EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
   Node->setStorageKind(Value);
@@ -37,7 +37,7 @@ TEST(Unit_Symbol, setStorageKind) {
 }
 
 TEST(Unit_Symbol, setReferent) {
-  Symbol* Sym = Symbol::Create(Ctx, "test");
+  Symbol* Sym = Symbol::Create(Ctx);
   DataObject* Data = DataObject::Create(Ctx);
   Block* B = Block::Create(Ctx, 0, Addr(1), 2);
 
@@ -128,7 +128,8 @@ TEST(Unit_Symbol, visitation) {
   EXPECT_EQ(0, *Sym->visit(Visitor{}));
 
   // The version that has no referent should not call any of the visitor
-  // functions and the returned optional should not have a value.
+  // functions and the returned optional should not have a value. It should not
+  // visit the payload value even if one is defined.
   struct NoRefVisitor {
     int operator()(const Block*) const {
       EXPECT_TRUE(false);

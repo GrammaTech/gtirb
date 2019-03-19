@@ -331,7 +331,7 @@ public:
   /// \brief Check if this symbol has a referent.
   ///
   /// \return \p true if the symbol has a referent, \p false otherwise.
-  bool hasReferent() const { return std::get_if<Node*>(&Payload) != nullptr; }
+  bool hasReferent() const { return std::holds_alternative<Node*>(Payload); }
 
   /// \brief Set the storage kind.
   ///

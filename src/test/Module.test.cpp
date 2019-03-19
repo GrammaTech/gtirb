@@ -231,7 +231,7 @@ TEST(Unit_Module, symbolWithoutAddr) {
 
 TEST(Unit_Module, symbolicExpressions) {
   auto* M = Module::Create(Ctx);
-  Symbol* S = Symbol::Create(Ctx, "test");
+  Symbol* S = Symbol::Create(Ctx);
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
   EXPECT_EQ(std::distance(M->symbolic_expr_begin(), M->symbolic_expr_end()), 1);
 }
