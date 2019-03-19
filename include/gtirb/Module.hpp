@@ -762,9 +762,9 @@ private:
   SymbolAddrMap SymbolsByAddr;
   SymbolicExpressionSet SymbolicOperands;
 
-  friend class Context; // Allow Context to construct new Modules
+  friend class Context; // Allow Context to construct new Modules.
 
-  // Allow these methods to update Symbols and SymbolsByAddr
+  // Allow these methods to update Symbols and SymbolsByAddr.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
 };
@@ -801,7 +801,11 @@ inline bool containsAddr(const Module& M, Addr X) {
 
 /// \relates Module
 /// \relates Symbol
-/// \brief Change the name of a symbol.
+/// \brief Change the name of a symbol and update the module with the new symbol
+/// name.
+///
+/// The module is notified of the changes so that future calls to findSymbol
+/// with the new name will find the symbol.
 ///
 /// \param M  The module containing the symbol.
 /// \param S  The symbol to rename.
@@ -819,7 +823,11 @@ inline void renameSymbol(Module& M, Symbol& S, const std::string& N) {
 
 /// \relates Module
 /// \relates Symbol
-/// \brief Set the address of a symbol.
+/// \brief Set the address of a symbol and update teh module with the new symbol
+/// address.
+///
+/// The module is notified of the changes so that future calls to findSymbol
+/// with the new address will find the symbol.
 ///
 /// \param M  The module containing the symbol.
 /// \param S  The symbol to modify.

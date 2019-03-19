@@ -408,7 +408,7 @@ private:
 
   friend class Context; // Allow Context to construct Symbols.
 
-  // Allow these methods to update Symbol contents
+  // Allow these methods to update Symbol contents.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
 };
