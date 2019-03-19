@@ -37,20 +37,23 @@ TEST(Unit_Symbol, setStorageKind) {
 }
 
 TEST(Unit_Symbol, setReferent) {
+  Module* Mod = Module::Create(Ctx);
   Symbol* Sym = Symbol::Create(Ctx);
+  Mod->addSymbol(Sym);
   DataObject* Data = DataObject::Create(Ctx);
-  Block* B = Block::Create(Ctx, 0, Addr(1), 2);
+  Mod->addData(Data);
+  Block* B = emplaceBlock(Mod->getCFG(), Ctx, Addr(1), 2);
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
   EXPECT_FALSE(Sym->getAddress());
 
-  Sym->setReferent(Data);
+  setReferent(*Mod, *Sym, Data);
   EXPECT_EQ(Sym->getReferent<DataObject>(), Data);
   EXPECT_EQ(Sym->getReferent<Block>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(0));
 
-  Sym->setReferent(B);
+  setReferent(*Mod, *Sym, B);
   EXPECT_EQ(Sym->getReferent<Block>(), B);
   EXPECT_EQ(Sym->getReferent<DataObject>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(1));
@@ -64,12 +67,14 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with referent
   {
     Context InnerCtx;
+    Module* Mod = Module::Create(Ctx);
     Symbol* Original = Symbol::Create(InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
+    Mod->addSymbol(Original);
 
     DataObject* Data = DataObject::Create(InnerCtx, Addr(1), 1);
     DataUUID = Data->getUUID();
-    Original->setReferent(Data);
+    setReferent(*Mod, *Original, Data);
 
     Original->toProtobuf(&SMessage);
 

@@ -301,10 +301,8 @@ public:
   /// \return void
   void addSymbol(std::initializer_list<Symbol*> Ss) {
     for (auto* S : Ss) {
-      Symbols.emplace(S->getName(), S);
-      if (const auto& A = S->getAddress()) {
-        SymbolsByAddr.emplace(A.value(), S);
-      }
+      indexSymbolByName(S);
+      indexSymbolByAddr(S);
     }
   }
 
@@ -748,6 +746,36 @@ public:
   /// \endcond
 
 private:
+  // Helpers for updating the data structures to search for Symbols.
+
+  void indexSymbolByName(Symbol* S) { Symbols.emplace(S->getName(), S); }
+
+  void indexSymbolByAddr(Symbol* S) {
+    if (const auto& A = S->getAddress())
+      SymbolsByAddr.emplace(*A, S);
+  }
+
+  void unindexSymbolByName(Symbol* S) {
+    for (auto [it, end] = Symbols.equal_range(S->getName()); it != end;) {
+      if (it->second == S)
+        it = Symbols.erase(it);
+      else
+        ++it;
+    }
+  }
+
+  void unindexSymbolByAddr(Symbol* S) {
+    S->visit([this, S](auto* N) {
+      Addr addr = N->getAddress();
+      for (auto [it, end] = SymbolsByAddr.equal_range(addr); it != end;) {
+        if (it->second == S)
+          it = SymbolsByAddr.erase(it);
+        else
+          ++it;
+      }
+    });
+  }
+
   std::string BinaryPath{};
   Addr PreferredAddr;
   int64_t RebaseDelta{0};
@@ -767,6 +795,9 @@ private:
   // Allow these methods to update Symbols and SymbolsByAddr.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
+  template <typename NodeTy>
+  friend std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
+  setReferent(Module& M, Symbol& S, NodeTy* N);
 };
 
 /// \relates Addr
@@ -811,38 +842,56 @@ inline bool containsAddr(const Module& M, Addr X) {
 /// \param S  The symbol to rename.
 /// \param N  The new name to assign.
 inline void renameSymbol(Module& M, Symbol& S, const std::string& N) {
-  for (auto [it, end] = M.Symbols.equal_range(S.getName()); it != end;) {
-    if (it->second == &S)
-      it = M.Symbols.erase(it);
-    else
-      ++it;
-  }
+  M.unindexSymbolByName(&S);
   S.Name = N;
-  M.Symbols.emplace(S.getName(), &S);
+  M.indexSymbolByName(&S);
 }
 
 /// \relates Module
 /// \relates Symbol
-/// \brief Set the address of a symbol and update teh module with the new symbol
-/// address.
+/// \brief Set the referent of a symbol and update the module with the new
+/// symbol address.
 ///
 /// The module is notified of the changes so that future calls to findSymbol
 /// with the new address will find the symbol.
+///
+/// \tparam NodeTy  A Node type of a supported referent; should be automatically
+/// deduced.
+///
+/// \param M  The module containing the symbol.
+/// \param S  The symbol to modify.
+/// \param N  The node to reference.
+template <typename NodeTy>
+std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
+setReferent(Module& M, Symbol& S, NodeTy* N) {
+  M.unindexSymbolByAddr(&S);
+  S.Payload = N;
+  M.indexSymbolByAddr(&S);
+}
+
+/// \brief Deleted overload used to prevent setting a referent of an unsupported
+/// type.
+///
+/// \tparam NodeTy  An arbitrary type; should be automatically deduced.
+template <typename NodeTy>
+std::enable_if_t<!Symbol::is_supported_type<NodeTy>()>
+setReferent(Module& M, Symbol& S, NodeTy* N) = delete;
+
+/// \relates Module
+/// \relates Symbol
+/// \brief Set the address of a symbol and update the module with the new
+/// address.
+///
+/// The module is notified of the changes so that future calls to findSymbol
+/// with the old address will no longer find the symbol.
 ///
 /// \param M  The module containing the symbol.
 /// \param S  The symbol to modify.
 /// \param A  The new address to assign.
 inline void setSymbolAddress(Module& M, Symbol& S, Addr A) {
-  if (std::optional<Addr> OldAddr = S.getAddress()) {
-    for (auto [it, end] = M.SymbolsByAddr.equal_range(*OldAddr); it != end;) {
-      if (it->second == &S)
-        it = M.SymbolsByAddr.erase(it);
-      else
-        ++it;
-    }
-  }
+  M.unindexSymbolByAddr(&S);
   S.Payload = A;
-  M.SymbolsByAddr.emplace(A, &S);
+  M.indexSymbolByAddr(&S);
 }
 } // namespace gtirb
 

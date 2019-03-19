@@ -155,6 +155,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
     return (... || std::is_same_v<NodeTy, Types>);
   }
 
+public:
   // Helper function that determines whether the passed NodeTy is one of the
   // supported referent types.
   template <typename NodeTy> static constexpr bool is_supported_type() {
@@ -162,7 +163,6 @@ class GTIRB_EXPORT_API Symbol : public Node {
         std::decay_t<supported_referent_types>{});
   }
 
-public:
   /// \brief The list of supported referent types.
   using supported_referent_types = TypeList<Block, DataObject>;
 
@@ -302,31 +302,6 @@ public:
   /// \return The name.
   const std::string& getName() const { return Name; }
 
-  /// \brief Set the DataObject to which this symbol refers.
-  ///
-  /// \tparam NodeTy  A Node type of a supported referent; should be
-  /// automatically deduced.
-  ///
-  /// \param N The Node to refer to.
-  ///
-  /// \return void
-  template <typename NodeTy>
-  void setReferent(NodeTy* N,
-                   std::enable_if_t<is_supported_type<NodeTy>()>* = nullptr) {
-    Payload = N;
-  }
-
-  /// \brief Deleted overload used to prevent setting a referent of an
-  /// unsupported type.
-  ///
-  /// \tparam NodeTy  An arbitrary type; should be automatically deduced.
-  ///
-  /// \return void
-  template <typename NodeTy>
-  void setReferent(NodeTy*,
-                   std::enable_if_t<!is_supported_type<NodeTy>(), NodeTy>* =
-                       nullptr) = delete;
-
   /// \brief Get the referent to which this symbol refers.
   ///
   /// \tparam NodeTy A Node type of a supported referent.
@@ -411,6 +386,9 @@ private:
   // Allow these methods to update Symbol contents.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
+  template <typename NodeTy>
+  friend std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
+  setReferent(Module& M, Symbol& S, NodeTy* N);
 };
 } // namespace gtirb
 
