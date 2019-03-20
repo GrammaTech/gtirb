@@ -43,14 +43,17 @@ TEST(Unit_Symbol, setReferent) {
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
+  EXPECT_FALSE(Sym->getAddress());
 
   Sym->setReferent(Data);
   EXPECT_EQ(Sym->getReferent<DataObject>(), Data);
   EXPECT_EQ(Sym->getReferent<Block>(), nullptr);
+  EXPECT_EQ(Sym->getAddress(), Addr(0));
 
   Sym->setReferent(B);
   EXPECT_EQ(Sym->getReferent<Block>(), B);
   EXPECT_EQ(Sym->getReferent<DataObject>(), nullptr);
+  EXPECT_EQ(Sym->getAddress(), Addr(1));
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
@@ -61,10 +64,10 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with referent
   {
     Context InnerCtx;
-    Symbol* Original = Symbol::Create(InnerCtx, 1, "test");
+    Symbol* Original = Symbol::Create(InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    DataObject* Data = DataObject::Create(InnerCtx);
+    DataObject* Data = DataObject::Create(InnerCtx, Addr(1), 1);
     DataUUID = Data->getUUID();
     Original->setReferent(Data);
 
@@ -78,40 +81,40 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   (void)DataObject::fromProtobuf(Ctx, DOMessage); // See above.
   Symbol* Result = Symbol::fromProtobuf(Ctx, SMessage);
 
-  EXPECT_EQ(Result->getValue(), std::nullopt);
+  EXPECT_EQ(Result->getAddress(), Addr(1));
   EXPECT_EQ(Result->getName(), "test");
   EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Static);
   EXPECT_EQ(Result->getReferent<DataObject>()->getUUID(), DataUUID);
   EXPECT_EQ(Result->getReferent<Block>(), nullptr);
 
-  // Symbol with value
+  // Symbol with address
   {
     Context InnerCtx;
-    Symbol* Original = Symbol::Create(InnerCtx, 1, "test");
+    Symbol* Original = Symbol::Create(InnerCtx, Addr(2), "test");
     Original->toProtobuf(&SMessage);
   }
   Result = Symbol::fromProtobuf(Ctx, SMessage);
 
-  EXPECT_EQ(Result->getValue(), 1);
+  EXPECT_EQ(Result->getAddress(), Addr(2));
   EXPECT_EQ(Result->getName(), "test");
   EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Extern);
   EXPECT_EQ(Result->getReferent<DataObject>(), nullptr);
   EXPECT_EQ(Result->getReferent<Block>(), nullptr);
 
-  // Symbol without payload
+  // Symbol without address
   {
     Context InnerCtx;
     Symbol* Original = Symbol::Create(InnerCtx, "test");
     Original->toProtobuf(&SMessage);
   }
   Result = Symbol::fromProtobuf(Ctx, SMessage);
-  EXPECT_FALSE(Result->getValue());
+  EXPECT_FALSE(Result->getAddress());
   EXPECT_EQ(Result->getName(), "test");
 }
 
 TEST(Unit_Symbol, visitation) {
   Symbol* Sym = Symbol::Create(Ctx, Block::Create(Ctx, 0, Addr(1), 2), "test");
-  Symbol* NoRef = Symbol::Create(Ctx, 1, "test2");
+  Symbol* NoRef = Symbol::Create(Ctx, Addr(1), "test2");
 
   struct Visitor {
     int operator()(Block* B) {
@@ -128,8 +131,7 @@ TEST(Unit_Symbol, visitation) {
   EXPECT_EQ(0, *Sym->visit(Visitor{}));
 
   // The version that has no referent should not call any of the visitor
-  // functions and the returned optional should not have a value. It should not
-  // visit the payload value even if one is defined.
+  // functions and the returned optional should not have a value.
   struct NoRefVisitor {
     int operator()(const Block*) const {
       EXPECT_TRUE(false);
@@ -138,10 +140,6 @@ TEST(Unit_Symbol, visitation) {
     int operator()(const DataObject*) const {
       EXPECT_TRUE(false);
       return 1;
-    }
-    int operator()(uint64_t) {
-      EXPECT_TRUE(false);
-      return 2;
     }
   };
   EXPECT_FALSE(NoRef->visit(NoRefVisitor{}));

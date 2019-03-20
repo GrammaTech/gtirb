@@ -302,8 +302,9 @@ public:
   void addSymbol(std::initializer_list<Symbol*> Ss) {
     for (auto* S : Ss) {
       Symbols.emplace(S->getName(), S);
-      S->visit(
-          [this, S](auto* N) { SymbolsByAddr.emplace(N->getAddress(), S); });
+      if (const auto& A = S->getAddress()) {
+        SymbolsByAddr.emplace(A.value(), S);
+      }
     }
   }
 

@@ -23,7 +23,7 @@ class StorePayload {
 public:
   StorePayload(Symbol::MessageType* Message) : M(Message) {}
   void operator()(std::monostate) const { M->clear_value(); }
-  void operator()(uint64_t X) const { M->set_value(X); }
+  void operator()(Addr X) const { M->set_value(static_cast<uint64_t>(X)); }
   void operator()(const Node* Referent) const {
     nodeUUIDToBytes(Referent, *M->mutable_referent_uuid());
   }
@@ -43,7 +43,7 @@ Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   Symbol* S = Symbol::Create(C, Message.name());
   switch (Message.optional_payload_case()) {
   case proto::Symbol::kValue:
-    S->Payload = Message.value();
+    S->Payload = Addr{Message.value()};
     break;
   case proto::Symbol::kReferentUuid:
     S->Payload = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));

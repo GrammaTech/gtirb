@@ -238,13 +238,13 @@ public:
   /// \brief Create a Symbol object.
   ///
   /// \param C  The Context in which this object will be held.
-  /// \param X  The value of the symbol.
+  /// \param X  The address of the symbol.
   /// \param Name The name of the symbol.
   /// \param Kind The storage kind the symbol has; defaults to
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, uint64_t X, const std::string& Name,
+  static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
     return C.Create<Symbol>(C, X, Name, Kind);
   }
@@ -265,11 +265,32 @@ public:
     return C.Create<Symbol>(C, Referent, Name, Kind);
   }
 
-  /// \brief Get the value.
+  /// \brief Get the effective address.
   ///
-  /// \return The value if one exists.
-  std::optional<uint64_t> getValue() const {
-    if (const uint64_t* value = std::get_if<uint64_t>(&Payload))
+  /// \return The effective address.
+  std::optional<Addr> getAddress() const {
+    return std::visit(
+        [](const auto& arg) {
+          using T = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<T, std::monostate>)
+            return std::optional<Addr>{};
+          else if constexpr (std::is_same_v<T, Addr>)
+            return std::make_optional(arg);
+          else if constexpr (std::is_same_v<T, Node*>) {
+            if (Block* b = dyn_cast_or_null<Block>(arg))
+              return std::make_optional(b->getAddress());
+            else if (DataObject* d = dyn_cast_or_null<DataObject>(arg))
+              return std::make_optional(d->getAddress());
+            else
+              assert(arg == nullptr && "unsupported referent type");
+            return std::optional<Addr>{};
+          } else
+            static_assert(
+                std::integral_constant<bool, !std::is_same_v<T, T>>::value,
+                "unsupported symbol payload type");
+        },
+        Payload);
+    if (const Addr* value = std::get_if<Addr>(&Payload))
       return *value;
     return std::nullopt;
   }
@@ -371,7 +392,7 @@ private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
   Symbol(Context& C, const std::string& N, StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Payload(), Name(N), Storage(SK) {}
-  Symbol(Context& C, uint64_t X, const std::string& N,
+  Symbol(Context& C, Addr X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Payload(X), Name(N), Storage(SK) {}
   template <typename NodeTy>
@@ -379,7 +400,7 @@ private:
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Payload(R), Name(N), Storage(SK) {}
 
-  std::variant<std::monostate, uint64_t, Node*> Payload;
+  std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
 
