@@ -118,13 +118,13 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
   EXPECT_EQ(Type::getByUUID(Ctx, Id), Node2);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(TypedNodeTest,            //
-                           protobufUUIDRoundTrip,     //
-                           ctor_0,                    //
-                           uniqueUuids,               //
-                           deserializeUpdatesUUIDMap, //
-                           getByUUID);
+REGISTER_TYPED_TEST_SUITE_P(TypedNodeTest,             //
+                            protobufUUIDRoundTrip,     //
+                            ctor_0,                    //
+                            uniqueUuids,               //
+                            deserializeUpdatesUUIDMap, //
+                            getByUUID);
 
-INSTANTIATE_TYPED_TEST_SUITE_P(Unit_Nodes,          // Instance name
-                              TypedNodeTest,        // Test case name
-                              TypeImplementations); // Type list
+INSTANTIATE_TYPED_TEST_SUITE_P(Unit_Nodes,           // Instance name
+                               TypedNodeTest,        // Test case name
+                               TypeImplementations); // Type list
