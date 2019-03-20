@@ -55,7 +55,7 @@ protected:
   virtual ~TypedNodeTest() = default;
 };
 
-TYPED_TEST_CASE_P(TypedNodeTest);
+TYPED_TEST_SUITE_P(TypedNodeTest);
 
 // I tried making this a member of TypedNodeTest, but the member is unavailable
 // within the tests themselves, so this macro is used as a hacky solution.
@@ -118,13 +118,13 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
   EXPECT_EQ(Type::getByUUID(Ctx, Id), Node2);
 }
 
-REGISTER_TYPED_TEST_CASE_P(TypedNodeTest,             //
+REGISTER_TYPED_TEST_SUITE_P(TypedNodeTest,            //
                            protobufUUIDRoundTrip,     //
                            ctor_0,                    //
                            uniqueUuids,               //
                            deserializeUpdatesUUIDMap, //
                            getByUUID);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Unit_Nodes,           // Instance name
+INSTANTIATE_TYPED_TEST_SUITE_P(Unit_Nodes,          // Instance name
                               TypedNodeTest,        // Test case name
                               TypeImplementations); // Type list
