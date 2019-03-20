@@ -163,12 +163,9 @@ TEST(Unit_Module, findData) {
 
 TEST(Unit_Module, findSymbols) {
   auto* M = Module::Create(Ctx);
-  auto* S1 = Symbol::Create(Ctx, Addr(1), "foo");
-  auto* S2 = Symbol::Create(Ctx, Addr(1), "bar");
-  auto* S3 = Symbol::Create(Ctx, Addr(2), "foo");
-  M->addSymbol(S1);
-  M->addSymbol(S2);
-  M->addSymbol(S3);
+  auto* S1 = emplaceSymbol(*M, Ctx, Addr(1), "foo");
+  auto* S2 = emplaceSymbol(*M, Ctx, Addr(1), "bar");
+  auto* S3 = emplaceSymbol(*M, Ctx, Addr(2), "foo");
 
   {
     auto F = M->findSymbols("foo");
@@ -223,18 +220,15 @@ TEST(Unit_Module, findSymbols) {
 
 TEST(Unit_Module, symbolWithoutAddr) {
   auto* M = Module::Create(Ctx);
-  M->addSymbol(Symbol::Create(Ctx, "test"));
+  emplaceSymbol(*M, Ctx, "test");
   EXPECT_EQ(M->findSymbols("test").begin()->getName(), "test");
 }
 
 TEST(Unit_Module, renameSymbol) {
   auto* M = Module::Create(Ctx);
-  auto* S1 = Symbol::Create(Ctx, "foo");
-  auto* S2 = Symbol::Create(Ctx, Addr(1), "bar");
-  auto* S3 = Symbol::Create(Ctx, Addr(2), "bar");
-  M->addSymbol(S1);
-  M->addSymbol(S2);
-  M->addSymbol(S3);
+  auto* S1 = emplaceSymbol(*M, Ctx, "foo");
+  auto* S2 = emplaceSymbol(*M, Ctx, Addr(1), "bar");
+  auto* S3 = emplaceSymbol(*M, Ctx, Addr(2), "bar");
 
   renameSymbol(*M, *S1, "test1");
   renameSymbol(*M, *S2, "test2");
@@ -272,14 +266,10 @@ TEST(Unit_Module, setReferent) {
   auto* B3 = emplaceBlock(M->getCFG(), Ctx, Addr(3), 1);
   auto* B4 = emplaceBlock(M->getCFG(), Ctx, Addr(4), 1);
   auto* B5 = emplaceBlock(M->getCFG(), Ctx, Addr(5), 1);
-  auto* S1 = Symbol::Create(Ctx, "foo");
-  auto* S2 = Symbol::Create(Ctx, B1, "bar");
-  auto* S3 = Symbol::Create(Ctx, B1, "foo");
-  auto* S4 = Symbol::Create(Ctx, B2, "bar");
-  M->addSymbol(S1);
-  M->addSymbol(S2);
-  M->addSymbol(S3);
-  M->addSymbol(S4);
+  auto* S1 = emplaceSymbol(*M, Ctx, "foo");
+  auto* S2 = emplaceSymbol(*M, Ctx, B1, "bar");
+  auto* S3 = emplaceSymbol(*M, Ctx, B1, "foo");
+  auto* S4 = emplaceSymbol(*M, Ctx, B2, "bar");
 
   setReferent(*M, *S1, B3);
   setReferent(*M, *S2, B4);
@@ -322,12 +312,9 @@ TEST(Unit_Module, setReferent) {
 TEST(Unit_Module, setSymbolAddress) {
   auto* M = Module::Create(Ctx);
   auto* B1 = emplaceBlock(M->getCFG(), Ctx, Addr(1), 1);
-  auto* S1 = Symbol::Create(Ctx, "foo");
-  auto* S2 = Symbol::Create(Ctx, B1, "bar");
-  auto* S3 = Symbol::Create(Ctx, B1, "bar");
-  M->addSymbol(S1);
-  M->addSymbol(S2);
-  M->addSymbol(S3);
+  auto* S1 = emplaceSymbol(*M, Ctx, "foo");
+  auto* S2 = emplaceSymbol(*M, Ctx, B1, "bar");
+  auto* S3 = emplaceSymbol(*M, Ctx, B1, "bar");
 
   setSymbolAddress(*M, *S1, Addr(2));
   setSymbolAddress(*M, *S2, Addr(3));
@@ -512,16 +499,14 @@ TEST(Unit_Module, protobufNodePointers) {
     Module* Original = Module::Create(InnerCtx);
     auto* Data = DataObject::Create(InnerCtx);
     Original->addData(Data);
-    auto* DataSym = Symbol::Create(InnerCtx, Data, "data");
-    Original->addSymbol(DataSym);
+    auto* DataSym = emplaceSymbol(*Original, InnerCtx, Data, "data");
 
     // Not part of IR
     auto* DanglingData = DataObject::Create(InnerCtx);
     Original->addSymbol(Symbol::Create(InnerCtx, DanglingData, "dangling"));
 
     auto* Code = emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
-    auto* CodeSym = Symbol::Create(InnerCtx, Code, "code");
-    Original->addSymbol(CodeSym);
+    emplaceSymbol(*Original, InnerCtx, Code, "code");
     Original->addSymbolicExpression(Addr(3), {SymAddrConst{0, DataSym}});
 
     // Not part of IR

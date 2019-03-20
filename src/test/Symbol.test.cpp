@@ -38,8 +38,7 @@ TEST(Unit_Symbol, setStorageKind) {
 
 TEST(Unit_Symbol, setReferent) {
   Module* Mod = Module::Create(Ctx);
-  Symbol* Sym = Symbol::Create(Ctx);
-  Mod->addSymbol(Sym);
+  Symbol* Sym = emplaceSymbol(*Mod, Ctx);
   DataObject* Data = DataObject::Create(Ctx);
   Mod->addData(Data);
   Block* B = emplaceBlock(Mod->getCFG(), Ctx, Addr(1), 2);
@@ -68,9 +67,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   {
     Context InnerCtx;
     Module* Mod = Module::Create(Ctx);
-    Symbol* Original = Symbol::Create(InnerCtx, "test");
+    Symbol* Original = emplaceSymbol(*Mod, InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
-    Mod->addSymbol(Original);
 
     DataObject* Data = DataObject::Create(InnerCtx, Addr(1), 1);
     DataUUID = Data->getUUID();

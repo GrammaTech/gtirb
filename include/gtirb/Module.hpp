@@ -830,6 +830,23 @@ inline bool containsAddr(const Module& M, Addr X) {
   return X >= MinMax.first && X < MinMax.second;
 }
 
+/// \relates Symbol
+/// \brief Create a new symbol and add it to the module.
+///
+/// \tparam Ts   Types of forwarded arguments.
+///
+/// \param M     The Module to modify.
+/// \param C     The Context in which the Symbol will be held.
+/// \param Args  Forwarded to Symbol::Create()
+///
+/// \return A pointer to the newly created Symbol.
+template <class... Ts>
+Symbol* emplaceSymbol(Module& M, Context& C, Ts&&... Args) {
+  Symbol* S = Symbol::Create(C, std::forward<Ts>(Args)...);
+  M.addSymbol(S);
+  return S;
+}
+
 /// \relates Module
 /// \relates Symbol
 /// \brief Change the name of a symbol and update the module with the new symbol
