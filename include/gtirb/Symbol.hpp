@@ -284,10 +284,12 @@ public:
             else
               assert(arg == nullptr && "unsupported referent type");
             return std::optional<Addr>{};
-          } else
+          } else {
             static_assert(
-                std::integral_constant<bool, !std::is_same_v<T, T>>::value,
+                // assert condition must depend on T, but will always be false
+                std::bool_constant<!std::is_same_v<T, T>>::value,
                 "unsupported symbol payload type");
+          }
         },
         Payload);
     if (const Addr* value = std::get_if<Addr>(&Payload))
