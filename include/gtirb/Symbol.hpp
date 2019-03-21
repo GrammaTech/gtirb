@@ -193,7 +193,7 @@ public:
   /// Context Ctx;
   /// Symbol* SymB = Symbol::Create(Ctx, Block::Create(Ctx), "");
   /// Symbol* SymD = Symbol::Create(Ctx, DataObject::Create(Ctx), "");
-  /// Symbol* SymX = Symbol::Create(Ctx, 42, "");
+  /// Symbol* SymX = Symbol::Create(Ctx, Addr(42), "");
   /// Symbol* SymN = Symbol::Create(Ctx);
   ///
   /// SymB->visit(Visitor{}); // Will call Visitor::operator()(Block*);
