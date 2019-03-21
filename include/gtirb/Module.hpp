@@ -270,8 +270,8 @@ public:
   /// \brief Range of symbols (\ref Symbol).
   using symbol_addr_range = boost::iterator_range<symbol_addr_iterator>;
   /// \brief Constant iterator over symbols (\ref Symbol).
-  using const_symbol_addr_iterator =
-      boost::indirect_iterator<SymbolSet::index<by_address>::type::const_iterator>;
+  using const_symbol_addr_iterator = boost::indirect_iterator<
+      SymbolSet::index<by_address>::type::const_iterator>;
   /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_addr_range =
       boost::iterator_range<const_symbol_addr_iterator>;
@@ -390,8 +390,10 @@ public:
   /// given address range. Searches the range [Lower, Upper).
   const_symbol_addr_range findSymbols(Addr Lower, Addr Upper) const {
     return boost::make_iterator_range(
-        const_symbol_addr_iterator(Symbols.get<by_address>().lower_bound(Lower)),
-        const_symbol_addr_iterator(Symbols.get<by_address>().lower_bound(Upper)));
+        const_symbol_addr_iterator(
+            Symbols.get<by_address>().lower_bound(Lower)),
+        const_symbol_addr_iterator(
+            Symbols.get<by_address>().lower_bound(Upper)));
   }
   /// @}
   // (end group of symbol-related type aliases and functions)
