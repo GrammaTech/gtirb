@@ -167,6 +167,9 @@ TEST(Unit_Module, findSymbols) {
   auto* S2 = emplaceSymbol(*M, Ctx, Addr(1), "bar");
   auto* S3 = emplaceSymbol(*M, Ctx, Addr(2), "foo");
 
+  // Check that symbols are unique even if names and addresses are not.
+  M->addSymbol(S3);
+
   {
     auto F = M->findSymbols("foo");
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);

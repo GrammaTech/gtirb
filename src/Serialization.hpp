@@ -131,6 +131,12 @@ void addElement(std::map<T, U>* Container,
                 typename std::map<T, U>::value_type&& Element) {
   Container->insert(std::move(Element));
 }
+template <typename T, typename ContainerType>
+std::enable_if_t<std::is_destructible_v<
+    decltype(std::declval<ContainerType>().insert(std::declval<T>()))*>>
+addElement(ContainerType& Container, T&& Element) {
+  Container.insert(std::move(Element));
+}
 
 // Convert the contents of a Container into protobuf messages.
 template <typename ContainerT, typename MessageT>

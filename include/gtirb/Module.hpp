@@ -31,6 +31,7 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
+#include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -81,8 +82,17 @@ enum class ISAID : uint8_t {
 ///
 /// \brief Represents a single binary (library or executable).
 class GTIRB_EXPORT_API Module : public Node {
-  using SymbolSet = std::multimap<std::string, Symbol*>;
-  using SymbolAddrMap = std::multimap<Addr, Symbol*>;
+  using SymbolSet = boost::multi_index::multi_index_container<
+      Symbol*, boost::multi_index::indexed_by<
+                   boost::multi_index::hashed_unique<
+                       boost::multi_index::identity<Symbol*>>,
+                   boost::multi_index::ordered_non_unique<
+                       boost::multi_index::const_mem_fun<
+                           Symbol, const std::string&, &Symbol::getName>>,
+                   boost::multi_index::ordered_non_unique<
+                       boost::multi_index::const_mem_fun<
+                           Symbol, std::optional<Addr>, &Symbol::getAddress>>>>;
+
   using SymbolicExpressionElement = std::pair<Addr, SymbolicExpression>;
 
   // Used when you need a less-than, ordered comparison of two
@@ -240,43 +250,43 @@ public:
 
   /// \brief Iterator over symbols (\ref Symbol).
   using symbol_iterator =
-      boost::transform_iterator<SymSetTransform<SymbolSet::iterator>,
-                                SymbolSet::iterator, Symbol&>;
+      boost::indirect_iterator<SymbolSet::nth_index<1>::type::iterator>;
   /// \brief Range of symbols (\ref Symbol).
   using symbol_range = boost::iterator_range<symbol_iterator>;
   /// \brief Constant iterator over symbols (\ref Symbol).
   using const_symbol_iterator =
-      boost::transform_iterator<SymSetTransform<SymbolSet::const_iterator>,
-                                SymbolSet::const_iterator, const Symbol&>;
+      boost::indirect_iterator<SymbolSet::nth_index<1>::type::const_iterator>;
   /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
   /// \brief Iterator over symbols (\ref Symbol).
   using symbol_addr_iterator =
-      boost::transform_iterator<SymSetTransform<SymbolAddrMap::iterator>,
-                                SymbolAddrMap::iterator, Symbol&>;
+      boost::indirect_iterator<SymbolSet::nth_index<2>::type::iterator>;
   /// \brief Range of symbols (\ref Symbol).
   using symbol_addr_range = boost::iterator_range<symbol_addr_iterator>;
   /// \brief Constant iterator over symbols (\ref Symbol).
   using const_symbol_addr_iterator =
-      boost::transform_iterator<SymSetTransform<SymbolAddrMap::const_iterator>,
-                                SymbolAddrMap::const_iterator, const Symbol&>;
+      boost::indirect_iterator<SymbolSet::nth_index<2>::type::const_iterator>;
   /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_addr_range =
       boost::iterator_range<const_symbol_addr_iterator>;
 
   /// \brief Return an iterator to the first Symbol.
-  symbol_iterator symbol_begin() { return symbol_iterator(Symbols.begin()); }
+  symbol_iterator symbol_begin() {
+    return symbol_iterator(Symbols.get<1>().begin());
+  }
   /// \brief Return a constant iterator to the first Symbol.
   const_symbol_iterator symbol_begin() const {
-    return const_symbol_iterator(Symbols.begin());
+    return const_symbol_iterator(Symbols.get<1>().begin());
   }
   /// \brief Return an iterator to the element following the last Symbol.
-  symbol_iterator symbol_end() { return symbol_iterator(Symbols.end()); }
+  symbol_iterator symbol_end() {
+    return symbol_iterator(Symbols.get<1>().end());
+  }
   /// \brief Return a constant iterator to the element following the last
   /// Symbol.
   const_symbol_iterator symbol_end() const {
-    return const_symbol_iterator(Symbols.end());
+    return const_symbol_iterator(Symbols.get<1>().end());
   }
   /// \brief Return a range of the symbols (\ref Symbol).
   symbol_range symbols() {
@@ -301,8 +311,7 @@ public:
   /// \return void
   void addSymbol(std::initializer_list<Symbol*> Ss) {
     for (auto* S : Ss) {
-      indexSymbolByName(S);
-      indexSymbolByAddr(S);
+      Symbols.insert(S);
     }
   }
 
@@ -313,7 +322,7 @@ public:
   /// \return A possibly empty range of all the symbols with the
   /// given name.
   symbol_range findSymbols(const std::string& N) {
-    auto Found = Symbols.equal_range(N);
+    auto Found = Symbols.get<1>().equal_range(N);
     return boost::make_iterator_range(symbol_iterator(Found.first),
                                       symbol_iterator(Found.second));
   }
@@ -325,7 +334,7 @@ public:
   /// \return A possibly empty constant range of all the symbols with the
   /// given name.
   const_symbol_range findSymbols(const std::string& N) const {
-    auto Found = Symbols.equal_range(N);
+    auto Found = Symbols.get<1>().equal_range(N);
     return boost::make_iterator_range(const_symbol_iterator(Found.first),
                                       const_symbol_iterator(Found.second));
   }
@@ -337,7 +346,7 @@ public:
   /// \return A possibly empty range of all the symbols containing the given
   /// address.
   symbol_addr_range findSymbols(Addr X) {
-    auto Found = SymbolsByAddr.equal_range(X);
+    auto Found = Symbols.get<2>().equal_range(X);
     return boost::make_iterator_range(symbol_addr_iterator(Found.first),
                                       symbol_addr_iterator(Found.second));
   }
@@ -349,7 +358,7 @@ public:
   /// \return A possibly empty constant range of all the symbols containing the
   /// given address.
   const_symbol_addr_range findSymbols(Addr X) const {
-    auto Found = SymbolsByAddr.equal_range(X);
+    auto Found = Symbols.get<2>().equal_range(X);
     return boost::make_iterator_range(const_symbol_addr_iterator(Found.first),
                                       const_symbol_addr_iterator(Found.second));
   }
@@ -363,8 +372,8 @@ public:
   /// address range. Searches the range [Lower, Upper).
   symbol_addr_range findSymbols(Addr Lower, Addr Upper) {
     return boost::make_iterator_range(
-        symbol_addr_iterator(SymbolsByAddr.lower_bound(Lower)),
-        symbol_addr_iterator(SymbolsByAddr.lower_bound(Upper)));
+        symbol_addr_iterator(Symbols.get<2>().lower_bound(Lower)),
+        symbol_addr_iterator(Symbols.get<2>().lower_bound(Upper)));
   }
 
   /// \brief Find symbols by a range of addresses.
@@ -376,8 +385,8 @@ public:
   /// given address range. Searches the range [Lower, Upper).
   const_symbol_addr_range findSymbols(Addr Lower, Addr Upper) const {
     return boost::make_iterator_range(
-        const_symbol_addr_iterator(SymbolsByAddr.lower_bound(Lower)),
-        const_symbol_addr_iterator(SymbolsByAddr.lower_bound(Upper)));
+        const_symbol_addr_iterator(Symbols.get<2>().lower_bound(Lower)),
+        const_symbol_addr_iterator(Symbols.get<2>().lower_bound(Upper)));
   }
   /// @}
   // (end group of symbol-related type aliases and functions)
@@ -746,36 +755,6 @@ public:
   /// \endcond
 
 private:
-  // Helpers for updating the data structures to search for Symbols.
-
-  void indexSymbolByName(Symbol* S) { Symbols.emplace(S->getName(), S); }
-
-  void indexSymbolByAddr(Symbol* S) {
-    if (const auto& A = S->getAddress())
-      SymbolsByAddr.emplace(*A, S);
-  }
-
-  void unindexSymbolByName(Symbol* S) {
-    for (auto [it, end] = Symbols.equal_range(S->getName()); it != end;) {
-      if (it->second == S)
-        it = Symbols.erase(it);
-      else
-        ++it;
-    }
-  }
-
-  void unindexSymbolByAddr(Symbol* S) {
-    S->visit([this, S](auto* N) {
-      Addr addr = N->getAddress();
-      for (auto [it, end] = SymbolsByAddr.equal_range(addr); it != end;) {
-        if (it->second == S)
-          it = SymbolsByAddr.erase(it);
-        else
-          ++it;
-      }
-    });
-  }
-
   std::string BinaryPath{};
   Addr PreferredAddr;
   int64_t RebaseDelta{0};
@@ -787,12 +766,11 @@ private:
   ImageByteMap* ImageBytes;
   SectionSet Sections;
   SymbolSet Symbols;
-  SymbolAddrMap SymbolsByAddr;
   SymbolicExpressionSet SymbolicOperands;
 
   friend class Context; // Allow Context to construct new Modules.
 
-  // Allow these methods to update Symbols and SymbolsByAddr.
+  // Allow these methods to update Symbols.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
   template <typename NodeTy>
@@ -859,9 +837,7 @@ Symbol* emplaceSymbol(Module& M, Context& C, Ts&&... Args) {
 /// \param S  The symbol to rename.
 /// \param N  The new name to assign.
 inline void renameSymbol(Module& M, Symbol& S, const std::string& N) {
-  M.unindexSymbolByName(&S);
-  S.Name = N;
-  M.indexSymbolByName(&S);
+  M.Symbols.modify(M.Symbols.find(&S), [&N, &S](Symbol*) { S.Name = N; });
 }
 
 /// \relates Module
@@ -881,9 +857,7 @@ inline void renameSymbol(Module& M, Symbol& S, const std::string& N) {
 template <typename NodeTy>
 std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
 setReferent(Module& M, Symbol& S, NodeTy* N) {
-  M.unindexSymbolByAddr(&S);
-  S.Payload = N;
-  M.indexSymbolByAddr(&S);
+  M.Symbols.modify(M.Symbols.find(&S), [&N, &S](Symbol*) { S.Payload = N; });
 }
 
 /// \brief Deleted overload used to prevent setting a referent of an unsupported
@@ -906,9 +880,7 @@ setReferent(Module& M, Symbol& S, NodeTy* N) = delete;
 /// \param S  The symbol to modify.
 /// \param A  The new address to assign.
 inline void setSymbolAddress(Module& M, Symbol& S, Addr A) {
-  M.unindexSymbolByAddr(&S);
-  S.Payload = A;
-  M.indexSymbolByAddr(&S);
+  M.Symbols.modify(M.Symbols.find(&S), [&A, &S](Symbol*) { S.Payload = A; });
 }
 } // namespace gtirb
 

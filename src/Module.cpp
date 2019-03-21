@@ -45,15 +45,9 @@ void Module::toProtobuf(MessageType* Message) const {
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
   containerToProtobuf(this->Data, Message->mutable_data());
   containerToProtobuf(this->Sections, Message->mutable_sections());
+  containerToProtobuf(this->Symbols, Message->mutable_symbols());
   containerToProtobuf(this->SymbolicOperands,
                       Message->mutable_symbolic_operands());
-
-  // Special case for symbol set: serialized as a repeated field, uses
-  // multiple indices internally.
-  auto M = Message->mutable_symbols();
-  initContainer(M, this->Symbols.size());
-  std::for_each(this->Symbols.begin(), this->Symbols.end(),
-                [M](const auto& N) { N.second->toProtobuf(M->Add()); });
 }
 
 // FIXME: improve containerFromProtobuf so it can handle a pair where one
@@ -83,15 +77,7 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   nodeMapFromProtobuf(C, M->Data, Message.data());
   nodeMapFromProtobuf(C, M->Sections, Message.sections());
-
-  // Special case for symbol set: serialized as a repeated field, uses
-  // multiple indices internally.
-  M->Symbols.clear();
-  const auto& Syms = Message.symbols();
-  std::for_each(Syms.begin(), Syms.end(), [M, &C](const auto& Elt) {
-    M->addSymbol(Symbol::fromProtobuf(C, Elt));
-  });
-
+  containerFromProtobuf(C, M->Symbols, Message.symbols());
   // Create SymbolicExpressions after the Symbols they reference.
   containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
 
