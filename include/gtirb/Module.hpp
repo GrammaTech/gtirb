@@ -82,14 +82,19 @@ enum class ISAID : uint8_t {
 ///
 /// \brief Represents a single binary (library or executable).
 class GTIRB_EXPORT_API Module : public Node {
+  struct by_name {};
+  struct by_address {};
+
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*, boost::multi_index::indexed_by<
                    boost::multi_index::hashed_unique<
                        boost::multi_index::identity<Symbol*>>,
                    boost::multi_index::ordered_non_unique<
+                       boost::multi_index::tag<by_name>,
                        boost::multi_index::const_mem_fun<
                            Symbol, const std::string&, &Symbol::getName>>,
                    boost::multi_index::ordered_non_unique<
+                       boost::multi_index::tag<by_address>,
                        boost::multi_index::const_mem_fun<
                            Symbol, std::optional<Addr>, &Symbol::getAddress>>>>;
 
@@ -250,43 +255,43 @@ public:
 
   /// \brief Iterator over symbols (\ref Symbol).
   using symbol_iterator =
-      boost::indirect_iterator<SymbolSet::nth_index<1>::type::iterator>;
+      boost::indirect_iterator<SymbolSet::index<by_name>::type::iterator>;
   /// \brief Range of symbols (\ref Symbol).
   using symbol_range = boost::iterator_range<symbol_iterator>;
   /// \brief Constant iterator over symbols (\ref Symbol).
   using const_symbol_iterator =
-      boost::indirect_iterator<SymbolSet::nth_index<1>::type::const_iterator>;
+      boost::indirect_iterator<SymbolSet::index<by_name>::type::const_iterator>;
   /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_range = boost::iterator_range<const_symbol_iterator>;
 
   /// \brief Iterator over symbols (\ref Symbol).
   using symbol_addr_iterator =
-      boost::indirect_iterator<SymbolSet::nth_index<2>::type::iterator>;
+      boost::indirect_iterator<SymbolSet::index<by_address>::type::iterator>;
   /// \brief Range of symbols (\ref Symbol).
   using symbol_addr_range = boost::iterator_range<symbol_addr_iterator>;
   /// \brief Constant iterator over symbols (\ref Symbol).
   using const_symbol_addr_iterator =
-      boost::indirect_iterator<SymbolSet::nth_index<2>::type::const_iterator>;
+      boost::indirect_iterator<SymbolSet::index<by_address>::type::const_iterator>;
   /// \brief Constant range of symbols (\ref Symbol).
   using const_symbol_addr_range =
       boost::iterator_range<const_symbol_addr_iterator>;
 
   /// \brief Return an iterator to the first Symbol.
   symbol_iterator symbol_begin() {
-    return symbol_iterator(Symbols.get<1>().begin());
+    return symbol_iterator(Symbols.get<by_name>().begin());
   }
   /// \brief Return a constant iterator to the first Symbol.
   const_symbol_iterator symbol_begin() const {
-    return const_symbol_iterator(Symbols.get<1>().begin());
+    return const_symbol_iterator(Symbols.get<by_name>().begin());
   }
   /// \brief Return an iterator to the element following the last Symbol.
   symbol_iterator symbol_end() {
-    return symbol_iterator(Symbols.get<1>().end());
+    return symbol_iterator(Symbols.get<by_name>().end());
   }
   /// \brief Return a constant iterator to the element following the last
   /// Symbol.
   const_symbol_iterator symbol_end() const {
-    return const_symbol_iterator(Symbols.get<1>().end());
+    return const_symbol_iterator(Symbols.get<by_name>().end());
   }
   /// \brief Return a range of the symbols (\ref Symbol).
   symbol_range symbols() {
@@ -322,7 +327,7 @@ public:
   /// \return A possibly empty range of all the symbols with the
   /// given name.
   symbol_range findSymbols(const std::string& N) {
-    auto Found = Symbols.get<1>().equal_range(N);
+    auto Found = Symbols.get<by_name>().equal_range(N);
     return boost::make_iterator_range(symbol_iterator(Found.first),
                                       symbol_iterator(Found.second));
   }
@@ -334,7 +339,7 @@ public:
   /// \return A possibly empty constant range of all the symbols with the
   /// given name.
   const_symbol_range findSymbols(const std::string& N) const {
-    auto Found = Symbols.get<1>().equal_range(N);
+    auto Found = Symbols.get<by_name>().equal_range(N);
     return boost::make_iterator_range(const_symbol_iterator(Found.first),
                                       const_symbol_iterator(Found.second));
   }
@@ -346,7 +351,7 @@ public:
   /// \return A possibly empty range of all the symbols containing the given
   /// address.
   symbol_addr_range findSymbols(Addr X) {
-    auto Found = Symbols.get<2>().equal_range(X);
+    auto Found = Symbols.get<by_address>().equal_range(X);
     return boost::make_iterator_range(symbol_addr_iterator(Found.first),
                                       symbol_addr_iterator(Found.second));
   }
@@ -358,7 +363,7 @@ public:
   /// \return A possibly empty constant range of all the symbols containing the
   /// given address.
   const_symbol_addr_range findSymbols(Addr X) const {
-    auto Found = Symbols.get<2>().equal_range(X);
+    auto Found = Symbols.get<by_address>().equal_range(X);
     return boost::make_iterator_range(const_symbol_addr_iterator(Found.first),
                                       const_symbol_addr_iterator(Found.second));
   }
@@ -372,8 +377,8 @@ public:
   /// address range. Searches the range [Lower, Upper).
   symbol_addr_range findSymbols(Addr Lower, Addr Upper) {
     return boost::make_iterator_range(
-        symbol_addr_iterator(Symbols.get<2>().lower_bound(Lower)),
-        symbol_addr_iterator(Symbols.get<2>().lower_bound(Upper)));
+        symbol_addr_iterator(Symbols.get<by_address>().lower_bound(Lower)),
+        symbol_addr_iterator(Symbols.get<by_address>().lower_bound(Upper)));
   }
 
   /// \brief Find symbols by a range of addresses.
@@ -385,8 +390,8 @@ public:
   /// given address range. Searches the range [Lower, Upper).
   const_symbol_addr_range findSymbols(Addr Lower, Addr Upper) const {
     return boost::make_iterator_range(
-        const_symbol_addr_iterator(Symbols.get<2>().lower_bound(Lower)),
-        const_symbol_addr_iterator(Symbols.get<2>().lower_bound(Upper)));
+        const_symbol_addr_iterator(Symbols.get<by_address>().lower_bound(Lower)),
+        const_symbol_addr_iterator(Symbols.get<by_address>().lower_bound(Upper)));
   }
   /// @}
   // (end group of symbol-related type aliases and functions)
