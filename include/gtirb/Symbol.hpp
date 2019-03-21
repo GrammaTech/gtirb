@@ -286,7 +286,7 @@ public:
             return std::optional<Addr>{};
           } else {
             static_assert(
-                // assert condition must depend on T, but will always be false
+                // Assert condition must depend on T, but will always be false.
                 std::bool_constant<!std::is_same_v<T, T>>::value,
                 "unsupported symbol payload type");
           }
