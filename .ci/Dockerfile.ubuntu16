@@ -11,9 +11,11 @@ RUN apt-get -y install gcc-7 g++-7 make git
 RUN apt-get -y install build-essential binutils 
 RUN apt-get -y install doxygen graphviz wget curl unzip
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
-    add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main' && \
+    add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \
     apt-get -y update && \
-    apt-get -y install clang
+    apt-get -y install clang-8 && \
+    update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 60 \
+                        --slave /usr/bin/clang++ clang++ /usr/bin/clang++-8
 
 # Install CMake
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
