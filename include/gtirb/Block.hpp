@@ -39,29 +39,18 @@ namespace gtirb {
 /// \see \ref CFG_GROUP
 class GTIRB_EXPORT_API Block : public Node {
 public:
-  /// \enum Exit
-  /// \brief Indicates how control flow exits a block.
-  enum class Exit : uint8_t {
-    Fallthrough = proto::Fallthrough,
-    Branch = proto::Branch,
-    Call = proto::Call,
-    Return = proto::Return
-  };
-
   /// \brief Create a Block object.
   ///
   /// \param Vertex   The CFG vertex corresponding to this node.
   /// \param C          The Context in which this Block will be held.
   /// \param Address    The address where the Block is located.
   /// \param Size       The size of the Block in bytes.
-  /// \param ExitKind   Indicates how control flow exits the block.
   /// \param DecodeMode The decode mode of the Block.
   ///
   /// \return The newly created Block.
   static Block* Create(Context& C, CFG::vertex_descriptor Vertex, Addr Address,
-                       uint64_t Size, Exit ExitKind = Exit::Fallthrough,
-                       uint64_t DecodeMode = 0) {
-    return C.Create<Block>(C, Address, Size, Vertex, ExitKind, DecodeMode);
+                       uint64_t Size, uint64_t DecodeMode = 0) {
+    return C.Create<Block>(C, Address, Size, Vertex, DecodeMode);
   }
 
   /// \brief Get the address from a \ref Block.
@@ -91,11 +80,6 @@ public:
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
-  /// \brief Get the exit kind from a \ref Block.
-  ///
-  /// \return The exit kind.
-  Exit getExitKind() const { return ExitKind; }
-
   /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::Block;
 
@@ -112,16 +96,15 @@ public:
 
 private:
   Block(Context& C) : Node(C, Kind::Block) {}
-  Block(Context& C, Addr Addr, uint64_t S, CFG::vertex_descriptor V, Exit E,
+  Block(Context& C, Addr Addr, uint64_t S, CFG::vertex_descriptor V,
         uint64_t Decode)
       : Node(C, Kind::Block), Address(Addr), Size(S), Vertex(V),
-        DecodeMode(Decode), ExitKind(E) {}
+        DecodeMode(Decode) {}
 
   Addr Address;
   uint64_t Size{0};
   CFG::vertex_descriptor Vertex;
   uint64_t DecodeMode{0};
-  Exit ExitKind{Exit::Fallthrough};
 
   friend class Context;
 };

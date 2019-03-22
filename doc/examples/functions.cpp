@@ -54,9 +54,7 @@ int main(int argc, char** argv) {
     int CallCount = 0;
     for (auto It = BlocksByAddr.find(Address); It != End && It->first < EndAddr;
          It++) {
-      if (It->second->getExitKind() == Block::Exit::Call) {
-        CallCount++;
-      }
+      // FIXME: implement in terms of edge labels once those are available
     }
     std::cout << ", contains " << CallCount << " calls\n";
   }

@@ -69,7 +69,7 @@ void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
                 [&Result, &C](const auto& M) {
                   auto* B =
                       emplaceBlock(Result, C, Addr(M.address()), M.size(),
-                                   Block::Exit(M.exit_kind()), M.decode_mode());
+                                   M.decode_mode());
                   setNodeUUIDFromBytes(B, M.uuid());
                 });
   std::for_each(Message.edges().begin(), Message.edges().end(),

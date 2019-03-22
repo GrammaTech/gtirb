@@ -126,12 +126,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
   {
     Context InnerCtx;
     CFG Original;
-    auto B1 =
-        emplaceBlock(Original, InnerCtx, Addr(1), 2, Block::Exit::Branch, 3);
-    auto B2 =
-        emplaceBlock(Original, InnerCtx, Addr(4), 5, Block::Exit::Call, 6);
-    auto B3 =
-        emplaceBlock(Original, InnerCtx, Addr(7), 8, Block::Exit::Return, 9);
+    auto B1 = emplaceBlock(Original, InnerCtx, Addr(1), 2, 3);
+    auto B2 = emplaceBlock(Original, InnerCtx, Addr(4), 5, 6);
+    auto B3 = emplaceBlock(Original, InnerCtx, Addr(7), 8, 9);
 
     auto E1 = addEdge(B1, B3, Original);
     auto E2 = addEdge(B2, B3, Original);
@@ -153,19 +150,16 @@ TEST(Unit_CFG, protobufRoundTrip) {
   EXPECT_EQ(It->getAddress(), Addr(1));
   EXPECT_EQ(It->getSize(), 2);
   EXPECT_EQ(It->getDecodeMode(), 3);
-  EXPECT_EQ(It->getExitKind(), Block::Exit::Branch);
   ++It;
   EXPECT_EQ(It->getUUID(), Id2);
   EXPECT_EQ(It->getAddress(), Addr(4));
   EXPECT_EQ(It->getSize(), 5);
   EXPECT_EQ(It->getDecodeMode(), 6);
-  EXPECT_EQ(It->getExitKind(), Block::Exit::Call);
   ++It;
   EXPECT_EQ(It->getUUID(), Id3);
   EXPECT_EQ(It->getAddress(), Addr(7));
   EXPECT_EQ(It->getSize(), 8);
   EXPECT_EQ(It->getDecodeMode(), 9);
-  EXPECT_EQ(It->getExitKind(), Block::Exit::Return);
 
   // Check edges
   EXPECT_TRUE(edge(vertex(0, Result), vertex(2, Result), Result).second);
