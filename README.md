@@ -288,6 +288,16 @@ assert(referent->getAddress() == Addr(2614));
 assert(referent->getSize() == 2);
 ```
 
+Alternatively, DataObjects can be looked up by an address contained
+within the object. Any number of objects may overlap and contain an
+address, so be prepared to deal with multiple results.
+
+```c++
+auto objs = module.findData(Addr(2610));
+assert(objs.size() == 1);
+assert(objs.begin()->getAddress() == Addr(2608));
+```
+
 The CFG uses
 [boost::graph](https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/).
 GTIRB also provides a convenience function for iterating over blocks:
