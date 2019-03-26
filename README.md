@@ -19,27 +19,28 @@ The remainder of this file describes various aspects of GTIRB:
 
 GTIRB has the following structure:
 
-       --------Aux Data
-      /    /
-    IR    /   -----Data
+        -------Aux Data
+       /    /
+      /    /   ----DataObject
+    IR    /   /----Section
       \  /   /-----Symbols
       Modules------SymbolicExpressions
              \-----ImageByteMap
-              -----ICFG
-                   /  \
-               Edges  Blocks
+              -----CFG
+                   / \
+               Edges Blocks
 
 
 ### IR
 
 An instance of GTIRB may include multiple modules (`Module`) which
 represent loadable objects such as executables or libraries.  Each
-module holds information such as symbols (`Symbol`), data (`Data`),
-and an inter-procedural control flow graph (`ICFG`).  The ICFG
+module holds information such as symbols (`Symbol`), data (`DataObject`),
+and an inter-procedural control flow graph (`CFG`).  The CFG
 consists of basic blocks (`Block`) and control flow edges between
-these blocks.  Each datum and each block holds both a pointer to a
-range of bytes in the `ImageByteMap` and symbolic (`Symbol`)
-information covering this range.
+these blocks.  Each datum and each block holds a range refering to the
+bytes in the `ImageByteMap`. Each symbol holds a pointer to the block
+or datum it references.
 
 
 ### Instructions
@@ -195,24 +196,24 @@ byteMap.setData(Addr(2608), bytes);
 ```
 
 Symbols associate a name with an object in the `IR`, such as a
-`DataObject` or `Block`. They can optionally store an address as well.
+`DataObject` or `Block`. They can optionally store an address instead.
 
 ```c++
 auto data = module.data();
 module.addSymbol(Symbol::Create(C,
-                                Addr(2608), // address
-                                "data1",    // name
                                 data1,      // referent
+                                "data1",    // name
                                 Symbol::StorageKind::Extern));
-module.addSymbol(Symbol::Create(C, Addr(2614), "data2", data2,
+module.addSymbol(Symbol::Create(C, data2, "data2",
                                 Symbol::StorageKind::Extern));
 ```
 
-GTIRB can store multiple symbols with the same address.
+GTIRB can store multiple symbols with the same address or referent.
 
 ```c++
-module.addSymbol(Symbol::Create(C, Addr(2614), "duplicate", data2,
+module.addSymbol(Symbol::Create(C, data2, "duplicate",
                                 Symbol::StorageKind::Local));
+module.addSymbol(Symbol::Create(C, Addr(2608), "alias"))
 ```
 
 
