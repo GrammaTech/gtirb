@@ -12,6 +12,7 @@ compile_commands.json
 CTestTestfile.cmake
 
 build/
+build-doc/
 bin/
 doc/html/
 googletest-download/
