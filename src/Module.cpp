@@ -43,8 +43,12 @@ void Module::toProtobuf(MessageType* Message) const {
   Message->set_name(this->Name);
   this->ImageBytes->toProtobuf(Message->mutable_image_byte_map());
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
-  containerToProtobuf(this->Data, Message->mutable_data());
-  containerToProtobuf(this->Sections, Message->mutable_sections());
+  Message->clear_data();
+  for (const auto& Obj : this->data())
+    Obj.toProtobuf(Message->add_data());
+  Message->clear_sections();
+  for (const auto& Sec : this->sections())
+    Sec.toProtobuf(Message->add_sections());
   containerToProtobuf(this->Symbols, Message->mutable_symbols());
   containerToProtobuf(this->SymbolicOperands,
                       Message->mutable_symbolic_operands());
@@ -75,8 +79,10 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   M->Name = Message.name();
   M->ImageBytes = ImageByteMap::fromProtobuf(C, Message.image_byte_map());
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
-  nodeMapFromProtobuf(C, M->Data, Message.data());
-  nodeMapFromProtobuf(C, M->Sections, Message.sections());
+  for (const auto& Elt : Message.data())
+    M->addData(DataObject::fromProtobuf(C, Elt));
+  for (const auto& Elt : Message.sections())
+    M->addSection(Section::fromProtobuf(C, Elt));
   containerFromProtobuf(C, M->Symbols, Message.symbols());
   // Create SymbolicExpressions after the Symbols they reference.
   containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
