@@ -155,10 +155,37 @@ TEST(Unit_Module, dataObjects) {
 
 TEST(Unit_Module, findData) {
   auto* M = Module::Create(Ctx);
-  M->addData(DataObject::Create(Ctx, Addr(1), 123));
+  auto* D1 = DataObject::Create(Ctx, Addr(1), 20);
+  auto* D2 = DataObject::Create(Ctx, Addr(5), 10);
+  M->addData(D1);
+  M->addData(D2);
 
-  EXPECT_EQ(M->findData(Addr(1))->getAddress(), Addr(1));
-  EXPECT_EQ(M->findData(Addr(2)), M->data_end());
+  {
+    auto F = M->findData(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), D1);
+
+    F = M->findData(Addr(5));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), D1);
+    EXPECT_EQ(&*(++F.begin()), D2);
+
+    F = M->findData(Addr(14));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), D1);
+    EXPECT_EQ(&*(++F.begin()), D2);
+
+    F = M->findData(Addr(15));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), D1);
+
+    F = M->findData(Addr(20));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), D1);
+
+    F = M->findData(Addr(21));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
 }
 
 TEST(Unit_Module, findSymbols) {

@@ -26,6 +26,7 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
 #include <algorithm>
+#include <boost/icl/interval_map.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/transform_iterator.hpp>
@@ -132,7 +133,8 @@ class GTIRB_EXPORT_API Module : public Node {
               BOOST_MULTI_INDEX_MEMBER(SymbolicExpressionElement,
                                        SymbolicExpression, second),
               std::hash<SymbolicExpression>>>>;
-  using DataSet = std::map<Addr, DataObject*>;
+  using DataSet = std::set<DataObject*>;
+  using DataIntMap = boost::icl::interval_map<Addr, DataSet>;
   using SectionSet = std::map<Addr, Section*>;
 
   Module(Context& C);
@@ -425,15 +427,12 @@ public:
   /// @{
 
   /// \brief Iterator over data objects (\ref DataObject).
-  using data_object_iterator =
-      boost::transform_iterator<SymSetTransform<DataSet::iterator>,
-                                DataSet::iterator, DataObject&>;
+  using data_object_iterator = boost::indirect_iterator<DataSet::iterator>;
   /// \brief Range of data objects (\ref DataObject).
   using data_object_range = boost::iterator_range<data_object_iterator>;
   /// \brief Constant iterator over data objects (\ref DataObject).
   using const_data_object_iterator =
-      boost::transform_iterator<SymSetTransform<DataSet::const_iterator>,
-                                DataSet::const_iterator, const DataObject&>;
+      boost::indirect_iterator<DataSet::const_iterator>;
   /// \brief Constant range of data objects (\ref DataObject).
   using const_data_object_range =
       boost::iterator_range<const_data_object_iterator>;
@@ -476,7 +475,10 @@ public:
   /// \return void
   void addData(std::initializer_list<DataObject*> Ds) {
     for (auto* D : Ds)
-      Data.emplace(D->getAddress(), D);
+      if (Data.emplace(D).second)
+        DataAddrs.add(std::make_pair(DataIntMap::interval_type::right_open(
+                                         D->getAddress(), addressLimit(*D)),
+                                     DataSet{D}));
   }
 
   /// \brief Find a DataObject by address.
@@ -484,8 +486,13 @@ public:
   /// \param X The address to look up.
   ///
   /// \return An iterator to the found object, or \ref data_end() if not found.
-  data_object_iterator findData(Addr X) {
-    return data_object_iterator(Data.find(X));
+  data_object_range findData(Addr X) {
+    auto it = DataAddrs.find(X);
+    if (it == DataAddrs.end())
+      return boost::make_iterator_range(data_object_iterator(),
+                                        data_object_iterator());
+    return boost::make_iterator_range(data_object_iterator(it->second.begin()),
+                                      data_object_iterator(it->second.end()));
   }
 
   /// \brief Find a DataObject by address.
@@ -493,8 +500,13 @@ public:
   /// \param X The address to look up.
   ///
   /// \return An iterator to the found object, or \ref data_end() if not found.
-  const_data_object_iterator findData(Addr X) const {
-    return const_data_object_iterator(Data.find(X));
+  const_data_object_range findData(Addr X) const {
+    auto it = DataAddrs.find(X);
+    if (it == DataAddrs.end())
+      return boost::make_iterator_range(data_object_iterator(),
+                                        data_object_iterator());
+    return boost::make_iterator_range(data_object_iterator(it->second.cbegin()),
+                                      data_object_iterator(it->second.cend()));
   }
   /// @}
   // (end group of DataObject-related types and functions)
@@ -770,6 +782,7 @@ private:
   std::string Name{};
   CFG Cfg;
   DataSet Data;
+  DataIntMap DataAddrs;
   ImageByteMap* ImageBytes;
   SectionSet Sections;
   SymbolSet Symbols;
