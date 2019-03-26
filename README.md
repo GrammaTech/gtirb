@@ -19,10 +19,10 @@ The remainder of this file describes various aspects of GTIRB:
 
 GTIRB has the following structure:
 
-      Aux Data
-      /
-    IR        -----Data---Bytes
-      \      /-----Symbols
+       --------Aux Data
+      /    /
+    IR    /   -----Data
+      \  /   /-----Symbols
       Modules------SymbolicExpressions
              \-----ImageByteMap
               -----ICFG
