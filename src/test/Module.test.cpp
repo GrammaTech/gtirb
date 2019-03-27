@@ -161,7 +161,10 @@ TEST(Unit_Module, findData) {
   M->addData(D2);
 
   {
-    auto F = M->findData(Addr(1));
+    auto F = M->findData(Addr(0));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+
+    F = M->findData(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D1);
 
