@@ -16,7 +16,7 @@ PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
 target_compile_definitions(proto PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
-include_directories(SYSTEM "${Protobuf_INCLUDE_DIRS}")
+include_directories(SYSTEM "${PROTOBUF_INCLUDE_DIRS}")
 
 add_custom_command(TARGET proto POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_BINARY_DIR}/include/proto")

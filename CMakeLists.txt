@@ -243,6 +243,16 @@ endif()
 # ---------------------------------------------------------------------------
 find_package(Protobuf QUIET)
 
+# Internal function: find threads library
+function(_protobuf_find_threads)
+     set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+     find_package(Threads)
+     if(Threads_FOUND)
+         list(APPEND PROTOBUF_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+	 set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARIES}" PARENT_SCOPE)
+     endif()
+endfunction()
+  
 if(NOT ${Protobuf_FOUND})
         if(WIN32)
                 set(MSG_PROTOBUF_INSTALL
@@ -250,24 +260,71 @@ if(NOT ${Protobuf_FOUND})
             "       vcpkg.exe install --triplet x86-windows protobuf \n"
             "   or\n"
             "       vcpkg.exe install --triplet x64-windows protobuf \n\n" )
+          
+                message(ERROR
+                  " No protobuf (Google Protocol Buffers) installation found.\n"
+                  ${MSG_PROTOBUF_INSTALL}
+                  " - If protobuf is installed, make sure the installation location is in your PATH.\n")
+                message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
         else()
-                set(MSG_PROTOBUF_INSTALL
-            " - If protobuf is not installed, install it now from\n"
-            "       https://github.com/protocolbuffers/protobuf\n\n" )
-        endif()
+	        # Attempt to configure/build protobuf locally.  
+                configure_file(CMakeLists.protobuf Protobuf/CMakeLists.txt)
+	  
+	 	# Initialize CMake files required to build/install protobuf.
+                execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
+                  RESULT_VARIABLE result
+                  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Protobuf"
+                  )
 
-        message(ERROR
-  " No protobuf (Google Protocol Buffers) installation found.\n"
-  ${MSG_PROTOBUF_INSTALL}
-  " - If protobuf is installed, make sure the installation location is in your PATH.\n")
-        message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
+                if(result)
+                  message(WARNING "CMake step for protobuf failed: ${result}")
+                endif()
+
+		# configure, build and install protbuf locally.
+                execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+                  RESULT_VARIABLE result
+                  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Protobuf"
+                  )
+                
+                if(result)
+                  message(WARNING "Build step for protobuf failed: ${result}")
+                endif()
+	
+
+		set(PROTOBUF_INSTALL_DIR "${CMAKE_BINARY_DIR}/protobuf-src")
+		set(PROTOBUF_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/protobuf-src/include") 
+
+		# Mimic find_package(protobuf)
+ 		find_library(PROTOBUF_LIBRARY NAMES protobuf
+		  HINTS
+		  ${PROTOBUF_INSTALL_DIR}/lib
+		  )
+
+		# PROTOBUF_GENERATE_CPP in src/proto/CMakeLists.txt
+                #  needs the correct location of the `protoc` binary.
+		find_program(Protobuf_PROTOC_EXECUTABLE NAMES protoc
+		  HINTS
+		  ${PROTOBUF_INSTALL_DIR}/bin
+		  )
+		add_executable(protobuf::protoc IMPORTED)
+
+		if(EXISTS "${Protobuf_PROTOC_EXECUTABLE}")
+		  set_target_properties(protobuf::protoc PROPERTIES
+		    IMPORTED_LOCATION "${Protobuf_PROTOC_EXECUTABLE}")
+		endif()
+
+		# Set PROTOBUF_LIBRARIES
+		unset(PROTOBUF_LIBRARIES CACHE)
+		set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARY}")
+		_protobuf_find_threads()
+        endif()
 endif()
 
-find_package(Protobuf REQUIRED)
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)
 endif()
 include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
+
 
 # ---------------------------------------------------------------------------
 # gtirb sources
