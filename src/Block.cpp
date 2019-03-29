@@ -26,8 +26,11 @@ void Block::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-// Note: in order to handle vertex descriptors correctly, Block
-// deserialization is done by CFG::fromProtobuf.
+Block* Block::fromProtobuf(Context& C, const proto::Block& M) {
+  Block* B = Block::Create(C, Addr(M.address()), M.size(), M.decode_mode());
+  setNodeUUIDFromBytes(B, M.uuid());
+  return B;
+}
 
 void InstructionRef::toProtobuf(MessageType* Message) const {
   uuidToBytes(this->BlockId, *Message->mutable_block_id());

@@ -26,7 +26,7 @@ public:
   using Vertex = CFG::vertex_descriptor;
 
   PrintPathsVisitor(const CFG& G, const Block& B)
-      : Graph(G), Target(B.getVertex()) {}
+      : Graph(G), Target(*getVertex(&B, G)) {}
 
   void visit(Vertex V) {
     // Mark as visited to avoid cycles
@@ -81,25 +81,19 @@ int main(int argc, char** argv) {
   Addr Target(std::stoul(argv[3], nullptr, 16));
 
   // Search for the requested blocks in the first module
-  const auto& Cfg = I->begin()->getCFG();
-  auto Blocks = blocks(Cfg);
+  const auto& Mod = *I->begin();
+  const auto& Cfg = Mod.getCFG();
   const Block *SourceBlock, *TargetBlock;
 
-  if (auto SourceIt = std::find_if(
-          Blocks.begin(), Blocks.end(),
-          [Source](const auto& B) { return B.getAddress() == Source; });
-      SourceIt != Blocks.end()) {
-    SourceBlock = &*SourceIt;
+  if (auto Range = Mod.findBlock(Source); !Range.empty()) {
+    SourceBlock = &*Range.begin();
   } else {
     std::cerr << "No block at source address " << Source << "\n";
     exit(1);
   }
 
-  if (auto TargetIt = std::find_if(
-          Blocks.begin(), Blocks.end(),
-          [Target](const auto& B) { return B.getAddress() == Target; });
-      TargetIt != Blocks.end()) {
-    TargetBlock = &*TargetIt;
+  if (auto Range = Mod.findBlock(Target); !Range.empty()) {
+    TargetBlock = &*Range.begin();
   } else {
     std::cerr << "No block at target address " << Target << "\n";
     exit(1);
@@ -108,5 +102,5 @@ int main(int argc, char** argv) {
   std::cout << "Paths from " << SourceBlock->getAddress() << " to "
             << TargetBlock->getAddress() << "\n";
   // Print paths
-  PrintPathsVisitor(Cfg, *TargetBlock).visit(SourceBlock->getVertex());
+  PrintPathsVisitor(Cfg, *TargetBlock).visit(*getVertex(SourceBlock, Cfg));
 }

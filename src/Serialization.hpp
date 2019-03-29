@@ -147,6 +147,12 @@ void containerToProtobuf(const ContainerT& Values, MessageT* Message) {
   });
 }
 
+template <typename IterT, typename MessageT>
+void sequenceToProtobuf(IterT First, IterT Last, MessageT* Message) {
+  while (First != Last)
+    addElement(Message, toProtobuf(deref_if_ptr(*First++)));
+}
+
 // Generic conversion from protobuf for IR classes which implement fromProtobuf;
 template <typename T, typename U>
 T* fromProtobuf(Context& C, const U& Message) {

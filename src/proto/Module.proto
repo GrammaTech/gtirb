@@ -16,6 +16,7 @@ syntax = "proto3";
 package proto;
 
 import "AuxDataContainer.proto";
+import "Block.proto";
 import "CFG.proto";
 import "DataObject.proto";
 import "ImageByteMap.proto";
@@ -55,6 +56,7 @@ message Module {
     ImageByteMap image_byte_map = 8;
     repeated Symbol symbols = 9;
     CFG cfg = 10;
+    repeated Block blocks = 15;
     repeated DataObject data = 11;
     repeated Section sections = 12;
     map<uint64, SymbolicExpression> symbolic_operands = 13;

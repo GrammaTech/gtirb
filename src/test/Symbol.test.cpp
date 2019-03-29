@@ -41,7 +41,7 @@ TEST(Unit_Symbol, setReferent) {
   Symbol* Sym = emplaceSymbol(*Mod, Ctx);
   DataObject* Data = DataObject::Create(Ctx);
   Mod->addData(Data);
-  Block* B = emplaceBlock(Mod->getCFG(), Ctx, Addr(1), 2);
+  Block* B = emplaceBlock(*Mod, Ctx, Addr(1), 2);
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
@@ -116,7 +116,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  Symbol* Sym = Symbol::Create(Ctx, Block::Create(Ctx, 0, Addr(1), 2), "test");
+  Symbol* Sym = Symbol::Create(Ctx, Block::Create(Ctx, Addr(1), 2), "test");
   Symbol* NoRef = Symbol::Create(Ctx, Addr(1), "test2");
 
   struct Visitor {

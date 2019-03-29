@@ -29,6 +29,9 @@ message Edge
 
 message CFG
 {
-    repeated Block blocks = 1;
+    reserved 1;
+    reserved "blocks";
+
+    repeated bytes vertices = 3;
     repeated Edge edges = 2;
 }

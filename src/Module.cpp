@@ -47,16 +47,12 @@ void Module::toProtobuf(MessageType* Message) const {
   Message->set_name(this->Name);
   this->ImageBytes->toProtobuf(Message->mutable_image_byte_map());
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
-  Message->clear_data();
-  for (const auto& Obj : this->data())
-    Obj.toProtobuf(Message->add_data());
-  Message->clear_sections();
-  for (const auto& Sec : this->sections())
-    Sec.toProtobuf(Message->add_sections());
-  containerToProtobuf(this->Symbols, Message->mutable_symbols());
-  containerToProtobuf(this->SymbolicOperands,
-                      Message->mutable_symbolic_operands());
-  AuxDataContainer::toProtobuf(Message->mutable_aux_data_container());
+  sequenceToProtobuf(block_begin(), block_end(), Message->mutable_blocks());
+  sequenceToProtobuf(data_begin(), data_end(), Message->mutable_data());
+  sequenceToProtobuf(section_begin(), section_end(),
+                     Message->mutable_sections());
+  containerToProtobuf(Symbols, Message->mutable_symbols());
+  containerToProtobuf(SymbolicOperands, Message->mutable_symbolic_operands());
 }
 
 // FIXME: improve containerFromProtobuf so it can handle a pair where one
@@ -83,12 +79,14 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   M->IsaID = static_cast<ISAID>(Message.isa_id());
   M->Name = Message.name();
   M->ImageBytes = ImageByteMap::fromProtobuf(C, Message.image_byte_map());
-  gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
+  for (const auto& Elt : Message.blocks())
+    M->addBlock(Block::fromProtobuf(C, Elt));
   for (const auto& Elt : Message.data())
     M->addData(DataObject::fromProtobuf(C, Elt));
   for (const auto& Elt : Message.sections())
     M->addSection(Section::fromProtobuf(C, Elt));
   containerFromProtobuf(C, M->Symbols, Message.symbols());
+  gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   // Create SymbolicExpressions after the Symbols they reference.
   containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
   AuxDataContainer::fromProtobuf(static_cast<AuxDataContainer*>(M), C,

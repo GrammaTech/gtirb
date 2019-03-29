@@ -102,9 +102,24 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
     }
   };
 
-  // Multiset of DataObjects that enforces:
+  // Multiset of Blocks that enforces:
   //  - iteration in order of address followed by size
   //  - uniqueness of contained objects
+  using BlockSet = boost::multi_index::multi_index_container<
+      Block*, boost::multi_index::indexed_by<
+                  boost::multi_index::ordered_non_unique<
+                      boost::multi_index::tag<by_address>,
+                      boost::multi_index::global_fun<
+                          const Block&, std::pair<Addr, uint64_t>,
+                          &addr_size_order<Block>::key>>,
+                  boost::multi_index::hashed_unique<
+                      boost::multi_index::tag<by_pointer>,
+                      boost::multi_index::identity<Block*>>>>;
+  // Interval map to support querying Blocks by a contained address.
+  using BlockIntMap =
+      boost::icl::interval_map<Addr,
+                               std::multiset<Block*, addr_size_order<Block>>>;
+
   using DataSet = boost::multi_index::multi_index_container<
       DataObject*, boost::multi_index::indexed_by<
                        boost::multi_index::ordered_non_unique<
@@ -115,7 +130,6 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                        boost::multi_index::hashed_unique<
                            boost::multi_index::tag<by_pointer>,
                            boost::multi_index::identity<DataObject*>>>>;
-  // Interval map to support querying DataObjects by a contained address.
   using DataIntMap = boost::icl::interval_map<
       Addr, std::multiset<DataObject*, addr_size_order<DataObject>>>;
 
@@ -459,6 +473,114 @@ public:
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
 
+  /// \name Block-Related Public Types and Functions
+  /// @{
+
+  /// \brief Iterator over blocks (\ref Block).
+  ///
+  /// Blocks are returned in address order. If two blocks start at the same
+  /// address, the smaller one is returned first. If two blocks have the same
+  /// address and the same size, their order is not specified.
+  using block_iterator = boost::indirect_iterator<BlockSet::iterator>;
+  /// \brief Range of blocks (\ref Block).
+  ///
+  /// Blocks are returned in address order. If two blocks start at the same
+  /// address, the smaller one is returned first. If two blocks have the same
+  /// address and the same size, their order is not specified.
+  using block_range = boost::iterator_range<block_iterator>;
+  /// \brief Sub-range of blocks overlapping an address (\ref Block).
+  ///
+  /// Blocks are returned in address order. If two blocks start at the same
+  /// address, the smaller one is returned first. If two blocks have the same
+  /// address and the same size, their order is not specified.
+  using block_subrange = boost::iterator_range<
+      boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>;
+  /// \brief Constant iterator over blocks (\ref Block).
+  ///
+  /// Blocks are returned in address order. If two blocks start at the same
+  /// address, the smaller one is returned first. If two blocks have the same
+  /// address and the same size, their order is not specified.
+  using const_block_iterator =
+      boost::indirect_iterator<BlockSet::const_iterator, const Block&>;
+  /// \brief Constant range of blocks (\ref Block).
+  ///
+  /// Blocks are returned in address order. If two blocks start at the same
+  /// address, the smaller one is returned first. If two blocks have the same
+  /// address and the same size, their order is not specified.
+  using const_block_range = boost::iterator_range<const_block_iterator>;
+  /// \brief Constant sub-range of blocks overlapping an address (\ref Block).
+  ///
+  /// Blocks are returned in address order. If two blocks start at the same
+  /// address, the smaller one is returned first. If two blocks have the same
+  /// address and the same size, their order is not specified.
+  using const_block_subrange = boost::iterator_range<boost::indirect_iterator<
+      BlockIntMap::codomain_type::const_iterator, const Block&>>;
+
+  /// \brief Return an iterator to the first Block.
+  block_iterator block_begin() { return block_iterator(Blocks.begin()); }
+  /// \brief Return a constant iterator to the first Block.
+  const_block_iterator block_begin() const {
+    return const_block_iterator(Blocks.begin());
+  }
+  /// \brief Return an iterator to the element following the last Block.
+  block_iterator block_end() { return block_iterator(Blocks.end()); }
+  /// \brief Return a constant iterator to the element following the last Block.
+  const_block_iterator block_end() const {
+    return const_block_iterator(Blocks.end());
+  }
+  /// \brief Return a range of the blocks (\ref Block).
+  block_range blocks() {
+    return boost::make_iterator_range(block_begin(), block_end());
+  }
+  /// \brief Return a constant range of the blocks (\ref Block).
+  const_block_range blocks() const {
+    return boost::make_iterator_range(block_begin(), block_end());
+  }
+
+  /// \brief Add a single block to the module.
+  ///
+  /// \param B  The Block object to add.
+  void addBlock(Block* B) { addBlocks({B}); }
+
+  /// \brief Add one or more blocks to the module.
+  ///
+  /// \param Bs  The list of Block objects to add.
+  void addBlocks(std::initializer_list<Block*> Bs) {
+    for (Block* B : Bs) {
+      if (Blocks.emplace(B).second) {
+        BlockAddrs.add(std::make_pair(BlockIntMap::interval_type::right_open(
+                                          B->getAddress(), addressLimit(*B)),
+                                      BlockIntMap::codomain_type{B}));
+        addVertex(B, Cfg);
+      }
+    }
+  }
+
+  /// \brief Find a Block containing an address.
+  ///
+  /// \param X  The address to look up.
+  ///
+  /// \return The range of Blocks containing the address.
+  block_subrange findBlock(Addr X) {
+    auto it = BlockAddrs.find(X);
+    if (it == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(it->second.begin(), it->second.end());
+  }
+
+  /// \brief Find a Block containing an address.
+  ///
+  /// \param X  The address to look up.
+  ///
+  /// \return The range of Blocks containing the address.
+  const_block_subrange findBlock(Addr X) const {
+    auto it = BlockAddrs.find(X);
+    if (it == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(it->second.begin(), it->second.end());
+  }
+  /// @}
+
   /// \name DataObject-Related Public Types and Functions
   /// @{
 
@@ -547,7 +669,7 @@ public:
   ///
   /// \param X The address to look up.
   ///
-  /// \return An iterator to the found object, or \ref data_end() if not found.
+  /// \return The range of DataObjects containing the address.
   data_object_subrange findData(Addr X) {
     auto it = DataAddrs.find(X);
     if (it == DataAddrs.end())
@@ -559,7 +681,7 @@ public:
   ///
   /// \param X The address to look up.
   ///
-  /// \return An iterator to the found object, or \ref data_end() if not found.
+  /// \return The range of DataObjects containing the address.
   const_data_object_subrange findData(Addr X) const {
     auto it = DataAddrs.find(X);
     if (it == DataAddrs.end())
@@ -697,8 +819,7 @@ public:
   ///
   /// \param X The address to look up.
   ///
-  /// \return An iterator to the found object, or \ref section_end() if not
-  /// found.
+  /// \return The range of Sections containing the address.
   section_subrange findSection(Addr X) {
     auto it = SectionAddrs.find(X);
     if (it == SectionAddrs.end())
@@ -710,8 +831,7 @@ public:
   ///
   /// \param X The address to look up.
   ///
-  /// \return An iterator to the found object, or \ref section_end() if not
-  /// found.
+  /// \return The range of Sections containing the address.
   const_section_subrange findSection(Addr X) const {
     auto it = SectionAddrs.find(X);
     if (it == SectionAddrs.end())
@@ -879,6 +999,8 @@ private:
   gtirb::ISAID IsaID{};
   std::string Name{};
   CFG Cfg;
+  BlockSet Blocks;
+  BlockIntMap BlockAddrs;
   DataSet Data;
   DataIntMap DataAddrs;
   ImageByteMap* ImageBytes;
@@ -928,6 +1050,23 @@ inline bool hasPreferredAddr(const Module& M, Addr X) {
 inline bool containsAddr(const Module& M, Addr X) {
   const std::pair<Addr, Addr>& MinMax = M.getImageByteMap().getAddrMinMax();
   return X >= MinMax.first && X < MinMax.second;
+}
+
+/// \relates Block
+/// \brief Create a new block and add it to the module.
+///
+/// \tparam Ts  Types of forwarded arguments.
+///
+/// \param M     The Module to modify.
+/// \param C     The Context in which the Symbol will be held.
+/// \param Args  Forwarded to Block::Create().
+///
+/// \return A pointer to the newly created Block.
+template <class... Ts>
+Block* emplaceBlock(Module& M, Context& C, Ts&&... Args) {
+  Block* B = Block::Create(C, std::forward<Ts>(Args)...);
+  M.addBlock(B);
+  return B;
 }
 
 /// \relates Symbol

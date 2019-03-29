@@ -21,13 +21,12 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Block, ctor) { EXPECT_NE(Block::Create(Ctx, 0, Addr(), 0), nullptr); }
+TEST(Unit_Block, ctor) { EXPECT_NE(Block::Create(Ctx, Addr(), 0), nullptr); }
 
 TEST(Unit_Block, getters) {
-  Block* B = Block::Create(Ctx, 0, Addr(1), 2, 3);
+  Block* B = Block::Create(Ctx, Addr(1), 2, 3);
   EXPECT_EQ(Addr(1), B->getAddress());
   EXPECT_EQ(uint64_t{2}, B->getSize());
-  EXPECT_EQ(0, B->getVertex());
   EXPECT_EQ(uint64_t{3}, B->getDecodeMode());
 }
 

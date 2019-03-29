@@ -19,9 +19,42 @@
 #include <map>
 
 namespace gtirb {
-CFG::edge_descriptor addEdge(const Block* From, const Block* To, CFG& Cfg) {
-  return add_edge(From->getVertex(), To->getVertex(), Cfg).first;
-} // namespace gtirb
+CFG::vertex_descriptor addVertex(Block* B, CFG& Cfg) {
+  auto& IdTable = Cfg[boost::graph_bundle];
+  auto it = IdTable.find(B);
+  if (it != IdTable.end())
+    return it->second;
+
+  auto Vertex = add_vertex(Cfg);
+  Cfg[Vertex] = B;
+  IdTable[B] = Vertex;
+  return Vertex;
+}
+
+std::optional<CFG::vertex_descriptor> getVertex(const Block* B,
+                                                const CFG& Cfg) {
+  auto& IdTable = Cfg[boost::graph_bundle];
+  auto it = IdTable.find(B);
+  if (it != IdTable.end())
+    return it->second;
+  return std::nullopt;
+}
+
+std::optional<CFG::edge_descriptor> addEdge(const Block* From, const Block* To,
+                                            CFG& Cfg) {
+  const auto& IdTable = Cfg[boost::graph_bundle];
+  auto it = IdTable.find(cast<Node>(From));
+  if (it == IdTable.end())
+    return std::nullopt;
+  auto FromVertex = it->second;
+
+  it = IdTable.find(cast<Node>(To));
+  if (it == IdTable.end())
+    return std::nullopt;
+  auto ToVertex = it->second;
+
+  return add_edge(FromVertex, ToVertex, Cfg).first;
+}
 
 boost::iterator_range<const_block_iterator> blocks(const CFG& Cfg) {
   auto Vs = vertices(Cfg);
@@ -38,7 +71,12 @@ boost::iterator_range<block_iterator> blocks(CFG& Cfg) {
 
 proto::CFG toProtobuf(const CFG& Cfg) {
   proto::CFG Message;
-  containerToProtobuf(blocks(Cfg), Message.mutable_blocks());
+  auto MessageVertices = Message.mutable_vertices();
+  for (const Node& N : blocks(Cfg)) {
+    auto* M = MessageVertices->Add();
+    nodeUUIDToBytes(&N, *M);
+  }
+
   auto MessageEdges = Message.mutable_edges();
   auto EdgeRange = edges(Cfg);
   std::for_each(
@@ -65,13 +103,10 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 }
 
 void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
-  std::for_each(Message.blocks().begin(), Message.blocks().end(),
-                [&Result, &C](const auto& M) {
-                  auto* B =
-                      emplaceBlock(Result, C, Addr(M.address()), M.size(),
-                                   M.decode_mode());
-                  setNodeUUIDFromBytes(B, M.uuid());
-                });
+  for (const auto& M : Message.vertices()) {
+    Block* B = dyn_cast_or_null<Block>(Node::getByUUID(C, uuidFromBytes(M)));
+    addVertex(B, Result);
+  }
   std::for_each(Message.edges().begin(), Message.edges().end(),
                 [&Result, &C](const auto& M) {
                   auto* Source = dyn_cast_or_null<Block>(
@@ -81,15 +116,17 @@ void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
 
                   if (Source && Target) {
                     auto E = addEdge(Source, Target, Result);
-                    switch (M.label_case()) {
-                    case proto::Edge::kBoolean:
-                      Result[E] = M.boolean();
-                      break;
-                    case proto::Edge::kInteger:
-                      Result[E] = M.integer();
-                    case proto::Edge::LABEL_NOT_SET:
-                      // Nothing to do. Default edge label is blank.
-                      break;
+                    if (E) {
+                      switch (M.label_case()) {
+                      case proto::Edge::kBoolean:
+                        Result[*E] = M.boolean();
+                        break;
+                      case proto::Edge::kInteger:
+                        Result[*E] = M.integer();
+                      case proto::Edge::LABEL_NOT_SET:
+                        // Nothing to do. Default edge label is blank.
+                        break;
+                      }
                     }
                   }
                 });

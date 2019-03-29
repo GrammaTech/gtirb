@@ -55,16 +55,38 @@ class Block;
 /// Integer labels are used for indirect branches.
 using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
 
+/// @cond INTERNAL
+
+// Helper for constructing the CFG type. The graph property needs to refer to
+// the graph's vertex_descriptor type. This is accessible via
+// boost::adjacency_list_traits, but requires keeping the template parameters
+// for boost::adjacency_list and boost::adjacency_list_traits in sync. This
+// helper ensures the relevant parameters are the same for both.
+template <class OutEdgeListS = boost::vecS, class VertexListS = boost::vecS,
+          class DirectedS = boost::directedS, class EdgeListS = boost::listS>
+struct CfgBuilder {
+  using vertex_descriptor = typename boost::adjacency_list_traits<
+      OutEdgeListS, VertexListS, DirectedS, EdgeListS>::vertex_descriptor;
+  using type =
+      boost::adjacency_list<OutEdgeListS, VertexListS, DirectedS,
+                            // Vertices are blocks.
+                            Block*,
+                            // Edges have labels.
+                            EdgeLabel,
+                            // The graph keeps track of vertex descriptors for
+                            // each node.
+                            std::unordered_map<const Node*, vertex_descriptor>,
+                            EdgeListS>;
+};
+/// @endcond
+
 /// \ingroup CFG_GROUP
 /// \brief Interprocedural \ref CFG_GROUP "control flow graph", with
 /// vertices of type \ref Block.
-using CFG = boost::adjacency_list<boost::listS, // allow parallel edges
-                                  boost::vecS,  // preserve vertex order
-                                  boost::bidirectionalS, // successor and
-                                                         // predecessor edges
-                                  Block*,                // vertices are blocks
-                                  EdgeLabel>;            // edges have labels
-
+using CFG = CfgBuilder<boost::listS,         // allow parallel edges
+                       boost::vecS,          // preserve vertex order
+                       boost::bidirectionalS // successor and predecessor edges
+                       >::type;
 /// @cond INTERNAL
 template <typename Value, typename Graph>
 class block_iter_base
@@ -108,16 +130,42 @@ using block_iterator = block_iter_base<Block, CFG>;
 using const_block_iterator = block_iter_base<const Block, const CFG>;
 
 /// \ingroup CFG_GROUP
-/// \brief Create a new edge between two blocks.
+/// \brief Add a block to the CFG.
+///
+/// If the graph already contains the block, it is not modified.
+///
+/// \warning This is a relatively low-level interface. For most purposes, prefer
+/// Module::addBlock.
+///
+/// \param B    The block to add.
+/// \param Cfg  The graph to modify.
+///
+/// \return A descriptor which can be used to retrieve the block from the graph.
+GTIRB_EXPORT_API CFG::vertex_descriptor addVertex(Block* B, CFG& Cfg);
+
+/// \ingroup CFG_GROUP
+/// \brief Get the boost::graph vertex descriptor for a Block if it is in the
+/// graph.
+///
+/// \param B    The block to query.
+/// \param Cfg  The graph to query.
+///
+/// \return A descriptor which can be used to retrieve the block from the graph.
+GTIRB_EXPORT_API std::optional<CFG::vertex_descriptor>
+getVertex(const Block* B, const CFG& Cfg);
+
+/// \ingroup CFG_GROUP
+/// \brief Create a new edge between two blocks if they exist in the graph.
 ///
 /// \param Cfg   The graph to modify.
 /// \param From  The source block.
 /// \param To    The target block.
 ///
 /// \return A descriptor which can be used to retrieve the edge from the
-/// graph or assign a label.
-GTIRB_EXPORT_API CFG::edge_descriptor addEdge(const Block* From,
-                                              const Block* To, CFG& Cfg);
+/// graph or assign a label. If either block is not present in the graph,
+/// returns \c std::nullopt instead.
+GTIRB_EXPORT_API std::optional<CFG::edge_descriptor>
+addEdge(const Block* From, const Block* To, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Get a range of the \ref Block elements in the specified graph.

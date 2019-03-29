@@ -30,6 +30,30 @@
 using namespace gtirb;
 
 TEST(Unit_Module, compilationIteratorTypes) {
+  static_assert(std::is_same_v<Module::block_iterator::reference, Block&>);
+  static_assert(
+      std::is_same_v<Module::const_block_iterator::reference, const Block&>);
+  static_assert(
+      std::is_same_v<Module::block_subrange::iterator::reference,
+                     Block&>);
+  static_assert(
+      std::is_same_v<Module::const_block_subrange::iterator::reference,
+                     const Block&>);
+  // Actually calling the constructor and assignment operator tends to produce
+  // more informative error messages than std::is_constructible and
+  // std::is_assignable.
+  {
+    Module::block_iterator it;
+    Module::const_block_iterator cit(it);
+    cit = it;
+  }
+
+  {
+    Module::block_subrange::iterator it;
+    Module::const_block_subrange::iterator cit(it);
+    cit = it;
+  }
+
   static_assert(
       std::is_same_v<Module::data_object_iterator::reference, DataObject&>);
   static_assert(std::is_same_v<Module::const_data_object_iterator::reference,
@@ -40,9 +64,6 @@ TEST(Unit_Module, compilationIteratorTypes) {
   static_assert(
       std::is_same_v<Module::const_data_object_subrange::iterator::reference,
                      const DataObject&>);
-  // Actually calling the constructor and assignment operator tends to produce
-  // more informative error messages than std::is_constructible and
-  // std::is_assignable.
   {
     Module::data_object_iterator it;
     Module::const_data_object_iterator cit(it);
@@ -282,6 +303,79 @@ TEST(Unit_Module, findSection) {
   }
 }
 
+TEST(Unit_Module, blocks) {
+  auto M = Module::Create(Ctx);
+  auto* B = emplaceBlock(*M, Ctx, Addr(1), 10);
+  // Second add should have no effect
+  M->addBlock(B);
+
+  EXPECT_EQ(std::distance(M->block_begin(), M->block_end()), 1);
+  EXPECT_EQ(M->block_begin()->getAddress(), Addr(1));
+
+  auto F = blocks(M->getCFG());
+  EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+  EXPECT_EQ(F.begin()->getAddress(), Addr(1));
+}
+
+TEST(Unit_Module, blockIterationOrder) {
+  auto* M = Module::Create(Ctx);
+  auto* B = emplaceBlock(*M, Ctx, Addr(0), 10);
+  emplaceBlock(*M, Ctx, Addr(0), 5);
+  emplaceBlock(*M, Ctx, Addr(5), 5);
+  emplaceBlock(*M, Ctx, Addr(5), 5); // new object is added
+  M->addBlock(B);                    // ignored
+
+  EXPECT_EQ(std::distance(M->block_begin(), M->block_end()), 4);
+  auto It = M->block_begin();
+  EXPECT_EQ(It->getAddress(), Addr(0));
+  EXPECT_EQ(It->getSize(), 5);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(0));
+  EXPECT_EQ(It->getSize(), 10);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 5);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 5);
+}
+
+TEST(Unit_Module, findBlock) {
+  auto M = Module::Create(Ctx);
+  auto* B1 = emplaceBlock(*M, Ctx, Addr(1), 20);
+  auto* B2 = emplaceBlock(*M, Ctx, Addr(5), 10);
+
+  {
+    auto F = M->findBlock(Addr(0));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+
+    F = M->findBlock(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), B1);
+
+    F = M->findBlock(Addr(5));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), B1);
+    EXPECT_EQ(&*++F.begin(), B2);
+
+    F = M->findBlock(Addr(14));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(&*F.begin(), B1);
+    EXPECT_EQ(&*++F.begin(), B2);
+
+    F = M->findBlock(Addr(15));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), B1);
+
+    F = M->findBlock(Addr(20));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), B1);
+
+    F = M->findBlock(Addr(21));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
+}
+
 TEST(Unit_Module, dataObjects) {
   auto* M = Module::Create(Ctx);
   M->addData(DataObject::Create(Ctx, Addr(1), 123));
@@ -475,11 +569,11 @@ TEST(Unit_Module, renameSymbol) {
 
 TEST(Unit_Module, setReferent) {
   auto* M = Module::Create(Ctx);
-  auto* B1 = emplaceBlock(M->getCFG(), Ctx, Addr(1), 1);
-  auto* B2 = emplaceBlock(M->getCFG(), Ctx, Addr(2), 1);
-  auto* B3 = emplaceBlock(M->getCFG(), Ctx, Addr(3), 1);
-  auto* B4 = emplaceBlock(M->getCFG(), Ctx, Addr(4), 1);
-  auto* B5 = emplaceBlock(M->getCFG(), Ctx, Addr(5), 1);
+  auto* B1 = emplaceBlock(*M, Ctx, Addr(1), 1);
+  auto* B2 = emplaceBlock(*M, Ctx, Addr(2), 1);
+  auto* B3 = emplaceBlock(*M, Ctx, Addr(3), 1);
+  auto* B4 = emplaceBlock(*M, Ctx, Addr(4), 1);
+  auto* B5 = emplaceBlock(*M, Ctx, Addr(5), 1);
   auto* S1 = emplaceSymbol(*M, Ctx, "foo");
   auto* S2 = emplaceSymbol(*M, Ctx, B1, "bar");
   auto* S3 = emplaceSymbol(*M, Ctx, B1, "foo");
@@ -525,7 +619,7 @@ TEST(Unit_Module, setReferent) {
 
 TEST(Unit_Module, setSymbolAddress) {
   auto* M = Module::Create(Ctx);
-  auto* B1 = emplaceBlock(M->getCFG(), Ctx, Addr(1), 1);
+  auto* B1 = emplaceBlock(*M, Ctx, Addr(1), 1);
   auto* S1 = emplaceSymbol(*M, Ctx, "foo");
   auto* S2 = emplaceSymbol(*M, Ctx, B1, "bar");
   auto* S3 = emplaceSymbol(*M, Ctx, B1, "bar");
@@ -673,7 +767,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
-    emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
+    emplaceBlock(*Original, InnerCtx, Addr(1), 2);
     Original->addData(DataObject::Create(InnerCtx));
     Original->addSection(Section::Create(InnerCtx));
     Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
@@ -745,7 +839,7 @@ TEST(Unit_Module, protobufNodePointers) {
     auto* DanglingData = DataObject::Create(InnerCtx);
     Original->addSymbol(Symbol::Create(InnerCtx, DanglingData, "dangling"));
 
-    auto* Code = emplaceBlock(Original->getCFG(), InnerCtx, Addr(1), 2);
+    auto* Code = emplaceBlock(*Original, InnerCtx, Addr(1), 2);
     emplaceSymbol(*Original, InnerCtx, Code, "code");
     Original->addSymbolicExpression(Addr(3), {SymAddrConst{0, DataSym}});
 
