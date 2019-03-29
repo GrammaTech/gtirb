@@ -74,7 +74,7 @@ build-arch-clang:
   stage: build
   variables:
     OS: 'arch'
-    COMPILER: 'clang'
+    COMPILER: 'clang++'
   <<: *build
 
 pages:
