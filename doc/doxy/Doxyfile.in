@@ -785,7 +785,7 @@ WARN_LOGFILE           = doxygen_warnings.txt
 # TOC (otherwise it will be alphabetical)
 
 INPUT   = @CMAKE_CURRENT_SOURCE_DIR@/../../include @CMAKE_CURRENT_SOURCE_DIR@/../dot
-INPUT   += README.md PROTOBUF.md CFG-Edges.md CONTRIBUTING.md 
+INPUT   += README.md FAQ.md PROTOBUF.md CFG-Edges.md AuxData-Tables.md CONTRIBUTING.md 
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

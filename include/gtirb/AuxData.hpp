@@ -67,6 +67,12 @@ class Context;
 /// support for those types. It is preferable to store data using the basic
 /// types whenever possible, in order to maximize interoperability.
 ///
+///
+/// ### 'Sanctioned' AuxData Tables
+///
+/// We specify a small number of standard AuxData table schemate to
+/// support interoperability. For details, see \ref md_AuxData-Tables.
+///
 /// ### Serialization Format
 ///
 /// AuxData is serialized by packing the contents into a byte array, which

@@ -41,6 +41,8 @@ class Block;
 /// \brief Interprocedural control flow graph, with vertices of type
 /// \ref Block.
 ///
+/// See also \ref md_CFG-Edges.
+///
 /// @{ @}
 
 /// \ingroup CFG_GROUP
