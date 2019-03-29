@@ -45,31 +45,42 @@ or datum it references.
 
 ### Instructions
 
-GTIRB explicitly does NOT represent instructions but does provide
-symbolic operand information and access to the bytes.  There are many
-options for representation of single instructions (e.g.,
+GTIRB explicitly does NOT represent instructions or instruction
+semantics but does provide symbolic operand information and access to
+the bytes.  There are many *intermediate language*s (IL)s for
+representation of instruction semantics (e.g.,
 [BAP](https://github.com/BinaryAnalysisPlatform/bap)'s
 [BIL](https://github.com/BinaryAnalysisPlatform/bil/releases/download/v0.1/bil.pdf),
-or [Angr](http://angr.io)'s [Vex](https://github.com/angr/pyvex)).
-Instruction bytes may easily be decoded/encoded using the popular
+[Angr](http://angr.io)'s [Vex](https://github.com/angr/pyvex), or
+[Ghidra](https://www.nsa.gov/resources/everyone/ghidra/)'s P-code).
+GTIRB works with these or any other IL by storing instructions
+generally and efficiently as *raw machine-code bytes* and separately
+storing the symbolic and control flow information.  The popular
 [Capstone](https://www.capstone-engine.org)/[Keystone](https://www.keystone-engine.org)
-disassembler/assembler.
+decoder/encoder provide an excellent option to read and write
+instructions from/to GTIRB's machine-code byte representation without
+committing to any particular semantic IL.  By supporting multiple ILs
+and separate storage of analysis results in auxiliary data tables
+GTIRB enables collaboration between independent binary analysis and
+rewriting teams and tools.
 
 
 ### Auxiliary Data
 
-Additional arbitrary information, e.g. analysis results, may be added
-to GTIRB in the form of `AuxData` objects.  These can store maps and
-vectors of basic GTIRB types in a portable way. This repository will
-describe the anticipated structure for very common types of auxiliary
-data such as function boundary information.
+GTIRB provides for the sharing of additional information,
+e.g. analysis results, in the form of `AuxData` objects.  These can
+store maps and vectors of basic GTIRB types in a portable way. This
+repository will describe the anticipated structure for very common
+types of auxiliary data such as function boundary information, type
+information, or results of common analyses.
 
 
 ### UUIDs
 
 Every element of GTIRB (namely: modules (`Module`), symbols
-(`Symbol`), globals, blocks (`Block`), and instructions
-(`InstructionRef`) has a universally unique identifier (UUID).
+(`Symbol`), blocks (`Block`), and instructions (`InstructionRef`) has
+a universally unique identifier (UUID).  UUIDs allow both first-class
+IR components and AuxData tables to reference elements of the IR.
 
 
 ## Building
