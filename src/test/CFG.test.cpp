@@ -18,10 +18,6 @@
 #include <proto/CFG.pb.h>
 #include <gtest/gtest.h>
 
-//
-#include <boost/uuid/uuid_io.hpp>
-//
-
 using namespace gtirb;
 
 static Context Ctx;

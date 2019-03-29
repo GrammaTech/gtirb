@@ -13,12 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "AuxData.hpp"
-#include "Serialization.hpp"
-#include "gtirb/Context.hpp"
 #include <proto/AuxData.pb.h>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <variant>
 
 namespace gtirb {
 void fromProtobuf(Context&, AuxData& Result, const proto::AuxData& Message) {
