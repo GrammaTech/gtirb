@@ -71,7 +71,7 @@ class Context;
 /// ### 'Sanctioned' AuxData Tables
 ///
 /// We specify a small number of standard AuxData table schemate to
-/// support interoperability. For details, see \ref md_AuxData-Tables.
+/// support interoperability. For details, see \ref md_AuxData.
 ///
 /// ### Serialization Format
 ///

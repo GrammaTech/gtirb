@@ -1,5 +1,5 @@
-Standard AuxData Table Schemata
-==============================
+Standard AuxData Schemata
+=========================
 
 The \ref AUXDATA_GROUP class provides generic storage for
 application-specific data.
@@ -7,9 +7,12 @@ application-specific data.
 We specify a small number of standard gtirb::AuxData schemata to
 support interoperability. These are listed below, in two sets:
 
-- [Sanctioned](#sanctioned-auxdata-tables) Recommended for GTIRB users. Individual schemata are unlikely to change in future, although the set of Sanctioned schemata may grow.
-- [Provisional](#provisional-auxdata-tables) Under consideration for 'sanctioned' status.
+- [Sanctioned](#sanctioned-auxdata-tables) Recommended for GTIRB
+  users. Individual schemata are unlikely to change in future,
+  although the set of Sanctioned schemata may grow.
 
+- [Provisional](#provisional-auxdata-tables) Under consideration for
+  'sanctioned' status.
 
 For example, if you want to store alignment requirements for blocks
 and data objects, you can use an [alignment](#alignment) table.
@@ -35,22 +38,20 @@ ir.getAuxData("alignment")->get<std::map<UUID, uint64_t>>()[b1->getUUID()] = 8;
 ```
 
 
-
 ## Sanctioned AuxData Tables
 
-The following are the sanctioned AuxData table schemata. 
+The following are the sanctioned AuxData table schemata.
 
 
-| Label                            | Type                                                          | 
+| Label                            | Type                                                          |
 |----------------------------------|---------------------------------------------------------------|
 | [`"function-information"`](#function-information)         | ```std::map<std::string,std::pair<std::set<gtirb::UUID>, std::set<gtirb::UUID>>>``` |
 | [`"section-information"`](#section-information)           | FIXME                                       |
 | [`"type-information-on-data"`](#type-information-on-data) | ```std::map<gtirb::UUID,std::string>```     |
-| [`"alignment"`](@alignment)                               | ```std::map<gtirb::UUID, uint64_t>```       |
+| [`"alignment"`](#alignment)                               | ```std::map<gtirb::UUID, uint64_t>```       |
 | [`"comments"`](#comments)                                 | ```std::map<std::pair<gtirb::UUID, uint64_t>, std::string>``` |
 | [`"symbol-forwarding"`](#symbol-forwarding)               | ```std::map<gtirb::Symbol,gtirb::Symbol>``` |
 | [`"padding"`](#padding)                                   | ```std::map<gtirb::Addr, uint64_t>```       |
-
 
 
 ### function-information
@@ -121,7 +122,6 @@ The following are the sanctioned AuxData table schemata.
 | Type   | ``std::map<gtirb::Addr, uint64_t>```           |
 | Key    | An address at which padding has been inserted. |
 | Value  | The length of the padding, in bytes.           |
-
 
 
 ## Provisional AuxData Tables

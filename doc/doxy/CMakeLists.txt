@@ -52,7 +52,7 @@ add_custom_command(OUTPUT ${DOTFILES}
 # ----------------------------------------------------------------------
 
 
-set(MDFILES_IN "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/AuxData-Tables.md" "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/FAQ.md" "${ROOTDIR}/PROTOBUF.md" "${ROOTDIR}/README.md") 
+set(MDFILES_IN "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/AuxData.md" "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/FAQ.md" "${ROOTDIR}/PROTOBUF.md" "${ROOTDIR}/README.md") 
 
 set(MDFILES ${MDFILES_IN})
 move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
