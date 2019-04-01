@@ -14,6 +14,7 @@ PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders
                       ${ProtoFiles})
 
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
+add_dependencies(proto Protobuf)
 target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
 target_compile_definitions(proto PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 include_directories(SYSTEM "${PROTOBUF_INCLUDE_DIRS}")
