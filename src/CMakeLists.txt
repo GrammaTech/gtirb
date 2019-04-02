@@ -88,7 +88,10 @@ endif()
 
 GTIRB_ADD_LIBRARY()
 
-add_dependencies(${PROJECT_NAME} Protobuf)
+if(${PROTOBUF_INTERNAL})
+  add_dependencies(${PROJECT_NAME} Protobuf)
+endif()
+
 target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC

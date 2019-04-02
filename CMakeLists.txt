@@ -241,74 +241,77 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-find_package(Protobuf QUIET)
-
 # Internal function: find threads library
 function(_protobuf_find_threads)
-     set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-     find_package(Threads)
-     if(Threads_FOUND)
-         list(APPEND PROTOBUF_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-	 set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARIES}" PARENT_SCOPE)
-     endif()
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  find_package(Threads)
+  if(Threads_FOUND)
+    list(APPEND PROTOBUF_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+	set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARIES}" PARENT_SCOPE)
+  endif()
 endfunction()
+   
+find_package(Protobuf QUIET)
   
 if(NOT ${Protobuf_FOUND})
-        if(WIN32)
-                set(MSG_PROTOBUF_INSTALL
-            " - If protobuf is not installed, install it now: \n"
-            "       vcpkg.exe install --triplet x86-windows protobuf \n"
-            "   or\n"
-            "       vcpkg.exe install --triplet x64-windows protobuf \n\n" )
-          
-                message(ERROR
-                  " No protobuf (Google Protocol Buffers) installation found.\n"
-                  ${MSG_PROTOBUF_INSTALL}
-                  " - If protobuf is installed, make sure the installation location is in your PATH.\n")
-                message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
-        else()  
-	        #Attempt to configure/build protobuf locally.  
-            configure_file(CMakeLists.protobuf Protobuf/CMakeLists.txt)
+  if(WIN32)
+    set(MSG_PROTOBUF_INSTALL
+      " - If protobuf is not installed, install it now: \n"
+      "       vcpkg.exe install --triplet x86-windows protobuf \n"
+      "   or\n"
+      "       vcpkg.exe install --triplet x64-windows protobuf \n\n" )
+    
+    message(ERROR
+      " No protobuf (Google Protocol Buffers) installation found.\n"
+      ${MSG_PROTOBUF_INSTALL}
+      " - If protobuf is installed, make sure the installation location is in your PATH.\n")
+    message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
+  else()  
+	#Attempt to configure/build protobuf locally.  
+    configure_file(CMakeLists.protobuf Protobuf/CMakeLists.txt)
+    
+	# Initialize CMake files required to build/install protobuf.
+    execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
+      RESULT_VARIABLE result
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Protobuf"
+      )
+    
+    if(result)
+      message(WARNING "CMake step for protobuf failed: ${result}")
+    endif()
+    
+	set(PROTOBUF_INSTALL_DIR "${CMAKE_BINARY_DIR}/protobuf-src")
+	set(PROTOBUF_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/protobuf-src/include") 
+    
+    add_subdirectory("${CMAKE_BINARY_DIR}/Protobuf/"
+      "${PROTOBUF_INSTALL_DIR}"
+      EXCLUDE_FROM_ALL)
+    
+    if(BUILD_SHARED_LIBS)
+      set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.so")
+    else()
+      set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.la")
+    endif()
+    
+	
+	# PROTOBUF_GENERATE_CPP in src/proto/CMakeLists.txt
+    #  needs the correct location of the `protoc` binary.
+    set(Protobuf_PROTOC_EXECUTABLE "${PROTOBUF_INSTALL_DIR}/bin/protoc")
+    add_executable(protobuf::protoc IMPORTED)
+    
+	set_target_properties(protobuf::protoc PROPERTIES
+	  IMPORTED_LOCATION "${Protobuf_PROTOC_EXECUTABLE}")
             
-	 	    # Initialize CMake files required to build/install protobuf.
-            execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
-              RESULT_VARIABLE result
-              WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Protobuf"
-              )
-            
-            if(result)
-              message(WARNING "CMake step for protobuf failed: ${result}")
-            endif()
-
-		    set(PROTOBUF_INSTALL_DIR "${CMAKE_BINARY_DIR}/protobuf-src")
-		    set(PROTOBUF_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/protobuf-src/include") 
-
-            add_subdirectory("${CMAKE_BINARY_DIR}/Protobuf/"
-              "${PROTOBUF_INSTALL_DIR}"
-              EXCLUDE_FROM_ALL)
-
-            if(BUILD_SHARED_LIBS)
-              set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.so")
-            else()
-              set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.la")
-            endif()
-            
-		    
-		    # PROTOBUF_GENERATE_CPP in src/proto/CMakeLists.txt
-            #  needs the correct location of the `protoc` binary.
-            set(Protobuf_PROTOC_EXECUTABLE "${PROTOBUF_INSTALL_DIR}/bin/protoc")
-            add_executable(protobuf::protoc IMPORTED)
-            
-		    set_target_properties(protobuf::protoc PROPERTIES
-		      IMPORTED_LOCATION "${Protobuf_PROTOC_EXECUTABLE}")
-            
-		    # Set PROTOBUF_LIBRARIES
-		    unset(PROTOBUF_LIBRARIES CACHE)
-		    set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARY}")
-		    _protobuf_find_threads()
-
-        endif()
+	# Set PROTOBUF_LIBRARIES
+	unset(PROTOBUF_LIBRARIES CACHE)
+	set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARY}")
+	_protobuf_find_threads()
+    set(PROTOBUF_INTERNAL TRUE)
+  endif()
+else()
+  set(PROTOBUF_INTERNAL FALSE)
 endif()
+
 
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)
