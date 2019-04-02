@@ -43,10 +43,10 @@ TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
   auto* M1 = Module::Create(Ctx, "b");
-  Ir->addModule(M1);
   auto* M2 = Module::Create(Ctx, "a");
-  Ir->addModule(M2);
   auto* M3 = Module::Create(Ctx, "a");
+  Ir->addModule(M1);
+  Ir->addModule(M2);
   Ir->addModule(M3);
 
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);

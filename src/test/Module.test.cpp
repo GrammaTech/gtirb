@@ -29,6 +29,33 @@
 
 using namespace gtirb;
 
+TEST(Unit_Module, compilationIteratorTypes) {
+  static_assert(
+      std::is_same_v<Module::data_object_iterator::reference, DataObject&>);
+  static_assert(std::is_same_v<Module::const_data_object_iterator::reference,
+                               const DataObject&>);
+  static_assert(
+      std::is_same_v<Module::data_object_subrange::iterator::reference,
+                     DataObject&>);
+  static_assert(
+      std::is_same_v<Module::const_data_object_subrange::iterator::reference,
+                     const DataObject&>);
+  // Actually calling the constructor and assignment operator tends to produce
+  // more informative error messages than std::is_constructible and
+  // std::is_assignable.
+  {
+    Module::data_object_iterator it;
+    Module::const_data_object_iterator cit(it);
+    cit = it;
+  }
+
+  {
+    Module::data_object_subrange::iterator it;
+    Module::const_data_object_subrange::iterator cit(it);
+    cit = it;
+  }
+}
+
 static Context Ctx;
 
 TEST(Unit_Module, ctor_0) { EXPECT_NE(Module::Create(Ctx), nullptr); }
@@ -155,6 +182,30 @@ TEST(Unit_Module, dataObjects) {
   auto* M = Module::Create(Ctx);
   M->addData(DataObject::Create(Ctx, Addr(1), 123));
   EXPECT_EQ(M->data_begin()->getAddress(), Addr(1));
+}
+
+TEST(Unit_Module, dataObjectIterationOrder) {
+  auto* M = Module::Create(Ctx);
+  auto* D = DataObject::Create(Ctx, Addr(0), 10);
+  M->addData(D);
+  M->addData(DataObject::Create(Ctx, Addr(0), 5));
+  M->addData(DataObject::Create(Ctx, Addr(5), 5));
+  M->addData(DataObject::Create(Ctx, Addr(5), 5)); // new object is added
+  M->addData(D);                                   // ignored
+
+  EXPECT_EQ(std::distance(M->data_begin(), M->data_end()), 4);
+  auto It = M->data_begin();
+  EXPECT_EQ(It->getAddress(), Addr(0));
+  EXPECT_EQ(It->getSize(), 5);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(0));
+  EXPECT_EQ(It->getSize(), 10);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 5);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 5);
 }
 
 TEST(Unit_Module, findData) {

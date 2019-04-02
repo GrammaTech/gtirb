@@ -90,6 +90,33 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   struct by_name {};
   struct by_pointer {};
 
+  // Helper template for implementing address-based ordering of
+  // multi-containers.
+
+  template <typename T> struct addr_size_order {
+    static std::pair<Addr, uint64_t> key(const T& t) {
+      return std::make_pair(t.getAddress(), t.getSize());
+    }
+    bool operator()(const T* t1, const T* t2) { return key(*t1) < key(*t2); }
+  };
+
+  // Multiset of DataObjects that enforces:
+  //  - iteration in order of address followed by size
+  //  - uniqueness of contained objects
+  using DataSet = boost::multi_index::multi_index_container<
+      DataObject*, boost::multi_index::indexed_by<
+                       boost::multi_index::ordered_non_unique<
+                           boost::multi_index::tag<by_address>,
+                           boost::multi_index::global_fun<
+                               const DataObject&, std::pair<Addr, uint64_t>,
+                               &addr_size_order<DataObject>::key>>,
+                       boost::multi_index::hashed_unique<
+                           boost::multi_index::tag<by_pointer>,
+                           boost::multi_index::identity<DataObject*>>>>;
+  // Interval map to support querying DataObjects by a contained address.
+  using DataIntMap = boost::icl::interval_map<
+      Addr, std::multiset<DataObject*, addr_size_order<DataObject>>>;
+
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*, boost::multi_index::indexed_by<
                    boost::multi_index::hashed_unique<
@@ -138,8 +165,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               BOOST_MULTI_INDEX_MEMBER(SymbolicExpressionElement,
                                        SymbolicExpression, second),
               std::hash<SymbolicExpression>>>>;
-  using DataSet = std::set<DataObject*>;
-  using DataIntMap = boost::icl::interval_map<Addr, DataSet>;
+
   using SectionSet = std::map<Addr, Section*>;
 
   Module(Context& C);
@@ -436,31 +462,57 @@ public:
   /// @{
 
   /// \brief Iterator over data objects (\ref DataObject).
+  ///
+  /// DataObjects are returned in address order. If two DataObjects start at the
+  /// same address, the smaller one is returned first. If two DataObjects have
+  /// the same address and the same size, their order is not specified.
   using data_object_iterator = boost::indirect_iterator<DataSet::iterator>;
   /// \brief Range of data objects (\ref DataObject).
+  ///
+  /// DataObjects are returned in address order. If two DataObjects start at the
+  /// same address, the smaller one is returned first. If two DataObjects have
+  /// the same address and the same size, their order is not specified.
   using data_object_range = boost::iterator_range<data_object_iterator>;
+  /// \brief Sub-range of data objects overlapping an address (\ref DataObject).
+  ///
+  /// DataObjects are returned in address order. If two DataObjects start at the
+  /// same address, the smaller one is returned first. If two DataObjects have
+  /// the same address and the same size, their order is not specified.
+  using data_object_subrange = boost::iterator_range<
+      boost::indirect_iterator<DataIntMap::codomain_type::iterator>>;
   /// \brief Constant iterator over data objects (\ref DataObject).
+  ///
+  /// DataObjects are returned in address order. If two DataObjects start at the
+  /// same address, the smaller one is returned first. If two DataObjects have
+  /// the same address and the same size, their order is not specified.
   using const_data_object_iterator =
-      boost::indirect_iterator<DataSet::const_iterator>;
+      boost::indirect_iterator<DataSet::const_iterator, const DataObject&>;
   /// \brief Constant range of data objects (\ref DataObject).
+  ///
+  /// DataObjects are returned in address order. If two DataObjects start at the
+  /// same address, the smaller one is returned first. If two DataObjects have
+  /// the same address and the same size, their order is not specified.
   using const_data_object_range =
       boost::iterator_range<const_data_object_iterator>;
+  /// \brief Constant sub-range of data objects overlapping an address
+  /// (\ref DataObject).
+  ///
+  /// DataObjects are returned in address order. If two DataObjects start at the
+  /// same address, the smaller one is returned first. If two DataObjects have
+  /// the same address and the same size, their order is not specified.
+  using const_data_object_subrange =
+      boost::iterator_range<boost::indirect_iterator<
+          DataIntMap::codomain_type::const_iterator, const DataObject&>>;
 
   /// \brief Return an iterator to the first DataObject.
-  data_object_iterator data_begin() {
-    return data_object_iterator(Data.begin());
-  }
+  data_object_iterator data_begin() { return Data.begin(); }
   /// \brief Return a constant iterator to the first DataObject.
-  const_data_object_iterator data_begin() const {
-    return const_data_object_iterator(Data.begin());
-  }
+  const_data_object_iterator data_begin() const { return Data.begin(); }
   /// \brief Return an iterator to the element following the last DataObject.
-  data_object_iterator data_end() { return data_object_iterator(Data.end()); }
+  data_object_iterator data_end() { return Data.end(); }
   /// \brief Return a constant iterator to the element following the last
   /// DataObject.
-  const_data_object_iterator data_end() const {
-    return const_data_object_iterator(Data.end());
-  }
+  const_data_object_iterator data_end() const { return Data.end(); }
   /// \brief Return a range of the data objects (\ref DataObject).
   data_object_range data() {
     return boost::make_iterator_range(data_begin(), data_end());
@@ -487,7 +539,7 @@ public:
       if (Data.emplace(D).second)
         DataAddrs.add(std::make_pair(DataIntMap::interval_type::right_open(
                                          D->getAddress(), addressLimit(*D)),
-                                     DataSet{D}));
+                                     DataIntMap::codomain_type{D}));
   }
 
   /// \brief Find a DataObject by address.
@@ -495,13 +547,11 @@ public:
   /// \param X The address to look up.
   ///
   /// \return An iterator to the found object, or \ref data_end() if not found.
-  data_object_range findData(Addr X) {
+  data_object_subrange findData(Addr X) {
     auto it = DataAddrs.find(X);
     if (it == DataAddrs.end())
-      return boost::make_iterator_range(data_object_iterator(),
-                                        data_object_iterator());
-    return boost::make_iterator_range(data_object_iterator(it->second.begin()),
-                                      data_object_iterator(it->second.end()));
+      return {};
+    return boost::make_iterator_range(it->second.begin(), it->second.end());
   }
 
   /// \brief Find a DataObject by address.
@@ -509,13 +559,11 @@ public:
   /// \param X The address to look up.
   ///
   /// \return An iterator to the found object, or \ref data_end() if not found.
-  const_data_object_range findData(Addr X) const {
+  const_data_object_subrange findData(Addr X) const {
     auto it = DataAddrs.find(X);
     if (it == DataAddrs.end())
-      return boost::make_iterator_range(data_object_iterator(),
-                                        data_object_iterator());
-    return boost::make_iterator_range(data_object_iterator(it->second.cbegin()),
-                                      data_object_iterator(it->second.cend()));
+      return {};
+    return boost::make_iterator_range(it->second.cbegin(), it->second.cend());
   }
   /// @}
   // (end group of DataObject-related types and functions)
