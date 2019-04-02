@@ -86,7 +86,7 @@ pages:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-arch.container
     - mkdir -p $(dirname ${CONTAINER_FILE})
-    - docker run --cidfile=${CONTAINER_FILE} ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} /bin/bash -c "mkdir -p doc/html; doxygen Doxyfile; cp -R doc/html /public";
+    - docker run --cidfile=${CONTAINER_FILE} ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} /bin/bash -c "mkdir -p build-doc; cmake doc/doxy/ -Bbuild-doc; cd build-doc; cmake --build . --target doc; cd ../; cp -R build-doc/html /public";
     - docker cp  $(cat ${CONTAINER_FILE}):/public ./;
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
   allow_failure: true
