@@ -6,16 +6,6 @@ RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pac
 RUN pacman --noconfirm -Syu archlinux-keyring
 RUN pacman --noconfirm -Syu base-devel gcc gcc-libs git make cmake doxygen graphviz wget clang
 
-# Install protobuf
-RUN cd /usr/local/src \
-    && wget https://github.com/google/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.tar.gz \
-    && tar xf protobuf-cpp-3.6.0.tar.gz \
-    && cd protobuf-3.6.0 \
-    && ./configure \
-    && make \
-    && make install
-RUN ldconfig
-
 COPY . /gt/gtirb/
 RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
 RUN mkdir -p /gt/gtirb/build

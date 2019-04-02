@@ -18,16 +18,6 @@ RUN apt-get -y install clang libstdc++-8-dev
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
     |tar -xz --strip-components=1 -C /usr/local
 
-# Install protobuf
-RUN cd /usr/local/src \
-    && wget https://github.com/google/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.tar.gz \
-    && tar xf protobuf-cpp-3.6.0.tar.gz \
-    && cd protobuf-3.6.0 \
-    && ./configure \
-    && make \
-    && make install
-RUN ldconfig
-
 # Build GTIRB
 COPY . /gt/gtirb/
 RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
