@@ -27,6 +27,10 @@ using namespace gtirb;
 Module::Module(Context& C)
     : AuxDataContainer(C, Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
 
+Module::Module(Context& C, const std::string& X)
+    : AuxDataContainer(C, Kind::Module), Name(X),
+      ImageBytes(ImageByteMap::Create(C)) {}
+
 gtirb::ImageByteMap& Module::getImageByteMap() { return *this->ImageBytes; }
 
 const gtirb::ImageByteMap& Module::getImageByteMap() const {

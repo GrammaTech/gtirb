@@ -26,8 +26,43 @@
 
 using namespace gtirb;
 
+TEST(Unit_IR, compilationIteratorTypes) {
+  static_assert(std::is_same_v<IR::iterator::reference, Module&>);
+  static_assert(std::is_same_v<IR::const_iterator::reference, const Module&>);
+  // Actually calling the constructor and assignment operator tends to produce
+  // more informative error messages than std::is_constructible and
+  // std::is_assignable.
+  IR::iterator it;
+  IR::const_iterator cit(it);
+  cit = it;
+}
+
 static Context Ctx;
 TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
+
+TEST(Unit_IR, moduleIterationOrder) {
+  auto* Ir = IR::Create(Ctx);
+  auto* M1 = Module::Create(Ctx, "b");
+  Ir->addModule(M1);
+  auto* M2 = Module::Create(Ctx, "a");
+  Ir->addModule(M2);
+  auto* M3 = Module::Create(Ctx, "a");
+  Ir->addModule(M3);
+
+  EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
+  auto It = Ir->begin();
+  EXPECT_EQ(&*It, M2);
+  // Order of M1 and M3 is unspecified.
+  ++It;
+  if (&*It == M1) {
+    ++It;
+    EXPECT_EQ(&*It, M3);
+  } else {
+    EXPECT_EQ(&*It, M3);
+    ++It;
+    EXPECT_EQ(&*It, M1);
+  }
+}
 
 TEST(Unit_IR, getModulesWithPreferredAddr) {
   const Addr PreferredAddr{22678};
@@ -179,4 +214,21 @@ TEST(Unit_IR, move) {
   EXPECT_FALSE(Moved.getAuxDataEmpty());
   EXPECT_EQ(Moved.getAuxDataSize(), 1);
   EXPECT_NE(Moved.getAuxData("test"), nullptr);
+}
+
+TEST(Unit_IR, setModuleName) {
+  IR* Ir = IR::Create(Ctx);
+  Module* M1 = Module::Create(Ctx, "a");
+  Module* M2 = Module::Create(Ctx, "b");
+  Module* M3 = Module::Create(Ctx, "c");
+  Ir->addModule(M1);
+  Ir->addModule(M2);
+  Ir->addModule(M3);
+
+  setModuleName(*Ir, *M2, "d");
+  EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
+  auto It = Ir->begin();
+  EXPECT_EQ(&*It++, M1);
+  EXPECT_EQ(&*It++, M3);
+  EXPECT_EQ(&*It++, M2);
 }

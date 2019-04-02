@@ -46,6 +46,8 @@
 /// \brief Class gtirb::Module and related functions and types.
 
 namespace gtirb {
+class IR;
+
 /// \enum FileFormat
 ///
 /// \brief Identifies an exectuable file format.
@@ -141,6 +143,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   using SectionSet = std::map<Addr, Section*>;
 
   Module(Context& C);
+  Module(Context& C, const std::string& X);
 
   template <typename Iter> struct SymSetTransform {
     using ParamTy = decltype((*std::declval<Iter>()));
@@ -167,6 +170,16 @@ public:
   ///
   /// \return The newly created object.
   static Module* Create(Context& C) { return C.Create<Module>(C); }
+
+  /// \brief Create a named Module object in its default state.
+  ///
+  /// \param C The Context in which this object will be held.
+  /// \param X The name to use.
+  ///
+  /// \return The newly created object.
+  static Module* Create(Context& C, const std::string& X) {
+    return C.Create<Module>(C, X);
+  }
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
@@ -402,13 +415,6 @@ public:
   }
   /// @}
   // (end group of symbol-related type aliases and functions)
-
-  /// \brief Set the module name.
-  ///
-  /// \param X The name to use.
-  ///
-  /// \return void
-  void setName(const std::string& X) { Name = X; }
 
   /// \brief Get the module name.
   ///
@@ -792,6 +798,9 @@ private:
   SymbolicExpressionSet SymbolicOperands;
 
   friend class Context; // Allow Context to construct new Modules.
+
+  // Allow changing the module's name.
+  friend void setModuleName(IR& Ir, Module& M, const std::string& X);
 
   // Allow these methods to update Symbols.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);

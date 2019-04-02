@@ -133,14 +133,6 @@ TEST(Unit_Module, getSymbolSet) {
   EXPECT_EQ(std::distance(M->symbols().begin(), M->symbols().end()), 0);
 }
 
-TEST(Unit_Module, setName) {
-  const std::string Name{"foo"};
-  auto* M = Module::Create(Ctx);
-
-  M->setName(Name);
-  EXPECT_EQ(Name, M->getName());
-}
-
 TEST(Unit_Module, getName) {
   auto* M = Module::Create(Ctx);
   EXPECT_TRUE(M->getName().empty());
@@ -468,13 +460,12 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Module* Original = Module::Create(InnerCtx);
+    Module* Original = Module::Create(InnerCtx, "module");
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
-    Original->setName("module");
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
