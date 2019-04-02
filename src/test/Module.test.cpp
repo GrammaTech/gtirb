@@ -60,7 +60,6 @@ TEST(Unit_Module, auxDataRanges) {
   EXPECT_EQ((++A.begin())->first, "foo");
 }
 
-
 TEST(Unit_Module, setFileFormat) {
   auto* M = Module::Create(Ctx);
 

@@ -145,13 +145,14 @@ public:
   /// \return The deserialized IR object, or null on failure.
   static void fromProtobuf(AuxDataContainer* in, Context& C,
                            const MessageType& Message);
+
 protected:
   /// \cond INTERNAL
   AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {}
-  
+
 private:
   AuxDataSet AuxDatas;
   /// @}
-}; 
+};
 } // namespace gtirb
 #endif // GTIRB_AUXDATACONTAINER_H
