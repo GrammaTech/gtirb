@@ -16,6 +16,7 @@
 #define GTIRB_MODULE_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/Export.hpp>
@@ -82,7 +83,7 @@ enum class ISAID : uint8_t {
 /// \class Module
 ///
 /// \brief Represents a single binary (library or executable).
-class GTIRB_EXPORT_API Module : public Node {
+class GTIRB_EXPORT_API Module : public AuxDataContainer {
   struct by_name {};
   struct by_address {};
 

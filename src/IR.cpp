@@ -14,7 +14,6 @@
 //===----------------------------------------------------------------------===//
 #include "IR.hpp"
 #include "Serialization.hpp"
-#include <gtirb/AuxData.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
@@ -26,50 +25,20 @@
 
 using namespace gtirb;
 
-void IR::addAuxData(const std::string& Name, AuxData&& X) {
-  this->AuxDatas[Name] = std::move(X);
-}
-
-const gtirb::AuxData* IR::getAuxData(const std::string& X) const {
-  auto Found = this->AuxDatas.find(X);
-  if (Found != std::end(this->AuxDatas)) {
-    return &(Found->second);
-  }
-
-  return nullptr;
-}
-
-gtirb::AuxData* IR::getAuxData(const std::string& X) {
-  auto Found = this->AuxDatas.find(X);
-  if (Found != std::end(this->AuxDatas)) {
-    return &(Found->second);
-  }
-
-  return nullptr;
-}
-
-bool IR::removeAuxData(const std::string& X) {
-  const auto Found = this->AuxDatas.find(X);
-
-  if (Found != std::end(this->AuxDatas)) {
-    this->AuxDatas.erase(Found);
-    return true;
-  }
-
-  return false;
-}
-
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   containerToProtobuf(this->Modules, Message->mutable_modules());
-  containerToProtobuf(this->AuxDatas, Message->mutable_aux_data());
+
+  AuxDataContainer::toProtobuf(Message->mutable_aux_data_container());
 }
 
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
   containerFromProtobuf(C, I->Modules, Message.modules());
-  containerFromProtobuf(C, I->AuxDatas, Message.aux_data());
+
+  AuxDataContainer::fromProtobuf(static_cast<AuxDataContainer*>(I), C,
+                                 Message.aux_data_container());
   return I;
 }
 

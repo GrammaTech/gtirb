@@ -25,7 +25,7 @@
 using namespace gtirb;
 
 Module::Module(Context& C)
-    : Node(C, Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
+    : AuxDataContainer(C, Kind::Module), ImageBytes(ImageByteMap::Create(C)) {}
 
 gtirb::ImageByteMap& Module::getImageByteMap() { return *this->ImageBytes; }
 
@@ -52,6 +52,7 @@ void Module::toProtobuf(MessageType* Message) const {
   containerToProtobuf(this->Symbols, Message->mutable_symbols());
   containerToProtobuf(this->SymbolicOperands,
                       Message->mutable_symbolic_operands());
+  AuxDataContainer::toProtobuf(Message->mutable_aux_data_container());
 }
 
 // FIXME: improve containerFromProtobuf so it can handle a pair where one
@@ -86,6 +87,7 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   containerFromProtobuf(C, M->Symbols, Message.symbols());
   // Create SymbolicExpressions after the Symbols they reference.
   containerFromProtobuf(C, M->SymbolicOperands, Message.symbolic_operands());
-
+  AuxDataContainer::fromProtobuf(static_cast<AuxDataContainer*>(M), C,
+                                 Message.aux_data_container());
   return M;
 }

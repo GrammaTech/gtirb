@@ -17,6 +17,7 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/AuxData.hpp>
+#include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
@@ -26,9 +27,7 @@
 #include <vector>
 
 /// \file IR.hpp
-/// \ingroup AUXDATA_GROUP
 /// \brief Class gtirb::IR.
-/// \see AUXDATA_GROUP
 
 namespace proto {
 class IR;
@@ -98,10 +97,8 @@ class Module;
 /// \example datasymbols.java
 /// Open an IR via protobuf and print every symbol pointing to data.
 
-class GTIRB_EXPORT_API IR : public Node {
-  IR(Context& C) : Node(C, Kind::IR) {}
-
-  using AuxDataSet = std::map<std::string, gtirb::AuxData>;
+class GTIRB_EXPORT_API IR : public AuxDataContainer {
+  IR(Context& C) : AuxDataContainer(C, Kind::IR) {}
 
 public:
   /// \brief Explicitly deleted copy constructor. This is required to work
@@ -224,102 +221,11 @@ public:
   /// \return The deserialized IR object, or null on failure.
   static IR* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \name AuxData Properties
-  /// @{
-
-  /// \brief Add a new \ref AuxData, transferring ownership.
-  ///
-  /// \param Name     The name to assign to the data so it can be found later.
-  /// \param X        The data itself.
-  ///
-  /// \return void
-  ///
-  /// \ingroup AUXDATA_GROUP
-  void addAuxData(const std::string& Name, AuxData&& X);
-
-  /// \brief Get an \ref AuxData by name.
-  ///
-  /// \param  X   The name of the data to search for.
-  ///
-  /// \return     A non-owning pointer to the data if found,
-  ///             \c nullptr otherwise.
-  ///
-  /// \ingroup AUXDATA_GROUP
-  const gtirb::AuxData* getAuxData(const std::string& X) const;
-
-  /// \brief Get an \ref AuxData by name.
-  ///
-  /// \param  X   The name of the data to search for.
-  ///
-  /// \return     A non-owning pointer to the data if found,
-  ///             \c nullptr otherwise.
-  ///
-  /// \ingroup AUXDATA_GROUP
-  gtirb::AuxData* getAuxData(const std::string& X);
-
-  /// \brief Remove an \ref AuxData by name.
-  ///
-  /// This will invalidate any pointers that may have been held externally.
-  ///
-  /// \param  X   The name of the data to search for.
-  /// \return     \c true on success, \c false otherwise.
-  ///
-  /// \ingroup AUXDATA_GROUP
-  bool removeAuxData(const std::string& X);
-
-  using aux_data_iterator = AuxDataSet::iterator;
-  using aux_data_range = boost::iterator_range<aux_data_iterator>;
-  using const_aux_data_iterator = AuxDataSet::const_iterator;
-  using const_aux_data_range = boost::iterator_range<const_aux_data_iterator>;
-
-  /// \brief Return an iterator to the first AuxData.
-  aux_data_iterator aux_data_begin() { return AuxDatas.begin(); }
-  /// \brief Return a constant iterator to the first AuxData.
-  const_aux_data_iterator aux_data_begin() const { return AuxDatas.begin(); }
-  /// \brief Return an iterator to the element following the last AuxData.
-  aux_data_iterator aux_data_end() { return AuxDatas.end(); }
-  /// \brief Return a constant iterator to the element following the last
-  /// AuxData.
-  const_aux_data_iterator aux_data_end() const { return AuxDatas.end(); }
-  /// \brief Return a range of the auxiliary data (\ref AuxData).
-  aux_data_range aux_data() {
-    return boost::make_iterator_range(aux_data_begin(), aux_data_end());
-  }
-  /// \brief Return a constant range of the auxiliary data (\ref AuxData).
-  const_aux_data_range aux_data() const {
-    return boost::make_iterator_range(aux_data_begin(), aux_data_end());
-  }
-
-  /// \brief Get the total number of \ref AuxData objects in this IR.
-  ///
-  /// \return     The total number of \ref AuxData objects.
-  ///
-  /// \ingroup AUXDATA_GROUP
-  size_t getAuxDataSize() const { return AuxDatas.size(); }
-
-  /// \brief Check: Is the number of \ref AuxData objects in this IR zero?
-  ///
-  /// \return \c true if this IR does not contain any \ref AuxData, otherwise \c
-  /// false
-  ///
-  /// \ingroup AUXDATA_GROUP
-  bool getAuxDataEmpty() const { return AuxDatas.empty(); }
-
-  /// \brief Clear all \ref AuxData from the IR.
-  ///
-  /// \return void
-  ///
-  /// \ingroup AUXDATA_GROUP
-  void clearAuxData() { AuxDatas.clear(); }
-
-  /// @}
-
   /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::IR; }
   /// \endcond
 
 private:
-  AuxDataSet AuxDatas;
   std::vector<Module*> Modules;
 
   friend class Context;

@@ -1,4 +1,4 @@
-//===- IR.proto -------------------------------------------------*- C++ -*-===//
+//===- AuxDataContainer.proto ---------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -12,15 +12,12 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+
 syntax = "proto3";
 package proto;
 
 import "AuxData.proto";
-import "AuxDataContainer.proto";
-import "Module.proto";
 
-message IR {
-    bytes uuid = 1;
-    AuxDataContainer aux_data_container = 2;
-    repeated Module modules = 3;
+message AuxDataContainer {
+    map<string, AuxData> aux_data = 2;
 }

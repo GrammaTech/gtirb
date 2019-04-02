@@ -48,6 +48,19 @@ TEST(Unit_Module, getFileFormatDefault) {
   EXPECT_EQ(gtirb::FileFormat::Undefined, M->getFileFormat());
 }
 
+TEST(Unit_Module, auxDataRanges) {
+  Module* Ml = Module::Create(Ctx);
+  Ml->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
+  Ml->addAuxData("bar", std::vector<char>{'a', 'b', 'c'});
+
+  auto A = Ml->aux_data();
+  EXPECT_EQ(std::distance(A.begin(), A.end()), 2);
+  // AuxDatas are sorted by range, but this is an implementation detail
+  EXPECT_EQ(A.begin()->first, "bar");
+  EXPECT_EQ((++A.begin())->first, "foo");
+}
+
+
 TEST(Unit_Module, setFileFormat) {
   auto* M = Module::Create(Ctx);
 

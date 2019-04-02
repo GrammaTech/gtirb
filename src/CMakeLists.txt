@@ -36,6 +36,7 @@ include_directories("${CMAKE_BINARY_DIR}/src/")
 set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
@@ -61,6 +62,7 @@ set(${PROJECT_NAME}_H
 
 set(${PROJECT_NAME}_SRC
         AuxData.cpp
+        AuxDataContainer.cpp
         Block.cpp
         ByteMap.cpp
         Context.cpp
