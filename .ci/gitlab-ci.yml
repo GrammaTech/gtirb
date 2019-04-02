@@ -89,6 +89,7 @@ pages:
     - docker run --cidfile=${CONTAINER_FILE} ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} /bin/bash -c "mkdir -p doc/html; doxygen Doxyfile; cp -R doc/html /public";
     - docker cp  $(cat ${CONTAINER_FILE}):/public ./;
     - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
+  allow_failure: true
   artifacts:
     paths:
       - public
