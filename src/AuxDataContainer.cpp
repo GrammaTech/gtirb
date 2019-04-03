@@ -32,7 +32,12 @@ gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) {
 }
 
 const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
-  return getAuxData(X);
+  auto Found = this->AuxDatas.find(X);
+  if (Found != std::end(this->AuxDatas)) {
+    return &(Found->second);
+  }
+
+  return nullptr;
 }
 
 bool AuxDataContainer::removeAuxData(const std::string& X) {
