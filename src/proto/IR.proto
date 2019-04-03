@@ -21,6 +21,6 @@ import "Module.proto";
 
 message IR {
     bytes uuid = 1;
-    AuxDataContainer aux_data_container = 2;
     repeated Module modules = 3;
+    AuxDataContainer aux_data_container = 4;
 }

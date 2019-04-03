@@ -36,7 +36,7 @@ const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
 }
 
 bool AuxDataContainer::removeAuxData(const std::string& X) {
-  return this->AuxDatas.erase(X);
+  return this->AuxDatas.erase(X) > 0;
 }
 
 void AuxDataContainer::toProtobuf(MessageType* Message) const {
