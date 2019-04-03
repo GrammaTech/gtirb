@@ -85,6 +85,13 @@ TEST(Unit_Module, compilationIteratorTypes) {
     Module::const_section_subrange::iterator cit(it);
     cit = it;
   }
+
+  // There are no non-const symbolic_expr_iterators...
+  static_assert(std::is_same_v<Module::const_symbolic_expr_iterator::reference,
+                               const SymbolicExpression&>);
+  static_assert(
+      std::is_same_v<Module::const_symbolic_expr_addr_iterator::reference,
+                     const Addr&>);
 }
 
 static Context Ctx;
@@ -510,6 +517,33 @@ TEST(Unit_Module, symbolicExpressions) {
   Symbol* S = Symbol::Create(Ctx);
   M->addSymbolicExpression(Addr(1), SymAddrConst{0, S});
   EXPECT_EQ(std::distance(M->symbolic_expr_begin(), M->symbolic_expr_end()), 1);
+}
+
+TEST(Unit_Module, symbolicExpressionIterationOrder) {
+  auto* M = Module::Create(Ctx);
+  Symbol* S1 = Symbol::Create(Ctx);
+  Symbol* S2 = Symbol::Create(Ctx);
+  M->addSymbolicExpression(Addr(2), SymAddrAddr{0, 1, S1, S2});
+  M->addSymbolicExpression(Addr(1), SymAddrConst{0, S1});
+  M->addSymbolicExpression(Addr(3), SymAddrConst{0, S1});
+  // Note: This should replace the previous expression at Addr(1).
+  M->addSymbolicExpression(Addr(1), SymStackConst{0, S2});
+
+  {
+    // symbolic_expr_iterator returns in address order
+    auto Rng = M->symbolic_exprs();
+    EXPECT_EQ(std::distance(Rng.begin(), Rng.end()), 3);
+    auto It = M->symbolic_expr_begin();
+    EXPECT_TRUE(std::holds_alternative<SymStackConst>(*It));
+    EXPECT_EQ(std::get<SymStackConst>(*It).Sym, S2);
+    ++It;
+    EXPECT_TRUE(std::holds_alternative<SymAddrAddr>(*It));
+    EXPECT_EQ(std::get<SymAddrAddr>(*It).Sym1, S1);
+    EXPECT_EQ(std::get<SymAddrAddr>(*It).Sym2, S2);
+    ++It;
+    EXPECT_TRUE(std::holds_alternative<SymAddrConst>(*It));
+    EXPECT_EQ(std::get<SymAddrConst>(*It).Sym, S1);
+  }
 }
 
 TEST(Unit_Module, findSymbolicExpressions) {

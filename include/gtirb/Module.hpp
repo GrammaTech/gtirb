@@ -149,35 +149,12 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                            Symbol, std::optional<Addr>, &Symbol::getAddress>>>>;
 
   using SymbolicExpressionElement = std::pair<Addr, SymbolicExpression>;
-
-  // Used when you need a less-than, ordered comparison of two
-  // SymbolicExpressionElement objects. Orders by Addr.
-  struct SymbolicExpressionElementComparator {
-    bool operator()(const SymbolicExpressionElement& LHS,
-                    const SymbolicExpressionElement& RHS) const noexcept {
-      return LHS.first < RHS.first;
-    }
-  };
-
-  // Used when you need a less-than, ordered comparison of an Addr and a
-  // SymbolicExpressionElement, regardless of argument order. Orders by Addr.
-  struct SymbolicExpressionElementAddrComparator {
-    bool operator()(const SymbolicExpressionElement& LHS, Addr RHS) const
-        noexcept {
-      return LHS.first < RHS;
-    }
-    bool operator()(Addr LHS, const SymbolicExpressionElement& RHS) const
-        noexcept {
-      return LHS < RHS.first;
-    }
-  };
-
   using SymbolicExpressionSet = boost::multi_index::multi_index_container<
       SymbolicExpressionElement,
       boost::multi_index::indexed_by<
           boost::multi_index::ordered_unique<
-              boost::multi_index::identity<SymbolicExpressionElement>,
-              SymbolicExpressionElementComparator>,
+              boost::multi_index::tag<by_address>,
+              BOOST_MULTI_INDEX_MEMBER(SymbolicExpressionElement, Addr, first)>,
           boost::multi_index::hashed_non_unique<
               BOOST_MULTI_INDEX_MEMBER(SymbolicExpressionElement,
                                        SymbolicExpression, second),
@@ -186,22 +163,10 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   Module(Context& C);
   Module(Context& C, const std::string& X);
 
-  template <typename Iter> struct SymSetTransform {
-    using ParamTy = decltype((*std::declval<Iter>()));
-    using RetTy = decltype((*std::declval<ParamTy>().second));
-    RetTy operator()(ParamTy V) const { return *V.second; }
-  };
-
-  template <typename Iter> struct SymExprSetTransform {
-    using ParamTy = decltype((*std::declval<Iter>()));
-    using RetTy = decltype((std::declval<ParamTy>().second));
-    RetTy operator()(ParamTy V) const { return V.second; }
-  };
-
-  template <typename Iter> struct SymExprSetAddrTransform {
-    using ParamTy = decltype((*std::declval<Iter>()));
-    using RetTy = decltype((std::declval<ParamTy>().first));
-    RetTy operator()(ParamTy V) const { return V.first; }
+  template <size_t I> struct ExtractNth {
+    template <typename ParamTy> auto& operator()(ParamTy& V) const {
+      return std::get<I>(V);
+    }
   };
 
 public:
@@ -759,49 +724,24 @@ public:
   /// \name SymbolicExpression-Related Public Types and Functions
   /// @{
 
-  /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
-  using symbolic_expr_iterator = boost::transform_iterator<
-      SymExprSetTransform<SymbolicExpressionSet::iterator>,
-      SymbolicExpressionSet::iterator>;
-  /// \brief Range of symbolic expressions (\ref SymbolicExpression).
-  using symbolic_expr_range = boost::iterator_range<symbolic_expr_iterator>;
   /// \brief Constant iterator over symbolic expressions
   /// (\ref SymbolicExpression).
-  using const_symbolic_expr_iterator = boost::transform_iterator<
-      SymExprSetTransform<SymbolicExpressionSet::const_iterator>,
-      SymbolicExpressionSet::const_iterator>;
+  using const_symbolic_expr_iterator =
+      boost::transform_iterator<ExtractNth<1>,
+                                SymbolicExpressionSet::const_iterator>;
+
   /// \brief Constant range of symbolic expressions (\ref SymbolicExpression).
   using const_symbolic_expr_range =
       boost::iterator_range<const_symbolic_expr_iterator>;
 
-  /// \brief Return an iterator to the first \ref SymbolicExpression.
-  symbolic_expr_iterator symbolic_expr_begin() {
-    return symbolic_expr_iterator(
-        boost::multi_index::get<0>(SymbolicOperands).begin());
-  }
-  /// \brief Return an iterator to the element following the last
-  /// \ref SymbolicExpression.
-  symbolic_expr_iterator symbolic_expr_end() {
-    return symbolic_expr_iterator(
-        boost::multi_index::get<0>(SymbolicOperands).end());
-  }
-  /// \brief Return a range of the symbolic expressions
-  /// (\ref SymbolicExpression).
-  symbolic_expr_range symbolic_exprs() {
-    return boost::make_iterator_range(symbolic_expr_begin(),
-                                      symbolic_expr_end());
-  }
-
   /// \brief Return a constant iterator to the first \ref SymbolicExpression.
   const_symbolic_expr_iterator symbolic_expr_begin() const {
-    return const_symbolic_expr_iterator(
-        boost::multi_index::get<0>(SymbolicOperands).begin());
+    return const_symbolic_expr_iterator(SymbolicOperands.begin());
   }
   /// \brief Return a constant iterator to the element following the last
   /// \ref SymbolicExpression.
   const_symbolic_expr_iterator symbolic_expr_end() const {
-    return const_symbolic_expr_iterator(
-        boost::multi_index::get<0>(SymbolicOperands).end());
+    return const_symbolic_expr_iterator(SymbolicOperands.end());
   }
   /// \brief Return a constant range of the symbolic expressions
   /// (\ref SymbolicExpression).
@@ -815,38 +755,11 @@ public:
   ///
   /// \param X The address to look up.
   ///
-  /// \return an iterator representing the first symbolic expression found. The
-  /// end of the iterator range can be obtained by calling symbolic_expr_end().
-  symbolic_expr_iterator findSymbolicExpression(Addr X) {
-    return symbolic_expr_iterator(
-        SymbolicOperands.find(X, SymbolicExpressionElementAddrComparator{}));
-  }
-  /// \brief Find symbolic expressions (\ref SymbolicExpression) by
-  /// address.
-  ///
-  /// \param X The address to look up.
-  ///
   /// \return a constant iterator representing the first symbolic expression
   /// found. The end of the iterator range can be obtained by calling
   /// symbolic_expr_end().
   const_symbolic_expr_iterator findSymbolicExpression(Addr X) const {
-    return const_symbolic_expr_iterator(
-        SymbolicOperands.find(X, SymbolicExpressionElementAddrComparator{}));
-  }
-
-  /// \brief Find symbolic expressions (\ref SymbolicExpression) by a range of
-  /// addresses.
-  ///
-  /// \param Lower The lower-bound address to look up.
-  /// \param Upper The upper-bound address to look up.
-  ///
-  /// \return a range representing the symbolic expressions found. Searches the
-  /// range [Lower, Upper).
-  symbolic_expr_range findSymbolicExpression(Addr Lower, Addr Upper) {
-    SymbolicExpressionElementAddrComparator Comp;
-    return boost::make_iterator_range(
-        symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower, Comp)),
-        symbolic_expr_iterator(SymbolicOperands.lower_bound(Upper, Comp)));
+    return const_symbolic_expr_iterator(SymbolicOperands.find(X));
   }
 
   /// \brief Find symbolic expressions (\ref SymbolicExpression) by a range of
@@ -859,20 +772,15 @@ public:
   /// Searches the range [Lower, Upper).
   const_symbolic_expr_range findSymbolicExpression(Addr Lower,
                                                    Addr Upper) const {
-    SymbolicExpressionElementAddrComparator Comp;
     return boost::make_iterator_range(
-        const_symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower, Comp)),
-        const_symbolic_expr_iterator(
-            SymbolicOperands.lower_bound(Upper, Comp)));
+        const_symbolic_expr_iterator(SymbolicOperands.lower_bound(Lower)),
+        const_symbolic_expr_iterator(SymbolicOperands.lower_bound(Upper)));
   }
 
   /// \brief Constant iterator over the address objects used to register a
   /// symbolic expression (\ref SymbolicExpression).
   using const_symbolic_expr_addr_iterator = boost::transform_iterator<
-      SymExprSetAddrTransform<boost::multi_index::nth_index_const_iterator<
-          SymbolicExpressionSet, 1>::type>,
-      boost::multi_index::nth_index_const_iterator<SymbolicExpressionSet,
-                                                   1>::type>;
+      ExtractNth<0>, SymbolicExpressionSet::nth_index<1>::type::const_iterator>;
   /// \brief Constant range of addresses of symbolic expressions
   /// (\ref SymbolicExpression).
   using const_symbolic_expr_addr_range =
@@ -903,7 +811,10 @@ public:
   ///
   /// \return void
   void addSymbolicExpression(Addr X, const SymbolicExpression& SE) {
-    SymbolicOperands.emplace(X, SE);
+    if (auto it = SymbolicOperands.find(X); it != SymbolicOperands.end())
+      SymbolicOperands.replace(it, {X, SE});
+    else
+      SymbolicOperands.emplace(X, SE);
   }
   /// @}
   // (end group of SymbolicExpression-related type aliases and methods)
