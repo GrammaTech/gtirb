@@ -97,7 +97,9 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
     static std::pair<Addr, uint64_t> key(const T& t) {
       return std::make_pair(t.getAddress(), t.getSize());
     }
-    bool operator()(const T* t1, const T* t2) { return key(*t1) < key(*t2); }
+    bool operator()(const T* t1, const T* t2) const {
+      return key(*t1) < key(*t2);
+    }
   };
 
   // Multiset of DataObjects that enforces:
