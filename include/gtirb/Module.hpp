@@ -84,12 +84,14 @@ enum class ISAID : uint8_t {
 ///
 /// \brief Represents a single binary (library or executable).
 class GTIRB_EXPORT_API Module : public AuxDataContainer {
-  struct by_name {};
   struct by_address {};
+  struct by_name {};
+  struct by_pointer {};
 
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*, boost::multi_index::indexed_by<
                    boost::multi_index::hashed_unique<
+                       boost::multi_index::tag<by_pointer>,
                        boost::multi_index::identity<Symbol*>>,
                    boost::multi_index::ordered_non_unique<
                        boost::multi_index::tag<by_name>,
