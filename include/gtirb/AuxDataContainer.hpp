@@ -22,9 +22,7 @@
 #include <proto/AuxDataContainer.pb.h>
 
 /// \file AuxDataContainer.hpp
-/// \ingroup AUXDATA_GROUP
 /// \brief Class gtirb::AuxDataContainer.
-/// \see AUXDATA_GROUP
 
 namespace proto {
 class AuxDataContainer;
@@ -50,7 +48,6 @@ public:
   ///
   /// \return void
   ///
-  /// \ingroup AUXDATA_GROUP
   void addAuxData(const std::string& Name, AuxData&& X);
 
   /// \brief Get an \ref AuxData by name.
@@ -60,7 +57,6 @@ public:
   /// \return     A non-owning pointer to the data if found,
   ///             \c nullptr otherwise.
   ///
-  /// \ingroup AUXDATA_GROUP
   const gtirb::AuxData* getAuxData(const std::string& X) const;
   /// \brief Get an \ref AuxData by name.
   ///
@@ -69,7 +65,6 @@ public:
   /// \return     A non-owning pointer to the data if found,
   ///             \c nullptr otherwise.
   ///
-  /// \ingroup AUXDATA_GROUP
   gtirb::AuxData* getAuxData(const std::string& X);
 
   /// \brief Remove an \ref AuxData by name.
@@ -79,7 +74,6 @@ public:
   /// \param  X   The name of the data to search for.
   /// \return     \c true on success, \c false otherwise.
   ///
-  /// \ingroup AUXDATA_GROUP
   bool removeAuxData(const std::string& X);
 
   using aux_data_iterator = AuxDataSet::iterator;
@@ -109,7 +103,6 @@ public:
   ///
   /// \return     The total number of \ref AuxData objects.
   ///
-  /// \ingroup AUXDATA_GROUP
   size_t getAuxDataSize() const { return AuxDatas.size(); }
 
   /// \brief Check: Is the number of \ref AuxData objects in this IR zero?
@@ -117,14 +110,12 @@ public:
   /// \return \c true if this IR does not contain any \ref AuxData, otherwise \c
   /// false
   ///
-  /// \ingroup AUXDATA_GROUP
   bool getAuxDataEmpty() const { return AuxDatas.empty(); }
 
   /// \brief Clear all \ref AuxData from the IR.
   ///
   /// \return void
   ///
-  /// \ingroup AUXDATA_GROUP
   void clearAuxData() { AuxDatas.clear(); }
 
   /// \brief The protobuf message type used for serializing IR.
