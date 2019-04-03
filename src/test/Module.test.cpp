@@ -92,6 +92,26 @@ TEST(Unit_Module, compilationIteratorTypes) {
   static_assert(
       std::is_same_v<Module::const_symbolic_expr_addr_iterator::reference,
                      const Addr&>);
+
+  static_assert(std::is_same_v<Module::symbol_iterator::reference, Symbol&>);
+  static_assert(
+      std::is_same_v<Module::const_symbol_iterator::reference, const Symbol&>);
+  static_assert(
+      std::is_same_v<Module::symbol_addr_iterator::reference, Symbol&>);
+  static_assert(std::is_same_v<Module::const_symbol_addr_iterator::reference,
+                               const Symbol&>);
+
+  {
+    Module::symbol_iterator it;
+    Module::const_symbol_iterator cit(it);
+    cit = it;
+  }
+
+  {
+    Module::symbol_addr_iterator it;
+    Module::const_symbol_addr_iterator cit(it);
+    cit = it;
+  }
 }
 
 static Context Ctx;
@@ -327,6 +347,28 @@ TEST(Unit_Module, findData) {
 
     F = M->findData(Addr(21));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
+}
+
+TEST(Unit_Module, symbolIterationOrder) {
+  auto* M = Module::Create(Ctx);
+  auto* S1 = emplaceSymbol(*M, Ctx, Addr(3), "foo");
+  auto* S2 = emplaceSymbol(*M, Ctx, Addr(2), "bar");
+  auto* S3 = emplaceSymbol(*M, Ctx, Addr(1), "foo");
+
+  {
+    auto F = M->symbols();
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
+    auto It = F.begin();
+    // symbol_iterator returns values in name order but does not specify order
+    // for symbols with the same name.
+    EXPECT_EQ(&*It++, S2);
+    if (&*It == S3) {
+      EXPECT_EQ(&*++It, S1);
+    } else {
+      EXPECT_EQ(&*It++, S1);
+      EXPECT_EQ(&*It++, S3);
+    }
   }
 }
 
