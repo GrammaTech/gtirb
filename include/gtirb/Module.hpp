@@ -117,6 +117,23 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   using DataIntMap = boost::icl::interval_map<
       Addr, std::multiset<DataObject*, addr_size_order<DataObject>>>;
 
+  using SectionSet = boost::multi_index::multi_index_container<
+      Section*, boost::multi_index::indexed_by<
+                    boost::multi_index::ordered_non_unique<
+                        boost::multi_index::tag<by_address>,
+                        boost::multi_index::global_fun<
+                            const Section&, std::pair<Addr, uint64_t>,
+                            &addr_size_order<Section>::key>>,
+                    boost::multi_index::ordered_non_unique<
+                        boost::multi_index::tag<by_name>,
+                        boost::multi_index::const_mem_fun<
+                            Section, const std::string&, &Section::getName>>,
+                    boost::multi_index::hashed_unique<
+                        boost::multi_index::tag<by_pointer>,
+                        boost::multi_index::identity<Section*>>>>;
+  using SectionIntMap = boost::icl::interval_map<
+      Addr, std::multiset<Section*, addr_size_order<Section>>>;
+
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*, boost::multi_index::indexed_by<
                    boost::multi_index::hashed_unique<
@@ -165,8 +182,6 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               BOOST_MULTI_INDEX_MEMBER(SymbolicExpressionElement,
                                        SymbolicExpression, second),
               std::hash<SymbolicExpression>>>>;
-
-  using SectionSet = std::map<Addr, Section*>;
 
   Module(Context& C);
   Module(Context& C, const std::string& X);
@@ -572,32 +587,95 @@ public:
   /// @{
 
   /// \brief Iterator over sections (\ref Section).
-  using section_iterator =
-      boost::transform_iterator<SymSetTransform<SectionSet::iterator>,
-                                SectionSet::iterator, Section&>;
+  ///
+  /// Sections are returned in address order. If two Sections start at the
+  /// same address, the smaller one is returned first. If two Sections have
+  /// the same address and the same size, their order is not specified.
+  using section_iterator = boost::indirect_iterator<SectionSet::iterator>;
   /// \brief Range of sections (\ref Section).
+  ///
+  /// Sections are returned in address order. If two Sections start at the
+  /// same address, the smaller one is returned first. If two Sections have
+  /// the same address and the same size, their order is not specified.
   using section_range = boost::iterator_range<section_iterator>;
+  /// \brief Sub-range of sections overlapping an address (\ref Section).
+  ///
+  /// Sections are returned in address order. If two Sections start at the
+  /// same address, the smaller one is returned first. If two Sections have
+  /// the same address and the same size, their order is not specified.
+  using section_subrange = boost::iterator_range<
+      boost::indirect_iterator<SectionIntMap::codomain_type::iterator>>;
+  /// \brief Iterator over sections (\ref Section).
+  ///
+  /// Sections are returned in name order. If two Sections have the same name,
+  /// their order is not specified.
+  using section_name_iterator =
+      boost::indirect_iterator<SectionSet::index<by_name>::type::iterator>;
+  /// \brief Range of sections (\ref Section).
+  ///
+  /// Sections are returned in name order. If two Sections have the same name,
+  /// their order is not specified.
+  using section_name_range = boost::iterator_range<section_name_iterator>;
   /// \brief Constant iterator over sections (\ref Section).
+  ///
+  /// Sections are returned in address order. If two Sections start at the
+  /// same address, the smaller one is returned first. If two Sections have
+  /// the same address and the same size, their order is not specified.
   using const_section_iterator =
-      boost::transform_iterator<SymSetTransform<SectionSet::const_iterator>,
-                                SectionSet::const_iterator, const Section&>;
+      boost::indirect_iterator<SectionSet::const_iterator, const Section&>;
   /// \brief Constant range of sections (\ref Section).
+  ///
+  /// Sections are returned in address order. If two Sections start at the
+  /// same address, the smaller one is returned first. If two Sections have
+  /// the same address and the same size, their order is not specified.
   using const_section_range = boost::iterator_range<const_section_iterator>;
+  /// \brief Constant sub-range of sections overlapping an address
+  /// (\ref Section).
+  ///
+  /// Sections are returned in address order. If two Sections start at the
+  /// same address, the smaller one is returned first. If two Sections have
+  /// the same address and the same size, their order is not specified.
+  using const_section_subrange = boost::iterator_range<boost::indirect_iterator<
+      SectionIntMap::codomain_type::const_iterator, const Section&>>;
+  /// \brief Constant iterator over sections (\ref Section).
+  ///
+  /// Sections are returned in name order. If two Sections have the same name,
+  /// their order is not specified.
+  using const_section_name_iterator =
+      boost::indirect_iterator<SectionSet::index<by_name>::type::const_iterator,
+                               const Section&>;
+  /// \brief Constant range of sections (\ref Section).
+  ///
+  /// Sections are returned in name order. If two Sections have the same name,
+  /// their order is not specified.
+  using const_section_name_range =
+      boost::iterator_range<const_section_name_iterator>;
 
   /// \brief Return an iterator to the first Section.
-  section_iterator section_begin() {
-    return section_iterator(Sections.begin());
+  section_iterator section_begin() { return Sections.begin(); }
+  /// \brief Return a constant iterator to the first Section.
+  const_section_iterator section_begin() const { return Sections.begin(); }
+  /// \brief Return an iterator to the first Section.
+  section_name_iterator section_by_name_begin() {
+    return Sections.get<by_name>().begin();
   }
   /// \brief Return a constant iterator to the first Section.
-  const_section_iterator section_begin() const {
-    return const_section_iterator(Sections.begin());
+  const_section_name_iterator section_by_name_begin() const {
+    return Sections.get<by_name>().begin();
   }
   /// \brief Return an iterator to the element following the last Section.
-  section_iterator section_end() { return section_iterator(Sections.end()); }
+  section_iterator section_end() { return Sections.end(); }
   /// \brief Return a constant iterator to the element following the last
   /// Section.
-  const_section_iterator section_end() const {
-    return const_section_iterator(Sections.end());
+  const_section_iterator section_end() const { return Sections.end(); }
+  /// \brief Return an iterator to the element following the last Section.
+  section_name_iterator section_by_name_end() {
+    return Sections.get<by_name>().end();
+  }
+  /// \brief Return a constant iterator to the element following the last
+  /// Section.
+  const_section_name_iterator section_by_name_end() const {
+    return Sections.get<by_name>().end();
   }
   /// \brief Return a range of the sections (\ref Section).
   section_range sections() {
@@ -622,7 +700,11 @@ public:
   /// \return void
   void addSection(std::initializer_list<Section*> Ss) {
     for (auto* S : Ss)
-      Sections.emplace(S->getAddress(), S);
+      if (Sections.emplace(S).second)
+        SectionAddrs.add(
+            std::make_pair(SectionIntMap::interval_type::right_open(
+                               S->getAddress(), addressLimit(*S)),
+                           SectionIntMap::codomain_type{S}));
   }
 
   /// \brief Find a Section by address.
@@ -631,8 +713,11 @@ public:
   ///
   /// \return An iterator to the found object, or \ref section_end() if not
   /// found.
-  section_iterator findSection(Addr X) {
-    return section_iterator(Sections.find(X));
+  section_subrange findSection(Addr X) {
+    auto it = SectionAddrs.find(X);
+    if (it == SectionAddrs.end())
+      return {};
+    return boost::make_iterator_range(it->second.begin(), it->second.end());
   }
 
   /// \brief Find a Section by address.
@@ -641,9 +726,33 @@ public:
   ///
   /// \return An iterator to the found object, or \ref section_end() if not
   /// found.
-  const_section_iterator findSection(Addr X) const {
-    return const_section_iterator(Sections.find(X));
+  const_section_subrange findSection(Addr X) const {
+    auto it = SectionAddrs.find(X);
+    if (it == SectionAddrs.end())
+      return {};
+    return boost::make_iterator_range(it->second.begin(), it->second.end());
   }
+
+  /// \brief Find a Section by name.
+  ///
+  /// \param X The name to look up.
+  ///
+  /// \return An iterator to the first Section with the requested name or
+  /// \ref section_by_name_end() if not found.
+  section_name_iterator findSection(const std::string& X) {
+    return Sections.get<by_name>().find(X);
+  }
+
+  /// \brief Find a Section by name.
+  ///
+  /// \param X The name to look up.
+  ///
+  /// \return An iterator to the first Section with the requested name or
+  /// \ref section_by_name_end() if not found.
+  const_section_name_iterator findSection(const std::string& X) const {
+    return Sections.get<by_name>().find(X);
+  }
+
   /// @}
   // (end group of Section-related types and functions)
 
@@ -842,6 +951,7 @@ private:
   DataIntMap DataAddrs;
   ImageByteMap* ImageBytes;
   SectionSet Sections;
+  SectionIntMap SectionAddrs;
   SymbolSet Symbols;
   SymbolicExpressionSet SymbolicOperands;
 

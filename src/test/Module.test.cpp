@@ -54,6 +54,37 @@ TEST(Unit_Module, compilationIteratorTypes) {
     Module::const_data_object_subrange::iterator cit(it);
     cit = it;
   }
+
+  static_assert(std::is_same_v<Module::section_iterator::reference, Section&>);
+  static_assert(std::is_same_v<Module::const_section_iterator::reference,
+                               const Section&>);
+  static_assert(
+      std::is_same_v<Module::section_name_iterator::reference, Section&>);
+  static_assert(std::is_same_v<Module::const_section_name_iterator::reference,
+                               const Section&>);
+  static_assert(
+      std::is_same_v<Module::section_subrange::iterator::reference, Section&>);
+  static_assert(
+      std::is_same_v<Module::const_section_subrange::iterator::reference,
+                     const Section&>);
+
+  {
+    Module::section_iterator it;
+    Module::const_section_iterator cit(it);
+    cit = it;
+  }
+
+  {
+    Module::section_name_iterator it;
+    Module::const_section_name_iterator cit(it);
+    cit = it;
+  }
+
+  {
+    Module::section_subrange::iterator it;
+    Module::const_section_subrange::iterator cit(it);
+    cit = it;
+  }
 }
 
 static Context Ctx;
@@ -169,13 +200,59 @@ TEST(Unit_Module, sections) {
   auto* M = Module::Create(Ctx);
   M->addSection(Section::Create(Ctx, "test", Addr(), 123));
   EXPECT_EQ(M->section_begin()->getName(), "test");
+  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 1);
+  EXPECT_EQ(std::distance(M->section_by_name_begin(), M->section_by_name_end()),
+            1);
+}
+
+TEST(Unit_Module, sectionIterationOrder) {
+  auto* M = Module::Create(Ctx);
+  auto* S = Section::Create(Ctx, "", Addr(0), 10);
+  M->addSection(S);
+  M->addSection(Section::Create(Ctx, "", Addr(0), 5));
+  M->addSection(Section::Create(Ctx, "", Addr(5), 5));
+  M->addSection(Section::Create(Ctx, "", Addr(5), 5)); // new object is added
+  M->addSection(S);                                    // ignored
+
+  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 4);
+  auto It = M->section_begin();
+  EXPECT_EQ(It->getAddress(), Addr(0));
+  EXPECT_EQ(It->getSize(), 5);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(0));
+  EXPECT_EQ(It->getSize(), 10);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 5);
+  ++It;
+  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 5);
 }
 
 TEST(Unit_Module, findSection) {
   auto* M = Module::Create(Ctx);
   M->addSection(Section::Create(Ctx, "test", Addr(1), 123));
-  EXPECT_EQ(M->findSection(Addr(1))->getName(), "test");
-  EXPECT_EQ(M->findSection(Addr(2)), M->section_end());
+
+  {
+    auto F = M->findSection(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(F.begin()->getName(), "test");
+
+    F = M->findSection(Addr(123));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+
+    F = M->findSection(Addr(124));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
+
+  {
+    auto F = M->findSection("test");
+    EXPECT_NE(F, M->section_by_name_end());
+    EXPECT_EQ(F->getName(), "test");
+
+    F = M->findSection("dummy");
+    EXPECT_EQ(F, M->section_by_name_end());
+  }
 }
 
 TEST(Unit_Module, dataObjects) {
