@@ -543,7 +543,7 @@ public:
                                      DataIntMap::codomain_type{D}));
   }
 
-  /// \brief Find a DataObject by address.
+  /// \brief Find a DataObject containing an address.
   ///
   /// \param X The address to look up.
   ///
@@ -555,7 +555,7 @@ public:
     return boost::make_iterator_range(it->second.begin(), it->second.end());
   }
 
-  /// \brief Find a DataObject by address.
+  /// \brief Find a DataObject containing an address.
   ///
   /// \param X The address to look up.
   ///
@@ -693,7 +693,7 @@ public:
                            SectionIntMap::codomain_type{S}));
   }
 
-  /// \brief Find a Section by address.
+  /// \brief Find a Section containing an address.
   ///
   /// \param X The address to look up.
   ///
@@ -706,7 +706,7 @@ public:
     return boost::make_iterator_range(it->second.begin(), it->second.end());
   }
 
-  /// \brief Find a Section by address.
+  /// \brief Find a Section containing an address.
   ///
   /// \param X The address to look up.
   ///

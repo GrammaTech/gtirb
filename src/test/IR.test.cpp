@@ -51,17 +51,17 @@ TEST(Unit_IR, moduleIterationOrder) {
 
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
   auto It = Ir->begin();
-  EXPECT_EQ(&*It, M2);
-  // Order of M1 and M3 is unspecified.
-  ++It;
-  if (&*It == M1) {
+  // Order of M2 and M3 is unspecified.
+  if (&*It == M2) {
     ++It;
     EXPECT_EQ(&*It, M3);
   } else {
     EXPECT_EQ(&*It, M3);
     ++It;
-    EXPECT_EQ(&*It, M1);
+    EXPECT_EQ(&*It, M2);
   }
+  ++It;
+  EXPECT_EQ(&*It, M1);
 }
 
 TEST(Unit_IR, getModulesWithPreferredAddr) {
