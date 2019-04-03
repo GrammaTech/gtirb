@@ -22,15 +22,6 @@ void AuxDataContainer::addAuxData(const std::string& Name, AuxData&& X) {
   this->AuxDatas[Name] = std::move(X);
 }
 
-const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
-  auto Found = this->AuxDatas.find(X);
-  if (Found != std::end(this->AuxDatas)) {
-    return &(Found->second);
-  }
-
-  return nullptr;
-}
-
 gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) {
   auto Found = this->AuxDatas.find(X);
   if (Found != std::end(this->AuxDatas)) {
@@ -40,15 +31,12 @@ gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) {
   return nullptr;
 }
 
+const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
+  return getAuxData(X);
+}
+
 bool AuxDataContainer::removeAuxData(const std::string& X) {
-  const auto Found = this->AuxDatas.find(X);
-
-  if (Found != std::end(this->AuxDatas)) {
-    this->AuxDatas.erase(Found);
-    return true;
-  }
-
-  return false;
+  return this->AuxDatas.erase(X);
 }
 
 void AuxDataContainer::toProtobuf(MessageType* Message) const {
