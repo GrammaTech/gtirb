@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
   cs_option(CsHandle, CS_OPT_DETAIL, CS_OPT_ON);
 
   // Examine all blocks in the first module
-  const auto& ImageBytes = Ir->modules()[0].getImageByteMap();
-  for (const auto& B : blocks(Ir->modules()[0].getCFG())) {
+  const auto& ImageBytes = Ir->begin()->getImageByteMap();
+  for (const auto& B : blocks(Ir->begin()->getCFG())) {
     // Get the contents of the block and decode with capstone
     auto bytes = getBytes(ImageBytes, B);
     cs_insn* Insn;
