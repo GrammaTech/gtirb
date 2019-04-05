@@ -40,6 +40,20 @@ const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
   return nullptr;
 }
 
+template <typename T>
+T* AuxDataContainer::getAuxData(const std::string& X) const {
+  const gtirb::AuxData* auxData = getAuxData(X);
+
+  return auxData ? auxData->get<T>() : nullptr;
+}
+
+template <typename T>
+T* AuxDataContainer::getAuxData(const std::string& X) {
+  gtirb::AuxData* auxData = getAuxData(X);
+
+  return auxData ? auxData->get<T>() : nullptr;
+}
+
 bool AuxDataContainer::removeAuxData(const std::string& X) {
   return this->AuxDatas.erase(X) > 0;
 }

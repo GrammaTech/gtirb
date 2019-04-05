@@ -50,6 +50,16 @@ public:
   ///
   void addAuxData(const std::string& Name, AuxData&& X);
 
+  /// \brief Get a reference to the underlying type stored in the \ref
+  ///        AuxData by name.
+  ///
+  /// \param  X   The name of the data to search for.
+  ///
+  /// \return     A non-owning pointer to the data if found,
+  ///             \c nullptr otherwise.
+  ///
+  template <typename T> T* getAuxData(const std::string& X) const;
+
   /// \brief Get an \ref AuxData by name.
   ///
   /// \param  X   The name of the data to search for.
@@ -58,6 +68,7 @@ public:
   ///             \c nullptr otherwise.
   ///
   const gtirb::AuxData* getAuxData(const std::string& X) const;
+  
   /// \brief Get an \ref AuxData by name.
   ///
   /// \param  X   The name of the data to search for.
@@ -66,6 +77,16 @@ public:
   ///             \c nullptr otherwise.
   ///
   gtirb::AuxData* getAuxData(const std::string& X);
+
+  /// \brief Get a reference to the underlying type stored in the \ref
+  ///        AuxData by name.
+  ///
+  /// \param  X   The name of the data to search for.
+  ///
+  /// \return     A non-owning pointer to the data if found,
+  ///             \c nullptr otherwise.
+  ///
+  template <typename T> T* getAuxData(const std::string& X);
 
   /// \brief Remove an \ref AuxData by name.
   ///
