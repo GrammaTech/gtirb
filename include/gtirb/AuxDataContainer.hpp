@@ -68,7 +68,7 @@ public:
   ///             \c nullptr otherwise.
   ///
   const gtirb::AuxData* getAuxData(const std::string& X) const;
-  
+
   /// \brief Get an \ref AuxData by name.
   ///
   /// \param  X   The name of the data to search for.

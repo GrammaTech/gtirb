@@ -47,8 +47,7 @@ T* AuxDataContainer::getAuxData(const std::string& X) const {
   return auxData ? auxData->get<T>() : nullptr;
 }
 
-template <typename T>
-T* AuxDataContainer::getAuxData(const std::string& X) {
+template <typename T> T* AuxDataContainer::getAuxData(const std::string& X) {
   gtirb::AuxData* auxData = getAuxData(X);
 
   return auxData ? auxData->get<T>() : nullptr;
