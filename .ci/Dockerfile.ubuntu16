@@ -9,7 +9,7 @@ RUN apt-get -y update && \
     apt-get -y update
 RUN apt-get -y install gcc-7 g++-7 make git
 RUN apt-get -y install build-essential binutils 
-RUN apt-get -y install doxygen graphviz wget curl unzip autoconf libtool
+RUN apt-get -y install autoconf libtool wget curl
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \
     apt-get -y update && \
