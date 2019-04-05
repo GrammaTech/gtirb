@@ -5,9 +5,9 @@ ARG CXX_COMPILER=g++-7
 RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     apt-get -y update
-RUN apt-get -y install clang gcc-7 g++-7 make git
-RUN apt-get -y install build-essential binutils
-RUN apt-get -y install wget curl autoconf libtool cmake
+
+RUN apt-get -y install clang git build-essential \
+    wget curl autoconf libtool cmake
 
 # Build GTIRB
 COPY . /gt/gtirb/
