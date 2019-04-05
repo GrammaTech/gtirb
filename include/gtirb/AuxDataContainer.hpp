@@ -58,7 +58,11 @@ public:
   /// \return     A non-owning pointer to the data if found,
   ///             \c nullptr otherwise.
   ///
-  template <typename T> T* getAuxData(const std::string& X) const;
+  template <typename T> const T* getAuxData(const std::string& X) const {
+    const gtirb::AuxData* auxData = getAuxData(X);
+
+    return auxData ? auxData->get<T>() : nullptr;
+  }
 
   /// \brief Get an \ref AuxData by name.
   ///
@@ -86,8 +90,11 @@ public:
   /// \return     A non-owning pointer to the data if found,
   ///             \c nullptr otherwise.
   ///
-  template <typename T> T* getAuxData(const std::string& X);
+  template <typename T> T* getAuxData(const std::string& X) {
+    gtirb::AuxData* auxData = getAuxData(X);
 
+    return auxData ? auxData->get<T>() : nullptr;
+  }
   /// \brief Remove an \ref AuxData by name.
   ///
   /// This will invalidate any pointers that may have been held externally.
