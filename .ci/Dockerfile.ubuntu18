@@ -1,6 +1,5 @@
 FROM ubuntu:18.04
 
-ARG CMAKE_VERSION=3.9
 ARG CXX_COMPILER=g++-7
 
 RUN apt-get -y update && \
@@ -8,12 +7,7 @@ RUN apt-get -y update && \
     apt-get -y update
 RUN apt-get -y install gcc-7 g++-7 make git
 RUN apt-get -y install build-essential binutils
-RUN apt-get -y install wget curl autoconf libtool
-
-# libstdc++-7 triggers a clang bug which leads to errors when
-# compiling variants. Install libstdc++-8-dev to avoid the problem.
-# https://bugs.llvm.org/show_bug.cgi?id=33222
-RUN apt-get -y install clang libstdc++-8-dev cmake
+RUN apt-get -y install wget curl autoconf libtool cmake
 
 # Build GTIRB
 COPY . /gt/gtirb/
