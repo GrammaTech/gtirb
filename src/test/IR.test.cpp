@@ -134,6 +134,25 @@ TEST(Unit_IR, addAuxData) {
             std::vector<int64_t>({1, 2, 3}));
 }
 
+TEST(Unit_IR, getAuxData) {
+  std::vector<int64_t> AuxDataVec = {1, 2, 3};
+  std::map<std::string, int64_t> AuxDataMap = {{"foo", 1}, {"bar", 2}};
+  IR* Ir = IR::Create(Ctx);
+  Ir->addAuxData("foo", std::move(AuxDataVec));
+  Ir->addAuxData("bar", std::move(AuxDataMap));
+
+  auto* fooAuxData = Ir->getAuxData<std::vector<int64_t>>("foo");
+  EXPECT_NE(fooAuxData, nullptr);
+  EXPECT_EQ(*fooAuxData, std::vector<int64_t>({1, 2, 3}));
+
+  auto* barAuxData = Ir->getAuxData<std::map<std::string, int64_t>>("bar");
+  std::map<std::string, int64_t> toCompare = {{"foo", 1}, {"bar", 2}};
+  std::map<std::string, int64_t> badToCompare = {{"foo", 1}, {"bar", 3}};
+  EXPECT_NE(barAuxData, nullptr);
+  EXPECT_NE(*barAuxData, badToCompare);
+  EXPECT_EQ(*barAuxData, toCompare);
+}
+
 TEST(Unit_IR, auxDataRange) {
   IR* Ir = IR::Create(Ctx);
   Ir->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
