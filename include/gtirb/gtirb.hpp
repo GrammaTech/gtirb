@@ -36,4 +36,6 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 
+#include <gtirb/version.h>
+
 #endif // GTIRB_GTIRB_H
