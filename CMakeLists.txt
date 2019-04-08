@@ -53,6 +53,22 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Handle version initialization
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" ver)
+
+string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
+set(GTIRB_MAJOR_VERSION ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${ver})
+set(GTIRB_MINOR_VERSION ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
+set(GTIRB_PATCH_VERSION ${CMAKE_MATCH_1})
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h"
+  @ONLY)
+
 # Use C++17
 set(CMAKE_CXX_STANDARD 17)
 # Error if it's not available
