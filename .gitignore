@@ -12,6 +12,8 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 
+include/gtirb/version.h
+
 build/
 build-doc/
 bin/
