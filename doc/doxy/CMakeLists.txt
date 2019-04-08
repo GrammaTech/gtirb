@@ -10,13 +10,22 @@ if(DOXYGEN_FOUND)
 set(DOC_INDIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 set(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
-
 set(BUILDFILES_IN preprocmd.py DoxygenLayout.xml)
 foreach(_inf ${BUILDFILES_IN})
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${_inf} ${CMAKE_CURRENT_BINARY_DIR}/${_inf} @ONLY)
 endforeach()
 
+
+# Handle version initialization
+set(GTIRB_MAJOR_VERSION 1)
+set(GTIRB_MINOR_VERSION 0)
+set(GTIRB_PATCH_VERSION 0)
+
+configure_file(${ROOTDIR}/include/gtirb/version.h.in
+  ${ROOTDIR}/include/gtirb/version.h
+  @ONLY)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
 
 # adapted from https://gist.github.com/abravalheri/11214134
 
