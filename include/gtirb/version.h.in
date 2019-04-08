@@ -23,12 +23,8 @@
 #define GTIRB_STR_HELPER(x) #x
 #define GTIRB_STR(x) GTIRB_STR_HELPER(x)
 
-/*  ============================================================================
- *  @const  GTIRB_VERSION_STRING
- *
- *  @brief  The version number for GTIRB
- *  ============================================================================
- */
+/// \file version.h.in
+/// \brief Input for the version.h file. Read from version.txt
 
 #define GTIRB_VERSION_STRING                                                   \
   (GTIRB_STR(GTIRB_MAJOR_VERSION) "." GTIRB_STR(                               \
