@@ -89,7 +89,6 @@ GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
 Studio compilers supporting at least C++17.  GTIRB uses CMake which
 must be installed.
 
-    sh
     mkdir build
     cd build
     cmake ../path/to/gtirb
@@ -108,6 +107,17 @@ toolchain, but a different path can be specified by passing
     -DCMAKE_TOOLCHAIN_FILE="C:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake"
 
 when executing the CMake command above.
+
+
+### Requirements
+
+The GTIRB build process automatically downloads all external
+requirements during build.  However to *install* GTIRB, the following
+requirements should be installed separately.
+
+- Protobuf versions 3.1
+  (or later once we disable warnings in the protobuf build)
+- Boost version 1.67.0 or later.
 
 ## Usage
 
