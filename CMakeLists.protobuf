@@ -14,6 +14,7 @@ ExternalProject_Add(
     GIT_TAG v3.7.0
     TIMEOUT 10
     PREFIX "${CMAKE_BINARY_DIR}/protobuf-src"
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND sh ${CMAKE_BINARY_DIR}/protobuf-src/src/Protobuf/autogen.sh && CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${CMAKE_BINARY_DIR}/protobuf-src/src/Protobuf/configure --prefix=${CMAKE_BINARY_DIR}/protobuf-src --libdir=${CMAKE_BINARY_DIR}/protobuf-src/lib ${EXTRA_FLAGS}
     BUILD_COMMAND $(MAKE)
     INSTALL_COMMAND $(MAKE) install
