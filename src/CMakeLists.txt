@@ -42,6 +42,7 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/DataObject.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
@@ -49,6 +50,7 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp

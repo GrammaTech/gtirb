@@ -17,6 +17,7 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/CFG.hpp>
+#include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <proto/Block.pb.h>
@@ -37,7 +38,7 @@ namespace gtirb {
 ///
 /// \brief A basic block.
 /// \see \ref CFG_GROUP
-class GTIRB_EXPORT_API Block : public Node {
+class GTIRB_EXPORT_API Block : public CfgNode {
 public:
   /// \brief Create a Block object.
   ///
@@ -96,9 +97,9 @@ public:
   /// \endcond
 
 private:
-  Block(Context& C) : Node(C, Kind::Block) {}
+  Block(Context& C) : CfgNode(C, Kind::Block) {}
   Block(Context& C, Addr Addr, uint64_t S, uint64_t Decode)
-      : Node(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
+      : CfgNode(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
 
   Addr Address;
   uint64_t Size{0};

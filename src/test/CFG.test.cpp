@@ -20,14 +20,33 @@
 
 using namespace gtirb;
 
+TEST(Unit_CFG, compilationIteratorTypes) {
+  static_assert(std::is_same_v<cfg_iterator::reference, CfgNode&>);
+  static_assert(std::is_same_v<const_cfg_iterator::reference, const CfgNode&>);
+  {
+    cfg_iterator it;
+    const_cfg_iterator cit(it);
+    cit = it;
+  }
+
+  static_assert(std::is_same_v<block_iterator::reference, Block&>);
+  static_assert(std::is_same_v<const_block_iterator::reference, const Block&>);
+  {
+    block_iterator it;
+    const_block_iterator cit(it);
+    cit = it;
+  }
+}
+
 static Context Ctx;
 
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
   auto* B = Block::Create(Ctx, Addr(1), 2);
   auto Descriptor1 = addVertex(B, Cfg);
-  EXPECT_EQ(Cfg[Descriptor1]->getAddress(), Addr(1));
-  EXPECT_EQ(Cfg[Descriptor1]->getSize(), 2);
+  EXPECT_EQ(Cfg[Descriptor1], B);
+  EXPECT_EQ(dyn_cast<Block>(Cfg[Descriptor1])->getAddress(), Addr(1));
+  EXPECT_EQ(dyn_cast<Block>(Cfg[Descriptor1])->getSize(), 2);
 
   // adding the same block again doesn't change the graph
   auto Descriptor2 = addVertex(B, Cfg);
@@ -149,8 +168,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
   }
   fromProtobuf(Ctx, Result, Message);
 
-  EXPECT_EQ(blocks(Result).size(), 3);
-  auto It = blocks(Result).begin();
+  auto Range = blocks(Result);
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 3);
+  auto It = Range.begin();
   EXPECT_EQ(It->getUUID(), B1->getUUID());
   EXPECT_EQ(It->getAddress(), Addr(1));
   EXPECT_EQ(It->getSize(), 2);

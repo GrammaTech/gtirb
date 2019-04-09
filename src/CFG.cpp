@@ -58,15 +58,15 @@ std::optional<CFG::edge_descriptor> addEdge(const Block* From, const Block* To,
 
 boost::iterator_range<const_block_iterator> blocks(const CFG& Cfg) {
   auto Vs = vertices(Cfg);
-  return boost::iterator_range<const_block_iterator>(
-      std::make_pair(const_block_iterator(Vs.first, Cfg),
-                     const_block_iterator(Vs.second, Cfg)));
+  return boost::make_iterator_range(
+      const_block_iterator(Cfg, Vs.first, Vs.second),
+      const_block_iterator(Cfg, Vs.second, Vs.second));
 }
 
 boost::iterator_range<block_iterator> blocks(CFG& Cfg) {
   auto Vs = vertices(Cfg);
-  return boost::iterator_range<block_iterator>(std::make_pair(
-      block_iterator(Vs.first, Cfg), block_iterator(Vs.second, Cfg)));
+  return boost::make_iterator_range(block_iterator(Cfg, Vs.first, Vs.second),
+                                    block_iterator(Cfg, Vs.second, Vs.second));
 }
 
 proto::CFG toProtobuf(const CFG& Cfg) {

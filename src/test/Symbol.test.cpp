@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/Block.hpp>
+#include <gtirb/CfgNode.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/Module.hpp>
@@ -130,13 +131,18 @@ TEST(Unit_Symbol, visitation) {
       EXPECT_TRUE(false);
       return 1;
     }
+    long operator()(ProxyBlock*) {
+      // This overload should never be called.
+      EXPECT_TRUE(false);
+      return 1;
+    }
   };
   EXPECT_EQ(0, *Sym->visit(Visitor{}));
 
   // The version that has no referent should not call any of the visitor
   // functions and the returned optional should not have a value.
   struct NoRefVisitor {
-    int operator()(const Block*) const {
+    int operator()(const CfgNode*) const {
       EXPECT_TRUE(false);
       return 0;
     }
@@ -149,7 +155,7 @@ TEST(Unit_Symbol, visitation) {
 
   // Similar to the test above, but ensuring we can visit without a return type.
   struct ConstVoidVisitor {
-    void operator()(const Block* B) const { EXPECT_NE(B, nullptr); }
+    void operator()(const CfgNode* N) const { EXPECT_NE(N, nullptr); }
     void operator()(const DataObject*) const { EXPECT_TRUE(false); }
   };
   Sym->visit(ConstVoidVisitor{});

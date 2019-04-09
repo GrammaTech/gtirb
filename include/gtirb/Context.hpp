@@ -34,11 +34,13 @@ namespace gtirb {
 using UUID = boost::uuids::uuid;
 
 class Node;
+class CfgNode;
 class Block;
 class DataObject;
 class ImageByteMap;
 class IR;
 class Module;
+class ProxyBlock;
 class Section;
 class Symbol;
 

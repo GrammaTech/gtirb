@@ -19,10 +19,12 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/ProxyBlock.hpp>
 #include <proto/Symbol.pb.h>
 #include <functional>
 #include <optional>
 #include <type_traits>
+#include <variant>
 
 /// \file Symbol.hpp
 /// \brief Class gtirb::Symbol.
@@ -164,7 +166,7 @@ public:
   }
 
   /// \brief The list of supported referent types.
-  using supported_referent_types = TypeList<Block, DataObject>;
+  using supported_referent_types = TypeList<Block, DataObject, ProxyBlock>;
 
   /// \brief Visits the symbol's referent, if one is present, by concrete
   /// referent type.
@@ -186,7 +188,7 @@ public:
   ///
   /// \code
   /// struct Visitor {
-  ///   int operator()(Block*) { return 0; }
+  ///   int operator()(CfgNode*) { return 0; }
   ///   long operator()(DataObject*) { return 1; }
   /// };
   ///
@@ -196,7 +198,7 @@ public:
   /// Symbol* SymX = Symbol::Create(Ctx, Addr(42), "");
   /// Symbol* SymN = Symbol::Create(Ctx);
   ///
-  /// SymB->visit(Visitor{}); // Will call Visitor::operator()(Block*);
+  /// SymB->visit(Visitor{}); // Will call Visitor::operator()(CfgNode*);
   /// SymD->visit(Visitor{}); // Will call Visitor::operator()(DataObject*);
   /// SymX->visit(Visitor{}); // Will not call any overload
   /// SymN->visit(Visitor{}); // Will not call any overload

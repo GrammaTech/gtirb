@@ -35,9 +35,9 @@ public:
     // At target, print the path
     if (V == Target) {
       for (auto U : Path) {
-        std::cout << Graph[U]->getAddress() << ", ";
+        std::cout << dyn_cast<Block>(Graph[U])->getAddress() << ", ";
       }
-      std::cout << Graph[Target]->getAddress() << "\n";
+      std::cout << dyn_cast<Block>(Graph[Target])->getAddress() << "\n";
     } else {
       // Otherwise, extend the path and keep searching.
       Path.push_back(V);

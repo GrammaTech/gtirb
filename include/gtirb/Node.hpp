@@ -39,15 +39,24 @@ class Node;
 class GTIRB_EXPORT_API Node {
 public:
   /// \cond internal
+
+  // The enum constants below must be grouped according to the inheritance
+  // hierarchy such that all descendants of a type X must appear between the
+  // constant for X and LAST_X. This allows us to quickly check whether a type
+  // is a descendant of X by checking if the enum constant falls in that range.
   enum class Kind {
     Node,
+    CfgNode,
     Block,
+    ProxyBlock,
+    LAST_CfgNode = ProxyBlock, // Mark last descendant of CfgNode
     DataObject,
     ImageByteMap,
     IR,
     Module,
     Section,
     Symbol,
+    LAST_Node = Symbol, // Mark last descendant of Node
   };
   /// \endcond
 
@@ -78,7 +87,10 @@ public:
   /// \endcond
 
   /// \cond INTERNAL
-  static bool classof(const Node* N) { return N->getKind() == Kind::Node; }
+  static bool classof(const Node* N) { return classofKind(N->getKind()); }
+  static bool classofKind(Kind K) {
+    return K >= Kind::Node && K <= Kind::LAST_Node;
+  }
   /// \endcond
 
 protected:
