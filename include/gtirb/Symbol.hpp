@@ -283,6 +283,8 @@ public:
               return std::make_optional(b->getAddress());
             else if (DataObject* d = dyn_cast_or_null<DataObject>(arg))
               return std::make_optional(d->getAddress());
+            else if (ProxyBlock* p = dyn_cast_or_null<ProxyBlock>(arg))
+              return std::optional<Addr>{};
             else
               assert(arg == nullptr && "unsupported referent type");
             return std::optional<Addr>{};

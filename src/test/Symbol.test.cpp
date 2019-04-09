@@ -17,6 +17,7 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/DataObject.hpp>
 #include <gtirb/Module.hpp>
+#include <gtirb/ProxyBlock.hpp>
 #include <gtirb/Symbol.hpp>
 #include <proto/Symbol.pb.h>
 #include <gtest/gtest.h>
@@ -43,20 +44,30 @@ TEST(Unit_Symbol, setReferent) {
   DataObject* Data = DataObject::Create(Ctx);
   Mod->addData(Data);
   Block* B = emplaceBlock(*Mod, Ctx, Addr(1), 2);
+  ProxyBlock* Proxy = ProxyBlock::Create(Ctx);
+  Mod->addProxyBlock(Proxy);
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
   EXPECT_FALSE(Sym->getAddress());
 
   setReferent(*Mod, *Sym, Data);
-  EXPECT_EQ(Sym->getReferent<DataObject>(), Data);
   EXPECT_EQ(Sym->getReferent<Block>(), nullptr);
+  EXPECT_EQ(Sym->getReferent<DataObject>(), Data);
+  EXPECT_EQ(Sym->getReferent<ProxyBlock>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(0));
 
   setReferent(*Mod, *Sym, B);
   EXPECT_EQ(Sym->getReferent<Block>(), B);
   EXPECT_EQ(Sym->getReferent<DataObject>(), nullptr);
+  EXPECT_EQ(Sym->getReferent<ProxyBlock>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(1));
+
+  setReferent(*Mod, *Sym, Proxy);
+  EXPECT_EQ(Sym->getReferent<Block>(), nullptr);
+  EXPECT_EQ(Sym->getReferent<DataObject>(), nullptr);
+  EXPECT_EQ(Sym->getReferent<ProxyBlock>(), Proxy);
+  EXPECT_FALSE(Sym->getAddress());
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
