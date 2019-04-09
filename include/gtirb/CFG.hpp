@@ -50,14 +50,20 @@ class CfgNode;
 /// @{ @}
 
 /// \ingroup CFG_GROUP
+/// \brief Indicates whether an edge is conditional on true.
+enum class ConditionalEdge : bool { OnFalse, OnTrue };
+
+/// \ingroup CFG_GROUP
+/// \brief Indicates whether an edge represents indirect control flow.
+enum class DirectEdge : bool { IsIndirect, IsDirect };
+
+/// \ingroup CFG_GROUP
+/// \brief Indicates the type of control flow transfer indicated by this edge.
+enum class EdgeType { Branch, Call, Fallthrough, Return, Syscall, Sysret };
+
+/// \ingroup CFG_GROUP
 /// \brief A label on a \ref CFG edge.
-///
-/// Boolean labels are used in the case of a conditional branch or call.
-/// A true label designates the non-local edge (e.g. when the condition is
-/// true), while a false label designates the fallthrough edge.
-///
-/// Integer labels are used for indirect branches.
-using EdgeLabel = std::variant<std::monostate, bool, uint64_t>;
+using EdgeLabel = std::tuple<ConditionalEdge, DirectEdge, EdgeType>;
 
 /// @cond INTERNAL
 

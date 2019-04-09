@@ -182,21 +182,35 @@ TEST(Unit_CFG, edgeLabels) {
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
 
-  // boolean label
-  auto E1 = addEdge(B1, B2, Cfg);
-  Cfg[*E1] = true;
-  EXPECT_EQ(std::get<bool>(Cfg[*E1]), true);
+  auto Conds = {ConditionalEdge::OnFalse, ConditionalEdge::OnTrue};
+  auto Dirs = {DirectEdge::IsDirect, DirectEdge::IsIndirect};
+  auto Types = {EdgeType::Branch, EdgeType::Call,    EdgeType::Fallthrough,
+                EdgeType::Return, EdgeType::Syscall, EdgeType::Sysret};
 
-  // numeric label
-  auto E2 = addEdge(B1, B2, Cfg);
-  Cfg[*E2] = uint64_t(5);
-  EXPECT_EQ(std::get<uint64_t>(Cfg[*E2]), 5);
+  // Create a number of parallel edges with different labels.
+  std::vector<CFG::edge_descriptor> Descriptors;
+  for (ConditionalEdge Cond : Conds) {
+    for (DirectEdge Dir : Dirs) {
+      for (EdgeType Type : Types) {
+        auto E = addEdge(B1, B2, Cfg);
+        Cfg[*E] = std::make_tuple(Cond, Dir, Type);
+        Descriptors.push_back(*E);
+      }
+    }
+  }
 
-  // parallel edge with different label
-  auto E3 = addEdge(B1, B2, Cfg);
-  Cfg[*E3] = true;
-  EXPECT_EQ(std::get<bool>(Cfg[*E3]), true);
-  EXPECT_EQ(std::get<uint64_t>(Cfg[*E2]), 5);
+  // Check that the edges have the properties we assigned.
+  auto It = Descriptors.begin();
+  for (ConditionalEdge Cond : Conds) {
+    for (DirectEdge Dir : Dirs) {
+      for (EdgeType Type : Types) {
+        EXPECT_EQ(std::get<ConditionalEdge>(Cfg[*It]), Cond);
+        EXPECT_EQ(std::get<DirectEdge>(Cfg[*It]), Dir);
+        EXPECT_EQ(std::get<EdgeType>(Cfg[*It]), Type);
+        ++It;
+      }
+    }
+  }
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
@@ -215,8 +229,10 @@ TEST(Unit_CFG, protobufRoundTrip) {
     auto E1 = addEdge(B1, P1, Original);
     auto E2 = addEdge(B2, P1, Original);
     addEdge(P1, B1, Original);
-    Original[*E1] = true;
-    Original[*E2] = uint64_t(5);
+    Original[*E1] = std::make_tuple(ConditionalEdge::OnTrue,
+                                    DirectEdge::IsDirect, EdgeType::Branch);
+    Original[*E2] = std::make_tuple(ConditionalEdge::OnFalse,
+                                    DirectEdge::IsIndirect, EdgeType::Call);
 
     Message = toProtobuf(Original);
   }
@@ -249,8 +265,12 @@ TEST(Unit_CFG, protobufRoundTrip) {
 
   // Check labels
   auto E1 = edge(vertex(0, Result), vertex(2, Result), Result).first;
-  EXPECT_EQ(std::get<bool>(Result[E1]), true);
+  EXPECT_EQ(std::get<ConditionalEdge>(Result[E1]), ConditionalEdge::OnTrue);
+  EXPECT_EQ(std::get<DirectEdge>(Result[E1]), DirectEdge::IsDirect);
+  EXPECT_EQ(std::get<EdgeType>(Result[E1]), EdgeType::Branch);
 
   auto E2 = edge(vertex(1, Result), vertex(2, Result), Result).first;
-  EXPECT_EQ(std::get<uint64_t>(Result[E2]), 5);
+  EXPECT_EQ(std::get<ConditionalEdge>(Result[E2]), ConditionalEdge::OnFalse);
+  EXPECT_EQ(std::get<DirectEdge>(Result[E2]), DirectEdge::IsIndirect);
+  EXPECT_EQ(std::get<EdgeType>(Result[E2]), EdgeType::Call);
 }

@@ -17,14 +17,26 @@ package proto;
 
 import "Block.proto";
 
+enum EdgeType {
+    Type_Branch = 0;
+    Type_Call = 1;
+    Type_Fallthrough = 2;
+    Type_Return = 3;
+    Type_Syscall = 4;
+    Type_Sysret = 5;
+}
+
 message Edge
 {
+    reserved 3, 4;
+    reserved "boolean", "integer";
+
     bytes source_uuid = 1;
     bytes target_uuid = 2;
-    oneof label {
-      bool boolean = 3;
-      uint64 integer = 4;
-    }
+
+    bool conditional = 5;
+    bool direct = 6;
+    EdgeType type = 7;
 }
 
 message CFG

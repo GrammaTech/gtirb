@@ -87,27 +87,16 @@ proto::CFG toProtobuf(const CFG& Cfg) {
   }
 
   auto MessageEdges = Message.mutable_edges();
-  auto EdgeRange = edges(Cfg);
-  std::for_each(
-      EdgeRange.first, EdgeRange.second, [MessageEdges, &Cfg](const auto& E) {
-        auto M = MessageEdges->Add();
-        nodeUUIDToBytes(Cfg[source(E, Cfg)], *M->mutable_source_uuid());
-        nodeUUIDToBytes(Cfg[target(E, Cfg)], *M->mutable_target_uuid());
-        auto Label = Cfg[E];
-        switch (Label.index()) {
-        case 1:
-          M->set_boolean(std::get<bool>(Label));
-          break;
-        case 2:
-          M->set_integer(std::get<uint64_t>(Label));
-          break;
-        case 0:
-        default:
-          // Blank, nothing to do
-          break;
-        }
-      });
-
+  for (const auto& E : boost::make_iterator_range(edges(Cfg))) {
+    auto M = MessageEdges->Add();
+    nodeUUIDToBytes(Cfg[source(E, Cfg)], *M->mutable_source_uuid());
+    nodeUUIDToBytes(Cfg[target(E, Cfg)], *M->mutable_target_uuid());
+    auto Label = Cfg[E];
+    M->set_conditional(std::get<ConditionalEdge>(Label) ==
+                       ConditionalEdge::OnTrue);
+    M->set_direct(std::get<DirectEdge>(Label) == DirectEdge::IsDirect);
+    M->set_type(static_cast<proto::EdgeType>(std::get<EdgeType>(Label)));
+  }
   return Message;
 }
 
@@ -117,28 +106,21 @@ void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
         dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
     addVertex(N, Result);
   }
-  std::for_each(Message.edges().begin(), Message.edges().end(),
-                [&Result, &C](const auto& M) {
-                  auto* Source = dyn_cast_or_null<CfgNode>(
-                      Node::getByUUID(C, uuidFromBytes(M.source_uuid())));
-                  auto* Target = dyn_cast_or_null<CfgNode>(
-                      Node::getByUUID(C, uuidFromBytes(M.target_uuid())));
-
-                  if (Source && Target) {
-                    auto E = addEdge(Source, Target, Result);
-                    if (E) {
-                      switch (M.label_case()) {
-                      case proto::Edge::kBoolean:
-                        Result[*E] = M.boolean();
-                        break;
-                      case proto::Edge::kInteger:
-                        Result[*E] = M.integer();
-                      case proto::Edge::LABEL_NOT_SET:
-                        // Nothing to do. Default edge label is blank.
-                        break;
-                      }
-                    }
-                  }
-                });
+  for (const auto& M : Message.edges()) {
+    auto* Source = dyn_cast_or_null<CfgNode>(
+        Node::getByUUID(C, uuidFromBytes(M.source_uuid())));
+    auto* Target = dyn_cast_or_null<CfgNode>(
+        Node::getByUUID(C, uuidFromBytes(M.target_uuid())));
+    if (Source && Target) {
+      auto E = addEdge(Source, Target, Result);
+      if (E) {
+        Result[*E] = std::make_tuple(M.conditional() ? ConditionalEdge::OnTrue
+                                                     : ConditionalEdge::OnFalse,
+                                     M.direct() ? DirectEdge::IsDirect
+                                                : DirectEdge::IsIndirect,
+                                     static_cast<EdgeType>(M.type()));
+      }
+    }
+  }
 }
 } // namespace gtirb
