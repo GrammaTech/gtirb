@@ -55,6 +55,7 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/version.h
         )
 
 set(${PROJECT_NAME}_H
