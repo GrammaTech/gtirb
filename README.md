@@ -89,12 +89,14 @@ GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
 Studio compilers supporting at least C++17.  GTIRB uses CMake which
 must be installed.
 
-    mkdir build
-    cd build
-    cmake ../path/to/gtirb
-    make -j
-    # Run the test suite.
-    ./bin/TestGTIRB
+```sh
+mkdir build
+cd build
+cmake ../path/to/gtirb
+make -j
+# Run the test suite.
+./bin/TestGTIRB
+```
 
 The gtirb library will be located in `lib/libgtirb.so` in the build
 directory.
@@ -141,9 +143,10 @@ language of your choice. The [Google protocol
 buffers](https://developers.google.com/protocol-buffers/) homepage
 lists the languages in which protocol buffers can be used directly;
 users of other languages can convert the protobuf-formatted data to
-JSON format and then use the JSON data in their applications. In the future we intend to define a standard JSON schema for GTIRB.
+JSON format and then use the JSON data in their applications. In the
+future we intend to define a standard JSON schema for GTIRB.
 
-Directory `gtirb/src/proto' contains the protocol buffer message type
+Directory `gtirb/src/proto` contains the protocol buffer message type
 definitions for GTIRB. You can inspect these `.proto` files to
 determine the structure of the various GTIRB message types. The
 top-level message type is `IR`.
@@ -159,7 +162,6 @@ information.
 
 The remainder of this section provides examples walking through common
 tasks using the GTIRB C++ library API.
-
 
 - [Populating the IR](#populating-the-ir)
 - [Querying the IR](#querying-the-ir)
