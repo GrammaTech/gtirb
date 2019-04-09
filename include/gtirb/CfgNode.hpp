@@ -32,7 +32,7 @@ public:
   /// \cond INTERNAL
   static bool classof(const Node* N) { return classofKind(N->getKind()); }
   static bool classofKind(Kind K) {
-    return K >= Kind::CfgNode && Kind::LAST_CfgNode <= K;
+    return K >= Kind::CfgNode && K <= Kind::LAST_CfgNode;
   }
   ///
 protected:

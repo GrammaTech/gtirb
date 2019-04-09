@@ -81,7 +81,7 @@ boost::iterator_range<block_iterator> blocks(CFG& Cfg) {
 proto::CFG toProtobuf(const CFG& Cfg) {
   proto::CFG Message;
   auto MessageVertices = Message.mutable_vertices();
-  for (const Node& N : blocks(Cfg)) {
+  for (const Node& N : nodes(Cfg)) {
     auto* M = MessageVertices->Add();
     nodeUUIDToBytes(&N, *M);
   }
@@ -113,14 +113,15 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 
 void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
   for (const auto& M : Message.vertices()) {
-    Block* B = dyn_cast_or_null<Block>(Node::getByUUID(C, uuidFromBytes(M)));
-    addVertex(B, Result);
+    CfgNode* N =
+        dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
+    addVertex(N, Result);
   }
   std::for_each(Message.edges().begin(), Message.edges().end(),
                 [&Result, &C](const auto& M) {
-                  auto* Source = dyn_cast_or_null<Block>(
+                  auto* Source = dyn_cast_or_null<CfgNode>(
                       Node::getByUUID(C, uuidFromBytes(M.source_uuid())));
-                  auto* Target = dyn_cast_or_null<Block>(
+                  auto* Target = dyn_cast_or_null<CfgNode>(
                       Node::getByUUID(C, uuidFromBytes(M.target_uuid())));
 
                   if (Source && Target) {

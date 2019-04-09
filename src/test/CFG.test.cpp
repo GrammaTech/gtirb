@@ -205,16 +205,16 @@ TEST(Unit_CFG, protobufRoundTrip) {
 
   auto B1 = Block::Create(Ctx, Addr(1), 2, 3);
   auto B2 = Block::Create(Ctx, Addr(4), 5, 6);
-  auto B3 = Block::Create(Ctx, Addr(7), 8, 9);
+  auto P1 = ProxyBlock::Create(Ctx);
   {
     CFG Original;
     addVertex(B1, Original);
     addVertex(B2, Original);
-    addVertex(B3, Original);
+    addVertex(P1, Original);
 
-    auto E1 = addEdge(B1, B3, Original);
-    auto E2 = addEdge(B2, B3, Original);
-    addEdge(B3, B1, Original);
+    auto E1 = addEdge(B1, P1, Original);
+    auto E2 = addEdge(B2, P1, Original);
+    addEdge(P1, B1, Original);
     Original[*E1] = true;
     Original[*E2] = uint64_t(5);
 
@@ -222,23 +222,20 @@ TEST(Unit_CFG, protobufRoundTrip) {
   }
   fromProtobuf(Ctx, Result, Message);
 
-  auto Range = blocks(Result);
+  auto Range = nodes(Result);
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 3);
   auto It = Range.begin();
   EXPECT_EQ(It->getUUID(), B1->getUUID());
-  EXPECT_EQ(It->getAddress(), Addr(1));
-  EXPECT_EQ(It->getSize(), 2);
-  EXPECT_EQ(It->getDecodeMode(), 3);
+  EXPECT_EQ(dyn_cast<Block>(&*It)->getAddress(), Addr(1));
+  EXPECT_EQ(dyn_cast<Block>(&*It)->getSize(), 2);
+  EXPECT_EQ(dyn_cast<Block>(&*It)->getDecodeMode(), 3);
   ++It;
   EXPECT_EQ(It->getUUID(), B2->getUUID());
-  EXPECT_EQ(It->getAddress(), Addr(4));
-  EXPECT_EQ(It->getSize(), 5);
-  EXPECT_EQ(It->getDecodeMode(), 6);
+  EXPECT_EQ(dyn_cast<Block>(&*It)->getAddress(), Addr(4));
+  EXPECT_EQ(dyn_cast<Block>(&*It)->getSize(), 5);
+  EXPECT_EQ(dyn_cast<Block>(&*It)->getDecodeMode(), 6);
   ++It;
-  EXPECT_EQ(It->getUUID(), B3->getUUID());
-  EXPECT_EQ(It->getAddress(), Addr(7));
-  EXPECT_EQ(It->getSize(), 8);
-  EXPECT_EQ(It->getDecodeMode(), 9);
+  EXPECT_EQ(It->getUUID(), P1->getUUID());
 
   // Check edges
   EXPECT_TRUE(edge(vertex(0, Result), vertex(2, Result), Result).second);
