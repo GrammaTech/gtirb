@@ -51,7 +51,12 @@ class CfgNode;
 
 /// \ingroup CFG_GROUP
 /// \brief Indicates whether an edge is conditional on true.
-enum class ConditionalEdge : bool { OnFalse, OnTrue };
+enum class ConditionalEdge : bool {
+  OnFalse, ///< \brief Indicates an unconditional edge or a conditional edge
+           ///< that fires when the condition is false.
+  OnTrue   ///< \brief Indicates a conditional edge that fires when the
+           ///< condition is true.
+};
 
 /// \ingroup CFG_GROUP
 /// \brief Indicates whether an edge represents indirect control flow.
