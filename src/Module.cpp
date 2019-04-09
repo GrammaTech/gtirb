@@ -37,6 +37,15 @@ const gtirb::ImageByteMap& Module::getImageByteMap() const {
   return *this->ImageBytes;
 }
 
+void Module::addCfgNode(CfgNode* N) {
+  if (Block* B = dyn_cast<Block>(N))
+    addBlock(B);
+  else if (ProxyBlock* P = dyn_cast<ProxyBlock>(N))
+    addProxyBlock(P);
+  else
+    assert("attempted to add invalid CfgNode");
+}
+
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);
@@ -49,6 +58,8 @@ void Module::toProtobuf(MessageType* Message) const {
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
   sequenceToProtobuf(block_begin(), block_end(), Message->mutable_blocks());
   sequenceToProtobuf(data_begin(), data_end(), Message->mutable_data());
+  sequenceToProtobuf(ProxyBlocks.begin(), ProxyBlocks.end(),
+                     Message->mutable_proxies());
   sequenceToProtobuf(section_begin(), section_end(),
                      Message->mutable_sections());
   containerToProtobuf(Symbols, Message->mutable_symbols());
@@ -83,6 +94,8 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
     M->addBlock(Block::fromProtobuf(C, Elt));
   for (const auto& Elt : Message.data())
     M->addData(DataObject::fromProtobuf(C, Elt));
+  for (const auto& Elt : Message.proxies())
+    M->addProxyBlock(ProxyBlock::fromProtobuf(C, Elt));
   for (const auto& Elt : Message.sections())
     M->addSection(Section::fromProtobuf(C, Elt));
   containerFromProtobuf(C, M->Symbols, Message.symbols());

@@ -20,6 +20,7 @@ import "Block.proto";
 import "CFG.proto";
 import "DataObject.proto";
 import "ImageByteMap.proto";
+import "ProxyBlock.proto";
 import "Section.proto";
 import "Symbol.proto";
 import "SymbolicExpression.proto";
@@ -58,6 +59,7 @@ message Module {
     CFG cfg = 10;
     repeated Block blocks = 15;
     repeated DataObject data = 11;
+    repeated ProxyBlock proxies = 16;
     repeated Section sections = 12;
     map<uint64, SymbolicExpression> symbolic_operands = 13;
     AuxDataContainer aux_data_container = 14;

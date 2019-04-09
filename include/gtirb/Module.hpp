@@ -133,6 +133,8 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   using DataIntMap = boost::icl::interval_map<
       Addr, std::multiset<DataObject*, addr_size_order<DataObject>>>;
 
+  using ProxyBlockSet = std::unordered_set<ProxyBlock*>;
+
   using SectionSet = boost::multi_index::multi_index_container<
       Section*, boost::multi_index::indexed_by<
                     boost::multi_index::ordered_non_unique<
@@ -289,6 +291,19 @@ public:
   ///
   /// A Module can have exactly one ImageByteMap child.
   const gtirb::ImageByteMap& getImageByteMap() const;
+
+  /// \brief Add a single CFG node to the module.
+  ///
+  /// \param N  The CfgNode to add.
+  void addCfgNode(CfgNode* N);
+
+  /// \brief Add a single ProxyBlock to the module.
+  ///
+  /// \param P  The ProxyBlock to add.
+  void addProxyBlock(ProxyBlock* P) {
+    ProxyBlocks.insert(P);
+    addVertex(P, getCFG());
+  }
 
   /// \name Symbol-Related Public Types and Functions
   /// @{
@@ -1004,6 +1019,7 @@ private:
   DataSet Data;
   DataIntMap DataAddrs;
   ImageByteMap* ImageBytes;
+  ProxyBlockSet ProxyBlocks;
   SectionSet Sections;
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;

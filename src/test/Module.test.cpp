@@ -316,6 +316,23 @@ TEST(Unit_Module, blocks) {
   EXPECT_EQ(F.begin()->getAddress(), Addr(1));
 }
 
+TEST(Unit_Module, cfgNodes) {
+  auto* M = Module::Create(Ctx);
+  auto* B = Block::Create(Ctx, Addr(1), 10);
+  auto* P = ProxyBlock::Create(Ctx);
+  M->addCfgNode(B);
+  M->addCfgNode(P);
+
+  EXPECT_EQ(std::distance(M->block_begin(), M->block_end()), 1);
+  auto Nodes = nodes(M->getCFG());
+  EXPECT_EQ(std::distance(Nodes.begin(), Nodes.end()), 2);
+  auto It = Nodes.begin();
+  EXPECT_TRUE(&*It == B || &*It == P);
+  ++It;
+  EXPECT_NE(&*Nodes.begin(), &*It);
+  EXPECT_TRUE(&*It == B || &*It == P);
+}
+
 TEST(Unit_Module, blockIterationOrder) {
   auto* M = Module::Create(Ctx);
   auto* B = emplaceBlock(*M, Ctx, Addr(0), 10);
@@ -752,7 +769,7 @@ TEST(Unit_Module, getAddrsForSymbolicExpression) {
 TEST(Unit_Module, protobufRoundTrip) {
   proto::Module Message;
 
-  UUID ByteMapID, BlockID, DataID, SectionID;
+  UUID ByteMapID, BlockID, DataID, ProxyID, SectionID;
   size_t WhichSymbolic;
 
   {
@@ -768,11 +785,14 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
     emplaceBlock(*Original, InnerCtx, Addr(1), 2);
     Original->addData(DataObject::Create(InnerCtx));
+    auto* P = ProxyBlock::Create(InnerCtx);
+    Original->addProxyBlock(P);
     Original->addSection(Section::Create(InnerCtx));
     Original->addSymbolicExpression(Addr(7), {SymAddrConst()});
     ByteMapID = Original->getImageByteMap().getUUID();
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
     DataID = Original->data_begin()->getUUID();
+    ProxyID = P->getUUID();
     SectionID = Original->section_begin()->getUUID();
     WhichSymbolic = Original->symbolic_expr_begin()->index();
 
@@ -803,8 +823,17 @@ TEST(Unit_Module, protobufRoundTrip) {
   // don't check in detail as they have their own unit tests.
   EXPECT_EQ(Result->getImageByteMap().getUUID(), ByteMapID);
 
-  EXPECT_EQ(num_vertices(Result->getCFG()), 1);
-  EXPECT_EQ(blocks(Result->getCFG()).begin()->getUUID(), BlockID);
+  EXPECT_EQ(num_vertices(Result->getCFG()), 2);
+  {
+    auto Nodes = nodes(Result->getCFG());
+    auto It = Nodes.begin();
+    EXPECT_TRUE(&*It);
+    EXPECT_TRUE(It->getUUID() == BlockID || It->getUUID() == ProxyID);
+    ++It;
+    EXPECT_TRUE(&*It);
+    EXPECT_NE(Nodes.begin()->getUUID(), It->getUUID());
+    EXPECT_TRUE(It->getUUID() == BlockID || It->getUUID() == ProxyID);
+  }
 
   EXPECT_EQ(std::distance(Result->data_begin(), Result->data_end()), 1);
   EXPECT_EQ(Result->data_begin()->getUUID(), DataID);

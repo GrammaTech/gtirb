@@ -74,6 +74,7 @@ set(${PROJECT_NAME}_SRC
         IR.cpp
         Module.cpp
         Node.cpp
+        ProxyBlock.cpp
         Section.cpp
         Serialization.cpp
         Symbol.cpp

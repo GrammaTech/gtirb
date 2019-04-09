@@ -64,7 +64,7 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Block object, or null on failure.
-  static Block* fromProtobuf(Context& C, const MessageType& Message);
+  static ProxyBlock* fromProtobuf(Context& C, const MessageType& Message);
 
   /// \cond INTERNAL
   static bool classof(const Node* N) {
