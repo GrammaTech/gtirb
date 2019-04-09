@@ -71,16 +71,15 @@ template <class OutEdgeListS = boost::vecS, class VertexListS = boost::vecS,
 struct CfgBuilder {
   using vertex_descriptor = typename boost::adjacency_list_traits<
       OutEdgeListS, VertexListS, DirectedS, EdgeListS>::vertex_descriptor;
-  using type =
-      boost::adjacency_list<OutEdgeListS, VertexListS, DirectedS,
-                            // Vertices are CfgNodes.
-                            CfgNode*,
-                            // Edges have labels.
-                            EdgeLabel,
-                            // The graph keeps track of vertex descriptors for
-                            // each node.
-                            std::unordered_map<const Node*, vertex_descriptor>,
-                            EdgeListS>;
+  using type = boost::adjacency_list<
+      OutEdgeListS, VertexListS, DirectedS,
+      // Vertices are CfgNodes.
+      CfgNode*,
+      // Edges have labels.
+      EdgeLabel,
+      // The graph keeps track of vertex descriptors for
+      // each node.
+      std::unordered_map<const CfgNode*, vertex_descriptor>, EdgeListS>;
 };
 /// @endcond
 
@@ -190,58 +189,82 @@ using block_iterator = cfg_node_cast_iter<Block>;
 using const_block_iterator = cfg_node_cast_iter<const Block>;
 
 /// \ingroup CFG_GROUP
-/// \brief Add a block to the CFG.
+/// \brief Add a node to the CFG.
 ///
-/// If the graph already contains the block, it is not modified.
+/// If the graph already contains the node, it is not modified.
 ///
 /// \warning This is a relatively low-level interface. For most purposes, prefer
-/// Module::addBlock.
+/// Module::addCfgNode.
 ///
-/// \param B    The block to add.
+/// \param N    The CFG node to add.
 /// \param Cfg  The graph to modify.
 ///
-/// \return A descriptor which can be used to retrieve the block from the graph.
-GTIRB_EXPORT_API CFG::vertex_descriptor addVertex(Block* B, CFG& Cfg);
+/// \return A descriptor which can be used to retrieve the node from the graph.
+GTIRB_EXPORT_API CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief Get the boost::graph vertex descriptor for a Block if it is in the
+/// \brief Get the boost::graph vertex descriptor for a CfgNode if it is in the
 /// graph.
 ///
-/// \param B    The block to query.
+/// \param N    The node to query.
 /// \param Cfg  The graph to query.
 ///
-/// \return A descriptor which can be used to retrieve the block from the graph.
+/// \return A descriptor which can be used to retrieve the node from the graph.
 GTIRB_EXPORT_API std::optional<CFG::vertex_descriptor>
-getVertex(const Block* B, const CFG& Cfg);
+getVertex(const CfgNode* N, const CFG& Cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief Create a new edge between two blocks if they exist in the graph.
+/// \brief Create a new edge between two CFG nodes if they exist in the graph.
 ///
 /// \param Cfg   The graph to modify.
-/// \param From  The source block.
-/// \param To    The target block.
+/// \param From  The source node.
+/// \param To    The target node.
 ///
 /// \return A descriptor which can be used to retrieve the edge from the
-/// graph or assign a label. If either block is not present in the graph,
+/// graph or assign a label. If either CFG node is not present in the graph,
 /// returns \c std::nullopt instead.
 GTIRB_EXPORT_API std::optional<CFG::edge_descriptor>
-addEdge(const Block* From, const Block* To, CFG& Cfg);
+addEdge(const CfgNode* From, const CfgNode* To, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief Get a range of the \ref Block elements in the specified graph.
+/// \brief Get a range of the \ref CfgNode elements in the specified graph.
 ///
 /// \param Cfg  The graph to be iterated over.
 ///
-/// \return A range over \p Cfg
+/// \return a range over the \p Cfg.
+GTIRB_EXPORT_API boost::iterator_range<cfg_iterator> nodes(CFG& Cfg);
+
+/// \ingroup CFG_GROUP
+/// \brief Get a constant range of the \ref CfgNode elements in the specified
+/// graph.
+///
+/// \param Cfg  The graph to be iterated over.
+///
+/// \return A range over teh \p Cfg.
+GTIRB_EXPORT_API boost::iterator_range<const_cfg_iterator>
+nodes(const CFG& Cfg);
+
+/// \ingroup CFG_GROUP
+/// \brief Get a range of just the \ref Block elements in the specified graph.
+///
+/// The returned range will not include any \ref ProxyBlocks. To retrieve those
+/// as well, use \ref nodes(CFG&).
+///
+/// \param Cfg  The graph to be iterated over.
+///
+/// \return A range over the \ref Blocks in the \p Cfg
 GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 
 /// \ingroup CFG_GROUP
-/// \brief Get a constant range of the \ref Block elements in the specified
+/// \brief Get a constant range of just the \ref Block elements in the specified
 /// graph.
+///
+/// The returned range will not include any \ref ProxyBlocks. To retrieve those
+/// as well, use \ref nodes(CFG&).
 ///
 /// \param Cfg  The graph to be iterated over.
 ///
-/// \return A range over \p Cfg
+/// \return A range over the \ref Blocks in the \p Cfg
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& Cfg);
 

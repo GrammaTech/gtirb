@@ -15,6 +15,7 @@
 #include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/Context.hpp>
+#include <gtirb/ProxyBlock.hpp>
 #include <proto/CFG.pb.h>
 #include <gtest/gtest.h>
 
@@ -53,13 +54,65 @@ TEST(Unit_CFG, addVertex) {
   EXPECT_EQ(Descriptor2, Descriptor1);
   auto Vertices = vertices(Cfg);
   EXPECT_EQ(std::distance(Vertices.first, Vertices.second), 1);
+
+  auto* P = ProxyBlock::Create(Ctx);
+  auto Descriptor3 = addVertex(P, Cfg);
+  EXPECT_EQ(Cfg[Descriptor3], P);
+  auto Descriptor4 = addVertex(P, Cfg);
+  EXPECT_EQ(Descriptor4, Descriptor3);
+  Vertices = vertices(Cfg);
+  EXPECT_EQ(std::distance(Vertices.first, Vertices.second), 2);
 }
 
 TEST(Unit_CFG, getVertex) {
   CFG Cfg;
   auto* B = Block::Create(Ctx, Addr(1), 2);
-  auto Descriptor = addVertex(B, Cfg);
-  EXPECT_EQ(getVertex(B, Cfg), Descriptor);
+  auto* P = ProxyBlock::Create(Ctx);
+  auto DescriptorB = addVertex(B, Cfg);
+  auto DescriptorP = addVertex(P, Cfg);
+  EXPECT_EQ(getVertex(B, Cfg), DescriptorB);
+  EXPECT_EQ(getVertex(P, Cfg), DescriptorP);
+}
+
+TEST(Unit_CFG, cfgIterator) {
+  CFG Cfg;
+  auto* B1 = Block::Create(Ctx, Addr(1), 2);
+  auto* P1 = ProxyBlock::Create(Ctx);
+  auto* B2 = Block::Create(Ctx, Addr(3), 2);
+  auto* P2 = ProxyBlock::Create(Ctx);
+  addVertex(B1, Cfg);
+  addVertex(P1, Cfg);
+  addVertex(B2, Cfg);
+  addVertex(P2, Cfg);
+
+  // Non-const graph produces a regular iterator
+  boost::iterator_range<cfg_iterator> NodeRange = nodes(Cfg);
+  EXPECT_EQ(std::distance(NodeRange.begin(), NodeRange.end()), 4);
+  auto It = NodeRange.begin();
+  EXPECT_EQ(&*It, B1);
+  ++It;
+  EXPECT_EQ(&*It, P1);
+  ++It;
+  EXPECT_EQ(&*It, B2);
+  ++It;
+  EXPECT_EQ(&*It, P2);
+  ++It;
+  EXPECT_EQ(It, NodeRange.end());
+
+  // Const graph produces a const iterator
+  const CFG& ConstCfg = Cfg;
+  boost::iterator_range<const_cfg_iterator> ConstRange = nodes(ConstCfg);
+  EXPECT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 4);
+  auto Cit = ConstRange.begin();
+  EXPECT_EQ(&*Cit, B1);
+  ++Cit;
+  EXPECT_EQ(&*Cit, P1);
+  ++Cit;
+  EXPECT_EQ(&*Cit, B2);
+  ++Cit;
+  EXPECT_EQ(&*Cit, P2);
+  ++Cit;
+  EXPECT_EQ(Cit, ConstRange.end());
 }
 
 TEST(Unit_CFG, blockIterator) {
@@ -67,6 +120,7 @@ TEST(Unit_CFG, blockIterator) {
   addVertex(Block::Create(Ctx, Addr(1), 2), Cfg);
   addVertex(Block::Create(Ctx, Addr(3), 2), Cfg);
   addVertex(Block::Create(Ctx, Addr(5), 2), Cfg);
+  addVertex(ProxyBlock::Create(Ctx), Cfg);
 
   // Non-const graph produces a regular iterator
   boost::iterator_range<block_iterator> BlockRange = blocks(Cfg);
@@ -98,27 +152,27 @@ TEST(Unit_CFG, edges) {
   CFG Cfg;
   auto B1 = Block::Create(Ctx, Addr(1), 2);
   auto B2 = Block::Create(Ctx, Addr(3), 4);
-  auto B3 = Block::Create(Ctx, Addr(5), 6);
+  auto P1 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
-  addVertex(B3, Cfg);
+  addVertex(P1, Cfg);
 
-  auto E1 = addEdge(B1, B3, Cfg);
+  auto E1 = addEdge(B1, P1, Cfg);
   EXPECT_EQ(Cfg[source(*E1, Cfg)], B1);
-  EXPECT_EQ(Cfg[target(*E1, Cfg)], B3);
+  EXPECT_EQ(Cfg[target(*E1, Cfg)], P1);
 
-  auto E2 = addEdge(B2, B3, Cfg);
+  auto E2 = addEdge(B2, P1, Cfg);
   EXPECT_EQ(Cfg[source(*E2, Cfg)], B2);
-  EXPECT_EQ(Cfg[target(*E2, Cfg)], B3);
+  EXPECT_EQ(Cfg[target(*E2, Cfg)], P1);
 
-  auto E3 = addEdge(B3, B1, Cfg);
-  EXPECT_EQ(Cfg[source(*E3, Cfg)], B3);
+  auto E3 = addEdge(P1, B1, Cfg);
+  EXPECT_EQ(Cfg[source(*E3, Cfg)], P1);
   EXPECT_EQ(Cfg[target(*E3, Cfg)], B1);
 
   // Parallel edge
-  auto E4 = addEdge(B1, B3, Cfg);
+  auto E4 = addEdge(B1, P1, Cfg);
   EXPECT_EQ(Cfg[source(*E4, Cfg)], B1);
-  EXPECT_EQ(Cfg[target(*E4, Cfg)], B3);
+  EXPECT_EQ(Cfg[target(*E4, Cfg)], P1);
 }
 
 TEST(Unit_CFG, edgeLabels) {

@@ -70,6 +70,7 @@ class GTIRB_EXPORT_API Context {
   mutable SpecificBumpPtrAllocator<ImageByteMap> ImageByteMapAllocator;
   mutable SpecificBumpPtrAllocator<IR> IrAllocator;
   mutable SpecificBumpPtrAllocator<Module> ModuleAllocator;
+  mutable SpecificBumpPtrAllocator<ProxyBlock> ProxyBlockAllocator;
   mutable SpecificBumpPtrAllocator<Section> SectionAllocator;
   mutable SpecificBumpPtrAllocator<Symbol> SymbolAllocator;
 
@@ -126,6 +127,7 @@ template <> GTIRB_EXPORT_API void* Context::Allocate<DataObject>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<ImageByteMap>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<IR>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<Module>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<ProxyBlock>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<Section>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<Symbol>() const;
 

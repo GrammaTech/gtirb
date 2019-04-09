@@ -19,41 +19,50 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addVertex(Block* B, CFG& Cfg) {
+CFG::vertex_descriptor addVertex(CfgNode* N, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
-  auto it = IdTable.find(B);
-  if (it != IdTable.end())
+  if (auto it = IdTable.find(N); it != IdTable.end())
     return it->second;
 
   auto Vertex = add_vertex(Cfg);
-  Cfg[Vertex] = B;
-  IdTable[B] = Vertex;
+  Cfg[Vertex] = N;
+  IdTable[N] = Vertex;
   return Vertex;
 }
 
-std::optional<CFG::vertex_descriptor> getVertex(const Block* B,
+std::optional<CFG::vertex_descriptor> getVertex(const CfgNode* N,
                                                 const CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
-  auto it = IdTable.find(B);
-  if (it != IdTable.end())
+  if (auto it = IdTable.find(N); it != IdTable.end())
     return it->second;
   return std::nullopt;
 }
 
-std::optional<CFG::edge_descriptor> addEdge(const Block* From, const Block* To,
-                                            CFG& Cfg) {
+std::optional<CFG::edge_descriptor> addEdge(const CfgNode* From,
+                                            const CfgNode* To, CFG& Cfg) {
   const auto& IdTable = Cfg[boost::graph_bundle];
-  auto it = IdTable.find(cast<Node>(From));
-  if (it == IdTable.end())
-    return std::nullopt;
-  auto FromVertex = it->second;
+  if (auto it = IdTable.find(From); it != IdTable.end()) {
+    auto FromVertex = it->second;
+    if (it = IdTable.find(To); it != IdTable.end()) {
+      auto ToVertex = it->second;
+      return add_edge(FromVertex, ToVertex, Cfg).first;
+    }
+  }
+  return std::nullopt;
+}
 
-  it = IdTable.find(cast<Node>(To));
-  if (it == IdTable.end())
-    return std::nullopt;
-  auto ToVertex = it->second;
+boost::iterator_range<const_cfg_iterator> nodes(const CFG& Cfg) {
+  auto Vs = vertices(Cfg);
+  return boost::make_iterator_range(
+      const_cfg_iterator(cfg_node_iter_base(Cfg, Vs.first)),
+      const_cfg_iterator(cfg_node_iter_base(Cfg, Vs.second)));
+}
 
-  return add_edge(FromVertex, ToVertex, Cfg).first;
+boost::iterator_range<cfg_iterator> nodes(CFG& Cfg) {
+  auto Vs = vertices(Cfg);
+  return boost::make_iterator_range(
+      cfg_iterator(cfg_node_iter_base(Cfg, Vs.first)),
+      cfg_iterator(cfg_node_iter_base(Cfg, Vs.second)));
 }
 
 boost::iterator_range<const_block_iterator> blocks(const CFG& Cfg) {

@@ -19,6 +19,7 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/ProxyBlock.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 
@@ -59,6 +60,9 @@ template <> void* Context::Allocate<IR>() const {
 }
 template <> void* Context::Allocate<Module>() const {
   return ModuleAllocator.Allocate();
+}
+template <> void* Context::Allocate<ProxyBlock>() const {
+  return ProxyBlockAllocator.Allocate();
 }
 template <> void* Context::Allocate<Section>() const {
   return SectionAllocator.Allocate();
