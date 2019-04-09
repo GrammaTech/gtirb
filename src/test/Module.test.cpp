@@ -34,8 +34,7 @@ TEST(Unit_Module, compilationIteratorTypes) {
   static_assert(
       std::is_same_v<Module::const_block_iterator::reference, const Block&>);
   static_assert(
-      std::is_same_v<Module::block_subrange::iterator::reference,
-                     Block&>);
+      std::is_same_v<Module::block_subrange::iterator::reference, Block&>);
   static_assert(
       std::is_same_v<Module::const_block_subrange::iterator::reference,
                      const Block&>);
