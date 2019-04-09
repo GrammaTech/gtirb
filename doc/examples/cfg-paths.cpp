@@ -4,6 +4,7 @@
 #include <gtirb/gtirb.hpp>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <set>
 #include <vector>
 

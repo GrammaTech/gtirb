@@ -7,6 +7,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_compile_options("/FIgtirb/Export.hpp")
 else()
     add_compile_options(-Wno-shadow)
+    add_compile_options(-Wno-unused-parameter)
     add_compile_options(-include "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 endif()
 PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders
