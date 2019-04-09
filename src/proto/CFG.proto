@@ -26,6 +26,12 @@ enum EdgeType {
     Type_Sysret = 5;
 }
 
+message EdgeLabel {
+    bool conditional = 1;
+    bool direct = 2;
+    EdgeType type = 3;
+}
+
 message Edge
 {
     reserved 3, 4;
@@ -33,10 +39,7 @@ message Edge
 
     bytes source_uuid = 1;
     bytes target_uuid = 2;
-
-    bool conditional = 5;
-    bool direct = 6;
-    EdgeType type = 7;
+    EdgeLabel label = 5;
 }
 
 message CFG

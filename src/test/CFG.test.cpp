@@ -182,6 +182,10 @@ TEST(Unit_CFG, edgeLabels) {
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
 
+  // Create an edge with no label
+  auto E = addEdge(B2, B1, Cfg);
+  EXPECT_FALSE(Cfg[*E]);
+
   auto Conds = {ConditionalEdge::OnFalse, ConditionalEdge::OnTrue};
   auto Dirs = {DirectEdge::IsDirect, DirectEdge::IsIndirect};
   auto Types = {EdgeType::Branch, EdgeType::Call,    EdgeType::Fallthrough,
@@ -192,7 +196,7 @@ TEST(Unit_CFG, edgeLabels) {
   for (ConditionalEdge Cond : Conds) {
     for (DirectEdge Dir : Dirs) {
       for (EdgeType Type : Types) {
-        auto E = addEdge(B1, B2, Cfg);
+        E = addEdge(B1, B2, Cfg);
         Cfg[*E] = std::make_tuple(Cond, Dir, Type);
         Descriptors.push_back(*E);
       }
@@ -204,9 +208,10 @@ TEST(Unit_CFG, edgeLabels) {
   for (ConditionalEdge Cond : Conds) {
     for (DirectEdge Dir : Dirs) {
       for (EdgeType Type : Types) {
-        EXPECT_EQ(std::get<ConditionalEdge>(Cfg[*It]), Cond);
-        EXPECT_EQ(std::get<DirectEdge>(Cfg[*It]), Dir);
-        EXPECT_EQ(std::get<EdgeType>(Cfg[*It]), Type);
+        EXPECT_TRUE(Cfg[*It]);
+        EXPECT_EQ(std::get<ConditionalEdge>(*Cfg[*It]), Cond);
+        EXPECT_EQ(std::get<DirectEdge>(*Cfg[*It]), Dir);
+        EXPECT_EQ(std::get<EdgeType>(*Cfg[*It]), Type);
         ++It;
       }
     }
@@ -254,23 +259,32 @@ TEST(Unit_CFG, protobufRoundTrip) {
   EXPECT_EQ(It->getUUID(), P1->getUUID());
 
   // Check edges
-  EXPECT_TRUE(edge(vertex(0, Result), vertex(2, Result), Result).second);
-  EXPECT_TRUE(edge(vertex(1, Result), vertex(2, Result), Result).second);
-  EXPECT_TRUE(edge(vertex(2, Result), vertex(0, Result), Result).second);
+  EXPECT_TRUE(
+      edge(*getVertex(B1, Result), *getVertex(P1, Result), Result).second);
+  EXPECT_TRUE(
+      edge(*getVertex(B2, Result), *getVertex(P1, Result), Result).second);
+  EXPECT_TRUE(
+      edge(*getVertex(P1, Result), *getVertex(B1, Result), Result).second);
 
   // Check nonexistent edges
-  EXPECT_FALSE(edge(vertex(0, Result), vertex(1, Result), Result).second);
-  EXPECT_FALSE(edge(vertex(1, Result), vertex(0, Result), Result).second);
-  EXPECT_FALSE(edge(vertex(2, Result), vertex(1, Result), Result).second);
+  EXPECT_FALSE(
+      edge(*getVertex(B1, Result), *getVertex(B2, Result), Result).second);
+  EXPECT_FALSE(
+      edge(*getVertex(B2, Result), *getVertex(B1, Result), Result).second);
+  EXPECT_FALSE(
+      edge(*getVertex(P1, Result), *getVertex(B2, Result), Result).second);
 
   // Check labels
-  auto E1 = edge(vertex(0, Result), vertex(2, Result), Result).first;
-  EXPECT_EQ(std::get<ConditionalEdge>(Result[E1]), ConditionalEdge::OnTrue);
-  EXPECT_EQ(std::get<DirectEdge>(Result[E1]), DirectEdge::IsDirect);
-  EXPECT_EQ(std::get<EdgeType>(Result[E1]), EdgeType::Branch);
+  auto E1 = edge(*getVertex(B1, Result), *getVertex(P1, Result), Result).first;
+  EXPECT_EQ(std::get<ConditionalEdge>(*Result[E1]), ConditionalEdge::OnTrue);
+  EXPECT_EQ(std::get<DirectEdge>(*Result[E1]), DirectEdge::IsDirect);
+  EXPECT_EQ(std::get<EdgeType>(*Result[E1]), EdgeType::Branch);
 
-  auto E2 = edge(vertex(1, Result), vertex(2, Result), Result).first;
-  EXPECT_EQ(std::get<ConditionalEdge>(Result[E2]), ConditionalEdge::OnFalse);
-  EXPECT_EQ(std::get<DirectEdge>(Result[E2]), DirectEdge::IsIndirect);
-  EXPECT_EQ(std::get<EdgeType>(Result[E2]), EdgeType::Call);
+  auto E2 = edge(*getVertex(B2, Result), *getVertex(P1, Result), Result).first;
+  EXPECT_EQ(std::get<ConditionalEdge>(*Result[E2]), ConditionalEdge::OnFalse);
+  EXPECT_EQ(std::get<DirectEdge>(*Result[E2]), DirectEdge::IsIndirect);
+  EXPECT_EQ(std::get<EdgeType>(*Result[E2]), EdgeType::Call);
+
+  auto E3 = edge(*getVertex(P1, Result), *getVertex(B1, Result), Result).first;
+  EXPECT_FALSE(Result[E3]);
 }

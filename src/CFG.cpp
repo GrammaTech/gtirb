@@ -91,11 +91,13 @@ proto::CFG toProtobuf(const CFG& Cfg) {
     auto M = MessageEdges->Add();
     nodeUUIDToBytes(Cfg[source(E, Cfg)], *M->mutable_source_uuid());
     nodeUUIDToBytes(Cfg[target(E, Cfg)], *M->mutable_target_uuid());
-    auto Label = Cfg[E];
-    M->set_conditional(std::get<ConditionalEdge>(Label) ==
-                       ConditionalEdge::OnTrue);
-    M->set_direct(std::get<DirectEdge>(Label) == DirectEdge::IsDirect);
-    M->set_type(static_cast<proto::EdgeType>(std::get<EdgeType>(Label)));
+    if (auto Label = Cfg[E]) {
+      auto* L = M->mutable_label();
+      L->set_conditional(std::get<ConditionalEdge>(*Label) ==
+                         ConditionalEdge::OnTrue);
+      L->set_direct(std::get<DirectEdge>(*Label) == DirectEdge::IsDirect);
+      L->set_type(static_cast<proto::EdgeType>(std::get<EdgeType>(*Label)));
+    }
   }
   return Message;
 }
@@ -112,13 +114,13 @@ void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
     auto* Target = dyn_cast_or_null<CfgNode>(
         Node::getByUUID(C, uuidFromBytes(M.target_uuid())));
     if (Source && Target) {
-      auto E = addEdge(Source, Target, Result);
-      if (E) {
-        Result[*E] = std::make_tuple(M.conditional() ? ConditionalEdge::OnTrue
+      if (auto E = addEdge(Source, Target, Result); E && M.has_label()) {
+        auto& L = M.label();
+        Result[*E] = std::make_tuple(L.conditional() ? ConditionalEdge::OnTrue
                                                      : ConditionalEdge::OnFalse,
-                                     M.direct() ? DirectEdge::IsDirect
+                                     L.direct() ? DirectEdge::IsDirect
                                                 : DirectEdge::IsIndirect,
-                                     static_cast<EdgeType>(M.type()));
+                                     static_cast<EdgeType>(L.type()));
       }
     }
   }

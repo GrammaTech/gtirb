@@ -63,7 +63,8 @@ enum class EdgeType { Branch, Call, Fallthrough, Return, Syscall, Sysret };
 
 /// \ingroup CFG_GROUP
 /// \brief A label on a \ref CFG edge.
-using EdgeLabel = std::tuple<ConditionalEdge, DirectEdge, EdgeType>;
+using EdgeLabel =
+    std::optional<std::tuple<ConditionalEdge, DirectEdge, EdgeType>>;
 
 /// @cond INTERNAL
 
