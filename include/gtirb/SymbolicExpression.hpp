@@ -90,6 +90,7 @@ using SymbolicExpression =
 /// \param[out] Result   The SymbolicExpression to initialize.
 ///
 /// \return void
+/// \cond INTERNAL
 GTIRB_EXPORT_API void fromProtobuf(Context& C, SymbolicExpression& Result,
                                    const proto::SymbolicExpression& Message);
 
@@ -98,6 +99,7 @@ GTIRB_EXPORT_API void fromProtobuf(Context& C, SymbolicExpression& Result,
 /// \param Value   The SymbolicExpression to serialize.
 ///
 /// \return A protobuf message representing the SymbolicExpression.
+/// \cond INTERNAL
 GTIRB_EXPORT_API proto::SymbolicExpression
 toProtobuf(const SymbolicExpression& Value);
 

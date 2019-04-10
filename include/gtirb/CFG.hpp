@@ -286,6 +286,7 @@ blocks(const CFG& Cfg);
 ///
 /// \return A protobuf message representing the \ref CFG and its
 /// component blocks (\ref Block).
+/// \cond INTERNAL
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 
 /// \ingroup CFG_GROUP
@@ -296,6 +297,7 @@ GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 /// \param[out] Result   The CFG to initialize.
 ///
 /// \return void
+/// \cond INTERNAL
 GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& Result,
                                    const proto::CFG& Message);
 } // namespace gtirb

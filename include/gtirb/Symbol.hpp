@@ -355,6 +355,7 @@ public:
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
+  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a Symbol from a protobuf message.
@@ -363,6 +364,7 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
+  /// \cond INTERNAL
   static Symbol* fromProtobuf(Context& C, const MessageType& Message);
 
   /// \cond INTERNAL

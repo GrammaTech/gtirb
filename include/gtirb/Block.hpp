@@ -82,6 +82,7 @@ public:
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
+  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a Block from a protobuf message.
@@ -128,6 +129,7 @@ struct GTIRB_EXPORT_API InstructionRef {
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
+  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a InstructionRef from a protobuf message.
