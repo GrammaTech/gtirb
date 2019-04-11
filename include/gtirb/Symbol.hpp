@@ -350,12 +350,12 @@ public:
   /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
 
+  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a Symbol from a protobuf message.
@@ -364,12 +364,10 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
-  /// \cond INTERNAL
   static Symbol* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Symbol; }
-  /// \endcond
+  /// @endcond
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}

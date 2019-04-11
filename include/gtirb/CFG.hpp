@@ -279,6 +279,7 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& Cfg);
 
+/// @cond INTERNAL
 /// \ingroup CFG_GROUP
 /// \brief Serialize a \ref CFG into a protobuf message.
 ///
@@ -286,7 +287,6 @@ blocks(const CFG& Cfg);
 ///
 /// \return A protobuf message representing the \ref CFG and its
 /// component blocks (\ref Block).
-/// \cond INTERNAL
 GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 
 /// \ingroup CFG_GROUP
@@ -297,9 +297,9 @@ GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
 /// \param[out] Result   The CFG to initialize.
 ///
 /// \return void
-/// \cond INTERNAL
 GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& Result,
                                    const proto::CFG& Message);
+/// @endcond
 } // namespace gtirb
 
 #endif // GTIRB_CFG_H

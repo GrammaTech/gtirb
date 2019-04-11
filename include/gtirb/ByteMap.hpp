@@ -139,12 +139,12 @@ public:
   /// \brief The protobuf message type used for serializing ByteMap.
   using MessageType = proto::ByteMap;
 
+  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a ByteMap from a protobuf message.
@@ -153,10 +153,8 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ByteMap object, or null on failure.
-  /// \cond INTERNAL
   void fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   struct Region {
     Addr Address;
     std::vector<std::byte> Data;
@@ -165,7 +163,7 @@ public:
 
     uint64_t getSize() const { return this->Data.size(); }
   };
-  /// \endcond
+  /// @endcond
 
 private:
   std::vector<Region> Regions;

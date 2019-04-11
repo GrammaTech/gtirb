@@ -34,7 +34,7 @@ public:
   static bool classofKind(Kind K) {
     return K >= Kind::CfgNode && K <= Kind::LAST_CfgNode;
   }
-  ///
+  /// \endcond
 protected:
   CfgNode(Context& C, Kind Knd) : Node(C, Knd) {}
 };

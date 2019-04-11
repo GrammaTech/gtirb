@@ -51,6 +51,7 @@ public:
   /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::ProxyBlock;
 
+  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
@@ -66,11 +67,10 @@ public:
   /// \return The deserialized Block object, or null on failure.
   static ProxyBlock* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ProxyBlock;
   }
-  /// \endcond
+  /// @endcond
 
 private:
   ProxyBlock(Context& C) : CfgNode(C, Kind::ProxyBlock) {}

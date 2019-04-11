@@ -463,12 +463,12 @@ public:
     }
   }
 
+  /// @cond INTERNAL
   /// \brief Initialize an AuxData from a protobuf message.
   ///
   /// \param <unnamed>   Not used.
   /// \param Message     The protobuf message from which to deserialize.
   /// \param[out] Result  The AuxData to initialize.
-  /// \cond INTERNAL
   GTIRB_EXPORT_API friend void fromProtobuf(Context&, AuxData& Result,
                                             const proto::AuxData& Message);
 
@@ -477,9 +477,8 @@ public:
   /// \param <unnamed>     The AuxData to serialize.
   ///
   /// \return A protobuf message representing the AuxData.
-  /// \cond INTERNAL
   GTIRB_EXPORT_API friend proto::AuxData toProtobuf(const AuxData&);
-
+  /// @endcond
 private:
   std::unique_ptr<AuxDataImpl> Impl;
   std::string RawBytes;

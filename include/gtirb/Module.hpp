@@ -978,12 +978,12 @@ public:
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
 
+  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a Module from a protobuf message.
@@ -992,21 +992,17 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Module object, or null on failure.
-  /// \cond INTERNAL
   static Module* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
-  /// \endcond
 
-  /// \cond INTERNAL
   /// Needed by the serialization engine to work with SymbolicExpressionSet,
   /// which is a type private to Module.
   friend void addElement(SymbolicExpressionSet& Container,
                          SymbolicExpressionElement&& Element) {
     Container.insert(std::move(Element));
   }
-  /// \endcond
+  /// @endcond
 
 private:
   std::string BinaryPath{};

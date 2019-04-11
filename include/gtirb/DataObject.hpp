@@ -80,12 +80,12 @@ public:
   /// \brief The protobuf message type used for serializing DataObject.
   using MessageType = proto::DataObject;
 
+  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a DataObject from a protobuf message.
@@ -94,14 +94,12 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized DataObject object, or null on failure.
-  /// \cond INTERNAL
   static DataObject* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   static bool classof(const Node* N) {
     return N->getKind() == Kind::DataObject;
   }
-  /// \endcond
+  /// @endcond
 
 private:
   Addr Address{0};

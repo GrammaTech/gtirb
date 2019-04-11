@@ -149,12 +149,12 @@ public:
   /// \brief The protobuf message type used for serializing IR.
   using MessageType = proto::AuxDataContainer;
 
+  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a IR from a protobuf message.
@@ -163,12 +163,12 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized IR object, or null on failure.
-  /// \cond INTERNAL
   static void fromProtobuf(AuxDataContainer* in, Context& C,
                            const MessageType& Message);
-
+  /// @endcond
 protected:
   /// \cond INTERNAL
+  /// \endcond
   AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {}
 
 private:

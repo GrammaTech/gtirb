@@ -77,12 +77,12 @@ public:
   /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::Block;
 
+  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a Block from a protobuf message.
@@ -93,9 +93,8 @@ public:
   /// \return The deserialized Block object, or null on failure.
   static Block* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
-  /// \endcond
+  /// @endcond
 
 private:
   Block(Context& C) : CfgNode(C, Kind::Block) {}
@@ -124,12 +123,12 @@ struct GTIRB_EXPORT_API InstructionRef {
   /// \brief The protobuf message type used for serializing InstructionRef.
   using MessageType = proto::InstructionRef;
 
+  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a InstructionRef from a protobuf message.
@@ -140,6 +139,7 @@ struct GTIRB_EXPORT_API InstructionRef {
   ///
   /// \return The deserialized InstructionRef object, or null on failure.
   void fromProtobuf(Context& C, const MessageType& Message);
+  /// @endcond
 };
 
 } // namespace gtirb

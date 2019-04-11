@@ -345,12 +345,12 @@ public:
   /// \brief The protobuf message type used for serializing ImageByteMap.
   using MessageType = proto::ImageByteMap;
 
+  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  /// \cond INTERNAL
   void toProtobuf(MessageType* Message) const;
 
   /// \brief Construct a ImageByteMap from a protobuf message.
@@ -359,14 +359,12 @@ public:
   /// held. \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ImageByteMap object, or null on failure.
-  /// \cond INTERNAL
   static ImageByteMap* fromProtobuf(Context& C, const MessageType& Message);
 
-  /// \cond INTERNAL
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ImageByteMap;
   }
-  /// \endcond
+  /// @endcond
 
 private:
   template <typename T> bool getDataNoSwap(Addr A, T& Result) {
