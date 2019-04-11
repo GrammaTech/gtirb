@@ -89,7 +89,7 @@
 ///
 /// Example usage:
 /// \code
-/// void f(gsl::not_null<Node *> N) { auto *B = cast<Block>(N); }
+/// void f(Node * N) { auto *B = cast<Block>(N); }
 /// \endcode
 ///
 ///
@@ -131,7 +131,7 @@
 ///
 /// Example usage:
 /// \code
-/// void f(gsl::not_null<Node *> N) { auto *B = dyn_cast<Block>(N); }
+/// void f(Node * N) { auto *B = dyn_cast<Block>(N); }
 /// \endcode
 ///
 ///

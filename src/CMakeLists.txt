@@ -109,9 +109,6 @@ target_link_libraries(
   PRIVATE
   proto)
 target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
-# Force GSL to use std::byte instead of its own byte type.
-# This should be auto-detected but it doesn't seem to work reliably.
-target_compile_definitions(${PROJECT_NAME} PUBLIC GSL_USE_STD_BYTE)
 
 # Copy gtirb headers into build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
