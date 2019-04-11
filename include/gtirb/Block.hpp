@@ -120,10 +120,10 @@ struct GTIRB_EXPORT_API InstructionRef {
   /// bytes.
   uint64_t Offset;
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing InstructionRef.
   using MessageType = proto::InstructionRef;
 
-  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

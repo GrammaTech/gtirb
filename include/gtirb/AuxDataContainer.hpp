@@ -165,10 +165,9 @@ public:
   /// \return The deserialized IR object, or null on failure.
   static void fromProtobuf(AuxDataContainer* in, Context& C,
                            const MessageType& Message);
-  /// @endcond
 protected:
-  /// \cond INTERNAL
   AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {}
+  /// @endcond
 private:
   AuxDataSet AuxDatas;
   /// @}
