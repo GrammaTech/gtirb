@@ -24,7 +24,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <gsl/gsl>
 #include <variant>
 
 /// \file CFG.hpp

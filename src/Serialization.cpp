@@ -18,7 +18,7 @@
 namespace gtirb {
 UUID uuidFromBytes(const std::string& Bytes) {
   UUID Id;
-  Expects(Bytes.size() == sizeof(Id.data));
+  assert(Bytes.size() == sizeof(Id.data));
   std::copy(Bytes.begin(), Bytes.end(), std::begin(Id.data));
   return Id;
 }

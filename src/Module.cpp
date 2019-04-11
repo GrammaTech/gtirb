@@ -19,7 +19,6 @@
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
-#include <gsl/gsl>
 #include <map>
 
 using namespace gtirb;

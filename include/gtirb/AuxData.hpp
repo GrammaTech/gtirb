@@ -166,14 +166,16 @@ template <class T> struct default_serialization {
     // Store as little-endian.
     T reversed = boost::endian::conditional_reverse<
         boost::endian::order::little, boost::endian::order::native>(object);
-    auto srcBytes = as_bytes(gsl::make_span(&reversed, 1));
-    std::transform(srcBytes.begin(), srcBytes.end(), It,
+    auto srcBytes_begin = reinterpret_cast<std::byte*>(&reversed);
+    auto srcBytes_end = reinterpret_cast<std::byte*>(&reversed + 1);
+    std::transform(srcBytes_begin, srcBytes_end, It,
                    [](auto b) { return char(b); });
   }
 
   static from_iterator fromBytes(T& object, from_iterator It) {
-    auto dest = as_writeable_bytes(gsl::make_span(&object, 1));
-    std::for_each(dest.begin(), dest.end(), [&It](auto& b) {
+    auto dest_begin = reinterpret_cast<std::byte*>(&object);
+    auto dest_end = reinterpret_cast<std::byte*>(&object + 1);
+    std::for_each(dest_begin, dest_end, [&It](auto& b) {
       b = std::byte(*It);
       ++It;
     });

@@ -18,7 +18,6 @@
 #include <gtirb/Casting.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
-#include <gsl/gsl>
 #include <string>
 
 /// \file Node.hpp
@@ -105,7 +104,7 @@ private:
   // constructor by reference. However, we don't want to store a reference to
   // the Context object because we want to keep the Node class copyable and
   // Context needs to own a move-only allocator.
-  gsl::not_null<Context*> Ctx;
+  Context* Ctx;
 
   // Assign a new UUID to this node. This is only needed when deserializing
   // objects, as there are no constructors allowing the user to set the UUID on

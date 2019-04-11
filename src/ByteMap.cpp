@@ -55,68 +55,6 @@ bool ByteMap::willOverlapRegion(Addr A, size_t Bytes) const {
   return false;
 }
 
-bool ByteMap::setData(Addr A, gsl::span<const std::byte> Data) {
-  // Look for a region to hold this data. If necessary, extend or merge
-  // existing regions to keep allocations contiguous.
-  Addr Limit = A + uint64_t(Data.size_bytes());
-  for (size_t i = 0; i < Regions.size(); i++) {
-    auto& Current = Regions[i];
-
-    // Overwrite data in existing region
-    if (containsAddr(Current, A) && Limit <= addressLimit(Current)) {
-      auto Offset = A - Current.Address;
-      std::copy(Data.begin(), Data.end(), Current.Data.begin() + Offset);
-      return true;
-    }
-
-    // Extend region
-    if (A == addressLimit(Current)) {
-      bool HasNext = i + 1 < Regions.size();
-      if (HasNext && Limit > Regions[i + 1].Address) {
-        return false;
-      }
-
-      Current.Data.reserve(Current.Data.size() + Data.size());
-      std::copy(Data.begin(), Data.end(), std::back_inserter(Current.Data));
-      // Merge with subsequent region
-      if (HasNext && Limit == Regions[i + 1].Address) {
-        const auto& D = Regions[i + 1].Data;
-        Current.Data.reserve(Current.Data.size() + D.size());
-        std::copy(D.begin(), D.end(), std::back_inserter(Current.Data));
-        this->Regions.erase(this->Regions.begin() + i + 1);
-      }
-      return true;
-    }
-
-    // Extend region backward
-    if (Limit == Current.Address) {
-      // Note: this is probably O(N^2), moving existing data on each inserted
-      // element.
-      std::copy(Data.begin(), Data.end(),
-                std::inserter(Current.Data, Current.Data.begin()));
-      Current.Address = A;
-      return true;
-    }
-
-    if (containsAddr(Current, A) || containsAddr(Current, Limit - 1)) {
-      return false;
-    }
-  }
-
-  // Not contiguous with any existing data. Create a new region.
-  Region R = {A, std::vector<std::byte>()};
-  R.Data.reserve(Data.size());
-  std::copy(Data.begin(), Data.end(), std::back_inserter(R.Data));
-  this->Regions.insert(
-      std::lower_bound(this->Regions.begin(), this->Regions.end(), R,
-                       [](const auto& Left, const auto& Right) {
-                         return Left.Address < Right.Address;
-                       }),
-      std::move(R));
-
-  return true;
-}
-
 ByteMap::const_range ByteMap::data(Addr A, size_t Bytes) const {
   auto Reg = std::find_if(this->Regions.begin(), this->Regions.end(),
                           [A](const auto& R) { return containsAddr(R, A); });
