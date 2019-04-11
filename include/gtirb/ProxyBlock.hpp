@@ -48,10 +48,10 @@ public:
   /// \return The newly created ProxyBlock.
   static ProxyBlock* Create(Context& C) { return C.Create<ProxyBlock>(C); }
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::ProxyBlock;
 
-  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

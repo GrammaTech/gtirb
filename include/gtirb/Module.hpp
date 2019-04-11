@@ -975,10 +975,10 @@ public:
   /// @}
   // (end group of SymbolicExpression-related type aliases and methods)
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
 
-  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

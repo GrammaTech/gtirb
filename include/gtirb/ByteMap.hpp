@@ -136,10 +136,10 @@ public:
   /// to this method.
   const_range data(Addr A, size_t Bytes) const;
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteMap.
   using MessageType = proto::ByteMap;
 
-  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

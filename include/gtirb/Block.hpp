@@ -74,10 +74,10 @@ public:
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::Block;
 
-  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

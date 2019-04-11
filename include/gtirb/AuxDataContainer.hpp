@@ -146,10 +146,10 @@ public:
   ///
   void clearAuxData() { AuxDatas.clear(); }
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing IR.
   using MessageType = proto::AuxDataContainer;
 
-  /// @cond INTERNAL
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
@@ -168,9 +168,7 @@ public:
   /// @endcond
 protected:
   /// \cond INTERNAL
-  /// \endcond
   AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {}
-
 private:
   AuxDataSet AuxDatas;
   /// @}

@@ -347,10 +347,10 @@ public:
   /// \return The storage kind.
   Symbol::StorageKind getStorageKind() const { return Storage; }
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
 
-  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

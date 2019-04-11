@@ -81,10 +81,10 @@ public:
   /// \return The size.
   uint64_t getSize() const { return Size; }
 
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
 
-  /// @cond INTERNAL  
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
