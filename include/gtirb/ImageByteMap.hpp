@@ -342,7 +342,7 @@ public:
     return std::nullopt;
   }
 
-  /// @cond INTERNAL  
+  /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ImageByteMap.
   using MessageType = proto::ImageByteMap;
 
