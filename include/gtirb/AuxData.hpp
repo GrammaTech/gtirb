@@ -280,8 +280,7 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
   }
 };
 
-template <class... Args>
-struct auxdata_traits<std::set<Args...>> {
+template <class... Args> struct auxdata_traits<std::set<Args...>> {
   using T = std::set<Args...>;
 
   static std::string type_id() {
