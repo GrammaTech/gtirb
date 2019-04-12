@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include <gtirb/AuxData.hpp>
 #include <gtirb/Block.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataObject.hpp>
@@ -780,6 +781,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
+    Original->addAuxData("test", AuxData());
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
@@ -822,6 +824,8 @@ TEST(Unit_Module, protobufRoundTrip) {
   // Make sure various collections and node members are serialized, but
   // don't check in detail as they have their own unit tests.
   EXPECT_EQ(Result->getImageByteMap().getUUID(), ByteMapID);
+  EXPECT_EQ(Result->getAuxDataSize(), 1);
+  EXPECT_NE(Result->getAuxData("test"), nullptr);
 
   EXPECT_EQ(num_vertices(Result->getCFG()), 2);
   {

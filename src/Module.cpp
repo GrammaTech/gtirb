@@ -63,6 +63,7 @@ void Module::toProtobuf(MessageType* Message) const {
                      Message->mutable_sections());
   containerToProtobuf(Symbols, Message->mutable_symbols());
   containerToProtobuf(SymbolicOperands, Message->mutable_symbolic_operands());
+  AuxDataContainer::toProtobuf(Message->mutable_aux_data_container());
 }
 
 // FIXME: improve containerFromProtobuf so it can handle a pair where one
