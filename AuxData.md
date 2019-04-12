@@ -46,7 +46,7 @@ The following are the sanctioned AuxData table schemata.
 | Label                                     | Type                                                          |
 |-------------------------------------------|---------------------------------------------------------------|
 | [`"functionBlocks"`](#functionBlocks)     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```           |
-| [`"functionEntry"`](#functionEntry)       | ```std::map<gtirb::UUID, std::set<gtirb::Addr>>```            |
+| [`"functionEntry"`](#functionEntry)       | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
 | [`"types"`](#types)                       | ```std::map<gtirb::UUID,std::string>```                       |
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```                         |
 | [`"comments"`](#comments)                 | ```std::map<std::pair<gtirb::UUID, uint64_t>, std::string>``` |
@@ -66,12 +66,12 @@ The following are the sanctioned AuxData table schemata.
 
 ### functionEntry
 
-| <!-- --> | <!-- -->                                               |
-|----------|--------------------------------------------------------|
-| Label    | ```"functionEntry"```                                  |
-| Type     | ```std::map<gtirb::UUID, <std::set<gtirb::Addr>>```    |
-| Key      | Function UUID.                                         |
-| Value    | The set of addresses of entry points for the function. |
+| <!-- --> | <!-- -->                                                                       |
+|----------|--------------------------------------------------------------------------------|
+| Label    | ```"functionEntry"```                                                          |
+| Type     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```                            |
+| Key      | Function UUID.                                                                 |
+| Value    | The set of UUIDs of all the block (gtirb::Block) entry points for the function |
 
 
 ### types
