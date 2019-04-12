@@ -46,7 +46,7 @@ The following are the sanctioned AuxData table schemata.
 | Label                                     | Type                                                          |
 |-------------------------------------------|---------------------------------------------------------------|
 | [`"functionBlocks"`](#functionBlocks)     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```           |
-| [`"functionEntry"`](#functionEntry)       | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
+| [`"functionEntries"`](#functionEntries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
 | [`"types"`](#types)                       | ```std::map<gtirb::UUID,std::string>```                       |
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```                         |
 | [`"comments"`](#comments)                 | ```std::map<std::pair<gtirb::UUID, uint64_t>, std::string>``` |
@@ -64,11 +64,11 @@ The following are the sanctioned AuxData table schemata.
 | Value    | The set of UUIDs of all the blocks (gtirb::Block) in the function. |
 
 
-### functionEntry
+### functionEntries
 
 | <!-- --> | <!-- -->                                                                       |
 |----------|--------------------------------------------------------------------------------|
-| Label    | ```"functionEntry"```                                                          |
+| Label    | ```"functionEntries"```                                                        |
 | Type     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```                            |
 | Key      | Function UUID.                                                                 |
 | Value    | The set of UUIDs of all the block (gtirb::Block) entry points for the function |
