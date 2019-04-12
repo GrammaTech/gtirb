@@ -45,12 +45,12 @@ The following are the sanctioned AuxData table schemata.
 
 | Label                                     | Type                                                          |
 |-------------------------------------------|---------------------------------------------------------------|
-| [`"functionBlocks"`](#functionBlocks)     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```           |
-| [`"functionEntries"`](#functionEntries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
+| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```           |
+| [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
 | [`"types"`](#types)                       | ```std::map<gtirb::UUID,std::string>```                       |
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```                         |
 | [`"comments"`](#comments)                 | ```std::map<std::pair<gtirb::UUID, uint64_t>, std::string>``` |
-| [`"symbolForwarding"`](#symbolForwarding) | ```std::map<gtirb::Symbol,gtirb::Symbol>```                   |
+| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::Symbol,gtirb::Symbol>```                   |
 | [`"padding"`](#padding)                   | ```std::map<gtirb::Addr, uint64_t>```                         |
 
 
