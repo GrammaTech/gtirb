@@ -173,6 +173,7 @@ endif()
 
 find_package(Boost 1.59)
 add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
 
 # Use system-wide installation of Boost if it exists, to reduce the
 # chance of problems due to mismatched versions. If Boost is not
