@@ -41,8 +41,8 @@ namespace gtirb {
 class Context;
 
 /// \defgroup AUXDATA_GROUP AuxData
-/// \brief \ref AuxData objects can be attached to the \ref IR to store
-/// additional client-specific data in a portable way.
+/// \brief \ref AuxData objects can be attached to the \ref IR or individual
+/// \ref Modules to store additional client-specific data in a portable way.
 ///
 /// AuxData can store the following types:
 ///   - all integral types
@@ -275,6 +275,34 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
     std::for_each(Object.begin(), Object.end(), [&It](auto& Elt) {
       It = auxdata_traits<typename T::value_type>::fromBytes(Elt, It);
     });
+
+    return It;
+  }
+};
+
+template <class... Args>
+struct auxdata_traits<std::set<Args...>> {
+  using T = std::set<Args...>;
+
+  static std::string type_id() {
+    return "set<" + TypeId<typename T::value_type>::value() + ">";
+  }
+
+  static void toBytes(const T& Object, to_iterator It) {
+    auxdata_traits<uint64_t>::toBytes(Object.size(), It);
+    for (const auto& Elt : Object)
+      auxdata_traits<typename T::value_type>::toBytes(Elt, It);
+  }
+
+  static from_iterator fromBytes(T& Object, from_iterator It) {
+    uint64_t Count;
+    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
+
+    for (uint64_t i = 0; i < Count; i++) {
+      typename T::value_type V;
+      It = auxdata_traits<decltype(V)>::fromBytes(V, It);
+      Object.emplace(std::move(V));
+    }
 
     return It;
   }

@@ -137,6 +137,18 @@ TEST(Unit_AuxData, uuidVectorProtobufRoundTrip) {
             std::vector<UUID>({Id1, Id2, Id3}));
 }
 
+TEST(Unit_AuxData, uuidSetProtobufRoundTrip) {
+  UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
+       Id3 = Node::Create(Ctx)->getUUID();
+  AuxData Original = std::set<UUID>({Id1, Id2, Id3});
+
+  gtirb::AuxData Result;
+  auto Message = toProtobuf(Original);
+  fromProtobuf(Ctx, Result, Message);
+
+  EXPECT_EQ(*Result.get<std::set<UUID>>(), std::set<UUID>({Id1, Id2, Id3}));
+}
+
 TEST(Unit_AuxData, typeNameImpl) {
   EXPECT_EQ(AuxDataTemplate<uint64_t>().typeName(), "uint64_t");
   EXPECT_EQ(AuxDataTemplate<std::vector<uint64_t>>().typeName(),
@@ -152,6 +164,9 @@ TEST(Unit_AuxData, typeNameImpl) {
 
   X = AuxDataTemplate<std::vector<std::tuple<int64_t, uint64_t>>>().typeName();
   EXPECT_EQ(X, "sequence<tuple<int64_t,uint64_t>>");
+
+  X = AuxDataTemplate<std::set<int32_t>>().typeName();
+  EXPECT_EQ(X, "set<int32_t>");
 }
 
 TEST(Unit_AuxData, typeName) {
@@ -211,6 +226,14 @@ TEST(Unit_AuxData, getMap) {
   AuxData P(Orig);
 
   auto& Result = *P.get<std::map<char, int64_t>>();
+  EXPECT_EQ(Result, Orig);
+}
+
+TEST(Unit_AuxData, getSet) {
+  std::set<int> Orig({1, 2, 3});
+  AuxData P(Orig);
+
+  auto& Result = *P.get<std::set<int>>();
   EXPECT_EQ(Result, Orig);
 }
 
