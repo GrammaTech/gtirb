@@ -67,7 +67,7 @@ add_custom_command(OUTPUT ${DOTFILES}
 # ----------------------------------------------------------------------
 
 
-set(MDFILES_IN "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/AuxData.md" "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/FAQ.md" "${ROOTDIR}/PROTOBUF.md" "${ROOTDIR}/README.md") 
+set(MDFILES_IN "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/AuxData.md" "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/FAQ.md" "${ROOTDIR}/PROTOBUF.md" "${ROOTDIR}/README.md")
 
 set(MDFILES ${MDFILES_IN})
 move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
@@ -79,12 +79,12 @@ foreach(_inmd ${MDFILES_IN})
      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
      DEPENDS ${_inmd}
      COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
-     COMMAND python2 preprocmd.py "${_outmd}.in" ${_outmd}
+     COMMAND python preprocmd.py "${_outmd}.in" ${_outmd}
      COMMENT "processing ${_outmd}"
      VERBATIM
 )
-endforeach() 
-   
+endforeach()
+
 
 #----------------------------------------------------------------------
 # Main target
