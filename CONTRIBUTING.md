@@ -11,21 +11,42 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 
 - All code shall be formatted with clang-format.  A `.clang-format` is
   provided in the root directory for the project.
+
 - Code should generally follow the C++ Core Guidelines recommendations.
+
 - Code should generally allow for thread safety.
 	- No static variables.
 	- No globals
 	- Free functions should not maintain state.
 	- Use caution when using iterators to guard against invalidation.
+
 - Code should be tested on Linux using GCC and Clang and on Windows using Visual Studio.
+
 - Maintain const-correctness.
+
 - Use UpperCamelCase for type names.
+
 - Use UpperCamelCase for enum members.
+
 - Use UpperCamelCase for variable and class members.
+
 - Use lowerCamelCase for function and method names.
+
 - Avoid `using namespace std`
+
+- Use `auto` when the deduced type is explicitly spelled out in the
+  initialization or if the deduced type is an abstract type
+  alias.  Always explicitly specify type qualifiers, pointers, and
+  references.  E.g.,
+  ```c++
+  const auto *Ptr = dynamic_cast<const Foo *>(SomePtr);
+  auto Val = static_cast<unsigned>(SomeValue);
+  for (auto Iter = SomeContainer.begin(), End = SomeContainer.end(); Iter != End; ++Iter) {}
+  ```
+
 - Use `auto` to make code more readable, but prefer `auto &` or `auto *`
   to avoid unexpected copies.
+
 - `#include` as little as possible to reduce compile times. Use
   forward declarations of classes when possible to avoid including
   their definitions.
