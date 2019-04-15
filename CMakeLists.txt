@@ -171,7 +171,7 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 
-find_package(Boost 1.59)
+find_package(Boost 1.67)
 add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
 
