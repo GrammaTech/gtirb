@@ -6,7 +6,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.9.0)
 
 PROJECT(GTIRB)
-set(GTIRB_VERSION "0.1.0" CACHE STRING "version of gtirb" FORCE)
+set(GTIRB_VERSION "0.1.1" CACHE STRING "version of gtirb" FORCE)
 
 
 include(CheckFunctionExists)
