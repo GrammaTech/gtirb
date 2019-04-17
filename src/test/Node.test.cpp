@@ -45,3 +45,12 @@ TEST(Unit_Node, uniqueUuids) {
 //  EXPECT_EQ(gtirb::Node::getByUUID(Node->getUUID()), Node);
 //  EXPECT_EQ(gtirb::Node::getByUUID(Copy.getUUID()), &Copy);
 //}
+
+TEST(Unit_Node, getByUUID) {
+  gtirb::Node* N = gtirb::Node::Create(Ctx);
+
+  EXPECT_EQ(gtirb::Node::getByUUID(Ctx, N->getUUID()), N);
+
+  const gtirb::Context& ConstCtx = Ctx;
+  EXPECT_EQ(gtirb::Node::getByUUID(ConstCtx, N->getUUID()), N);
+}

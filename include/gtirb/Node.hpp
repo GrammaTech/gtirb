@@ -66,6 +66,13 @@ public:
     return C.findNode(Uuid);
   }
 
+  /// \brief Retrieve a node by its UUID.
+  ///
+  /// \return The Node with the given UUID, or nullptr if none exists.
+  static const Node* getByUUID(const Context& C, const UUID& Uuid) {
+    return C.findNode(Uuid);
+  }
+
   /// \brief Create a Node object in its default state.
   ///
   /// \param C  The Context in which this object will be held.
