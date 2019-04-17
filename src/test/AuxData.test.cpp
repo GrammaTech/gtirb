@@ -420,13 +420,14 @@ TEST(Unit_AuxData, nestedProtobufRoundTrip) {
 
 TEST(Unit_AuxData, wrongTypeAfterProtobufRoundTrip) {
   AuxData Original;
-  Original = 1234;
+  Original = static_cast<int32_t>(1234);
 
   auto Message = toProtobuf(Original);
   AuxData Result;
   fromProtobuf(Ctx, Result, Message);
 
   EXPECT_EQ(Result.get<std::string>(), nullptr);
+  EXPECT_EQ(Result.typeName(), "int32_t");
 }
 
 struct MoveTest {
