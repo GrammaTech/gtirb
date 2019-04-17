@@ -462,13 +462,15 @@ public:
   //
   template <typename T> T* get() {
     if (!this->RawBytes.empty()) {
-      // Reconstruct from deserialized data
-      this->Impl = std::make_unique<AuxDataTemplate<T>>();
+      // Reconstruct from deserialized data, but wait to update the impl until
+      // after checking that the types match.
+      auto TempImpl = std::make_unique<AuxDataTemplate<T>>();
 
-      if (this->Impl->typeName() != this->TypeName) {
+      if (TempImpl->typeName() != this->TypeName) {
         return nullptr;
       }
 
+      this->Impl = std::move(TempImpl);
       this->Impl->fromBytes(this->RawBytes);
       this->RawBytes.clear();
       this->TypeName.clear();
