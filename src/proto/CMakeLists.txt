@@ -14,6 +14,9 @@ PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders
                       EXPORT_MACRO "GTIRB_EXPORT_API"
                       ${ProtoFiles})
 
+PROTOBUF_GENERATE_PYTHON(ProtoSourcesPy ${ProtoFiles})
+add_custom_target(_force_python_protos ALL DEPENDS ${ProtoSourcesPy})
+
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 
 if(${PROTOBUF_INTERNAL})
