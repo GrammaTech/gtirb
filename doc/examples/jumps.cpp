@@ -5,6 +5,7 @@
 #include <capstone/capstone.h>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 
 using namespace gtirb;
 
