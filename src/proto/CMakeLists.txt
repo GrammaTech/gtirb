@@ -15,6 +15,8 @@ PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders
                       ${ProtoFiles})
 
 PROTOBUF_GENERATE_PYTHON(ProtoSourcesPy ${ProtoFiles})
+
+set(PROTO_PY_SOURCES ${ProtoSourcesPy} CACHE INTERNAL "")
 add_custom_target(_force_python_protos ALL DEPENDS ${ProtoSourcesPy})
 
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
