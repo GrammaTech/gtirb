@@ -313,6 +313,7 @@ include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 # ---------------------------------------------------------------------------
 add_subdirectory(src)
 add_subdirectory(doc/examples)
+add_subdirectory(python)
 
 
 # ---------------------------------------------------------------------------
