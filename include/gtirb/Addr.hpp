@@ -18,6 +18,8 @@
 #include <gtirb/Export.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <iomanip>
+#include <iosfwd>
 
 /// \file Addr.hpp
 /// \brief Class gtirb::Addr and related functions.
@@ -226,6 +228,22 @@ template <typename T> Addr addressLimit(const T& Object) {
 /// false otherwise.
 template <typename T> bool containsAddr(const T& Object, Addr Ea) {
   return Object.getAddress() <= Ea && addressLimit(Object) > Ea;
+}
+
+/// \relates Addr
+/// \brief Writes an address to an output stream in hex.
+///
+/// \param Stream  the stream to write to.
+/// \param A       the address to write.
+///
+/// \return Stream.
+template <typename CharT, typename Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& Stream, Addr A) {
+  auto Flags = Stream.flags();
+  Stream << std::setbase(16) << std::showbase << static_cast<uint64_t>(A);
+  Stream.flags(Flags);
+  return Stream;
 }
 
 } // namespace gtirb
