@@ -233,6 +233,10 @@ template <typename T> bool containsAddr(const T& Object, Addr Ea) {
 /// \relates Addr
 /// \brief Writes an address to an output stream in hex.
 ///
+/// This is a convenience, since this seems to be the format that is most
+/// commonly used. Note that other formats can be used by casting the address
+/// to a \c uint64_t and setting the formatting explicilty.
+///
 /// \param Stream  the stream to write to.
 /// \param A       the address to write.
 ///

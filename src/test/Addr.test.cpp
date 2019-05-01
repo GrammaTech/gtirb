@@ -95,6 +95,10 @@ TEST(Unit_Addr, ostream) {
   Os << 123 << " 0x" << std::hex << static_cast<uint64_t>(Addr(456)) << std::dec
      << " 789";
   EXPECT_EQ(Os.str(), "123 0x1c8 789");
+
+  Os.str({});
+  Os << 987 << " " << Addr(654) << " 321";
+  EXPECT_EQ(Os.str(), "987 0x28e 321");
 }
 
 TEST(Unit_Addr, Constexpr) {
