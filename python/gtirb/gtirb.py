@@ -1,9 +1,12 @@
 import sys
-sys.path.append("../../src/proto/")
-
-import IR_pb2
 import json
 import uuid
+
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path)
+
+import IR_pb2
 
 def uuidFromBytes(b):
     return uuid.UUID(bytes=b)
@@ -400,15 +403,18 @@ class SymStackConst(object):
     int32 offset = 1;
     bytes symbol_uuid = 2;
     '''
-    def __init__(self, offset, symbol_uuid):
+    def __init__(self, offset, symbol_uuid=None):
         self._offset = offset
         self._symbol_uuid = symbol_uuid
 
            
     @classmethod
     def fromProtobuf(cls, _factory, _sym_stack_const):
-        return cls(_sym_stack_const.offset,
-                   uuidFromBytes(_sym_stack_const.symbol_uuid))
+        if _sym_stack_const.symbol_uuid != b'':
+            return cls(_sym_stack_const.offset,
+                       uuidFromBytes(_sym_stack_const.symbol_uuid))
+        else:
+            return cls(_sym_stack_const.offset)
     
 
 class SymAddrConst(object):
@@ -464,26 +470,20 @@ class SymbolicExpression(object):
 
            
     @classmethod
-    def fromProtobuf(cls, _factory, _symbolic_expression):
-        out = None
+    def fromProtobuf(cls, _factory, _symbolic_expression):        
+        stack_const = getattr(_symbolic_expression, 'stack_const', None)
+        addr_const = getattr(_symbolic_expression, 'addr_const', None)
+        addr_addr = getattr(_symbolic_expression, 'addr_addr', None)
 
-        field_name = _symbolic_expression.WhichOneOf("value")
-        if field_name is not None:
-            if field_name == 'stack_const':
-                out = cls(stack_const = SymStackConst.fromProtobuf(
-                    _factory, _symbolic_expression.stack_const))
-            if field_name == 'addr_const':
-                out = cls(addr_const = SymAddrConst.fromProtobuf(
-                    _symbolic_expression.addr_const))
-            if field_name == 'addr_addr':
-                out = cls(addr_addr = SymAddrAddr.fromProtobuf(
-                    _symbolic_expression.addr_addr))
-        else:
-            out = cls()
-
-        assert out is not None
-        return out
-            
+        return cls(
+            stack_const = (SymStackConst.fromProtobuf(_factory, stack_const)
+                           if stack_const is not None else None),
+            addr_const = (SymAddrConst.fromProtobuf(addr_const)
+                          if addr_const is not None else None),
+            addr_addr = (SymAddrAddr.fromProtobuf(addr_addr)
+                         if addr_addr is not None else None)
+            )
+        
 class Symbol(object):
     '''
     bytes uuid = 1;
@@ -526,16 +526,17 @@ class Symbol(object):
             _factory.addObject(uuid, symbol)
 
         return symbol
-        
+
 def main():
-    with open('foo.gtirb', 'rb') as f:
+    file = sys.argv[1]
+    with open(file, 'rb') as f:
         _ir = IR_pb2.IR()
-        _ir.ParseFromString(f.read())
-        
+        _ir.ParseFromString(f.read()) 
+
         factory = Factory()
         ir = IR.fromProtobuf(factory, _ir)
 
-        print(_ir)
+
         print(ir)
         print(json.dumps(ir, indent=2, default=custom_default))            
     
