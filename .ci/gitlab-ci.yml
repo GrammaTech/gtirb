@@ -22,8 +22,7 @@ check-format:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} .
-    - docker run ${LOCAL_IMAGE_BASE} TestGTIRB
-    - docker run ${LOCAL_IMAGE_BASE} cd /gt/gtirb/build  && make pycheck
+    - docker run ${LOCAL_IMAGE_BASE} cd /gt/gtirb/build  && make check
     - docker build -f .ci/Dockerfile.add-capstone --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
     - docker tag ${LOCAL_IMAGE_BASE} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME};
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY

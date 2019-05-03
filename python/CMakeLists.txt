@@ -7,10 +7,8 @@ if (PYTHON)
   add_custom_command(TARGET pygtirb
     COMMAND cp -R "${CMAKE_CURRENT_SOURCE_DIR}/setup.py" "${CMAKE_CURRENT_SOURCE_DIR}/gtirb" "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${CMAKE_CURRENT_BINARY_DIR}/")
   
-  add_custom_command(TARGET pygtirb
-    COMMAND cp ${PROTO_PY_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/gtirb")
-
   add_custom_target(pycheck
+    TARGET check
     COMMAND ${PYTHON} setup.py test
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     DEPENDS pygtirb)
