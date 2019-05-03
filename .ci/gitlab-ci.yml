@@ -87,10 +87,11 @@ pages:
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed s/clang++/clang/ | sed s/g++/gcc/)
     - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-arch.container
+    - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - mkdir -p $(dirname ${CONTAINER_FILE})
-    - docker run --cidfile=${CONTAINER_FILE} ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} /bin/bash -c "mkdir -p build-doc; cmake doc/doxy/ -Bbuild-doc; cd build-doc; cmake --build . --target doc; cd ../; cp -R build-doc/html /public";
+    - docker run --cidfile=${CONTAINER_FILE} ${LOCAL_IMAGE_BASE} /bin/bash -c "mkdir -p build-doc; cmake doc/doxy/ -Bbuild-doc; cd build-doc; cmake --build . --target doc; cd ../; cp -R build-doc/html /public";
     - docker cp  $(cat ${CONTAINER_FILE}):/public ./;
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
+    - docker rmi -f ${LOCAL_IMAGE_BASE}
   allow_failure: true
   artifacts:
     paths:
