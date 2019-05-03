@@ -105,6 +105,7 @@ cleanup:
     OS: 'ubuntu16'
     COMPILER: 'g++-7'
   script:
+    - export LOCAL_IMAGE_NAME=$(echo ${LOCAL_IMAGE_NAME} |  tr A-Z a-z)
     - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu16-gcc7
     - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu16-clang
     - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7
