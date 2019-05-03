@@ -1,6 +1,6 @@
 variables:
   DOCKER_REGISTRY: "docker.grammatech.com"
-  LOCAL_IMAGE_NAME: "$(echo "{$CI_BUILD_REF_NAME}-${CI_PIPELINE_ID}" | tr A-Z a-z)"
+  LOCAL_IMAGE_NAME: '$CI_BUILD_REF_NAME-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
 
 before_script:
@@ -20,7 +20,7 @@ check-format:
 .build-template: &build
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export LOCAL_IMAGE_BASE=${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME}
+    - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} .
     - docker run ${LOCAL_IMAGE_BASE} TestGTIRB
     - docker build -f .ci/Dockerfile.add-capstone --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
