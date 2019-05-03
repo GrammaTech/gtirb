@@ -23,6 +23,7 @@ add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 
 if(${PROTOBUF_INTERNAL})
   add_dependencies(proto Protobuf)
+  add_dependencies(_force_python_protos Protobuf)
 endif()
 
 target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
