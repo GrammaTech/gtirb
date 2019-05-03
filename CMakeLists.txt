@@ -36,6 +36,8 @@ if(UNIX AND NOT BUILD_SHARED_LIBS)
     add_compile_options(-static)
 endif()
 
+enable_testing()
+
 # ---------------------------------------------------------------------------
 # Global settings
 # ---------------------------------------------------------------------------

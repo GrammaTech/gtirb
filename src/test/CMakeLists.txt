@@ -60,8 +60,7 @@ target_link_libraries(
         gtirb
 )
 
-# Emulate autotools "make check"
-add_custom_target(check DEPENDS ${PROJECT_NAME})
-add_custom_command(TARGET check COMMAND POST_BUILD COMMAND $<TARGET_FILE:${PROJECT_NAME}>)
+# Add tests to make test
+add_test(NAME testgtirb COMMAND $<TARGET_FILE:${PROJECT_NAME}>)
 
 add_subdirectory(testInputBinary)
