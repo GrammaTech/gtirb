@@ -1,6 +1,6 @@
 variables:
   DOCKER_REGISTRY: "docker.grammatech.com"
-  LOCAL_IMAGE_NAME: '$CI_BUILD_REF_NAME-$CI_PIPELINE_ID'
+  LOCAL_IMAGE_NAME: "$(echo "{$CI_BUILD_REF_NAME}-${CI_PIPELINE_ID}" | tr A-Z a-z)"
   GIT_SUBMODULE_STRATEGY: recursive
 
 before_script:
