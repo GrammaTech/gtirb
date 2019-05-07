@@ -7,7 +7,7 @@ class MainTest(unittest.TestCase):
         import os
         test_path = os.path.dirname(os.path.realpath(__file__))
 
-        with open(os.path.join(test_path, 'test1.gtir'), 'rb') as f:
+        with open(os.path.join(test_path, 'test4.gtir'), 'rb') as f:
             _ir = IR_pb2.IR()
             _ir.ParseFromString(f.read()) 
 
