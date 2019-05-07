@@ -8,7 +8,8 @@ if (PYTHON)
     COMMAND cp -R "${CMAKE_CURRENT_SOURCE_DIR}/setup.py" "${CMAKE_CURRENT_SOURCE_DIR}/gtirb" "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${CMAKE_CURRENT_BINARY_DIR}/")
 
   add_custom_command(TARGET pygtirb
-    COMMAND cp ${PROTO_PY_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/gtirb")
+    COMMAND cp ${PROTO_PY_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/gtirb"
+    DEPENDS ${DEPS})
 
   add_test(NAME testgtirbpy
     COMMAND ${PYTHON} setup.py test
