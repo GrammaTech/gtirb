@@ -168,9 +168,19 @@ class Serialization(object):
         k_string = ''
         v_string = ''
 
-        for k,v in _map.items():
-            k_string = self.encode(_out, k)
-            v_string = self.encode(_out, v)
+        for k in sorted(_map):
+            v = _map[k]
+            if k_string == '':
+                k_string = self.encode(_out, k)
+            else:
+                assert k_string == self.encode(_out, k),\
+                    "keys with different types present in this map"
+
+            if v_string == '':
+                v_string = self.encode(_out, v)
+            else:
+                assert v_string == self.encode(_out, v),\
+                    "values with different types present in this map"
 
         return 'mapping<%s,%s>' %(k_string, v_string) 
         
@@ -211,8 +221,13 @@ class Serialization(object):
         """
         self.uint64_encoder(_out, len(_set))
         type_string = ''
-        for item in _set:
-            type_string = self.encode(_out, item)
+        for item in (_set):
+            if type_string == '':
+                type_string = self.encode(_out, item)
+            else:
+                assert type_string == self.encode(_out, item),\
+                     "values with different types present in this set"
+                
 
         return 'set<%s>' %(type_string) 
         
@@ -253,9 +268,13 @@ class Serialization(object):
         """
         self.uint64_encoder(_out, len(_list))
         type_string = ''
-        for item in _list:
-            type_string = self.encode(_out, item)
-
+        for item in (_list):
+            if type_string == '':
+                type_string = self.encode(_out, item)
+            else:
+                assert type_string == self.encode(_out, item),\
+                    "values with different types present in this sequence"
+                
         return 'sequence<%s>' %(type_string) 
         
     def string_decoder(self, _bytes):
@@ -787,7 +806,7 @@ class AuxData(object):
     string type_name = 1;
     bytes data = 2;
     '''
-    def __init__(self, type_name, data):
+    def __init__(self, type_name='', data=None):
         self._type_name = type_name
         self._data = data
 
@@ -799,15 +818,22 @@ class AuxData(object):
 
         """
         ret = AuxData_pb2.AuxData()
-        
-        ret.type_name = self._type_name
 
         _bytes = b''
         _out_bytes_array = []
         _check_type_name = serializer.encode(_out_bytes_array, self._data)
 
-        assert _check_type_name == self._type_name
+        if _check_type_name != self._type_name:
+            if self._type_name == None or self._type_name == '':
+                # TODO: This is the case when there is an empty data
+                # structure somewhere in the aux data tree.
+                raise NotImplementedError("Don't handle encoding empty"
+                                          "aux  data containers on pygtirb yes")
+            else:
+                _check_type_name = self._type_name
 
+        ret.type_name = _check_type_name
+        
         for _out_bytes in _out_bytes_array:
             _bytes += _out_bytes
 
@@ -1335,9 +1361,14 @@ class SymbolicExpression(object):
         Load this class from protobuf object
         """
 
-        stack_const = getattr(_symbolic_expression, 'stack_const', None)
-        addr_const = getattr(_symbolic_expression, 'addr_const', None)
-        addr_addr = getattr(_symbolic_expression, 'addr_addr', None)
+        if _symbolic_expression.HasField('stack_const'):
+            stack_const = getattr(_symbolic_expression, 'stack_const',
+                                  None)
+        if _symbolic_expression.HasField('addr_const'):
+            addr_const = getattr(_symbolic_expression, 'addr_const', None)
+
+        if _symbolic_expression.HasField('addr_addr'):
+            addr_addr = getattr(_symbolic_expression, 'addr_addr', None)
 
         return cls(
             stack_const = (SymStackConst.fromProtobuf(_factory, stack_const)
@@ -1398,16 +1429,12 @@ class Symbol(object):
             value = None
             referent_uuid = None
 
-            try:
-                value = _symbol.value
-            except Exception as ex:
-                pass
+            if _symbol.HasField('value'):
+                value = getattr(_symbol, 'value')
            
-            try:
-                referent_uuid = uuidFromBytes(_symbol.referent_uuid)
-            except Exception as  ex:
-                pass
-           
+            if _symbol.HasField('referent_uuid'):
+                referent_uuid = uuidFromBytes(
+                    getattr(_symbol, 'referent_uuid'))
 
             symbol = cls(uuid, _symbol.name, _symbol.storage_kind,
                          value, referent_uuid)
