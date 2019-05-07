@@ -112,16 +112,15 @@ class Serialization(object):
             'int': self.uint64_encoder,
             'Addr': self.addr_encoder
         }
-
     def register_encoder(self, type_name, encoder):
-        assert type_name not in self._encoders \
-            "%s already has an encoder." %(type_name)
+        assert type_name not in self._encoders, \
+            '%s already has an encoder' %(type_name)
         
         self._encoders[type_name] = encoder
 
     def register_decoder(self, type_name, decoder):
-        assert type_name not in self._decoders \
-            "%s already has an decoder." %(type_name)
+        assert type_name not in self._decoders, \
+            '%s already has an decoder' %(type_name)
         
         self._decoders[type_name] = decoder
                 
