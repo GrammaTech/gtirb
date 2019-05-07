@@ -2,6 +2,7 @@
 *.o
 *.out
 *.pc
+out.gtir
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
