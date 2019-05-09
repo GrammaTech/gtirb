@@ -168,8 +168,7 @@ class Serialization(object):
         k_string = ''
         v_string = ''
 
-        for k in sorted(_map):
-            v = _map[k]
+        for k,v in _map.items():
             if k_string == '':
                 k_string = self.encode(_out, k)
             else:
@@ -339,7 +338,7 @@ class Serialization(object):
         """
         if len(_bytes) < 16:
             return None
-        return (uuid.UUID(bytes_le=bytes(_bytes[0:16])), 16)
+        return (uuid.UUID(bytes=bytes(_bytes[0:16])), 16)
     
     def uuid_encoder(self, _out, _val):
         """encode UUID to bytes
@@ -350,7 +349,7 @@ class Serialization(object):
         :rtype: string
 
         """
-        _out.append(_val.bytes_le)
+        _out.append(_val.bytes)
         return 'UUID'
                     
     def addr_decoder(self, _bytes):
@@ -611,6 +610,10 @@ class Module(object):
     def __repr__(self):
         return str(self.__dict__)
 
+    def getAuxData(self, name):
+        assert name in self._aux_data_container._aux_data
+        return self._aux_data_container._aux_data[name]._data
+
     def toProtobuf(self):
         """Returns protobuf representation of the object
 
@@ -674,6 +677,10 @@ class Module(object):
             _factory.addObject(uuid, module)
             
         return module
+
+    def removeBlocks(self, blocks_to_remove):
+        for block_to_remove in blocks_to_remove:
+            self._blocks.remove(block_to_remove)
 
 class IR(object):
     '''
@@ -889,7 +896,16 @@ class Block(object):
             _factory.addObject(uuid, block)
 
         return block
-            
+
+    def __hash__(self):
+        return hash(str(self))
+    
+    def __repr__(self):
+        return str(self.__dict__)
+    
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+ 
 class Region(object):
     '''
     uint64 address = 1;
@@ -991,11 +1007,27 @@ class Edge(object):
     bytes target_uuid = 2;
     EdgeLabel label = 5;
     '''
-    def __init__(self, source_uuid, target_uuid, label):
+    def __init__(self, source_uuid, target_uuid, label,
+                 source_block=None, target_block=None):
+        self._source_block = source_block
+        self._target_block = target_block
+        
         self._source_uuid = source_uuid
         self._target_uuid = target_uuid
         self._label = label
 
+    def source(self):
+        return self._source_block
+
+    def target(self):
+        return self._target_block
+    
+    def setSource(self, src):
+        self._source_block = src
+
+    def setTarget(self, tgt):
+        self._target_block = tgt
+        
     def toProtobuf(self):
         """
         Returns protobuf representation of the object
@@ -1019,7 +1051,16 @@ class Edge(object):
                    uuidFromBytes(_edge.target_uuid),
                    EdgeLabel.fromProtobuf(_factory, _edge.label))
 
-        
+    def __hash__(self):
+        return hash(str(self))
+    
+    def __repr__(self):
+        return str(self.__dict__)
+    
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    
 class CFG(object):
     '''
     reserved 1;
@@ -1051,8 +1092,14 @@ class CFG(object):
         Load this class from protobuf object
         """
         return cls(_cfg.vertices,
-                   [Edge.fromProtobuf(_factory, e) for e in _cfg.edges])
+                   [Edge.fromProtobuf(_factory, e) for e in
+    _cfg.edges])
+    
+    def removeEdges(self, edges_to_remove):
+        for edge_to_remove in edges_to_remove:
+            self._edges.remove(edge_to_remove)
 
+            
 class DataObject(object):
     '''
     bytes uuid = 1;
@@ -1222,9 +1269,10 @@ class SymStackConst(object):
     int32 offset = 1;
     bytes symbol_uuid = 2;
     '''
-    def __init__(self, offset, symbol_uuid=None):
+    def __init__(self, offset, symbol_uuid=None, symbol=None):
         self._offset = offset
         self._symbol_uuid = symbol_uuid
+        self._symbol = symbol
 
     def toProtobuf(self):
         """
@@ -1256,9 +1304,10 @@ class SymAddrConst(object):
     int64 offset = 1;
     bytes symbol_uuid = 2;
     '''
-    def __init__(self, offset, symbol_uuid):
+    def __init__(self, offset, symbol_uuid, symbol=None):
         self._offset = offset
         self._symbol_uuid = symbol_uuid
+        self._symbol = symbol
 
     def toProtobuf(self):
         """
@@ -1360,7 +1409,10 @@ class SymbolicExpression(object):
         """
         Load this class from protobuf object
         """
-
+        stack_const = None
+        addr_const = None
+        addr_addr = None
+        
         if _symbolic_expression.HasField('stack_const'):
             stack_const = getattr(_symbolic_expression, 'stack_const',
                                   None)
@@ -1390,10 +1442,11 @@ class Symbol(object):
     StorageKind storage_kind = 4;
     '''
     def __init__(self, uuid, name, storage_kind,
-                 value = None, referent_uuid = None):
+                 value = None, referent_uuid = None, referent = None):
         self._uuid = uuid
         self._value = value
         self._referent_uuid = referent_uuid
+        self._referent = referent
         self._name = name
         self._storage_kind = storage_kind
 
@@ -1442,21 +1495,41 @@ class Symbol(object):
 
         return symbol
 
-def main():
-    file = sys.argv[1]
-    with open(file, 'rb') as f:
+def IRPrintString(protobuf_file):
+    with open(protobuf_file, 'rb') as f:
+        _ir = IR_pb2.IR()
+        _ir.ParseFromString(f.read())
+        print(_ir)
+
+def IRLoadFromProtobuf(protobuf_file):
+    with open(protobuf_file, 'rb') as f:
         _ir = IR_pb2.IR()
         _ir.ParseFromString(f.read()) 
 
         factory = Factory()
         ir = IR.fromProtobuf(factory, _ir)
 
-        ir_out = ir.toProtobuf()
-        f = open('out.gtir', "wb")
-        f.write(ir_out.SerializeToString())
-        f.close()
-        #with open('out.json', 'w') as outfile:
-        #    json.dump(ir, outfile, indent=2, cls=GTIRBEncoder)
+        for module in ir._modules:
+            cfg = module._cfg
+            for edge in cfg._edges:
+                _source = factory.objectForUuid(edge._source_uuid)
+                _target = factory.objectForUuid(edge._target_uuid)
+                assert _source is not None and _target is not None
+                edge.setSource(_source)
+                edge.setTarget(_target)
+        
+        return (ir, factory)
+    
+def main():
+    file = sys.argv[1]
+    (ir, factory) = IRLoadFromProtobuf(file)
+
+    ir_out = ir.toProtobuf()
+    f = open('out.gtir', "wb")
+    f.write(ir_out.SerializeToString())
+    f.close()
+    #with open('out.json', 'w') as outfile:
+    #   json.dump(ir, outfile, indent=2, cls=GTIRBEncoder)
 
 if __name__== "__main__":
     main()
