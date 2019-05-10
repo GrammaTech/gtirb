@@ -120,7 +120,7 @@ class Serialization(object):
 
     def register_decoder(self, type_name, decoder):
         assert type_name not in self._decoders, \
-            '%s already has an decoder' %(type_name)
+            '%s already has a decoder' %(type_name)
         
         self._decoders[type_name] = decoder
                 
