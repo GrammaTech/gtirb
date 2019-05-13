@@ -38,6 +38,27 @@ class GTIRB_EXPORT_API AuxDataContainer : public Node {
   using AuxDataSet = std::map<std::string, gtirb::AuxData>;
 
 public:
+  /// \brief Explicitly deleted copy constructor. This is required to work
+  /// around a bug in MSVC where the implicitly defaulted copy constructor
+  /// causes an attempt to reference a deleted copy assignment operator on
+  /// std::pair because we have a std::map with a move-only value type.
+  AuxDataContainer(const AuxDataContainer&) = delete;
+
+  /// \brief An explicitly defaulted move constructor is required because we
+  /// have a user-provided copy constructor.
+  AuxDataContainer(AuxDataContainer&&) = default;
+
+  /// \brief Explicitly deleted copy assignment operator. This is required to
+  /// work around a bug in MSVC where the implicitly defaulted copy assignment
+  /// operator causes an attempt to reference a deleted copy assignment
+  /// operator on std::pair because we have a std::map with a move-only value
+  /// type.
+  AuxDataContainer& operator=(const AuxDataContainer&) = delete;
+
+  /// \brief An explicitly defaulted move assignment operator is required
+  /// because we have a user-provided copy constructor.
+  AuxDataContainer& operator=(AuxDataContainer&&) = default;
+
   /// \name AuxData Properties
   /// @{
 

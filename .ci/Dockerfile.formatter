@@ -9,8 +9,8 @@ RUN chmod +x /usr/bin/git-clang-format
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
 
-## Run clang-format on the last commit
-RUN git clang-format origin/master --extensions cpp,hpp
+## Run clang-format on the last commit, excluding boost headers
+RUN git clang-format origin/master `find . -name boost -prune -o -name \*.hpp -print -o -name \*.cpp -print`
 
 ## Run clang-format on all source files.
 # RUN (find src -name "*.cpp" -or -name "*.hpp";find include -name "*.hpp")|xargs -I{} clang-format -i {}

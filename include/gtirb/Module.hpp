@@ -1137,14 +1137,6 @@ setReferent(Module& M, Symbol& S, NodeTy* N) {
   Index.modify(Index.find(&S), [&N, &S](Symbol*) { S.Payload = N; });
 }
 
-/// \brief Deleted overload used to prevent setting a referent of an unsupported
-/// type.
-///
-/// \tparam NodeTy  An arbitrary type; should be automatically deduced.
-template <typename NodeTy>
-std::enable_if_t<!Symbol::is_supported_type<NodeTy>()>
-setReferent(Module& M, Symbol& S, NodeTy* N) = delete;
-
 /// \relates Module
 /// \relates Symbol
 /// \brief Set the address of a symbol and update the module with the new

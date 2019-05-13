@@ -296,9 +296,6 @@ public:
           }
         },
         Payload);
-    if (const Addr* value = std::get_if<Addr>(&Payload))
-      return *value;
-    return std::nullopt;
   }
 
   /// \brief Get the name.
@@ -390,6 +387,7 @@ private:
   // Allow these methods to update Symbol contents.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
+
   template <typename NodeTy>
   friend std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
   setReferent(Module& M, Symbol& S, NodeTy* N);
