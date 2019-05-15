@@ -25,14 +25,18 @@ TEST(Unit_AuxData, eaMapProtobufRoundTrip) {
   using MapT = std::map<Addr, std::string>;
   AuxData Original = MapT({{Addr(1), {"a"}}, {Addr(2), {"b"}}});
 
-  gtirb::AuxData Result;
+  gtirb::AuxData Result, Intermediate;
   auto Message = toProtobuf(Original);
+  fromProtobuf(Ctx, Intermediate, Message);
+  // Test that deserialized data can be reserialized again.
+  Message = toProtobuf(Intermediate);
   fromProtobuf(Ctx, Result, Message);
 
-  MapT M = *Result.get<MapT>();
-  EXPECT_EQ(M.size(), 2);
-  EXPECT_EQ(M[Addr(1)], "a");
-  EXPECT_EQ(M[Addr(2)], "b");
+  MapT* M = Result.get<MapT>();
+  EXPECT_TRUE(M);
+  EXPECT_EQ(M->size(), 2);
+  EXPECT_EQ(M->at(Addr(1)), "a");
+  EXPECT_EQ(M->at(Addr(2)), "b");
 }
 
 TEST(Unit_AuxData, intMapProtobufRoundTrip) {

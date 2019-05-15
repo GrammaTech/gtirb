@@ -26,9 +26,17 @@ proto::AuxData toProtobuf(const AuxData& T) {
   proto::AuxData Message;
 
   if (T.Impl != nullptr) {
+    // Prefer the Impl, if it exists, since the user may have modified it after
+    // deserialization.
     Message.set_type_name(T.Impl->typeName());
     Message.mutable_data()->clear();
     T.Impl->toBytes(*Message.mutable_data());
+  } else if (!T.RawBytes.empty()) {
+    // If there is no Impl, but RawBytes is not empty, the data must have been
+    // deserialized from protobuf, but never used. So we can just put them back
+    // into a protobuf.
+    Message.set_type_name(T.TypeName);
+    Message.set_data(T.RawBytes);
   }
 
   return Message;
