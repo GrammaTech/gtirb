@@ -279,7 +279,7 @@ class Module(object):
         ret.isa_id = self._isa_id
         ret.name = self._name
         ret.image_byte_map.CopyFrom(self._image_byte_map.toProtobuf())
-        ret.symbols.extend([s.toProtobuf() for s in self._symbols])
+        ret.symbols.extend([s._toProtobuf() for s in self._symbols])
         ret.cfg.CopyFrom(self._cfg.toProtobuf())
         ret.blocks.extend([b.toProtobuf() for b in self._blocks])
         dd = [d.toProtobuf() for d in self._data]
@@ -310,10 +310,13 @@ class Module(object):
                 uuid, _module.binary_path, _module.preferred_addr,
                 _module.rebase_delta, _module.file_format, _module.isa_id,
                 _module.name,
-                ImageByteMap.fromProtobuf(_factory, _module.image_byte_map), [
-                    Symbol.fromProtobuf(_factory, sym)
+                ImageByteMap.fromProtobuf(_factory,
+                                          _module.image_byte_map),
+                [
+                    Symbol._fromProtobuf(_factory, sym)
                     for sym in _module.symbols
-                ], CFG.fromProtobuf(_factory, _module.cfg),
+                ],
+                CFG.fromProtobuf(_factory, _module.cfg),
                 [Block.fromProtobuf(_factory, blk) for blk in _module.blocks],
                 [DataObject.fromProtobuf(_factory, dt)
                  for dt in _module.data], [
@@ -1229,7 +1232,7 @@ class Symbol(object):
         _factory.addObject(suuid, sym)
         return sym
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1251,7 +1254,7 @@ class Symbol(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _symbol):
+    def _fromProtobuf(cls, _factory, _symbol):
         """
         Load this cls from protobuf object
         """
