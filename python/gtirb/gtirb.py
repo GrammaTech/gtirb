@@ -168,8 +168,44 @@ class Addr(object):
     def __init__(self, address):
         self._address = address
 
+class AuxDataContainer(object):
+    '''
+    Contains the AuxData Tables and serves as a base class
+    '''
 
-class Module(object):
+    def __init__(self, aux_data={}):
+        self._aux_data = aux_data
+
+    def toProtobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        ret = AuxDataContainer_pb2.AuxDataContainer()
+        for k, v in self._aux_data.items():
+            ret.aux_data[k].CopyFrom(v.toProtobuf())
+        return ret
+
+    @classmethod
+    def fromProtobuf(cls, _factory, _aux_data_container):
+        """Load pygtirb object from protobuf object
+
+        :param cls: this class
+        :param _factory: uuid factory
+        :param _aux_data_container: protobuf object
+        :returns: pygtirb object
+        :rtype: AuxDataContainer
+
+        """
+        return cls({
+            key: AuxData.fromProtobuf(_factory, val)
+            for (key, val) in _aux_data_container.aux_data.items()
+        })
+
+    
+class Module(AuxDataContainer):
     '''
     The Module class represents loadable objects such as executables
     or libraries
@@ -178,7 +214,7 @@ class Module(object):
     def __init__(self, uuid, binary_path, preferred_addr, rebase_delta,
                  file_format, isa_id, name, image_byte_map, symbols, cfg,
                  blocks, data, proxies, sections, symbolic_operands,
-                 aux_data_container):
+                 aux_data={}):
         """Constructor, takes the params below.
 
         :param uuid: 
@@ -216,7 +252,7 @@ class Module(object):
         self._proxies = proxies
         self._sections = sections
         self._symbolic_operands = symbolic_operands
-        self._aux_data_container = aux_data_container
+        super(Module, self).__init__(aux_data=aux_data)
 
     @classmethod
     def create(cls, factory):
@@ -232,7 +268,7 @@ class Module(object):
         ret = cls(muuid,
                   '',
                   binary_path='',
-                  Addr(),
+                  preferred_addr=Addr(),
                   rebase_delta=0,
                   file_format='',
                   isa_id=None,
@@ -245,7 +281,7 @@ class Module(object):
                   proxies=[],
                   sections=[],
                   symbolic_operands={},
-                  aux_data_container=AuxDataContainer())
+                  aux_data={})
 
         factory.addObject(muuid, ret)
         return ret
@@ -258,9 +294,9 @@ class Module(object):
         :rtype: AuxData
 
         """
-        assert name in self._aux_data_container._aux_data,\
+        assert name in self._aux_data,\
             "No AuxData found for key %s."%(name)
-        return self._aux_data_container._aux_data[name]._data
+        return self._aux_data[name]._data
 
     def toProtobuf(self):
         """Returns protobuf representation of the object
@@ -288,8 +324,8 @@ class Module(object):
         ret.sections.extend([s.toProtobuf() for s in self._sections])
         for k, v in self._symbolic_operands.items():
             ret.symbolic_operands[k].CopyFrom(v.toProtobuf())
-
-        ret.aux_data_container.CopyFrom(self._aux_data_container.toProtobuf())
+            
+        ret.aux_data_container.CopyFrom(super(Module, self).toProtobuf())
         return ret
 
     @classmethod
@@ -329,9 +365,12 @@ class Module(object):
                      key: SymbolicExpression.fromProtobuf(_factory, se)
                      for key, se in _module.symbolic_operands.items()
                  },
-                AuxDataContainer.fromProtobuf(_factory,
-                                              _module.aux_data_container))
-
+                aux_data={
+                    key: AuxData.fromProtobuf(_factory, val)
+                    for (key, val) in
+                    _module.aux_data_container.aux_data.items()
+                }
+            )
             _factory.addObject(uuid, module)
 
         return module
@@ -360,16 +399,15 @@ class Module(object):
             self._blocks.append(block)
 
 
-class IR(object):
+class IR(AuxDataContainer):
     '''
     A complete internal representation consisting of multiple Modules.
     '''
 
-    def __init__(self, uuid, modules=[],
-                 aux_data_container=AuxDataContainer()):
+    def __init__(self, uuid, modules=[], aux_data={}):
         self._uuid = uuid
         self._modules = modules
-        self._aux_data_container = aux_data_container
+        super(IR, self).__init__(aux_data=aux_data)
 
     @classmethod
     def create(cls, factory):
@@ -396,7 +434,7 @@ class IR(object):
         ret = IR_pb2.IR()
         ret.uuid = _uuidToBytes(self._uuid)
         ret.modules.extend([m.toProtobuf() for m in self._modules])
-        ret.aux_data_container.CopyFrom(self._aux_data_container.toProtobuf())
+        ret.aux_data_container.CopyFrom(super(IR, self).toProtobuf())
         return ret
 
     @classmethod
@@ -419,10 +457,11 @@ class IR(object):
         for module in _ir.modules:
             modules.append(Module.fromProtobuf(_factory, module))
 
-        aux_data_container = AuxDataContainer.fromProtobuf(
-            _factory, _ir.aux_data_container)
-
-        ir = cls(uuid, modules, aux_data_container)
+        ir = cls(uuid, modules, aux_data={
+            key: AuxData.fromProtobuf(_factory, val)
+            for (key, val) in _ir.aux_data_container.aux_data.items()
+        })
+        
         _factory.addObject(uuid, ir)
         return ir
 
@@ -485,44 +524,6 @@ class ProxyBlock(object):
             _factory.addObject(uuid, pb)
 
         return pb
-
-
-class AuxDataContainer(object):
-    '''
-    Contains the AuxData Tables and serves as a base class
-    '''
-
-    def __init__(self, aux_data={}):
-        self._aux_data = aux_data
-
-    def toProtobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = AuxDataContainer_pb2.AuxDataContainer()
-        for k, v in self._aux_data.items():
-            ret.aux_data[k].CopyFrom(v.toProtobuf())
-        return ret
-
-    @classmethod
-    def fromProtobuf(cls, _factory, _aux_data_container):
-        """Load pygtirb object from protobuf object
-
-        :param cls: this class
-        :param _factory: uuid factory
-        :param _aux_data_container: protobuf object
-        :returns: pygtirb object
-        :rtype: AuxDataContainer
-
-        """
-        return cls({
-            key: AuxData.fromProtobuf(_factory, val)
-            for (key, val) in _aux_data_container.aux_data.items()
-        })
-
 
 class AuxData(object):
     '''
