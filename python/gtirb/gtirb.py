@@ -56,7 +56,7 @@ serializer = serialization.Serialization()
 
 
 # Do we even need this?
-def uuidToBytes(uuid):
+def _uuidToBytes(uuid):
     """uuid to bytes in little-endian.
 
     :param uuid: 
@@ -70,7 +70,7 @@ def uuidToBytes(uuid):
     return uuid.bytes
 
 
-def uuidFromBytes(b):
+def _uuidFromBytes(b):
     """
     Get UUID from bytes
     :param b: bytes
@@ -270,7 +270,7 @@ class Module(object):
 
         """
         ret = Module_pb2.Module()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
 
         ret.binary_path = self._binary_path
         ret.preferred_addr = self._preferred_addr
@@ -303,7 +303,7 @@ class Module(object):
         :rtype: Module
 
         """
-        uuid = uuidFromBytes(_module.uuid)
+        uuid = _uuidFromBytes(_module.uuid)
         module = _factory.objectForUuid(uuid)
         if module is None:
             module = cls(
@@ -391,7 +391,7 @@ class IR(object):
 
         """
         ret = IR_pb2.IR()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
         ret.modules.extend([m.toProtobuf() for m in self._modules])
         ret.aux_data_container.CopyFrom(self._aux_data_container.toProtobuf())
         return ret
@@ -407,7 +407,7 @@ class IR(object):
         :rtype: IR
 
         """
-        uuid = uuidFromBytes(_ir.uuid)
+        uuid = _uuidFromBytes(_ir.uuid)
         ir = _factory.objectForUuid(uuid)
         if ir is not None:
             return ir
@@ -461,7 +461,7 @@ class ProxyBlock(object):
 
         """
         ret = ProxyBlock_pb2.ProxyBlock()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
         return ret
 
     @classmethod
@@ -475,7 +475,7 @@ class ProxyBlock(object):
         :rtype: ProxyBlock
 
         """
-        uuid = uuidFromBytes(_pb.uuid)
+        uuid = _uuidFromBytes(_pb.uuid)
         pb = _factory.objectForUuid(uuid)
         if pb is None:
             pb = cls(uuid)
@@ -600,7 +600,7 @@ class Block(object):
 
         """
         ret = Block_pb2.Block()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
         ret.address = self._address
         ret.size = self._size
         ret.decode_mode = self._decode_mode
@@ -611,7 +611,7 @@ class Block(object):
         """
         Load pygtirb class from protobuf class
         """
-        uuid = uuidFromBytes(_block.uuid)
+        uuid = _uuidFromBytes(_block.uuid)
         block = _factory.objectForUuid(uuid)
         if block is None:
             block = cls(uuid, _block.address, _block.size, _block.decode_mode)
@@ -774,8 +774,8 @@ class Edge(object):
 
         """
         ret = CFG_pb2.Edge()
-        ret.source_uuid = uuidToBytes(self._source_uuid)
-        ret.target_uuid = uuidToBytes(self._target_uuid)
+        ret.source_uuid = _uuidToBytes(self._source_uuid)
+        ret.target_uuid = _uuidToBytes(self._target_uuid)
         ret.label.CopyFrom(self._label.toProtobuf())
         return ret
 
@@ -784,8 +784,8 @@ class Edge(object):
         """
         Load this cls from protobuf object
         """
-        return cls(uuidFromBytes(_edge.source_uuid),
-                   uuidFromBytes(_edge.target_uuid),
+        return cls(_uuidFromBytes(_edge.source_uuid),
+                   _uuidFromBytes(_edge.target_uuid),
                    EdgeLabel.fromProtobuf(_factory, _edge.label))
 
     def __key(self):
@@ -867,7 +867,7 @@ class DataObject(object):
 
         """
         ret = DataObject_pb2.DataObject()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
         ret.address = self._address
         ret.size = self._size
         return ret
@@ -877,7 +877,7 @@ class DataObject(object):
         """
         Load this cls from protobuf object
         """
-        uuid = uuidFromBytes(_data_object.uuid)
+        uuid = _uuidFromBytes(_data_object.uuid)
         data_object = _factory.objectForUuid(uuid)
         if data_object is None:
             data_object = cls(uuid, _data_object.address, _data_object.size)
@@ -918,7 +918,7 @@ class ImageByteMap(object):
 
         """
         ret = ImageByteMap_pb2.ImageByteMap()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
         ret.byte_map.CopyFrom(self._byte_map.toProtobuf())
         ret.addr_min = self._addr_min._address
         ret.addr_max = self._addr_max._address
@@ -931,7 +931,7 @@ class ImageByteMap(object):
         """
         Load this cls from protobuf object
         """
-        uuid = uuidFromBytes(_image_byte_map.uuid)
+        uuid = _uuidFromBytes(_image_byte_map.uuid)
         image_byte_map = _factory.objectForUuid(uuid)
         if image_byte_map is None:
             image_byte_map = cls(
@@ -1007,7 +1007,7 @@ class Section(object):
 
         """
         ret = Section_pb2.Section()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
         ret.name = self._name
         ret.address = self._address
         ret.size = self._size
@@ -1018,7 +1018,7 @@ class Section(object):
         """
         Load this cls from protobuf object
         """
-        uuid = uuidFromBytes(_section.uuid)
+        uuid = _uuidFromBytes(_section.uuid)
         section = _factory.objectForUuid(uuid)
         if section is None:
             section = cls(uuid, _section.name, _section.address, _section.size)
@@ -1048,7 +1048,7 @@ class SymStackConst(object):
         """
         ret = SymbolicExpression_pb2.SymStackConst()
         ret.offset = self._offset
-        ret.symbol_uuid = uuidToBytes(self._symbol_uuid)
+        ret.symbol_uuid = _uuidToBytes(self._symbol_uuid)
         return ret
 
     @classmethod
@@ -1058,7 +1058,7 @@ class SymStackConst(object):
         """
         if _sym_stack_const.symbol_uuid != b'':
             return cls(_sym_stack_const.offset,
-                       uuidFromBytes(_sym_stack_const.symbol_uuid))
+                       _uuidFromBytes(_sym_stack_const.symbol_uuid))
         else:
             return cls(_sym_stack_const.offset)
 
@@ -1083,7 +1083,7 @@ class SymAddrConst(object):
         """
         ret = SymbolicExpression_pb2.SymAddrConst()
         ret.offset = self._offset
-        ret.symbol_uuid = uuidToBytes(self._symbol_uuid)
+        ret.symbol_uuid = _uuidToBytes(self._symbol_uuid)
         return ret
 
     @classmethod
@@ -1092,7 +1092,7 @@ class SymAddrConst(object):
         Load this cls from protobuf object
         """
         return cls(_sym_addr_const.offset,
-                   uuidFromBytes(_sym_addr_const.symbol_uuid))
+                   _uuidFromBytes(_sym_addr_const.symbol_uuid))
 
 
 class SymAddrAddr(object):
@@ -1118,8 +1118,8 @@ class SymAddrAddr(object):
         ret = SymbolicExpression_pb2.SymAddrAddr()
         ret.scale = self._scale
         ret.offset = self._offset
-        ret.symbol1_uuid = uuidToBytes(self._symbol1_uuid)
-        ret.symbol2_uuid = uuidToBytes(self._symbol2_uuid)
+        ret.symbol1_uuid = _uuidToBytes(self._symbol1_uuid)
+        ret.symbol2_uuid = _uuidToBytes(self._symbol2_uuid)
         return ret
 
     @classmethod
@@ -1128,8 +1128,8 @@ class SymAddrAddr(object):
         Load this cls from protobuf object
         """
         return cls(_sym_addr_addr.scale, _sym_addr_addr.offset,
-                   uuidFromBytes(_sym_addr_addr.symbol1_uuid),
-                   uuidFromBytes(_sym_addr_addr.symbol2_uuid))
+                   _uuidFromBytes(_sym_addr_addr.symbol1_uuid),
+                   _uuidFromBytes(_sym_addr_addr.symbol2_uuid))
 
 
 class SymbolicExpression(object):
@@ -1238,13 +1238,13 @@ class Symbol(object):
 
         """
         ret = Symbol_pb2.Symbol()
-        ret.uuid = uuidToBytes(self._uuid)
+        ret.uuid = _uuidToBytes(self._uuid)
 
         if self._value is not None:
             ret.value = self._value
 
         if self._referent_uuid is not None:
-            ret.referent_uuid = uuidToBytes(self._referent_uuid)
+            ret.referent_uuid = _uuidToBytes(self._referent_uuid)
 
         ret.name = self._name
         ret.storage_kind = self._storage_kind.value
@@ -1255,7 +1255,7 @@ class Symbol(object):
         """
         Load this cls from protobuf object
         """
-        uuid = uuidFromBytes(_symbol.uuid)
+        uuid = _uuidFromBytes(_symbol.uuid)
         symbol = _factory.objectForUuid(uuid)
         if symbol is None:
             value = None
@@ -1265,7 +1265,7 @@ class Symbol(object):
                 value = getattr(_symbol, 'value')
 
             if _symbol.HasField('referent_uuid'):
-                referent_uuid = uuidFromBytes(getattr(_symbol,
+                referent_uuid = _uuidFromBytes(getattr(_symbol,
                                                       'referent_uuid'))
 
             symbol = cls(uuid, _symbol.name, StorageKind(_symbol.storage_kind),
