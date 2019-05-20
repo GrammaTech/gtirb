@@ -40,7 +40,6 @@ class TestProtobufWrite(unittest.TestCase):
                         self.assertTrue(False)
 
         open_and_compare('test4.gtir')
-        open_and_compare('test1.gtir')
         open_and_compare('test2.gtir')
         
 if __name__ == '__main__':
