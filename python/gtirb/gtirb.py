@@ -1805,19 +1805,3 @@ def IRLoadFromProtobuf(protobuf_file):
                 edge.setTarget(_target)
 
         return (ir, factory)
-
-
-def main():
-    file = sys.argv[1]
-    (ir, factory) = IRLoadFromProtobuf(file)
-
-    ir_out = ir.toProtobuf()
-    f = open('out.gtir', "wb")
-    f.write(ir_out.SerializeToString())
-    f.close()
-    #with open('out.json', 'w') as outfile:
-    #   json.dump(ir, outfile, indent=2, cls=GTIRBEncoder)
-
-
-if __name__ == "__main__":
-    main()
