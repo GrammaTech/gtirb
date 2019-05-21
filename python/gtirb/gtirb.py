@@ -830,36 +830,7 @@ class Block(object):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
-
-class Region(object):
-    '''
-    An address Region
-    '''
-
-    def __init__(self, address, data):
-        self._address = address
-        self._data = data
-
-    def toProtobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = ByteMap_pb2.Region()
-        ret.address = self._address
-        ret.data = self._data
-        return ret
-
-    @classmethod
-    def fromProtobuf(cls, _factory, _region):
-        """
-        Load this class from protobuf object
-        """
-        return cls(_region.address, _region.data)
-
-
+    
 class ByteMap(object):
     '''
     Holds the bytes of the loaded image of the binary. 
@@ -886,7 +857,7 @@ class ByteMap(object):
         Load this cls from protobuf object
         """
         return cls([
-            Region.fromProtobuf(_factory, region)
+            (region.address, region.data)
             for region in _byte_map.regions
         ])
 
@@ -895,7 +866,7 @@ class ByteMap(object):
         assert isinstance(addr, Addr),\
             "Given addr is not of type Addr"
 
-        self._regions.append(Region(addr, data))
+        self._regions.append((addr, data))
 
     def getRegions(self):
         """ Get regions for this ImageByteMap """
