@@ -847,8 +847,16 @@ class ByteMap(object):
         :rtype: protobuf object
 
         """
+        
         ret = ByteMap_pb2.ByteMap()
-        ret.regions.extend([r.toProtobuf() for r in self._regions])
+
+        def region_to_protobuf(r_tuple):
+            reg = ByteMap_pb2.Region()
+            reg.address = r_tuple[0]
+            reg.data = r_tuple[1]
+            return reg
+
+        ret.regions.extend([region_to_protobuf(r) for r in self._regions])
         return ret
 
     @classmethod
