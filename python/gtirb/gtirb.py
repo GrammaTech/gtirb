@@ -204,7 +204,30 @@ class AuxDataContainer(object):
             for (key, val) in _aux_data_container.aux_data.items()
         })
 
-    
+    def getAuxData(self, name):
+        """Get the AuxData by a particular name.
+
+        :param name: AuxData key
+        :returns: the underlying AuxData instance
+        :rtype: AuxData
+
+        """
+        assert name in self._aux_data,\
+            "No AuxData found for key %s."%(name)
+        return self._aux_data[name]._data
+
+    def addAuxData(self, name, data):
+        """Add the AuxData for a particular key.
+
+        :param name: AuxData key
+        :param data: The underlying data structure
+
+        """
+        assert name not in self._aux_data,\
+            "Existing AuxData found for key %s."%(name)
+        
+        self._aux_data[name] = _data
+
 class Module(AuxDataContainer):
     '''
     The Module class represents loadable objects such as executables
@@ -285,18 +308,6 @@ class Module(AuxDataContainer):
 
         factory.addObject(muuid, ret)
         return ret
-
-    def getAuxData(self, name):
-        """Get the AuxData by a particular name.
-
-        :param name: AuxData key
-        :returns: the underlying AuxData instance
-        :rtype: AuxData
-
-        """
-        assert name in self._aux_data,\
-            "No AuxData found for key %s."%(name)
-        return self._aux_data[name]._data
 
     def toProtobuf(self):
         """Returns protobuf representation of the object
@@ -398,7 +409,146 @@ class Module(AuxDataContainer):
         if block not in self._blocks:
             self._blocks.append(block)
 
+    def getUUID(self):
+        """ Get UUID of this Module """
+        return self._uuid
 
+    def setBinaryPath(self, _binary_path):
+        """ Set the binary path of the Module """
+        assert self._binary_path == '', \
+            "Binary path is already set."
+
+        self._binary_path = _binary_path
+
+    def getBinaryPath(self):
+        """ Get the binary path of the Module """
+        return self._binary_path
+
+    def setPreferredAddress(self, _preferred_addr):
+        """ Set the preferred_addr of the Module """
+        assert isinstance(_preferred_addr, Addr),\
+            "Given _preferred_addr is not of type Addr"
+
+        self._preferred_addr = _preferred_addr
+
+    def getPreferredAddress(self):
+        """ Get the preferred_addr of the Module """
+        return self._preferred_addr
+    
+    def setRebaseDelta(self, rebase_delta):
+        """ Set rebase_delta for this Module """
+        self._rebase_delta = rebase_delta
+    
+    def getRebaseDelta(self):
+        """ Get rebase_delta for this Module """
+        return self._rebase_delta
+    
+    def setFileFormat(self, file_format):
+        """ Set file_format for this Module """
+        self._file_format = file_format
+    
+    def getFileFormat(self):
+        """ Get file_format for this Module """
+        return self._file_format
+    
+    def setIsaId(self, isa_id):
+        """ Set isa_id for this Module """
+        self._isa_id = isa_id
+    
+    def getIsaId(self):
+        """ Get isa_id for this Module """
+        return self._isa_id
+    
+    def setName(self, name):
+        """ Set name for this Module """
+        self._name = name
+    
+    def getName(self):
+        """ Get name for this Module """
+        return self._name
+    
+    def setImageByteMap(self, image_byte_map):
+        """ Set image_byte_map for this Module """
+        assert isinstance(image_byte_map, ImageByteMap),\
+            "Given image_byte_map is not of type ImageByteMap"
+        self._image_byte_map = image_byte_map
+    
+    def getImageByteMap(self):
+        """ Get image_byte_map for this Module """
+        return self._image_byte_map
+    
+    def addSymbol(self, symbol):
+        """ Add symbol to Module's symbols IFF not already present """
+        if symbol not in self._symbols:
+            self._symbols.append(symbol)
+    
+    def getSymbols(self):
+        """ Get symbols for this Module """
+        return self._symbols
+    
+    def setCfg(self, cfg):
+        """ Set cfg for this Module """
+        assert isinstance(cfg, CFG),\
+            "Given cfg is not of type CFG"
+        self._cfg = cfg
+    
+    def getCfg(self):
+        """ Get cfg for this Module """
+        return self._cfg
+    
+    def getBlocks(self):
+        """ Get blocks for this Module """
+        return self._blocks
+    
+    def addData(self, data):
+        """ add data blocks to this Module """
+        assert isinstance(data, DataObject),\
+            "Given object is not of type DataObject"
+        
+        if data not in self._data:
+            self._data.append(data)
+        
+    def getData(self):
+        """ Get DataObjects for this Module """
+        return self._data
+    
+    def addProxyBlock(self, pblock):
+        """ Add proxy block to this Module """
+        assert isinstance(pblock, ProxyBlock),\
+            "Given pblock is not of type ProxyBlock"
+        
+        if pblock not in self._proxies:
+            self._proxies.append(pblock)
+    
+    def getProxies(self):
+        """ Get proxies for this Module """
+        return self._proxies
+    
+    def addSection(self, section):
+        """ Add section to this Module """
+        assert isinstance(section, Section),\
+            "Given section is not of type Section"
+
+        if section not in self._sections:
+            self._sections.append(section)
+    
+    def getSections(self):
+        """ Get sections for this Module """
+        return self._sections
+    
+    def addSymbolicOperand(self, addr, symbolic_operand):
+        """ add symbolic_operand for this addr """
+        assert isinstance(addr, Addr),\
+            "Given addr is not of type Addr"
+
+        if addr not in self._symbolic_operands:
+            self._symbolic_operands[addr] = symbolic_operand
+    
+    def getSymbolicOperands(self):
+        """ Get symbolic_operands for this Module """
+        return self._symbolic_operands
+    
+    
 class IR(AuxDataContainer):
     '''
     A complete internal representation consisting of multiple Modules.
@@ -465,8 +615,21 @@ class IR(AuxDataContainer):
         _factory.addObject(uuid, ir)
         return ir
 
-    def __repr__(self):
-        return str(self.__dict__)
+    def addModule(self, _module):
+        """ Add module to the IR """
+        assert isinstance(_module, Module),\
+            "Given _module is not of type Module"
+
+        if _module not in self._modules:
+            self._modules.append(_module)
+
+    def getUUID(self):
+        """ Get uuid for this IR """
+        return self._uuid
+        
+    def getModules(self):
+        """ Get _modules  for this """
+        return self._modules
 
 
 class ProxyBlock(object):
@@ -524,6 +687,10 @@ class ProxyBlock(object):
             _factory.addObject(uuid, pb)
 
         return pb
+    
+    def getUUID(self):
+        """ Get uuid for this ProxyBlock """
+        return self._uuid
 
 class AuxData(object):
     '''
@@ -623,6 +790,37 @@ class Block(object):
 
         return block
 
+    def getUUID(self):
+        """ Get uuid for this Block """
+        return self._uuid
+
+    def setAddress(self, address):
+        """ Set address for this Block """
+        assert isinstance(address, Addr),\
+            "Given address is not of type Addr"
+                
+        self._address  = address
+    
+    def getAddress(self):
+        """ Get address for this Block """
+        return self._address
+    
+    def setSize(self, size):
+        """ Set size for this Block """
+        self._size  = size
+    
+    def getSize(self):
+        """ Get size for this Block """
+        return self._size
+    
+    def setDecodeMode(self, decode_mode):
+        """ Set decode_mode for this Block """
+        self._decode_mode  = decode_mode
+    
+    def getDecodeMode(self):
+        """ Get decode_mode  for this Block """
+        return self._decode_mode
+    
     def __key(self):
         return tuple(v for k, v in sorted(self.__dict__.items()))
 
@@ -692,6 +890,17 @@ class ByteMap(object):
             for region in _byte_map.regions
         ])
 
+    def addRegion(self, addr, data):
+        """ Add region to this ImageByteMap """
+        assert isinstance(addr, Addr),\
+            "Given addr is not of type Addr"
+
+        self._regions.append(Region(addr, data))
+
+    def getRegions(self):
+        """ Get regions for this ImageByteMap """
+        return self._regions
+
 
 class EdgeType(Enum):
     '''
@@ -738,12 +947,38 @@ class EdgeLabel(object):
         return cls(_edge_label.conditional, _edge_label.direct,
                    EdgeType(_edge_label.type))
 
+    def setConditional(self, conditional):
+        """ Set conditional-ness for this EdgeLabel """
+        self._conditional = conditional
+    
+    def getConditional(self):
+        """ Get conditional-ness for this EdgeLabel """
+        return self._conditional
+    
+    def setDirect(self, direct):
+        """ Set direct-ness for this EdgeLabel """
+        self._direct = direct
+    
+    def getDirect(self):
+        """ Get direct-ness for this EdgeLabel """
+        return self._direct
+    
+    def setType(self, type):
+        """ Set type for this EdgeLabel """
+        assert isinstance(type, EdgeType),\
+            "Given type is not of type EdgeType"
+
+        self._type = type
+    
+    def getType(self):
+        """ Get type for this EdgeLabel """
+        return self._type
+    
 
 class Edge(object):
     '''
     An Edge in the CFG. Consists of a source and target Block
     '''
-
     def __init__(self,
                  source_uuid,
                  target_uuid,
@@ -757,18 +992,34 @@ class Edge(object):
         self._target_uuid = target_uuid
         self._label = label
 
+    def setSource(self, source_block):
+        """ Set source_block for this Edge """
+        self._source_uuid = source_block.getUUID()
+        self._source_block = source_block
+    
     def source(self):
+        """ Get source_block for this Edge """
         return self._source_block
-
+    
+    def setTarget(self, target_block):
+        """ Set target_block for this Edge """
+        self._target_uuid = target_block.getUUID()
+        self._target_block = target_block
+    
     def target(self):
+        """ Get target_block for this Edge """
         return self._target_block
-
-    def setSource(self, src):
-        self._source_block = src
-
-    def setTarget(self, tgt):
-        self._target_block = tgt
-
+    
+    def setLabel(self, label):
+        """ Set label for this Edge """
+        assert isinstance(label, EdgeLabel),\
+            "Given label is not of type EdgeLabel"
+        self._label = label
+    
+    def getLabel(self):
+        """ Get label for this Edge """
+        return self._label
+    
     def toProtobuf(self):
         """
         Returns protobuf representation of the object
@@ -793,7 +1044,7 @@ class Edge(object):
                    EdgeLabel.fromProtobuf(_factory, _edge.label))
 
     def __key(self):
-        return tuple(v for k, v in sorted(self.__dict__.items()))
+        return (self._source_uuid, self._target_uuid, self._label)
 
     def __hash__(self):
         return hash(self.__key())
@@ -834,7 +1085,24 @@ class CFG(object):
         return cls(_cfg.vertices,
                    [Edge.fromProtobuf(_factory, e) for e in _cfg.edges])
 
+    def addEdge(self, edge):
+        """ Add an Edge to the CFG """
+        assert isinstance(edge, Edge),\
+            "Given edge is not of type Edge"
+
+        if edge not in self._edges:
+            self._edges.append(edge)
+
+        src = edge.source()
+        if src not in self._vertices:
+            self._vertices.append(src)
+
+        tgt = edge.target()
+        if tgt not in self._vertices:
+            self._vertices.append(tgt)
+        
     def removeEdges(self, edges_to_remove):
+        """ Remove a set of edges from the CFG """
         for edge_to_remove in edges_to_remove:
             self._edges.remove(edge_to_remove)
 
@@ -889,6 +1157,29 @@ class DataObject(object):
 
         return data_object
 
+    def getUUID(self):
+        """ Get uuid for this DataObject """
+        return self._uuid
+
+    def setAddress(self, address):
+        """ Set address for this DataObject """
+        assert isinstance(address, Addr),\
+            "Given address is not of type Addr"
+        
+        self._address = address
+    
+    def getAddress(self):
+        """ Get address for this DataObject """
+        return self._address
+    
+    def setSize(self, size):
+        """ Set size for this DataObject """
+        self._size = size
+    
+    def getSize(self):
+        """ Get size for this DataObject """
+        return self._size
+    
 
 class ImageByteMap(object):
     '''
@@ -948,6 +1239,65 @@ class ImageByteMap(object):
 
         return image_byte_map
 
+    def getUUID(self):
+        """ Get uuid for this ImageByteMap """
+        return self._uuid
+
+    def setByteMap(self, byte_map):
+        """ Set byte_map for this ImageByteMap """
+        assert isinstance(byte_map, ByteMap),\
+            "Given byte_map is not of type ByteMap"
+        
+        self._byte_map = byte_map
+    
+    def getByteMap(self):
+        """ Get byte_map for this ImageByteMap """
+        return self._byte_map
+    
+    def setAddrMin(self, addr_min):
+        """ Set addr_min for this ImageByteMap """
+        assert isinstance(addr_min, Addr),\
+            "Given addr_min is not of type Addr"
+        
+        self._addr_min = addr_min
+    
+    def getAddrMin(self):
+        """ Get addr_min for this ImageByteMap """
+        return self._addr_min
+    
+    def setAddrMax(self, addr_max):
+        """ Set addr_max for this ImageByteMap """
+        assert isinstance(addr_max, Addr),\
+            "Given addr_max is not of type Addr"
+        
+        self._addr_max = addr_max
+    
+    def getAddrMax(self):
+        """ Get addr_max for this ImageByteMap """
+        return self._addr_max
+    
+    def setBaseAddress(self, base_address):
+        """ Set base_address for this ImageByteMap """
+        assert isinstance(base_address, Addr),\
+            "Given base_address is not of type Addr"
+        
+        self._base_address = base_address
+    
+    def getBaseAddress(self):
+        """ Get base_address for this ImageByteMap """
+        return self._base_address
+    
+    def setEntryPointAddress(self, entry_point_address):
+        """ Set entry_point_address for this ImageByteMap """
+        assert isinstance(entry_point_address, Addr),\
+            "Given entry_point_address is not of type Addr"
+        
+        self._entry_point_address = entry_point_address
+    
+    def getEntryPointAddress(self):
+        """ Get entry_point_address for this ImageByteMap """
+        return self._entry_point_address
+    
 
 class InstructionRef(object):
     '''
@@ -978,6 +1328,22 @@ class InstructionRef(object):
         """
         return cls(_instruction_ref.block_id, _instruction_ref.offset)
 
+    def setBlockId(self, block_id):
+        """ Set block_id for this InstrunctionRef """
+        self._block_id = block_id
+    
+    def getBlockId(self):
+        """ Get block_id for this InstrunctionRef """
+        return self._block_id
+    
+    def setOffset(self, offset):
+        """ Set offset for this InstrunctionRef """
+        self._offset = offset
+    
+    def getOffset(self):
+        """ Get offset for this InstrunctionRef """
+        return self._offset
+    
 
 class Section(object):
     '''
@@ -1030,6 +1396,38 @@ class Section(object):
 
         return section
 
+    def getUUID(self):
+        """ Get uuid for this Section """
+        return self._uuid
+    
+    def setName(self, name):
+        """ Set name for this Section """
+        assert isinstance(name, str),\
+            "Given name not a string"
+        self._name = name
+    
+    def getName(self):
+        """ Get name for this Section """
+        return self._name
+    
+    def setAddress(self, address):
+        """ Set address for this Section """
+        assert isinstance(address, Addr),\
+            "Given address is not of type Addr"                 
+        self._address = address
+    
+    def getAddress(self):
+        """ Get address for this Section """
+        return self._address
+    
+    def setSize(self, size):
+        """ Set size for this Section """
+        self._size = size
+    
+    def getSize(self):
+        """ Get size for this Section """
+        return self._size
+    
 
 class SymStackConst(object):
     '''
@@ -1066,16 +1464,29 @@ class SymStackConst(object):
         else:
             return cls(_sym_stack_const.offset)
 
-
+    def setSymbol(self, symbol):
+        """ Set symbol for this SymStackConst """
+        assert isinstance(symbol, Symbol),\
+            "Given symbol is not of type Symbol"
+        
+        self._symbol_uuid = symbol.getUUID()
+        self._symbol = symbol
+    
+    def getSymbol(self):
+        """ Get symbol for this SymStackConst """
+        return self._symbol
+    
+    
 class SymAddrConst(object):
     '''
     Represents a "symbolic operand" of the form "Sym + Offset".
     '''
 
-    def __init__(self, offset, symbol_uuid, symbol=None):
+    def __init__(self, offset, symbol_uuid, symbol=None, factory=None):
         self._offset = offset
         self._symbol_uuid = symbol_uuid
         self._symbol = symbol
+        self._factory = factory
 
     def toProtobuf(self):
         """
@@ -1096,7 +1507,32 @@ class SymAddrConst(object):
         Load this cls from protobuf object
         """
         return cls(_sym_addr_const.offset,
-                   _uuidFromBytes(_sym_addr_const.symbol_uuid))
+                   _uuidFromBytes(_sym_addr_const.symbol_uuid),
+                   _factory)
+    
+    def setOffset(self, offset):
+        """ Set offset for this SymAddrConst"""
+        self._offset = offset
+    
+    def getOffset(self):
+        """ Get offset for this SymAddrConst"""
+        return self._offset
+    
+    def setSymbol(self, symbol):
+        """ Set symbol for this SymAddrConst"""
+        assert isinstance(symbol, Symbol),\
+            "Given symbol is not of type Symbol"
+        
+        self._symbol_uuid = symbol.getUUID()
+        self._symbol = symbol
+    
+    def getSymbol(self):
+        """ Get symbol for this SymAddrConst"""
+
+        if self._symbol is None and self._factory is not None:
+            self._symbol = self._factory.objectForUuid(self._symbol_uuid)
+                                                       
+        return self._symbol
 
 
 class SymAddrAddr(object):
@@ -1105,9 +1541,12 @@ class SymAddrAddr(object):
     "(Sym1 - Sym2) / Scale + Offset"
     '''
 
-    def __init__(self, scale, offset, symbol1_uuid, symbol2_uuid):
+    def __init__(self, scale, offset, symbol1_uuid, symbol2_uuid,
+                 factory=None, symbol1=None, symbol2=None):
         self._scale = scale
         self._offset = offset
+
+        self._factory = factory
         self._symbol1_uuid = symbol1_uuid
         self._symbol2_uuid = symbol2_uuid
 
@@ -1132,10 +1571,58 @@ class SymAddrAddr(object):
         Load this cls from protobuf object
         """
         return cls(_sym_addr_addr.scale, _sym_addr_addr.offset,
+                   _factory,
                    _uuidFromBytes(_sym_addr_addr.symbol1_uuid),
                    _uuidFromBytes(_sym_addr_addr.symbol2_uuid))
 
+    def setScale(self, scale):
+        """ Set scale for this SymAddrAddr"""
+        self._scale = scale
+    
+    def getScale(self):
+        """ Get scale for this SymAddrAddr"""
+        return self._scale
+    
+    def setOffset(self, offset):
+        """ Set offset for this SymAddrAddr"""
+        self._offset = offset
+    
+    def getOffset(self):
+        """ Get offset for this SymAddrAddr"""
+        return self._offset
 
+    def setSymbol1(self, symbol1):
+        """ Set symbol1 for this SymAddrAddr"""
+        assert isinstance(symbol1, Symbol),\
+            "Given symbol1 is not of type Symbol"
+        
+        self._symbol1_uuid = symbol1.getUUID()
+        self._symbol1 = symbol1
+    
+    def getSymbol1(self):
+        """ Get symbol1 for this SymAddrAddr"""
+
+        if self._symbol1 is None and self._factory is not None:
+            self._symbol1 = self._factory.objectForUuid(self._symbol1_uuid)
+                                                       
+        return self._symbol1
+    
+    def setSymbol2(self, symbol2):
+        """ Set symbol2 for this SymAddrAddr"""
+        assert isinstance(symbol2, Symbol),\
+            "Given symbol2 is not of type Symbol"
+        
+        self._symbol2_uuid = symbol2.getUUID()
+        self._symbol2 = symbol2
+    
+    def getSymbol2(self):
+        """ Get symbol2 for this SymAddrAddr"""
+
+        if self._symbol2 is None and self._factory is not None:
+            self._symbol2 = self._factory.objectForUuid(self._symbol2_uuid)
+                                                       
+        return self._symbol2
+    
 class SymbolicExpression(object):
     '''
     A "symbolic expression".
@@ -1213,13 +1700,15 @@ class Symbol(object):
                  storage_kind,
                  value=None,
                  referent_uuid=None,
-                 referent=None):
+                 referent=None,
+                 factory=None):
         self._uuid = uuid
         self._value = value
         self._referent_uuid = referent_uuid
         self._referent = referent
         self._name = name
         self._storage_kind = storage_kind
+        self._factory = factory
 
     @classmethod
     def create(cls,
@@ -1273,11 +1762,53 @@ class Symbol(object):
                                                       'referent_uuid'))
 
             symbol = cls(uuid, _symbol.name, StorageKind(_symbol.storage_kind),
-                         value, referent_uuid)
+                         value, referent_uuid, _factory)
             _factory.addObject(uuid, symbol)
 
         return symbol
-
+    
+    def getUUID(self):
+        """ Get uuid for this Symbol """
+        return self._uuid
+    
+    def setName(self, name):
+        """ Set name for this Symbol """
+        self._name = name
+    
+    def getName(self):
+        """ Get name for this Symbol """
+        return self._name
+    
+    def setStorageKind(self, storage_kind):
+        """ Set storage_kind for this Symbol """
+        assert isinstance(storage_kind, StorageKind),\
+            "Given storage_kind is not of type StorageKind"
+        
+        self._storage_kind = storage_kind
+    
+    def getStorageKind(self):
+        """ Get storage_kind for this Symbol """
+        return self._storage_kind
+    
+    def setValue(self, value):
+        """ Set value for this Symbol """
+        self._value = value
+    
+    def getValue(self):
+        """ Get value for this Symbol """
+        return self._value
+    
+    def setReferent(self, referent):
+        """ Set referent for this Symbol"""        
+        self._referent_uuid = referent.getUUID()
+        self._referent = referent
+    
+    def getReferent(self):
+        """ Get referent for this Symbol"""
+        if self._referent is None and self._factory is not None:
+            self._referent = self._factory.objectForUuid(self._referent_uuid)
+                                                       
+        return self._referent    
 
 def IRPrintString(protobuf_file):
     with open(protobuf_file, 'rb') as f:
