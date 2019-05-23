@@ -1108,6 +1108,15 @@ class CFG(object):
         return cls(_cfg.vertices,
                    [Edge._fromProtobuf(_factory, e) for e in _cfg.edges])
 
+    def addVertex(self, vertex):
+        """Add a Block/ProxyBlock vertex to CFG.
+
+        :param vertex: the Block/ProxyBlock
+
+        """
+        if vertex not in self._vertices:
+            self._vertices.append(vertex)
+            
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
         assert isinstance(edge, Edge),\
@@ -1116,13 +1125,8 @@ class CFG(object):
         if edge not in self._edges:
             self._edges.append(edge)
 
-        src = edge.source()
-        if src not in self._vertices:
-            self._vertices.append(src)
-
-        tgt = edge.target()
-        if tgt not in self._vertices:
-            self._vertices.append(tgt)
+        self.addVertex(edge.source())
+        self.addVertex(edge.target())
 
     def removeEdges(self, edges_to_remove):
         """ Remove a set of edges from the CFG """
