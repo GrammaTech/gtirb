@@ -176,7 +176,7 @@ class AuxDataContainer(object):
     def __init__(self, aux_data={}):
         self._aux_data = aux_data
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -185,11 +185,11 @@ class AuxDataContainer(object):
         """
         ret = AuxDataContainer_pb2.AuxDataContainer()
         for k, v in self._aux_data.items():
-            ret.aux_data[k].CopyFrom(v.toProtobuf())
+            ret.aux_data[k].CopyFrom(v._toProtobuf())
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _aux_data_container):
+    def _fromProtobuf(cls, _factory, _aux_data_container):
         """Load pygtirb object from protobuf object
 
         :param cls: this class
@@ -200,7 +200,7 @@ class AuxDataContainer(object):
 
         """
         return cls({
-            key: AuxData.fromProtobuf(_factory, val)
+            key: AuxData._fromProtobuf(_factory, val)
             for (key, val) in _aux_data_container.aux_data.items()
         })
 
@@ -303,7 +303,6 @@ class Module(AuxDataContainer):
         """
         muuid = uuid.uuid4()
         ret = cls(muuid,
-                  '',
                   binary_path='',
                   preferred_addr=Addr(),
                   rebase_delta=0,
@@ -323,7 +322,7 @@ class Module(AuxDataContainer):
         factory.addObject(muuid, ret)
         return ret
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -334,11 +333,11 @@ class Module(AuxDataContainer):
         def _symbolicExpressionToProtobuf(v):
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
             if isinstance(v, SymStackConst):
-                sym_exp.stack_const.CopyFrom(v.toProtobuf())
+                sym_exp.stack_const.CopyFrom(v._toProtobuf())
             elif isinstance(v, SymAddrConst):
-                sym_exp.addr_const.CopyFrom(v.toProtobuf())
+                sym_exp.addr_const.CopyFrom(v._toProtobuf())
             elif isinstance(v, SymAddrAddr):
-                sym_exp.addr_addr.CopyFrom(v.toProtobuf())
+                sym_exp.addr_addr.CopyFrom(v._toProtobuf())
             else:
                 assert True, \
                     'Must be one of SymStackConst, SymAddrAddr or SymAddrConst'
@@ -353,22 +352,22 @@ class Module(AuxDataContainer):
         ret.file_format = self._file_format
         ret.isa_id = self._isa_id
         ret.name = self._name
-        ret.image_byte_map.CopyFrom(self._image_byte_map.toProtobuf())
+        ret.image_byte_map.CopyFrom(self._image_byte_map._toProtobuf())
         ret.symbols.extend([s._toProtobuf() for s in self._symbols])
-        ret.cfg.CopyFrom(self._cfg.toProtobuf())
-        ret.blocks.extend([b.toProtobuf() for b in self._blocks])
-        dd = [d.toProtobuf() for d in self._data]
+        ret.cfg.CopyFrom(self._cfg._toProtobuf())
+        ret.blocks.extend([b._toProtobuf() for b in self._blocks])
+        dd = [d._toProtobuf() for d in self._data]
         ret.data.extend(dd)
-        ret.proxies.extend([p.toProtobuf() for p in self._proxies])
-        ret.sections.extend([s.toProtobuf() for s in self._sections])
+        ret.proxies.extend([p._toProtobuf() for p in self._proxies])
+        ret.sections.extend([s._toProtobuf() for s in self._sections])
         for k, v in self._symbolic_operands.items():
             ret.symbolic_operands[k].CopyFrom(_symbolicExpressionToProtobuf(v))
 
-        ret.aux_data_container.CopyFrom(super(Module, self).toProtobuf())
+        ret.aux_data_container.CopyFrom(super(Module, self)._toProtobuf())
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _module):
+    def _fromProtobuf(cls, _factory, _module):
         """Load object from protobuf object
 
         :param cls: this class
@@ -381,15 +380,15 @@ class Module(AuxDataContainer):
 
         def _symbolicExpressionFromProtobuf(_factory, _symbolic_expression):
             if _symbolic_expression.HasField('stack_const'):
-                return SymStackConst.fromProtobuf(
+                return SymStackConst._fromProtobuf(
                     _factory, getattr(_symbolic_expression, 'stack_const',
                                       None))
             if _symbolic_expression.HasField('addr_const'):
-                return SymAddrConst.fromProtobuf(
+                return SymAddrConst._fromProtobuf(
                     _factory, getattr(_symbolic_expression, 'addr_const',
                                       None))
             if _symbolic_expression.HasField('addr_addr'):
-                return SymAddrAddr.fromProtobuf(
+                return SymAddrAddr._fromProtobuf(
                     _factory, getattr(_symbolic_expression, 'addr_addr', None))
 
         uuid = _uuidFromBytes(_module.uuid)
@@ -403,25 +402,25 @@ class Module(AuxDataContainer):
                 _module.file_format,
                 _module.isa_id,
                 _module.name,
-                ImageByteMap.fromProtobuf(_factory, _module.image_byte_map), [
+                ImageByteMap._fromProtobuf(_factory, _module.image_byte_map), [
                     Symbol._fromProtobuf(_factory, sym)
                     for sym in _module.symbols
                 ],
-                CFG.fromProtobuf(_factory, _module.cfg),
-                [Block.fromProtobuf(_factory, blk) for blk in _module.blocks],
-                [DataObject.fromProtobuf(_factory, dt)
+                CFG._fromProtobuf(_factory, _module.cfg),
+                [Block._fromProtobuf(_factory, blk) for blk in _module.blocks],
+                [DataObject._fromProtobuf(_factory, dt)
                  for dt in _module.data], [
-                     ProxyBlock.fromProtobuf(_factory, pb)
+                     ProxyBlock._fromProtobuf(_factory, pb)
                      for pb in _module.proxies
                  ], [
-                     Section.fromProtobuf(_factory, sec)
+                     Section._fromProtobuf(_factory, sec)
                      for sec in _module.sections
                  ], {
                      key: _symbolicExpressionFromProtobuf(_factory, se)
                      for key, se in _module.symbolic_operands.items()
                  },
                 aux_data={
-                    key: AuxData.fromProtobuf(_factory, val)
+                    key: AuxData._fromProtobuf(_factory, val)
                     for (key,
                          val) in _module.aux_data_container.aux_data.items()
                 })
@@ -626,8 +625,8 @@ class IR(AuxDataContainer):
         """
         ret = IR_pb2.IR()
         ret.uuid = _uuidToBytes(self._uuid)
-        ret.modules.extend([m.toProtobuf() for m in self._modules])
-        ret.aux_data_container.CopyFrom(super(IR, self).toProtobuf())
+        ret.modules.extend([m._toProtobuf() for m in self._modules])
+        ret.aux_data_container.CopyFrom(super(IR, self)._toProtobuf())
         return ret
 
     @classmethod
@@ -648,12 +647,12 @@ class IR(AuxDataContainer):
 
         modules = []
         for module in _ir.modules:
-            modules.append(Module.fromProtobuf(_factory, module))
+            modules.append(Module._fromProtobuf(_factory, module))
 
         ir = cls(uuid,
                  modules,
                  aux_data={
-                     key: AuxData.fromProtobuf(_factory, val)
+                     key: AuxData._fromProtobuf(_factory, val)
                      for (key, val) in _ir.aux_data_container.aux_data.items()
                  })
 
@@ -703,7 +702,7 @@ class ProxyBlock(object):
         factory.addObject(puuid, ret)
         return ret
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -715,7 +714,7 @@ class ProxyBlock(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _pb):
+    def _fromProtobuf(cls, _factory, _pb):
         """Load pygtirb object from protobuf object
 
         :param cls: this class
@@ -749,7 +748,7 @@ class AuxData(object):
         self._type_name = type_name
         self._data = data
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -780,7 +779,7 @@ class AuxData(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _aux_data):
+    def _fromProtobuf(cls, _factory, _aux_data):
         """
         Load pygtirb class from protobuf class
         """
@@ -809,7 +808,7 @@ class Block(object):
         factory.addObject(buuid, blk)
         return blk
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -824,7 +823,7 @@ class Block(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _block):
+    def _fromProtobuf(cls, _factory, _block):
         """
         Load pygtirb class from protobuf class
         """
@@ -885,7 +884,7 @@ class ByteMap(object):
     def __init__(self, regions=[]):
         self._regions = regions
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -906,7 +905,7 @@ class ByteMap(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _byte_map):
+    def _fromProtobuf(cls, _factory, _byte_map):
         """
         Load this cls from protobuf object
         """
@@ -948,7 +947,7 @@ class EdgeLabel(object):
         self._direct = direct
         self._type = type
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -963,7 +962,7 @@ class EdgeLabel(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _edge_label):
+    def _fromProtobuf(cls, _factory, _edge_label):
         """
         Load this cls from protobuf object
         """
@@ -1044,7 +1043,7 @@ class Edge(object):
         """ Get label for this Edge """
         return self._label
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1055,17 +1054,17 @@ class Edge(object):
         ret = CFG_pb2.Edge()
         ret.source_uuid = _uuidToBytes(self._source_uuid)
         ret.target_uuid = _uuidToBytes(self._target_uuid)
-        ret.label.CopyFrom(self._label.toProtobuf())
+        ret.label.CopyFrom(self._label._toProtobuf())
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _edge):
+    def _fromProtobuf(cls, _factory, _edge):
         """
         Load this cls from protobuf object
         """
         return cls(_uuidFromBytes(_edge.source_uuid),
                    _uuidFromBytes(_edge.target_uuid),
-                   EdgeLabel.fromProtobuf(_factory, _edge.label))
+                   EdgeLabel._fromProtobuf(_factory, _edge.label))
 
     def __key(self):
         return (self._source_uuid, self._target_uuid, self._label)
@@ -1088,7 +1087,7 @@ class CFG(object):
         self._vertices = vertices
         self._edges = edges
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1098,16 +1097,16 @@ class CFG(object):
         """
         ret = CFG_pb2.CFG()
         ret.vertices.extend(self._vertices)
-        ret.edges.extend([e.toProtobuf() for e in self._edges])
+        ret.edges.extend([e._toProtobuf() for e in self._edges])
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _cfg):
+    def _fromProtobuf(cls, _factory, _cfg):
         """
         Load this cls from protobuf object
         """
         return cls(_cfg.vertices,
-                   [Edge.fromProtobuf(_factory, e) for e in _cfg.edges])
+                   [Edge._fromProtobuf(_factory, e) for e in _cfg.edges])
 
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
@@ -1163,7 +1162,7 @@ class DataObject(object):
         factory.addObject(duuid, do)
         return do
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1178,7 +1177,7 @@ class DataObject(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _data_object):
+    def _fromProtobuf(cls, _factory, _data_object):
         """
         Load this cls from protobuf object
         """
@@ -1237,7 +1236,7 @@ class ImageByteMap(object):
         factory.addObject(ibm_uuid, ibm)
         return ibm
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1247,7 +1246,7 @@ class ImageByteMap(object):
         """
         ret = ImageByteMap_pb2.ImageByteMap()
         ret.uuid = _uuidToBytes(self._uuid)
-        ret.byte_map.CopyFrom(self._byte_map.toProtobuf())
+        ret.byte_map.CopyFrom(self._byte_map._toProtobuf())
         ret.addr_min = self._addr_min._address
         ret.addr_max = self._addr_max._address
         ret.base_address = self._base_address._address
@@ -1255,7 +1254,7 @@ class ImageByteMap(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _image_byte_map):
+    def _fromProtobuf(cls, _factory, _image_byte_map):
         """
         Load this cls from protobuf object
         """
@@ -1263,7 +1262,7 @@ class ImageByteMap(object):
         image_byte_map = _factory.objectForUuid(uuid)
         if image_byte_map is None:
             image_byte_map = cls(
-                uuid, ByteMap.fromProtobuf(_factory, _image_byte_map.byte_map),
+                uuid, ByteMap._fromProtobuf(_factory, _image_byte_map.byte_map),
                 Addr(_image_byte_map.addr_min), Addr(_image_byte_map.addr_max),
                 Addr(_image_byte_map.base_address),
                 Addr(_image_byte_map.entry_point_address))
@@ -1341,7 +1340,7 @@ class InstructionRef(object):
         self._block_id = block_id
         self._offset = offset
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1355,7 +1354,7 @@ class InstructionRef(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _instruction_ref):
+    def _fromProtobuf(cls, _factory, _instruction_ref):
         """
         Load this cls from protobuf object
         """
@@ -1401,7 +1400,7 @@ class Section(object):
         factory.addObject(suuid, sec)
         return sec
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1417,7 +1416,7 @@ class Section(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _section):
+    def _fromProtobuf(cls, _factory, _section):
         """
         Load this cls from protobuf object
         """
@@ -1473,7 +1472,7 @@ class SymStackConst(object):
         self._symbol_uuid = symbol_uuid
         self._symbol = symbol
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1487,7 +1486,7 @@ class SymStackConst(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _sym_stack_const):
+    def _fromProtobuf(cls, _factory, _sym_stack_const):
         """
         Load this cls from protobuf object
         """
@@ -1521,7 +1520,7 @@ class SymAddrConst(object):
         self._symbol = symbol
         self._factory = factory
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1535,7 +1534,7 @@ class SymAddrConst(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _sym_addr_const):
+    def _fromProtobuf(cls, _factory, _sym_addr_const):
         """
         Load this cls from protobuf object
         """
@@ -1588,7 +1587,7 @@ class SymAddrAddr(object):
         self._symbol1_uuid = symbol1_uuid
         self._symbol2_uuid = symbol2_uuid
 
-    def toProtobuf(self):
+    def _toProtobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -1604,7 +1603,7 @@ class SymAddrAddr(object):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, _factory, _sym_addr_addr):
+    def _fromProtobuf(cls, _factory, _sym_addr_addr):
         """
         Load this cls from protobuf object
         """
