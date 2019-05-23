@@ -1467,10 +1467,11 @@ class SymStackConst(object):
     representing an offset from a stack variable.
     '''
 
-    def __init__(self, offset, symbol_uuid=None, symbol=None):
+    def __init__(self, offset, symbol_uuid=None, symbol=None, factory=None):
         self._offset = offset
         self._symbol_uuid = symbol_uuid
         self._symbol = symbol
+        self._factory = factory
 
     def _toProtobuf(self):
         """
@@ -1492,17 +1493,19 @@ class SymStackConst(object):
         """
         if _sym_stack_const.symbol_uuid != b'':
             return cls(_sym_stack_const.offset,
-                       _uuidFromBytes(_sym_stack_const.symbol_uuid))
+                       _uuidFromBytes(_sym_stack_const.symbol_uuid),
+                       factory=_factory)
         else:
-            return cls(_sym_stack_const.offset)
+            return cls(_sym_stack_const.offset, factory=_factory)
 
     def setSymbol(self, symbol):
         """ Set symbol for this SymStackConst """
         assert isinstance(symbol, Symbol),\
             "Given symbol is not of type Symbol"
+        if self._symbol is None and self._factory is not None:
+            self._symbol = self._factory.objectForUuid(self._symbol_uuid)
 
-        self._symbol_uuid = symbol.getUUID()
-        self._symbol = symbol
+        return self._symbol
 
     def getSymbol(self):
         """ Get symbol for this SymStackConst """
