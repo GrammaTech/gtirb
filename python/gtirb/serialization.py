@@ -16,20 +16,12 @@ class Codec(object):
     A class that holds the `encode` and `decode` methods for a type.
     '''
 
-    def __init__(self, encoder, decoder):
-        """Constructor that takes the encoder and decoder methods
-
-        :param encode: The encode function
-        :param decode: The decode function
-
-        """
-        assert encoder is not None and decoder is not None
-        self.encode = encoder
-        self.decode = decoder
+    def __init__(self):
+        pass
 
 
 class MappingCodec(Codec):
-    def decode(_bytes, _sub_types, _serialization):
+    def decode(self, _bytes, _sub_types, _serialization):
         """decode a mapping<..> entry
     
         :param _bytes: Raw bytes
@@ -46,7 +38,7 @@ class MappingCodec(Codec):
         _value_type = _sub_types[1]
         _ret = {}
 
-        (size, off) = _uint64Decoder(_bytes)
+        (size, off) = Uint64Codec().decode(_bytes)
         _shift += off
 
         for _ in range(0, size):
@@ -58,7 +50,7 @@ class MappingCodec(Codec):
 
         return (_ret, _shift)
 
-    def encode(_out, _map, _serialization):
+    def encode(self, _out, _map, _serialization):
         """encode a dict into bytes.
     
         :param _out: output list of byte arrays.
@@ -68,7 +60,7 @@ class MappingCodec(Codec):
         :rtype: string
     
         """
-        _uint64Encoder(_out, len(_map))
+        Uint64Codec().encode(_out, len(_map))
         k_string = ''
         v_string = ''
 
@@ -89,7 +81,7 @@ class MappingCodec(Codec):
 
 
 class SetCodec(Codec):
-    def decode(_bytes, _sub_types, _serialization):
+    def decode(self, _bytes, _sub_types, _serialization):
         """decode a set<..> entry
     
         :param _bytes: Raw bytes
@@ -105,7 +97,7 @@ class SetCodec(Codec):
         _type = _sub_types[0]
         _ret = set()
 
-        (size, off) = _uint64Decoder(_bytes)
+        (size, off) = Uint64Codec().decode(_bytes)
         _shift += off
 
         for index in range(0, size):
@@ -115,7 +107,7 @@ class SetCodec(Codec):
 
         return (_ret, _shift)
 
-    def encode(_out, _set, _serialization):
+    def encode(self, _out, _set, _serialization):
         """encode a set() to bytes
     
         :param _out: output list of byte arrays
@@ -125,7 +117,7 @@ class SetCodec(Codec):
         :rtype: string
     
         """
-        _uint64Encoder(_out, len(_set))
+        Uint64Codec().encode(_out, len(_set))
         type_string = ''
         for item in _set:
             if type_string == '':
@@ -138,7 +130,7 @@ class SetCodec(Codec):
 
 
 class SequenceCodec(Codec):
-    def decode(_bytes, _sub_types, _serialization):
+    def decode(self, _bytes, _sub_types, _serialization):
         """decode a sequence<..> entry
         
         :param _bytes: Raw bytes
@@ -154,7 +146,7 @@ class SequenceCodec(Codec):
         _type = _sub_types[0]
         _ret = []
 
-        (size, off) = _uint64Decoder(_bytes)
+        (size, off) = Uint64Codec().decode(_bytes)
         _shift += off
 
         for index in range(0, size):
@@ -164,7 +156,7 @@ class SequenceCodec(Codec):
 
         return (_ret, _shift)
 
-    def encode(_out, _list, _serialization):
+    def encode(self, _out, _list, _serialization):
         """encode a list to bytes
     
         :param _out: list of byte arrays
@@ -174,7 +166,7 @@ class SequenceCodec(Codec):
         :rtype: string
     
         """
-        _uint64Encoder(_out, len(_list))
+        Uint64Codec().encode(_out, len(_list))
         type_string = ''
         for item in _list:
             if type_string == '':
@@ -187,7 +179,7 @@ class SequenceCodec(Codec):
 
 
 class StringCodec(Codec):
-    def decode(_bytes):
+    def decode(self, _bytes):
         """decode a string
     
         :param _bytes: Raw bytes
@@ -195,11 +187,11 @@ class StringCodec(Codec):
         :rtype: tuple
     
         """
-        (size, off) = _uint64Decoder(_bytes)
+        (size, off) = Uint64Codec().decode(_bytes)
 
         return (str(bytes(_bytes[off:off + size]), 'utf-8'), off + size)
 
-    def encode(_out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None):
         """encode a string to bytes
     
         :param _out: output list of byte arrays
@@ -208,13 +200,13 @@ class StringCodec(Codec):
         :rtype: string
     
         """
-        _uint64Encoder(_out, len(_val))
+        Uint64Codec().encode(_out, len(_val))
         _out.append(_val.encode())
         return 'string'
 
 
 class IrefCodec(Codec):
-    def decode(_bytes):
+    def decode(self, _bytes):
         """decode an InstructionRef entry
     
         :param _bytes: Raw bytes
@@ -225,11 +217,11 @@ class IrefCodec(Codec):
         _ret_off = 0
         (bid, off) = self.uuid_decoder(_bytes)
         _ret_off += off
-        (offset, off) = _uint64Decoder(_bytes[_ret_off:])
+        (offset, off) = Uint64Codec().decode(_bytes[_ret_off:])
 
         return (InstructionRef(bid, offset), _ret_off + off)
 
-    def encode(_out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None):
         """
         encode InstructionRef to bytes
         """
@@ -240,7 +232,7 @@ class IrefCodec(Codec):
 
 
 class UUIDCodec(Codec):
-    def decode(_bytes):
+    def decode(self, _bytes):
         """decode a UUID entry
     
         :param _bytes: Raw bytes
@@ -252,7 +244,7 @@ class UUIDCodec(Codec):
             return None
         return (uuid.UUID(bytes=bytes(_bytes[0:16])), 16)
 
-    def encode(_out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None):
         """encode UUID to bytes
     
         :param _out: output list of byte arrays
@@ -266,7 +258,7 @@ class UUIDCodec(Codec):
 
 
 class AddrCodec(Codec):
-    def decode(_bytes):
+    def decode(self, _bytes):
         """decode an InstructionRef entry
     
         :param _bytes: Raw bytes
@@ -274,10 +266,10 @@ class AddrCodec(Codec):
         :rtype: tuple
     
         """
-        (addr, off) = _uint64Decoder(_bytes)
+        (addr, off) = Uint64Codec().decode(_bytes)
         return (gtirb.Addr(addr), off)
 
-    def encode(_out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None):
         """encode Addr to bytes
     
         :param _out: output list of byte arrays
@@ -286,12 +278,12 @@ class AddrCodec(Codec):
         :rtype: string
     
         """
-        _uint64Encoder(_out, _val._address)
+        Uint64Codec().encode(_out, _val._address)
         return 'Addr'
 
 
 class Uint64Codec(Codec):
-    def decode(_bytes):
+    def decode(self, _bytes):
         """decode uint64_t
     
         :param _bytes: Raw bytes
@@ -303,7 +295,7 @@ class Uint64Codec(Codec):
                                byteorder='little',
                                signed=False), 8)
 
-    def encode(_out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None):
         """encode uint64_t to bytes
     
         :param _out: output list of byte arrays

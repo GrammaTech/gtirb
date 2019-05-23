@@ -330,6 +330,20 @@ class Module(AuxDataContainer):
         :rtype: protobuf object
 
         """
+
+        def _symbolicExpressionToProtobuf(v):
+            sym_exp = SymbolicExpression_pb2.SymbolicExpression()
+            if isinstance(v, SymStackConst):
+                sym_exp.stack_const.CopyFrom(v.toProtobuf())
+            elif isinstance(v, SymAddrConst):
+                sym_exp.addr_const.CopyFrom(v.toProtobuf())
+            elif isinstance(v, SymAddrAddr):
+                sym_exp.addr_addr.CopyFrom(v.toProtobuf())
+            else:
+                assert True, \
+                    'Must be one of SymStackConst, SymAddrAddr or SymAddrConst'
+            return sym_exp
+
         ret = Module_pb2.Module()
         ret.uuid = _uuidToBytes(self._uuid)
 
@@ -348,7 +362,7 @@ class Module(AuxDataContainer):
         ret.proxies.extend([p.toProtobuf() for p in self._proxies])
         ret.sections.extend([s.toProtobuf() for s in self._sections])
         for k, v in self._symbolic_operands.items():
-            ret.symbolic_operands[k].CopyFrom(v.toProtobuf())
+            ret.symbolic_operands[k].CopyFrom(_symbolicExpressionToProtobuf(v))
 
         ret.aux_data_container.CopyFrom(super(Module, self).toProtobuf())
         return ret
@@ -1645,7 +1659,7 @@ class SymAddrAddr(object):
             self._symbol2 = self._factory.objectForUuid(self._symbol2_uuid)
 
         return self._symbol2
-    
+
 
 class StorageKind(Enum):
     '''
