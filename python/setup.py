@@ -15,6 +15,9 @@ setup(
     package_data={'gtirb': ['gtirb/*.py']},
     packages=find_packages(),
     test_suite='setup.gtirb_test_suite',
+    install_requires=[
+        'protobuf',
+    ],
     classifiers=[
         "Programming Language :: Python :: 3"
     ],
