@@ -1664,11 +1664,11 @@ class StorageKind(Enum):
     '''
     Indicates the storage kind of a Symbol.
     '''
-    Storage_Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
-    Storage_Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
-    Storage_Static = Symbol_pb2.StorageKind.Value('Storage_Static')
-    Storage_Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
-    Storage_Local = Symbol_pb2.StorageKind.Value('Storage_Local')
+    Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
+    Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
+    Static = Symbol_pb2.StorageKind.Value('Storage_Static')
+    Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
+    Local = Symbol_pb2.StorageKind.Value('Storage_Local')
 
 
 class Symbol(object):
