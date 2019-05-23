@@ -16,5 +16,5 @@ if (PYTHON)
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     )
   
-  install(CODE "execute_process(COMMAND ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/setup.py install)")
+  install(CODE "execute_process(COMMAND ${PYTHON} setup.py install WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )")
 endif()
