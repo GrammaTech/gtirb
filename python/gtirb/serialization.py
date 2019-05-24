@@ -38,7 +38,7 @@ class MappingCodec(Codec):
         _value_type = _sub_types[1]
         _ret = {}
 
-        (size, off) = Uint64Codec().decode(_bytes)
+        (size, off) = _serialization.decode('uint64_t', _bytes)
         _shift += off
 
         for _ in range(0, size):
@@ -60,7 +60,7 @@ class MappingCodec(Codec):
         :rtype: string
     
         """
-        Uint64Codec().encode(_out, len(_map))
+        _serialization.encode(_out, len(_map))
         k_string = ''
         v_string = ''
 
@@ -97,7 +97,7 @@ class SetCodec(Codec):
         _type = _sub_types[0]
         _ret = set()
 
-        (size, off) = Uint64Codec().decode(_bytes)
+        (size, off) = _serialization.decode('uint64_t', _bytes)
         _shift += off
 
         for index in range(0, size):
@@ -117,7 +117,7 @@ class SetCodec(Codec):
         :rtype: string
     
         """
-        Uint64Codec().encode(_out, len(_set))
+        _serialization.encode(_out, len(_set))
         type_string = ''
         for item in _set:
             if type_string == '':
@@ -146,7 +146,7 @@ class SequenceCodec(Codec):
         _type = _sub_types[0]
         _ret = []
 
-        (size, off) = Uint64Codec().decode(_bytes)
+        (size, off) = _serialization.decode('uint64_t', _bytes)
         _shift += off
 
         for index in range(0, size):
@@ -166,7 +166,7 @@ class SequenceCodec(Codec):
         :rtype: string
     
         """
-        Uint64Codec().encode(_out, len(_list))
+        _serialization.encode(_out, len(_list))
         type_string = ''
         for item in _list:
             if type_string == '':
@@ -179,7 +179,7 @@ class SequenceCodec(Codec):
 
 
 class StringCodec(Codec):
-    def decode(self, _bytes):
+    def decode(self, _bytes, _serialization):
         """decode a string
     
         :param _bytes: Raw bytes
@@ -187,7 +187,7 @@ class StringCodec(Codec):
         :rtype: tuple
     
         """
-        (size, off) = Uint64Codec().decode(_bytes)
+        (size, off) = _serialization.decode('uint64_t', _bytes)
 
         return (str(bytes(_bytes[off:off + size]), 'utf-8'), off + size)
 
@@ -200,13 +200,13 @@ class StringCodec(Codec):
         :rtype: string
     
         """
-        Uint64Codec().encode(_out, len(_val))
+        _serialization.encode(_out, len(_val))
         _out.append(_val.encode())
         return 'string'
 
 
 class IrefCodec(Codec):
-    def decode(self, _bytes):
+    def decode(self, _bytes, _serialization):
         """decode an InstructionRef entry
     
         :param _bytes: Raw bytes
@@ -217,7 +217,7 @@ class IrefCodec(Codec):
         _ret_off = 0
         (bid, off) = self.uuid_decoder(_bytes)
         _ret_off += off
-        (offset, off) = Uint64Codec().decode(_bytes[_ret_off:])
+        (offset, off) = _serialization.decode('uint64_t', _bytes[_ret_off:])
 
         return (InstructionRef(bid, offset), _ret_off + off)
 
@@ -232,7 +232,7 @@ class IrefCodec(Codec):
 
 
 class UUIDCodec(Codec):
-    def decode(self, _bytes):
+    def decode(self, _bytes, _serialization):
         """decode a UUID entry
     
         :param _bytes: Raw bytes
@@ -258,7 +258,7 @@ class UUIDCodec(Codec):
 
 
 class AddrCodec(Codec):
-    def decode(self, _bytes):
+    def decode(self, _bytes, _serialization):
         """decode an InstructionRef entry
     
         :param _bytes: Raw bytes
@@ -266,7 +266,7 @@ class AddrCodec(Codec):
         :rtype: tuple
     
         """
-        (addr, off) = Uint64Codec().decode(_bytes)
+        (addr, off) = _serialization.decode('uint64_t', _bytes)
         return (gtirb.Addr(addr), off)
 
     def encode(self, _out, _val, _serialization=None):
@@ -278,12 +278,12 @@ class AddrCodec(Codec):
         :rtype: string
     
         """
-        Uint64Codec().encode(_out, _val._address)
+        _serialization.encode(_out, _val._address)
         return 'Addr'
 
 
 class Uint64Codec(Codec):
-    def decode(self, _bytes):
+    def decode(self, _bytes, _serialization):
         """decode uint64_t
     
         :param _bytes: Raw bytes
@@ -435,4 +435,4 @@ class Serialization(object):
             assert type_name in self._codecs, \
                 "No decoders present for type - %s." %(type_name)
 
-            return self._codecs[type_name].decode(_bytes)
+            return self._codecs[type_name].decode(_bytes, _serialization=self)
