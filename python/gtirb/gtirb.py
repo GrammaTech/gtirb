@@ -166,8 +166,11 @@ class AuxDataContainer(object):
     Contains the AuxData Tables and serves as a base class
     '''
 
-    def __init__(self, aux_data={}):
-        self._aux_data = aux_data
+    def __init__(self, aux_data=None):
+        if aux_data is None:
+            self._aux_data = {}
+        else:
+            self._aux_data = aux_data
 
     def _toProtobuf(self):
         """Returns protobuf representation of the object
@@ -197,7 +200,7 @@ class AuxDataContainer(object):
             for (key, val) in _aux_data_container.aux_data.items()
         })
 
-    def getAuxData(self, name):
+    def auxData(self, name):
         """Get the AuxData by a particular name.
 
         :param name: AuxData key
@@ -242,7 +245,7 @@ class Module(AuxDataContainer):
                  proxies,
                  sections,
                  symbolic_operands,
-                 aux_data={}):
+                 aux_data=None):
         """Constructor, takes the params below.
 
         :param uuid: 
@@ -450,7 +453,7 @@ class Module(AuxDataContainer):
         # Add to the CFG
         self._cfg.addVertex(block)
 
-    def getUUID(self):
+    def uuid(self):
         """ Get UUID of this Module """
         return self._uuid
 
@@ -461,7 +464,7 @@ class Module(AuxDataContainer):
 
         self._binary_path = _binary_path
 
-    def getBinaryPath(self):
+    def binaryPath(self):
         """ Get the binary path of the Module """
         return self._binary_path
 
@@ -472,7 +475,7 @@ class Module(AuxDataContainer):
 
         self._preferred_addr = _preferred_addr
 
-    def getPreferredAddress(self):
+    def preferredAddress(self):
         """ Get the preferred_addr of the Module """
         return self._preferred_addr
 
@@ -480,7 +483,7 @@ class Module(AuxDataContainer):
         """ Set rebase_delta for this Module """
         self._rebase_delta = rebase_delta
 
-    def getRebaseDelta(self):
+    def rebaseDelta(self):
         """ Get rebase_delta for this Module """
         return self._rebase_delta
 
@@ -488,7 +491,7 @@ class Module(AuxDataContainer):
         """ Set file_format for this Module """
         self._file_format = file_format
 
-    def getFileFormat(self):
+    def fileFormat(self):
         """ Get file_format for this Module """
         return self._file_format
 
@@ -496,7 +499,7 @@ class Module(AuxDataContainer):
         """ Set isa_id for this Module """
         self._isa_id = isa_id
 
-    def getIsaId(self):
+    def isaId(self):
         """ Get isa_id for this Module """
         return self._isa_id
 
@@ -504,7 +507,7 @@ class Module(AuxDataContainer):
         """ Set name for this Module """
         self._name = name
 
-    def getName(self):
+    def name(self):
         """ Get name for this Module """
         return self._name
 
@@ -514,7 +517,7 @@ class Module(AuxDataContainer):
             "Given image_byte_map is not of type ImageByteMap"
         self._image_byte_map = image_byte_map
 
-    def getImageByteMap(self):
+    def imageByteMap(self):
         """ Get image_byte_map for this Module """
         return self._image_byte_map
 
@@ -523,7 +526,7 @@ class Module(AuxDataContainer):
         if symbol not in self._symbols:
             self._symbols.append(symbol)
 
-    def getSymbols(self):
+    def symbols(self):
         """ Get symbols for this Module """
         return self._symbols
 
@@ -533,11 +536,11 @@ class Module(AuxDataContainer):
             "Given cfg is not of type CFG"
         self._cfg = cfg
 
-    def getCfg(self):
+    def cfg(self):
         """ Get cfg for this Module """
         return self._cfg
 
-    def getBlocks(self):
+    def blocks(self):
         """ Get blocks for this Module """
         return self._blocks
 
@@ -549,7 +552,7 @@ class Module(AuxDataContainer):
         if data not in self._data:
             self._data.append(data)
 
-    def getData(self):
+    def data(self):
         """ Get DataObjects for this Module """
         return self._data
 
@@ -561,7 +564,7 @@ class Module(AuxDataContainer):
         if pblock not in self._proxies:
             self._proxies.append(pblock)
 
-    def getProxies(self):
+    def proxies(self):
         """ Get proxies for this Module """
         return self._proxies
 
@@ -573,7 +576,7 @@ class Module(AuxDataContainer):
         if section not in self._sections:
             self._sections.append(section)
 
-    def getSections(self):
+    def sections(self):
         """ Get sections for this Module """
         return self._sections
 
@@ -585,7 +588,7 @@ class Module(AuxDataContainer):
         if addr not in self._symbolic_operands:
             self._symbolic_operands[addr] = symbolic_operand
 
-    def getSymbolicOperands(self):
+    def symbolicOperands(self):
         """ Get symbolic_operands for this Module """
         return self._symbolic_operands
 
@@ -595,7 +598,7 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     '''
 
-    def __init__(self, uuid, modules=[], aux_data={}):
+    def __init__(self, uuid, modules=[], aux_data=None):
         self._uuid = uuid
         self._modules = modules
         super(IR, self).__init__(aux_data=aux_data)
@@ -666,11 +669,11 @@ class IR(AuxDataContainer):
         if _module not in self._modules:
             self._modules.append(_module)
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this IR """
         return self._uuid
 
-    def getModules(self):
+    def modules(self):
         """ Get _modules  for this """
         return self._modules
 
@@ -731,7 +734,7 @@ class ProxyBlock(object):
 
         return pb
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this ProxyBlock """
         return self._uuid
 
@@ -831,7 +834,7 @@ class Block(object):
 
         return block
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this Block """
         return self._uuid
 
@@ -842,7 +845,7 @@ class Block(object):
 
         self._address = address
 
-    def getAddress(self):
+    def address(self):
         """ Get address for this Block """
         return self._address
 
@@ -850,7 +853,7 @@ class Block(object):
         """ Set size for this Block """
         self._size = size
 
-    def getSize(self):
+    def size(self):
         """ Get size for this Block """
         return self._size
 
@@ -858,7 +861,7 @@ class Block(object):
         """ Set decode_mode for this Block """
         self._decode_mode = decode_mode
 
-    def getDecodeMode(self):
+    def decodeMode(self):
         """ Get decode_mode  for this Block """
         return self._decode_mode
 
@@ -915,7 +918,7 @@ class ByteMap(object):
 
         self._regions.append((addr, data))
 
-    def getRegions(self):
+    def regions(self):
         """ Get regions for this ImageByteMap """
         return self._regions
 
@@ -969,7 +972,7 @@ class EdgeLabel(object):
         """ Set conditional-ness for this EdgeLabel """
         self._conditional = conditional
 
-    def getConditional(self):
+    def conditional(self):
         """ Get conditional-ness for this EdgeLabel """
         return self._conditional
 
@@ -977,7 +980,7 @@ class EdgeLabel(object):
         """ Set direct-ness for this EdgeLabel """
         self._direct = direct
 
-    def getDirect(self):
+    def direct(self):
         """ Get direct-ness for this EdgeLabel """
         return self._direct
 
@@ -988,7 +991,7 @@ class EdgeLabel(object):
 
         self._type = type
 
-    def getType(self):
+    def type(self):
         """ Get type for this EdgeLabel """
         return self._type
 
@@ -1026,7 +1029,7 @@ class Edge(object):
             "Given label is not of type EdgeLabel"
         self._label = label
 
-    def getLabel(self):
+    def label(self):
         """ Get label for this Edge """
         return self._label
 
@@ -1039,8 +1042,8 @@ class Edge(object):
 
         """
         ret = CFG_pb2.Edge()
-        ret.source_uuid = _uuidToBytes(self._source_block.getUUID())
-        ret.target_uuid = _uuidToBytes(self._target_block.getUUID())
+        ret.source_uuid = _uuidToBytes(self._source_block.uuid())
+        ret.target_uuid = _uuidToBytes(self._target_block.uuid())
         ret.label.CopyFrom(self._label._toProtobuf())
         return ret
 
@@ -1084,8 +1087,7 @@ class CFG(object):
         """
         ret = CFG_pb2.CFG()
 
-        ret.vertices.extend(
-            [_uuidToBytes(v.getUUID()) for v in self._vertices])
+        ret.vertices.extend([_uuidToBytes(v.uuid()) for v in self._vertices])
         ret.edges.extend([e._toProtobuf() for e in self._edges])
         return ret
 
@@ -1187,7 +1189,7 @@ class DataObject(object):
 
         return data_object
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this DataObject """
         return self._uuid
 
@@ -1198,7 +1200,7 @@ class DataObject(object):
 
         self._address = address
 
-    def getAddress(self):
+    def address(self):
         """ Get address for this DataObject """
         return self._address
 
@@ -1206,7 +1208,7 @@ class DataObject(object):
         """ Set size for this DataObject """
         self._size = size
 
-    def getSize(self):
+    def size(self):
         """ Get size for this DataObject """
         return self._size
 
@@ -1270,7 +1272,7 @@ class ImageByteMap(object):
 
         return image_byte_map
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this ImageByteMap """
         return self._uuid
 
@@ -1281,7 +1283,7 @@ class ImageByteMap(object):
 
         self._byte_map = byte_map
 
-    def getByteMap(self):
+    def byteMap(self):
         """ Get byte_map for this ImageByteMap """
         return self._byte_map
 
@@ -1292,7 +1294,7 @@ class ImageByteMap(object):
 
         self._addr_min = addr_min
 
-    def getAddrMin(self):
+    def addrMin(self):
         """ Get addr_min for this ImageByteMap """
         return self._addr_min
 
@@ -1303,7 +1305,7 @@ class ImageByteMap(object):
 
         self._addr_max = addr_max
 
-    def getAddrMax(self):
+    def addrMax(self):
         """ Get addr_max for this ImageByteMap """
         return self._addr_max
 
@@ -1314,7 +1316,7 @@ class ImageByteMap(object):
 
         self._base_address = base_address
 
-    def getBaseAddress(self):
+    def baseAddress(self):
         """ Get base_address for this ImageByteMap """
         return self._base_address
 
@@ -1325,7 +1327,7 @@ class ImageByteMap(object):
 
         self._entry_point_address = entry_point_address
 
-    def getEntryPointAddress(self):
+    def entryPointAddress(self):
         """ Get entry_point_address for this ImageByteMap """
         return self._entry_point_address
 
@@ -1363,7 +1365,7 @@ class InstructionRef(object):
         """ Set block_id for this InstrunctionRef """
         self._block_id = block_id
 
-    def getBlockId(self):
+    def blockId(self):
         """ Get block_id for this InstrunctionRef """
         return self._block_id
 
@@ -1371,7 +1373,7 @@ class InstructionRef(object):
         """ Set offset for this InstrunctionRef """
         self._offset = offset
 
-    def getOffset(self):
+    def offset(self):
         """ Get offset for this InstrunctionRef """
         return self._offset
 
@@ -1427,7 +1429,7 @@ class Section(object):
 
         return section
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this Section """
         return self._uuid
 
@@ -1437,7 +1439,7 @@ class Section(object):
             "Given name not a string"
         self._name = name
 
-    def getName(self):
+    def name(self):
         """ Get name for this Section """
         return self._name
 
@@ -1447,7 +1449,7 @@ class Section(object):
             "Given address is not of type Addr"
         self._address = address
 
-    def getAddress(self):
+    def address(self):
         """ Get address for this Section """
         return self._address
 
@@ -1455,7 +1457,7 @@ class Section(object):
         """ Set size for this Section """
         self._size = size
 
-    def getSize(self):
+    def size(self):
         """ Get size for this Section """
         return self._size
 
@@ -1481,7 +1483,7 @@ class SymStackConst(object):
         ret = SymbolicExpression_pb2.SymStackConst()
         ret.offset = self._offset
         if self._symbol is not None:
-            ret.symbol_uuid = _uuidToBytes(self._symbol.getUUID())
+            ret.symbol_uuid = _uuidToBytes(self._symbol.uuid())
 
         return ret
 
@@ -1504,7 +1506,7 @@ class SymStackConst(object):
             "Given symbol is not of type Symbol"
         return self._symbol
 
-    def getSymbol(self):
+    def symbol(self):
         """ Get symbol for this SymStackConst """
         return self._symbol
 
@@ -1529,7 +1531,7 @@ class SymAddrConst(object):
         ret = SymbolicExpression_pb2.SymAddrConst()
         ret.offset = self._offset
         if self._symbol is not None:
-            ret.symbol_uuid = _uuidToBytes(self._symbol.getUUID())
+            ret.symbol_uuid = _uuidToBytes(self._symbol.uuid())
         return ret
 
     @classmethod
@@ -1546,7 +1548,7 @@ class SymAddrConst(object):
         """ Set offset for this SymAddrConst"""
         self._offset = offset
 
-    def getOffset(self):
+    def offset(self):
         """ Get offset for this SymAddrConst"""
         return self._offset
 
@@ -1556,7 +1558,7 @@ class SymAddrConst(object):
             "Given symbol is not of type Symbol"
         self._symbol = symbol
 
-    def getSymbol(self):
+    def symbol(self):
         """ Get symbol for this SymAddrConst"""
         return self._symbol
 
@@ -1584,8 +1586,8 @@ class SymAddrAddr(object):
         ret = SymbolicExpression_pb2.SymAddrAddr()
         ret.scale = self._scale
         ret.offset = self._offset
-        ret.symbol1_uuid = _uuidToBytes(self._symbol1.getUUID())
-        ret.symbol2_uuid = _uuidToBytes(self._symbol2.getUUID())
+        ret.symbol1_uuid = _uuidToBytes(self._symbol1.uuid())
+        ret.symbol2_uuid = _uuidToBytes(self._symbol2.uuid())
         return ret
 
     @classmethod
@@ -1604,7 +1606,7 @@ class SymAddrAddr(object):
         """ Set scale for this SymAddrAddr"""
         self._scale = scale
 
-    def getScale(self):
+    def scale(self):
         """ Get scale for this SymAddrAddr"""
         return self._scale
 
@@ -1612,7 +1614,7 @@ class SymAddrAddr(object):
         """ Set offset for this SymAddrAddr"""
         self._offset = offset
 
-    def getOffset(self):
+    def offset(self):
         """ Get offset for this SymAddrAddr"""
         return self._offset
 
@@ -1622,7 +1624,7 @@ class SymAddrAddr(object):
             "Given symbol1 is not of type Symbol"
         self._symbol1 = symbol1
 
-    def getSymbol1(self):
+    def symbol1(self):
         """ Get symbol1 for this SymAddrAddr"""
         return self._symbol1
 
@@ -1632,7 +1634,7 @@ class SymAddrAddr(object):
             "Given symbol2 is not of type Symbol"
         self._symbol2 = symbol2
 
-    def getSymbol2(self):
+    def symbol2(self):
         """ Get symbol2 for this SymAddrAddr"""
         return self._symbol2
 
@@ -1682,7 +1684,7 @@ class Symbol(object):
             ret.value = self._value
 
         if self._referent is not None:
-            ret.referent_uuid = _uuidToBytes(self._referent.getUUID())
+            ret.referent_uuid = _uuidToBytes(self._referent.uuid())
 
         ret.name = self._name
         ret.storage_kind = self._storage_kind.value
@@ -1712,7 +1714,7 @@ class Symbol(object):
 
         return symbol
 
-    def getUUID(self):
+    def uuid(self):
         """ Get uuid for this Symbol """
         return self._uuid
 
@@ -1720,7 +1722,7 @@ class Symbol(object):
         """ Set name for this Symbol """
         self._name = name
 
-    def getName(self):
+    def name(self):
         """ Get name for this Symbol """
         return self._name
 
@@ -1731,7 +1733,7 @@ class Symbol(object):
 
         self._storage_kind = storage_kind
 
-    def getStorageKind(self):
+    def storageKind(self):
         """ Get storage_kind for this Symbol """
         return self._storage_kind
 
@@ -1739,7 +1741,7 @@ class Symbol(object):
         """ Set value for this Symbol """
         self._value = value
 
-    def getValue(self):
+    def value(self):
         """ Get value for this Symbol """
         return self._value
 
@@ -1747,7 +1749,7 @@ class Symbol(object):
         """ Set referent for this Symbol"""
         self._referent = referent
 
-    def getReferent(self):
+    def referent(self):
         """ Get referent for this Symbol"""
         return self._referent
 
