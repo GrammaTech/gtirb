@@ -90,17 +90,11 @@ class GTIRBTypeEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        if (isinstance(obj, AuxDataContainer) or isinstance(obj, Block)
-                or isinstance(obj, ByteMap) or isinstance(obj, CFG)
-                or isinstance(obj, DataObject) or isinstance(obj, EdgeLabel)
-                or isinstance(obj, Edge) or isinstance(obj, Factory)
-                or isinstance(obj, ImageByteMap)
-                or isinstance(obj, InstructionRef) or isinstance(obj, IR)
-                or isinstance(obj, Module) or isinstance(obj, ProxyBlock)
-                or isinstance(obj, Region) or isinstance(obj, Section)
-                or isinstance(obj, SymAddrAddr)
-                or isinstance(obj, SymAddrConst) or isinstance(obj, Symbol)
-                or isinstance(obj, SymStackConst)):
+        if (isinstance(obj,
+                       (AuxDataContainer, Block, ByteMap, CFG, DataObject,
+                        EdgeLabel, Edge, Factory, ImageByteMap, InstructionRef,
+                        IR, Module, ProxyBlock, Region, Section, SymAddrAddr,
+                        SymAddrConst, Symbol, SymStackConst))):
             return obj.__dict__
         elif isinstance(obj, AuxData):
             obj._data = self.default(obj._data)
@@ -407,9 +401,11 @@ class Module(AuxDataContainer):
                     for sym in _module.symbols
                 ],
                 CFG._fromProtobuf(_factory, _module.cfg),
-                [Block._fromProtobuf(_factory, blk) for blk in _module.blocks],
-                [DataObject._fromProtobuf(_factory, dt)
-                 for dt in _module.data], [
+                [Block._fromProtobuf(_factory, blk)
+                 for blk in _module.blocks], [
+                     DataObject._fromProtobuf(_factory, dt)
+                     for dt in _module.data
+                 ], [
                      ProxyBlock._fromProtobuf(_factory, pb)
                      for pb in _module.proxies
                  ], [
@@ -1289,7 +1285,8 @@ class ImageByteMap(object):
         image_byte_map = _factory.objectForUuid(uuid)
         if image_byte_map is None:
             image_byte_map = cls(
-                uuid, ByteMap._fromProtobuf(_factory, _image_byte_map.byte_map),
+                uuid, ByteMap._fromProtobuf(_factory,
+                                            _image_byte_map.byte_map),
                 Addr(_image_byte_map.addr_min), Addr(_image_byte_map.addr_max),
                 Addr(_image_byte_map.base_address),
                 Addr(_image_byte_map.entry_point_address))
