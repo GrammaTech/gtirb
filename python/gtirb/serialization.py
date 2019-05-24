@@ -7,8 +7,10 @@ encoding/decoding various GTIRB types to/from bytes and the `Codec`
 class that holds the encode and decode functions for a type.
 
 """
-import uuid
 import gtirb
+import io
+import sys
+import uuid
 
 
 class Codec(object):
@@ -24,31 +26,27 @@ class MappingCodec(Codec):
     def decode(self, _bytes, _sub_types, _serialization):
         """decode a mapping<..> entry
     
-        :param _bytes: Raw bytes
+        :param _bytes: Raw bytes (io.BytesIO typed)
         :param _sub_types: List of subtype names
         :param _serialization: The Serializaton instance calling this
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :returns: decoded return type
         :rtype: tuple
     
         """
         assert len(_sub_types) == 2
 
-        _shift = 0
         _key_type = _sub_types[0]
         _value_type = _sub_types[1]
         _ret = {}
 
-        (size, off) = _serialization.decode('uint64_t', _bytes)
-        _shift += off
+        size = _serialization.decode('uint64_t', _bytes)
 
         for _ in range(0, size):
-            (k, o) = _serialization.decode(_key_type, _bytes[_shift:])
-            _shift += o
-            (v, o) = _serialization.decode(_value_type, _bytes[_shift:])
-            _shift += o
+            k = _serialization.decode(_key_type, _bytes)
+            v = _serialization.decode(_value_type, _bytes)
             _ret[k] = v
 
-        return (_ret, _shift)
+        return _ret
 
     def encode(self, _out, _map, _serialization):
         """encode a dict into bytes.
@@ -84,28 +82,25 @@ class SetCodec(Codec):
     def decode(self, _bytes, _sub_types, _serialization):
         """decode a set<..> entry
     
-        :param _bytes: Raw bytes
+        :param _bytes: Raw bytes (io.BytesIO typed)
         :param _sub_types: a list of sub-type names
         :param _serialization: A Serialization instance calling this
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :returns: decoded return type
         :rtype: tuple
     
         """
         assert len(_sub_types) == 1
 
-        _shift = 0
         _type = _sub_types[0]
         _ret = set()
 
-        (size, off) = _serialization.decode('uint64_t', _bytes)
-        _shift += off
+        size = _serialization.decode('uint64_t', _bytes)
 
         for index in range(0, size):
-            (v, o) = _serialization.decode(_type, _bytes[_shift:])
-            _shift += o
+            v = _serialization.decode(_type, _bytes)
             _ret.add(v)
 
-        return (_ret, _shift)
+        return _ret
 
     def encode(self, _out, _set, _serialization):
         """encode a set() to bytes
@@ -133,28 +128,25 @@ class SequenceCodec(Codec):
     def decode(self, _bytes, _sub_types, _serialization):
         """decode a sequence<..> entry
         
-        :param _bytes: Raw bytes
+        :param _bytes: Raw bytes (io.BytesIO typed)
         :param _sub_types: a list of sub-type names
         :param _serialization: The Serialization instance calling this
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :returns: decoded return type
         :rtype: tuple
     
         """
         assert len(_sub_types) == 1
 
-        _shift = 0
         _type = _sub_types[0]
         _ret = []
 
-        (size, off) = _serialization.decode('uint64_t', _bytes)
-        _shift += off
+        size = _serialization.decode('uint64_t', _bytes)
 
         for index in range(0, size):
-            (v, o) = _serialization.decode(_type, _bytes[_shift:])
-            _shift += o
+            v = _serialization.decode(_type, _bytes)
             _ret.append(v)
 
-        return (_ret, _shift)
+        return _ret
 
     def encode(self, _out, _list, _serialization):
         """encode a list to bytes
@@ -182,14 +174,14 @@ class StringCodec(Codec):
     def decode(self, _bytes, _serialization):
         """decode a string
     
-        :param _bytes: Raw bytes
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :param _bytes: Raw bytes (io.BytesIO typed)
+        :returns: decoded return type
         :rtype: tuple
     
         """
-        (size, off) = _serialization.decode('uint64_t', _bytes)
+        size = _serialization.decode('uint64_t', _bytes)
 
-        return (str(bytes(_bytes[off:off + size]), 'utf-8'), off + size)
+        return str(_bytes.read(size), 'utf-8')
 
     def encode(self, _out, _val, _serialization=None):
         """encode a string to bytes
@@ -209,17 +201,15 @@ class IrefCodec(Codec):
     def decode(self, _bytes, _serialization):
         """decode an InstructionRef entry
     
-        :param _bytes: Raw bytes
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :param _bytes: Raw bytes (io.BytesIO typed)
+        :returns: decoded return type
         :rtype: tuple
     
         """
-        _ret_off = 0
-        (bid, off) = _serializtion.decode('UUID', _bytes)
-        _ret_off += off
-        (offset, off) = _serialization.decode('uint64_t', _bytes[_ret_off:])
+        bid = _serializtion.decode('UUID', _bytes)
+        offset = _serialization.decode('uint64_t', _bytes)
 
-        return (InstructionRef(bid, offset), _ret_off + off)
+        return InstructionRef(bid, offset)
 
     def encode(self, _out, _val, _serialization=None):
         """
@@ -235,14 +225,14 @@ class UUIDCodec(Codec):
     def decode(self, _bytes, _serialization):
         """decode a UUID entry
     
-        :param _bytes: Raw bytes
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :param _bytes: Raw bytes (io.BytesIO typed)
+        :returns: decoded return type
         :rtype: tuple
     
         """
-        if len(_bytes) < 16:
+        if sys.getsizeof(_bytes) < 16:
             return None
-        return (uuid.UUID(bytes=bytes(_bytes[0:16])), 16)
+        return uuid.UUID(bytes=_bytes.read(16))
 
     def encode(self, _out, _val, _serialization=None):
         """encode UUID to bytes
@@ -261,13 +251,13 @@ class AddrCodec(Codec):
     def decode(self, _bytes, _serialization):
         """decode an InstructionRef entry
     
-        :param _bytes: Raw bytes
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :param _bytes: Raw bytes (io.BytesIO typed)
+        :returns: decoded return type
         :rtype: tuple
     
         """
-        (addr, off) = _serialization.decode('uint64_t', _bytes)
-        return (gtirb.Addr(addr), off)
+        addr = _serialization.decode('uint64_t', _bytes)
+        return gtirb.Addr(addr)
 
     def encode(self, _out, _val, _serialization=None):
         """encode Addr to bytes
@@ -286,15 +276,15 @@ class Uint64Codec(Codec):
     def decode(self, _bytes, _serialization):
         """decode uint64_t
     
-        :param _bytes: Raw bytes
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :param _bytes: Raw bytes (io.BytesIO typed)
+        :returns: decoded return type
         :rtype: tuple
     
         """
-        return (int.from_bytes(bytes(_bytes[0:8]),
-                               byteorder='little',
-                               signed=False), 8)
-
+        return int.from_bytes(_bytes.read(8),
+                              byteorder='little',
+                              signed=False)
+    
     def encode(self, _out, _val, _serialization=None):
         """encode uint64_t to bytes
     
@@ -419,11 +409,12 @@ class Serialization(object):
         """Top level decode function.
 
         :param type_name: top level type name
-        :param _bytes: Raw bytes
-        :returns: tuple of the form (decoded return type, bytes to shift)
+        :param _bytes: Raw bytes (io.BytesIO typed)
+        :returns: decoded return type
         :rtype: tuple
 
         """
+        assert isinstance(_bytes, io.BytesIO)
         if '<' in type_name:
             (head, subtypes) = self._getSubtypes(type_name)
             assert head in self._codecs, \

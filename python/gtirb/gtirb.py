@@ -29,6 +29,7 @@ from collections import OrderedDict
 import sys
 import json
 import uuid
+import io
 from enum import Enum
 
 import os
@@ -782,8 +783,9 @@ class AuxData(object):
         """
         Load pygtirb class from protobuf class
         """
-        ret = serializer.decode(_aux_data.type_name, bytearray(_aux_data.data))
-        return cls(_aux_data.type_name, ret[0])
+        ret = serializer.decode(_aux_data.type_name,
+                                io.BytesIO(_aux_data.data))
+        return cls(_aux_data.type_name, ret)
 
 
 class Block(object):
@@ -1052,9 +1054,9 @@ class Edge(object):
         """
         Load this cls from protobuf object
         """
-        return cls(_factory.objectForUuid(_uuidFromBytes(_edge.source_uuid)),
-                   _factory.objectForUuid(_uuidFromBytes(_edge.target_uuid)),
-                   EdgeLabel._fromProtobuf(_factory, _edge.label))
+        return cls(EdgeLabel._fromProtobuf(_factory, _edge.label),
+                   _factory.objectForUuid(_uuidFromBytes(_edge.source_uuid)),
+                   _factory.objectForUuid(_uuidFromBytes(_edge.target_uuid)))
 
     def __key(self):
         return (self._source_block, self._target_block, self._label)
