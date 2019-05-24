@@ -367,23 +367,22 @@ class Serialization(object):
         """
 
         self._codecs = {
+            'Addr': AddrCodec(),
+            'InstructionRef': IrefCodec(),
             'mapping': MappingCodec(),
             'sequence': SequenceCodec(),
             'set': SetCodec(),
             'string': StringCodec(),
-            'InstructionRef': IrefCodec(),
-            'UUID': UUIDCodec(),
             'uint64_t': Uint64Codec(),
-            'Addr': AddrCodec()
+            'UUID': UUIDCodec()
         }
-
         # Some special type mappings from python to GTIR encoded types.
         self._type_mapping = {
             'dict': 'mapping',
+            'int': 'uint64_t',
             'list': 'sequence',
             'set': 'set',
-            'str': 'string',
-            'int': 'uint64_t'
+            'str': 'string'
         }
 
     def registerCodec(self, type_name, codec):
