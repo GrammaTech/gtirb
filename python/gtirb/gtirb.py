@@ -217,10 +217,7 @@ class AuxDataContainer(object):
         :param data: The underlying data structure
 
         """
-        try:
-            self._aux_data[name] = _data
-        except KeyError as ke:
-            raise ke
+        self._aux_data[name] = _data
 
 
 class Module(AuxDataContainer):
@@ -391,6 +388,12 @@ class Module(AuxDataContainer):
         proxy_blocks = [
             ProxyBlock._fromProtobuf(_factory, pb) for pb in _module.proxies
         ]
+        data_objects = [
+            DataObject._fromProtobuf(_factory, dt) for dt in _module.data
+        ]
+        symbols = [
+            Symbol._fromProtobuf(_factory, sym) for sym in _module.symbols
+        ]
         if module is None:
             module = cls(
                 uuid,
@@ -400,15 +403,11 @@ class Module(AuxDataContainer):
                 _module.file_format,
                 _module.isa_id,
                 _module.name,
-                ImageByteMap._fromProtobuf(_factory, _module.image_byte_map), [
-                    Symbol._fromProtobuf(_factory, sym)
-                    for sym in _module.symbols
-                ],
+                ImageByteMap._fromProtobuf(_factory, _module.image_byte_map),
+                symbols,
                 CFG._fromProtobuf(_factory, _module.cfg),
-                blocks, [
-                    DataObject._fromProtobuf(_factory, dt)
-                    for dt in _module.data
-                ],
+                blocks,
+                data_objects,
                 proxy_blocks, [
                     Section._fromProtobuf(_factory, sec)
                     for sec in _module.sections
@@ -1467,11 +1466,9 @@ class SymStackConst(object):
     representing an offset from a stack variable.
     '''
 
-    def __init__(self, offset, symbol_uuid=None, symbol=None, factory=None):
+    def __init__(self, offset, symbol=None):
         self._offset = offset
-        self._symbol_uuid = symbol_uuid
         self._symbol = symbol
-        self._factory = factory
 
     def _toProtobuf(self):
         """
@@ -1483,7 +1480,9 @@ class SymStackConst(object):
         """
         ret = SymbolicExpression_pb2.SymStackConst()
         ret.offset = self._offset
-        ret.symbol_uuid = _uuidToBytes(self._symbol_uuid)
+        if self._symbol is not None:
+            ret.symbol_uuid = _uuidToBytes(self._symbol.getUUID())
+
         return ret
 
     @classmethod
@@ -1492,19 +1491,17 @@ class SymStackConst(object):
         Load this cls from protobuf object
         """
         if _sym_stack_const.symbol_uuid != b'':
-            return cls(_sym_stack_const.offset,
-                       _uuidFromBytes(_sym_stack_const.symbol_uuid),
-                       factory=_factory)
+            return cls(
+                _sym_stack_const.offset,
+                _factory.objectForUuid(
+                    _uuidFromBytes(_sym_stack_const.symbol_uuid)))
         else:
-            return cls(_sym_stack_const.offset, factory=_factory)
+            return cls(_sym_stack_const.offset)
 
     def setSymbol(self, symbol):
         """ Set symbol for this SymStackConst """
         assert isinstance(symbol, Symbol),\
             "Given symbol is not of type Symbol"
-        if self._symbol is None and self._factory is not None:
-            self._symbol = self._factory.objectForUuid(self._symbol_uuid)
-
         return self._symbol
 
     def getSymbol(self):
@@ -1517,11 +1514,9 @@ class SymAddrConst(object):
     Represents a "symbolic operand" of the form "Sym + Offset".
     '''
 
-    def __init__(self, offset, symbol_uuid, symbol=None, factory=None):
+    def __init__(self, offset, symbol=None):
         self._offset = offset
-        self._symbol_uuid = symbol_uuid
         self._symbol = symbol
-        self._factory = factory
 
     def _toProtobuf(self):
         """
@@ -1533,7 +1528,8 @@ class SymAddrConst(object):
         """
         ret = SymbolicExpression_pb2.SymAddrConst()
         ret.offset = self._offset
-        ret.symbol_uuid = _uuidToBytes(self._symbol_uuid)
+        if self._symbol is not None:
+            ret.symbol_uuid = _uuidToBytes(self._symbol.getUUID())
         return ret
 
     @classmethod
@@ -1541,8 +1537,10 @@ class SymAddrConst(object):
         """
         Load this cls from protobuf object
         """
-        return cls(_sym_addr_const.offset,
-                   _uuidFromBytes(_sym_addr_const.symbol_uuid), _factory)
+        return cls(
+            _sym_addr_const.offset,
+            _factory.objectForUuid(_uuidFromBytes(
+                _sym_addr_const.symbol_uuid)))
 
     def setOffset(self, offset):
         """ Set offset for this SymAddrConst"""
@@ -1556,16 +1554,10 @@ class SymAddrConst(object):
         """ Set symbol for this SymAddrConst"""
         assert isinstance(symbol, Symbol),\
             "Given symbol is not of type Symbol"
-
-        self._symbol_uuid = symbol.getUUID()
         self._symbol = symbol
 
     def getSymbol(self):
         """ Get symbol for this SymAddrConst"""
-
-        if self._symbol is None and self._factory is not None:
-            self._symbol = self._factory.objectForUuid(self._symbol_uuid)
-
         return self._symbol
 
 
@@ -1575,20 +1567,11 @@ class SymAddrAddr(object):
     "(Sym1 - Sym2) / Scale + Offset"
     '''
 
-    def __init__(self,
-                 scale,
-                 offset,
-                 symbol1_uuid,
-                 symbol2_uuid,
-                 factory=None,
-                 symbol1=None,
-                 symbol2=None):
+    def __init__(self, scale, offset, symbol1, symbol2):
         self._scale = scale
         self._offset = offset
-
-        self._factory = factory
-        self._symbol1_uuid = symbol1_uuid
-        self._symbol2_uuid = symbol2_uuid
+        self._symbol1 = symbol1
+        self._symbol2 = symbol2
 
     def _toProtobuf(self):
         """
@@ -1601,8 +1584,8 @@ class SymAddrAddr(object):
         ret = SymbolicExpression_pb2.SymAddrAddr()
         ret.scale = self._scale
         ret.offset = self._offset
-        ret.symbol1_uuid = _uuidToBytes(self._symbol1_uuid)
-        ret.symbol2_uuid = _uuidToBytes(self._symbol2_uuid)
+        ret.symbol1_uuid = _uuidToBytes(self._symbol1.getUUID())
+        ret.symbol2_uuid = _uuidToBytes(self._symbol2.getUUID())
         return ret
 
     @classmethod
@@ -1610,9 +1593,12 @@ class SymAddrAddr(object):
         """
         Load this cls from protobuf object
         """
-        return cls(_sym_addr_addr.scale, _sym_addr_addr.offset, _factory,
-                   _uuidFromBytes(_sym_addr_addr.symbol1_uuid),
-                   _uuidFromBytes(_sym_addr_addr.symbol2_uuid))
+        return cls(
+            _sym_addr_addr.scale, _sym_addr_addr.offset,
+            _factory.objectForUuid(_uuidFromBytes(
+                _sym_addr_addr.symbol1_uuid)),
+            _factory.objectForUuid(_uuidFromBytes(
+                _sym_addr_addr.symbol2_uuid)))
 
     def setScale(self, scale):
         """ Set scale for this SymAddrAddr"""
@@ -1634,32 +1620,20 @@ class SymAddrAddr(object):
         """ Set symbol1 for this SymAddrAddr"""
         assert isinstance(symbol1, Symbol),\
             "Given symbol1 is not of type Symbol"
-
-        self._symbol1_uuid = symbol1.getUUID()
         self._symbol1 = symbol1
 
     def getSymbol1(self):
         """ Get symbol1 for this SymAddrAddr"""
-
-        if self._symbol1 is None and self._factory is not None:
-            self._symbol1 = self._factory.objectForUuid(self._symbol1_uuid)
-
         return self._symbol1
 
     def setSymbol2(self, symbol2):
         """ Set symbol2 for this SymAddrAddr"""
         assert isinstance(symbol2, Symbol),\
             "Given symbol2 is not of type Symbol"
-
-        self._symbol2_uuid = symbol2.getUUID()
         self._symbol2 = symbol2
 
     def getSymbol2(self):
         """ Get symbol2 for this SymAddrAddr"""
-
-        if self._symbol2 is None and self._factory is not None:
-            self._symbol2 = self._factory.objectForUuid(self._symbol2_uuid)
-
         return self._symbol2
 
 
@@ -1679,31 +1653,17 @@ class Symbol(object):
     Represents a Symbol, which maps a name to an object in the IR.
     '''
 
-    def __init__(self,
-                 uuid,
-                 name,
-                 storage_kind,
-                 value=None,
-                 referent_uuid=None,
-                 referent=None,
-                 factory=None):
+    def __init__(self, uuid, name, storage_kind, value=None, referent=None):
         self._uuid = uuid
         self._value = value
-        self._referent_uuid = referent_uuid
         self._referent = referent
         self._name = name
         self._storage_kind = storage_kind
-        self._factory = factory
 
     @classmethod
-    def create(cls,
-               _factory,
-               name,
-               storage_kind,
-               value=None,
-               referent_uuid=None):
+    def create(cls, _factory, name, storage_kind, value=None, referent=None):
         suuid = uuid.uuid4()
-        sym = cls(suuid, name, storage_kind, value, referent_uuid)
+        sym = cls(suuid, name, storage_kind, value, referent)
         _factory.addObject(suuid, sym)
         return sym
 
@@ -1721,8 +1681,8 @@ class Symbol(object):
         if self._value is not None:
             ret.value = self._value
 
-        if self._referent_uuid is not None:
-            ret.referent_uuid = _uuidToBytes(self._referent_uuid)
+        if self._referent is not None:
+            ret.referent_uuid = _uuidToBytes(self._referent.getUUID())
 
         ret.name = self._name
         ret.storage_kind = self._storage_kind.value
@@ -1737,17 +1697,17 @@ class Symbol(object):
         symbol = _factory.objectForUuid(uuid)
         if symbol is None:
             value = None
-            referent_uuid = None
+            referent = None
 
             if _symbol.HasField('value'):
                 value = getattr(_symbol, 'value')
 
             if _symbol.HasField('referent_uuid'):
-                referent_uuid = _uuidFromBytes(
-                    getattr(_symbol, 'referent_uuid'))
+                referent = _factory.objectForUuid(
+                    _uuidFromBytes(getattr(_symbol, 'referent_uuid')))
 
             symbol = cls(uuid, _symbol.name, StorageKind(_symbol.storage_kind),
-                         value, referent_uuid, _factory)
+                         value, referent)
             _factory.addObject(uuid, symbol)
 
         return symbol
@@ -1785,14 +1745,10 @@ class Symbol(object):
 
     def setReferent(self, referent):
         """ Set referent for this Symbol"""
-        self._referent_uuid = referent.getUUID()
         self._referent = referent
 
     def getReferent(self):
         """ Get referent for this Symbol"""
-        if self._referent is None and self._factory is not None:
-            self._referent = self._factory.objectForUuid(self._referent_uuid)
-
         return self._referent
 
 
