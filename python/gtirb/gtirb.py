@@ -1086,8 +1086,9 @@ class CFG(object):
     Block.
     '''
 
-    def __init__(self, vertices, edges):
-        self._vertices = vertices
+    def __init__(self, vertex_uuids, edges):
+        self._vertices = set([])
+        self._vertex_uuids = vertex_uuids
         self._edges = edges
 
     def _toProtobuf(self):
@@ -1099,7 +1100,9 @@ class CFG(object):
 
         """
         ret = CFG_pb2.CFG()
-        ret.vertices.extend(self._vertices)
+        vertex_uuids = [_uuidToBytes(v.getUUID()) for v in self._vertices]
+
+        ret.vertices.extend(vertex_uuids)
         ret.edges.extend([e._toProtobuf() for e in self._edges])
         return ret
 
@@ -1108,8 +1111,26 @@ class CFG(object):
         """
         Load this cls from protobuf object
         """
-        return cls(_cfg.vertices,
+        vertex_uuids = []
+
+        for vertex_uuid in _cfg.vertices:
+            vertex_uuids.append(_uuidFromBytes(vertex_uuid))
+
+        return cls(vertex_uuids,
                    set([Edge._fromProtobuf(_factory, e) for e in _cfg.edges]))
+
+    def _postProcessCFG(self, _factory):
+        for edge in self._edges:
+            _source = _factory.objectForUuid(edge._source_uuid)
+            _target = _factory.objectForUuid(edge._target_uuid)
+            assert _source is not None and _target is not None
+            edge.setSource(_source)
+            edge.setTarget(_target)
+
+        for vertex_uuid in self._vertex_uuids:
+            vertex = _factory.objectForUuid(vertex_uuid)
+            assert vertex is not None
+            self._vertices.add(vertex)
 
     def addVertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
@@ -1117,8 +1138,7 @@ class CFG(object):
         :param vertex: the Block/ProxyBlock
 
         """
-        if vertex not in self._vertices:
-            self._vertices.append(vertex)
+        self._vertices.add(vertex)
 
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
@@ -1819,12 +1839,6 @@ def IRLoadFromProtobuf(protobuf_file):
         ir = IR.fromProtobuf(factory, _ir)
 
         for module in ir._modules:
-            cfg = module._cfg
-            for edge in cfg._edges:
-                _source = factory.objectForUuid(edge._source_uuid)
-                _target = factory.objectForUuid(edge._target_uuid)
-                assert _source is not None and _target is not None
-                edge.setSource(_source)
-                edge.setTarget(_target)
+            module._cfg._postProcessCFG(factory)
 
         return (ir, factory)
