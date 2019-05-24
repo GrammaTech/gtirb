@@ -1109,7 +1109,7 @@ class CFG(object):
         Load this cls from protobuf object
         """
         return cls(_cfg.vertices,
-                   [Edge._fromProtobuf(_factory, e) for e in _cfg.edges])
+                   set([Edge._fromProtobuf(_factory, e) for e in _cfg.edges]))
 
     def addVertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
@@ -1119,14 +1119,14 @@ class CFG(object):
         """
         if vertex not in self._vertices:
             self._vertices.append(vertex)
-            
+
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
         assert isinstance(edge, Edge),\
             "Given edge is not of type Edge"
 
         if edge not in self._edges:
-            self._edges.append(edge)
+            self._edges.add(edge)
 
         self.addVertex(edge.source())
         self.addVertex(edge.target())
@@ -1134,7 +1134,7 @@ class CFG(object):
     def removeEdges(self, edges_to_remove):
         """ Remove a set of edges from the CFG """
         for edge_to_remove in edges_to_remove:
-            self._edges.remove(edge_to_remove)
+            self._edges.discard(edge_to_remove)
 
 
 class DataObject(object):
