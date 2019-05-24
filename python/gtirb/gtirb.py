@@ -25,6 +25,7 @@ TODOS:
 
 """
 
+from collections import OrderedDict
 import sys
 import json
 import uuid
@@ -154,11 +155,8 @@ class Addr(object):
     An Addr cannot store a relative address as it cannot contain a negative
     number.
     """
-
-    def __init__(self):
-        self._address = None
-
-    def __init__(self, address):
+    
+    def __init__(self, address=None):
         self._address = address
 
 
@@ -206,9 +204,10 @@ class AuxDataContainer(object):
         :rtype: AuxData
 
         """
-        assert name in self._aux_data,\
-            "No AuxData found for key %s."%(name)
-        return self._aux_data[name]._data
+        try:
+            return self._aux_data[name]._data
+        except KeyError as ke:
+            raise ke
 
     def addAuxData(self, name, data):
         """Add the AuxData for a particular key.
@@ -217,10 +216,10 @@ class AuxDataContainer(object):
         :param data: The underlying data structure
 
         """
-        assert name not in self._aux_data,\
-            "Existing AuxData found for key %s."%(name)
-
-        self._aux_data[name] = _data
+        try:
+            self._aux_data[name] = _data
+        except KeyError as ke:
+            raise ke
 
 
 class Module(AuxDataContainer):
@@ -1083,7 +1082,7 @@ class CFG(object):
     '''
 
     def __init__(self, vertex_uuids, edges):
-        self._vertices = set([])
+        self._vertices = OrderedDict()
         self._vertex_uuids = vertex_uuids
         self._edges = edges
 
@@ -1126,7 +1125,7 @@ class CFG(object):
         for vertex_uuid in self._vertex_uuids:
             vertex = _factory.objectForUuid(vertex_uuid)
             assert vertex is not None
-            self._vertices.add(vertex)
+            self.addVertex(vertex)
 
     def addVertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
@@ -1134,7 +1133,7 @@ class CFG(object):
         :param vertex: the Block/ProxyBlock
 
         """
-        self._vertices.add(vertex)
+        self._vertices[vertex] = None
 
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
