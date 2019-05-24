@@ -108,7 +108,7 @@ class GTIRBTypeEncoder(json.JSONEncoder):
             # if the obj is uuid, we simply return the value of uuid
             return obj.hex
 
-        return obj
+        return super().default(obj)
 
 
 class Factory(object):
