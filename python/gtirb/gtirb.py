@@ -155,7 +155,7 @@ class Addr(object):
     An Addr cannot store a relative address as it cannot contain a negative
     number.
     """
-    
+
     def __init__(self, address=None):
         self._address = address
 
@@ -386,6 +386,10 @@ class Module(AuxDataContainer):
 
         uuid = _uuidFromBytes(_module.uuid)
         module = _factory.objectForUuid(uuid)
+        blocks = [Block._fromProtobuf(_factory, blk) for blk in _module.blocks]
+        proxy_blocks = [
+            ProxyBlock._fromProtobuf(_factory, pb) for pb in _module.proxies
+        ]
         if module is None:
             module = cls(
                 uuid,
@@ -400,20 +404,17 @@ class Module(AuxDataContainer):
                     for sym in _module.symbols
                 ],
                 CFG._fromProtobuf(_factory, _module.cfg),
-                [Block._fromProtobuf(_factory, blk)
-                 for blk in _module.blocks], [
-                     DataObject._fromProtobuf(_factory, dt)
-                     for dt in _module.data
-                 ], [
-                     ProxyBlock._fromProtobuf(_factory, pb)
-                     for pb in _module.proxies
-                 ], [
-                     Section._fromProtobuf(_factory, sec)
-                     for sec in _module.sections
-                 ], {
-                     key: _symbolicExpressionFromProtobuf(_factory, se)
-                     for key, se in _module.symbolic_operands.items()
-                 },
+                blocks, [
+                    DataObject._fromProtobuf(_factory, dt)
+                    for dt in _module.data
+                ],
+                proxy_blocks, [
+                    Section._fromProtobuf(_factory, sec)
+                    for sec in _module.sections
+                ], {
+                    key: _symbolicExpressionFromProtobuf(_factory, se)
+                    for key, se in _module.symbolic_operands.items()
+                },
                 aux_data={
                     key: AuxData._fromProtobuf(_factory, val)
                     for (key,
@@ -1000,22 +1001,14 @@ class Edge(object):
     An Edge in the CFG. Consists of a source and target Block
     '''
 
-    def __init__(self,
-                 source_uuid,
-                 target_uuid,
-                 label,
-                 source_block=None,
-                 target_block=None):
+    def __init__(self, label, source_block, target_block):
         self._source_block = source_block
         self._target_block = target_block
 
-        self._source_uuid = source_uuid
-        self._target_uuid = target_uuid
         self._label = label
 
     def setSource(self, source_block):
         """ Set source_block for this Edge """
-        self._source_uuid = source_block.getUUID()
         self._source_block = source_block
 
     def source(self):
@@ -1024,7 +1017,6 @@ class Edge(object):
 
     def setTarget(self, target_block):
         """ Set target_block for this Edge """
-        self._target_uuid = target_block.getUUID()
         self._target_block = target_block
 
     def target(self):
@@ -1050,8 +1042,8 @@ class Edge(object):
 
         """
         ret = CFG_pb2.Edge()
-        ret.source_uuid = _uuidToBytes(self._source_uuid)
-        ret.target_uuid = _uuidToBytes(self._target_uuid)
+        ret.source_uuid = _uuidToBytes(self._source_block.getUUID())
+        ret.target_uuid = _uuidToBytes(self._target_block.getUUID())
         ret.label.CopyFrom(self._label._toProtobuf())
         return ret
 
@@ -1060,12 +1052,12 @@ class Edge(object):
         """
         Load this cls from protobuf object
         """
-        return cls(_uuidFromBytes(_edge.source_uuid),
-                   _uuidFromBytes(_edge.target_uuid),
+        return cls(_factory.objectForUuid(_uuidFromBytes(_edge.source_uuid)),
+                   _factory.objectForUuid(_uuidFromBytes(_edge.target_uuid)),
                    EdgeLabel._fromProtobuf(_factory, _edge.label))
 
     def __key(self):
-        return (self._source_uuid, self._target_uuid, self._label)
+        return (self._source_block, self._target_block, self._label)
 
     def __hash__(self):
         return hash(self.__key())
@@ -1081,9 +1073,8 @@ class CFG(object):
     Block.
     '''
 
-    def __init__(self, vertex_uuids, edges):
+    def __init__(self, edges):
         self._vertices = OrderedDict()
-        self._vertex_uuids = vertex_uuids
         self._edges = edges
 
     def _toProtobuf(self):
@@ -1095,9 +1086,9 @@ class CFG(object):
 
         """
         ret = CFG_pb2.CFG()
-        vertex_uuids = [_uuidToBytes(v.getUUID()) for v in self._vertices]
 
-        ret.vertices.extend(vertex_uuids)
+        ret.vertices.extend(
+            [_uuidToBytes(v.getUUID()) for v in self._vertices])
         ret.edges.extend([e._toProtobuf() for e in self._edges])
         return ret
 
@@ -1106,26 +1097,14 @@ class CFG(object):
         """
         Load this cls from protobuf object
         """
-        vertex_uuids = []
+        cfg = cls(set([Edge._fromProtobuf(_factory, e) for e in _cfg.edges]))
 
-        for vertex_uuid in _cfg.vertices:
-            vertex_uuids.append(_uuidFromBytes(vertex_uuid))
-
-        return cls(vertex_uuids,
-                   set([Edge._fromProtobuf(_factory, e) for e in _cfg.edges]))
-
-    def _postProcessCFG(self, _factory):
-        for edge in self._edges:
-            _source = _factory.objectForUuid(edge._source_uuid)
-            _target = _factory.objectForUuid(edge._target_uuid)
-            assert _source is not None and _target is not None
-            edge.setSource(_source)
-            edge.setTarget(_target)
-
-        for vertex_uuid in self._vertex_uuids:
-            vertex = _factory.objectForUuid(vertex_uuid)
+        for vertex_uuid_bytes in _cfg.vertices:
+            vertex = _factory.objectForUuid(_uuidFromBytes(vertex_uuid_bytes))
             assert vertex is not None
-            self.addVertex(vertex)
+            cfg.addVertex(vertex)
+
+        return cfg
 
     def addVertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
@@ -1833,8 +1812,5 @@ def IRLoadFromProtobuf(protobuf_file):
 
         factory = Factory()
         ir = IR.fromProtobuf(factory, _ir)
-
-        for module in ir._modules:
-            module._cfg._postProcessCFG(factory)
 
         return (ir, factory)
