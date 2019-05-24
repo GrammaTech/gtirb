@@ -451,6 +451,9 @@ class Module(AuxDataContainer):
         if block not in self._blocks:
             self._blocks.append(block)
 
+        # Add to the CFG
+        self._cfg.addVertex(block)
+
     def getUUID(self):
         """ Get UUID of this Module """
         return self._uuid
