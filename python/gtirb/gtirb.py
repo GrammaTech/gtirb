@@ -757,8 +757,7 @@ class AuxData(object):
         """
         ret = AuxData_pb2.AuxData()
 
-        _bytes = b''
-        _out_bytes_array = []
+        _out_bytes_array = io.BytesIO()
         _check_type_name = serializer.encode(_out_bytes_array, self._data)
 
         if _check_type_name != self._type_name:
@@ -771,11 +770,8 @@ class AuxData(object):
                 _check_type_name = self._type_name
 
         ret.type_name = _check_type_name
-
-        for _out_bytes in _out_bytes_array:
-            _bytes += _out_bytes
-
-        ret.data = _bytes
+        _out_bytes_array.seek(0)
+        ret.data = _out_bytes_array.read()
         return ret
 
     @classmethod

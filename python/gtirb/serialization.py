@@ -51,7 +51,7 @@ class MappingCodec(Codec):
     def encode(self, _out, _map, _serialization):
         """encode a dict into bytes.
     
-        :param _out: output list of byte arrays.
+        :param _out: output bytes in io.BytesIO type
         :param _map: map to encode
         :param _serialization: The Serialization instance calling this
         :returns: the encoded type_name string
@@ -193,7 +193,7 @@ class StringCodec(Codec):
     
         """
         _serialization.encode(_out, len(_val))
-        _out.append(_val.encode())
+        _out.write(_val.encode())
         return 'string'
 
 
@@ -243,7 +243,7 @@ class UUIDCodec(Codec):
         :rtype: string
     
         """
-        _out.append(_val.bytes)
+        _out.write(_val.bytes)
         return 'UUID'
 
 
@@ -294,7 +294,7 @@ class Uint64Codec(Codec):
         :rtype: string
     
         """
-        _out.append(_val.to_bytes(8, byteorder='little'))
+        _out.write(_val.to_bytes(8, byteorder='little'))
         return 'uint64_t'
 
 
@@ -399,6 +399,7 @@ class Serialization(object):
         :rtype: string
 
         """
+        assert isinstance(_out, io.BytesIO)
         type_name = self._getEncodedTypeMapping(_val.__class__.__name__)
         assert type_name in self._codecs, \
             'No encoder present for type_name - %s' %(type_name)
