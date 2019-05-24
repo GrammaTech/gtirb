@@ -215,7 +215,7 @@ class IrefCodec(Codec):
     
         """
         _ret_off = 0
-        (bid, off) = self.uuid_decoder(_bytes)
+        (bid, off) = _serializtion.decode('UUID', _bytes)
         _ret_off += off
         (offset, off) = _serialization.decode('uint64_t', _bytes[_ret_off:])
 
@@ -226,8 +226,8 @@ class IrefCodec(Codec):
         encode InstructionRef to bytes
         """
 
-        self.uuid_encoder(_out, _val._block_id)
-        self.uuid_encoder(_out, _val._offset)
+        _serialization.encode(_out, _val._block_id)
+        _serialization.encode(_out, _val._offset)
         return 'InstructionRef'
 
 
