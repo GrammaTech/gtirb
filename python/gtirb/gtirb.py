@@ -298,7 +298,7 @@ class Module(AuxDataContainer):
         muuid = uuid.uuid4()
         ret = cls(muuid,
                   binary_path='',
-                  preferred_addr=Addr(),
+                  preferred_addr=0,
                   rebase_delta=0,
                   file_format='',
                   isa_id=None,
@@ -470,9 +470,6 @@ class Module(AuxDataContainer):
 
     def setPreferredAddress(self, _preferred_addr):
         """ Set the preferred_addr of the Module """
-        assert isinstance(_preferred_addr, Addr),\
-            "Given _preferred_addr is not of type Addr"
-
         self._preferred_addr = _preferred_addr
 
     def preferredAddress(self):
@@ -513,8 +510,6 @@ class Module(AuxDataContainer):
 
     def setImageByteMap(self, image_byte_map):
         """ Set image_byte_map for this Module """
-        assert isinstance(image_byte_map, ImageByteMap),\
-            "Given image_byte_map is not of type ImageByteMap"
         self._image_byte_map = image_byte_map
 
     def imageByteMap(self):
@@ -532,8 +527,6 @@ class Module(AuxDataContainer):
 
     def setCfg(self, cfg):
         """ Set cfg for this Module """
-        assert isinstance(cfg, CFG),\
-            "Given cfg is not of type CFG"
         self._cfg = cfg
 
     def cfg(self):
@@ -546,9 +539,6 @@ class Module(AuxDataContainer):
 
     def addData(self, data):
         """ add data blocks to this Module """
-        assert isinstance(data, DataObject),\
-            "Given object is not of type DataObject"
-
         if data not in self._data:
             self._data.append(data)
 
@@ -558,9 +548,6 @@ class Module(AuxDataContainer):
 
     def addProxyBlock(self, pblock):
         """ Add proxy block to this Module """
-        assert isinstance(pblock, ProxyBlock),\
-            "Given pblock is not of type ProxyBlock"
-
         if pblock not in self._proxies:
             self._proxies.append(pblock)
 
@@ -570,9 +557,6 @@ class Module(AuxDataContainer):
 
     def addSection(self, section):
         """ Add section to this Module """
-        assert isinstance(section, Section),\
-            "Given section is not of type Section"
-
         if section not in self._sections:
             self._sections.append(section)
 
@@ -582,9 +566,6 @@ class Module(AuxDataContainer):
 
     def addSymbolicOperand(self, addr, symbolic_operand):
         """ add symbolic_operand for this addr """
-        assert isinstance(addr, Addr),\
-            "Given addr is not of type Addr"
-
         if addr not in self._symbolic_operands:
             self._symbolic_operands[addr] = symbolic_operand
 
@@ -663,9 +644,6 @@ class IR(AuxDataContainer):
 
     def addModule(self, _module):
         """ Add module to the IR """
-        assert isinstance(_module, Module),\
-            "Given _module is not of type Module"
-
         if _module not in self._modules:
             self._modules.append(_module)
 
@@ -840,9 +818,6 @@ class Block(object):
 
     def setAddress(self, address):
         """ Set address for this Block """
-        assert isinstance(address, Addr),\
-            "Given address is not of type Addr"
-
         self._address = address
 
     def address(self):
@@ -865,14 +840,17 @@ class Block(object):
         """ Get decode_mode  for this Block """
         return self._decode_mode
 
-    def __key(self):
-        return tuple(v for k, v in sorted(self.__dict__.items()))
+    def _eq_key(self):
+        return (self._address, self._size, self._decode_mode)
+    
+    def _key(self):
+        return (self._uuid)
 
     def __hash__(self):
-        return hash(self.__key())
+        return hash(self._key())
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return self._eq_key() == other._eq_key()
 
 
 class ByteMap(object):
@@ -912,14 +890,11 @@ class ByteMap(object):
                     for region in _byte_map.regions])
 
     def addRegion(self, addr, data):
-        """ Add region to this ImageByteMap """
-        assert isinstance(addr, Addr),\
-            "Given addr is not of type Addr"
-
+        """ Add region to this ByteMap """
         self._regions.append((addr, data))
-
+        
     def regions(self):
-        """ Get regions for this ImageByteMap """
+        """ Get regions for this ByteMap """
         return self._regions
 
 
@@ -928,12 +903,12 @@ class EdgeType(Enum):
     Indicates the type of control flow transfer indicated by this
     edge.
     '''
-    Type_Branch = CFG_pb2.EdgeType.Value('Type_Branch')
-    Type_Call = CFG_pb2.EdgeType.Value('Type_Call')
-    Type_Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
-    Type_Return = CFG_pb2.EdgeType.Value('Type_Return')
-    Type_Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
-    Type_Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
+    Branch = CFG_pb2.EdgeType.Value('Type_Branch')
+    Call = CFG_pb2.EdgeType.Value('Type_Call')
+    Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
+    Return = CFG_pb2.EdgeType.Value('Type_Return')
+    Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
+    Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
 
 
 class EdgeLabel(object):
@@ -986,9 +961,6 @@ class EdgeLabel(object):
 
     def setType(self, type):
         """ Set type for this EdgeLabel """
-        assert isinstance(type, EdgeType),\
-            "Given type is not of type EdgeType"
-
         self._type = type
 
     def type(self):
@@ -1025,8 +997,6 @@ class Edge(object):
 
     def setLabel(self, label):
         """ Set label for this Edge """
-        assert isinstance(label, EdgeLabel),\
-            "Given label is not of type EdgeLabel"
         self._label = label
 
     def label(self):
@@ -1115,9 +1085,6 @@ class CFG(object):
 
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
-        assert isinstance(edge, Edge),\
-            "Given edge is not of type Edge"
-
         if edge not in self._edges:
             self._edges.add(edge)
 
@@ -1195,9 +1162,6 @@ class DataObject(object):
 
     def setAddress(self, address):
         """ Set address for this DataObject """
-        assert isinstance(address, Addr),\
-            "Given address is not of type Addr"
-
         self._address = address
 
     def address(self):
@@ -1278,9 +1242,6 @@ class ImageByteMap(object):
 
     def setByteMap(self, byte_map):
         """ Set byte_map for this ImageByteMap """
-        assert isinstance(byte_map, ByteMap),\
-            "Given byte_map is not of type ByteMap"
-
         self._byte_map = byte_map
 
     def byteMap(self):
@@ -1289,9 +1250,6 @@ class ImageByteMap(object):
 
     def setAddrMin(self, addr_min):
         """ Set addr_min for this ImageByteMap """
-        assert isinstance(addr_min, Addr),\
-            "Given addr_min is not of type Addr"
-
         self._addr_min = addr_min
 
     def addrMin(self):
@@ -1300,9 +1258,6 @@ class ImageByteMap(object):
 
     def setAddrMax(self, addr_max):
         """ Set addr_max for this ImageByteMap """
-        assert isinstance(addr_max, Addr),\
-            "Given addr_max is not of type Addr"
-
         self._addr_max = addr_max
 
     def addrMax(self):
@@ -1311,9 +1266,6 @@ class ImageByteMap(object):
 
     def setBaseAddress(self, base_address):
         """ Set base_address for this ImageByteMap """
-        assert isinstance(base_address, Addr),\
-            "Given base_address is not of type Addr"
-
         self._base_address = base_address
 
     def baseAddress(self):
@@ -1322,9 +1274,6 @@ class ImageByteMap(object):
 
     def setEntryPointAddress(self, entry_point_address):
         """ Set entry_point_address for this ImageByteMap """
-        assert isinstance(entry_point_address, Addr),\
-            "Given entry_point_address is not of type Addr"
-
         self._entry_point_address = entry_point_address
 
     def entryPointAddress(self):
@@ -1435,8 +1384,6 @@ class Section(object):
 
     def setName(self, name):
         """ Set name for this Section """
-        assert isinstance(name, str),\
-            "Given name not a string"
         self._name = name
 
     def name(self):
@@ -1445,8 +1392,6 @@ class Section(object):
 
     def setAddress(self, address):
         """ Set address for this Section """
-        assert isinstance(address, Addr),\
-            "Given address is not of type Addr"
         self._address = address
 
     def address(self):
@@ -1502,8 +1447,6 @@ class SymStackConst(object):
 
     def setSymbol(self, symbol):
         """ Set symbol for this SymStackConst """
-        assert isinstance(symbol, Symbol),\
-            "Given symbol is not of type Symbol"
         return self._symbol
 
     def symbol(self):
@@ -1554,8 +1497,6 @@ class SymAddrConst(object):
 
     def setSymbol(self, symbol):
         """ Set symbol for this SymAddrConst"""
-        assert isinstance(symbol, Symbol),\
-            "Given symbol is not of type Symbol"
         self._symbol = symbol
 
     def symbol(self):
@@ -1620,8 +1561,6 @@ class SymAddrAddr(object):
 
     def setSymbol1(self, symbol1):
         """ Set symbol1 for this SymAddrAddr"""
-        assert isinstance(symbol1, Symbol),\
-            "Given symbol1 is not of type Symbol"
         self._symbol1 = symbol1
 
     def symbol1(self):
@@ -1630,8 +1569,6 @@ class SymAddrAddr(object):
 
     def setSymbol2(self, symbol2):
         """ Set symbol2 for this SymAddrAddr"""
-        assert isinstance(symbol2, Symbol),\
-            "Given symbol2 is not of type Symbol"
         self._symbol2 = symbol2
 
     def symbol2(self):
@@ -1728,9 +1665,6 @@ class Symbol(object):
 
     def setStorageKind(self, storage_kind):
         """ Set storage_kind for this Symbol """
-        assert isinstance(storage_kind, StorageKind),\
-            "Given storage_kind is not of type StorageKind"
-
         self._storage_kind = storage_kind
 
     def storageKind(self):
