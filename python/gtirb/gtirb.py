@@ -1695,12 +1695,27 @@ def IRPrintString(protobuf_file):
         print(_ir)
 
 
-def IRLoadFromProtobuf(protobuf_file):
-    with open(protobuf_file, 'rb') as f:
-        _ir = IR_pb2.IR()
-        _ir.ParseFromString(f.read())
+class IRLoader(object):
+    '''
+    Class used to load GTIR from protobuf format.
+    '''
+    def __init__(self):
+        self._ir = None
+        self._factory = None
+    
+    def IRLoadFromProtobuf(self, protobuf_file):
+        """Load IR from protobuf file at path.
 
-        factory = Factory()
-        ir = IR.fromProtobuf(factory, _ir)
+        :param protobuf_file: The given protobuf GTIR file path
+        :returns: GTIR
+        :rtype: IR
 
-        return (ir, factory)
+        """
+        with open(protobuf_file, 'rb') as f:
+            _ir = IR_pb2.IR()
+            _ir.ParseFromString(f.read())
+            
+            self._factory = Factory()
+            self._ir = IR.fromProtobuf(self._factory, _ir)
+            
+            return self._ir
