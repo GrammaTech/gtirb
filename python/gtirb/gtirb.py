@@ -298,9 +298,15 @@ class Module(AuxDataContainer):
         self._image_byte_map = image_byte_map
         self._symbols = symbols
         self._cfg = cfg
-        self._blocks = blocks
+        self._blocks = OrderedDict()
+        for block in blocks:
+            self.addBlock(block)
+
+        self._proxies = OrderedDict()
+        for proxy in proxies:
+            self.addProxyBlock(proxy)
+
         self._data = data
-        self._proxies = proxies
         self._sections = sections
         self._symbolic_operands = symbolic_operands
 
@@ -416,6 +422,7 @@ class Module(AuxDataContainer):
                     for (key,
                          val) in _module.aux_data_container.aux_data.items()
                 })
+            module.cfg().setModule(module)
             _factory.addObject(uuid, module)
 
         return module
@@ -429,7 +436,8 @@ class Module(AuxDataContainer):
 
         """
         for block_to_remove in blocks_to_remove:
-            self._blocks.remove(block_to_remove)
+            self._blocks.pop(block_to_remove, None)
+            self._proxies.pop(block_to_remove, None)
 
     def addBlock(self, block):
         """Add a block to the. Needs to do a linear scan of current
@@ -440,11 +448,7 @@ class Module(AuxDataContainer):
         :rtype: none
 
         """
-        if block not in self._blocks:
-            self._blocks.append(block)
-
-        # Add to the CFG
-        self._cfg.addVertex(block)
+        self._blocks[block] = None
 
     def uuid(self):
         """ Get UUID of this Module """
@@ -537,8 +541,7 @@ class Module(AuxDataContainer):
 
     def addProxyBlock(self, pblock):
         """ Add proxy block to this Module """
-        if pblock not in self._proxies:
-            self._proxies.append(pblock)
+        self._proxies[pblock] = None
 
     def proxies(self):
         """ Get proxies for this Module """
@@ -1035,9 +1038,9 @@ class CFG(object):
     Block.
     '''
 
-    def __init__(self, edges):
-        self._vertices = OrderedDict()
+    def __init__(self, edges, module=None):
         self._edges = edges
+        self._module = module
 
     def _toProtobuf(self):
         """
@@ -1049,7 +1052,9 @@ class CFG(object):
         """
         ret = CFG_pb2.CFG()
 
-        ret.vertices.extend([_uuidToBytes(v.uuid()) for v in self._vertices])
+        blocks = [_uuidToBytes(v.uuid()) for v in self._module.blocks()]
+        blocks.extend([_uuidToBytes(v.uuid()) for v in self._module.proxies()])
+        ret.vertices.extend(blocks)
         ret.edges.extend([e._toProtobuf() for e in self._edges])
         return ret
 
@@ -1059,12 +1064,6 @@ class CFG(object):
         Load this cls from protobuf object
         """
         cfg = cls(set([Edge._fromProtobuf(_factory, e) for e in _cfg.edges]))
-
-        for vertex_uuid_bytes in _cfg.vertices:
-            vertex = _factory.objectForUuid(_uuidFromBytes(vertex_uuid_bytes))
-            assert vertex is not None
-            cfg.addVertex(vertex)
-
         return cfg
 
     def addVertex(self, vertex):
@@ -1073,7 +1072,10 @@ class CFG(object):
         :param vertex: the Block/ProxyBlock
 
         """
-        self._vertices[vertex] = None
+        if isinstance(vertex, Block):
+            self._module.addBlock(vertex)
+        elif isinstance(vertex, ProxyBlock):
+            self._module.addProxyBlock(vertex)
 
     def addEdge(self, edge):
         """ Add an Edge to the CFG """
@@ -1087,6 +1089,10 @@ class CFG(object):
         """ Remove a set of edges from the CFG """
         for edge_to_remove in edges_to_remove:
             self._edges.discard(edge_to_remove)
+
+    def setModule(self, module):
+        """ Set module for this CFG """
+        self._module = module
 
 
 class DataObject(object):
