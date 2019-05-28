@@ -230,24 +230,25 @@ class Module(AuxDataContainer):
     '''
 
     def __init__(self,
-                 uuid,
-                 binary_path,
-                 preferred_addr,
-                 rebase_delta,
-                 file_format,
-                 isa_id,
-                 name,
-                 image_byte_map,
-                 symbols,
-                 cfg,
-                 blocks,
-                 data,
-                 proxies,
-                 sections,
-                 symbolic_operands,
-                 aux_data=None):
+                 module_uuid=None,
+                 binary_path='',
+                 preferred_addr=0,
+                 rebase_delta=0,
+                 file_format='',
+                 isa_id=None,
+                 name='',
+                 image_byte_map=None,
+                 symbols=None,
+                 cfg=None,
+                 blocks=None,
+                 data=None,
+                 proxies=None,
+                 sections=None,
+                 symbolic_operands=None,
+                 aux_data=None,
+                 factory=None):
         """Constructor, takes the params below.
-
+           Creates an empty module
         :param uuid: 
         :param binary_path: 
         :param preferred_addr: 
@@ -268,7 +269,25 @@ class Module(AuxDataContainer):
         :rtype: 
 
         """
-        self._uuid = uuid
+        if symbols is None:
+            symbols = []
+        if blocks is None:
+            blocks = []
+        if data is None:
+            data = []
+        if proxies is None:
+            proxies = []
+        if sections is None:
+            sections = []
+        if symbolic_operands is None:
+            symbolic_operands = {}
+        if aux_data is None:
+            aux_data = {}
+        if module_uuid is None:
+            module_uuid = uuid.uuid4()
+            factory.addObject(uuid, self)
+
+        self._uuid = module_uuid
         self._binary_path = binary_path
         self._preferred_addr = preferred_addr
         self._rebase_delta = rebase_delta
@@ -283,38 +302,8 @@ class Module(AuxDataContainer):
         self._proxies = proxies
         self._sections = sections
         self._symbolic_operands = symbolic_operands
+
         super(Module, self).__init__(aux_data=aux_data)
-
-    @classmethod
-    def create(cls, factory):
-        """Create an empty Module
-
-        :param cls: The Module class
-        :param factory: The factory instance
-        :returns: A newly created empty Module
-        :rtype: Module
-
-        """
-        muuid = uuid.uuid4()
-        ret = cls(muuid,
-                  binary_path='',
-                  preferred_addr=0,
-                  rebase_delta=0,
-                  file_format='',
-                  isa_id=None,
-                  name='',
-                  image_byte_map=None,
-                  symbols=[],
-                  cfg=None,
-                  blocks=[],
-                  data=[],
-                  proxies=[],
-                  sections=[],
-                  symbolic_operands={},
-                  aux_data={})
-
-        factory.addObject(muuid, ret)
-        return ret
 
     def _toProtobuf(self):
         """Returns protobuf representation of the object
@@ -579,25 +568,28 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     '''
 
-    def __init__(self, uuid, modules=[], aux_data=None):
-        self._uuid = uuid
-        self._modules = modules
-        super(IR, self).__init__(aux_data=aux_data)
+    def __init__(self, ir_uuid=None, modules=None, aux_data=None,
+                 factory=None):
+        """IR constructor. Can be used to construct an empty IR instance
 
-    @classmethod
-    def create(cls, factory):
-        """create an empty IR instance
-
-        :param cls: IR
-        :param factory: the factory instance
-        :returns: a newly created IR instance
+        :param ir_uuid: UUID. Creates a new instance if None
+        :param modules: List of modules
+        :param aux_data: auxilary data hanging off the IR
+        :param factory: The factory instance
+        :returns: IR
         :rtype: IR
 
         """
-        iruuid = uuid.uuid4()
-        ret = cls(iruuid)
-        factory.addObject(iruuid, ret)
-        return ret
+        if ir_uuid is None:
+            ir_uuid = uuid.uuid4()
+            factory.addObject(ir_uuid, self)
+
+        if modules is None:
+            modules = []
+
+        self._uuid = ir_uuid
+        self._modules = modules
+        super(IR, self).__init__(aux_data=aux_data)
 
     def toProtobuf(self):
         """Returns protobuf representation of the object
@@ -670,17 +662,15 @@ class ProxyBlock(object):
     an address nor a size.
     '''
 
-    def __init__(self, uuid):
-        self._uuid = uuid
-
-    @classmethod
-    def create(cls, factory):
-        """Create an empty ProxyBlock
+    def __init__(self, proxy_uuid=None, factory=None):
         """
-        puuid = uuid.uuid4()
-        ret = cls(puuid)
-        factory.addObject(puuid, ret)
-        return ret
+        ProxyBlock constructor. Can be used to create an empty ProxyBlock.
+        """
+        if proxy_uuid is None:
+            proxy_uuid = uuid.uuid4()
+            factory.addObject(proxy_uuid, self)
+
+        self._uuid = proxy_uuid
 
     def _toProtobuf(self):
         """Returns protobuf representation of the object
@@ -769,21 +759,23 @@ class Block(object):
     A basic block.
     '''
 
-    def __init__(self, uuid, address, size, decode_mode):
-        self._uuid = uuid
+    def __init__(self,
+                 block_uuid=None,
+                 address=0,
+                 size=0,
+                 decode_mode=None,
+                 factory=None):
+        '''
+        Constructor. Can be used to create a Block with the given parameters.
+        '''
+        if block_uuid is None:
+            block_uuid = uuid.uuid4()
+            factory.addObject(block_uuid, self)
+
+        self._uuid = block_uuid
         self._address = address
         self._size = size
         self._decode_mode = decode_mode
-
-    @classmethod
-    def create(cls, factory, address, size, decode_mode):
-        '''
-        Create a Block with the given parameters.
-        '''
-        buuid = uuid.uuid4()
-        blk = cls(buuid, address, size, decode_mode)
-        factory.addObject(buuid, blk)
-        return blk
 
     def _toProtobuf(self):
         """Returns protobuf representation of the object
@@ -842,7 +834,7 @@ class Block(object):
 
     def _eq_key(self):
         return (self._address, self._size, self._decode_mode)
-    
+
     def _key(self):
         return (self._uuid)
 
@@ -892,7 +884,7 @@ class ByteMap(object):
     def addRegion(self, addr, data):
         """ Add region to this ByteMap """
         self._regions.append((addr, data))
-        
+
     def regions(self):
         """ Get regions for this ByteMap """
         return self._regions
@@ -1105,8 +1097,18 @@ class DataObject(object):
     ImageByteMap.
     '''
 
-    def __init__(self, uuid, address=None, size=None):
-        self._uuid = uuid
+    def __init__(self,
+                 data_object_uuid=None,
+                 address=None,
+                 size=None,
+                 factory=None):
+        """Constructor. Can be used to create a DataObject.
+        """
+        if data_object_uuid is None:
+            data_object_uuid = uuid.uuid4()
+            factory.addObject(data_object_uuid, self)
+
+        self._uuid = data_object_uuid
         self._address = address
         self._size = size
 
@@ -1118,16 +1120,6 @@ class DataObject(object):
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-
-    @classmethod
-    def create(cls, factory, address=None, size=None):
-        '''
-        Create a new Data Object
-        '''
-        duuid = uuid.uuid4()
-        do = cls(duuid, address, size)
-        factory.addObject(duuid, do)
-        return do
 
     def _toProtobuf(self):
         """
@@ -1182,23 +1174,29 @@ class ImageByteMap(object):
     Contains the loaded raw image data for the module (binary).
     '''
 
-    def __init__(self, uuid, byte_map, addr_min, addr_max, base_address,
-                 entry_point_address):
-        self._uuid = uuid
+    def __init__(self,
+                 image_byte_map_uuid=None,
+                 byte_map=None,
+                 addr_min=0,
+                 addr_max=0,
+                 base_address=0,
+                 entry_point_address=0,
+                 factory=None):
+        """Constructor. Can be used to create an ImageByteMap with the given params.
+        """
+        if image_byte_map_uuid is None:
+            image_byte_map_uuid = uuid.uuid4()
+            factory.addObject(image_byte_map_uuid, self)
+
+        if byte_map is None:
+            byte_map = ByteMap()
+
+        self._uuid = image_byte_map_uuid
         self._byte_map = byte_map
         self._addr_min = addr_min
         self._addr_max = addr_max
         self._base_address = base_address
         self._entry_point_address = entry_point_address
-
-    @classmethod
-    def create(cls, factory):
-        """Create an ImageByteMap in it's default state.
-        """
-        ibm_uuid = uuid.uuid4()
-        ibm = cls(ibm_uuid, ByteMap(), Addr(), Addr(), Addr(), Addr())
-        factory.addObject(ibm_uuid, ibm)
-        return ibm
 
     def _toProtobuf(self):
         """
@@ -1335,20 +1333,22 @@ class Section(object):
     kept in ImageByteMap.
     '''
 
-    def __init__(self, uuid, name, address, size):
-        self._uuid = uuid
+    def __init__(self,
+                 section_uuid=None,
+                 name='',
+                 address=0,
+                 size=0,
+                 factory=None):
+        """Constructor. Can be used to create a Section with the given params.
+        """
+        if section_uuid is None:
+            section_uuid = uuid.uuid4()
+            factory.addObject(section_uuid, self)
+
+        self._uuid = section_uuid
         self._name = name
         self._address = address
         self._size = size
-
-    @classmethod
-    def create(cls, factory, name='', address=Addr(0), size=0):
-        ''' Create a Section with the given params
-        '''
-        suuid = uuid.uuid4()
-        sec = cls(suuid, name, address, size)
-        factory.addObject(suuid, sec)
-        return sec
 
     def _toProtobuf(self):
         """
@@ -1592,19 +1592,22 @@ class Symbol(object):
     Represents a Symbol, which maps a name to an object in the IR.
     '''
 
-    def __init__(self, uuid, name, storage_kind, value=None, referent=None):
-        self._uuid = uuid
+    def __init__(self,
+                 symbol_uuid=None,
+                 name='',
+                 storage_kind=None,
+                 value=None,
+                 referent=None,
+                 factory=None):
+        if symbol_uuid is None:
+            symbol_uuid = uuid.uuid4()
+            factory.addObject(symbol_uuid, self)
+
+        self._uuid = symbol_uuid
         self._value = value
         self._referent = referent
         self._name = name
         self._storage_kind = storage_kind
-
-    @classmethod
-    def create(cls, _factory, name, storage_kind, value=None, referent=None):
-        suuid = uuid.uuid4()
-        sym = cls(suuid, name, storage_kind, value, referent)
-        _factory.addObject(suuid, sym)
-        return sym
 
     def _toProtobuf(self):
         """
@@ -1699,10 +1702,11 @@ class IRLoader(object):
     '''
     Class used to load GTIR from protobuf format.
     '''
+
     def __init__(self):
         self._ir = None
         self._factory = None
-    
+
     def IRLoadFromProtobuf(self, protobuf_file):
         """Load IR from protobuf file at path.
 
@@ -1714,8 +1718,8 @@ class IRLoader(object):
         with open(protobuf_file, 'rb') as f:
             _ir = IR_pb2.IR()
             _ir.ParseFromString(f.read())
-            
+
             self._factory = Factory()
             self._ir = IR.fromProtobuf(self._factory, _ir)
-            
+
             return self._ir
