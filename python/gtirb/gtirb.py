@@ -303,7 +303,7 @@ class Module(AuxDataContainer):
         self._sections = sections
         self._symbolic_operands = symbolic_operands
 
-        super(Module, self).__init__(aux_data=aux_data)
+        super().__init__(aux_data=aux_data)
 
     def _toProtobuf(self):
         """Returns protobuf representation of the object
@@ -346,7 +346,7 @@ class Module(AuxDataContainer):
         for k, v in self._symbolic_operands.items():
             ret.symbolic_operands[k].CopyFrom(_symbolicExpressionToProtobuf(v))
 
-        ret.aux_data_container.CopyFrom(super(Module, self)._toProtobuf())
+        ret.aux_data_container.CopyFrom(super()._toProtobuf())
         return ret
 
     @classmethod
@@ -589,7 +589,7 @@ class IR(AuxDataContainer):
 
         self._uuid = ir_uuid
         self._modules = modules
-        super(IR, self).__init__(aux_data=aux_data)
+        super().__init__(aux_data=aux_data)
 
     def toProtobuf(self):
         """Returns protobuf representation of the object
@@ -601,7 +601,7 @@ class IR(AuxDataContainer):
         ret = IR_pb2.IR()
         ret.uuid = _uuidToBytes(self._uuid)
         ret.modules.extend([m._toProtobuf() for m in self._modules])
-        ret.aux_data_container.CopyFrom(super(IR, self)._toProtobuf())
+        ret.aux_data_container.CopyFrom(super()._toProtobuf())
         return ret
 
     @classmethod
