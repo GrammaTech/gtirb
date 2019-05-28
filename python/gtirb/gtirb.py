@@ -230,6 +230,7 @@ class Module(AuxDataContainer):
     '''
 
     def __init__(self,
+                 *,
                  module_uuid=None,
                  binary_path='',
                  preferred_addr=0,
@@ -388,22 +389,25 @@ class Module(AuxDataContainer):
         ]
         if module is None:
             module = cls(
-                uuid,
-                _module.binary_path,
-                _module.preferred_addr,
-                _module.rebase_delta,
-                _module.file_format,
-                _module.isa_id,
-                _module.name,
-                ImageByteMap._fromProtobuf(_factory, _module.image_byte_map),
-                symbols,
-                CFG._fromProtobuf(_factory, _module.cfg),
-                blocks,
-                data_objects,
-                proxy_blocks, [
+                module_uuid=uuid,
+                binary_path=_module.binary_path,
+                preferred_addr=_module.preferred_addr,
+                rebase_delta=_module.rebase_delta,
+                file_format=_module.file_format,
+                isa_id=_module.isa_id,
+                name=_module.name,
+                image_byte_map=ImageByteMap._fromProtobuf(
+                    _factory, _module.image_byte_map),
+                symbols=symbols,
+                cfg=CFG._fromProtobuf(_factory, _module.cfg),
+                blocks=blocks,
+                data=data_objects,
+                proxies=proxy_blocks,
+                sections=[
                     Section._fromProtobuf(_factory, sec)
                     for sec in _module.sections
-                ], {
+                ],
+                symbolic_operands={
                     key: _symbolicExpressionFromProtobuf(_factory, se)
                     for key, se in _module.symbolic_operands.items()
                 },
