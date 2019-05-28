@@ -451,10 +451,6 @@ class Module(AuxDataContainer):
         return self._uuid
 
     def setBinaryPath(self, _binary_path):
-        """ Set the binary path of the Module """
-        assert self._binary_path == '', \
-            "Binary path is already set."
-
         self._binary_path = _binary_path
 
     def binaryPath(self):
