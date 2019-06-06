@@ -233,6 +233,7 @@ class Module(AuxDataContainer):
     '''
 
     def __init__(self,
+                 factory,
                  *,
                  module_uuid=None,
                  binary_path='',
@@ -249,8 +250,7 @@ class Module(AuxDataContainer):
                  proxies=None,
                  sections=None,
                  symbolic_operands=None,
-                 aux_data=None,
-                 factory=None):
+                 aux_data=None):
         """Constructor, takes the params below.
            Creates an empty module
         :param uuid: 
@@ -289,8 +289,8 @@ class Module(AuxDataContainer):
             aux_data = {}
         if module_uuid is None:
             module_uuid = uuid.uuid4()
-            factory.addObject(uuid, self)
 
+        factory.addObject(uuid, self)
         self._uuid = module_uuid
         self._binary_path = binary_path
         self._preferred_addr = preferred_addr
@@ -349,8 +349,7 @@ class Module(AuxDataContainer):
         ret.symbols.extend([s._toProtobuf() for s in self._symbols])
         ret.cfg.CopyFrom(self._cfg._toProtobuf())
         ret.blocks.extend([b._toProtobuf() for b in self._blocks])
-        dd = [d._toProtobuf() for d in self._data]
-        ret.data.extend(dd)
+        ret.data.extend([d._toProtobuf() for d in self._data])
         ret.proxies.extend([p._toProtobuf() for p in self._proxies])
         ret.sections.extend([s._toProtobuf() for s in self._sections])
         for k, v in self._symbolic_operands.items():
@@ -398,6 +397,7 @@ class Module(AuxDataContainer):
         ]
         if module is None:
             module = cls(
+                _factory,
                 module_uuid=uuid,
                 binary_path=_module.binary_path,
                 preferred_addr=_module.preferred_addr,
@@ -426,7 +426,6 @@ class Module(AuxDataContainer):
                          val) in _module.aux_data_container.aux_data.items()
                 })
             module.cfg().setModule(module)
-            _factory.addObject(uuid, module)
 
         return module
 
@@ -458,6 +457,7 @@ class Module(AuxDataContainer):
         return self._uuid
 
     def setBinaryPath(self, _binary_path):
+        """ Set the binary_path for this Module """
         self._binary_path = _binary_path
 
     def binaryPath(self):
@@ -574,8 +574,7 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     '''
 
-    def __init__(self, ir_uuid=None, modules=None, aux_data=None,
-                 factory=None):
+    def __init__(self, factory, ir_uuid=None, modules=None, aux_data=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param ir_uuid: UUID. Creates a new instance if None
@@ -588,8 +587,8 @@ class IR(AuxDataContainer):
         """
         if ir_uuid is None:
             ir_uuid = uuid.uuid4()
-            factory.addObject(ir_uuid, self)
 
+        factory.addObject(ir_uuid, self)
         if modules is None:
             modules = []
 
@@ -630,14 +629,14 @@ class IR(AuxDataContainer):
         for module in _ir.modules:
             modules.append(Module._fromProtobuf(_factory, module))
 
-        ir = cls(uuid,
+        ir = cls(_factory,
+                 uuid,
                  modules,
                  aux_data={
                      key: AuxData._fromProtobuf(_factory, val)
                      for (key, val) in _ir.aux_data_container.aux_data.items()
                  })
 
-        _factory.addObject(uuid, ir)
         return ir
 
     def addModule(self, _module):
@@ -668,14 +667,14 @@ class ProxyBlock(object):
     an address nor a size.
     '''
 
-    def __init__(self, proxy_uuid=None, factory=None):
+    def __init__(self, factory, proxy_uuid=None):
         """
         ProxyBlock constructor. Can be used to create an empty ProxyBlock.
         """
         if proxy_uuid is None:
             proxy_uuid = uuid.uuid4()
-            factory.addObject(proxy_uuid, self)
 
+        factory.addObject(proxy_uuid, self)
         self._uuid = proxy_uuid
 
     def _toProtobuf(self):
@@ -703,8 +702,7 @@ class ProxyBlock(object):
         uuid = _uuidFromBytes(_pb.uuid)
         pb = _factory.objectForUuid(uuid)
         if pb is None:
-            pb = cls(uuid)
-            _factory.addObject(uuid, pb)
+            pb = cls(_factory, uuid)
 
         return pb
 
@@ -766,18 +764,18 @@ class Block(object):
     '''
 
     def __init__(self,
+                 factory,
                  block_uuid=None,
                  address=0,
                  size=0,
-                 decode_mode=None,
-                 factory=None):
+                 decode_mode=None):
         '''
         Constructor. Can be used to create a Block with the given parameters.
         '''
         if block_uuid is None:
             block_uuid = uuid.uuid4()
-            factory.addObject(block_uuid, self)
 
+        factory.addObject(block_uuid, self)
         self._uuid = block_uuid
         self._address = address
         self._size = size
@@ -805,8 +803,8 @@ class Block(object):
         uuid = _uuidFromBytes(_block.uuid)
         block = _factory.objectForUuid(uuid)
         if block is None:
-            block = cls(uuid, _block.address, _block.size, _block.decode_mode)
-            _factory.addObject(uuid, block)
+            block = cls(_factory, uuid, _block.address, _block.size,
+                        _block.decode_mode)
 
         return block
 
@@ -1104,16 +1102,17 @@ class DataObject(object):
     '''
 
     def __init__(self,
+                 factory,
+                 *,
                  data_object_uuid=None,
                  address=None,
-                 size=None,
-                 factory=None):
+                 size=None):
         """Constructor. Can be used to create a DataObject.
         """
         if data_object_uuid is None:
             data_object_uuid = uuid.uuid4()
-            factory.addObject(data_object_uuid, self)
 
+        factory.addObject(data_object_uuid, self)
         self._uuid = data_object_uuid
         self._address = address
         self._size = size
@@ -1146,8 +1145,8 @@ class DataObject(object):
         uuid = _uuidFromBytes(_data_object.uuid)
         data_object = _factory.objectForUuid(uuid)
         if data_object is None:
-            data_object = cls(uuid, _data_object.address, _data_object.size)
-            _factory.addObject(uuid, data_object)
+            data_object = cls(_factory, uuid, _data_object.address,
+                              _data_object.size)
 
         return data_object
 
@@ -1178,18 +1177,20 @@ class ImageByteMap(object):
     '''
 
     def __init__(self,
+                 factory,
+                 *,
                  image_byte_map_uuid=None,
                  byte_map=None,
                  addr_min=0,
                  addr_max=0,
                  base_address=0,
-                 entry_point_address=0,
-                 factory=None):
+                 entry_point_address=0):
         """Constructor. Can be used to create an ImageByteMap with the given params.
         """
         if image_byte_map_uuid is None:
             image_byte_map_uuid = uuid.uuid4()
-            factory.addObject(image_byte_map_uuid, self)
+
+        factory.addObject(image_byte_map_uuid, self)
 
         if byte_map is None:
             byte_map = ByteMap()
@@ -1227,13 +1228,14 @@ class ImageByteMap(object):
         image_byte_map = _factory.objectForUuid(uuid)
         if image_byte_map is None:
             image_byte_map = cls(
-                uuid, ByteMap._fromProtobuf(_factory,
-                                            _image_byte_map.byte_map),
-                Addr(_image_byte_map.addr_min), Addr(_image_byte_map.addr_max),
-                Addr(_image_byte_map.base_address),
-                Addr(_image_byte_map.entry_point_address))
-
-            _factory.addObject(uuid, image_byte_map)
+                _factory,
+                image_byte_map_uuid=uuid,
+                byte_map=ByteMap._fromProtobuf(_factory,
+                                               _image_byte_map.byte_map),
+                addr_min=Addr(_image_byte_map.addr_min),
+                addr_max=Addr(_image_byte_map.addr_max),
+                base_address=Addr(_image_byte_map.base_address),
+                entry_point_address=Addr(_image_byte_map.entry_point_address))
 
         return image_byte_map
 
@@ -1336,17 +1338,12 @@ class Section(object):
     kept in ImageByteMap.
     '''
 
-    def __init__(self,
-                 section_uuid=None,
-                 name='',
-                 address=0,
-                 size=0,
-                 factory=None):
+    def __init__(self, factory, section_uuid=None, name='', address=0, size=0):
         """Constructor. Can be used to create a Section with the given params.
         """
         if section_uuid is None:
             section_uuid = uuid.uuid4()
-            factory.addObject(section_uuid, self)
+        factory.addObject(section_uuid, self)
 
         self._uuid = section_uuid
         self._name = name
@@ -1376,8 +1373,8 @@ class Section(object):
         uuid = _uuidFromBytes(_section.uuid)
         section = _factory.objectForUuid(uuid)
         if section is None:
-            section = cls(uuid, _section.name, _section.address, _section.size)
-            _factory.addObject(uuid, section)
+            section = cls(_factory, uuid, _section.name, _section.address,
+                          _section.size)
 
         return section
 
@@ -1596,15 +1593,15 @@ class Symbol(object):
     '''
 
     def __init__(self,
+                 factory,
                  symbol_uuid=None,
                  name='',
                  storage_kind=None,
                  value=None,
-                 referent=None,
-                 factory=None):
+                 referent=None):
         if symbol_uuid is None:
             symbol_uuid = uuid.uuid4()
-            factory.addObject(symbol_uuid, self)
+        factory.addObject(symbol_uuid, self)
 
         self._uuid = symbol_uuid
         self._value = value
@@ -1651,9 +1648,8 @@ class Symbol(object):
                 referent = _factory.objectForUuid(
                     _uuidFromBytes(getattr(_symbol, 'referent_uuid')))
 
-            symbol = cls(uuid, _symbol.name, StorageKind(_symbol.storage_kind),
-                         value, referent)
-            _factory.addObject(uuid, symbol)
+            symbol = cls(_factory, uuid, _symbol.name,
+                         StorageKind(_symbol.storage_kind), value, referent)
 
         return symbol
 
