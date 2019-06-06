@@ -155,6 +155,9 @@ class Addr(object):
     
     An Addr cannot store a relative address as it cannot contain a negative
     number.
+    
+    It is an error to serialize any address that cannot fit in a 64bit
+    unsigned int.
     """
 
     def __init__(self, address=None):
@@ -1039,7 +1042,7 @@ class CFG(object):
     '''
 
     def __init__(self, edges, module=None):
-        self._edges = edges
+        self._edges = set(edges)
         self._module = module
 
     def _toProtobuf(self):
