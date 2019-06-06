@@ -214,7 +214,8 @@ class AuxDataContainer(object):
         try:
             return self._aux_data[name]._data
         except KeyError as ke:
-            raise ke
+            sys.stderr.write("No aux data found for key %s"%(name))
+            sys.exit(1)
 
     def addAuxData(self, name, data):
         """Add the AuxData for a particular key.
@@ -1103,7 +1104,6 @@ class DataObject(object):
 
     def __init__(self,
                  factory,
-                 *,
                  data_object_uuid=None,
                  address=None,
                  size=None):
