@@ -594,7 +594,7 @@ class IR(AuxDataContainer):
             modules = []
 
         self._uuid = ir_uuid
-        self._modules = modules
+        self._modules = set(modules)
         super().__init__(aux_data=aux_data)
 
     def toProtobuf(self):
@@ -643,7 +643,7 @@ class IR(AuxDataContainer):
     def addModule(self, _module):
         """ Add module to the IR """
         if _module not in self._modules:
-            self._modules.append(_module)
+            self._modules.add(_module)
 
     def uuid(self):
         """ Get uuid for this IR """
