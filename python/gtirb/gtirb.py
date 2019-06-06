@@ -173,7 +173,7 @@ class AuxDataContainer(object):
         if aux_data is None:
             self._aux_data = {}
         else:
-            self._aux_data = aux_data
+            self._aux_data = dict(aux_data)
 
     def _toProtobuf(self):
         """Returns protobuf representation of the object
@@ -299,7 +299,7 @@ class Module(AuxDataContainer):
         self._isa_id = isa_id
         self._name = name
         self._image_byte_map = image_byte_map
-        self._symbols = symbols
+        self._symbols = list(symbols)
         self._cfg = cfg
         self._blocks = OrderedDict()
         for block in blocks:
@@ -309,9 +309,9 @@ class Module(AuxDataContainer):
         for proxy in proxies:
             self.addProxyBlock(proxy)
 
-        self._data = data
-        self._sections = sections
-        self._symbolic_operands = symbolic_operands
+        self._data = list(data)
+        self._sections = list(sections)
+        self._symbolic_operands = dict(symbolic_operands)
 
         super().__init__(aux_data=aux_data)
 
