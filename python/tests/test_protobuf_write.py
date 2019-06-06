@@ -12,18 +12,15 @@ class TestProtobufWrite(unittest.TestCase):
             with open(os.path.join(test_path, file_name), 'rb') as f:
                 _ir = IR_pb2.IR()
                 _ir.ParseFromString(f.read()) 
-                
-                factory = gtirb.Factory()
-                ir = gtirb.IR.fromProtobuf(factory, _ir)
 
-                #print(_ir)
-                
+                ir_loader = gtirb.IRLoader()
+                ir = ir_loader.IRLoadFromProtobufFileName(os.path.join(test_path, file_name))
+
                 ir_out = ir.toProtobuf()
                 
                 k = open('out.gtir', "wb")
                 k.write(ir_out.SerializeToString())
                 k.close()
-
 
                 with open('out.gtir', 'rb') as h:
                     __ir = IR_pb2.IR()
@@ -32,8 +29,8 @@ class TestProtobufWrite(unittest.TestCase):
                     # Use this to compare files to see what's the difference.
                     if not _ir == __ir:
                         print("Thing we ingested(%s) not same as thing "
-                              "we emitted. \n Input: \n"
-                              %(os.path.join(test_path, file_name)))
+                             "we emitted. \n Input: \n"
+                             %(os.path.join(test_path, file_name)))
                         print(_ir)
                         print("Output: \n")
                         print(__ir)

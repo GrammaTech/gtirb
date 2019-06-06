@@ -230,8 +230,6 @@ class UUIDCodec(Codec):
         :rtype: tuple
     
         """
-        if sys.getsizeof(_bytes) < 16:
-            return None
         return uuid.UUID(bytes=_bytes.read(16))
 
     def encode(self, _out, _val, _serialization=None):

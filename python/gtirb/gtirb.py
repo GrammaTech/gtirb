@@ -838,9 +838,6 @@ class Block(object):
         """ Get decode_mode  for this Block """
         return self._decode_mode
 
-    def _eq_key(self):
-        return (self._address, self._size, self._decode_mode)
-
     def _key(self):
         return (self._uuid)
 
@@ -848,7 +845,7 @@ class Block(object):
         return hash(self._key())
 
     def __eq__(self, other):
-        return self._eq_key() == other._eq_key()
+        return self._key() == other._key()
 
 
 class ByteMap(object):
@@ -1126,9 +1123,6 @@ class DataObject(object):
 
     def __hash__(self):
         return hash(self.__key())
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
 
     def _toProtobuf(self):
         """
@@ -1716,7 +1710,7 @@ class IRLoader(object):
         self._ir = None
         self._factory = None
 
-    def IRLoadFromProtobuf(self, protobuf_file):
+    def IRLoadFromProtobufFileName(self, protobuf_file):
         """Load IR from protobuf file at path.
 
         :param protobuf_file: The given protobuf GTIR file path
@@ -1725,10 +1719,20 @@ class IRLoader(object):
 
         """
         with open(protobuf_file, 'rb') as f:
-            _ir = IR_pb2.IR()
-            _ir.ParseFromString(f.read())
+            return self.IRLoadFromProtobufFile(f)
 
-            self._factory = Factory()
-            self._ir = IR.fromProtobuf(self._factory, _ir)
+    def IRLoadFromProtobufFile(self, f):
+        """Load IR from protobuf file object
 
-            return self._ir
+        :param protobuf_file: The given protobuf GTIR file path
+        :returns: GTIR
+        :rtype: IR
+
+        """
+        _ir = IR_pb2.IR()
+        _ir.ParseFromString(f.read())
+
+        self._factory = Factory()
+        self._ir = IR.fromProtobuf(self._factory, _ir)
+
+        return self._ir
