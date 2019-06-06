@@ -99,8 +99,10 @@ class GTIRBTypeEncoder(json.JSONEncoder):
                         SymAddrConst, Symbol, SymStackConst))):
             return obj.__dict__
         elif isinstance(obj, AuxData):
-            obj._data = self.default(obj._data)
-            return obj.__dict__
+            import copy
+            ret = copy.deepcopy(obj)
+            ret._data = self.default(ret._data)
+            return ret.__dict__
         elif isinstance(obj, dict):
             final = {}
             for k, v in obj.items():
