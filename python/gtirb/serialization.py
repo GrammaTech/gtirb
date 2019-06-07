@@ -35,18 +35,18 @@ class MappingCodec(Codec):
         """
         assert len(_sub_types) == 2
 
-        _key_type = _sub_types[0]
-        _value_type = _sub_types[1]
-        _ret = {}
+        key_type = _sub_types[0]
+        value_type = _sub_types[1]
+        ret = {}
 
         size = _serialization.decode('uint64_t', _bytes)
 
         for _ in range(0, size):
-            k = _serialization.decode(_key_type, _bytes)
-            v = _serialization.decode(_value_type, _bytes)
-            _ret[k] = v
+            k = _serialization.decode(key_type, _bytes)
+            v = _serialization.decode(value_type, _bytes)
+            ret[k] = v
 
-        return _ret
+        return ret
 
     def encode(self, _out, _map, _serialization):
         """encode a dict into bytes.
@@ -91,16 +91,16 @@ class SetCodec(Codec):
         """
         assert len(_sub_types) == 1
 
-        _type = _sub_types[0]
-        _ret = set()
+        type = _sub_types[0]
+        ret = set()
 
         size = _serialization.decode('uint64_t', _bytes)
 
         for index in range(0, size):
-            v = _serialization.decode(_type, _bytes)
-            _ret.add(v)
+            v = _serialization.decode(type, _bytes)
+            ret.add(v)
 
-        return _ret
+        return ret
 
     def encode(self, _out, _set, _serialization):
         """encode a set() to bytes
