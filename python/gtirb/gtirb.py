@@ -1731,3 +1731,7 @@ class IRLoader(object):
         self._ir = IR.fromProtobuf(self._factory, _ir)
 
         return self._ir
+
+    def factory(self):
+        assert self._factory is None, "Factory not loaded"
+        return self._factory
