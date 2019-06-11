@@ -216,7 +216,7 @@ class AuxDataContainer(object):
         try:
             return self._aux_data[name]._data
         except KeyError as ke:
-            sys.stderr.write("No aux data found for key %s"%(name))
+            sys.stderr.write("No aux data found for key %s" % (name))
             sys.exit(1)
 
     def addAuxData(self, name, data):
@@ -376,15 +376,13 @@ class Module(AuxDataContainer):
         def _symbolicExpressionFromProtobuf(_factory, _symbolic_expression):
             if _symbolic_expression.HasField('stack_const'):
                 return SymStackConst._fromProtobuf(
-                    _factory, getattr(_symbolic_expression, 'stack_const',
-                                      None))
+                    _factory, _symbolic_expression.stack_const)
             if _symbolic_expression.HasField('addr_const'):
                 return SymAddrConst._fromProtobuf(
-                    _factory, getattr(_symbolic_expression, 'addr_const',
-                                      None))
+                    _factory, _symbolic_expression.addr_const)
             if _symbolic_expression.HasField('addr_addr'):
                 return SymAddrAddr._fromProtobuf(
-                    _factory, getattr(_symbolic_expression, 'addr_addr', None))
+                    _factory, _symbolic_expression.addr_addr)
 
         uuid = _uuidFromBytes(_module.uuid)
         module = _factory.objectForUuid(uuid)
@@ -1104,10 +1102,7 @@ class DataObject(object):
     ImageByteMap.
     '''
 
-    def __init__(self,
-                 factory,
-                 data_object_uuid=None,
-                 address=None,
+    def __init__(self, factory, data_object_uuid=None, address=None,
                  size=None):
         """Constructor. Can be used to create a DataObject.
         """
@@ -1644,11 +1639,11 @@ class Symbol(object):
             referent = None
 
             if _symbol.HasField('value'):
-                value = getattr(_symbol, 'value')
+                value = _symbol.value
 
             if _symbol.HasField('referent_uuid'):
                 referent = _factory.objectForUuid(
-                    _uuidFromBytes(getattr(_symbol, 'referent_uuid')))
+                    _uuidFromBytes(_symbol.referent_uuid))
 
             symbol = cls(_factory, uuid, _symbol.name,
                          StorageKind(_symbol.storage_kind), value, referent)
@@ -1716,6 +1711,7 @@ class IRLoader(object):
         :rtype: IR
 
         """
+        assert self._ir is None, "IR already loaded in this IRLoader"
         with open(protobuf_file, 'rb') as f:
             return self.IRLoadFromProtobufFile(f)
 
@@ -1727,6 +1723,7 @@ class IRLoader(object):
         :rtype: IR
 
         """
+        assert self._ir is None, "IR already loaded in this IRLoader"
         _ir = IR_pb2.IR()
         _ir.ParseFromString(f.read())
 
