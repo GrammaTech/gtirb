@@ -386,17 +386,20 @@ class Module(AuxDataContainer):
 
         uuid = _uuidFromBytes(_module.uuid)
         module = _factory.objectForUuid(uuid)
-        blocks = [Block._fromProtobuf(_factory, blk) for blk in _module.blocks]
-        proxy_blocks = [
-            ProxyBlock._fromProtobuf(_factory, pb) for pb in _module.proxies
-        ]
-        data_objects = [
-            DataObject._fromProtobuf(_factory, dt) for dt in _module.data
-        ]
-        symbols = [
-            Symbol._fromProtobuf(_factory, sym) for sym in _module.symbols
-        ]
         if module is None:
+            blocks = [
+                Block._fromProtobuf(_factory, blk) for blk in _module.blocks
+            ]
+            proxy_blocks = [
+                ProxyBlock._fromProtobuf(_factory, pb)
+                for pb in _module.proxies
+            ]
+            data_objects = [
+                DataObject._fromProtobuf(_factory, dt) for dt in _module.data
+            ]
+            symbols = [
+                Symbol._fromProtobuf(_factory, sym) for sym in _module.symbols
+            ]
             module = cls(
                 _factory,
                 module_uuid=uuid,
