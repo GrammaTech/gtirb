@@ -89,6 +89,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   struct by_address {};
   struct by_name {};
   struct by_pointer {};
+  struct by_referent {};
 
   // Helper template for implementing address-based ordering of
   // multi-containers.
@@ -101,6 +102,15 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
       return key(*t1) < key(*t2);
     }
   };
+
+  // Helper function for extracting the referent of a Symbol.
+
+  static const Node* get_symbol_referent(const Symbol& s) {
+    if (std::optional<const Node*> res =
+            s.visit([](const Node* n) { return n; }))
+      return *res;
+    return nullptr;
+  }
 
   // Multiset of Blocks that enforces:
   //  - iteration in order of address followed by size
@@ -153,18 +163,23 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
       Addr, std::multiset<Section*, addr_size_order<Section>>>;
 
   using SymbolSet = boost::multi_index::multi_index_container<
-      Symbol*, boost::multi_index::indexed_by<
-                   boost::multi_index::ordered_non_unique<
-                       boost::multi_index::tag<by_address>,
-                       boost::multi_index::const_mem_fun<
-                           Symbol, std::optional<Addr>, &Symbol::getAddress>>,
-                   boost::multi_index::ordered_non_unique<
-                       boost::multi_index::tag<by_name>,
-                       boost::multi_index::const_mem_fun<
-                           Symbol, const std::string&, &Symbol::getName>>,
-                   boost::multi_index::hashed_unique<
-                       boost::multi_index::tag<by_pointer>,
-                       boost::multi_index::identity<Symbol*>>>>;
+      Symbol*,
+      boost::multi_index::indexed_by<
+          boost::multi_index::ordered_non_unique<
+              boost::multi_index::tag<by_address>,
+              boost::multi_index::const_mem_fun<Symbol, std::optional<Addr>,
+                                                &Symbol::getAddress>>,
+          boost::multi_index::ordered_non_unique<
+              boost::multi_index::tag<by_name>,
+              boost::multi_index::const_mem_fun<Symbol, const std::string&,
+                                                &Symbol::getName>>,
+          boost::multi_index::hashed_unique<
+              boost::multi_index::tag<by_pointer>,
+              boost::multi_index::identity<Symbol*>>,
+          boost::multi_index::hashed_non_unique<
+              boost::multi_index::tag<by_referent>,
+              boost::multi_index::global_fun<const Symbol&, const Node*,
+                                             &get_symbol_referent>>>>;
 
   using SymbolicExpressionElement = std::pair<Addr, SymbolicExpression>;
   using SymbolicExpressionSet = boost::multi_index::multi_index_container<
@@ -356,6 +371,26 @@ public:
   using const_symbol_addr_range =
       boost::iterator_range<const_symbol_addr_iterator>;
 
+  /// \brief Iterator over symbols (\ref Symbol).
+  ///
+  /// The order in which this iterator returns symbols is not specified.
+  using symbol_ref_iterator =
+      boost::indirect_iterator<SymbolSet::index<by_referent>::type::iterator>;
+  /// \brief Range of symbols (\ref Symbol).
+  ///
+  /// The order of the symbols in this range is not specified.
+  using symbol_ref_range = boost::iterator_range<symbol_ref_iterator>;
+  /// \brief Constant iterator over symbols (\ref Symbol).
+  ///
+  /// The order in which this iterator returns symbols is not specified.
+  using const_symbol_ref_iterator = boost::indirect_iterator<
+      SymbolSet::index<by_referent>::type::const_iterator, const Symbol>;
+  /// \brief Constant range of symbols (\ref Symbol).
+  ///
+  /// The order of the symbols in this range is not specified.
+  using const_symbol_ref_range =
+      boost::iterator_range<const_symbol_ref_iterator>;
+
   /// \brief Return an iterator to the first Symbol.
   symbol_iterator symbol_begin() {
     return symbol_iterator(Symbols.get<by_name>().begin());
@@ -469,6 +504,27 @@ public:
         Symbols.get<by_address>().lower_bound(Lower),
         Symbols.get<by_address>().lower_bound(Upper));
   }
+
+  /// \brief Find symbols by their referent object.
+  ///
+  /// \param Referent The object the symbol refers to.
+  ///
+  /// \return A possibly empty range of all the symbols that refer to the given
+  /// object.
+  symbol_ref_range findSymbols(const Node& Referent) {
+    return Symbols.get<by_referent>().equal_range(&Referent);
+  }
+
+  /// \brief Find symbols by their referent object.
+  ///
+  /// \param Referent The object the symbol refers to.
+  ///
+  /// \return A possibly empty range of all the symbols that refer to the given
+  /// object.
+  const_symbol_ref_range findSymbols(const Node& Referent) const {
+    return Symbols.get<by_referent>().equal_range(&Referent);
+  }
+
   /// @}
   // (end group of symbol-related type aliases and functions)
 

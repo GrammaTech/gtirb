@@ -485,9 +485,11 @@ TEST(Unit_Module, symbolIterationOrder) {
 
 TEST(Unit_Module, findSymbols) {
   auto* M = Module::Create(Ctx);
+  auto* B = emplaceBlock(*M, Ctx, Addr(1), 1);
   auto* S1 = emplaceSymbol(*M, Ctx, Addr(1), "foo");
-  auto* S2 = emplaceSymbol(*M, Ctx, Addr(1), "bar");
+  auto* S2 = emplaceSymbol(*M, Ctx, B, "bar");
   auto* S3 = emplaceSymbol(*M, Ctx, Addr(2), "foo");
+  auto* S4 = emplaceSymbol(*M, Ctx, B, "baz");
 
   // Check that symbols are unique even if names and addresses are not.
   M->addSymbol(S3);
@@ -495,8 +497,9 @@ TEST(Unit_Module, findSymbols) {
   {
     auto F = M->findSymbols("foo");
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
-    EXPECT_EQ(&*F.begin(), S1);
-    EXPECT_EQ(&*(++F.begin()), S3);
+    // Order of S1 and S2 is unspecified.
+    EXPECT_EQ((std::set<Symbol*>{&*F.begin(), &*std::next(F.begin(), 1)}),
+              (std::set<Symbol*>{S1, S3}));
   }
 
   {
@@ -509,9 +512,11 @@ TEST(Unit_Module, findSymbols) {
 
   {
     auto F = M->findSymbols(Addr(1));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
-    EXPECT_EQ(&*F.begin(), S1);
-    EXPECT_EQ(&*(++F.begin()), S2);
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
+    // Order of S1, S2, and S4 is unspecified.
+    EXPECT_EQ((std::set<Symbol*>{&*F.begin(), &*std::next(F.begin(), 1),
+                                 &*std::next(F.begin(), 2)}),
+              (std::set<Symbol*>{S1, S2, S4}));
   }
 
   {
@@ -524,22 +529,35 @@ TEST(Unit_Module, findSymbols) {
 
   {
     auto F = M->findSymbols(Addr(0), Addr(2));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
-    EXPECT_EQ(&*F.begin(), S1);
-    EXPECT_EQ(&*std::next(F.begin(), 1), S2);
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
+    // Order of S1, S2, and S4 is unspecified.
+    EXPECT_EQ((std::set<Symbol*>{&*F.begin(), &*std::next(F.begin(), 1),
+                                 &*std::next(F.begin(), 2)}),
+              (std::set<Symbol*>{S1, S2, S4}));
   }
 
   {
     auto F = M->findSymbols(Addr(0), Addr(5));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
-    EXPECT_EQ(&*F.begin(), S1);
-    EXPECT_EQ(&*std::next(F.begin(), 1), S2);
-    EXPECT_EQ(&*std::next(F.begin(), 2), S3);
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 4);
+    // Order of S1, S2, and S4 is unspecified. All three should be returned
+    // before S3.
+    EXPECT_EQ((std::set<Symbol*>{&*F.begin(), &*std::next(F.begin(), 1),
+                                 &*std::next(F.begin(), 2)}),
+              (std::set<Symbol*>{S1, S2, S4}));
+    EXPECT_EQ(&*std::next(F.begin(), 3), S3);
   }
 
   {
     auto F = M->findSymbols(Addr(10), Addr(25));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
+
+  {
+    auto F = M->findSymbols(*B);
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    // Order of S2 and S4 is unspecified.
+    EXPECT_EQ((std::set<Symbol*>{&*F.begin(), &*std::next(F.begin(), 1)}),
+              (std::set<Symbol*>{S2, S4}));
   }
 }
 
