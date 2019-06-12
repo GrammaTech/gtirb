@@ -242,8 +242,8 @@ class Module(AuxDataContainer):
                  binary_path='',
                  preferred_addr=0,
                  rebase_delta=0,
-                 file_format='',
-                 isa_id=None,
+                 file_format=Module_pb2.FileFormat.Value('Format_Undefined'),
+                 isa_id=Module_pb2.ISAID.Value('ISA_Undefined'),
                  name='',
                  image_byte_map=None,
                  symbols=None,
@@ -292,6 +292,8 @@ class Module(AuxDataContainer):
             aux_data = {}
         if module_uuid is None:
             module_uuid = uuid.uuid4()
+        if image_byte_map is None:
+            image_byte_map = ImageByteMap(factory)
 
         factory.addObject(uuid, self)
         self._uuid = module_uuid
@@ -772,7 +774,7 @@ class Block(object):
                  block_uuid=None,
                  address=0,
                  size=0,
-                 decode_mode=None):
+                 decode_mode=0):
         '''
         Constructor. Can be used to create a Block with the given parameters.
         '''
@@ -855,7 +857,10 @@ class ByteMap(object):
     Holds the bytes of the loaded image of the binary. 
     '''
 
-    def __init__(self, regions=[]):
+    def __init__(self, regions=None):
+        if regions is None:
+            regions = []
+            
         self._regions = regions
 
     def _toProtobuf(self):
@@ -1105,10 +1110,11 @@ class DataObject(object):
     ImageByteMap.
     '''
 
-    def __init__(self, factory, data_object_uuid=None, address=None,
-                 size=None):
+    def __init__(self, factory, data_object_uuid=None, address=0,
+                 size=0):
         """Constructor. Can be used to create a DataObject.
         """
+        
         if data_object_uuid is None:
             data_object_uuid = uuid.uuid4()
 
@@ -1413,7 +1419,7 @@ class SymStackConst(object):
     representing an offset from a stack variable.
     '''
 
-    def __init__(self, offset, symbol=None):
+    def __init__(self, offset, factory, symbol=None):
         self._offset = offset
         self._symbol = symbol
 
@@ -1596,8 +1602,8 @@ class Symbol(object):
                  factory,
                  symbol_uuid=None,
                  name='',
-                 storage_kind=None,
-                 value=None,
+                 storage_kind=StorageKind.Undefined,
+                 value=0,
                  referent=None):
         if symbol_uuid is None:
             symbol_uuid = uuid.uuid4()
