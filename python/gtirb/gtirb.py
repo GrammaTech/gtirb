@@ -25,7 +25,6 @@ TODOS:
 
 """
 
-from collections import OrderedDict
 import sys
 import json
 import uuid
@@ -213,11 +212,7 @@ class AuxDataContainer(object):
         :rtype: AuxData
 
         """
-        try:
-            return self._aux_data[name]._data
-        except KeyError as ke:
-            sys.stderr.write("No aux data found for key %s" % (name))
-            sys.exit(1)
+        return self._aux_data[name]._data
 
     def addAuxData(self, name, data):
         """Add the AuxData for a particular key.
@@ -226,7 +221,7 @@ class AuxDataContainer(object):
         :param data: The underlying data structure
 
         """
-        self._aux_data[name] = _data
+        self._aux_data[name] = data
 
 
 class Module(AuxDataContainer):
@@ -306,14 +301,9 @@ class Module(AuxDataContainer):
         self._image_byte_map = image_byte_map
         self._symbols = list(symbols)
         self._cfg = cfg
-        self._blocks = OrderedDict()
-        for block in blocks:
-            self.addBlock(block)
-
-        self._proxies = OrderedDict()
-        for proxy in proxies:
-            self.addProxyBlock(proxy)
-
+        self._blocks = set(blocks)
+        self._proxies = set(proxies)
+        
         self._data = list(data)
         self._sections = list(sections)
         self._symbolic_operands = dict(symbolic_operands)
@@ -444,8 +434,8 @@ class Module(AuxDataContainer):
 
         """
         for block_to_remove in blocks_to_remove:
-            self._blocks.pop(block_to_remove, None)
-            self._proxies.pop(block_to_remove, None)
+            self._blocks.discard(block_to_remove)
+            self._proxies.discard(block_to_remove)
 
     def addBlock(self, block):
         """Add a block to the. Needs to do a linear scan of current
@@ -456,7 +446,7 @@ class Module(AuxDataContainer):
         :rtype: none
 
         """
-        self._blocks[block] = None
+        self._blocks.add(block)
 
     def uuid(self):
         """ Get UUID of this Module """
@@ -550,7 +540,7 @@ class Module(AuxDataContainer):
 
     def addProxyBlock(self, pblock):
         """ Add proxy block to this Module """
-        self._proxies[pblock] = None
+        self._proxies.add(pblock)
 
     def proxies(self):
         """ Get proxies for this Module """
