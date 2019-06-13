@@ -85,35 +85,6 @@ def _uuidFromBytes(b):
         return uuid.UUID(bytes=b)
 
 
-class GTIRBTypeEncoder(json.JSONEncoder):
-    """
-    A class used to encode types so they can be serialized to json format.
-    """
-
-    def default(self, obj):
-        if (isinstance(obj,
-                       (AuxDataContainer, Block, ByteMap, CFG, DataObject,
-                        EdgeLabel, Edge, Factory, ImageByteMap, InstructionRef,
-                        IR, Module, ProxyBlock, Region, Section, SymAddrAddr,
-                        SymAddrConst, Symbol, SymStackConst))):
-            return obj.__dict__
-        elif isinstance(obj, AuxData):
-            import copy
-            ret = copy.deepcopy(obj)
-            ret._data = self.default(ret._data)
-            return ret.__dict__
-        elif isinstance(obj, dict):
-            final = {}
-            for k, v in obj.items():
-                final[self.default(k)] = self.default(v)
-            return final
-        elif isinstance(obj, uuid.UUID):
-            # if the obj is uuid, we simply return the value of uuid
-            return obj.hex
-
-        return super().default(obj)
-
-
 class Factory(object):
     """
     A class that stores a mapping from uuid -> object 
@@ -303,7 +274,7 @@ class Module(AuxDataContainer):
         self._cfg = cfg
         self._blocks = set(blocks)
         self._proxies = set(proxies)
-        
+
         self._data = list(data)
         self._sections = list(sections)
         self._symbolic_operands = dict(symbolic_operands)
@@ -832,15 +803,6 @@ class Block(object):
         """ Get decode_mode  for this Block """
         return self._decode_mode
 
-    def _key(self):
-        return (self._uuid)
-
-    def __hash__(self):
-        return hash(self._key())
-
-    def __eq__(self, other):
-        return self._key() == other._key()
-
 
 class ByteMap(object):
     '''
@@ -850,7 +812,7 @@ class ByteMap(object):
     def __init__(self, regions=None):
         if regions is None:
             regions = []
-            
+
         self._regions = regions
 
     def _toProtobuf(self):
@@ -1018,15 +980,6 @@ class Edge(object):
                    _factory.objectForUuid(_uuidFromBytes(_edge.source_uuid)),
                    _factory.objectForUuid(_uuidFromBytes(_edge.target_uuid)))
 
-    def __key(self):
-        return (self._source_block, self._target_block, self._label)
-
-    def __hash__(self):
-        return hash(self.__key())
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
 
 class CFG(object):
     '''
@@ -1100,11 +1053,10 @@ class DataObject(object):
     ImageByteMap.
     '''
 
-    def __init__(self, factory, data_object_uuid=None, address=0,
-                 size=0):
+    def __init__(self, factory, data_object_uuid=None, address=0, size=0):
         """Constructor. Can be used to create a DataObject.
         """
-        
+
         if data_object_uuid is None:
             data_object_uuid = uuid.uuid4()
 
@@ -1112,12 +1064,6 @@ class DataObject(object):
         self._uuid = data_object_uuid
         self._address = address
         self._size = size
-
-    def __key(self):
-        return (self._address, self._size)
-
-    def __hash__(self):
-        return hash(self.__key())
 
     def _toProtobuf(self):
         """
