@@ -48,7 +48,7 @@ class MappingCodec(Codec):
 
         return ret
 
-    def encode(self, _out, _map, _serialization):
+    def encode(self, _out, _map, _serialization, *, _type_name_hint=''):
         """encode a dict into bytes.
     
         :param _out: output bytes in io.BytesIO type
@@ -58,21 +58,38 @@ class MappingCodec(Codec):
         :rtype: string
     
         """
-        _serialization.encode(_out, len(_map))
+        if len(_map) == 0:
+            if not _type_name_hint:
+                raise NotImplementedError(
+                    "Cannot encode an empty map with no type hint")
+
         k_string = ''
         v_string = ''
 
+        if _type_name_hint:
+            assert '<' in _type_name_hint
+            (head, subtypes) = _serialization._getSubtypes(_type_name_hint)
+            k_string = subtypes[0]
+            v_string = subtypes[1]
+            assert head == 'mapping'
+
+        _serialization.encode(_out, len(_map))
+
         for k, v in _map.items():
             if k_string == '':
-                k_string = _serialization.encode(_out, k)
+                k_string = _serialization.encode(_out,
+                                                 k,
+                                                 _type_name_hint=k_string)
             else:
-                assert k_string == _serialization.encode(_out, k),\
+                assert k_string == _serialization.encode(_out, k, _type_name_hint=k_string),\
                     "keys with different types present in this map"
 
             if v_string == '':
-                v_string = _serialization.encode(_out, v)
+                v_string = _serialization.encode(_out,
+                                                 v,
+                                                 _type_name_hint=v_string)
             else:
-                assert v_string == _serialization.encode(_out, v),\
+                assert v_string == _serialization.encode(_out, v, _type_name_hint=v_string),\
                     "values with different types present in this map"
 
         return 'mapping<%s,%s>' % (k_string, v_string)
@@ -102,7 +119,7 @@ class SetCodec(Codec):
 
         return ret
 
-    def encode(self, _out, _set, _serialization):
+    def encode(self, _out, _set, _serialization, *, _type_name_hint=''):
         """encode a set() to bytes
     
         :param _out: output list of byte arrays
@@ -112,13 +129,27 @@ class SetCodec(Codec):
         :rtype: string
     
         """
-        _serialization.encode(_out, len(_set))
+        if len(_set) == 0:
+            if not _type_name_hint:
+                raise NotImplementedError(
+                    "Cannot encode an empty set with no type hint")
+
         type_string = ''
+
+        if _type_name_hint:
+            assert '<' in _type_name_hint
+            (head, subtypes) = _serialization._getSubtypes(_type_name_hint)
+            type_string = subtypes[0]
+            assert head == 'set'
+
+        _serialization.encode(_out, len(_set))
+
         for item in _set:
             if type_string == '':
-                type_string = _serialization.encode(_out, item)
+                type_string = _serialization.encode(
+                    _out, item, _type_name_hint=type_string)
             else:
-                assert type_string == _serialization.encode(_out, item),\
+                assert type_string == _serialization.encode(_out, item, _type_name_hint=type_string),\
                      "values with different types present in this set"
 
         return 'set<%s>' % (type_string)
@@ -148,7 +179,7 @@ class SequenceCodec(Codec):
 
         return _ret
 
-    def encode(self, _out, _list, _serialization):
+    def encode(self, _out, _list, _serialization, *, _type_name_hint=''):
         """encode a list to bytes
     
         :param _out: list of byte arrays
@@ -158,13 +189,27 @@ class SequenceCodec(Codec):
         :rtype: string
     
         """
-        _serialization.encode(_out, len(_list))
         type_string = ''
+
+        if len(_list) == 0:
+            if not _type_name_hint:
+                raise NotImplementedError(
+                    "Cannot encode an empty sequence with no type hint")
+
+        if _type_name_hint:
+            assert '<' in _type_name_hint
+            (head, subtypes) = _serialization._getSubtypes(_type_name_hint)
+            assert head == 'sequence'
+            type_string = subtypes[0]
+
+        _serialization.encode(_out, len(_list))
+
         for item in _list:
             if type_string == '':
-                type_string = _serialization.encode(_out, item)
+                type_string = _serialization.encode(
+                    _out, item, _type_name_hint=type_string)
             else:
-                assert type_string == _serialization.encode(_out, item),\
+                assert type_string == _serialization.encode(_out, item, _type_name_hint=type_string),\
                     "values with different types present in this sequence"
 
         return 'sequence<%s>' % (type_string)
@@ -183,7 +228,7 @@ class StringCodec(Codec):
 
         return str(_bytes.read(size), 'utf-8')
 
-    def encode(self, _out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """encode a string to bytes
     
         :param _out: output list of byte arrays
@@ -192,9 +237,13 @@ class StringCodec(Codec):
         :rtype: string
     
         """
+        ret = 'string'
+        if _type_name_hint:
+            assert _type_name_hint == ret
+
         _serialization.encode(_out, len(_val))
         _out.write(_val.encode())
-        return 'string'
+        return ret
 
 
 class IrefCodec(Codec):
@@ -211,14 +260,17 @@ class IrefCodec(Codec):
 
         return InstructionRef(bid, offset)
 
-    def encode(self, _out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """
         encode InstructionRef to bytes
         """
+        ret = 'InstructionRef'
+        if _type_name_hint:
+            assert _type_name_hint == ret
 
         _serialization.encode(_out, _val._block_id)
         _serialization.encode(_out, _val._offset)
-        return 'InstructionRef'
+        return ret
 
 
 class UUIDCodec(Codec):
@@ -232,7 +284,7 @@ class UUIDCodec(Codec):
         """
         return uuid.UUID(bytes=_bytes.read(16))
 
-    def encode(self, _out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """encode UUID to bytes
     
         :param _out: output list of byte arrays
@@ -241,8 +293,12 @@ class UUIDCodec(Codec):
         :rtype: string
     
         """
+        ret = 'UUID'
+        if _type_name_hint:
+            assert _type_name_hint == ret
+
         _out.write(_val.bytes)
-        return 'UUID'
+        return ret
 
 
 class AddrCodec(Codec):
@@ -257,7 +313,7 @@ class AddrCodec(Codec):
         addr = _serialization.decode('uint64_t', _bytes)
         return gtirb.Addr(addr)
 
-    def encode(self, _out, _val, _serialization=None):
+    def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """encode Addr to bytes
     
         :param _out: output list of byte arrays
@@ -266,8 +322,12 @@ class AddrCodec(Codec):
         :rtype: string
     
         """
+        ret = 'Addr'
+        if _type_name_hint:
+            assert _type_name_hint == ret
+
         _serialization.encode(_out, _val._address)
-        return 'Addr'
+        return ret
 
 
 class Uint64Codec(Codec):
@@ -279,11 +339,9 @@ class Uint64Codec(Codec):
         :rtype: tuple
     
         """
-        return int.from_bytes(_bytes.read(8),
-                              byteorder='little',
-                              signed=False)
-    
-    def encode(self, _out, _val, _serialization=None):
+        return int.from_bytes(_bytes.read(8), byteorder='little', signed=False)
+
+    def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """encode uint64_t to bytes
     
         :param _out: output list of byte arrays
@@ -292,8 +350,12 @@ class Uint64Codec(Codec):
         :rtype: string
     
         """
+        ret = 'uint64_t'
+        if _type_name_hint:
+            assert _type_name_hint == ret
+
         _out.write(_val.to_bytes(8, byteorder='little'))
-        return 'uint64_t'
+        return ret
 
 
 class Serialization(object):
@@ -387,7 +449,7 @@ class Serialization(object):
 
         self._codecs[type_name] = codec
 
-    def encode(self, _out, _val):
+    def encode(self, _out, _val, *, _type_name_hint=''):
         """Top level encode function.
 
         :param _out: A list of byte arrays. The caller needs to
@@ -402,7 +464,10 @@ class Serialization(object):
         assert type_name in self._codecs, \
             'No encoder present for type_name - %s' %(type_name)
 
-        return self._codecs[type_name].encode(_out, _val, self)
+        return self._codecs[type_name].encode(_out,
+                                              _val,
+                                              self,
+                                              _type_name_hint=_type_name_hint)
 
     def decode(self, type_name, _bytes):
         """Top level decode function.

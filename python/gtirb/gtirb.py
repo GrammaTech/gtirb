@@ -699,16 +699,7 @@ class AuxData(object):
         ret = AuxData_pb2.AuxData()
 
         _out_bytes_array = io.BytesIO()
-        _check_type_name = serializer.encode(_out_bytes_array, self._data)
-
-        if _check_type_name != self._type_name:
-            if self._type_name == None or self._type_name == '':
-                # TODO: This is the case when there is empty data
-                # structure somewhere in the aux data tree.
-                raise NotImplementedError("Don't handle encoding empty"
-                                          "aux data containers on pygtirb yet")
-            else:
-                _check_type_name = self._type_name
+        _check_type_name = serializer.encode(_out_bytes_array, self._data, _type_name_hint=self._type_name)
 
         ret.type_name = _check_type_name
         _out_bytes_array.seek(0)
