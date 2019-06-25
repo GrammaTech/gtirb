@@ -1408,10 +1408,15 @@ class SymAddrConst(object):
         """
         Load this cls from protobuf object
         """
-        return cls(
-            _sym_addr_const.offset,
-            _factory.objectForUuid(_uuidFromBytes(
-                _sym_addr_const.symbol_uuid)))
+        if _sym_addr_const.symbol_uuid != b'':
+            return cls(
+                _sym_addr_const.offset,
+                _factory.objectForUuid(_uuidFromBytes(
+                    _sym_addr_const.symbol_uuid)))
+        else:
+            return cls(_sym_addr_const.offset)
+
+
 
     def setOffset(self, offset):
         """ Set offset for this SymAddrConst"""
