@@ -254,6 +254,10 @@ class Module(AuxDataContainer):
         if image_byte_map is None:
             image_byte_map = ImageByteMap(factory)
 
+        # FIXME: We really want to use sets for `symbols` &
+        # `sections` but we have fragile tests that depend on
+        # preserving the order of these.
+        
         factory.addObject(uuid, self)
         self._uuid = module_uuid
         self._binary_path = binary_path
@@ -268,7 +272,7 @@ class Module(AuxDataContainer):
         self._blocks = set(blocks)
         self._proxies = set(proxies)
 
-        self._data = list(data)
+        self._data = set(data)
         self._sections = list(sections)
         self._symbolic_operands = dict(symbolic_operands)
 
