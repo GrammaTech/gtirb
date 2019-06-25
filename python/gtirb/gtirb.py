@@ -121,13 +121,6 @@ class Addr(object):
     """
     A special class to store an Effective Address.
     
-    It is a thin wrapper around a uint64_t for 64-bit address storage. Its
-    semantics in overflow situations are the same as semantics for unsigned
-    integers.
-    
-    An Addr cannot store a relative address as it cannot contain a negative
-    number.
-    
     It is an error to serialize any address that cannot fit in a 64bit
     unsigned int.
     """
@@ -1146,10 +1139,10 @@ class ImageByteMap(object):
         ret = ImageByteMap_pb2.ImageByteMap()
         ret.uuid = _uuidToBytes(self._uuid)
         ret.byte_map.CopyFrom(self._byte_map._toProtobuf())
-        ret.addr_min = self._addr_min._address
-        ret.addr_max = self._addr_max._address
-        ret.base_address = self._base_address._address
-        ret.entry_point_address = self._entry_point_address._address
+        ret.addr_min = self._addr_min
+        ret.addr_max = self._addr_max
+        ret.base_address = self._base_address
+        ret.entry_point_address = self._entry_point_address
         return ret
 
     @classmethod
@@ -1165,10 +1158,10 @@ class ImageByteMap(object):
                 image_byte_map_uuid=uuid,
                 byte_map=ByteMap._fromProtobuf(_factory,
                                                _image_byte_map.byte_map),
-                addr_min=Addr(_image_byte_map.addr_min),
-                addr_max=Addr(_image_byte_map.addr_max),
-                base_address=Addr(_image_byte_map.base_address),
-                entry_point_address=Addr(_image_byte_map.entry_point_address))
+                addr_min=_image_byte_map.addr_min,
+                addr_max=_image_byte_map.addr_max,
+                base_address=_image_byte_map.base_address,
+                entry_point_address=_image_byte_map.entry_point_address)
 
         return image_byte_map
 
