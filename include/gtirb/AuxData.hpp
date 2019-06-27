@@ -47,7 +47,7 @@ class Context;
 /// AuxData can store the following types:
 ///   - all integral types
 ///   - Addr
-///   - InstructionRef
+///   - Offset
 ///   - \ref UUID
 ///   - sequential containers
 ///   - mapping containers
@@ -239,16 +239,16 @@ template <> struct auxdata_traits<std::string> {
   }
 };
 
-template <> struct auxdata_traits<InstructionRef> {
-  static std::string type_id() { return "InstructionRef"; }
+template <> struct auxdata_traits<Offset> {
+  static std::string type_id() { return "Offset"; }
 
-  static void toBytes(const InstructionRef& Object, to_iterator It) {
-    auxdata_traits<UUID>::toBytes(Object.BlockId, It);
+  static void toBytes(const Offset& Object, to_iterator It) {
+    auxdata_traits<UUID>::toBytes(Object.ElementId, It);
     auxdata_traits<uint64_t>::toBytes(Object.Offset, It);
   }
 
-  static from_iterator fromBytes(InstructionRef& Object, from_iterator It) {
-    It = auxdata_traits<UUID>::fromBytes(Object.BlockId, It);
+  static from_iterator fromBytes(Offset& Object, from_iterator It) {
+    It = auxdata_traits<UUID>::fromBytes(Object.ElementId, It);
     It = auxdata_traits<uint64_t>::fromBytes(Object.Offset, It);
     return It;
   }

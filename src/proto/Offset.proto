@@ -1,4 +1,4 @@
-//===- InstructionRef.proto -------------------------------------*- C++ -*-===//
+//===- Offset.proto -------------------------------------*- C++ -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -15,8 +15,8 @@
 syntax = "proto3";
 package proto;
 
-message InstructionRef
+message Offset
 {
-  bytes block_id = 1;
+  bytes element_id = 1;
   uint64 offset = 2;
 }

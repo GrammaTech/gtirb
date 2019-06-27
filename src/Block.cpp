@@ -15,7 +15,7 @@
 #include "Block.hpp"
 #include "Serialization.hpp"
 #include <proto/Block.pb.h>
-#include <proto/InstructionRef.pb.h>
+#include <proto/Offset.pb.h>
 
 using namespace gtirb;
 
@@ -32,12 +32,12 @@ Block* Block::fromProtobuf(Context& C, const proto::Block& M) {
   return B;
 }
 
-void InstructionRef::toProtobuf(MessageType* Message) const {
-  uuidToBytes(this->BlockId, *Message->mutable_block_id());
+void Offset::toProtobuf(MessageType* Message) const {
+  uuidToBytes(this->ElementId, *Message->mutable_element_id());
   Message->set_offset(this->Offset);
 }
 
-void InstructionRef::fromProtobuf(Context&, const MessageType& Message) {
-  this->BlockId = uuidFromBytes(Message.block_id());
+void Offset::fromProtobuf(Context&, const MessageType& Message) {
+  this->ElementId = uuidFromBytes(Message.element_id());
   this->Offset = Message.offset();
 }

@@ -374,8 +374,8 @@ TEST(Unit_AuxData, uuidProtobufRoundTrip) {
   EXPECT_EQ(*Result.get<decltype(Val)>(), Val);
 }
 
-TEST(Unit_AuxData, instructionRefProtobufRoundTrip) {
-  InstructionRef Val{Node::Create(Ctx)->getUUID(), 123};
+TEST(Unit_AuxData, OffsetProtobufRoundTrip) {
+  Offset Val{Node::Create(Ctx)->getUUID(), 123};
   AuxData Original;
   Original = Val;
 
@@ -384,7 +384,7 @@ TEST(Unit_AuxData, instructionRefProtobufRoundTrip) {
   fromProtobuf(Ctx, Result, Message);
 
   auto NewVal = *Result.get<decltype(Val)>();
-  EXPECT_EQ(NewVal.BlockId, Val.BlockId);
+  EXPECT_EQ(NewVal.ElementId, Val.ElementId);
   EXPECT_EQ(NewVal.Offset, Val.Offset);
 }
 

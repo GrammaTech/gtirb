@@ -78,9 +78,13 @@ information, or results of common analyses.
 ### UUIDs
 
 Every element of GTIRB (namely: modules (`Module`), symbols
-(`Symbol`), blocks (`Block`), and instructions (`InstructionRef`) has
+(`Symbol`), and blocks (`Block`) has
 a universally unique identifier (UUID).  UUIDs allow both first-class
 IR components and AuxData tables to reference elements of the IR.
+
+Instructions and symbolic operands can be addressed by the class
+`Offset` which encapsulates a UUID (that refers to the instruction's
+block) and an offset.
 
 
 ## Building
@@ -308,7 +312,7 @@ auto& sym2 = *module.findSymbols("data1").begin();
 assert(sym2.getAddress() == Addr(2608));
 ```
 
-Use a symbol's referent (either an InstructionRef or DataObject) to get
+Use a symbol's referent (either a Block or DataObject) to get
 more information about the object to which the symbol
 points.
 

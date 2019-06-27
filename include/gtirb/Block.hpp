@@ -26,11 +26,11 @@
 
 /// \file Block.hpp
 /// \ingroup CFG_GROUP
-/// \brief Classes gtirb::Block and gtirb::InstructionRef.
+/// \brief Classes gtirb::Block and gtirb::Offset.
 /// \see CFG_GROUP
 
 namespace proto {
-class InstructionRef;
+class Offset;
 } // namespace proto
 
 namespace gtirb {
@@ -108,21 +108,21 @@ private:
   friend class Context;
 };
 
-/// \class InstructionRef
+/// \class Offset
 ///
-/// \brief Describes the location of an instruction.
-struct GTIRB_EXPORT_API InstructionRef {
+/// \brief Describes a location inside a block or data object.
+struct GTIRB_EXPORT_API Offset {
 
-  /// \brief The UUID of the block in which the instruction is located.
-  UUID BlockId;
+  /// \brief The UUID of the block or data object.
+  UUID ElementId;
 
-  /// \brief The offset of the instruction from the start of the block, in
+  /// \brief The offset from the start of the block or data object, in
   /// bytes.
   uint64_t Offset;
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing InstructionRef.
-  using MessageType = proto::InstructionRef;
+  /// \brief The protobuf message type used for serializing Offset.
+  using MessageType = proto::Offset;
 
   /// \brief Serialize into a protobuf message.
   ///
@@ -131,13 +131,13 @@ struct GTIRB_EXPORT_API InstructionRef {
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief Construct a InstructionRef from a protobuf message.
+  /// \brief Construct a Offset from a protobuf message.
   ///
-  /// \param C  The Context in which the deserialized InstructionRef will be
+  /// \param C  The Context in which the deserialized Offset will be
   ///           held.
   /// \param Message  The protobuf message from which to deserialize.
   ///
-  /// \return The deserialized InstructionRef object, or null on failure.
+  /// \return The deserialized Offset object, or null on failure.
   void fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 };

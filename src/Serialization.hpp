@@ -164,8 +164,8 @@ template <typename T> void fromProtobuf(Context&, T& Result, const T& Message) {
   Result = Message;
 }
 
-inline void fromProtobuf(Context& C, InstructionRef& Result,
-                         const InstructionRef::MessageType& Message) {
+inline void fromProtobuf(Context& C, Offset& Result,
+                         const Offset::MessageType& Message) {
   Result.fromProtobuf(C, Message);
 }
 
