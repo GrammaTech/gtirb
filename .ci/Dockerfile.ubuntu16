@@ -7,7 +7,8 @@ RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
-    apt-get -y install gcc-7 g++-7 git build-essential autoconf libtool wget curl
+    apt-get -y install autoconf build-essential curl g++-7 gcc-7 git libtool \
+        python3-setuptools wget
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \

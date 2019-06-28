@@ -3,8 +3,8 @@ FROM ubuntu:18.04
 ARG CXX_COMPILER=g++-7
 
 RUN apt-get -y update && \
-    apt-get -y install clang git build-essential \
-    wget curl autoconf libtool cmake
+    apt-get -y install autoconf build-essential clang cmake curl git libtool \
+        python3-setuptools wget
 
 # Build GTIRB
 COPY . /gt/gtirb/

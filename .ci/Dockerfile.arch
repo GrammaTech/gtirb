@@ -4,7 +4,9 @@ ARG CXX_COMPILER=g++
 
 RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pacman.conf
 RUN pacman --noconfirm -Syu archlinux-keyring
-RUN pacman --noconfirm -Syu base-devel gcc gcc-libs git make cmake doxygen graphviz wget clang autoconf libtool
+RUN pacman --noconfirm -Syu autoconf base-devel clang cmake doxygen gcc \
+        gcc-libs git graphviz libtool python python-pip make wget
+
 
 COPY . /gt/gtirb/
 RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
