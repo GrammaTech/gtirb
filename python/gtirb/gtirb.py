@@ -35,20 +35,20 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
 
-import AuxDataContainer_pb2
 import AuxData_pb2
+import AuxDataContainer_pb2
 import Block_pb2
 import ByteMap_pb2
 import CFG_pb2
 import DataObject_pb2
 import ImageByteMap_pb2
-import Offset_pb2
 import IR_pb2
 import Module_pb2
+import Offset_pb2
 import ProxyBlock_pb2
 import Section_pb2
-import SymbolicExpression_pb2
 import Symbol_pb2
+import SymbolicExpression_pb2
 
 # The global serializer instance. User can use this to register new
 # encoders/decoders.
