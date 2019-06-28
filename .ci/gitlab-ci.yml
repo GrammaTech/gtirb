@@ -9,7 +9,6 @@ before_script:
 stages:
   - check-format
   - build
-  - test
   - deploy
   - cleanup
 
@@ -79,54 +78,6 @@ build-arch-clang:
     OS: 'arch'
     COMPILER: 'clang++'
   <<: *build
-
-.test-template: &test
-  script:
-    - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - docker run ${LOCAL_IMAGE_BASE} /bin/bash -c "cd build && make test";
-
-test-ubuntu16-gcc7:
-  stage: test
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-7'
-  <<: *test
-
-test-ubuntu16-clang:
-  stage: test
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'clang++'
-  <<: *test
-
-test-ubuntu18-gcc7:
-  stage: test
-  variables:
-    OS: 'ubuntu18'
-    COMPILER: 'g++-7'
-  <<: *test
-
-test-ubuntu18-clang:
-  stage: test
-  variables:
-    OS: 'ubuntu18'
-    COMPILER: 'clang++'
-  <<: *test
-
-test-arch-gcc:
-  stage: test
-  variables:
-    OS: 'arch'
-    COMPILER: 'g++'
-  <<: *test
-
-test-arch-clang:
-  stage: test
-  variables:
-    OS: 'arch'
-    COMPILER: 'clang++'
-  <<: *test
 
 pages:
   stage: deploy
