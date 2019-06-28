@@ -42,7 +42,7 @@ import ByteMap_pb2
 import CFG_pb2
 import DataObject_pb2
 import ImageByteMap_pb2
-import InstructionRef_pb2
+import Offset_pb2
 import IR_pb2
 import Module_pb2
 import ProxyBlock_pb2
@@ -1214,13 +1214,13 @@ class ImageByteMap(object):
         return self._entry_point_address
 
 
-class InstructionRef(object):
+class Offset(object):
     '''
-    Describes the location of an instruction.
+    Describes the location inside a block or data object.
     '''
 
-    def __init__(self, block_id, offset):
-        self._block_id = block_id
+    def __init__(self, element_id, offset):
+        self._element_id = element_id
         self._offset = offset
 
     def _toProtobuf(self):
@@ -1231,32 +1231,32 @@ class InstructionRef(object):
         :rtype: protobuf object
 
         """
-        ret = InstructionRef_pb2.InstructionRef()
-        ret.block_id = self._block_id
+        ret = Offset_pb2.Offset()
+        ret.element_id = self._element_id
         ret.offset = self._offset
         return ret
 
     @classmethod
-    def _fromProtobuf(cls, _factory, _instruction_ref):
+    def _fromProtobuf(cls, _factory, _offset):
         """
         Load this cls from protobuf object
         """
-        return cls(_instruction_ref.block_id, _instruction_ref.offset)
+        return cls(_offset.element_id, _offset.offset)
 
-    def setBlockId(self, block_id):
-        """ Set block_id for this InstrunctionRef """
-        self._block_id = block_id
+    def setElementId(self, element_id):
+        """ Set element_id for this Offset """
+        self._element_id = element_id
 
-    def blockId(self):
-        """ Get block_id for this InstrunctionRef """
-        return self._block_id
+    def elementId(self):
+        """ Get element_id for this Offset """
+        return self._element_id
 
     def setOffset(self, offset):
-        """ Set offset for this InstrunctionRef """
+        """ Set offset for this Offset """
         self._offset = offset
 
     def offset(self):
-        """ Get offset for this InstrunctionRef """
+        """ Get offset for this Offset """
         return self._offset
 
 

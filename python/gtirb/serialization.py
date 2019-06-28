@@ -246,29 +246,29 @@ class StringCodec(Codec):
         return ret
 
 
-class IrefCodec(Codec):
+class OffsetCodec(Codec):
     def decode(self, _bytes, _serialization):
-        """decode an InstructionRef entry
+        """decode an Offset entry
     
         :param _bytes: Raw bytes (io.BytesIO typed)
         :returns: decoded return type
         :rtype: tuple
     
         """
-        bid = _serializtion.decode('UUID', _bytes)
+        elementId = _serialization.decode('UUID', _bytes)
         offset = _serialization.decode('uint64_t', _bytes)
 
-        return InstructionRef(bid, offset)
+        return Offset(elementId, offset)
 
     def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """
-        encode InstructionRef to bytes
+        encode Offset to bytes
         """
-        ret = 'InstructionRef'
+        ret = 'Offset'
         if _type_name_hint:
             assert _type_name_hint == ret
 
-        _serialization.encode(_out, _val._block_id)
+        _serialization.encode(_out, _val._element_id)
         _serialization.encode(_out, _val._offset)
         return ret
 
@@ -303,7 +303,7 @@ class UUIDCodec(Codec):
 
 class AddrCodec(Codec):
     def decode(self, _bytes, _serialization):
-        """decode an InstructionRef entry
+        """decode an Addr entry
     
         :param _bytes: Raw bytes (io.BytesIO typed)
         :returns: decoded return type
@@ -418,7 +418,7 @@ class Serialization(object):
 
         self._codecs = {
             'Addr': AddrCodec(),
-            'InstructionRef': IrefCodec(),
+            'Offset': OffsetCodec(),
             'mapping': MappingCodec(),
             'sequence': SequenceCodec(),
             'set': SetCodec(),
