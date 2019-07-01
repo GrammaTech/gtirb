@@ -116,9 +116,16 @@ struct GTIRB_EXPORT_API Offset {
   /// \brief The UUID of the block or data object.
   UUID ElementId;
 
-  /// \brief The offset from the start of the block or data object, in
+  /// \brief The displacement from the start of the block or data object, in
   /// bytes.
-  uint64_t Offset;
+  uint64_t Displacement;
+
+  /// \brief Constructor using a uuid and a displacement.
+  Offset(const UUID& elementId, const uint64_t displacement)
+      : ElementId(elementId), Displacement(displacement) {}
+
+  /// \brief Default constructor.
+  Offset() {}
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Offset.
@@ -140,8 +147,63 @@ struct GTIRB_EXPORT_API Offset {
   /// \return The deserialized Offset object, or null on failure.
   void fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
+
+  /// \brief Equality operator for \ref Offset.
+  // Note:boost uiid is not constexpr
+  friend bool operator==(const Offset& LHS, const Offset& RHS) noexcept {
+    return LHS.ElementId == RHS.ElementId &&
+           LHS.Displacement == RHS.Displacement;
+  }
+
+  /// \brief Inequality operator for \ref Offset.
+  friend bool operator!=(const Offset& LHS, const Offset& RHS) noexcept {
+    return !operator==(LHS, RHS);
+  }
+
+  /// \brief Less-than operator for \ref Offset.
+  friend constexpr bool operator<(const Offset& LHS,
+                                  const Offset& RHS) noexcept {
+    return std::tie(LHS.ElementId, LHS.Displacement) <
+           std::tie(RHS.ElementId, RHS.Displacement);
+  }
+
+  /// \brief Greater-than operator for \ref Offset.
+  friend constexpr bool operator>(const Offset& LHS,
+                                  const Offset& RHS) noexcept {
+    return operator<(RHS, LHS);
+  }
+
+  /// \brief Less-than-or-equal operator for \ref Offset.
+  friend constexpr bool operator<=(const Offset& LHS,
+                                   const Offset& RHS) noexcept {
+    return !operator<(RHS, LHS);
+  }
+
+  /// \brief Greater-than-or-equal operator for \ref Offset.
+  friend constexpr bool operator>=(const Offset& LHS,
+                                   const Offset& RHS) noexcept {
+    return !operator<(LHS, RHS);
+  }
 };
 
 } // namespace gtirb
+
+namespace std {
+// hash implementations of UUID and Offset
+
+template <> struct hash<boost::uuids::uuid> {
+  size_t operator()(const boost::uuids::uuid& uid) {
+    return boost::hash<boost::uuids::uuid>()(uid);
+  }
+};
+/// \bried Hash operation for \ref Offset.
+template <> struct hash<gtirb::Offset> {
+  size_t operator()(const gtirb::Offset& x) const {
+    std::size_t h1 = hash<gtirb::UUID>{}(x.ElementId);
+    std::size_t h2 = hash<uint64_t>{}(x.Displacement);
+    return h1 ^ h2;
+  }
+};
+} // namespace std
 
 #endif // GTIRB_BLOCK_H

@@ -18,5 +18,5 @@ package proto;
 message Offset
 {
   bytes element_id = 1;
-  uint64 offset = 2;
+  uint64 displacement = 2;
 }

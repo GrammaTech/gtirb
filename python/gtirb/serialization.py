@@ -256,9 +256,9 @@ class OffsetCodec(Codec):
     
         """
         elementId = _serialization.decode('UUID', _bytes)
-        offset = _serialization.decode('uint64_t', _bytes)
+        displacement = _serialization.decode('uint64_t', _bytes)
 
-        return Offset(elementId, offset)
+        return Offset(elementId, displacement)
 
     def encode(self, _out, _val, _serialization=None, *, _type_name_hint=''):
         """
@@ -269,7 +269,7 @@ class OffsetCodec(Codec):
             assert _type_name_hint == ret
 
         _serialization.encode(_out, _val._element_id)
-        _serialization.encode(_out, _val._offset)
+        _serialization.encode(_out, _val._displacement)
         return ret
 
 

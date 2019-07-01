@@ -244,12 +244,12 @@ template <> struct auxdata_traits<Offset> {
 
   static void toBytes(const Offset& Object, to_iterator It) {
     auxdata_traits<UUID>::toBytes(Object.ElementId, It);
-    auxdata_traits<uint64_t>::toBytes(Object.Offset, It);
+    auxdata_traits<uint64_t>::toBytes(Object.Displacement, It);
   }
 
   static from_iterator fromBytes(Offset& Object, from_iterator It) {
     It = auxdata_traits<UUID>::fromBytes(Object.ElementId, It);
-    It = auxdata_traits<uint64_t>::fromBytes(Object.Offset, It);
+    It = auxdata_traits<uint64_t>::fromBytes(Object.Displacement, It);
     return It;
   }
 };

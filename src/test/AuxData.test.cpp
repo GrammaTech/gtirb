@@ -385,7 +385,7 @@ TEST(Unit_AuxData, OffsetProtobufRoundTrip) {
 
   auto NewVal = *Result.get<decltype(Val)>();
   EXPECT_EQ(NewVal.ElementId, Val.ElementId);
-  EXPECT_EQ(NewVal.Offset, Val.Offset);
+  EXPECT_EQ(NewVal.Displacement, Val.Displacement);
 }
 
 TEST(Unit_AuxData, nestedProtobufRoundTrip) {

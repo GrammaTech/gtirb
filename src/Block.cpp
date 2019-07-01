@@ -34,10 +34,10 @@ Block* Block::fromProtobuf(Context& C, const proto::Block& M) {
 
 void Offset::toProtobuf(MessageType* Message) const {
   uuidToBytes(this->ElementId, *Message->mutable_element_id());
-  Message->set_offset(this->Offset);
+  Message->set_displacement(this->Displacement);
 }
 
 void Offset::fromProtobuf(Context&, const MessageType& Message) {
   this->ElementId = uuidFromBytes(Message.element_id());
-  this->Offset = Message.offset();
+  this->Displacement = Message.displacement();
 }

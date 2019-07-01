@@ -1219,9 +1219,9 @@ class Offset(object):
     Describes the location inside a block or data object.
     '''
 
-    def __init__(self, element_id, offset):
+    def __init__(self, element_id, displacement):
         self._element_id = element_id
-        self._offset = offset
+        self._displacement = displacement
 
     def _toProtobuf(self):
         """
@@ -1233,15 +1233,15 @@ class Offset(object):
         """
         ret = Offset_pb2.Offset()
         ret.element_id = self._element_id
-        ret.offset = self._offset
+        ret.displacement = self._displacement
         return ret
 
     @classmethod
-    def _fromProtobuf(cls, _factory, _offset):
+    def _fromProtobuf(cls, _factory, _displacement):
         """
         Load this cls from protobuf object
         """
-        return cls(_offset.element_id, _offset.offset)
+        return cls(_offset.element_id, _offset.displacement)
 
     def setElementId(self, element_id):
         """ Set element_id for this Offset """
@@ -1251,13 +1251,13 @@ class Offset(object):
         """ Get element_id for this Offset """
         return self._element_id
 
-    def setOffset(self, offset):
-        """ Set offset for this Offset """
-        self._offset = offset
+    def setDisplacement(self, displacement):
+        """ Set displacement for this Offset """
+        self._displacement = displacement
 
-    def offset(self):
-        """ Get offset for this Offset """
-        return self._offset
+    def displacement(self):
+        """ Get displacement for this Offset """
+        return self._displacement
 
 
 class Section(object):
