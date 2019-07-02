@@ -333,6 +333,28 @@ class Serialization:
     A class used to encode/decode aux data table entries. Use the top
     level `register_codec`, `encode` and `decode` functions.
     """
+    def __init__(self):
+        """
+        Initializes all encoders and decoders.
+        """
+        self.codecs = {
+            'Addr': AddrCodec(),
+            'Offset': OffsetCodec(),
+            'mapping': MappingCodec(),
+            'sequence': SequenceCodec(),
+            'set': SetCodec(),
+            'string': StringCodec(),
+            'uint64_t': Uint64Codec(),
+            'UUID': UUIDCodec()
+        }
+        # Some special type mappings from python to GTIR encoded types.
+        self.type_mapping = {
+            'dict': 'mapping',
+            'int': 'uint64_t',
+            'list': 'sequence',
+            'set': 'set',
+            'str': 'string'
+        }
 
     def get_subtypes(self, type_name):
         """ Given an encoded aux_data type_name, get the parent type
@@ -378,34 +400,7 @@ class Serialization:
 
         return (head, subtypes)
 
-    def getEncodedTypeMapping(self, type_name):
-        return self.type_mapping.get(type_name, type_name)
-
-    def __init__(self):
-        """
-        Initializes all encoders and decoders.
-        """
-
-        self.codecs = {
-            'Addr': AddrCodec(),
-            'Offset': OffsetCodec(),
-            'mapping': MappingCodec(),
-            'sequence': SequenceCodec(),
-            'set': SetCodec(),
-            'string': StringCodec(),
-            'uint64_t': Uint64Codec(),
-            'UUID': UUIDCodec()
-        }
-        # Some special type mappings from python to GTIR encoded types.
-        self.type_mapping = {
-            'dict': 'mapping',
-            'int': 'uint64_t',
-            'list': 'sequence',
-            'set': 'set',
-            'str': 'string'
-        }
-
-    def registerCodec(self, type_name, codec):
+    def register_codec(self, type_name, codec):
         """Register a Codec for a custom type. Use this method to
         register encode/decode functions for your own clpasses
 
@@ -414,10 +409,9 @@ class Serialization:
         :param codec: A Codec instance
 
         """
-        assert type_name not in self.codecs, \
-            'Type - %s already has a codec' % (type_name)
-
-        self._codecs[type_name] = codec
+        if type_name in self.codecs:
+            raise KeyError("codec already registered for %s" % (type_name))
+        self.codecs[type_name] = codec
 
     def encode(self, out, val, *, type_name_hint=''):
         """Top level encode function.
@@ -429,15 +423,14 @@ class Serialization:
         :rtype: string
 
         """
-        assert isinstance(out, BytesIO)
-        type_name = self.getEncodedTypeMapping(val.__class__.__name__)
-        assert type_name in self.codecs, \
-            'No encoder present for type_name - %s' % (type_name)
+        class_name = val.__class__.__name__
+        type_name = self.type_mapping.get(class_name, class_name)
 
-        return self.codecs[type_name].encode(out,
-                                             val,
-                                             self,
-                                             type_name_hint=type_name_hint)
+        if type_name not in self.codecs:
+            raise EncodeError("no encoder for %s" % (type_name))
+
+        codec = self.codecs[type_name]
+        return codec.encode(out, val, self, type_name_hint=type_name_hint)
 
     def decode(self, type_name, raw_bytes):
         """Top level decode function.
