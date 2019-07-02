@@ -307,7 +307,7 @@ class Module(AuxDataContainer):
         symbols = [Symbol.fromProtobuf(factory, sym) for sym in module.symbols]
         module = cls(
             factory,
-            module_uuid=uuid,
+            uuid=uuid,
             binary_path=module.binary_path,
             preferred_addr=module.preferred_addr,
             rebase_delta=module.rebase_delta,
@@ -357,7 +357,7 @@ class IR(AuxDataContainer):
     def __init__(self, factory, uuid=None, modules=None, aux_data=None):
         """IR constructor. Can be used to construct an empty IR instance
 
-        :param ir_uuid: UUID. Creates a new instance if None
+        :param uuid: UUID. Creates a new instance if None
         :param modules: List of modules
         :param aux_data: auxilary data hanging off the IR
         :param factory: The factory instance
@@ -812,7 +812,7 @@ class ImageByteMap:
             return factory.objectForUuid(uuid)
         image_byte_map = cls(
             factory,
-            image_byte_map_uuid=uuid,
+            uuid=uuid,
             byte_map=ByteMap.fromProtobuf(factory, image_byte_map.byte_map),
             addr_min=image_byte_map.addr_min,
             addr_max=image_byte_map.addr_max,
