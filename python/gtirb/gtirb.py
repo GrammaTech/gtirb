@@ -938,7 +938,7 @@ class SymStackConst:
             return cls(symbol.offset)
 
 
-class SymAddrConst(SymbolicOperand):
+class SymAddrConst:
     """
     Represents a "symbolic operand" of the form "Sym + Offset".
     """
@@ -971,7 +971,7 @@ class SymAddrConst(SymbolicOperand):
             return cls(symbol.offset)
 
 
-class SymAddrAddr(SymbolicOperand):
+class SymAddrAddr:
     """
     Represents a "symbolic operand" of the form
     "(Sym1 - Sym2) / Scale + Offset"
