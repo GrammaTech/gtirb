@@ -270,8 +270,8 @@ class Module(AuxDataContainer):
         """Load object from protobuf object
 
         :param cls: this class
-        :param _factory: the factory to check for uuid uniqueness
-        :param _module: the protobuf module object
+        :param factory: the factory to check for uuid uniqueness
+        :param module: the protobuf module object
         :returns: newly instantiated pygtirb instance
         :rtype: Module
 
@@ -390,8 +390,8 @@ class IR(AuxDataContainer):
         """Load pygtirb class from protobuf object
 
         :param cls: this class
-        :param _factory: the factory to check for uuid uniqueness
-        :param _ir: the protobuf IR object
+        :param factory: the factory to check for uuid uniqueness
+        :param ir: the protobuf IR object
         :returns: the pygtirb IR object
         :rtype: IR
 
@@ -448,8 +448,8 @@ class ProxyBlock:
         """Load pygtirb object from protobuf object
 
         :param cls: this class
-        :param _factory: uuid factory
-        :param _pb: protobuf proxyblock object
+        :param factory: uuid factory
+        :param pb: protobuf proxyblock object
         :returns: pygtirb proxyblock object
         :rtype: ProxyBlock
 
@@ -649,7 +649,7 @@ class Edge:
         ret = CFG_pb2.Edge()
         ret.source_uuid = self.source_block.uuid.bytes
         ret.target_uuid = self.target_block.uuid.bytes
-        ret.label.CopyFrom(self.label._toProtobuf())
+        ret.label.CopyFrom(self.label.toProtobuf())
         return ret
 
     @classmethod
@@ -800,7 +800,7 @@ class ImageByteMap:
         """
         ret = ImageByteMap_pb2.ImageByteMap()
         ret.uuid = self.uuid.bytes
-        ret.byte_map.CopyFrom(self.byte_map._toProtobuf())
+        ret.byte_map.CopyFrom(self.byte_map.toProtobuf())
         ret.addr_min = self.addr_min
         ret.addr_max = self.addr_max
         ret.base_address = self.base_address
