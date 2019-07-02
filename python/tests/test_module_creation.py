@@ -7,6 +7,6 @@ class MainTest(unittest.TestCase):
         factory = gtirb.Factory()
         mod = gtirb.Module(factory)
         assert mod is not None
-        
+
 if __name__ == '__main__':
     unittest.main()
