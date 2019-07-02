@@ -28,7 +28,6 @@ TODOS:
 import io
 import json
 import os
-import serialization
 import sys
 
 from uuid import UUID, uuid4
@@ -49,9 +48,10 @@ import Section_pb2
 import Symbol_pb2
 import SymbolicExpression_pb2
 
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
+
+import serialization
 # The global serializer instance. User can use this to register new
 # encoders/decoders.
 serializer = serialization.Serialization()
