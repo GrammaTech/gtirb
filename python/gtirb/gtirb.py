@@ -247,8 +247,9 @@ class Module(AuxDataContainer):
             elif isinstance(v, SymAddrAddr):
                 sym_exp.addr_addr.CopyFrom(v.toProtobuf())
             else:
-                assert True, \
-                    "Must be one of SymStackConst, SymAddrAddr or SymAddrConst"
+                raise ValueError(
+                    "Expected SymStackConst, SymAddrAddr or SymAddrConst"
+                )
             return sym_exp
 
         ret = Module_pb2.Module()
@@ -267,7 +268,7 @@ class Module(AuxDataContainer):
         ret.proxies.extend([p.toProtobuf() for p in self.proxies])
         ret.sections.extend([s.toProtobuf() for s in self.sections])
         for k, v in self.symbolic_operands.items():
-            ret.symbolic_operands[k].CopyFrom(symbolicExpressionToProtobuf(v))
+            ret.symbolic_operands[k].CopyFrom(_symbolicExpressionToProtobuf(v))
 
         ret.aux_data_container.CopyFrom(super().toProtobuf())
         return ret
