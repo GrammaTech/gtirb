@@ -40,7 +40,7 @@ class AuxDataTest(unittest.TestCase):
             factory = gtirb.Factory()
             ir = gtirb.IR.fromProtobuf(factory, ir)
 
-            ad = ir._aux_data['test']
+            ad = ir.aux_data['test']
             self.assertTrue(ad is not None)
             self.assertTrue(ad.type_name == 'mapping<UUID,sequence<string>>')
             self.assertTrue(sorted(list(ad.data.values())) ==
