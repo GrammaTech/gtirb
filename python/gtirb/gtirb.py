@@ -454,10 +454,9 @@ class ProxyBlock:
 
         """
         uuid = UUID(bytes=pb.uuid)
-        pb = factory.objectForUuid(uuid)
-        if pb is None:
-            pb = cls(factory, uuid)
-        return pb
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
+        return cls(factory, uuid)
 
 
 class AuxData:
@@ -531,11 +530,9 @@ class Block:
         Load pygtirb class from protobuf class
         """
         uuid = UUID(bytes=block.uuid)
-        block = factory.objectForUuid(uuid)
-        if block is None:
-            block = cls(factory, uuid, block.address,
-                        block.size, block.decode_mode)
-        return block
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
+        return cls(factory, uuid, block.address, block.size, block.decode_mode)
 
 
 class ByteMap:
@@ -756,11 +753,9 @@ class DataObject:
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=data_object.uuid)
-        data_object = factory.objectForUuid(uuid)
-        if data_object is None:
-            data_object = cls(factory, uuid, data_object.address,
-                              data_object.size)
-        return data_object
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
+        return cls(factory, uuid, data_object.address, data_object.size)
 
 
 class ImageByteMap:
@@ -812,17 +807,16 @@ class ImageByteMap:
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=image_byte_map.uuid)
-        image_byte_map = factory.objectForUuid(uuid)
-        if image_byte_map is None:
-            image_byte_map = cls(
-                factory,
-                image_byte_map_uuid=uuid,
-                byte_map=ByteMap.fromProtobuf(factory,
-                                              image_byte_map.byte_map),
-                addr_min=image_byte_map.addr_min,
-                addr_max=image_byte_map.addr_max,
-                base_address=image_byte_map.base_address,
-                entry_point_address=image_byte_map.entry_point_address)
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
+        image_byte_map = cls(
+            factory,
+            image_byte_map_uuid=uuid,
+            byte_map=ByteMap.fromProtobuf(factory, image_byte_map.byte_map),
+            addr_min=image_byte_map.addr_min,
+            addr_max=image_byte_map.addr_max,
+            base_address=image_byte_map.base_address,
+            entry_point_address=image_byte_map.entry_point_address)
         return image_byte_map
 
 
@@ -894,11 +888,9 @@ class Section:
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=section.uuid)
-        section = factory.objectForUuid(uuid)
-        if section is None:
-            section = cls(factory, uuid, section.name, section.address,
-                          section.size)
-        return section
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
+        return cls(factory, uuid, section.name, section.address, section.size)
 
 
 class SymStackConst:
@@ -930,9 +922,8 @@ class SymStackConst:
         Load this cls from protobuf object
         """
         if symbol.uuid != b'':
-            return cls(
-                symbol.offset,
-                factory.objectForUuid(UUID(bytes=symbol.uuid)))
+            return cls(symbol.offset,
+                       factory.objectForUuid(UUID(bytes=symbol.uuid)))
         else:
             return cls(symbol.offset)
 
@@ -962,10 +953,8 @@ class SymAddrConst:
         Load this cls from protobuf object
         """
         if symbol.uuid != b'':
-            return cls(
-                symbol.offset,
-                factory.objectForUuid(UUID(bytes=symbol.uuid))
-            )
+            return cls(symbol.offset,
+                       factory.objectForUuid(UUID(bytes=symbol.uuid)))
         else:
             return cls(symbol.offset)
 
@@ -1068,21 +1057,18 @@ class Symbol:
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=symbol.uuid)
-        new_symbol = factory.objectForUuid(uuid)
-        if new_symbol is None:
-            if symbol.HasField('value'):
-                value = symbol.value
-            else:
-                value = None
-            if _symbol.HasField('referent_uuid'):
-                referent = factory.objectForUuid(
-                    UUID(bytes=symbol.referent_uuid)
-                )
-            else:
-                referent = None
-            new_symbol = cls(factory, uuid, symbol.name,
-                             StorageKind(symbol.storage_kind), value, referent)
-        return new_symbol
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
+        if symbol.HasField('value'):
+            value = symbol.value
+        else:
+            value = None
+        if symbol.HasField('referent_uuid'):
+            referent = factory.objectForUuid(UUID(bytes=symbol.referent_uuid))
+        else:
+            referent = None
+        return cls(factory, uuid, symbol.name,
+                   StorageKind(symbol.storage_kind), value, referent)
 
 
 def IRPrintString(protobuf_file):
