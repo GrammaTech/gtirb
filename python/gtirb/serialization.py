@@ -8,9 +8,8 @@ class that holds the encode and decode functions for a type.
 
 """
 import gtirb
-import io
-import sys
-import uuid
+from io import BytesIO
+from uuid import UUID
 
 
 class Codec:
@@ -280,7 +279,7 @@ class UUIDCodec(Codec):
         :rtype: tuple
 
         """
-        return uuid.UUID(bytes=bytes.read(16))
+        return UUID(bytes=bytes.read(16))
 
     def encode(self, out, val, serialization=None, *, type_name_hint=''):
         """encode UUID to bytes
@@ -455,7 +454,7 @@ class Serialization:
         :rtype: string
 
         """
-        assert isinstance(out, io.BytesIO)
+        assert isinstance(out, BytesIO)
         type_name = self.getEncodedTypeMapping(val.__class__.__name__)
         assert type_name in self.codecs, \
             'No encoder present for type_name - %s' % (type_name)
@@ -474,7 +473,7 @@ class Serialization:
         :rtype: tuple
 
         """
-        assert isinstance(bytes, io.BytesIO)
+        assert isinstance(bytes, BytesIO)
         if '<' in type_name:
             head, subtypes = self.getSubtypes(type_name)
             assert head in self.codecs, \
