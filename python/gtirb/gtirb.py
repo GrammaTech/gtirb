@@ -333,7 +333,7 @@ class Module(AuxDataContainer):
                 key: AuxData.fromProtobuf(factory, val)
                 for key, val in module.aux_data_container.aux_data.items()
             })
-        module.cfg().setModule(module)
+        module.cfg.setModule(module)
         return module
 
     def removeBlocks(self, blocks_to_remove):
