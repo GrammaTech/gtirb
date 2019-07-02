@@ -261,12 +261,12 @@ class Module(AuxDataContainer):
         ret.isa_id = self.isa_id
         ret.name = self.name
         ret.image_byte_map.CopyFrom(self.image_byte_map.toProtobuf())
-        ret.symbols.extend([s.toProtobuf() for s in self.symbols])
+        ret.symbols.extend(s.toProtobuf() for s in self.symbols)
         ret.cfg.CopyFrom(self.cfg.toProtobuf())
-        ret.blocks.extend([b.toProtobuf() for b in self.blocks])
-        ret.data.extend([d.toProtobuf() for d in self.data])
-        ret.proxies.extend([p.toProtobuf() for p in self.proxies])
-        ret.sections.extend([s.toProtobuf() for s in self.sections])
+        ret.blocks.extend(b.toProtobuf() for b in self.blocks)
+        ret.data.extend(d.toProtobuf() for d in self.data)
+        ret.proxies.extend(p.toProtobuf() for p in self.proxies)
+        ret.sections.extend(s.toProtobuf() for s in self.sections)
         for k, v in self.symbolic_operands.items():
             ret.symbolic_operands[k].CopyFrom(_symbolicExpressionToProtobuf(v))
 
@@ -381,7 +381,7 @@ class IR(AuxDataContainer):
         """
         ret = IR_pb2.IR()
         ret.uuid = self.uuid.bytes
-        ret.modules.extend([m.toProtobuf() for m in self.modules])
+        ret.modules.extend(m.toProtobuf() for m in self.modules)
         ret.aux_data_container.CopyFrom(super().toProtobuf())
         return ret
 
@@ -556,13 +556,12 @@ class ByteMap:
 
         ret = ByteMap_pb2.ByteMap()
 
-        def region_to_protobuf(r_tuple):
+        def region_to_protobuf(region):
             reg = ByteMap_pb2.Region()
-            reg.address = r_tuple[0]
-            reg.data = r_tuple[1]
+            reg.address, reg.data = region
             return reg
 
-        ret.regions.extend([region_to_protobuf(r) for r in self.regions])
+        ret.regions.extend(region_to_protobuf(r) for r in self.regions)
         return ret
 
     @classmethod
@@ -679,10 +678,9 @@ class CFG:
         """
         ret = CFG_pb2.CFG()
 
-        blocks = [v.uuid.bytes for v in self.module.blocks]
-        blocks.extend([v.uuid.bytes for v in self.module.proxies])
-        ret.vertices.extend(blocks)
-        ret.edges.extend([e.toProtobuf() for e in self.edges])
+        ret.vertices.extend(v.uuid.bytes for v in self.module.blocks)
+        ret.vertices.extend(v.uuid.bytes for v in self.module.proxies)
+        ret.edges.extend(e.toProtobuf() for e in self.edges)
         return ret
 
     @classmethod
