@@ -102,7 +102,7 @@ class MappingCodec(Codec):
 
         for key, val in mapping.items():
             encoded_key_type = \
-                serialization.encode(out, key, type_hint_name=key_type)
+                serialization.encode(out, key, type_name_hint=key_type)
             if key_type == '':
                 key_type = encoded_key_type
             elif key_type != encoded_key_type:
