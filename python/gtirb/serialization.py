@@ -211,7 +211,7 @@ class StringCodec(Codec):
         :rtype: string
 
         """
-        if type_name_hint and type_name_hint != string:
+        if type_name_hint and type_name_hint != 'string':
             raise EncodeError("wrong type hint for string encoding")
 
         serialization.encode(out, len(val))
