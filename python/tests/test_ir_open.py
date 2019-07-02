@@ -8,11 +8,11 @@ class MainTest(unittest.TestCase):
         test_path = os.path.dirname(os.path.realpath(__file__))
 
         with open(os.path.join(test_path, 'test4.gtir'), 'rb') as f:
-            _ir = IR_pb2.IR()
-            _ir.ParseFromString(f.read()) 
+            ir = IR_pb2.IR()
+            ir.ParseFromString(f.read())
 
             factory = gtirb.Factory()
-            ir = gtirb.IR.fromProtobuf(factory, _ir)
+            ir = gtirb.IR.fromProtobuf(factory, ir)
             self.assertTrue(ir is not None)
 
 if __name__ == '__main__':
