@@ -189,9 +189,16 @@ class Module(AuxDataContainer):
         """
         if image_byte_map is None:
             image_byte_map = ImageByteMap(factory)
-        for attr in [symbols, blocks, data, proxies, sections]:
-            if attr is None:
-                attr = []
+        if blocks is None:
+            blocks = set()
+        if data is None:
+            data = set()
+        if proxies is None:
+            proxies = set()
+        if sections is None:
+            sections = []
+        if symbols is None:
+            symbols = []
         if symbolic_operands is None:
             symbolic_operands = {}
         if aux_data is None:
@@ -212,14 +219,14 @@ class Module(AuxDataContainer):
         self.isa_id = isa_id
         self.name = name
         self.image_byte_map = image_byte_map
-        self.symbols = list(symbols)
+        self.symbols = symbols
         self.cfg = cfg
-        self.blocks = set(blocks)
-        self.proxies = set(proxies)
+        self.blocks = blocks
+        self.proxies = proxies
 
-        self.data = set(data)
-        self.sections = list(sections)
-        self.symbolic_operands = dict(symbolic_operands)
+        self.data = data
+        self.sections = sections
+        self.symbolic_operands = symbolic_operands
 
         super().__init__(aux_data=aux_data)
 
@@ -289,50 +296,43 @@ class Module(AuxDataContainer):
                     factory, symbolic_expression.addr_addr)
 
         uuid = UUID(bytes=module.uuid)
-        module = factory.objectForUuid(uuid)
-        if module is None:
-            blocks = [
-                Block.fromProtobuf(factory, blk) for blk in module.blocks
-            ]
-            proxy_blocks = [
-                ProxyBlock.fromProtobuf(factory, pb) for pb in module.proxies
-            ]
-            data_objects = [
-                DataObject.fromProtobuf(factory, dt) for dt in module.data
-            ]
-            symbols = [
-                Symbol.fromProtobuf(factory, sym) for sym in module.symbols
-            ]
-            module = cls(
-                factory,
-                module_uuid=uuid,
-                binary_path=module.binary_path,
-                preferred_addr=module.preferred_addr,
-                rebase_delta=module.rebase_delta,
-                file_format=module.file_format,
-                isa_id=module.isa_id,
-                name=module.name,
-                image_byte_map=ImageByteMap.fromProtobuf(
-                    factory, module.image_byte_map),
-                symbols=symbols,
-                cfg=CFG.fromProtobuf(factory, module.cfg),
-                blocks=blocks,
-                data=data_objects,
-                proxies=proxy_blocks,
-                sections=[
-                    Section.fromProtobuf(factory, sec)
-                    for sec in module.sections
-                ],
-                symbolic_operands={
-                    key: symbolicExpressionFromProtobuf(factory, se)
-                    for key, se in module.symbolic_operands.items()
-                },
-                aux_data={
-                    key: AuxData.fromProtobuf(factory, val)
-                    for key, val in module.aux_data_container.aux_data.items()
-                })
-            module.cfg().setModule(module)
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
 
+        blocks = {Block.fromProtobuf(factory, blk) for blk in module.blocks}
+        proxy_blocks = \
+            {ProxyBlock.fromProtobuf(factory, pb) for pb in module.proxies}
+        data = {DataObject.fromProtobuf(factory, dt) for dt in module.data}
+        symbols = [Symbol.fromProtobuf(factory, sym) for sym in module.symbols]
+        module = cls(
+            factory,
+            module_uuid=uuid,
+            binary_path=module.binary_path,
+            preferred_addr=module.preferred_addr,
+            rebase_delta=module.rebase_delta,
+            file_format=module.file_format,
+            isa_id=module.isa_id,
+            name=module.name,
+            image_byte_map=ImageByteMap.fromProtobuf(
+                factory, module.image_byte_map),
+            symbols=symbols,
+            cfg=CFG.fromProtobuf(factory, module.cfg),
+            blocks=blocks,
+            data=data,
+            proxies=proxy_blocks,
+            sections=[
+                Section.fromProtobuf(factory, sec)
+                for sec in module.sections
+            ],
+            symbolic_operands={
+                key: symbolicExpressionFromProtobuf(factory, se)
+                for key, se in module.symbolic_operands.items()
+            },
+            aux_data={
+                key: AuxData.fromProtobuf(factory, val)
+                for key, val in module.aux_data_container.aux_data.items()
+            })
+        module.cfg().setModule(module)
         return module
 
     def removeBlocks(self, blocks_to_remove):
