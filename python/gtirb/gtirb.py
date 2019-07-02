@@ -344,9 +344,8 @@ class Module(AuxDataContainer):
         :rtype: none
 
         """
-        for block_to_remove in blocks_to_remove:
-            self.blocks.discard(block_to_remove)
-            self.proxies.discard(block_to_remove)
+        self.blocks -= blocks_to_remove
+        self.proxies -= blocks_to_remove
 
 
 class IR(AuxDataContainer):
