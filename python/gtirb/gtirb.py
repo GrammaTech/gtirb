@@ -1023,7 +1023,7 @@ class Symbol:
                  referent=None):
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(symbol_uuid, self)
+        factory.addObject(uuid, self)
         self.uuid = uuid
         self.value = value
         self.referent = referent
