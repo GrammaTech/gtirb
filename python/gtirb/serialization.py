@@ -109,7 +109,7 @@ class MappingCodec(Codec):
                 raise EncodeError("keys with different types in mapping")
 
             encoded_val_type = \
-                serialization.encode(out, val, type_hint_name=val_type)
+                serialization.encode(out, val, type_name_hint=val_type)
             if val_type == '':
                 val_type = encoded_val
             elif val_type != encoded_val:
