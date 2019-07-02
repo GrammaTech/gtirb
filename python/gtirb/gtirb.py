@@ -908,8 +908,7 @@ class SymStackConst:
     Represents a "symbolic operand" of the form "Sym + Offset",
     representing an offset from a stack variable.
     """
-    # FIXME: Why is factory an argument here?
-    def __init__(self, offset, factory, symbol=None):
+    def __init__(self, offset, symbol=None):
         self.offset = offset
         self.symbol = symbol
 
@@ -928,27 +927,22 @@ class SymStackConst:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, sym_stack_const):
+    def fromProtobuf(cls, factory, symbol):
         """
         Load this cls from protobuf object
         """
-        if sym_stack_const.symbol_uuid != b'':
+        if symbol.uuid != b'':
             return cls(
-                sym_stack_const.offset,
-                factory.objectForUuid(
-                    UUID(bytes=sym_stack_const.symbol_uuid)))
+                symbol.offset,
+                factory.objectForUuid(UUID(bytes=symbol.uuid)))
         else:
-            return cls(sym_stack_const.offset)
+            return cls(symbol.offset)
 
 
-class SymAddrConst:
+class SymAddrConst(SymbolicOperand):
     """
     Represents a "symbolic operand" of the form "Sym + Offset".
     """
-
-    def __init__(self, offset, symbol=None):
-        self.offset = offset
-        self.symbol = symbol
 
     def toProtobuf(self):
         """
@@ -965,20 +959,20 @@ class SymAddrConst:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, sym_addr_const):
+    def fromProtobuf(cls, factory, symbol):
         """
         Load this cls from protobuf object
         """
-        if sym_addr_const.symbol_uuid != b'':
+        if symbol.uuid != b'':
             return cls(
-                sym_addr_const.offset,
-                factory.objectForUuid(UUID(bytes=sym_addr_const.symbol_uuid))
+                symbol.offset,
+                factory.objectForUuid(UUID(bytes=symbol.uuid))
             )
         else:
-            return cls(_sym_addr_const.offset)
+            return cls(symbol.offset)
 
 
-class SymAddrAddr:
+class SymAddrAddr(SymbolicOperand):
     """
     Represents a "symbolic operand" of the form
     "(Sym1 - Sym2) / Scale + Offset"
@@ -1006,14 +1000,14 @@ class SymAddrAddr:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, sym_addr_addr):
+    def fromProtobuf(cls, factory, symbol):
         """
         Load this cls from protobuf object
         """
         return cls(
-            sym_addr_addr.scale, sym_addr_addr.offset,
-            factory.objectForUuid(UUID(bytes=sym_addr_addr.symbol1_uuid)),
-            factory.objectForUuid(UUID(bytes=sym_addr_addr.symbol2_uuid))
+            symbol.scale, symbol.offset,
+            factory.objectForUuid(UUID(bytes=symbol.symbol1_uuid)),
+            factory.objectForUuid(UUID(bytes=symbol.symbol2_uuid))
         )
 
 
