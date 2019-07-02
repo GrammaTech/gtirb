@@ -111,8 +111,8 @@ class MappingCodec(Codec):
             encoded_val_type = \
                 serialization.encode(out, val, type_name_hint=val_type)
             if val_type == '':
-                val_type = encoded_val
-            elif val_type != encoded_val:
+                val_type = encoded_val_type
+            elif val_type != encoded_val_type:
                 raise EncodeError("values with different types in mapping")
 
         return 'mapping<%s,%s>' % (key_type, val_type)
@@ -170,7 +170,7 @@ class SequenceCodec(Codec):
 
         for item in sequence:
             encoded_type = \
-                serialization.encode(out, item, type_name_hint=type_string)
+                serialization.encode(out, item, type_name_hint=subtype)
             if subtype == '':
                 subtype = encoded_type
             elif subtype != encoded_type:
