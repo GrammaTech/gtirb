@@ -441,15 +441,14 @@ class Serialization:
         :rtype: tuple
 
         """
-        assert isinstance(raw_bytes, BytesIO)
+        if not isinstance(raw_bytes, BytesIO):
+            raise ValueError("raw_bytes is not a BytesIO")
         if '<' in type_name:
             head, subtypes = self.get_subtypes(type_name)
-            assert head in self.codecs, \
-                "No decoders present for type - %s." % (head)
-
+            if head not in self.codecs:
+                raise DecodeError("no decoder for %s" % (head))
             return self.codecs[head].decode(raw_bytes, subtypes, self)
         else:
-            assert type_name in self.codecs, \
-                "No decoders present for type - %s." % (type_name)
-
+            if type_name not in self.codecs:
+                raise DecodeError("no decoder for %s" % (type_name))
             return self.codecs[type_name].decode(raw_bytes, serialization=self)
