@@ -397,9 +397,8 @@ class IR(AuxDataContainer):
 
         """
         uuid = UUID(bytes=ir.uuid)
-        ir = factory.objectForUuid(uuid)
-        if ir is not None:
-            return ir
+        if factory.objectForUuid(uuid) is not None:
+            return factory.objectForUuid(uuid)
 
         modules = [Module.fromProtobuf(factory, m) for m in ir.modules]
         ir = cls(factory,
