@@ -94,7 +94,7 @@ class MappingCodec(Codec):
             if '<' not in type_name_hint:
                 raise TypeHintError
             head, (key_type, val_type) = \
-                serialization.getSubtypes(type_name_hint)
+                serialization.get_subtypes(type_name_hint)
             if head != 'mapping':
                 raise TypeHintError
 
@@ -161,7 +161,7 @@ class SequenceCodec(Codec):
         if type_name_hint:
             if '<' not in type_name_hint:
                 raise TypeHintError
-            head, subtypes = serialization.getSubtypes(type_name_hint)
+            head, subtypes = serialization.get_subtypes(type_name_hint)
             if head != self.name:
                 raise TypeHintError
             subtype = subtypes[0]
@@ -334,7 +334,7 @@ class Serialization:
     level `register_codec`, `encode` and `decode` functions.
     """
 
-    def getSubtypes(self, type_name):
+    def get_subtypes(self, type_name):
         """ Given an encoded aux_data type_name, get the parent type
         and it's sub types. Ex:
         mapping<FOO,BAR> would return (mapping, [FOO, BAR])
@@ -450,7 +450,7 @@ class Serialization:
         """
         assert isinstance(raw_bytes, BytesIO)
         if '<' in type_name:
-            head, subtypes = self.getSubtypes(type_name)
+            head, subtypes = self.get_subtypes(type_name)
             assert head in self.codecs, \
                 "No decoders present for type - %s." % (head)
 
