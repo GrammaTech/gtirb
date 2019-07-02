@@ -9,35 +9,25 @@ class TestProtobufWrite(unittest.TestCase):
         test_path = os.path.dirname(os.path.realpath(__file__))
 
         def open_and_compare(file_name):
+            original_ir = IR_pb2.IR()
             with open(os.path.join(test_path, file_name), 'rb') as f:
-                _ir = IR_pb2.IR()
-                _ir.ParseFromString(f.read()) 
+                original_ir.ParseFromString(f.read())
 
-                ir_loader = gtirb.IRLoader()
-                ir = ir_loader.IRLoadFromProtobufFileName(os.path.join(test_path, file_name))
+            ir_loader = gtirb.IRLoader()
+            ir = ir_loader.IRLoadFromProtobufFileName(
+                os.path.join(test_path, file_name)
+            )
+            with open('out.gtir', 'wb') as f:
+                f.write(ir.toProtobuf().SerializeToString())
 
-                ir_out = ir.toProtobuf()
-                
-                k = open('out.gtir', "wb")
-                k.write(ir_out.SerializeToString())
-                k.close()
+            new_ir = IR_pb2.IR()
+            with open('out.gtir', 'rb') as f:
+                new_ir.ParseFromString(f.read())
 
-                with open('out.gtir', 'rb') as h:
-                    __ir = IR_pb2.IR()
-                    __ir.ParseFromString(h.read())
-                    
-                    # Use this to compare files to see what's the difference.
-                    if not _ir == __ir:
-                        print("Thing we ingested(%s) not same as thing "
-                             "we emitted. \n Input: \n"
-                             %(os.path.join(test_path, file_name)))
-                        print(_ir)
-                        print("Output: \n")
-                        print(__ir)
-                        self.assertTrue(False)
+            self.assertEqual(original_ir, new_ir)
 
         open_and_compare('test4.gtir')
         open_and_compare('test2.gtir')
-        
+
 if __name__ == '__main__':
     unittest.main()
