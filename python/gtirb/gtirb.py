@@ -106,8 +106,11 @@ class AuxDataContainer:
     Contains the AuxData Tables and serves as a base class
     """
 
-    def __init__(self, aux_data={}):
-        self.aux_data = dict(aux_data)
+    def __init__(self, aux_data=None):
+        if aux_data is None:
+            self.aux_data = dict()
+        else:
+            self.aux_data = aux_data
 
     def toProtobuf(self):
         """Returns protobuf representation of the object
@@ -147,7 +150,7 @@ class Module(AuxDataContainer):
     def __init__(self,
                  factory,
                  *,
-                 module_uuid=uuid4(),
+                 uuid=None,
                  binary_path='',
                  preferred_addr=0,
                  rebase_delta=0,
@@ -155,14 +158,14 @@ class Module(AuxDataContainer):
                  isa_id=Module_pb2.ISAID.Value('ISA_Undefined'),
                  name='',
                  image_byte_map=None,
-                 symbols=[],
+                 symbols=None,
                  cfg=None,
-                 blocks=set(),
-                 data=set(),
-                 proxies=set(),
-                 sections=[],
-                 symbolic_operands={},
-                 aux_data={}):
+                 blocks=None,
+                 data=None,
+                 proxies=None,
+                 sections=None,
+                 symbolic_operands=None,
+                 aux_data=None):
         """Constructor, takes the params below.
            Creates an empty module
         :param uuid:
@@ -187,13 +190,22 @@ class Module(AuxDataContainer):
         """
         if image_byte_map is None:
             image_byte_map = ImageByteMap(factory)
+        for attr in [symbols, blocks, data, proxies, sections]:
+            if attr is None:
+                attr = []
+        if symbolic_operands is None:
+            symbolic_operands = {}
+        if aux_data is None:
+            aux_data = {}
+        if uuid is None:
+            uuid = uuid4()
 
         # FIXME: We really want to use sets for `symbols` &
         # `sections` but we have fragile tests that depend on
         # preserving the order of these.
 
         factory.addObject(uuid, self)
-        self.uuid = module_uuid
+        self.uuid = uuid
         self.binary_path = binary_path
         self.preferred_addr = preferred_addr
         self.rebase_delta = rebase_delta
@@ -342,7 +354,7 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, factory, uuid=uuid4(), modules=set(), aux_data=None):
+    def __init__(self, factory, uuid=None, modules=None, aux_data=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param ir_uuid: UUID. Creates a new instance if None
@@ -352,9 +364,13 @@ class IR(AuxDataContainer):
         :returns: IR
         :rtype: IR
         """
+        if uuid is None:
+            uuid = uuid4()
         factory.addObject(uuid, self)
         self.uuid = uuid
-        self.modules = set(modules)
+        if modules is None:
+            modules = set()
+        self.modules = modules
         super().__init__(aux_data)
 
     def toProtobuf(self):
@@ -411,7 +427,9 @@ class ProxyBlock:
     an address nor a size.
     """
 
-    def __init__(self, factory, uuid=uuid4()):
+    def __init__(self, factory, uuid=None):
+        if uuid is None:
+            uuid = uuid4()
         factory.addObject(uuid, self)
         self.uuid = uuid
 
@@ -486,9 +504,10 @@ class Block:
     A basic block.
     """
 
-    def __init__(self, factory, uuid=uuid4(),
-                 address=0, size=0, decode_mode=0):
-        factory.addObject(block_uuid, self)
+    def __init__(self, factory, uuid=None, address=0, size=0, decode_mode=0):
+        if uuid is None:
+            uuid = uuid4()
+        factory.addObject(uuid, self)
         self.uuid = uuid
         self.address = address
         self.size = size
@@ -526,7 +545,9 @@ class ByteMap:
     Holds the bytes of the loaded image of the binary.
     """
 
-    def __init__(self, regions=[]):
+    def __init__(self, regions=None):
+        if regions is None:
+            regions = []
         self.regions = regions
 
     def toProtobuf(self):
@@ -709,7 +730,9 @@ class DataObject:
     ImageByteMap.
     """
 
-    def __init__(self, factory, uuid=uuid4(), address=0, size=0):
+    def __init__(self, factory, uuid=None, address=0, size=0):
+        if uuid is None:
+            uuid = uuid4()
         factory.addObject(uuid, self)
         self.uuid = uuid
         self.address = address
@@ -750,15 +773,17 @@ class ImageByteMap:
     def __init__(self,
                  factory,
                  *,
-                 uuid=uuid4(),
-                 byte_map=ByteMap(),
+                 uuid=None,
+                 byte_map=None,
                  addr_min=0,
                  addr_max=0,
                  base_address=0,
                  entry_point_address=0):
-
+        if uuid is None:
+            uuid = uuid4()
+        if byte_map is None:
+            byte_map = ByteMap()
         factory.addObject(uuid, self)
-
         self.uuid = uuid
         self.byte_map = byte_map
         self.addr_min = addr_min
@@ -841,7 +866,9 @@ class Section:
     kept in ImageByteMap.
     """
 
-    def __init__(self, factory, uuid=uuid4(), name='', address=0, size=0):
+    def __init__(self, factory, uuid=None, name='', address=0, size=0):
+        if uuid is None:
+            uuid = uuid4()
         factory.addObject(uuid, self)
         self.uuid = uuid
         self.name = name
@@ -1008,14 +1035,15 @@ class Symbol:
 
     def __init__(self,
                  factory,
-                 symbol_uuid=uuid4(),
+                 uuid=None,
                  name='',
                  storage_kind=StorageKind.Undefined,
                  value=0,
                  referent=None):
+        if uuid is None:
+            uuid = uuid4()
         factory.addObject(symbol_uuid, self)
-
-        self.uuid = symbol_uuid
+        self.uuid = uuid
         self.value = value
         self.referent = referent
         self.name = name
