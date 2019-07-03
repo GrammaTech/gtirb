@@ -11,8 +11,7 @@ class TestProtobufWrite(unittest.TestCase):
             file_path = os.path.join(test_path, file_name)
             orig_ir = IR.load_protobuf(file_path)
             ir = IR.load_protobuf(file_path)
-            with open('out.gtir', 'wb') as f:
-                f.write(ir.toProtobuf().SerializeToString())
+            ir.save_protobuf('out.gtir')
             new_ir = IR.load_protobuf('out.gtir')
 
             with open(file_path, 'rb') as orig_file, \
