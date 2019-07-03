@@ -13,10 +13,7 @@ class TestProtobufWrite(unittest.TestCase):
             ir = IR.load_protobuf(file_path)
             ir.save_protobuf('out.gtir')
             new_ir = IR.load_protobuf('out.gtir')
-
-            with open(file_path, 'rb') as orig_file, \
-                 open('out.gtir', 'rb') as new_file:
-                self.assertEqual(orig_file.read(), new_file.read())
+            self.assertEqual(orig_ir, new_ir)
 
         open_and_compare('test4.gtir')
         open_and_compare('test2.gtir')

@@ -66,6 +66,10 @@ class AuxDataContainer:
         else:
             self.aux_data = aux_data
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.aux_data == other.aux_data
+
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -183,6 +187,10 @@ class Module(AuxDataContainer):
         self.symbolic_operands = symbolic_operands
 
         super().__init__(aux_data=aux_data)
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -322,6 +330,12 @@ class ProxyBlock:
         self.uuid = uuid
         uuid_cache[uuid] = self
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.uuid == other.uuid
+
+    def __hash__(self):
+        return hash(self.uuid)
+
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -360,6 +374,10 @@ class AuxData:
     def __init__(self, type_name='', data=None):
         self.type_name = type_name
         self.data = data
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -401,6 +419,13 @@ class Block:
         self.size = size
         self.decode_mode = decode_mode
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.uuid, self.address, self.size, self.decode_mode))
+
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -435,6 +460,12 @@ class ByteMap:
         if regions is None:
             regions = []
         self.regions = regions
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.regions == other.regions
+
+    def __hash__(self):
+        return hash(r for r in self.regions)
 
     def _to_protobuf(self):
         """
@@ -489,6 +520,13 @@ class EdgeLabel:
         self.direct = direct
         self.type = type
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.conditional, self.direct, self.type))
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -509,7 +547,7 @@ class EdgeLabel:
         Load this cls from protobuf object
         """
         return cls(edge_label.conditional, edge_label.direct,
-                   EdgeType(edge_label.type))
+                   EdgeLabel.EdgeType(edge_label.type))
 
 
 class Edge:
@@ -521,6 +559,13 @@ class Edge:
         self.source_block = source_block
         self.target_block = target_block
         self.label = label
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.source_block, self.target_block, self.label))
 
     def _to_protobuf(self):
         """
@@ -558,6 +603,10 @@ class CFG:
     def __init__(self, edges, module=None):
         self.edges = edges
         self.module = module
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.edges == other.edges
 
     def _to_protobuf(self):
         """
@@ -620,6 +669,13 @@ class DataObject:
         self.address = address
         self.size = size
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.uuid, self.address, self.size))
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -670,6 +726,14 @@ class ImageByteMap:
         self.base_address = base_address
         self.entry_point_address = entry_point_address
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.uuid, self.byte_map, self.addr_min, self.addr_max,
+                     self.base_address, self.entry_point_address))
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -715,6 +779,10 @@ class Offset:
         self.element_id = element_id
         self.offset = offset
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -753,6 +821,10 @@ class Section:
         self.address = address
         self.size = size
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -788,6 +860,10 @@ class SymStackConst:
         self.offset = offset
         self.symbol = symbol
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -807,8 +883,8 @@ class SymStackConst:
         """
         Load this cls from protobuf object
         """
-        if symbol.uuid != b'':
-            symbol_uuid = UUID(bytes=symbol.uuid)
+        if symbol.symbol_uuid != b'':
+            symbol_uuid = UUID(bytes=symbol.symbol_uuid)
             return cls(symbol.offset, uuid_cache.get(symbol_uuid))
         else:
             return cls(symbol.offset)
@@ -818,6 +894,13 @@ class SymAddrConst:
     """
     Represents a "symbolic operand" of the form "Sym + Offset".
     """
+    def __init__(self, offset, symbol=None):
+        self.offset = offset
+        self.symbol = symbol
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """
@@ -838,8 +921,8 @@ class SymAddrConst:
         """
         Load this cls from protobuf object
         """
-        if symbol.uuid != b'':
-            symbol_uuid = UUID(bytes=symbol.uuid)
+        if symbol.symbol_uuid != b'':
+            symbol_uuid = UUID(bytes=symbol.symbol_uuid)
             return cls(symbol.offset, uuid_cache.get(symbol_uuid))
         else:
             return cls(symbol.offset)
@@ -856,6 +939,10 @@ class SymAddrAddr:
         self.offset = offset
         self.symbol1 = symbol1
         self.symbol2 = symbol2
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """
@@ -913,6 +1000,10 @@ class Symbol:
         self.referent = referent
         self.name = name
         self.storage_kind = storage_kind
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """
@@ -973,9 +1064,13 @@ class IR(AuxDataContainer):
         self.uuid = uuid
         uuid_cache[uuid] = self
         if modules is None:
-            modules = set()
+            modules = list()
         self.modules = modules
         super().__init__(aux_data)
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and \
+            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object

@@ -278,6 +278,13 @@ class AddrCodec(Codec):
         def __init__(self, address=None):
             self.address = address
 
+        def __eq__(self, other):
+            return isinstance(other, type(self)) and \
+                self.address == other.address
+
+        def __hash__(self):
+            return hash(self.address)
+
     def decode(self, raw_bytes, serialization):
         """decode an Addr entry
 
