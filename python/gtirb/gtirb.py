@@ -568,7 +568,7 @@ class CFG:
     """
 
     def __init__(self, edges, module=None):
-        self.edges = set(edges)
+        self.edges = edges
         self.module = module
 
     def _to_protobuf(self):
@@ -581,8 +581,9 @@ class CFG:
         """
         ret = CFG_pb2.CFG()
 
-        ret.vertices.extend(v.uuid.bytes for v in self.module.blocks)
-        ret.vertices.extend(v.uuid.bytes for v in self.module.proxies)
+        if self.module is not None:
+            ret.vertices.extend(v.uuid.bytes for v in self.module.blocks)
+            ret.vertices.extend(v.uuid.bytes for v in self.module.proxies)
         ret.edges.extend(e._to_protobuf() for e in self.edges)
         return ret
 
@@ -593,7 +594,7 @@ class CFG:
         """
         return cls({Edge._from_protobuf(uuid_cache, e) for e in cfg.edges})
 
-    def addVertex(self, vertex):
+    def add_vertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
 
         :param vertex: the Block/ProxyBlock
@@ -604,18 +605,15 @@ class CFG:
         elif isinstance(vertex, ProxyBlock):
             self.module.proxies.add(vertex)
 
-    def addEdge(self, edge):
+    def add_edge(self, edge):
         """ Add an Edge to the CFG """
-        if edge not in self.edges:
-            self.edges.add(edge)
+        self.edges.add(edge)
+        self.add_vertex(edge.source)
+        self.add_vertex(edge.target)
 
-        self.addVertex(edge.source)
-        self.addVertex(edge.target)
-
-    def removeEdges(self, edges_to_remove):
+    def remove_edges(self, edges):
         """ Remove a set of edges from the CFG """
-        for edge_to_remove in edges_to_remove:
-            self.edges.discard(edge_to_remove)
+        self.edges -= edges
 
 
 class DataObject:
