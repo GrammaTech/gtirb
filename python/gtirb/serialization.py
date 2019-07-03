@@ -93,7 +93,7 @@ class MappingCodec(Codec):
             if '<' not in type_name_hint:
                 raise TypeHintError
             head, (key_type, val_type) = \
-                serialization.get_subtypes(type_name_hint)
+                Serialization.get_subtypes(type_name_hint)
             if head != 'mapping':
                 raise TypeHintError
 
@@ -160,7 +160,7 @@ class SequenceCodec(Codec):
         if type_name_hint:
             if '<' not in type_name_hint:
                 raise TypeHintError
-            head, subtypes = serialization.get_subtypes(type_name_hint)
+            head, subtypes = Serialization.get_subtypes(type_name_hint)
             if head != self.name:
                 raise TypeHintError
             subtype = subtypes[0]
@@ -368,49 +368,48 @@ class Serialization:
             'str': 'string'
         }
 
-    def get_subtypes(self, type_name):
+    @staticmethod
+    def get_subtypes(type_name):
         """ Given an encoded aux_data type_name, get the parent type
-        and it's sub types. Ex:
-        mapping<FOO,BAR> would return (mapping, [FOO, BAR])
-        mapping<FOO,set<BAR>> would return (mapping, [FOO, set<BAR>])
-        mapping<FOO,mapping<BAR,BAZ>>
-                       would return (mapping, [FOO,mapping<BAR,BAZ>])
+        and it's sub types. Note: assumes that the type_name string is
+        well-formed, does no error checking.
 
-        :param type_name: encoded type name. Must contain '<'
+        Examples:
+        get_subtypes('mapping<FOO,BAR>') == ('mapping', ['FOO', 'BAR'])
+        get_subtypes('mapping<FOO,set<BAR>>') == \
+            ('mapping', ['FOO', 'set<BAR>'])
+        get_subtypes('mapping<FOO,mapping<BAR,BAZ>>') == \
+            ('mapping', ['FOO', 'mapping<BAR,BAZ>'])
+
+        :param type_name: encoded type name.
         :returns: a tuple of the form (TYPE, [SUB-TYPES...])
         :rtype: tuple
 
         """
-        head = None
-        subtypes = []
-        depth = 0
-        index = 0
-        last_index = -1
-        while True:
-            c = type_name[index]
-            if c == '<':
-                if depth == 0:
-                    head = type_name[0:index]
-                    last_index = index
-                    depth += 1
-                else:
-                    depth += 1
+        if not type_name.endswith('>'):
+            return (type_name, list())
+
+        # Splits on the first '<' and strips the last '>'
+        # e.g., 'foo<FOO,bar<BAR,BAZ>>' -> ['foo', 'FOO,bar<BAR,BAZ>']
+        parent_type, subtypes_str = type_name[:-1].split('<', maxsplit=1)
+
+        # Parse the subtypes string using a stack to track nesting depth
+        stack = list()
+        subtypes = list()
+        subtype = ''
+        for c in subtypes_str:
+            if c == ',' and len(stack) == 0:
+                subtypes.append(subtype)
+                subtype = ''
+                continue
+            elif c == '<':
+                stack.append(c)
             elif c == '>':
-                if depth == 1:
-                    assert last_index != -1
-                    subtypes.append(type_name[last_index + 1:index])
-                    break
-                else:
-                    depth -= 1
-            elif c == ',':
-                if depth == 1:
-                    assert last_index != -1
-                    subtypes.append(type_name[last_index + 1:index])
-                    last_index = index
+                stack.pop()
+            subtype += c
+        subtypes.append(subtype)
 
-            index += 1
-
-        return (head, subtypes)
+        return (parent_type, subtypes)
 
     def register_codec(self, type_name, codec):
         """Register a Codec for a custom type. Use this method to
@@ -456,7 +455,7 @@ class Serialization:
         if not isinstance(raw_bytes, BytesIO):
             raise ValueError("raw_bytes is not a BytesIO")
         if '<' in type_name:
-            head, subtypes = self.get_subtypes(type_name)
+            head, subtypes = Serialization.get_subtypes(type_name)
             if head not in self.codecs:
                 raise DecodeError("no decoder for %s" % (head))
             return self.codecs[head].decode(raw_bytes, subtypes, self)
