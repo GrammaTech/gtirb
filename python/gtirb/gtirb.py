@@ -902,21 +902,19 @@ class SymAddrAddr:
         )
 
 
-class StorageKind(Enum):
-    """
-    Indicates the storage kind of a Symbol.
-    """
-    Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
-    Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
-    Static = Symbol_pb2.StorageKind.Value('Storage_Static')
-    Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
-    Local = Symbol_pb2.StorageKind.Value('Storage_Local')
-
-
 class Symbol:
     """
     Represents a Symbol, which maps a name to an object in the IR.
     """
+    class StorageKind(Enum):
+        """
+        Indicates the storage kind of a Symbol.
+        """
+        Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
+        Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
+        Static = Symbol_pb2.StorageKind.Value('Storage_Static')
+        Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
+        Local = Symbol_pb2.StorageKind.Value('Storage_Local')
 
     def __init__(self,
                  uuid_cache,
@@ -970,7 +968,7 @@ class Symbol:
         if symbol.HasField('referent_uuid'):
             referent = uuid_cache.get(UUID(bytes=symbol.referent_uuid))
         return cls(uuid_cache, uuid, symbol.name,
-                   StorageKind(symbol.storage_kind), value, referent)
+                   Symbol.StorageKind(symbol.storage_kind), value, referent)
 
 
 class IR(AuxDataContainer):
