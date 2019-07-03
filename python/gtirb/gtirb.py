@@ -302,7 +302,7 @@ class Module(AuxDataContainer):
         module.cfg.module = module
         return module
 
-    def removeBlocks(self, blocks_to_remove):
+    def remove_blocks(self, blocks):
         """Remove blocks from the IR.
 
         :param blocks_to_remove: a list of Blocks to remove
@@ -310,8 +310,8 @@ class Module(AuxDataContainer):
         :rtype: none
 
         """
-        self.blocks -= blocks_to_remove
-        self.proxies -= blocks_to_remove
+        self.blocks -= blocks
+        self.proxies -= blocks
 
 
 class ProxyBlock:
