@@ -10,7 +10,7 @@ Sample usage.
 Opening a GTIR file and loading it into an IR instance
 
     file = '/path/to/GTIR_FILE'
-    (ir, factory) = IRLoadFromProtobuf(file)
+    ir = IRLoadFromProtobuf(file)
 
 Writing back the ir instance as a protobuf file
 
@@ -56,35 +56,6 @@ import serialization
 serializer = serialization.Serialization()
 
 
-class Factory:
-    """
-    A class that stores a mapping from uuid -> object
-    """
-
-    def __init__(self):
-        self._objects = {}
-
-    def objectForUuid(self, uuid):
-        """get object for uuid if present
-
-        :param uuid: for uuid
-        :returns: object if present, None otherwise
-        :rtype: object
-
-        """
-        return self._objects.get(uuid, None)
-
-    def addObject(self, uuid, obj):
-        """add object for uuid. asserts that uuid is not present
-
-        :param uuid: uuid of object to add
-        :param obj: object to add
-
-        """
-        assert uuid not in self._objects
-        self._objects[uuid] = obj
-
-
 # GTIRB CLASSES #
 
 
@@ -124,18 +95,18 @@ class AuxDataContainer:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, aux_data_container):
+    def fromProtobuf(cls, uuid_cache, aux_data_container):
         """Load pygtirb object from protobuf object
 
         :param cls: this class
-        :param factory: uuid factory
+        :param uuid_cache: uuid cache
         :param aux_data_container: protobuf object
         :returns: pygtirb object
         :rtype: AuxDataContainer
 
         """
         return cls({
-            key: AuxData.fromProtobuf(factory, val)
+            key: AuxData.fromProtobuf(uuid_cache, val)
             for key, val in aux_data_container.aux_data.items()
         })
 
@@ -147,7 +118,7 @@ class Module(AuxDataContainer):
     """
 
     def __init__(self,
-                 factory,
+                 uuid_cache,
                  *,
                  uuid=None,
                  binary_path='',
@@ -188,7 +159,7 @@ class Module(AuxDataContainer):
 
         """
         if image_byte_map is None:
-            image_byte_map = ImageByteMap(factory)
+            image_byte_map = ImageByteMap(uuid_cache)
         if blocks is None:
             blocks = set()
         if data is None:
@@ -210,8 +181,8 @@ class Module(AuxDataContainer):
         # `sections` but we have fragile tests that depend on
         # preserving the order of these.
 
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         self.binary_path = binary_path
         self.preferred_addr = preferred_addr
         self.rebase_delta = rebase_delta
@@ -274,39 +245,39 @@ class Module(AuxDataContainer):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, module):
+    def fromProtobuf(cls, uuid_cache, module):
         """Load object from protobuf object
 
         :param cls: this class
-        :param factory: the factory to check for uuid uniqueness
+        :param uuid_cache: uuid cache
         :param module: the protobuf module object
         :returns: newly instantiated pygtirb instance
         :rtype: Module
 
         """
 
-        def symbolicExpressionFromProtobuf(factory, symbolic_expression):
+        def symbolicExpressionFromProtobuf(uuid_cache, symbolic_expression):
             if symbolic_expression.HasField('stack_const'):
                 return SymStackConst.fromProtobuf(
-                    factory, symbolic_expression.stack_const)
+                    uuid_cache, symbolic_expression.stack_const)
             if symbolic_expression.HasField('addr_const'):
                 return SymAddrConst.fromProtobuf(
-                    factory, symbolic_expression.addr_const)
+                    uuid_cache, symbolic_expression.addr_const)
             if symbolic_expression.HasField('addr_addr'):
                 return SymAddrAddr.fromProtobuf(
-                    factory, symbolic_expression.addr_addr)
+                    uuid_cache, symbolic_expression.addr_addr)
 
         uuid = UUID(bytes=module.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
 
-        blocks = {Block.fromProtobuf(factory, blk) for blk in module.blocks}
+        blocks = {Block.fromProtobuf(uuid_cache, blk) for blk in module.blocks}
         proxy_blocks = \
-            {ProxyBlock.fromProtobuf(factory, pb) for pb in module.proxies}
-        data = {DataObject.fromProtobuf(factory, dt) for dt in module.data}
-        symbols = [Symbol.fromProtobuf(factory, sym) for sym in module.symbols]
+            {ProxyBlock.fromProtobuf(uuid_cache, pb) for pb in module.proxies}
+        data = {DataObject.fromProtobuf(uuid_cache, dt) for dt in module.data}
+        symbols = [Symbol.fromProtobuf(uuid_cache, sym) for sym in module.symbols]
         module = cls(
-            factory,
+            uuid_cache,
             uuid=uuid,
             binary_path=module.binary_path,
             preferred_addr=module.preferred_addr,
@@ -315,22 +286,22 @@ class Module(AuxDataContainer):
             isa_id=module.isa_id,
             name=module.name,
             image_byte_map=ImageByteMap.fromProtobuf(
-                factory, module.image_byte_map),
+                uuid_cache, module.image_byte_map),
             symbols=symbols,
-            cfg=CFG.fromProtobuf(factory, module.cfg),
+            cfg=CFG.fromProtobuf(uuid_cache, module.cfg),
             blocks=blocks,
             data=data,
             proxies=proxy_blocks,
             sections=[
-                Section.fromProtobuf(factory, sec)
+                Section.fromProtobuf(uuid_cache, sec)
                 for sec in module.sections
             ],
             symbolic_operands={
-                key: symbolicExpressionFromProtobuf(factory, se)
+                key: symbolicExpressionFromProtobuf(uuid_cache, se)
                 for key, se in module.symbolic_operands.items()
             },
             aux_data={
-                key: AuxData.fromProtobuf(factory, val)
+                key: AuxData.fromProtobuf(uuid_cache, val)
                 for key, val in module.aux_data_container.aux_data.items()
             })
         module.cfg.module = module
@@ -353,20 +324,20 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, factory, uuid=None, modules=None, aux_data=None):
+    def __init__(self, uuid_cache, uuid=None, modules=None, aux_data=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param uuid: UUID. Creates a new instance if None
         :param modules: List of modules
         :param aux_data: auxilary data hanging off the IR
-        :param factory: The factory instance
+        :param uuid_cache: uuid_cache
         :returns: IR
         :rtype: IR
         """
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         if modules is None:
             modules = set()
         self.modules = modules
@@ -386,26 +357,26 @@ class IR(AuxDataContainer):
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, ir):
+    def fromProtobuf(cls, uuid_cache, ir):
         """Load pygtirb class from protobuf object
 
         :param cls: this class
-        :param factory: the factory to check for uuid uniqueness
+        :param uuid_cache: uuid cache
         :param ir: the protobuf IR object
         :returns: the pygtirb IR object
         :rtype: IR
 
         """
         uuid = UUID(bytes=ir.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
 
-        modules = [Module.fromProtobuf(factory, m) for m in ir.modules]
-        ir = cls(factory,
+        modules = [Module.fromProtobuf(uuid_cache, m) for m in ir.modules]
+        ir = cls(uuid_cache,
                  uuid,
                  modules,
                  aux_data={
-                     key: AuxData.fromProtobuf(factory, val)
+                     key: AuxData.fromProtobuf(uuid_cache, val)
                      for key, val in ir.aux_data_container.aux_data.items()
                  })
         return ir
@@ -425,11 +396,11 @@ class ProxyBlock:
     an address nor a size.
     """
 
-    def __init__(self, factory, uuid=None):
+    def __init__(self, uuid_cache, uuid=None):
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
 
     def toProtobuf(self):
         """Returns protobuf representation of the object
@@ -443,20 +414,20 @@ class ProxyBlock:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, pb):
+    def fromProtobuf(cls, uuid_cache, pb):
         """Load pygtirb object from protobuf object
 
         :param cls: this class
-        :param factory: uuid factory
+        :param uuid_cache: uuid cache
         :param pb: protobuf proxyblock object
         :returns: pygtirb proxyblock object
         :rtype: ProxyBlock
 
         """
         uuid = UUID(bytes=pb.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
-        return cls(factory, uuid)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
+        return cls(uuid_cache, uuid)
 
 
 class AuxData:
@@ -488,7 +459,7 @@ class AuxData:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, aux_data):
+    def fromProtobuf(cls, uuid_cache, aux_data):
         """
         Load pygtirb class from protobuf class
         """
@@ -501,11 +472,11 @@ class Block:
     A basic block.
     """
 
-    def __init__(self, factory, uuid=None, address=0, size=0, decode_mode=0):
+    def __init__(self, uuid_cache, uuid=None, address=0, size=0, decode_mode=0):
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         self.address = address
         self.size = size
         self.decode_mode = decode_mode
@@ -525,14 +496,14 @@ class Block:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, block):
+    def fromProtobuf(cls, uuid_cache, block):
         """
         Load pygtirb class from protobuf class
         """
         uuid = UUID(bytes=block.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
-        return cls(factory, uuid, block.address, block.size, block.decode_mode)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
+        return cls(uuid_cache, uuid, block.address, block.size, block.decode_mode)
 
 
 class ByteMap:
@@ -565,7 +536,7 @@ class ByteMap:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, byte_map):
+    def fromProtobuf(cls, uuid_cache, byte_map):
         """
         Load this cls from protobuf object
         """
@@ -615,7 +586,7 @@ class EdgeLabel:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, edge_label):
+    def fromProtobuf(cls, uuid_cache, edge_label):
         """
         Load this cls from protobuf object
         """
@@ -648,13 +619,15 @@ class Edge:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, edge):
+    def fromProtobuf(cls, uuid_cache, edge):
         """
         Load this cls from protobuf object
         """
-        return cls(EdgeLabel.fromProtobuf(factory, edge.label),
-                   factory.objectForUuid(UUID(bytes=edge.source_uuid)),
-                   factory.objectForUuid(UUID(bytes=edge.target_uuid)))
+        source_uuid = UUID(bytes=edge.source_uuid)
+        target_uuid = UUID(bytes=edge.target_uuid)
+        return cls(EdgeLabel.fromProtobuf(uuid_cache, edge.label),
+                   uuid_cache.get(source_uuid),
+                   uuid_cache.get(target_uuid))
 
 
 class CFG:
@@ -684,11 +657,11 @@ class CFG:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, cfg):
+    def fromProtobuf(cls, uuid_cache, cfg):
         """
         Load this cls from protobuf object
         """
-        return cls({Edge.fromProtobuf(factory, e) for e in cfg.edges})
+        return cls({Edge.fromProtobuf(uuid_cache, e) for e in cfg.edges})
 
     def addVertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
@@ -723,11 +696,11 @@ class DataObject:
     ImageByteMap.
     """
 
-    def __init__(self, factory, uuid=None, address=0, size=0):
+    def __init__(self, uuid_cache, uuid=None, address=0, size=0):
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         self.address = address
         self.size = size
 
@@ -746,14 +719,14 @@ class DataObject:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, data_object):
+    def fromProtobuf(cls, uuid_cache, data_object):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=data_object.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
-        return cls(factory, uuid, data_object.address, data_object.size)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
+        return cls(uuid_cache, uuid, data_object.address, data_object.size)
 
 
 class ImageByteMap:
@@ -762,7 +735,7 @@ class ImageByteMap:
     """
 
     def __init__(self,
-                 factory,
+                 uuid_cache,
                  *,
                  uuid=None,
                  byte_map=None,
@@ -774,8 +747,8 @@ class ImageByteMap:
             uuid = uuid4()
         if byte_map is None:
             byte_map = ByteMap()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         self.byte_map = byte_map
         self.addr_min = addr_min
         self.addr_max = addr_max
@@ -800,17 +773,17 @@ class ImageByteMap:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, image_byte_map):
+    def fromProtobuf(cls, uuid_cache, image_byte_map):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=image_byte_map.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
         image_byte_map = cls(
-            factory,
+            uuid_cache,
             uuid=uuid,
-            byte_map=ByteMap.fromProtobuf(factory, image_byte_map.byte_map),
+            byte_map=ByteMap.fromProtobuf(uuid_cache, image_byte_map.byte_map),
             addr_min=image_byte_map.addr_min,
             addr_max=image_byte_map.addr_max,
             base_address=image_byte_map.base_address,
@@ -841,7 +814,7 @@ class Offset:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, offset):
+    def fromProtobuf(cls, uuid_cache, offset):
         """
         Load this cls from protobuf object
         """
@@ -856,11 +829,11 @@ class Section:
     kept in ImageByteMap.
     """
 
-    def __init__(self, factory, uuid=None, name='', address=0, size=0):
+    def __init__(self, uuid_cache, uuid=None, name='', address=0, size=0):
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         self.name = name
         self.address = address
         self.size = size
@@ -881,14 +854,14 @@ class Section:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, section):
+    def fromProtobuf(cls, uuid_cache, section):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=section.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
-        return cls(factory, uuid, section.name, section.address, section.size)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
+        return cls(uuid_cache, uuid, section.name, section.address, section.size)
 
 
 class SymStackConst:
@@ -915,13 +888,13 @@ class SymStackConst:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, symbol):
+    def fromProtobuf(cls, uuid_cache, symbol):
         """
         Load this cls from protobuf object
         """
         if symbol.uuid != b'':
-            return cls(symbol.offset,
-                       factory.objectForUuid(UUID(bytes=symbol.uuid)))
+            symbol_uuid = UUID(bytes=symbol.uuid)
+            return cls(symbol.offset, uuid_cache.get(symbol_uuid))
         else:
             return cls(symbol.offset)
 
@@ -946,13 +919,13 @@ class SymAddrConst:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, symbol):
+    def fromProtobuf(cls, uuid_cache, symbol):
         """
         Load this cls from protobuf object
         """
         if symbol.uuid != b'':
-            return cls(symbol.offset,
-                       factory.objectForUuid(UUID(bytes=symbol.uuid)))
+            symbol_uuid = UUID(bytes=symbol.uuid)
+            return cls(symbol.offset, uuid_cache.get(symbol_uuid))
         else:
             return cls(symbol.offset)
 
@@ -985,14 +958,14 @@ class SymAddrAddr:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, symbol):
+    def fromProtobuf(cls, uuid_cache, symbol):
         """
         Load this cls from protobuf object
         """
         return cls(
             symbol.scale, symbol.offset,
-            factory.objectForUuid(UUID(bytes=symbol.symbol1_uuid)),
-            factory.objectForUuid(UUID(bytes=symbol.symbol2_uuid))
+            uuid_cache.get(UUID(bytes=symbol.symbol1_uuid)),
+            uuid_cache.get(UUID(bytes=symbol.symbol2_uuid))
         )
 
 
@@ -1013,7 +986,7 @@ class Symbol:
     """
 
     def __init__(self,
-                 factory,
+                 uuid_cache,
                  uuid=None,
                  name='',
                  storage_kind=StorageKind.Undefined,
@@ -1021,8 +994,8 @@ class Symbol:
                  referent=None):
         if uuid is None:
             uuid = uuid4()
-        factory.addObject(uuid, self)
         self.uuid = uuid
+        uuid_cache[uuid] = self
         self.value = value
         self.referent = referent
         self.name = name
@@ -1050,22 +1023,20 @@ class Symbol:
         return ret
 
     @classmethod
-    def fromProtobuf(cls, factory, symbol):
+    def fromProtobuf(cls, uuid_cache, symbol):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=symbol.uuid)
-        if factory.objectForUuid(uuid) is not None:
-            return factory.objectForUuid(uuid)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
+        value = None
+        referent = None
         if symbol.HasField('value'):
             value = symbol.value
-        else:
-            value = None
         if symbol.HasField('referent_uuid'):
-            referent = factory.objectForUuid(UUID(bytes=symbol.referent_uuid))
-        else:
-            referent = None
-        return cls(factory, uuid, symbol.name,
+            referent = uuid_cache.get(UUID(bytes=symbol.referent_uuid))
+        return cls(uuid_cache, uuid, symbol.name,
                    StorageKind(symbol.storage_kind), value, referent)
 
 
@@ -1083,7 +1054,7 @@ class IRLoader:
 
     def __init__(self):
         self.ir = None
-        self.factory = None
+        self.uuid_cache = dict()
 
     def IRLoadFromProtobufFileName(self, protobuf_file):
         """Load IR from protobuf file at path.
@@ -1108,10 +1079,5 @@ class IRLoader:
         assert self.ir is None, "IR already loaded in this IRLoader"
         ir = IR_pb2.IR()
         ir.ParseFromString(f.read())
-        self.factory = Factory()
-        self.ir = IR.fromProtobuf(self.factory, ir)
+        self.ir = IR.fromProtobuf(self.uuid_cache, ir)
         return self.ir
-
-    def factory(self):
-        assert self.factory is None, "Factory not loaded"
-        return self.factory

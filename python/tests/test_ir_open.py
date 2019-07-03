@@ -10,9 +10,7 @@ class MainTest(unittest.TestCase):
         with open(os.path.join(test_path, 'test4.gtir'), 'rb') as f:
             ir = IR_pb2.IR()
             ir.ParseFromString(f.read())
-
-            factory = gtirb.Factory()
-            ir = gtirb.IR.fromProtobuf(factory, ir)
+            ir = gtirb.IR.fromProtobuf(dict(), ir)
             self.assertTrue(ir is not None)
 
 if __name__ == '__main__':

@@ -4,8 +4,7 @@ import IR_pb2
 
 class MainTest(unittest.TestCase):
     def test_module_create(self):
-        factory = gtirb.Factory()
-        mod = gtirb.Module(factory)
+        mod = gtirb.Module(dict())
         assert mod is not None
 
 if __name__ == '__main__':

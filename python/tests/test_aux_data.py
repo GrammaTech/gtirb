@@ -11,8 +11,7 @@ class AuxDataTest(unittest.TestCase):
             ir = IR_pb2.IR()
             ir.ParseFromString(f.read())
 
-            factory = gtirb.Factory()
-            ir = gtirb.IR.fromProtobuf(factory, ir)
+            ir = gtirb.IR.fromProtobuf(dict(), ir)
 
             ad = ir.aux_data['test']
             self.assertTrue(ad is not None)
@@ -23,8 +22,7 @@ class AuxDataTest(unittest.TestCase):
             ir = IR_pb2.IR()
             ir.ParseFromString(f.read())
 
-            factory = gtirb.Factory()
-            ir = gtirb.IR.fromProtobuf(factory, ir)
+            ir = gtirb.IR.fromProtobuf(dict(), ir)
 
             ad = ir.aux_data['test']
             ad1 = ir.aux_data['test1']
@@ -37,8 +35,7 @@ class AuxDataTest(unittest.TestCase):
             ir = IR_pb2.IR()
             ir.ParseFromString(f.read())
 
-            factory = gtirb.Factory()
-            ir = gtirb.IR.fromProtobuf(factory, ir)
+            ir = gtirb.IR.fromProtobuf(dict(), ir)
 
             ad = ir.aux_data['test']
             self.assertTrue(ad is not None)
