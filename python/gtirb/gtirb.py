@@ -484,23 +484,21 @@ class ByteMap:
         self.regions.append((addr, data))
 
 
-class EdgeType(Enum):
-    """
-    Indicates the type of control flow transfer indicated by this
-    edge.
-    """
-    Branch = CFG_pb2.EdgeType.Value('Type_Branch')
-    Call = CFG_pb2.EdgeType.Value('Type_Call')
-    Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
-    Return = CFG_pb2.EdgeType.Value('Type_Return')
-    Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
-    Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
-
-
 class EdgeLabel:
     """
     A label on a CFG edge.
     """
+    class EdgeType(Enum):
+        """
+        Indicates the type of control flow transfer indicated by this
+        edge.
+        """
+        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
+        Call = CFG_pb2.EdgeType.Value('Type_Call')
+        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
+        Return = CFG_pb2.EdgeType.Value('Type_Return')
+        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
+        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
 
     def __init__(self, conditional, direct, type):
         self.conditional = conditional
