@@ -154,13 +154,13 @@ class Module(AuxDataContainer):
         if proxies is None:
             proxies = set()
         if sections is None:
-            sections = []
+            sections = set()
         if symbols is None:
-            symbols = []
+            symbols = set()
         if symbolic_operands is None:
-            symbolic_operands = {}
+            symbolic_operands = set()
         if aux_data is None:
-            aux_data = {}
+            aux_data = set()
         if uuid is None:
             uuid = uuid4()
 
