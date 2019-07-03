@@ -158,7 +158,7 @@ class Module(AuxDataContainer):
         if symbols is None:
             symbols = set()
         if symbolic_operands is None:
-            symbolic_operands = set()
+            symbolic_operands = dict()
         if aux_data is None:
             aux_data = set()
         if uuid is None:
