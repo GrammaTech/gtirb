@@ -9,15 +9,11 @@ Sample usage.
 
 Opening a GTIR file and loading it into an IR instance
 
-    file = '/path/to/GTIR_FILE'
-    ir = IRLoadFromProtobuf(file)
+    ir = IR.load_protobuf('filename.gtir')
 
 Writing back the ir instance as a protobuf file
 
-    ir_out = ir._to_protobuf()
-    f = open('out.gtir', "wb")
-    f.write(ir_out.SerializeToString())
-    f.close()
+    IR.save_protobuf('filename.gtir')
 
 TODOS:
 * Implement __repr__ functions for all the classes.
