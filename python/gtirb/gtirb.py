@@ -164,10 +164,6 @@ class Module(AuxDataContainer):
         if uuid is None:
             uuid = uuid4()
 
-        # FIXME: We really want to use sets for `symbols` &
-        # `sections` but we have fragile tests that depend on
-        # preserving the order of these.
-
         self.uuid = uuid
         uuid_cache[uuid] = self
         self.binary_path = binary_path
@@ -1086,28 +1082,26 @@ class IR(AuxDataContainer):
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, ir):
+    def _from_protobuf(cls, protobuf_ir):
         """Load pygtirb class from protobuf object
 
         :param cls: this class
         :param uuid_cache: uuid cache
-        :param ir: the protobuf IR object
+        :param protobuf_ir: the protobuf IR object
         :returns: the pygtirb IR object
         :rtype: IR
 
         """
-        uuid = UUID(bytes=ir.uuid)
-        if uuid in uuid_cache:
-            return uuid_cache[uuid]
-
-        modules = [Module._from_protobuf(uuid_cache, m) for m in ir.modules]
-        ir = cls(uuid_cache,
-                 uuid,
-                 modules,
-                 aux_data={
-                     key: AuxData._from_protobuf(uuid_cache, val)
-                     for key, val in ir.aux_data_container.aux_data.items()
-                 })
+        uuid = UUID(bytes=protobuf_ir.uuid)
+        uuid_cache = dict()
+        modules = [Module._from_protobuf(uuid_cache, m)
+                   for m in protobuf_ir.modules]
+        aux_data = {
+            key: AuxData._from_protobuf(uuid_cache, val)
+            for key, val in protobuf_ir.aux_data_container.aux_data.items()
+        }
+        ir = cls(uuid_cache, uuid, modules, aux_data)
+        uuid_cache[uuid] = ir
         return ir
 
     @staticmethod
@@ -1121,7 +1115,7 @@ class IR(AuxDataContainer):
         """
         ir = IR_pb2.IR()
         ir.ParseFromString(protobuf_file.read())
-        return IR._from_protobuf(dict(), ir)
+        return IR._from_protobuf(ir)
 
     @staticmethod
     def load_protobuf(file_name):
