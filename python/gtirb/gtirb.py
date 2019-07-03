@@ -119,7 +119,6 @@ class Module(AuxDataContainer):
 
     def __init__(self,
                  uuid_cache,
-                 *,
                  uuid=None,
                  binary_path='',
                  preferred_addr=0,
@@ -673,7 +672,6 @@ class ImageByteMap:
 
     def __init__(self,
                  uuid_cache,
-                 *,
                  uuid=None,
                  byte_map=None,
                  addr_min=0,
