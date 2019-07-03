@@ -319,69 +319,6 @@ class Module(AuxDataContainer):
         self.proxies -= blocks_to_remove
 
 
-class IR(AuxDataContainer):
-    """
-    A complete internal representation consisting of multiple Modules.
-    """
-
-    def __init__(self, uuid_cache, uuid=None, modules=None, aux_data=None):
-        """IR constructor. Can be used to construct an empty IR instance
-
-        :param uuid: UUID. Creates a new instance if None
-        :param modules: List of modules
-        :param aux_data: auxilary data hanging off the IR
-        :param uuid_cache: uuid_cache
-        :returns: IR
-        :rtype: IR
-        """
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        uuid_cache[uuid] = self
-        if modules is None:
-            modules = set()
-        self.modules = modules
-        super().__init__(aux_data)
-
-    def toProtobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = IR_pb2.IR()
-        ret.uuid = self.uuid.bytes
-        ret.modules.extend(m.toProtobuf() for m in self.modules)
-        ret.aux_data_container.CopyFrom(super().toProtobuf())
-        return ret
-
-    @classmethod
-    def fromProtobuf(cls, uuid_cache, ir):
-        """Load pygtirb class from protobuf object
-
-        :param cls: this class
-        :param uuid_cache: uuid cache
-        :param ir: the protobuf IR object
-        :returns: the pygtirb IR object
-        :rtype: IR
-
-        """
-        uuid = UUID(bytes=ir.uuid)
-        if uuid in uuid_cache:
-            return uuid_cache[uuid]
-
-        modules = [Module.fromProtobuf(uuid_cache, m) for m in ir.modules]
-        ir = cls(uuid_cache,
-                 uuid,
-                 modules,
-                 aux_data={
-                     key: AuxData.fromProtobuf(uuid_cache, val)
-                     for key, val in ir.aux_data_container.aux_data.items()
-                 })
-        return ir
-
-
 class ProxyBlock:
     """
     A placeholder to serve as the endpoint of a CFG edge.
@@ -1040,11 +977,67 @@ class Symbol:
                    StorageKind(symbol.storage_kind), value, referent)
 
 
-def IRPrintString(protobuf_file):
-    with open(protobuf_file, 'rb') as f:
-        ir = IR_pb2.IR()
-        ir.ParseFromString(f.read())
-        print(ir)
+class IR(AuxDataContainer):
+    """
+    A complete internal representation consisting of multiple Modules.
+    """
+
+    def __init__(self, uuid_cache, uuid=None, modules=None, aux_data=None):
+        """IR constructor. Can be used to construct an empty IR instance
+
+        :param uuid: UUID. Creates a new instance if None
+        :param modules: List of modules
+        :param aux_data: auxilary data hanging off the IR
+        :param uuid_cache: uuid_cache
+        :returns: IR
+        :rtype: IR
+        """
+        if uuid is None:
+            uuid = uuid4()
+        self.uuid = uuid
+        uuid_cache[uuid] = self
+        if modules is None:
+            modules = set()
+        self.modules = modules
+        super().__init__(aux_data)
+
+    def toProtobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        ret = IR_pb2.IR()
+        ret.uuid = self.uuid.bytes
+        ret.modules.extend(m.toProtobuf() for m in self.modules)
+        ret.aux_data_container.CopyFrom(super().toProtobuf())
+        return ret
+
+    @classmethod
+    def fromProtobuf(cls, uuid_cache, ir):
+        """Load pygtirb class from protobuf object
+
+        :param cls: this class
+        :param uuid_cache: uuid cache
+        :param ir: the protobuf IR object
+        :returns: the pygtirb IR object
+        :rtype: IR
+
+        """
+        uuid = UUID(bytes=ir.uuid)
+        if uuid in uuid_cache:
+            return uuid_cache[uuid]
+
+        modules = [Module.fromProtobuf(uuid_cache, m) for m in ir.modules]
+        ir = cls(uuid_cache,
+                 uuid,
+                 modules,
+                 aux_data={
+                     key: AuxData.fromProtobuf(uuid_cache, val)
+                     for key, val in ir.aux_data_container.aux_data.items()
+                 })
+        return ir
 
 
 class IRLoader:
