@@ -258,11 +258,12 @@ class Module(AuxDataContainer):
         if uuid in uuid_cache:
             return uuid_cache[uuid]
 
-        blocks = {Block._from_protobuf(uuid_cache, blk) for blk in module.blocks}
+        blocks = {Block._from_protobuf(uuid_cache, b) for b in module.blocks}
         proxy_blocks = \
-            {ProxyBlock._from_protobuf(uuid_cache, pb) for pb in module.proxies}
-        data = {DataObject._from_protobuf(uuid_cache, dt) for dt in module.data}
-        symbols = [Symbol._from_protobuf(uuid_cache, sym) for sym in module.symbols]
+            {ProxyBlock._from_protobuf(uuid_cache, p) for p in module.proxies}
+        data = {DataObject._from_protobuf(uuid_cache, d) for d in module.data}
+        symbols = \
+            {Symbol._from_protobuf(uuid_cache, s) for s in module.symbols}
         module = cls(
             uuid_cache,
             uuid=uuid,
@@ -406,7 +407,8 @@ class Block:
     A basic block.
     """
 
-    def __init__(self, uuid_cache, uuid=None, address=0, size=0, decode_mode=0):
+    def __init__(self, uuid_cache, uuid=None,
+                 address=0, size=0, decode_mode=0):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
@@ -444,7 +446,8 @@ class Block:
         uuid = UUID(bytes=block.uuid)
         if uuid in uuid_cache:
             return uuid_cache[uuid]
-        return cls(uuid_cache, uuid, block.address, block.size, block.decode_mode)
+        return cls(uuid_cache, uuid, block.address,
+                   block.size, block.decode_mode)
 
 
 class ByteMap:
@@ -758,7 +761,8 @@ class ImageByteMap:
         image_byte_map = cls(
             uuid_cache,
             uuid=uuid,
-            byte_map=ByteMap._from_protobuf(uuid_cache, image_byte_map.byte_map),
+            byte_map=ByteMap._from_protobuf(uuid_cache,
+                                            image_byte_map.byte_map),
             addr_min=image_byte_map.addr_min,
             addr_max=image_byte_map.addr_max,
             base_address=image_byte_map.base_address,
@@ -844,7 +848,8 @@ class Section:
         uuid = UUID(bytes=section.uuid)
         if uuid in uuid_cache:
             return uuid_cache[uuid]
-        return cls(uuid_cache, uuid, section.name, section.address, section.size)
+        return cls(uuid_cache, uuid, section.name,
+                   section.address, section.size)
 
 
 class SymStackConst:
@@ -1001,6 +1006,10 @@ class Symbol:
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
 
+    def __hash__(self):
+        return hash((self.uuid, self.value, self.referent,
+                     self.name, self.storage_kind))
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -1142,4 +1151,3 @@ class IR(AuxDataContainer):
         """
         with open(file_name, 'wb') as f:
             self.save_protobuf_file(f)
-
