@@ -30,6 +30,9 @@ target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
 target_compile_definitions(proto PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 include_directories(SYSTEM "${PROTOBUF_INCLUDE_DIRS}")
 
+install(TARGETS proto EXPORT gtirbTargets
+  LIBRARY DESTINATION lib)
+
 add_custom_command(TARGET proto POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_BINARY_DIR}/include/proto")
 add_custom_command(

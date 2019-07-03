@@ -14,6 +14,7 @@ include(CheckCXXSourceCompiles)
 include(CheckIncludeFile)
 include(Macros.cmake)
 include(AlignOf.cmake)
+include(CMakePackageConfigHelpers)
 
 # ---------------------------------------------------------------------------
 # Build options
@@ -37,6 +38,9 @@ if(UNIX AND NOT BUILD_SHARED_LIBS)
 endif()
 
 enable_testing()
+
+# Whether or not to run clang-tidy (if present)
+option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
 
 # ---------------------------------------------------------------------------
 # Global settings
@@ -281,7 +285,7 @@ if(NOT ${Protobuf_FOUND})
     if(BUILD_SHARED_LIBS)
       set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.so")
     else()
-      set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.la")
+      set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.a")
     endif()
     
 	

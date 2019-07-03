@@ -2,15 +2,19 @@ SET(PROJECT_NAME gtirb)
 
 add_subdirectory(proto)
 
-find_program(
-  CLANG_TIDY_EXE
-  NAMES "clang-tidy"
-  DOC "Path to clang-tidy executable"
-  )
-if(NOT CLANG_TIDY_EXE)
-  message(STATUS "clang-tidy not found.")
+if (GTIRB_RUN_CLANG_TIDY)
+  find_program(
+    CLANG_TIDY_EXE
+    NAMES "clang-tidy"
+    DOC "Path to clang-tidy executable"
+    )
+  if(NOT CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy not found.")
+  else()
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+  endif()
 else()
-  message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+  message(STATUS "clang-tidy disabled.")
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
