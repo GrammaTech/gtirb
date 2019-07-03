@@ -1,17 +1,12 @@
+import os
 import unittest
-import gtirb
-import IR_pb2
+from gtirb import IR
 
 class MainTest(unittest.TestCase):
     def test_ir_open(self):
-        import os
         test_path = os.path.dirname(os.path.realpath(__file__))
-
-        with open(os.path.join(test_path, 'test4.gtir'), 'rb') as f:
-            ir = IR_pb2.IR()
-            ir.ParseFromString(f.read())
-            ir = gtirb.IR.fromProtobuf(dict(), ir)
-            self.assertTrue(ir is not None)
+        ir = IR.load_protobuf(os.path.join(test_path, 'test4.gtir'))
+        self.assertTrue(ir is not None)
 
 if __name__ == '__main__':
     unittest.main()

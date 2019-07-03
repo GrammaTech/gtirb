@@ -1033,38 +1033,27 @@ class IR(AuxDataContainer):
                  })
         return ir
 
-
-class IRLoader:
-    """
-    Class used to load GTIR from protobuf format.
-    """
-
-    def __init__(self):
-        self.ir = None
-        self.uuid_cache = dict()
-
-    def IRLoadFromProtobufFileName(self, protobuf_file):
-        """Load IR from protobuf file at path.
-
-        :param protobuf_file: The given protobuf GTIR file path
-        :returns: GTIR
-        :rtype: IR
-
-        """
-        assert self.ir is None, "IR already loaded in this IRLoader"
-        with open(protobuf_file, 'rb') as f:
-            return self.IRLoadFromProtobufFile(f)
-
-    def IRLoadFromProtobufFile(self, f):
+    @staticmethod
+    def load_protobuf_file(protobuf_file):
         """Load IR from protobuf file object
 
-        :param protobuf_file: The given protobuf GTIR file path
+        :param protobuf_file: The protobuf file object
         :returns: GTIR
         :rtype: IR
 
         """
-        assert self.ir is None, "IR already loaded in this IRLoader"
         ir = IR_pb2.IR()
-        ir.ParseFromString(f.read())
-        self.ir = IR.fromProtobuf(self.uuid_cache, ir)
-        return self.ir
+        ir.ParseFromString(protobuf_file.read())
+        return IR.fromProtobuf(dict(), ir)
+
+    @staticmethod
+    def load_protobuf(file_name):
+        """Load IR from protobuf file at path.
+
+        :param file_name: The given protobuf GTIR file path
+        :returns: GTIR
+        :rtype: IR
+        """
+        with open(file_name, 'rb') as f:
+            return IR.load_protobuf_file(f)
+
