@@ -55,18 +55,6 @@ serializer = serialization.Serialization()
 # GTIRB CLASSES #
 
 
-class Addr:
-    """
-    A special class to store an Effective Address.
-
-    It is an error to serialize any address that cannot fit in a 64bit
-    unsigned int.
-    """
-
-    def __init__(self, address=None):
-        self.address = address
-
-
 class AuxDataContainer:
     """
     Contains the AuxData Tables and serves as a base class

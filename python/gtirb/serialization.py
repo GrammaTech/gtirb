@@ -7,7 +7,6 @@ encoding/decoding various GTIRB types to/from bytes and the `Codec`
 class that holds the encode and decode functions for a type.
 
 """
-import gtirb
 from io import BytesIO
 from uuid import UUID
 
@@ -273,6 +272,12 @@ class UUIDCodec(Codec):
 
 
 class AddrCodec(Codec):
+    class Addr:
+        """A class for holding addresses. This is defined because codecs are
+        selected based on the class name during encoding."""
+        def __init__(self, address=None):
+            self.address = address
+
     def decode(self, raw_bytes, serialization):
         """decode an Addr entry
 
@@ -282,7 +287,7 @@ class AddrCodec(Codec):
 
         """
         addr = serialization.decode('uint64_t', raw_bytes)
-        return gtirb.Addr(addr)
+        return AddrCodec.Addr(addr)
 
     def encode(self, out, val, serialization=None, *, type_name_hint=''):
         """encode Addr to bytes
