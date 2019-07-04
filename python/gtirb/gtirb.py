@@ -83,18 +83,18 @@ class AuxDataContainer:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, aux_data_container):
+    def _from_protobuf(cls, aux_data_container, uuid_cache=None):
         """Load pygtirb object from protobuf object
 
         :param cls: this class
-        :param uuid_cache: uuid cache
         :param aux_data_container: protobuf object
+        :param uuid_cache: uuid cache
         :returns: pygtirb object
         :rtype: AuxDataContainer
 
         """
         return cls({
-            key: AuxData._from_protobuf(uuid_cache, val)
+            key: AuxData._from_protobuf(val)
             for key, val in aux_data_container.aux_data.items()
         })
 
@@ -106,7 +106,6 @@ class Module(AuxDataContainer):
     """
 
     def __init__(self,
-                 uuid_cache,
                  uuid=None,
                  binary_path='',
                  preferred_addr=0,
@@ -122,7 +121,8 @@ class Module(AuxDataContainer):
                  proxies=None,
                  sections=None,
                  symbolic_operands=None,
-                 aux_data=None):
+                 aux_data=None,
+                 uuid_cache=None):
         """Constructor, takes the params below.
            Creates an empty module
         :param uuid:
@@ -160,12 +160,13 @@ class Module(AuxDataContainer):
         if symbolic_operands is None:
             symbolic_operands = dict()
         if aux_data is None:
-            aux_data = set()
+            aux_data = dict()
         if uuid is None:
             uuid = uuid4()
 
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         self.binary_path = binary_path
         self.preferred_addr = preferred_addr
         self.rebase_delta = rebase_delta
@@ -196,20 +197,6 @@ class Module(AuxDataContainer):
 
         """
 
-        def _symbolicExpressionToProtobuf(v):
-            sym_exp = SymbolicExpression_pb2.SymbolicExpression()
-            if isinstance(v, SymStackConst):
-                sym_exp.stack_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrConst):
-                sym_exp.addr_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrAddr):
-                sym_exp.addr_addr.CopyFrom(v._to_protobuf())
-            else:
-                raise ValueError(
-                    "Expected SymStackConst, SymAddrAddr or SymAddrConst"
-                )
-            return sym_exp
-
         ret = Module_pb2.Module()
         ret.uuid = self.uuid.bytes
         ret.binary_path = self.binary_path
@@ -225,47 +212,59 @@ class Module(AuxDataContainer):
         ret.data.extend(d._to_protobuf() for d in self.data)
         ret.proxies.extend(p._to_protobuf() for p in self.proxies)
         ret.sections.extend(s._to_protobuf() for s in self.sections)
+        def _sym_expr_to_protobuf(v):
+            sym_exp = SymbolicExpression_pb2.SymbolicExpression()
+            if isinstance(v, SymStackConst):
+                sym_exp.stack_const.CopyFrom(v._to_protobuf())
+            elif isinstance(v, SymAddrConst):
+                sym_exp.addr_const.CopyFrom(v._to_protobuf())
+            elif isinstance(v, SymAddrAddr):
+                sym_exp.addr_addr.CopyFrom(v._to_protobuf())
+            else:
+                raise ValueError(
+                    "Expected SymStackConst, SymAddrAddr or SymAddrConst"
+                )
+            return sym_exp
         for k, v in self.symbolic_operands.items():
-            ret.symbolic_operands[k].CopyFrom(_symbolicExpressionToProtobuf(v))
+            ret.symbolic_operands[k].CopyFrom(_sym_expr_to_protobuf(v))
 
         ret.aux_data_container.CopyFrom(super()._to_protobuf())
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, module):
+    def _from_protobuf(cls, module, uuid_cache=None):
         """Load object from protobuf object
 
         :param cls: this class
-        :param uuid_cache: uuid cache
         :param module: the protobuf module object
+        :param uuid_cache: uuid cache
         :returns: newly instantiated pygtirb instance
         :rtype: Module
 
         """
 
-        def symbolicExpressionFromProtobuf(uuid_cache, symbolic_expression):
+        def _sym_expr_from_protobuf(symbolic_expression, uuid_cache=None):
             if symbolic_expression.HasField('stack_const'):
                 return SymStackConst._from_protobuf(
-                    uuid_cache, symbolic_expression.stack_const)
+                    symbolic_expression.stack_const, uuid_cache)
             if symbolic_expression.HasField('addr_const'):
                 return SymAddrConst._from_protobuf(
-                    uuid_cache, symbolic_expression.addr_const)
+                    symbolic_expression.addr_const, uuid_cache)
             if symbolic_expression.HasField('addr_addr'):
                 return SymAddrAddr._from_protobuf(
-                    uuid_cache, symbolic_expression.addr_addr)
+                    symbolic_expression.addr_addr, uuid_cache)
 
         uuid = UUID(bytes=module.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
 
-        blocks = {Block._from_protobuf(uuid_cache, b) for b in module.blocks}
+        blocks = {Block._from_protobuf(b, uuid_cache) for b in module.blocks}
         proxy_blocks = \
-            {ProxyBlock._from_protobuf(uuid_cache, p) for p in module.proxies}
-        data = {DataObject._from_protobuf(uuid_cache, d) for d in module.data}
+            {ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies}
+        data = {DataObject._from_protobuf(d, uuid_cache) for d in module.data}
         symbols = \
-            {Symbol._from_protobuf(uuid_cache, s) for s in module.symbols}
+            {Symbol._from_protobuf(s, uuid_cache) for s in module.symbols}
         module = cls(
-            uuid_cache,
             uuid=uuid,
             binary_path=module.binary_path,
             preferred_addr=module.preferred_addr,
@@ -274,24 +273,26 @@ class Module(AuxDataContainer):
             isa_id=module.isa_id,
             name=module.name,
             image_byte_map=ImageByteMap._from_protobuf(
-                uuid_cache, module.image_byte_map),
+                module.image_byte_map, uuid_cache),
             symbols=symbols,
-            cfg=CFG._from_protobuf(uuid_cache, module.cfg),
+            cfg=CFG._from_protobuf(module.cfg, uuid_cache),
             blocks=blocks,
             data=data,
             proxies=proxy_blocks,
             sections=[
-                Section._from_protobuf(uuid_cache, sec)
+                Section._from_protobuf(sec, uuid_cache)
                 for sec in module.sections
             ],
             symbolic_operands={
-                key: symbolicExpressionFromProtobuf(uuid_cache, se)
+                key: _sym_expr_from_protobuf(se, uuid_cache)
                 for key, se in module.symbolic_operands.items()
             },
             aux_data={
-                key: AuxData._from_protobuf(uuid_cache, val)
+                key: AuxData._from_protobuf(val)
                 for key, val in module.aux_data_container.aux_data.items()
-            })
+            },
+            uuid_cache=uuid_cache
+        )
         module.cfg.module = module
         return module
 
@@ -321,11 +322,12 @@ class ProxyBlock:
     an address nor a size.
     """
 
-    def __init__(self, uuid_cache, uuid=None):
+    def __init__(self, uuid=None, uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.uuid == other.uuid
@@ -345,20 +347,20 @@ class ProxyBlock:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, pb):
+    def _from_protobuf(cls, pb, uuid_cache=None):
         """Load pygtirb object from protobuf object
 
         :param cls: this class
-        :param uuid_cache: uuid cache
         :param pb: protobuf proxyblock object
+        :param uuid_cache: uuid cache
         :returns: pygtirb proxyblock object
         :rtype: ProxyBlock
 
         """
         uuid = UUID(bytes=pb.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
-        return cls(uuid_cache, uuid)
+        return cls(uuid, uuid_cache)
 
 
 class AuxData:
@@ -394,7 +396,7 @@ class AuxData:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, aux_data):
+    def _from_protobuf(cls, aux_data):
         """
         Load pygtirb class from protobuf class
         """
@@ -407,12 +409,13 @@ class Block:
     A basic block.
     """
 
-    def __init__(self, uuid_cache, uuid=None,
-                 address=0, size=0, decode_mode=0):
+    def __init__(self, uuid=None,
+                 address=0, size=0, decode_mode=0, uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         self.address = address
         self.size = size
         self.decode_mode = decode_mode
@@ -439,15 +442,15 @@ class Block:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, block):
+    def _from_protobuf(cls, block, uuid_cache=None):
         """
         Load pygtirb class from protobuf class
         """
         uuid = UUID(bytes=block.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
-        return cls(uuid_cache, uuid, block.address,
-                   block.size, block.decode_mode)
+        return cls(uuid, block.address,
+                   block.size, block.decode_mode, uuid_cache)
 
 
 class ByteMap:
@@ -486,7 +489,7 @@ class ByteMap:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, byte_map):
+    def _from_protobuf(cls, byte_map):
         """
         Load this cls from protobuf object
         """
@@ -541,7 +544,7 @@ class EdgeLabel:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, edge_label):
+    def _from_protobuf(cls, edge_label):
         """
         Load this cls from protobuf object
         """
@@ -555,9 +558,9 @@ class Edge:
     """
 
     def __init__(self, label, source_block, target_block):
+        self.label = label
         self.source_block = source_block
         self.target_block = target_block
-        self.label = label
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
@@ -581,15 +584,18 @@ class Edge:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, edge):
+    def _from_protobuf(cls, edge, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
-        return cls(EdgeLabel._from_protobuf(uuid_cache, edge.label),
-                   uuid_cache.get(source_uuid),
-                   uuid_cache.get(target_uuid))
+        source = None
+        target = None
+        if uuid_cache is not None:
+            source = uuid_cache.get(source_uuid)
+            target = uuid_cache.get(target_uuid)
+        return cls(EdgeLabel._from_protobuf(edge.label), source, target)
 
 
 class CFG:
@@ -624,11 +630,11 @@ class CFG:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, cfg):
+    def _from_protobuf(cls, cfg, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
-        return cls({Edge._from_protobuf(uuid_cache, e) for e in cfg.edges})
+        return cls({Edge._from_protobuf(e, uuid_cache) for e in cfg.edges})
 
     def add_vertex(self, vertex):
         """Add a Block/ProxyBlock vertex to CFG.
@@ -660,11 +666,12 @@ class DataObject:
     ImageByteMap.
     """
 
-    def __init__(self, uuid_cache, uuid=None, address=0, size=0):
+    def __init__(self, uuid=None, address=0, size=0, uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         self.address = address
         self.size = size
 
@@ -690,14 +697,14 @@ class DataObject:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, data_object):
+    def _from_protobuf(cls, data_object, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=data_object.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
-        return cls(uuid_cache, uuid, data_object.address, data_object.size)
+        return cls(uuid, data_object.address, data_object.size, uuid_cache)
 
 
 class ImageByteMap:
@@ -706,19 +713,20 @@ class ImageByteMap:
     """
 
     def __init__(self,
-                 uuid_cache,
                  uuid=None,
                  byte_map=None,
                  addr_min=0,
                  addr_max=0,
                  base_address=0,
-                 entry_point_address=0):
+                 entry_point_address=0,
+                 uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         if byte_map is None:
             byte_map = ByteMap()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         self.byte_map = byte_map
         self.addr_min = addr_min
         self.addr_max = addr_max
@@ -751,22 +759,21 @@ class ImageByteMap:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, image_byte_map):
+    def _from_protobuf(cls, image_byte_map, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=image_byte_map.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
         image_byte_map = cls(
-            uuid_cache,
             uuid=uuid,
-            byte_map=ByteMap._from_protobuf(uuid_cache,
-                                            image_byte_map.byte_map),
+            byte_map=ByteMap._from_protobuf(image_byte_map.byte_map),
             addr_min=image_byte_map.addr_min,
             addr_max=image_byte_map.addr_max,
             base_address=image_byte_map.base_address,
-            entry_point_address=image_byte_map.entry_point_address)
+            entry_point_address=image_byte_map.entry_point_address,
+            uuid_cache=uuid_cache)
         return image_byte_map
 
 
@@ -797,7 +804,7 @@ class Offset:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, offset):
+    def _from_protobuf(cls, offset):
         """
         Load this cls from protobuf object
         """
@@ -812,11 +819,12 @@ class Section:
     kept in ImageByteMap.
     """
 
-    def __init__(self, uuid_cache, uuid=None, name='', address=0, size=0):
+    def __init__(self, uuid=None, name='', address=0, size=0, uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         self.name = name
         self.address = address
         self.size = size
@@ -841,15 +849,15 @@ class Section:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, section):
+    def _from_protobuf(cls, section, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=section.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
-        return cls(uuid_cache, uuid, section.name,
-                   section.address, section.size)
+        return cls(uuid, section.name, section.address,
+                   section.size, uuid_cache)
 
 
 class SymStackConst:
@@ -880,13 +888,16 @@ class SymStackConst:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, symbol):
+    def _from_protobuf(cls, symbol, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         if symbol.symbol_uuid != b'':
             symbol_uuid = UUID(bytes=symbol.symbol_uuid)
-            return cls(symbol.offset, uuid_cache.get(symbol_uuid))
+            symbol = None
+            if uuid_cache is not None:
+                symbol = uuid_cache.get(symbol_uuid)
+            return cls(symbol.offset, symbol)
         else:
             return cls(symbol.offset)
 
@@ -918,13 +929,16 @@ class SymAddrConst:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, symbol):
+    def _from_protobuf(cls, symbol, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         if symbol.symbol_uuid != b'':
             symbol_uuid = UUID(bytes=symbol.symbol_uuid)
-            return cls(symbol.offset, uuid_cache.get(symbol_uuid))
+            symbol = None
+            if uuid_cache is not None:
+                symbol = uuid_cache.get(symbol_uuid)
+            return cls(symbol.offset, symbol)
         else:
             return cls(symbol.offset)
 
@@ -961,15 +975,18 @@ class SymAddrAddr:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, symbol):
+    def _from_protobuf(cls, symbol, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
-        return cls(
-            symbol.scale, symbol.offset,
-            uuid_cache.get(UUID(bytes=symbol.symbol1_uuid)),
-            uuid_cache.get(UUID(bytes=symbol.symbol2_uuid))
-        )
+        symbol1_uuid = UUID(bytes=symbol.symbol1_uuid)
+        symbol2_uuid = UUID(bytes=symbol.symbol2_uuid)
+        symbol1 = None
+        symbol2 = None
+        if uuid_cache is not None:
+            symbol1 = uuid_cache.get(symbol1_uuid)
+            symbol2 = uuid_cache.get(symbol2_uuid)
+        return cls(symbol.scale, symbol.offset, symbol1, symbol2)
 
 
 class Symbol:
@@ -987,16 +1004,17 @@ class Symbol:
         Local = Symbol_pb2.StorageKind.Value('Storage_Local')
 
     def __init__(self,
-                 uuid_cache,
                  uuid=None,
                  name='',
                  storage_kind=StorageKind.Undefined,
                  value=0,
-                 referent=None):
+                 referent=None,
+                 uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         self.value = value
         self.referent = referent
         self.name = name
@@ -1032,21 +1050,24 @@ class Symbol:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, uuid_cache, symbol):
+    def _from_protobuf(cls, symbol, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
         uuid = UUID(bytes=symbol.uuid)
-        if uuid in uuid_cache:
+        if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
         value = None
         referent = None
         if symbol.HasField('value'):
             value = symbol.value
         if symbol.HasField('referent_uuid'):
-            referent = uuid_cache.get(UUID(bytes=symbol.referent_uuid))
-        return cls(uuid_cache, uuid, symbol.name,
-                   Symbol.StorageKind(symbol.storage_kind), value, referent)
+            referent_uuid = UUID(bytes=symbol.referent_uuid)
+            referent = None
+            if uuid_cache is not None:
+                referent = uuid_cache.get(referent_uuid)
+        return cls(uuid, symbol.name, Symbol.StorageKind(symbol.storage_kind),
+                   value, referent, uuid_cache)
 
 
 class IR(AuxDataContainer):
@@ -1054,7 +1075,7 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, uuid_cache, uuid=None, modules=None, aux_data=None):
+    def __init__(self, uuid=None, modules=None, aux_data=None, uuid_cache=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param uuid: UUID. Creates a new instance if None
@@ -1067,7 +1088,8 @@ class IR(AuxDataContainer):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
-        uuid_cache[uuid] = self
+        if uuid_cache is not None:
+            uuid_cache[uuid] = self
         if modules is None:
             modules = list()
         self.modules = modules
@@ -1095,7 +1117,6 @@ class IR(AuxDataContainer):
         """Load pygtirb class from protobuf object
 
         :param cls: this class
-        :param uuid_cache: uuid cache
         :param protobuf_ir: the protobuf IR object
         :returns: the pygtirb IR object
         :rtype: IR
@@ -1103,13 +1124,13 @@ class IR(AuxDataContainer):
         """
         uuid = UUID(bytes=protobuf_ir.uuid)
         uuid_cache = dict()
-        modules = [Module._from_protobuf(uuid_cache, m)
+        modules = [Module._from_protobuf(m, uuid_cache)
                    for m in protobuf_ir.modules]
         aux_data = {
-            key: AuxData._from_protobuf(uuid_cache, val)
+            key: AuxData._from_protobuf(val)
             for key, val in protobuf_ir.aux_data_container.aux_data.items()
         }
-        ir = cls(uuid_cache, uuid, modules, aux_data)
+        ir = cls(uuid, modules, aux_data, uuid_cache)
         uuid_cache[uuid] = ir
         return ir
 
