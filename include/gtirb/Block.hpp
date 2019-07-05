@@ -120,12 +120,12 @@ struct GTIRB_EXPORT_API Offset {
   /// bytes.
   uint64_t Displacement;
 
-  /// \brief Constructor using a uuid and a displacement.
-  Offset(const UUID& elementId, const uint64_t displacement)
-      : ElementId(elementId), Displacement(displacement) {}
+  /// \brief Constructor using a ElemId uuid and a Displacement.
+  Offset(const UUID& ElemId, const uint64_t Disp)
+      : ElementId(ElemId), Displacement(Disp) {}
 
   /// \brief Default constructor.
-  Offset() {}
+  Offset() = default;
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Offset.
@@ -189,14 +189,14 @@ struct GTIRB_EXPORT_API Offset {
 } // namespace gtirb
 
 namespace std {
-// hash implementations of UUID and Offset
 
+/// \brief Hash implementation of gtirb::UUID.
 template <> struct hash<boost::uuids::uuid> {
-  size_t operator()(const boost::uuids::uuid& uid) {
+  size_t operator()(const boost::uuids::uuid& uid) const{
     return boost::hash<boost::uuids::uuid>()(uid);
   }
 };
-/// \bried Hash operation for \ref Offset.
+/// \brief Hash operation for \ref Offset.
 template <> struct hash<gtirb::Offset> {
   size_t operator()(const gtirb::Offset& x) const {
     std::size_t h1 = hash<gtirb::UUID>{}(x.ElementId);
