@@ -121,7 +121,7 @@ struct GTIRB_EXPORT_API Offset {
   uint64_t Displacement;
 
   /// \brief Constructor using a ElemId uuid and a Displacement.
-  Offset(const UUID& ElemId, const uint64_t Disp)
+  Offset(const UUID& ElemId, uint64_t Disp)
       : ElementId(ElemId), Displacement(Disp) {}
 
   /// \brief Default constructor.
