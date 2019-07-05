@@ -192,7 +192,7 @@ namespace std {
 
 /// \brief Hash implementation of gtirb::UUID.
 template <> struct hash<boost::uuids::uuid> {
-  size_t operator()(const boost::uuids::uuid& uid) const{
+  size_t operator()(const boost::uuids::uuid& uid) const {
     return boost::hash<boost::uuids::uuid>()(uid);
   }
 };
