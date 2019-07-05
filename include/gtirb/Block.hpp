@@ -199,9 +199,10 @@ template <> struct hash<boost::uuids::uuid> {
 /// \brief Hash operation for \ref Offset.
 template <> struct hash<gtirb::Offset> {
   size_t operator()(const gtirb::Offset& x) const {
-    std::size_t h1 = hash<gtirb::UUID>{}(x.ElementId);
-    std::size_t h2 = hash<uint64_t>{}(x.Displacement);
-    return h1 ^ h2;
+    std::size_t seed = 0;
+    boost::hash_combine(seed, x.ElementId);
+    boost::hash_combine(seed, x.Displacement);
+    return seed;
   }
 };
 } // namespace std
