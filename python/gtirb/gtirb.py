@@ -613,7 +613,10 @@ class CFG:
     Block.
     """
 
-    def __init__(self, edges, module=None):
+    def __init__(self, edges=None, module=None):
+        if edges is None:
+            edges = set()
+        
         self.edges = edges
         self.module = module
 
