@@ -616,7 +616,6 @@ class CFG:
     def __init__(self, edges=None, module=None):
         if edges is None:
             edges = set()
-        
         self.edges = edges
         self.module = module
 
