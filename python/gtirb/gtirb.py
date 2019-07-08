@@ -844,7 +844,7 @@ class Section:
         self.name = name
         self.address = address
         self.size = size
-    
+
     def __hash__(self):
         return hash((self.uuid, self.name, self.address, self.size))
 
