@@ -605,7 +605,7 @@ class CFG:
     Block.
     """
 
-    def __init__(self, edges=set(), module=None):
+    def __init__(self, edges, module=None):
         self.edges = edges
         self.module = module
 
