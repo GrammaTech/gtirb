@@ -557,17 +557,17 @@ class Edge:
     An Edge in the CFG. Consists of a source and target Block
     """
 
-    def __init__(self, label, source_block, target_block):
+    def __init__(self, label, source, target):
         self.label = label
-        self.source_block = source_block
-        self.target_block = target_block
+        self.source = source
+        self.target = target
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
 
     def __hash__(self):
-        return hash((self.source_block, self.target_block, self.label))
+        return hash((self.source, self.target, self.label))
 
     def _to_protobuf(self):
         """
@@ -578,8 +578,8 @@ class Edge:
 
         """
         ret = CFG_pb2.Edge()
-        ret.source_uuid = self.source_block.uuid.bytes
-        ret.target_uuid = self.target_block.uuid.bytes
+        ret.source_uuid = self.source.uuid.bytes
+        ret.target_uuid = self.target.uuid.bytes
         ret.label.CopyFrom(self.label._to_protobuf())
         return ret
 
@@ -605,7 +605,7 @@ class CFG:
     Block.
     """
 
-    def __init__(self, edges, module=None):
+    def __init__(self, edges=set(), module=None):
         self.edges = edges
         self.module = module
 
