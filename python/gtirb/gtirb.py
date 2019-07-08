@@ -189,6 +189,11 @@ class Module(AuxDataContainer):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
 
+    def __hash__(self):
+        return hash((self.uuid, self.preferred_addr, self.rebase_delta, self.file_format,
+            self.isa_id, self.name, self.image_byte_map, self.symbols, self.cfg, self.blocks,
+            self.proxies, self.data, self.sections, self.symbolic_operands, self.aux_data))
+
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -377,6 +382,9 @@ class AuxData:
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.type_name, self.data))
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -613,6 +621,9 @@ class CFG:
         return isinstance(other, type(self)) and \
             self.edges == other.edges
 
+    def __hash__(self):
+        return hash(self.edges)
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -790,6 +801,9 @@ class Offset:
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
 
+    def __hash__(self):
+        return hash((self.element_id, self.offset))
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -828,6 +842,9 @@ class Section:
         self.name = name
         self.address = address
         self.size = size
+    
+    def __hash__(self):
+        return hash((self.uuid, self.name, self.address, self.size))
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
@@ -873,6 +890,9 @@ class SymStackConst:
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
 
+    def __hash__(self):
+        return hash((self.offset, self.symbol))
+
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -913,6 +933,9 @@ class SymAddrConst:
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.offset, self.symbol))
 
     def _to_protobuf(self):
         """
@@ -958,6 +981,9 @@ class SymAddrAddr:
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.scale, self.offset, self.symbol1, self.symbol2))
 
     def _to_protobuf(self):
         """
@@ -1098,6 +1124,9 @@ class IR(AuxDataContainer):
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.uuid, self.modules, self.aux_data))
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
