@@ -190,9 +190,23 @@ class Module(AuxDataContainer):
             self.__dict__ == other.__dict__
 
     def __hash__(self):
-        return hash((self.uuid, self.preferred_addr, self.rebase_delta, self.file_format,
-            self.isa_id, self.name, self.image_byte_map, self.symbols, self.cfg, self.blocks,
-            self.proxies, self.data, self.sections, self.symbolic_operands, self.aux_data))
+        return hash((
+            self.uuid,
+            self.preferred_addr,
+            self.rebase_delta,
+            self.file_format,
+            self.isa_id,
+            self.name,
+            self.image_byte_map,
+            (x for x in self.symbols),
+            self.cfg,
+            (x for x in self.blocks),
+            (x for x in self.proxies),
+            (x for x in self.data),
+            (x for x in self.sections),
+            (x for x in self.symbolic_operands.items()),
+            (x for x in self.aux_data.items()),
+        ))
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -384,7 +398,7 @@ class AuxData:
             self.__dict__ == other.__dict__
 
     def __hash__(self):
-        return hash((self.type_name, self.data))
+        return hash(self.type_name)
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -624,7 +638,7 @@ class CFG:
             self.edges == other.edges
 
     def __hash__(self):
-        return hash(self.edges)
+        return hash(x for x in self.edges)
 
     def _to_protobuf(self):
         """
@@ -1128,7 +1142,11 @@ class IR(AuxDataContainer):
             self.__dict__ == other.__dict__
 
     def __hash__(self):
-        return hash((self.uuid, self.modules, self.aux_data))
+        return hash((
+            self.uuid,
+            (x for x in self.modules),
+            (x for x in self.aux_data.items()),
+        ))
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
