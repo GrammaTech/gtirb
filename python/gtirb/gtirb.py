@@ -188,25 +188,6 @@ class Module(AuxDataContainer):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
 
-    def __hash__(self):
-        return hash((
-            self.uuid,
-            self.preferred_addr,
-            self.rebase_delta,
-            self.file_format,
-            self.isa_id,
-            self.name,
-            self.image_byte_map,
-            (x for x in self.symbols),
-            self.cfg,
-            (x for x in self.blocks),
-            (x for x in self.proxies),
-            (x for x in self.data),
-            (x for x in self.sections),
-            (x for x in self.symbolic_operands.items()),
-            (x for x in self.aux_data.items()),
-        ))
-
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -487,9 +468,6 @@ class ByteMap:
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.regions == other.regions
 
-    def __hash__(self):
-        return hash(r for r in self.regions)
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -636,9 +614,6 @@ class CFG:
         return isinstance(other, type(self)) and \
             self.edges == other.edges
 
-    def __hash__(self):
-        return hash(x for x in self.edges)
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -762,10 +737,6 @@ class ImageByteMap:
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.uuid, self.byte_map, self.addr_min, self.addr_max,
-                     self.base_address, self.entry_point_address))
 
     def _to_protobuf(self):
         """
@@ -1139,13 +1110,6 @@ class IR(AuxDataContainer):
     def __eq__(self, other):
         return isinstance(other, type(self)) and \
             self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((
-            self.uuid,
-            (x for x in self.modules),
-            (x for x in self.aux_data.items()),
-        ))
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
