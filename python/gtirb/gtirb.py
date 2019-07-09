@@ -51,15 +51,53 @@ import serialization
 serializer = serialization.Serialization()
 
 
-# GTIRB CLASSES #
+class AuxData:
+    """Types and operations for auxiliary data.  AuxData objects can be
+    attached to the IR or individual Modules to store additional
+    client-specific data in a portable way.
+    """
+
+    def __init__(self, type_name='', data=None):
+        self.type_name = type_name
+        self.data = data
+
+    def _to_protobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        ret = AuxData_pb2.AuxData()
+        out_bytes_array = io.BytesIO()
+        check_type_name = serializer.encode(out_bytes_array, self.data,
+                                            type_name_hint=self.type_name)
+
+        ret.type_name = check_type_name
+        out_bytes_array.seek(0)
+        ret.data = out_bytes_array.read()
+        return ret
+
+    @classmethod
+    def _from_protobuf(cls, aux_data):
+        """
+        Load pygtirb class from protobuf class
+        """
+        ret = serializer.decode(aux_data.type_name, io.BytesIO(aux_data.data))
+        return cls(aux_data.type_name, ret)
 
 
 class AuxDataContainer:
-    """
-    Contains the AuxData Tables and serves as a base class
+    """Holds AuxData tables, base class for IR and Module
     """
 
     def __init__(self, aux_data=None):
+        """Constructor
+        :param aux_data: dict(str, AuxData), optional dict mapping
+            type names to AuxData objects
+        :returns: AuxDataContainer
+        :rtype: AuxDataContainer
+        """
         if aux_data is None:
             self.aux_data = dict()
         else:
@@ -346,43 +384,6 @@ class ProxyBlock:
         if uuid_cache is not None and uuid in uuid_cache:
             return uuid_cache[uuid]
         return cls(uuid, uuid_cache)
-
-
-class AuxData:
-    """
-    Types and operations for auxiliar data.  AuxData objects can be
-    attached to the IR or individual Modules to store additional
-    client-specific data in a portable way.
-    """
-
-    def __init__(self, type_name='', data=None):
-        self.type_name = type_name
-        self.data = data
-
-    def _to_protobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = AuxData_pb2.AuxData()
-        out_bytes_array = io.BytesIO()
-        check_type_name = serializer.encode(out_bytes_array, self.data,
-                                            type_name_hint=self.type_name)
-
-        ret.type_name = check_type_name
-        out_bytes_array.seek(0)
-        ret.data = out_bytes_array.read()
-        return ret
-
-    @classmethod
-    def _from_protobuf(cls, aux_data):
-        """
-        Load pygtirb class from protobuf class
-        """
-        ret = serializer.decode(aux_data.type_name, io.BytesIO(aux_data.data))
-        return cls(aux_data.type_name, ret)
 
 
 class Block:
