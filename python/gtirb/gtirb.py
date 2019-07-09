@@ -65,10 +65,6 @@ class AuxDataContainer:
         else:
             self.aux_data = aux_data
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.aux_data == other.aux_data
-
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -183,10 +179,6 @@ class Module(AuxDataContainer):
         self.symbolic_operands = symbolic_operands
 
         super().__init__(aux_data=aux_data)
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -328,12 +320,6 @@ class ProxyBlock:
         if uuid_cache is not None:
             uuid_cache[uuid] = self
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and self.uuid == other.uuid
-
-    def __hash__(self):
-        return hash(self.uuid)
-
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -372,13 +358,6 @@ class AuxData:
     def __init__(self, type_name='', data=None):
         self.type_name = type_name
         self.data = data
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash(self.type_name)
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -422,13 +401,6 @@ class Block:
         self.size = size
         self.decode_mode = decode_mode
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.uuid, self.address, self.size, self.decode_mode))
-
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -464,9 +436,6 @@ class ByteMap:
         if regions is None:
             regions = []
         self.regions = regions
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and self.regions == other.regions
 
     def _to_protobuf(self):
         """
@@ -521,13 +490,6 @@ class EdgeLabel:
         self.direct = direct
         self.type = type
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.conditional, self.direct, self.type))
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -560,13 +522,6 @@ class Edge:
         self.label = label
         self.source = source
         self.target = target
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.source, self.target, self.label))
 
     def _to_protobuf(self):
         """
@@ -609,10 +564,6 @@ class CFG:
             edges = set()
         self.edges = edges
         self.module = module
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.edges == other.edges
 
     def _to_protobuf(self):
         """
@@ -676,13 +627,6 @@ class DataObject:
         self.address = address
         self.size = size
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.uuid, self.address, self.size))
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -734,10 +678,6 @@ class ImageByteMap:
         self.base_address = base_address
         self.entry_point_address = entry_point_address
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -783,13 +723,6 @@ class Offset:
         self.element_id = element_id
         self.offset = offset
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.element_id, self.offset))
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -829,13 +762,6 @@ class Section:
         self.address = address
         self.size = size
 
-    def __hash__(self):
-        return hash((self.uuid, self.name, self.address, self.size))
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
     def _to_protobuf(self):
         """
         Returns protobuf representation of the object
@@ -871,13 +797,6 @@ class SymStackConst:
     def __init__(self, offset, symbol=None):
         self.offset = offset
         self.symbol = symbol
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.offset, self.symbol))
 
     def _to_protobuf(self):
         """
@@ -915,13 +834,6 @@ class SymAddrConst:
     def __init__(self, offset, symbol=None):
         self.offset = offset
         self.symbol = symbol
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.offset, self.symbol))
 
     def _to_protobuf(self):
         """
@@ -963,13 +875,6 @@ class SymAddrAddr:
         self.offset = offset
         self.symbol1 = symbol1
         self.symbol2 = symbol2
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.scale, self.offset, self.symbol1, self.symbol2))
 
     def _to_protobuf(self):
         """
@@ -1031,14 +936,6 @@ class Symbol:
         self.referent = referent
         self.name = name
         self.storage_kind = storage_kind
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
-
-    def __hash__(self):
-        return hash((self.uuid, self.value, self.referent,
-                     self.name, self.storage_kind))
 
     def _to_protobuf(self):
         """
@@ -1106,10 +1003,6 @@ class IR(AuxDataContainer):
             modules = list()
         self.modules = modules
         super().__init__(aux_data)
-
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and \
-            self.__dict__ == other.__dict__
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
