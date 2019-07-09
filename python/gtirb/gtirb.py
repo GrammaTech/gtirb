@@ -192,8 +192,6 @@ class Module(AuxDataContainer):
             symbols = set()
         if symbolic_operands is None:
             symbolic_operands = dict()
-        if aux_data is None:
-            aux_data = dict()
         if uuid is None:
             uuid = uuid4()
 
@@ -216,7 +214,7 @@ class Module(AuxDataContainer):
         self.sections = sections
         self.symbolic_operands = symbolic_operands
 
-        super().__init__(aux_data=aux_data)
+        super().__init__(aux_data)
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -328,7 +326,7 @@ class Module(AuxDataContainer):
     def remove_blocks(self, blocks):
         """Remove blocks from the IR.
 
-        :param blocks_to_remove: a list of Blocks to remove
+        :param blocks_to_remove: a set of Blocks and ProxyBlocks to remove
         :returns: none
         :rtype: none
 
