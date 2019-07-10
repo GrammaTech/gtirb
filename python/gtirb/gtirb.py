@@ -366,7 +366,7 @@ class Module(AuxDataContainer):
     def remove_blocks(self, blocks):
         """Remove blocks from the IR.
 
-        :param blocks_to_remove: a set of Blocks and ProxyBlocks to remove
+        :param blocks: a set of Blocks and ProxyBlocks to remove
         :returns: none
         :rtype: none
 
