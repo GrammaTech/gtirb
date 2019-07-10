@@ -101,7 +101,7 @@ class AuxDataContainer:
         if aux_data is None:
             self.aux_data = dict()
         else:
-            self.aux_data = aux_data
+            self.aux_data = dict(aux_data)
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
