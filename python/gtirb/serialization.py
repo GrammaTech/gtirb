@@ -61,8 +61,8 @@ class MappingCodec(Codec):
         """
         try:
             key_type, val_type = sub_types
-        except Exception:
-            raise DecodeError("could not unpack mapping types")
+        except (TypeError, ValueError) as e:
+            raise DecodeError("could not unpack mapping types: %s" % (e))
 
         mapping = dict()
         mapping_len = serialization.decode('uint64_t', raw_bytes)
@@ -132,8 +132,8 @@ class SequenceCodec(Codec):
         """
         try:
             subtype, = sub_types
-        except Exception:
-            raise DecodeError("could not unpack %s type" % (self.name))
+        except (TypeError, ValueError) as e:
+            raise DecodeError("could not unpack %s type: %s" % (self.name, e))
 
         sequence = list()
         sequence_len = serialization.decode('uint64_t', raw_bytes)
