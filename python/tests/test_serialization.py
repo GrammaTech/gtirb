@@ -1,6 +1,7 @@
 import unittest
 from serialization import Serialization
 
+
 class TestSerialization(unittest.TestCase):
     def test_get_subtypes(self):
         def test_one(type_name, oracle):
@@ -18,6 +19,7 @@ class TestSerialization(unittest.TestCase):
         ]
         for type_name, oracle in tests:
             test_one(type_name, oracle)
+
 
 if __name__ == '__main__':
     unittest.main()
