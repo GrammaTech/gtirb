@@ -789,7 +789,7 @@ class SymStackConst:
     Represents a "symbolic operand" of the form "Sym + Offset",
     representing an offset from a stack variable.
     """
-    def __init__(self, offset, symbol=None):
+    def __init__(self, offset, symbol):
         self.offset = offset
         self.symbol = symbol
 
@@ -826,7 +826,7 @@ class SymAddrConst:
     """
     Represents a "symbolic operand" of the form "Sym + Offset".
     """
-    def __init__(self, offset, symbol=None):
+    def __init__(self, offset, symbol):
         self.offset = offset
         self.symbol = symbol
 
