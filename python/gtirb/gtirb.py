@@ -1070,14 +1070,11 @@ class SymAddrConst:
         """
         Load this cls from protobuf object
         """
-        if sym_addr_const.symbol_uuid != b'':
-            symbol_uuid = UUID(bytes=sym_addr_const.symbol_uuid)
-            symbol = None
-            if uuid_cache is not None:
-                symbol = uuid_cache.get(symbol_uuid)
-            return cls(sym_addr_const.offset, symbol)
-        else:
-            return cls(sym_addr_const.offset)
+        symbol_uuid = UUID(bytes=sym_addr_const.symbol_uuid)
+        symbol = None
+        if uuid_cache is not None:
+            symbol = uuid_cache.get(symbol_uuid)
+        return cls(sym_addr_const.offset, symbol)
 
 
 class SymStackConst:
@@ -1108,11 +1105,8 @@ class SymStackConst:
         """
         Load this cls from protobuf object
         """
-        if sym_stack_const.symbol_uuid != b'':
-            symbol_uuid = UUID(bytes=sym_stack_const.symbol_uuid)
-            symbol = None
-            if uuid_cache is not None:
-                symbol = uuid_cache.get(symbol_uuid)
-            return cls(sym_stack_const.offset, symbol)
-        else:
-            return cls(sym_stack_const.offset)
+        symbol_uuid = UUID(bytes=sym_stack_const.symbol_uuid)
+        symbol = None
+        if uuid_cache is not None:
+            symbol = uuid_cache.get(symbol_uuid)
+        return cls(sym_stack_const.offset, symbol)
