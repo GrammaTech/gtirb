@@ -141,6 +141,50 @@ class Module(AuxDataContainer):
     or libraries
     """
 
+    class FileFormat(Enum):
+        """Identifies an executable file format
+
+        Undefined: uninitialized
+        COFF: Common Object File Format
+        ELF: Executable and Linkable Format
+            (formerly Extensible Linking Format)
+        IdaProDb32: 32-bit IDA Pro database file
+        IdaProDb64: 64-bit IDA Pro database file
+        MACHO: Mach object file
+        PE: Microsoft Portable Executable
+        RAW: Raw binary file (no format)
+        XCOFF: Non-COFF (files start with ANON_OBJECT_HEADER*)
+
+        """
+        Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
+        COFF = Module_pb2.FileFormat.Value('COFF')
+        ELF = Module_pb2.FileFormat.Value('ELF')
+        IdaProDb32 = Module_pb2.FileFormat.Value('IdaProDb32')
+        IdaProDb64 = Module_pb2.FileFormat.Value('IdaProDb64')
+        MACHO = Module_pb2.FileFormat.Value('MACHO')
+        PE = Module_pb2.FileFormat.Value('PE')
+        RAW = Module_pb2.FileFormat.Value('RAW')
+        XCOFF = Module_pb2.FileFormat.Value('XCOFF')
+
+    class ISAID(Enum):
+        """Identifies an instruction set architecture (ISA)
+
+        Undefined: uninitialized
+        ARM: Advanced/Acorn RISC Machine
+        IA32: Intel Architecture, 32-bit. Also known as i386
+        PPC32: Performance Optimization with Enhanced RISC -
+            Performance Computing, 32-bit
+        X64: 64-bit extensions to Intel/AMD x86 ISA
+        ValidButUnsupported: Valid, but unsupported ISA
+
+        """
+        Undefined = Module_pb2.ISAID.Value('ISA_Undefined')
+        ARM = Module_pb2.ISAID.Value('ARM')
+        IA32 = Module_pb2.ISAID.Value('IA32')
+        PPC32 = Module_pb2.ISAID.Value('PPC32')
+        X64 = Module_pb2.ISAID.Value('X64')
+        ValidButUnsupported = Module_pb2.ISAID.Value('ValidButUnsupported')
+
     def __init__(self,
                  *,
                  aux_data=None,
@@ -148,9 +192,9 @@ class Module(AuxDataContainer):
                  blocks=set(),
                  cfg=None,
                  data=set(),
+                 file_format=FileFormat.Undefined,
                  image_byte_map=None,
-                 isa_id=Module_pb2.ISAID.Value('ISA_Undefined'),
-                 file_format=Module_pb2.FileFormat.Value('Format_Undefined'),
+                 isa_id=ISAID.Undefined,
                  name='',
                  preferred_addr=0,
                  proxies=set(),
