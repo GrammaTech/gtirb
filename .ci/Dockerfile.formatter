@@ -28,4 +28,4 @@ RUN git clang-format origin/master `find . -name boost -prune -o -name \*.hpp -p
 # E402 is "module level import not at top of file"
 # This comes up because of a workaround for the Python Protobuf compiler's
 # inability to generate valid relative imports.
-RUN flake8 --ignore=E402
+RUN flake8 --exclude=doc --ignore=E402
