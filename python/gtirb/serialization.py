@@ -86,8 +86,8 @@ class MappingCodec(Codec):
         if len(mapping) == 0 and not type_name_hint:
             raise EncodeError("no type hint for encoding empty mapping")
 
-        key_type = ''
-        val_type = ''
+        key_type = None
+        val_type = None
 
         if type_name_hint:
             if '<' not in type_name_hint:
@@ -102,14 +102,14 @@ class MappingCodec(Codec):
         for key, val in mapping.items():
             encoded_key_type = \
                 serialization.encode(out, key, type_name_hint=key_type)
-            if key_type == '':
+            if key_type is None:
                 key_type = encoded_key_type
             elif key_type != encoded_key_type:
                 raise EncodeError("keys with different types in mapping")
 
             encoded_val_type = \
                 serialization.encode(out, val, type_name_hint=val_type)
-            if val_type == '':
+            if val_type is None:
                 val_type = encoded_val_type
             elif val_type != encoded_val_type:
                 raise EncodeError("values with different types in mapping")
