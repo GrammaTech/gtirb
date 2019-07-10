@@ -413,7 +413,7 @@ class Serialization:
 
     def register_codec(self, type_name, codec):
         """Register a Codec for a custom type. Use this method to
-        register encode/decode functions for your own clpasses
+        register encode/decode functions for your own classes
 
         :param type_name: string type_name, this should be same as the
             __class__.__name__ field of the class
