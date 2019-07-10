@@ -79,7 +79,7 @@ class AuxData:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, aux_data):
+    def _from_protobuf(cls, aux_data, uuid_cache=None):
         """
         Load pygtirb class from protobuf class
         """
@@ -458,7 +458,7 @@ class ByteMap:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, byte_map):
+    def _from_protobuf(cls, byte_map, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
@@ -506,7 +506,7 @@ class EdgeLabel:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, edge_label):
+    def _from_protobuf(cls, edge_label, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
@@ -738,7 +738,7 @@ class Offset:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, offset):
+    def _from_protobuf(cls, offset, uuid_cache=None):
         """
         Load this cls from protobuf object
         """
@@ -1020,7 +1020,7 @@ class IR(AuxDataContainer):
         return ret
 
     @classmethod
-    def _from_protobuf(cls, protobuf_ir):
+    def _from_protobuf(cls, protobuf_ir, uuid_cache=None):
         """Load pygtirb class from protobuf object
 
         :param cls: this class
