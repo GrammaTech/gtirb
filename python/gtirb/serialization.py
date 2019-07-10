@@ -10,6 +10,7 @@ class that holds the encode and decode functions for a type.
 from io import BytesIO
 from uuid import UUID
 
+from gtirb.offset import Offset
 
 class CodecError(Exception):
     """Base class for codec exceptions"""
