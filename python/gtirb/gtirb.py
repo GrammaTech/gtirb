@@ -190,7 +190,7 @@ class Module(AuxDataContainer):
             uuid_cache[uuid] = self
 
         if image_byte_map is None:
-            image_byte_map = ImageByteMap(uuid_cache)
+            image_byte_map = ImageByteMap(uuid_cache=uuid_cache)
 
         self.binary_path = binary_path
         self.blocks = set(blocks)
