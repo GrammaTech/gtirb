@@ -126,10 +126,10 @@ class AuxDataContainer:
         :rtype: AuxDataContainer
 
         """
-        return cls({
-            key: AuxData._from_protobuf(val)
+        return cls(
+            (key, AuxData._from_protobuf(val))
             for key, val in aux_data_container.aux_data.items()
-        })
+        )
 
 
 class Module(AuxDataContainer):
