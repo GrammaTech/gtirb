@@ -21,14 +21,9 @@ TODOS:
 
 """
 import io
-import os
-import sys
 
 from uuid import UUID, uuid4
 from enum import Enum
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(dir_path)
 
 import AuxData_pb2
 import AuxDataContainer_pb2
@@ -45,10 +40,11 @@ import Section_pb2
 import Symbol_pb2
 import SymbolicExpression_pb2
 
-import serialization
+from gtirb.serialization import Serialization
+
 # The global serializer instance. User can use this to register new
 # encoders/decoders.
-serializer = serialization.Serialization()
+serializer = Serialization()
 
 
 class AuxData:
