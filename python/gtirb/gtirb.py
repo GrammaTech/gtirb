@@ -1032,7 +1032,6 @@ class IR(AuxDataContainer):
             for key, val in protobuf_ir.aux_data_container.aux_data.items()
         }
         ir = cls(uuid, modules, aux_data, uuid_cache)
-        uuid_cache[uuid] = ir
         return ir
 
     @staticmethod
