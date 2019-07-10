@@ -12,6 +12,7 @@ from uuid import UUID
 
 from gtirb.offset import Offset
 
+
 class CodecError(Exception):
     """Base class for codec exceptions"""
     pass
