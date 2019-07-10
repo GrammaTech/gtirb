@@ -239,6 +239,7 @@ class Module(AuxDataContainer):
         ret.data.extend(d._to_protobuf() for d in self.data)
         ret.proxies.extend(p._to_protobuf() for p in self.proxies)
         ret.sections.extend(s._to_protobuf() for s in self.sections)
+
         def _sym_expr_to_protobuf(v):
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
             if isinstance(v, SymStackConst):
@@ -252,6 +253,7 @@ class Module(AuxDataContainer):
                     "Expected SymStackConst, SymAddrAddr or SymAddrConst"
                 )
             return sym_exp
+
         for k, v in self.symbolic_operands.items():
             ret.symbolic_operands[k].CopyFrom(_sym_expr_to_protobuf(v))
 
@@ -983,7 +985,8 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, uuid=None, modules=None, aux_data=None, uuid_cache=None):
+    def __init__(self, uuid=None, modules=None,
+                 aux_data=None, uuid_cache=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param uuid: UUID. Creates a new instance if None
