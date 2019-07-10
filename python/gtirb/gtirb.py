@@ -233,7 +233,7 @@ class Module(AuxDataContainer):
         ret.proxies.extend(p._to_protobuf() for p in self.proxies)
         ret.sections.extend(s._to_protobuf() for s in self.sections)
 
-        def _sym_expr_to_protobuf(v):
+        for k, v in self.symbolic_operands.items():
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
             if isinstance(v, SymStackConst):
                 sym_exp.stack_const.CopyFrom(v._to_protobuf())
@@ -245,10 +245,7 @@ class Module(AuxDataContainer):
                 raise ValueError(
                     "Expected SymStackConst, SymAddrAddr or SymAddrConst"
                 )
-            return sym_exp
-
-        for k, v in self.symbolic_operands.items():
-            ret.symbolic_operands[k].CopyFrom(_sym_expr_to_protobuf(v))
+            ret.symbolic_operands[k].CopyFrom(sym_exp)
 
         ret.aux_data_container.CopyFrom(super()._to_protobuf())
         return ret
