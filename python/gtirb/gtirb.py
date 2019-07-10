@@ -57,9 +57,13 @@ class AuxData:
     client-specific data in a portable way.
     """
 
-    def __init__(self, type_name='', data=None):
-        self.type_name = type_name
+    def __init__(self, data, type_name=None):
+        """Constructor
+        :param data: aux data
+        :param type_name: `str`, optional. Type of the data.
+        """
         self.data = data
+        self.type_name = type_name
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -72,7 +76,6 @@ class AuxData:
         out_bytes_array = io.BytesIO()
         check_type_name = serializer.encode(out_bytes_array, self.data,
                                             type_name_hint=self.type_name)
-
         ret.type_name = check_type_name
         out_bytes_array.seek(0)
         ret.data = out_bytes_array.read()
@@ -84,7 +87,7 @@ class AuxData:
         Load pygtirb class from protobuf class
         """
         ret = serializer.decode(aux_data.type_name, io.BytesIO(aux_data.data))
-        return cls(aux_data.type_name, ret)
+        return cls(data=ret, type_name=aux_data.type_name)
 
 
 class AuxDataContainer:
