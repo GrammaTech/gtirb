@@ -1,5 +1,5 @@
 import unittest
-from serialization import Serialization
+from gtirb.serialization import Serialization
 
 
 class TestSerialization(unittest.TestCase):

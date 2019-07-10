@@ -1,6 +1,6 @@
 import os
 import unittest
-from gtirb import IR
+from gtirb.gtirb import IR
 
 
 class AuxDataTest(unittest.TestCase):
