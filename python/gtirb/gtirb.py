@@ -142,80 +142,70 @@ class Module(AuxDataContainer):
     """
 
     def __init__(self,
-                 uuid=None,
-                 binary_path='',
-                 preferred_addr=0,
-                 rebase_delta=0,
-                 file_format=Module_pb2.FileFormat.Value('Format_Undefined'),
-                 isa_id=Module_pb2.ISAID.Value('ISA_Undefined'),
-                 name='',
-                 image_byte_map=None,
-                 symbols=None,
-                 cfg=None,
-                 blocks=None,
-                 data=None,
-                 proxies=None,
-                 sections=None,
-                 symbolic_operands=None,
+                 *,
                  aux_data=None,
+                 binary_path='',
+                 blocks=set(),
+                 cfg=None,
+                 data=set(),
+                 image_byte_map=None,
+                 isa_id=Module_pb2.ISAID.Value('ISA_Undefined'),
+                 file_format=Module_pb2.FileFormat.Value('Format_Undefined'),
+                 name='',
+                 preferred_addr=0,
+                 proxies=set(),
+                 rebase_delta=0,
+                 sections=set(),
+                 symbols=set(),
+                 symbolic_operands=dict(),
+                 uuid=None,
                  uuid_cache=None):
-        """Constructor, takes the params below.
-           Creates an empty module
-        :param uuid:
+        """Constructor
+        :param aux_data:
         :param binary_path:
-        :param preferred_addr:
-        :param rebase_delta:
-        :param file_format:
-        :param isa_id:
-        :param name:
-        :param image_byte_map:
-        :param symbols:
-        :param cfg:
         :param blocks:
+        :param cfg:
         :param data:
+        :param image_byte_map:
+        :param isa_id:
+        :param file_format:
+        :param name:
+        :param preferred_addr:
         :param proxies:
+        :param rebase_delta:
         :param sections:
+        :param symbols:
         :param symbolic_operands:
-        :param aux_data_container:
-        :returns:
-        :rtype:
+        :param uuid:
+        :param uuid_cache:
+
+        :returns: Module
+        :rtype: Module
 
         """
-        if image_byte_map is None:
-            image_byte_map = ImageByteMap(uuid_cache)
-        if blocks is None:
-            blocks = set()
-        if data is None:
-            data = set()
-        if proxies is None:
-            proxies = set()
-        if sections is None:
-            sections = set()
-        if symbols is None:
-            symbols = set()
-        if symbolic_operands is None:
-            symbolic_operands = dict()
         if uuid is None:
             uuid = uuid4()
-
         self.uuid = uuid
         if uuid_cache is not None:
             uuid_cache[uuid] = self
-        self.binary_path = binary_path
-        self.preferred_addr = preferred_addr
-        self.rebase_delta = rebase_delta
-        self.file_format = file_format
-        self.isa_id = isa_id
-        self.name = name
-        self.image_byte_map = image_byte_map
-        self.symbols = symbols
-        self.cfg = cfg
-        self.blocks = blocks
-        self.proxies = proxies
 
-        self.data = data
-        self.sections = sections
-        self.symbolic_operands = symbolic_operands
+        if image_byte_map is None:
+            image_byte_map = ImageByteMap(uuid_cache)
+
+        self.binary_path = binary_path
+        self.blocks = set(blocks)
+        self.cfg = cfg
+        self.data = set(data)
+        self.image_byte_map = image_byte_map
+        self.isa_id = isa_id
+        self.file_format = file_format
+        self.name = name
+        self.preferred_addr = preferred_addr
+        self.proxies = set(proxies)
+        self.rebase_delta = rebase_delta
+        self.sections = set(sections)
+        self.symbols = set(symbols)
+        self.symbolic_operands = dict(symbolic_operands)
 
         super().__init__(aux_data)
 
