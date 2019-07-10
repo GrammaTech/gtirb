@@ -28,10 +28,10 @@ class EncodeError(CodecError):
         self.msg = msg
 
 
-class TypeHintError(EncodeError):
-    """Malformed type hint"""
-    def __init__(self):
-        self.args = ("malformed type hint",)
+class TypeNameHintError(EncodeError):
+    """Malformed type name hint"""
+    def __init__(self, hint):
+        super.__init__("malformed type name hint: '%s'" % (hint))
 
 
 class Codec:
@@ -91,11 +91,11 @@ class MappingCodec(Codec):
 
         if type_name_hint:
             if '<' not in type_name_hint:
-                raise TypeHintError
+                raise TypeNameHintError(type_name_hint)
             head, (key_type, val_type) = \
                 Serialization.get_subtypes(type_name_hint)
             if head != 'mapping':
-                raise TypeHintError
+                raise TypeNameHintError(type_name_hint)
 
         serialization.encode(out, len(mapping))
 
@@ -159,10 +159,10 @@ class SequenceCodec(Codec):
 
         if type_name_hint:
             if '<' not in type_name_hint:
-                raise TypeHintError
+                raise TypeNameHintError(type_name_hint)
             head, subtypes = Serialization.get_subtypes(type_name_hint)
             if head != self.name:
-                raise TypeHintError
+                raise TypeNameHintError(type_name_hint)
             subtype = subtypes[0]
 
         serialization.encode(out, len(sequence))
