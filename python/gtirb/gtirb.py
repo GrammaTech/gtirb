@@ -262,7 +262,27 @@ class Module(AuxDataContainer):
 
         """
 
-        def _sym_expr_from_protobuf(symbolic_expression, uuid_cache=None):
+        uuid = UUID(bytes=module.uuid)
+        if uuid_cache is not None and uuid in uuid_cache:
+            return uuid_cache[uuid]
+
+        aux_data = (
+            (k, AuxData._from_protobuf(v, uuid_cache))
+            for k, v in module.aux_data_container.aux_data.items()
+        )
+        blocks = (Block._from_protobuf(b, uuid_cache) for b in module.blocks)
+        cfg = CFG._from_protobuf(module.cfg, uuid_cache)
+        proxies = \
+            (ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies)
+        data = (DataObject._from_protobuf(d, uuid_cache) for d in module.data)
+        image_byte_map = \
+            ImageByteMap._from_protobuf(module.image_byte_map, uuid_cache)
+        sections = \
+            (Section._from_protobuf(s, uuid_cache) for s in module.sections)
+        symbols = \
+            (Symbol._from_protobuf(s, uuid_cache) for s in module.symbols)
+
+        def sym_expr_from_protobuf(symbolic_expression):
             if symbolic_expression.HasField('stack_const'):
                 return SymStackConst._from_protobuf(
                     symbolic_expression.stack_const, uuid_cache)
@@ -272,44 +292,28 @@ class Module(AuxDataContainer):
             if symbolic_expression.HasField('addr_addr'):
                 return SymAddrAddr._from_protobuf(
                     symbolic_expression.addr_addr, uuid_cache)
+        symbolic_operands = (
+            (k, sym_expr_from_protobuf(v))
+            for k, v in module.symbolic_operands.items()
+        )
 
-        uuid = UUID(bytes=module.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
-            return uuid_cache[uuid]
-
-        blocks = {Block._from_protobuf(b, uuid_cache) for b in module.blocks}
-        proxy_blocks = \
-            {ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies}
-        data = {DataObject._from_protobuf(d, uuid_cache) for d in module.data}
-        symbols = \
-            {Symbol._from_protobuf(s, uuid_cache) for s in module.symbols}
         module = cls(
-            uuid=uuid,
+            aux_data=aux_data,
             binary_path=module.binary_path,
-            preferred_addr=module.preferred_addr,
-            rebase_delta=module.rebase_delta,
-            file_format=module.file_format,
-            isa_id=module.isa_id,
-            name=module.name,
-            image_byte_map=ImageByteMap._from_protobuf(
-                module.image_byte_map, uuid_cache),
-            symbols=symbols,
-            cfg=CFG._from_protobuf(module.cfg, uuid_cache),
             blocks=blocks,
+            cfg=cfg,
             data=data,
-            proxies=proxy_blocks,
-            sections=[
-                Section._from_protobuf(sec, uuid_cache)
-                for sec in module.sections
-            ],
-            symbolic_operands={
-                key: _sym_expr_from_protobuf(se, uuid_cache)
-                for key, se in module.symbolic_operands.items()
-            },
-            aux_data={
-                key: AuxData._from_protobuf(val)
-                for key, val in module.aux_data_container.aux_data.items()
-            },
+            image_byte_map=image_byte_map,
+            isa_id=module.isa_id,
+            file_format=module.file_format,
+            name=module.name,
+            preferred_addr=module.preferred_addr,
+            proxies=proxies,
+            rebase_delta=module.rebase_delta,
+            sections=sections,
+            symbols=symbols,
+            symbolic_operands=symbolic_operands,
+            uuid=uuid,
             uuid_cache=uuid_cache
         )
         module.cfg.module = module
