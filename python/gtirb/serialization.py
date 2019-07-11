@@ -230,9 +230,9 @@ class OffsetCodec(Codec):
 
         """
         element_uuid = serialization.decode('UUID', raw_bytes)
-        offset = serialization.decode('uint64_t', raw_bytes)
+        displacement = serialization.decode('uint64_t', raw_bytes)
 
-        return Offset(element_uuid, offset)
+        return Offset(element_uuid, displacement)
 
     def encode(self, out, val, serialization=None, *, type_name_hint=''):
         """
@@ -242,7 +242,7 @@ class OffsetCodec(Codec):
             raise EncodeError("wrong type hint for offset")
 
         serialization.encode(out, val.element_id)
-        serialization.encode(out, val.offset)
+        serialization.encode(out, val.displacement)
         return 'Offset'
 
 
