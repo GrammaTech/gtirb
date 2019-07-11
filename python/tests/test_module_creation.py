@@ -1,5 +1,5 @@
 import unittest
-from gtirb.gtirb import Module
+from gtirb.module import Module
 
 
 class MainTest(unittest.TestCase):

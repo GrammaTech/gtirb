@@ -1,6 +1,6 @@
 import os
 import unittest
-from gtirb.gtirb import IR
+from gtirb.ir import IR
 
 
 class MainTest(unittest.TestCase):
