@@ -1,18 +1,101 @@
 from enum import Enum
 from uuid import UUID, uuid4
 
+import CFG_pb2
 import Module_pb2
 import SymbolicExpression_pb2
 
 from gtirb.auxdata import AuxData
 from gtirb.auxdatacontainer import AuxDataContainer
 from gtirb.block import Block, ProxyBlock
-from gtirb.cfg import CFG
 from gtirb.dataobject import DataObject
 from gtirb.imagebytemap import ImageByteMap
 from gtirb.section import Section
 from gtirb.symbol import Symbol
 from gtirb.symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
+
+
+class Edge:
+    """
+    An Edge in the CFG. Consists of a source and target Block
+    """
+
+    def __init__(self, label, source, target):
+        self.label = label
+        self.source = source
+        self.target = target
+
+    def _to_protobuf(self):
+        """
+        Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        edge = CFG_pb2.Edge()
+        edge.source_uuid = self.source.uuid.bytes
+        edge.target_uuid = self.target.uuid.bytes
+        edge.label.CopyFrom(self.label._to_protobuf())
+        return edge
+
+    @classmethod
+    def _from_protobuf(cls, edge, uuid_cache=None):
+        """
+        Load this cls from protobuf object
+        """
+        source_uuid = UUID(bytes=edge.source_uuid)
+        target_uuid = UUID(bytes=edge.target_uuid)
+        source = None
+        target = None
+        if uuid_cache is not None:
+            source = uuid_cache.get(source_uuid)
+            target = uuid_cache.get(target_uuid)
+        return cls(EdgeLabel._from_protobuf(edge.label), source, target)
+
+
+class EdgeLabel:
+    """
+    A label on a CFG edge.
+    """
+    class EdgeType(Enum):
+        """
+        Indicates the type of control flow transfer indicated by this
+        edge.
+        """
+        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
+        Call = CFG_pb2.EdgeType.Value('Type_Call')
+        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
+        Return = CFG_pb2.EdgeType.Value('Type_Return')
+        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
+        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
+
+    def __init__(self, conditional, direct, type):
+        self.conditional = conditional
+        self.direct = direct
+        self.type = type
+
+    def _to_protobuf(self):
+        """
+        Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        edge_label = CFG_pb2.EdgeLabel()
+        edge_label.conditional = self.conditional
+        edge_label.direct = self.direct
+        edge_label.type = self.type.value
+        return edge_label
+
+    @classmethod
+    def _from_protobuf(cls, edge_label, uuid_cache=None):
+        """
+        Load this cls from protobuf object
+        """
+        return cls(edge_label.conditional, edge_label.direct,
+                   EdgeLabel.EdgeType(edge_label.type))
 
 
 class Module(AuxDataContainer):
@@ -70,7 +153,7 @@ class Module(AuxDataContainer):
                  aux_data=None,
                  binary_path='',
                  blocks=set(),
-                 cfg=None,
+                 cfg=set(),
                  data=set(),
                  file_format=FileFormat.Undefined,
                  image_byte_map=None,
@@ -118,7 +201,7 @@ class Module(AuxDataContainer):
 
         self.binary_path = binary_path
         self.blocks = set(blocks)
-        self.cfg = cfg
+        self.cfg = set(cfg)
         self.data = set(data)
         self.image_byte_map = image_byte_map
         self.isa_id = isa_id
@@ -145,7 +228,10 @@ class Module(AuxDataContainer):
         module.aux_data_container.CopyFrom(super()._to_protobuf())
         module.binary_path = self.binary_path
         module.blocks.extend(b._to_protobuf() for b in self.blocks)
-        module.cfg.CopyFrom(self.cfg._to_protobuf())
+        cfg = CFG_pb2.CFG()
+        cfg.vertices.extend(v.uuid.bytes for v in self.blocks | self.proxies)
+        cfg.edges.extend(e._to_protobuf() for e in self.cfg)
+        module.cfg.CopyFrom(cfg)
         module.data.extend(d._to_protobuf() for d in self.data)
         module.image_byte_map.CopyFrom(self.image_byte_map._to_protobuf())
         module.isa_id = self.isa_id
@@ -193,7 +279,7 @@ class Module(AuxDataContainer):
             for k, v in module.aux_data_container.aux_data.items()
         )
         blocks = (Block._from_protobuf(b, uuid_cache) for b in module.blocks)
-        cfg = CFG._from_protobuf(module.cfg, uuid_cache)
+        cfg = (Edge._from_protobuf(e, uuid_cache) for e in module.cfg.edges)
         proxies = \
             (ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies)
         data = (DataObject._from_protobuf(d, uuid_cache) for d in module.data)
@@ -238,7 +324,6 @@ class Module(AuxDataContainer):
             uuid=uuid,
             uuid_cache=uuid_cache
         )
-        module.cfg.module = module
         return module
 
     def remove_blocks(self, blocks):
