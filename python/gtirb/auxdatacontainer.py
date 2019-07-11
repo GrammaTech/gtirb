@@ -7,17 +7,14 @@ class AuxDataContainer:
     """Holds AuxData tables, base class for IR and Module
     """
 
-    def __init__(self, aux_data=None):
+    def __init__(self, aux_data=dict()):
         """Constructor
         :param aux_data: dict(str, AuxData), optional dict mapping
             type names to AuxData objects
         :returns: AuxDataContainer
         :rtype: AuxDataContainer
         """
-        if aux_data is None:
-            self.aux_data = dict()
-        else:
-            self.aux_data = dict(aux_data)
+        self.aux_data = dict(aux_data)
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
