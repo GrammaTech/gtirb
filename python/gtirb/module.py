@@ -150,7 +150,7 @@ class Module(AuxDataContainer):
 
     def __init__(self,
                  *,
-                 aux_data=None,
+                 aux_data=dict(),
                  binary_path='',
                  blocks=set(),
                  cfg=set(),
