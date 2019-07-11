@@ -25,8 +25,8 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, uuid=None, modules=None,
-                 aux_data=None, uuid_cache=None):
+    def __init__(self, uuid=None, modules=list(),
+                 aux_data=dict(), uuid_cache=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param uuid: UUID. Creates a new instance if None
@@ -41,8 +41,7 @@ class IR(AuxDataContainer):
         self.uuid = uuid
         if uuid_cache is not None:
             uuid_cache[uuid] = self
-        if modules is None:
-            modules = list()
+        modules = list(modules)
         self.modules = modules
         super().__init__(aux_data)
 
