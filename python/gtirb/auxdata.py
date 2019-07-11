@@ -1,4 +1,4 @@
-import io
+from io import BytesIO
 
 import AuxData_pb2
 
@@ -28,7 +28,7 @@ class AuxData:
 
         """
         ret = AuxData_pb2.AuxData()
-        out_bytes_array = io.BytesIO()
+        out_bytes_array = BytesIO()
         check_type_name = self.serializer.encode(out_bytes_array, self.data,
                                                  type_name_hint=self.type_name)
         ret.type_name = check_type_name
@@ -42,5 +42,5 @@ class AuxData:
         Load pygtirb class from protobuf class
         """
         serializer = Serialization()
-        ret = serializer.decode(aux_data.type_name, io.BytesIO(aux_data.data))
+        ret = serializer.decode(aux_data.type_name, BytesIO(aux_data.data))
         return cls(data=ret, type_name=aux_data.type_name)
