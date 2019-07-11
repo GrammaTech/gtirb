@@ -141,22 +141,21 @@ class Module(AuxDataContainer):
 
         """
 
-        ret = Module_pb2.Module()
-        ret.uuid = self.uuid.bytes
-        ret.binary_path = self.binary_path
-        ret.preferred_addr = self.preferred_addr
-        ret.rebase_delta = self.rebase_delta
-        ret.file_format = self.file_format
-        ret.isa_id = self.isa_id
-        ret.name = self.name
-        ret.image_byte_map.CopyFrom(self.image_byte_map._to_protobuf())
-        ret.symbols.extend(s._to_protobuf() for s in self.symbols)
-        ret.cfg.CopyFrom(self.cfg._to_protobuf())
-        ret.blocks.extend(b._to_protobuf() for b in self.blocks)
-        ret.data.extend(d._to_protobuf() for d in self.data)
-        ret.proxies.extend(p._to_protobuf() for p in self.proxies)
-        ret.sections.extend(s._to_protobuf() for s in self.sections)
-
+        module = Module_pb2.Module()
+        module.aux_data_container.CopyFrom(super()._to_protobuf())
+        module.binary_path = self.binary_path
+        module.blocks.extend(b._to_protobuf() for b in self.blocks)
+        module.cfg.CopyFrom(self.cfg._to_protobuf())
+        module.data.extend(d._to_protobuf() for d in self.data)
+        module.image_byte_map.CopyFrom(self.image_byte_map._to_protobuf())
+        module.isa_id = self.isa_id
+        module.file_format = self.file_format
+        module.name = self.name
+        module.preferred_addr = self.preferred_addr
+        module.proxies.extend(p._to_protobuf() for p in self.proxies)
+        module.rebase_delta = self.rebase_delta
+        module.sections.extend(s._to_protobuf() for s in self.sections)
+        module.symbols.extend(s._to_protobuf() for s in self.symbols)
         for k, v in self.symbolic_operands.items():
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
             if isinstance(v, SymStackConst):
@@ -169,10 +168,9 @@ class Module(AuxDataContainer):
                 raise ValueError(
                     "Expected SymStackConst, SymAddrAddr or SymAddrConst"
                 )
-            ret.symbolic_operands[k].CopyFrom(sym_exp)
-
-        ret.aux_data_container.CopyFrom(super()._to_protobuf())
-        return ret
+            module.symbolic_operands[k].CopyFrom(sym_exp)
+        module.uuid = self.uuid.bytes
+        return module
 
     @classmethod
     def _from_protobuf(cls, module, uuid_cache=None):
