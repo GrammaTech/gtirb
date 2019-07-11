@@ -325,14 +325,3 @@ class Module(AuxDataContainer):
             uuid_cache=uuid_cache
         )
         return module
-
-    def remove_blocks(self, blocks):
-        """Remove blocks from the IR.
-
-        :param blocks: a set of Blocks and ProxyBlocks to remove
-        :returns: none
-        :rtype: none
-
-        """
-        self.blocks -= blocks
-        self.proxies -= blocks
