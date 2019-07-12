@@ -7,7 +7,6 @@ encoding/decoding various GTIRB types to/from bytes and the `Codec`
 class that holds the encode and decode functions for a type.
 
 """
-from io import BytesIO
 from re import findall
 from uuid import UUID
 
@@ -65,7 +64,8 @@ class MappingCodec(Codec):
         try:
             key_type, val_type = subtypes
         except (TypeError, ValueError):
-            raise DecodeError("could not unpack mapping types: %s" % (subtypes))
+            raise DecodeError(
+                "could not unpack mapping types: %s" % (subtypes))
 
         mapping = dict()
         mapping_len = serialization.decode('uint64_t', raw_bytes)
@@ -401,13 +401,13 @@ class Serialization:
 
             # Base case
             if len(tail) == 0:
-                tree.append((first_token,()))
+                tree.append((first_token, ()))
                 return tuple(tree), []
             next_token, *tail = tail
 
             # No subtypes
             if next_token == ',':
-                tree.append((first_token,()))
+                tree.append((first_token, ()))
 
             # Parse subtypes
             if next_token == '<':
@@ -492,7 +492,8 @@ class Serialization:
         try:
             type_name, subtypes = type_tree
         except ValueError:
-            raise DecodeError("could not unpack type tree %s" % (str(type_tree)))
+            raise DecodeError(
+                "could not unpack type tree %s" % (str(type_tree)))
         if type_name not in self.codecs:
             raise DecodeError("no decoder for %s" % (type_name))
         return self.codecs[type_name].decode(raw_bytes, subtypes, self)
