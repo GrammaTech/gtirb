@@ -8,6 +8,7 @@ class that holds the encode and decode functions for a type.
 
 """
 from io import BytesIO
+from re import findall
 from uuid import UUID
 
 from gtirb.offset import Offset
@@ -33,7 +34,7 @@ class EncodeError(CodecError):
 class TypeNameHintError(EncodeError):
     """Malformed type name hint"""
     def __init__(self, hint):
-        super.__init__("malformed type name hint: '%s'" % (hint))
+        super().__init__("malformed type name hint: '%s'" % (hint))
 
 
 class Codec:
@@ -43,7 +44,7 @@ class Codec:
     def __init__(self):
         pass
 
-    def decode(self, raw_bytes, sub_types, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         pass
 
     def encode(self, out, item, serialization, *, type_name_hint=''):
@@ -51,7 +52,7 @@ class Codec:
 
 
 class MappingCodec(Codec):
-    def decode(self, raw_bytes, sub_types, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode a mapping<..> entry
 
         :param bytes: Raw bytes (io.BytesIO typed)
@@ -62,15 +63,15 @@ class MappingCodec(Codec):
 
         """
         try:
-            key_type, val_type = sub_types
-        except (TypeError, ValueError) as e:
-            raise DecodeError("could not unpack mapping types: %s" % (e))
+            key_type, val_type = subtypes
+        except (TypeError, ValueError):
+            raise DecodeError("could not unpack mapping types: %s" % (subtypes))
 
         mapping = dict()
         mapping_len = serialization.decode('uint64_t', raw_bytes)
         for _ in range(mapping_len):
-            key = serialization.decode(key_type, raw_bytes)
-            val = serialization.decode(val_type, raw_bytes)
+            key = serialization.decode_tree(key_type, raw_bytes)
+            val = serialization.decode_tree(val_type, raw_bytes)
             mapping[key] = val
 
         return mapping
@@ -92,8 +93,6 @@ class MappingCodec(Codec):
         val_type = None
 
         if type_name_hint:
-            if '<' not in type_name_hint:
-                raise TypeNameHintError(type_name_hint)
             head, (key_type, val_type) = \
                 Serialization.get_subtypes(type_name_hint)
             if head != 'mapping':
@@ -122,25 +121,27 @@ class MappingCodec(Codec):
 class SequenceCodec(Codec):
     name = 'sequence'
 
-    def decode(self, raw_bytes, sub_types, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode a sequence<..> entry
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
-        :param sub_types: a list of sub-type names
+        :param sub_types: a singleton list containing type/subtype tuple
         :param serialization: The Serialization instance calling this
         :returns: decoded return type
         :rtype: tuple
 
         """
         try:
-            subtype, = sub_types
+            sequence_type, = subtypes
         except (TypeError, ValueError) as e:
             raise DecodeError("could not unpack %s type: %s" % (self.name, e))
 
         sequence = list()
         sequence_len = serialization.decode('uint64_t', raw_bytes)
         for _ in range(sequence_len):
-            sequence.append(serialization.decode(subtype, raw_bytes))
+            sequence.append(
+                serialization.decode_tree(sequence_type, raw_bytes)
+            )
 
         return sequence
 
@@ -160,8 +161,6 @@ class SequenceCodec(Codec):
             raise EncodeError("no type hint for empty %s" % (self.name))
 
         if type_name_hint:
-            if '<' not in type_name_hint:
-                raise TypeNameHintError(type_name_hint)
             head, subtypes = Serialization.get_subtypes(type_name_hint)
             if head != self.name:
                 raise TypeNameHintError(type_name_hint)
@@ -186,12 +185,12 @@ class SetCodec(SequenceCodec):
     """SetCodec reads in a sequence and converts it to a set"""
     name = 'set'
 
-    def decode(self, raw_bytes, sub_types, serialization):
-        return set(super().decode(raw_bytes, sub_types, serialization))
+    def decode(self, raw_bytes, subtypes, serialization):
+        return set(super().decode(raw_bytes, subtypes, serialization))
 
 
 class StringCodec(Codec):
-    def decode(self, raw_bytes, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode a string
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
@@ -221,7 +220,7 @@ class StringCodec(Codec):
 
 
 class OffsetCodec(Codec):
-    def decode(self, raw_bytes, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode an Offset entry
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
@@ -247,7 +246,7 @@ class OffsetCodec(Codec):
 
 
 class UUIDCodec(Codec):
-    def decode(self, raw_bytes, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode a UUID entry
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
@@ -287,7 +286,7 @@ class AddrCodec(Codec):
         def __hash__(self):
             return hash(self.address)
 
-    def decode(self, raw_bytes, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode an Addr entry
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
@@ -315,7 +314,7 @@ class AddrCodec(Codec):
 
 
 class Uint64Codec(Codec):
-    def decode(self, raw_bytes, serialization):
+    def decode(self, raw_bytes, subtypes, serialization):
         """decode uint64_t
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
@@ -371,47 +370,84 @@ class Serialization:
         }
 
     @staticmethod
-    def get_subtypes(type_name):
-        """ Given an encoded aux_data type_name, get the parent type
-        and it's sub types. Note: assumes that the type_name string is
-        well-formed, does no error checking.
+    def parse_type(type_name):
+        """ Given an encoded aux_data type_name, generate its parse tree
+        A single parsed type is a tuple of the type name and a tuple of its
+        subtypes, an empty tuple indicates no subtype.
 
         Examples:
-        get_subtypes('mapping<FOO,BAR>') == ('mapping', ['FOO', 'BAR'])
-        get_subtypes('mapping<FOO,set<BAR>>') == \
-            ('mapping', ['FOO', 'set<BAR>'])
-        get_subtypes('mapping<FOO,mapping<BAR,BAZ>>') == \
-            ('mapping', ['FOO', 'mapping<BAR,BAZ>'])
+          parse_type('foo') == (('foo',()),())
+          parse_type('foo,bar') == (('foo',()), ('bar',()))
+          parse_type('foo<bar>') ==  (('foo', (('bar',())),),())
 
         :param type_name: encoded type name.
-        :returns: a tuple of the form (TYPE, [SUB-TYPES...])
-        :rtype: tuple
+        :returns: a list of parsed type/subtype tuples
+        :rtype: list
 
         """
-        if not type_name.endswith('>'):
-            return (type_name, list())
 
-        # Splits on the first '<' and strips the last '>'
-        # e.g., 'foo<FOO,bar<BAR,BAZ>>' -> ['foo', 'FOO,bar<BAR,BAZ>']
-        parent_type, subtypes_str = type_name[:-1].split('<', maxsplit=1)
+        tokens = findall('[^<>,]+|<|>|,', type_name)
 
-        # Parse the subtypes string using a stack to track nesting depth
-        stack = list()
-        subtypes = list()
-        subtype = ''
-        for c in subtypes_str:
-            if c == ',' and len(stack) == 0:
-                subtypes.append(subtype)
-                subtype = ''
-                continue
-            elif c == '<':
-                stack.append(c)
-            elif c == '>':
-                stack.pop()
-            subtype += c
-        subtypes.append(subtype)
+        def parse(tokens, tree):
+            tree = list(tree)
+            # It is an error to parse nothing
+            if len(tokens) == 0:
+                raise TypeNameHintError(type_name)
+            first_token, *tail = tokens
 
-        return (parent_type, subtypes)
+            # The first token should be a name
+            if first_token in {'<', '>', ','}:
+                raise TypeNameHintError(type_name)
+
+            # Base case
+            if len(tail) == 0:
+                tree.append((first_token,()))
+                return tuple(tree), []
+            next_token, *tail = tail
+
+            # No subtypes
+            if next_token == ',':
+                tree.append((first_token,()))
+
+            # Parse subtypes
+            if next_token == '<':
+                # Extract just the subtype tokens and parse them
+                stack = ['<']
+                subtype_tokens = list()
+                remaining_tokens = list()
+                for t in tail:
+                    if len(stack) == 0:
+                        remaining_tokens.append(t)
+                        continue
+                    if t == '<':
+                        stack.append(t)
+                    elif t == '>':
+                        stack.pop()
+                    subtype_tokens.append(t)
+                if len(stack) > 0 or subtype_tokens[-1] != '>':
+                    raise TypeNameHintError(type_name)
+                subtypes, remaining = parse(subtype_tokens[:-1], [])
+                # Parsing should consume all subtype tokens
+                if len(remaining) != 0:
+                    raise TypeNameHintError(type_name)
+                tree.append((first_token, subtypes))
+                # Finish if all tokens are consumed
+                if len(remaining_tokens) == 0:
+                    return tuple(tree), []
+                next_token, *tail = remaining_tokens
+
+            # If the next token is a comma, parse next
+            if next_token == ',':
+                return parse(tail, tree)
+
+            # None of the rules match, error
+            raise TypeNameHintError(type_name)
+        # There should only be one item at the root of the tree
+        try:
+            parse_tree, = parse(tokens, [])[0]
+        except ValueError:
+            raise TypeNameHintError(type_name)
+        return parse_tree
 
     def register_codec(self, type_name, codec):
         """Register a Codec for a custom type. Use this method to
@@ -445,6 +481,22 @@ class Serialization:
         codec = self.codecs[type_name]
         return codec.encode(out, val, self, type_name_hint=type_name_hint)
 
+    def decode_tree(self, type_tree, raw_bytes):
+        """Decodes given a parsed type tree
+
+        :param type_tree: parsed type tree
+        :param raw_bytes: io.BytesIO
+        :returns: decoded return type
+
+        """
+        try:
+            type_name, subtypes = type_tree
+        except ValueError:
+            raise DecodeError("could not unpack type tree %s" % (str(type_tree)))
+        if type_name not in self.codecs:
+            raise DecodeError("no decoder for %s" % (type_name))
+        return self.codecs[type_name].decode(raw_bytes, subtypes, self)
+
     def decode(self, type_name, raw_bytes):
         """Top level decode function.
 
@@ -454,14 +506,5 @@ class Serialization:
         :rtype: tuple
 
         """
-        if not isinstance(raw_bytes, BytesIO):
-            raise ValueError("raw_bytes is not a BytesIO")
-        if '<' in type_name:
-            head, subtypes = Serialization.get_subtypes(type_name)
-            if head not in self.codecs:
-                raise DecodeError("no decoder for %s" % (head))
-            return self.codecs[head].decode(raw_bytes, subtypes, self)
-        else:
-            if type_name not in self.codecs:
-                raise DecodeError("no decoder for %s" % (type_name))
-            return self.codecs[type_name].decode(raw_bytes, serialization=self)
+        parse_tree = Serialization.parse_type(type_name)
+        return self.decode_tree(parse_tree, raw_bytes)
