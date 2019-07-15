@@ -40,17 +40,18 @@ class Edge:
         return edge
 
     @classmethod
-    def _from_protobuf(cls, edge, uuid_cache=None):
+    def _from_protobuf(cls, edge, uuid_cache):
         """
         Load this cls from protobuf object
         """
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
-        source = None
-        target = None
-        if uuid_cache is not None:
+        try:
             source = uuid_cache.get(source_uuid)
             target = uuid_cache.get(target_uuid)
+        except KeyError as e:
+            raise KeyError("Could not find UUID %s when creating edge %s -> %s"
+                           % (e, source_uuid, target_uuid))
         return cls(EdgeLabel._from_protobuf(edge.label), source, target)
 
 
@@ -278,10 +279,12 @@ class Module(AuxDataContainer):
             (k, AuxData._from_protobuf(v, uuid_cache))
             for k, v in module.aux_data_container.aux_data.items()
         )
+        # Blocks and ProxyBlocks have to be loaded before the CFG to populate
+        # the uuid cache
         blocks = (Block._from_protobuf(b, uuid_cache) for b in module.blocks)
-        cfg = (Edge._from_protobuf(e, uuid_cache) for e in module.cfg.edges)
         proxies = \
             (ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies)
+        cfg = (Edge._from_protobuf(e, uuid_cache) for e in module.cfg.edges)
         data = (DataObject._from_protobuf(d, uuid_cache) for d in module.data)
         image_byte_map = \
             ImageByteMap._from_protobuf(module.image_byte_map, uuid_cache)
