@@ -1,3 +1,4 @@
+from glob import glob
 from setuptools import setup, find_packages
 import unittest
 
@@ -14,6 +15,7 @@ if __name__ == '__main__':
         version="0.0.1",
         author="abhaskar",
         author_email="abhaskar@grammatech.com",
+        data_files=[('.', glob('./*_pb2.py'))],
         description="The gtirb package",
         package_data={'gtirb': ['gtirb/*.py', '*_pb2.py']},
         packages=find_packages(),
