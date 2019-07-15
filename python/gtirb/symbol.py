@@ -19,21 +19,41 @@ class Symbol:
         Local = Symbol_pb2.StorageKind.Value('Storage_Local')
 
     def __init__(self,
-                 uuid=None,
-                 name='',
+                 name,
                  storage_kind=StorageKind.Undefined,
-                 value=0,
-                 referent=None,
+                 uuid=None,
                  uuid_cache=None):
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
         if uuid_cache is not None:
             uuid_cache[uuid] = self
-        self.value = value
-        self.referent = referent
         self.name = name
         self.storage_kind = storage_kind
+        self._has_value = False
+        self._payload = None
+
+    @property
+    def value(self):
+        if self._has_value:
+            return self._payload
+        return None
+
+    @property
+    def referent(self):
+        if not self._has_value:
+            return self._payload
+        return None
+
+    @value.setter
+    def value(self, value):
+        self._payload = value
+        self._has_value = True
+
+    @referent.setter
+    def referent(self, referent):
+        self._payload = referent
+        self._has_value = False
 
     def _to_protobuf(self):
         """
@@ -43,35 +63,35 @@ class Symbol:
         :rtype: protobuf object
 
         """
-        ret = Symbol_pb2.Symbol()
-        ret.uuid = self.uuid.bytes
-
+        symbol = Symbol_pb2.Symbol()
+        symbol.uuid = self.uuid.bytes
         if self.value is not None:
-            ret.value = self.value
-
-        if self.referent is not None:
-            ret.referent_uuid = self.referent.uuid.bytes
-
-        ret.name = self.name
-        ret.storage_kind = self.storage_kind.value
-        return ret
+            symbol.value = self.value
+        elif self.referent is not None:
+            symbol.referent_uuid = self.referent.uuid.bytes
+        symbol.name = self.name
+        symbol.storage_kind = self.storage_kind.value
+        return symbol
 
     @classmethod
-    def _from_protobuf(cls, symbol, uuid_cache=None):
+    def _from_protobuf(cls, proto_symbol, uuid_cache):
         """
         Load this cls from protobuf object
         """
-        uuid = UUID(bytes=symbol.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
+        uuid = UUID(bytes=proto_symbol.uuid)
+        if uuid in uuid_cache:
             return uuid_cache[uuid]
-        value = None
-        referent = None
-        if symbol.HasField('value'):
-            value = symbol.value
-        if symbol.HasField('referent_uuid'):
-            referent_uuid = UUID(bytes=symbol.referent_uuid)
-            referent = None
-            if uuid_cache is not None:
-                referent = uuid_cache.get(referent_uuid)
-        return cls(uuid, symbol.name, Symbol.StorageKind(symbol.storage_kind),
-                   value, referent, uuid_cache)
+        symbol = cls(name=proto_symbol.name,
+                     uuid=uuid,
+                     storage_kind=Symbol.StorageKind(
+                         proto_symbol.storage_kind),
+                     uuid_cache=uuid_cache)
+        if proto_symbol.HasField('value'):
+            symbol.value = proto_symbol.value
+        if proto_symbol.HasField('referent_uuid'):
+            referent_uuid = UUID(bytes=proto_symbol.referent_uuid)
+            try:
+                symbol.referent = uuid_cache[referent_uuid]
+            except KeyError as e:
+                raise KeyError("Could not find referent UUID %s" % (e))
+        return symbol
