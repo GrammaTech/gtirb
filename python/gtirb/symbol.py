@@ -3,6 +3,9 @@ from uuid import UUID, uuid4
 
 import Symbol_pb2
 
+from gtirb.block import Block, ProxyBlock
+from gtirb.dataobject import DataObject
+
 
 class Symbol:
     """
@@ -30,30 +33,27 @@ class Symbol:
             uuid_cache[uuid] = self
         self.name = name
         self.storage_kind = storage_kind
-        self._has_value = False
         self._payload = None
 
     @property
     def value(self):
-        if self._has_value:
+        if not isinstance(self._payload, (Block, DataObject, ProxyBlock)):
             return self._payload
         return None
 
     @property
     def referent(self):
-        if not self._has_value:
+        if isinstance(self._payload, (Block, DataObject, ProxyBlock)):
             return self._payload
         return None
 
     @value.setter
     def value(self, value):
         self._payload = value
-        self._has_value = True
 
     @referent.setter
     def referent(self, referent):
         self._payload = referent
-        self._has_value = False
 
     def _to_protobuf(self):
         """
