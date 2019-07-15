@@ -46,7 +46,7 @@ class Codec:
     def decode(self, raw_bytes, subtypes, serialization):
         pass
 
-    def encode(self, out, item, serialization, *, type_name_hint=''):
+    def encode(self, out, item, serialization, *, type_name_hint=None):
         pass
 
 
@@ -55,7 +55,7 @@ class MappingCodec(Codec):
         """decode a mapping<..> entry
 
         :param bytes: Raw bytes (io.BytesIO typed)
-        :param sub_types: List of subtype names
+        :param subtypes: A tuple containing the key/value types
         :param serialization: The Serializaton instance calling this
         :returns: decoded return type
         :rtype: tuple
@@ -76,7 +76,7 @@ class MappingCodec(Codec):
 
         return mapping
 
-    def encode(self, out, mapping, serialization, *, type_name_hint=''):
+    def encode(self, out, mapping, serialization, *, type_name_hint=None):
         """encode a dict into bytes.
 
         :param out: output bytes in io.BytesIO type
@@ -86,17 +86,19 @@ class MappingCodec(Codec):
         :rtype: string
 
         """
-        if len(mapping) == 0 and not type_name_hint:
+        if len(mapping) == 0 and type_name_hint is None:
             raise EncodeError("no type hint for encoding empty mapping")
 
         key_type = None
         val_type = None
 
-        if type_name_hint:
-            head, (key_type, val_type) = \
-                Serialization.get_subtypes(type_name_hint)
-            if head != 'mapping':
+        if type_name_hint is not None:
+            parent, (key_type, val_type) = \
+                Serialization.parse_type(type_name_hint)
+            if parent != 'mapping':
                 raise TypeNameHintError(type_name_hint)
+            key_type = Serialization.type_tree_str(key_type)
+            val_type = Serialization.type_tree_str(val_type)
 
         serialization.encode(out, len(mapping))
 
@@ -119,13 +121,16 @@ class MappingCodec(Codec):
 
 
 class SequenceCodec(Codec):
+    """SequenceCodec and SetCodec have a "name" attribute because their
+    encoders are almost exactly the same. This attribute is used to
+    distinguish between the two."""
     name = 'sequence'
 
     def decode(self, raw_bytes, subtypes, serialization):
         """decode a sequence<..> entry
 
         :param raw_bytes: Raw bytes (io.BytesIO typed)
-        :param sub_types: a singleton list containing type/subtype tuple
+        :param subtypes: a singleton tuple containing a subtype
         :param serialization: The Serialization instance calling this
         :returns: decoded return type
         :rtype: tuple
@@ -145,7 +150,7 @@ class SequenceCodec(Codec):
 
         return sequence
 
-    def encode(self, out, sequence, serialization, *, type_name_hint=''):
+    def encode(self, out, sequence, serialization, *, type_name_hint=None):
         """encode a list to bytes
 
         :param out: list of byte arrays
@@ -155,23 +160,22 @@ class SequenceCodec(Codec):
         :rtype: string
 
         """
-        subtype = ''
 
-        if len(sequence) == 0 and not type_name_hint:
+        if len(sequence) == 0 and type_name_hint is None:
             raise EncodeError("no type hint for empty %s" % (self.name))
 
-        if type_name_hint:
-            head, subtypes = Serialization.get_subtypes(type_name_hint)
+        if type_name_hint is not None:
+            head, (subtype,) = Serialization.parse_type(type_name_hint)
             if head != self.name:
                 raise TypeNameHintError(type_name_hint)
-            subtype = subtypes[0]
+            subtype = Serialization.type_tree_str(subtype)
 
         serialization.encode(out, len(sequence))
 
         for item in sequence:
             encoded_type = \
                 serialization.encode(out, item, type_name_hint=subtype)
-            if subtype == '':
+            if subtype is None:
                 subtype = encoded_type
             elif subtype != encoded_type:
                 raise EncodeError(
@@ -202,7 +206,7 @@ class StringCodec(Codec):
 
         return str(raw_bytes.read(size), 'utf-8')
 
-    def encode(self, out, val, serialization=None, *, type_name_hint=''):
+    def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """encode a string to bytes
 
         :param _out: output list of byte arrays
@@ -211,7 +215,7 @@ class StringCodec(Codec):
         :rtype: string
 
         """
-        if type_name_hint and type_name_hint != 'string':
+        if type_name_hint is not None and type_name_hint != 'string':
             raise EncodeError("wrong type hint for string encoding")
 
         serialization.encode(out, len(val))
@@ -233,11 +237,11 @@ class OffsetCodec(Codec):
 
         return Offset(element_uuid, displacement)
 
-    def encode(self, out, val, serialization=None, *, type_name_hint=''):
+    def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """
         encode Offset to bytes
         """
-        if type_name_hint and type_name_hint != 'Offset':
+        if type_name_hint is not None and type_name_hint != 'Offset':
             raise EncodeError("wrong type hint for offset")
 
         serialization.encode(out, val.element_id)
@@ -256,7 +260,7 @@ class UUIDCodec(Codec):
         """
         return UUID(bytes=raw_bytes.read(16))
 
-    def encode(self, out, val, serialization=None, *, type_name_hint=''):
+    def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """encode UUID to bytes
 
         :param out: output list of byte arrays
@@ -265,7 +269,7 @@ class UUIDCodec(Codec):
         :rtype: string
 
         """
-        if type_name_hint and type_name_hint != 'UUID':
+        if type_name_hint is not None and type_name_hint != 'UUID':
             raise EncodeError("wrong type hint for UUID")
 
         out.write(val.bytes)
@@ -297,7 +301,7 @@ class AddrCodec(Codec):
         addr = serialization.decode('uint64_t', raw_bytes)
         return AddrCodec.Addr(addr)
 
-    def encode(self, out, val, serialization=None, *, type_name_hint=''):
+    def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """encode Addr to bytes
 
         :param out: output list of byte arrays
@@ -306,7 +310,7 @@ class AddrCodec(Codec):
         :rtype: string
 
         """
-        if type_name_hint and type_name_hint != 'Addr':
+        if type_name_hint is not None and type_name_hint != 'Addr':
             raise EncodeError("wrong type hint for Addr")
 
         serialization.encode(out, val.address)
@@ -325,7 +329,7 @@ class Uint64Codec(Codec):
         return int.from_bytes(raw_bytes.read(8),
                               byteorder='little', signed=False)
 
-    def encode(self, out, val, serialization=None, *, type_name_hint=''):
+    def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """encode uint64_t to bytes
 
         :param out: output list of byte arrays
@@ -334,7 +338,7 @@ class Uint64Codec(Codec):
         :rtype: string
 
         """
-        if type_name_hint and type_name_hint != 'uint64_t':
+        if type_name_hint is not None and type_name_hint != 'uint64_t':
             raise EncodeError("wrong type hint for uint64_t")
 
         out.write(val.to_bytes(8, byteorder='little'))
@@ -376,9 +380,9 @@ class Serialization:
         subtypes, an empty tuple indicates no subtype.
 
         Examples:
-          parse_type('foo') == (('foo',()),())
-          parse_type('foo,bar') == (('foo',()), ('bar',()))
-          parse_type('foo<bar>') ==  (('foo', (('bar',())),),())
+          parse_type('foo') == ('foo', ())
+          parse_type('foo<bar>') ==  ('foo', (('bar',()),))
+          parse_type('foo<bar<baz>>') == ('foo', (('bar', (('baz', ()),)),))
 
         :param type_name: encoded type name.
         :returns: a list of parsed type/subtype tuples
@@ -449,6 +453,18 @@ class Serialization:
             raise TypeNameHintError(type_name)
         return parse_tree
 
+    @staticmethod
+    def type_tree_str(type_tree):
+        """Returns a string corresponding to a type tree in the same format
+        created by Serialization.parse_type()
+        """
+        type_name, subtypes = type_tree
+        if len(subtypes) == 0:
+            return type_name
+        subtype_names = \
+            ','.join(Serialization.type_tree_str(subt) for subt in subtypes)
+        return '%s<%s>' % (type_name, subtype_names)
+
     def register_codec(self, type_name, codec):
         """Register a Codec for a custom type. Use this method to
         register encode/decode functions for your own classes
@@ -462,7 +478,7 @@ class Serialization:
             raise KeyError("codec already registered for %s" % (type_name))
         self.codecs[type_name] = codec
 
-    def encode(self, out, val, *, type_name_hint=''):
+    def encode(self, out, val, *, type_name_hint=None):
         """Top level encode function.
 
         :param _out: A list of byte arrays. The caller needs to
