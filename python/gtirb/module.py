@@ -202,7 +202,6 @@ class Module(AuxDataContainer):
 
         self.binary_path = binary_path
         self.blocks = set(blocks)
-        self.cfg = set(cfg)
         self.data = set(data)
         self.image_byte_map = image_byte_map
         self.isa_id = isa_id
@@ -214,6 +213,9 @@ class Module(AuxDataContainer):
         self.sections = set(sections)
         self.symbols = set(symbols)
         self.symbolic_operands = dict(symbolic_operands)
+
+        # Initialize the CFG last so that the cache is populated
+        self.cfg = set(cfg)
 
         super().__init__(aux_data)
 
@@ -280,14 +282,12 @@ class Module(AuxDataContainer):
             for k, v in module.aux_data_container.aux_data.items()
         )
         blocks = (Block._from_protobuf(b, uuid_cache) for b in module.blocks)
+        cfg = (Edge._from_protobuf(e, uuid_cache) for e in module.cfg.edges)
         data = (DataObject._from_protobuf(d, uuid_cache) for d in module.data)
         proxies = \
             (ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies)
         image_byte_map = \
             ImageByteMap._from_protobuf(module.image_byte_map, uuid_cache)
-
-        # Initialize CFG after all blocks/data/proxies so UUIDs are cached
-        cfg = (Edge._from_protobuf(e, uuid_cache) for e in module.cfg.edges)
         sections = \
             (Section._from_protobuf(s, uuid_cache) for s in module.sections)
         symbols = \
