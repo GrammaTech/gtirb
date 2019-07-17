@@ -91,7 +91,7 @@ class ImageByteMap:
             return region[offset]
 
         # Range access
-        if isinstance(key, slice):
+        elif isinstance(key, slice):
             if key.start is None:
                 raise IndexError("start address required")
             if key.step is not None:
@@ -112,6 +112,10 @@ class ImageByteMap:
                 raise IndexError("gap in bytes between start and stop")
             stop_offset = key.stop - start_address
             return region[start_offset:stop_offset]
+
+        # Other accesses (e.g., string)
+        else:
+            raise IndexError("index must be address or range")
 
     def __iter__(self):
         """Yields all bytes in all ranges in order. Returns an
