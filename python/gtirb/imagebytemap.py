@@ -113,6 +113,15 @@ class ImageByteMap:
             stop_offset = key.stop - start_address
             return region[start_offset:stop_offset]
 
+    def __iter__(self):
+        """Yields all bytes in all ranges in order"""
+        for start_addr in self._start_addresses:
+            for byte in self._byte_map[start_addr]:
+                yield byte
+
+    def __len__(self):
+        return sum(len(v) for v in self._byte_map.values())
+
     def __setitem__(self, address, data):
         """Sets data starting at `address` to `data`.
         `data` can be a single byte passed as an integer in range(256) or
@@ -145,9 +154,6 @@ class ImageByteMap:
         for new_byte in data:
             region[offset] = new_byte
             offset += 1
-
-    def __len__(self):
-        return sum(len(v) for v in self._byte_map.values())
 
     def _to_protobuf(self):
         """
