@@ -65,7 +65,20 @@ class ImageByteMap:
         i = bisect_right(self._start_addresses, address)
         if i:
             return self._start_addresses[i-1]
-        raise IndexError
+        raise IndexError("no range containing %d" % (address))
+
+    def __contains__(self, key):
+        """Checks if a single address is in the byte map"""
+        if isinstance(key, int):
+            if key < self.addr_min or key > self.addr_max:
+                return False
+            try:
+                start = self._find_start(key)
+            except IndexError:
+                return False
+            end = start + len(self._byte_map[start])
+            return key < end
+        return False
 
     def __getitem__(self, key):
         """Random access of a single byte returns a byte if it exists, raises
