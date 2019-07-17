@@ -83,21 +83,14 @@ class ImageByteMap:
     def __getitem__(self, key):
         """Random access of a single byte returns a byte if it exists, raises
         an `IndexError` if the byte does not exist at the address.
-        Range access works as follows:
-            [address:] -> get bytes starting at `address` and ending at the
-                the last byte in the range containing `address`
-            [address:end] -> get bytes between `address` and `end` if there are
-                no gaps. Raise an `IndexError` otherwise.
-            [:end] -> `IndexError`, start address is required
-            [address:end:step_size] -> `IndexError`. Step size is unsupported.
+
+        Slicing requires both a start and stop address.
         """
-        def check_range(address):
-            if address < self.addr_min or address > self.addr_max:
-                raise IndexError
 
         # Single byte access
         if isinstance(key, int):
-            check_range(key)
+            if key not in self:
+                raise IndexError("no contents at %d" % key)
             start_address = self._find_start(key)
             region = self._byte_map[start_address]
             offset = key - start_address
@@ -105,30 +98,27 @@ class ImageByteMap:
 
         # Range access
         elif isinstance(key, slice):
-            if key.start is None:
-                raise IndexError("start address required")
-            if key.step is not None:
-                raise IndexError("step size unsupported")
-            check_range(key.start)
-            start_address = self._find_start(key.start)
-            region = self._byte_map[start_address]
-            start_offset = key.start - start_address
-            if key.stop is None:
-                # No stop address
-                return region[start_offset:]
-
-            check_range(key.stop)
+            if not isinstance(key.start, int) or not isinstance(key.stop, int):
+                raise TypeError("start and stop addresses must be integers")
             if key.start > key.stop:
                 raise IndexError("reverse slicing unsupported")
-            stop_address = self._find_start(key.stop - 1)
+            if key.step is not None:
+                raise IndexError("step size unsupported")
+            if key.start not in self:
+                raise IndexError("start address not in map")
+            if key.stop not in self:
+                raise IndexError("stop address not in map")
+            start_address = self._find_start(key.start)
+            stop_address = self._find_start(key.stop)
             if start_address != stop_address:
-                raise IndexError("gap in bytes between start and stop")
+                raise IndexError("gap in bytes in range")
+            region = self._byte_map[start_address]
+            start_offset = key.start - start_address
             stop_offset = key.stop - start_address
             return region[start_offset:stop_offset]
 
-        # Other accesses (e.g., string)
-        else:
-            raise IndexError("index must be address or range")
+        # Other accesses are illegal
+        raise TypeError("index must be address or slice")
 
     def __iter__(self):
         """Yields all bytes in all ranges in order. Returns an
@@ -143,7 +133,11 @@ class ImageByteMap:
         return sum(len(v) for v in self._byte_map.values())
 
     def __setitem__(self, address, data):
-        """Sets data starting at `address` to `data`.
+        """Sets data at `address`.
+
+        If `address` is an integer, sets the byte at `address` to `data`.
+        `data` must be a single byte passed in as an integer in range(256)
+
         `data` can be a single byte passed as an integer in range(256) or
         several bytes passed as literal bytes, a bytearray, or an iterable
         of integers in range(256).
