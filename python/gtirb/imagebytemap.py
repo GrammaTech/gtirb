@@ -67,10 +67,13 @@ class ImageByteMap:
             return self._start_addresses[i-1]
         raise IndexError("no range containing %d" % (address))
 
+    def _in_range(self, key):
+        return key >= self.addr_min or key <= self.addr_max
+
     def __contains__(self, key):
         """Checks if a single address is in the byte map"""
         if isinstance(key, int):
-            if key < self.addr_min or key > self.addr_max:
+            if not self._in_range(key):
                 return False
             try:
                 start = self._find_start(key)
