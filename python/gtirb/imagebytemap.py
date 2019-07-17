@@ -114,10 +114,13 @@ class ImageByteMap:
             return region[start_offset:stop_offset]
 
     def __iter__(self):
-        """Yields all bytes in all ranges in order"""
+        """Yields all bytes in all ranges in order. Returns an
+        (address, byte) tuple"""
         for start_addr in self._start_addresses:
+            cur_addr = start_addr
             for byte in self._byte_map[start_addr]:
-                yield byte
+                yield (cur_addr, byte)
+                cur_addr += 1
 
     def __len__(self):
         return sum(len(v) for v in self._byte_map.values())
