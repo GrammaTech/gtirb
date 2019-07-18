@@ -77,7 +77,7 @@ class ImageByteMap:
 
     def _in_range(self, key):
         """Check if a key is within the range of this bytemap"""
-        return key >= self.addr_min or key <= self.addr_max
+        return key >= self.addr_min and key <= self.addr_max
 
     def __contains__(self, key):
         """Checks if a single address is in the byte map"""
@@ -205,6 +205,28 @@ class ImageByteMap:
                 del self._byte_map[next_start]
                 old_index = bisect_left(self._start_addresses, next_start)
                 del self._start_addresses[old_index]
+
+        # address is a slice
+        if isinstance(address, slice):
+            if address.start is None:
+                raise IndexError("slice requires a start address")
+            if address.step is not None:
+                raise IndexError("step size is not supported")
+            if address.stop is not None:
+                if address.start > address.stop:
+                    raise IndexError("start is after stop")
+                if address.stop - address.start != len(data):
+                    raise ValueError("slice size and data length do not match")
+            if address.start + len(data) - 1 > self.addr_max:
+                raise IndexError("attempt to write past maximum address")
+            # Write each byte one-at-a-time
+            current_address = address.start
+            for byte in data:
+                try:
+                    self[current_address] = byte
+                except TypeError:
+                    raise TypeError("data is not iterable of bytes")
+                current_address += 1
 
     def _to_protobuf(self):
         """

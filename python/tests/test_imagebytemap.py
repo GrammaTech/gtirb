@@ -47,20 +47,18 @@ class TestImageByteMap(unittest.TestCase):
         self.assertEqual(ibm[13:17], b'aabb')
         self.assertEqual(ibm[110:114], b'cccc')
 
-        def index_error(msg, start, stop, skip=None):
+        def index_error(test_slice, msg):
             with self.assertRaises(IndexError, msg=msg):
-                ibm[start:stop:skip]
+                ibm[test_slice]
 
         bad_slices = (
-                (0, 15, "start not in map"),
-                (10, 50, "stop not in map"),
-                (15, 10, "reverse slicing"),
-                (15, 310, "gap in bytes"),
+            (slice(0, 15, None), "start not in map"),
+            (slice(10, 50, None), "stop not in map"),
+            (slice(15, 10, None), "reverse slicing"),
+            (slice(15, 310, None), "gap in bytes"),
+            (slice(15, 16, 2), "slicing unsupported"),
         )
-        for start, stop, msg in bad_slices:
-            index_error(start=start, stop=stop, msg=msg)
-        with self.assertRaises(IndexError, msg="slicing unsupported"):
-            ibm[15:16:2]
+        map(index_error, bad_slices)
 
         with self.assertRaises(TypeError, msg="no stop"):
             ibm[15:]
@@ -91,7 +89,7 @@ class TestImageByteMap(unittest.TestCase):
         self.assertEqual(len(ibm), 24)
 
     def test_setitem_single(self):
-        ibm = ImageByteMap(addr_min=0,
+        ibm = ImageByteMap(addr_min=5,
                            addr_max=15,
                            base_address=0,
                            byte_map={},
@@ -120,3 +118,41 @@ class TestImageByteMap(unittest.TestCase):
         self.assertEqual(list(ibm), [(10, 0), (11, 255), (12, 0),
                                      (13, 0), (14, 0)])
         self.assertEqual(ibm._start_addresses, [10])
+
+        with self.assertRaises(IndexError, msg="write out of range low"):
+            ibm[0] = 0
+        with self.assertRaises(IndexError, msg="write out of range high"):
+            ibm[20] = 0
+
+    def test_setitem_slice(self):
+        ibm = ImageByteMap(addr_min=5,
+                           addr_max=15,
+                           base_address=0,
+                           byte_map={},
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
+        ibm[5:] = [1, 2, 3, 4, 5]
+        self.assertEqual(ibm[5], 1)
+        self.assertEqual(ibm[9], 5)
+        self.assertEqual(len(ibm), 5)
+        self.assertEqual(list(ibm), [(5, 1), (6, 2), (7, 3), (8, 4), (9, 5)])
+
+        def index_error(test_slice, test_data, msg):
+            with self.assertRaises(IndexError, msg=msg):
+                ibm[test_slice] = test_data
+
+        bad_indices = (
+            (slice(None, 10, None), b'abc123', "start address required"),
+            (slice(5, None, 3), b'abc123', "step size unsupported"),
+            (slice(15, 10, None), b'abc123', "start after stop"),
+            (slice(15, None, None), b'abc123', "write past maximum address"),
+            (slice(0, None, None), b'abc123', "write before minimum address"),
+        )
+        map(index_error, bad_indices)
+
+        with self.assertRaises(ValueError, msg="slice/data size mismatch"):
+            ibm[5:7] = b'abc123'
+
+        with self.assertRaises(TypeError, msg="not an iterable"):
+            ibm[6:] = "badstring"
