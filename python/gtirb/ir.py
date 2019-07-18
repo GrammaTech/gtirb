@@ -11,12 +11,11 @@ Writing back the ir instance as a protobuf file
 
 """
 
-from uuid import UUID, uuid4
-
 import IR_pb2
 
 from gtirb.auxdata import AuxData
 from gtirb.auxdatacontainer import AuxDataContainer
+from gtirb.node import Node
 from gtirb.module import Module
 
 
@@ -25,8 +24,8 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, uuid=None, modules=list(),
-                 aux_data=dict(), uuid_cache=None):
+    def __init__(self, modules=list(), aux_data=dict(),
+                 uuid_cache=dict(), uuid=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param uuid: UUID. Creates a new instance if None
@@ -36,14 +35,10 @@ class IR(AuxDataContainer):
         :returns: IR
         :rtype: IR
         """
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
-        modules = list(modules)
-        self.modules = modules
-        super().__init__(aux_data)
+        super().__init__(aux_data, uuid)
+        self.modules = list(modules)
+        self.uuid_cache = dict(uuid_cache)
+        self.uuid_cache[uuid] = self
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -59,25 +54,15 @@ class IR(AuxDataContainer):
         return ret
 
     @classmethod
-    def _from_protobuf(cls, protobuf_ir, uuid_cache=None):
-        """Load pygtirb class from protobuf object
-
-        :param cls: this class
-        :param protobuf_ir: the protobuf IR object
-        :returns: the pygtirb IR object
-        :rtype: IR
-
-        """
-        uuid = UUID(bytes=protobuf_ir.uuid)
+    def _decode_protobuf(cls, proto_ir, uuid):
         uuid_cache = dict()
-        modules = [Module._from_protobuf(m, uuid_cache)
-                   for m in protobuf_ir.modules]
+        modules = [Module.from_protobuf(m, uuid_cache)
+                   for m in proto_ir.modules]
         aux_data = {
-            key: AuxData._from_protobuf(val)
-            for key, val in protobuf_ir.aux_data_container.aux_data.items()
+            key: AuxData.from_protobuf(val)
+            for key, val in proto_ir.aux_data_container.aux_data.items()
         }
-        ir = cls(uuid, modules, aux_data, uuid_cache)
-        return ir
+        return cls(modules, aux_data, uuid_cache, uuid)
 
     @staticmethod
     def load_protobuf_file(protobuf_file):
@@ -90,7 +75,7 @@ class IR(AuxDataContainer):
         """
         ir = IR_pb2.IR()
         ir.ParseFromString(protobuf_file.read())
-        return IR._from_protobuf(ir)
+        return IR.from_protobuf(ir)
 
     @staticmethod
     def load_protobuf(file_name):

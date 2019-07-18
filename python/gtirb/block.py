@@ -1,21 +1,16 @@
-from uuid import UUID, uuid4
-
 import Block_pb2
 import ProxyBlock_pb2
 
+from gtirb.node import Node
 
-class Block:
+
+class Block(Node):
     """
     A basic block.
     """
 
-    def __init__(self, uuid=None,
-                 address=0, size=0, decode_mode=0, uuid_cache=None):
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
+    def __init__(self, address=0, decode_mode=0, size=0, uuid=None):
+        super().__init__(uuid)
         self.address = address
         self.size = size
         self.decode_mode = decode_mode
@@ -35,18 +30,14 @@ class Block:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, block, uuid_cache=None):
-        """
-        Load pygtirb class from protobuf class
-        """
-        uuid = UUID(bytes=block.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
-            return uuid_cache[uuid]
-        return cls(uuid, block.address,
-                   block.size, block.decode_mode, uuid_cache)
+    def _decode_protobuf(cls, proto_block, uuid):
+        return cls(proto_block.address,
+                   proto_block.decode_mode,
+                   proto_block.size,
+                   uuid)
 
 
-class ProxyBlock:
+class ProxyBlock(Node):
     """
     A placeholder to serve as the endpoint of a CFG edge.
 
@@ -60,13 +51,6 @@ class ProxyBlock:
     an address nor a size.
     """
 
-    def __init__(self, uuid=None, uuid_cache=None):
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
-
     def _to_protobuf(self):
         """Returns protobuf representation of the object
 
@@ -79,17 +63,5 @@ class ProxyBlock:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, pb, uuid_cache=None):
-        """Load pygtirb object from protobuf object
-
-        :param cls: this class
-        :param pb: protobuf proxyblock object
-        :param uuid_cache: uuid cache
-        :returns: pygtirb proxyblock object
-        :rtype: ProxyBlock
-
-        """
-        uuid = UUID(bytes=pb.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
-            return uuid_cache[uuid]
-        return cls(uuid, uuid_cache)
+    def _decode_protobuf(cls, proto_proxy, uuid):
+        return cls(uuid)

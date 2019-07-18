@@ -1,9 +1,9 @@
-from uuid import UUID, uuid4
-
 import Section_pb2
 
+from gtirb.node import Node
 
-class Section:
+
+class Section(Node):
     """
     Represents a named section of the binary.
 
@@ -11,12 +11,8 @@ class Section:
     kept in ImageByteMap.
     """
 
-    def __init__(self, uuid=None, name='', address=0, size=0, uuid_cache=None):
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
+    def __init__(self, name='', address=0, size=0, uuid=None):
+        super().__init__(uuid)
         self.name = name
         self.address = address
         self.size = size
@@ -37,12 +33,5 @@ class Section:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, section, uuid_cache=None):
-        """
-        Load this cls from protobuf object
-        """
-        uuid = UUID(bytes=section.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
-            return uuid_cache[uuid]
-        return cls(uuid, section.name, section.address,
-                   section.size, uuid_cache)
+    def _decode_protobuf(cls, section, uuid):
+        return cls(section.name, section.address, section.size, uuid)

@@ -31,17 +31,12 @@ class SymAddrAddr:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, sym_addr_addr, uuid_cache=None):
+    def from_protobuf(cls, sym_addr_addr, uuid_cache):
         """
         Load this cls from protobuf object
         """
-        symbol1_uuid = UUID(bytes=sym_addr_addr.symbol1_uuid)
-        symbol2_uuid = UUID(bytes=sym_addr_addr.symbol2_uuid)
-        symbol1 = None
-        symbol2 = None
-        if uuid_cache is not None:
-            symbol1 = uuid_cache.get(symbol1_uuid)
-            symbol2 = uuid_cache.get(symbol2_uuid)
+        symbol1 = uuid_cache[UUID(bytes=sym_addr_addr.symbol1_uuid)]
+        symbol2 = uuid_cache[UUID(bytes=sym_addr_addr.symbol2_uuid)]
         return cls(sym_addr_addr.scale, sym_addr_addr.offset, symbol1, symbol2)
 
 
@@ -68,14 +63,11 @@ class SymAddrConst:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, sym_addr_const, uuid_cache=None):
+    def from_protobuf(cls, sym_addr_const, uuid_cache):
         """
         Load this cls from protobuf object
         """
-        symbol_uuid = UUID(bytes=sym_addr_const.symbol_uuid)
-        symbol = None
-        if uuid_cache is not None:
-            symbol = uuid_cache.get(symbol_uuid)
+        symbol = uuid_cache[UUID(bytes=sym_addr_const.symbol_uuid)]
         return cls(sym_addr_const.offset, symbol)
 
 
@@ -103,12 +95,6 @@ class SymStackConst:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, sym_stack_const, uuid_cache=None):
-        """
-        Load this cls from protobuf object
-        """
-        symbol_uuid = UUID(bytes=sym_stack_const.symbol_uuid)
-        symbol = None
-        if uuid_cache is not None:
-            symbol = uuid_cache.get(symbol_uuid)
+    def from_protobuf(cls, proto_sym_stack_const, uuid_cache):
+        symbol = uuid_cache[UUID(bytes=sym_stack_const.symbol_uuid)]
         return cls(sym_stack_const.offset, symbol)

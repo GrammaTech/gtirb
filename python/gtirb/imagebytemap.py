@@ -1,13 +1,14 @@
 from bisect import bisect_right, bisect_left, insort
 from itertools import groupby
 from operator import itemgetter
-from uuid import UUID, uuid4
 
 import ByteMap_pb2
 import ImageByteMap_pb2
 
+from gtirb.node import Node
 
-class ImageByteMap:
+
+class ImageByteMap(Node):
     """
     Contains the loaded raw image data for the module (binary).
     """
@@ -19,16 +20,12 @@ class ImageByteMap:
                  base_address=0,
                  byte_map=dict(),
                  entry_point_address=0,
-                 uuid=None,
-                 uuid_cache):
+                 uuid=None):
+        super().__init__(uuid)
         self.addr_min = addr_min
         self.addr_max = addr_max
         self.base_address = base_address
         self.entry_point_address = entry_point_address
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        uuid_cache[uuid] = self
 
         # Deep copy of the byte map
         self._byte_map = {k: bytearray(v) for k, v in byte_map.items()}
@@ -341,22 +338,14 @@ class ImageByteMap:
         return image_byte_map
 
     @classmethod
-    def _from_protobuf(cls, proto_image_byte_map, uuid_cache):
-        """
-        Load this cls from protobuf object
-        """
-        uuid = UUID(bytes=proto_image_byte_map.uuid)
-        if uuid in uuid_cache:
-            return uuid_cache[uuid]
+    def _decode_protobuf(cls, proto_ibm, uuid):
         byte_map = {region.address: bytearray(region.data)
-                    for region in proto_image_byte_map.byte_map.regions}
+                    for region in proto_ibm.byte_map.regions}
         image_byte_map = cls(
-            addr_min=proto_image_byte_map.addr_min,
-            addr_max=proto_image_byte_map.addr_max,
-            base_address=proto_image_byte_map.base_address,
+            addr_min=proto_ibm.addr_min,
+            addr_max=proto_ibm.addr_max,
+            base_address=proto_ibm.base_address,
             byte_map=byte_map,
-            entry_point_address=proto_image_byte_map.entry_point_address,
-            uuid=uuid,
-            uuid_cache=uuid_cache)
-        uuid_cache[uuid] = image_byte_map
+            entry_point_address=proto_ibm.entry_point_address,
+            uuid=uuid)
         return image_byte_map

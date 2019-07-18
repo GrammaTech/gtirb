@@ -1,9 +1,9 @@
-from uuid import UUID, uuid4
-
 import DataObject_pb2
 
+from gtirb.node import Node
 
-class DataObject:
+
+class DataObject(Node):
     """
     Represents a data object, possibly symbolic.
 
@@ -11,12 +11,8 @@ class DataObject:
     ImageByteMap.
     """
 
-    def __init__(self, uuid=None, address=0, size=0, uuid_cache=None):
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
+    def __init__(self, address=0, size=0, uuid=None):
+        super().__init__(uuid)
         self.address = address
         self.size = size
 
@@ -35,11 +31,5 @@ class DataObject:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, data_object, uuid_cache=None):
-        """
-        Load this cls from protobuf object
-        """
-        uuid = UUID(bytes=data_object.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
-            return uuid_cache[uuid]
-        return cls(uuid, data_object.address, data_object.size, uuid_cache)
+    def _decode_protobuf(cls, proto_data, uuid):
+        return cls(data_object.address, data_object.size, uuid)

@@ -1,5 +1,4 @@
 from enum import Enum
-from uuid import UUID, uuid4
 
 import CFG_pb2
 import Module_pb2
@@ -10,12 +9,13 @@ from gtirb.auxdatacontainer import AuxDataContainer
 from gtirb.block import Block, ProxyBlock
 from gtirb.dataobject import DataObject
 from gtirb.imagebytemap import ImageByteMap
+from gtirb.node import Node
 from gtirb.section import Section
 from gtirb.symbol import Symbol
 from gtirb.symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 
 
-class Edge:
+class Edge(Node):
     """
     An Edge in the CFG. Consists of a source and target Block
     """
@@ -40,7 +40,7 @@ class Edge:
         return edge
 
     @classmethod
-    def _from_protobuf(cls, edge, uuid_cache):
+    def from_protobuf(cls, edge, uuid_cache):
         """
         Load this cls from protobuf object
         """
@@ -52,10 +52,12 @@ class Edge:
         except KeyError as e:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
-        return cls(EdgeLabel._from_protobuf(edge.label), source, target)
+        return cls(EdgeLabel.from_protobuf(edge.label, uuid_cache),
+                   source,
+                   target)
 
 
-class EdgeLabel:
+class EdgeLabel(Node):
     """
     A label on a CFG edge.
     """
@@ -91,7 +93,7 @@ class EdgeLabel:
         return edge_label
 
     @classmethod
-    def _from_protobuf(cls, edge_label, uuid_cache=None):
+    def _from_protobuf(cls, edge_label, uuid_cache):
         """
         Load this cls from protobuf object
         """
@@ -166,8 +168,7 @@ class Module(AuxDataContainer):
                  sections=set(),
                  symbols=set(),
                  symbolic_operands=dict(),
-                 uuid=None,
-                 uuid_cache=None):
+                 uuid=None):
         """Constructor
         :param aux_data:
         :param binary_path:
@@ -185,20 +186,15 @@ class Module(AuxDataContainer):
         :param symbols:
         :param symbolic_operands:
         :param uuid:
-        :param uuid_cache:
 
         :returns: Module
         :rtype: Module
 
         """
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
+        super().__init__(aux_data, uuid)
 
         if image_byte_map is None:
-            image_byte_map = ImageByteMap(uuid_cache=uuid_cache)
+            image_byte_map = ImageByteMap()
 
         self.binary_path = binary_path
         self.blocks = set(blocks)
@@ -217,7 +213,6 @@ class Module(AuxDataContainer):
         # Initialize the CFG last so that the cache is populated
         self.cfg = set(cfg)
 
-        super().__init__(aux_data)
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -262,53 +257,39 @@ class Module(AuxDataContainer):
         return module
 
     @classmethod
-    def _from_protobuf(cls, module, uuid_cache=None):
-        """Load object from protobuf object
-
-        :param cls: this class
-        :param module: the protobuf module object
-        :param uuid_cache: uuid cache
-        :returns: newly instantiated pygtirb instance
-        :rtype: Module
-
-        """
-
-        uuid = UUID(bytes=module.uuid)
-        if uuid_cache is not None and uuid in uuid_cache:
-            return uuid_cache[uuid]
-
+    def _decode_protobuf(cls, module, uuid):
         aux_data = (
-            (k, AuxData._from_protobuf(v, uuid_cache))
+            (k, AuxData.from_protobuf(v, uuid_cache))
             for k, v in module.aux_data_container.aux_data.items()
         )
-        blocks = (Block._from_protobuf(b, uuid_cache) for b in module.blocks)
-        cfg = (Edge._from_protobuf(e, uuid_cache) for e in module.cfg.edges)
-        data = (DataObject._from_protobuf(d, uuid_cache) for d in module.data)
+        blocks = (Block.from_protobuf(b, uuid_cache) for b in module.blocks)
+        cfg = (Edge.from_protobuf(e, uuid_cache) for e in module.cfg.edges)
+        data = (DataObject.from_protobuf(d, uuid_cache) for d in module.data)
         proxies = \
-            (ProxyBlock._from_protobuf(p, uuid_cache) for p in module.proxies)
+            (ProxyBlock.from_protobuf(p, uuid_cache) for p in module.proxies)
         image_byte_map = \
-            ImageByteMap._from_protobuf(module.image_byte_map, uuid_cache)
+            ImageByteMap.from_protobuf(module.image_byte_map, uuid_cache)
         sections = \
-            (Section._from_protobuf(s, uuid_cache) for s in module.sections)
+            (Section.from_protobuf(s, uuid_cache) for s in module.sections)
         symbols = \
-            (Symbol._from_protobuf(s, uuid_cache) for s in module.symbols)
+            (Symbol.from_protobuf(s, uuid_cache) for s in module.symbols)
 
         def sym_expr_from_protobuf(symbolic_expression):
             if symbolic_expression.HasField('stack_const'):
-                return SymStackConst._from_protobuf(
+                return SymStackConst.from_protobuf(
                     symbolic_expression.stack_const, uuid_cache)
             if symbolic_expression.HasField('addr_const'):
-                return SymAddrConst._from_protobuf(
+                return SymAddrConst.from_protobuf(
                     symbolic_expression.addr_const, uuid_cache)
             if symbolic_expression.HasField('addr_addr'):
-                return SymAddrAddr._from_protobuf(
+                return SymAddrAddr.from_protobuf(
                     symbolic_expression.addr_addr, uuid_cache)
         symbolic_operands = (
             (k, sym_expr_from_protobuf(v))
             for k, v in module.symbolic_operands.items()
         )
 
-        module = cls(
+        return cls(
             aux_data=aux_data,
             binary_path=module.binary_path,
             blocks=blocks,
@@ -324,7 +305,5 @@ class Module(AuxDataContainer):
             sections=sections,
             symbols=symbols,
             symbolic_operands=symbolic_operands,
-            uuid=uuid,
-            uuid_cache=uuid_cache
+            uuid=uuid
         )
-        return module

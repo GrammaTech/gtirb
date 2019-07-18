@@ -1,13 +1,13 @@
 from enum import Enum
-from uuid import UUID, uuid4
 
 import Symbol_pb2
 
 from gtirb.block import Block, ProxyBlock
 from gtirb.dataobject import DataObject
+from gtirb.node import Node
 
 
-class Symbol:
+class Symbol(Node):
     """
     Represents a Symbol, which maps a name to an object in the IR.
     """
@@ -24,13 +24,8 @@ class Symbol:
     def __init__(self,
                  name,
                  storage_kind=StorageKind.Undefined,
-                 uuid=None,
-                 uuid_cache=None):
-        if uuid is None:
-            uuid = uuid4()
-        self.uuid = uuid
-        if uuid_cache is not None:
-            uuid_cache[uuid] = self
+                 uuid=None):
+        super().__init__(uuid)
         self.name = name
         self.storage_kind = storage_kind
         self._payload = None
@@ -74,9 +69,9 @@ class Symbol:
         return symbol
 
     @classmethod
-    def _from_protobuf(cls, proto_symbol, uuid_cache):
-        """
-        Load this cls from protobuf object
+    def from_protobuf(cls, proto_symbol, uuid_cache):
+        """Symbol.from_protobuf() is overridden because it needs to perform
+        lookups into the uuid_cache for referents
         """
         uuid = UUID(bytes=proto_symbol.uuid)
         if uuid in uuid_cache:
@@ -94,4 +89,5 @@ class Symbol:
                 symbol.referent = uuid_cache[referent_uuid]
             except KeyError as e:
                 raise KeyError("Could not find referent UUID %s" % (e))
+        uuid_cache[symbol.uuid] = symbol
         return symbol
