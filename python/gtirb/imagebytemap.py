@@ -92,7 +92,13 @@ class ImageByteMap:
         return False
 
     def __delitem__(self, key):
-        """Deletes bytes at an address or slice of addresses"""
+        """Deletes bytes at an address or slice of addresses, raises an
+        `IndexError` if the byte does not exist at the address.
+
+        Slicing requires both a start and stop address.
+        """
+
+        # Single byte delete
         if isinstance(key, int):
             if key not in self:
                 raise IndexError("no contents at %d" % key)
@@ -108,7 +114,7 @@ class ImageByteMap:
 
             # If this is the last byte in the region, delete it
             elif offset == len(region) - 1:
-                self._byte_map[start_address] = region[:-1]
+                del self._byte_map[start_address][-1]
 
             # If this is the first byte of a region there is no need to split
             elif offset == 0:
@@ -122,6 +128,54 @@ class ImageByteMap:
                 self._byte_map[start_address] = region[:offset]
                 self._byte_map[key + 1] = region[offset + 1:]
                 insort(self._start_addresses, key + 1)
+
+        # Slice delete
+        elif isinstance(key, slice):
+            if not isinstance(key.start, int) or not isinstance(key.stop, int):
+                raise TypeError("start and stop addresses must be integers")
+            if key.start > key.stop:
+                raise IndexError("reverse slicing unsupported")
+            if key.step is not None:
+                raise IndexError("step size unsupported")
+            if key.start not in self:
+                raise IndexError("start address not in map")
+            if key.stop - 1 not in self:
+                raise IndexError("stop address not in map")
+            start_range_address = self._find_start(key.start)
+            index = bisect_left(self._start_addresses, start_range_address)
+            if start_range_address != self._find_start(key.stop):
+                raise IndexError("gap in bytes in range")
+            region = self._byte_map[start_range_address]
+            start_offset = key.start - start_range_address
+            stop_offset = key.stop - start_range_address
+
+            # If the slice is the whole region, delete the whole region
+            if len(region) == stop_offset - start_offset:
+                del self._byte_map[start_range_address]
+                del self._start_addresses[index]
+
+            # If the slice stops at the last byte of the region, delete it
+            elif stop_offset == len(region):
+                del self._byte_map[start_range_address][start_offset:]
+
+            # If the slice starts at the first byte of a region
+            # there is no need to split
+            elif start_offset == 0:
+                new_region = region[stop_offset:]
+                del self._byte_map[start_range_address]
+                self._byte_map[key.stop] = new_region
+                del self._start_addresses[index]
+                insort(self._start_addresses, key.stop)
+
+            # Otherwise split the region
+            else:
+                self._byte_map[start_range_address] = region[:start_offset]
+                self._byte_map[key.stop] = region[stop_offset:]
+                insort(self._start_addresses, key.stop)
+
+        # Other accesses are illegal
+        else:
+            raise TypeError("index must be address or slice")
 
     def __getitem__(self, key):
         """Random access of a single byte returns a byte if it exists, raises
@@ -139,7 +193,7 @@ class ImageByteMap:
             offset = key - start_address
             return region[offset]
 
-        # Range access
+        # Slice access
         elif isinstance(key, slice):
             if not isinstance(key.start, int) or not isinstance(key.stop, int):
                 raise TypeError("start and stop addresses must be integers")
@@ -173,6 +227,7 @@ class ImageByteMap:
                 cur_addr += 1
 
     def __len__(self):
+        """The number of bytes contained in the map"""
         return sum(len(v) for v in self._byte_map.values())
 
     def __setitem__(self, address, data):

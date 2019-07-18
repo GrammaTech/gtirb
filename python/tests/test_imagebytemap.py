@@ -1,23 +1,21 @@
 import unittest
 from gtirb.imagebytemap import ImageByteMap
 
-
-byte_map = {10: b'aaaaa', 15: b'bbbbbbb', 110: b'cccccc', 310: b'ffffff'}
-ibm = ImageByteMap(addr_min=10,
-                   addr_max=315,
-                   base_address=10,
-                   byte_map=byte_map,
-                   entry_point_address=10,
-                   uuid=None,
-                   uuid_cache={})
-
-
 def decode_byte(byte):
     return int.from_bytes(byte, byteorder='big')
 
 
 class TestImageByteMap(unittest.TestCase):
     def test_initialization_coalescing(self):
+        byte_map = {10: b'aaaaa', 15: b'bbbbbbb',
+                    110: b'cccccc', 310: b'ffffff'}
+        ibm = ImageByteMap(addr_min=10,
+                           addr_max=315,
+                           base_address=10,
+                           byte_map=byte_map,
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
         self.assertTrue(len(ibm._byte_map) == 3)
 
     def test_initialization_overlapping_ranges(self):
@@ -33,6 +31,15 @@ class TestImageByteMap(unittest.TestCase):
                          uuid_cache={})
 
     def test_contains(self):
+        byte_map = {10: b'aaaaa', 15: b'bbbbbbb',
+                    110: b'cccccc', 310: b'ffffff'}
+        ibm = ImageByteMap(addr_min=10,
+                           addr_max=315,
+                           base_address=10,
+                           byte_map=byte_map,
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
         self.assertTrue(10 in ibm)
         self.assertTrue(15 in ibm)
         self.assertTrue(21 in ibm)
@@ -61,7 +68,74 @@ class TestImageByteMap(unittest.TestCase):
         self.assertEqual(list(ibm), [(6, 0), (8, 0)])
         self.assertEqual(ibm._start_addresses, [6, 8])
 
+        with self.assertRaises(IndexError, msg="nonexistent key delete"):
+            del ibm[20]
+
+    def test_delitem_slice(self):
+
+        def test_slice(del_slice, expected_list, expected_starts, msg):
+            byte_map = {5: [0] * 5}
+            ibm = ImageByteMap(addr_min=0,
+                                addr_max=20,
+                                base_address=10,
+                                byte_map=byte_map,
+                                entry_point_address=10,
+                                uuid=None,
+                                uuid_cache={})
+            del ibm[del_slice]
+            self.assertEqual(list(ibm), expected_list, msg=msg)
+            self.assertEqual(ibm._start_addresses, expected_starts)
+
+        test_slices = (
+            (slice(5, 6, None), [(6, 0), (7, 0), (8, 0), (9, 0)], [6]),
+            (slice(9, 10, None), [(5, 0), (6, 0), (7, 0), (8, 0)], [5]),
+            (slice(5, 9, None), [(9, 0)], [9]),
+            (slice(5, 10, None), [], []),
+            (slice(6, 10, None), [(5, 0)], [5]),
+            (slice(6, 8, None), [(5, 0), (8, 0), (9, 0)], [5, 8]),
+        )
+
+        test_index = 1
+        for (del_slice, expected_list, expected_starts) in test_slices:
+            msg = "Test slice %d" % test_index
+            test_slice(del_slice, expected_list, expected_starts, msg)
+            test_index += 1
+
+        byte_map = {10: b'aaaaa', 15: b'bbbbbbb',
+                    110: b'cccccc', 310: b'ffffff'}
+        ibm = ImageByteMap(addr_min=10,
+                           addr_max=315,
+                           base_address=10,
+                           byte_map=byte_map,
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
+
+        def index_error(test_slice, msg):
+            with self.assertRaises(IndexError, msg=msg):
+                ibm[test_slice]
+
+        bad_slices = (
+            (slice(0, 15, None), "start not in map"),
+            (slice(10, 50, None), "stop not in map"),
+            (slice(15, 10, None), "reverse slicing"),
+            (slice(15, 310, None), "gap in bytes"),
+            (slice(15, 16, 2), "slicing unsupported"),
+        )
+        for (test_slice, msg) in bad_slices:
+            index_error(test_slice, msg)
+
     def test_getitem(self):
+        byte_map = {10: b'aaaaa', 15: b'bbbbbbb',
+                    110: b'cccccc', 310: b'ffffff'}
+        ibm = ImageByteMap(addr_min=10,
+                           addr_max=315,
+                           base_address=10,
+                           byte_map=byte_map,
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
+
         self.assertEqual(ibm[10], decode_byte(b'a'))
         self.assertEqual(ibm[14], decode_byte(b'a'))
         self.assertEqual(ibm[15], decode_byte(b'b'))
@@ -79,7 +153,8 @@ class TestImageByteMap(unittest.TestCase):
             (slice(15, 310, None), "gap in bytes"),
             (slice(15, 16, 2), "slicing unsupported"),
         )
-        map(index_error, bad_slices)
+        for (test_slice, msg) in bad_slices:
+            index_error(test_slice, msg)
 
         with self.assertRaises(TypeError, msg="no stop"):
             ibm[15:]
@@ -107,6 +182,15 @@ class TestImageByteMap(unittest.TestCase):
                           (13, decode_byte(b'c'))])
 
     def test_len(self):
+        byte_map = {10: b'aaaaa', 15: b'bbbbbbb',
+                    110: b'cccccc', 310: b'ffffff'}
+        ibm = ImageByteMap(addr_min=10,
+                           addr_max=315,
+                           base_address=10,
+                           byte_map=byte_map,
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
         self.assertEqual(len(ibm), 24)
 
     def test_setitem_single(self):
@@ -170,7 +254,8 @@ class TestImageByteMap(unittest.TestCase):
             (slice(15, None, None), b'abc123', "write past maximum address"),
             (slice(0, None, None), b'abc123', "write before minimum address"),
         )
-        map(index_error, bad_indices)
+        for (test_slice, test_data, msg) in bad_indices:
+            index_error(test_slice, test_data, msg)
 
         with self.assertRaises(ValueError, msg="slice/data size mismatch"):
             ibm[5:7] = b'abc123'
