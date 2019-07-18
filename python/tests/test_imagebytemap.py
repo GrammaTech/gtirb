@@ -1,6 +1,7 @@
 import unittest
 from gtirb.imagebytemap import ImageByteMap
 
+
 def decode_byte(byte):
     return int.from_bytes(byte, byteorder='big')
 
@@ -76,12 +77,12 @@ class TestImageByteMap(unittest.TestCase):
         def test_slice(del_slice, expected_list, expected_starts, msg):
             byte_map = {5: [0] * 5}
             ibm = ImageByteMap(addr_min=0,
-                                addr_max=20,
-                                base_address=10,
-                                byte_map=byte_map,
-                                entry_point_address=10,
-                                uuid=None,
-                                uuid_cache={})
+                               addr_max=20,
+                               base_address=10,
+                               byte_map=byte_map,
+                               entry_point_address=10,
+                               uuid=None,
+                               uuid_cache={})
             del ibm[del_slice]
             self.assertEqual(list(ibm), expected_list, msg=msg)
             self.assertEqual(ibm._start_addresses, expected_starts)
