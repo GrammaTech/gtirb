@@ -91,6 +91,38 @@ class ImageByteMap:
                 return False
         return False
 
+    def __delitem__(self, key):
+        """Deletes bytes at an address or slice of addresses"""
+        if isinstance(key, int):
+            if key not in self:
+                raise IndexError("no contents at %d" % key)
+            start_address = self._find_start(key)
+            region = self._byte_map[start_address]
+            offset = key - start_address
+            index = bisect_left(self._start_addresses, start_address)
+
+            # If there is only one byte in this region, delete the whole region
+            if len(region) == 1:
+                del self._byte_map[start_address]
+                del self._start_addresses[index]
+
+            # If this is the last byte in the region, delete it
+            elif offset == len(region) - 1:
+                self._byte_map[start_address] = region[:-1]
+
+            # If this is the first byte of a region there is no need to split
+            elif offset == 0:
+                new_region = region[1:]
+                del self._byte_map[start_address]
+                self._byte_map[start_address + 1] = new_region
+                self._start_addresses[index] += 1
+
+            # Otherwise split the region
+            else:
+                self._byte_map[start_address] = region[:offset]
+                self._byte_map[key + 1] = region[offset + 1:]
+                insort(self._start_addresses, key + 1)
+
     def __getitem__(self, key):
         """Random access of a single byte returns a byte if it exists, raises
         an `IndexError` if the byte does not exist at the address.

@@ -40,6 +40,27 @@ class TestImageByteMap(unittest.TestCase):
         self.assertFalse(0 in ibm)
         self.assertFalse("test" in ibm)
 
+    def test_delitem_single(self):
+        byte_map = {5: [0] * 5}
+        ibm = ImageByteMap(addr_min=0,
+                           addr_max=20,
+                           base_address=10,
+                           byte_map=byte_map,
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
+        self.assertEqual(list(ibm), [(5, 0), (6, 0), (7, 0), (8, 0), (9, 0)])
+        self.assertEqual(ibm._start_addresses, [5])
+        del ibm[5]
+        self.assertEqual(list(ibm), [(6, 0), (7, 0), (8, 0), (9, 0)])
+        self.assertEqual(ibm._start_addresses, [6])
+        del ibm[9]
+        self.assertEqual(list(ibm), [(6, 0), (7, 0), (8, 0)])
+        self.assertEqual(ibm._start_addresses, [6])
+        del ibm[7]
+        self.assertEqual(list(ibm), [(6, 0), (8, 0)])
+        self.assertEqual(ibm._start_addresses, [6, 8])
+
     def test_getitem(self):
         self.assertEqual(ibm[10], decode_byte(b'a'))
         self.assertEqual(ibm[14], decode_byte(b'a'))
