@@ -89,3 +89,34 @@ class TestImageByteMap(unittest.TestCase):
 
     def test_len(self):
         self.assertEqual(len(ibm), 24)
+
+    def test_setitem_single(self):
+        ibm = ImageByteMap(addr_min=0,
+                           addr_max=15,
+                           base_address=0,
+                           byte_map={},
+                           entry_point_address=10,
+                           uuid=None,
+                           uuid_cache={})
+        self.assertEqual(len(ibm), 0)
+        ibm[10] = 0
+        self.assertEqual(ibm[10], 0)
+        self.assertEqual(list(ibm), [(10, 0)])
+        self.assertEqual(ibm._start_addresses, [10])
+        ibm[11] = 255
+        self.assertEqual(ibm[11], 255)
+        self.assertEqual(list(ibm), [(10, 0), (11, 255)])
+        self.assertEqual(ibm._start_addresses, [10])
+        ibm[14] = 0
+        self.assertEqual(ibm[14], 0)
+        self.assertEqual(list(ibm), [(10, 0), (11, 255), (14, 0)])
+        self.assertEqual(ibm._start_addresses, [10, 14])
+        ibm[13] = 0
+        self.assertEqual(ibm[13], 0)
+        self.assertEqual(list(ibm), [(10, 0), (11, 255), (13, 0), (14, 0)])
+        self.assertEqual(ibm._start_addresses, [10, 13])
+        ibm[12] = 0
+        self.assertEqual(ibm[12], 0)
+        self.assertEqual(list(ibm), [(10, 0), (11, 255), (12, 0),
+                                     (13, 0), (14, 0)])
+        self.assertEqual(ibm._start_addresses, [10])

@@ -1,4 +1,4 @@
-from bisect import bisect_right
+from bisect import bisect_right, bisect_left, insort
 from itertools import groupby
 from operator import itemgetter
 from uuid import UUID, uuid4
@@ -67,7 +67,16 @@ class ImageByteMap:
             return self._start_addresses[i-1]
         raise IndexError("no range containing %d" % (address))
 
+    def _find_end(self, address):
+        """Get the last address in the block containing address."""
+        start = self._find_start(address)
+        last_address = start + len(self._byte_map[start]) - 1
+        if address > last_address:
+            raise IndexError("no range containing %d" % (address))
+        return last_address
+
     def _in_range(self, key):
+        """Check if a key is within the range of this bytemap"""
         return key >= self.addr_min or key <= self.addr_max
 
     def __contains__(self, key):
@@ -76,11 +85,10 @@ class ImageByteMap:
             if not self._in_range(key):
                 return False
             try:
-                start = self._find_start(key)
+                self._find_end(key)
+                return True
             except IndexError:
                 return False
-            end = start + len(self._byte_map[start])
-            return key < end
         return False
 
     def __getitem__(self, key):
@@ -141,36 +149,62 @@ class ImageByteMap:
         If `address` is an integer, sets the byte at `address` to `data`.
         `data` must be a single byte passed in as an integer in range(256)
 
-        `data` can be a single byte passed as an integer in range(256) or
-        several bytes passed as literal bytes, a bytearray, or an iterable
-        of integers in range(256).
+        If `address` is a slice, there are two options:
+            - If the slice has a start and a stop (e.g., a[1:10]), `data` must
+            be an iterable of bytes the same length as the slice. Otherwise a
+            `ValueError` is raised.
+            - If the slice has a start and no stop (e.g., a[1:]), `data` must
+            be an iterable of bytes of any length. All bytes are written
+            beginning at `address.start`
 
-        If `data` is longer than one byte, each byte will be copied starting
-        at `address` and overwriting adjacent bytes.
-        It is an exception to try to write beyond the end of a region.
+        It is an `IndexError` to try to write to bytes before addr_min or after
+        addr_max. It is also an `IndexError` to provide a slice without a start
+        or with a step.
         """
-        if isinstance(address, slice):
-            if address.start is None:
-                raise ValueError("must provide start address")
-            address = address.start
-        if isinstance(data, int):
+
+        # address is an integer
+        if isinstance(address, int):
+            if not self._in_range(address):
+                raise IndexError("address out of range")
+
+            # If a byte at this address exists, set it
+            if address in self:
+                start = self._find_start(address)
+                offset = address - start
+                array = self._byte_map[start]
+                array[offset] = data
+                return
+
+            # Check for an existing array to add to
+            array = None
             try:
-                data = data.to_bytes(1, byteorder='big')
-            except OverflowError:
-                raise ValueError("could not interpret %d as a byte" % (data))
-        else:
-            data = bytearray(data)
-        if address < self.addr_min or address > self.addr_max:
-            raise IndexError
-        start_address = self._find_start(address)
-        available_space = len(self.__getitem__(slice(address, None, None)))
-        if len(data) > available_space:
-            raise ValueError("not enough space for %s" % (data))
-        region = self._byte_map[start_address]
-        offset = address - start_address
-        for new_byte in data:
-            region[offset] = new_byte
-            offset += 1
+                start_of_previous = self._find_start(address)
+                end_of_previous = self._find_end(start_of_previous)
+                if end_of_previous == address - 1:
+                    array = self._byte_map[start_of_previous]
+            except IndexError:
+                pass
+
+            # Add data
+            if array is not None:
+                array.append(data)
+            else:
+                new_array = bytearray(1)
+                new_array[0] = data
+                self._byte_map[address] = new_array
+                insort(self._start_addresses, address)
+
+            # Check if the next address is the start of a new array and
+            # combine the two if needed
+            previous_start = self._find_start(address)
+            next_start = self._find_start(address + 1)
+            if previous_start != next_start:
+                previous_array = self._byte_map[previous_start]
+                next_array = self._byte_map[next_start]
+                previous_array += next_array
+                del self._byte_map[next_start]
+                old_index = bisect_left(self._start_addresses, next_start)
+                del self._start_addresses[old_index]
 
     def _to_protobuf(self):
         """
