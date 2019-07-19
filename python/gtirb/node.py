@@ -3,12 +3,8 @@ from weakref import WeakValueDictionary
 
 
 class Node:
-    """Base class for 'nodes', which can be referenced by their UUID
-
-    Attributes:
-        uuid_cache: class-level cache of Node uuids
-    """
-    uuid_cache = WeakValueDictionary()
+    """Base class for 'nodes', which can be referenced by their UUID"""
+    _uuid_cache = WeakValueDictionary()
 
     def __init__(self, uuid=None):
         if uuid is None:
@@ -26,8 +22,8 @@ class Node:
         _decode_protobuf constructor if cannot find it.
         """
         uuid = UUID(bytes=proto_object.uuid)
-        if uuid in Node.uuid_cache:
-            return Node.uuid_cache[uuid]
+        if uuid in Node._uuid_cache:
+            return Node._uuid_cache[uuid]
         new_node = cls._decode_protobuf(proto_object, uuid)
-        Node.uuid_cache[new_node.uuid] = new_node
+        Node._uuid_cache[new_node.uuid] = new_node
         return new_node

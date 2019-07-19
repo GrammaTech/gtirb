@@ -22,8 +22,8 @@ class SymAddrAddr:
         """
         Load this cls from protobuf object
         """
-        symbol1 = Node.uuid_cache[UUID(bytes=proto_symaddraddr.symbol1_uuid)]
-        symbol2 = Node.uuid_cache[UUID(bytes=proto_symaddraddr.symbol2_uuid)]
+        symbol1 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol1_uuid)]
+        symbol2 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol2_uuid)]
         return cls(proto_symaddraddr.scale,
                    proto_symaddraddr.offset,
                    symbol1,
@@ -58,7 +58,7 @@ class SymAddrConst:
         """
         Load this cls from protobuf object
         """
-        symbol = Node.uuid_cache[UUID(bytes=proto_symaddrconst.symbol_uuid)]
+        symbol = Node._uuid_cache[UUID(bytes=proto_symaddrconst.symbol_uuid)]
         return cls(proto_symaddrconst.offset, symbol)
 
     def _to_protobuf(self):
@@ -87,7 +87,7 @@ class SymStackConst:
 
     @classmethod
     def _from_protobuf(cls, proto_symstackconst):
-        symbol = Node.uuid_cache[UUID(bytes=proto_symstackconst.symbol_uuid)]
+        symbol = Node._uuid_cache[UUID(bytes=proto_symstackconst.symbol_uuid)]
         return cls(proto_symstackconst.offset, symbol)
 
     def _to_protobuf(self):

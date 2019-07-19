@@ -62,7 +62,7 @@ class Symbol(Node):
         if proto_symbol.HasField('referent_uuid'):
             referent_uuid = UUID(bytes=proto_symbol.referent_uuid)
             try:
-                symbol.referent = Node.uuid_cache[referent_uuid]
+                symbol.referent = Node._uuid_cache[referent_uuid]
             except KeyError as e:
                 raise KeyError("Could not find referent UUID %s" % e)
         return symbol

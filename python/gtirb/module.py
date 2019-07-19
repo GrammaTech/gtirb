@@ -34,8 +34,8 @@ class Edge:
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
         try:
-            source = Node.uuid_cache[source_uuid]
-            target = Node.uuid_cache[target_uuid]
+            source = Node._uuid_cache[source_uuid]
+            target = Node._uuid_cache[target_uuid]
         except KeyError as e:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
