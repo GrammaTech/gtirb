@@ -37,16 +37,17 @@ class TypeNameHintError(EncodeError):
 
 class Codec:
     """
-    A class that holds the `encode` and `decode` methods for a type.
+    Base class for encoder/decoders.
     """
-    def __init__(self):
-        pass
-
     def decode(self, raw_bytes, subtypes, serialization):
-        pass
+        """Decodes data with possible subtypes encoded in raw_bytes.
+        Should return an new decoded object."""
+        raise NotImplementedError
 
     def encode(self, out, item, serialization, *, type_name_hint=None):
-        pass
+        """Encodes an item, writing the serialized object to `out`,
+        a BytesIO instance. Optionally takes a type name hint."""
+        raise NotImplementedError
 
 
 class MappingCodec(Codec):
