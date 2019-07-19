@@ -10,7 +10,6 @@ from re import findall
 from uuid import UUID
 
 from gtirb.offset import Offset
-from gtirb.node import Node
 
 
 class CodecError(Exception):
