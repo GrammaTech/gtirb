@@ -335,12 +335,15 @@ class ImageByteMap(Node):
         """
         proto_byte_map = ByteMap_pb2.ByteMap()
 
-        def encode_region(region):
+        def encode_region(address, data):
             proto_region = ByteMap_pb2.Region()
-            proto_region.address, proto_region.data = region
+            proto_region.address = address
+            proto_region.data = bytes(data)
             return proto_region
-        proto_byte_map.regions.extend(encode_region(r) for r in self.regions)
-
+        proto_byte_map.regions.extend(
+            encode_region(address, data)
+            for address, data in self._byte_map.items()
+        )
         proto_ibm = ImageByteMap_pb2.ImageByteMap()
         proto_ibm.addr_min = self.addr_min
         proto_ibm.addr_max = self.addr_max
