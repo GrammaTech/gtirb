@@ -1,4 +1,5 @@
 from enum import Enum
+from uuid import UUID
 
 import Symbol_pb2
 
@@ -69,25 +70,17 @@ class Symbol(Node):
         return symbol
 
     @classmethod
-    def from_protobuf(cls, proto_symbol, uuid_cache):
-        """Symbol.from_protobuf() is overridden because it needs to perform
-        lookups into the uuid_cache for referents
-        """
-        uuid = UUID(bytes=proto_symbol.uuid)
-        if uuid in uuid_cache:
-            return uuid_cache[uuid]
+    def _decode_protobuf(cls, proto_symbol, uuid):
+        storage_kind = Symbol.StorageKind(proto_symbol.storage_kind)
         symbol = cls(name=proto_symbol.name,
                      uuid=uuid,
-                     storage_kind=Symbol.StorageKind(
-                         proto_symbol.storage_kind),
-                     uuid_cache=uuid_cache)
+                     storage_kind=storage_kind)
         if proto_symbol.HasField('value'):
             symbol.value = proto_symbol.value
         if proto_symbol.HasField('referent_uuid'):
             referent_uuid = UUID(bytes=proto_symbol.referent_uuid)
             try:
-                symbol.referent = uuid_cache[referent_uuid]
+                symbol.referent = Node.uuid_cache[referent_uuid]
             except KeyError as e:
-                raise KeyError("Could not find referent UUID %s" % (e))
-        uuid_cache[symbol.uuid] = symbol
+                raise KeyError("Could not find referent UUID %s" % e)
         return symbol

@@ -36,7 +36,6 @@ class AuxDataContainer(Node):
 
         :param cls: this class
         :param aux_data_container: protobuf object
-        :param uuid_cache: uuid cache
         :returns: pygtirb object
         :rtype: AuxDataContainer
 

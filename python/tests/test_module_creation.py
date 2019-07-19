@@ -4,7 +4,7 @@ from gtirb.module import Module
 
 class MainTest(unittest.TestCase):
     def test_module_create(self):
-        mod = Module(uuid_cache={})
+        mod = Module()
         assert mod is not None
 
 

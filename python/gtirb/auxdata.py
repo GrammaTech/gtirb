@@ -37,7 +37,7 @@ class AuxData:
         return ret
 
     @classmethod
-    def _from_protobuf(cls, aux_data, uuid_cache=None):
+    def from_protobuf(cls, aux_data):
         """
         Load pygtirb class from protobuf class
         """

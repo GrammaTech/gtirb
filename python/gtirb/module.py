@@ -1,4 +1,5 @@
 from enum import Enum
+from uuid import UUID
 
 import CFG_pb2
 import Module_pb2
@@ -15,7 +16,7 @@ from gtirb.symbol import Symbol
 from gtirb.symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 
 
-class Edge(Node):
+class Edge:
     """
     An Edge in the CFG. Consists of a source and target Block
     """
@@ -40,24 +41,22 @@ class Edge(Node):
         return edge
 
     @classmethod
-    def from_protobuf(cls, edge, uuid_cache):
+    def from_protobuf(cls, edge):
         """
         Load this cls from protobuf object
         """
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
         try:
-            source = uuid_cache[source_uuid]
-            target = uuid_cache[target_uuid]
+            source = Node.uuid_cache[source_uuid]
+            target = Node.uuid_cache[target_uuid]
         except KeyError as e:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
-        return cls(EdgeLabel.from_protobuf(edge.label, uuid_cache),
-                   source,
-                   target)
+        return cls(EdgeLabel.from_protobuf(edge.label), source, target)
 
 
-class EdgeLabel(Node):
+class EdgeLabel:
     """
     A label on a CFG edge.
     """
@@ -93,7 +92,7 @@ class EdgeLabel(Node):
         return edge_label
 
     @classmethod
-    def _from_protobuf(cls, edge_label, uuid_cache):
+    def from_protobuf(cls, edge_label):
         """
         Load this cls from protobuf object
         """
@@ -257,51 +256,47 @@ class Module(AuxDataContainer):
         return module
 
     @classmethod
-    def _decode_protobuf(cls, module, uuid):
+    def _decode_protobuf(cls, proto_module, uuid):
         aux_data = (
-            (k, AuxData.from_protobuf(v, uuid_cache))
-            for k, v in module.aux_data_container.aux_data.items()
+            (k, AuxData.from_protobuf(v))
+            for k, v in proto_module.aux_data_container.aux_data.items()
         )
-        blocks = (Block.from_protobuf(b, uuid_cache) for b in module.blocks)
-        cfg = (Edge.from_protobuf(e, uuid_cache) for e in module.cfg.edges)
-        data = (DataObject.from_protobuf(d, uuid_cache) for d in module.data)
-        proxies = \
-            (ProxyBlock.from_protobuf(p, uuid_cache) for p in module.proxies)
-        image_byte_map = \
-            ImageByteMap.from_protobuf(module.image_byte_map, uuid_cache)
-        sections = \
-            (Section.from_protobuf(s, uuid_cache) for s in module.sections)
-        symbols = \
-            (Symbol.from_protobuf(s, uuid_cache) for s in module.symbols)
+        blocks = (Block.from_protobuf(b) for b in proto_module.blocks)
+        cfg = (Edge.from_protobuf(e) for e in proto_module.cfg.edges)
+        data = (DataObject.from_protobuf(d) for d in proto_module.data)
+        proxies = (ProxyBlock.from_protobuf(p) for p in proto_module.proxies)
+        ibm =  ImageByteMap.from_protobuf(proto_module.image_byte_map)
+        sections = (Section.from_protobuf(s) for s in proto_module.sections)
+        symbols = (Symbol.from_protobuf(s) for s in proto_module.symbols)
 
         def sym_expr_from_protobuf(symbolic_expression):
             if symbolic_expression.HasField('stack_const'):
                 return SymStackConst.from_protobuf(
-                    symbolic_expression.stack_const, uuid_cache)
+                    symbolic_expression.stack_const)
             if symbolic_expression.HasField('addr_const'):
                 return SymAddrConst.from_protobuf(
-                    symbolic_expression.addr_const, uuid_cache)
+                    symbolic_expression.addr_const)
             if symbolic_expression.HasField('addr_addr'):
                 return SymAddrAddr.from_protobuf(
-                    symbolic_expression.addr_addr, uuid_cache)
+                    symbolic_expression.addr_addr)
         symbolic_operands = (
             (k, sym_expr_from_protobuf(v))
-            for k, v in module.symbolic_operands.items()
+            for k, v in proto_module.symbolic_operands.items()
         )
 
         return cls(
             aux_data=aux_data,
-            binary_path=module.binary_path,
+            binary_path=proto_module.binary_path,
             blocks=blocks,
             cfg=cfg,
             data=data,
-            image_byte_map=image_byte_map,
-            isa_id=module.isa_id,
-            file_format=module.file_format,
-            name=module.name,
-            preferred_addr=module.preferred_addr,
+            image_byte_map=ibm,
+            isa_id=proto_module.isa_id,
+            file_format=proto_module.file_format,
+            name=proto_module.name,
+            preferred_addr=proto_module.preferred_addr,
             proxies=proxies,
-            rebase_delta=module.rebase_delta,
+            rebase_delta=proto_module.rebase_delta,
             sections=sections,
             symbols=symbols,
             symbolic_operands=symbolic_operands,

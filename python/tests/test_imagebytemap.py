@@ -15,8 +15,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=10,
                            byte_map=byte_map,
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
         self.assertTrue(len(ibm._byte_map) == 3)
 
     def test_initialization_overlapping_ranges(self):
@@ -28,8 +27,7 @@ class TestImageByteMap(unittest.TestCase):
                          base_address=10,
                          byte_map=bad_byte_map,
                          entry_point_address=10,
-                         uuid=None,
-                         uuid_cache={})
+                         uuid=None)
 
     def test_contains(self):
         byte_map = {10: b'aaaaa', 15: b'bbbbbbb',
@@ -39,8 +37,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=10,
                            byte_map=byte_map,
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
         self.assertTrue(10 in ibm)
         self.assertTrue(15 in ibm)
         self.assertTrue(21 in ibm)
@@ -55,8 +52,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=10,
                            byte_map=byte_map,
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
         self.assertEqual(list(ibm), [(5, 0), (6, 0), (7, 0), (8, 0), (9, 0)])
         self.assertEqual(ibm._start_addresses, [5])
         del ibm[5]
@@ -81,8 +77,7 @@ class TestImageByteMap(unittest.TestCase):
                                base_address=10,
                                byte_map=byte_map,
                                entry_point_address=10,
-                               uuid=None,
-                               uuid_cache={})
+                               uuid=None)
             del ibm[del_slice]
             self.assertEqual(list(ibm), expected_list, msg=msg)
             self.assertEqual(ibm._start_addresses, expected_starts)
@@ -109,8 +104,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=10,
                            byte_map=byte_map,
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
 
         def index_error(test_slice, msg):
             with self.assertRaises(IndexError, msg=msg):
@@ -134,8 +128,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=10,
                            byte_map=byte_map,
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
 
         self.assertEqual(ibm[10], decode_byte(b'a'))
         self.assertEqual(ibm[14], decode_byte(b'a'))
@@ -172,8 +165,7 @@ class TestImageByteMap(unittest.TestCase):
                                   base_address=0,
                                   byte_map=simple_byte_map,
                                   entry_point_address=10,
-                                  uuid=None,
-                                  uuid_cache={})
+                                  uuid=None)
         self.assertEqual(list(simple_ibm),
                          [(0, decode_byte(b'a')),
                           (1, decode_byte(b'a')),
@@ -190,8 +182,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=10,
                            byte_map=byte_map,
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
         self.assertEqual(len(ibm), 24)
 
     def test_setitem_single(self):
@@ -200,8 +191,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=0,
                            byte_map={},
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
         self.assertEqual(len(ibm), 0)
         ibm[10] = 0
         self.assertEqual(ibm[10], 0)
@@ -236,8 +226,7 @@ class TestImageByteMap(unittest.TestCase):
                            base_address=0,
                            byte_map={},
                            entry_point_address=10,
-                           uuid=None,
-                           uuid_cache={})
+                           uuid=None)
         ibm[5:] = [1, 2, 3, 4, 5]
         self.assertEqual(ibm[5], 1)
         self.assertEqual(ibm[9], 5)

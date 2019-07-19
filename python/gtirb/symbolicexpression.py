@@ -2,6 +2,8 @@ from uuid import UUID
 
 import SymbolicExpression_pb2
 
+from gtirb.node import Node
+
 
 class SymAddrAddr:
     """
@@ -31,12 +33,12 @@ class SymAddrAddr:
         return ret
 
     @classmethod
-    def from_protobuf(cls, sym_addr_addr, uuid_cache):
+    def from_protobuf(cls, sym_addr_addr):
         """
         Load this cls from protobuf object
         """
-        symbol1 = uuid_cache[UUID(bytes=sym_addr_addr.symbol1_uuid)]
-        symbol2 = uuid_cache[UUID(bytes=sym_addr_addr.symbol2_uuid)]
+        symbol1 = Node.uuid_cache[UUID(bytes=sym_addr_addr.symbol1_uuid)]
+        symbol2 = Node.uuid_cache[UUID(bytes=sym_addr_addr.symbol2_uuid)]
         return cls(sym_addr_addr.scale, sym_addr_addr.offset, symbol1, symbol2)
 
 
@@ -63,11 +65,11 @@ class SymAddrConst:
         return ret
 
     @classmethod
-    def from_protobuf(cls, sym_addr_const, uuid_cache):
+    def from_protobuf(cls, sym_addr_const):
         """
         Load this cls from protobuf object
         """
-        symbol = uuid_cache[UUID(bytes=sym_addr_const.symbol_uuid)]
+        symbol = Node.uuid_cache[UUID(bytes=sym_addr_const.symbol_uuid)]
         return cls(sym_addr_const.offset, symbol)
 
 
@@ -95,6 +97,6 @@ class SymStackConst:
         return ret
 
     @classmethod
-    def from_protobuf(cls, proto_sym_stack_const, uuid_cache):
-        symbol = uuid_cache[UUID(bytes=sym_stack_const.symbol_uuid)]
+    def from_protobuf(cls, proto_sym_stack_const):
+        symbol = Node.uuid_cache[UUID(bytes=sym_stack_const.symbol_uuid)]
         return cls(sym_stack_const.offset, symbol)

@@ -24,7 +24,7 @@ class Offset:
         return offset
 
     @classmethod
-    def _from_protobuf(cls, offset, uuid_cache=None):
+    def from_protobuf(cls, offset):
         """
         Load this cls from protobuf object
         """

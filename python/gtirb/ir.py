@@ -24,21 +24,17 @@ class IR(AuxDataContainer):
     A complete internal representation consisting of multiple Modules.
     """
 
-    def __init__(self, modules=list(), aux_data=dict(),
-                 uuid_cache=dict(), uuid=None):
+    def __init__(self, modules=list(), aux_data=dict(), uuid=None):
         """IR constructor. Can be used to construct an empty IR instance
 
         :param uuid: UUID. Creates a new instance if None
         :param modules: List of modules
         :param aux_data: auxilary data hanging off the IR
-        :param uuid_cache: uuid_cache
         :returns: IR
         :rtype: IR
         """
         super().__init__(aux_data, uuid)
         self.modules = list(modules)
-        self.uuid_cache = dict(uuid_cache)
-        self.uuid_cache[uuid] = self
 
     def _to_protobuf(self):
         """Returns protobuf representation of the object
@@ -55,14 +51,13 @@ class IR(AuxDataContainer):
 
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
-        uuid_cache = dict()
-        modules = [Module.from_protobuf(m, uuid_cache)
+        modules = [Module.from_protobuf(m)
                    for m in proto_ir.modules]
         aux_data = {
             key: AuxData.from_protobuf(val)
             for key, val in proto_ir.aux_data_container.aux_data.items()
         }
-        return cls(modules, aux_data, uuid_cache, uuid)
+        return cls(modules, aux_data, uuid)
 
     @staticmethod
     def load_protobuf_file(protobuf_file):
