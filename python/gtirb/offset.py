@@ -11,13 +11,13 @@ class Offset:
         self.displacement = displacement
 
     @classmethod
-    def from_protobuf(cls, offset):
+    def _from_protobuf(cls, offset):
         """
         Load this cls from protobuf object
         """
         return cls(offset.element_id, offset.displacement)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """
         Returns protobuf representation of the object
 

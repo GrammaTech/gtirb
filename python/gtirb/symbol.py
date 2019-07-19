@@ -67,7 +67,7 @@ class Symbol(Node):
                 raise KeyError("Could not find referent UUID %s" % e)
         return symbol
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """
         Returns protobuf representation of the object
 

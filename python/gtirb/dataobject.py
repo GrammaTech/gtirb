@@ -20,7 +20,7 @@ class DataObject(Node):
     def _decode_protobuf(cls, proto_dataobject, uuid):
         return cls(proto_dataobject.address, proto_dataobject.size, uuid)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """
         Returns protobuf representation of the object
 

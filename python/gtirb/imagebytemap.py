@@ -325,7 +325,7 @@ class ImageByteMap(Node):
                     raise TypeError("data is not iterable of bytes")
                 current_address += 1
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """
         Returns protobuf representation of the object
 

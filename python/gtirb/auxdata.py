@@ -21,15 +21,15 @@ class AuxData:
         self.serializer = Serialization()
 
     @classmethod
-    def from_protobuf(cls, aux_data):
+    def _from_protobuf(cls, aux_data):
         """
         Load pygtirb class from protobuf class
         """
         serializer = Serialization()
-        ret = serializer.decode(aux_data.type_name, BytesIO(aux_data.data))
-        return cls(data=ret, type_name=aux_data.type_name)
+        data = serializer.decode(aux_data.type_name, BytesIO(aux_data.data))
+        return cls(data=data, type_name=aux_data.type_name)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object

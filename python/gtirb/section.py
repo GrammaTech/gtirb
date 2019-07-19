@@ -21,7 +21,7 @@ class Section(Node):
     def _decode_protobuf(cls, section, uuid):
         return cls(section.name, section.address, section.size, uuid)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """
         Returns protobuf representation of the object
 

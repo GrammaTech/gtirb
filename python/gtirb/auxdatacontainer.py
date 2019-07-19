@@ -32,7 +32,7 @@ class AuxDataContainer(Node):
                     for key, val in proto_container.aux_data.items())
         return cls(aux_data, uuid)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -41,5 +41,5 @@ class AuxDataContainer(Node):
         """
         proto_auxdatacontainer = AuxDataContainer_pb2.AuxDataContainer()
         for k, v in self.aux_data.items():
-            proto_auxdatacontainer.aux_data[k].CopyFrom(v.to_protobuf())
+            proto_auxdatacontainer.aux_data[k].CopyFrom(v._to_protobuf())
         return proto_auxdatacontainer

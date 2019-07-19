@@ -22,7 +22,7 @@ class Block(Node):
                    proto_block.size,
                    uuid)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
@@ -55,7 +55,7 @@ class ProxyBlock(Node):
     def _decode_protobuf(cls, proto_proxy, uuid):
         return cls(uuid)
 
-    def to_protobuf(self):
+    def _to_protobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object

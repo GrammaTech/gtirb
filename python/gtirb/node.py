@@ -20,8 +20,8 @@ class Node:
         raise NotImplementedError
 
     @classmethod
-    def from_protobuf(cls, proto_object):
-        """The default implementation of from_protobuf performs a cache lookup
+    def _from_protobuf(cls, proto_object):
+        """The default implementation of _from_protobuf performs a cache lookup
         for the object's UUID in the cache, calling the appropriate
         _decode_protobuf constructor if cannot find it.
         """
