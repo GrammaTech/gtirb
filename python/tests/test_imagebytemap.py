@@ -1,5 +1,5 @@
 import unittest
-from gtirb.imagebytemap import ImageByteMap
+from gtirb import ImageByteMap
 
 
 def decode_byte(byte):
