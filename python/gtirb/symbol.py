@@ -9,9 +9,7 @@ from .node import Node
 
 
 class Symbol(Node):
-    """
-    Represents a Symbol, which maps a name to an object in the IR.
-    """
+    """Represents a Symbol, which maps a name to an object in the IR."""
     class StorageKind(Enum):
         """
         Indicates the storage kind of a Symbol.
@@ -33,12 +31,20 @@ class Symbol(Node):
 
     @property
     def value(self):
+        """The value of a Symbol.
+        An integer or None.
+        `value` and `referent` are mutually-exclusive.
+        """
         if not isinstance(self._payload, (Block, DataObject, ProxyBlock)):
             return self._payload
         return None
 
     @property
     def referent(self):
+        """The object referred to by a Symbol.
+        Block, DataObject, ProxyBlock, or None.
+        `value` and `referent` are mutually-exclusive.
+        """
         if isinstance(self._payload, (Block, DataObject, ProxyBlock)):
             return self._payload
         return None
