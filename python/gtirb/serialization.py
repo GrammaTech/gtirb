@@ -9,7 +9,7 @@ class that holds the encode and decode functions for a type.
 from re import findall
 from uuid import UUID
 
-from gtirb.offset import Offset
+from .offset import Offset
 
 
 class CodecError(Exception):

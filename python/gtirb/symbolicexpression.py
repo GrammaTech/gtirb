@@ -2,7 +2,7 @@ from uuid import UUID
 
 import SymbolicExpression_pb2
 
-from gtirb.node import Node
+from .node import Node
 
 
 class SymAddrAddr:

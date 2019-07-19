@@ -3,9 +3,9 @@ from uuid import UUID
 
 import Symbol_pb2
 
-from gtirb.block import Block, ProxyBlock
-from gtirb.dataobject import DataObject
-from gtirb.node import Node
+from .block import Block, ProxyBlock
+from .dataobject import DataObject
+from .node import Node
 
 
 class Symbol(Node):

@@ -13,9 +13,9 @@ Writing back the ir instance as a protobuf file
 
 import IR_pb2
 
-from gtirb.auxdata import AuxData
-from gtirb.auxdatacontainer import AuxDataContainer
-from gtirb.module import Module
+from .auxdata import AuxData
+from .auxdatacontainer import AuxDataContainer
+from .module import Module
 
 
 class IR(AuxDataContainer):

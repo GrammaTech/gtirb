@@ -1,6 +1,6 @@
 import DataObject_pb2
 
-from gtirb.node import Node
+from .node import Node
 
 
 class DataObject(Node):

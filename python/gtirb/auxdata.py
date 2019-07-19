@@ -2,7 +2,7 @@ from io import BytesIO
 
 import AuxData_pb2
 
-from gtirb.serialization import Serialization
+from .serialization import Serialization
 
 
 class AuxData:

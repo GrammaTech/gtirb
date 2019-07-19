@@ -5,7 +5,7 @@ from operator import itemgetter
 import ByteMap_pb2
 import ImageByteMap_pb2
 
-from gtirb.node import Node
+from .node import Node
 
 
 class ImageByteMap(Node):

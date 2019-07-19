@@ -1,7 +1,7 @@
 import Block_pb2
 import ProxyBlock_pb2
 
-from gtirb.node import Node
+from .node import Node
 
 
 class Block(Node):

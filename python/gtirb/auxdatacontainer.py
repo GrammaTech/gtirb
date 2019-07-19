@@ -1,7 +1,7 @@
 import AuxDataContainer_pb2
 
-from gtirb.auxdata import AuxData
-from gtirb.node import Node
+from .auxdata import AuxData
+from .node import Node
 
 
 class AuxDataContainer(Node):

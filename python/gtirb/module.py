@@ -5,15 +5,15 @@ import CFG_pb2
 import Module_pb2
 import SymbolicExpression_pb2
 
-from gtirb.auxdata import AuxData
-from gtirb.auxdatacontainer import AuxDataContainer
-from gtirb.block import Block, ProxyBlock
-from gtirb.dataobject import DataObject
-from gtirb.imagebytemap import ImageByteMap
-from gtirb.node import Node
-from gtirb.section import Section
-from gtirb.symbol import Symbol
-from gtirb.symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
+from .auxdata import AuxData
+from .auxdatacontainer import AuxDataContainer
+from .block import Block, ProxyBlock
+from .dataobject import DataObject
+from .imagebytemap import ImageByteMap
+from .node import Node
+from .section import Section
+from .symbol import Symbol
+from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 
 
 class Edge:
