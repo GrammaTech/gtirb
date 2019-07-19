@@ -1,12 +1,9 @@
 __all__ = [
-    'AuxData',
-    'AuxDataContainer',
     'Block',
     'DataObject',
     'ImageByteMap',
     'IR',
     'Module',
-    'Node',
     'Offset',
     'ProxyBlock',
     'Section',
@@ -17,14 +14,11 @@ __all__ = [
     'SymStackConst',
     ]
 
-from .auxdata import AuxData
-from .auxdatacontainer import AuxDataContainer
 from .block import Block, ProxyBlock
 from .dataobject import DataObject
 from .imagebytemap import ImageByteMap
 from .ir import IR
 from .module import Module
-from .node import Node
 from .offset import Offset
 from .section import Section
 from .serialization import Serialization
