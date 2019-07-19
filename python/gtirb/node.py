@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+from weakref import WeakValueDictionary
 
 
 class Node:
@@ -7,7 +8,7 @@ class Node:
     Attributes:
         uuid_cache: class-level cache of Node uuids
     """
-    uuid_cache = dict()
+    uuid_cache = WeakValueDictionary()
 
     def __init__(self, uuid=None):
         if uuid is None:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The GTIRB python serialization module.
 
@@ -11,6 +10,7 @@ from re import findall
 from uuid import UUID
 
 from gtirb.offset import Offset
+from gtirb.node import Node
 
 
 class CodecError(Exception):
