@@ -16,7 +16,11 @@ class DataObject(Node):
         self.address = address
         self.size = size
 
-    def _to_protobuf(self):
+    @classmethod
+    def _decode_protobuf(cls, proto_data, uuid):
+        return cls(data_object.address, data_object.size, uuid)
+
+    def to_protobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -24,12 +28,8 @@ class DataObject(Node):
         :rtype: protobuf object
 
         """
-        ret = DataObject_pb2.DataObject()
-        ret.uuid = self.uuid.bytes
-        ret.address = self.address
-        ret.size = self.size
-        return ret
-
-    @classmethod
-    def _decode_protobuf(cls, proto_data, uuid):
-        return cls(data_object.address, data_object.size, uuid)
+        proto_dataobject = DataObject_pb2.DataObject()
+        proto_dataobject.uuid = self.uuid.bytes
+        proto_dataobject.address = self.address
+        proto_dataobject.size = self.size
+        return proto_dataobject

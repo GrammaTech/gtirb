@@ -20,22 +20,6 @@ class AuxData:
         self.type_name = type_name
         self.serializer = Serialization()
 
-    def _to_protobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = AuxData_pb2.AuxData()
-        out_bytes_array = BytesIO()
-        check_type_name = self.serializer.encode(out_bytes_array, self.data,
-                                                 type_name_hint=self.type_name)
-        ret.type_name = check_type_name
-        out_bytes_array.seek(0)
-        ret.data = out_bytes_array.read()
-        return ret
-
     @classmethod
     def from_protobuf(cls, aux_data):
         """
@@ -44,3 +28,19 @@ class AuxData:
         serializer = Serialization()
         ret = serializer.decode(aux_data.type_name, BytesIO(aux_data.data))
         return cls(data=ret, type_name=aux_data.type_name)
+
+    def to_protobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_auxdata = AuxData_pb2.AuxData()
+        out_bytes_array = BytesIO()
+        check_type_name = self.serializer.encode(out_bytes_array, self.data,
+                                                 type_name_hint=self.type_name)
+        proto_auxdata.type_name = check_type_name
+        out_bytes_array.seek(0)
+        proto_auxdata.data = out_bytes_array.read()
+        return proto_auxdata

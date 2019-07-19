@@ -26,20 +26,6 @@ class Edge:
         self.source = source
         self.target = target
 
-    def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        edge = CFG_pb2.Edge()
-        edge.source_uuid = self.source.uuid.bytes
-        edge.target_uuid = self.target.uuid.bytes
-        edge.label.CopyFrom(self.label._to_protobuf())
-        return edge
-
     @classmethod
     def from_protobuf(cls, edge):
         """
@@ -54,6 +40,20 @@ class Edge:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
         return cls(EdgeLabel.from_protobuf(edge.label), source, target)
+
+    def to_protobuf(self):
+        """
+        Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_edge = CFG_pb2.Edge()
+        proto_edge.source_uuid = self.source.uuid.bytes
+        proto_edge.target_uuid = self.target.uuid.bytes
+        proto_edge.label.CopyFrom(self.label.to_protobuf())
+        return proto_edge
 
 
 class EdgeLabel:
@@ -77,20 +77,6 @@ class EdgeLabel:
         self.direct = direct
         self.type = type
 
-    def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        edge_label = CFG_pb2.EdgeLabel()
-        edge_label.conditional = self.conditional
-        edge_label.direct = self.direct
-        edge_label.type = self.type.value
-        return edge_label
-
     @classmethod
     def from_protobuf(cls, edge_label):
         """
@@ -98,6 +84,20 @@ class EdgeLabel:
         """
         return cls(edge_label.conditional, edge_label.direct,
                    EdgeLabel.EdgeType(edge_label.type))
+
+    def to_protobuf(self):
+        """
+        Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_edgelabel = CFG_pb2.EdgeLabel()
+        proto_edgelabel.conditional = self.conditional
+        proto_edgelabel.direct = self.direct
+        proto_edgelabel.type = self.type.value
+        return proto_edgelabel
 
 
 class Module(AuxDataContainer):
@@ -212,49 +212,6 @@ class Module(AuxDataContainer):
         # Initialize the CFG last so that the cache is populated
         self.cfg = set(cfg)
 
-
-    def _to_protobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-
-        module = Module_pb2.Module()
-        module.aux_data_container.CopyFrom(super()._to_protobuf())
-        module.binary_path = self.binary_path
-        module.blocks.extend(b._to_protobuf() for b in self.blocks)
-        cfg = CFG_pb2.CFG()
-        cfg.vertices.extend(v.uuid.bytes for v in self.blocks | self.proxies)
-        cfg.edges.extend(e._to_protobuf() for e in self.cfg)
-        module.cfg.CopyFrom(cfg)
-        module.data.extend(d._to_protobuf() for d in self.data)
-        module.image_byte_map.CopyFrom(self.image_byte_map._to_protobuf())
-        module.isa_id = self.isa_id
-        module.file_format = self.file_format
-        module.name = self.name
-        module.preferred_addr = self.preferred_addr
-        module.proxies.extend(p._to_protobuf() for p in self.proxies)
-        module.rebase_delta = self.rebase_delta
-        module.sections.extend(s._to_protobuf() for s in self.sections)
-        module.symbols.extend(s._to_protobuf() for s in self.symbols)
-        for k, v in self.symbolic_operands.items():
-            sym_exp = SymbolicExpression_pb2.SymbolicExpression()
-            if isinstance(v, SymStackConst):
-                sym_exp.stack_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrConst):
-                sym_exp.addr_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrAddr):
-                sym_exp.addr_addr.CopyFrom(v._to_protobuf())
-            else:
-                raise ValueError(
-                    "Expected SymStackConst, SymAddrAddr or SymAddrConst"
-                )
-            module.symbolic_operands[k].CopyFrom(sym_exp)
-        module.uuid = self.uuid.bytes
-        return module
-
     @classmethod
     def _decode_protobuf(cls, proto_module, uuid):
         aux_data = (
@@ -302,3 +259,46 @@ class Module(AuxDataContainer):
             symbolic_operands=symbolic_operands,
             uuid=uuid
         )
+
+    def to_protobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+
+        proto_module = Module_pb2.Module()
+        proto_module.aux_data_container.CopyFrom(super().to_protobuf())
+        proto_module.binary_path = self.binary_path
+        proto_module.blocks.extend(b.to_protobuf() for b in self.blocks)
+        proto_cfg = CFG_pb2.CFG()
+        proto_cfg.vertices.extend(
+            v.uuid.bytes for v in self.blocks | self.proxies)
+        proto_cfg.edges.extend(e.to_protobuf() for e in self.cfg)
+        proto_module.cfg.CopyFrom(cfg)
+        proto_module.data.extend(d.to_protobuf() for d in self.data)
+        proto_module.image_byte_map.CopyFrom(self.image_byte_map.to_protobuf())
+        proto_module.isa_id = self.isa_id
+        proto_module.file_format = self.file_format
+        proto_module.name = self.name
+        proto_module.preferred_addr = self.preferred_addr
+        proto_module.proxies.extend(p.to_protobuf() for p in self.proxies)
+        proto_module.rebase_delta = self.rebase_delta
+        proto_module.sections.extend(s.to_protobuf() for s in self.sections)
+        proto_module.symbols.extend(s.to_protobuf() for s in self.symbols)
+        for k, v in self.symbolic_operands.items():
+            sym_exp = SymbolicExpression_pb2.SymbolicExpression()
+            if isinstance(v, SymStackConst):
+                sym_exp.stack_const.CopyFrom(v.to_protobuf())
+            elif isinstance(v, SymAddrConst):
+                sym_exp.addr_const.CopyFrom(v.to_protobuf())
+            elif isinstance(v, SymAddrAddr):
+                sym_exp.addr_addr.CopyFrom(v.to_protobuf())
+            else:
+                raise ValueError(
+                    "Expected SymStackConst, SymAddrAddr or SymAddrConst"
+                )
+            module.symbolic_operands[k].CopyFrom(sym_exp)
+        module.uuid = self.uuid.bytes
+        return module

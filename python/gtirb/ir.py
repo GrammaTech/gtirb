@@ -36,19 +36,6 @@ class IR(AuxDataContainer):
         super().__init__(aux_data, uuid)
         self.modules = list(modules)
 
-    def _to_protobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = IR_pb2.IR()
-        ret.uuid = self.uuid.bytes
-        ret.modules.extend(m._to_protobuf() for m in self.modules)
-        ret.aux_data_container.CopyFrom(super()._to_protobuf())
-        return ret
-
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
         modules = [Module.from_protobuf(m)
@@ -88,7 +75,7 @@ class IR(AuxDataContainer):
 
         :param protobuf_file: The protobuf file object
         """
-        protobuf_file.write(self._to_protobuf().SerializeToString())
+        protobuf_file.write(self.to_protobuf().SerializeToString())
 
     def save_protobuf(self, file_name):
         """Save IR to protobuf file at path.
@@ -97,3 +84,16 @@ class IR(AuxDataContainer):
         """
         with open(file_name, 'wb') as f:
             self.save_protobuf_file(f)
+
+    def to_protobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_ir = IR_pb2.IR()
+        proto_ir.uuid = self.uuid.bytes
+        proto_ir.modules.extend(m.to_protobuf() for m in self.modules)
+        proto_ir.aux_data_container.CopyFrom(super().to_protobuf())
+        return proto_ir

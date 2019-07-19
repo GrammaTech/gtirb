@@ -15,26 +15,26 @@ class Block(Node):
         self.size = size
         self.decode_mode = decode_mode
 
-    def _to_protobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        ret = Block_pb2.Block()
-        ret.uuid = self.uuid.bytes
-        ret.address = self.address
-        ret.size = self.size
-        ret.decode_mode = self.decode_mode
-        return ret
-
     @classmethod
     def _decode_protobuf(cls, proto_block, uuid):
         return cls(proto_block.address,
                    proto_block.decode_mode,
                    proto_block.size,
                    uuid)
+
+    def to_protobuf(self):
+        """Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_block = Block_pb2.Block()
+        proto_block.uuid = self.uuid.bytes
+        proto_block.address = self.address
+        proto_block.size = self.size
+        proto_block.decode_mode = self.decode_mode
+        return proto_block
 
 
 class ProxyBlock(Node):
@@ -51,17 +51,17 @@ class ProxyBlock(Node):
     an address nor a size.
     """
 
-    def _to_protobuf(self):
+    @classmethod
+    def _decode_protobuf(cls, proto_proxy, uuid):
+        return cls(uuid)
+
+    def to_protobuf(self):
         """Returns protobuf representation of the object
 
         :returns: protobuf representation of the object
         :rtype: protobuf object
 
         """
-        ret = ProxyBlock_pb2.ProxyBlock()
-        ret.uuid = self.uuid.bytes
-        return ret
-
-    @classmethod
-    def _decode_protobuf(cls, proto_proxy, uuid):
-        return cls(uuid)
+        proto_proxyblock = ProxyBlock_pb2.ProxyBlock()
+        proto_proxyblock.uuid = self.uuid.bytes
+        return proto_proxyblock

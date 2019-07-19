@@ -51,24 +51,6 @@ class Symbol(Node):
     def referent(self, referent):
         self._payload = referent
 
-    def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        symbol = Symbol_pb2.Symbol()
-        symbol.uuid = self.uuid.bytes
-        if self.value is not None:
-            symbol.value = self.value
-        elif self.referent is not None:
-            symbol.referent_uuid = self.referent.uuid.bytes
-        symbol.name = self.name
-        symbol.storage_kind = self.storage_kind.value
-        return symbol
-
     @classmethod
     def _decode_protobuf(cls, proto_symbol, uuid):
         storage_kind = Symbol.StorageKind(proto_symbol.storage_kind)
@@ -84,3 +66,21 @@ class Symbol(Node):
             except KeyError as e:
                 raise KeyError("Could not find referent UUID %s" % e)
         return symbol
+
+    def to_protobuf(self):
+        """
+        Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_symbol = Symbol_pb2.Symbol()
+        proto_symbol.uuid = self.uuid.bytes
+        if self.value is not None:
+            proto_symbol.value = self.value
+        elif self.referent is not None:
+            proto_symbol.referent_uuid = self.referent.uuid.bytes
+        proto_symbol.name = self.name
+        proto_symbol.storage_kind = self.storage_kind.value
+        return proto_symbol

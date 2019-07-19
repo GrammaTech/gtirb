@@ -17,7 +17,11 @@ class Section(Node):
         self.address = address
         self.size = size
 
-    def _to_protobuf(self):
+    @classmethod
+    def _decode_protobuf(cls, section, uuid):
+        return cls(section.name, section.address, section.size, uuid)
+
+    def to_protobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -25,13 +29,9 @@ class Section(Node):
         :rtype: protobuf object
 
         """
-        ret = Section_pb2.Section()
-        ret.uuid = self.uuid.bytes
-        ret.name = self.name
-        ret.address = self.address
-        ret.size = self.size
-        return ret
-
-    @classmethod
-    def _decode_protobuf(cls, section, uuid):
-        return cls(section.name, section.address, section.size, uuid)
+        proto_section = Section_pb2.Section()
+        proto_section.uuid = self.uuid.bytes
+        proto_section.name = self.name
+        proto_section.address = self.address
+        proto_section.size = self.size
+        return proto_section

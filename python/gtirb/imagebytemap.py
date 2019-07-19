@@ -89,31 +89,6 @@ class ImageByteMap(Node):
         """Check if a key is within the range of this bytemap"""
         return key >= self.addr_min and key <= self.addr_max
 
-    def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-        byte_map = ByteMap_pb2.ByteMap()
-
-        def encode_region(region):
-            proto_region = ByteMap_pb2.Region()
-            proto_region.address, proto_region.data = region
-            return proto_region
-        byte_map.regions.extend(encode_region(r) for r in self.regions)
-
-        image_byte_map = ImageByteMap_pb2.ImageByteMap()
-        image_byte_map.addr_min = self.addr_min
-        image_byte_map.addr_max = self.addr_max
-        image_byte_map.base_address = self.base_address
-        image_byte_map.byte_map.CopyFrom(byte_map)
-        image_byte_map.entry_point_address = self.entry_point_address
-        image_byte_map.uuid = self.uuid.bytes
-        return image_byte_map
-
     def __contains__(self, key):
         """Checks if a single address is in the byte map"""
         if isinstance(key, int):
@@ -349,3 +324,28 @@ class ImageByteMap(Node):
                 except TypeError:
                     raise TypeError("data is not iterable of bytes")
                 current_address += 1
+
+    def to_protobuf(self):
+        """
+        Returns protobuf representation of the object
+
+        :returns: protobuf representation of the object
+        :rtype: protobuf object
+
+        """
+        proto_byte_map = ByteMap_pb2.ByteMap()
+
+        def encode_region(region):
+            proto_region = ByteMap_pb2.Region()
+            proto_region.address, proto_region.data = region
+            return proto_region
+        proto_byte_map.regions.extend(encode_region(r) for r in self.regions)
+
+        proto_ibm = ImageByteMap_pb2.ImageByteMap()
+        proto_ibm.addr_min = self.addr_min
+        proto_ibm.addr_max = self.addr_max
+        proto_ibm.base_address = self.base_address
+        proto_ibm.byte_map.CopyFrom(proto_byte_map)
+        proto_ibm.entry_point_address = self.entry_point_address
+        proto_ibm.uuid = self.uuid.bytes
+        return proto_ibm

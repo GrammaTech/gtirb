@@ -17,7 +17,19 @@ class SymAddrAddr:
         self.symbol1 = symbol1
         self.symbol2 = symbol2
 
-    def _to_protobuf(self):
+    @classmethod
+    def from_protobuf(cls, proto_symaddraddr):
+        """
+        Load this cls from protobuf object
+        """
+        symbol1 = Node.uuid_cache[UUID(bytes=proto_symaddraddr.symbol1_uuid)]
+        symbol2 = Node.uuid_cache[UUID(bytes=proto_symaddraddr.symbol2_uuid)]
+        return cls(proto_symaddraddr.scale,
+                   proto_symaddraddr.offset,
+                   symbol1,
+                   symbol2)
+
+    def to_protobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -25,21 +37,12 @@ class SymAddrAddr:
         :rtype: protobuf object
 
         """
-        ret = SymbolicExpression_pb2.SymAddrAddr()
-        ret.scale = self.scale
-        ret.offset = self.offset
-        ret.symbol1_uuid = self.symbol1.uuid.bytes
-        ret.symbol2_uuid = self.symbol2.uuid.bytes
-        return ret
-
-    @classmethod
-    def from_protobuf(cls, sym_addr_addr):
-        """
-        Load this cls from protobuf object
-        """
-        symbol1 = Node.uuid_cache[UUID(bytes=sym_addr_addr.symbol1_uuid)]
-        symbol2 = Node.uuid_cache[UUID(bytes=sym_addr_addr.symbol2_uuid)]
-        return cls(sym_addr_addr.scale, sym_addr_addr.offset, symbol1, symbol2)
+        proto_symaddraddr = SymbolicExpression_pb2.SymAddrAddr()
+        proto_symaddraddr.scale = self.scale
+        proto_symaddraddr.offset = self.offset
+        proto_symaddraddr.symbol1_uuid = self.symbol1.uuid.bytes
+        proto_symaddraddr.symbol2_uuid = self.symbol2.uuid.bytes
+        return proto_symaddraddr
 
 
 class SymAddrConst:
@@ -50,7 +53,15 @@ class SymAddrConst:
         self.offset = offset
         self.symbol = symbol
 
-    def _to_protobuf(self):
+    @classmethod
+    def from_protobuf(cls, proto_symaddrconst):
+        """
+        Load this cls from protobuf object
+        """
+        symbol = Node.uuid_cache[UUID(bytes=proto_symaddrconst.symbol_uuid)]
+        return cls(proto_symaddrconst.offset, symbol)
+
+    def to_protobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -58,19 +69,11 @@ class SymAddrConst:
         :rtype: protobuf object
 
         """
-        ret = SymbolicExpression_pb2.SymAddrConst()
-        ret.offset = self.offset
+        proto_symaddrconst = SymbolicExpression_pb2.SymAddrConst()
+        proto_symaddrconst.offset = self.offset
         if self.symbol is not None:
-            ret.symbol_uuid = self.symbol.uuid.bytes
-        return ret
-
-    @classmethod
-    def from_protobuf(cls, sym_addr_const):
-        """
-        Load this cls from protobuf object
-        """
-        symbol = Node.uuid_cache[UUID(bytes=sym_addr_const.symbol_uuid)]
-        return cls(sym_addr_const.offset, symbol)
+            proto_symaddrconst.symbol_uuid = self.symbol.uuid.bytes
+        return proto_symaddrconst
 
 
 class SymStackConst:
@@ -82,7 +85,12 @@ class SymStackConst:
         self.offset = offset
         self.symbol = symbol
 
-    def _to_protobuf(self):
+    @classmethod
+    def from_protobuf(cls, proto_symstackconst):
+        symbol = Node.uuid_cache[UUID(bytes=proto_symstackconst.symbol_uuid)]
+        return cls(proto_symstackconst.offset, symbol)
+
+    def to_protobuf(self):
         """
         Returns protobuf representation of the object
 
@@ -90,13 +98,8 @@ class SymStackConst:
         :rtype: protobuf object
 
         """
-        ret = SymbolicExpression_pb2.SymStackConst()
-        ret.offset = self.offset
+        proto_symstackconst = SymbolicExpression_pb2.SymStackConst()
+        proto_symstackconst.offset = self.offset
         if self.symbol is not None:
-            ret.symbol_uuid = self.symbol.uuid.bytes
-        return ret
-
-    @classmethod
-    def from_protobuf(cls, proto_sym_stack_const):
-        symbol = Node.uuid_cache[UUID(bytes=sym_stack_const.symbol_uuid)]
-        return cls(sym_stack_const.offset, symbol)
+            proto_symstackconst.symbol_uuid = self.symbol.uuid.bytes
+        return proto_symstackconst
