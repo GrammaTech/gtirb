@@ -17,8 +17,8 @@ class DataObject(Node):
         self.size = size
 
     @classmethod
-    def _decode_protobuf(cls, proto_data, uuid):
-        return cls(data_object.address, data_object.size, uuid)
+    def _decode_protobuf(cls, proto_dataobject, uuid):
+        return cls(proto_dataobject.address, proto_dataobject.size, uuid)
 
     def to_protobuf(self):
         """

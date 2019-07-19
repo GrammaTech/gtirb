@@ -222,7 +222,7 @@ class Module(AuxDataContainer):
         cfg = (Edge.from_protobuf(e) for e in proto_module.cfg.edges)
         data = (DataObject.from_protobuf(d) for d in proto_module.data)
         proxies = (ProxyBlock.from_protobuf(p) for p in proto_module.proxies)
-        ibm =  ImageByteMap.from_protobuf(proto_module.image_byte_map)
+        ibm = ImageByteMap.from_protobuf(proto_module.image_byte_map)
         sections = (Section.from_protobuf(s) for s in proto_module.sections)
         symbols = (Symbol.from_protobuf(s) for s in proto_module.symbols)
 
@@ -276,7 +276,7 @@ class Module(AuxDataContainer):
         proto_cfg.vertices.extend(
             v.uuid.bytes for v in self.blocks | self.proxies)
         proto_cfg.edges.extend(e.to_protobuf() for e in self.cfg)
-        proto_module.cfg.CopyFrom(cfg)
+        proto_module.cfg.CopyFrom(proto_cfg)
         proto_module.data.extend(d.to_protobuf() for d in self.data)
         proto_module.image_byte_map.CopyFrom(self.image_byte_map.to_protobuf())
         proto_module.isa_id = self.isa_id
@@ -299,6 +299,6 @@ class Module(AuxDataContainer):
                 raise ValueError(
                     "Expected SymStackConst, SymAddrAddr or SymAddrConst"
                 )
-            module.symbolic_operands[k].CopyFrom(sym_exp)
-        module.uuid = self.uuid.bytes
-        return module
+            proto_module.symbolic_operands[k].CopyFrom(sym_exp)
+        proto_module.uuid = self.uuid.bytes
+        return proto_module

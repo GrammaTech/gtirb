@@ -15,7 +15,6 @@ import IR_pb2
 
 from gtirb.auxdata import AuxData
 from gtirb.auxdatacontainer import AuxDataContainer
-from gtirb.node import Node
 from gtirb.module import Module
 
 

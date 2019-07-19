@@ -29,7 +29,7 @@ class AuxDataContainer(Node):
 
         """
         aux_data = ((key, AuxData.from_protobuf(val))
-                     for key, val in proto_container.aux_data.items())
+                    for key, val in proto_container.aux_data.items())
         return cls(aux_data, uuid)
 
     def to_protobuf(self):
