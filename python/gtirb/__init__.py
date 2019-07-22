@@ -18,7 +18,7 @@ from .block import Block, ProxyBlock
 from .dataobject import DataObject
 from .imagebytemap import ImageByteMap
 from .ir import IR
-from .module import Module
+from .module import Module, Edge
 from .offset import Offset
 from .section import Section
 from .serialization import Serialization
