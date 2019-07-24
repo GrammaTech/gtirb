@@ -1,6 +1,7 @@
 __all__ = [
     'Block',
     'DataObject',
+    'Edge',
     'ImageByteMap',
     'IR',
     'Module',

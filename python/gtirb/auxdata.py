@@ -9,7 +9,14 @@ class AuxData:
     """Types and operations for auxiliary data.  AuxData objects can be
     attached to the IR or individual Modules to store additional
     client-specific data in a portable way.
+
+    Attributes:
+        serializer: A Serialization object used for encoding/decoding aux data
+        data: data associated with this aux data
+        type_name: optional string describing this aux data
     """
+
+    serializer = Serialization()
 
     def __init__(self, data, type_name=None):
         """Constructor
@@ -18,15 +25,14 @@ class AuxData:
         """
         self.data = data
         self.type_name = type_name
-        self.serializer = Serialization()
 
     @classmethod
     def _from_protobuf(cls, aux_data):
         """
         Load pygtirb class from protobuf class
         """
-        serializer = Serialization()
-        data = serializer.decode(aux_data.type_name, BytesIO(aux_data.data))
+        data = AuxData.serializer.decode(aux_data.type_name,
+                                         BytesIO(aux_data.data))
         return cls(data=data, type_name=aux_data.type_name)
 
     def _to_protobuf(self):
@@ -38,8 +44,10 @@ class AuxData:
         """
         proto_auxdata = AuxData_pb2.AuxData()
         out_bytes_array = BytesIO()
-        check_type_name = self.serializer.encode(out_bytes_array, self.data,
-                                                 type_name_hint=self.type_name)
+        check_type_name = \
+            AuxData.serializer.encode(out_bytes_array,
+                                      self.data,
+                                      type_name_hint=self.type_name)
         proto_auxdata.type_name = check_type_name
         out_bytes_array.seek(0)
         proto_auxdata.data = out_bytes_array.read()
