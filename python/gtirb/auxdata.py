@@ -44,11 +44,10 @@ class AuxData:
         """
         proto_auxdata = AuxData_pb2.AuxData()
         out_bytes_array = BytesIO()
-        check_type_name = \
+        proto_auxdata.type_name = \
             AuxData.serializer.encode(out_bytes_array,
                                       self.data,
                                       type_name_hint=self.type_name)
-        proto_auxdata.type_name = check_type_name
         out_bytes_array.seek(0)
         proto_auxdata.data = out_bytes_array.read()
         return proto_auxdata
