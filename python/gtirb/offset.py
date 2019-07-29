@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import Offset_pb2
 
 
@@ -15,7 +17,7 @@ class Offset:
         """
         Load this cls from protobuf object
         """
-        return cls(offset.element_id, offset.displacement)
+        return cls(UUID(bytes=offset.element_id), offset.displacement)
 
     def _to_protobuf(self):
         """
@@ -26,6 +28,6 @@ class Offset:
 
         """
         proto_offset = Offset_pb2.Offset()
-        proto_offset.element_id = self.element_id
+        proto_offset.element_id = self.element_id.bytes
         proto_offset.displacement = self.displacement
         return proto_offset
