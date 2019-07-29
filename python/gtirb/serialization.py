@@ -86,9 +86,6 @@ class MappingCodec(Codec):
         :rtype: string
 
         """
-        if len(mapping) == 0 and type_name_hint is None:
-            raise EncodeError("no type hint for encoding empty mapping")
-
         key_type = None
         val_type = None
 
@@ -105,6 +102,8 @@ class MappingCodec(Codec):
         for key, val in mapping.items():
             encoded_key_type = \
                 serialization.encode(out, key, type_name_hint=key_type)
+            if encoded_key_type == '':
+                raise EncodeError("empty string as encoded key type")
             if key_type is None:
                 key_type = encoded_key_type
             elif key_type != encoded_key_type:
@@ -112,6 +111,8 @@ class MappingCodec(Codec):
 
             encoded_val_type = \
                 serialization.encode(out, val, type_name_hint=val_type)
+            if encoded_val_type == '':
+                raise EncodeError("empty string as encoded value type")
             if val_type is None:
                 val_type = encoded_val_type
             elif val_type != encoded_val_type:
