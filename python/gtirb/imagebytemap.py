@@ -163,8 +163,7 @@ class ImageByteMap(Node):
                 new_region = region[stop_offset:]
                 del self._byte_map[start_range_address]
                 self._byte_map[key.stop] = new_region
-                del self._start_addresses[index]
-                insort(self._start_addresses, key.stop)
+                self._start_addresses[index] = key.stop
 
             # Otherwise split the region
             else:
