@@ -5,8 +5,7 @@ import CFG_pb2
 import Module_pb2
 import SymbolicExpression_pb2
 
-from .auxdata import AuxData
-from .auxdatacontainer import AuxDataContainer
+from .auxdata import AuxData, AuxDataContainer
 from .block import Block, ProxyBlock
 from .dataobject import DataObject
 from .imagebytemap import ImageByteMap

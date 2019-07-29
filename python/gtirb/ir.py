@@ -13,8 +13,7 @@ Writing back the ir instance as a protobuf file
 
 import IR_pb2
 
-from .auxdata import AuxData
-from .auxdatacontainer import AuxDataContainer
+from .auxdata import AuxData, AuxDataContainer
 from .module import Module
 
 
