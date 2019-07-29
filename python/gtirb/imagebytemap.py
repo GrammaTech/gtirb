@@ -1,6 +1,4 @@
 from bisect import bisect_right, bisect_left, insort
-from itertools import groupby
-from operator import itemgetter
 
 import ByteMap_pb2
 import ImageByteMap_pb2
@@ -29,33 +27,24 @@ class ImageByteMap(Node):
 
         # Deep copy of the byte map
         self._byte_map = {k: bytearray(v) for k, v in byte_map.items()}
-        self._start_addresses = sorted(self._byte_map.keys())
-
-        # Validate byte_map by checking for overlapping regions while
-        # identifying adjacent regions that can be combined
-        max_addrs = [addr + len(self._byte_map[addr])
-                     for addr in self._start_addresses]
-        to_combine = set()
-        for i, (max_addr, next_addr) in \
-                enumerate(zip(max_addrs[:-1], self._start_addresses[1:])):
-            if max_addr > next_addr:
+        # Validate/coalesce address ranges
+        self._start_addresses = list()
+        addresses = sorted(byte_map.keys())
+        if not all(self._in_range(addr) for addr in addresses):
+            raise ValueError("address in byte map out of range")
+        max_addr = None
+        for addr in addresses:
+            if max_addr is None or max_addr < addr:
+                self._start_addresses.append(addr)
+                min_addr = addr
+            elif max_addr == addr:
+                self._byte_map[min_addr] += self._byte_map[addr]
+                del self._byte_map[addr]
+            else:
                 raise ValueError("address ranges in byte map overlap")
-            if max_addr == next_addr:
-                to_combine |= {i, i + 1}
-
-        # Combine adjacent regions. Code for grouping consecutive numbers
-        # via https://stackoverflow.com/a/2361991
-        combine_indices = enumerate(sorted(to_combine))
-        for _, g in groupby(combine_indices, lambda ix: ix[0] - ix[1]):
-            start_index, *rest = map(itemgetter(1), g)
-            start_addr = self._start_addresses[start_index]
-            new_range = self._byte_map[start_addr]
-            for next_index in rest:
-                next_addr = self._start_addresses[next_index]
-                del self._start_addresses[next_index]
-                new_range += self._byte_map[next_addr]
-                del self._byte_map[next_addr]
-            self._byte_map[start_addr] = new_range
+            max_addr = min_addr + len(self._byte_map[min_addr])
+        if max_addr is not None and not self._in_range(max_addr - 1):
+            raise ValueError("address in byte map out of range")
 
     @classmethod
     def _decode_protobuf(cls, proto_ibm, uuid):
