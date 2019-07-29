@@ -48,6 +48,5 @@ class AuxData:
             AuxData.serializer.encode(out_bytes_array,
                                       self.data,
                                       type_name_hint=self.type_name)
-        out_bytes_array.seek(0)
-        proto_auxdata.data = out_bytes_array.read()
+        proto_auxdata.data = out_bytes_array.getvalue()
         return proto_auxdata
