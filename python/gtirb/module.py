@@ -189,7 +189,6 @@ class Module(AuxDataContainer):
         :rtype: Module
 
         """
-        super().__init__(aux_data, uuid)
 
         if image_byte_map is None:
             image_byte_map = ImageByteMap()
@@ -208,7 +207,8 @@ class Module(AuxDataContainer):
         self.symbols = set(symbols)
         self.symbolic_operands = dict(symbolic_operands)
 
-        # Initialize the CFG last so that the cache is populated
+        # Initialize the CFG and aux data last so that the cache is populated
+        super().__init__(aux_data, uuid)
         self.cfg = set(cfg)
 
     @classmethod

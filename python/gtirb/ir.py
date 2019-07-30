@@ -31,11 +31,13 @@ class IR(AuxDataContainer):
         :returns: IR
         :rtype: IR
         """
-        super().__init__(aux_data, uuid)
         self.modules = list(modules)
+        super().__init__(aux_data, uuid)
 
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
+        # Note: modules are decoded before the aux data, since the UUID
+        # decoder checks Node's cache.
         modules = [Module._from_protobuf(m)
                    for m in proto_ir.modules]
         aux_data = {

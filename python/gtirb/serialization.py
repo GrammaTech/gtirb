@@ -11,6 +11,7 @@ from uuid import UUID
 
 from .addr import Addr
 from .offset import Offset
+from .node import Node
 
 
 class CodecError(Exception):
@@ -260,7 +261,10 @@ class UUIDCodec(Codec):
         :rtype: tuple
 
         """
-        return UUID(bytes=raw_bytes.read(16))
+        uuid = UUID(bytes=raw_bytes.read(16))
+        if uuid in Node._uuid_cache:
+            return Node._uuid_cache[uuid]
+        return uuid
 
     def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """encode UUID to bytes
