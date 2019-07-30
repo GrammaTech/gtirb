@@ -9,6 +9,7 @@ class that holds the encode and decode functions for a type.
 from re import findall
 from uuid import UUID
 
+from .addr import Addr
 from .offset import Offset
 
 
@@ -278,19 +279,6 @@ class UUIDCodec(Codec):
 
 
 class AddrCodec(Codec):
-    class Addr:
-        """A class for holding addresses. This is defined because codecs are
-        selected based on the class name during encoding."""
-        def __init__(self, address=None):
-            self.address = address
-
-        def __eq__(self, other):
-            return isinstance(other, type(self)) and \
-                self.address == other.address
-
-        def __hash__(self):
-            return hash(self.address)
-
     def decode(self, raw_bytes, subtypes, serialization):
         """decode an Addr entry
 
@@ -300,7 +288,7 @@ class AddrCodec(Codec):
 
         """
         addr = serialization.decode('uint64_t', raw_bytes)
-        return AddrCodec.Addr(addr)
+        return Addr(addr)
 
     def encode(self, out, val, serialization=None, *, type_name_hint=None):
         """encode Addr to bytes

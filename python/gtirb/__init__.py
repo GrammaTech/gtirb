@@ -1,4 +1,5 @@
 __all__ = [
+    'Addr',
     'Block',
     'DataObject',
     'Edge',
@@ -15,6 +16,7 @@ __all__ = [
     'SymStackConst',
     ]
 
+from .addr import Addr
 from .block import Block, ProxyBlock
 from .dataobject import DataObject
 from .imagebytemap import ImageByteMap
