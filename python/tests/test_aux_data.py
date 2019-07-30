@@ -4,7 +4,7 @@ import unittest
 from collections import namedtuple
 from uuid import UUID
 
-from gtirb import Addr, Block, DataObject, IR, Symbol
+from gtirb import Addr, Block, DataObject, IR, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):
@@ -16,9 +16,7 @@ class AuxDataTest(unittest.TestCase):
 
         def alignment_items_test(items):
             for key, alignment in items:
-                # Can also be a Section in C++, but Section is not currently
-                # implemented in the Python API
-                self.assertIsInstance(key, (Block, DataObject))
+                self.assertIsInstance(key, (Block, DataObject, Section))
                 self.assertIsInstance(alignment, int)
 
         def comments_items_test(items):
