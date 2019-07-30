@@ -33,8 +33,8 @@ class AuxData:
         """
         Load pygtirb class from protobuf class
         """
-        data = AuxData.serializer.decode(aux_data.type_name,
-                                         BytesIO(aux_data.data))
+        data = AuxData.serializer.decode(BytesIO(aux_data.data),
+                                         aux_data.type_name)
         return cls(data=data, type_name=aux_data.type_name)
 
     def _to_protobuf(self):
@@ -49,7 +49,7 @@ class AuxData:
         proto_auxdata.type_name = \
             AuxData.serializer.encode(out_bytes_array,
                                       self.data,
-                                      type_name_hint=self.type_name)
+                                      self.type_name)
         proto_auxdata.data = out_bytes_array.getvalue()
         return proto_auxdata
 

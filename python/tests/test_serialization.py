@@ -1,5 +1,5 @@
 import unittest
-from gtirb.serialization import Serialization, TypeNameHintError
+from gtirb.serialization import Serialization, TypeNameError
 
 
 class TestSerialization(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestSerialization(unittest.TestCase):
             test_positive(type_name, oracle)
 
         def test_negative(type_name):
-            with self.assertRaises(TypeNameHintError, msg=type_name):
+            with self.assertRaises(TypeNameError, msg=type_name):
                 Serialization.parse_type(type_name)
 
         negative_tests = [
