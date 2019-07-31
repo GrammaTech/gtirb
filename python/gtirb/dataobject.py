@@ -4,14 +4,17 @@ from .node import Node
 
 
 class DataObject(Node):
-    """
-    Represents a data object, possibly symbolic.
+    """Represents a data object, possibly symbolic.
 
-    Does not directly store the data bytes, which are kept in the
-    ImageByteMap.
-    """
+    Does not directly store data bytes, which are kept in an ImageByteMap.
 
-    def __init__(self, address=0, size=0, uuid=None):
+    Attributes:
+        address: the address of the data object
+        size: the size of the data object
+        uuid: the UUID of this Node
+
+    """
+    def __init__(self, address, size, uuid):
         super().__init__(uuid)
         self.address = address
         self.size = size
@@ -21,13 +24,6 @@ class DataObject(Node):
         return cls(proto_dataobject.address, proto_dataobject.size, uuid)
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_dataobject = DataObject_pb2.DataObject()
         proto_dataobject.uuid = self.uuid.bytes
         proto_dataobject.address = self.address
