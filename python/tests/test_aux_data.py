@@ -14,8 +14,8 @@ class AuxDataTest(unittest.TestCase):
         The tests for the standard AuxDataTables check both the type name and
         the type of the contents after reading the tables.
 
-        The standard AuxData Schemata are listed here:
-        https://grammatech.github.io/gtirb/md__aux_data.html
+        The standard AuxData Schemata are listed in AuxData.md, and these tests
+        should match what is listed there.
 
         AuxData table entries referring to Nodes are encoded as UUIDs. Codecs
         look up these Nodes in a cache and return the actual object. It is

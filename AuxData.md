@@ -45,12 +45,12 @@ The following are the sanctioned AuxData table schemata.
 
 | Label                                     | Type                                                          |
 |-------------------------------------------|---------------------------------------------------------------|
-| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```           |
+| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
 | [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
 | [`"types"`](#types)                       | ```std::map<gtirb::UUID,std::string>```                       |
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```                         |
 | [`"comments"`](#comments)                 | ```std::map<std::pair<gtirb::UUID, uint64_t>, std::string>``` |
-| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::Symbol,gtirb::Symbol>```                   |
+| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID,gtirb::UUID>```                       |
 | [`"padding"`](#padding)                   | ```std::map<gtirb::Addr, uint64_t>```                         |
 
 
@@ -106,12 +106,12 @@ The following are the sanctioned AuxData table schemata.
 
 ### symbolForwarding
 
-| <!-- --> | <!-- -->                                    |
-|----------|---------------------------------------------|
-| Label    | ```"symbolForwarding"```                    |
-| Type     | ```std::map<gtirb::Symbol,gtirb::Symbol>``` |
-| Key      | The "from" gtirb::Symbol.                   |
-| Value    | The "to" gtirb::Symbol.                     |
+| <!-- --> | <!-- -->                                     |
+|----------|----------------------------------------------|
+| Label    | ```"symbolForwarding"```                     |
+| Type     | ```std::map<gtirb::UUID,gtirb::UUID>```      |
+| Key      | The gtirb::UUID of the "from" gtirb::Symbol. |
+| Value    | The gtirb::UUID of the "to" gtirb::Symbol.   |
 
 
 ### padding
