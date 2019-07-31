@@ -369,19 +369,6 @@ class Serialization:
             raise TypeNameError(type_name)
         return parse_tree
 
-    @staticmethod
-    def _type_tree_str(type_tree):
-        """Returns a string corresponding to a type tree in the same format
-        created by Serialization._parse_type()
-
-        """
-        type_name, subtypes = type_tree
-        if len(subtypes) == 0:
-            return type_name
-        subtype_names = \
-            ','.join(Serialization._type_tree_str(subt) for subt in subtypes)
-        return '%s<%s>' % (type_name, subtype_names)
-
     def decode(self, raw_bytes, type_name):
         """Top level decode function."""
         parse_tree = Serialization._parse_type(type_name)

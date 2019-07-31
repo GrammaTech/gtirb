@@ -36,26 +36,6 @@ class TestSerialization(unittest.TestCase):
         for type_name in negative_tests:
             test_negative(type_name)
 
-    def test_type_tree_str(self):
-        def test_one(type_tree, oracle):
-            self.assertEqual(Serialization._type_tree_str(type_tree), oracle)
-        """The inverse transformation of the above tests"""
-        positive_tests = [
-            ('mapping', ('mapping', ())),
-            ('mapping<FOO,BAR>',
-             ('mapping', (('FOO', ()), ('BAR', ())))),
-            ('mapping<FOO,set<BAR>>',
-             ('mapping', (('FOO', ()), ('set', (('BAR', ()),))))),
-            ('mapping<FOO,mapping<BAR,BAZ>>',
-             ('mapping', (('FOO', ()),
-                          ('mapping', (('BAR', ()), ('BAZ', ())))))),
-            ('mapping<mapping<BAR,BAZ>,FOO>',
-             ('mapping', (('mapping', (('BAR', ()), ('BAZ', ()))),
-                          ('FOO', ())))),
-        ]
-        for oracle, type_tree in positive_tests:
-            test_one(type_tree, oracle)
-
 
 if __name__ == '__main__':
     unittest.main()
