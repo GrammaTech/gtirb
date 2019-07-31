@@ -16,10 +16,14 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 
 
 class Edge:
-    """
-    An Edge in the CFG. Consists of a source and target Block
-    """
+    """An Edge in the CFG.
 
+    Parameters:
+        label: an EdgeLabel for this edge
+        source: source Block
+        target: target Block
+
+    """
     def __init__(self, label, source, target):
         self.label = label
         self.source = source
@@ -27,9 +31,6 @@ class Edge:
 
     @classmethod
     def _from_protobuf(cls, edge):
-        """
-        Load this cls from protobuf object
-        """
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
         try:
@@ -41,13 +42,6 @@ class Edge:
         return cls(EdgeLabel._from_protobuf(edge.label), source, target)
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_edge = CFG_pb2.Edge()
         proto_edge.source_uuid = self.source.uuid.bytes
         proto_edge.target_uuid = self.target.uuid.bytes
@@ -56,14 +50,18 @@ class Edge:
 
 
 class EdgeLabel:
-    """
-    A label on a CFG edge.
+    """A label for an Edge
+
+    Attributes:
+        conditional: boolean indicating if an edge is conditional on
+            True or False
+        direct: boolean indicating if an edge is direct or indirect
+        type: EdgeType of the edge
+
     """
     class EdgeType(Enum):
-        """
-        Indicates the type of control flow transfer indicated by this
-        edge.
-        """
+        """Type of control flow transfer indicated by this edge"""
+
         Branch = CFG_pb2.EdgeType.Value('Type_Branch')
         Call = CFG_pb2.EdgeType.Value('Type_Call')
         Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
@@ -78,20 +76,10 @@ class EdgeLabel:
 
     @classmethod
     def _from_protobuf(cls, edge_label):
-        """
-        Load this cls from protobuf object
-        """
         return cls(edge_label.conditional, edge_label.direct,
                    EdgeLabel.EdgeType(edge_label.type))
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_edgelabel = CFG_pb2.EdgeLabel()
         proto_edgelabel.conditional = self.conditional
         proto_edgelabel.direct = self.direct
@@ -100,11 +88,26 @@ class EdgeLabel:
 
 
 class Module(AuxDataContainer):
-    """
-    The Module class represents loadable objects such as executables
-    or libraries
-    """
+    """Represents loadable objects such as executables or libraries
 
+    Attributes:
+        binary_path: the path to the binary
+        blocks: set of contained Blocks
+        data: set of contained DataObjects
+        image_byte_map: ImageByteMap containing the raw data in the binary
+        isa_id: ISAID of the binary
+        file_format: FileFormat of the binary
+        name: name of the binary
+        preferred_addr: preferred loading address of the binary
+        proxies: set of contained ProxyBlocks
+        rebase_delta: rebase delta of the binary
+        sections: set of contained Sections
+        symbols: set of contained Symbols
+        symbolic_operands: dict mapping addresses to symbolic operands.
+            (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
+        uuid: the UUID of this Node
+
+    """
     class FileFormat(Enum):
         """Identifies an executable file format
 
@@ -167,29 +170,6 @@ class Module(AuxDataContainer):
                  symbols=set(),
                  symbolic_operands=dict(),
                  uuid=None):
-        """Constructor
-        :param aux_data:
-        :param binary_path:
-        :param blocks:
-        :param cfg:
-        :param data:
-        :param image_byte_map:
-        :param isa_id:
-        :param file_format:
-        :param name:
-        :param preferred_addr:
-        :param proxies:
-        :param rebase_delta:
-        :param sections:
-        :param symbols:
-        :param symbolic_operands:
-        :param uuid:
-
-        :returns: Module
-        :rtype: Module
-
-        """
-
         if image_byte_map is None:
             image_byte_map = ImageByteMap()
 
@@ -260,13 +240,6 @@ class Module(AuxDataContainer):
         )
 
     def _to_protobuf(self):
-        """Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
-
         proto_module = Module_pb2.Module()
         proto_module.aux_data_container.CopyFrom(super()._to_protobuf())
         proto_module.binary_path = self.binary_path
