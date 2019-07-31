@@ -32,6 +32,9 @@ class TestSerialization(unittest.TestCase):
             'mapping<><>',
             'mapping<<><>>',
             'mapping<<foo><bar>>',
+            'mapping<,>',
+            'mapping<FOO,>',
+            'mapping<,BAR>',
         ]
         for type_name in negative_tests:
             test_negative(type_name)
