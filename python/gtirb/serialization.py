@@ -4,7 +4,6 @@ The Serialization class is used for encoding/decoding GTIRB types using
 codecs definded from the Codec base class
 
 """
-
 from re import findall
 from uuid import UUID
 
@@ -209,16 +208,15 @@ class OffsetCodec(Codec):
 
 
 class UUIDCodec(Codec):
-    """Codec for UUIDs."""
+    """Codec for raw UUIDs or Nodes
 
+    Decoding a UUID first checks the Node cache for an object with the
+    corresponding UUID, and either returns the object it hits or a new
+    raw UUID.
+
+    """
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
-        """Decodes a UUID and checks the Node cache for an object with
-        the corresponding UUID. If the object is not in the cache, returns
-        a new UUID object instead.
-
-        """
-
         if subtypes != ():
             raise DecodeError("UUID should have no subtypes")
         uuid = UUID(bytes=raw_bytes.read(16))
@@ -230,7 +228,12 @@ class UUIDCodec(Codec):
     def encode(out, val, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
             raise EncodeError("UUID should have no subtypes")
-        out.write(val.bytes)
+        if isinstance(val, Node):
+            out.write(val.uuid.bytes)
+        elif isinstance(val, UUID):
+            out.write(val.bytes)
+        else:
+            raise EncodeError("UUID codec only supports UUIDs or Nodes")
         return 'UUID'
 
 
@@ -282,7 +285,6 @@ class Serialization:
         type_mapping: a dictionary mapping Python types to encoded GTIRB types
 
     """
-
     def __init__(self):
         self.codecs = {
             'Addr': AddrCodec,
@@ -317,7 +319,6 @@ class Serialization:
            a nested tuple of parsed type/subtype tuples
 
         """
-
         tokens = findall('[^<>,]+|<|>|,', type_name)
 
         def parse(tokens, tree):
@@ -385,8 +386,8 @@ class Serialization:
     def type_tree_str(type_tree):
         """Returns a string corresponding to a type tree in the same format
         created by Serialization.parse_type()
-        """
 
+        """
         type_name, subtypes = type_tree
         if len(subtypes) == 0:
             return type_name
@@ -407,6 +408,7 @@ class Serialization:
 
     def decode_tree(self, raw_bytes, type_tree):
         """Decodes given a parsed type tree"""
+
         try:
             type_name, subtypes = type_tree
         except ValueError:
@@ -419,6 +421,7 @@ class Serialization:
 
     def encode(self, out, val, subtypes):
         """Top level encode function."""
+
         class_name = val.__class__.__name__
         type_name = self.type_mapping.get(class_name, class_name)
         parse_tree = Serialization.parse_type(subtypes)
@@ -426,5 +429,6 @@ class Serialization:
 
     def decode(self, raw_bytes, type_name):
         """Top level decode function."""
+
         parse_tree = Serialization.parse_type(type_name)
         return self.decode_tree(raw_bytes, parse_tree)
