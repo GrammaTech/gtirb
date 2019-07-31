@@ -246,7 +246,6 @@ class Serialization:
     Attributes:
         codecs: dictionary mapping type names to codecs. Codecs can be added
             or overridden using this dictionary.
-        type_mapping: a dictionary mapping Python types to encoded GTIRB types
 
     """
     def __init__(self):
@@ -259,13 +258,6 @@ class Serialization:
             'string': StringCodec,
             'uint64_t': Uint64Codec,
             'UUID': UUIDCodec,
-        }
-        self.type_mapping = {
-            'dict': 'mapping',
-            'int': 'uint64_t',
-            'list': 'sequence',
-            'set': 'set',
-            'str': 'string',
         }
 
     def _decode_tree(self, raw_bytes, type_tree):
