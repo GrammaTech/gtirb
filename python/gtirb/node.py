@@ -10,6 +10,7 @@ class DecodeError(Exception):
 
 class Node:
     """Base class for 'nodes', which can be referenced by their UUID"""
+
     _uuid_cache = WeakValueDictionary()
 
     def __init__(self, uuid=None):
@@ -19,13 +20,26 @@ class Node:
 
     @classmethod
     def _decode_protobuf(cls, proto_object, uuid):
+        """Decode a Protobuf object to a Python GTIRB object.
+
+        Must be overridden by subclasses.
+
+        Parameters:
+            cls: the Python GTIRB class to construct
+            proto_object: the Protobuf object
+            uuid: the UUID of the object. Automatically inserted into the
+                cache by _from_protobuf.
+
+        """
         raise NotImplementedError
 
     @classmethod
     def _from_protobuf(cls, proto_object):
-        """The default implementation of _from_protobuf performs a cache lookup
-        for the object's UUID in the cache, calling the appropriate
-        _decode_protobuf constructor if cannot find it.
+        """Deserialize a Node from Protobuf
+
+        Performs a cache lookup for the object's UUID in the cache, calling the
+        class' _decode_protobuf constructor if cannot find it.
+
         """
         uuid = UUID(bytes=proto_object.uuid)
         if uuid in Node._uuid_cache:
@@ -39,3 +53,11 @@ class Node:
         new_node = cls._decode_protobuf(proto_object, uuid)
         Node._uuid_cache[new_node.uuid] = new_node
         return new_node
+
+    def _to_protobuf(self):
+        """Return a Protobuf representation of the object.
+
+        Must be overridden by subclasses.
+
+        """
+        raise NotImplementedError
