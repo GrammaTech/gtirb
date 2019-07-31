@@ -64,7 +64,7 @@ class ImageByteMap(Node):
             else:
                 raise ValueError("address ranges in byte map overlap")
             max_addr = min_addr + len(self._byte_map[min_addr])
-        if max_addr is not None and addr_max <= max_addr:
+        if max_addr is not None and max_addr - 1 > addr_max:
             raise ValueError("address in byte map out of range")
 
     def __contains__(self, key):
