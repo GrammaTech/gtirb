@@ -21,13 +21,6 @@ class AuxData:
     serializer = Serialization()
 
     def __init__(self, data, type_name=None):
-        """Create a new AuxData object
-
-        Parameters:
-            data: Aux data
-            type_name: Optional string. Type of the data.
-
-        """
         self.data = data
         self.type_name = type_name
 
@@ -58,16 +51,15 @@ class AuxData:
 
 
 class AuxDataContainer(Node):
-    """Holds AuxData tables, base class for IR and Module"""
+    """Holds AuxData tables, base class for IR and Module
 
+    Attributes:
+        aux_data: dict(str, AuxData), optional dict mapping type names to
+            AuxData objects
+        uuid: the UUID of this Node
+
+    """
     def __init__(self, aux_data=dict(), uuid=None):
-        """Create a new AuxDataContainer
-
-        Parameters:
-            aux_data: dict(str, AuxData), optional dict mapping
-                type names to AuxData objects
-
-        """
         super().__init__(uuid)
         self.aux_data = dict(aux_data)
 
