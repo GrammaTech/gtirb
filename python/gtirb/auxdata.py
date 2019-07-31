@@ -20,7 +20,7 @@ class AuxData:
     """
     serializer = Serialization()
 
-    def __init__(self, data, type_name=None):
+    def __init__(self, data, type_name):
         self.data = data
         self.type_name = type_name
 
