@@ -418,12 +418,12 @@ class Serialization:
             ','.join(Serialization._type_tree_str(subt) for subt in subtypes)
         return '%s<%s>' % (type_name, subtype_names)
 
-    def encode(self, out, val, type_name):
-        """Top level encode function."""
-        parse_tree = Serialization._parse_type(type_name)
-        return self._encode_tree(out, val, parse_tree)
-
     def decode(self, raw_bytes, type_name):
         """Top level decode function."""
         parse_tree = Serialization._parse_type(type_name)
         return self._decode_tree(raw_bytes, parse_tree)
+
+    def encode(self, out, val, type_name):
+        """Top level encode function."""
+        parse_tree = Serialization._parse_type(type_name)
+        return self._encode_tree(out, val, parse_tree)
