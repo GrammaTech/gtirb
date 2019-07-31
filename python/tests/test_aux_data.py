@@ -8,8 +8,24 @@ from gtirb import Block, DataObject, IR, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):
-    def test_ir_open(self):
+    def test_aux_data(self):
+        """Test standard AuxDataTables
 
+        The tests for the standard AuxDataTables check both the type name and
+        the type of the contents after reading the tables.
+
+        The standard AuxData Schemata are listed here:
+        https://grammatech.github.io/gtirb/md__aux_data.html
+
+        AuxData table entries referring to Nodes are encoded as UUIDs. Codecs
+        look up these Nodes in a cache and return the actual object. It is
+        legal and possible to not hit a UUID in a cache, but this should be
+        detected using these tests.
+
+        Each of the *_items_test checks that all items are of the expected type
+        after reading in the aux data.
+
+        """
         test_path = os.path.dirname(os.path.realpath(__file__))
 
         TableTest = namedtuple('TableTest', ['type_name', 'items_test'])
