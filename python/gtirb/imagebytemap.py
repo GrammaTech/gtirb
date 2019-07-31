@@ -51,7 +51,7 @@ class ImageByteMap(Node):
         # Validate/coalesce address ranges
         self._start_addresses = list()
         addresses = sorted(byte_map.keys())
-        if not all(self._in_range(addr) for addr in addresses):
+        if len(addresses) != 0 and addresses[0] < addr_min:
             raise ValueError("address in byte map out of range")
         max_addr = None
         for addr in addresses:
@@ -64,7 +64,7 @@ class ImageByteMap(Node):
             else:
                 raise ValueError("address ranges in byte map overlap")
             max_addr = min_addr + len(self._byte_map[min_addr])
-        if max_addr is not None and not self._in_range(max_addr - 1):
+        if max_addr is not None and addr_max <= max_addr:
             raise ValueError("address in byte map out of range")
 
     def __contains__(self, key):
