@@ -5,7 +5,7 @@ from gtirb.serialization import Serialization, TypeNameError
 class TestSerialization(unittest.TestCase):
     def test_parse_type(self):
         def test_positive(type_name, oracle):
-            self.assertEqual(Serialization.parse_type(type_name), oracle)
+            self.assertEqual(Serialization._parse_type(type_name), oracle)
         positive_tests = [
             ('mapping', ('mapping', ())),
             ('mapping<FOO,BAR>',
@@ -24,7 +24,7 @@ class TestSerialization(unittest.TestCase):
 
         def test_negative(type_name):
             with self.assertRaises(TypeNameError, msg=type_name):
-                Serialization.parse_type(type_name)
+                Serialization._parse_type(type_name)
 
         negative_tests = [
             'mapping<<>',
@@ -38,7 +38,7 @@ class TestSerialization(unittest.TestCase):
 
     def test_type_tree_str(self):
         def test_one(type_tree, oracle):
-            self.assertEqual(Serialization.type_tree_str(type_tree), oracle)
+            self.assertEqual(Serialization._type_tree_str(type_tree), oracle)
         """The inverse transformation of the above tests"""
         positive_tests = [
             ('mapping', ('mapping', ())),

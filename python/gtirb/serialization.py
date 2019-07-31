@@ -89,8 +89,8 @@ class MappingCodec(Codec):
         mapping = dict()
         mapping_len = Uint64Codec.decode(raw_bytes)
         for _ in range(mapping_len):
-            key = serialization.decode_tree(raw_bytes, key_type)
-            val = serialization.decode_tree(raw_bytes, val_type)
+            key = serialization._decode_tree(raw_bytes, key_type)
+            val = serialization._decode_tree(raw_bytes, val_type)
             mapping[key] = val
         return mapping
 
@@ -104,10 +104,10 @@ class MappingCodec(Codec):
         Uint64Codec.encode(out, len(mapping))
 
         for key, val in mapping.items():
-            serialization.encode_tree(out, key, key_type)
-            serialization.encode_tree(out, val, val_type)
-        key_type_name = Serialization.type_tree_str(key_type)
-        val_type_name = Serialization.type_tree_str(val_type)
+            serialization._encode_tree(out, key, key_type)
+            serialization._encode_tree(out, val, val_type)
+        key_type_name = Serialization._type_tree_str(key_type)
+        val_type_name = Serialization._type_tree_str(val_type)
         return 'mapping<%s,%s>' % (key_type_name, val_type_name)
 
 
@@ -123,7 +123,7 @@ class SequenceCodec(Codec):
         sequence = list()
         sequence_len = Uint64Codec.decode(raw_bytes)
         for _ in range(sequence_len):
-            sequence.append(serialization.decode_tree(raw_bytes, subtype))
+            sequence.append(serialization._decode_tree(raw_bytes, subtype))
         return sequence
 
     @staticmethod
@@ -132,10 +132,10 @@ class SequenceCodec(Codec):
             subtype, = subtypes
         except (TypeError, ValueError) as e:
             raise EncodeError("could not unpack sequence type: %s" % str(e))
-        subtype_name = Serialization.type_tree_str(subtype)
+        subtype_name = Serialization._type_tree_str(subtype)
         Uint64Codec.encode(out, len(sequence))
         for item in sequence:
-            serialization.encode_tree(out, item, subtype)
+            serialization._encode_tree(out, item, subtype)
         return 'sequence<%s>' % subtype_name
 
 
@@ -151,7 +151,7 @@ class SetCodec(Codec):
         decoded_set = set()
         set_len = Uint64Codec.decode(raw_bytes)
         for _ in range(set_len):
-            decoded_set.add(serialization.decode_tree(raw_bytes, subtype))
+            decoded_set.add(serialization._decode_tree(raw_bytes, subtype))
         return decoded_set
 
     @staticmethod
@@ -160,10 +160,10 @@ class SetCodec(Codec):
             subtype, = subtypes
         except (TypeError, ValueError) as e:
             raise EncodeError("could not unpack set type: %s" % str(e))
-        subtype_name = Serialization.type_tree_str(subtype)
+        subtype_name = Serialization._type_tree_str(subtype)
         Uint64Codec.encode(out, len(items))
         for item in items:
-            serialization.encode_tree(out, item, subtype)
+            serialization._encode_tree(out, item, subtype)
         return 'set<%s>' % subtype_name
 
 
@@ -304,16 +304,39 @@ class Serialization:
             'str': 'string',
         }
 
+    def _decode_tree(self, raw_bytes, type_tree):
+        """Decodes given a parsed type tree"""
+        try:
+            type_name, subtypes = type_tree
+        except ValueError:
+            raise DecodeError(
+                "could not unpack type tree %s" % str(type_tree))
+        if type_name not in self.codecs:
+            raise DecodeError("no decoder for %s" % type_name)
+        codec = self.codecs[type_name]
+        return codec.decode(raw_bytes, serialization=self, subtypes=subtypes)
+
+    def _encode_tree(self, out, val, type_tree):
+        try:
+            type_name, subtypes = type_tree
+        except ValueError:
+            raise EncodeError(
+                "could not unpack type tree %s" % str(type_tree))
+        if type_name not in self.codecs:
+            raise EncodeError("no encoder for %s" % type_name)
+        codec = self.codecs[type_name]
+        return codec.encode(out, val, serialization=self, subtypes=subtypes)
+
     @staticmethod
-    def parse_type(type_name):
+    def _parse_type(type_name):
         """ Given an encoded aux_data type_name, generate its parse tree
         A single parsed type is a tuple of the type name and a tuple of its
         subtypes, an empty tuple indicates no subtype.
 
         Examples:
-          parse_type('foo') == ('foo', ())
-          parse_type('foo<bar>') ==  ('foo', (('bar',()),))
-          parse_type('foo<bar<baz>>') == ('foo', (('bar', (('baz', ()),)),))
+          _parse_type('foo') == ('foo', ())
+          _parse_type('foo<bar>') ==  ('foo', (('bar',()),))
+          _parse_type('foo<bar<baz>>') == ('foo', (('bar', (('baz', ()),)),))
 
         Returns:
            a nested tuple of parsed type/subtype tuples
@@ -383,52 +406,24 @@ class Serialization:
         return parse_tree
 
     @staticmethod
-    def type_tree_str(type_tree):
+    def _type_tree_str(type_tree):
         """Returns a string corresponding to a type tree in the same format
-        created by Serialization.parse_type()
+        created by Serialization._parse_type()
 
         """
         type_name, subtypes = type_tree
         if len(subtypes) == 0:
             return type_name
         subtype_names = \
-            ','.join(Serialization.type_tree_str(subt) for subt in subtypes)
+            ','.join(Serialization._type_tree_str(subt) for subt in subtypes)
         return '%s<%s>' % (type_name, subtype_names)
 
-    def encode_tree(self, out, val, type_tree):
-        try:
-            type_name, subtypes = type_tree
-        except ValueError:
-            raise EncodeError(
-                "could not unpack type tree %s" % str(type_tree))
-        if type_name not in self.codecs:
-            raise EncodeError("no encoder for %s" % type_name)
-        codec = self.codecs[type_name]
-        return codec.encode(out, val, serialization=self, subtypes=subtypes)
-
-    def decode_tree(self, raw_bytes, type_tree):
-        """Decodes given a parsed type tree"""
-
-        try:
-            type_name, subtypes = type_tree
-        except ValueError:
-            raise DecodeError(
-                "could not unpack type tree %s" % str(type_tree))
-        if type_name not in self.codecs:
-            raise DecodeError("no decoder for %s" % type_name)
-        codec = self.codecs[type_name]
-        return codec.decode(raw_bytes, serialization=self, subtypes=subtypes)
-
-    def encode(self, out, val, subtypes):
+    def encode(self, out, val, type_name):
         """Top level encode function."""
-
-        class_name = val.__class__.__name__
-        type_name = self.type_mapping.get(class_name, class_name)
-        parse_tree = Serialization.parse_type(subtypes)
-        return self.encode_tree(out, val, type_name, parse_tree)
+        parse_tree = Serialization._parse_type(type_name)
+        return self._encode_tree(out, val, parse_tree)
 
     def decode(self, raw_bytes, type_name):
         """Top level decode function."""
-
-        parse_tree = Serialization.parse_type(type_name)
-        return self.decode_tree(raw_bytes, parse_tree)
+        parse_tree = Serialization._parse_type(type_name)
+        return self._decode_tree(raw_bytes, parse_tree)
