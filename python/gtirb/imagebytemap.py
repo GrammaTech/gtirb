@@ -7,10 +7,19 @@ from .node import Node
 
 
 class ImageByteMap(Node):
-    """
-    Contains the loaded raw image data for the module (binary).
-    """
+    """Contains the loaded raw image data for the module (binary).
 
+    Allows dictionary-like access to and modification ofnbytes in the map
+    through overridden __delitem__, __getitem__, and __setitem__ methods.
+
+    Attributes:
+        addr_min: the lowest address in the byte map
+        addr_max: the highest address in the byte map
+        base_address: the base address of the byte map
+        entry_point_address: the entry point address of the byte map
+        uuid: the UUID of this Node
+
+    """
     def __init__(self,
                  *,
                  addr_min=0,
@@ -19,6 +28,18 @@ class ImageByteMap(Node):
                  byte_map=dict(),
                  entry_point_address=0,
                  uuid=None):
+        """Create a new ImageByteMap
+
+        Parameters:
+            addr_min: the lowest address in the byte map
+            addr_max: the highest address in the byte map
+            base_address: the base address of the byte map
+            byte_map: a dictionary holding a sparse mapping of addresses to
+                data, stored in a bytearray
+            entry_point_address: the entry point address of the byte map
+            uuid: the UUID of this Node
+
+        """
         super().__init__(uuid)
         self.addr_min = addr_min
         self.addr_max = addr_max
@@ -46,38 +67,6 @@ class ImageByteMap(Node):
         if max_addr is not None and not self._in_range(max_addr - 1):
             raise ValueError("address in byte map out of range")
 
-    @classmethod
-    def _decode_protobuf(cls, proto_ibm, uuid):
-        byte_map = {region.address: bytearray(region.data)
-                    for region in proto_ibm.byte_map.regions}
-        image_byte_map = cls(
-            addr_min=proto_ibm.addr_min,
-            addr_max=proto_ibm.addr_max,
-            base_address=proto_ibm.base_address,
-            byte_map=byte_map,
-            entry_point_address=proto_ibm.entry_point_address,
-            uuid=uuid)
-        return image_byte_map
-
-    def _find_start(self, address):
-        """Find the greatest start less than or equal to address"""
-        i = bisect_right(self._start_addresses, address)
-        if i:
-            return self._start_addresses[i-1]
-        raise IndexError("no range containing %d" % (address))
-
-    def _find_end(self, address):
-        """Get the last address in the block containing address."""
-        start = self._find_start(address)
-        last_address = start + len(self._byte_map[start]) - 1
-        if address > last_address:
-            raise IndexError("no range containing %d" % (address))
-        return last_address
-
-    def _in_range(self, key):
-        """Check if a key is within the range of this bytemap"""
-        return key >= self.addr_min and key <= self.addr_max
-
     def __contains__(self, key):
         """Checks if a single address is in the byte map"""
         if isinstance(key, int):
@@ -91,12 +80,13 @@ class ImageByteMap(Node):
         return False
 
     def __delitem__(self, key):
-        """Deletes bytes at an address or slice of addresses, raises an
-        `IndexError` if the byte does not exist at the address.
+        """Delete bytes in the map
 
-        Slicing requires both a start and stop address.
+        Takes an address or slice of addresses, raises an `IndexError` if the
+        byte does not exist at the address. Slicing requires both a start and
+        stop address.
+
         """
-
         # The only legal accesses are single indices or slices
         if not isinstance(key, (int, slice)):
             raise TypeError("index must be address or slice")
@@ -146,12 +136,13 @@ class ImageByteMap(Node):
             insort(self._start_addresses, key.stop)
 
     def __getitem__(self, key):
-        """Random access of a single byte returns a byte if it exists, raises
-        an `IndexError` if the byte does not exist at the address.
+        """Access bytes in the map
 
-        Slicing requires both a start and stop address.
+        Random access of a single byte returns a byte if it exists, raises an
+        `IndexError` if the byte does not exist at the address. Slicing
+        requires both a start and stop address.
+
         """
-
         # Single byte access
         if isinstance(key, int):
             if key not in self:
@@ -186,8 +177,11 @@ class ImageByteMap(Node):
         raise TypeError("index must be address or slice")
 
     def __iter__(self):
-        """Yields all bytes in all ranges in order. Returns an
-        (address, byte) tuple"""
+        """Yields all bytes in all ranges in order
+
+        Returns an (address, byte) tuple
+
+        """
         for start_addr in self._start_addresses:
             cur_addr = start_addr
             for byte in self._byte_map[start_addr]:
@@ -199,7 +193,7 @@ class ImageByteMap(Node):
         return sum(len(v) for v in self._byte_map.values())
 
     def __setitem__(self, address, data):
-        """Sets data at `address`.
+        """Set data at an address
 
         If `address` is an integer, sets the byte at `address` to `data`.
         `data` must be a single byte passed in as an integer in range(256)
@@ -215,8 +209,8 @@ class ImageByteMap(Node):
         It is an `IndexError` to try to write to bytes before addr_min or after
         addr_max. It is also an `IndexError` to provide a slice without a start
         or with a step.
-        """
 
+        """
         # address is an integer
         if isinstance(address, int):
             if not self._in_range(address):
@@ -283,14 +277,39 @@ class ImageByteMap(Node):
                     raise TypeError("data is not iterable of bytes")
                 current_address += 1
 
+    @classmethod
+    def _decode_protobuf(cls, proto_ibm, uuid):
+        byte_map = {region.address: bytearray(region.data)
+                    for region in proto_ibm.byte_map.regions}
+        image_byte_map = cls(
+            addr_min=proto_ibm.addr_min,
+            addr_max=proto_ibm.addr_max,
+            base_address=proto_ibm.base_address,
+            byte_map=byte_map,
+            entry_point_address=proto_ibm.entry_point_address,
+            uuid=uuid)
+        return image_byte_map
+
+    def _find_end(self, address):
+        """Get the last address in the block containing address."""
+        start = self._find_start(address)
+        last_address = start + len(self._byte_map[start]) - 1
+        if address > last_address:
+            raise IndexError("no range containing %d" % (address))
+        return last_address
+
+    def _find_start(self, address):
+        """Find the greatest start less than or equal to address"""
+        i = bisect_right(self._start_addresses, address)
+        if i:
+            return self._start_addresses[i-1]
+        raise IndexError("no range containing %d" % (address))
+
+    def _in_range(self, key):
+        """Check if a key is within the range of this bytemap"""
+        return key >= self.addr_min and key <= self.addr_max
+
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_byte_map = ByteMap_pb2.ByteMap()
 
         def encode_region(address, data):
