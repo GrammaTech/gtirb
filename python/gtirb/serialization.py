@@ -76,6 +76,24 @@ class Codec:
         raise NotImplementedError
 
 
+class AddrCodec(Codec):
+    """Codec for Addr"""
+
+    @staticmethod
+    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise DecodeError("Addr should have no subtypes")
+        addr = Uint64Codec.decode(raw_bytes)
+        return Addr(addr)
+
+    @staticmethod
+    def encode(out, val, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise EncodeError("Addr should have no subtypes")
+        Uint64Codec.encode(out, val.address)
+        return 'Addr'
+
+
 class MappingCodec(Codec):
     """Codec for mapping<..> entries. Used for encoding Python dicts"""
 
@@ -109,6 +127,27 @@ class MappingCodec(Codec):
         key_type_name = Serialization._type_tree_str(key_type)
         val_type_name = Serialization._type_tree_str(val_type)
         return 'mapping<%s,%s>' % (key_type_name, val_type_name)
+
+
+class OffsetCodec(Codec):
+    """Codec for Offsets, containing a UUID and a uint64_t displacement"""
+
+    @staticmethod
+    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise DecodeError("Offset should have no subtypes")
+        element_uuid = UUIDCodec.decode(raw_bytes)
+        displacement = Uint64Codec.decode(raw_bytes)
+
+        return Offset(element_uuid, displacement)
+
+    @staticmethod
+    def encode(out, val, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise EncodeError("Offset should have no subtypes")
+        UUIDCodec.encode(out, val.element_id)
+        Uint64Codec.encode(out, val.displacement)
+        return 'Offset'
 
 
 class SequenceCodec(Codec):
@@ -186,25 +225,25 @@ class StringCodec(Codec):
         return 'string'
 
 
-class OffsetCodec(Codec):
-    """Codec for Offsets, containing a UUID and a uint64_t displacement"""
+class Uint64Codec(Codec):
+    """Codec for uint64_t"""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
-            raise DecodeError("Offset should have no subtypes")
-        element_uuid = UUIDCodec.decode(raw_bytes)
-        displacement = Uint64Codec.decode(raw_bytes)
+            raise DecodeError("uint64_t should have no subtypes")
 
-        return Offset(element_uuid, displacement)
+        return int.from_bytes(raw_bytes.read(8),
+                              byteorder='little',
+                              signed=False)
 
     @staticmethod
     def encode(out, val, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
-            raise EncodeError("Offset should have no subtypes")
-        UUIDCodec.encode(out, val.element_id)
-        Uint64Codec.encode(out, val.displacement)
-        return 'Offset'
+            raise EncodeError("uint64_t should have no subtypes")
+
+        out.write(val.to_bytes(8, byteorder='little'))
+        return 'uint64_t'
 
 
 class UUIDCodec(Codec):
@@ -235,45 +274,6 @@ class UUIDCodec(Codec):
         else:
             raise EncodeError("UUID codec only supports UUIDs or Nodes")
         return 'UUID'
-
-
-class AddrCodec(Codec):
-    """Codec for Addr"""
-
-    @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise DecodeError("Addr should have no subtypes")
-        addr = Uint64Codec.decode(raw_bytes)
-        return Addr(addr)
-
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise EncodeError("Addr should have no subtypes")
-        Uint64Codec.encode(out, val.address)
-        return 'Addr'
-
-
-class Uint64Codec(Codec):
-    """Codec for uint64_t"""
-
-    @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise DecodeError("uint64_t should have no subtypes")
-
-        return int.from_bytes(raw_bytes.read(8),
-                              byteorder='little',
-                              signed=False)
-
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise EncodeError("uint64_t should have no subtypes")
-
-        out.write(val.to_bytes(8, byteorder='little'))
-        return 'uint64_t'
 
 
 class Serialization:
