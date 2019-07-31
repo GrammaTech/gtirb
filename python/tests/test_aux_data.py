@@ -4,7 +4,7 @@ import unittest
 from collections import namedtuple
 from uuid import UUID
 
-from gtirb import Addr, Block, DataObject, IR, Section, Symbol
+from gtirb import Block, DataObject, IR, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):
@@ -21,7 +21,7 @@ class AuxDataTest(unittest.TestCase):
 
         def comments_items_test(items):
             for addr, comment in items:
-                self.assertIsInstance(addr, Addr)
+                self.assertIsInstance(addr, int)
                 self.assertIsInstance(comment, str)
 
         def function_items_test(items):
@@ -32,7 +32,7 @@ class AuxDataTest(unittest.TestCase):
 
         def padding_items_test(items):
             for addr, padding in items:
-                self.assertIsInstance(addr, Addr)
+                self.assertIsInstance(addr, int)
                 self.assertIsInstance(padding, int)
 
         def types_items_test(items):

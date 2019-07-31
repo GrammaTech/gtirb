@@ -7,7 +7,6 @@ codecs definded from the Codec base class
 from re import findall
 from uuid import UUID
 
-from .addr import Addr
 from .offset import Offset
 from .node import Node
 
@@ -69,29 +68,8 @@ class Codec:
             subtypes: optional parsed tree of subtypes that might be needed
                 by containers
 
-        Returns:
-            string corresponding to the encoded type
-
         """
         raise NotImplementedError
-
-
-class AddrCodec(Codec):
-    """Codec for Addr"""
-
-    @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise DecodeError("Addr should have no subtypes")
-        addr = Uint64Codec.decode(raw_bytes)
-        return Addr(addr)
-
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise EncodeError("Addr should have no subtypes")
-        Uint64Codec.encode(out, val.address)
-        return 'Addr'
 
 
 class MappingCodec(Codec):
@@ -120,13 +98,9 @@ class MappingCodec(Codec):
             raise EncodeError(
                 "could not unpack mapping types: %s" % str(subtypes))
         Uint64Codec.encode(out, len(mapping))
-
         for key, val in mapping.items():
             serialization._encode_tree(out, key, key_type)
             serialization._encode_tree(out, val, val_type)
-        key_type_name = Serialization._type_tree_str(key_type)
-        val_type_name = Serialization._type_tree_str(val_type)
-        return 'mapping<%s,%s>' % (key_type_name, val_type_name)
 
 
 class OffsetCodec(Codec):
@@ -147,7 +121,6 @@ class OffsetCodec(Codec):
             raise EncodeError("Offset should have no subtypes")
         UUIDCodec.encode(out, val.element_id)
         Uint64Codec.encode(out, val.displacement)
-        return 'Offset'
 
 
 class SequenceCodec(Codec):
@@ -171,11 +144,9 @@ class SequenceCodec(Codec):
             subtype, = subtypes
         except (TypeError, ValueError) as e:
             raise EncodeError("could not unpack sequence type: %s" % str(e))
-        subtype_name = Serialization._type_tree_str(subtype)
         Uint64Codec.encode(out, len(sequence))
         for item in sequence:
             serialization._encode_tree(out, item, subtype)
-        return 'sequence<%s>' % subtype_name
 
 
 class SetCodec(Codec):
@@ -199,11 +170,9 @@ class SetCodec(Codec):
             subtype, = subtypes
         except (TypeError, ValueError) as e:
             raise EncodeError("could not unpack set type: %s" % str(e))
-        subtype_name = Serialization._type_tree_str(subtype)
         Uint64Codec.encode(out, len(items))
         for item in items:
             serialization._encode_tree(out, item, subtype)
-        return 'set<%s>' % subtype_name
 
 
 class StringCodec(Codec):
@@ -222,7 +191,6 @@ class StringCodec(Codec):
             raise EncodeError("string should have no subtypes")
         Uint64Codec.encode(out, len(val))
         out.write(val.encode())
-        return 'string'
 
 
 class Uint64Codec(Codec):
@@ -232,7 +200,6 @@ class Uint64Codec(Codec):
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
             raise DecodeError("uint64_t should have no subtypes")
-
         return int.from_bytes(raw_bytes.read(8),
                               byteorder='little',
                               signed=False)
@@ -241,9 +208,7 @@ class Uint64Codec(Codec):
     def encode(out, val, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
             raise EncodeError("uint64_t should have no subtypes")
-
         out.write(val.to_bytes(8, byteorder='little'))
-        return 'uint64_t'
 
 
 class UUIDCodec(Codec):
@@ -273,7 +238,6 @@ class UUIDCodec(Codec):
             out.write(val.bytes)
         else:
             raise EncodeError("UUID codec only supports UUIDs or Nodes")
-        return 'UUID'
 
 
 class Serialization:
@@ -287,7 +251,7 @@ class Serialization:
     """
     def __init__(self):
         self.codecs = {
-            'Addr': AddrCodec,
+            'Addr': Uint64Codec,
             'Offset': OffsetCodec,
             'mapping': MappingCodec,
             'sequence': SequenceCodec,
@@ -426,4 +390,4 @@ class Serialization:
     def encode(self, out, val, type_name):
         """Top level encode function."""
         parse_tree = Serialization._parse_type(type_name)
-        return self._encode_tree(out, val, parse_tree)
+        self._encode_tree(out, val, parse_tree)

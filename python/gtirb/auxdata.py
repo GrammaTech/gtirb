@@ -42,11 +42,9 @@ class AuxData:
 
         proto_auxdata = AuxData_pb2.AuxData()
         out_bytes_array = BytesIO()
-        proto_auxdata.type_name = \
-            AuxData.serializer.encode(out_bytes_array,
-                                      self.data,
-                                      self.type_name)
+        proto_auxdata.type_name = self.type_name
         proto_auxdata.data = out_bytes_array.getvalue()
+        AuxData.serializer.encode(out_bytes_array, self.data, self.type_name)
         return proto_auxdata
 
 
