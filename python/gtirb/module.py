@@ -252,8 +252,8 @@ class Module(AuxDataContainer):
         proto_module.data.extend(d._to_protobuf() for d in self.data)
         proto_module.image_byte_map.CopyFrom(
             self.image_byte_map._to_protobuf())
-        proto_module.isa_id = self.isa_id
-        proto_module.file_format = self.file_format
+        proto_module.isa_id = self.isa_id.value
+        proto_module.file_format = self.file_format.value
         proto_module.name = self.name
         proto_module.preferred_addr = self.preferred_addr
         proto_module.proxies.extend(p._to_protobuf() for p in self.proxies)
