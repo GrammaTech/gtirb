@@ -4,7 +4,7 @@ import unittest
 from collections import namedtuple
 from uuid import UUID
 
-from gtirb import Block, DataObject, IR, Section, Symbol
+from gtirb import Block, DataObject, IR, Offset, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):
@@ -36,8 +36,8 @@ class AuxDataTest(unittest.TestCase):
                 self.assertIsInstance(alignment, int)
 
         def comments_items_test(items):
-            for addr, comment in items:
-                self.assertIsInstance(addr, int)
+            for offset, comment in items:
+                self.assertIsInstance(offset, Offset)
                 self.assertIsInstance(comment, str)
 
         def function_items_test(items):
@@ -64,7 +64,7 @@ class AuxDataTest(unittest.TestCase):
         standard_table_tests = {
             'alignment': TableTest(type_name='mapping<UUID,uint64_t>',
                                    items_test=alignment_items_test),
-            'comments': TableTest(type_name='mapping<Addr,string>',
+            'comments': TableTest(type_name='mapping<Offset,string>',
                                   items_test=comments_items_test),
             'functionBlocks': TableTest(type_name='mapping<UUID,set<UUID>>',
                                         items_test=function_items_test),
@@ -86,7 +86,7 @@ class AuxDataTest(unittest.TestCase):
                                          table_test.type_name)
                         table_test.items_test(aux_data[table].data.items())
 
-        for ir_file in ('test%s.ir' % n for n in range(1, 4)):
+        for ir_file in ('test%s.ir' % n for n in range(1, 3)):
             ir = IR.load_protobuf(os.path.join(test_path, ir_file))
             for module in ir.modules:
                 test_standard_auxdata(module.aux_data)
