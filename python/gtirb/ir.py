@@ -45,6 +45,17 @@ class IR(AuxDataContainer):
         proto_ir.aux_data_container.CopyFrom(super()._to_protobuf())
         return proto_ir
 
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, IR) or not super().deep_eq(other):
+            return False
+        self_modules = sorted(self.modules, key=lambda m: m.uuid)
+        other_modules = sorted(other.modules, key=lambda m: m.uuid)
+        for self_module, other_module in zip(self_modules, other_modules):
+            if not self_module.deep_eq(other_module):
+                return False
+        return True
+
     @staticmethod
     def load_protobuf_file(protobuf_file):
         """Load IR from Protobuf file object

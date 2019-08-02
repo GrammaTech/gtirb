@@ -29,3 +29,11 @@ class DataObject(Node):
         proto_dataobject.address = self.address
         proto_dataobject.size = self.size
         return proto_dataobject
+
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, DataObject):
+            return False
+        return self.uuid == other.uuid \
+            and self.address == other.address \
+            and self.size == other.size

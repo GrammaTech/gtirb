@@ -35,6 +35,15 @@ class Block(Node):
         proto_block.decode_mode = self.decode_mode
         return proto_block
 
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, Block):
+            return False
+        return self.uuid == other.uuid \
+            and self.address == other.address \
+            and self.size == other.size \
+            and self.decode_mode == other.decode_mode
+
 
 class ProxyBlock(Node):
     """A placeholder to serve as the endpoint of a CFG edge.
@@ -60,3 +69,9 @@ class ProxyBlock(Node):
         proto_proxyblock = ProxyBlock_pb2.ProxyBlock()
         proto_proxyblock.uuid = self.uuid.bytes
         return proto_proxyblock
+
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, ProxyBlock):
+            return False
+        return self.uuid == other.uuid

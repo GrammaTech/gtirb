@@ -47,6 +47,16 @@ class AuxData:
         proto_auxdata.data = out_bytes_array.getvalue()
         return proto_auxdata
 
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, AuxData):
+            return False
+        if self.data != other.data:
+            print("Data aint' equal")
+            print(self.data)
+            print(other.data)
+        return self.data == other.data and self.type_name == other.type_name
+
 
 class AuxDataContainer(Node):
     """Holds AuxData tables, base class for IR and Module
@@ -72,3 +82,16 @@ class AuxDataContainer(Node):
         for k, v in self.aux_data.items():
             proto_auxdatacontainer.aux_data[k].CopyFrom(v._to_protobuf())
         return proto_auxdatacontainer
+
+    def deep_eq(self, other):
+        """Compare structural equality
+
+        Note: only checks that the list of keys is equal and does not check
+        the contents for deep equality because AuxData can be any type.
+        """
+        if not isinstance(other, AuxDataContainer):
+            return False
+        if self.uuid != other.uuid \
+           or self.aux_data.keys() != other.aux_data.keys():
+            return False
+        return True

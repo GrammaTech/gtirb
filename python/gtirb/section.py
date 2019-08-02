@@ -13,8 +13,8 @@ class Section(Node):
 
     def __init__(self, name='', address=0, size=0, uuid=None):
         super().__init__(uuid)
-        self.name = name
         self.address = address
+        self.name = name
         self.size = size
 
     @classmethod
@@ -35,3 +35,12 @@ class Section(Node):
         proto_section.address = self.address
         proto_section.size = self.size
         return proto_section
+
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, Section):
+            return False
+        return self.uuid == other.uuid \
+            and self.address == other.address \
+            and self.name == other.name \
+            and self.size == other.size

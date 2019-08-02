@@ -90,3 +90,16 @@ class Symbol(Node):
         proto_symbol.name = self.name
         proto_symbol.storage_kind = self.storage_kind.value
         return proto_symbol
+
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not isinstance(other, Symbol):
+            return False
+        if self.value != other.value:
+            return False
+        elif (self.referent is not None
+              and not self.referent.deep_eq(other.referent)):
+            return False
+        return self.name == other.name \
+            and self.storage_kind == other.storage_kind \
+            and self.uuid == other.uuid

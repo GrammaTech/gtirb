@@ -4,6 +4,7 @@ import unittest
 from tempfile import NamedTemporaryFile
 
 from gtirb import IR
+from gtirb.node import Node
 
 
 class IRTest(unittest.TestCase):
@@ -17,7 +18,10 @@ class IRTest(unittest.TestCase):
         ir = IR.load_protobuf(os.path.join(test_path, 'test3.ir'))
         with NamedTemporaryFile() as outfile:
             ir.save_protobuf(outfile.name)
-            self.assertEqual(ir, IR.load_protobuf(outfile.name))
+            # Clear node cache before re-reading the IR
+            Node._uuid_cache = dict()
+            new_ir = IR.load_protobuf(outfile.name)
+            self.assertTrue(ir.deep_eq(new_ir))
 
 
 if __name__ == '__main__':

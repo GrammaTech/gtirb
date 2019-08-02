@@ -275,3 +275,30 @@ class Module(AuxDataContainer):
             proto_module.symbolic_operands[k].CopyFrom(sym_exp)
         proto_module.uuid = self.uuid.bytes
         return proto_module
+
+    def deep_eq(self, other):
+        """Compare structural equality"""
+        if not super().deep_eq(other):
+            return False
+        if not isinstance(other, Module):
+            return False
+        for attr in ('binary_path', 'isa_id', 'file_format', 'name',
+                     'preferred_addr', 'rebase_delta'):
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+
+        for attr in ('blocks', 'data', 'proxies', 'sections', 'symbols'):
+            self_nodes = sorted(getattr(self, attr), key=lambda n: n.uuid)
+            other_nodes = sorted(getattr(other, attr), key=lambda n: n.uuid)
+            for self_node, other_node in zip(self_nodes, other_nodes):
+                if not self_node.deep_eq(other_node):
+                    return False
+
+        if self.symbolic_operands.keys() != other.symbolic_operands.keys() \
+           or not self.image_byte_map.deep_eq(other.image_byte_map):
+            return False
+
+        for key, op in self.symbolic_operands.items():
+            if not op.deep_eq(other.symbolic_operands[key]):
+                return False
+        return True
