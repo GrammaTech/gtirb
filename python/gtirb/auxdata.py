@@ -40,11 +40,11 @@ class AuxData:
     def _to_protobuf(self):
         """Get a Protobuf representation of the AuxData"""
 
-        proto_auxdata = AuxData_pb2.AuxData()
         out_bytes_array = BytesIO()
+        AuxData.serializer.encode(out_bytes_array, self.data, self.type_name)
+        proto_auxdata = AuxData_pb2.AuxData()
         proto_auxdata.type_name = self.type_name
         proto_auxdata.data = out_bytes_array.getvalue()
-        AuxData.serializer.encode(out_bytes_array, self.data, self.type_name)
         return proto_auxdata
 
 
