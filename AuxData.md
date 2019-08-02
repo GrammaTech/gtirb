@@ -43,15 +43,15 @@ ir.getAuxData("alignment")->get<std::map<UUID, uint64_t>>()[b1->getUUID()] = 8;
 The following are the sanctioned AuxData table schemata.
 
 
-| Label                                     | Type                                                          |
-|-------------------------------------------|---------------------------------------------------------------|
-| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
-| [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```            |
-| [`"types"`](#types)                       | ```std::map<gtirb::UUID,std::string>```                       |
-| [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```                         |
-| [`"comments"`](#comments)                 | ```std::map<std::pair<gtirb::UUID, uint64_t>, std::string>``` |
-| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID,gtirb::UUID>```                       |
-| [`"padding"`](#padding)                   | ```std::map<gtirb::Addr, uint64_t>```                         |
+| Label                                     | Type                                               |
+|-------------------------------------------|----------------------------------------------------|
+| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| [`"types"`](#types)                       | ```std::map<gtirb::UUID, std::string>```           |
+| [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```              |
+| [`"comments"`](#comments)                 | ```std::map<gtirb::Offset, std::string>```         |
+| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID, gtirb::UUID>```           |
+| [`"padding"`](#padding)                   | ```std::map<gtirb::Addr, uint64_t>```              |
 
 
 ### functionBlocks
@@ -59,19 +59,19 @@ The following are the sanctioned AuxData table schemata.
 | <!-- --> | <!-- -->                                                           |
 |----------|--------------------------------------------------------------------|
 | Label    | ```"functionBlocks"```                                             |
-| Type     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```                |
+| Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```                 |
 | Key      | Function UUID.                                                     |
 | Value    | The set of UUIDs of all the blocks (gtirb::Block) in the function. |
 
 
 ### functionEntries
 
-| <!-- --> | <!-- -->                                                                       |
-|----------|--------------------------------------------------------------------------------|
-| Label    | ```"functionEntries"```                                                        |
-| Type     | ```std::map<gtirb::UUID, <std::set<gtirb::UUID>>```                            |
-| Key      | Function UUID.                                                                 |
-| Value    | The set of UUIDs of all the block (gtirb::Block) entry points for the function |
+| <!-- --> | <!-- -->                                                                        |
+|----------|---------------------------------------------------------------------------------|
+| Label    | ```"functionEntries"```                                                         |
+| Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```                              |
+| Key      | Function UUID.                                                                  |
+| Value    | The set of UUIDs of all the block (gtirb::Block) entry points for the function. |
 
 
 ### types
@@ -96,12 +96,12 @@ The following are the sanctioned AuxData table schemata.
 
 ### comments
 
-| <!-- --> | <!-- -->                                                                                                                                                                                                                                                                           |
-|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Label    | ```"comments"```                                                                                                                                                                                                                                                                   |
-| Type     | ```gtirb::std::map<std::pair<gtirb::UUID, uint64_t>, std::string>>```                                                                                                                                                                                                              |
-| Key      | A pair `(uuid, offset)` where `uuid` is the gtirb::UUID of a GTIRB entry and `offset` is an offset within that entry (in bytes). In the most typical use case, `uuid` will be the gtirb::UUID of a gtirb::Block and `offset` will be the offset of some instruction in that block. |
-| Value    | A comment string relevant to the specified offset in the specified GTIRB entry.                                                                                                                                                                                                    |
+| <!-- --> | <!-- -->                                                                        |
+|----------|---------------------------------------------------------------------------------|
+| Label    | ```"comments"```                                                                |
+| Type     | ```std::map<gtirb::Offset, std::string>```                                      |
+| Key      | The gtirb::Offset of a comment.                                                 |
+| Value    | A comment string relevant to the specified offset in the specified GTIRB entry. |
 
 
 ### symbolForwarding
