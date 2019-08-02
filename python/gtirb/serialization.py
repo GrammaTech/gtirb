@@ -180,12 +180,11 @@ class TupleCodec(Codec):
 
     @staticmethod
     def decode(raw_bytes, *, serialization, subtypes):
-        tuple_len = Uint64Codec.decode(raw_bytes)
-        if len(subtypes) != tuple_len:
-            raise DecodeError("length of tuple does not match subtype count")
+        """The length of a tuple is not contained in the Protobuf representation, so
+        error checking cannot be done here.
 
+        """
         decoded_list = list()
-        tuple_len = Uint64Codec.decode(raw_bytes)
         for subtype in subtypes:
             decoded_list.append(serialization._decode_tree(raw_bytes, subtype))
         return tuple(decoded_list)
@@ -194,7 +193,6 @@ class TupleCodec(Codec):
     def encode(out, items, *, serialization, subtypes):
         if len(items) != len(subtypes):
             raise EncodeError("length of tuple does not match subtype count")
-        Uint64Codec.encode(out, len(items))
         for item, subtype in zip(items, subtypes):
             serialization._encode_tree(out, item, subtype)
 
