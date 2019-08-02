@@ -87,7 +87,7 @@ class Int64Codec(Codec):
     def encode(out, val, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
             raise EncodeError("int64_t should have no subtypes")
-        out.write(val.to_bytes(8, byteorder='little'))
+        out.write(val.to_bytes(8, byteorder='little', signed=True))
 
 
 class MappingCodec(Codec):
