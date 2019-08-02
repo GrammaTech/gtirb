@@ -175,6 +175,30 @@ class SetCodec(Codec):
             serialization._encode_tree(out, item, subtype)
 
 
+class TupleCodec(Codec):
+    """Codec for tuple<..> entries. Used for encoding Python tuples."""
+
+    @staticmethod
+    def decode(raw_bytes, *, serialization, subtypes):
+        tuple_len = Uint64Codec.decode(raw_bytes)
+        if len(subtypes) != tuple_len:
+            raise DecodeError("length of tuple does not match subtype count")
+
+        decoded_list = list()
+        tuple_len = Uint64Codec.decode(raw_bytes)
+        for subtype in subtypes:
+            decoded_list.append(serialization._decode_tree(raw_bytes, subtype))
+        return tuple(decoded_list)
+
+    @staticmethod
+    def encode(out, items, *, serialization, subtypes):
+        if len(items) != len(subtypes):
+            raise EncodeError("length of tuple does not match subtype count")
+        Uint64Codec.encode(out, len(items))
+        for item, subtype in zip(items, subtypes):
+            serialization._encode_tree(out, item, subtype)
+
+
 class StringCodec(Codec):
     """Codec for strings"""
 
@@ -256,8 +280,10 @@ class Serialization:
             'sequence': SequenceCodec,
             'set': SetCodec,
             'string': StringCodec,
+            'tuple': TupleCodec,
             'uint64_t': Uint64Codec,
             'UUID': UUIDCodec,
+            'vector': SequenceCodec,
         }
 
     def _decode_tree(self, raw_bytes, type_tree):
