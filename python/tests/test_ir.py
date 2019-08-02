@@ -17,7 +17,7 @@ class IRTest(unittest.TestCase):
         ir = IR.load_protobuf(os.path.join(test_path, 'test3.ir'))
         with NamedTemporaryFile() as outfile:
             ir.save_protobuf(outfile.name)
-            IR.load_protobuf(outfile.name)
+            self.assertEqual(ir, IR.load_protobuf(outfile.name))
 
 
 if __name__ == '__main__':
