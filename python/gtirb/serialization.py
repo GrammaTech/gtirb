@@ -72,6 +72,24 @@ class Codec:
         raise NotImplementedError
 
 
+class Int64Codec(Codec):
+    """Codec for uint64_t"""
+
+    @staticmethod
+    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise DecodeError("int64_t should have no subtypes")
+        return int.from_bytes(raw_bytes.read(8),
+                              byteorder='little',
+                              signed=True)
+
+    @staticmethod
+    def encode(out, val, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise EncodeError("int64_t should have no subtypes")
+        out.write(val.to_bytes(8, byteorder='little'))
+
+
 class MappingCodec(Codec):
     """Codec for mapping<..> entries. Used for encoding Python dicts"""
 
@@ -274,6 +292,7 @@ class Serialization:
         self.codecs = {
             'Addr': Uint64Codec,
             'Offset': OffsetCodec,
+            'int64_t': Int64Codec,
             'mapping': MappingCodec,
             'sequence': SequenceCodec,
             'set': SetCodec,
