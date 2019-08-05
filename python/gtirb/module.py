@@ -304,6 +304,8 @@ class Module(AuxDataContainer):
         for attr in ('blocks', 'data', 'proxies', 'sections', 'symbols'):
             self_nodes = sorted(getattr(self, attr), key=lambda n: n.uuid)
             other_nodes = sorted(getattr(other, attr), key=lambda n: n.uuid)
+            if not len(self_nodes) == len(other_nodes):
+                return False
             for self_node, other_node in zip(self_nodes, other_nodes):
                 if not self_node.deep_eq(other_node):
                     return False
@@ -312,6 +314,8 @@ class Module(AuxDataContainer):
                             key=lambda e: (e.source.uuid, e.target.uuid))
         other_edges = sorted(other.cfg,
                              key=lambda e: (e.source.uuid, e.target.uuid))
+        if not len(self_edges) == len(other_edges):
+            return False
         for self_edge, other_edge in zip(self_edges, other_edges):
             if not self_edge.deep_eq(other_edge):
                 return False

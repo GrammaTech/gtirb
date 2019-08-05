@@ -51,6 +51,8 @@ class IR(AuxDataContainer):
             return False
         self_modules = sorted(self.modules, key=lambda m: m.uuid)
         other_modules = sorted(other.modules, key=lambda m: m.uuid)
+        if not len(self_modules) == len(other_modules):
+            return False
         for self_module, other_module in zip(self_modules, other_modules):
             if not self_module.deep_eq(other_module):
                 return False
