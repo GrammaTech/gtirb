@@ -54,12 +54,15 @@ class Edge:
         proto_edge.label.CopyFrom(self.label._to_protobuf())
         return proto_edge
 
-    def deep_eq(self, other):
+    def __eq__(self, other):
         if not isinstance(other, Edge):
             return False
-        return self.label.deep_eq(other.label) \
-            and self.source.deep_eq(other.source) \
-            and self.target.deep_eq(other.target)
+        return self.label == other.label \
+            and self.source.uuid == other.source.uuid \
+            and self.target.uuid == other.target.uuid
+
+    def __hash__(self):
+        return hash((self.label, self.source.uuid, self.target.uuid))
 
 
 class EdgeLabel:
@@ -99,12 +102,15 @@ class EdgeLabel:
         proto_edgelabel.type = self.type.value
         return proto_edgelabel
 
-    def deep_eq(self, other):
+    def __eq__(self, other):
         if not isinstance(other, EdgeLabel):
             return False
         return self.conditional == other.conditional \
             and self.direct == other.direct \
             and self.type == other.type
+
+    def __hash__(self):
+        return hash((self.conditional, self.direct, self.type))
 
 
 class Module(AuxDataContainer):
@@ -323,7 +329,7 @@ class Module(AuxDataContainer):
         if not len(self_edges) == len(other_edges):
             return False
         for self_edge, other_edge in zip(self_edges, other_edges):
-            if not self_edge.deep_eq(other_edge):
+            if self_edge != other_edge:
                 return False
 
         if not self.image_byte_map.deep_eq(other.image_byte_map):
