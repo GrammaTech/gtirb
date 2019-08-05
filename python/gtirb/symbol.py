@@ -98,7 +98,7 @@ class Symbol(Node):
         if self.value != other.value:
             return False
         elif (self.referent is not None
-              and not self.referent.deep_eq(other.referent)):
+              and self.referent.uuid != other.referent.uuid):
             return False
         return self.name == other.name \
             and self.storage_kind == other.storage_kind \
