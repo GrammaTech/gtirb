@@ -48,6 +48,13 @@ class Edge:
         proto_edge.label.CopyFrom(self.label._to_protobuf())
         return proto_edge
 
+    def deep_eq(self, other):
+        if not isinstance(other, Edge):
+            return False
+        return self.label.deep_eq(other.label) \
+            and self.source.deep_eq(other.source) \
+            and self.target.deep_eq(other.target)
+
 
 class EdgeLabel:
     """A label for an Edge
@@ -85,6 +92,13 @@ class EdgeLabel:
         proto_edgelabel.direct = self.direct
         proto_edgelabel.type = self.type.value
         return proto_edgelabel
+
+    def deep_eq(self, other):
+        if not isinstance(other, EdgeLabel):
+            return False
+        return self.conditional == other.conditional \
+            and self.direct == other.direct \
+            and self.type == other.type
 
 
 class Module(AuxDataContainer):
@@ -293,6 +307,14 @@ class Module(AuxDataContainer):
             for self_node, other_node in zip(self_nodes, other_nodes):
                 if not self_node.deep_eq(other_node):
                     return False
+
+        self_edges = sorted(self.cfg,
+                            key=lambda e: (e.source.uuid, e.target.uuid))
+        other_edges = sorted(other.cfg,
+                             key=lambda e: (e.source.uuid, e.target.uuid))
+        for self_edge, other_edge in zip(self_edges, other_edges):
+            if not self_edge.deep_eq(other_edge):
+                return False
 
         if self.symbolic_operands.keys() != other.symbolic_operands.keys() \
            or not self.image_byte_map.deep_eq(other.image_byte_map):
