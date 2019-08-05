@@ -309,7 +309,7 @@ class Module(AuxDataContainer):
         if not isinstance(other, Module):
             return False
         for attr in ('binary_path', 'isa_id', 'file_format', 'name',
-                     'preferred_addr', 'rebase_delta'):
+                     'preferred_addr', 'rebase_delta', 'symbolic_operands'):
             if getattr(self, attr) != getattr(other, attr):
                 return False
 
@@ -332,12 +332,4 @@ class Module(AuxDataContainer):
             if self_edge != other_edge:
                 return False
 
-        if not self.image_byte_map.deep_eq(other.image_byte_map):
-            return False
-
-        if self.symbolic_operands.keys() != other.symbolic_operands.keys():
-            return False
-        for key, op in self.symbolic_operands.items():
-            if not op == other.symbolic_operands[key]:
-                return False
-        return True
+        return self.image_byte_map.deep_eq(other.image_byte_map)
