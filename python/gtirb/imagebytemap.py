@@ -335,10 +335,10 @@ class ImageByteMap(Node):
         if not isinstance(other, ImageByteMap):
             return False
         if self.uuid != other.uuid \
-           or self.addr_min != other.addr_min \
-           or self.base_address != other.base_address \
-           or self.entry_point_address != other.entry_point_address \
-           or self._start_addresses != other._start_addresses:
+                or self.addr_min != other.addr_min \
+                or self.base_address != other.base_address \
+                or self.entry_point_address != other.entry_point_address \
+                or self._start_addresses != other._start_addresses:
             return False
         for addr in self._start_addresses:
             if self._byte_map[addr] != other._byte_map[addr]:
