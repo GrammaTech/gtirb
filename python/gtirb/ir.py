@@ -46,7 +46,6 @@ class IR(AuxDataContainer):
         return proto_ir
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not isinstance(other, IR) or not super().deep_eq(other):
             return False
         self_modules = sorted(self.modules, key=lambda m: m.uuid)

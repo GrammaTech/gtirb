@@ -331,7 +331,6 @@ class ImageByteMap(Node):
         return proto_ibm
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not isinstance(other, ImageByteMap):
             return False
         if self.uuid != other.uuid \

@@ -37,7 +37,6 @@ class Section(Node):
         return proto_section
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not isinstance(other, Section):
             return False
         return self.uuid == other.uuid \

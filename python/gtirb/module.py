@@ -291,7 +291,6 @@ class Module(AuxDataContainer):
         return proto_module
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not super().deep_eq(other):
             return False
         if not isinstance(other, Module):

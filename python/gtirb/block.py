@@ -36,7 +36,6 @@ class Block(Node):
         return proto_block
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not isinstance(other, Block):
             return False
         return self.uuid == other.uuid \
@@ -71,7 +70,6 @@ class ProxyBlock(Node):
         return proto_proxyblock
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not isinstance(other, ProxyBlock):
             return False
         return self.uuid == other.uuid

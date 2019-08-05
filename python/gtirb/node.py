@@ -61,3 +61,19 @@ class Node:
 
         """
         raise NotImplementedError
+
+    def deep_eq(self, other):
+        """Compare structural equality
+
+        This method should be used only when deep structural equality checks
+        are actually needed, and not for all equality checks. Typically the
+        default implmentation of __eq__, which checks pointer equality, is
+        enough: UUID checks are part of deep equality checks, and generating a
+        new Node generates a unique UUID.
+
+        Note that because AuxData can store any type of data, it is not deeply
+        checked. This method only checks that two AuxDataContainers contain the
+        same keys.
+
+        """
+        raise NotImplementedError

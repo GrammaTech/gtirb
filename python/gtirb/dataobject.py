@@ -31,7 +31,6 @@ class DataObject(Node):
         return proto_dataobject
 
     def deep_eq(self, other):
-        """Compare structural equality"""
         if not isinstance(other, DataObject):
             return False
         return self.uuid == other.uuid \

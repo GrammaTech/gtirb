@@ -74,11 +74,6 @@ class AuxDataContainer(Node):
         return proto_auxdatacontainer
 
     def deep_eq(self, other):
-        """Compare structural equality
-
-        Note: only checks that the list of keys is equal and does not check
-        the contents for deep equality because AuxData can be any type.
-        """
         if not isinstance(other, AuxDataContainer):
             return False
         if self.uuid != other.uuid \
