@@ -338,6 +338,6 @@ class Module(AuxDataContainer):
         if self.symbolic_operands.keys() != other.symbolic_operands.keys():
             return False
         for key, op in self.symbolic_operands.items():
-            if not op.deep_eq(other.symbolic_operands[key]):
+            if not op == other.symbolic_operands[key]:
                 return False
         return True

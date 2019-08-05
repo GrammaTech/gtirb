@@ -44,14 +44,17 @@ class SymAddrAddr:
         proto_symaddraddr.symbol2_uuid = self.symbol2.uuid.bytes
         return proto_symaddraddr
 
-    def deep_eq(self, other):
-        """Compare structural equality"""
+    def __eq__(self, other):
         if not isinstance(other, SymAddrAddr):
             return False
         return self.scale == other.scale \
             and self.offset == other.offset \
-            and self.symbol1.deep_eq(other.symbol1) \
-            and self.symbol2.deep_eq(other.symbol2)
+            and self.symbol1.uuid == other.symbol1.uuid \
+            and self.symbol2.uuid == other.symbol2.uuid
+
+    def __hash__(self):
+        return hash((self.offset, self.scale,
+                     self.symbol1.uuid, self.symbol2.uuid))
 
 
 class SymAddrConst:
@@ -84,12 +87,14 @@ class SymAddrConst:
             proto_symaddrconst.symbol_uuid = self.symbol.uuid.bytes
         return proto_symaddrconst
 
-    def deep_eq(self, other):
-        """Compare structural equality"""
+    def __eq__(self, other):
         if not isinstance(other, SymAddrConst):
             return False
         return self.offset == other.offset \
-            and self.symbol.deep_eq(other.symbol)
+            and self.symbol.uuid == other.symbol.uuid
+
+    def __hash__(self):
+        return hash((self.offset, self.symbol.uuid))
 
 
 class SymStackConst:
@@ -120,9 +125,11 @@ class SymStackConst:
             proto_symstackconst.symbol_uuid = self.symbol.uuid.bytes
         return proto_symstackconst
 
-    def deep_eq(self, other):
-        """Compare structural equality"""
+    def __eq__(self, other):
         if not isinstance(other, SymStackConst):
             return False
         return self.offset == other.offset \
-            and self.symbol.deep_eq(other.symbol)
+            and self.symbol.uuid == other.symbol.uuid
+
+    def __hash__(self):
+        return hash((self.offset, self.symbol.uuid))
