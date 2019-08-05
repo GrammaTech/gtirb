@@ -36,6 +36,12 @@ class Edge:
         try:
             source = Node._uuid_cache[source_uuid]
             target = Node._uuid_cache[target_uuid]
+            if not isinstance(source, (Block, ProxyBlock)):
+                raise ValueError("source UUID %s is not a Block or ProxyBlock"
+                                 % source_uuid)
+            if not isinstance(target, (Block, ProxyBlock)):
+                raise ValueError("target UUID %s is not a Block or ProxyBlock"
+                                 % target_uuid)
         except KeyError as e:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
