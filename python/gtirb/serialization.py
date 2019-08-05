@@ -198,10 +198,8 @@ class TupleCodec(Codec):
 
     @staticmethod
     def decode(raw_bytes, *, serialization, subtypes):
-        """The length of a tuple is not contained in the Protobuf representation, so
-        error checking cannot be done here.
-
-        """
+        # The length of a tuple is not contained in the Protobuf
+        # representation, so error checking cannot be done here.
         decoded_list = list()
         for subtype in subtypes:
             decoded_list.append(serialization._decode_tree(raw_bytes, subtype))
