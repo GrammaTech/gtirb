@@ -320,10 +320,11 @@ class Module(AuxDataContainer):
             if not self_edge.deep_eq(other_edge):
                 return False
 
-        if self.symbolic_operands.keys() != other.symbolic_operands.keys() \
-           or not self.image_byte_map.deep_eq(other.image_byte_map):
+        if not self.image_byte_map.deep_eq(other.image_byte_map):
             return False
 
+        if self.symbolic_operands.keys() != other.symbolic_operands.keys():
+            return False
         for key, op in self.symbolic_operands.items():
             if not op.deep_eq(other.symbolic_operands[key]):
                 return False
