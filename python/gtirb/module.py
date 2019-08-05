@@ -291,6 +291,7 @@ class Module(AuxDataContainer):
         return proto_module
 
     def deep_eq(self, other):
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not super().deep_eq(other):
             return False
         if not isinstance(other, Module):

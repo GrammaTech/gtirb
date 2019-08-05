@@ -24,8 +24,8 @@ class IR(AuxDataContainer):
 
     """
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
-        # Note: modules are decoded before the aux data, since the UUID
-        # decoder checks Node's cache.
+        # Modules are decoded before the aux data, since the UUID decoder checks
+        # Node's cache.
         self.modules = list(modules)
         super().__init__(aux_data, uuid)
 
@@ -46,6 +46,7 @@ class IR(AuxDataContainer):
         return proto_ir
 
     def deep_eq(self, other):
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, IR) or not super().deep_eq(other):
             return False
         self_modules = sorted(self.modules, key=lambda m: m.uuid)

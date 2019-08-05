@@ -71,9 +71,5 @@ class Node:
         enough: UUID checks are part of deep equality checks, and generating a
         new Node generates a unique UUID.
 
-        Note that because AuxData can store any type of data, it is not deeply
-        checked. This method only checks that two AuxDataContainers contain the
-        same keys.
-
         """
         raise NotImplementedError

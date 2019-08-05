@@ -36,6 +36,7 @@ class Block(Node):
         return proto_block
 
     def deep_eq(self, other):
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Block):
             return False
         return self.uuid == other.uuid \
@@ -70,6 +71,7 @@ class ProxyBlock(Node):
         return proto_proxyblock
 
     def deep_eq(self, other):
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ProxyBlock):
             return False
         return self.uuid == other.uuid

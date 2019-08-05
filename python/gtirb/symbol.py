@@ -92,6 +92,7 @@ class Symbol(Node):
         return proto_symbol
 
     def deep_eq(self, other):
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Symbol):
             return False
         if self.value != other.value:
