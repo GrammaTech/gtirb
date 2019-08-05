@@ -73,7 +73,7 @@ class Codec:
 
 
 class Int64Codec(Codec):
-    """Codec for uint64_t"""
+    """Codec for int64_t"""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
