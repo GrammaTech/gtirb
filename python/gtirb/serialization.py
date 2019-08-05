@@ -300,7 +300,6 @@ class Serialization:
             'tuple': TupleCodec,
             'uint64_t': Uint64Codec,
             'UUID': UUIDCodec,
-            'vector': SequenceCodec,
         }
 
     def _decode_tree(self, raw_bytes, type_tree):
