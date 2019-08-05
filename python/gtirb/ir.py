@@ -24,8 +24,8 @@ class IR(AuxDataContainer):
 
     """
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
-        # Modules are decoded before the aux data, since the UUID decoder checks
-        # Node's cache.
+        # Modules are decoded before the aux data, since the UUID decoder
+        # checks Node's cache.
         self.modules = list(modules)
         super().__init__(aux_data, uuid)
 
