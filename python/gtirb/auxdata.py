@@ -47,16 +47,6 @@ class AuxData:
         proto_auxdata.data = out_bytes_array.getvalue()
         return proto_auxdata
 
-    def deep_eq(self, other):
-        """Compare structural equality"""
-        if not isinstance(other, AuxData):
-            return False
-        if self.data != other.data:
-            print("Data aint' equal")
-            print(self.data)
-            print(other.data)
-        return self.data == other.data and self.type_name == other.type_name
-
 
 class AuxDataContainer(Node):
     """Holds AuxData tables, base class for IR and Module
