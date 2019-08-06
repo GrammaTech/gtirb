@@ -21,12 +21,7 @@ add_custom_target(_force_python_protos ALL DEPENDS ${ProtoSourcesPy})
 
 add_library(proto STATIC ${ProtoSources} ${ProtoHeaders})
 
-if(${PROTOBUF_INTERNAL})
-  add_dependencies(proto Protobuf)
-  add_dependencies(_force_python_protos Protobuf)
-endif()
-
-target_link_libraries(proto ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
+target_link_libraries(proto ${Boost_LIBRARIES} ${Protobuf_LIBRARIES})
 target_compile_definitions(proto PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 include_directories(SYSTEM "${PROTOBUF_INCLUDE_DIRS}")
 

@@ -25,7 +25,6 @@ option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 # This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON
 # instead of OFF.
 option(GTIRB_BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(GTIRB_USE_SYSTEM_BOOST "Use system-wide installation of Boost." ON)
 if(GTIRB_BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 else()
@@ -113,7 +112,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         add_compile_options(-W4)
         add_compile_options(-WX)
 
-        add_compile_options(-wd4251) # 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2' 
+        add_compile_options(-wd4251) # 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
         add_compile_options(-wd4275) # Non-dll interface base classes.
         add_compile_options(-wd4996) # VC8: Deprecated libc functions.
         add_compile_options(-wd4351) # This is a warning about a change in behavior from old versions of visual c++.  We want the new (standard-compliant) behavior, so we don't want the warning.  The warning is that using an array in a class initializer list will cause its elements to be default initialized.
@@ -174,25 +173,65 @@ elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 endif()
 
 # ---------------------------------------------------------------------------
+# Package managers
+# (in order to produce helpful error messages on missing dependiences)
+# ---------------------------------------------------------------------------
+find_program(VCPKG_FOUND vcpkg.exe)
+find_program(APT_FOUND apt-get)
+find_program(PACMAN_FOUND pacman)
+
+# ---------------------------------------------------------------------------
 # Boost
 # ---------------------------------------------------------------------------
 
-find_package(Boost 1.67)
+set(BOOST_MIN_VERSION 1.67)
+find_package(Boost ${BOOST_MIN_VERSION})
+
+if(NOT ${Boost_FOUND})
+  if(VCPKG_FOUND)
+  set(MSG_BOOST_INSTALL
+    " - If Boost is not installed, install it now: \n"
+    "       vcpkg.exe install --triplet x86-windows boost \n"
+    "   or\n"
+    "       vcpkg.exe install --triplet x64-windows boost \n\n"
+  )
+  elseif(APT_FOUND)
+  set(MSG_BOOST_INSTALL
+    " - If Boost is not installed, install it now: \n"
+    "       sudo apt install libboost-dev \n"
+  )
+  elseif(PACMAN_FOUND)
+  set(MSG_BOOST_INSTALL
+    " - If Boost is not installed, install it now: \n"
+    "       pacman -S boost \n"
+  )
+  endif()
+
+  if(VCPKG_FOUND OR APT_FOUND OR PACMAN_FOUND)
+  set(MSG_BOOST_INSTALL
+    "${MSG_BOOST_INSTALL}"
+    "   or install it from souce. You can get the latest version of Boost at:\n"
+    "       https://www.boost.org/\n"
+  )
+  else()
+  set(MSG_BOOST_INSTALL
+    " - If Boost is not installed, install it from souce.\n"
+    "   You can get the latest version of Boost at:\n"
+    "       https://www.boost.org/\n"
+  )
+  endif()
+
+  message(ERROR
+  " No Boost installation found.\n"
+  ${MSG_BOOST_INSTALL}
+  " - If Boost is installed, make sure the installation location is in your PATH and it is at least version ${BOOST_MIN_VERSION}.\n"
+  )
+  message(FATAL_ERROR "No Boost installation found.\n")
+endif()
+
 add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
-
-# Use system-wide installation of Boost if it exists, to reduce the
-# chance of problems due to mismatched versions. If Boost is not
-# found, fall back to the partial copy bundled with gtirb.
-if(GTIRB_USE_SYSTEM_BOOST AND Boost_FOUND)
-  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-else()
-  include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/boost/include")
-  file(COPY "${CMAKE_SOURCE_DIR}/boost/include/boost"
-    DESTINATION "${CMAKE_BINARY_DIR}/include/")
-  install(DIRECTORY "${CMAKE_SOURCE_DIR}/boost/include/boost" DESTINATION include)
-
-endif()
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ---------------------------------------------------------------------------
 # Google Test Application
@@ -204,7 +243,7 @@ if(GTIRB_ENABLE_TESTS)
         # Download and unpack googletest at configure time
         configure_file(CMakeLists.googletest googletest-download/CMakeLists.txt)
 
-        execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
+        execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
                 RESULT_VARIABLE result
                 WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download" )
 
@@ -215,7 +254,7 @@ if(GTIRB_ENABLE_TESTS)
         execute_process(COMMAND "${CMAKE_COMMAND}" --build .
                 RESULT_VARIABLE result
                 WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download" )
-        
+
         if(result)
                 message(WARNING "Build step for googletest failed: ${result}")
         endif()
@@ -236,77 +275,50 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-# Internal function: find threads library
-function(_protobuf_find_threads)
-  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-  find_package(Threads)
-  if(Threads_FOUND)
-    list(APPEND PROTOBUF_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-	set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARIES}" PARENT_SCOPE)
-  endif()
-endfunction()
-   
-find_package(Protobuf QUIET)
-  
+set(PROTOBUF_MIN_VERSION 3.7)
+find_package(Protobuf ${PROTOBUF_MIN_VERSION})
+
 if(NOT ${Protobuf_FOUND})
-  if(WIN32)
+  if(VCPKG_FOUND)
     set(MSG_PROTOBUF_INSTALL
       " - If protobuf is not installed, install it now: \n"
       "       vcpkg.exe install --triplet x86-windows protobuf \n"
       "   or\n"
-      "       vcpkg.exe install --triplet x64-windows protobuf \n\n" )
-    
-    message(ERROR
-      " No protobuf (Google Protocol Buffers) installation found.\n"
-      ${MSG_PROTOBUF_INSTALL}
-      " - If protobuf is installed, make sure the installation location is in your PATH.\n")
-    message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
-  else()  
-	#Attempt to configure/build protobuf locally.  
-    configure_file(CMakeLists.protobuf Protobuf/CMakeLists.txt)
-    
-	# Initialize CMake files required to build/install protobuf.
-    execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" . 
-      RESULT_VARIABLE result
-      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Protobuf"
-      )
-    
-    if(result)
-      message(WARNING "CMake step for protobuf failed: ${result}")
-    endif()
-    
-	set(PROTOBUF_INSTALL_DIR "${CMAKE_BINARY_DIR}/protobuf-src")
-	set(PROTOBUF_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/protobuf-src/include") 
-    
-    add_subdirectory("${CMAKE_BINARY_DIR}/Protobuf/"
-      "${PROTOBUF_INSTALL_DIR}"
-      EXCLUDE_FROM_ALL)
-    
-    if(BUILD_SHARED_LIBS)
-      set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.so")
-    else()
-      set(PROTOBUF_LIBRARY "${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.a")
-    endif()
-    
-	
-	# PROTOBUF_GENERATE_CPP in src/proto/CMakeLists.txt
-    #  needs the correct location of the `protoc` binary.
-    set(Protobuf_PROTOC_EXECUTABLE "${PROTOBUF_INSTALL_DIR}/bin/protoc")
-    add_executable(protobuf::protoc IMPORTED)
-    
-	set_target_properties(protobuf::protoc PROPERTIES
-	  IMPORTED_LOCATION "${Protobuf_PROTOC_EXECUTABLE}")
-            
-	# Set PROTOBUF_LIBRARIES
-	unset(PROTOBUF_LIBRARIES CACHE)
-	set(PROTOBUF_LIBRARIES "${PROTOBUF_LIBRARY}")
-	_protobuf_find_threads()
-    set(PROTOBUF_INTERNAL TRUE)
+      "       vcpkg.exe install --triplet x64-windows protobuf \n\n"
+    )
+  elseif(APT_FOUND)
+    set(MSG_PROTOBUF_INSTALL
+      " - If protobuf is not installed, install it now: \n"
+      "       sudo apt install libprotobuf-dev protobuf-compiler \n"
+    )
+  elseif(PACMAN_FOUND)
+    set(MSG_PROTOBUF_INSTALL
+      " - If protobuf is not installed, install it now: \n"
+      "       pacman -S protobuf \n" # TODO: Eric, can you tell me if this is correct?
+    )
   endif()
-else()
-  set(PROTOBUF_INTERNAL FALSE)
-endif()
 
+  if(VCPKG_FOUND OR APT_FOUND OR PACMAN_FOUND)
+    set(MSG_PROTOBUF_INSTALL
+      "${MSG_PROTOBUF_INSTALL}"
+      "   or install it from souce. You can get the latest version of Protobuf at:\n"
+      "       https://developers.google.com/protocol-buffers/\n"
+    )
+  else()
+    set(MSG_PROTOBUF_INSTALL
+      " - If protobuf is not installed, install it from souce.\n"
+      "   You can get the latest version of Protobuf at:\n"
+      "       https://developers.google.com/protocol-buffers/\n"
+    )
+  endif()
+
+  message(ERROR
+    " No protobuf (Google Protocol Buffers) installation found.\n"
+    ${MSG_PROTOBUF_INSTALL}
+    " - If protobuf is installed, make sure the installation location is in your PATH and it is at least version ${PROTOBUF_MIN_VERSION}.\n"
+  )
+  message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
+endif()
 
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)

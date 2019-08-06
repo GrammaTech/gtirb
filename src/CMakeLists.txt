@@ -98,16 +98,11 @@ endif()
 
 GTIRB_ADD_LIBRARY()
 
-if(${PROTOBUF_INTERNAL})
-  add_dependencies(${PROJECT_NAME} Protobuf)
-endif()
-
 target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC
   ${SYSLIBS}
   ${Boost_LIBRARIES}
-  ${PROTOBUF_LIBRARIES}
   # Link in this static lib, but don't make it a transitive
   # dependency of TestGTIRB, etc
   PRIVATE
