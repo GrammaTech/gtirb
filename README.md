@@ -108,13 +108,14 @@ The gtirb library will be located under `build/lib`.
 
 ### Requirements
 
-The GTIRB build process attempts to automatically download all external
-requirements during build.  However to *install* GTIRB, the following
-requirements should be installed separately.
+To build and install GTIRB, the following requirements should be installed:
 
-- Protobuf versions 3.1
-  (or later once we disable warnings in the protobuf build)
-- Boost version 1.67.0 or later.
+- [Protobuf](https://developers.google.com/protocol-buffers/), version 3.7.0 or later.
+- [Boost](https://www.boost.org/), version 1.67.0 or later.
+
+Note that these versions are newer than what your package manager may provide
+by default: This is true on Ubuntu 18, Debian 10, and others. Prefer building
+these dependencies from sources to avoid versioning problems.
 
 ### Building on Windows
 
@@ -126,12 +127,12 @@ by passing
 
     -DCMAKE_TOOLCHAIN_FILE="C:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake"
 
-when executing the CMake command above.
+when executing the CMake command above. In addition, you should install GTIRB's
+dependencies listed above with `vcpkg` before running `cmake`:
 
-The GTIRB build process currently does not download Protobuf automatically on
-Windows. Instead, you should install it with `vcpkg`. Please note that
-GTIRB is not compatible with protobuf version 3.7.x. Please make sure that you
-have a Protobuf version between 3.1.x and 3.6.1.
+```
+vcpkg.exe install --triplet x64-windows protobuf boost
+```
 
 ## Usage
 
