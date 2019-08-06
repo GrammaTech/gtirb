@@ -173,14 +173,6 @@ elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 endif()
 
 # ---------------------------------------------------------------------------
-# Package managers
-# (in order to produce helpful error messages on missing dependiences)
-# ---------------------------------------------------------------------------
-find_program(VCPKG_FOUND vcpkg.exe)
-find_program(APT_FOUND apt-get)
-find_program(PACMAN_FOUND pacman)
-
-# ---------------------------------------------------------------------------
 # Boost
 # ---------------------------------------------------------------------------
 
@@ -188,45 +180,14 @@ set(BOOST_MIN_VERSION 1.67)
 find_package(Boost ${BOOST_MIN_VERSION})
 
 if(NOT ${Boost_FOUND})
-  if(VCPKG_FOUND)
-  set(MSG_BOOST_INSTALL
-    " - If Boost is not installed, install it now: \n"
-    "       vcpkg.exe install --triplet x86-windows boost \n"
-    "   or\n"
-    "       vcpkg.exe install --triplet x64-windows boost \n\n"
-  )
-  elseif(APT_FOUND)
-  set(MSG_BOOST_INSTALL
-    " - If Boost is not installed, install it now: \n"
-    "       sudo apt install libboost-dev \n"
-  )
-  elseif(PACMAN_FOUND)
-  set(MSG_BOOST_INSTALL
-    " - If Boost is not installed, install it now: \n"
-    "       pacman -S boost \n"
-  )
-  endif()
-
-  if(VCPKG_FOUND OR APT_FOUND OR PACMAN_FOUND)
-  set(MSG_BOOST_INSTALL
-    "${MSG_BOOST_INSTALL}"
-    "   or install it from souce. You can get the latest version of Boost at:\n"
-    "       https://www.boost.org/\n"
-  )
-  else()
-  set(MSG_BOOST_INSTALL
-    " - If Boost is not installed, install it from souce.\n"
-    "   You can get the latest version of Boost at:\n"
-    "       https://www.boost.org/\n"
-  )
-  endif()
-
-  message(ERROR
+  message(FATAL_ERROR
   " No Boost installation found.\n"
-  ${MSG_BOOST_INSTALL}
-  " - If Boost is installed, make sure the installation location is in your PATH and it is at least version ${BOOST_MIN_VERSION}.\n"
+  " - If Boost is not installed, install it from souce.\n"
+  "   You can get the latest version of Boost at:\n"
+  "       https://www.boost.org/\n"
+  " - If Boost is installed, make sure the installation location is in your PATH,\n"
+  "   and it is at least version ${BOOST_MIN_VERSION}.\n"
   )
-  message(FATAL_ERROR "No Boost installation found.\n")
 endif()
 
 add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
@@ -279,45 +240,14 @@ set(PROTOBUF_MIN_VERSION 3.7)
 find_package(Protobuf ${PROTOBUF_MIN_VERSION})
 
 if(NOT ${Protobuf_FOUND})
-  if(VCPKG_FOUND)
-    set(MSG_PROTOBUF_INSTALL
-      " - If protobuf is not installed, install it now: \n"
-      "       vcpkg.exe install --triplet x86-windows protobuf \n"
-      "   or\n"
-      "       vcpkg.exe install --triplet x64-windows protobuf \n\n"
-    )
-  elseif(APT_FOUND)
-    set(MSG_PROTOBUF_INSTALL
-      " - If protobuf is not installed, install it now: \n"
-      "       sudo apt install libprotobuf-dev protobuf-compiler \n"
-    )
-  elseif(PACMAN_FOUND)
-    set(MSG_PROTOBUF_INSTALL
-      " - If protobuf is not installed, install it now: \n"
-      "       pacman -S protobuf \n" # TODO: Eric, can you tell me if this is correct?
-    )
-  endif()
-
-  if(VCPKG_FOUND OR APT_FOUND OR PACMAN_FOUND)
-    set(MSG_PROTOBUF_INSTALL
-      "${MSG_PROTOBUF_INSTALL}"
-      "   or install it from souce. You can get the latest version of Protobuf at:\n"
-      "       https://developers.google.com/protocol-buffers/\n"
-    )
-  else()
-    set(MSG_PROTOBUF_INSTALL
-      " - If protobuf is not installed, install it from souce.\n"
-      "   You can get the latest version of Protobuf at:\n"
-      "       https://developers.google.com/protocol-buffers/\n"
-    )
-  endif()
-
-  message(ERROR
+  message(FATAL_ERROR
     " No protobuf (Google Protocol Buffers) installation found.\n"
-    ${MSG_PROTOBUF_INSTALL}
-    " - If protobuf is installed, make sure the installation location is in your PATH and it is at least version ${PROTOBUF_MIN_VERSION}.\n"
+    " - If protobuf is not installed, install it from souce.\n"
+    "   You can get the latest version of Protobuf at:\n"
+    "       https://developers.google.com/protocol-buffers/\n"
+    " - If protobuf is installed, make sure the installation location is in your PATH,\n"
+    "   and it is at least version ${PROTOBUF_MIN_VERSION}.\n"
   )
-  message(FATAL_ERROR "No protobuf (Google Protocol Buffers) installation found.\n")
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
