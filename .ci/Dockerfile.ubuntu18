@@ -4,8 +4,8 @@ ARG CXX_COMPILER=g++-7
 ARG CC_COMPILER=gcc-7
 
 RUN apt-get -y update && \
-    apt-get -y install autoconf build-essential clang cmake curl git libtool \
-        python3-setuptools wget
+    apt-get -y install autoconf build-essential clang cmake curl git \
+        libprotobuf-dev libtool protobuf-compiler python3-setuptools wget
 
 # Install Boost headers
 RUN curl -L https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.gz > boost.tar.gz && \
@@ -16,16 +16,6 @@ RUN curl -L https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.t
     rm ../boost.tar.gz && \
     cd .. && \
     rm -rf boost_1_67_0
-
-# Install Protobuf
-RUN git clone https://github.com/google/protobuf -b v3.7.0 && \
-    cd protobuf && \
-    sh ./autogen.sh && \
-    CXX=${CXX_COMPILER} CC=${CC_COMPILER} ./configure --prefix=/usr --enable-shared && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf protobuf
 
 # Build GTIRB
 COPY . /gt/gtirb/

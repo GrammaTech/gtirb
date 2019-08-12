@@ -236,7 +236,7 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-set(PROTOBUF_MIN_VERSION 3.7)
+set(PROTOBUF_MIN_VERSION 3.0.0)
 find_package(Protobuf ${PROTOBUF_MIN_VERSION})
 
 if(NOT ${Protobuf_FOUND})
