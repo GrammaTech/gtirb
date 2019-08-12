@@ -175,9 +175,9 @@ endif()
 # ---------------------------------------------------------------------------
 # Boost
 # ---------------------------------------------------------------------------
+set(Boost_NO_BOOST_CMAKE ON) # Boost version 1.70 and greater doesn't put results in ${Boost_LIBRARIES}, etc. unless you set this to ON
 
-set(BOOST_MIN_VERSION 1.67)
-find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+find_package(Boost 1.67 REQUIRED)
 
 add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
