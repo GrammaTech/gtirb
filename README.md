@@ -110,7 +110,7 @@ The gtirb library will be located under `build/lib`.
 
 To build and install GTIRB, the following requirements should be installed:
 
-- [Protobuf](https://developers.google.com/protocol-buffers/), version 3.7.0 or later.
+- [Protobuf](https://developers.google.com/protocol-buffers/), version 3.0.0 or later.
 - [Boost](https://www.boost.org/), version 1.67.0 or later.
 
 Note that these versions are newer than what your package manager may provide
