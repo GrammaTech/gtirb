@@ -177,18 +177,7 @@ endif()
 # ---------------------------------------------------------------------------
 
 set(BOOST_MIN_VERSION 1.67)
-find_package(Boost ${BOOST_MIN_VERSION})
-
-if(NOT ${Boost_FOUND})
-  message(FATAL_ERROR
-  " No Boost installation found.\n"
-  " - If Boost is not installed, install it from souce.\n"
-  "   You can get the latest version of Boost at:\n"
-  "       https://www.boost.org/\n"
-  " - If Boost is installed, make sure the installation location is in your PATH,\n"
-  "   and it is at least version ${BOOST_MIN_VERSION}.\n"
-  )
-endif()
+find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 
 add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
 add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
@@ -237,18 +226,7 @@ endif()
 # protobuf
 # ---------------------------------------------------------------------------
 set(PROTOBUF_MIN_VERSION 3.0.0)
-find_package(Protobuf ${PROTOBUF_MIN_VERSION})
-
-if(NOT ${Protobuf_FOUND})
-  message(FATAL_ERROR
-    " No protobuf (Google Protocol Buffers) installation found.\n"
-    " - If protobuf is not installed, install it from souce.\n"
-    "   You can get the latest version of Protobuf at:\n"
-    "       https://developers.google.com/protocol-buffers/\n"
-    " - If protobuf is installed, make sure the installation location is in your PATH,\n"
-    "   and it is at least version ${PROTOBUF_MIN_VERSION}.\n"
-  )
-endif()
+find_package(Protobuf ${PROTOBUF_MIN_VERSION} REQUIRED)
 
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)

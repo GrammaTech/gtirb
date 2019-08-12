@@ -111,11 +111,12 @@ The gtirb library will be located under `build/lib`.
 To build and install GTIRB, the following requirements should be installed:
 
 - [Protobuf](https://developers.google.com/protocol-buffers/), version 3.0.0 or later.
+  - Ubuntu 18 provides this version via `libprotobuf-dev` and `protobuf-compiler`.
+    Ubuntu 16 and earlier provide out of date versions;
+    build from source on those versions.
 - [Boost](https://www.boost.org/), version 1.67.0 or later.
-
-Note that these versions are newer than what your package manager may provide
-by default: This is true on Ubuntu 18, Debian 10, and others. Prefer building
-these dependencies from sources to avoid versioning problems.
+  - No version of Ubuntu provides this version of Boost yet;
+    you must build it from source.
 
 ### Building on Windows
 
