@@ -162,7 +162,7 @@ class ImageByteMap(Node):
                 raise IndexError("step size unsupported")
             if key.start not in self:
                 raise IndexError("start address not in map")
-            if key.stop not in self:
+            if key.stop-1 not in self:
                 raise IndexError("stop address not in map")
             start_address = self._find_start(key.start)
             stop_address = self._find_start(key.stop)
