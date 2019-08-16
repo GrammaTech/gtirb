@@ -99,6 +99,9 @@ class TestImageByteMap(unittest.TestCase):
         self.assertEqual(ibm[13:17], b'aabb')
         self.assertEqual(ibm[110:114], b'cccc')
         self.assertEqual(ibm[16:22], b'bbbbbb')
+        self.assertEqual(ibm[10:10], b'')
+        self.assertEqual(ibm[22:22], b'')
+        self.assertEqual(ibm[0:0], b'')
 
         def index_error(test_slice, msg):
             with self.assertRaises(IndexError, msg=msg):
