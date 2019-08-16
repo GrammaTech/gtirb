@@ -225,8 +225,7 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-set(PROTOBUF_MIN_VERSION 3.0.0)
-find_package(Protobuf ${PROTOBUF_MIN_VERSION} REQUIRED)
+find_package(Protobuf 3.0.0 REQUIRED)
 
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)
