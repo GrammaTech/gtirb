@@ -14,7 +14,7 @@ class Block(Node):
         uuid: UUID of this Node
 
     """
-    def __init__(self, address, decode_mode, size, uuid):
+    def __init__(self, address, size, decode_mode=0, uuid=None):
         super().__init__(uuid)
         self.address = address
         self.size = size
@@ -22,10 +22,10 @@ class Block(Node):
 
     @classmethod
     def _decode_protobuf(cls, proto_block, uuid):
-        return cls(proto_block.address,
-                   proto_block.decode_mode,
-                   proto_block.size,
-                   uuid)
+        return cls(address=proto_block.address,
+                   decode_mode=proto_block.decode_mode,
+                   size=proto_block.size,
+                   uuid=uuid)
 
     def _to_protobuf(self):
         proto_block = Block_pb2.Block()
