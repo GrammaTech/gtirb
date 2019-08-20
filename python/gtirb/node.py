@@ -20,6 +20,10 @@ class Node:
 
     @classmethod
     def from_uuid(uuid):
+        """
+        Find the Node the corresponds to a given UUID,
+        or None if not found.
+        """
         return Node._uuid_cache.get(uuid)
 
     @classmethod
