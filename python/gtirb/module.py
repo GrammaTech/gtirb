@@ -37,7 +37,8 @@ class Edge:
         Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
         Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
 
-    def __init__(self, source, target, type_, *, conditional=False, direct=True):
+    def __init__(self, source, target, type_, *, conditional=False,
+                 direct=True):
         self.source = source
         self.target = target
         self.type = type_
@@ -85,6 +86,11 @@ class Edge:
     def __hash__(self):
         return hash((self.source.uuid, self.target.uuid, self.type,
                      self.conditional, self.direct))
+
+    def __repr__(self):
+        return "%s(source=%s, target=%s, type_=%s, conditional=%s, direct=%s)"\
+            % (type(self).__name__, self.source, self.target, self.type,
+               self.conditional, self.direct)
 
 
 class Module(AuxDataContainer):
@@ -307,3 +313,13 @@ class Module(AuxDataContainer):
                 return False
 
         return self.image_byte_map.deep_eq(other.image_byte_map)
+
+    def __repr__(self):
+        return ("%s(uuid=%s, name=%s, binary_path=%s, isa_id=%s,\
+ file_format=%s, preferred_addr=%#x, rebase_delta=%#x, blocks=%s,\
+ data=%s, image_byte_map=%s, proxies=%s, sections=%s, symbols=%s,\
+ symbolic_operands=%s)" % (type(self).__name__, self.uuid, self.binary_path,
+                           self.isa_id, self.file_format, self.preferred_addr,
+                           self.rebase_delta, self.blocks, self.data,
+                           self.image_byte_map, self.proxies, self.sections,
+                           self.symbols, self.symbolic_operands))

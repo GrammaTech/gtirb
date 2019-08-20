@@ -44,6 +44,11 @@ class Block(Node):
             and self.size == other.size \
             and self.decode_mode == other.decode_mode
 
+    def __repr__(self):
+        return "%s(uuid=%s, address=%#x, size=%s, decode_mode=%s)"\
+            % (type(self).__name__, self.uuid, self.address,
+               self.size, self.decode_mode)
+
 
 class ProxyBlock(Node):
     """A placeholder to serve as the endpoint of a CFG edge.
@@ -78,3 +83,6 @@ class ProxyBlock(Node):
         if not isinstance(other, ProxyBlock):
             return False
         return self.uuid == other.uuid
+
+    def __repr__(self):
+        return "%s(uuid=%s)" % (type(self).__name__, self.uuid)

@@ -47,6 +47,11 @@ class AuxData:
         proto_auxdata.data = out_bytes_array.getvalue()
         return proto_auxdata
 
+    def __repr__(self):
+        return "%s(type_name=%s, data=%s)"\
+            % (type(self).__name__,
+               self.type_name, self.data)
+
 
 class AuxDataContainer(Node):
     """Holds AuxData tables, base class for IR and Module

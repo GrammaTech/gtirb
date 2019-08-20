@@ -31,3 +31,7 @@ class Offset:
         proto_offset.element_id = self.element_id.bytes
         proto_offset.displacement = self.displacement
         return proto_offset
+
+    def __repr__(self):
+        return "%s(element_id=%s, displacement=%s)"\
+            % (type(self).__name__, self.element_id, self.displacement)

@@ -105,3 +105,7 @@ class IR(AuxDataContainer):
         """
         with open(file_name, 'wb') as f:
             self.save_protobuf_file(f)
+
+    def __repr__(self):
+        return "%s(uuid=%s, modules=%s)" % (type(self).__name__, self.uuid,
+                                            self.modules)

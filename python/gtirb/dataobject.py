@@ -37,3 +37,8 @@ class DataObject(Node):
         return self.uuid == other.uuid \
             and self.address == other.address \
             and self.size == other.size
+
+    def __repr__(self):
+        return "%s(uuid=%s, address=%#x, size=%s)"\
+            % (type(self).__name__, self.uuid,
+               self.address, self.size)

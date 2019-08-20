@@ -44,3 +44,8 @@ class Section(Node):
             and self.address == other.address \
             and self.name == other.name \
             and self.size == other.size
+
+    def __repr__(self):
+        return "%s(uuid=%s, name=%s, address=%#x, size=%s)"\
+            % (type(self).__name__, self.uuid, self.name,
+               self.address, self.size)

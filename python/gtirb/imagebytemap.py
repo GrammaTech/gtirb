@@ -346,3 +346,11 @@ class ImageByteMap(Node):
             if self._byte_map[addr] != other._byte_map[addr]:
                 return False
         return True
+
+    def __repr__(self):
+        return ("%s(uuid=%s, addr_min=%#x, addr_max=%#x, base_address=%#x,\
+entry_point_address=%#x, byte_map=%s)" % (type(self).__name__, self.uuid,
+                                          self.addr_min, self.addr_max,
+                                          self.base_address,
+                                          self.entry_point_address,
+                                          self._byte_map))

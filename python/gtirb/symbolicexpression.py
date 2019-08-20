@@ -56,6 +56,11 @@ class SymAddrAddr:
         return hash((self.offset, self.scale,
                      self.symbol1.uuid, self.symbol2.uuid))
 
+    def __repr__(self):
+        return "%s(scale=%s, offset=%s, symbol1=%s, symbol2=%s)"\
+            % (type(self).__name__, self.scale, self.offset,
+               self.symbol1, self.symbol2)
+
 
 class SymAddrConst:
     """
@@ -96,6 +101,10 @@ class SymAddrConst:
     def __hash__(self):
         return hash((self.offset, self.symbol.uuid))
 
+    def __repr__(self):
+        return "%s(offset=%s, symbol=%s)"\
+            % (type(self).__name__, self.offset, self.symbol)
+
 
 class SymStackConst:
     """
@@ -133,3 +142,7 @@ class SymStackConst:
 
     def __hash__(self):
         return hash((self.offset, self.symbol.uuid))
+
+    def __repr__(self):
+        return "%s(offset=%s, symbol=%s)"\
+            % (type(self).__name__, self.offset, self.symbol)
