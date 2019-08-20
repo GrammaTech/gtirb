@@ -14,7 +14,7 @@ class DataObject(Node):
         uuid: the UUID of this Node
 
     """
-    def __init__(self, address, size, uuid):
+    def __init__(self, address, size, uuid=None):
         super().__init__(uuid)
         self.address = address
         self.size = size
