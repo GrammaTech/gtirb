@@ -19,15 +19,30 @@ class Edge:
     """An Edge in the CFG.
 
     Parameters:
-        label: an EdgeLabel for this edge
         source: source Block
         target: target Block
-
+        conditional: boolean indicating if an edge is conditional on
+            True or False
+        direct: boolean indicating if an edge is direct or indirect
+        type: Edge.Type of the edge
     """
-    def __init__(self, label, source, target):
-        self.label = label
+
+    class Type(Enum):
+        """Type of control flow transfer indicated by this edge"""
+
+        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
+        Call = CFG_pb2.EdgeType.Value('Type_Call')
+        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
+        Return = CFG_pb2.EdgeType.Value('Type_Return')
+        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
+        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
+
+    def __init__(self, source, target, type_, *, conditional=False, direct=True):
         self.source = source
         self.target = target
+        self.type = type_
+        self.conditional = conditional
+        self.direct = direct
 
     @classmethod
     def _from_protobuf(cls, edge):
@@ -45,72 +60,31 @@ class Edge:
         except KeyError as e:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
-        return cls(EdgeLabel._from_protobuf(edge.label), source, target)
+        return cls(source, target, Edge.Type(edge.label.type),
+                   conditional=edge.label.conditional,
+                   direct=edge.label.direct)
 
     def _to_protobuf(self):
         proto_edge = CFG_pb2.Edge()
         proto_edge.source_uuid = self.source.uuid.bytes
         proto_edge.target_uuid = self.target.uuid.bytes
-        proto_edge.label.CopyFrom(self.label._to_protobuf())
+        proto_edge.label.type = self.type.value
+        proto_edge.label.conditional = self.conditional
+        proto_edge.label.direct = self.direct
         return proto_edge
 
     def __eq__(self, other):
         if not isinstance(other, Edge):
             return False
-        return self.label == other.label \
-            and self.source.uuid == other.source.uuid \
-            and self.target.uuid == other.target.uuid
-
-    def __hash__(self):
-        return hash((self.label, self.source.uuid, self.target.uuid))
-
-
-class EdgeLabel:
-    """A label for an Edge
-
-    Attributes:
-        conditional: boolean indicating if an edge is conditional on
-            True or False
-        direct: boolean indicating if an edge is direct or indirect
-        type: EdgeType of the edge
-
-    """
-    class EdgeType(Enum):
-        """Type of control flow transfer indicated by this edge"""
-
-        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
-        Call = CFG_pb2.EdgeType.Value('Type_Call')
-        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
-        Return = CFG_pb2.EdgeType.Value('Type_Return')
-        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
-        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
-
-    def __init__(self, conditional, direct, type):
-        self.conditional = conditional
-        self.direct = direct
-        self.type = type
-
-    @classmethod
-    def _from_protobuf(cls, edge_label):
-        return cls(edge_label.conditional, edge_label.direct,
-                   EdgeLabel.EdgeType(edge_label.type))
-
-    def _to_protobuf(self):
-        proto_edgelabel = CFG_pb2.EdgeLabel()
-        proto_edgelabel.conditional = self.conditional
-        proto_edgelabel.direct = self.direct
-        proto_edgelabel.type = self.type.value
-        return proto_edgelabel
-
-    def __eq__(self, other):
-        if not isinstance(other, EdgeLabel):
-            return False
-        return self.conditional == other.conditional \
+        return self.source.uuid == other.source.uuid \
+            and self.target.uuid == other.target.uuid \
+            and self.conditional == other.conditional \
             and self.direct == other.direct \
             and self.type == other.type
 
     def __hash__(self):
-        return hash((self.conditional, self.direct, self.type))
+        return hash((self.source.uuid, self.target.uuid, self.type,
+                     self.conditional, self.direct))
 
 
 class Module(AuxDataContainer):

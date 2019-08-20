@@ -4,7 +4,6 @@ __all__ = [
     'Block',
     'DataObject',
     'Edge',
-    'EdgeLabel',
     'ImageByteMap',
     'IR',
     'Module',
@@ -24,7 +23,7 @@ from .block import Block, ProxyBlock
 from .dataobject import DataObject
 from .imagebytemap import ImageByteMap
 from .ir import IR
-from .module import Module, Edge, EdgeLabel
+from .module import Module, Edge
 from .node import Node
 from .offset import Offset
 from .section import Section
