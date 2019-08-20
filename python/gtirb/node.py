@@ -19,6 +19,10 @@ class Node:
         self.uuid = uuid
 
     @classmethod
+    def from_uuid(uuid):
+        return Node._uuid_cache.get(uuid)
+
+    @classmethod
     def _decode_protobuf(cls, proto_object, uuid):
         """Decode a Protobuf object to a Python GTIRB object.
 
