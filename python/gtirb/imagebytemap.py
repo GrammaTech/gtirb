@@ -157,7 +157,7 @@ class ImageByteMap(Node):
             if not isinstance(key.start, int) or not isinstance(key.stop, int):
                 raise TypeError("start and stop addresses must be integers")
             if key.start == key.stop:
-                return bytes()
+                return bytearray()
             if key.start > key.stop:
                 raise IndexError("reverse slicing unsupported")
             if key.step is not None:
