@@ -67,6 +67,7 @@ class ProxyBlock(Node):
 
     """
     def __init__(self, uuid=None):
+        # Note that uuid is optional in this ctor but not Node's ctor
         super().__init__(uuid)
 
     @classmethod
