@@ -14,7 +14,7 @@ class Block(Node):
         uuid: UUID of this Node
 
     """
-    def __init__(self, address, size, decode_mode=0, uuid=None):
+    def __init__(self, address, size, *, decode_mode=0, uuid=None):
         super().__init__(uuid)
         self.address = address
         self.size = size
