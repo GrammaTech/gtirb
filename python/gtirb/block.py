@@ -45,9 +45,8 @@ class Block(Node):
             and self.decode_mode == other.decode_mode
 
     def __repr__(self):
-        return "%s(uuid=%s, address=%#x, size=%s, decode_mode=%s)"\
-            % (type(self).__name__, self.uuid, self.address,
-               self.size, self.decode_mode)
+        return "gtirb.Block(uuid=%r, address=%#x, size=%r, decode_mode=%r)"\
+               % (self.uuid, self.address, self.size, self.decode_mode)
 
 
 class ProxyBlock(Node):
@@ -86,4 +85,4 @@ class ProxyBlock(Node):
         return self.uuid == other.uuid
 
     def __repr__(self):
-        return "%s(uuid=%s)" % (type(self).__name__, self.uuid)
+        return "gtirb.ProxyBlock(uuid=%r)" % (self.uuid)

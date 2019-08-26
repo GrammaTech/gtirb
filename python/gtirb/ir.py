@@ -107,5 +107,4 @@ class IR(AuxDataContainer):
             self.save_protobuf_file(f)
 
     def __repr__(self):
-        return "%s(uuid=%s, modules=%s)" % (type(self).__name__, self.uuid,
-                                            self.modules)
+        return "gtirb.IR(uuid=%r, modules=%r)" % (self.uuid, self.modules)

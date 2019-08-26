@@ -88,9 +88,10 @@ class Edge:
                      self.conditional, self.direct))
 
     def __repr__(self):
-        return "%s(source=%s, target=%s, type_=%s, conditional=%s, direct=%s)"\
-            % (type(self).__name__, self.source, self.target, self.type,
-               self.conditional, self.direct)
+        return "gtirb.Edge(source=%r, target=%r, type_=%r,"\
+               "conditional=%r, direct=%r)"\
+               % (self.source, self.target, self.type,
+                  self.conditional, self.direct)
 
 
 class Module(AuxDataContainer):
@@ -315,11 +316,13 @@ class Module(AuxDataContainer):
         return self.image_byte_map.deep_eq(other.image_byte_map)
 
     def __repr__(self):
-        return ("%s(uuid=%s, name=%s, binary_path=%s, isa_id=%s,\
- file_format=%s, preferred_addr=%#x, rebase_delta=%#x, blocks=%s,\
- data=%s, image_byte_map=%s, proxies=%s, sections=%s, symbols=%s,\
- symbolic_operands=%s)" % (type(self).__name__, self.uuid, self.binary_path,
-                           self.isa_id, self.file_format, self.preferred_addr,
-                           self.rebase_delta, self.blocks, self.data,
-                           self.image_byte_map, self.proxies, self.sections,
-                           self.symbols, self.symbolic_operands))
+        return "gtirb.Module(uuid=%s, name=%s, binary_path=%s, isa_id=%s, "\
+               "file_format=%s, preferred_addr=%#x, rebase_delta=%#x, "\
+               "blocks=%s, data=%s, image_byte_map=%s, proxies=%s, "\
+               "sections=%s, symbols=%s, symbolic_operands=%s)" % (
+                    self.uuid, self.binary_path,
+                    self.isa_id, self.file_format, self.preferred_addr,
+                    self.rebase_delta, self.blocks, self.data,
+                    self.image_byte_map, self.proxies, self.sections,
+                    self.symbols, self.symbolic_operands
+                )

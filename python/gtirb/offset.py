@@ -33,5 +33,5 @@ class Offset:
         return proto_offset
 
     def __repr__(self):
-        return "%s(element_id=%s, displacement=%s)"\
-            % (type(self).__name__, self.element_id, self.displacement)
+        return "gtirb.Offset(element_id=%r, displacement=%r)"\
+               % (self.element_id, self.displacement)

@@ -57,9 +57,9 @@ class SymAddrAddr:
                      self.symbol1.uuid, self.symbol2.uuid))
 
     def __repr__(self):
-        return "%s(scale=%s, offset=%s, symbol1=%s, symbol2=%s)"\
-            % (type(self).__name__, self.scale, self.offset,
-               self.symbol1, self.symbol2)
+        return "gtirb.SymAddrAddr(scale=%r, offset=%r, symbol1=%r, "\
+               "symbol2=%r)" % (self.scale, self.offset,
+                                self.symbol1, self.symbol2)
 
 
 class SymAddrConst:
@@ -102,8 +102,8 @@ class SymAddrConst:
         return hash((self.offset, self.symbol.uuid))
 
     def __repr__(self):
-        return "%s(offset=%s, symbol=%s)"\
-            % (type(self).__name__, self.offset, self.symbol)
+        return "gtirb.SymAddrConst(offset=%r, symbol=%r)"\
+               % (self.offset, self.symbol)
 
 
 class SymStackConst:
@@ -144,5 +144,5 @@ class SymStackConst:
         return hash((self.offset, self.symbol.uuid))
 
     def __repr__(self):
-        return "%s(offset=%s, symbol=%s)"\
-            % (type(self).__name__, self.offset, self.symbol)
+        return "gtirb.SymStackConst(offset=%r, symbol=%r)"\
+               % (self.offset, self.symbol)

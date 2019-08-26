@@ -105,6 +105,5 @@ class Symbol(Node):
             and self.uuid == other.uuid
 
     def __repr__(self):
-        return "%s(uuid=%s, name=%s, storage_kind=%s, _payload=%s)"\
-            % (type(self).__name__, self.uuid, self.name,
-               self.storage_kind, self._payload)
+        return "gtirb.Symbol(uuid=%r, name=%r, storage_kind=%r, _payload=%r)"\
+               % (self.uuid, self.name, self.storage_kind, self._payload)

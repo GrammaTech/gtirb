@@ -46,6 +46,5 @@ class Section(Node):
             and self.size == other.size
 
     def __repr__(self):
-        return "%s(uuid=%s, name=%s, address=%#x, size=%s)"\
-            % (type(self).__name__, self.uuid, self.name,
-               self.address, self.size)
+        return "gtirb.Section(uuid=%r, name=%r, address=%#x, size=%r)"\
+               % (self.uuid, self.name, self.address, self.size)
