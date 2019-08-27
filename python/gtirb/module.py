@@ -21,10 +21,7 @@ class Edge:
     Parameters:
         source: source Block
         target: target Block
-        conditional: boolean indicating if an edge is conditional on
-            True or False
-        direct: boolean indicating if an edge is direct or indirect
-        type: Edge.Type of the edge
+        label: an optional Label
     """
 
     class Type(Enum):
@@ -37,13 +34,39 @@ class Edge:
         Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
         Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
 
-    def __init__(self, source, target, type_, *, conditional=False,
-                 direct=True):
+    class Label:
+        """Contains a more detailed description of an edge in the CFG.
+
+        Parameters:
+            conditional: boolean indicating if an edge is conditional on
+                True or False
+            direct: boolean indicating if an edge is direct or indirect
+            type: Edge.Type of the edge
+        """
+
+        def __init__(self, type, *, conditional=False, direct=True):
+            self.type = type
+            self.conditional = conditional
+            self.direct = direct
+
+        def __eq__(self, other):
+            if not isinstance(other, Edge.Label):
+                return False
+            return self.type == other.type \
+                and self.conditional == other.conditional \
+                and self.direct == other.direct
+
+        def __hash__(self):
+            return hash((self.type, self.conditional, self.direct))
+
+        def __repr__(self):
+            return "gtirb.Edge.Label(type=%r, conditional=%r, direct=%r)"\
+                   % (self.type, self.conditional, self.direct)
+
+    def __init__(self, source, target, label=None):
         self.source = source
         self.target = target
-        self.type = type_
-        self.conditional = conditional
-        self.direct = direct
+        self.label = label
 
     @classmethod
     def _from_protobuf(cls, edge):
@@ -61,17 +84,23 @@ class Edge:
         except KeyError as e:
             raise KeyError("Could not find UUID %s when creating edge %s -> %s"
                            % (e, source_uuid, target_uuid))
-        return cls(source, target, Edge.Type(edge.label.type),
-                   conditional=edge.label.conditional,
-                   direct=edge.label.direct)
+        label = None
+        if edge.label is not None:
+            label = Edge.Label(
+                Edge.Type(edge.label.type),
+                conditional=edge.label.conditional,
+                direct=edge.label.direct
+            )
+        return cls(source, target, label)
 
     def _to_protobuf(self):
         proto_edge = CFG_pb2.Edge()
         proto_edge.source_uuid = self.source.uuid.bytes
         proto_edge.target_uuid = self.target.uuid.bytes
-        proto_edge.label.type = self.type.value
-        proto_edge.label.conditional = self.conditional
-        proto_edge.label.direct = self.direct
+        if self.label is not None:
+            proto_edge.label.type = self.label.type.value
+            proto_edge.label.conditional = self.label.conditional
+            proto_edge.label.direct = self.label.direct
         return proto_edge
 
     def __eq__(self, other):
@@ -79,19 +108,14 @@ class Edge:
             return False
         return self.source.uuid == other.source.uuid \
             and self.target.uuid == other.target.uuid \
-            and self.conditional == other.conditional \
-            and self.direct == other.direct \
-            and self.type == other.type
+            and self.label == other.label
 
     def __hash__(self):
-        return hash((self.source.uuid, self.target.uuid, self.type,
-                     self.conditional, self.direct))
+        return hash((self.source.uuid, self.target.uuid, self.label))
 
     def __repr__(self):
-        return "gtirb.Edge(source=%r, target=%r, type_=%r,"\
-               "conditional=%r, direct=%r)"\
-               % (self.source, self.target, self.type,
-                  self.conditional, self.direct)
+        return "gtirb.Edge(source=%r, target=%r, label=%r)"\
+               % (self.source, self.target, self.label)
 
 
 class Module(AuxDataContainer):
