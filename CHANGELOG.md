@@ -1,4 +1,4 @@
-# 0.2.0
+# Unreleased
 
 * Added a new Python API, meant to be a high-level wrapper over the
   Protobuf-generated one. To make use of it, add the `python` folder
