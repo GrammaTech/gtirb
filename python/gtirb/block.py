@@ -65,9 +65,6 @@ class ProxyBlock(Node):
         uuid: the UUID of this Node
 
     """
-    def __init__(self, uuid=None):
-        # Note that uuid is optional in this ctor but not Node's ctor
-        super().__init__(uuid)
 
     @classmethod
     def _decode_protobuf(cls, proto_proxy, uuid):
