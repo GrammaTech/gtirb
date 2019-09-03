@@ -23,11 +23,12 @@ class Symbol(Node):
     def __init__(self,
                  name,
                  storage_kind=StorageKind.Undefined,
-                 uuid=None):
+                 uuid=None,
+                 payload=None):
         super().__init__(uuid)
         self.name = name
         self.storage_kind = storage_kind
-        self._payload = None
+        self._payload = payload
 
     @property
     def value(self):
@@ -105,5 +106,9 @@ class Symbol(Node):
             and self.uuid == other.uuid
 
     def __repr__(self):
-        return "gtirb.Symbol(uuid=%r, name=%r, storage_kind=%r, _payload=%r)"\
-               % (self.uuid, self.name, self.storage_kind, self._payload)
+        return ("Symbol("
+                "uuid={uuid!r}, "
+                "name={name!r}, "
+                "storage_kind=Symbol.{storage_kind!s}, "
+                "payload={_payload!r}, "
+                ")".format(**self.__dict__))

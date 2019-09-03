@@ -48,8 +48,10 @@ class AuxData:
         return proto_auxdata
 
     def __repr__(self):
-        return "gtirb.AuxData(type_name=%r, data=%r)"\
-               % (self.type_name, self.data)
+        return ("AuxData("
+                "type_name={type_name!r}, "
+                "data={data!r}, "
+                ")".format(**self.__dict__))
 
 
 class AuxDataContainer(Node):

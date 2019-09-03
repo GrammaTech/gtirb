@@ -348,7 +348,11 @@ class ImageByteMap(Node):
         return True
 
     def __repr__(self):
-        return "gtirb.ImageByteMap(uuid=%r, addr_min=%#x, addr_max=%#x, "\
-               "base_address=%#x, entry_point_address=%#x, byte_map=%r)"\
-               % (self.uuid, self.addr_min, self.addr_max, self.base_address,
-                  self.entry_point_address, self._byte_map)
+        return ("ImageByteMap("
+                "uuid={uuid!r}, "
+                "addr_min={addr_min:#x}, "
+                "addr_max={addr_max:#x}, "
+                "base_address={base_address:#x}, "
+                "entry_point_address={entry_point_address:#x}, "
+                "byte_map={_byte_map!r}, "
+                ")".format(**self.__dict__))

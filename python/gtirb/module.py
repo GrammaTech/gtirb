@@ -60,8 +60,11 @@ class Edge:
             return hash((self.type, self.conditional, self.direct))
 
         def __repr__(self):
-            return "gtirb.Edge.Label(type=%r, conditional=%r, direct=%r)"\
-                   % (self.type, self.conditional, self.direct)
+            return ("Edge.Label("
+                    "type=Edge.{type!s}, "
+                    "conditional={conditional!r}, "
+                    "direct={direct!r}, "
+                    ")".format(**self.__dict__))
 
     def __init__(self, source, target, label=None):
         self.source = source
@@ -114,8 +117,11 @@ class Edge:
         return hash((self.source.uuid, self.target.uuid, self.label))
 
     def __repr__(self):
-        return "gtirb.Edge(source=%r, target=%r, label=%r)"\
-               % (self.source, self.target, self.label)
+        return ("Edge("
+                "source={source!r}, "
+                "target={target!r}, "
+                "label={label!r}, "
+                ")".format(**self.__dict__))
 
 
 class Module(AuxDataContainer):
@@ -340,13 +346,19 @@ class Module(AuxDataContainer):
         return self.image_byte_map.deep_eq(other.image_byte_map)
 
     def __repr__(self):
-        return "gtirb.Module(uuid=%s, name=%s, binary_path=%s, isa_id=%s, "\
-               "file_format=%s, preferred_addr=%#x, rebase_delta=%#x, "\
-               "blocks=%s, data=%s, image_byte_map=%s, proxies=%s, "\
-               "sections=%s, symbols=%s, symbolic_operands=%s)" % (
-                    self.uuid, self.binary_path,
-                    self.isa_id, self.file_format, self.preferred_addr,
-                    self.rebase_delta, self.blocks, self.data,
-                    self.image_byte_map, self.proxies, self.sections,
-                    self.symbols, self.symbolic_operands
-                )
+        return ("Module("
+                "uuid={uuid!r}, "
+                "name={name!r}, "
+                "binary_path={binary_path!r}, "
+                "isa_id=Module.{isa_id!s}, "
+                "file_format=Module.{file_format!s}, "
+                "preferred_addr={preferred_addr:#x}, "
+                "rebase_delta={rebase_delta:#x}, "
+                "blocks={blocks!r}, "
+                "data={data!r}, "
+                "image_byte_map={image_byte_map!r}, "
+                "proxies={proxies!r}, "
+                "sections={sections!r}, "
+                "symbols={symbols!r}, "
+                "symbolic_operands={symbolic_operands!r}, "
+                ")".format(**self.__dict__))

@@ -39,5 +39,8 @@ class DataObject(Node):
             and self.size == other.size
 
     def __repr__(self):
-        return "gtirb.DataObject(uuid=%r, address=%#x, size=%r)"\
-               % (self.uuid, self.address, self.size)
+        return ("DataObject("
+                "uuid={uuid!r}, "
+                "address={address:#x}, "
+                "size={size}, "
+                ")".format(**self.__dict__))
