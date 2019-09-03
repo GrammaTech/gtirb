@@ -37,7 +37,7 @@ class Edge:
     class Label:
         """Contains a more detailed description of an edge in the CFG.
 
-        Parameters:
+        Attributes:
             conditional: boolean indicating if an edge is conditional on
                 True or False
             direct: boolean indicating if an edge is direct or indirect
