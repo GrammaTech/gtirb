@@ -49,6 +49,21 @@ class Edge:
             self.conditional = conditional
             self.direct = direct
 
+        @classmethod
+        def _from_protobuf(cls, label):
+            return Edge.Label(
+                type=Edge.Type(label.type),
+                conditional=label.conditional,
+                direct=label.direct
+            )
+
+        def _to_protobuf(self):
+            proto_label = CFG_pb2.EdgeLabel()
+            proto_label.type = self.type.value
+            proto_label.conditional = self.conditional
+            proto_label.direct = self.direct
+            return proto_label
+
         def __eq__(self, other):
             if not isinstance(other, Edge.Label):
                 return False
@@ -89,11 +104,7 @@ class Edge:
                            % (e, source_uuid, target_uuid))
         label = None
         if edge.label is not None:
-            label = Edge.Label(
-                Edge.Type(edge.label.type),
-                conditional=edge.label.conditional,
-                direct=edge.label.direct
-            )
+            label = Edge.Label._from_protobuf(edge.label)
         return cls(source, target, label)
 
     def _to_protobuf(self):
@@ -101,9 +112,7 @@ class Edge:
         proto_edge.source_uuid = self.source.uuid.bytes
         proto_edge.target_uuid = self.target.uuid.bytes
         if self.label is not None:
-            proto_edge.label.type = self.label.type.value
-            proto_edge.label.conditional = self.label.conditional
-            proto_edge.label.direct = self.label.direct
+            proto_edge.label.CopyFrom(self.label._to_protobuf())
         return proto_edge
 
     def __eq__(self, other):
