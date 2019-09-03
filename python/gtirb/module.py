@@ -18,7 +18,7 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 class Edge:
     """An Edge in the CFG.
 
-    Parameters:
+    Attributes:
         source: source Block
         target: target Block
         label: an optional Label
