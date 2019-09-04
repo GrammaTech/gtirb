@@ -9,20 +9,9 @@ RUN apt-get update \
     git \
     curl
 
-RUN pip3 install flake8 flake8-colors
-
-RUN curl https://llvm.org/svn/llvm-project/cfe/trunk/tools/clang-format/git-clang-format > /usr/bin/git-clang-format
-RUN chmod +x /usr/bin/git-clang-format
+RUN pip3 install pre-commit
 
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
 
-## Run clang-format on the last commit, excluding boost headers
-RUN git clang-format origin/master `find . -name boost -prune -o -name \*.hpp -print -o -name \*.cpp -print`
-
-## Run clang-format on all source files.
-# RUN (find src -name "*.cpp" -or -name "*.hpp";find include -name "*.hpp")|xargs -I{} clang-format -i {}
-# RUN [[ $(git diff --shortstat 2> /dev/null | tail -n1) == "" ]]
-
-## Run flake8
-RUN flake8 --exclude=doc
+RUN pre-commit run --all-files
