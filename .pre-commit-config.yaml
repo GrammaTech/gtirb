@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: master
+    hooks:
+      - id: black
+        args: ["-l","79"]
+  - repo: https://gitlab.com/daverona-env/pre-commit-cpp
+    rev: master
+    hooks:
+      - id: clang-format
+        name: clang-format
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: master
+    hooks:
+      - id: flake8
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
