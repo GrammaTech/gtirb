@@ -6,11 +6,37 @@ Contributing
 
 Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 
+## General Guidelines
 
-## Code Requirements
+- We require code to follow a unified format. This includes usage of
+  [clang-format](https://clang.llvm.org/docs/ClangFormat.html) on C++ code,
+  [Black](https://pypi.org/project/black/) on Python code, and other minor
+  formatting constraints. To ease the use of these tools, we recommend the use of [pre-commit](https://pre-commit.com/).
+  All it requires to install is [pip](https://pypi.org/project/pip/). To install `pre-commit`:
+  ```bash
+  pip3 install pre-commit
+  ```
+  There is a `.pre-commit-config.yaml` file in the root of this repository. To install the formatters as a Git pre-commit hook, run:
+  ```bash
+  pre-commit install
+  ```
+  Or if you wish to run `pre-commit` manually instead, run this before all commits:
+  ```
+  pre-commit run
+  ```
+
+- Text files may not have trailing whitespace.
+
+- Text files must end with a trailing newline.
+
+- Code should be tested on Linux using GCC and Clang,
+  and on Windows using Visual Studio.
+
+## C++ Code Requirements
 
 - All code shall be formatted with clang-format.  A `.clang-format` is
-  provided in the root directory for the project.
+  provided in the root directory for the project,
+  and a pass through this tool is included as part of our `pre-commit` configuration.
 
 - Code should generally follow the C++ Core Guidelines recommendations.
 
@@ -19,8 +45,6 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 	- No globals
 	- Free functions should not maintain state.
 	- Use caution when using iterators to guard against invalidation.
-
-- Code should be tested on Linux using GCC and Clang and on Windows using Visual Studio.
 
 - Maintain const-correctness.
 
@@ -52,7 +76,7 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
   their definitions.
 
 
-## Testing Development
+### Testing Development
 
 - All code you care about should be tested.
 - Any code you don't care about should be removed.
@@ -61,14 +85,14 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 - No unit test should take more than 0.5 seconds.
 
 
-## Documentation
+### Documentation
 
 The GTIRB documentation consists of complete documentation for all
 components of the GTIRB API, along with examples and other usage
 information.
 
 
-### Building Documentation
+#### Building Documentation
 
 You will need `cmake` and `Doxygen`.
 
@@ -92,7 +116,7 @@ You will need `cmake` and `Doxygen`.
    in your browser.
 
 
-### Contributing Markdown Documentation
+#### Contributing Markdown Documentation
 
 To add a new markdown document to the documentation:
 
@@ -116,10 +140,36 @@ To add a new markdown document to the documentation:
      corresponding github-style markdown into something Doxygen
      can handle correctly.
 
-### Graphviz
+#### Graphviz
 
 - File names start with `gtirb`.
 - The color palette is `black`, `lightblue`, `cornflowerblue`, and `coral`.
 - Render `.dot` files to the same file name with a `.png` extension.
 	* Example: `dot -Tpng gtirbScope.dot > gtirbScope.png`
 - Use the `arial` font.
+
+## Python Code Requirements
+
+- Code must be [PEP8](https://www.python.org/dev/peps/pep-0008/) compliant.
+  To check for PEP8 compliance, [flake8](https://pypi.org/project/flake8/) is recommended,
+  and included as part of our `pre-commit` configuration.
+
+- All code must be formatted with `black` (set to line lengths of 79, for PEP8 compliance).
+  A pass through this tool is included as part of our `pre-commit` configuration.
+
+- Use `UpperCamelCase` for type names, `UPPER_CASE` for constant names,
+  and `snake_case` for other identifier names.
+
+### Testing Development
+
+- All code you care about should be tested.
+- Any code you don't care about should be removed.
+- Code testing is done via the built-in `unittest` framework.
+- No unit test should take more than 0.5 seconds.
+
+### Documentation
+
+As with the C++ API, The GTIRB documentation consists of complete documentation for all
+components of the GTIRB API, along with examples and other usage information.
+
+<!-- TODO: documentation via Sphinx -->
