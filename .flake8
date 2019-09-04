@@ -1,0 +1,4 @@
+[flake8]
+# Black feels free to violate these rules because they're PEP8 extesnions and
+# not PEP8 itself. So we must ignore them.
+ignore = E203,W503
