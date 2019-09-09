@@ -5,9 +5,22 @@
 # Need 3.9 to support CXX_STANDARD=17 and protobuf
 CMAKE_MINIMUM_REQUIRED(VERSION 3.9.0)
 
-PROJECT(GTIRB)
-set(GTIRB_VERSION "0.1.1" CACHE STRING "version of gtirb" FORCE)
+# The version.txt file is the official record of the version number. We use the
+# contents of that file to set the project version for use in other CMake files.
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" ver)
 
+string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
+set(GTIRB_MAJOR_VERSION ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${ver})
+set(GTIRB_MINOR_VERSION ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
+set(GTIRB_PATCH_VERSION ${CMAKE_MATCH_1})
+
+cmake_policy(SET CMP0048 NEW)
+project(GTIRB VERSION
+        "${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}")
 
 include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
@@ -58,20 +71,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Handle version initialization
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" ver)
-
-string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
-set(GTIRB_MAJOR_VERSION ${CMAKE_MATCH_1})
-
-string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${ver})
-set(GTIRB_MINOR_VERSION ${CMAKE_MATCH_1})
-
-string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
-set(GTIRB_PATCH_VERSION ${CMAKE_MATCH_1})
-
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h.in"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h"
   @ONLY)
 
 # Use C++17

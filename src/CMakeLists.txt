@@ -59,7 +59,6 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/version.h
         )
 
 set(${PROJECT_NAME}_H
@@ -109,11 +108,6 @@ target_link_libraries(
   proto)
 target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 
-# Copy gtirb headers into build directory
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E remove_directory "${CMAKE_BINARY_DIR}/include/gtirb")
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_BINARY_DIR}/include/gtirb")
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy
@@ -128,7 +122,7 @@ if(CLANG_TIDY_EXE)
 endif()
 
 if(GTIRB_ENABLE_TESTS)
-        add_subdirectory(test)
+  add_subdirectory(test)
 endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT gtirbTargets
