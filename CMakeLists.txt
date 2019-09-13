@@ -74,6 +74,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h"
   @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h"
+        DESTINATION include/gtirb)
 
 # Use C++17
 set(CMAKE_CXX_STANDARD 17)
