@@ -2,13 +2,6 @@ from uuid import UUID, uuid4
 from weakref import WeakValueDictionary
 
 
-class DecodeError(Exception):
-    """Exception during decoding"""
-
-    def __init__(self, msg):
-        self.msg = msg
-
-
 class Node:
     """Base class for 'nodes', which can be referenced by their UUID"""
 
