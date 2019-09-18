@@ -19,7 +19,7 @@ class Node:
         self.uuid = uuid
 
     @classmethod
-    def from_uuid(uuid):
+    def from_uuid(cls, uuid):
         """
         Find the Node the corresponds to a given UUID,
         or None if not found.
