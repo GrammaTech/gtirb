@@ -1,5 +1,6 @@
 import unittest
 import gtirb
+import uuid
 
 
 class NodeFromUUIDTest(unittest.TestCase):
@@ -17,6 +18,11 @@ class NodeFromUUIDTest(unittest.TestCase):
             with self.subTest(type(node1).__name__):
                 node2 = gtirb.Node.from_uuid(node1.uuid)
                 self.assertEqual(node1, node2)
+
+    def test_from_uuid_failed(self):
+        bad_id = uuid.uuid4()
+        node = gtirb.Node.from_uuid(bad_id)
+        self.assertIsNone(node)
 
 
 if __name__ == "__main__":
