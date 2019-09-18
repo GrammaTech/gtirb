@@ -4,6 +4,7 @@ from weakref import WeakValueDictionary
 
 class DecodeError(Exception):
     """Exception during decoding"""
+
     def __init__(self, msg):
         self.msg = msg
 
@@ -17,6 +18,7 @@ class Node:
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
+        Node._uuid_cache[self.uuid] = self
 
     @classmethod
     def from_uuid(cls, uuid):
@@ -55,11 +57,12 @@ class Node:
             if not isinstance(node, cls):
                 node_type = node.__class__.__name__
                 cls_type = cls.__class__.__name__
-                raise DecodeError("%s corresponds to node of type %s, not %s" %
-                                  (uuid, node_type, cls_type))
+                raise DecodeError(
+                    "%s corresponds to node of type %s, not %s"
+                    % (uuid, node_type, cls_type)
+                )
             return node
         new_node = cls._decode_protobuf(proto_object, uuid)
-        Node._uuid_cache[new_node.uuid] = new_node
         return new_node
 
     def _to_protobuf(self):
