@@ -58,11 +58,10 @@ class Node:
 
         """
         uuid = UUID(bytes=proto_object.uuid)
-        exisitng_node = cls.from_uuid(uuid)
-        if exisitng_node is not None:
-            return exisitng_node
-        new_node = cls._decode_protobuf(proto_object, uuid)
-        return new_node
+        node = cls.from_uuid(uuid)
+        if node is None:
+            node = cls._decode_protobuf(proto_object, uuid)
+        return node
 
     def _to_protobuf(self):
         """Return a Protobuf representation of the object.
