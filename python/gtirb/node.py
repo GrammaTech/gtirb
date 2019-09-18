@@ -26,7 +26,13 @@ class Node:
         Find the Node the corresponds to a given UUID,
         or None if not found.
         """
-        return Node._uuid_cache.get(uuid)
+        node = Node._uuid_cache.get(uuid)
+        if node is not None and not isinstance(node, cls):
+            raise TypeError(
+                "%s is node of type %s, not %s"
+                % (uuid, type(node).__name__, cls.__name__)
+            )
+        return node
 
     @classmethod
     def _decode_protobuf(cls, proto_object, uuid):
@@ -52,16 +58,9 @@ class Node:
 
         """
         uuid = UUID(bytes=proto_object.uuid)
-        if uuid in Node._uuid_cache:
-            node = Node._uuid_cache[uuid]
-            if not isinstance(node, cls):
-                node_type = node.__class__.__name__
-                cls_type = cls.__class__.__name__
-                raise DecodeError(
-                    "%s corresponds to node of type %s, not %s"
-                    % (uuid, node_type, cls_type)
-                )
-            return node
+        exisitng_node = cls.from_uuid(uuid)
+        if exisitng_node is not None:
+            return exisitng_node
         new_node = cls._decode_protobuf(proto_object, uuid)
         return new_node
 
