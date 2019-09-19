@@ -1,5 +1,7 @@
 # Unreleased
 
+# 0.2.0
+
 * Added a new Python API, meant to be a high-level wrapper over the
   Protobuf-generated one. To make use of it, add the `python` folder
   from your build directory to your `PYTHONPATH`. The package is named `gtirb`.
