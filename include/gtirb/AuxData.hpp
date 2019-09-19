@@ -190,6 +190,16 @@ template <class T> struct default_serialization {
 template <>
 struct auxdata_traits<std::byte> : default_serialization<std::byte> {
   static std::string type_id() { return "byte"; }
+
+  static void toBytes(std::byte object, to_iterator It) {
+    *It = static_cast<char>(object);
+  }
+
+  static from_iterator fromBytes(std::byte& object, from_iterator It) {
+    object = std::byte(*It);
+    ++It;
+    return It;
+  }
 };
 
 template <> struct auxdata_traits<Addr> : default_serialization<Addr> {

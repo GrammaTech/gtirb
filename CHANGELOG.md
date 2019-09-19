@@ -7,6 +7,7 @@
   so that the user has control over which versions are in use.
   The version requirements for Boost and Protobuf are listed in `README.md`.
 * Updated the sanctioned AuxData definitions.
+* Fix for build issue when using Boost 1.71.0.
 
 # 0.1.1
 
