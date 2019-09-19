@@ -3,7 +3,7 @@ repos:
     rev: master
     hooks:
       - id: black
-        args: ["-l","79"]
+        args: ["--line-length", "79"]
   - repo: https://gitlab.com/daverona-env/pre-commit-cpp
     rev: master
     hooks:
