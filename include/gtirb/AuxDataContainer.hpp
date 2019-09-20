@@ -19,7 +19,16 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Node.hpp>
 
+#ifdef _MSC_VER
+// Protobuf does not compile cleanly with Visual Studio, but we compile with
+// warnings treated as errors; disable C4267 type conversion possible data loss.
+#pragma warning(push)
+#pragma warning(disable: 4267)
+#endif
 #include <proto/AuxDataContainer.pb.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 /// \file AuxDataContainer.hpp
 /// \brief Class gtirb::AuxDataContainer.

@@ -4,6 +4,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_compile_options(-wd4125) # decimal digit terminates octal escape sequence
     add_compile_options(-wd4456) # declaration of 'decl' hides previous local declaration
     add_compile_options(-wd4100) # unreferenced formal parameter
+    add_compile_options(-wd4267) # conversion from 'type1' to 'type2', possible loss of data
     add_compile_options("/FIgtirb/Export.hpp")
 else()
     add_compile_options(-Wno-shadow)

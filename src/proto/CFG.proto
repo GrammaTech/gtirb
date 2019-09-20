@@ -15,8 +15,6 @@
 syntax = "proto3";
 package proto;
 
-import "Block.proto";
-
 enum EdgeType {
     Type_Branch = 0;
     Type_Call = 1;
