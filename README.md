@@ -135,9 +135,6 @@ dependencies listed above with `vcpkg` before running `cmake`:
 vcpkg.exe install --triplet x64-windows protobuf boost
 ```
 
-Please note that, on Windows, GTIRB is not compatible with protobuf version 3.7.x.
-Please make sure that you have a Protobuf version between 3.1.x and 3.6.1.
-
 ## Usage
 
 GTIRB is designed to be serialized using [Google's protocol
