@@ -1,0 +1,17 @@
+if(PYTHON)
+    find_program(SPHINX_APIDOC sphinx-apidoc)
+
+    if(SPHINX_APIDOC)
+        add_custom_target(sphinx
+            DEPENDS pygtirb
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMAND ${SPHINX_APIDOC} ${CMAKE_BINARY_DIR}/python/gtirb -o ${CMAKE_CURRENT_BINARY_DIR} -fF
+            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/conf.py ${CMAKE_CURRENT_BINARY_DIR}/
+            COMMAND make html
+            COMMENT "Generating API documentation with Sphinx"
+            VERBATIM
+        )
+    else()
+        message(WARNING "sphinx-apidoc was not found. HTML documentation for the Python API will not be generated.")
+    endif()
+endif()
