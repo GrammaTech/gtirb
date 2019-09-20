@@ -307,19 +307,13 @@ add_subdirectory(proto)
 # ---------------------------------------------------------------------------
 if(GTIRB_CXX_API)
   add_subdirectory(src)
-  add_subdirectory(doc/examples)
 endif()
 
 if(GTIRB_PY_API)
   add_subdirectory(python)
 endif()
 
-# ---------------------------------------------------------------------------
-# gtirb documentation
-# ---------------------------------------------------------------------------
-add_subdirectory(doc/doxy)
-add_subdirectory(doc/python)
-
+add_subdirectory(doc)
 
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects

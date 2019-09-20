@@ -11,6 +11,7 @@ if(PYTHON)
             COMMENT "Generating API documentation with Sphinx"
             VERBATIM
         )
+        add_dependencies(doc sphinx)
     else()
         message(WARNING "sphinx-apidoc was not found. HTML documentation for the Python API will not be generated.")
     endif()
