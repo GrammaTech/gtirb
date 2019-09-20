@@ -23,7 +23,7 @@
 // Protobuf does not compile cleanly with Visual Studio, but we compile with
 // warnings treated as errors; disable C4267 type conversion possible data loss.
 #pragma warning(push)
-#pragma warning(disable: 4267)
+#pragma warning(disable : 4267)
 #endif
 #include <proto/AuxDataContainer.pb.h>
 #ifdef _MSC_VER
