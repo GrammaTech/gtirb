@@ -1,5 +1,4 @@
 from io import BytesIO
-import typing
 
 import AuxData_pb2
 import AuxDataContainer_pb2
