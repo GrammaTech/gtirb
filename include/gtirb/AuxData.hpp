@@ -160,8 +160,20 @@ template <class T, class Enable = void> struct auxdata_traits {
 /// @cond INTERNAL
 template <class... Ts> struct TypeId {};
 
+/// @cond INTERNAL
+template <class T>
+struct is_endian_type
+    : std::integral_constant<bool, std::is_class_v<T> ||
+                                       (std::is_integral_v<T> &&
+                                        !std::is_same_v<T, bool>)> {};
+/// @endcond
+
+template <typename T, typename Enable = void> struct default_serialization {};
+
 // Serialize and deserialize by copying the object representation directly.
-template <class T> struct default_serialization {
+template <typename T>
+struct default_serialization<
+    T, typename std::enable_if_t<is_endian_type<T>::value>> {
   static void toBytes(const T& object, to_iterator It) {
     // Store as little-endian.
     T reversed = boost::endian::conditional_reverse<
