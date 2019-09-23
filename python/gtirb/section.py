@@ -4,11 +4,15 @@ from .node import Node
 
 
 class Section(Node):
-    """
-    Represents a named section of the binary.
+    """Represents a named section of the binary.
 
     Does not directly store the contents of the section, which are
     kept in ImageByteMap.
+
+    :param name: the name of this section
+    :param address: the address this section is located at in memory
+    :param size: the size of this section, in bytes
+    :param uuid: the UUID of this Node
     """
 
     def __init__(self, name="", address=0, size=0, uuid=None):

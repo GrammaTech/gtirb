@@ -5,7 +5,10 @@ import Offset_pb2
 
 class Offset:
     """
-    Describes the location inside a block or data object.
+    An Offset describes a location inside a block or data object.
+
+    :param element_id: the UUID of a Node
+    :param displacement: the offset inside the Node to point to
     """
 
     def __init__(self, element_id, displacement):
@@ -14,19 +17,9 @@ class Offset:
 
     @classmethod
     def _from_protobuf(cls, offset):
-        """
-        Load this cls from protobuf object
-        """
         return cls(UUID(bytes=offset.element_id), offset.displacement)
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_offset = Offset_pb2.Offset()
         proto_offset.element_id = self.element_id.bytes
         proto_offset.displacement = self.displacement

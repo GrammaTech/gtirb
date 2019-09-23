@@ -9,7 +9,14 @@ from .node import Node
 
 
 class Symbol(Node):
-    """Represents a Symbol, which maps a name to an object in the IR."""
+    """Represents a symbol, which maps a name to an object in the IR.
+
+    :param name: the name of this symbol
+    :param storage_kind: the storage kind of this symbol
+    :param payload: an optional value this symbol points to.
+        May be an address, a Node, or None
+    :param uuid: the UUID of this Node
+    """
 
     class StorageKind(Enum):
         """
@@ -32,20 +39,21 @@ class Symbol(Node):
 
     @property
     def value(self):
-        """The value of a Symbol.
-        An integer or None.
-        `value` and `referent` are mutually-exclusive.
+        """The value of a Symbol, which is an integer or None.
+        ``value`` and ``referent`` are mutually exclusive.
         """
+
         if not isinstance(self._payload, (Block, DataObject, ProxyBlock)):
             return self._payload
         return None
 
     @property
     def referent(self):
-        """The object referred to by a Symbol.
+        """The object referred to by a Symbol, which is a
         Block, DataObject, ProxyBlock, or None.
-        `value` and `referent` are mutually-exclusive.
+        ``value`` and ``referent`` are mutually exclusive.
         """
+
         if isinstance(self._payload, (Block, DataObject, ProxyBlock)):
             return self._payload
         return None
@@ -75,13 +83,6 @@ class Symbol(Node):
         return symbol
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_symbol = Symbol_pb2.Symbol()
         proto_symbol.uuid = self.uuid.bytes
         if self.value is not None:

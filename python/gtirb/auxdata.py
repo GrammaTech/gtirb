@@ -1,4 +1,5 @@
 from io import BytesIO
+import typing
 
 import AuxData_pb2
 import AuxDataContainer_pb2
@@ -8,18 +9,16 @@ from .serialization import Serialization
 
 
 class AuxData:
-    """Types and operations for auxiliary data.  AuxData objects can be
-    attached to the IR or individual Modules to store additional
-    client-specific data in a portable way.
+    """AuxData objects can be attached to the :class:`gtirb.IR` or individual
+    :class:`gtirb.Module` s to store additional client-specific data in a
+    portable way.
 
-    Attributes:
-        serializer: A Serialization object used for encoding/decoding aux data
-        data: data associated with this aux data
-        type_name: optional string describing this aux data
-
+    :param data: data associated with this aux data
+    :param type_name: string describing the type of this aux data
     """
 
     serializer = Serialization()
+    """A Serialization object used for encoding/decoding aux data."""
 
     def __init__(self, data, type_name):
         self.data = data
@@ -29,10 +28,7 @@ class AuxData:
     def _from_protobuf(cls, aux_data):
         """Deserialize AuxData from Protobuf.
 
-        Parameters:
-            cls: a Python AuxData instance
-            aux_data: the Protobuf AuxData object
-
+        :param aux_data: the Protobuf AuxData object
         """
         data = AuxData.serializer.decode(
             BytesIO(aux_data.data), aux_data.type_name
@@ -40,7 +36,7 @@ class AuxData:
         return cls(data=data, type_name=aux_data.type_name)
 
     def _to_protobuf(self):
-        """Get a Protobuf representation of the AuxData"""
+        """Get a Protobuf representation of the AuxData."""
 
         out_bytes_array = BytesIO()
         AuxData.serializer.encode(out_bytes_array, self.data, self.type_name)
@@ -61,11 +57,8 @@ class AuxData:
 class AuxDataContainer(Node):
     """Holds AuxData tables, base class for IR and Module
 
-    Attributes:
-        aux_data: dict(str, AuxData), optional dict mapping type names to
-            AuxData objects
-        uuid: the UUID of this Node
-
+    :param aux_data: dict mapping type names to AuxData objects
+    :param uuid: the UUID of this Node
     """
 
     def __init__(self, aux_data=dict(), uuid=None):
@@ -87,19 +80,14 @@ class AuxDataContainer(Node):
         return proto_auxdatacontainer
 
     def deep_eq(self, other):
-        """Compare structural equality
-
-        This method should be used only when deep structural equality checks
-        are actually needed, and not for all equality checks. Typically the
-        default implmentation of __eq__, which checks pointer equality, is
-        enough: UUID checks are part of deep equality checks, and generating a
-        new Node generates a unique UUID.
+        """This overrides :func:`gtirb.Node.deep_eq` to check for
+        AuxData equality.
 
         Note that because AuxData can store any type of data, it is not deeply
         checked. This method only checks that two AuxDataContainers contain the
         same keys.
-
         """
+
         if not isinstance(other, AuxDataContainer):
             return False
         if (

@@ -16,16 +16,15 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 
 
 class Edge:
-    """An Edge in the CFG.
+    """An edge in the CFG.
 
-    Attributes:
-        source: source Block
-        target: target Block
-        label: an optional Label
+    :param source: the source CFG node
+    :param target: the target CFG node
+    :param label: an optional label, containing more control flow information
     """
 
     class Type(Enum):
-        """Type of control flow transfer indicated by this edge"""
+        """The type of control flow transfer indicated by an edge."""
 
         Branch = CFG_pb2.EdgeType.Value("Type_Branch")
         Call = CFG_pb2.EdgeType.Value("Type_Call")
@@ -37,11 +36,10 @@ class Edge:
     class Label:
         """Contains a more detailed description of an edge in the CFG.
 
-        Attributes:
-            conditional: boolean indicating if an edge is conditional on
-                True or False
-            direct: boolean indicating if an edge is direct or indirect
-            type: Edge.Type of the edge
+        :param conditional: boolean indicating if an edge is conditional on
+            True or False
+        :param direct: boolean indicating if an edge is direct or indirect
+        :param type: the type of the edge
         """
 
         def __init__(self, type, *, conditional=False, direct=True):
@@ -146,29 +144,27 @@ class Edge:
 
 
 class Module(AuxDataContainer):
-    """Represents loadable objects such as executables or libraries
+    """Represents a loadable object, such as an executable or library.
 
-    Attributes:
-        binary_path: the path to the binary
-        blocks: set of contained Blocks
-        data: set of contained DataObjects
-        image_byte_map: ImageByteMap containing the raw data in the binary
-        isa_id: ISAID of the binary
-        file_format: FileFormat of the binary
-        name: name of the binary
-        preferred_addr: preferred loading address of the binary
-        proxies: set of contained ProxyBlocks
-        rebase_delta: rebase delta of the binary
-        sections: set of contained Sections
-        symbols: set of contained Symbols
-        symbolic_operands: dict mapping addresses to symbolic operands.
-            (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
-        uuid: the UUID of this Node
-
+    :param binary_path: the path to the binary
+    :param blocks: set of contained Blocks
+    :param data: set of contained DataObjects
+    :param image_byte_map: ImageByteMap containing the raw data in the binary
+    :param isa_id: ISAID of the binary
+    :param file_format: FileFormat of the binary
+    :param name: name of the binary
+    :param preferred_addr: preferred loading address of the binary
+    :param proxies: set of contained ProxyBlocks
+    :param rebase_delta: rebase delta of the binary
+    :param sections: set of contained Sections
+    :param symbols: set of contained Symbols
+    :param symbolic_operands: dict mapping addresses to symbolic operands
+        (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
+    :param uuid: the UUID of this Node
     """
 
     class FileFormat(Enum):
-        """Identifies an executable file format
+        """Identifies the executable file format this Module originated from.
 
         Undefined: uninitialized
         COFF: Common Object File Format
@@ -180,7 +176,6 @@ class Module(AuxDataContainer):
         PE: Microsoft Portable Executable
         RAW: Raw binary file (no format)
         XCOFF: Non-COFF (files start with ANON_OBJECT_HEADER*)
-
         """
 
         Undefined = Module_pb2.FileFormat.Value("Format_Undefined")
@@ -194,7 +189,8 @@ class Module(AuxDataContainer):
         XCOFF = Module_pb2.FileFormat.Value("XCOFF")
 
     class ISAID(Enum):
-        """Identifies an instruction set architecture (ISA)
+        """Identifies the instruction set architecture (ISA)
+        this Module is written to target.
 
         Undefined: uninitialized
         ARM: Advanced/Acorn RISC Machine
@@ -203,7 +199,6 @@ class Module(AuxDataContainer):
             Performance Computing, 32-bit
         X64: 64-bit extensions to Intel/AMD x86 ISA
         ValidButUnsupported: Valid, but unsupported ISA
-
         """
 
         Undefined = Module_pb2.ISAID.Value("ISA_Undefined")

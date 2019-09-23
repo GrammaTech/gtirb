@@ -3,7 +3,10 @@ from weakref import WeakValueDictionary
 
 
 class Node:
-    """Base class for 'nodes', which can be referenced by their UUID"""
+    """A Node is any GTIRB object which can be referenced by UUID.
+
+    :param uuid: the UUID of this Node, or None if a new UUID needs generated
+    """
 
     _uuid_cache = WeakValueDictionary()
 
@@ -16,9 +19,12 @@ class Node:
     @classmethod
     def from_uuid(cls, uuid):
         """
-        Find the Node the corresponds to a given UUID,
-        or None if not found.
+        Find the Node that corresponds to a given UUID, or None if not found.
+
+        :param uuid: the UUID to look up
+        :raises TypeError: if the Node is not of the requested type
         """
+
         node = Node._uuid_cache.get(uuid)
         if node is not None and not isinstance(node, cls):
             raise TypeError(
@@ -30,26 +36,22 @@ class Node:
     @classmethod
     def _decode_protobuf(cls, proto_object, uuid):
         """Decode a Protobuf object to a Python GTIRB object.
-
         Must be overridden by subclasses.
 
-        Parameters:
-            cls: the Python GTIRB class to construct
-            proto_object: the Protobuf object
-            uuid: the UUID of the object. Automatically inserted into the
-                cache by _from_protobuf.
-
+        :param proto_object: the Protobuf object
+        :param uuid: the UUID of the object
         """
+
         raise NotImplementedError
 
     @classmethod
     def _from_protobuf(cls, proto_object):
-        """Deserialize a Node from Protobuf
+        """Deserializes a Node from Protobuf.
 
         Performs a cache lookup for the object's UUID in the cache, calling the
         class' _decode_protobuf constructor if cannot find it.
-
         """
+
         uuid = UUID(bytes=proto_object.uuid)
         node = cls.from_uuid(uuid)
         if node is None:
@@ -57,21 +59,20 @@ class Node:
         return node
 
     def _to_protobuf(self):
-        """Return a Protobuf representation of the object.
-
+        """Returns a Protobuf representation of the object.
         Must be overridden by subclasses.
-
         """
+
         raise NotImplementedError
 
     def deep_eq(self, other):
-        """Compare structural equality
+        """Compare structural equality of two Nodes.
 
         This method should be used only when deep structural equality checks
         are actually needed, and not for all equality checks. Typically the
         default implmentation of __eq__, which checks pointer equality, is
         enough: UUID checks are part of deep equality checks, and generating a
         new Node generates a unique UUID.
-
         """
+
         raise NotImplementedError

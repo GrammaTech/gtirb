@@ -5,14 +5,14 @@ from .node import Node
 
 
 class Block(Node):
-    """Basic block
+    """A basic block in the binary.
 
-    Attributes:
-        address: the starting address of the basic block
-        size: the length of the basic block
-        decode_mode: the decode mode of the block
-        uuid: UUID of this Node
-
+    :param address: the starting address of the block
+    :param size: the length of the block
+    :param decode_mode: the decode mode of the block,
+        used in ISAs with multiple sub-ISAs (for example, ARM and Thumb),
+        defaults to 0
+    :param uuid: UUID of this Node
     """
 
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
@@ -72,9 +72,7 @@ class ProxyBlock(Node):
     ProxyBlocks do not represent any instructions and so have neither
     an address nor a size.
 
-    Attributes:
-        uuid: the UUID of this Node
-
+    :param uuid: the UUID of this Node
     """
 
     @classmethod

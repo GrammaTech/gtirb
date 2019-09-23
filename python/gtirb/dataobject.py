@@ -8,11 +8,9 @@ class DataObject(Node):
 
     Does not directly store data bytes, which are kept in an ImageByteMap.
 
-    Attributes:
-        address: the address of the data object
-        size: the size of the data object
-        uuid: the UUID of this Node
-
+    :param address: the address of the data object
+    :param size: the size of the data object
+    :param uuid: the UUID of this Node
     """
 
     def __init__(self, address, size, uuid=None):

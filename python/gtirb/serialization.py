@@ -1,9 +1,9 @@
 """Python serialization module.
 
-The Serialization class is used for encoding/decoding GTIRB types using
-codecs definded from the Codec base class
-
+The Serialization class is used for encoding/decoding GTIRB types, using
+codecs definded from the Codec base class.
 """
+
 from re import findall
 from uuid import UUID
 import io
@@ -43,45 +43,37 @@ class UnknownCodecError(CodecError):
 
 
 class Codec:
-    """Base class for codecs."""
+    """The base class for codecs."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
-        """Decodes data with possible subtypes encoded in raw_bytes.
-        Should return an new decoded object.
+        """Decodes the data in the bytes given.
 
-        Parameters:
-            raw_bytes: the BytesIO object to be decoded
-            serialization: optional Serialization instance used to invoke
-                custom codecs that might be needed by containers
-            subtypes: optional parsed tree of subtypes that might be needed
-                by containers
-
-        Returns:
-            a new Python object decoded from raw_bytes
-
+        :param raw_bytes: the BytesIO object to be decoded
+        :param serialization: Serialization instance used to invoke
+            other codecs if needed
+        :param subtypes: parsed tree of subtypes
+        :returns: a new Python object, as decoded from ``raw_bytes``
         """
+
         raise NotImplementedError
 
     @staticmethod
     def encode(out, item, *, serialization=None, subtypes=tuple()):
-        """Encodes an item, writing the serialized object to out,
-        a BytesIO instance. Optionally takes a type name hint.
+        """Encodes an item, writing the serialized object to ``out``.
 
-        Parameters:
-            out: the BytesIO channel to serialize to
-            item: the Python object to encode
-            serialization: optional Serialization instance used to invoke
-                custom codecs that might be needed by containers
-            subtypes: optional parsed tree of subtypes that might be needed
-                by containers
-
+        :param out: the BytesIO channel to serialize to
+        :param item: the Python object to encode
+        :param serialization: Serialization instance used to invoke
+            other codecs if needed
+        :param subtypes: parsed tree of subtypes
         """
+
         raise NotImplementedError
 
 
 class Int64Codec(Codec):
-    """Codec for int64_t"""
+    """A Codec for int64_t."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
@@ -99,7 +91,7 @@ class Int64Codec(Codec):
 
 
 class MappingCodec(Codec):
-    """Codec for mapping<..> entries. Used for encoding Python dicts"""
+    """A Codec for mapping<K,V> entries. Implemented via ``dict``."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization, subtypes):
@@ -132,7 +124,7 @@ class MappingCodec(Codec):
 
 
 class OffsetCodec(Codec):
-    """Codec for Offsets, containing a UUID and a uint64_t displacement"""
+    """A Codec for Offsets, containing a UUID and a displacement."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
@@ -152,7 +144,7 @@ class OffsetCodec(Codec):
 
 
 class SequenceCodec(Codec):
-    """Codec for sequence<..> entries. Encodes Python lists/tuples."""
+    """A Codec for sequence<T> entries. Implemented via ``list``."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization, subtypes):
@@ -178,7 +170,7 @@ class SequenceCodec(Codec):
 
 
 class SetCodec(Codec):
-    """Codec for set<..> entries. Used for encoding Python sets."""
+    """A Codec for set<T> entries. Implemented via ``set``."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization, subtypes):
@@ -204,7 +196,7 @@ class SetCodec(Codec):
 
 
 class TupleCodec(Codec):
-    """Codec for tuple<..> entries. Used for encoding Python tuples."""
+    """A Codec for tuple<...> entries. Implemented via ``tuple``."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization, subtypes):
@@ -224,7 +216,7 @@ class TupleCodec(Codec):
 
 
 class StringCodec(Codec):
-    """Codec for strings"""
+    """A Codec for strings."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
@@ -242,7 +234,7 @@ class StringCodec(Codec):
 
 
 class Uint64Codec(Codec):
-    """Codec for uint64_t"""
+    """A Codec for unsigned integers."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
@@ -260,12 +252,11 @@ class Uint64Codec(Codec):
 
 
 class UUIDCodec(Codec):
-    """Codec for raw UUIDs or Nodes
+    """A Codec for raw UUIDs or Nodes.
 
     Decoding a UUID first checks the Node cache for an object with the
     corresponding UUID, and either returns the object it hits or a new
     raw UUID.
-
     """
 
     @staticmethod
@@ -297,12 +288,10 @@ class UnknownData(bytes):
 
 
 class Serialization:
-    """Tracks codecs used to serialize/deserialize GTIRB objects
+    """Tracks codecs used to serialize/deserialize GTIRB objects.
 
-    Attributes:
-        codecs: dictionary mapping type names to codecs. Codecs can be added
-            or overridden using this dictionary.
-
+    :param codecs: a mapping of type names to codecs. Codecs can be added
+        or overridden using this dictionary.
     """
 
     def __init__(self):
@@ -320,7 +309,8 @@ class Serialization:
         }
 
     def _decode_tree(self, raw_bytes, type_tree):
-        """Decodes given a parsed type tree"""
+        """Decodes given a parsed type tree."""
+
         try:
             type_name, subtypes = type_tree
         except ValueError:
@@ -331,6 +321,8 @@ class Serialization:
         return codec.decode(raw_bytes, serialization=self, subtypes=subtypes)
 
     def _encode_tree(self, out, val, type_tree):
+        """Encodes given a parsed type tree."""
+
         try:
             type_name, subtypes = type_tree
         except ValueError:
@@ -342,20 +334,26 @@ class Serialization:
 
     @staticmethod
     def _parse_type(type_name):
-        """ Given an encoded aux_data type_name, generate its parse tree
-        A single parsed type is a tuple of the type name and a tuple of its
-        subtypes, an empty tuple indicates no subtype.
+        """Given an encoded aux_data type_name, generate its parse tree.
 
         Examples:
+
           _parse_type('foo') == ('foo', ())
+
           _parse_type('foo<bar>') ==  ('foo', (('bar',()),))
+
           _parse_type('foo<bar<baz>>') == ('foo', (('bar', (('baz', ()),)),))
 
-        Returns:
-           a nested tuple of parsed type/subtype tuples
-
+        :returns: a nested tuple of parsed type/subtype tuples.
+            A single parsed type is a tuple of the type name and a tuple of its
+            subtypes. An empty tuple indicates no subtype
         """
+<<<<<<< HEAD
         tokens = findall("[^<>,]+|<|>|,", type_name)
+=======
+
+        tokens = findall('[^<>,]+|<|>|,', type_name)
+>>>>>>> Added Sphinx doc-comments
 
         def parse(tokens, tree):
             tree = list(tree)
@@ -421,6 +419,7 @@ class Serialization:
 
     def decode(self, raw_bytes, type_name):
         """Top level decode function."""
+
         parse_tree = Serialization._parse_type(type_name)
         all_bytes = None
         if isinstance(raw_bytes, (bytes, bytearray, memoryview)):
@@ -437,11 +436,14 @@ class Serialization:
     def encode(self, out, val, type_name):
         """Top level encode function."""
 
+<<<<<<< HEAD
         if isinstance(val, UnknownData):
             # it was a blob of bytes because of a decoding problem;
             # just write the whole thing out
             out.write(val)
             return
+=======
+>>>>>>> Added Sphinx doc-comments
         parse_tree = Serialization._parse_type(type_name)
         try:
             self._encode_tree(out, val, parse_tree)

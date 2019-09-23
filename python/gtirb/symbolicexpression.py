@@ -7,8 +7,8 @@ from .node import Node
 
 class SymAddrAddr:
     """
-    Represents a "symbolic operand" of the form
-    "(Sym1 - Sym2) / Scale + Offset"
+    Represents a symbolic operand of the form
+    "(Sym1 - Sym2) / Scale + Offset".
     """
 
     def __init__(self, scale, offset, symbol1, symbol2):
@@ -19,9 +19,6 @@ class SymAddrAddr:
 
     @classmethod
     def _from_protobuf(cls, proto_symaddraddr):
-        """
-        Load this cls from protobuf object
-        """
         symbol1 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol1_uuid)]
         symbol2 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol2_uuid)]
         return cls(
@@ -29,13 +26,6 @@ class SymAddrAddr:
         )
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_symaddraddr = SymbolicExpression_pb2.SymAddrAddr()
         proto_symaddraddr.scale = self.scale
         proto_symaddraddr.offset = self.offset
@@ -71,7 +61,7 @@ class SymAddrAddr:
 
 class SymAddrConst:
     """
-    Represents a "symbolic operand" of the form "Sym + Offset".
+    Represents a symbolic operand of the form "Sym + Offset".
     """
 
     def __init__(self, offset, symbol):
@@ -80,20 +70,10 @@ class SymAddrConst:
 
     @classmethod
     def _from_protobuf(cls, proto_symaddrconst):
-        """
-        Load this cls from protobuf object
-        """
         symbol = Node._uuid_cache[UUID(bytes=proto_symaddrconst.symbol_uuid)]
         return cls(proto_symaddrconst.offset, symbol)
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_symaddrconst = SymbolicExpression_pb2.SymAddrConst()
         proto_symaddrconst.offset = self.offset
         if self.symbol is not None:
@@ -122,7 +102,7 @@ class SymAddrConst:
 
 class SymStackConst:
     """
-    Represents a "symbolic operand" of the form "Sym + Offset",
+    Represents a symbolic operand of the form "Sym + Offset",
     representing an offset from a stack variable.
     """
 
@@ -136,13 +116,6 @@ class SymStackConst:
         return cls(proto_symstackconst.offset, symbol)
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
-
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_symstackconst = SymbolicExpression_pb2.SymStackConst()
         proto_symstackconst.offset = self.offset
         if self.symbol is not None:

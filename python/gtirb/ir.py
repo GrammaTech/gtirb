@@ -17,11 +17,9 @@ from .module import Module
 class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
 
-    Attributes:
-        aux_data: Auxilary data associated with this IR
-        modules: list of Modules contained in the IR
-        uuid: the UUID of this Node
-
+    :param aux_data: auxilary data associated with this IR
+    :param modules: list of Modules contained in the IR
+    :param uuid: the UUID of this Node
     """
 
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
@@ -61,48 +59,42 @@ class IR(AuxDataContainer):
 
     @staticmethod
     def load_protobuf_file(protobuf_file):
-        """Load IR from Protobuf file object
+        """Load IR from a Protobuf object.
 
-        Parameters:
-            protobuf_file: a file object containing the Protobuf
+        This function is for when you have a Protobuf object already loaded,
+        and you want to parse it as a GTIRB IR. If you have a file name,
+        use :func:`gtirb.IR.load_protobuf` instead.
 
-        Returns:
-            Python GTIRB IR object
-
+        :param protobuf_file: a Protobuf object
+        :returns: a Python GTIRB IR object
         """
+
         ir = IR_pb2.IR()
         ir.ParseFromString(protobuf_file.read())
         return IR._from_protobuf(ir)
 
     @staticmethod
     def load_protobuf(file_name):
-        """Load IR from Protobuf file at path
+        """Load IR from a Protobuf file at a given path.
 
-        Parameters:
-            file_name: the path to the Protobuf file
-
-        Returns:
-            Python GTIRB IR object
-
+        :param file_name: the path to the Protobuf file
+        :returns: a Python GTIRB IR object
         """
         with open(file_name, "rb") as f:
             return IR.load_protobuf_file(f)
 
     def save_protobuf_file(self, protobuf_file):
-        """Save IR to Protobuf file object
+        """Save this IR to a Protobuf object.
 
-        Parameters:
-            protobuf_file: target file object
-
+        :param protobuf_file: the target Protobuf object
         """
+
         protobuf_file.write(self._to_protobuf().SerializeToString())
 
     def save_protobuf(self, file_name):
-        """Save IR to Protobuf file at path
+        """Save this IR to Protobuf file at a given path.
 
-        Parameters:
-            file_name: the target path of the Protobuf file
-
+        :param file_name: the file name to save this IR to
         """
         with open(file_name, "wb") as f:
             self.save_protobuf_file(f)

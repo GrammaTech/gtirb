@@ -9,40 +9,26 @@ from .node import Node
 class ImageByteMap(Node):
     """Contains the loaded raw image data for the module (binary).
 
-    Allows dictionary-like access to and modification ofnbytes in the map
+    Allows dictionary-like access to and modification of bytes in the map
     through overridden __delitem__, __getitem__, and __setitem__ methods.
 
-    Attributes:
-        addr_min: the lowest address in the byte map
-        addr_max: the highest address in the byte map
-        base_address: the base address of the byte map
-        entry_point_address: the entry point address of the byte map
-        uuid: the UUID of this Node
-
+    :param addr_min: the lowest address in the byte map
+    :param addr_max: the highest address in the byte map
+    :param base_address: the base address of the byte map
+    :param byte_map: a dictionary holding a sparse mapping of addresses to
+        data, stored in a bytearray
+    :param entry_point_address: the entry point address of the byte map
+    :param uuid: the UUID of this Node
     """
 
-    def __init__(
-        self,
-        *,
-        addr_min=0,
-        addr_max=0,
-        base_address=0,
-        byte_map=dict(),
-        entry_point_address=0,
-        uuid=None
-    ):
-        """Create a new ImageByteMap
-
-        Parameters:
-            addr_min: the lowest address in the byte map
-            addr_max: the highest address in the byte map
-            base_address: the base address of the byte map
-            byte_map: a dictionary holding a sparse mapping of addresses to
-                data, stored in a bytearray
-            entry_point_address: the entry point address of the byte map
-            uuid: the UUID of this Node
-
-        """
+    def __init__(self,
+                 *,
+                 addr_min=0,
+                 addr_max=0,
+                 base_address=0,
+                 byte_map=dict(),
+                 entry_point_address=0,
+                 uuid=None):
         super().__init__(uuid)
         self.addr_min = addr_min
         self.addr_max = addr_max
@@ -83,13 +69,13 @@ class ImageByteMap(Node):
         return False
 
     def __delitem__(self, key):
-        """Delete bytes in the map
+        """Delete bytes in the map.
 
-        Takes an address or slice of addresses, raises an `IndexError` if the
-        byte does not exist at the address. Slicing requires both a start and
-        stop address.
-
+        :param key: an address or slice of addresses;
+            Slicing requires both a start and stop address
+        :raises IndexError: if the byte does not exist at the address
         """
+
         # The only legal accesses are single indices or slices
         if not isinstance(key, (int, slice)):
             raise TypeError("index must be address or slice")
@@ -139,13 +125,13 @@ class ImageByteMap(Node):
             insort(self._start_addresses, key.stop)
 
     def __getitem__(self, key):
-        """Access bytes in the map
+        """Accesses bytes in the map.
 
-        Random access of a single byte returns a byte if it exists, raises an
-        `IndexError` if the byte does not exist at the address. Slicing
-        requires both a start and stop address.
-
+        :param key: an address or slice of addresses;
+            Slicing requires both a start and stop address
+        :raises IndexError: if the byte does not exist at the address
         """
+
         # Single byte access
         if isinstance(key, int):
             if key not in self:
@@ -182,11 +168,11 @@ class ImageByteMap(Node):
         raise TypeError("index must be address or slice")
 
     def __iter__(self):
-        """Yields all bytes in all ranges in order
+        """Yields all bytes in all ranges in order.
 
-        Returns an (address, byte) tuple
-
+        :returns: yields (address, byte) tuples
         """
+
         for start_addr in self._start_addresses:
             cur_addr = start_addr
             for byte in self._byte_map[start_addr]:
@@ -194,28 +180,28 @@ class ImageByteMap(Node):
                 cur_addr += 1
 
     def __len__(self):
-        """The number of bytes contained in the map"""
+        """Returns the number of bytes contained in the map."""
         return sum(len(v) for v in self._byte_map.values())
 
     def __setitem__(self, address, data):
-        """Set data at an address
+        """Set data at an address.
 
-        If `address` is an integer, sets the byte at `address` to `data`.
-        `data` must be a single byte passed in as an integer in range(256)
-
-        If `address` is a slice, there are two options:
-            - If the slice has a start and a stop (e.g., a[1:10]), `data` must
-            be an iterable of bytes the same length as the slice. Otherwise a
-            `ValueError` is raised.
-            - If the slice has a start and no stop (e.g., a[1:]), `data` must
+        :param address: an address or slice of addresses.
+            If `address` is an integer, sets the byte at `address` to `data`.
+            `data` must be a single byte passed in as an integer in ``0..256``.
+            If the slice has a start and a stop (e.g., a[1:10]), ``data``
+            must be an iterable of bytes the same length as the slice.
+            Otherwise a ``ValueError`` is raised.
+            If the slice has a start and no stop (e.g., a[1:]), ``data`` must
             be an iterable of bytes of any length. All bytes are written
-            beginning at `address.start`
-
-        It is an `IndexError` to try to write to bytes before addr_min or after
-        addr_max. It is also an `IndexError` to provide a slice without a start
-        or with a step.
-
+            beginning at ``address.start``.
+        :param data: the ``int`` or ``bytes`` of data to insert at the
+            given addresse(s)
+        :raises IndexError: if this method attempts to write to bytes
+            before addr_min or after addr_max
+        :raises ValueError: if the slice is malformed
         """
+
         # address is an integer
         if isinstance(address, int):
             if not self._in_range(address):
