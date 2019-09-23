@@ -158,18 +158,6 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         # 4099 -PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LARGEADDRESSAWARE")
 
-        # Microsoft VCPKG
-        set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE PATH "")
-        if(NOT EXISTS ${CMAKE_TOOLCHAIN_FILE})
-                message(ERROR
-  " Specified CMAKE_TOOLCHAIN_FILE does not exist.\n\n"
-  " - If vcpkg is not installed, install it now from\n"
-  "   https://github.com/Microsoft/vcpkg\n"
-  " - If vcpkg is installed but not at the path shown below, \n"
-  "   invoke cmake with argument -DCMAKE_TOOLCHAIN_FILE=<path/to/vcpkg.cmake>\n")
-                message(FATAL_ERROR "Specified CMAKE_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE} does not exist.")
-        endif()
-    include(${CMAKE_TOOLCHAIN_FILE})
 elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
        OR (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang))
     add_compile_options(-Wall -Wextra -Wpointer-arith -Wshadow -Werror)
