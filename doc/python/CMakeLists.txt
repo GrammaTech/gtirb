@@ -5,7 +5,7 @@ if(PYTHON)
         add_custom_target(sphinx
             DEPENDS pygtirb
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMAND ${SPHINX_APIDOC} ${CMAKE_BINARY_DIR}/python/gtirb -o ${CMAKE_CURRENT_BINARY_DIR} -fF
+            COMMAND ${SPHINX_APIDOC} ${CMAKE_BINARY_DIR}/python/gtirb --output-dir ${CMAKE_CURRENT_BINARY_DIR} --force --full --separate
             COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/conf.py ${CMAKE_CURRENT_BINARY_DIR}/
             COMMAND make html
             COMMENT "Generating API documentation with Sphinx"
