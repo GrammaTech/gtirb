@@ -6,9 +6,13 @@ from .node import Node
 
 
 class SymAddrAddr:
-    """
-    Represents a symbolic operand of the form
+    """Represents a symbolic operand of the form
     "(Sym1 - Sym2) / Scale + Offset".
+
+    :param scale: how much the different needs divided by
+    :param offset: the fixed offset of the difference
+    :param symbol1: the base symbol
+    :param symbol2: the index symbol
     """
 
     def __init__(self, scale, offset, symbol1, symbol2):
@@ -60,8 +64,10 @@ class SymAddrAddr:
 
 
 class SymAddrConst:
-    """
-    Represents a symbolic operand of the form "Sym + Offset".
+    """Represents a symbolic operand of the form "Sym + Offset".
+
+    :param offset: a fixed offset from the symbol
+    :param symbol: the symbol to refer to
     """
 
     def __init__(self, offset, symbol):
@@ -101,9 +107,11 @@ class SymAddrConst:
 
 
 class SymStackConst:
-    """
-    Represents a symbolic operand of the form "Sym + Offset",
+    """Represents a symbolic operand of the form "Sym + Offset",
     representing an offset from a stack variable.
+
+    :param offset: a fixed offset from the symbol
+    :param symbol: the symbol to refer to
     """
 
     def __init__(self, offset, symbol):
