@@ -9,7 +9,7 @@ class SymAddrAddr:
     """Represents a symbolic operand of the form
     "(Sym1 - Sym2) / Scale + Offset".
 
-    :param scale: how much the different needs divided by
+    :param scale: how much the difference needs divided by
     :param offset: the fixed offset of the difference
     :param symbol1: the base symbol
     :param symbol2: the index symbol
