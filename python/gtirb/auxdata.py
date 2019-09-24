@@ -54,7 +54,8 @@ class AuxData:
 
 
 class AuxDataContainer(Node):
-    """Holds AuxData tables, base class for IR and Module
+    """The base class for anything that Holds AuxData tables; that is,
+    :class:`gtirb.IR` and :class:`gtirb.Module`.
 
     :param aux_data: dict mapping type names to AuxData objects
     :param uuid: the UUID of this Node
