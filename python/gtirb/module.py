@@ -26,12 +26,41 @@ class Edge:
     class Type(Enum):
         """The type of control flow transfer indicated by an edge."""
 
-        Branch = CFG_pb2.EdgeType.Value("Type_Branch")
-        Call = CFG_pb2.EdgeType.Value("Type_Call")
-        Fallthrough = CFG_pb2.EdgeType.Value("Type_Fallthrough")
-        Return = CFG_pb2.EdgeType.Value("Type_Return")
-        Syscall = CFG_pb2.EdgeType.Value("Type_Syscall")
-        Sysret = CFG_pb2.EdgeType.Value("Type_Sysret")
+        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
+        """This edge is the explicit target of a jump instruction.
+        May be conditional or unconditional. If conditional, there will be
+        a corresponding fallthrough edge.
+        """
+
+        Call = CFG_pb2.EdgeType.Value('Type_Call')
+        """This edge is the explicit target of a call instruction.
+        Unless the function does not return, there will also be a
+        corresponding fallthrough edge.
+        """
+
+        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
+        """This edge represents the lack of control flow; that is,
+        two blocks executing in sequence.
+        May be conditional, if part of a conditional jump, etc.
+        Two blocks with fallthrough edges from one to another
+        must be adjacent in memory.
+        """
+
+        Return = CFG_pb2.EdgeType.Value('Type_Return')
+        """This edge represents a return from a function, generally via a
+        return instruction. Since it is not trivial to determine what calls
+        calls what functions, return edges may be omitted from valid CFGs.
+        """
+
+        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
+        """This edge is like :class:`gtirb.Edge.Type.Call`, except for
+        system call instructions.
+        """
+
+        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
+        """This edge is like :class:`gtirb.Edge.Type.Return`, except for
+        system call instructions.
+        """
 
     class Label:
         """Contains a more detailed description of an edge in the CFG.
@@ -164,20 +193,10 @@ class Module(AuxDataContainer):
     """
 
     class FileFormat(Enum):
-        """Identifies the executable file format this Module originated from.
-
-        Undefined: uninitialized
-        COFF: Common Object File Format
-        ELF: Executable and Linkable Format
-            (formerly Extensible Linking Format)
-        IdaProDb32: 32-bit IDA Pro database file
-        IdaProDb64: 64-bit IDA Pro database file
-        MACHO: Mach object file
-        PE: Microsoft Portable Executable
-        RAW: Raw binary file (no format)
-        XCOFF: Non-COFF (files start with ANON_OBJECT_HEADER*)
+        """Identifies the executable file format this module originated from.
         """
 
+<<<<<<< HEAD
         Undefined = Module_pb2.FileFormat.Value("Format_Undefined")
         COFF = Module_pb2.FileFormat.Value("COFF")
         ELF = Module_pb2.FileFormat.Value("ELF")
@@ -187,20 +206,43 @@ class Module(AuxDataContainer):
         PE = Module_pb2.FileFormat.Value("PE")
         RAW = Module_pb2.FileFormat.Value("RAW")
         XCOFF = Module_pb2.FileFormat.Value("XCOFF")
+=======
+        Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
+        """An unspecified file format."""
+
+        COFF = Module_pb2.FileFormat.Value('COFF')
+        """The Common Object File Format."""
+
+        ELF = Module_pb2.FileFormat.Value('ELF')
+        """The Executable and Linkable Format,
+        formerly the Extensible Linking Format.
+        """
+
+        IdaProDb32 = Module_pb2.FileFormat.Value('IdaProDb32')
+        """A 32-bit IDA Pro database file."""
+
+        IdaProDb64 = Module_pb2.FileFormat.Value('IdaProDb64')
+        """A 64-bit IDA Pro database file."""
+
+        MACHO = Module_pb2.FileFormat.Value('MACHO')
+        """A Mach object file."""
+
+        PE = Module_pb2.FileFormat.Value('PE')
+        """Microsoft's Portable Executable format."""
+
+        RAW = Module_pb2.FileFormat.Value('RAW')
+        """A raw binary file, with no file format."""
+
+        XCOFF = Module_pb2.FileFormat.Value('XCOFF')
+        """The Extended Common Object File Format."""
+>>>>>>> Documented the enums
 
     class ISAID(Enum):
         """Identifies the instruction set architecture (ISA)
-        this Module is written to target.
-
-        Undefined: uninitialized
-        ARM: Advanced/Acorn RISC Machine
-        IA32: Intel Architecture, 32-bit. Also known as i386
-        PPC32: Performance Optimization with Enhanced RISC -
-            Performance Computing, 32-bit
-        X64: 64-bit extensions to Intel/AMD x86 ISA
-        ValidButUnsupported: Valid, but unsupported ISA
+        this module is written to target.
         """
 
+<<<<<<< HEAD
         Undefined = Module_pb2.ISAID.Value("ISA_Undefined")
         ARM = Module_pb2.ISAID.Value("ARM")
         IA32 = Module_pb2.ISAID.Value("IA32")
@@ -228,6 +270,49 @@ class Module(AuxDataContainer):
         symbolic_operands=dict(),
         uuid=None
     ):
+=======
+        Undefined = Module_pb2.ISAID.Value('ISA_Undefined')
+        """An ISA that has not yet been specified.
+        This is for unitialized modules;
+        use :class:`gtirb.Module.ISAID.ValidButUnsupported`
+        instead for specifying undefined ISAs.
+        """
+
+        ARM = Module_pb2.ISAID.Value('ARM')
+        """The Acorn RISC Machine."""
+
+        IA32 = Module_pb2.ISAID.Value('IA32')
+        """The 32-bit Intel Architecture. Also known as i386, x86, or x32."""
+
+        PPC32 = Module_pb2.ISAID.Value('PPC32')
+        """IBM's 32-bit PowerPC (Performance Optimization with Enhanced RISC /
+        Performance Computing) architecture."""
+
+        X64 = Module_pb2.ISAID.Value('X64')
+        """The 64-bit Intel Architecture. Also known as x86_64."""
+
+        ValidButUnsupported = Module_pb2.ISAID.Value('ValidButUnsupported')
+        """An unknown or undefined ISA."""
+
+    def __init__(self,
+                 *,
+                 aux_data=dict(),
+                 binary_path='',
+                 blocks=set(),
+                 cfg=set(),
+                 data=set(),
+                 file_format=FileFormat.Undefined,
+                 image_byte_map=None,
+                 isa_id=ISAID.Undefined,
+                 name='',
+                 preferred_addr=0,
+                 proxies=set(),
+                 rebase_delta=0,
+                 sections=set(),
+                 symbols=set(),
+                 symbolic_operands=dict(),
+                 uuid=None):
+>>>>>>> Documented the enums
         if image_byte_map is None:
             image_byte_map = ImageByteMap()
 
