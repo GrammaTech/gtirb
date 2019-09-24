@@ -14,6 +14,11 @@
     It is still an error to encode unknown types of auxdata
     not in the manner described above.
 * ImageByteMap::setData() has been extended to support arbitrary iterator types.
+* We now build documentation for the Python API using
+  [Sphinx](https://www.sphinx-doc.org/en/master/). To generate all
+  documentation locally, call `make doc` after calling `cmake`; this will
+  generate both C++ and Python API documentation. To only make one or the
+  other, call `make doxy` or `make sphinx`, respectively.
 
 # 0.2.0
 
