@@ -281,13 +281,15 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 
+add_subdirectory(proto)
+
+
 # ---------------------------------------------------------------------------
 # gtirb sources
 # ---------------------------------------------------------------------------
-add_subdirectory(proto)
-add_subdirectory(src)
 add_subdirectory(doc/examples)
 add_subdirectory(python)
+add_subdirectory(src)
 
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
