@@ -8,12 +8,17 @@ class DataObject(Node):
 
     Does not directly store data bytes, which are kept in an ImageByteMap.
 
-    :param address: the address of the data object
-    :param size: the size of the data object
-    :param uuid: the UUID of this Node
+    :ivar address: the address of the data object
+    :ivar size: the size of the data object
     """
 
     def __init__(self, address, size, uuid=None):
+        """
+        :param address: the value of :attr:`self.address`
+        :param size: the value of :attr:`self.size`
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        """
+
         super().__init__(uuid)
         self.address = address
         self.size = size

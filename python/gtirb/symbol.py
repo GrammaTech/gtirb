@@ -11,11 +11,8 @@ from .node import Node
 class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
-    :param name: the name of this symbol
-    :param storage_kind: the storage kind of this symbol
-    :param payload: an optional value this symbol points to.
-        May be an address, a Node, or None
-    :param uuid: the UUID of this Node
+    :ivar name: the name of this symbol
+    :ivar storage_kind: the storage kind of this symbol
     """
 
     class StorageKind(Enum):
@@ -43,6 +40,14 @@ class Symbol(Node):
     def __init__(
         self, name, storage_kind=StorageKind.Undefined, uuid=None, payload=None
     ):
+        """
+        :param name: the value of :attr:`self.name`
+        :param storage_kind: the value of :attr:`self.storage_kind`
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param payload: an optional value this symbol points to.
+            May be an address, a Node, or None
+        """
+
         super().__init__(uuid)
         self.name = name
         self.storage_kind = storage_kind

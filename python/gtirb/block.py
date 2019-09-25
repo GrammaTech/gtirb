@@ -7,15 +7,21 @@ from .node import Node
 class Block(Node):
     """A basic block in the binary.
 
-    :param address: the starting address of the block
-    :param size: the length of the block
-    :param decode_mode: the decode mode of the block,
-        used in ISAs with multiple sub-ISAs (for example, ARM and Thumb),
-        defaults to 0
-    :param uuid: UUID of this Node
+    :ivar address: the starting address of the block
+    :ivar size: the length of the block
+    :ivar decode_mode: the decode mode of the block,
+        used in ISAs with multiple sub-ISAs (for example, ARM and Thumb)
     """
 
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
+        """
+        :param address: the value of :attr:`self.address`
+        :param size: the value of :attr:`self.size`
+        :param decode_mode: the value of :attr:`self.decode_mode`,
+            defaults to 0
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        """
+
         super().__init__(uuid)
         self.address = address
         self.size = size
@@ -71,8 +77,6 @@ class ProxyBlock(Node):
 
     ProxyBlocks do not represent any instructions and so have neither
     an address nor a size.
-
-    :param uuid: the UUID of this Node
     """
 
     @classmethod

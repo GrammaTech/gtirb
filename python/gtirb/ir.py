@@ -1,13 +1,14 @@
-"""GTIRB IR module
+"""The IR is the core class for reading and writing GTIRB files.
 
-Sample usage:
-    Opening a GTIRB Protobuf file and loading it into an IR instance:
-        ir = IR.load_protobuf('filename.gtir')
+    You can open a GTIRB Protobuf file and load it into an IR instance:
 
-    Writing the IR instance as a Protobuf file:
-        IR.save_protobuf('filename.gtir')
+    >>> ir = IR.load_protobuf('filename.gtirb')
 
+    And then you can write the IR instance as a Protobuf file:
+
+    >>> ir.save_protobuf('filename.gtirb')
 """
+
 import IR_pb2
 
 from .auxdata import AuxData, AuxDataContainer
@@ -17,12 +18,16 @@ from .module import Module
 class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
 
-    :param aux_data: auxilary data associated with this IR
-    :param modules: list of Modules contained in the IR
-    :param uuid: the UUID of this Node
+    :ivar modules: list of Modules contained in the IR
     """
 
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
+        """
+        :param modules: the value of :attr:`self.modules`
+        :param aux_data: as in :meth:`gtirb.AuxDataContainer.__init__`
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        """
+
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
         self.modules = list(modules)

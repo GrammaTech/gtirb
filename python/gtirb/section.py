@@ -9,13 +9,19 @@ class Section(Node):
     Does not directly store the contents of the section, which are
     kept in ImageByteMap.
 
-    :param name: the name of this section
-    :param address: the address this section is located at in memory
-    :param size: the size of this section, in bytes
-    :param uuid: the UUID of this Node
+    :ivar name: the name of this section
+    :ivar address: the address this section is located at in memory
+    :ivar size: the size of this section, in bytes
     """
 
-    def __init__(self, name="", address=0, size=0, uuid=None):
+    def __init__(self, name='', address=0, size=0, uuid=None):
+        """
+        :param name: the value of :attr:`self.name`
+        :param address: the value of :attr:`self.address`
+        :param size: the value of :attr:`self.size`
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        """
+
         super().__init__(uuid)
         self.address = address
         self.name = name

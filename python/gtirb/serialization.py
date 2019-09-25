@@ -1,4 +1,4 @@
-"""Python serialization module.
+"""AuxData serialization/deserialization classes and methods.
 
 The Serialization class is used for encoding/decoding GTIRB types, using
 codecs definded from the Codec base class.
@@ -13,15 +13,15 @@ from .node import Node
 
 
 class CodecError(Exception):
-    """Base class for codec exceptions"""
+    """Base class for codec exceptions."""
 
 
 class DecodeError(CodecError):
-    """Exception during decoding"""
+    """Represents an exception during decoding."""
 
 
 class EncodeError(CodecError):
-    """Exception during encoding"""
+    """Represents an exception during encoding."""
 
 
 class TypeNameError(EncodeError):
@@ -290,11 +290,13 @@ class UnknownData(bytes):
 class Serialization:
     """Tracks codecs used to serialize/deserialize GTIRB objects.
 
-    :param codecs: a mapping of type names to codecs. Codecs can be added
+    :ivar codecs: a mapping of type names to codecs. Codecs can be added
         or overridden using this dictionary.
     """
 
     def __init__(self):
+        """"""
+
         self.codecs = {
             "Addr": Uint64Codec,
             "Offset": OffsetCodec,
@@ -348,12 +350,7 @@ class Serialization:
             A single parsed type is a tuple of the type name and a tuple of its
             subtypes. An empty tuple indicates no subtype
         """
-<<<<<<< HEAD
         tokens = findall("[^<>,]+|<|>|,", type_name)
-=======
-
-        tokens = findall('[^<>,]+|<|>|,', type_name)
->>>>>>> Added Sphinx doc-comments
 
         def parse(tokens, tree):
             tree = list(tree)
@@ -436,14 +433,11 @@ class Serialization:
     def encode(self, out, val, type_name):
         """Top level encode function."""
 
-<<<<<<< HEAD
         if isinstance(val, UnknownData):
             # it was a blob of bytes because of a decoding problem;
             # just write the whole thing out
             out.write(val)
             return
-=======
->>>>>>> Added Sphinx doc-comments
         parse_tree = Serialization._parse_type(type_name)
         try:
             self._encode_tree(out, val, parse_tree)

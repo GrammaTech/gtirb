@@ -9,13 +9,20 @@ class SymAddrAddr:
     """Represents a symbolic operand of the form
     "(Sym1 - Sym2) / Scale + Offset".
 
-    :param scale: how much the difference needs divided by
-    :param offset: the fixed offset of the difference
-    :param symbol1: the base symbol
-    :param symbol2: the index symbol
+    :ivar scale: how much the difference needs divided by
+    :ivar offset: the fixed offset of the difference
+    :ivar symbol1: the base symbol
+    :ivar symbol2: the index symbol
     """
 
     def __init__(self, scale, offset, symbol1, symbol2):
+        """
+        :param scale: the value of :attr:`self.scale`
+        :param offset: the value of :attr:`self.offset`
+        :param symbol1: the value of :attr:`self.symbol1`
+        :param symbol2: the value of :attr:`self.symbol2`
+        """
+
         self.scale = scale
         self.offset = offset
         self.symbol1 = symbol1
@@ -66,11 +73,16 @@ class SymAddrAddr:
 class SymAddrConst:
     """Represents a symbolic operand of the form "Sym + Offset".
 
-    :param offset: a fixed offset from the symbol
-    :param symbol: the symbol to refer to
+    :ivar offset: a fixed offset from the symbol
+    :ivar symbol: the symbol to refer to
     """
 
     def __init__(self, offset, symbol):
+        """
+        :param offset: the value of :attr:`self.offset`
+        :param symbol: the value of :attr:`self.symbol`
+        """
+
         self.offset = offset
         self.symbol = symbol
 
@@ -110,11 +122,16 @@ class SymStackConst:
     """Represents a symbolic operand of the form "Sym + Offset",
     representing an offset from a stack variable.
 
-    :param offset: a fixed offset from the symbol
-    :param symbol: the symbol to refer to
+    :ivar offset: a fixed offset from the symbol
+    :ivar symbol: the symbol to refer to
     """
 
     def __init__(self, offset, symbol):
+        """
+        :param offset: the value of :attr:`self.offset`
+        :param symbol: the value of :attr:`self.symbol`
+        """
+
         self.offset = offset
         self.symbol = symbol
 

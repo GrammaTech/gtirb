@@ -12,14 +12,19 @@ class AuxData:
     :class:`gtirb.Module` s to store additional client-specific data in a
     portable way.
 
-    :param data: data associated with this aux data
-    :param type_name: string describing the type of this aux data
+    :ivar data: data associated with this aux data
+    :ivar type_name: string describing the type of this aux data
     """
 
     serializer = Serialization()
     """A Serialization object used for encoding/decoding aux data."""
 
     def __init__(self, data, type_name):
+        """
+        :param data: the value of :attr:`self.data`
+        :param type_name: the value of :attr:`self.type_name`
+        """
+
         self.data = data
         self.type_name = type_name
 
@@ -57,11 +62,15 @@ class AuxDataContainer(Node):
     """The base class for anything that Holds AuxData tables; that is,
     :class:`gtirb.IR` and :class:`gtirb.Module`.
 
-    :param aux_data: dict mapping type names to AuxData objects
-    :param uuid: the UUID of this Node
+    :ivar aux_data: dict mapping type names to AuxData objects
     """
 
     def __init__(self, aux_data=dict(), uuid=None):
+        """
+        :param aux_data: the value of :attr:`self.aux_data`, defaults to {}
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        """
+
         super().__init__(uuid)
         self.aux_data = dict(aux_data)
 

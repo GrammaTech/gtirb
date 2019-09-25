@@ -18,9 +18,9 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 class Edge:
     """An edge in the CFG.
 
-    :param source: the source CFG node
-    :param target: the target CFG node
-    :param label: an optional label, containing more control flow information
+    :ivar source: the source CFG node
+    :ivar target: the target CFG node
+    :ivar label: an optional label, containing more control flow information
     """
 
     class Type(Enum):
@@ -65,13 +65,19 @@ class Edge:
     class Label:
         """Contains a more detailed description of an edge in the CFG.
 
-        :param conditional: boolean indicating if an edge is conditional on
+        :ivar conditional: boolean indicating if an edge is conditional on
             True or False
-        :param direct: boolean indicating if an edge is direct or indirect
-        :param type: the type of the edge
+        :ivar direct: boolean indicating if an edge is direct or indirect
+        :ivar type: the type of the edge
         """
 
         def __init__(self, type, *, conditional=False, direct=True):
+            """
+            :param type: the value of :attr:`self.type`
+            :param conditional: the value of :attr:`self.conditional`
+            :param direct: the value of :attr:`self.direct`
+            """
+
             self.type = type
             self.conditional = conditional
             self.direct = direct
@@ -113,6 +119,11 @@ class Edge:
             )
 
     def __init__(self, source, target, label=None):
+        """
+        :param source: the value of :attr:`self.source`
+        :param target: the value of :attr:`self.target`
+        :param label: the value of :attr:`self.label`, defaults to None
+        """
         self.source = source
         self.target = target
         self.label = label
@@ -175,38 +186,26 @@ class Edge:
 class Module(AuxDataContainer):
     """Represents a loadable object, such as an executable or library.
 
-    :param binary_path: the path to the binary
-    :param blocks: set of contained Blocks
-    :param data: set of contained DataObjects
-    :param image_byte_map: ImageByteMap containing the raw data in the binary
-    :param isa_id: ISAID of the binary
-    :param file_format: FileFormat of the binary
-    :param name: name of the binary
-    :param preferred_addr: preferred loading address of the binary
-    :param proxies: set of contained ProxyBlocks
-    :param rebase_delta: rebase delta of the binary
-    :param sections: set of contained Sections
-    :param symbols: set of contained Symbols
-    :param symbolic_operands: dict mapping addresses to symbolic operands
+    :ivar binary_path: the path to the binary
+    :ivar blocks: set of contained Blocks
+    :ivar data: set of contained DataObjects
+    :ivar image_byte_map: ImageByteMap containing the raw data in the binary
+    :ivar isa_id: ISAID of the binary
+    :ivar file_format: FileFormat of the binary
+    :ivar name: name of the binary
+    :ivar preferred_addr: preferred loading address of the binary
+    :ivar proxies: set of contained ProxyBlocks
+    :ivar rebase_delta: rebase delta of the binary
+    :ivar sections: set of contained Sections
+    :ivar symbols: set of contained Symbols
+    :ivar symbolic_operands: dict mapping addresses to symbolic operands
         (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
-    :param uuid: the UUID of this Node
     """
 
     class FileFormat(Enum):
         """Identifies the executable file format this module originated from.
         """
 
-<<<<<<< HEAD
-        Undefined = Module_pb2.FileFormat.Value("Format_Undefined")
-        COFF = Module_pb2.FileFormat.Value("COFF")
-        ELF = Module_pb2.FileFormat.Value("ELF")
-        IdaProDb32 = Module_pb2.FileFormat.Value("IdaProDb32")
-        IdaProDb64 = Module_pb2.FileFormat.Value("IdaProDb64")
-        MACHO = Module_pb2.FileFormat.Value("MACHO")
-        PE = Module_pb2.FileFormat.Value("PE")
-        RAW = Module_pb2.FileFormat.Value("RAW")
-        XCOFF = Module_pb2.FileFormat.Value("XCOFF")
-=======
         Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
         """An unspecified file format."""
 
@@ -235,42 +234,12 @@ class Module(AuxDataContainer):
 
         XCOFF = Module_pb2.FileFormat.Value('XCOFF')
         """The Extended Common Object File Format."""
->>>>>>> Documented the enums
 
     class ISAID(Enum):
         """Identifies the instruction set architecture (ISA)
         this module is written to target.
         """
 
-<<<<<<< HEAD
-        Undefined = Module_pb2.ISAID.Value("ISA_Undefined")
-        ARM = Module_pb2.ISAID.Value("ARM")
-        IA32 = Module_pb2.ISAID.Value("IA32")
-        PPC32 = Module_pb2.ISAID.Value("PPC32")
-        X64 = Module_pb2.ISAID.Value("X64")
-        ValidButUnsupported = Module_pb2.ISAID.Value("ValidButUnsupported")
-
-    def __init__(
-        self,
-        *,
-        aux_data=dict(),
-        binary_path="",
-        blocks=set(),
-        cfg=set(),
-        data=set(),
-        file_format=FileFormat.Undefined,
-        image_byte_map=None,
-        isa_id=ISAID.Undefined,
-        name="",
-        preferred_addr=0,
-        proxies=set(),
-        rebase_delta=0,
-        sections=set(),
-        symbols=set(),
-        symbolic_operands=dict(),
-        uuid=None
-    ):
-=======
         Undefined = Module_pb2.ISAID.Value('ISA_Undefined')
         """An ISA that has not yet been specified.
         This is for unitialized modules;
@@ -312,7 +281,25 @@ class Module(AuxDataContainer):
                  symbols=set(),
                  symbolic_operands=dict(),
                  uuid=None):
->>>>>>> Documented the enums
+        """
+        :param aux_data: as in :meth:`gtirb.AuxDataContainer.__init__`
+        :param binary_path: the value of :attr:`self.binary_path`
+        :param blocks: the value of :attr:`self.blocks`
+        :param cfg: the value of :attr:`self.cfg`
+        :param data: the value of :attr:`self.data`
+        :param file_format: the value of :attr:`self.file_format`
+        :param image_byte_map: the value of :attr:`self.image_byte_map`
+        :param isa_id: the value of :attr:`self.isa_id`
+        :param name: the value of :attr:`self.name`
+        :param preferred_addr: the value of :attr:`self.preferred_addr`
+        :param proxies: the value of :attr:`self.proxies`
+        :param rebase_delta: the value of :attr:`self.rebase_delta`
+        :param sections: the value of :attr:`self.sections`
+        :param symbols: the value of :attr:`self.symbols`
+        :param symbolic_operands: the value of :attr:`self.symbolic_operands`
+        :param uuid: as in :meth:`gtirb.Node.__init__`
+        """
+
         if image_byte_map is None:
             image_byte_map = ImageByteMap()
 

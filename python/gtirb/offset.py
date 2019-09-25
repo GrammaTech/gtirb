@@ -7,11 +7,16 @@ class Offset:
     """
     An Offset describes a location inside a block or data object.
 
-    :param element_id: the UUID of a Node
-    :param displacement: the offset inside the Node to point to
+    :ivar element_id: the UUID of a Node
+    :ivar displacement: the offset inside the Node to point to
     """
 
     def __init__(self, element_id, displacement):
+        """
+        :param element_id: the value of :attr:`self.element_id`
+        :param displacement: the value of :attr:`self.displacement`
+        """
+
         self.element_id = element_id
         self.displacement = displacement
 

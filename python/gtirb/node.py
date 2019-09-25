@@ -5,12 +5,17 @@ from weakref import WeakValueDictionary
 class Node:
     """A Node is any GTIRB object which can be referenced by UUID.
 
-    :param uuid: the UUID of this Node, or None if a new UUID needs generated
+    :ivar uuid: the UUID of this Node
     """
 
     _uuid_cache = WeakValueDictionary()
 
     def __init__(self, uuid=None):
+        """
+        :param uuid: the value of :attr:`self.uuid`,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`
+        """
+
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid
