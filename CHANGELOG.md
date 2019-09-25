@@ -4,8 +4,11 @@
   * `Serialization.decode` can now take a `bytes` object
     in addition to a `BytesIO` object.
   * If an unknwon type is encountered while decoding `AuxData`,
-    it will be placed in `data` as a `bytes` object
-    (instead of throwing a `DecodeError`).
+    it will be placed in `data` as a `bytes`-like object
+    instead of throwing a `DecodeError`.
+    Unknown data decoded this way can be then encoded again.
+    It is still an error to encode unknown types of auxdata
+    not in the manner described above.
 
 # 0.2.0
 
