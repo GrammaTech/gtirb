@@ -432,7 +432,7 @@ class Serialization:
         except UnknownCodecError:
             # we found an unknwon codec; the entire data structure can't be
             # parsed; return a blob of bytes
-            return UnknownData(raw_bytes)
+            return UnknownData(all_bytes)
 
     def encode(self, out, val, type_name):
         """Top level encode function."""
