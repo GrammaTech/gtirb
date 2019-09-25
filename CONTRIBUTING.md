@@ -156,6 +156,12 @@ To add a new markdown document to the documentation:
 
 - All code must be formatted with `black` (set to line lengths of 79, for PEP8 compliance).
   A pass through this tool is included as part of our `pre-commit` configuration.
+  - Please note that `black` only works on Python version 3.6 and newer.
+    This is newer than what is available on some OSes by default (for example, Ubuntu 16),
+    so you may have to install Python 3.6 or newer to run `black`.
+
+- While committing changes to the Python API requires Python 3.6 or later (see above),
+  the Python API should be made to run on all version of Python 3.
 
 - Use `UpperCamelCase` for type names, `UPPER_CASE` for constant names,
   and `snake_case` for other identifier names.
