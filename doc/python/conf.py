@@ -65,3 +65,13 @@ html_static_path = ["_static"]
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Options for autodoc extension -------------------------------------------
+
+autoclass_content = "class"
+autodoc_default_options = {
+    "special-members": True,
+    "exclude-members": (
+        "__weakref__," "__dict__," "__module__," "__repr__," "__str__,"
+    ),
+}
