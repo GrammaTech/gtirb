@@ -1,5 +1,12 @@
 # Unreleased
 
+* The following changes have been made to the Python API:
+  * `Serialization.decode` can now take a `bytes` object
+    in addition to a `BytesIO` object.
+  * If an unknwon type is encountered while decoding `AuxData`,
+    it will be placed in `data` as a `bytes` object
+    (instead of throwing a `DecodeError`).
+
 # 0.2.0
 
 * Added a new Python API, meant to be a high-level wrapper over the

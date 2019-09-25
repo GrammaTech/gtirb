@@ -6,6 +6,7 @@ codecs definded from the Codec base class
 """
 from re import findall
 from uuid import UUID
+import io
 
 from .offset import Offset
 from .node import Node
@@ -14,21 +15,13 @@ from .node import Node
 class CodecError(Exception):
     """Base class for codec exceptions"""
 
-    pass
-
 
 class DecodeError(CodecError):
     """Exception during decoding"""
 
-    def __init__(self, msg):
-        self.msg = msg
-
 
 class EncodeError(CodecError):
     """Exception during encoding"""
-
-    def __init__(self, msg):
-        self.msg = msg
 
 
 class TypeNameError(EncodeError):
@@ -36,6 +29,17 @@ class TypeNameError(EncodeError):
 
     def __init__(self, hint):
         super().__init__("malformed type name: '%s'" % hint)
+
+
+class UnknownCodecError(CodecError):
+    """Thrown when an unknown codec name is encountered.
+    Caught and handled by the top-level codec methods.
+
+    :param name: the name of the unknown codec
+    """
+
+    def __init__(self, name):
+        self.name = name
 
 
 class Codec:
@@ -315,7 +319,7 @@ class Serialization:
         except ValueError:
             raise DecodeError("could not unpack type tree %s" % str(type_tree))
         if type_name not in self.codecs:
-            raise DecodeError("no decoder for %s" % type_name)
+            raise UnknownCodecError(type_name)
         codec = self.codecs[type_name]
         return codec.decode(raw_bytes, serialization=self, subtypes=subtypes)
 
@@ -325,7 +329,7 @@ class Serialization:
         except ValueError:
             raise EncodeError("could not unpack type tree %s" % str(type_tree))
         if type_name not in self.codecs:
-            raise EncodeError("no encoder for %s" % type_name)
+            raise UnknownCodecError(type_name)
         codec = self.codecs[type_name]
         return codec.encode(out, val, serialization=self, subtypes=subtypes)
 
@@ -411,9 +415,20 @@ class Serialization:
     def decode(self, raw_bytes, type_name):
         """Top level decode function."""
         parse_tree = Serialization._parse_type(type_name)
-        return self._decode_tree(raw_bytes, parse_tree)
+        all_bytes = None
+        if isinstance(raw_bytes, (bytes, bytearray, memoryview)):
+            all_bytes = raw_bytes
+        else:
+            all_bytes = raw_bytes.read()
+        try:
+            return self._decode_tree(io.BytesIO(all_bytes), parse_tree)
+        except UnknownCodecError:
+            return raw_bytes
 
     def encode(self, out, val, type_name):
         """Top level encode function."""
         parse_tree = Serialization._parse_type(type_name)
-        self._encode_tree(out, val, parse_tree)
+        try:
+            self._encode_tree(out, val, parse_tree)
+        except UnknownCodecError as e:
+            raise EncodeError("unknown codec: %s" % e.name)
