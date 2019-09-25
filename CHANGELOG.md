@@ -1,5 +1,9 @@
 # Unreleased
 
+* You can now enable and disable the building of certain APIs when calling CMake,
+  via the following flags:
+  * `GTIRB_CXX_API` to control the building of the C++ API
+  * `GTIRB_PY_API` to control the building of the Python API
 * The following changes have been made to the Python API:
   * `Serialization.decode` can now take a `bytes` object
     in addition to a `BytesIO` object.
