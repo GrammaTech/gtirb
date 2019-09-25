@@ -284,6 +284,7 @@ include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 # ---------------------------------------------------------------------------
 # gtirb sources
 # ---------------------------------------------------------------------------
+add_subdirectory(proto)
 add_subdirectory(src)
 add_subdirectory(doc/examples)
 add_subdirectory(python)

@@ -3,15 +3,15 @@ configure_file(setup.py.in setup.py @ONLY)
 find_program(PYTHON "python3")
 
 if (PYTHON)
-  file(GLOB DEPS ${CMAKE_CURRENT_SOURCE_DIR}/gtirb/*.py)
+  # protobuf generated files
+  PROTOBUF_GENERATE_PYTHON(PROTO_PY_SOURCES ${PROTO_FILES})
 
-  add_custom_target(pygtirb ALL DEPENDS _force_python_protos)
+  # existing Python files
+  file(GLOB PY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/gtirb/*.py ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.py)
+
+  add_custom_target(pygtirb ALL DEPENDS ${PY_SOURCES} ${PROTO_PY_SOURCES})
   add_custom_command(TARGET pygtirb
     COMMAND cp -R "${CMAKE_CURRENT_SOURCE_DIR}/gtirb" "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${CMAKE_CURRENT_BINARY_DIR}/")
-
-  add_custom_command(TARGET pygtirb
-    COMMAND cp ${PROTO_PY_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/"
-    DEPENDS ${DEPS})
 
   if (GTIRB_ENABLE_TESTS)
     add_test(NAME testgtirbpy
