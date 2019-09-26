@@ -184,6 +184,15 @@ tasks using the GTIRB C++ library API.
 - [Querying the IR](#querying-the-ir)
 - [Serialization](#serialization)
 
+Also note that to compile a C++ client that uses the GTIRB library,
+you have to inform the compiler and linker where to find GTIRB's
+header files and library archives. In addition, the OS also needs to
+be informed about where to find GTIRB's dynamic libraries. These files
+are located under `include` and `lib` in the build output directory
+you picked when running CMake originally. How to do this will depend
+on the particular compiler tool chain and context you are working
+with.
+
 
 #### Populating the IR
 
