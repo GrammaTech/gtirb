@@ -16,6 +16,7 @@ Value = typing.Union[int]
 Payload = typing.Union[Referent, Value]
 """A type hint representing the possible Symbol payloads."""
 
+
 class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
