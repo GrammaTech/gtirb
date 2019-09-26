@@ -34,9 +34,6 @@ class AuxData:
     :mod:`gtirb.serialization` for details.
     """
 
-    data: typing.Any
-    type_name: str
-
     def __init__(self, data: typing.Any, type_name: str):
         """
         :param data: The value stored in this AuxData.
@@ -86,8 +83,6 @@ class AuxDataContainer(Node):
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`.
     """
-
-    aux_data: typing.Dict[str, AuxData]
 
     def __init__(
         self,

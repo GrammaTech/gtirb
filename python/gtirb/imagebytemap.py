@@ -23,13 +23,6 @@ class ImageByteMap(Node):
         loaded file in memory.
     """
 
-    addr_min: int
-    addr_max: int
-    base_address: int
-    entry_point_address: int
-    _byte_map: typing.Dict[int, bytearray]
-    _start_addresses: typing.List[int]
-
     def __init__(self,
                  *,
                  addr_min: int = 0,

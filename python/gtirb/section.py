@@ -16,10 +16,6 @@ class Section(Node):
     :ivar size: The size of this section in bytes.
     """
 
-    name: str
-    address: int
-    size: int
-
     def __init__(
         self,
         name: str = '',

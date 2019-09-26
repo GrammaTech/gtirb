@@ -16,10 +16,6 @@ class Block(Node):
         (e.g. differentiating blocks written in ARM and Thumb).
     """
 
-    address: int
-    size: int
-    decode_mode: int
-
     def __init__(
         self,
         address: int,

@@ -32,10 +32,6 @@ class Edge:
     :ivar label: An optional label containing more control flow information.
     """
 
-    source: CfgNode
-    target: CfgNode
-    label: typing.Optional["Edge.Label"]
-
     class Type(Enum):
         """The type of control flow transfer indicated by a
         :class:`gtirb.Edge`.

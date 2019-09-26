@@ -14,9 +14,6 @@ class Offset:
     :ivar displacement: The offset inside the Node to point to.
     """
 
-    element_id: UUID
-    displacement: int
-
     def __init__(self, element_id: UUID, displacement: int):
         """
         :param element_id: The UUID of a :class:`gtirb.Block`

@@ -24,10 +24,6 @@ class Symbol(Node):
     :ivar storage_kind: The storage kind of this symbol.
     """
 
-    name: str
-    storage_kind: "Symbol.StorageKind"
-    _payload: typing.Optional[Payload]
-
     class StorageKind(Enum):
         """
         The storage kind of a :class:`gtirb.Symbol`.
