@@ -14,6 +14,9 @@ class DataObject(Node):
     :ivar size: The size of the data object in bytes.
     """
 
+    address: int
+    size: int
+
     def __init__(
         self, address: int, size: int, uuid: typing.Optional[uuid.UUID] = None
     ):

@@ -316,6 +316,8 @@ class Serialization:
         or overridden using this dictionary.
     """
 
+    codecs: typing.Dict[str, Codec]
+
     def __init__(self):
         """"""
 

@@ -17,6 +17,11 @@ class SymAddrAddr:
     :ivar symbol2: The index symbol.
     """
 
+    scale: int
+    offset: int
+    symbol1: Symbol
+    symbol2: Symbol
+
     def __init__(
         self, scale: int, offset: int, symbol1: Symbol, symbol2: Symbol
     ):
@@ -83,6 +88,9 @@ class SymAddrConst:
     :ivar symbol: The symbol to refer to.
     """
 
+    offset: int
+    symbol: Symbol
+
     def __init__(self, offset: int, symbol: Symbol):
         """
         :param offset: A fixed offset from the symbol in bytes.
@@ -133,6 +141,9 @@ class SymStackConst:
     :ivar offset: A fixed offset from the symbol in bytes.
     :ivar symbol: The symbol to refer to.
     """
+
+    offset: int
+    symbol: Symbol
 
     def __init__(self, offset: int, symbol: Symbol):
         """

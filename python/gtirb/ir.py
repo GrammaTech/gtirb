@@ -24,6 +24,8 @@ class IR(AuxDataContainer):
     :ivar modules: A list of Modules contained in the IR.
     """
 
+    modules: typing.List[Module]
+
     def __init__(
         self,
         modules: typing.Iterable[Module] = list(),
