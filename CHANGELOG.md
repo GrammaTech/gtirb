@@ -19,6 +19,10 @@
   documentation locally, call `make doc` after calling `cmake`; this will
   generate both C++ and Python API documentation. To only make one or the
   other, call `make doxy` or `make sphinx`, respectively.
+  * Making the Sphinx documentation will require the following Python packages:
+    ```bash
+    pip3 install sphinx sphinx-autodoc-typehints
+    ```
 
 # 0.2.0
 
