@@ -22,6 +22,7 @@ if __name__ == '__main__':
         test_suite='setup.gtirb_test_suite',
         install_requires=[
             'protobuf',
+            'typing',
         ],
         classifiers=[
             "Programming Language :: Python :: 3"
