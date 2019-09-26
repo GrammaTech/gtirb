@@ -1,5 +1,7 @@
 import Block_pb2
 import ProxyBlock_pb2
+import typing
+import uuid
 
 from .node import Node
 
@@ -14,7 +16,18 @@ class Block(Node):
         (e.g. differentiating blocks written in ARM and Thumb).
     """
 
-    def __init__(self, address, size, *, decode_mode=0, uuid=None):
+    address: int
+    size: int
+    decode_mode: int
+
+    def __init__(
+        self,
+        address: int,
+        size: int,
+        *,
+        decode_mode: int = 0,
+        uuid: typing.Optional[uuid.UUID] = None,
+    ):
         """
         :param address: The starting address of the block.
         :param size: The length of the block in bytes.
@@ -33,15 +46,15 @@ class Block(Node):
         self.decode_mode = decode_mode
 
     @classmethod
-    def _decode_protobuf(cls, proto_block, uuid):
-        return cls(
-            address=proto_block.address,
-            decode_mode=proto_block.decode_mode,
-            size=proto_block.size,
-            uuid=uuid,
-        )
+    def _decode_protobuf(
+        cls, proto_block: Block_pb2.Block, uuid: uuid.UUID
+    ) -> "Block":
+        return cls(address=proto_block.address,
+                   decode_mode=proto_block.decode_mode,
+                   size=proto_block.size,
+                   uuid=uuid)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> Block_pb2.Block:
         proto_block = Block_pb2.Block()
         proto_block.uuid = self.uuid.bytes
         proto_block.address = self.address
@@ -85,10 +98,12 @@ class ProxyBlock(Node):
     """
 
     @classmethod
-    def _decode_protobuf(cls, proto_proxy, uuid):
+    def _decode_protobuf(
+        cls, proto_proxy: ProxyBlock_pb2.ProxyBlock, uuid: uuid.UUID
+    ) -> "ProxyBlock":
         return cls(uuid)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> ProxyBlock_pb2.ProxyBlock:
         proto_proxyblock = ProxyBlock_pb2.ProxyBlock()
         proto_proxyblock.uuid = self.uuid.bytes
         return proto_proxyblock

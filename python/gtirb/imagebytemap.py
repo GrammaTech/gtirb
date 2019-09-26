@@ -1,9 +1,11 @@
 from bisect import bisect_right, bisect_left, insort
-
 import ByteMap_pb2
 import ImageByteMap_pb2
+import typing
+import uuid
 
 from .node import Node
+from .util import DictLike
 
 
 class ImageByteMap(Node):
@@ -21,14 +23,21 @@ class ImageByteMap(Node):
         loaded file in memory.
     """
 
+    addr_min: int
+    addr_max: int
+    base_address: int
+    entry_point_address: int
+    _byte_map: typing.Dict[int, bytearray]
+    _start_addresses: typing.List[int]
+
     def __init__(self,
                  *,
-                 addr_min=0,
-                 addr_max=0,
-                 base_address=0,
-                 byte_map=dict(),
-                 entry_point_address=0,
-                 uuid=None):
+                 addr_min: int = 0,
+                 addr_max: int = 0,
+                 base_address: int = 0,
+                 byte_map: DictLike[int, bytes] = {},
+                 entry_point_address: int = 0,
+                 uuid: typing.Optional[uuid.UUID] = None):
         """
         :param addr_min: The lowest address of the loaded file in memory.
         :param addr_max: The highest address of the loaded file in memory.
@@ -83,7 +92,7 @@ class ImageByteMap(Node):
                 return False
         return False
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: typing.Union[int, slice]):
         """Delete bytes in the map.
 
         :param key: An address or slice of addresses.
@@ -201,7 +210,11 @@ class ImageByteMap(Node):
         """Get the number of bytes contained in the map."""
         return sum(len(v) for v in self._byte_map.values())
 
-    def __setitem__(self, address, data):
+    def __setitem__(
+        self,
+        address: typing.Union[int, slice],
+        data: typing.Union[int, typing.Iterable[int]]
+    ):
         """Set data at an address.
 
         :param address: An address or slice of addresses.
@@ -286,11 +299,11 @@ class ImageByteMap(Node):
                 current_address += 1
 
     @classmethod
-    def _decode_protobuf(cls, proto_ibm, uuid):
-        byte_map = {
-            region.address: bytearray(region.data)
-            for region in proto_ibm.byte_map.regions
-        }
+    def _decode_protobuf(
+        cls, proto_ibm: ImageByteMap_pb2.ImageByteMap, uuid: uuid.UUID
+    ) -> "ImageByteMap":
+        byte_map = {region.address: bytearray(region.data)
+                    for region in proto_ibm.byte_map.regions}
         image_byte_map = cls(
             addr_min=proto_ibm.addr_min,
             addr_max=proto_ibm.addr_max,
@@ -301,7 +314,7 @@ class ImageByteMap(Node):
         )
         return image_byte_map
 
-    def _find_end(self, address):
+    def _find_end(self, address: int) -> int:
         """Get the last address in the block containing address."""
         start = self._find_start(address)
         last_address = start + len(self._byte_map[start]) - 1
@@ -320,7 +333,7 @@ class ImageByteMap(Node):
         """Check if a key is within the range of this bytemap."""
         return key >= self.addr_min and key <= self.addr_max
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> ImageByteMap_pb2.ImageByteMap:
         proto_byte_map = ByteMap_pb2.ByteMap()
 
         def encode_region(address, data):

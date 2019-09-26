@@ -1,5 +1,6 @@
 from enum import Enum
 from uuid import UUID
+import typing
 
 import Symbol_pb2
 
@@ -8,12 +9,23 @@ from .dataobject import DataObject
 from .node import Node
 
 
+Referent = typing.Union[Block, ProxyBlock, DataObject]
+"""A type hint representing the possible Symbol referents."""
+Value = typing.Union[int]
+"""A type hint representing the possible Symbol values."""
+Payload = typing.Union[Referent, Value]
+"""A type hint representing the possible Symbol payloads."""
+
 class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
     :ivar name: The name of this symbol.
     :ivar storage_kind: The storage kind of this symbol.
     """
+
+    name: str
+    storage_kind: "Symbol.StorageKind"
+    _payload: typing.Optional[Payload]
 
     class StorageKind(Enum):
         """
@@ -37,9 +49,11 @@ class Symbol(Node):
         in the context of a function's activation frame.
         """
 
-    def __init__(
-        self, name, storage_kind=StorageKind.Undefined, uuid=None, payload=None
-    ):
+    def __init__(self,
+                 name: str,
+                 storage_kind: "Symbol.StorageKind" = StorageKind.Undefined,
+                 uuid: typing.Optional[UUID] = None,
+                 payload: typing.Optional[Payload] = None):
         """
         :param name: The name of this symbol.
         :param storage_kind: The storage kind of this symbol.
@@ -56,7 +70,7 @@ class Symbol(Node):
         self._payload = payload
 
     @property
-    def value(self):
+    def value(self) -> typing.Optional[Value]:
         """The value of a Symbol, which is an integer or None.
         ``value`` and ``referent`` are mutually exclusive.
         """
@@ -66,7 +80,7 @@ class Symbol(Node):
         return None
 
     @property
-    def referent(self):
+    def referent(self) -> typing.Optional[Referent]:
         """The object referred to by a Symbol, which is a
         Block, DataObject, ProxyBlock, or None.
         ``value`` and ``referent`` are mutually exclusive.
@@ -77,15 +91,17 @@ class Symbol(Node):
         return None
 
     @value.setter
-    def value(self, value):
+    def value(self, value: typing.Optional[Value]):
         self._payload = value
 
     @referent.setter
-    def referent(self, referent):
+    def referent(self, referent: typing.Optional[Referent]):
         self._payload = referent
 
     @classmethod
-    def _decode_protobuf(cls, proto_symbol, uuid):
+    def _decode_protobuf(
+        cls, proto_symbol: Symbol_pb2.Symbol, uuid: UUID
+    ) -> "Symbol":
         storage_kind = Symbol.StorageKind(proto_symbol.storage_kind)
         symbol = cls(
             name=proto_symbol.name, uuid=uuid, storage_kind=storage_kind
@@ -100,7 +116,7 @@ class Symbol(Node):
                 raise KeyError("Could not find referent UUID %s" % e)
         return symbol
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> Symbol_pb2.Symbol:
         proto_symbol = Symbol_pb2.Symbol()
         proto_symbol.uuid = self.uuid.bytes
         if self.value is not None:

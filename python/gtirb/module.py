@@ -1,9 +1,10 @@
 from enum import Enum
 from uuid import UUID
-
 import CFG_pb2
 import Module_pb2
 import SymbolicExpression_pb2
+import typing
+import uuid
 
 from .auxdata import AuxData, AuxDataContainer
 from .block import Block, ProxyBlock
@@ -12,7 +13,14 @@ from .imagebytemap import ImageByteMap
 from .node import Node
 from .section import Section
 from .symbol import Symbol
-from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
+from .symbolicexpression import (
+    SymAddrAddr, SymAddrConst, SymStackConst, SymbolicOperand
+)
+from .util import DictLike
+
+
+CfgNode = typing.Union[Block, ProxyBlock]
+"""A type hint for nodes in the CFG."""
 
 
 class Edge:
@@ -23,6 +31,10 @@ class Edge:
     :ivar target: The target CFG node.
     :ivar label: An optional label containing more control flow information.
     """
+
+    source: CfgNode
+    target: CfgNode
+    label: typing.Optional["Edge.Label"]
 
     class Type(Enum):
         """The type of control flow transfer indicated by a
@@ -74,7 +86,17 @@ class Edge:
         :ivar type: The type of the edge.
         """
 
-        def __init__(self, type, *, conditional=False, direct=True):
+        type: "Edge.Type"
+        conditional: bool
+        direct: bool
+
+        def __init__(
+            self,
+            type: "Edge.Type",
+            *,
+            conditional: bool = False,
+            direct: bool = True,
+        ):
             """
             :param type: The type of the edge.
             :param conditional: A boolean indicating if an edge is
@@ -88,21 +110,21 @@ class Edge:
             self.direct = direct
 
         @classmethod
-        def _from_protobuf(cls, label):
+        def _from_protobuf(cls, label: CFG_pb2.EdgeLabel) -> "Edge.Label":
             return Edge.Label(
                 type=Edge.Type(label.type),
                 conditional=label.conditional,
                 direct=label.direct,
             )
 
-        def _to_protobuf(self):
+        def _to_protobuf(self) -> CFG_pb2.EdgeLabel:
             proto_label = CFG_pb2.EdgeLabel()
             proto_label.type = self.type.value
             proto_label.conditional = self.conditional
             proto_label.direct = self.direct
             return proto_label
 
-        def __eq__(self, other):
+        def __eq__(self, other) -> bool:
             if not isinstance(other, Edge.Label):
                 return False
             return (
@@ -111,19 +133,22 @@ class Edge:
                 and self.direct == other.direct
             )
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return hash((self.type, self.conditional, self.direct))
 
-        def __repr__(self):
-            return (
-                "Edge.Label("
-                "type=Edge.{type!s}, "
-                "conditional={conditional!r}, "
-                "direct={direct!r}, "
-                ")".format(**self.__dict__)
-            )
+        def __repr__(self) -> str:
+            return ("Edge.Label("
+                    "type=Edge.{type!s}, "
+                    "conditional={conditional!r}, "
+                    "direct={direct!r}, "
+                    ")".format(**self.__dict__))
 
-    def __init__(self, source, target, label=None):
+    def __init__(
+        self,
+        source: CfgNode,
+        target: CfgNode,
+        label: typing.Optional["Edge.Label"] = None,
+    ):
         """
         :param source: The source CFG node.
         :param target: The target CFG node.
@@ -135,7 +160,7 @@ class Edge:
         self.label = label
 
     @classmethod
-    def _from_protobuf(cls, edge):
+    def _from_protobuf(cls, edge: CFG_pb2.Edge) -> "Edge":
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
         try:
@@ -159,7 +184,7 @@ class Edge:
             label = Edge.Label._from_protobuf(edge.label)
         return cls(source, target, label)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> CFG_pb2.Edge:
         proto_edge = CFG_pb2.Edge()
         proto_edge.source_uuid = self.source.uuid.bytes
         proto_edge.target_uuid = self.target.uuid.bytes
@@ -167,7 +192,7 @@ class Edge:
             proto_edge.label.CopyFrom(self.label._to_protobuf())
         return proto_edge
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Edge):
             return False
         return (
@@ -176,17 +201,15 @@ class Edge:
             and self.label == other.label
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.source.uuid, self.target.uuid, self.label))
 
-    def __repr__(self):
-        return (
-            "Edge("
-            "source={source!r}, "
-            "target={target!r}, "
-            "label={label!r}, "
-            ")".format(**self.__dict__)
-        )
+    def __repr__(self) -> str:
+        return ("Edge("
+                "source={source!r}, "
+                "target={target!r}, "
+                "label={label!r}, "
+                ")".format(**self.__dict__))
 
 
 class Module(AuxDataContainer):
@@ -209,6 +232,21 @@ class Module(AuxDataContainer):
     :ivar symbolic_operands: A dict mapping addresses to symbolic operands
         (i.e., SymAddrAddr, SymAddrConst, or SymStackConst).
     """
+
+    binary_path: str
+    blocks: typing.Set[Block]
+    data: typing.Set[DataObject]
+    image_byte_map: ImageByteMap
+    isa_id: "Module.ISAID"
+    file_format: "Module.FileFormat"
+    name: str
+    preferred_addr: int
+    proxies: typing.Set[ProxyBlock]
+    rebase_delta: int
+    sections: typing.Set[Section]
+    symbols: typing.Set[Symbol]
+    symbolic_operands: typing.Dict[int, SymbolicOperand]
+    cfg: typing.Set[Edge]
 
     class FileFormat(Enum):
         """Identifies the executable file format of the
@@ -274,22 +312,22 @@ class Module(AuxDataContainer):
 
     def __init__(self,
                  *,
-                 aux_data=dict(),
-                 binary_path='',
-                 blocks=set(),
-                 cfg=set(),
-                 data=set(),
-                 file_format=FileFormat.Undefined,
-                 image_byte_map=None,
-                 isa_id=ISAID.Undefined,
-                 name='',
-                 preferred_addr=0,
-                 proxies=set(),
-                 rebase_delta=0,
-                 sections=set(),
-                 symbols=set(),
-                 symbolic_operands=dict(),
-                 uuid=None):
+                 aux_data: DictLike[str, AuxData] = dict(),
+                 binary_path: str = '',
+                 blocks: typing.Iterable[Block] = set(),
+                 cfg: typing.Iterable[Edge] = set(),
+                 data: typing.Iterable[DataObject] = set(),
+                 file_format: "Module.FileFormat" = FileFormat.Undefined,
+                 image_byte_map: ImageByteMap = None,
+                 isa_id: "Module.ISAID" = ISAID.Undefined,
+                 name: str = '',
+                 preferred_addr: int = 0,
+                 proxies: typing.Iterable[ProxyBlock] = set(),
+                 rebase_delta: int = 0,
+                 sections: typing.Iterable[Section] = set(),
+                 symbols: typing.Iterable[Symbol] = set(),
+                 symbolic_operands: DictLike[int, SymbolicOperand] = dict(),
+                 uuid: typing.Optional[uuid.UUID] = None):
         """
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
@@ -337,7 +375,9 @@ class Module(AuxDataContainer):
         self.cfg = set(cfg)
 
     @classmethod
-    def _decode_protobuf(cls, proto_module, uuid):
+    def _decode_protobuf(
+        cls, proto_module: Module_pb2.Module, uuid: uuid.UUID
+    ) -> "Module":
         aux_data = (
             (k, AuxData._from_protobuf(v))
             for k, v in proto_module.aux_data_container.aux_data.items()
@@ -388,7 +428,7 @@ class Module(AuxDataContainer):
             uuid=uuid,
         )
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> Module_pb2.Module:
         proto_module = Module_pb2.Module()
         proto_module.aux_data_container.CopyFrom(super()._to_protobuf())
         proto_module.binary_path = self.binary_path

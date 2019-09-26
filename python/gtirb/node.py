@@ -1,5 +1,6 @@
 from uuid import UUID, uuid4
 from weakref import WeakValueDictionary
+import typing
 
 
 class Node:
@@ -8,9 +9,13 @@ class Node:
     :ivar uuid: The UUID of this Node.
     """
 
-    _uuid_cache = WeakValueDictionary()
+    uuid: UUID
 
-    def __init__(self, uuid=None):
+    _uuid_cache: typing.ClassVar[typing.Mapping[UUID, "Node"]] = (
+        WeakValueDictionary()
+    )
+
+    def __init__(self, uuid: typing.Optional[UUID] = None):
         """
         :param uuid: The UUID of this Node,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
@@ -23,7 +28,7 @@ class Node:
         Node._uuid_cache[self.uuid] = self
 
     @classmethod
-    def from_uuid(cls, uuid):
+    def from_uuid(cls, uuid: UUID) -> typing.Optional["Node"]:
         """
         Find the ``Node`` with the specified UUID,
         or ``None`` if no such ``Node`` can be found.
@@ -41,7 +46,7 @@ class Node:
         return node
 
     @classmethod
-    def _decode_protobuf(cls, proto_object, uuid):
+    def _decode_protobuf(cls, proto_object, uuid: UUID):
         """Decode a Protobuf object to a Python GTIRB object.
         Must be overridden by subclasses.
 

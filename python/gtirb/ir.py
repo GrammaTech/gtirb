@@ -10,9 +10,12 @@
 """
 
 import IR_pb2
+import typing
+import uuid
 
 from .auxdata import AuxData, AuxDataContainer
 from .module import Module
+from .util import DictLike
 
 
 class IR(AuxDataContainer):
@@ -21,7 +24,14 @@ class IR(AuxDataContainer):
     :ivar modules: A list of Modules contained in the IR.
     """
 
-    def __init__(self, modules=list(), aux_data=dict(), uuid=None):
+    modules: typing.List[Module]
+
+    def __init__(
+        self,
+        modules: typing.Iterable[Module] = list(),
+        aux_data: DictLike[str, AuxData] = dict(),
+        uuid: typing.Optional[uuid.UUID] = None,
+    ):
         """
         :param modules: A list of Modules contained in the IR.
         :param aux_data: The initial auxiliary data to be associated
@@ -38,7 +48,7 @@ class IR(AuxDataContainer):
         super().__init__(aux_data, uuid)
 
     @classmethod
-    def _decode_protobuf(cls, proto_ir, uuid):
+    def _decode_protobuf(cls, proto_ir: IR_pb2.IR, uuid: uuid.UUID) -> "IR":
         aux_data = (
             (key, AuxData._from_protobuf(val))
             for key, val in proto_ir.aux_data_container.aux_data.items()
@@ -46,7 +56,7 @@ class IR(AuxDataContainer):
         modules = (Module._from_protobuf(m) for m in proto_ir.modules)
         return cls(modules, aux_data, uuid)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> IR_pb2.IR:
         proto_ir = IR_pb2.IR()
         proto_ir.uuid = self.uuid.bytes
         proto_ir.modules.extend(m._to_protobuf() for m in self.modules)
@@ -67,7 +77,7 @@ class IR(AuxDataContainer):
         return True
 
     @staticmethod
-    def load_protobuf_file(protobuf_file):
+    def load_protobuf_file(protobuf_file: typing.BinaryIO) -> "IR":
         """Load IR from a Protobuf object.
 
         Use this function when you have a Protobuf object already loaded,

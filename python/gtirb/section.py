@@ -1,4 +1,6 @@
 import Section_pb2
+import typing
+import uuid
 
 from .node import Node
 
@@ -14,7 +16,17 @@ class Section(Node):
     :ivar size: The size of this section in bytes.
     """
 
-    def __init__(self, name='', address=0, size=0, uuid=None):
+    name: str
+    address: int
+    size: int
+
+    def __init__(
+        self,
+        name: str = '',
+        address: int = 0,
+        size: int = 0,
+        uuid: typing.Optional[uuid.UUID] = None,
+    ):
         """
         :param name: The name of this section.
         :param address: The address this section is located at in memory.
@@ -30,7 +42,9 @@ class Section(Node):
         self.size = size
 
     @classmethod
-    def _decode_protobuf(cls, section, uuid):
+    def _decode_protobuf(
+        cls, section: Section_pb2.Section, uuid: uuid.UUID
+    ) -> "Section":
         return cls(section.name, section.address, section.size, uuid)
 
     def _to_protobuf(self):

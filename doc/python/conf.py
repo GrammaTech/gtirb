@@ -28,7 +28,12 @@ copyright = "2019, " + author
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx.ext.todo"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
+    "sphinx_autodoc_typehints",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -72,6 +77,24 @@ autoclass_content = "class"
 autodoc_default_options = {
     "special-members": True,
     "exclude-members": (
-        "__weakref__," "__dict__," "__module__," "__repr__," "__str__,"
+        "__weakref__,"
+        "__dict__,"
+        "__module__,"
+        "__repr__,"
+        "__str__,"
+        "__annotations__,"
+        "__abstractmethods__,"
+        "__args__,"
+        "__extra__,"
+        "__next_in_mro__,"
+        "__orig_bases__,"
+        "__origin__,"
+        "__tree_hash__,"
     ),
 }
+
+# -- Options for typehints extension -----------------------------------------
+
+set_type_checking_flag = True
+typehints_fully_qualified = True
+always_document_param_types = False

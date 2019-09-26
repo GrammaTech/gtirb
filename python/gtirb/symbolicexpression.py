@@ -1,8 +1,10 @@
 from uuid import UUID
+import typing
 
 import SymbolicExpression_pb2
 
 from .node import Node
+from .symbol import Symbol
 
 
 class SymAddrAddr:
@@ -15,7 +17,14 @@ class SymAddrAddr:
     :ivar symbol2: The index symbol.
     """
 
-    def __init__(self, scale, offset, symbol1, symbol2):
+    scale: int
+    offset: int
+    symbol1: Symbol
+    symbol2: Symbol
+
+    def __init__(
+        self, scale: int, offset: int, symbol1: Symbol, symbol2: Symbol
+    ):
         """
         :param scale: How much the difference needs divided by in bytes.
         :param offset: The fixed offset of the difference in bytes.
@@ -29,14 +38,16 @@ class SymAddrAddr:
         self.symbol2 = symbol2
 
     @classmethod
-    def _from_protobuf(cls, proto_symaddraddr):
+    def _from_protobuf(
+        cls, proto_symaddraddr: SymbolicExpression_pb2.SymAddrAddr
+    ) -> "SymAddrAddr":
         symbol1 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol1_uuid)]
         symbol2 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol2_uuid)]
         return cls(
             proto_symaddraddr.scale, proto_symaddraddr.offset, symbol1, symbol2
         )
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> SymbolicExpression_pb2.SymAddrAddr:
         proto_symaddraddr = SymbolicExpression_pb2.SymAddrAddr()
         proto_symaddraddr.scale = self.scale
         proto_symaddraddr.offset = self.offset
@@ -77,7 +88,10 @@ class SymAddrConst:
     :ivar symbol: The symbol to refer to.
     """
 
-    def __init__(self, offset, symbol):
+    offset: int
+    symbol: Symbol
+
+    def __init__(self, offset: int, symbol: Symbol):
         """
         :param offset: A fixed offset from the symbol in bytes.
         :param symbol: The symbol to refer to.
@@ -87,11 +101,13 @@ class SymAddrConst:
         self.symbol = symbol
 
     @classmethod
-    def _from_protobuf(cls, proto_symaddrconst):
+    def _from_protobuf(
+        cls, proto_symaddrconst: SymbolicExpression_pb2.SymAddrConst
+    ) -> "SymAddrConst":
         symbol = Node._uuid_cache[UUID(bytes=proto_symaddrconst.symbol_uuid)]
         return cls(proto_symaddrconst.offset, symbol)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> SymbolicExpression_pb2.SymAddrConst:
         proto_symaddrconst = SymbolicExpression_pb2.SymAddrConst()
         proto_symaddrconst.offset = self.offset
         if self.symbol is not None:
@@ -126,7 +142,10 @@ class SymStackConst:
     :ivar symbol: The symbol to refer to.
     """
 
-    def __init__(self, offset, symbol):
+    offset: int
+    symbol: Symbol
+
+    def __init__(self, offset: int, symbol: Symbol):
         """
         :param offset: A fixed offset from the symbol in bytes.
         :param symbol: The symbol to refer to.
@@ -136,11 +155,13 @@ class SymStackConst:
         self.symbol = symbol
 
     @classmethod
-    def _from_protobuf(cls, proto_symstackconst):
+    def _from_protobuf(
+        cls, proto_symstackconst: SymbolicExpression_pb2.SymStackConst
+    ) -> "SymStackConst":
         symbol = Node._uuid_cache[UUID(bytes=proto_symstackconst.symbol_uuid)]
         return cls(proto_symstackconst.offset, symbol)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> SymbolicExpression_pb2.SymStackConst:
         proto_symstackconst = SymbolicExpression_pb2.SymStackConst()
         proto_symstackconst.offset = self.offset
         if self.symbol is not None:
@@ -159,9 +180,11 @@ class SymStackConst:
         return hash((self.offset, self.symbol.uuid))
 
     def __repr__(self):
-        return (
-            "SymStackConst("
-            "offset={offset!r}, "
-            "symbol={symbol!r}, "
-            ")".format(**self.__dict__)
-        )
+        return ("SymStackConst("
+                "offset={offset!r}, "
+                "symbol={symbol!r}, "
+                ")".format(**self.__dict__))
+
+
+SymbolicOperand = typing.Union[SymAddrAddr, SymAddrConst, SymStackConst]
+"""A type hint for any symbolic operand type."""

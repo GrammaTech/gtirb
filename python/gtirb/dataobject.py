@@ -1,4 +1,6 @@
 import DataObject_pb2
+import typing
+import uuid
 
 from .node import Node
 
@@ -12,7 +14,12 @@ class DataObject(Node):
     :ivar size: The size of the data object in bytes.
     """
 
-    def __init__(self, address, size, uuid=None):
+    address: int
+    size: int
+
+    def __init__(
+        self, address: int, size: int, uuid: typing.Optional[uuid.UUID] = None
+    ):
         """
         :param address: The address of the data object.
         :param size: The size of the data object in bytes.
@@ -26,10 +33,12 @@ class DataObject(Node):
         self.size = size
 
     @classmethod
-    def _decode_protobuf(cls, proto_dataobject, uuid):
+    def _decode_protobuf(
+        cls, proto_dataobject: DataObject_pb2.DataObject, uuid: uuid.UUID
+    ) -> "DataObject":
         return cls(proto_dataobject.address, proto_dataobject.size, uuid)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> DataObject_pb2.DataObject:
         proto_dataobject = DataObject_pb2.DataObject()
         proto_dataobject.uuid = self.uuid.bytes
         proto_dataobject.address = self.address

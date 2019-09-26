@@ -7,6 +7,7 @@ codecs of class :class`gtirb.Codec`.
 from re import findall
 from uuid import UUID
 import io
+import typing
 
 from .offset import Offset
 from .node import Node
@@ -40,6 +41,10 @@ class UnknownCodecError(CodecError):
 
     def __init__(self, name):
         self.name = name
+
+
+SubtypeTree = typing.Tuple[str, typing.Iterable["SubtypeTree"]]
+"""A type hint representing a parsed serialization type name."""
 
 
 class Codec:
@@ -311,6 +316,8 @@ class Serialization:
         or overridden using this dictionary.
     """
 
+    codecs: typing.Dict[str, Codec]
+
     def __init__(self):
         """"""
 
@@ -339,7 +346,7 @@ class Serialization:
         codec = self.codecs[type_name]
         return codec.decode(raw_bytes, serialization=self, subtypes=subtypes)
 
-    def _encode_tree(self, out, val, type_tree):
+    def _encode_tree(self, out: typing.BinaryIO, val, type_tree: SubtypeTree):
         """Encodes given a parsed type tree."""
 
         try:
@@ -352,7 +359,7 @@ class Serialization:
         return codec.encode(out, val, serialization=self, subtypes=subtypes)
 
     @staticmethod
-    def _parse_type(type_name):
+    def _parse_type(type_name: str) -> SubtypeTree:
         """Given an encoded aux_data type_name, generate its parse tree.
 
         >>> _parse_type('foo')

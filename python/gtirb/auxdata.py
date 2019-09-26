@@ -1,10 +1,13 @@
 from io import BytesIO
+import typing
+import uuid
 
 import AuxData_pb2
 import AuxDataContainer_pb2
 
 from .node import Node
 from .serialization import Serialization
+from .util import DictLike
 
 
 class AuxData:
@@ -31,7 +34,10 @@ class AuxData:
     :mod:`gtirb.serialization` for details.
     """
 
-    def __init__(self, data, type_name):
+    data: typing.Any
+    type_name: str
+
+    def __init__(self, data: typing.Any, type_name: str):
         """
         :param data: The value stored in this AuxData.
         :param type_name: A string describing the type of ``data``.
@@ -42,17 +48,18 @@ class AuxData:
         self.type_name = type_name
 
     @classmethod
-    def _from_protobuf(cls, aux_data):
+    def _from_protobuf(cls, aux_data: AuxData_pb2.AuxData) -> "AuxData":
         """Deserialize AuxData from Protobuf.
 
         :param aux_data: The Protobuf AuxData object.
         """
+
         data = AuxData.serializer.decode(
             BytesIO(aux_data.data), aux_data.type_name
         )
         return cls(data=data, type_name=aux_data.type_name)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> AuxData_pb2.AuxData:
         """Get a Protobuf representation of the AuxData."""
 
         out_bytes_array = BytesIO()
@@ -62,7 +69,7 @@ class AuxData:
         proto_auxdata.data = out_bytes_array.getvalue()
         return proto_auxdata
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             "AuxData("
             "type_name={type_name!r}, "
@@ -80,7 +87,13 @@ class AuxDataContainer(Node):
             :class:`gtirb.AuxData`.
     """
 
-    def __init__(self, aux_data=dict(), uuid=None):
+    aux_data: typing.Dict[str, AuxData]
+
+    def __init__(
+        self,
+        aux_data: DictLike[str, AuxData] = {},
+        uuid: typing.Optional[uuid.UUID] = None,
+    ):
         """
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
@@ -89,25 +102,28 @@ class AuxDataContainer(Node):
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """
-
         super().__init__(uuid)
         self.aux_data = dict(aux_data)
 
     @classmethod
-    def _decode_protobuf(cls, proto_container, uuid):
+    def _decode_protobuf(
+        cls,
+        proto_container: AuxDataContainer_pb2.AuxDataContainer,
+        uuid: uuid.UUID,
+    ) -> "AuxDataContainer":
         aux_data = (
             (key, AuxData.from_protobuf(val))
             for key, val in proto_container.aux_data.items()
         )
         return cls(aux_data, uuid)
 
-    def _to_protobuf(self):
+    def _to_protobuf(self) -> AuxDataContainer_pb2.AuxDataContainer:
         proto_auxdatacontainer = AuxDataContainer_pb2.AuxDataContainer()
         for k, v in self.aux_data.items():
             proto_auxdatacontainer.aux_data[k].CopyFrom(v._to_protobuf())
         return proto_auxdatacontainer
 
-    def deep_eq(self, other):
+    def deep_eq(self, other) -> bool:
         """This overrides :func:`gtirb.Node.deep_eq` to check for
         AuxData equality.
 
