@@ -6,7 +6,20 @@ Contributing
 
 Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 
-## pre-commit
+## General Guidelines
+
+- Text files may not have trailing whitespace.
+
+- Text files must end with a trailing newline.
+
+- All tests should be able to run and pass.
+  This can be checked by running `make check` on your build directory after running `cmake`.
+
+- All CMake files shall be formatted with [cmake-format](https://pypi.org/project/cmake-format/).
+  A `.cmake-format` file is provided in the root directory for the project,
+  and a pass through this tool is included as part of our `pre-commit` configuration (see below for details).
+
+### pre-commit
 
 In general, code must follow a unified format. To make compliance with this format easier,
 we recommend the use of `[pre-commit](https://pre-commit.com/)`
@@ -27,19 +40,6 @@ To use `pre-commit`:
    ```shell
    pre-commit run
    ```
-
-## General Guidelines
-
-- Text files may not have trailing whitespace.
-
-- Text files must end with a trailing newline.
-
-- All tests should be able to run and pass.
-  This can be checked by running `make check` on your build directory after running `cmake`.
-
-- All CMake files shall be formatted with [cmake-format](https://pypi.org/project/cmake-format/).
-  A `.cmake-format` file is provided in the root directory for the project,
-  and a pass through this tool is included as part of our `pre-commit` configuration.
 
 ## C++ Code Requirements
 
