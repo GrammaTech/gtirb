@@ -12,8 +12,8 @@ class AuxData:
     :class:`gtirb.Module` s to store additional client-specific data in a
     portable way.
 
-    :ivar data: data associated with this aux data
-    :ivar type_name: string describing the type of this aux data
+    :ivar data: the stored value
+    :ivar type_name: string describing the type of ``data``
     """
 
     serializer = Serialization()
