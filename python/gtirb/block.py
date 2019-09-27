@@ -1,7 +1,7 @@
 import Block_pb2
 import ProxyBlock_pb2
 import typing
-import uuid
+from uuid import UUID
 
 from .node import Node
 
@@ -16,18 +16,15 @@ class Block(Node):
         (e.g. differentiating blocks written in ARM and Thumb).
     """
 
-    address: int
-    size: int
-    decode_mode: int
-
     def __init__(
         self,
-        address: int,
-        size: int,
+        address,  # type: int
+        size,  # type: int
         *,
-        decode_mode: int = 0,
-        uuid: typing.Optional[uuid.UUID] = None,
+        decode_mode=0,  # type: int
+        uuid=None,  # type: typing.Optional[UUID]
     ):
+        # type: (...) -> None
         """
         :param address: The starting address of the block.
         :param size: The length of the block in bytes.
@@ -41,20 +38,20 @@ class Block(Node):
         """
 
         super().__init__(uuid)
-        self.address = address
-        self.size = size
-        self.decode_mode = decode_mode
+        self.address = address  # type: int
+        self.size = size  # type: int
+        self.decode_mode = decode_mode  # type: int
 
     @classmethod
-    def _decode_protobuf(
-        cls, proto_block: Block_pb2.Block, uuid: uuid.UUID
-    ) -> "Block":
+    def _decode_protobuf(cls, proto_block, uuid):
+        # type: (Block_pb2.Block, UUID) -> Block
         return cls(address=proto_block.address,
                    decode_mode=proto_block.decode_mode,
                    size=proto_block.size,
                    uuid=uuid)
 
-    def _to_protobuf(self) -> Block_pb2.Block:
+    def _to_protobuf(self):
+        # type: () -> Block_pb2.Block
         proto_block = Block_pb2.Block()
         proto_block.uuid = self.uuid.bytes
         proto_block.address = self.address
@@ -63,6 +60,7 @@ class Block(Node):
         return proto_block
 
     def deep_eq(self, other):
+        # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Block):
             return False
@@ -74,14 +72,13 @@ class Block(Node):
         )
 
     def __repr__(self):
-        return (
-            "Block("
-            "uuid={uuid!r}, "
-            "address={address:#x}, "
-            "size={size}, "
-            "decode_mode={decode_mode}, "
-            ")".format(**self.__dict__)
-        )
+        # type: () -> str
+        return ("Block("
+                "uuid={uuid!r}, "
+                "address={address:#x}, "
+                "size={size}, "
+                "decode_mode={decode_mode}, "
+                ")".format(**self.__dict__))
 
 
 class ProxyBlock(Node):
@@ -98,21 +95,25 @@ class ProxyBlock(Node):
     """
 
     @classmethod
-    def _decode_protobuf(
-        cls, proto_proxy: ProxyBlock_pb2.ProxyBlock, uuid: uuid.UUID
-    ) -> "ProxyBlock":
+    def _decode_protobuf(cls, proto_proxy, uuid):
+        # type: (ProxyBlock_pb2.ProxyBlock, UUID) -> ProxyBlock
         return cls(uuid)
 
-    def _to_protobuf(self) -> ProxyBlock_pb2.ProxyBlock:
+    def _to_protobuf(self):
+        # type: () -> ProxyBlock_pb2.ProxyBlock
         proto_proxyblock = ProxyBlock_pb2.ProxyBlock()
         proto_proxyblock.uuid = self.uuid.bytes
         return proto_proxyblock
 
     def deep_eq(self, other):
+        # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ProxyBlock):
             return False
         return self.uuid == other.uuid
 
     def __repr__(self):
-        return "ProxyBlock(" "uuid={uuid!r}, " ")".format(**self.__dict__)
+        # type: () -> str
+        return ("ProxyBlock("
+                "uuid={uuid!r}, "
+                ")".format(**self.__dict__))

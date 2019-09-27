@@ -14,10 +14,8 @@ class Offset:
     :ivar displacement: The offset inside the Node to point to.
     """
 
-    element_id: UUID
-    displacement: int
-
-    def __init__(self, element_id: UUID, displacement: int):
+    def __init__(self, element_id, displacement):
+        # type: (UUID,int) -> None
         """
         :param element_id: The UUID of a :class:`gtirb.Block`
             or :class:`gtirb.DataObject` containing the
@@ -25,20 +23,23 @@ class Offset:
         :param displacement: The offset inside the Node to point to.
         """
 
-        self.element_id = element_id
-        self.displacement = displacement
+        self.element_id = element_id  # type: UUID
+        self.displacement = displacement  # type: int
 
     @classmethod
-    def _from_protobuf(cls, offset: Offset_pb2.Offset) -> "Offset":
+    def _from_protobuf(cls, offset):
+        # type: (Offset_pb2.Offset) -> Offset
         return cls(UUID(bytes=offset.element_id), offset.displacement)
 
-    def _to_protobuf(self) -> Offset_pb2.Offset:
+    def _to_protobuf(self):
+        # type: () -> Offset_pb2.Offset
         proto_offset = Offset_pb2.Offset()
         proto_offset.element_id = self.element_id.bytes
         proto_offset.displacement = self.displacement
         return proto_offset
 
-    def __repr__(self) -> str:
+    def __repr__(self):
+        # type: () -> str
         return ("Offset("
                 "element_id={element_id!r}, "
                 "displacement={displacement!r}, "

@@ -11,7 +11,7 @@
 
 import IR_pb2
 import typing
-import uuid
+from uuid import UUID
 
 from .auxdata import AuxData, AuxDataContainer
 from .module import Module
@@ -24,14 +24,13 @@ class IR(AuxDataContainer):
     :ivar modules: A list of Modules contained in the IR.
     """
 
-    modules: typing.List[Module]
-
     def __init__(
         self,
-        modules: typing.Iterable[Module] = list(),
-        aux_data: DictLike[str, AuxData] = dict(),
-        uuid: typing.Optional[uuid.UUID] = None,
+        modules=list(),  # type: typing.Iterable[Module]
+        aux_data=dict(),  # type: DictLike[str, AuxData]
+        uuid=None,  # type: typing.Optional[UUID]
     ):
+        # type: (...) -> None
         """
         :param modules: A list of Modules contained in the IR.
         :param aux_data: The initial auxiliary data to be associated
@@ -44,11 +43,12 @@ class IR(AuxDataContainer):
 
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
-        self.modules = list(modules)
+        self.modules = list(modules)  # type: typing.List[Module]
         super().__init__(aux_data, uuid)
 
     @classmethod
-    def _decode_protobuf(cls, proto_ir: IR_pb2.IR, uuid: uuid.UUID) -> "IR":
+    def _decode_protobuf(cls, proto_ir, uuid):
+        # type: (IR_pb2.IR, UUID) -> IR
         aux_data = (
             (key, AuxData._from_protobuf(val))
             for key, val in proto_ir.aux_data_container.aux_data.items()
@@ -56,7 +56,8 @@ class IR(AuxDataContainer):
         modules = (Module._from_protobuf(m) for m in proto_ir.modules)
         return cls(modules, aux_data, uuid)
 
-    def _to_protobuf(self) -> IR_pb2.IR:
+    def _to_protobuf(self):
+        # type: () -> IR_pb2.IR
         proto_ir = IR_pb2.IR()
         proto_ir.uuid = self.uuid.bytes
         proto_ir.modules.extend(m._to_protobuf() for m in self.modules)
@@ -64,6 +65,7 @@ class IR(AuxDataContainer):
         return proto_ir
 
     def deep_eq(self, other):
+        # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, IR) or not super().deep_eq(other):
             return False
@@ -77,7 +79,8 @@ class IR(AuxDataContainer):
         return True
 
     @staticmethod
-    def load_protobuf_file(protobuf_file: typing.BinaryIO) -> "IR":
+    def load_protobuf_file(protobuf_file):
+        # type: (typing.BinaryIO) -> IR
         """Load IR from a Protobuf object.
 
         Use this function when you have a Protobuf object already loaded,
@@ -96,6 +99,7 @@ class IR(AuxDataContainer):
 
     @staticmethod
     def load_protobuf(file_name):
+        # type: (str) -> IR
         """Load IR from a Protobuf file at the specified path.
 
         :param file_name: The path to the Protobuf file.
@@ -105,6 +109,7 @@ class IR(AuxDataContainer):
             return IR.load_protobuf_file(f)
 
     def save_protobuf_file(self, protobuf_file):
+        # type: (typing.BinaryIO) -> None
         """Save ``self`` to a Protobuf object.
 
         :param protobuf_file: The byte stream to write the GTIRB Protobuf
@@ -114,6 +119,7 @@ class IR(AuxDataContainer):
         protobuf_file.write(self._to_protobuf().SerializeToString())
 
     def save_protobuf(self, file_name):
+        # type: (str) -> None
         """Save ``self`` to a Protobuf file at the specified path.
 
         :param file_name: The file path at which to
@@ -123,9 +129,8 @@ class IR(AuxDataContainer):
             self.save_protobuf_file(f)
 
     def __repr__(self):
-        return (
-            "IR("
-            "uuid={uuid!r}, "
-            "modules={modules!r}, "
-            ")".format(**self.__dict__)
-        )
+        # type: () -> str
+        return ("IR("
+                "uuid={uuid!r}, "
+                "modules={modules!r}, "
+                ")".format(**self.__dict__))

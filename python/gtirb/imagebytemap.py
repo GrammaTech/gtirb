@@ -2,10 +2,9 @@ from bisect import bisect_right, bisect_left, insort
 import ByteMap_pb2
 import ImageByteMap_pb2
 import typing
-import uuid
+from uuid import UUID
 
 from .node import Node
-from .util import DictLike
 
 
 class ImageByteMap(Node):
@@ -23,21 +22,17 @@ class ImageByteMap(Node):
         loaded file in memory.
     """
 
-    addr_min: int
-    addr_max: int
-    base_address: int
-    entry_point_address: int
-    _byte_map: typing.Dict[int, bytearray]
-    _start_addresses: typing.List[int]
-
-    def __init__(self,
-                 *,
-                 addr_min: int = 0,
-                 addr_max: int = 0,
-                 base_address: int = 0,
-                 byte_map: DictLike[int, bytes] = {},
-                 entry_point_address: int = 0,
-                 uuid: typing.Optional[uuid.UUID] = None):
+    def __init__(
+        self,
+        *,
+        addr_min=0,  # type: int
+        addr_max=0,  # type: int
+        base_address=0,  # type: int
+        byte_map=dict(),  # type: typing.Mapping[int, bytes]
+        entry_point_address=0,  # type: int
+        uuid=None,  # type: typing.Optional[UUID]
+    ):
+        # type: (...) -> None
         """
         :param addr_min: The lowest address of the loaded file in memory.
         :param addr_max: The highest address of the loaded file in memory.
@@ -54,15 +49,17 @@ class ImageByteMap(Node):
         """
 
         super().__init__(uuid)
-        self.addr_min = addr_min
-        self.addr_max = addr_max
-        self.base_address = base_address
-        self.entry_point_address = entry_point_address
+        self.addr_min = addr_min  # type: int
+        self.addr_max = addr_max  # type: int
+        self.base_address = base_address  # type: int
+        self.entry_point_address = entry_point_address  # type: int
 
         # Deep copy of the byte map
-        self._byte_map = {k: bytearray(v) for k, v in byte_map.items()}
+        self._byte_map = {
+            k: bytearray(v) for k, v in byte_map.items()
+        }  # type: typing.Dict[int, bytearray]
         # Validate/coalesce address ranges
-        self._start_addresses = list()
+        self._start_addresses = list()  # type: typing.List[int]
         addresses = sorted(byte_map.keys())
         if len(addresses) != 0 and addresses[0] < addr_min:
             raise ValueError("address in byte map out of range")
@@ -81,7 +78,9 @@ class ImageByteMap(Node):
             raise ValueError("address in byte map out of range")
 
     def __contains__(self, key):
+        # type: (typing.Any) -> bool
         """Check: Is a byte present at the given address in memory?"""
+
         if isinstance(key, int):
             if not self._in_range(key):
                 return False
@@ -92,7 +91,8 @@ class ImageByteMap(Node):
                 return False
         return False
 
-    def __delitem__(self, key: typing.Union[int, slice]):
+    def __delitem__(self, key):
+        # type: (typing.Union[int, slice]) -> None
         """Delete bytes in the map.
 
         :param key: An address or slice of addresses.
@@ -149,8 +149,18 @@ class ImageByteMap(Node):
             self._byte_map[key.stop] = region[stop_offset:]
             insort(self._start_addresses, key.stop)
 
+    @typing.overload
     def __getitem__(self, key):
-        """Access bytes in the map.
+        # type: (int) -> int
+        pass
+
+    @typing.overload
+    def __getitem__(self, key):
+        # type: (slice) -> bytearray
+        pass
+
+    def __getitem__(self, key):
+        """Accesses bytes in the map.
 
         :param key: An address or slice of addresses.
             Slicing requires both a start and stop address.
@@ -194,6 +204,7 @@ class ImageByteMap(Node):
         raise TypeError("index must be address or slice")
 
     def __iter__(self):
+        # type: () -> typing.Iterator[typing.Tuple[int, int]]
         """Yields all bytes in all ranges
         in ascending order by address.
 
@@ -207,14 +218,16 @@ class ImageByteMap(Node):
                 cur_addr += 1
 
     def __len__(self):
+        # type: () -> int
         """Get the number of bytes contained in the map."""
         return sum(len(v) for v in self._byte_map.values())
 
     def __setitem__(
         self,
-        address: typing.Union[int, slice],
-        data: typing.Union[int, typing.Iterable[int]]
+        address,  # type: typing.Union[int, slice]
+        data,  # type: typing.Union[int, typing.Iterable[int]]
     ):
+        # type: (...) -> None
         """Set data at an address.
 
         :param address: An address or slice of addresses.
@@ -299,9 +312,8 @@ class ImageByteMap(Node):
                 current_address += 1
 
     @classmethod
-    def _decode_protobuf(
-        cls, proto_ibm: ImageByteMap_pb2.ImageByteMap, uuid: uuid.UUID
-    ) -> "ImageByteMap":
+    def _decode_protobuf(cls, proto_ibm, uuid):
+        # type: (ImageByteMap_pb2.ImageByteMap, UUID) -> ImageByteMap
         byte_map = {region.address: bytearray(region.data)
                     for region in proto_ibm.byte_map.regions}
         image_byte_map = cls(
@@ -314,7 +326,8 @@ class ImageByteMap(Node):
         )
         return image_byte_map
 
-    def _find_end(self, address: int) -> int:
+    def _find_end(self, address):
+        # type: (int) -> int
         """Get the last address in the block containing address."""
         start = self._find_start(address)
         last_address = start + len(self._byte_map[start]) - 1
@@ -323,6 +336,7 @@ class ImageByteMap(Node):
         return last_address
 
     def _find_start(self, address):
+        # type: (int) -> int
         """Find the greatest start less than or equal to ``address``."""
         i = bisect_right(self._start_addresses, address)
         if i:
@@ -330,10 +344,12 @@ class ImageByteMap(Node):
         raise IndexError("no range containing %d" % address)
 
     def _in_range(self, key):
+        # type: (int) -> bool
         """Check if a key is within the range of this bytemap."""
         return key >= self.addr_min and key <= self.addr_max
 
-    def _to_protobuf(self) -> ImageByteMap_pb2.ImageByteMap:
+    def _to_protobuf(self):
+        # type: () -> ImageByteMap_pb2.ImageByteMap
         proto_byte_map = ByteMap_pb2.ByteMap()
 
         def encode_region(address, data):
@@ -356,6 +372,7 @@ class ImageByteMap(Node):
         return proto_ibm
 
     def deep_eq(self, other):
+        # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ImageByteMap):
             return False
@@ -373,13 +390,12 @@ class ImageByteMap(Node):
         return True
 
     def __repr__(self):
-        return (
-            "ImageByteMap("
-            "uuid={uuid!r}, "
-            "addr_min={addr_min:#x}, "
-            "addr_max={addr_max:#x}, "
-            "base_address={base_address:#x}, "
-            "entry_point_address={entry_point_address:#x}, "
-            "byte_map={_byte_map!r}, "
-            ")".format(**self.__dict__)
-        )
+        # type: () -> str
+        return ("ImageByteMap("
+                "uuid={uuid!r}, "
+                "addr_min={addr_min:#x}, "
+                "addr_max={addr_max:#x}, "
+                "base_address={base_address:#x}, "
+                "entry_point_address={entry_point_address:#x}, "
+                "byte_map={_byte_map!r}, "
+                ")".format(**self.__dict__))

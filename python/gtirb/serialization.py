@@ -29,17 +29,19 @@ class TypeNameError(EncodeError):
     """A type name is malformed."""
 
     def __init__(self, hint):
-        super().__init__("malformed type name: '%s'" % hint)
+        # type: (str) -> None
+        super().__init__("malformed type name: '%s'" % (hint))
 
 
 class UnknownCodecError(CodecError):
-    """Thrown when an unknown codec name is encountered.
+    """An unknown codec name is encountered.
     Caught and handled by the top-level codec methods.
 
     :param name: the name of the unknown codec
     """
 
     def __init__(self, name):
+        # type: (str) -> None
         self.name = name
 
 
@@ -51,7 +53,13 @@ class Codec:
     """The base class for codecs."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
+    def decode(
+        raw_bytes,  # type: typing.BinaryIO
+        *,
+        serialization=None,  # type: Serialization
+        subtypes=tuple(),  # type: SubtypeTree
+    ):
+        # type: (...) -> typing.Any
         """Decode the specified raw data into a Python object.
 
         :param raw_bytes: The BytesIO object to be decoded.
@@ -64,7 +72,14 @@ class Codec:
         raise NotImplementedError
 
     @staticmethod
-    def encode(out, item, *, serialization=None, subtypes=tuple()):
+    def encode(
+        out,  # type: typing.BinaryIO
+        item,  # type: typing.Any
+        *,
+        serialization=None,  # type: Serialization
+        subtypes=tuple(),  # type: SubtypeTree
+    ):
+        # type: (...) -> None
         """Encode an item, writing the serialized object to ``out``.
 
         :param out: A binary stream to serialize to.
@@ -316,25 +331,24 @@ class Serialization:
         or overridden using this dictionary.
     """
 
-    codecs: typing.Dict[str, Codec]
-
     def __init__(self):
         """"""
 
         self.codecs = {
-            "Addr": Uint64Codec,
-            "Offset": OffsetCodec,
-            "int64_t": Int64Codec,
-            "mapping": MappingCodec,
-            "sequence": SequenceCodec,
-            "set": SetCodec,
-            "string": StringCodec,
-            "tuple": TupleCodec,
-            "uint64_t": Uint64Codec,
-            "UUID": UUIDCodec,
-        }
+            'Addr': Uint64Codec,
+            'Offset': OffsetCodec,
+            'int64_t': Int64Codec,
+            'mapping': MappingCodec,
+            'sequence': SequenceCodec,
+            'set': SetCodec,
+            'string': StringCodec,
+            'tuple': TupleCodec,
+            'uint64_t': Uint64Codec,
+            'UUID': UUIDCodec,
+        }  # type: typing.Dict[str, Codec]
 
-    def _decode_tree(self, raw_bytes, type_tree):
+    def _decode_tree(self, raw_bytes, type_tree):\
+        # type: (typing.BinaryIO,SubtypeTree) -> typing.Any
         """Decode given a parsed type tree."""
 
         try:
@@ -346,7 +360,8 @@ class Serialization:
         codec = self.codecs[type_name]
         return codec.decode(raw_bytes, serialization=self, subtypes=subtypes)
 
-    def _encode_tree(self, out: typing.BinaryIO, val, type_tree: SubtypeTree):
+    def _encode_tree(self, out, val, type_tree):
+        # type: (typing.BinaryIO, typing.Any, SubtypeTree) -> None
         """Encodes given a parsed type tree."""
 
         try:
@@ -359,7 +374,8 @@ class Serialization:
         return codec.encode(out, val, serialization=self, subtypes=subtypes)
 
     @staticmethod
-    def _parse_type(type_name: str) -> SubtypeTree:
+    def _parse_type(type_name):
+        # type: (str) -> SubtypeTree
         """Given an encoded aux_data type_name, generate its parse tree.
 
         >>> _parse_type('foo')
@@ -440,6 +456,7 @@ class Serialization:
         return parse_tree
 
     def decode(self, raw_bytes, type_name):
+        # type: (typing.BinaryIO,str) -> typing.Any
         """Decode an :class:`gtirb.AuxData` of the specified type
         from the specified byte stream.
 
@@ -462,6 +479,7 @@ class Serialization:
             return UnknownData(all_bytes)
 
     def encode(self, out, val, type_name):
+        # type: (typing.BinaryIO,typing.Any,str) -> None
         """Encodes the value of an AuxData value to bytes.
 
         :param out: A binary stream to write bytes to.

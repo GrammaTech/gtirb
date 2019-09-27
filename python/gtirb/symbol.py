@@ -24,10 +24,6 @@ class Symbol(Node):
     :ivar storage_kind: The storage kind of this symbol.
     """
 
-    name: str
-    storage_kind: "Symbol.StorageKind"
-    _payload: typing.Optional[Payload]
-
     class StorageKind(Enum):
         """
         The storage kind of a :class:`gtirb.Symbol`.
@@ -50,11 +46,13 @@ class Symbol(Node):
         in the context of a function's activation frame.
         """
 
-    def __init__(self,
-                 name: str,
-                 storage_kind: "Symbol.StorageKind" = StorageKind.Undefined,
-                 uuid: typing.Optional[UUID] = None,
-                 payload: typing.Optional[Payload] = None):
+    def __init__(
+        self,
+        name,  # type: str
+        storage_kind=StorageKind.Undefined,  # type: Symbol.StorageKind
+        uuid=None,  # type: typing.Optional[UUID]
+        payload=None,  # type: typing.Optional[Payload]
+    ):
         """
         :param name: The name of this symbol.
         :param storage_kind: The storage kind of this symbol.
@@ -66,12 +64,13 @@ class Symbol(Node):
         """
 
         super().__init__(uuid)
-        self.name = name
-        self.storage_kind = storage_kind
-        self._payload = payload
+        self.name = name  # type: str
+        self.storage_kind = storage_kind  # type: Symbol.StorageKind
+        self._payload = payload  # type: typing.Optional[Payload]
 
     @property
-    def value(self) -> typing.Optional[Value]:
+    def value(self):
+        # type: () -> typing.Optional[Value]
         """The value of a Symbol, which is an integer or None.
         ``value`` and ``referent`` are mutually exclusive.
         """
@@ -81,7 +80,8 @@ class Symbol(Node):
         return None
 
     @property
-    def referent(self) -> typing.Optional[Referent]:
+    def referent(self):
+        # type: () -> typing.Optional[Referent]
         """The object referred to by a Symbol, which is a
         Block, DataObject, ProxyBlock, or None.
         ``value`` and ``referent`` are mutually exclusive.
@@ -92,17 +92,18 @@ class Symbol(Node):
         return None
 
     @value.setter
-    def value(self, value: typing.Optional[Value]):
+    def value(self, value):
+        # type: (typing.Optional[Value]) -> None
         self._payload = value
 
     @referent.setter
-    def referent(self, referent: typing.Optional[Referent]):
+    def referent(self, referent):
+        # type: (typing.Optional[Referent]) -> None
         self._payload = referent
 
     @classmethod
-    def _decode_protobuf(
-        cls, proto_symbol: Symbol_pb2.Symbol, uuid: UUID
-    ) -> "Symbol":
+    def _decode_protobuf(cls, proto_symbol, uuid):
+        # type: (Symbol_pb2.Symbol,UUID) -> Symbol
         storage_kind = Symbol.StorageKind(proto_symbol.storage_kind)
         symbol = cls(
             name=proto_symbol.name, uuid=uuid, storage_kind=storage_kind
@@ -117,7 +118,8 @@ class Symbol(Node):
                 raise KeyError("Could not find referent UUID %s" % e)
         return symbol
 
-    def _to_protobuf(self) -> Symbol_pb2.Symbol:
+    def _to_protobuf(self):
+        # type: () -> Symbol_pb2.Symbol
         proto_symbol = Symbol_pb2.Symbol()
         proto_symbol.uuid = self.uuid.bytes
         if self.value is not None:
@@ -129,6 +131,7 @@ class Symbol(Node):
         return proto_symbol
 
     def deep_eq(self, other):
+        # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Symbol):
             return False
@@ -146,11 +149,10 @@ class Symbol(Node):
         )
 
     def __repr__(self):
-        return (
-            "Symbol("
-            "uuid={uuid!r}, "
-            "name={name!r}, "
-            "storage_kind=Symbol.{storage_kind!s}, "
-            "payload={_payload!r}, "
-            ")".format(**self.__dict__)
-        )
+        # type: () -> str
+        return ("Symbol("
+                "uuid={uuid!r}, "
+                "name={name!r}, "
+                "storage_kind=Symbol.{storage_kind!s}, "
+                "payload={_payload!r}, "
+                ")".format(**self.__dict__))
