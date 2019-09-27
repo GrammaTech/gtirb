@@ -10,22 +10,19 @@
       <tab type="user" visible="yes" title="Pretty Printer (gtirb-pprinter)" url="https://github.com/GrammaTech/gtirb-pprinter">
       </tab>
     </tab>
-    <tab type="classes" visible="yes" title="GTIRB API Classes and Modules">
+    <tab type="classes" visible="yes" title="C++ API">
       <tab type="classlist" visible="yes" title="" intro=""/>
       <tab type="classindex" visible="$ALPHABETICAL_INDEX" title=""/>
       <tab type="hierarchy" visible="yes" title="" intro=""/>
       <tab type="classmembers" visible="yes" title="" intro=""/>
       <tab type="modules" visible="yes" title="" intro=""/>
-    </tab>
-    <tab type="namespaces" visible="yes" title="">
       <tab type="namespacelist" visible="yes" title="" intro=""/>
       <tab type="namespacemembers" visible="yes" title="" intro=""/>
-    </tab>
-    <tab type="files" visible="yes" title="">
       <tab type="filelist" visible="yes" title="" intro=""/>
       <tab type="globals" visible="yes" title="" intro=""/>
     </tab>
-   <tab type="examples" visible="yes" title="" intro=""/>
+    <tab type="user" visible="yes" title="Python API" url="../../python/_build/html/index.html"/>
+    <tab type="examples" visible="yes" title="" intro=""/>
   </navindex>
 
   <!-- Layout definition for a class page -->
