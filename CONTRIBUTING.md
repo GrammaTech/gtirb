@@ -6,24 +6,29 @@ Contributing
 
 Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 
-## General Guidelines
+## pre-commit
 
-- We require code to follow a unified format. This includes usage of
-  [clang-format](https://clang.llvm.org/docs/ClangFormat.html) on C++ code,
-  [Black](https://pypi.org/project/black/) on Python code, and other minor
-  formatting constraints. To ease the use of these tools, we recommend the use of [pre-commit](https://pre-commit.com/).
-  All it requires to install is [pip](https://pypi.org/project/pip/). To install `pre-commit`:
-  ```bash
-  pip3 install pre-commit
-  ```
-  There is a `.pre-commit-config.yaml` file in the root of this repository. To install the formatters as a Git pre-commit hook, run:
-  ```bash
-  pre-commit install
-  ```
-  Or if you wish to run `pre-commit` manually instead, run this before all commits:
-  ```
-  pre-commit run
-  ```
+In general, code must follow a unified format. To make compliance with this format easier,
+we recommend the use of `[pre-commit](https://pre-commit.com/)`
+with the provided configuration file, `.pre-commit-config.yaml`, to manage formatting.
+To use `pre-commit`:
+
+1. If `pre-commit` is not already installed on your system, install it now with `[pip](https://pypi.org/project/pip/)`
+   ```shell
+      pip3 install pre-commit
+   ```
+2. If `[clang-format](https://clang.llvm.org/docs/ClangFormat.html)`
+   is not already installed on your system, install it now.
+3. Install the formatters as a pre-commit hook. In the gtirb root directory:
+   ```shell
+    pre-commit install
+   ```
+   If you prefer to run `pre-commit` manually instead, run this before all commits:
+   ```shell
+   pre-commit run
+   ```
+
+## General Guidelines
 
 - Text files may not have trailing whitespace.
 
@@ -38,8 +43,8 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## C++ Code Requirements
 
-- All code shall be formatted with clang-format.  A `.clang-format` is
-  provided in the root directory for the project,
+- All code shall be formatted with [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
+  A `.clang-format` is provided in the root directory for the project,
   and a pass through this tool is included as part of our `pre-commit` configuration.
 
 - Code should generally follow the C++ Core Guidelines recommendations.
@@ -158,7 +163,8 @@ To add a new markdown document to the documentation:
   To check for PEP8 compliance, [flake8](https://pypi.org/project/flake8/) is recommended,
   and included as part of our `pre-commit` configuration.
 
-- All code must be formatted with `black` (set to line lengths of 79, for PEP8 compliance).
+- All code must be formatted with [Black](https://pypi.org/project/black/)
+  (set to line lengths of 79, for PEP8 compliance).
   A pass through this tool is included as part of our `pre-commit` configuration.
   - Please note that `black` only works on Python version 3.6 and newer.
     This is newer than what is available on some OSes by default (for example, Ubuntu 16),
