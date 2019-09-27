@@ -169,9 +169,11 @@ To add a new markdown document to the documentation:
   - Please note that `black` only works on Python version 3.6 and newer.
     This is newer than what is available on some OSes by default (for example, Ubuntu 16),
     so you may have to install Python 3.6 or newer to run `black`.
+    If installing Python 3.6+ on your system is not possible, there exists
+    [an online interface to Black](https://black.now.sh/?version=stable&state=_Td6WFoAAATm1rRGAgAhARYAAAB0L-Wj4AA-ACxdAD2IimZxl1N_W1ktIvcnCRyzdeeGA586U8RMKbisP9D6xUd8v4usX-jR3lIAACNC8ndFJAQXAAFIPxtdQK4ftvN9AQAAAAAEWVo=)
+    you can manually enter files into.
 
-- While committing changes to the Python API requires Python 3.6 or later (see above),
-  the Python API should be made to run on all version of Python 3.
+- The Python API should be made to run on all version of Python 3.
 
 - Use `UpperCamelCase` for type names, `UPPER_CASE` for constant names,
   and `snake_case` for other identifier names.
