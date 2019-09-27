@@ -15,3 +15,7 @@ repos:
       - id: flake8
       - id: end-of-file-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
+    rev: master
+    hooks:
+      - id: cmake-format

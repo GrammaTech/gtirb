@@ -1,0 +1,10 @@
+# disable splitting of arguments based on the sheer number of them;
+# prefer to split by line length
+max_subargs_per_line: 9999
+# layout parens in CMake like how we layout brackets in C++
+dangle_parens: true
+# match the case of intrinsics as used through most of the codebase previosly
+command_case: lower
+keyword_case: upper
+# try autosort (disable this if it causes bugs)
+autosort: true

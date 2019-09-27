@@ -32,6 +32,10 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 - Code should be tested on Linux using GCC and Clang,
   and on Windows using Visual Studio.
 
+- All CMake files shall be formatted with `cmake-format`. A `.cmake-format` file is
+  provided in the root directory for the project,
+  and a pass through this tool is included as part of our `pre-commit` configuration.
+
 ## C++ Code Requirements
 
 - All code shall be formatted with clang-format.  A `.clang-format` is
