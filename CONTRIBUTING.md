@@ -37,8 +37,8 @@ To use `pre-commit`:
 - All tests should be able to run and pass.
   This can be checked by running `make check` on your build directory after running `cmake`.
 
-- All CMake files shall be formatted with `cmake-format`. A `.cmake-format` file is
-  provided in the root directory for the project,
+- All CMake files shall be formatted with [cmake-format](https://pypi.org/project/cmake-format/).
+  A `.cmake-format` file is provided in the root directory for the project,
   and a pass through this tool is included as part of our `pre-commit` configuration.
 
 ## C++ Code Requirements
