@@ -86,7 +86,7 @@ class Edge:
             type,  # type: Edge.Type
             *,
             conditional=False,  # type: bool
-            direct=True,  # type: bool
+            direct=True  # type: bool
         ):
             """
             :param type: The type of the edge.
@@ -315,7 +315,7 @@ class Module(AuxDataContainer):
         sections=set(),  # type: typing.Iterable[Section]
         symbols=set(),  # type: typing.Iterable[Symbol]
         symbolic_operands=dict(),  # type: DictLike[int, SymbolicOperand]
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
         """

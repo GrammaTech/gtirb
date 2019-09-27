@@ -22,7 +22,7 @@ class Block(Node):
         size,  # type: int
         *,
         decode_mode=0,  # type: int
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
         """

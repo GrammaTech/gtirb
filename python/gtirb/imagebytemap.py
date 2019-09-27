@@ -30,7 +30,7 @@ class ImageByteMap(Node):
         base_address=0,  # type: int
         byte_map=dict(),  # type: typing.Mapping[int, bytes]
         entry_point_address=0,  # type: int
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
         """

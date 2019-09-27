@@ -57,7 +57,7 @@ class Codec:
         raw_bytes,  # type: typing.BinaryIO
         *,
         serialization=None,  # type: Serialization
-        subtypes=tuple(),  # type: SubtypeTree
+        subtypes=tuple()  # type: SubtypeTree
     ):
         # type: (...) -> typing.Any
         """Decode the specified raw data into a Python object.
@@ -77,7 +77,7 @@ class Codec:
         item,  # type: typing.Any
         *,
         serialization=None,  # type: Serialization
-        subtypes=tuple(),  # type: SubtypeTree
+        subtypes=tuple()  # type: SubtypeTree
     ):
         # type: (...) -> None
         """Encode an item, writing the serialized object to ``out``.
