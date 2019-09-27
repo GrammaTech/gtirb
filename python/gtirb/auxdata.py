@@ -17,7 +17,11 @@ class AuxData:
     """
 
     serializer = Serialization()
-    """A Serialization object used for encoding/decoding aux data."""
+    """This is a :class:`gtirb.Serialization` instance, used in
+    encoding and decoding AuxData. So, to alter serialization:
+
+    >>> gtirb.AuxData.serializer.codecs['name'] = MyCustomCodec()
+    """
 
     def __init__(self, data, type_name):
         """
