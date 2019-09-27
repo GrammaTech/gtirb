@@ -34,8 +34,8 @@ To use `pre-commit`:
 
 - Text files must end with a trailing newline.
 
-- Code should be tested on Linux using GCC and Clang,
-  and on Windows using Visual Studio.
+- All tests should be able to run and pass.
+  This can be checked by running `make check` on your build directory after running `cmake`.
 
 - All CMake files shall be formatted with `cmake-format`. A `.cmake-format` file is
   provided in the root directory for the project,
@@ -89,6 +89,7 @@ To use `pre-commit`:
 
 - All code you care about should be tested.
 - Any code you don't care about should be removed.
+- C++ code should be tested on Linux using GCC and Clang, and on Windows using Visual Studio.
 - Code testing is done via Google Test.
 - Test names are prefixed with the type of test they are (`Unit_`, `System_`, `Integration_`).
 - No unit test should take more than 0.5 seconds.
