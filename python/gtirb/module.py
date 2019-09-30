@@ -290,7 +290,8 @@ class Module(AuxDataContainer):
         :param cfg: the value of :attr:`self.cfg`
         :param data: set of contained DataObjects
         :param file_format: FileFormat of the binary
-        :param image_byte_map: ImageByteMap containing the raw data in the binary
+        :param image_byte_map: ImageByteMap containing the raw data in the
+            binary
         :param isa_id: ISAID of the binary
         :param name: name of the binary
         :param preferred_addr: preferred loading address of the binary
