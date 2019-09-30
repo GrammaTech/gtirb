@@ -102,9 +102,10 @@ class AuxDataContainer(Node):
         """This overrides :func:`gtirb.Node.deep_eq` to check for
         AuxData equality.
 
-        Note that because AuxData can store any type of data, it is not deeply
-        checked. This method only checks that two AuxDataContainers contain the
-        same keys.
+        Because the values stored by AuxData are not necessarily
+        amenable to deep checking, the auxiliary data dictionaries
+        stored for ``self`` and ``other`` are not deeply checked. Instead,
+        they are considered to be equal if their sets of keys are equal.
         """
 
         if not isinstance(other, AuxDataContainer):
