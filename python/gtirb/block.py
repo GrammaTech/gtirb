@@ -15,11 +15,14 @@ class Block(Node):
 
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
         """
-        :param address: the value of :attr:`self.address`
-        :param size: the value of :attr:`self.size`
-        :param decode_mode: the value of :attr:`self.decode_mode`,
+        :param address: the starting address of the block
+        :param size: the length of the block
+        :param decode_mode: the decode mode of the block,
+            used in ISAs with multiple sub-ISAs (for example, ARM and Thumb),
             defaults to 0
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         """
 
         super().__init__(uuid)

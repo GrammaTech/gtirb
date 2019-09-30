@@ -73,9 +73,10 @@ class Edge:
 
         def __init__(self, type, *, conditional=False, direct=True):
             """
-            :param type: the value of :attr:`self.type`
-            :param conditional: the value of :attr:`self.conditional`
-            :param direct: the value of :attr:`self.direct`
+            :param type: the type of the edge
+            :param conditional: boolean indicating if an edge is conditional on
+                True or False
+            :param direct: boolean indicating if an edge is direct or indirect
             """
 
             self.type = type
@@ -120,9 +121,10 @@ class Edge:
 
     def __init__(self, source, target, label=None):
         """
-        :param source: the value of :attr:`self.source`
-        :param target: the value of :attr:`self.target`
-        :param label: the value of :attr:`self.label`, defaults to None
+        :param source: the source CFG node
+        :param target: the target CFG node
+        :param label: an optional label,
+            containing more control flow information
         """
         self.source = source
         self.target = target
@@ -283,21 +285,24 @@ class Module(AuxDataContainer):
                  uuid=None):
         """
         :param aux_data: as in :meth:`gtirb.AuxDataContainer.__init__`
-        :param binary_path: the value of :attr:`self.binary_path`
-        :param blocks: the value of :attr:`self.blocks`
+        :param binary_path: the path to the binary
+        :param blocks: set of contained Blocks
         :param cfg: the value of :attr:`self.cfg`
-        :param data: the value of :attr:`self.data`
-        :param file_format: the value of :attr:`self.file_format`
-        :param image_byte_map: the value of :attr:`self.image_byte_map`
-        :param isa_id: the value of :attr:`self.isa_id`
-        :param name: the value of :attr:`self.name`
-        :param preferred_addr: the value of :attr:`self.preferred_addr`
-        :param proxies: the value of :attr:`self.proxies`
-        :param rebase_delta: the value of :attr:`self.rebase_delta`
-        :param sections: the value of :attr:`self.sections`
-        :param symbols: the value of :attr:`self.symbols`
-        :param symbolic_operands: the value of :attr:`self.symbolic_operands`
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param data: set of contained DataObjects
+        :param file_format: FileFormat of the binary
+        :param image_byte_map: ImageByteMap containing the raw data in the binary
+        :param isa_id: ISAID of the binary
+        :param name: name of the binary
+        :param preferred_addr: preferred loading address of the binary
+        :param proxies: set of contained ProxyBlocks
+        :param rebase_delta: rebase delta of the binary
+        :param sections: set of contained Sections
+        :param symbols: set of contained Symbols
+        :param symbolic_operands: dict mapping addresses to symbolic operands
+            (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         """
 
         if image_byte_map is None:

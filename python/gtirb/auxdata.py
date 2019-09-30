@@ -25,8 +25,8 @@ class AuxData:
 
     def __init__(self, data, type_name):
         """
-        :param data: the value of :attr:`self.data`
-        :param type_name: the value of :attr:`self.type_name`
+        :param data: the stored value
+        :param type_name: string describing the type of ``data``
         """
 
         self.data = data
@@ -71,8 +71,10 @@ class AuxDataContainer(Node):
 
     def __init__(self, aux_data=dict(), uuid=None):
         """
-        :param aux_data: the value of :attr:`self.aux_data`, defaults to {}
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param aux_data: dict mapping type names to AuxData objects
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         """
 
         super().__init__(uuid)

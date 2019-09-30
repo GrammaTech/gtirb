@@ -12,8 +12,9 @@ class Node:
 
     def __init__(self, uuid=None):
         """
-        :param uuid: the value of :attr:`self.uuid`,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         """
 
         if uuid is None:

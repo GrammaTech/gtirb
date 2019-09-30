@@ -14,9 +14,11 @@ class DataObject(Node):
 
     def __init__(self, address, size, uuid=None):
         """
-        :param address: the value of :attr:`self.address`
-        :param size: the value of :attr:`self.size`
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param address: the address of the data object
+        :param size: the size of the data object
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         """
 
         super().__init__(uuid)

@@ -17,10 +17,10 @@ class SymAddrAddr:
 
     def __init__(self, scale, offset, symbol1, symbol2):
         """
-        :param scale: the value of :attr:`self.scale`
-        :param offset: the value of :attr:`self.offset`
-        :param symbol1: the value of :attr:`self.symbol1`
-        :param symbol2: the value of :attr:`self.symbol2`
+        :param scale: how much the difference needs divided by
+        :param offset: the fixed offset of the difference
+        :param symbol1: the base symbol
+        :param symbol2: the index symbol
         """
 
         self.scale = scale
@@ -79,8 +79,8 @@ class SymAddrConst:
 
     def __init__(self, offset, symbol):
         """
-        :param offset: the value of :attr:`self.offset`
-        :param symbol: the value of :attr:`self.symbol`
+        :param offset: a fixed offset from the symbol
+        :param symbol: the symbol to refer to
         """
 
         self.offset = offset
@@ -128,8 +128,8 @@ class SymStackConst:
 
     def __init__(self, offset, symbol):
         """
-        :param offset: the value of :attr:`self.offset`
-        :param symbol: the value of :attr:`self.symbol`
+        :param offset: a fixed offset from the symbol
+        :param symbol: the symbol to refer to
         """
 
         self.offset = offset

@@ -13,8 +13,8 @@ class Offset:
 
     def __init__(self, element_id, displacement):
         """
-        :param element_id: the value of :attr:`self.element_id`
-        :param displacement: the value of :attr:`self.displacement`
+        :param element_id: the UUID of a Node
+        :param displacement: the offset inside the Node to point to
         """
 
         self.element_id = element_id

@@ -41,9 +41,11 @@ class Symbol(Node):
         self, name, storage_kind=StorageKind.Undefined, uuid=None, payload=None
     ):
         """
-        :param name: the value of :attr:`self.name`
-        :param storage_kind: the value of :attr:`self.storage_kind`
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param name: the name of this symbol
+        :param storage_kind: the storage kind of this symbol
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         :param payload: an optional value this symbol points to.
             May be an address, a Node, or None
         """

@@ -16,10 +16,12 @@ class Section(Node):
 
     def __init__(self, name='', address=0, size=0, uuid=None):
         """
-        :param name: the value of :attr:`self.name`
-        :param address: the value of :attr:`self.address`
-        :param size: the value of :attr:`self.size`
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param name: the name of this section
+        :param address: the address this section is located at in memory
+        :param size: the size of this section, in bytes
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         """
 
         super().__init__(uuid)

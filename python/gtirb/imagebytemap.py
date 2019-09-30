@@ -27,14 +27,16 @@ class ImageByteMap(Node):
                  entry_point_address=0,
                  uuid=None):
         """
-        :param addr_min: the value of :attr:`self.addr_min`
-        :param addr_max: the value of :attr:`self.addr_max`
-        :param base_address: the value of :attr:`self.base_address`
+        :param addr_min: the lowest address in the byte map
+        :param addr_max: the highest address in the byte map
+        :param base_address: the base address of the byte map
         :param byte_map: a dictionary holding a sparse mapping of addresses to
             data, stored in a bytearray
         :param entry_point_address: the value of
             :attr:`self.entry_point_address`
-        :param uuid: as in :meth:`gtirb.Node.__init__`
+        :param uuid: the UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`,
+            defaults to None
         :raises ValueError: if the given byte map is invalid
         """
 
