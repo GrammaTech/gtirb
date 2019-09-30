@@ -284,7 +284,7 @@ class Module(AuxDataContainer):
                  symbolic_operands=dict(),
                  uuid=None):
         """
-        :param aux_data: as in :meth:`gtirb.AuxDataContainer.__init__`
+        :param aux_data: dict mapping type names to AuxData objects
         :param binary_path: the path to the binary
         :param blocks: set of contained Blocks
         :param cfg: the value of :attr:`self.cfg`

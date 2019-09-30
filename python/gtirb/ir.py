@@ -24,7 +24,7 @@ class IR(AuxDataContainer):
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
         """
         :param modules: list of Modules contained in the IR
-        :param aux_data: as in :meth:`gtirb.AuxDataContainer.__init__`
+        :param aux_data: dict mapping type names to AuxData objects
         :param uuid: the UUID of this Node,
             or None if a new UUID needs generated via :func:`uuid.uuid4`,
             defaults to None
