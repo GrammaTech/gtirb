@@ -71,7 +71,7 @@ class ImageByteMap(Node):
             raise ValueError("address in byte map out of range")
 
     def __contains__(self, key):
-        """Checks if a single address is in the byte map."""
+        """Check: Is a byte present at the given address in memory?"""
         if isinstance(key, int):
             if not self._in_range(key):
                 return False
