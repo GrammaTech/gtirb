@@ -284,7 +284,9 @@ class Module(AuxDataContainer):
                  symbolic_operands=dict(),
                  uuid=None):
         """
-        :param aux_data: dict mapping names to AuxData objects
+        :param aux_data: the initial auxiliary data to be associated
+            with the object, as a mapping from names to
+            :class:`gtirb.AuxData`, defaults to an empty :class:`dict`
         :param binary_path: the path to the binary
         :param blocks: set of contained Blocks
         :param cfg: the value of :attr:`self.cfg`
