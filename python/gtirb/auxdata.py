@@ -66,12 +66,12 @@ class AuxDataContainer(Node):
     """The base class for anything that holds AuxData tables; that is,
     :class:`gtirb.IR` and :class:`gtirb.Module`.
 
-    :ivar aux_data: dict mapping type names to AuxData objects
+    :ivar aux_data: dict mapping names to AuxData objects
     """
 
     def __init__(self, aux_data=dict(), uuid=None):
         """
-        :param aux_data: dict mapping type names to AuxData objects
+        :param aux_data: dict mapping names to AuxData objects
         :param uuid: the UUID of this Node,
             or None if a new UUID needs generated via :func:`uuid.uuid4`,
             defaults to None
