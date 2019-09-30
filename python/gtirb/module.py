@@ -18,9 +18,9 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 class Edge:
     """An edge in the CFG.
 
-    :ivar source: the source CFG node
-    :ivar target: the target CFG node
-    :ivar label: an optional label, containing more control flow information
+    :ivar source: The source CFG node.
+    :ivar target: The target CFG node.
+    :ivar label: An optional label containing more control flow information.
     """
 
     class Type(Enum):
@@ -65,18 +65,19 @@ class Edge:
     class Label:
         """Contains a more detailed description of an edge in the CFG.
 
-        :ivar conditional: boolean indicating if an edge is conditional on
-            True or False
-        :ivar direct: boolean indicating if an edge is direct or indirect
-        :ivar type: the type of the edge
+        :ivar conditional: A boolean indicating if an edge is conditional on
+            True or False.
+        :ivar direct: A boolean indicating if an edge is direct or indirect.
+        :ivar type: The type of the edge.
         """
 
         def __init__(self, type, *, conditional=False, direct=True):
             """
-            :param type: the type of the edge
-            :param conditional: boolean indicating if an edge is conditional on
-                True or False
-            :param direct: boolean indicating if an edge is direct or indirect
+            :param type: The type of the edge.
+            :param conditional: A boolean indicating if an edge is
+                conditional on True or False.
+            :param direct: A boolean indicating if an edge is
+                direct or indirect.
             """
 
             self.type = type
@@ -121,10 +122,10 @@ class Edge:
 
     def __init__(self, source, target, label=None):
         """
-        :param source: the source CFG node
-        :param target: the target CFG node
-        :param label: an optional label,
-            containing more control flow information
+        :param source: The source CFG node.
+        :param target: The target CFG node.
+        :param label: An optional label
+            containing more control flow information.
         """
         self.source = source
         self.target = target
@@ -188,20 +189,21 @@ class Edge:
 class Module(AuxDataContainer):
     """Represents a loadable object, such as an executable or library.
 
-    :ivar binary_path: the path to the binary
-    :ivar blocks: set of contained Blocks
-    :ivar data: set of contained DataObjects
-    :ivar image_byte_map: ImageByteMap containing the raw data in the binary
-    :ivar isa_id: ISAID of the binary
-    :ivar file_format: FileFormat of the binary
-    :ivar name: name of the binary
-    :ivar preferred_addr: preferred loading address of the binary
-    :ivar proxies: set of contained ProxyBlocks
-    :ivar rebase_delta: rebase delta of the binary
-    :ivar sections: set of contained Sections
-    :ivar symbols: set of contained Symbols
-    :ivar symbolic_operands: dict mapping addresses to symbolic operands
-        (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
+    :ivar binary_path: The path to the binary.
+    :ivar blocks: A set of contained Blocks.
+    :ivar data: A set of contained DataObjects.
+    :ivar image_byte_map: An ImageByteMap containing the raw bytes
+        present in the binary.
+    :ivar isa_id: The ISA of the binary.
+    :ivar file_format: The file format of the binary.
+    :ivar name: The name of the binary.
+    :ivar preferred_addr: The preferred loading address of the binary.
+    :ivar proxies: A set of contained ProxyBlocks.
+    :ivar rebase_delta: The rebase delta of the binary.
+    :ivar sections: A set of contained Sections.
+    :ivar symbols: A set of contained Symbols.
+    :ivar symbolic_operands: A dict mapping addresses to symbolic operands
+        (i.e., SymAddrAddr, SymAddrConst, or SymStackConst).
     """
 
     class FileFormat(Enum):
@@ -284,28 +286,28 @@ class Module(AuxDataContainer):
                  symbolic_operands=dict(),
                  uuid=None):
         """
-        :param aux_data: the initial auxiliary data to be associated
+        :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
-            :class:`gtirb.AuxData`, defaults to an empty :class:`dict`
-        :param binary_path: the path to the binary
-        :param blocks: set of contained Blocks
-        :param cfg: the value of :attr:`self.cfg`
-        :param data: set of contained DataObjects
-        :param file_format: FileFormat of the binary
-        :param image_byte_map: ImageByteMap containing the raw data in the
-            binary
-        :param isa_id: ISAID of the binary
-        :param name: name of the binary
-        :param preferred_addr: preferred loading address of the binary
-        :param proxies: set of contained ProxyBlocks
-        :param rebase_delta: rebase delta of the binary
-        :param sections: set of contained Sections
-        :param symbols: set of contained Symbols
-        :param symbolic_operands: dict mapping addresses to symbolic operands
-            (i.e., SymAddrAddr, SymAddrConst, SymStackConst)
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+            :class:`gtirb.AuxData`, defaults to an empty :class:`dict`.
+        :param binary_path: The path to the binary.
+        :param blocks: A set of contained Blocks.
+        :param cfg: The value of :attr:`self.cfg`.
+        :param data: A set of contained DataObjects.
+        :param file_format: The file format of the binary.
+        :param image_byte_map: An ImageByteMap containing the raw bytes
+            present in the binary.
+        :param isa_id: The ISA of the binary.
+        :param name: The name of the binary.
+        :param preferred_addr: The preferred loading address of the binary.
+        :param proxies: A set of contained ProxyBlocks.
+        :param rebase_delta: The rebase delta of the binary.
+        :param sections: A set of contained Sections.
+        :param symbols: A set of contained Symbols.
+        :param symbolic_operands: A dict mapping addresses to symbolic operands
+            (i.e., SymAddrAddr, SymAddrConst, or SymStackConst).
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         if image_byte_map is None:

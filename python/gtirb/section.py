@@ -9,19 +9,19 @@ class Section(Node):
     Does not directly store the contents of the section, which are
     kept in ImageByteMap.
 
-    :ivar name: the name of this section
-    :ivar address: the address this section is located at in memory
-    :ivar size: the size of this section, in bytes
+    :ivar name: The name of this section.
+    :ivar address: The address this section is located at in memory.
+    :ivar size: The size of this section in bytes.
     """
 
     def __init__(self, name='', address=0, size=0, uuid=None):
         """
-        :param name: the name of this section
-        :param address: the address this section is located at in memory
-        :param size: the size of this section, in bytes
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+        :param name: The name of this section.
+        :param address: The address this section is located at in memory.
+        :param size: The size of this section in bytes.
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         super().__init__(uuid)
@@ -34,13 +34,8 @@ class Section(Node):
         return cls(section.name, section.address, section.size, uuid)
 
     def _to_protobuf(self):
-        """
-        Returns protobuf representation of the object
+        """Returns a Protobuf representation of the object."""
 
-        :returns: protobuf representation of the object
-        :rtype: protobuf object
-
-        """
         proto_section = Section_pb2.Section()
         proto_section.uuid = self.uuid.bytes
         proto_section.name = self.name

@@ -12,10 +12,10 @@ class ImageByteMap(Node):
     Allows dictionary-like access to and modification of bytes in the map
     through overridden __delitem__, __getitem__, and __setitem__ methods.
 
-    :ivar addr_min: the lowest address in the byte map
-    :ivar addr_max: the highest address in the byte map
-    :ivar base_address: the base address of the byte map
-    :ivar entry_point_address: the entry point address of the byte map
+    :ivar addr_min: The lowest address in the byte map.
+    :ivar addr_max: The highest address in the byte map.
+    :ivar base_address: The base address of the byte map.
+    :ivar entry_point_address: The entry point address of the byte map.
     """
 
     def __init__(self,
@@ -27,17 +27,16 @@ class ImageByteMap(Node):
                  entry_point_address=0,
                  uuid=None):
         """
-        :param addr_min: the lowest address in the byte map
-        :param addr_max: the highest address in the byte map
-        :param base_address: the base address of the byte map
-        :param byte_map: a dictionary holding a sparse mapping of addresses to
-            data, stored in a bytearray
-        :param entry_point_address: the value of
-            :attr:`self.entry_point_address`
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
-        :raises ValueError: if the given byte map is invalid
+        :param addr_min: The lowest address in the byte map.
+        :param addr_max: The highest address in the byte map.
+        :param base_address: The base address of the byte map.
+        :param byte_map: A sparse mapping of addresses to a sequence of
+            bytes stored there.
+        :param entry_point_address: The entry point address of the byte map.
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
+        :raises ValueError: if the given byte map is invalid.
         """
 
         super().__init__(uuid)
@@ -82,9 +81,10 @@ class ImageByteMap(Node):
     def __delitem__(self, key):
         """Delete bytes in the map.
 
-        :param key: an address or slice of addresses;
-            slicing requires both a start and stop address
-        :raises IndexError: if the byte does not exist at the address
+        :param key: An address or slice of addresses.
+            Slicing requires both a start and stop address.
+        :raises IndexError: if a byte does not exist at any of the
+            addresses specified.
         """
 
         # The only legal accesses are single indices or slices
@@ -138,9 +138,10 @@ class ImageByteMap(Node):
     def __getitem__(self, key):
         """Accesses bytes in the map.
 
-        :param key: an address or slice of addresses;
-            slicing requires both a start and stop address
-        :raises IndexError: if the byte does not exist at the address
+        :param key: An address or slice of addresses.
+            Slicing requires both a start and stop address.
+        :raises IndexError: if a byte does not exist at any of the
+            addresses specified.
         """
 
         # Single byte access
@@ -181,7 +182,7 @@ class ImageByteMap(Node):
     def __iter__(self):
         """Yields all bytes in all ranges in order.
 
-        :returns: yields (address, byte) tuples
+        :returns: Yields (address, byte) tuples.
         """
 
         for start_addr in self._start_addresses:
@@ -197,7 +198,7 @@ class ImageByteMap(Node):
     def __setitem__(self, address, data):
         """Set data at an address.
 
-        :param address: an address or slice of addresses.
+        :param address: An address or slice of addresses.
             If `address` is an integer, sets the byte at `address` to `data`.
             `data` must be a single byte passed in as an integer in ``0..256``.
             If the slice has a start and a stop (e.g., a[1:10]), ``data``
@@ -206,11 +207,11 @@ class ImageByteMap(Node):
             If the slice has a start and no stop (e.g., a[1:]), ``data`` must
             be an iterable of bytes of any length. All bytes are written
             beginning at ``address.start``.
-        :param data: the ``int`` or ``bytes`` of data to insert at the
-            given addresse(s)
+        :param data: The ``int`` or ``bytes`` of data to insert at the
+            given address or addresses.
         :raises IndexError: if this method attempts to write to bytes
-            before addr_min or after addr_max
-        :raises ValueError: if the slice is malformed
+            before ``addr_min`` or after ``addr_max``.
+        :raises ValueError: if the slice is malformed.
         """
 
         # address is an integer
@@ -304,14 +305,14 @@ class ImageByteMap(Node):
         return last_address
 
     def _find_start(self, address):
-        """Find the greatest start less than or equal to address"""
+        """Find the greatest start less than or equal to ``address``."""
         i = bisect_right(self._start_addresses, address)
         if i:
             return self._start_addresses[i - 1]
         raise IndexError("no range containing %d" % address)
 
     def _in_range(self, key):
-        """Check if a key is within the range of this bytemap"""
+        """Check if a key is within the range of this bytemap."""
         return key >= self.addr_min and key <= self.addr_max
 
     def _to_protobuf(self):

@@ -18,18 +18,18 @@ from .module import Module
 class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
 
-    :ivar modules: list of Modules contained in the IR
+    :ivar modules: A list of Modules contained in the IR.
     """
 
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
         """
-        :param modules: list of Modules contained in the IR
-        :param aux_data: the initial auxiliary data to be associated
+        :param modules: A list of Modules contained in the IR.
+        :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
-            :class:`gtirb.AuxData`, defaults to an empty :class:`dict`
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+            :class:`gtirb.AuxData`. Defaults to an empty :class:`dict`
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         # Modules are decoded before the aux data, since the UUID decoder
@@ -74,8 +74,8 @@ class IR(AuxDataContainer):
         and you want to parse it as a GTIRB IR. If you have a file name,
         use :func:`gtirb.IR.load_protobuf` instead.
 
-        :param protobuf_file: a Protobuf object
-        :returns: a Python GTIRB IR object
+        :param protobuf_file: A byte stream encoding a GTIRB Protobuf message.
+        :returns: A Python GTIRB IR object.
         """
 
         ir = IR_pb2.IR()
@@ -86,8 +86,8 @@ class IR(AuxDataContainer):
     def load_protobuf(file_name):
         """Load IR from a Protobuf file at a given path.
 
-        :param file_name: the path to the Protobuf file
-        :returns: a Python GTIRB IR object
+        :param file_name: The path to the Protobuf file.
+        :returns: A Python GTIRB IR object.
         """
         with open(file_name, "rb") as f:
             return IR.load_protobuf_file(f)
@@ -95,7 +95,8 @@ class IR(AuxDataContainer):
     def save_protobuf_file(self, protobuf_file):
         """Save this IR to a Protobuf object.
 
-        :param protobuf_file: the target Protobuf object
+        :param protobuf_file: A byte stream to write the GTIRB Protobuf
+            message to.
         """
 
         protobuf_file.write(self._to_protobuf().SerializeToString())
@@ -103,7 +104,7 @@ class IR(AuxDataContainer):
     def save_protobuf(self, file_name):
         """Save this IR to Protobuf file at a given path.
 
-        :param file_name: the file name to save this IR to
+        :param file_name: The file name to save this IR to.
         """
         with open(file_name, "wb") as f:
             self.save_protobuf_file(f)

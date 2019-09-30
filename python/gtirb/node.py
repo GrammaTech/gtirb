@@ -5,16 +5,16 @@ from weakref import WeakValueDictionary
 class Node:
     """A Node is any GTIRB object which can be referenced by UUID.
 
-    :ivar uuid: the UUID of this Node
+    :ivar uuid: The UUID of this Node.
     """
 
     _uuid_cache = WeakValueDictionary()
 
     def __init__(self, uuid=None):
         """
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         if uuid is None:
@@ -27,8 +27,8 @@ class Node:
         """
         Find the Node that corresponds to a given UUID, or None if not found.
 
-        :param uuid: the UUID to look up
-        :raises TypeError: if the Node is not of the requested type
+        :param uuid: The UUID to look up.
+        :raises TypeError: if the Node is not of the requested type.
         """
 
         node = Node._uuid_cache.get(uuid)
@@ -44,8 +44,8 @@ class Node:
         """Decode a Protobuf object to a Python GTIRB object.
         Must be overridden by subclasses.
 
-        :param proto_object: the Protobuf object
-        :param uuid: the UUID of the object
+        :param proto_object: The Protobuf object.
+        :param uuid: The UUID of the object.
         """
 
         raise NotImplementedError

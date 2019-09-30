@@ -49,7 +49,7 @@ class Codec:
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
         """Decodes the data in the bytes given.
 
-        :param raw_bytes: the BytesIO object to be decoded
+        :param raw_bytes: The BytesIO object to be decoded
         :param serialization: Serialization instance used to invoke
             other codecs if needed
         :param subtypes: parsed tree of subtypes
@@ -62,11 +62,11 @@ class Codec:
     def encode(out, item, *, serialization=None, subtypes=tuple()):
         """Encodes an item, writing the serialized object to ``out``.
 
-        :param out: the BytesIO channel to serialize to
-        :param item: the Python object to encode
-        :param serialization: Serialization instance used to invoke
-            other codecs if needed
-        :param subtypes: parsed tree of subtypes
+        :param out: A binary stream to serialize to.
+        :param item: The Python object to encode.
+        :param serialization: A Serialization instance, used to invoke
+            other codecs if needed.
+        :param subtypes: A parsed tree of subtypes.
         """
 
         raise NotImplementedError
@@ -290,7 +290,7 @@ class UnknownData(bytes):
 class Serialization:
     """Tracks codecs used to serialize/deserialize GTIRB objects.
 
-    :ivar codecs: a mapping of type names to codecs. Codecs can be added
+    :ivar codecs: A mapping of type names to codecs. Codecs can be added
         or overridden using this dictionary.
     """
 
@@ -338,17 +338,18 @@ class Serialization:
     def _parse_type(type_name):
         """Given an encoded aux_data type_name, generate its parse tree.
 
-        Examples:
+        >>> _parse_type('foo')
+        ('foo', ())
 
-          _parse_type('foo') == ('foo', ())
+        >>> _parse_type('foo<bar>')
+        ('foo', (('bar',()),))
 
-          _parse_type('foo<bar>') ==  ('foo', (('bar',()),))
+        >>> _parse_type('foo<bar<baz>>')
+        ('foo', (('bar', (('baz', ()),)),))
 
-          _parse_type('foo<bar<baz>>') == ('foo', (('bar', (('baz', ()),)),))
-
-        :returns: a nested tuple of parsed type/subtype tuples.
+        :returns: A nested tuple of parsed type/subtype tuples.
             A single parsed type is a tuple of the type name and a tuple of its
-            subtypes. An empty tuple indicates no subtype
+            subtypes. An empty tuple indicates no subtype.
         """
         tokens = findall("[^<>,]+|<|>|,", type_name)
 
@@ -415,7 +416,12 @@ class Serialization:
         return parse_tree
 
     def decode(self, raw_bytes, type_name):
-        """Top level decode function."""
+        """Decodes the value of an AuxData value from bytes.
+
+        :param raw_bytes: A binary stream to read bytes from.
+        :param type_name: The type name of the object encoded by ``raw_bytes``.
+        :returns: The object encoded by ``raw_bytes``.
+        """
 
         parse_tree = Serialization._parse_type(type_name)
         all_bytes = None
@@ -431,7 +437,12 @@ class Serialization:
             return UnknownData(all_bytes)
 
     def encode(self, out, val, type_name):
-        """Top level encode function."""
+        """Encodes the value of an AuxData value to bytes.
+
+        :param out: A binary stream to write bytes to.
+        :param val: The object to be encoded into ``out``.
+        :param type_name: The type name of the object to be encoded to ``out``.
+        """
 
         if isinstance(val, UnknownData):
             # it was a blob of bytes because of a decoding problem;

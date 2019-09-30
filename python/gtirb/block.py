@@ -7,22 +7,19 @@ from .node import Node
 class Block(Node):
     """A basic block in the binary.
 
-    :ivar address: the starting address of the block
-    :ivar size: the length of the block
-    :ivar decode_mode: the decode mode of the block,
-        used in ISAs with multiple sub-ISAs (for example, ARM and Thumb)
+    :ivar address: The starting address of the block.
+    :ivar size: The length of the block in bytes.
+    :ivar decode_mode: The decode mode of the block.
     """
 
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
         """
-        :param address: the starting address of the block
-        :param size: the length of the block
-        :param decode_mode: the decode mode of the block,
-            used in ISAs with multiple sub-ISAs (for example, ARM and Thumb),
-            defaults to 0
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+        :param address: The starting address of the block.
+        :param size: The length of the block in bytes.
+        :param decode_mode: The decode mode of the block. Defaults to 0.
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         super().__init__(uuid)

@@ -8,17 +8,17 @@ class DataObject(Node):
 
     Does not directly store data bytes, which are kept in an ImageByteMap.
 
-    :ivar address: the address of the data object
-    :ivar size: the size of the data object
+    :ivar address: The address of the data object.
+    :ivar size: The size of the data object in bytes.
     """
 
     def __init__(self, address, size, uuid=None):
         """
-        :param address: the address of the data object
-        :param size: the size of the data object
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+        :param address: The address of the data object.
+        :param size: The size of the data object in bytes.
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         super().__init__(uuid)

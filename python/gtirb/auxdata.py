@@ -12,8 +12,9 @@ class AuxData:
     :class:`gtirb.Module` s to store additional client-specific data in a
     portable way.
 
-    :ivar data: the stored value
-    :ivar type_name: string describing the type of ``data``
+    :ivar data: The value stored in this AuxData.
+    :ivar type_name: A string describing the type of ``data``.
+        Used to determine the proper codec for serializing this AuxData.
     """
 
     serializer = Serialization()
@@ -25,8 +26,9 @@ class AuxData:
 
     def __init__(self, data, type_name):
         """
-        :param data: the stored value
-        :param type_name: string describing the type of ``data``
+        :param data: The value stored in this AuxData.
+        :param type_name: A string describing the type of ``data``.
+            Used to determine the proper codec for serializing this AuxData.
         """
 
         self.data = data
@@ -36,7 +38,7 @@ class AuxData:
     def _from_protobuf(cls, aux_data):
         """Deserialize AuxData from Protobuf.
 
-        :param aux_data: the Protobuf AuxData object
+        :param aux_data: The Protobuf AuxData object.
         """
         data = AuxData.serializer.decode(
             BytesIO(aux_data.data), aux_data.type_name
@@ -66,19 +68,19 @@ class AuxDataContainer(Node):
     """The base class for anything that holds AuxData tables; that is,
     :class:`gtirb.IR` and :class:`gtirb.Module`.
 
-    :ivar aux_data: the initial auxiliary data to be associated
+    :ivar aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
-            :class:`gtirb.AuxData`
+            :class:`gtirb.AuxData`.
     """
 
     def __init__(self, aux_data=dict(), uuid=None):
         """
-        :param aux_data: the initial auxiliary data to be associated
+        :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
-            :class:`gtirb.AuxData`, defaults to an empty :class:`dict`
+            :class:`gtirb.AuxData`. Defaults to an empty :class:`dict`.
         :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
         """
 
         super().__init__(uuid)

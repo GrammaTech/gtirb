@@ -11,8 +11,8 @@ from .node import Node
 class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
-    :ivar name: the name of this symbol
-    :ivar storage_kind: the storage kind of this symbol
+    :ivar name: The name of this symbol.
+    :ivar storage_kind: The storage kind of this symbol.
     """
 
     class StorageKind(Enum):
@@ -20,8 +20,8 @@ class Symbol(Node):
         Indicates the storage kind of a Symbol.
         """
 
-        Undefined = Symbol_pb2.StorageKind.Value("Storage_Undefined")
-        """An unspecified storage class."""
+        Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
+        """An unspecified storage kind."""
 
         Normal = Symbol_pb2.StorageKind.Value("Storage_Normal")
         """This symbol is accessible outside the module."""
@@ -41,13 +41,13 @@ class Symbol(Node):
         self, name, storage_kind=StorageKind.Undefined, uuid=None, payload=None
     ):
         """
-        :param name: the name of this symbol
-        :param storage_kind: the storage kind of this symbol
-        :param uuid: the UUID of this Node,
-            or None if a new UUID needs generated via :func:`uuid.uuid4`,
-            defaults to None
-        :param payload: an optional value this symbol points to.
-            May be an address, a Node, or None
+        :param name: The name of this symbol.
+        :param storage_kind: The storage kind of this symbol.
+        :param uuid: The UUID of this Node,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
+        :param payload: The value this symbol points to.
+            May be an address, a Node, or None.
         """
 
         super().__init__(uuid)
