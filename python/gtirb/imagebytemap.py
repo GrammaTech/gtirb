@@ -8,14 +8,17 @@ from .node import Node
 
 class ImageByteMap(Node):
     """Contains the loaded raw image data for the module (binary).
+    Addresses reflect where the bytes will (most likely) appear in memory
+    if this binary is loaded into memory without rebasing.
 
     Allows dictionary-like access to and modification of bytes in this map
     through overridden __delitem__, __getitem__, and __setitem__ methods.
 
-    :ivar addr_min: The lowest address in the byte map.
-    :ivar addr_max: The highest address in the byte map.
-    :ivar base_address: The base address of the byte map.
-    :ivar entry_point_address: The entry point address of the byte map.
+    :ivar addr_min: The lowest address of the loaded file in memory.
+    :ivar addr_max: The highest address of the loaded file in memory.
+    :ivar base_address: The base address of the loaded file in memory.
+    :ivar entry_point_address: The entry point address of the
+        loaded file in memory.
     """
 
     def __init__(self,
@@ -27,12 +30,13 @@ class ImageByteMap(Node):
                  entry_point_address=0,
                  uuid=None):
         """
-        :param addr_min: The lowest address in the byte map.
-        :param addr_max: The highest address in the byte map.
-        :param base_address: The base address of the byte map.
+        :param addr_min: The lowest address of the loaded file in memory.
+        :param addr_max: The highest address of the loaded file in memory.
+        :param base_address: The base address of the loaded file in memory.
         :param byte_map: A sparse mapping of addresses to a sequence of
-            bytes stored there.
-        :param entry_point_address: The entry point address of the byte map.
+            bytes loaded there.
+        :param entry_point_address: The entry point address of the
+            loaded file in memory.
         :param uuid: The UUID of this Node,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
