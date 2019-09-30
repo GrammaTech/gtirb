@@ -9,7 +9,7 @@ from .node import Node
 class ImageByteMap(Node):
     """Contains the loaded raw image data for the module (binary).
 
-    Allows dictionary-like access to and modification of bytes in the map
+    Allows dictionary-like access to and modification of bytes in this map
     through overridden __delitem__, __getitem__, and __setitem__ methods.
 
     :ivar addr_min: The lowest address in the byte map.
