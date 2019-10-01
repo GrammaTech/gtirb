@@ -104,7 +104,7 @@ class IR(AuxDataContainer):
         protobuf_file.write(self._to_protobuf().SerializeToString())
 
     def save_protobuf(self, file_name):
-        """Save this IR to Protobuf file at a given path.
+        """Save ``self`` to a Protobuf file at the specified path.
 
         :param file_name: The file name to save this IR to.
         """
