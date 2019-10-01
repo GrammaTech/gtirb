@@ -24,7 +24,9 @@ class Edge:
     """
 
     class Type(Enum):
-        """The type of control flow transfer indicated by an edge."""
+        """The type of control flow transfer indicated by a
+        :class:`gtirb.Edge`.
+        """
 
         Branch = CFG_pb2.EdgeType.Value('Type_Branch')
         """This edge is the explicit target of a jump instruction.
