@@ -60,7 +60,7 @@ class Codec:
 
     @staticmethod
     def encode(out, item, *, serialization=None, subtypes=tuple()):
-        """Encodes an item, writing the serialized object to ``out``.
+        """Encode an item, writing the serialized object to ``out``.
 
         :param out: A binary stream to serialize to.
         :param item: The Python object to encode.
