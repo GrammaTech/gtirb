@@ -86,7 +86,7 @@ class IR(AuxDataContainer):
 
     @staticmethod
     def load_protobuf(file_name):
-        """Load IR from a Protobuf file at a given path.
+        """Load IR from a Protobuf file at the specified path.
 
         :param file_name: The path to the Protobuf file.
         :returns: A Python GTIRB IR object.
