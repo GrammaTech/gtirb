@@ -37,7 +37,7 @@ class Edge:
         Call = CFG_pb2.EdgeType.Value('Type_Call')
         """This edge is the explicit target of a call instruction.
         Unless the function does not return, there will also be a
-        corresponding fallthrough edge.
+        corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.
         """
 
         Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
