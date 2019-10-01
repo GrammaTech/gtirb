@@ -25,7 +25,7 @@ class EncodeError(CodecError):
 
 
 class TypeNameError(EncodeError):
-    """Malformed type name"""
+    """A type name is malformed."""
 
     def __init__(self, hint):
         super().__init__("malformed type name: '%s'" % hint)
