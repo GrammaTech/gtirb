@@ -11,7 +11,7 @@ class ImageByteMap(Node):
     Addresses reflect where the bytes will (most likely) appear in memory
     if this binary is loaded into memory without rebasing.
 
-    Allows dictionary-like access to and modification of bytes in this map
+    Allows dictionary-like access to and modification of individual bytes
     through overridden __delitem__, __getitem__, and __setitem__ methods.
 
     :ivar addr_min: The lowest address of the loaded file in memory.
