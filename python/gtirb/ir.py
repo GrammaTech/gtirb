@@ -106,7 +106,8 @@ class IR(AuxDataContainer):
     def save_protobuf(self, file_name):
         """Save ``self`` to a Protobuf file at the specified path.
 
-        :param file_name: The file name to save this IR to.
+        :param file_name: The file path at which to
+            save the Protobuf representation of ``self``.
         """
         with open(file_name, "wb") as f:
             self.save_protobuf_file(f)
