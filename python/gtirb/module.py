@@ -31,7 +31,7 @@ class Edge:
         Branch = CFG_pb2.EdgeType.Value('Type_Branch')
         """This edge is the explicit target of a jump instruction.
         May be conditional or unconditional. If conditional, there will be
-        a corresponding fallthrough edge.
+        a corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.
         """
 
         Call = CFG_pb2.EdgeType.Value('Type_Call')
