@@ -70,7 +70,7 @@ class IR(AuxDataContainer):
     def load_protobuf_file(protobuf_file):
         """Load IR from a Protobuf object.
 
-        This function is for when you have a Protobuf object already loaded,
+        Use this function when you have a Protobuf object already loaded,
         and you want to parse it as a GTIRB IR. If you have a file name,
         use :func:`gtirb.IR.load_protobuf` instead.
 
