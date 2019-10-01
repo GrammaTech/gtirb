@@ -7,7 +7,7 @@ class Section(Node):
     """Represents a named section of the binary.
 
     Does not directly store the contents of the section, which are
-    kept in ImageByteMap.
+    kept in the :class:`gtirb.ImageByteMap`.
 
     :ivar name: The name of this section.
     :ivar address: The address this section is located at in memory.
