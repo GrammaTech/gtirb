@@ -197,7 +197,7 @@ class ImageByteMap(Node):
                 cur_addr += 1
 
     def __len__(self):
-        """Returns the number of bytes contained in the map."""
+        """Get the number of bytes contained in the map."""
         return sum(len(v) for v in self._byte_map.values())
 
     def __setitem__(self, address, data):
