@@ -246,7 +246,7 @@ class Module(AuxDataContainer):
 
     class ISAID(Enum):
         """Identifies the instruction set architecture (ISA)
-        this module is written to target.
+        targeted by a :class:`gtirb.Module`.
         """
 
         Undefined = Module_pb2.ISAID.Value('ISA_Undefined')
