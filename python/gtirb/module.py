@@ -16,7 +16,8 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
 
 
 class Edge:
-    """An edge in the CFG.
+    """An edge in the CFG from ``source`` to ``target``, with optional
+    control-flow details in ``label``.
 
     :ivar source: The source CFG node.
     :ivar target: The target CFG node.
