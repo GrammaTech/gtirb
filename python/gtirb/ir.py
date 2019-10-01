@@ -97,7 +97,7 @@ class IR(AuxDataContainer):
     def save_protobuf_file(self, protobuf_file):
         """Save ``self`` to a Protobuf object.
 
-        :param protobuf_file: A byte stream to write the GTIRB Protobuf
+        :param protobuf_file: The byte stream to write the GTIRB Protobuf
             message to.
         """
 
