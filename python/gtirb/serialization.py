@@ -313,7 +313,7 @@ class Serialization:
         }
 
     def _decode_tree(self, raw_bytes, type_tree):
-        """Decodes given a parsed type tree."""
+        """Decode given a parsed type tree."""
 
         try:
             type_name, subtypes = type_tree
