@@ -34,7 +34,7 @@ class Section(Node):
         return cls(section.name, section.address, section.size, uuid)
 
     def _to_protobuf(self):
-        """Returns a Protobuf representation of the object."""
+        """Get a Protobuf representation of ``self``."""
 
         proto_section = Section_pb2.Section()
         proto_section.uuid = self.uuid.bytes
