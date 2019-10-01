@@ -236,7 +236,7 @@ class StringCodec(Codec):
 
 
 class Uint64Codec(Codec):
-    """A Codec for unsigned integers."""
+    """A Codec for 64-bit unsigned integers."""
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
