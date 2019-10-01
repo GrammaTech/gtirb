@@ -191,7 +191,8 @@ class Edge:
 class Module(AuxDataContainer):
     """Represents a loadable object, such as an executable or library.
 
-    :ivar binary_path: The path to the binary.
+    :ivar binary_path: The path to the loadable binary object
+        represented by this module.
     :ivar blocks: A set of contained Blocks.
     :ivar data: A set of contained DataObjects.
     :ivar image_byte_map: An ImageByteMap containing the raw bytes
