@@ -77,9 +77,11 @@ class Node:
 
         This method should be used only when deep structural equality checks
         are actually needed, and not for all equality checks. Typically the
-        default implementation of __eq__, which checks pointer equality, is
-        enough: UUID checks are part of deep equality checks, and generating a
-        new Node generates a unique UUID.
+        default implmentation of __eq__, which checks pointer equality, is
+        sufficient; Nodes are cached such that references to two Nodes with
+        the same UUID refer to the same exact object. Use this method if
+        you need to ensure two Nodes have the same contents, even if they
+        have differing UUIDs.
         """
 
         raise NotImplementedError
