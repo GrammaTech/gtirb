@@ -47,7 +47,7 @@ class Codec:
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
-        """Decodes the data in the bytes given.
+        """Decode the specified raw data into a Python object.
 
         :param raw_bytes: The BytesIO object to be decoded
         :param serialization: Serialization instance used to invoke
