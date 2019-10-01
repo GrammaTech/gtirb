@@ -16,7 +16,9 @@ class Offset:
 
     def __init__(self, element_id, displacement):
         """
-        :param element_id: The UUID of a Node.
+        :param element_id: The UUID of a :class:`gtirb.Block`
+            or :class:`gtirb.DataObject` containing the
+            location of interest.
         :param displacement: The offset inside the Node to point to.
         """
 
