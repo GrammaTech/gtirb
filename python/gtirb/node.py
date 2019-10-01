@@ -66,7 +66,7 @@ class Node:
         return node
 
     def _to_protobuf(self):
-        """Returns a Protobuf representation of the object.
+        """Get a Protobuf representation of ``self``.
         Must be overridden by subclasses.
         """
 
