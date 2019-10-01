@@ -49,11 +49,11 @@ class Codec:
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
         """Decode the specified raw data into a Python object.
 
-        :param raw_bytes: The BytesIO object to be decoded
-        :param serialization: Serialization instance used to invoke
-            other codecs if needed
-        :param subtypes: parsed tree of subtypes
-        :returns: a new Python object, as decoded from ``raw_bytes``
+        :param raw_bytes: The BytesIO object to be decoded.
+        :param serialization: A Serialization instance used to invoke
+            other codecs if needed.
+        :param subtypes: A parsed tree of subtypes.
+        :returns: A new Python object, as decoded from ``raw_bytes``.
         """
 
         raise NotImplementedError
