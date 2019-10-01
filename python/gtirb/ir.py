@@ -76,7 +76,8 @@ class IR(AuxDataContainer):
         use :func:`gtirb.IR.load_protobuf` instead.
 
         :param protobuf_file: A byte stream encoding a GTIRB Protobuf message.
-        :returns: A Python GTIRB IR object.
+        :returns: An IR object representing the same
+            information that is contained in ``protobuf_file``.
         """
 
         ir = IR_pb2.IR()
