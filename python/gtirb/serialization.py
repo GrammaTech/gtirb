@@ -63,7 +63,7 @@ class Codec:
         """Encode an item, writing the serialized object to ``out``.
 
         :param out: A binary stream to serialize to.
-        :param item: The Python object to encode.
+        :param item: The arbitrary Python object to encode.
         :param serialization: A Serialization instance, used to invoke
             other codecs if needed.
         :param subtypes: A parsed tree of subtypes.
