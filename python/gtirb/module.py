@@ -211,7 +211,8 @@ class Module(AuxDataContainer):
     """
 
     class FileFormat(Enum):
-        """Identifies the executable file format this module originated from.
+        """Identifies the executable file format of the
+       binary represented by a :class:`gtirb.Module`.
         """
 
         Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
