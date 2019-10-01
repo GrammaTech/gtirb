@@ -25,7 +25,8 @@ class Node:
     @classmethod
     def from_uuid(cls, uuid):
         """
-        Find the Node that corresponds to a given UUID, or None if not found.
+        Find the ``Node`` with the specified UUID,
+        or ``None`` if no such ``Node`` can be found.
 
         :param uuid: The UUID to look up.
         :raises TypeError: if the Node is not of the requested type.
