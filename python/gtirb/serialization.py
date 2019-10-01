@@ -290,7 +290,7 @@ class UnknownData(bytes):
 
 
 class Serialization:
-    """Tracks codecs used to serialize/deserialize GTIRB objects.
+    """Manages codecs used to serialize/deserialize GTIRB objects.
 
     :ivar codecs: A mapping of type names to codecs. Codecs can be added
         or overridden using this dictionary.
