@@ -10,7 +10,7 @@ class Section(Node):
     kept in the :class:`gtirb.ImageByteMap`.
 
     :ivar name: The name of this section.
-    :ivar address: The address this section is located at in memory.
+    :ivar address: The address this section begins at in memory.
     :ivar size: The size of this section in bytes.
     """
 
