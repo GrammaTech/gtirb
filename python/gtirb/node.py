@@ -73,7 +73,7 @@ class Node:
         raise NotImplementedError
 
     def deep_eq(self, other):
-        """Compare structural equality of two Nodes.
+        """Check: is ``self`` structurally equal to ``other``?
 
         This method should be used only when deep structural equality checks
         are actually needed, and not for all equality checks. Typically the
