@@ -140,7 +140,7 @@ class ImageByteMap(Node):
             insort(self._start_addresses, key.stop)
 
     def __getitem__(self, key):
-        """Accesses bytes in the map.
+        """Access bytes in the map.
 
         :param key: An address or slice of addresses.
             Slicing requires both a start and stop address.
