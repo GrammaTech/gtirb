@@ -87,8 +87,8 @@ class ImageByteMap(Node):
 
         :param key: An address or slice of addresses.
             Slicing requires both a start and stop address.
-        :raises IndexError: if a byte does not exist at any of the
-            addresses specified.
+        :raises IndexError: if one or more of the addresses
+            specified are not mapped to a byte.
         """
 
         # The only legal accesses are single indices or slices
