@@ -124,7 +124,9 @@ class MappingCodec(Codec):
 
 
 class OffsetCodec(Codec):
-    """A Codec for Offsets, containing a UUID and a displacement."""
+    """A Codec for :class:`gtirb.Offset` objects,
+    containing a UUID and a displacement.
+    """
 
     @staticmethod
     def decode(raw_bytes, *, serialization=None, subtypes=tuple()):
