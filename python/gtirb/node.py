@@ -53,7 +53,7 @@ class Node:
 
     @classmethod
     def _from_protobuf(cls, proto_object):
-        """Deserializes a Node from Protobuf.
+        """Deserialize a Node from Protobuf.
 
         Performs a cache lookup for the object's UUID in the cache, calling the
         class' _decode_protobuf constructor if cannot find it.
