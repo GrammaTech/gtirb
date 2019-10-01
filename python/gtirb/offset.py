@@ -5,7 +5,8 @@ import Offset_pb2
 
 class Offset:
     """
-    An Offset describes a location inside a block or data object.
+    An Offset describes a location inside a :class:`gtirb.Block`
+    or :class:`gtirb.DataObject`.
 
     :ivar element_id: The UUID of a Node.
     :ivar displacement: The offset inside the Node to point to.
