@@ -184,7 +184,8 @@ class ImageByteMap(Node):
         raise TypeError("index must be address or slice")
 
     def __iter__(self):
-        """Yields all bytes in all ranges in order.
+        """Yields all bytes in all ranges
+        in ascending order by address.
 
         :returns: Yields (address, byte) tuples.
         """
