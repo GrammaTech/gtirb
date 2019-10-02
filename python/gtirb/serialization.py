@@ -443,7 +443,7 @@ class Serialization:
         """Encodes the value of an AuxData value to bytes.
 
         :param out: A binary stream to write bytes to.
-        :param val: The object to be encoded into ``out``.
+        :param val: The :class:`gtirb.AuxData` to encode.
         :param type_name: The type name of the object to be encoded to ``out``.
         """
 
