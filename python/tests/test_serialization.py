@@ -10,6 +10,7 @@ class TestSerialization(unittest.TestCase):
                 gtirb.serialization.Serialization._parse_type(type_name),
                 oracle,
             )
+
         positive_tests = [
             ("mapping", ("mapping", ())),
             ("mapping<FOO,BAR>", ("mapping", (("FOO", ()), ("BAR", ())))),
@@ -37,8 +38,7 @@ class TestSerialization(unittest.TestCase):
 
         def test_negative(type_name):
             with self.assertRaises(
-                gtirb.serialization.TypeNameError,
-                msg=type_name,
+                gtirb.serialization.TypeNameError, msg=type_name
             ):
                 gtirb.serialization.Serialization._parse_type(type_name)
 
@@ -67,10 +67,11 @@ class TestSerialization(unittest.TestCase):
     def test_nested_unknown_codec(self):
         serializer = gtirb.serialization.Serialization()
         ostream = io.BytesIO()
-        serializer.encode(ostream, {
-            "a": ["b", "c"],
-            "d": ["e"],
-        }, "mapping<string,sequence<string>>")
+        serializer.encode(
+            ostream,
+            {"a": ["b", "c"], "d": ["e"]},
+            "mapping<string,sequence<string>>",
+        )
         raw_bytes = ostream.getvalue()
 
         blob = serializer.decode(raw_bytes, "mapping<string,sequence<foobar>>")
