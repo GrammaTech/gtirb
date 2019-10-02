@@ -421,7 +421,7 @@ class Serialization:
         """Decode an :class:`gtirb.AuxData` of the specified type
         from the specified byte stream.
 
-        :param raw_bytes: A binary stream to read bytes from.
+        :param raw_bytes: The byte stream from which to read the encoded value.
         :param type_name: The type name of the object encoded by ``raw_bytes``.
         :returns: The object encoded by ``raw_bytes``.
         """
