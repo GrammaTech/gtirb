@@ -14,6 +14,7 @@ class DataObject(Node):
         uuid: the UUID of this Node
 
     """
+
     def __init__(self, address, size, uuid=None):
         super().__init__(uuid)
         self.address = address
@@ -34,13 +35,17 @@ class DataObject(Node):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, DataObject):
             return False
-        return self.uuid == other.uuid \
-            and self.address == other.address \
+        return (
+            self.uuid == other.uuid
+            and self.address == other.address
             and self.size == other.size
+        )
 
     def __repr__(self):
-        return ("DataObject("
-                "uuid={uuid!r}, "
-                "address={address:#x}, "
-                "size={size}, "
-                ")".format(**self.__dict__))
+        return (
+            "DataObject("
+            "uuid={uuid!r}, "
+            "address={address:#x}, "
+            "size={size}, "
+            ")".format(**self.__dict__)
+        )

@@ -27,12 +27,12 @@ class Edge:
     class Type(Enum):
         """Type of control flow transfer indicated by this edge"""
 
-        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
-        Call = CFG_pb2.EdgeType.Value('Type_Call')
-        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
-        Return = CFG_pb2.EdgeType.Value('Type_Return')
-        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
-        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
+        Branch = CFG_pb2.EdgeType.Value("Type_Branch")
+        Call = CFG_pb2.EdgeType.Value("Type_Call")
+        Fallthrough = CFG_pb2.EdgeType.Value("Type_Fallthrough")
+        Return = CFG_pb2.EdgeType.Value("Type_Return")
+        Syscall = CFG_pb2.EdgeType.Value("Type_Syscall")
+        Sysret = CFG_pb2.EdgeType.Value("Type_Sysret")
 
     class Label:
         """Contains a more detailed description of an edge in the CFG.
@@ -54,7 +54,7 @@ class Edge:
             return Edge.Label(
                 type=Edge.Type(label.type),
                 conditional=label.conditional,
-                direct=label.direct
+                direct=label.direct,
             )
 
         def _to_protobuf(self):
@@ -67,19 +67,23 @@ class Edge:
         def __eq__(self, other):
             if not isinstance(other, Edge.Label):
                 return False
-            return self.type == other.type \
-                and self.conditional == other.conditional \
+            return (
+                self.type == other.type
+                and self.conditional == other.conditional
                 and self.direct == other.direct
+            )
 
         def __hash__(self):
             return hash((self.type, self.conditional, self.direct))
 
         def __repr__(self):
-            return ("Edge.Label("
-                    "type=Edge.{type!s}, "
-                    "conditional={conditional!r}, "
-                    "direct={direct!r}, "
-                    ")".format(**self.__dict__))
+            return (
+                "Edge.Label("
+                "type=Edge.{type!s}, "
+                "conditional={conditional!r}, "
+                "direct={direct!r}, "
+                ")".format(**self.__dict__)
+            )
 
     def __init__(self, source, target, label=None):
         self.source = source
@@ -94,14 +98,18 @@ class Edge:
             source = Node._uuid_cache[source_uuid]
             target = Node._uuid_cache[target_uuid]
             if not isinstance(source, (Block, ProxyBlock)):
-                raise ValueError("source UUID %s is not a Block or ProxyBlock"
-                                 % source_uuid)
+                raise ValueError(
+                    "source UUID %s is not a Block or ProxyBlock" % source_uuid
+                )
             if not isinstance(target, (Block, ProxyBlock)):
-                raise ValueError("target UUID %s is not a Block or ProxyBlock"
-                                 % target_uuid)
+                raise ValueError(
+                    "target UUID %s is not a Block or ProxyBlock" % target_uuid
+                )
         except KeyError as e:
-            raise KeyError("Could not find UUID %s when creating edge %s -> %s"
-                           % (e, source_uuid, target_uuid))
+            raise KeyError(
+                "Could not find UUID %s when creating edge %s -> %s"
+                % (e, source_uuid, target_uuid)
+            )
         label = None
         if edge.label is not None:
             label = Edge.Label._from_protobuf(edge.label)
@@ -118,19 +126,23 @@ class Edge:
     def __eq__(self, other):
         if not isinstance(other, Edge):
             return False
-        return self.source.uuid == other.source.uuid \
-            and self.target.uuid == other.target.uuid \
+        return (
+            self.source.uuid == other.source.uuid
+            and self.target.uuid == other.target.uuid
             and self.label == other.label
+        )
 
     def __hash__(self):
         return hash((self.source.uuid, self.target.uuid, self.label))
 
     def __repr__(self):
-        return ("Edge("
-                "source={source!r}, "
-                "target={target!r}, "
-                "label={label!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Edge("
+            "source={source!r}, "
+            "target={target!r}, "
+            "label={label!r}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class Module(AuxDataContainer):
@@ -154,6 +166,7 @@ class Module(AuxDataContainer):
         uuid: the UUID of this Node
 
     """
+
     class FileFormat(Enum):
         """Identifies an executable file format
 
@@ -169,15 +182,16 @@ class Module(AuxDataContainer):
         XCOFF: Non-COFF (files start with ANON_OBJECT_HEADER*)
 
         """
-        Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
-        COFF = Module_pb2.FileFormat.Value('COFF')
-        ELF = Module_pb2.FileFormat.Value('ELF')
-        IdaProDb32 = Module_pb2.FileFormat.Value('IdaProDb32')
-        IdaProDb64 = Module_pb2.FileFormat.Value('IdaProDb64')
-        MACHO = Module_pb2.FileFormat.Value('MACHO')
-        PE = Module_pb2.FileFormat.Value('PE')
-        RAW = Module_pb2.FileFormat.Value('RAW')
-        XCOFF = Module_pb2.FileFormat.Value('XCOFF')
+
+        Undefined = Module_pb2.FileFormat.Value("Format_Undefined")
+        COFF = Module_pb2.FileFormat.Value("COFF")
+        ELF = Module_pb2.FileFormat.Value("ELF")
+        IdaProDb32 = Module_pb2.FileFormat.Value("IdaProDb32")
+        IdaProDb64 = Module_pb2.FileFormat.Value("IdaProDb64")
+        MACHO = Module_pb2.FileFormat.Value("MACHO")
+        PE = Module_pb2.FileFormat.Value("PE")
+        RAW = Module_pb2.FileFormat.Value("RAW")
+        XCOFF = Module_pb2.FileFormat.Value("XCOFF")
 
     class ISAID(Enum):
         """Identifies an instruction set architecture (ISA)
@@ -191,31 +205,34 @@ class Module(AuxDataContainer):
         ValidButUnsupported: Valid, but unsupported ISA
 
         """
-        Undefined = Module_pb2.ISAID.Value('ISA_Undefined')
-        ARM = Module_pb2.ISAID.Value('ARM')
-        IA32 = Module_pb2.ISAID.Value('IA32')
-        PPC32 = Module_pb2.ISAID.Value('PPC32')
-        X64 = Module_pb2.ISAID.Value('X64')
-        ValidButUnsupported = Module_pb2.ISAID.Value('ValidButUnsupported')
 
-    def __init__(self,
-                 *,
-                 aux_data=dict(),
-                 binary_path='',
-                 blocks=set(),
-                 cfg=set(),
-                 data=set(),
-                 file_format=FileFormat.Undefined,
-                 image_byte_map=None,
-                 isa_id=ISAID.Undefined,
-                 name='',
-                 preferred_addr=0,
-                 proxies=set(),
-                 rebase_delta=0,
-                 sections=set(),
-                 symbols=set(),
-                 symbolic_operands=dict(),
-                 uuid=None):
+        Undefined = Module_pb2.ISAID.Value("ISA_Undefined")
+        ARM = Module_pb2.ISAID.Value("ARM")
+        IA32 = Module_pb2.ISAID.Value("IA32")
+        PPC32 = Module_pb2.ISAID.Value("PPC32")
+        X64 = Module_pb2.ISAID.Value("X64")
+        ValidButUnsupported = Module_pb2.ISAID.Value("ValidButUnsupported")
+
+    def __init__(
+        self,
+        *,
+        aux_data=dict(),
+        binary_path="",
+        blocks=set(),
+        cfg=set(),
+        data=set(),
+        file_format=FileFormat.Undefined,
+        image_byte_map=None,
+        isa_id=ISAID.Undefined,
+        name="",
+        preferred_addr=0,
+        proxies=set(),
+        rebase_delta=0,
+        sections=set(),
+        symbols=set(),
+        symbolic_operands=dict(),
+        uuid=None
+    ):
         if image_byte_map is None:
             image_byte_map = ImageByteMap()
 
@@ -252,15 +269,19 @@ class Module(AuxDataContainer):
         symbols = (Symbol._from_protobuf(s) for s in proto_module.symbols)
 
         def sym_expr_from_protobuf(symbolic_expression):
-            if symbolic_expression.HasField('stack_const'):
+            if symbolic_expression.HasField("stack_const"):
                 return SymStackConst._from_protobuf(
-                    symbolic_expression.stack_const)
-            if symbolic_expression.HasField('addr_const'):
+                    symbolic_expression.stack_const
+                )
+            if symbolic_expression.HasField("addr_const"):
                 return SymAddrConst._from_protobuf(
-                    symbolic_expression.addr_const)
-            if symbolic_expression.HasField('addr_addr'):
+                    symbolic_expression.addr_const
+                )
+            if symbolic_expression.HasField("addr_addr"):
                 return SymAddrAddr._from_protobuf(
-                    symbolic_expression.addr_addr)
+                    symbolic_expression.addr_addr
+                )
+
         symbolic_operands = (
             (k, sym_expr_from_protobuf(v))
             for k, v in proto_module.symbolic_operands.items()
@@ -282,7 +303,7 @@ class Module(AuxDataContainer):
             sections=sections,
             symbols=symbols,
             symbolic_operands=symbolic_operands,
-            uuid=uuid
+            uuid=uuid,
         )
 
     def _to_protobuf(self):
@@ -292,12 +313,14 @@ class Module(AuxDataContainer):
         proto_module.blocks.extend(b._to_protobuf() for b in self.blocks)
         proto_cfg = CFG_pb2.CFG()
         proto_cfg.vertices.extend(
-            v.uuid.bytes for v in self.blocks | self.proxies)
+            v.uuid.bytes for v in self.blocks | self.proxies
+        )
         proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
         proto_module.cfg.CopyFrom(proto_cfg)
         proto_module.data.extend(d._to_protobuf() for d in self.data)
         proto_module.image_byte_map.CopyFrom(
-            self.image_byte_map._to_protobuf())
+            self.image_byte_map._to_protobuf()
+        )
         proto_module.isa_id = self.isa_id.value
         proto_module.file_format = self.file_format.value
         proto_module.name = self.name
@@ -328,12 +351,19 @@ class Module(AuxDataContainer):
             return False
         if not isinstance(other, Module):
             return False
-        for attr in ('binary_path', 'isa_id', 'file_format', 'name',
-                     'preferred_addr', 'rebase_delta', 'symbolic_operands'):
+        for attr in (
+            "binary_path",
+            "isa_id",
+            "file_format",
+            "name",
+            "preferred_addr",
+            "rebase_delta",
+            "symbolic_operands",
+        ):
             if getattr(self, attr) != getattr(other, attr):
                 return False
 
-        for attr in ('blocks', 'data', 'proxies', 'sections', 'symbols'):
+        for attr in ("blocks", "data", "proxies", "sections", "symbols"):
             self_nodes = sorted(getattr(self, attr), key=lambda n: n.uuid)
             other_nodes = sorted(getattr(other, attr), key=lambda n: n.uuid)
             if not len(self_nodes) == len(other_nodes):
@@ -342,10 +372,12 @@ class Module(AuxDataContainer):
                 if not self_node.deep_eq(other_node):
                     return False
 
-        self_edges = sorted(self.cfg,
-                            key=lambda e: (e.source.uuid, e.target.uuid))
-        other_edges = sorted(other.cfg,
-                             key=lambda e: (e.source.uuid, e.target.uuid))
+        self_edges = sorted(
+            self.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
+        )
+        other_edges = sorted(
+            other.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
+        )
         if not len(self_edges) == len(other_edges):
             return False
         for self_edge, other_edge in zip(self_edges, other_edges):
@@ -355,19 +387,21 @@ class Module(AuxDataContainer):
         return self.image_byte_map.deep_eq(other.image_byte_map)
 
     def __repr__(self):
-        return ("Module("
-                "uuid={uuid!r}, "
-                "name={name!r}, "
-                "binary_path={binary_path!r}, "
-                "isa_id=Module.{isa_id!s}, "
-                "file_format=Module.{file_format!s}, "
-                "preferred_addr={preferred_addr:#x}, "
-                "rebase_delta={rebase_delta:#x}, "
-                "blocks={blocks!r}, "
-                "data={data!r}, "
-                "image_byte_map={image_byte_map!r}, "
-                "proxies={proxies!r}, "
-                "sections={sections!r}, "
-                "symbols={symbols!r}, "
-                "symbolic_operands={symbolic_operands!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Module("
+            "uuid={uuid!r}, "
+            "name={name!r}, "
+            "binary_path={binary_path!r}, "
+            "isa_id=Module.{isa_id!s}, "
+            "file_format=Module.{file_format!s}, "
+            "preferred_addr={preferred_addr:#x}, "
+            "rebase_delta={rebase_delta:#x}, "
+            "blocks={blocks!r}, "
+            "data={data!r}, "
+            "image_byte_map={image_byte_map!r}, "
+            "proxies={proxies!r}, "
+            "sections={sections!r}, "
+            "symbols={symbols!r}, "
+            "symbolic_operands={symbolic_operands!r}, "
+            ")".format(**self.__dict__)
+        )

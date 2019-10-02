@@ -3,8 +3,8 @@ import gtirb
 import uuid
 
 # imports needed because repr's use of unqualified names
-from uuid import UUID   # noqa: F401,F403,F401
-from gtirb import *     # noqa: F401,F403,F401
+from uuid import UUID  # noqa: F401,F403,F401
+from gtirb import *  # noqa: F401,F403,F401
 
 
 class ReprTest(unittest.TestCase):
@@ -14,7 +14,7 @@ class ReprTest(unittest.TestCase):
             data={
                 "a": set([uuid.uuid4(), uuid.uuid4()]),
                 "b": set([uuid.uuid4()]),
-            }
+            },
         )
         string = repr(node)
         new_node = eval(string)
@@ -24,11 +24,7 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(node.data, new_node.data)
 
     def test_block(self):
-        node = gtirb.Block(
-            address=0x123,
-            size=456,
-            decode_mode=789,
-        )
+        node = gtirb.Block(address=0x123, size=456, decode_mode=789)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -40,20 +36,14 @@ class ReprTest(unittest.TestCase):
         self.assertTrue(node.deep_eq(new_node))
 
     def test_data_object(self):
-        node = gtirb.DataObject(
-            address=0x123,
-            size=456,
-        )
+        node = gtirb.DataObject(address=0x123, size=456)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
     def test_ibm(self):
         node = gtirb.ImageByteMap(
-            addr_min=1,
-            addr_max=2,
-            base_address=3,
-            entry_point_address=4,
+            addr_min=1, addr_max=2, base_address=3, entry_point_address=4
         )
         string = repr(node)
         new_node = eval(string)
@@ -71,9 +61,7 @@ class ReprTest(unittest.TestCase):
             source=gtirb.Block(address=1, size=2),
             target=gtirb.Block(address=3, size=4),
             label=gtirb.Edge.Label(
-                gtirb.Edge.Type.Fallthrough,
-                conditional=True,
-                direct=False
+                gtirb.Edge.Type.Fallthrough, conditional=True, direct=False
             ),
         )
         string = repr(node)
@@ -88,21 +76,14 @@ class ReprTest(unittest.TestCase):
         self.assertTrue(node.deep_eq(new_node))
 
     def test_offset(self):
-        node = gtirb.Offset(
-            element_id=uuid.uuid4(),
-            displacement=123,
-        )
+        node = gtirb.Offset(element_id=uuid.uuid4(), displacement=123)
         string = repr(node)
         new_node = eval(string)
         self.assertEqual(node.element_id, new_node.element_id)
         self.assertEqual(node.displacement, new_node.displacement)
 
     def test_section(self):
-        node = gtirb.Section(
-            name=".text",
-            address=0x123,
-            size=456,
-        )
+        node = gtirb.Section(name=".text", address=0x123, size=456)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -184,5 +165,5 @@ class ReprTest(unittest.TestCase):
         self.assertTrue(node.symbol2.deep_eq(new_node.symbol2))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

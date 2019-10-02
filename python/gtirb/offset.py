@@ -33,7 +33,9 @@ class Offset:
         return proto_offset
 
     def __repr__(self):
-        return ("Offset("
-                "element_id={element_id!r}, "
-                "displacement={displacement!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Offset("
+            "element_id={element_id!r}, "
+            "displacement={displacement!r}, "
+            ")".format(**self.__dict__)
+        )

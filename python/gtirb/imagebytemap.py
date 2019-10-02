@@ -20,14 +20,17 @@ class ImageByteMap(Node):
         uuid: the UUID of this Node
 
     """
-    def __init__(self,
-                 *,
-                 addr_min=0,
-                 addr_max=0,
-                 base_address=0,
-                 byte_map=dict(),
-                 entry_point_address=0,
-                 uuid=None):
+
+    def __init__(
+        self,
+        *,
+        addr_min=0,
+        addr_max=0,
+        base_address=0,
+        byte_map=dict(),
+        entry_point_address=0,
+        uuid=None
+    ):
         """Create a new ImageByteMap
 
         Parameters:
@@ -164,7 +167,7 @@ class ImageByteMap(Node):
                 raise IndexError("step size unsupported")
             if key.start not in self:
                 raise IndexError("start address not in map")
-            if key.stop-1 not in self:
+            if key.stop - 1 not in self:
                 raise IndexError("stop address not in map")
             start_address = self._find_start(key.start)
             stop_address = self._find_start(key.stop)
@@ -281,15 +284,18 @@ class ImageByteMap(Node):
 
     @classmethod
     def _decode_protobuf(cls, proto_ibm, uuid):
-        byte_map = {region.address: bytearray(region.data)
-                    for region in proto_ibm.byte_map.regions}
+        byte_map = {
+            region.address: bytearray(region.data)
+            for region in proto_ibm.byte_map.regions
+        }
         image_byte_map = cls(
             addr_min=proto_ibm.addr_min,
             addr_max=proto_ibm.addr_max,
             base_address=proto_ibm.base_address,
             byte_map=byte_map,
             entry_point_address=proto_ibm.entry_point_address,
-            uuid=uuid)
+            uuid=uuid,
+        )
         return image_byte_map
 
     def _find_end(self, address):
@@ -297,15 +303,15 @@ class ImageByteMap(Node):
         start = self._find_start(address)
         last_address = start + len(self._byte_map[start]) - 1
         if address > last_address:
-            raise IndexError("no range containing %d" % (address))
+            raise IndexError("no range containing %d" % address)
         return last_address
 
     def _find_start(self, address):
         """Find the greatest start less than or equal to address"""
         i = bisect_right(self._start_addresses, address)
         if i:
-            return self._start_addresses[i-1]
-        raise IndexError("no range containing %d" % (address))
+            return self._start_addresses[i - 1]
+        raise IndexError("no range containing %d" % address)
 
     def _in_range(self, key):
         """Check if a key is within the range of this bytemap"""
@@ -319,6 +325,7 @@ class ImageByteMap(Node):
             proto_region.address = address
             proto_region.data = bytes(data)
             return proto_region
+
         proto_byte_map.regions.extend(
             encode_region(address, data)
             for address, data in self._byte_map.items()
@@ -336,11 +343,13 @@ class ImageByteMap(Node):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ImageByteMap):
             return False
-        if self.uuid != other.uuid \
-                or self.addr_min != other.addr_min \
-                or self.base_address != other.base_address \
-                or self.entry_point_address != other.entry_point_address \
-                or self._start_addresses != other._start_addresses:
+        if (
+            self.uuid != other.uuid
+            or self.addr_min != other.addr_min
+            or self.base_address != other.base_address
+            or self.entry_point_address != other.entry_point_address
+            or self._start_addresses != other._start_addresses
+        ):
             return False
         for addr in self._start_addresses:
             if self._byte_map[addr] != other._byte_map[addr]:
@@ -348,11 +357,13 @@ class ImageByteMap(Node):
         return True
 
     def __repr__(self):
-        return ("ImageByteMap("
-                "uuid={uuid!r}, "
-                "addr_min={addr_min:#x}, "
-                "addr_max={addr_max:#x}, "
-                "base_address={base_address:#x}, "
-                "entry_point_address={entry_point_address:#x}, "
-                "byte_map={_byte_map!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "ImageByteMap("
+            "uuid={uuid!r}, "
+            "addr_min={addr_min:#x}, "
+            "addr_max={addr_max:#x}, "
+            "base_address={base_address:#x}, "
+            "entry_point_address={entry_point_address:#x}, "
+            "byte_map={_byte_map!r}, "
+            ")".format(**self.__dict__)
+        )

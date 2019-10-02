@@ -69,7 +69,7 @@ following.
        $ for f in src/proto/*.proto; do
             protoc -Isrc/proto --python_out=python $f
          done
-     
+
    This will create a number of files with names of the form
    `<bn>_pb2.py` in the `python/` subdirectory of your working
    directory: one for each `<bn>.proto` in src/proto/, including
@@ -108,7 +108,7 @@ following.
        $ for f in src/proto/*.proto; do
             protoc -Isrc/proto --java_out=java $f
          done
-     
+
    This will create a subdirectory `java/proto/', containing a number
    of files with names of the form `<bn>OuterClass.java`: one for each
    `<bn>.proto` in `src/proto/`.
@@ -118,7 +118,7 @@ following.
 
      $ mkdir -p java/classfiles
      $ CLASSPATH=<path/to/protobuf_jar> \
-       javac -d java/classfiles java/proto/*.java 
+       javac -d java/classfiles java/proto/*.java
 
    (If you want to build a `.jar` file to combine all these
    `.class` files, do so at this stage.)

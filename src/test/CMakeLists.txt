@@ -52,10 +52,10 @@ endif()
 GTIRB_ADD_EXECUTABLE_GTEST()
 
 target_link_libraries(
-        ${PROJECT_NAME} 
+        ${PROJECT_NAME}
         ${SYSLIBS}
         ${Boost_LIBRARIES}
-        gtest 
+        gtest
         gtest_main
         gtirb
 )

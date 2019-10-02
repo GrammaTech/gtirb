@@ -18,6 +18,7 @@ class AuxData:
         type_name: optional string describing this aux data
 
     """
+
     serializer = Serialization()
 
     def __init__(self, data, type_name):
@@ -33,8 +34,9 @@ class AuxData:
             aux_data: the Protobuf AuxData object
 
         """
-        data = AuxData.serializer.decode(BytesIO(aux_data.data),
-                                         aux_data.type_name)
+        data = AuxData.serializer.decode(
+            BytesIO(aux_data.data), aux_data.type_name
+        )
         return cls(data=data, type_name=aux_data.type_name)
 
     def _to_protobuf(self):
@@ -48,10 +50,12 @@ class AuxData:
         return proto_auxdata
 
     def __repr__(self):
-        return ("AuxData("
-                "type_name={type_name!r}, "
-                "data={data!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "AuxData("
+            "type_name={type_name!r}, "
+            "data={data!r}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class AuxDataContainer(Node):
@@ -63,14 +67,17 @@ class AuxDataContainer(Node):
         uuid: the UUID of this Node
 
     """
+
     def __init__(self, aux_data=dict(), uuid=None):
         super().__init__(uuid)
         self.aux_data = dict(aux_data)
 
     @classmethod
     def _decode_protobuf(cls, proto_container, uuid):
-        aux_data = ((key, AuxData.from_protobuf(val))
-                    for key, val in proto_container.aux_data.items())
+        aux_data = (
+            (key, AuxData.from_protobuf(val))
+            for key, val in proto_container.aux_data.items()
+        )
         return cls(aux_data, uuid)
 
     def _to_protobuf(self):
@@ -95,7 +102,9 @@ class AuxDataContainer(Node):
         """
         if not isinstance(other, AuxDataContainer):
             return False
-        if self.uuid != other.uuid \
-           or self.aux_data.keys() != other.aux_data.keys():
+        if (
+            self.uuid != other.uuid
+            or self.aux_data.keys() != other.aux_data.keys()
+        ):
             return False
         return True

@@ -14,6 +14,7 @@ class Block(Node):
         uuid: UUID of this Node
 
     """
+
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
         super().__init__(uuid)
         self.address = address
@@ -22,10 +23,12 @@ class Block(Node):
 
     @classmethod
     def _decode_protobuf(cls, proto_block, uuid):
-        return cls(address=proto_block.address,
-                   decode_mode=proto_block.decode_mode,
-                   size=proto_block.size,
-                   uuid=uuid)
+        return cls(
+            address=proto_block.address,
+            decode_mode=proto_block.decode_mode,
+            size=proto_block.size,
+            uuid=uuid,
+        )
 
     def _to_protobuf(self):
         proto_block = Block_pb2.Block()
@@ -39,18 +42,22 @@ class Block(Node):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Block):
             return False
-        return self.uuid == other.uuid \
-            and self.address == other.address \
-            and self.size == other.size \
+        return (
+            self.uuid == other.uuid
+            and self.address == other.address
+            and self.size == other.size
             and self.decode_mode == other.decode_mode
+        )
 
     def __repr__(self):
-        return ("Block("
-                "uuid={uuid!r}, "
-                "address={address:#x}, "
-                "size={size}, "
-                "decode_mode={decode_mode}, "
-                ")".format(**self.__dict__))
+        return (
+            "Block("
+            "uuid={uuid!r}, "
+            "address={address:#x}, "
+            "size={size}, "
+            "decode_mode={decode_mode}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class ProxyBlock(Node):
@@ -86,6 +93,4 @@ class ProxyBlock(Node):
         return self.uuid == other.uuid
 
     def __repr__(self):
-        return ("ProxyBlock("
-                "uuid={uuid!r}, "
-                ")".format(**self.__dict__))
+        return "ProxyBlock(" "uuid={uuid!r}, " ")".format(**self.__dict__)

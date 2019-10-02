@@ -10,21 +10,21 @@ from .node import Node
 
 class Symbol(Node):
     """Represents a Symbol, which maps a name to an object in the IR."""
+
     class StorageKind(Enum):
         """
         Indicates the storage kind of a Symbol.
         """
-        Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
-        Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
-        Static = Symbol_pb2.StorageKind.Value('Storage_Static')
-        Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
-        Local = Symbol_pb2.StorageKind.Value('Storage_Local')
 
-    def __init__(self,
-                 name,
-                 storage_kind=StorageKind.Undefined,
-                 uuid=None,
-                 payload=None):
+        Undefined = Symbol_pb2.StorageKind.Value("Storage_Undefined")
+        Normal = Symbol_pb2.StorageKind.Value("Storage_Normal")
+        Static = Symbol_pb2.StorageKind.Value("Storage_Static")
+        Extern = Symbol_pb2.StorageKind.Value("Storage_Extern")
+        Local = Symbol_pb2.StorageKind.Value("Storage_Local")
+
+    def __init__(
+        self, name, storage_kind=StorageKind.Undefined, uuid=None, payload=None
+    ):
         super().__init__(uuid)
         self.name = name
         self.storage_kind = storage_kind
@@ -61,12 +61,12 @@ class Symbol(Node):
     @classmethod
     def _decode_protobuf(cls, proto_symbol, uuid):
         storage_kind = Symbol.StorageKind(proto_symbol.storage_kind)
-        symbol = cls(name=proto_symbol.name,
-                     uuid=uuid,
-                     storage_kind=storage_kind)
-        if proto_symbol.HasField('value'):
+        symbol = cls(
+            name=proto_symbol.name, uuid=uuid, storage_kind=storage_kind
+        )
+        if proto_symbol.HasField("value"):
             symbol.value = proto_symbol.value
-        if proto_symbol.HasField('referent_uuid'):
+        if proto_symbol.HasField("referent_uuid"):
             referent_uuid = UUID(bytes=proto_symbol.referent_uuid)
             try:
                 symbol.referent = Node._uuid_cache[referent_uuid]
@@ -98,17 +98,23 @@ class Symbol(Node):
             return False
         if self.value != other.value:
             return False
-        elif (self.referent is not None
-              and self.referent.uuid != other.referent.uuid):
+        elif (
+            self.referent is not None
+            and self.referent.uuid != other.referent.uuid
+        ):
             return False
-        return self.name == other.name \
-            and self.storage_kind == other.storage_kind \
+        return (
+            self.name == other.name
+            and self.storage_kind == other.storage_kind
             and self.uuid == other.uuid
+        )
 
     def __repr__(self):
-        return ("Symbol("
-                "uuid={uuid!r}, "
-                "name={name!r}, "
-                "storage_kind=Symbol.{storage_kind!s}, "
-                "payload={_payload!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Symbol("
+            "uuid={uuid!r}, "
+            "name={name!r}, "
+            "storage_kind=Symbol.{storage_kind!s}, "
+            "payload={_payload!r}, "
+            ")".format(**self.__dict__)
+        )

@@ -23,6 +23,7 @@ class IR(AuxDataContainer):
         uuid: the UUID of this Node
 
     """
+
     def __init__(self, modules=list(), aux_data=dict(), uuid=None):
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
@@ -84,7 +85,7 @@ class IR(AuxDataContainer):
             Python GTIRB IR object
 
         """
-        with open(file_name, 'rb') as f:
+        with open(file_name, "rb") as f:
             return IR.load_protobuf_file(f)
 
     def save_protobuf_file(self, protobuf_file):
@@ -103,11 +104,13 @@ class IR(AuxDataContainer):
             file_name: the target path of the Protobuf file
 
         """
-        with open(file_name, 'wb') as f:
+        with open(file_name, "wb") as f:
             self.save_protobuf_file(f)
 
     def __repr__(self):
-        return ("IR("
-                "uuid={uuid!r}, "
-                "modules={modules!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "IR("
+            "uuid={uuid!r}, "
+            "modules={modules!r}, "
+            ")".format(**self.__dict__)
+        )

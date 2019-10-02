@@ -35,14 +35,17 @@ import sys
 from IR_pb2 import IR
 
 ir = IR()
-with open(sys.argv[1],'rb') as f:
+with open(sys.argv[1], "rb") as f:
     ir.ParseFromString(f.read())
 
 for m in ir.modules:
     print("Module %s" % (m.name or "<unnamed>"))
 
-    data_objects = { obj.uuid: obj for _,obj in m.data.items() }
+    data_objects = {obj.uuid: obj for _, obj in m.data.items()}
     for sym in m.symbols:
         data_ref = data_objects.get(sym.referent_uuid)
         if data_ref:
-            print("%s:\t%s\t%s bytes" % (sym.name, data_ref.address, data_ref.size))
+            print(
+                "%s:\t%s\t%s bytes"
+                % (sym.name, data_ref.address, data_ref.size)
+            )

@@ -11,7 +11,7 @@ class Section(Node):
     kept in ImageByteMap.
     """
 
-    def __init__(self, name='', address=0, size=0, uuid=None):
+    def __init__(self, name="", address=0, size=0, uuid=None):
         super().__init__(uuid)
         self.address = address
         self.name = name
@@ -40,15 +40,19 @@ class Section(Node):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Section):
             return False
-        return self.uuid == other.uuid \
-            and self.address == other.address \
-            and self.name == other.name \
+        return (
+            self.uuid == other.uuid
+            and self.address == other.address
+            and self.name == other.name
             and self.size == other.size
+        )
 
     def __repr__(self):
-        return ("Section("
-                "uuid={uuid!r}, "
-                "name={name!r}, "
-                "address={address:#x}, "
-                "size={size!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Section("
+            "uuid={uuid!r}, "
+            "name={name!r}, "
+            "address={address:#x}, "
+            "size={size!r}, "
+            ")".format(**self.__dict__)
+        )

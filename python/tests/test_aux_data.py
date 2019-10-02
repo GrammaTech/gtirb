@@ -28,7 +28,7 @@ class AuxDataTest(unittest.TestCase):
         """
         test_path = os.path.dirname(os.path.realpath(__file__))
 
-        TableTest = namedtuple('TableTest', ['type_name', 'items_test'])
+        TableTest = namedtuple("TableTest", ["type_name", "items_test"])
 
         def alignment_items_test(items):
             for key, alignment in items:
@@ -62,35 +62,48 @@ class AuxDataTest(unittest.TestCase):
                 self.assertIsInstance(sym2, Symbol)
 
         standard_table_tests = {
-            'alignment': TableTest(type_name='mapping<UUID,uint64_t>',
-                                   items_test=alignment_items_test),
-            'comments': TableTest(type_name='mapping<Offset,string>',
-                                  items_test=comments_items_test),
-            'functionBlocks': TableTest(type_name='mapping<UUID,set<UUID>>',
-                                        items_test=function_items_test),
-            'functionEntries': TableTest(type_name='mapping<UUID,set<UUID>>',
-                                         items_test=function_items_test),
-            'symbolForwarding': TableTest(type_name='mapping<UUID,UUID>',
-                                          items_test=symbolfwd_items_test),
-            'padding': TableTest(type_name='mapping<Addr,uint64_t>',
-                                 items_test=padding_items_test),
-            'types': TableTest(type_name='mapping<UUID,string>',
-                               items_test=types_items_test),
+            "alignment": TableTest(
+                type_name="mapping<UUID,uint64_t>",
+                items_test=alignment_items_test,
+            ),
+            "comments": TableTest(
+                type_name="mapping<Offset,string>",
+                items_test=comments_items_test,
+            ),
+            "functionBlocks": TableTest(
+                type_name="mapping<UUID,set<UUID>>",
+                items_test=function_items_test,
+            ),
+            "functionEntries": TableTest(
+                type_name="mapping<UUID,set<UUID>>",
+                items_test=function_items_test,
+            ),
+            "symbolForwarding": TableTest(
+                type_name="mapping<UUID,UUID>", items_test=symbolfwd_items_test
+            ),
+            "padding": TableTest(
+                type_name="mapping<Addr,uint64_t>",
+                items_test=padding_items_test,
+            ),
+            "types": TableTest(
+                type_name="mapping<UUID,string>", items_test=types_items_test
+            ),
         }
 
         def test_standard_auxdata(aux_data):
             for table, table_test in standard_table_tests.items():
                 if table in aux_data:
                     with self.subTest(table):
-                        self.assertEqual(aux_data[table].type_name,
-                                         table_test.type_name)
+                        self.assertEqual(
+                            aux_data[table].type_name, table_test.type_name
+                        )
                         table_test.items_test(aux_data[table].data.items())
 
-        for ir_file in ('test%s.ir' % n for n in range(1, 3)):
+        for ir_file in ("test%s.ir" % n for n in range(1, 3)):
             ir = IR.load_protobuf(os.path.join(test_path, ir_file))
             for module in ir.modules:
                 test_standard_auxdata(module.aux_data)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

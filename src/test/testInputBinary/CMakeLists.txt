@@ -18,7 +18,7 @@ macro(GTIRB_BUILD_GTBINARY_MACRO)
 		)
 	endif()
 
-	add_executable(${PROJECT_NAME} 
+	add_executable(${PROJECT_NAME}
 		${${PROJECT_NAME}_H}
 		${${PROJECT_NAME}_SRC}
 	)
@@ -28,7 +28,7 @@ macro(GTIRB_BUILD_GTBINARY_MACRO)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE -DGENERATION_CONSTANT=${_GENERATION_CONSTANT})
 
 	target_link_libraries(
-		${PROJECT_NAME} 
+		${PROJECT_NAME}
 		${SYSLIBS}
 		)
 endmacro()
