@@ -12,16 +12,23 @@ class AuxData:
     :class:`gtirb.Module` s to store additional client-specific data in a
     portable way.
 
+    AuxData represents a portable, language-independent manner of encoding
+    rich data. To do this, all data is stored on disk as a series of bytes
+    with a string describing the format of the data, called a *type name*. See
+    :mod:`gtirb.serialization` for the list of all default types. Types may
+    also be parameterized; for example, ``mapping<string,UUID>`` is a ``dict``
+    from ``str`` objects to ``UUID`` objects. All ``AuxData`` requires
+    a valid type name in order to be serialized.
+
     :ivar data: The value stored in this AuxData.
     :ivar type_name: A string describing the type of ``data``.
         Used to determine the proper codec for serializing this AuxData.
     """
 
     serializer = Serialization()
-    """This is a :class:`gtirb.Serialization` instance, used in
-    encoding and decoding AuxData. To alter serialization, for example:
-
-    >>> gtirb.AuxData.serializer.codecs['name'] = MyCustomCodec
+    """This is a :class:`gtirb.Serialization` instance, used to
+    encode and decode ``data`` fields of all ``AuxData``. See
+    :mod:`gtirb.serialization` for details.
     """
 
     def __init__(self, data, type_name):
@@ -68,7 +75,7 @@ class AuxDataContainer(Node):
     """The base class for anything that holds AuxData tables; that is,
     :class:`gtirb.IR` and :class:`gtirb.Module`.
 
-    :ivar aux_data: The initial auxiliary data to be associated
+    :ivar aux_data: The auxiliary data associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`.
     """

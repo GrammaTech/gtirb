@@ -290,7 +290,22 @@ class UnknownData(bytes):
 
 
 class Serialization:
-    """Manages codecs used to serialize/deserialize GTIRB objects.
+    """Manages codecs used to serialize and deserialize GTIRB objects.
+
+    The :meth:`gtirb.Serialization.decode` method of
+    :attr:`gtirb.AuxData.serializer` is called when GTIRB AuxData is loaded via
+    :meth:`gtirb.IR.load_protobuf`, and the :meth:`gtirb.Serialization.encode`
+    method of :attr:`gtirb.AuxData.serializer` is called when GTIRB AuxData is
+    saved to file via :meth:`gtirb.IR.save_protobuf`. You can alter the
+    encoding and decoding of AuxData values via
+    :attr:`gtirb.Serialization.codecs`. To do this, create a new subclass of
+    :class:`gtirb.serialization.Codec` and add it to
+    :attr:`gtirb.Serialization.codecs`:
+
+    >>> gtirb.AuxData.serializer.codecs['my_custom_type'] = MyCustomCodec
+
+    This example registers a new type name, ``my_custom_type``, and associate
+    it with a new codec, ``MyCustomCodec``.
 
     :ivar codecs: A mapping of type names to codecs. Codecs can be added
         or overridden using this dictionary.
