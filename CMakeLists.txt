@@ -306,6 +306,11 @@ add_subdirectory(proto)
 # ---------------------------------------------------------------------------
 # gtirb sources
 # ---------------------------------------------------------------------------
+if(GTIRB_CXX_API)
+  add_subdirectory(src)
+  add_subdirectory(doc/examples)
+endif()
+
 if(GTIRB_PY_API)
   add_subdirectory(python)
 endif()
