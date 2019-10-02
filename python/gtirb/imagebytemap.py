@@ -205,19 +205,18 @@ class ImageByteMap(Node):
         """Set data at an address.
 
         :param address: An address or slice of addresses.
-            If `address` is an integer, sets the byte at `address` to `data`.
-            `data` must be a single byte passed in as an integer in ``0..256``.
-            If the slice has a start and a stop (e.g., a[1:10]), ``data``
-            must be an iterable of bytes the same length as the slice.
-            Otherwise a ``ValueError`` is raised.
-            If the slice has a start and no stop (e.g., a[1:]), ``data`` must
-            be an iterable of bytes of any length. All bytes are written
-            beginning at ``address.start``.
+            If ``address`` is an ``int``, sets the byte at `address` to `data`.
+            If ``address`` is a ``slice``, sets all the bytes between
+            ``address.start`` and ``address.stop``.
         :param data: The ``int`` or ``bytes`` of data to insert at the
-            given address or addresses.
+            given address or addresses. If ``address`` is an ``int``, ``data``
+            must be a single byte passed in as an integer in ``0..256``. If
+            ``address`` is a ``slice``, ``data`` must be an iterable of bytes
+            the same length as the slice.
         :raises IndexError: if this method attempts to write to bytes
             before ``addr_min`` or after ``addr_max``.
-        :raises ValueError: if the slice is malformed.
+        :raises ValueError: if ``address`` is a ``slice`` and lacks a start
+            or stop address.
         """
 
         # address is an integer
