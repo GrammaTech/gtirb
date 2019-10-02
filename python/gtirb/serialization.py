@@ -418,7 +418,8 @@ class Serialization:
         return parse_tree
 
     def decode(self, raw_bytes, type_name):
-        """Decodes the value of an AuxData value from bytes.
+        """Decode an :class:`gtirb.AuxData` of the specified type
+        from the specified byte stream.
 
         :param raw_bytes: A binary stream to read bytes from.
         :param type_name: The type name of the object encoded by ``raw_bytes``.
