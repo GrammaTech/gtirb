@@ -33,8 +33,9 @@ class ImageByteMap(Node):
         :param addr_min: The lowest address of the loaded file in memory.
         :param addr_max: The highest address of the loaded file in memory.
         :param base_address: The base address of the loaded file in memory.
-        :param byte_map: A sparse mapping of addresses to a sequence of
-            bytes loaded there.
+        :param byte_map: A sparse mapping such that a key-value pair
+            ``(A, S)`` indicates that the byte sequence ``S`` reflects the
+            contents of addresses ``A`` through ``A+len(S)-1``.
         :param entry_point_address: The entry point address of the
             loaded file in memory.
         :param uuid: The UUID of this Node,
