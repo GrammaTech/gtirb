@@ -9,14 +9,20 @@ class Block(Node):
 
     :ivar address: The starting address of the block.
     :ivar size: The length of the block in bytes.
-    :ivar decode_mode: The decode mode of the block.
+    :ivar decode_mode: The decode mode of the block,
+        used in some ISAs to differentiate between sub-ISAs
+        (e.g. differentiating blocks written in ARM and Thumb).
+        Defaults to 0.
     """
 
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
         """
         :param address: The starting address of the block.
         :param size: The length of the block in bytes.
-        :param decode_mode: The decode mode of the block. Defaults to 0.
+        :param decode_mode: The decode mode of the block,
+            used in some ISAs to differentiate between sub-ISAs
+            (e.g. differentiating blocks written in ARM and Thumb).
+            Defaults to 0.
         :param uuid: The UUID of this Node,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
