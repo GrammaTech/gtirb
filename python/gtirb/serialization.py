@@ -444,7 +444,8 @@ class Serialization:
 
         :param out: A binary stream to write bytes to.
         :param val: The :class:`gtirb.AuxData` to encode.
-        :param type_name: The type name of the object to be encoded to ``out``.
+        :param type_name: The type name of the value encapsulated
+            by the :class:`gtirb.AuxData`.
         """
 
         if isinstance(val, UnknownData):
