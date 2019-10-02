@@ -12,7 +12,6 @@ class Block(Node):
     :ivar decode_mode: The decode mode of the block,
         used in some ISAs to differentiate between sub-ISAs
         (e.g. differentiating blocks written in ARM and Thumb).
-        Defaults to 0.
     """
 
     def __init__(self, address, size, *, decode_mode=0, uuid=None):
