@@ -17,7 +17,7 @@ class Symbol(Node):
 
     class StorageKind(Enum):
         """
-        Indicates the storage kind of a Symbol.
+        The storage kind of a :class:`gtirb.Symbol`.
         """
 
         Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
