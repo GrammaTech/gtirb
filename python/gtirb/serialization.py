@@ -347,7 +347,7 @@ class Serialization:
             'UUID': UUIDCodec,
         }  # type: typing.Dict[str, Codec]
 
-    def _decode_tree(self, raw_bytes, type_tree):\
+    def _decode_tree(self, raw_bytes, type_tree):
         # type: (typing.BinaryIO,SubtypeTree) -> typing.Any
         """Decode given a parsed type tree."""
 
