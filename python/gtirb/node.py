@@ -87,9 +87,10 @@ class Node:
         are actually needed, and not for all equality checks. Typically the
         default implmentation of __eq__, which checks pointer equality, is
         sufficient; Nodes are cached such that references to two Nodes with
-        the same UUID refer to the same exact object. Use this method if
-        you need to ensure two Nodes have the same contents, even if they
-        have differing UUIDs.
+        the same UUID refer to the same exact object. Use this method when
+        you have manually constructed Nodes that may share the same UUID
+        despite being different objects, and you need to check for structural
+        equality.
         """
 
         raise NotImplementedError
