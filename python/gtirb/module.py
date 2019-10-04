@@ -239,30 +239,44 @@ class Module(AuxDataContainer):
     """Represents a loadable object, such as an executable or library.
 
     :ivar binary_path: The path to the loadable binary object
-        represented by this module.
-    :ivar blocks: A set of contained Blocks.
-    :ivar data: A set of contained DataObjects.
-    :ivar image_byte_map: An ImageByteMap containing the raw bytes
-        present in the binary.
+        represented by this module. An empty string if not specified.
+        The file represented by this path is indicitave of what file
+        this ``Module`` was initially created from; it is not guaranteed to
+        currently exist or have the same contents.
+    :ivar blocks: A set containing all the :class:`gtirb.Block`\\s
+        in the binary.
+    :ivar data: A set containing all the :class:`gtirb.DataObject`\\s
+        in the binary.
+    :ivar image_byte_map: A :class:`gtirb.ImageByteMap` containing the raw
+        bytes present in the binary.
     :ivar isa_id: The ISA of the binary.
     :ivar file_format: The file format of the binary.
-    :ivar name: The name of the binary.
+    :ivar name: The name given to the binary. Some file formats use this
+        for linking and/or symbol resolution purposes. An empty string if
+        not specified by the format.
     :ivar preferred_addr: The preferred loading address of the binary.
-    :ivar proxies: A set of contained ProxyBlocks.
+    :ivar proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s
+        in the binary.
     :ivar rebase_delta: The rebase delta of the binary.
-    :ivar sections: A set of contained Sections.
-    :ivar symbols: A set of contained Symbols.
-    :ivar symbolic_operands: A dict mapping addresses to symbolic operands
-        (i.e., SymAddrAddr, SymAddrConst, or SymStackConst).
+    :ivar sections: A set containing all the :class:`gtirb.Section`\\s
+        in the binary.
+    :ivar symbols: A set containing all the :class:`gtirb.Symbol`\\s
+        in the binary.
+    :ivar symbolic_operands: A ``dict`` mapping addresses to symbolic operands
+        (i.e. :class:`gtirb.SymAddrAddr`\\s, :class:`SymAddrConst`\\s, or
+        :class:`SymStackConst`\\s).
     """
 
     class FileFormat(Enum):
-        """Identifies the executable file format of the
-       binary represented by a :class:`gtirb.Module`.
+        """Identifies the executable file format of the binary represented
+        by a :class:`gtirb.Module`.
         """
 
         Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
-        """An unspecified file format."""
+        """A file format that has not yet been specified.
+        This is for unitialized modules; do not use to refer to
+        file formats without ``FileFormat`` values.
+        """
 
         COFF = Module_pb2.FileFormat.Value('COFF')
         """The Common Object File Format."""
@@ -343,22 +357,28 @@ class Module(AuxDataContainer):
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`, defaults to an empty :class:`dict`.
-        :param binary_path: The path to the binary.
-        :param blocks: A set of contained Blocks.
-        :param cfg: The value of :attr:`self.cfg`.
-        :param data: A set of contained DataObjects.
-        :param file_format: The file format of the binary.
-        :param image_byte_map: An ImageByteMap containing the raw bytes
-            present in the binary.
+        :param binary_path: The path to the loadable binary object
+            represented by this module.
+        :param blocks: A set containing all the :class:`gtirb.Block`\\s
+            in the binary.
+        :param data: A set containing all the :class:`gtirb.DataObject`\\s
+            in the binary.
+        :param image_byte_map: A :class:`gtirb.ImageByteMap` containing the raw
+            bytes present in the binary.
         :param isa_id: The ISA of the binary.
-        :param name: The name of the binary.
+        :param file_format: The file format of the binary.
+        :param name: The name given to the binary.
         :param preferred_addr: The preferred loading address of the binary.
-        :param proxies: A set of contained ProxyBlocks.
+        :param proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s
+            in the binary.
         :param rebase_delta: The rebase delta of the binary.
-        :param sections: A set of contained Sections.
-        :param symbols: A set of contained Symbols.
-        :param symbolic_operands: A dict mapping addresses to symbolic operands
-            (i.e., SymAddrAddr, SymAddrConst, or SymStackConst).
+        :param sections: A set containing all the :class:`gtirb.Section`\\s
+            in the binary.
+        :param symbols: A set containing all the :class:`gtirb.Symbol`\\s
+            in the binary.
+        :param symbolic_operands: A ``dict`` mapping addresses to symbolic
+            operands (i.e. :class:`gtirb.SymAddrAddr`\\s,
+            :class:`SymAddrConst`\\s, or :class:`SymStackConst`\\s).
         :param uuid: The UUID of this Node,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
