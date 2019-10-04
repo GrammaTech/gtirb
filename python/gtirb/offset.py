@@ -29,10 +29,17 @@ class Offset:
     @classmethod
     def _from_protobuf(cls, offset):
         # type: (Offset_pb2.Offset) -> Offset
+        """Decode a Protobuf object to an offset.
+
+        :param offset: The Protobuf object.
+        """
+
         return cls(UUID(bytes=offset.element_id), offset.displacement)
 
     def _to_protobuf(self):
         # type: () -> Offset_pb2.Offset
+        """Encode this offset into a Protobuf object."""
+
         proto_offset = Offset_pb2.Offset()
         proto_offset.element_id = self.element_id.bytes
         proto_offset.displacement = self.displacement
