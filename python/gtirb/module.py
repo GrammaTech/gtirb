@@ -49,36 +49,55 @@ class Edge:
         """
 
         Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
-        """This edge represents the lack of control flow; that is,
-        two blocks executing in sequence.
-        May be conditional, if part of a conditional jump, etc.
-        Two blocks with fallthrough edges from one to another
-        must be adjacent in memory.
+        """This edge represents two blocks executing in sequence.
+        This occurs on the non-branching paths of conditional branch
+        instructions, after call instructons have returned, and when two
+        blocks have no control flow between them, but another
+        :class:`gtirb.Edge` targets the target block.
+        If there exists a fallthrough edge from block ``A`` to block ``B``,
+        then ``A`` must immediately precede ``B`` in memory.
         """
 
         Return = CFG_pb2.EdgeType.Value('Type_Return')
         """This edge represents a return from a function, generally via a
-        return instruction. Since it is not trivial to determine what calls
-        calls what functions, return edges may be omitted from valid CFGs.
+        return instruction. Return edges may be omitted from valid CFGs;
+        a function may have an uncomputable number of possible return sites,
+        due to the possibility of indirect calls.
         """
 
         Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
-        """This edge is like :class:`gtirb.Edge.Type.Call`, except for
-        system call instructions.
+        """This edge is the explicit target of a system call instruction.
+        Unless the function does not return, there will also be a
+        corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`. This
+        is the system call equivalent to :class:`gtirb.Edge.Type.Call`.
         """
 
         Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
-        """This edge is like :class:`gtirb.Edge.Type.Return`, except for
-        system call instructions.
+        """This edge represents a return from a system call, generally via a
+        return instruction. Return edges may be omitted from valid CFGs;
+        a function may have an uncomputable number of possible return sites,
+        due to the possibility of indirect calls. This is the system call
+        equivalent to :class:`gtirb.Edge.Type.Return`.
         """
 
     class Label:
-        """Contains a more detailed description of an edge in the CFG.
+        """Contains a more detailed description of a :class:`gtirb.Edge`
+        in the CFG.
 
-        :ivar conditional: A boolean indicating if an edge is conditional on
-            True or False.
-        :ivar direct: A boolean indicating if an edge is direct or indirect.
-        :ivar type: The type of the edge.
+        :ivar conditional: When this edge is part of a conditional branch,
+            ``conditional`` is ``True`` when the edge represents the control
+            flow taken when the branch's condition is met, and ``False``
+            when it represents the control flow taken when the branch's
+            condition is not met. Otherwise, it is always ``False``.
+        :ivar direct: ``True`` if the branch or call is direct,
+                and ``False`` if it is indirect. If an edge is indirect,
+                then all outgoing indirect edges represent the set of
+                possible locations the edge may branch to. If there
+                exists an indirect outgoing edge to a :class:`gtirb.ProxyBlock`
+                without any :class:`gtirb.Symbol` objects referring to it,
+                then the set of all possible branch locations is unknown.
+        :ivar type: The type of control flow the :class:`gtirb.Edge`
+            represents.
         """
 
         def __init__(
@@ -89,11 +108,13 @@ class Edge:
             direct=True  # type: bool
         ):
             """
-            :param type: The type of the edge.
-            :param conditional: A boolean indicating if an edge is
-                conditional on True or False.
-            :param direct: A boolean indicating if an edge is
-                direct or indirect.
+            :param type: The type of control flow the :class:`gtirb.Edge`
+                represents.
+            :param conditional: ``True`` when this edge represents a
+                conditional branch taken when the branch's condition is met,
+                and ``False`` otherwise.
+            :param direct: ``True`` if the branch or call is direct,
+                and ``False`` if it is indirect.
             """
 
             self.type = type  # type: Edge.Type
