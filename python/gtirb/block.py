@@ -32,7 +32,7 @@ class Block(Node):
             used in some ISAs to differentiate between sub-ISAs
             (e.g. differentiating blocks written in ARM and Thumb).
             Defaults to 0.
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``Block``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """

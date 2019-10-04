@@ -42,7 +42,7 @@ class ImageByteMap(Node):
             contents of addresses ``A`` through ``A+len(S)-1``.
         :param entry_point_address: The entry point address of the
             loaded file in memory.
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``ImageByteMap``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         :raises ValueError: if the given byte map is invalid.

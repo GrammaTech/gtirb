@@ -36,7 +36,7 @@ class IR(AuxDataContainer):
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`. Defaults to an empty :class:`dict`
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``IR``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """

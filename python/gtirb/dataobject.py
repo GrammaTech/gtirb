@@ -19,7 +19,7 @@ class DataObject(Node):
         """
         :param address: The address of the data object.
         :param size: The size of the data object in bytes.
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``DataObject``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """

@@ -15,7 +15,7 @@ class Node:
     def __init__(self, uuid=None):
         # type: (typing.Optional[UUID]) -> None
         """
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``Node``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """

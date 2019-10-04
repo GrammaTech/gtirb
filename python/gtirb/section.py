@@ -27,7 +27,7 @@ class Section(Node):
         :param name: The name of this section.
         :param address: The address this section is located at in memory.
         :param size: The size of this section in bytes.
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``Section``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """

@@ -56,7 +56,7 @@ class Symbol(Node):
         """
         :param name: The name of this symbol.
         :param storage_kind: The storage kind of this symbol.
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``Symbol``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         :param payload: The value this symbol points to.

@@ -379,7 +379,7 @@ class Module(AuxDataContainer):
         :param symbolic_operands: A ``dict`` mapping addresses to symbolic
             operands (i.e. :class:`gtirb.SymAddrAddr`\\s,
             :class:`SymAddrConst`\\s, or :class:`SymStackConst`\\s).
-        :param uuid: The UUID of this Node,
+        :param uuid: The UUID of this ``Module``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """
