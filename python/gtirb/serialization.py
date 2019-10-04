@@ -335,7 +335,8 @@ class Serialization:
     """
 
     def __init__(self):
-        """"""
+        """Initialize with the built-in `gtirb.serialization.Codec` subclasses.
+        """
 
         self.codecs = {
             'Addr': Uint64Codec,
@@ -352,7 +353,12 @@ class Serialization:
 
     def _decode_tree(self, raw_bytes, type_tree):
         # type: (typing.BinaryIO,SubtypeTree) -> typing.Any
-        """Decode given a parsed type tree."""
+        """Decode the data in ``raw_bytes`` given a parsed type tree.
+
+        :param raw_bytes: The binary stream to read bytes from.
+        :param type_tree: The parsed type of the object encoded by
+            ``raw_bytes``.
+        """
 
         try:
             type_name, subtypes = type_tree
@@ -365,7 +371,12 @@ class Serialization:
 
     def _encode_tree(self, out, val, type_tree):
         # type: (typing.BinaryIO, typing.Any, SubtypeTree) -> None
-        """Encodes given a parsed type tree."""
+        """Encode the data in ``val`` given a parsed type tree.
+
+        :param out: A binary stream to write bytes to.
+        :param val: The :class:`gtirb.AuxData` to encode.
+        :param type_tree: The parsed type to encode ``val`` as.
+        """
 
         try:
             type_name, subtypes = type_tree
@@ -389,6 +400,8 @@ class Serialization:
 
         >>> _parse_type('foo<bar<baz>>')
         ('foo', (('bar', (('baz', ()),)),))
+
+        :param type_name: The type name to parse into a ``SubtypeTree``.
         """
         tokens = findall("[^<>,]+|<|>|,", type_name)
 
