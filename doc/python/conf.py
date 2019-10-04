@@ -90,6 +90,8 @@ autodoc_default_options = {
         "__orig_bases__,"
         "__origin__,"
         "__tree_hash__,"
+        "__parameters__,"
+        "__subclasshook__,"
     ),
 }
 
