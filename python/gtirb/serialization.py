@@ -1,9 +1,3 @@
-"""AuxData serialization/deserialization classes and methods.
-
-The Serialization class is used for encoding/decoding GTIRB types, using
-codecs of class :class`gtirb.Codec`.
-"""
-
 from re import findall
 from uuid import UUID
 import io
