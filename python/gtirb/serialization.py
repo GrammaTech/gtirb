@@ -12,11 +12,11 @@ class CodecError(Exception):
 
 
 class DecodeError(CodecError):
-    """Represents an exception during decoding."""
+    """An exception during decoding."""
 
 
 class EncodeError(CodecError):
-    """Represents an exception during encoding."""
+    """An exception during encoding."""
 
 
 class TypeNameError(EncodeError):
@@ -39,8 +39,17 @@ class UnknownCodecError(CodecError):
         self.name = name
 
 
-SubtypeTree = typing.Tuple[str, typing.Iterable["SubtypeTree"]]
-"""A type hint representing a parsed serialization type name."""
+class SubtypeTree(typing.Tuple[str, typing.Iterable["SubtypeTree"]]):
+    """A type hint representing a parsed serialization type name.
+    A ``SubtypeTree`` is a ``tuple`` with two items: A ``str`` giving
+    the name of the type and a ``tuple`` of type parameters
+    (which are also ``SubtypeTree``\\s). For example, the following are all
+    valid ``SubtypeTree``\\s:
+
+    >>> ('string', ())
+    >>> ('sequence', (('UUID',()),))
+    >>> ('mapping', (('string', ()),('set', (('UUID', ()),))))
+    """
 
 
 class Codec:
@@ -59,7 +68,7 @@ class Codec:
         :param raw_bytes: The BytesIO object to be decoded.
         :param serialization: A Serialization instance used to invoke
             other codecs if needed.
-        :param subtypes: A parsed tree of subtypes.
+        :param subtypes: The parsed type of this object.
         :returns: A new Python object, as decoded from ``raw_bytes``.
         """
 
@@ -80,7 +89,7 @@ class Codec:
         :param item: The arbitrary Python object to encode.
         :param serialization: A Serialization instance, used to invoke
             other codecs if needed.
-        :param subtypes: A parsed tree of subtypes.
+        :param subtypes: The parsed type of this object.
         """
 
         raise NotImplementedError
@@ -380,10 +389,6 @@ class Serialization:
 
         >>> _parse_type('foo<bar<baz>>')
         ('foo', (('bar', (('baz', ()),)),))
-
-        :returns: A nested tuple of parsed type/subtype tuples.
-            A single parsed type is a tuple of the type name and a tuple of its
-            subtypes. An empty tuple indicates no subtype.
         """
         tokens = findall("[^<>,]+|<|>|,", type_name)
 
@@ -451,7 +456,7 @@ class Serialization:
 
     def decode(self, raw_bytes, type_name):
         # type: (typing.BinaryIO,str) -> typing.Any
-        """Decode an :class:`gtirb.AuxData` of the specified type
+        """Decode a :class:`gtirb.AuxData` of the specified type
         from the specified byte stream.
 
         :param raw_bytes: The byte stream from which to read the encoded value.
