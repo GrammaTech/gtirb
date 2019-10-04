@@ -32,17 +32,17 @@ class Symbol(Node):
         Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
         """An unspecified storage kind."""
 
-        Normal = Symbol_pb2.StorageKind.Value("Storage_Normal")
-        """This symbol is accessible outside the module."""
+        Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
+        """The symbol is accessible outside the module."""
 
-        Static = Symbol_pb2.StorageKind.Value("Storage_Static")
-        """This symbol is accessible only within the module."""
+        Static = Symbol_pb2.StorageKind.Value('Storage_Static')
+        """The symbol is accessible only within the module."""
 
-        Extern = Symbol_pb2.StorageKind.Value("Storage_Extern")
-        """This symbol is defined outside of this module."""
+        Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
+        """The symbol is defined outside of this module."""
 
-        Local = Symbol_pb2.StorageKind.Value("Storage_Local")
-        """This symbol is stored locally,
+        Local = Symbol_pb2.StorageKind.Value('Storage_Local')
+        """The symbol is stored locally,
         in the context of a function's activation frame.
         """
 
