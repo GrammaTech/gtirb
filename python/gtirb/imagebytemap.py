@@ -357,7 +357,8 @@ class ImageByteMap(Node):
 
     def _in_range(self, key):
         # type: (int) -> bool
-        """Check if a key is within the range of this bytemap.
+        """Check: is an address within the possible domain of addresses
+        in this bytemap? That is, is it within ``range(addr_min, addr_max)``?
 
         :param key: The address to check for being in range.
         """
