@@ -29,11 +29,15 @@ class Node:
     def from_uuid(cls, uuid):
         # type: (UUID) -> typing.Optional[Node]
         """
-        Find the ``Node`` with the specified UUID,
-        or ``None`` if no such ``Node`` can be found.
+        Get the ``Node`` with the specified UUID,
+        or ``None`` if no such ``Node`` exists.
 
         :param uuid: The UUID to look up.
         :raises TypeError: if the Node is not of the requested type.
+            To request that the output be of a specific type, call this
+            function from the desired subclass. For example, calling
+            ``gtirb.Block.from_uuid`` will return a :class:`gtirb.Block` or
+            raise a ``TypeError``.
         """
 
         node = Node._uuid_cache.get(uuid)
