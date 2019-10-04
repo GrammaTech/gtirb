@@ -328,7 +328,13 @@ class ImageByteMap(Node):
 
     def _find_end(self, address):
         # type: (int) -> int
-        """Get the last address in the block containing address."""
+        """Get the last address of the region of contiguous bytes at the
+        position specified by ``address``.
+
+        :param address: An address pointing into a region in ``_byte_map``.
+        :raises IndexError: if no region contains ``address``.
+        """
+
         start = self._find_start(address)
         last_address = start + len(self._byte_map[start]) - 1
         if address > last_address:
@@ -337,7 +343,13 @@ class ImageByteMap(Node):
 
     def _find_start(self, address):
         # type: (int) -> int
-        """Find the greatest start less than or equal to ``address``."""
+        """Get the first address of the region of contiguous bytes at the
+        position specified by ``address``.
+
+        :param address: An address pointing into a region in ``_byte_map``.
+        :raises IndexError: if no region contains ``address``.
+        """
+
         i = bisect_right(self._start_addresses, address)
         if i:
             return self._start_addresses[i - 1]
@@ -345,7 +357,11 @@ class ImageByteMap(Node):
 
     def _in_range(self, key):
         # type: (int) -> bool
-        """Check if a key is within the range of this bytemap."""
+        """Check if a key is within the range of this bytemap.
+
+        :param key: The address to check for being in range.
+        """
+
         return key >= self.addr_min and key <= self.addr_max
 
     def _to_protobuf(self):
