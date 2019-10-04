@@ -11,10 +11,10 @@ class SymAddrAddr:
     """Represents a symbolic operand of the form
     "(Sym1 - Sym2) / Scale + Offset".
 
-    :ivar scale: How much the difference needs divided by in bytes.
-    :ivar offset: The fixed offset of the difference in bytes.
-    :ivar symbol1: The base symbol.
-    :ivar symbol2: The index symbol.
+    :ivar scale: Constant scale factor.
+    :ivar offset: Constant offset.
+    :ivar symbol1: Symbol representing the base address.
+    :ivar symbol2: Symbol to subtract from ``symbol1``.
     """
 
     def __init__(
@@ -26,10 +26,10 @@ class SymAddrAddr:
     ):
         # type: (...) -> None
         """
-        :param scale: How much the difference needs divided by in bytes.
-        :param offset: The fixed offset of the difference in bytes.
-        :param symbol1: The base symbol.
-        :param symbol2: The index symbol.
+        :param scale: Constant scale factor.
+        :param offset: Constant offset.
+        :param symbol1: Symbol representing the base address.
+        :param symbol2: Symbol to subtract from ``symbol1``.
         """
 
         self.scale = scale  # type: int
@@ -84,15 +84,15 @@ class SymAddrAddr:
 class SymAddrConst:
     """Represents a symbolic operand of the form "Sym + Offset".
 
-    :ivar offset: A fixed offset from the symbol in bytes.
-    :ivar symbol: The symbol to refer to.
+    :ivar offset: Constant offset.
+    :ivar symbol: Symbol representing an address.
     """
 
     def __init__(self, offset, symbol):
         # type: (int,Symbol) -> None
         """
-        :param offset: A fixed offset from the symbol in bytes.
-        :param symbol: The symbol to refer to.
+        :param offset: Constant offset.
+        :param symbol: Symbol representing an address.
         """
 
         self.offset = offset  # type: int
@@ -137,15 +137,15 @@ class SymStackConst:
     """Represents a symbolic operand of the form "Sym + Offset",
     representing an offset from a stack variable.
 
-    :ivar offset: A fixed offset from the symbol in bytes.
-    :ivar symbol: The symbol to refer to.
+    :ivar offset: Constant offset.
+    :ivar symbol: Symbol representing a stack variable.
     """
 
     def __init__(self, offset, symbol):
         # type: (int,Symbol) -> None
         """
-        :param offset: A fixed offset from the symbol in bytes.
-        :param symbol: The symbol to refer to.
+        :param offset: Constant offset.
+        :param symbol: Symbol representing a stack variable.
         """
 
         self.offset = offset  # type: int
