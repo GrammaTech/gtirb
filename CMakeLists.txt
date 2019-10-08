@@ -242,8 +242,8 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 if(GTIRB_CXX_API)
-  # we do not yet support Boost's new cmake support that was introduced in 1.70.0
-  # Boost_NO_BOOST_CMAKE, luckily, disables this new feature
+  # we do not yet support Boost's new cmake support that was introduced in
+  # 1.70.0 Boost_NO_BOOST_CMAKE, luckily, disables this new feature
   set(Boost_NO_BOOST_CMAKE ON)
 
   find_package(Boost 1.67 REQUIRED)
