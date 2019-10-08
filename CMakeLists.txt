@@ -242,14 +242,20 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 if(GTIRB_CXX_API)
-  # we do not yet support Boost's new cmake support that was introduced in
-  # 1.70.0 Boost_NO_BOOST_CMAKE, luckily, disables this new feature
-  set(Boost_NO_BOOST_CMAKE ON)
-
   find_package(Boost 1.67 REQUIRED)
 
   add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
   add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
+
+  # Boost versions 1.70.0+ may use Boost's provided CMake support rather than
+  # CMake's internal Boost support. The former uses "Boost::boost" and so on,
+  # while the latter uses "Boost_BOOST" and so on. This normalizes the two cases
+  # to use Boost_INCLUDE_DIRS and Boost_LIBRARIES.
+  if(TARGET Boost::headers)
+    get_target_property(Boost_INCLUDE_DIRS Boost::headers
+                        INTERFACE_INCLUDE_DIRECTORIES)
+  endif()
+
   include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 endif()
 
