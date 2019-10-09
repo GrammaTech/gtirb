@@ -344,7 +344,7 @@ if(GTIRB_CXX_API)
               set_property(
                   TARGET gtirb
                   APPEND PROPERTY
-                      INTERFACE_INCLUDE_DIRECTORIES \"${CMAKE_BINARY_DIR}/include\" ${PROTOBUF_INCLUDE_DIRS}
+                      INTERFACE_INCLUDE_DIRECTORIES \"${CMAKE_BINARY_DIR}/include\" \"${PROTOBUF_INCLUDE_DIRS}\"
               )
           "
   )
