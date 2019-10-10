@@ -134,9 +134,5 @@ test-install:
           PUSH_TAG=$CI_COMMIT_REF_SLUG;
       fi
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export IMAGE=$DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG}
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
-    - docker pull $IMAGE
     - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - docker build -f .ci/Dockerfile.test-install -t $LOCAL_IMAGE . --build-arg IMAGE=$IMAGE
-    - docker rmi -f $LOCAL_IMAGE
+    - docker build -f .ci/Dockerfile.test-install --build-arg IMAGE=$LOCAL_IMAGE --rm .
