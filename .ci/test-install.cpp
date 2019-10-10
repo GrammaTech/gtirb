@@ -1,7 +1,16 @@
 #include <gtirb/gtirb.hpp>
+#include <cstdio>
+#include <fstream>
 
 int main() {
-  auto ctx = gtirb::Context();
-  auto ir = gtirb::IR::Create(ctx);
-  return ir->modules().empty() ? 0 : 1;
+  auto filename = std::tmpnam(nullptr);
+  std::ofstream ofs{filename, std::ios_base::binary};
+  auto ctx1 = gtirb::Context();
+  auto ir1 = gtirb::IR::Create(ctx1);
+  ir1->save(ofs);
+  ofs.close();
+  std::ifstream ifs{filename, std::ios_base::binary};
+  auto ctx2 = gtirb::Context();
+  auto ir2 = gtirb::IR::load(ctx2, ifs);
+  return ir2->modules().empty() ? 0 : 1;
 }
