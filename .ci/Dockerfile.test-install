@@ -9,6 +9,10 @@ FROM $IMAGE
 WORKDIR /gt/gtirb/build
 RUN make install
 
+# delete build directories, to ensure we're not using anything from there
+WORKDIR /gt
+RUN rm -rf gtirb
+
 # compile a C++ file linking to library
 COPY .ci/test-install.cpp test-install.cpp
 
