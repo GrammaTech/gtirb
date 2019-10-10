@@ -9,6 +9,7 @@ before_script:
 stages:
   - check-format
   - build
+  - test
   - deploy
   - cleanup
 
@@ -119,3 +120,22 @@ cleanup:
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-gcc
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-clang
   when: always
+
+test-install:
+  stage: test
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+  script:
+    - if [ "$CI_COMMIT_REF_SLUG" = "master" ];
+      then
+          PUSH_TAG=latest;
+      else
+          PUSH_TAG=$CI_COMMIT_REF_SLUG;
+      fi
+    - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
+    - docker pull $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG}
+    - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
+    - docker build -f .ci/Dockerfile.test-install -t $LOCAL_IMAGE .
+    - docker rmi -f $LOCAL_IMAGE
