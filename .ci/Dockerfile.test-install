@@ -1,0 +1,19 @@
+# This file runs a test to ensure that this library can be installed once built,
+# and C++ code is able to link to it with the proper `-l` flags only.
+
+# this test should be distro-agnostic
+ARG IMAGE=docker.grammatech.com/rewriting/gtirb/ubuntu18-gcc7
+FROM $IMAGE
+
+# install
+WORKDIR /gt/gtirb/build
+RUN make install
+
+# compile a C++ file linking to library
+COPY .ci/test-install.cpp test-install.cpp
+
+ARG CXX_COMPILER=c++
+RUN $CXX_COMPILER test-install.cpp -std=c++17 -o test-install -lgtirb
+
+# run it, ensuring return code is 0
+RUN ./test-install
