@@ -21,3 +21,7 @@ RUN $CXX_COMPILER test-install.cpp -std=c++17 -o test-install -lgtirb
 
 # run it, ensuring return code is 0
 RUN ./test-install
+
+# test that the Python package was installed
+COPY .ci/test-install.py test-install.py
+RUN python3 test-install.py
