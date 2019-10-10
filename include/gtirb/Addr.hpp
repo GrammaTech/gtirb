@@ -41,8 +41,7 @@ public:
   typedef int64_t difference_type;
 
   /// \brief Default constructor.
-  /// The default implementation provided by the compiler is used.
-  constexpr Addr() noexcept = default;
+  constexpr Addr() noexcept : Address{0} {}
 
   /// \brief Explicit conversion from \c value_type to \ref Addr.
   ///
