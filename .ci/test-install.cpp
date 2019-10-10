@@ -1,4 +1,4 @@
-#include <gtirb/IR.hpp>
+#include <gtirb/gtirb.hpp>
 
 int main() {
   auto ctx = gtirb::Context();
