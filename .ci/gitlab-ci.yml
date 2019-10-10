@@ -119,6 +119,7 @@ cleanup:
     - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu18-clang
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-gcc
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-clang
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-test-install
   when: always
 
 test-install:
@@ -135,4 +136,4 @@ test-install:
       fi
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - docker build -f .ci/Dockerfile.test-install --build-arg IMAGE=$LOCAL_IMAGE --rm .
+    - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-test-install --build-arg IMAGE=$LOCAL_IMAGE .
