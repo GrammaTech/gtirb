@@ -19,8 +19,7 @@ endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         #add_compile_options(-wd4251)  # Non-exportable template classes.
-        add_compile_options(-wd4100) # unreferenced formal parameter, for protobuf includes
-    add_compile_options(-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT)
+        add_compile_options(-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
         #add_compile_options(-Wno-unused-function)
         add_compile_options(-mtune=generic)
@@ -107,6 +106,14 @@ target_link_libraries(
   PRIVATE
   proto)
 target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    # These two warnings come from protobuf headers, disabling them this way
+    # means that projects which link to gtirb via cmake won't have to deal
+    # with them.
+    target_compile_options(${PROJECT_NAME} PUBLIC -wd4100) # unreferenced formal parameter
+    target_compile_options(${PROJECT_NAME} PUBLIC -wd4127) # conditional expression is constant
+endif()
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD

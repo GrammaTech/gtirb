@@ -5,6 +5,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_compile_options(-wd4100) # unreferenced formal parameter
     add_compile_options(-wd4267) # conversion from 'type1' to 'type2', possible loss of data
     add_compile_options(-wd4244) # possible loss of data in conversion
+    add_compile_options(-wd4127) # conditional expression is constant
     add_compile_options("/FIgtirb/Export.hpp")
 else()
     add_compile_options(-Wno-shadow)

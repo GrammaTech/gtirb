@@ -160,8 +160,6 @@ if(GTIRB_CXX_API)
                                  # initialized.
     add_compile_options(-wd4146) # unary minus operator applied to unsigned
                                  # type, result still unsigned
-    add_compile_options(-wd4127) # conditional expression is constant (protobuf
-                                 # generates this diagnostic).
 
     # Per-configuration options
     add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)
