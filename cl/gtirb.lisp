@@ -1,6 +1,8 @@
 (defpackage :gtirb/gtirb
   (:nicknames :gtirb)
-  (:use :common-lisp)
+  (:use :common-lisp :graph)
+  (:import-from :uiop :nest)
+  (:import-from :bit-smasher :octets->int :int->octets)
   (:shadow :symbol :block)
   (:export :read-gtirb-proto :write-gtirb-proto))
 (in-package :gtirb/gtirb)
@@ -32,18 +34,6 @@
 
 
 ;;;; Classes
-;;;
-;;; Started fleshing out classes to wrap the raw protobuf.  One
-;;; important decision is how much we want to wrap everything.  E.g.,
-;;; should we simply hold pointers to the protobuf, and parse/update
-;;; that on every access?  Alternately, should we be converting
-;;; everything from protobuf to more idiomatic Common Lisp objects
-;;; actually stored on the classes (as done with modules of gtirb
-;;; objects below)?
-;;;
-;;; We probably want a wrapper for the graph at least, I'm not sure
-;;; about the other elements of the GTIRB or the module.
-;;;
 (defclass aux-data ()
   ((proto :initarg :proto :type proto:aux-data
           :documentation "Backing protobuf object.")))
@@ -52,7 +42,7 @@
 (defclass module ()
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")
-   (cfg :accessor cfgs :type cfg
+   (cfg :accessor cfg :type cfg
         :documentation "Module control flow block (CFG).")
    (aux-data :accessor aux-data :type (list aux-data)
              :documentation "Module auxiliary data objects.")))
@@ -101,6 +91,28 @@
 
 (defmethod (setf blocks) (new (obj module))
   (setf (proto:blocks (proto obj)) new))
+
+(defmethod initialize-instance :after ((obj module) &key)
+  (nest
+   (with-slots (cfg proto) obj)
+   (let ((p-cfg (proto:cfg proto))))
+   (setf cfg)
+   (populate
+    (make-instance 'digraph)
+    :edges-w-values
+    (mapcar (lambda (edge)
+              (list (list (uuid-to-integer (proto:source-uuid edge))
+                          (uuid-to-integer (proto:target-uuid edge)))
+                    (proto:label edge)))
+            (coerce (proto:edges p-cfg) 'list))
+    :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
+
+(defun uuid-to-integer (uuid)
+  (octets->int
+   (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)))
+
+(defun integer-to-uuid (number)
+  (int->octets number))
 
 (defmethod print-object ((obj module) (stream stream))
   (print-unreadable-object (obj stream :type t :identity cl:t)
