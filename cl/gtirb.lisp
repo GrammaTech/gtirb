@@ -1,6 +1,6 @@
 (defpackage :gtirb/gtirb
   (:nicknames :gtirb)
-  (:use :common-lisp :graph)
+  (:use :common-lisp :alexandria :graph)
   (:import-from :uiop :nest)
   (:import-from :bit-smasher :octets->int :int->octets)
   (:shadow :symbol :block)
@@ -53,13 +53,14 @@
 (defmethod (setf name) ((obj module) new)
   (setf (proto:name (proto obj)) (pb:string-field new)))
 
-(defconstant +module-isa-map+
-  '((#.proto:+isaid-isa-undefined+ . :undefined)
-    (#.proto:+isaid-ia32+ . :ia32)
-    (#.proto:+isaid-ppc32+ . :ppc32)
-    (#.proto:+isaid-x64+ . :x64)
-    (#.proto:+isaid-arm+ . :arm)
-    (#.proto:+isaid-valid-but-unsupported+ . :valid-but-unsupported)))
+(define-constant +module-isa-map+
+    '((#.proto:+isaid-isa-undefined+ . :undefined)
+      (#.proto:+isaid-ia32+ . :ia32)
+      (#.proto:+isaid-ppc32+ . :ppc32)
+      (#.proto:+isaid-x64+ . :x64)
+      (#.proto:+isaid-arm+ . :arm)
+      (#.proto:+isaid-valid-but-unsupported+ . :valid-but-unsupported))
+  :test #'equal)
 
 (defmethod isa ((obj module))
   (cdr (assoc (proto:isa-id (proto obj)) +module-isa-map+)))
@@ -68,16 +69,17 @@
   (setf (proto:isa-id (proto obj))
         (car (rassoc new +module-isa-map+))))
 
-(defconstant +module-file-format-map+
-  '((#.proto:+file-format-coff+ . :coff)
-    (#.proto:+file-format-elf+ . :elf)
-    (#.proto:+file-format-ida-pro-db32+ . :ida-pro-db32)
-    (#.proto:+file-format-ida-pro-db64+ . :ida-pro-db64)
-    (#.proto:+file-format-macho+ . :macho)
-    (#.proto:+file-format-pe+ . :pe)
-    (#.proto:+file-format-raw+ . :raw)
-    (#.proto:+file-format-xcoff+ . :xcoff)
-    (#.proto:+file-format-format-undefined+ . :format-undefined)))
+(define-constant +module-file-format-map+
+    '((#.proto:+file-format-coff+ . :coff)
+      (#.proto:+file-format-elf+ . :elf)
+      (#.proto:+file-format-ida-pro-db32+ . :ida-pro-db32)
+      (#.proto:+file-format-ida-pro-db64+ . :ida-pro-db64)
+      (#.proto:+file-format-macho+ . :macho)
+      (#.proto:+file-format-pe+ . :pe)
+      (#.proto:+file-format-raw+ . :raw)
+      (#.proto:+file-format-xcoff+ . :xcoff)
+      (#.proto:+file-format-format-undefined+ . :format-undefined))
+  :test #'equal)
 
 (defmethod file-format ((obj module))
   (cdr (assoc (proto:file-format (proto obj)) +module-file-format-map+)))
