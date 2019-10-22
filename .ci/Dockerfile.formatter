@@ -14,4 +14,5 @@ RUN pip3 install pre-commit
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
 
+RUN pre-commit autoupdate
 RUN pre-commit run --all-files
