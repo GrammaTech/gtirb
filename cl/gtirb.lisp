@@ -30,35 +30,8 @@
       (write-sequence buffer output)))
   (values))
 
-;;; TODO: Allow setf through this function.
-(defun decode-file-format (file-format-number)
-  (declare (type fixnum file-format-number)
-           (optimize (speed 3)))
-  (ecase file-format-number
-    (#.proto:+file-format-coff+ :coff)
-    (#.proto:+file-format-elf+ :elf)
-    (#.proto:+file-format-ida-pro-db32+ :ida-pro-db32)
-    (#.proto:+file-format-ida-pro-db64+ :ida-pro-db64)
-    (#.proto:+file-format-macho+ :macho)
-    (#.proto:+file-format-pe+ :pe)
-    (#.proto:+file-format-raw+ :raw)
-    (#.proto:+file-format-xcoff+ :xcoff)
-    (#.proto:+file-format-format-undefined+ :format-undefined)))
-
-;;; TODO: Allow setf through this function.
-(defun decode-isa (isa-number)
-  (declare (type fixnum isa-number)
-           (optimize (speed 3)))
-  (ecase isa-number
-    (#.proto:+isaid-isa-undefined+ :undefined)
-    (#.proto:+isaid-ia32+ :ia32)
-    (#.proto:+isaid-ppc32+ :ppc32)
-    (#.proto:+isaid-x64+ :x64)
-    (#.proto:+isaid-arm+ :arm)
-    (#.proto:+isaid-valid-but-unsupported+ :valid-but-unsupported)))
-
 
-;;;; Class
+;;;; Classes
 ;;;
 ;;; Started fleshing out classes to wrap the raw protobuf.  One
 ;;; important decision is how much we want to wrap everything.  E.g.,
@@ -71,77 +44,78 @@
 ;;; We probably want a wrapper for the graph at least, I'm not sure
 ;;; about the other elements of the GTIRB or the module.
 ;;;
-(defclass section ()
-  ((proto :initarg :proto :type proto:section
-          :documentation "Backing protobuf object.")))
-
-(defclass symbol ()
-  ((proto :initarg :proto :type proto:symbol
-          :documentation "Backing protobuf object.")))
-
-(defclass symbolic-operand ()
-  ((proto :initarg :proto :type proto::module-symbolic-operands-entry
-          :documentation "Backing protobuf object.")))
-
-(defclass cfg ()
-  ((proto :initarg :proto :type proto:cfg
-          :documentation "Backing protobuf object.")))
-
-(defclass block ()
-  ((proto :initarg :proto :type proto:block
-          :documentation "Backing protobuf object.")))
-
-(defclass data ()
-  ((proto :initarg :proto :type proto:data
-          :documentation "Backing protobuf object.")))
-
-(defclass proxy ()
-  ((proto :initarg :proto :type proto::proxy-block
-          :documentation "Backing protobuf object.")))
-
 (defclass aux-data ()
   ((proto :initarg :proto :type proto:aux-data
           :documentation "Backing protobuf object.")))
 
+;;; Module
 (defclass module ()
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")
-   (file-format :reader raw-file-format :writer set-raw-file-format
-                :documentation "Instruction Set Architecture (FILE-FORMAT)")
-   (sections :accessor sections :type (list section)
-             :documentation "Module sections.")
-   (symbols :accessor symbols :type (list symbol)
-            :documentation "Module symbols.")
-   (symbolic-operands :accessor symbolic-operands :type (list symbolic-operand)
-                      :documentation "Module symbolic-operands.")
-   (cfgs :accessor cfgs :type cfg
-         :documentation "Module control flow block (CFG).")
-   (blocks :accessor blocks :type (list block)
-           :documentation "Module code blocks.")
-   (data :accessor data :type (list data)
-         :documentation "Module data objects.")
-   (proxies :accessor proxies :type (list proxy)
-            :documentation "Module proxies.")
+   (cfg :accessor cfgs :type cfg
+        :documentation "Module control flow block (CFG).")
    (aux-data :accessor aux-data :type (list aux-data)
              :documentation "Module auxiliary data objects.")))
 
 (defmethod name ((obj module))
   (pb:string-value (proto:name (proto obj))))
 
+(defmethod (setf name) ((obj module) new)
+  (setf (proto:name (proto obj)) (pb:string-field new)))
+
+(defconstant +module-isa-map+
+  '((#.proto:+isaid-isa-undefined+ . :undefined)
+    (#.proto:+isaid-ia32+ . :ia32)
+    (#.proto:+isaid-ppc32+ . :ppc32)
+    (#.proto:+isaid-x64+ . :x64)
+    (#.proto:+isaid-arm+ . :arm)
+    (#.proto:+isaid-valid-but-unsupported+ . :valid-but-unsupported)))
+
 (defmethod isa ((obj module))
-  (decode-isa (proto:isa-id (proto obj))))
+  (cdr (assoc (proto:isa-id (proto obj)) +module-isa-map+)))
+
+(defmethod (setf isa) (new (obj module))
+  (setf (proto:isa-id (proto obj))
+        (car (rassoc new +module-isa-map+))))
+
+(defconstant +module-file-format-map+
+  '((#.proto:+file-format-coff+ . :coff)
+    (#.proto:+file-format-elf+ . :elf)
+    (#.proto:+file-format-ida-pro-db32+ . :ida-pro-db32)
+    (#.proto:+file-format-ida-pro-db64+ . :ida-pro-db64)
+    (#.proto:+file-format-macho+ . :macho)
+    (#.proto:+file-format-pe+ . :pe)
+    (#.proto:+file-format-raw+ . :raw)
+    (#.proto:+file-format-xcoff+ . :xcoff)
+    (#.proto:+file-format-format-undefined+ . :format-undefined)))
 
 (defmethod file-format ((obj module))
-  (decode-file-format (proto:file-format (proto obj))))
+  (cdr (assoc (proto:file-format (proto obj)) +module-file-format-map+)))
+
+(defmethod (setf file-format) (new (obj module))
+  (setf (proto:file-format (proto obj))
+        (car (rassoc new +module-file-format-map+))))
+
+(defmethod blocks ((obj module))
+  (proto:blocks (proto obj)))
+
+(defmethod (setf blocks) (new (obj module))
+  (setf (proto:blocks (proto obj)) new))
 
 (defmethod print-object ((obj module) (stream stream))
   (print-unreadable-object (obj stream :type t :identity cl:t)
-    (format stream "~a:~a:~s" (file-format obj) (isa obj) (name obj))))
+    (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
+;;; GTIRB
 (defclass gtirb ()
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")
-   (modules :initarg modules :accessor modules :initform nil :type (list module))))
+   (modules :initarg modules :accessor modules :initform nil :type (list module)
+            :documentation "List of the modules on an IR.")))
+
+(defmethod (setf modules) :after (new (obj gtirb))
+  (setf (proto:modules (proto obj))
+        (coerce (mapcar #'proto (modules obj)) 'vector)))
 
 (defmethod initialize-instance :after ((obj gtirb) &key)
   (with-slots (modules) obj
