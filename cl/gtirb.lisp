@@ -34,11 +34,6 @@
 
 
 ;;;; Classes
-(defclass aux-data ()
-  ((proto :initarg :proto :type proto:aux-data
-          :documentation "Backing protobuf object.")))
-
-;;; Module
 (defclass module ()
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")
@@ -91,6 +86,15 @@
         (car (rassoc new +module-file-format-map+))))
 
 (defmethod initialize-instance :after ((obj module) &key)
+  ;; Repackage the AuxData into an alist keyed by name.
+  (let ((p-aux-data (proto:aux-data (proto:aux-data-container (proto obj))))
+        (aux-data '()))
+    (dotimes (n (length p-aux-data))
+      (push (cons (pb:string-value (proto:key (aref p-aux-data n)))
+                  (make-instance 'aux-data
+                    :proto (proto:value (aref p-aux-data n))))
+            aux-data))
+    (setf (aux-data obj) aux-data))
   ;; Package the blocks into a has keyed by UUID.
   (let ((p-blocks (proto:blocks (proto obj)))
         (block-h (make-hash-table)))
@@ -177,7 +181,20 @@
             (if (conditional obj) :conditional :unconditional)
             (if (direct obj) :direct :undirect))))
 
-;;; GTIRB
+(defclass aux-data ()
+  ((proto :initarg :proto :accessor proto :type proto:module
+          :documentation "Backing protobuf object.")))
+
+(defmethod aux-data-type ((obj aux-data))
+  (pb:string-value (proto:type-name (proto obj))))
+
+(defmethod (setf aux-data-type) ((new string) (obj aux-data))
+  (setf (proto:type-name (proto obj)) (pb:string-field new)))
+
+(defmethod data ((obj aux-data))
+  ;; TODO: Implement the parsing and reading/writing of data by type.
+  (warn "Not implemented for ~a." obj))
+
 (defclass gtirb ()
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")
