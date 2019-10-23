@@ -45,4 +45,4 @@
     :licence "MIT"
     :description "Test the GTIRB package."
     :perform
-    (test-op (o c) (symbol-call :gtirb/test '#:gtirb)))
+    (test-op (o c) (symbol-call :gtirb/test '#:test)))

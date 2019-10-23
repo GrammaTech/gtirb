@@ -2,7 +2,7 @@
   (:use :common-lisp :gtirb :stefil)
   (:import-from :md5 :md5sum-file)
   (:import-from :uiop :run-program :with-temporary-file)
-  (:export :gtirb))
+  (:export :test))
 (in-package :gtirb/test)
 
 (defvar *proto-path* nil "Path to protobuf.")
@@ -25,7 +25,8 @@
 
 
 ;;;; Main test suite.
-(defsuite gtirb)
+(defsuite test)
+(in-suite test)
 
 (deftest simple-read ()
   (with-fixture hello
