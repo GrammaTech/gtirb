@@ -105,7 +105,7 @@
     (mapcar (lambda (edge)
               (list (list (uuid-to-integer (proto:source-uuid edge))
                           (uuid-to-integer (proto:target-uuid edge)))
-                    (proto:label edge)))
+                    (make-instance 'edge-label :proto (proto:label edge))))
             (coerce (proto:edges p-cfg) 'list))
     :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
 
@@ -119,6 +119,45 @@
 (defmethod print-object ((obj module) (stream stream))
   (print-unreadable-object (obj stream :type t :identity cl:t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
+
+(defclass edge-label ()
+  ((proto :initarg :proto :accessor proto :type proto:module
+          :documentation "Backing protobuf object.")))
+
+(define-constant +edge-label-type-map+
+    '((#.proto:+edge-type-type-branch+ . :branch)
+      (#.proto:+edge-type-type-call+ . :call)
+      (#.proto:+edge-type-type-fallthrough+ . :fallthrough)
+      (#.proto:+edge-type-type-return+ . :return)
+      (#.proto:+edge-type-type-syscall+ . :syscall)
+      (#.proto:+edge-type-type-sysret+ . :sysret))
+  :test #'equal)
+
+(defmethod edge-type ((obj edge-label))
+  (cdr (assoc (proto:type (proto obj)) +edge-label-type-map+)))
+
+(defmethod (setf edge-type) (new (obj edge-label))
+  (setf (proto:type (proto obj))
+        (car (rassoc new +edge-label-type-map+))))
+
+(defmethod conditional ((obj edge-label))
+  (proto:conditional (proto obj)))
+
+(defmethod (setf conditional) (new (obj edge-label))
+  (setf (proto:conditional (proto obj)) new))
+
+(defmethod direct ((obj edge-label))
+  (proto:direct (proto obj)))
+
+(defmethod (setf direct) (new (obj edge-label))
+  (setf (proto:direct (proto obj)) new))
+
+(defmethod print-object ((obj edge-label) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity cl:t)
+    (format stream "~a ~a ~a"
+            (edge-type obj)
+            (if (conditional obj) :conditional :unconditional)
+            (if (direct obj) :direct :undirect))))
 
 ;;; GTIRB
 (defclass gtirb ()
@@ -140,3 +179,4 @@
 (defmethod print-object ((obj gtirb) (stream stream))
   (print-unreadable-object (obj stream :type t :identity cl:t)
     (format stream "~a" (modules obj))))
+
