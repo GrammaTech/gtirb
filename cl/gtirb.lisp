@@ -44,6 +44,8 @@
           :documentation "Backing protobuf object.")
    (cfg :accessor cfg :type cfg
         :documentation "Module control flow block (CFG).")
+   (blocks :accessor blocks :type hash-table
+           :documentation "Module control flow block (CFG).")
    (aux-data :accessor aux-data :type (list aux-data)
              :documentation "Module auxiliary data objects.")))
 
@@ -88,16 +90,20 @@
   (setf (proto:file-format (proto obj))
         (car (rassoc new +module-file-format-map+))))
 
-(defmethod blocks ((obj module))
-  (proto:blocks (proto obj)))
-
-(defmethod (setf blocks) (new (obj module))
-  (setf (proto:blocks (proto obj)) new))
-
 (defmethod initialize-instance :after ((obj module) &key)
+  ;; Package the blocks into a has keyed by UUID.
+  (let ((p-blocks (proto:blocks (proto obj)))
+        (block-h (make-hash-table)))
+    (dotimes (n (length p-blocks))
+      (let ((p-block (aref p-blocks n)))
+        (setf (gethash (uuid-to-integer (proto:uuid p-block))
+                       block-h)
+              p-block)))
+    (setf (blocks obj) block-h))
+  ;; Build the CFG as a lisp graph.
   (nest
-   (with-slots (cfg proto) obj)
-   (let ((p-cfg (proto:cfg proto))))
+   (with-slots (cfg) obj)
+   (let ((p-cfg (proto:cfg (proto obj)))))
    (setf cfg)
    (populate
     (make-instance 'digraph)
@@ -108,6 +114,18 @@
                     (make-instance 'edge-label :proto (proto:label edge))))
             (coerce (proto:edges p-cfg) 'list))
     :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
+
+(defmethod get-block ((uuid simple-array) (obj module))
+  (get-block (uuid-to-integer uuid) obj))
+
+(defmethod (setf get-block) (new (uuid simple-array) (obj module))
+  (setf (get-block (uuid-to-integer uuid) obj) new))
+
+(defmethod get-block ((uuid integer) (obj module))
+  (gethash uuid (blocks obj)))
+
+(defmethod (setf get-block) (new (uuid integer) (obj module))
+  (setf (gethash uuid (blocks obj)) new))
 
 (defun uuid-to-integer (uuid)
   (octets->int
