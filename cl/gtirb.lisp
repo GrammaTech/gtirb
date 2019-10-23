@@ -215,3 +215,19 @@
   (print-unreadable-object (obj stream :type t :identity cl:t)
     (format stream "~a" (modules obj))))
 
+(defgeneric to-proto (object)
+  (:documentation
+   "Dump an updated protocol buffer for OBJECT.
+This will ensure that any changes made to objects outside of the
+protocol buffer object, e.g. blocks on modules, are synchronized
+against the protocol buffer object before it is returned.  We could
+incrementally synchronize everything to the backing protocol buffer,
+but that would likely get expensive.")
+  ;; TODO: Implement this for the above classes.
+  ;;
+  ;; Module needs the following to be updated:
+  ;; - aux-data
+  ;; - blocks
+  ;; - CFG
+  (:method (object)
+    (warn "Not updating protocol buffer for ~a." object)))
