@@ -91,7 +91,7 @@ block) and an offset.
 
 GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
 Studio compilers supporting at least C++17.  GTIRB uses CMake which
-must be installed.
+must be installed with at least version 3.9.
 
 The common build process looks like this:
 ```sh
