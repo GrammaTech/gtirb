@@ -1,5 +1,5 @@
 (defpackage :gtirb/test
-  (:use :common-lisp :gtirb :stefil
+  (:use :common-lisp :stefil :gtirb :gtirb/dot
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file)
   (:import-from :uiop :run-program :with-temporary-file)
@@ -57,3 +57,10 @@
            (mapcar [#'gtirb::aux-data-type-print #'aux-data-type #'cdr]
                    (aux-data (first (modules it))))
            :test #'string=)))))
+
+(deftest write-dot-to-file ()
+  (with-fixture hello
+    (with-temporary-file (:pathname path)
+      (let ((hello (make-instance 'gtirb
+                     :proto (read-gtirb-proto *proto-path*))))
+        (to-dot-file (first (modules hello)) path)))))
