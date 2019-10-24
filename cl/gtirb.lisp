@@ -1,9 +1,12 @@
 (defpackage :gtirb/gtirb
   (:nicknames :gtirb)
-  (:use :common-lisp :alexandria :graph
+  (:use :common-lisp :alexandria :graph :trivia
+        :trivial-utf-8
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
-  (:import-from :bit-smasher :octets->int :int->octets)
+  (:import-from :cl-intbytes
+                :octets->int64 :int64->octets
+                :octets->uint64)
   (:export :read-gtirb-proto :write-gtirb-proto
            :module
            :name
@@ -148,11 +151,11 @@
   (setf (gethash uuid (blocks obj)) new))
 
 (defun uuid-to-integer (uuid)
-  (octets->int
+  (octets->int64
    (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)))
 
 (defun integer-to-uuid (number)
-  (int->octets number))
+  (int64->octets number))
 
 (defmethod print-object ((obj module) (stream stream))
   (print-unreadable-object (obj stream :type t :identity cl:t)
@@ -297,6 +300,48 @@
 (defmethod (setf data) (new (obj aux-data))
   ;; TODO: Implement the parsing and reading/writing of data by type.
   (warn "Not implemented for ~a." obj))
+
+(defvar *decode-data* nil)
+(defun advance (n) (setf *decode-data* (subseq *decode-data* n)))
+(defun decode (type)
+  ;; TODO: Something doesn't appear to be working here.
+  (values
+   (match type
+     ((or :addr :uint64-t)
+      (prog1
+          (octets->uint64 (subseq *decode-data* 0 8))
+        (advance 8)))
+     (:int64-t
+      (prog1
+          (octets->int64 (subseq *decode-data* 0 8))
+        (advance 8)))
+     (:uuid
+      (prog1 (subseq *decode-data* 0 8) (advance 8)))
+     (:offset
+      (list (decode :uuid) (decode :uint64-t)))
+     (:string
+      (let ((size (decode :uint64-t)))
+        (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
+          (advance size))))
+     ((list :mapping key-t value-t)
+      (let ((result (make-hash-table)))
+        (dotimes (n (decode :uint64-t) result)
+          (declare (ignorable n))
+          (let* ((key (decode key-t))
+                 (value (decode value-t)))
+            (setf (gethash key result) value)))))
+     ((list (or :sequence :set) type)
+      (let (result)
+        (reverse
+         (dotimes (n (decode :uint64-t) result)
+           (declare (ignorable n))
+           (push (decode type) result)))))
+     ((list* :tuple types)
+      (mapcar #'decode types)))
+   (length *decode-data*)))
+(defun aux-data-decode (type data)
+  (let ((*decode-data* data))
+    (decode type)))
 
 (defclass gtirb ()
   ((proto :initarg :proto :accessor proto :type proto:module
