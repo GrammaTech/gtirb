@@ -13,6 +13,7 @@
            :edge-type
            :conditional
            :direct
+           :aux-data
            :aux-data-type
            :data
            :blocks
@@ -251,11 +252,40 @@
       ("string" (cons :string (aux-data-type-read type-string)))
       ("uint64_t" (cons :uint64-t (aux-data-type-read type-string)))
       ("int64_t" (cons :int64-t (aux-data-type-read type-string)))
-      (t (warn "Junk in type string ~a" type-string)
-         type-string))))
+      (t (error "Junk in type string ~a" type-string)))))
 
 (defmethod aux-data-type ((obj aux-data))
   (first (aux-data-type-read (pb:string-value (proto:type-name (proto obj))))))
+
+(defun aux-data-type-print (aux-data-type)
+  (when aux-data-type
+    (if (listp aux-data-type)
+        (case (first aux-data-type)
+          (:mapping
+           (concatenate 'string
+                        "mapping<" (aux-data-type-print (second aux-data-type))
+                        "," (aux-data-type-print (third aux-data-type)) ">"))
+          (:set
+           (concatenate 'string
+                        "set<" (aux-data-type-print (second aux-data-type)) ">"))
+          (:sequence
+           (concatenate 'string
+                        "sequence<" (aux-data-type-print (second aux-data-type)) ">"))
+          (:tuple
+           (concatenate 'string
+                        "tuple<"
+                        (aux-data-type-print (second aux-data-type))
+                        (apply #'concatenate 'string
+                               (mapcar [{concatenate 'string ","} #'aux-data-type-print]
+                                       (cddr aux-data-type)))
+                        ">")))
+        (case aux-data-type
+          (:uuid "UUID")
+          (:addr "Addr")
+          (:offset "Offset")
+          (:string "string")
+          (:uint64-t "uint64_t")
+          (:int64-t "int64_t")))))
 
 (defmethod (setf aux-data-type) ((new string) (obj aux-data))
   (setf (proto:type-name (proto obj)) (pb:string-field new)))

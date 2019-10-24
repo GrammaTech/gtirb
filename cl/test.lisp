@@ -1,9 +1,11 @@
 (defpackage :gtirb/test
-  (:use :common-lisp :gtirb :stefil)
+  (:use :common-lisp :gtirb :stefil
+        :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file)
   (:import-from :uiop :run-program :with-temporary-file)
   (:export :test))
 (in-package :gtirb/test)
+(in-readtable :curry-compose-reader-macros)
 
 (defvar *proto-path* nil "Path to protobuf.")
 
@@ -45,3 +47,13 @@
       (write-gtirb-proto (read-gtirb-proto *proto-path*) path)
       (is (equalp (md5sum-file *proto-path*)
                   (md5sum-file path))))))
+
+(deftest idempotent-aux-data-type ()
+  (with-fixture hello
+    (let ((it (make-instance 'gtirb :proto (read-gtirb-proto *proto-path*))))
+      (is (tree-equal
+           (mapcar [#'pb:string-value #'proto:type-name #'gtirb::proto #'cdr]
+                   (aux-data (first (modules it))))
+           (mapcar [#'gtirb::aux-data-type-print #'aux-data-type #'cdr]
+                   (aux-data (first (modules it))))
+           :test #'string=)))))
