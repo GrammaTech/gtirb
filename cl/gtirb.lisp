@@ -1,11 +1,26 @@
 (defpackage :gtirb/gtirb
   (:nicknames :gtirb)
-  (:use :common-lisp :alexandria :graph)
+  (:use :common-lisp :alexandria :graph
+        :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
   (:import-from :bit-smasher :octets->int :int->octets)
-  (:shadow :symbol :block)
-  (:export :read-gtirb-proto :write-gtirb-proto))
+  (:export :read-gtirb-proto :write-gtirb-proto
+           :module
+           :name
+           :isa
+           :file-format
+           :get-block
+           :edge-type
+           :conditional
+           :direct
+           :aux-data-type
+           :data
+           :blocks
+           :modules
+           :cfg
+           :gtirb))
 (in-package :gtirb/gtirb)
+(in-readtable :curry-compose-reader-macros)
 
 (defun read-gtirb-proto (path)
   "Read GTIRB from PATH."
@@ -185,13 +200,71 @@
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")))
 
+(defmacro start-case (string &body body)
+  `(progn
+     ;; (declare (type string ,string))
+     (assert (stringp ,string) (,string) "Argument ~s is not a string." ,string)
+     (cond
+       ,@(mapcar (lambda (form)
+                   (destructuring-bind (prefix . body) form
+                     (if (stringp prefix)
+                         `((eql (search ,prefix ,string) 0)
+                           (let ((,string (subseq ,string ,(length prefix))))
+                             ,@body))
+                         (cons prefix body))))
+                 body))))
+
+(defun matching (open-char close-char string)
+  (let ((offset 1))
+    (dotimes (n (length string))
+      (cond
+        ((eql (aref string n) open-char) (incf offset))
+        ((eql (aref string n) close-char) (decf offset)))
+      (when (zerop offset)
+        (return-from matching n))))
+  (error "Can't close (~a ~a) in ~s." open-char close-char string))
+
+(defun aux-data-type-read (type-string)
+  (when (and type-string (not (emptyp type-string)))
+    (start-case type-string
+      ("mapping<"
+       (let ((close (matching #\< #\> type-string)))
+         (cons (cons :mapping (aux-data-type-read (subseq type-string 0 close)))
+               (aux-data-type-read (subseq type-string close)))))
+      ("set<"
+       (let ((close (matching #\< #\> type-string)))
+         (cons (cons :set (aux-data-type-read (subseq type-string 0 close)))
+               (aux-data-type-read (subseq type-string close)))))
+      ("sequence<"
+       (let ((close (matching #\< #\> type-string)))
+         (cons (cons :sequence (aux-data-type-read (subseq type-string 0 close)))
+               (aux-data-type-read (subseq type-string close)))))
+      ("tuple<"
+       (let ((close (matching #\< #\> type-string)))
+         (cons (cons :tuple (aux-data-type-read (subseq type-string 0 close)))
+               (aux-data-type-read (subseq type-string close)))))
+      ("," (aux-data-type-read type-string))
+      (">" (aux-data-type-read type-string))
+      ("UUID" (cons :uuid (aux-data-type-read type-string)))
+      ("Addr" (cons :addr (aux-data-type-read type-string)))
+      ("Offset" (cons :offset (aux-data-type-read type-string)))
+      ("string" (cons :string (aux-data-type-read type-string)))
+      ("uint64_t" (cons :uint64-t (aux-data-type-read type-string)))
+      ("int64_t" (cons :int64-t (aux-data-type-read type-string)))
+      (t (warn "Junk in type string ~a" type-string)
+         type-string))))
+
 (defmethod aux-data-type ((obj aux-data))
-  (pb:string-value (proto:type-name (proto obj))))
+  (first (aux-data-type-read (pb:string-value (proto:type-name (proto obj))))))
 
 (defmethod (setf aux-data-type) ((new string) (obj aux-data))
   (setf (proto:type-name (proto obj)) (pb:string-field new)))
 
 (defmethod data ((obj aux-data))
+  ;; TODO: Implement the parsing and reading/writing of data by type.
+  (warn "Not implemented for ~a." obj))
+
+(defmethod (setf data) (new (obj aux-data))
   ;; TODO: Implement the parsing and reading/writing of data by type.
   (warn "Not implemented for ~a." obj))
 
