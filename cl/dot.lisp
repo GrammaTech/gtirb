@@ -3,7 +3,7 @@
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
   (:export :to-dot :to-dot-file))
-(use-package :gtirb/dot)
+(in-package :gtirb/dot)
 (in-readtable :curry-compose-reader-macros)
 
 (defun dot-edge-label (graph edge)

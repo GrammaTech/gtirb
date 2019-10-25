@@ -32,5 +32,5 @@ To load "gtirb/test":
 CL-USER> (gtirb/test:test)
 ...
 #<test-run: 4 tests, 3 assertions, 0 failures in 0.101 sec>
-CL-USER> 
+CL-USER>
 ```

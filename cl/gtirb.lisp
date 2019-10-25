@@ -5,9 +5,12 @@
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
-                :octets->int64 :int64->octets
+                :int->octets
+                :octets->int
+                :octets->int64
                 :octets->uint64)
-  (:export :read-gtirb-proto :write-gtirb-proto
+  (:export :read-gtirb
+           :write-gtirb
            :module
            :name
            :isa
@@ -22,7 +25,8 @@
            :blocks
            :modules
            :cfg
-           :gtirb))
+           :gtirb
+           :update-proto))
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
@@ -151,11 +155,12 @@
   (setf (gethash uuid (blocks obj)) new))
 
 (defun uuid-to-integer (uuid)
-  (octets->int64
-   (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)))
+  (octets->int
+   (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
+   16))
 
 (defun integer-to-uuid (number)
-  (int64->octets number))
+  (int->octets number 16))
 
 (defmethod print-object ((obj module) (stream stream))
   (print-unreadable-object (obj stream :type t :identity cl:t)
@@ -202,6 +207,7 @@
 
 (defclass aux-data ()
   ((proto :initarg :proto :accessor proto :type proto:module
+          :initform (make-instance 'proto:aux-data)
           :documentation "Backing protobuf object.")))
 
 (defmacro start-case (string &body body)
@@ -290,58 +296,92 @@
           (:uint64-t "uint64_t")
           (:int64-t "int64_t")))))
 
-(defmethod (setf aux-data-type) ((new string) (obj aux-data))
-  (setf (proto:type-name (proto obj)) (pb:string-field new)))
+(defmethod (setf aux-data-type) (new (obj aux-data))
+  (setf (proto:type-name (proto obj))
+        (pb:string-field (aux-data-type-print new))))
 
 (defmethod data ((obj aux-data))
-  ;; TODO: Implement the parsing and reading/writing of data by type.
-  (warn "Not implemented for ~a." obj))
+  (aux-data-decode (aux-data-type obj) (proto:data (proto obj))))
 
 (defmethod (setf data) (new (obj aux-data))
-  ;; TODO: Implement the parsing and reading/writing of data by type.
-  (warn "Not implemented for ~a." obj))
+  (setf (proto:data (proto obj))
+        (let ((result (aux-data-encode (aux-data-type obj) new)))
+          (make-array (length result)
+                      :element-type '(unsigned-byte 8)
+                      :initial-contents result))))
 
 (defvar *decode-data* nil)
 (defun advance (n) (setf *decode-data* (subseq *decode-data* n)))
 (defun decode (type)
-  ;; TODO: Something doesn't appear to be working here.
-  (values
-   (match type
-     ((or :addr :uint64-t)
-      (prog1
-          (octets->uint64 (subseq *decode-data* 0 8))
-        (advance 8)))
-     (:int64-t
-      (prog1
-          (octets->int64 (subseq *decode-data* 0 8))
-        (advance 8)))
-     (:uuid
-      (prog1 (subseq *decode-data* 0 8) (advance 8)))
-     (:offset
-      (list (decode :uuid) (decode :uint64-t)))
-     (:string
-      (let ((size (decode :uint64-t)))
-        (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
-          (advance size))))
-     ((list :mapping key-t value-t)
-      (let ((result (make-hash-table)))
+  (match type
+    ((or :addr :uint64-t)
+     (prog1
+         (octets->uint64 (subseq *decode-data* 0 8))
+       (advance 8)))
+    (:int64-t
+     (prog1
+         (octets->int64 (subseq *decode-data* 0 8))
+       (advance 8)))
+    (:uuid
+     (prog1 (uuid-to-integer (subseq *decode-data* 0 16)) (advance 16)))
+    (:offset
+     (list (decode :uuid) (decode :uint64-t)))
+    (:string
+     (let ((size (decode :uint64-t)))
+       (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
+         (advance size))))
+    ((list :mapping key-t value-t)
+     (let ((result (make-hash-table)))
+       (dotimes (n (decode :uint64-t) result)
+         (declare (ignorable n))
+         (let* ((key (decode key-t))
+                (value (decode value-t)))
+           (setf (gethash key result) value)))))
+    ((list (or :sequence :set) type)
+     (let (result)
+       (reverse
         (dotimes (n (decode :uint64-t) result)
           (declare (ignorable n))
-          (let* ((key (decode key-t))
-                 (value (decode value-t)))
-            (setf (gethash key result) value)))))
-     ((list (or :sequence :set) type)
-      (let (result)
-        (reverse
-         (dotimes (n (decode :uint64-t) result)
-           (declare (ignorable n))
-           (push (decode type) result)))))
-     ((list* :tuple types)
-      (mapcar #'decode types)))
-   (length *decode-data*)))
+          (push (decode type) result)))))
+    ((list* :tuple types)
+     (mapcar #'decode types))))
 (defun aux-data-decode (type data)
   (let ((*decode-data* data))
     (decode type)))
+
+(defun extend (it) (push it *decode-data*))
+(defun encode (type data)
+  (match type
+    ((or :addr :uint64-t :int64-t)
+     (extend (int->octets data 8)))
+    (:uuid
+     (extend (integer-to-uuid data)))
+    (:offset
+     (progn (encode :uuid (first data))
+            (encode :uint64-t (second data))))
+    (:string
+     (let ((string-bytes (string-to-utf-8-bytes data)))
+       (encode :uint64-t (length string-bytes))
+       (extend string-bytes)))
+    ((list :mapping key-t value-t)
+     (encode :uint64-t (hash-table-count data))
+     (maphash (lambda (key value)
+                (encode key-t key)
+                (encode value-t value))
+              data))
+    ((list (or :sequence :set) type)
+     (let ((size (length data)))
+       (encode :uint64-t size)
+       (dotimes (n size)
+         (encode type (elt data n)))))
+    ((list* :tuple types)
+     (mapc (lambda (type datum)
+             (encode type datum))
+           types data))))
+(defun aux-data-encode (type data)
+  (let ((*decode-data* nil))
+    (encode type data)
+    (reduce {concatenate 'vector} (reverse *decode-data*))))
 
 (defclass gtirb ()
   ((proto :initarg :proto :accessor proto :type proto:module
@@ -363,7 +403,7 @@
   (print-unreadable-object (obj stream :type t :identity cl:t)
     (format stream "~a" (modules obj))))
 
-(defgeneric to-proto (object)
+(defgeneric update-proto (object)
   (:documentation
    "Dump an updated protocol buffer for OBJECT.
 This will ensure that any changes made to objects outside of the
@@ -371,11 +411,44 @@ protocol buffer object, e.g. blocks on modules, are synchronized
 against the protocol buffer object before it is returned.  We could
 incrementally synchronize everything to the backing protocol buffer,
 but that would likely get expensive.")
-  ;; TODO: Implement this for the above classes.
-  ;;
-  ;; Module needs the following to be updated:
-  ;; - aux-data
-  ;; - blocks
-  ;; - CFG
-  (:method (object)
-    (warn "Not updating protocol buffer for ~a." object)))
+  (:method ((obj gtirb))
+    (setf (proto:modules (proto obj))
+          (map 'vector #'update-proto (modules obj))))
+  (:method ((obj module))
+    (setf
+     ;; Repackage the AuxData into a vector.
+     (proto:aux-data (proto:aux-data-container (proto obj)))
+     (map 'vector (lambda (pair)
+                    (destructuring-bind (name . aux-data) pair
+                      (let ((entry (make-instance 'proto:aux-data-container-aux-data-entry)))
+                        (setf (proto:key entry) (pb:string-field name)
+                              (proto:value entry) (proto aux-data))
+                        entry)))
+          (aux-data obj))
+     ;; Repackage the blocks back into a vector.
+     (proto:blocks (proto obj))
+     (coerce (hash-table-values (blocks obj)) 'vector)
+     ;; Unpack the graph back into the proto structure.
+     (proto:cfg (proto obj))
+     (let ((p-cfg (make-instance 'proto:cfg)))
+       (setf (proto:vertices p-cfg)
+             (map 'vector #'integer-to-uuid (nodes (cfg obj)))
+             (proto:edges p-cfg)
+             (map 'vector
+                  (lambda (edge)
+                    (destructuring-bind ((source target) label) edge
+                      (let ((p-edge (make-instance 'proto:edge)))
+                        (setf
+                         (proto:source-uuid p-edge) (integer-to-uuid source)
+                         (proto:target-uuid p-edge) (integer-to-uuid target)
+                         (proto:label p-edge) (proto label))
+                        p-edge)))
+                  (edges-w-values (cfg obj))))
+       p-cfg))))
+
+(defun read-gtirb (path)
+  (make-instance 'gtirb :proto (read-gtirb-proto path)))
+
+(defun write-gtirb (gtirb path)
+  (update-proto gtirb)
+  (write-gtirb-proto (proto gtirb) path))
