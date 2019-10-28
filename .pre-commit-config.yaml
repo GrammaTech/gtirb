@@ -27,6 +27,7 @@ repos:
         types: [file]
       - id: end-of-file-fixer
       - id: trailing-whitespace
+        args: ["--chars"," \t"]
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
     rev: v0.6.2
     hooks:
