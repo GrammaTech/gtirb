@@ -1,8 +1,9 @@
 (defpackage :gtirb/test
   (:use :common-lisp :stefil :gtirb :gtirb/dot
+        :alexandria
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file)
-  (:import-from :uiop :run-program :with-temporary-file)
+  (:import-from :uiop :nest :run-program :with-temporary-file)
   (:export :test))
 (in-package :gtirb/test)
 (in-readtable :curry-compose-reader-macros)
@@ -48,12 +49,32 @@
       (is (equalp (md5sum-file *proto-path*)
                   (md5sum-file path))))))
 
+(defun noisy-set-equality (left right)
+  (is (= (length left) (length right)))
+  (is (not (or (emptyp left) (emptyp right))))
+  (is (equal (type-of (first left))
+             (type-of (first right))))
+  (is (set-equal left right :test #'is-equal-p)))
+
+(defgeneric is-equal-p (left right)
+  (:documentation "Return t if LEFT and RIGHT are equal.")
+  (:method ((left proto:block) (right proto:block))
+    (and (equalp (proto:uuid left)
+                 (proto:uuid right))
+         (= (proto:address left) (proto:address right))
+         (= (proto:size left) (proto:size right)))))
+
 (deftest idempotent-read-write-w-class ()
-  (with-fixture hello
-    (with-temporary-file (:pathname path)
-      (write-gtirb (read-gtirb *proto-path*) path)
-      (is (equalp (md5sum-file *proto-path*)
-                  (md5sum-file path))))))
+  (nest
+   (with-fixture hello)
+   (with-temporary-file (:pathname path))
+   (let ((hello1 (read-gtirb *proto-path*)))
+     (write-gtirb hello1 path)
+     (let ((hello2 (read-gtirb path)))
+       ;; Test block equality
+       (is (apply #'noisy-set-equality
+                  (mapcar [#'hash-table-values #'blocks #'first #'modules]
+                          (list hello1 hello2))))))))
 
 (deftest idempotent-aux-data-type ()
   (with-fixture hello
@@ -103,8 +124,11 @@
         (let ((next (read-gtirb path)))
           (let ((proto (gtirb::proto (first (modules next)))))
             ;; Test for non-empty protobuf elements.
-            (is (not (zerop (length (proto:regions (proto:byte-map (proto:image-byte-map proto))))))))
-          (is (string= (data (cdr (assoc "test" (aux-data (first (modules next)))
+            (is (not (zerop (length (proto:regions
+                                     (proto:byte-map
+                                      (proto:image-byte-map proto))))))))
+          (is (string= (data (cdr (assoc "test" (aux-data (first
+                                                           (modules next)))
                                          :test #'string=)))
                        test-string)))))))
 

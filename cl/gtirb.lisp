@@ -413,38 +413,40 @@ incrementally synchronize everything to the backing protocol buffer,
 but that would likely get expensive.")
   (:method ((obj gtirb))
     (setf (proto:modules (proto obj))
-          (map 'vector #'update-proto (modules obj))))
+          (map 'vector [#'proto #'update-proto] (modules obj))))
   (:method ((obj module))
     (setf
      ;; Repackage the AuxData into a vector.
-     (proto:aux-data (proto:aux-data-container (proto obj)))
-     (map 'vector (lambda (pair)
-                    (destructuring-bind (name . aux-data) pair
-                      (let ((entry (make-instance 'proto:aux-data-container-aux-data-entry)))
-                        (setf (proto:key entry) (pb:string-field name)
-                              (proto:value entry) (proto aux-data))
-                        entry)))
-          (aux-data obj))
+     ;; (proto:aux-data (proto:aux-data-container (proto obj)))
+     ;; (map 'vector (lambda (pair)
+     ;;                (destructuring-bind (name . aux-data) pair
+     ;;                  (let ((entry (make-instance 'proto:aux-data-container-aux-data-entry)))
+     ;;                    (setf (proto:key entry) (pb:string-field name)
+     ;;                          (proto:value entry) (proto aux-data))
+     ;;                    entry)))
+     ;;      (aux-data obj))
      ;; Repackage the blocks back into a vector.
      (proto:blocks (proto obj))
      (coerce (hash-table-values (blocks obj)) 'vector)
      ;; Unpack the graph back into the proto structure.
-     (proto:cfg (proto obj))
-     (let ((p-cfg (make-instance 'proto:cfg)))
-       (setf (proto:vertices p-cfg)
-             (map 'vector #'integer-to-uuid (nodes (cfg obj)))
-             (proto:edges p-cfg)
-             (map 'vector
-                  (lambda (edge)
-                    (destructuring-bind ((source target) label) edge
-                      (let ((p-edge (make-instance 'proto:edge)))
-                        (setf
-                         (proto:source-uuid p-edge) (integer-to-uuid source)
-                         (proto:target-uuid p-edge) (integer-to-uuid target)
-                         (proto:label p-edge) (proto label))
-                        p-edge)))
-                  (edges-w-values (cfg obj))))
-       p-cfg))))
+     ;; (proto:cfg (proto obj))
+     ;; (let ((p-cfg (make-instance 'proto:cfg)))
+     ;;   (setf (proto:vertices p-cfg)
+     ;;         (map 'vector #'integer-to-uuid (nodes (cfg obj)))
+     ;;         (proto:edges p-cfg)
+     ;;         (map 'vector
+     ;;              (lambda (edge)
+     ;;                (destructuring-bind ((source target) label) edge
+     ;;                  (let ((p-edge (make-instance 'proto:edge)))
+     ;;                    (setf
+     ;;                     (proto:source-uuid p-edge) (integer-to-uuid source)
+     ;;                     (proto:target-uuid p-edge) (integer-to-uuid target)
+     ;;                     (proto:label p-edge) (proto label))
+     ;;                    p-edge)))
+     ;;              (edges-w-values (cfg obj))))
+     ;;   p-cfg)
+     )
+    obj))
 
 (defun read-gtirb (path)
   (make-instance 'gtirb :proto (read-proto path)))
