@@ -73,7 +73,17 @@
          (= (proto:size left) (proto:size right))))
   (:method ((left aux-data) (right aux-data))
     (and (tree-equal (aux-data-type left) (aux-data-type right))
-         (is-equal-p (data left) (data right)))))
+         (is-equal-p (data left) (data right))))
+  (:method ((left edge-label) (right edge-label))
+    (and (eql (edge-type left) (edge-type right))
+         (eql (conditional left) (conditional right))
+         (eql (direct left) (direct right))))
+  (:method ((left graph:digraph) (right graph:digraph))
+    (and (set-equal (graph:nodes left) (graph:nodes right)
+                    :test #'is-equal-p)
+         (set-equal (graph:edges-w-values left)
+                    (graph:edges-w-values right)
+                    :test #'is-equal-p))))
 
 (deftest idempotent-read-write-w-class ()
   (nest
@@ -82,13 +92,17 @@
    (let ((hello1 (read-gtirb *proto-path*)))
      (write-gtirb hello1 path)
      (let ((hello2 (read-gtirb path)))
-       ;; Test block equality
+       ;; Test block equality.
        (is (apply #'noisy-set-equality
                   (mapcar [#'hash-table-values #'blocks #'first #'modules]
                           (list hello1 hello2))))
-       ;; Test aux-data equality
+       ;; Test aux-data equality.
        (is (apply #'noisy-set-equality
                   (mapcar [{mapcar #'cdr} #'aux-data #'first #'modules]
+                          (list hello1 hello2))))
+       ;; Test CFG equality.
+       (is (apply #'is-equal-p
+                  (mapcar [#'cfg #'first #'modules]
                           (list hello1 hello2))))))))
 
 (deftest idempotent-aux-data-type ()
@@ -125,27 +139,26 @@
             (aux-data (first (modules hello)))))))
 
 (deftest update-proto-to-disk-and-back ()
-  (with-fixture hello
-    (with-temporary-file (:pathname path)
-      (let ((test-string "this is a test")
-            (hello (read-gtirb *proto-path*))
-            (aux (make-instance 'aux-data)))
-        (setf (aux-data-type aux) :string)
-        (setf (data aux) test-string)
-        (push (cons "test" aux) (aux-data (first (modules hello))))
-        (write-gtirb hello path)
-        ;; TODO: Round-trip serialization isn't working.
-        ;;       Probably a bug in update-proto.
-        (let ((next (read-gtirb path)))
-          (let ((proto (gtirb::proto (first (modules next)))))
-            ;; Test for non-empty protobuf elements.
-            (is (not (zerop (length (proto:regions
-                                     (proto:byte-map
-                                      (proto:image-byte-map proto))))))))
-          (is (string= (data (cdr (assoc "test" (aux-data (first
-                                                           (modules next)))
-                                         :test #'string=)))
-                       test-string)))))))
+  (nest
+   (with-fixture hello)
+   (with-temporary-file (:pathname path))
+   (let ((test-string "this is a test")
+         (hello (read-gtirb *proto-path*))
+         (aux (make-instance 'aux-data)))
+     (setf (aux-data-type aux) :string)
+     (setf (data aux) test-string)
+     (push (cons "test" aux) (aux-data (first (modules hello))))
+     (write-gtirb hello path)
+     (let* ((next (read-gtirb path))
+            (proto (gtirb::proto (first (modules next)))))
+       ;; Test for non-empty protobuf elements.
+       (is (not (zerop (length (proto:regions
+                                (proto:byte-map
+                                 (proto:image-byte-map proto)))))))
+       ;; Test for the aux-data table created earlier in the test.
+       (is (string= (data (cdr (assoc "test" (aux-data (first (modules next)))
+                                      :test #'string=)))
+                    test-string))))))
 
 
 ;;;; Dot test suite
