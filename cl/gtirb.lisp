@@ -417,14 +417,14 @@ but that would likely get expensive.")
   (:method ((obj module))
     (setf
      ;; Repackage the AuxData into a vector.
-     ;; (proto:aux-data (proto:aux-data-container (proto obj)))
-     ;; (map 'vector (lambda (pair)
-     ;;                (destructuring-bind (name . aux-data) pair
-     ;;                  (let ((entry (make-instance 'proto:aux-data-container-aux-data-entry)))
-     ;;                    (setf (proto:key entry) (pb:string-field name)
-     ;;                          (proto:value entry) (proto aux-data))
-     ;;                    entry)))
-     ;;      (aux-data obj))
+     (proto:aux-data (proto:aux-data-container (proto obj)))
+     (map 'vector (lambda (pair)
+                    (destructuring-bind (name . aux-data) pair
+                      (let ((entry (make-instance 'proto:aux-data-container-aux-data-entry)))
+                        (setf (proto:key entry) (pb:string-field name)
+                              (proto:value entry) (proto aux-data))
+                        entry)))
+          (aux-data obj))
      ;; Repackage the blocks back into a vector.
      (proto:blocks (proto obj))
      (coerce (hash-table-values (blocks obj)) 'vector)

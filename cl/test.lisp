@@ -58,11 +58,22 @@
 
 (defgeneric is-equal-p (left right)
   (:documentation "Return t if LEFT and RIGHT are equal.")
+  (:method ((left t) (right t))
+    (equalp left right))
+  (:method ((left cons) (right cons))
+    (and (is-equal-p (car left) (car right))
+         (is-equal-p (cdr left) (cdr right))))
+  (:method ((left hash-table) (right hash-table))
+    (set-equal (hash-table-alist left) (hash-table-alist right)
+               :test #'is-equal-p))
   (:method ((left proto:block) (right proto:block))
     (and (equalp (proto:uuid left)
                  (proto:uuid right))
          (= (proto:address left) (proto:address right))
-         (= (proto:size left) (proto:size right)))))
+         (= (proto:size left) (proto:size right))))
+  (:method ((left aux-data) (right aux-data))
+    (and (tree-equal (aux-data-type left) (aux-data-type right))
+         (is-equal-p (data left) (data right)))))
 
 (deftest idempotent-read-write-w-class ()
   (nest
@@ -74,6 +85,10 @@
        ;; Test block equality
        (is (apply #'noisy-set-equality
                   (mapcar [#'hash-table-values #'blocks #'first #'modules]
+                          (list hello1 hello2))))
+       ;; Test aux-data equality
+       (is (apply #'noisy-set-equality
+                  (mapcar [{mapcar #'cdr} #'aux-data #'first #'modules]
                           (list hello1 hello2))))))))
 
 (deftest idempotent-aux-data-type ()
