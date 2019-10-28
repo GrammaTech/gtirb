@@ -33,18 +33,25 @@
 (deftest simple-read ()
   (with-fixture hello
     (is (eql 'proto:ir
-             (class-name (class-of (gtirb::read-gtirb-proto *proto-path*)))))))
+             (class-name (class-of (gtirb::read-proto *proto-path*)))))))
 
 (deftest simple-write ()
   (with-fixture hello
     (with-temporary-file (:pathname path)
-      (write-gtirb-proto (gtirb::read-gtirb-proto *proto-path*) path)
+      (gtirb::write-proto (gtirb::read-proto *proto-path*) path)
       (is (probe-file path)))))
 
 (deftest idempotent-read-write ()
   (with-fixture hello
     (with-temporary-file (:pathname path)
-      (write-gtirb-proto (gtirb::read-gtirb-proto *proto-path*) path)
+      (gtirb::write-proto (gtirb::read-proto *proto-path*) path)
+      (is (equalp (md5sum-file *proto-path*)
+                  (md5sum-file path))))))
+
+(deftest idempotent-read-write-w-class ()
+  (with-fixture hello
+    (with-temporary-file (:pathname path)
+      (write-gtirb (read-gtirb *proto-path*) path)
       (is (equalp (md5sum-file *proto-path*)
                   (md5sum-file path))))))
 

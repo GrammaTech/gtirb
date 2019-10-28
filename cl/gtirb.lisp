@@ -30,7 +30,7 @@
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
-(defun read-gtirb-proto (path)
+(defun read-proto (path)
   "Read GTIRB from PATH."
   (assert (probe-file path) (path)
           "Can't read GTIRB from ~s, because the file doesn't exist."
@@ -44,7 +44,7 @@
         (pb:merge-from-array gtirb buffer 0 size)))
     gtirb))
 
-(defun write-gtirb-proto (gtirb path)
+(defun write-proto (gtirb path)
   "Write GTIRB to PATH."
   (let* ((size (pb:octet-size gtirb))
          (buffer (make-array size :element-type '(unsigned-byte 8))))
@@ -447,8 +447,8 @@ but that would likely get expensive.")
        p-cfg))))
 
 (defun read-gtirb (path)
-  (make-instance 'gtirb :proto (read-gtirb-proto path)))
+  (make-instance 'gtirb :proto (read-proto path)))
 
 (defun write-gtirb (gtirb path)
   (update-proto gtirb)
-  (write-gtirb-proto (proto gtirb) path))
+  (write-proto (proto gtirb) path))
