@@ -1,0 +1,75 @@
+;;;; -*- emacs-lisp -*-
+;;;;
+;;;; For information about how to use lisp-format see it's
+;;;; documentation, which is available in a comment at the top of the
+;;;; lisp-format script or, equivalently, in the README available at:
+;;;; 
+;;;;     https://github.com/eschulte/lisp-format
+;;;;
+(mapc (lambda (dir) (add-to-list 'load-path dir))
+      (directory-files (concat (getenv "QUICK_LISP")
+                               "/dists/quicklisp/software/") t "slime-v*"))
+(defun verbose-require (package)
+  (unless (ignore-errors (require package))
+    (message "Failed to load the package '%S'." package)
+    (message "Ensure %s is installed locally, and then edit your" package)
+    (message "\"~/.lisp-formatrc\" file adding %s to your load path.\n" package)
+    (message "    (add-to-list 'load-path </path/to/%s.el>)\n" package)
+    ;; After printing the messages require again to trigger the error.
+    (require package)))
+(verbose-require 'slime)
+(verbose-require 'paredit)
+
+(set-default 'indent-tabs-mode nil)
+(pushnew 'untabify *lisp-format-fixers*)
+
+(defun fix-trailing-parens (start end &optional _arg)
+  "Use `paredit-close-parenthesis' to fix trailing parens."
+  (interactive (if current-prefix-arg
+                   (list (point-min) (point-max) current-prefix-arg)
+                 (list (region-beginning) (region-end) nil)))
+  (let ((c (current-column)))
+    (save-excursion
+      (save-restriction
+        (narrow-to-region (point-min) end)
+        (goto-char start)
+        (while (re-search-forward "^ *)" nil t)
+        (forward-char -1)
+        (paredit-close-parenthesis))))
+  (move-to-column c)))
+(pushnew 'fix-trailing-parens *lisp-format-fixers*)
+
+;;; Syntax table extension for curry-compose-reader-macros
+(modify-syntax-entry ?\[ "(]" lisp-mode-syntax-table)
+(modify-syntax-entry ?\] ")[" lisp-mode-syntax-table)
+(modify-syntax-entry ?\{ "(}" lisp-mode-syntax-table)
+(modify-syntax-entry ?\} "){" lisp-mode-syntax-table)
+(modify-syntax-entry ?\« "(»" lisp-mode-syntax-table)
+(modify-syntax-entry ?\» ")«" lisp-mode-syntax-table)
+
+;;; Specify indentation levels for specific functions.
+(mapc (lambda (pair) (put (first pair) 'lisp-indent-function (second pair)))
+      '((make-instance 1)
+        (if-let 1)
+        (if-let* 1)
+        (when-let 1)
+        (when-let* 1)
+        (defixture 1)
+        (lambda-bind 1)
+        (start-case 1)
+        (define-proto-backed-class 4)
+        (register-groups-bind 2)))
+
+(defun define-feature-lisp-indent
+    (path state indent-point sexp-column normal-indent)
+  "Indentation function called by `lisp-indent-function' for define-feature."
+  ;; (message "CALLED: %S"
+  ;;          (list 'define-feature-lisp-indent
+  ;;                path state indent-point sexp-column normal-indent))
+  (cond
+   ((equalp path '(2)) 2)   ; Doc string for enclosing define-feature.
+   ((equalp path '(3)) 2)   ; Extractor function definition.
+   ((equalp path '(3 2)) 4) ; Doc string for extractor.
+   ((equalp path '(4)) 2)   ; Merge function definition.
+   (t nil)))                ; Otherwise do the default.
+(put 'define-feature 'lisp-indent-function 'define-feature-lisp-indent)

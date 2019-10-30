@@ -7,13 +7,25 @@ RUN apt-get update \
     python3-pip \
     clang-format \
     git \
-    curl
+    curl \
+    sbcl \
+    emacs-nox \
+    slime \
+    elpa-paredit
 
 # We install an old version of virtualenv so it doesn't conflict with the
 # version of Python packages Ubuntu provides by default:
 # https://github.com/pre-commit/pre-commit/issues/1325
 RUN pip3 install "virtualenv<20.0.0"
 RUN pip3 install pre-commit
+
+# Install the git-lisp-format pre-commit format checker.
+RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
+RUN chmod +x /usr/bin/lisp-format
+RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
+RUN curl https://llvm.org/svn/llvm-project/cfe/trunk/tools/clang-format/git-clang-format > /usr/bin/git-lisp-format
+RUN sed -i "s/clang-format/lisp-format/g;s/clangFormat/lispFormat/;s/default_extensions =.*\$/default_extensions = ','.join(['lisp','cl','asd','scm','el'])/;/# From clang\/lib\/Frontend\/FrontendOptions.cpp, all lower case/,/])/d" /usr/bin/git-lisp-format
+RUN chmod +x /usr/bin/git-lisp-format
 
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/

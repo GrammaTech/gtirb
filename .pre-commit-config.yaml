@@ -13,6 +13,12 @@ repos:
         language: system
         files: \.(c|h|cpp|hpp)$
         entry: clang-format -i
+  - repo: https://github.com/eschulte/lisp-format
+    rev: master
+    hooks:
+      - id: lisp-format
+        name: lisp-format
+        args: [-style=file]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.4.0
     hooks:
