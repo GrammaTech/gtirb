@@ -143,11 +143,6 @@ if(GTIRB_CXX_API)
     add_compile_options(-W4)
     add_compile_options(-WX)
 
-    add_compile_options(
-      -wd4251
-    ) # 'identifier' : class 'type' needs to have dll- interface to be used by
-      # clients of class 'type2'
-    add_compile_options(-wd4275) # Non-dll interface base classes.
     add_compile_options(-wd4996) # VC8: Deprecated libc functions.
     add_compile_options(
       -wd4351
