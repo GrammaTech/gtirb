@@ -70,9 +70,7 @@
 (defgeneric is-equal-p (left right)
   (:documentation "Return t if LEFT and RIGHT are equal."))
 
-;;; TODO: Add type setters and getter through enumerations, then
-;;;       complete the rest of the defclass conversions and test.
-;;;       Then complete the is-equal-p pieces.
+;;; TODO: Complete the is-equal-p pieces.
 (defmacro define-proto-backed-class ((class proto-class) super-classes
                                      slot-specifiers proto-fields
                                      &body options)
@@ -106,51 +104,29 @@ Should not need to be manipulated by client code.")
                            (apply ,is-equal-p left right)))))))
                (append slot-specifiers proto-fields)))
      ;; Pass-through accessors for protobuf fields.
-     ,@(apply #'append
-              (mapcar
-               (lambda (pair)
-                 (destructuring-bind
-                       (name &key type documentation &allow-other-keys) pair
-                   (let ((base
-                          `(,(intern (symbol-name name) 'proto) (proto obj))))
-                     `((defmethod ,name ((obj ,proto-class))
-                         ,@(when documentation (list documentation))
-                         ,(ecase type
-                            ((unsigned-byte-64 boolean) base)
-                            (string `(pb:string-value ,base))))
-                       (defmethod (setf ,name) (new (obj ,proto-class))
-                         ,@(when documentation (list documentation))
-                         ,(ecase type
-                            ((unsigned-byte-64 boolean) `(setf ,base new))
-                            (string `(setf ,base (pb:string-field new)))))))))
-               proto-fields))))
-
-(defclass module ()
-  ;; TODO: Remaining fields:
-  ;; - symbols
-  ;; - data
-  ;; - proxies
-  ;; - sections
-  ;; - symbolic-operands
-  ((proto :initarg :proto :accessor proto :type proto:module
-          :documentation "Backing protobuf object.
-Should not need to be manipulated by client code.")
-   (cfg :accessor cfg :type cfg
-        :documentation "Control flow graph (CFG) keyed by UUID.")
-   (blocks :accessor blocks :type hash-table
-           :documentation "Hash of code blocks keyed by UUID.")
-   (aux-data :accessor aux-data :type (list aux-data)
-             :documentation "Auxiliary data objects.")
-   (image-byte-map
-    :accessor image-byte-map :type (list image-byte-map)
-    :documentation
-    "Collection of bytes in regions keyed by starting address.")))
-
-(define-proto-accessors module
-    ((name :string)
-     (binary-path :string)
-     (preferred-addr :unsigned-byte-64)
-     (rebase-delta :unsigned-byte-64)))
+     ,@(apply
+        #'append
+        (mapcar
+         (nest
+          (lambda (pair))
+          (destructuring-bind
+                (name &key type documentation enumeration (proto-field name)
+                      &allow-other-keys) pair)
+          (let ((base `(,(intern (symbol-name proto-field) 'proto)
+                         (proto obj)))))
+          `((defmethod ,name ((obj ,class))
+              ,@(when documentation (list documentation))
+              ,(ecase type
+                 ((unsigned-byte-64 boolean) base)
+                 (enumeration `(cdr (assoc ,base ,enumeration)))
+                 (string `(pb:string-value ,base))))
+            (defmethod (setf ,name) (new (obj ,class))
+              ,@(when documentation (list documentation))
+              ,(ecase type
+                 ((unsigned-byte-64 boolean) `(setf ,base new))
+                 (enumeration `(setf ,base (car (rassoc new ,enumeration))))
+                 (string `(setf ,base (pb:string-field new)))))))
+         proto-fields))))
 
 (define-constant +module-isa-map+
     '((#.proto:+isaid-isa-undefined+ . :undefined)
@@ -160,13 +136,6 @@ Should not need to be manipulated by client code.")
       (#.proto:+isaid-arm+ . :arm)
       (#.proto:+isaid-valid-but-unsupported+ . :valid-but-unsupported))
   :test #'equal)
-
-(defmethod isa ((obj module))
-  (cdr (assoc (proto:isa-id (proto obj)) +module-isa-map+)))
-
-(defmethod (setf isa) (new (obj module))
-  (setf (proto:isa-id (proto obj))
-        (car (rassoc new +module-isa-map+))))
 
 (define-constant +module-file-format-map+
     '((#.proto:+file-format-coff+ . :coff)
@@ -180,12 +149,30 @@ Should not need to be manipulated by client code.")
       (#.proto:+file-format-format-undefined+ . :format-undefined))
   :test #'equal)
 
-(defmethod file-format ((obj module))
-  (cdr (assoc (proto:file-format (proto obj)) +module-file-format-map+)))
-
-(defmethod (setf file-format) (new (obj module))
-  (setf (proto:file-format (proto obj))
-        (car (rassoc new +module-file-format-map+))))
+(define-proto-backed-class (module proto:module) ()
+    ;; TODO: Remaining fields:
+    ;; - symbols
+    ;; - data
+    ;; - proxies
+    ;; - sections
+    ;; - symbolic-operands
+    ((cfg :accessor cfg :type cfg
+          :documentation "Control flow graph (CFG) keyed by UUID.")
+     (blocks :accessor blocks :type hash-table
+             :documentation "Hash of code blocks keyed by UUID.")
+     (aux-data :accessor aux-data :type (list aux-data)
+               :documentation "Auxiliary data objects.")
+     (image-byte-map
+      :accessor image-byte-map :type (list image-byte-map)
+      :documentation
+      "Collection of bytes in regions keyed by starting address."))
+    ((name :type string)
+     (binary-path :type string)
+     (preferred-addr :type unsigned-byte-64)
+     (rebase-delta :type unsigned-byte-64)
+     (isa :type enumeration :enumeration +module-isa-map+ :proto-field isa-id)
+     (file-format :type enumeration :enumeration +module-file-format-map+))
+  (:documentation "Module of a GTIRB IR."))
 
 (defun aux-data-from-proto (proto)
   (let ((p-aux-data (proto:aux-data (proto:aux-data-container proto)))
@@ -263,11 +250,6 @@ Should not need to be manipulated by client code.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
-(define-proto-backed-class (edge-label edge-label) () ()
-    ((conditional :type boolean)
-     (direct :type boolean))
-  (:documentation "Label on a CFG edge."))
-
 (define-constant +edge-label-type-map+
     '((#.proto:+edge-type-type-branch+ . :branch)
       (#.proto:+edge-type-type-call+ . :call)
@@ -277,12 +259,12 @@ Should not need to be manipulated by client code.")
       (#.proto:+edge-type-type-sysret+ . :sysret))
   :test #'equal)
 
-(defmethod edge-type ((obj edge-label))
-  (cdr (assoc (proto:type (proto obj)) +edge-label-type-map+)))
-
-(defmethod (setf edge-type) (new (obj edge-label))
-  (setf (proto:type (proto obj))
-        (car (rassoc new +edge-label-type-map+))))
+(define-proto-backed-class (edge-label proto:edge-label) () ()
+    ((conditional :type boolean)
+     (direct :type boolean)
+     (edge-type :type enumeration :enumeration +edge-label-type-map+
+                :proto-field type))
+  (:documentation "Label on a CFG edge."))
 
 (defmethod print-object ((obj edge-label) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
@@ -291,7 +273,7 @@ Should not need to be manipulated by client code.")
             (if (conditional obj) :conditional :unconditional)
             (if (direct obj) :direct :undirect))))
 
-(define-proto-backed-class (image-byte-map image-byte-map) ()
+(define-proto-backed-class (image-byte-map proto:image-byte-map) ()
     ((regions :initarg regions :accessor regions :initform nil
               :type (list (cons (unsigned-byte 64)
                                 (simple-array (unsigned-byte 8) (*))))
@@ -316,7 +298,7 @@ Should not need to be manipulated by client code.")
     (format stream "~a to ~a in ~a regions"
             (addr-min obj) (addr-max obj) (length (regions obj)))))
 
-(define-proto-backed-class (aux-data aux-data) () () ())
+(define-proto-backed-class (aux-data proto:aux-data) () () ())
 
 (defmacro start-case (string &body body)
   `(progn
@@ -491,7 +473,7 @@ Should not need to be manipulated by client code.")
     (encode type data)
     (reduce {concatenate 'vector} (reverse *decode-data*))))
 
-(define-proto-backed-class (gtirb ir) ()
+(define-proto-backed-class (gtirb proto:ir) ()
     ((modules :initarg modules :accessor modules :type (list module)
               :initform nil
               :documentation "List of the modules on an IR.")
