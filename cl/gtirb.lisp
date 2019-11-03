@@ -385,7 +385,8 @@
     (reduce {concatenate 'vector} (reverse *decode-data*))))
 
 (defclass gtirb ()
-  ((proto :initarg :proto :accessor proto :type proto:module
+  ((proto :initarg :proto :accessor proto :type proto:ir
+          :initform (make-instance 'proto:ir)
           :documentation "Backing protobuf object.")
    (modules :initarg modules :accessor modules :initform nil :type (list module)
             :documentation "List of the modules on an IR.")))
