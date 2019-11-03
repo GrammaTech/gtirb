@@ -83,7 +83,13 @@
                     :test #'is-equal-p)
          (set-equal (graph:edges-w-values left)
                     (graph:edges-w-values right)
-                    :test #'is-equal-p))))
+                    :test #'is-equal-p)))
+  (:method ((left image-byte-map) (right image-byte-map))
+    (and (= (addr-min left) (addr-min right))
+         (= (addr-max left) (addr-max right))
+         (= (base-address left) (base-address right))
+         (= (entry-point-address left) (entry-point-address right))
+         (is-equal-p (regions left) (regions right)))))
 
 (deftest idempotent-read-write-w-class ()
   (nest
@@ -92,6 +98,10 @@
    (let ((hello1 (read-gtirb *proto-path*)))
      (write-gtirb hello1 path)
      (let ((hello2 (read-gtirb path)))
+       ;; Test image-byte-map equality.
+       (is (apply #'is-equal-p
+                  (mapcar [#'image-byte-map #'first #'modules]
+                          (list hello1 hello2))))
        ;; Test block equality.
        (is (apply #'noisy-set-equality
                   (mapcar [#'hash-table-values #'blocks #'first #'modules]

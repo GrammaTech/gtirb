@@ -13,6 +13,9 @@
            :write-gtirb
            :module
            :name
+           :binary-path
+           :preferred-addr
+           :rebase-delta
            :isa
            :file-format
            :get-block
@@ -20,6 +23,12 @@
            :edge-label
            :conditional
            :direct
+           :image-byte-map
+           :addr-min
+           :addr-max
+           :base-address
+           :entry-point-address
+           :regions
            :aux-data
            :aux-data-type
            :aux-data-data
@@ -58,7 +67,33 @@
 
 
 ;;;; Classes
+(defmacro define-proto-accessors (class fields)
+  "Add protobuf accessors to CLASS for FIELDS.
+Every entry in fields should have the form (NAME TYPE)."
+  `(progn
+     ,@(apply #'append
+              (mapcar
+               (lambda (pair)
+                 (destructuring-bind (name type) pair
+                   (let ((base
+                          `(,(intern (symbol-name name) 'proto) (proto obj))))
+                     `((defmethod ,name ((obj ,class))
+                         ,(ecase type
+                            ((:unsigned-byte-64 :boolean) base)
+                            (:string `(pb:string-value ,base))))
+                       (defmethod (setf ,name) (new (obj ,class))
+                         ,(ecase type
+                            ((:unsigned-byte-64 :boolean) `(setf ,base new))
+                            (:string `(setf ,base (pb:string-field new)))))))))
+               fields))))
+
 (defclass module ()
+  ;; TODO: Remaining fields:
+  ;; - symbols
+  ;; - data
+  ;; - proxies
+  ;; - sections
+  ;; - symbolic-operands
   ((proto :initarg :proto :accessor proto :type proto:module
           :documentation "Backing protobuf object.")
    (cfg :accessor cfg :type cfg
@@ -66,13 +101,15 @@
    (blocks :accessor blocks :type hash-table
            :documentation "Module control flow block (CFG).")
    (aux-data :accessor aux-data :type (list aux-data)
-             :documentation "Module auxiliary data objects.")))
+             :documentation "Module auxiliary data objects.")
+   (image-byte-map :accessor image-byte-map :type (list image-byte-map)
+                   :documentation "Map of the bytes by address.")))
 
-(defmethod name ((obj module))
-  (pb:string-value (proto:name (proto obj))))
-
-(defmethod (setf name) ((obj module) new)
-  (setf (proto:name (proto obj)) (pb:string-field new)))
+(define-proto-accessors module
+    ((name :string)
+     (binary-path :string)
+     (preferred-addr :unsigned-byte-64)
+     (rebase-delta :unsigned-byte-64)))
 
 (define-constant +module-isa-map+
     '((#.proto:+isaid-isa-undefined+ . :undefined)
@@ -131,6 +168,10 @@
        aux-data))
 
 (defmethod initialize-instance :after ((obj module) &key)
+  ;; Unpack the image-byte-map.
+  (setf (image-byte-map obj)
+        (make-instance 'image-byte-map
+          :proto (proto:image-byte-map (proto obj))))
   ;; Repackage the AuxData into an alist keyed by name.
   (setf (aux-data obj) (aux-data-from-proto (proto obj)))
   ;; Package the blocks into a has keyed by UUID.
@@ -178,7 +219,7 @@
   (int->octets number 16))
 
 (defmethod print-object ((obj module) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity cl:t)
+  (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
 (defclass edge-label ()
@@ -201,24 +242,46 @@
   (setf (proto:type (proto obj))
         (car (rassoc new +edge-label-type-map+))))
 
-(defmethod conditional ((obj edge-label))
-  (proto:conditional (proto obj)))
-
-(defmethod (setf conditional) (new (obj edge-label))
-  (setf (proto:conditional (proto obj)) new))
-
-(defmethod direct ((obj edge-label))
-  (proto:direct (proto obj)))
-
-(defmethod (setf direct) (new (obj edge-label))
-  (setf (proto:direct (proto obj)) new))
+(define-proto-accessors edge-label
+    ((conditional :boolean)
+     (direct :boolean)))
 
 (defmethod print-object ((obj edge-label) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity cl:t)
+  (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~a"
             (edge-type obj)
             (if (conditional obj) :conditional :unconditional)
             (if (direct obj) :direct :undirect))))
+
+(defclass image-byte-map ()
+  ((proto :initarg :proto :accessor proto :type proto:image-byte-map
+          :initarg :proto
+          :initform (make-instance 'proto:aux-data)
+          :documentation "Backing protobuf object.")
+   (regions :initarg regions :accessor regions :initform nil
+            :type (list (cons (unsigned-byte 64)
+                              (simple-array (unsigned-byte 8) (*))))
+            :documentation "List of the regions in the byte map.")))
+
+(define-proto-accessors image-byte-map
+    ((addr-min :unsigned-byte-64)
+     (addr-max :unsigned-byte-64)
+     (base-address :unsigned-byte-64)
+     (entry-point-address :unsigned-byte-64)))
+
+(defmethod initialize-instance :after ((obj image-byte-map) &key)
+  (let ((p-regions (proto:regions (proto:byte-map (proto obj))))
+        results)
+    (dotimes (n (length p-regions) results)
+      (let ((p-region (aref p-regions n)))
+        (push (cons (proto:address p-region) (proto:data p-region))
+              results)))
+    (setf (regions obj) (nreverse results))))
+
+(defmethod print-object ((obj image-byte-map) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a to ~a in ~a regions"
+            (addr-min obj) (addr-max obj) (length (regions obj)))))
 
 (defclass aux-data ()
   ((proto :initarg :proto :accessor proto :type proto:module
@@ -419,7 +482,7 @@
                           (coerce (proto:modules (proto obj)) 'list)))))
 
 (defmethod print-object ((obj gtirb) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity cl:t)
+  (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (modules obj))))
 
 (defgeneric update-proto (object)
@@ -437,6 +500,14 @@ but that would likely get expensive.")
           (aux-data-to-proto (aux-data obj))))
   (:method ((obj module))
     (setf
+     ;; Repackage the ImageByteMap.
+     (proto:regions (proto:byte-map (proto (image-byte-map obj))))
+     (map 'vector (lambda (region)
+                    (let ((p-region (make-instance 'proto:region)))
+                      (setf (proto:address p-region) (car region)
+                            (proto:data p-region) (cdr region))
+                      p-region))
+          (regions (image-byte-map obj)))
      ;; Repackage the AuxData into a vector.
      (proto:aux-data (proto:aux-data-container (proto obj)))
      (aux-data-to-proto (aux-data obj))
