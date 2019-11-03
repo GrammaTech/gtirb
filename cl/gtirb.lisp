@@ -109,16 +109,30 @@
   (setf (proto:file-format (proto obj))
         (car (rassoc new +module-file-format-map+))))
 
-(defmethod initialize-instance :after ((obj module) &key)
-  ;; Repackage the AuxData into an alist keyed by name.
-  (let ((p-aux-data (proto:aux-data (proto:aux-data-container (proto obj))))
+(defun aux-data-from-proto (proto)
+  (let ((p-aux-data (proto:aux-data (proto:aux-data-container proto)))
         (aux-data '()))
     (dotimes (n (length p-aux-data))
       (push (cons (pb:string-value (proto:key (aref p-aux-data n)))
                   (make-instance 'aux-data
                     :proto (proto:value (aref p-aux-data n))))
             aux-data))
-    (setf (aux-data obj) aux-data))
+    aux-data))
+
+(defmethod aux-data-to-proto (aux-data)
+  (map 'vector (lambda (pair)
+                 (destructuring-bind (name . aux-data) pair
+                   (let ((entry
+                          (make-instance
+                              'proto:aux-data-container-aux-data-entry)))
+                     (setf (proto:key entry) (pb:string-field name)
+                           (proto:value entry) (proto aux-data))
+                     entry)))
+       aux-data))
+
+(defmethod initialize-instance :after ((obj module) &key)
+  ;; Repackage the AuxData into an alist keyed by name.
+  (setf (aux-data obj) (aux-data-from-proto (proto obj)))
   ;; Package the blocks into a has keyed by UUID.
   (let ((p-blocks (proto:blocks (proto obj)))
         (block-h (make-hash-table)))
@@ -389,13 +403,16 @@
           :initform (make-instance 'proto:ir)
           :documentation "Backing protobuf object.")
    (modules :initarg modules :accessor modules :initform nil :type (list module)
-            :documentation "List of the modules on an IR.")))
+            :documentation "List of the modules on an IR.")
+   (aux-data :accessor aux-data :type (list aux-data)
+             :documentation "Module auxiliary data objects.")))
 
 (defmethod (setf modules) :after (new (obj gtirb))
   (setf (proto:modules (proto obj))
         (coerce (mapcar #'proto (modules obj)) 'vector)))
 
 (defmethod initialize-instance :after ((obj gtirb) &key)
+  (setf (aux-data obj) (aux-data-from-proto (proto obj)))
   (with-slots (modules) obj
     (setf modules (mapcar (lambda (module-proto)
                             (make-instance 'module :proto module-proto))
@@ -414,21 +431,15 @@ against the protocol buffer object before it is returned.  We could
 incrementally synchronize everything to the backing protocol buffer,
 but that would likely get expensive.")
   (:method ((obj gtirb))
-    (setf (proto:modules (proto obj))
-          (map 'vector [#'proto #'update-proto] (modules obj))))
+    (setf (proto:modules (proto obj))   ; Modules.
+          (map 'vector [#'proto #'update-proto] (modules obj))
+          (proto:aux-data (proto:aux-data-container (proto obj))) ; Aux data.
+          (aux-data-to-proto (aux-data obj))))
   (:method ((obj module))
     (setf
      ;; Repackage the AuxData into a vector.
      (proto:aux-data (proto:aux-data-container (proto obj)))
-     (map 'vector (lambda (pair)
-                    (destructuring-bind (name . aux-data) pair
-                      (let ((entry
-                             (make-instance
-                                 'proto:aux-data-container-aux-data-entry)))
-                        (setf (proto:key entry) (pb:string-field name)
-                              (proto:value entry) (proto aux-data))
-                        entry)))
-          (aux-data obj))
+     (aux-data-to-proto (aux-data obj))
      ;; Repackage the blocks back into a vector.
      (proto:blocks (proto obj))
      (coerce (hash-table-values (blocks obj)) 'vector)
