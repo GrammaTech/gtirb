@@ -95,15 +95,18 @@ Every entry in fields should have the form (NAME TYPE)."
   ;; - sections
   ;; - symbolic-operands
   ((proto :initarg :proto :accessor proto :type proto:module
-          :documentation "Backing protobuf object.")
+          :documentation "Backing protobuf object.
+Should not need to be manipulated by client code.")
    (cfg :accessor cfg :type cfg
-        :documentation "Module control flow block (CFG).")
+        :documentation "Control flow graph (CFG) keyed by UUID.")
    (blocks :accessor blocks :type hash-table
-           :documentation "Module control flow block (CFG).")
+           :documentation "Hash of code blocks keyed by UUID.")
    (aux-data :accessor aux-data :type (list aux-data)
-             :documentation "Module auxiliary data objects.")
-   (image-byte-map :accessor image-byte-map :type (list image-byte-map)
-                   :documentation "Map of the bytes by address.")))
+             :documentation "Auxiliary data objects.")
+   (image-byte-map
+    :accessor image-byte-map :type (list image-byte-map)
+    :documentation
+    "Collection of bytes in regions keyed by starting address.")))
 
 (define-proto-accessors module
     ((name :string)
@@ -224,7 +227,8 @@ Every entry in fields should have the form (NAME TYPE)."
 
 (defclass edge-label ()
   ((proto :initarg :proto :accessor proto :type proto:module
-          :documentation "Backing protobuf object.")))
+          :documentation "Backing protobuf object.
+Should not need to be manipulated by client code.")))
 
 (define-constant +edge-label-type-map+
     '((#.proto:+edge-type-type-branch+ . :branch)
@@ -257,11 +261,12 @@ Every entry in fields should have the form (NAME TYPE)."
   ((proto :initarg :proto :accessor proto :type proto:image-byte-map
           :initarg :proto
           :initform (make-instance 'proto:aux-data)
-          :documentation "Backing protobuf object.")
+          :documentation "Backing protobuf object.
+Should not need to be manipulated by client code.")
    (regions :initarg regions :accessor regions :initform nil
             :type (list (cons (unsigned-byte 64)
                               (simple-array (unsigned-byte 8) (*))))
-            :documentation "List of the regions in the byte map.")))
+            :documentation "A-list of the regions keyed by starting address.")))
 
 (define-proto-accessors image-byte-map
     ((addr-min :unsigned-byte-64)
@@ -286,7 +291,8 @@ Every entry in fields should have the form (NAME TYPE)."
 (defclass aux-data ()
   ((proto :initarg :proto :accessor proto :type proto:module
           :initform (make-instance 'proto:aux-data)
-          :documentation "Backing protobuf object.")))
+          :documentation "Backing protobuf object.
+Should not need to be manipulated by client code.")))
 
 (defmacro start-case (string &body body)
   `(progn
@@ -464,11 +470,13 @@ Every entry in fields should have the form (NAME TYPE)."
 (defclass gtirb ()
   ((proto :initarg :proto :accessor proto :type proto:ir
           :initform (make-instance 'proto:ir)
-          :documentation "Backing protobuf object.")
+          :documentation "Backing protobuf object.
+Should not need to be manipulated by client code.")
    (modules :initarg modules :accessor modules :initform nil :type (list module)
             :documentation "List of the modules on an IR.")
    (aux-data :accessor aux-data :type (list aux-data)
-             :documentation "Module auxiliary data objects.")))
+             :documentation "Auxiliary data objects on the IR.
+The modules of the IR will often also hold auxiliary data objects.")))
 
 (defmethod (setf modules) :after (new (obj gtirb))
   (setf (proto:modules (proto obj))
