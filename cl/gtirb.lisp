@@ -67,25 +67,63 @@
 
 
 ;;;; Classes
-(defmacro define-proto-accessors (class fields)
-  "Add protobuf accessors to CLASS for FIELDS.
-Every entry in fields should have the form (NAME TYPE)."
+(defgeneric is-equal-p (left right)
+  (:documentation "Return t if LEFT and RIGHT are equal."))
+
+;;; TODO: Add type setters and getter through enumerations, then
+;;;       complete the rest of the defclass conversions and test.
+;;;       Then complete the is-equal-p pieces.
+(defmacro define-proto-backed-class ((class proto-class) super-classes
+                                     slot-specifiers proto-fields
+                                     &body options)
+  "Define a Common Lisp class backed by a protobuf class.
+SLOT-SPECIFIERS is as in `defclass' with the addition of optional
+:to-proto and :from-proto fields, which may take protobuf
+serialization functions.  PROTO-FIELDS may hold a list of fields which
+pass through directly to the backing protobuf class.  "
   `(progn
+     (defclass ,class ,super-classes
+       ;; Accessors for normal lisp classes
+       ((proto :initarg :proto :accessor proto :type ,proto-class
+               :initform (make-instance ',proto-class)
+               :documentation "Backing protobuf object.
+Should not need to be manipulated by client code.")
+        ,@(mapcar «cons #'car [{remove-from-plist _ :is-equal-p} #'cdr]»
+                  slot-specifiers))
+       ,@options)
+     ;; Equality.
+     ,@(apply #'append
+              (mapcar
+               (lambda (specification)
+                 (destructuring-bind (field &key is-equal-p &allow-other-keys)
+                     specification
+                   (when is-equal-p
+                     (let ((type (getf specification :type)))
+                       (assert type (specification)
+                               "Defining `is-equal-p' for ~a requires a type."
+                               field)
+                       `((defmethod is-equal-p ((left ,class) (right ,class))
+                           (apply ,is-equal-p left right)))))))
+               (append slot-specifiers proto-fields)))
+     ;; Pass-through accessors for protobuf fields.
      ,@(apply #'append
               (mapcar
                (lambda (pair)
-                 (destructuring-bind (name type) pair
+                 (destructuring-bind
+                       (name &key type documentation &allow-other-keys) pair
                    (let ((base
                           `(,(intern (symbol-name name) 'proto) (proto obj))))
-                     `((defmethod ,name ((obj ,class))
+                     `((defmethod ,name ((obj ,proto-class))
+                         ,@(when documentation (list documentation))
                          ,(ecase type
-                            ((:unsigned-byte-64 :boolean) base)
-                            (:string `(pb:string-value ,base))))
-                       (defmethod (setf ,name) (new (obj ,class))
+                            ((unsigned-byte-64 boolean) base)
+                            (string `(pb:string-value ,base))))
+                       (defmethod (setf ,name) (new (obj ,proto-class))
+                         ,@(when documentation (list documentation))
                          ,(ecase type
-                            ((:unsigned-byte-64 :boolean) `(setf ,base new))
-                            (:string `(setf ,base (pb:string-field new)))))))))
-               fields))))
+                            ((unsigned-byte-64 boolean) `(setf ,base new))
+                            (string `(setf ,base (pb:string-field new)))))))))
+               proto-fields))))
 
 (defclass module ()
   ;; TODO: Remaining fields:
@@ -225,10 +263,10 @@ Should not need to be manipulated by client code.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
-(defclass edge-label ()
-  ((proto :initarg :proto :accessor proto :type proto:module
-          :documentation "Backing protobuf object.
-Should not need to be manipulated by client code.")))
+(define-proto-backed-class (edge-label edge-label) () ()
+    ((conditional :type boolean)
+     (direct :type boolean))
+  (:documentation "Label on a CFG edge."))
 
 (define-constant +edge-label-type-map+
     '((#.proto:+edge-type-type-branch+ . :branch)
@@ -246,10 +284,6 @@ Should not need to be manipulated by client code.")))
   (setf (proto:type (proto obj))
         (car (rassoc new +edge-label-type-map+))))
 
-(define-proto-accessors edge-label
-    ((conditional :boolean)
-     (direct :boolean)))
-
 (defmethod print-object ((obj edge-label) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~a"
@@ -257,22 +291,16 @@ Should not need to be manipulated by client code.")))
             (if (conditional obj) :conditional :unconditional)
             (if (direct obj) :direct :undirect))))
 
-(defclass image-byte-map ()
-  ((proto :initarg :proto :accessor proto :type proto:image-byte-map
-          :initarg :proto
-          :initform (make-instance 'proto:aux-data)
-          :documentation "Backing protobuf object.
-Should not need to be manipulated by client code.")
-   (regions :initarg regions :accessor regions :initform nil
-            :type (list (cons (unsigned-byte 64)
-                              (simple-array (unsigned-byte 8) (*))))
-            :documentation "A-list of the regions keyed by starting address.")))
-
-(define-proto-accessors image-byte-map
-    ((addr-min :unsigned-byte-64)
-     (addr-max :unsigned-byte-64)
-     (base-address :unsigned-byte-64)
-     (entry-point-address :unsigned-byte-64)))
+(define-proto-backed-class (image-byte-map image-byte-map) ()
+    ((regions :initarg regions :accessor regions :initform nil
+              :type (list (cons (unsigned-byte 64)
+                                (simple-array (unsigned-byte 8) (*))))
+              :documentation "Alist of the regions keyed by starting address."))
+    ((addr-min :type unsigned-byte-64)
+     (addr-max :type unsigned-byte-64)
+     (base-address :type unsigned-byte-64)
+     (entry-point-address :type unsigned-byte-64))
+  (:documentation "Bytes of the memory image, as a list of regions."))
 
 (defmethod initialize-instance :after ((obj image-byte-map) &key)
   (let ((p-regions (proto:regions (proto:byte-map (proto obj))))
@@ -288,11 +316,7 @@ Should not need to be manipulated by client code.")
     (format stream "~a to ~a in ~a regions"
             (addr-min obj) (addr-max obj) (length (regions obj)))))
 
-(defclass aux-data ()
-  ((proto :initarg :proto :accessor proto :type proto:module
-          :initform (make-instance 'proto:aux-data)
-          :documentation "Backing protobuf object.
-Should not need to be manipulated by client code.")))
+(define-proto-backed-class (aux-data aux-data) () () ())
 
 (defmacro start-case (string &body body)
   `(progn
@@ -467,16 +491,15 @@ Should not need to be manipulated by client code.")))
     (encode type data)
     (reduce {concatenate 'vector} (reverse *decode-data*))))
 
-(defclass gtirb ()
-  ((proto :initarg :proto :accessor proto :type proto:ir
-          :initform (make-instance 'proto:ir)
-          :documentation "Backing protobuf object.
-Should not need to be manipulated by client code.")
-   (modules :initarg modules :accessor modules :initform nil :type (list module)
-            :documentation "List of the modules on an IR.")
-   (aux-data :accessor aux-data :type (list aux-data)
-             :documentation "Auxiliary data objects on the IR.
-The modules of the IR will often also hold auxiliary data objects.")))
+(define-proto-backed-class (gtirb ir) ()
+    ((modules :initarg modules :accessor modules :type (list module)
+              :initform nil
+              :documentation "List of the modules on an IR.")
+     (aux-data :accessor aux-data :type (list aux-data)
+               :documentation "Auxiliary data objects on the IR.
+The modules of the IR will often also hold auxiliary data objects."))
+    ()
+  (:documentation "Base class of an instance of GTIRB IR."))
 
 (defmethod (setf modules) :after (new (obj gtirb))
   (setf (proto:modules (proto obj))
