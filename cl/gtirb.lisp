@@ -22,7 +22,7 @@
            :direct
            :aux-data
            :aux-data-type
-           :data
+           :aux-data-data
            :blocks
            :modules
            :cfg
@@ -315,10 +315,10 @@
   (setf (proto:type-name (proto obj))
         (pb:string-field (aux-data-type-print new))))
 
-(defmethod data ((obj aux-data))
+(defmethod aux-data-data ((obj aux-data))
   (aux-data-decode (aux-data-type obj) (proto:data (proto obj))))
 
-(defmethod (setf data) (new (obj aux-data))
+(defmethod (setf aux-data-data) (new (obj aux-data))
   (setf (proto:data (proto obj))
         (let ((result (aux-data-encode (aux-data-type obj) new)))
           (make-array (length result)

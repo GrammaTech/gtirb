@@ -73,7 +73,7 @@
          (= (proto:size left) (proto:size right))))
   (:method ((left aux-data) (right aux-data))
     (and (tree-equal (aux-data-type left) (aux-data-type right))
-         (is-equal-p (data left) (data right))))
+         (is-equal-p (aux-data-data left) (aux-data-data right))))
   (:method ((left edge-label) (right edge-label))
     (and (eql (edge-type left) (edge-type right))
          (eql (conditional left) (conditional right))
@@ -131,7 +131,7 @@
               (destructuring-bind (name . aux-data) pair
                 (let ((orig (proto:data (gtirb::proto aux-data)))
                       (new (gtirb::aux-data-encode
-                            (aux-data-type aux-data) (data aux-data))))
+                            (aux-data-type aux-data) (aux-data-data aux-data))))
                   (is (equalp orig new)
                       "~s with type ~a encodes/decodes is not idempotent~%~s"
                       name (aux-data-type aux-data)
@@ -146,7 +146,7 @@
          (hello (read-gtirb *proto-path*))
          (aux (make-instance 'aux-data)))
      (setf (aux-data-type aux) :string)
-     (setf (data aux) test-string)
+     (setf (aux-data-data aux) test-string)
      (push (cons "test" aux) (aux-data (first (modules hello))))
      (write-gtirb hello path)
      (let* ((next (read-gtirb path))
@@ -156,8 +156,9 @@
                                 (proto:byte-map
                                  (proto:image-byte-map proto)))))))
        ;; Test for the aux-data table created earlier in the test.
-       (is (string= (data (cdr (assoc "test" (aux-data (first (modules next)))
-                                      :test #'string=)))
+       (is (string= (aux-data-data
+                     (cdr (assoc "test" (aux-data (first (modules next)))
+                                 :test #'string=)))
                     test-string))))))
 
 
