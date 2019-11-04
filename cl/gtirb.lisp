@@ -33,6 +33,10 @@
            :aux-data-type
            :aux-data-data
            :blocks
+           :section
+           :sections
+           :address
+           :size
            :modules
            :cfg
            :gtirb
@@ -134,12 +138,13 @@ Should not need to be manipulated by client code.")
     ;; TODO: Remaining fields:
     ;; - symbols
     ;; - proxies
-    ;; - sections
     ;; - symbolic-operands
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (blocks :accessor blocks :type hash-table
              :documentation "Hash of code and data blocks keyed by UUID.")
+     (sections :accessor sections :type (list section)
+               :documentation "Loadable sections.")
      (aux-data :accessor aux-data :type (list aux-data)
                :documentation "Auxiliary data objects.")
      (image-byte-map
@@ -153,6 +158,16 @@ Should not need to be manipulated by client code.")
      (isa :type enumeration :enumeration +module-isa-map+ :proto-field isa-id)
      (file-format :type enumeration :enumeration +module-file-format-map+))
   (:documentation "Module of a GTIRB IR."))
+
+(define-proto-backed-class (section proto:section) () ()
+    ((name :type string)
+     (address :type unsigned-byte-64)
+     (size :type unsigned-byte-64))
+  (:documentation "Loadable section of a GTIRB IR module."))
+
+(defmethod print-object ((obj section) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~a ~a" (name obj) (address obj) (size obj))))
 
 (defun aux-data-from-proto (proto)
   (let ((p-aux-data (proto:aux-data (proto:aux-data-container proto)))
@@ -197,6 +212,10 @@ Should not need to be manipulated by client code.")
                        block-h)
               p-block)))
     (setf (blocks obj) block-h))
+  ;; Sections.
+  (setf (sections obj)
+        (map 'list {make-instance 'section :proto}
+             (proto:sections (proto obj))))
   ;; Build the CFG as a lisp graph.
   (nest
    (with-slots (cfg) obj)
@@ -519,6 +538,9 @@ but that would likely get expensive.")
      (coerce (remove-if-not [{eql 'proto:data-object} #'type-of]
                             (hash-table-values (blocks obj)))
              'vector)
+     ;; Repackage the sections back into a vector.
+     (proto:sections (proto obj))
+     (map 'vector #'proto (sections obj))
      ;; Unpack the graph back into the proto structure.
      (proto:cfg (proto obj))
      (let ((p-cfg (make-instance 'proto:cfg)))

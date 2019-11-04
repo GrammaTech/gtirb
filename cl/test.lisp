@@ -71,6 +71,10 @@
                  (proto:uuid right))
          (= (proto:address left) (proto:address right))
          (= (proto:size left) (proto:size right))))
+  (:method ((left section) (right section))
+    (and (string= (name left) (name right))
+         (= (address left) (address right))
+         (= (size left) (size right))))
   (:method ((left proto:data-object) (right proto:data-object))
     (and (equalp (proto:uuid left)
                  (proto:uuid right))
@@ -110,6 +114,10 @@
        ;; Test block equality.
        (is (apply #'noisy-set-equality
                   (mapcar [#'hash-table-values #'blocks #'first #'modules]
+                          (list hello1 hello2))))
+       ;; Test section equality.
+       (is (apply #'noisy-set-equality
+                  (mapcar [#'sections #'first #'modules]
                           (list hello1 hello2))))
        ;; Test aux-data equality.
        (is (apply #'noisy-set-equality
