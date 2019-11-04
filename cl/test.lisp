@@ -4,6 +4,7 @@
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file)
   (:import-from :uiop :nest :run-program :with-temporary-file)
+  (:shadowing-import-from :gtirb :symbol)
   (:export :test))
 (in-package :gtirb/test)
 (in-readtable :curry-compose-reader-macros)
@@ -75,6 +76,11 @@
     (and (string= (name left) (name right))
          (= (address left) (address right))
          (= (size left) (size right))))
+  (:method ((left symbol) (right symbol))
+    (and (string= (name left) (name right))
+         (= (value left) (value right))
+         (= (referent-uuid left) (referent-uuid right))
+         (eql (storage-kind left) (storage-kind right))))
   (:method ((left proto:data-object) (right proto:data-object))
     (and (equalp (proto:uuid left)
                  (proto:uuid right))
@@ -118,6 +124,10 @@
        ;; Test section equality.
        (is (apply #'noisy-set-equality
                   (mapcar [#'sections #'first #'modules]
+                          (list hello1 hello2))))
+       ;; Test symbol equality.
+       (is (apply #'is-equal-p
+                  (mapcar [#'symbols #'first #'modules]
                           (list hello1 hello2))))
        ;; Test aux-data equality.
        (is (apply #'noisy-set-equality

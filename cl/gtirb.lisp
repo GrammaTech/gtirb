@@ -3,6 +3,7 @@
   (:use :common-lisp :alexandria :graph :trivia
         :trivial-utf-8
         :named-readtables :curry-compose-reader-macros)
+  (:shadow :symbol)
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
                 :int->octets
@@ -37,6 +38,11 @@
            :sections
            :address
            :size
+           :symbols
+           :symbol
+           :value
+           :referent-uuid
+           :storage-kind
            :modules
            :cfg
            :gtirb
@@ -104,12 +110,14 @@ Should not need to be manipulated by client code.")
               ,(ecase type
                  ((unsigned-byte-64 boolean) base)
                  (enumeration `(cdr (assoc ,base ,enumeration)))
+                 (uuid `(uuid-to-integer ,base))
                  (string `(pb:string-value ,base))))
             (defmethod (setf ,name) (new (obj ,class))
               ,@(when documentation (list documentation))
               ,(ecase type
                  ((unsigned-byte-64 boolean) `(setf ,base new))
                  (enumeration `(setf ,base (car (rassoc new ,enumeration))))
+                 (uuid `(setf ,base (integer-to-uuid new)))
                  (string `(setf ,base (pb:string-field new)))))))
          proto-fields))))
 
@@ -136,13 +144,15 @@ Should not need to be manipulated by client code.")
 
 (define-proto-backed-class (module proto:module) ()
     ;; TODO: Remaining fields:
-    ;; - symbols
     ;; - proxies
     ;; - symbolic-operands
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (blocks :accessor blocks :type hash-table
              :documentation "Hash of code and data blocks keyed by UUID.")
+     (symbols :accessor symbols :type hash-table
+              :initform nil
+              :documentation "Hash of symbols keyed by UUID.")
      (sections :accessor sections :type (list section)
                :documentation "Loadable sections.")
      (aux-data :accessor aux-data :type (list aux-data)
@@ -158,6 +168,25 @@ Should not need to be manipulated by client code.")
      (isa :type enumeration :enumeration +module-isa-map+ :proto-field isa-id)
      (file-format :type enumeration :enumeration +module-file-format-map+))
   (:documentation "Module of a GTIRB IR."))
+
+(define-constant +symbol-storage-kind+
+    '((#.proto:+storage-kind-storage-undefined+ . :undefined)
+      (#.proto:+storage-kind-storage-normal+ . :normal)
+      (#.proto:+storage-kind-storage-static+ . :static)
+      (#.proto:+storage-kind-storage-extern+ . :extern)
+      (#.proto:+storage-kind-storage-local+ . :local))
+  :test #'equal)
+
+(define-proto-backed-class (symbol proto:symbol) () ()
+    ((name :type string)
+     (value :type unsigned-byte-64)
+     (referent-uuid :type uuid)
+     (storage-kind :type enumeration :enumeration +symbol-storage-kind+))
+  (:documentation "Symbol."))
+
+(defmethod print-object ((obj symbol) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~a" (name obj) (storage-kind obj))))
 
 (define-proto-backed-class (section proto:section) () ()
     ((name :type string)
@@ -216,6 +245,10 @@ Should not need to be manipulated by client code.")
   (setf (sections obj)
         (map 'list {make-instance 'section :proto}
              (proto:sections (proto obj))))
+  ;; Symbols
+  (setf (symbols obj)
+        (map 'list {make-instance 'symbol :proto}
+             (proto:symbols (proto obj))))
   ;; Build the CFG as a lisp graph.
   (nest
    (with-slots (cfg) obj)
@@ -244,9 +277,11 @@ Should not need to be manipulated by client code.")
   (setf (gethash uuid (blocks obj)) new))
 
 (defun uuid-to-integer (uuid)
-  (octets->int
-   (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
-   16))
+  (if (emptyp uuid)
+      0         ; NOTE: The referent-uuid of a symbol can be #(). Bug?
+      (octets->int
+       (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
+       16)))
 
 (defun integer-to-uuid (number)
   (int->octets number 16))
@@ -541,6 +576,9 @@ but that would likely get expensive.")
      ;; Repackage the sections back into a vector.
      (proto:sections (proto obj))
      (map 'vector #'proto (sections obj))
+     ;; Repackage the symbols back into a vector.
+     (proto:symbols (proto obj))
+     (map 'vector #'proto (symbols obj))
      ;; Unpack the graph back into the proto structure.
      (proto:cfg (proto obj))
      (let ((p-cfg (make-instance 'proto:cfg)))
