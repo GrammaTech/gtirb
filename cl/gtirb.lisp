@@ -40,6 +40,7 @@
            :size
            :symbols
            :symbol
+           :symbolic-operands
            :value
            :referent-uuid
            :storage-kind
@@ -144,8 +145,6 @@ Should not need to be manipulated by client code.")
   :test #'equal)
 
 (define-proto-backed-class (module proto:module) ()
-    ;; TODO: Remaining fields:
-    ;; - symbolic-operands
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (blocks :accessor blocks :type hash-table
@@ -154,8 +153,11 @@ Should not need to be manipulated by client code.")
               :documentation
               "Hash of proxy blocks, used to represent cross-module linkages.")
      (symbols :accessor symbols :type hash-table
-              :initform nil
+              :initform (make-hash-table)
               :documentation "Hash of symbols keyed by UUID.")
+     ;; TODO: How best to represent the different types of values.
+     (symbolic-operands :accessor symbolic-operands :type hash-table
+                        :documentation "Hash of symbolic-operands keyed by UUID.")
      (sections :accessor sections :type (list section)
                :documentation "Loadable sections.")
      (aux-data :accessor aux-data :type (list aux-data)
@@ -255,10 +257,19 @@ Should not need to be manipulated by client code.")
   (setf (sections obj)
         (map 'list {make-instance 'section :proto}
              (proto:sections (proto obj))))
-  ;; Symbols
+  ;; Symbols.
   (setf (symbols obj)
         (map 'list {make-instance 'symbol :proto}
              (proto:symbols (proto obj))))
+  ;; Symbolic Operands.
+  (setf (symbolic-operands obj)
+        (let ((p-sym-ops (proto:symbolic-operands (proto obj)))
+              (sym-ops-h (make-hash-table)))
+          (dotimes (n (length p-sym-ops))
+            (let ((p-sym-op (aref p-sym-ops n)))
+              (setf (gethash (proto:key p-sym-op) sym-ops-h)
+                    (proto:value p-sym-op))))
+          sym-ops-h))
   ;; Build the CFG as a lisp graph.
   (nest
    (with-slots (cfg) obj)
@@ -592,6 +603,17 @@ but that would likely get expensive.")
      ;; Repackage the symbols back into a vector.
      (proto:symbols (proto obj))
      (map 'vector #'proto (symbols obj))
+     ;; Repackage the symbolic operands.
+     (proto:symbolic-operands (proto obj))
+     (map 'vector
+          (lambda (pair)
+            (destructuring-bind (key . value) pair
+              (let ((sym-op-entry
+                     (make-instance 'proto::module-symbolic-operands-entry)))
+                (setf (proto:key sym-op-entry) key
+                      (proto:value sym-op-entry) value)
+                sym-op-entry)))
+          (hash-table-alist (symbolic-operands obj)))
      ;; Unpack the graph back into the proto structure.
      (proto:cfg (proto obj))
      (let ((p-cfg (make-instance 'proto:cfg)))
