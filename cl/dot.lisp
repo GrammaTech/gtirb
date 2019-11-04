@@ -2,6 +2,7 @@
   (:use :common-lisp :alexandria :graph :graph/dot :gtirb
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
+  (:shadowing-import-from :gtirb :symbol)
   (:export :to-dot :to-dot-file))
 (in-package :gtirb/dot)
 (in-readtable :curry-compose-reader-macros)
