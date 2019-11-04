@@ -67,10 +67,6 @@
 
 
 ;;;; Classes
-(defgeneric is-equal-p (left right)
-  (:documentation "Return t if LEFT and RIGHT are equal."))
-
-;;; TODO: Complete the is-equal-p pieces.
 (defmacro define-proto-backed-class ((class proto-class) super-classes
                                      slot-specifiers proto-fields
                                      &body options)
@@ -86,23 +82,8 @@ pass through directly to the backing protobuf class.  "
                :initform (make-instance ',proto-class)
                :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
-        ,@(mapcar «cons #'car [{remove-from-plist _ :is-equal-p} #'cdr]»
-                  slot-specifiers))
+        ,@slot-specifiers)
        ,@options)
-     ;; Equality.
-     ,@(apply #'append
-              (mapcar
-               (lambda (specification)
-                 (destructuring-bind (field &key is-equal-p &allow-other-keys)
-                     specification
-                   (when is-equal-p
-                     (let ((type (getf specification :type)))
-                       (assert type (specification)
-                               "Defining `is-equal-p' for ~a requires a type."
-                               field)
-                       `((defmethod is-equal-p ((left ,class) (right ,class))
-                           (apply ,is-equal-p left right)))))))
-               (append slot-specifiers proto-fields)))
      ;; Pass-through accessors for protobuf fields.
      ,@(apply
         #'append
