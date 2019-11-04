@@ -148,15 +148,17 @@ Should not need to be manipulated by client code.")
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (blocks :accessor blocks :type hash-table
+             :initform (make-hash-table)
              :documentation "Hash of code and data blocks keyed by UUID.")
      (proxies :accessor proxies :type hash-table
+              :initform (make-hash-table)
               :documentation
               "Hash of proxy blocks, used to represent cross-module linkages.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
               :documentation "Hash of symbols keyed by UUID.")
-     ;; TODO: How best to represent the different types of values.
      (symbolic-operands :accessor symbolic-operands :type hash-table
+                        :initform (make-hash-table)
                         :documentation "Hash of symbolic-operands keyed by UUID.")
      (sections :accessor sections :type (list section)
                :documentation "Loadable sections.")
@@ -213,7 +215,7 @@ Should not need to be manipulated by client code.")
             aux-data))
     aux-data))
 
-(defmethod aux-data-to-proto (aux-data)
+(defun aux-data-to-proto (aux-data)
   (map 'vector (lambda (pair)
                  (destructuring-bind (name . aux-data) pair
                    (let ((entry
@@ -224,35 +226,29 @@ Should not need to be manipulated by client code.")
                      entry)))
        aux-data))
 
+(defun hash-table-from-proto
+    (protos &rest more-protos &aux (result (make-hash-table)))
+  "Create a hash-table keyed by UUID from a array of protobuf objects."
+  (let ((all (apply #'concatenate 'vector protos more-protos)))
+    (dotimes (n (length all) result)
+      (setf (gethash (uuid-to-integer (proto:uuid (aref all n))) result)
+            (aref all n)))))
+
+(defun hash-table-to-proto (hash-table &optional filter)
+  "Convert a hash-table keyed by UUID to a array for protobuf."
+  (if filter
+      (coerce (remove-if-not filter (hash-table-values hash-table)) 'vector)
+      (coerce (hash-table-values hash-table) 'vector)))
+
 (defmethod initialize-instance :after ((obj module) &key)
-  ;; Unpack the image-byte-map.
-  (setf (image-byte-map obj)
+  (setf (image-byte-map obj) ; Unpack the image-byte-map.
         (make-instance 'image-byte-map
           :proto (proto:image-byte-map (proto obj))))
-  ;; Repackage the AuxData into an alist keyed by name.
   (setf (aux-data obj) (aux-data-from-proto (proto obj)))
-  (let ((p-proxies (proto:proxies (proto obj)))
-        (proxies-h (make-hash-table)))
-    (dotimes (n (length p-proxies))
-      (let ((p-proxy (aref p-proxies n)))
-        (setf (gethash (uuid-to-integer (proto:uuid p-proxy)) proxies-h)
-              p-proxy)))
-    (setf (proxies obj) proxies-h))
+  (setf (proxies obj) (hash-table-from-proto (proto:proxies (proto obj))))
   ;; Package the blocks into a has keyed by UUID.
-  (let ((p-blocks (proto:blocks (proto obj)))
-        (p-data (proto:data (proto obj)))
-        (block-h (make-hash-table)))
-    (dotimes (n (length p-blocks))
-      (let ((p-block (aref p-blocks n)))
-        (setf (gethash (uuid-to-integer (proto:uuid p-block))
-                       block-h)
-              p-block)))
-    (dotimes (n (length p-data))
-      (let ((p-block (aref p-data n)))
-        (setf (gethash (uuid-to-integer (proto:uuid p-block))
-                       block-h)
-              p-block)))
-    (setf (blocks obj) block-h))
+  (setf (blocks obj) (hash-table-from-proto
+                      (proto:blocks (proto obj)) (proto:data (proto obj))))
   ;; Sections.
   (setf (sections obj)
         (map 'list {make-instance 'section :proto}
@@ -586,17 +582,12 @@ but that would likely get expensive.")
      (proto:aux-data (proto:aux-data-container (proto obj)))
      (aux-data-to-proto (aux-data obj))
      ;; Repackage the proxies into a vector.
-     (proto:proxies (proto obj))
-     (coerce (hash-table-values (proxies obj)) 'vector)
+     (proto:proxies (proto obj)) (hash-table-to-proto (proxies obj))
      ;; Repackage the blocks back into a vector.
      (proto:blocks (proto obj))
-     (coerce (remove-if-not [{eql 'proto:block} #'type-of]
-                            (hash-table-values (blocks obj)))
-             'vector)
+     (hash-table-to-proto (blocks obj) [{eql 'proto:block} #'type-of])
      (proto:data (proto obj))
-     (coerce (remove-if-not [{eql 'proto:data-object} #'type-of]
-                            (hash-table-values (blocks obj)))
-             'vector)
+     (hash-table-to-proto (blocks obj) [{eql 'proto:data-object} #'type-of])
      ;; Repackage the sections back into a vector.
      (proto:sections (proto obj))
      (map 'vector #'proto (sections obj))
