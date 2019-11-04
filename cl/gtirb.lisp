@@ -133,14 +133,13 @@ Should not need to be manipulated by client code.")
 (define-proto-backed-class (module proto:module) ()
     ;; TODO: Remaining fields:
     ;; - symbols
-    ;; - data
     ;; - proxies
     ;; - sections
     ;; - symbolic-operands
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (blocks :accessor blocks :type hash-table
-             :documentation "Hash of code blocks keyed by UUID.")
+             :documentation "Hash of code and data blocks keyed by UUID.")
      (aux-data :accessor aux-data :type (list aux-data)
                :documentation "Auxiliary data objects.")
      (image-byte-map
@@ -185,9 +184,15 @@ Should not need to be manipulated by client code.")
   (setf (aux-data obj) (aux-data-from-proto (proto obj)))
   ;; Package the blocks into a has keyed by UUID.
   (let ((p-blocks (proto:blocks (proto obj)))
+        (p-data (proto:data (proto obj)))
         (block-h (make-hash-table)))
     (dotimes (n (length p-blocks))
       (let ((p-block (aref p-blocks n)))
+        (setf (gethash (uuid-to-integer (proto:uuid p-block))
+                       block-h)
+              p-block)))
+    (dotimes (n (length p-data))
+      (let ((p-block (aref p-data n)))
         (setf (gethash (uuid-to-integer (proto:uuid p-block))
                        block-h)
               p-block)))
@@ -507,7 +512,13 @@ but that would likely get expensive.")
      (aux-data-to-proto (aux-data obj))
      ;; Repackage the blocks back into a vector.
      (proto:blocks (proto obj))
-     (coerce (hash-table-values (blocks obj)) 'vector)
+     (coerce (remove-if-not [{eql 'proto:block} #'type-of]
+                            (hash-table-values (blocks obj)))
+             'vector)
+     (proto:data (proto obj))
+     (coerce (remove-if-not [{eql 'proto:data-object} #'type-of]
+                            (hash-table-values (blocks obj)))
+             'vector)
      ;; Unpack the graph back into the proto structure.
      (proto:cfg (proto obj))
      (let ((p-cfg (make-instance 'proto:cfg)))
