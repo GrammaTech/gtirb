@@ -43,6 +43,7 @@
            :value
            :referent-uuid
            :storage-kind
+           :proxies
            :modules
            :cfg
            :gtirb
@@ -144,12 +145,14 @@ Should not need to be manipulated by client code.")
 
 (define-proto-backed-class (module proto:module) ()
     ;; TODO: Remaining fields:
-    ;; - proxies
     ;; - symbolic-operands
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (blocks :accessor blocks :type hash-table
              :documentation "Hash of code and data blocks keyed by UUID.")
+     (proxies :accessor proxies :type hash-table
+              :documentation
+              "Hash of proxy blocks, used to represent cross-module linkages.")
      (symbols :accessor symbols :type hash-table
               :initform nil
               :documentation "Hash of symbols keyed by UUID.")
@@ -226,6 +229,13 @@ Should not need to be manipulated by client code.")
           :proto (proto:image-byte-map (proto obj))))
   ;; Repackage the AuxData into an alist keyed by name.
   (setf (aux-data obj) (aux-data-from-proto (proto obj)))
+  (let ((p-proxies (proto:proxies (proto obj)))
+        (proxies-h (make-hash-table)))
+    (dotimes (n (length p-proxies))
+      (let ((p-proxy (aref p-proxies n)))
+        (setf (gethash (uuid-to-integer (proto:uuid p-proxy)) proxies-h)
+              p-proxy)))
+    (setf (proxies obj) proxies-h))
   ;; Package the blocks into a has keyed by UUID.
   (let ((p-blocks (proto:blocks (proto obj)))
         (p-data (proto:data (proto obj)))
@@ -564,6 +574,9 @@ but that would likely get expensive.")
      ;; Repackage the AuxData into a vector.
      (proto:aux-data (proto:aux-data-container (proto obj)))
      (aux-data-to-proto (aux-data obj))
+     ;; Repackage the proxies into a vector.
+     (proto:proxies (proto obj))
+     (coerce (hash-table-values (proxies obj)) 'vector)
      ;; Repackage the blocks back into a vector.
      (proto:blocks (proto obj))
      (coerce (remove-if-not [{eql 'proto:block} #'type-of]
