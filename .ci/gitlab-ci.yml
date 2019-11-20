@@ -86,6 +86,16 @@ build-arch-clang:
     COMPILER: 'clang++'
   <<: *build
 
+build-windows-msvc:
+  stage: build
+  tags:
+    - gtirb-windows
+  script:
+    - mkdir build
+    - cd build
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DBOOST_ROOT=\"C:\\Boost\" -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\"  .."
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
+
 pages:
   stage: deploy
   variables:
