@@ -15,11 +15,19 @@
 syntax = "proto3";
 package proto;
 
-import "AuxDataContainer.proto";
+import "AuxData.proto";
 import "Module.proto";
 
 message IR {
+    // slot 4 has been used for multiple fields in the past
+    // (more specifically, main_module_id and aux_data_container),
+    // which is a Protobuf compatibility violation, but explains why we
+    // reserve more field names than field numbers.
+    reserved "tables", "main_module_id", "aux_data_container";
+    reserved 2, 4;
+
     bytes uuid = 1;
     repeated Module modules = 3;
-    AuxDataContainer aux_data_container = 4;
+    map<string, AuxData> aux_data = 5;
+    int32 version = 6;
 }

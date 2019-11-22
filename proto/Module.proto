@@ -15,7 +15,7 @@
 syntax = "proto3";
 package proto;
 
-import "AuxDataContainer.proto";
+import "AuxData.proto";
 import "Block.proto";
 import "CFG.proto";
 import "DataObject.proto";
@@ -47,6 +47,9 @@ enum ISAID {
 };
 
 message Module {
+    reserved "aux_data_container";
+    reserved 14;
+
     bytes uuid = 1;
     string binary_path = 2;
     uint64 preferred_addr = 3;
@@ -62,5 +65,5 @@ message Module {
     repeated ProxyBlock proxies = 16;
     repeated Section sections = 12;
     map<uint64, SymbolicExpression> symbolic_operands = 13;
-    AuxDataContainer aux_data_container = 14;
+    map<string, AuxData> aux_data = 17;
 }
