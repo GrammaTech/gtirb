@@ -4,7 +4,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 before_script:
-  - docker info
+  - type docker >/dev/null 2>&1 && docker info
 
 stages:
   - check-format
