@@ -44,6 +44,7 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 
   Message->set_size(Size);
+  std::copy(Bytes.begin(), Bytes.end(), Message->mutable_contents()->begin());
 }
 
 ByteInterval* ByteInterval::fromProtobuf(Context& C,
@@ -51,5 +52,7 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C,
   auto addr = Message.has_address() ? std::optional<Addr>{Message.address()}
                                     : std::optional<Addr>{};
   ByteInterval* result = ByteInterval::Create(C, addr, Message.size());
+  std::copy(Message.contents().begin(), Message.contents().end(),
+            result->getBytes().begin());
   return result;
 }
