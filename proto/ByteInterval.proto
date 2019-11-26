@@ -24,7 +24,8 @@ message ByteInterval {
     repeated CodeBlock code_blocks = 2;
     repeated DataBlock data_blocks = 3;
     repeated SymbolicExpression symbolic_expressions = 4;
-    uint64 address = 5;
-    uint64 size = 6;
-    bytes contents = 7;
+    bool has_address = 5;
+    uint64 address = 6;
+    uint64 size = 7;
+    bytes contents = 8;
 }
