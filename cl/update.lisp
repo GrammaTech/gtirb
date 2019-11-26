@@ -38,6 +38,23 @@
       (write-sequence buffer output)))
   (values))
 
+(defun module-bytes-subseq (module start end &aux (results #()))
+  (let ((regions (proto-v0:regions (proto-v0:byte-map
+                                    (proto-v0::image-byte-map module)))))
+    (dotimes (n (length regions))
+      (let* ((region (aref regions n))
+             (address (proto-v0:address region))
+             (size (length (proto-v0:data region))))
+        (cond
+          ((and (<= address start) (<= start (+ address size)))
+           (setf results (concatenate 'vector
+                                      results
+                                      (subseq (proto-v0:data region)
+                                              (- start address)
+                                              (min size (- end address)))))
+           (setf start (min end (+ address size))))
+          ((= start end) (return-from module-bytes-subseq results)))))))
+
 (defun byte-interval (module section
                       &aux (new (make-instance 'proto:byte-interval)))
   (let ((address (proto-v0::address section))
@@ -45,22 +62,9 @@
     (setf (proto::address new) address
           (proto::size new) size
           (proto::bytes new)
-          ;; TODO: Find the right region and get those bytes.
-          (subseq (proto-v0::image-byte-map module) address (+ address size))
+          (module-bytes-subseq module address (+ address size))
           (proto::symbolic-expressions new)
-          (map 'vector
-               (lambda (pair)
-                 (destructuring-bind (addr sym-expr) pair
-                   (make-instance
-                       'proto::byte-interval-symbolic-expressions-entry
-                     :key (- addr address) :value sym-expr)))
-               (remove-if-not (lambda (pair)
-                                (destructuring-bind (addr sym-expr) pair
-                                  (declare (ignorable sym-expr))
-                                  (and (<= address addr)
-                                       (<= addr (+ address size)))))
-                              (hash-table-alist
-                               (proto-v0::symbolic-operands module))))
+          (map 'vector {upgrade _ :base address} (proto-v0:symbolic-operands module))
           (proto::blocks new)
           (map 'vector (lambda (block)
                          (etypecase block
@@ -95,9 +99,10 @@
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
   (:method ((old array) &key  &allow-other-keys)
-    (if (and (= 16 (length old))
+    (if (and (or (= 16 (length old)) (= 0 (length old)))
              (every #'numberp old))
-        (make-array 16 :element-type '(unsigned-byte 8) :initial-contents old)
+        (make-array (length old) :element-type '(unsigned-byte 8)
+                    :initial-contents old)
         (map 'vector #'upgrade old)))
   (:method ((old proto-v0::ir) &key &allow-other-keys
             &aux (new (make-instance 'proto::ir)))
@@ -132,6 +137,28 @@
   (:method ((old proto-v0::cfg) &key &allow-other-keys
             &aux (new (make-instance 'proto:cfg)))
     (transfer-fields new old '(vertices edges))
+    new)
+  (:method ((old proto-v0::module-symbolic-operands-entry)
+            &key base &allow-other-keys
+            &aux (new (make-instance
+                          'proto:byte-interval-symbolic-expressions-entry)))
+    (setf (proto:key new) (- (proto-v0:key old) base)
+          (proto:value new) (upgrade (proto-v0:value old))))
+  (:method ((old proto-v0::symbolic-expression) &key &allow-other-keys
+            &aux (new (make-instance 'proto:symbolic-expression)))
+    (transfer-fields new old '(stack-const addr-const addr-addr))
+    new)
+  (:method ((old proto-v0::sym-stack-const) &key &allow-other-keys
+            &aux (new (make-instance 'proto:sym-stack-const)))
+    (transfer-fields new old '(offset symbol-uuid))
+    new)
+  (:method ((old proto-v0::sym-addr-const) &key &allow-other-keys
+            &aux (new (make-instance 'proto:sym-addr-const)))
+    (transfer-fields new old '(offset symbol-uuid))
+    new)
+  (:method ((old proto-v0::sym-addr-addr) &key &allow-other-keys
+            &aux (new (make-instance 'proto:sym-addr-addr)))
+    (transfer-fields new old '(scale offset symbol1-uuid symbol2-uuid))
     new)
   (:method ((old proto-v0::block) &key &allow-other-keys
             &aux (new (make-instance 'proto:code-block)))
