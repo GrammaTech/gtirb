@@ -1,4 +1,4 @@
-//===- DataObject.cpp -------------------------------------------*- C++ -*-===//
+//===- DataBlock.cpp -------------------------------------------*- C++ -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -12,20 +12,22 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include "DataObject.hpp"
-#include "Serialization.hpp"
-#include <proto/DataObject.pb.h>
+#include "DataBlock.hpp"
+#include <gtirb/DataBlock.hpp>
+#include <gtirb/Serialization.hpp>
+
+#include <proto/DataBlock.pb.h>
 
 using namespace gtirb;
 
-void DataObject::toProtobuf(MessageType* Message) const {
+void DataBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_address(static_cast<uint64_t>(this->Address));
+  Message->set_offset(static_cast<uint64_t>(this->Offset));
   Message->set_size(this->Size);
 }
 
-DataObject* DataObject::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* DO = DataObject::Create(C, Addr(Message.address()), Message.size());
+DataBlock* DataBlock::fromProtobuf(Context& C, const MessageType& Message) {
+  auto* DO = DataBlock::Create(C, Message.offset(), Message.size());
   setNodeUUIDFromBytes(DO, Message.uuid());
   return DO;
 }

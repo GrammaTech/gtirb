@@ -13,11 +13,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "IR.hpp"
-#include "Serialization.hpp"
-#include <gtirb/DataObject.hpp>
-#include <gtirb/ImageByteMap.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
+#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/IR.pb.h>
@@ -29,7 +28,7 @@ void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   containerToProtobuf(this->Modules, Message->mutable_modules());
 
-  AuxDataContainer::toProtobuf(Message->mutable_aux_data_container());
+  AuxDataContainer::toProtobuf(Message);
 }
 
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
@@ -37,8 +36,7 @@ IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   setNodeUUIDFromBytes(I, Message.uuid());
   containerFromProtobuf(C, I->Modules, Message.modules());
 
-  AuxDataContainer::fromProtobuf(static_cast<AuxDataContainer*>(I), C,
-                                 Message.aux_data_container());
+  static_cast<AuxDataContainer*>(I)->fromProtobuf(C, Message);
   return I;
 }
 

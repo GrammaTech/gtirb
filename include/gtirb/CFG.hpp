@@ -193,11 +193,11 @@ using const_cfg_iterator =
 
 /// \ingroup CFG_GROUP
 /// \brief Iterator over blocks (\ref Block).
-using block_iterator = cfg_node_cast_iter<Block>;
+using block_iterator = cfg_node_cast_iter<CodeBlock>;
 
 /// \ingroup CFG_GROUP
 /// \brief Constant iterator over blocks (\ref Block).
-using const_block_iterator = cfg_node_cast_iter<const Block>;
+using const_block_iterator = cfg_node_cast_iter<const CodeBlock>;
 
 /// \ingroup CFG_GROUP
 /// \brief Add a node to the CFG.

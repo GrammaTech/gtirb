@@ -16,7 +16,7 @@
 #define GTIRB_AUXDATA_H
 
 #include <gtirb/Addr.hpp>
-#include <gtirb/Block.hpp>
+#include <gtirb/CodeBlock.hpp>
 #include <gtirb/Node.hpp>
 #include <boost/endian/conversion.hpp>
 #include <deque>

@@ -36,8 +36,7 @@ namespace gtirb {
 /// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, const std::string& N, Addr A, uint64_t S)
-      : Node(C, Kind::Section), Name(N), Address(A), Size(S) {}
+  Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
 
 public:
   /// \brief Create a Section object in its default state.
@@ -51,13 +50,10 @@ public:
   ///
   /// \param C        The Context in which this object will be held.
   /// \param Name     The name of the section.
-  /// \param Address  The initial address of the section.
-  /// \param Size     The size of the section, in bytes.
   ///
   /// \return The newly created object.
-  static Section* Create(Context& C, const std::string& Name, Addr Address,
-                         uint64_t Size) {
-    return C.Create<Section>(C, Name, Address, Size);
+  static Section* Create(Context& C, const std::string& Name) {
+    return C.Create<Section>(C, Name);
   }
 
   /// \brief Equality operator overload.
@@ -70,16 +66,6 @@ public:
   ///
   /// \return The name.
   const std::string& getName() const { return Name; }
-
-  /// \brief Get the address of a Section
-  ///
-  /// \return The address.
-  const Addr getAddress() const { return Address; }
-
-  /// \brief Get the size of a Section
-  ///
-  /// \return The size.
-  uint64_t getSize() const { return Size; }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
@@ -105,8 +91,6 @@ public:
 
 private:
   std::string Name;
-  Addr Address{0};
-  uint64_t Size{0};
 
   friend class Context;
 };

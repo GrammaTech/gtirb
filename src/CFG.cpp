@@ -13,8 +13,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "CFG.hpp"
-#include "Serialization.hpp"
-#include <gtirb/Block.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/Serialization.hpp>
 #include <proto/CFG.pb.h>
 #include <map>
 

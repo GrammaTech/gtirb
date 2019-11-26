@@ -13,8 +13,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "SymbolicExpression.hpp"
-#include "Serialization.hpp"
 #include <gtirb/Context.hpp>
+#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <proto/SymbolicExpression.pb.h>
 #include <variant>
@@ -27,25 +27,28 @@ public:
   SymbolicVisitor(proto::SymbolicExpression* M) : Message(M) {}
 
   void operator()(const SymStackConst& Val) const {
+    Message->set_offset(Val.Offset);
     auto M = Message->mutable_stack_const();
-    M->set_offset(Val.Offset);
+    M->set_offset(Val.SymOffset);
     if (Val.Sym) {
       uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
     }
   }
 
   void operator()(const SymAddrConst& Val) const {
+    Message->set_offset(Val.Offset);
     auto M = Message->mutable_addr_const();
-    M->set_offset(Val.Offset);
+    M->set_offset(Val.SymOffset);
     if (Val.Sym) {
       uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
     }
   }
 
   void operator()(const SymAddrAddr& Val) const {
+    Message->set_offset(Val.Offset);
     auto M = Message->mutable_addr_addr();
-    M->set_scale(Val.Scale);
-    M->set_offset(Val.Offset);
+    M->set_scale(Val.SymScale);
+    M->set_offset(Val.SymOffset);
     if (Val.Sym1) {
       uuidToBytes(Val.Sym1->getUUID(), *M->mutable_symbol1_uuid());
     }
@@ -76,17 +79,19 @@ void fromProtobuf(Context& C, SymbolicExpression& Result,
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
     const auto& Val = Message.stack_const();
-    Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
+    Result = SymStackConst{Message.offset(), Val.offset(),
+                           symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrConst: {
     const auto& Val = Message.addr_const();
-    Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
+    Result = SymAddrConst{Message.offset(), Val.offset(),
+                          symbolFromProto(C, Val.symbol_uuid())};
     break;
   }
   case proto::SymbolicExpression::kAddrAddr: {
     const auto& Val = Message.addr_addr();
-    Result = SymAddrAddr{Val.scale(), Val.offset(),
+    Result = SymAddrAddr{Message.offset(), Val.scale(), Val.offset(),
                          symbolFromProto(C, Val.symbol1_uuid()),
                          symbolFromProto(C, Val.symbol2_uuid())};
     break;

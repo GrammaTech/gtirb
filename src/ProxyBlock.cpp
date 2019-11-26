@@ -13,7 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ProxyBlock.hpp"
-#include "Serialization.hpp"
+#include <gtirb/Serialization.hpp>
 #include <proto/ProxyBlock.pb.h>
 
 using namespace gtirb;

@@ -204,7 +204,7 @@ private:
 /// \brief Exclusive upper limit of an object's address range.
 ///
 /// \tparam T         Any type that specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. DataObject).
+/// getAddress() and getSize() methods (e.g. DataBlock).
 ///
 /// \param Object     The object to interrogate.
 ///
@@ -218,7 +218,7 @@ template <typename T> Addr addressLimit(const T& Object) {
 /// \brief Check: Does the specified object contain the specified address?
 ///
 /// \tparam T      Any type that specifies a range of addresses via
-/// getAddress() and getSize() methods (e.g. DataObject).
+/// getAddress() and getSize() methods (e.g. DataBlock).
 ///
 /// \param Object  The object of interest.
 /// \param Ea      The address of interest.

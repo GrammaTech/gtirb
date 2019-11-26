@@ -18,24 +18,10 @@
 
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Node.hpp>
-
-#ifdef _MSC_VER
-// Protobuf does not compile cleanly with Visual Studio, but we compile with
-// warnings treated as errors; disable C4267 type conversion possible data loss.
-#pragma warning(push)
-#pragma warning(disable : 4267)
-#endif
-#include <proto/AuxDataContainer.pb.h>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+#include <gtirb/Serialization.hpp>
 
 /// \file AuxDataContainer.hpp
 /// \brief Class gtirb::AuxDataContainer.
-
-namespace proto {
-class AuxDataContainer;
-}
 
 namespace gtirb {
 
@@ -176,25 +162,25 @@ public:
   ///
   void clearAuxData() { AuxDatas.clear(); }
 
-  /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing IR.
-  using MessageType = proto::AuxDataContainer;
-
-  /// \brief Serialize into a protobuf message.
+  /// \brief Serialize the aux data into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  void toProtobuf(MessageType* Message) const;
+  template <class MessageType> void toProtobuf(MessageType* Message) const {
+    containerToProtobuf(this->AuxDatas, Message->mutable_aux_data());
+  }
 
-  /// \brief Construct a IR from a protobuf message.
+  /// \brief Load the aux data from a protobuf message.
   ///
-  /// \param C   The Context in which the deserialized IR will be held.
+  /// \param C   The Context in which the deserialized aux data will be held.
   /// \param Message  The protobuf message from which to deserialize.
   ///
-  /// \return The deserialized IR object, or null on failure.
-  static void fromProtobuf(AuxDataContainer* in, Context& C,
-                           const MessageType& Message);
+  /// \return void
+  template <class MessageType>
+  void fromProtobuf(Context& C, const MessageType& Message) {
+    containerFromProtobuf(C, this->AuxDatas, Message.aux_data());
+  }
 
 protected:
   AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {}

@@ -13,10 +13,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Context.hpp"
-#include <gtirb/Block.hpp>
-#include <gtirb/DataObject.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/IR.hpp>
-#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/ProxyBlock.hpp>
@@ -46,14 +45,11 @@ Node* Context::findNode(const UUID& ID) {
 template <> void* Context::Allocate<Node>() const {
   return NodeAllocator.Allocate();
 }
-template <> void* Context::Allocate<Block>() const {
+template <> void* Context::Allocate<CodeBlock>() const {
   return BlockAllocator.Allocate();
 }
-template <> void* Context::Allocate<DataObject>() const {
-  return DataObjectAllocator.Allocate();
-}
-template <> void* Context::Allocate<ImageByteMap>() const {
-  return ImageByteMapAllocator.Allocate();
+template <> void* Context::Allocate<DataBlock>() const {
+  return DataBlockAllocator.Allocate();
 }
 template <> void* Context::Allocate<IR>() const {
   return IrAllocator.Allocate();

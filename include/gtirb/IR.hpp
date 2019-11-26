@@ -20,6 +20,7 @@
 #include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/version.h>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -50,7 +51,7 @@ class Module;
 ///     auxData [ label="AuxData" URL="\ref AuxData"];
 ///     imageByteMap [label="ImageByteMap" URL="\ref ImageByteMap"]
 ///     blocks [label="Block" URL="\ref Block"]
-///     data [label="DataObject"  URL="\ref DataObject"]
+///     data [label="DataBlock"  URL="\ref DataBlock"]
 ///     symbolicExpressions  [label="SymbolicExpression"
 ///                           URL="\ref SymbolicExpression"]
 ///     sections [label="Section" URL="\ref Section"]
@@ -232,6 +233,7 @@ public:
 
 private:
   ModuleSet Modules;
+  uint64_t version{GTIRB_PROTOBUF_VERSION};
 
   friend class Context;
 

@@ -12,8 +12,8 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include <gtirb/Block.hpp>
 #include <gtirb/CFG.hpp>
+#include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/ProxyBlock.hpp>
 #include <proto/CFG.pb.h>
@@ -30,8 +30,9 @@ TEST(Unit_CFG, compilationIteratorTypes) {
     cit = it;
   }
 
-  static_assert(std::is_same_v<block_iterator::reference, Block&>);
-  static_assert(std::is_same_v<const_block_iterator::reference, const Block&>);
+  static_assert(std::is_same_v<block_iterator::reference, CodeBlock&>);
+  static_assert(
+      std::is_same_v<const_block_iterator::reference, const CodeBlock&>);
   {
     block_iterator it;
     const_block_iterator cit(it);
@@ -43,11 +44,11 @@ static Context Ctx;
 
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
-  auto* B = Block::Create(Ctx, Addr(1), 2);
+  auto* B = CodeBlock::Create(Ctx, Addr(1), 2);
   auto Descriptor1 = addVertex(B, Cfg);
   EXPECT_EQ(Cfg[Descriptor1], B);
-  EXPECT_EQ(dyn_cast<Block>(Cfg[Descriptor1])->getAddress(), Addr(1));
-  EXPECT_EQ(dyn_cast<Block>(Cfg[Descriptor1])->getSize(), 2);
+  EXPECT_EQ(dyn_cast<CodeBlock>(Cfg[Descriptor1])->getAddress(), Addr(1));
+  EXPECT_EQ(dyn_cast<CodeBlock>(Cfg[Descriptor1])->getSize(), 2);
 
   // adding the same block again doesn't change the graph
   auto Descriptor2 = addVertex(B, Cfg);
@@ -66,7 +67,7 @@ TEST(Unit_CFG, addVertex) {
 
 TEST(Unit_CFG, getVertex) {
   CFG Cfg;
-  auto* B = Block::Create(Ctx, Addr(1), 2);
+  auto* B = CodeBlock::Create(Ctx, Addr(1), 2);
   auto* P = ProxyBlock::Create(Ctx);
   auto DescriptorB = addVertex(B, Cfg);
   auto DescriptorP = addVertex(P, Cfg);
@@ -76,9 +77,9 @@ TEST(Unit_CFG, getVertex) {
 
 TEST(Unit_CFG, cfgIterator) {
   CFG Cfg;
-  auto* B1 = Block::Create(Ctx, Addr(1), 2);
+  auto* B1 = CodeBlock::Create(Ctx, Addr(1), 2);
   auto* P1 = ProxyBlock::Create(Ctx);
-  auto* B2 = Block::Create(Ctx, Addr(3), 2);
+  auto* B2 = CodeBlock::Create(Ctx, Addr(3), 2);
   auto* P2 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(P1, Cfg);
@@ -117,9 +118,9 @@ TEST(Unit_CFG, cfgIterator) {
 
 TEST(Unit_CFG, blockIterator) {
   CFG Cfg;
-  addVertex(Block::Create(Ctx, Addr(1), 2), Cfg);
-  addVertex(Block::Create(Ctx, Addr(3), 2), Cfg);
-  addVertex(Block::Create(Ctx, Addr(5), 2), Cfg);
+  addVertex(CodeBlock::Create(Ctx, Addr(1), 2), Cfg);
+  addVertex(CodeBlock::Create(Ctx, Addr(3), 2), Cfg);
+  addVertex(CodeBlock::Create(Ctx, Addr(5), 2), Cfg);
   addVertex(ProxyBlock::Create(Ctx), Cfg);
 
   // Non-const graph produces a regular iterator
@@ -150,8 +151,8 @@ TEST(Unit_CFG, blockIterator) {
 
 TEST(Unit_CFG, edges) {
   CFG Cfg;
-  auto B1 = Block::Create(Ctx, Addr(1), 2);
-  auto B2 = Block::Create(Ctx, Addr(3), 4);
+  auto B1 = CodeBlock::Create(Ctx, Addr(1), 2);
+  auto B2 = CodeBlock::Create(Ctx, Addr(3), 4);
   auto P1 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
@@ -177,8 +178,8 @@ TEST(Unit_CFG, edges) {
 
 TEST(Unit_CFG, edgeLabels) {
   CFG Cfg;
-  auto B1 = Block::Create(Ctx, Addr(1), 2);
-  auto B2 = Block::Create(Ctx, Addr(3), 4);
+  auto B1 = CodeBlock::Create(Ctx, Addr(1), 2);
+  auto B2 = CodeBlock::Create(Ctx, Addr(3), 4);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
 
@@ -222,8 +223,8 @@ TEST(Unit_CFG, protobufRoundTrip) {
   CFG Result;
   proto::CFG Message;
 
-  auto B1 = Block::Create(Ctx, Addr(1), 2, 3);
-  auto B2 = Block::Create(Ctx, Addr(4), 5, 6);
+  auto B1 = CodeBlock::Create(Ctx, Addr(1), 2, 3);
+  auto B2 = CodeBlock::Create(Ctx, Addr(4), 5, 6);
   auto P1 = ProxyBlock::Create(Ctx);
   {
     CFG Original;
@@ -247,14 +248,14 @@ TEST(Unit_CFG, protobufRoundTrip) {
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 3);
   auto It = Range.begin();
   EXPECT_EQ(It->getUUID(), B1->getUUID());
-  EXPECT_EQ(dyn_cast<Block>(&*It)->getAddress(), Addr(1));
-  EXPECT_EQ(dyn_cast<Block>(&*It)->getSize(), 2);
-  EXPECT_EQ(dyn_cast<Block>(&*It)->getDecodeMode(), 3);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getAddress(), Addr(1));
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 2);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 3);
   ++It;
   EXPECT_EQ(It->getUUID(), B2->getUUID());
-  EXPECT_EQ(dyn_cast<Block>(&*It)->getAddress(), Addr(4));
-  EXPECT_EQ(dyn_cast<Block>(&*It)->getSize(), 5);
-  EXPECT_EQ(dyn_cast<Block>(&*It)->getDecodeMode(), 6);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getAddress(), Addr(4));
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 5);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 6);
   ++It;
   EXPECT_EQ(It->getUUID(), P1->getUUID());
 

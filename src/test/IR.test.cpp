@@ -14,7 +14,7 @@
 //===----------------------------------------------------------------------===//
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
-#include <gtirb/DataObject.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>

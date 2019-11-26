@@ -1,4 +1,5 @@
-//===- Block.hpp ------------------------------------------------*- C++ -*-===//
+//===- CodeBlock.hpp ------------------------------------------------*- C++
+//-*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -20,13 +21,13 @@
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
-#include <proto/Block.pb.h>
+#include <proto/CodeBlock.pb.h>
 #include <cstdint>
 #include <vector>
 
-/// \file Block.hpp
+/// \file CodeBlock.hpp
 /// \ingroup CFG_GROUP
-/// \brief Classes gtirb::Block and gtirb::Offset.
+/// \brief Classes gtirb::CodeBlock and gtirb::Offset.
 /// \see CFG_GROUP
 
 namespace proto {
@@ -34,49 +35,46 @@ class Offset;
 } // namespace proto
 
 namespace gtirb {
-/// \class Block
+/// \class CodeBlock
 ///
 /// \brief A basic block.
 /// \see \ref CFG_GROUP
-class GTIRB_EXPORT_API Block : public CfgNode {
+class GTIRB_EXPORT_API CodeBlock : public CfgNode {
 public:
-  /// \brief Create a Block object.
+  /// \brief Create a CodeBlock object.
   ///
-  /// \param C          The Context in which this Block will be held.
-  /// \param Address    The address where the Block is located.
-  /// \param Size       The size of the Block in bytes.
-  /// \param DecodeMode The decode mode of the Block.
+  /// \param C          The Context in which this block will be held.
+  /// \param Address    The address where the block is located.
+  /// \param Size       The size of the block in bytes.
+  /// \param DecodeMode The decode mode of the block.
   ///
-  /// \return The newly created Block.
-  static Block* Create(Context& C, Addr Address, uint64_t Size,
-                       uint64_t DecodeMode = 0) {
-    return C.Create<Block>(C, Address, Size, DecodeMode);
+  /// \return The newly created CodeBlock.
+  static CodeBlock* Create(Context& C, uint64_t Offset, uint64_t Size,
+                           uint64_t DecodeMode = 0) {
+    return C.Create<CodeBlock>(C, Offset, Size, DecodeMode);
   }
 
-  /// \brief Get the address from a \ref Block.
+  /// \brief Get the offset from the start of the enclosing /ref ByteInterval.
   ///
-  /// \return The address of the start of the block.
-  ///
-  /// Use with Block::getSize() to obtain arguments to pass to
-  /// ByteMap::data() for an iterator over the contents of a \ref Block.
-  Addr getAddress() const { return Address; }
+  /// \return The offset.
+  uint64_t getOffset() const { return Offset; }
 
-  /// \brief Get the size from a \ref Block.
+  /// \brief Get the size from a \ref CodeBlock.
   ///
   /// \return The size in bytes.
   ///
-  /// Use with Block::getAddress() to obtain arguments to pass to
-  /// ByteMap::data() for an iterator over the contents of a \ref Block.
+  /// Use with CodeBlock::getAddress() to obtain arguments to pass to
+  /// ByteMap::data() for an iterator over the contents of a \ref CodeBlock.
   uint64_t getSize() const { return Size; }
 
-  /// \brief Get the decode mode from a \ref Block.
+  /// \brief Get the decode mode from a \ref CodeBlock.
   ///
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing Block.
-  using MessageType = proto::Block;
+  /// \brief The protobuf message type used for serializing CodeBlock.
+  using MessageType = proto::CodeBlock;
 
   /// \brief Serialize into a protobuf message.
   ///
@@ -85,23 +83,23 @@ public:
   /// \return void
   void toProtobuf(MessageType* Message) const;
 
-  /// \brief Construct a Block from a protobuf message.
+  /// \brief Construct a CodeBlock from a protobuf message.
   ///
-  /// \param C  The Context in which the deserialized Block will be held.
+  /// \param C  The Context in which the deserialized CodeBlock will be held.
   /// \param Message  The protobuf message from which to deserialize.
   ///
-  /// \return The deserialized Block object, or null on failure.
-  static Block* fromProtobuf(Context& C, const MessageType& Message);
+  /// \return The deserialized CodeBlock object, or null on failure.
+  static CodeBlock* fromProtobuf(Context& C, const MessageType& Message);
 
-  static bool classof(const Node* N) { return N->getKind() == Kind::Block; }
+  static bool classof(const Node* N) { return N->getKind() == Kind::CodeBlock; }
   /// @endcond
 
 private:
-  Block(Context& C) : CfgNode(C, Kind::Block) {}
-  Block(Context& C, Addr Addr, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::Block), Address(Addr), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
+  CodeBlock(Context& C, uint64_t Off, uint64_t S, uint64_t Decode)
+      : CfgNode(C, Kind::CodeBlock), Offset(Off), Size(S), DecodeMode(Decode) {}
 
-  Addr Address;
+  uint64_t Offset{0};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 

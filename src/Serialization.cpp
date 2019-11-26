@@ -12,8 +12,8 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include "Serialization.hpp"
 #include "Node.hpp"
+#include <gtirb/Serialization.hpp>
 
 namespace gtirb {
 UUID uuidFromBytes(const std::string& Bytes) {

@@ -46,15 +46,15 @@ public:
   enum class Kind {
     Node,
     CfgNode,
-    Block,
+    CodeBlock,
     ProxyBlock,
     LAST_CfgNode = ProxyBlock, // Mark last descendant of CfgNode
-    DataObject,
-    ImageByteMap,
+    DataBlock,
     IR,
     Module,
     Section,
     Symbol,
+    ByteInterval,
     LAST_Node = Symbol, // Mark last descendant of Node
   };
   /// \endcond

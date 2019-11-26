@@ -26,7 +26,7 @@ class PrintPathsVisitor {
 public:
   using Vertex = CFG::vertex_descriptor;
 
-  PrintPathsVisitor(const CFG& G, const Block& B)
+  PrintPathsVisitor(const CFG& G, const CodeBlock& B)
       : Graph(G), Target(*getVertex(&B, G)) {}
 
   void visit(Vertex V) {
@@ -36,9 +36,9 @@ public:
     // At target, print the path
     if (V == Target) {
       for (auto U : Path) {
-        std::cout << dyn_cast<Block>(Graph[U])->getAddress() << ", ";
+        std::cout << dyn_cast<CodeBlock>(Graph[U])->getAddress() << ", ";
       }
-      std::cout << dyn_cast<Block>(Graph[Target])->getAddress() << "\n";
+      std::cout << dyn_cast<CodeBlock>(Graph[Target])->getAddress() << "\n";
     } else {
       // Otherwise, extend the path and keep searching.
       Path.push_back(V);
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
   // Search for the requested blocks in the first module
   const auto& Mod = *I->begin();
   const auto& Cfg = Mod.getCFG();
-  const Block *SourceBlock, *TargetBlock;
+  const CodeBlock *SourceBlock, *TargetBlock;
 
   if (auto Range = Mod.findBlock(Source); !Range.empty()) {
     SourceBlock = &*Range.begin();

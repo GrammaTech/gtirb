@@ -13,9 +13,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Node.hpp"
-#include "gtirb/DataObject.hpp"
+#include "gtirb/DataBlock.hpp"
 #include "gtirb/IR.hpp"
-#include "gtirb/ImageByteMap.hpp"
 #include "gtirb/Module.hpp"
 #include "gtirb/Section.hpp"
 #include "gtirb/SymbolicExpression.hpp"

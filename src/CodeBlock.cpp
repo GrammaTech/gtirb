@@ -12,22 +12,21 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include "Block.hpp"
-#include "Serialization.hpp"
-#include <proto/Block.pb.h>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/Serialization.hpp>
 #include <proto/Offset.pb.h>
 
 using namespace gtirb;
 
-void Block::toProtobuf(MessageType* Message) const {
+void CodeBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_address(static_cast<uint64_t>(this->Address));
+  Message->set_offset(static_cast<uint64_t>(this->Offset));
   Message->set_size(this->Size);
   Message->set_decode_mode(this->DecodeMode);
 }
 
-Block* Block::fromProtobuf(Context& C, const proto::Block& M) {
-  Block* B = Block::Create(C, Addr(M.address()), M.size(), M.decode_mode());
+CodeBlock* CodeBlock::fromProtobuf(Context& C, const proto::CodeBlock& M) {
+  CodeBlock* B = CodeBlock::Create(C, M.offset(), M.size(), M.decode_mode());
   setNodeUUIDFromBytes(B, M.uuid());
   return B;
 }

@@ -14,7 +14,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "AuxDataContainer.hpp"
-#include "Serialization.hpp"
 
 using namespace gtirb;
 
@@ -42,13 +41,4 @@ const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
 
 bool AuxDataContainer::removeAuxData(const std::string& X) {
   return this->AuxDatas.erase(X) > 0;
-}
-
-void AuxDataContainer::toProtobuf(MessageType* Message) const {
-  containerToProtobuf(this->AuxDatas, Message->mutable_aux_data());
-}
-
-void AuxDataContainer::fromProtobuf(AuxDataContainer* in, Context& C,
-                                    const MessageType& Message) {
-  containerFromProtobuf(C, in->AuxDatas, Message.aux_data());
 }

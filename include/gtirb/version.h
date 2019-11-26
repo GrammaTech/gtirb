@@ -19,17 +19,17 @@
 /**@def GTIRB_MAJOR_VERSION
    Major Version
 */
-#define GTIRB_MAJOR_VERSION @PROJECT_VERSION_MAJOR@
+#define GTIRB_MAJOR_VERSION 0
 
 /**@def GTIRB_MINOR_VERSION
    Minor Version
 */
-#define GTIRB_MINOR_VERSION @PROJECT_VERSION_MINOR@
+#define GTIRB_MINOR_VERSION 2
 
 /**@def GTIRB_PATCH_VERSION
    Patch Version
 */
-#define GTIRB_PATCH_VERSION @PROJECT_VERSION_PATCH@
+#define GTIRB_PATCH_VERSION 0
 
 #define GTIRB_STR_HELPER(x) #x
 #define GTIRB_STR(x) GTIRB_STR_HELPER(x)
@@ -46,7 +46,7 @@
 
 /**@def GTIRB_PROTOBUF_VERSION
  * The version of the Protobuf files produced by this API.
-*/
-#define GTIRB_PROTOBUF_VERSION @GTIRB_PROTOBUF_VERSION@
+ */
+#define GTIRB_PROTOBUF_VERSION 1
 
 #endif

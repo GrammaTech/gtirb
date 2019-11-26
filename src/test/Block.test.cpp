@@ -12,19 +12,20 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include <gtirb/Block.hpp>
+#include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
-#include <proto/Block.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Block, ctor) { EXPECT_NE(Block::Create(Ctx, Addr(), 0), nullptr); }
+TEST(Unit_Block, ctor) {
+  EXPECT_NE(CodeBlock::Create(Ctx, Addr(), 0), nullptr);
+}
 
 TEST(Unit_Block, getters) {
-  Block* B = Block::Create(Ctx, Addr(1), 2, 3);
+  CodeBlock* B = CodeBlock::Create(Ctx, Addr(1), 2, 3);
   EXPECT_EQ(Addr(1), B->getAddress());
   EXPECT_EQ(uint64_t{2}, B->getSize());
   EXPECT_EQ(uint64_t{3}, B->getDecodeMode());

@@ -13,9 +13,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Symbol.hpp"
-#include "Serialization.hpp"
-#include <gtirb/Block.hpp>
-#include <gtirb/DataObject.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/DataBlock.hpp>
+#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 

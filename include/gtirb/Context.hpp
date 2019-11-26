@@ -35,9 +35,8 @@ using UUID = boost::uuids::uuid;
 
 class Node;
 class CfgNode;
-class Block;
-class DataObject;
-class ImageByteMap;
+class CodeBlock;
+class DataBlock;
 class IR;
 class Module;
 class ProxyBlock;
@@ -65,9 +64,8 @@ class GTIRB_EXPORT_API Context {
 
   // Allocate each node type in a separate arena.
   mutable SpecificBumpPtrAllocator<Node> NodeAllocator;
-  mutable SpecificBumpPtrAllocator<Block> BlockAllocator;
-  mutable SpecificBumpPtrAllocator<DataObject> DataObjectAllocator;
-  mutable SpecificBumpPtrAllocator<ImageByteMap> ImageByteMapAllocator;
+  mutable SpecificBumpPtrAllocator<CodeBlock> BlockAllocator;
+  mutable SpecificBumpPtrAllocator<DataBlock> DataBlockAllocator;
   mutable SpecificBumpPtrAllocator<IR> IrAllocator;
   mutable SpecificBumpPtrAllocator<Module> ModuleAllocator;
   mutable SpecificBumpPtrAllocator<ProxyBlock> ProxyBlockAllocator;
@@ -122,9 +120,8 @@ public:
 };
 
 template <> GTIRB_EXPORT_API void* Context::Allocate<Node>() const;
-template <> GTIRB_EXPORT_API void* Context::Allocate<Block>() const;
-template <> GTIRB_EXPORT_API void* Context::Allocate<DataObject>() const;
-template <> GTIRB_EXPORT_API void* Context::Allocate<ImageByteMap>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<CodeBlock>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<DataBlock>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<IR>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<Module>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<ProxyBlock>() const;

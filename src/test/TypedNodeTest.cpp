@@ -12,18 +12,16 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include <gtirb/Block.hpp>
+#include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
-#include <gtirb/DataObject.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <proto/Block.pb.h>
 #include <proto/ByteMap.pb.h>
-#include <proto/DataObject.pb.h>
 #include <proto/IR.pb.h>
 #include <proto/ImageByteMap.pb.h>
 #include <proto/Module.pb.h>
@@ -35,7 +33,7 @@
 
 using testing::Types;
 
-typedef Types<gtirb::DataObject*,   //
+typedef Types<gtirb::DataBlock*,    //
               gtirb::IR*,           //
               gtirb::ImageByteMap*, //
               gtirb::Module*,       //

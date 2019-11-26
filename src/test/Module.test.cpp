@@ -13,9 +13,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/AuxData.hpp>
-#include <gtirb/Block.hpp>
+#include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
-#include <gtirb/DataObject.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
@@ -31,14 +31,14 @@
 using namespace gtirb;
 
 TEST(Unit_Module, compilationIteratorTypes) {
-  static_assert(std::is_same_v<Module::block_iterator::reference, Block&>);
+  static_assert(std::is_same_v<Module::block_iterator::reference, CodeBlock&>);
+  static_assert(std::is_same_v<Module::const_block_iterator::reference,
+                               const CodeBlock&>);
   static_assert(
-      std::is_same_v<Module::const_block_iterator::reference, const Block&>);
-  static_assert(
-      std::is_same_v<Module::block_subrange::iterator::reference, Block&>);
+      std::is_same_v<Module::block_subrange::iterator::reference, CodeBlock&>);
   static_assert(
       std::is_same_v<Module::const_block_subrange::iterator::reference,
-                     const Block&>);
+                     const CodeBlock&>);
   // Actually calling the constructor and assignment operator tends to produce
   // more informative error messages than std::is_constructible and
   // std::is_assignable.
@@ -55,15 +55,15 @@ TEST(Unit_Module, compilationIteratorTypes) {
   }
 
   static_assert(
-      std::is_same_v<Module::data_object_iterator::reference, DataObject&>);
+      std::is_same_v<Module::data_object_iterator::reference, DataBlock&>);
   static_assert(std::is_same_v<Module::const_data_object_iterator::reference,
-                               const DataObject&>);
+                               const DataBlock&>);
   static_assert(
       std::is_same_v<Module::data_object_subrange::iterator::reference,
-                     DataObject&>);
+                     DataBlock&>);
   static_assert(
       std::is_same_v<Module::const_data_object_subrange::iterator::reference,
-                     const DataObject&>);
+                     const DataBlock&>);
   {
     Module::data_object_iterator it;
     Module::const_data_object_iterator cit(it);
@@ -319,7 +319,7 @@ TEST(Unit_Module, blocks) {
 
 TEST(Unit_Module, cfgNodes) {
   auto* M = Module::Create(Ctx);
-  auto* B = Block::Create(Ctx, Addr(1), 10);
+  auto* B = CodeBlock::Create(Ctx, Addr(1), 10);
   auto* P = ProxyBlock::Create(Ctx);
   M->addCfgNode(B);
   M->addCfgNode(P);
@@ -395,18 +395,18 @@ TEST(Unit_Module, findBlock) {
 
 TEST(Unit_Module, dataObjects) {
   auto* M = Module::Create(Ctx);
-  M->addData(DataObject::Create(Ctx, Addr(1), 123));
+  M->addData(DataBlock::Create(Ctx, Addr(1), 123));
   EXPECT_EQ(M->data_begin()->getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, dataObjectIterationOrder) {
   auto* M = Module::Create(Ctx);
-  auto* D = DataObject::Create(Ctx, Addr(0), 10);
+  auto* D = DataBlock::Create(Ctx, Addr(0), 10);
   M->addData(D);
-  M->addData(DataObject::Create(Ctx, Addr(0), 5));
-  M->addData(DataObject::Create(Ctx, Addr(5), 5));
-  M->addData(DataObject::Create(Ctx, Addr(5), 5)); // new object is added
-  M->addData(D);                                   // ignored
+  M->addData(DataBlock::Create(Ctx, Addr(0), 5));
+  M->addData(DataBlock::Create(Ctx, Addr(5), 5));
+  M->addData(DataBlock::Create(Ctx, Addr(5), 5)); // new object is added
+  M->addData(D);                                  // ignored
 
   EXPECT_EQ(std::distance(M->data_begin(), M->data_end()), 4);
   auto It = M->data_begin();
@@ -425,8 +425,8 @@ TEST(Unit_Module, dataObjectIterationOrder) {
 
 TEST(Unit_Module, findData) {
   auto* M = Module::Create(Ctx);
-  auto* D1 = DataObject::Create(Ctx, Addr(1), 20);
-  auto* D2 = DataObject::Create(Ctx, Addr(5), 10);
+  auto* D1 = DataBlock::Create(Ctx, Addr(1), 20);
+  auto* D2 = DataBlock::Create(Ctx, Addr(5), 10);
   M->addData(D1);
   M->addData(D2);
 
@@ -804,7 +804,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
     emplaceBlock(*Original, InnerCtx, Addr(1), 2);
-    Original->addData(DataObject::Create(InnerCtx));
+    Original->addData(DataBlock::Create(InnerCtx));
     auto* P = ProxyBlock::Create(InnerCtx);
     Original->addProxyBlock(P);
     Original->addSection(Section::Create(InnerCtx));
@@ -881,12 +881,12 @@ TEST(Unit_Module, protobufNodePointers) {
   {
     Context InnerCtx;
     Module* Original = Module::Create(InnerCtx);
-    auto* Data = DataObject::Create(InnerCtx);
+    auto* Data = DataBlock::Create(InnerCtx);
     Original->addData(Data);
     auto* DataSym = emplaceSymbol(*Original, InnerCtx, Data, "data");
 
     // Not part of IR
-    auto* DanglingData = DataObject::Create(InnerCtx);
+    auto* DanglingData = DataBlock::Create(InnerCtx);
     Original->addSymbol(Symbol::Create(InnerCtx, DanglingData, "dangling"));
 
     auto* Code = emplaceBlock(*Original, InnerCtx, Addr(1), 2);
@@ -901,11 +901,12 @@ TEST(Unit_Module, protobufNodePointers) {
   }
 
   Module* Result = Module::fromProtobuf(Ctx, Message);
-  EXPECT_NE(Result->findSymbols("data").begin()->getReferent<DataObject>(),
+  EXPECT_NE(Result->findSymbols("data").begin()->getReferent<DataBlock>(),
             nullptr);
-  EXPECT_NE(Result->findSymbols("code").begin()->getReferent<Block>(), nullptr);
+  EXPECT_NE(Result->findSymbols("code").begin()->getReferent<CodeBlock>(),
+            nullptr);
   // Dangling reference becomes nullptr
-  EXPECT_EQ(Result->findSymbols("dangling").begin()->getReferent<Block>(),
+  EXPECT_EQ(Result->findSymbols("dangling").begin()->getReferent<CodeBlock>(),
             nullptr);
 
   const auto& Symbolic =

@@ -16,8 +16,8 @@
 #define GTIRB_SYMBOL_H
 
 #include <gtirb/Addr.hpp>
-#include <gtirb/Block.hpp>
-#include <gtirb/DataObject.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/ProxyBlock.hpp>
 #include <proto/Symbol.pb.h>
@@ -76,7 +76,7 @@ class GTIRB_EXPORT_API Symbol : public Node {
   // this class is a valid Callable.
   //   struct Visitor {
   //     int operator()(Block*);
-  //     long operator()(DataObject*);
+  //     long operator()(DataBlock*);
   //  };
   template <typename AlwaysVoid, typename Callable,
             template <typename...> typename TypeList, typename... Types>
@@ -166,7 +166,7 @@ public:
   }
 
   /// \brief The list of supported referent types.
-  using supported_referent_types = TypeList<Block, DataObject, ProxyBlock>;
+  using supported_referent_types = TypeList<CodeBlock, DataBlock, ProxyBlock>;
 
   /// \brief Visits the symbol's referent, if one is present, by concrete
   /// referent type.
@@ -189,17 +189,17 @@ public:
   /// \code
   /// struct Visitor {
   ///   int operator()(CfgNode*) { return 0; }
-  ///   long operator()(DataObject*) { return 1; }
+  ///   long operator()(DataBlock*) { return 1; }
   /// };
   ///
   /// Context Ctx;
   /// Symbol* SymB = Symbol::Create(Ctx, Block::Create(Ctx), "");
-  /// Symbol* SymD = Symbol::Create(Ctx, DataObject::Create(Ctx), "");
+  /// Symbol* SymD = Symbol::Create(Ctx, DataBlock::Create(Ctx), "");
   /// Symbol* SymX = Symbol::Create(Ctx, Addr(42), "");
   /// Symbol* SymN = Symbol::Create(Ctx);
   ///
   /// SymB->visit(Visitor{}); // Will call Visitor::operator()(CfgNode*);
-  /// SymD->visit(Visitor{}); // Will call Visitor::operator()(DataObject*);
+  /// SymD->visit(Visitor{}); // Will call Visitor::operator()(DataBlock*);
   /// SymX->visit(Visitor{}); // Will not call any overload
   /// SymN->visit(Visitor{}); // Will not call any overload
   /// \endcode
@@ -254,7 +254,7 @@ public:
   /// \brief Create a Symbol object.
   ///
   /// \param C  The Context in which this object will be held.
-  /// \param Referent The DataObject this symbol refers to.
+  /// \param Referent The DataBlock this symbol refers to.
   /// \param Name The name of the symbol.
   /// \param Kind The storage kind the symbol has; defaults to
   /// StorageKind::Extern
@@ -279,10 +279,12 @@ public:
           else if constexpr (std::is_same_v<T, Addr>)
             return std::make_optional(arg);
           else if constexpr (std::is_same_v<T, Node*>) {
-            if (Block* b = dyn_cast_or_null<Block>(arg))
-              return std::make_optional(b->getAddress());
-            else if (DataObject* d = dyn_cast_or_null<DataObject>(arg))
-              return std::make_optional(d->getAddress());
+            if (CodeBlock* b = dyn_cast_or_null<CodeBlock>(arg))
+              // TODO: return address if interval this belongs to is fixed
+              return std::optional<Addr>{};
+            else if (DataBlock* d = dyn_cast_or_null<DataBlock>(arg))
+              // TODO: return address if interval this belongs to is fixed
+              return std::optional<Addr>{};
             else if (ProxyBlock* p = dyn_cast_or_null<ProxyBlock>(arg))
               return std::optional<Addr>{};
             else
