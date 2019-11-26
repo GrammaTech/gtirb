@@ -1,0 +1,50 @@
+//===- CFG.proto ------------------------------------------------*- C++ -*-===//
+//
+//  Copyright (C) 2018 GrammaTech, Inc.
+//
+//  This code is licensed under the MIT license. See the LICENSE file in the
+//  project root for license terms.
+//
+//  This project is sponsored by the Office of Naval Research, One Liberty
+//  Center, 875 N. Randolph Street, Arlington, VA 22203 under contract #
+//  N68335-17-C-0700.  The content of the information does not necessarily
+//  reflect the position or policy of the Government and no official
+//  endorsement should be inferred.
+//
+//===----------------------------------------------------------------------===//
+syntax = "proto3";
+package proto;
+
+enum EdgeType {
+    Type_Branch = 0;
+    Type_Call = 1;
+    Type_Fallthrough = 2;
+    Type_Return = 3;
+    Type_Syscall = 4;
+    Type_Sysret = 5;
+}
+
+message EdgeLabel {
+    bool conditional = 1;
+    bool direct = 2;
+    EdgeType type = 3;
+}
+
+message Edge
+{
+    reserved 3, 4;
+    reserved "boolean", "integer";
+
+    bytes source_uuid = 1;
+    bytes target_uuid = 2;
+    EdgeLabel label = 5;
+}
+
+message CFG
+{
+    reserved 1;
+    reserved "blocks";
+
+    repeated bytes vertices = 3;
+    repeated Edge edges = 2;
+}

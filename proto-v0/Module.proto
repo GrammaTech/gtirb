@@ -1,0 +1,66 @@
+//===- Module.proto ---------------------------------------------*- C++ -*-===//
+//
+//  Copyright (C) 2018 GrammaTech, Inc.
+//
+//  This code is licensed under the MIT license. See the LICENSE file in the
+//  project root for license terms.
+//
+//  This project is sponsored by the Office of Naval Research, One Liberty
+//  Center, 875 N. Randolph Street, Arlington, VA 22203 under contract #
+//  N68335-17-C-0700.  The content of the information does not necessarily
+//  reflect the position or policy of the Government and no official
+//  endorsement should be inferred.
+//
+//===----------------------------------------------------------------------===//
+syntax = "proto3";
+package proto;
+
+import "AuxDataContainer.proto";
+import "Block.proto";
+import "CFG.proto";
+import "DataObject.proto";
+import "ImageByteMap.proto";
+import "ProxyBlock.proto";
+import "Section.proto";
+import "Symbol.proto";
+import "SymbolicExpression.proto";
+
+enum FileFormat {
+  Format_Undefined = 0;
+  COFF = 1;
+  ELF = 2;
+  PE = 3;
+  IdaProDb32 = 4;
+  IdaProDb64 = 5;
+  XCOFF = 6;
+  MACHO = 7;
+  RAW = 8;
+};
+
+enum ISAID {
+  ISA_Undefined = 0;
+  IA32 = 1;
+  PPC32 = 2;
+  X64 = 3;
+  ARM = 4;
+  ValidButUnsupported = 5;
+};
+
+message Module {
+    bytes uuid = 1;
+    string binary_path = 2;
+    uint64 preferred_addr = 3;
+    int64 rebase_delta = 4;
+    FileFormat file_format = 5;
+    ISAID isa_id = 6;
+    string name = 7;
+    ImageByteMap image_byte_map = 8;
+    repeated Symbol symbols = 9;
+    CFG cfg = 10;
+    repeated Block blocks = 15;
+    repeated DataObject data = 11;
+    repeated ProxyBlock proxies = 16;
+    repeated Section sections = 12;
+    map<uint64, SymbolicExpression> symbolic_operands = 13;
+    AuxDataContainer aux_data_container = 14;
+}
