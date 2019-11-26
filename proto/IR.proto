@@ -29,5 +29,5 @@ message IR {
     bytes uuid = 1;
     repeated Module modules = 3;
     map<string, AuxData> aux_data = 5;
-    int32 version = 6;
+    uint32 version = 6;
 }
