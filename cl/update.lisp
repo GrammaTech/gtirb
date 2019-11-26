@@ -11,9 +11,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter +udpate-args+
     '((("help" #\h #\?) :type boolean :optional t
-       :documentation "display help output")
-      (("downgrade" #\d) :type boolean :optional t
-       :documentation "downgrade GTIRB protobuf version instead of upgrade"))))
+       :documentation "display help output"))))
 
 (defun read-proto (version path)
   "Read GTIRB protobuf version VERSION from PATH."
@@ -40,16 +38,47 @@
       (write-sequence buffer output)))
   (values))
 
-(defun v0-to-v1 (proto)
-  proto)
+(defun byte-intervals (module)
+  (error "TODO: byte-intervals from ~a" module))
 
-(defun v1-to-v0 (proto)
-  proto)
+(defgeneric upgrade (object &key &allow-other-keys)
+  (:documentation "Upgrade OBJECT to the next protobuf version.")
+  (:method ((old t) &key &allow-other-keys) old)
+  (:method ((old array) &key  &allow-other-keys) (map 'vector #'upgrade old))
+  (:method ((old proto-v0::ir) &key &allow-other-keys
+            &aux (new (make-instance 'proto::ir)))
+    (setf (proto::uuid new) (proto-v0::uuid old)
+          (proto::version new) "1.0.0"
+          (proto::aux-data new) (upgrade (proto-v0::aux-data-container old))
+          (proto::modules new) (upgrade (proto-v0::modules old))))
+  (:method ((old proto-v0::module) &key &allow-other-keys
+            &aux (new (make-instance 'proto::module)))
+    (mapc (lambda (field)
+            (setf (slot-value new (intern field 'proto-v0))
+                  (upgrade (funcall (intern field 'proto) old))))
+          '(uuid
+            binary-path
+            preferred-addr
+            rebase-delta
+            file-format
+            isa-id
+            name
+            symbols
+            cfg
+            proxies
+            name
+            aux-data))
+    (setf (proto::sections new) (map 'vector {upgrade _ :module old}
+                                     (proto-v0::sections old))))
+  (:method ((old proto-v0::aux-data-container) &key  &allow-other-keys)
+    (proto-v0::aux-data old))
+  (:method ((old proto-v0::section) &key module &allow-other-keys
+            &aux (new (make-instance 'proto::section)))
+    (setf (proto::uuid new) (proto-v0::uuid old)
+          (proto::name new) (proto-v0::name old)
+          (proto::byte-intervals new) (byte-intervals module))))
 
 (define-command update (input-file output-file &spec +udpate-args+)
-  "Update GTIRB protobuf from INPUT-FILE to OUTPUT-FILE."
-  ""
+  "Update GTIRB protobuf from INPUT-FILE to OUTPUT-FILE." ""
   (when help (show-help-for-update) (sb-ext:quit))
-  (let ((input-version (if downgrade 'proto-v0:ir 'proto:ir)))
-    (write-proto (funcall (if downgrade #'v1-to-v0 #'v0-to-v1)
-                          (read-proto input-version input-file)) output-file)))
+  (write-proto (upgrade (read-proto 'proto-v0:ir input-file)) output-file))
