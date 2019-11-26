@@ -13,7 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
-package proto;
+package protoV0;
 
 message Block {
     bytes uuid = 1;

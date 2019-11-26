@@ -14,7 +14,7 @@
 //===----------------------------------------------------------------------===//
 
 syntax = "proto3";
-package proto;
+package protoV0;
 
 import "AuxData.proto";
 
