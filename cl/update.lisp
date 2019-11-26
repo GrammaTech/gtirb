@@ -38,8 +38,51 @@
       (write-sequence buffer output)))
   (values))
 
-(defun byte-intervals (module)
-  (error "TODO: byte-intervals from ~a" module))
+(defun byte-interval (module section
+                      &aux (new (make-instance 'proto:byte-interval)))
+  (let ((address (proto-v0::address section))
+        (size (proto-v0::size section)))
+    (setf (proto::address new) address
+          (proto::size new) size
+          (proto::bytes new)
+          (subseq (proto-v0::image-byte-map module) address (+ address size))
+          (proto::symbolic-expressions new)
+          (map 'vector
+               (lambda (pair)
+                 (destructuring-bind (addr sym-expr) pair
+                   (make-instance
+                       'proto::byte-interval-symbolic-expressions-entry
+                     :key (- addr address) :value sym-expr)))
+               (remove-if-not (lambda (pair)
+                                (destructuring-bind (addr sym-expr) pair
+                                  (declare (ignorable sym-expr))
+                                  (and (<= address addr)
+                                       (<= addr (+ address size)))))
+                              (hash-table-alist
+                               (proto-v0::symbolic-operands module))))
+          (proto::blocks new)
+          (map 'vector (lambda (block)
+                         (etypecase block
+                           (proto-v0::block
+                               (make-instance 'proto::block-wrapper
+                                 :code-block (upgrade block)))
+                           (proto-v0::data-object
+                            (make-instance 'proto::block-wrapper
+                              :data-block (upgrade block)))))
+               (remove-if-not
+                (lambda (block)
+                  (let ((addr (proto-v0::address block)))
+                    (and (<= address addr)
+                         (<= addr (+ address size)))))
+                (append (proto-v0::blocks module) (proto-v0::data module)))))))
+
+(defun entry-point-block (module)
+  (let ((address (proto-v0::entry-point-address
+                  (proto-v0::image-byte-map module))))
+    (proto-v0::uuid
+     (find-if «and [{<= address} «+ #'proto-v0::address #'proto-v0::size»]
+                   [{>= address} #'proto-v0::address]»
+              (proto-v0::blocks module)))))
 
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
@@ -69,14 +112,21 @@
             name
             aux-data))
     (setf (proto::sections new) (map 'vector {upgrade _ :module old}
-                                     (proto-v0::sections old))))
+                                     (proto-v0::sections old))
+          (proto:entry-point-block new) (entry-point-block old)))
   (:method ((old proto-v0::aux-data-container) &key  &allow-other-keys)
     (proto-v0::aux-data old))
   (:method ((old proto-v0::section) &key module &allow-other-keys
             &aux (new (make-instance 'proto::section)))
     (setf (proto::uuid new) (proto-v0::uuid old)
           (proto::name new) (proto-v0::name old)
-          (proto::byte-intervals new) (byte-intervals module))))
+          (proto::byte-intervals new) (byte-interval module section)))
+  (:method ((old proto-v0::block) &key &allow-other-keys
+            &aux (new (make-instance 'proto:code-block)))
+    (error "TODO: implement"))
+  (:method ((old proto-v0::data-object) &key &allow-other-keys
+            &aux (new (make-instance 'proto:data-block)))
+    (error "TODO: implement")))
 
 (define-command update (input-file output-file &spec +udpate-args+)
   "Update GTIRB protobuf from INPUT-FILE to OUTPUT-FILE." ""
