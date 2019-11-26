@@ -16,13 +16,10 @@ syntax = "proto3";
 package proto;
 
 import "AuxData.proto";
-import "Block.proto";
 import "CFG.proto";
-import "DataObject.proto";
 import "ProxyBlock.proto";
 import "Section.proto";
 import "Symbol.proto";
-import "SymbolicExpression.proto";
 
 enum FileFormat {
   Format_Undefined = 0;
@@ -46,8 +43,9 @@ enum ISAID {
 };
 
 message Module {
-    reserved "image_byte_map", "aux_data_container";
-    reserved 8, 14;
+    reserved "image_byte_map", "data", "symbolic_operands",
+             "aux_data_container", "blocks";
+    reserved 8, 11, 13, 14, 15;
 
     bytes uuid = 1;
     string binary_path = 2;
@@ -58,11 +56,8 @@ message Module {
     string name = 7;
     repeated Symbol symbols = 9;
     CFG cfg = 10;
-    repeated Block blocks = 15;
-    repeated DataObject data = 11;
     repeated ProxyBlock proxies = 16;
     repeated Section sections = 12;
-    map<uint64, SymbolicExpression> symbolic_operands = 13;
     map<string, AuxData> aux_data = 17;
     bytes entry_point = 18;
 }

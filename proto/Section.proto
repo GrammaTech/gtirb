@@ -15,9 +15,13 @@
 syntax = "proto3";
 package proto;
 
+import "ByteInterval.proto";
+
 message Section {
+    reserved "address", "size";
+    reserved 3, 4;
+
     bytes uuid = 1;
     string name = 2;
-    uint64 address = 3;
-    uint64 size = 4;
+    repeated ByteInterval intervals = 5;
 }

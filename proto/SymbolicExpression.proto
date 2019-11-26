@@ -42,4 +42,5 @@ message SymbolicExpression
         SymAddrConst addr_const = 2;
         SymAddrAddr addr_addr = 3;
     }
+    uint64 offset = 4;
 }
