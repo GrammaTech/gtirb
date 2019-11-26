@@ -3,7 +3,7 @@
   (:use :common-lisp :alexandria :graph :trivia
         :trivial-utf-8
         :named-readtables :curry-compose-reader-macros)
-  (:shadow :symbol)
+  (:shadow :symbol :block)
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
                 :int->octets
@@ -187,6 +187,7 @@ Should not need to be manipulated by client code.")
 (define-proto-backed-class (symbol proto:symbol) () ()
     ((name :type string)
      (value :type unsigned-byte-64)
+     ;; TODO: Just hold the referent directly.
      (referent-uuid :type uuid)
      (storage-kind :type enumeration :enumeration +symbol-storage-kind+))
   (:documentation "Symbol."))
@@ -630,3 +631,63 @@ but that would likely get expensive.")
 (defun write-gtirb (gtirb path)
   (update-proto gtirb)
   (write-proto (proto gtirb) path))
+
+#+(or )
+(progn
+  (defclass byte-interval ()
+    ((bytes
+      :accessor bytes
+      :initform (make-array 0 :element-type '(unsigned-byte 8))
+      :type (simple-array (unsigned-byte 8) (*)))
+     (uuid
+      :accessor uuid
+      ;; In real life this would be random.
+      :initform (make-array 0 :element-type '(unsigned-byte 8))
+      :type (simple-array (unsigned-byte 8) (*)))))
+
+  (defclass block ()
+    ((uuid
+      :accessor uuid
+      ;; In real life this would be random.
+      :initform (make-array 0 :element-type '(unsigned-byte 8))
+      :type (simple-array (unsigned-byte 8) (*)))))
+
+  (defclass cfg-node (block) ())
+
+  (defclass byte-block (block)
+    ((byte-interval-uuid
+      :accessor byte-interval-uuid
+      :initform (uuid (make-instance 'byte-interval))
+      :type (simple-array (unsigned-byte 8) (*)))
+     (byte-offset
+      :accessor byte-offset
+      :initform 0
+      :type fixnum)))
+
+  (defclass data-block (byte-block) ())
+  (defclass code-block (cfg-node byte-block) ())
+
+  ;; GTIRB> (describe (make-instance 'data-block))
+  ;; #<DATA-BLOCK {10056207F3}>
+  ;;   [standard-object]
+  ;;
+  ;; Slots with :INSTANCE allocation:
+  ;;   UUID                           = #()
+  ;;   BYTE-INTERVAL-UUID             = #()
+  ;;   BYTE-OFFSET                    = 0
+  ;; ; No value
+  ;; GTIRB> (describe (make-instance 'code-block))
+  ;; #<CODE-BLOCK {1005624343}>
+  ;;   [standard-object]
+  ;;
+  ;; Slots with :INSTANCE allocation:
+  ;;   UUID                           = #()
+  ;;   BYTE-INTERVAL-UUID             = #()
+  ;;   BYTE-OFFSET                    = 0
+  ;; ; No value
+  ;; GTIRB> (subclassp (find-class 'code-block) (find-class 'cfg-node))
+  ;; T
+  ;; GTIRB> (subclassp (find-class 'data-block) (find-class 'cfg-node))
+  ;; NIL
+  ;; GTIRB>
+  )
