@@ -12,9 +12,9 @@
     :defsystem-depends-on (:asdf-package-system :protobuf)
     :in-order-to ((test-op (test-op "gtirb/test"))))
 
-(defsystem "proto"
-    :name "proto"
-    :description "Common Lisp interface to GTIRB protobuf files"
+(defsystem "proto-v0"
+    :name "proto-v0"
+    :description "Common Lisp interface to (old V0) GTIRB protobuf files"
     :author "GrammaTech"
     :license "MIT"
     :defsystem-depends-on (:protobuf)
@@ -23,7 +23,7 @@
      ;; See the protobuf defsystem extension for how the gtirb.proto
      ;; file is loaded into Lisp.  https://github.com/brown/protobuf
      (:module proto
-              :pathname "../proto"
+              :pathname "../proto-v0/"
               :components
               ((:protobuf-source-file "AuxDataContainer")
                (:protobuf-source-file "CFG")
@@ -39,6 +39,42 @@
                (:protobuf-source-file "SymbolicExpression")
                (:protobuf-source-file "Symbol")
                (:protobuf-source-file "Block")))))
+
+(defsystem "proto"
+    :name "proto"
+    :description "Common Lisp interface to GTIRB protobuf files"
+    :author "GrammaTech"
+    :license "MIT"
+    :defsystem-depends-on (:protobuf)
+    :components
+    ((:static-file "README.md")
+     ;; See the protobuf defsystem extension for how the gtirb.proto
+     ;; file is loaded into Lisp.  https://github.com/brown/protobuf
+     (:module proto
+              :pathname "../proto"
+              :components
+              ((:protobuf-source-file "AuxData")
+               (:protobuf-source-file "ByteInterval")
+               (:protobuf-source-file "CFG")
+               (:protobuf-source-file "CodeBlock")
+               (:protobuf-source-file "DataBlock")
+               (:protobuf-source-file "IR")
+               (:protobuf-source-file "Module")
+               (:protobuf-source-file "ProxyBlock")
+               (:protobuf-source-file "Section")
+               (:protobuf-source-file "Symbol")
+               (:protobuf-source-file "SymbolicExpression")))))
+
+(defsystem "gtirb/update"
+    :author "GrammaTech"
+    :license "MIT"
+    :description "Convert between GTIRB protobuf versions."
+    :depends-on (proto-v0 proto gtirb/update)
+    :class :package-inferred-system
+    :defsystem-depends-on (:asdf-package-system :protobuf)
+    :build-operation "asdf:program-op"
+    :build-pathname "bin/dump-store"
+    :entry-point "gtirb/update:update")
 
 (defsystem "gtirb/test"
     :author "GrammaTech"
