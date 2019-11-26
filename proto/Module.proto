@@ -19,7 +19,6 @@ import "AuxData.proto";
 import "Block.proto";
 import "CFG.proto";
 import "DataObject.proto";
-import "ImageByteMap.proto";
 import "ProxyBlock.proto";
 import "Section.proto";
 import "Symbol.proto";
@@ -47,8 +46,8 @@ enum ISAID {
 };
 
 message Module {
-    reserved "aux_data_container";
-    reserved 14;
+    reserved "image_byte_map", "aux_data_container";
+    reserved 8, 14;
 
     bytes uuid = 1;
     string binary_path = 2;
@@ -57,7 +56,6 @@ message Module {
     FileFormat file_format = 5;
     ISAID isa_id = 6;
     string name = 7;
-    ImageByteMap image_byte_map = 8;
     repeated Symbol symbols = 9;
     CFG cfg = 10;
     repeated Block blocks = 15;
@@ -66,4 +64,5 @@ message Module {
     repeated Section sections = 12;
     map<uint64, SymbolicExpression> symbolic_operands = 13;
     map<string, AuxData> aux_data = 17;
+    bytes entry_point = 18;
 }
