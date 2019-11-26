@@ -45,6 +45,7 @@
     (setf (proto::address new) address
           (proto::size new) size
           (proto::bytes new)
+          ;; TODO: Find the right region and get those bytes.
           (subseq (proto-v0::image-byte-map module) address (+ address size))
           (proto::symbolic-expressions new)
           (map 'vector
@@ -84,43 +85,54 @@
                    [{>= address} #'proto-v0::address]»
               (proto-v0::blocks module)))))
 
+(defun transfer-fields (new old fields)
+  (mapc (lambda (field)
+          (setf (slot-value new (intern (symbol-name field) 'proto))
+                (upgrade (funcall (intern (symbol-name field) 'proto-v0) old))))
+        fields))
+
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
-  (:method ((old array) &key  &allow-other-keys) (map 'vector #'upgrade old))
+  (:method ((old array) &key  &allow-other-keys)
+    (if (and (= 16 (length old))
+             (every #'numberp old))
+        (make-array 16 :element-type '(unsigned-byte 8) :initial-contents old)
+        (map 'vector #'upgrade old)))
   (:method ((old proto-v0::ir) &key &allow-other-keys
             &aux (new (make-instance 'proto::ir)))
     (setf (proto::uuid new) (proto-v0::uuid old)
-          (proto::version new) "1.0.0"
+          (proto::version new) (pb:string-field "1.0.0")
           (proto::aux-data new) (upgrade (proto-v0::aux-data-container old))
           (proto::modules new) (upgrade (proto-v0::modules old))))
   (:method ((old proto-v0::module) &key &allow-other-keys
             &aux (new (make-instance 'proto::module)))
-    (mapc (lambda (field)
-            (setf (slot-value new (intern field 'proto-v0))
-                  (upgrade (funcall (intern field 'proto) old))))
-          '(uuid
-            binary-path
-            preferred-addr
-            rebase-delta
-            file-format
-            isa-id
-            name
-            symbols
-            cfg
-            proxies
-            name
-            aux-data))
-    (setf (proto::sections new) (map 'vector {upgrade _ :module old}
+    (transfer-fields new old
+                     '(uuid binary-path preferred-addr rebase-delta file-format
+                       isa-id name symbols cfg proxies name))
+    (setf (proto::aux-data new) (upgrade (proto-v0::aux-data-container old))
+          (proto::sections new) (map 'vector {upgrade _ :module old}
                                      (proto-v0::sections old))
           (proto:entry-point-block new) (entry-point-block old)))
   (:method ((old proto-v0::aux-data-container) &key  &allow-other-keys)
     (proto-v0::aux-data old))
   (:method ((old proto-v0::section) &key module &allow-other-keys
             &aux (new (make-instance 'proto::section)))
-    (setf (proto::uuid new) (proto-v0::uuid old)
-          (proto::name new) (proto-v0::name old)
-          (proto::byte-intervals new) (byte-interval module section)))
+    (transfer-fields new old '(uuid name))
+    (setf (proto::byte-intervals new) (byte-interval module old))
+    new)
+  (:method ((old proto-v0:edge-label) &key &allow-other-keys
+            &aux (new (make-instance 'proto:edge-label)))
+    (transfer-fields new old '(conditional direct type))
+    new)
+  (:method ((old proto-v0:edge) &key &allow-other-keys
+            &aux (new (make-instance 'proto:edge)))
+    (transfer-fields new old '(source-uuid target-uuid label))
+    new)
+  (:method ((old proto-v0::cfg) &key &allow-other-keys
+            &aux (new (make-instance 'proto:cfg)))
+    (transfer-fields new old '(vertices edges))
+    new)
   (:method ((old proto-v0::block) &key &allow-other-keys
             &aux (new (make-instance 'proto:code-block)))
     (error "TODO: implement"))

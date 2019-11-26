@@ -1,6 +1,10 @@
 (defpackage :gtirb/test
-  (:use :common-lisp :stefil :gtirb :gtirb/dot
+  (:use :common-lisp
         :alexandria
+        :stefil
+        :gtirb
+        :gtirb/dot
+        :gtirb/update
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file)
   (:import-from :uiop :nest :run-program :with-temporary-file)
@@ -34,7 +38,7 @@
 
 (deftest simple-read ()
   (with-fixture hello
-    (is (eql 'proto:ir
+    (is (eql 'proto-v0:ir
              (class-name (class-of (gtirb::read-proto *proto-path*)))))))
 
 (deftest simple-write ()
@@ -67,11 +71,11 @@
   (:method ((left hash-table) (right hash-table))
     (set-equal (hash-table-alist left) (hash-table-alist right)
                :test #'is-equal-p))
-  (:method ((left proto:block) (right proto:block))
-    (and (equalp (proto:uuid left)
-                 (proto:uuid right))
-         (= (proto:address left) (proto:address right))
-         (= (proto:size left) (proto:size right))))
+  (:method ((left proto-v0:block) (right proto-v0:block))
+    (and (equalp (proto-v0:uuid left)
+                 (proto-v0:uuid right))
+         (= (proto-v0:address left) (proto-v0:address right))
+         (= (proto-v0:size left) (proto-v0:size right))))
   (:method ((left section) (right section))
     (and (string= (name left) (name right))
          (= (address left) (address right))
@@ -81,11 +85,11 @@
          (= (value left) (value right))
          (= (referent-uuid left) (referent-uuid right))
          (eql (storage-kind left) (storage-kind right))))
-  (:method ((left proto:data-object) (right proto:data-object))
-    (and (equalp (proto:uuid left)
-                 (proto:uuid right))
-         (= (proto:address left) (proto:address right))
-         (= (proto:size left) (proto:size right))))
+  (:method ((left proto-v0:data-object) (right proto-v0:data-object))
+    (and (equalp (proto-v0:uuid left)
+                 (proto-v0:uuid right))
+         (= (proto-v0:address left) (proto-v0:address right))
+         (= (proto-v0:size left) (proto-v0:size right))))
   (:method ((left aux-data) (right aux-data))
     (and (tree-equal (aux-data-type left) (aux-data-type right))
          (is-equal-p (aux-data-data left) (aux-data-data right))))
@@ -142,7 +146,7 @@
   (with-fixture hello
     (let ((it (read-gtirb *proto-path*)))
       (is (tree-equal
-           (mapcar [#'pb:string-value #'proto:type-name #'gtirb::proto #'cdr]
+           (mapcar [#'pb:string-value #'proto-v0:type-name #'gtirb::proto #'cdr]
                    (aux-data (first (modules it))))
            (mapcar [#'gtirb::aux-data-type-print #'aux-data-type #'cdr]
                    (aux-data (first (modules it))))
@@ -162,7 +166,7 @@
     (let ((hello (read-gtirb *proto-path*)))
       (mapc (lambda (pair)
               (destructuring-bind (name . aux-data) pair
-                (let ((orig (proto:data (gtirb::proto aux-data)))
+                (let ((orig (proto-v0:data (gtirb::proto aux-data)))
                       (new (gtirb::aux-data-encode
                             (aux-data-type aux-data) (aux-data-data aux-data))))
                   (is (equalp orig new)
@@ -185,9 +189,9 @@
      (let* ((next (read-gtirb path))
             (proto (gtirb::proto (first (modules next)))))
        ;; Test for non-empty protobuf elements.
-       (is (not (zerop (length (proto:regions
-                                (proto:byte-map
-                                 (proto:image-byte-map proto)))))))
+       (is (not (zerop (length (proto-v0:regions
+                                (proto-v0:byte-map
+                                 (proto-v0:image-byte-map proto)))))))
        ;; Test for the aux-data table created earlier in the test.
        (is (string= (aux-data-data
                      (cdr (assoc "test" (aux-data (first (modules next)))
@@ -201,3 +205,12 @@
     (with-temporary-file (:pathname path)
       (let ((hello (read-gtirb *proto-path*)))
         (to-dot-file (first (modules hello)) path)))))
+
+
+;;;; Update test suite
+(deftest simple-update ()
+  (with-fixture hello
+    (with-temporary-file (:pathname path)
+      (update *proto-path* path)
+      (is (eql 'proto:ir (class-name (class-of (gtirb/update::read-proto
+                                                'proto:ir path))))))))

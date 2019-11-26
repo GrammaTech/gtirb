@@ -69,7 +69,7 @@
     :author "GrammaTech"
     :license "MIT"
     :description "Convert between GTIRB protobuf versions."
-    :depends-on (proto-v0 proto gtirb/update)
+    :depends-on (proto-v0 proto)
     :class :package-inferred-system
     :defsystem-depends-on (:asdf-package-system :protobuf)
     :build-operation "asdf:program-op"
