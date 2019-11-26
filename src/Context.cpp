@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Context.hpp"
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/IR.hpp>
@@ -46,6 +47,9 @@ template <> void* Context::Allocate<Node>() const {
   return NodeAllocator.Allocate();
 }
 template <> void* Context::Allocate<CodeBlock>() const {
+  return BlockAllocator.Allocate();
+}
+template <> void* Context::Allocate<ByteInterval>() const {
   return BlockAllocator.Allocate();
 }
 template <> void* Context::Allocate<DataBlock>() const {

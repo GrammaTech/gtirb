@@ -40,6 +40,7 @@ set(PUBLIC_HEADERS
         ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
+        ${CMAKE_SOURCE_DIR}/include/gtirb/ByteInterval.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
         ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
@@ -68,6 +69,7 @@ set(${PROJECT_NAME}_H ${PUBLIC_HEADERS} ../src/Serialization.hpp)
 set(${PROJECT_NAME}_SRC
         AuxData.cpp
         AuxDataContainer.cpp
+        ByteInterval.cpp
         CodeBlock.cpp
         Context.cpp
         CFG.cpp

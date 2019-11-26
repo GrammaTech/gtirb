@@ -35,6 +35,7 @@ using UUID = boost::uuids::uuid;
 
 class Node;
 class CfgNode;
+class ByteInterval;
 class CodeBlock;
 class DataBlock;
 class IR;
@@ -64,6 +65,7 @@ class GTIRB_EXPORT_API Context {
 
   // Allocate each node type in a separate arena.
   mutable SpecificBumpPtrAllocator<Node> NodeAllocator;
+  mutable SpecificBumpPtrAllocator<ByteInterval> ByteIntervalAllocator;
   mutable SpecificBumpPtrAllocator<CodeBlock> BlockAllocator;
   mutable SpecificBumpPtrAllocator<DataBlock> DataBlockAllocator;
   mutable SpecificBumpPtrAllocator<IR> IrAllocator;
@@ -120,6 +122,7 @@ public:
 };
 
 template <> GTIRB_EXPORT_API void* Context::Allocate<Node>() const;
+template <> GTIRB_EXPORT_API void* Context::Allocate<ByteInterval>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<CodeBlock>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<DataBlock>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<IR>() const;
