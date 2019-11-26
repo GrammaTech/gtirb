@@ -41,7 +41,7 @@
 (defun module-bytes-subseq (module start end &aux (results #()))
   (let ((regions (proto-v0:regions (proto-v0:byte-map
                                     (proto-v0::image-byte-map module)))))
-    (dotimes (n (length regions))
+    (dotimes (n (length regions) results)
       (let* ((region (aref regions n))
              (address (proto-v0:address region))
              (size (length (proto-v0:data region))))
@@ -64,22 +64,31 @@
           (proto::bytes new)
           (module-bytes-subseq module address (+ address size))
           (proto::symbolic-expressions new)
-          (map 'vector {upgrade _ :base address} (proto-v0:symbolic-operands module))
+          (map 'vector {upgrade _ :base address}
+               (remove-if-not [«and {<= address} {>= (+ address size)}» #'proto-v0:key]
+                              (proto-v0:symbolic-operands module)))
           (proto::blocks new)
           (map 'vector (lambda (block)
                          (etypecase block
                            (proto-v0::block
-                               (make-instance 'proto::block-wrapper
-                                 :code-block (upgrade block)))
+                               (let ((it (make-instance 'proto::block-wrapper)))
+                                 (setf (proto:code-block it)
+                                       (upgrade block :base address))
+                                 it))
                            (proto-v0::data-object
-                            (make-instance 'proto::block-wrapper
-                              :data-block (upgrade block)))))
+                            (let ((it (make-instance 'proto::block-wrapper)))
+                              (setf (proto:data-block it)
+                                    (upgrade block :base address))
+                              it))))
                (remove-if-not
                 (lambda (block)
                   (let ((addr (proto-v0::address block)))
                     (and (<= address addr)
                          (<= addr (+ address size)))))
-                (append (proto-v0::blocks module) (proto-v0::data module)))))))
+                (concatenate 'vector
+                             (proto-v0::blocks module)
+                             (proto-v0::data module))))))
+  (coerce (list new) 'vector))
 
 (defun entry-point-block (module)
   (let ((address (proto-v0::entry-point-address
@@ -99,8 +108,7 @@
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
   (:method ((old array) &key  &allow-other-keys)
-    (if (and (or (= 16 (length old)) (= 0 (length old)))
-             (every #'numberp old))
+    (if (every #'numberp old)
         (make-array (length old) :element-type '(unsigned-byte 8)
                     :initial-contents old)
         (map 'vector #'upgrade old)))
@@ -108,19 +116,32 @@
             &aux (new (make-instance 'proto::ir)))
     (setf (proto::uuid new) (proto-v0::uuid old)
           (proto::version new) (pb:string-field "1.0.0")
-          (proto::aux-data new) (upgrade (proto-v0::aux-data-container old))
-          (proto::modules new) (upgrade (proto-v0::modules old))))
+          (proto::aux-data new) (upgrade (proto-v0::aux-data-container old)
+                                         :new-class 'proto:ir-aux-data-entry)
+          (proto::modules new) (upgrade (proto-v0::modules old)))
+    new)
   (:method ((old proto-v0::module) &key &allow-other-keys
             &aux (new (make-instance 'proto::module)))
     (transfer-fields new old
                      '(uuid binary-path preferred-addr rebase-delta file-format
                        isa-id name symbols cfg proxies name))
-    (setf (proto::aux-data new) (upgrade (proto-v0::aux-data-container old))
+    (setf (proto::aux-data new) (upgrade (proto-v0::aux-data-container old)
+                                         :new-class 'proto:module-aux-data-entry)
           (proto::sections new) (map 'vector {upgrade _ :module old}
                                      (proto-v0::sections old))
-          (proto:entry-point-block new) (entry-point-block old)))
-  (:method ((old proto-v0::aux-data-container) &key  &allow-other-keys)
-    (proto-v0::aux-data old))
+          (proto:entry-point-block new) (entry-point-block old))
+    new)
+  (:method ((old proto-v0::aux-data-container) &key new-class &allow-other-keys)
+    (map 'vector (lambda (entry)
+                   (let ((it (make-instance new-class)))
+                     (setf (proto:key it) (proto-v0:key entry)
+                           (proto:value it) (upgrade (proto-v0:value entry)))
+                     it))
+         (proto-v0::aux-data old)))
+  (:method ((old proto-v0::aux-data) &key module &allow-other-keys
+            &aux (new (make-instance 'proto::aux-data)))
+    (transfer-fields new old '(type-name data))
+    new)
   (:method ((old proto-v0::section) &key module &allow-other-keys
             &aux (new (make-instance 'proto::section)))
     (transfer-fields new old '(uuid name))
@@ -160,12 +181,16 @@
             &aux (new (make-instance 'proto:sym-addr-addr)))
     (transfer-fields new old '(scale offset symbol1-uuid symbol2-uuid))
     new)
-  (:method ((old proto-v0::block) &key &allow-other-keys
+  (:method ((old proto-v0::block) &key base &allow-other-keys
             &aux (new (make-instance 'proto:code-block)))
-    (error "TODO: implement"))
-  (:method ((old proto-v0::data-object) &key &allow-other-keys
+    (transfer-fields new old '(uuid size decode-mode))
+    (setf (proto::offset new) (- (proto-v0:address old) base))
+    new)
+  (:method ((old proto-v0::data-object) &key base &allow-other-keys
             &aux (new (make-instance 'proto:data-block)))
-    (error "TODO: implement")))
+    (transfer-fields new old '(uuid size))
+    (setf (proto::offset new) (- (proto-v0:address old) base))
+    new))
 
 (define-command update (input-file output-file &spec +udpate-args+)
   "Update GTIRB protobuf from INPUT-FILE to OUTPUT-FILE." ""

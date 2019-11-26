@@ -208,6 +208,19 @@
 
 
 ;;;; Update test suite
+(deftest read-and-upgrade ()
+  (with-fixture hello
+    (let* ((old (gtirb/update::read-proto 'proto-v0:ir *proto-path*))
+           (new (gtirb/update::upgrade old)))
+      (is (eql 'proto:ir (class-name (class-of new))))
+      (is (eql 'proto:byte-interval
+               (class-name (class-of
+                            (aref (proto:byte-intervals
+                                   (aref (proto:sections
+                                          (aref (proto:modules new)
+                                                0)) 0)) 0)))))
+      new)))
+
 (deftest simple-update ()
   (with-fixture hello
     (with-temporary-file (:pathname path)
