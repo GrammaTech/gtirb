@@ -29,6 +29,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <deque>
+#include <map>
 #include <optional>
 #include <variant>
 
@@ -40,20 +41,29 @@ class ByteInterval;
 } // namespace proto
 
 namespace gtirb {
+/// \class Block
+///
 /// \brief An entity with an offset held within this interval.
-using Block = std::variant<CodeBlock*, DataBlock*, SymbolicExpression*>;
+class Block {
+  friend class ByteInterval;
+  uint64_t offset;
+  Node* node;
+
+public:
+  template <typename T> Block(uint64_t o, Node* n) : offset(o), node(n) {}
+
+  uint64_t getOffset() const { return offset; }
+
+  Node* getNode() const { return node; }
+};
 
 /// @cond INTERNAL
-/// \brief Returns the offset of a \ref Block.
-uint64_t GTIRB_EXPORT_API getBlockOffset(const Block& B);
-
 /// \class BlockIs
 ///
-/// \brief A predicate object to discern one type of block. Valid values for T
-/// are \ref CodeBlock, \ref DataBlock, and \ref SymbolicExpression.
-template <typename T> struct BlockIs {
+/// \brief A predicate object to discern one type of block.
+template <Node::Kind K> struct BlockIs {
   bool operator()(const Block& Variant) {
-    return std::holds_alternative<T*>(Variant);
+    return Variant.getNode()->getKind() == K;
   }
 };
 /// @endcond
@@ -78,11 +88,13 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
       Block, boost::multi_index::indexed_by<
                  boost::multi_index::ordered_non_unique<
                      boost::multi_index::tag<by_offset>,
-                     boost::multi_index::global_fun<const Block&, uint64_t,
-                                                    &getBlockOffset>>,
+                     boost::multi_index::const_mem_fun<Block, uint64_t,
+                                                       &Block::getOffset>>,
                  boost::multi_index::hashed_unique<
                      boost::multi_index::tag<by_pointer>,
-                     boost::multi_index::identity<ByteInterval*>>>>;
+                     boost::multi_index::const_mem_fun<Block, Node*,
+                                                       &Block::getNode>>>>;
+  using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
 
 public:
   /// \brief Create a ByteInterval object.
@@ -180,7 +192,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using code_blocks_iterator =
-      boost::filter_iterator<BlockIs<CodeBlock>,
+      boost::filter_iterator<BlockIs<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::iterator>;
   /// \brief Range of \ref CodeBlock objects.
   ///
@@ -192,7 +204,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using const_code_blocks_iterator =
-      boost::filter_iterator<BlockIs<CodeBlock>,
+      boost::filter_iterator<BlockIs<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>;
   /// \brief Const range of \ref CodeBlock objects.
   ///
@@ -240,7 +252,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using data_blocks_iterator =
-      boost::filter_iterator<BlockIs<DataBlock>,
+      boost::filter_iterator<BlockIs<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::iterator>;
   /// \brief Range of \ref DataBlock objects.
   ///
@@ -252,7 +264,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using const_data_blocks_iterator =
-      boost::filter_iterator<BlockIs<DataBlock>,
+      boost::filter_iterator<BlockIs<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>;
   /// \brief Const range of \ref DataBlock objects.
   ///
@@ -299,9 +311,7 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using symbolic_expressions_iterator =
-      boost::filter_iterator<BlockIs<SymbolicExpression>,
-                             BlockSet::index<by_offset>::type::iterator>;
+  using symbolic_expressions_iterator = SymbolicExpressionSet::iterator;
   /// \brief Range of \ref SymbolicExpression objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -313,8 +323,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using const_symbolic_expressions_iterator =
-      boost::filter_iterator<BlockIs<SymbolicExpression>,
-                             BlockSet::index<by_offset>::type::const_iterator>;
+      SymbolicExpressionSet::const_iterator;
   /// \brief Const range of \ref SymbolicExpression objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -324,29 +333,21 @@ public:
 
   /// \brief Return an iterator to the first \ref SymbolicExpression.
   symbolic_expressions_iterator symbolic_expressions_begin() {
-    return symbolic_expressions_iterator(
-        decltype(symbolic_expressions_iterator().predicate())(), Blocks.begin(),
-        Blocks.end());
+    return SymbolicExpressions.begin();
   }
   /// \brief Return a const iterator to the first \ref SymbolicExpression.
   const_symbolic_expressions_iterator symbolic_expressions_begin() const {
-    return const_symbolic_expressions_iterator(
-        decltype(const_symbolic_expressions_iterator().predicate())(),
-        Blocks.begin(), Blocks.end());
+    return SymbolicExpressions.begin();
   }
   /// \brief Return an iterator to the element following the last \ref
   /// SymbolicExpression.
   symbolic_expressions_iterator symbolic_expressions_end() {
-    return symbolic_expressions_iterator(
-        decltype(symbolic_expressions_iterator().predicate())(), Blocks.end(),
-        Blocks.end());
+    return SymbolicExpressions.end();
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// SymbolicExpression.
   const_symbolic_expressions_iterator symbolic_expressions_end() const {
-    return const_symbolic_expressions_iterator(
-        decltype(const_symbolic_expressions_iterator().predicate())(),
-        Blocks.end(), Blocks.end());
+    return SymbolicExpressions.end();
   }
   /// \brief Return a range of the \ref SymbolicExpression objects in this
   /// interval.
@@ -389,6 +390,7 @@ private:
   std::optional<Addr> Address{};
   uint64_t Size{0};
   BlockSet Blocks;
+  SymbolicExpressionSet SymbolicExpressions;
   std::deque<uint8_t> Bytes;
 
   friend class Context;

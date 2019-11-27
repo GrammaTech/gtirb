@@ -17,24 +17,6 @@
 
 using namespace gtirb;
 
-struct GetSymExprOffsetVisitor {
-  template <class T> uint64_t operator()(const T& symExpr) {
-    return symExpr.Offset;
-  }
-};
-
-struct GetBlockOffsetVisitor {
-  uint64_t operator()(const CodeBlock* block) { return block->getOffset(); }
-  uint64_t operator()(const DataBlock* block) { return block->getOffset(); }
-  uint64_t operator()(const SymbolicExpression* block) {
-    return std::visit(GetSymExprOffsetVisitor{}, *block);
-  }
-};
-
-uint64_t gtirb::getBlockOffset(const Block& B) {
-  return std::visit(GetBlockOffsetVisitor{}, B);
-}
-
 void ByteInterval::toProtobuf(MessageType* Message) const {
   if (Address.has_value()) {
     Message->set_has_address(true);
