@@ -20,11 +20,14 @@
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/SymbolicExpression.hpp>
+#include <boost/iterator/filter_iterator.hpp>
+#include <boost/iterator/iterator_traits.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index_container.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <deque>
 #include <optional>
 #include <variant>
@@ -37,37 +40,294 @@ class ByteInterval;
 } // namespace proto
 
 namespace gtirb {
+/// \brief An entity with an offset held within this interval.
 using Block = std::variant<CodeBlock*, DataBlock*, SymbolicExpression*>;
+
+/// @cond INTERNAL
+/// \brief Returns the offset of a \ref Block.
 uint64_t GTIRB_EXPORT_API getBlockOffset(const Block& B);
 
+/// \class BlockIs
+///
+/// \brief A predicate object to discern one type of block. Valid values for T
+/// are \ref CodeBlock, \ref DataBlock, and \ref SymbolicExpression.
+template <typename T> struct BlockIs {
+  bool operator()(const Block& Variant) {
+    return std::holds_alternative<T*>(Variant);
+  }
+};
+/// @endcond
+
+/// \class ByteInterval
+///
+/// \brief A contiguous region of bytes in a binary.
+///
+/// A ByteInterval defines a relative ordering for a group of \ref Block
+/// objects, optionally at a fixed address in memory. It also stores the bytes
+/// associated with these blocks.
+///
+/// If two blocks are in two different ByteIntervals, then it should be
+/// considered safe (that is, preserving of program semantics) to move one block
+/// relative to the other in memory. If two blocks are in the same ByteInterval,
+/// then it should be considered unknown if moving the two blocks relative to
+/// one another in memory is a safe operation.
 class GTIRB_EXPORT_API ByteInterval : public Node {
-  // struct by_offset {};
-  // struct by_pointer {};
-  // using BlockSet = boost::multi_index::multi_index_container<
-  //     Block,
-  //     boost::multi_index::ordered_unique<
-  //         boost::multi_index::tag<by_offset>,
-  //         boost::multi_index::global_fun<const Block&, uint64_t,
-  //                                        &getBlockOffset>>,
-  //     boost::multi_index::hashed_unique<
-  //         boost::multi_index::tag<by_pointer>,
-  //         boost::multi_index::identity<Section*>>>;
+  struct by_offset {};
+  struct by_pointer {};
+  using BlockSet = boost::multi_index::multi_index_container<
+      Block, boost::multi_index::indexed_by<
+                 boost::multi_index::ordered_non_unique<
+                     boost::multi_index::tag<by_offset>,
+                     boost::multi_index::global_fun<const Block&, uint64_t,
+                                                    &getBlockOffset>>,
+                 boost::multi_index::hashed_unique<
+                     boost::multi_index::tag<by_pointer>,
+                     boost::multi_index::identity<ByteInterval*>>>>;
 
 public:
   /// \brief Create a ByteInterval object.
-  ///
-  /// \param C          The Context in which this interval will be held.
-  ///
-  /// \return The newly created ByteInterval.
+  /// \param C        The Context in which this interval will be held.
+  /// \param Address  An (optional) fixed address for this interval.
+  /// \param Size     The size of this interval in bytes.
+  /// \return         The newly created ByteInterval.
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
                               uint64_t Size) {
     return C.Create<ByteInterval>(C, Address, Size);
   }
 
+  /// \brief Get the fixed address of this interval, if present.
+  ///
+  /// If this field is present, it may indicate the original address at which
+  /// this interval was located at in memory, or it may indicate that this
+  /// block's address is fixed and must not be changed. If this field is not
+  /// present, it indicates that the interval is free to be moved around in
+  /// memory while preserving program semantics.
   std::optional<Addr> getAddress() const { return Address; }
+  /// \brief Get the size of this interval in bytes.
+  ///
+  /// This number may not always be the size of the byte array returned by \ref
+  /// getBytes. If this number is larger than the size of this interval's byte
+  /// array, this indicates that the high addresses taken up by this interval
+  /// consist of uninitialized bytes. This often occurs in BSS sections, where
+  /// data is zero-initialized rather than stored as zeroes in the binary.
+  ///
+  /// It is an error to have an interval in which this number is less than the
+  /// size of the byte array returned by \ref getBytes.
   uint64_t getSize() const { return Size; }
+  /// \brief Get the bytes stored in this interval.
+  ///
+  /// \ref CodeBlock and \ref DataBlock objects indicate that ranges of these
+  /// bytes belong to program code and data, respectively. They are stored here
+  /// rather than in the blocks themselves in the case that blocks overlap. Code
+  /// blocks can overlap in some ISAs where, for example, jumps are allowed into
+  /// the middle of multibyte instructions, and data blocks can overlap in the
+  /// case where, for example, elements of arrays are accessed in a static
+  /// manner.
   std::deque<uint8_t>& getBytes() { return Bytes; }
+  /// \brief Get the bytes stored in this interval.
+  ///
+  /// \ref CodeBlock and \ref DataBlock objects indicate that ranges of these
+  /// bytes belong to program code and data, respectively. They are stored here
+  /// rather than in the blocks themselves in the case that blocks overlap. Code
+  /// blocks can overlap in some ISAs where, for example, jumps are allowed into
+  /// the middle of multibyte instructions, and data blocks can overlap in the
+  /// case where, for example, elements of arrays are accessed in a static
+  /// manner.
   const std::deque<uint8_t>& getBytes() const { return Bytes; }
+
+  /// \brief Iterator over \ref Block objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using blocks_iterator = BlockSet::index<by_offset>::type::iterator;
+  /// \brief Range of \ref Block objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using blocks_range = boost::iterator_range<blocks_iterator>;
+  /// \brief Const iterator over \ref Block objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_blocks_iterator =
+      BlockSet::index<by_offset>::type::const_iterator;
+  /// \brief Const range of \ref Block objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_blocks_range = boost::iterator_range<const_blocks_iterator>;
+
+  /// \brief Return an iterator to the first \ref Block.
+  blocks_iterator blocks_begin() { return Blocks.begin(); }
+  /// \brief Return a const iterator to the first \ref Block.
+  const_blocks_iterator blocks_begin() const { return Blocks.begin(); }
+  /// \brief Return an iterator to the element following the last \ref Block.
+  blocks_iterator blocks_end() { return Blocks.end(); }
+  /// \brief Return a const iterator to the element following the last
+  /// \ref Block.
+  const_blocks_iterator blocks_end() const { return Blocks.end(); }
+  /// \brief Return a range of the \ref Block objects in this interval.
+  blocks_range blocks() {
+    return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+  /// \brief Return a const range of the \ref Block objects in this interval.
+  const_blocks_range blocks() const {
+    return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
+  /// \brief Iterator over \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using code_blocks_iterator =
+      boost::filter_iterator<BlockIs<CodeBlock>,
+                             BlockSet::index<by_offset>::type::iterator>;
+  /// \brief Range of \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using code_blocks_range = boost::iterator_range<code_blocks_iterator>;
+  /// \brief Const iterator over \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_code_blocks_iterator =
+      boost::filter_iterator<BlockIs<CodeBlock>,
+                             BlockSet::index<by_offset>::type::const_iterator>;
+  /// \brief Const range of \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_code_blocks_range =
+      boost::iterator_range<const_code_blocks_iterator>;
+
+  /// \brief Return an iterator to the first \ref CodeBlock.
+  code_blocks_iterator code_blocks_begin() { return Blocks.begin(); }
+  /// \brief Return a const iterator to the first \ref CodeBlock.
+  const_code_blocks_iterator code_blocks_begin() const {
+    return Blocks.begin();
+  }
+  /// \brief Return an iterator to the element following the last \ref
+  /// CodeBlock.
+  code_blocks_iterator code_blocks_end() { return Blocks.end(); }
+  /// \brief Return a const iterator to the element following the last \ref
+  /// CodeBlock.
+  const_code_blocks_iterator code_blocks_end() const { return Blocks.end(); }
+  /// \brief Return a range of the \ref CodeBlock objects in this interval.
+  code_blocks_range code_blocks() {
+    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
+  }
+  /// \brief Return a const range of the \ref CodeBlock objects in this
+  /// interval.
+  const_code_blocks_range code_blocks() const {
+    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
+  }
+
+  /// \brief Iterator over \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using data_blocks_iterator =
+      boost::filter_iterator<BlockIs<DataBlock>,
+                             BlockSet::index<by_offset>::type::iterator>;
+  /// \brief Range of \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using data_blocks_range = boost::iterator_range<data_blocks_iterator>;
+  /// \brief Const iterator over \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_data_blocks_iterator =
+      boost::filter_iterator<BlockIs<DataBlock>,
+                             BlockSet::index<by_offset>::type::const_iterator>;
+  /// \brief Const range of \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_data_blocks_range =
+      boost::iterator_range<const_data_blocks_iterator>;
+
+  /// \brief Return an iterator to the first \ref DataBlock.
+  data_blocks_iterator data_blocks_begin() { return Blocks.begin(); }
+  /// \brief Return a const iterator to the first \ref DataBlock.
+  const_data_blocks_iterator data_blocks_begin() const {
+    return Blocks.begin();
+  }
+  /// \brief Return an iterator to the element following the last \ref
+  /// DataBlock.
+  data_blocks_iterator data_blocks_end() { return Blocks.end(); }
+  /// \brief Return a const iterator to the element following the last \ref
+  /// DataBlock.
+  const_data_blocks_iterator data_blocks_end() const { return Blocks.end(); }
+  /// \brief Return a range of the \ref DataBlock objects in this interval.
+  data_blocks_range data_blocks() {
+    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+  /// \brief Return a const range of the \ref DataBlock objects in this
+  /// interval.
+  const_data_blocks_range data_blocks() const {
+    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+
+  /// \brief Iterator over \ref SymbolicExpression objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using symbolic_expressions_iterator =
+      boost::filter_iterator<BlockIs<SymbolicExpression>,
+                             BlockSet::index<by_offset>::type::iterator>;
+  /// \brief Range of \ref SymbolicExpression objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using symbolic_expressions_range =
+      boost::iterator_range<symbolic_expressions_iterator>;
+  /// \brief Const iterator over \ref SymbolicExpression objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_symbolic_expressions_iterator =
+      boost::filter_iterator<BlockIs<SymbolicExpression>,
+                             BlockSet::index<by_offset>::type::const_iterator>;
+  /// \brief Const range of \ref SymbolicExpression objects.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_symbolic_expressions_range =
+      boost::iterator_range<const_symbolic_expressions_iterator>;
+
+  /// \brief Return an iterator to the first \ref SymbolicExpression.
+  symbolic_expressions_iterator symbolic_expressions_begin() {
+    return Blocks.begin();
+  }
+  /// \brief Return a const iterator to the first \ref SymbolicExpression.
+  const_symbolic_expressions_iterator symbolic_expressions_begin() const {
+    return Blocks.begin();
+  }
+  /// \brief Return an iterator to the element following the last \ref
+  /// SymbolicExpression.
+  symbolic_expressions_iterator symbolic_expressions_end() {
+    return Blocks.end();
+  }
+  /// \brief Return a const iterator to the element following the last \ref
+  /// SymbolicExpression.
+  const_symbolic_expressions_iterator symbolic_expressions_end() const {
+    return Blocks.end();
+  }
+  /// \brief Return a range of the \ref SymbolicExpression objects in this
+  /// interval.
+  symbolic_expressions_range symbolic_expressions() {
+    return boost::make_iterator_range(symbolic_expressions_begin(),
+                                      symbolic_expressions_end());
+  }
+  /// \brief Return a const range of the \ref SymbolicExpression objects in this
+  /// interval.
+  const_symbolic_expressions_range symbolic_expressions() const {
+    return boost::make_iterator_range(symbolic_expressions_begin(),
+                                      symbolic_expressions_end());
+  }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
@@ -96,7 +356,7 @@ private:
 
   std::optional<Addr> Address{};
   uint64_t Size{0};
-  // BlockSet Blocks;
+  BlockSet Blocks;
   std::deque<uint8_t> Bytes;
 
   friend class Context;
