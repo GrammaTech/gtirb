@@ -202,17 +202,29 @@ public:
       boost::iterator_range<const_code_blocks_iterator>;
 
   /// \brief Return an iterator to the first \ref CodeBlock.
-  code_blocks_iterator code_blocks_begin() { return Blocks.begin(); }
+  code_blocks_iterator code_blocks_begin() {
+    return code_blocks_iterator(decltype(code_blocks_iterator().predicate())(),
+                                Blocks.begin(), Blocks.end());
+  }
   /// \brief Return a const iterator to the first \ref CodeBlock.
   const_code_blocks_iterator code_blocks_begin() const {
-    return Blocks.begin();
+    return const_code_blocks_iterator(
+        decltype(const_code_blocks_iterator().predicate())(), Blocks.begin(),
+        Blocks.end());
   }
   /// \brief Return an iterator to the element following the last \ref
   /// CodeBlock.
-  code_blocks_iterator code_blocks_end() { return Blocks.end(); }
+  code_blocks_iterator code_blocks_end() {
+    return code_blocks_iterator(decltype(code_blocks_iterator().predicate())(),
+                                Blocks.end(), Blocks.end());
+  }
   /// \brief Return a const iterator to the element following the last \ref
   /// CodeBlock.
-  const_code_blocks_iterator code_blocks_end() const { return Blocks.end(); }
+  const_code_blocks_iterator code_blocks_end() const {
+    return const_code_blocks_iterator(
+        decltype(const_code_blocks_iterator().predicate())(), Blocks.end(),
+        Blocks.end());
+  }
   /// \brief Return a range of the \ref CodeBlock objects in this interval.
   code_blocks_range code_blocks() {
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
@@ -250,17 +262,29 @@ public:
       boost::iterator_range<const_data_blocks_iterator>;
 
   /// \brief Return an iterator to the first \ref DataBlock.
-  data_blocks_iterator data_blocks_begin() { return Blocks.begin(); }
+  data_blocks_iterator data_blocks_begin() {
+    return data_blocks_iterator(decltype(data_blocks_iterator().predicate())(),
+                                Blocks.begin(), Blocks.end());
+  }
   /// \brief Return a const iterator to the first \ref DataBlock.
   const_data_blocks_iterator data_blocks_begin() const {
-    return Blocks.begin();
+    return const_data_blocks_iterator(
+        decltype(const_data_blocks_iterator().predicate())(), Blocks.begin(),
+        Blocks.end());
   }
   /// \brief Return an iterator to the element following the last \ref
   /// DataBlock.
-  data_blocks_iterator data_blocks_end() { return Blocks.end(); }
+  data_blocks_iterator data_blocks_end() {
+    return data_blocks_iterator(decltype(data_blocks_iterator().predicate())(),
+                                Blocks.end(), Blocks.end());
+  }
   /// \brief Return a const iterator to the element following the last \ref
   /// DataBlock.
-  const_data_blocks_iterator data_blocks_end() const { return Blocks.end(); }
+  const_data_blocks_iterator data_blocks_end() const {
+    return const_data_blocks_iterator(
+        decltype(const_data_blocks_iterator().predicate())(), Blocks.end(),
+        Blocks.end());
+  }
   /// \brief Return a range of the \ref DataBlock objects in this interval.
   data_blocks_range data_blocks() {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
@@ -300,21 +324,29 @@ public:
 
   /// \brief Return an iterator to the first \ref SymbolicExpression.
   symbolic_expressions_iterator symbolic_expressions_begin() {
-    return Blocks.begin();
+    return symbolic_expressions_iterator(
+        decltype(symbolic_expressions_iterator().predicate())(), Blocks.begin(),
+        Blocks.end());
   }
   /// \brief Return a const iterator to the first \ref SymbolicExpression.
   const_symbolic_expressions_iterator symbolic_expressions_begin() const {
-    return Blocks.begin();
+    return const_symbolic_expressions_iterator(
+        decltype(const_symbolic_expressions_iterator().predicate())(),
+        Blocks.begin(), Blocks.end());
   }
   /// \brief Return an iterator to the element following the last \ref
   /// SymbolicExpression.
   symbolic_expressions_iterator symbolic_expressions_end() {
-    return Blocks.end();
+    return symbolic_expressions_iterator(
+        decltype(symbolic_expressions_iterator().predicate())(), Blocks.end(),
+        Blocks.end());
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// SymbolicExpression.
   const_symbolic_expressions_iterator symbolic_expressions_end() const {
-    return Blocks.end();
+    return const_symbolic_expressions_iterator(
+        decltype(const_symbolic_expressions_iterator().predicate())(),
+        Blocks.end(), Blocks.end());
   }
   /// \brief Return a range of the \ref SymbolicExpression objects in this
   /// interval.
