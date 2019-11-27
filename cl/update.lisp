@@ -105,11 +105,12 @@
                    [{>= address} #'proto-v0::address]»
               (proto-v0::blocks module)))))
 
-(defun transfer-fields (new old fields)
-  (mapc (lambda (field)
-          (setf (slot-value new (intern (symbol-name field) 'proto))
-                (upgrade (funcall (intern (symbol-name field) 'proto-v0) old))))
-        fields))
+(defmacro transfer-fields (new old &rest fields)
+  `(progn
+     ,@(mapcar (lambda (field)
+                 `(setf (,(intern (symbol-name field) 'proto) ,new)
+                        (upgrade (,(intern (symbol-name field) 'proto-v0) ,old))))
+               fields)))
 
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
@@ -129,8 +130,8 @@
   (:method ((old proto-v0::module) &key &allow-other-keys
             &aux (new (make-instance 'proto::module)))
     (transfer-fields new old
-                     '(uuid binary-path preferred-addr rebase-delta file-format
-                       isa-id name symbols cfg proxies name))
+                     uuid binary-path preferred-addr rebase-delta file-format
+                     isa-id name symbols cfg proxies name)
     (setf (proto::aux-data new) (upgrade (proto-v0::aux-data-container old)
                                          :new-class 'proto:module-aux-data-entry)
           (proto::sections new) (map 'vector {upgrade _ :module old}
@@ -146,24 +147,24 @@
          (proto-v0::aux-data old)))
   (:method ((old proto-v0::aux-data) &key module &allow-other-keys
             &aux (new (make-instance 'proto::aux-data)))
-    (transfer-fields new old '(type-name data))
+    (transfer-fields new old type-name data)
     new)
   (:method ((old proto-v0::section) &key module &allow-other-keys
             &aux (new (make-instance 'proto::section)))
-    (transfer-fields new old '(uuid name))
+    (transfer-fields new old uuid name)
     (setf (proto::byte-intervals new) (byte-interval module old))
     new)
   (:method ((old proto-v0:edge-label) &key &allow-other-keys
             &aux (new (make-instance 'proto:edge-label)))
-    (transfer-fields new old '(conditional direct type))
+    (transfer-fields new old conditional direct type)
     new)
   (:method ((old proto-v0:edge) &key &allow-other-keys
             &aux (new (make-instance 'proto:edge)))
-    (transfer-fields new old '(source-uuid target-uuid label))
+    (transfer-fields new old source-uuid target-uuid label)
     new)
   (:method ((old proto-v0::cfg) &key &allow-other-keys
             &aux (new (make-instance 'proto:cfg)))
-    (transfer-fields new old '(vertices edges))
+    (transfer-fields new old vertices edges)
     new)
   (:method ((old proto-v0::module-symbolic-operands-entry)
             &key base &allow-other-keys
@@ -171,30 +172,46 @@
                           'proto:byte-interval-symbolic-expressions-entry)))
     (setf (proto:key new) (- (proto-v0:key old) base)
           (proto:value new) (upgrade (proto-v0:value old))))
+  (:method ((old proto-v0::symbol) &key &allow-other-keys
+            &aux (new (make-instance 'proto:symbol)))
+    (transfer-fields new old uuid name storage-kind)
+    (cond                ; Variant "oneof" 'value' or 'referent_uuid'.
+      ((proto-v0:value old)
+       (setf (proto:value new) (proto-v0:value old)))
+      ((proto-v0:referent-uuid old)
+       (setf (proto:referent-uuid new) (upgrade (proto-v0:referent-uuid old)))))
+    new)
   (:method ((old proto-v0::symbolic-expression) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbolic-expression)))
-    (transfer-fields new old '(stack-const addr-const addr-addr))
+    (transfer-fields new old)
+    (cond                               ; Variant "oneof" field.
+      ((proto-v0:stack-const old)
+       (setf (proto:stack-const new) (upgrade (proto-v0:stack-const old))))
+      ((proto-v0:addr-const old)
+       (setf (proto:addr-const new) (upgrade (proto-v0:addr-const old))))
+      ((proto-v0:addr-addr old)
+       (setf (proto:addr-addr new) (upgrade (proto-v0:addr-addr old)))))
     new)
   (:method ((old proto-v0::sym-stack-const) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-stack-const)))
-    (transfer-fields new old '(offset symbol-uuid))
+    (transfer-fields new old offset symbol-uuid)
     new)
   (:method ((old proto-v0::sym-addr-const) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-addr-const)))
-    (transfer-fields new old '(offset symbol-uuid))
+    (transfer-fields new old offset symbol-uuid)
     new)
   (:method ((old proto-v0::sym-addr-addr) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-addr-addr)))
-    (transfer-fields new old '(scale offset symbol1-uuid symbol2-uuid))
+    (transfer-fields new old scale offset symbol1-uuid symbol2-uuid)
     new)
   (:method ((old proto-v0::block) &key base &allow-other-keys
             &aux (new (make-instance 'proto:code-block)))
-    (transfer-fields new old '(uuid size decode-mode))
+    (transfer-fields new old uuid size decode-mode)
     (setf (proto::offset new) (- (proto-v0:address old) base))
     new)
   (:method ((old proto-v0::data-object) &key base &allow-other-keys
             &aux (new (make-instance 'proto:data-block)))
-    (transfer-fields new old '(uuid size))
+    (transfer-fields new old uuid size)
     (setf (proto::offset new) (- (proto-v0:address old) base))
     new))
 
