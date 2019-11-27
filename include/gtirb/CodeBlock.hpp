@@ -44,20 +44,13 @@ public:
   /// \brief Create a CodeBlock object.
   ///
   /// \param C          The Context in which this block will be held.
-  /// \param Address    The address where the block is located.
   /// \param Size       The size of the block in bytes.
   /// \param DecodeMode The decode mode of the block.
   ///
   /// \return The newly created CodeBlock.
-  static CodeBlock* Create(Context& C, uint64_t Offset, uint64_t Size,
-                           uint64_t DecodeMode = 0) {
-    return C.Create<CodeBlock>(C, Offset, Size, DecodeMode);
+  static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode = 0) {
+    return C.Create<CodeBlock>(C, Size, DecodeMode);
   }
-
-  /// \brief Get the offset from the start of the enclosing /ref ByteInterval.
-  ///
-  /// \return The offset.
-  uint64_t getOffset() const { return Offset; }
 
   /// \brief Get the size from a \ref CodeBlock.
   ///
@@ -96,10 +89,9 @@ public:
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
-  CodeBlock(Context& C, uint64_t Off, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::CodeBlock), Offset(Off), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C, uint64_t S, uint64_t Decode)
+      : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
 
-  uint64_t Offset{0};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 

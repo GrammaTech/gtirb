@@ -39,8 +39,7 @@ class GTIRB_EXPORT_API DataBlock : public Node {
 
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, uint64_t O, uint64_t S)
-      : Node(C, Kind::DataBlock), Offset(O), Size(S) {}
+  DataBlock(Context& C, uint64_t S) : Node(C, Kind::DataBlock), Size(S) {}
 
 public:
   /// \brief Create a DataBlock object in its default state.
@@ -61,14 +60,9 @@ public:
   /// \param Size     The size of the object in bytes.
   ///
   /// \return The newly created DataBlock.
-  static DataBlock* Create(Context& C, uint64_t Offset, uint64_t Size) {
-    return C.Create<DataBlock>(C, Offset, Size);
+  static DataBlock* Create(Context& C, uint64_t Size) {
+    return C.Create<DataBlock>(C, Size);
   }
-
-  /// \brief Get the offset from the start of the enclosing /ref ByteInterval.
-  ///
-  /// \return The offset.
-  uint64_t getOffset() const { return Offset; }
 
   /// \brief Get the size of a DataBlock.
   ///
@@ -99,7 +93,6 @@ public:
   /// @endcond
 
 private:
-  uint64_t Offset{0};
   uint64_t Size{0};
 
   friend class Context;

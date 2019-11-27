@@ -22,12 +22,11 @@ using namespace gtirb;
 
 void DataBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_offset(static_cast<uint64_t>(this->Offset));
   Message->set_size(this->Size);
 }
 
 DataBlock* DataBlock::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* DO = DataBlock::Create(C, Message.offset(), Message.size());
+  auto* DO = DataBlock::Create(C, Message.size());
   setNodeUUIDFromBytes(DO, Message.uuid());
   return DO;
 }

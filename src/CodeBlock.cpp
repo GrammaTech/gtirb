@@ -20,13 +20,12 @@ using namespace gtirb;
 
 void CodeBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
-  Message->set_offset(static_cast<uint64_t>(this->Offset));
   Message->set_size(this->Size);
   Message->set_decode_mode(this->DecodeMode);
 }
 
 CodeBlock* CodeBlock::fromProtobuf(Context& C, const proto::CodeBlock& M) {
-  CodeBlock* B = CodeBlock::Create(C, M.offset(), M.size(), M.decode_mode());
+  CodeBlock* B = CodeBlock::Create(C, M.size(), M.decode_mode());
   setNodeUUIDFromBytes(B, M.uuid());
   return B;
 }
