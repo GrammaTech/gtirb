@@ -17,16 +17,45 @@
 
 
 ;;;; Fixtures.
-(defixture hello
-  (:setup (progn
-            (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
-              (with-temporary-file (:pathname bin-path)
-                (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
+(defixture hello-v0
+  (:setup
+   (progn
+     (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
+       (with-temporary-file (:pathname bin-path)
+         (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
                                            |gcc -x c - -o ~a"
-                                     bin-path) :force-shell t)
-                (run-program (format nil "ddisasm --ir ~a ~a" gtirb-path bin-path))
-                (delete-file bin-path))
-              (setf *proto-path* gtirb-path))))
+                              bin-path) :force-shell t)
+         (run-program (format nil "ddisasm --ir ~a ~a" gtirb-path bin-path))
+         (delete-file bin-path))
+       (setf *proto-path* gtirb-path))))
+  (:teardown (progn
+               (delete-file *proto-path*)
+               (setf *proto-path* nil))))
+
+(defixture hello
+  (:setup
+   (progn
+     (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
+       (with-temporary-file (:pathname gtirb-v0-path)
+         (with-temporary-file (:pathname gtirb-path-temp)
+           (with-temporary-file (:pathname bin-path)
+             (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
+                                           |gcc -x c - -o ~a"
+                                  bin-path) :force-shell t)
+             (run-program
+              (format nil "ddisasm --ir ~a ~a" gtirb-v0-path bin-path))
+             (delete-file bin-path))
+           ;; Convert GTIRB-V0 to current GTIRB.
+           (write-proto (upgrade (read-proto 'proto-v0:ir gtirb-v0-path))
+                        gtirb-path-temp)
+           ;; FIXME: There is a bug in update.lisp in which somehow
+           ;;        extra information is being packaged into the
+           ;;        serialized protobuf.  This is purged by this
+           ;;        extra through protobuf read/write, but it would
+           ;;        be good to find out what it is and remove it.
+           (write-proto (upgrade (read-proto 'proto:ir gtirb-path-temp))
+                        gtirb-path)))
+       (setf *proto-path* gtirb-path))))
   (:teardown (progn
                (delete-file *proto-path*)
                (setf *proto-path* nil))))
@@ -38,7 +67,7 @@
 
 (deftest simple-read ()
   (with-fixture hello
-    (is (eql 'proto-v0:ir
+    (is (eql 'proto:ir
              (class-name (class-of (gtirb::read-proto *proto-path*)))))))
 
 (deftest simple-write ()
@@ -71,25 +100,23 @@
   (:method ((left hash-table) (right hash-table))
     (set-equal (hash-table-alist left) (hash-table-alist right)
                :test #'is-equal-p))
-  (:method ((left proto-v0:block) (right proto-v0:block))
-    (and (equalp (proto-v0:uuid left)
-                 (proto-v0:uuid right))
-         (= (proto-v0:address left) (proto-v0:address right))
-         (= (proto-v0:size left) (proto-v0:size right))))
-  (:method ((left section) (right section))
-    (and (string= (name left) (name right))
-         (= (address left) (address right))
-         (= (size left) (size right))))
+  (:method ((left proto:code-block) (right proto:code-block))
+    (and (equalp (proto:uuid left) (proto:uuid right))
+         (eql (proto:decode-mode left) (proto:decode-mode left))
+         (= (proto:size left) (proto:size right))))
+  (:method ((left proto:data-block) (right proto:data-block))
+    (and (equalp (proto:uuid left)
+                 (proto:uuid right))
+         (= (proto:size left) (proto:size right))))
   (:method ((left symbol) (right symbol))
     (and (string= (name left) (name right))
          (= (value left) (value right))
          (= (referent-uuid left) (referent-uuid right))
          (eql (storage-kind left) (storage-kind right))))
-  (:method ((left proto-v0:data-object) (right proto-v0:data-object))
-    (and (equalp (proto-v0:uuid left)
-                 (proto-v0:uuid right))
-         (= (proto-v0:address left) (proto-v0:address right))
-         (= (proto-v0:size left) (proto-v0:size right))))
+  (:method ((left section) (right section))
+    (and (string= (name left) (name right))
+         (set-equal (proto:intervals left) (proto:intervals right)
+                    :test #'is-equal-p)))
   (:method ((left aux-data) (right aux-data))
     (and (tree-equal (aux-data-type left) (aux-data-type right))
          (is-equal-p (aux-data-data left) (aux-data-data right))))
@@ -103,12 +130,14 @@
          (set-equal (graph:edges-w-values left)
                     (graph:edges-w-values right)
                     :test #'is-equal-p)))
-  (:method ((left image-byte-map) (right image-byte-map))
-    (and (= (addr-min left) (addr-min right))
-         (= (addr-max left) (addr-max right))
-         (= (base-address left) (base-address right))
-         (= (entry-point-address left) (entry-point-address right))
-         (is-equal-p (regions left) (regions right)))))
+  (:method ((left byte-interval) (right byte-interval))
+    (and (= (has-address left) (has-address right))
+         (eql (if (has-address left) (address left))
+              (if (has-address right) (address right)))
+         (= (size left) (size right))
+         (= (contents left) (contents right))
+         (is-equal-p (blocks left) (blocks right))
+         (is-equal-p (symbolic-expressions left) (symbolic-expressions right)))))
 
 (deftest idempotent-read-write-w-class ()
   (nest
@@ -117,9 +146,9 @@
    (let ((hello1 (read-gtirb *proto-path*)))
      (write-gtirb hello1 path)
      (let ((hello2 (read-gtirb path)))
-       ;; Test image-byte-map equality.
+       ;; Test byte-interval equality.
        (is (apply #'is-equal-p
-                  (mapcar [#'image-byte-map #'first #'modules]
+                  (mapcar [#'first #'byte-intervals #'first #'sections #'first #'modules]
                           (list hello1 hello2))))
        ;; Test block equality.
        (is (apply #'noisy-set-equality
@@ -146,7 +175,7 @@
   (with-fixture hello
     (let ((it (read-gtirb *proto-path*)))
       (is (tree-equal
-           (mapcar [#'pb:string-value #'proto-v0:type-name #'gtirb::proto #'cdr]
+           (mapcar [#'pb:string-value #'proto:type-name #'gtirb::proto #'cdr]
                    (aux-data (first (modules it))))
            (mapcar [#'gtirb::aux-data-type-print #'aux-data-type #'cdr]
                    (aux-data (first (modules it))))
@@ -166,7 +195,7 @@
     (let ((hello (read-gtirb *proto-path*)))
       (mapc (lambda (pair)
               (destructuring-bind (name . aux-data) pair
-                (let ((orig (proto-v0:data (gtirb::proto aux-data)))
+                (let ((orig (proto:data (gtirb::proto aux-data)))
                       (new (gtirb::aux-data-encode
                             (aux-data-type aux-data) (aux-data-data aux-data))))
                   (is (equalp orig new)
@@ -189,9 +218,7 @@
      (let* ((next (read-gtirb path))
             (proto (gtirb::proto (first (modules next)))))
        ;; Test for non-empty protobuf elements.
-       (is (not (zerop (length (proto-v0:regions
-                                (proto-v0:byte-map
-                                 (proto-v0:image-byte-map proto)))))))
+       (is (not (zerop (length (proto:byte-intervals (aref (proto:sections proto) 0))))))
        ;; Test for the aux-data table created earlier in the test.
        (is (string= (aux-data-data
                      (cdr (assoc "test" (aux-data (first (modules next)))
@@ -212,9 +239,9 @@
   (proto:value (aref (proto:aux-data (aref (proto:modules ir) 0)) 0)))
 
 (deftest read-and-upgrade ()
-  (with-fixture hello
-    (let* ((old (gtirb/update::read-proto 'proto-v0:ir *proto-path*))
-           (new (gtirb/update::upgrade old)))
+  (with-fixture hello-v0
+    (let* ((old (read-proto 'proto-v0:ir *proto-path*))
+           (new (upgrade old)))
       (is (eql 'proto:ir (class-name (class-of new))))
       (is (eql 'proto:byte-interval
                (class-name (class-of
@@ -227,9 +254,9 @@
       new)))
 
 (deftest simple-update ()
-  (with-fixture hello
+  (with-fixture hello-v0
     (with-temporary-file (:pathname path)
       (update *proto-path* path)
-      (let ((new (gtirb/update::read-proto 'proto:ir path)))
+      (let ((new (read-proto 'proto:ir path)))
         (is (eql 'proto:ir (class-name (class-of new))))
         (is (not (emptyp (proto:data (first-aux-data new)))))))))

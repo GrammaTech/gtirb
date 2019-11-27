@@ -4,7 +4,7 @@
         :trivial-utf-8
         :named-readtables :curry-compose-reader-macros)
   (:shadow :symbol :block)
-  (:import-from :proto-v0)
+  (:import-from :proto)
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
                 :int->octets
@@ -13,42 +13,52 @@
                 :octets->uint64)
   (:export :read-gtirb
            :write-gtirb
+;;; Classes and fields.
+           ;; Module
            :module
            :name
            :binary-path
-           :preferred-addr
-           :rebase-delta
            :isa
            :file-format
-           :get-block
-           :edge-type
-           :edge-label
-           :conditional
-           :direct
-           :image-byte-map
-           :addr-min
-           :addr-max
-           :base-address
-           :entry-point-address
-           :regions
-           :aux-data
-           :aux-data-type
-           :aux-data-data
-           :blocks
-           :section
-           :sections
-           :address
-           :size
+           :preferred-addr
+           :rebase-delta
            :symbols
+           :cfg
+           :proxies
+           :sections
+           :aux-data
+           ;; Symbol
            :symbol
-           :symbolic-operands
            :value
            :referent-uuid
            :storage-kind
-           :proxies
+           ;; Section
+           :section
+           :byte-intervals
+           ;; Byte-Interval
+           :byte-interval
+           :blocks
+           :symbolic-expressions
+           :has-address
+           :address
+           :contents
+           :size
+           ;; Block
+           :gtirb-block
+           :code-block
+           :data-block
+           ;; Edge-Label
+           :edge-label
+           :conditional
+           :direct
+           :edge-type
+           ;; Aux-Data
+           :aux-data-type
+           :aux-data-data
+           ;; gtirb
            :modules
-           :cfg
-           :gtirb
+;;; Additional methods.
+           :get-block
            :update-proto))
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
@@ -58,7 +68,7 @@
   (assert (probe-file path) (path)
           "Can't read GTIRB from ~s, because the file doesn't exist."
           path)
-  (let ((gtirb (make-instance 'proto-v0:ir)))
+  (let ((gtirb (make-instance 'proto:ir)))
     (with-open-file (input path
                            :direction :input :element-type 'unsigned-byte)
       (let* ((size (file-length input))
@@ -106,12 +116,12 @@ Should not need to be manipulated by client code.")
           (destructuring-bind
                 (name &key type documentation enumeration (proto-field name)
                       &allow-other-keys) pair)
-          (let ((base `(,(intern (symbol-name proto-field) 'proto-v0)
+          (let ((base `(,(intern (symbol-name proto-field) 'proto)
                          (proto obj)))))
           `((defmethod ,name ((obj ,class))
               ,@(when documentation (list documentation))
               ,(ecase type
-                 ((unsigned-byte-64 boolean) base)
+                 ((unsigned-byte-64 boolean bytes) base)
                  (enumeration `(cdr (assoc ,base ,enumeration)))
                  (uuid `(uuid-to-integer ,base))
                  (string `(pb:string-value ,base))))
@@ -119,38 +129,40 @@ Should not need to be manipulated by client code.")
               ,@(when documentation (list documentation))
               ,(ecase type
                  ((unsigned-byte-64 boolean) `(setf ,base new))
+                 (bytes `(setf ,base (force-byte-array new)))
                  (enumeration `(setf ,base (car (rassoc new ,enumeration))))
                  (uuid `(setf ,base (integer-to-uuid new)))
                  (string `(setf ,base (pb:string-field new)))))))
          proto-fields))))
 
+(defun force-byte-array (array)
+  (make-array (length array) :element-type '(unsigned-byte 8)
+              :initial-contents array))
+
 (define-constant +module-isa-map+
-    '((#.proto-v0:+isaid-isa-undefined+ . :undefined)
-      (#.proto-v0:+isaid-ia32+ . :ia32)
-      (#.proto-v0:+isaid-ppc32+ . :ppc32)
-      (#.proto-v0:+isaid-x64+ . :x64)
-      (#.proto-v0:+isaid-arm+ . :arm)
-      (#.proto-v0:+isaid-valid-but-unsupported+ . :valid-but-unsupported))
+    '((#.proto:+isaid-isa-undefined+ . :undefined)
+      (#.proto:+isaid-ia32+ . :ia32)
+      (#.proto:+isaid-ppc32+ . :ppc32)
+      (#.proto:+isaid-x64+ . :x64)
+      (#.proto:+isaid-arm+ . :arm)
+      (#.proto:+isaid-valid-but-unsupported+ . :valid-but-unsupported))
   :test #'equal)
 
 (define-constant +module-file-format-map+
-    '((#.proto-v0:+file-format-coff+ . :coff)
-      (#.proto-v0:+file-format-elf+ . :elf)
-      (#.proto-v0:+file-format-ida-pro-db32+ . :ida-pro-db32)
-      (#.proto-v0:+file-format-ida-pro-db64+ . :ida-pro-db64)
-      (#.proto-v0:+file-format-macho+ . :macho)
-      (#.proto-v0:+file-format-pe+ . :pe)
-      (#.proto-v0:+file-format-raw+ . :raw)
-      (#.proto-v0:+file-format-xcoff+ . :xcoff)
-      (#.proto-v0:+file-format-format-undefined+ . :format-undefined))
+    '((#.proto:+file-format-coff+ . :coff)
+      (#.proto:+file-format-elf+ . :elf)
+      (#.proto:+file-format-ida-pro-db32+ . :ida-pro-db32)
+      (#.proto:+file-format-ida-pro-db64+ . :ida-pro-db64)
+      (#.proto:+file-format-macho+ . :macho)
+      (#.proto:+file-format-pe+ . :pe)
+      (#.proto:+file-format-raw+ . :raw)
+      (#.proto:+file-format-xcoff+ . :xcoff)
+      (#.proto:+file-format-format-undefined+ . :format-undefined))
   :test #'equal)
 
-(define-proto-backed-class (module proto-v0:module) ()
+(define-proto-backed-class (module proto:module) ()
     ((cfg :accessor cfg :type cfg
           :documentation "Control flow graph (CFG) keyed by UUID.")
-     (blocks :accessor blocks :type hash-table
-             :initform (make-hash-table)
-             :documentation "Hash of code and data blocks keyed by UUID.")
      (proxies :accessor proxies :type hash-table
               :initform (make-hash-table)
               :documentation
@@ -158,17 +170,10 @@ Should not need to be manipulated by client code.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
               :documentation "Hash of symbols keyed by UUID.")
-     (symbolic-operands :accessor symbolic-operands :type hash-table
-                        :initform (make-hash-table)
-                        :documentation "Hash of symbolic-operands keyed by UUID.")
      (sections :accessor sections :type (list section)
                :documentation "Loadable sections.")
      (aux-data :accessor aux-data :type (list aux-data)
-               :documentation "Auxiliary data objects.")
-     (image-byte-map
-      :accessor image-byte-map :type (list image-byte-map)
-      :documentation
-      "Collection of bytes in regions keyed by starting address."))
+               :documentation "Auxiliary data objects."))
     ((name :type string)
      (binary-path :type string)
      (preferred-addr :type unsigned-byte-64)
@@ -178,42 +183,92 @@ Should not need to be manipulated by client code.")
   (:documentation "Module of a GTIRB IR."))
 
 (define-constant +symbol-storage-kind+
-    '((#.proto-v0:+storage-kind-storage-undefined+ . :undefined)
-      (#.proto-v0:+storage-kind-storage-normal+ . :normal)
-      (#.proto-v0:+storage-kind-storage-static+ . :static)
-      (#.proto-v0:+storage-kind-storage-extern+ . :extern)
-      (#.proto-v0:+storage-kind-storage-local+ . :local))
+    '((#.proto:+storage-kind-storage-undefined+ . :undefined)
+      (#.proto:+storage-kind-storage-normal+ . :normal)
+      (#.proto:+storage-kind-storage-static+ . :static)
+      (#.proto:+storage-kind-storage-extern+ . :extern)
+      (#.proto:+storage-kind-storage-local+ . :local))
   :test #'equal)
 
-(define-proto-backed-class (symbol proto-v0:symbol) () ()
+(define-proto-backed-class (symbol proto:symbol) () ()
     ((name :type string)
      (value :type unsigned-byte-64)
-     ;; TODO: Just hold the referent directly.
-     (referent-uuid :type uuid)
+     (referent-uuid :type uuid) ; TODO: Just hold the referent directly.
      (storage-kind :type enumeration :enumeration +symbol-storage-kind+))
-  (:documentation "Symbol."))
+  (:documentation
+   "Symbol with it's NAME, STORAGE-KIND, and either VALUE or REFERENT."))
 
 (defmethod print-object ((obj symbol) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (name obj) (storage-kind obj))))
 
-(define-proto-backed-class (section proto-v0:section) () ()
-    ((name :type string)
-     (address :type unsigned-byte-64)
-     (size :type unsigned-byte-64))
+(define-proto-backed-class (section proto:section) ()
+    ((byte-intervals :accessor byte-intervals :type (list byte-interval)
+                     :documentation "Byte-intervals."))
+    ((name :type string))
   (:documentation "Loadable section of a GTIRB IR module."))
 
 (defmethod print-object ((obj section) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~a" (name obj) (address obj) (size obj))))
 
+(defmethod initialize-instance :after ((obj section) &key)
+  (setf (byte-intervals obj) (map 'list {make-instance 'byte-interval :proto}
+                                  (proto:intervals (proto obj)))))
+
+(define-proto-backed-class (byte-interval proto:byte-interval) ()
+    ;; TODO: What's a better data structure to use to store a sorted
+    ;;       collection of pairs which permits duplicates.  Maybe a
+    ;;       balanced tree.
+    ((blocks :accessor blocks :type (list (cons integer gtirb-block))
+             :documentation "Blocks under this byte-interval.")
+     (symbolic-expressions :accessor symbolic-expressions :type hash-table
+                           :initform (make-hash-table)
+                           :documentation "Hash of symbolic-expressions keyed by UUID."))
+    ((has-address :type boolean)
+     (address :type unsigned-byte-64)
+     (size :type unsigned-byte-64)
+     (contents :type bytes)))
+
+(defmethod print-object ((obj byte-interval) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~a"
+            (if (has-address obj) (address obj) "?")
+            (size obj))))
+
+(defmethod initialize-instance :after ((obj byte-interval) &key)
+  (setf (blocks obj)
+        (map 'list (lambda (proto-block)
+                     (cons (proto:offset proto-block)
+                           (let ((data (proto:data proto-block)))
+                             (etypecase data
+                               (proto:code-block
+                                (make-instance 'code-block :proto data))
+                               (proto:data-block
+                                (make-instance 'data-block :proto data))))))
+             (proto:blocks (proto obj))))
+  (setf (symbolic-expressions obj)
+        (map 'list {make-instance 'symbolic-expression :proto}
+             (proto:symbolic-expressions (proto obj)))))
+
+(defclass gtirb-block () ())
+
+(define-proto-backed-class (code-block proto:code-block) (gtirb-block)
+    ()
+    ((size :type unsigned-byte-64)
+     (decode-mode :type unsigned-byte-64)))
+
+(define-proto-backed-class (data-block proto:data-block) (gtirb-block)
+    ()
+    ((size :type unsigned-byte-64)))
+
 (defun aux-data-from-proto (proto)
-  (let ((p-aux-data (proto-v0:aux-data (proto-v0:aux-data-container proto)))
+  (let ((p-aux-data (proto:aux-data proto))
         (aux-data '()))
     (dotimes (n (length p-aux-data))
-      (push (cons (pb:string-value (proto-v0:key (aref p-aux-data n)))
+      (push (cons (pb:string-value (proto:key (aref p-aux-data n)))
                   (make-instance 'aux-data
-                    :proto (proto-v0:value (aref p-aux-data n))))
+                    :proto (proto:value (aref p-aux-data n))))
             aux-data))
     aux-data))
 
@@ -221,10 +276,9 @@ Should not need to be manipulated by client code.")
   (map 'vector (lambda (pair)
                  (destructuring-bind (name . aux-data) pair
                    (let ((entry
-                          (make-instance
-                              'proto-v0:aux-data-container-aux-data-entry)))
-                     (setf (proto-v0:key entry) (pb:string-field name)
-                           (proto-v0:value entry) (proto aux-data))
+                          (make-instance 'proto:module-aux-data-entry)))
+                     (setf (proto:key entry) (pb:string-field name)
+                           (proto:value entry) (proto aux-data))
                      entry)))
        aux-data))
 
@@ -233,71 +287,60 @@ Should not need to be manipulated by client code.")
   "Create a hash-table keyed by UUID from a array of protobuf objects."
   (let ((all (apply #'concatenate 'vector protos more-protos)))
     (dotimes (n (length all) result)
-      (setf (gethash (uuid-to-integer (proto-v0:uuid (aref all n))) result)
+      (setf (gethash (uuid-to-integer (proto:uuid (aref all n))) result)
             (aref all n)))))
 
-(defun hash-table-to-proto (hash-table &optional filter)
+(defun hash-table-to-proto (hash-table)
   "Convert a hash-table keyed by UUID to a array for protobuf."
-  (if filter
-      (coerce (remove-if-not filter (hash-table-values hash-table)) 'vector)
-      (coerce (hash-table-values hash-table) 'vector)))
+  (coerce (hash-table-values hash-table) 'vector))
 
 (defmethod initialize-instance :after ((obj module) &key)
-  (setf (image-byte-map obj) ; Unpack the image-byte-map.
-        (make-instance 'image-byte-map
-          :proto (proto-v0:image-byte-map (proto obj))))
+  (setf (proxies obj) (hash-table-from-proto (proto:proxies (proto obj))))
+  ;; Aux-Data.
   (setf (aux-data obj) (aux-data-from-proto (proto obj)))
-  (setf (proxies obj) (hash-table-from-proto (proto-v0:proxies (proto obj))))
-  ;; Package the blocks into a has keyed by UUID.
-  (setf (blocks obj) (hash-table-from-proto
-                      (proto-v0:blocks (proto obj)) (proto-v0:data (proto obj))))
   ;; Sections.
-  (setf (sections obj)
-        (map 'list {make-instance 'section :proto}
-             (proto-v0:sections (proto obj))))
+  (setf (sections obj) (map 'list {make-instance 'section :proto}
+                            (proto:sections (proto obj))))
   ;; Symbols.
-  (setf (symbols obj)
-        (map 'list {make-instance 'symbol :proto}
-             (proto-v0:symbols (proto obj))))
-  ;; Symbolic Operands.
-  (setf (symbolic-operands obj)
-        (let ((p-sym-ops (proto-v0:symbolic-operands (proto obj)))
-              (sym-ops-h (make-hash-table)))
-          (dotimes (n (length p-sym-ops))
-            (let ((p-sym-op (aref p-sym-ops n)))
-              (setf (gethash (proto-v0:key p-sym-op) sym-ops-h)
-                    (proto-v0:value p-sym-op))))
-          sym-ops-h))
+  (setf (symbols obj) (map 'list {make-instance 'symbol :proto}
+                           (proto:symbols (proto obj))))
   ;; Build the CFG as a lisp graph.
   (nest
    (with-slots (cfg) obj)
-   (let ((p-cfg (proto-v0:cfg (proto obj)))))
+   (let ((p-cfg (proto:cfg (proto obj)))))
    (setf cfg)
    (populate
     (make-instance 'digraph)
     :edges-w-values
     (mapcar (lambda (edge)
-              (list (list (uuid-to-integer (proto-v0:source-uuid edge))
-                          (uuid-to-integer (proto-v0:target-uuid edge)))
-                    (make-instance 'edge-label :proto (proto-v0:label edge))))
-            (coerce (proto-v0:edges p-cfg) 'list))
-    :nodes (map 'list  #'uuid-to-integer (proto-v0:vertices p-cfg)))))
+              (list (list (uuid-to-integer (proto:source-uuid edge))
+                          (uuid-to-integer (proto:target-uuid edge)))
+                    (make-instance 'edge-label :proto (proto:label edge))))
+            (coerce (proto:edges p-cfg) 'list))
+    :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
 
-(defmethod get-block ((uuid simple-array) (obj module))
-  (get-block (uuid-to-integer uuid) obj))
+(defgeneric get-block (uuid object)
+  ;; TODO: Implement this for modules, sections, and byte-intervals.
+  ;;       Consider if everything having to do with UUIDs should be
+  ;;       hidden from the user so you only access blocks through
+  ;;       iteration over sections and through the CFG.
+  (:documentation "Return the block keyed by UUID in OBJECT.")
+  (:method ((uuid simple-array) (obj module))
+    (get-block (uuid-to-integer uuid) obj))
+  (:method ((uuid integer) (obj module))
+    (gethash uuid (blocks obj))))
 
 (defmethod (setf get-block) (new (uuid simple-array) (obj module))
   (setf (get-block (uuid-to-integer uuid) obj) new))
-
-(defmethod get-block ((uuid integer) (obj module))
-  (gethash uuid (blocks obj)))
 
 (defmethod (setf get-block) (new (uuid integer) (obj module))
   (setf (gethash uuid (blocks obj)) new))
 
 (defun uuid-to-integer (uuid)
   (if (emptyp uuid)
-      0         ; NOTE: The referent-uuid of a symbol can be #(). Bug?
+      0           ; TODO: Needed when referent-uuid of a symbol can be
+                                        ;        #().  Remove this case and instead stop
+                                        ;        processing missing referent-uuids.
       (octets->int
        (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
        16)))
@@ -310,15 +353,15 @@ Should not need to be manipulated by client code.")
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
 (define-constant +edge-label-type-map+
-    '((#.proto-v0:+edge-type-type-branch+ . :branch)
-      (#.proto-v0:+edge-type-type-call+ . :call)
-      (#.proto-v0:+edge-type-type-fallthrough+ . :fallthrough)
-      (#.proto-v0:+edge-type-type-return+ . :return)
-      (#.proto-v0:+edge-type-type-syscall+ . :syscall)
-      (#.proto-v0:+edge-type-type-sysret+ . :sysret))
+    '((#.proto:+edge-type-type-branch+ . :branch)
+      (#.proto:+edge-type-type-call+ . :call)
+      (#.proto:+edge-type-type-fallthrough+ . :fallthrough)
+      (#.proto:+edge-type-type-return+ . :return)
+      (#.proto:+edge-type-type-syscall+ . :syscall)
+      (#.proto:+edge-type-type-sysret+ . :sysret))
   :test #'equal)
 
-(define-proto-backed-class (edge-label proto-v0:edge-label) () ()
+(define-proto-backed-class (edge-label proto:edge-label) () ()
     ((conditional :type boolean)
      (direct :type boolean)
      (edge-type :type enumeration :enumeration +edge-label-type-map+
@@ -332,33 +375,35 @@ Should not need to be manipulated by client code.")
             (if (conditional obj) :conditional :unconditional)
             (if (direct obj) :direct :undirect))))
 
-(define-proto-backed-class (image-byte-map proto-v0:image-byte-map) ()
-    ((regions :initarg regions :accessor regions :initform nil
-              :type (list (cons (unsigned-byte 64)
-                                (simple-array (unsigned-byte 8) (*))))
-              :documentation "Alist of the regions keyed by starting address."))
-    ((addr-min :type unsigned-byte-64)
-     (addr-max :type unsigned-byte-64)
-     (base-address :type unsigned-byte-64)
-     (entry-point-address :type unsigned-byte-64))
-  (:documentation "Bytes of the memory image, as a list of regions."))
+(define-proto-backed-class (aux-data proto:aux-data) () () ())
 
-(defmethod initialize-instance :after ((obj image-byte-map) &key)
-  (let ((p-regions (proto-v0:regions (proto-v0:byte-map (proto obj))))
-        results)
-    (dotimes (n (length p-regions) results)
-      (let ((p-region (aref p-regions n)))
-        (push (cons (proto-v0:address p-region) (proto-v0:data p-region))
-              results)))
-    (setf (regions obj) (nreverse results))))
+(define-proto-backed-class (gtirb proto:ir) ()
+    ((modules :initarg modules :accessor modules :type (list module)
+              :initform nil
+              :documentation "List of the modules on an IR.")
+     (aux-data :accessor aux-data :type (list aux-data)
+               :documentation "Auxiliary data objects on the IR.
+The modules of the IR will often also hold auxiliary data objects."))
+    ()
+  (:documentation "Base class of an instance of GTIRB IR."))
 
-(defmethod print-object ((obj image-byte-map) (stream stream))
+(defmethod (setf modules) :after (new (obj gtirb))
+  (setf (proto:modules (proto obj))
+        (coerce (mapcar #'proto (modules obj)) 'vector)))
+
+(defmethod initialize-instance :after ((obj gtirb) &key)
+  (setf (aux-data obj) (aux-data-from-proto (proto obj)))
+  (with-slots (modules) obj
+    (setf modules (mapcar (lambda (module-proto)
+                            (make-instance 'module :proto module-proto))
+                          (coerce (proto:modules (proto obj)) 'list)))))
+
+(defmethod print-object ((obj gtirb) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a to ~a in ~a regions"
-            (addr-min obj) (addr-max obj) (length (regions obj)))))
+    (format stream "~a" (modules obj))))
 
-(define-proto-backed-class (aux-data proto-v0:aux-data) () () ())
-
+
+;;;; AuxData type and data handling.
 (defmacro start-case (string &body body)
   `(progn
      ;; (declare (type string ,string))
@@ -413,7 +458,7 @@ Should not need to be manipulated by client code.")
       (t (error "Junk in type string ~a" type-string)))))
 
 (defmethod aux-data-type ((obj aux-data))
-  (first (aux-data-type-read (pb:string-value (proto-v0:type-name (proto obj))))))
+  (first (aux-data-type-read (pb:string-value (proto:type-name (proto obj))))))
 
 (defun aux-data-type-print (aux-data-type)
   (when aux-data-type
@@ -446,14 +491,14 @@ Should not need to be manipulated by client code.")
           (:int64-t "int64_t")))))
 
 (defmethod (setf aux-data-type) (new (obj aux-data))
-  (setf (proto-v0:type-name (proto obj))
+  (setf (proto:type-name (proto obj))
         (pb:string-field (aux-data-type-print new))))
 
 (defmethod aux-data-data ((obj aux-data))
-  (aux-data-decode (aux-data-type obj) (proto-v0:data (proto obj))))
+  (aux-data-decode (aux-data-type obj) (proto:data (proto obj))))
 
 (defmethod (setf aux-data-data) (new (obj aux-data))
-  (setf (proto-v0:data (proto obj))
+  (setf (proto:data (proto obj))
         (let ((result (aux-data-encode (aux-data-type obj) new)))
           (make-array (length result)
                       :element-type '(unsigned-byte 8)
@@ -532,31 +577,8 @@ Should not need to be manipulated by client code.")
     (encode type data)
     (reduce {concatenate 'vector} (reverse *decode-data*))))
 
-(define-proto-backed-class (gtirb proto-v0:ir) ()
-    ((modules :initarg modules :accessor modules :type (list module)
-              :initform nil
-              :documentation "List of the modules on an IR.")
-     (aux-data :accessor aux-data :type (list aux-data)
-               :documentation "Auxiliary data objects on the IR.
-The modules of the IR will often also hold auxiliary data objects."))
-    ()
-  (:documentation "Base class of an instance of GTIRB IR."))
-
-(defmethod (setf modules) :after (new (obj gtirb))
-  (setf (proto-v0:modules (proto obj))
-        (coerce (mapcar #'proto (modules obj)) 'vector)))
-
-(defmethod initialize-instance :after ((obj gtirb) &key)
-  (setf (aux-data obj) (aux-data-from-proto (proto obj)))
-  (with-slots (modules) obj
-    (setf modules (mapcar (lambda (module-proto)
-                            (make-instance 'module :proto module-proto))
-                          (coerce (proto-v0:modules (proto obj)) 'list)))))
-
-(defmethod print-object ((obj gtirb) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a" (modules obj))))
-
+
+;;;; Protobuf Serialization
 (defgeneric update-proto (object)
   (:documentation
    "Dump an updated protocol buffer for OBJECT.
@@ -566,65 +588,47 @@ against the protocol buffer object before it is returned.  We could
 incrementally synchronize everything to the backing protocol buffer,
 but that would likely get expensive.")
   (:method ((obj gtirb))
-    (setf (proto-v0:modules (proto obj))   ; Modules.
+    (setf (proto:modules (proto obj))   ; Modules.
           (map 'vector [#'proto #'update-proto] (modules obj))
-          (proto-v0:aux-data (proto-v0:aux-data-container (proto obj))) ; Aux data.
+          (proto:aux-data (proto obj)) ; Aux data.
           (aux-data-to-proto (aux-data obj))))
   (:method ((obj module))
     (setf
-     ;; Repackage the ImageByteMap.
-     (proto-v0:regions (proto-v0:byte-map (proto (image-byte-map obj))))
-     (map 'vector (lambda (region)
-                    (let ((p-region (make-instance 'proto-v0:region)))
-                      (setf (proto-v0:address p-region) (car region)
-                            (proto-v0:data p-region) (cdr region))
-                      p-region))
-          (regions (image-byte-map obj)))
      ;; Repackage the AuxData into a vector.
-     (proto-v0:aux-data (proto-v0:aux-data-container (proto obj)))
+     (proto:aux-data (proto obj))
      (aux-data-to-proto (aux-data obj))
      ;; Repackage the proxies into a vector.
-     (proto-v0:proxies (proto obj)) (hash-table-to-proto (proxies obj))
-     ;; Repackage the blocks back into a vector.
-     (proto-v0:blocks (proto obj))
-     (hash-table-to-proto (blocks obj) [{eql 'proto-v0:block} #'type-of])
-     (proto-v0:data (proto obj))
-     (hash-table-to-proto (blocks obj) [{eql 'proto-v0:data-object} #'type-of])
+     (proto:proxies (proto obj)) (hash-table-to-proto (proxies obj))
      ;; Repackage the sections back into a vector.
-     (proto-v0:sections (proto obj))
+     (proto:sections (proto obj))
      (map 'vector #'proto (sections obj))
      ;; Repackage the symbols back into a vector.
-     (proto-v0:symbols (proto obj))
+     (proto:symbols (proto obj))
      (map 'vector #'proto (symbols obj))
-     ;; Repackage the symbolic operands.
-     (proto-v0:symbolic-operands (proto obj))
-     (map 'vector
-          (lambda (pair)
-            (destructuring-bind (key . value) pair
-              (let ((sym-op-entry
-                     (make-instance 'proto-v0:module-symbolic-operands-entry)))
-                (setf (proto-v0:key sym-op-entry) key
-                      (proto-v0:value sym-op-entry) value)
-                sym-op-entry)))
-          (hash-table-alist (symbolic-operands obj)))
      ;; Unpack the graph back into the proto structure.
-     (proto-v0:cfg (proto obj))
-     (let ((p-cfg (make-instance 'proto-v0:cfg)))
-       (setf (proto-v0:vertices p-cfg)
+     (proto:cfg (proto obj))
+     (let ((p-cfg (make-instance 'proto:cfg)))
+       (setf (proto:vertices p-cfg)
              (map 'vector #'integer-to-uuid (nodes (cfg obj)))
-             (proto-v0:edges p-cfg)
+             (proto:edges p-cfg)
              (map 'vector
                   (lambda (edge)
                     (destructuring-bind ((source target) label) edge
-                      (let ((p-edge (make-instance 'proto-v0:edge)))
+                      (let ((p-edge (make-instance 'proto:edge)))
                         (setf
-                         (proto-v0:source-uuid p-edge) (integer-to-uuid source)
-                         (proto-v0:target-uuid p-edge) (integer-to-uuid target)
-                         (proto-v0:label p-edge) (proto label))
+                         (proto:source-uuid p-edge) (integer-to-uuid source)
+                         (proto:target-uuid p-edge) (integer-to-uuid target)
+                         (proto:label p-edge) (proto label))
                         p-edge)))
                   (edges-w-values (cfg obj))))
        p-cfg))
-    obj))
+    obj)
+  (:method ((obj byte-interval))
+    ;; Repackage the blocks back into a vector.
+    (proto:blocks (proto obj))
+    (hash-table-to-proto (blocks obj))
+    (proto:symbolic-expressions (proto obj))
+    (hash-table-to-proto (symbolic-expressions obj))))
 
 (defun read-gtirb (path)
   (make-instance 'gtirb :proto (read-proto path)))
@@ -632,63 +636,3 @@ but that would likely get expensive.")
 (defun write-gtirb (gtirb path)
   (update-proto gtirb)
   (write-proto (proto gtirb) path))
-
-#+(or )
-(progn
-  (defclass byte-interval ()
-    ((bytes
-      :accessor bytes
-      :initform (make-array 0 :element-type '(unsigned-byte 8))
-      :type (simple-array (unsigned-byte 8) (*)))
-     (uuid
-      :accessor uuid
-      ;; In real life this would be random.
-      :initform (make-array 0 :element-type '(unsigned-byte 8))
-      :type (simple-array (unsigned-byte 8) (*)))))
-
-  (defclass block ()
-    ((uuid
-      :accessor uuid
-      ;; In real life this would be random.
-      :initform (make-array 0 :element-type '(unsigned-byte 8))
-      :type (simple-array (unsigned-byte 8) (*)))))
-
-  (defclass cfg-node (block) ())
-
-  (defclass byte-block (block)
-    ((byte-interval-uuid
-      :accessor byte-interval-uuid
-      :initform (uuid (make-instance 'byte-interval))
-      :type (simple-array (unsigned-byte 8) (*)))
-     (byte-offset
-      :accessor byte-offset
-      :initform 0
-      :type fixnum)))
-
-  (defclass data-block (byte-block) ())
-  (defclass code-block (cfg-node byte-block) ())
-
-  ;; GTIRB> (describe (make-instance 'data-block))
-  ;; #<DATA-BLOCK {10056207F3}>
-  ;;   [standard-object]
-  ;;
-  ;; Slots with :INSTANCE allocation:
-  ;;   UUID                           = #()
-  ;;   BYTE-INTERVAL-UUID             = #()
-  ;;   BYTE-OFFSET                    = 0
-  ;; ; No value
-  ;; GTIRB> (describe (make-instance 'code-block))
-  ;; #<CODE-BLOCK {1005624343}>
-  ;;   [standard-object]
-  ;;
-  ;; Slots with :INSTANCE allocation:
-  ;;   UUID                           = #()
-  ;;   BYTE-INTERVAL-UUID             = #()
-  ;;   BYTE-OFFSET                    = 0
-  ;; ; No value
-  ;; GTIRB> (subclassp (find-class 'code-block) (find-class 'cfg-node))
-  ;; T
-  ;; GTIRB> (subclassp (find-class 'data-block) (find-class 'cfg-node))
-  ;; NIL
-  ;; GTIRB>
-  )
