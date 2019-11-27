@@ -68,7 +68,7 @@
         (size (proto-v0::size section)))
     (setf (proto::address new) address
           (proto::size new) size
-          (proto::bytes new)
+          (proto::contents new)
           (module-bytes-subseq module address (+ address size))
           (proto::symbolic-expressions new)
           (map 'vector {upgrade _ :base address}
@@ -78,14 +78,18 @@
           (map 'vector (lambda (block)
                          (etypecase block
                            (proto-v0::block
-                               (let ((it (make-instance 'proto::block-wrapper)))
-                                 (setf (proto:code-block it)
-                                       (upgrade block :base address))
+                               (let ((it (make-instance 'proto::block)))
+                                 (setf (proto:code it)
+                                       (upgrade block)
+                                       (proto:offset it)
+                                       (- (proto-v0:address block) address))
                                  it))
                            (proto-v0::data-object
-                            (let ((it (make-instance 'proto::block-wrapper)))
-                              (setf (proto:data-block it)
-                                    (upgrade block :base address))
+                            (let ((it (make-instance 'proto::block)))
+                              (setf (proto:data it)
+                                    (upgrade block :base address)
+                                    (proto:offset it)
+                                    (- (proto-v0:address block) address))
                               it))))
                (remove-if-not
                 (lambda (block)
@@ -97,7 +101,7 @@
                              (proto-v0::data module))))))
   (coerce (list new) 'vector))
 
-(defun entry-point-block (module)
+(defun entry-point (module)
   (let ((address (proto-v0::entry-point-address
                   (proto-v0::image-byte-map module))))
     (proto-v0::uuid
@@ -122,7 +126,7 @@
   (:method ((old proto-v0::ir) &key &allow-other-keys
             &aux (new (make-instance 'proto::ir)))
     (setf (proto::uuid new) (proto-v0::uuid old)
-          (proto::version new) (pb:string-field "1.0.0")
+          (proto::version new) 1
           (proto::aux-data new) (upgrade (proto-v0::aux-data-container old)
                                          :new-class 'proto:ir-aux-data-entry)
           (proto::modules new) (upgrade (proto-v0::modules old)))
@@ -136,7 +140,7 @@
                                          :new-class 'proto:module-aux-data-entry)
           (proto::sections new) (map 'vector {upgrade _ :module old}
                                      (proto-v0::sections old))
-          (proto:entry-point-block new) (entry-point-block old))
+          (proto:entry-point new) (entry-point old))
     new)
   (:method ((old proto-v0::aux-data-container) &key new-class &allow-other-keys)
     (map 'vector (lambda (entry)
@@ -145,14 +149,14 @@
                            (proto:value it) (upgrade (proto-v0:value entry)))
                      it))
          (proto-v0::aux-data old)))
-  (:method ((old proto-v0::aux-data) &key module &allow-other-keys
+  (:method ((old proto-v0::aux-data) &key &allow-other-keys
             &aux (new (make-instance 'proto::aux-data)))
     (transfer-fields new old type-name data)
     new)
   (:method ((old proto-v0::section) &key module &allow-other-keys
             &aux (new (make-instance 'proto::section)))
     (transfer-fields new old uuid name)
-    (setf (proto::byte-intervals new) (byte-interval module old))
+    (setf (proto::intervals new) (byte-interval module old))
     new)
   (:method ((old proto-v0:edge-label) &key &allow-other-keys
             &aux (new (make-instance 'proto:edge-label)))
@@ -204,15 +208,13 @@
             &aux (new (make-instance 'proto:sym-addr-addr)))
     (transfer-fields new old scale offset symbol1-uuid symbol2-uuid)
     new)
-  (:method ((old proto-v0::block) &key base &allow-other-keys
+  (:method ((old proto-v0::block) &key &allow-other-keys
             &aux (new (make-instance 'proto:code-block)))
     (transfer-fields new old uuid size decode-mode)
-    (setf (proto::offset new) (- (proto-v0:address old) base))
     new)
-  (:method ((old proto-v0::data-object) &key base &allow-other-keys
+  (:method ((old proto-v0::data-object) &key &allow-other-keys
             &aux (new (make-instance 'proto:data-block)))
     (transfer-fields new old uuid size)
-    (setf (proto::offset new) (- (proto-v0:address old) base))
     new))
 
 (define-command update (input-file output-file &spec +udpate-args+)

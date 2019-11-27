@@ -218,7 +218,7 @@
       (is (eql 'proto:ir (class-name (class-of new))))
       (is (eql 'proto:byte-interval
                (class-name (class-of
-                            (aref (proto:byte-intervals
+                            (aref (proto:intervals
                                    (aref (proto:sections
                                           (aref (proto:modules new)
                                                 0)) 0)) 0)))))
