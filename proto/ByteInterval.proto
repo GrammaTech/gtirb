@@ -19,13 +19,20 @@ import "CodeBlock.proto";
 import "DataBlock.proto";
 import "SymbolicExpression.proto";
 
+message Block {
+    uint64 offset = 1;
+    oneof value {
+        CodeBlock code = 2;
+        DataBlock data = 3;
+    }
+}
+
 message ByteInterval {
     bytes uuid = 1;
-    repeated CodeBlock code_blocks = 2;
-    repeated DataBlock data_blocks = 3;
-    repeated SymbolicExpression symbolic_expressions = 4;
-    bool has_address = 5;
-    uint64 address = 6;
-    uint64 size = 7;
-    bytes contents = 8;
+    repeated Block blocks = 2;
+    map<uint64, SymbolicExpression> symbolic_expressions = 3;
+    bool has_address = 4;
+    uint64 address = 5;
+    uint64 size = 6;
+    bytes contents = 7;
 }

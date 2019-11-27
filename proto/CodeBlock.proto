@@ -22,5 +22,4 @@ message CodeBlock {
     bytes uuid = 1;
     uint64 size = 3;
     uint64 decode_mode = 4;
-    uint64 offset = 5;
 }

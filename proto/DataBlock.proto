@@ -21,5 +21,4 @@ message DataBlock {
 
     bytes uuid = 1;
     uint64 size = 3;
-    uint64 offset = 4;
 }
