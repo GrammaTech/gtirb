@@ -6,7 +6,7 @@
         :command-line-arguments)
   (:import-from :proto)
   (:import-from :proto-v0)
-  (:export :update))
+  (:export :update :upgrade :read-proto :write-proto))
 (in-package :gtirb/update)
 (in-readtable :curry-compose-reader-macros)
 
