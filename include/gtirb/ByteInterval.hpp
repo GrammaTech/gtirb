@@ -50,7 +50,7 @@ class Block {
   Node* node;
 
 public:
-  template <typename T> Block(uint64_t o, Node* n) : offset(o), node(n) {}
+  Block(uint64_t o, Node* n) : offset(o), node(n) {}
 
   uint64_t getOffset() const { return offset; }
 

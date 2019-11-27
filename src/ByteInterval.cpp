@@ -13,11 +13,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/ByteInterval.hpp>
+#include <gtirb/Serialization.hpp>
 #include <proto/ByteInterval.pb.h>
 
 using namespace gtirb;
 
 void ByteInterval::toProtobuf(MessageType* Message) const {
+  nodeUUIDToBytes(this, *Message->mutable_uuid());
+
   if (Address.has_value()) {
     Message->set_has_address(true);
     Message->set_address((uint64_t)*Address);
@@ -27,6 +30,30 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
 
   Message->set_size(Size);
   std::copy(Bytes.begin(), Bytes.end(), Message->mutable_contents()->begin());
+
+  for (const auto& block : this->blocks()) {
+    auto proto_block = Message->add_blocks();
+    auto node = block.getNode();
+
+    proto_block->set_offset(block.getOffset());
+    switch (node->getKind()) {
+    case Node::Kind::CodeBlock: {
+      cast<CodeBlock>(node)->toProtobuf(proto_block->mutable_code());
+    } break;
+    case Node::Kind::DataBlock: {
+      cast<DataBlock>(node)->toProtobuf(proto_block->mutable_data());
+    } break;
+    default: {
+      throw std::runtime_error(
+          "unknown Node::Kind in ByteInterval::toProtobuf");
+    }
+    }
+  }
+
+  auto& proto_symbolic_expressions = *Message->mutable_symbolic_expressions();
+  for (const auto& pair : this->symbolic_expressions()) {
+    proto_symbolic_expressions[pair.first] = gtirb::toProtobuf(pair.second);
+  }
 }
 
 ByteInterval* ByteInterval::fromProtobuf(Context& C,
@@ -34,7 +61,36 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C,
   auto addr = Message.has_address() ? std::optional<Addr>{Message.address()}
                                     : std::optional<Addr>{};
   ByteInterval* result = ByteInterval::Create(C, addr, Message.size());
+
+  setNodeUUIDFromBytes(result, Message.uuid());
+
   std::copy(Message.contents().begin(), Message.contents().end(),
             result->getBytes().begin());
+
+  for (const auto& proto_block : Message.blocks()) {
+    Node* node;
+
+    switch (proto_block.value_case()) {
+    case proto::Block::ValueCase::kCode: {
+      node = CodeBlock::fromProtobuf(C, proto_block.code());
+    } break;
+    case proto::Block::ValueCase::kData: {
+      node = DataBlock::fromProtobuf(C, proto_block.data());
+    } break;
+    default: {
+      throw std::runtime_error(
+          "unknown Block::ValueCase in ByteInterval::fromProtobuf");
+    }
+    }
+
+    result->Blocks.emplace(proto_block.offset(), node);
+  }
+
+  for (const auto& pair : Message.symbolic_expressions()) {
+    SymbolicExpression sym_expr;
+    gtirb::fromProtobuf(C, sym_expr, pair.second);
+    result->SymbolicExpressions[pair.first] = sym_expr;
+  }
+
   return result;
 }
