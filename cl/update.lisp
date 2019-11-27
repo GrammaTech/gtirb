@@ -4,6 +4,8 @@
         :named-readtables
         :curry-compose-reader-macros
         :command-line-arguments)
+  (:import-from :proto)
+  (:import-from :proto-v0)
   (:export :update))
 (in-package :gtirb/update)
 (in-readtable :curry-compose-reader-macros)
@@ -38,22 +40,27 @@
       (write-sequence buffer output)))
   (values))
 
+(defun force-byte-array (array)
+  (make-array (length array) :element-type '(unsigned-byte 8)
+              :initial-contents array))
+
 (defun module-bytes-subseq (module start end &aux (results #()))
   (let ((regions (proto-v0:regions (proto-v0:byte-map
                                     (proto-v0::image-byte-map module)))))
-    (dotimes (n (length regions) results)
-      (let* ((region (aref regions n))
-             (address (proto-v0:address region))
-             (size (length (proto-v0:data region))))
-        (cond
-          ((and (<= address start) (<= start (+ address size)))
-           (setf results (concatenate 'vector
-                                      results
-                                      (subseq (proto-v0:data region)
-                                              (- start address)
-                                              (min size (- end address)))))
-           (setf start (min end (+ address size))))
-          ((= start end) (return-from module-bytes-subseq results)))))))
+    (force-byte-array
+     (dotimes (n (length regions) results)
+       (let* ((region (aref regions n))
+              (address (proto-v0:address region))
+              (size (length (proto-v0:data region))))
+         (cond
+           ((and (<= address start) (<= start (+ address size)))
+            (setf results (concatenate 'vector
+                                       results
+                                       (subseq (proto-v0:data region)
+                                               (- start address)
+                                               (min size (- end address)))))
+            (setf start (min end (+ address size))))
+           ((= start end) (return results))))))))
 
 (defun byte-interval (module section
                       &aux (new (make-instance 'proto:byte-interval)))
@@ -109,8 +116,7 @@
   (:method ((old t) &key &allow-other-keys) old)
   (:method ((old array) &key  &allow-other-keys)
     (if (every #'numberp old)
-        (make-array (length old) :element-type '(unsigned-byte 8)
-                    :initial-contents old)
+        (force-byte-array old)
         (map 'vector #'upgrade old)))
   (:method ((old proto-v0::ir) &key &allow-other-keys
             &aux (new (make-instance 'proto::ir)))
