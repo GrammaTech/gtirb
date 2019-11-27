@@ -1,7 +1,9 @@
 (defpackage :gtirb/dot
   (:use :common-lisp :alexandria :graph :graph/dot :gtirb
+        :command-line-arguments
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
+  (:import-from :proto-v0 :ir)
   (:shadowing-import-from :gtirb :symbol)
   (:export :to-dot :to-dot-file))
 (in-package :gtirb/dot)
@@ -19,3 +21,13 @@
   (apply #'to-dot (cfg obj)
          :edge-attrs (list (cons :label {dot-edge-label (cfg obj)}))
          rest))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter +udpate-args+
+    '((("help" #\h #\?) :type boolean :optional t
+       :documentation "display help output"))))
+
+(define-command dot (gtirb-file dot-file)
+  "Write first GTIRB module in GTIRB-FILE to DOT-FILE." ""
+  (when help (show-help-for-dot) (sb-ext:quit))
+  (to-dot-file (first (modules (read-gtirb gtirb-file))) path))

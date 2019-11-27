@@ -74,9 +74,19 @@
     :build-pathname "gtirb-update"
     :entry-point "gtirb/update::run-update")
 
+(defsystem "gtirb/run-dot"
+    :author "GrammaTech"
+    :licence "MIT"
+    :description "Write GTIRB to a dot graph."
+    :depends-on (gtirb gtirb/dot)
+    :build-operation "asdf:program-op"
+    :build-pathname "gtirb-dot"
+    :entry-point "gtirb/dot::run-dot")
+
 (defsystem "gtirb/test"
     :author "GrammaTech"
     :licence "MIT"
     :description "Test the GTIRB package."
+    :depends-on (proto-v0 proto gtirb gtirb/update)
     :perform
     (test-op (o c) (symbol-call :gtirb/test '#:test)))
