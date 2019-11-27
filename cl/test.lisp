@@ -208,6 +208,9 @@
 
 
 ;;;; Update test suite
+(defun first-aux-data (ir)
+  (proto:value (aref (proto:aux-data (aref (proto:modules ir) 0)) 0)))
+
 (deftest read-and-upgrade ()
   (with-fixture hello
     (let* ((old (gtirb/update::read-proto 'proto-v0:ir *proto-path*))
@@ -219,11 +222,14 @@
                                    (aref (proto:sections
                                           (aref (proto:modules new)
                                                 0)) 0)) 0)))))
+      ;; Test for non-empty AuxData.
+      (is (not (emptyp (proto:data (first-aux-data new)))))
       new)))
 
 (deftest simple-update ()
   (with-fixture hello
     (with-temporary-file (:pathname path)
       (update *proto-path* path)
-      (is (eql 'proto:ir (class-name (class-of (gtirb/update::read-proto
-                                                'proto:ir path))))))))
+      (let ((new (gtirb/update::read-proto 'proto:ir path)))
+        (is (eql 'proto:ir (class-name (class-of new))))
+        (is (not (emptyp (proto:data (first-aux-data new)))))))))
