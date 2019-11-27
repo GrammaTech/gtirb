@@ -4,6 +4,7 @@
         :trivial-utf-8
         :named-readtables :curry-compose-reader-macros)
   (:shadow :symbol :block)
+  (:import-from :proto-v0)
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
                 :int->octets
@@ -601,7 +602,7 @@ but that would likely get expensive.")
           (lambda (pair)
             (destructuring-bind (key . value) pair
               (let ((sym-op-entry
-                     (make-instance 'proto-v0::module-symbolic-operands-entry)))
+                     (make-instance 'proto-v0:module-symbolic-operands-entry)))
                 (setf (proto-v0:key sym-op-entry) key
                       (proto-v0:value sym-op-entry) value)
                 sym-op-entry)))
