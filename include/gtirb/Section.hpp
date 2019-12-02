@@ -111,6 +111,51 @@ public:
                                       byte_intervals_end());
   }
 
+  std::optional<Addr> getAddress() const {
+    if (ByteIntervals.empty()) {
+      return std::optional<Addr>();
+    }
+
+    Addr result{std::numeric_limits<Addr::value_type>::max()};
+    for (const auto interval : ByteIntervals) {
+      auto addr = interval->getAddress();
+      if (addr.has_value()) {
+        if (*addr < result) {
+          result = *addr;
+        }
+      } else {
+        return std::optional<Addr>();
+      }
+    }
+    return std::optional<Addr>(result);
+  }
+
+  std::optional<uint64_t> getSize() const {
+    if (ByteIntervals.empty()) {
+      return std::optional<uint64_t>(0);
+    }
+
+    Addr lowAddr{std::numeric_limits<Addr::value_type>::max()};
+    Addr highAddr{0};
+
+    for (const auto interval : ByteIntervals) {
+      auto addr = interval->getAddress();
+      if (addr.has_value()) {
+        if (*addr < lowAddr) {
+          lowAddr = *addr;
+        }
+        Addr adjustedAddr = *addr + interval->getSize();
+        if (adjustedAddr > highAddr) {
+          highAddr = adjustedAddr;
+        }
+      } else {
+        return std::optional<uint64_t>();
+      }
+    }
+
+    return std::optional<uint64_t>(highAddr - lowAddr);
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;

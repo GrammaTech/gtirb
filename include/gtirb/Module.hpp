@@ -122,8 +122,6 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                     boost::multi_index::hashed_unique<
                         boost::multi_index::tag<by_pointer>,
                         boost::multi_index::identity<Section*>>>>;
-  using SectionIntMap = boost::icl::interval_map<
-      Addr, std::multiset<Section*, addr_size_order<Section>>>;
 
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*,
@@ -501,13 +499,6 @@ public:
   /// same address, the smaller one is returned first. If two Sections have
   /// the same address and the same size, their order is not specified.
   using section_range = boost::iterator_range<section_iterator>;
-  /// \brief Sub-range of sections overlapping an address (\ref Section).
-  ///
-  /// Sections are returned in address order. If two Sections start at the
-  /// same address, the smaller one is returned first. If two Sections have
-  /// the same address and the same size, their order is not specified.
-  using section_subrange = boost::iterator_range<
-      boost::indirect_iterator<SectionIntMap::codomain_type::iterator>>;
   /// \brief Iterator over sections (\ref Section).
   ///
   /// Sections are returned in name order. If two Sections have the same name,
@@ -532,14 +523,6 @@ public:
   /// same address, the smaller one is returned first. If two Sections have
   /// the same address and the same size, their order is not specified.
   using const_section_range = boost::iterator_range<const_section_iterator>;
-  /// \brief Constant sub-range of sections overlapping an address
-  /// (\ref Section).
-  ///
-  /// Sections are returned in address order. If two Sections start at the
-  /// same address, the smaller one is returned first. If two Sections have
-  /// the same address and the same size, their order is not specified.
-  using const_section_subrange = boost::iterator_range<boost::indirect_iterator<
-      SectionIntMap::codomain_type::const_iterator, const Section&>>;
   /// \brief Constant iterator over sections (\ref Section).
   ///
   /// Sections are returned in name order. If two Sections have the same name,

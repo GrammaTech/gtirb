@@ -28,10 +28,10 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <deque>
 #include <map>
 #include <optional>
 #include <variant>
+#include <vector>
 
 /// \file ByteInterval.hpp
 /// \brief Class gtirb::ByteInterval.
@@ -95,6 +95,29 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
   using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
+  using ByteVector = std::vector<uint8_t>;
+
+  template <class ByteBlock> Block& nodeToBlock(const ByteBlock* BB) {
+    auto& index = Blocks.get<by_pointer>();
+    auto it = index.find(BB);
+    if (it != index.end()) {
+      return *it;
+    } else {
+      throw std::runtime_error(
+          "ByteInterval::nodeToBlock called with block not in interval");
+    }
+  }
+  template <class ByteBlock>
+  const Block& nodeToBlock(const ByteBlock* BB) const {
+    auto& index = Blocks.get<by_pointer>();
+    auto it = index.find(BB);
+    if (it != index.end()) {
+      return *it;
+    } else {
+      throw std::runtime_error(
+          "ByteInterval::nodeToBlock called with block not in interval");
+    }
+  }
 
 public:
   /// \brief Create a ByteInterval object.
@@ -115,6 +138,16 @@ public:
   /// present, it indicates that the interval is free to be moved around in
   /// memory while preserving program semantics.
   std::optional<Addr> getAddress() const { return Address; }
+
+  template <class ByteBlock>
+  std::optional<Addr> getAddress(const ByteBlock* BB) const {
+    if (Address.has_value()) {
+      return std::optional<Addr>(((uint64_t)*Address) + nodeToBlock(BB).offset);
+    } else {
+      return std::optional<Addr>();
+    }
+  }
+
   /// \brief Get the size of this interval in bytes.
   ///
   /// This number may not always be the size of the byte array returned by \ref
@@ -126,6 +159,12 @@ public:
   /// It is an error to have an interval in which this number is less than the
   /// size of the byte array returned by \ref getBytes.
   uint64_t getSize() const { return Size; }
+
+  using bytes_iterator = ByteVector::iterator;
+  using const_bytes_iterator = ByteVector::const_iterator;
+  using bytes_range = boost::iterator_range<bytes_iterator>;
+  using const_bytes_range = boost::iterator_range<const_bytes_iterator>;
+
   /// \brief Get the bytes stored in this interval.
   ///
   /// \ref CodeBlock and \ref DataBlock objects indicate that ranges of these
@@ -135,7 +174,7 @@ public:
   /// the middle of multibyte instructions, and data blocks can overlap in the
   /// case where, for example, elements of arrays are accessed in a static
   /// manner.
-  std::deque<uint8_t>& getBytes() { return Bytes; }
+  ByteVector& getBytes() { return Bytes; }
   /// \brief Get the bytes stored in this interval.
   ///
   /// \ref CodeBlock and \ref DataBlock objects indicate that ranges of these
@@ -145,7 +184,17 @@ public:
   /// the middle of multibyte instructions, and data blocks can overlap in the
   /// case where, for example, elements of arrays are accessed in a static
   /// manner.
-  const std::deque<uint8_t>& getBytes() const { return Bytes; }
+  const ByteVector& getBytes() const { return Bytes; }
+
+  template <class ByteBlock> bytes_range getBytes(const ByteBlock* BB) {
+    return boost::make_iterator_range_n(Bytes.begin() + nodeToBlock(BB).offset,
+                                        BB->getSize());
+  }
+  template <class ByteBlock>
+  const_bytes_range getBytes(const ByteBlock* BB) const {
+    return boost::make_iterator_range_n(Bytes.begin() + nodeToBlock(BB).offset,
+                                        BB->getSize());
+  }
 
   /// \brief Iterator over \ref Block objects.
   ///
@@ -391,7 +440,7 @@ private:
   uint64_t Size{0};
   BlockSet Blocks;
   SymbolicExpressionSet SymbolicExpressions;
-  std::deque<uint8_t> Bytes;
+  ByteVector Bytes;
 
   friend class Context;
 };
