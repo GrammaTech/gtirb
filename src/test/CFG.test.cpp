@@ -66,7 +66,7 @@ TEST(Unit_CFG, addVertex) {
 
 TEST(Unit_CFG, getVertex) {
   CFG Cfg;
-  auto* B = CodeBlock::Create(Ctx, Addr(1), 2);
+  auto* B = CodeBlock::Create(Ctx, 2);
   auto* P = ProxyBlock::Create(Ctx);
   auto DescriptorB = addVertex(B, Cfg);
   auto DescriptorP = addVertex(P, Cfg);
@@ -76,9 +76,9 @@ TEST(Unit_CFG, getVertex) {
 
 TEST(Unit_CFG, cfgIterator) {
   CFG Cfg;
-  auto* B1 = CodeBlock::Create(Ctx, Addr(1), 2);
+  auto* B1 = CodeBlock::Create(Ctx, 2);
   auto* P1 = ProxyBlock::Create(Ctx);
-  auto* B2 = CodeBlock::Create(Ctx, Addr(3), 2);
+  auto* B2 = CodeBlock::Create(Ctx, 2);
   auto* P2 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(P1, Cfg);
@@ -117,20 +117,20 @@ TEST(Unit_CFG, cfgIterator) {
 
 TEST(Unit_CFG, blockIterator) {
   CFG Cfg;
-  addVertex(CodeBlock::Create(Ctx, Addr(1), 2), Cfg);
-  addVertex(CodeBlock::Create(Ctx, Addr(3), 2), Cfg);
-  addVertex(CodeBlock::Create(Ctx, Addr(5), 2), Cfg);
+  addVertex(CodeBlock::Create(Ctx, 1), Cfg);
+  addVertex(CodeBlock::Create(Ctx, 2), Cfg);
+  addVertex(CodeBlock::Create(Ctx, 3), Cfg);
   addVertex(ProxyBlock::Create(Ctx), Cfg);
 
   // Non-const graph produces a regular iterator
   boost::iterator_range<block_iterator> BlockRange = blocks(Cfg);
   EXPECT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 3);
   auto It = BlockRange.begin();
-  EXPECT_EQ(It->getAddress(), Addr(1));
+  EXPECT_EQ(It->getSize(), 1);
   ++It;
-  EXPECT_EQ(It->getAddress(), Addr(3));
+  EXPECT_EQ(It->getSize(), 2);
   ++It;
-  EXPECT_EQ(It->getAddress(), Addr(5));
+  EXPECT_EQ(It->getSize(), 3);
   ++It;
   EXPECT_EQ(It, BlockRange.end());
 
@@ -139,19 +139,19 @@ TEST(Unit_CFG, blockIterator) {
   boost::iterator_range<const_block_iterator> ConstRange = blocks(ConstCfg);
   EXPECT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 3);
   auto Cit = ConstRange.begin();
-  EXPECT_EQ(Cit->getAddress(), Addr(1));
+  EXPECT_EQ(Cit->getSize(), 1);
   ++Cit;
-  EXPECT_EQ(Cit->getAddress(), Addr(3));
+  EXPECT_EQ(Cit->getSize(), 2);
   ++Cit;
-  EXPECT_EQ(Cit->getAddress(), Addr(5));
+  EXPECT_EQ(Cit->getSize(), 3);
   ++Cit;
   EXPECT_EQ(Cit, ConstRange.end());
 }
 
 TEST(Unit_CFG, edges) {
   CFG Cfg;
-  auto B1 = CodeBlock::Create(Ctx, Addr(1), 2);
-  auto B2 = CodeBlock::Create(Ctx, Addr(3), 4);
+  auto B1 = CodeBlock::Create(Ctx, 1);
+  auto B2 = CodeBlock::Create(Ctx, 2);
   auto P1 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
@@ -177,8 +177,8 @@ TEST(Unit_CFG, edges) {
 
 TEST(Unit_CFG, edgeLabels) {
   CFG Cfg;
-  auto B1 = CodeBlock::Create(Ctx, Addr(1), 2);
-  auto B2 = CodeBlock::Create(Ctx, Addr(3), 4);
+  auto B1 = CodeBlock::Create(Ctx, 1);
+  auto B2 = CodeBlock::Create(Ctx, 2);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
 
@@ -222,8 +222,8 @@ TEST(Unit_CFG, protobufRoundTrip) {
   CFG Result;
   proto::CFG Message;
 
-  auto B1 = CodeBlock::Create(Ctx, Addr(1), 2, 3);
-  auto B2 = CodeBlock::Create(Ctx, Addr(4), 5, 6);
+  auto B1 = CodeBlock::Create(Ctx, 1, 2);
+  auto B2 = CodeBlock::Create(Ctx, 3, 4);
   auto P1 = ProxyBlock::Create(Ctx);
   {
     CFG Original;
@@ -247,14 +247,12 @@ TEST(Unit_CFG, protobufRoundTrip) {
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 3);
   auto It = Range.begin();
   EXPECT_EQ(It->getUUID(), B1->getUUID());
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getAddress(), Addr(1));
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 2);
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 3);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 1);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 2);
   ++It;
   EXPECT_EQ(It->getUUID(), B2->getUUID());
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getAddress(), Addr(4));
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 5);
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 6);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 3);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 4);
   ++It;
   EXPECT_EQ(It->getUUID(), P1->getUUID());
 

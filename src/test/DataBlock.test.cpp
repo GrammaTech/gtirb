@@ -14,6 +14,7 @@
 //===----------------------------------------------------------------------===//
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
+#include <proto/DataBlock.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;

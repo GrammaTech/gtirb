@@ -16,7 +16,6 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/IR.hpp>
-#include <gtirb/ImageByteMap.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
@@ -90,40 +89,6 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   EXPECT_EQ(ModulesWithAddr, Count);
 }
 
-TEST(Unit_IR, getModulesContainingAddr) {
-  const Addr Ea{22678};
-  const uint64_t EaOffset{2112};
-
-  auto* Ir = IR::Create(Ctx);
-
-  // Addr at lower bound
-  {
-    Module* M = Module::Create(Ctx);
-    M->getImageByteMap().setAddrMinMax({Ea, Ea + EaOffset});
-    Ir->addModule(M);
-  }
-
-  // Addr inside range
-  {
-    Module* M = Module::Create(Ctx);
-    M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea + EaOffset});
-    Ir->addModule(M);
-  }
-
-  // Addr at max (should not be returned)
-  {
-    Module* M = Module::Create(Ctx);
-    M->getImageByteMap().setAddrMinMax({Ea - EaOffset, Ea});
-    Ir->addModule(M);
-  }
-
-  size_t Count = std::count_if(Ir->begin(), Ir->end(), [Ea](const Module& M) {
-    return containsAddr(M, Ea);
-  });
-  EXPECT_FALSE(Count == 0);
-  EXPECT_EQ(2, Count);
-}
-
 TEST(Unit_IR, addAuxData) {
   std::vector<int64_t> AuxData = {1, 2, 3};
   IR* Ir = IR::Create(Ctx);
@@ -178,7 +143,6 @@ TEST(Unit_IR, protobufRoundTrip) {
     Context InnerCtx;
     IR* Original = IR::Create(InnerCtx);
     Module* M = Module::Create(InnerCtx);
-    M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
     Original->addModule(M);
     Original->addAuxData("test", AuxData());
 
@@ -188,10 +152,6 @@ TEST(Unit_IR, protobufRoundTrip) {
   IR* Result = IR::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->begin()->getUUID(), MainID);
-  size_t Count =
-      std::count_if(Result->begin(), Result->end(),
-                    [](const Module& M) { return containsAddr(M, Addr(100)); });
-  EXPECT_EQ(Count, 1);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 }
@@ -204,7 +164,6 @@ TEST(Unit_IR, jsonRoundTrip) {
     Context InnerCtx;
     IR* Original = IR::Create(InnerCtx);
     Module* M = Module::Create(InnerCtx);
-    M->getImageByteMap().setAddrMinMax({Addr(100), Addr(200)});
     Original->addModule(M);
     Original->addAuxData("test", AuxData());
 
@@ -215,10 +174,6 @@ TEST(Unit_IR, jsonRoundTrip) {
   IR* Result = IR::loadJSON(Ctx, In);
 
   EXPECT_EQ(Result->begin()->getUUID(), MainID);
-  size_t Count =
-      std::count_if(Result->begin(), Result->end(),
-                    [](const Module& M) { return containsAddr(M, Addr(100)); });
-  EXPECT_EQ(Count, 1);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 }

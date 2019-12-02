@@ -42,8 +42,7 @@ TEST(Unit_Symbol, setReferent) {
   Module* Mod = Module::Create(Ctx);
   Symbol* Sym = emplaceSymbol(*Mod, Ctx);
   DataBlock* Data = DataBlock::Create(Ctx);
-  Mod->addData(Data);
-  CodeBlock* B = emplaceBlock(*Mod, Ctx, Addr(1), 2);
+  CodeBlock* B = CodeBlock::Create(Ctx, 2);
   ProxyBlock* Proxy = ProxyBlock::Create(Ctx);
   Mod->addProxyBlock(Proxy);
 
@@ -82,7 +81,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     Symbol* Original = emplaceSymbol(*Mod, InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    DataBlock* Data = DataBlock::Create(InnerCtx, Addr(1), 1);
+    DataBlock* Data = DataBlock::Create(InnerCtx, 1);
     DataUUID = Data->getUUID();
     setReferent(*Mod, *Original, Data);
 
@@ -128,8 +127,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  Symbol* Sym = Symbol::Create(Ctx, CodeBlock::Create(Ctx, Addr(1), 2), "test");
-  Symbol* NoRef = Symbol::Create(Ctx, Addr(1), "test2");
+  Symbol* Sym = Symbol::Create(Ctx, CodeBlock::Create(Ctx, 2), "test");
+  Symbol* NoRef = Symbol::Create(Ctx, "test2");
 
   struct Visitor {
     int operator()(CodeBlock* B) {
