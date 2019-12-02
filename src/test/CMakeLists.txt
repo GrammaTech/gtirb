@@ -1,4 +1,4 @@
-SET(PROJECT_NAME TestGTIRB)
+set(PROJECT_NAME TestGTIRB)
 
 enable_testing()
 include_directories(${GTEST_INCLUDE_DIRS})
@@ -7,57 +7,48 @@ add_compile_options(-DDEBUG)
 
 # Required warning suppression (TODO: Remove!)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-        #add_compile_options(-wd4251)  # Non-exportable template classes.
-        add_compile_options(-wd4389)   # signed/unsigned mismatch (in gtest headers)
+  # add_compile_options(-wd4251)  # Non-exportable template classes.
+  add_compile_options(-wd4389) # signed/unsigned mismatch (in gtest headers)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-        add_compile_options(-fpermissive)
-        add_compile_options(-mtune=generic)
-        add_compile_options(-pthread)
+  add_compile_options(-fpermissive)
+  add_compile_options(-mtune=generic)
+  add_compile_options(-pthread)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-        add_compile_options(-fpermissive)
-        add_compile_options(-mtune=generic)
-        add_compile_options(-pthread)
+  add_compile_options(-fpermissive)
+  add_compile_options(-mtune=generic)
+  add_compile_options(-pthread)
 endif()
 
-set(${PROJECT_NAME}_H
-)
+set(${PROJECT_NAME}_H)
 
 set(${PROJECT_NAME}_SRC
-        Allocator.test.cpp
-        Block.test.cpp
-        ByteMap.test.cpp
-        CFG.test.cpp
-        DataObject.test.cpp
-        Addr.test.cpp
-        ImageByteMap.test.cpp
-        IR.test.cpp
-        Module.test.cpp
-        Node.test.cpp
-        Section.test.cpp
-        Symbol.test.cpp
-        SymbolicExpression.test.cpp
-        AuxData.test.cpp
-        TypedNodeTest.cpp
+    Allocator.test.cpp
+    Block.test.cpp
+    ByteMap.test.cpp
+    CFG.test.cpp
+    DataObject.test.cpp
+    Addr.test.cpp
+    ImageByteMap.test.cpp
+    IR.test.cpp
+    Module.test.cpp
+    Node.test.cpp
+    Section.test.cpp
+    Symbol.test.cpp
+    SymbolicExpression.test.cpp
+    AuxData.test.cpp
+    TypedNodeTest.cpp
 )
 
-IF(UNIX AND NOT WIN32)
-        SET(SYSLIBS
-                dl
-        )
-ELSE()
-        SET(SYSLIBS
-        )
+if(UNIX AND NOT WIN32)
+  set(SYSLIBS dl)
+else()
+  set(SYSLIBS)
 endif()
 
-GTIRB_ADD_EXECUTABLE_GTEST()
+gtirb_add_executable_gtest()
 
 target_link_libraries(
-        ${PROJECT_NAME}
-        ${SYSLIBS}
-        ${Boost_LIBRARIES}
-        gtest
-        gtest_main
-        gtirb
+  ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb
 )
 
 # Add tests to make test

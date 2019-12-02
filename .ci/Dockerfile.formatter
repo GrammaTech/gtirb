@@ -14,5 +14,11 @@ RUN pip3 install pre-commit
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
 
-RUN pre-commit autoupdate
+# Note: do not run pre-commit autoupdate. Doing so potentially changes
+# the versions of the utilities we're using to check things like our
+# cmake formatting. And that could lead to us comparing against a
+# moving measuring stick. If we want to use a newer version of a
+# utility, we should explicitly update the version tag in
+# .pre-commit-config.yaml.
+
 RUN pre-commit run --all-files

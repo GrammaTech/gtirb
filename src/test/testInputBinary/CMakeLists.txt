@@ -1,58 +1,46 @@
-# Generate several projects of increasing size and complexity for use in testing GTIRB.
+# Generate several projects of increasing size and complexity for use in testing
+# GTIRB.
 macro(GTIRB_BUILD_GTBINARY_MACRO)
-	SET(PROJECT_NAME gtirbTestInputBinary${_GENERATION_CONSTANT})
+  set(PROJECT_NAME gtirbTestInputBinary${_GENERATION_CONSTANT})
 
-	set(${PROJECT_NAME}_H
-	)
+  set(${PROJECT_NAME}_H)
 
-	set(${PROJECT_NAME}_SRC
-		TestInputBinary.cpp
-	)
+  set(${PROJECT_NAME}_SRC TestInputBinary.cpp)
 
-	IF(UNIX AND NOT WIN32)
-		SET(SYSLIBS
-			${CMAKE_DL_LIBS}
-		)
-	ELSE()
-		SET(SYSLIBS
-		)
-	endif()
+  if(UNIX AND NOT WIN32)
+    set(SYSLIBS ${CMAKE_DL_LIBS})
+  else()
+    set(SYSLIBS)
+  endif()
 
-	add_executable(${PROJECT_NAME}
-		${${PROJECT_NAME}_H}
-		${${PROJECT_NAME}_SRC}
-	)
+  add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_H} ${${PROJECT_NAME}_SRC})
 
-	set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "gtirb/test")
+  set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "gtirb/test")
 
-	target_compile_definitions(${PROJECT_NAME} PRIVATE -DGENERATION_CONSTANT=${_GENERATION_CONSTANT})
+  target_compile_definitions(
+    ${PROJECT_NAME} PRIVATE -DGENERATION_CONSTANT=${_GENERATION_CONSTANT}
+  )
 
-	target_link_libraries(
-		${PROJECT_NAME}
-		${SYSLIBS}
-		)
+  target_link_libraries(${PROJECT_NAME} ${SYSLIBS})
 endmacro()
 
 set(_GENERATION_CONSTANT 2)
-GTIRB_BUILD_GTBINARY_MACRO()
+gtirb_build_gtbinary_macro()
 
 set(_GENERATION_CONSTANT 8)
-GTIRB_BUILD_GTBINARY_MACRO()
+gtirb_build_gtbinary_macro()
 
 set(_GENERATION_CONSTANT 16)
-GTIRB_BUILD_GTBINARY_MACRO()
+gtirb_build_gtbinary_macro()
 
 set(_GENERATION_CONSTANT 32)
-GTIRB_BUILD_GTBINARY_MACRO()
+gtirb_build_gtbinary_macro()
 
 set(_GENERATION_CONSTANT 64)
-GTIRB_BUILD_GTBINARY_MACRO()
+gtirb_build_gtbinary_macro()
 
-#set(_GENERATION_CONSTANT 128)
-#GTIRB_BUILD_GTBINARY_MACRO()
+# set(_GENERATION_CONSTANT 128) GTIRB_BUILD_GTBINARY_MACRO()
 
-#set(_GENERATION_CONSTANT 256)
-#GTIRB_BUILD_GTBINARY_MACRO()
+# set(_GENERATION_CONSTANT 256) GTIRB_BUILD_GTBINARY_MACRO()
 
-#set(_GENERATION_CONSTANT 512)
-#GTIRB_BUILD_GTBINARY_MACRO()
+# set(_GENERATION_CONSTANT 512) GTIRB_BUILD_GTBINARY_MACRO()

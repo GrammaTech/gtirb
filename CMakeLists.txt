@@ -21,8 +21,7 @@ set(GTIRB_PATCH_VERSION ${CMAKE_MATCH_1})
 cmake_policy(SET CMP0048 NEW)
 project(
   GTIRB
-  VERSION
-    "${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}"
+  VERSION "${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}"
 )
 
 include(CheckFunctionExists)
@@ -67,7 +66,8 @@ endif()
 
 option(GTIRB_CXX_API "Whether or not the C++ API is built." ON)
 option(GTIRB_PY_API "Whether or not the Python API is built."
-       ${GTIRB_PY_API_DEFAULT})
+       ${GTIRB_PY_API_DEFAULT}
+)
 
 # ---------------------------------------------------------------------------
 # Global settings
@@ -76,37 +76,34 @@ option(GTIRB_PY_API "Whether or not the Python API is built."
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src)
 if(WIN32)
-  set(
-    CMAKE_DEBUG_POSTFIX
-    "d"
-    CACHE STRING "add a postfix, usually d on windows"
+  set(CMAKE_DEBUG_POSTFIX
+      "d"
+      CACHE STRING "add a postfix, usually d on windows"
   )
 endif()
-set(
-  CMAKE_RELEASE_POSTFIX
-  ""
-  CACHE STRING "add a postfix, usually empty on windows"
+set(CMAKE_RELEASE_POSTFIX
+    ""
+    CACHE STRING "add a postfix, usually empty on windows"
 )
-set(
-  CMAKE_RELWITHDEBINFO_POSTFIX
-  ""
-  CACHE STRING "add a postfix, usually empty on windows"
+set(CMAKE_RELWITHDEBINFO_POSTFIX
+    ""
+    CACHE STRING "add a postfix, usually empty on windows"
 )
-set(
-  CMAKE_MINSIZEREL_POSTFIX
-  ""
-  CACHE STRING "add a postfix, usually empty on windows"
+set(CMAKE_MINSIZEREL_POSTFIX
+    ""
+    CACHE STRING "add a postfix, usually empty on windows"
 )
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(GTIRB_CXX_API)
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h.in"
-                 "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h" @ONLY)
-  install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h"
-    DESTINATION include/gtirb
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/gtirb/version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h" @ONLY
+  )
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/include/gtirb/version.h"
+          DESTINATION include/gtirb
   )
 
   # Use C++17
@@ -146,18 +143,18 @@ if(GTIRB_CXX_API)
     add_compile_options(-W4)
     add_compile_options(-WX)
 
-    add_compile_options(-wd4251) # 'identifier' : class 'type' needs to have
-                                 # dll- interface to be used by clients of class
-                                 # 'type2'
+    add_compile_options(
+      -wd4251
+    ) # 'identifier' : class 'type' needs to have dll- interface to be used by
+      # clients of class 'type2'
     add_compile_options(-wd4275) # Non-dll interface base classes.
     add_compile_options(-wd4996) # VC8: Deprecated libc functions.
-    add_compile_options(-wd4351) # This is a warning about a change in behavior
-                                 # from old versions of visual c++.  We want the
-                                 # new (standard-compliant) behavior, so we
-                                 # don't want the warning.  The warning is that
-                                 # using an array in a class initializer list
-                                 # will cause its elements to be default
-                                 # initialized.
+    add_compile_options(
+      -wd4351
+    ) # This is a warning about a change in behavior from old versions of visual
+      # c++.  We want the new (standard-compliant) behavior, so we don't want
+      # the warning.  The warning is that using an array in a class initializer
+      # list will cause its elements to be default initialized.
     add_compile_options(-wd4146) # unary minus operator applied to unsigned
                                  # type, result still unsigned
 
@@ -166,11 +163,10 @@ if(GTIRB_CXX_API)
     add_compile_options($<$<CONFIG:Debug>:-DDEBUG>)
     add_compile_options($<$<CONFIG:Debug>:-MDd>)
     add_compile_options($<$<CONFIG:Debug>:-Ob0>) # Disables inline expansion
-    add_compile_options($<$<CONFIG:Debug>:-Od>) # Disables optimization,
-                                                # speeding compilation and
-                                                # simplifying debugging.
-                                                # https://msdn.microsoft.com/en-
-                                                # us/library/k1ack8f1.aspx
+    add_compile_options(
+      $<$<CONFIG:Debug>:-Od>
+    ) # Disables optimization, speeding compilation and simplifying debugging.
+      # https://msdn.microsoft.com/en- us/library/k1ack8f1.aspx
     add_compile_options($<$<CONFIG:Debug>:-RTC1>) # Enables run-time error
                                                   # checking.
     add_compile_options($<$<CONFIG:Debug>:-W4>) # Sets warning level.
@@ -183,35 +179,31 @@ if(GTIRB_CXX_API)
     add_compile_options($<$<CONFIG:RelWithDebInfo>:-DNDEBUG>)
     add_compile_options($<$<CONFIG:RelWithDebInfo>:-MD>)
     add_compile_options($<$<CONFIG:RelWithDebInfo>:-O2>) # Creates fast code.
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-Ob2>) # The default value.
-                                                          # Allows expansion of
-                                                          # functions marked as
-                                                          # inline, __inline, or
-                                                          # __forceinline, and
-                                                          # any other function
-                                                          # that the compiler
-                                                          # chooses.
+    add_compile_options(
+      $<$<CONFIG:RelWithDebInfo>:-Ob2>
+    ) # The default value. Allows expansion of functions marked as inline,
+      # __inline, or __forceinline, and any other function that the compiler
+      # chooses.
     add_compile_options($<$<CONFIG:RelWithDebInfo>:-Oi>) # Generates intrinsic
                                                          # functions.
     add_compile_options($<$<CONFIG:RelWithDebInfo>:-Ot>) # Favors fast code.
     add_compile_options($<$<CONFIG:RelWithDebInfo>:-W4>) # Sets warning level.
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-Zi>) # Generates complete
-                                                         # debugging
-                                                         # information.
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-bigobj>) # enables big obj
-                                                             # compilation
-                                                             # option
+    add_compile_options(
+      $<$<CONFIG:RelWithDebInfo>:-Zi>
+    ) # Generates complete debugging information.
+    add_compile_options(
+      $<$<CONFIG:RelWithDebInfo>:-bigobj>
+    ) # enables big obj compilation option
 
     add_compile_options($<$<CONFIG:Release>:-D_NDEBUG>)
     add_compile_options($<$<CONFIG:Release>:-DNDEBUG>)
     add_compile_options($<$<CONFIG:Release>:-MD>)
     add_compile_options($<$<CONFIG:Release>:-O2>) # Creates fast code.
-    add_compile_options($<$<CONFIG:Release>:-Ob2>) # The default value. Allows
-                                                   # expansion of functions
-                                                   # marked as inline, __inline,
-                                                   # or __forceinline, and any
-                                                   # other function that the
-                                                   # compiler chooses.
+    add_compile_options(
+      $<$<CONFIG:Release>:-Ob2>
+    ) # The default value. Allows expansion of functions marked as inline,
+      # __inline, or __forceinline, and any other function that the compiler
+      # chooses.
     add_compile_options($<$<CONFIG:Release>:-Oi>) # Generates intrinsic
                                                   # functions.
     add_compile_options($<$<CONFIG:Release>:-Ot>) # Favors fast code.
@@ -222,14 +214,12 @@ if(GTIRB_CXX_API)
     # Shove in some linker flags to support using 64-bit memory. 4099 -PDB
     # 'filename' was not found with 'object/library' or at 'path'; linking
     # object as if no debug info
-    set(
-      CMAKE_SHARED_LINKER_FLAGS
-      "${CMAKE_SHARED_LINKER_FLAGS} /LARGEADDRESSAWARE"
+    set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} /LARGEADDRESSAWARE"
     )
 
-  elseif(
-    (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-    OR (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+  elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU) OR (${CMAKE_CXX_COMPILER_ID}
+                                                     STREQUAL Clang)
   )
     add_compile_options(-Wall -Wextra -Wpointer-arith -Wshadow -Werror)
     add_compile_options(-fPIC)
@@ -250,8 +240,9 @@ if(GTIRB_CXX_API)
   # while the latter uses "Boost_BOOST" and so on. This normalizes the two cases
   # to use Boost_INCLUDE_DIRS and Boost_LIBRARIES.
   if(TARGET Boost::headers)
-    get_target_property(Boost_INCLUDE_DIRS Boost::headers
-                        INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(
+      Boost_INCLUDE_DIRS Boost::headers INTERFACE_INCLUDE_DIRECTORIES
+    )
   endif()
 
   include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
@@ -289,12 +280,17 @@ if(GTIRB_ENABLE_TESTS AND GTIRB_CXX_API)
   endif()
 
   # Prevent overriding the parent project's compiler/linker settings on Windows
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  set(gtest_force_shared_crt
+      ON
+      CACHE BOOL "" FORCE
+  )
 
   # Add googletest directly to our build. This defines the gtest and gtest_main
   # targets.
-  add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
-                   "${CMAKE_BINARY_DIR}/googletest-build" EXCLUDE_FROM_ALL)
+  add_subdirectory(
+    "${CMAKE_BINARY_DIR}/googletest-src" "${CMAKE_BINARY_DIR}/googletest-build"
+    EXCLUDE_FROM_ALL
+  )
 
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
@@ -330,9 +326,8 @@ endif()
 if(GTIRB_CXX_API)
   # --- For direct use from the build directory/cmake registry ---
   # This exports the targets
-  export(
-    TARGETS gtirb proto
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake"
+  export(TARGETS gtirb proto
+         FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake"
   )
   # This is the main config file that find_package will look for.
   file(
@@ -352,9 +347,8 @@ if(GTIRB_CXX_API)
 
   # --- For the installed copy ---
   # Main config file for find_package, just includes the targets file.
-  file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake"
-    "include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")"
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake"
+       "include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")"
   )
   # In this mode, find_package also seems to require a version file
   set(version_file "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig-version.cmake")
@@ -365,9 +359,8 @@ if(GTIRB_CXX_API)
   )
 
   # Copy the config files to the install location
-  install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake ${version_file}
-    DESTINATION lib/gtirb
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake
+                ${version_file} DESTINATION lib/gtirb
   )
   # This exports the targets to the install location.
   install(EXPORT gtirbTargets DESTINATION lib/gtirb)

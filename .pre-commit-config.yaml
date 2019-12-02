@@ -1,23 +1,23 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: master
+    rev: 19.10b0
     hooks:
       - id: black
         args: ["--line-length", "79"]
   - repo: https://gitlab.com/daverona-env/pre-commit-cpp
-    rev: master
+    rev: 0.6.0
     hooks:
       - id: clang-format
         name: clang-format
         args: [-style=file]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: master
+    rev: v2.4.0
     hooks:
       - id: flake8
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
-    rev: master
+    rev: v0.6.0
     hooks:
       - id: cmake-format
         exclude: build

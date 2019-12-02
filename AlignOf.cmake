@@ -5,9 +5,11 @@ macro(ALIGNOF TYPE LANG NAME)
     # in ALIGNOF_${CHECK_TYPE}
     #
 
-    set(INCLUDE_HEADERS "#include <stddef.h>
+    set(INCLUDE_HEADERS
+        "#include <stddef.h>
 			#include <stdio.h>
-			#include <stdlib.h>")
+			#include <stdlib.h>"
+    )
 
     foreach(File ${CMAKE_REQUIRED_INCLUDES})
       set(INCLUDE_HEADERS "${INCLUDE_HEADERS}\n#include <${File}>\n")
@@ -29,7 +31,8 @@ macro(ALIGNOF TYPE LANG NAME)
     )
 
     try_run(
-      ALIGNOF_${NAME} COMPILE_RESULT
+      ALIGNOF_${NAME}
+      COMPILE_RESULT
       "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/"
       "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/c_get_${NAME}_alignment.${LANG}"
       COMPILE_OUTPUT_VARIABLE "ALIGNOF_${NAME}_COMPILE_VAR"

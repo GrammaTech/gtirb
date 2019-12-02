@@ -1,13 +1,13 @@
-SET(PROJECT_NAME gtirb)
+set(PROJECT_NAME gtirb)
 
 add_subdirectory(proto)
 
-if (GTIRB_RUN_CLANG_TIDY)
+if(GTIRB_RUN_CLANG_TIDY)
   find_program(
     CLANG_TIDY_EXE
     NAMES "clang-tidy"
     DOC "Path to clang-tidy executable"
-    )
+  )
   if(NOT CLANG_TIDY_EXE)
     message(STATUS "clang-tidy not found.")
   else()
@@ -18,16 +18,16 @@ else()
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-        #add_compile_options(-wd4251)  # Non-exportable template classes.
-        add_compile_options(-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT)
+  # add_compile_options(-wd4251)  # Non-exportable template classes.
+  add_compile_options(-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-        #add_compile_options(-Wno-unused-function)
-        add_compile_options(-mtune=generic)
-        add_compile_options(-pthread)
+  # add_compile_options(-Wno-unused-function)
+  add_compile_options(-mtune=generic)
+  add_compile_options(-pthread)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-        #add_compile_options(-Wno-unused-function)
-        add_compile_options(-mtune=generic)
-        add_compile_options(-pthread)
+  # add_compile_options(-Wno-unused-function)
+  add_compile_options(-mtune=generic)
+  add_compile_options(-pthread)
 endif()
 
 # Find our headers without gtirb/ prefix
@@ -37,94 +37,93 @@ include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
 include_directories("${CMAKE_BINARY_DIR}/src/")
 
 set(PUBLIC_HEADERS
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/DataObject.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/ImageByteMap.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
-        )
-
-set(${PROJECT_NAME}_H
-        ${PUBLIC_HEADERS}
-        ../src/Serialization.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Block.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/ByteMap.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/DataObject.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/ImageByteMap.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
 )
 
+set(${PROJECT_NAME}_H ${PUBLIC_HEADERS} ../src/Serialization.hpp)
+
 set(${PROJECT_NAME}_SRC
-        AuxData.cpp
-        AuxDataContainer.cpp
-        Block.cpp
-        ByteMap.cpp
-        Context.cpp
-        CFG.cpp
-        DataObject.cpp
-        ImageByteMap.cpp
-        IR.cpp
-        Module.cpp
-        Node.cpp
-        ProxyBlock.cpp
-        Section.cpp
-        Serialization.cpp
-        Symbol.cpp
-        SymbolicExpression.cpp
+    AuxData.cpp
+    AuxDataContainer.cpp
+    Block.cpp
+    ByteMap.cpp
+    Context.cpp
+    CFG.cpp
+    DataObject.cpp
+    ImageByteMap.cpp
+    IR.cpp
+    Module.cpp
+    Node.cpp
+    ProxyBlock.cpp
+    Section.cpp
+    Serialization.cpp
+    Symbol.cpp
+    SymbolicExpression.cpp
 )
 
 file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
 set(${PROJECT_NAME}_PROTO ${ProtoFiles})
 source_group("proto" FILES ${ProtoFiles})
 
-IF(UNIX AND NOT WIN32)
-        SET(SYSLIBS ${CMAKE_DL_LIBS})
-ELSE()
-        SET(SYSLIBS)
+if(UNIX AND NOT WIN32)
+  set(SYSLIBS ${CMAKE_DL_LIBS})
+else()
+  set(SYSLIBS)
 endif()
 
-GTIRB_ADD_LIBRARY()
+gtirb_add_library()
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC
-  ${SYSLIBS}
-  ${Boost_LIBRARIES}
-  # Link in this static lib, but don't make it a transitive
-  # dependency of TestGTIRB, etc
-  PRIVATE
-  proto)
-target_compile_definitions(${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
+  PUBLIC ${SYSLIBS}
+         ${Boost_LIBRARIES}
+         # Link in this static lib, but don't make it a transitive dependency of
+         # TestGTIRB, etc
+  PRIVATE proto
+)
+target_compile_definitions(
+  ${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS
+)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    # These two warnings come from protobuf headers, disabling them this way
-    # means that projects which link to gtirb via cmake won't have to deal
-    # with them.
-    target_compile_options(${PROJECT_NAME} PUBLIC -wd4100) # unreferenced formal parameter
-    target_compile_options(${PROJECT_NAME} PUBLIC -wd4127) # conditional expression is constant
+  # These two warnings come from protobuf headers, disabling them this way means
+  # that projects which link to gtirb via cmake won't have to deal with them.
+  target_compile_options(${PROJECT_NAME} PUBLIC -wd4100) # unreferenced formal
+                                                         # parameter
+  target_compile_options(
+    ${PROJECT_NAME} PUBLIC -wd4127
+  ) # conditional expression is constant
 endif()
 
 add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy
-                ${PUBLIC_HEADERS}
-                "${CMAKE_BINARY_DIR}/include/gtirb")
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E copy ${PUBLIC_HEADERS}
+          "${CMAKE_BINARY_DIR}/include/gtirb"
+)
 
 if(CLANG_TIDY_EXE)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES
-    CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
+    ${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
   )
 endif()
 
@@ -132,10 +131,13 @@ if(GTIRB_ENABLE_TESTS)
   add_subdirectory(test)
 endif()
 
-install(TARGETS ${PROJECT_NAME} EXPORT gtirbTargets
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT gtirbTargets
   INCLUDES DESTINATION include
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+  ARCHIVE DESTINATION lib
+)
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/gtirb)
 install(DIRECTORY "${CMAKE_BINARY_DIR}/include/proto" DESTINATION include)
