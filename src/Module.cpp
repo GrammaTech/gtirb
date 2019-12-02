@@ -41,6 +41,11 @@ void Module::toProtobuf(MessageType* Message) const {
   sequenceToProtobuf(section_begin(), section_end(),
                      Message->mutable_sections());
   containerToProtobuf(Symbols, Message->mutable_symbols());
+  if (EntryPoint) {
+    nodeUUIDToBytes(EntryPoint, *Message->mutable_entry_point());
+  } else {
+    Message->clear_entry_point();
+  }
   AuxDataContainer::toProtobuf(Message);
 }
 
@@ -73,6 +78,10 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
     M->addSection(Section::fromProtobuf(C, Elt));
   containerFromProtobuf(C, M->Symbols, Message.symbols());
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
+  if (!Message.entry_point().empty()) {
+    M->EntryPoint = cast<CodeBlock>(
+        Node::getByUUID(C, uuidFromBytes(Message.entry_point())));
+  }
   static_cast<AuxDataContainer*>(M)->fromProtobuf(C, Message);
   return M;
 }

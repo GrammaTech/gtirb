@@ -246,6 +246,14 @@ public:
   /// \return The ISA ID.
   gtirb::ISAID getISAID() const { return IsaID; }
 
+  /// \brief Get the entry point of this module, or null if not present.
+  CodeBlock* getEntryPoint() const { return EntryPoint; }
+
+  /// \brief Set the entry point of this module.
+  ///
+  /// \param CB The entry point of this module, or null if not present.
+  void setEntryPoint(CodeBlock* CB) { EntryPoint = CB; }
+
   /// \brief Add a single ProxyBlock to the module.
   ///
   /// \param P  The ProxyBlock to add.
@@ -654,6 +662,7 @@ private:
   ProxyBlockSet ProxyBlocks;
   SectionSet Sections;
   SymbolSet Symbols;
+  CodeBlock* EntryPoint{nullptr};
 
   friend class Context; // Allow Context to construct new Modules.
 
