@@ -97,20 +97,9 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
   using ByteVector = std::vector<uint8_t>;
 
-  template <class ByteBlock> Block& nodeToBlock(const ByteBlock* BB) {
+  const Block& nodeToBlock(Node* N) const {
     auto& index = Blocks.get<by_pointer>();
-    auto it = index.find(BB);
-    if (it != index.end()) {
-      return *it;
-    } else {
-      throw std::runtime_error(
-          "ByteInterval::nodeToBlock called with block not in interval");
-    }
-  }
-  template <class ByteBlock>
-  const Block& nodeToBlock(const ByteBlock* BB) const {
-    auto& index = Blocks.get<by_pointer>();
-    auto it = index.find(BB);
+    auto it = index.find(N);
     if (it != index.end()) {
       return *it;
     } else {
@@ -410,6 +399,20 @@ public:
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
   }
+
+  void addBlock(uint64_t O, Node* N) { Blocks.emplace(O, N); }
+
+  template <class ExprType, class... Args>
+  void addSymbolicExpression(uint64_t O, Args... A) {
+    SymbolicExpressions.emplace(O, ExprType(A...));
+  }
+
+  void removeBlock(Node* N) {
+    auto& index = Blocks.get<by_pointer>();
+    index.erase(index.find(N));
+  }
+
+  void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.

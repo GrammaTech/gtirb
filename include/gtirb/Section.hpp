@@ -156,6 +156,10 @@ public:
     return std::optional<uint64_t>(highAddr - lowAddr);
   }
 
+  void addByteInterval(ByteInterval* BI) { ByteIntervals.insert(BI); }
+
+  void removeByteInterval(ByteInterval* BI) { ByteIntervals.erase(BI); }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
