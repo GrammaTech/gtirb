@@ -27,16 +27,16 @@ using namespace gtirb;
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   containerToProtobuf(this->Modules, Message->mutable_modules());
-
   AuxDataContainer::toProtobuf(Message);
+  Message->set_version(Version);
 }
 
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
   containerFromProtobuf(C, I->Modules, Message.modules());
-
   static_cast<AuxDataContainer*>(I)->fromProtobuf(C, Message);
+  I->Version = Message.version();
   return I;
 }
 
@@ -49,7 +49,11 @@ void IR::save(std::ostream& Out) const {
 IR* IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  return IR::fromProtobuf(C, Message);
+  auto ir = IR::fromProtobuf(C, Message);
+  if (ir->Version != GTIRB_PROTOBUF_VERSION) {
+    throw VersionException(ir->Version);
+  }
+  return ir;
 }
 
 void IR::saveJSON(std::ostream& Out) const {

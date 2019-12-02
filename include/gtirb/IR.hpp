@@ -25,6 +25,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,22 @@ class IR;
 }
 namespace gtirb {
 class Module;
+
+/// \class ProtobufVersionException
+///
+/// \brief Thrown when an there is an attempt to load a GTIRB file with an
+/// invalid Protobuf version.
+class GTIRB_EXPORT_API VersionException : public std::exception {
+  std::string What;
+
+public:
+  VersionException(uint32_t V) {
+    What = "Expected GTIRB version " + std::to_string(GTIRB_PROTOBUF_VERSION) +
+           "; got version " + std::to_string(V);
+  }
+
+  const char* what() const noexcept override { return What.data(); }
+};
 
 /// \class IR
 ///
@@ -231,9 +248,23 @@ public:
   static bool classof(const Node* N) { return N->getKind() == Kind::IR; }
   /// \endcond
 
+  /// \brief Get the version of the Protobuf used when creating this IR.
+  ///
+  /// Backwards-incompatible changes to the Protobuf structure of GTIRB cause
+  /// this verison number to increment.
+  uint32_t getVersion() const { return Version; }
+
+  /// \brief Set the version of the Protobuf used when creating this IR.
+  ///
+  /// Backwards-incompatible changes to the Protobuf structure of GTIRB cause
+  /// this verison number to increment. This function is useful when, for
+  /// example, migrating GTIRB from old versions to new versions of the Protobuf
+  /// format.
+  void setVersion(uint32_t V) { Version = V; }
+
 private:
   ModuleSet Modules;
-  uint64_t version{GTIRB_PROTOBUF_VERSION};
+  uint32_t Version{GTIRB_PROTOBUF_VERSION};
 
   friend class Context;
 
