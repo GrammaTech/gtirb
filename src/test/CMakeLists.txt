@@ -22,21 +22,19 @@ endif()
 set(${PROJECT_NAME}_H)
 
 set(${PROJECT_NAME}_SRC
-    Allocator.test.cpp
-    Block.test.cpp
-    ByteMap.test.cpp
-    CFG.test.cpp
-    DataObject.test.cpp
-    Addr.test.cpp
-    ImageByteMap.test.cpp
-    IR.test.cpp
-    Module.test.cpp
-    Node.test.cpp
-    Section.test.cpp
-    Symbol.test.cpp
-    SymbolicExpression.test.cpp
-    AuxData.test.cpp
-    TypedNodeTest.cpp
+        Allocator.test.cpp
+        CodeBlock.test.cpp
+        CFG.test.cpp
+        DataBlock.test.cpp
+        Addr.test.cpp
+        IR.test.cpp
+        Module.test.cpp
+        Node.test.cpp
+        Section.test.cpp
+        Symbol.test.cpp
+        SymbolicExpression.test.cpp
+        AuxData.test.cpp
+        TypedNodeTest.cpp
 )
 
 if(UNIX AND NOT WIN32)
