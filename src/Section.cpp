@@ -29,10 +29,16 @@ bool Section::operator!=(const Section& Other) const {
 void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
+  for (const auto interval : byte_intervals()) {
+    interval->toProtobuf(Message->add_intervals());
+  }
 }
 
 Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
   auto* S = Section::Create(C, Message.name());
   setNodeUUIDFromBytes(S, Message.uuid());
+  for (const auto& proto_interval : Message.intervals()) {
+    S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, proto_interval));
+  }
   return S;
 }

@@ -16,8 +16,12 @@
 #define GTIRB_SECTION_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/Node.hpp>
+#include <boost/iterator/iterator_traits.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <cstdint>
+#include <unordered_set>
 
 /// \file Section.hpp
 /// \brief Class gtirb::Section.
@@ -37,6 +41,8 @@ namespace gtirb {
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
   Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
+
+  using ByteIntervalSet = std::unordered_set<ByteInterval*>;
 
 public:
   /// \brief Create a Section object in its default state.
@@ -67,6 +73,44 @@ public:
   /// \return The name.
   const std::string& getName() const { return Name; }
 
+  /// \brief Iterator over \ref ByteInterval objects.
+  using byte_intervals_iterator = ByteIntervalSet::iterator;
+  /// \brief Range of \ref ByteInterval objects.
+  using byte_intervals_range = boost::iterator_range<byte_intervals_iterator>;
+  /// \brief Const iterator over \ref ByteInterval objects.
+  using const_byte_intervals_iterator = ByteIntervalSet::const_iterator;
+  /// \brief Const range of \ref ByteInterval objects.
+  using const_byte_intervals_range =
+      boost::iterator_range<const_byte_intervals_iterator>;
+
+  /// \brief Return an iterator to the first \ref ByteInterval.
+  byte_intervals_iterator byte_intervals_begin() {
+    return ByteIntervals.begin();
+  }
+  /// \brief Return a const iterator to the first \ref ByteInterval.
+  const_byte_intervals_iterator byte_intervals_begin() const {
+    return ByteIntervals.begin();
+  }
+  /// \brief Return an iterator to the element following the last \ref
+  /// ByteInterval.
+  byte_intervals_iterator byte_intervals_end() { return ByteIntervals.end(); }
+  /// \brief Return a const iterator to the element following the last
+  /// \ref ByteInterval.
+  const_byte_intervals_iterator byte_intervals_end() const {
+    return ByteIntervals.end();
+  }
+  /// \brief Return a range of the \ref ByteInterval objects in this section.
+  byte_intervals_range byte_intervals() {
+    return boost::make_iterator_range(byte_intervals_begin(),
+                                      byte_intervals_end());
+  }
+  /// \brief Return a const range of the \ref ByteInterval objects in this
+  /// section.
+  const_byte_intervals_range byte_intervals() const {
+    return boost::make_iterator_range(byte_intervals_begin(),
+                                      byte_intervals_end());
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
@@ -91,6 +135,7 @@ public:
 
 private:
   std::string Name;
+  ByteIntervalSet ByteIntervals;
 
   friend class Context;
 };
