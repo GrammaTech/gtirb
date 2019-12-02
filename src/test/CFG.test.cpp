@@ -44,10 +44,9 @@ static Context Ctx;
 
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
-  auto* B = CodeBlock::Create(Ctx, Addr(1), 2);
+  auto* B = CodeBlock::Create(Ctx, 2);
   auto Descriptor1 = addVertex(B, Cfg);
   EXPECT_EQ(Cfg[Descriptor1], B);
-  EXPECT_EQ(dyn_cast<CodeBlock>(Cfg[Descriptor1])->getAddress(), Addr(1));
   EXPECT_EQ(dyn_cast<CodeBlock>(Cfg[Descriptor1])->getSize(), 2);
 
   // adding the same block again doesn't change the graph

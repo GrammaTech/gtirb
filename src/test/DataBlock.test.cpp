@@ -21,8 +21,7 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_DataObject, getters) {
-  DataBlock* D = DataBlock::Create(Ctx, Addr(1), 1234);
-  EXPECT_EQ(D->getAddress(), Addr(1));
+  DataBlock* D = DataBlock::Create(Ctx, 1234);
   EXPECT_EQ(D->getSize(), 1234);
 }
 
@@ -30,11 +29,10 @@ TEST(Unit_DataObject, protobufRoundTrip) {
   proto::DataBlock Message;
   {
     Context InnerCtx;
-    DataBlock* Original = DataBlock::Create(InnerCtx, Addr(1), 1234);
+    DataBlock* Original = DataBlock::Create(InnerCtx, 1234);
     Original->toProtobuf(&Message);
   }
   DataBlock* Result = DataBlock::fromProtobuf(Ctx, Message);
 
-  EXPECT_EQ(Result->getAddress(), Addr(1));
   EXPECT_EQ(Result->getSize(), 1234);
 }

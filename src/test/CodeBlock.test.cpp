@@ -20,15 +20,12 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Block, ctor) {
-  EXPECT_NE(CodeBlock::Create(Ctx, Addr(), 0), nullptr);
-}
+TEST(Unit_Block, ctor) { EXPECT_NE(CodeBlock::Create(Ctx, 0), nullptr); }
 
 TEST(Unit_Block, getters) {
-  CodeBlock* B = CodeBlock::Create(Ctx, Addr(1), 2, 3);
-  EXPECT_EQ(Addr(1), B->getAddress());
-  EXPECT_EQ(uint64_t{2}, B->getSize());
-  EXPECT_EQ(uint64_t{3}, B->getDecodeMode());
+  CodeBlock* B = CodeBlock::Create(Ctx, 1, 2);
+  EXPECT_EQ(uint64_t{1}, B->getSize());
+  EXPECT_EQ(uint64_t{2}, B->getDecodeMode());
 }
 
 TEST(Unit_Offset, ordering) {
