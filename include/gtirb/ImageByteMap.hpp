@@ -113,9 +113,9 @@ public:
   ///
   /// \param A        The address at which to store the data. Must be greater
   ///                 than the minimum address for \c this.
-  /// \param  Data    A pointer to the data to store.
-  ///                 \p A + Data.size() must be less than the
-  ///                 maximum address for \c this.
+  /// \param  Data    An iterator range containing the data to store.
+  ///                 The data to store and address to store it at must fit
+  ///                 within the the minimum/maximum address range for \c this.
   ///
   /// \return  Will return \c true if the data can be assigned at the given
   /// Address, or \c false otherwise. The data passed in at the given address
@@ -125,14 +125,60 @@ public:
   ///
   /// \sa gtirb::ByteMap
   /// \sa getAddrMinMax()
-  template <class It, typename = std::enable_if_t<std::is_convertible_v<
-                          decltype(*std::declval<It>()), std::byte>>>
+  template <class It,
+            std::enable_if_t<
+                std::is_convertible_v<decltype(*std::declval<It>()), std::byte>,
+                int> = 0>
   bool setData(Addr A, boost::iterator_range<It> Data) {
-    if (A >= this->EaMinMax.first &&
-        (A + Data.size() - 1) <= this->EaMinMax.second) {
-      return this->BMap.setData(A, Data);
+    size_t size = std::distance(Data.begin(), Data.end());
+    if (A < this->EaMinMax.first || (A + size - 1) > this->EaMinMax.second ||
+        this->BMap.willOverlapRegion(A, size))
+      return false;
+
+    return this->BMap.setData(A, Data);
+  }
+
+  /// \brief Set the byte map at the specified address.
+  ///
+  /// \param A        The address at which to store the data. Must be greater
+  ///                 than the minimum address for \c this.
+  /// \param  Data    An iterator range containing the data to store.
+  ///                 The data to store and address to store it at must fit
+  ///                 within the the minimum/maximum address range for \c this.
+  ///
+  /// \return  Will return \c true if the data can be assigned at the given
+  /// Address, or \c false otherwise. The data passed in at the given address
+  /// cannot overlap another memory region (overlays are not supported).
+  ///
+  /// Byte order conversions are performed appropriately based on type
+  /// the iterator range traverses.
+  ///
+  /// \sa gtirb::ByteMap
+  /// \sa getAddrMinMax()
+  template <class It,
+            std::enable_if_t<!std::is_convertible_v<
+                                 decltype(*std::declval<It>()), std::byte>,
+                             int> = 0>
+  bool setData(Addr A, boost::iterator_range<It> Data) {
+    static const size_t DATUM_SIZE = sizeof(decltype(*std::declval<It>()));
+
+    size_t size = std::distance(Data.begin(), Data.end()) * DATUM_SIZE;
+    if (A < this->EaMinMax.first || (A + size - 1) > this->EaMinMax.second ||
+        this->BMap.willOverlapRegion(A, size))
+      return false;
+
+    for (auto& datum : Data) {
+      bool success = setData(A, datum);
+
+      // This should never happen if the above checks hold.
+      if (!success) {
+        assert(0);
+        return false;
+      }
+
+      A += DATUM_SIZE;
     }
-    return false;
+    return true;
   }
 
   /// \brief Set the byte map in the specified range to a constant value.
@@ -171,10 +217,20 @@ public:
   /// \sa gtirb::ByteMap
   /// \sa getByteOrder()
   /// \sa getAddrMinMax()
-  template <typename T> bool setData(Addr A, const T& Data) {
+  template <typename T> bool setData(Addr A, const T& Datum) {
     static_assert(std::is_pod<T>::value, "T must be a POD type");
-    std::array<T, 1> wrapper = {Data};
-    return setData(A, wrapper);
+
+    if (this->ByteOrder != boost::endian::order::native) {
+      T reversed = boost::endian::conditional_reverse(
+          Datum, this->ByteOrder, boost::endian::order::native);
+      auto begin = reinterpret_cast<const std::byte*>(&reversed);
+      auto end = reinterpret_cast<const std::byte*>(&reversed + 1);
+      return setData(A, boost::make_iterator_range(begin, end));
+    } else {
+      auto begin = reinterpret_cast<const std::byte*>(&Datum);
+      auto end = reinterpret_cast<const std::byte*>(&Datum + 1);
+      return setData(A, boost::make_iterator_range(begin, end));
+    }
   }
 
   /// \brief Store an array to the byte map at the specified address,
@@ -200,50 +256,7 @@ public:
   /// \sa getAddrMinMax()
   template <typename T, size_t Size>
   bool setData(Addr A, const std::array<T, Size>& Data) {
-    if (this->BMap.willOverlapRegion(A, Size * sizeof(T)))
-      return false;
-
-    if (this->ByteOrder != boost::endian::order::native) {
-      std::array<T, Size> reversed;
-      std::transform(Data.begin(), Data.end(), reversed.begin(),
-                     [this](const T& x) -> T {
-                       return boost::endian::conditional_reverse(
-                           x, this->ByteOrder, boost::endian::order::native);
-                     });
-      auto begin = reinterpret_cast<const std::byte*>(&reversed);
-      auto end = reinterpret_cast<const std::byte*>(&reversed + 1);
-      return this->BMap.setData(A, boost::make_iterator_range(begin, end));
-    }
-    auto begin = reinterpret_cast<const std::byte*>(&Data);
-    auto end = reinterpret_cast<const std::byte*>(&Data + 1);
-    return this->BMap.setData(A, boost::make_iterator_range(begin, end));
-  }
-
-  /// \brief Store an array of std::byte to the byte map at the specified
-  /// address.
-  ///
-  /// \param A        The address at which to store the data. Must be greater
-  ///                 than the minimum address for \c this.
-  /// \param Data     \p A + sizeof(\p Data) must be less than the
-  ///                 maximum address for \c this.
-  ///
-  ///
-  /// \tparam N       The size of the array.
-  ///
-  /// \return  Will return \c true if the data can be assigned at the given
-  /// Address, or \c false otherwise. The data passed in at the given address
-  /// cannot overlap another memory region (overlays are not supported).
-  ///
-  /// \sa gtirb::ByteMap
-  /// \sa getByteOrder()
-  /// \sa getAddrMinMax()
-  template <size_t Size>
-  bool setData(Addr A, const std::array<std::byte, Size>& Data) {
-    if (this->BMap.willOverlapRegion(A, Size * sizeof(Data)))
-      return false;
-
-    return this->BMap.setData(
-        A, boost::make_iterator_range(Data.begin(), Data.end()));
+    return setData(A, boost::make_iterator_range(Data.begin(), Data.end()));
   }
 
   /// \brief A constant range of bytes, representing a contiguous block of

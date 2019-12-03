@@ -18,6 +18,7 @@
 #include <cstring>
 #include <gtest/gtest.h>
 #include <iterator>
+#include <list>
 #include <type_traits>
 
 using namespace gtirb;
@@ -439,4 +440,41 @@ TEST(Unit_ImageByteMap, overlappingRegions) {
                          ExtendedData->begin(), ExtendedData->end() - 2));
   EXPECT_EQ((*ExtendedData)[10], std::byte(100));
   EXPECT_EQ((*ExtendedData)[11], std::byte(100));
+}
+
+// Test different types of sources of data for initializing a byte map.
+TEST(Unit_ImageByteMap, arbitraryData) {
+  ImageByteMap* IBM = ImageByteMap::Create(Ctx);
+
+  IBM->setAddrMinMax(std::make_pair(Addr(0), Addr(100)));
+
+  // std::array of int
+  std::array<uint32_t, 2> data = {1, 2};
+  EXPECT_TRUE(IBM->setData(Addr(0), data));
+  EXPECT_TRUE(IBM->getData<uint32_t>(Addr(0)) == data[0]);
+  EXPECT_TRUE(IBM->getData<uint32_t>(Addr(4)) == data[1]);
+
+  // Iterator range over std::array
+  EXPECT_TRUE(IBM->setData(Addr(8), boost::make_iterator_range(data)));
+  EXPECT_TRUE(IBM->getData<uint32_t>(Addr(8)) == data[0]);
+  EXPECT_TRUE(IBM->getData<uint32_t>(Addr(12)) == data[1]);
+
+  // Some data type that doesn't store things in an array.
+  std::list<uint64_t> data_as_list = {1, 2, 3};
+  Addr a = Addr(16);
+  EXPECT_TRUE(IBM->setData(a, boost::make_iterator_range(data_as_list)));
+  for (auto item : data_as_list) {
+    EXPECT_TRUE(IBM->getData<uint64_t>(a) == item);
+    a += sizeof(uint64_t);
+  }
+
+  // Overlapping region
+  a = Addr(17);
+  EXPECT_FALSE(IBM->setData(a, boost::make_iterator_range(data_as_list)));
+  // Expect original data to be unchanged
+  a = Addr(16);
+  for (auto item : data_as_list) {
+    EXPECT_TRUE(IBM->getData<uint64_t>(a) == item);
+    a += sizeof(uint64_t);
+  }
 }

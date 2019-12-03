@@ -13,6 +13,7 @@
     Unknown data decoded this way can be then encoded again.
     It is still an error to encode unknown types of auxdata
     not in the manner described above.
+* ImageByteMap::setData() has been extended to support arbitrary iterator types.
 
 # 0.2.0
 
