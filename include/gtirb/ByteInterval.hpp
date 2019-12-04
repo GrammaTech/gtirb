@@ -41,6 +41,8 @@ class ByteInterval;
 } // namespace proto
 
 namespace gtirb {
+class Module;
+
 /// \class Block
 ///
 /// \brief An entity with an offset held within this interval.
@@ -97,9 +99,9 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
   using ByteVector = std::vector<uint8_t>;
 
-  const Block& nodeToBlock(Node* N) const {
+  const Block& nodeToBlock(const Node* N) const {
     auto& index = Blocks.get<by_pointer>();
-    auto it = index.find(N);
+    auto it = index.find((Node*)N);
     if (it != index.end()) {
       return *it;
     } else {
@@ -107,6 +109,21 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
           "ByteInterval::nodeToBlock called with block not in interval");
     }
   }
+
+  void addBlock(uint64_t O, Node* N) { Blocks.emplace(O, N); }
+
+  template <class ExprType, class... Args>
+  SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
+    SymbolicExpressions.emplace(O, ExprType{A...});
+    return SymbolicExpressions[O];
+  }
+
+  void removeBlock(Node* N) {
+    auto& index = Blocks.get<by_pointer>();
+    index.erase(index.find(N));
+  }
+
+  void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
 
 public:
   /// \brief Create a ByteInterval object.
@@ -400,20 +417,6 @@ public:
                                       symbolic_expressions_end());
   }
 
-  void addBlock(uint64_t O, Node* N) { Blocks.emplace(O, N); }
-
-  template <class ExprType, class... Args>
-  void addSymbolicExpression(uint64_t O, Args... A) {
-    SymbolicExpressions.emplace(O, ExprType(A...));
-  }
-
-  void removeBlock(Node* N) {
-    auto& index = Blocks.get<by_pointer>();
-    index.erase(index.find(N));
-  }
-
-  void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
-
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
@@ -446,6 +449,7 @@ private:
   ByteVector Bytes;
 
   friend class Context;
+  friend class Module;
 };
 } // namespace gtirb
 

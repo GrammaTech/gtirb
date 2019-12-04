@@ -31,6 +31,7 @@ class Section;
 }
 
 namespace gtirb {
+class Module;
 
 /// \class Section
 ///
@@ -43,6 +44,9 @@ class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
 
   using ByteIntervalSet = std::unordered_set<ByteInterval*>;
+
+  void addByteInterval(ByteInterval* BI) { ByteIntervals.insert(BI); }
+  void removeByteInterval(ByteInterval* BI) { ByteIntervals.erase(BI); }
 
 public:
   /// \brief Create a Section object in its default state.
@@ -156,10 +160,6 @@ public:
     return std::optional<uint64_t>(highAddr - lowAddr);
   }
 
-  void addByteInterval(ByteInterval* BI) { ByteIntervals.insert(BI); }
-
-  void removeByteInterval(ByteInterval* BI) { ByteIntervals.erase(BI); }
-
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
@@ -187,6 +187,7 @@ private:
   ByteIntervalSet ByteIntervals;
 
   friend class Context;
+  friend class Module;
 };
 } // namespace gtirb
 
