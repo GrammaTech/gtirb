@@ -35,6 +35,14 @@ check-format:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
 
+.windows-build-template: &windows-build
+  script:
+    - mkdir build
+    - cd build
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DBOOST_ROOT=\"C:\\Boost\" -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} .."
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
+    - ./bin/TestGTIRB.exe
+
 # This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
 #
 # build-ubuntu14:
@@ -90,30 +98,17 @@ build-windows-msvc-debug:
   stage: build
   tags:
     - gtirb-windows
-  script:
-    - mkdir build
-    - cd build
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DBOOST_ROOT=\"C:\\Boost\" -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\"  .."
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
-    - ./bin/TestGTIRB.exe
-  artifacts:
-    paths:
-      - bin/gtirbd.dll
-      - bin/gtirbd.pdb
+  variables:
+    BUILD_TYPE: 'Debug'
+  <<: *windows-build
 
 build-windows-msvc-release:
   stage: build
   tags:
     - gtirb-windows
-  script:
-    - mkdir build
-    - cd build
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DBOOST_ROOT=\"C:\\Boost\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\"  .."
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
-    - ./bin/TestGTIRB.exe
-  artifacts:
-    paths:
-      - bin/gtirbd.dll
+  variables:
+    BUILD_TYPE: 'Release'
+  <<: *windows-build
 
 pages:
   stage: deploy
