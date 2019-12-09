@@ -1,0 +1,82 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "gusztavvargadr/windows-10"
+
+  config.vm.provision "setup-gitlab-requirements", type: "shell", inline: <<-SHELL
+    cd $HOME
+    Invoke-WebRequest https://www.cygwin.com/setup-x86_64.exe -OutFile setup-x86_64.exe
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = "C:\\Users\\vagrant\\setup-x86_64.exe"
+    $startInfo.Arguments = "--no-shortcuts --no-desktop -q --site http://cygwin.mirror.constant.com --packages git,cygrunsrv,openssh"
+    $startInfo.UseShellExecute = $true
+    $startInfo.CreateNoWindow = $false
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    $process.Start()
+    $process.WaitForExit()
+    C:\\cygwin64\\bin\\bash.exe --login -c "/bin/ssh-host-config -y -c ntsec -p 22"
+    C:\\cygwin64\\bin\\bash.exe --login -c "net stop sshd"
+    sc config "sshd" start= disabled
+    C:\\cygwin64\\bin\\bash.exe --login -c "net start cygsshd"
+    sc config "cygsshd" start=auto
+    choco install -y git-lfs
+    C:\\cygwin64\\bin\\bash.exe --login -c  "mkdir ~/.ssh"
+    C:\\cygwin64\\bin\\bash.exe --login -c  "echo 'git.grammatech.com' > ~/.ssh/known_hosts"
+  SHELL
+
+  config.vm.provision "setup-dev-tools", type: "shell", inline: <<-SHELL
+    choco install -y git
+    choco install -y cmake
+    choco install -y ninja
+    cd $HOME
+    Invoke-WebRequest "https://download.visualstudio.microsoft.com/download/pr/57d28351-e762-4ee1-aca4-16b6d3faaa33/9fd19a14823506bdbd249be8f519e4a17af494df5cd92e3dc65e110a744d6ebb/vs_Community.exe" -OutFile vs_community.exe
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = "C:\\Users\\vagrant\\vs_community.exe"
+    $startInfo.Arguments = "--installPath ""C:\\VS"" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Redist.14.Latest --add Microsoft.VisualStudio.Component.Windows10SDK --add Microsoft.VisualStudio.Component.Windows10SDK.18362 --includeRecommended --passive --wait"
+    $startInfo.UseShellExecute = $true
+    $startInfo.CreateNoWindow = $false
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    $process.Start()
+    $process.WaitForExit()
+  SHELL
+
+  config.vm.provision "build-boost", type: "shell", inline: <<-SHELL
+    cd $HOME
+    git clone --recurse-submodules https://github.com/boostorg/boost.git
+    cd boost
+    git checkout afb333b # boost 1.71
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && .\\bootstrap.bat"
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && .\\b2.exe install variant=debug,release link=shared runtime-link=shared --with-program_options --with-filesystem --with-system"
+  SHELL
+
+  config.vm.provision "build-protobuf", type: "shell", inline: <<-SHELL
+    cd $HOME
+    git clone https://github.com/protocolbuffers/protobuf.git
+    cd protobuf
+
+    mkdir cmake-build-debug
+    cd cmake-build-debug
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ""C:\\Program Files\\CMake\\bin\\cmake.exe"" -G ""Ninja"" -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF ../cmake"
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja install"
+
+    cd ..
+    mkdir cmake-build-release
+    cd cmake-build-release
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ""C:\\Program Files\\CMake\\bin\\cmake.exe"" -G ""Ninja"" -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -DCMAKE_BUILD_TYPE=Release ../cmake"
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
+    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja install"
+  SHELL
+
+  config.vm.provision "setup-artifacts-upload", type: "shell", inline: <<-SHELL
+    mkdir C:\\GitLab-Runner
+    cd C:\\GitLab-Runner
+    Invoke-WebRequest https://s3.amazonaws.com/gitlab-runner-downloads/v12.3.0/binaries/gitlab-runner-windows-amd64.exe -OutFile gitlab-runner.exe
+    cp gitlab-runner.exe gitlab-runner
+    C:\\cygwin64\\bin\\bash.exe --login -c 'echo ''export PATH=\\"$PATH:/cygdrive/c/Program Files/Git LFS\\"'' >> ~/.bashrc'
+    cmd.exe /C "setx /M PATH ""%PATH%;C:\\GitLab-Runner;"""
+  SHELL
+end
