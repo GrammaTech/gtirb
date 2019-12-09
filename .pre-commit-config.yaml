@@ -21,3 +21,4 @@ repos:
     hooks:
       - id: cmake-format
         exclude: build
+        files: (CMakeLists.txt|.*\.cmake)$
