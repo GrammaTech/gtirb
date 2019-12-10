@@ -180,20 +180,33 @@ public:
     return boost::make_iterator_range(begin(), end());
   }
 
-  /// \brief Adds a single module to the IR.
+  /// \brief Remove a \ref Module object located in this IR.
   ///
-  /// \param M The Module object to add.
-  ///
-  /// \return void
-  void addModule(Module* M) { Modules.insert(M); }
+  /// \param S The \ref Module object to remove.
+  void removeModule(Module* S) {
+    auto& index = Modules.get<by_pointer>();
+    index.erase(index.find(S));
+    S->setIR(nullptr);
+  }
 
-  /// \brief Adds one or more modules to the IR.
+  /// \brief Move a \ref Module object to be located in this IR.
   ///
-  /// \param Ms The list of Module objects to add.
+  /// \param S The \ref Module object to add.
+  void moveModule(Module* S) {
+    if (S->getIR()) {
+      S->getIR()->removeModule(S);
+    }
+    Modules.emplace(S);
+    S->setIR(this);
+  }
+
+  /// \brief Creates a new \ref Module in this IR.
   ///
-  /// \return void
-  void addModule(std::initializer_list<Module*> Ms) {
-    Modules.insert(std::begin(Ms), std::end(Ms));
+  /// \tparam Args  The arguments to construct a \ref Module.
+  template <typename... Args> Module* addModule(Context& C, Args... A) {
+    auto N = Module::Create(C, this, A...);
+    Modules.emplace(N);
+    return N;
   }
 
   /// \brief Serialize to an output stream in binary format.

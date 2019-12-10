@@ -380,12 +380,15 @@ private:
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), Storage(SK) {}
 
+  void setModule(Module* M) { Parent = M; }
+
   Module* Parent;
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
 
   friend class Context; // Allow Context to construct Symbols.
+  friend class Module;  // Allow Module to call setModule.
 
   // Allow these methods to update Symbol contents.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);

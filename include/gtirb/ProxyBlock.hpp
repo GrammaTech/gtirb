@@ -85,9 +85,12 @@ private:
   ProxyBlock(Context& C) : CfgNode(C, Kind::ProxyBlock) {}
   ProxyBlock(Context& C, Module* P) : CfgNode(C, Kind::ProxyBlock), Parent(P) {}
 
+  void setModule(Module* M) { Parent = M; }
+
   Module* Parent;
 
-  friend class Context;
+  friend class Context; // Allow Context to construct proxies.
+  friend class Module;  // Allow Module to call setModule.
 };
 
 } // namespace gtirb

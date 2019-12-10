@@ -111,17 +111,10 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     }
   }
 
-  void addBlock(uint64_t O, Node* N) { Blocks.emplace(O, N); }
-
   template <class ExprType, class... Args>
   SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
     SymbolicExpressions.emplace(O, ExprType{A...});
     return SymbolicExpressions[O];
-  }
-
-  void removeBlock(Node* N) {
-    auto& index = Blocks.get<by_pointer>();
-    index.erase(index.find(N));
   }
 
   void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
@@ -398,6 +391,47 @@ public:
                                       symbolic_expressions_end());
   }
 
+  /// \brief Remove a block from this interval.
+  ///
+  /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
+  template <class BlockType> void removeBlock(BlockType* N) {
+    auto& index = Blocks.get<by_pointer>();
+    index.erase(index.find(N));
+    N->setByteInerval(nullptr);
+  }
+
+  /// \brief Move an existing Block to be a part of this interval.
+  ///
+  /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
+  template <typename BlockType> void moveBlock(uint64_t O, BlockType* N) {
+    if (N->getByteInterval()) {
+      N->getByteInterval()->removeBlock(N);
+    }
+
+    N->setByteInterval(this);
+    Blocks.emplace(O, N);
+  }
+
+  /// \brief Creates a new \ref CodeBlock at a given offset.
+  ///
+  /// \tparam Args  The arguments to construct a \ref CodeBlock.
+  template <typename... Args>
+  CodeBlock* addCodeBlock(Context& C, uint64_t O, Args... A) {
+    auto N = CodeBlock::Create(C, this, A...);
+    Blocks.emplace(O, N);
+    return N;
+  }
+
+  /// \brief Creates a new \ref DataBlock at a given offset.
+  ///
+  /// \tparam Args  The arguments to construct a \ref DataBlock.
+  template <typename... Args>
+  DataBlock* addDataBlock(Context& C, uint64_t O, Args... A) {
+    auto N = DataBlock::Create(C, this, A...);
+    Blocks.emplace(O, N);
+    return N;
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
@@ -424,6 +458,8 @@ private:
   ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t S)
       : Node(C, Kind::ByteInterval), Parent(P), Address(A), Size(S) {}
 
+  void setSection(Section* S) { Parent = S; }
+
   Section* Parent;
   std::optional<Addr> Address{};
   uint64_t Size{0};
@@ -431,10 +467,10 @@ private:
   SymbolicExpressionSet SymbolicExpressions;
   ByteVector Bytes;
 
-  friend class Context;
-  friend class Module;
-  friend class CodeBlock;
-  friend class DataBlock;
+  friend class Context;   // to enable Context::Create
+  friend class Section;   // to enable Section::(re)moveByteInterval
+  friend class CodeBlock; // to enable CodeBlock::getAddress
+  friend class DataBlock; // to enable DataBlock::getAddress
 };
 } // namespace gtirb
 

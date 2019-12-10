@@ -277,13 +277,77 @@ public:
   /// \param CB The entry point of this module, or null if not present.
   void setEntryPoint(CodeBlock* CB) { EntryPoint = CB; }
 
-  /// \brief Add a single ProxyBlock to the module.
-  ///
-  /// \param P  The ProxyBlock to add.
-  void addProxyBlock(ProxyBlock* P) {
-    ProxyBlocks.insert(P);
-    addVertex(P, getCFG());
+  /// \name ProxyBlock-Related Public Types and Functions
+  /// @{
+
+  /// \brief Iterator over proxy_blocks (\ref ProxyBlock).
+  using proxy_block_iterator =
+      boost::indirect_iterator<ProxyBlockSet::iterator>;
+  /// \brief Range of proxy_blocks (\ref ProxyBlock).
+  using proxy_block_range = boost::iterator_range<proxy_block_iterator>;
+  /// \brief Constant iterator over proxy_blocks (\ref ProxyBlock).
+  using const_proxy_block_iterator =
+      boost::indirect_iterator<ProxyBlockSet::const_iterator, const ProxyBlock>;
+  /// \brief Constant range of proxy_blocks (\ref ProxyBlock).
+  using const_proxy_block_range =
+      boost::iterator_range<const_proxy_block_iterator>;
+
+  /// \brief Return an iterator to the first ProxyBlock.
+  proxy_block_iterator proxy_blocks_begin() {
+    return proxy_block_iterator(ProxyBlocks.begin());
   }
+  /// \brief Return a constant iterator to the first ProxyBlock.
+  const_proxy_block_iterator proxy_blocks_begin() const {
+    return const_proxy_block_iterator(ProxyBlocks.begin());
+  }
+  /// \brief Return an iterator to the element following the last ProxyBlock.
+  proxy_block_iterator proxy_blocks_end() {
+    return proxy_block_iterator(ProxyBlocks.end());
+  }
+  /// \brief Return a constant iterator to the element following the last
+  /// ProxyBlock.
+  const_proxy_block_iterator proxy_blocks_end() const {
+    return const_proxy_block_iterator(ProxyBlocks.end());
+  }
+  /// \brief Return a range of the proxy_blocks (\ref ProxyBlock).
+  proxy_block_range proxy_blocks() {
+    return boost::make_iterator_range(proxy_blocks_begin(), proxy_blocks_end());
+  }
+  /// \brief Return a constant range of the proxy_blocks (\ref ProxyBlock).
+  const_proxy_block_range proxy_blocks() const {
+    return boost::make_iterator_range(proxy_blocks_begin(), proxy_blocks_end());
+  }
+
+  /// \brief Remove a \ref ProxyBlock object located in this module.
+  ///
+  /// \param S The \ref ProxyBlock object to remove.
+  void removeProxyBlock(ProxyBlock* B) {
+    ProxyBlocks.erase(B);
+    B->setModule(nullptr);
+  }
+
+  /// \brief Move a \ref ProxyBlock object to be located in this module.
+  ///
+  /// \param S The \ref ProxyBlock object to add.
+  void moveProxyBlock(ProxyBlock* B) {
+    if (B->getModule()) {
+      B->getModule()->removeProxyBlock(B);
+    }
+    ProxyBlocks.insert(B);
+    B->setModule(this);
+  }
+
+  /// \brief Creates a new \ref ProxyBlock in this module.
+  ///
+  /// \tparam Args  The arguments to construct a \ref ProxyBlock.
+  template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
+    auto B = ProxyBlock::Create(C, this, A...);
+    ProxyBlocks.insert(B);
+    return B;
+  }
+
+  /// @}
+  // (end of ProxyBlock-Related Public Types and Functions)
 
   /// \name Symbol-Related Public Types and Functions
   /// @{
@@ -385,22 +449,33 @@ public:
     return boost::make_iterator_range(symbol_begin(), symbol_end());
   }
 
-  /// \brief Add a single symbol to the module.
+  /// \brief Remove a \ref Symbol object located in this module.
   ///
-  /// \param S The Symbol object to add.
-  ///
-  /// \return void
-  void addSymbol(Symbol* S) { addSymbol({S}); }
+  /// \param S The \ref Symbol object to remove.
+  void removeSymbol(Symbol* S) {
+    auto& index = Symbols.get<by_pointer>();
+    index.erase(index.find(S));
+    S->setModule(nullptr);
+  }
 
-  /// \brief Add one or more symbols to the module.
+  /// \brief Move a \ref Symbol object to be located in this module.
   ///
-  /// \param Ss The list of Symbol objects to add.
-  ///
-  /// \return void
-  void addSymbol(std::initializer_list<Symbol*> Ss) {
-    for (auto* S : Ss) {
-      Symbols.insert(S);
+  /// \param S The \ref Symbol object to add.
+  void moveSymbol(Symbol* S) {
+    if (S->getModule()) {
+      S->getModule()->removeSymbol(S);
     }
+    Symbols.emplace(S);
+    S->setModule(this);
+  }
+
+  /// \brief Creates a new \ref Symbol in this module.
+  ///
+  /// \tparam Args  The arguments to construct a \ref Symbol.
+  template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
+    auto N = Symbol::Create(C, this, A...);
+    Symbols.emplace(N);
+    return N;
   }
 
   /// \brief Find symbols by name
@@ -572,51 +647,6 @@ public:
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
-  /// \brief Add a single code block to a byte interval.
-  /// \param BI The \ref ByteInterval to add this block to.
-  /// \param O The offset in the \ref ByteInterval to place the \ref CodeBlock
-  /// at.
-  /// \param B  The \ref CodeBlock to add.
-  void addCodeBlock(ByteInterval* BI, uint64_t O, CodeBlock* B) {
-    BI->addBlock(O, B);
-    addVertex(B, getCFG());
-
-    CodeBlocks.insert(B);
-    auto addr = B->getAddress();
-    if (addr.has_value()) {
-      CodeBlockAddrs.add(std::make_pair(
-          CodeBlockIntMap::interval_type::right_open(*addr,
-                                                     *addr + B->getSize()),
-          CodeBlockIntMap::codomain_type({std::make_pair(BI, B)})));
-    }
-  }
-
-  /// \brief Add a single code block to the end of a byte interval.
-  /// \param BI The \ref ByteInterval to add this block to.
-  /// \param B  The \ref CodeBlock to add.
-  void addCodeBlock(ByteInterval* BI, CodeBlock* B) {
-    addCodeBlock(BI, BI->getSize(), B);
-  }
-
-  /// \brief Create a new code block and add it to the module.
-  ///
-  /// \tparam Ts  Types of forwarded arguments.
-  ///
-  /// \param C     The Context in which the Symbol will be held.
-  /// \param BI The \ref ByteInterval to add this block to.
-  /// \param O The offset in the \ref ByteInterval to place the \ref CodeBlock
-  /// at.
-  /// \param Args  Forwarded to DataBlock::Create().
-  ///
-  /// \return A pointer to the newly created DataBlock.
-  template <class... Ts>
-  CodeBlock* emplaceCodeBlock(Context& C, ByteInterval* BI, uint64_t O,
-                              Ts&&... Args) {
-    CodeBlock* B = CodeBlock::Create(C, std::forward<Ts>(Args)...);
-    addCodeBlock(BI, O, B);
-    return B;
-  }
-
   /// \brief Find a \ref CodeBlock containing an address.
   ///
   /// \param X The address to look up.
@@ -699,50 +729,6 @@ public:
   /// \brief Return a constant range of the data_blocks (\ref DataBlock).
   const_data_block_range data_blocks() const {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
-  }
-
-  /// \brief Add a single data block to a byte interval.
-  /// \param BI The \ref ByteInterval to add this block to.
-  /// \param O The offset in the \ref ByteInterval to place the \ref DataBlock
-  /// at.
-  /// \param B  The \ref DataBlock to add.
-  void addDataBlock(ByteInterval* BI, uint64_t O, DataBlock* B) {
-    BI->addBlock(O, B);
-
-    DataBlocks.insert(B);
-    auto addr = B->getAddress();
-    if (addr.has_value()) {
-      DataBlockAddrs.add(std::make_pair(
-          DataBlockIntMap::interval_type::right_open(*addr,
-                                                     *addr + B->getSize()),
-          DataBlockIntMap::codomain_type({std::make_pair(BI, B)})));
-    }
-  }
-
-  /// \brief Add a single data block to the end of a byte interval.
-  /// \param BI The \ref ByteInterval to add this block to.
-  /// \param B  The \ref DataBlock to add.
-  void addDataBlock(ByteInterval* BI, DataBlock* B) {
-    addDataBlock(BI, BI->getSize(), B);
-  }
-
-  /// \brief Create a new data block and add it to the module.
-  ///
-  /// \tparam Ts  Types of forwarded arguments.
-  ///
-  /// \param C     The Context in which the Symbol will be held.
-  /// \param BI The \ref ByteInterval to add this block to.
-  /// \param O The offset in the \ref ByteInterval to place the \ref DataBlock
-  /// at.
-  /// \param Args  Forwarded to DataBlock::Create().
-  ///
-  /// \return A pointer to the newly created DataBlock.
-  template <class... Ts>
-  DataBlock* emplaceDataBlock(Context& C, ByteInterval* BI, uint64_t O,
-                              Ts&&... Args) {
-    DataBlock* B = DataBlock::Create(C, std::forward<Ts>(Args)...);
-    addDataBlock(BI, O, B);
-    return B;
   }
 
   /// \brief Find a \ref DataBlock containing an address.
@@ -865,31 +851,33 @@ public:
     return boost::make_iterator_range(section_begin(), section_end());
   }
 
-  /// \brief Add a single Section object to the module.
+  /// \brief Remove a \ref Section object located in this module.
   ///
-  /// \param S The Section object to add.
-  ///
-  /// \return void
-  void addSection(Section* S) {
-    Sections.emplace(S);
-
-    auto newAddr = S->getAddress();
-    auto newSize = S->getSize();
-    if (newAddr.has_value() && newSize.has_value()) {
-      SectionAddrs.add(std::make_pair(SectionIntMap::interval_type::right_open(
-                                          *newAddr, *newAddr + *newSize),
-                                      SectionIntMap::codomain_type({S})));
-    }
+  /// \param S The \ref Section object to remove.
+  void removeSection(Section* S) {
+    auto& index = Sections.get<by_pointer>();
+    index.erase(index.find(S));
+    S->setModule(nullptr);
   }
 
-  /// \brief Add one or more section objects to the module.
+  /// \brief Move a \ref Section object to be located in this module.
   ///
-  /// \param Ss The list of Section objects to add.
+  /// \param S The \ref Section object to add.
+  void moveSection(Section* S) {
+    if (S->getModule()) {
+      S->getModule()->removeSection(S);
+    }
+    Sections.emplace(S);
+    S->setModule(this);
+  }
+
+  /// \brief Creates a new \ref Section in this module.
   ///
-  /// \return void
-  void addSection(std::initializer_list<Section*> Ss) {
-    for (auto* S : Ss)
-      addSection(S);
+  /// \tparam Args  The arguments to construct a \ref Section.
+  template <typename... Args> Section* addSection(Context& C, Args... A) {
+    auto N = Section::Create(C, this, A...);
+    Sections.emplace(N);
+    return N;
   }
 
   /// \brief Find a Section containing an address.
@@ -1031,28 +1019,9 @@ public:
 
   /// \name ByteInterval-Related Public Types and Functions
   /// @{
-  void addByteInterval(Section* S, ByteInterval* BI) {
-    auto oldAddr = S->getAddress();
-    auto oldSize = S->getSize();
-    if (oldAddr.has_value() && oldSize.has_value()) {
-      SectionAddrs.subtract(
-          std::make_pair(SectionIntMap::interval_type::right_open(
-                             *oldAddr, *oldAddr + *oldSize),
-                         SectionIntMap::codomain_type({S})));
-    }
 
-    S->addByteInterval(BI);
-    ByteIntervals.insert(BI);
-
-    auto newAddr = S->getAddress();
-    auto newSize = S->getSize();
-    if (newAddr.has_value() && newSize.has_value()) {
-      SectionAddrs.add(std::make_pair(SectionIntMap::interval_type::right_open(
-                                          *newAddr, *newAddr + *newSize),
-                                      SectionIntMap::codomain_type({S})));
-    }
-  }
   /// @}
+  // (end group of ByteInterval-related type aliases and methods)
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Module.
@@ -1078,6 +1047,8 @@ public:
   /// @endcond
 
 private:
+  void setIR(IR* I) { Parent = I; }
+
   IR* Parent;
   std::string BinaryPath{};
   Addr PreferredAddr;
@@ -1102,6 +1073,7 @@ private:
   SymbolicExpressionIntMap SymbolicExpressionAddrs;
 
   friend class Context; // Allow Context to construct new Modules.
+  friend class IR;      // Allow IRs to call setIR.
 
   // Allow changing the module's name.
   friend void setModuleName(IR& Ir, Module& M, const std::string& X);
@@ -1127,23 +1099,6 @@ private:
 /// Can be used in algorithms iterating over Module objects.
 inline bool hasPreferredAddr(const Module& M, Addr X) {
   return M.getPreferredAddr() == X;
-}
-
-/// \relates Symbol
-/// \brief Create a new symbol and add it to the module.
-///
-/// \tparam Ts   Types of forwarded arguments.
-///
-/// \param M     The Module to modify.
-/// \param C     The Context in which the Symbol will be held.
-/// \param Args  Forwarded to Symbol::Create()
-///
-/// \return A pointer to the newly created Symbol.
-template <class... Ts>
-Symbol* emplaceSymbol(Module& M, Context& C, Ts&&... Args) {
-  Symbol* S = Symbol::Create(C, std::forward<Ts>(Args)...);
-  M.addSymbol(S);
-  return S;
 }
 
 /// \relates Module

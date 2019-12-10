@@ -113,6 +113,7 @@ private:
   uint64_t Size{0};
 
   friend class Context;
+  friend class ByteInterval;
 };
 } // namespace gtirb
 

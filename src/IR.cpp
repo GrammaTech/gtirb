@@ -35,7 +35,7 @@ IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
   for (const auto& Elt : Message.modules())
-    I->addModule(Module::fromProtobuf(C, I, Elt));
+    I->moveModule(Module::fromProtobuf(C, I, Elt));
   static_cast<AuxDataContainer*>(I)->fromProtobuf(C, Message);
   I->Version = Message.version();
   return I;

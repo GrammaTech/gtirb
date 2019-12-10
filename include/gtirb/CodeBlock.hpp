@@ -109,11 +109,14 @@ private:
   CodeBlock(Context& C, ByteInterval* P, uint64_t S, uint64_t Decode)
       : CfgNode(C, Kind::CodeBlock), Parent(P), Size(S), DecodeMode(Decode) {}
 
+  void setByteInterval(ByteInterval* BI) { Parent = BI; }
+
   ByteInterval* Parent;
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 
   friend class Context;
+  friend class ByteInterval;
 };
 
 /// \class Offset

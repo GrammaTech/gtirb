@@ -69,11 +69,11 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   M->IsaID = static_cast<ISAID>(Message.isa_id());
   M->Name = Message.name();
   for (const auto& Elt : Message.proxies())
-    M->addProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));
+    M->moveProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));
   for (const auto& Elt : Message.sections())
-    M->addSection(Section::fromProtobuf(C, M, Elt));
+    M->moveSection(Section::fromProtobuf(C, M, Elt));
   for (const auto& Elt : Message.symbols())
-    M->addSymbol(Symbol::fromProtobuf(C, M, Elt));
+    M->moveSymbol(Symbol::fromProtobuf(C, M, Elt));
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   if (!Message.entry_point().empty()) {
     M->EntryPoint = cast<CodeBlock>(

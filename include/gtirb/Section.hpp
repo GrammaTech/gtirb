@@ -46,9 +46,6 @@ class GTIRB_EXPORT_API Section : public Node {
 
   using ByteIntervalSet = std::unordered_set<ByteInterval*>;
 
-  void addByteInterval(ByteInterval* BI) { ByteIntervals.insert(BI); }
-  void removeByteInterval(ByteInterval* BI) { ByteIntervals.erase(BI); }
-
 public:
   /// \brief Create a Section object in its default state.
   ///
@@ -165,6 +162,32 @@ public:
     return std::optional<uint64_t>(highAddr - lowAddr);
   }
 
+  /// \brief Remove an interval from this section.
+  void removeByteInterval(ByteInterval* N) {
+    ByteIntervals.erase(N);
+    N->setSection(nullptr);
+  }
+
+  /// \brief Move an existing \ref ByteInterval to be a part of this section.
+  void moveByteInterval(ByteInterval* N) {
+    if (N->getSection()) {
+      N->getSection()->removeByteInterval(N);
+    }
+
+    N->setSection(this);
+    ByteIntervals.insert(N);
+  }
+
+  /// \brief Creates a new \ref ByteInterval in this section.
+  ///
+  /// \tparam Args  The arguments to construct a \ref ByteInterval.
+  template <typename... Args>
+  ByteInterval* addByteInterval(Context& C, Args... A) {
+    auto N = ByteInterval::Create(C, this, A...);
+    ByteIntervals.insert(N);
+    return N;
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
@@ -193,8 +216,10 @@ private:
   std::string Name;
   ByteIntervalSet ByteIntervals;
 
-  friend class Context;
-  friend class Module;
+  void setModule(Module* M) { Parent = M; }
+
+  friend class Context; // Allow Context to construct sections.
+  friend class Module;  // Allow Module to call setModule.
 };
 } // namespace gtirb
 
