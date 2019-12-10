@@ -42,6 +42,7 @@ class ByteInterval;
 
 namespace gtirb {
 class Module;
+class Section;
 
 /// \class Block
 ///
@@ -128,13 +129,17 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
 public:
   /// \brief Create a ByteInterval object.
   /// \param C        The Context in which this interval will be held.
+  /// \param Parent   The \ref Section this interval belongs to.
   /// \param Address  An (optional) fixed address for this interval.
   /// \param Size     The size of this interval in bytes.
   /// \return         The newly created ByteInterval.
-  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              uint64_t Size) {
-    return C.Create<ByteInterval>(C, Address, Size);
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address, uint64_t Size) {
+    return C.Create<ByteInterval>(C, Parent, Address, Size);
   }
+
+  /// \brief Get the \ref Section this byte interval belongs to.
+  Section* getSection() const { return Parent; }
 
   /// \brief Get the fixed address of this interval, if present.
   ///
@@ -144,15 +149,6 @@ public:
   /// present, it indicates that the interval is free to be moved around in
   /// memory while preserving program semantics.
   std::optional<Addr> getAddress() const { return Address; }
-
-  template <class ByteBlock>
-  std::optional<Addr> getAddress(const ByteBlock* BB) const {
-    if (Address.has_value()) {
-      return std::optional<Addr>(((uint64_t)*Address) + nodeToBlock(BB).offset);
-    } else {
-      return std::optional<Addr>();
-    }
-  }
 
   /// \brief Get the size of this interval in bytes.
   ///
@@ -165,11 +161,6 @@ public:
   /// It is an error to have an interval in which this number is less than the
   /// size of the byte array returned by \ref getBytes.
   uint64_t getSize() const { return Size; }
-
-  using bytes_iterator = ByteVector::iterator;
-  using const_bytes_iterator = ByteVector::const_iterator;
-  using bytes_range = boost::iterator_range<bytes_iterator>;
-  using const_bytes_range = boost::iterator_range<const_bytes_iterator>;
 
   /// \brief Get the bytes stored in this interval.
   ///
@@ -191,16 +182,6 @@ public:
   /// case where, for example, elements of arrays are accessed in a static
   /// manner.
   const ByteVector& getBytes() const { return Bytes; }
-
-  template <class ByteBlock> bytes_range getBytes(const ByteBlock* BB) {
-    return boost::make_iterator_range_n(Bytes.begin() + nodeToBlock(BB).offset,
-                                        BB->getSize());
-  }
-  template <class ByteBlock>
-  const_bytes_range getBytes(const ByteBlock* BB) const {
-    return boost::make_iterator_range_n(Bytes.begin() + nodeToBlock(BB).offset,
-                                        BB->getSize());
-  }
 
   /// \brief Iterator over \ref Block objects.
   ///
@@ -434,14 +415,16 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ByteInterval object, or null on failure.
-  static ByteInterval* fromProtobuf(Context& C, const MessageType& Message);
+  static ByteInterval* fromProtobuf(Context& C, Section* Parent,
+                                    const MessageType& Message);
   /// @endcond
 
 private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S)
-      : Node(C, Kind::ByteInterval), Address(A), Size(S) {}
+  ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t S)
+      : Node(C, Kind::ByteInterval), Parent(P), Address(A), Size(S) {}
 
+  Section* Parent;
   std::optional<Addr> Address{};
   uint64_t Size{0};
   BlockSet Blocks;
@@ -450,6 +433,8 @@ private:
 
   friend class Context;
   friend class Module;
+  friend class CodeBlock;
+  friend class DataBlock;
 };
 } // namespace gtirb
 

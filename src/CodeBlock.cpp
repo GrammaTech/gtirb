@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Serialization.hpp>
 #include <proto/Offset.pb.h>
@@ -24,8 +25,9 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-CodeBlock* CodeBlock::fromProtobuf(Context& C, const proto::CodeBlock& M) {
-  CodeBlock* B = CodeBlock::Create(C, M.size(), M.decode_mode());
+CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
+                                   const proto::CodeBlock& M) {
+  CodeBlock* B = CodeBlock::Create(C, Parent, M.size(), M.decode_mode());
   setNodeUUIDFromBytes(B, M.uuid());
   return B;
 }
@@ -38,4 +40,14 @@ void Offset::toProtobuf(MessageType* Message) const {
 void Offset::fromProtobuf(Context&, const MessageType& Message) {
   this->ElementId = uuidFromBytes(Message.element_id());
   this->Displacement = Message.displacement();
+}
+
+uint64_t CodeBlock::getOffset() const {
+  return Parent->nodeToBlock(this).getOffset();
+}
+
+std::optional<Addr> CodeBlock::getAddress() const {
+  auto baseAddr = Parent->getAddress();
+  return baseAddr.has_value() ? std::optional<Addr>(*baseAddr + getOffset())
+                              : std::optional<Addr>();
 }

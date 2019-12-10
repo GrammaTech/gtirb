@@ -22,11 +22,6 @@
 
 using namespace gtirb;
 
-Module::Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
-
-Module::Module(Context& C, const std::string& X)
-    : AuxDataContainer(C, Kind::Module), Name(X) {}
-
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);
@@ -63,8 +58,9 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
   });
 }
 
-Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
-  Module* M = Module::Create(C);
+Module* Module::fromProtobuf(Context& C, IR* Parent,
+                             const MessageType& Message) {
+  Module* M = Module::Create(C, Parent);
   setNodeUUIDFromBytes(M, Message.uuid());
   M->BinaryPath = Message.binary_path();
   M->PreferredAddr = Addr(Message.preferred_addr());
@@ -73,10 +69,11 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   M->IsaID = static_cast<ISAID>(Message.isa_id());
   M->Name = Message.name();
   for (const auto& Elt : Message.proxies())
-    M->addProxyBlock(ProxyBlock::fromProtobuf(C, Elt));
+    M->addProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));
   for (const auto& Elt : Message.sections())
-    M->addSection(Section::fromProtobuf(C, Elt));
-  containerFromProtobuf(C, M->Symbols, Message.symbols());
+    M->addSection(Section::fromProtobuf(C, M, Elt));
+  for (const auto& Elt : Message.symbols())
+    M->addSymbol(Symbol::fromProtobuf(C, M, Elt));
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   if (!Message.entry_point().empty()) {
     M->EntryPoint = cast<CodeBlock>(

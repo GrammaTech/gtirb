@@ -56,11 +56,11 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 }
 
-ByteInterval* ByteInterval::fromProtobuf(Context& C,
+ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
                                          const MessageType& Message) {
   auto addr = Message.has_address() ? std::optional<Addr>{Message.address()}
                                     : std::optional<Addr>{};
-  ByteInterval* result = ByteInterval::Create(C, addr, Message.size());
+  ByteInterval* result = ByteInterval::Create(C, Parent, addr, Message.size());
 
   setNodeUUIDFromBytes(result, Message.uuid());
 
@@ -72,10 +72,10 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C,
 
     switch (proto_block.value_case()) {
     case proto::Block::ValueCase::kCode: {
-      node = CodeBlock::fromProtobuf(C, proto_block.code());
+      node = CodeBlock::fromProtobuf(C, result, proto_block.code());
     } break;
     case proto::Block::ValueCase::kData: {
-      node = DataBlock::fromProtobuf(C, proto_block.data());
+      node = DataBlock::fromProtobuf(C, result, proto_block.data());
     } break;
     default: {
       throw std::runtime_error(

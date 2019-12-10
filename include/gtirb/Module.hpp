@@ -102,8 +102,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   template <typename T> struct block_addr_order {
     using pair = std::pair<ByteInterval*, T*>;
     bool operator()(const pair& p1, const pair& p2) const {
-      return *p1.first->getAddress(p1.second) <
-             *p2.first->getAddress(p2.second);
+      return *p1.second->getAddress() < *p2.second->getAddress();
     }
   };
 
@@ -172,8 +171,8 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
       boost::hash<std::pair<ByteInterval*, SymbolicExpression*>>>;
   using SymbolicExpressionIntMap = std::map<Addr, SymbolicExpression*>;
 
-  Module(Context& C);
-  Module(Context& C, const std::string& X);
+  Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
+  Module(Context& C, IR* P) : AuxDataContainer(C, Kind::Module), Parent(P) {}
 
   template <size_t I> struct ExtractNth {
     template <typename ParamTy> auto& operator()(ParamTy& V) const {
@@ -184,20 +183,16 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
 public:
   /// \brief Create a Module object in its default state.
   ///
-  /// \param C  The Context in which this object will be held.
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
   ///
   /// \return The newly created object.
-  static Module* Create(Context& C) { return C.Create<Module>(C); }
-
-  /// \brief Create a named Module object in its default state.
-  ///
-  /// \param C The Context in which this object will be held.
-  /// \param X The name to use.
-  ///
-  /// \return The newly created object.
-  static Module* Create(Context& C, const std::string& X) {
-    return C.Create<Module>(C, X);
+  static Module* Create(Context& C, IR* Parent) {
+    return C.Create<Module>(C, Parent);
   }
+
+  /// \brief Get the \ref IR this module belongs to.
+  IR* getIR() const { return Parent; }
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
@@ -587,7 +582,7 @@ public:
     addVertex(B, getCFG());
 
     CodeBlocks.insert(B);
-    auto addr = BI->getAddress(B);
+    auto addr = B->getAddress();
     if (addr.has_value()) {
       CodeBlockAddrs.add(std::make_pair(
           CodeBlockIntMap::interval_type::right_open(*addr,
@@ -715,7 +710,7 @@ public:
     BI->addBlock(O, B);
 
     DataBlocks.insert(B);
-    auto addr = BI->getAddress(B);
+    auto addr = B->getAddress();
     if (addr.has_value()) {
       DataBlockAddrs.add(std::make_pair(
           DataBlockIntMap::interval_type::right_open(*addr,
@@ -1076,12 +1071,14 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Module object, or null on failure.
-  static Module* fromProtobuf(Context& C, const MessageType& Message);
+  static Module* fromProtobuf(Context& C, IR* Parent,
+                              const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
   /// @endcond
 
 private:
+  IR* Parent;
   std::string BinaryPath{};
   Addr PreferredAddr;
   int64_t RebaseDelta{0};

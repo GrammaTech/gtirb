@@ -41,7 +41,8 @@ class Module;
 /// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
+  Section(Context& C, Module* P, const std::string& N)
+      : Node(C, Kind::Section), Parent(P), Name(N) {}
 
   using ByteIntervalSet = std::unordered_set<ByteInterval*>;
 
@@ -59,11 +60,12 @@ public:
   /// \brief Create a Section object.
   ///
   /// \param C        The Context in which this object will be held.
+  /// \param Parent   The \ref Module this section belongs to.
   /// \param Name     The name of the section.
   ///
   /// \return The newly created object.
-  static Section* Create(Context& C, const std::string& Name) {
-    return C.Create<Section>(C, Name);
+  static Section* Create(Context& C, Module* Parent, const std::string& Name) {
+    return C.Create<Section>(C, Parent, Name);
   }
 
   /// \brief Equality operator overload.
@@ -71,6 +73,9 @@ public:
 
   /// \brief Inequality operator overload.
   bool operator!=(const Section& Other) const;
+
+  /// \brief Get the \ref Module this section belongs to.
+  Module* getModule() const { return Parent; }
 
   /// \brief Get the name of a Section.
   ///
@@ -177,12 +182,14 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Section object, or null on failure.
-  static Section* fromProtobuf(Context& C, const MessageType& Message);
+  static Section* fromProtobuf(Context& C, Module* Parent,
+                               const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Section; }
   /// @endcond
 
 private:
+  Module* Parent;
   std::string Name;
   ByteIntervalSet ByteIntervals;
 

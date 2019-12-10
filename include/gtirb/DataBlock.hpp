@@ -27,6 +27,8 @@ namespace proto {
 class DataBlock;
 }
 namespace gtirb {
+class ByteInterval;
+
 ///
 /// \class DataBlock
 ///
@@ -39,7 +41,8 @@ class GTIRB_EXPORT_API DataBlock : public Node {
 
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, uint64_t S) : Node(C, Kind::DataBlock), Size(S) {}
+  DataBlock(Context& C, ByteInterval* P, uint64_t S)
+      : Node(C, Kind::DataBlock), Parent(P), Size(S) {}
 
 public:
   /// \brief Create a DataBlock object in its default state.
@@ -60,15 +63,27 @@ public:
   /// \param Size     The size of the object in bytes.
   ///
   /// \return The newly created DataBlock.
-  static DataBlock* Create(Context& C, uint64_t Size) {
-    return C.Create<DataBlock>(C, Size);
+  static DataBlock* Create(Context& C, ByteInterval* Parent, uint64_t Size) {
+    return C.Create<DataBlock>(C, Parent, Size);
   }
+
+  /// \brief Get the \ref ByteInterval this block belongs to.
+  ByteInterval* getByteInterval() const { return Parent; }
 
   /// \brief Get the size of a DataBlock.
   ///
   /// \return The size.
   ///
   uint64_t getSize() const { return Size; }
+
+  /// \brief Get the offset from the beginning of the \ref ByteInterval this
+  /// block belongs to.
+  uint64_t getOffset() const;
+
+  /// \brief Get the address of this block, if present. See \ref
+  /// ByteInterval.getAddress for details on why this address may not be
+  /// present.
+  std::optional<Addr> getAddress() const;
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing DataBlock.
@@ -87,12 +102,14 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized DataBlock object, or null on failure.
-  static DataBlock* fromProtobuf(Context& C, const MessageType& Message);
+  static DataBlock* fromProtobuf(Context& C, ByteInterval* Parent,
+                                 const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::DataBlock; }
   /// @endcond
 
 private:
+  ByteInterval* Parent;
   uint64_t Size{0};
 
   friend class Context;

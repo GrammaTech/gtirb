@@ -39,8 +39,9 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
 }
 
-Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, Message.name());
+Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
+                             const MessageType& Message) {
+  Symbol* S = Symbol::Create(C, Parent, Message.name());
   switch (Message.optional_payload_case()) {
   case proto::Symbol::kValue:
     S->Payload = Addr{Message.value()};

@@ -34,11 +34,12 @@ void Section::toProtobuf(MessageType* Message) const {
   }
 }
 
-Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* S = Section::Create(C, Message.name());
+Section* Section::fromProtobuf(Context& C, Module* Parent,
+                               const MessageType& Message) {
+  auto* S = Section::Create(C, Parent, Message.name());
   setNodeUUIDFromBytes(S, Message.uuid());
   for (const auto& proto_interval : Message.intervals()) {
-    S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, proto_interval));
+    S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, S, proto_interval));
   }
   return S;
 }

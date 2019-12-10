@@ -22,6 +22,7 @@
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <proto/CodeBlock.pb.h>
+#include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <vector>
 
@@ -35,6 +36,8 @@ class Offset;
 } // namespace proto
 
 namespace gtirb {
+class ByteInterval;
+
 /// \class CodeBlock
 ///
 /// \brief A basic block.
@@ -48,9 +51,13 @@ public:
   /// \param DecodeMode The decode mode of the block.
   ///
   /// \return The newly created CodeBlock.
-  static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode = 0) {
-    return C.Create<CodeBlock>(C, Size, DecodeMode);
+  static CodeBlock* Create(Context& C, ByteInterval* Parent, uint64_t Size,
+                           uint64_t DecodeMode = 0) {
+    return C.Create<CodeBlock>(C, Parent, Size, DecodeMode);
   }
+
+  /// \brief Get the \ref ByteInterval this block belongs to.
+  ByteInterval* getByteInterval() const { return Parent; }
 
   /// \brief Get the size from a \ref CodeBlock.
   ///
@@ -64,6 +71,15 @@ public:
   ///
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
+
+  /// \brief Get the offset from the beginning of the \ref ByteInterval this
+  /// block belongs to.
+  uint64_t getOffset() const;
+
+  /// \brief Get the address of this block, if present. See \ref
+  /// ByteInterval.getAddress for details on why this address may not be
+  /// present.
+  std::optional<Addr> getAddress() const;
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing CodeBlock.
@@ -82,16 +98,18 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized CodeBlock object, or null on failure.
-  static CodeBlock* fromProtobuf(Context& C, const MessageType& Message);
+  static CodeBlock* fromProtobuf(Context& C, ByteInterval* Parent,
+                                 const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::CodeBlock; }
   /// @endcond
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
-  CodeBlock(Context& C, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C, ByteInterval* P, uint64_t S, uint64_t Decode)
+      : CfgNode(C, Kind::CodeBlock), Parent(P), Size(S), DecodeMode(Decode) {}
 
+  ByteInterval* Parent;
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 

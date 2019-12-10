@@ -12,7 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include "DataBlock.hpp"
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Serialization.hpp>
 
@@ -25,8 +25,19 @@ void DataBlock::toProtobuf(MessageType* Message) const {
   Message->set_size(this->Size);
 }
 
-DataBlock* DataBlock::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* DO = DataBlock::Create(C, Message.size());
+DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
+                                   const MessageType& Message) {
+  auto* DO = DataBlock::Create(C, Parent, Message.size());
   setNodeUUIDFromBytes(DO, Message.uuid());
   return DO;
+}
+
+uint64_t DataBlock::getOffset() const {
+  return Parent->nodeToBlock(this).getOffset();
+}
+
+std::optional<Addr> DataBlock::getAddress() const {
+  auto baseAddr = Parent->getAddress();
+  return baseAddr.has_value() ? std::optional<Addr>(*baseAddr + getOffset())
+                              : std::optional<Addr>();
 }

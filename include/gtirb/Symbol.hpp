@@ -220,21 +220,14 @@ public:
                                  ///< function's activation frame.
   };
 
-  /// \brief Create a Symbol object in its default state.
-  ///
-  /// \param C  The Context in which this object will be held.
-  ///
-  /// \return The newly created object.
-  static Symbol* Create(Context& C) { return C.Create<Symbol>(C); }
-
   /// \brief Create a Symbol object.
   ///
   /// \param C    The Context in which this object will be held.
   /// \param Name The name of the symbol.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, const std::string& Name) {
-    return C.Create<Symbol>(C, Name);
+  static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
+    return C.Create<Symbol>(C, Parent, Name);
   }
 
   /// \brief Create a Symbol object.
@@ -246,9 +239,10 @@ public:
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+  static Symbol* Create(Context& C, Module* Parent, Addr X,
+                        const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
-    return C.Create<Symbol>(C, X, Name, Kind);
+    return C.Create<Symbol>(C, Parent, X, Name, Kind);
   }
 
   /// \brief Create a Symbol object.
@@ -261,11 +255,15 @@ public:
   ///
   /// \return The newly created object.
   template <typename NodeTy>
-  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name,
+  static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
+                        const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Referent, Name, Kind);
+    return C.Create<Symbol>(C, Parent, Referent, Name, Kind);
   }
+
+  /// \brief Get the \ref Module this symbol belongs to.
+  Module* getModule() const { return Parent; }
 
   /// \brief Get the effective address.
   ///
@@ -363,23 +361,26 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
-  static Symbol* fromProtobuf(Context& C, const MessageType& Message);
+  static Symbol* fromProtobuf(Context& C, Module* Parent,
+                              const MessageType& Message);
 
   static bool classof(const Node* N) { return N->getKind() == Kind::Symbol; }
   /// @endcond
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, const std::string& N, StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Payload(), Name(N), Storage(SK) {}
-  Symbol(Context& C, Addr X, const std::string& N,
+  Symbol(Context& C, Module* P, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Payload(X), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(P), Payload(), Name(N), Storage(SK) {}
+  Symbol(Context& C, Module* P, Addr X, const std::string& N,
+         StorageKind SK = StorageKind::Extern)
+      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), Storage(SK) {}
   template <typename NodeTy>
-  Symbol(Context& C, NodeTy* R, const std::string& N,
+  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Payload(R), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), Storage(SK) {}
 
+  Module* Parent;
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};
