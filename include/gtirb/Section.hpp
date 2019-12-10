@@ -47,11 +47,9 @@ class GTIRB_EXPORT_API Section : public Node {
   using ByteIntervalSet = std::unordered_set<ByteInterval*>;
 
 public:
-  /// \brief Create a Section object in its default state.
-  ///
-  /// \param C  The Context in which this object will be held.
-  ///
-  /// \return The newly created object.
+  /// \brief Create an unitialized Section object.
+  /// \param C        The Context in which this Section will be held.
+  /// \return         The newly created Section.
   static Section* Create(Context& C) { return C.Create<Section>(C); }
 
   /// \brief Create a Section object.

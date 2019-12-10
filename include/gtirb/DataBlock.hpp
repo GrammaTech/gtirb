@@ -45,12 +45,9 @@ class GTIRB_EXPORT_API DataBlock : public Node {
       : Node(C, Kind::DataBlock), Parent(P), Size(S) {}
 
 public:
-  /// \brief Create a DataBlock object in its default state.
-  ///
-  /// \param C  The Context in which the newly-created DataBlock will
-  /// be held.
-  ///
-  /// \return The newly created DataBlock.
+  /// \brief Create an unitialized DataBlock object.
+  /// \param C        The Context in which this DataBlock will be held.
+  /// \return         The newly created DataBlock.
   static DataBlock* Create(Context& C) { return C.Create<DataBlock>(C); }
 
   /// \brief Create a DataBlock object.

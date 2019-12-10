@@ -118,11 +118,11 @@ TEST(Unit_Module, compilationIteratorTypes) {
 
 static Context Ctx;
 
-TEST(Unit_Module, ctor_0) { EXPECT_NE(Module::Create(Ctx), nullptr); }
+TEST(Unit_Module, ctor_0) { EXPECT_NE(Module::Create(Ctx, nullptr), nullptr); }
 
 TEST(Unit_Module, setBinaryPath) {
   const std::string StrPath("/home/gt/irb/foo");
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
 
   M->setBinaryPath(StrPath);
 
@@ -131,12 +131,12 @@ TEST(Unit_Module, setBinaryPath) {
 }
 
 TEST(Unit_Module, getFileFormatDefault) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
   EXPECT_EQ(gtirb::FileFormat::Undefined, M->getFileFormat());
 }
 
 TEST(Unit_Module, auxDataRanges) {
-  Module* Ml = Module::Create(Ctx);
+  Module* Ml = Module::Create(Ctx, nullptr);
   Ml->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
   Ml->addAuxData("bar", std::vector<char>{'a', 'b', 'c'});
 
@@ -148,7 +148,7 @@ TEST(Unit_Module, auxDataRanges) {
 }
 
 TEST(Unit_Module, setFileFormat) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
 
   M->setFileFormat(gtirb::FileFormat::COFF);
   EXPECT_EQ(gtirb::FileFormat::COFF, M->getFileFormat());
@@ -161,12 +161,12 @@ TEST(Unit_Module, setFileFormat) {
 }
 
 TEST(Unit_Module, getRebaseDeltaDefault) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
   EXPECT_EQ(int64_t{0}, M->getRebaseDelta());
 }
 
 TEST(Unit_Module, setRebaseDelta) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
 
   EXPECT_FALSE(M->isRelocated());
 
@@ -192,12 +192,12 @@ TEST(Unit_Module, setRebaseDelta) {
 }
 
 TEST(Unit_Module, getPreferredAddrDefault) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
   EXPECT_EQ(Addr{}, M->getPreferredAddr());
 }
 
 TEST(Unit_Module, getISAID) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
 
   EXPECT_EQ(gtirb::ISAID::Undefined, M->getISAID());
 
@@ -206,7 +206,7 @@ TEST(Unit_Module, getISAID) {
 }
 
 TEST(Unit_Module, setPreferredAddr) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
   Addr Preferred{64};
 
   EXPECT_EQ(M->getPreferredAddr(), Addr(0));
@@ -216,18 +216,18 @@ TEST(Unit_Module, setPreferredAddr) {
 }
 
 TEST(Unit_Module, getSymbolSet) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
   EXPECT_EQ(std::distance(M->symbols().begin(), M->symbols().end()), 0);
 }
 
 TEST(Unit_Module, getName) {
-  auto* M = Module::Create(Ctx);
+  auto* M = Module::Create(Ctx, nullptr);
   EXPECT_TRUE(M->getName().empty());
 }
 
 TEST(Unit_Module, sections) {
-  auto* M = Module::Create(Ctx);
-  M->addSection(Section::Create(Ctx, "test"));
+  auto* M = Module::Create(Ctx, nullptr);
+  M->addSection(Ctx, "test");
   EXPECT_EQ(M->section_begin()->getName(), "test");
   EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 1);
   EXPECT_EQ(std::distance(M->section_by_name_begin(), M->section_by_name_end()),
@@ -235,11 +235,9 @@ TEST(Unit_Module, sections) {
 }
 
 TEST(Unit_Module, findSection) {
-  auto* M = Module::Create(Ctx);
-  auto* S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto* BI = ByteInterval::Create(Ctx, Addr(1), 123);
-  M->addByteInterval(S, BI);
+  auto* M = Module::Create(Ctx, nullptr);
+  auto* S = M->addSection(Ctx, "test");
+  S->addByteInterval(Ctx, Addr(1), 123);
 
   {
     auto F = M->findSection(Addr(1));
@@ -264,33 +262,25 @@ TEST(Unit_Module, findSection) {
 }
 
 TEST(Unit_Module, blocks) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(1), 10);
-  M->addByteInterval(S, BI);
-  auto B = CodeBlock::Create(Ctx, 10);
-  M->addCodeBlock(BI, B);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(1), 10);
+  BI->addCodeBlock(Ctx, 0, 10);
 
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
-  EXPECT_EQ(BI->getAddress(&*M->code_blocks_begin()),
-            std::optional<Addr>(Addr(1)));
+  EXPECT_EQ(M->code_blocks_begin()->getAddress(), std::optional<Addr>(Addr(1)));
 
   auto F = blocks(M->getCFG());
   EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
-  EXPECT_EQ(BI->getAddress(&*F.begin()), Addr(1));
+  EXPECT_EQ(F.begin()->getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, cfgNodes) {
-  auto* M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(1), 10);
-  M->addByteInterval(S, BI);
-  auto* B = CodeBlock::Create(Ctx, 10);
-  M->addCodeBlock(BI, B);
-  auto* P = ProxyBlock::Create(Ctx);
-  M->addProxyBlock(P);
+  auto* M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(1), 10);
+  auto* B = BI->addCodeBlock(Ctx, 0, 10);
+  auto* P = M->addProxyBlock(Ctx);
 
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
   auto Nodes = nodes(M->getCFG());
@@ -303,15 +293,11 @@ TEST(Unit_Module, cfgNodes) {
 }
 
 TEST(Unit_Module, findBlock) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(0), 30);
-  M->addByteInterval(S, BI);
-  auto* B1 = CodeBlock::Create(Ctx, 20);
-  M->addCodeBlock(BI, 1, B1);
-  auto* B2 = CodeBlock::Create(Ctx, 10);
-  M->addCodeBlock(BI, 5, B2);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(0), 30);
+  auto* B1 = BI->addCodeBlock(Ctx, 1, 20);
+  auto* B2 = BI->addCodeBlock(Ctx, 5, 10);
 
   {
     auto F = M->findCodeBlock(Addr(0));
@@ -345,26 +331,20 @@ TEST(Unit_Module, findBlock) {
 }
 
 TEST(Unit_Module, dataObjects) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(1), 123);
-  M->addByteInterval(S, BI);
-  M->addDataBlock(BI, 0, DataBlock::Create(Ctx));
-  EXPECT_EQ(BI->getAddress(&*M->data_blocks_begin()), Addr(1));
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(1), 123);
+  BI->addDataBlock(Ctx, 0, 123);
+  EXPECT_EQ(M->data_blocks_begin()->getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, findData) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(0), 30);
-  M->addByteInterval(S, BI);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(0), 30);
 
-  auto* D1 = DataBlock::Create(Ctx);
-  auto* D2 = DataBlock::Create(Ctx);
-  M->addDataBlock(BI, 1, D1);
-  M->addDataBlock(BI, 5, D2);
+  auto* D1 = BI->addDataBlock(Ctx, 1, 0);
+  auto* D2 = BI->addDataBlock(Ctx, 5, 0);
 
   {
     auto F = M->findDataBlock(Addr(0));
@@ -398,10 +378,10 @@ TEST(Unit_Module, findData) {
 }
 
 TEST(Unit_Module, symbolIterationOrder) {
-  auto* M = Module::Create(Ctx);
-  auto* S1 = emplaceSymbol(*M, Ctx, Addr(3), "foo");
-  auto* S2 = emplaceSymbol(*M, Ctx, Addr(2), "bar");
-  auto* S3 = emplaceSymbol(*M, Ctx, Addr(1), "foo");
+  auto* M = Module::Create(Ctx, nullptr);
+  auto* S1 = M->addSymbol(Ctx, Addr(3), "foo");
+  auto* S2 = M->addSymbol(Ctx, Addr(2), "bar");
+  auto* S3 = M->addSymbol(Ctx, Addr(1), "foo");
 
   {
     auto F = M->symbols();
@@ -420,21 +400,15 @@ TEST(Unit_Module, symbolIterationOrder) {
 }
 
 TEST(Unit_Module, findSymbols) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(0), 1);
-  M->addByteInterval(S, BI);
-  auto* B = CodeBlock::Create(Ctx, 1);
-  M->addCodeBlock(BI, B);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(0), 1);
+  auto* B = BI->addCodeBlock(Ctx, 0, 1);
 
-  auto* S1 = emplaceSymbol(*M, Ctx, Addr(1), "foo");
-  auto* S2 = emplaceSymbol(*M, Ctx, B, "bar");
-  auto* S3 = emplaceSymbol(*M, Ctx, Addr(2), "foo");
-  auto* S4 = emplaceSymbol(*M, Ctx, B, "baz");
-
-  // Check that symbols are unique even if names and addresses are not.
-  M->addSymbol(S3);
+  auto* S1 = M->addSymbol(Ctx, Addr(1), "foo");
+  auto* S2 = M->addSymbol(Ctx, B, "bar");
+  auto* S3 = M->addSymbol(Ctx, Addr(2), "foo");
+  auto* S4 = M->addSymbol(Ctx, B, "baz");
 
   {
     auto F = M->findSymbols("foo");
@@ -504,16 +478,16 @@ TEST(Unit_Module, findSymbols) {
 }
 
 TEST(Unit_Module, symbolWithoutAddr) {
-  auto* M = Module::Create(Ctx);
-  emplaceSymbol(*M, Ctx, "test");
+  auto* M = Module::Create(Ctx, nullptr);
+  M->addSymbol(Ctx, "test");
   EXPECT_EQ(M->findSymbols("test").begin()->getName(), "test");
 }
 
 TEST(Unit_Module, renameSymbol) {
-  auto* M = Module::Create(Ctx);
-  auto* S1 = emplaceSymbol(*M, Ctx, "foo");
-  auto* S2 = emplaceSymbol(*M, Ctx, Addr(1), "bar");
-  auto* S3 = emplaceSymbol(*M, Ctx, Addr(2), "bar");
+  auto* M = Module::Create(Ctx, nullptr);
+  auto* S1 = M->addSymbol(Ctx, "foo");
+  auto* S2 = M->addSymbol(Ctx, Addr(1), "bar");
+  auto* S3 = M->addSymbol(Ctx, Addr(2), "bar");
 
   renameSymbol(*M, *S1, "test1");
   renameSymbol(*M, *S2, "test2");
@@ -545,21 +519,19 @@ TEST(Unit_Module, renameSymbol) {
 }
 
 TEST(Unit_Module, setReferent) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(0), 5);
-  M->addByteInterval(S, BI);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(0), 5);
 
-  auto* B1 = M->emplaceCodeBlock(Ctx, BI, 1, 1);
-  auto* B2 = M->emplaceCodeBlock(Ctx, BI, 2, 1);
-  auto* B3 = M->emplaceCodeBlock(Ctx, BI, 3, 1);
-  auto* B4 = M->emplaceCodeBlock(Ctx, BI, 4, 1);
-  auto* B5 = M->emplaceCodeBlock(Ctx, BI, 5, 1);
-  auto* S1 = emplaceSymbol(*M, Ctx, "foo");
-  auto* S2 = emplaceSymbol(*M, Ctx, B1, "bar");
-  auto* S3 = emplaceSymbol(*M, Ctx, B1, "foo");
-  auto* S4 = emplaceSymbol(*M, Ctx, B2, "bar");
+  auto* B1 = BI->addCodeBlock(Ctx, 1, 1);
+  auto* B2 = BI->addCodeBlock(Ctx, 2, 1);
+  auto* B3 = BI->addCodeBlock(Ctx, 3, 1);
+  auto* B4 = BI->addCodeBlock(Ctx, 4, 1);
+  auto* B5 = BI->addCodeBlock(Ctx, 5, 1);
+  auto* S1 = M->addSymbol(Ctx, "foo");
+  auto* S2 = M->addSymbol(Ctx, B1, "bar");
+  auto* S3 = M->addSymbol(Ctx, B1, "foo");
+  auto* S4 = M->addSymbol(Ctx, B2, "bar");
 
   setReferent(*M, *S1, B3);
   setReferent(*M, *S2, B4);
@@ -600,16 +572,14 @@ TEST(Unit_Module, setReferent) {
 }
 
 TEST(Unit_Module, setSymbolAddress) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(0), 5);
-  M->addByteInterval(S, BI);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(0), 5);
 
-  auto* B1 = M->emplaceCodeBlock(Ctx, BI, 1, 1);
-  auto* S1 = emplaceSymbol(*M, Ctx, "foo");
-  auto* S2 = emplaceSymbol(*M, Ctx, B1, "bar");
-  auto* S3 = emplaceSymbol(*M, Ctx, B1, "bar");
+  auto* B1 = BI->addCodeBlock(Ctx, 1, 1);
+  auto* S1 = M->addSymbol(Ctx, "foo");
+  auto* S2 = M->addSymbol(Ctx, B1, "bar");
+  auto* S3 = M->addSymbol(Ctx, B1, "bar");
 
   setSymbolAddress(*M, *S1, Addr(2));
   setSymbolAddress(*M, *S2, Addr(3));
@@ -636,31 +606,27 @@ TEST(Unit_Module, setSymbolAddress) {
 }
 
 TEST(Unit_Module, symbolicExpressions) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(1), 123);
-  M->addByteInterval(S, BI);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(1), 123);
 
-  Symbol* Sym = Symbol::Create(Ctx);
-  M->addSymbolicExpression<SymAddrConst>(BI, 0, 0, Sym);
+  Symbol* Sym = M->addSymbol(Ctx, "test");
+  BI->addSymbolicExpression<SymAddrConst>(0, 0, Sym);
   EXPECT_EQ(std::distance(M->symbolic_expressions_begin(),
                           M->symbolic_expressions_end()),
             1);
 }
 
 TEST(Unit_Module, findSymbolicExpressions) {
-  auto M = Module::Create(Ctx);
-  auto S = Section::Create(Ctx, "test");
-  M->addSection(S);
-  auto BI = ByteInterval::Create(Ctx, Addr(0), 10);
-  M->addByteInterval(S, BI);
+  auto M = Module::Create(Ctx, nullptr);
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(0), 10);
 
-  auto* S1 = Symbol::Create(Ctx, Addr(1), "foo");
-  auto* S2 = Symbol::Create(Ctx, Addr(5), "bar");
+  auto* S1 = M->addSymbol(Ctx, Addr(1), "foo");
+  auto* S2 = M->addSymbol(Ctx, Addr(5), "bar");
 
-  M->addSymbolicExpression<SymAddrConst>(BI, 1, 0, S1);
-  M->addSymbolicExpression<SymAddrConst>(BI, 5, 0, S2);
+  BI->addSymbolicExpression<SymAddrConst>(1, 0, S1);
+  BI->addSymbolicExpression<SymAddrConst>(5, 0, S2);
 
   {
     auto F = M->findSymbolicExpression(Addr(1), Addr(5));
@@ -688,7 +654,7 @@ TEST(Unit_Module, findSymbolicExpressions) {
 }
 
 // TEST(Unit_Module, getAddrsForSymbolicExpression) {
-//   auto* M = Module::Create(Ctx);
+//   auto* M = Module::Create(Ctx, nullptr);
 //   SymAddrConst SAC1{0, Symbol::Create(Ctx, Addr(1), "foo")};
 //   SymAddrConst SAC2{0, Symbol::Create(Ctx, Addr(5), "bar")};
 //   SymAddrConst SAC3{0, Symbol::Create(Ctx, Addr(10), "baz")};
@@ -730,25 +696,23 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Module* Original = Module::Create(InnerCtx, "module");
+    Module* Original = Module::Create(InnerCtx, nullptr);
+    // TODO set name
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISAID(ISAID::X64);
     Original->addAuxData("test", AuxData());
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
-    auto S = Section::Create(InnerCtx);
-    Original->addSection(S);
-    auto BI = ByteInterval::Create(InnerCtx, Addr(1), 2);
-    Original->addByteInterval(S, BI);
-    Original->emplaceCodeBlock(InnerCtx, BI, 0, 2);
-    Original->addDataBlock(BI, 0, DataBlock::Create(InnerCtx));
-    auto* P = ProxyBlock::Create(InnerCtx);
-    Original->addProxyBlock(P);
-    Original->addSymbolicExpression<SymAddrConst>(BI, 7);
+    Original->addSymbol(InnerCtx, Addr(1), "name1");
+    Original->addSymbol(InnerCtx, Addr(2), "name1");
+    Original->addSymbol(InnerCtx, Addr(1), "name3");
+    auto S = Original->addSection(InnerCtx, "test");
+    auto BI = S->addByteInterval(InnerCtx, Addr(1), 2);
+    BI->addCodeBlock(InnerCtx, 0, 2);
+    BI->addDataBlock(InnerCtx, 0, 2);
+    auto* P = Original->addProxyBlock(InnerCtx);
+    BI->addSymbolicExpression<SymAddrConst>(7);
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
     DataID = Original->data_blocks_begin()->getUUID();
     ProxyID = P->getUUID();
@@ -758,7 +722,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->toProtobuf(&Message);
   }
 
-  Module* Result = Module::fromProtobuf(Ctx, Message);
+  Module* Result = Module::fromProtobuf(Ctx, nullptr, Message);
 
   EXPECT_EQ(Result->getBinaryPath(), "test");
   EXPECT_EQ(Result->getPreferredAddr(), Addr(3));
@@ -819,31 +783,28 @@ TEST(Unit_Module, protobufNodePointers) {
 
   {
     Context InnerCtx;
-    Module* Original = Module::Create(InnerCtx);
-    auto S = Section::Create(InnerCtx);
-    Original->addSection(S);
-    auto BI = ByteInterval::Create(InnerCtx, Addr(1), 2);
-    Original->addByteInterval(S, BI);
-    auto* Data = DataBlock::Create(InnerCtx);
-    Original->addDataBlock(BI, 0, Data);
-    auto* DataSym = emplaceSymbol(*Original, InnerCtx, Data, "data");
+    Module* Original = Module::Create(InnerCtx, nullptr);
+    auto S = Original->addSection(InnerCtx, "test");
+    auto BI = S->addByteInterval(InnerCtx, Addr(1), 2);
+    auto* Data = BI->addDataBlock(InnerCtx, 0, 0);
+    auto* DataSym = Original->addSymbol(InnerCtx, Data, "data");
 
     // Not part of IR
-    auto* DanglingData = DataBlock::Create(InnerCtx);
-    Original->addSymbol(Symbol::Create(InnerCtx, DanglingData, "dangling"));
+    auto* DanglingData = DataBlock::Create(InnerCtx, nullptr, 0);
+    Original->addSymbol(InnerCtx, DanglingData, "dangling");
 
-    auto* Code = Original->emplaceCodeBlock(InnerCtx, BI, 0, 2);
-    emplaceSymbol(*Original, InnerCtx, Code, "code");
-    Original->addSymbolicExpression<SymAddrConst>(BI, 2, 0, DataSym);
+    auto* Code = BI->addCodeBlock(InnerCtx, 0, 2);
+    Original->addSymbol(InnerCtx, Code, "code");
+    BI->addSymbolicExpression<SymAddrConst>(2, 0, DataSym);
 
     // Not part of IR
-    auto* DanglingSym = Symbol::Create(InnerCtx, Addr(1), "foo");
-    Original->addSymbolicExpression<SymAddrConst>(BI, 3, 0, DanglingSym);
+    auto* DanglingSym = Symbol::Create(InnerCtx, nullptr, Addr(1), "foo");
+    BI->addSymbolicExpression<SymAddrConst>(3, 0, DanglingSym);
 
     Original->toProtobuf(&Message);
   }
 
-  Module* Result = Module::fromProtobuf(Ctx, Message);
+  Module* Result = Module::fromProtobuf(Ctx, nullptr, Message);
   EXPECT_NE(Result->findSymbols("data").begin()->getReferent<DataBlock>(),
             nullptr);
   EXPECT_NE(Result->findSymbols("code").begin()->getReferent<CodeBlock>(),

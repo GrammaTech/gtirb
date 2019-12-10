@@ -41,12 +41,13 @@ TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
-  auto* M1 = Module::Create(Ctx, "b");
-  auto* M2 = Module::Create(Ctx, "a");
-  auto* M3 = Module::Create(Ctx, "a");
-  Ir->addModule(M1);
-  Ir->addModule(M2);
-  Ir->addModule(M3);
+  auto M1 = Ir->addModule(Ctx);
+  auto M2 = Ir->addModule(Ctx);
+  auto M3 = Ir->addModule(Ctx);
+
+  setModuleName(*Ir, *M1, "b");
+  setModuleName(*Ir, *M2, "a");
+  setModuleName(*Ir, *M3, "a");
 
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
   auto It = Ir->begin();
@@ -71,14 +72,12 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   auto* Ir = IR::Create(Ctx);
 
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
-    Module* M = Module::Create(Ctx);
+    auto M = Ir->addModule(Ctx);
     M->setPreferredAddr(PreferredAddr);
-    Ir->addModule(M);
   }
 
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
-    Module* M = Module::Create(Ctx);
-    Ir->addModule(M);
+    Ir->addModule(Ctx);
   }
 
   size_t Count =
@@ -142,8 +141,7 @@ TEST(Unit_IR, protobufRoundTrip) {
   {
     Context InnerCtx;
     IR* Original = IR::Create(InnerCtx);
-    Module* M = Module::Create(InnerCtx);
-    Original->addModule(M);
+    Original->addModule(InnerCtx);
     Original->addAuxData("test", AuxData());
 
     MainID = Original->begin()->getUUID();
@@ -163,8 +161,7 @@ TEST(Unit_IR, jsonRoundTrip) {
   {
     Context InnerCtx;
     IR* Original = IR::Create(InnerCtx);
-    Module* M = Module::Create(InnerCtx);
-    Original->addModule(M);
+    Original->addModule(InnerCtx);
     Original->addAuxData("test", AuxData());
 
     MainID = Original->begin()->getUUID();
@@ -192,12 +189,13 @@ TEST(Unit_IR, move) {
 
 TEST(Unit_IR, setModuleName) {
   IR* Ir = IR::Create(Ctx);
-  Module* M1 = Module::Create(Ctx, "a");
-  Module* M2 = Module::Create(Ctx, "b");
-  Module* M3 = Module::Create(Ctx, "c");
-  Ir->addModule(M1);
-  Ir->addModule(M2);
-  Ir->addModule(M3);
+  auto M1 = Ir->addModule(Ctx);
+  auto M2 = Ir->addModule(Ctx);
+  auto M3 = Ir->addModule(Ctx);
+
+  setModuleName(*Ir, *M1, "a");
+  setModuleName(*Ir, *M2, "b");
+  setModuleName(*Ir, *M3, "c");
 
   setModuleName(*Ir, *M2, "d");
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);

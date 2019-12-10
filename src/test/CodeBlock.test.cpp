@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtest/gtest.h>
@@ -20,12 +21,18 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Block, ctor) { EXPECT_NE(CodeBlock::Create(Ctx, 0), nullptr); }
+TEST(Unit_Block, ctor) {
+  EXPECT_NE(CodeBlock::Create(Ctx, nullptr, 0), nullptr);
+}
 
 TEST(Unit_Block, getters) {
-  CodeBlock* B = CodeBlock::Create(Ctx, 1, 2);
+  auto BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
+  auto B = BI->addCodeBlock(Ctx, 0, 1, 2);
+
+  EXPECT_EQ(Addr{0}, B->getAddress());
   EXPECT_EQ(uint64_t{1}, B->getSize());
   EXPECT_EQ(uint64_t{2}, B->getDecodeMode());
+  EXPECT_EQ(BI, B->getByteInterval());
 }
 
 TEST(Unit_Offset, ordering) {

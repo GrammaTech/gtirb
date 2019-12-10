@@ -26,12 +26,14 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx), nullptr); }
+TEST(Unit_Symbol, ctor_0) {
+  EXPECT_NE(Symbol::Create(Ctx, nullptr, "test"), nullptr);
+}
 
 TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
-  auto* Node = Symbol::Create(Ctx);
+  auto* Node = Symbol::Create(Ctx, nullptr, "test");
   EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
   Node->setStorageKind(Value);
@@ -39,12 +41,13 @@ TEST(Unit_Symbol, setStorageKind) {
 }
 
 TEST(Unit_Symbol, setReferent) {
-  Module* Mod = Module::Create(Ctx);
-  Symbol* Sym = emplaceSymbol(*Mod, Ctx);
-  DataBlock* Data = DataBlock::Create(Ctx);
-  CodeBlock* B = CodeBlock::Create(Ctx, 2);
-  ProxyBlock* Proxy = ProxyBlock::Create(Ctx);
-  Mod->addProxyBlock(Proxy);
+  Module* Mod = Module::Create(Ctx, nullptr);
+  Symbol* Sym = Mod->addSymbol(Ctx, "test");
+  Section* S = Mod->addSection(Ctx, "test");
+  ByteInterval* BI = S->addByteInterval(Ctx, Addr(0), 4);
+  DataBlock* Data = BI->addDataBlock(Ctx, 0, 2);
+  CodeBlock* B = BI->addCodeBlock(Ctx, 1, 2);
+  ProxyBlock* Proxy = Mod->addProxyBlock(Ctx);
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
@@ -77,11 +80,11 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with referent
   {
     Context InnerCtx;
-    Module* Mod = Module::Create(Ctx);
-    Symbol* Original = emplaceSymbol(*Mod, InnerCtx, "test");
+    Module* Mod = Module::Create(Ctx, nullptr);
+    Symbol* Original = Mod->addSymbol(InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    DataBlock* Data = DataBlock::Create(InnerCtx, 1);
+    DataBlock* Data = DataBlock::Create(InnerCtx, nullptr, 1);
     DataUUID = Data->getUUID();
     setReferent(*Mod, *Original, Data);
 
@@ -92,8 +95,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     Data->toProtobuf(&DOMessage);
   }
 
-  (void)DataBlock::fromProtobuf(Ctx, DOMessage); // See above.
-  Symbol* Result = Symbol::fromProtobuf(Ctx, SMessage);
+  (void)DataBlock::fromProtobuf(Ctx, nullptr, DOMessage); // See above.
+  Symbol* Result = Symbol::fromProtobuf(Ctx, nullptr, SMessage);
 
   EXPECT_EQ(Result->getAddress(), Addr(1));
   EXPECT_EQ(Result->getName(), "test");
@@ -104,10 +107,10 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with address
   {
     Context InnerCtx;
-    Symbol* Original = Symbol::Create(InnerCtx, Addr(2), "test");
+    Symbol* Original = Symbol::Create(InnerCtx, nullptr, Addr(2), "test");
     Original->toProtobuf(&SMessage);
   }
-  Result = Symbol::fromProtobuf(Ctx, SMessage);
+  Result = Symbol::fromProtobuf(Ctx, nullptr, SMessage);
 
   EXPECT_EQ(Result->getAddress(), Addr(2));
   EXPECT_EQ(Result->getName(), "test");
@@ -118,17 +121,18 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol without address
   {
     Context InnerCtx;
-    Symbol* Original = Symbol::Create(InnerCtx, "test");
+    Symbol* Original = Symbol::Create(InnerCtx, nullptr, "test");
     Original->toProtobuf(&SMessage);
   }
-  Result = Symbol::fromProtobuf(Ctx, SMessage);
+  Result = Symbol::fromProtobuf(Ctx, nullptr, SMessage);
   EXPECT_FALSE(Result->getAddress());
   EXPECT_EQ(Result->getName(), "test");
 }
 
 TEST(Unit_Symbol, visitation) {
-  Symbol* Sym = Symbol::Create(Ctx, CodeBlock::Create(Ctx, 2), "test");
-  Symbol* NoRef = Symbol::Create(Ctx, "test2");
+  Symbol* Sym =
+      Symbol::Create(Ctx, nullptr, CodeBlock::Create(Ctx, nullptr, 2), "test");
+  Symbol* NoRef = Symbol::Create(Ctx, nullptr, "test2");
 
   struct Visitor {
     int operator()(CodeBlock* B) {

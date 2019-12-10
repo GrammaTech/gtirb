@@ -43,6 +43,11 @@ class Module;
 /// \see \ref CFG_GROUP
 class GTIRB_EXPORT_API ProxyBlock : public CfgNode {
 public:
+  /// \brief Create an unitialized ProxyBlock object.
+  /// \param C        The Context in which this ProxyBlock will be held.
+  /// \return         The newly created ProxyBlock.
+  static ProxyBlock* Create(Context& C) { return C.Create<ProxyBlock>(C); }
+
   /// \brief Create a ProxyBlock object.
   ///
   /// \param C      The Context in which this block will be held.

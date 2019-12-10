@@ -111,15 +111,12 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     }
   }
 
-  template <class ExprType, class... Args>
-  SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
-    SymbolicExpressions.emplace(O, ExprType{A...});
-    return SymbolicExpressions[O];
-  }
-
-  void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
-
 public:
+  /// \brief Create an unitialized ByteInterval object.
+  /// \param C        The Context in which this ByteInterval will be held.
+  /// \return         The newly created ByteInterval.
+  static ByteInterval* Create(Context& C) { return C.Create<ByteInterval>(C); }
+
   /// \brief Create a ByteInterval object.
   /// \param C        The Context in which this interval will be held.
   /// \param Parent   The \ref Section this interval belongs to.
@@ -431,6 +428,14 @@ public:
     Blocks.emplace(O, N);
     return N;
   }
+
+  template <class ExprType, class... Args>
+  SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
+    SymbolicExpressions.emplace(O, ExprType{A...});
+    return SymbolicExpressions[O];
+  }
+
+  void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.

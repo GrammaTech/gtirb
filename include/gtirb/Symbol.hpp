@@ -220,6 +220,11 @@ public:
                                  ///< function's activation frame.
   };
 
+  /// \brief Create an unitialized Symbol object.
+  /// \param C        The Context in which this Symbol will be held.
+  /// \return         The newly created Symbol.
+  static Symbol* Create(Context& C) { return C.Create<Symbol>(C); }
+
   /// \brief Create a Symbol object.
   ///
   /// \param C    The Context in which this object will be held.
@@ -268,35 +273,7 @@ public:
   /// \brief Get the effective address.
   ///
   /// \return The effective address.
-  std::optional<Addr> getAddress() const {
-    return std::visit(
-        [](const auto& arg) {
-          using T = std::decay_t<decltype(arg)>;
-          if constexpr (std::is_same_v<T, std::monostate>)
-            return std::optional<Addr>{};
-          else if constexpr (std::is_same_v<T, Addr>)
-            return std::make_optional(arg);
-          else if constexpr (std::is_same_v<T, Node*>) {
-            if (CodeBlock* b = dyn_cast_or_null<CodeBlock>(arg))
-              // TODO: return address if interval this belongs to is fixed
-              return std::optional<Addr>{};
-            else if (DataBlock* d = dyn_cast_or_null<DataBlock>(arg))
-              // TODO: return address if interval this belongs to is fixed
-              return std::optional<Addr>{};
-            else if (ProxyBlock* p = dyn_cast_or_null<ProxyBlock>(arg))
-              return std::optional<Addr>{};
-            else
-              assert(arg == nullptr && "unsupported referent type");
-            return std::optional<Addr>{};
-          } else {
-            static_assert(
-                // Assert condition must depend on T, but will always be false.
-                std::bool_constant<!std::is_same_v<T, T>>::value,
-                "unsupported symbol payload type");
-          }
-        },
-        Payload);
-  }
+  std::optional<Addr> getAddress() const;
 
   /// \brief Get the name.
   ///

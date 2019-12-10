@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <proto/DataBlock.pb.h>
@@ -22,18 +23,23 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_DataObject, getters) {
-  DataBlock* D = DataBlock::Create(Ctx, 1234);
-  EXPECT_EQ(D->getSize(), 1234);
+  auto BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
+  auto B = BI->addDataBlock(Ctx, 0, 1);
+
+  EXPECT_EQ(Addr{0}, B->getAddress());
+  EXPECT_EQ(uint64_t{1}, B->getSize());
+  EXPECT_EQ(BI, B->getByteInterval());
 }
 
 TEST(Unit_DataObject, protobufRoundTrip) {
   proto::DataBlock Message;
   {
     Context InnerCtx;
-    DataBlock* Original = DataBlock::Create(InnerCtx, 1234);
+    DataBlock* Original = DataBlock::Create(InnerCtx, nullptr, 1234);
     Original->toProtobuf(&Message);
   }
-  DataBlock* Result = DataBlock::fromProtobuf(Ctx, Message);
+  DataBlock* Result = DataBlock::fromProtobuf(Ctx, nullptr, Message);
 
   EXPECT_EQ(Result->getSize(), 1234);
+  EXPECT_EQ(Result->getByteInterval(), nullptr);
 }

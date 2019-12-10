@@ -44,6 +44,11 @@ class ByteInterval;
 /// \see \ref CFG_GROUP
 class GTIRB_EXPORT_API CodeBlock : public CfgNode {
 public:
+  /// \brief Create an unitialized CodeBlock object.
+  /// \param C        The Context in which this CodeBlock will be held.
+  /// \return         The newly created CodeBlock.
+  static CodeBlock* Create(Context& C) { return C.Create<CodeBlock>(C); }
+
   /// \brief Create a CodeBlock object.
   ///
   /// \param C          The Context in which this block will be held.

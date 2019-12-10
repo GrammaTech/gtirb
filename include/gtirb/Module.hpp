@@ -173,6 +173,8 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
 
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
   Module(Context& C, IR* P) : AuxDataContainer(C, Kind::Module), Parent(P) {}
+  Module(Context& C, IR* P, const std::string& N)
+      : AuxDataContainer(C, Kind::Module), Parent(P), Name(N) {}
 
   template <size_t I> struct ExtractNth {
     template <typename ParamTy> auto& operator()(ParamTy& V) const {
@@ -187,8 +189,27 @@ public:
   /// \param Parent The \ref IR this module belongs to.
   ///
   /// \return The newly created object.
+  static Module* Create(Context& C) { return C.Create<Module>(C); }
+
+  /// \brief Create a Module object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
+  ///
+  /// \return The newly created object.
   static Module* Create(Context& C, IR* Parent) {
     return C.Create<Module>(C, Parent);
+  }
+
+  /// \brief Create a Module object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
+  /// \param Name   The name of this module.
+  ///
+  /// \return The newly created object.
+  static Module* Create(Context& C, IR* Parent, const std::string& Name) {
+    return C.Create<Module>(C, Parent, Name);
   }
 
   /// \brief Get the \ref IR this module belongs to.

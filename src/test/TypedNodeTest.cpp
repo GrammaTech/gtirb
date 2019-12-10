@@ -30,11 +30,12 @@
 
 using testing::Types;
 
-typedef Types<gtirb::DataBlock*, //
-              gtirb::IR*,        //
-              gtirb::Module*,    //
-              gtirb::Section*,   //
-              gtirb::Symbol*     //
+typedef Types<gtirb::ByteInterval*, //
+              gtirb::CodeBlock*,    //
+              gtirb::DataBlock*,    //
+              gtirb::Module*,       //
+              gtirb::Section*,      //
+              gtirb::Symbol*        //
               >
     TypeImplementations;
 
@@ -90,7 +91,7 @@ TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip) {
     Node1->toProtobuf(&Message);
   }
 
-  TypeParam Node2 = Type::fromProtobuf(Ctx, Message);
+  TypeParam Node2 = Type::fromProtobuf(Ctx, nullptr, Message);
   EXPECT_EQ(Node2->getUUID(), OrigId);
 }
 
@@ -108,7 +109,7 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
 
   EXPECT_EQ(Type::getByUUID(Ctx, Id), nullptr);
 
-  TypeParam Node2 = Type::fromProtobuf(Ctx, Message);
+  TypeParam Node2 = Type::fromProtobuf(Ctx, nullptr, Message);
   EXPECT_EQ(Type::getByUUID(Ctx, Id), Node2);
 }
 
