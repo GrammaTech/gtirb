@@ -70,13 +70,4 @@ Vagrant.configure("2") do |config|
     cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja"
     cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja install"
   SHELL
-
-  config.vm.provision "setup-artifacts-upload", type: "shell", inline: <<-SHELL
-    mkdir C:\\GitLab-Runner
-    cd C:\\GitLab-Runner
-    Invoke-WebRequest https://s3.amazonaws.com/gitlab-runner-downloads/v12.3.0/binaries/gitlab-runner-windows-amd64.exe -OutFile gitlab-runner.exe
-    cp gitlab-runner.exe gitlab-runner
-    C:\\cygwin64\\bin\\bash.exe --login -c 'echo ''export PATH=\\"$PATH:/cygdrive/c/Program Files/Git LFS\\"'' >> ~/.bashrc'
-    cmd.exe /C "setx /M PATH ""%PATH%;C:\\GitLab-Runner;"""
-  SHELL
 end
