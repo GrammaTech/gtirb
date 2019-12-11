@@ -661,6 +661,9 @@ public:
   /// \return The name.
   const std::string& getName() const { return Name; }
 
+  /// \brief Set the module name.
+  void setName(const std::string& X) { Name = X; }
+
   /// \brief Get the associated Control Flow Graph (\ref CFG).
   ///
   /// \return The associated CFG.
@@ -1242,9 +1245,6 @@ private:
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
 
-  // Allow changing the module's name.
-  friend void setModuleName(IR& Ir, Module& M, const std::string& X);
-
   // Allow these methods to update Symbols.
   friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
   friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
@@ -1252,21 +1252,6 @@ private:
   friend std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
   setReferent(Module& M, Symbol& S, NodeTy* N);
 };
-
-/// \relates Addr
-/// \brief Check: does the specified Module have the specified
-/// preferred address?
-///
-/// \param M  The Module object to test.
-/// \param X  The address to test.
-///
-/// \return \c true if \p M has preferred address \p X, \c false
-/// otherwise.
-///
-/// Can be used in algorithms iterating over Module objects.
-inline bool hasPreferredAddr(const Module& M, Addr X) {
-  return M.getPreferredAddr() == X;
-}
 
 /// \relates Module
 /// \relates Symbol

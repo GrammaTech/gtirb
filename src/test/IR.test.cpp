@@ -25,6 +25,10 @@
 
 using namespace gtirb;
 
+static bool hasPreferredAddr(const Module& M, Addr X) {
+  return M.getPreferredAddr() == X;
+}
+
 TEST(Unit_IR, compilationIteratorTypes) {
   static_assert(std::is_same_v<IR::iterator::reference, Module&>);
   static_assert(std::is_same_v<IR::const_iterator::reference, const Module&>);
@@ -41,13 +45,9 @@ TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
-  auto M1 = Ir->addModule(Ctx);
-  auto M2 = Ir->addModule(Ctx);
-  auto M3 = Ir->addModule(Ctx);
-
-  setModuleName(*Ir, *M1, "b");
-  setModuleName(*Ir, *M2, "a");
-  setModuleName(*Ir, *M3, "a");
+  auto M1 = Ir->addModule(Ctx, "b");
+  auto M2 = Ir->addModule(Ctx, "a");
+  auto M3 = Ir->addModule(Ctx, "a");
 
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
   auto It = Ir->begin();
@@ -189,15 +189,11 @@ TEST(Unit_IR, move) {
 
 TEST(Unit_IR, setModuleName) {
   IR* Ir = IR::Create(Ctx);
-  auto M1 = Ir->addModule(Ctx);
-  auto M2 = Ir->addModule(Ctx);
-  auto M3 = Ir->addModule(Ctx);
+  auto M1 = Ir->addModule(Ctx, "a");
+  auto M2 = Ir->addModule(Ctx, "b");
+  auto M3 = Ir->addModule(Ctx, "c");
 
-  setModuleName(*Ir, *M1, "a");
-  setModuleName(*Ir, *M2, "b");
-  setModuleName(*Ir, *M3, "c");
-
-  setModuleName(*Ir, *M2, "d");
+  M2->setName("d");
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
   auto It = Ir->begin();
   EXPECT_EQ(&*It++, M1);

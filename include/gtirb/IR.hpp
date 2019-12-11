@@ -280,23 +280,7 @@ private:
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
 
   friend class Context;
-
-  friend void setModuleName(IR& Ir, Module& M, const std::string& X);
 };
-
-/// \relates Module
-/// \brief Set the module name.
-///
-/// \param Ir The IR containing the module.
-/// \param M  The module to update.
-/// \param X  The name to use.
-inline void setModuleName(IR& Ir, Module& M, const std::string& X) {
-  auto& PointerView = Ir.Modules.get<IR::by_pointer>();
-  auto it = PointerView.find(&M);
-  if (it == PointerView.end())
-    return;
-  PointerView.modify(it, [&M, &X](Module*) { M.Name = X; });
-}
 } // namespace gtirb
 
 #endif // GTIRB_IR_H
