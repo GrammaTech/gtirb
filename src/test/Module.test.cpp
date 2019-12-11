@@ -88,18 +88,17 @@ TEST(Unit_Module, compilationIteratorTypes) {
     cit = it;
   }
 
-  // There are no non-const symbolic_expr_iterators...
+  static_assert(std::is_same_v<Module::symbolic_expression_iterator::reference,
+                               SymbolicExpression&>);
   static_assert(
       std::is_same_v<Module::const_symbolic_expression_iterator::reference,
                      const SymbolicExpression&>);
-  // There are, however, non-const subranges,
-  // thanks to differences in internal storage.
   static_assert(
-      std::is_same_v<Module::symbolic_expression_subrange::iterator::reference,
+      std::is_same_v<Module::symbolic_expression_addr_iterator::reference,
                      SymbolicExpression&>);
-  static_assert(std::is_same_v<
-                Module::const_symbolic_expression_subrange::iterator::reference,
-                const SymbolicExpression&>);
+  static_assert(
+      std::is_same_v<Module::const_symbolic_expression_addr_iterator::reference,
+                     const SymbolicExpression&>);
 
   static_assert(std::is_same_v<Module::symbol_iterator::reference, Symbol&>);
   static_assert(

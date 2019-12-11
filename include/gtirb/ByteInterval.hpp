@@ -437,6 +437,18 @@ public:
 
   void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
 
+  SymbolicExpression* getSymbolicExpression(uint64_t O) {
+    auto it = SymbolicExpressions.find(O);
+    return it == SymbolicExpressions.end() ? nullptr
+                                           : &SymbolicExpressions.at(O);
+  }
+
+  const SymbolicExpression* getSymbolicExpression(uint64_t O) const {
+    auto it = SymbolicExpressions.find(O);
+    return it == SymbolicExpressions.end() ? nullptr
+                                           : &SymbolicExpressions.at(O);
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
