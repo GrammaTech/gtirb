@@ -53,19 +53,19 @@ TEST(Unit_Symbol, setReferent) {
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
   EXPECT_FALSE(Sym->getAddress());
 
-  setReferent(*Mod, *Sym, Data);
+  Sym->setReferent(Data);
   EXPECT_EQ(Sym->getReferent<CodeBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<DataBlock>(), Data);
   EXPECT_EQ(Sym->getReferent<ProxyBlock>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(0));
 
-  setReferent(*Mod, *Sym, B);
+  Sym->setReferent(B);
   EXPECT_EQ(Sym->getReferent<CodeBlock>(), B);
   EXPECT_EQ(Sym->getReferent<DataBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<ProxyBlock>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(1));
 
-  setReferent(*Mod, *Sym, Proxy);
+  Sym->setReferent(Proxy);
   EXPECT_EQ(Sym->getReferent<CodeBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<DataBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<ProxyBlock>(), Proxy);
@@ -86,7 +86,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 
     DataBlock* Data = DataBlock::Create(InnerCtx, nullptr, 1);
     DataUUID = Data->getUUID();
-    setReferent(*Mod, *Original, Data);
+    Original->setReferent(Data);
 
     Original->toProtobuf(&SMessage);
 

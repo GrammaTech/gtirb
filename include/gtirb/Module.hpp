@@ -1244,67 +1244,7 @@ private:
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
-
-  // Allow these methods to update Symbols.
-  friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
-  friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
-  template <typename NodeTy>
-  friend std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
-  setReferent(Module& M, Symbol& S, NodeTy* N);
 };
-
-/// \relates Module
-/// \relates Symbol
-/// \brief Change the name of a symbol and update the module with the new symbol
-/// name.
-///
-/// The module is notified of the changes so that future calls to findSymbol
-/// with the new name will find the symbol.
-///
-/// \param M  The module containing the symbol.
-/// \param S  The symbol to rename.
-/// \param N  The new name to assign.
-inline void renameSymbol(Module& M, Symbol& S, const std::string& N) {
-  auto& Index = M.Symbols.get<Module::by_pointer>();
-  Index.modify(Index.find(&S), [&N, &S](Symbol*) { S.Name = N; });
-}
-
-/// \relates Module
-/// \relates Symbol
-/// \brief Set the referent of a symbol and update the module with the new
-/// symbol address.
-///
-/// The module is notified of the changes so that future calls to findSymbol
-/// with the new address will find the symbol.
-///
-/// \tparam NodeTy  A Node type of a supported referent; should be automatically
-/// deduced.
-///
-/// \param M  The module containing the symbol.
-/// \param S  The symbol to modify.
-/// \param N  The node to reference.
-template <typename NodeTy>
-std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
-setReferent(Module& M, Symbol& S, NodeTy* N) {
-  auto& Index = M.Symbols.get<Module::by_pointer>();
-  Index.modify(Index.find(&S), [&N, &S](Symbol*) { S.Payload = N; });
-}
-
-/// \relates Module
-/// \relates Symbol
-/// \brief Set the address of a symbol and update the module with the new
-/// address.
-///
-/// The module is notified of the changes so that future calls to findSymbol
-/// with the old address will no longer find the symbol.
-///
-/// \param M  The module containing the symbol.
-/// \param S  The symbol to modify.
-/// \param A  The new address to assign.
-inline void setSymbolAddress(Module& M, Symbol& S, Addr A) {
-  auto& Index = M.Symbols.get<Module::by_pointer>();
-  Index.modify(Index.find(&S), [&A, &S](Symbol*) { S.Payload = A; });
-}
 } // namespace gtirb
 
 #endif // GTIRB_MODULE_H

@@ -488,8 +488,9 @@ TEST(Unit_Module, renameSymbol) {
   auto* S2 = M->addSymbol(Ctx, Addr(1), "bar");
   auto* S3 = M->addSymbol(Ctx, Addr(2), "bar");
 
-  renameSymbol(*M, *S1, "test1");
-  renameSymbol(*M, *S2, "test2");
+  S1->setName("test1");
+  S2->setName("test2");
+
   {
     auto F = M->findSymbols("foo");
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
@@ -532,9 +533,9 @@ TEST(Unit_Module, setReferent) {
   auto* S3 = M->addSymbol(Ctx, B1, "foo");
   auto* S4 = M->addSymbol(Ctx, B2, "bar");
 
-  setReferent(*M, *S1, B3);
-  setReferent(*M, *S2, B4);
-  setReferent(*M, *S4, B5);
+  S1->setReferent(B3);
+  S2->setReferent(B4);
+  S4->setReferent(B5);
 
   {
     auto F = M->findSymbols("foo");
@@ -580,8 +581,9 @@ TEST(Unit_Module, setSymbolAddress) {
   auto* S2 = M->addSymbol(Ctx, B1, "bar");
   auto* S3 = M->addSymbol(Ctx, B1, "bar");
 
-  setSymbolAddress(*M, *S1, Addr(2));
-  setSymbolAddress(*M, *S2, Addr(3));
+  S1->setAddress(Addr(2));
+  S2->setAddress(Addr(3));
+
   {
     auto F = M->findSymbols("bar");
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);

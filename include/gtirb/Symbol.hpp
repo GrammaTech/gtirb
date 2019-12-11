@@ -321,6 +321,18 @@ public:
   /// \return The storage kind.
   Symbol::StorageKind getStorageKind() const { return Storage; }
 
+  /// \brief Set the name of a symbol.
+  void setName(const std::string& N) { Name = N; }
+
+  /// \brief Set the referent of a symbol.
+  template <typename NodeTy>
+  std::enable_if_t<is_supported_type<NodeTy>()> setReferent(NodeTy* N) {
+    Payload = N;
+  }
+
+  /// \brief Set the address of a symbol.
+  void setAddress(Addr A) { Payload = A; }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
@@ -366,14 +378,6 @@ private:
 
   friend class Context; // Allow Context to construct Symbols.
   friend class Module;  // Allow Module to call setModule.
-
-  // Allow these methods to update Symbol contents.
-  friend void renameSymbol(Module& M, Symbol& S, const std::string& N);
-  friend void setSymbolAddress(Module& M, Symbol& S, Addr A);
-
-  template <typename NodeTy>
-  friend std::enable_if_t<Symbol::is_supported_type<NodeTy>()>
-  setReferent(Module& M, Symbol& S, NodeTy* N);
 };
 } // namespace gtirb
 
