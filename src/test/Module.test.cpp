@@ -696,8 +696,7 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Module* Original = Module::Create(InnerCtx, nullptr);
-    // TODO set name
+    Module* Original = Module::Create(InnerCtx, nullptr, "module");
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
