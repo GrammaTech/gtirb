@@ -34,7 +34,8 @@ int main(int argc, char** argv) {
   std::map<Addr, const CodeBlock*> BlocksByAddr;
   auto Blocks = blocks(I->begin()->getCFG());
   std::for_each(Blocks.begin(), Blocks.end(), [&BlocksByAddr](const auto& B) {
-    BlocksByAddr.emplace(B.getAddress(), &B);
+    if (std::optional<Addr> A = B.getAddress())
+      BlocksByAddr.emplace(*A, &B);
   });
 
   // Load function information from AuxData.

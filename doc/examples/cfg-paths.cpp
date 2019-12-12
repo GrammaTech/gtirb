@@ -86,14 +86,14 @@ int main(int argc, char** argv) {
   const auto& Cfg = Mod.getCFG();
   const CodeBlock *SourceBlock, *TargetBlock;
 
-  if (auto Range = Mod.findBlock(Source); !Range.empty()) {
+  if (auto Range = Mod.findCodeBlock(Source); !Range.empty()) {
     SourceBlock = &*Range.begin();
   } else {
     std::cerr << "No block at source address " << Source << "\n";
     exit(1);
   }
 
-  if (auto Range = Mod.findBlock(Target); !Range.empty()) {
+  if (auto Range = Mod.findCodeBlock(Target); !Range.empty()) {
     TargetBlock = &*Range.begin();
   } else {
     std::cerr << "No block at target address " << Target << "\n";

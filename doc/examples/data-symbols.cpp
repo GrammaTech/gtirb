@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     std::cout << "Module " << M.getName() << "\n";
     // Examine all symbols in the module
     for (const auto& Sym : M.symbols()) {
-      if (auto* Ref = Sym.getReferent<DataObject>(); Ref != nullptr) {
+      if (auto* Ref = Sym.getReferent<DataBlock>(); Ref != nullptr) {
         // If the symbol refers to data, print some information about it
         std::cout << Sym.getName() << ":\t" << Ref->getAddress() << "\t"
                   << Ref->getSize() << " bytes\n";
