@@ -21,11 +21,11 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Block, ctor) {
+TEST(Unit_CodeBlock, ctor) {
   EXPECT_NE(CodeBlock::Create(Ctx, nullptr, 0), nullptr);
 }
 
-TEST(Unit_Block, getters) {
+TEST(Unit_CodeBlock, getters) {
   auto BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
   auto B = BI->addCodeBlock(Ctx, 0, 1, 2);
 

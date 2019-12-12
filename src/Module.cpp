@@ -82,3 +82,220 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   static_cast<AuxDataContainer*>(M)->fromProtobuf(C, Message);
   return M;
 }
+
+template <typename NodeType, typename CollectionType>
+static void modifyIndex(CollectionType& Index, NodeType* N,
+                        const std::function<void()>& F) {
+  Index.modify(Index.find(N), [&F](const auto&) { F(); });
+}
+
+void gtirb::addToModuleIndices(Node* N) {
+  switch (N->getKind()) {
+  case Node::Kind::ByteInterval: {
+    auto BI = cast<ByteInterval>(N);
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      M->ByteIntervals.insert(BI);
+      for (auto& B : BI->code_blocks()) {
+        M->CodeBlocks.insert(cast<CodeBlock>(B.getNode()));
+      }
+      for (auto& B : BI->data_blocks()) {
+        M->DataBlocks.insert(cast<DataBlock>(B.getNode()));
+      }
+      for (auto& SE : BI->symbolic_expressions()) {
+        M->SymbolicExpressions.emplace(BI, SE.first);
+      }
+    }
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto B = cast<CodeBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      M->CodeBlocks.insert(B);
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto B = cast<DataBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      M->DataBlocks.insert(B);
+    }
+  } break;
+  case Node::Kind::Section: {
+    auto S = cast<Section>(N);
+    auto M = S->getModule();
+    if (M) {
+      M->Sections.insert(S);
+      for (auto BI : S->byte_intervals()) {
+        addToModuleIndices(BI);
+      }
+    }
+  } break;
+  case Node::Kind::Symbol: {
+    auto S = cast<Symbol>(N);
+    auto M = S->getModule();
+    if (M) {
+      M->Symbols.insert(S);
+    }
+  } break;
+  default: {
+    throw std::runtime_error(
+        "unexpected kind of node passed to addToModuleIndices!");
+  }
+  }
+}
+
+void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
+  switch (N->getKind()) {
+  case Node::Kind::ByteInterval: {
+    auto BI = cast<ByteInterval>(N);
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
+      for (auto& SE : BI->symbolic_expressions()) {
+        seIndex.erase(seIndex.find(std::make_pair(BI, SE.first)));
+      }
+
+      modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
+        modifyIndex(M->ByteIntervals.get<Module::by_pointer>(), BI, F);
+      });
+
+      for (auto& SE : BI->symbolic_expressions()) {
+        M->SymbolicExpressions.emplace(BI, SE.first);
+      }
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto B = cast<CodeBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
+        modifyIndex(M->ByteIntervals.get<Module::by_pointer>(), BI, [&]() {
+          modifyIndex(M->CodeBlocks.get<Module::by_pointer>(), B, F);
+        });
+      });
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto B = cast<DataBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
+        modifyIndex(M->ByteIntervals.get<Module::by_pointer>(), BI, [&]() {
+          modifyIndex(M->DataBlocks.get<Module::by_pointer>(), B, F);
+        });
+      });
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::Section: {
+    auto S = cast<Section>(N);
+    auto M = S->getModule();
+    if (M) {
+      modifyIndex(M->Sections.get<Module::by_pointer>(), S, F);
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::Symbol: {
+    auto S = cast<Symbol>(N);
+    auto M = S->getModule();
+    if (M) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), S, F);
+    } else {
+      F();
+    }
+  } break;
+  default: {
+    throw std::runtime_error(
+        "unexpected kind of node passed to mutateModuleIndices!");
+  }
+  }
+}
+
+void gtirb::removeFromModuleIndices(Node* N) {
+  switch (N->getKind()) {
+  case Node::Kind::ByteInterval: {
+    auto BI = cast<ByteInterval>(N);
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      auto& index = M->ByteIntervals.get<Module::by_pointer>();
+      index.erase(index.find(BI));
+
+      auto& codeIndex = M->CodeBlocks.get<Module::by_pointer>();
+      for (auto& B : BI->code_blocks()) {
+        codeIndex.erase(codeIndex.find(cast<CodeBlock>(B.getNode())));
+      }
+
+      auto& dataIndex = M->DataBlocks.get<Module::by_pointer>();
+      for (auto& B : BI->data_blocks()) {
+        dataIndex.erase(dataIndex.find(cast<DataBlock>(B.getNode())));
+      }
+
+      auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
+      for (auto& SE : BI->symbolic_expressions()) {
+        seIndex.erase(seIndex.find(std::make_pair(BI, SE.first)));
+      }
+    }
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto B = cast<CodeBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      auto& index = M->CodeBlocks.get<Module::by_pointer>();
+      index.erase(index.find(B));
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto B = cast<DataBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      auto& index = M->DataBlocks.get<Module::by_pointer>();
+      index.erase(index.find(B));
+    }
+  } break;
+  case Node::Kind::Section: {
+    auto S = cast<Section>(N);
+    auto M = S->getModule();
+    if (M) {
+      auto& index = M->Sections.get<Module::by_pointer>();
+      index.erase(index.find(S));
+      for (auto BI : S->byte_intervals()) {
+        removeFromModuleIndices(BI);
+      }
+    }
+  } break;
+  case Node::Kind::Symbol: {
+    auto S = cast<Symbol>(N);
+    auto M = S->getModule();
+    if (M) {
+      auto& index = M->Symbols.get<Module::by_pointer>();
+      index.erase(index.find(S));
+    }
+  } break;
+  default: {
+    throw std::runtime_error(
+        "unexpected kind of node passed to mutateModuleIndices!");
+  }
+  }
+}

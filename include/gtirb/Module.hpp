@@ -82,6 +82,13 @@ enum class ISAID : uint8_t {
   ValidButUnsupported = proto::ValidButUnsupported
 };
 
+/// @cond INTERNAL
+void GTIRB_EXPORT_API addToModuleIndices(Node* N);
+void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
+                                          const std::function<void()>& F);
+void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
+/// @endcond
+
 /// \class Module
 ///
 /// \brief Represents a single binary (library or executable).
@@ -1244,7 +1251,13 @@ private:
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
+
+  // Allow mutation of Module indices
+  friend void addToModuleIndices(Node* N);
+  friend void mutateModuleIndices(Node* N, const std::function<void()>& F);
+  friend void removeFromModuleIndices(Node* N);
 };
+
 } // namespace gtirb
 
 #endif // GTIRB_MODULE_H

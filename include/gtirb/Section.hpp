@@ -31,7 +31,12 @@ class Section;
 }
 
 namespace gtirb {
-class Module;
+class Module; // forward declared for the backpointer
+
+// forward declare functions to update module indices
+void addToModuleIndices(Node* N);
+void mutateModuleIndices(Node* N, const std::function<void()>& F);
+void removeFromModuleIndices(Node* N);
 
 /// \class Section
 ///
@@ -162,6 +167,7 @@ public:
 
   /// \brief Remove an interval from this section.
   void removeByteInterval(ByteInterval* N) {
+    removeFromModuleIndices(N);
     ByteIntervals.erase(N);
     N->setSection(nullptr);
   }
@@ -171,9 +177,9 @@ public:
     if (N->getSection()) {
       N->getSection()->removeByteInterval(N);
     }
-
     N->setSection(this);
     ByteIntervals.insert(N);
+    addToModuleIndices(N);
   }
 
   /// \brief Creates a new \ref ByteInterval in this section.
@@ -182,8 +188,14 @@ public:
   template <typename... Args>
   ByteInterval* addByteInterval(Context& C, Args... A) {
     auto N = ByteInterval::Create(C, this, A...);
-    ByteIntervals.insert(N);
+    mutateModuleIndices(N, [this, N]() { ByteIntervals.insert(N); });
+    addToModuleIndices(N);
     return N;
+  }
+
+  /// \brief Set this section's name.
+  void setName(const std::string& N) {
+    mutateModuleIndices(this, [this, &N]() { Name = N; });
   }
 
   /// @cond INTERNAL

@@ -30,6 +30,13 @@
 /// \brief Class gtirb::Symbol.
 
 namespace gtirb {
+class Module; // forward declared for the backpointer
+
+// forward declare functions to update module indices
+void addToModuleIndices(Node* N);
+void mutateModuleIndices(Node* N, const std::function<void()>& F);
+void removeFromModuleIndices(Node* N);
+
 /// \class Symbol
 ///
 /// \brief Represents a Symbol, which maps a name to an object in the IR.
@@ -322,16 +329,20 @@ public:
   Symbol::StorageKind getStorageKind() const { return Storage; }
 
   /// \brief Set the name of a symbol.
-  void setName(const std::string& N) { Name = N; }
+  void setName(const std::string& N) {
+    mutateModuleIndices(this, [this, &N]() { Name = N; });
+  }
 
   /// \brief Set the referent of a symbol.
   template <typename NodeTy>
   std::enable_if_t<is_supported_type<NodeTy>()> setReferent(NodeTy* N) {
-    Payload = N;
+    mutateModuleIndices(this, [this, N]() { Payload = N; });
   }
 
   /// \brief Set the address of a symbol.
-  void setAddress(Addr A) { Payload = A; }
+  void setAddress(Addr A) {
+    mutateModuleIndices(this, [this, A]() { Payload = A; });
+  }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Symbol.

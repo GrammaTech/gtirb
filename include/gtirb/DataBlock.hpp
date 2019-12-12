@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <cstdint>
+#include <functional>
 #include <vector>
 
 /// \file DataBlock.hpp
@@ -27,7 +28,10 @@ namespace proto {
 class DataBlock;
 }
 namespace gtirb {
-class ByteInterval;
+class ByteInterval; // forward declared for the backpointer
+
+// forward declare functions to update module indices
+void mutateModuleIndices(Node* N, const std::function<void()>& F);
 
 ///
 /// \class DataBlock
@@ -81,6 +85,10 @@ public:
   /// ByteInterval.getAddress for details on why this address may not be
   /// present.
   std::optional<Addr> getAddress() const;
+
+  void setSize(uint64_t S) {
+    mutateModuleIndices(this, [this, S]() { Size = S; });
+  }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing DataBlock.

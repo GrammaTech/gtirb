@@ -22,7 +22,7 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_DataObject, getters) {
+TEST(Unit_DataBlock, getters) {
   auto BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
   auto B = BI->addDataBlock(Ctx, 0, 1);
 
@@ -31,7 +31,7 @@ TEST(Unit_DataObject, getters) {
   EXPECT_EQ(BI, B->getByteInterval());
 }
 
-TEST(Unit_DataObject, protobufRoundTrip) {
+TEST(Unit_DataBlock, protobufRoundTrip) {
   proto::DataBlock Message;
   {
     Context InnerCtx;

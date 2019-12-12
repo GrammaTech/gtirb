@@ -24,6 +24,7 @@
 #include <proto/CodeBlock.pb.h>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
+#include <functional>
 #include <vector>
 
 /// \file CodeBlock.hpp
@@ -36,7 +37,10 @@ class Offset;
 } // namespace proto
 
 namespace gtirb {
-class ByteInterval;
+class ByteInterval; // forward declared for the backpointer
+
+// forward declare functions to update module indices
+void mutateModuleIndices(Node* N, const std::function<void()>& F);
 
 /// \class CodeBlock
 ///
@@ -85,6 +89,12 @@ public:
   /// ByteInterval.getAddress for details on why this address may not be
   /// present.
   std::optional<Addr> getAddress() const;
+
+  void setSize(uint64_t S) {
+    mutateModuleIndices(this, [this, S]() { Size = S; });
+  }
+
+  void setDecodeMode(uint64_t DM) { DecodeMode = DM; }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing CodeBlock.

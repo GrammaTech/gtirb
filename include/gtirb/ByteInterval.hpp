@@ -41,8 +41,12 @@ class ByteInterval;
 } // namespace proto
 
 namespace gtirb {
-class Module;
-class Section;
+class Section; // forward declared for the backpointer
+
+// forward declare functions to update module indices
+void addToModuleIndices(Node* N);
+void mutateModuleIndices(Node* N, const std::function<void()>& F);
+void removeFromModuleIndices(Node* N);
 
 /// \class Block
 ///
@@ -392,6 +396,7 @@ public:
   ///
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
   template <class BlockType> void removeBlock(BlockType* N) {
+    removeFromModuleIndices(N);
     auto& index = Blocks.get<by_pointer>();
     index.erase(index.find(N));
     N->setByteInerval(nullptr);
@@ -407,6 +412,7 @@ public:
 
     N->setByteInterval(this);
     Blocks.emplace(O, N);
+    addToModuleIndices(N);
   }
 
   /// \brief Creates a new \ref CodeBlock at a given offset.
@@ -416,6 +422,7 @@ public:
   CodeBlock* addCodeBlock(Context& C, uint64_t O, Args... A) {
     auto N = CodeBlock::Create(C, this, A...);
     Blocks.emplace(O, N);
+    addToModuleIndices(N);
     return N;
   }
 
@@ -426,16 +433,20 @@ public:
   DataBlock* addDataBlock(Context& C, uint64_t O, Args... A) {
     auto N = DataBlock::Create(C, this, A...);
     Blocks.emplace(O, N);
+    addToModuleIndices(N);
     return N;
   }
 
   template <class ExprType, class... Args>
   SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
-    SymbolicExpressions.emplace(O, ExprType{A...});
+    mutateModuleIndices(
+        this, [&]() { SymbolicExpressions.emplace(O, ExprType{A...}); });
     return SymbolicExpressions[O];
   }
 
-  void removeSymbolicExpression(uint64_t O) { SymbolicExpressions.erase(O); }
+  void removeSymbolicExpression(uint64_t O) {
+    mutateModuleIndices(this, [&]() { SymbolicExpressions.erase(O); });
+  }
 
   SymbolicExpression* getSymbolicExpression(uint64_t O) {
     auto it = SymbolicExpressions.find(O);
@@ -447,6 +458,14 @@ public:
     auto it = SymbolicExpressions.find(O);
     return it == SymbolicExpressions.end() ? nullptr
                                            : &SymbolicExpressions.at(O);
+  }
+
+  void setAddress(std::optional<Addr> A) {
+    mutateModuleIndices(this, [this, A]() { Address = A; });
+  }
+
+  void setSize(uint64_t S) {
+    mutateModuleIndices(this, [this, S]() { Size = S; });
   }
 
   /// @cond INTERNAL
