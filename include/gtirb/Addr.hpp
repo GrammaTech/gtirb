@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <iosfwd>
+#include <optional>
 
 /// \file Addr.hpp
 /// \brief Class gtirb::Addr and related functions.
@@ -247,6 +248,25 @@ operator<<(std::basic_ostream<CharT, Traits>& Stream, Addr A) {
   Stream << std::setbase(16) << std::showbase << static_cast<uint64_t>(A);
   Stream.flags(Flags);
   return Stream;
+}
+
+/// \relates Addr
+/// \brief Writes an optional address to an output stream in hex.
+///
+/// This is a convenience to unwrap an Addr stored in a std::optional. If the
+/// optional does not hold a valid Addr object, then <none> is printed to the
+/// stream.
+///
+/// \param Stream  the stream to write to.
+/// \param A       the optional address to write.
+///
+/// \return Stream.
+template <typename CharT, typename Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& Stream, std::optional<Addr> A) {
+  if (A)
+    return Stream << *A;
+  return Stream << "<none>";
 }
 
 } // namespace gtirb
