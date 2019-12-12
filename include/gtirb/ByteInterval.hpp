@@ -398,7 +398,8 @@ public:
   template <class BlockType> void removeBlock(BlockType* N) {
     removeFromModuleIndices(N);
     auto& index = Blocks.get<by_pointer>();
-    index.erase(index.find(N));
+    if (auto iter = index.find(N); iter != index.end())
+      index.erase(iter);
     N->setByteInerval(nullptr);
   }
 

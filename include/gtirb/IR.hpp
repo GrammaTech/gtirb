@@ -190,7 +190,8 @@ public:
   /// \param S The \ref Module object to remove.
   void removeModule(Module* S) {
     auto& index = Modules.get<by_pointer>();
-    index.erase(index.find(S));
+    if (auto iter = index.find(S); iter != index.end())
+      index.erase(iter);
     S->setIR(nullptr);
   }
 

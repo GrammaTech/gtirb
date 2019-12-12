@@ -549,7 +549,8 @@ public:
   /// \param S The \ref Symbol object to remove.
   void removeSymbol(Symbol* S) {
     auto& index = Symbols.get<by_pointer>();
-    index.erase(index.find(S));
+    if (auto iter = index.find(S); iter != index.end())
+      index.erase(iter);
     S->setModule(nullptr);
   }
 
@@ -926,7 +927,8 @@ public:
   /// \param S The \ref Section object to remove.
   void removeSection(Section* S) {
     auto& index = Sections.get<by_pointer>();
-    index.erase(index.find(S));
+    if (auto iter = index.find(S); iter != index.end())
+      index.erase(iter);
     S->setModule(nullptr);
   }
 
