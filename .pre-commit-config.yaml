@@ -17,8 +17,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
-    rev: v0.6.0
+    rev: v0.6.2
     hooks:
       - id: cmake-format
         exclude: build
-        files: (CMakeLists.txt|.*\.cmake)$
