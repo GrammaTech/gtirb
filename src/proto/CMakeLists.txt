@@ -40,11 +40,14 @@ install(
 )
 
 add_custom_command(
-  TARGET proto POST_BUILD COMMAND "${CMAKE_COMMAND}" -E make_directory
-                                  "${CMAKE_BINARY_DIR}/include/proto"
+  TARGET proto
+  POST_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E make_directory
+          "${CMAKE_BINARY_DIR}/include/proto"
 )
 add_custom_command(
-  TARGET proto POST_BUILD
+  TARGET proto
+  POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy ${PROTO_CPP_HEADERS}
           "${CMAKE_BINARY_DIR}/include/proto"
 )
