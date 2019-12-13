@@ -51,11 +51,7 @@ RUN git clone https://github.com/google/protobuf -b v${PROTOBUF_VERSION} && \
 
 # Build GTIRB
 COPY . /gt/gtirb/
-RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
-RUN mkdir -p /gt/gtirb/build
-WORKDIR /gt/gtirb/build
-RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
-RUN make -j
+RUN /gt/gtirb/.ci/build-linux.sh
 
 WORKDIR /gt/gtirb/
 ENV PATH=/gt/gtirb/build/bin:$PATH

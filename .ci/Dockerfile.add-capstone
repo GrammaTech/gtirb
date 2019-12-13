@@ -11,8 +11,4 @@ RUN cd /usr/local/src \
     && CAPSTONE_ARCHS=x86 ./make.sh \
     && CAPSTONE_ARCHS=x86 ./make.sh install
 
-RUN cd /gt/gtirb/build \
-    && cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
-    && make -j
-
-RUN TestGTIRB
+RUN /gt/gtirb/.ci/build-linux-capstone.sh
