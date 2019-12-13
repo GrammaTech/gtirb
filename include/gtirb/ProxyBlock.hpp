@@ -92,7 +92,7 @@ private:
 
   void setModule(Module* M) { Parent = M; }
 
-  Module* Parent;
+  Module* Parent{nullptr};
 
   friend class Context; // Allow Context to construct proxies.
   friend class Module;  // Allow Module to call setModule.

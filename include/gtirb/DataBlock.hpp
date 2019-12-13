@@ -20,6 +20,7 @@
 #include <gtirb/Node.hpp>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <vector>
 
 /// \file DataBlock.hpp
@@ -162,7 +163,7 @@ public:
   /// @endcond
 
 private:
-  ByteInterval* Parent;
+  ByteInterval* Parent{nullptr};
   uint64_t Size{0};
 
   friend class Context;

@@ -1302,13 +1302,13 @@ public:
 private:
   void setIR(IR* I) { Parent = I; }
 
-  IR* Parent;
-  std::string BinaryPath{};
+  IR* Parent{nullptr};
+  std::string BinaryPath;
   Addr PreferredAddr;
   int64_t RebaseDelta{0};
-  gtirb::FileFormat FileFormat{};
-  gtirb::ISAID IsaID{};
-  std::string Name{};
+  gtirb::FileFormat FileFormat{FileFormat::Undefined};
+  gtirb::ISAID IsaID{ISAID::Undefined};
+  std::string Name;
   CodeBlock* EntryPoint{nullptr};
   CFG Cfg;
   ProxyBlockSet ProxyBlocks;

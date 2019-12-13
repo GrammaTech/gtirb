@@ -223,7 +223,7 @@ public:
   /// @endcond
 
 private:
-  Module* Parent;
+  Module* Parent{nullptr};
   std::string Name;
   ByteIntervalSet ByteIntervals;
 

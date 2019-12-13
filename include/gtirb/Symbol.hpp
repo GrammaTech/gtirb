@@ -383,7 +383,7 @@ private:
 
   void setModule(Module* M) { Parent = M; }
 
-  Module* Parent;
+  Module* Parent{nullptr};
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
   Symbol::StorageKind Storage{StorageKind::Extern};

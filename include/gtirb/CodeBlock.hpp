@@ -26,6 +26,7 @@
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <vector>
 
 /// \file CodeBlock.hpp
@@ -174,7 +175,7 @@ private:
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
 
-  ByteInterval* Parent;
+  ByteInterval* Parent{nullptr};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 
@@ -192,7 +193,7 @@ struct GTIRB_EXPORT_API Offset {
 
   /// \brief The displacement from the start of the block or data object, in
   /// bytes.
-  uint64_t Displacement;
+  uint64_t Displacement{0};
 
   /// \brief Constructor using a ElemId uuid and a Displacement.
   Offset(const UUID& ElemId, uint64_t Disp)
