@@ -92,5 +92,6 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
     result->SymbolicExpressions[pair.first] = sym_expr;
   }
 
+  addToModuleIndices(result);
   return result;
 }

@@ -83,6 +83,6 @@ Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
   }
   S->setStorageKind(static_cast<StorageKind>(Message.storage_kind()));
   setNodeUUIDFromBytes(S, Message.uuid());
-
+  addToModuleIndices(S);
   return S;
 }
