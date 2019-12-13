@@ -33,7 +33,7 @@ enum FileFormat {
   RAW = 8;
 };
 
-enum ISAID {
+enum ISA {
   ISA_Undefined = 0;
   IA32 = 1;
   PPC32 = 2;
@@ -52,7 +52,7 @@ message Module {
     uint64 preferred_addr = 3;
     int64 rebase_delta = 4;
     FileFormat file_format = 5;
-    ISAID isa_id = 6;
+    ISA isa = 6;
     string name = 7;
     repeated Symbol symbols = 9;
     CFG cfg = 10;
