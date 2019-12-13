@@ -3,7 +3,7 @@
   (:use :common-lisp :alexandria :graph :trivia
         :trivial-utf-8
         :named-readtables :curry-compose-reader-macros)
-  (:shadow :symbol :block)
+  (:shadow :symbol)
   (:import-from :proto)
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
@@ -13,6 +13,7 @@
                 :octets->uint64)
   (:export :read-gtirb
            :write-gtirb
+           :is-equal-p
 ;;; Classes and fields.
            ;; Module
            :module
@@ -39,7 +40,7 @@
            :byte-interval
            :blocks
            :symbolic-expressions
-           :has-address
+           :addressp
            :address
            :contents
            :size
@@ -91,6 +92,29 @@
 
 
 ;;;; Classes
+(defgeneric is-equal-p (left right)
+  (:documentation "Return t if LEFT and RIGHT are equal.")
+  (:method ((left t) (right t))
+    (equalp left right))
+  (:method ((left number) (right number))
+    (= left right))
+  (:method ((left cl:symbol) (right cl:symbol))
+    (eql left right))
+  (:method ((left string) (right string))
+    (string= left right))
+  (:method ((left cons) (right cons))
+    (and (is-equal-p (car left) (car right))
+         (is-equal-p (cdr left) (cdr right))))
+  (:method ((left hash-table) (right hash-table))
+    (set-equal (hash-table-alist left) (hash-table-alist right)
+               :test #'is-equal-p))
+  (:method ((left graph:digraph) (right graph:digraph))
+    (and (set-equal (graph:nodes left) (graph:nodes right)
+                    :test #'is-equal-p)
+         (set-equal (graph:edges-w-values left)
+                    (graph:edges-w-values right)
+                    :test #'is-equal-p))))
+
 (defmacro define-proto-backed-class ((class proto-class) super-classes
                                      slot-specifiers proto-fields
                                      &body options)
@@ -108,6 +132,20 @@ pass through directly to the backing protobuf class.  "
 Should not need to be manipulated by client code.")
         ,@slot-specifiers)
        ,@options)
+     ;; Equality check on class.
+     ;;
+     ;; NOTE: For this to work we might need to add an optional :only
+     ;;       field to both slot-specifiers  and proto-fields.  This
+     ;;       would mean that the equality of this field is only
+     ;;       checked with this form returns true.  E.g., on
+     ;;       byte-intervals we could say:
+     ;;       (address :type unsigned-byte-64 :only #'addressp)
+     (defmethod is-equal-p ((left ,class) (right ,class))
+       (and ,@(mapcar
+               (lambda (accessor)
+                 `(is-equal-p (,accessor left) (,accessor right)))
+               (append (mapcar [#'second {member :accessor}] slot-specifiers)
+                       (mapcar #'car proto-fields)))))
      ;; Pass-through accessors for protobuf fields.
      ,@(apply
         #'append
@@ -179,7 +217,7 @@ Should not need to be manipulated by client code.")
      (binary-path :type string)
      (preferred-addr :type unsigned-byte-64)
      (rebase-delta :type unsigned-byte-64)
-     (isa :type enumeration :enumeration +module-isa-map+ :proto-field isa)
+     (isa :type enumeration :enumeration +module-isa-map+)
      (file-format :type enumeration :enumeration +module-file-format-map+))
   (:documentation "Module of a GTIRB IR."))
 
@@ -226,7 +264,7 @@ Should not need to be manipulated by client code.")
      (symbolic-expressions
       :accessor symbolic-expressions :type hash-table
       :documentation "Hash of symbolic-expressions keyed by address."))
-    ((has-address :type boolean)
+    ((addressp :type boolean :proto-field has-address)
      (address :type unsigned-byte-64)
      (size :type unsigned-byte-64)
      (contents :type bytes)))
@@ -234,7 +272,7 @@ Should not need to be manipulated by client code.")
 (defmethod print-object ((obj byte-interval) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a"
-            (if (has-address obj) (address obj) "?")
+            (if (addressp obj) (address obj) "?")
             (size obj))))
 
 (defmethod initialize-instance :after ((obj byte-interval) &key)
