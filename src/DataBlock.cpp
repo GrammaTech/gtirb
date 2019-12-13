@@ -29,7 +29,6 @@ DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const MessageType& Message) {
   auto* DO = DataBlock::Create(C, Parent, Message.size());
   setNodeUUIDFromBytes(DO, Message.uuid());
-  addToModuleIndices(DO);
   return DO;
 }
 

@@ -29,7 +29,6 @@ CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const proto::CodeBlock& M) {
   CodeBlock* B = CodeBlock::Create(C, Parent, M.size(), M.decode_mode());
   setNodeUUIDFromBytes(B, M.uuid());
-  addToModuleIndices(B);
   return B;
 }
 

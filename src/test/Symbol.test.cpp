@@ -74,17 +74,19 @@ TEST(Unit_Symbol, setReferent) {
 
 TEST(Unit_Symbol, protobufRoundTrip) {
   proto::Symbol SMessage;
-  proto::DataBlock DOMessage;
+  proto::Module MMessage;
   UUID DataUUID;
 
   // Symbol with referent
   {
     Context InnerCtx;
-    Module* Mod = Module::Create(Ctx, nullptr);
-    Symbol* Original = Mod->addSymbol(InnerCtx, "test");
+    Module* Mod = Module::Create(InnerCtx, nullptr);
+    Symbol* Original = Symbol::Create(InnerCtx, nullptr, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    DataBlock* Data = DataBlock::Create(InnerCtx, nullptr, 1);
+    Section* S = Mod->addSection(InnerCtx, "test");
+    ByteInterval* BI = S->addByteInterval(InnerCtx, Addr(0), 10);
+    DataBlock* Data = BI->addDataBlock(InnerCtx, 1, 1);
     DataUUID = Data->getUUID();
     Original->setReferent(Data);
 
@@ -92,17 +94,20 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 
     // We must manually serialize the symbol referent. This would typically be
     // done automatically for the user when they serialized the IR.
-    Data->toProtobuf(&DOMessage);
+    Mod->toProtobuf(&MMessage);
   }
 
-  (void)DataBlock::fromProtobuf(Ctx, nullptr, DOMessage); // See above.
-  Symbol* Result = Symbol::fromProtobuf(Ctx, nullptr, SMessage);
+  {
+    Context InnerCtx;
+    (void)Module::fromProtobuf(InnerCtx, nullptr, MMessage); // See above.
+    Symbol* Result = Symbol::fromProtobuf(InnerCtx, nullptr, SMessage);
 
-  EXPECT_EQ(Result->getAddress(), Addr(1));
-  EXPECT_EQ(Result->getName(), "test");
-  EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Static);
-  EXPECT_EQ(Result->getReferent<DataBlock>()->getUUID(), DataUUID);
-  EXPECT_EQ(Result->getReferent<CodeBlock>(), nullptr);
+    EXPECT_EQ(Result->getAddress(), Addr(1));
+    EXPECT_EQ(Result->getName(), "test");
+    EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Static);
+    EXPECT_EQ(Result->getReferent<DataBlock>()->getUUID(), DataUUID);
+    EXPECT_EQ(Result->getReferent<CodeBlock>(), nullptr);
+  }
 
   // Symbol with address
   {
@@ -110,13 +115,17 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     Symbol* Original = Symbol::Create(InnerCtx, nullptr, Addr(2), "test");
     Original->toProtobuf(&SMessage);
   }
-  Result = Symbol::fromProtobuf(Ctx, nullptr, SMessage);
 
-  EXPECT_EQ(Result->getAddress(), Addr(2));
-  EXPECT_EQ(Result->getName(), "test");
-  EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Extern);
-  EXPECT_EQ(Result->getReferent<DataBlock>(), nullptr);
-  EXPECT_EQ(Result->getReferent<CodeBlock>(), nullptr);
+  {
+    Context InnerCtx;
+    Symbol* Result = Symbol::fromProtobuf(InnerCtx, nullptr, SMessage);
+
+    EXPECT_EQ(Result->getAddress(), Addr(2));
+    EXPECT_EQ(Result->getName(), "test");
+    EXPECT_EQ(Result->getStorageKind(), Symbol::StorageKind::Extern);
+    EXPECT_EQ(Result->getReferent<DataBlock>(), nullptr);
+    EXPECT_EQ(Result->getReferent<CodeBlock>(), nullptr);
+  }
 
   // Symbol without address
   {
@@ -124,9 +133,13 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     Symbol* Original = Symbol::Create(InnerCtx, nullptr, "test");
     Original->toProtobuf(&SMessage);
   }
-  Result = Symbol::fromProtobuf(Ctx, nullptr, SMessage);
-  EXPECT_FALSE(Result->getAddress());
-  EXPECT_EQ(Result->getName(), "test");
+
+  {
+    Context InnerCtx;
+    Symbol* Result = Symbol::fromProtobuf(InnerCtx, nullptr, SMessage);
+    EXPECT_FALSE(Result->getAddress());
+    EXPECT_EQ(Result->getName(), "test");
+  }
 }
 
 TEST(Unit_Symbol, visitation) {

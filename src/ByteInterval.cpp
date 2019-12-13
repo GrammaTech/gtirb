@@ -73,17 +73,19 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
     switch (proto_block.value_case()) {
     case proto::Block::ValueCase::kCode: {
       node = CodeBlock::fromProtobuf(C, result, proto_block.code());
+      result->Blocks.emplace(proto_block.offset(), node);
+      addToModuleIndices(cast<CodeBlock>(node));
     } break;
     case proto::Block::ValueCase::kData: {
       node = DataBlock::fromProtobuf(C, result, proto_block.data());
+      result->Blocks.emplace(proto_block.offset(), node);
+      addToModuleIndices(cast<DataBlock>(node));
     } break;
     default: {
       throw std::runtime_error(
           "unknown Block::ValueCase in ByteInterval::fromProtobuf");
     }
     }
-
-    result->Blocks.emplace(proto_block.offset(), node);
   }
 
   for (const auto& pair : Message.symbolic_expressions()) {
