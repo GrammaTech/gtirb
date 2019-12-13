@@ -14,6 +14,7 @@
   (:export :read-gtirb
            :write-gtirb
            :is-equal-p
+           :*is-equal-p-verbose-p*
 ;;; Classes and fields.
            ;; Module
            :module
@@ -92,28 +93,62 @@
 
 
 ;;;; Classes
-(defgeneric is-equal-p (left right)
-  (:documentation "Return t if LEFT and RIGHT are equal.")
+(defvar *is-equal-p-verbose-p* nil
+  "Compare equality verbosely.")
+
+(defvar *is-equal-p-verbose-output-buffer* nil
+  "Buffer to hold output of is-equal-p verbose failure messages.")
+
+(defvar *is-equal-p-verbose-output-length* 10
+  "Maximum length of output to show of `*is-equal-p-verbose-output-buffer*'.")
+
+(defmacro compare-or-verbose (comparison left right &rest flags)
+  `(or (,comparison ,left ,right ,@flags)
+       (prog1 nil
+         (when *is-equal-p-verbose-p*
+           (push (format nil "NOT ~S" (list ',comparison ,left ,right))
+                 *is-equal-p-verbose-output-buffer*)))))
+
+(defun is-equal-p (left right)
+  "Return t if LEFT and RIGHT are equal."
+  (let ((*is-equal-p-verbose-output-buffer* nil))
+    (let ((equalp (is-equal-p-internal left right)))
+      (prog1 equalp
+        (when (and (not equalp) *is-equal-p-verbose-p*)
+          (format t "~{~S~%~}"
+                  (subseq *is-equal-p-verbose-output-buffer*
+                          0 *is-equal-p-verbose-output-length*)))))))
+
+(defmethod :around is-equal-p-internal ((left t) (right t))
+  (let ((equalp (call-next-method)))
+    (when equalp (setf *is-equal-p-verbose-output-buffer* nil))
+    equalp))
+
+(defgeneric is-equal-p-internal (left right)
+  (:documentation "Internal function called by `is-equal-p'.")
   (:method ((left t) (right t))
-    (equalp left right))
+    (compare-or-verbose equalp left right))
   (:method ((left number) (right number))
-    (= left right))
+    (compare-or-verbose = left right))
   (:method ((left cl:symbol) (right cl:symbol))
-    (eql left right))
+    (compare-or-verbose eql left right))
   (:method ((left string) (right string))
-    (string= left right))
+    (compare-or-verbose string= left right))
   (:method ((left cons) (right cons))
-    (and (is-equal-p (car left) (car right))
-         (is-equal-p (cdr left) (cdr right))))
+    (if (and (proper-list-p left) (proper-list-p right))
+        (compare-or-verbose set-equal left right :test #'is-equal-p-internal)
+        (and (compare-or-verbose is-equal-p-internal (car left) (car right))
+             (compare-or-verbose is-equal-p-internal (cdr left) (cdr right)))))
   (:method ((left hash-table) (right hash-table))
-    (set-equal (hash-table-alist left) (hash-table-alist right)
-               :test #'is-equal-p))
+    (compare-or-verbose set-equal
+                        (hash-table-alist left) (hash-table-alist right)
+                        :test #'is-equal-p-internal))
   (:method ((left graph:digraph) (right graph:digraph))
-    (and (set-equal (graph:nodes left) (graph:nodes right)
-                    :test #'is-equal-p)
-         (set-equal (graph:edges-w-values left)
-                    (graph:edges-w-values right)
-                    :test #'is-equal-p))))
+    (and (compare-or-verbose set-equal (graph:nodes left) (graph:nodes right)
+                             :test #'is-equal-p-internal)
+         (compare-or-verbose set-equal (graph:edges-w-values left)
+                             (graph:edges-w-values right)
+                             :test #'is-equal-p-internal))))
 
 (defmacro define-proto-backed-class ((class proto-class) super-classes
                                      slot-specifiers proto-fields
@@ -140,10 +175,11 @@ Should not need to be manipulated by client code.")
      ;;       checked with this form returns true.  E.g., on
      ;;       byte-intervals we could say:
      ;;       (address :type unsigned-byte-64 :only #'addressp)
-     (defmethod is-equal-p ((left ,class) (right ,class))
+     (defmethod is-equal-p-internal ((left ,class) (right ,class))
        (and ,@(mapcar
                (lambda (accessor)
-                 `(is-equal-p (,accessor left) (,accessor right)))
+                 `(compare-or-verbose is-equal-p-internal
+                                      (,accessor left) (,accessor right)))
                (append (mapcar [#'second {member :accessor}] slot-specifiers)
                        (mapcar #'car proto-fields)))))
      ;; Pass-through accessors for protobuf fields.
@@ -669,7 +705,12 @@ but that would likely get expensive.")
      (proto:aux-data (proto obj))
      (aux-data-to-proto (aux-data obj))
      ;; Repackage the proxies into a vector.
-     (proto:proxies (proto obj)) (hash-table-to-proto (proxies obj))
+     (proto:proxies (proto obj))
+     (map 'vector (lambda (uuid)
+                    (let ((it (make-instance 'proto:proxy-block)))
+                      (setf (proto:uuid it) (integer-to-uuid uuid))
+                      it))
+          (mapcar #'car (hash-table-alist (proxies obj))))
      ;; Repackage the sections back into a vector.
      (proto:sections (proto obj))
      (map 'vector #'proto (sections obj))
