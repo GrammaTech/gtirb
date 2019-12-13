@@ -135,8 +135,9 @@
             &aux (new (make-instance 'proto:module)))
     (transfer-fields new old
                      uuid binary-path preferred-addr rebase-delta file-format
-                     isa-id name symbols cfg proxies name)
-    (setf (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
+                     name symbols cfg proxies name)
+    (setf (proto:isa new) (proto-v0:isa-id old)
+          (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
                                         :new-class 'proto:module-aux-data-entry)
           (proto:sections new) (map 'vector {upgrade _ :module old}
                                     (proto-v0:sections old))
@@ -156,7 +157,7 @@
   (:method ((old proto-v0:section) &key module &allow-other-keys
             &aux (new (make-instance 'proto:section)))
     (transfer-fields new old uuid name)
-    (setf (proto:intervals new) (byte-interval module old))
+    (setf (proto:byte-intervals new) (byte-interval module old))
     new)
   (:method ((old proto-v0:edge-label) &key &allow-other-keys
             &aux (new (make-instance 'proto:edge-label)))

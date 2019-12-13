@@ -115,7 +115,7 @@
          (eql (storage-kind left) (storage-kind right))))
   (:method ((left section) (right section))
     (and (string= (name left) (name right))
-         (set-equal (proto:intervals left) (proto:intervals right)
+         (set-equal (proto:byte-intervals left) (proto:byte-intervals right)
                     :test #'is-equal-p)))
   (:method ((left aux-data) (right aux-data))
     (and (tree-equal (aux-data-type left) (aux-data-type right))
@@ -245,7 +245,7 @@
       (is (eql 'proto:ir (class-name (class-of new))))
       (is (eql 'proto:byte-interval
                (class-name (class-of
-                            (aref (proto:intervals
+                            (aref (proto:byte-intervals
                                    (aref (proto:sections
                                           (aref (proto:modules new)
                                                 0)) 0)) 0)))))

@@ -140,12 +140,12 @@ Should not need to be manipulated by client code.")
               :initial-contents array))
 
 (define-constant +module-isa-map+
-    '((#.proto:+isaid-isa-undefined+ . :undefined)
-      (#.proto:+isaid-ia32+ . :ia32)
-      (#.proto:+isaid-ppc32+ . :ppc32)
-      (#.proto:+isaid-x64+ . :x64)
-      (#.proto:+isaid-arm+ . :arm)
-      (#.proto:+isaid-valid-but-unsupported+ . :valid-but-unsupported))
+    '((#.proto:+isa-isa-undefined+ . :undefined)
+      (#.proto:+isa-ia32+ . :ia32)
+      (#.proto:+isa-ppc32+ . :ppc32)
+      (#.proto:+isa-x64+ . :x64)
+      (#.proto:+isa-arm+ . :arm)
+      (#.proto:+isa-valid-but-unsupported+ . :valid-but-unsupported))
   :test #'equal)
 
 (define-constant +module-file-format-map+
@@ -178,7 +178,7 @@ Should not need to be manipulated by client code.")
      (binary-path :type string)
      (preferred-addr :type unsigned-byte-64)
      (rebase-delta :type unsigned-byte-64)
-     (isa :type enumeration :enumeration +module-isa-map+ :proto-field isa-id)
+     (isa :type enumeration :enumeration +module-isa-map+ :proto-field isa)
      (file-format :type enumeration :enumeration +module-file-format-map+))
   (:documentation "Module of a GTIRB IR."))
 
@@ -214,7 +214,7 @@ Should not need to be manipulated by client code.")
 
 (defmethod initialize-instance :after ((obj section) &key)
   (setf (byte-intervals obj) (map 'list {make-instance 'byte-interval :proto}
-                                  (proto:intervals (proto obj)))))
+                                  (proto:byte-intervals (proto obj)))))
 
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
     ;; TODO: What's a better data structure to use to store a sorted
