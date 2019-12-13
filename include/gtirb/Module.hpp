@@ -87,6 +87,9 @@ void GTIRB_EXPORT_API addToModuleIndices(Node* N);
 void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
                                           const std::function<void()>& F);
 void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
+
+// forward declare functions used in mutators
+void mutateIRIndices(Module* M, const std::function<void()>& F);
 /// @endcond
 
 /// \class Module
@@ -669,7 +672,9 @@ public:
   const std::string& getName() const { return Name; }
 
   /// \brief Set the module name.
-  void setName(const std::string& X) { Name = X; }
+  void setName(const std::string& X) {
+    mutateIRIndices(this, [this, &X]() { Name = X; });
+  }
 
   /// \brief Get the associated Control Flow Graph (\ref CFG).
   ///

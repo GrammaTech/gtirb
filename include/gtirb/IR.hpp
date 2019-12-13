@@ -38,6 +38,11 @@ class IR;
 namespace gtirb {
 class Module;
 
+/// @cond INTERNAL
+void GTIRB_EXPORT_API mutateIRIndices(Module* M,
+                                      const std::function<void()>& F);
+/// @endcond
+
 /// \class ProtobufVersionException
 ///
 /// \brief Thrown when an there is an attempt to load a GTIRB file with an
@@ -279,7 +284,10 @@ private:
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
 
-  friend class Context;
+  friend class Context; // Allow Context to construct new IRs.
+
+  // Allow mutation of IR indices
+  friend void mutateIRIndices(Module* M, const std::function<void()>& F);
 };
 } // namespace gtirb
 
