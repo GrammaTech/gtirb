@@ -50,7 +50,7 @@ template <> void* Context::Allocate<CodeBlock>() const {
   return BlockAllocator.Allocate();
 }
 template <> void* Context::Allocate<ByteInterval>() const {
-  return BlockAllocator.Allocate();
+  return ByteIntervalAllocator.Allocate();
 }
 template <> void* Context::Allocate<DataBlock>() const {
   return DataBlockAllocator.Allocate();
