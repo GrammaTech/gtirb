@@ -21,6 +21,11 @@ check-format:
   script:
     - docker build --rm -f .ci/Dockerfile.formatter .
 
+# The two build templates below ultimately call the build script for the
+# appropriate platform & task (the .ci/build-*.sh scripts).
+# For windows builds, this is done directly. For linux builds, the build script
+# is called in the Dockerfile.
+
 .build-template: &build
   script:
     - if [ "$CI_COMMIT_REF_SLUG" = "master" ];

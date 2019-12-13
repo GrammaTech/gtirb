@@ -1,6 +1,8 @@
 #!/bin/bash
 BUILD_TYPE=$1
 
+# Called in gitlab-ci.yml
+
 # Install capstone
 pushd $HOME
 mkdir /cygdrive/C/capstone-$BUILD_TYPE

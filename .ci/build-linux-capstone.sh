@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script is called in Dockerfile.add-capstone
+
 # Install capstone
 cd /usr/local/src
 wget https://github.com/aquynh/capstone/archive/4.0.1.tar.gz
