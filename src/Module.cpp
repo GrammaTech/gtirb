@@ -90,6 +90,30 @@ static void modifyIndex(CollectionType& Index, NodeType* N,
   Index.modify(Index.find(N), [&F](const auto&) { F(); });
 }
 
+static uint64_t extractSize(uint64_t t) { return t; }
+static uint64_t extractSize(std::optional<uint64_t> t) { return *t; }
+
+template <typename NodeType, typename IntMapType>
+static void addToICL(IntMapType& IntMap, NodeType* N) {
+  auto addr = N->getAddress();
+  if (addr) {
+    IntMap.add(std::make_pair(IntMapType::interval_type::right_open(
+                                  *addr, *addr + extractSize(N->getSize())),
+                              typename IntMapType::codomain_type({N})));
+  }
+}
+
+template <typename NodeType, typename IntMapType>
+static void removeFromICL(IntMapType& IntMap, NodeType* N) {
+  auto addr = N->getAddress();
+  if (addr) {
+    IntMap.subtract(
+        std::make_pair(IntMapType::interval_type::right_open(
+                           *addr, *addr + extractSize(N->getSize())),
+                       typename IntMapType::codomain_type({N})));
+  }
+}
+
 void gtirb::addToModuleIndices(Node* N) {
   switch (N->getKind()) {
   case Node::Kind::ByteInterval: {
@@ -98,11 +122,11 @@ void gtirb::addToModuleIndices(Node* N) {
     auto M = S ? S->getModule() : nullptr;
     if (M) {
       M->ByteIntervals.insert(BI);
-      for (auto& B : BI->code_blocks()) {
-        M->CodeBlocks.insert(cast<CodeBlock>(B.getNode()));
-      }
-      for (auto& B : BI->data_blocks()) {
-        M->DataBlocks.insert(cast<DataBlock>(B.getNode()));
+
+      addToICL(M->ByteIntervalAddrs, BI);
+
+      for (auto& B : BI->blocks()) {
+        addToModuleIndices(B.getNode());
       }
       for (auto& SE : BI->symbolic_expressions()) {
         M->SymbolicExpressions.emplace(BI, SE.first);
@@ -116,6 +140,7 @@ void gtirb::addToModuleIndices(Node* N) {
     auto M = S ? S->getModule() : nullptr;
     if (M) {
       M->CodeBlocks.insert(B);
+      addToICL(M->CodeBlockAddrs, B);
     }
   } break;
   case Node::Kind::DataBlock: {
@@ -125,6 +150,7 @@ void gtirb::addToModuleIndices(Node* N) {
     auto M = S ? S->getModule() : nullptr;
     if (M) {
       M->DataBlocks.insert(B);
+      addToICL(M->DataBlockAddrs, B);
     }
   } break;
   case Node::Kind::Section: {
@@ -134,6 +160,7 @@ void gtirb::addToModuleIndices(Node* N) {
       M->Sections.insert(S);
       for (auto BI : S->byte_intervals()) {
         addToModuleIndices(BI);
+        addToICL(M->SectionAddrs, S);
       }
     }
   } break;
@@ -158,6 +185,9 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
     auto S = BI ? BI->getSection() : nullptr;
     auto M = S ? S->getModule() : nullptr;
     if (M) {
+      removeFromICL(M->SectionAddrs, S);
+      removeFromICL(M->ByteIntervalAddrs, BI);
+
       auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
       for (auto& SE : BI->symbolic_expressions()) {
         seIndex.erase(seIndex.find(std::make_pair(BI, SE.first)));
@@ -170,6 +200,9 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
       for (auto& SE : BI->symbolic_expressions()) {
         M->SymbolicExpressions.emplace(BI, SE.first);
       }
+
+      addToICL(M->ByteIntervalAddrs, BI);
+      addToICL(M->SectionAddrs, S);
     } else {
       F();
     }
@@ -180,11 +213,9 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
     auto S = BI ? BI->getSection() : nullptr;
     auto M = S ? S->getModule() : nullptr;
     if (M) {
-      modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
-        modifyIndex(M->ByteIntervals.get<Module::by_pointer>(), BI, [&]() {
-          modifyIndex(M->CodeBlocks.get<Module::by_pointer>(), B, F);
-        });
-      });
+      removeFromICL(M->CodeBlockAddrs, B);
+      modifyIndex(M->CodeBlocks.get<Module::by_pointer>(), B, F);
+      addToICL(M->CodeBlockAddrs, B);
     } else {
       F();
     }
@@ -195,11 +226,9 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
     auto S = BI ? BI->getSection() : nullptr;
     auto M = S ? S->getModule() : nullptr;
     if (M) {
-      modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
-        modifyIndex(M->ByteIntervals.get<Module::by_pointer>(), BI, [&]() {
-          modifyIndex(M->DataBlocks.get<Module::by_pointer>(), B, F);
-        });
-      });
+      removeFromICL(M->DataBlockAddrs, B);
+      modifyIndex(M->DataBlocks.get<Module::by_pointer>(), B, F);
+      addToICL(M->DataBlockAddrs, B);
     } else {
       F();
     }
@@ -208,7 +237,9 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
     auto S = cast<Section>(N);
     auto M = S->getModule();
     if (M) {
+      removeFromICL(M->SectionAddrs, S);
       modifyIndex(M->Sections.get<Module::by_pointer>(), S, F);
+      addToICL(M->SectionAddrs, S);
     } else {
       F();
     }
@@ -236,17 +267,13 @@ void gtirb::removeFromModuleIndices(Node* N) {
     auto S = BI ? BI->getSection() : nullptr;
     auto M = S ? S->getModule() : nullptr;
     if (M) {
+      removeFromICL(M->ByteIntervalAddrs, BI);
+
       auto& index = M->ByteIntervals.get<Module::by_pointer>();
       index.erase(index.find(BI));
 
-      auto& codeIndex = M->CodeBlocks.get<Module::by_pointer>();
-      for (auto& B : BI->code_blocks()) {
-        codeIndex.erase(codeIndex.find(cast<CodeBlock>(B.getNode())));
-      }
-
-      auto& dataIndex = M->DataBlocks.get<Module::by_pointer>();
-      for (auto& B : BI->data_blocks()) {
-        dataIndex.erase(dataIndex.find(cast<DataBlock>(B.getNode())));
+      for (auto& B : BI->blocks()) {
+        removeFromModuleIndices(B.getNode());
       }
 
       auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
@@ -261,6 +288,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
     auto S = BI ? BI->getSection() : nullptr;
     auto M = S ? S->getModule() : nullptr;
     if (M) {
+      removeFromICL(M->CodeBlockAddrs, B);
       auto& index = M->CodeBlocks.get<Module::by_pointer>();
       index.erase(index.find(B));
     }
@@ -271,6 +299,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
     auto S = BI ? BI->getSection() : nullptr;
     auto M = S ? S->getModule() : nullptr;
     if (M) {
+      removeFromICL(M->DataBlockAddrs, B);
       auto& index = M->DataBlocks.get<Module::by_pointer>();
       index.erase(index.find(B));
     }
@@ -279,6 +308,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
     auto S = cast<Section>(N);
     auto M = S->getModule();
     if (M) {
+      removeFromICL(M->SectionAddrs, S);
       auto& index = M->Sections.get<Module::by_pointer>();
       index.erase(index.find(S));
       for (auto BI : S->byte_intervals()) {
