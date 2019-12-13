@@ -43,10 +43,15 @@ void Offset::fromProtobuf(Context&, const MessageType& Message) {
 }
 
 uint64_t CodeBlock::getOffset() const {
+  assert(Parent &&
+         "invalid call to CodeBlock::getOffset: Parent must not be null!");
   return Parent->nodeToBlock(this).getOffset();
 }
 
 std::optional<Addr> CodeBlock::getAddress() const {
+  if (!Parent) {
+    return std::optional<Addr>();
+  }
   auto baseAddr = Parent->getAddress();
   return baseAddr.has_value() ? std::optional<Addr>(*baseAddr + getOffset())
                               : std::optional<Addr>();

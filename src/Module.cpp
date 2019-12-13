@@ -86,8 +86,11 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
 template <typename NodeType, typename CollectionType>
 static void modifyIndex(CollectionType& Index, NodeType* N,
                         const std::function<void()>& F) {
-  assert(Index.find(N) != Index.end());
-  Index.modify(Index.find(N), [&F](const auto&) { F(); });
+  if (auto it = Index.find(N); it != Index.end()) {
+    Index.modify(it, [&F](const auto&) { F(); });
+  } else {
+    F();
+  }
 }
 
 static uint64_t extractSize(uint64_t t) { return t; }
@@ -191,7 +194,10 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
 
       auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
       for (auto& SE : BI->symbolic_expressions()) {
-        seIndex.erase(seIndex.find(std::make_pair(BI, SE.first)));
+        if (auto it = seIndex.find(std::make_pair(BI, SE.first));
+            it != seIndex.end()) {
+          seIndex.erase(it);
+        }
       }
 
       modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
@@ -271,7 +277,9 @@ void gtirb::removeFromModuleIndices(Node* N) {
       removeFromICL(M->ByteIntervalAddrs, BI);
 
       auto& index = M->ByteIntervals.get<Module::by_pointer>();
-      index.erase(index.find(BI));
+      if (auto it = index.find(BI); it != index.end()) {
+        index.erase(it);
+      }
 
       for (auto& B : BI->blocks()) {
         removeFromModuleIndices(B.getNode());
@@ -279,7 +287,10 @@ void gtirb::removeFromModuleIndices(Node* N) {
 
       auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
       for (auto& SE : BI->symbolic_expressions()) {
-        seIndex.erase(seIndex.find(std::make_pair(BI, SE.first)));
+        if (auto it = seIndex.find(std::make_pair(BI, SE.first));
+            it != seIndex.end()) {
+          seIndex.erase(it);
+        }
       }
     }
   } break;
@@ -291,7 +302,9 @@ void gtirb::removeFromModuleIndices(Node* N) {
     if (M) {
       removeFromICL(M->CodeBlockAddrs, B);
       auto& index = M->CodeBlocks.get<Module::by_pointer>();
-      index.erase(index.find(B));
+      if (auto it = index.find(B); it != index.end()) {
+        index.erase(it);
+      }
       // removeVertex(B, M->getCFG());
     }
   } break;
@@ -303,7 +316,9 @@ void gtirb::removeFromModuleIndices(Node* N) {
     if (M) {
       removeFromICL(M->DataBlockAddrs, B);
       auto& index = M->DataBlocks.get<Module::by_pointer>();
-      index.erase(index.find(B));
+      if (auto it = index.find(B); it != index.end()) {
+        index.erase(it);
+      }
     }
   } break;
   case Node::Kind::Section: {
@@ -312,7 +327,9 @@ void gtirb::removeFromModuleIndices(Node* N) {
     if (M) {
       removeFromICL(M->SectionAddrs, S);
       auto& index = M->Sections.get<Module::by_pointer>();
-      index.erase(index.find(S));
+      if (auto it = index.find(S); it != index.end()) {
+        index.erase(it);
+      }
       for (auto BI : S->byte_intervals()) {
         removeFromModuleIndices(BI);
       }
@@ -323,7 +340,9 @@ void gtirb::removeFromModuleIndices(Node* N) {
     auto M = S->getModule();
     if (M) {
       auto& index = M->Symbols.get<Module::by_pointer>();
-      index.erase(index.find(S));
+      if (auto it = index.find(S); it != index.end()) {
+        index.erase(it);
+      }
     }
   } break;
   default: {

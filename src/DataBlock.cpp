@@ -33,10 +33,15 @@ DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
 }
 
 uint64_t DataBlock::getOffset() const {
+  assert(Parent &&
+         "invalid call to DataBlock::getOffset: Parent must not be null!");
   return Parent->nodeToBlock(this).getOffset();
 }
 
 std::optional<Addr> DataBlock::getAddress() const {
+  if (!Parent) {
+    return std::optional<Addr>();
+  }
   auto baseAddr = Parent->getAddress();
   return baseAddr.has_value() ? std::optional<Addr>(*baseAddr + getOffset())
                               : std::optional<Addr>();

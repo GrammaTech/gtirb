@@ -552,6 +552,7 @@ public:
   ///
   /// \param S The \ref Symbol object to remove.
   void removeSymbol(Symbol* S) {
+    removeFromModuleIndices(S);
     auto& index = Symbols.get<by_pointer>();
     if (auto iter = index.find(S); iter != index.end())
       index.erase(iter);
@@ -567,6 +568,7 @@ public:
     }
     Symbols.emplace(S);
     S->setModule(this);
+    addToModuleIndices(S);
   }
 
   /// \brief Creates a new \ref Symbol in this module.
