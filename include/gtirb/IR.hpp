@@ -288,7 +288,8 @@ private:
   friend class Context; // Allow Context to construct new IRs.
 
   // Allow mutation of IR indices
-  friend void mutateIRIndices(Module* M, const std::function<void()>& F);
+  friend void GTIRB_EXPORT_API mutateIRIndices(Module* M,
+                                               const std::function<void()>& F);
 };
 } // namespace gtirb
 

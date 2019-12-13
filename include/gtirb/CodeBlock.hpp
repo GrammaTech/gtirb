@@ -40,7 +40,8 @@ namespace gtirb {
 class ByteInterval; // forward declared for the backpointer
 
 // forward declare functions to update module indices
-void mutateModuleIndices(Node* N, const std::function<void()>& F);
+void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
+                                          const std::function<void()>& F);
 
 /// \class CodeBlock
 ///

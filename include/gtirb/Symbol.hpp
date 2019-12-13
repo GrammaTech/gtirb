@@ -33,9 +33,10 @@ namespace gtirb {
 class Module; // forward declared for the backpointer
 
 // forward declare functions to update module indices
-void addToModuleIndices(Node* N);
-void mutateModuleIndices(Node* N, const std::function<void()>& F);
-void removeFromModuleIndices(Node* N);
+void GTIRB_EXPORT_API addToModuleIndices(Node* N);
+void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
+                                          const std::function<void()>& F);
+void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 
 /// \class Symbol
 ///
