@@ -28,7 +28,7 @@ TEST(Unit_Section, getAddress) {
 
   auto S = Section::Create(Ctx, nullptr, "test");
   EXPECT_EQ(S->getAddress(), OAddr());
-  EXPECT_EQ(S->getSize(), OSize());
+  EXPECT_EQ(S->getSize(), OSize(0));
 
   S->addByteInterval(Ctx, Addr(5), 10);
   EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
