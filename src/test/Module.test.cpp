@@ -401,7 +401,7 @@ TEST(Unit_Module, symbolIterationOrder) {
 TEST(Unit_Module, findSymbols) {
   auto M = Module::Create(Ctx, nullptr);
   auto S = M->addSection(Ctx, "test");
-  auto BI = S->addByteInterval(Ctx, Addr(0), 1);
+  auto BI = S->addByteInterval(Ctx, Addr(1), 1);
   auto* B = BI->addCodeBlock(Ctx, 0, 1);
 
   auto* S1 = M->addSymbol(Ctx, Addr(1), "foo");
