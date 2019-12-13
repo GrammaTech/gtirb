@@ -141,6 +141,7 @@ void gtirb::addToModuleIndices(Node* N) {
     if (M) {
       M->CodeBlocks.insert(B);
       addToICL(M->CodeBlockAddrs, B);
+      addVertex(B, M->getCFG());
     }
   } break;
   case Node::Kind::DataBlock: {
@@ -291,6 +292,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
       removeFromICL(M->CodeBlockAddrs, B);
       auto& index = M->CodeBlocks.get<Module::by_pointer>();
       index.erase(index.find(B));
+      // removeVertex(B, M->getCFG());
     }
   } break;
   case Node::Kind::DataBlock: {

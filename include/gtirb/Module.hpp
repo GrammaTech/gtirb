@@ -403,6 +403,7 @@ public:
   void removeProxyBlock(ProxyBlock* B) {
     ProxyBlocks.erase(B);
     B->setModule(nullptr);
+    // removeVertex(B, Cfg);
   }
 
   /// \brief Move a \ref ProxyBlock object to be located in this module.
@@ -414,6 +415,7 @@ public:
     }
     ProxyBlocks.insert(B);
     B->setModule(this);
+    addVertex(B, Cfg);
   }
 
   /// \brief Creates a new \ref ProxyBlock in this module.
@@ -422,6 +424,7 @@ public:
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
     auto B = ProxyBlock::Create(C, this, A...);
     ProxyBlocks.insert(B);
+    addVertex(B, Cfg);
     return B;
   }
 

@@ -35,6 +35,22 @@ TEST(Unit_CodeBlock, getters) {
   EXPECT_EQ(BI, B->getByteInterval());
 }
 
+TEST(Unit_CodeBlock, getAddress) {
+  auto BI = ByteInterval::Create(Ctx, nullptr, Addr(10), 10);
+  auto B1 = BI->addCodeBlock(Ctx, 0, 0);
+  auto B2 = BI->addCodeBlock(Ctx, 1, 0);
+  auto B3 = BI->addCodeBlock(Ctx, 10, 0);
+
+  EXPECT_EQ(B1->getAddress(), Addr{10});
+  EXPECT_EQ(B2->getAddress(), Addr{11});
+  EXPECT_EQ(B3->getAddress(), Addr{20});
+
+  BI->setAddress({});
+  EXPECT_EQ(B1->getAddress(), std::optional<Addr>());
+  EXPECT_EQ(B2->getAddress(), std::optional<Addr>());
+  EXPECT_EQ(B3->getAddress(), std::optional<Addr>());
+}
+
 TEST(Unit_Offset, ordering) {
   UUID uuid1;
   UUID uuid2;
