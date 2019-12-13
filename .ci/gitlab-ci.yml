@@ -49,8 +49,9 @@ check-format:
   script:
     # Build & test
     - .ci/build-windows.sh $BUILD_TYPE
-    - cmd.exe /C "C:\\PROGRA~1\\CMake\\bin\\ctest.exe -V"
+    - cd build && cmd.exe /C "C:\\PROGRA~1\\CMake\\bin\\ctest.exe -V"
     # Build & test with capstone
+    - cd ..
     - .ci/build-windows-capstone.sh $BUILD_TYPE
 
 # This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
