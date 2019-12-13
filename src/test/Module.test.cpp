@@ -383,11 +383,11 @@ TEST(Unit_Module, symbolIterationOrder) {
   auto* S3 = M->addSymbol(Ctx, Addr(1), "foo");
 
   {
-    auto F = M->symbols();
+    auto F = M->symbols_by_name();
     EXPECT_EQ(std::distance(F.begin(), F.end()), 3);
     auto It = F.begin();
-    // symbol_iterator returns values in name order but does not specify order
-    // for symbols with the same name.
+    // symbol_name_iterator returns values in name order but does not specify
+    // order for symbols with the same name.
     EXPECT_EQ(&*It++, S2);
     if (&*It == S3) {
       EXPECT_EQ(&*++It, S1);

@@ -548,6 +548,66 @@ public:
     return boost::make_iterator_range(symbol_begin(), symbol_end());
   }
 
+  /// \brief Return an iterator to the first Symbol, ordered by name.
+  symbol_name_iterator symbol_by_name_begin() {
+    return symbol_name_iterator(Symbols.get<by_name>().begin());
+  }
+  /// \brief Return a constant iterator to the first Symbol, ordered by name.
+  const_symbol_name_iterator symbol_by_name_begin() const {
+    return const_symbol_name_iterator(Symbols.get<by_name>().begin());
+  }
+  /// \brief Return an iterator to the element following the last Symbol,
+  /// ordered by name.
+  symbol_name_iterator symbol_by_name_end() {
+    return symbol_name_iterator(Symbols.get<by_name>().end());
+  }
+  /// \brief Return a constant iterator to the element following the last
+  /// Symbol, ordered by name.
+  const_symbol_name_iterator symbol_by_name_end() const {
+    return const_symbol_name_iterator(Symbols.get<by_name>().end());
+  }
+  /// \brief Return a range of the symbols (\ref Symbol), ordered by name.
+  symbol_name_range symbols_by_name() {
+    return boost::make_iterator_range(symbol_by_name_begin(),
+                                      symbol_by_name_end());
+  }
+  /// \brief Return a constant range of the symbols (\ref Symbol), ordered by
+  /// name.
+  const_symbol_name_range symbols_by_name() const {
+    return boost::make_iterator_range(symbol_by_name_begin(),
+                                      symbol_by_name_end());
+  }
+
+  /// \brief Return an iterator to the first Symbol, ordered by address.
+  symbol_addr_iterator symbol_by_addr_begin() {
+    return symbol_addr_iterator(Symbols.get<by_address>().begin());
+  }
+  /// \brief Return a constant iterator to the first Symbol, ordered by address.
+  const_symbol_addr_iterator symbol_by_addr_begin() const {
+    return const_symbol_addr_iterator(Symbols.get<by_address>().begin());
+  }
+  /// \brief Return an iterator to the element following the last Symbol,
+  /// ordered by address.
+  symbol_addr_iterator symbol_by_addr_end() {
+    return symbol_addr_iterator(Symbols.get<by_address>().end());
+  }
+  /// \brief Return a constant iterator to the element following the last
+  /// Symbol, ordered by address.
+  const_symbol_addr_iterator symbol_by_addr_end() const {
+    return const_symbol_addr_iterator(Symbols.get<by_address>().end());
+  }
+  /// \brief Return a range of the symbols (\ref Symbol), ordered by address.
+  symbol_addr_range symbols_by_addr() {
+    return boost::make_iterator_range(symbol_by_addr_begin(),
+                                      symbol_by_addr_end());
+  }
+  /// \brief Return a constant range of the symbols (\ref Symbol), ordered by
+  /// address.
+  const_symbol_addr_range symbols_by_addr() const {
+    return boost::make_iterator_range(symbol_by_addr_begin(),
+                                      symbol_by_addr_end());
+  }
+
   /// \brief Remove a \ref Symbol object located in this module.
   ///
   /// \param S The \ref Symbol object to remove.
