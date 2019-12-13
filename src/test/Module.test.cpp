@@ -342,8 +342,8 @@ TEST(Unit_Module, findData) {
   auto S = M->addSection(Ctx, "test");
   auto BI = S->addByteInterval(Ctx, Addr(0), 30);
 
-  auto* D1 = BI->addDataBlock(Ctx, 1, 0);
-  auto* D2 = BI->addDataBlock(Ctx, 5, 0);
+  auto* D1 = BI->addDataBlock(Ctx, 1, 10);
+  auto* D2 = BI->addDataBlock(Ctx, 5, 10);
 
   {
     auto F = M->findDataBlock(Addr(0));
@@ -358,20 +358,20 @@ TEST(Unit_Module, findData) {
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
-    F = M->findDataBlock(Addr(14));
+    F = M->findDataBlock(Addr(10));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
+    F = M->findDataBlock(Addr(11));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), D2);
+
+    F = M->findDataBlock(Addr(14));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), D2);
+
     F = M->findDataBlock(Addr(15));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
-    EXPECT_EQ(&*F.begin(), D1);
-
-    F = M->findDataBlock(Addr(20));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
-    EXPECT_EQ(&*F.begin(), D1);
-
-    F = M->findDataBlock(Addr(21));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }
