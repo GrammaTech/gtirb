@@ -82,8 +82,8 @@ int main(int argc, char** argv) {
   Addr Target(std::stoul(argv[3], nullptr, 16));
 
   // Search for the requested blocks in the first module
-  const auto& Mod = *I->modules_begin();
-  const auto& Cfg = Mod.getCFG();
+  const auto& Mod = *I->begin();
+  const auto& Cfg = I->getCFG();
   const CodeBlock *SourceBlock, *TargetBlock;
 
   if (auto Range = Mod.findCodeBlocksAt(Source); !Range.empty()) {

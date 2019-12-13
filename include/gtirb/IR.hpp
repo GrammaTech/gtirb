@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/AuxData.hpp>
 #include <gtirb/AuxDataContainer.hpp>
+#include <gtirb/Cfg.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
@@ -94,8 +95,16 @@ public:
   /// \return The newly created object.
   static IR* Create(Context& C) { return C.Create<IR>(C); }
 
-  /// \name Module-Related Public Types and Functions
-  /// @{
+  /// \brief Get the associated Control Flow Graph (\ref CFG).
+  ///
+  /// \return The associated CFG.
+  const CFG& getCFG() const { return Cfg; }
+
+  /// \brief Get a const reference to the associated Control Flow Graph
+  /// (\ref CFG).
+  ///
+  /// \return The associated CFG.
+  CFG& getCFG() { return Cfg; }
 
   /// \brief Iterator over \ref Module "Modules".
   ///
@@ -1354,6 +1363,7 @@ public:
 private:
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
+  CFG Cfg;
 
   friend class Context; // Allow Context to construct new IRs.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.

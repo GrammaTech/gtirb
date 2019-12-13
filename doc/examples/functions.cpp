@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 
   // Build a map of basic blocks by address
   std::map<Addr, const CodeBlock*> BlocksByAddr;
-  auto Blocks = blocks(I->modules_begin()->getCFG());
+  auto Blocks = blocks(I->getCFG());
   std::for_each(Blocks.begin(), Blocks.end(), [&BlocksByAddr](const auto& B) {
     if (std::optional<Addr> A = B.getAddress())
       BlocksByAddr.emplace(*A, &B);

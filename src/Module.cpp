@@ -15,6 +15,7 @@
 #include "Module.hpp"
 #include <gtirb/CFG.hpp>
 #include <gtirb/CodeBlock.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Serialization.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/Module.pb.h>
@@ -30,7 +31,6 @@ void Module::toProtobuf(MessageType* Message) const {
   Message->set_file_format(static_cast<proto::FileFormat>(this->FileFormat));
   Message->set_isa(static_cast<proto::ISA>(this->Isa));
   Message->set_name(this->Name);
-  *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
   sequenceToProtobuf(ProxyBlocks.begin(), ProxyBlocks.end(),
                      Message->mutable_proxies());
   sequenceToProtobuf(sections_begin(), sections_end(),
@@ -91,11 +91,291 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
       BI->symbolicExpressionsFromProtobuf(C, ProtoBI);
     }
   }
-  gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   if (!Message.entry_point().empty()) {
     M->EntryPoint = cast<CodeBlock>(
         Node::getByUUID(C, uuidFromBytes(Message.entry_point())));
   }
   static_cast<AuxDataContainer*>(M)->fromProtobuf(C, Message);
   return M;
+}
+
+void Module::moveProxyBlock(ProxyBlock* B) {
+  if (B->getModule()) {
+    B->getModule()->removeProxyBlock(B);
+  }
+  ProxyBlocks.insert(B);
+  B->setModule(this);
+  if (Parent)
+    addVertex(B, Parent->getCFG());
+}
+
+void Module::addProxyBlock(ProxyBlock* B) {
+  ProxyBlocks.insert(B);
+  if (Parent)
+    addVertex(B, Parent->getCFG());
+}
+
+template <typename NodeType, typename CollectionType>
+static void modifyIndex(CollectionType& Index, NodeType* N,
+                        const std::function<void()>& F) {
+  if (auto it = Index.find(N); it != Index.end()) {
+    Index.modify(it, [&F](const auto&) { F(); });
+  } else {
+    F();
+  }
+}
+
+static uint64_t extractSize(uint64_t t) { return t; }
+static uint64_t extractSize(std::optional<uint64_t> t) { return *t; }
+
+template <typename NodeType, typename IntMapType>
+static void addToICL(IntMapType& IntMap, NodeType* N) {
+  auto addr = N->getAddress();
+  if (addr) {
+    IntMap.add(std::make_pair(IntMapType::interval_type::right_open(
+                                  *addr, *addr + extractSize(N->getSize())),
+                              typename IntMapType::codomain_type({N})));
+  }
+}
+
+template <typename NodeType, typename IntMapType>
+static void removeFromICL(IntMapType& IntMap, NodeType* N) {
+  auto addr = N->getAddress();
+  if (addr) {
+    IntMap.subtract(
+        std::make_pair(IntMapType::interval_type::right_open(
+                           *addr, *addr + extractSize(N->getSize())),
+                       typename IntMapType::codomain_type({N})));
+  }
+}
+
+void gtirb::addToModuleIndices(Node* N) {
+  switch (N->getKind()) {
+  case Node::Kind::ByteInterval: {
+    auto BI = cast<ByteInterval>(N);
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      M->ByteIntervals.insert(BI);
+
+      addToICL(M->ByteIntervalAddrs, BI);
+
+      for (auto& B : BI->blocks()) {
+        addToModuleIndices(B.getNode());
+      }
+      for (auto& SE : BI->symbolic_expressions()) {
+        M->SymbolicExpressions.emplace(BI, SE.first);
+      }
+    }
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto B = cast<CodeBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      M->CodeBlocks.insert(B);
+      addToICL(M->CodeBlockAddrs, B);
+      if (auto* I = M->getIR())
+        addVertex(B, I->getCFG());
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto B = cast<DataBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      M->DataBlocks.insert(B);
+      addToICL(M->DataBlockAddrs, B);
+    }
+  } break;
+  case Node::Kind::Section: {
+    auto S = cast<Section>(N);
+    auto M = S->getModule();
+    if (M) {
+      M->Sections.insert(S);
+      for (auto BI : S->byte_intervals()) {
+        addToModuleIndices(BI);
+        addToICL(M->SectionAddrs, S);
+      }
+    }
+  } break;
+  case Node::Kind::Symbol: {
+    auto S = cast<Symbol>(N);
+    auto M = S->getModule();
+    if (M) {
+      M->Symbols.insert(S);
+    }
+  } break;
+  default: { assert(!"unexpected kind of node passed to addToModuleIndices!"); }
+  }
+}
+
+void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
+  switch (N->getKind()) {
+  case Node::Kind::ByteInterval: {
+    auto BI = cast<ByteInterval>(N);
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      removeFromICL(M->SectionAddrs, S);
+      removeFromICL(M->ByteIntervalAddrs, BI);
+
+      auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
+      for (auto& SE : BI->symbolic_expressions()) {
+        if (auto it = seIndex.find(std::make_pair(BI, SE.first));
+            it != seIndex.end()) {
+          seIndex.erase(it);
+        }
+      }
+
+      modifyIndex(M->Sections.get<Module::by_pointer>(), S, [&]() {
+        modifyIndex(M->ByteIntervals.get<Module::by_pointer>(), BI, F);
+      });
+
+      for (auto& SE : BI->symbolic_expressions()) {
+        M->SymbolicExpressions.emplace(BI, SE.first);
+      }
+
+      addToICL(M->ByteIntervalAddrs, BI);
+      addToICL(M->SectionAddrs, S);
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto B = cast<CodeBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      removeFromICL(M->CodeBlockAddrs, B);
+      modifyIndex(M->CodeBlocks.get<Module::by_pointer>(), B, F);
+      addToICL(M->CodeBlockAddrs, B);
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto B = cast<DataBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      removeFromICL(M->DataBlockAddrs, B);
+      modifyIndex(M->DataBlocks.get<Module::by_pointer>(), B, F);
+      addToICL(M->DataBlockAddrs, B);
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::Section: {
+    auto S = cast<Section>(N);
+    auto M = S->getModule();
+    if (M) {
+      removeFromICL(M->SectionAddrs, S);
+      modifyIndex(M->Sections.get<Module::by_pointer>(), S, F);
+      addToICL(M->SectionAddrs, S);
+    } else {
+      F();
+    }
+  } break;
+  case Node::Kind::Symbol: {
+    auto S = cast<Symbol>(N);
+    auto M = S->getModule();
+    if (M) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), S, F);
+    } else {
+      F();
+    }
+  } break;
+  default: {
+    assert(!"unexpected kind of node passed to mutateModuleIndices!");
+  }
+  }
+}
+
+void gtirb::removeFromModuleIndices(Node* N) {
+  switch (N->getKind()) {
+  case Node::Kind::ByteInterval: {
+    auto BI = cast<ByteInterval>(N);
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      removeFromICL(M->ByteIntervalAddrs, BI);
+
+      auto& index = M->ByteIntervals.get<Module::by_pointer>();
+      if (auto it = index.find(BI); it != index.end()) {
+        index.erase(it);
+      }
+
+      for (auto& B : BI->blocks()) {
+        removeFromModuleIndices(B.getNode());
+      }
+
+      auto& seIndex = M->SymbolicExpressions.get<Module::by_pointer>();
+      for (auto& SE : BI->symbolic_expressions()) {
+        if (auto it = seIndex.find(std::make_pair(BI, SE.first));
+            it != seIndex.end()) {
+          seIndex.erase(it);
+        }
+      }
+    }
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto B = cast<CodeBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      removeFromICL(M->CodeBlockAddrs, B);
+      auto& index = M->CodeBlocks.get<Module::by_pointer>();
+      if (auto it = index.find(B); it != index.end()) {
+        index.erase(it);
+      }
+      // removeVertex(B, M->getCFG());
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto B = cast<DataBlock>(N);
+    auto BI = B->getByteInterval();
+    auto S = BI ? BI->getSection() : nullptr;
+    auto M = S ? S->getModule() : nullptr;
+    if (M) {
+      removeFromICL(M->DataBlockAddrs, B);
+      auto& index = M->DataBlocks.get<Module::by_pointer>();
+      if (auto it = index.find(B); it != index.end()) {
+        index.erase(it);
+      }
+    }
+  } break;
+  case Node::Kind::Section: {
+    auto S = cast<Section>(N);
+    auto M = S->getModule();
+    if (M) {
+      removeFromICL(M->SectionAddrs, S);
+      auto& index = M->Sections.get<Module::by_pointer>();
+      if (auto it = index.find(S); it != index.end()) {
+        index.erase(it);
+      }
+      for (auto BI : S->byte_intervals()) {
+        removeFromModuleIndices(BI);
+      }
+    }
+  } break;
+  case Node::Kind::Symbol: {
+    auto S = cast<Symbol>(N);
+    auto M = S->getModule();
+    if (M) {
+      auto& index = M->Symbols.get<Module::by_pointer>();
+      if (auto it = index.find(S); it != index.end()) {
+        index.erase(it);
+      }
+    }
+  } break;
+  default: {
+    assert(!"unexpected kind of node passed to mutateModuleIndices!");
+  }
+  }
 }

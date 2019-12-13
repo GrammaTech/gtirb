@@ -16,6 +16,7 @@
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
@@ -224,28 +225,28 @@ TEST(Unit_Module, findSections) {
 }
 
 TEST(Unit_Module, blocks) {
-  auto* M = Module::Create(Ctx);
-  auto* S = M->addSection(Section::Create(Ctx, "test"));
-  auto* BI = S->addByteInterval(ByteInterval::Create(Ctx, Addr(1), 10));
-  BI->addBlock(0, CodeBlock::Create(Ctx, 10));
+  auto M = Module::Create(Ctx, IR::Create(Ctx));
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(1), 10);
+  BI->addCodeBlock(Ctx, 0, 10);
 
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
   EXPECT_EQ(M->code_blocks_begin()->getAddress(), std::optional<Addr>(Addr(1)));
 
-  auto F = blocks(M->getCFG());
+  auto F = blocks(M->getIR()->getCFG());
   EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
   EXPECT_EQ(F.begin()->getAddress(), Addr(1));
 }
 
 TEST(Unit_Module, cfgNodes) {
-  auto* M = Module::Create(Ctx);
-  auto* S = M->addSection(Section::Create(Ctx, "test"));
-  auto* BI = S->addByteInterval(ByteInterval::Create(Ctx, Addr(1), 10));
-  auto* B = BI->addBlock(0, CodeBlock::Create(Ctx, 10));
-  auto* P = M->addProxyBlock(ProxyBlock::Create(Ctx));
+  auto* M = Module::Create(Ctx, IR::Create(Ctx));
+  auto S = M->addSection(Ctx, "test");
+  auto BI = S->addByteInterval(Ctx, Addr(1), 10);
+  auto* B = BI->addCodeBlock(Ctx, 0, 10);
+  auto* P = M->addProxyBlock(Ctx);
 
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
-  auto Nodes = nodes(M->getCFG());
+  auto Nodes = nodes(M->getIR()->getCFG());
   EXPECT_EQ(std::distance(Nodes.begin(), Nodes.end()), 2);
   auto It = Nodes.begin();
   EXPECT_TRUE(&*It == B || &*It == P);
@@ -629,23 +630,23 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    auto* Original = Module::Create(InnerCtx, "module");
+    Module* Original = Module::Create(InnerCtx, IR::Create(InnerCtx), "module");
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISA(ISA::X64);
     Original->addAuxData("test", AuxData());
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
-    Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name3"));
-    auto* S = Original->addSection(Section::Create(InnerCtx, "test"));
-    auto* BI = S->addByteInterval(ByteInterval::Create(InnerCtx, Addr(1), 2));
-    BI->addBlock(0, CodeBlock::Create(InnerCtx, 2));
-    BI->addBlock(0, DataBlock::Create(InnerCtx, 2));
-    auto* P = Original->addProxyBlock(ProxyBlock::Create(InnerCtx));
-    BI->addSymbolicExpression(7, SymAddrConst{});
-    BlockID = blocks(Original->getCFG()).begin()->getUUID();
+    Original->addSymbol(InnerCtx, Addr(1), "name1");
+    Original->addSymbol(InnerCtx, Addr(2), "name1");
+    Original->addSymbol(InnerCtx, Addr(1), "name3");
+    auto S = Original->addSection(InnerCtx, "test");
+    auto BI = S->addByteInterval(InnerCtx, Addr(1), 2);
+    BI->addCodeBlock(InnerCtx, 0, 2);
+    BI->addDataBlock(InnerCtx, 0, 2);
+    auto* P = Original->addProxyBlock(InnerCtx);
+    BI->addSymbolicExpression<SymAddrConst>(7);
+    BlockID = blocks(Original->getIR()->getCFG()).begin()->getUUID();
     DataID = Original->data_blocks_begin()->getUUID();
     ProxyID = P->getUUID();
     SectionID = Original->sections_begin()->getUUID();
@@ -654,7 +655,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->toProtobuf(&Message);
   }
 
-  auto* Result = Module::fromProtobuf(Ctx, nullptr, Message);
+  Module* Result = Module::fromProtobuf(Ctx, IR::Create(Ctx), Message);
 
   EXPECT_EQ(Result->getBinaryPath(), "test");
   EXPECT_EQ(Result->getPreferredAddr(), Addr(3));
@@ -679,9 +680,9 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 
-  EXPECT_EQ(num_vertices(Result->getCFG()), 2);
+  EXPECT_EQ(num_vertices(Result->getIR()->getCFG()), 2);
   {
-    auto Nodes = nodes(Result->getCFG());
+    auto Nodes = nodes(Result->getIR()->getCFG());
     auto It = Nodes.begin();
     EXPECT_TRUE(&*It);
     EXPECT_TRUE(It->getUUID() == BlockID || It->getUUID() == ProxyID);

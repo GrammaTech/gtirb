@@ -26,6 +26,7 @@ using namespace gtirb;
 
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
+  *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
   containerToProtobuf(this->Modules, Message->mutable_modules());
   AuxDataContainer::toProtobuf(Message);
   Message->set_version(Version);
@@ -34,6 +35,7 @@ void IR::toProtobuf(MessageType* Message) const {
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
+  gtirb::fromProtobuf(C, I->Cfg, Message.cfg());
   for (const auto& Elt : Message.modules()) {
     auto* M = Module::fromProtobuf(C, I, Elt);
     I->Modules.emplace(M);

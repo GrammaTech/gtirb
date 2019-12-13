@@ -310,6 +310,7 @@ public:
   /// \brief Move a \ref ProxyBlock object to be located in this module.
   ///
   /// \param S The \ref ProxyBlock object to add.
+<<<<<<< HEAD
   ProxyBlock* addProxyBlock(ProxyBlock* B) {
     if (B->getModule()) {
       B->getModule()->removeProxyBlock(B);
@@ -317,6 +318,16 @@ public:
     ProxyBlocks.insert(B);
     B->setModule(this);
     addVertex(B, Cfg);
+=======
+  void moveProxyBlock(ProxyBlock* B);
+
+  /// \brief Creates a new \ref ProxyBlock in this module.
+  ///
+  /// \tparam Args  The arguments to construct a \ref ProxyBlock.
+  template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
+    auto B = ProxyBlock::Create(C, this, A...);
+    addProxyBlock(B);
+>>>>>>> Move CFG from the Module level to the IR level.
     return B;
   }
 
@@ -631,17 +642,6 @@ public:
   void setName(const std::string& X) {
     this->mutateIndices([this, &X]() { Name = X; });
   }
-
-  /// \brief Get the associated Control Flow Graph (\ref CFG).
-  ///
-  /// \return The associated CFG.
-  const CFG& getCFG() const { return Cfg; }
-
-  /// \brief Get a const reference to the associated Control Flow Graph
-  /// (\ref CFG).
-  ///
-  /// \return The associated CFG.
-  CFG& getCFG() { return Cfg; }
 
   /// \name Section-Related Public Types and Functions
   /// @{
@@ -1797,7 +1797,6 @@ private:
   gtirb::ISA Isa{ISA::Undefined};
   std::string Name;
   CodeBlock* EntryPoint{nullptr};
-  CFG Cfg;
   ProxyBlockSet ProxyBlocks;
   SectionSet Sections;
   SectionIntMap SectionAddrs;
@@ -1805,7 +1804,14 @@ private:
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
-  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
+
+  void addProxyBlock(ProxyBlock* PB);
+
+  // Allow mutation of Module indices
+  friend void GTIRB_EXPORT_API addToModuleIndices(Node* N);
+  friend void GTIRB_EXPORT_API
+  mutateModuleIndices(Node* N, const std::function<void()>& F);
+  friend void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 };
 
 } // namespace gtirb
