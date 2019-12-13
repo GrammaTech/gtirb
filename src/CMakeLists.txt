@@ -62,8 +62,6 @@ set(PUBLIC_HEADERS
 
 set(${PROJECT_NAME}_H ${PUBLIC_HEADERS})
 
-set(${PROJECT_NAME}_H ${PUBLIC_HEADERS} ../src/Serialization.hpp)
-
 set(${PROJECT_NAME}_SRC
     AuxData.cpp
     AuxDataContainer.cpp
