@@ -31,8 +31,10 @@ check-format:
       fi
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
+    # Build & test
     - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} .
     - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
+    # Build & test with capstone
     - docker build -f .ci/Dockerfile.add-capstone --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
     - docker tag ${LOCAL_IMAGE_BASE} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
@@ -40,10 +42,11 @@ check-format:
 
 .windows-build-template: &windows-build
   script:
+    # Build & test
     - .ci/build-windows.sh $BUILD_TYPE
+    - cmd.exe /C "C:\\PROGRA~1\\CMake\\bin\\ctest.exe -V"
+    # Build & test with capstone
     - .ci/build-windows-capstone.sh $BUILD_TYPE
-    - cd build
-    - cmd.exe /C "C:\\PROGRA~1\\CMake\\bin\\ctest.exe"
 
 # This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
 #
