@@ -106,13 +106,17 @@ target_compile_definitions(
 )
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  # These two warnings come from protobuf headers, disabling them this way means
-  # that projects which link to gtirb via cmake won't have to deal with them.
+  # These three warnings come from protobuf headers, disabling them this way
+  # means that projects which link to gtirb via cmake won't have to deal with
+  # them.
   target_compile_options(${PROJECT_NAME} PUBLIC -wd4100) # unreferenced formal
                                                          # parameter
   target_compile_options(
     ${PROJECT_NAME} PUBLIC -wd4127
   ) # conditional expression is constant
+  target_compile_options(
+    ${PROJECT_NAME} PUBLIC -wd4244
+  ) # conversion from 'type1' to 'type2', possible loss of data
 
   target_compile_options(
     ${PROJECT_NAME} PUBLIC -wd4251
