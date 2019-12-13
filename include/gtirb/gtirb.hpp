@@ -23,6 +23,7 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/AuxData.hpp>
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
