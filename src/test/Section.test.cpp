@@ -22,6 +22,24 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_Section, getAddress) {
+  using OAddr = std::optional<Addr>;
+  using OSize = std::optional<uint64_t>;
+  auto S = Section::Create(Ctx, nullptr, "test");
+
+  S->addByteInterval(Ctx, Addr(5), 10);
+  EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
+  EXPECT_EQ(S->getSize(), OSize(10));
+
+  S->addByteInterval(Ctx, Addr(15), 10);
+  EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
+  EXPECT_EQ(S->getSize(), OSize(20));
+
+  S->addByteInterval(Ctx, OAddr(), 10);
+  EXPECT_EQ(S->getAddress(), OAddr());
+  EXPECT_EQ(S->getSize(), OSize());
+}
+
 TEST(Unit_Section, protobufRoundTrip) {
   proto::Section Message;
 
