@@ -23,6 +23,7 @@ set(${PROJECT_NAME}_H)
 
 set(${PROJECT_NAME}_SRC
     Allocator.test.cpp
+    ByteInterval.test.cpp
     CodeBlock.test.cpp
     CFG.test.cpp
     DataBlock.test.cpp
