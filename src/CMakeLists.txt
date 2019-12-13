@@ -37,51 +37,49 @@ include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
 include_directories("${CMAKE_BINARY_DIR}/src/")
 
 set(PUBLIC_HEADERS
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/ByteInterval.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/DataBlock.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Serialization.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
-        ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
-        )
-
-set(${PROJECT_NAME}_H
-        ${PUBLIC_HEADERS}
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/ByteInterval.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/DataBlock.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Serialization.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
 )
+
+set(${PROJECT_NAME}_H ${PUBLIC_HEADERS})
 
 set(${PROJECT_NAME}_H ${PUBLIC_HEADERS} ../src/Serialization.hpp)
 
 set(${PROJECT_NAME}_SRC
-        AuxData.cpp
-        AuxDataContainer.cpp
-        ByteInterval.cpp
-        CodeBlock.cpp
-        Context.cpp
-        CFG.cpp
-        DataBlock.cpp
-        IR.cpp
-        Module.cpp
-        Node.cpp
-        ProxyBlock.cpp
-        Section.cpp
-        Serialization.cpp
-        Symbol.cpp
-        SymbolicExpression.cpp
+    AuxData.cpp
+    AuxDataContainer.cpp
+    ByteInterval.cpp
+    CodeBlock.cpp
+    Context.cpp
+    CFG.cpp
+    DataBlock.cpp
+    IR.cpp
+    Module.cpp
+    Node.cpp
+    ProxyBlock.cpp
+    Section.cpp
+    Serialization.cpp
+    Symbol.cpp
+    SymbolicExpression.cpp
 )
 
 file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
