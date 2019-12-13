@@ -68,18 +68,16 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
             result->getBytes().begin());
 
   for (const auto& proto_block : Message.blocks()) {
-    Node* node;
-
     switch (proto_block.value_case()) {
     case proto::Block::ValueCase::kCode: {
-      node = CodeBlock::fromProtobuf(C, result, proto_block.code());
+      CodeBlock* node = CodeBlock::fromProtobuf(C, result, proto_block.code());
       result->Blocks.emplace(proto_block.offset(), node);
-      addToModuleIndices(cast<CodeBlock>(node));
+      addToModuleIndices(node);
     } break;
     case proto::Block::ValueCase::kData: {
-      node = DataBlock::fromProtobuf(C, result, proto_block.data());
+      DataBlock* node = DataBlock::fromProtobuf(C, result, proto_block.data());
       result->Blocks.emplace(proto_block.offset(), node);
-      addToModuleIndices(cast<DataBlock>(node));
+      addToModuleIndices(node);
     } break;
     default: {
       throw std::runtime_error(
