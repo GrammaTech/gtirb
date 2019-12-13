@@ -489,6 +489,10 @@ public:
   /// \return The deserialized ByteInterval object, or null on failure.
   static ByteInterval* fromProtobuf(Context& C, Section* Parent,
                                     const MessageType& Message);
+
+  static bool classof(const Node* N) {
+    return N->getKind() == Kind::ByteInterval;
+  }
   /// @endcond
 
 private:
