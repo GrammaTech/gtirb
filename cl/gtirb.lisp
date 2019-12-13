@@ -332,6 +332,8 @@ Should not need to be manipulated by client code.")
     ()
     ((size :type unsigned-byte-64)))
 
+(define-proto-backed-class (proxy-block proto:proxy-block) (gtirb-block) () ())
+
 (defun aux-data-from-proto (proto)
   (let ((p-aux-data (proto:aux-data proto))
         (aux-data '()))
@@ -352,20 +354,19 @@ Should not need to be manipulated by client code.")
                      entry)))
        aux-data))
 
-(defun hash-table-from-proto
-    (protos &rest more-protos &aux (result (make-hash-table)))
-  "Create a hash-table keyed by UUID from a array of protobuf objects."
-  (let ((all (apply #'concatenate 'vector protos more-protos)))
-    (dotimes (n (length all) result)
-      (setf (gethash (uuid-to-integer (proto:uuid (aref all n))) result)
-            (aref all n)))))
-
 (defun hash-table-to-proto (hash-table)
   "Convert a hash-table keyed by UUID to a array for protobuf."
   (coerce (hash-table-values hash-table) 'vector))
 
 (defmethod initialize-instance :after ((obj module) &key)
-  (setf (proxies obj) (hash-table-from-proto (proto:proxies (proto obj))))
+  ;; Proxy blocks.
+  (setf (proxies obj)
+        (let ((table (make-hash-table))
+              (proto-proxies (proto:proxies (proto obj))))
+          (dotimes (n (length proto-proxies) table)
+            (let ((proxy-block (aref proto-proxies n)))
+              (setf (gethash (uuid-to-integer (proto:uuid proxy-block)) table)
+                    (make-instance 'proxy-block :proto proxy-block))))))
   ;; Aux-Data.
   (setf (aux-data obj) (aux-data-from-proto (proto obj)))
   ;; Sections.
