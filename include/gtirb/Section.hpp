@@ -189,8 +189,8 @@ public:
   template <typename... Args>
   ByteInterval* addByteInterval(Context& C, Args... A) {
     auto N = ByteInterval::Create(C, this, A...);
-    mutateModuleIndices(N, [this, N]() { ByteIntervals.insert(N); });
     addToModuleIndices(N);
+    mutateModuleIndices(this, [this, N]() { ByteIntervals.insert(N); });
     return N;
   }
 

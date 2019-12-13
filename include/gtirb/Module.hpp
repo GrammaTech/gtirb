@@ -927,6 +927,7 @@ public:
   ///
   /// \param S The \ref Section object to remove.
   void removeSection(Section* S) {
+    removeFromModuleIndices(S);
     auto& index = Sections.get<by_pointer>();
     if (auto iter = index.find(S); iter != index.end())
       index.erase(iter);
@@ -940,8 +941,8 @@ public:
     if (S->getModule()) {
       S->getModule()->removeSection(S);
     }
-    Sections.emplace(S);
     S->setModule(this);
+    addToModuleIndices(S);
   }
 
   /// \brief Creates a new \ref Section in this module.

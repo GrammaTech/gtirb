@@ -86,6 +86,7 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
 template <typename NodeType, typename CollectionType>
 static void modifyIndex(CollectionType& Index, NodeType* N,
                         const std::function<void()>& F) {
+  assert(Index.find(N) != Index.end());
   Index.modify(Index.find(N), [&F](const auto&) { F(); });
 }
 

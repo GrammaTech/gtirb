@@ -25,7 +25,10 @@ static Context Ctx;
 TEST(Unit_Section, getAddress) {
   using OAddr = std::optional<Addr>;
   using OSize = std::optional<uint64_t>;
+
   auto S = Section::Create(Ctx, nullptr, "test");
+  EXPECT_EQ(S->getAddress(), OAddr());
+  EXPECT_EQ(S->getSize(), OSize());
 
   S->addByteInterval(Ctx, Addr(5), 10);
   EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
