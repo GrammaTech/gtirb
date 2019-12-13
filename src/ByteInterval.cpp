@@ -86,12 +86,17 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
     }
   }
 
-  for (const auto& pair : Message.symbolic_expressions()) {
-    SymbolicExpression sym_expr;
-    gtirb::fromProtobuf(C, sym_expr, pair.second);
-    result->SymbolicExpressions[pair.first] = sym_expr;
-  }
-
   addToModuleIndices(result);
   return result;
+}
+
+void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
+                                                   const MessageType& Message) {
+  mutateModuleIndices(this, [&]() {
+    for (const auto& pair : Message.symbolic_expressions()) {
+      SymbolicExpression sym_expr;
+      gtirb::fromProtobuf(C, sym_expr, pair.second);
+      SymbolicExpressions[pair.first] = sym_expr;
+    }
+  });
 }

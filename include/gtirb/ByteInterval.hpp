@@ -490,6 +490,14 @@ public:
   static ByteInterval* fromProtobuf(Context& C, Section* Parent,
                                     const MessageType& Message);
 
+  /// \brief Populate symbolic expressions from a Protobuf message.
+  ///
+  /// \param C  The Context in which the deserialized SymbolicExpressions will
+  /// be held.
+  ///
+  /// \param Message  The protobuf message from which to deserialize.
+  void symbolicExpressionsFromProtobuf(Context& C, const MessageType& Message);
+
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ByteInterval;
   }

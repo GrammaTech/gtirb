@@ -68,12 +68,21 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   M->FileFormat = static_cast<gtirb::FileFormat>(Message.file_format());
   M->IsaID = static_cast<ISAID>(Message.isa_id());
   M->Name = Message.name();
-  for (const auto& Elt : Message.proxies())
+  for (const auto& Elt : Message.proxies()) {
     M->moveProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));
-  for (const auto& Elt : Message.sections())
+  }
+  for (const auto& Elt : Message.sections()) {
     M->moveSection(Section::fromProtobuf(C, M, Elt));
-  for (const auto& Elt : Message.symbols())
+  }
+  for (const auto& Elt : Message.symbols()) {
     M->moveSymbol(Symbol::fromProtobuf(C, M, Elt));
+  }
+  for (const auto& ProtoS : Message.sections()) {
+    for (const auto& ProtoBI : ProtoS.intervals()) {
+      auto BI = cast<ByteInterval>(getByUUID(C, uuidFromBytes(ProtoBI.uuid())));
+      BI->symbolicExpressionsFromProtobuf(C, ProtoBI);
+    }
+  }
   gtirb::fromProtobuf(C, M->Cfg, Message.cfg());
   if (!Message.entry_point().empty()) {
     M->EntryPoint = cast<CodeBlock>(
