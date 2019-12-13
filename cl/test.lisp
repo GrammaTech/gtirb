@@ -100,14 +100,12 @@
   (:method ((left hash-table) (right hash-table))
     (set-equal (hash-table-alist left) (hash-table-alist right)
                :test #'is-equal-p))
-  (:method ((left proto:code-block) (right proto:code-block))
-    (and (equalp (proto:uuid left) (proto:uuid right))
-         (eql (proto:decode-mode left) (proto:decode-mode left))
-         (= (proto:size left) (proto:size right))))
-  (:method ((left proto:data-block) (right proto:data-block))
-    (and (equalp (proto:uuid left)
-                 (proto:uuid right))
-         (= (proto:size left) (proto:size right))))
+  (:method ((left gtirb) (right gtirb)))
+  (:method ((left code-block) (right code-block))
+    (and (= (decode-mode left) (decode-mode left))
+         (= (size left) (size right))))
+  (:method ((left data-block) (right data-block))
+    (and (= (size left) (size right))))
   (:method ((left symbol) (right symbol))
     (and (string= (name left) (name right))
          (= (value left) (value right))
@@ -131,13 +129,14 @@
                     (graph:edges-w-values right)
                     :test #'is-equal-p)))
   (:method ((left byte-interval) (right byte-interval))
-    (and (= (has-address left) (has-address right))
+    (and (eql (has-address left) (has-address right))
          (eql (if (has-address left) (address left))
               (if (has-address right) (address right)))
          (= (size left) (size right))
-         (= (contents left) (contents right))
+         (equalp (contents left) (contents right))
          (is-equal-p (blocks left) (blocks right))
-         (is-equal-p (symbolic-expressions left) (symbolic-expressions right)))))
+         (is-equal-p (symbolic-expressions left)
+                     (symbolic-expressions right)))))
 
 (deftest idempotent-read-write-w-class ()
   (nest
@@ -145,31 +144,7 @@
    (with-temporary-file (:pathname path))
    (let ((hello1 (read-gtirb *proto-path*)))
      (write-gtirb hello1 path)
-     (let ((hello2 (read-gtirb path)))
-       ;; Test byte-interval equality.
-       (is (apply #'is-equal-p
-                  (mapcar [#'first #'byte-intervals #'first #'sections #'first #'modules]
-                          (list hello1 hello2))))
-       ;; Test block equality.
-       (is (apply #'noisy-set-equality
-                  (mapcar [#'hash-table-values #'blocks #'first #'modules]
-                          (list hello1 hello2))))
-       ;; Test section equality.
-       (is (apply #'noisy-set-equality
-                  (mapcar [#'sections #'first #'modules]
-                          (list hello1 hello2))))
-       ;; Test symbol equality.
-       (is (apply #'is-equal-p
-                  (mapcar [#'symbols #'first #'modules]
-                          (list hello1 hello2))))
-       ;; Test aux-data equality.
-       (is (apply #'noisy-set-equality
-                  (mapcar [{mapcar #'cdr} #'aux-data #'first #'modules]
-                          (list hello1 hello2))))
-       ;; Test CFG equality.
-       (is (apply #'is-equal-p
-                  (mapcar [#'cfg #'first #'modules]
-                          (list hello1 hello2))))))))
+     (is (is-equal-p hello1 (read-gtirb path))))))
 
 (deftest idempotent-aux-data-type ()
   (with-fixture hello

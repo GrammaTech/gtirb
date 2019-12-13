@@ -47,6 +47,7 @@
            :gtirb-block
            :code-block
            :data-block
+           :decode-mode
            ;; Edge-Label
            :edge-label
            :conditional
@@ -222,9 +223,9 @@ Should not need to be manipulated by client code.")
     ;;       balanced tree.
     ((blocks :accessor blocks :type (list (cons integer gtirb-block))
              :documentation "Blocks under this byte-interval.")
-     (symbolic-expressions :accessor symbolic-expressions :type hash-table
-                           :initform (make-hash-table)
-                           :documentation "Hash of symbolic-expressions keyed by UUID."))
+     (symbolic-expressions
+      :accessor symbolic-expressions :type hash-table
+      :documentation "Hash of symbolic-expressions keyed by address."))
     ((has-address :type boolean)
      (address :type unsigned-byte-64)
      (size :type unsigned-byte-64)
@@ -237,7 +238,7 @@ Should not need to be manipulated by client code.")
             (size obj))))
 
 (defmethod initialize-instance :after ((obj byte-interval) &key)
-  (setf (blocks obj)
+  (setf (blocks obj)                    ; Blocks.
         (map 'list (lambda (proto-block)
                      (cons (proto:offset proto-block)
                            (let ((data (proto:data proto-block)))
@@ -247,9 +248,40 @@ Should not need to be manipulated by client code.")
                                (proto:data-block
                                 (make-instance 'data-block :proto data))))))
              (proto:blocks (proto obj))))
-  (setf (symbolic-expressions obj)
-        (map 'list {make-instance 'symbolic-expression :proto}
-             (proto:symbolic-expressions (proto obj)))))
+  (let ((table (make-hash-table)))      ; Symbolic-expressions.
+    (dotimes (n (length (proto:symbolic-expressions (proto obj))))
+      (let* ((proto (aref (proto:symbolic-expressions (proto obj)) n))
+             (address (proto:key proto))
+             (symbolic-expression (proto:value proto)))
+        (setf (gethash address table)
+              (cond
+                ((proto:stack-const symbolic-expression)
+                 (make-instance 'sym-stack-const
+                   :proto (proto:stack-const symbolic-expression)))
+                ((proto:addr-const symbolic-expression)
+                 (make-instance 'sym-addr-const
+                   :proto (proto:addr-const symbolic-expression)))
+                ((proto:addr-addr symbolic-expression)
+                 (make-instance 'sym-addr-addr
+                   :proto (proto:addr-addr symbolic-expression)))))))
+    (setf (symbolic-expressions obj) table)))
+
+(defclass symbolic-expression ()
+  ((symbols :accessor symbols :type (list symbol)
+            :documentation "Symbol(s) appearing in this symbolic expression.")))
+
+(define-proto-backed-class
+    (sym-stack-const proto:sym-stack-const) (symbolic-expression) ()
+    ((offset :type unsigned-byte-64)))
+
+(define-proto-backed-class
+    (sym-addr-const proto:sym-addr-const) (symbolic-expression) ()
+    ((offset :type unsigned-byte-64)))
+
+(define-proto-backed-class
+    (sym-addr-addr proto:sym-addr-addr) (symbolic-expression) ()
+    ((offset :type unsigned-byte-64)
+     (scale :type unsigned-byte-64)))
 
 (defclass gtirb-block () ())
 
