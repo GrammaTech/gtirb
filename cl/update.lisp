@@ -104,10 +104,15 @@
 (defun entry-point (module)
   (let ((address (proto-v0:entry-point-address
                   (proto-v0:image-byte-map module))))
-    (proto-v0:uuid
-     (find-if «and [{<= address} «+ #'proto-v0:address #'proto-v0:size»]
-                   [{>= address} #'proto-v0:address]»
-              (proto-v0:blocks module)))))
+    (if-let ((gtirb-block
+              (find-if
+               «and [{<= address} «+ #'proto-v0:address #'proto-v0:size»]
+                    [{>= address} #'proto-v0:address]»
+               (proto-v0:blocks module))))
+      (proto-v0:uuid gtirb-block)
+      (error "No block found holding module ~S entry piont ~a."
+             (pb:string-value (proto-v0:name module))
+             address))))
 
 (defmacro transfer-fields (new old &rest fields)
   `(progn
