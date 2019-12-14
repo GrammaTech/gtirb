@@ -14,6 +14,8 @@
   (:export :read-gtirb
            :write-gtirb
            :is-equal-p
+           :proto-backed
+           :update-proto
            :*is-equal-p-verbose-p*
 ;;; Classes and fields.
            ;; Module
@@ -61,8 +63,7 @@
            ;; gtirb
            :modules
 ;;; Additional methods.
-           :get-block
-           :update-proto))
+           :get-block))
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
@@ -159,6 +160,9 @@
                              (graph:edges-w-values right)
                              :test #'is-equal-p-internal))))
 
+(defclass proto-backed () ()
+  (:documentation "Objects which may be serialized to/from protobuf."))
+
 (defgeneric update-proto (proto-backed-object)
   (:documentation
    "Update the `proto' field of OBJECT and return the updated value.
@@ -166,7 +170,7 @@ This will ensure that any changes made to OBJECT outside of its
 protocol buffer, e.g. any slots initialized using the :from-proto
 option to `define-proto-backed-class', are synchronized against the
 object's protocol buffer.")
-  (:method ((proto-backed-object t))
+  (:method ((proto-backed-object proto-backed))
     (proto proto-backed-object)))
 
 (defmacro define-proto-backed-class ((class proto-class) super-classes
@@ -189,7 +193,7 @@ pass through directly to the backing protobuf class."
    (let ((from-proto-slots (remove-if-not {find :from-proto} slot-specifiers))
          (to-proto-slots (remove-if-not {find :to-proto} slot-specifiers))))
    `(progn
-      (defclass ,class ,super-classes
+      (defclass ,class (proto-backed ,@super-classes)
         ;; Accessors for normal lisp classes
         ((proto :initarg :proto :accessor proto :type ,proto-class
                 :initform (make-instance ',proto-class)
