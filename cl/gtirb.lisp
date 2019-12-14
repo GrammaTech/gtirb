@@ -102,7 +102,19 @@
   (write-proto (proto gtirb) path))
 
 
-;;;; Classes
+;;;; Class utilities.
+(defun uuid-to-integer (uuid)
+  (if (emptyp uuid)
+      0           ; TODO: Needed when referent-uuid of a symbol can be
+                                        ;        #().  Remove this case and instead stop
+                                        ;        processing missing referent-uuids.
+      (octets->int
+       (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
+       16)))
+
+(defun integer-to-uuid (number)
+  (int->octets number 16))
+
 (defvar *is-equal-p-verbose-p* nil
   "Compare equality verbosely.")
 
@@ -258,15 +270,39 @@ Should not need to be manipulated by client code.")
                ,@(when documentation (list documentation))
                ,(ecase type
                   ((unsigned-byte-64 boolean) `(setf ,base new))
-                  (bytes `(setf ,base (force-byte-array new)))
+                  (bytes `(setf ,base
+                                (make-array (length new)
+                                            :element-type '(unsigned-byte 8)
+                                            :initial-contents new)))
                   (enumeration `(setf ,base (car (rassoc new ,enumeration))))
                   (uuid `(setf ,base (integer-to-uuid new)))
                   (string `(setf ,base (pb:string-field new)))))))
           proto-fields)))))
 
-(defun force-byte-array (array)
-  (make-array (length array) :element-type '(unsigned-byte 8)
-              :initial-contents array))
+
+;;;; Classes.
+(define-proto-backed-class (gtirb proto:ir) ()
+    ((modules :initarg modules :accessor modules :type (list module)
+              :initform nil
+              :from-proto
+              (lambda (proto)
+                (mapcar (lambda (module-proto)
+                          (make-instance 'module :proto module-proto))
+                        (coerce (proto:modules proto) 'list)))
+              :to-proto
+              (lambda (modules) (map 'vector #'update-proto modules))
+              :documentation "List of the modules on an IR.")
+     (aux-data :accessor aux-data :type (list aux-data)
+               :from-proto #'aux-data-from-proto
+               :to-proto #'aux-data-to-proto
+               :documentation "Auxiliary data objects on the IR.
+The modules of the IR will often also hold auxiliary data objects."))
+    ()
+  (:documentation "Base class of an instance of GTIRB IR."))
+
+(defmethod print-object ((obj gtirb) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a" (modules obj))))
 
 (define-constant +module-isa-map+
     '((#.proto:+isa-isa-undefined+ . :undefined)
@@ -290,7 +326,7 @@ Should not need to be manipulated by client code.")
   :test #'equal)
 
 (define-proto-backed-class (module proto:module) ()
-    ((cfg :accessor cfg :type cfg
+    ((cfg :accessor cfg :type digraph
           :from-proto
           (lambda (proto)
             (let ((p-cfg (proto:cfg proto)))
@@ -362,6 +398,33 @@ Should not need to be manipulated by client code.")
      (isa :type enumeration :enumeration +module-isa-map+)
      (file-format :type enumeration :enumeration +module-file-format-map+))
   (:documentation "Module of a GTIRB IR."))
+
+(defmethod print-object ((obj module) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
+
+(define-constant +edge-label-type-map+
+    '((#.proto:+edge-type-type-branch+ . :branch)
+      (#.proto:+edge-type-type-call+ . :call)
+      (#.proto:+edge-type-type-fallthrough+ . :fallthrough)
+      (#.proto:+edge-type-type-return+ . :return)
+      (#.proto:+edge-type-type-syscall+ . :syscall)
+      (#.proto:+edge-type-type-sysret+ . :sysret))
+  :test #'equal)
+
+(define-proto-backed-class (edge-label proto:edge-label) () ()
+    ((conditional :type boolean)
+     (direct :type boolean)
+     (edge-type :type enumeration :enumeration +edge-label-type-map+
+                :proto-field type))
+  (:documentation "Label on a CFG edge."))
+
+(defmethod print-object ((obj edge-label) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~a ~a"
+            (edge-type obj)
+            (if (conditional obj) :conditional :unconditional)
+            (if (direct obj) :direct :undirect))))
 
 (define-constant +symbol-storage-kind+
     '((#.proto:+storage-kind-storage-undefined+ . :undefined)
@@ -489,6 +552,10 @@ Should not need to be manipulated by client code.")
   ((symbols :accessor symbols :type (list symbol)
             :documentation "Symbol(s) appearing in this symbolic expression.")))
 
+(defmethod print-object ((obj symbolic-expression) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~{~a~^, ~}" (offset obj) (symbols obj))))
+
 (define-proto-backed-class
     (sym-stack-const proto:sym-stack-const) (symbolic-expression) ()
     ((offset :type unsigned-byte-64)))
@@ -509,11 +576,49 @@ Should not need to be manipulated by client code.")
     ((size :type unsigned-byte-64)
      (decode-mode :type unsigned-byte-64)))
 
+(defmethod print-object ((obj code-block) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~a" (size obj) (decode-mode obj))))
+
 (define-proto-backed-class (data-block proto:data-block) (gtirb-block)
     ()
     ((size :type unsigned-byte-64)))
 
+(defmethod print-object ((obj data-block) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a" (size obj))))
+
 (define-proto-backed-class (proxy-block proto:proxy-block) (gtirb-block) () ())
+
+(defmethod print-object ((obj proxy-block) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)))
+
+
+;;;; Higher-level API functions.
+(defgeneric get-block (uuid object)
+  ;; TODO: Implement this for modules, sections, and byte-intervals.
+  ;;       Consider if everything having to do with UUIDs should be
+  ;;       hidden from the user so you only access blocks through
+  ;;       iteration over sections and through the CFG.
+  (:documentation "Return the block keyed by UUID in OBJECT.")
+  (:method ((uuid simple-array) (obj module))
+    (get-block (uuid-to-integer uuid) obj))
+  (:method ((uuid integer) (obj module))
+    (gethash uuid (blocks obj))))
+
+(defmethod (setf get-block) (new (uuid simple-array) (obj module))
+  (setf (get-block (uuid-to-integer uuid) obj) new))
+
+(defmethod (setf get-block) (new (uuid integer) (obj module))
+  (setf (gethash uuid (blocks obj)) new))
+
+
+;;;; AuxData type and data handling.
+(define-proto-backed-class (aux-data proto:aux-data) () () ())
+
+(defmethod print-object ((obj aux-data) (stream stream))
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a" (aux-data-type obj))))
 
 (defun aux-data-from-proto (proto)
   (let ((p-aux-data (proto:aux-data proto))
@@ -535,93 +640,6 @@ Should not need to be manipulated by client code.")
                      entry)))
        aux-data))
 
-(defgeneric get-block (uuid object)
-  ;; TODO: Implement this for modules, sections, and byte-intervals.
-  ;;       Consider if everything having to do with UUIDs should be
-  ;;       hidden from the user so you only access blocks through
-  ;;       iteration over sections and through the CFG.
-  (:documentation "Return the block keyed by UUID in OBJECT.")
-  (:method ((uuid simple-array) (obj module))
-    (get-block (uuid-to-integer uuid) obj))
-  (:method ((uuid integer) (obj module))
-    (gethash uuid (blocks obj))))
-
-(defmethod (setf get-block) (new (uuid simple-array) (obj module))
-  (setf (get-block (uuid-to-integer uuid) obj) new))
-
-(defmethod (setf get-block) (new (uuid integer) (obj module))
-  (setf (gethash uuid (blocks obj)) new))
-
-(defun uuid-to-integer (uuid)
-  (if (emptyp uuid)
-      0           ; TODO: Needed when referent-uuid of a symbol can be
-                                        ;        #().  Remove this case and instead stop
-                                        ;        processing missing referent-uuids.
-      (octets->int
-       (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
-       16)))
-
-(defun integer-to-uuid (number)
-  (int->octets number 16))
-
-(defmethod print-object ((obj module) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
-
-(define-constant +edge-label-type-map+
-    '((#.proto:+edge-type-type-branch+ . :branch)
-      (#.proto:+edge-type-type-call+ . :call)
-      (#.proto:+edge-type-type-fallthrough+ . :fallthrough)
-      (#.proto:+edge-type-type-return+ . :return)
-      (#.proto:+edge-type-type-syscall+ . :syscall)
-      (#.proto:+edge-type-type-sysret+ . :sysret))
-  :test #'equal)
-
-(define-proto-backed-class (edge-label proto:edge-label) () ()
-    ((conditional :type boolean)
-     (direct :type boolean)
-     (edge-type :type enumeration :enumeration +edge-label-type-map+
-                :proto-field type))
-  (:documentation "Label on a CFG edge."))
-
-(defmethod print-object ((obj edge-label) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a ~a ~a"
-            (edge-type obj)
-            (if (conditional obj) :conditional :unconditional)
-            (if (direct obj) :direct :undirect))))
-
-(define-proto-backed-class (aux-data proto:aux-data) () () ())
-
-(define-proto-backed-class (gtirb proto:ir) ()
-    ((modules :initarg modules :accessor modules :type (list module)
-              :initform nil
-              :from-proto
-              (lambda (proto)
-                (mapcar (lambda (module-proto)
-                          (make-instance 'module :proto module-proto))
-                        (coerce (proto:modules proto) 'list)))
-              :to-proto
-              (lambda (modules) (map 'vector #'update-proto modules))
-              :documentation "List of the modules on an IR.")
-     (aux-data :accessor aux-data :type (list aux-data)
-               :from-proto #'aux-data-from-proto
-               :to-proto #'aux-data-to-proto
-               :documentation "Auxiliary data objects on the IR.
-The modules of the IR will often also hold auxiliary data objects."))
-    ()
-  (:documentation "Base class of an instance of GTIRB IR."))
-
-(defmethod (setf modules) :after (new (obj gtirb))
-  (setf (proto:modules (proto obj))
-        (coerce (mapcar #'proto (modules obj)) 'vector)))
-
-(defmethod print-object ((obj gtirb) (stream stream))
-  (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a" (modules obj))))
-
-
-;;;; AuxData type and data handling.
 (defmacro start-case (string &body body)
   `(progn
      ;; (declare (type string ,string))
