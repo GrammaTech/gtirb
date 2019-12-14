@@ -157,58 +157,76 @@
 SLOT-SPECIFIERS is as in `defclass' with the addition of optional
 :to-proto and :from-proto fields, which may take protobuf
 serialization functions.  PROTO-FIELDS may hold a list of fields which
-pass through directly to the backing protobuf class.  "
-  `(progn
-     (defclass ,class ,super-classes
-       ;; Accessors for normal lisp classes
-       ((proto :initarg :proto :accessor proto :type ,proto-class
-               :initform (make-instance ',proto-class)
-               :documentation "Backing protobuf object.
+pass through directly to the backing protobuf class."
+  (nest
+   (with-gensyms ((obj "object")))
+   (flet ((plist-get (item list)
+            (second (member item list)))
+          (plist-drop (item list)
+            (if-let ((location (position item list)))
+              (append (subseq list 0 location)
+                      (subseq list (+ 2 location)))
+              list))))
+   (let ((from-proto-slots (remove-if-not {find :from-proto} slot-specifiers))))
+   `(progn
+      (defclass ,class ,super-classes
+        ;; Accessors for normal lisp classes
+        ((proto :initarg :proto :accessor proto :type ,proto-class
+                :initform (make-instance ',proto-class)
+                :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
-        ,@slot-specifiers)
-       ,@options)
-     ;; Equality check on class.
-     ;;
-     ;; NOTE: For this to work we might need to add an optional :only
-     ;;       field to both slot-specifiers  and proto-fields.  This
-     ;;       would mean that the equality of this field is only
-     ;;       checked with this form returns true.  E.g., on
-     ;;       byte-intervals we could say:
-     ;;       (address :type unsigned-byte-64 :only #'addressp)
-     (defmethod is-equal-p-internal ((left ,class) (right ,class))
-       (and ,@(mapcar
-               (lambda (accessor)
-                 `(compare-or-verbose is-equal-p-internal
-                                      (,accessor left) (,accessor right)))
-               (append (mapcar [#'second {member :accessor}] slot-specifiers)
-                       (mapcar #'car proto-fields)))))
-     ;; Pass-through accessors for protobuf fields.
-     ,@(apply
-        #'append
-        (mapcar
-         (nest
-          (lambda (pair))
-          (destructuring-bind
-                (name &key type documentation enumeration (proto-field name)
-                      &allow-other-keys) pair)
-          (let ((base `(,(intern (symbol-name proto-field) 'proto)
-                         (proto obj)))))
-          `((defmethod ,name ((obj ,class))
-              ,@(when documentation (list documentation))
-              ,(ecase type
-                 ((unsigned-byte-64 boolean bytes) base)
-                 (enumeration `(cdr (assoc ,base ,enumeration)))
-                 (uuid `(uuid-to-integer ,base))
-                 (string `(pb:string-value ,base))))
-            (defmethod (setf ,name) (new (obj ,class))
-              ,@(when documentation (list documentation))
-              ,(ecase type
-                 ((unsigned-byte-64 boolean) `(setf ,base new))
-                 (bytes `(setf ,base (force-byte-array new)))
-                 (enumeration `(setf ,base (car (rassoc new ,enumeration))))
-                 (uuid `(setf ,base (integer-to-uuid new)))
-                 (string `(setf ,base (pb:string-field new)))))))
-         proto-fields))))
+         ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}]
+                   slot-specifiers))
+        ,@options)
+      (defmethod initialize-instance :after ((,obj ,class) &key)
+                 (with-slots (proto ,@(mapcar #'car from-proto-slots)) ,obj
+                   ,@(mapcar
+                      (lambda (spec)
+                        (destructuring-bind (slot &key from-proto &allow-other-keys) spec
+                          `(setf ,slot (funcall ,from-proto proto))))
+                      from-proto-slots)))
+      ;; Equality check on class.
+      ;;
+      ;; NOTE: For this to work we might need to add an optional :only
+      ;;       field to both slot-specifiers  and proto-fields.  This
+      ;;       would mean that the equality of this field is only
+      ;;       checked with this form returns true.  E.g., on
+      ;;       byte-intervals we could say:
+      ;;       (address :type unsigned-byte-64 :only #'addressp)
+      (defmethod is-equal-p-internal ((left ,class) (right ,class))
+        (and ,@(mapcar
+                (lambda (accessor)
+                  `(compare-or-verbose is-equal-p-internal
+                                       (,accessor left) (,accessor right)))
+                (append (mapcar {plist-get :accessor} slot-specifiers)
+                        (mapcar #'car proto-fields)))))
+      ;; Pass-through accessors for protobuf fields.
+      ,@(apply
+         #'append
+         (mapcar
+          (nest
+           (lambda (pair))
+           (destructuring-bind
+                 (name &key type documentation enumeration (proto-field name)
+                       &allow-other-keys) pair)
+           (let ((base `(,(intern (symbol-name proto-field) 'proto)
+                          (proto obj)))))
+           `((defmethod ,name ((obj ,class))
+               ,@(when documentation (list documentation))
+               ,(ecase type
+                  ((unsigned-byte-64 boolean bytes) base)
+                  (enumeration `(cdr (assoc ,base ,enumeration)))
+                  (uuid `(uuid-to-integer ,base))
+                  (string `(pb:string-value ,base))))
+             (defmethod (setf ,name) (new (obj ,class))
+               ,@(when documentation (list documentation))
+               ,(ecase type
+                  ((unsigned-byte-64 boolean) `(setf ,base new))
+                  (bytes `(setf ,base (force-byte-array new)))
+                  (enumeration `(setf ,base (car (rassoc new ,enumeration))))
+                  (uuid `(setf ,base (integer-to-uuid new)))
+                  (string `(setf ,base (pb:string-field new)))))))
+          proto-fields)))))
 
 (defun force-byte-array (array)
   (make-array (length array) :element-type '(unsigned-byte 8)
@@ -237,17 +255,42 @@ Should not need to be manipulated by client code.")
 
 (define-proto-backed-class (module proto:module) ()
     ((cfg :accessor cfg :type cfg
+          :from-proto
+          (lambda (proto)
+            (let ((p-cfg (proto:cfg proto)))
+              (populate
+               (make-instance 'digraph)
+               :edges-w-values
+               (mapcar
+                (lambda (edge)
+                  (list (list (uuid-to-integer (proto:source-uuid edge))
+                              (uuid-to-integer (proto:target-uuid edge)))
+                        (make-instance 'edge-label :proto (proto:label edge))))
+                (coerce (proto:edges p-cfg) 'list))
+               :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (proxies :accessor proxies :type hash-table
               :initform (make-hash-table)
+              :from-proto
+              (lambda (proto &aux (table (make-hash-table)))
+                (let ((proto-proxies (proto:proxies proto)))
+                  (dotimes (n (length proto-proxies) table)
+                    (let ((it (aref proto-proxies n)))
+                      (setf (gethash (uuid-to-integer (proto:uuid it)) table)
+                            (make-instance 'proxy-block :proto it))))))
               :documentation
               "Hash of proxy blocks, used to represent cross-module linkages.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
+              :from-proto (lambda (proto) (map 'list {make-instance 'symbol :proto}
+                                               (proto:symbols proto)))
               :documentation "Hash of symbols keyed by UUID.")
      (sections :accessor sections :type (list section)
+               :from-proto (lambda (proto) (map 'list {make-instance 'section :proto}
+                                                (proto:sections proto)))
                :documentation "Loadable sections.")
      (aux-data :accessor aux-data :type (list aux-data)
+               :from-proto #'aux-data-from-proto
                :documentation "Auxiliary data objects."))
     ((name :type string)
      (binary-path :type string)
@@ -278,8 +321,12 @@ Should not need to be manipulated by client code.")
     (format stream "~a ~a" (name obj) (storage-kind obj))))
 
 (define-proto-backed-class (section proto:section) ()
-    ((byte-intervals :accessor byte-intervals :type (list byte-interval)
-                     :documentation "Byte-intervals."))
+    ((byte-intervals
+      :accessor byte-intervals :type (list byte-interval)
+      :from-proto (lambda (proto)
+                    (map 'list {make-instance 'byte-interval :proto}
+                         (proto:byte-intervals proto)))
+      :documentation "Byte-intervals."))
     ((name :type string))
   (:documentation "Loadable section of a GTIRB IR module."))
 
@@ -287,18 +334,43 @@ Should not need to be manipulated by client code.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~a" (name obj) (address obj) (size obj))))
 
-(defmethod initialize-instance :after ((obj section) &key)
-  (setf (byte-intervals obj) (map 'list {make-instance 'byte-interval :proto}
-                                  (proto:byte-intervals (proto obj)))))
-
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
     ;; TODO: What's a better data structure to use to store a sorted
     ;;       collection of pairs which permits duplicates.  Maybe a
     ;;       balanced tree.
     ((blocks :accessor blocks :type (list (cons integer gtirb-block))
+             :from-proto
+             (lambda (proto)
+               (map 'list
+                    (lambda (proto-block)
+                      (cons (proto:offset proto-block)
+                            (let ((data (proto:data proto-block)))
+                              (etypecase data
+                                (proto:code-block
+                                 (make-instance 'code-block :proto data))
+                                (proto:data-block
+                                 (make-instance 'data-block :proto data))))))
+                    (proto:blocks proto)))
              :documentation "Blocks under this byte-interval.")
      (symbolic-expressions
       :accessor symbolic-expressions :type hash-table
+      :from-proto
+      (lambda (proto &aux (table (make-hash-table)))
+        (dotimes (n (length (proto:symbolic-expressions proto)) table)
+          (let* ((proto (aref (proto:symbolic-expressions proto) n))
+                 (address (proto:key proto))
+                 (symbolic-expression (proto:value proto)))
+            (setf (gethash address table)
+                  (cond
+                    ((proto:stack-const symbolic-expression)
+                     (make-instance 'sym-stack-const
+                       :proto (proto:stack-const symbolic-expression)))
+                    ((proto:addr-const symbolic-expression)
+                     (make-instance 'sym-addr-const
+                       :proto (proto:addr-const symbolic-expression)))
+                    ((proto:addr-addr symbolic-expression)
+                     (make-instance 'sym-addr-addr
+                       :proto (proto:addr-addr symbolic-expression))))))))
       :documentation "Hash of symbolic-expressions keyed by address."))
     ((addressp :type boolean :proto-field has-address)
      (address :type unsigned-byte-64)
@@ -310,35 +382,6 @@ Should not need to be manipulated by client code.")
     (format stream "~a ~a"
             (if (addressp obj) (address obj) "?")
             (size obj))))
-
-(defmethod initialize-instance :after ((obj byte-interval) &key)
-  (setf (blocks obj)                    ; Blocks.
-        (map 'list (lambda (proto-block)
-                     (cons (proto:offset proto-block)
-                           (let ((data (proto:data proto-block)))
-                             (etypecase data
-                               (proto:code-block
-                                (make-instance 'code-block :proto data))
-                               (proto:data-block
-                                (make-instance 'data-block :proto data))))))
-             (proto:blocks (proto obj))))
-  (let ((table (make-hash-table)))      ; Symbolic-expressions.
-    (dotimes (n (length (proto:symbolic-expressions (proto obj))))
-      (let* ((proto (aref (proto:symbolic-expressions (proto obj)) n))
-             (address (proto:key proto))
-             (symbolic-expression (proto:value proto)))
-        (setf (gethash address table)
-              (cond
-                ((proto:stack-const symbolic-expression)
-                 (make-instance 'sym-stack-const
-                   :proto (proto:stack-const symbolic-expression)))
-                ((proto:addr-const symbolic-expression)
-                 (make-instance 'sym-addr-const
-                   :proto (proto:addr-const symbolic-expression)))
-                ((proto:addr-addr symbolic-expression)
-                 (make-instance 'sym-addr-addr
-                   :proto (proto:addr-addr symbolic-expression)))))))
-    (setf (symbolic-expressions obj) table)))
 
 (defclass symbolic-expression ()
   ((symbols :accessor symbols :type (list symbol)
@@ -393,38 +436,6 @@ Should not need to be manipulated by client code.")
 (defun hash-table-to-proto (hash-table)
   "Convert a hash-table keyed by UUID to a array for protobuf."
   (coerce (hash-table-values hash-table) 'vector))
-
-(defmethod initialize-instance :after ((obj module) &key)
-  ;; Proxy blocks.
-  (setf (proxies obj)
-        (let ((table (make-hash-table))
-              (proto-proxies (proto:proxies (proto obj))))
-          (dotimes (n (length proto-proxies) table)
-            (let ((proxy-block (aref proto-proxies n)))
-              (setf (gethash (uuid-to-integer (proto:uuid proxy-block)) table)
-                    (make-instance 'proxy-block :proto proxy-block))))))
-  ;; Aux-Data.
-  (setf (aux-data obj) (aux-data-from-proto (proto obj)))
-  ;; Sections.
-  (setf (sections obj) (map 'list {make-instance 'section :proto}
-                            (proto:sections (proto obj))))
-  ;; Symbols.
-  (setf (symbols obj) (map 'list {make-instance 'symbol :proto}
-                           (proto:symbols (proto obj))))
-  ;; Build the CFG as a lisp graph.
-  (nest
-   (with-slots (cfg) obj)
-   (let ((p-cfg (proto:cfg (proto obj)))))
-   (setf cfg)
-   (populate
-    (make-instance 'digraph)
-    :edges-w-values
-    (mapcar (lambda (edge)
-              (list (list (uuid-to-integer (proto:source-uuid edge))
-                          (uuid-to-integer (proto:target-uuid edge)))
-                    (make-instance 'edge-label :proto (proto:label edge))))
-            (coerce (proto:edges p-cfg) 'list))
-    :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
 
 (defgeneric get-block (uuid object)
   ;; TODO: Implement this for modules, sections, and byte-intervals.
@@ -487,8 +498,14 @@ Should not need to be manipulated by client code.")
 (define-proto-backed-class (gtirb proto:ir) ()
     ((modules :initarg modules :accessor modules :type (list module)
               :initform nil
+              :from-proto
+              (lambda (proto)
+                (mapcar (lambda (module-proto)
+                          (make-instance 'module :proto module-proto))
+                        (coerce (proto:modules proto) 'list)))
               :documentation "List of the modules on an IR.")
      (aux-data :accessor aux-data :type (list aux-data)
+               :from-proto #'aux-data-from-proto
                :documentation "Auxiliary data objects on the IR.
 The modules of the IR will often also hold auxiliary data objects."))
     ()
@@ -497,13 +514,6 @@ The modules of the IR will often also hold auxiliary data objects."))
 (defmethod (setf modules) :after (new (obj gtirb))
   (setf (proto:modules (proto obj))
         (coerce (mapcar #'proto (modules obj)) 'vector)))
-
-(defmethod initialize-instance :after ((obj gtirb) &key)
-  (setf (aux-data obj) (aux-data-from-proto (proto obj)))
-  (with-slots (modules) obj
-    (setf modules (mapcar (lambda (module-proto)
-                            (make-instance 'module :proto module-proto))
-                          (coerce (proto:modules (proto obj)) 'list)))))
 
 (defmethod print-object ((obj gtirb) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
