@@ -83,13 +83,6 @@
       (is (equalp (md5sum-file *proto-path*)
                   (md5sum-file path))))))
 
-(defun noisy-set-equality (left right)
-  (is (= (length left) (length right)))
-  (is (not (or (emptyp left) (emptyp right))))
-  (is (equal (type-of (first left))
-             (type-of (first right))))
-  (is (set-equal left right :test #'is-equal-p)))
-
 (deftest idempotent-read-write-w-class ()
   (nest
    (with-fixture hello)
@@ -151,6 +144,27 @@
                      (cdr (assoc "test" (aux-data (first (modules next)))
                                  :test #'string=)))
                     test-string))))))
+
+(deftest back-pointers-work ()
+  (with-fixture hello
+    (let ((hello (read-gtirb *proto-path*)))
+      ;; Modules point to IR.
+      (is (every [{eql hello} #'gtirb] (modules hello)))
+      ;; Sections point to modules.
+      (mapc (lambda (module)
+              (is (every [{eql module} #'module] (sections module)))
+              ;; Byte-intervals point to sections.
+              (mapc (lambda (section)
+                      (is (every [{eql section} #'section]
+                                 (byte-intervals section)))
+                      ;; Blocks point to byte-intervals.
+                      (mapc (lambda (byte-interval)
+                              (is (every
+                                   [{eql byte-interval} #'byte-interval #'cdr]
+                                   (blocks byte-interval))))
+                            (byte-intervals section)))
+                    (sections module)))
+            (modules hello)))))
 
 
 ;;;; Dot test suite

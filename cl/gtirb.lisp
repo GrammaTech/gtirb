@@ -18,6 +18,7 @@
            :update-proto
            :*is-equal-p-verbose-p*
 ;;; Classes and fields.
+           :gtirb
            ;; Module
            :module
            :name
@@ -191,10 +192,10 @@ object's protocol buffer.")
   "Define a Common Lisp class backed by a protobuf class.
 SLOT-SPECIFIERS is as in `defclass' with the addition of optional
 :to-proto and :from-proto fields, which may take protobuf
-serialization functions.  PROTO-FIELDS may hold a list of fields which
-pass through directly to the backing protobuf class."
+serialization functions, and :skip-equal-p field which causes
+`is-equal-p' to skip that field.  PROTO-FIELDS may hold a list of
+fields which pass through directly to the backing protobuf class."
   (nest
-   (with-gensyms ((obj "object")))
    (flet ((plist-get (item list)
             (second (member item list)))
           (plist-drop (item list)
@@ -212,26 +213,26 @@ pass through directly to the backing protobuf class."
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
          ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}
-                    {plist-drop :proto-field}]
+                    {plist-drop :proto-field} {plist-drop :skip-equal-p}]
                    slot-specifiers))
         ,@options)
-      (defmethod initialize-instance :after ((,obj ,class) &key)
-                 (with-slots (proto ,@(mapcar #'car from-proto-slots)) ,obj
+      (defmethod initialize-instance :after ((self ,class) &key)
+                 (with-slots (proto ,@(mapcar #'car from-proto-slots)) self
                    ,@(mapcar
                       (lambda (spec)
                         (destructuring-bind (slot &key from-proto &allow-other-keys) spec
                           `(setf ,slot (funcall ,from-proto proto))))
                       from-proto-slots)))
-      (defmethod update-proto ((,obj ,class))
+      (defmethod update-proto ((self ,class))
         ,@(mapcar
            (lambda (spec)
              (destructuring-bind
                    (slot &key to-proto (proto-field slot) &allow-other-keys)
                  spec
-               `(setf (,(intern (symbol-name proto-field) 'proto) (proto ,obj))
-                      (funcall ,to-proto (,slot ,obj)))))
+               `(setf (,(intern (symbol-name proto-field) 'proto) (proto self))
+                      (funcall ,to-proto (,slot self)))))
            to-proto-slots)
-        (proto ,obj))
+        (proto self))
       ;; Equality check on class.
       ;;
       ;; NOTE: For this to work we might need to add an optional :only
@@ -245,7 +246,9 @@ Should not need to be manipulated by client code.")
                 (lambda (accessor)
                   `(compare-or-verbose is-equal-p-internal
                                        (,accessor left) (,accessor right)))
-                (append (mapcar {plist-get :accessor} slot-specifiers)
+                (append (mapcar {plist-get :accessor}
+                                (remove-if {plist-get :skip-equal-p}
+                                           slot-specifiers))
                         (mapcar #'car proto-fields)))))
       ;; Pass-through accessors for protobuf fields so they operate
       ;; directly on the backing protobuf object.
@@ -286,9 +289,10 @@ Should not need to be manipulated by client code.")
               :initform nil
               :from-proto
               (lambda (proto)
-                (mapcar (lambda (module-proto)
-                          (make-instance 'module :proto module-proto))
-                        (coerce (proto:modules proto) 'list)))
+                (mapcar
+                 (lambda (module-proto)
+                   (make-instance 'module :gtirb self :proto module-proto))
+                 (coerce (proto:modules proto) 'list)))
               :to-proto
               (lambda (modules) (map 'vector #'update-proto modules))
               :documentation "List of the modules on an IR.")
@@ -296,7 +300,9 @@ Should not need to be manipulated by client code.")
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
                :documentation "Auxiliary data objects on the IR.
-The modules of the IR will often also hold auxiliary data objects."))
+The modules of the IR will often also hold auxiliary data objects.")
+     ;; TODO: Caches for quick lookup for blocks by UUID and ADDRESS.
+     )
     ()
   (:documentation "Base class of an instance of GTIRB IR."))
 
@@ -383,14 +389,20 @@ The modules of the IR will often also hold auxiliary data objects."))
               :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
               :documentation "Hash of symbols keyed by UUID.")
      (sections :accessor sections :type (list section)
-               :from-proto (lambda (proto) (map 'list {make-instance 'section :proto}
-                                                (proto:sections proto)))
+               :from-proto
+               (lambda (proto)
+                 (map 'list {make-instance 'section :module self :proto}
+                      (proto:sections proto)))
                :to-proto (lambda (sections) (map 'vector #'update-proto sections))
                :documentation "GTIRB sections.")
      (aux-data :accessor aux-data :type (list aux-data)
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
-               :documentation "Auxiliary data objects."))
+               :documentation "Auxiliary data objects.")
+     (gtirb
+      :initarg :gtirb :accessor gtirb :skip-equal-p t :type gtirb
+      :initform (error "Module created without a pointer to enclosing GTIRB.")
+      :documentation "Access to the GTIRB instance holding this module."))
     ((name :type string)
      (binary-path :type string)
      (preferred-addr :type unsigned-byte-64)
@@ -449,11 +461,17 @@ The modules of the IR will often also hold auxiliary data objects."))
 (define-proto-backed-class (section proto:section) ()
     ((byte-intervals
       :accessor byte-intervals :type (list byte-interval)
-      :from-proto (lambda (proto)
-                    (map 'list {make-instance 'byte-interval :proto}
-                         (proto:byte-intervals proto)))
+      :from-proto
+      (lambda (proto)
+        (map 'list {make-instance 'byte-interval :section self :proto}
+             (proto:byte-intervals proto)))
       :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
-      :documentation "Byte-intervals."))
+      :documentation "Byte-intervals.")
+     (module :initarg :module :accessor module :skip-equal-p t :type module
+             :initform
+             (error "Section created without a pointer to enclosing module.")
+             :documentation
+             "Access to the module instance holding this section."))
     ((name :type string))
   (:documentation "Loadable section of a GTIRB IR module."))
 
@@ -474,9 +492,11 @@ The modules of the IR will often also hold auxiliary data objects."))
                             (let ((data (proto:data proto-block)))
                               (etypecase data
                                 (proto:code-block
-                                 (make-instance 'code-block :proto data))
+                                 (make-instance 'code-block
+                                   :byte-interval self :proto data))
                                 (proto:data-block
-                                 (make-instance 'data-block :proto data))))))
+                                 (make-instance 'data-block
+                                   :byte-interval self :proto data))))))
                     (proto:blocks proto)))
              :to-proto
              (lambda (blocks)
@@ -536,7 +556,13 @@ The modules of the IR will often also hold auxiliary data objects."))
                            it))
                    it)))
              (hash-table-alist symbolic-expression)))
-      :documentation "Hash of symbolic-expressions keyed by address."))
+      :documentation "Hash of symbolic-expressions keyed by address.")
+     (section
+      :initarg :section :accessor section :skip-equal-p t :type section
+      :initform
+      (error "Byte-interval created without a pointer to enclosing section.")
+      :documentation
+      "Access to the section instance holding this byte-interval."))
     ((addressp :type boolean :proto-field has-address)
      (address :type unsigned-byte-64)
      (size :type unsigned-byte-64)
@@ -572,7 +598,13 @@ The modules of the IR will often also hold auxiliary data objects."))
 (defclass gtirb-block () ())
 
 (define-proto-backed-class (code-block proto:code-block) (gtirb-block)
-    ()
+    ((byte-interval
+      :initarg :byte-interval :accessor byte-interval :type byte-interval
+      :skip-equal-p t
+      :initform
+      (error "Code-block created without a pointer to enclosing byte-interval.")
+      :documentation
+      "Access to the byte-interval instance holding this code-block"))
     ((size :type unsigned-byte-64)
      (decode-mode :type unsigned-byte-64)))
 
@@ -581,7 +613,13 @@ The modules of the IR will often also hold auxiliary data objects."))
     (format stream "~a ~a" (size obj) (decode-mode obj))))
 
 (define-proto-backed-class (data-block proto:data-block) (gtirb-block)
-    ()
+    ((byte-interval
+      :initarg :byte-interval :accessor byte-interval :type byte-interval
+      :skip-equal-p t
+      :initform
+      (error "Data-block created without a pointer to enclosing byte-interval.")
+      :documentation
+      "Access to the byte-interval instance holding this data-block"))
     ((size :type unsigned-byte-64)))
 
 (defmethod print-object ((obj data-block) (stream stream))
@@ -595,22 +633,19 @@ The modules of the IR will often also hold auxiliary data objects."))
 
 
 ;;;; Higher-level API functions.
-(defgeneric get-block (uuid object)
-  ;; TODO: Implement this for modules, sections, and byte-intervals.
-  ;;       Consider if everything having to do with UUIDs should be
-  ;;       hidden from the user so you only access blocks through
-  ;;       iteration over sections and through the CFG.
-  (:documentation "Return the block keyed by UUID in OBJECT.")
-  (:method ((uuid simple-array) (obj module))
-    (get-block (uuid-to-integer uuid) obj))
-  (:method ((uuid integer) (obj module))
-    (gethash uuid (blocks obj))))
+(defgeneric get-block-by-uuid (uuid gtirb)
+  ;; TODO: Maintain a hash of blocks by UUID on the IR level.
+  (:documentation "Return the block keyed by UUID in GTIRB."))
 
-(defmethod (setf get-block) (new (uuid simple-array) (obj module))
-  (setf (get-block (uuid-to-integer uuid) obj) new))
+(defmethod (setf get-block-by-uuid) (new (uuid simple-array) (obj gtirb))
+  (setf (get-block-by-uuid (uuid-to-integer uuid) obj) new))
 
-(defmethod (setf get-block) (new (uuid integer) (obj module))
+(defmethod (setf get-block-by-uuid) (new (uuid integer) (obj gtirb))
   (setf (gethash uuid (blocks obj)) new))
+
+(defgeneric get-blocks-by-address (address gtirb)
+  ;; TODO: Maintain a quick lookup of block by address on the IR level.
+  (:documentation "Return the blocks located at ADDRESS in GTIRB."))
 
 
 ;;;; AuxData type and data handling.
