@@ -27,7 +27,7 @@
     '((("help" #\h #\?) :type boolean :optional t
        :documentation "display help output"))))
 
-(define-command dot (gtirb-file dot-file)
+(define-command dot (gtirb-file dot-file &spec +udpate-args+)
   "Write first GTIRB module in GTIRB-FILE to DOT-FILE." ""
   (when help (show-help-for-dot) (sb-ext:quit))
-  (to-dot-file (first (modules (read-gtirb gtirb-file))) path))
+  (to-dot-file (first (modules (read-gtirb gtirb-file))) dot-file))
