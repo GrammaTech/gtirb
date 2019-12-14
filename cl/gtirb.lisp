@@ -67,7 +67,7 @@
 (in-readtable :curry-compose-reader-macros)
 
 (defun read-proto (path)
-  "Read GTIRB from PATH."
+  "Read raw GTIRB IR PROTOBUF from PATH."
   (assert (probe-file path) (path)
           "Can't read GTIRB from ~s, because the file doesn't exist."
           path)
@@ -81,7 +81,7 @@
     gtirb))
 
 (defun write-proto (gtirb path)
-  "Write GTIRB to PATH."
+  "Write RAW GTIRB IR PROTOBUF to PATH."
   (let* ((size (pb:octet-size gtirb))
          (buffer (make-array size :element-type '(unsigned-byte 8))))
     (pb:serialize gtirb buffer 0 size)
@@ -90,6 +90,15 @@
                             :element-type 'unsigned-byte)
       (write-sequence buffer output)))
   (values))
+
+(defun read-gtirb (path)
+  "Read a GTIRB IR object from PATH."
+  (make-instance 'gtirb :proto (read-proto path)))
+
+(defun write-gtirb (gtirb path)
+  "Write a GTIRB IR object to PATH."
+  (update-proto gtirb)
+  (write-proto (proto gtirb) path))
 
 
 ;;;; Classes
@@ -150,6 +159,16 @@
                              (graph:edges-w-values right)
                              :test #'is-equal-p-internal))))
 
+(defgeneric update-proto (proto-backed-object)
+  (:documentation
+   "Update the `proto' field of OBJECT and return the updated value.
+This will ensure that any changes made to OBJECT outside of its
+protocol buffer, e.g. any slots initialized using the :from-proto
+option to `define-proto-backed-class', are synchronized against the
+object's protocol buffer.")
+  (:method ((proto-backed-object t))
+    (proto proto-backed-object)))
+
 (defmacro define-proto-backed-class ((class proto-class) super-classes
                                      slot-specifiers proto-fields
                                      &body options)
@@ -167,7 +186,8 @@ pass through directly to the backing protobuf class."
               (append (subseq list 0 location)
                       (subseq list (+ 2 location)))
               list))))
-   (let ((from-proto-slots (remove-if-not {find :from-proto} slot-specifiers))))
+   (let ((from-proto-slots (remove-if-not {find :from-proto} slot-specifiers))
+         (to-proto-slots (remove-if-not {find :to-proto} slot-specifiers))))
    `(progn
       (defclass ,class ,super-classes
         ;; Accessors for normal lisp classes
@@ -175,7 +195,8 @@ pass through directly to the backing protobuf class."
                 :initform (make-instance ',proto-class)
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
-         ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}]
+         ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}
+                    {plist-drop :proto-field}]
                    slot-specifiers))
         ,@options)
       (defmethod initialize-instance :after ((,obj ,class) &key)
@@ -185,6 +206,16 @@ Should not need to be manipulated by client code.")
                         (destructuring-bind (slot &key from-proto &allow-other-keys) spec
                           `(setf ,slot (funcall ,from-proto proto))))
                       from-proto-slots)))
+      (defmethod update-proto ((,obj ,class))
+        ,@(mapcar
+           (lambda (spec)
+             (destructuring-bind
+                   (slot &key to-proto (proto-field slot) &allow-other-keys)
+                 spec
+               `(setf (,(intern (symbol-name proto-field) 'proto) (proto ,obj))
+                      (funcall ,to-proto (,slot ,obj)))))
+           to-proto-slots)
+        (proto ,obj))
       ;; Equality check on class.
       ;;
       ;; NOTE: For this to work we might need to add an optional :only
@@ -200,7 +231,8 @@ Should not need to be manipulated by client code.")
                                        (,accessor left) (,accessor right)))
                 (append (mapcar {plist-get :accessor} slot-specifiers)
                         (mapcar #'car proto-fields)))))
-      ;; Pass-through accessors for protobuf fields.
+      ;; Pass-through accessors for protobuf fields so they operate
+      ;; directly on the backing protobuf object.
       ,@(apply
          #'append
          (mapcar
@@ -268,6 +300,23 @@ Should not need to be manipulated by client code.")
                         (make-instance 'edge-label :proto (proto:label edge))))
                 (coerce (proto:edges p-cfg) 'list))
                :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
+          :to-proto
+          (lambda (cfg &aux (p-cfg (make-instance 'proto:cfg)))
+            (setf
+             (proto:vertices p-cfg)
+             (map 'vector #'integer-to-uuid (nodes cfg))
+             (proto:edges p-cfg)
+             (map 'vector
+                  (lambda (edge)
+                    (destructuring-bind ((source target) label) edge
+                      (let ((p-edge (make-instance 'proto:edge)))
+                        (setf
+                         (proto:source-uuid p-edge) (integer-to-uuid source)
+                         (proto:target-uuid p-edge) (integer-to-uuid target)
+                         (proto:label p-edge) (proto label))
+                        p-edge)))
+                  (edges-w-values cfg)))
+            p-cfg)
           :documentation "Control flow graph (CFG) keyed by UUID.")
      (proxies :accessor proxies :type hash-table
               :initform (make-hash-table)
@@ -278,19 +327,29 @@ Should not need to be manipulated by client code.")
                     (let ((it (aref proto-proxies n)))
                       (setf (gethash (uuid-to-integer (proto:uuid it)) table)
                             (make-instance 'proxy-block :proto it))))))
+              :to-proto
+              (lambda (proxies)
+                (map 'vector (lambda (uuid)
+                               (let ((it (make-instance 'proto:proxy-block)))
+                                 (setf (proto:uuid it) (integer-to-uuid uuid))
+                                 it))
+                     (mapcar #'car (hash-table-alist proxies))))
               :documentation
               "Hash of proxy blocks, used to represent cross-module linkages.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
               :from-proto (lambda (proto) (map 'list {make-instance 'symbol :proto}
                                                (proto:symbols proto)))
+              :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
               :documentation "Hash of symbols keyed by UUID.")
      (sections :accessor sections :type (list section)
                :from-proto (lambda (proto) (map 'list {make-instance 'section :proto}
                                                 (proto:sections proto)))
-               :documentation "Loadable sections.")
+               :to-proto (lambda (sections) (map 'vector #'update-proto sections))
+               :documentation "GTIRB sections.")
      (aux-data :accessor aux-data :type (list aux-data)
                :from-proto #'aux-data-from-proto
+               :to-proto #'aux-data-to-proto
                :documentation "Auxiliary data objects."))
     ((name :type string)
      (binary-path :type string)
@@ -326,6 +385,7 @@ Should not need to be manipulated by client code.")
       :from-proto (lambda (proto)
                     (map 'list {make-instance 'byte-interval :proto}
                          (proto:byte-intervals proto)))
+      :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
       :documentation "Byte-intervals."))
     ((name :type string))
   (:documentation "Loadable section of a GTIRB IR module."))
@@ -351,7 +411,22 @@ Should not need to be manipulated by client code.")
                                 (proto:data-block
                                  (make-instance 'data-block :proto data))))))
                     (proto:blocks proto)))
-             :documentation "Blocks under this byte-interval.")
+             :to-proto
+             (lambda (blocks)
+               (map 'vector (lambda (pair)
+                              (destructuring-bind (offset . gtirb-block) pair
+                                (let ((it (make-instance 'proto:block)))
+                                  (setf (proto:offset it) offset)
+                                  (etypecase gtirb-block
+                                    (code-block
+                                     (setf (proto:code it)
+                                           (update-proto gtirb-block)))
+                                    (data-block
+                                     (setf (proto:data it)
+                                           (update-proto gtirb-block))))
+                                  it)))
+                    blocks))
+             :documentation "Blocks in this byte-interval.")
      (symbolic-expressions
       :accessor symbolic-expressions :type hash-table
       :from-proto
@@ -371,6 +446,29 @@ Should not need to be manipulated by client code.")
                     ((proto:addr-addr symbolic-expression)
                      (make-instance 'sym-addr-addr
                        :proto (proto:addr-addr symbolic-expression))))))))
+      :to-proto
+      (lambda (symbolic-expression)
+        (map 'vector
+             (lambda (pair)
+               (destructuring-bind (address . symbolic-expression) pair
+                 (let ((it (make-instance
+                               'proto:byte-interval-symbolic-expressions-entry)))
+                   (setf (proto:key it) address
+                         (proto:value it)
+                         (let ((it (make-instance 'proto:symbolic-expression)))
+                           (etypecase symbolic-expression
+                             (sym-stack-const
+                              (setf (proto:stack-const it)
+                                    (proto symbolic-expression)))
+                             (sym-addr-const
+                              (setf (proto:addr-const it)
+                                    (proto symbolic-expression)))
+                             (sym-addr-addr
+                              (setf (proto:addr-addr it)
+                                    (proto symbolic-expression))))
+                           it))
+                   it)))
+             (hash-table-alist symbolic-expression)))
       :documentation "Hash of symbolic-expressions keyed by address."))
     ((addressp :type boolean :proto-field has-address)
      (address :type unsigned-byte-64)
@@ -432,10 +530,6 @@ Should not need to be manipulated by client code.")
                            (proto:value entry) (proto aux-data))
                      entry)))
        aux-data))
-
-(defun hash-table-to-proto (hash-table)
-  "Convert a hash-table keyed by UUID to a array for protobuf."
-  (coerce (hash-table-values hash-table) 'vector))
 
 (defgeneric get-block (uuid object)
   ;; TODO: Implement this for modules, sections, and byte-intervals.
@@ -503,9 +597,12 @@ Should not need to be manipulated by client code.")
                 (mapcar (lambda (module-proto)
                           (make-instance 'module :proto module-proto))
                         (coerce (proto:modules proto) 'list)))
+              :to-proto
+              (lambda (modules) (map 'vector #'update-proto modules))
               :documentation "List of the modules on an IR.")
      (aux-data :accessor aux-data :type (list aux-data)
                :from-proto #'aux-data-from-proto
+               :to-proto #'aux-data-to-proto
                :documentation "Auxiliary data objects on the IR.
 The modules of the IR will often also hold auxiliary data objects."))
     ()
@@ -693,68 +790,3 @@ The modules of the IR will often also hold auxiliary data objects."))
   (let ((*decode-data* nil))
     (encode type data)
     (reduce {concatenate 'vector} (reverse *decode-data*))))
-
-
-;;;; Protobuf Serialization
-(defgeneric update-proto (object)
-  (:documentation
-   "Dump an updated protocol buffer for OBJECT.
-This will ensure that any changes made to objects outside of the
-protocol buffer object, e.g. blocks on modules, are synchronized
-against the protocol buffer object before it is returned.  We could
-incrementally synchronize everything to the backing protocol buffer,
-but that would likely get expensive.")
-  (:method ((obj gtirb))
-    (setf (proto:modules (proto obj))   ; Modules.
-          (map 'vector [#'proto #'update-proto] (modules obj))
-          (proto:aux-data (proto obj)) ; Aux data.
-          (aux-data-to-proto (aux-data obj))))
-  (:method ((obj module))
-    (setf
-     ;; Repackage the AuxData into a vector.
-     (proto:aux-data (proto obj))
-     (aux-data-to-proto (aux-data obj))
-     ;; Repackage the proxies into a vector.
-     (proto:proxies (proto obj))
-     (map 'vector (lambda (uuid)
-                    (let ((it (make-instance 'proto:proxy-block)))
-                      (setf (proto:uuid it) (integer-to-uuid uuid))
-                      it))
-          (mapcar #'car (hash-table-alist (proxies obj))))
-     ;; Repackage the sections back into a vector.
-     (proto:sections (proto obj))
-     (map 'vector #'proto (sections obj))
-     ;; Repackage the symbols back into a vector.
-     (proto:symbols (proto obj))
-     (map 'vector #'proto (symbols obj))
-     ;; Unpack the graph back into the proto structure.
-     (proto:cfg (proto obj))
-     (let ((p-cfg (make-instance 'proto:cfg)))
-       (setf (proto:vertices p-cfg)
-             (map 'vector #'integer-to-uuid (nodes (cfg obj)))
-             (proto:edges p-cfg)
-             (map 'vector
-                  (lambda (edge)
-                    (destructuring-bind ((source target) label) edge
-                      (let ((p-edge (make-instance 'proto:edge)))
-                        (setf
-                         (proto:source-uuid p-edge) (integer-to-uuid source)
-                         (proto:target-uuid p-edge) (integer-to-uuid target)
-                         (proto:label p-edge) (proto label))
-                        p-edge)))
-                  (edges-w-values (cfg obj))))
-       p-cfg))
-    obj)
-  (:method ((obj byte-interval))
-    ;; Repackage the blocks back into a vector.
-    (proto:blocks (proto obj))
-    (hash-table-to-proto (blocks obj))
-    (proto:symbolic-expressions (proto obj))
-    (hash-table-to-proto (symbolic-expressions obj))))
-
-(defun read-gtirb (path)
-  (make-instance 'gtirb :proto (read-proto path)))
-
-(defun write-gtirb (gtirb path)
-  (update-proto gtirb)
-  (write-proto (proto gtirb) path))
