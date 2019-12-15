@@ -484,35 +484,35 @@ The modules of the IR will often also hold auxiliary data objects.")
     ;; TODO: What's a better data structure to use to store a sorted
     ;;       collection of pairs which permits duplicates.  Maybe a
     ;;       balanced tree.
-    ((blocks :accessor blocks :type (list (cons integer gtirb-block))
+    ((blocks :accessor blocks :type (list gtirb-block)
              :from-proto
              (lambda (proto)
                (map 'list
                     (lambda (proto-block)
-                      (cons (proto:offset proto-block)
-                            (let ((data (proto:data proto-block)))
-                              (etypecase data
-                                (proto:code-block
-                                 (make-instance 'code-block
-                                   :byte-interval self :proto data))
-                                (proto:data-block
-                                 (make-instance 'data-block
-                                   :byte-interval self :proto data))))))
+                      (let* ((data (proto:data proto-block))
+                             (it (etypecase data
+                                   (proto:code-block
+                                    (make-instance 'code-block
+                                      :byte-interval self :proto data))
+                                   (proto:data-block
+                                    (make-instance 'data-block
+                                      :byte-interval self :proto data)))))
+                        (setf (offset it) (proto:offset proto-block))
+                        it))
                     (proto:blocks proto)))
              :to-proto
              (lambda (blocks)
-               (map 'vector (lambda (pair)
-                              (destructuring-bind (offset . gtirb-block) pair
-                                (let ((it (make-instance 'proto:block)))
-                                  (setf (proto:offset it) offset)
-                                  (etypecase gtirb-block
-                                    (code-block
-                                     (setf (proto:code it)
-                                           (update-proto gtirb-block)))
-                                    (data-block
-                                     (setf (proto:data it)
-                                           (update-proto gtirb-block))))
-                                  it)))
+               (map 'vector (lambda (gtirb-block)
+                              (let ((it (make-instance 'proto:block)))
+                                (setf (proto:offset it) (offset gtirb-block))
+                                (etypecase gtirb-block
+                                  (code-block
+                                   (setf (proto:code it)
+                                         (update-proto gtirb-block)))
+                                  (data-block
+                                   (setf (proto:data it)
+                                         (update-proto gtirb-block))))
+                                it))
                     blocks))
              :documentation "Blocks in this byte-interval.")
      (symbolic-expressions
@@ -599,7 +599,11 @@ The modules of the IR will often also hold auxiliary data objects.")
 (defclass gtirb-block () ())
 
 (define-proto-backed-class (code-block proto:code-block) (gtirb-block)
-    ((byte-interval
+    ((offset :initarg :offset :accessor offset :type number
+             :initform 0
+             :documentation
+             "Offset into this block's bytes in the block's byte-interval.")
+     (byte-interval
       :initarg :byte-interval :accessor byte-interval :type byte-interval
       :skip-equal-p t
       :initform
@@ -614,7 +618,11 @@ The modules of the IR will often also hold auxiliary data objects.")
     (format stream "~a ~a" (size obj) (decode-mode obj))))
 
 (define-proto-backed-class (data-block proto:data-block) (gtirb-block)
-    ((byte-interval
+    ((offset :initarg :offset :accessor offset :type number
+             :initform 0
+             :documentation
+             "Offset into this block's bytes in the block's byte-interval.")
+     (byte-interval
       :initarg :byte-interval :accessor byte-interval :type byte-interval
       :skip-equal-p t
       :initform
@@ -848,3 +856,5 @@ The modules of the IR will often also hold auxiliary data objects.")
 (defgeneric get-blocks-by-address (address gtirb)
   ;; TODO: Maintain a quick lookup of block by address on the IR level.
   (:documentation "Return the blocks located at ADDRESS in GTIRB."))
+
+

@@ -159,9 +159,8 @@
                                  (byte-intervals section)))
                       ;; Blocks point to byte-intervals.
                       (mapc (lambda (byte-interval)
-                              (is (every
-                                   [{eql byte-interval} #'byte-interval #'cdr]
-                                   (blocks byte-interval))))
+                              (is (every [{eql byte-interval} #'byte-interval]
+                                         (blocks byte-interval))))
                             (byte-intervals section)))
                     (sections module)))
             (modules hello)))))
