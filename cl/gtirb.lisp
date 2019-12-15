@@ -106,9 +106,10 @@
 ;;;; Class utilities.
 (defun uuid-to-integer (uuid)
   (if (emptyp uuid)
-      0           ; TODO: Needed when referent-uuid of a symbol can be
-                                        ;        #().  Remove this case and instead stop
-                                        ;        processing missing referent-uuids.
+      ;;TODO: Needed when referent-uuid of a symbol can be #().
+      ;;      Remove this case and instead stop processing missing
+      ;;      referent-uuids.
+      0
       (octets->int
        (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
        16)))
@@ -632,22 +633,6 @@ The modules of the IR will often also hold auxiliary data objects.")
   (print-unreadable-object (obj stream :type t :identity t)))
 
 
-;;;; Higher-level API functions.
-(defgeneric get-block-by-uuid (uuid gtirb)
-  ;; TODO: Maintain a hash of blocks by UUID on the IR level.
-  (:documentation "Return the block keyed by UUID in GTIRB."))
-
-(defmethod (setf get-block-by-uuid) (new (uuid simple-array) (obj gtirb))
-  (setf (get-block-by-uuid (uuid-to-integer uuid) obj) new))
-
-(defmethod (setf get-block-by-uuid) (new (uuid integer) (obj gtirb))
-  (setf (gethash uuid (blocks obj)) new))
-
-(defgeneric get-blocks-by-address (address gtirb)
-  ;; TODO: Maintain a quick lookup of block by address on the IR level.
-  (:documentation "Return the blocks located at ADDRESS in GTIRB."))
-
-
 ;;;; AuxData type and data handling.
 (define-proto-backed-class (aux-data proto:aux-data) () () ())
 
@@ -847,3 +832,19 @@ The modules of the IR will often also hold auxiliary data objects.")
   (let ((*decode-data* nil))
     (encode type data)
     (reduce {concatenate 'vector} (reverse *decode-data*))))
+
+
+;;;; Higher-level API functions.
+(defgeneric get-block-by-uuid (uuid gtirb)
+  ;; TODO: Maintain a hash of blocks by UUID on the IR level.
+  (:documentation "Return the block keyed by UUID in GTIRB."))
+
+(defmethod (setf get-block-by-uuid) (new (uuid simple-array) (obj gtirb))
+  (setf (get-block-by-uuid (uuid-to-integer uuid) obj) new))
+
+(defmethod (setf get-block-by-uuid) (new (uuid integer) (obj gtirb))
+  (setf (gethash uuid (blocks obj)) new))
+
+(defgeneric get-blocks-by-address (address gtirb)
+  ;; TODO: Maintain a quick lookup of block by address on the IR level.
+  (:documentation "Return the blocks located at ADDRESS in GTIRB."))
