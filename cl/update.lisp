@@ -95,7 +95,7 @@
                 (lambda (block)
                   (let ((addr (proto-v0:address block)))
                     (and (<= address addr)
-                         (<= addr (+ address size)))))
+                         (< addr (+ address size)))))
                 (concatenate 'vector
                              (proto-v0:blocks module)
                              (proto-v0:data module))))))
