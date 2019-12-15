@@ -178,6 +178,19 @@
 (defclass proto-backed () ()
   (:documentation "Objects which may be serialized to/from protobuf."))
 
+(defgeneric get-uuid (object uuid)
+  (:documentation "Get the referent of UUID in OBJECT."))
+
+(defgeneric (setf get-uuid) (object uuid new)
+  (:documentation "Register REFERENT behind UUID in OBJECT."))
+
+;;; This ensures that every proto-backed object is registered in its
+;;; containing IR's uuid-based lookup.  The `get-uuid' method is used
+;;; to walk up the chain to the IR.
+(defmethod initialize-instance :after ((obj proto-backed) &key)
+  (call-next-method)
+  (setf (get-uuid obj (uuid (proto obj))) obj))
+
 (defgeneric update-proto (proto-backed-object)
   (:documentation
    "Update the `proto' field of OBJECT and return the updated value.
@@ -303,6 +316,9 @@ Should not need to be manipulated by client code.")
                :to-proto #'aux-data-to-proto
                :documentation "Auxiliary data objects on the IR.
 The modules of the IR will often also hold auxiliary data objects.")
+     (by-uuid :accessor by-uuid :initform (make-hash-table) :type hash-table
+              :skip-equal-p t
+              :documentation "Internal cache for UUID-based lookup.")
      ;; TODO: Caches for quick lookup for blocks by UUID and ADDRESS.
      )
     ()
@@ -311,6 +327,12 @@ The modules of the IR will often also hold auxiliary data objects.")
 (defmethod print-object ((obj gtirb) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (modules obj))))
+
+(defmethod get-uuid ((obj gtirb) uuid)
+  (gethash uuid (by-uuid obj)))
+
+(defmethod (setf get-uuid) ((obj gtirb) uuid new)
+  (setf (gethash uuid (by-uuid obj)) new))
 
 (define-constant +module-isa-map+
     '((#.proto:+isa-isa-undefined+ . :undefined)
@@ -417,6 +439,12 @@ The modules of the IR will often also hold auxiliary data objects.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
+(defmethod get-uuid ((obj module) uuid)
+  (get-uuid (ir module) uuid))
+
+(defmethod (setf get-uuid) ((obj module) uuid new)
+  (setf (get-uuid (ir module) uuid) new))
+
 (define-constant +edge-label-type-map+
     '((#.proto:+edge-type-type-branch+ . :branch)
       (#.proto:+edge-type-type-call+ . :call)
@@ -425,6 +453,13 @@ The modules of the IR will often also hold auxiliary data objects.")
       (#.proto:+edge-type-type-syscall+ . :syscall)
       (#.proto:+edge-type-type-sysret+ . :sysret))
   :test #'equal)
+
+;;; TODO: Everything needs to be able to walk up to the TOP-level IR.
+;;;       In particular some things are currently homeless.  Like
+;;;       edge-labels.  Probably it makes sense to add a PARENT
+;;;       parameter to the `define-proto-backed-class' macro.  This
+;;;       will allow that macro to populate some of the boilerplate,
+;;;       like the `get-uuid' defmethods.
 
 (define-proto-backed-class (edge-label proto:edge-label) () ()
     ((conditional :type boolean)
