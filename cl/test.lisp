@@ -165,6 +165,14 @@
                     (sections module)))
             (modules hello)))))
 
+(deftest access-block-bytes ()
+  (with-fixture hello
+    (is (every [#'not #'null #'bytes]
+               (nest (mappend #'blocks)
+                     (mappend #'byte-intervals)
+                     (mappend #'sections)
+                     (modules (read-gtirb *proto-path*)))))))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()

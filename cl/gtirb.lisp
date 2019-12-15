@@ -53,6 +53,7 @@
            :code-block
            :data-block
            :decode-mode
+           :bytes
            ;; Edge-Label
            :edge-label
            :conditional
@@ -598,7 +599,35 @@ The modules of the IR will often also hold auxiliary data objects.")
 
 (defclass gtirb-block () ())
 
-(define-proto-backed-class (code-block proto:code-block) (gtirb-block)
+(defclass gtirb-byte-block (gtirb-block) ())
+
+(defgeneric bytes (object)
+  (:documentation "Return the bytes for OBJECT.")
+  (:method ((obj gtirb-byte-block))
+    #+debug (format t "[~S] ~S:[~S:~S]<-[~S:~S]~%"
+                    (proto:uuid (proto obj))
+                    (name (section (byte-interval obj)))
+                    (or (and (addressp (byte-interval obj))
+                             (address (byte-interval obj)))
+                        "?")
+                    (size (byte-interval obj))
+                    (offset obj) (size obj))
+    (let ((start (offset obj))
+          (end (+ (offset obj) (size obj))))
+      (assert (<= end (size (byte-interval obj))) (obj)
+              "Block's end ~d exceeds size of containing byte-interval ~d."
+              end (size (byte-interval obj)))
+      (let ((real-end (length (contents (byte-interval obj)))))
+        (cond
+          ((<= end real-end)            ; Allocated bytes.
+           (subseq (contents (byte-interval obj)) start end))
+          ((<= start real-end) ; Both allocated and un-allocated bytes.
+           (concatenate 'vector (subseq (contents (byte-interval obj)) start)
+                        (make-array (- end real-end) :initial-element 0)))
+          (t                          ; Un-allocated bytes, zero-fill.
+           (make-array (size obj) :initial-element 0)))))))
+
+(define-proto-backed-class (code-block proto:code-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
              :initform 0
              :documentation
@@ -617,7 +646,7 @@ The modules of the IR will often also hold auxiliary data objects.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (size obj) (decode-mode obj))))
 
-(define-proto-backed-class (data-block proto:data-block) (gtirb-block)
+(define-proto-backed-class (data-block proto:data-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
              :initform 0
              :documentation
@@ -856,5 +885,3 @@ The modules of the IR will often also hold auxiliary data objects.")
 (defgeneric get-blocks-by-address (address gtirb)
   ;; TODO: Maintain a quick lookup of block by address on the IR level.
   (:documentation "Return the blocks located at ADDRESS in GTIRB."))
-
-
