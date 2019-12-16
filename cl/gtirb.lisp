@@ -204,7 +204,11 @@ element."
       (defclass ,class (proto-backed ,@super-classes)
         ;; Accessors for normal lisp classes
         ((proto :initarg :proto :accessor proto :type ,proto-class
-                :initform (make-instance ',proto-class)
+                :initform ,(if parent
+                               `(let ((it (make-instance ',proto-class)))
+                                  (setf (proto::uuid it) (new-uuid))
+                                  it)
+                               `(make-instance ',proto-class))
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
          ,@(when parent
