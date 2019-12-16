@@ -219,3 +219,17 @@
       (let ((new (read-proto 'proto:ir path)))
         (is (eql 'proto:ir (class-name (class-of new))))
         (is (not (emptyp (proto:data (first-aux-data new)))))))))
+
+(deftest simple-update-populates-data-block-uuids ()
+  (with-fixture hello-v0
+    (with-temporary-file (:pathname path)
+      (update *proto-path* path)
+      (nest
+       (let ((new (read-gtirb path))))
+       (is)
+       (every [#'not #'emptyp])
+       (mapcar [#'proto:uuid #'gtirb/gtirb::proto])
+       (mappend #'blocks)
+       (mappend #'byte-intervals)
+       (mappend #'sections)
+       (modules new)))))

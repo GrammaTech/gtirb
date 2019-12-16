@@ -44,6 +44,10 @@
   (make-array (length array) :element-type '(unsigned-byte 8)
               :initial-contents array))
 
+(defun new-uuid (&aux (it (make-array 16 :element-type '(unsigned-byte 8))))
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (dotimes (n 16 it) (setf (aref it n) (random 256))))
+
 (defun module-bytes-subseq (module start end &aux (results #()))
   (let ((regions (proto-v0:regions (proto-v0:byte-map
                                     (proto-v0:image-byte-map module)))))
@@ -66,7 +70,8 @@
                       &aux (new (make-instance 'proto:byte-interval)))
   (let ((address (proto-v0:address section))
         (size (proto-v0:size section)))
-    (setf (proto:address new) address
+    (setf (proto:uuid new) (new-uuid)
+          (proto:address new) address
           (proto:size new) size
           (proto:contents new)
           (module-bytes-subseq module address (+ address size))
