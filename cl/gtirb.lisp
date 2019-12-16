@@ -512,7 +512,7 @@ The modules of the IR will often also hold auxiliary data objects.")
 
 (defmethod print-object ((obj section) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a ~a ~a" (name obj) (address obj) (size obj))))
+    (format stream "~a ~a" (name obj) (length (byte-intervals obj)))))
 
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
     ;; TODO: What's a better data structure to use to store a sorted
