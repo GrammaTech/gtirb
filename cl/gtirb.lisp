@@ -14,10 +14,11 @@
   (:export :read-gtirb
            :write-gtirb
            :is-equal-p
+           :*is-equal-p-verbose-p*
            :get-uuid
            :proto-backed
+           :uuid
            :update-proto
-           :*is-equal-p-verbose-p*
 ;;; Classes and fields.
            :gtirb
            ;; Module
@@ -179,6 +180,10 @@
 (defclass proto-backed () ()
   (:documentation "Objects which may be serialized to/from protobuf."))
 
+(defgeneric uuid (object)
+  (:documentation "Return the UUID for OBJECT as an integer.")
+  (:method ((obj proto-backed)) (uuid-to-integer (proto:uuid (proto obj)))))
+
 (defgeneric get-uuid (uuid object)
   (:documentation "Get the referent of UUID in OBJECT."))
 
@@ -247,15 +252,19 @@ Should not need to be manipulated by client code.")
               (setf (get-uuid uuid (,parent object)) new))
             (defmethod (setf get-uuid) (new uuid (object ,class))
               (set-parent-uuid new uuid object))))
-      (defmethod initialize-instance :after ((self ,class) &key)
-                 ,@(when parent
-                     `((setf (get-uuid (proto:uuid (proto self)) self) self)))
-                 (with-slots (proto ,@(mapcar #'car from-proto-slots)) self
-                   ,@(mapcar
-                      (lambda (spec)
-                        (destructuring-bind (slot &key from-proto &allow-other-keys) spec
-                          `(setf ,slot (funcall ,from-proto proto))))
-                      from-proto-slots)))
+      (defmethod
+          initialize-instance :after ((self ,class) &key)
+          ,@(when parent
+              `((setf (get-uuid (uuid-to-integer (proto:uuid (proto self)))
+                                self)
+                      self)))
+          (with-slots (proto ,@(mapcar #'car from-proto-slots)) self
+            ,@(mapcar
+               (lambda (spec)
+                 (destructuring-bind
+                       (slot &key from-proto &allow-other-keys) spec
+                   `(setf ,slot (funcall ,from-proto proto))))
+               from-proto-slots)))
       (defmethod update-proto ((self ,class))
         ,@(mapcar
            (lambda (spec)
@@ -350,8 +359,8 @@ The modules of the IR will often also hold auxiliary data objects.")
   (gethash uuid (by-uuid obj)))
 
 (defmethod (setf get-uuid) (new uuid (obj gtirb))
-  (when (emptyp uuid)
-    (warn "Saving object ~a with empty UUID into ~a." new obj))
+  (when (zerop uuid)
+    (warn "Saving object ~a without a UUID into ~a." new obj))
   (setf (gethash uuid (by-uuid obj)) new))
 
 (define-constant +module-isa-map+
@@ -464,13 +473,6 @@ The modules of the IR will often also hold auxiliary data objects.")
       (#.proto:+edge-type-type-syscall+ . :syscall)
       (#.proto:+edge-type-type-sysret+ . :sysret))
   :test #'equal)
-
-;;; TODO: Everything needs to be able to walk up to the TOP-level IR.
-;;;       In particular some things are currently homeless.  Like
-;;;       edge-labels.  Probably it makes sense to add a PARENT
-;;;       parameter to the `define-proto-backed-class' macro.  This
-;;;       will allow that macro to populate some of the boilerplate,
-;;;       like the `get-uuid' defmethods.
 
 (define-proto-backed-class (edge-label proto:edge-label) () ()
     ((conditional :type boolean)

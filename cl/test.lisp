@@ -5,6 +5,7 @@
         :gtirb
         :gtirb/dot
         :gtirb/update
+        :graph
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file)
   (:import-from :uiop :nest :run-program :with-temporary-file)
@@ -178,11 +179,19 @@
         (let ((it (read-gtirb *proto-path*))))
         (is)
         (every {get-uuid _ it})
-        (mapcar [#'proto:uuid #'gtirb/gtirb::proto])
+        (mapcar #'uuid)
         (mappend #'blocks)
         (mappend #'byte-intervals)
         (mappend #'sections)
         (modules it)))
+
+(deftest get-blocks-and-bytes-from-cfg-nodes ()
+  (nest (with-fixture hello)
+        (let ((it (read-gtirb *proto-path*))))
+        (is)
+        (every {get-uuid _ it})
+        (nodes)
+        (cfg (first (modules it)))))
 
 
 ;;;; Dot test suite
