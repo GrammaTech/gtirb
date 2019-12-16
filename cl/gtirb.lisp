@@ -543,9 +543,9 @@ The modules of the IR will often also hold auxiliary data objects.")
       (lambda (proto &aux (table (make-hash-table)))
         (dotimes (n (length (proto:symbolic-expressions proto)) table)
           (let* ((proto (aref (proto:symbolic-expressions proto) n))
-                 (address (proto:key proto))
+                 (offset (proto:key proto))
                  (symbolic-expression (proto:value proto)))
-            (setf (gethash address table)
+            (setf (gethash offset table)
                   (cond
                     ((proto:stack-const symbolic-expression)
                      (make-instance 'sym-stack-const
@@ -560,10 +560,10 @@ The modules of the IR will often also hold auxiliary data objects.")
       (lambda (symbolic-expression)
         (map 'vector
              (lambda (pair)
-               (destructuring-bind (address . symbolic-expression) pair
+               (destructuring-bind (offset . symbolic-expression) pair
                  (let ((it (make-instance
                                'proto:byte-interval-symbolic-expressions-entry)))
-                   (setf (proto:key it) address
+                   (setf (proto:key it) offset
                          (proto:value it)
                          (let ((it (make-instance 'proto:symbolic-expression)))
                            (etypecase symbolic-expression
@@ -579,7 +579,7 @@ The modules of the IR will often also hold auxiliary data objects.")
                            it))
                    it)))
              (hash-table-alist symbolic-expression)))
-      :documentation "Hash of symbolic-expressions keyed by address."))
+      :documentation "Hash of symbolic-expressions keyed by offset."))
     ((addressp :type boolean :proto-field has-address)
      (address :type unsigned-byte-64)
      (size :type unsigned-byte-64)
