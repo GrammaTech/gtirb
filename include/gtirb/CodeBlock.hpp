@@ -114,8 +114,8 @@ public:
   template <typename T>
   bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                               Endian OutputOrder = Endian::native) {
-    return getByteVector(Parent).end<T>(InputOrder, OutputOrder) + getOffset() +
-           Size;
+    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
+           getOffset() + Size;
   }
   template <typename T>
   bytes_range<T> bytes(Endian InputOrder = Endian::native,
@@ -134,8 +134,8 @@ public:
   template <typename T>
   const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                                     Endian OutputOrder = Endian::native) const {
-    return getByteVector(Parent).end<T>(InputOrder, OutputOrder) + getOffset() +
-           Size;
+    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
+           getOffset() + Size;
   }
   template <typename T>
   const_bytes_range<T> bytes(Endian InputOrder = Endian::native,

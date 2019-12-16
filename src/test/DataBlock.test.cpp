@@ -59,3 +59,23 @@ TEST(Unit_DataBlock, protobufRoundTrip) {
   EXPECT_EQ(Result->getSize(), 1234);
   EXPECT_EQ(Result->getByteInterval(), nullptr);
 }
+
+TEST(Unit_DataBlock, byteVector) {
+  std::string contents = "hello, world!";
+  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                 contents.begin(), contents.end());
+  auto B = BI->addDataBlock(Ctx, 3, 4);
+
+  auto originalIt = contents.begin() + 3;
+  auto newIt = B->bytes_begin<char>();
+  auto originalEnd = originalIt + 4;
+  auto newEnd = B->bytes_end<char>();
+
+  while (originalIt != originalEnd && newIt != newEnd) {
+    EXPECT_EQ(*originalIt, *newIt);
+    ++originalIt;
+    ++newIt;
+  }
+  EXPECT_EQ(originalIt, originalEnd);
+  EXPECT_EQ(newIt, newEnd);
+}
