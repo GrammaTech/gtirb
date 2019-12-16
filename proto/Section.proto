@@ -17,6 +17,15 @@ package proto;
 
 import "ByteInterval.proto";
 
+enum SectionFlag {
+  Flag_Undefined = 0;
+  READABLE = 1;
+  WRITABLE = 2;
+  EXECUTABLE = 3;
+  // TODO: Fill in all known section properties for all known file formats.
+  reserved 4 to 4095;
+}
+
 message Section {
     reserved "address", "size";
     reserved 3, 4;
@@ -24,4 +33,5 @@ message Section {
     bytes uuid = 1;
     string name = 2;
     repeated ByteInterval byte_intervals = 5;
+    repeated SectionFlag section_flags = 6;
 }
