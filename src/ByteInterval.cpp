@@ -28,8 +28,10 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
     Message->set_has_address(false);
   }
 
-  Message->set_size(Size);
-  std::copy(Bytes.begin(), Bytes.end(), Message->mutable_contents()->begin());
+  Message->set_size(getSize());
+  auto bytesIt = Bytes.begin<char>();
+  std::copy(bytesIt, bytesIt + AllocatedSize,
+            Message->mutable_contents()->begin());
 
   for (const auto& block : this->blocks()) {
     auto proto_block = Message->add_blocks();
@@ -60,12 +62,11 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
                                          const MessageType& Message) {
   auto addr = Message.has_address() ? std::optional<Addr>{Message.address()}
                                     : std::optional<Addr>{};
-  ByteInterval* result = ByteInterval::Create(C, Parent, addr, Message.size());
+  ByteInterval* result = ByteInterval::Create(
+      C, Parent, addr, Message.contents().begin(), Message.contents().end(),
+      Message.size(), Message.contents().size());
 
   setNodeUUIDFromBytes(result, Message.uuid());
-
-  std::copy(Message.contents().begin(), Message.contents().end(),
-            result->getBytes().begin());
 
   for (const auto& proto_block : Message.blocks()) {
     switch (proto_block.value_case()) {
@@ -100,3 +101,7 @@ void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
     }
   });
 }
+
+ByteVector& gtirb::getBytes(ByteInterval* BI) { return BI->Bytes; }
+
+const ByteVector& gtirb::getBytes(const ByteInterval* BI) { return BI->Bytes; }

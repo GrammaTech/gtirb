@@ -41,6 +41,7 @@ set(PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/ByteInterval.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/ByteVector.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp

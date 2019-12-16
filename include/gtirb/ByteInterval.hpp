@@ -16,6 +16,7 @@
 #ifndef GTIRB_BYTE_INTERVAL_H
 #define GTIRB_BYTE_INTERVAL_H
 
+#include <gtirb/ByteVector.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Node.hpp>
@@ -103,7 +104,6 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
   using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
-  using ByteVector = std::vector<uint8_t>;
 
   const Block& nodeToBlock(const Node* N) const {
     auto& index = Blocks.get<by_pointer>();
@@ -130,7 +130,38 @@ public:
   /// \return         The newly created ByteInterval.
   static ByteInterval* Create(Context& C, Section* Parent,
                               std::optional<Addr> Address, uint64_t Size) {
-    return C.Create<ByteInterval>(C, Parent, Address, Size);
+    return C.Create<ByteInterval>(C, Parent, Address, Size, Size);
+  }
+
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address, uint64_t Size,
+                              uint64_t AllocatedSize) {
+    return C.Create<ByteInterval>(C, Parent, Address, AllocatedSize, Size);
+  }
+
+  template <typename It>
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address, It BytesBegin,
+                              It BytesEnd) {
+    return C.Create<ByteInterval>(C, Parent, Address,
+                                  std::distance(BytesBegin, BytesEnd),
+                                  BytesBegin, BytesEnd);
+  }
+
+  template <typename It>
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address, It BytesBegin,
+                              It BytesEnd, uint64_t Size) {
+    return C.Create<ByteInterval>(C, Parent, Address, Size, BytesBegin,
+                                  BytesEnd, Size);
+  }
+
+  template <typename It>
+  static ByteInterval*
+  Create(Context& C, Section* Parent, std::optional<Addr> Address,
+         It BytesBegin, It BytesEnd, uint64_t Size, uint64_t AllocatedSize) {
+    return C.Create<ByteInterval>(C, Parent, Address, AllocatedSize, BytesBegin,
+                                  BytesEnd, Size);
   }
 
   /// \brief Get the \ref Section this byte interval belongs to.
@@ -155,7 +186,7 @@ public:
   ///
   /// It is an error to have an interval in which this number is less than the
   /// size of the byte array returned by \ref getBytes.
-  uint64_t getSize() const { return Size; }
+  uint64_t getSize() const { return Bytes.getSize(); }
 
   /// \brief Get the bytes stored in this interval.
   ///
@@ -467,7 +498,21 @@ public:
   }
 
   void setSize(uint64_t S) {
-    mutateModuleIndices(this, [this, S]() { Size = S; });
+    mutateModuleIndices(this, [this, S]() {
+      if (AllocatedSize > S) {
+        AllocatedSize = S;
+      }
+
+      Bytes.setSize(S);
+    });
+  }
+
+  uint64_t getAllocatedSize() const { return AllocatedSize; }
+  void setAllocatedSize(uint64_t S) {
+    if (S > getSize()) {
+      setSize(S);
+    }
+    AllocatedSize = S;
   }
 
   /// @cond INTERNAL
@@ -505,14 +550,18 @@ public:
 
 private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
-  ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t S)
-      : Node(C, Kind::ByteInterval), Parent(P), Address(A), Size(S) {}
+
+  template <typename... Args>
+  ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t AS,
+               Args... B)
+      : Node(C, Kind::ByteInterval), Parent(P), Address(A), AllocatedSize(AS),
+        Bytes(B...) {}
 
   void setSection(Section* S) { Parent = S; }
 
-  Section* Parent;
+  Section* Parent{nullptr};
   std::optional<Addr> Address{};
-  uint64_t Size{0};
+  uint64_t AllocatedSize{0};
   BlockSet Blocks;
   SymbolicExpressionSet SymbolicExpressions;
   ByteVector Bytes;
@@ -521,6 +570,10 @@ private:
   friend class Section;   // to enable Section::(re)moveByteInterval
   friend class CodeBlock; // to enable CodeBlock::getAddress
   friend class DataBlock; // to enable DataBlock::getAddress
+
+  // to enable CodeBlock::getBytes and DataBlock::getBytes
+  friend ByteVector& getBytes(ByteInterval* BI);
+  friend const ByteVector& getBytes(const ByteInterval* BI);
 };
 } // namespace gtirb
 

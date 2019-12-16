@@ -17,6 +17,7 @@
 #define GTIRB_BLOCK_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/ByteVector.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>

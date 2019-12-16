@@ -16,6 +16,7 @@
 #define GTIRB_DataBlock_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/ByteVector.hpp>
 #include <gtirb/Node.hpp>
 #include <cstdint>
 #include <functional>

@@ -27,21 +27,39 @@ TEST(Unit_ByteInterval, ctor) {
 
 TEST(Unit_ByteInterval, gettersSetters) {
   auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(), 2);
-
   EXPECT_EQ(std::optional<Addr>(), BI->getAddress());
   EXPECT_EQ(2, BI->getSize());
+  EXPECT_EQ(2, BI->getAllocatedSize());
   EXPECT_EQ(BI->getSection(), nullptr);
 
   BI->setAddress(Addr(1));
-
   EXPECT_EQ(std::optional<Addr>(1), BI->getAddress());
   EXPECT_EQ(2, BI->getSize());
+  EXPECT_EQ(2, BI->getAllocatedSize());
   EXPECT_EQ(BI->getSection(), nullptr);
 
   BI->setSize(10);
-
   EXPECT_EQ(std::optional<Addr>(1), BI->getAddress());
   EXPECT_EQ(10, BI->getSize());
+  EXPECT_EQ(2, BI->getAllocatedSize());
+  EXPECT_EQ(BI->getSection(), nullptr);
+
+  BI->setAllocatedSize(5);
+  EXPECT_EQ(std::optional<Addr>(1), BI->getAddress());
+  EXPECT_EQ(10, BI->getSize());
+  EXPECT_EQ(5, BI->getAllocatedSize());
+  EXPECT_EQ(BI->getSection(), nullptr);
+
+  BI->setSize(1);
+  EXPECT_EQ(std::optional<Addr>(1), BI->getAddress());
+  EXPECT_EQ(1, BI->getSize());
+  EXPECT_EQ(1, BI->getAllocatedSize());
+  EXPECT_EQ(BI->getSection(), nullptr);
+
+  BI->setAllocatedSize(20);
+  EXPECT_EQ(std::optional<Addr>(1), BI->getAddress());
+  EXPECT_EQ(20, BI->getSize());
+  EXPECT_EQ(20, BI->getAllocatedSize());
   EXPECT_EQ(BI->getSection(), nullptr);
 }
 
