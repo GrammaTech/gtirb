@@ -12,6 +12,13 @@
     :defsystem-depends-on (:asdf-package-system :protobuf)
     :in-order-to ((test-op (test-op "gtirb/test"))))
 
+(defsystem "gtirb/utility"
+    :name "gtirb/utility"
+    :author "GrammaTech"
+    :license "MIT"
+    :description "Simple internal utilities."
+    :depends-on (:protobuf))
+
 (defsystem "proto-v0"
     :name "proto-v0"
     :description "Common Lisp interface to (old V0) GTIRB protobuf files"

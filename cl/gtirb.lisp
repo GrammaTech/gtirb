@@ -2,6 +2,7 @@
   (:nicknames :gtirb)
   (:use :common-lisp :alexandria :graph :trivia
         :trivial-utf-8
+        :gtirb/utility
         :named-readtables :curry-compose-reader-macros)
   (:shadow :symbol)
   (:import-from :proto)
@@ -71,34 +72,9 @@
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
-(defun read-proto (path)
-  "Read raw GTIRB IR PROTOBUF from PATH."
-  (assert (probe-file path) (path)
-          "Can't read GTIRB from ~s, because the file doesn't exist."
-          path)
-  (let ((gtirb (make-instance 'proto:ir)))
-    (with-open-file (input path
-                           :direction :input :element-type 'unsigned-byte)
-      (let* ((size (file-length input))
-             (buffer (make-array size :element-type '(unsigned-byte 8))))
-        (read-sequence buffer input)
-        (pb:merge-from-array gtirb buffer 0 size)))
-    gtirb))
-
-(defun write-proto (gtirb path)
-  "Write RAW GTIRB IR PROTOBUF to PATH."
-  (let* ((size (pb:octet-size gtirb))
-         (buffer (make-array size :element-type '(unsigned-byte 8))))
-    (pb:serialize gtirb buffer 0 size)
-    (with-open-file (output path
-                            :direction :output :if-exists :supersede
-                            :element-type 'unsigned-byte)
-      (write-sequence buffer output)))
-  (values))
-
 (defun read-gtirb (path)
   "Read a GTIRB IR object from PATH."
-  (make-instance 'gtirb :proto (read-proto path)))
+  (make-instance 'gtirb :proto (read-proto 'proto:ir path)))
 
 (defun write-gtirb (gtirb path)
   "Write a GTIRB IR object to PATH."
@@ -113,9 +89,7 @@
       ;;      Remove this case and instead stop processing missing
       ;;      referent-uuids.
       0
-      (octets->int
-       (make-array 16 :element-type '(unsigned-byte 8) :initial-contents uuid)
-       16)))
+      (octets->int (force-byte-array uuid) 16)))
 
 (defun integer-to-uuid (number)
   (int->octets number 16))
@@ -316,10 +290,7 @@ Should not need to be manipulated by client code.")
                ,@(when documentation (list documentation))
                ,(ecase type
                   ((unsigned-byte-64 boolean) `(setf ,base new))
-                  (bytes `(setf ,base
-                                (make-array (length new)
-                                            :element-type '(unsigned-byte 8)
-                                            :initial-contents new)))
+                  (bytes `(setf ,base (force-byte-array new)))
                   (enumeration `(setf ,base (car (rassoc new ,enumeration))))
                   (uuid `(setf ,base (integer-to-uuid new)))
                   (string `(setf ,base (pb:string-field new)))))))
@@ -829,10 +800,7 @@ The modules of the IR will often also hold auxiliary data objects.")
 
 (defmethod (setf aux-data-data) (new (obj aux-data))
   (setf (proto:data (proto obj))
-        (let ((result (aux-data-encode (aux-data-type obj) new)))
-          (make-array (length result)
-                      :element-type '(unsigned-byte 8)
-                      :initial-contents result))))
+        (force-byte-array (aux-data-encode (aux-data-type obj) new))))
 
 (defvar *decode-data* nil)
 (defun advance (n) (setf *decode-data* (subseq *decode-data* n)))

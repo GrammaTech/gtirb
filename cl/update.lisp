@@ -1,6 +1,7 @@
 (defpackage :gtirb/update
   (:use :common-lisp
         :alexandria
+        :gtirb/utility
         :named-readtables
         :curry-compose-reader-macros
         :command-line-arguments)
@@ -14,39 +15,6 @@
   (defparameter +udpate-args+
     '((("help" #\h #\?) :type boolean :optional t
        :documentation "display help output"))))
-
-(defun read-proto (version path)
-  "Read GTIRB protobuf version VERSION from PATH."
-  (assert (probe-file path) (path)
-          "Can't read GTIRB from ~s, because the file doesn't exist."
-          path)
-  (let ((gtirb (make-instance version)))
-    (with-open-file (input path
-                           :direction :input :element-type 'unsigned-byte)
-      (let* ((size (file-length input))
-             (buffer (make-array size :element-type '(unsigned-byte 8))))
-        (read-sequence buffer input)
-        (pb:merge-from-array gtirb buffer 0 size)))
-    gtirb))
-
-(defun write-proto (gtirb path)
-  "Write GTIRB to PATH."
-  (let* ((size (pb:octet-size gtirb))
-         (buffer (make-array size :element-type '(unsigned-byte 8))))
-    (pb:serialize gtirb buffer 0 size)
-    (with-open-file (output path
-                            :direction :output :if-exists :supersede
-                            :element-type 'unsigned-byte)
-      (write-sequence buffer output)))
-  (values))
-
-(defun force-byte-array (array)
-  (make-array (length array) :element-type '(unsigned-byte 8)
-              :initial-contents array))
-
-(defun new-uuid (&aux (it (make-array 16 :element-type '(unsigned-byte 8))))
-  (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (dotimes (n 16 it) (setf (aref it n) (random 256))))
 
 (defun module-bytes-subseq (module start end &aux (results #()))
   (let ((regions (proto-v0:regions (proto-v0:byte-map
