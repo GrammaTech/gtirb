@@ -173,6 +173,17 @@
                      (mappend #'sections)
                      (modules (read-gtirb *proto-path*)))))))
 
+(deftest find-every-block-in-the-module ()
+  (nest (with-fixture hello)
+        (let ((it (read-gtirb *proto-path*))))
+        (is)
+        (every {get-uuid _ it})
+        (mapcar [#'proto:uuid #'gtirb/gtirb::proto])
+        (mappend #'blocks)
+        (mappend #'byte-intervals)
+        (mappend #'sections)
+        (modules it)))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()

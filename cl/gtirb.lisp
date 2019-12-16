@@ -14,6 +14,7 @@
   (:export :read-gtirb
            :write-gtirb
            :is-equal-p
+           :get-uuid
            :proto-backed
            :update-proto
            :*is-equal-p-verbose-p*
@@ -181,8 +182,11 @@
 (defgeneric get-uuid (uuid object)
   (:documentation "Get the referent of UUID in OBJECT."))
 
-(defgeneric (setf get-uuid) (uuid object new)
+(defgeneric (setf get-uuid) (new uuid object)
   (:documentation "Register REFERENT behind UUID in OBJECT."))
+
+(defgeneric set-parent-uuid (new uuid object)
+  (:documentation "Set UUID to NEW in OBJECT's parent."))
 
 (defgeneric update-proto (proto-backed-object)
   (:documentation
@@ -238,12 +242,14 @@ Should not need to be manipulated by client code.")
         ,@(remove-if [{eql :parent} #'car] options))
       ,@(when parent
           `((defmethod get-uuid (uuid (object ,class))
-              (get-uuid (,parent object) uuid))
-            (defmethod (setf get-uuid) (uuid (object ,class) new)
-              (setf (get-uuid (,parent object) uuid) new))))
+              (get-uuid uuid (,parent object)))
+            (defmethod set-parent-uuid (new uuid (object ,class))
+              (setf (get-uuid uuid (,parent object)) new))
+            (defmethod (setf get-uuid) (new uuid (object ,class))
+              (set-parent-uuid new uuid object))))
       (defmethod initialize-instance :after ((self ,class) &key)
                  ,@(when parent
-                     `((setf (get-uuid self (proto:uuid (proto self))) self)))
+                     `((setf (get-uuid (proto:uuid (proto self)) self) self)))
                  (with-slots (proto ,@(mapcar #'car from-proto-slots)) self
                    ,@(mapcar
                       (lambda (spec)
@@ -343,7 +349,9 @@ The modules of the IR will often also hold auxiliary data objects.")
 (defmethod get-uuid (uuid (obj gtirb))
   (gethash uuid (by-uuid obj)))
 
-(defmethod (setf get-uuid) (uuid (obj gtirb) new)
+(defmethod (setf get-uuid) (new uuid (obj gtirb))
+  (when (emptyp uuid)
+    (warn "Saving object ~a with empty UUID into ~a." new obj))
   (setf (gethash uuid (by-uuid obj)) new))
 
 (define-constant +module-isa-map+
