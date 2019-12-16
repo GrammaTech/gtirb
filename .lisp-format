@@ -7,8 +7,17 @@
 ;;;;     https://github.com/eschulte/lisp-format
 ;;;;
 (mapc (lambda (dir) (add-to-list 'load-path dir))
-      (directory-files (concat (getenv "QUICK_LISP")
-                               "/dists/quicklisp/software/") t "slime-v*"))
+      (apply #'append
+             (mapcar
+              (lambda (pkg-glob)
+                (directory-files
+                 ;; Use quicklisp if the user has it setup.
+                 (if (getenv "QUICK_LISP")
+                     (concat (getenv "QUICK_LISP") "/dists/quicklisp/software/")
+                   ;; Default for Ubuntu apt-get installs.
+                   "/usr/share/emacs25/site-lisp/elpa/")
+                 t pkg-glob))
+              (list "slime*" "paredit*"))))
 (defun verbose-require (package)
   (unless (ignore-errors (require package))
     (message "Failed to load the package '%S'." package)
