@@ -168,8 +168,8 @@ private:
 };
 
 class ByteInterval;
-GTIRB_EXPORT_API ByteVector& getBytes(ByteInterval* BI);
-GTIRB_EXPORT_API const ByteVector& getBytes(const ByteInterval* BI);
+GTIRB_EXPORT_API ByteVector& getByteVector(ByteInterval* BI);
+GTIRB_EXPORT_API const ByteVector& getByteVector(const ByteInterval* BI);
 /// @endcond
 } // namespace gtirb
 #endif // GTIRB_BYTE_VECTOR_H

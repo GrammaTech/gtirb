@@ -98,6 +98,52 @@ public:
 
   void setDecodeMode(uint64_t DM) { DecodeMode = DM; }
 
+  using Endian = ByteVector::Endian;
+  template <typename T> using bytes_iterator = ByteVector::iterator<T>;
+  template <typename T> using bytes_range = ByteVector::range<T>;
+  template <typename T>
+  using const_bytes_iterator = ByteVector::const_iterator<T>;
+  template <typename T> using const_bytes_range = ByteVector::const_range<T>;
+
+  template <typename T>
+  bytes_iterator<T> bytes_begin(Endian InputOrder = Endian::native,
+                                Endian OutputOrder = Endian::native) {
+    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
+           getOffset();
+  }
+  template <typename T>
+  bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
+                              Endian OutputOrder = Endian::native) {
+    return getByteVector(Parent).end<T>(InputOrder, OutputOrder) + getOffset() +
+           Size;
+  }
+  template <typename T>
+  bytes_range<T> bytes(Endian InputOrder = Endian::native,
+                       Endian OutputOrder = Endian::native) {
+    return bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
+                          bytes_end<T>(InputOrder, OutputOrder));
+  }
+
+  template <typename T>
+  const_bytes_iterator<T>
+  bytes_begin(Endian InputOrder = Endian::native,
+              Endian OutputOrder = Endian::native) const {
+    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
+           getOffset();
+  }
+  template <typename T>
+  const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
+                                    Endian OutputOrder = Endian::native) const {
+    return getByteVector(Parent).end<T>(InputOrder, OutputOrder) + getOffset() +
+           Size;
+  }
+  template <typename T>
+  const_bytes_range<T> bytes(Endian InputOrder = Endian::native,
+                             Endian OutputOrder = Endian::native) const {
+    return const_bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
+                                bytes_end<T>(InputOrder, OutputOrder));
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing CodeBlock.
   using MessageType = proto::CodeBlock;

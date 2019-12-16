@@ -148,3 +148,179 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
         Sym);
   }
 }
+
+TEST(Unit_ByteInterval, byteVector) {
+  std::string contents = "hello, world!";
+
+  // test all allocated bytes
+  {
+    auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                   contents.begin(), contents.end());
+    EXPECT_EQ(BI->getSize(), contents.size());
+
+    auto originalIt = contents.begin();
+    auto newIt = BI->bytes_begin<char>();
+    auto originalEnd = contents.end();
+    auto newEnd = BI->bytes_end<char>();
+
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_EQ(newIt, newEnd);
+  }
+
+  // test some unallocated bytes
+  {
+    auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                   contents.begin(), contents.end(), 100);
+    EXPECT_EQ(BI->getSize(), 100);
+
+    auto originalIt = contents.begin();
+    auto newIt = BI->bytes_begin<char>();
+    auto originalEnd = contents.end();
+    auto newEnd = BI->bytes_end<char>();
+
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_NE(newIt, newEnd);
+
+    while (newIt != newEnd) {
+      EXPECT_EQ(*newIt, '\0');
+      ++newIt;
+    }
+    EXPECT_EQ(std::distance(BI->bytes_begin<char>(), newIt), 100);
+  }
+}
+
+template <typename T> static T str2(const char* s) {
+  // TODO: is an endian conversion needed here?
+  return *(const T*)s;
+}
+
+TEST(Unit_ByteInterval, byteVectorInts) {
+  std::string contents = "hello, world!!??";
+  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                 contents.begin(), contents.end());
+  EXPECT_EQ(contents.size(), 16);
+
+  // 16 bits
+  {
+    std::vector<uint16_t> compareTo = {
+        str2<uint16_t>("he"), str2<uint16_t>("ll"), str2<uint16_t>("o,"),
+        str2<uint16_t>(" w"), str2<uint16_t>("or"), str2<uint16_t>("ld"),
+        str2<uint16_t>("!!"), str2<uint16_t>("??")};
+
+    auto originalIt = compareTo.begin();
+    auto newIt = BI->bytes_begin<uint16_t>();
+    auto originalEnd = compareTo.end();
+    auto newEnd = BI->bytes_end<uint16_t>();
+
+    EXPECT_EQ(std::distance(newIt, newEnd), 8);
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_EQ(newIt, newEnd);
+  }
+
+  // 32 bits
+  {
+    std::vector<uint32_t> compareTo = {
+        str2<uint32_t>("hell"), str2<uint32_t>("o, w"), str2<uint32_t>("orld"),
+        str2<uint32_t>("!!??")};
+
+    auto originalIt = compareTo.begin();
+    auto newIt = BI->bytes_begin<uint32_t>();
+    auto originalEnd = compareTo.end();
+    auto newEnd = BI->bytes_end<uint32_t>();
+
+    EXPECT_EQ(std::distance(newIt, newEnd), 4);
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_EQ(newIt, newEnd);
+  }
+
+  // 64 bits
+  {
+    std::vector<uint64_t> compareTo = {str2<uint64_t>("hello, w"),
+                                       str2<uint64_t>("orld!!??")};
+
+    auto originalIt = compareTo.begin();
+    auto newIt = BI->bytes_begin<uint64_t>();
+    auto originalEnd = compareTo.end();
+    auto newEnd = BI->bytes_end<uint64_t>();
+
+    EXPECT_EQ(std::distance(newIt, newEnd), 2);
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_EQ(newIt, newEnd);
+  }
+}
+
+TEST(Unit_ByteInterval, byteVectorEndian) {
+  std::string contents = "hello, world!!??";
+  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                 contents.begin(), contents.end());
+  EXPECT_EQ(contents.size(), 16);
+
+  // little endian
+  {
+    std::vector<uint16_t> compareTo = {
+        str2<uint16_t>("he"), str2<uint16_t>("ll"), str2<uint16_t>("o,"),
+        str2<uint16_t>(" w"), str2<uint16_t>("or"), str2<uint16_t>("ld"),
+        str2<uint16_t>("!!"), str2<uint16_t>("??")};
+
+    auto originalIt = compareTo.begin();
+    auto newIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::little);
+    auto originalEnd = compareTo.end();
+    auto newEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::little);
+
+    EXPECT_EQ(std::distance(newIt, newEnd), 8);
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_EQ(newIt, newEnd);
+  }
+
+  // big endian
+  {
+    std::vector<uint16_t> compareTo = {
+        str2<uint16_t>("eh"), str2<uint16_t>("ll"), str2<uint16_t>(",o"),
+        str2<uint16_t>("w "), str2<uint16_t>("ro"), str2<uint16_t>("dl"),
+        str2<uint16_t>("!!"), str2<uint16_t>("??")};
+
+    auto originalIt = compareTo.begin();
+    auto newIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::big);
+    auto originalEnd = compareTo.end();
+    auto newEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::big);
+
+    EXPECT_EQ(std::distance(newIt, newEnd), 8);
+    while (originalIt != originalEnd && newIt != newEnd) {
+      EXPECT_EQ(*originalIt, *newIt);
+      ++originalIt;
+      ++newIt;
+    }
+    EXPECT_EQ(originalIt, originalEnd);
+    EXPECT_EQ(newIt, newEnd);
+  }
+}

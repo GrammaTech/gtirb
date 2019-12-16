@@ -515,6 +515,46 @@ public:
     AllocatedSize = S;
   }
 
+  using Endian = ByteVector::Endian;
+  template <typename T> using bytes_iterator = ByteVector::iterator<T>;
+  template <typename T> using bytes_range = ByteVector::range<T>;
+  template <typename T>
+  using const_bytes_iterator = ByteVector::const_iterator<T>;
+  template <typename T> using const_bytes_range = ByteVector::const_range<T>;
+
+  template <typename T>
+  bytes_iterator<T> bytes_begin(Endian InputOrder = Endian::native,
+                                Endian OutputOrder = Endian::native) {
+    return Bytes.begin<T>(InputOrder, OutputOrder);
+  }
+  template <typename T>
+  bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
+                              Endian OutputOrder = Endian::native) {
+    return Bytes.end<T>(InputOrder, OutputOrder);
+  }
+  template <typename T>
+  bytes_range<T> bytes(Endian InputOrder = Endian::native,
+                       Endian OutputOrder = Endian::native) {
+    return Bytes.bytes<T>(InputOrder, OutputOrder);
+  }
+
+  template <typename T>
+  const_bytes_iterator<T>
+  bytes_begin(Endian InputOrder = Endian::native,
+              Endian OutputOrder = Endian::native) const {
+    return Bytes.begin<T>(InputOrder, OutputOrder);
+  }
+  template <typename T>
+  const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
+                                    Endian OutputOrder = Endian::native) const {
+    return Bytes.end<T>(InputOrder, OutputOrder);
+  }
+  template <typename T>
+  const_bytes_range<T> bytes(Endian InputOrder = Endian::native,
+                             Endian OutputOrder = Endian::native) const {
+    return Bytes.bytes<T>(InputOrder, OutputOrder);
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
@@ -572,8 +612,8 @@ private:
   friend class DataBlock; // to enable DataBlock::getAddress
 
   // to enable CodeBlock::getBytes and DataBlock::getBytes
-  friend ByteVector& getBytes(ByteInterval* BI);
-  friend const ByteVector& getBytes(const ByteInterval* BI);
+  friend ByteVector& getByteVector(ByteInterval* BI);
+  friend const ByteVector& getByteVector(const ByteInterval* BI);
 };
 } // namespace gtirb
 

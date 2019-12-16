@@ -102,6 +102,7 @@ void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
   });
 }
 
-ByteVector& gtirb::getBytes(ByteInterval* BI) { return BI->Bytes; }
-
-const ByteVector& gtirb::getBytes(const ByteInterval* BI) { return BI->Bytes; }
+ByteVector& gtirb::getByteVector(ByteInterval* BI) { return BI->Bytes; }
+const ByteVector& gtirb::getByteVector(const ByteInterval* BI) {
+  return BI->Bytes;
+}
