@@ -5,9 +5,10 @@
         :gtirb
         :gtirb/dot
         :gtirb/update
+        :gtirb/utility
         :graph
         :named-readtables :curry-compose-reader-macros)
-  (:import-from :md5 :md5sum-file)
+  (:import-from :md5 :md5sum-file :md5sum-sequence)
   (:import-from :uiop :nest :run-program :with-temporary-file)
   (:shadowing-import-from :gtirb :symbol)
   (:export :test))
@@ -192,6 +193,47 @@
         (every {get-uuid _ it})
         (nodes)
         (cfg (first (modules it)))))
+
+(deftest set-block-bytes-to-the-same-size ()
+  (with-fixture hello
+    (let* ((it (read-gtirb *proto-path*))
+           (original-byte-intervals (nest (mappend #'byte-intervals)
+                                          (mappend #'sections)
+                                          (modules it)))
+           (original-byte-interval-md5sum
+            (nest (md5sum-sequence)
+                  (force-byte-array)
+                  (apply #'concatenate 'vector)
+                  (mapcar #'contents original-byte-intervals))))
+      (let ((target (first (mappend #'blocks original-byte-intervals))))
+        (setf (bytes target)
+              (make-array (length (bytes target)) :initial-element 9))
+        (is (= (length original-byte-intervals) ; No new byte intervals.
+               (length (nest (mappend #'byte-intervals)
+                             (mappend #'sections)
+                             (modules it)))))
+        (is (not (equalp original-byte-interval-md5sum ; New contents.
+                         (nest (md5sum-sequence)
+                               (force-byte-array)
+                               (apply #'concatenate 'vector)
+                               (mapcar #'contents)
+                               (mappend #'byte-intervals)
+                               (mappend #'sections)
+                               (modules it)))))))))
+
+(deftest set-block-bytes-to-the-different-size ()
+  (with-fixture hello
+    (let* ((it (read-gtirb *proto-path*))
+           (original-byte-intervals (nest (mappend #'byte-intervals)
+                                          (mappend #'sections)
+                                          (modules it))))
+      (let ((target (first (mappend #'blocks original-byte-intervals))))
+        (setf (bytes target)
+              (make-array (* 2 (length (bytes target))) :initial-element 9))
+        (is (= (1+ (length original-byte-intervals)) ; One new byte intervals.
+               (length (nest (mappend #'byte-intervals)
+                             (mappend #'sections)
+                             (modules it)))))))))
 
 
 ;;;; Dot test suite

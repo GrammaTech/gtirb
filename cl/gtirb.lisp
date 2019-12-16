@@ -503,7 +503,7 @@ The modules of the IR will often also hold auxiliary data objects.")
     ;; TODO: What's a better data structure to use to store a sorted
     ;;       collection of pairs which permits duplicates.  Maybe a
     ;;       balanced tree.
-    ((blocks :accessor blocks :type (list gtirb-block)
+    ((blocks :initarg :blocks :accessor blocks :type (list gtirb-block)
              :from-proto
              (lambda (proto)
                (map 'list
@@ -543,6 +543,7 @@ The modules of the IR will often also hold auxiliary data objects.")
              :documentation "Blocks in this byte-interval.")
      (symbolic-expressions
       :accessor symbolic-expressions :type hash-table
+      :initarg :symbolic-expressions
       :from-proto
       (lambda (proto &aux (table (make-hash-table)))
         (dotimes (n (length (proto:symbolic-expressions proto)) table)
@@ -646,6 +647,30 @@ The modules of the IR will often also hold auxiliary data objects.")
                         (make-array (- end real-end) :initial-element 0)))
           (t                          ; Un-allocated bytes, zero-fill.
            (make-array (size obj) :initial-element 0)))))))
+
+(defgeneric (setf bytes) (new object)
+  (:documentation "Set the `bytes' for OBJECT to NEW.")
+  (:method (new (object gtirb-byte-block))
+    "If NEW has the same length as (BYTES OBJECT) update in place.
+Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
+    (nest
+     (if (= (length new) (length (bytes object))) ; In place if same size.
+         (setf (subseq (contents (byte-interval object)) (offset object)) new))
+     ;; Extract OBJECT into a new fresh byte-interval if different size.
+     (let ((byte-interval (make-instance 'byte-interval
+                            :section (section (byte-interval object))
+                            ;; NOTE: Symbolic expressions are not coppied over.
+                            :symbolic-expressions (make-hash-table)
+                            :blocks (list object))))
+       ;; Set field of byte-interval stored in the protobuf object.
+       (setf (addressp byte-interval) nil
+             (size byte-interval) (length new)
+             (contents byte-interval) new)
+       (setf (byte-interval object) byte-interval ; Block to new byte-interval.
+             (offset object) 0)
+       ;; Add new byte interval to its section.
+       (push byte-interval (byte-intervals (section byte-interval)))))
+    new))
 
 (define-proto-backed-class (code-block proto:code-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
