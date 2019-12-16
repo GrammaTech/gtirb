@@ -3,7 +3,7 @@
 ;;;; For information about how to use lisp-format see it's
 ;;;; documentation, which is available in a comment at the top of the
 ;;;; lisp-format script or, equivalently, in the README available at:
-;;;; 
+;;;;
 ;;;;     https://github.com/eschulte/lisp-format
 ;;;;
 (mapc (lambda (dir) (add-to-list 'load-path dir))
