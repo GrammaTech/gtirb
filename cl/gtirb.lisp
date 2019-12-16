@@ -531,15 +531,22 @@ The modules of the IR will often also hold auxiliary data objects.")
              (lambda (proto)
                (map 'list
                     (lambda (proto-block)
-                      (let* ((data (proto:data proto-block))
-                             (it (etypecase data
-                                   (proto:code-block
-                                    (make-instance 'code-block
-                                      :byte-interval self :proto data))
-                                   (proto:data-block
-                                    (make-instance 'data-block
-                                      :byte-interval self :proto data)))))
+                      (let ((it (cond
+                                  ((not (emptyp
+                                         (proto:uuid (proto:data proto-block))))
+                                   (make-instance 'data-block
+                                     :byte-interval self
+                                     :proto (proto:data proto-block)))
+                                  ((not (emptyp
+                                         (proto:uuid (proto:code proto-block))))
+                                   (make-instance 'code-block
+                                     :byte-interval self
+                                     :proto (proto:code proto-block))))))
                         (setf (offset it) (proto:offset proto-block))
+                        #+debug
+                        (when (emptyp (proto:uuid (proto it)))
+                          (warn "BAD BLOCK ~a with empty uuid from ~a.~%~A~%"
+                                it (name (section self)) proto-block))
                         it))
                     (proto:blocks proto)))
              :to-proto
