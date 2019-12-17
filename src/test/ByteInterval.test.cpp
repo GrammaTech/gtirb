@@ -96,6 +96,60 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(Result->getSection(), nullptr);
   }
 
+  // test with bytes
+  {
+    proto::ByteInterval Message;
+    {
+      Context InnerCtx;
+      std::string contents = "abcd";
+      ByteInterval* Original =
+          ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(),
+                               contents.begin(), contents.end());
+      Original->toProtobuf(&Message);
+    }
+    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+
+    EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
+    EXPECT_EQ(Result->getSize(), 4);
+    EXPECT_EQ(Result->getAllocatedSize(), 4);
+    EXPECT_EQ(Result->getSection(), nullptr);
+
+    std::string resultBytes;
+    std::copy(Result->bytes_begin<char>(), Result->bytes_end<char>(),
+              std::back_inserter(resultBytes));
+    ASSERT_EQ(resultBytes, "abcd");
+  }
+
+  // test truncating of unallocated bytes
+  {
+    proto::ByteInterval Message;
+    {
+      Context InnerCtx;
+      std::string contents = "abcd";
+      ByteInterval* Original =
+          ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(),
+                               contents.begin(), contents.end(), 4, 2);
+      Original->toProtobuf(&Message);
+    }
+    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+
+    EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
+    EXPECT_EQ(Result->getSize(), 4);
+    EXPECT_EQ(Result->getAllocatedSize(), 2);
+    EXPECT_EQ(Result->getSection(), nullptr);
+
+    std::string resultBytes;
+    std::copy(Result->bytes_begin<char>(), Result->bytes_end<char>(),
+              std::back_inserter(resultBytes));
+    // explode the string comparison because the default one for std::string
+    // does not like embedded NULs whatsoever
+    ASSERT_EQ(resultBytes.size(), 4);
+    ASSERT_EQ(resultBytes[0], 'a');
+    ASSERT_EQ(resultBytes[1], 'b');
+    ASSERT_EQ(resultBytes[2], '\0');
+    ASSERT_EQ(resultBytes[3], '\0');
+  }
+
   // test with subobjects
   {
     auto Sym = Symbol::Create(Ctx, nullptr, "test");
