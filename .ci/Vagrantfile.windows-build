@@ -18,9 +18,9 @@ Vagrant.configure("2") do |config|
     $process.WaitForExit()
     C:\\cygwin64\\bin\\bash.exe --login -c "/bin/ssh-host-config -y -c ntsec -p 22"
     C:\\cygwin64\\bin\\bash.exe --login -c "net stop sshd"
-    sc config "sshd" start= disabled
+    cmd.exe /C "sc config ""sshd"" start= disabled"
     C:\\cygwin64\\bin\\bash.exe --login -c "net start cygsshd"
-    sc config "cygsshd" start=auto
+    cmd.exe /C "sc config ""cygsshd"" start=auto"
     choco install -y git-lfs
     C:\\cygwin64\\bin\\bash.exe --login -c  "mkdir ~/.ssh"
     C:\\cygwin64\\bin\\bash.exe --login -c  "echo 'git.grammatech.com' > ~/.ssh/known_hosts"
