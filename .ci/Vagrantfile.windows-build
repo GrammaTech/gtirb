@@ -43,7 +43,13 @@ Vagrant.configure("2") do |config|
     $process.WaitForExit()
   SHELL
 
-  config.vm.provision "build-boost", type: "shell", inline: <<-SHELL
+  # The provisioner belows uses the installer from sourceforge, because it is
+  # MUCH faster than downloading the zip archive and using powershell's
+  # Expand-Archive cmdlet.  The b2 invocation is not actually building any of
+  # the libraries, it's just installing them from a staging folder provided by
+  # the installer.  It is still necessary to bootstrap b2 even when using the
+  # installer.
+  config.vm.provision "install-boost", type: "shell", inline: <<-SHELL
     cd $HOME
     Invoke-WebRequest "https://ayera.dl.sourceforge.net/project/boost/boost-binaries/1.67.0/boost_1_67_0-msvc-14.1-64.exe" -OutFile "boost_1_67_0-msvc-14.1-64.exe"
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
