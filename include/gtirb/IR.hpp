@@ -43,22 +43,6 @@ void GTIRB_EXPORT_API mutateIRIndices(Module* M,
                                       const std::function<void()>& F);
 /// @endcond
 
-/// \class ProtobufVersionException
-///
-/// \brief Thrown when an there is an attempt to load a GTIRB file with an
-/// invalid Protobuf version.
-class GTIRB_EXPORT_API VersionException : public std::exception {
-  std::string What;
-
-public:
-  VersionException(uint32_t V) {
-    What = "Expected GTIRB version " + std::to_string(GTIRB_PROTOBUF_VERSION) +
-           "; got version " + std::to_string(V);
-  }
-
-  const char* what() const noexcept override { return What.data(); }
-};
-
 /// \class IR
 ///
 /// \brief A complete internal representation consisting of Modules

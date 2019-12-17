@@ -53,7 +53,7 @@ IR* IR::load(Context& C, std::istream& In) {
   Message.ParseFromIstream(&In);
   auto ir = IR::fromProtobuf(C, Message);
   if (ir->Version != GTIRB_PROTOBUF_VERSION) {
-    throw VersionException(ir->Version);
+    return nullptr;
   }
   return ir;
 }

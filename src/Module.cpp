@@ -184,10 +184,7 @@ void gtirb::addToModuleIndices(Node* N) {
       M->Symbols.insert(S);
     }
   } break;
-  default: {
-    throw std::runtime_error(
-        "unexpected kind of node passed to addToModuleIndices!");
-  }
+  default: { assert(!"unexpected kind of node passed to addToModuleIndices!"); }
   }
 }
 
@@ -270,8 +267,7 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
     }
   } break;
   default: {
-    throw std::runtime_error(
-        "unexpected kind of node passed to mutateModuleIndices!");
+    assert(!"unexpected kind of node passed to mutateModuleIndices!");
   }
   }
 }
@@ -355,8 +351,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
     }
   } break;
   default: {
-    throw std::runtime_error(
-        "unexpected kind of node passed to mutateModuleIndices!");
+    assert(!"unexpected kind of node passed to mutateModuleIndices!");
   }
   }
 }

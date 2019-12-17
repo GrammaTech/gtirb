@@ -110,10 +110,8 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     auto it = index.find((Node*)N);
     if (it != index.end()) {
       return *it;
-    } else {
-      throw std::runtime_error(
-          "ByteInterval::nodeToBlock called with block not in interval");
     }
+    assert(!"ByteInterval::nodeToBlock called with block not in interval");
   }
 
 public:

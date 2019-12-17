@@ -47,10 +47,7 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
     case Node::Kind::DataBlock: {
       cast<DataBlock>(node)->toProtobuf(proto_block->mutable_data());
     } break;
-    default: {
-      throw std::runtime_error(
-          "unknown Node::Kind in ByteInterval::toProtobuf");
-    }
+    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
     }
   }
 
@@ -81,8 +78,7 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
       result->Blocks.emplace(proto_block.offset(), node);
     } break;
     default: {
-      throw std::runtime_error(
-          "unknown Block::ValueCase in ByteInterval::fromProtobuf");
+      assert(!"unknown Block::ValueCase in ByteInterval::fromProtobuf");
     }
     }
   }
