@@ -100,6 +100,11 @@ private:
                                                         OutputOrder);
     }
 
+    ResultType* data() { return reinterpret_cast<ResultType*>(V->data()); }
+    const ResultType* data() const {
+      return reinterpret_cast<const ResultType*>(V->data());
+    }
+
   private:
     VectorType* V;
     size_t I;
