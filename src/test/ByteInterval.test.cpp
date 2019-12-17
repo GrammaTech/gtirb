@@ -371,3 +371,54 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
     ASSERT_EQ(result, "abcd(hello.)01efg23456789hi");
   }
 }
+
+TEST(Unit_ByteInterval, byteVectorErase) {
+  std::string contents = "0123456789";
+  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                 contents.begin(), contents.end());
+
+  {
+    BI->eraseBytes<char>(BI->bytes_begin<char>(), BI->bytes_begin<char>() + 2);
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "23456789");
+  }
+
+  {
+    BI->eraseBytes<char>(BI->bytes_begin<char>() + 4,
+                         BI->bytes_begin<char>() + 5);
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "2345789");
+  }
+
+  {
+    BI->eraseBytes<char>(BI->bytes_begin<char>() + 6, BI->bytes_end<char>());
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "234578");
+  }
+
+  // test larger value
+  {
+    BI->eraseBytes<uint16_t>(BI->bytes_begin<uint16_t>() + 1,
+                             BI->bytes_begin<uint16_t>() + 2);
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "2378");
+  }
+
+  // test clear
+  {
+    BI->eraseBytes<uint32_t>(BI->bytes_begin<uint32_t>(),
+                             BI->bytes_end<uint32_t>());
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "");
+  }
+}

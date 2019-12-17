@@ -202,6 +202,13 @@ public:
     return Pos;
   }
 
+  template <typename ResultType>
+  const_iterator<ResultType> erase(const const_iterator<ResultType> Begin,
+                                   const const_iterator<ResultType> End) {
+    Bytes.erase(Begin.getIterator(), End.getIterator());
+    return Begin;
+  }
+
 private:
   Vector Bytes;
 };

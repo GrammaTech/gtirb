@@ -565,6 +565,14 @@ public:
     return result;
   }
 
+  template <typename T>
+  const_bytes_iterator<T> eraseBytes(const_bytes_iterator<T> Begin,
+                                     const_bytes_iterator<T> End) {
+    auto result = Bytes.erase<T>(Begin, End);
+    setSize(getSize());
+    return result;
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
