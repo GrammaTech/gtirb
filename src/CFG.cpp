@@ -19,22 +19,24 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addVertex(CfgNode* N, CFG& Cfg) {
+CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
-  if (auto it = IdTable.find(N); it != IdTable.end())
+  if (auto it = IdTable.find(B); it != IdTable.end()) {
     return it->second;
+  }
 
   auto Vertex = add_vertex(Cfg);
-  Cfg[Vertex] = N;
-  IdTable[N] = Vertex;
+  Cfg[Vertex] = B;
+  IdTable[B] = Vertex;
   return Vertex;
 }
 
 std::optional<CFG::vertex_descriptor> getVertex(const CfgNode* N,
                                                 const CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
-  if (auto it = IdTable.find(N); it != IdTable.end())
+  if (auto it = IdTable.find(N); it != IdTable.end()) {
     return it->second;
+  }
   return std::nullopt;
 }
 
@@ -104,8 +106,7 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 
 void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
   for (const auto& M : Message.vertices()) {
-    CfgNode* N =
-        dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
+    auto N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
     addVertex(N, Result);
   }
   for (const auto& M : Message.edges()) {
