@@ -30,7 +30,7 @@ void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
   for (const auto interval : byte_intervals()) {
-    interval->toProtobuf(Message->add_intervals());
+    interval->toProtobuf(Message->add_byte_intervals());
   }
 }
 
@@ -38,7 +38,7 @@ Section* Section::fromProtobuf(Context& C, Module* Parent,
                                const MessageType& Message) {
   auto* S = Section::Create(C, Parent, Message.name());
   setNodeUUIDFromBytes(S, Message.uuid());
-  for (const auto& proto_interval : Message.intervals()) {
+  for (const auto& proto_interval : Message.byte_intervals()) {
     S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, S, proto_interval));
   }
   addToModuleIndices(S);
