@@ -555,6 +555,16 @@ public:
     return Bytes.bytes<T>(InputOrder, OutputOrder);
   }
 
+  template <typename T, typename It>
+  const_bytes_iterator<T> insertBytes(const_bytes_iterator<T> Pos, It Begin,
+                                      It End,
+                                      Endian VectorOrder = Endian::native,
+                                      Endian ElementsOrder = Endian::native) {
+    auto result = Bytes.insert<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
+    setSize(getSize());
+    return result;
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;

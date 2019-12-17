@@ -40,22 +40,22 @@ public:
 private:
   template <typename VectorType, typename ResultType> class Reference {
   public:
-    Reference(VectorType& V_, size_t I_, Endian InputOrder_,
+    Reference(VectorType* V_, size_t I_, Endian InputOrder_,
               Endian OutputOrder_)
         : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
     operator ResultType() const {
-      return boost::endian::conditional_reverse(*(ResultType*)(V.data() + I),
+      return boost::endian::conditional_reverse(*(ResultType*)(V->data() + I),
                                                 InputOrder, OutputOrder);
     }
 
     void operator=(ResultType rhs) {
-      *(ResultType*)(V.data() + I) =
+      *(ResultType*)(V->data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
     }
 
   private:
-    VectorType& V;
+    VectorType* V;
     size_t I;
     Endian InputOrder;
     Endian OutputOrder;
@@ -71,17 +71,16 @@ private:
     using self = BaseIterator<VectorType, ResultType>;
     using reference = Reference<VectorType, ResultType>;
 
-    BaseIterator(VectorType& V_, size_t I_, Endian InputOrder_,
+    BaseIterator(VectorType* V_, size_t I_, Endian InputOrder_,
                  Endian OutputOrder_)
         : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
+    // begin functions for iterator facade compatibility
     reference dereference() const {
       return reference(V, I, InputOrder, OutputOrder);
     }
 
-    bool equal(const self& other) const {
-      return &V == &other.V && I == other.I;
-    }
+    bool equal(const self& other) const { return V == other.V && I == other.I; }
 
     void increment() { I += sizeof(ResultType); }
 
@@ -94,12 +93,25 @@ private:
     typename self::difference_type distance_to(const self& other) const {
       return (other.I - I) / sizeof(ResultType);
     }
+    // end functions for iterator facade compatibility
+
+    operator BaseIterator<const VectorType, ResultType>() const {
+      return BaseIterator<const VectorType, ResultType>(V, I, InputOrder,
+                                                        OutputOrder);
+    }
 
   private:
-    VectorType& V;
+    VectorType* V;
     size_t I;
     Endian InputOrder;
     Endian OutputOrder;
+
+    typename VectorType::iterator getIterator() { return V->begin() + I; }
+    typename VectorType::const_iterator getIterator() const {
+      return V->begin() + I;
+    }
+
+    friend class ByteVector;
   };
 
 public:
@@ -126,13 +138,13 @@ public:
   template <typename ResultType>
   iterator<ResultType> begin(Endian InputOrder = Endian::native,
                              Endian OutputOrder = Endian::native) {
-    return iterator<ResultType>(Bytes, 0, InputOrder, OutputOrder);
+    return iterator<ResultType>(&Bytes, 0, InputOrder, OutputOrder);
   }
 
   template <typename ResultType>
   iterator<ResultType> end(Endian InputOrder = Endian::native,
                            Endian OutputOrder = Endian::native) {
-    return iterator<ResultType>(Bytes, Bytes.size(), InputOrder, OutputOrder);
+    return iterator<ResultType>(&Bytes, Bytes.size(), InputOrder, OutputOrder);
   }
 
   template <typename ResultType>
@@ -145,13 +157,13 @@ public:
   template <typename ResultType>
   const_iterator<ResultType> begin(Endian InputOrder = Endian::native,
                                    Endian OutputOrder = Endian::native) const {
-    return const_iterator<ResultType>(Bytes, 0, InputOrder, OutputOrder);
+    return const_iterator<ResultType>(&Bytes, 0, InputOrder, OutputOrder);
   }
 
   template <typename ResultType>
   const_iterator<ResultType> end(Endian InputOrder = Endian::native,
                                  Endian OutputOrder = Endian::native) const {
-    return const_iterator<ResultType>(Bytes, Bytes.size(), InputOrder,
+    return const_iterator<ResultType>(&Bytes, Bytes.size(), InputOrder,
                                       OutputOrder);
   }
 
@@ -164,6 +176,31 @@ public:
 
   uint64_t getSize() const { return Bytes.size(); }
   void setSize(uint64_t S) { Bytes.resize(S); }
+
+  template <typename ResultType>
+  const_iterator<ResultType> insert(const const_iterator<ResultType> Pos,
+                                    ResultType X,
+                                    Endian VectorOrder = Endian::native,
+                                    Endian ElementOrder = Endian::native) {
+    boost::endian::conditional_reverse_inplace(X, ElementOrder, VectorOrder);
+    auto resultAsBytes = (const uint8_t*)(void*)&X;
+    Bytes.insert(Pos.getIterator(), resultAsBytes,
+                 resultAsBytes + sizeof(ResultType));
+    return Pos;
+  }
+
+  template <typename ResultType, typename ItType>
+  const_iterator<ResultType> insert(const const_iterator<ResultType> Pos,
+                                    ItType Begin, ItType End,
+                                    Endian VectorOrder = Endian::native,
+                                    Endian ElementsOrder = Endian::native) {
+    auto it = Pos;
+    for (ResultType X : boost::make_iterator_range(Begin, End)) {
+      insert(it, X, VectorOrder, ElementsOrder);
+      it++;
+    }
+    return Pos;
+  }
 
 private:
   Vector Bytes;

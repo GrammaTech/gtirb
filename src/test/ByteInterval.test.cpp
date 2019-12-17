@@ -324,3 +324,50 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
     EXPECT_EQ(newIt, newEnd);
   }
 }
+
+TEST(Unit_ByteInterval, byteVectorInsert) {
+  std::string contents = "0123456789";
+  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                 contents.begin(), contents.end());
+  {
+    std::string toInsert = "abcd";
+    BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
+                          toInsert.end());
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "abcd0123456789");
+  }
+
+  {
+    std::string toInsert = "efg";
+    BI->insertBytes<char>(BI->bytes_begin<char>() + 6, toInsert.begin(),
+                          toInsert.end());
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "abcd01efg23456789");
+  }
+
+  {
+    std::string toInsert = "hi";
+    BI->insertBytes<char>(BI->bytes_end<char>(), toInsert.begin(),
+                          toInsert.end());
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "abcd01efg23456789hi");
+  }
+
+  // test with larger, non-char values
+  {
+    std::vector<uint32_t> toInsert = {str2<uint32_t>("(hel"),
+                                      str2<uint32_t>("lo.)")};
+    BI->insertBytes<uint32_t>(BI->bytes_begin<uint32_t>() + 1, toInsert.begin(),
+                              toInsert.end());
+    std::string result;
+    std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
+              std::back_inserter(result));
+    ASSERT_EQ(result, "abcd(hello.)01efg23456789hi");
+  }
+}
