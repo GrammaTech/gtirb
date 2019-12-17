@@ -109,6 +109,13 @@ void Module::moveProxyBlock(ProxyBlock* B) {
     addVertex(B, Parent->getCFG());
 }
 
+void Module::removeProxyBlock(ProxyBlock* B) {
+  ProxyBlocks.erase(B);
+  B->setModule(nullptr);
+  if (Parent)
+    removeVertex(B, Parent->getCFG());
+}
+
 void Module::addProxyBlock(ProxyBlock* B) {
   ProxyBlocks.insert(B);
   if (Parent)
@@ -334,7 +341,8 @@ void gtirb::removeFromModuleIndices(Node* N) {
       if (auto it = index.find(B); it != index.end()) {
         index.erase(it);
       }
-      // removeVertex(B, M->getCFG());
+      if (auto* Ir = M->getIR())
+        removeVertex(B, Ir->getCFG());
     }
   } break;
   case Node::Kind::DataBlock: {

@@ -31,6 +31,12 @@ CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg) {
   return Vertex;
 }
 
+void removeVertex(CfgNode* N, CFG& Cfg) {
+  auto& IdTable = Cfg[boost::graph_bundle];
+  if (auto it = IdTable.find(N); it != IdTable.end())
+    remove_vertex(it->second, Cfg);
+}
+
 std::optional<CFG::vertex_descriptor> getVertex(const CfgNode* N,
                                                 const CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];

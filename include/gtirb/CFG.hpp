@@ -211,6 +211,15 @@ using const_block_iterator = cfg_node_cast_iter<const CodeBlock>;
 GTIRB_EXPORT_API CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
+/// \brief Remove a node from the CFG.
+///
+/// If the graph does not contain the node, it is not modified.
+///
+/// \param N    The CFG node to remove.
+/// \param Cfg  The graph to modify.
+GTIRB_EXPORT_API void removeVertex(CfgNode* N, CFG& Cfg);
+
+/// \ingroup CFG_GROUP
 /// \brief Get the boost::graph vertex descriptor for a CfgNode if it is in the
 /// graph.
 ///

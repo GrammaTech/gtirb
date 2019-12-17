@@ -296,29 +296,11 @@ public:
   /// \brief Remove a \ref ProxyBlock object located in this module.
   ///
   /// \param S The \ref ProxyBlock object to remove.
-  ///
-  /// \return Whether or not the operation succeeded. This operation can
-  /// fail if the node to remove is not actually part of this node to begin
-  /// with.
-  bool removeProxyBlock(ProxyBlock* B) {
-    auto N = ProxyBlocks.erase(B);
-    B->setModule(nullptr);
-    // TODO: removeVertex(B, Cfg);
-    return N != 0;
-  }
+  void removeProxyBlock(ProxyBlock* B);
 
   /// \brief Move a \ref ProxyBlock object to be located in this module.
   ///
   /// \param S The \ref ProxyBlock object to add.
-<<<<<<< HEAD
-  ProxyBlock* addProxyBlock(ProxyBlock* B) {
-    if (B->getModule()) {
-      B->getModule()->removeProxyBlock(B);
-    }
-    ProxyBlocks.insert(B);
-    B->setModule(this);
-    addVertex(B, Cfg);
-=======
   void moveProxyBlock(ProxyBlock* B);
 
   /// \brief Creates a new \ref ProxyBlock in this module.
@@ -327,7 +309,6 @@ public:
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
     auto B = ProxyBlock::Create(C, this, A...);
     addProxyBlock(B);
->>>>>>> Move CFG from the Module level to the IR level.
     return B;
   }
 
