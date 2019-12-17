@@ -1,4 +1,4 @@
-//===- DataBlock.hpp -------------------------------------------*- C++ -*-===//
+//===- DataBlock.hpp --------------------------------------------*- C++ -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -45,7 +45,6 @@ void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
 /// \ref ImageByteMap.
 ///
 class GTIRB_EXPORT_API DataBlock : public Node {
-
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
   DataBlock(Context& C, ByteInterval* P, uint64_t S)
@@ -72,7 +71,9 @@ public:
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
-  ByteInterval* getByteInterval() const { return Parent; }
+  ByteInterval* getByteInterval() { return Parent; }
+  /// \brief Get the \ref ByteInterval this block belongs to.
+  const ByteInterval* getByteInterval() const { return Parent; }
 
   /// \brief Get the size of a DataBlock.
   ///

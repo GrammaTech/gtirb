@@ -62,7 +62,6 @@ public:
   Block(uint64_t o, Node* n) : offset(o), node(n) {}
 
   uint64_t getOffset() const { return offset; }
-
   Node* getNode() const { return node; }
 };
 
@@ -71,7 +70,7 @@ public:
 ///
 /// \brief A predicate object to discern one type of block.
 template <Node::Kind K> struct BlockIs {
-  bool operator()(const Block& Variant) {
+  bool operator()(const Block& Variant) const {
     return Variant.getNode()->getKind() == K;
   }
 };
@@ -107,11 +106,10 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
 
   const Block& nodeToBlock(const Node* N) const {
     auto& index = Blocks.get<by_pointer>();
-    auto it = index.find((Node*)N);
-    if (it != index.end()) {
-      return *it;
-    }
-    assert(!"ByteInterval::nodeToBlock called with block not in interval");
+    auto it = index.find(const_cast<Node*>(N));
+    assert(it != index.end() &&
+           "ByteInterval::nodeToBlock called with block not in interval");
+    return *it;
   }
 
 public:
@@ -163,7 +161,9 @@ public:
   }
 
   /// \brief Get the \ref Section this byte interval belongs to.
-  Section* getSection() const { return Parent; }
+  Section* getSection() { return Parent; }
+  /// \brief Get the \ref Section this byte interval belongs to.
+  const Section* getSection() const { return Parent; }
 
   /// \brief Get the fixed address of this interval, if present.
   ///

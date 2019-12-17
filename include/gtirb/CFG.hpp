@@ -107,8 +107,7 @@ class cfg_node_iter_base
                                     const boost::vertex_bundle_type<CFG>::type,
                                     CFG::vertex_iterator::iterator_category> {
 public:
-  cfg_node_iter_base() : cfg(nullptr), it() {}
-
+  cfg_node_iter_base() = default;
   cfg_node_iter_base(const CFG& cfg_, CFG::vertex_iterator& it_)
       : cfg(&cfg_), it(it_) {}
 
@@ -122,9 +121,7 @@ private:
   friend class boost::iterator_core_access;
 
   void increment() { ++it; }
-
   void decrement() { --it; }
-
   void advance(int n) { it += n; }
 
   std::ptrdiff_t distance_to(const cfg_node_iter_base& other) const {
@@ -137,7 +134,7 @@ private:
     return (*cfg)[*it];
   }
 
-  const CFG* cfg;
+  const CFG* cfg{nullptr};
   CFG::vertex_iterator it;
 };
 

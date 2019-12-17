@@ -276,7 +276,9 @@ public:
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
-  Module* getModule() const { return Parent; }
+  Module* getModule() { return Parent; }
+  /// \brief Get the \ref Module this symbol belongs to.
+  const Module* getModule() const { return Parent; }
 
   /// \brief Get the effective address.
   ///
@@ -372,7 +374,7 @@ private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
   Symbol(Context& C, Module* P, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Payload(), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(P), Name(N), Storage(SK) {}
   Symbol(Context& C, Module* P, Addr X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
       : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), Storage(SK) {}

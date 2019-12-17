@@ -32,8 +32,6 @@ namespace gtirb {
 /// \ref ByteInterval to needed child classes like \ref CodeBlock and \ref
 /// DataBlock.
 class GTIRB_EXPORT_API ByteVector {
-  using Vector = std::vector<uint8_t>;
-
 public:
   using Endian = boost::endian::order;
 
@@ -120,23 +118,20 @@ private:
   };
 
 public:
-  ByteVector() : Bytes() {}
-
+  ByteVector() = default;
   ByteVector(uint64_t Size) : Bytes(Size) {}
-
   template <typename It> ByteVector(It Begin, It End) : Bytes(Begin, End) {}
-
   template <typename It>
   ByteVector(It Begin, It End, uint64_t Size) : Bytes(Begin, End) {
     Bytes.resize(Size);
   }
 
   template <typename ResultType>
-  using iterator = BaseIterator<Vector, ResultType>;
+  using iterator = BaseIterator<std::vector<uint8_t>, ResultType>;
   template <typename ResultType>
   using range = boost::iterator_range<iterator<ResultType>>;
   template <typename ResultType>
-  using const_iterator = BaseIterator<const Vector, ResultType>;
+  using const_iterator = BaseIterator<const std::vector<uint8_t>, ResultType>;
   template <typename ResultType>
   using const_range = boost::iterator_range<const_iterator<ResultType>>;
 
@@ -215,7 +210,7 @@ public:
   }
 
 private:
-  Vector Bytes;
+  std::vector<uint8_t> Bytes;
 };
 
 class ByteInterval;

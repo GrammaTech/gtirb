@@ -104,7 +104,6 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
 
   // Helper template for implementing address-based ordering of
   // multi-containers.
-
   template <typename T> struct addr_size_order {
     using key_type = std::pair<std::optional<Addr>, std::optional<uint64_t>>;
     static key_type key(const T& t) {
@@ -116,7 +115,6 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   };
 
   // Helper function for extracting the referent of a Symbol.
-
   static const Node* get_symbol_referent(const Symbol& s) {
     if (std::optional<const Node*> res =
             s.visit([](const Node* n) { return n; }))
@@ -271,7 +269,9 @@ public:
   }
 
   /// \brief Get the \ref IR this module belongs to.
-  IR* getIR() const { return Parent; }
+  const IR* getIR() const { return Parent; }
+  /// \brief Get the \ref IR this module belongs to.
+  IR* getIR() { return Parent; }
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
@@ -349,7 +349,9 @@ public:
   gtirb::ISAID getISAID() const { return IsaID; }
 
   /// \brief Get the entry point of this module, or null if not present.
-  CodeBlock* getEntryPoint() const { return EntryPoint; }
+  const CodeBlock* getEntryPoint() const { return EntryPoint; }
+  /// \brief Get the entry point of this module, or null if not present.
+  CodeBlock* getEntryPoint() { return EntryPoint; }
 
   /// \brief Set the entry point of this module.
   ///
@@ -1067,6 +1069,10 @@ public:
   // (end group of Section-related types and functions)
 
   template <typename T> struct sym_expr_elem_to_node {
+    // It is not a bug that this const function accepts a const object and
+    // returns a non-const reference. This is needed to ensure that
+    // symbolic_expression_iterator is able to deduce the correct iterator
+    // types for a non-const iterator and a const iterator.
     T& operator()(const SymbolicExpressionElement& e) const {
       return *e.first->getSymbolicExpression(e.second);
     }

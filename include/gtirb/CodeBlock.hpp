@@ -1,5 +1,4 @@
-//===- CodeBlock.hpp ------------------------------------------------*- C++
-//-*-===//
+//===- CodeBlock.hpp ---------------------------------------------*- C++-*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -69,7 +68,9 @@ public:
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
-  ByteInterval* getByteInterval() const { return Parent; }
+  ByteInterval* getByteInterval() { return Parent; }
+  /// \brief Get the \ref ByteInterval this block belongs to.
+  const ByteInterval* getByteInterval() const { return Parent; }
 
   /// \brief Get the size from a \ref CodeBlock.
   ///
@@ -187,7 +188,6 @@ private:
 ///
 /// \brief Describes a location inside a block or data object.
 struct GTIRB_EXPORT_API Offset {
-
   /// \brief The UUID of the block or data object.
   UUID ElementId;
 

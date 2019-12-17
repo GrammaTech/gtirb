@@ -76,7 +76,9 @@ public:
   bool operator!=(const Section& Other) const;
 
   /// \brief Get the \ref Module this section belongs to.
-  Module* getModule() const { return Parent; }
+  Module* getModule() { return Parent; }
+  /// \brief Get the \ref Module this section belongs to.
+  const Module* getModule() const { return Parent; }
 
   /// \brief Get the name of a Section.
   ///
@@ -123,21 +125,21 @@ public:
 
   std::optional<Addr> getAddress() const {
     if (ByteIntervals.empty()) {
-      return std::optional<Addr>();
+      return std::nullopt;
     }
 
     Addr result{std::numeric_limits<Addr::value_type>::max()};
-    for (const auto interval : ByteIntervals) {
+    for (const auto* interval : ByteIntervals) {
       auto addr = interval->getAddress();
       if (addr.has_value()) {
         if (*addr < result) {
           result = *addr;
         }
       } else {
-        return std::optional<Addr>();
+        return std::nullopt;
       }
     }
-    return std::optional<Addr>(result);
+    return result;
   }
 
   std::optional<uint64_t> getSize() const {
@@ -148,9 +150,9 @@ public:
     Addr lowAddr{std::numeric_limits<Addr::value_type>::max()};
     Addr highAddr{0};
 
-    for (const auto interval : ByteIntervals) {
+    for (const auto* interval : ByteIntervals) {
       auto addr = interval->getAddress();
-      if (addr.has_value()) {
+      if (addr) {
         if (*addr < lowAddr) {
           lowAddr = *addr;
         }
@@ -159,11 +161,11 @@ public:
           highAddr = adjustedAddr;
         }
       } else {
-        return std::optional<uint64_t>();
+        return std::nullopt;
       }
     }
 
-    return std::optional<uint64_t>(highAddr - lowAddr);
+    return static_cast<uint64_t>(highAddr - lowAddr);
   }
 
   /// \brief Remove an interval from this section.

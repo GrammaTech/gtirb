@@ -59,7 +59,9 @@ public:
   }
 
   /// \brief Get the \ref Module this block belongs to.
-  Module* getModule() const { return Parent; }
+  Module* getModule() { return Parent; }
+  /// \brief Get the \ref Module this block belongs to.
+  const Module* getModule() const { return Parent; }
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Block.

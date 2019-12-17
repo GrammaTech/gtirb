@@ -39,10 +39,9 @@ uint64_t DataBlock::getOffset() const {
 }
 
 std::optional<Addr> DataBlock::getAddress() const {
-  if (!Parent) {
-    return std::optional<Addr>();
-  }
-  auto baseAddr = Parent->getAddress();
-  return baseAddr.has_value() ? std::optional<Addr>(*baseAddr + getOffset())
-                              : std::optional<Addr>();
+  if (!Parent)
+    return std::nullopt;
+  if (auto baseAddr = Parent->getAddress())
+    return *baseAddr + getOffset();
+  return std::nullopt;
 }
