@@ -69,13 +69,13 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   M->IsaID = static_cast<ISAID>(Message.isa());
   M->Name = Message.name();
   for (const auto& Elt : Message.proxies()) {
-    M->moveProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));
+    M->ProxyBlocks.insert(ProxyBlock::fromProtobuf(C, M, Elt));
   }
   for (const auto& Elt : Message.sections()) {
-    M->moveSection(Section::fromProtobuf(C, M, Elt));
+    addToModuleIndices(Section::fromProtobuf(C, M, Elt));
   }
   for (const auto& Elt : Message.symbols()) {
-    M->moveSymbol(Symbol::fromProtobuf(C, M, Elt));
+    addToModuleIndices(Symbol::fromProtobuf(C, M, Elt));
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {

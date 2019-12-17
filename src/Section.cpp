@@ -41,6 +41,5 @@ Section* Section::fromProtobuf(Context& C, Module* Parent,
   for (const auto& proto_interval : Message.byte_intervals()) {
     S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, S, proto_interval));
   }
-  addToModuleIndices(S);
   return S;
 }
