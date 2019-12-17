@@ -612,8 +612,9 @@ private:
   friend class DataBlock; // to enable DataBlock::getAddress
 
   // to enable CodeBlock::getBytes and DataBlock::getBytes
-  friend ByteVector& getByteVector(ByteInterval* BI);
-  friend const ByteVector& getByteVector(const ByteInterval* BI);
+  friend GTIRB_EXPORT_API ByteVector& getByteVector(ByteInterval* BI);
+  friend GTIRB_EXPORT_API const ByteVector&
+  getByteVector(const ByteInterval* BI);
 };
 } // namespace gtirb
 

@@ -15,6 +15,7 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Serialization.hpp>
 #include <proto/ByteInterval.pb.h>
+#include <iterator>
 
 using namespace gtirb;
 
@@ -30,8 +31,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
 
   Message->set_size(getSize());
   auto bytesIt = Bytes.begin<char>();
+  Message->mutable_contents()->reserve(AllocatedSize);
   std::copy(bytesIt, bytesIt + AllocatedSize,
-            Message->mutable_contents()->begin());
+            std::back_inserter(*Message->mutable_contents()));
 
   for (const auto& block : this->blocks()) {
     auto proto_block = Message->add_blocks();

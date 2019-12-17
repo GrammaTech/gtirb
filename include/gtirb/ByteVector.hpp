@@ -87,9 +87,11 @@ private:
 
     void decrement() { I -= sizeof(ResultType); }
 
-    void advance(int n) { I += n * sizeof(ResultType); }
+    void advance(typename self::difference_type n) {
+      I += n * sizeof(ResultType);
+    }
 
-    ptrdiff_t distance_to(const self& other) const {
+    typename self::difference_type distance_to(const self& other) const {
       return (other.I - I) / sizeof(ResultType);
     }
 
