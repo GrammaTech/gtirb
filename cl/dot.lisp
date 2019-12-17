@@ -16,7 +16,7 @@
             (if (conditional obj) :c :u)
             (if (direct obj) :d :i))))
 
-(defmethod to-dot ((obj module) &rest rest)
+(defmethod to-dot ((obj gtirb) &rest rest)
   "Write the CFG of MODULE to the Graphviz graphing language."
   (apply #'to-dot (cfg obj)
          :edge-attrs (list (cons :label {dot-edge-label (cfg obj)}))
@@ -30,4 +30,4 @@
 (define-command dot (gtirb-file dot-file &spec +udpate-args+)
   "Write first GTIRB module in GTIRB-FILE to DOT-FILE." ""
   (when help (show-help-for-dot) (sb-ext:quit))
-  (to-dot-file (first (modules (read-gtirb gtirb-file))) dot-file))
+  (to-dot-file (read-gtirb gtirb-file) dot-file))

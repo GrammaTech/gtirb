@@ -20,6 +20,7 @@
            :update-proto
 ;;; Classes and fields.
            :gtirb
+           :cfg
            ;; Module
            :module
            :name
@@ -29,7 +30,6 @@
            :preferred-addr
            :rebase-delta
            :symbols
-           :cfg
            :proxies
            :sections
            :aux-data
@@ -306,6 +306,38 @@ Should not need to be manipulated by client code.")
               :to-proto
               (lambda (modules) (map 'vector #'update-proto modules))
               :documentation "List of the modules on an IR.")
+     (cfg :accessor cfg :type digraph
+          :from-proto
+          (lambda (proto)
+            (let ((p-cfg (proto:cfg proto)))
+              (populate
+               (make-instance 'digraph)
+               :edges-w-values
+               (mapcar
+                (lambda (edge)
+                  (list (list (uuid-to-integer (proto:source-uuid edge))
+                              (uuid-to-integer (proto:target-uuid edge)))
+                        (make-instance 'edge-label :proto (proto:label edge))))
+                (coerce (proto:edges p-cfg) 'list))
+               :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
+          :to-proto
+          (lambda (cfg &aux (p-cfg (make-instance 'proto:cfg)))
+            (setf
+             (proto:vertices p-cfg)
+             (map 'vector #'integer-to-uuid (nodes cfg))
+             (proto:edges p-cfg)
+             (map 'vector
+                  (lambda (edge)
+                    (destructuring-bind ((source target) label) edge
+                      (let ((p-edge (make-instance 'proto:edge)))
+                        (setf
+                         (proto:source-uuid p-edge) (integer-to-uuid source)
+                         (proto:target-uuid p-edge) (integer-to-uuid target)
+                         (proto:label p-edge) (proto label))
+                        p-edge)))
+                  (edges-w-values cfg)))
+            p-cfg)
+          :documentation "Control flow graph (CFG) keyed by UUID.")
      (aux-data :accessor aux-data :type (list aux-data)
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
@@ -356,39 +388,7 @@ modules and on GTIRB IR instances.")
   :test #'equal)
 
 (define-proto-backed-class (module proto:module) ()
-    ((cfg :accessor cfg :type digraph
-          :from-proto
-          (lambda (proto)
-            (let ((p-cfg (proto:cfg proto)))
-              (populate
-               (make-instance 'digraph)
-               :edges-w-values
-               (mapcar
-                (lambda (edge)
-                  (list (list (uuid-to-integer (proto:source-uuid edge))
-                              (uuid-to-integer (proto:target-uuid edge)))
-                        (make-instance 'edge-label :proto (proto:label edge))))
-                (coerce (proto:edges p-cfg) 'list))
-               :nodes (map 'list  #'uuid-to-integer (proto:vertices p-cfg)))))
-          :to-proto
-          (lambda (cfg &aux (p-cfg (make-instance 'proto:cfg)))
-            (setf
-             (proto:vertices p-cfg)
-             (map 'vector #'integer-to-uuid (nodes cfg))
-             (proto:edges p-cfg)
-             (map 'vector
-                  (lambda (edge)
-                    (destructuring-bind ((source target) label) edge
-                      (let ((p-edge (make-instance 'proto:edge)))
-                        (setf
-                         (proto:source-uuid p-edge) (integer-to-uuid source)
-                         (proto:target-uuid p-edge) (integer-to-uuid target)
-                         (proto:label p-edge) (proto label))
-                        p-edge)))
-                  (edges-w-values cfg)))
-            p-cfg)
-          :documentation "Control flow graph (CFG) keyed by UUID.")
-     (proxies :accessor proxies :type hash-table
+    ((proxies :accessor proxies :type hash-table
               :initform (make-hash-table)
               :from-proto
               (lambda (proto &aux (table (make-hash-table)))

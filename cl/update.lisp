@@ -103,17 +103,21 @@
         (map 'vector #'upgrade old)))
   (:method ((old proto-v0:ir) &key &allow-other-keys
             &aux (new (make-instance 'proto:ir)))
+    (assert (= (length (proto-v0:modules old)) 1) (old)
+            "Cannot unambiguously upgrade IR with multiple modules.")
     (setf (proto:uuid new) (proto-v0:uuid old)
           (proto:version new) 1
           (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
                                         :new-class 'proto:ir-aux-data-entry)
-          (proto:modules new) (upgrade (proto-v0:modules old)))
+          (proto:modules new) (upgrade (proto-v0:modules old))
+          (proto:cfg new) (upgrade (proto-v0:cfg
+                                    (aref (proto-v0:modules old) 0))))
     new)
   (:method ((old proto-v0:module) &key &allow-other-keys
             &aux (new (make-instance 'proto:module)))
     (transfer-fields new old
                      uuid binary-path preferred-addr rebase-delta file-format
-                     name symbols cfg proxies name)
+                     name symbols proxies name)
     (setf (proto:isa new) (proto-v0:isa-id old)
           (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
                                         :new-class 'proto:module-aux-data-entry)

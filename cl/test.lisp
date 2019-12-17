@@ -192,7 +192,7 @@
         (is)
         (every {get-uuid _ it})
         (nodes)
-        (cfg (first (modules it)))))
+        (cfg it)))
 
 (deftest set-block-bytes-to-the-same-size ()
   (with-fixture hello
@@ -240,8 +240,7 @@
 (deftest write-dot-to-file ()
   (with-fixture hello
     (with-temporary-file (:pathname path)
-      (let ((hello (read-gtirb *proto-path*)))
-        (to-dot-file (first (modules hello)) path)))))
+      (to-dot-file (read-gtirb *proto-path*) path))))
 
 
 ;;;; Update test suite
