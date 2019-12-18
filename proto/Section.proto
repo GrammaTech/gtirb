@@ -22,8 +22,9 @@ enum SectionFlag {
   READABLE = 1;
   WRITABLE = 2;
   EXECUTABLE = 3;
-  // TODO: Fill in all known section properties for all known file formats.
-  reserved 4 to 4095;
+  LOADED = 4;
+  INITIALIZED = 5;
+  THREAD_LOCAL = 6;
 }
 
 message Section {
