@@ -54,8 +54,10 @@ class DataObject(Node):
 
     def __repr__(self):
         # type: () -> str
-        return ("DataObject("
-                "uuid={uuid!r}, "
-                "address={address:#x}, "
-                "size={size}, "
-                ")".format(**self.__dict__))
+        return (
+            "DataObject("
+            "uuid={uuid!r}, "
+            "address={address:#x}, "
+            "size={size}, "
+            ")".format(**self.__dict__)
+        )

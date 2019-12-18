@@ -68,17 +68,20 @@ class SymAddrAddr:
 
     def __hash__(self):
         # type: () -> int
-        return hash((self.offset, self.scale,
-                     self.symbol1.uuid, self.symbol2.uuid))
+        return hash(
+            (self.offset, self.scale, self.symbol1.uuid, self.symbol2.uuid)
+        )
 
     def __repr__(self):
         # type: () -> str
-        return ("SymAddrAddr("
-                "scale={scale!r}, "
-                "offset={offset!r}, "
-                "symbol1={symbol1!r}, "
-                "symbol2={symbol2!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "SymAddrAddr("
+            "scale={scale!r}, "
+            "offset={offset!r}, "
+            "symbol1={symbol1!r}, "
+            "symbol2={symbol2!r}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class SymAddrConst:
@@ -127,10 +130,12 @@ class SymAddrConst:
 
     def __repr__(self):
         # type: () -> str
-        return ("SymAddrConst("
-                "offset={offset!r}, "
-                "symbol={symbol!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "SymAddrConst("
+            "offset={offset!r}, "
+            "symbol={symbol!r}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class SymStackConst:
@@ -180,10 +185,12 @@ class SymStackConst:
 
     def __repr__(self):
         # type: () -> str
-        return ("SymStackConst("
-                "offset={offset!r}, "
-                "symbol={symbol!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "SymStackConst("
+            "offset={offset!r}, "
+            "symbol={symbol!r}, "
+            ")".format(**self.__dict__)
+        )
 
 
 SymbolicOperand = typing.Union[SymAddrAddr, SymAddrConst, SymStackConst]

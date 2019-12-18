@@ -9,7 +9,8 @@ class Node:
     :ivar uuid: The UUID of this Node.
     """
 
-    _uuid_cache = WeakValueDictionary(
+    _uuid_cache = (
+        WeakValueDictionary()
     )  # type: typing.ClassVar[typing.Mapping[UUID, "Node"]]
 
     def __init__(self, uuid=None):

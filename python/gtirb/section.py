@@ -18,7 +18,7 @@ class Section(Node):
 
     def __init__(
         self,
-        name='',  # type: str
+        name="",  # type: str
         address=0,  # type: int
         size=0,  # type: int
         uuid=None,  # type: typing.Optional[UUID]
@@ -67,9 +67,11 @@ class Section(Node):
 
     def __repr__(self):
         # type: () -> str
-        return ("Section("
-                "uuid={uuid!r}, "
-                "name={name!r}, "
-                "address={address:#x}, "
-                "size={size!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Section("
+            "uuid={uuid!r}, "
+            "name={name!r}, "
+            "address={address:#x}, "
+            "size={size!r}, "
+            ")".format(**self.__dict__)
+        )

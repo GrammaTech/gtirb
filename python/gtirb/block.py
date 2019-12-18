@@ -45,10 +45,12 @@ class Block(Node):
     @classmethod
     def _decode_protobuf(cls, proto_block, uuid):
         # type: (Block_pb2.Block, UUID) -> Block
-        return cls(address=proto_block.address,
-                   decode_mode=proto_block.decode_mode,
-                   size=proto_block.size,
-                   uuid=uuid)
+        return cls(
+            address=proto_block.address,
+            decode_mode=proto_block.decode_mode,
+            size=proto_block.size,
+            uuid=uuid,
+        )
 
     def _to_protobuf(self):
         # type: () -> Block_pb2.Block
@@ -73,12 +75,14 @@ class Block(Node):
 
     def __repr__(self):
         # type: () -> str
-        return ("Block("
-                "uuid={uuid!r}, "
-                "address={address:#x}, "
-                "size={size}, "
-                "decode_mode={decode_mode}, "
-                ")".format(**self.__dict__))
+        return (
+            "Block("
+            "uuid={uuid!r}, "
+            "address={address:#x}, "
+            "size={size}, "
+            "decode_mode={decode_mode}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class ProxyBlock(Node):
@@ -114,6 +118,4 @@ class ProxyBlock(Node):
 
     def __repr__(self):
         # type: () -> str
-        return ("ProxyBlock("
-                "uuid={uuid!r}, "
-                ")".format(**self.__dict__))
+        return "ProxyBlock(" "uuid={uuid!r}, " ")".format(**self.__dict__)

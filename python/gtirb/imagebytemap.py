@@ -314,8 +314,10 @@ class ImageByteMap(Node):
     @classmethod
     def _decode_protobuf(cls, proto_ibm, uuid):
         # type: (ImageByteMap_pb2.ImageByteMap, UUID) -> ImageByteMap
-        byte_map = {region.address: bytearray(region.data)
-                    for region in proto_ibm.byte_map.regions}
+        byte_map = {
+            region.address: bytearray(region.data)
+            for region in proto_ibm.byte_map.regions
+        }
         image_byte_map = cls(
             addr_min=proto_ibm.addr_min,
             addr_max=proto_ibm.addr_max,
@@ -408,11 +410,13 @@ class ImageByteMap(Node):
 
     def __repr__(self):
         # type: () -> str
-        return ("ImageByteMap("
-                "uuid={uuid!r}, "
-                "addr_min={addr_min:#x}, "
-                "addr_max={addr_max:#x}, "
-                "base_address={base_address:#x}, "
-                "entry_point_address={entry_point_address:#x}, "
-                "byte_map={_byte_map!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "ImageByteMap("
+            "uuid={uuid!r}, "
+            "addr_min={addr_min:#x}, "
+            "addr_max={addr_max:#x}, "
+            "base_address={base_address:#x}, "
+            "entry_point_address={entry_point_address:#x}, "
+            "byte_map={_byte_map!r}, "
+            ")".format(**self.__dict__)
+        )

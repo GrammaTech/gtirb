@@ -29,19 +29,19 @@ class Symbol(Node):
         The storage kind of a :class:`gtirb.Symbol`.
         """
 
-        Undefined = Symbol_pb2.StorageKind.Value('Storage_Undefined')
+        Undefined = Symbol_pb2.StorageKind.Value("Storage_Undefined")
         """An unspecified storage kind."""
 
-        Normal = Symbol_pb2.StorageKind.Value('Storage_Normal')
+        Normal = Symbol_pb2.StorageKind.Value("Storage_Normal")
         """The symbol is accessible outside the module."""
 
-        Static = Symbol_pb2.StorageKind.Value('Storage_Static')
+        Static = Symbol_pb2.StorageKind.Value("Storage_Static")
         """The symbol is accessible only within the module."""
 
-        Extern = Symbol_pb2.StorageKind.Value('Storage_Extern')
+        Extern = Symbol_pb2.StorageKind.Value("Storage_Extern")
         """The symbol is defined outside of this module."""
 
-        Local = Symbol_pb2.StorageKind.Value('Storage_Local')
+        Local = Symbol_pb2.StorageKind.Value("Storage_Local")
         """The symbol is stored locally,
         in the context of a function's activation frame.
         """
@@ -150,9 +150,11 @@ class Symbol(Node):
 
     def __repr__(self):
         # type: () -> str
-        return ("Symbol("
-                "uuid={uuid!r}, "
-                "name={name!r}, "
-                "storage_kind=Symbol.{storage_kind!s}, "
-                "payload={_payload!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Symbol("
+            "uuid={uuid!r}, "
+            "name={name!r}, "
+            "storage_kind=Symbol.{storage_kind!s}, "
+            "payload={_payload!r}, "
+            ")".format(**self.__dict__)
+        )

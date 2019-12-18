@@ -339,16 +339,16 @@ class Serialization:
         """
 
         self.codecs = {
-            'Addr': Uint64Codec,
-            'Offset': OffsetCodec,
-            'int64_t': Int64Codec,
-            'mapping': MappingCodec,
-            'sequence': SequenceCodec,
-            'set': SetCodec,
-            'string': StringCodec,
-            'tuple': TupleCodec,
-            'uint64_t': Uint64Codec,
-            'UUID': UUIDCodec,
+            "Addr": Uint64Codec,
+            "Offset": OffsetCodec,
+            "int64_t": Int64Codec,
+            "mapping": MappingCodec,
+            "sequence": SequenceCodec,
+            "set": SetCodec,
+            "string": StringCodec,
+            "tuple": TupleCodec,
+            "uint64_t": Uint64Codec,
+            "UUID": UUIDCodec,
         }  # type: typing.Dict[str, Codec]
 
     def _decode_tree(self, raw_bytes, type_tree):

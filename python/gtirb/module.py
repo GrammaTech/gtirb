@@ -13,7 +13,10 @@ from .node import Node
 from .section import Section
 from .symbol import Symbol
 from .symbolicexpression import (
-    SymAddrAddr, SymAddrConst, SymStackConst, SymbolicOperand
+    SymAddrAddr,
+    SymAddrConst,
+    SymStackConst,
+    SymbolicOperand,
 )
 from .util import DictLike
 
@@ -36,19 +39,19 @@ class Edge:
         :class:`gtirb.Edge`.
         """
 
-        Branch = CFG_pb2.EdgeType.Value('Type_Branch')
+        Branch = CFG_pb2.EdgeType.Value("Type_Branch")
         """This edge is the explicit target of a jump instruction.
         May be conditional or unconditional. If conditional, there will be
         a corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.
         """
 
-        Call = CFG_pb2.EdgeType.Value('Type_Call')
+        Call = CFG_pb2.EdgeType.Value("Type_Call")
         """This edge is the explicit target of a call instruction.
         Unless the function does not return, there will also be a
         corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.
         """
 
-        Fallthrough = CFG_pb2.EdgeType.Value('Type_Fallthrough')
+        Fallthrough = CFG_pb2.EdgeType.Value("Type_Fallthrough")
         """This edge represents two blocks executing in sequence.
         This occurs on the non-branching paths of conditional branch
         instructions, after call instructons have returned, and when two
@@ -58,21 +61,21 @@ class Edge:
         then ``A`` must immediately precede ``B`` in memory.
         """
 
-        Return = CFG_pb2.EdgeType.Value('Type_Return')
+        Return = CFG_pb2.EdgeType.Value("Type_Return")
         """This edge represents a return from a function, generally via a
         return instruction. Return edges may be omitted from valid CFGs;
         a function may have an uncomputable number of possible return sites,
         due to the possibility of indirect calls.
         """
 
-        Syscall = CFG_pb2.EdgeType.Value('Type_Syscall')
+        Syscall = CFG_pb2.EdgeType.Value("Type_Syscall")
         """This edge is the explicit target of a system call instruction.
         Unless the function does not return, there will also be a
         corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`. This
         is the system call equivalent to :class:`gtirb.Edge.Type.Call`.
         """
 
-        Sysret = CFG_pb2.EdgeType.Value('Type_Sysret')
+        Sysret = CFG_pb2.EdgeType.Value("Type_Sysret")
         """This edge represents a return from a system call, generally via a
         return instruction. Return edges may be omitted from valid CFGs;
         a function may have an uncomputable number of possible return sites,
@@ -154,11 +157,13 @@ class Edge:
 
         def __repr__(self):
             # type: () -> str
-            return ("Edge.Label("
-                    "type=Edge.{type!s}, "
-                    "conditional={conditional!r}, "
-                    "direct={direct!r}, "
-                    ")".format(**self.__dict__))
+            return (
+                "Edge.Label("
+                "type=Edge.{type!s}, "
+                "conditional={conditional!r}, "
+                "direct={direct!r}, "
+                ")".format(**self.__dict__)
+            )
 
     def __init__(
         self,
@@ -228,11 +233,13 @@ class Edge:
 
     def __repr__(self):
         # type: () -> str
-        return ("Edge("
-                "source={source!r}, "
-                "target={target!r}, "
-                "label={label!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Edge("
+            "source={source!r}, "
+            "target={target!r}, "
+            "label={label!r}, "
+            ")".format(**self.__dict__)
+        )
 
 
 class Module(AuxDataContainer):
@@ -272,36 +279,36 @@ class Module(AuxDataContainer):
         by a :class:`gtirb.Module`.
         """
 
-        Undefined = Module_pb2.FileFormat.Value('Format_Undefined')
+        Undefined = Module_pb2.FileFormat.Value("Format_Undefined")
         """A file format that has not yet been specified.
         This is for unitialized modules; do not use to refer to
         file formats without ``FileFormat`` values.
         """
 
-        COFF = Module_pb2.FileFormat.Value('COFF')
+        COFF = Module_pb2.FileFormat.Value("COFF")
         """The Common Object File Format."""
 
-        ELF = Module_pb2.FileFormat.Value('ELF')
+        ELF = Module_pb2.FileFormat.Value("ELF")
         """The Executable and Linkable Format,
         formerly the Extensible Linking Format.
         """
 
-        IdaProDb32 = Module_pb2.FileFormat.Value('IdaProDb32')
+        IdaProDb32 = Module_pb2.FileFormat.Value("IdaProDb32")
         """A 32-bit IDA Pro database file."""
 
-        IdaProDb64 = Module_pb2.FileFormat.Value('IdaProDb64')
+        IdaProDb64 = Module_pb2.FileFormat.Value("IdaProDb64")
         """A 64-bit IDA Pro database file."""
 
-        MACHO = Module_pb2.FileFormat.Value('MACHO')
+        MACHO = Module_pb2.FileFormat.Value("MACHO")
         """A Mach object file."""
 
-        PE = Module_pb2.FileFormat.Value('PE')
+        PE = Module_pb2.FileFormat.Value("PE")
         """Microsoft's Portable Executable format."""
 
-        RAW = Module_pb2.FileFormat.Value('RAW')
+        RAW = Module_pb2.FileFormat.Value("RAW")
         """A raw binary file, with no file format."""
 
-        XCOFF = Module_pb2.FileFormat.Value('XCOFF')
+        XCOFF = Module_pb2.FileFormat.Value("XCOFF")
         """The Extended Common Object File Format."""
 
     class ISAID(Enum):
@@ -309,41 +316,41 @@ class Module(AuxDataContainer):
         targeted by a :class:`gtirb.Module`.
         """
 
-        Undefined = Module_pb2.ISAID.Value('ISA_Undefined')
+        Undefined = Module_pb2.ISAID.Value("ISA_Undefined")
         """An ISA that has not yet been specified.
         This is for unitialized modules;
         use :class:`gtirb.Module.ISAID.ValidButUnsupported`
         instead for specifying undefined ISAs.
         """
 
-        ARM = Module_pb2.ISAID.Value('ARM')
+        ARM = Module_pb2.ISAID.Value("ARM")
         """The Acorn RISC Machine."""
 
-        IA32 = Module_pb2.ISAID.Value('IA32')
+        IA32 = Module_pb2.ISAID.Value("IA32")
         """The 32-bit Intel Architecture. Also known as i386, x86, or x32."""
 
-        PPC32 = Module_pb2.ISAID.Value('PPC32')
+        PPC32 = Module_pb2.ISAID.Value("PPC32")
         """IBM's 32-bit PowerPC (Performance Optimization with Enhanced RISC /
         Performance Computing) architecture."""
 
-        X64 = Module_pb2.ISAID.Value('X64')
+        X64 = Module_pb2.ISAID.Value("X64")
         """The 64-bit Intel Architecture. Also known as x86_64."""
 
-        ValidButUnsupported = Module_pb2.ISAID.Value('ValidButUnsupported')
+        ValidButUnsupported = Module_pb2.ISAID.Value("ValidButUnsupported")
         """An unknown or undefined ISA."""
 
     def __init__(
         self,
         *,
         aux_data=dict(),  # type: DictLike[str, AuxData]
-        binary_path='',  # type: str
+        binary_path="",  # type: str
         blocks=set(),  # type: typing.Iterable[Block]
         cfg=set(),  # type: typing.Iterable[Edge]
         data=set(),  # type: typing.Iterable[DataObject]
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         image_byte_map=None,  # type: typing.Optional[ImageByteMap]
         isa_id=ISAID.Undefined,  # type: Module.ISAID
-        name='',  # type: str
+        name="",  # type: str
         preferred_addr=0,  # type: int
         proxies=set(),  # type: typing.Iterable[ProxyBlock]
         rebase_delta=0,  # type: int
@@ -544,19 +551,21 @@ class Module(AuxDataContainer):
 
     def __repr__(self):
         # type: () -> str
-        return ("Module("
-                "uuid={uuid!r}, "
-                "name={name!r}, "
-                "binary_path={binary_path!r}, "
-                "isa_id=Module.{isa_id!s}, "
-                "file_format=Module.{file_format!s}, "
-                "preferred_addr={preferred_addr:#x}, "
-                "rebase_delta={rebase_delta:#x}, "
-                "blocks={blocks!r}, "
-                "data={data!r}, "
-                "image_byte_map={image_byte_map!r}, "
-                "proxies={proxies!r}, "
-                "sections={sections!r}, "
-                "symbols={symbols!r}, "
-                "symbolic_operands={symbolic_operands!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Module("
+            "uuid={uuid!r}, "
+            "name={name!r}, "
+            "binary_path={binary_path!r}, "
+            "isa_id=Module.{isa_id!s}, "
+            "file_format=Module.{file_format!s}, "
+            "preferred_addr={preferred_addr:#x}, "
+            "rebase_delta={rebase_delta:#x}, "
+            "blocks={blocks!r}, "
+            "data={data!r}, "
+            "image_byte_map={image_byte_map!r}, "
+            "proxies={proxies!r}, "
+            "sections={sections!r}, "
+            "symbols={symbols!r}, "
+            "symbolic_operands={symbolic_operands!r}, "
+            ")".format(**self.__dict__)
+        )

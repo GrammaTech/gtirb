@@ -47,7 +47,9 @@ class Offset:
 
     def __repr__(self):
         # type: () -> str
-        return ("Offset("
-                "element_id={element_id!r}, "
-                "displacement={displacement!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "Offset("
+            "element_id={element_id!r}, "
+            "displacement={displacement!r}, "
+            ")".format(**self.__dict__)
+        )

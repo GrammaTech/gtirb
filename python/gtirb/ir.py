@@ -130,7 +130,9 @@ class IR(AuxDataContainer):
 
     def __repr__(self):
         # type: () -> str
-        return ("IR("
-                "uuid={uuid!r}, "
-                "modules={modules!r}, "
-                ")".format(**self.__dict__))
+        return (
+            "IR("
+            "uuid={uuid!r}, "
+            "modules={modules!r}, "
+            ")".format(**self.__dict__)
+        )
