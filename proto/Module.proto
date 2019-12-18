@@ -45,7 +45,7 @@ enum ISA {
 
 message Module {
     reserved "image_byte_map", "data", "symbolic_operands",
-             "aux_data_container", "blocks";
+             "aux_data_container", "blocks", "cfg";
     reserved 8, 10, 11, 13, 14, 15;
 
     bytes uuid = 1;

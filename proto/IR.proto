@@ -25,11 +25,11 @@ message IR {
     // which is a Protobuf compatibility violation, but explains why we
     // reserve more field names than field numbers.
     reserved "tables", "main_module_id", "aux_data_container";
-    reserved 4;
+    reserved 2, 4;
 
     bytes uuid = 1;
-    CFG cfg = 2;
     repeated Module modules = 3;
     map<string, AuxData> aux_data = 5;
     uint32 version = 6;
+    CFG cfg = 7;
 }
