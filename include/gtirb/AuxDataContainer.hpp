@@ -19,11 +19,34 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Serialization.hpp>
+#include <type_traits>
 
 /// \file AuxDataContainer.hpp
 /// \brief Class gtirb::AuxDataContainer.
 
+namespace proto {
+class IR;
+class Module;
+} // namespace proto
+
 namespace gtirb {
+
+/// @cond INTERNAL
+template <typename MessageType> struct message_has_aux_data_container {
+  static constexpr bool value = false;
+};
+template <> struct message_has_aux_data_container<proto::IR> {
+  static constexpr bool value = true;
+};
+template <> struct message_has_aux_data_container<proto::Module> {
+  static constexpr bool value = true;
+};
+
+/// \brief True if MessageType is a message that holds a \ref AuxDataContainer.
+template <typename MessageType>
+inline constexpr bool message_has_aux_data_container_v =
+    message_has_aux_data_container<MessageType>::value;
+/// @endcond
 
 /// \class AuxDataContainer
 ///
@@ -162,12 +185,18 @@ public:
   ///
   void clearAuxData() { AuxDatas.clear(); }
 
+  /// @}
+  /// @cond INTERNAL
+
   /// \brief Serialize the aux data into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.
   ///
   /// \return void
-  template <class MessageType> void toProtobuf(MessageType* Message) const {
+  template <
+      class MessageType,
+      class = std::enable_if_t<message_has_aux_data_container_v<MessageType>>>
+  void toProtobuf(MessageType* Message) const {
     containerToProtobuf(this->AuxDatas, Message->mutable_aux_data());
   }
 
@@ -177,17 +206,19 @@ public:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return void
-  template <class MessageType>
+  template <
+      class MessageType,
+      class = std::enable_if_t<message_has_aux_data_container_v<MessageType>>>
   void fromProtobuf(Context& C, const MessageType& Message) {
     containerFromProtobuf(C, this->AuxDatas, Message.aux_data());
+    /// @endcond
   }
 
 protected:
   AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {}
-  /// @endcond
+
 private:
   AuxDataSet AuxDatas;
-  /// @}
 };
 } // namespace gtirb
 #endif // GTIRB_AUXDATACONTAINER_H
