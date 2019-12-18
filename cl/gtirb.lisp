@@ -40,6 +40,7 @@
            ;; Section
            :section
            :byte-intervals
+           :flags
            ;; Byte-Interval
            :byte-interval
            :blocks
@@ -474,6 +475,16 @@ function.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (name obj) (or (value obj) (referent-uuid obj)))))
 
+(define-constant +section-flags-map+
+    '((#.proto:+section-flag-undefined+ . :flag-undefined)
+      (#.proto:+section-flag-readable+ . :readable)
+      (#.proto:+section-flag-writable+ . :writable)
+      (#.proto:+section-flag-executable+ . :executable)
+      (#.proto:+section-flag-loaded+ . :loaded)
+      (#.proto:+section-flag-initialized+ . :initialized)
+      (#.proto:+section-flag-thread-local+ . :thread-local))
+  :test #'equal)
+
 (define-proto-backed-class (section proto:section) ()
     ((byte-intervals
       :accessor byte-intervals :type (list byte-interval)
@@ -483,7 +494,8 @@ function.")
              (proto:byte-intervals proto)))
       :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
       :documentation "Byte-intervals."))
-    ((name :type string))
+    ((name :type string)
+     (flags :type enumeration :enumeration +section-flags-map+ :proto-field section-flags))
   (:documentation "Section in a GTIRB IR instance.") (:parent module))
 
 (defmethod print-object ((obj section) (stream stream))
