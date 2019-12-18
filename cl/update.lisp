@@ -161,7 +161,8 @@
           (proto:value new) (upgrade (proto-v0:value old))))
   (:method ((old proto-v0:symbol) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbol)))
-    (transfer-fields new old uuid name storage-kind)
+    ;; TODO: Populate an AuxData table for storage-kind.
+    (transfer-fields new old uuid name)
     (cond                ; Variant "oneof" 'value' or 'referent_uuid'.
       ((proto-v0:value old)
        (setf (proto:value new) (proto-v0:value old)))

@@ -37,7 +37,6 @@
            :symbol
            :value
            :referent-uuid
-           :storage-kind
            ;; Section
            :section
            :byte-intervals
@@ -464,25 +463,16 @@ function.")
             (if (conditional obj) :conditional :unconditional)
             (if (direct obj) :direct :undirect))))
 
-(define-constant +symbol-storage-kind+
-    '((#.proto:+storage-kind-storage-undefined+ . :undefined)
-      (#.proto:+storage-kind-storage-normal+ . :normal)
-      (#.proto:+storage-kind-storage-static+ . :static)
-      (#.proto:+storage-kind-storage-extern+ . :extern)
-      (#.proto:+storage-kind-storage-local+ . :local))
-  :test #'equal)
-
 (define-proto-backed-class (symbol proto:symbol) () ()
     ((name :type string)
      (value :type unsigned-byte-64)
-     (referent-uuid :type uuid) ; TODO: Just hold the referent directly.
-     (storage-kind :type enumeration :enumeration +symbol-storage-kind+))
+     (referent-uuid :type uuid)) ; TODO: Just hold the referent directly.
   (:documentation
-   "Symbol with it's NAME, STORAGE-KIND, and either VALUE or REFERENT."))
+   "Symbol with it's NAME and an optional VALUE or REFERENT."))
 
 (defmethod print-object ((obj symbol) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a ~a" (name obj) (storage-kind obj))))
+    (format stream "~a ~a" (name obj) (or (value obj) (referent-uuid obj)))))
 
 (define-proto-backed-class (section proto:section) ()
     ((byte-intervals
