@@ -30,7 +30,6 @@ enum FileFormat {
   XCOFF = 6;
   MACHO = 7;
   RAW = 8;
-  reserved 9 to 1023;
 };
 
 enum ISA {
@@ -40,7 +39,6 @@ enum ISA {
   X64 = 3;
   ARM = 4;
   ValidButUnsupported = 5;
-  reserved 6 to 1023;
 };
 
 message Module {
