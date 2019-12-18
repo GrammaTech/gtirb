@@ -50,8 +50,9 @@ uint64_t CodeBlock::getOffset() const {
 }
 
 std::optional<Addr> CodeBlock::getAddress() const {
-  if (!Parent)
+  if (!Parent) {
     return std::nullopt;
+  }
   if (auto baseAddr = Parent->getAddress())
     return *baseAddr + getOffset();
   return std::nullopt;

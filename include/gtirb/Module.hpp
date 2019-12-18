@@ -83,9 +83,49 @@ enum class ISAID : uint8_t {
 };
 
 /// @cond INTERNAL
+
+/// \brief Add a new \ref Node to a \ref Module's lookup indices.
+///
+/// The module has indices for fast lookup of certain traits. When a node gets
+/// added somewhere in this module, these indices need updated. Call this
+/// function to update these indices. If getModule on this node returns null,
+/// the function does nothing and returns, so ensure that the node has parentage
+/// to the module before you call this function.
+///
+/// Valid \ref Node types to pass into this function include \ref ByteInterval,
+/// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
+///
+/// \param N  The node you wish to add.
 void GTIRB_EXPORT_API addToModuleIndices(Node* N);
+
+/// \brief Update the lookup indices of an Module when a \ref Node changes.
+///
+/// The module has indices for fast lookup of certain traits. When mutating
+/// these traits, call this function, with your mutation code in a lambda.
+/// if getModule on this node returns null, then no update is performed, but the
+/// lambda is still called.
+///
+/// Valid \ref Node types to pass into this function include \ref ByteInterval,
+/// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
+///
+/// \param N  The node you wish to mutate.
+/// \param F  A function taking no arguments and retuning void. This function
+/// should mutate N.
 void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
                                           const std::function<void()>& F);
+
+/// \brief Remove a \ref Node from a \ref Module's lookup indices.
+///
+/// The module has indices for fast lookup of certain traits. When a node gets
+/// removed somewhere in this module, these indices need updated. Call this
+/// function to update these indices. If getModule on this node returns null,
+/// the function does nothing and returns, so ensure that the node still has
+/// parentage to the module before you call this function.
+///
+/// Valid \ref Node types to pass into this function include \ref ByteInterval,
+/// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
+///
+/// \param N  The node you wish to remove.
 void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 
 // forward declare functions used in mutators
@@ -1119,36 +1159,53 @@ public:
   using const_symbolic_expression_addr_range =
       boost::iterator_range<const_symbolic_expression_addr_iterator>;
 
+  /// \brief Return an iterator to the first symbolic expression in this module.
   symbolic_expression_iterator symbolic_expressions_begin() {
     return boost::make_transform_iterator(
         SymbolicExpressions.get<by_pointer>().begin(),
         sym_expr_elem_to_node<SymbolicExpression>());
   }
+
+  /// \brief Return an iterator past the last symbolic expression in this
+  /// module.
   symbolic_expression_iterator symbolic_expressions_end() {
     return boost::make_transform_iterator(
         SymbolicExpressions.get<by_pointer>().end(),
         sym_expr_elem_to_node<SymbolicExpression>());
   }
+
+  /// \brief Return a range of all symbolic expressions in this module.
   symbolic_expression_range symbolic_expressions() {
     return symbolic_expression_range(symbolic_expressions_begin(),
                                      symbolic_expressions_end());
   }
 
+  /// \brief Return an iterator to the first symbolic expression in this module.
   const_symbolic_expression_iterator symbolic_expressions_begin() const {
     return boost::make_transform_iterator(
         SymbolicExpressions.get<by_pointer>().begin(),
         sym_expr_elem_to_node<const SymbolicExpression>());
   }
+
+  /// \brief Return an iterator past the last symbolic expression in this
+  /// module.
   const_symbolic_expression_iterator symbolic_expressions_end() const {
     return boost::make_transform_iterator(
         SymbolicExpressions.get<by_pointer>().end(),
         sym_expr_elem_to_node<const SymbolicExpression>());
   }
+
+  /// \brief Return a range of all symbolic expressions in this module.
   const_symbolic_expression_range symbolic_expressions() const {
     return const_symbolic_expression_range(symbolic_expressions_begin(),
                                            symbolic_expressions_end());
   }
 
+  /// \brief Find a symbolic expression at an address, if present.
+  ///
+  /// \param X  The address to find a symbolic expression at.
+  /// \return   A \ref SymbolicExpression at that address, or null if there is
+  /// no \ref SymbolicExpression at that address.
   SymbolicExpression* findSymbolicExpression(Addr X) {
     auto& index = SymbolicExpressions.get<by_address>();
     auto it = index.find(X);
@@ -1159,6 +1216,11 @@ public:
     }
   }
 
+  /// \brief Find a symbolic expression at an address, if present.
+  ///
+  /// \param X  The address to find a symbolic expression at.
+  /// \return   A \ref SymbolicExpression at that address, or null if there is
+  /// no \ref SymbolicExpression at that address.
   const SymbolicExpression* findSymbolicExpression(Addr X) const {
     auto& index = SymbolicExpressions.get<by_address>();
     auto it = index.find(X);
@@ -1169,6 +1231,11 @@ public:
     }
   }
 
+  /// \brief Return all the symbolic expressions between two addresses.
+  ///
+  /// \param Lower  The lowest address of symbolic expressions to return.
+  /// \param Upper  The highest address of symbolic expressions to return.
+  /// \return       A range of \ref SymbolicExpression objects.
   symbolic_expression_addr_range findSymbolicExpression(Addr Lower,
                                                         Addr Upper) {
     auto& index = SymbolicExpressions.get<by_address>();
@@ -1181,6 +1248,11 @@ public:
             sym_expr_elem_to_node<SymbolicExpression>()));
   }
 
+  /// \brief Return all the symbolic expressions between two addresses.
+  ///
+  /// \param Lower  The lowest address of symbolic expressions to return.
+  /// \param Upper  The highest address of symbolic expressions to return.
+  /// \return       A range of \ref SymbolicExpression objects.
   const_symbolic_expression_addr_range
   findSymbolicExpression(Addr Lower, Addr Upper) const {
     auto& index = SymbolicExpressions.get<by_address>();

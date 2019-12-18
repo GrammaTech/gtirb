@@ -39,6 +39,17 @@ namespace gtirb {
 class Module;
 
 /// @cond INTERNAL
+
+/// \brief Update the lookup indices of an IR when a Module changes.
+///
+/// The IR has indices for fast lookup of certain module traits. When mutating
+/// these traits, call this function, with your mutation code in a lambda.
+/// if \ref Module::getIR returns null, then no update is performed, but the
+/// lambda is still called.
+///
+/// \param M  The module you wish to mutate.
+/// \param F  A function taking no arguments and retuning void. This function
+/// should mutate M.
 void GTIRB_EXPORT_API mutateIRIndices(Module* M,
                                       const std::function<void()>& F);
 /// @endcond

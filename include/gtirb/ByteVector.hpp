@@ -33,20 +33,29 @@ namespace gtirb {
 /// DataBlock.
 class GTIRB_EXPORT_API ByteVector {
 public:
+  /// \brief The endianess of data: Either big or little-endian.
   using Endian = boost::endian::order;
 
 private:
+  /// \class Reference
+  ///
+  /// \brief A reference to a section of the byte interval, allowing for
+  /// seamless reading and writing of chunks of data.
   template <typename VectorType, typename ResultType> class Reference {
   public:
     Reference(VectorType* V_, size_t I_, Endian InputOrder_,
               Endian OutputOrder_)
         : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
+    /// \brief Use this reference as an rvalue, automatically handling
+    /// endian conversion.
     operator ResultType() const {
       return boost::endian::conditional_reverse(*(ResultType*)(V->data() + I),
                                                 InputOrder, OutputOrder);
     }
 
+    /// \brief Use this reference as an lvalue, automatically handling
+    /// endian conversion.
     void operator=(ResultType rhs) {
       *(ResultType*)(V->data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
@@ -59,6 +68,11 @@ private:
     Endian OutputOrder;
   };
 
+  /// \brief An iterator over the bytes in this byte vector.
+  ///
+  /// \tparam VectorType  Either "Vector" or "const Vector".
+  /// \tparam ResultType  The type of the data to iterate over. Must be a POD
+  /// type that satisfies Boost's EndianReversible concept.
   template <typename VectorType, typename ResultType>
   class BaseIterator
       : public boost::iterator_facade<BaseIterator<VectorType, ResultType>,
@@ -93,12 +107,30 @@ private:
     }
     // end functions for iterator facade compatibility
 
+    /// \brief Convert this iterator into a const iterator.
     operator BaseIterator<const VectorType, ResultType>() const {
       return BaseIterator<const VectorType, ResultType>(V, I, InputOrder,
                                                         OutputOrder);
     }
 
+    /// \brief Return the raw data underlying this byte vector at this
+    /// iterator's position.
+    ///
+    /// Much like \ref std::vector::data, this function is low-level and
+    /// potentially unsafe. This pointer refers to valid memory only where an
+    /// iterator would be valid to point to. Modifying the size of the byte
+    /// vector may invalidate this pointer. Any endian conversions will not be
+    /// performed.
     ResultType* data() { return reinterpret_cast<ResultType*>(V->data()); }
+
+    /// \brief Return the raw data underlying this byte vector at this
+    /// iterator's position.
+    ///
+    /// Much like \ref std::vector::data, this function is low-level and
+    /// potentially unsafe. This pointer refers to valid memory only where an
+    /// iterator would be valid to point to. Modifying the size of the byte
+    /// vector may invalidate this pointer. Any endian conversions will not be
+    /// performed.
     const ResultType* data() const {
       return reinterpret_cast<const ResultType*>(V->data());
     }
@@ -109,7 +141,10 @@ private:
     Endian InputOrder;
     Endian OutputOrder;
 
+    /// \brief Convert this iterator into an underlying \ref Vector::iterator.
     typename VectorType::iterator getIterator() { return V->begin() + I; }
+
+    /// \brief Convert this iterator into an underlying \ref Vector::iterator.
     typename VectorType::const_iterator getIterator() const {
       return V->begin() + I;
     }
@@ -118,35 +153,80 @@ private:
   };
 
 public:
+  /// \brief Construct an empty byte vector.
   ByteVector() = default;
+
+  /// \brief Construct a byte vector, filled with zeroes to the given size.
   ByteVector(uint64_t Size) : Bytes(Size) {}
+
+  /// \brief Construct a byte vector from an iterator range of bytes.
   template <typename It> ByteVector(It Begin, It End) : Bytes(Begin, End) {}
+
+  /// \brief Construct a byte vector from an iterator range of bytes,
+  /// potentially filling remaining space with zeroes.
   template <typename It>
   ByteVector(It Begin, It End, uint64_t Size) : Bytes(Begin, End) {
     Bytes.resize(Size);
   }
 
+  /// \brief Iterator over bytes.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
   template <typename ResultType>
   using iterator = BaseIterator<std::vector<uint8_t>, ResultType>;
+  /// \brief Range over bytes.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
   template <typename ResultType>
   using range = boost::iterator_range<iterator<ResultType>>;
+  /// \brief Const iterator over bytes.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
   template <typename ResultType>
   using const_iterator = BaseIterator<const std::vector<uint8_t>, ResultType>;
+  /// \brief Const range over bytes.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
   template <typename ResultType>
   using const_range = boost::iterator_range<const_iterator<ResultType>>;
 
+  /// \brief Get an iterator to the beginning of this byte vector.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the vector.
+  /// \param  OutputOrder The endianess you wish to read out from the vector.
   template <typename ResultType>
   iterator<ResultType> begin(Endian InputOrder = Endian::native,
                              Endian OutputOrder = Endian::native) {
     return iterator<ResultType>(&Bytes, 0, InputOrder, OutputOrder);
   }
 
+  /// \brief Get an iterator past the end of this byte vector.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the vector.
+  /// \param  OutputOrder The endianess you wish to read out from the vector.
   template <typename ResultType>
   iterator<ResultType> end(Endian InputOrder = Endian::native,
                            Endian OutputOrder = Endian::native) {
     return iterator<ResultType>(&Bytes, Bytes.size(), InputOrder, OutputOrder);
   }
 
+  /// \brief Get aa range of data in this byte vector.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the vector.
+  /// \param  OutputOrder The endianess you wish to read out from the vector.
   template <typename ResultType>
   range<ResultType> bytes(Endian InputOrder = Endian::native,
                           Endian OutputOrder = Endian::native) {
@@ -154,12 +234,26 @@ public:
                              end<ResultType>(InputOrder, OutputOrder));
   }
 
+  /// \brief Get an iterator to the beginning of this byte vector.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the vector.
+  /// \param  OutputOrder The endianess you wish to read out from the vector.
   template <typename ResultType>
   const_iterator<ResultType> begin(Endian InputOrder = Endian::native,
                                    Endian OutputOrder = Endian::native) const {
     return const_iterator<ResultType>(&Bytes, 0, InputOrder, OutputOrder);
   }
 
+  /// \brief Get an iterator past the end of this byte vector.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the vector.
+  /// \param  OutputOrder The endianess you wish to read out from the vector.
   template <typename ResultType>
   const_iterator<ResultType> end(Endian InputOrder = Endian::native,
                                  Endian OutputOrder = Endian::native) const {
@@ -167,6 +261,13 @@ public:
                                       OutputOrder);
   }
 
+  /// \brief Get a range of data in this byte vector.
+  ///
+  /// \tparam ResultType  The type of data stored in this byte vector. Must be a
+  /// POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the vector.
+  /// \param  OutputOrder The endianess you wish to read out from the vector.
   template <typename ResultType>
   const_range<ResultType> bytes(Endian InputOrder = Endian::native,
                                 Endian OutputOrder = Endian::native) const {
@@ -174,9 +275,24 @@ public:
                                    end<ResultType>(InputOrder, OutputOrder));
   }
 
+  /// \brief Get the number of bytes held in this vector.
   uint64_t getSize() const { return Bytes.size(); }
+  /// \brief Set the number of bytes held in this vector, filling with zeroes or
+  /// truncating as appropriate.
   void setSize(uint64_t S) { Bytes.resize(S); }
 
+  /// \brief Insert a single datum into this byte vector.
+  ///
+  /// \tparam ResultType  The type of data you wish to insert into the byte
+  /// vector. Must be a POD type that satisfies Boost's EndianReversibleInplace
+  /// concept.
+  ///
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  X             The data to insert.
+  /// \param  VectorOrder   The endianess of the data in the byte vector.
+  /// \param  ElementOrder  The endianess of the data to be inserted.
+  ///
+  /// \return An iterator pointing to the element inserted by this call.
   template <typename ResultType>
   const_iterator<ResultType> insert(const const_iterator<ResultType> Pos,
                                     ResultType X,
@@ -189,6 +305,21 @@ public:
     return Pos;
   }
 
+  /// \brief Insert data into this byte vector.
+  ///
+  /// \tparam ResultType  The type of data you wish to insert into the byte
+  /// vector. Must be a POD type that satisfies Boost's EndianReversibleInplace
+  /// concept.
+  ///
+  /// \tparam ItType      The type of an iterator yielding T.
+  ///
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
+  /// \param  VectorOrder   The endianess of the data in the byte vector.
+  /// \param  ElementsOrder The endianess of the data to be inserted.
+  ///
+  /// \return An iterator pointing to the first element inserted by this call.
   template <typename ResultType, typename ItType>
   const_iterator<ResultType> insert(const const_iterator<ResultType> Pos,
                                     ItType Begin, ItType End,
@@ -202,6 +333,15 @@ public:
     return Pos;
   }
 
+  /// \brief Erase data from this byte vector.
+  ///
+  /// \tparam ResultType  The type of data you wish to erase.
+  ///
+  /// \param  Begin The start of the data to erase.
+  /// \param  End   The end of the data to erase.
+  ///
+  /// \return An iterator pointing to the first element after those erased by
+  /// this call.
   template <typename ResultType>
   const_iterator<ResultType> erase(const const_iterator<ResultType> Begin,
                                    const const_iterator<ResultType> End) {
@@ -214,7 +354,9 @@ private:
 };
 
 class ByteInterval;
+/// \brief Return the \ref ByteVector stored in a \ref ByteInterval.
 GTIRB_EXPORT_API ByteVector& getByteVector(ByteInterval* BI);
+/// \brief Return the \ref ByteVector stored in a \ref ByteInterval.
 GTIRB_EXPORT_API const ByteVector& getByteVector(const ByteInterval* BI);
 /// @endcond
 } // namespace gtirb

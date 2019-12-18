@@ -82,6 +82,9 @@ public:
 
   /// \brief Get the decode mode from a \ref CodeBlock.
   ///
+  /// This field is used in some ISAs where it is used to
+  /// differentiate between sub-ISAs; ARM and Thumb, for example.
+  ///
   /// \return The decode mode.
   uint64_t getDecodeMode() const { return DecodeMode; }
 
@@ -94,31 +97,81 @@ public:
   /// present.
   std::optional<Addr> getAddress() const;
 
+  /// \brief Set the size of this block.
+  ///
+  /// Note that this does not automatically update any \ref ByteInterval's size,
+  /// bytes, or symbolic expressions. This simply changes the extents of a block
+  /// in its \ref ByteInterval.
   void setSize(uint64_t S) {
     mutateModuleIndices(this, [this, S]() { Size = S; });
   }
 
+  /// \brief Set the decode mode of this block.
+  ///
+  /// This field is used in some ISAs where it is used to
+  /// differentiate between sub-ISAs; ARM and Thumb, for example.
   void setDecodeMode(uint64_t DM) { DecodeMode = DM; }
 
+  /// \brief The endianess of data: Either big or little-endian.
   using Endian = ByteVector::Endian;
+
+  /// \brief Iterator over bytes in this block.
+  ///
+  /// \tparam T The type of data stored in this block's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> using bytes_iterator = ByteVector::iterator<T>;
+  /// \brief Range over bytes in this block.
+  ///
+  /// \tparam T The type of data stored in this block's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> using bytes_range = ByteVector::range<T>;
+  /// \brief Const iterator over bytes in this block.
+  ///
+  /// \tparam T The type of data stored in this block's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T>
   using const_bytes_iterator = ByteVector::const_iterator<T>;
+  /// \brief Const range over bytes in this block.
+  ///
+  /// \tparam T The type of data stored in this block's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> using const_bytes_range = ByteVector::const_range<T>;
 
+  /// \brief Get an iterator to the first byte in this block.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the block.
+  /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
   bytes_iterator<T> bytes_begin(Endian InputOrder = Endian::native,
                                 Endian OutputOrder = Endian::native) {
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset();
   }
+
+  /// \brief Get an iterator past the last byte in this block.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the block.
+  /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
   bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                               Endian OutputOrder = Endian::native) {
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset() + Size;
   }
+
+  /// \brief Get a range of the bytes in this block.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the block.
+  /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
   bytes_range<T> bytes(Endian InputOrder = Endian::native,
                        Endian OutputOrder = Endian::native) {
@@ -126,6 +179,13 @@ public:
                           bytes_end<T>(InputOrder, OutputOrder));
   }
 
+  /// \brief Get an iterator to the first byte in this block.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the block.
+  /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
   const_bytes_iterator<T>
   bytes_begin(Endian InputOrder = Endian::native,
@@ -133,12 +193,28 @@ public:
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset();
   }
+
+  /// \brief Get an iterator past the last byte in this block.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the block.
+  /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
   const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                                     Endian OutputOrder = Endian::native) const {
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset() + Size;
   }
+
+  /// \brief Get a range of the bytes in this block.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the block.
+  /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
   const_bytes_range<T> bytes(Endian InputOrder = Endian::native,
                              Endian OutputOrder = Endian::native) const {

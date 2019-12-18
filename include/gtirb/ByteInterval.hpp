@@ -52,7 +52,8 @@ void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 
 /// \class Block
 ///
-/// \brief An entity with an offset held within this interval.
+/// \brief A node (either a \ref CodeBlock or \ref DataBlock), alongside an
+/// offset, held within this interval.
 class Block {
   friend class ByteInterval;
   uint64_t offset;
@@ -61,7 +62,12 @@ class Block {
 public:
   Block(uint64_t o, Node* n) : offset(o), node(n) {}
 
+  /// \brief Get the offset from the beginning of this block's \ref
+  /// ByteInterval.
   uint64_t getOffset() const { return offset; }
+
+  /// \brief Get the \ref Node, either a \ref CodeBlock or \ref DataBlock, in
+  /// the \ref ByteInterval.
   Node* getNode() const { return node; }
 };
 
@@ -129,12 +135,27 @@ public:
     return C.Create<ByteInterval>(C, Parent, Address, Size, Size);
   }
 
+  /// \brief Create a ByteInterval object.
+  /// \param C              The Context in which this interval will be held.
+  /// \param Parent         The \ref Section this interval belongs to.
+  /// \param Address        An (optional) fixed address for this interval.
+  /// \param Size           The size of this interval in bytes.
+  /// \param AllocatedSize  The number of bytes with initialized values.
+  /// \return               The newly created ByteInterval.
   static ByteInterval* Create(Context& C, Section* Parent,
                               std::optional<Addr> Address, uint64_t Size,
                               uint64_t AllocatedSize) {
     return C.Create<ByteInterval>(C, Parent, Address, AllocatedSize, Size);
   }
 
+  /// \brief Create a ByteInterval object.
+  /// \tparam It        An iterator yielding bytes.
+  /// \param C          The Context in which this interval will be held.
+  /// \param Parent     The \ref Section this interval belongs to.
+  /// \param Address    An (optional) fixed address for this interval.
+  /// \param BytesBegin The start of the range to copy to the byte vector.
+  /// \param BytesEnd   The end of the range to copy to the byte vector.
+  /// \return           The newly created ByteInterval.
   template <typename It>
   static ByteInterval* Create(Context& C, Section* Parent,
                               std::optional<Addr> Address, It BytesBegin,
@@ -144,6 +165,15 @@ public:
                                   BytesBegin, BytesEnd);
   }
 
+  /// \brief Create a ByteInterval object.
+  /// \tparam It        An iterator yielding bytes.
+  /// \param C          The Context in which this interval will be held.
+  /// \param Parent     The \ref Section this interval belongs to.
+  /// \param Address    An (optional) fixed address for this interval.
+  /// \param BytesBegin The start of the range to copy to the byte vector.
+  /// \param BytesEnd   The end of the range to copy to the byte vector.
+  /// \param Size       The size of this interval in bytes.
+  /// \return           The newly created ByteInterval.
   template <typename It>
   static ByteInterval* Create(Context& C, Section* Parent,
                               std::optional<Addr> Address, It BytesBegin,
@@ -152,6 +182,16 @@ public:
                                   BytesEnd, Size);
   }
 
+  /// \brief Create a ByteInterval object.
+  /// \tparam It            An iterator yielding bytes.
+  /// \param C              The Context in which this interval will be held.
+  /// \param Parent         The \ref Section this interval belongs to.
+  /// \param Address        An (optional) fixed address for this interval.
+  /// \param BytesBegin     The start of the range to copy to the byte vector.
+  /// \param BytesEnd       The end of the range to copy to the byte vector.
+  /// \param Size           The size of this interval in bytes.
+  /// \param AllocatedSize  The number of bytes with initialized values.
+  /// \return               The newly created ByteInterval.
   template <typename It>
   static ByteInterval*
   Create(Context& C, Section* Parent, std::optional<Addr> Address,
@@ -176,36 +216,12 @@ public:
 
   /// \brief Get the size of this interval in bytes.
   ///
-  /// This number may not always be the size of the byte array returned by \ref
-  /// getBytes. If this number is larger than the size of this interval's byte
-  /// array, this indicates that the high addresses taken up by this interval
-  /// consist of uninitialized bytes. This often occurs in BSS sections, where
-  /// data is zero-initialized rather than stored as zeroes in the binary.
-  ///
-  /// It is an error to have an interval in which this number is less than the
-  /// size of the byte array returned by \ref getBytes.
+  /// If this number is greater than the value returned by \ref
+  /// getAllocatedSize, this indicates that the high addresses taken up by this
+  /// interval consist of uninitialized bytes. This often occurs in BSS
+  /// sections, where data is zero-initialized rather than stored as zeroes in
+  /// the binary.
   uint64_t getSize() const { return Bytes.getSize(); }
-
-  /// \brief Get the bytes stored in this interval.
-  ///
-  /// \ref CodeBlock and \ref DataBlock objects indicate that ranges of these
-  /// bytes belong to program code and data, respectively. They are stored here
-  /// rather than in the blocks themselves in the case that blocks overlap. Code
-  /// blocks can overlap in some ISAs where, for example, jumps are allowed into
-  /// the middle of multibyte instructions, and data blocks can overlap in the
-  /// case where, for example, elements of arrays are accessed in a static
-  /// manner.
-  ByteVector& getBytes() { return Bytes; }
-  /// \brief Get the bytes stored in this interval.
-  ///
-  /// \ref CodeBlock and \ref DataBlock objects indicate that ranges of these
-  /// bytes belong to program code and data, respectively. They are stored here
-  /// rather than in the blocks themselves in the case that blocks overlap. Code
-  /// blocks can overlap in some ISAs where, for example, jumps are allowed into
-  /// the middle of multibyte instructions, and data blocks can overlap in the
-  /// case where, for example, elements of arrays are accessed in a static
-  /// manner.
-  const ByteVector& getBytes() const { return Bytes; }
 
   /// \brief Iterator over \ref Block objects.
   ///
@@ -369,25 +385,21 @@ public:
 
   /// \brief Iterator over \ref SymbolicExpression objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Results are yielded in offset order, ascending.
   using symbolic_expressions_iterator = SymbolicExpressionSet::iterator;
   /// \brief Range of \ref SymbolicExpression objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Results are yielded in offset order, ascending.
   using symbolic_expressions_range =
       boost::iterator_range<symbolic_expressions_iterator>;
   /// \brief Const iterator over \ref SymbolicExpression objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Results are yielded in offset order, ascending.
   using const_symbolic_expressions_iterator =
       SymbolicExpressionSet::const_iterator;
   /// \brief Const range of \ref SymbolicExpression objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Results are yielded in offset order, ascending.
   using const_symbolic_expressions_range =
       boost::iterator_range<const_symbolic_expressions_iterator>;
 
@@ -425,6 +437,7 @@ public:
   /// \brief Remove a block from this interval.
   ///
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
+  /// \param  N           The block to remove.
   template <class BlockType> void removeBlock(BlockType* N) {
     removeFromModuleIndices(N);
     auto& index = Blocks.get<by_pointer>();
@@ -436,6 +449,8 @@ public:
   /// \brief Move an existing Block to be a part of this interval.
   ///
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
+  /// \param  O           The offset to move the block to.
+  /// \param  N           The block to move.
   template <typename BlockType> void moveBlock(uint64_t O, BlockType* N) {
     if (N->getByteInterval()) {
       N->getByteInterval()->removeBlock(N);
@@ -449,6 +464,10 @@ public:
   /// \brief Creates a new \ref CodeBlock at a given offset.
   ///
   /// \tparam Args  The arguments to construct a \ref CodeBlock.
+  /// \param  C     The \ref Context to use.
+  /// \param  O     The offset to add the new \ref CodeBlock at.
+  /// \param  A     The arguments to construct a \ref CodeBlock.
+  /// \return       The newly created \ref CodeBlock.
   template <typename... Args>
   CodeBlock* addCodeBlock(Context& C, uint64_t O, Args... A) {
     auto N = CodeBlock::Create(C, this, A...);
@@ -460,6 +479,10 @@ public:
   /// \brief Creates a new \ref DataBlock at a given offset.
   ///
   /// \tparam Args  The arguments to construct a \ref DataBlock.
+  /// \param  C     The \ref Context to use.
+  /// \param  O     The offset to add the new \ref DataBlock at.
+  /// \param  A     The arguments to construct a \ref DataBlock.
+  /// \return       The newly created \ref DataBlock.
   template <typename... Args>
   DataBlock* addDataBlock(Context& C, uint64_t O, Args... A) {
     auto N = DataBlock::Create(C, this, A...);
@@ -468,6 +491,14 @@ public:
     return N;
   }
 
+  /// \brief Adds a new \ref SymbolicExpression to this interval.
+  ///
+  /// \tparam ExprType  The type of symbolic expression to create
+  ///                   (\ref SymAddrConst, \ref SymAddrAddr, etc).
+  /// \tparam Args      The arguments to construct something of ExprType.
+  /// \param  O         The offset to add the new \ref SymbolicExpression at.
+  /// \param  A         The arguments to construct something of ExprType.
+  /// \return           The newly created \ref SymbolicExpression.
   template <class ExprType, class... Args>
   SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
     mutateModuleIndices(
@@ -475,26 +506,49 @@ public:
     return SymbolicExpressions[O];
   }
 
+  /// \brief Removes a \ref SymbolicExpression at the given offset, if present.
+  ///
+  /// \param O  The offset of the \ref SymbolicExpression to remove.
   void removeSymbolicExpression(uint64_t O) {
     mutateModuleIndices(this, [&]() { SymbolicExpressions.erase(O); });
   }
 
+  /// \brief Get the symbolic expression at the given offset, if present.
+  ///
+  /// \param O  The offset of the \ref SymbolicExpression to return.
+  /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
+  ///           is no \ref SymbolicExpression at that offset.
   SymbolicExpression* getSymbolicExpression(uint64_t O) {
     auto it = SymbolicExpressions.find(O);
     return it == SymbolicExpressions.end() ? nullptr
                                            : &SymbolicExpressions.at(O);
   }
 
+  /// \brief Get the symbolic expression at the given offset, if present.
+  ///
+  /// \param O  The offset of the \ref SymbolicExpression to return.
+  /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
+  ///           is no \ref SymbolicExpression at that offset.
   const SymbolicExpression* getSymbolicExpression(uint64_t O) const {
     auto it = SymbolicExpressions.find(O);
     return it == SymbolicExpressions.end() ? nullptr
                                            : &SymbolicExpressions.at(O);
   }
 
+  /// \brief Set or clear the address of this interval.
+  ///
+  /// \param A  Either the new address, or an empty \ref std::optional if you
+  ///           wish to remove the address.
   void setAddress(std::optional<Addr> A) {
     mutateModuleIndices(this, [this, A]() { Address = A; });
   }
 
+  /// \brief Set the size of this interval.
+  ///
+  /// This will also adjust \ref getAllocatedSize if the size given is less than
+  /// the allocated size.
+  ///
+  /// \param S  The new size.
   void setSize(uint64_t S) {
     mutateModuleIndices(this, [this, S]() {
       if (AllocatedSize > S) {
@@ -505,6 +559,18 @@ public:
     });
   }
 
+  /// \brief Get the number of initialized bytes in this interval.
+  ///
+  /// Not all bytes in this interval may correspond to bytes physically stored
+  /// in the underlying file format. This can occur, for example, in BSS
+  /// sections, which are zero-initialized at loadtime, but these zeroes are not
+  /// stored in the file itself. If this number is smaller than the value
+  /// returned by \ref getSize, this indicates that any bytes past this number
+  /// are unitialized bytes with values determined at loadtime. As such, all
+  /// bytes past this number in this interval's byte vector are truncated when
+  /// saving to file.
+  ///
+  /// This number may not be larger than the value returned by \ref getSize.
   uint64_t getAllocatedSize() const { return AllocatedSize; }
   void setAllocatedSize(uint64_t S) {
     if (S > getSize()) {
@@ -513,46 +579,123 @@ public:
     AllocatedSize = S;
   }
 
+  /// \brief The endianess of data: Either big or little-endian.
   using Endian = ByteVector::Endian;
+  /// \brief Iterator over bytes in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> using bytes_iterator = ByteVector::iterator<T>;
+  /// \brief Range over bytes in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> using bytes_range = ByteVector::range<T>;
+  /// \brief Const tterator over bytes in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T>
   using const_bytes_iterator = ByteVector::const_iterator<T>;
+  /// \brief Const range over bytes in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> using const_bytes_range = ByteVector::const_range<T>;
 
+  /// \brief Get an iterator to the first byte in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the interval.
+  /// \param  OutputOrder The endianess you wish to read out from the interval.
   template <typename T>
   bytes_iterator<T> bytes_begin(Endian InputOrder = Endian::native,
                                 Endian OutputOrder = Endian::native) {
     return Bytes.begin<T>(InputOrder, OutputOrder);
   }
+
+  /// \brief Get an iterator past the last byte in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the interval.
+  /// \param  OutputOrder The endianess you wish to read out from the interval.
   template <typename T>
   bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                               Endian OutputOrder = Endian::native) {
     return Bytes.end<T>(InputOrder, OutputOrder);
   }
+
+  /// \brief Get a range of all data in this interval's byte vector.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the interval.
+  /// \param  OutputOrder The endianess you wish to read out from the interval.
   template <typename T>
   bytes_range<T> bytes(Endian InputOrder = Endian::native,
                        Endian OutputOrder = Endian::native) {
     return Bytes.bytes<T>(InputOrder, OutputOrder);
   }
 
+  /// \brief Get an iterator to the first byte in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the interval.
+  /// \param  OutputOrder The endianess you wish to read out from the interval.
   template <typename T>
   const_bytes_iterator<T>
   bytes_begin(Endian InputOrder = Endian::native,
               Endian OutputOrder = Endian::native) const {
     return Bytes.begin<T>(InputOrder, OutputOrder);
   }
+
+  /// \brief Get an iterator past the last byte in this interval.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the interval.
+  /// \param  OutputOrder The endianess you wish to read out from the interval.
   template <typename T>
   const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                                     Endian OutputOrder = Endian::native) const {
     return Bytes.end<T>(InputOrder, OutputOrder);
   }
+
+  /// \brief Get a range of all data in this interval's byte vector.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type that satisfies Boost's EndianReversible concept.
+  ///
+  /// \param  InputOrder  The endianess of the data in the interval.
+  /// \param  OutputOrder The endianess you wish to read out from the interval.
   template <typename T>
   const_bytes_range<T> bytes(Endian InputOrder = Endian::native,
                              Endian OutputOrder = Endian::native) const {
     return Bytes.bytes<T>(InputOrder, OutputOrder);
   }
 
+  /// \brief Insert data into this interval's byte vector.
+  ///
+  /// \tparam T   The type of data you wish to insert into the byte vector. Must
+  /// be a POD type that satisfies Boost's EndianReversibleInplace concept.
+  ///
+  /// \tparam It  The type of an iterator yielding T.
+  ///
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
+  /// \param  VectorOrder   The endianess of the data in the interval.
+  /// \param  ElementsOrder The endianess of the data to be inserted.
+  ///
+  /// \return An iterator pointing to the first element inserted by this call.
   template <typename T, typename It>
   const_bytes_iterator<T> insertBytes(const_bytes_iterator<T> Pos, It Begin,
                                       It End,
@@ -563,6 +706,15 @@ public:
     return result;
   }
 
+  /// \brief Erase data from this interval's byte vector.
+  ///
+  /// \tparam T     The type of data you wish to erase.
+  ///
+  /// \param  Begin The start of the data to erase.
+  /// \param  End   The end of the data to erase.
+  ///
+  /// \return An iterator pointing to the first element after those erased by
+  /// this call.
   template <typename T>
   const_bytes_iterator<T> eraseBytes(const_bytes_iterator<T> Begin,
                                      const_bytes_iterator<T> End) {
