@@ -101,7 +101,7 @@ if(DOXYGEN_FOUND)
   # ----------------------------------------------------------------------
 
   add_custom_target(
-    doc
+    doxygen
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${DOTFILES}
     DEPENDS ${MDFILES}
@@ -109,4 +109,6 @@ if(DOXYGEN_FOUND)
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM
   )
+
+  add_dependencies(doc doxygen)
 endif(DOXYGEN_FOUND)
