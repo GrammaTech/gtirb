@@ -17,7 +17,6 @@
            :is-equal-p
            :*is-equal-p-verbose-p*
            :get-uuid
-           :proto-backed
            :uuid
            :update-proto
 ;;; Classes and fields.
@@ -83,19 +82,10 @@
 
 
 ;;;; Class utilities.
-(defun uuid-to-integer (uuid)
-  (if (emptyp uuid)
-      ;;TODO: Needed when referent-uuid of a symbol can be #().
-      ;;      Remove this case and instead stop processing missing
-      ;;      referent-uuids.
-      0
-      (octets->int (force-byte-array uuid) 16)))
-
-(defun integer-to-uuid (number)
-  (int->octets number 16))
-
 (defvar *is-equal-p-verbose-p* nil
-  "Compare equality verbosely.")
+  "Compare equality verbosely in the `is-equal-p' function.
+This may be useful to print contextual information when an equality
+comparison fails for a large object with many nested objects.")
 
 (defvar *is-equal-p-verbose-output-buffer* nil
   "Buffer to hold output of is-equal-p verbose failure messages.")
@@ -111,7 +101,10 @@
                  *is-equal-p-verbose-output-buffer*)))))
 
 (defun is-equal-p (left right)
-  "Return t if LEFT and RIGHT are equal."
+  "Return t if LEFT and RIGHT are equal.
+Recursively descend into any sub-structure.  Custom recursive equality
+predicates are defined for common Common Lisp data structures as well
+as all GTIRB structures."
   (let ((*is-equal-p-verbose-output-buffer* nil))
     (let ((equalp (is-equal-p-internal left right)))
       (prog1 equalp
@@ -318,7 +311,11 @@ Should not need to be manipulated by client code.")
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
                :documentation "Auxiliary data objects on the IR.
-The modules of the IR will often also hold auxiliary data objects.")
+Aux-Data tables may hold structured or unstructured data.  This data
+may refer to elements of the GTIRB IR through uuids.  Information
+relevant to a particular module will be stored in Aux-Data tables
+accessible from the specific module.  Aux-Data tables only exist on
+modules and on GTIRB IR instances.")
      (by-uuid :accessor by-uuid :initform (make-hash-table) :type hash-table
               :skip-equal-p t
               :documentation "Internal cache for UUID-based lookup.")
@@ -410,13 +407,18 @@ The modules of the IR will often also hold auxiliary data objects.")
                                  it))
                      (mapcar #'car (hash-table-alist proxies))))
               :documentation
-              "Hash of proxy blocks, used to represent cross-module linkages.")
+              "Hash-table of proxy-blocks keyed by UUID.
+Proxy-blocks in GTIRB are used to represent cross-module linkages.
+For example when code in a module calls to a function defined in an
+external library, the CFG for that IR instance may represent this call
+with a call edge to a proxy block representing the external called
+function.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
               :from-proto (lambda (proto) (map 'list {make-instance 'symbol :proto}
                                                (proto:symbols proto)))
               :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
-              :documentation "Hash of symbols keyed by UUID.")
+              :documentation "Hash-table of symbols keyed by UUID.")
      (sections :accessor sections :type (list section)
                :from-proto
                (lambda (proto)

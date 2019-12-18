@@ -3,7 +3,9 @@
   (:export :read-proto
            :write-proto
            :new-uuid
-           :force-byte-array))
+           :force-byte-array
+           :uuid-to-integer
+           :integer-to-uuid))
 (in-package :gtirb/utility)
 (declaim (optimize (speed 3) (safety 0) (debug 0)))
 
@@ -41,3 +43,14 @@
   (declare (type (simple-array) array))
   (make-array (length array) :element-type '(unsigned-byte 8)
               :initial-contents array))
+
+(defun uuid-to-integer (uuid)
+  (if (emptyp uuid)
+      ;;TODO: Needed when referent-uuid of a symbol can be #().
+      ;;      Remove this case and instead stop processing missing
+      ;;      referent-uuids.
+      0
+      (octets->int (force-byte-array uuid) 16)))
+
+(defun integer-to-uuid (number)
+  (int->octets number 16))
