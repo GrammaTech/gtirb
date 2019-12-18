@@ -139,11 +139,8 @@ public:
 
     Addr result{std::numeric_limits<Addr::value_type>::max()};
     for (const auto* interval : ByteIntervals) {
-      auto addr = interval->getAddress();
-      if (addr.has_value()) {
-        if (*addr < result) {
-          result = *addr;
-        }
+      if (auto addr = interval->getAddress()) {
+        result = std::min(result, *addr);
       } else {
         return std::nullopt;
       }
@@ -162,22 +159,16 @@ public:
   /// has no address or size, so it will return \ref std::nullopt in that case.
   std::optional<uint64_t> getSize() const {
     if (ByteIntervals.empty()) {
-      return std::optional<uint64_t>(0);
+      return std::nullopt;
     }
 
     Addr lowAddr{std::numeric_limits<Addr::value_type>::max()};
     Addr highAddr{0};
 
     for (const auto* interval : ByteIntervals) {
-      auto addr = interval->getAddress();
-      if (addr) {
-        if (*addr < lowAddr) {
-          lowAddr = *addr;
-        }
-        Addr adjustedAddr = *addr + interval->getSize();
-        if (adjustedAddr > highAddr) {
-          highAddr = adjustedAddr;
-        }
+      if (auto addr = interval->getAddress()) {
+        lowAddr = std::min(lowAddr, *addr);
+        highAddr = std::max(highAddr, *addr + interval->getSize());
       } else {
         return std::nullopt;
       }
