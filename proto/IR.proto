@@ -30,5 +30,4 @@ message IR {
     repeated Module modules = 3;
     map<string, AuxData> aux_data = 5;
     uint32 version = 6;
-    CFG cfg = 7;
 }
