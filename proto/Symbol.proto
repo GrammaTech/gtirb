@@ -15,21 +15,14 @@
 syntax = "proto3";
 package proto;
 
-enum StorageKind
-{
-    Storage_Undefined = 0;
-    Storage_Normal = 1;
-    Storage_Static = 2;
-    Storage_Extern = 3;
-    Storage_Local = 4;
-};
-
 message Symbol {
+    reserved 4;
+    reserved "storage_kind";
+
     bytes uuid = 1;
     oneof optional_payload {
       uint64 value = 2;
       bytes referent_uuid = 5;
     }
     string name = 3;
-    StorageKind storage_kind = 4;
 }
