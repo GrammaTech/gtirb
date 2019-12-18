@@ -30,7 +30,7 @@
      ;; See the protobuf defsystem extension for how the gtirb.proto
      ;; file is loaded into Lisp.  https://github.com/brown/protobuf
      (:module proto
-              :pathname "../proto-v0/"
+              :pathname "../proto/v0/"
               :components
               ((:protobuf-source-file "AuxDataContainer")
                (:protobuf-source-file "CFG")
