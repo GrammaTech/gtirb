@@ -590,8 +590,23 @@ public:
   /// bytes past this number in this interval's byte vector are truncated when
   /// saving to file.
   ///
-  /// This number may not be larger than the value returned by \ref getSize.
+  /// This number will never be larger than the value returned by \ref getSize.
   uint64_t getAllocatedSize() const { return AllocatedSize; }
+
+  /// \brief Set the number of initialized bytes in this interval.
+  ///
+  /// Not all bytes in this interval may correspond to bytes physically stored
+  /// in the underlying file format. This can occur, for example, in BSS
+  /// sections, which are zero-initialized at loadtime, but these zeroes are not
+  /// stored in the file itself. If this number is smaller than the value
+  /// returned by \ref getSize, this indicates that any bytes past this number
+  /// are unitialized bytes with values determined at loadtime. As such, all
+  /// bytes past this number in this interval's byte vector are truncated when
+  /// saving to file.
+  ///
+  /// If the number specified is larger than \ref getSize, then
+  /// the byte vector is expanded with zeroes to be equal to the new allocated
+  /// size.
   void setAllocatedSize(uint64_t S) {
     if (S > getSize()) {
       setSize(S);
