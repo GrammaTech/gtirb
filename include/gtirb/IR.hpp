@@ -184,9 +184,9 @@ public:
   ///
   /// \param S The \ref Module object to remove.
   void removeModule(Module* S) {
-    auto& index = Modules.get<by_pointer>();
-    if (auto iter = index.find(S); iter != index.end())
-      index.erase(iter);
+    auto& Index = Modules.get<by_pointer>();
+    if (auto Iter = Index.find(S); Iter != Index.end())
+      Index.erase(Iter);
     S->setIR(nullptr);
   }
 
@@ -205,7 +205,7 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref Module.
   template <typename... Args> Module* addModule(Context& C, Args... A) {
-    auto N = Module::Create(C, this, A...);
+    auto* N = Module::Create(C, this, A...);
     Modules.emplace(N);
     return N;
   }

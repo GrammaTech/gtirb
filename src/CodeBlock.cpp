@@ -27,8 +27,7 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
 
 CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const MessageType& Message) {
-  CodeBlock* B =
-      CodeBlock::Create(C, Parent, Message.size(), Message.decode_mode());
+  auto* B = CodeBlock::Create(C, Parent, Message.size(), Message.decode_mode());
   setNodeUUIDFromBytes(B, Message.uuid());
   return B;
 }
@@ -53,7 +52,8 @@ std::optional<Addr> CodeBlock::getAddress() const {
   if (!Parent) {
     return std::nullopt;
   }
-  if (auto baseAddr = Parent->getAddress())
-    return *baseAddr + getOffset();
+  if (auto BaseAddr = Parent->getAddress()) {
+    return *BaseAddr + getOffset();
+  }
   return std::nullopt;
 }

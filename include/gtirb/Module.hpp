@@ -146,19 +146,20 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   // multi-containers.
   template <typename T> struct addr_size_order {
     using key_type = std::pair<std::optional<Addr>, std::optional<uint64_t>>;
-    static key_type key(const T& t) {
-      return std::make_pair(t.getAddress(), t.getSize());
+    static key_type key(const T& N) {
+      return std::make_pair(N.getAddress(), N.getSize());
     }
-    bool operator()(const T* t1, const T* t2) const {
-      return key(*t1) < key(*t2);
+    bool operator()(const T* N1, const T* N2) const {
+      return key(*N1) < key(*N2);
     }
   };
 
   // Helper function for extracting the referent of a Symbol.
-  static const Node* get_symbol_referent(const Symbol& s) {
-    if (std::optional<const Node*> res =
-            s.visit([](const Node* n) { return n; }))
-      return *res;
+  static const Node* get_symbol_referent(const Symbol& S) {
+    if (std::optional<const Node*> Res =
+            S.visit([](const Node* N) { return N; })) {
+      return *Res;
+    }
     return nullptr;
   }
 
@@ -245,13 +246,13 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
 
   using SymbolicExpressionElement = std::pair<ByteInterval*, uint64_t>;
   struct sym_expr_addr_order {
-    static std::optional<Addr> key(const SymbolicExpressionElement& t) {
-      auto addr = t.first->getAddress();
-      return addr ? *addr + t.second : std::optional<Addr>();
+    static std::optional<Addr> key(const SymbolicExpressionElement& SEE) {
+      auto A = SEE.first->getAddress();
+      return A ? *A + SEE.second : std::optional<Addr>();
     }
-    bool operator()(const SymbolicExpressionElement* t1,
-                    const SymbolicExpressionElement* t2) const {
-      return key(*t1) < key(*t2);
+    bool operator()(const SymbolicExpressionElement* SEE1,
+                    const SymbolicExpressionElement* SEE2) const {
+      return key(*SEE1) < key(*SEE2);
     }
   };
 
@@ -464,7 +465,7 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref ProxyBlock.
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
-    auto B = ProxyBlock::Create(C, this, A...);
+    auto* B = ProxyBlock::Create(C, this, A...);
     ProxyBlocks.insert(B);
     addVertex(B, Cfg);
     return B;
@@ -655,9 +656,9 @@ public:
   /// \param S The \ref Symbol object to remove.
   void removeSymbol(Symbol* S) {
     removeFromModuleIndices(S);
-    auto& index = Symbols.get<by_pointer>();
-    if (auto iter = index.find(S); iter != index.end())
-      index.erase(iter);
+    auto& Index = Symbols.get<by_pointer>();
+    if (auto Iter = Index.find(S); Iter != Index.end())
+      Index.erase(Iter);
     S->setModule(nullptr);
   }
 
@@ -677,7 +678,7 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref Symbol.
   template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
-    auto N = Symbol::Create(C, this, A...);
+    auto* N = Symbol::Create(C, this, A...);
     Symbols.emplace(N);
     return N;
   }
@@ -734,9 +735,9 @@ public:
   /// \return A possibly empty range of all the symbols within the given
   /// address range. Searches the range [Lower, Upper).
   symbol_addr_range findSymbols(Addr Lower, Addr Upper) {
-    auto& index = Symbols.get<by_address>();
-    return boost::make_iterator_range(index.lower_bound(Lower),
-                                      index.lower_bound(Upper));
+    auto& Index = Symbols.get<by_address>();
+    return boost::make_iterator_range(Index.lower_bound(Lower),
+                                      Index.lower_bound(Upper));
   }
 
   /// \brief Find symbols by a range of addresses.
@@ -747,9 +748,9 @@ public:
   /// \return A possibly empty constant range of all the symbols within the
   /// given address range. Searches the range [Lower, Upper).
   const_symbol_addr_range findSymbols(Addr Lower, Addr Upper) const {
-    auto& index = Symbols.get<by_address>();
-    return boost::make_iterator_range(index.lower_bound(Lower),
-                                      index.lower_bound(Upper));
+    auto& Index = Symbols.get<by_address>();
+    return boost::make_iterator_range(Index.lower_bound(Lower),
+                                      Index.lower_bound(Upper));
   }
 
   /// \brief Find symbols by their referent object.
@@ -850,10 +851,10 @@ public:
   ///
   /// \return The range of CodeBlocks containing the address.
   code_block_subrange findCodeBlock(Addr X) {
-    auto it = CodeBlockAddrs.find(X);
-    if (it == CodeBlockAddrs.end())
+    auto It = CodeBlockAddrs.find(X);
+    if (It == CodeBlockAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// \brief Find a \ref CodeBlock containing an address.
@@ -862,10 +863,10 @@ public:
   ///
   /// \return The range of CodeBlocks containing the address.
   const_code_block_subrange findCodeBlock(Addr X) const {
-    auto it = CodeBlockAddrs.find(X);
-    if (it == CodeBlockAddrs.end())
+    auto It = CodeBlockAddrs.find(X);
+    if (It == CodeBlockAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// @}
@@ -924,10 +925,10 @@ public:
   ///
   /// \return The range of DataBlocks containing the address.
   data_block_subrange findDataBlock(Addr X) {
-    auto it = DataBlockAddrs.find(X);
-    if (it == DataBlockAddrs.end())
+    auto It = DataBlockAddrs.find(X);
+    if (It == DataBlockAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// \brief Find a \ref DataBlock containing an address.
@@ -936,10 +937,10 @@ public:
   ///
   /// \return The range of DataBlocks containing the address.
   const_data_block_subrange findDataBlock(Addr X) const {
-    auto it = DataBlockAddrs.find(X);
-    if (it == DataBlockAddrs.end())
+    auto It = DataBlockAddrs.find(X);
+    if (It == DataBlockAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// @}
@@ -1035,9 +1036,9 @@ public:
   /// \param S The \ref Section object to remove.
   void removeSection(Section* S) {
     removeFromModuleIndices(S);
-    auto& index = Sections.get<by_pointer>();
-    if (auto iter = index.find(S); iter != index.end())
-      index.erase(iter);
+    auto& Index = Sections.get<by_pointer>();
+    if (auto Iter = Index.find(S); Iter != Index.end())
+      Index.erase(Iter);
     S->setModule(nullptr);
   }
 
@@ -1056,7 +1057,7 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref Section.
   template <typename... Args> Section* addSection(Context& C, Args... A) {
-    auto N = Section::Create(C, this, A...);
+    auto* N = Section::Create(C, this, A...);
     Sections.emplace(N);
     return N;
   }
@@ -1067,10 +1068,10 @@ public:
   ///
   /// \return The range of Sections containing the address.
   section_subrange findSection(Addr X) {
-    auto it = SectionAddrs.find(X);
-    if (it == SectionAddrs.end())
+    auto It = SectionAddrs.find(X);
+    if (It == SectionAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// \brief Find a Section containing an address.
@@ -1079,10 +1080,10 @@ public:
   ///
   /// \return The range of Sections containing the address.
   const_section_subrange findSection(Addr X) const {
-    auto it = SectionAddrs.find(X);
-    if (it == SectionAddrs.end())
+    auto It = SectionAddrs.find(X);
+    if (It == SectionAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// \brief Find a Section by name.
@@ -1113,8 +1114,8 @@ public:
     // returns a non-const reference. This is needed to ensure that
     // symbolic_expression_iterator is able to deduce the correct iterator
     // types for a non-const iterator and a const iterator.
-    T& operator()(const SymbolicExpressionElement& e) const {
-      return *e.first->getSymbolicExpression(e.second);
+    T& operator()(const SymbolicExpressionElement& SEE) const {
+      return *SEE.first->getSymbolicExpression(SEE.second);
     }
   };
 
@@ -1207,12 +1208,12 @@ public:
   /// \return   A \ref SymbolicExpression at that address, or null if there is
   /// no \ref SymbolicExpression at that address.
   SymbolicExpression* findSymbolicExpression(Addr X) {
-    auto& index = SymbolicExpressions.get<by_address>();
-    auto it = index.find(X);
-    if (it == index.end()) {
+    auto& Index = SymbolicExpressions.get<by_address>();
+    auto It = Index.find(X);
+    if (It == Index.end()) {
       return nullptr;
     } else {
-      return it->first->getSymbolicExpression(it->second);
+      return It->first->getSymbolicExpression(It->second);
     }
   }
 
@@ -1222,12 +1223,12 @@ public:
   /// \return   A \ref SymbolicExpression at that address, or null if there is
   /// no \ref SymbolicExpression at that address.
   const SymbolicExpression* findSymbolicExpression(Addr X) const {
-    auto& index = SymbolicExpressions.get<by_address>();
-    auto it = index.find(X);
-    if (it == index.end()) {
+    auto& Index = SymbolicExpressions.get<by_address>();
+    auto It = Index.find(X);
+    if (It == Index.end()) {
       return nullptr;
     } else {
-      return it->first->getSymbolicExpression(it->second);
+      return It->first->getSymbolicExpression(It->second);
     }
   }
 
@@ -1238,13 +1239,13 @@ public:
   /// \return       A range of \ref SymbolicExpression objects.
   symbolic_expression_addr_range findSymbolicExpression(Addr Lower,
                                                         Addr Upper) {
-    auto& index = SymbolicExpressions.get<by_address>();
+    auto& Index = SymbolicExpressions.get<by_address>();
     return boost::make_iterator_range(
         symbolic_expression_addr_range::iterator(
-            index.lower_bound(Lower),
+            Index.lower_bound(Lower),
             sym_expr_elem_to_node<SymbolicExpression>()),
         symbolic_expression_addr_range::iterator(
-            index.lower_bound(Upper),
+            Index.lower_bound(Upper),
             sym_expr_elem_to_node<SymbolicExpression>()));
   }
 
@@ -1255,13 +1256,13 @@ public:
   /// \return       A range of \ref SymbolicExpression objects.
   const_symbolic_expression_addr_range
   findSymbolicExpression(Addr Lower, Addr Upper) const {
-    auto& index = SymbolicExpressions.get<by_address>();
+    auto& Index = SymbolicExpressions.get<by_address>();
     return boost::make_iterator_range(
         const_symbolic_expression_addr_range::iterator(
-            index.lower_bound(Lower),
+            Index.lower_bound(Lower),
             sym_expr_elem_to_node<const SymbolicExpression>()),
         const_symbolic_expression_addr_range::iterator(
-            index.lower_bound(Upper),
+            Index.lower_bound(Upper),
             sym_expr_elem_to_node<const SymbolicExpression>()));
   }
 
@@ -1333,10 +1334,10 @@ public:
   ///
   /// \return The range of ByteIntervals containing the address.
   byte_interval_subrange findByteInterval(Addr X) {
-    auto it = ByteIntervalAddrs.find(X);
-    if (it == ByteIntervalAddrs.end())
+    auto It = ByteIntervalAddrs.find(X);
+    if (It == ByteIntervalAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// \brief Find a ByteInterval containing an address.
@@ -1345,10 +1346,10 @@ public:
   ///
   /// \return The range of ByteIntervals containing the address.
   const_byte_interval_subrange findByteInterval(Addr X) const {
-    auto it = ByteIntervalAddrs.find(X);
-    if (it == ByteIntervalAddrs.end())
+    auto It = ByteIntervalAddrs.find(X);
+    if (It == ByteIntervalAddrs.end())
       return {};
-    return boost::make_iterator_range(it->second.begin(), it->second.end());
+    return boost::make_iterator_range(It->second.begin(), It->second.end());
   }
 
   /// @}

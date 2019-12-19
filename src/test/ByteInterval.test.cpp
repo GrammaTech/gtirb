@@ -26,7 +26,7 @@ TEST(Unit_ByteInterval, ctor) {
 }
 
 TEST(Unit_ByteInterval, gettersSetters) {
-  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(), 2);
+  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(), 2);
   EXPECT_EQ(std::optional<Addr>(), BI->getAddress());
   EXPECT_EQ(2, BI->getSize());
   EXPECT_EQ(2, BI->getAllocatedSize());
@@ -69,11 +69,10 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      ByteInterval* Original =
-          ByteInterval::Create(InnerCtx, nullptr, Addr(1), 2);
+      auto* Original = ByteInterval::Create(InnerCtx, nullptr, Addr(1), 2);
       Original->toProtobuf(&Message);
     }
-    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>(1));
     EXPECT_EQ(Result->getSize(), 2);
@@ -85,11 +84,11 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      ByteInterval* Original =
+      auto* Original =
           ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(), 2);
       Original->toProtobuf(&Message);
     }
-    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
     EXPECT_EQ(Result->getSize(), 2);
@@ -101,23 +100,23 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      std::string contents = "abcd";
-      ByteInterval* Original =
+      std::string Contents = "abcd";
+      auto* Original =
           ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(),
-                               contents.begin(), contents.end());
+                               Contents.begin(), Contents.end());
       Original->toProtobuf(&Message);
     }
-    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
     EXPECT_EQ(Result->getSize(), 4);
     EXPECT_EQ(Result->getAllocatedSize(), 4);
     EXPECT_EQ(Result->getSection(), nullptr);
 
-    std::string resultBytes;
+    std::string ResultBytes;
     std::copy(Result->bytes_begin<char>(), Result->bytes_end<char>(),
-              std::back_inserter(resultBytes));
-    ASSERT_EQ(resultBytes, "abcd");
+              std::back_inserter(ResultBytes));
+    ASSERT_EQ(ResultBytes, "abcd");
   }
 
   // Test truncating of unallocated bytes.
@@ -125,47 +124,46 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      std::string contents = "abcd";
-      ByteInterval* Original =
+      std::string Contents = "abcd";
+      auto* Original =
           ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(),
-                               contents.begin(), contents.end(), 4, 2);
+                               Contents.begin(), Contents.end(), 4, 2);
       Original->toProtobuf(&Message);
     }
-    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
     EXPECT_EQ(Result->getSize(), 4);
     EXPECT_EQ(Result->getAllocatedSize(), 2);
     EXPECT_EQ(Result->getSection(), nullptr);
 
-    std::string resultBytes;
+    std::string ResultBytes;
     std::copy(Result->bytes_begin<char>(), Result->bytes_end<char>(),
-              std::back_inserter(resultBytes));
+              std::back_inserter(ResultBytes));
     // Explode the string comparison, because the default one for std::string
     // does not like embedded NULs whatsoever.
-    ASSERT_EQ(resultBytes.size(), 4);
-    ASSERT_EQ(resultBytes[0], 'a');
-    ASSERT_EQ(resultBytes[1], 'b');
-    ASSERT_EQ(resultBytes[2], '\0');
-    ASSERT_EQ(resultBytes[3], '\0');
+    ASSERT_EQ(ResultBytes.size(), 4);
+    ASSERT_EQ(ResultBytes[0], 'a');
+    ASSERT_EQ(ResultBytes[1], 'b');
+    ASSERT_EQ(ResultBytes[2], '\0');
+    ASSERT_EQ(ResultBytes[3], '\0');
   }
 
   // Test with subobjects.
   {
-    auto Sym = Symbol::Create(Ctx, nullptr, "test");
+    auto* Sym = Symbol::Create(Ctx, nullptr, "test");
 
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      ByteInterval* Original =
-          ByteInterval::Create(InnerCtx, nullptr, Addr(0), 10);
+      auto* Original = ByteInterval::Create(InnerCtx, nullptr, Addr(0), 10);
       Original->addCodeBlock(InnerCtx, 3, 1);
       Original->addCodeBlock(InnerCtx, 6, 1);
       Original->addDataBlock(InnerCtx, 6, 1);
       Original->addSymbolicExpression<SymAddrConst>(5, 8, Sym);
       Original->toProtobuf(&Message);
     }
-    ByteInterval* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
 
     EXPECT_EQ(std::distance(Result->blocks_begin(), Result->blocks_end()), 3);
     EXPECT_EQ(
@@ -204,213 +202,213 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
 }
 
 TEST(Unit_ByteInterval, byteVector) {
-  std::string contents = "hello, world!";
+  std::string Contents = "hello, world!";
 
   // Test all allocated bytes.
   {
-    auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                   contents.begin(), contents.end());
-    EXPECT_EQ(BI->getSize(), contents.size());
+    auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                    Contents.begin(), Contents.end());
+    EXPECT_EQ(BI->getSize(), Contents.size());
 
-    auto originalIt = contents.begin();
-    auto newIt = BI->bytes_begin<char>();
-    auto originalEnd = contents.end();
-    auto newEnd = BI->bytes_end<char>();
+    auto OriginalIt = Contents.begin();
+    auto NewIt = BI->bytes_begin<char>();
+    auto OriginalEnd = Contents.end();
+    auto NewEnd = BI->bytes_end<char>();
 
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_EQ(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_EQ(NewIt, NewEnd);
   }
 
   // Test some unallocated bytes.
   {
-    auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                   contents.begin(), contents.end(), 100);
+    auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                    Contents.begin(), Contents.end(), 100);
     EXPECT_EQ(BI->getSize(), 100);
 
-    auto originalIt = contents.begin();
-    auto newIt = BI->bytes_begin<char>();
-    auto originalEnd = contents.end();
-    auto newEnd = BI->bytes_end<char>();
+    auto OriginalIt = Contents.begin();
+    auto NewIt = BI->bytes_begin<char>();
+    auto OriginalEnd = Contents.end();
+    auto NewEnd = BI->bytes_end<char>();
 
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_NE(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_NE(NewIt, NewEnd);
 
-    while (newIt != newEnd) {
-      EXPECT_EQ(*newIt, '\0');
-      ++newIt;
+    while (NewIt != NewEnd) {
+      EXPECT_EQ(*NewIt, '\0');
+      ++NewIt;
     }
-    EXPECT_EQ(std::distance(BI->bytes_begin<char>(), newIt), 100);
+    EXPECT_EQ(std::distance(BI->bytes_begin<char>(), NewIt), 100);
   }
 }
 
-template <typename T> static T str2(const char* s) {
+template <typename T> static T str2(const char* S) {
   // TODO: is an endian conversion needed here?
-  return *(const T*)s;
+  return *(const T*)S;
 }
 
 TEST(Unit_ByteInterval, byteVectorInts) {
-  std::string contents = "hello, world!!??";
-  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                 contents.begin(), contents.end());
-  EXPECT_EQ(contents.size(), 16);
+  std::string Contents = "hello, world!!??";
+  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                  Contents.begin(), Contents.end());
+  EXPECT_EQ(Contents.size(), 16);
 
   // 16 bits
   {
-    std::vector<uint16_t> compareTo = {
+    std::vector<uint16_t> CompareTo = {
         str2<uint16_t>("he"), str2<uint16_t>("ll"), str2<uint16_t>("o,"),
         str2<uint16_t>(" w"), str2<uint16_t>("or"), str2<uint16_t>("ld"),
         str2<uint16_t>("!!"), str2<uint16_t>("??")};
 
-    auto originalIt = compareTo.begin();
-    auto newIt = BI->bytes_begin<uint16_t>();
-    auto originalEnd = compareTo.end();
-    auto newEnd = BI->bytes_end<uint16_t>();
+    auto OriginalIt = CompareTo.begin();
+    auto NewIt = BI->bytes_begin<uint16_t>();
+    auto OriginalEnd = CompareTo.end();
+    auto NewEnd = BI->bytes_end<uint16_t>();
 
-    EXPECT_EQ(std::distance(newIt, newEnd), 8);
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    EXPECT_EQ(std::distance(NewIt, NewEnd), 8);
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_EQ(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_EQ(NewIt, NewEnd);
   }
 
   // 32 bits
   {
-    std::vector<uint32_t> compareTo = {
+    std::vector<uint32_t> CompareTo = {
         str2<uint32_t>("hell"), str2<uint32_t>("o, w"), str2<uint32_t>("orld"),
         str2<uint32_t>("!!??")};
 
-    auto originalIt = compareTo.begin();
-    auto newIt = BI->bytes_begin<uint32_t>();
-    auto originalEnd = compareTo.end();
-    auto newEnd = BI->bytes_end<uint32_t>();
+    auto OriginalIt = CompareTo.begin();
+    auto NewIt = BI->bytes_begin<uint32_t>();
+    auto OriginalEnd = CompareTo.end();
+    auto NewEnd = BI->bytes_end<uint32_t>();
 
-    EXPECT_EQ(std::distance(newIt, newEnd), 4);
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    EXPECT_EQ(std::distance(NewIt, NewEnd), 4);
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_EQ(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_EQ(NewIt, NewEnd);
   }
 
   // 64 bits
   {
-    std::vector<uint64_t> compareTo = {str2<uint64_t>("hello, w"),
+    std::vector<uint64_t> CompareTo = {str2<uint64_t>("hello, w"),
                                        str2<uint64_t>("orld!!??")};
 
-    auto originalIt = compareTo.begin();
-    auto newIt = BI->bytes_begin<uint64_t>();
-    auto originalEnd = compareTo.end();
-    auto newEnd = BI->bytes_end<uint64_t>();
+    auto OriginalIt = CompareTo.begin();
+    auto NewIt = BI->bytes_begin<uint64_t>();
+    auto OriginalEnd = CompareTo.end();
+    auto NewEnd = BI->bytes_end<uint64_t>();
 
-    EXPECT_EQ(std::distance(newIt, newEnd), 2);
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    EXPECT_EQ(std::distance(NewIt, NewEnd), 2);
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_EQ(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_EQ(NewIt, NewEnd);
   }
 }
 
 TEST(Unit_ByteInterval, byteVectorEndian) {
-  std::string contents = "hello, world!!??";
-  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                 contents.begin(), contents.end());
-  EXPECT_EQ(contents.size(), 16);
+  std::string Contents = "hello, world!!??";
+  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                  Contents.begin(), Contents.end());
+  EXPECT_EQ(Contents.size(), 16);
 
   // Test using little endian.
   {
-    std::vector<uint16_t> compareTo = {
+    std::vector<uint16_t> CompareTo = {
         str2<uint16_t>("he"), str2<uint16_t>("ll"), str2<uint16_t>("o,"),
         str2<uint16_t>(" w"), str2<uint16_t>("or"), str2<uint16_t>("ld"),
         str2<uint16_t>("!!"), str2<uint16_t>("??")};
 
-    auto originalIt = compareTo.begin();
-    auto newIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::little);
-    auto originalEnd = compareTo.end();
-    auto newEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::little);
+    auto OriginalIt = CompareTo.begin();
+    auto NewIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::little);
+    auto OriginalEnd = CompareTo.end();
+    auto NewEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::little);
 
-    EXPECT_EQ(std::distance(newIt, newEnd), 8);
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    EXPECT_EQ(std::distance(NewIt, NewEnd), 8);
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_EQ(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_EQ(NewIt, NewEnd);
   }
 
   // Test using big endian.
   {
-    std::vector<uint16_t> compareTo = {
+    std::vector<uint16_t> CompareTo = {
         str2<uint16_t>("eh"), str2<uint16_t>("ll"), str2<uint16_t>(",o"),
         str2<uint16_t>("w "), str2<uint16_t>("ro"), str2<uint16_t>("dl"),
         str2<uint16_t>("!!"), str2<uint16_t>("??")};
 
-    auto originalIt = compareTo.begin();
-    auto newIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::big);
-    auto originalEnd = compareTo.end();
-    auto newEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::big);
+    auto OriginalIt = CompareTo.begin();
+    auto NewIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::big);
+    auto OriginalEnd = CompareTo.end();
+    auto NewEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::big);
 
-    EXPECT_EQ(std::distance(newIt, newEnd), 8);
-    while (originalIt != originalEnd && newIt != newEnd) {
-      EXPECT_EQ(*originalIt, *newIt);
-      ++originalIt;
-      ++newIt;
+    EXPECT_EQ(std::distance(NewIt, NewEnd), 8);
+    while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+      EXPECT_EQ(*OriginalIt, *NewIt);
+      ++OriginalIt;
+      ++NewIt;
     }
-    EXPECT_EQ(originalIt, originalEnd);
-    EXPECT_EQ(newIt, newEnd);
+    EXPECT_EQ(OriginalIt, OriginalEnd);
+    EXPECT_EQ(NewIt, NewEnd);
   }
 }
 
 TEST(Unit_ByteInterval, byteVectorInsert) {
-  std::string contents = "0123456789";
-  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                 contents.begin(), contents.end());
+  std::string Contents = "0123456789";
+  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                  Contents.begin(), Contents.end());
   {
     std::string toInsert = "abcd";
     BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
                           toInsert.end());
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "abcd0123456789");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "abcd0123456789");
   }
 
   {
     std::string toInsert = "efg";
     BI->insertBytes<char>(BI->bytes_begin<char>() + 6, toInsert.begin(),
                           toInsert.end());
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "abcd01efg23456789");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "abcd01efg23456789");
   }
 
   {
     std::string toInsert = "hi";
     BI->insertBytes<char>(BI->bytes_end<char>(), toInsert.begin(),
                           toInsert.end());
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "abcd01efg23456789hi");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "abcd01efg23456789hi");
   }
 
   // Test with larger, non-char values.
@@ -419,60 +417,60 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
                                       str2<uint32_t>("lo.)")};
     BI->insertBytes<uint32_t>(BI->bytes_begin<uint32_t>() + 1, toInsert.begin(),
                               toInsert.end());
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "abcd(hello.)01efg23456789hi");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "abcd(hello.)01efg23456789hi");
   }
 }
 
 TEST(Unit_ByteInterval, byteVectorErase) {
-  std::string contents = "0123456789";
-  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                 contents.begin(), contents.end());
+  std::string Contents = "0123456789";
+  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                  Contents.begin(), Contents.end());
 
   {
     BI->eraseBytes<char>(BI->bytes_begin<char>(), BI->bytes_begin<char>() + 2);
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "23456789");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "23456789");
   }
 
   {
     BI->eraseBytes<char>(BI->bytes_begin<char>() + 4,
                          BI->bytes_begin<char>() + 5);
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "2345789");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "2345789");
   }
 
   {
     BI->eraseBytes<char>(BI->bytes_begin<char>() + 6, BI->bytes_end<char>());
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "234578");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "234578");
   }
 
   // Test larger value types.
   {
     BI->eraseBytes<uint16_t>(BI->bytes_begin<uint16_t>() + 1,
                              BI->bytes_begin<uint16_t>() + 2);
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "2378");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "2378");
   }
 
   // Test clearing the bytes.
   {
     BI->eraseBytes<uint32_t>(BI->bytes_begin<uint32_t>(),
                              BI->bytes_end<uint32_t>());
-    std::string result;
+    std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
-              std::back_inserter(result));
-    ASSERT_EQ(result, "");
+              std::back_inserter(Result));
+    ASSERT_EQ(Result, "");
   }
 }

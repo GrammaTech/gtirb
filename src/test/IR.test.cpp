@@ -35,9 +35,9 @@ TEST(Unit_IR, compilationIteratorTypes) {
   // Actually calling the constructor and assignment operator tends to produce
   // more informative error messages than std::is_constructible and
   // std::is_assignable.
-  IR::iterator it;
-  IR::const_iterator cit(it);
-  cit = it;
+  IR::iterator It;
+  IR::const_iterator CIt(It);
+  CIt = It;
 }
 
 static Context Ctx;
@@ -45,9 +45,9 @@ TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
-  auto M1 = Ir->addModule(Ctx, "b");
-  auto M2 = Ir->addModule(Ctx, "a");
-  auto M3 = Ir->addModule(Ctx, "a");
+  auto* M1 = Ir->addModule(Ctx, "b");
+  auto* M2 = Ir->addModule(Ctx, "a");
+  auto* M3 = Ir->addModule(Ctx, "a");
 
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
   auto It = Ir->begin();
@@ -72,7 +72,7 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   auto* Ir = IR::Create(Ctx);
 
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
-    auto M = Ir->addModule(Ctx);
+    auto* M = Ir->addModule(Ctx);
     M->setPreferredAddr(PreferredAddr);
   }
 
@@ -90,7 +90,7 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
 
 TEST(Unit_IR, addAuxData) {
   std::vector<int64_t> AuxData = {1, 2, 3};
-  IR* Ir = IR::Create(Ctx);
+  auto* Ir = IR::Create(Ctx);
   Ir->addAuxData("test", std::move(AuxData));
 
   EXPECT_NE(Ir->getAuxData("test"), nullptr);
@@ -101,24 +101,24 @@ TEST(Unit_IR, addAuxData) {
 TEST(Unit_IR, getAuxData) {
   std::vector<int64_t> AuxDataVec = {1, 2, 3};
   std::map<std::string, int64_t> AuxDataMap = {{"foo", 1}, {"bar", 2}};
-  IR* Ir = IR::Create(Ctx);
+  auto* Ir = IR::Create(Ctx);
   Ir->addAuxData("foo", std::move(AuxDataVec));
   Ir->addAuxData("bar", std::move(AuxDataMap));
 
-  auto* fooAuxData = Ir->getAuxData<std::vector<int64_t>>("foo");
-  EXPECT_NE(fooAuxData, nullptr);
-  EXPECT_EQ(*fooAuxData, std::vector<int64_t>({1, 2, 3}));
+  auto* FooAuxData = Ir->getAuxData<std::vector<int64_t>>("foo");
+  EXPECT_NE(FooAuxData, nullptr);
+  EXPECT_EQ(*FooAuxData, std::vector<int64_t>({1, 2, 3}));
 
-  auto* barAuxData = Ir->getAuxData<std::map<std::string, int64_t>>("bar");
-  std::map<std::string, int64_t> toCompare = {{"foo", 1}, {"bar", 2}};
-  std::map<std::string, int64_t> badToCompare = {{"foo", 1}, {"bar", 3}};
-  EXPECT_NE(barAuxData, nullptr);
-  EXPECT_NE(*barAuxData, badToCompare);
-  EXPECT_EQ(*barAuxData, toCompare);
+  auto* BarAuxData = Ir->getAuxData<std::map<std::string, int64_t>>("bar");
+  std::map<std::string, int64_t> ToCompare = {{"foo", 1}, {"bar", 2}};
+  std::map<std::string, int64_t> BadToCompare = {{"foo", 1}, {"bar", 3}};
+  EXPECT_NE(BarAuxData, nullptr);
+  EXPECT_NE(*BarAuxData, BadToCompare);
+  EXPECT_EQ(*BarAuxData, ToCompare);
 }
 
 TEST(Unit_IR, auxDataRange) {
-  IR* Ir = IR::Create(Ctx);
+  auto* Ir = IR::Create(Ctx);
   Ir->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
   Ir->addAuxData("bar", std::vector<char>{'a', 'b', 'c'});
 
@@ -130,7 +130,7 @@ TEST(Unit_IR, auxDataRange) {
 }
 
 TEST(Unit_IR, missingAuxData) {
-  IR* Ir = IR::Create(Ctx);
+  auto* Ir = IR::Create(Ctx);
   EXPECT_EQ(Ir->getAuxData("missing"), nullptr);
 }
 
@@ -140,14 +140,14 @@ TEST(Unit_IR, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    IR* Original = IR::Create(InnerCtx);
+    auto* Original = IR::Create(InnerCtx);
     Original->addModule(InnerCtx);
     Original->addAuxData("test", AuxData());
 
     MainID = Original->begin()->getUUID();
     Original->toProtobuf(&Message);
   }
-  IR* Result = IR::fromProtobuf(Ctx, Message);
+  auto* Result = IR::fromProtobuf(Ctx, Message);
 
   EXPECT_EQ(Result->begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
@@ -160,7 +160,7 @@ TEST(Unit_IR, jsonRoundTrip) {
 
   {
     Context InnerCtx;
-    IR* Original = IR::Create(InnerCtx);
+    auto* Original = IR::Create(InnerCtx);
     Original->addModule(InnerCtx);
     Original->addAuxData("test", AuxData());
 
@@ -168,7 +168,7 @@ TEST(Unit_IR, jsonRoundTrip) {
     Original->saveJSON(Out);
   }
   std::istringstream In(Out.str());
-  IR* Result = IR::loadJSON(Ctx, In);
+  auto* Result = IR::loadJSON(Ctx, In);
 
   EXPECT_EQ(Result->begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
@@ -176,7 +176,7 @@ TEST(Unit_IR, jsonRoundTrip) {
 }
 
 TEST(Unit_IR, move) {
-  IR* Original = IR::Create(Ctx);
+  auto* Original = IR::Create(Ctx);
   EXPECT_TRUE(Original->getAuxDataEmpty());
 
   Original->addAuxData("test", AuxData());
@@ -188,10 +188,10 @@ TEST(Unit_IR, move) {
 }
 
 TEST(Unit_IR, setModuleName) {
-  IR* Ir = IR::Create(Ctx);
-  auto M1 = Ir->addModule(Ctx, "a");
-  auto M2 = Ir->addModule(Ctx, "b");
-  auto M3 = Ir->addModule(Ctx, "c");
+  auto* Ir = IR::Create(Ctx);
+  auto* M1 = Ir->addModule(Ctx, "a");
+  auto* M2 = Ir->addModule(Ctx, "b");
+  auto* M3 = Ir->addModule(Ctx, "c");
 
   M2->setName("d");
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);

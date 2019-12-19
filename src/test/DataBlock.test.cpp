@@ -23,8 +23,8 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_DataBlock, getters) {
-  auto BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
-  auto B = BI->addDataBlock(Ctx, 0, 1);
+  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
+  auto* B = BI->addDataBlock(Ctx, 0, 1);
 
   EXPECT_EQ(Addr{0}, B->getAddress());
   EXPECT_EQ(uint64_t{1}, B->getSize());
@@ -32,10 +32,10 @@ TEST(Unit_DataBlock, getters) {
 }
 
 TEST(Unit_DataBlock, getAddress) {
-  auto BI = ByteInterval::Create(Ctx, nullptr, Addr(10), 10);
-  auto B1 = BI->addDataBlock(Ctx, 0, 0);
-  auto B2 = BI->addDataBlock(Ctx, 1, 0);
-  auto B3 = BI->addDataBlock(Ctx, 10, 0);
+  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(10), 10);
+  auto* B1 = BI->addDataBlock(Ctx, 0, 0);
+  auto* B2 = BI->addDataBlock(Ctx, 1, 0);
+  auto* B3 = BI->addDataBlock(Ctx, 10, 0);
 
   EXPECT_EQ(B1->getAddress(), Addr{10});
   EXPECT_EQ(B2->getAddress(), Addr{11});
@@ -61,21 +61,21 @@ TEST(Unit_DataBlock, protobufRoundTrip) {
 }
 
 TEST(Unit_DataBlock, byteVector) {
-  std::string contents = "hello, world!";
-  auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                 contents.begin(), contents.end());
-  auto B = BI->addDataBlock(Ctx, 3, 4);
+  std::string Contents = "hello, world!";
+  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+                                  Contents.begin(), Contents.end());
+  auto* B = BI->addDataBlock(Ctx, 3, 4);
 
-  auto originalIt = contents.begin() + 3;
-  auto newIt = B->bytes_begin<char>();
-  auto originalEnd = originalIt + 4;
-  auto newEnd = B->bytes_end<char>();
+  auto OriginalIt = Contents.begin() + 3;
+  auto NewIt = B->bytes_begin<char>();
+  auto OriginalEnd = OriginalIt + 4;
+  auto NewEnd = B->bytes_end<char>();
 
-  while (originalIt != originalEnd && newIt != newEnd) {
-    EXPECT_EQ(*originalIt, *newIt);
-    ++originalIt;
-    ++newIt;
+  while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
+    EXPECT_EQ(*OriginalIt, *NewIt);
+    ++OriginalIt;
+    ++NewIt;
   }
-  EXPECT_EQ(originalIt, originalEnd);
-  EXPECT_EQ(newIt, newEnd);
+  EXPECT_EQ(OriginalIt, OriginalEnd);
+  EXPECT_EQ(NewIt, NewEnd);
 }

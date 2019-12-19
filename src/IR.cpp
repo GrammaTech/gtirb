@@ -51,11 +51,11 @@ void IR::save(std::ostream& Out) const {
 IR* IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto ir = IR::fromProtobuf(C, Message);
-  if (ir->Version != GTIRB_PROTOBUF_VERSION) {
+  auto I = IR::fromProtobuf(C, Message);
+  if (I->Version != GTIRB_PROTOBUF_VERSION) {
     return nullptr;
   }
-  return ir;
+  return I;
 }
 
 void IR::saveJSON(std::ostream& Out) const {
@@ -81,6 +81,6 @@ void gtirb::mutateIRIndices(Module* M, const std::function<void()>& F) {
     return;
   }
 
-  auto& index = I->Modules.get<IR::by_pointer>();
-  index.modify(index.find(M), [&F](const auto&) { F(); });
+  auto& Index = I->Modules.get<IR::by_pointer>();
+  Index.modify(Index.find(M), [&F](const auto&) { F(); });
 }

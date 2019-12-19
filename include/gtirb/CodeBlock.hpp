@@ -343,17 +343,17 @@ namespace std {
 
 /// \brief Hash implementation of gtirb::UUID.
 template <> struct hash<boost::uuids::uuid> {
-  size_t operator()(const boost::uuids::uuid& uid) const {
-    return boost::hash<boost::uuids::uuid>()(uid);
+  size_t operator()(const boost::uuids::uuid& UID) const {
+    return boost::hash<boost::uuids::uuid>()(UID);
   }
 };
 /// \brief Hash operation for \ref Offset.
 template <> struct hash<gtirb::Offset> {
-  size_t operator()(const gtirb::Offset& x) const {
-    std::size_t seed = 0;
-    boost::hash_combine(seed, x.ElementId);
-    boost::hash_combine(seed, x.Displacement);
-    return seed;
+  size_t operator()(const gtirb::Offset& X) const {
+    std::size_t Seed = 0;
+    boost::hash_combine(Seed, X.ElementId);
+    boost::hash_combine(Seed, X.Displacement);
+    return Seed;
   }
 };
 } // namespace std

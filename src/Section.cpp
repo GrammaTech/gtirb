@@ -29,8 +29,8 @@ bool Section::operator!=(const Section& Other) const {
 void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
-  for (const auto interval : byte_intervals()) {
-    interval->toProtobuf(Message->add_byte_intervals());
+  for (const auto* Interval : byte_intervals()) {
+    Interval->toProtobuf(Message->add_byte_intervals());
   }
 }
 
@@ -38,8 +38,8 @@ Section* Section::fromProtobuf(Context& C, Module* Parent,
                                const MessageType& Message) {
   auto* S = Section::Create(C, Parent, Message.name());
   setNodeUUIDFromBytes(S, Message.uuid());
-  for (const auto& proto_interval : Message.byte_intervals()) {
-    S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, S, proto_interval));
+  for (const auto& ProtoInterval : Message.byte_intervals()) {
+    S->ByteIntervals.insert(ByteInterval::fromProtobuf(C, S, ProtoInterval));
   }
   return S;
 }

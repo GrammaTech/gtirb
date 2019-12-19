@@ -138,9 +138,9 @@ public:
     }
 
     Addr result{std::numeric_limits<Addr::value_type>::max()};
-    for (const auto* interval : ByteIntervals) {
-      if (auto addr = interval->getAddress()) {
-        result = std::min(result, *addr);
+    for (const auto* Interval : ByteIntervals) {
+      if (auto A = Interval->getAddress()) {
+        result = std::min(result, *A);
       } else {
         return std::nullopt;
       }
@@ -162,19 +162,19 @@ public:
       return std::nullopt;
     }
 
-    Addr lowAddr{std::numeric_limits<Addr::value_type>::max()};
-    Addr highAddr{0};
+    Addr LowAddr{std::numeric_limits<Addr::value_type>::max()};
+    Addr HighAddr{0};
 
-    for (const auto* interval : ByteIntervals) {
-      if (auto addr = interval->getAddress()) {
-        lowAddr = std::min(lowAddr, *addr);
-        highAddr = std::max(highAddr, *addr + interval->getSize());
+    for (const auto* Interval : ByteIntervals) {
+      if (auto A = Interval->getAddress()) {
+        LowAddr = std::min(LowAddr, *A);
+        HighAddr = std::max(HighAddr, *A + Interval->getSize());
       } else {
         return std::nullopt;
       }
     }
 
-    return static_cast<uint64_t>(highAddr - lowAddr);
+    return static_cast<uint64_t>(HighAddr - LowAddr);
   }
 
   /// \brief Remove an interval from this section.
@@ -199,7 +199,7 @@ public:
   /// \tparam Args  The arguments to construct a \ref ByteInterval.
   template <typename... Args>
   ByteInterval* addByteInterval(Context& C, Args... A) {
-    auto N = ByteInterval::Create(C, this, A...);
+    auto* N = ByteInterval::Create(C, this, A...);
     addToModuleIndices(N);
     mutateModuleIndices(this, [this, N]() { ByteIntervals.insert(N); });
     return N;

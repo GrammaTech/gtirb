@@ -35,21 +35,21 @@ private:
 
 std::optional<Addr> Symbol::getAddress() const {
   return std::visit(
-      [](const auto& arg) {
-        using T = std::decay_t<decltype(arg)>;
+      [](const auto& Arg) {
+        using T = std::decay_t<decltype(Arg)>;
         if constexpr (std::is_same_v<T, std::monostate>) {
           return std::optional<Addr>{};
         } else if constexpr (std::is_same_v<T, Addr>) {
-          return std::make_optional(arg);
+          return std::make_optional(Arg);
         } else if constexpr (std::is_same_v<T, Node*>) {
-          if (CodeBlock* b = dyn_cast_or_null<CodeBlock>(arg)) {
-            return b->getAddress();
-          } else if (DataBlock* d = dyn_cast_or_null<DataBlock>(arg)) {
-            return d->getAddress();
-          } else if (ProxyBlock* p = dyn_cast_or_null<ProxyBlock>(arg)) {
+          if (auto* B = dyn_cast_or_null<CodeBlock>(Arg)) {
+            return B->getAddress();
+          } else if (auto* D = dyn_cast_or_null<DataBlock>(Arg)) {
+            return D->getAddress();
+          } else if (auto* P = dyn_cast_or_null<ProxyBlock>(Arg)) {
             return std::optional<Addr>{};
           } else {
-            assert(arg == nullptr && "unsupported referent type");
+            assert(Arg == nullptr && "unsupported referent type");
           }
           return std::optional<Addr>{};
         } else {

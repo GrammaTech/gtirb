@@ -26,7 +26,7 @@ TEST(Unit_Section, getAddress) {
   using OAddr = std::optional<Addr>;
   using OSize = std::optional<uint64_t>;
 
-  auto S = Section::Create(Ctx, nullptr, "test");
+  auto* S = Section::Create(Ctx, nullptr, "test");
   EXPECT_EQ(S->getAddress(), OAddr());
   EXPECT_EQ(S->getSize(), OSize());
 
@@ -48,10 +48,10 @@ TEST(Unit_Section, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Section* Original = Section::Create(InnerCtx, nullptr, "name");
+    auto* Original = Section::Create(InnerCtx, nullptr, "name");
     Original->toProtobuf(&Message);
   }
-  Section* Result = Section::fromProtobuf(Ctx, nullptr, Message);
+  auto* Result = Section::fromProtobuf(Ctx, nullptr, Message);
 
   EXPECT_EQ(Result->getName(), "name");
 }

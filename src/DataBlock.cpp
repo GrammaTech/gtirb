@@ -42,7 +42,8 @@ std::optional<Addr> DataBlock::getAddress() const {
   if (!Parent) {
     return std::nullopt;
   }
-  if (auto baseAddr = Parent->getAddress())
-    return *baseAddr + getOffset();
+  if (auto BaseAddr = Parent->getAddress()) {
+    return *BaseAddr + getOffset();
+  }
   return std::nullopt;
 }

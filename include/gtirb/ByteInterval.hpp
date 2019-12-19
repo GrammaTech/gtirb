@@ -56,22 +56,22 @@ void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 /// offset, held within this interval.
 class Block {
   friend class ByteInterval;
-  uint64_t offset;
-  Node* node;
+  uint64_t Offset;
+  gtirb::Node* Node;
 
 public:
-  Block(uint64_t o, Node* n) : offset(o), node(n) {}
+  Block(uint64_t O, gtirb::Node* N) : Offset(O), Node(N) {}
 
   /// \brief Get the offset from the beginning of this block's \ref
   /// ByteInterval.
-  uint64_t getOffset() const { return offset; }
+  uint64_t getOffset() const { return Offset; }
 
   /// \brief Get the \ref Node, either a \ref CodeBlock or \ref DataBlock, in
   /// the \ref ByteInterval.
   // Note: this function returns a nonconst pointer despite being const because
   // it's valid to mutate the nodes, but not valid to mutate the block-offset
   // pairs in the BlockSet.
-  Node* getNode() const { return node; }
+  gtirb::Node* getNode() const { return Node; }
 };
 
 /// @cond INTERNAL
@@ -114,11 +114,11 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
 
   const Block& nodeToBlock(const Node* N) const {
-    auto& index = Blocks.get<by_pointer>();
-    auto it = index.find(const_cast<Node*>(N));
-    assert(it != index.end() &&
+    auto& Index = Blocks.get<by_pointer>();
+    auto It = Index.find(const_cast<Node*>(N));
+    assert(It != Index.end() &&
            "ByteInterval::nodeToBlock called with block not in interval");
-    return *it;
+    return *It;
   }
 
 public:
@@ -443,9 +443,9 @@ public:
   /// \param  N           The block to remove.
   template <class BlockType> void removeBlock(BlockType* N) {
     removeFromModuleIndices(N);
-    auto& index = Blocks.get<by_pointer>();
-    if (auto iter = index.find(N); iter != index.end())
-      index.erase(iter);
+    auto& Index = Blocks.get<by_pointer>();
+    if (auto Iter = Index.find(N); Iter != Index.end())
+      Index.erase(Iter);
     N->setByteInerval(nullptr);
   }
 
@@ -473,7 +473,7 @@ public:
   /// \return       The newly created \ref CodeBlock.
   template <typename... Args>
   CodeBlock* addCodeBlock(Context& C, uint64_t O, Args... A) {
-    auto N = CodeBlock::Create(C, this, A...);
+    auto* N = CodeBlock::Create(C, this, A...);
     Blocks.emplace(O, N);
     addToModuleIndices(N);
     return N;
@@ -488,7 +488,7 @@ public:
   /// \return       The newly created \ref DataBlock.
   template <typename... Args>
   DataBlock* addDataBlock(Context& C, uint64_t O, Args... A) {
-    auto N = DataBlock::Create(C, this, A...);
+    auto* N = DataBlock::Create(C, this, A...);
     Blocks.emplace(O, N);
     addToModuleIndices(N);
     return N;
@@ -522,9 +522,9 @@ public:
   /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
   ///           is no \ref SymbolicExpression at that offset.
   SymbolicExpression* getSymbolicExpression(uint64_t O) {
-    auto it = SymbolicExpressions.find(O);
-    return it == SymbolicExpressions.end() ? nullptr
-                                           : &SymbolicExpressions.at(O);
+    return SymbolicExpressions.find(O) == SymbolicExpressions.end()
+               ? nullptr
+               : &SymbolicExpressions.at(O);
   }
 
   /// \brief Get the symbolic expression at the given offset, if present.
@@ -533,9 +533,9 @@ public:
   /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
   ///           is no \ref SymbolicExpression at that offset.
   const SymbolicExpression* getSymbolicExpression(uint64_t O) const {
-    auto it = SymbolicExpressions.find(O);
-    return it == SymbolicExpressions.end() ? nullptr
-                                           : &SymbolicExpressions.at(O);
+    return SymbolicExpressions.find(O) == SymbolicExpressions.end()
+               ? nullptr
+               : &SymbolicExpressions.at(O);
   }
 
   /// \brief Set or clear the address of this interval.
@@ -704,9 +704,9 @@ public:
                                       It End,
                                       Endian VectorOrder = Endian::native,
                                       Endian ElementsOrder = Endian::native) {
-    auto result = Bytes.insert<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
+    auto Result = Bytes.insert<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
     setSize(getSize());
-    return result;
+    return Result;
   }
 
   /// \brief Erase data from this interval's byte vector.
@@ -721,9 +721,9 @@ public:
   template <typename T>
   const_bytes_iterator<T> eraseBytes(const_bytes_iterator<T> Begin,
                                      const_bytes_iterator<T> End) {
-    auto result = Bytes.erase<T>(Begin, End);
+    auto Result = Bytes.erase<T>(Begin, End);
     setSize(getSize());
-    return result;
+    return Result;
   }
 
   /// @cond INTERNAL

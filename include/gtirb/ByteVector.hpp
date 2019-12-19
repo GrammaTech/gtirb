@@ -299,9 +299,9 @@ public:
                                     Endian VectorOrder = Endian::native,
                                     Endian ElementOrder = Endian::native) {
     boost::endian::conditional_reverse_inplace(X, ElementOrder, VectorOrder);
-    auto resultAsBytes = (const uint8_t*)(void*)&X;
-    Bytes.insert(Pos.getIterator(), resultAsBytes,
-                 resultAsBytes + sizeof(ResultType));
+    const auto* ResultAsBytes = (const uint8_t*)(void*)&X;
+    Bytes.insert(Pos.getIterator(), ResultAsBytes,
+                 ResultAsBytes + sizeof(ResultType));
     return Pos;
   }
 
@@ -325,10 +325,10 @@ public:
                                     ItType Begin, ItType End,
                                     Endian VectorOrder = Endian::native,
                                     Endian ElementsOrder = Endian::native) {
-    auto it = Pos;
+    auto It = Pos;
     for (ResultType X : boost::make_iterator_range(Begin, End)) {
-      insert(it, X, VectorOrder, ElementsOrder);
-      it++;
+      insert(It, X, VectorOrder, ElementsOrder);
+      It++;
     }
     return Pos;
   }

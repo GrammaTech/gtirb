@@ -30,68 +30,68 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 
   Message->set_size(getSize());
-  auto bytesIt = Bytes.begin<char>();
+  auto BytesIt = Bytes.begin<char>();
   Message->mutable_contents()->reserve(AllocatedSize);
-  std::copy(bytesIt, bytesIt + AllocatedSize,
+  std::copy(BytesIt, BytesIt + AllocatedSize,
             std::back_inserter(*Message->mutable_contents()));
 
   for (const auto& block : this->blocks()) {
-    auto proto_block = Message->add_blocks();
-    auto node = block.getNode();
+    auto* ProtoBlock = Message->add_blocks();
+    auto* N = block.getNode();
 
-    proto_block->set_offset(block.getOffset());
-    switch (node->getKind()) {
+    ProtoBlock->set_offset(block.getOffset());
+    switch (N->getKind()) {
     case Node::Kind::CodeBlock: {
-      cast<CodeBlock>(node)->toProtobuf(proto_block->mutable_code());
+      cast<CodeBlock>(N)->toProtobuf(ProtoBlock->mutable_code());
     } break;
     case Node::Kind::DataBlock: {
-      cast<DataBlock>(node)->toProtobuf(proto_block->mutable_data());
+      cast<DataBlock>(N)->toProtobuf(ProtoBlock->mutable_data());
     } break;
     default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
     }
   }
 
-  auto& proto_symbolic_expressions = *Message->mutable_symbolic_expressions();
-  for (const auto& pair : this->symbolic_expressions()) {
-    proto_symbolic_expressions[pair.first] = gtirb::toProtobuf(pair.second);
+  auto& ProtoSymExpr = *Message->mutable_symbolic_expressions();
+  for (const auto& Pair : this->symbolic_expressions()) {
+    ProtoSymExpr[Pair.first] = gtirb::toProtobuf(Pair.second);
   }
 }
 
 ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
                                          const MessageType& Message) {
-  auto addr = Message.has_address() ? std::optional<Addr>{Message.address()}
-                                    : std::optional<Addr>{};
-  ByteInterval* result = ByteInterval::Create(
-      C, Parent, addr, Message.contents().begin(), Message.contents().end(),
+  auto A = Message.has_address() ? std::optional<Addr>{Message.address()}
+                                 : std::optional<Addr>{};
+  ByteInterval* BI = ByteInterval::Create(
+      C, Parent, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size());
 
-  setNodeUUIDFromBytes(result, Message.uuid());
+  setNodeUUIDFromBytes(BI, Message.uuid());
 
-  for (const auto& proto_block : Message.blocks()) {
-    switch (proto_block.value_case()) {
+  for (const auto& ProtoBlock : Message.blocks()) {
+    switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
-      CodeBlock* node = CodeBlock::fromProtobuf(C, result, proto_block.code());
-      result->Blocks.emplace(proto_block.offset(), node);
+      CodeBlock* node = CodeBlock::fromProtobuf(C, BI, ProtoBlock.code());
+      BI->Blocks.emplace(ProtoBlock.offset(), node);
     } break;
     case proto::Block::ValueCase::kData: {
-      DataBlock* node = DataBlock::fromProtobuf(C, result, proto_block.data());
-      result->Blocks.emplace(proto_block.offset(), node);
+      DataBlock* node = DataBlock::fromProtobuf(C, BI, ProtoBlock.data());
+      BI->Blocks.emplace(ProtoBlock.offset(), node);
     } break;
     default: {
       assert(!"unknown Block::ValueCase in ByteInterval::fromProtobuf");
     }
     }
   }
-  return result;
+  return BI;
 }
 
 void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
                                                    const MessageType& Message) {
   mutateModuleIndices(this, [&]() {
-    for (const auto& pair : Message.symbolic_expressions()) {
-      SymbolicExpression sym_expr;
-      gtirb::fromProtobuf(C, sym_expr, pair.second);
-      SymbolicExpressions[pair.first] = sym_expr;
+    for (const auto& Pair : Message.symbolic_expressions()) {
+      SymbolicExpression SymExpr;
+      gtirb::fromProtobuf(C, SymExpr, Pair.second);
+      SymbolicExpressions[Pair.first] = SymExpr;
     }
   });
 }
