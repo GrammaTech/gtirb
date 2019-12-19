@@ -159,24 +159,24 @@ public:
   }
 
   /// \brief Create a ByteInterval object.
-  /// \tparam It        An iterator yielding bytes.
+  /// \tparam InputIterator   An input iterator yielding bytes.
   /// \param C          The Context in which this interval will be held.
   /// \param Parent     The \ref Section this interval belongs to.
   /// \param Address    An (optional) fixed address for this interval.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
   /// \return           The newly created ByteInterval.
-  template <typename It>
-  static ByteInterval* Create(Context& C, Section* Parent,
-                              std::optional<Addr> Address, It BytesBegin,
-                              It BytesEnd) {
+  template <typename InputIterator>
+  static ByteInterval*
+  Create(Context& C, Section* Parent, std::optional<Addr> Address,
+         InputIterator BytesBegin, InputIterator BytesEnd) {
     return C.Create<ByteInterval>(C, Parent, Address,
                                   std::distance(BytesBegin, BytesEnd),
                                   BytesBegin, BytesEnd);
   }
 
   /// \brief Create a ByteInterval object.
-  /// \tparam It        An iterator yielding bytes.
+  /// \tparam InputIterator   An input iterator yielding bytes.
   /// \param C          The Context in which this interval will be held.
   /// \param Parent     The \ref Section this interval belongs to.
   /// \param Address    An (optional) fixed address for this interval.
@@ -184,16 +184,16 @@ public:
   /// \param BytesEnd   The end of the range to copy to the byte vector.
   /// \param Size       The size of this interval in bytes.
   /// \return           The newly created ByteInterval.
-  template <typename It>
-  static ByteInterval* Create(Context& C, Section* Parent,
-                              std::optional<Addr> Address, It BytesBegin,
-                              It BytesEnd, uint64_t Size) {
+  template <typename InputIterator>
+  static ByteInterval*
+  Create(Context& C, Section* Parent, std::optional<Addr> Address,
+         InputIterator BytesBegin, InputIterator BytesEnd, uint64_t Size) {
     return C.Create<ByteInterval>(C, Parent, Address, Size, BytesBegin,
                                   BytesEnd, Size);
   }
 
   /// \brief Create a ByteInterval object.
-  /// \tparam It            An iterator yielding bytes.
+  /// \tparam InputIterator   An input iterator yielding bytes.
   /// \param C              The Context in which this interval will be held.
   /// \param Parent         The \ref Section this interval belongs to.
   /// \param Address        An (optional) fixed address for this interval.
@@ -202,10 +202,11 @@ public:
   /// \param Size           The size of this interval in bytes.
   /// \param AllocatedSize  The number of bytes with initialized values.
   /// \return               The newly created ByteInterval.
-  template <typename It>
-  static ByteInterval*
-  Create(Context& C, Section* Parent, std::optional<Addr> Address,
-         It BytesBegin, It BytesEnd, uint64_t Size, uint64_t AllocatedSize) {
+  template <typename InputIterator>
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address,
+                              InputIterator BytesBegin, InputIterator BytesEnd,
+                              uint64_t Size, uint64_t AllocatedSize) {
     return C.Create<ByteInterval>(C, Parent, Address, AllocatedSize, BytesBegin,
                                   BytesEnd, Size);
   }
@@ -704,7 +705,7 @@ public:
   /// \tparam T   The type of data you wish to insert into the byte vector. Must
   /// be a POD type that satisfies Boost's EndianReversibleInplace concept.
   ///
-  /// \tparam It  The type of an iterator yielding T.
+  /// \tparam InputIterator  The type of an input iterator yielding T.
   ///
   /// \param  Pos           The position in the byte vector to insert data at.
   /// \param  Begin         The start of the data to insert.
@@ -713,9 +714,9 @@ public:
   /// \param  ElementsOrder The endianess of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-  template <typename T, typename It>
-  const_bytes_iterator<T> insertBytes(const_bytes_iterator<T> Pos, It Begin,
-                                      It End,
+  template <typename T, typename InputIterator>
+  const_bytes_iterator<T> insertBytes(const_bytes_iterator<T> Pos,
+                                      InputIterator Begin, InputIterator End,
                                       Endian VectorOrder = Endian::native,
                                       Endian ElementsOrder = Endian::native) {
     auto Result = Bytes.insert<T>(Pos, Begin, End, VectorOrder, ElementsOrder);

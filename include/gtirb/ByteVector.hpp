@@ -160,12 +160,14 @@ public:
   ByteVector(uint64_t Size) : Bytes(Size) {}
 
   /// \brief Construct a byte vector from an iterator range of bytes.
-  template <typename It> ByteVector(It Begin, It End) : Bytes(Begin, End) {}
+  template <typename InputIterator>
+  ByteVector(InputIterator Begin, InputIterator End) : Bytes(Begin, End) {}
 
   /// \brief Construct a byte vector from an iterator range of bytes,
   /// potentially filling remaining space with zeroes.
-  template <typename It>
-  ByteVector(It Begin, It End, uint64_t Size) : Bytes(Begin, End) {
+  template <typename InputIterator>
+  ByteVector(InputIterator Begin, InputIterator End, uint64_t Size)
+      : Bytes(Begin, End) {
     Bytes.resize(Size);
   }
 
@@ -311,7 +313,7 @@ public:
   /// vector. Must be a POD type that satisfies Boost's EndianReversibleInplace
   /// concept.
   ///
-  /// \tparam ItType      The type of an iterator yielding T.
+  /// \tparam InputIterator      The type of an iterator yielding T.
   ///
   /// \param  Pos           The position in the byte vector to insert data at.
   /// \param  Begin         The start of the data to insert.
@@ -320,9 +322,9 @@ public:
   /// \param  ElementsOrder The endianess of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-  template <typename ResultType, typename ItType>
+  template <typename ResultType, typename InputIterator>
   const_iterator<ResultType> insert(const const_iterator<ResultType> Pos,
-                                    ItType Begin, ItType End,
+                                    InputIterator Begin, InputIterator End,
                                     Endian VectorOrder = Endian::native,
                                     Endian ElementsOrder = Endian::native) {
     auto It = Pos;
