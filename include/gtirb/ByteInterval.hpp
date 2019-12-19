@@ -573,9 +573,7 @@ public:
   /// \param S  The new size.
   void setSize(uint64_t S) {
     mutateModuleIndices(this, [this, S]() {
-      if (AllocatedSize > S) {
-        AllocatedSize = S;
-      }
+      AllocatedSize = std::min(AllocatedSize, S);
 
       Bytes.setSize(S);
     });
