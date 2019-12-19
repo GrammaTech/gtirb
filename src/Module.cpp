@@ -126,7 +126,7 @@ void gtirb::addToModuleIndices(Node* N) {
   switch (N->getKind()) {
   case Node::Kind::ByteInterval: {
     auto* BI = cast<ByteInterval>(N);
-    auto* S = BI ? BI->getSection() : nullptr;
+    auto* S = BI->getSection();
     auto* M = S ? S->getModule() : nullptr;
     if (M) {
       M->ByteIntervals.insert(BI);
@@ -191,7 +191,7 @@ void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
   switch (N->getKind()) {
   case Node::Kind::ByteInterval: {
     auto* BI = cast<ByteInterval>(N);
-    auto* S = BI ? BI->getSection() : nullptr;
+    auto* S = BI->getSection();
     auto* M = S ? S->getModule() : nullptr;
     if (M) {
       removeFromICL(M->SectionAddrs, S);
@@ -275,7 +275,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
   switch (N->getKind()) {
   case Node::Kind::ByteInterval: {
     auto* BI = cast<ByteInterval>(N);
-    auto* S = BI ? BI->getSection() : nullptr;
+    auto* S = BI->getSection();
     auto* M = S ? S->getModule() : nullptr;
     if (M) {
       removeFromICL(M->ByteIntervalAddrs, BI);
