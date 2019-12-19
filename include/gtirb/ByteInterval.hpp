@@ -808,7 +808,7 @@ private:
   void setSection(Section* S) { Parent = S; }
 
   Section* Parent{nullptr};
-  std::optional<Addr> Address{};
+  std::optional<Addr> Address;
   uint64_t AllocatedSize{0};
   BlockSet Blocks;
   SymbolicExpressionSet SymbolicExpressions;
