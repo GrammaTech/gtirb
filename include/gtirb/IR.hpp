@@ -25,7 +25,6 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <map>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
