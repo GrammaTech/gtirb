@@ -431,17 +431,36 @@ function.")
                  (map 'list {make-instance 'section :module self :proto}
                       (proto:sections proto)))
                :to-proto (lambda (sections) (map 'vector #'update-proto sections))
-               :documentation "GTIRB sections.")
+               :documentation "List of the sections comprising this module.")
      (aux-data :accessor aux-data :type (list aux-data)
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
-               :documentation "Auxiliary data objects."))
-    ((name :type string)
-     (binary-path :type string)
-     (preferred-addr :type unsigned-byte-64)
-     (rebase-delta :type unsigned-byte-64)
-     (isa :type enumeration :enumeration +module-isa-map+)
-     (file-format :type enumeration :enumeration +module-file-format-map+))
+               :documentation
+               "Auxiliary data objects on this module.
+Aux-Data tables may hold structured or unstructured data.  This data
+may refer to elements of the GTIRB IR through uuids.  Only information
+relevant to this module should be stored in Aux-Data tables under this
+module; IR-wide information should be stored in Aux-Data tables
+hanging off of the top-level IR.  Aux-Data tables only exist on
+modules and on GTIRB IR instances."))
+    ((name :type string :documentation
+           "An optional human-readable name for this module.")
+     (binary-path :type string :documentation
+                  "The path or filename for this module.
+E.g, the name of a dynamically loaded library or of the main
+executable.")
+     (preferred-addr :type unsigned-byte-64 :documentation
+                     "Some systems specify a preferred address in memory.
+On those systems this field may be used to capture this address.")
+     (rebase-delta :type unsigned-byte-64 :documentation
+                   "The difference between this module's and
+`preferred-addr' and the address at which it was actually loaded.")
+     (isa :type enumeration :enumeration +module-isa-map+ :documentation
+          "The instruction set architecture (ISA) of the code in this module.")
+     (file-format :type enumeration :enumeration +module-file-format-map+
+                  :documentation
+                  "The binary file format of the original file this
+module represents."))
   (:documentation "Module of a GTIRB IR instance.") (:parent gtirb))
 
 (defmethod print-object ((obj module) (stream stream))
@@ -458,11 +477,18 @@ function.")
   :test #'equal)
 
 (define-proto-backed-class (edge-label proto:edge-label) () ()
-    ((conditional :type boolean)
-     (direct :type boolean)
+    ((conditional :type boolean :documentation
+                  "This is true if this edge is due to a conditional
+instruction.")
+     (direct :type boolean :documentation
+             "Is this a direct (as opposed to indirect) control flow edge.")
      (edge-type :type enumeration :enumeration +edge-label-type-map+
-                :proto-field type))
-  (:documentation "Label on a CFG edge."))
+                :proto-field type :documentation
+                "The type of an edge indicates the nature of the
+control flow along it.  E.g., \"branch,\" \"call,\" \"fallthrough,\"
+and \"return\" are examples."))
+  (:documentation "Label on a CFG edge.
+This indicates the type of control flow along this edge."))
 
 (defmethod print-object ((obj edge-label) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
@@ -510,9 +536,15 @@ function.")
         (map 'list {make-instance 'byte-interval :section self :proto}
              (proto:byte-intervals proto)))
       :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
-      :documentation "Byte-intervals."))
-    ((name :type string)
-     (flags :type enumeration :enumeration +section-flags-map+ :proto-field section-flags))
+      :documentation "Byte-intervals holding all of the section's bytes."))
+    ((name :type string :documentation "Name of this section.")
+     (flags :type enumeration :enumeration +section-flags-map+
+            :proto-field section-flags :documentation
+            "Flags holding common properties of this section.
+These flags only hold those section properties which are relatively
+universal including read, write, execute permissions, whether the
+section is loaded into memory at run-time or not, whether the section
+is zero initialized, and whether the section is thread-local."))
   (:documentation "Section in a GTIRB IR instance.") (:parent module))
 
 (defmethod print-object ((obj section) (stream stream))
@@ -523,7 +555,7 @@ function.")
     ;; TODO: What's a better data structure to use to store a sorted
     ;;       collection of pairs which permits duplicates.  Maybe a
     ;;       balanced tree.
-    ((blocks :initarg :blocks :accessor blocks :type (list gtirb-block)
+    ((blocks :initarg :blocks :accessor blocks :type (list gtirb-byte-block)
              :from-proto
              (lambda (proto)
                (map 'list
@@ -560,7 +592,11 @@ function.")
                                          (update-proto gtirb-block))))
                                 it))
                     blocks))
-             :documentation "Blocks in this byte-interval.")
+             :documentation
+             "Blocks in this byte-interval.
+This list could include `code-block' or `data-block' elements (which
+both subclass the `gtirb-byte-block' class) but not `proxy-block'
+elements as proxy blocks do not hold bytes.")
      (symbolic-expressions
       :accessor symbolic-expressions :type hash-table
       :initarg :symbolic-expressions
@@ -605,10 +641,22 @@ function.")
                    it)))
              (hash-table-alist symbolic-expression)))
       :documentation "Hash of symbolic-expressions keyed by offset."))
-    ((addressp :type boolean :proto-field has-address)
-     (address :type unsigned-byte-64)
-     (size :type unsigned-byte-64)
-     (contents :type bytes))
+    ((addressp :type boolean :proto-field has-address
+               :documentation
+               "Does this byte-interval have an address.")
+     (address :type unsigned-byte-64
+              :documentation
+              "Optionally specify the address in memory at which this
+~ byte-interval should start.  Byte-intervals without address could
+exist anywhere in memory.")
+     (size :type unsigned-byte-64 :documentation
+           "The size of this byte-interval.
+It is possible for the size of a byte-interval to be larger than the
+number of bytes in the byte interval's `contents' if portions of the
+byte-interval are not represented statically but are zero-initialized
+at runtime.")
+     (contents :type bytes :documentation
+               "A vector holding the actual bytes of this byte interval."))
   (:documentation "Byte-interval in a GTIRB instance.") (:parent section))
 
 (defmethod print-object ((obj byte-interval) (stream stream))
@@ -640,10 +688,12 @@ function.")
 
 (defclass gtirb-block () ())
 
-(defclass gtirb-byte-block (gtirb-block) ())
+(defclass gtirb-byte-block (gtirb-block) ()
+  (:documentation "Super-class of the `code-block' and `data-block' classes.
+This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
 (defgeneric bytes (object)
-  (:documentation "Return the bytes for OBJECT.")
+  (:documentation "Return the bytes held by OBJECT.")
   (:method ((obj gtirb-byte-block))
     #+debug (format t "[~S] ~S:[~S:~S]<-[~S:~S]~%"
                     (proto:uuid (proto obj))
@@ -697,10 +747,11 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
              :initform 0
              :documentation
              "Offset into this block's bytes in the block's byte-interval."))
-    ((size :type unsigned-byte-64)
-     (decode-mode :type unsigned-byte-64))
-  (:documentation "Code-block in a GTIRB IR instance.")
-  (:parent byte-interval))
+    ((size :type unsigned-byte-64
+           :documentation "The length of the bytes held by this code block.")
+     (decode-mode :type unsigned-byte-64 :documentation
+                  "Only present on architecture with multiple decode-modes."))
+  (:documentation "Code-block in a GTIRB IR instance.") (:parent byte-interval))
 
 (defmethod print-object ((obj code-block) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
@@ -711,7 +762,8 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
              :initform 0
              :documentation
              "Offset into this block's bytes in the block's byte-interval."))
-    ((size :type unsigned-byte-64))
+    ((size :type unsigned-byte-64 :documentation
+           "The length of the bytes held by this data block."))
   (:documentation "Data-block in a GTIRB IR instance.")
   (:parent byte-interval))
 
@@ -807,8 +859,11 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
       ("int64_t" (cons :int64-t (aux-data-type-read type-string)))
       (t (error "Junk in type string ~a" type-string)))))
 
-(defmethod aux-data-type ((obj aux-data))
-  (first (aux-data-type-read (pb:string-value (proto:type-name (proto obj))))))
+(defgeneric aux-data-type (aux-data)
+  (:documentation "Access the structured type of AUX-DATA.")
+  (:method ((obj aux-data))
+    (first (aux-data-type-read
+            (pb:string-value (proto:type-name (proto obj)))))))
 
 (defun aux-data-type-print (aux-data-type)
   (when aux-data-type
@@ -844,8 +899,10 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
   (setf (proto:type-name (proto obj))
         (pb:string-field (aux-data-type-print new))))
 
-(defmethod aux-data-data ((obj aux-data))
-  (aux-data-decode (aux-data-type obj) (proto:data (proto obj))))
+(defgeneric aux-data-data (aux-data)
+  (:documentation "Access the structured representation of AUX-DATAs data.")
+  (:method ((obj aux-data))
+    (aux-data-decode (aux-data-type obj) (proto:data (proto obj)))))
 
 (defmethod (setf aux-data-data) (new (obj aux-data))
   (setf (proto:data (proto obj))
