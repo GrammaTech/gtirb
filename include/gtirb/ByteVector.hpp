@@ -50,19 +50,19 @@ private:
     /// \brief Use this reference as an rvalue, automatically handling
     /// endian conversion.
     operator ResultType() const {
-      return boost::endian::conditional_reverse(*(ResultType*)(V->data() + I),
-                                                InputOrder, OutputOrder);
+      return boost::endian::conditional_reverse(
+          *reinterpret_cast<const ResultType*>(V->data() + I), InputOrder,
+          OutputOrder);
     }
 
     /// \brief Use this reference as an lvalue, automatically handling
     /// endian conversion.
     Reference<VectorType, ResultType>& operator=(ResultType rhs) {
-      *(ResultType*)(V->data() + I) =
+      *reinterpret_cast<ResultType*>(V->data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
       return *this;
     }
 
-  private:
     VectorType* V;
     size_t I;
     Endian InputOrder;
@@ -302,7 +302,7 @@ public:
                                     Endian VectorOrder = Endian::native,
                                     Endian ElementOrder = Endian::native) {
     boost::endian::conditional_reverse_inplace(X, ElementOrder, VectorOrder);
-    const auto* ResultAsBytes = (const uint8_t*)(void*)&X;
+    const auto* ResultAsBytes = reinterpret_cast<const uint8_t*>(&X);
     Bytes.insert(Pos.getIterator(), ResultAsBytes,
                  ResultAsBytes + sizeof(ResultType));
     return Pos;
