@@ -19,7 +19,8 @@
 using namespace gtirb;
 
 bool Section::operator==(const Section& Other) const {
-  return this->Name == Other.Name;
+  return this->getAddress() == Other.getAddress() &&
+         this->getSize() == Other.getSize() && this->Name == Other.Name;
 }
 
 bool Section::operator!=(const Section& Other) const {
