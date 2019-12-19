@@ -55,7 +55,7 @@ public:
     Section,
     Symbol,
     ByteInterval,
-    LAST_Node = Symbol, // Mark last descendant of Node
+    LAST_Node = ByteInterval, // Mark last descendant of Node
   };
   /// \endcond
 
