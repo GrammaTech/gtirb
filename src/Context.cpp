@@ -47,7 +47,7 @@ template <> void* Context::Allocate<Node>() const {
   return NodeAllocator.Allocate();
 }
 template <> void* Context::Allocate<CodeBlock>() const {
-  return BlockAllocator.Allocate();
+  return CodeBlockAllocator.Allocate();
 }
 template <> void* Context::Allocate<ByteInterval>() const {
   return ByteIntervalAllocator.Allocate();

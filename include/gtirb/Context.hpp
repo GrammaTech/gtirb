@@ -66,7 +66,7 @@ class GTIRB_EXPORT_API Context {
   // Allocate each node type in a separate arena.
   mutable SpecificBumpPtrAllocator<Node> NodeAllocator;
   mutable SpecificBumpPtrAllocator<ByteInterval> ByteIntervalAllocator;
-  mutable SpecificBumpPtrAllocator<CodeBlock> BlockAllocator;
+  mutable SpecificBumpPtrAllocator<CodeBlock> CodeBlockAllocator;
   mutable SpecificBumpPtrAllocator<DataBlock> DataBlockAllocator;
   mutable SpecificBumpPtrAllocator<IR> IrAllocator;
   mutable SpecificBumpPtrAllocator<Module> ModuleAllocator;
