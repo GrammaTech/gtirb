@@ -35,12 +35,12 @@ private:
 
 std::optional<Addr> Symbol::getAddress() const {
   return std::visit(
-      [](const auto& Arg) {
+      [](const auto& Arg) -> std::optional<Addr> {
         using T = std::decay_t<decltype(Arg)>;
         if constexpr (std::is_same_v<T, std::monostate>) {
           return std::nullopt;
         } else if constexpr (std::is_same_v<T, Addr>) {
-          return std::make_optional(Arg);
+          return Arg;
         } else if constexpr (std::is_same_v<T, Node*>) {
           if (auto* B = dyn_cast_or_null<CodeBlock>(Arg)) {
             return B->getAddress();
