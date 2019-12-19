@@ -120,6 +120,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                                                        &Block::getNode>>>>;
   using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
 
+  /// \brief Get the \ref Block that corresponds to a \ref Node.
   const Block& nodeToBlock(const Node* N) const {
     auto& Index = Blocks.get<by_pointer>();
     auto It = Index.find(const_cast<Node*>(N));
@@ -127,6 +128,10 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
            "ByteInterval::nodeToBlock called with block not in interval");
     return *It;
   }
+
+  /// \brief Call this function when \ref Bytes changes size from any source
+  /// other than \ref setSize, in order to update indices and the like.
+  void updateSize() { setSize(Bytes.getSize()); }
 
 public:
   /// \brief Create an unitialized ByteInterval object.
@@ -737,7 +742,7 @@ public:
                                       Endian VectorOrder = Endian::native,
                                       Endian ElementsOrder = Endian::native) {
     auto Result = Bytes.insert<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
-    setSize(getSize());
+    updateSize();
     return Result;
   }
 
@@ -754,7 +759,7 @@ public:
   const_bytes_iterator<T> eraseBytes(const_bytes_iterator<T> Begin,
                                      const_bytes_iterator<T> End) {
     auto Result = Bytes.erase<T>(Begin, End);
-    setSize(getSize());
+    updateSize();
     return Result;
   }
 
