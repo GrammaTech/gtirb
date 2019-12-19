@@ -51,7 +51,7 @@ std::optional<Addr> Symbol::getAddress() const {
           } else {
             assert(Arg == nullptr && "unsupported referent type");
           }
-          return std::optional<Addr>{};
+          return std::nullopt;
         } else {
           static_assert(
               // Assert condition must depend on T, but will always be false.
