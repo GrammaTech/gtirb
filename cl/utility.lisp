@@ -1,5 +1,6 @@
 (defpackage :gtirb/utility
   (:use :common-lisp)
+  (:import-from :proto)
   (:export :read-proto
            :write-proto
            :new-uuid

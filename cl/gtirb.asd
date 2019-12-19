@@ -7,17 +7,10 @@
   Intermediate Representation for Bianries (GTIRB).  GTIRB is
   serialized using Google's protocol buffers.  This library wraps the
   raw protocol buffer serialization with an more Lispy interface."
-    :depends-on (gtirb/gtirb)
+    :depends-on (:gtirb/gtirb)
     :class :package-inferred-system
     :defsystem-depends-on (:asdf-package-system :protobuf)
     :in-order-to ((test-op (test-op "gtirb/test"))))
-
-(defsystem "gtirb/utility"
-    :name "gtirb/utility"
-    :author "GrammaTech"
-    :license "MIT"
-    :description "Simple internal utilities."
-    :depends-on (:protobuf))
 
 (defsystem "proto-v0"
     :name "proto-v0"
