@@ -38,7 +38,7 @@ std::optional<Addr> Symbol::getAddress() const {
       [](const auto& Arg) {
         using T = std::decay_t<decltype(Arg)>;
         if constexpr (std::is_same_v<T, std::monostate>) {
-          return std::optional<Addr>{};
+          return std::nullopt;
         } else if constexpr (std::is_same_v<T, Addr>) {
           return std::make_optional(Arg);
         } else if constexpr (std::is_same_v<T, Node*>) {
