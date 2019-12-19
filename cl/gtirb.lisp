@@ -305,7 +305,8 @@ Should not need to be manipulated by client code.")
                  (coerce (proto:modules proto) 'list)))
               :to-proto
               (lambda (modules) (map 'vector #'update-proto modules))
-              :documentation "List of the modules on an IR.")
+              :documentation
+              "List of the modules on a top-level GTIRB IR instance.")
      (cfg :accessor cfg :type digraph
           :from-proto
           (lambda (proto)
@@ -337,7 +338,12 @@ Should not need to be manipulated by client code.")
                         p-edge)))
                   (edges-w-values cfg)))
             p-cfg)
-          :documentation "Control flow graph (CFG) keyed by UUID.")
+          :documentation
+          "Control flow graph (CFG) represented as a `graph:digraph'.
+Nodes in the graph hold the UUIDs of code blocks which may be looked
+up using `get-uuid'.  Edges on the graph are labeled with `edge-label'
+objects which provide information on the nature of the control flow of
+the graph.")
      (aux-data :accessor aux-data :type (list aux-data)
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
