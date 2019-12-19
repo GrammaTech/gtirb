@@ -106,7 +106,8 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 
 void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
   for (const auto& M : Message.vertices()) {
-    auto N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
+    auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
+    assert(N && "CFG message contains vertex that is not a CfgNode!");
     addVertex(N, Result);
   }
   for (const auto& M : Message.edges()) {
