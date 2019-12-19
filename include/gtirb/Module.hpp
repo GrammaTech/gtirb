@@ -247,8 +247,10 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   using SymbolicExpressionElement = std::pair<ByteInterval*, uint64_t>;
   struct sym_expr_addr_order {
     static std::optional<Addr> key(const SymbolicExpressionElement& SEE) {
-      auto A = SEE.first->getAddress();
-      return A ? *A + SEE.second : std::optional<Addr>();
+      if (auto A = SEE.first->getAddress()) {
+        return *A + SEE.second;
+      }
+      return std::nullopt;
     }
     bool operator()(const SymbolicExpressionElement* SEE1,
                     const SymbolicExpressionElement* SEE2) const {
