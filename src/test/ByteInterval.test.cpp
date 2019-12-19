@@ -64,7 +64,7 @@ TEST(Unit_ByteInterval, gettersSetters) {
 }
 
 TEST(Unit_ByteInterval, protobufRoundTrip) {
-  // test with fixed address
+  // Test with fixed address.
   {
     proto::ByteInterval Message;
     {
@@ -80,7 +80,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(Result->getSection(), nullptr);
   }
 
-  // test without fixed address
+  // Test without fixed address.
   {
     proto::ByteInterval Message;
     {
@@ -96,7 +96,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(Result->getSection(), nullptr);
   }
 
-  // test with bytes
+  // Test with bytes.
   {
     proto::ByteInterval Message;
     {
@@ -120,7 +120,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     ASSERT_EQ(resultBytes, "abcd");
   }
 
-  // test truncating of unallocated bytes
+  // Test truncating of unallocated bytes.
   {
     proto::ByteInterval Message;
     {
@@ -141,8 +141,8 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     std::string resultBytes;
     std::copy(Result->bytes_begin<char>(), Result->bytes_end<char>(),
               std::back_inserter(resultBytes));
-    // explode the string comparison because the default one for std::string
-    // does not like embedded NULs whatsoever
+    // Explode the string comparison, because the default one for std::string
+    // does not like embedded NULs whatsoever.
     ASSERT_EQ(resultBytes.size(), 4);
     ASSERT_EQ(resultBytes[0], 'a');
     ASSERT_EQ(resultBytes[1], 'b');
@@ -150,7 +150,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     ASSERT_EQ(resultBytes[3], '\0');
   }
 
-  // test with subobjects
+  // Test with subobjects.
   {
     auto Sym = Symbol::Create(Ctx, nullptr, "test");
 
@@ -174,7 +174,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(
         std::distance(Result->data_blocks_begin(), Result->data_blocks_end()),
         1);
-    // only after symbolicExpressionsFromProtobuf will sym exprs be populated
+    // Only after symbolicExpressionsFromProtobuf will sym exprs be populated.
     EXPECT_EQ(std::distance(Result->symbolic_expressions_begin(),
                             Result->symbolic_expressions_end()),
               0);
@@ -183,7 +183,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(std::next(Result->blocks_begin())->getOffset(), 6);
     EXPECT_EQ(std::next(std::next(Result->blocks_begin()))->getOffset(), 6);
 
-    // populate sym exprs now
+    // Populate the sym exprs now.
     Result->symbolicExpressionsFromProtobuf(Ctx, Message);
     EXPECT_EQ(std::distance(Result->symbolic_expressions_begin(),
                             Result->symbolic_expressions_end()),
@@ -206,7 +206,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
 TEST(Unit_ByteInterval, byteVector) {
   std::string contents = "hello, world!";
 
-  // test all allocated bytes
+  // Test all allocated bytes.
   {
     auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
                                    contents.begin(), contents.end());
@@ -226,7 +226,7 @@ TEST(Unit_ByteInterval, byteVector) {
     EXPECT_EQ(newIt, newEnd);
   }
 
-  // test some unallocated bytes
+  // Test some unallocated bytes.
   {
     auto BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
                                    contents.begin(), contents.end(), 100);
@@ -334,7 +334,7 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
                                  contents.begin(), contents.end());
   EXPECT_EQ(contents.size(), 16);
 
-  // little endian
+  // Test using little endian.
   {
     std::vector<uint16_t> compareTo = {
         str2<uint16_t>("he"), str2<uint16_t>("ll"), str2<uint16_t>("o,"),
@@ -356,7 +356,7 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
     EXPECT_EQ(newIt, newEnd);
   }
 
-  // big endian
+  // Test using big endian.
   {
     std::vector<uint16_t> compareTo = {
         str2<uint16_t>("eh"), str2<uint16_t>("ll"), str2<uint16_t>(",o"),
@@ -413,7 +413,7 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
     ASSERT_EQ(result, "abcd01efg23456789hi");
   }
 
-  // test with larger, non-char values
+  // Test with larger, non-char values.
   {
     std::vector<uint32_t> toInsert = {str2<uint32_t>("(hel"),
                                       str2<uint32_t>("lo.)")};
@@ -456,7 +456,7 @@ TEST(Unit_ByteInterval, byteVectorErase) {
     ASSERT_EQ(result, "234578");
   }
 
-  // test larger value
+  // Test larger value types.
   {
     BI->eraseBytes<uint16_t>(BI->bytes_begin<uint16_t>() + 1,
                              BI->bytes_begin<uint16_t>() + 2);
@@ -466,7 +466,7 @@ TEST(Unit_ByteInterval, byteVectorErase) {
     ASSERT_EQ(result, "2378");
   }
 
-  // test clear
+  // Test clearing the bytes.
   {
     BI->eraseBytes<uint32_t>(BI->bytes_begin<uint32_t>(),
                              BI->bytes_end<uint32_t>());

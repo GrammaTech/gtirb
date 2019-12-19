@@ -30,9 +30,9 @@ namespace proto {
 class DataBlock;
 }
 namespace gtirb {
-class ByteInterval; // forward declared for the backpointer
+class ByteInterval; // Forward declared for the backpointer.
 
-// forward declare functions to update module indices
+// Forward declare functions to update module indices.
 void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
                                           const std::function<void()>& F);
 

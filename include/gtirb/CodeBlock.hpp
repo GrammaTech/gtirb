@@ -38,9 +38,9 @@ class Offset;
 } // namespace proto
 
 namespace gtirb {
-class ByteInterval; // forward declared for the backpointer
+class ByteInterval; // Forward declared for the backpointer.
 
-// forward declare functions to update module indices
+// Forward declare functions to update module indices.
 void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
                                           const std::function<void()>& F);
 
@@ -300,7 +300,7 @@ struct GTIRB_EXPORT_API Offset {
   /// @endcond
 
   /// \brief Equality operator for \ref Offset.
-  // Note:boost uiid is not constexpr
+  // Note: boost::uuid is not constexpr.
   friend bool operator==(const Offset& LHS, const Offset& RHS) noexcept {
     return LHS.ElementId == RHS.ElementId &&
            LHS.Displacement == RHS.Displacement;

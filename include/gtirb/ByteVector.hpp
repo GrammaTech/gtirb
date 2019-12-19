@@ -87,7 +87,7 @@ private:
                  Endian OutputOrder_)
         : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
-    // begin functions for iterator facade compatibility
+    // Beginning of functions for iterator facade compatibility.
     reference dereference() const {
       return reference(V, I, InputOrder, OutputOrder);
     }
@@ -105,7 +105,7 @@ private:
     typename self::difference_type distance_to(const self& other) const {
       return (other.I - I) / sizeof(ResultType);
     }
-    // end functions for iterator facade compatibility
+    // End of functions for iterator facade compatibility.
 
     /// \brief Convert this iterator into a const iterator.
     operator BaseIterator<const VectorType, ResultType>() const {

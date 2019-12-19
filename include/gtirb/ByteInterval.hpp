@@ -42,9 +42,9 @@ class ByteInterval;
 } // namespace proto
 
 namespace gtirb {
-class Section; // forward declared for the backpointer
+class Section; // Forward declared for the backpointer.
 
-// forward declare functions to update module indices
+// Forward declare functions to update module indices.
 void GTIRB_EXPORT_API addToModuleIndices(Node* N);
 void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
                                           const std::function<void()>& F);
@@ -774,12 +774,12 @@ private:
   SymbolicExpressionSet SymbolicExpressions;
   ByteVector Bytes;
 
-  friend class Context;   // to enable Context::Create
-  friend class Section;   // to enable Section::(re)moveByteInterval
-  friend class CodeBlock; // to enable CodeBlock::getAddress
-  friend class DataBlock; // to enable DataBlock::getAddress
+  friend class Context;   // Friend to enable Context::Create.
+  friend class Section;   // Friend to enable Section::(re)moveByteInterval.
+  friend class CodeBlock; // Friend to enable CodeBlock::getAddress.
+  friend class DataBlock; // Friend to enable DataBlock::getAddress.
 
-  // to enable CodeBlock::getBytes and DataBlock::getBytes
+  // Friends to enable CodeBlock::bytes and DataBlock::bytes.
   friend GTIRB_EXPORT_API ByteVector& getByteVector(ByteInterval* BI);
   friend GTIRB_EXPORT_API const ByteVector&
   getByteVector(const ByteInterval* BI);

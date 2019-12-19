@@ -128,7 +128,7 @@ void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
 /// \param N  The node you wish to remove.
 void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 
-// forward declare functions used in mutators
+// Forward declare functions used in mutators.
 void GTIRB_EXPORT_API mutateIRIndices(Module* M,
                                       const std::function<void()>& F);
 /// @endcond
