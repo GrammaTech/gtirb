@@ -22,7 +22,7 @@ using namespace gtirb;
 void ByteInterval::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 
-  if (Address.has_value()) {
+  if (Address) {
     Message->set_has_address(true);
     Message->set_address((uint64_t)*Address);
   } else {
