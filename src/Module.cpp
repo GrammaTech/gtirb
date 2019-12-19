@@ -38,8 +38,6 @@ void Module::toProtobuf(MessageType* Message) const {
   containerToProtobuf(Symbols, Message->mutable_symbols());
   if (EntryPoint) {
     nodeUUIDToBytes(EntryPoint, *Message->mutable_entry_point());
-  } else {
-    Message->clear_entry_point();
   }
   AuxDataContainer::toProtobuf(Message);
 }
