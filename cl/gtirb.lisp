@@ -36,7 +36,7 @@
            ;; Symbol
            :symbol
            :value
-           :referent-uuid
+           :referent
            ;; Section
            :section
            :byte-intervals
@@ -420,8 +420,9 @@ with a call edge to a proxy block representing the external called
 function.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
-              :from-proto (lambda (proto) (map 'list {make-instance 'symbol :proto}
-                                               (proto:symbols proto)))
+              :from-proto
+              (lambda (proto) (map 'list {make-instance 'symbol :module self :proto}
+                                   (proto:symbols proto)))
               :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
               :documentation "Hash-table of symbols keyed by UUID.")
      (sections :accessor sections :type (list section)
@@ -475,7 +476,17 @@ function.")
      (value :type unsigned-byte-64)
      (referent-uuid :type uuid)) ; TODO: Just hold the referent directly.
   (:documentation
-   "Symbol with it's NAME and an optional VALUE or REFERENT."))
+   "Symbol with it's NAME and an optional VALUE or REFERENT.")
+  (:parent module))
+
+(defgeneric referent (symbol)
+  (:documentation "Provide access to the referent of SYMBOL.")
+  (:method ((symbol symbol))
+    (when (referent-uuid symbol)
+      (get-uuid (referent-uuid symbol) symbol))))
+
+(defmethod (setf referent) ((new proto-backed) (symbol symbol))
+  (setf (referent-uuid symbol) (uuid new)))
 
 (defmethod print-object ((obj symbol) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
