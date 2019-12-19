@@ -537,9 +537,11 @@ public:
   /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
   ///           is no \ref SymbolicExpression at that offset.
   SymbolicExpression* getSymbolicExpression(uint64_t O) {
-    return SymbolicExpressions.find(O) == SymbolicExpressions.end()
-               ? nullptr
-               : &SymbolicExpressions.at(O);
+    auto It = SymbolicExpressions.find(O);
+    if (It == SymbolicExpressions.end()) {
+      return nullptr;
+    }
+    return &It->second;
   }
 
   /// \brief Get the symbolic expression at the given offset, if present.
@@ -548,9 +550,11 @@ public:
   /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
   ///           is no \ref SymbolicExpression at that offset.
   const SymbolicExpression* getSymbolicExpression(uint64_t O) const {
-    return SymbolicExpressions.find(O) == SymbolicExpressions.end()
-               ? nullptr
-               : &SymbolicExpressions.at(O);
+    auto It = SymbolicExpressions.find(O);
+    if (It == SymbolicExpressions.end()) {
+      return nullptr;
+    }
+    return &It->second;
   }
 
   /// \brief Set or clear the address of this interval.
