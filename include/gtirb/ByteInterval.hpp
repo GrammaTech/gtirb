@@ -461,7 +461,7 @@ public:
     auto& Index = Blocks.get<by_pointer>();
     if (auto Iter = Index.find(N); Iter != Index.end())
       Index.erase(Iter);
-    N->setByteInerval(nullptr);
+    N->setByteInterval(nullptr);
   }
 
   /// \brief Move an existing Block to be a part of this interval.

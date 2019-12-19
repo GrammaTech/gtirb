@@ -14,6 +14,7 @@
 //===----------------------------------------------------------------------===//
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
+#include <gtirb/Module.hpp>
 #include <proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
 
@@ -488,5 +489,68 @@ TEST(Unit_ByteInterval, byteVectorErase) {
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
               std::back_inserter(Result));
     ASSERT_EQ(Result, "");
+  }
+}
+
+TEST(Unit_ByteInterval, removeBlock) {
+  auto* M = Module::Create(Ctx);
+  auto* S = M->addSection(Ctx, "test");
+  auto* BI = S->addByteInterval(Ctx, Addr(0), 10);
+
+  auto* B1 = BI->addCodeBlock(Ctx, 0, 1);
+  auto* B2 = BI->addDataBlock(Ctx, 1, 1);
+  auto* B3 = BI->addCodeBlock(Ctx, 2, 1);
+  auto* B4 = BI->addDataBlock(Ctx, 3, 1);
+
+  {
+    auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
+    ASSERT_EQ(std::distance(Begin, End), 2);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B1 == &N; }),
+              End);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B3 == &N; }),
+              End);
+  }
+
+  {
+    auto Begin = M->data_blocks_begin(), End = M->data_blocks_end();
+    ASSERT_EQ(std::distance(Begin, End), 2);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B2 == &N; }),
+              End);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B4 == &N; }),
+              End);
+  }
+
+  BI->removeBlock(B1);
+
+  {
+    auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
+    ASSERT_EQ(std::distance(Begin, End), 1);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B3 == &N; }),
+              End);
+  }
+
+  {
+    auto Begin = M->data_blocks_begin(), End = M->data_blocks_end();
+    ASSERT_EQ(std::distance(Begin, End), 2);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B2 == &N; }),
+              End);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B4 == &N; }),
+              End);
+  }
+
+  BI->removeBlock(B2);
+
+  {
+    auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
+    ASSERT_EQ(std::distance(Begin, End), 1);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B3 == &N; }),
+              End);
+  }
+
+  {
+    auto Begin = M->data_blocks_begin(), End = M->data_blocks_end();
+    ASSERT_EQ(std::distance(Begin, End), 1);
+    ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B4 == &N; }),
+              End);
   }
 }

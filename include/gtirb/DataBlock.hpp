@@ -236,6 +236,8 @@ private:
   ByteInterval* Parent{nullptr};
   uint64_t Size{0};
 
+  void setByteInterval(ByteInterval* BI) { Parent = BI; }
+
   friend class Context;
   friend class ByteInterval;
 };
