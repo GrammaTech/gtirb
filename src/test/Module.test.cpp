@@ -822,3 +822,47 @@ TEST(Unit_Module, protobufNodePointers) {
   EXPECT_EQ(get<SymAddrConst>(*Result->findSymbolicExpression(Addr(4))).Sym,
             nullptr);
 }
+
+TEST(Unit_Module, removeNodes) {
+  auto* M = Module::Create(Ctx);
+  auto* S = M->addSection(Ctx, "test");
+  auto* BI = S->addByteInterval(Ctx, Addr(0), 0);
+  BI->addCodeBlock(Ctx, 0, 0);
+  BI->addDataBlock(Ctx, 0, 0);
+  auto* P = M->addProxyBlock(Ctx);
+  auto* Sym = M->addSymbol(Ctx, "test");
+
+  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 1);
+  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 1);
+  EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
+  EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 1);
+  EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 1);
+  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 1);
+
+  M->removeSection(S);
+
+  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 0);
+  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 0);
+  EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 1);
+  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 1);
+
+  M->removeProxyBlock(P);
+
+  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 0);
+  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 0);
+  EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 1);
+
+  M->removeSymbol(Sym);
+
+  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 0);
+  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 0);
+  EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 0);
+  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 0);
+}
