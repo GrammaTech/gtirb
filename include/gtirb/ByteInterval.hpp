@@ -68,6 +68,9 @@ public:
 
   /// \brief Get the \ref Node, either a \ref CodeBlock or \ref DataBlock, in
   /// the \ref ByteInterval.
+  // Note: this function returns a nonconst pointer despite being const because
+  // it's valid to mutate the nodes, but not valid to mutate the block-offset
+  // pairs in the BlockSet.
   Node* getNode() const { return node; }
 };
 
