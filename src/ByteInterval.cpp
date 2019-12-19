@@ -22,7 +22,7 @@ using namespace gtirb;
 void ByteInterval::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 
-  if (Address) {
+  if (Address.has_value()) {
     Message->set_has_address(true);
     Message->set_address((uint64_t)*Address);
   } else {
@@ -61,8 +61,11 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
 
 ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
                                          const MessageType& Message) {
-  auto A = Message.has_address() ? std::optional<Addr>{Message.address()}
-                                 : std::optional<Addr>{};
+  std::optional<Addr> A;
+  if (Message.has_address()) {
+    A = Addr(Message.address());
+  }
+
   ByteInterval* BI = ByteInterval::Create(
       C, Parent, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size());
