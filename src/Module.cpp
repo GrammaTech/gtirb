@@ -106,8 +106,7 @@ static uint64_t extractSize(std::optional<uint64_t> t) { return *t; }
 
 template <typename NodeType, typename IntMapType>
 static void addToICL(IntMapType& IntMap, NodeType* N) {
-  auto A = N->getAddress();
-  if (A) {
+  if (auto A = N->getAddress()) {
     IntMap.add(std::make_pair(IntMapType::interval_type::right_open(
                                   *A, *A + extractSize(N->getSize())),
                               typename IntMapType::codomain_type({N})));
@@ -116,8 +115,7 @@ static void addToICL(IntMapType& IntMap, NodeType* N) {
 
 template <typename NodeType, typename IntMapType>
 static void removeFromICL(IntMapType& IntMap, NodeType* N) {
-  auto A = N->getAddress();
-  if (ADJ_ESTERROR) {
+  if (auto A = N->getAddress()) {
     IntMap.subtract(std::make_pair(IntMapType::interval_type::right_open(
                                        *A, *A + extractSize(N->getSize())),
                                    typename IntMapType::codomain_type({N})));
