@@ -138,7 +138,7 @@ void gtirb::addToModuleIndices(Node* N) {
       addToICL(M->ByteIntervalAddrs, BI);
 
       for (auto& B : BI->blocks()) {
-        addToModuleIndices(B.getNode());
+        addToModuleIndices(&B);
       }
       for (auto& SE : BI->symbolic_expressions()) {
         M->SymbolicExpressions.emplace(BI, SE.first);
@@ -290,7 +290,7 @@ void gtirb::removeFromModuleIndices(Node* N) {
       }
 
       for (auto& B : BI->blocks()) {
-        removeFromModuleIndices(B.getNode());
+        removeFromModuleIndices(&B);
       }
 
       auto& SEIndex = M->SymbolicExpressions.get<Module::by_pointer>();

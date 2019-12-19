@@ -23,6 +23,7 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
 #include <boost/multi_index/mem_fun.hpp>
@@ -50,41 +51,6 @@ void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
                                           const std::function<void()>& F);
 void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 
-/// \class Block
-///
-/// \brief A node (either a \ref CodeBlock or \ref DataBlock), alongside an
-/// offset, held within this interval.
-class Block {
-  friend class ByteInterval;
-  uint64_t Offset;
-  gtirb::Node* Node;
-
-public:
-  Block(uint64_t O, gtirb::Node* N) : Offset(O), Node(N) {}
-
-  /// \brief Get the offset from the beginning of this block's \ref
-  /// ByteInterval.
-  uint64_t getOffset() const { return Offset; }
-
-  /// \brief Get the \ref Node, either a \ref CodeBlock or \ref DataBlock, in
-  /// the \ref ByteInterval.
-  // Note: this function returns a nonconst pointer despite being const because
-  // it's valid to mutate the nodes, but not valid to mutate the block-offset
-  // pairs in the BlockSet.
-  gtirb::Node* getNode() const { return Node; }
-};
-
-/// @cond INTERNAL
-/// \class BlockIs
-///
-/// \brief A predicate object to discern one type of block.
-template <Node::Kind K> struct BlockIs {
-  bool operator()(const Block& Variant) const {
-    return Variant.getNode()->getKind() == K;
-  }
-};
-/// @endcond
-
 /// \class ByteInterval
 ///
 /// \brief A contiguous region of bytes in a binary.
@@ -99,6 +65,47 @@ template <Node::Kind K> struct BlockIs {
 /// then it should be considered unknown if moving the two blocks relative to
 /// one another in memory is a safe operation.
 class GTIRB_EXPORT_API ByteInterval : public Node {
+  /// \class Block
+  ///
+  /// \brief A node (either a \ref CodeBlock or \ref DataBlock), alongside an
+  /// offset, held within this interval.
+  struct Block {
+    uint64_t Offset;
+    gtirb::Node* Node;
+
+    Block(uint64_t O, gtirb::Node* N) : Offset(O), Node(N) {}
+
+    /// \brief Get the offset from the beginning of this block's \ref
+    /// ByteInterval.
+    uint64_t getOffset() const { return Offset; }
+
+    /// \brief Get the \ref Node, either a \ref CodeBlock or \ref DataBlock, in
+    /// the \ref ByteInterval.
+    ///
+    /// This function returns a nonconst pointer despite being const
+    /// because it's valid to mutate the nodes, but not valid to mutate the
+    /// block-offset pairs in the BlockSet.
+    gtirb::Node* getNode() const { return Node; }
+  };
+
+  /// \class BlockIs
+  ///
+  /// \brief A predicate object to discern one type of block.
+  template <Node::Kind K> struct BlockIs {
+    bool operator()(const Block& B) const {
+      return B.getNode()->getKind() == K;
+    }
+  };
+
+  /// \class BlockToNode
+  ///
+  /// \brief A function for a trasnform iterator to turn blocks into nodes.
+  template <typename NodeType> struct BlockToNode {
+    NodeType& operator()(const Block& B) const {
+      return *cast<NodeType>(B.Node);
+    }
+  };
+
   struct by_offset {};
   struct by_pointer {};
   using BlockSet = boost::multi_index::multi_index_container<
@@ -230,7 +237,9 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using blocks_iterator = BlockSet::index<by_offset>::type::iterator;
+  using blocks_iterator =
+      boost::transform_iterator<BlockToNode<Node>,
+                                BlockSet::index<by_offset>::type::iterator>;
   /// \brief Range of \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -240,8 +249,9 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_blocks_iterator =
-      BlockSet::index<by_offset>::type::const_iterator;
+  using const_blocks_iterator = boost::transform_iterator<
+      BlockToNode<const Node>,
+      BlockSet::index<by_offset>::type::const_iterator>;
   /// \brief Const range of \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -249,14 +259,18 @@ public:
   using const_blocks_range = boost::iterator_range<const_blocks_iterator>;
 
   /// \brief Return an iterator to the first \ref Block.
-  blocks_iterator blocks_begin() { return Blocks.begin(); }
+  blocks_iterator blocks_begin() { return blocks_iterator(Blocks.begin()); }
   /// \brief Return a const iterator to the first \ref Block.
-  const_blocks_iterator blocks_begin() const { return Blocks.begin(); }
+  const_blocks_iterator blocks_begin() const {
+    return const_blocks_iterator(Blocks.begin());
+  }
   /// \brief Return an iterator to the element following the last \ref Block.
-  blocks_iterator blocks_end() { return Blocks.end(); }
+  blocks_iterator blocks_end() { return blocks_iterator(Blocks.end()); }
   /// \brief Return a const iterator to the element following the last
   /// \ref Block.
-  const_blocks_iterator blocks_end() const { return Blocks.end(); }
+  const_blocks_iterator blocks_end() const {
+    return const_blocks_iterator(Blocks.end());
+  }
   /// \brief Return a range of the \ref Block objects in this interval.
   blocks_range blocks() {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
@@ -270,9 +284,10 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using code_blocks_iterator =
+  using code_blocks_iterator = boost::transform_iterator<
+      BlockToNode<CodeBlock>,
       boost::filter_iterator<BlockIs<Node::Kind::CodeBlock>,
-                             BlockSet::index<by_offset>::type::iterator>;
+                             BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref CodeBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -282,9 +297,10 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_code_blocks_iterator =
+  using const_code_blocks_iterator = boost::transform_iterator<
+      BlockToNode<const CodeBlock>,
       boost::filter_iterator<BlockIs<Node::Kind::CodeBlock>,
-                             BlockSet::index<by_offset>::type::const_iterator>;
+                             BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref CodeBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -294,27 +310,25 @@ public:
 
   /// \brief Return an iterator to the first \ref CodeBlock.
   code_blocks_iterator code_blocks_begin() {
-    return code_blocks_iterator(decltype(code_blocks_iterator().predicate())(),
-                                Blocks.begin(), Blocks.end());
+    return code_blocks_iterator(
+        code_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return a const iterator to the first \ref CodeBlock.
   const_code_blocks_iterator code_blocks_begin() const {
     return const_code_blocks_iterator(
-        decltype(const_code_blocks_iterator().predicate())(), Blocks.begin(),
-        Blocks.end());
+        const_code_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return an iterator to the element following the last \ref
   /// CodeBlock.
   code_blocks_iterator code_blocks_end() {
-    return code_blocks_iterator(decltype(code_blocks_iterator().predicate())(),
-                                Blocks.end(), Blocks.end());
+    return code_blocks_iterator(
+        code_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// CodeBlock.
   const_code_blocks_iterator code_blocks_end() const {
     return const_code_blocks_iterator(
-        decltype(const_code_blocks_iterator().predicate())(), Blocks.end(),
-        Blocks.end());
+        const_code_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a range of the \ref CodeBlock objects in this interval.
   code_blocks_range code_blocks() {
@@ -330,9 +344,10 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using data_blocks_iterator =
+  using data_blocks_iterator = boost::transform_iterator<
+      BlockToNode<DataBlock>,
       boost::filter_iterator<BlockIs<Node::Kind::DataBlock>,
-                             BlockSet::index<by_offset>::type::iterator>;
+                             BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref DataBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -342,9 +357,10 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_data_blocks_iterator =
+  using const_data_blocks_iterator = boost::transform_iterator<
+      BlockToNode<const DataBlock>,
       boost::filter_iterator<BlockIs<Node::Kind::DataBlock>,
-                             BlockSet::index<by_offset>::type::const_iterator>;
+                             BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref DataBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -354,27 +370,25 @@ public:
 
   /// \brief Return an iterator to the first \ref DataBlock.
   data_blocks_iterator data_blocks_begin() {
-    return data_blocks_iterator(decltype(data_blocks_iterator().predicate())(),
-                                Blocks.begin(), Blocks.end());
+    return data_blocks_iterator(
+        data_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return a const iterator to the first \ref DataBlock.
   const_data_blocks_iterator data_blocks_begin() const {
     return const_data_blocks_iterator(
-        decltype(const_data_blocks_iterator().predicate())(), Blocks.begin(),
-        Blocks.end());
+        const_data_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return an iterator to the element following the last \ref
   /// DataBlock.
   data_blocks_iterator data_blocks_end() {
-    return data_blocks_iterator(decltype(data_blocks_iterator().predicate())(),
-                                Blocks.end(), Blocks.end());
+    return data_blocks_iterator(
+        data_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// DataBlock.
   const_data_blocks_iterator data_blocks_end() const {
     return const_data_blocks_iterator(
-        decltype(const_data_blocks_iterator().predicate())(), Blocks.end(),
-        Blocks.end());
+        const_data_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a range of the \ref DataBlock objects in this interval.
   data_blocks_range data_blocks() {

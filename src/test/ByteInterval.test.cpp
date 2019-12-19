@@ -177,9 +177,25 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
                             Result->symbolic_expressions_end()),
               0);
 
-    EXPECT_EQ(Result->blocks_begin()->getOffset(), 3);
-    EXPECT_EQ(std::next(Result->blocks_begin())->getOffset(), 6);
-    EXPECT_EQ(std::next(std::next(Result->blocks_begin()))->getOffset(), 6);
+    constexpr auto getOffset = [](const Node& N) -> uint64_t {
+      if (auto* B = dyn_cast_or_null<CodeBlock>(&N)) {
+        return B->getOffset();
+      }
+      if (auto* D = dyn_cast_or_null<DataBlock>(&N)) {
+        return D->getOffset();
+      }
+      assert(!"Found a non-block in a byte interval!");
+      return 0;
+    };
+
+    EXPECT_EQ(getOffset(*Result->blocks_begin()), 3);
+    EXPECT_EQ(getOffset(*std::next(Result->blocks_begin())), 6);
+    EXPECT_EQ(getOffset(*std::next(std::next(Result->blocks_begin()))), 6);
+
+    EXPECT_EQ(Result->code_blocks_begin()->getOffset(), 3);
+    EXPECT_EQ(std::next(Result->code_blocks_begin())->getOffset(), 6);
+
+    EXPECT_EQ(Result->data_blocks_begin()->getOffset(), 6);
 
     // Populate the sym exprs now.
     Result->symbolicExpressionsFromProtobuf(Ctx, Message);

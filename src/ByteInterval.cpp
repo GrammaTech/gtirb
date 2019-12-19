@@ -35,17 +35,19 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   std::copy(BytesIt, BytesIt + AllocatedSize,
             std::back_inserter(*Message->mutable_contents()));
 
-  for (const auto& block : this->blocks()) {
+  for (const auto& N : this->blocks()) {
     auto* ProtoBlock = Message->add_blocks();
-    auto* N = block.getNode();
 
-    ProtoBlock->set_offset(block.getOffset());
-    switch (N->getKind()) {
+    switch (N.getKind()) {
     case Node::Kind::CodeBlock: {
-      cast<CodeBlock>(N)->toProtobuf(ProtoBlock->mutable_code());
+      auto& B = cast<CodeBlock>(N);
+      ProtoBlock->set_offset(B.getOffset());
+      B.toProtobuf(ProtoBlock->mutable_code());
     } break;
     case Node::Kind::DataBlock: {
-      cast<DataBlock>(N)->toProtobuf(ProtoBlock->mutable_data());
+      auto& B = cast<DataBlock>(N);
+      ProtoBlock->set_offset(B.getOffset());
+      B.toProtobuf(ProtoBlock->mutable_data());
     } break;
     default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
     }
