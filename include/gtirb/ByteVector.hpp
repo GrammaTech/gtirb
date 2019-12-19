@@ -56,9 +56,10 @@ private:
 
     /// \brief Use this reference as an lvalue, automatically handling
     /// endian conversion.
-    void operator=(ResultType rhs) {
+    Reference<VectorType, ResultType>& operator=(ResultType rhs) {
       *(ResultType*)(V->data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
+      return *this;
     }
 
   private:
