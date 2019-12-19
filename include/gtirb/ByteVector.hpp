@@ -158,7 +158,7 @@ public:
   ByteVector() = default;
 
   /// \brief Construct a byte vector, filled with zeroes to the given size.
-  ByteVector(uint64_t Size) : Bytes(Size) {}
+  explicit ByteVector(uint64_t Size) : Bytes(Size) {}
 
   /// \brief Construct a byte vector from an iterator range of bytes.
   template <typename InputIterator>
