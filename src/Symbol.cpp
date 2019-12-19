@@ -47,7 +47,7 @@ std::optional<Addr> Symbol::getAddress() const {
           } else if (auto* D = dyn_cast_or_null<DataBlock>(Arg)) {
             return D->getAddress();
           } else if (auto* P = dyn_cast_or_null<ProxyBlock>(Arg)) {
-            return std::optional<Addr>{};
+            return std::nullopt;
           } else {
             assert(Arg == nullptr && "unsupported referent type");
           }
