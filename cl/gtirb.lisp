@@ -9,7 +9,6 @@
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
                 :int->octets
-                :octets->int
                 :octets->int64
                 :octets->uint64)
   (:export :read-gtirb

@@ -1,6 +1,9 @@
 (defpackage :gtirb/utility
   (:use :common-lisp)
   (:import-from :proto)
+  (:import-from :cl-intbytes
+                :int->octets
+                :octets->int)
   (:export :read-proto
            :write-proto
            :new-uuid
@@ -46,11 +49,9 @@
               :initial-contents array))
 
 (defun uuid-to-integer (uuid)
-  (if (emptyp uuid)
-      ;;TODO: Needed when referent-uuid of a symbol can be #().
-      ;;      Remove this case and instead stop processing missing
-      ;;      referent-uuids.
-      0
+  (declare (type (simple-array) uuid))
+  (if (zerop (length uuid))
+      (prog1 0 #+debug (warn "Bad null UUID."))
       (octets->int (force-byte-array uuid) 16)))
 
 (defun integer-to-uuid (number)
