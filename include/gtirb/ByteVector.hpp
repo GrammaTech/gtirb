@@ -57,7 +57,7 @@ private:
 
     /// \brief Use this reference as an lvalue, automatically handling
     /// endian conversion.
-    Reference<VectorType, ResultType>& operator=(ResultType rhs) {
+    Reference<VectorType, ResultType>& operator=(const ResultType& rhs) {
       *reinterpret_cast<ResultType*>(V->data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
       return *this;
@@ -299,7 +299,7 @@ public:
                                     Endian VectorOrder = Endian::native,
                                     Endian ElementsOrder = Endian::native) {
     auto It = Pos;
-    for (ResultType X : boost::make_iterator_range(Begin, End)) {
+    for (const ResultType& X : boost::make_iterator_range(Begin, End)) {
       insert(It, X, VectorOrder, ElementsOrder);
       It++;
     }
