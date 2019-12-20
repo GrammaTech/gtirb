@@ -853,10 +853,10 @@ public:
   ///
   /// \return The range of CodeBlocks containing the address.
   code_block_subrange findCodeBlock(Addr X) {
-    auto It = CodeBlockAddrs.find(X);
-    if (It == CodeBlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = CodeBlockAddrs.find(X); It != CodeBlockAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// \brief Find a \ref CodeBlock containing an address.
@@ -865,10 +865,10 @@ public:
   ///
   /// \return The range of CodeBlocks containing the address.
   const_code_block_subrange findCodeBlock(Addr X) const {
-    auto It = CodeBlockAddrs.find(X);
-    if (It == CodeBlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = CodeBlockAddrs.find(X); It != CodeBlockAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// @}
@@ -927,10 +927,10 @@ public:
   ///
   /// \return The range of DataBlocks containing the address.
   data_block_subrange findDataBlock(Addr X) {
-    auto It = DataBlockAddrs.find(X);
-    if (It == DataBlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = DataBlockAddrs.find(X); It != DataBlockAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// \brief Find a \ref DataBlock containing an address.
@@ -939,10 +939,10 @@ public:
   ///
   /// \return The range of DataBlocks containing the address.
   const_data_block_subrange findDataBlock(Addr X) const {
-    auto It = DataBlockAddrs.find(X);
-    if (It == DataBlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = DataBlockAddrs.find(X); It != DataBlockAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// @}
@@ -1070,10 +1070,10 @@ public:
   ///
   /// \return The range of Sections containing the address.
   section_subrange findSection(Addr X) {
-    auto It = SectionAddrs.find(X);
-    if (It == SectionAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = SectionAddrs.find(X); It != SectionAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// \brief Find a Section containing an address.
@@ -1082,10 +1082,10 @@ public:
   ///
   /// \return The range of Sections containing the address.
   const_section_subrange findSection(Addr X) const {
-    auto It = SectionAddrs.find(X);
-    if (It == SectionAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = SectionAddrs.find(X); It != SectionAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// \brief Find a Section by name.
@@ -1211,12 +1211,10 @@ public:
   /// no \ref SymbolicExpression at that address.
   SymbolicExpression* findSymbolicExpression(Addr X) {
     auto& Index = SymbolicExpressions.get<by_address>();
-    auto It = Index.find(X);
-    if (It == Index.end()) {
-      return nullptr;
-    } else {
+    if (auto It = Index.find(X); It != Index.end()) {
       return It->first->getSymbolicExpression(It->second);
     }
+    return nullptr;
   }
 
   /// \brief Find a symbolic expression at an address, if present.
@@ -1226,12 +1224,10 @@ public:
   /// no \ref SymbolicExpression at that address.
   const SymbolicExpression* findSymbolicExpression(Addr X) const {
     auto& Index = SymbolicExpressions.get<by_address>();
-    auto It = Index.find(X);
-    if (It == Index.end()) {
-      return nullptr;
-    } else {
+    if (auto It = Index.find(X); It != Index.end()) {
       return It->first->getSymbolicExpression(It->second);
     }
+    return nullptr;
   }
 
   /// \brief Return all the symbolic expressions between two addresses.
@@ -1336,10 +1332,10 @@ public:
   ///
   /// \return The range of ByteIntervals containing the address.
   byte_interval_subrange findByteInterval(Addr X) {
-    auto It = ByteIntervalAddrs.find(X);
-    if (It == ByteIntervalAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = ByteIntervalAddrs.find(X); It != ByteIntervalAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// \brief Find a ByteInterval containing an address.
@@ -1348,10 +1344,10 @@ public:
   ///
   /// \return The range of ByteIntervals containing the address.
   const_byte_interval_subrange findByteInterval(Addr X) const {
-    auto It = ByteIntervalAddrs.find(X);
-    if (It == ByteIntervalAddrs.end())
-      return {};
-    return boost::make_iterator_range(It->second.begin(), It->second.end());
+    if (auto It = ByteIntervalAddrs.find(X); It != ByteIntervalAddrs.end()) {
+      return boost::make_iterator_range(It->second.begin(), It->second.end());
+    }
+    return {};
   }
 
   /// @}
