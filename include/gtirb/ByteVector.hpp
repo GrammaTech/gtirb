@@ -120,14 +120,6 @@ private:
     Endian InputOrder;
     Endian OutputOrder;
 
-    /// \brief Convert this iterator into an underlying \ref Vector::iterator.
-    typename VectorType::iterator getIterator() { return V->begin() + I; }
-
-    /// \brief Convert this iterator into an underlying \ref Vector::iterator.
-    typename VectorType::const_iterator getIterator() const {
-      return V->begin() + I;
-    }
-
     friend class ByteVector;
   };
 
@@ -281,7 +273,7 @@ public:
                                     Endian ElementOrder = Endian::native) {
     boost::endian::conditional_reverse_inplace(X, ElementOrder, VectorOrder);
     const auto* ResultAsBytes = reinterpret_cast<const uint8_t*>(&X);
-    Bytes.insert(Pos.getIterator(), ResultAsBytes,
+    Bytes.insert(Bytes.begin() + Pos.I, ResultAsBytes,
                  ResultAsBytes + sizeof(ResultType));
     return Pos;
   }
@@ -326,7 +318,7 @@ public:
   template <typename ResultType>
   const_iterator<ResultType> erase(const const_iterator<ResultType> Begin,
                                    const const_iterator<ResultType> End) {
-    Bytes.erase(Begin.getIterator(), End.getIterator());
+    Bytes.erase(Bytes.begin() + Begin.I, Bytes.begin() + End.I);
     return Begin;
   }
 
