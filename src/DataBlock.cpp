@@ -15,7 +15,6 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Serialization.hpp>
-
 #include <proto/DataBlock.pb.h>
 
 using namespace gtirb;
