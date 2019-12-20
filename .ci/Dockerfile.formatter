@@ -19,13 +19,10 @@ RUN apt-get update \
 RUN pip3 install "virtualenv<20.0.0"
 RUN pip3 install pre-commit
 
-# Install the git-lisp-format pre-commit format checker.
+# Install the lisp-format pre-commit format checker.
 RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
 RUN chmod +x /usr/bin/lisp-format
 RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
-RUN curl https://llvm.org/svn/llvm-project/cfe/trunk/tools/clang-format/git-clang-format > /usr/bin/git-lisp-format
-RUN sed -i "s/clang-format/lisp-format/g;s/clangFormat/lispFormat/;s/default_extensions =.*\$/default_extensions = ','.join(['lisp','cl','asd','scm','el'])/;/# From clang\/lib\/Frontend\/FrontendOptions.cpp, all lower case/,/])/d" /usr/bin/git-lisp-format
-RUN chmod +x /usr/bin/git-lisp-format
 
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
