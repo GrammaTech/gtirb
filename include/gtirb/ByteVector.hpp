@@ -43,7 +43,7 @@ private:
   /// seamless reading and writing of chunks of data.
   template <typename VectorType, typename ResultType> class Reference {
   public:
-    Reference(VectorType* V_, size_t I_, Endian InputOrder_,
+    Reference(VectorType& V_, size_t I_, Endian InputOrder_,
               Endian OutputOrder_)
         : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
@@ -51,19 +51,19 @@ private:
     /// endian conversion.
     operator ResultType() const {
       return boost::endian::conditional_reverse(
-          *reinterpret_cast<const ResultType*>(V->data() + I), InputOrder,
+          *reinterpret_cast<const ResultType*>(V.data() + I), InputOrder,
           OutputOrder);
     }
 
     /// \brief Use this reference as an lvalue, automatically handling
     /// endian conversion.
     Reference<VectorType, ResultType>& operator=(const ResultType& rhs) {
-      *reinterpret_cast<ResultType*>(V->data() + I) =
+      *reinterpret_cast<ResultType*>(V.data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
       return *this;
     }
 
-    VectorType* V;
+    VectorType& V;
     size_t I;
     Endian InputOrder;
     Endian OutputOrder;
@@ -84,7 +84,7 @@ private:
     using self = BaseIterator<VectorType, ResultType>;
     using reference = Reference<VectorType, ResultType>;
 
-    BaseIterator(VectorType* V_, size_t I_, Endian InputOrder_,
+    BaseIterator(VectorType& V_, size_t I_, Endian InputOrder_,
                  Endian OutputOrder_)
         : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
@@ -93,7 +93,9 @@ private:
       return reference(V, I, InputOrder, OutputOrder);
     }
 
-    bool equal(const self& other) const { return V == other.V && I == other.I; }
+    bool equal(const self& other) const {
+      return &V == &other.V && I == other.I;
+    }
 
     void increment() { I += sizeof(ResultType); }
 
@@ -115,7 +117,7 @@ private:
     }
 
   private:
-    VectorType* V;
+    VectorType& V;
     size_t I;
     Endian InputOrder;
     Endian OutputOrder;
@@ -177,7 +179,7 @@ public:
   template <typename ResultType>
   iterator<ResultType> begin(Endian InputOrder = Endian::native,
                              Endian OutputOrder = Endian::native) {
-    return iterator<ResultType>(&Bytes, 0, InputOrder, OutputOrder);
+    return iterator<ResultType>(Bytes, 0, InputOrder, OutputOrder);
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -190,7 +192,7 @@ public:
   template <typename ResultType>
   iterator<ResultType> end(Endian InputOrder = Endian::native,
                            Endian OutputOrder = Endian::native) {
-    return iterator<ResultType>(&Bytes, Bytes.size(), InputOrder, OutputOrder);
+    return iterator<ResultType>(Bytes, Bytes.size(), InputOrder, OutputOrder);
   }
 
   /// \brief Get aa range of data in this byte vector.
@@ -217,7 +219,7 @@ public:
   template <typename ResultType>
   const_iterator<ResultType> begin(Endian InputOrder = Endian::native,
                                    Endian OutputOrder = Endian::native) const {
-    return const_iterator<ResultType>(&Bytes, 0, InputOrder, OutputOrder);
+    return const_iterator<ResultType>(Bytes, 0, InputOrder, OutputOrder);
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -230,7 +232,7 @@ public:
   template <typename ResultType>
   const_iterator<ResultType> end(Endian InputOrder = Endian::native,
                                  Endian OutputOrder = Endian::native) const {
-    return const_iterator<ResultType>(&Bytes, Bytes.size(), InputOrder,
+    return const_iterator<ResultType>(Bytes, Bytes.size(), InputOrder,
                                       OutputOrder);
   }
 
