@@ -126,7 +126,7 @@ public:
 
   /// \brief Get an iterator to the first byte in this block.
   ///
-  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
   /// \param  InputOrder  The endianess of the data in the block.
@@ -134,13 +134,14 @@ public:
   template <typename T>
   bytes_iterator<T> bytes_begin(Endian InputOrder = Endian::native,
                                 Endian OutputOrder = Endian::native) {
+    assert(Parent && "Block has no byte interval!");
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset();
   }
 
   /// \brief Get an iterator past the last byte in this block.
   ///
-  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
   /// \param  InputOrder  The endianess of the data in the block.
@@ -148,13 +149,14 @@ public:
   template <typename T>
   bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                               Endian OutputOrder = Endian::native) {
+    assert(Parent && "Block has no byte interval!");
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset() + Size;
   }
 
   /// \brief Get a range of the bytes in this block.
   ///
-  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
   /// \param  InputOrder  The endianess of the data in the block.
@@ -162,13 +164,14 @@ public:
   template <typename T>
   bytes_range<T> bytes(Endian InputOrder = Endian::native,
                        Endian OutputOrder = Endian::native) {
+    assert(Parent && "Block has no byte interval!");
     return bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
                           bytes_end<T>(InputOrder, OutputOrder));
   }
 
   /// \brief Get an iterator to the first byte in this block.
   ///
-  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
   /// \param  InputOrder  The endianess of the data in the block.
@@ -177,13 +180,14 @@ public:
   const_bytes_iterator<T>
   bytes_begin(Endian InputOrder = Endian::native,
               Endian OutputOrder = Endian::native) const {
+    assert(Parent && "Block has no byte interval!");
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset();
   }
 
   /// \brief Get an iterator past the last byte in this block.
   ///
-  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
   /// \param  InputOrder  The endianess of the data in the block.
@@ -191,13 +195,14 @@ public:
   template <typename T>
   const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
                                     Endian OutputOrder = Endian::native) const {
+    assert(Parent && "Block has no byte interval!");
     return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
            getOffset() + Size;
   }
 
   /// \brief Get a range of the bytes in this block.
   ///
-  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
   /// \param  InputOrder  The endianess of the data in the block.
@@ -205,8 +210,45 @@ public:
   template <typename T>
   const_bytes_range<T> bytes(Endian InputOrder = Endian::native,
                              Endian OutputOrder = Endian::native) const {
+    assert(Parent && "Block has no byte interval!");
     return const_bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
                                 bytes_end<T>(InputOrder, OutputOrder));
+  }
+
+  /// \brief Return the raw data underlying this block's byte vector.
+  ///
+  /// Much like \ref std::vector::data, this function is low-level and
+  /// potentially unsafe. This pointer refers to valid memory only where an
+  /// iterator would be valid to point to. Modifying the size of the byte
+  /// vector may invalidate this pointer. Any endian conversions will not be
+  /// performed.
+  ///
+  /// \tparam T The type of data stored in this block's byte vector. Must be
+  /// a POD type.
+  ///
+  /// \retrurn A pointer to raw data.
+  template <typename T> T* rawBytes() {
+    assert(Parent && "Block has no byte interval!");
+    return reinterpret_cast<T*>(getByteVector(Parent).data<uint8_t>() +
+                                getOffset());
+  }
+
+  /// \brief Return the raw data underlying this block's byte vector.
+  ///
+  /// Much like \ref std::vector::data, this function is low-level and
+  /// potentially unsafe. This pointer refers to valid memory only where an
+  /// iterator would be valid to point to. Modifying the size of the byte
+  /// vector may invalidate this pointer. Any endian conversions will not be
+  /// performed.
+  ///
+  /// \tparam T The type of data stored in this block's byte vector. Must be
+  /// a POD type.
+  ///
+  /// \retrurn A pointer to raw data.
+  template <typename T> const T* rawBytes() const {
+    assert(Parent && "Block has no byte interval!");
+    return reinterpret_cast<const T*>(getByteVector(Parent).data<uint8_t>() +
+                                      getOffset());
   }
 
   /// @cond INTERNAL

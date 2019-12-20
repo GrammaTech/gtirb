@@ -763,6 +763,30 @@ public:
     return Result;
   }
 
+  /// \brief Return the raw data underlying this interval's byte vector.
+  ///
+  /// Much like \ref std::vector::data, this function is low-level and
+  /// potentially unsafe. This pointer refers to valid memory only where an
+  /// iterator would be valid to point to. Modifying the size of the byte
+  /// vector may invalidate this pointer. Any endian conversions will not be
+  /// performed.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type.
+  template <typename T> T* rawBytes() { return Bytes.data<T>(); }
+
+  /// \brief Return the raw data underlying this interval's byte vector.
+  ///
+  /// Much like \ref std::vector::data, this function is low-level and
+  /// potentially unsafe. This pointer refers to valid memory only where an
+  /// iterator would be valid to point to. Modifying the size of the byte
+  /// vector may invalidate this pointer. Any endian conversions will not be
+  /// performed.
+  ///
+  /// \tparam T The type of data stored in this interval's byte vector. Must be
+  /// a POD type.
+  template <typename T> const T* rawBytes() const { return Bytes.data<T>(); }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;

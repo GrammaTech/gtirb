@@ -114,28 +114,6 @@ private:
                                                         OutputOrder);
     }
 
-    /// \brief Return the raw data underlying this byte vector at this
-    /// iterator's position.
-    ///
-    /// Much like \ref std::vector::data, this function is low-level and
-    /// potentially unsafe. This pointer refers to valid memory only where an
-    /// iterator would be valid to point to. Modifying the size of the byte
-    /// vector may invalidate this pointer. Any endian conversions will not be
-    /// performed.
-    ResultType* data() { return reinterpret_cast<ResultType*>(V->data()); }
-
-    /// \brief Return the raw data underlying this byte vector at this
-    /// iterator's position.
-    ///
-    /// Much like \ref std::vector::data, this function is low-level and
-    /// potentially unsafe. This pointer refers to valid memory only where an
-    /// iterator would be valid to point to. Modifying the size of the byte
-    /// vector may invalidate this pointer. Any endian conversions will not be
-    /// performed.
-    const ResultType* data() const {
-      return reinterpret_cast<const ResultType*>(V->data());
-    }
-
   private:
     VectorType* V;
     size_t I;
@@ -350,6 +328,32 @@ public:
                                    const const_iterator<ResultType> End) {
     Bytes.erase(Begin.getIterator(), End.getIterator());
     return Begin;
+  }
+
+  /// \brief Return the raw data underlying this byte vector.
+  ///
+  /// Much like \ref std::vector::data, this function is low-level and
+  /// potentially unsafe. This pointer refers to valid memory only where an
+  /// iterator would be valid to point to. Modifying the size of the byte
+  /// vector may invalidate this pointer. Any endian conversions will not be
+  /// performed.
+  ///
+  /// \tparam T The type of data stored in this byte vector. Must be a POD type.
+  template <typename ResultType> ResultType* data() {
+    return reinterpret_cast<ResultType*>(Bytes.data());
+  }
+
+  /// \brief Return the raw data underlying this byte vector.
+  ///
+  /// Much like \ref std::vector::data, this function is low-level and
+  /// potentially unsafe. This pointer refers to valid memory only where an
+  /// iterator would be valid to point to. Modifying the size of the byte
+  /// vector may invalidate this pointer. Any endian conversions will not be
+  /// performed.
+  ///
+  /// \tparam T The type of data stored in this byte vector. Must be a POD type.
+  template <typename ResultType> const ResultType* data() const {
+    return reinterpret_cast<const ResultType*>(Bytes.data());
   }
 
 private:

@@ -39,9 +39,8 @@ int main(int argc, char** argv) {
   for (const auto& B : blocks(Ir->begin()->getCFG())) {
     // Get the contents of the block and decode with capstone
     cs_insn* Insn;
-    const auto it = B.bytes_begin<uint8_t>();
     size_t count =
-        cs_disasm(CsHandle, it.data(), B.getSize(),
+        cs_disasm(CsHandle, B.rawBytes<uint8_t>(), B.getSize(),
                   (uint64_t)B.getAddress().value_or(Addr(0)), 0, &Insn);
 
     // Exception-safe cleanup of instructions
