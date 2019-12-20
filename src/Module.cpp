@@ -184,9 +184,6 @@ void gtirb::addToModuleIndices(Node* N) {
   }
 }
 
-// FIXME: make it templated so it can use any Callable rather than a
-// std::function; this will improve performance, but to do that, we have
-// a dependency knot to untangle
 void gtirb::mutateModuleIndices(Node* N, const std::function<void()>& F) {
   switch (N->getKind()) {
   case Node::Kind::ByteInterval: {

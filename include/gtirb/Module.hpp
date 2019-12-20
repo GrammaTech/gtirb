@@ -108,6 +108,10 @@ void GTIRB_EXPORT_API addToModuleIndices(Node* N);
 /// Valid \ref Node types to pass into this function include \ref ByteInterval,
 /// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
 ///
+/// TODO: make it templated so it can use any Callable rather than a
+/// std::function; this will improve performance, but to do that, we have
+/// a dependency knot to untangle.
+///
 /// \param N  The node you wish to mutate.
 /// \param F  A function taking no arguments and retuning void. This function
 /// should mutate N.
