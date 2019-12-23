@@ -6,6 +6,7 @@
         :gtirb/dot
         :gtirb/update
         :gtirb/utility
+        :gtirb/ranged
         :graph
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file :md5sum-sequence)
@@ -283,3 +284,26 @@
        (mappend #'byte-intervals)
        (mappend #'sections)
        (modules new)))))
+
+
+;;;; Ranged collection test suite.
+(deftest inserted-is-found ()
+  (let ((it (make-instance 'ranged)))
+    (ranged-insert it :example 5 10)
+    (is (set-equal (ranged-find it 0 6) '(:example)))
+    (is (set-equal (ranged-find it 9 20) '(:example)))
+    (is (set-equal (ranged-find it 0 200) '(:example)))
+    (is (null (ranged-find it 4)))
+    (is (null (ranged-find it 10)))
+    (gtirb/ranged::in-range it)))
+
+(deftest deleted-is-lost ()
+  (let ((it (make-instance 'ranged)))
+    (ranged-insert it :example 5 10)
+    (ranged-delete it :example 5 10)
+    (is (null (ranged-find it 0 6)))
+    (is (null (ranged-find it 9 20)))
+    (is (null (ranged-find it 0 200)))
+    (is (null (ranged-find it 4)))
+    (is (null (ranged-find it 10)))
+    (gtirb/ranged::in-range it)))
