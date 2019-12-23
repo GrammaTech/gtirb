@@ -6,7 +6,7 @@
     :long-description "A Common Lisp front end to the GrammaTech
   Intermediate Representation for Bianries (GTIRB).  GTIRB is
   serialized using Google's protocol buffers.  This library wraps the
-  raw protocol buffer serialization with an more Lispy interface."
+  raw protocol buffer serialization with a more Lispy interface."
     :depends-on (:gtirb/gtirb)
     :class :package-inferred-system
     :defsystem-depends-on (:asdf-package-system :protobuf)
