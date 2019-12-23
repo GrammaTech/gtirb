@@ -64,9 +64,7 @@
            :aux-data-type
            :aux-data-data
            ;; gtirb
-           :modules
-;;; Additional methods.
-           :get-block))
+           :modules))
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
@@ -980,19 +978,3 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
   (let ((*decode-data* nil))
     (encode type data)
     (reduce {concatenate 'vector} (reverse *decode-data*))))
-
-
-;;;; Higher-level API functions.
-(defgeneric get-block-by-uuid (uuid gtirb)
-  ;; TODO: Maintain a hash of blocks by UUID on the IR level.
-  (:documentation "Return the block keyed by UUID in GTIRB."))
-
-(defmethod (setf get-block-by-uuid) (new (uuid simple-array) (obj gtirb))
-  (setf (get-block-by-uuid (uuid-to-integer uuid) obj) new))
-
-(defmethod (setf get-block-by-uuid) (new (uuid integer) (obj gtirb))
-  (setf (gethash uuid (blocks obj)) new))
-
-(defgeneric get-blocks-by-address (address gtirb)
-  ;; TODO: Maintain a quick lookup of block by address on the IR level.
-  (:documentation "Return the blocks located at ADDRESS in GTIRB."))
