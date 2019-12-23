@@ -2,6 +2,7 @@
   (:nicknames :gtirb)
   (:use :common-lisp :alexandria :graph :trivia
         :trivial-utf-8
+        :gtirb/ranged
         :gtirb/utility
         :named-readtables :curry-compose-reader-macros)
   (:shadow :symbol)
@@ -16,6 +17,8 @@
            :is-equal-p
            :*is-equal-p-verbose-p*
            :get-uuid
+           :remove-uuid
+           :address-find
            :uuid
            :update-proto
 ;;; Classes and fields.
@@ -151,8 +154,23 @@ as all GTIRB structures."
 (defgeneric get-uuid (uuid object)
   (:documentation "Get the referent of UUID in OBJECT."))
 
+(defgeneric remove-uuid (uuid object)
+  (:documentation "Remove the entry for UUID from OBJECT."))
+
 (defgeneric (setf get-uuid) (new uuid object)
   (:documentation "Register REFERENT behind UUID in OBJECT."))
+
+(defgeneric address-insert (object item start-address &optional end-address)
+  (:documentation
+   "Insert ITEM into OBJECT between START-ADDRESS and END-ADDRESS."))
+
+(defgeneric address-delete (object item start-address &optional end-address)
+  (:documentation
+   "Delete ITEM from OBJECT between START-ADDRESS and END-ADDRESS."))
+
+(defgeneric address-find (object start-address &optional end-address)
+  (:documentation
+   "Find all objects in OBJECT between START-ADDRESS and END-ADDRESS."))
 
 (defgeneric set-parent-uuid (new uuid object)
   (:documentation "Set UUID to NEW in OBJECT's parent."))
@@ -354,7 +372,9 @@ modules and on GTIRB IR instances.")
      (by-uuid :accessor by-uuid :initform (make-hash-table) :type hash-table
               :skip-equal-p t
               :documentation "Internal cache for UUID-based lookup.")
-     #| TODO: Cache for quick lookup for blocks by ADDRESS? |#)
+     (by-address :accessor by-address :type ranged
+                 :initform (make-instance 'ranged) :skip-equal-p t
+                 :documentation "Internal cache for Address-based lookup."))
     ()
   (:documentation "Base class of an instance of GTIRB IR."))
 
@@ -368,7 +388,21 @@ modules and on GTIRB IR instances.")
 (defmethod (setf get-uuid) (new uuid (obj gtirb))
   (when (zerop uuid)
     (warn "Saving object ~a without a UUID into ~a." new obj))
+  ;; TODO: Maintain by-address cache.
   (setf (gethash uuid (by-uuid obj)) new))
+
+(defmethod remove-uuid (uuid (obj gtirb))
+  ;; TODO: Implement
+  )
+
+(defmethod address-insert ((gtirb gtirb) item start &optional end)
+  (ranged-insert (by-address gtirb) item start end))
+
+(defmethod address-delete ((gtirb gtirb) item start &optional end)
+  (ranged-insert (by-address gtirb) item start end))
+
+(defmethod address-find ((gtirb gtirb) start &optional end)
+  (ranged-find (by-address gtirb) start end))
 
 (define-constant +module-isa-map+
     '((#.proto:+isa-isa-undefined+ . :undefined)
