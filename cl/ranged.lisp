@@ -17,6 +17,11 @@
            :ranged-insert
            :ranged-delete
            :ranged-find))
+;;; TODO: Check for equivalent blocks before and after modified ranges
+;;; in `ranged-insert' and `ranged-delete' and collapse them into the
+;;; existing range (maybe with the moral equivalent of an :after
+;;; method).  This will avoid the monotonic increase in the number of
+;;; ranges in the tree over time.
 (in-package :gtirb/ranged)
 (declaim (optimize (speed 3) (safety 0) (debug 0)))
 
@@ -101,7 +106,6 @@ Return the RANGED collection after deleting ITEM."
   (nest
    (with-slots (tree) ranged)
    (flet ((replace-node (node &aux (element (element node)))
-            (format t "REPLACE:~S~%" node)
             (delete-item tree node)
             (insert-item tree (cons (car element)
                                     (remove item (cdr element)))))))
@@ -109,7 +113,6 @@ Return the RANGED collection after deleting ITEM."
      ;; Possibly split the first range.
      (let ((first (pop ranges)))
        (setf last first)
-       (format t "COMP:~S~%" (list start first))
        (if (= start (key first))
            ;; No need to split, simply replace.
            (replace-node first)

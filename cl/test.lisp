@@ -236,6 +236,16 @@
                              (mappend #'sections)
                              (modules it)))))))))
 
+(deftest address-range-block-lookup ()
+  (with-fixture hello
+    (let* ((it (read-gtirb *proto-path*))
+           (a-block (first (nest (mappend #'blocks)
+                                 (mappend #'byte-intervals)
+                                 (mappend #'sections)
+                                 (modules it)))))
+      (is (= 2 (length (address-range a-block))))
+      (is (member a-block (get-address it (first (address-range a-block))))))))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()

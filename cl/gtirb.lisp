@@ -18,7 +18,8 @@
            :*is-equal-p-verbose-p*
            :get-uuid
            :remove-uuid
-           :address-find
+           :get-address
+           :address-range
            :uuid
            :update-proto
 ;;; Classes and fields.
@@ -160,15 +161,15 @@ as all GTIRB structures."
 (defgeneric (setf get-uuid) (new uuid object)
   (:documentation "Register REFERENT behind UUID in OBJECT."))
 
-(defgeneric address-insert (object item start-address &optional end-address)
+(defgeneric insert-address (object item start-address &optional end-address)
   (:documentation
    "Insert ITEM into OBJECT between START-ADDRESS and END-ADDRESS."))
 
-(defgeneric address-delete (object item start-address &optional end-address)
+(defgeneric delete-address (object item start-address &optional end-address)
   (:documentation
    "Delete ITEM from OBJECT between START-ADDRESS and END-ADDRESS."))
 
-(defgeneric address-find (object start-address &optional end-address)
+(defgeneric get-address (object start-address &optional end-address)
   (:documentation
    "Find all objects in OBJECT between START-ADDRESS and END-ADDRESS."))
 
@@ -177,13 +178,17 @@ as all GTIRB structures."
 
 (defgeneric update-proto (proto-backed-object)
   (:documentation
-   "Update the `proto' field of OBJECT and return the updated value.
-This will ensure that any changes made to OBJECT outside of its
-protocol buffer, e.g. any slots initialized using the :from-proto
-option to `define-proto-backed-class', are synchronized against the
-object's protocol buffer.")
+   "Update and return the `proto' field of PROTO-BACKED-OBJECT.
+This will ensure that any changes made to PROTO-BACKED-OBJECT outside
+of its protocol buffer, e.g. any slots initialized using the
+:from-proto option to `define-proto-backed-class', are synchronized
+against the object's protocol buffer.")
   (:method ((proto-backed-object proto-backed))
     (proto proto-backed-object)))
+
+(defgeneric address-range (proto-backed-object)
+  (:documentation
+   "Return any address range of the PROTO-BACKED-OBJECT GTIRB object."))
 
 (defmacro define-proto-backed-class ((class proto-class) super-classes
                                      slot-specifiers proto-fields
@@ -193,10 +198,10 @@ SLOT-SPECIFIERS is as in `defclass' with the addition of optional
 :to-proto and :from-proto fields, which may take protobuf
 serialization functions, and :skip-equal-p field which causes
 `is-equal-p' to skip that field.  PROTO-FIELDS may hold a list of
-fields which pass through directly to the backing protobuf class.
-
-New :parent option names the field holding the containing protobuf
-element."
+fields which pass through directly to the backing protobuf class.  The
+:parent option names the field holding the containing protobuf
+element.  The :address-range option holds the logic to calculate an
+address range for instances of the object."
   (nest
    (flet ((plist-get (item list)
             (second (member item list)))
@@ -207,7 +212,8 @@ element."
               list))))
    (let ((from-proto-slots (remove-if-not {find :from-proto} slot-specifiers))
          (to-proto-slots (remove-if-not {find :to-proto} slot-specifiers))
-         (parent (second (assoc :parent options)))))
+         (parent (second (assoc :parent options)))
+         (address-range (cdr (assoc :address-range options)))))
    `(progn
       (defclass ,class (proto-backed ,@super-classes)
         ;; Accessors for normal lisp classes
@@ -230,14 +236,19 @@ Should not need to be manipulated by client code.")
          ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}
                     {plist-drop :proto-field} {plist-drop :skip-equal-p}]
                    slot-specifiers))
-        ,@(remove-if [{eql :parent} #'car] options))
+        ,@(remove-if [«or {eql :parent} {eql :address-range}» #'car] options))
       ,@(when parent
           `((defmethod get-uuid (uuid (object ,class))
               (get-uuid uuid (,parent object)))
             (defmethod set-parent-uuid (new uuid (object ,class))
               (setf (get-uuid uuid (,parent object)) new))
             (defmethod (setf get-uuid) (new uuid (object ,class))
-              (set-parent-uuid new uuid object))))
+              (set-parent-uuid new uuid object))
+            (defmethod remove-uuid (uuid (object ,class))
+              (remove-uuid uuid (,parent object)))
+            (defmethod get-address ((object ,class) start &optional end)
+              (get-address (,parent object) start end))))
+      (defmethod address-range ((self ,class)) ,@address-range)
       (defmethod
           initialize-instance :after ((self ,class) &key)
           ,@(when parent
@@ -388,20 +399,21 @@ modules and on GTIRB IR instances.")
 (defmethod (setf get-uuid) (new uuid (obj gtirb))
   (when (zerop uuid)
     (warn "Saving object ~a without a UUID into ~a." new obj))
-  ;; TODO: Maintain by-address cache.
+  (when-let ((range (address-range new)))
+    #+debug (format t "(range ~S) ;; => ~S~%" new range)
+    (apply #'insert-address obj new range))
   (setf (gethash uuid (by-uuid obj)) new))
 
 (defmethod remove-uuid (uuid (obj gtirb))
-  ;; TODO: Implement
-  )
+  (remhash uuid (by-uuid obj)))
 
-(defmethod address-insert ((gtirb gtirb) item start &optional end)
+(defmethod insert-address ((gtirb gtirb) item start &optional end)
   (ranged-insert (by-address gtirb) item start end))
 
-(defmethod address-delete ((gtirb gtirb) item start &optional end)
+(defmethod delete-address ((gtirb gtirb) item start &optional end)
   (ranged-insert (by-address gtirb) item start end))
 
-(defmethod address-find ((gtirb gtirb) start &optional end)
+(defmethod get-address ((gtirb gtirb) start &optional end)
   (ranged-find (by-address gtirb) start end))
 
 (define-constant +module-isa-map+
@@ -689,7 +701,9 @@ byte-interval are not represented statically but are zero-initialized
 at runtime.")
      (contents :type bytes :documentation
                "A vector holding the actual bytes of this byte interval."))
-  (:documentation "Byte-interval in a GTIRB instance.") (:parent section))
+  (:documentation "Byte-interval in a GTIRB instance.") (:parent section)
+  (:address-range (when (addressp self)
+                    (list (address self) (+ (address self) (size self))))))
 
 (defmethod print-object ((obj byte-interval) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
@@ -705,6 +719,15 @@ at runtime.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~{~a~^, ~}" (offset obj) (symbols obj))))
 
+;;; TODO: If we get symbolic expressions for these, then add the
+;;; following to each `symbolic-expression' class:
+;;;
+;;;     (:parent byte-interval)
+;;;     (:address-range (when-let ((range (addressp (byte-interval self))))
+;;;                       (+ (offset self) (first range))))
+;;;
+;;; and then go back up and add ":byte-interval self" to their
+;;; `make-instance' calls in byte-interval.
 (define-proto-backed-class
     (sym-stack-const proto:sym-stack-const) (symbolic-expression) ()
     ((offset :type unsigned-byte-64)))
@@ -783,7 +806,10 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
            :documentation "The length of the bytes held by this code block.")
      (decode-mode :type unsigned-byte-64 :documentation
                   "Only present on architecture with multiple decode-modes."))
-  (:documentation "Code-block in a GTIRB IR instance.") (:parent byte-interval))
+  (:documentation "Code-block in a GTIRB IR instance.") (:parent byte-interval)
+  (:address-range (when-let ((range (address-range (byte-interval self))))
+                    (list (+ (offset self) (first range))
+                          (+ (offset self) (size self) (first range))))))
 
 (defmethod print-object ((obj code-block) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
@@ -797,7 +823,10 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
     ((size :type unsigned-byte-64 :documentation
            "The length of the bytes held by this data block."))
   (:documentation "Data-block in a GTIRB IR instance.")
-  (:parent byte-interval))
+  (:parent byte-interval)
+  (:address-range (when-let ((range (address-range (byte-interval self))))
+                    (list (+ (offset self) (first range))
+                          (+ (offset self) (size self) (first range))))))
 
 (defmethod print-object ((obj data-block) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
