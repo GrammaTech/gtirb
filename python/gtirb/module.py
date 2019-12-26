@@ -2,20 +2,15 @@ from enum import Enum
 from uuid import UUID
 import CFG_pb2
 import Module_pb2
-import SymbolicExpression_pb2
 import typing
+import itertools
 
 from .auxdata import AuxData, AuxDataContainer
-from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode
+from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
+from .byteinterval import ByteInterval
 from .node import Node
 from .section import Section
 from .symbol import Symbol
-from .symbolicexpression import (
-    SymAddrAddr,
-    SymAddrConst,
-    SymStackConst,
-    SymbolicOperand,
-)
 from .util import DictLike, SetWrapper
 
 
@@ -244,10 +239,6 @@ class Module(AuxDataContainer):
         The file represented by this path is indicitave of what file
         this ``Module`` was initially created from; it is not guaranteed to
         currently exist or have the same contents.
-    :ivar blocks: A set containing all the :class:`gtirb.CodeBlock`\\s
-        in the binary.
-    :ivar data: A set containing all the :class:`gtirb.DataBlock`\\s
-        in the binary.
     :ivar isa: The ISA of the binary.
     :ivar file_format: The file format of the binary.
     :ivar name: The name given to the binary. Some file formats use this
@@ -261,9 +252,6 @@ class Module(AuxDataContainer):
         in the binary.
     :ivar symbols: A set containing all the :class:`gtirb.Symbol`\\s
         in the binary.
-    :ivar symbolic_operands: A ``dict`` mapping addresses to symbolic operands
-        (i.e. :class:`gtirb.SymAddrAddr`\\s, :class:`SymAddrConst`\\s, or
-        :class:`SymStackConst`\\s).
     """
 
     class FileFormat(Enum):
@@ -333,11 +321,12 @@ class Module(AuxDataContainer):
 
     class _NodeSet(SetWrapper):
         def __init__(self, field):
-            self._field = field
+            # type: (str) -> None
+            self._field = field  # type: str
 
         def add(self, v):
             if v._module is not None:
-                getattr(v._module, self._field).remove(v)
+                getattr(v._module, self._field).discard(v)
             v._module = self
             return super().add(v)
 
@@ -350,9 +339,7 @@ class Module(AuxDataContainer):
         *,
         aux_data=dict(),  # type: DictLike[str, AuxData]
         binary_path="",  # type: str
-        blocks=set(),  # type: typing.Iterable[CodeBlock]
         cfg=set(),  # type: typing.Iterable[Edge]
-        data=set(),  # type: typing.Iterable[DataBlock]
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         isa=ISA.Undefined,  # type: Module.ISA
         name="",  # type: str
@@ -361,7 +348,6 @@ class Module(AuxDataContainer):
         rebase_delta=0,  # type: int
         sections=set(),  # type: typing.Iterable[Section]
         symbols=set(),  # type: typing.Iterable[Symbol]
-        symbolic_operands=dict(),  # type: DictLike[int, SymbolicOperand]
         uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
@@ -371,10 +357,6 @@ class Module(AuxDataContainer):
             :class:`gtirb.AuxData`, defaults to an empty :class:`dict`.
         :param binary_path: The path to the loadable binary object
             represented by this module.
-        :param blocks: A set containing all the :class:`gtirb.CodeBlock`\\s
-            in the binary.
-        :param data: A set containing all the :class:`gtirb.DataBlock`\\s
-            in the binary.
         :param isa: The ISA of the binary.
         :param file_format: The file format of the binary.
         :param name: The name given to the binary.
@@ -386,17 +368,12 @@ class Module(AuxDataContainer):
             in the binary.
         :param symbols: A set containing all the :class:`gtirb.Symbol`\\s
             in the binary.
-        :param symbolic_operands: A ``dict`` mapping addresses to symbolic
-            operands (i.e. :class:`gtirb.SymAddrAddr`\\s,
-            :class:`SymAddrConst`\\s, or :class:`SymStackConst`\\s).
         :param uuid: The UUID of this ``Module``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """
 
         self.binary_path = binary_path  # type: str
-        self.blocks = set(blocks)  # type: typing.Set[CodeBlock]
-        self.data = set(data)  # type: typing.Set[DataBlock]
         self.isa = isa  # type: Module.ISA
         self.file_format = file_format  # type: Module.FileFormat
         self.name = name  # type: str
@@ -411,9 +388,6 @@ class Module(AuxDataContainer):
         self.symbols = Module._NodeSet(
             symbols, "symbols"
         )  # type: typing.Set[Symbol]
-        self.symbolic_operands = dict(
-            symbolic_operands
-        )  # type: typing.Dict[int, SymbolicOperand]
         self._ir = None  # type: "IR"
         # Initialize the CFG and aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
@@ -422,39 +396,27 @@ class Module(AuxDataContainer):
     @classmethod
     def _decode_protobuf(cls, proto_module, uuid):
         # type: (Module_pb2.Module. UUID) -> Module
+
+        # proxies depend on nothing
+        proxies = [ProxyBlock._from_protobuf(p) for p in proto_module.proxies]
+        # sections depend on symbolic expressions, so that step is split out
+        # from _decode_protobuf into _decode_symbolic_expressions
+        sections = [Section._from_protobuf(s) for s in proto_module.sections]
+        # CFG depends on cfg nodes
+        cfg = [Edge._from_protobuf(e) for e in proto_module.cfg.edges]
+        # symbols depend on blocks
+        symbols = [Symbol._from_protobuf(s) for s in proto_module.symbols]
+        # symbolic expressions depend on symbols
+        for section in sections:
+            for interval in section.byte_intervals:
+                interval._decode_symbolic_expressions()
+        # aux data may depend on any node
         aux_data = AuxDataContainer._read_protobuf_aux_data(proto_module)
-        blocks = (CodeBlock._from_protobuf(b) for b in proto_module.blocks)
-        cfg = (Edge._from_protobuf(e) for e in proto_module.cfg.edges)
-        data = (DataBlock._from_protobuf(d) for d in proto_module.data)
-        proxies = (ProxyBlock._from_protobuf(p) for p in proto_module.proxies)
-        sections = (Section._from_protobuf(s) for s in proto_module.sections)
-        symbols = (Symbol._from_protobuf(s) for s in proto_module.symbols)
-
-        def sym_expr_from_protobuf(symbolic_expression):
-            if symbolic_expression.HasField("stack_const"):
-                return SymStackConst._from_protobuf(
-                    symbolic_expression.stack_const
-                )
-            if symbolic_expression.HasField("addr_const"):
-                return SymAddrConst._from_protobuf(
-                    symbolic_expression.addr_const
-                )
-            if symbolic_expression.HasField("addr_addr"):
-                return SymAddrAddr._from_protobuf(
-                    symbolic_expression.addr_addr
-                )
-
-        symbolic_operands = (
-            (k, sym_expr_from_protobuf(v))
-            for k, v in proto_module.symbolic_operands.items()
-        )
 
         return cls(
             aux_data=aux_data,
             binary_path=proto_module.binary_path,
-            blocks=blocks,
             cfg=cfg,
-            data=data,
             isa=Module.ISA(proto_module.isa),
             file_format=Module.FileFormat(proto_module.file_format),
             name=proto_module.name,
@@ -463,7 +425,6 @@ class Module(AuxDataContainer):
             rebase_delta=proto_module.rebase_delta,
             sections=sections,
             symbols=symbols,
-            symbolic_operands=symbolic_operands,
             uuid=uuid,
         )
 
@@ -472,14 +433,10 @@ class Module(AuxDataContainer):
         proto_module = Module_pb2.Module()
         self._write_protobuf_aux_data(proto_module)
         proto_module.binary_path = self.binary_path
-        proto_module.blocks.extend(b._to_protobuf() for b in self.blocks)
         proto_cfg = CFG_pb2.CFG()
-        proto_cfg.vertices.extend(
-            v.uuid.bytes for v in self.blocks | self.proxies
-        )
+        proto_cfg.vertices.extend(v.uuid.bytes for v in self.cfg_nodes)
         proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
         proto_module.cfg.CopyFrom(proto_cfg)
-        proto_module.data.extend(d._to_protobuf() for d in self.data)
         proto_module.isa = self.isa.value
         proto_module.file_format = self.file_format.value
         proto_module.name = self.name
@@ -488,19 +445,6 @@ class Module(AuxDataContainer):
         proto_module.rebase_delta = self.rebase_delta
         proto_module.sections.extend(s._to_protobuf() for s in self.sections)
         proto_module.symbols.extend(s._to_protobuf() for s in self.symbols)
-        for k, v in self.symbolic_operands.items():
-            sym_exp = SymbolicExpression_pb2.SymbolicExpression()
-            if isinstance(v, SymStackConst):
-                sym_exp.stack_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrConst):
-                sym_exp.addr_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrAddr):
-                sym_exp.addr_addr.CopyFrom(v._to_protobuf())
-            else:
-                raise ValueError(
-                    "Expected SymStackConst, SymAddrAddr or SymAddrConst"
-                )
-            proto_module.symbolic_operands[k].CopyFrom(sym_exp)
         proto_module.uuid = self.uuid.bytes
         return proto_module
 
@@ -518,12 +462,11 @@ class Module(AuxDataContainer):
             "name",
             "preferred_addr",
             "rebase_delta",
-            "symbolic_operands",
         ):
             if getattr(self, attr) != getattr(other, attr):
                 return False
 
-        for attr in ("blocks", "data", "proxies", "sections", "symbols"):
+        for attr in ("proxies", "sections", "symbols"):
             self_nodes = sorted(getattr(self, attr), key=lambda n: n.uuid)
             other_nodes = sorted(getattr(other, attr), key=lambda n: n.uuid)
             if not len(self_nodes) == len(other_nodes):
@@ -557,24 +500,62 @@ class Module(AuxDataContainer):
             "file_format=Module.{file_format!s}, "
             "preferred_addr={preferred_addr:#x}, "
             "rebase_delta={rebase_delta:#x}, "
-            "blocks={blocks!r}, "
-            "data={data!r}, "
             "proxies={proxies!r}, "
             "sections={sections!r}, "
             "symbols={symbols!r}, "
-            "symbolic_operands={symbolic_operands!r}, "
             ")".format(**self.__dict__)
         )
 
     @property
     def ir(self):
-        # type: () -> "IR"
+        # type: () -> typing.Optional["IR"]
+        """The :class:`IR` this module belongs to."""
+
         return self._ir
 
     @ir.setter
     def ir(self, value):
-        # type: ("IR") -> None
+        # type: (typing.Optional["IR"]) -> None
         if self._ir is not None:
             self._ir.modules.remove(self)
         if value is not None:
             value.modules.append(self)
+
+    @property
+    def byte_intervals(self):
+        # type: () -> typing.Iterator[ByteInterval]
+        """The :class:`ByteInterval`\\s in this module."""
+
+        return itertools.chain.from_iterable(
+            s.byte_intervals for s in self.sections
+        )
+
+    @property
+    def byte_blocks(self):
+        # type: () -> typing.Iterator[ByteBlock]
+        """The :class:`ByteBlock`\\s in this module."""
+
+        return itertools.chain.from_iterable(
+            bi.blocks for bi in self.byte_intervals
+        )
+
+    @property
+    def code_blocks(self):
+        # type: () -> typing.Iterator[CodeBlock]
+        """The :class:`CodeBlock`\\s in this module."""
+
+        return (b for b in self.byte_blocks if isinstance(b, CodeBlock))
+
+    @property
+    def data_blocks(self):
+        # type: () -> typing.Iterator[DataBlock]
+        """The :class:`DataBlock`\\s in this module."""
+
+        return (b for b in self.byte_blocks if isinstance(b, DataBlock))
+
+    @property
+    def cfg_nodes(self):
+        # type: () -> typing.Iterator[CfgNode]
+        """The :class:`CfgNode`\\s in this module."""
+
+        return itertools.chain(self.code_blocks, self.proxies)

@@ -16,7 +16,39 @@ class Block(Node):
 class ByteBlock(Block):
     """The base class for blocks that belong to a :class:`ByteInterval` and
     store thier bytes there.
+
+    :ivar offset: The offset from the beginning of the byte interval to which
+        this block belongs. Multiple blocks in the same interval may have the
+        same offset.
     """
+
+    def __init__(self, *, offset=0, uuid=None):
+        """
+        :param offset: The offset from the beginning of the byte interval to
+            which this block belongs.
+        :param uuid: The UUID of this ``ByteBlock``,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
+        """
+
+        super().__init__(uuid=uuid)
+        self.offset = offset  # type: int
+        self._byte_interval = None  # type: typing.Optional["ByteInterval"]
+
+    @property
+    def byte_interval(self):
+        # type: () -> typing.Optional["ByteInterval"]
+        """The :class:`ByteInterval` this block belongs to."""
+
+        return self._byte_interval
+
+    @byte_interval.setter
+    def byte_interval(self, value):
+        # type: (typing.Optional["ByteInterval"]) -> None
+        if self._byte_interval is not None:
+            self._byte_interval.blocks.discard(self)
+        if value is not None:
+            value.blocks.add(self)
 
 
 class CfgNode(Block):
@@ -29,22 +61,24 @@ class DataBlock(ByteBlock):
     :ivar size: The size of the data object in bytes.
     """
 
-    def __init__(self, size, uuid=None):
-        # type: (int, typing.Optional[UUID]) -> None
+    def __init__(self, size, offset=0, uuid=None):
+        # type: (int, int, typing.Optional[UUID]) -> None
         """
         :param size: The size of the data object in bytes.
+        :param offset: The offset from the beginning of the byte interval to
+            which this block belongs.
         :param uuid: The UUID of this ``DataBlock``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """
 
-        super().__init__(uuid)
+        super().__init__(offset=offset, uuid=uuid)
         self.size = size
 
     @classmethod
     def _decode_protobuf(cls, proto_dataobject, uuid):
         # type: (DataBlock_pb2.DataBlock, uuid.UUID) -> DataBlock
-        return cls(proto_dataobject.size, uuid)
+        return cls(size=proto_dataobject.size, uuid=uuid)
 
     def _to_protobuf(self):
         # type: () -> DataBlock_pb2.DataBlock
@@ -66,6 +100,7 @@ class DataBlock(ByteBlock):
             "DataBlock("
             "uuid={uuid!r}, "
             "size={size}, "
+            "offset={offset}, "
             ")".format(**self.__dict__)
         )
 
@@ -87,6 +122,7 @@ class CodeBlock(ByteBlock, CfgNode):
         size,  # type: int
         *,
         decode_mode=0,  # type: int
+        offset=0,
         uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
@@ -96,12 +132,14 @@ class CodeBlock(ByteBlock, CfgNode):
             used in some ISAs to differentiate between sub-ISAs
             (e.g. differentiating blocks written in ARM and Thumb).
             Defaults to 0.
+        :param offset: The offset from the beginning of the byte interval to
+            which this block belongs.
         :param uuid: The UUID of this ``CodeBlock``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """
 
-        super().__init__(uuid)
+        super().__init__(offset=offset, uuid=uuid)
         self.size = size  # type: int
         self.decode_mode = decode_mode  # type: int
 
@@ -139,6 +177,7 @@ class CodeBlock(ByteBlock, CfgNode):
             "CodeBlock("
             "uuid={uuid!r}, "
             "size={size}, "
+            "offset={offset}, "
             "decode_mode={decode_mode}, "
             ")".format(**self.__dict__)
         )
@@ -164,7 +203,7 @@ class ProxyBlock(CfgNode):
     @classmethod
     def _decode_protobuf(cls, proto_proxy, uuid):
         # type: (ProxyBlock_pb2.ProxyBlock, UUID) -> ProxyBlock
-        return cls(uuid)
+        return cls(uuid=uuid)
 
     def _to_protobuf(self):
         # type: () -> ProxyBlock_pb2.ProxyBlock
