@@ -11,10 +11,15 @@
 
 import IR_pb2
 import typing
+import itertools
 from uuid import UUID
 
 from .auxdata import AuxData, AuxDataContainer
+from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
+from .byteinterval import ByteInterval
 from .module import Module
+from .section import Section
+from .symbol import Symbol
 from .util import DictLike, ListWrapper
 
 
@@ -155,3 +160,67 @@ class IR(AuxDataContainer):
             "modules={modules!r}, "
             ")".format(**self.__dict__)
         )
+
+    @property
+    def proxy_blocks(self):
+        # type: () -> typing.Iterator[ProxyBlock]
+        """The :class:`ProxyBlock`\\s in this IR."""
+
+        return itertools.chain.from_iterable(m.proxies for m in self.modules)
+
+    @property
+    def sections(self):
+        # type: () -> typing.Iterator[Section]
+        """The :class:`Section`\\s in this IR."""
+
+        return itertools.chain.from_iterable(m.sections for m in self.modules)
+
+    @property
+    def symbols(self):
+        # type: () -> typing.Iterator[Symbol]
+        """The :class:`Symbol`\\s in this IR."""
+
+        return itertools.chain.from_iterable(m.symbols for m in self.modules)
+
+    @property
+    def byte_intervals(self):
+        # type: () -> typing.Iterator[ByteInterval]
+        """The :class:`ByteInterval`\\s in this IR."""
+
+        return itertools.chain.from_iterable(
+            m.byte_intervals for m in self.modules
+        )
+
+    @property
+    def byte_blocks(self):
+        # type: () -> typing.Iterator[ByteBlock]
+        """The :class:`ByteBlock`\\s in this IR."""
+
+        return itertools.chain.from_iterable(
+            m.byte_blocks for m in self.modules
+        )
+
+    @property
+    def code_blocks(self):
+        # type: () -> typing.Iterator[CodeBlock]
+        """The :class:`CodeBlock`\\s in this IR."""
+
+        return itertools.chain.from_iterable(
+            m.code_blocks for m in self.modules
+        )
+
+    @property
+    def data_blocks(self):
+        # type: () -> typing.Iterator[DataBlock]
+        """The :class:`DataBlock`\\s in this IR."""
+
+        return itertools.chain.from_iterable(
+            m.data_blocks for m in self.modules
+        )
+
+    @property
+    def cfg_nodes(self):
+        # type: () -> typing.Iterator[CfgNode]
+        """The :class:`CfgNode`\\s in this IR."""
+
+        return itertools.chain.from_iterable(m.cfg_nodes for m in self.modules)

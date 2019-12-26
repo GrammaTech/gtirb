@@ -1,7 +1,9 @@
 import Section_pb2
 import typing
+import itertools
 from uuid import UUID
 
+from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
 from .byteinterval import ByteInterval
 from .util import SetWrapper
@@ -123,3 +125,26 @@ class Section(Node):
             self._module.sections.discard(self)
         if value is not None:
             value.sections.add(self)
+
+    @property
+    def byte_blocks(self):
+        # type: () -> typing.Iterator[ByteBlock]
+        """The :class:`ByteBlock`\\s in this section."""
+
+        return itertools.chain.from_iterable(
+            bi.blocks for bi in self.byte_intervals
+        )
+
+    @property
+    def code_blocks(self):
+        # type: () -> typing.Iterator[CodeBlock]
+        """The :class:`CodeBlock`\\s in this section."""
+
+        return (b for b in self.byte_blocks if isinstance(b, CodeBlock))
+
+    @property
+    def data_blocks(self):
+        # type: () -> typing.Iterator[DataBlock]
+        """The :class:`DataBlock`\\s in this section."""
+
+        return (b for b in self.byte_blocks if isinstance(b, DataBlock))

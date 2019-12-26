@@ -536,7 +536,7 @@ class Module(AuxDataContainer):
         """The :class:`ByteBlock`\\s in this module."""
 
         return itertools.chain.from_iterable(
-            bi.blocks for bi in self.byte_intervals
+            s.byte_blocks for s in self.sections
         )
 
     @property
@@ -544,14 +544,18 @@ class Module(AuxDataContainer):
         # type: () -> typing.Iterator[CodeBlock]
         """The :class:`CodeBlock`\\s in this module."""
 
-        return (b for b in self.byte_blocks if isinstance(b, CodeBlock))
+        return itertools.chain.from_iterable(
+            s.code_blocks for s in self.sections
+        )
 
     @property
     def data_blocks(self):
         # type: () -> typing.Iterator[DataBlock]
         """The :class:`DataBlock`\\s in this module."""
 
-        return (b for b in self.byte_blocks if isinstance(b, DataBlock))
+        return itertools.chain.from_iterable(
+            s.data_blocks for s in self.sections
+        )
 
     @property
     def cfg_nodes(self):
