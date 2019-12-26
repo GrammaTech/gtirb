@@ -24,8 +24,9 @@ __all__ = [
 from .auxdata import AuxData, AuxDataContainer
 from .block import Block, ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval
+from .cfg import Edge
 from .ir import IR
-from .module import Module, Edge
+from .module import Module
 from .node import Node
 from .offset import Offset
 from .section import Section
