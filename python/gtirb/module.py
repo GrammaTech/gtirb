@@ -8,7 +8,6 @@ import typing
 from .auxdata import AuxData, AuxDataContainer
 from .block import Block, ProxyBlock
 from .dataobject import DataObject
-from .imagebytemap import ImageByteMap
 from .node import Node
 from .section import Section
 from .symbol import Symbol
@@ -254,8 +253,6 @@ class Module(AuxDataContainer):
         in the binary.
     :ivar data: A set containing all the :class:`gtirb.DataObject`\\s
         in the binary.
-    :ivar image_byte_map: A :class:`gtirb.ImageByteMap` containing the raw
-        bytes present in the binary.
     :ivar isa_id: The ISA of the binary.
     :ivar file_format: The file format of the binary.
     :ivar name: The name given to the binary. Some file formats use this
@@ -348,7 +345,6 @@ class Module(AuxDataContainer):
         cfg=set(),  # type: typing.Iterable[Edge]
         data=set(),  # type: typing.Iterable[DataObject]
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
-        image_byte_map=None,  # type: typing.Optional[ImageByteMap]
         isa_id=ISAID.Undefined,  # type: Module.ISAID
         name="",  # type: str
         preferred_addr=0,  # type: int
@@ -370,8 +366,6 @@ class Module(AuxDataContainer):
             in the binary.
         :param data: A set containing all the :class:`gtirb.DataObject`\\s
             in the binary.
-        :param image_byte_map: A :class:`gtirb.ImageByteMap` containing the raw
-            bytes present in the binary.
         :param isa_id: The ISA of the binary.
         :param file_format: The file format of the binary.
         :param name: The name given to the binary.
@@ -391,13 +385,9 @@ class Module(AuxDataContainer):
             Defaults to None.
         """
 
-        if image_byte_map is None:
-            image_byte_map = ImageByteMap()
-
         self.binary_path = binary_path  # type: str
         self.blocks = set(blocks)  # type: typing.Set[Block]
         self.data = set(data)  # type: typing.Set[DataObject]
-        self.image_byte_map = image_byte_map  # type: ImageByteMap
         self.isa_id = isa_id  # type: "Module.ISAID"
         self.file_format = file_format  # type: "Module.FileFormat"
         self.name = name  # type: str
@@ -425,7 +415,6 @@ class Module(AuxDataContainer):
         cfg = (Edge._from_protobuf(e) for e in proto_module.cfg.edges)
         data = (DataObject._from_protobuf(d) for d in proto_module.data)
         proxies = (ProxyBlock._from_protobuf(p) for p in proto_module.proxies)
-        ibm = ImageByteMap._from_protobuf(proto_module.image_byte_map)
         sections = (Section._from_protobuf(s) for s in proto_module.sections)
         symbols = (Symbol._from_protobuf(s) for s in proto_module.symbols)
 
@@ -454,7 +443,6 @@ class Module(AuxDataContainer):
             blocks=blocks,
             cfg=cfg,
             data=data,
-            image_byte_map=ibm,
             isa_id=Module.ISAID(proto_module.isa_id),
             file_format=Module.FileFormat(proto_module.file_format),
             name=proto_module.name,
@@ -480,9 +468,6 @@ class Module(AuxDataContainer):
         proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
         proto_module.cfg.CopyFrom(proto_cfg)
         proto_module.data.extend(d._to_protobuf() for d in self.data)
-        proto_module.image_byte_map.CopyFrom(
-            self.image_byte_map._to_protobuf()
-        )
         proto_module.isa_id = self.isa_id.value
         proto_module.file_format = self.file_format.value
         proto_module.name = self.name
@@ -547,7 +532,7 @@ class Module(AuxDataContainer):
             if self_edge != other_edge:
                 return False
 
-        return self.image_byte_map.deep_eq(other.image_byte_map)
+        return True
 
     def __repr__(self):
         # type: () -> str
@@ -562,7 +547,6 @@ class Module(AuxDataContainer):
             "rebase_delta={rebase_delta:#x}, "
             "blocks={blocks!r}, "
             "data={data!r}, "
-            "image_byte_map={image_byte_map!r}, "
             "proxies={proxies!r}, "
             "sections={sections!r}, "
             "symbols={symbols!r}, "

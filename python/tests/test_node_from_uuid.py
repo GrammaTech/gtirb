@@ -11,7 +11,6 @@ class NodeFromUUIDTest(unittest.TestCase):
             gtirb.Block(0, 0),
             gtirb.DataObject(0, 0),
             gtirb.ProxyBlock(),
-            gtirb.ImageByteMap(),
             gtirb.Section("test", 0, 0),
             gtirb.Symbol("test"),
         ):
@@ -31,7 +30,6 @@ class NodeFromUUIDTest(unittest.TestCase):
             gtirb.Block(0, 0),
             gtirb.DataObject(0, 0),
             gtirb.ProxyBlock(),
-            gtirb.ImageByteMap(),
             gtirb.Section("test", 0, 0),
             gtirb.Symbol("test"),
         )

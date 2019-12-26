@@ -41,14 +41,6 @@ class ReprTest(unittest.TestCase):
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-    def test_ibm(self):
-        node = gtirb.ImageByteMap(
-            addr_min=1, addr_max=2, base_address=3, entry_point_address=4
-        )
-        string = repr(node)
-        new_node = eval(string)
-        self.assertTrue(node.deep_eq(new_node))
-
     def test_ir(self):
         # TODO: expand this
         node = gtirb.IR()

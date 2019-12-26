@@ -4,7 +4,6 @@ __all__ = [
     "Block",
     "DataObject",
     "Edge",
-    "ImageByteMap",
     "IR",
     "Module",
     "Node",
@@ -21,7 +20,6 @@ __all__ = [
 from .auxdata import AuxData, AuxDataContainer
 from .block import Block, ProxyBlock
 from .dataobject import DataObject
-from .imagebytemap import ImageByteMap
 from .ir import IR
 from .module import Module, Edge
 from .node import Node
