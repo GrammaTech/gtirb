@@ -49,10 +49,7 @@ class IR(AuxDataContainer):
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
         # type: (IR_pb2.IR, UUID) -> IR
-        aux_data = (
-            (key, AuxData._from_protobuf(val))
-            for key, val in proto_ir.aux_data_container.aux_data.items()
-        )
+        aux_data = AuxDataContainer._read_protobuf_aux_data(proto_ir)
         modules = (Module._from_protobuf(m) for m in proto_ir.modules)
         return cls(modules, aux_data, uuid)
 
@@ -61,7 +58,7 @@ class IR(AuxDataContainer):
         proto_ir = IR_pb2.IR()
         proto_ir.uuid = self.uuid.bytes
         proto_ir.modules.extend(m._to_protobuf() for m in self.modules)
-        proto_ir.aux_data_container.CopyFrom(super()._to_protobuf())
+        self._write_protobuf_aux_data(proto_ir)
         return proto_ir
 
     def deep_eq(self, other):

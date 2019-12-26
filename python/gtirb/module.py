@@ -407,10 +407,7 @@ class Module(AuxDataContainer):
     @classmethod
     def _decode_protobuf(cls, proto_module, uuid):
         # type: (Module_pb2.Module. UUID) -> Module
-        aux_data = (
-            (k, AuxData._from_protobuf(v))
-            for k, v in proto_module.aux_data_container.aux_data.items()
-        )
+        aux_data = AuxDataContainer._read_protobuf_aux_data(proto_module)
         blocks = (Block._from_protobuf(b) for b in proto_module.blocks)
         cfg = (Edge._from_protobuf(e) for e in proto_module.cfg.edges)
         data = (DataObject._from_protobuf(d) for d in proto_module.data)
@@ -458,7 +455,7 @@ class Module(AuxDataContainer):
     def _to_protobuf(self):
         # type: () -> Module_pb2.Module
         proto_module = Module_pb2.Module()
-        proto_module.aux_data_container.CopyFrom(super()._to_protobuf())
+        self._write_protobuf_aux_data(proto_module)
         proto_module.binary_path = self.binary_path
         proto_module.blocks.extend(b._to_protobuf() for b in self.blocks)
         proto_cfg = CFG_pb2.CFG()

@@ -3,7 +3,6 @@ import typing
 from uuid import UUID
 
 import AuxData_pb2
-import AuxDataContainer_pb2
 
 from .node import Node
 from .serialization import Serialization
@@ -106,24 +105,33 @@ class AuxDataContainer(Node):
         self.aux_data = dict(aux_data)  # type: typing.Dict[str, AuxData]
 
     @classmethod
-    def _decode_protobuf(
-        cls,
-        proto_container,  # type: AuxDataContainer_pb2.AuxDataContainer
-        uuid,  # type: UUID
-    ):
-        # type: (...) -> AuxDataContainer
-        aux_data = (
-            (key, AuxData.from_protobuf(val))
-            for key, val in proto_container.aux_data.items()
-        )
-        return cls(aux_data, uuid)
+    def _read_protobuf_aux_data(cls, proto_container):
+        # type: (typing.Any) -> typing.Dict[str, AuxData]
+        """
+        Instead of the overrided _decode_protobuf, this method requires the
+        Protobuf message to read from. AuxDataContainers need to call this
+        method in thier own _decode_protobuf overrides.
 
-    def _to_protobuf(self):
-        # type: () -> AuxDataContainer_pb2.AuxDataContainer
-        proto_auxdatacontainer = AuxDataContainer_pb2.AuxDataContainer()
+        :param proto_container: A Protobuf message with a field called
+            ``aux_data``.
+        """
+        return {
+            key: AuxData.from_protobuf(val)
+            for key, val in proto_container.aux_data.items()
+        }
+
+    def _write_protobuf_aux_data(self, proto_container):
+        # type: (typing.Any) -> None
+        """
+        Instead of the overrided _to_protobuf, this method requires the
+        Protobuf message to write into. AuxDataContainers need to call this
+        method in thier own _to_protobuf overrides.
+
+        :param proto_container: A Protobuf message with a field called
+            ``aux_data``.
+        """
         for k, v in self.aux_data.items():
-            proto_auxdatacontainer.aux_data[k].CopyFrom(v._to_protobuf())
-        return proto_auxdatacontainer
+            proto_container.aux_data[k].CopyFrom(v._to_protobuf())
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
