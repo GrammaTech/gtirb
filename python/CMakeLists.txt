@@ -20,8 +20,13 @@ file(GLOB PY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/gtirb/*.py
 add_custom_target(pygtirb ALL DEPENDS ${PY_SOURCES} ${PROTO_PY_SOURCES})
 add_custom_command(
   TARGET pygtirb
-  COMMAND cp -R "${CMAKE_CURRENT_SOURCE_DIR}/gtirb"
-          "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${CMAKE_CURRENT_BINARY_DIR}/"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/gtirb"
+          "${CMAKE_CURRENT_BINARY_DIR}/tests"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/gtirb"
+          "${CMAKE_CURRENT_BINARY_DIR}/gtirb"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_CURRENT_SOURCE_DIR}/tests"
+          "${CMAKE_CURRENT_BINARY_DIR}/tests"
 )
 
 if(GTIRB_ENABLE_TESTS)
