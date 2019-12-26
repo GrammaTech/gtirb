@@ -8,8 +8,8 @@ class NodeFromUUIDTest(unittest.TestCase):
         for node1 in (
             gtirb.IR(),
             gtirb.Module(),
-            gtirb.Block(0, 0),
-            gtirb.DataObject(0, 0),
+            gtirb.CodeBlock(0, 0),
+            gtirb.DataBlock(0, 0),
             gtirb.ProxyBlock(),
             gtirb.Section("test", 0, 0),
             gtirb.Symbol("test"),
@@ -27,8 +27,8 @@ class NodeFromUUIDTest(unittest.TestCase):
         nodes = (
             gtirb.IR(),
             gtirb.Module(),
-            gtirb.Block(0, 0),
-            gtirb.DataObject(0, 0),
+            gtirb.CodeBlock(0, 0),
+            gtirb.DataBlock(0, 0),
             gtirb.ProxyBlock(),
             gtirb.Section("test", 0, 0),
             gtirb.Symbol("test"),

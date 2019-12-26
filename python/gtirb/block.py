@@ -1,4 +1,5 @@
-import Block_pb2
+import CodeBlock_pb2
+import DataBlock_pb2
 import ProxyBlock_pb2
 import typing
 from uuid import UUID
@@ -7,9 +8,74 @@ from .node import Node
 
 
 class Block(Node):
+    """The base class for blocks. Symbols may have references to any subclass
+    of Block.
+    """
+
+
+class ByteBlock(Block):
+    """The base class for blocks that belong to a :class:`ByteInterval` and
+    store thier bytes there.
+    """
+
+
+class CfgNode(Block):
+    """The base class for blocks that may appear as vertices in the CFG."""
+
+
+class DataBlock(ByteBlock):
+    """Represents a data object, possibly symbolic.
+
+    :ivar size: The size of the data object in bytes.
+    """
+
+    def __init__(self, size, uuid=None):
+        # type: (int, typing.Optional[UUID]) -> None
+        """
+        :param size: The size of the data object in bytes.
+        :param uuid: The UUID of this ``DataBlock``,
+            or None if a new UUID needs generated via :func:`uuid.uuid4`.
+            Defaults to None.
+        """
+
+        super().__init__(uuid)
+        self.size = size
+
+    @classmethod
+    def _decode_protobuf(cls, proto_dataobject, uuid):
+        # type: (DataBlock_pb2.DataBlock, uuid.UUID) -> DataBlock
+        return cls(proto_dataobject.size, uuid)
+
+    def _to_protobuf(self):
+        # type: () -> DataBlock_pb2.DataBlock
+        proto_dataobject = DataBlock_pb2.DataBlock()
+        proto_dataobject.uuid = self.uuid.bytes
+        proto_dataobject.size = self.size
+        return proto_dataobject
+
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
+        if not isinstance(other, DataBlock):
+            return False
+        return self.uuid == other.uuid and self.size == other.size
+
+    def __repr__(self):
+        # type: () -> str
+        return (
+            "DataBlock("
+            "uuid={uuid!r}, "
+            "size={size}, "
+            ")".format(**self.__dict__)
+        )
+
+
+class CodeBlock(ByteBlock, CfgNode):
     """A basic block in the binary.
 
-    :ivar address: The starting address of the block.
+    Does not directly store data bytes, which are kept in a
+    :class:`ByteInterval`.
+
     :ivar size: The length of the block in bytes.
     :ivar decode_mode: The decode mode of the block,
         used in some ISAs to differentiate between sub-ISAs
@@ -18,7 +84,6 @@ class Block(Node):
 
     def __init__(
         self,
-        address,  # type: int
         size,  # type: int
         *,
         decode_mode=0,  # type: int
@@ -26,37 +91,33 @@ class Block(Node):
     ):
         # type: (...) -> None
         """
-        :param address: The starting address of the block.
         :param size: The length of the block in bytes.
         :param decode_mode: The decode mode of the block,
             used in some ISAs to differentiate between sub-ISAs
             (e.g. differentiating blocks written in ARM and Thumb).
             Defaults to 0.
-        :param uuid: The UUID of this ``Block``,
+        :param uuid: The UUID of this ``CodeBlock``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
         """
 
         super().__init__(uuid)
-        self.address = address  # type: int
         self.size = size  # type: int
         self.decode_mode = decode_mode  # type: int
 
     @classmethod
     def _decode_protobuf(cls, proto_block, uuid):
-        # type: (Block_pb2.Block, UUID) -> Block
+        # type: (CodeBlock_pb2.CodeBlock, UUID) -> CodeBlock
         return cls(
-            address=proto_block.address,
             decode_mode=proto_block.decode_mode,
             size=proto_block.size,
             uuid=uuid,
         )
 
     def _to_protobuf(self):
-        # type: () -> Block_pb2.Block
-        proto_block = Block_pb2.Block()
+        # type: () -> CodeBlock_pb2.CodeBlock
+        proto_block = CodeBlock_pb2.CodeBlock()
         proto_block.uuid = self.uuid.bytes
-        proto_block.address = self.address
         proto_block.size = self.size
         proto_block.decode_mode = self.decode_mode
         return proto_block
@@ -64,11 +125,10 @@ class Block(Node):
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
-        if not isinstance(other, Block):
+        if not isinstance(other, CodeBlock):
             return False
         return (
             self.uuid == other.uuid
-            and self.address == other.address
             and self.size == other.size
             and self.decode_mode == other.decode_mode
         )
@@ -76,16 +136,15 @@ class Block(Node):
     def __repr__(self):
         # type: () -> str
         return (
-            "Block("
+            "CodeBlock("
             "uuid={uuid!r}, "
-            "address={address:#x}, "
             "size={size}, "
             "decode_mode={decode_mode}, "
             ")".format(**self.__dict__)
         )
 
 
-class ProxyBlock(Node):
+class ProxyBlock(CfgNode):
     """A placeholder to serve as the endpoint of a CFG edge.
 
     A ProxyBlock exists in the CFG so that edges to or from another

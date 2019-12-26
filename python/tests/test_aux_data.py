@@ -4,7 +4,7 @@ import unittest
 from collections import namedtuple
 from uuid import UUID
 
-from gtirb import Block, DataObject, IR, Offset, Section, Symbol
+from gtirb import CodeBlock, DataBlock, IR, Offset, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):
@@ -32,7 +32,7 @@ class AuxDataTest(unittest.TestCase):
 
         def alignment_items_test(items):
             for key, alignment in items:
-                self.assertIsInstance(key, (Block, DataObject, Section))
+                self.assertIsInstance(key, (CodeBlock, DataBlock, Section))
                 self.assertIsInstance(alignment, int)
 
         def comments_items_test(items):
@@ -44,7 +44,7 @@ class AuxDataTest(unittest.TestCase):
             for func_uuid, blocks in items:
                 self.assertIsInstance(func_uuid, UUID)
                 for block in blocks:
-                    self.assertIsInstance(block, Block)
+                    self.assertIsInstance(block, CodeBlock)
 
         def padding_items_test(items):
             for addr, padding in items:
@@ -53,7 +53,7 @@ class AuxDataTest(unittest.TestCase):
 
         def types_items_test(items):
             for data_obj, type_name in items:
-                self.assertIsInstance(data_obj, DataObject)
+                self.assertIsInstance(data_obj, DataBlock)
                 self.assertIsInstance(type_name, str)
 
         def symbolfwd_items_test(items):

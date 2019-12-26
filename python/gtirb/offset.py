@@ -5,21 +5,19 @@ import Offset_pb2
 
 class Offset:
     """
-    An Offset describes a location inside a :class:`gtirb.Block`
-    or :class:`gtirb.DataObject`.
+    An Offset describes a location inside a :class:`gtirb.CodeBlock`
+    or :class:`gtirb.DataBlock`.
 
-    :ivar element_id: The UUID of a :class:`gtirb.Block`
-        or :class:`gtirb.DataObject` containing the
-        location of interest.
+    :ivar element_id: The UUID of a :class:`gtirb.ByteBlock`
+            containing the location of interest.
     :ivar displacement: The offset inside the Node to point to.
     """
 
     def __init__(self, element_id, displacement):
         # type: (UUID,int) -> None
         """
-        :param element_id: The UUID of a :class:`gtirb.Block`
-            or :class:`gtirb.DataObject` containing the
-            location of interest.
+        :param element_id: The UUID of a :class:`gtirb.ByteBlock`
+            containing the location of interest.
         :param displacement: The offset inside the Node to point to.
         """
 

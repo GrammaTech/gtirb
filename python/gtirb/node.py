@@ -37,8 +37,8 @@ class Node:
         :raises TypeError: if the Node is not of the requested type.
             To request that the output be of a specific type, call this
             function from the desired subclass. For example, calling
-            ``gtirb.Block.from_uuid`` will return a :class:`gtirb.Block` or
-            raise a ``TypeError``.
+            ``gtirb.CodeBlock.from_uuid`` will return a
+            :class:`gtirb.CodeBlock` or raise a ``TypeError``.
         """
 
         node = Node._uuid_cache.get(uuid)

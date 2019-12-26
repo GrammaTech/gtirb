@@ -6,8 +6,7 @@ import SymbolicExpression_pb2
 import typing
 
 from .auxdata import AuxData, AuxDataContainer
-from .block import Block, ProxyBlock
-from .dataobject import DataObject
+from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode
 from .node import Node
 from .section import Section
 from .symbol import Symbol
@@ -18,10 +17,6 @@ from .symbolicexpression import (
     SymbolicOperand,
 )
 from .util import DictLike
-
-
-CfgNode = typing.Union[Block, ProxyBlock]
-"""A type hint for nodes in the CFG."""
 
 
 class Edge:
@@ -189,13 +184,13 @@ class Edge:
         try:
             source = Node._uuid_cache[source_uuid]
             target = Node._uuid_cache[target_uuid]
-            if not isinstance(source, (Block, ProxyBlock)):
+            if not isinstance(source, CfgNode):
                 raise ValueError(
-                    "source UUID %s is not a Block or ProxyBlock" % source_uuid
+                    "source UUID %s is not a CfgNode" % source_uuid
                 )
-            if not isinstance(target, (Block, ProxyBlock)):
+            if not isinstance(target, (CodeBlock, ProxyBlock)):
                 raise ValueError(
-                    "target UUID %s is not a Block or ProxyBlock" % target_uuid
+                    "target UUID %s is not a CfgNode" % target_uuid
                 )
         except KeyError as e:
             raise KeyError(
@@ -249,9 +244,9 @@ class Module(AuxDataContainer):
         The file represented by this path is indicitave of what file
         this ``Module`` was initially created from; it is not guaranteed to
         currently exist or have the same contents.
-    :ivar blocks: A set containing all the :class:`gtirb.Block`\\s
+    :ivar blocks: A set containing all the :class:`gtirb.CodeBlock`\\s
         in the binary.
-    :ivar data: A set containing all the :class:`gtirb.DataObject`\\s
+    :ivar data: A set containing all the :class:`gtirb.DataBlock`\\s
         in the binary.
     :ivar isa_id: The ISA of the binary.
     :ivar file_format: The file format of the binary.
@@ -341,9 +336,9 @@ class Module(AuxDataContainer):
         *,
         aux_data=dict(),  # type: DictLike[str, AuxData]
         binary_path="",  # type: str
-        blocks=set(),  # type: typing.Iterable[Block]
+        blocks=set(),  # type: typing.Iterable[CodeBlock]
         cfg=set(),  # type: typing.Iterable[Edge]
-        data=set(),  # type: typing.Iterable[DataObject]
+        data=set(),  # type: typing.Iterable[DataBlock]
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         isa_id=ISAID.Undefined,  # type: Module.ISAID
         name="",  # type: str
@@ -362,9 +357,9 @@ class Module(AuxDataContainer):
             :class:`gtirb.AuxData`, defaults to an empty :class:`dict`.
         :param binary_path: The path to the loadable binary object
             represented by this module.
-        :param blocks: A set containing all the :class:`gtirb.Block`\\s
+        :param blocks: A set containing all the :class:`gtirb.CodeBlock`\\s
             in the binary.
-        :param data: A set containing all the :class:`gtirb.DataObject`\\s
+        :param data: A set containing all the :class:`gtirb.DataBlock`\\s
             in the binary.
         :param isa_id: The ISA of the binary.
         :param file_format: The file format of the binary.
@@ -386,8 +381,8 @@ class Module(AuxDataContainer):
         """
 
         self.binary_path = binary_path  # type: str
-        self.blocks = set(blocks)  # type: typing.Set[Block]
-        self.data = set(data)  # type: typing.Set[DataObject]
+        self.blocks = set(blocks)  # type: typing.Set[CodeBlock]
+        self.data = set(data)  # type: typing.Set[DataBlock]
         self.isa_id = isa_id  # type: "Module.ISAID"
         self.file_format = file_format  # type: "Module.FileFormat"
         self.name = name  # type: str
@@ -408,9 +403,9 @@ class Module(AuxDataContainer):
     def _decode_protobuf(cls, proto_module, uuid):
         # type: (Module_pb2.Module. UUID) -> Module
         aux_data = AuxDataContainer._read_protobuf_aux_data(proto_module)
-        blocks = (Block._from_protobuf(b) for b in proto_module.blocks)
+        blocks = (CodeBlock._from_protobuf(b) for b in proto_module.blocks)
         cfg = (Edge._from_protobuf(e) for e in proto_module.cfg.edges)
-        data = (DataObject._from_protobuf(d) for d in proto_module.data)
+        data = (DataBlock._from_protobuf(d) for d in proto_module.data)
         proxies = (ProxyBlock._from_protobuf(p) for p in proto_module.proxies)
         sections = (Section._from_protobuf(s) for s in proto_module.sections)
         symbols = (Symbol._from_protobuf(s) for s in proto_module.symbols)

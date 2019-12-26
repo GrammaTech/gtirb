@@ -4,16 +4,11 @@ import typing
 
 import Symbol_pb2
 
-from .block import Block, ProxyBlock
-from .dataobject import DataObject
+from .block import Block
 from .node import Node
 
 
-Referent = typing.Union[Block, ProxyBlock, DataObject]
-"""A type hint representing the possible Symbol referents."""
-Value = typing.Union[int]
-"""A type hint representing the possible Symbol values."""
-Payload = typing.Union[Referent, Value]
+Payload = typing.Union[Block, int]
 """A type hint representing the possible Symbol payloads."""
 
 
@@ -70,35 +65,34 @@ class Symbol(Node):
 
     @property
     def value(self):
-        # type: () -> typing.Optional[Value]
+        # type: () -> typing.Optional[int]
         """The value of a Symbol, which is an integer or None.
         ``value`` and ``referent`` are mutually exclusive.
         """
 
-        if not isinstance(self._payload, (Block, DataObject, ProxyBlock)):
+        if not isinstance(self._payload, Block):
             return self._payload
         return None
 
     @property
     def referent(self):
-        # type: () -> typing.Optional[Referent]
-        """The object referred to by a Symbol, which is a
-        Block, DataObject, ProxyBlock, or None.
-        ``value`` and ``referent`` are mutually exclusive.
+        # type: () -> typing.Optional[Block]
+        """The object referred to by a Symbol, which is :class:`Block`
+        or None. ``value`` and ``referent`` are mutually exclusive.
         """
 
-        if isinstance(self._payload, (Block, DataObject, ProxyBlock)):
+        if isinstance(self._payload, Block):
             return self._payload
         return None
 
     @value.setter
     def value(self, value):
-        # type: (typing.Optional[Value]) -> None
+        # type: (typing.Optional[int]) -> None
         self._payload = value
 
     @referent.setter
     def referent(self, referent):
-        # type: (typing.Optional[Referent]) -> None
+        # type: (typing.Optional[Block]) -> None
         self._payload = referent
 
     @classmethod

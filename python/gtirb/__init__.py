@@ -2,7 +2,10 @@ __all__ = [
     "AuxData",
     "AuxDataContainer",
     "Block",
-    "DataObject",
+    "ByteBlock",
+    "CfgNode",
+    "CodeBlock",
+    "DataBlock",
     "Edge",
     "IR",
     "Module",
@@ -18,8 +21,7 @@ __all__ = [
 ]
 
 from .auxdata import AuxData, AuxDataContainer
-from .block import Block, ProxyBlock
-from .dataobject import DataObject
+from .block import Block, ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .ir import IR
 from .module import Module, Edge
 from .node import Node

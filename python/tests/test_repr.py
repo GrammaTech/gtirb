@@ -24,7 +24,7 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(node.data, new_node.data)
 
     def test_block(self):
-        node = gtirb.Block(address=0x123, size=456, decode_mode=789)
+        node = gtirb.CodeBlock(address=0x123, size=456, decode_mode=789)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -36,7 +36,7 @@ class ReprTest(unittest.TestCase):
         self.assertTrue(node.deep_eq(new_node))
 
     def test_data_object(self):
-        node = gtirb.DataObject(address=0x123, size=456)
+        node = gtirb.DataBlock(address=0x123, size=456)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -50,8 +50,8 @@ class ReprTest(unittest.TestCase):
 
     def test_edge(self):
         node = gtirb.Edge(
-            source=gtirb.Block(address=1, size=2),
-            target=gtirb.Block(address=3, size=4),
+            source=gtirb.CodeBlock(address=1, size=2),
+            target=gtirb.CodeBlock(address=3, size=4),
             label=gtirb.Edge.Label(
                 gtirb.Edge.Type.Fallthrough, conditional=True, direct=False
             ),
