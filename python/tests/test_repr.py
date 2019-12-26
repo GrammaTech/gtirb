@@ -81,29 +81,17 @@ class ReprTest(unittest.TestCase):
         self.assertTrue(node.deep_eq(new_node))
 
     def test_symbol(self):
-        node = gtirb.Symbol(
-            name="symbol1",
-            storage_kind=gtirb.Symbol.StorageKind.Extern,
-            payload=gtirb.ProxyBlock(),
-        )
+        node = gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock(),)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-        node = gtirb.Symbol(
-            name="symbol2",
-            storage_kind=gtirb.Symbol.StorageKind.Extern,
-            payload=0x123,
-        )
+        node = gtirb.Symbol(name="symbol2", payload=0x123,)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-        node = gtirb.Symbol(
-            name="symbol3",
-            storage_kind=gtirb.Symbol.StorageKind.Extern,
-            payload=None,
-        )
+        node = gtirb.Symbol(name="symbol3", payload=None,)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -111,11 +99,7 @@ class ReprTest(unittest.TestCase):
     def test_sym_expr(self):
         node = gtirb.SymAddrConst(
             offset=123,
-            symbol=gtirb.Symbol(
-                name="symbol",
-                storage_kind=gtirb.Symbol.StorageKind.Extern,
-                payload=gtirb.ProxyBlock(),
-            ),
+            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock(),),
         )
         string = repr(node)
         new_node = eval(string)
@@ -124,11 +108,7 @@ class ReprTest(unittest.TestCase):
 
         node = gtirb.SymStackConst(
             offset=123,
-            symbol=gtirb.Symbol(
-                name="symbol",
-                storage_kind=gtirb.Symbol.StorageKind.Extern,
-                payload=gtirb.ProxyBlock(),
-            ),
+            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock(),),
         )
         string = repr(node)
         new_node = eval(string)
@@ -138,16 +118,8 @@ class ReprTest(unittest.TestCase):
         node = gtirb.SymAddrAddr(
             offset=123,
             scale=2,
-            symbol1=gtirb.Symbol(
-                name="symbol1",
-                storage_kind=gtirb.Symbol.StorageKind.Extern,
-                payload=gtirb.ProxyBlock(),
-            ),
-            symbol2=gtirb.Symbol(
-                name="symbol2",
-                storage_kind=gtirb.Symbol.StorageKind.Extern,
-                payload=gtirb.ProxyBlock(),
-            ),
+            symbol1=gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock(),),
+            symbol2=gtirb.Symbol(name="symbol2", payload=gtirb.ProxyBlock(),),
         )
         string = repr(node)
         new_node = eval(string)

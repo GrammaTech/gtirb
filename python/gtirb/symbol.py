@@ -1,4 +1,3 @@
-from enum import Enum
 from uuid import UUID
 import typing
 
@@ -16,41 +15,16 @@ class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
     :ivar name: The name of this symbol.
-    :ivar storage_kind: The storage kind of this symbol.
     """
-
-    class StorageKind(Enum):
-        """
-        The storage kind of a :class:`gtirb.Symbol`.
-        """
-
-        Undefined = Symbol_pb2.StorageKind.Value("Storage_Undefined")
-        """An unspecified storage kind."""
-
-        Normal = Symbol_pb2.StorageKind.Value("Storage_Normal")
-        """The symbol is accessible outside the module."""
-
-        Static = Symbol_pb2.StorageKind.Value("Storage_Static")
-        """The symbol is accessible only within the module."""
-
-        Extern = Symbol_pb2.StorageKind.Value("Storage_Extern")
-        """The symbol is defined outside of this module."""
-
-        Local = Symbol_pb2.StorageKind.Value("Storage_Local")
-        """The symbol is stored locally,
-        in the context of a function's activation frame.
-        """
 
     def __init__(
         self,
         name,  # type: str
-        storage_kind=StorageKind.Undefined,  # type: Symbol.StorageKind
         uuid=None,  # type: typing.Optional[UUID]
         payload=None,  # type: typing.Optional[Payload]
     ):
         """
         :param name: The name of this symbol.
-        :param storage_kind: The storage kind of this symbol.
         :param uuid: The UUID of this ``Symbol``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
@@ -60,7 +34,6 @@ class Symbol(Node):
 
         super().__init__(uuid)
         self.name = name  # type: str
-        self.storage_kind = storage_kind  # type: Symbol.StorageKind
         self._payload = payload  # type: typing.Optional[Payload]
 
     @property
@@ -98,10 +71,7 @@ class Symbol(Node):
     @classmethod
     def _decode_protobuf(cls, proto_symbol, uuid):
         # type: (Symbol_pb2.Symbol,UUID) -> Symbol
-        storage_kind = Symbol.StorageKind(proto_symbol.storage_kind)
-        symbol = cls(
-            name=proto_symbol.name, uuid=uuid, storage_kind=storage_kind
-        )
+        symbol = cls(name=proto_symbol.name, uuid=uuid)
         if proto_symbol.HasField("value"):
             symbol.value = proto_symbol.value
         if proto_symbol.HasField("referent_uuid"):
@@ -121,7 +91,6 @@ class Symbol(Node):
         elif self.referent is not None:
             proto_symbol.referent_uuid = self.referent.uuid.bytes
         proto_symbol.name = self.name
-        proto_symbol.storage_kind = self.storage_kind.value
         return proto_symbol
 
     def deep_eq(self, other):
@@ -136,11 +105,7 @@ class Symbol(Node):
             and self.referent.uuid != other.referent.uuid
         ):
             return False
-        return (
-            self.name == other.name
-            and self.storage_kind == other.storage_kind
-            and self.uuid == other.uuid
-        )
+        return self.name == other.name and self.uuid == other.uuid
 
     def __repr__(self):
         # type: () -> str
@@ -148,7 +113,6 @@ class Symbol(Node):
             "Symbol("
             "uuid={uuid!r}, "
             "name={name!r}, "
-            "storage_kind=Symbol.{storage_kind!s}, "
             "payload={_payload!r}, "
             ")".format(**self.__dict__)
         )
