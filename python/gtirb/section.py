@@ -36,6 +36,7 @@ class Section(Node):
         self.address = address  # type: int
         self.name = name  # type: str
         self.size = size  # type: int
+        self._module = None  # type: "Module"
 
     @classmethod
     def _decode_protobuf(cls, section, uuid):
@@ -75,3 +76,16 @@ class Section(Node):
             "size={size!r}, "
             ")".format(**self.__dict__)
         )
+
+    @property
+    def module(self):
+        # type: () -> "Module"
+        return self._module
+
+    @module.setter
+    def module(self, value):
+        # type: ("Module") -> None
+        if self._module is not None:
+            self._module.sections.discard(self)
+        if value is not None:
+            value.sections.add(self)

@@ -157,6 +157,10 @@ class ProxyBlock(CfgNode):
     an address nor a size.
     """
 
+    def __init__(self, *, uuid=None):
+        super().__init__(uuid=uuid)
+        self._module = None  # type: "Module"
+
     @classmethod
     def _decode_protobuf(cls, proto_proxy, uuid):
         # type: (ProxyBlock_pb2.ProxyBlock, UUID) -> ProxyBlock
@@ -178,3 +182,16 @@ class ProxyBlock(CfgNode):
     def __repr__(self):
         # type: () -> str
         return "ProxyBlock(" "uuid={uuid!r}, " ")".format(**self.__dict__)
+
+    @property
+    def module(self):
+        # type: () -> "Module"
+        return self._module
+
+    @module.setter
+    def module(self, value):
+        # type: ("Module") -> None
+        if self._module is not None:
+            self._module.proxies.discard(self)
+        if value is not None:
+            value.proxies.add(self)

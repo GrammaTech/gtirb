@@ -35,6 +35,7 @@ class Symbol(Node):
         super().__init__(uuid)
         self.name = name  # type: str
         self._payload = payload  # type: typing.Optional[Payload]
+        self._module = None  # type: "Module"
 
     @property
     def value(self):
@@ -116,3 +117,16 @@ class Symbol(Node):
             "payload={_payload!r}, "
             ")".format(**self.__dict__)
         )
+
+    @property
+    def module(self):
+        # type: () -> "Module"
+        return self._module
+
+    @module.setter
+    def module(self, value):
+        # type: ("Module") -> None
+        if self._module is not None:
+            self._module.symbols.discard(self)
+        if value is not None:
+            value.symbols.add(self)

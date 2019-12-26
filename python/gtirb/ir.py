@@ -15,7 +15,7 @@ from uuid import UUID
 
 from .auxdata import AuxData, AuxDataContainer
 from .module import Module
-from .util import DictLike
+from .util import DictLike, ListWrapper
 
 
 class IR(AuxDataContainer):
@@ -23,6 +23,28 @@ class IR(AuxDataContainer):
 
     :ivar modules: A list of Modules contained in the IR.
     """
+
+    class _ModuleList(ListWrapper[Module]):
+        def _remove(self, v):
+            v._ir = None
+
+        def _add(self, v):
+            if v._ir is not None:
+                v._ir.modules.remove(v)
+            v._ir = self
+
+        def __setitem__(self, i, v):
+            self._remove(self[i])
+            super().__setitem__(i, v)
+            self._add(v)
+
+        def __delitem__(self, i):
+            self._remove(self[i])
+            super().__delitem__(i)
+
+        def insert(self, i, v):
+            self._add(v)
+            return super().insert(i, v)
 
     def __init__(
         self,
@@ -43,7 +65,7 @@ class IR(AuxDataContainer):
 
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
-        self.modules = list(modules)  # type: typing.List[Module]
+        self.modules = IR._ModuleList(modules)  # type: typing.List[Module]
         super().__init__(aux_data, uuid)
 
     @classmethod

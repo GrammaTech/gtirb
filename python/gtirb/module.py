@@ -16,7 +16,7 @@ from .symbolicexpression import (
     SymStackConst,
     SymbolicOperand,
 )
-from .util import DictLike
+from .util import DictLike, SetWrapper
 
 
 class Edge:
@@ -331,6 +331,20 @@ class Module(AuxDataContainer):
         ValidButUnsupported = Module_pb2.ISA.Value("ValidButUnsupported")
         """An unknown or undefined ISA."""
 
+    class _NodeSet(SetWrapper):
+        def __init__(self, field):
+            self._field = field
+
+        def add(self, v):
+            if v._module is not None:
+                getattr(v._module, self._field).remove(v)
+            v._module = self
+            return super().add(v)
+
+        def discard(self, v):
+            v._module = None
+            return super().discard(v)
+
     def __init__(
         self,
         *,
@@ -387,14 +401,20 @@ class Module(AuxDataContainer):
         self.file_format = file_format  # type: Module.FileFormat
         self.name = name  # type: str
         self.preferred_addr = preferred_addr  # type: int
-        self.proxies = set(proxies)  # type: typing.Set[ProxyBlock]
+        self.proxies = Module._NodeSet(
+            proxies, "proxies"
+        )  # type: typing.Set[ProxyBlock]
         self.rebase_delta = rebase_delta  # type: int
-        self.sections = set(sections)  # type: typing.Set[Section]
-        self.symbols = set(symbols)  # type: typing.Set[Symbol]
+        self.sections = Module._NodeSet(
+            sections, "sections"
+        )  # type: typing.Set[Section]
+        self.symbols = Module._NodeSet(
+            symbols, "symbols"
+        )  # type: typing.Set[Symbol]
         self.symbolic_operands = dict(
             symbolic_operands
         )  # type: typing.Dict[int, SymbolicOperand]
-
+        self._ir = None  # type: "IR"
         # Initialize the CFG and aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
         self.cfg = set(cfg)  # type: typing.Set[Edge]
@@ -545,3 +565,16 @@ class Module(AuxDataContainer):
             "symbolic_operands={symbolic_operands!r}, "
             ")".format(**self.__dict__)
         )
+
+    @property
+    def ir(self):
+        # type: () -> "IR"
+        return self._ir
+
+    @ir.setter
+    def ir(self, value):
+        # type: ("IR") -> None
+        if self._ir is not None:
+            self._ir.modules.remove(self)
+        if value is not None:
+            value.modules.append(self)
