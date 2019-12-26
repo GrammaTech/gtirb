@@ -248,7 +248,7 @@ class Module(AuxDataContainer):
         in the binary.
     :ivar data: A set containing all the :class:`gtirb.DataBlock`\\s
         in the binary.
-    :ivar isa_id: The ISA of the binary.
+    :ivar isa: The ISA of the binary.
     :ivar file_format: The file format of the binary.
     :ivar name: The name given to the binary. Some file formats use this
         for linking and/or symbol resolution purposes. An empty string if
@@ -303,32 +303,32 @@ class Module(AuxDataContainer):
         XCOFF = Module_pb2.FileFormat.Value("XCOFF")
         """The Extended Common Object File Format."""
 
-    class ISAID(Enum):
+    class ISA(Enum):
         """Identifies the instruction set architecture (ISA)
         targeted by a :class:`gtirb.Module`.
         """
 
-        Undefined = Module_pb2.ISAID.Value("ISA_Undefined")
+        Undefined = Module_pb2.ISA.Value("ISA_Undefined")
         """An ISA that has not yet been specified.
         This is for unitialized modules;
-        use :class:`gtirb.Module.ISAID.ValidButUnsupported`
+        use :class:`gtirb.Module.ISA.ValidButUnsupported`
         instead for specifying undefined ISAs.
         """
 
-        ARM = Module_pb2.ISAID.Value("ARM")
+        ARM = Module_pb2.ISA.Value("ARM")
         """The Acorn RISC Machine."""
 
-        IA32 = Module_pb2.ISAID.Value("IA32")
+        IA32 = Module_pb2.ISA.Value("IA32")
         """The 32-bit Intel Architecture. Also known as i386, x86, or x32."""
 
-        PPC32 = Module_pb2.ISAID.Value("PPC32")
+        PPC32 = Module_pb2.ISA.Value("PPC32")
         """IBM's 32-bit PowerPC (Performance Optimization with Enhanced RISC /
         Performance Computing) architecture."""
 
-        X64 = Module_pb2.ISAID.Value("X64")
+        X64 = Module_pb2.ISA.Value("X64")
         """The 64-bit Intel Architecture. Also known as x86_64."""
 
-        ValidButUnsupported = Module_pb2.ISAID.Value("ValidButUnsupported")
+        ValidButUnsupported = Module_pb2.ISA.Value("ValidButUnsupported")
         """An unknown or undefined ISA."""
 
     def __init__(
@@ -340,7 +340,7 @@ class Module(AuxDataContainer):
         cfg=set(),  # type: typing.Iterable[Edge]
         data=set(),  # type: typing.Iterable[DataBlock]
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
-        isa_id=ISAID.Undefined,  # type: Module.ISAID
+        isa=ISA.Undefined,  # type: Module.ISA
         name="",  # type: str
         preferred_addr=0,  # type: int
         proxies=set(),  # type: typing.Iterable[ProxyBlock]
@@ -361,7 +361,7 @@ class Module(AuxDataContainer):
             in the binary.
         :param data: A set containing all the :class:`gtirb.DataBlock`\\s
             in the binary.
-        :param isa_id: The ISA of the binary.
+        :param isa: The ISA of the binary.
         :param file_format: The file format of the binary.
         :param name: The name given to the binary.
         :param preferred_addr: The preferred loading address of the binary.
@@ -383,8 +383,8 @@ class Module(AuxDataContainer):
         self.binary_path = binary_path  # type: str
         self.blocks = set(blocks)  # type: typing.Set[CodeBlock]
         self.data = set(data)  # type: typing.Set[DataBlock]
-        self.isa_id = isa_id  # type: "Module.ISAID"
-        self.file_format = file_format  # type: "Module.FileFormat"
+        self.isa = isa  # type: Module.ISA
+        self.file_format = file_format  # type: Module.FileFormat
         self.name = name  # type: str
         self.preferred_addr = preferred_addr  # type: int
         self.proxies = set(proxies)  # type: typing.Set[ProxyBlock]
@@ -435,7 +435,7 @@ class Module(AuxDataContainer):
             blocks=blocks,
             cfg=cfg,
             data=data,
-            isa_id=Module.ISAID(proto_module.isa_id),
+            isa=Module.ISA(proto_module.isa),
             file_format=Module.FileFormat(proto_module.file_format),
             name=proto_module.name,
             preferred_addr=proto_module.preferred_addr,
@@ -460,7 +460,7 @@ class Module(AuxDataContainer):
         proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
         proto_module.cfg.CopyFrom(proto_cfg)
         proto_module.data.extend(d._to_protobuf() for d in self.data)
-        proto_module.isa_id = self.isa_id.value
+        proto_module.isa = self.isa.value
         proto_module.file_format = self.file_format.value
         proto_module.name = self.name
         proto_module.preferred_addr = self.preferred_addr
@@ -493,7 +493,7 @@ class Module(AuxDataContainer):
             return False
         for attr in (
             "binary_path",
-            "isa_id",
+            "isa",
             "file_format",
             "name",
             "preferred_addr",
@@ -533,7 +533,7 @@ class Module(AuxDataContainer):
             "uuid={uuid!r}, "
             "name={name!r}, "
             "binary_path={binary_path!r}, "
-            "isa_id=Module.{isa_id!s}, "
+            "isa=Module.{isa!s}, "
             "file_format=Module.{file_format!s}, "
             "preferred_addr={preferred_addr:#x}, "
             "rebase_delta={rebase_delta:#x}, "
