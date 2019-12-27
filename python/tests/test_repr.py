@@ -24,7 +24,7 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(node.data, new_node.data)
 
     def test_block(self):
-        node = gtirb.CodeBlock(address=0x123, size=456, decode_mode=789)
+        node = gtirb.CodeBlock(offset=123, size=456, decode_mode=789)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -36,7 +36,7 @@ class ReprTest(unittest.TestCase):
         self.assertTrue(node.deep_eq(new_node))
 
     def test_data_object(self):
-        node = gtirb.DataBlock(address=0x123, size=456)
+        node = gtirb.DataBlock(offset=123, size=456)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -50,8 +50,8 @@ class ReprTest(unittest.TestCase):
 
     def test_edge(self):
         node = gtirb.Edge(
-            source=gtirb.CodeBlock(address=1, size=2),
-            target=gtirb.CodeBlock(address=3, size=4),
+            source=gtirb.CodeBlock(offset=1, size=2),
+            target=gtirb.CodeBlock(offset=3, size=4),
             label=gtirb.Edge.Label(
                 gtirb.Edge.Type.Fallthrough, conditional=True, direct=False
             ),
@@ -75,23 +75,26 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(node.displacement, new_node.displacement)
 
     def test_section(self):
-        node = gtirb.Section(name=".text", address=0x123, size=456)
+        node = gtirb.Section(
+            name=".text",
+            flags=(gtirb.Section.Flag.Readable, gtirb.Section.Flag.Writable),
+        )
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
     def test_symbol(self):
-        node = gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock(),)
+        node = gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock())
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-        node = gtirb.Symbol(name="symbol2", payload=0x123,)
+        node = gtirb.Symbol(name="symbol2", payload=0x123)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-        node = gtirb.Symbol(name="symbol3", payload=None,)
+        node = gtirb.Symbol(name="symbol3", payload=None)
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
@@ -99,7 +102,7 @@ class ReprTest(unittest.TestCase):
     def test_sym_expr(self):
         node = gtirb.SymAddrConst(
             offset=123,
-            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock(),),
+            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
         )
         string = repr(node)
         new_node = eval(string)
@@ -108,7 +111,7 @@ class ReprTest(unittest.TestCase):
 
         node = gtirb.SymStackConst(
             offset=123,
-            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock(),),
+            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
         )
         string = repr(node)
         new_node = eval(string)
@@ -118,8 +121,8 @@ class ReprTest(unittest.TestCase):
         node = gtirb.SymAddrAddr(
             offset=123,
             scale=2,
-            symbol1=gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock(),),
-            symbol2=gtirb.Symbol(name="symbol2", payload=gtirb.ProxyBlock(),),
+            symbol1=gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock()),
+            symbol2=gtirb.Symbol(name="symbol2", payload=gtirb.ProxyBlock()),
         )
         string = repr(node)
         new_node = eval(string)
@@ -127,6 +130,21 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(node.scale, new_node.scale)
         self.assertTrue(node.symbol1.deep_eq(new_node.symbol1))
         self.assertTrue(node.symbol2.deep_eq(new_node.symbol2))
+
+    def test_byte_interval(self):
+        node = gtirb.ByteInterval(
+            address=0x123,
+            allocated_size=456,
+            size=789,
+            contents=b"abc",
+            blocks=(gtirb.DataBlock(size=0),),
+            symbolic_operands={
+                1: gtirb.SymAddrConst(offset=1, symbol=gtirb.Symbol("test"))
+            },
+        )
+        string = repr(node)
+        new_node = eval(string)
+        self.assertTrue(node.deep_eq(new_node))
 
 
 if __name__ == "__main__":
