@@ -1,6 +1,5 @@
 from enum import Enum
 from uuid import UUID
-import CFG_pb2
 import Module_pb2
 import typing
 import itertools
@@ -8,7 +7,6 @@ import itertools
 from .auxdata import AuxData, AuxDataContainer
 from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
 from .byteinterval import ByteInterval
-from .cfg import Edge
 from .section import Section
 from .symbol import Symbol
 from .util import DictLike, SetWrapper
@@ -122,7 +120,6 @@ class Module(AuxDataContainer):
         *,
         aux_data=dict(),  # type: DictLike[str, AuxData]
         binary_path="",  # type: str
-        cfg=set(),  # type: typing.Iterable[Edge]
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         isa=ISA.Undefined,  # type: Module.ISA
         name="",  # type: str
@@ -172,9 +169,8 @@ class Module(AuxDataContainer):
             symbols, "symbols"
         )  # type: typing.Set[Symbol]
         self._ir = None  # type: "IR"
-        # Initialize the CFG and aux data last so that the cache is populated
+        # Initialize the aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
-        self.cfg = set(cfg)  # type: typing.Set[Edge]
 
     @classmethod
     def _decode_protobuf(cls, proto_module, uuid):
@@ -185,8 +181,6 @@ class Module(AuxDataContainer):
         # sections depend on symbolic expressions, so that step is split out
         # from _decode_protobuf into _decode_symbolic_expressions
         sections = [Section._from_protobuf(s) for s in proto_module.sections]
-        # CFG depends on cfg nodes
-        cfg = [Edge._from_protobuf(e) for e in proto_module.cfg.edges]
         # symbols depend on blocks
         symbols = [Symbol._from_protobuf(s) for s in proto_module.symbols]
         # symbolic expressions depend on symbols
@@ -199,7 +193,6 @@ class Module(AuxDataContainer):
         return cls(
             aux_data=aux_data,
             binary_path=proto_module.binary_path,
-            cfg=cfg,
             isa=Module.ISA(proto_module.isa),
             file_format=Module.FileFormat(proto_module.file_format),
             name=proto_module.name,
@@ -216,10 +209,6 @@ class Module(AuxDataContainer):
         proto_module = Module_pb2.Module()
         self._write_protobuf_aux_data(proto_module)
         proto_module.binary_path = self.binary_path
-        proto_cfg = CFG_pb2.CFG()
-        proto_cfg.vertices.extend(v.uuid.bytes for v in self.cfg_nodes)
-        proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
-        proto_module.cfg.CopyFrom(proto_cfg)
         proto_module.isa = self.isa.value
         proto_module.file_format = self.file_format.value
         proto_module.name = self.name
@@ -257,18 +246,6 @@ class Module(AuxDataContainer):
             for self_node, other_node in zip(self_nodes, other_nodes):
                 if not self_node.deep_eq(other_node):
                     return False
-
-        self_edges = sorted(
-            self.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
-        )
-        other_edges = sorted(
-            other.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
-        )
-        if not len(self_edges) == len(other_edges):
-            return False
-        for self_edge, other_edge in zip(self_edges, other_edges):
-            if self_edge != other_edge:
-                return False
 
         return True
 

@@ -9,6 +9,7 @@
     >>> ir.save_protobuf('filename.gtirb')
 """
 
+import CFG_pb2
 import IR_pb2
 import typing
 import itertools
@@ -17,6 +18,7 @@ from uuid import UUID
 from .auxdata import AuxData, AuxDataContainer
 from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
 from .byteinterval import ByteInterval
+from .cfg import Edge
 from .module import Module
 from .section import Section
 from .symbol import Symbol
@@ -26,7 +28,9 @@ from .util import DictLike, ListWrapper
 class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
 
-    :ivar modules: A list of Modules contained in the IR.
+    :ivar modules: A list of :class:`Module`\\s contained in the IR.
+    :ivar cfg: A set of :class:`Edge`\\s representing the IR's control
+        flow graph.
     """
 
     class _ModuleList(ListWrapper[Module]):
@@ -53,16 +57,20 @@ class IR(AuxDataContainer):
 
     def __init__(
         self,
+        *,
         modules=list(),  # type: typing.Iterable[Module]
         aux_data=dict(),  # type: DictLike[str, AuxData]
+        cfg=set(),  # type: typing.Iterable[Edge]
         uuid=None,  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
         """
         :param modules: A list of Modules contained in the IR.
+        :param cfg: A set of :class:`Edge`\\s representing the IR's control
+            flow graph. Defaults to being empty.
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
-            :class:`gtirb.AuxData`. Defaults to an empty :class:`dict`
+            :class:`gtirb.AuxData`. Defaults to being empty.
         :param uuid: The UUID of this ``IR``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
@@ -71,20 +79,26 @@ class IR(AuxDataContainer):
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
         self.modules = IR._ModuleList(modules)  # type: typing.List[Module]
+        self.cfg = set(cfg)  # type: typing.Set[Edge]
         super().__init__(aux_data, uuid)
 
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
         # type: (IR_pb2.IR, UUID) -> IR
         aux_data = AuxDataContainer._read_protobuf_aux_data(proto_ir)
-        modules = (Module._from_protobuf(m) for m in proto_ir.modules)
-        return cls(modules, aux_data, uuid)
+        modules = [Module._from_protobuf(m) for m in proto_ir.modules]
+        cfg = [Edge._from_protobuf(e) for e in proto_ir.cfg.edges]
+        return cls(modules=modules, aux_data=aux_data, cfg=cfg, uuid=uuid)
 
     def _to_protobuf(self):
         # type: () -> IR_pb2.IR
         proto_ir = IR_pb2.IR()
         proto_ir.uuid = self.uuid.bytes
         proto_ir.modules.extend(m._to_protobuf() for m in self.modules)
+        proto_cfg = CFG_pb2.CFG()
+        proto_cfg.vertices.extend(v.uuid.bytes for v in self.cfg_nodes)
+        proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
+        proto_ir.cfg.CopyFrom(proto_cfg)
         self._write_protobuf_aux_data(proto_ir)
         return proto_ir
 
@@ -99,6 +113,17 @@ class IR(AuxDataContainer):
             return False
         for self_module, other_module in zip(self_modules, other_modules):
             if not self_module.deep_eq(other_module):
+                return False
+        self_edges = sorted(
+            self.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
+        )
+        other_edges = sorted(
+            other.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
+        )
+        if not len(self_edges) == len(other_edges):
+            return False
+        for self_edge, other_edge in zip(self_edges, other_edges):
+            if self_edge != other_edge:
                 return False
         return True
 
@@ -158,6 +183,7 @@ class IR(AuxDataContainer):
             "IR("
             "uuid={uuid!r}, "
             "modules={modules!r}, "
+            "cfg={cfg!r}, "
             ")".format(**self.__dict__)
         )
 
