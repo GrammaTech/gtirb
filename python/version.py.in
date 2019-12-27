@@ -1,0 +1,11 @@
+API_VERSION = (
+    "@PROJECT_VERSION_MAJOR@."
+    "@PROJECT_VERSION_MINOR@."
+    "@PROJECT_VERSION_PATCH@"
+)  # type: str
+"""The semantic version of this API."""
+
+PROTOBUF_VERSION = @GTIRB_PROTOBUF_VERSION@  # type: int
+"""The version of Protobuf this API can read and write from.
+Attempts to load old Protobuf versions will raise a ``ValueError``.
+"""

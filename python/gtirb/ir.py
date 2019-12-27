@@ -23,6 +23,7 @@ from .module import Module
 from .section import Section
 from .symbol import Symbol
 from .util import DictLike, ListWrapper
+from .version import PROTOBUF_VERSION
 
 
 class IR(AuxDataContainer):
@@ -31,6 +32,7 @@ class IR(AuxDataContainer):
     :ivar modules: A list of :class:`Module`\\s contained in the IR.
     :ivar cfg: A set of :class:`Edge`\\s representing the IR's control
         flow graph.
+    :ivar version: The Protobuf version of this IR.
     """
 
     class _ModuleList(ListWrapper[Module]):
@@ -61,6 +63,7 @@ class IR(AuxDataContainer):
         modules=list(),  # type: typing.Iterable[Module]
         aux_data=dict(),  # type: DictLike[str, AuxData]
         cfg=set(),  # type: typing.Iterable[Edge]
+        version=PROTOBUF_VERSION,  # type: int
         uuid=None,  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
@@ -71,6 +74,7 @@ class IR(AuxDataContainer):
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`. Defaults to being empty.
+        :param version: The Protobuf version of this IR.
         :param uuid: The UUID of this ``IR``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
@@ -80,20 +84,33 @@ class IR(AuxDataContainer):
         # checks Node's cache.
         self.modules = IR._ModuleList(modules)  # type: typing.List[Module]
         self.cfg = set(cfg)  # type: typing.Set[Edge]
+        self.version = version  # type: int
         super().__init__(aux_data, uuid)
 
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
         # type: (IR_pb2.IR, UUID) -> IR
+        if proto_ir.version != PROTOBUF_VERSION:
+            raise ValueError(
+                "Attempt to decode IR of version %s (expected version %s)"
+                % (proto_ir.version, PROTOBUF_VERSION)
+            )
         aux_data = AuxDataContainer._read_protobuf_aux_data(proto_ir)
         modules = [Module._from_protobuf(m) for m in proto_ir.modules]
         cfg = [Edge._from_protobuf(e) for e in proto_ir.cfg.edges]
-        return cls(modules=modules, aux_data=aux_data, cfg=cfg, uuid=uuid)
+        return cls(
+            modules=modules,
+            aux_data=aux_data,
+            cfg=cfg,
+            version=proto_ir.version,
+            uuid=uuid,
+        )
 
     def _to_protobuf(self):
         # type: () -> IR_pb2.IR
         proto_ir = IR_pb2.IR()
         proto_ir.uuid = self.uuid.bytes
+        proto_ir.version = self.version
         proto_ir.modules.extend(m._to_protobuf() for m in self.modules)
         proto_cfg = CFG_pb2.CFG()
         proto_cfg.vertices.extend(v.uuid.bytes for v in self.cfg_nodes)
@@ -125,7 +142,7 @@ class IR(AuxDataContainer):
         for self_edge, other_edge in zip(self_edges, other_edges):
             if self_edge != other_edge:
                 return False
-        return True
+        return self.version == other.version
 
     @staticmethod
     def load_protobuf_file(protobuf_file):
@@ -184,6 +201,7 @@ class IR(AuxDataContainer):
             "uuid={uuid!r}, "
             "modules={modules!r}, "
             "cfg={cfg!r}, "
+            "version={version}, "
             ")".format(**self.__dict__)
         )
 

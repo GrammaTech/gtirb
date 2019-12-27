@@ -33,3 +33,6 @@ from .section import Section
 from .serialization import Serialization
 from .symbol import Symbol
 from .symbolicexpression import SymAddrAddr, SymAddrConst, SymStackConst
+from .version import API_VERSION
+
+__version__ = API_VERSION

@@ -29,6 +29,11 @@ add_custom_command(
           "${CMAKE_CURRENT_BINARY_DIR}/tests"
 )
 
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in
+  ${CMAKE_CURRENT_BINARY_DIR}/gtirb/version.py @ONLY
+)
+
 if(GTIRB_ENABLE_TESTS)
   add_test(
     NAME testgtirbpy
