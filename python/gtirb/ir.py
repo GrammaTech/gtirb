@@ -140,7 +140,7 @@ class IR(AuxDataContainer):
         if not len(self_edges) == len(other_edges):
             return False
         for self_edge, other_edge in zip(self_edges, other_edges):
-            if self_edge != other_edge:
+            if not self_edge.deep_eq(other_edge):
                 return False
         return self.version == other.version
 

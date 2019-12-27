@@ -209,6 +209,17 @@ class Edge:
             and self.label == other.label
         )
 
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
+        if not isinstance(other, Edge):
+            return False
+        return (
+            self.source.deep_eq(other.source)
+            and self.target.deep_eq(other.target)
+            and self.label == other.label
+        )
+
     def __hash__(self):
         # type: () -> int
         return hash((self.source.uuid, self.target.uuid, self.label))

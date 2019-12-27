@@ -238,14 +238,21 @@ class ByteInterval(Node):
             and len(self.blocks) == len(other.blocks)
             and all(
                 self_node.deep_eq(other_node)
-                for self_node, other_node in zip(self.blocks, other.blocks)
+                for self_node, other_node in zip(
+                    sorted(self.blocks, key=lambda b: b.uuid),
+                    sorted(other.blocks, key=lambda b: b.uuid),
+                )
             )
             and len(self.symbolic_operands) == len(other.symbolic_operands)
             and all(
                 self_kv[0] == other_kv[0] and self_kv[1].deep_eq(other_kv[1])
                 for self_kv, other_kv in zip(
-                    self.symbolic_operands.items(),
-                    other.symbolic_operands.items(),
+                    sorted(
+                        self.symbolic_operands.items(), key=lambda kv: kv[0]
+                    ),
+                    sorted(
+                        other.symbolic_operands.items(), key=lambda kv: kv[0]
+                    ),
                 )
             )
         )

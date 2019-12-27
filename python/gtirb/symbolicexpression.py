@@ -83,6 +83,18 @@ class SymAddrAddr:
             ")".format(**self.__dict__)
         )
 
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
+        if not isinstance(other, SymAddrAddr):
+            return False
+        return (
+            self.scale == other.scale
+            and self.offset == other.offset
+            and self.symbol1.deep_eq(other.symbol1)
+            and self.symbol2.deep_eq(other.symbol2)
+        )
+
 
 class SymAddrConst:
     """Represents a symbolic operand of the form "Sym + Offset".
@@ -135,6 +147,15 @@ class SymAddrConst:
             "offset={offset!r}, "
             "symbol={symbol!r}, "
             ")".format(**self.__dict__)
+        )
+
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
+        if not isinstance(other, SymAddrConst):
+            return False
+        return self.offset == other.offset and self.symbol.deep_eq(
+            other.symbol
         )
 
 
@@ -190,6 +211,15 @@ class SymStackConst:
             "offset={offset!r}, "
             "symbol={symbol!r}, "
             ")".format(**self.__dict__)
+        )
+
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
+        if not isinstance(other, SymStackConst):
+            return False
+        return self.offset == other.offset and self.symbol.deep_eq(
+            other.symbol
         )
 
 

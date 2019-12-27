@@ -67,8 +67,6 @@ class IRTest(unittest.TestCase):
 
     def test_ir_protobuf_load(self):
         new_ir = gtirb.IR.load_protobuf(IR_FILE)
-        open("old_ir.py", "w").write(repr(self.ir))
-        open("new_ir.py", "w").write(repr(new_ir))
         self.assertTrue(self.ir.deep_eq(new_ir))
 
 

@@ -50,6 +50,13 @@ class ByteBlock(Block):
         if value is not None:
             value.blocks.add(self)
 
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        # Do not move __eq__. See docstring for Node.deep_eq for more info.
+        if not isinstance(other, ByteBlock):
+            return False
+        return self.offset == other.offset and self.uuid == other.uuid
+
 
 class CfgNode(Block):
     """The base class for blocks that may appear as vertices in the CFG."""
@@ -92,7 +99,7 @@ class DataBlock(ByteBlock):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, DataBlock):
             return False
-        return self.uuid == other.uuid and self.size == other.size
+        return super().deep_eq(other) and self.size == other.size
 
     def __repr__(self):
         # type: () -> str
@@ -166,7 +173,7 @@ class CodeBlock(ByteBlock, CfgNode):
         if not isinstance(other, CodeBlock):
             return False
         return (
-            self.uuid == other.uuid
+            super().deep_eq(other)
             and self.size == other.size
             and self.decode_mode == other.decode_mode
         )

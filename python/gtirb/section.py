@@ -119,7 +119,8 @@ class Section(Node):
             and all(
                 self_node.deep_eq(other_node)
                 for self_node, other_node in zip(
-                    self.byte_intervals, other.byte_intervals
+                    sorted(self.byte_intervals, key=lambda bi: bi.uuid),
+                    sorted(other.byte_intervals, key=lambda bi: bi.uuid),
                 )
             )
             and self.flags == other.flags

@@ -101,11 +101,12 @@ class Symbol(Node):
             return False
         if self.value != other.value:
             return False
-        elif (
-            self.referent is not None
-            and self.referent.uuid != other.referent.uuid
-        ):
-            return False
+        if self.referent is None:
+            if other.referent is not None:
+                return False
+        else:
+            if not self.referent.deep_eq(other.referent):
+                return False
         return self.name == other.name and self.uuid == other.uuid
 
     def __repr__(self):
