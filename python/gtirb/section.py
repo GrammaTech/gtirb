@@ -17,7 +17,6 @@ class Section(Node):
     kept in a :class:`gtirb.ImageByteMap`.
 
     :ivar name: The section name (E.g. ".text", ".bss", etc).
-    :ivar size: The size of this section in bytes.
     :ivar byte_intervals: The :class:`ByteInterval`\\s in this section.
     :ivar flags: The :class:`Section.Flag`\\s this section has.
     """
@@ -61,14 +60,12 @@ class Section(Node):
         self,
         *,
         name="",  # type: str
-        size=0,  # type: int
         byte_intervals=(),  # type: typing.Iterable[ByteInterval]
         flags=set(),  # type: typing.Iterable[Section.Flag]
         uuid=None,  # type: typing.Optional[UUID]
     ):
         """
         :param name: The name of this section.
-        :param size: The size of this section in bytes.
         :param byte_intervals: The :class:`ByteInterval`\\s in this section.
         :param flags: The :class:`Section.Flag`\\s this section has.
         :param uuid: The UUID of this ``Section``,
@@ -78,7 +75,6 @@ class Section(Node):
 
         super().__init__(uuid)
         self.name = name  # type: str
-        self.size = size  # type: int
         self.byte_intervals = Section._ByteIntervalSet(
             byte_intervals
         )  # type: typing.Set[ByteInterval]
@@ -90,7 +86,6 @@ class Section(Node):
         # type: (Section_pb2.Section, UUID) -> Section
         return cls(
             name=proto_section.name,
-            size=proto_section.size,
             byte_intervals=(
                 ByteInterval._from_protobuf(bi)
                 for bi in proto_section.byte_intervals
@@ -106,7 +101,6 @@ class Section(Node):
         proto_section = Section_pb2.Section()
         proto_section.uuid = self.uuid.bytes
         proto_section.name = self.name
-        proto_section.size = self.size
         proto_section.byte_intervals.extend(
             bi._to_protobuf() for bi in self.byte_intervals
         )
@@ -121,7 +115,6 @@ class Section(Node):
         return (
             self.uuid == other.uuid
             and self.name == other.name
-            and self.size == other.size
             and len(self.byte_intervals) == len(other.byte_intervals)
             and all(
                 self_node.deep_eq(other_node)
@@ -138,7 +131,6 @@ class Section(Node):
             "Section("
             "uuid={uuid!r}, "
             "name={name!r}, "
-            "size={size!r}, "
             "byte_intervals={byte_intervals!r}, "
             "flags={flags!r}, "
             ")".format(**self.__dict__)
