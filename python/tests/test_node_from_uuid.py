@@ -8,11 +8,12 @@ class NodeFromUUIDTest(unittest.TestCase):
         for node1 in (
             gtirb.IR(),
             gtirb.Module(),
-            gtirb.CodeBlock(0, 0),
-            gtirb.DataBlock(0, 0),
+            gtirb.CodeBlock(size=0),
+            gtirb.DataBlock(size=0),
             gtirb.ProxyBlock(),
-            gtirb.Section("test", 0, 0),
-            gtirb.Symbol("test"),
+            gtirb.Section(name="test"),
+            gtirb.Symbol(name="test"),
+            gtirb.ByteInterval(),
         ):
             with self.subTest(type(node1).__name__):
                 node2 = gtirb.Node.from_uuid(node1.uuid)
@@ -27,11 +28,12 @@ class NodeFromUUIDTest(unittest.TestCase):
         nodes = (
             gtirb.IR(),
             gtirb.Module(),
-            gtirb.CodeBlock(0, 0),
-            gtirb.DataBlock(0, 0),
+            gtirb.CodeBlock(size=0),
+            gtirb.DataBlock(size=0),
             gtirb.ProxyBlock(),
-            gtirb.Section("test", 0, 0),
-            gtirb.Symbol("test"),
+            gtirb.Section(name="test"),
+            gtirb.Symbol(name="test"),
+            gtirb.ByteInterval(),
         )
         for node1 in nodes:
             with self.subTest(type(node1).__name__):
