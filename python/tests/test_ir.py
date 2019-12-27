@@ -1,27 +1,75 @@
+import gtirb
 import os
+import tempfile
 import unittest
 
-from tempfile import NamedTemporaryFile
 
-from gtirb import IR
-from gtirb.node import Node
+IR_FILE = tempfile.mktemp(suffix=".gtirb")
 
 
 class IRTest(unittest.TestCase):
-    def test_ir_protobuf_load(self):
-        test_path = os.path.dirname(os.path.realpath(__file__))
-        ir = IR.load_protobuf(os.path.join(test_path, "test2.ir"))
-        self.assertTrue(ir is not None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def test_ir_protobuf_save(self):
-        test_path = os.path.dirname(os.path.realpath(__file__))
-        ir = IR.load_protobuf(os.path.join(test_path, "test2.ir"))
-        with NamedTemporaryFile() as outfile:
-            ir.save_protobuf(outfile.name)
-            # Clear node cache before re-reading the IR
-            Node._uuid_cache = dict()
-            new_ir = IR.load_protobuf(outfile.name)
-            self.assertTrue(ir.deep_eq(new_ir))
+        ir = gtirb.IR()
+        m = gtirb.Module(
+            binary_path="binary_path",
+            file_format=gtirb.Module.FileFormat.RAW,
+            isa=gtirb.Module.ISA.ValidButUnsupported,
+            name="name",
+            preferred_addr=1,
+            rebase_delta=2,
+        )
+        m.ir = ir
+        s = gtirb.Section(
+            name="name",
+            flags=(
+                gtirb.Section.Flag.Executable,
+                gtirb.Section.Flag.Readable,
+                gtirb.Section.Flag.Loaded,
+                gtirb.Section.Flag.Initialized,
+            ),
+        )
+        s.module = m
+        bi = gtirb.ByteInterval(address=0, size=10, contents=b"abcd")
+        bi.section = s
+        cb = gtirb.CodeBlock(size=4, offset=0, decode_mode=1)
+        cb.byte_interval = bi
+        db = gtirb.DataBlock(size=6, offset=4)
+        db.byte_interval = bi
+        sym = gtirb.Symbol(name="name", payload=cb)
+        sym.module = m
+        sac = gtirb.SymAddrConst(0, sym)
+        bi.symbolic_operands[2] = sac
+        p = gtirb.ProxyBlock()
+        p.module = m
+        ir.cfg.add(
+            gtirb.Edge(
+                cb,
+                p,
+                gtirb.Edge.Label(
+                    gtirb.Edge.Type.Branch, conditional=False, direct=True
+                ),
+            )
+        )
+        m.aux_data["key"] = gtirb.AuxData(777, "uint64_t")
+        ir.aux_data["key"] = gtirb.AuxData("value", "string")
+
+        self.ir = ir
+
+    def setUp(self):
+        self.ir.save_protobuf(IR_FILE)
+        # Clear node cache so no re-using of nodes is done
+        gtirb.Node._uuid_cache.clear()
+
+    def tearDown(self):
+        os.remove(IR_FILE)
+
+    def test_ir_protobuf_load(self):
+        new_ir = gtirb.IR.load_protobuf(IR_FILE)
+        open("old_ir.py", "w").write(repr(self.ir))
+        open("new_ir.py", "w").write(repr(new_ir))
+        self.assertTrue(self.ir.deep_eq(new_ir))
 
 
 if __name__ == "__main__":

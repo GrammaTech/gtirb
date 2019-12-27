@@ -116,7 +116,7 @@ class AuxDataContainer(Node):
             ``aux_data``.
         """
         return {
-            key: AuxData.from_protobuf(val)
+            key: AuxData._from_protobuf(val)
             for key, val in proto_container.aux_data.items()
         }
 

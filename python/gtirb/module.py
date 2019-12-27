@@ -103,8 +103,9 @@ class Module(AuxDataContainer):
         """An unknown or undefined ISA."""
 
     class _NodeSet(SetWrapper):
-        def __init__(self, field):
-            # type: (str) -> None
+        def __init__(self, data, field):
+            # type: (typing.Iterable, str) -> None
+            super().__init__(data)
             self._field = field  # type: str
 
         def add(self, v):

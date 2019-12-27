@@ -96,7 +96,7 @@ class ByteInterval(Node):
         if allocated_size is None:
             allocated_size = size
         if size > len(contents):
-            contents = bytes(contents) + b"\0" * (size - len(contents))
+            contents = contents + b"\0" * (size - len(contents))
         if allocated_size > size:
             raise ValueError("allocated_size must be <= size!")
 
@@ -121,10 +121,10 @@ class ByteInterval(Node):
         # type: (ByteInterval_pb2.ByteInterval, UUID) -> ByteInterval
 
         def decode_block(proto_block):
-            if proto_block.value.HasField("code"):
-                block = CodeBlock._from_protobuf(proto_block.value.code)
-            elif proto_block.value.HasField("data"):
-                block = DataBlock._from_protobuf(proto_block.value.data)
+            if proto_block.HasField("code"):
+                block = CodeBlock._from_protobuf(proto_block.code)
+            elif proto_block.HasField("data"):
+                block = DataBlock._from_protobuf(proto_block.data)
             else:
                 raise TypeError("Unknown type inside proto block!")
 
@@ -162,12 +162,10 @@ class ByteInterval(Node):
             else:
                 raise TypeError("Unknown type inside proto sym expr!")
 
-        self.symbolic_operands = (
-            {
-                i: decode_symbolic_expression(v)
-                for i, v in self._proto_interval.symbolic_expressions.items()
-            },
-        )
+        self.symbolic_operands = {
+            i: decode_symbolic_expression(v)
+            for i, v in self._proto_interval.symbolic_expressions.items()
+        }
         self._proto_interval = None
 
     def _to_protobuf(self):
@@ -181,22 +179,22 @@ class ByteInterval(Node):
             proto_interval.has_address = True
             proto_interval.address = self.address
         proto_interval.size = self.size
-        proto_interval.contents = self.contents[: self.allocated_size]
+        proto_interval.contents = bytes(self.contents[: self.allocated_size])
 
         for block in self.blocks:
             proto_block = ByteInterval_pb2.Block()
             proto_block.offset = block.offset
             if isinstance(block, CodeBlock):
-                proto_block.value.code.CopyFrom(block._to_protobuf())
+                proto_block.code.CopyFrom(block._to_protobuf())
             elif isinstance(block, DataBlock):
-                proto_block.value.data.CopyFrom(block._to_protobuf())
+                proto_block.data.CopyFrom(block._to_protobuf())
             else:
                 raise TypeError(
                     "Unknown block type in interval: %s" % type(block)
                 )
             proto_interval.blocks.append(proto_block)
 
-        for k, v in self.symbolic_operands:
+        for k, v in self.symbolic_operands.items():
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
             if isinstance(v, SymStackConst):
                 sym_exp.stack_const.CopyFrom(v._to_protobuf())
@@ -208,7 +206,7 @@ class ByteInterval(Node):
                 raise ValueError(
                     "Expected sym expr type in interval: %s" % type(v)
                 )
-            proto_interval.symbolic_operands[k].CopyFrom(sym_exp)
+            proto_interval.symbolic_expressions[k].CopyFrom(sym_exp)
 
         return proto_interval
 

@@ -132,8 +132,13 @@ class Section(Node):
             "uuid={uuid!r}, "
             "name={name!r}, "
             "byte_intervals={byte_intervals!r}, "
-            "flags={flags!r}, "
-            ")".format(**self.__dict__)
+            "flags=({pretty_flags}), "
+            ")".format(
+                pretty_flags=", ".join(
+                    "Section." + str(f) for f in self.flags
+                ),
+                **self.__dict__,
+            )
         )
 
     @property
