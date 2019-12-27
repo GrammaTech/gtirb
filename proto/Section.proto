@@ -18,13 +18,13 @@ package proto;
 import "ByteInterval.proto";
 
 enum SectionFlag {
-  Flag_Undefined = 0;
-  READABLE = 1;
-  WRITABLE = 2;
-  EXECUTABLE = 3;
-  LOADED = 4;
-  INITIALIZED = 5;
-  THREAD_LOCAL = 6;
+  Undefined = 0;
+  Readable = 1;
+  Writable = 2;
+  Executable = 3;
+  Loaded = 4;
+  Initialized = 5;
+  ThreadLocal = 6;
 }
 
 message Section {
