@@ -33,6 +33,8 @@ class Module(AuxDataContainer):
         in the binary.
     :ivar symbols: A set containing all the :class:`gtirb.Symbol`\\s
         in the binary.
+    :ivar entry_point: A :class:`CodeBlock` representing where
+        control flow of this module begins at, or None if not present.
     """
 
     class FileFormat(Enum):
@@ -128,6 +130,7 @@ class Module(AuxDataContainer):
         rebase_delta=0,  # type: int
         sections=set(),  # type: typing.Iterable[Section]
         symbols=set(),  # type: typing.Iterable[Symbol]
+        entry_point=None,  # type: typing.Optional[CodeBlock]
         uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
@@ -148,6 +151,8 @@ class Module(AuxDataContainer):
             in the binary.
         :param symbols: A set containing all the :class:`gtirb.Symbol`\\s
             in the binary.
+        :param entry_point: A :class:`CodeBlock` representing where
+            control flow of this module begins at, or None if not present.
         :param uuid: The UUID of this ``Module``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
@@ -168,6 +173,7 @@ class Module(AuxDataContainer):
         self.symbols = Module._NodeSet(
             symbols, "symbols"
         )  # type: typing.Set[Symbol]
+        self.entry_point = entry_point  # type: typing.Optional[CodeBlock]
         self._ir = None  # type: "IR"
         # Initialize the aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
@@ -181,6 +187,12 @@ class Module(AuxDataContainer):
         # sections depend on symbolic expressions, so that step is split out
         # from _decode_protobuf into _decode_symbolic_expressions
         sections = [Section._from_protobuf(s) for s in proto_module.sections]
+        # entry point is a code block, which depends on sections
+        entry_point = (
+            CodeBlock.from_uuid(UUID(bytes=proto_module.entry_point))
+            if proto_module.entry_point
+            else None
+        )
         # symbols depend on blocks
         symbols = [Symbol._from_protobuf(s) for s in proto_module.symbols]
         # symbolic expressions depend on symbols
@@ -201,6 +213,7 @@ class Module(AuxDataContainer):
             rebase_delta=proto_module.rebase_delta,
             sections=sections,
             symbols=symbols,
+            entry_point=entry_point,
             uuid=uuid,
         )
 
@@ -217,6 +230,8 @@ class Module(AuxDataContainer):
         proto_module.rebase_delta = self.rebase_delta
         proto_module.sections.extend(s._to_protobuf() for s in self.sections)
         proto_module.symbols.extend(s._to_protobuf() for s in self.symbols)
+        if self.entry_point is not None:
+            proto_module.entry_point = self.entry_point.uuid.bytes
         proto_module.uuid = self.uuid.bytes
         return proto_module
 
@@ -247,6 +262,13 @@ class Module(AuxDataContainer):
                 if not self_node.deep_eq(other_node):
                     return False
 
+        if self.entry_point is None:
+            if other.entry_point is not None:
+                return False
+        else:
+            if not self.entry_point.deep_eq(other.entry_point):
+                return False
+
         return True
 
     def __repr__(self):
@@ -263,6 +285,7 @@ class Module(AuxDataContainer):
             "proxies={proxies!r}, "
             "sections={sections!r}, "
             "symbols={symbols!r}, "
+            "entry_point={entry_point!r}, "
             ")".format(**self.__dict__)
         )
 
