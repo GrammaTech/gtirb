@@ -1,6 +1,7 @@
 import Section_pb2
 import typing
 import itertools
+from enum import Enum
 from uuid import UUID
 
 from .block import ByteBlock, CodeBlock, DataBlock
@@ -18,7 +19,32 @@ class Section(Node):
     :ivar name: The section name (E.g. ".text", ".bss", etc).
     :ivar size: The size of this section in bytes.
     :ivar byte_intervals: The :class:`ByteInterval`\\s in this section.
+    :ivar flags: The :class:`Section.Flag`\\s this section has.
     """
+
+    class Flag(Enum):
+        """A flag representing a known property of a section."""
+
+        Undefined = Section_pb2.SectionFlag.Value(b"Undefined")
+        """This value is defined for Protobuf compatibility. Do not use."""
+
+        Readable = Section_pb2.SectionFlag.Value(b"Readable")
+        """This section can be read from at runtime."""
+
+        Writable = Section_pb2.SectionFlag.Value(b"Writable")
+        """This section can be written to at runtime."""
+
+        Executable = Section_pb2.SectionFlag.Value(b"Executable")
+        """This section contains executable code."""
+
+        Loaded = Section_pb2.SectionFlag.Value(b"Loaded")
+        """This section is present in memory at runtime."""
+
+        Initialized = Section_pb2.SectionFlag.Value(b"Initialized")
+        """This section has bytes allocated to it in the binary file."""
+
+        ThreadLocal = Section_pb2.SectionFlag.Value(b"ThreadLocal")
+        """This section is created in memory once per thread."""
 
     class _ByteIntervalSet(SetWrapper):
         def add(self, v):
@@ -37,12 +63,14 @@ class Section(Node):
         name="",  # type: str
         size=0,  # type: int
         byte_intervals=(),  # type: typing.Iterable[ByteInterval]
+        flags=set(),  # type: typing.Iterable[Section.Flag]
         uuid=None,  # type: typing.Optional[UUID]
     ):
         """
         :param name: The name of this section.
         :param size: The size of this section in bytes.
         :param byte_intervals: The :class:`ByteInterval`\\s in this section.
+        :param flags: The :class:`Section.Flag`\\s this section has.
         :param uuid: The UUID of this ``Section``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
@@ -54,6 +82,7 @@ class Section(Node):
         self.byte_intervals = Section._ByteIntervalSet(
             byte_intervals
         )  # type: typing.Set[ByteInterval]
+        self.flags = set(flags)  # type: typing.Set[Section.Flag]
         self._module = None  # type: "Module"
 
     @classmethod
@@ -66,6 +95,7 @@ class Section(Node):
                 ByteInterval._from_protobuf(bi)
                 for bi in proto_section.byte_intervals
             ),
+            flags=(Section.Flag(f) for f in proto_section.section_flags),
             uuid=uuid,
         )
 
@@ -80,6 +110,7 @@ class Section(Node):
         proto_section.byte_intervals.extend(
             bi._to_protobuf() for bi in self.byte_intervals
         )
+        proto_section.section_flags.extend(f.value for f in self.flags)
         return proto_section
 
     def deep_eq(self, other):
@@ -98,6 +129,7 @@ class Section(Node):
                     self.byte_intervals, other.byte_intervals
                 )
             )
+            and self.flags == other.flags
         )
 
     def __repr__(self):
@@ -108,6 +140,7 @@ class Section(Node):
             "name={name!r}, "
             "size={size!r}, "
             "byte_intervals={byte_intervals!r}, "
+            "flags={flags!r}, "
             ")".format(**self.__dict__)
         )
 
