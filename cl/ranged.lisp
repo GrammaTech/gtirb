@@ -29,12 +29,12 @@
   ((tree :initform (make-instance 'binary-search-tree :key #'car :test #'=)
          :type binary-search-tree
          :documentation "Internal store.")
-   (min :initform 0 :initarg :min :type fixnum
+   (min :initform 0 :initarg :min :type (integer * #.(expt 2 64))
         :reader ranged-min :documentation "Minimum possible range value.")
-   (max :initform MOST-POSITIVE-FIXNUM :initarg :max :type fixnum
+   (max :initform (expt 2 64) :initarg :max :type (integer * #.(expt 2 64))
         :reader ranged-max :documentation "Maximum possible range value."))
   (:documentation
-   "A collection supporting retrieval of objects by fixnum ranges."))
+   "A collection supporting retrieval of objects by 64-bit ranges."))
 
 (defmethod initialize-instance :after ((ranged ranged) &key)
   (with-slots (tree) ranged
@@ -47,15 +47,19 @@
     (with-slots (tree) obj (format stream "~a" (size tree)))))
 
 (declaim (inline key))
-(declaim (ftype (function (cl-containers::bst-node) fixnum) key))
+(declaim (ftype (function (cl-containers::bst-node) (integer * #.(expt 2 64)))
+                key))
 (defun key (node) (car (element node)))
 
 (defun in-range (ranged &optional
                           (start (ranged-min ranged))
-                          (end (1- (the fixnum (ranged-max ranged)))))
+                          (end (1- (the (integer * #.(expt 2 64))
+                                        (ranged-max ranged)))))
   "Return nodes of RANGED between START and END.
 Additionally, return the successor following END as a secondary value."
-  (declare (type ranged ranged) (type fixnum start) (type fixnum end))
+  (declare (type ranged ranged)
+           (type (integer * #.(expt 2 64)) start)
+           (type (integer * #.(expt 2 64)) end))
   (with-slots (tree) ranged
     (let ((start-item (find-successor-node tree (list start))))
       (unless (= (key start-item) start)
@@ -71,9 +75,9 @@ Additionally, return the successor following END as a secondary value."
   "Insert ITEM into ranged collection RANGED between START and END.
 Return the RANGED collection after inserting ITEM."
   (check-type ranged ranged "A ranged collection")
-  (check-type start fixnum "A fixnum ranged index")
+  (check-type start (integer * #.(expt 2 64)) "A 64-bit ranged index")
   (unless end (setf end (1+ start)))
-  (check-type end fixnum "A fixnum ranged index")
+  (check-type end (integer * #.(expt 2 64)) "A 64-bit ranged index")
   (nest
    (with-slots (tree) ranged)
    (flet ((replace-node (node &aux (element (element node)))
@@ -100,9 +104,9 @@ Return the RANGED collection after inserting ITEM."
   "Delete ITEM from ranged collection RANGED between START and END.
 Return the RANGED collection after deleting ITEM."
   (check-type ranged ranged "A ranged collection")
-  (check-type start fixnum "A fixnum ranged index")
+  (check-type start (integer * #.(expt 2 64)) "A 64-bit ranged index")
   (unless end (setf end (1+ start)))
-  (check-type end fixnum "A fixnum ranged index")
+  (check-type end (integer * #.(expt 2 64)) "A 64-bit ranged index")
   (nest
    (with-slots (tree) ranged)
    (flet ((replace-node (node &aux (element (element node)))
@@ -129,7 +133,7 @@ Return the RANGED collection after deleting ITEM."
 (defun ranged-find (ranged start &optional end)
   "Find all items in RANGED between START and END."
   (check-type ranged ranged "A ranged collection")
-  (check-type start fixnum "A fixnum ranged index")
+  (check-type start (integer * #.(expt 2 64)) "A 64-bit ranged index")
   (unless end (setf end (1+ start)))
-  (check-type end fixnum "A fixnum ranged index")
+  (check-type end (integer * #.(expt 2 64)) "A 64-bit ranged index")
   (mappend (lambda (node) (cdr (element node))) (in-range ranged start end)))
