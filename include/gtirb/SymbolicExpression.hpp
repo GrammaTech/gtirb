@@ -49,6 +49,10 @@ struct SymStackConst {
   friend bool operator==(const SymStackConst& LHS, const SymStackConst& RHS) {
     return LHS.Offset == RHS.Offset && LHS.Sym == RHS.Sym;
   }
+
+  friend bool operator!=(const SymStackConst& LHS, const SymStackConst& RHS) {
+    return !operator==(LHS, RHS);
+  }
 };
 
 /// \brief Represents a
@@ -60,6 +64,10 @@ struct SymAddrConst {
 
   friend bool operator==(const SymAddrConst& LHS, const SymAddrConst& RHS) {
     return LHS.Offset == RHS.Offset && LHS.Sym == RHS.Sym;
+  }
+
+  friend bool operator!=(const SymAddrConst& LHS, const SymAddrConst& RHS) {
+    return !operator==(LHS, RHS);
   }
 };
 
@@ -75,6 +83,10 @@ struct SymAddrAddr {
   friend bool operator==(const SymAddrAddr& LHS, const SymAddrAddr& RHS) {
     return LHS.Scale == RHS.Scale && LHS.Offset == RHS.Offset &&
            LHS.Sym1 == RHS.Sym1 && LHS.Sym2 == RHS.Sym2;
+  }
+
+  friend bool operator!=(const SymAddrAddr& LHS, const SymAddrAddr& RHS) {
+    return !operator==(LHS, RHS);
   }
 };
 
