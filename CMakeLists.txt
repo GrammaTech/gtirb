@@ -132,7 +132,7 @@ if(GTIRB_CXX_API)
   set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
   # Base include path for the GTIRB library.
-  include_directories(${CMAKE_SOURCE_DIR}/include)
+  include_directories(${CMAKE_BINARY_DIR}/include)
   #
   # Global Options (Compile / Link)
   #
