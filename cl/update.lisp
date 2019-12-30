@@ -75,15 +75,15 @@
   (coerce (list new) 'vector))
 
 (defun entry-point (module)
-  (let ((address (proto-v0:entry-point-address
-                  (proto-v0:image-byte-map module))))
+  (when-let ((address (proto-v0:entry-point-address
+                       (proto-v0:image-byte-map module))))
     (if-let ((gtirb-block
               (find-if
                «and [{<= address} «+ #'proto-v0:address #'proto-v0:size»]
                     [{>= address} #'proto-v0:address]»
                (proto-v0:blocks module))))
       (proto-v0:uuid gtirb-block)
-      (error "No block found holding module ~S entry piont ~a."
+      (error "No block found holding module ~S entry point ~a."
              (pb:string-value (proto-v0:name module))
              address))))
 
@@ -122,8 +122,9 @@
           (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
                                         :new-class 'proto:module-aux-data-entry)
           (proto:sections new) (map 'vector {upgrade _ :module old}
-                                    (proto-v0:sections old))
-          (proto:entry-point new) (entry-point old))
+                                    (proto-v0:sections old)))
+    (if-let ((entry-point (entry-point old)))
+      (setf (proto:entry-point new) entry-point))
     new)
   (:method ((old proto-v0:aux-data-container) &key new-class &allow-other-keys)
     (map 'vector (lambda (entry)
