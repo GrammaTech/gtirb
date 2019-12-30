@@ -46,10 +46,14 @@ class Section(Node):
         """This section is created in memory once per thread."""
 
     class _ByteIntervalSet(SetWrapper):
+        def __init__(self, node, *args):
+            self._node = node  # type: Section
+            super().__init__(*args)
+
         def add(self, v):
             if v._section is not None:
                 v._section.byte_intervals.discard(v)
-            v._section = self
+            v._section = self._node
             return super().add(v)
 
         def discard(self, v):
@@ -76,7 +80,7 @@ class Section(Node):
         super().__init__(uuid)
         self.name = name  # type: str
         self.byte_intervals = Section._ByteIntervalSet(
-            byte_intervals
+            self, byte_intervals
         )  # type: typing.Set[ByteInterval]
         self.flags = set(flags)  # type: typing.Set[Section.Flag]
         self._module = None  # type: "Module"

@@ -1,0 +1,112 @@
+import unittest
+import gtirb
+
+
+class TestProperties(unittest.TestCase):
+    def test_data_blocks(self):
+        b = gtirb.DataBlock()
+
+        self.assertEquals(b.address, None)
+        self.assertEquals(b.contents, b"")
+        self.assertEquals(set(b.referees), set())
+
+        bi = gtirb.ByteInterval(address=1, contents=b"abcd1234")
+        b.offset = 2
+        b.size = 3
+        b.byte_interval = bi
+
+        self.assertEquals(b.address, 3)
+        self.assertEquals(b.contents, b"cd1")
+        self.assertEquals(set(b.referees), set())
+
+        s = gtirb.Section()
+        bi.section = s
+        m = gtirb.Module()
+        sym1 = gtirb.Symbol("test", payload=b)
+        sym2 = gtirb.Symbol("test", payload=123)
+        sym3 = gtirb.Symbol("test", payload=b)
+        m.symbols |= {sym1, sym2, sym3}
+        s.module = m
+
+        self.assertEquals(b.address, 3)
+        self.assertEquals(b.contents, b"cd1")
+        self.assertEquals(set(b.referees), {sym1, sym3})
+
+    def test_code_blocks(self):
+        b = gtirb.CodeBlock()
+
+        self.assertEquals(b.address, None)
+        self.assertEquals(b.contents, b"")
+        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.incoming_edges), set())
+        self.assertEquals(set(b.outgoing_edges), set())
+
+        bi = gtirb.ByteInterval(address=1, contents=b"abcd1234")
+        b.offset = 2
+        b.size = 3
+        b.byte_interval = bi
+
+        self.assertEquals(b.address, 3)
+        self.assertEquals(b.contents, b"cd1")
+        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.incoming_edges), set())
+        self.assertEquals(set(b.outgoing_edges), set())
+
+        s = gtirb.Section()
+        bi.section = s
+        m = gtirb.Module()
+        sym1 = gtirb.Symbol("test", payload=b)
+        sym2 = gtirb.Symbol("test", payload=123)
+        sym3 = gtirb.Symbol("test", payload=b)
+        m.symbols |= {sym1, sym2, sym3}
+        s.module = m
+
+        self.assertEquals(b.address, 3)
+        self.assertEquals(b.contents, b"cd1")
+        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.incoming_edges), set())
+        self.assertEquals(set(b.outgoing_edges), set())
+
+        i = gtirb.IR()
+        m.ir = i
+        e1 = gtirb.Edge(b, gtirb.ProxyBlock())
+        e2 = gtirb.Edge(gtirb.ProxyBlock(), b)
+        e3 = gtirb.Edge(gtirb.ProxyBlock(), gtirb.ProxyBlock())
+        e4 = gtirb.Edge(b, b)
+        i.cfg |= {e1, e2, e3, e4}
+
+        self.assertEquals(b.address, 3)
+        self.assertEquals(b.contents, b"cd1")
+        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.incoming_edges), {e2, e4})
+        self.assertEquals(set(b.outgoing_edges), {e1, e4})
+
+    def test_proxy_blocks(self):
+        b = gtirb.ProxyBlock()
+
+        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.incoming_edges), set())
+        self.assertEquals(set(b.outgoing_edges), set())
+
+        m = gtirb.Module()
+        sym1 = gtirb.Symbol("test", payload=b)
+        sym2 = gtirb.Symbol("test", payload=123)
+        sym3 = gtirb.Symbol("test", payload=b)
+        m.symbols |= {sym1, sym2, sym3}
+        b.module = m
+
+        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.incoming_edges), set())
+        self.assertEquals(set(b.outgoing_edges), set())
+
+        i = gtirb.IR()
+        m.ir = i
+        e1 = gtirb.Edge(b, gtirb.ProxyBlock())
+        e2 = gtirb.Edge(gtirb.ProxyBlock(), b)
+        e3 = gtirb.Edge(gtirb.ProxyBlock(), gtirb.ProxyBlock())
+        e4 = gtirb.Edge(b, b)
+        i.cfg |= {e1, e2, e3, e4}
+
+        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.incoming_edges), {e2, e4})
+        self.assertEquals(set(b.outgoing_edges), {e1, e4})

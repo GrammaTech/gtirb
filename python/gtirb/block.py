@@ -12,6 +12,13 @@ class Block(Node):
     of Block.
     """
 
+    @property
+    def referees(self):
+        # type: () -> typing.Iterable["Symbol"]
+        """Get all the symbols that refer to this block."""
+
+        raise NotImplementedError
+
 
 class ByteBlock(Block):
     """The base class for blocks that belong to a :class:`ByteInterval` and
@@ -22,7 +29,13 @@ class ByteBlock(Block):
         same offset.
     """
 
-    def __init__(self, *, offset=0, uuid=None):
+    def __init__(
+        self,
+        *,
+        size=0,  # type: int
+        offset=0,  # type: int
+        uuid=None  # type: typing.Optional[UUID]
+    ):
         """
         :param offset: The offset from the beginning of the byte interval to
             which this block belongs.
@@ -32,6 +45,7 @@ class ByteBlock(Block):
         """
 
         super().__init__(uuid=uuid)
+        self.size = size  # type: int
         self.offset = offset  # type: int
         self._byte_interval = None  # type: typing.Optional["ByteInterval"]
 
@@ -55,11 +69,63 @@ class ByteBlock(Block):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ByteBlock):
             return False
-        return self.offset == other.offset and self.uuid == other.uuid
+        return (
+            self.offset == other.offset
+            and self.uuid == other.uuid
+            and self.size == other.size
+        )
+
+    @property
+    def contents(self):
+        # type: () -> bytes
+        """Get the bytes in this block."""
+
+        if self.byte_interval is None:
+            return b""
+        return self.byte_interval.contents[
+            self.offset : self.offset + self.size
+        ]
+
+    @property
+    def address(self):
+        # type: () -> typing.Optional[int]
+        """Get the address of this block, or None if not present."""
+
+        if self.byte_interval is None or self.byte_interval.address is None:
+            return None
+        return self.byte_interval.address + self.offset
+
+    @property
+    def referees(self):
+        if (
+            self.byte_interval is None
+            or self.byte_interval.section is None
+            or self.byte_interval.section.module is None
+        ):
+            return ()
+        return (
+            s
+            for s in self.byte_interval.section.module.symbols
+            if s.referent == self
+        )
 
 
 class CfgNode(Block):
     """The base class for blocks that may appear as vertices in the CFG."""
+
+    @property
+    def incoming_edges(self):
+        # type: () -> typing.Iterable["Edge"]
+        """Get the edges that point to this CFG node."""
+
+        raise NotImplementedError
+
+    @property
+    def outgoing_edges(self):
+        # type: () -> typing.Iterable["Edge"]
+        """Get the edges that start at this CFG node."""
+
+        raise NotImplementedError
 
 
 class DataBlock(ByteBlock):
@@ -68,7 +134,7 @@ class DataBlock(ByteBlock):
     :ivar size: The size of the data object in bytes.
     """
 
-    def __init__(self, size, offset=0, uuid=None):
+    def __init__(self, *, size=0, offset=0, uuid=None):
         # type: (int, int, typing.Optional[UUID]) -> None
         """
         :param size: The size of the data object in bytes.
@@ -79,8 +145,7 @@ class DataBlock(ByteBlock):
             Defaults to None.
         """
 
-        super().__init__(offset=offset, uuid=uuid)
-        self.size = size
+        super().__init__(size=size, offset=offset, uuid=uuid)
 
     @classmethod
     def _decode_protobuf(cls, proto_dataobject, uuid):
@@ -93,13 +158,6 @@ class DataBlock(ByteBlock):
         proto_dataobject.uuid = self.uuid.bytes
         proto_dataobject.size = self.size
         return proto_dataobject
-
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
-        # Do not move __eq__. See docstring for Node.deep_eq for more info.
-        if not isinstance(other, DataBlock):
-            return False
-        return super().deep_eq(other) and self.size == other.size
 
     def __repr__(self):
         # type: () -> str
@@ -126,10 +184,10 @@ class CodeBlock(ByteBlock, CfgNode):
 
     def __init__(
         self,
-        size,  # type: int
         *,
         decode_mode=0,  # type: int
-        offset=0,
+        size=0,  # type: int
+        offset=0,  # type: int
         uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
@@ -146,8 +204,7 @@ class CodeBlock(ByteBlock, CfgNode):
             Defaults to None.
         """
 
-        super().__init__(offset=offset, uuid=uuid)
-        self.size = size  # type: int
+        super().__init__(size=size, offset=offset, uuid=uuid)
         self.decode_mode = decode_mode  # type: int
 
     @classmethod
@@ -172,11 +229,7 @@ class CodeBlock(ByteBlock, CfgNode):
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, CodeBlock):
             return False
-        return (
-            super().deep_eq(other)
-            and self.size == other.size
-            and self.decode_mode == other.decode_mode
-        )
+        return super().deep_eq(other) and self.decode_mode == other.decode_mode
 
     def __repr__(self):
         # type: () -> str
@@ -187,6 +240,36 @@ class CodeBlock(ByteBlock, CfgNode):
             "offset={offset}, "
             "decode_mode={decode_mode}, "
             ")".format(**self.__dict__)
+        )
+
+    @property
+    def incoming_edges(self):
+        if (
+            self.byte_interval is None
+            or self.byte_interval.section is None
+            or self.byte_interval.section.module is None
+            or self.byte_interval.section.module.ir is None
+        ):
+            return ()
+        return (
+            e
+            for e in self.byte_interval.section.module.ir.cfg
+            if e.target == self
+        )
+
+    @property
+    def outgoing_edges(self):
+        if (
+            self.byte_interval is None
+            or self.byte_interval.section is None
+            or self.byte_interval.section.module is None
+            or self.byte_interval.section.module.ir is None
+        ):
+            return ()
+        return (
+            e
+            for e in self.byte_interval.section.module.ir.cfg
+            if e.source == self
         )
 
 
@@ -241,3 +324,21 @@ class ProxyBlock(CfgNode):
             self._module.proxies.discard(self)
         if value is not None:
             value.proxies.add(self)
+
+    @property
+    def referees(self):
+        if self.module is None:
+            return ()
+        return (s for s in self.module.symbols if s.referent == self)
+
+    @property
+    def incoming_edges(self):
+        if self.module is None or self.module.ir is None:
+            return ()
+        return (e for e in self.module.ir.cfg if e.target == self)
+
+    @property
+    def outgoing_edges(self):
+        if self.module is None or self.module.ir is None:
+            return ()
+        return (e for e in self.module.ir.cfg if e.source == self)

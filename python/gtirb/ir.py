@@ -36,13 +36,17 @@ class IR(AuxDataContainer):
     """
 
     class _ModuleList(ListWrapper[Module]):
+        def __init__(self, node, *args):
+            self._node = node  # type: IR
+            super().__init__(*args)
+
         def _remove(self, v):
             v._ir = None
 
         def _add(self, v):
             if v._ir is not None:
                 v._ir.modules.remove(v)
-            v._ir = self
+            v._ir = self._node
 
         def __setitem__(self, i, v):
             self._remove(self[i])
@@ -82,7 +86,9 @@ class IR(AuxDataContainer):
 
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
-        self.modules = IR._ModuleList(modules)  # type: typing.List[Module]
+        self.modules = IR._ModuleList(
+            self, modules
+        )  # type: typing.List[Module]
         self.cfg = set(cfg)  # type: typing.Set[Edge]
         self.version = version  # type: int
         super().__init__(aux_data, uuid)

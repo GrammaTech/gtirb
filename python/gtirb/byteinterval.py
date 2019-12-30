@@ -54,10 +54,14 @@ class ByteInterval(Node):
     """
 
     class _BlockSet(SetWrapper):
+        def __init__(self, node, *args):
+            self._node = node  # type: ByteInterval
+            super().__init__(*args)
+
         def add(self, v):
             if v._byte_interval is not None:
                 v._byte_interval.blocks.discard(v)
-            v._byte_interval = self
+            v._byte_interval = self._node
             return super().add(v)
 
         def discard(self, v):
@@ -106,7 +110,7 @@ class ByteInterval(Node):
         self.allocated_size = allocated_size  # type: int
         self.contents = bytearray(contents)  # type: bytearray
         self.blocks = ByteInterval._BlockSet(
-            blocks
+            self, blocks
         )  # type: typing.Set[ByteBlock]
         self.symbolic_operands = dict(
             symbolic_operands

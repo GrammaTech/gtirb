@@ -103,15 +103,15 @@ class Module(AuxDataContainer):
         """An unknown or undefined ISA."""
 
     class _NodeSet(SetWrapper):
-        def __init__(self, data, field):
-            # type: (typing.Iterable, str) -> None
-            super().__init__(data)
+        def __init__(self, node, field, *args):
+            self._node = node  # type: Module
             self._field = field  # type: str
+            super().__init__(*args)
 
         def add(self, v):
             if v._module is not None:
                 getattr(v._module, self._field).discard(v)
-            v._module = self
+            v._module = self._node
             return super().add(v)
 
         def discard(self, v):
@@ -165,14 +165,14 @@ class Module(AuxDataContainer):
         self.name = name  # type: str
         self.preferred_addr = preferred_addr  # type: int
         self.proxies = Module._NodeSet(
-            proxies, "proxies"
+            self, "proxies", proxies
         )  # type: typing.Set[ProxyBlock]
         self.rebase_delta = rebase_delta  # type: int
         self.sections = Module._NodeSet(
-            sections, "sections"
+            self, "sections", sections
         )  # type: typing.Set[Section]
         self.symbols = Module._NodeSet(
-            symbols, "symbols"
+            self, "symbols", symbols
         )  # type: typing.Set[Symbol]
         self.entry_point = entry_point  # type: typing.Optional[CodeBlock]
         self._ir = None  # type: "IR"
