@@ -130,12 +130,11 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
                                                          # base classes.
 endif()
 
-add_custom_command(
-  TARGET ${PROJECT_NAME}
-  POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy ${PUBLIC_HEADERS}
-          "${CMAKE_BINARY_DIR}/include/gtirb"
+add_custom_target(
+  ${PROJECT_NAME}_headers COMMAND "${CMAKE_COMMAND}" -E copy ${PUBLIC_HEADERS}
+                                  "${CMAKE_BINARY_DIR}/include/gtirb"
 )
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_headers)
 
 if(CLANG_TIDY_EXE)
   set_target_properties(
