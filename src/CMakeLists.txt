@@ -31,7 +31,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 endif()
 
 # Find our headers without gtirb/ prefix
-include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
+include_directories("${CMAKE_BINARY_DIR}/include/gtirb")
 
 # Find protobuf generated headers in the build directory
 include_directories("${CMAKE_BINARY_DIR}/src/")
