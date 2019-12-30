@@ -347,3 +347,84 @@ class Module(AuxDataContainer):
         """The :class:`CfgNode`\\s in this module."""
 
         return itertools.chain(self.code_blocks, self.proxies)
+
+    def _node_at(self, nodes, addr):
+        for node in nodes:
+            node_addr = node.address
+            if node_addr is not None and addr in range(
+                node_addr, node_addr + node.size
+            ):
+                return node
+        return None
+
+    def _nodes_in(self, nodes, addr, size):
+        desired_range = range(addr, addr + size)
+        for node in nodes:
+            node_addr = node.address
+            if node_addr is not None:
+                node_range = range(node_addr, node_addr + node.size)
+                if range(
+                    max(desired_range.start, node_range.start),
+                    min(desired_range.stop, node_range.stop),
+                ):
+                    yield node
+
+    def section_at(self, addr):
+        # type: (int) -> typing.Optional[Section]
+        """Gets a section located at an address, or ``None`` otherwise."""
+
+        return self._node_at(self.sections, addr)
+
+    def sections_in(self, addr, size):
+        # type: (int, int) -> typing.Iterable[Section]
+        """Finds all sections between the bounds given."""
+
+        return self._nodes_in(self.sections, addr, size)
+
+    def byte_interval_at(self, addr):
+        # type: (int) -> typing.Optional[ByteInterval]
+        """Gets an interval located at an address, or ``None`` otherwise."""
+
+        return self._node_at(self.byte_intervals, addr)
+
+    def byte_interval_in(self, addr, size):
+        # type: (int, int) -> typing.Iterable[ByteInterval]
+        """Finds all intervals between the bounds given."""
+
+        return self._nodes_in(self.byte_intervals, addr, size)
+
+    def blocks_at(self, addr):
+        # type: (int) -> typing.Optional[ByteBlock]
+        """Finds all blocks located at an address."""
+
+        return self._nodes_in(self.byte_blocks, addr, 1)
+
+    def blocks_in(self, addr, size):
+        # type: (int, int) -> typing.Optional[ByteBlock]
+        """Finds all blocks between the bounds given."""
+
+        return self._nodes_in(self.byte_blocks, addr, size)
+
+    def code_blocks_at(self, addr):
+        # type: (int) -> typing.Optional[CodeBlock]
+        """Finds all blocks located at an address."""
+
+        return self._nodes_in(self.code_blocks, addr, 1)
+
+    def code_blocks_in(self, addr, size):
+        # type: (int, int) -> typing.Optional[CodeBlock]
+        """Finds all blocks between the bounds given."""
+
+        return self._nodes_in(self.code_blocks, addr, size)
+
+    def data_blocks_at(self, addr):
+        # type: (int) -> typing.Optional[DataBlock]
+        """Finds all blocks located at an address."""
+
+        return self._nodes_in(self.data_blocks, addr, 1)
+
+    def data_blocks_in(self, addr, size):
+        # type: (int, int) -> typing.Optional[DataBlock]
+        """Finds all blocks between the bounds given."""
+
+        return self._nodes_in(self.data_blocks, addr, size)
