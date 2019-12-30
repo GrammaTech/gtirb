@@ -183,3 +183,52 @@ class Section(Node):
         """The :class:`DataBlock`\\s in this section."""
 
         return (b for b in self.byte_blocks if isinstance(b, DataBlock))
+
+    @property
+    def address(self):
+        # type: () -> typing.Optional[int]
+        """Get the address of this section, if known.
+
+        The address is calculated from the :class:`ByteInterval` objects in
+        this section. More specifically, if the address of all byte intervals
+        in this section are fixed, then it will return the address of the
+        interval lowest in memory. If any one section does not have an address,
+        then this will be ``None``, as the address is not calculable in that
+        case. Note that a section with no intervals in it has no address or
+        size, so it will be ``None`` in that case.
+        """
+
+        lowest = None
+        for bi in self.byte_intervals:
+            if bi.address is None:
+                return None
+            if lowest is None or bi.address < lowest:
+                lowest = bi.address
+        return lowest
+
+    @property
+    def size(self):
+        # type: () -> typing.Optional[int]
+        """Get the size of this section, if known.
+
+        The address is calculated from the :class:`ByteInterval` objects in
+        this section. More specifically, if the address of all byte intervals
+        in this section are fixed, then it will return the difference between
+        the lowest and highest address among the intervals. If any one section
+        does not have an address, then this will be ``None``, as the size is
+        not calculable in that case. Note that a section with no intervals in
+        it has no address or size, so it will be ``None`` in that case.
+        """
+
+        lowest = None
+        highest = None
+        for bi in self.byte_intervals:
+            if bi.address is None:
+                return None
+            if lowest is None or bi.address < lowest:
+                lowest = bi.address
+            if highest is None or bi.address + bi.size > highest:
+                highest = bi.address + bi.size
+        if lowest is None or highest is None:
+            return None
+        return highest - lowest

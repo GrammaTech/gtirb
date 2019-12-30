@@ -110,3 +110,39 @@ class TestProperties(unittest.TestCase):
         self.assertEquals(set(b.referees), {sym1, sym3})
         self.assertEquals(set(b.incoming_edges), {e2, e4})
         self.assertEquals(set(b.outgoing_edges), {e1, e4})
+
+    def test_sections(self):
+        s = gtirb.Section()
+        self.assertEquals(s.address, None)
+        self.assertEquals(s.size, None)
+
+        s.byte_intervals.clear()
+        s.byte_intervals |= {gtirb.ByteInterval()}
+        self.assertEquals(s.address, None)
+        self.assertEquals(s.size, None)
+
+        s.byte_intervals.clear()
+        s.byte_intervals |= {gtirb.ByteInterval(size=3)}
+        self.assertEquals(s.address, None)
+        self.assertEquals(s.size, None)
+
+        s.byte_intervals.clear()
+        s.byte_intervals |= {gtirb.ByteInterval(address=2, size=4)}
+        self.assertEquals(s.address, 2)
+        self.assertEquals(s.size, 4)
+
+        s.byte_intervals.clear()
+        s.byte_intervals |= {
+            gtirb.ByteInterval(address=2, size=4),
+            gtirb.ByteInterval(size=3),
+        }
+        self.assertEquals(s.address, None)
+        self.assertEquals(s.size, None)
+
+        s.byte_intervals.clear()
+        s.byte_intervals |= {
+            gtirb.ByteInterval(address=2, size=4),
+            gtirb.ByteInterval(address=100, size=3),
+        }
+        self.assertEquals(s.address, 2)
+        self.assertEquals(s.size, 101)
