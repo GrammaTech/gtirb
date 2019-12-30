@@ -99,7 +99,7 @@ class AuxDataTest(unittest.TestCase):
                         )
                         table_test.items_test(aux_data[table].data.items())
 
-        for ir_file in ("test%s.ir" % n for n in range(1, 3)):
+        for ir_file in ("test%s.gtirb" % n for n in range(1, 3)):
             ir = IR.load_protobuf(os.path.join(test_path, ir_file))
             for module in ir.modules:
                 test_standard_auxdata(module.aux_data)

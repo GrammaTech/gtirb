@@ -126,7 +126,10 @@ class ByteInterval(Node):
             elif proto_block.HasField("data"):
                 block = DataBlock._from_protobuf(proto_block.data)
             else:
-                raise TypeError("Unknown type inside proto block!")
+                raise TypeError(
+                    "Unknown type inside proto block: %s"
+                    % proto_block.WhichOneof("value")
+                )
 
             block.offset = proto_block.offset
             return block
@@ -160,7 +163,10 @@ class ByteInterval(Node):
             elif proto_expr.HasField("addr_addr"):
                 return SymAddrAddr._from_protobuf(proto_expr.addr_addr)
             else:
-                raise TypeError("Unknown type inside proto sym expr!")
+                raise TypeError(
+                    "Unknown type inside proto sym expr: %s"
+                    % proto_expr.WhichOneof("value")
+                )
 
         self.symbolic_operands = {
             i: decode_symbolic_expression(v)
