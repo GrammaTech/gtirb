@@ -83,9 +83,12 @@
                     [{>= address} #'proto-v0:address]»
                (proto-v0:blocks module))))
       (proto-v0:uuid gtirb-block)
-      (error "No block found holding module ~S entry point ~a."
-             (pb:string-value (proto-v0:name module))
-             address))))
+      (if (zerop address)
+          (warn "Zero address found in module ~S, assuming not an entry point."
+                (pb:string-value (proto-v0:name module)))
+          (error "No block found holding module ~S entry point ~a."
+                 (pb:string-value (proto-v0:name module))
+                 address)))))
 
 (defmacro transfer-fields (new old &rest fields)
   `(progn
