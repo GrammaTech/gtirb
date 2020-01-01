@@ -177,12 +177,13 @@
             &aux (new (make-instance 'proto:symbolic-expression)))
     (transfer-fields new old)
     (cond                               ; Variant "oneof" field.
-      ((proto-v0:stack-const old)
+      ((not (emptyp (proto-v0:symbol-uuid (proto-v0:stack-const old))))
        (setf (proto:stack-const new) (upgrade (proto-v0:stack-const old))))
-      ((proto-v0:addr-const old)
+      ((not (emptyp (proto-v0:symbol-uuid (proto-v0:addr-const old))))
        (setf (proto:addr-const new) (upgrade (proto-v0:addr-const old))))
-      ((proto-v0:addr-addr old)
-       (setf (proto:addr-addr new) (upgrade (proto-v0:addr-addr old)))))
+      ((not (emptyp (proto-v0:symbol1-uuid (proto-v0:addr-addr old))))
+       (setf (proto:addr-addr new) (upgrade (proto-v0:addr-addr old))))
+      (t (warn "Symbolic expressions ~s has no value." old)))
     new)
   (:method ((old proto-v0:sym-stack-const) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-stack-const)))
