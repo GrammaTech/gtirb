@@ -1,4 +1,3 @@
-#!/usr/bin/sbcl --script
 ;; -*- lisp -*-
 ;;
 ;; Usage: write-documentation PKG ABSTRACT OUTPUT-HTML

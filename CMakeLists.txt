@@ -74,9 +74,25 @@ else()
   set(GTIRB_PY_API_DEFAULT OFF)
 endif()
 
+# TODO: test the CL API on other CL interpreters and search for those in
+# addition to SBCL when looking for a default CL interpeter
+find_program(LISP "sbcl")
+set(QUICKLISP
+    "$ENV{HOME}/quicklisp"
+    CACHE STRING "The Quicklisp installation to use."
+)
+if(LISP AND EXISTS "${QUICKLISP}")
+  set(GTIRB_CL_API_DEFAULT ON)
+else()
+  set(GTIRB_CL_API_DEFAULT OFF)
+endif()
+
 option(GTIRB_CXX_API "Whether or not the C++ API is built." ON)
 option(GTIRB_PY_API "Whether or not the Python API is built."
        ${GTIRB_PY_API_DEFAULT}
+)
+option(GTIRB_CL_API "Whether or not the Common Lisp API is built."
+       ${GTIRB_CL_API_DEFAULT}
 )
 
 # ---------------------------------------------------------------------------
@@ -290,6 +306,10 @@ endif()
 
 if(GTIRB_PY_API)
   add_subdirectory(python)
+endif()
+
+if(GTIRB_CL_API)
+  add_subdirectory(cl)
 endif()
 
 add_subdirectory(doc)
