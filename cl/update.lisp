@@ -97,6 +97,20 @@
                         (upgrade (,(intern (symbol-name field) 'proto-v0) ,old))))
                fields)))
 
+#+debug
+(defun serial (it)
+  "Useful to ensure yourself of what protobuf serialization is producing."
+  (let* ((size (pb:octet-size it))
+         (buffer (make-array size :element-type '(unsigned-byte 8))))
+    (pb:serialize it buffer 0 size)
+    buffer))
+
+#+debug
+(defun deserial (class bytes &aux (it (make-instance class)))
+  "Useful to ensure yourself of what protobuf deserialization is producing."
+  (pb:merge-from-array it bytes 0 (length bytes))
+  it)
+
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
@@ -162,7 +176,8 @@
             &aux (new (make-instance
                           'proto:byte-interval-symbolic-expressions-entry)))
     (setf (proto:key new) (- (proto-v0:key old) base)
-          (proto:value new) (upgrade (proto-v0:value old))))
+          (proto:value new) (upgrade (proto-v0:value old)))
+    new)
   (:method ((old proto-v0:symbol) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbol)))
     ;; TODO: Populate an AuxData table for storage-kind.
@@ -175,15 +190,20 @@
     new)
   (:method ((old proto-v0:symbolic-expression) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbolic-expression)))
-    (transfer-fields new old)
     (cond                               ; Variant "oneof" field.
-      ((not (emptyp (proto-v0:symbol-uuid (proto-v0:stack-const old))))
+      ((slot-value old 'proto-v0:stack-const)
        (setf (proto:stack-const new) (upgrade (proto-v0:stack-const old))))
-      ((not (emptyp (proto-v0:symbol-uuid (proto-v0:addr-const old))))
+      ((slot-value old 'proto-v0:addr-const)
        (setf (proto:addr-const new) (upgrade (proto-v0:addr-const old))))
-      ((not (emptyp (proto-v0:symbol1-uuid (proto-v0:addr-addr old))))
+      ((slot-value old 'proto-v0:addr-addr)
        (setf (proto:addr-addr new) (upgrade (proto-v0:addr-addr old))))
       (t (warn "Symbolic expressions ~s has no value." old)))
+    #+debug
+    (progn     ; Potentially useful debug pattern to inspect protobuf.
+      (format t "~%~%~%OLD:~S~%" (serial old))
+      (describe old)
+      (format t "~%NEW:~S~%" (serial new))
+      (describe new))
     new)
   (:method ((old proto-v0:sym-stack-const) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-stack-const)))
@@ -191,7 +211,7 @@
     new)
   (:method ((old proto-v0:sym-addr-const) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-addr-const)))
-    (transfer-fields new old offset symbol-uuid)
+    (transfer-fields new old symbol-uuid)
     new)
   (:method ((old proto-v0:sym-addr-addr) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-addr-addr)))
