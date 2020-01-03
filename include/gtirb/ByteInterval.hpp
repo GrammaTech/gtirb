@@ -82,10 +82,14 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     gtirb::Node* getNode() const { return Node; }
   };
 
-  /// \class BlockIs
+  /// \class BlockKindEquals
   ///
   /// \brief A predicate object to discern one type of block.
-  template <Node::Kind K> struct BlockIs {
+  ///
+  /// This predicate does not interact with the subclassing system;
+  /// BlockKindEquals<Node::Kind::CfgNode> will not identify any blocks as CFG
+  /// nodes, for example.
+  template <Node::Kind K> struct BlockKindEquals {
     bool operator()(const Block& B) const {
       return B.getNode()->getKind() == K;
     }
@@ -277,7 +281,7 @@ public:
   /// same offset, thier order is not specified.
   using code_blocks_iterator = boost::transform_iterator<
       BlockToNode<CodeBlock>,
-      boost::filter_iterator<BlockIs<Node::Kind::CodeBlock>,
+      boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref CodeBlock objects.
   ///
@@ -290,7 +294,7 @@ public:
   /// same offset, thier order is not specified.
   using const_code_blocks_iterator = boost::transform_iterator<
       BlockToNode<const CodeBlock>,
-      boost::filter_iterator<BlockIs<Node::Kind::CodeBlock>,
+      boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref CodeBlock objects.
   ///
@@ -337,7 +341,7 @@ public:
   /// same offset, thier order is not specified.
   using data_blocks_iterator = boost::transform_iterator<
       BlockToNode<DataBlock>,
-      boost::filter_iterator<BlockIs<Node::Kind::DataBlock>,
+      boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref DataBlock objects.
   ///
@@ -350,7 +354,7 @@ public:
   /// same offset, thier order is not specified.
   using const_data_blocks_iterator = boost::transform_iterator<
       BlockToNode<const DataBlock>,
-      boost::filter_iterator<BlockIs<Node::Kind::DataBlock>,
+      boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref DataBlock objects.
   ///
