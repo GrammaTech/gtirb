@@ -45,12 +45,6 @@ class ByteInterval;
 namespace gtirb {
 class Section; // Forward declared for the backpointer.
 
-// Forward declare functions to update module indices.
-void GTIRB_EXPORT_API addToModuleIndices(Node* N);
-void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
-                                          const std::function<void()>& F);
-void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
-
 /// \class ByteInterval
 ///
 /// \brief A contiguous region of bytes in a binary.
@@ -457,7 +451,7 @@ public:
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
   template <class BlockType> bool removeBlock(BlockType* N) {
-    removeFromModuleIndices(N);
+    N->removeFromIndices();
     auto& Index = Blocks.get<by_pointer>();
     if (auto Iter = Index.find(N); Iter != Index.end()) {
       Index.erase(Iter);
@@ -480,7 +474,7 @@ public:
 
     N->setByteInterval(this);
     Blocks.emplace(O, N);
-    addToModuleIndices(N);
+    N->addToIndices();
   }
 
   /// \brief Creates a new \ref CodeBlock at a given offset.
@@ -495,7 +489,7 @@ public:
     auto* N = CodeBlock::Create(C, A...);
     N->setByteInterval(this);
     Blocks.emplace(O, N);
-    addToModuleIndices(N);
+    N->addToIndices();
     return N;
   }
 
@@ -511,7 +505,7 @@ public:
     auto* N = DataBlock::Create(C, A...);
     N->setByteInterval(this);
     Blocks.emplace(O, N);
-    addToModuleIndices(N);
+    N->addToIndices();
     return N;
   }
 
@@ -525,8 +519,8 @@ public:
   /// \return           The newly created \ref SymbolicExpression.
   template <class ExprType, class... Args>
   SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
-    mutateModuleIndices(
-        this, [&]() { SymbolicExpressions.emplace(O, ExprType{A...}); });
+    this->mutateIndices(
+        [&]() { SymbolicExpressions.emplace(O, ExprType{A...}); });
     return SymbolicExpressions[O];
   }
 
@@ -539,7 +533,7 @@ public:
   /// with.
   bool removeSymbolicExpression(uint64_t O) {
     std::size_t N;
-    mutateModuleIndices(this, [&]() { N = SymbolicExpressions.erase(O); });
+    this->mutateIndices([&]() { N = SymbolicExpressions.erase(O); });
     return N != 0;
   }
 
@@ -574,7 +568,7 @@ public:
   /// \param A  Either the new address, or an empty \ref std::optional if you
   ///           wish to remove the address.
   void setAddress(std::optional<Addr> A) {
-    mutateModuleIndices(this, [this, A]() { Address = A; });
+    this->mutateIndices([this, A]() { Address = A; });
   }
 
   /// \brief Set the size of this interval.
@@ -584,7 +578,7 @@ public:
   ///
   /// \param S  The new size.
   void setSize(uint64_t S) {
-    mutateModuleIndices(this, [this, S]() {
+    this->mutateIndices([this, S]() {
       AllocatedSize = std::min(AllocatedSize, S);
 
       Bytes.setSize(S);

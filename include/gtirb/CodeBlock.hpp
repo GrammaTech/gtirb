@@ -40,10 +40,6 @@ class Offset;
 namespace gtirb {
 class ByteInterval; // Forward declared for the backpointer.
 
-// Forward declare functions to update module indices.
-void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
-                                          const std::function<void()>& F);
-
 /// \class CodeBlock
 ///
 /// \brief A basic block.
@@ -102,7 +98,7 @@ public:
   /// bytes, or symbolic expressions. This simply changes the extents of a block
   /// in its \ref ByteInterval.
   void setSize(uint64_t S) {
-    mutateModuleIndices(this, [this, S]() { Size = S; });
+    this->mutateIndices([this, S]() { Size = S; });
   }
 
   /// \brief Set the decode mode of this block.

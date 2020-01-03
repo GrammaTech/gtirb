@@ -18,6 +18,7 @@
 #include <gtirb/Casting.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
+#include <functional>
 #include <string>
 
 /// \file Node.hpp
@@ -102,6 +103,53 @@ public:
 protected:
   /// \cond INTERNAL
   Node(Context& C, Kind Knd);
+
+  /// \brief Add a new \ref Node to a \ref Module or \ref IR's lookup indices.
+  ///
+  /// The module has indices for fast lookup of certain traits. When a node gets
+  /// added somewhere in this module, these indices need updated. Call this
+  /// function to update these indices. If getModule on this node returns null,
+  /// the function does nothing and returns, so ensure that the node has
+  /// parentage to the module before you call this function.
+  ///
+  /// Valid \ref Node types to call this function from include \ref
+  /// ByteInterval, \ref CodeBlock, \ref DataBlock, \ref Section, \ref
+  /// Symbol, and \ref Module.
+  void addToIndices();
+
+  /// \brief Update the lookup indices of a Module or IR when a \ref Node
+  /// changes.
+  ///
+  /// The module has indices for fast lookup of certain traits. When mutating
+  /// these traits, call this function, with your mutation code in a lambda.
+  /// if getModule on this node returns null, then no update is performed, but
+  /// the lambda is still called.
+  ///
+  /// Valid \ref Node types to call this function from include \ref
+  /// ByteInterval, \ref CodeBlock, \ref DataBlock, \ref Section, \ref
+  /// Symbol, and \ref Module.
+  ///
+  /// TODO: make it templated so it can use any Callable rather than a
+  /// std::function; this will improve performance, but to do that, we have
+  /// a dependency knot to untangle.
+  ///
+  /// \param F  A function taking no arguments and retuning void. This function
+  /// should mutate N.
+  void mutateIndices(const std::function<void()>& F);
+
+  /// \brief Remove a \ref Node from a \ref Module or \ref IR's lookup
+  /// indices.
+  ///
+  /// The module has indices for fast lookup of certain traits. When a node gets
+  /// removed somewhere in this module, these indices need updated. Call this
+  /// function to update these indices. If getModule on this node returns null,
+  /// the function does nothing and returns, so ensure that the node still has
+  /// parentage to the module before you call this function.
+  ///
+  /// Valid \ref Node types to call this function from include \ref
+  /// ByteInterval, \ref CodeBlock, \ref DataBlock, \ref Section, \ref
+  /// Symbol, and \ref Module.
+  void removeFromIndices();
   /// \endcond
 
 private:

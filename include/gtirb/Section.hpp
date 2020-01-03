@@ -33,12 +33,6 @@ class Section;
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
 
-// Forward declare functions to update module indices.
-void GTIRB_EXPORT_API addToModuleIndices(Node* N);
-void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
-                                          const std::function<void()>& F);
-void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
-
 /// \class Section
 ///
 /// \brief Represents a named section of the binary.
@@ -181,7 +175,7 @@ public:
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
   bool removeByteInterval(ByteInterval* N) {
-    removeFromModuleIndices(N);
+    N->removeFromIndices();
     auto NRemoved = ByteIntervals.erase(N);
     N->setSection(nullptr);
     return NRemoved != 0;
@@ -194,7 +188,7 @@ public:
     }
     N->setSection(this);
     ByteIntervals.insert(N);
-    addToModuleIndices(N);
+    N->addToIndices();
   }
 
   /// \brief Creates a new \ref ByteInterval in this section.
@@ -204,14 +198,14 @@ public:
   ByteInterval* addByteInterval(Context& C, Args... A) {
     auto* N = ByteInterval::Create(C, A...);
     N->setSection(this);
-    addToModuleIndices(N);
-    mutateModuleIndices(this, [this, N]() { ByteIntervals.insert(N); });
+    N->addToIndices();
+    this->mutateIndices([this, N]() { ByteIntervals.insert(N); });
     return N;
   }
 
   /// \brief Set this section's name.
   void setName(const std::string& N) {
-    mutateModuleIndices(this, [this, &N]() { Name = N; });
+    this->mutateIndices([this, &N]() { Name = N; });
   }
 
   /// @cond INTERNAL

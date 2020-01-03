@@ -32,12 +32,6 @@
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
 
-// Forward declare functions to update module indices.
-void GTIRB_EXPORT_API addToModuleIndices(Node* N);
-void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
-                                          const std::function<void()>& F);
-void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
-
 /// \class Symbol
 ///
 /// \brief Represents a Symbol, which maps a name to an object in the IR.
@@ -331,18 +325,18 @@ public:
 
   /// \brief Set the name of a symbol.
   void setName(const std::string& N) {
-    mutateModuleIndices(this, [this, &N]() { Name = N; });
+    this->mutateIndices([this, &N]() { Name = N; });
   }
 
   /// \brief Set the referent of a symbol.
   template <typename NodeTy>
   std::enable_if_t<is_supported_type<NodeTy>()> setReferent(NodeTy* N) {
-    mutateModuleIndices(this, [this, N]() { Payload = N; });
+    this->mutateIndices([this, N]() { Payload = N; });
   }
 
   /// \brief Set the address of a symbol.
   void setAddress(Addr A) {
-    mutateModuleIndices(this, [this, A]() { Payload = A; });
+    this->mutateIndices([this, A]() { Payload = A; });
   }
 
   /// @cond INTERNAL

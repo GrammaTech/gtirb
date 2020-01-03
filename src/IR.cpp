@@ -73,14 +73,3 @@ IR* IR::loadJSON(Context& C, std::istream& In) {
       std::string(std::istreambuf_iterator<char>(In), {}), &Message);
   return IR::fromProtobuf(C, Message);
 }
-
-void gtirb::mutateIRIndices(Module* M, const std::function<void()>& F) {
-  IR* I = M->getIR();
-  if (!I) {
-    F();
-    return;
-  }
-
-  auto& Index = I->Modules.get<IR::by_pointer>();
-  Index.modify(Index.find(M), [&F](const auto&) { F(); });
-}

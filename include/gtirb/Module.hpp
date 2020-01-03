@@ -82,61 +82,6 @@ enum class ISAID : uint8_t {
   ValidButUnsupported = proto::ValidButUnsupported
 };
 
-/// @cond INTERNAL
-
-/// \brief Add a new \ref Node to a \ref Module's lookup indices.
-///
-/// The module has indices for fast lookup of certain traits. When a node gets
-/// added somewhere in this module, these indices need updated. Call this
-/// function to update these indices. If getModule on this node returns null,
-/// the function does nothing and returns, so ensure that the node has parentage
-/// to the module before you call this function.
-///
-/// Valid \ref Node types to pass into this function include \ref ByteInterval,
-/// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
-///
-/// \param N  The node you wish to add.
-void GTIRB_EXPORT_API addToModuleIndices(Node* N);
-
-/// \brief Update the lookup indices of an Module when a \ref Node changes.
-///
-/// The module has indices for fast lookup of certain traits. When mutating
-/// these traits, call this function, with your mutation code in a lambda.
-/// if getModule on this node returns null, then no update is performed, but the
-/// lambda is still called.
-///
-/// Valid \ref Node types to pass into this function include \ref ByteInterval,
-/// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
-///
-/// TODO: make it templated so it can use any Callable rather than a
-/// std::function; this will improve performance, but to do that, we have
-/// a dependency knot to untangle.
-///
-/// \param N  The node you wish to mutate.
-/// \param F  A function taking no arguments and retuning void. This function
-/// should mutate N.
-void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
-                                          const std::function<void()>& F);
-
-/// \brief Remove a \ref Node from a \ref Module's lookup indices.
-///
-/// The module has indices for fast lookup of certain traits. When a node gets
-/// removed somewhere in this module, these indices need updated. Call this
-/// function to update these indices. If getModule on this node returns null,
-/// the function does nothing and returns, so ensure that the node still has
-/// parentage to the module before you call this function.
-///
-/// Valid \ref Node types to pass into this function include \ref ByteInterval,
-/// \ref CodeBlock, \ref DataBlock, \ref Section, and \ref Symbol.
-///
-/// \param N  The node you wish to remove.
-void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
-
-// Forward declare functions used in mutators.
-void GTIRB_EXPORT_API mutateIRIndices(Module* M,
-                                      const std::function<void()>& F);
-/// @endcond
-
 /// \class Module
 ///
 /// \brief Represents a single binary (library or executable).
@@ -659,7 +604,7 @@ public:
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
   bool removeSymbol(Symbol* S) {
-    removeFromModuleIndices(S);
+    S->removeFromIndices();
     auto& Index = Symbols.get<by_pointer>();
     if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
@@ -679,7 +624,7 @@ public:
     }
     Symbols.emplace(S);
     S->setModule(this);
-    addToModuleIndices(S);
+    S->addToIndices();
   }
 
   /// \brief Creates a new \ref Symbol in this module.
@@ -792,7 +737,7 @@ public:
 
   /// \brief Set the module name.
   void setName(const std::string& X) {
-    mutateIRIndices(this, [this, &X]() { Name = X; });
+    this->mutateIndices([this, &X]() { Name = X; });
   }
 
   /// \brief Get the associated Control Flow Graph (\ref CFG).
@@ -1048,7 +993,7 @@ public:
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
   bool removeSection(Section* S) {
-    removeFromModuleIndices(S);
+    S->removeFromIndices();
     auto& Index = Sections.get<by_pointer>();
     if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
@@ -1067,7 +1012,7 @@ public:
       S->getModule()->removeSection(S);
     }
     S->setModule(this);
-    addToModuleIndices(S);
+    S->addToIndices();
   }
 
   /// \brief Creates a new \ref Section in this module.
@@ -1418,12 +1363,7 @@ private:
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
-
-  // Allow mutation of Module indices
-  friend void GTIRB_EXPORT_API addToModuleIndices(Node* N);
-  friend void GTIRB_EXPORT_API
-  mutateModuleIndices(Node* N, const std::function<void()>& F);
-  friend void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
+  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
 
 } // namespace gtirb

@@ -93,7 +93,7 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
 
 void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
                                                    const MessageType& Message) {
-  mutateModuleIndices(this, [&]() {
+  this->mutateIndices([&]() {
     for (const auto& Pair : Message.symbolic_expressions()) {
       SymbolicExpression SymExpr;
       gtirb::fromProtobuf(C, SymExpr, Pair.second);

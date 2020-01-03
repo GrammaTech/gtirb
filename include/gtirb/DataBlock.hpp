@@ -32,10 +32,6 @@ class DataBlock;
 namespace gtirb {
 class ByteInterval; // Forward declared for the backpointer.
 
-// Forward declare functions to update module indices.
-void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
-                                          const std::function<void()>& F);
-
 ///
 /// \class DataBlock
 ///
@@ -95,7 +91,7 @@ public:
   /// bytes, or symbolic expressions. This simply changes the extents of a block
   /// in its \ref ByteInterval.
   void setSize(uint64_t S) {
-    mutateModuleIndices(this, [this, S]() { Size = S; });
+    this->mutateIndices([this, S]() { Size = S; });
   }
 
   /// \brief The endianess of data: Either big or little-endian.
