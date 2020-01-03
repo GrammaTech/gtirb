@@ -32,8 +32,9 @@ foreach(CL_EXECUTABLE_STEM ${CL_EXECUTABLE_STEMS})
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMAND
       sbcl --noinform --dynamic-space-size 16384 --no-userinit --no-sysinit
-      --load ${QUICKLISP}/setup.lisp --eval
-      '(ql:quickload :gtirb/${CL_EXECUTABLE_STEM})' --eval
+      --disable-debugger --load ${QUICKLISP}/setup.lisp --eval
+      '(asdf:initialize-source-registry `(:source-registry (:tree "\"${CMAKE_CURRENT_SOURCE_DIR}\"") :inherit-configuration))'
+      --eval '(ql:quickload :gtirb/${CL_EXECUTABLE_STEM})' --eval
       '(setf uiop/image::*lisp-interaction* nil)' --eval
       '(asdf:make :gtirb/run-${CL_EXECUTABLE_STEM} :type :program :monolithic t)'
       --eval '(sb-ext:exit)'
