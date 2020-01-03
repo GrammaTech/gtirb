@@ -451,7 +451,7 @@ public:
   /// \brief Move a \ref ProxyBlock object to be located in this module.
   ///
   /// \param S The \ref ProxyBlock object to add.
-  void moveProxyBlock(ProxyBlock* B) {
+  void addProxyBlock(ProxyBlock* B) {
     if (B->getModule()) {
       B->getModule()->removeProxyBlock(B);
     }
@@ -673,7 +673,7 @@ public:
   /// \brief Move a \ref Symbol object to be located in this module.
   ///
   /// \param S The \ref Symbol object to add.
-  void moveSymbol(Symbol* S) {
+  void addSymbol(Symbol* S) {
     if (S->getModule()) {
       S->getModule()->removeSymbol(S);
     }
@@ -1062,7 +1062,7 @@ public:
   /// \brief Move a \ref Section object to be located in this module.
   ///
   /// \param S The \ref Section object to add.
-  void moveSection(Section* S) {
+  void addSection(Section* S) {
     if (S->getModule()) {
       S->getModule()->removeSection(S);
     }

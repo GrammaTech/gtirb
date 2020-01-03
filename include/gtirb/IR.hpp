@@ -200,7 +200,7 @@ public:
   /// \brief Move a \ref Module object to be located in this IR.
   ///
   /// \param S The \ref Module object to add.
-  void moveModule(Module* S) {
+  void addModule(Module* S) {
     if (S->getIR()) {
       S->getIR()->removeModule(S);
     }

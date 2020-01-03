@@ -188,7 +188,7 @@ public:
   }
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
-  void moveByteInterval(ByteInterval* N) {
+  void addByteInterval(ByteInterval* N) {
     if (N->getSection()) {
       N->getSection()->removeByteInterval(N);
     }

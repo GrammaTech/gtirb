@@ -473,7 +473,7 @@ public:
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
   /// \param  O           The offset to move the block to.
   /// \param  N           The block to move.
-  template <typename BlockType> void moveBlock(uint64_t O, BlockType* N) {
+  template <typename BlockType> void addBlock(uint64_t O, BlockType* N) {
     if (N->getByteInterval()) {
       N->getByteInterval()->removeBlock(N);
     }
