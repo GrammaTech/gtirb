@@ -37,7 +37,7 @@ foreach(CL_EXECUTABLE_STEM ${CL_EXECUTABLE_STEMS})
       --eval '(ql:quickload :gtirb/${CL_EXECUTABLE_STEM})' --eval
       '(setf uiop/image::*lisp-interaction* nil)' --eval
       '(asdf:make :gtirb/run-${CL_EXECUTABLE_STEM} :type :program :monolithic t)'
-      --eval '(sb-ext:exit)'
+      --eval '(uiop/image:quit)'
     COMMAND ${CMAKE_COMMAND} -E copy gtirb-${CL_EXECUTABLE_STEM}
             ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${CMAKE_COMMAND} -E remove gtirb-${CL_EXECUTABLE_STEM}

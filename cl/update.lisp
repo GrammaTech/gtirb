@@ -7,6 +7,7 @@
         :command-line-arguments)
   (:import-from :proto)
   (:import-from :proto-v0)
+  (:import-from :uiop/image :quit)
   (:export :update :upgrade :read-proto :write-proto))
 (in-package :gtirb/update)
 (in-readtable :curry-compose-reader-macros)
@@ -228,5 +229,5 @@
 
 (define-command update (input-file output-file &spec +udpate-args+)
   "Update GTIRB protobuf from INPUT-FILE to OUTPUT-FILE." ""
-  (when help (show-help-for-update) (sb-ext:quit))
+  (when help (show-help-for-update) (quit))
   (write-proto (upgrade (read-proto 'proto-v0:ir input-file)) output-file))

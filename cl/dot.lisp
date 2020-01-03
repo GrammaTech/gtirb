@@ -3,6 +3,7 @@
         :command-line-arguments
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
+  (:import-from :uiop/image :quit)
   (:import-from :proto-v0 :ir)
   (:shadowing-import-from :gtirb :symbol)
   (:export :to-dot :to-dot-file))
@@ -27,5 +28,5 @@
 
 (define-command dot (gtirb-file dot-file &spec +udpate-args+)
   "Write first GTIRB module in GTIRB-FILE to DOT-FILE." ""
-  (when help (show-help-for-dot) (sb-ext:quit))
+  (when help (show-help-for-dot) (quit))
   (to-dot-file (read-gtirb gtirb-file) dot-file))
