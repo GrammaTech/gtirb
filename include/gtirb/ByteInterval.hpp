@@ -99,7 +99,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
 
   /// \class BlockToNode
   ///
-  /// \brief A function for a trasnform iterator to turn blocks into nodes.
+  /// \brief A function for a transform iterator to turn blocks into nodes.
   template <typename NodeType> struct BlockToNode {
     NodeType& operator()(const Block& B) const {
       return *cast<NodeType>(B.Node);
