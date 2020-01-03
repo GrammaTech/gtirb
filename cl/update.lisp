@@ -26,7 +26,7 @@
               (address (proto-v0:address region))
               (size (length (proto-v0:data region))))
          (cond
-           ((and (<= address start) (<= start (+ address size)))
+           ((and (<= address start) (< start (+ address size)))
             (setf results (concatenate 'vector
                                        results
                                        (subseq (proto-v0:data region)
@@ -80,7 +80,7 @@
                        (proto-v0:image-byte-map module))))
     (if-let ((gtirb-block
               (find-if
-               «and [{<= address} «+ #'proto-v0:address #'proto-v0:size»]
+               «and [{< address} «+ #'proto-v0:address #'proto-v0:size»]
                     [{>= address} #'proto-v0:address]»
                (proto-v0:blocks module))))
       (proto-v0:uuid gtirb-block)
