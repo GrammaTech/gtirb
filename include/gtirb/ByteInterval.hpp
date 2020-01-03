@@ -118,7 +118,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                      boost::multi_index::tag<by_pointer>,
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
-  using SymbolicExpressionSet = std::map<uint64_t, SymbolicExpression>;
+  using SymbolicExpressionMap = std::map<uint64_t, SymbolicExpression>;
 
   /// \brief Get the \ref Block that corresponds to a \ref Node.
   const Block& nodeToBlock(const Node* N) const {
@@ -409,7 +409,7 @@ public:
   /// \brief Iterator over \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
-  using symbolic_expressions_iterator = SymbolicExpressionSet::iterator;
+  using symbolic_expressions_iterator = SymbolicExpressionMap::iterator;
   /// \brief Range of \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
@@ -419,7 +419,7 @@ public:
   ///
   /// Results are yielded in offset order, ascending.
   using const_symbolic_expressions_iterator =
-      SymbolicExpressionSet::const_iterator;
+      SymbolicExpressionMap::const_iterator;
   /// \brief Const range of \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
@@ -849,7 +849,7 @@ private:
   std::optional<Addr> Address;
   uint64_t AllocatedSize{0};
   BlockSet Blocks;
-  SymbolicExpressionSet SymbolicExpressions;
+  SymbolicExpressionMap SymbolicExpressions;
   ByteVector Bytes;
 
   friend class Context;   // Friend to enable Context::Create.
