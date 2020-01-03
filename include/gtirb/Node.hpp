@@ -107,9 +107,9 @@ protected:
   /// \brief Add a new \ref Node to a \ref Module or \ref IR's lookup indices.
   ///
   /// The module has indices for fast lookup of certain traits. When a node gets
-  /// added somewhere in this module, these indices need updated. Call this
-  /// function to update these indices. If getModule on this node returns null,
-  /// the function does nothing and returns, so ensure that the node has
+  /// added somewhere in this module, these indices need to be updated. Call
+  /// this function to update these indices. If getModule on this node returns
+  /// null, the function does nothing and returns, so ensure that the node has
   /// parentage to the module before you call this function.
   ///
   /// Valid \ref Node types to call this function from include \ref
@@ -141,10 +141,10 @@ protected:
   /// indices.
   ///
   /// The module has indices for fast lookup of certain traits. When a node gets
-  /// removed somewhere in this module, these indices need updated. Call this
-  /// function to update these indices. If getModule on this node returns null,
-  /// the function does nothing and returns, so ensure that the node still has
-  /// parentage to the module before you call this function.
+  /// removed somewhere in this module, these indices need to be updated. Call
+  /// this function to update these indices. If getModule on this node returns
+  /// null, the function does nothing and returns, so ensure that the node still
+  /// has parentage to the module before you call this function.
   ///
   /// Valid \ref Node types to call this function from include \ref
   /// ByteInterval, \ref CodeBlock, \ref DataBlock, \ref Section, \ref
