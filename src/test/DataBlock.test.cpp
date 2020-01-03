@@ -23,7 +23,7 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_DataBlock, getters) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
+  auto* BI = ByteInterval::Create(Ctx, Addr(0), 2);
   auto* B = BI->addDataBlock(Ctx, 0, 1);
 
   EXPECT_EQ(Addr{0}, B->getAddress());
@@ -32,7 +32,7 @@ TEST(Unit_DataBlock, getters) {
 }
 
 TEST(Unit_DataBlock, getAddress) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(10), 10);
+  auto* BI = ByteInterval::Create(Ctx, Addr(10), 10);
   auto* B1 = BI->addDataBlock(Ctx, 0, 0);
   auto* B2 = BI->addDataBlock(Ctx, 1, 0);
   auto* B3 = BI->addDataBlock(Ctx, 10, 0);
@@ -51,7 +51,7 @@ TEST(Unit_DataBlock, protobufRoundTrip) {
   proto::DataBlock Message;
   {
     Context InnerCtx;
-    DataBlock* Original = DataBlock::Create(InnerCtx, nullptr, 1234);
+    DataBlock* Original = DataBlock::Create(InnerCtx, 1234);
     Original->toProtobuf(&Message);
   }
   DataBlock* Result = DataBlock::fromProtobuf(Ctx, nullptr, Message);
@@ -62,8 +62,8 @@ TEST(Unit_DataBlock, protobufRoundTrip) {
 
 TEST(Unit_DataBlock, byteVector) {
   std::string Contents = "hello, world!";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
   auto* B = BI->addDataBlock(Ctx, 3, 4);
 
   auto OriginalIt = Contents.begin() + 3;

@@ -26,7 +26,8 @@ void DataBlock::toProtobuf(MessageType* Message) const {
 
 DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const MessageType& Message) {
-  auto* DO = DataBlock::Create(C, Parent, Message.size());
+  auto* DO = DataBlock::Create(C, Message.size());
+  DO->setByteInterval(Parent);
   setNodeUUIDFromBytes(DO, Message.uuid());
   return DO;
 }

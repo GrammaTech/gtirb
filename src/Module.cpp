@@ -58,7 +58,8 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
 
 Module* Module::fromProtobuf(Context& C, IR* Parent,
                              const MessageType& Message) {
-  Module* M = Module::Create(C, Parent);
+  Module* M = Module::Create(C);
+  M->setIR(Parent);
   setNodeUUIDFromBytes(M, Message.uuid());
   M->BinaryPath = Message.binary_path();
   M->PreferredAddr = Addr(Message.preferred_addr());

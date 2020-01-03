@@ -26,14 +26,12 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Symbol, ctor_0) {
-  EXPECT_NE(Symbol::Create(Ctx, nullptr, "test"), nullptr);
-}
+TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx, "test"), nullptr); }
 
 TEST(Unit_Symbol, setStorageKind) {
   const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
 
-  auto* Node = Symbol::Create(Ctx, nullptr, "test");
+  auto* Node = Symbol::Create(Ctx, "test");
   EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
 
   Node->setStorageKind(Value);
@@ -41,7 +39,7 @@ TEST(Unit_Symbol, setStorageKind) {
 }
 
 TEST(Unit_Symbol, setReferent) {
-  auto* Mod = Module::Create(Ctx, nullptr);
+  auto* Mod = Module::Create(Ctx);
   auto* Sym = Mod->addSymbol(Ctx, "test");
   auto* S = Mod->addSection(Ctx, "test");
   auto* BI = S->addByteInterval(Ctx, Addr(0), 4);
@@ -80,8 +78,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with referent
   {
     Context InnerCtx;
-    auto* Mod = Module::Create(InnerCtx, nullptr);
-    auto* Original = Symbol::Create(InnerCtx, nullptr, "test");
+    auto* Mod = Module::Create(InnerCtx);
+    auto* Original = Symbol::Create(InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
     auto* S = Mod->addSection(InnerCtx, "test");
@@ -112,7 +110,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with address
   {
     Context InnerCtx;
-    auto* Original = Symbol::Create(InnerCtx, nullptr, Addr(2), "test");
+    auto* Original = Symbol::Create(InnerCtx, Addr(2), "test");
     Original->toProtobuf(&SMessage);
   }
 
@@ -130,7 +128,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol without address
   {
     Context InnerCtx;
-    auto* Original = Symbol::Create(InnerCtx, nullptr, "test");
+    auto* Original = Symbol::Create(InnerCtx, "test");
     Original->toProtobuf(&SMessage);
   }
 
@@ -143,9 +141,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  auto* Sym =
-      Symbol::Create(Ctx, nullptr, CodeBlock::Create(Ctx, nullptr, 2), "test");
-  auto* NoRef = Symbol::Create(Ctx, nullptr, "test2");
+  auto* Sym = Symbol::Create(Ctx, CodeBlock::Create(Ctx, 2), "test");
+  auto* NoRef = Symbol::Create(Ctx, "test2");
 
   struct Visitor {
     int operator()(CodeBlock* B) {

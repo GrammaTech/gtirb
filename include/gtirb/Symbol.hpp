@@ -239,8 +239,8 @@ public:
   /// \param Name The name of the symbol.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
-    return C.Create<Symbol>(C, Parent, Name);
+  static Symbol* Create(Context& C, const std::string& Name) {
+    return C.Create<Symbol>(C, Name);
   }
 
   /// \brief Create a Symbol object.
@@ -252,10 +252,9 @@ public:
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, Addr X,
-                        const std::string& Name,
+  static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
-    return C.Create<Symbol>(C, Parent, X, Name, Kind);
+    return C.Create<Symbol>(C, X, Name, Kind);
   }
 
   /// \brief Create a Symbol object.
@@ -268,11 +267,10 @@ public:
   ///
   /// \return The newly created object.
   template <typename NodeTy>
-  static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
-                        const std::string& Name,
+  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Parent, Referent, Name, Kind);
+    return C.Create<Symbol>(C, Referent, Name, Kind);
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
@@ -372,16 +370,15 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, Module* P, const std::string& N,
+  Symbol(Context& C, const std::string& N, StorageKind SK = StorageKind::Extern)
+      : Node(C, Kind::Symbol), Name(N), Storage(SK) {}
+  Symbol(Context& C, Addr X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Name(N), Storage(SK) {}
-  Symbol(Context& C, Module* P, Addr X, const std::string& N,
-         StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Payload(X), Name(N), Storage(SK) {}
   template <typename NodeTy>
-  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N,
+  Symbol(Context& C, NodeTy* R, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Payload(R), Name(N), Storage(SK) {}
 
   void setModule(Module* M) { Parent = M; }
 

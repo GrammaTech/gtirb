@@ -44,7 +44,7 @@ static Context Ctx;
 
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
-  auto* B = CodeBlock::Create(Ctx, nullptr, 2);
+  auto* B = CodeBlock::Create(Ctx, 2);
   auto Descriptor1 = addVertex(B, Cfg);
   EXPECT_EQ(Cfg[Descriptor1], B);
   EXPECT_EQ(dyn_cast<CodeBlock>(Cfg[Descriptor1])->getSize(), 2);
@@ -55,7 +55,7 @@ TEST(Unit_CFG, addVertex) {
   auto Vertices = vertices(Cfg);
   EXPECT_EQ(std::distance(Vertices.first, Vertices.second), 1);
 
-  auto* P = ProxyBlock::Create(Ctx, nullptr);
+  auto* P = ProxyBlock::Create(Ctx);
   auto Descriptor3 = addVertex(P, Cfg);
   EXPECT_EQ(Cfg[Descriptor3], P);
   auto Descriptor4 = addVertex(P, Cfg);
@@ -66,8 +66,8 @@ TEST(Unit_CFG, addVertex) {
 
 TEST(Unit_CFG, getVertex) {
   CFG Cfg;
-  auto* B = CodeBlock::Create(Ctx, nullptr, 2);
-  auto* P = ProxyBlock::Create(Ctx, nullptr);
+  auto* B = CodeBlock::Create(Ctx, 2);
+  auto* P = ProxyBlock::Create(Ctx);
   auto DescriptorB = addVertex(B, Cfg);
   auto DescriptorP = addVertex(P, Cfg);
   EXPECT_EQ(getVertex(B, Cfg), DescriptorB);
@@ -76,10 +76,10 @@ TEST(Unit_CFG, getVertex) {
 
 TEST(Unit_CFG, cfgIterator) {
   CFG Cfg;
-  auto* B1 = CodeBlock::Create(Ctx, nullptr, 2);
-  auto* P1 = ProxyBlock::Create(Ctx, nullptr);
-  auto* B2 = CodeBlock::Create(Ctx, nullptr, 2);
-  auto* P2 = ProxyBlock::Create(Ctx, nullptr);
+  auto* B1 = CodeBlock::Create(Ctx, 2);
+  auto* P1 = ProxyBlock::Create(Ctx);
+  auto* B2 = CodeBlock::Create(Ctx, 2);
+  auto* P2 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(P1, Cfg);
   addVertex(B2, Cfg);
@@ -117,10 +117,10 @@ TEST(Unit_CFG, cfgIterator) {
 
 TEST(Unit_CFG, blockIterator) {
   CFG Cfg;
-  addVertex(CodeBlock::Create(Ctx, nullptr, 1), Cfg);
-  addVertex(CodeBlock::Create(Ctx, nullptr, 2), Cfg);
-  addVertex(CodeBlock::Create(Ctx, nullptr, 3), Cfg);
-  addVertex(ProxyBlock::Create(Ctx, nullptr), Cfg);
+  addVertex(CodeBlock::Create(Ctx, 1), Cfg);
+  addVertex(CodeBlock::Create(Ctx, 2), Cfg);
+  addVertex(CodeBlock::Create(Ctx, 3), Cfg);
+  addVertex(ProxyBlock::Create(Ctx), Cfg);
 
   // Non-const graph produces a regular iterator
   boost::iterator_range<block_iterator> BlockRange = blocks(Cfg);
@@ -150,9 +150,9 @@ TEST(Unit_CFG, blockIterator) {
 
 TEST(Unit_CFG, edges) {
   CFG Cfg;
-  auto B1 = CodeBlock::Create(Ctx, nullptr, 1);
-  auto B2 = CodeBlock::Create(Ctx, nullptr, 2);
-  auto P1 = ProxyBlock::Create(Ctx, nullptr);
+  auto B1 = CodeBlock::Create(Ctx, 1);
+  auto B2 = CodeBlock::Create(Ctx, 2);
+  auto P1 = ProxyBlock::Create(Ctx);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
   addVertex(P1, Cfg);
@@ -177,8 +177,8 @@ TEST(Unit_CFG, edges) {
 
 TEST(Unit_CFG, edgeLabels) {
   CFG Cfg;
-  auto B1 = CodeBlock::Create(Ctx, nullptr, 1);
-  auto B2 = CodeBlock::Create(Ctx, nullptr, 2);
+  auto B1 = CodeBlock::Create(Ctx, 1);
+  auto B2 = CodeBlock::Create(Ctx, 2);
   addVertex(B1, Cfg);
   addVertex(B2, Cfg);
 
@@ -222,9 +222,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
   CFG Result;
   proto::CFG Message;
 
-  auto B1 = CodeBlock::Create(Ctx, nullptr, 1, 2);
-  auto B2 = CodeBlock::Create(Ctx, nullptr, 3, 4);
-  auto P1 = ProxyBlock::Create(Ctx, nullptr);
+  auto B1 = CodeBlock::Create(Ctx, 1, 2);
+  auto B2 = CodeBlock::Create(Ctx, 3, 4);
+  auto P1 = ProxyBlock::Create(Ctx);
   {
     CFG Original;
     addVertex(B1, Original);

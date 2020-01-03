@@ -71,7 +71,9 @@ void Symbol::toProtobuf(MessageType* Message) const {
 
 Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
                              const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, Parent, Message.name());
+  Symbol* S = Symbol::Create(C, Message.name());
+  S->setModule(Parent);
+
   switch (Message.optional_payload_case()) {
   case proto::Symbol::kValue:
     S->Payload = Addr{Message.value()};

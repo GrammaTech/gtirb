@@ -47,8 +47,7 @@ void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
 /// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, Module* P, const std::string& N)
-      : Node(C, Kind::Section), Parent(P), Name(N) {}
+  Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
 
   using ByteIntervalSet = std::unordered_set<ByteInterval*>;
 
@@ -61,12 +60,11 @@ public:
   /// \brief Create a Section object.
   ///
   /// \param C        The Context in which this object will be held.
-  /// \param Parent   The \ref Module this section belongs to.
   /// \param Name     The name of the section.
   ///
   /// \return The newly created object.
-  static Section* Create(Context& C, Module* Parent, const std::string& Name) {
-    return C.Create<Section>(C, Parent, Name);
+  static Section* Create(Context& C, const std::string& Name) {
+    return C.Create<Section>(C, Name);
   }
 
   /// \brief Equality operator overload.
@@ -204,7 +202,8 @@ public:
   /// \tparam Args  The arguments to construct a \ref ByteInterval.
   template <typename... Args>
   ByteInterval* addByteInterval(Context& C, Args... A) {
-    auto* N = ByteInterval::Create(C, this, A...);
+    auto* N = ByteInterval::Create(C, A...);
+    N->setSection(this);
     addToModuleIndices(N);
     mutateModuleIndices(this, [this, N]() { ByteIntervals.insert(N); });
     return N;

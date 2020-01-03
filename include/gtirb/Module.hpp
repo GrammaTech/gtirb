@@ -275,9 +275,8 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               boost::multi_index::identity<SymbolicExpressionElement>>>>;
 
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
-  Module(Context& C, IR* P) : AuxDataContainer(C, Kind::Module), Parent(P) {}
-  Module(Context& C, IR* P, const std::string& N)
-      : AuxDataContainer(C, Kind::Module), Parent(P), Name(N) {}
+  Module(Context& C, const std::string& N)
+      : AuxDataContainer(C, Kind::Module), Name(N) {}
 
   template <size_t I> struct ExtractNth {
     template <typename ParamTy> auto& operator()(ParamTy& V) const {
@@ -297,22 +296,11 @@ public:
   /// \brief Create a Module object.
   ///
   /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
-  ///
-  /// \return The newly created object.
-  static Module* Create(Context& C, IR* Parent) {
-    return C.Create<Module>(C, Parent);
-  }
-
-  /// \brief Create a Module object.
-  ///
-  /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
   /// \param Name   The name of this module.
   ///
   /// \return The newly created object.
-  static Module* Create(Context& C, IR* Parent, const std::string& Name) {
-    return C.Create<Module>(C, Parent, Name);
+  static Module* Create(Context& C, const std::string& Name) {
+    return C.Create<Module>(C, Name);
   }
 
   /// \brief Get the \ref IR this module belongs to.
@@ -476,7 +464,8 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref ProxyBlock.
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
-    auto* B = ProxyBlock::Create(C, this, A...);
+    auto* B = ProxyBlock::Create(C, A...);
+    B->setModule(this);
     ProxyBlocks.insert(B);
     addVertex(B, Cfg);
     return B;
@@ -697,7 +686,8 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref Symbol.
   template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
-    auto* N = Symbol::Create(C, this, A...);
+    auto* N = Symbol::Create(C, A...);
+    N->setModule(this);
     Symbols.emplace(N);
     return N;
   }
@@ -1084,7 +1074,8 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref Section.
   template <typename... Args> Section* addSection(Context& C, Args... A) {
-    auto* N = Section::Create(C, this, A...);
+    auto* N = Section::Create(C, A...);
+    N->setModule(this);
     Sections.emplace(N);
     return N;
   }

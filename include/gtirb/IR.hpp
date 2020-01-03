@@ -212,7 +212,8 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref Module.
   template <typename... Args> Module* addModule(Context& C, Args... A) {
-    auto* N = Module::Create(C, this, A...);
+    auto* N = Module::Create(C, A...);
+    N->setIR(this);
     Modules.emplace(N);
     return N;
   }

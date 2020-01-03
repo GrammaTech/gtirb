@@ -23,11 +23,11 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_ByteInterval, ctor) {
-  EXPECT_NE(ByteInterval::Create(Ctx, nullptr, Addr(1), 100), nullptr);
+  EXPECT_NE(ByteInterval::Create(Ctx, Addr(1), 100), nullptr);
 }
 
 TEST(Unit_ByteInterval, gettersSetters) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(), 2);
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), 2);
   EXPECT_EQ(std::optional<Addr>(), BI->getAddress());
   EXPECT_EQ(2, BI->getSize());
   EXPECT_EQ(2, BI->getAllocatedSize());
@@ -70,7 +70,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      auto* Original = ByteInterval::Create(InnerCtx, nullptr, Addr(1), 2);
+      auto* Original = ByteInterval::Create(InnerCtx, Addr(1), 2);
       Original->toProtobuf(&Message);
     }
     auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
@@ -85,8 +85,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      auto* Original =
-          ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(), 2);
+      auto* Original = ByteInterval::Create(InnerCtx, std::optional<Addr>(), 2);
       Original->toProtobuf(&Message);
     }
     auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
@@ -102,9 +101,8 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     {
       Context InnerCtx;
       std::string Contents = "abcd";
-      auto* Original =
-          ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(),
-                               Contents.begin(), Contents.end());
+      auto* Original = ByteInterval::Create(InnerCtx, std::optional<Addr>(),
+                                            Contents.begin(), Contents.end());
       Original->toProtobuf(&Message);
     }
     auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
@@ -127,7 +125,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
       Context InnerCtx;
       std::string Contents = "abcd";
       auto* Original =
-          ByteInterval::Create(InnerCtx, nullptr, std::optional<Addr>(),
+          ByteInterval::Create(InnerCtx, std::optional<Addr>(),
                                Contents.begin(), Contents.end(), 4, 2);
       Original->toProtobuf(&Message);
     }
@@ -152,12 +150,12 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
 
   // Test with subobjects.
   {
-    auto* Sym = Symbol::Create(Ctx, nullptr, "test");
+    auto* Sym = Symbol::Create(Ctx, "test");
 
     proto::ByteInterval Message;
     {
       Context InnerCtx;
-      auto* Original = ByteInterval::Create(InnerCtx, nullptr, Addr(0), 10);
+      auto* Original = ByteInterval::Create(InnerCtx, Addr(0), 10);
       Original->addCodeBlock(InnerCtx, 3, 1);
       Original->addCodeBlock(InnerCtx, 6, 1);
       Original->addDataBlock(InnerCtx, 6, 1);
@@ -223,7 +221,7 @@ TEST(Unit_ByteInterval, byteVector) {
 
   // Test all allocated bytes.
   {
-    auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+    auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(),
                                     Contents.begin(), Contents.end());
     EXPECT_EQ(BI->getSize(), Contents.size());
 
@@ -243,7 +241,7 @@ TEST(Unit_ByteInterval, byteVector) {
 
   // Test some unallocated bytes.
   {
-    auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
+    auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(),
                                     Contents.begin(), Contents.end(), 100);
     EXPECT_EQ(BI->getSize(), 100);
 
@@ -275,8 +273,8 @@ template <typename T> static T str2(const char* S) {
 
 TEST(Unit_ByteInterval, byteVectorInts) {
   std::string Contents = "hello, world!!??";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
   EXPECT_EQ(Contents.size(), 16);
 
   // 16 bits
@@ -345,8 +343,8 @@ TEST(Unit_ByteInterval, byteVectorInts) {
 
 TEST(Unit_ByteInterval, byteVectorEndian) {
   std::string Contents = "hello, world!!??";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
   EXPECT_EQ(Contents.size(), 16);
 
   // Test using little endian.
@@ -396,8 +394,8 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
 
 TEST(Unit_ByteInterval, byteVectorInsert) {
   std::string Contents = "0123456789";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
   {
     std::string toInsert = "abcd";
     BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
@@ -443,8 +441,8 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
 
 TEST(Unit_ByteInterval, byteVectorErase) {
   std::string Contents = "0123456789";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
 
   {
     BI->eraseBytes<char>(BI->bytes_begin<char>(), BI->bytes_begin<char>() + 2);

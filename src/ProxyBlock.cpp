@@ -24,7 +24,8 @@ void ProxyBlock::toProtobuf(MessageType* Message) const {
 
 ProxyBlock* ProxyBlock::fromProtobuf(Context& C, Module* Parent,
                                      const MessageType& Message) {
-  ProxyBlock* P = Create(C, Parent);
+  ProxyBlock* P = Create(C);
+  P->setModule(Parent);
   setNodeUUIDFromBytes(P, Message.uuid());
   return P;
 }

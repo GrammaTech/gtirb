@@ -62,9 +62,8 @@ public:
   /// \param DecodeMode The decode mode of the block.
   ///
   /// \return The newly created CodeBlock.
-  static CodeBlock* Create(Context& C, ByteInterval* Parent, uint64_t Size,
-                           uint64_t DecodeMode = 0) {
-    return C.Create<CodeBlock>(C, Parent, Size, DecodeMode);
+  static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode = 0) {
+    return C.Create<CodeBlock>(C, Size, DecodeMode);
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
@@ -289,8 +288,8 @@ public:
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
-  CodeBlock(Context& C, ByteInterval* P, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::CodeBlock), Parent(P), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C, uint64_t S, uint64_t Decode)
+      : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
 

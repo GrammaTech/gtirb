@@ -27,7 +27,8 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
 
 CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const MessageType& Message) {
-  auto* B = CodeBlock::Create(C, Parent, Message.size(), Message.decode_mode());
+  auto* B = CodeBlock::Create(C, Message.size(), Message.decode_mode());
+  B->setByteInterval(Parent);
   setNodeUUIDFromBytes(B, Message.uuid());
   return B;
 }

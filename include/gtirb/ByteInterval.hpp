@@ -141,66 +141,58 @@ public:
 
   /// \brief Create a ByteInterval object.
   /// \param C        The Context in which this interval will be held.
-  /// \param Parent   The \ref Section this interval belongs to.
   /// \param Address  An (optional) fixed address for this interval.
   /// \param Size     The size of this interval in bytes.
   /// \return         The newly created ByteInterval.
-  static ByteInterval* Create(Context& C, Section* Parent,
-                              std::optional<Addr> Address, uint64_t Size) {
-    return C.Create<ByteInterval>(C, Parent, Address, Size, Size);
+  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
+                              uint64_t Size) {
+    return C.Create<ByteInterval>(C, Address, Size, Size);
   }
 
   /// \brief Create a ByteInterval object.
   /// \param C              The Context in which this interval will be held.
-  /// \param Parent         The \ref Section this interval belongs to.
   /// \param Address        An (optional) fixed address for this interval.
   /// \param Size           The size of this interval in bytes.
   /// \param AllocatedSize  The number of bytes with initialized values.
   /// \return               The newly created ByteInterval.
-  static ByteInterval* Create(Context& C, Section* Parent,
-                              std::optional<Addr> Address, uint64_t Size,
-                              uint64_t AllocatedSize) {
-    return C.Create<ByteInterval>(C, Parent, Address, AllocatedSize, Size);
+  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
+                              uint64_t Size, uint64_t AllocatedSize) {
+    return C.Create<ByteInterval>(C, Address, AllocatedSize, Size);
   }
 
   /// \brief Create a ByteInterval object.
   /// \tparam InputIterator   An input iterator yielding bytes.
   /// \param C          The Context in which this interval will be held.
-  /// \param Parent     The \ref Section this interval belongs to.
   /// \param Address    An (optional) fixed address for this interval.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
-  static ByteInterval*
-  Create(Context& C, Section* Parent, std::optional<Addr> Address,
-         InputIterator BytesBegin, InputIterator BytesEnd) {
-    return C.Create<ByteInterval>(C, Parent, Address,
-                                  std::distance(BytesBegin, BytesEnd),
-                                  BytesBegin, BytesEnd);
+  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
+                              InputIterator BytesBegin,
+                              InputIterator BytesEnd) {
+    return C.Create<ByteInterval>(
+        C, Address, std::distance(BytesBegin, BytesEnd), BytesBegin, BytesEnd);
   }
 
   /// \brief Create a ByteInterval object.
   /// \tparam InputIterator   An input iterator yielding bytes.
   /// \param C          The Context in which this interval will be held.
-  /// \param Parent     The \ref Section this interval belongs to.
   /// \param Address    An (optional) fixed address for this interval.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
   /// \param Size       The size of this interval in bytes.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
-  static ByteInterval*
-  Create(Context& C, Section* Parent, std::optional<Addr> Address,
-         InputIterator BytesBegin, InputIterator BytesEnd, uint64_t Size) {
-    return C.Create<ByteInterval>(C, Parent, Address, Size, BytesBegin,
-                                  BytesEnd, Size);
+  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
+                              InputIterator BytesBegin, InputIterator BytesEnd,
+                              uint64_t Size) {
+    return C.Create<ByteInterval>(C, Address, Size, BytesBegin, BytesEnd, Size);
   }
 
   /// \brief Create a ByteInterval object.
   /// \tparam InputIterator   An input iterator yielding bytes.
   /// \param C              The Context in which this interval will be held.
-  /// \param Parent         The \ref Section this interval belongs to.
   /// \param Address        An (optional) fixed address for this interval.
   /// \param BytesBegin     The start of the range to copy to the byte vector.
   /// \param BytesEnd       The end of the range to copy to the byte vector.
@@ -208,11 +200,10 @@ public:
   /// \param AllocatedSize  The number of bytes with initialized values.
   /// \return               The newly created ByteInterval.
   template <typename InputIterator>
-  static ByteInterval* Create(Context& C, Section* Parent,
-                              std::optional<Addr> Address,
+  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
                               InputIterator BytesBegin, InputIterator BytesEnd,
                               uint64_t Size, uint64_t AllocatedSize) {
-    return C.Create<ByteInterval>(C, Parent, Address, AllocatedSize, BytesBegin,
+    return C.Create<ByteInterval>(C, Address, AllocatedSize, BytesBegin,
                                   BytesEnd, Size);
   }
 
@@ -501,7 +492,8 @@ public:
   /// \return       The newly created \ref CodeBlock.
   template <typename... Args>
   CodeBlock* addCodeBlock(Context& C, uint64_t O, Args... A) {
-    auto* N = CodeBlock::Create(C, this, A...);
+    auto* N = CodeBlock::Create(C, A...);
+    N->setByteInterval(this);
     Blocks.emplace(O, N);
     addToModuleIndices(N);
     return N;
@@ -516,7 +508,8 @@ public:
   /// \return       The newly created \ref DataBlock.
   template <typename... Args>
   DataBlock* addDataBlock(Context& C, uint64_t O, Args... A) {
-    auto* N = DataBlock::Create(C, this, A...);
+    auto* N = DataBlock::Create(C, A...);
+    N->setByteInterval(this);
     Blocks.emplace(O, N);
     addToModuleIndices(N);
     return N;
@@ -838,9 +831,8 @@ private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
 
   template <typename... Args>
-  ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t AS,
-               Args... B)
-      : Node(C, Kind::ByteInterval), Parent(P), Address(A), AllocatedSize(AS),
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t AS, Args... B)
+      : Node(C, Kind::ByteInterval), Address(A), AllocatedSize(AS),
         Bytes(B...) {}
 
   void setSection(Section* S) { Parent = S; }

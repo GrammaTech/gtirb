@@ -67,8 +67,9 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
   }
 
   ByteInterval* BI = ByteInterval::Create(
-      C, Parent, A, Message.contents().begin(), Message.contents().end(),
+      C, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size());
+  BI->setSection(Parent);
 
   setNodeUUIDFromBytes(BI, Message.uuid());
 

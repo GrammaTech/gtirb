@@ -47,8 +47,7 @@ void GTIRB_EXPORT_API mutateModuleIndices(Node* N,
 class GTIRB_EXPORT_API DataBlock : public Node {
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, ByteInterval* P, uint64_t S)
-      : Node(C, Kind::DataBlock), Parent(P), Size(S) {}
+  DataBlock(Context& C, uint64_t S) : Node(C, Kind::DataBlock), Size(S) {}
 
 public:
   /// \brief Create an unitialized DataBlock object.
@@ -66,8 +65,8 @@ public:
   /// \param Size     The size of the object in bytes.
   ///
   /// \return The newly created DataBlock.
-  static DataBlock* Create(Context& C, ByteInterval* Parent, uint64_t Size) {
-    return C.Create<DataBlock>(C, Parent, Size);
+  static DataBlock* Create(Context& C, uint64_t Size) {
+    return C.Create<DataBlock>(C, Size);
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
