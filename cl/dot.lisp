@@ -11,10 +11,8 @@
 
 (defun dot-edge-label (graph edge)
   (let ((obj (car (edge-value graph edge))))
-    (format nil "\"~a[~a:~a]\""
-            (edge-type obj)
-            (if (conditional obj) :c :u)
-            (if (direct obj) :d :i))))
+    (format nil "~a[~:[U~;C~]:~:[I~;D~]]"
+            (edge-type obj) (conditional obj) (direct obj))))
 
 (defmethod to-dot ((obj gtirb) &rest rest)
   "Write the CFG of MODULE to the Graphviz graphing language."
