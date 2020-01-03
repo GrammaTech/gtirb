@@ -182,11 +182,19 @@ public:
   /// \brief Remove a \ref Module object located in this IR.
   ///
   /// \param S The \ref Module object to remove.
-  void removeModule(Module* S) {
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  bool removeModule(Module* S) {
     auto& Index = Modules.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end())
+    if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
-    S->setIR(nullptr);
+      S->setIR(nullptr);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /// \brief Move a \ref Module object to be located in this IR.

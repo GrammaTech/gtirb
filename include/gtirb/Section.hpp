@@ -178,10 +178,15 @@ public:
   }
 
   /// \brief Remove an interval from this section.
-  void removeByteInterval(ByteInterval* N) {
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  bool removeByteInterval(ByteInterval* N) {
     removeFromModuleIndices(N);
-    ByteIntervals.erase(N);
+    auto NRemoved = ByteIntervals.erase(N);
     N->setSection(nullptr);
+    return NRemoved != 0;
   }
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.

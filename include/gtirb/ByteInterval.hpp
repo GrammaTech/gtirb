@@ -461,12 +461,20 @@ public:
   ///
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
   /// \param  N           The block to remove.
-  template <class BlockType> void removeBlock(BlockType* N) {
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  template <class BlockType> bool removeBlock(BlockType* N) {
     removeFromModuleIndices(N);
     auto& Index = Blocks.get<by_pointer>();
-    if (auto Iter = Index.find(N); Iter != Index.end())
+    if (auto Iter = Index.find(N); Iter != Index.end()) {
       Index.erase(Iter);
-    N->setByteInterval(nullptr);
+      N->setByteInterval(nullptr);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /// \brief Move an existing Block to be a part of this interval.
@@ -532,8 +540,14 @@ public:
   /// \brief Removes a \ref SymbolicExpression at the given offset, if present.
   ///
   /// \param O  The offset of the \ref SymbolicExpression to remove.
-  void removeSymbolicExpression(uint64_t O) {
-    mutateModuleIndices(this, [&]() { SymbolicExpressions.erase(O); });
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  bool removeSymbolicExpression(uint64_t O) {
+    std::size_t N;
+    mutateModuleIndices(this, [&]() { N = SymbolicExpressions.erase(O); });
+    return N != 0;
   }
 
   /// \brief Get the symbolic expression at the given offset, if present.

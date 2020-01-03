@@ -449,10 +449,15 @@ public:
   /// \brief Remove a \ref ProxyBlock object located in this module.
   ///
   /// \param S The \ref ProxyBlock object to remove.
-  void removeProxyBlock(ProxyBlock* B) {
-    ProxyBlocks.erase(B);
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  bool removeProxyBlock(ProxyBlock* B) {
+    auto N = ProxyBlocks.erase(B);
     B->setModule(nullptr);
     // removeVertex(B, Cfg);
+    return N != 0;
   }
 
   /// \brief Move a \ref ProxyBlock object to be located in this module.
@@ -660,12 +665,20 @@ public:
   /// \brief Remove a \ref Symbol object located in this module.
   ///
   /// \param S The \ref Symbol object to remove.
-  void removeSymbol(Symbol* S) {
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  bool removeSymbol(Symbol* S) {
     removeFromModuleIndices(S);
     auto& Index = Symbols.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end())
+    if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
-    S->setModule(nullptr);
+      S->setModule(nullptr);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /// \brief Move a \ref Symbol object to be located in this module.
@@ -1040,12 +1053,20 @@ public:
   /// \brief Remove a \ref Section object located in this module.
   ///
   /// \param S The \ref Section object to remove.
-  void removeSection(Section* S) {
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  bool removeSection(Section* S) {
     removeFromModuleIndices(S);
     auto& Index = Sections.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end())
+    if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
-    S->setModule(nullptr);
+      S->setModule(nullptr);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /// \brief Move a \ref Section object to be located in this module.
