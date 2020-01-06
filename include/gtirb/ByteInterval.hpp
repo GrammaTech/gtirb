@@ -67,7 +67,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     uint64_t Offset;
     gtirb::Node* Node;
 
-    Block(uint64_t O, gtirb::Node* N) : Offset(O), Node(N) {}
+    Block(uint64_t Off, gtirb::Node* N) : Offset(Off), Node(N) {}
 
     /// \brief Get the offset from the beginning of this block's \ref
     /// ByteInterval.
@@ -468,15 +468,15 @@ public:
   /// \brief Move an existing Block to be a part of this interval.
   ///
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
-  /// \param  O           The offset to move the block to.
+  /// \param  Off           The offset to move the block to.
   /// \param  N           The block to move.
-  template <typename BlockType> void addBlock(uint64_t O, BlockType* N) {
+  template <typename BlockType> void addBlock(uint64_t Off, BlockType* N) {
     if (N->getByteInterval()) {
       N->getByteInterval()->removeBlock(N);
     }
 
     N->setByteInterval(this);
-    Blocks.emplace(O, N);
+    Blocks.emplace(Off, N);
     N->addToIndices();
   }
 
@@ -484,14 +484,14 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref CodeBlock.
   /// \param  C     The \ref Context to use.
-  /// \param  O     The offset to add the new \ref CodeBlock at.
+  /// \param  Off     The offset to add the new \ref CodeBlock at.
   /// \param  A     The arguments to construct a \ref CodeBlock.
   /// \return       The newly created \ref CodeBlock.
   template <typename... Args>
-  CodeBlock* addCodeBlock(Context& C, uint64_t O, Args... A) {
+  CodeBlock* addCodeBlock(Context& C, uint64_t Off, Args... A) {
     auto* N = CodeBlock::Create(C, A...);
     N->setByteInterval(this);
-    Blocks.emplace(O, N);
+    Blocks.emplace(Off, N);
     N->addToIndices();
     return N;
   }
@@ -500,14 +500,14 @@ public:
   ///
   /// \tparam Args  The arguments to construct a \ref DataBlock.
   /// \param  C     The \ref Context to use.
-  /// \param  O     The offset to add the new \ref DataBlock at.
+  /// \param  Off     The offset to add the new \ref DataBlock at.
   /// \param  A     The arguments to construct a \ref DataBlock.
   /// \return       The newly created \ref DataBlock.
   template <typename... Args>
-  DataBlock* addDataBlock(Context& C, uint64_t O, Args... A) {
+  DataBlock* addDataBlock(Context& C, uint64_t Off, Args... A) {
     auto* N = DataBlock::Create(C, A...);
     N->setByteInterval(this);
-    Blocks.emplace(O, N);
+    Blocks.emplace(Off, N);
     N->addToIndices();
     return N;
   }
@@ -517,36 +517,36 @@ public:
   /// \tparam ExprType  The type of symbolic expression to create
   ///                   (\ref SymAddrConst, \ref SymAddrAddr, etc).
   /// \tparam Args      The arguments to construct something of ExprType.
-  /// \param  O         The offset to add the new \ref SymbolicExpression at.
+  /// \param  Off         The offset to add the new \ref SymbolicExpression at.
   /// \param  A         The arguments to construct something of ExprType.
   /// \return           The newly created \ref SymbolicExpression.
   template <class ExprType, class... Args>
-  SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
+  SymbolicExpression& addSymbolicExpression(uint64_t Off, Args... A) {
     this->mutateIndices(
-        [&]() { SymbolicExpressions.emplace(O, ExprType{A...}); });
-    return SymbolicExpressions[O];
+        [&]() { SymbolicExpressions.emplace(Off, ExprType{A...}); });
+    return SymbolicExpressions[Off];
   }
 
   /// \brief Removes a \ref SymbolicExpression at the given offset, if present.
   ///
-  /// \param O  The offset of the \ref SymbolicExpression to remove.
+  /// \param Off  The offset of the \ref SymbolicExpression to remove.
   ///
   /// \return Whether or not the operation succeeded. This operation can
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
-  bool removeSymbolicExpression(uint64_t O) {
+  bool removeSymbolicExpression(uint64_t Off) {
     std::size_t N;
-    this->mutateIndices([&]() { N = SymbolicExpressions.erase(O); });
+    this->mutateIndices([&]() { N = SymbolicExpressions.erase(Off); });
     return N != 0;
   }
 
   /// \brief Get the symbolic expression at the given offset, if present.
   ///
-  /// \param O  The offset of the \ref SymbolicExpression to return.
+  /// \param Off  The offset of the \ref SymbolicExpression to return.
   /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
   ///           is no \ref SymbolicExpression at that offset.
-  SymbolicExpression* getSymbolicExpression(uint64_t O) {
-    if (auto It = SymbolicExpressions.find(O);
+  SymbolicExpression* getSymbolicExpression(uint64_t Off) {
+    if (auto It = SymbolicExpressions.find(Off);
         It != SymbolicExpressions.end()) {
       return &It->second;
     }
@@ -555,11 +555,11 @@ public:
 
   /// \brief Get the symbolic expression at the given offset, if present.
   ///
-  /// \param O  The offset of the \ref SymbolicExpression to return.
+  /// \param Off  The offset of the \ref SymbolicExpression to return.
   /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
   ///           is no \ref SymbolicExpression at that offset.
-  const SymbolicExpression* getSymbolicExpression(uint64_t O) const {
-    if (auto It = SymbolicExpressions.find(O);
+  const SymbolicExpression* getSymbolicExpression(uint64_t Off) const {
+    if (auto It = SymbolicExpressions.find(Off);
         It != SymbolicExpressions.end()) {
       return &It->second;
     }

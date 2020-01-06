@@ -126,9 +126,9 @@ template <> struct hash<gtirb::SymStackConst> {
   typedef std::size_t result_type;
 
   result_type operator()(const argument_type& Obj) const noexcept {
-    const result_type O = std::hash<int>{}(Obj.Offset);
+    const result_type Off = std::hash<int>{}(Obj.Offset);
     const result_type P = std::hash<gtirb::Symbol*>{}(Obj.Sym);
-    return O ^ (P << 1);
+    return Off ^ (P << 1);
   }
 };
 
@@ -137,9 +137,9 @@ template <> struct hash<gtirb::SymAddrConst> {
   typedef std::size_t result_type;
 
   result_type operator()(const argument_type& Obj) const noexcept {
-    const result_type O = std::hash<int64_t>{}(Obj.Offset);
+    const result_type Off = std::hash<int64_t>{}(Obj.Offset);
     const result_type P = std::hash<gtirb::Symbol*>{}(Obj.Sym);
-    return O ^ (P << 1);
+    return Off ^ (P << 1);
   }
 };
 
