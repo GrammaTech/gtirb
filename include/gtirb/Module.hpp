@@ -610,9 +610,8 @@ public:
       Index.erase(Iter);
       S->setModule(nullptr);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /// \brief Move a \ref Symbol object to be located in this module.
@@ -999,9 +998,8 @@ public:
       Index.erase(Iter);
       S->setModule(nullptr);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /// \brief Move a \ref Section object to be located in this module.

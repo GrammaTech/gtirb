@@ -174,9 +174,8 @@ public:
       Index.erase(Iter);
       S->setIR(nullptr);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /// \brief Move a \ref Module object to be located in this IR.

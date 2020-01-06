@@ -461,9 +461,8 @@ public:
       Index.erase(Iter);
       N->setByteInterval(nullptr);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /// \brief Move an existing Block to be a part of this interval.
