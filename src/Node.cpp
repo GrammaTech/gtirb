@@ -69,6 +69,10 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
   }
 }
 
+// FIXME: For the internals of these index functions, it'd be nice to have
+// some sort of virtual dispatch nstead of one big switch. But how to do that
+// without (a) adding in RTTI or (b) making everything friends of each other...
+
 void Node::addToIndices() {
   switch (getKind()) {
   case Node::Kind::ByteInterval: {
