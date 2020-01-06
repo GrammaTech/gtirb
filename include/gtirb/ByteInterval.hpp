@@ -169,18 +169,18 @@ public:
   ///                   size of the range of bytes. If specified, either
   ///                   trucates the range of bytes given or pads it at the end
   ///                   with zeroes.
-  /// \param InitSize   The number of bytes with initialized values. Defaults
-  ///                   to the value of Size. If specified, does NOT zero out
-  ///                   values from the range past this number.
+  /// \param InitSize   The number of bytes with initialized values. Defaults to
+  ///                   the size of the range of bytes. If specified, does NOT
+  ///                   zero out values from the range past this number.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
   static ByteInterval* Create(Context& C, InputIterator Begin,
                               InputIterator End,
                               std::optional<uint64_t> Size = std::nullopt,
                               std::optional<uint64_t> InitSize = std::nullopt) {
-    uint64_t ActualSize = Size ? *Size : std::distance(Begin, End);
     return C.Create<ByteInterval>(
-        C, std::nullopt, InitSize.value_or(ActualSize), Begin, End, ActualSize);
+        C, std::nullopt, InitSize ? *InitSize : std::distance(Begin, End),
+        Begin, End, Size ? *Size : std::distance(Begin, End));
   }
 
   /// \brief Create a ByteInterval object.
@@ -194,18 +194,18 @@ public:
   ///                   size of the range of bytes. If specified, either
   ///                   trucates the range of bytes given or pads it at the end
   ///                   with zeroes.
-  /// \param InitSize   The number of bytes with initialized values. Defaults
-  ///                   to the value of Size. If specified, does NOT zero out
-  ///                   values from the range past this number.
+  /// \param InitSize   The number of bytes with initialized values. Defaults to
+  ///                   the size of the range of bytes. If specified, does NOT
+  ///                   zero out values from the range past this number.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
                               InputIterator Begin, InputIterator End,
                               std::optional<uint64_t> Size = std::nullopt,
                               std::optional<uint64_t> InitSize = std::nullopt) {
-    uint64_t ActualSize = Size ? *Size : std::distance(Begin, End);
-    return C.Create<ByteInterval>(C, Address, InitSize.value_or(ActualSize),
-                                  Begin, End, ActualSize);
+    return C.Create<ByteInterval>(
+        C, Address, InitSize ? *InitSize : std::distance(Begin, End), Begin,
+        End, Size ? *Size : std::distance(Begin, End));
   }
 
   /// \brief Get the \ref Section this byte interval belongs to.
