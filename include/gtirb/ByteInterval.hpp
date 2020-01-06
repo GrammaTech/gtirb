@@ -132,77 +132,80 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   void updateSize() { setSize(Bytes.getSize()); }
 
 public:
-  /// \brief Create an unitialized ByteInterval object.
-  /// \param C        The Context in which this ByteInterval will be held.
-  /// \return         The newly created ByteInterval.
-  static ByteInterval* Create(Context& C) { return C.Create<ByteInterval>(C); }
-
   /// \brief Create a ByteInterval object.
-  /// \param C        The Context in which this interval will be held.
-  /// \param Address  An (optional) fixed address for this interval.
-  /// \param Size     The size of this interval in bytes.
-  /// \return         The newly created ByteInterval.
-  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              uint64_t Size) {
-    return C.Create<ByteInterval>(C, Address, Size, Size);
+  ///
+  /// \param C         The \ref Context in which this interval will be held.
+  /// \param Size      The size of this interval in bytes.
+  /// \param InitSize  The number of bytes with initialized values. Defaults
+  ///                  to the value of Size.
+  /// \return          The newly created ByteInterval.
+  static ByteInterval* Create(Context& C, uint64_t Size = 0,
+                              std::optional<uint64_t> InitSize = std::nullopt) {
+    return C.Create<ByteInterval>(C, std::nullopt, InitSize.value_or(Size),
+                                  Size);
   }
 
   /// \brief Create a ByteInterval object.
-  /// \param C              The Context in which this interval will be held.
-  /// \param Address        An (optional) fixed address for this interval.
-  /// \param Size           The size of this interval in bytes.
-  /// \param InitializedSize  The number of bytes with initialized values.
-  /// \return               The newly created ByteInterval.
+  ///
+  /// \param C         The \ref Context in which this interval will be held.
+  /// \param Address   An (optional) fixed address for this interval.
+  /// \param Size      The size of this interval in bytes.
+  /// \param InitSize  The number of bytes with initialized values. Defaults
+  ///                  to the value of Size.
+  /// \return          The newly created ByteInterval.
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              uint64_t Size, uint64_t InitializedSize) {
-    return C.Create<ByteInterval>(C, Address, InitializedSize, Size);
+                              uint64_t Size = 0,
+                              std::optional<uint64_t> InitSize = std::nullopt) {
+    return C.Create<ByteInterval>(C, Address, InitSize.value_or(Size), Size);
   }
 
   /// \brief Create a ByteInterval object.
-  /// \tparam InputIterator   An input iterator yielding bytes.
-  /// \param C          The Context in which this interval will be held.
-  /// \param Address    An (optional) fixed address for this interval.
+  ///
+  /// \tparam InputIterator An input iterator yielding bytes.
+  /// \param C          The \ref Context in which this interval will be held.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
+  /// \param Size       The size of this interval in bytes. Defaults to the
+  ///                   size of the range of bytes. If specified, either
+  ///                   trucates the range of bytes given or pads it at the end
+  ///                   with zeroes.
+  /// \param InitSize   The number of bytes with initialized values. Defaults
+  ///                   to the value of Size. If specified, does NOT zero out
+  ///                   values from the range past this number.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
-  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              InputIterator BytesBegin,
-                              InputIterator BytesEnd) {
+  static ByteInterval* Create(Context& C, InputIterator Begin,
+                              InputIterator End,
+                              std::optional<uint64_t> Size = std::nullopt,
+                              std::optional<uint64_t> InitSize = std::nullopt) {
+    uint64_t ActualSize = Size ? *Size : std::distance(Begin, End);
     return C.Create<ByteInterval>(
-        C, Address, std::distance(BytesBegin, BytesEnd), BytesBegin, BytesEnd);
+        C, std::nullopt, InitSize.value_or(ActualSize), Begin, End, ActualSize);
   }
 
   /// \brief Create a ByteInterval object.
-  /// \tparam InputIterator   An input iterator yielding bytes.
-  /// \param C          The Context in which this interval will be held.
+  ///
+  /// \tparam InputIterator An input iterator yielding bytes.
+  /// \param C          The \ref Context in which this interval will be held.
   /// \param Address    An (optional) fixed address for this interval.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
-  /// \param Size       The size of this interval in bytes.
+  /// \param Size       The size of this interval in bytes. Defaults to the
+  ///                   size of the range of bytes. If specified, either
+  ///                   trucates the range of bytes given or pads it at the end
+  ///                   with zeroes.
+  /// \param InitSize   The number of bytes with initialized values. Defaults
+  ///                   to the value of Size. If specified, does NOT zero out
+  ///                   values from the range past this number.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              InputIterator BytesBegin, InputIterator BytesEnd,
-                              uint64_t Size) {
-    return C.Create<ByteInterval>(C, Address, Size, BytesBegin, BytesEnd, Size);
-  }
-
-  /// \brief Create a ByteInterval object.
-  /// \tparam InputIterator   An input iterator yielding bytes.
-  /// \param C              The Context in which this interval will be held.
-  /// \param Address        An (optional) fixed address for this interval.
-  /// \param BytesBegin     The start of the range to copy to the byte vector.
-  /// \param BytesEnd       The end of the range to copy to the byte vector.
-  /// \param Size           The size of this interval in bytes.
-  /// \param InitializedSize  The number of bytes with initialized values.
-  /// \return               The newly created ByteInterval.
-  template <typename InputIterator>
-  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              InputIterator BytesBegin, InputIterator BytesEnd,
-                              uint64_t Size, uint64_t InitializedSize) {
-    return C.Create<ByteInterval>(C, Address, InitializedSize, BytesBegin,
-                                  BytesEnd, Size);
+                              InputIterator Begin, InputIterator End,
+                              std::optional<uint64_t> Size = std::nullopt,
+                              std::optional<uint64_t> InitSize = std::nullopt) {
+    uint64_t ActualSize = Size ? *Size : std::distance(Begin, End);
+    return C.Create<ByteInterval>(C, Address, InitSize.value_or(ActualSize),
+                                  Begin, End, ActualSize);
   }
 
   /// \brief Get the \ref Section this byte interval belongs to.
