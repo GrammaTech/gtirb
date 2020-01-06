@@ -2,6 +2,7 @@ variables:
   DOCKER_REGISTRY: "docker.grammatech.com"
   LOCAL_IMAGE_NAME: '$CI_BUILD_REF_NAME-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
+  EXTRA_CMAKE_FLAGS: "-DGTIRB_CXX_API=OFF -DGTIRB_PY_API=OFF"
 
 before_script:
   - case "$(uname -s)" in
@@ -12,7 +13,6 @@ before_script:
 stages:
   - check-format
   - build
-  - test
   - deploy
   - cleanup
 

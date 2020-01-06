@@ -2,5 +2,6 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 ARG CXX_COMPILER=g++-7
+ARG EXTRA_CMAKE_FLAGS=
 
 RUN /gt/gtirb/.ci/build-linux-capstone.sh
