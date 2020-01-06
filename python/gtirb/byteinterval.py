@@ -34,19 +34,19 @@ class ByteInterval(Node):
         it indicates that the interval is free to be moved around in memory
         while preserving program semantics.
     :ivar size: The size of this interval in bytes. If this number is greater
-        than ``allocated_size``, this indicates that the high addresses taken
+        than ``initialized_size``, this indicates that the high addresses taken
         up by this interval consist of uninitialized bytes. This often occurs
         in BSS sections, where data is zero-initialized rather than stored as
         zeroes in the binary.
-    :ivar allocated_size: The number of initialized bytes in this interval. Not
-        all bytes in this interval may correspond to bytes physically stored
-        in the underlying file format. This can occur, for example, in BSS
-        sections, which are zero-initialized at loadtime, but these zeroes are
-        not stored in the file itself. If this number is smaller than ``size``,
-        this indicates that any bytes past this
-        number are unitialized bytes with values determined at loadtime. As
-        such, all bytes past this number in this interval's byte vector are
-        truncated when saving to file.
+    :ivar initialized_size: The number of initialized bytes in this interval.
+        Not all bytes in this interval may correspond to bytes physically
+        stored in the underlying file format. This can occur, for example, in
+        BSS sections, which are zero-initialized at loadtime, but these zeroes
+        are not stored in the file itself. If this number is smaller than
+        ``size``, this indicates that any bytes past this number are
+        unitialized bytes with values determined at loadtime. As such, all
+        bytes past this number in this interval's byte vector are truncated
+        when saving to file.
     :ivar contents: The bytes stored in this interval.
     :ivar blocks: A set of all :class:`ByteBlock`\\s in this interval.
     :ivar symbolic_operands: A mapping, from offset in the interval, to a
@@ -73,7 +73,7 @@ class ByteInterval(Node):
         *,
         address=None,  # type: typing.Optional[int]
         size=None,  # type: typing.Optional[int]
-        allocated_size=None,  # type: typing.Optional[int]
+        initialized_size=None,  # type: typing.Optional[int]
         contents=b"",  # type: typing.ByteString
         blocks=(),  # type: typing.Iterable[ByteBlock]
         symbolic_operands={},  # type: DictLike[int, SymbolicOperand]
@@ -82,7 +82,7 @@ class ByteInterval(Node):
         """
         :param address: The fixed address of this interval, if present.
         :param size: The size of this interval in bytes.
-        :param allocated_size: The number of initialized bytes in this
+        :param initialized_size: The number of initialized bytes in this
             interval.
         :param contents: The bytes stored in this interval.
         :param blocks: A set of all :class:`ByteBlock`\\s in this interval.
@@ -95,19 +95,19 @@ class ByteInterval(Node):
 
         if size is None:
             size = len(contents)
-            if allocated_size is not None and allocated_size > size:
-                size = allocated_size
-        if allocated_size is None:
-            allocated_size = size
+            if initialized_size is not None and initialized_size > size:
+                size = initialized_size
+        if initialized_size is None:
+            initialized_size = size
         if size > len(contents):
             contents = contents + b"\0" * (size - len(contents))
-        if allocated_size > size:
-            raise ValueError("allocated_size must be <= size!")
+        if initialized_size > size:
+            raise ValueError("initialized_size must be <= size!")
 
         super().__init__(uuid=uuid)
         self.address = address  # type: typing.Optional[int]
         self.size = size  # type: int
-        self.allocated_size = allocated_size  # type: int
+        self.initialized_size = initialized_size  # type: int
         self.contents = bytearray(contents)  # type: bytearray
         self.blocks = ByteInterval._BlockSet(
             self, blocks
@@ -189,7 +189,7 @@ class ByteInterval(Node):
             proto_interval.has_address = True
             proto_interval.address = self.address
         proto_interval.size = self.size
-        proto_interval.contents = bytes(self.contents[: self.allocated_size])
+        proto_interval.contents = bytes(self.contents[: self.initialized_size])
 
         for block in self.blocks:
             proto_block = ByteInterval_pb2.Block()
@@ -244,7 +244,7 @@ class ByteInterval(Node):
             self.uuid == other.uuid
             and self.address == other.address
             and self.contents == other.contents
-            and self.allocated_size == other.allocated_size
+            and self.initialized_size == other.initialized_size
             and len(self.blocks) == len(other.blocks)
             and all(
                 self_node.deep_eq(other_node)
@@ -274,7 +274,7 @@ class ByteInterval(Node):
             "uuid={uuid!r}, "
             "address={address}, "
             "size={size}, "
-            "allocated_size={allocated_size}, "
+            "initialized_size={initialized_size}, "
             "contents={contents!r}, "
             "blocks={blocks!r}, "
             "symbolic_operands={symbolic_operands!r}, "

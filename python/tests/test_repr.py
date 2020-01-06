@@ -134,7 +134,7 @@ class ReprTest(unittest.TestCase):
     def test_byte_interval(self):
         node = gtirb.ByteInterval(
             address=0x123,
-            allocated_size=456,
+            initialized_size=456,
             size=789,
             contents=b"abc",
             blocks=(gtirb.DataBlock(size=0),),

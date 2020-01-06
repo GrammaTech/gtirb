@@ -237,7 +237,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -256,7 +256,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -277,7 +277,7 @@ class DeepEqTest(unittest.TestCase):
             address=None,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -298,7 +298,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"1234",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -319,7 +319,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=8,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -340,7 +340,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=0,
+            initialized_size=0,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -361,7 +361,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=5, offset=3, uuid=id3),
@@ -382,7 +382,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
@@ -402,7 +402,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -423,7 +423,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -441,7 +441,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
@@ -462,7 +462,7 @@ class DeepEqTest(unittest.TestCase):
             address=1,
             contents=b"abcd",
             size=4,
-            allocated_size=4,
+            initialized_size=4,
             blocks=(
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
