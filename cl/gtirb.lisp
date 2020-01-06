@@ -536,10 +536,8 @@ This indicates the type of control flow along this edge."))
 
 (defmethod print-object ((obj edge-label) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
-    (format stream "~a ~a ~a"
-            (edge-type obj)
-            (if (conditional obj) :conditional :unconditional)
-            (if (direct obj) :direct :undirect))))
+    (format stream "~a ~:[unconditional~;conditional~] ~:[undirect~;direct~]"
+            (edge-type obj) (conditional obj) (direct obj))))
 
 (define-proto-backed-class (symbol proto:symbol) () ()
     ((name :type string)
