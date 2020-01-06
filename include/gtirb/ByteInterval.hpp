@@ -740,6 +740,10 @@ public:
 
   /// \brief Insert data into this interval's byte vector.
   ///
+  /// This function only alters bytes in the vector; it does not adjust the
+  /// offsets of any blocks or symbolic expressions that may be effected by this
+  /// change.
+  ///
   /// \tparam T   The type of data you wish to insert into the byte vector. Must
   /// be a POD type that satisfies Boost's EndianReversibleInplace concept.
   ///
@@ -763,6 +767,10 @@ public:
   }
 
   /// \brief Erase data from this interval's byte vector.
+  ///
+  /// This function only alters bytes in the vector; it does not adjust the
+  /// offsets of any blocks or symbolic expressions that may be effected by this
+  /// change.
   ///
   /// \tparam T     The type of data you wish to erase.
   ///
