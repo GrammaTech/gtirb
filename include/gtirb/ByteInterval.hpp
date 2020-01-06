@@ -151,11 +151,11 @@ public:
   /// \param C              The Context in which this interval will be held.
   /// \param Address        An (optional) fixed address for this interval.
   /// \param Size           The size of this interval in bytes.
-  /// \param AllocatedSize  The number of bytes with initialized values.
+  /// \param InitializedSize  The number of bytes with initialized values.
   /// \return               The newly created ByteInterval.
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              uint64_t Size, uint64_t AllocatedSize) {
-    return C.Create<ByteInterval>(C, Address, AllocatedSize, Size);
+                              uint64_t Size, uint64_t InitializedSize) {
+    return C.Create<ByteInterval>(C, Address, InitializedSize, Size);
   }
 
   /// \brief Create a ByteInterval object.
@@ -195,13 +195,13 @@ public:
   /// \param BytesBegin     The start of the range to copy to the byte vector.
   /// \param BytesEnd       The end of the range to copy to the byte vector.
   /// \param Size           The size of this interval in bytes.
-  /// \param AllocatedSize  The number of bytes with initialized values.
+  /// \param InitializedSize  The number of bytes with initialized values.
   /// \return               The newly created ByteInterval.
   template <typename InputIterator>
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
                               InputIterator BytesBegin, InputIterator BytesEnd,
-                              uint64_t Size, uint64_t AllocatedSize) {
-    return C.Create<ByteInterval>(C, Address, AllocatedSize, BytesBegin,
+                              uint64_t Size, uint64_t InitializedSize) {
+    return C.Create<ByteInterval>(C, Address, InitializedSize, BytesBegin,
                                   BytesEnd, Size);
   }
 
@@ -222,8 +222,8 @@ public:
   /// \brief Get the size of this interval in bytes.
   ///
   /// If this number is greater than the value returned by \ref
-  /// getAllocatedSize, this indicates that the high addresses taken up by this
-  /// interval consist of uninitialized bytes. This often occurs in BSS
+  /// getInitializedSize, this indicates that the high addresses taken up by
+  /// this interval consist of uninitialized bytes. This often occurs in BSS
   /// sections, where data is zero-initialized rather than stored as zeroes in
   /// the binary.
   uint64_t getSize() const { return Bytes.getSize(); }
@@ -576,13 +576,13 @@ public:
 
   /// \brief Set the size of this interval.
   ///
-  /// This will also adjust \ref getAllocatedSize if the size given is less than
-  /// the allocated size.
+  /// This will also adjust \ref getInitializedSize if the size given is less
+  /// than the initialized size.
   ///
   /// \param S  The new size.
   void setSize(uint64_t S) {
     this->mutateIndices([this, S]() {
-      AllocatedSize = std::min(AllocatedSize, S);
+      InitializedSize = std::min(InitializedSize, S);
 
       Bytes.setSize(S);
     });
@@ -600,7 +600,7 @@ public:
   /// saving to file.
   ///
   /// This number will never be larger than the value returned by \ref getSize.
-  uint64_t getAllocatedSize() const { return AllocatedSize; }
+  uint64_t getInitializedSize() const { return InitializedSize; }
 
   /// \brief Set the number of initialized bytes in this interval.
   ///
@@ -616,11 +616,11 @@ public:
   /// If the number specified is larger than \ref getSize, then
   /// the byte vector is expanded with zeroes to be equal to the new allocated
   /// size.
-  void setAllocatedSize(uint64_t S) {
+  void setInitializedSize(uint64_t S) {
     if (S > getSize()) {
       setSize(S);
     }
-    AllocatedSize = S;
+    InitializedSize = S;
   }
 
   /// \brief The endianess of data: Either big or little-endian.
@@ -828,15 +828,15 @@ private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
 
   template <typename... Args>
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t AS, Args... B)
-      : Node(C, Kind::ByteInterval), Address(A), AllocatedSize(AS),
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t IS, Args... B)
+      : Node(C, Kind::ByteInterval), Address(A), InitializedSize(IS),
         Bytes(B...) {}
 
   void setSection(Section* S) { Parent = S; }
 
   Section* Parent{nullptr};
   std::optional<Addr> Address;
-  uint64_t AllocatedSize{0};
+  uint64_t InitializedSize{0};
   BlockSet Blocks;
   SymbolicExpressionMap SymbolicExpressions;
   ByteVector Bytes;
