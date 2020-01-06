@@ -527,6 +527,18 @@ public:
     return SymbolicExpressions[Off];
   }
 
+  /// \brief Adds a new \ref SymbolicExpression to this interval.
+  ///
+  /// \param  Off       The offset to add the new \ref SymbolicExpression at.
+  /// \param  SymExpr   An existing \ref SymbolicExpression to copy into this
+  ///                   interval.
+  /// \return           The newly created \ref SymbolicExpression.
+  SymbolicExpression& addSymbolicExpression(uint64_t Off,
+                                            const SymbolicExpression& SymExpr) {
+    this->mutateIndices([&]() { SymbolicExpressions.emplace(Off, SymExpr); });
+    return SymbolicExpressions[Off];
+  }
+
   /// \brief Removes a \ref SymbolicExpression at the given offset, if present.
   ///
   /// \param Off  The offset of the \ref SymbolicExpression to remove.

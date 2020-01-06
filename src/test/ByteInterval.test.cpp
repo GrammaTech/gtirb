@@ -552,3 +552,54 @@ TEST(Unit_ByteInterval, removeBlock) {
               End);
   }
 }
+
+TEST(Unit_ByteInterval, addSymbolicExpression) {
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), 10);
+  auto* S = Symbol::Create(Ctx, "test");
+
+  {
+    auto& SE = BI->addSymbolicExpression<SymAddrConst>(0, 1, S);
+    ASSERT_TRUE(std::holds_alternative<SymAddrConst>(SE));
+    ASSERT_EQ(std::get<SymAddrConst>(SE).Offset, 1);
+    ASSERT_EQ(std::get<SymAddrConst>(SE).Sym, S);
+  }
+
+  {
+    auto& SE = BI->addSymbolicExpression<SymStackConst>(1, 2, S);
+    ASSERT_TRUE(std::holds_alternative<SymStackConst>(SE));
+    ASSERT_EQ(std::get<SymStackConst>(SE).Offset, 2);
+    ASSERT_EQ(std::get<SymStackConst>(SE).Sym, S);
+  }
+
+  {
+    auto& SE = BI->addSymbolicExpression<SymAddrAddr>(2, 3, 4, S, S);
+    ASSERT_TRUE(std::holds_alternative<SymAddrAddr>(SE));
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Scale, 3);
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Offset, 4);
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym1, S);
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym2, S);
+  }
+
+  {
+    auto& SE = BI->addSymbolicExpression(3, SymAddrConst{4, S});
+    ASSERT_TRUE(std::holds_alternative<SymAddrConst>(SE));
+    ASSERT_EQ(std::get<SymAddrConst>(SE).Offset, 4);
+    ASSERT_EQ(std::get<SymAddrConst>(SE).Sym, S);
+  }
+
+  {
+    auto& SE = BI->addSymbolicExpression(4, SymStackConst{5, S});
+    ASSERT_TRUE(std::holds_alternative<SymStackConst>(SE));
+    ASSERT_EQ(std::get<SymStackConst>(SE).Offset, 5);
+    ASSERT_EQ(std::get<SymStackConst>(SE).Sym, S);
+  }
+
+  {
+    auto& SE = BI->addSymbolicExpression(5, SymAddrAddr{6, 7, S, S});
+    ASSERT_TRUE(std::holds_alternative<SymAddrAddr>(SE));
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Scale, 6);
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Offset, 7);
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym1, S);
+    ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym2, S);
+  }
+}
