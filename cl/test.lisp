@@ -255,6 +255,16 @@
 
 
 ;;;; Update test suite
+;;;
+;;; NOTE: This is a place where property based testing would be very
+;;;       useful.  Consider this before starting any further work on
+;;;       the updater.  Probably would make sense to use check-it:
+;;;       https://github.com/DalekBaldwin/check-it
+;;;
+;;;       More generally, having check-it generators for GTIRB would
+;;;       be useful not just for testing this for for every other
+;;;       GTIRB-based library or tool.
+;;;
 (defun first-aux-data (ir)
   (proto:value (aref (proto:aux-data (aref (proto:modules ir) 0)) 0)))
 
