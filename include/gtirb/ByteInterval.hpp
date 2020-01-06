@@ -473,7 +473,8 @@ public:
   /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
   /// \param  Off           The offset to move the block to.
   /// \param  N           The block to move.
-  template <typename BlockType> void addBlock(uint64_t Off, BlockType* N) {
+  template <typename BlockType>
+  BlockType* addBlock(uint64_t Off, BlockType* N) {
     if (N->getByteInterval()) {
       N->getByteInterval()->removeBlock(N);
     }
@@ -481,53 +482,7 @@ public:
     N->setByteInterval(this);
     Blocks.emplace(Off, N);
     N->addToIndices();
-  }
-
-  /// \brief Creates a new \ref CodeBlock at a given offset.
-  ///
-  /// \tparam Args  The arguments to construct a \ref CodeBlock.
-  /// \param  C     The \ref Context to use.
-  /// \param  Off     The offset to add the new \ref CodeBlock at.
-  /// \param  A     The arguments to construct a \ref CodeBlock.
-  /// \return       The newly created \ref CodeBlock.
-  template <typename... Args>
-  CodeBlock* addCodeBlock(Context& C, uint64_t Off, Args... A) {
-    auto* N = CodeBlock::Create(C, A...);
-    N->setByteInterval(this);
-    Blocks.emplace(Off, N);
-    N->addToIndices();
     return N;
-  }
-
-  /// \brief Creates a new \ref DataBlock at a given offset.
-  ///
-  /// \tparam Args  The arguments to construct a \ref DataBlock.
-  /// \param  C     The \ref Context to use.
-  /// \param  Off     The offset to add the new \ref DataBlock at.
-  /// \param  A     The arguments to construct a \ref DataBlock.
-  /// \return       The newly created \ref DataBlock.
-  template <typename... Args>
-  DataBlock* addDataBlock(Context& C, uint64_t Off, Args... A) {
-    auto* N = DataBlock::Create(C, A...);
-    N->setByteInterval(this);
-    Blocks.emplace(Off, N);
-    N->addToIndices();
-    return N;
-  }
-
-  /// \brief Adds a new \ref SymbolicExpression to this interval.
-  ///
-  /// \tparam ExprType  The type of symbolic expression to create
-  ///                   (\ref SymAddrConst, \ref SymAddrAddr, etc).
-  /// \tparam Args      The arguments to construct something of ExprType.
-  /// \param  Off         The offset to add the new \ref SymbolicExpression at.
-  /// \param  A         The arguments to construct something of ExprType.
-  /// \return           The newly created \ref SymbolicExpression.
-  template <class ExprType, class... Args>
-  SymbolicExpression& addSymbolicExpression(uint64_t Off, Args... A) {
-    this->mutateIndices(
-        [&]() { SymbolicExpressions.emplace(Off, ExprType{A...}); });
-    return SymbolicExpressions[Off];
   }
 
   /// \brief Adds a new \ref SymbolicExpression to this interval.

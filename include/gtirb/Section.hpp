@@ -182,21 +182,10 @@ public:
   }
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
-  void addByteInterval(ByteInterval* N) {
+  ByteInterval* addByteInterval(ByteInterval* N) {
     if (N->getSection()) {
       N->getSection()->removeByteInterval(N);
     }
-    N->setSection(this);
-    ByteIntervals.insert(N);
-    N->addToIndices();
-  }
-
-  /// \brief Creates a new \ref ByteInterval in this section.
-  ///
-  /// \tparam Args  The arguments to construct a \ref ByteInterval.
-  template <typename... Args>
-  ByteInterval* addByteInterval(Context& C, Args... A) {
-    auto* N = ByteInterval::Create(C, A...);
     N->setSection(this);
     N->addToIndices();
     this->mutateIndices([this, N]() { ByteIntervals.insert(N); });

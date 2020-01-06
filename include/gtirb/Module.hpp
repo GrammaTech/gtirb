@@ -396,22 +396,12 @@ public:
   /// \brief Move a \ref ProxyBlock object to be located in this module.
   ///
   /// \param S The \ref ProxyBlock object to add.
-  void addProxyBlock(ProxyBlock* B) {
+  ProxyBlock* addProxyBlock(ProxyBlock* B) {
     if (B->getModule()) {
       B->getModule()->removeProxyBlock(B);
     }
     ProxyBlocks.insert(B);
     B->setModule(this);
-    addVertex(B, Cfg);
-  }
-
-  /// \brief Creates a new \ref ProxyBlock in this module.
-  ///
-  /// \tparam Args  The arguments to construct a \ref ProxyBlock.
-  template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
-    auto* B = ProxyBlock::Create(C, A...);
-    B->setModule(this);
-    ProxyBlocks.insert(B);
     addVertex(B, Cfg);
     return B;
   }
@@ -617,23 +607,14 @@ public:
   /// \brief Move a \ref Symbol object to be located in this module.
   ///
   /// \param S The \ref Symbol object to add.
-  void addSymbol(Symbol* S) {
+  Symbol* addSymbol(Symbol* S) {
     if (S->getModule()) {
       S->getModule()->removeSymbol(S);
     }
     Symbols.emplace(S);
     S->setModule(this);
     S->addToIndices();
-  }
-
-  /// \brief Creates a new \ref Symbol in this module.
-  ///
-  /// \tparam Args  The arguments to construct a \ref Symbol.
-  template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
-    auto* N = Symbol::Create(C, A...);
-    N->setModule(this);
-    Symbols.emplace(N);
-    return N;
+    return S;
   }
 
   /// \brief Find symbols by name
@@ -1005,22 +986,13 @@ public:
   /// \brief Move a \ref Section object to be located in this module.
   ///
   /// \param S The \ref Section object to add.
-  void addSection(Section* S) {
+  Section* addSection(Section* S) {
     if (S->getModule()) {
       S->getModule()->removeSection(S);
     }
     S->setModule(this);
     S->addToIndices();
-  }
-
-  /// \brief Creates a new \ref Section in this module.
-  ///
-  /// \tparam Args  The arguments to construct a \ref Section.
-  template <typename... Args> Section* addSection(Context& C, Args... A) {
-    auto* N = Section::Create(C, A...);
-    N->setModule(this);
-    Sections.emplace(N);
-    return N;
+    return S;
   }
 
   /// \brief Find a Section containing an address.

@@ -181,22 +181,13 @@ public:
   /// \brief Move a \ref Module object to be located in this IR.
   ///
   /// \param S The \ref Module object to add.
-  void addModule(Module* S) {
-    if (S->getIR()) {
-      S->getIR()->removeModule(S);
+  Module* addModule(Module* M) {
+    if (M->getIR()) {
+      M->getIR()->removeModule(M);
     }
-    Modules.emplace(S);
-    S->setIR(this);
-  }
-
-  /// \brief Creates a new \ref Module in this IR.
-  ///
-  /// \tparam Args  The arguments to construct a \ref Module.
-  template <typename... Args> Module* addModule(Context& C, Args... A) {
-    auto* N = Module::Create(C, A...);
-    N->setIR(this);
-    Modules.emplace(N);
-    return N;
+    Modules.emplace(M);
+    M->setIR(this);
+    return M;
   }
 
   /// \brief Serialize to an output stream in binary format.

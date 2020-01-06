@@ -156,10 +156,10 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     {
       Context InnerCtx;
       auto* Original = ByteInterval::Create(InnerCtx, Addr(0), 10);
-      Original->addCodeBlock(InnerCtx, 3, 1);
-      Original->addCodeBlock(InnerCtx, 6, 1);
-      Original->addDataBlock(InnerCtx, 6, 1);
-      Original->addSymbolicExpression<SymAddrConst>(5, 8, Sym);
+      Original->addBlock(3, CodeBlock::Create(InnerCtx, 1));
+      Original->addBlock(6, CodeBlock::Create(InnerCtx, 1));
+      Original->addBlock(6, DataBlock::Create(InnerCtx, 1));
+      Original->addSymbolicExpression(5, SymAddrConst{8, Sym});
       Original->toProtobuf(&Message);
     }
     auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
@@ -492,13 +492,13 @@ TEST(Unit_ByteInterval, byteVectorErase) {
 
 TEST(Unit_ByteInterval, removeBlock) {
   auto* M = Module::Create(Ctx);
-  auto* S = M->addSection(Ctx, "test");
-  auto* BI = S->addByteInterval(Ctx, Addr(0), 10);
+  auto* S = M->addSection(Section::Create(Ctx, "test"));
+  auto* BI = S->addByteInterval(ByteInterval::Create(Ctx, Addr(0), 10));
 
-  auto* B1 = BI->addCodeBlock(Ctx, 0, 1);
-  auto* B2 = BI->addDataBlock(Ctx, 1, 1);
-  auto* B3 = BI->addCodeBlock(Ctx, 2, 1);
-  auto* B4 = BI->addDataBlock(Ctx, 3, 1);
+  auto* B1 = BI->addBlock(0, CodeBlock::Create(Ctx, 1));
+  auto* B2 = BI->addBlock(1, DataBlock::Create(Ctx, 1));
+  auto* B3 = BI->addBlock(2, CodeBlock::Create(Ctx, 1));
+  auto* B4 = BI->addBlock(3, DataBlock::Create(Ctx, 1));
 
   {
     auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
@@ -558,21 +558,21 @@ TEST(Unit_ByteInterval, addSymbolicExpression) {
   auto* S = Symbol::Create(Ctx, "test");
 
   {
-    auto& SE = BI->addSymbolicExpression<SymAddrConst>(0, 1, S);
+    auto& SE = BI->addSymbolicExpression(0, SymAddrConst{1, S});
     ASSERT_TRUE(std::holds_alternative<SymAddrConst>(SE));
     ASSERT_EQ(std::get<SymAddrConst>(SE).Offset, 1);
     ASSERT_EQ(std::get<SymAddrConst>(SE).Sym, S);
   }
 
   {
-    auto& SE = BI->addSymbolicExpression<SymStackConst>(1, 2, S);
+    auto& SE = BI->addSymbolicExpression(1, SymStackConst{2, S});
     ASSERT_TRUE(std::holds_alternative<SymStackConst>(SE));
     ASSERT_EQ(std::get<SymStackConst>(SE).Offset, 2);
     ASSERT_EQ(std::get<SymStackConst>(SE).Sym, S);
   }
 
   {
-    auto& SE = BI->addSymbolicExpression<SymAddrAddr>(2, 3, 4, S, S);
+    auto& SE = BI->addSymbolicExpression(2, SymAddrAddr{3, 4, S, S});
     ASSERT_TRUE(std::holds_alternative<SymAddrAddr>(SE));
     ASSERT_EQ(std::get<SymAddrAddr>(SE).Scale, 3);
     ASSERT_EQ(std::get<SymAddrAddr>(SE).Offset, 4);

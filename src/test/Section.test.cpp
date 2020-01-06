@@ -30,15 +30,15 @@ TEST(Unit_Section, getAddress) {
   EXPECT_EQ(S->getAddress(), OAddr());
   EXPECT_EQ(S->getSize(), OSize());
 
-  S->addByteInterval(Ctx, Addr(5), 10);
+  S->addByteInterval(ByteInterval::Create(Ctx, Addr(5), 10));
   EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
   EXPECT_EQ(S->getSize(), OSize(10));
 
-  S->addByteInterval(Ctx, Addr(15), 10);
+  S->addByteInterval(ByteInterval::Create(Ctx, Addr(15), 10));
   EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
   EXPECT_EQ(S->getSize(), OSize(20));
 
-  S->addByteInterval(Ctx, OAddr(), 10);
+  S->addByteInterval(ByteInterval::Create(Ctx, OAddr(), 10));
   EXPECT_EQ(S->getAddress(), OAddr());
   EXPECT_EQ(S->getSize(), OSize());
 }

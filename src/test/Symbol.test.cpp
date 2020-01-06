@@ -40,12 +40,12 @@ TEST(Unit_Symbol, setStorageKind) {
 
 TEST(Unit_Symbol, setReferent) {
   auto* Mod = Module::Create(Ctx);
-  auto* Sym = Mod->addSymbol(Ctx, "test");
-  auto* S = Mod->addSection(Ctx, "test");
-  auto* BI = S->addByteInterval(Ctx, Addr(0), 4);
-  auto* Data = BI->addDataBlock(Ctx, 0, 2);
-  auto* B = BI->addCodeBlock(Ctx, 1, 2);
-  auto* Proxy = Mod->addProxyBlock(Ctx);
+  auto* Sym = Mod->addSymbol(Symbol::Create(Ctx, "test"));
+  auto* S = Mod->addSection(Section::Create(Ctx, "test"));
+  auto* BI = S->addByteInterval(ByteInterval::Create(Ctx, Addr(0), 4));
+  auto* Data = BI->addBlock(0, DataBlock::Create(Ctx, 2));
+  auto* B = BI->addBlock(1, CodeBlock::Create(Ctx, 2));
+  auto* Proxy = Mod->addProxyBlock(ProxyBlock::Create(Ctx));
 
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
@@ -82,9 +82,9 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     auto* Original = Symbol::Create(InnerCtx, "test");
     Original->setStorageKind(Symbol::StorageKind::Static);
 
-    auto* S = Mod->addSection(InnerCtx, "test");
-    auto* BI = S->addByteInterval(InnerCtx, Addr(0), 10);
-    auto* Data = BI->addDataBlock(InnerCtx, 1, 1);
+    auto* S = Mod->addSection(Section::Create(InnerCtx, "test"));
+    auto* BI = S->addByteInterval(ByteInterval::Create(InnerCtx, Addr(0), 10));
+    auto* Data = BI->addBlock(1, DataBlock::Create(InnerCtx, 1));
     DataUUID = Data->getUUID();
     Original->setReferent(Data);
 

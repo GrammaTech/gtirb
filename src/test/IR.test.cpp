@@ -45,9 +45,9 @@ TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
-  auto* M1 = Ir->addModule(Ctx, "b");
-  auto* M2 = Ir->addModule(Ctx, "a");
-  auto* M3 = Ir->addModule(Ctx, "a");
+  auto* M1 = Ir->addModule(Module::Create(Ctx, "b"));
+  auto* M2 = Ir->addModule(Module::Create(Ctx, "a"));
+  auto* M3 = Ir->addModule(Module::Create(Ctx, "a"));
 
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
   auto It = Ir->begin();
@@ -72,12 +72,12 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
   auto* Ir = IR::Create(Ctx);
 
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
-    auto* M = Ir->addModule(Ctx);
+    auto* M = Ir->addModule(Module::Create(Ctx));
     M->setPreferredAddr(PreferredAddr);
   }
 
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
-    Ir->addModule(Ctx);
+    Ir->addModule(Module::Create(Ctx));
   }
 
   size_t Count =
@@ -141,7 +141,7 @@ TEST(Unit_IR, protobufRoundTrip) {
   {
     Context InnerCtx;
     auto* Original = IR::Create(InnerCtx);
-    Original->addModule(InnerCtx);
+    Original->addModule(Module::Create(InnerCtx));
     Original->addAuxData("test", AuxData());
 
     MainID = Original->begin()->getUUID();
@@ -161,7 +161,7 @@ TEST(Unit_IR, jsonRoundTrip) {
   {
     Context InnerCtx;
     auto* Original = IR::Create(InnerCtx);
-    Original->addModule(InnerCtx);
+    Original->addModule(Module::Create(InnerCtx));
     Original->addAuxData("test", AuxData());
 
     MainID = Original->begin()->getUUID();
@@ -189,9 +189,9 @@ TEST(Unit_IR, move) {
 
 TEST(Unit_IR, setModuleName) {
   auto* Ir = IR::Create(Ctx);
-  auto* M1 = Ir->addModule(Ctx, "a");
-  auto* M2 = Ir->addModule(Ctx, "b");
-  auto* M3 = Ir->addModule(Ctx, "c");
+  auto* M1 = Ir->addModule(Module::Create(Ctx, "a"));
+  auto* M2 = Ir->addModule(Module::Create(Ctx, "b"));
+  auto* M3 = Ir->addModule(Module::Create(Ctx, "c"));
 
   M2->setName("d");
   EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
