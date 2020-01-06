@@ -969,74 +969,76 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
   (setf (proto:data (proto obj))
         (force-byte-array (aux-data-encode (aux-data-type obj) new))))
 
-(defvar *decode-data* nil)
-(defun advance (n) (setf *decode-data* (subseq *decode-data* n)))
+(declaim (special *decode-data*))
 (defun decode (type)
-  (match type
-    ((or :addr :uint64-t)
-     (prog1
-         (octets->uint64 (subseq *decode-data* 0 8))
-       (advance 8)))
-    (:int64-t
-     (prog1
-         (octets->int64 (subseq *decode-data* 0 8))
-       (advance 8)))
-    (:uuid
-     (prog1 (uuid-to-integer (subseq *decode-data* 0 16)) (advance 16)))
-    (:offset
-     (list (decode :uuid) (decode :uint64-t)))
-    (:string
-     (let ((size (decode :uint64-t)))
-       (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
-         (advance size))))
-    ((list :mapping key-t value-t)
-     (let ((result (make-hash-table)))
-       (dotimes (n (decode :uint64-t) result)
-         (declare (ignorable n))
-         (let* ((key (decode key-t))
-                (value (decode value-t)))
-           (setf (gethash key result) value)))))
-    ((list (or :sequence :set) type)
-     (let (result)
-       (reverse
-        (dotimes (n (decode :uint64-t) result)
-          (declare (ignorable n))
-          (push (decode type) result)))))
-    ((list* :tuple types)
-     (mapcar #'decode types))))
+  (flet ((advance (n) (setf *decode-data* (subseq *decode-data* n))))
+    (declare (inline advance))
+    (match type
+      ((or :addr :uint64-t)
+       (prog1
+           (octets->uint64 (subseq *decode-data* 0 8))
+         (advance 8)))
+      (:int64-t
+       (prog1
+           (octets->int64 (subseq *decode-data* 0 8))
+         (advance 8)))
+      (:uuid
+       (prog1 (uuid-to-integer (subseq *decode-data* 0 16)) (advance 16)))
+      (:offset
+       (list (decode :uuid) (decode :uint64-t)))
+      (:string
+       (let ((size (decode :uint64-t)))
+         (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
+           (advance size))))
+      ((list :mapping key-t value-t)
+       (let ((result (make-hash-table)))
+         (dotimes (n (decode :uint64-t) result)
+           (declare (ignorable n))
+           (let* ((key (decode key-t))
+                  (value (decode value-t)))
+             (setf (gethash key result) value)))))
+      ((list (or :sequence :set) type)
+       (let (result)
+         (reverse
+          (dotimes (n (decode :uint64-t) result)
+            (declare (ignorable n))
+            (push (decode type) result)))))
+      ((list* :tuple types)
+       (mapcar #'decode types)))))
 (defun aux-data-decode (type data)
   (let ((*decode-data* data))
     (decode type)))
 
-(defun extend (it) (push it *decode-data*))
 (defun encode (type data)
-  (match type
-    ((or :addr :uint64-t :int64-t)
-     (extend (int->octets data 8)))
-    (:uuid
-     (extend (integer-to-uuid data)))
-    (:offset
-     (progn (encode :uuid (first data))
-            (encode :uint64-t (second data))))
-    (:string
-     (let ((string-bytes (string-to-utf-8-bytes data)))
-       (encode :uint64-t (length string-bytes))
-       (extend string-bytes)))
-    ((list :mapping key-t value-t)
-     (encode :uint64-t (hash-table-count data))
-     (maphash (lambda (key value)
-                (encode key-t key)
-                (encode value-t value))
-              data))
-    ((list (or :sequence :set) type)
-     (let ((size (length data)))
-       (encode :uint64-t size)
-       (dotimes (n size)
-         (encode type (elt data n)))))
-    ((list* :tuple types)
-     (mapc (lambda (type datum)
-             (encode type datum))
-           types data))))
+  (flet ((extend (it) (push it *decode-data*)))
+    (declare (inline extend))
+    (match type
+      ((or :addr :uint64-t :int64-t)
+       (extend (int->octets data 8)))
+      (:uuid
+       (extend (integer-to-uuid data)))
+      (:offset
+       (progn (encode :uuid (first data))
+              (encode :uint64-t (second data))))
+      (:string
+       (let ((string-bytes (string-to-utf-8-bytes data)))
+         (encode :uint64-t (length string-bytes))
+         (extend string-bytes)))
+      ((list :mapping key-t value-t)
+       (encode :uint64-t (hash-table-count data))
+       (maphash (lambda (key value)
+                  (encode key-t key)
+                  (encode value-t value))
+                data))
+      ((list (or :sequence :set) type)
+       (let ((size (length data)))
+         (encode :uint64-t size)
+         (dotimes (n size)
+           (encode type (elt data n)))))
+      ((list* :tuple types)
+       (mapc (lambda (type datum)
+               (encode type datum))
+             types data)))))
 (defun aux-data-encode (type data)
   (let ((*decode-data* nil))
     (encode type data)
