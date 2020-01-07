@@ -606,32 +606,34 @@ private:
   /// \brief A reference to a section of the byte interval, allowing for
   /// seamless reading and writing of chunks of data.
   ///
-  /// \tparam VectorType  Either "std::vector<uint8_t>" or
-  ///                     "const std::vector<uint8_t>".
+  /// \tparam ByteIntervalType  Either "ByteInterval" or
+  ///                           "const ByteInterval".
   /// \tparam T  The type of the data to iterate over. Must be a POD
   ///            type that satisfies Boost's EndianReversible concept.
-  template <typename VectorType, typename T> class BytesReference {
+  template <typename ByteIntervalType, typename T> class BytesReference {
   public:
-    BytesReference(VectorType& V_, size_t I_, boost::endian::order InputOrder_,
+    BytesReference(ByteIntervalType& BI_, size_t I_,
+                   boost::endian::order InputOrder_,
                    boost::endian::order OutputOrder_)
-        : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
+        : BI(BI_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
     /// \brief Use this reference as an rvalue, automatically handling
     /// endian conversion.
     operator T() const {
       return boost::endian::conditional_reverse(
-          *reinterpret_cast<const T*>(V.data() + I), InputOrder, OutputOrder);
+          *reinterpret_cast<const T*>(BI.Bytes.data() + I), InputOrder,
+          OutputOrder);
     }
 
     /// \brief Use this reference as an lvalue, automatically handling
     /// endian conversion.
-    BytesReference<VectorType, T>& operator=(const T& rhs) {
-      *reinterpret_cast<T*>(V.data() + I) =
+    BytesReference<ByteIntervalType, T>& operator=(const T& rhs) {
+      *reinterpret_cast<T*>(BI.Bytes.data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
       return *this;
     }
 
-    VectorType& V;
+    ByteIntervalType& BI;
     size_t I;
     boost::endian::order InputOrder;
     boost::endian::order OutputOrder;
@@ -639,31 +641,31 @@ private:
 
   /// \brief An iterator over the bytes in this byte vector.
   ///
-  /// \tparam VectorType  Either "std::vector<uint8_t>" or
-  ///                     "const std::vector<uint8_t>".
+  /// \tparam ByteIntervalType  Either "ByteInterval" or
+  ///                           "const ByteInterval".
   /// \tparam T  The type of the data to iterate over. Must be a POD
   ///            type that satisfies Boost's EndianReversible concept.
-  template <typename VectorType, typename T>
+  template <typename ByteIntervalType, typename T>
   class BytesBaseIterator
-      : public boost::iterator_facade<BytesBaseIterator<VectorType, T>, T,
+      : public boost::iterator_facade<BytesBaseIterator<ByteIntervalType, T>, T,
                                       boost::random_access_traversal_tag,
-                                      BytesReference<VectorType, T>> {
+                                      BytesReference<ByteIntervalType, T>> {
   public:
-    using self = BytesBaseIterator<VectorType, T>;
-    using reference = BytesReference<VectorType, T>;
+    using self = BytesBaseIterator<ByteIntervalType, T>;
+    using reference = BytesReference<ByteIntervalType, T>;
 
-    BytesBaseIterator(VectorType& V_, size_t I_,
+    BytesBaseIterator(ByteIntervalType& BI_, size_t I_,
                       boost::endian::order InputOrder_,
                       boost::endian::order OutputOrder_)
-        : V(V_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
+        : BI(BI_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
     // Beginning of functions for iterator facade compatibility.
     reference dereference() const {
-      return reference(V, I, InputOrder, OutputOrder);
+      return reference(BI, I, InputOrder, OutputOrder);
     }
 
     bool equal(const self& other) const {
-      return &V == &other.V && I == other.I;
+      return &BI == &other.BI && I == other.I;
     }
 
     void increment() { I += sizeof(T); }
@@ -678,13 +680,13 @@ private:
     // End of functions for iterator facade compatibility.
 
     /// \brief Convert this iterator into a const iterator.
-    operator BytesBaseIterator<const VectorType, T>() const {
-      return BytesBaseIterator<const VectorType, T>(V, I, InputOrder,
-                                                    OutputOrder);
+    operator BytesBaseIterator<const ByteIntervalType, T>() const {
+      return BytesBaseIterator<const ByteIntervalType, T>(BI, I, InputOrder,
+                                                          OutputOrder);
     }
 
   private:
-    VectorType& V;
+    ByteIntervalType& BI;
     size_t I;
     boost::endian::order InputOrder;
     boost::endian::order OutputOrder;
@@ -698,7 +700,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T>
-  using bytes_iterator = BytesBaseIterator<std::vector<uint8_t>, T>;
+  using bytes_iterator = BytesBaseIterator<ByteInterval, T>;
   /// \brief Range over bytes.
   ///
   /// \tparam T  The type of data stored in this byte vector. Must be a
@@ -710,7 +712,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T>
-  using const_bytes_iterator = BytesBaseIterator<const std::vector<uint8_t>, T>;
+  using const_bytes_iterator = BytesBaseIterator<const ByteInterval, T>;
   /// \brief Const range over bytes.
   ///
   /// \tparam T  The type of data stored in this byte vector. Must be a
@@ -729,7 +731,7 @@ public:
   bytes_iterator<T>
   bytes_begin(boost::endian::order InputOrder = boost::endian::order::native,
               boost::endian::order OutputOrder = boost::endian::order::native) {
-    return bytes_iterator<T>(Bytes, 0, InputOrder, OutputOrder);
+    return bytes_iterator<T>(*this, 0, InputOrder, OutputOrder);
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -743,7 +745,7 @@ public:
   bytes_iterator<T>
   bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
             boost::endian::order OutputOrder = boost::endian::order::native) {
-    return bytes_iterator<T>(Bytes, Bytes.size(), InputOrder, OutputOrder);
+    return bytes_iterator<T>(*this, Bytes.size(), InputOrder, OutputOrder);
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -772,7 +774,7 @@ public:
   const_bytes_iterator<T> bytes_begin(
       boost::endian::order InputOrder = boost::endian::order::native,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
-    return const_bytes_iterator<T>(Bytes, 0, InputOrder, OutputOrder);
+    return const_bytes_iterator<T>(*this, 0, InputOrder, OutputOrder);
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -786,7 +788,7 @@ public:
   const_bytes_iterator<T> bytes_end(
       boost::endian::order InputOrder = boost::endian::order::native,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
-    return const_bytes_iterator<T>(Bytes, Bytes.size(), InputOrder,
+    return const_bytes_iterator<T>(*this, Bytes.size(), InputOrder,
                                    OutputOrder);
   }
 
