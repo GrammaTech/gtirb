@@ -355,9 +355,9 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
         str2<uint16_t>("!!"), str2<uint16_t>("??")};
 
     auto OriginalIt = CompareTo.begin();
-    auto NewIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::little);
+    auto NewIt = BI->bytes_begin<uint16_t>(boost::endian::order::little);
     auto OriginalEnd = CompareTo.end();
-    auto NewEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::little);
+    auto NewEnd = BI->bytes_end<uint16_t>(boost::endian::order::little);
 
     EXPECT_EQ(std::distance(NewIt, NewEnd), 8);
     while (OriginalIt != OriginalEnd && NewIt != NewEnd) {
@@ -377,9 +377,9 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
         str2<uint16_t>("!!"), str2<uint16_t>("??")};
 
     auto OriginalIt = CompareTo.begin();
-    auto NewIt = BI->bytes_begin<uint16_t>(ByteInterval::Endian::big);
+    auto NewIt = BI->bytes_begin<uint16_t>(boost::endian::order::big);
     auto OriginalEnd = CompareTo.end();
-    auto NewEnd = BI->bytes_end<uint16_t>(ByteInterval::Endian::big);
+    auto NewEnd = BI->bytes_end<uint16_t>(boost::endian::order::big);
 
     EXPECT_EQ(std::distance(NewIt, NewEnd), 8);
     while (OriginalIt != OriginalEnd && NewIt != NewEnd) {

@@ -13,6 +13,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/ByteInterval.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/Serialization.hpp>
 #include <proto/ByteInterval.pb.h>
 #include <iterator>
@@ -30,7 +32,7 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 
   Message->set_size(getSize());
-  auto BytesIt = Bytes.begin<char>();
+  auto BytesIt = bytes_begin<char>();
   Message->mutable_contents()->reserve(InitializedSize);
   std::copy(BytesIt, BytesIt + InitializedSize,
             std::back_inserter(*Message->mutable_contents()));
@@ -100,9 +102,4 @@ void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
       SymbolicExpressions[Pair.first] = SymExpr;
     }
   });
-}
-
-ByteVector& gtirb::getByteVector(ByteInterval* BI) { return BI->Bytes; }
-const ByteVector& gtirb::getByteVector(const ByteInterval* BI) {
-  return BI->Bytes;
 }

@@ -16,7 +16,7 @@
 #define GTIRB_BLOCK_H
 
 #include <gtirb/Addr.hpp>
-#include <gtirb/ByteVector.hpp>
+#include <gtirb/ByteInterval.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>
@@ -107,30 +107,28 @@ public:
   /// differentiate between sub-ISAs; ARM and Thumb, for example.
   void setDecodeMode(uint64_t DM) { DecodeMode = DM; }
 
-  /// \brief The endianess of data: Either big or little-endian.
-  using Endian = ByteVector::Endian;
-
   /// \brief Iterator over bytes in this block.
   ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
-  template <typename T> using bytes_iterator = ByteVector::iterator<T>;
+  template <typename T> using bytes_iterator = ByteInterval::bytes_iterator<T>;
   /// \brief Range over bytes in this block.
   ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
-  template <typename T> using bytes_range = ByteVector::range<T>;
+  template <typename T> using bytes_range = ByteInterval::bytes_range<T>;
   /// \brief Const iterator over bytes in this block.
   ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T>
-  using const_bytes_iterator = ByteVector::const_iterator<T>;
+  using const_bytes_iterator = ByteInterval::const_bytes_iterator<T>;
   /// \brief Const range over bytes in this block.
   ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
-  template <typename T> using const_bytes_range = ByteVector::const_range<T>;
+  template <typename T>
+  using const_bytes_range = ByteInterval::const_bytes_range<T>;
 
   /// \brief Get an iterator to the first byte in this block.
   ///
@@ -140,11 +138,11 @@ public:
   /// \param  InputOrder  The endianess of the data in the block.
   /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
-  bytes_iterator<T> bytes_begin(Endian InputOrder = Endian::native,
-                                Endian OutputOrder = Endian::native) {
+  bytes_iterator<T>
+  bytes_begin(boost::endian::order InputOrder = boost::endian::order::native,
+              boost::endian::order OutputOrder = boost::endian::order::native) {
     assert(Parent && "Block has no byte interval!");
-    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
-           getOffset();
+    return Parent->bytes_begin<T>(InputOrder, OutputOrder) + getOffset();
   }
 
   /// \brief Get an iterator past the last byte in this block.
@@ -155,11 +153,11 @@ public:
   /// \param  InputOrder  The endianess of the data in the block.
   /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
-  bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
-                              Endian OutputOrder = Endian::native) {
+  bytes_iterator<T>
+  bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
+            boost::endian::order OutputOrder = boost::endian::order::native) {
     assert(Parent && "Block has no byte interval!");
-    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
-           getOffset() + Size;
+    return Parent->bytes_begin<T>(InputOrder, OutputOrder) + getOffset() + Size;
   }
 
   /// \brief Get a range of the bytes in this block.
@@ -170,8 +168,9 @@ public:
   /// \param  InputOrder  The endianess of the data in the block.
   /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
-  bytes_range<T> bytes(Endian InputOrder = Endian::native,
-                       Endian OutputOrder = Endian::native) {
+  bytes_range<T>
+  bytes(boost::endian::order InputOrder = boost::endian::order::native,
+        boost::endian::order OutputOrder = boost::endian::order::native) {
     assert(Parent && "Block has no byte interval!");
     return bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
                           bytes_end<T>(InputOrder, OutputOrder));
@@ -185,12 +184,11 @@ public:
   /// \param  InputOrder  The endianess of the data in the block.
   /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
-  const_bytes_iterator<T>
-  bytes_begin(Endian InputOrder = Endian::native,
-              Endian OutputOrder = Endian::native) const {
+  const_bytes_iterator<T> bytes_begin(
+      boost::endian::order InputOrder = boost::endian::order::native,
+      boost::endian::order OutputOrder = boost::endian::order::native) const {
     assert(Parent && "Block has no byte interval!");
-    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
-           getOffset();
+    return Parent->bytes_begin<T>(InputOrder, OutputOrder) + getOffset();
   }
 
   /// \brief Get an iterator past the last byte in this block.
@@ -201,11 +199,11 @@ public:
   /// \param  InputOrder  The endianess of the data in the block.
   /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
-  const_bytes_iterator<T> bytes_end(Endian InputOrder = Endian::native,
-                                    Endian OutputOrder = Endian::native) const {
+  const_bytes_iterator<T> bytes_end(
+      boost::endian::order InputOrder = boost::endian::order::native,
+      boost::endian::order OutputOrder = boost::endian::order::native) const {
     assert(Parent && "Block has no byte interval!");
-    return getByteVector(Parent).begin<T>(InputOrder, OutputOrder) +
-           getOffset() + Size;
+    return Parent->bytes_begin<T>(InputOrder, OutputOrder) + getOffset() + Size;
   }
 
   /// \brief Get a range of the bytes in this block.
@@ -216,8 +214,9 @@ public:
   /// \param  InputOrder  The endianess of the data in the block.
   /// \param  OutputOrder The endianess you wish to read out from the block.
   template <typename T>
-  const_bytes_range<T> bytes(Endian InputOrder = Endian::native,
-                             Endian OutputOrder = Endian::native) const {
+  const_bytes_range<T>
+  bytes(boost::endian::order InputOrder = boost::endian::order::native,
+        boost::endian::order OutputOrder = boost::endian::order::native) const {
     assert(Parent && "Block has no byte interval!");
     return const_bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
                                 bytes_end<T>(InputOrder, OutputOrder));
@@ -237,8 +236,7 @@ public:
   /// \retrurn A pointer to raw data.
   template <typename T> T* rawBytes() {
     assert(Parent && "Block has no byte interval!");
-    return reinterpret_cast<T*>(getByteVector(Parent).data<uint8_t>() +
-                                getOffset());
+    return reinterpret_cast<T*>(Parent->rawBytes<uint8_t>() + getOffset());
   }
 
   /// \brief Return the raw data underlying this block's byte vector.
@@ -255,7 +253,7 @@ public:
   /// \retrurn A pointer to raw data.
   template <typename T> const T* rawBytes() const {
     assert(Parent && "Block has no byte interval!");
-    return reinterpret_cast<const T*>(getByteVector(Parent).data<uint8_t>() +
+    return reinterpret_cast<const T*>(Parent->rawBytes<uint8_t>() +
                                       getOffset());
   }
 

@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/Context.hpp>
+#include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <proto/SymbolicExpression.pb.h>
 #include <gtest/gtest.h>

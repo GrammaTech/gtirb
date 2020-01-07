@@ -16,7 +16,6 @@
 #define GTIRB_SYMBOLICEXPRESSION_H
 
 #include <gtirb/Addr.hpp>
-#include <gtirb/Symbol.hpp>
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -33,6 +32,7 @@ class SymbolicExpression;
 }
 namespace gtirb {
 class Context;
+class Symbol;
 
 /// \defgroup SYMBOLIC_EXPRESSION_GROUP Symbolic Expressions and Operands
 /// \brief Represent data values or instruction operands which
