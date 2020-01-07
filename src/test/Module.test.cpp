@@ -654,41 +654,6 @@ TEST(Unit_Module, findSymbolicExpressions) {
   }
 }
 
-// TEST(Unit_Module, getAddrsForSymbolicExpression) {
-//   auto* M = Module::Create(Ctx);
-//   SymAddrConst SAC1{0, Symbol::Create(Ctx, Addr(1), "foo")};
-//   SymAddrConst SAC2{0, Symbol::Create(Ctx, Addr(5), "bar")};
-//   SymAddrConst SAC3{0, Symbol::Create(Ctx, Addr(10), "baz")};
-
-//   M->addSymbolicExpression(Addr(1), SAC1);
-//   M->addSymbolicExpression(Addr(5), SAC2);
-//   M->addSymbolicExpression(Addr(10), SAC1);
-//   // Note: SAC3 is purposefully not added to the module while SAC1 is added
-//   // twice at different addresses.
-
-//   {
-//     auto R = M->getAddrsForSymbolicExpression(SAC1);
-//     EXPECT_EQ(std::distance(R.begin(), R.end()), 2);
-//     // The order of the results is not guaranteed, so check that both of the
-//     // addresses are present but without relying on order.
-//     ptrdiff_t Count = std::count_if(R.begin(), R.end(), [](Addr A) {
-//       return A == Addr{10} || A == Addr{1};
-//     });
-//     EXPECT_EQ(Count, 2);
-//   }
-
-//   {
-//     auto R = M->getAddrsForSymbolicExpression(SAC2);
-//     EXPECT_EQ(std::distance(R.begin(), R.end()), 1);
-//     EXPECT_EQ(*R.begin(), Addr{5});
-//   }
-
-//   {
-//     auto R = M->getAddrsForSymbolicExpression(SAC3);
-//     EXPECT_EQ(std::distance(R.begin(), R.end()), 0);
-//   }
-// }
-
 TEST(Unit_Module, protobufRoundTrip) {
   proto::Module Message;
 
