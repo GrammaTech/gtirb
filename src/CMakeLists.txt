@@ -53,6 +53,7 @@ set(PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Offset.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Serialization.hpp
@@ -74,6 +75,7 @@ set(${PROJECT_NAME}_SRC
     IR.cpp
     Module.cpp
     Node.cpp
+    Offset.cpp
     ProxyBlock.cpp
     Section.cpp
     Serialization.cpp

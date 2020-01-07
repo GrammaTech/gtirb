@@ -1,4 +1,4 @@
-//===- Block.cpp ------------------------------------------------*- C++ -*-===//
+//===- CodeBlock.cpp --------------------------------------------*- C++ -*-===//
 //
 //  Copyright (C) 2018-2019 GrammaTech, Inc.
 //
@@ -15,7 +15,6 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Serialization.hpp>
-#include <proto/Offset.pb.h>
 
 using namespace gtirb;
 
@@ -31,16 +30,6 @@ CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
   B->setByteInterval(Parent);
   setNodeUUIDFromBytes(B, Message.uuid());
   return B;
-}
-
-void Offset::toProtobuf(MessageType* Message) const {
-  uuidToBytes(this->ElementId, *Message->mutable_element_id());
-  Message->set_displacement(this->Displacement);
-}
-
-void Offset::fromProtobuf(Context&, const MessageType& Message) {
-  this->ElementId = uuidFromBytes(Message.element_id());
-  this->Displacement = Message.displacement();
 }
 
 uint64_t CodeBlock::getOffset() const {

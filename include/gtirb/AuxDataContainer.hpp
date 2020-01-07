@@ -19,6 +19,7 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Serialization.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <type_traits>
 
 /// \file AuxDataContainer.hpp

@@ -16,8 +16,8 @@
 #define GTIRB_SERIALIZATION_H
 
 #include <gtirb/Addr.hpp>
-#include <gtirb/CodeBlock.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Offset.hpp>
 #include <google/protobuf/map.h>
 #include <google/protobuf/repeated_field.h>
 #include <type_traits>
