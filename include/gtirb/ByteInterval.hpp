@@ -19,6 +19,7 @@
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/SymbolicExpression.hpp>
+#include <array>
 #include <boost/endian/conversion.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -134,10 +135,6 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     return *It;
   }
 
-  /// \brief Call this function when \ref Bytes changes size from any source
-  /// other than \ref setSize, in order to update indices and the like.
-  void updateSize() { setSize(Bytes.size()); }
-
 public:
   /// \brief Create a ByteInterval object.
   ///
@@ -148,8 +145,8 @@ public:
   /// \return          The newly created ByteInterval.
   static ByteInterval* Create(Context& C, uint64_t Size = 0,
                               std::optional<uint64_t> InitSize = std::nullopt) {
-    return C.Create<ByteInterval>(C, std::nullopt, InitSize.value_or(Size),
-                                  Size);
+    return C.Create<ByteInterval>(C, std::nullopt, Size,
+                                  InitSize.value_or(Size));
   }
 
   /// \brief Create a ByteInterval object.
@@ -163,7 +160,7 @@ public:
   static ByteInterval* Create(Context& C, std::optional<Addr> Address,
                               uint64_t Size = 0,
                               std::optional<uint64_t> InitSize = std::nullopt) {
-    return C.Create<ByteInterval>(C, Address, InitSize.value_or(Size), Size);
+    return C.Create<ByteInterval>(C, Address, Size, InitSize.value_or(Size));
   }
 
   /// \brief Create a ByteInterval object.
@@ -186,8 +183,8 @@ public:
                               std::optional<uint64_t> Size = std::nullopt,
                               std::optional<uint64_t> InitSize = std::nullopt) {
     return C.Create<ByteInterval>(
-        C, std::nullopt, InitSize ? *InitSize : std::distance(Begin, End),
-        Begin, End, Size ? *Size : std::distance(Begin, End));
+        C, std::nullopt, Size ? *Size : std::distance(Begin, End),
+        InitSize ? *InitSize : std::distance(Begin, End), Begin, End);
   }
 
   /// \brief Create a ByteInterval object.
@@ -211,8 +208,8 @@ public:
                               std::optional<uint64_t> Size = std::nullopt,
                               std::optional<uint64_t> InitSize = std::nullopt) {
     return C.Create<ByteInterval>(
-        C, Address, InitSize ? *InitSize : std::distance(Begin, End), Begin,
-        End, Size ? *Size : std::distance(Begin, End));
+        C, Address, Size ? *Size : std::distance(Begin, End),
+        InitSize ? *InitSize : std::distance(Begin, End), Begin, End);
   }
 
   /// \brief Get the \ref Section this byte interval belongs to.
@@ -228,15 +225,6 @@ public:
   /// present, it indicates that the interval is free to be moved around in
   /// memory while preserving program semantics.
   std::optional<Addr> getAddress() const { return Address; }
-
-  /// \brief Get the size of this interval in bytes.
-  ///
-  /// If this number is greater than the value returned by \ref
-  /// getInitializedSize, this indicates that the high addresses taken up by
-  /// this interval consist of uninitialized bytes. This often occurs in BSS
-  /// sections, where data is zero-initialized rather than stored as zeroes in
-  /// the binary.
-  uint64_t getSize() const { return Bytes.size(); }
 
   /// \brief Iterator over \ref Block objects.
   ///
@@ -551,6 +539,15 @@ public:
     this->mutateIndices([this, A]() { Address = A; });
   }
 
+  /// \brief Get the size of this interval in bytes.
+  ///
+  /// If this number is greater than the value returned by \ref
+  /// getInitializedSize, this indicates that the high addresses taken up by
+  /// this interval consist of uninitialized bytes. This often occurs in BSS
+  /// sections, where data is zero-initialized rather than stored as zeroes in
+  /// the binary.
+  uint64_t getSize() const { return Size; }
+
   /// \brief Set the size of this interval.
   ///
   /// This will also adjust \ref getInitializedSize if the size given is less
@@ -558,11 +555,10 @@ public:
   ///
   /// \param S  The new size.
   void setSize(uint64_t S) {
-    this->mutateIndices([this, S]() {
-      InitializedSize = std::min(InitializedSize, S);
-
-      Bytes.resize(S);
-    });
+    this->mutateIndices([this, S]() { Size = S; });
+    if (S < getInitializedSize()) {
+      setInitializedSize(S);
+    }
   }
 
   /// \brief Get the number of initialized bytes in this interval.
@@ -577,7 +573,7 @@ public:
   /// saving to file.
   ///
   /// This number will never be larger than the value returned by \ref getSize.
-  uint64_t getInitializedSize() const { return InitializedSize; }
+  uint64_t getInitializedSize() const { return Bytes.size(); }
 
   /// \brief Set the number of initialized bytes in this interval.
   ///
@@ -594,10 +590,10 @@ public:
   /// the byte vector is expanded with zeroes to be equal to the new allocated
   /// size.
   void setInitializedSize(uint64_t S) {
+    Bytes.resize(S);
     if (S > getSize()) {
       setSize(S);
     }
-    InitializedSize = S;
   }
 
 private:
@@ -617,17 +613,60 @@ private:
                    boost::endian::order OutputOrder_)
         : BI(BI_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
-    /// \brief Use this reference as an rvalue, automatically handling
-    /// endian conversion.
+    /// \brief Use this reference as an rvalue.
+    ///
+    /// This method automatically handles endian conversions.
+    /// If uninitlized bytes are read from, then those bytes are treated as
+    /// zeroes.
     operator T() const {
+      assert(I + sizeof(T) <= BI.Size &&
+             "read into interval's bytes out of bounds!");
+
+      auto S = BI.Bytes.size();
+
+      if (I >= S) {
+        // anything this far past the end of initialized bytes is composed of
+        // all zero bytes, so we return what T would have been interpreted as if
+        // all bytes are zero.
+        //
+        // (note that you may be tempted to replace this with "return T{};", but
+        // beware: T might be a non-scalar type whose default constructor
+        // differs from the value returned when all bytes are re-interpeted as
+        // zeroes. A similar argument exists for "return T{0};".)
+        const std::array<uint8_t, sizeof(T)> Array{};
+        return *reinterpret_cast<const T*>(Array.data());
+      }
+
+      if (I + sizeof(T) > S) {
+        // Here, I < S < I + sizeof(T), so we need to partially fill the
+        // initialized bytes and combine it with zeroes for the uninitialized
+        // bytes.
+        std::array<uint8_t, sizeof(T)> Array{};
+        // Thanks to math, 0 < S - I < sizeof(T).
+        std::copy_n(BI.Bytes.begin() + I, S - I, Array.begin());
+        return boost::endian::conditional_reverse(
+            *reinterpret_cast<const T*>(Array.data()), InputOrder, OutputOrder);
+      }
+
       return boost::endian::conditional_reverse(
           *reinterpret_cast<const T*>(BI.Bytes.data() + I), InputOrder,
           OutputOrder);
     }
 
-    /// \brief Use this reference as an lvalue, automatically handling
-    /// endian conversion.
+    /// \brief Use this reference as an lvalue.
+    ///
+    /// This method automatically handles endian conversions.
+    /// If uninitlized bytes are written to, then the initialized byte count is
+    /// adjusted (see \ref getInitializedSize for details), padding with zeroes
+    /// as necesary.
     BytesReference<ByteIntervalType, T>& operator=(const T& rhs) {
+      assert(I + sizeof(T) <= BI.Size &&
+             "write into interval's bytes out of bounds!");
+
+      if (I + sizeof(T) > BI.Bytes.size()) {
+        BI.Bytes.resize(I + sizeof(T));
+      }
+
       *reinterpret_cast<T*>(BI.Bytes.data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
       return *this;
@@ -745,7 +784,7 @@ public:
   bytes_iterator<T>
   bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
             boost::endian::order OutputOrder = boost::endian::order::native) {
-    return bytes_iterator<T>(*this, Bytes.size(), InputOrder, OutputOrder);
+    return bytes_iterator<T>(*this, Size, InputOrder, OutputOrder);
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -788,8 +827,7 @@ public:
   const_bytes_iterator<T> bytes_end(
       boost::endian::order InputOrder = boost::endian::order::native,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
-    return const_bytes_iterator<T>(*this, Bytes.size(), InputOrder,
-                                   OutputOrder);
+    return const_bytes_iterator<T>(*this, Size, InputOrder, OutputOrder);
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -810,7 +848,7 @@ public:
   /// \brief Insert a single datum into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
-  /// vector. Must be a POD type that satisfies Boost's EndianReversibleInplace
+  /// vector. Must be a POD type that satisfies Boost's EndianReversible
   /// concept.
   ///
   /// \param  Pos           The position in the byte vector to insert data at.
@@ -821,20 +859,24 @@ public:
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
   const_bytes_iterator<T> insertBytes(
-      const const_bytes_iterator<T> Pos, T X,
+      const const_bytes_iterator<T> Pos, const T& X,
       boost::endian::order VectorOrder = boost::endian::order::native,
       boost::endian::order ElementOrder = boost::endian::order::native) {
-    boost::endian::conditional_reverse_inplace(X, ElementOrder, VectorOrder);
-    const auto* ResultAsBytes = reinterpret_cast<const uint8_t*>(&X);
-    Bytes.insert(Bytes.begin() + Pos.I, ResultAsBytes,
-                 ResultAsBytes + sizeof(T));
+    setSize(Size + sizeof(T));
+    // If the position to insert is currently outside the initilized bytes,
+    // we let the iterator's operator= handle resizing the byte vector,
+    // otherwise we insert zeroes and then overwrite them via said operator=.
+    if (Pos.I < Bytes.size()) {
+      Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);
+    }
+    *bytes_iterator<T>(*this, Pos.I, ElementOrder, VectorOrder) = X;
     return Pos;
   }
 
   /// \brief Insert data into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
-  /// vector. Must be a POD type that satisfies Boost's EndianReversibleInplace
+  /// vector. Must be a POD type that satisfies Boost's EndianReversible
   /// concept.
   ///
   /// \tparam InputIterator      The type of an iterator yielding T.
@@ -851,11 +893,17 @@ public:
       const const_bytes_iterator<T> Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder = boost::endian::order::native,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
-    auto It = Pos;
-    for (const T& X : boost::make_iterator_range(Begin, End)) {
-      insertBytes(It, X, VectorOrder, ElementsOrder);
-      It++;
+    auto N = std::distance(Begin, End) * sizeof(T);
+    setSize(Size + N);
+    // If the position to insert is currently outside the initilized bytes,
+    // we let the iterator's operator= handle resizing the byte vector,
+    // otherwise we insert zeroes and then overwrite them via said operator=.
+    if (Pos.I < Bytes.size()) {
+      Bytes.insert(Bytes.begin() + Pos.I, N, 0);
     }
+    // std::copy calls operator= one time for every element in the input iter.
+    std::copy(Begin, End,
+              bytes_iterator<T>(*this, Pos.I, VectorOrder, ElementsOrder));
     return Pos;
   }
 
@@ -871,7 +919,22 @@ public:
   template <typename T>
   const_bytes_iterator<T> eraseBytes(const const_bytes_iterator<T> Begin,
                                      const const_bytes_iterator<T> End) {
-    Bytes.erase(Bytes.begin() + Begin.I, Bytes.begin() + End.I);
+    assert(Begin.I <= End.I && "eraseBytes: Begin > End!");
+    assert(Begin.I <= Size && "eraseBytes: Begin out of range!");
+    assert(End.I <= Size && "eraseBytes: End out of range!");
+
+    // If the beginning iter is outside the init vector, nothing need be done.
+    if (Begin.I < Bytes.size()) {
+      if (End.I < Bytes.size()) {
+        // All positions are within the initilized vector.
+        Bytes.erase(Bytes.begin() + Begin.I, Bytes.begin() + End.I);
+      } else {
+        // The beginning is within vector, the end isn't; clamp to Bytes.end().
+        Bytes.erase(Bytes.begin() + Begin.I, Bytes.end());
+      }
+    }
+
+    setSize(Size - (End.I - Begin.I));
     return Begin;
   }
 
@@ -937,29 +1000,21 @@ public:
 private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
 
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t IS, uint64_t Size)
-      : Node(C, Kind::ByteInterval), Address(A), InitializedSize(IS),
-        Bytes(Size) {}
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize)
+      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(InitSize) {}
 
   template <typename InputIterator>
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t IS,
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize,
                InputIterator Begin, InputIterator End)
-      : Node(C, Kind::ByteInterval), Address(A), InitializedSize(IS),
-        Bytes(Begin, End) {}
-
-  template <typename InputIterator>
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t IS,
-               InputIterator Begin, InputIterator End, uint64_t Size)
-      : Node(C, Kind::ByteInterval), Address(A), InitializedSize(IS),
-        Bytes(Begin, End) {
-    Bytes.resize(Size);
+      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(Begin, End) {
+    Bytes.resize(InitSize);
   }
 
   void setSection(Section* S) { Parent = S; }
 
   Section* Parent{nullptr};
   std::optional<Addr> Address;
-  uint64_t InitializedSize{0};
+  uint64_t Size{0};
   BlockSet Blocks;
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;

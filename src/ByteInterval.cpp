@@ -33,8 +33,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
 
   Message->set_size(getSize());
   auto BytesIt = bytes_begin<char>();
-  Message->mutable_contents()->reserve(InitializedSize);
-  std::copy(BytesIt, BytesIt + InitializedSize,
+  auto InitSize = getInitializedSize();
+  Message->mutable_contents()->reserve(InitSize);
+  std::copy(BytesIt, BytesIt + InitSize,
             std::back_inserter(*Message->mutable_contents()));
 
   for (const auto& N : this->blocks()) {
