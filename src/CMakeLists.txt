@@ -50,6 +50,7 @@ set(PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/MergeSortedIterator.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Offset.hpp

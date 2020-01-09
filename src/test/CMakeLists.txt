@@ -29,6 +29,7 @@ set(${PROJECT_NAME}_SRC
     DataBlock.test.cpp
     Addr.test.cpp
     IR.test.cpp
+    MergeSortedIterator.test.cpp
     Module.test.cpp
     Node.test.cpp
     Offset.test.cpp
