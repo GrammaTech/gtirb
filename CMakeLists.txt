@@ -87,12 +87,22 @@ else()
   set(GTIRB_CL_API_DEFAULT OFF)
 endif()
 
+find_package(Java COMPONENTS Development)
+if(JAVA_FOUND)
+  set(GTIRB_JAVA_API_DEFAULT ON)
+else()
+  set(GTIRB_JAVA_API_DEFAULT OFF)
+endif()
+
 option(GTIRB_CXX_API "Whether or not the C++ API is built." ON)
 option(GTIRB_PY_API "Whether or not the Python API is built."
        ${GTIRB_PY_API_DEFAULT}
 )
 option(GTIRB_CL_API "Whether or not the Common Lisp API is built."
        ${GTIRB_CL_API_DEFAULT}
+)
+option(GTIRB_JAVA_API "Whether or not the Java API is built."
+       ${GTIRB_JAVA_API_DEFAULT}
 )
 
 # ---------------------------------------------------------------------------
@@ -162,6 +172,7 @@ if(GTIRB_CXX_API)
     endif()
 
     add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(-D_MBCS)
     add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
     # We need to add both so that there is not a mismatch between Win32 SDK
     # headers (which use UNICODE) and C Standard Library headers (which use
@@ -308,6 +319,10 @@ if(GTIRB_CL_API)
 endif()
 
 add_subdirectory(doc)
+
+if(GTIRB_JAVA_API)
+  add_subdirectory(java)
+endif()
 
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects

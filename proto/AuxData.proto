@@ -14,6 +14,7 @@
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
 package proto;
+option java_package = "com.grammatech.gtirb.proto";
 
 message AuxData {
   string type_name = 1;
