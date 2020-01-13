@@ -19,16 +19,13 @@ The remainder of this file describes various aspects of GTIRB:
 
 GTIRB has the following structure:
 
-        -------Aux Data
-       /    /
-      /    /   ----DataObject
-    IR    /   /----Section
-      \  /   /-----Symbols
-      Modules------SymbolicExpressions
-             \-----ImageByteMap
-              -----CFG
-                   / \
-               Edges Blocks
+       AuxData
+      /   /     /--Symbols
+     /   /     /                     /--SymbolicExpressions
+    IR--Modules--Sections--ByteIntervals
+     \         \                     \--Blocks
+      \         \--ProxyBlocks
+       CFG
 
 
 ### IR
