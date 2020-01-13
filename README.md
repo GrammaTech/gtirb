@@ -17,22 +17,28 @@ The remainder of this file describes various aspects of GTIRB:
 
 ## Structure
 
-GTIRB has the following structure:
+GTIRB has the following structure.  Solid lines denote inheritance.
+Dotted lines denote reference by UUID.
 
-       AuxData
-      /   /     /--Symbols
-     /   /     /                     /--SymbolicExpressions
-    IR--Modules--Sections--ByteIntervals
-     \         \                     \--Blocks
-      \         \--ProxyBlocks
-       CFG
+       +--IPCFG--Edges...........................
+       |                 .                      .
+       |         +-ProxyBlocks             +-Blocks
+       |         |                         |
+    IR-+-Modules-+-Sections--ByteIntervals-+
+       |    |    |                         |
+       |    |    +-Symbols.........        +-SymbolicExpressions
+       +-AuxData                  .              .
+        --------                  ................
+        ID0|DATA0
+        ID1|DATA1....*anything*
+        ID2|DATA2
 
 
 ### IR
 
 An instance of GTIRB may include multiple modules (`Module`) which
 represent loadable objects such as executables or libraries, an
-inter-procedural control flow graph (`CFG`), and Auxiliary Data tables
+inter-procedural control flow graph (`IPCFG`), and Auxiliary Data tables
 (`AuxData`) which can hold arbitrary analysis results in user-defined
 formats which can easily reference other elements of the IR.  Each
 module holds information such as symbols (`Symbol`) and sections which
