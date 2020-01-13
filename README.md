@@ -31,13 +31,21 @@ GTIRB has the following structure:
 ### IR
 
 An instance of GTIRB may include multiple modules (`Module`) which
-represent loadable objects such as executables or libraries.  Each
-module holds information such as symbols (`Symbol`), data (`DataObject`),
-and an inter-procedural control flow graph (`CFG`).  The CFG
-consists of basic blocks (`Block`) and control flow edges between
-these blocks.  Each datum and each block holds a range refering to the
-bytes in the `ImageByteMap`. Each symbol holds a pointer to the block
-or datum it references.
+represent loadable objects such as executables or libraries, an
+inter-procedural control flow graph (`CFG`), and Auxiliary Data tables
+(`AuxData`) which can hold arbitrary analysis results in user-defined
+formats which can easily reference other elements of the IR.  Each
+module holds information such as symbols (`Symbol`) and sections which
+themselves hold the actual bytes and data and code blocks of the
+module.  The CFG consists of basic blocks (`Block`) and control flow
+edges between these blocks.  Each data or code block references a
+range of bytes in a byte interval (`ByteInterval`).  A section may
+hold one large byte interval holding all blocks---if the relative
+positions of blocks in that section are defined---or may hold one byte
+interval per block---if the relative positions of blocks is not
+defined, e.g. for the code blocks in the `.text` section during
+program rewriting.  Each symbol holds a pointer to the block or datum
+it references.
 
 
 ### Instructions
@@ -66,18 +74,19 @@ rewriting teams and tools.
 
 GTIRB provides for the sharing of additional information,
 e.g. analysis results, in the form of `AuxData` objects.  These can
-store maps and vectors of basic GTIRB types in a portable way. This
-repository will describe the anticipated structure for very common
-types of auxiliary data such as function boundary information, type
-information, or results of common analyses.
+store maps and vectors of basic GTIRB types in a portable way. The
+[GTIRB manual](https://grammatech.github.io/gtirb/) describes the
+structure for common types of auxiliary data such as function boundary
+information, type information, or results of common analyses in
+[Standard AuxData Schemata](https://grammatech.github.io/gtirb/md__aux_data.html).
 
 
 ### UUIDs
 
-Every element of GTIRB (namely: modules (`Module`), symbols
-(`Symbol`), and blocks (`Block`) has
-a universally unique identifier (UUID).  UUIDs allow both first-class
-IR components and AuxData tables to reference elements of the IR.
+Every element of GTIRB---e.g., modules (`Module`), symbols (`Symbol`),
+and blocks (`Block`)---has a universally unique identifier (UUID).
+UUIDs allow both first-class IR components and AuxData tables to
+reference elements of the IR.
 
 Instructions and symbolic operands can be addressed by the class
 `Offset` which encapsulates a UUID (that refers to the instruction's
