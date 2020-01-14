@@ -222,6 +222,42 @@ public:
     this->mutateIndices([this, &N]() { Name = N; });
   }
 
+  using block_iterator =
+      MergeSortedIterator<ByteInterval::block_iterator, BlockAddressOrder>;
+  using block_range = boost::iterator_range<block_iterator>;
+  using const_block_iterator =
+      MergeSortedIterator<ByteInterval::const_block_iterator,
+                          BlockAddressOrder>;
+  using const_block_range = boost::iterator_range<const_block_iterator>;
+
+  block_iterator blocks_begin() {
+    return block_iterator(
+        boost::make_transform_iterator(this->byte_intervals_begin(),
+                                       NodeToBlockRange<ByteInterval>()),
+        boost::make_transform_iterator(this->byte_intervals_end(),
+                                       NodeToBlockRange<ByteInterval>()));
+  }
+
+  block_iterator blocks_end() { return block_iterator(); }
+
+  block_range blocks() {
+    return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
+  const_block_iterator blocks_begin() const {
+    return const_block_iterator(
+        boost::make_transform_iterator(this->byte_intervals_begin(),
+                                       NodeToBlockRange<const ByteInterval>()),
+        boost::make_transform_iterator(this->byte_intervals_end(),
+                                       NodeToBlockRange<const ByteInterval>()));
+  }
+
+  const_block_iterator blocks_end() const { return const_block_iterator(); }
+
+  const_block_range blocks() const {
+    return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;

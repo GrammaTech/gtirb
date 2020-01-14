@@ -239,46 +239,46 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using blocks_iterator =
+  using block_iterator =
       boost::transform_iterator<BlockToNode<Node>,
                                 BlockSet::index<by_offset>::type::iterator>;
   /// \brief Range of \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using blocks_range = boost::iterator_range<blocks_iterator>;
+  using block_range = boost::iterator_range<block_iterator>;
   /// \brief Const iterator over \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_blocks_iterator = boost::transform_iterator<
+  using const_block_iterator = boost::transform_iterator<
       BlockToNode<const Node>,
       BlockSet::index<by_offset>::type::const_iterator>;
   /// \brief Const range of \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_blocks_range = boost::iterator_range<const_blocks_iterator>;
+  using const_block_range = boost::iterator_range<const_block_iterator>;
 
   /// \brief Return an iterator to the first \ref Block.
-  blocks_iterator blocks_begin() { return blocks_iterator(Blocks.begin()); }
+  block_iterator blocks_begin() { return block_iterator(Blocks.begin()); }
   /// \brief Return a const iterator to the first \ref Block.
-  const_blocks_iterator blocks_begin() const {
-    return const_blocks_iterator(Blocks.begin());
+  const_block_iterator blocks_begin() const {
+    return const_block_iterator(Blocks.begin());
   }
   /// \brief Return an iterator to the element following the last \ref Block.
-  blocks_iterator blocks_end() { return blocks_iterator(Blocks.end()); }
+  block_iterator blocks_end() { return block_iterator(Blocks.end()); }
   /// \brief Return a const iterator to the element following the last
   /// \ref Block.
-  const_blocks_iterator blocks_end() const {
-    return const_blocks_iterator(Blocks.end());
+  const_block_iterator blocks_end() const {
+    return const_block_iterator(Blocks.end());
   }
   /// \brief Return a range of the \ref Block objects in this interval.
-  blocks_range blocks() {
+  block_range blocks() {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
   /// \brief Return a const range of the \ref Block objects in this interval.
-  const_blocks_range blocks() const {
+  const_block_range blocks() const {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
 
@@ -286,7 +286,7 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using code_blocks_iterator = boost::transform_iterator<
+  using code_block_iterator = boost::transform_iterator<
       BlockToNode<CodeBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
@@ -294,12 +294,12 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using code_blocks_range = boost::iterator_range<code_blocks_iterator>;
+  using code_block_range = boost::iterator_range<code_block_iterator>;
   /// \brief Const iterator over \ref CodeBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_code_blocks_iterator = boost::transform_iterator<
+  using const_code_block_iterator = boost::transform_iterator<
       BlockToNode<const CodeBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
@@ -307,38 +307,38 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_code_blocks_range =
-      boost::iterator_range<const_code_blocks_iterator>;
+  using const_code_block_range =
+      boost::iterator_range<const_code_block_iterator>;
 
   /// \brief Return an iterator to the first \ref CodeBlock.
-  code_blocks_iterator code_blocks_begin() {
-    return code_blocks_iterator(
-        code_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
+  code_block_iterator code_blocks_begin() {
+    return code_block_iterator(
+        code_block_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return a const iterator to the first \ref CodeBlock.
-  const_code_blocks_iterator code_blocks_begin() const {
-    return const_code_blocks_iterator(
-        const_code_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
+  const_code_block_iterator code_blocks_begin() const {
+    return const_code_block_iterator(
+        const_code_block_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return an iterator to the element following the last \ref
   /// CodeBlock.
-  code_blocks_iterator code_blocks_end() {
-    return code_blocks_iterator(
-        code_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
+  code_block_iterator code_blocks_end() {
+    return code_block_iterator(
+        code_block_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// CodeBlock.
-  const_code_blocks_iterator code_blocks_end() const {
-    return const_code_blocks_iterator(
-        const_code_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
+  const_code_block_iterator code_blocks_end() const {
+    return const_code_block_iterator(
+        const_code_block_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a range of the \ref CodeBlock objects in this interval.
-  code_blocks_range code_blocks() {
+  code_block_range code_blocks() {
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
   /// \brief Return a const range of the \ref CodeBlock objects in this
   /// interval.
-  const_code_blocks_range code_blocks() const {
+  const_code_block_range code_blocks() const {
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
@@ -346,7 +346,7 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using data_blocks_iterator = boost::transform_iterator<
+  using data_block_iterator = boost::transform_iterator<
       BlockToNode<DataBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
@@ -354,12 +354,12 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using data_blocks_range = boost::iterator_range<data_blocks_iterator>;
+  using data_block_range = boost::iterator_range<data_block_iterator>;
   /// \brief Const iterator over \ref DataBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_data_blocks_iterator = boost::transform_iterator<
+  using const_data_block_iterator = boost::transform_iterator<
       BlockToNode<const DataBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
@@ -367,38 +367,38 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_data_blocks_range =
-      boost::iterator_range<const_data_blocks_iterator>;
+  using const_data_block_range =
+      boost::iterator_range<const_data_block_iterator>;
 
   /// \brief Return an iterator to the first \ref DataBlock.
-  data_blocks_iterator data_blocks_begin() {
-    return data_blocks_iterator(
-        data_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
+  data_block_iterator data_blocks_begin() {
+    return data_block_iterator(
+        data_block_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return a const iterator to the first \ref DataBlock.
-  const_data_blocks_iterator data_blocks_begin() const {
-    return const_data_blocks_iterator(
-        const_data_blocks_iterator::base_type(Blocks.begin(), Blocks.end()));
+  const_data_block_iterator data_blocks_begin() const {
+    return const_data_block_iterator(
+        const_data_block_iterator::base_type(Blocks.begin(), Blocks.end()));
   }
   /// \brief Return an iterator to the element following the last \ref
   /// DataBlock.
-  data_blocks_iterator data_blocks_end() {
-    return data_blocks_iterator(
-        data_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
+  data_block_iterator data_blocks_end() {
+    return data_block_iterator(
+        data_block_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// DataBlock.
-  const_data_blocks_iterator data_blocks_end() const {
-    return const_data_blocks_iterator(
-        const_data_blocks_iterator::base_type(Blocks.end(), Blocks.end()));
+  const_data_block_iterator data_blocks_end() const {
+    return const_data_block_iterator(
+        const_data_block_iterator::base_type(Blocks.end(), Blocks.end()));
   }
   /// \brief Return a range of the \ref DataBlock objects in this interval.
-  data_blocks_range data_blocks() {
+  data_block_range data_blocks() {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
   /// \brief Return a const range of the \ref DataBlock objects in this
   /// interval.
-  const_data_blocks_range data_blocks() const {
+  const_data_block_range data_blocks() const {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 

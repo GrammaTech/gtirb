@@ -20,6 +20,7 @@
 #include <gtirb/Node.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <optional>
+#include <type_traits>
 
 namespace gtirb {
 
@@ -34,11 +35,26 @@ template <typename T> struct AddressOrder {
 struct BlockAddressOrder {
   using key_type = std::optional<Addr>;
   static key_type getAddress(const Node* N);
-
   bool operator()(const Node& N1, const Node& N2) const {
     return getAddress(&N1) < getAddress(&N2);
   }
 };
+
+template <typename T, typename Method, Method Begin, Method End>
+struct NodeToChildRange {
+  boost::iterator_range<decltype((std::declval<T>().*Begin)())>
+  operator()(T& N) const {
+    return boost::make_iterator_range((N.*Begin)(), (N.*End)());
+  }
+};
+
+template <typename T>
+using NodeToBlockRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_block_iterator (T::*)() const,
+                       typename T::block_iterator (T::*)()>,
+    &T::blocks_begin, &T::blocks_end>;
 
 } // namespace gtirb
 
