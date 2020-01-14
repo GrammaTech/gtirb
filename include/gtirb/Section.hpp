@@ -20,6 +20,7 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
 #include <boost/icl/interval_map.hpp>
+#include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
@@ -99,39 +100,42 @@ public:
   const std::string& getName() const { return Name; }
 
   /// \brief Iterator over \ref ByteInterval objects.
-  using byte_intervals_iterator = ByteIntervalSet::iterator;
+  using byte_interval_iterator =
+      boost::indirect_iterator<ByteIntervalSet::iterator>;
   /// \brief Range of \ref ByteInterval objects.
-  using byte_intervals_range = boost::iterator_range<byte_intervals_iterator>;
+  using byte_interval_range = boost::iterator_range<byte_interval_iterator>;
   /// \brief Const iterator over \ref ByteInterval objects.
-  using const_byte_intervals_iterator = ByteIntervalSet::const_iterator;
+  using const_byte_interval_iterator =
+      boost::indirect_iterator<ByteIntervalSet::const_iterator,
+                               const ByteInterval>;
   /// \brief Const range of \ref ByteInterval objects.
-  using const_byte_intervals_range =
-      boost::iterator_range<const_byte_intervals_iterator>;
+  using const_byte_interval_range =
+      boost::iterator_range<const_byte_interval_iterator>;
 
   /// \brief Return an iterator to the first \ref ByteInterval.
-  byte_intervals_iterator byte_intervals_begin() {
+  byte_interval_iterator byte_intervals_begin() {
     return ByteIntervals.begin();
   }
   /// \brief Return a const iterator to the first \ref ByteInterval.
-  const_byte_intervals_iterator byte_intervals_begin() const {
+  const_byte_interval_iterator byte_intervals_begin() const {
     return ByteIntervals.begin();
   }
   /// \brief Return an iterator to the element following the last \ref
   /// ByteInterval.
-  byte_intervals_iterator byte_intervals_end() { return ByteIntervals.end(); }
+  byte_interval_iterator byte_intervals_end() { return ByteIntervals.end(); }
   /// \brief Return a const iterator to the element following the last
   /// \ref ByteInterval.
-  const_byte_intervals_iterator byte_intervals_end() const {
+  const_byte_interval_iterator byte_intervals_end() const {
     return ByteIntervals.end();
   }
   /// \brief Return a range of the \ref ByteInterval objects in this section.
-  byte_intervals_range byte_intervals() {
+  byte_interval_range byte_intervals() {
     return boost::make_iterator_range(byte_intervals_begin(),
                                       byte_intervals_end());
   }
   /// \brief Return a const range of the \ref ByteInterval objects in this
   /// section.
-  const_byte_intervals_range byte_intervals() const {
+  const_byte_interval_range byte_intervals() const {
     return boost::make_iterator_range(byte_intervals_begin(),
                                       byte_intervals_end());
   }
@@ -256,6 +260,90 @@ public:
 
   const_block_range blocks() const {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
+  using code_block_iterator =
+      MergeSortedIterator<ByteInterval::code_block_iterator,
+                          AddressOrder<CodeBlock>>;
+  using code_block_range = boost::iterator_range<code_block_iterator>;
+  using const_code_block_iterator =
+      MergeSortedIterator<ByteInterval::const_code_block_iterator,
+                          AddressOrder<CodeBlock>>;
+  using const_code_block_range =
+      boost::iterator_range<const_code_block_iterator>;
+
+  code_block_iterator code_blocks_begin() {
+    return code_block_iterator(
+        boost::make_transform_iterator(this->byte_intervals_begin(),
+                                       NodeToCodeBlockRange<ByteInterval>()),
+        boost::make_transform_iterator(this->byte_intervals_end(),
+                                       NodeToCodeBlockRange<ByteInterval>()));
+  }
+
+  code_block_iterator code_blocks_end() { return code_block_iterator(); }
+
+  code_block_range code_blocks() {
+    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
+  }
+
+  const_code_block_iterator code_blocks_begin() const {
+    return const_code_block_iterator(
+        boost::make_transform_iterator(
+            this->byte_intervals_begin(),
+            NodeToCodeBlockRange<const ByteInterval>()),
+        boost::make_transform_iterator(
+            this->byte_intervals_end(),
+            NodeToCodeBlockRange<const ByteInterval>()));
+  }
+
+  const_code_block_iterator code_blocks_end() const {
+    return const_code_block_iterator();
+  }
+
+  const_code_block_range code_blocks() const {
+    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
+  }
+
+  using data_block_iterator =
+      MergeSortedIterator<ByteInterval::data_block_iterator,
+                          AddressOrder<DataBlock>>;
+  using data_block_range = boost::iterator_range<data_block_iterator>;
+  using const_data_block_iterator =
+      MergeSortedIterator<ByteInterval::const_data_block_iterator,
+                          AddressOrder<DataBlock>>;
+  using const_data_block_range =
+      boost::iterator_range<const_data_block_iterator>;
+
+  data_block_iterator data_blocks_begin() {
+    return data_block_iterator(
+        boost::make_transform_iterator(this->byte_intervals_begin(),
+                                       NodeToDataBlockRange<ByteInterval>()),
+        boost::make_transform_iterator(this->byte_intervals_end(),
+                                       NodeToDataBlockRange<ByteInterval>()));
+  }
+
+  data_block_iterator data_blocks_end() { return data_block_iterator(); }
+
+  data_block_range data_blocks() {
+    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+
+  const_data_block_iterator data_blocks_begin() const {
+    return const_data_block_iterator(
+        boost::make_transform_iterator(
+            this->byte_intervals_begin(),
+            NodeToDataBlockRange<const ByteInterval>()),
+        boost::make_transform_iterator(
+            this->byte_intervals_end(),
+            NodeToDataBlockRange<const ByteInterval>()));
+  }
+
+  const_data_block_iterator data_blocks_end() const {
+    return const_data_block_iterator();
+  }
+
+  const_data_block_range data_blocks() const {
+    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 
   /// @cond INTERNAL

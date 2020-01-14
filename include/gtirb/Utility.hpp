@@ -56,6 +56,22 @@ using NodeToBlockRange = NodeToChildRange<
                        typename T::block_iterator (T::*)()>,
     &T::blocks_begin, &T::blocks_end>;
 
+template <typename T>
+using NodeToCodeBlockRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_code_block_iterator (T::*)() const,
+                       typename T::code_block_iterator (T::*)()>,
+    &T::code_blocks_begin, &T::code_blocks_end>;
+
+template <typename T>
+using NodeToDataBlockRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_data_block_iterator (T::*)() const,
+                       typename T::data_block_iterator (T::*)()>,
+    &T::data_blocks_begin, &T::data_blocks_end>;
+
 } // namespace gtirb
 
 #endif // GTIRB_UTILITY_H

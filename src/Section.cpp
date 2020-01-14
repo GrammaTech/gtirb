@@ -30,8 +30,8 @@ bool Section::operator!=(const Section& Other) const {
 void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
-  for (const auto* Interval : byte_intervals()) {
-    Interval->toProtobuf(Message->add_byte_intervals());
+  for (const auto& Interval : byte_intervals()) {
+    Interval.toProtobuf(Message->add_byte_intervals());
   }
 }
 
