@@ -21,6 +21,7 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <array>
 #include <boost/endian/conversion.hpp>
+#include <boost/icl/interval_map.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -112,6 +113,12 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     }
   };
 
+  struct OffsetOrder {
+    bool operator()(const Block* b1, const Block* b2) const {
+      return b1->Offset < b2->Offset;
+    }
+  };
+
   struct by_offset {};
   struct by_pointer {};
   using BlockSet = boost::multi_index::multi_index_container<
@@ -124,6 +131,8 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                      boost::multi_index::tag<by_pointer>,
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
+  using BlockIntMap =
+      boost::icl::interval_map<Addr, std::multiset<const Block*, OffsetOrder>>;
   using SymbolicExpressionMap = std::map<uint64_t, SymbolicExpression>;
 
   /// \brief Get the \ref Block that corresponds to a \ref Node.
@@ -1016,6 +1025,7 @@ private:
   std::optional<Addr> Address;
   uint64_t Size{0};
   BlockSet Blocks;
+  BlockIntMap BlockAddrs;
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;
 
@@ -1023,6 +1033,7 @@ private:
   friend class Section;   // Friend to enable Section::(re)moveByteInterval.
   friend class CodeBlock; // Friend to enable CodeBlock::getAddress.
   friend class DataBlock; // Friend to enable DataBlock::getAddress.
+  friend class Node;      // Allow Node::mutateIndices, etc. to set indices.
 };
 } // namespace gtirb
 

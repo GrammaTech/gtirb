@@ -25,6 +25,7 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
+#include <gtirb/Utility.hpp>
 #include <proto/Module.pb.h>
 #include <algorithm>
 #include <boost/icl/interval_map.hpp>
@@ -91,18 +92,6 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   struct by_pointer {};
   struct by_referent {};
 
-  // Helper template for implementing address-based ordering of
-  // multi-containers.
-  template <typename T> struct addr_size_order {
-    using key_type = std::pair<std::optional<Addr>, std::optional<uint64_t>>;
-    static key_type key(const T& N) {
-      return std::make_pair(N.getAddress(), N.getSize());
-    }
-    bool operator()(const T* N1, const T* N2) const {
-      return key(*N1) < key(*N2);
-    }
-  };
-
   // Helper function for extracting the referent of a Symbol.
   static const Node* get_symbol_referent(const Symbol& S) {
     if (std::optional<const Node*> Res =
@@ -119,8 +108,8 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                     boost::multi_index::ordered_non_unique<
                         boost::multi_index::tag<by_address>,
                         boost::multi_index::global_fun<
-                            const Section&, addr_size_order<Section>::key_type,
-                            &addr_size_order<Section>::key>>,
+                            const Section&, AddressOrder<Section>::key_type,
+                            &AddressOrder<Section>::key>>,
                     boost::multi_index::ordered_non_unique<
                         boost::multi_index::tag<by_name>,
                         boost::multi_index::const_mem_fun<
@@ -129,8 +118,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                         boost::multi_index::tag<by_pointer>,
                         boost::multi_index::identity<Section*>>>>;
   using SectionIntMap =
-      boost::icl::interval_map<Addr,
-                               std::set<Section*, addr_size_order<Section>>>;
+      boost::icl::interval_map<Addr, std::set<Section*, AddressOrder<Section>>>;
 
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*,
@@ -151,83 +139,9 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               boost::multi_index::global_fun<const Symbol&, const Node*,
                                              &get_symbol_referent>>>>;
 
-  using ByteIntervalSet = boost::multi_index::multi_index_container<
-      ByteInterval*,
-      boost::multi_index::indexed_by<
-          boost::multi_index::ordered_non_unique<
-              boost::multi_index::tag<by_address>,
-              boost::multi_index::global_fun<
-                  const ByteInterval&, addr_size_order<ByteInterval>::key_type,
-                  &addr_size_order<ByteInterval>::key>>,
-          boost::multi_index::hashed_unique<
-              boost::multi_index::tag<by_pointer>,
-              boost::multi_index::identity<ByteInterval*>>>>;
-  using ByteIntervalIntMap = boost::icl::interval_map<
-      Addr, std::set<ByteInterval*, addr_size_order<ByteInterval>>>;
-
-  using CodeBlockSet = boost::multi_index::multi_index_container<
-      CodeBlock*,
-      boost::multi_index::indexed_by<
-          boost::multi_index::ordered_non_unique<
-              boost::multi_index::tag<by_address>,
-              boost::multi_index::global_fun<
-                  const CodeBlock&, addr_size_order<CodeBlock>::key_type,
-                  &addr_size_order<CodeBlock>::key>>,
-          boost::multi_index::hashed_unique<
-              boost::multi_index::tag<by_pointer>,
-              boost::multi_index::identity<CodeBlock*>>>>;
-  using CodeBlockIntMap = boost::icl::interval_map<
-      Addr, std::multiset<CodeBlock*, addr_size_order<CodeBlock>>>;
-
-  using DataBlockSet = boost::multi_index::multi_index_container<
-      DataBlock*,
-      boost::multi_index::indexed_by<
-          boost::multi_index::ordered_non_unique<
-              boost::multi_index::tag<by_address>,
-              boost::multi_index::global_fun<
-                  const DataBlock&, addr_size_order<DataBlock>::key_type,
-                  &addr_size_order<DataBlock>::key>>,
-          boost::multi_index::hashed_unique<
-              boost::multi_index::tag<by_pointer>,
-              boost::multi_index::identity<DataBlock*>>>>;
-  using DataBlockIntMap = boost::icl::interval_map<
-      Addr, std::multiset<DataBlock*, addr_size_order<DataBlock>>>;
-
-  using SymbolicExpressionElement = std::pair<ByteInterval*, uint64_t>;
-  struct sym_expr_addr_order {
-    static std::optional<Addr> key(const SymbolicExpressionElement& SEE) {
-      if (auto A = SEE.first->getAddress()) {
-        return *A + SEE.second;
-      }
-      return std::nullopt;
-    }
-    bool operator()(const SymbolicExpressionElement* SEE1,
-                    const SymbolicExpressionElement* SEE2) const {
-      return key(*SEE1) < key(*SEE2);
-    }
-  };
-
-  using SymbolicExpressionSet = boost::multi_index::multi_index_container<
-      SymbolicExpressionElement,
-      boost::multi_index::indexed_by<
-          boost::multi_index::ordered_non_unique<
-              boost::multi_index::tag<by_address>,
-              boost::multi_index::global_fun<const SymbolicExpressionElement&,
-                                             std::optional<Addr>,
-                                             &sym_expr_addr_order::key>>,
-          boost::multi_index::hashed_unique<
-              boost::multi_index::tag<by_pointer>,
-              boost::multi_index::identity<SymbolicExpressionElement>>>>;
-
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
   Module(Context& C, const std::string& N)
       : AuxDataContainer(C, Kind::Module), Name(N) {}
-
-  template <size_t I> struct ExtractNth {
-    template <typename ParamTy> auto& operator()(ParamTy& V) const {
-      return std::get<I>(V);
-    }
-  };
 
 public:
   /// \brief Create a Module object in its default state.
@@ -594,7 +508,6 @@ public:
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
   bool removeSymbol(Symbol* S) {
-    S->removeFromIndices();
     auto& Index = Symbols.get<by_pointer>();
     if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
@@ -613,7 +526,6 @@ public:
     }
     Symbols.emplace(S);
     S->setModule(this);
-    S->addToIndices();
     return S;
   }
 
@@ -731,154 +643,6 @@ public:
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
 
-  /// \name CodeBlock-Related Public Types and Functions
-  /// @{
-
-  /// \brief Iterator over code_blocks (\ref CodeBlock).
-  using code_block_iterator = boost::indirect_iterator<CodeBlockSet::iterator>;
-  /// \brief Range of code_blocks (\ref CodeBlock).
-  using code_block_range = boost::iterator_range<code_block_iterator>;
-  /// \brief Sub-range of code blocks overlapping an address (\ref CodeBlock).
-  using code_block_subrange = boost::iterator_range<
-      boost::indirect_iterator<CodeBlockIntMap::codomain_type::iterator>>;
-
-  /// \brief Constant iterator over code_blocks (\ref CodeBlock).
-  using const_code_block_iterator =
-      boost::indirect_iterator<CodeBlockSet::const_iterator, const CodeBlock&>;
-  /// \brief Constant range of code_blocks (\ref CodeBlock).
-  using const_code_block_range =
-      boost::iterator_range<const_code_block_iterator>;
-  /// \brief Sub-range of code blocks overlapping an address (\ref CodeBlock).
-  using const_code_block_subrange =
-      boost::iterator_range<boost::indirect_iterator<
-          CodeBlockIntMap::codomain_type::const_iterator, const CodeBlock&>>;
-
-  /// \brief Return an iterator to the first CodeBlock.
-  code_block_iterator code_blocks_begin() {
-    return code_block_iterator(CodeBlocks.begin());
-  }
-  /// \brief Return a constant iterator to the first CodeBlock.
-  const_code_block_iterator code_blocks_begin() const {
-    return const_code_block_iterator(CodeBlocks.begin());
-  }
-  /// \brief Return an iterator to the element following the last CodeBlock.
-  code_block_iterator code_blocks_end() {
-    return code_block_iterator(CodeBlocks.end());
-  }
-  /// \brief Return a constant iterator to the element following the last
-  /// CodeBlock.
-  const_code_block_iterator code_blocks_end() const {
-    return const_code_block_iterator(CodeBlocks.end());
-  }
-  /// \brief Return a range of the code_blocks (\ref CodeBlock).
-  code_block_range code_blocks() {
-    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
-  }
-  /// \brief Return a constant range of the code_blocks (\ref CodeBlock).
-  const_code_block_range code_blocks() const {
-    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
-  }
-
-  /// \brief Find a \ref CodeBlock containing an address.
-  ///
-  /// \param X The address to look up.
-  ///
-  /// \return The range of CodeBlocks containing the address.
-  code_block_subrange findCodeBlock(Addr X) {
-    if (auto It = CodeBlockAddrs.find(X); It != CodeBlockAddrs.end()) {
-      return boost::make_iterator_range(It->second.begin(), It->second.end());
-    }
-    return {};
-  }
-
-  /// \brief Find a \ref CodeBlock containing an address.
-  ///
-  /// \param X The address to look up.
-  ///
-  /// \return The range of CodeBlocks containing the address.
-  const_code_block_subrange findCodeBlock(Addr X) const {
-    if (auto It = CodeBlockAddrs.find(X); It != CodeBlockAddrs.end()) {
-      return boost::make_iterator_range(It->second.begin(), It->second.end());
-    }
-    return {};
-  }
-
-  /// @}
-
-  /// \name DataBlock-Related Public Types and Functions
-  /// @{
-
-  /// \brief Iterator over data_blocks (\ref DataBlock).
-  using data_block_iterator = boost::indirect_iterator<DataBlockSet::iterator>;
-  /// \brief Range of data_blocks (\ref DataBlock).
-  using data_block_range = boost::iterator_range<data_block_iterator>;
-  /// \brief Sub-range of data blocks overlapping an address (\ref DataBlock).
-  using data_block_subrange = boost::iterator_range<
-      boost::indirect_iterator<DataBlockIntMap::codomain_type::iterator>>;
-
-  /// \brief Constant iterator over data_blocks (\ref DataBlock).
-  using const_data_block_iterator =
-      boost::indirect_iterator<DataBlockSet::const_iterator, const DataBlock&>;
-  /// \brief Constant range of data_blocks (\ref DataBlock).
-  using const_data_block_range =
-      boost::iterator_range<const_data_block_iterator>;
-  /// \brief Sub-range of data blocks overlapping an address (\ref DataBlock).
-  using const_data_block_subrange =
-      boost::iterator_range<boost::indirect_iterator<
-          DataBlockIntMap::codomain_type::const_iterator, const DataBlock&>>;
-
-  /// \brief Return an iterator to the first DataBlock.
-  data_block_iterator data_blocks_begin() {
-    return data_block_iterator(DataBlocks.begin());
-  }
-  /// \brief Return a constant iterator to the first DataBlock.
-  const_data_block_iterator data_blocks_begin() const {
-    return const_data_block_iterator(DataBlocks.begin());
-  }
-  /// \brief Return an iterator to the element following the last DataBlock.
-  data_block_iterator data_blocks_end() {
-    return data_block_iterator(DataBlocks.end());
-  }
-  /// \brief Return a constant iterator to the element following the last
-  /// DataBlock.
-  const_data_block_iterator data_blocks_end() const {
-    return const_data_block_iterator(DataBlocks.end());
-  }
-  /// \brief Return a range of the data_blocks (\ref DataBlock).
-  data_block_range data_blocks() {
-    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
-  }
-  /// \brief Return a constant range of the data_blocks (\ref DataBlock).
-  const_data_block_range data_blocks() const {
-    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
-  }
-
-  /// \brief Find a \ref DataBlock containing an address.
-  ///
-  /// \param X The address to look up.
-  ///
-  /// \return The range of DataBlocks containing the address.
-  data_block_subrange findDataBlock(Addr X) {
-    if (auto It = DataBlockAddrs.find(X); It != DataBlockAddrs.end()) {
-      return boost::make_iterator_range(It->second.begin(), It->second.end());
-    }
-    return {};
-  }
-
-  /// \brief Find a \ref DataBlock containing an address.
-  ///
-  /// \param X The address to look up.
-  ///
-  /// \return The range of DataBlocks containing the address.
-  const_data_block_subrange findDataBlock(Addr X) const {
-    if (auto It = DataBlockAddrs.find(X); It != DataBlockAddrs.end()) {
-      return boost::make_iterator_range(It->second.begin(), It->second.end());
-    }
-    return {};
-  }
-
-  /// @}
-
   /// \name Section-Related Public Types and Functions
   /// @{
 
@@ -990,6 +754,7 @@ public:
     if (S->getModule()) {
       S->getModule()->removeSection(S);
     }
+    Sections.emplace(S);
     S->setModule(this);
     S->addToIndices();
     return S;
@@ -1042,248 +807,6 @@ public:
   /// @}
   // (end group of Section-related types and functions)
 
-  template <typename T> struct sym_expr_elem_to_node {
-    // It is not a bug that this const function accepts a const object and
-    // returns a non-const reference. This is needed to ensure that
-    // symbolic_expression_iterator is able to deduce the correct iterator
-    // types for a non-const iterator and a const iterator.
-    T& operator()(const SymbolicExpressionElement& SEE) const {
-      return *SEE.first->getSymbolicExpression(SEE.second);
-    }
-  };
-
-  /// \name SymbolicExpression-Related Public Types and Functions
-  /// @{
-
-  /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
-  using symbolic_expression_iterator = boost::transform_iterator<
-      sym_expr_elem_to_node<SymbolicExpression>,
-      SymbolicExpressionSet::index<by_pointer>::type::iterator>;
-  /// \brief Range over symbolic expressions (\ref SymbolicExpression).
-  using symbolic_expression_range =
-      boost::iterator_range<symbolic_expression_iterator>;
-  /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
-  using const_symbolic_expression_iterator = boost::transform_iterator<
-      sym_expr_elem_to_node<const SymbolicExpression>,
-      SymbolicExpressionSet::index<by_pointer>::type::const_iterator>;
-  /// \brief Range over symbolic expressions (\ref SymbolicExpression).
-  using const_symbolic_expression_range =
-      boost::iterator_range<const_symbolic_expression_iterator>;
-
-  /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
-  ///
-  /// Results are returned in address order.
-  using symbolic_expression_addr_iterator = boost::transform_iterator<
-      sym_expr_elem_to_node<SymbolicExpression>,
-      SymbolicExpressionSet::index<by_address>::type::iterator>;
-  /// \brief Range over symbolic expressions (\ref SymbolicExpression).
-  ///
-  /// Results are returned in address order.
-  using symbolic_expression_addr_range =
-      boost::iterator_range<symbolic_expression_addr_iterator>;
-  /// \brief Iterator over symbolic expressions (\ref SymbolicExpression).
-  ///
-  /// Results are returned in address order.
-  using const_symbolic_expression_addr_iterator = boost::transform_iterator<
-      sym_expr_elem_to_node<const SymbolicExpression>,
-      SymbolicExpressionSet::index<by_address>::type::const_iterator>;
-  /// \brief Range over symbolic expressions (\ref SymbolicExpression).
-  ///
-  /// Results are returned in address order.
-  using const_symbolic_expression_addr_range =
-      boost::iterator_range<const_symbolic_expression_addr_iterator>;
-
-  /// \brief Return an iterator to the first symbolic expression in this module.
-  symbolic_expression_iterator symbolic_expressions_begin() {
-    return boost::make_transform_iterator(
-        SymbolicExpressions.get<by_pointer>().begin(),
-        sym_expr_elem_to_node<SymbolicExpression>());
-  }
-
-  /// \brief Return an iterator past the last symbolic expression in this
-  /// module.
-  symbolic_expression_iterator symbolic_expressions_end() {
-    return boost::make_transform_iterator(
-        SymbolicExpressions.get<by_pointer>().end(),
-        sym_expr_elem_to_node<SymbolicExpression>());
-  }
-
-  /// \brief Return a range of all symbolic expressions in this module.
-  symbolic_expression_range symbolic_expressions() {
-    return symbolic_expression_range(symbolic_expressions_begin(),
-                                     symbolic_expressions_end());
-  }
-
-  /// \brief Return an iterator to the first symbolic expression in this module.
-  const_symbolic_expression_iterator symbolic_expressions_begin() const {
-    return boost::make_transform_iterator(
-        SymbolicExpressions.get<by_pointer>().begin(),
-        sym_expr_elem_to_node<const SymbolicExpression>());
-  }
-
-  /// \brief Return an iterator past the last symbolic expression in this
-  /// module.
-  const_symbolic_expression_iterator symbolic_expressions_end() const {
-    return boost::make_transform_iterator(
-        SymbolicExpressions.get<by_pointer>().end(),
-        sym_expr_elem_to_node<const SymbolicExpression>());
-  }
-
-  /// \brief Return a range of all symbolic expressions in this module.
-  const_symbolic_expression_range symbolic_expressions() const {
-    return const_symbolic_expression_range(symbolic_expressions_begin(),
-                                           symbolic_expressions_end());
-  }
-
-  /// \brief Find a symbolic expression at an address, if present.
-  ///
-  /// \param X  The address to find a symbolic expression at.
-  /// \return   A \ref SymbolicExpression at that address, or null if there is
-  /// no \ref SymbolicExpression at that address.
-  SymbolicExpression* findSymbolicExpression(Addr X) {
-    auto& Index = SymbolicExpressions.get<by_address>();
-    if (auto It = Index.find(X); It != Index.end()) {
-      return It->first->getSymbolicExpression(It->second);
-    }
-    return nullptr;
-  }
-
-  /// \brief Find a symbolic expression at an address, if present.
-  ///
-  /// \param X  The address to find a symbolic expression at.
-  /// \return   A \ref SymbolicExpression at that address, or null if there is
-  /// no \ref SymbolicExpression at that address.
-  const SymbolicExpression* findSymbolicExpression(Addr X) const {
-    auto& Index = SymbolicExpressions.get<by_address>();
-    if (auto It = Index.find(X); It != Index.end()) {
-      return It->first->getSymbolicExpression(It->second);
-    }
-    return nullptr;
-  }
-
-  /// \brief Return all the symbolic expressions between two addresses.
-  ///
-  /// \param Lower  The lowest address of symbolic expressions to return.
-  /// \param Upper  The highest address of symbolic expressions to return.
-  /// \return       A range of \ref SymbolicExpression objects.
-  symbolic_expression_addr_range findSymbolicExpression(Addr Lower,
-                                                        Addr Upper) {
-    auto& Index = SymbolicExpressions.get<by_address>();
-    return boost::make_iterator_range(
-        symbolic_expression_addr_range::iterator(
-            Index.lower_bound(Lower),
-            sym_expr_elem_to_node<SymbolicExpression>()),
-        symbolic_expression_addr_range::iterator(
-            Index.lower_bound(Upper),
-            sym_expr_elem_to_node<SymbolicExpression>()));
-  }
-
-  /// \brief Return all the symbolic expressions between two addresses.
-  ///
-  /// \param Lower  The lowest address of symbolic expressions to return.
-  /// \param Upper  The highest address of symbolic expressions to return.
-  /// \return       A range of \ref SymbolicExpression objects.
-  const_symbolic_expression_addr_range
-  findSymbolicExpression(Addr Lower, Addr Upper) const {
-    auto& Index = SymbolicExpressions.get<by_address>();
-    return boost::make_iterator_range(
-        const_symbolic_expression_addr_range::iterator(
-            Index.lower_bound(Lower),
-            sym_expr_elem_to_node<const SymbolicExpression>()),
-        const_symbolic_expression_addr_range::iterator(
-            Index.lower_bound(Upper),
-            sym_expr_elem_to_node<const SymbolicExpression>()));
-  }
-
-  /// @}
-  // (end group of SymbolicExpression-related type aliases and methods)
-
-  /// \name ByteInterval-Related Public Types and Functions
-  /// @{
-
-  /// \brief Iterator over byte_intervals (\ref ByteInterval).
-  using byte_interval_iterator =
-      boost::indirect_iterator<ByteIntervalSet::iterator>;
-  /// \brief Range of byte_intervals (\ref ByteInterval).
-  using byte_interval_range = boost::iterator_range<byte_interval_iterator>;
-  /// \brief Sub-range of byte_intervals overlapping an address (\ref
-  /// ByteInterval).
-  using byte_interval_subrange = boost::iterator_range<
-      boost::indirect_iterator<ByteIntervalIntMap::codomain_type::iterator>>;
-  /// \brief Constant iterator over byte_intervals (\ref ByteInterval).
-  ///
-  /// ByteIntervals are returned in address order. If two ByteIntervals start at
-  /// the same address, the smaller one is returned first. If two ByteIntervals
-  /// have the same address and the same size, their order is not specified.
-  using const_byte_interval_iterator =
-      boost::indirect_iterator<ByteIntervalSet::const_iterator,
-                               const ByteInterval&>;
-  /// \brief Constant range of byte_intervals (\ref ByteInterval).
-  ///
-  /// ByteIntervals are returned in address order. If two ByteIntervals start at
-  /// the same address, the smaller one is returned first. If two ByteIntervals
-  /// have the same address and the same size, their order is not specified.
-  using const_byte_interval_range =
-      boost::iterator_range<const_byte_interval_iterator>;
-  /// \brief Sub-range of byte_intervals overlapping an address (\ref
-  /// ByteInterval).
-  using const_byte_interval_subrange =
-      boost::iterator_range<boost::indirect_iterator<
-          ByteIntervalIntMap::codomain_type::const_iterator,
-          const ByteInterval&>>;
-
-  /// \brief Return an iterator to the first ByteInterval.
-  byte_interval_iterator byte_interval_begin() { return ByteIntervals.begin(); }
-  /// \brief Return a constant iterator to the first ByteInterval.
-  const_byte_interval_iterator byte_interval_begin() const {
-    return ByteIntervals.begin();
-  }
-  /// \brief Return an iterator to the element following the last ByteInterval.
-  byte_interval_iterator byte_interval_end() { return ByteIntervals.end(); }
-  /// \brief Return a constant iterator to the element following the last
-  /// ByteInterval.
-  const_byte_interval_iterator byte_interval_end() const {
-    return ByteIntervals.end();
-  }
-  /// \brief Return an iterator to the element following the last ByteInterval.
-  /// \brief Return a range of the byte_intervals (\ref ByteInterval).
-  byte_interval_range byte_intervals() {
-    return boost::make_iterator_range(byte_interval_begin(),
-                                      byte_interval_end());
-  }
-  /// \brief Return a constant range of the byte_intervals (\ref ByteInterval).
-  const_byte_interval_range byte_intervals() const {
-    return boost::make_iterator_range(byte_interval_begin(),
-                                      byte_interval_end());
-  }
-
-  /// \brief Find a ByteInterval containing an address.
-  ///
-  /// \param X The address to look up.
-  ///
-  /// \return The range of ByteIntervals containing the address.
-  byte_interval_subrange findByteInterval(Addr X) {
-    if (auto It = ByteIntervalAddrs.find(X); It != ByteIntervalAddrs.end()) {
-      return boost::make_iterator_range(It->second.begin(), It->second.end());
-    }
-    return {};
-  }
-
-  /// \brief Find a ByteInterval containing an address.
-  ///
-  /// \param X The address to look up.
-  ///
-  /// \return The range of ByteIntervals containing the address.
-  const_byte_interval_subrange findByteInterval(Addr X) const {
-    if (auto It = ByteIntervalAddrs.find(X); It != ByteIntervalAddrs.end()) {
-      return boost::make_iterator_range(It->second.begin(), It->second.end());
-    }
-    return {};
-  }
-
-  /// @}
-  // (end group of ByteInterval-related type aliases and methods)
-
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
@@ -1323,13 +846,6 @@ private:
   SectionSet Sections;
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
-  ByteIntervalSet ByteIntervals;
-  ByteIntervalIntMap ByteIntervalAddrs;
-  CodeBlockSet CodeBlocks;
-  CodeBlockIntMap CodeBlockAddrs;
-  DataBlockSet DataBlocks;
-  DataBlockIntMap DataBlockAddrs;
-  SymbolicExpressionSet SymbolicExpressions;
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.

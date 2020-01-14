@@ -18,7 +18,13 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Utility.hpp>
+#include <boost/icl/interval_map.hpp>
 #include <boost/iterator/iterator_traits.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/key_extractors.hpp>
+#include <boost/multi_index/mem_fun.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <unordered_set>
@@ -43,7 +49,22 @@ class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
   Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
 
-  using ByteIntervalSet = std::unordered_set<ByteInterval*>;
+  struct by_address {};
+  struct by_pointer {};
+
+  using ByteIntervalSet = boost::multi_index::multi_index_container<
+      ByteInterval*,
+      boost::multi_index::indexed_by<
+          boost::multi_index::ordered_non_unique<
+              boost::multi_index::tag<by_address>,
+              boost::multi_index::global_fun<
+                  const ByteInterval&, AddressOrder<ByteInterval>::key_type,
+                  &AddressOrder<ByteInterval>::key>>,
+          boost::multi_index::hashed_unique<
+              boost::multi_index::tag<by_pointer>,
+              boost::multi_index::identity<ByteInterval*>>>>;
+  using ByteIntervalIntMap = boost::icl::interval_map<
+      Addr, std::set<ByteInterval*, AddressOrder<ByteInterval>>>;
 
 public:
   /// \brief Create an unitialized Section object.
@@ -176,9 +197,13 @@ public:
   /// with.
   bool removeByteInterval(ByteInterval* N) {
     N->removeFromIndices();
-    auto NRemoved = ByteIntervals.erase(N);
-    N->setSection(nullptr);
-    return NRemoved != 0;
+    auto& Index = ByteIntervals.get<by_pointer>();
+    if (auto Iter = Index.find(N); Iter != Index.end()) {
+      Index.erase(Iter);
+      N->setSection(nullptr);
+      return true;
+    }
+    return false;
   }
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
@@ -188,7 +213,7 @@ public:
     }
     N->setSection(this);
     N->addToIndices();
-    this->mutateIndices([this, N]() { ByteIntervals.insert(N); });
+    this->mutateIndices([this, N]() { ByteIntervals.emplace(N); });
     return N;
   }
 
@@ -224,11 +249,13 @@ private:
   Module* Parent{nullptr};
   std::string Name;
   ByteIntervalSet ByteIntervals;
+  ByteIntervalIntMap ByteIntervalAddrs;
 
   void setModule(Module* M) { Parent = M; }
 
   friend class Context; // Allow Context to construct sections.
   friend class Module;  // Allow Module to call setModule.
+  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
 } // namespace gtirb
 

@@ -59,6 +59,7 @@ set(PUBLIC_HEADERS
     ${CMAKE_SOURCE_DIR}/include/gtirb/Serialization.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp
+    ${CMAKE_SOURCE_DIR}/include/gtirb/Utility.hpp
     ${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp
 )
 
@@ -81,6 +82,7 @@ set(${PROJECT_NAME}_SRC
     Serialization.cpp
     Symbol.cpp
     SymbolicExpression.cpp
+    Utility.cpp
 )
 
 file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
