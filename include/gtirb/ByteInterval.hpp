@@ -23,6 +23,7 @@
 #include <boost/endian/conversion.hpp>
 #include <boost/icl/interval_map.hpp>
 #include <boost/iterator/filter_iterator.hpp>
+#include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_traits.hpp>
@@ -118,12 +119,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   ///
   /// \brief A function for a transform iterator to turn blocks into nodes.
   template <typename NodeType> struct BlockPointerToNode {
-    NodeType& operator()(const Block* B) const {
-      // We avoid the call to cast() here because we use this function after
-      // BlockKindEquals, which confirms the type of the Node for us
-      // (and more importantly, we avoid having to include Code/DataBlock).
-      return *reinterpret_cast<NodeType*>(B->Node);
-    }
+    NodeType& operator()(const Block* B) const { return *B->Node; }
   };
 
   struct OffsetOrder {
@@ -319,12 +315,12 @@ public:
   }
 
   const_block_subrange findBlocksIn(Addr A) const {
-    auto it = BlockAddrs.find(A);
-    if (it == BlockAddrs.end())
+    auto It = BlockAddrs.find(A);
+    if (It == BlockAddrs.end())
       return {};
     return boost::make_iterator_range(
-        const_block_subrange::iterator(it->second.begin()),
-        const_block_subrange::iterator(it->second.end()));
+        const_block_subrange::iterator(It->second.begin()),
+        const_block_subrange::iterator(It->second.end()));
   }
 
   block_range findBlocksAtOffset(uint64_t Off) {
@@ -393,6 +389,16 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using code_block_range = boost::iterator_range<code_block_iterator>;
+  /// \brief Sub-range of code blocks overlapping an address or range of
+  /// addreses.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using code_block_subrange = boost::iterator_range<boost::transform_iterator<
+      BlockToNode<Node>,
+      boost::filter_iterator<
+          BlockKindEquals<Node::Kind::CodeBlock>,
+          boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
   /// \brief Const iterator over \ref CodeBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -407,6 +413,18 @@ public:
   /// same offset, thier order is not specified.
   using const_code_block_range =
       boost::iterator_range<const_code_block_iterator>;
+  /// \brief Const sub-range of code blocks overlapping an address or range of
+  /// addreses.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_code_block_subrange =
+      boost::iterator_range<boost::transform_iterator<
+          BlockToNode<const Node>,
+          boost::filter_iterator<
+              BlockKindEquals<Node::Kind::CodeBlock>,
+              boost::indirect_iterator<
+                  BlockIntMap::codomain_type::const_iterator>>>>;
 
   /// \brief Return an iterator to the first \ref CodeBlock.
   code_block_iterator code_blocks_begin() {
@@ -440,6 +458,101 @@ public:
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
+  code_block_subrange findCodeBlocksIn(Addr A) {
+    auto It = BlockAddrs.find(A);
+    if (It == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        code_block_subrange::iterator(code_block_subrange::iterator::base_type(
+            boost::make_indirect_iterator(It->second.begin()),
+            boost::make_indirect_iterator(It->second.end()))),
+        code_block_subrange::iterator(code_block_subrange::iterator::base_type(
+            boost::make_indirect_iterator(It->second.end()),
+            boost::make_indirect_iterator(It->second.end()))));
+  }
+
+  const_code_block_subrange findCodeBlocksIn(Addr A) const {
+    auto It = BlockAddrs.find(A);
+    if (It == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        const_code_block_subrange::iterator(
+            const_code_block_subrange::iterator::base_type(
+                boost::make_indirect_iterator(It->second.begin()),
+                boost::make_indirect_iterator(It->second.end()))),
+        const_code_block_subrange::iterator(
+            const_code_block_subrange::iterator::base_type(
+                boost::make_indirect_iterator(It->second.end()),
+                boost::make_indirect_iterator(It->second.end()))));
+  }
+
+  code_block_range findCodeBlocksAtOffset(uint64_t Off) {
+    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    return boost::make_iterator_range(
+        code_block_iterator(
+            code_block_iterator::base_type(Pair.first, Pair.second)),
+        code_block_iterator(
+            code_block_iterator::base_type(Pair.second, Pair.second)));
+  }
+
+  code_block_range findCodeBlocksAtOffset(uint64_t Low, uint64_t High) {
+    auto& Index = Blocks.get<by_offset>();
+    auto LowIt = Index.lower_bound(Low);
+    auto HighIt = Index.upper_bound(High);
+    return boost::make_iterator_range(
+        code_block_iterator(code_block_iterator::base_type(LowIt, HighIt)),
+        code_block_iterator(code_block_iterator::base_type(HighIt, HighIt)));
+  }
+
+  code_block_range findCodeBlocksAt(Addr A) {
+    if (!Address) {
+      return {};
+    }
+    return findCodeBlocksAtOffset(A - *Address);
+  }
+
+  code_block_range findCodeBlocksAt(Addr Low, Addr High) {
+    if (!Address) {
+      return {};
+    }
+    return findCodeBlocksAtOffset(Low - *Address, High - *Address);
+  }
+
+  const_code_block_range findCodeBlocksAtOffset(uint64_t Off) const {
+    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    return boost::make_iterator_range(
+        const_code_block_iterator(
+            const_code_block_iterator::base_type(Pair.first, Pair.second)),
+        const_code_block_iterator(
+            const_code_block_iterator::base_type(Pair.second, Pair.second)));
+  }
+
+  const_code_block_range findCodeBlocksAtOffset(uint64_t Low,
+                                                uint64_t High) const {
+    auto& Index = Blocks.get<by_offset>();
+    auto LowIt = Index.lower_bound(Low);
+    auto HighIt = Index.upper_bound(High);
+    return boost::make_iterator_range(
+        const_code_block_iterator(
+            const_code_block_iterator::base_type(LowIt, HighIt)),
+        const_code_block_iterator(
+            const_code_block_iterator::base_type(HighIt, HighIt)));
+  }
+
+  const_code_block_range findCodeBlocksAt(Addr A) const {
+    if (!Address) {
+      return {};
+    }
+    return findCodeBlocksAtOffset(A - *Address);
+  }
+
+  const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
+    if (!Address) {
+      return {};
+    }
+    return findCodeBlocksAtOffset(Low - *Address, High - *Address);
+  }
+
   /// \brief Iterator over \ref DataBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -453,6 +566,16 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using data_block_range = boost::iterator_range<data_block_iterator>;
+  /// \brief Sub-range of data blocks overlapping an address or range of
+  /// addreses.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using data_block_subrange = boost::iterator_range<boost::transform_iterator<
+      BlockToNode<Node>,
+      boost::filter_iterator<
+          BlockKindEquals<Node::Kind::DataBlock>,
+          boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
   /// \brief Const iterator over \ref DataBlock objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -467,6 +590,18 @@ public:
   /// same offset, thier order is not specified.
   using const_data_block_range =
       boost::iterator_range<const_data_block_iterator>;
+  /// \brief Const sub-range of data blocks overlapping an address or range of
+  /// addreses.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_data_block_subrange =
+      boost::iterator_range<boost::transform_iterator<
+          BlockToNode<const Node>,
+          boost::filter_iterator<
+              BlockKindEquals<Node::Kind::DataBlock>,
+              boost::indirect_iterator<
+                  BlockIntMap::codomain_type::const_iterator>>>>;
 
   /// \brief Return an iterator to the first \ref DataBlock.
   data_block_iterator data_blocks_begin() {
@@ -498,6 +633,101 @@ public:
   /// interval.
   const_data_block_range data_blocks() const {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+
+  data_block_subrange findDataBlocksIn(Addr A) {
+    auto It = BlockAddrs.find(A);
+    if (It == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        data_block_subrange::iterator(data_block_subrange::iterator::base_type(
+            boost::make_indirect_iterator(It->second.begin()),
+            boost::make_indirect_iterator(It->second.end()))),
+        data_block_subrange::iterator(data_block_subrange::iterator::base_type(
+            boost::make_indirect_iterator(It->second.end()),
+            boost::make_indirect_iterator(It->second.end()))));
+  }
+
+  const_data_block_subrange findDataBlocksIn(Addr A) const {
+    auto It = BlockAddrs.find(A);
+    if (It == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        const_data_block_subrange::iterator(
+            const_data_block_subrange::iterator::base_type(
+                boost::make_indirect_iterator(It->second.begin()),
+                boost::make_indirect_iterator(It->second.end()))),
+        const_data_block_subrange::iterator(
+            const_data_block_subrange::iterator::base_type(
+                boost::make_indirect_iterator(It->second.end()),
+                boost::make_indirect_iterator(It->second.end()))));
+  }
+
+  data_block_range findDataBlocksAtOffset(uint64_t Off) {
+    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    return boost::make_iterator_range(
+        data_block_iterator(
+            data_block_iterator::base_type(Pair.first, Pair.second)),
+        data_block_iterator(
+            data_block_iterator::base_type(Pair.second, Pair.second)));
+  }
+
+  data_block_range findDataBlocksAtOffset(uint64_t Low, uint64_t High) {
+    auto& Index = Blocks.get<by_offset>();
+    auto LowIt = Index.lower_bound(Low);
+    auto HighIt = Index.upper_bound(High);
+    return boost::make_iterator_range(
+        data_block_iterator(data_block_iterator::base_type(LowIt, HighIt)),
+        data_block_iterator(data_block_iterator::base_type(HighIt, HighIt)));
+  }
+
+  data_block_range findDataBlocksAt(Addr A) {
+    if (!Address) {
+      return {};
+    }
+    return findDataBlocksAtOffset(A - *Address);
+  }
+
+  data_block_range findDataBlocksAt(Addr Low, Addr High) {
+    if (!Address) {
+      return {};
+    }
+    return findDataBlocksAtOffset(Low - *Address, High - *Address);
+  }
+
+  const_data_block_range findDataBlocksAtOffset(uint64_t Off) const {
+    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    return boost::make_iterator_range(
+        const_data_block_iterator(
+            const_data_block_iterator::base_type(Pair.first, Pair.second)),
+        const_data_block_iterator(
+            const_data_block_iterator::base_type(Pair.second, Pair.second)));
+  }
+
+  const_data_block_range findDataBlocksAtOffset(uint64_t Low,
+                                                uint64_t High) const {
+    auto& Index = Blocks.get<by_offset>();
+    auto LowIt = Index.lower_bound(Low);
+    auto HighIt = Index.upper_bound(High);
+    return boost::make_iterator_range(
+        const_data_block_iterator(
+            const_data_block_iterator::base_type(LowIt, HighIt)),
+        const_data_block_iterator(
+            const_data_block_iterator::base_type(HighIt, HighIt)));
+  }
+
+  const_data_block_range findDataBlocksAt(Addr A) const {
+    if (!Address) {
+      return {};
+    }
+    return findDataBlocksAtOffset(A - *Address);
+  }
+
+  const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
+    if (!Address) {
+      return {};
+    }
+    return findDataBlocksAtOffset(Low - *Address, High - *Address);
   }
 
 private:
