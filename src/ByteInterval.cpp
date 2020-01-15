@@ -57,8 +57,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 
   auto& ProtoSymExpr = *Message->mutable_symbolic_expressions();
-  for (const auto& Pair : this->symbolic_expressions()) {
-    ProtoSymExpr[Pair.first] = gtirb::toProtobuf(Pair.second);
+  for (const auto& SEE : this->symbolic_expressions()) {
+    ProtoSymExpr[SEE.getOffset()] =
+        gtirb::toProtobuf(SEE.getSymbolicExpression());
   }
 }
 

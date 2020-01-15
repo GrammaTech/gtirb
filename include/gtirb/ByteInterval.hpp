@@ -36,6 +36,7 @@
 #include <cstdint>
 #include <map>
 #include <optional>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
@@ -110,6 +111,18 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
       // BlockKindEquals, which confirms the type of the Node for us
       // (and more importantly, we avoid having to include Code/DataBlock).
       return *reinterpret_cast<NodeType*>(B.Node);
+    }
+  };
+
+  /// \class BlockPointerToNode
+  ///
+  /// \brief A function for a transform iterator to turn blocks into nodes.
+  template <typename NodeType> struct BlockPointerToNode {
+    NodeType& operator()(const Block* B) const {
+      // We avoid the call to cast() here because we use this function after
+      // BlockKindEquals, which confirms the type of the Node for us
+      // (and more importantly, we avoid having to include Code/DataBlock).
+      return *reinterpret_cast<NodeType*>(B->Node);
     }
   };
 
@@ -247,6 +260,12 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using block_range = boost::iterator_range<block_iterator>;
+  /// \brief Sub-range of blocks overlapping an address or range of addreses.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using block_subrange = boost::iterator_range<boost::transform_iterator<
+      BlockPointerToNode<Node>, BlockIntMap::codomain_type::iterator>>;
   /// \brief Const iterator over \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -259,6 +278,14 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using const_block_range = boost::iterator_range<const_block_iterator>;
+  /// \brief Const sub-range of blocks overlapping an address or range of
+  /// addreses.
+  ///
+  /// Blocks are yielded in offset order, ascending. If two blocks have the
+  /// same offset, thier order is not specified.
+  using const_block_subrange = boost::iterator_range<
+      boost::transform_iterator<BlockPointerToNode<const Node>,
+                                BlockIntMap::codomain_type::const_iterator>>;
 
   /// \brief Return an iterator to the first \ref Block.
   block_iterator blocks_begin() { return block_iterator(Blocks.begin()); }
@@ -280,6 +307,77 @@ public:
   /// \brief Return a const range of the \ref Block objects in this interval.
   const_block_range blocks() const {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
+  block_subrange findBlocksIn(Addr A) {
+    auto It = BlockAddrs.find(A);
+    if (It == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        block_subrange::iterator(It->second.begin()),
+        block_subrange::iterator(It->second.end()));
+  }
+
+  const_block_subrange findBlocksIn(Addr A) const {
+    auto it = BlockAddrs.find(A);
+    if (it == BlockAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        const_block_subrange::iterator(it->second.begin()),
+        const_block_subrange::iterator(it->second.end()));
+  }
+
+  block_range findBlocksAtOffset(uint64_t Off) {
+    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    return boost::make_iterator_range(block_iterator(Pair.first),
+                                      block_iterator(Pair.second));
+  }
+
+  block_range findBlocksAtOffset(uint64_t Low, uint64_t High) {
+    auto& Index = Blocks.get<by_offset>();
+    return boost::make_iterator_range(block_iterator(Index.lower_bound(Low)),
+                                      block_iterator(Index.upper_bound(High)));
+  }
+
+  block_range findBlocksAt(Addr A) {
+    if (!Address) {
+      return {};
+    }
+    return findBlocksAtOffset(A - *Address);
+  }
+
+  block_range findBlocksAt(Addr Low, Addr High) {
+    if (!Address) {
+      return {};
+    }
+    return findBlocksAtOffset(Low - *Address, High - *Address);
+  }
+
+  const_block_range findBlocksAtOffset(uint64_t Off) const {
+    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    return boost::make_iterator_range(const_block_iterator(Pair.first),
+                                      const_block_iterator(Pair.second));
+  }
+
+  const_block_range findBlocksAtOffset(uint64_t Low, uint64_t High) const {
+    auto& Index = Blocks.get<by_offset>();
+    return boost::make_iterator_range(
+        const_block_iterator(Index.lower_bound(Low)),
+        const_block_iterator(Index.upper_bound(High)));
+  }
+
+  const_block_range findBlocksAt(Addr A) const {
+    if (!Address) {
+      return {};
+    }
+    return findBlocksAtOffset(A - *Address);
+  }
+
+  const_block_range findBlocksAt(Addr Low, Addr High) const {
+    if (!Address) {
+      return {};
+    }
+    return findBlocksAtOffset(Low - *Address, High - *Address);
   }
 
   /// \brief Iterator over \ref CodeBlock objects.
@@ -402,55 +500,159 @@ public:
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 
+private:
+  template <typename SymExprElementType> class SymExprPairToElement {
+    using ByteIntervalType =
+        decltype(std::declval<SymExprElementType>().getByteInterval());
+    ByteIntervalType BI;
+
+  public:
+    explicit SymExprPairToElement(ByteIntervalType BI_) : BI{BI_} {}
+
+    SymExprElementType
+    operator()(const SymbolicExpressionMap::value_type& Pair) const {
+      return SymExprElementType(BI, Pair.first, Pair.second);
+    }
+  };
+
+public:
   /// \brief Iterator over \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
-  using symbolic_expressions_iterator = SymbolicExpressionMap::iterator;
+  using symbolic_expression_iterator =
+      boost::transform_iterator<SymExprPairToElement<SymbolicExpressionElement>,
+                                SymbolicExpressionMap::iterator>;
   /// \brief Range of \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
-  using symbolic_expressions_range =
-      boost::iterator_range<symbolic_expressions_iterator>;
+  using symbolic_expression_range =
+      boost::iterator_range<symbolic_expression_iterator>;
   /// \brief Const iterator over \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
-  using const_symbolic_expressions_iterator =
-      SymbolicExpressionMap::const_iterator;
+  using const_symbolic_expression_iterator = boost::transform_iterator<
+      SymExprPairToElement<ConstSymbolicExpressionElement>,
+      SymbolicExpressionMap::const_iterator>;
   /// \brief Const range of \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
-  using const_symbolic_expressions_range =
-      boost::iterator_range<const_symbolic_expressions_iterator>;
+  using const_symbolic_expression_range =
+      boost::iterator_range<const_symbolic_expression_iterator>;
 
   /// \brief Return an iterator to the first \ref SymbolicExpression.
-  symbolic_expressions_iterator symbolic_expressions_begin() {
-    return SymbolicExpressions.begin();
+  symbolic_expression_iterator symbolic_expressions_begin() {
+    return boost::make_transform_iterator(
+        SymbolicExpressions.begin(),
+        SymExprPairToElement<SymbolicExpressionElement>(this));
   }
   /// \brief Return a const iterator to the first \ref SymbolicExpression.
-  const_symbolic_expressions_iterator symbolic_expressions_begin() const {
-    return SymbolicExpressions.begin();
+  const_symbolic_expression_iterator symbolic_expressions_begin() const {
+    return boost::make_transform_iterator(
+        SymbolicExpressions.begin(),
+        SymExprPairToElement<ConstSymbolicExpressionElement>(this));
   }
   /// \brief Return an iterator to the element following the last \ref
   /// SymbolicExpression.
-  symbolic_expressions_iterator symbolic_expressions_end() {
-    return SymbolicExpressions.end();
+  symbolic_expression_iterator symbolic_expressions_end() {
+    return boost::make_transform_iterator(
+        SymbolicExpressions.end(),
+        SymExprPairToElement<SymbolicExpressionElement>(this));
   }
   /// \brief Return a const iterator to the element following the last \ref
   /// SymbolicExpression.
-  const_symbolic_expressions_iterator symbolic_expressions_end() const {
-    return SymbolicExpressions.end();
+  const_symbolic_expression_iterator symbolic_expressions_end() const {
+    return boost::make_transform_iterator(
+        SymbolicExpressions.end(),
+        SymExprPairToElement<ConstSymbolicExpressionElement>(this));
   }
   /// \brief Return a range of the \ref SymbolicExpression objects in this
   /// interval.
-  symbolic_expressions_range symbolic_expressions() {
+  symbolic_expression_range symbolic_expressions() {
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
   }
   /// \brief Return a const range of the \ref SymbolicExpression objects in this
   /// interval.
-  const_symbolic_expressions_range symbolic_expressions() const {
+  const_symbolic_expression_range symbolic_expressions() const {
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAtOffset(uint64_t Off) {
+    auto Pair = SymbolicExpressions.equal_range(Off);
+    return boost::make_iterator_range(
+        boost::make_transform_iterator(
+            Pair.first, SymExprPairToElement<SymbolicExpressionElement>(this)),
+        boost::make_transform_iterator(
+            Pair.second,
+            SymExprPairToElement<SymbolicExpressionElement>(this)));
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAtOffset(uint64_t Low,
+                                                            uint64_t High) {
+    return boost::make_iterator_range(
+        boost::make_transform_iterator(
+            SymbolicExpressions.lower_bound(Low),
+            SymExprPairToElement<SymbolicExpressionElement>(this)),
+        boost::make_transform_iterator(
+            SymbolicExpressions.upper_bound(High),
+            SymExprPairToElement<SymbolicExpressionElement>(this)));
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAt(Addr A) {
+    if (!Address) {
+      return boost::make_iterator_range(symbolic_expressions_end(),
+                                        symbolic_expressions_end());
+    }
+    return findSymbolicExpressionsAtOffset(A - *Address);
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAt(Addr Low, Addr High) {
+    if (!Address) {
+      return boost::make_iterator_range(symbolic_expressions_end(),
+                                        symbolic_expressions_end());
+    }
+    return findSymbolicExpressionsAtOffset(Low - *Address, High - *Address);
+  }
+
+  const_symbolic_expression_range
+  findSymbolicExpressionsAtOffset(uint64_t Off) const {
+    auto Pair = SymbolicExpressions.equal_range(Off);
+    return boost::make_iterator_range(
+        boost::make_transform_iterator(
+            Pair.first,
+            SymExprPairToElement<ConstSymbolicExpressionElement>(this)),
+        boost::make_transform_iterator(
+            Pair.second,
+            SymExprPairToElement<ConstSymbolicExpressionElement>(this)));
+  }
+
+  const_symbolic_expression_range
+  findSymbolicExpressionsAtOffset(uint64_t Low, uint64_t High) const {
+    return boost::make_iterator_range(
+        boost::make_transform_iterator(
+            SymbolicExpressions.lower_bound(Low),
+            SymExprPairToElement<ConstSymbolicExpressionElement>(this)),
+        boost::make_transform_iterator(
+            SymbolicExpressions.upper_bound(High),
+            SymExprPairToElement<ConstSymbolicExpressionElement>(this)));
+  }
+
+  const_symbolic_expression_range findSymbolicExpressionsAt(Addr A) const {
+    if (!Address) {
+      return boost::make_iterator_range(symbolic_expressions_end(),
+                                        symbolic_expressions_end());
+    }
+    return findSymbolicExpressionsAtOffset(A - *Address);
+  }
+
+  const_symbolic_expression_range findSymbolicExpressionsAt(Addr Low,
+                                                            Addr High) const {
+    if (!Address) {
+      return boost::make_iterator_range(symbolic_expressions_end(),
+                                        symbolic_expressions_end());
+    }
+    return findSymbolicExpressionsAtOffset(Low - *Address, High - *Address);
   }
 
   /// \brief Remove a block from this interval.

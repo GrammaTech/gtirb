@@ -31,8 +31,9 @@ namespace proto {
 class SymbolicExpression;
 }
 namespace gtirb {
-class Context;
-class Symbol;
+class Context;      // Forward reference for fromProtobuf.
+class Symbol;       // Forward refernece for Sym, Sym1, Sym2, etc.
+class ByteInterval; // Forward reference for SymbolicExpressionElement.
 
 /// \defgroup SYMBOLIC_EXPRESSION_GROUP Symbolic Expressions and Operands
 /// \brief Represent data values or instruction operands which
@@ -93,6 +94,43 @@ struct SymAddrAddr {
 /// \brief A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+
+class ConstSymbolicExpressionElement {
+public:
+  ConstSymbolicExpressionElement(const ByteInterval* BI_, uint64_t Off_,
+                                 const SymbolicExpression& SE_)
+      : BI{BI_}, Off{Off_}, SE{SE_} {}
+
+  const ByteInterval* getByteInterval() const { return BI; }
+  uint64_t getOffset() const { return Off; }
+  const SymbolicExpression& getSymbolicExpression() const { return SE; }
+
+private:
+  const ByteInterval* BI;
+  uint64_t Off;
+  SymbolicExpression SE;
+};
+
+class SymbolicExpressionElement {
+public:
+  SymbolicExpressionElement(ByteInterval* BI_, uint64_t Off_,
+                            const SymbolicExpression& SE_)
+      : BI{BI_}, Off{Off_}, SE{SE_} {}
+
+  ByteInterval* getByteInterval() { return BI; }
+  const ByteInterval* getByteInterval() const { return BI; }
+  uint64_t getOffset() const { return Off; }
+  const SymbolicExpression& getSymbolicExpression() const { return SE; }
+
+  operator ConstSymbolicExpressionElement() const {
+    return ConstSymbolicExpressionElement(BI, Off, SE);
+  }
+
+private:
+  ByteInterval* BI;
+  uint64_t Off;
+  SymbolicExpression SE;
+};
 
 /// @cond INTERNAL
 /// \brief Initialize a SymbolicExpression from a protobuf message.
