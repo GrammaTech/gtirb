@@ -730,6 +730,71 @@ public:
     return findDataBlocksAtOffset(Low - *Address, High - *Address);
   }
 
+  class ConstSymbolicExpressionElement {
+  public:
+    ConstSymbolicExpressionElement(const ByteInterval* BI_, uint64_t Off_,
+                                   const SymbolicExpression& SE_)
+        : BI{BI_}, Off{Off_}, SE{SE_} {}
+
+    const ByteInterval* getByteInterval() const { return BI; }
+    uint64_t getOffset() const { return Off; }
+    const SymbolicExpression& getSymbolicExpression() const { return SE; }
+
+    class AddressOrder {
+      using key_type = std::optional<Addr>;
+      static key_type key(const ConstSymbolicExpressionElement& SEE) {
+        if (auto A = SEE.getByteInterval()->getAddress(); A) {
+          return *A + SEE.getOffset();
+        }
+        return std::nullopt;
+      };
+      bool operator()(const ConstSymbolicExpressionElement& SEE1,
+                      const ConstSymbolicExpressionElement& SEE2) const {
+        return key(SEE1) < key(SEE2);
+      }
+    };
+
+  private:
+    const ByteInterval* BI;
+    uint64_t Off;
+    SymbolicExpression SE;
+  };
+
+  class SymbolicExpressionElement {
+  public:
+    SymbolicExpressionElement(ByteInterval* BI_, uint64_t Off_,
+                              const SymbolicExpression& SE_)
+        : BI{BI_}, Off{Off_}, SE{SE_} {}
+
+    ByteInterval* getByteInterval() { return BI; }
+    const ByteInterval* getByteInterval() const { return BI; }
+    uint64_t getOffset() const { return Off; }
+    const SymbolicExpression& getSymbolicExpression() const { return SE; }
+
+    operator ConstSymbolicExpressionElement() const {
+      return ConstSymbolicExpressionElement(BI, Off, SE);
+    }
+
+    class AddressOrder {
+      using key_type = std::optional<Addr>;
+      static key_type key(const SymbolicExpressionElement& SEE) {
+        if (auto A = SEE.getByteInterval()->getAddress(); A) {
+          return *A + SEE.getOffset();
+        }
+        return std::nullopt;
+      };
+      bool operator()(const SymbolicExpressionElement& SEE1,
+                      const SymbolicExpressionElement& SEE2) const {
+        return key(SEE1) < key(SEE2);
+      }
+    };
+
+  private:
+    ByteInterval* BI;
+    uint64_t Off;
+    SymbolicExpression SE;
+  };
+
 private:
   template <typename SymExprElementType> class SymExprPairToElement {
     using ByteIntervalType =
@@ -801,8 +866,8 @@ public:
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
   }
-  /// \brief Return a const range of the \ref SymbolicExpression objects in this
-  /// interval.
+  /// \brief Return a const range of the \ref SymbolicExpression objects in
+  /// this interval.
   const_symbolic_expression_range symbolic_expressions() const {
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
@@ -933,7 +998,8 @@ public:
     return SymbolicExpressions[Off];
   }
 
-  /// \brief Removes a \ref SymbolicExpression at the given offset, if present.
+  /// \brief Removes a \ref SymbolicExpression at the given offset, if
+  /// present.
   ///
   /// \param Off  The offset of the \ref SymbolicExpression to remove.
   ///
@@ -949,7 +1015,8 @@ public:
   /// \brief Get the symbolic expression at the given offset, if present.
   ///
   /// \param Off  The offset of the \ref SymbolicExpression to return.
-  /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
+  /// \return   The \ref SymbolicExpression at that offset, or nullptr if
+  /// there
   ///           is no \ref SymbolicExpression at that offset.
   SymbolicExpression* getSymbolicExpression(uint64_t Off) {
     if (auto It = SymbolicExpressions.find(Off);
@@ -962,7 +1029,8 @@ public:
   /// \brief Get the symbolic expression at the given offset, if present.
   ///
   /// \param Off  The offset of the \ref SymbolicExpression to return.
-  /// \return   The \ref SymbolicExpression at that offset, or nullptr if there
+  /// \return   The \ref SymbolicExpression at that offset, or nullptr if
+  /// there
   ///           is no \ref SymbolicExpression at that offset.
   const SymbolicExpression* getSymbolicExpression(uint64_t Off) const {
     if (auto It = SymbolicExpressions.find(Off);
@@ -1006,22 +1074,23 @@ public:
   ///
   /// Not all bytes in this interval may correspond to bytes physically stored
   /// in the underlying file format. This can occur, for example, in BSS
-  /// sections, which are zero-initialized at loadtime, but these zeroes are not
-  /// stored in the file itself. If this number is smaller than the value
+  /// sections, which are zero-initialized at loadtime, but these zeroes are
+  /// not stored in the file itself. If this number is smaller than the value
   /// returned by \ref getSize, this indicates that any bytes past this number
   /// are unitialized bytes with values determined at loadtime. As such, all
   /// bytes past this number in this interval's byte vector are truncated when
   /// saving to file.
   ///
-  /// This number will never be larger than the value returned by \ref getSize.
+  /// This number will never be larger than the value returned by \ref
+  /// getSize.
   uint64_t getInitializedSize() const { return Bytes.size(); }
 
   /// \brief Set the number of initialized bytes in this interval.
   ///
   /// Not all bytes in this interval may correspond to bytes physically stored
   /// in the underlying file format. This can occur, for example, in BSS
-  /// sections, which are zero-initialized at loadtime, but these zeroes are not
-  /// stored in the file itself. If this number is smaller than the value
+  /// sections, which are zero-initialized at loadtime, but these zeroes are
+  /// not stored in the file itself. If this number is smaller than the value
   /// returned by \ref getSize, this indicates that any bytes past this number
   /// are unitialized bytes with values determined at loadtime. As such, all
   /// bytes past this number in this interval's byte vector are truncated when
@@ -1067,11 +1136,11 @@ private:
 
       if (I >= S) {
         // anything this far past the end of initialized bytes is composed of
-        // all zero bytes, so we return what T would have been interpreted as if
-        // all bytes are zero.
+        // all zero bytes, so we return what T would have been interpreted as
+        // if all bytes are zero.
         //
-        // (note that you may be tempted to replace this with "return T{};", but
-        // beware: T might be a non-scalar type whose default constructor
+        // (note that you may be tempted to replace this with "return T{};",
+        // but beware: T might be a non-scalar type whose default constructor
         // differs from the value returned when all bytes are re-interpeted as
         // zeroes. A similar argument exists for "return T{0};".)
         const std::array<uint8_t, sizeof(T)> Array{};
@@ -1097,9 +1166,9 @@ private:
     /// \brief Use this reference as an lvalue.
     ///
     /// This method automatically handles endian conversions.
-    /// If uninitlized bytes are written to, then the initialized byte count is
-    /// adjusted (see \ref getInitializedSize for details), padding with zeroes
-    /// as necesary.
+    /// If uninitlized bytes are written to, then the initialized byte count
+    /// is adjusted (see \ref getInitializedSize for details), padding with
+    /// zeroes as necesary.
     BytesReference<ByteIntervalType, T>& operator=(const T& rhs) {
       assert(I + sizeof(T) <= BI.Size &&
              "write into interval's bytes out of bounds!");
@@ -1370,7 +1439,8 @@ public:
         // All positions are within the initilized vector.
         Bytes.erase(Bytes.begin() + Begin.I, Bytes.begin() + End.I);
       } else {
-        // The beginning is within vector, the end isn't; clamp to Bytes.end().
+        // The beginning is within vector, the end isn't; clamp to
+        // Bytes.end().
         Bytes.erase(Bytes.begin() + Begin.I, Bytes.end());
       }
     }
@@ -1387,7 +1457,8 @@ public:
   /// vector may invalidate this pointer. Any endian conversions will not be
   /// performed.
   ///
-  /// \tparam T The type of data stored in this byte vector. Must be a POD type.
+  /// \tparam T The type of data stored in this byte vector. Must be a POD
+  /// type.
   template <typename T> T* rawBytes() {
     return reinterpret_cast<T*>(Bytes.data());
   }
@@ -1400,7 +1471,8 @@ public:
   /// vector may invalidate this pointer. Any endian conversions will not be
   /// performed.
   ///
-  /// \tparam T The type of data stored in this byte vector. Must be a POD type.
+  /// \tparam T The type of data stored in this byte vector. Must be a POD
+  /// type.
   template <typename T> const T* rawBytes() const {
     return reinterpret_cast<const T*>(Bytes.data());
   }
@@ -1418,8 +1490,8 @@ public:
 
   /// \brief Construct a ByteInterval from a protobuf message.
   ///
-  /// \param C  The Context in which the deserialized ByteInterval will be held.
-  /// \param Message  The protobuf message from which to deserialize.
+  /// \param C  The Context in which the deserialized ByteInterval will be
+  /// held. \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ByteInterval object, or null on failure.
   static ByteInterval* fromProtobuf(Context& C, Section* Parent,
@@ -1467,6 +1539,7 @@ private:
   friend class DataBlock; // Friend to enable DataBlock::getAddress.
   friend class Node;      // Allow Node::mutateIndices, etc. to set indices.
 };
+
 } // namespace gtirb
 
 #endif // GTIRB_BYTE_INTERVAL_H

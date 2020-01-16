@@ -104,6 +104,8 @@ public:
       boost::indirect_iterator<ByteIntervalSet::iterator>;
   /// \brief Range of \ref ByteInterval objects.
   using byte_interval_range = boost::iterator_range<byte_interval_iterator>;
+  using byte_interval_subrange = boost::iterator_range<
+      boost::indirect_iterator<ByteIntervalIntMap::codomain_type::iterator>>;
   /// \brief Const iterator over \ref ByteInterval objects.
   using const_byte_interval_iterator =
       boost::indirect_iterator<ByteIntervalSet::const_iterator,
@@ -111,6 +113,9 @@ public:
   /// \brief Const range of \ref ByteInterval objects.
   using const_byte_interval_range =
       boost::iterator_range<const_byte_interval_iterator>;
+  using const_byte_interval_subrange =
+      boost::iterator_range<boost::indirect_iterator<
+          ByteIntervalIntMap::codomain_type::const_iterator>>;
 
   /// \brief Return an iterator to the first \ref ByteInterval.
   byte_interval_iterator byte_intervals_begin() {
@@ -138,6 +143,51 @@ public:
   const_byte_interval_range byte_intervals() const {
     return boost::make_iterator_range(byte_intervals_begin(),
                                       byte_intervals_end());
+  }
+
+  byte_interval_subrange findByteIntervalsIn(Addr A) {
+    auto It = ByteIntervalAddrs.find(A);
+    if (It == ByteIntervalAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        boost::make_indirect_iterator(It->second.begin()),
+        boost::make_indirect_iterator(It->second.end()));
+  }
+
+  const_byte_interval_subrange findByteIntervalsIn(Addr A) const {
+    auto It = ByteIntervalAddrs.find(A);
+    if (It == ByteIntervalAddrs.end())
+      return {};
+    return boost::make_iterator_range(
+        boost::make_indirect_iterator(It->second.begin()),
+        boost::make_indirect_iterator(It->second.end()));
+  }
+
+  byte_interval_range findByteIntervalsAt(Addr A) {
+    auto Pair = ByteIntervals.get<by_address>().equal_range(A);
+    return boost::make_iterator_range(byte_interval_iterator(Pair.first),
+                                      byte_interval_iterator(Pair.second));
+  }
+
+  byte_interval_range findByteIntervalsAt(Addr Low, Addr High) {
+    auto& Index = ByteIntervals.get<by_address>();
+    return boost::make_iterator_range(
+        byte_interval_iterator(Index.lower_bound(Low)),
+        byte_interval_iterator(Index.upper_bound(High)));
+  }
+
+  const_byte_interval_range findByteIntervalsAt(Addr A) const {
+    auto Pair = ByteIntervals.get<by_address>().equal_range(A);
+    return boost::make_iterator_range(
+        const_byte_interval_iterator(Pair.first),
+        const_byte_interval_iterator(Pair.second));
+  }
+
+  const_byte_interval_range findByteIntervalsAt(Addr Low, Addr High) const {
+    auto& Index = ByteIntervals.get<by_address>();
+    return boost::make_iterator_range(
+        const_byte_interval_iterator(Index.lower_bound(Low)),
+        const_byte_interval_iterator(Index.upper_bound(High)));
   }
 
   /// \brief Return the address of this section, if known.
@@ -229,10 +279,14 @@ public:
   using block_iterator =
       MergeSortedIterator<ByteInterval::block_iterator, BlockAddressOrder>;
   using block_range = boost::iterator_range<block_iterator>;
+  using block_subrange = boost::iterator_range<MergeSortedIterator<
+      ByteInterval::block_subrange::iterator, BlockAddressOrder>>;
   using const_block_iterator =
       MergeSortedIterator<ByteInterval::const_block_iterator,
                           BlockAddressOrder>;
   using const_block_range = boost::iterator_range<const_block_iterator>;
+  using const_block_subrange = boost::iterator_range<MergeSortedIterator<
+      ByteInterval::const_block_subrange::iterator, BlockAddressOrder>>;
 
   block_iterator blocks_begin() {
     return block_iterator(
@@ -262,15 +316,126 @@ public:
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
 
+  block_subrange findBlocksIn(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::block_subrange operator()(ByteInterval& N) const {
+        return N.findBlocksIn(A);
+      }
+    };
+
+    return block_subrange(block_subrange::iterator(
+                              boost::make_transform_iterator(
+                                  this->byte_intervals_begin(), FindBlocks(A)),
+                              boost::make_transform_iterator(
+                                  this->byte_intervals_end(), FindBlocks(A))),
+                          block_subrange::iterator());
+  }
+
+  const_block_subrange findBlocksIn(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::const_block_subrange
+      operator()(const ByteInterval& N) const {
+        return N.findBlocksIn(A);
+      }
+    };
+
+    return const_block_subrange(
+        const_block_subrange::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        const_block_subrange::iterator());
+  }
+
+  block_range findBlocksAt(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::block_range operator()(ByteInterval& N) const {
+        return N.findBlocksAt(A);
+      }
+    };
+
+    return block_range(
+        block_range::iterator(boost::make_transform_iterator(
+                                  this->byte_intervals_begin(), FindBlocks(A)),
+                              boost::make_transform_iterator(
+                                  this->byte_intervals_end(), FindBlocks(A))),
+        block_range::iterator());
+  }
+
+  block_range findBlocksAt(Addr Low, Addr High) {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::block_range operator()(ByteInterval& N) const {
+        return N.findBlocksAt(Low, High);
+      }
+    };
+
+    return block_range(
+        block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(Low, High))),
+        block_range::iterator());
+  }
+
+  const_block_range findBlocksAt(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::const_block_range operator()(const ByteInterval& N) const {
+        return N.findBlocksAt(A);
+      }
+    };
+
+    return const_block_range(
+        const_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        const_block_range::iterator());
+  }
+
+  const_block_range findBlocksAt(Addr Low, Addr High) const {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::const_block_range operator()(const ByteInterval& N) const {
+        return N.findBlocksAt(Low, High);
+      }
+    };
+
+    return const_block_range(
+        const_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(Low, High))),
+        const_block_range::iterator());
+  }
+
   using code_block_iterator =
       MergeSortedIterator<ByteInterval::code_block_iterator,
                           AddressOrder<CodeBlock>>;
   using code_block_range = boost::iterator_range<code_block_iterator>;
+  using code_block_subrange = boost::iterator_range<MergeSortedIterator<
+      ByteInterval::code_block_subrange::iterator, BlockAddressOrder>>;
   using const_code_block_iterator =
       MergeSortedIterator<ByteInterval::const_code_block_iterator,
                           AddressOrder<CodeBlock>>;
   using const_code_block_range =
       boost::iterator_range<const_code_block_iterator>;
+  using const_code_block_subrange = boost::iterator_range<MergeSortedIterator<
+      ByteInterval::const_code_block_subrange::iterator, BlockAddressOrder>>;
 
   code_block_iterator code_blocks_begin() {
     return code_block_iterator(
@@ -304,15 +469,130 @@ public:
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
+  code_block_subrange findCodeBlocksIn(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::code_block_subrange operator()(ByteInterval& N) const {
+        return N.findCodeBlocksIn(A);
+      }
+    };
+
+    return code_block_subrange(
+        code_block_subrange::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        code_block_subrange::iterator());
+  }
+
+  const_code_block_subrange findCodeBlocksIn(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::const_code_block_subrange
+      operator()(const ByteInterval& N) const {
+        return N.findCodeBlocksIn(A);
+      }
+    };
+
+    return const_code_block_subrange(
+        const_code_block_subrange::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        const_code_block_subrange::iterator());
+  }
+
+  code_block_range findCodeBlocksAt(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::code_block_range operator()(ByteInterval& N) const {
+        return N.findCodeBlocksAt(A);
+      }
+    };
+
+    return code_block_range(
+        code_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        code_block_range::iterator());
+  }
+
+  code_block_range findCodeBlocksAt(Addr Low, Addr High) {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::code_block_range operator()(ByteInterval& N) const {
+        return N.findCodeBlocksAt(Low, High);
+      }
+    };
+
+    return code_block_range(
+        code_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(Low, High))),
+        code_block_range::iterator());
+  }
+
+  const_code_block_range findCodeBlocksAt(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::const_code_block_range
+      operator()(const ByteInterval& N) const {
+        return N.findCodeBlocksAt(A);
+      }
+    };
+
+    return const_code_block_range(
+        const_code_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        const_code_block_range::iterator());
+  }
+
+  const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::const_code_block_range
+      operator()(const ByteInterval& N) const {
+        return N.findCodeBlocksAt(Low, High);
+      }
+    };
+
+    return const_code_block_range(
+        const_code_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(Low, High))),
+        const_code_block_range::iterator());
+  }
+
   using data_block_iterator =
       MergeSortedIterator<ByteInterval::data_block_iterator,
                           AddressOrder<DataBlock>>;
   using data_block_range = boost::iterator_range<data_block_iterator>;
+  using data_block_subrange = boost::iterator_range<MergeSortedIterator<
+      ByteInterval::data_block_subrange::iterator, BlockAddressOrder>>;
   using const_data_block_iterator =
       MergeSortedIterator<ByteInterval::const_data_block_iterator,
                           AddressOrder<DataBlock>>;
   using const_data_block_range =
       boost::iterator_range<const_data_block_iterator>;
+  using const_data_block_subrange = boost::iterator_range<MergeSortedIterator<
+      ByteInterval::const_data_block_subrange::iterator, BlockAddressOrder>>;
 
   data_block_iterator data_blocks_begin() {
     return data_block_iterator(
@@ -344,6 +624,204 @@ public:
 
   const_data_block_range data_blocks() const {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+
+  data_block_subrange findDataBlocksIn(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::data_block_subrange operator()(ByteInterval& N) const {
+        return N.findDataBlocksIn(A);
+      }
+    };
+
+    return data_block_subrange(
+        data_block_subrange::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        data_block_subrange::iterator());
+  }
+
+  const_data_block_subrange findDataBlocksIn(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::const_data_block_subrange
+      operator()(const ByteInterval& N) const {
+        return N.findDataBlocksIn(A);
+      }
+    };
+
+    return const_data_block_subrange(
+        const_data_block_subrange::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        const_data_block_subrange::iterator());
+  }
+
+  data_block_range findDataBlocksAt(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::data_block_range operator()(ByteInterval& N) const {
+        return N.findDataBlocksAt(A);
+      }
+    };
+
+    return data_block_range(
+        data_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        data_block_range::iterator());
+  }
+
+  data_block_range findDataBlocksAt(Addr Low, Addr High) {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::data_block_range operator()(ByteInterval& N) const {
+        return N.findDataBlocksAt(Low, High);
+      }
+    };
+
+    return data_block_range(
+        data_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(Low, High))),
+        data_block_range::iterator());
+  }
+
+  const_data_block_range findDataBlocksAt(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      ByteInterval::const_data_block_range
+      operator()(const ByteInterval& N) const {
+        return N.findDataBlocksAt(A);
+      }
+    };
+
+    return const_data_block_range(
+        const_data_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(A))),
+        const_data_block_range::iterator());
+  }
+
+  const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::const_data_block_range
+      operator()(const ByteInterval& N) const {
+        return N.findDataBlocksAt(Low, High);
+      }
+    };
+
+    return const_data_block_range(
+        const_data_block_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindBlocks(Low, High))),
+        const_data_block_range::iterator());
+  }
+
+  using symbolic_expression_iterator = MergeSortedIterator<
+      ByteInterval::symbolic_expression_iterator,
+      ByteInterval::SymbolicExpressionElement::AddressOrder>;
+  using symbolic_expression_range =
+      boost::iterator_range<symbolic_expression_iterator>;
+  using const_symbolic_expression_iterator = MergeSortedIterator<
+      ByteInterval::const_symbolic_expression_iterator,
+      ByteInterval::ConstSymbolicExpressionElement::AddressOrder>;
+  using const_symbolic_expression_range =
+      boost::iterator_range<const_symbolic_expression_iterator>;
+
+  symbolic_expression_iterator symbolic_expressions_begin() {
+    return symbolic_expression_iterator(
+        boost::make_transform_iterator(
+            this->byte_intervals_begin(),
+            NodeToSymbolicExpressionRange<ByteInterval>()),
+        boost::make_transform_iterator(
+            this->byte_intervals_end(),
+            NodeToSymbolicExpressionRange<ByteInterval>()));
+  }
+
+  symbolic_expression_iterator symbolic_expressions_end() {
+    return symbolic_expression_iterator();
+  }
+
+  symbolic_expression_range symbolic_expressions() {
+    return boost::make_iterator_range(symbolic_expressions_begin(),
+                                      symbolic_expressions_end());
+  }
+
+  const_symbolic_expression_iterator symbolic_expressions_begin() const {
+    return const_symbolic_expression_iterator(
+        boost::make_transform_iterator(
+            this->byte_intervals_begin(),
+            NodeToSymbolicExpressionRange<const ByteInterval>()),
+        boost::make_transform_iterator(
+            this->byte_intervals_end(),
+            NodeToSymbolicExpressionRange<const ByteInterval>()));
+  }
+
+  const_symbolic_expression_iterator symbolic_expressions_end() const {
+    return const_symbolic_expression_iterator();
+  }
+
+  const_symbolic_expression_range symbolic_expressions() const {
+    return boost::make_iterator_range(symbolic_expressions_begin(),
+                                      symbolic_expressions_end());
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAt(Addr A) {
+    struct FindSymExprs {
+      Addr A;
+      FindSymExprs(Addr A_) : A{A_} {}
+      ByteInterval::symbolic_expression_range
+      operator()(ByteInterval& N) const {
+        return N.findSymbolicExpressionsAt(A);
+      }
+    };
+
+    return symbolic_expression_range(
+        symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindSymExprs(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindSymExprs(A))),
+        symbolic_expression_range::iterator());
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAt(Addr Low, Addr High) {
+    struct FindSymExprs {
+      Addr Low, High;
+      FindSymExprs(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::symbolic_expression_range
+      operator()(ByteInterval& N) const {
+        return N.findSymbolicExpressionsAt(Low, High);
+      }
+    };
+
+    return symbolic_expression_range(
+        symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindSymExprs(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindSymExprs(Low, High))),
+        symbolic_expression_range::iterator());
   }
 
   /// @cond INTERNAL

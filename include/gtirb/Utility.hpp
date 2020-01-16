@@ -72,6 +72,15 @@ using NodeToDataBlockRange = NodeToChildRange<
                        typename T::data_block_iterator (T::*)()>,
     &T::data_blocks_begin, &T::data_blocks_end>;
 
+template <typename T>
+using NodeToSymbolicExpressionRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_symbolic_expression_iterator (T::*)()
+                           const,
+                       typename T::symbolic_expression_iterator (T::*)()>,
+    &T::symbolic_expressions_begin, &T::symbolic_expressions_end>;
+
 } // namespace gtirb
 
 #endif // GTIRB_UTILITY_H
