@@ -16,6 +16,7 @@
 #define GTIRB_UTILITY_H
 
 #include <gtirb/Addr.hpp>
+#include <gtirb/Export.hpp>
 #include <gtirb/MergeSortedIterator.hpp>
 #include <gtirb/Node.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -32,7 +33,7 @@ template <typename T> struct AddressOrder {
   }
 };
 
-struct BlockAddressOrder {
+struct GTIRB_EXPORT_API BlockAddressOrder {
   using key_type = std::optional<Addr>;
   static key_type getAddress(const Node* N);
   bool operator()(const Node& N1, const Node& N2) const {
