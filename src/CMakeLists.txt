@@ -106,7 +106,7 @@ target_compile_definitions(
 )
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  # These three warnings come from protobuf headers, disabling them this way
+  # These four warnings come from protobuf headers, disabling them this way
   # means that projects which link to gtirb via cmake won't have to deal with
   # them.
   target_compile_options(${PROJECT_NAME} PUBLIC -wd4100) # unreferenced formal
@@ -117,6 +117,10 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   target_compile_options(
     ${PROJECT_NAME} PUBLIC -wd4244
   ) # conversion from 'type1' to 'type2', possible loss of data
+  target_compile_definitions(
+    ${PROJECT_NAME} PUBLIC
+    _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+  )
 
   target_compile_options(
     ${PROJECT_NAME} PUBLIC -wd4251
