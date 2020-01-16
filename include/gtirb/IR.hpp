@@ -125,40 +125,42 @@ public:
   ///
   /// Modules are returned in name order. If more than one module has the same
   /// name, the order in which they are returned is unspecified.
-  using iterator = boost::indirect_iterator<ModuleSet::iterator>;
+  using module_iterator = boost::indirect_iterator<ModuleSet::iterator>;
   /// \brief Constant iterator over \ref Module "Modules".
   ///
   /// Modules are returned in name order. If more than one module has the same
   /// name, the order in which they are returned is unspecified.
-  using const_iterator =
+  using const_module_iterator =
       boost::indirect_iterator<ModuleSet::const_iterator, const Module>;
 
   /// \brief Returns an iterator to the first Module.
-  iterator begin() { return Modules.begin(); }
+  module_iterator modules_begin() { return Modules.begin(); }
   /// \brief Returns an iterator to the element following the last Module.
-  iterator end() { return Modules.end(); }
+  module_iterator modules_end() { return Modules.end(); }
   /// \brief Returns a constant iterator to the first Module.
-  const_iterator begin() const { return Modules.begin(); }
+  const_module_iterator modules_begin() const { return Modules.begin(); }
   /// \brief Returns a constant iterator to the element following the last
   /// Module.
-  const_iterator end() const { return Modules.end(); }
+  const_module_iterator modules_end() const { return Modules.end(); }
 
   /// \brief Range of \ref Module "Modules".
   ///
   /// Modules are returned in name order. If more than one module has the same
   /// name, the order in which they are returned is unspecified.
-  using range = boost::iterator_range<iterator>;
+  using range = boost::iterator_range<module_iterator>;
   /// \brief Constant range of \ref Module "Modules".
   ///
   /// Modules are returned in name order. If more than one module has the same
   /// name, the order in which they are returned is unspecified.
-  using const_range = boost::iterator_range<const_iterator>;
+  using const_range = boost::iterator_range<const_module_iterator>;
 
   /// \brief Returns a range of the \ref Module "Modules".
-  range modules() { return boost::make_iterator_range(begin(), end()); }
+  range modules() {
+    return boost::make_iterator_range(modules_begin(), modules_end());
+  }
   /// \brief Returns a constant range of the \ref Module "Modules".
   const_range modules() const {
-    return boost::make_iterator_range(begin(), end());
+    return boost::make_iterator_range(modules_begin(), modules_end());
   }
 
   /// \brief Remove a \ref Module object located in this IR.
