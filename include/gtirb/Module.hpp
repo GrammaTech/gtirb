@@ -1572,6 +1572,66 @@ public:
   /// @}
   // (end group of SymbolicExpression-related types and functions)
 
+  /// \brief Return the address of this module, if known.
+  ///
+  /// The address is calculated from the \ref Section objects in this
+  /// module. More specifically, if the address of all sections in this
+  /// module are fixed, then it will return the address of the section lowest
+  /// in memory. If any one section does not have an address, then this function
+  /// will return \ref std::nullopt, as the address is not calculable in that
+  /// case. Note that a module with no sections in it has no address or size,
+  /// so it will return \ref std::nullopt in that case.
+  ///
+  /// Note that this returns the current address of this module, which can be
+  /// distinct from the value returned by \ref getPreferredAddr if the module
+  /// has been moved (see \ref isRelocated for details).
+  std::optional<Addr> getAddress() const {
+    if (Sections.empty()) {
+      return std::nullopt;
+    }
+
+    Addr result{std::numeric_limits<Addr::value_type>::max()};
+    for (const auto* Section : Sections) {
+      if (auto A = Section->getAddress()) {
+        result = std::min(result, *A);
+      } else {
+        return std::nullopt;
+      }
+    }
+    return result;
+  }
+
+  /// \brief Return the size of this module, if known.
+  ///
+  /// The size is calculated from the \ref Section objects in this module.
+  /// More specifically, if the address of all sections in this module
+  /// are fixed, then it will return the difference between the lowest and
+  /// highest address among the sections. If any one section does not have an
+  /// address, then this function will return \ref std::nullopt, as the size is
+  /// not calculable in that case. Note that a module with no sections in it
+  /// has no address or size, so it will return \ref std::nullopt in that case.
+  std::optional<uint64_t> getSize() const {
+    if (Sections.empty()) {
+      return std::nullopt;
+    }
+
+    Addr LowAddr{std::numeric_limits<Addr::value_type>::max()};
+    Addr HighAddr{0};
+
+    for (const auto* Section : Sections) {
+      auto A = Section->getAddress();
+      auto S = Section->getSize();
+      if (A && S) {
+        LowAddr = std::min(LowAddr, *A);
+        HighAddr = std::max(HighAddr, *A + *S);
+      } else {
+        return std::nullopt;
+      }
+    }
+
+    return static_cast<uint64_t>(HighAddr - LowAddr);
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;

@@ -195,10 +195,10 @@ public:
   /// The address is calculated from the \ref ByteInterval objects in this
   /// section. More specifically, if the address of all byte intervals in this
   /// section are fixed, then it will return the address of the interval lowest
-  /// in memory. If any one section does not have an address, then this function
-  /// will return \ref std::nullopt, as the address is not calculable in that
-  /// case. Note that a section with no intervals in it has no address or size,
-  /// so it will return \ref std::nullopt in that case.
+  /// in memory. If any one interval does not have an address, then this
+  /// function will return \ref std::nullopt, as the address is not calculable
+  /// in that case. Note that a section with no intervals in it has no address
+  /// or size, so it will return \ref std::nullopt in that case.
   std::optional<Addr> getAddress() const {
     if (ByteIntervals.empty()) {
       return std::nullopt;
@@ -220,7 +220,7 @@ public:
   /// The size is calculated from the \ref ByteInterval objects in this section.
   /// More specifically, if the address of all byte intervals in this section
   /// are fixed, then it will return the difference between the lowest and
-  /// highest address among the intervals. If any one section does not have an
+  /// highest address among the intervals. If any one interval does not have an
   /// address, then this function will return \ref std::nullopt, as the size is
   /// not calculable in that case. Note that a section with no intervals in it
   /// has no address or size, so it will return \ref std::nullopt in that case.
