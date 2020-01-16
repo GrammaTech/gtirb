@@ -28,7 +28,7 @@ void Module::toProtobuf(MessageType* Message) const {
   Message->set_preferred_addr(static_cast<uint64_t>(this->PreferredAddr));
   Message->set_rebase_delta(this->RebaseDelta);
   Message->set_file_format(static_cast<proto::FileFormat>(this->FileFormat));
-  Message->set_isa(static_cast<proto::ISA>(this->IsaID));
+  Message->set_isa(static_cast<proto::ISA>(this->Isa));
   Message->set_name(this->Name);
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
   sequenceToProtobuf(ProxyBlocks.begin(), ProxyBlocks.end(),
@@ -65,7 +65,7 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   M->PreferredAddr = Addr(Message.preferred_addr());
   M->RebaseDelta = Message.rebase_delta();
   M->FileFormat = static_cast<gtirb::FileFormat>(Message.file_format());
-  M->IsaID = static_cast<ISAID>(Message.isa());
+  M->Isa = static_cast<ISA>(Message.isa());
   M->Name = Message.name();
   for (const auto& Elt : Message.proxies()) {
     M->addProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));

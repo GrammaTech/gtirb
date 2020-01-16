@@ -69,7 +69,7 @@ enum class FileFormat : uint8_t {
 /// \enum ISAID
 ///
 /// \brief Idenfities an instruction set.
-enum class ISAID : uint8_t {
+enum class ISA : uint8_t {
   Undefined = proto::ISA_Undefined, ///< Default value to indicates an
                                     ///< uninitialized state.
   IA32 = proto::IA32,   ///< Intel Architecture, 32-bit. Also known as i386.
@@ -235,12 +235,12 @@ public:
   /// \brief Set the ISA of the instructions in this Module.
   ///
   /// \param X The ISA ID to set.
-  void setISAID(gtirb::ISAID X) { IsaID = X; }
+  void setISA(gtirb::ISA X) { Isa = X; }
 
   /// \brief Get the ISA of the instructions in this Module.
   ///
   /// \return The ISA ID.
-  gtirb::ISAID getISAID() const { return IsaID; }
+  gtirb::ISA getISA() const { return Isa; }
 
   /// \brief Get the entry point of this module, or null if not present.
   const CodeBlock* getEntryPoint() const { return EntryPoint; }
@@ -1603,7 +1603,7 @@ private:
   Addr PreferredAddr;
   int64_t RebaseDelta{0};
   gtirb::FileFormat FileFormat{FileFormat::Undefined};
-  gtirb::ISAID IsaID{ISAID::Undefined};
+  gtirb::ISA Isa{ISA::Undefined};
   std::string Name;
   CodeBlock* EntryPoint{nullptr};
   CFG Cfg;
