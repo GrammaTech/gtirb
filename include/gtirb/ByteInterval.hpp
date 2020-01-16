@@ -730,72 +730,44 @@ public:
     return findDataBlocksAtOffset(Low - *Address, High - *Address);
   }
 
-  class ConstSymbolicExpressionElement {
+private:
+  template <typename ByteIntervalType> class SymbolicExpressionElementBase {
   public:
-    ConstSymbolicExpressionElement(const ByteInterval* BI_, uint64_t Off_,
-                                   const SymbolicExpression& SE_)
+    SymbolicExpressionElementBase(ByteIntervalType* BI_, uint64_t Off_,
+                                  const SymbolicExpression& SE_)
         : BI{BI_}, Off{Off_}, SE{SE_} {}
 
-    const ByteInterval* getByteInterval() const { return BI; }
+    ByteIntervalType* getByteInterval() { return BI; }
+    const ByteIntervalType* getByteInterval() const { return BI; }
     uint64_t getOffset() const { return Off; }
     const SymbolicExpression& getSymbolicExpression() const { return SE; }
 
-    class AddressOrder {
-      using key_type = std::optional<Addr>;
-      static key_type key(const ConstSymbolicExpressionElement& SEE) {
-        if (auto A = SEE.getByteInterval()->getAddress(); A) {
-          return *A + SEE.getOffset();
-        }
-        return std::nullopt;
-      };
-      bool operator()(const ConstSymbolicExpressionElement& SEE1,
-                      const ConstSymbolicExpressionElement& SEE2) const {
-        return key(SEE1) < key(SEE2);
-      }
-    };
-
-  private:
-    const ByteInterval* BI;
-    uint64_t Off;
-    SymbolicExpression SE;
-  };
-
-  class SymbolicExpressionElement {
-  public:
-    SymbolicExpressionElement(ByteInterval* BI_, uint64_t Off_,
-                              const SymbolicExpression& SE_)
-        : BI{BI_}, Off{Off_}, SE{SE_} {}
-
-    ByteInterval* getByteInterval() { return BI; }
-    const ByteInterval* getByteInterval() const { return BI; }
-    uint64_t getOffset() const { return Off; }
-    const SymbolicExpression& getSymbolicExpression() const { return SE; }
-
-    operator ConstSymbolicExpressionElement() const {
-      return ConstSymbolicExpressionElement(BI, Off, SE);
+    operator SymbolicExpressionElementBase<const ByteIntervalType>() const {
+      return SymbolicExpressionElementBase<const ByteIntervalType>(BI, Off, SE);
     }
 
     class AddressOrder {
       using key_type = std::optional<Addr>;
-      static key_type key(const SymbolicExpressionElement& SEE) {
+      static key_type
+      key(const SymbolicExpressionElementBase<ByteIntervalType>& SEE) {
         if (auto A = SEE.getByteInterval()->getAddress(); A) {
           return *A + SEE.getOffset();
         }
         return std::nullopt;
       };
-      bool operator()(const SymbolicExpressionElement& SEE1,
-                      const SymbolicExpressionElement& SEE2) const {
+      bool operator()(
+          const SymbolicExpressionElementBase<ByteIntervalType>& SEE1,
+          const SymbolicExpressionElementBase<ByteIntervalType>& SEE2) const {
         return key(SEE1) < key(SEE2);
       }
     };
 
   private:
-    ByteInterval* BI;
+    ByteIntervalType* BI;
     uint64_t Off;
     SymbolicExpression SE;
   };
 
-private:
   template <typename SymExprElementType> class SymExprPairToElement {
     using ByteIntervalType =
         decltype(std::declval<SymExprElementType>().getByteInterval());
@@ -811,6 +783,10 @@ private:
   };
 
 public:
+  using SymbolicExpressionElement = SymbolicExpressionElementBase<ByteInterval>;
+  using ConstSymbolicExpressionElement =
+      SymbolicExpressionElementBase<const ByteInterval>;
+
   /// \brief Iterator over \ref SymbolicExpression objects.
   ///
   /// Results are yielded in offset order, ascending.
