@@ -41,6 +41,10 @@ struct GTIRB_EXPORT_API BlockAddressOrder {
   }
 };
 
+template <typename T> struct ArbitraryOrder {
+  bool operator()(const T& N1, const T& N2) const { return &N1 < &N2; }
+};
+
 template <typename T, typename Method, Method Begin, Method End>
 struct NodeToChildRange {
   boost::iterator_range<decltype((std::declval<T>().*Begin)())>
@@ -89,6 +93,30 @@ using NodeToByteIntervalRange = NodeToChildRange<
                        typename T::const_byte_interval_iterator (T::*)() const,
                        typename T::byte_interval_iterator (T::*)()>,
     &T::byte_intervals_begin, &T::byte_intervals_end>;
+
+template <typename T>
+using NodeToSymbolRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_symbol_iterator (T::*)() const,
+                       typename T::symbol_iterator (T::*)()>,
+    &T::symbols_begin, &T::symbols_end>;
+
+template <typename T>
+using NodeToSectionRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_section_iterator (T::*)() const,
+                       typename T::section_iterator (T::*)()>,
+    &T::sections_begin, &T::sections_end>;
+
+template <typename T>
+using NodeToProxyBlockRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_proxy_block_iterator (T::*)() const,
+                       typename T::proxy_block_iterator (T::*)()>,
+    &T::proxy_blocks_begin, &T::proxy_blocks_end>;
 
 } // namespace gtirb
 
