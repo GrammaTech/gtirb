@@ -16,7 +16,8 @@ RUN apt-get -y update && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
     apt-get -y install autoconf build-essential curl g++-7 gcc-7 git libtool \
-        python3-setuptools wget
+        python3-setuptools wget \
+        sbcl cl-quicklisp emacs-nox slime paredit-el
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \
@@ -48,6 +49,12 @@ RUN git clone https://github.com/google/protobuf -b v${PROTOBUF_VERSION} && \
     make install && \
     cd .. && \
     rm -rf protobuf
+
+# Common-Lisp specific setup.
+RUN sbcl --load /usr/share/cl-quicklisp/quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))' --eval '(ql:quickload :protobuf)' --eval '(sb-ext:exit)'
+RUN git clone https://github.com/brown/protobuf /root/quicklisp/local-projects/protobuf
+RUN cd /root/quicklisp/local-projects/protobuf/protoc/lisp && INSTALL_ROOT=/usr/ PROTOC_ROOT=/usr/ make install
+RUN git clone https://github.com/eschulte/simpler-documentation-template /root/quicklisp/local-projects/simpler-documentation-template
 
 # Build GTIRB
 COPY . /gt/gtirb/
