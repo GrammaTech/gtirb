@@ -415,89 +415,89 @@ public:
       boost::iterator_range<const_symbol_ref_iterator>;
 
   /// \brief Return an iterator to the first Symbol.
-  symbol_iterator symbol_begin() {
+  symbol_iterator symbols_begin() {
     return symbol_iterator(Symbols.get<by_pointer>().begin());
   }
   /// \brief Return a constant iterator to the first Symbol.
-  const_symbol_iterator symbol_begin() const {
+  const_symbol_iterator symbols_begin() const {
     return const_symbol_iterator(Symbols.get<by_pointer>().begin());
   }
   /// \brief Return an iterator to the element following the last Symbol.
-  symbol_iterator symbol_end() {
+  symbol_iterator symbols_end() {
     return symbol_iterator(Symbols.get<by_pointer>().end());
   }
   /// \brief Return a constant iterator to the element following the last
   /// Symbol.
-  const_symbol_iterator symbol_end() const {
+  const_symbol_iterator symbols_end() const {
     return const_symbol_iterator(Symbols.get<by_pointer>().end());
   }
   /// \brief Return a range of the symbols (\ref Symbol).
   symbol_range symbols() {
-    return boost::make_iterator_range(symbol_begin(), symbol_end());
+    return boost::make_iterator_range(symbols_begin(), symbols_end());
   }
   /// \brief Return a constant range of the symbols (\ref Symbol).
   const_symbol_range symbols() const {
-    return boost::make_iterator_range(symbol_begin(), symbol_end());
+    return boost::make_iterator_range(symbols_begin(), symbols_end());
   }
 
   /// \brief Return an iterator to the first Symbol, ordered by name.
-  symbol_name_iterator symbol_by_name_begin() {
+  symbol_name_iterator symbols_by_name_begin() {
     return symbol_name_iterator(Symbols.get<by_name>().begin());
   }
   /// \brief Return a constant iterator to the first Symbol, ordered by name.
-  const_symbol_name_iterator symbol_by_name_begin() const {
+  const_symbol_name_iterator symbols_by_name_begin() const {
     return const_symbol_name_iterator(Symbols.get<by_name>().begin());
   }
   /// \brief Return an iterator to the element following the last Symbol,
   /// ordered by name.
-  symbol_name_iterator symbol_by_name_end() {
+  symbol_name_iterator symbols_by_name_end() {
     return symbol_name_iterator(Symbols.get<by_name>().end());
   }
   /// \brief Return a constant iterator to the element following the last
   /// Symbol, ordered by name.
-  const_symbol_name_iterator symbol_by_name_end() const {
+  const_symbol_name_iterator symbols_by_name_end() const {
     return const_symbol_name_iterator(Symbols.get<by_name>().end());
   }
   /// \brief Return a range of the symbols (\ref Symbol), ordered by name.
   symbol_name_range symbols_by_name() {
-    return boost::make_iterator_range(symbol_by_name_begin(),
-                                      symbol_by_name_end());
+    return boost::make_iterator_range(symbols_by_name_begin(),
+                                      symbols_by_name_end());
   }
   /// \brief Return a constant range of the symbols (\ref Symbol), ordered by
   /// name.
   const_symbol_name_range symbols_by_name() const {
-    return boost::make_iterator_range(symbol_by_name_begin(),
-                                      symbol_by_name_end());
+    return boost::make_iterator_range(symbols_by_name_begin(),
+                                      symbols_by_name_end());
   }
 
   /// \brief Return an iterator to the first Symbol, ordered by address.
-  symbol_addr_iterator symbol_by_addr_begin() {
+  symbol_addr_iterator symbols_by_addr_begin() {
     return symbol_addr_iterator(Symbols.get<by_address>().begin());
   }
   /// \brief Return a constant iterator to the first Symbol, ordered by address.
-  const_symbol_addr_iterator symbol_by_addr_begin() const {
+  const_symbol_addr_iterator symbols_by_addr_begin() const {
     return const_symbol_addr_iterator(Symbols.get<by_address>().begin());
   }
   /// \brief Return an iterator to the element following the last Symbol,
   /// ordered by address.
-  symbol_addr_iterator symbol_by_addr_end() {
+  symbol_addr_iterator symbols_by_addr_end() {
     return symbol_addr_iterator(Symbols.get<by_address>().end());
   }
   /// \brief Return a constant iterator to the element following the last
   /// Symbol, ordered by address.
-  const_symbol_addr_iterator symbol_by_addr_end() const {
+  const_symbol_addr_iterator symbols_by_addr_end() const {
     return const_symbol_addr_iterator(Symbols.get<by_address>().end());
   }
   /// \brief Return a range of the symbols (\ref Symbol), ordered by address.
   symbol_addr_range symbols_by_addr() {
-    return boost::make_iterator_range(symbol_by_addr_begin(),
-                                      symbol_by_addr_end());
+    return boost::make_iterator_range(symbols_by_addr_begin(),
+                                      symbols_by_addr_end());
   }
   /// \brief Return a constant range of the symbols (\ref Symbol), ordered by
   /// address.
   const_symbol_addr_range symbols_by_addr() const {
-    return boost::make_iterator_range(symbol_by_addr_begin(),
-                                      symbol_by_addr_end());
+    return boost::make_iterator_range(symbols_by_addr_begin(),
+                                      symbols_by_addr_end());
   }
 
   /// \brief Remove a \ref Symbol object located in this module.
@@ -695,38 +695,38 @@ public:
       boost::iterator_range<const_section_name_iterator>;
 
   /// \brief Return an iterator to the first Section.
-  section_iterator section_begin() { return Sections.begin(); }
+  section_iterator sections_begin() { return Sections.begin(); }
   /// \brief Return a constant iterator to the first Section.
-  const_section_iterator section_begin() const { return Sections.begin(); }
+  const_section_iterator sections_begin() const { return Sections.begin(); }
   /// \brief Return an iterator to the first Section.
-  section_name_iterator section_by_name_begin() {
+  section_name_iterator sections_by_name_begin() {
     return Sections.get<by_name>().begin();
   }
   /// \brief Return a constant iterator to the first Section.
-  const_section_name_iterator section_by_name_begin() const {
+  const_section_name_iterator sections_by_name_begin() const {
     return Sections.get<by_name>().begin();
   }
   /// \brief Return an iterator to the element following the last Section.
-  section_iterator section_end() { return Sections.end(); }
+  section_iterator sections_end() { return Sections.end(); }
   /// \brief Return a constant iterator to the element following the last
   /// Section.
-  const_section_iterator section_end() const { return Sections.end(); }
+  const_section_iterator sections_end() const { return Sections.end(); }
   /// \brief Return an iterator to the element following the last Section.
-  section_name_iterator section_by_name_end() {
+  section_name_iterator sections_by_name_end() {
     return Sections.get<by_name>().end();
   }
   /// \brief Return a constant iterator to the element following the last
   /// Section.
-  const_section_name_iterator section_by_name_end() const {
+  const_section_name_iterator sections_by_name_end() const {
     return Sections.get<by_name>().end();
   }
   /// \brief Return a range of the sections (\ref Section).
   section_range sections() {
-    return boost::make_iterator_range(section_begin(), section_end());
+    return boost::make_iterator_range(sections_begin(), sections_end());
   }
   /// \brief Return a constant range of the sections (\ref Section).
   const_section_range sections() const {
-    return boost::make_iterator_range(section_begin(), section_end());
+    return boost::make_iterator_range(sections_begin(), sections_end());
   }
 
   /// \brief Remove a \ref Section object located in this module.
@@ -765,7 +765,7 @@ public:
   /// \param X The address to look up.
   ///
   /// \return The range of Sections containing the address.
-  section_subrange findSection(Addr X) {
+  section_subrange findSectionsIn(Addr X) {
     if (auto It = SectionAddrs.find(X); It != SectionAddrs.end()) {
       return boost::make_iterator_range(It->second.begin(), It->second.end());
     }
@@ -777,20 +777,46 @@ public:
   /// \param X The address to look up.
   ///
   /// \return The range of Sections containing the address.
-  const_section_subrange findSection(Addr X) const {
+  const_section_subrange findSectionsIn(Addr X) const {
     if (auto It = SectionAddrs.find(X); It != SectionAddrs.end()) {
       return boost::make_iterator_range(It->second.begin(), It->second.end());
     }
     return {};
   }
 
+  section_range findSectionsAt(Addr A) {
+    auto Pair = Sections.get<by_address>().equal_range(A);
+    return boost::make_iterator_range(section_iterator(Pair.first),
+                                      section_iterator(Pair.second));
+  }
+
+  section_range findSectionsAt(Addr Low, Addr High) {
+    auto& Index = Sections.get<by_address>();
+    return boost::make_iterator_range(
+        section_iterator(Index.lower_bound(Low)),
+        section_iterator(Index.upper_bound(High)));
+  }
+
+  const_section_range findSectionsAt(Addr A) const {
+    auto Pair = Sections.get<by_address>().equal_range(A);
+    return boost::make_iterator_range(const_section_iterator(Pair.first),
+                                      const_section_iterator(Pair.second));
+  }
+
+  const_section_range findSectionsAt(Addr Low, Addr High) const {
+    auto& Index = Sections.get<by_address>();
+    return boost::make_iterator_range(
+        const_section_iterator(Index.lower_bound(Low)),
+        const_section_iterator(Index.upper_bound(High)));
+  }
+
   /// \brief Find a Section by name.
   ///
   /// \param X The name to look up.
   ///
   /// \return An iterator to the first Section with the requested name or
   /// \ref section_by_name_end() if not found.
-  section_name_iterator findSection(const std::string& X) {
+  section_name_iterator findSections(const std::string& X) {
     return Sections.get<by_name>().find(X);
   }
 
@@ -800,12 +826,751 @@ public:
   ///
   /// \return An iterator to the first Section with the requested name or
   /// \ref section_by_name_end() if not found.
-  const_section_name_iterator findSection(const std::string& X) const {
+  const_section_name_iterator findSections(const std::string& X) const {
     return Sections.get<by_name>().find(X);
   }
 
   /// @}
   // (end group of Section-related types and functions)
+
+  /// \name ByteInterval-Related Public Types and Functions
+  /// @{
+  using byte_interval_iterator =
+      MergeSortedIterator<Section::byte_interval_iterator,
+                          AddressOrder<ByteInterval>>;
+  using byte_interval_range = boost::iterator_range<byte_interval_iterator>;
+  using byte_interval_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::byte_interval_subrange::iterator, AddressOrder<ByteInterval>>>;
+  using const_byte_interval_iterator =
+      MergeSortedIterator<Section::const_byte_interval_iterator,
+                          AddressOrder<ByteInterval>>;
+  using const_byte_interval_range =
+      boost::iterator_range<const_byte_interval_iterator>;
+  using const_byte_interval_subrange = boost::iterator_range<
+      MergeSortedIterator<Section::const_byte_interval_subrange::iterator,
+                          AddressOrder<ByteInterval>>>;
+
+  byte_interval_iterator byte_intervals_begin() {
+    return byte_interval_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToByteIntervalRange<Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToByteIntervalRange<Section>()));
+  }
+
+  byte_interval_iterator byte_intervals_end() {
+    return byte_interval_iterator();
+  }
+
+  byte_interval_range byte_intervals() {
+    return boost::make_iterator_range(byte_intervals_begin(),
+                                      byte_intervals_end());
+  }
+
+  const_byte_interval_iterator byte_intervals_begin() const {
+    return const_byte_interval_iterator(
+        boost::make_transform_iterator(
+            this->sections_begin(), NodeToByteIntervalRange<const Section>()),
+        boost::make_transform_iterator(
+            this->sections_end(), NodeToByteIntervalRange<const Section>()));
+  }
+
+  const_byte_interval_iterator byte_intervals_end() const {
+    return const_byte_interval_iterator();
+  }
+
+  const_byte_interval_range byte_intervals() const {
+    return boost::make_iterator_range(byte_intervals_begin(),
+                                      byte_intervals_end());
+  }
+
+  byte_interval_subrange findByteIntervalsIn(Addr A) {
+    struct FindByteIntervals {
+      Addr A;
+      FindByteIntervals(Addr A_) : A{A_} {}
+      Section::byte_interval_subrange operator()(Section& N) const {
+        return N.findByteIntervalsIn(A);
+      }
+    };
+
+    return byte_interval_subrange(
+        byte_interval_subrange::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindByteIntervals(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindByteIntervals(A))),
+        byte_interval_subrange::iterator());
+  }
+
+  const_byte_interval_subrange findByteIntervalsIn(Addr A) const {
+    struct FindByteIntervals {
+      Addr A;
+      FindByteIntervals(Addr A_) : A{A_} {}
+      Section::const_byte_interval_subrange operator()(const Section& N) const {
+        return N.findByteIntervalsIn(A);
+      }
+    };
+
+    return const_byte_interval_subrange(
+        const_byte_interval_subrange::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindByteIntervals(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindByteIntervals(A))),
+        const_byte_interval_subrange::iterator());
+  }
+
+  byte_interval_range findByteIntervalsAt(Addr A) {
+    struct FindByteIntervals {
+      Addr A;
+      FindByteIntervals(Addr A_) : A{A_} {}
+      Section::byte_interval_range operator()(Section& N) const {
+        return N.findByteIntervalsAt(A);
+      }
+    };
+
+    return byte_interval_range(
+        byte_interval_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindByteIntervals(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindByteIntervals(A))),
+        byte_interval_range::iterator());
+  }
+
+  byte_interval_range findByteIntervalsAt(Addr Low, Addr High) {
+    struct FindByteIntervals {
+      Addr Low, High;
+      FindByteIntervals(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::byte_interval_range operator()(Section& N) const {
+        return N.findByteIntervalsAt(Low, High);
+      }
+    };
+
+    return byte_interval_range(
+        byte_interval_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindByteIntervals(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindByteIntervals(Low, High))),
+        byte_interval_range::iterator());
+  }
+
+  const_byte_interval_range findByteIntervalsAt(Addr A) const {
+    struct FindByteIntervals {
+      Addr A;
+      FindByteIntervals(Addr A_) : A{A_} {}
+      Section::const_byte_interval_range operator()(const Section& N) const {
+        return N.findByteIntervalsAt(A);
+      }
+    };
+
+    return const_byte_interval_range(
+        const_byte_interval_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindByteIntervals(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindByteIntervals(A))),
+        const_byte_interval_range::iterator());
+  }
+
+  const_byte_interval_range findByteIntervalsAt(Addr Low, Addr High) const {
+    struct FindByteIntervals {
+      Addr Low, High;
+      FindByteIntervals(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::const_byte_interval_range operator()(const Section& N) const {
+        return N.findByteIntervalsAt(Low, High);
+      }
+    };
+
+    return const_byte_interval_range(
+        const_byte_interval_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindByteIntervals(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindByteIntervals(Low, High))),
+        const_byte_interval_range::iterator());
+  }
+  /// @}
+  // (end group of ByteInterval-related types and functions)
+
+  /// \name Block-Related Public Types and Functions
+  /// @{
+  using block_iterator =
+      MergeSortedIterator<Section::block_iterator, BlockAddressOrder>;
+  using block_range = boost::iterator_range<block_iterator>;
+  using block_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::block_subrange::iterator, BlockAddressOrder>>;
+  using const_block_iterator =
+      MergeSortedIterator<Section::const_block_iterator, BlockAddressOrder>;
+  using const_block_range = boost::iterator_range<const_block_iterator>;
+  using const_block_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::const_block_subrange::iterator, BlockAddressOrder>>;
+
+  block_iterator blocks_begin() {
+    return block_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToBlockRange<Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToBlockRange<Section>()));
+  }
+
+  block_iterator blocks_end() { return block_iterator(); }
+
+  block_range blocks() {
+    return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
+  const_block_iterator blocks_begin() const {
+    return const_block_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToBlockRange<const Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToBlockRange<const Section>()));
+  }
+
+  const_block_iterator blocks_end() const { return const_block_iterator(); }
+
+  const_block_range blocks() const {
+    return boost::make_iterator_range(blocks_begin(), blocks_end());
+  }
+
+  block_subrange findBlocksIn(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::block_subrange operator()(Section& N) const {
+        return N.findBlocksIn(A);
+      }
+    };
+
+    return block_subrange(
+        block_subrange::iterator(boost::make_transform_iterator(
+                                     this->sections_begin(), FindBlocks(A)),
+                                 boost::make_transform_iterator(
+                                     this->sections_end(), FindBlocks(A))),
+        block_subrange::iterator());
+  }
+
+  const_block_subrange findBlocksIn(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::const_block_subrange operator()(const Section& N) const {
+        return N.findBlocksIn(A);
+      }
+    };
+
+    return const_block_subrange(const_block_subrange::iterator(
+                                    boost::make_transform_iterator(
+                                        this->sections_begin(), FindBlocks(A)),
+                                    boost::make_transform_iterator(
+                                        this->sections_end(), FindBlocks(A))),
+                                const_block_subrange::iterator());
+  }
+
+  block_range findBlocksAt(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::block_range operator()(Section& N) const {
+        return N.findBlocksAt(A);
+      }
+    };
+
+    return block_range(
+        block_range::iterator(boost::make_transform_iterator(
+                                  this->sections_begin(), FindBlocks(A)),
+                              boost::make_transform_iterator(
+                                  this->sections_end(), FindBlocks(A))),
+        block_range::iterator());
+  }
+
+  block_range findBlocksAt(Addr Low, Addr High) {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::block_range operator()(Section& N) const {
+        return N.findBlocksAt(Low, High);
+      }
+    };
+
+    return block_range(block_range::iterator(
+                           boost::make_transform_iterator(
+                               this->sections_begin(), FindBlocks(Low, High)),
+                           boost::make_transform_iterator(
+                               this->sections_end(), FindBlocks(Low, High))),
+                       block_range::iterator());
+  }
+
+  const_block_range findBlocksAt(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::const_block_range operator()(const Section& N) const {
+        return N.findBlocksAt(A);
+      }
+    };
+
+    return const_block_range(
+        const_block_range::iterator(boost::make_transform_iterator(
+                                        this->sections_begin(), FindBlocks(A)),
+                                    boost::make_transform_iterator(
+                                        this->sections_end(), FindBlocks(A))),
+        const_block_range::iterator());
+  }
+
+  const_block_range findBlocksAt(Addr Low, Addr High) const {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::const_block_range operator()(const Section& N) const {
+        return N.findBlocksAt(Low, High);
+      }
+    };
+
+    return const_block_range(
+        const_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(Low, High))),
+        const_block_range::iterator());
+  }
+  /// @}
+  // (end group of Block-related types and functions)
+
+  /// \name CodeBlock-Related Public Types and Functions
+  /// @{
+  using code_block_iterator = MergeSortedIterator<Section::code_block_iterator,
+                                                  AddressOrder<CodeBlock>>;
+  using code_block_range = boost::iterator_range<code_block_iterator>;
+  using code_block_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::code_block_subrange::iterator, AddressOrder<CodeBlock>>>;
+  using const_code_block_iterator =
+      MergeSortedIterator<Section::const_code_block_iterator,
+                          AddressOrder<CodeBlock>>;
+  using const_code_block_range =
+      boost::iterator_range<const_code_block_iterator>;
+  using const_code_block_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::const_code_block_subrange::iterator, AddressOrder<CodeBlock>>>;
+
+  code_block_iterator code_blocks_begin() {
+    return code_block_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToCodeBlockRange<Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToCodeBlockRange<Section>()));
+  }
+
+  code_block_iterator code_blocks_end() { return code_block_iterator(); }
+
+  code_block_range code_blocks() {
+    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
+  }
+
+  const_code_block_iterator code_blocks_begin() const {
+    return const_code_block_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToCodeBlockRange<const Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToCodeBlockRange<const Section>()));
+  }
+
+  const_code_block_iterator code_blocks_end() const {
+    return const_code_block_iterator();
+  }
+
+  const_code_block_range code_blocks() const {
+    return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
+  }
+
+  code_block_subrange findCodeBlocksIn(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::code_block_subrange operator()(Section& N) const {
+        return N.findCodeBlocksIn(A);
+      }
+    };
+
+    return code_block_subrange(code_block_subrange::iterator(
+                                   boost::make_transform_iterator(
+                                       this->sections_begin(), FindBlocks(A)),
+                                   boost::make_transform_iterator(
+                                       this->sections_end(), FindBlocks(A))),
+                               code_block_subrange::iterator());
+  }
+
+  const_code_block_subrange findCodeBlocksIn(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::const_code_block_subrange operator()(const Section& N) const {
+        return N.findCodeBlocksIn(A);
+      }
+    };
+
+    return const_code_block_subrange(
+        const_code_block_subrange::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(A))),
+        const_code_block_subrange::iterator());
+  }
+
+  code_block_range findCodeBlocksAt(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::code_block_range operator()(Section& N) const {
+        return N.findCodeBlocksAt(A);
+      }
+    };
+
+    return code_block_range(
+        code_block_range::iterator(boost::make_transform_iterator(
+                                       this->sections_begin(), FindBlocks(A)),
+                                   boost::make_transform_iterator(
+                                       this->sections_end(), FindBlocks(A))),
+        code_block_range::iterator());
+  }
+
+  code_block_range findCodeBlocksAt(Addr Low, Addr High) {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::code_block_range operator()(Section& N) const {
+        return N.findCodeBlocksAt(Low, High);
+      }
+    };
+
+    return code_block_range(
+        code_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(Low, High))),
+        code_block_range::iterator());
+  }
+
+  const_code_block_range findCodeBlocksAt(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::const_code_block_range operator()(const Section& N) const {
+        return N.findCodeBlocksAt(A);
+      }
+    };
+
+    return const_code_block_range(
+        const_code_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(A))),
+        const_code_block_range::iterator());
+  }
+
+  const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::const_code_block_range operator()(const Section& N) const {
+        return N.findCodeBlocksAt(Low, High);
+      }
+    };
+
+    return const_code_block_range(
+        const_code_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(Low, High))),
+        const_code_block_range::iterator());
+  }
+  /// @}
+  // (end group of CodeBlock-related types and functions)
+
+  /// \name DataBlock-Related Public Types and Functions
+  /// @{
+  using data_block_iterator = MergeSortedIterator<Section::data_block_iterator,
+                                                  AddressOrder<DataBlock>>;
+  using data_block_range = boost::iterator_range<data_block_iterator>;
+  using data_block_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::data_block_subrange::iterator, AddressOrder<DataBlock>>>;
+  using const_data_block_iterator =
+      MergeSortedIterator<Section::const_data_block_iterator,
+                          AddressOrder<DataBlock>>;
+  using const_data_block_range =
+      boost::iterator_range<const_data_block_iterator>;
+  using const_data_block_subrange = boost::iterator_range<MergeSortedIterator<
+      Section::const_data_block_subrange::iterator, AddressOrder<DataBlock>>>;
+
+  data_block_iterator data_blocks_begin() {
+    return data_block_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToDataBlockRange<Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToDataBlockRange<Section>()));
+  }
+
+  data_block_iterator data_blocks_end() { return data_block_iterator(); }
+
+  data_block_range data_blocks() {
+    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+
+  const_data_block_iterator data_blocks_begin() const {
+    return const_data_block_iterator(
+        boost::make_transform_iterator(this->sections_begin(),
+                                       NodeToDataBlockRange<const Section>()),
+        boost::make_transform_iterator(this->sections_end(),
+                                       NodeToDataBlockRange<const Section>()));
+  }
+
+  const_data_block_iterator data_blocks_end() const {
+    return const_data_block_iterator();
+  }
+
+  const_data_block_range data_blocks() const {
+    return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
+  }
+
+  data_block_subrange findDataBlocksIn(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::data_block_subrange operator()(Section& N) const {
+        return N.findDataBlocksIn(A);
+      }
+    };
+
+    return data_block_subrange(data_block_subrange::iterator(
+                                   boost::make_transform_iterator(
+                                       this->sections_begin(), FindBlocks(A)),
+                                   boost::make_transform_iterator(
+                                       this->sections_end(), FindBlocks(A))),
+                               data_block_subrange::iterator());
+  }
+
+  const_data_block_subrange findDataBlocksIn(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::const_data_block_subrange operator()(const Section& N) const {
+        return N.findDataBlocksIn(A);
+      }
+    };
+
+    return const_data_block_subrange(
+        const_data_block_subrange::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(A))),
+        const_data_block_subrange::iterator());
+  }
+
+  data_block_range findDataBlocksAt(Addr A) {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::data_block_range operator()(Section& N) const {
+        return N.findDataBlocksAt(A);
+      }
+    };
+
+    return data_block_range(
+        data_block_range::iterator(boost::make_transform_iterator(
+                                       this->sections_begin(), FindBlocks(A)),
+                                   boost::make_transform_iterator(
+                                       this->sections_end(), FindBlocks(A))),
+        data_block_range::iterator());
+  }
+
+  data_block_range findDataBlocksAt(Addr Low, Addr High) {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::data_block_range operator()(Section& N) const {
+        return N.findDataBlocksAt(Low, High);
+      }
+    };
+
+    return data_block_range(
+        data_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(Low, High))),
+        data_block_range::iterator());
+  }
+
+  const_data_block_range findDataBlocksAt(Addr A) const {
+    struct FindBlocks {
+      Addr A;
+      FindBlocks(Addr A_) : A{A_} {}
+      Section::const_data_block_range operator()(const Section& N) const {
+        return N.findDataBlocksAt(A);
+      }
+    };
+
+    return const_data_block_range(
+        const_data_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(A))),
+        const_data_block_range::iterator());
+  }
+
+  const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
+    struct FindBlocks {
+      Addr Low, High;
+      FindBlocks(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::const_data_block_range operator()(const Section& N) const {
+        return N.findDataBlocksAt(Low, High);
+      }
+    };
+
+    return const_data_block_range(
+        const_data_block_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindBlocks(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindBlocks(Low, High))),
+        const_data_block_range::iterator());
+  }
+  /// @}
+  // (end group of DataBlock-related types and functions)
+
+  /// \name SymbolicExpression-Related Public Types and Functions
+  /// @{
+  using symbolic_expression_iterator = MergeSortedIterator<
+      Section::symbolic_expression_iterator,
+      ByteInterval::SymbolicExpressionElement::AddressOrder>;
+  using symbolic_expression_range =
+      boost::iterator_range<symbolic_expression_iterator>;
+  using const_symbolic_expression_iterator = MergeSortedIterator<
+      Section::const_symbolic_expression_iterator,
+      ByteInterval::ConstSymbolicExpressionElement::AddressOrder>;
+  using const_symbolic_expression_range =
+      boost::iterator_range<const_symbolic_expression_iterator>;
+
+  symbolic_expression_iterator symbolic_expressions_begin() {
+    return symbolic_expression_iterator(
+        boost::make_transform_iterator(
+            this->sections_begin(), NodeToSymbolicExpressionRange<Section>()),
+        boost::make_transform_iterator(
+            this->sections_end(), NodeToSymbolicExpressionRange<Section>()));
+  }
+
+  symbolic_expression_iterator symbolic_expressions_end() {
+    return symbolic_expression_iterator();
+  }
+
+  symbolic_expression_range symbolic_expressions() {
+    return boost::make_iterator_range(symbolic_expressions_begin(),
+                                      symbolic_expressions_end());
+  }
+
+  const_symbolic_expression_iterator symbolic_expressions_begin() const {
+    return const_symbolic_expression_iterator(
+        boost::make_transform_iterator(
+            this->sections_begin(),
+            NodeToSymbolicExpressionRange<const Section>()),
+        boost::make_transform_iterator(
+            this->sections_end(),
+            NodeToSymbolicExpressionRange<const Section>()));
+  }
+
+  const_symbolic_expression_iterator symbolic_expressions_end() const {
+    return const_symbolic_expression_iterator();
+  }
+
+  const_symbolic_expression_range symbolic_expressions() const {
+    return boost::make_iterator_range(symbolic_expressions_begin(),
+                                      symbolic_expressions_end());
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAt(Addr A) {
+    struct FindSymExprs {
+      Addr A;
+      FindSymExprs(Addr A_) : A{A_} {}
+      Section::symbolic_expression_range operator()(Section& N) const {
+        return N.findSymbolicExpressionsAt(A);
+      }
+    };
+
+    return symbolic_expression_range(
+        symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindSymExprs(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindSymExprs(A))),
+        symbolic_expression_range::iterator());
+  }
+
+  symbolic_expression_range findSymbolicExpressionsAt(Addr Low, Addr High) {
+    struct FindSymExprs {
+      Addr Low, High;
+      FindSymExprs(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::symbolic_expression_range operator()(Section& N) const {
+        return N.findSymbolicExpressionsAt(Low, High);
+      }
+    };
+
+    return symbolic_expression_range(
+        symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindSymExprs(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindSymExprs(Low, High))),
+        symbolic_expression_range::iterator());
+  }
+
+  const_symbolic_expression_range findSymbolicExpressionsAt(Addr A) const {
+    struct FindSymExprs {
+      Addr A;
+      FindSymExprs(Addr A_) : A{A_} {}
+      Section::const_symbolic_expression_range
+      operator()(const Section& N) const {
+        return N.findSymbolicExpressionsAt(A);
+      }
+    };
+
+    return const_symbolic_expression_range(
+        const_symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindSymExprs(A)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindSymExprs(A))),
+        const_symbolic_expression_range::iterator());
+  }
+
+  const_symbolic_expression_range findSymbolicExpressionsAt(Addr Low,
+                                                            Addr High) const {
+    struct FindSymExprs {
+      Addr Low, High;
+      FindSymExprs(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      Section::const_symbolic_expression_range
+      operator()(const Section& N) const {
+        return N.findSymbolicExpressionsAt(Low, High);
+      }
+    };
+
+    return const_symbolic_expression_range(
+        const_symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->sections_begin(),
+                                           FindSymExprs(Low, High)),
+            boost::make_transform_iterator(this->sections_end(),
+                                           FindSymExprs(Low, High))),
+        const_symbolic_expression_range::iterator());
+  }
+  /// @}
+  // (end group of SymbolicExpression-related types and functions)
 
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Module.

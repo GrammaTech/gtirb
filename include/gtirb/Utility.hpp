@@ -81,6 +81,14 @@ using NodeToSymbolicExpressionRange = NodeToChildRange<
                        typename T::symbolic_expression_iterator (T::*)()>,
     &T::symbolic_expressions_begin, &T::symbolic_expressions_end>;
 
+template <typename T>
+using NodeToByteIntervalRange = NodeToChildRange<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_byte_interval_iterator (T::*)() const,
+                       typename T::byte_interval_iterator (T::*)()>,
+    &T::byte_intervals_begin, &T::byte_intervals_end>;
+
 } // namespace gtirb
 
 #endif // GTIRB_UTILITY_H

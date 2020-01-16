@@ -33,7 +33,7 @@ void Module::toProtobuf(MessageType* Message) const {
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
   sequenceToProtobuf(ProxyBlocks.begin(), ProxyBlocks.end(),
                      Message->mutable_proxies());
-  sequenceToProtobuf(section_begin(), section_end(),
+  sequenceToProtobuf(sections_begin(), sections_end(),
                      Message->mutable_sections());
   containerToProtobuf(Symbols, Message->mutable_symbols());
   if (EntryPoint) {

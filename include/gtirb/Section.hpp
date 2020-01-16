@@ -824,6 +824,45 @@ public:
         symbolic_expression_range::iterator());
   }
 
+  const_symbolic_expression_range findSymbolicExpressionsAt(Addr A) const {
+    struct FindSymExprs {
+      Addr A;
+      FindSymExprs(Addr A_) : A{A_} {}
+      ByteInterval::const_symbolic_expression_range
+      operator()(const ByteInterval& N) const {
+        return N.findSymbolicExpressionsAt(A);
+      }
+    };
+
+    return const_symbolic_expression_range(
+        const_symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindSymExprs(A)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindSymExprs(A))),
+        const_symbolic_expression_range::iterator());
+  }
+
+  const_symbolic_expression_range findSymbolicExpressionsAt(Addr Low,
+                                                            Addr High) const {
+    struct FindSymExprs {
+      Addr Low, High;
+      FindSymExprs(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+      ByteInterval::const_symbolic_expression_range
+      operator()(const ByteInterval& N) const {
+        return N.findSymbolicExpressionsAt(Low, High);
+      }
+    };
+
+    return const_symbolic_expression_range(
+        const_symbolic_expression_range::iterator(
+            boost::make_transform_iterator(this->byte_intervals_begin(),
+                                           FindSymExprs(Low, High)),
+            boost::make_transform_iterator(this->byte_intervals_end(),
+                                           FindSymExprs(Low, High))),
+        const_symbolic_expression_range::iterator());
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
