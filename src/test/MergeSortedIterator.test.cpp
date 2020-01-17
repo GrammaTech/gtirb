@@ -98,3 +98,29 @@ TEST(Unit_MergeSortedIterator, testCustomCompare) {
   ASSERT_EQ(ExpectedIt, Combined.end());
   ASSERT_EQ(GotIt, End);
 }
+
+TEST(Unit_MergeSortedIterator, testEmptyRanges) {
+  using Vector = std::vector<int>;
+  using VectorIt = Vector::iterator;
+
+  Vector Evens = {2, 4, 6, 8};
+  Vector Empty = {};
+  Vector Odds = {1, 3, 5, 7};
+  std::vector<boost::iterator_range<VectorIt>> Its = {
+      boost::make_iterator_range(Evens), boost::make_iterator_range(Empty),
+      boost::make_iterator_range(Odds)};
+
+  MergeSortedIterator<std::vector<int>::iterator> Begin{Its};
+  MergeSortedIterator<std::vector<int>::iterator> End;
+
+  Vector Combined = {1, 2, 3, 4, 5, 6, 7, 8};
+  auto ExpectedIt = Combined.begin();
+  auto GotIt = Begin;
+  while (ExpectedIt != Combined.end() && GotIt != End) {
+    ASSERT_EQ(*ExpectedIt, *GotIt);
+    ++ExpectedIt;
+    ++GotIt;
+  }
+  ASSERT_EQ(ExpectedIt, Combined.end());
+  ASSERT_EQ(GotIt, End);
+}
