@@ -12,7 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include <gtirb/MergeSortedIterator.hpp>
+#include <gtirb/Utility.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <gtest/gtest.h>
 #include <vector>

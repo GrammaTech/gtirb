@@ -18,7 +18,6 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/AuxData.hpp>
 #include <gtirb/AuxDataContainer.hpp>
-#include <gtirb/MergeSortedIterator.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
