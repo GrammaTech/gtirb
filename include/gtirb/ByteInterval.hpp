@@ -305,6 +305,13 @@ public:
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
 
+  /// \brief Find all the blocks that have bytes that lie within the address
+  /// specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that intersect the address \p A.
   block_subrange findBlocksIn(Addr A) {
     auto It = BlockAddrs.find(A);
     if (It == BlockAddrs.end())
@@ -314,6 +321,13 @@ public:
         block_subrange::iterator(It->second.end()));
   }
 
+  /// \brief Find all the blocks that have bytes that lie within the address
+  /// specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that intersect the address \p A.
   const_block_subrange findBlocksIn(Addr A) const {
     auto It = BlockAddrs.find(A);
     if (It == BlockAddrs.end())
@@ -323,18 +337,37 @@ public:
         const_block_subrange::iterator(It->second.end()));
   }
 
+  /// \brief Find all the blocks that start at an offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are at the offset \p Off.
   block_range findBlocksAtOffset(uint64_t Off) {
     auto Pair = Blocks.get<by_offset>().equal_range(Off);
     return boost::make_iterator_range(block_iterator(Pair.first),
                                       block_iterator(Pair.second));
   }
 
+  /// \brief Find all the blocks that start between a range of offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are between the offsets.
   block_range findBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     return boost::make_iterator_range(block_iterator(Index.lower_bound(Low)),
                                       block_iterator(Index.lower_bound(High)));
   }
 
+  /// \brief Find all the blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are at the address \p A.
   block_range findBlocksAt(Addr A) {
     if (!Address) {
       return {};
@@ -342,6 +375,13 @@ public:
     return findBlocksAtOffset(A - *Address);
   }
 
+  /// \brief Find all the blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are between the addresses.
   block_range findBlocksAt(Addr Low, Addr High) {
     if (!Address) {
       return {};
@@ -349,12 +389,25 @@ public:
     return findBlocksAtOffset(Low - *Address, High - *Address);
   }
 
+  /// \brief Find all the blocks that start at an offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are at the offset \p Off.
   const_block_range findBlocksAtOffset(uint64_t Off) const {
     auto Pair = Blocks.get<by_offset>().equal_range(Off);
     return boost::make_iterator_range(const_block_iterator(Pair.first),
                                       const_block_iterator(Pair.second));
   }
 
+  /// \brief Find all the blocks that start between a range of offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are between the offsets.
   const_block_range findBlocksAtOffset(uint64_t Low, uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
     return boost::make_iterator_range(
@@ -362,6 +415,12 @@ public:
         const_block_iterator(Index.lower_bound(High)));
   }
 
+  /// \brief Find all the blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are at the address \p A.
   const_block_range findBlocksAt(Addr A) const {
     if (!Address) {
       return {};
@@ -369,6 +428,13 @@ public:
     return findBlocksAtOffset(A - *Address);
   }
 
+  /// \brief Find all the blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are between the addresses.
   const_block_range findBlocksAt(Addr Low, Addr High) const {
     if (!Address) {
       return {};
@@ -458,6 +524,12 @@ public:
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
+  /// \brief Find all the code blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   code_block_subrange findCodeBlocksIn(Addr A) {
     auto It = BlockAddrs.find(A);
     if (It == BlockAddrs.end())
@@ -471,6 +543,12 @@ public:
             boost::make_indirect_iterator(It->second.end()))));
   }
 
+  /// \brief Find all the code blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   const_code_block_subrange findCodeBlocksIn(Addr A) const {
     auto It = BlockAddrs.find(A);
     if (It == BlockAddrs.end())
@@ -486,6 +564,11 @@ public:
                 boost::make_indirect_iterator(It->second.end()))));
   }
 
+  /// \brief Find all the code blocks that start at an offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that are at the offset \p Off.
   code_block_range findCodeBlocksAtOffset(uint64_t Off) {
     auto Pair = Blocks.get<by_offset>().equal_range(Off);
     return boost::make_iterator_range(
@@ -495,6 +578,12 @@ public:
             code_block_iterator::base_type(Pair.second, Pair.second)));
   }
 
+  /// \brief Find all the code blocks that start between a range of offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref CodeBlock objects that are between the offsets.
   code_block_range findCodeBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
@@ -504,6 +593,11 @@ public:
         code_block_iterator(code_block_iterator::base_type(HighIt, HighIt)));
   }
 
+  /// \brief Find all the code blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that are at the address \p A.
   code_block_range findCodeBlocksAt(Addr A) {
     if (!Address) {
       return {};
@@ -511,6 +605,12 @@ public:
     return findCodeBlocksAtOffset(A - *Address);
   }
 
+  /// \brief Find all the code blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref CodeBlock objects that are between the addresses.
   code_block_range findCodeBlocksAt(Addr Low, Addr High) {
     if (!Address) {
       return {};
@@ -518,6 +618,11 @@ public:
     return findCodeBlocksAtOffset(Low - *Address, High - *Address);
   }
 
+  /// \brief Find all the code blocks that start at an offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that are at the offset \p Off.
   const_code_block_range findCodeBlocksAtOffset(uint64_t Off) const {
     auto Pair = Blocks.get<by_offset>().equal_range(Off);
     return boost::make_iterator_range(
@@ -527,6 +632,12 @@ public:
             const_code_block_iterator::base_type(Pair.second, Pair.second)));
   }
 
+  /// \brief Find all the code blocks that start between a range of offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref CodeBlock objects that are between the offsets.
   const_code_block_range findCodeBlocksAtOffset(uint64_t Low,
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
@@ -539,6 +650,11 @@ public:
             const_code_block_iterator::base_type(HighIt, HighIt)));
   }
 
+  /// \brief Find all the code blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that are at the address \p A.
   const_code_block_range findCodeBlocksAt(Addr A) const {
     if (!Address) {
       return {};
@@ -546,6 +662,12 @@ public:
     return findCodeBlocksAtOffset(A - *Address);
   }
 
+  /// \brief Find all the code blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref CodeBlock objects that are between the addresses.
   const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
     if (!Address) {
       return {};
@@ -635,6 +757,12 @@ public:
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 
+  /// \brief Find all the data blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that intersect the address \p A.
   data_block_subrange findDataBlocksIn(Addr A) {
     auto It = BlockAddrs.find(A);
     if (It == BlockAddrs.end())
@@ -648,6 +776,12 @@ public:
             boost::make_indirect_iterator(It->second.end()))));
   }
 
+  /// \brief Find all the data blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that intersect the address \p A.
   const_data_block_subrange findDataBlocksIn(Addr A) const {
     auto It = BlockAddrs.find(A);
     if (It == BlockAddrs.end())
@@ -663,6 +797,11 @@ public:
                 boost::make_indirect_iterator(It->second.end()))));
   }
 
+  /// \brief Find all the data blocks that start at an offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that are at the offset \p Off.
   data_block_range findDataBlocksAtOffset(uint64_t Off) {
     auto Pair = Blocks.get<by_offset>().equal_range(Off);
     return boost::make_iterator_range(
@@ -672,6 +811,12 @@ public:
             data_block_iterator::base_type(Pair.second, Pair.second)));
   }
 
+  /// \brief Find all the data blocks that start between a range of offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref DataBlock objects that are between the offsets.
   data_block_range findDataBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
@@ -681,6 +826,11 @@ public:
         data_block_iterator(data_block_iterator::base_type(HighIt, HighIt)));
   }
 
+  /// \brief Find all the data blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that are at the address \p A.
   data_block_range findDataBlocksAt(Addr A) {
     if (!Address) {
       return {};
@@ -688,6 +838,12 @@ public:
     return findDataBlocksAtOffset(A - *Address);
   }
 
+  /// \brief Find all the data blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref DataBlock objects that are between the addresses.
   data_block_range findDataBlocksAt(Addr Low, Addr High) {
     if (!Address) {
       return {};
@@ -695,6 +851,11 @@ public:
     return findDataBlocksAtOffset(Low - *Address, High - *Address);
   }
 
+  /// \brief Find all the data blocks that start at an offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that are at the offset \p Off.
   const_data_block_range findDataBlocksAtOffset(uint64_t Off) const {
     auto Pair = Blocks.get<by_offset>().equal_range(Off);
     return boost::make_iterator_range(
@@ -704,6 +865,12 @@ public:
             const_data_block_iterator::base_type(Pair.second, Pair.second)));
   }
 
+  /// \brief Find all the data blocks that start between a range of offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref DataBlock objects that are between the offsets.
   const_data_block_range findDataBlocksAtOffset(uint64_t Low,
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
@@ -716,6 +883,11 @@ public:
             const_data_block_iterator::base_type(HighIt, HighIt)));
   }
 
+  /// \brief Find all the data blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that are at the address \p A.
   const_data_block_range findDataBlocksAt(Addr A) const {
     if (!Address) {
       return {};
@@ -723,6 +895,12 @@ public:
     return findDataBlocksAtOffset(A - *Address);
   }
 
+  /// \brief Find all the data blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref DataBlock objects that are between the addresses.
   const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
     if (!Address) {
       return {};
@@ -731,21 +909,46 @@ public:
   }
 
 private:
+  /// \class SymbolicExpressionElementBase
+  ///
+  /// \brief The base class for \ref SymbolicExpressionElement and
+  /// \ref ConstSymbolicExpressionElement.
+  ///
+  /// \tparam ByteIntervalType either "ByteInterval" or "const ByteInterval".
   template <typename ByteIntervalType> class SymbolicExpressionElementBase {
   public:
+    /// \brief Construct a new symbolic expression element.
+    ///
+    /// \param BI_  The interval this symbolic expression belongs to.
+    /// \prarm Off_ The offset in the interval this symbolic expression is at.
+    /// \param SE_  The \ref SymbolicExpression in \p BI_ at \p Off_.
     SymbolicExpressionElementBase(ByteIntervalType* BI_, uint64_t Off_,
                                   const SymbolicExpression& SE_)
         : BI{BI_}, Off{Off_}, SE{SE_} {}
 
+    /// \brief Get the interval this symbolic expression belongs to.
     ByteIntervalType* getByteInterval() { return BI; }
+
+    /// \brief Get the interval this symbolic expression belongs to.
     const ByteIntervalType* getByteInterval() const { return BI; }
+
+    /// \brief Get the offset in the interval this symbolic expression is at.
     uint64_t getOffset() const { return Off; }
+
+    /// \brief Get the \ref SymbolicExpression in \ref getByteInterval at
+    /// \ref getOffset.
     const SymbolicExpression& getSymbolicExpression() const { return SE; }
 
+    /// \brief Convert this \ref SymbolicExpressionElement into a \ref
+    /// ConstSymbolicExpressionElement.
     operator SymbolicExpressionElementBase<const ByteIntervalType>() const {
       return SymbolicExpressionElementBase<const ByteIntervalType>(BI, Off, SE);
     }
 
+    /// \class AddressOrder
+    ///
+    /// \brief A comparison function object to order symbolic expression
+    /// elements by the address in which they occur.
     struct AddressOrder {
       using key_type = std::optional<Addr>;
       static key_type
@@ -768,6 +971,13 @@ private:
     SymbolicExpression SE;
   };
 
+  /// \class SymExprPairToElement
+  ///
+  /// \brief A transform function object to convert \ref SymbolicExpressions
+  /// values into \ref SymbolicExpressionElement objects.
+  ///
+  /// \tparam SymExprElementType Either \ref SymbolicExpressionElement or \ref
+  /// ConstSymbolicExpressionElement.
   template <typename SymExprElementType> class SymExprPairToElement {
     using ByteIntervalType =
         decltype(std::declval<SymExprElementType>().getByteInterval());
@@ -783,28 +993,33 @@ private:
   };
 
 public:
+  /// \brief A symbolic expression paired with the information needed to look
+  /// up or alter the symbolic expression after the fact.
   using SymbolicExpressionElement = SymbolicExpressionElementBase<ByteInterval>;
+
+  /// \brief A symbolic expression paired with the information needed to look
+  /// up or alter the symbolic expression after the fact.
   using ConstSymbolicExpressionElement =
       SymbolicExpressionElementBase<const ByteInterval>;
 
-  /// \brief Iterator over \ref SymbolicExpression objects.
+  /// \brief Iterator over \ref SymbolicExpressionElement objects.
   ///
   /// Results are yielded in offset order, ascending.
   using symbolic_expression_iterator =
       boost::transform_iterator<SymExprPairToElement<SymbolicExpressionElement>,
                                 SymbolicExpressionMap::iterator>;
-  /// \brief Range of \ref SymbolicExpression objects.
+  /// \brief Range of \ref SymbolicExpressionElement objects.
   ///
   /// Results are yielded in offset order, ascending.
   using symbolic_expression_range =
       boost::iterator_range<symbolic_expression_iterator>;
-  /// \brief Const iterator over \ref SymbolicExpression objects.
+  /// \brief Const iterator over \ref SymbolicExpressionElement objects.
   ///
   /// Results are yielded in offset order, ascending.
   using const_symbolic_expression_iterator = boost::transform_iterator<
       SymExprPairToElement<ConstSymbolicExpressionElement>,
       SymbolicExpressionMap::const_iterator>;
-  /// \brief Const range of \ref SymbolicExpression objects.
+  /// \brief Const range of \ref SymbolicExpressionElement objects.
   ///
   /// Results are yielded in offset order, ascending.
   using const_symbolic_expression_range =
@@ -849,6 +1064,17 @@ public:
                                       symbolic_expressions_end());
   }
 
+  /// \brief Find all the symbolic expressions that start at an offset.
+  ///
+  /// Note that only one symbolic expression can be at any given offset, so this
+  /// iterator will only ever return 0 or 1 elements. This function is provided
+  /// for consistency with other \ref Node objects; prefer \ref
+  /// getSymbolicExpression instead.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are at the offset
+  /// \p Off.
   symbolic_expression_range findSymbolicExpressionsAtOffset(uint64_t Off) {
     auto Pair = SymbolicExpressions.equal_range(Off);
     return boost::make_iterator_range(
@@ -859,6 +1085,14 @@ public:
             SymExprPairToElement<SymbolicExpressionElement>(this)));
   }
 
+  /// \brief Find all the symbolic expressions that start between a range of
+  /// offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are between the
+  /// offsets.
   symbolic_expression_range findSymbolicExpressionsAtOffset(uint64_t Low,
                                                             uint64_t High) {
     return boost::make_iterator_range(
@@ -870,6 +1104,17 @@ public:
             SymExprPairToElement<SymbolicExpressionElement>(this)));
   }
 
+  /// \brief Find all the symbolic expressions that start at an address.
+  ///
+  /// Note that only one symbolic expression can be at any given offset, so this
+  /// iterator will only ever return 0 or 1 elements. This function is provided
+  /// for consistency with other \ref Node objects; prefer \ref
+  /// getSymbolicExpression instead.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are at the address
+  /// \p A.
   symbolic_expression_range findSymbolicExpressionsAt(Addr A) {
     if (!Address) {
       return boost::make_iterator_range(symbolic_expressions_end(),
@@ -878,6 +1123,14 @@ public:
     return findSymbolicExpressionsAtOffset(A - *Address);
   }
 
+  /// \brief Find all the symbolic expressions that start between a range of
+  /// addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are between the
+  /// addresses.
   symbolic_expression_range findSymbolicExpressionsAt(Addr Low, Addr High) {
     if (!Address) {
       return boost::make_iterator_range(symbolic_expressions_end(),
@@ -886,6 +1139,17 @@ public:
     return findSymbolicExpressionsAtOffset(Low - *Address, High - *Address);
   }
 
+  /// \brief Find all the symbolic expressions that start at an offset.
+  ///
+  /// Note that only one symbolic expression can be at any given offset, so this
+  /// iterator will only ever return 0 or 1 elements. This function is provided
+  /// for consistency with other \ref Node objects; prefer \ref
+  /// getSymbolicExpression instead.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are at the offset
+  /// \p Off.
   const_symbolic_expression_range
   findSymbolicExpressionsAtOffset(uint64_t Off) const {
     auto Pair = SymbolicExpressions.equal_range(Off);
@@ -898,6 +1162,14 @@ public:
             SymExprPairToElement<ConstSymbolicExpressionElement>(this)));
   }
 
+  /// \brief Find all the symbolic expressions that start between a range of
+  /// offsets.
+  ///
+  /// \param Low  The low offset, inclusive.
+  /// \param High The high offset, exclusive.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are between the
+  /// offsets.
   const_symbolic_expression_range
   findSymbolicExpressionsAtOffset(uint64_t Low, uint64_t High) const {
     return boost::make_iterator_range(
@@ -909,6 +1181,17 @@ public:
             SymExprPairToElement<ConstSymbolicExpressionElement>(this)));
   }
 
+  /// \brief Find all the symbolic expressions that start at an address.
+  ///
+  /// Note that only one symbolic expression can be at any given offset, so this
+  /// iterator will only ever return 0 or 1 elements. This function is provided
+  /// for consistency with other \ref Node objects; prefer \ref
+  /// getSymbolicExpression instead.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are at the address
+  /// \p A.
   const_symbolic_expression_range findSymbolicExpressionsAt(Addr A) const {
     if (!Address) {
       return boost::make_iterator_range(symbolic_expressions_end(),
@@ -917,6 +1200,14 @@ public:
     return findSymbolicExpressionsAtOffset(A - *Address);
   }
 
+  /// \brief Find all the symbolic expressions that start between a range of
+  /// addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are between the
+  /// addresses.
   const_symbolic_expression_range findSymbolicExpressionsAt(Addr Low,
                                                             Addr High) const {
     if (!Address) {
