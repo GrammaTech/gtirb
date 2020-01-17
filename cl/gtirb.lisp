@@ -40,7 +40,7 @@
            ;; Symbol
            :symbol
            :value
-           :referent
+           :payload
            ;; Section
            :section
            :byte-intervals
@@ -547,14 +547,27 @@ This indicates the type of control flow along this edge."))
    "Symbol with it's NAME and an optional VALUE or REFERENT.")
   (:parent module))
 
-(defgeneric referent (symbol)
-  (:documentation "Provide access to the referent of SYMBOL.")
+(defgeneric payload (symbol)
+  (:documentation "Provide access to the referent or value of SYMBOL.")
   (:method ((symbol symbol))
-    (when (referent-uuid symbol)
-      (get-uuid (referent-uuid symbol) symbol))))
+    (cond
+      ((proto:has-value (proto symbol))
+       (value symbol))
+      ((proto:has-referent-uuid (proto symbol))
+       (get-uuid (referent-uuid symbol) symbol)))))
 
-(defmethod (setf referent) ((new proto-backed) (symbol symbol))
+(defmethod (setf payload) ((new proto-backed) (symbol symbol))
+  "Save GTIRB object NEW into the `referent-uuid' of SYMBOL."
+  (proto:clear-value (proto symbol))
   (setf (referent-uuid symbol) (uuid new)))
+
+(defmethod (setf payload) ((new integer) (symbol symbol))
+  "Save INTEGER value NEW into the `value' of SYMBOL."
+  (proto:clear-referent-uuid (proto symbol))
+  (setf (value symbol) new))
+
+(defmethod (setf payload) ((new t) (symbol symbol))
+  (error "Symbol payload ~S must be either a GTIRB element or an integer." new))
 
 (defmethod print-object ((obj symbol) (stream stream))
   (print-unreadable-object (obj stream :type t :identity t)
