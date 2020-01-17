@@ -173,7 +173,7 @@ public:
     auto& Index = ByteIntervals.get<by_address>();
     return boost::make_iterator_range(
         byte_interval_iterator(Index.lower_bound(Low)),
-        byte_interval_iterator(Index.upper_bound(High)));
+        byte_interval_iterator(Index.lower_bound(High)));
   }
 
   const_byte_interval_range findByteIntervalsAt(Addr A) const {
@@ -187,7 +187,7 @@ public:
     auto& Index = ByteIntervals.get<by_address>();
     return boost::make_iterator_range(
         const_byte_interval_iterator(Index.lower_bound(Low)),
-        const_byte_interval_iterator(Index.upper_bound(High)));
+        const_byte_interval_iterator(Index.lower_bound(High)));
   }
 
   /// \brief Return the address of this section, if known.

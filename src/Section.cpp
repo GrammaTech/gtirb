@@ -41,7 +41,10 @@ Section* Section::fromProtobuf(Context& C, Module* Parent,
   S->setModule(Parent);
   setNodeUUIDFromBytes(S, Message.uuid());
   for (const auto& ProtoInterval : Message.byte_intervals()) {
-    S->addByteInterval(ByteInterval::fromProtobuf(C, S, ProtoInterval));
+    auto* BI = ByteInterval::fromProtobuf(C, S, ProtoInterval);
+    BI->setSection(S);
+    BI->addToIndices();
+    S->mutateIndices([S, BI]() { S->ByteIntervals.emplace(BI); });
   }
   return S;
 }

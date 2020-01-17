@@ -80,12 +80,16 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
   for (const auto& ProtoBlock : Message.blocks()) {
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
-      BI->addBlock(ProtoBlock.offset(),
-                   CodeBlock::fromProtobuf(C, BI, ProtoBlock.code()));
+      auto* B = CodeBlock::fromProtobuf(C, BI, ProtoBlock.code());
+      B->setByteInterval(BI);
+      BI->Blocks.emplace(ProtoBlock.offset(), B);
+      B->addToIndices();
     } break;
     case proto::Block::ValueCase::kData: {
-      BI->addBlock(ProtoBlock.offset(),
-                   DataBlock::fromProtobuf(C, BI, ProtoBlock.data()));
+      auto* B = DataBlock::fromProtobuf(C, BI, ProtoBlock.data());
+      B->setByteInterval(BI);
+      BI->Blocks.emplace(ProtoBlock.offset(), B);
+      B->addToIndices();
     } break;
     default: {
       assert(!"unknown Block::ValueCase in ByteInterval::fromProtobuf");

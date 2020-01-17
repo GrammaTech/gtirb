@@ -63,7 +63,9 @@ public:
   template <typename RangeIteratorRange>
   explicit MergeSortedIterator(RangeIteratorRange RangeRange) {
     for (const auto& Range : RangeRange) {
-      Ranges.emplace_back(Range.begin(), Range.end());
+      if (auto RBegin = Range.begin(), REnd = Range.end(); RBegin != REnd) {
+        Ranges.emplace_back(RBegin, REnd);
+      }
     }
   }
 
@@ -77,13 +79,16 @@ public:
   template <typename RangeIterator>
   MergeSortedIterator(RangeIterator Begin, RangeIterator End) {
     for (const auto& Range : boost::make_iterator_range(Begin, End)) {
-      Ranges.emplace_back(Range.begin(), Range.end());
+      if (auto RBegin = Range.begin(), REnd = Range.end(); RBegin != REnd) {
+        Ranges.emplace_back(RBegin, REnd);
+      }
     }
   }
 
   // Beginning of functions for iterator facade compatibility.
   typename std::iterator_traits<ForwardIterator>::reference
   dereference() const {
+    assert(!Ranges.empty() && "Attempt to dereference end of iterator!");
     return *Ranges[minIndex()].first;
   }
 
@@ -92,6 +97,7 @@ public:
   }
 
   void increment() {
+    assert(!Ranges.empty() && "Attempt to increment end of iterator!");
     auto MinIndex = minIndex();
     auto& MinRange = Ranges[MinIndex];
     MinRange.first++;

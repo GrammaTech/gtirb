@@ -103,6 +103,15 @@ void Node::addToIndices() {
     }
     addToICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
              B->getSize());
+    auto* S = BI->getSection();
+    if (!S) {
+      return;
+    }
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+    addVertex(B, M->Cfg);
   } break;
   case Node::Kind::DataBlock: {
     auto* B = cast<DataBlock>(this);
@@ -223,6 +232,15 @@ void Node::removeFromIndices() {
     }
     removeFromICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
                   B->getSize());
+    auto* S = BI->getSection();
+    if (!S) {
+      return;
+    }
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+    // TODO: removeVertex(B, M->Cfg);
   } break;
   case Node::Kind::DataBlock: {
     auto* B = cast<DataBlock>(this);

@@ -68,13 +68,21 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   M->Isa = static_cast<ISA>(Message.isa());
   M->Name = Message.name();
   for (const auto& Elt : Message.proxies()) {
-    M->addProxyBlock(ProxyBlock::fromProtobuf(C, M, Elt));
+    auto* B = ProxyBlock::fromProtobuf(C, M, Elt);
+    M->ProxyBlocks.insert(B);
+    B->setModule(M);
+    addVertex(B, M->Cfg);
   }
   for (const auto& Elt : Message.sections()) {
-    M->addSection(Section::fromProtobuf(C, M, Elt));
+    auto* S = Section::fromProtobuf(C, M, Elt);
+    M->Sections.emplace(S);
+    S->setModule(M);
+    S->addToIndices();
   }
   for (const auto& Elt : Message.symbols()) {
-    M->addSymbol(Symbol::fromProtobuf(C, M, Elt));
+    auto* S = Symbol::fromProtobuf(C, M, Elt);
+    M->Symbols.emplace(S);
+    S->setModule(M);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {

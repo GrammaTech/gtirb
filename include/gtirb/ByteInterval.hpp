@@ -332,7 +332,7 @@ public:
   block_range findBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     return boost::make_iterator_range(block_iterator(Index.lower_bound(Low)),
-                                      block_iterator(Index.upper_bound(High)));
+                                      block_iterator(Index.lower_bound(High)));
   }
 
   block_range findBlocksAt(Addr A) {
@@ -359,7 +359,7 @@ public:
     auto& Index = Blocks.get<by_offset>();
     return boost::make_iterator_range(
         const_block_iterator(Index.lower_bound(Low)),
-        const_block_iterator(Index.upper_bound(High)));
+        const_block_iterator(Index.lower_bound(High)));
   }
 
   const_block_range findBlocksAt(Addr A) const {
@@ -498,7 +498,7 @@ public:
   code_block_range findCodeBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.upper_bound(High);
+    auto HighIt = Index.lower_bound(High);
     return boost::make_iterator_range(
         code_block_iterator(code_block_iterator::base_type(LowIt, HighIt)),
         code_block_iterator(code_block_iterator::base_type(HighIt, HighIt)));
@@ -531,7 +531,7 @@ public:
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.upper_bound(High);
+    auto HighIt = Index.lower_bound(High);
     return boost::make_iterator_range(
         const_code_block_iterator(
             const_code_block_iterator::base_type(LowIt, HighIt)),
@@ -675,7 +675,7 @@ public:
   data_block_range findDataBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.upper_bound(High);
+    auto HighIt = Index.lower_bound(High);
     return boost::make_iterator_range(
         data_block_iterator(data_block_iterator::base_type(LowIt, HighIt)),
         data_block_iterator(data_block_iterator::base_type(HighIt, HighIt)));
@@ -708,7 +708,7 @@ public:
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.upper_bound(High);
+    auto HighIt = Index.lower_bound(High);
     return boost::make_iterator_range(
         const_data_block_iterator(
             const_data_block_iterator::base_type(LowIt, HighIt)),
@@ -866,7 +866,7 @@ public:
             SymbolicExpressions.lower_bound(Low),
             SymExprPairToElement<SymbolicExpressionElement>(this)),
         boost::make_transform_iterator(
-            SymbolicExpressions.upper_bound(High),
+            SymbolicExpressions.lower_bound(High),
             SymExprPairToElement<SymbolicExpressionElement>(this)));
   }
 
@@ -905,7 +905,7 @@ public:
             SymbolicExpressions.lower_bound(Low),
             SymExprPairToElement<ConstSymbolicExpressionElement>(this)),
         boost::make_transform_iterator(
-            SymbolicExpressions.upper_bound(High),
+            SymbolicExpressions.lower_bound(High),
             SymExprPairToElement<ConstSymbolicExpressionElement>(this)));
   }
 

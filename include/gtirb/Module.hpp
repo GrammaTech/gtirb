@@ -303,7 +303,7 @@ public:
   bool removeProxyBlock(ProxyBlock* B) {
     auto N = ProxyBlocks.erase(B);
     B->setModule(nullptr);
-    // removeVertex(B, Cfg);
+    // TODO: removeVertex(B, Cfg);
     return N != 0;
   }
 
@@ -794,7 +794,7 @@ public:
     auto& Index = Sections.get<by_address>();
     return boost::make_iterator_range(
         section_iterator(Index.lower_bound(Low)),
-        section_iterator(Index.upper_bound(High)));
+        section_iterator(Index.lower_bound(High)));
   }
 
   const_section_range findSectionsAt(Addr A) const {
@@ -807,7 +807,7 @@ public:
     auto& Index = Sections.get<by_address>();
     return boost::make_iterator_range(
         const_section_iterator(Index.lower_bound(Low)),
-        const_section_iterator(Index.upper_bound(High)));
+        const_section_iterator(Index.lower_bound(High)));
   }
 
   /// \brief Find a Section by name.
