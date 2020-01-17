@@ -184,19 +184,19 @@
     ;; TODO: Populate an AuxData table for storage-kind.
     (transfer-fields new old uuid name)
     (cond                ; Variant "oneof" 'value' or 'referent_uuid'.
-      ((proto-v0:value old)
+      ((proto-v0:has-value old)
        (setf (proto:value new) (proto-v0:value old)))
-      ((proto-v0:referent-uuid old)
+      ((proto-v0:has-referent-uuid old)
        (setf (proto:referent-uuid new) (upgrade (proto-v0:referent-uuid old)))))
     new)
   (:method ((old proto-v0:symbolic-expression) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbolic-expression)))
     (cond                               ; Variant "oneof" field.
-      ((slot-value old 'proto-v0:stack-const)
+      ((proto-v0:has-stack-const old)
        (setf (proto:stack-const new) (upgrade (proto-v0:stack-const old))))
-      ((slot-value old 'proto-v0:addr-const)
+      ((proto-v0:has-addr-const old)
        (setf (proto:addr-const new) (upgrade (proto-v0:addr-const old))))
-      ((slot-value old 'proto-v0:addr-addr)
+      ((proto-v0:has-addr-addr old)
        (setf (proto:addr-addr new) (upgrade (proto-v0:addr-addr old))))
       (t (warn "Symbolic expressions ~s has no value." old)))
     #+debug

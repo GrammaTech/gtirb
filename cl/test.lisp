@@ -269,19 +269,31 @@
   (proto:value (aref (proto:aux-data (aref (proto:modules ir) 0)) 0)))
 
 (deftest read-and-upgrade ()
-  (with-fixture hello-v0
-    (let* ((old (read-proto 'proto-v0:ir *proto-path*))
-           (new (upgrade old)))
-      (is (eql 'proto:ir (class-name (class-of new))))
-      (is (eql 'proto:byte-interval
-               (class-name (class-of
-                            (aref (proto:byte-intervals
-                                   (aref (proto:sections
-                                          (aref (proto:modules new)
-                                                0)) 0)) 0)))))
-      ;; Test for non-empty AuxData.
-      (is (not (emptyp (proto:data (first-aux-data new)))))
-      new)))
+  (nest
+   (with-fixture hello-v0)
+   (let* ((old (read-proto 'proto-v0:ir *proto-path*))
+          (new (upgrade old))))
+   ;; Same Symbol values.
+   (flet ((same-symbol-fields (old-field new-field)
+            (every #'equalp
+                   (map 'list old-field
+                        (proto-v0:symbols (aref (proto-v0:modules old) 0)))
+                   (map 'list new-field
+                        (proto:symbols (aref (proto:modules new) 0))))))
+     (is (eql 'proto:ir (class-name (class-of new))))
+     (is (eql 'proto:byte-interval
+              (class-name (class-of
+                           (aref (proto:byte-intervals
+                                  (aref (proto:sections
+                                         (aref (proto:modules new)
+                                               0)) 0)) 0)))))
+     ;; Test for non-empty AuxData.
+     (is (not (emptyp (proto:data (first-aux-data new)))))
+     ;; Test for equal Symbol fields.
+     (is (same-symbol-fields #'proto-v0:value #'proto:value))
+     (is (same-symbol-fields #'proto-v0:referent-uuid #'proto:referent-uuid))
+     ;; Return the new one in case you want it at the REPL.
+     new)))
 
 (deftest simple-update ()
   (with-fixture hello-v0
