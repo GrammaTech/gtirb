@@ -145,6 +145,13 @@ public:
                                       byte_intervals_end());
   }
 
+  /// \brief Find all the intervals that have bytes that lie within the address
+  /// specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref ByteInterval objects that intersect the address \p
+  /// A.
   byte_interval_subrange findByteIntervalsIn(Addr A) {
     auto It = ByteIntervalAddrs.find(A);
     if (It == ByteIntervalAddrs.end())
@@ -154,6 +161,13 @@ public:
         boost::make_indirect_iterator(It->second.end()));
   }
 
+  /// \brief Find all the intervals that have bytes that lie within the address
+  /// specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref ByteInterval objects that intersect the address \p
+  /// A.
   const_byte_interval_subrange findByteIntervalsIn(Addr A) const {
     auto It = ByteIntervalAddrs.find(A);
     if (It == ByteIntervalAddrs.end())
@@ -163,12 +177,24 @@ public:
         boost::make_indirect_iterator(It->second.end()));
   }
 
+  /// \brief Find all the intervals that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref ByteInterval objects that are at the address \p A.
   byte_interval_range findByteIntervalsAt(Addr A) {
     auto Pair = ByteIntervals.get<by_address>().equal_range(A);
     return boost::make_iterator_range(byte_interval_iterator(Pair.first),
                                       byte_interval_iterator(Pair.second));
   }
 
+  /// \brief Find all the intervals that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref ByteInterval objects that are between the
+  /// addresses.
   byte_interval_range findByteIntervalsAt(Addr Low, Addr High) {
     auto& Index = ByteIntervals.get<by_address>();
     return boost::make_iterator_range(
@@ -176,6 +202,11 @@ public:
         byte_interval_iterator(Index.lower_bound(High)));
   }
 
+  /// \brief Find all the intervals that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref ByteInterval objects that are at the address \p A.
   const_byte_interval_range findByteIntervalsAt(Addr A) const {
     auto Pair = ByteIntervals.get<by_address>().equal_range(A);
     return boost::make_iterator_range(
@@ -183,6 +214,13 @@ public:
         const_byte_interval_iterator(Pair.second));
   }
 
+  /// \brief Find all the intervals that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref ByteInterval objects that are between the
+  /// addresses.
   const_byte_interval_range findByteIntervalsAt(Addr Low, Addr High) const {
     auto& Index = ByteIntervals.get<by_address>();
     return boost::make_iterator_range(
@@ -276,18 +314,44 @@ public:
     this->mutateIndices([this, &N]() { Name = N; });
   }
 
+  /// \brief Iterator over blocks.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using block_iterator =
       MergeSortedIterator<ByteInterval::block_iterator, BlockAddressOrder>;
+  /// \brief Range of blocks.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using block_range = boost::iterator_range<block_iterator>;
+  /// \brief Sub-range of blocks overlapping an address or range of addreses.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::block_subrange::iterator, BlockAddressOrder>>;
+  /// \brief Const iterator over blocks.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_block_iterator =
       MergeSortedIterator<ByteInterval::const_block_iterator,
                           BlockAddressOrder>;
+  /// \brief Const range of blocks.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_block_range = boost::iterator_range<const_block_iterator>;
+  /// \brief Const sub-range of blocks overlapping an address or range of
+  /// addreses.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::const_block_subrange::iterator, BlockAddressOrder>>;
 
+  /// \brief Return an iterator to the first block.
   block_iterator blocks_begin() {
     return block_iterator(
         boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -296,12 +360,15 @@ public:
                                        NodeToBlockRange<ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last block.
   block_iterator blocks_end() { return block_iterator(); }
 
+  /// \brief Return a range of all the blocks.
   block_range blocks() {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
 
+  /// \brief Return an iterator to the first block.
   const_block_iterator blocks_begin() const {
     return const_block_iterator(
         boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -310,12 +377,21 @@ public:
                                        NodeToBlockRange<const ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last block.
   const_block_iterator blocks_end() const { return const_block_iterator(); }
 
+  /// \brief Return a range of all the blocks.
   const_block_range blocks() const {
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
 
+  /// \brief Find all the blocks that have bytes that lie within the address
+  /// specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that intersect the address \p A.
   block_subrange findBlocksIn(Addr A) {
     struct FindBlocks {
       Addr A;
@@ -333,6 +409,13 @@ public:
                           block_subrange::iterator());
   }
 
+  /// \brief Find all the blocks that have bytes that lie within the address
+  /// specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that intersect the address \p A.
   const_block_subrange findBlocksIn(Addr A) const {
     struct FindBlocks {
       Addr A;
@@ -352,6 +435,12 @@ public:
         const_block_subrange::iterator());
   }
 
+  /// \brief Find all the blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are at the address \p A.
   block_range findBlocksAt(Addr A) {
     struct FindBlocks {
       Addr A;
@@ -369,6 +458,13 @@ public:
         block_range::iterator());
   }
 
+  /// \brief Find all the blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are between the addresses.
   block_range findBlocksAt(Addr Low, Addr High) {
     struct FindBlocks {
       Addr Low, High;
@@ -387,6 +483,12 @@ public:
         block_range::iterator());
   }
 
+  /// \brief Find all the blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are at the address \p A.
   const_block_range findBlocksAt(Addr A) const {
     struct FindBlocks {
       Addr A;
@@ -405,6 +507,13 @@ public:
         const_block_range::iterator());
   }
 
+  /// \brief Find all the blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock
+  /// objects or \ref CodeBlock objects, that are between the addresses.
   const_block_range findBlocksAt(Addr Low, Addr High) const {
     struct FindBlocks {
       Addr Low, High;
@@ -423,20 +532,47 @@ public:
         const_block_range::iterator());
   }
 
+  /// \brief Iterator over \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using code_block_iterator =
       MergeSortedIterator<ByteInterval::code_block_iterator,
                           AddressOrder<CodeBlock>>;
+  /// \brief Range of \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using code_block_range = boost::iterator_range<code_block_iterator>;
+  /// \brief Sub-range of \ref CodeBlock objects overlapping an address or range
+  /// of addreses.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using code_block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::code_block_subrange::iterator, BlockAddressOrder>>;
+  /// \brief Iterator over \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_code_block_iterator =
       MergeSortedIterator<ByteInterval::const_code_block_iterator,
                           AddressOrder<CodeBlock>>;
+  /// \brief Range of \ref CodeBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_code_block_range =
       boost::iterator_range<const_code_block_iterator>;
+  /// \brief Sub-range of \ref CodeBlock objects overlapping an address or range
+  /// of addreses.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_code_block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::const_code_block_subrange::iterator, BlockAddressOrder>>;
 
+  /// \brief Return an iterator to the first \ref CodeBlock.
   code_block_iterator code_blocks_begin() {
     return code_block_iterator(
         boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -445,12 +581,16 @@ public:
                                        NodeToCodeBlockRange<ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last \ref
+  /// CodeBlock.
   code_block_iterator code_blocks_end() { return code_block_iterator(); }
 
+  /// \brief Return a range of all the \ref CodeBlock objects.
   code_block_range code_blocks() {
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
+  /// \brief Return an iterator to the first \ref CodeBlock.
   const_code_block_iterator code_blocks_begin() const {
     return const_code_block_iterator(
         boost::make_transform_iterator(
@@ -461,14 +601,23 @@ public:
             NodeToCodeBlockRange<const ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last \ref
+  /// CodeBlock.
   const_code_block_iterator code_blocks_end() const {
     return const_code_block_iterator();
   }
 
+  /// \brief Return a range of all the \ref CodeBlock objects.
   const_code_block_range code_blocks() const {
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
+  /// \brief Find all the code blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeNode object that intersect the address \p A.
   code_block_subrange findCodeBlocksIn(Addr A) {
     struct FindBlocks {
       Addr A;
@@ -487,6 +636,12 @@ public:
         code_block_subrange::iterator());
   }
 
+  /// \brief Find all the code blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   const_code_block_subrange findCodeBlocksIn(Addr A) const {
     struct FindBlocks {
       Addr A;
@@ -506,6 +661,11 @@ public:
         const_code_block_subrange::iterator());
   }
 
+  /// \brief Find all the code blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that are at the address \p A.
   code_block_range findCodeBlocksAt(Addr A) {
     struct FindBlocks {
       Addr A;
@@ -524,6 +684,12 @@ public:
         code_block_range::iterator());
   }
 
+  /// \brief Find all the code blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref CodeBlock objects that are between the addresses.
   code_block_range findCodeBlocksAt(Addr Low, Addr High) {
     struct FindBlocks {
       Addr Low, High;
@@ -542,6 +708,11 @@ public:
         code_block_range::iterator());
   }
 
+  /// \brief Find all the code blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects that are at the address \p A.
   const_code_block_range findCodeBlocksAt(Addr A) const {
     struct FindBlocks {
       Addr A;
@@ -561,6 +732,12 @@ public:
         const_code_block_range::iterator());
   }
 
+  /// \brief Find all the code blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref CodeBlock objects that are between the addresses.
   const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
     struct FindBlocks {
       Addr Low, High;
@@ -580,20 +757,47 @@ public:
         const_code_block_range::iterator());
   }
 
+  /// \brief Iterator over \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using data_block_iterator =
       MergeSortedIterator<ByteInterval::data_block_iterator,
                           AddressOrder<DataBlock>>;
+  /// \brief Range of \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using data_block_range = boost::iterator_range<data_block_iterator>;
+  /// \brief Sub-range of \ref DataBlock objects overlapping an address or range
+  /// of addreses.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using data_block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::data_block_subrange::iterator, BlockAddressOrder>>;
+  /// \brief Iterator over \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_data_block_iterator =
       MergeSortedIterator<ByteInterval::const_data_block_iterator,
                           AddressOrder<DataBlock>>;
+  /// \brief Range of \ref DataBlock objects.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_data_block_range =
       boost::iterator_range<const_data_block_iterator>;
+  /// \brief Sub-range of \ref DataBlock objects overlapping an address or range
+  /// of addreses.
+  ///
+  /// Blocks are yielded in address order, ascending. If two blocks have the
+  /// same address, thier order is not specified.
   using const_data_block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::const_data_block_subrange::iterator, BlockAddressOrder>>;
 
+  /// \brief Return an iterator to the first \ref DataBlock.
   data_block_iterator data_blocks_begin() {
     return data_block_iterator(
         boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -602,12 +806,16 @@ public:
                                        NodeToDataBlockRange<ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last \ref
+  /// DataBlock.
   data_block_iterator data_blocks_end() { return data_block_iterator(); }
 
+  /// \brief Return a range of all the \ref DataBlock objects.
   data_block_range data_blocks() {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 
+  /// \brief Return an iterator to the first \ref DataBlock.
   const_data_block_iterator data_blocks_begin() const {
     return const_data_block_iterator(
         boost::make_transform_iterator(
@@ -618,14 +826,23 @@ public:
             NodeToDataBlockRange<const ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last \ref
+  /// DataBlock.
   const_data_block_iterator data_blocks_end() const {
     return const_data_block_iterator();
   }
 
+  /// \brief Return a range of all the \ref DataBlock objects.
   const_data_block_range data_blocks() const {
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 
+  /// \brief Find all the data blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataNode object that intersect the address \p A.
   data_block_subrange findDataBlocksIn(Addr A) {
     struct FindBlocks {
       Addr A;
@@ -644,6 +861,12 @@ public:
         data_block_subrange::iterator());
   }
 
+  /// \brief Find all the data blocks that have bytes that lie within the
+  /// address specified.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that intersect the address \p A.
   const_data_block_subrange findDataBlocksIn(Addr A) const {
     struct FindBlocks {
       Addr A;
@@ -663,6 +886,11 @@ public:
         const_data_block_subrange::iterator());
   }
 
+  /// \brief Find all the data blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that are at the address \p A.
   data_block_range findDataBlocksAt(Addr A) {
     struct FindBlocks {
       Addr A;
@@ -681,6 +909,12 @@ public:
         data_block_range::iterator());
   }
 
+  /// \brief Find all the data blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref DataBlock objects that are between the addresses.
   data_block_range findDataBlocksAt(Addr Low, Addr High) {
     struct FindBlocks {
       Addr Low, High;
@@ -699,6 +933,11 @@ public:
         data_block_range::iterator());
   }
 
+  /// \brief Find all the data blocks that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref DataBlock objects that are at the address \p A.
   const_data_block_range findDataBlocksAt(Addr A) const {
     struct FindBlocks {
       Addr A;
@@ -718,6 +957,12 @@ public:
         const_data_block_range::iterator());
   }
 
+  /// \brief Find all the data blocks that start between a range of addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref DataBlock objects that are between the addresses.
   const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
     struct FindBlocks {
       Addr Low, High;
@@ -737,17 +982,30 @@ public:
         const_data_block_range::iterator());
   }
 
+  /// \brief Iterator over \ref SymbolicExpressionElement objects.
+  ///
+  /// Results are yielded in address order, ascending.
   using symbolic_expression_iterator = MergeSortedIterator<
       ByteInterval::symbolic_expression_iterator,
       ByteInterval::SymbolicExpressionElement::AddressOrder>;
+  /// \brief Range of \ref SymbolicExpressionElement objects.
+  ///
+  /// Results are yielded in address order, ascending.
   using symbolic_expression_range =
       boost::iterator_range<symbolic_expression_iterator>;
+  /// \brief Iterator over \ref SymbolicExpressionElement objects.
+  ///
+  /// Results are yielded in address order, ascending.
   using const_symbolic_expression_iterator = MergeSortedIterator<
       ByteInterval::const_symbolic_expression_iterator,
       ByteInterval::ConstSymbolicExpressionElement::AddressOrder>;
+  /// \brief Range of \ref SymbolicExpressionElement objects.
+  ///
+  /// Results are yielded in address order, ascending.
   using const_symbolic_expression_range =
       boost::iterator_range<const_symbolic_expression_iterator>;
 
+  /// \brief Return an iterator to the first \ref SymbolicExpression.
   symbolic_expression_iterator symbolic_expressions_begin() {
     return symbolic_expression_iterator(
         boost::make_transform_iterator(
@@ -758,15 +1016,19 @@ public:
             NodeToSymbolicExpressionRange<ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last \ref
+  /// SymbolicExpression.
   symbolic_expression_iterator symbolic_expressions_end() {
     return symbolic_expression_iterator();
   }
 
+  /// \brief Return a range of all the \ref SymbolicExpression objects.
   symbolic_expression_range symbolic_expressions() {
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
   }
 
+  /// \brief Return an iterator to the first \ref SymbolicExpression.
   const_symbolic_expression_iterator symbolic_expressions_begin() const {
     return const_symbolic_expression_iterator(
         boost::make_transform_iterator(
@@ -777,15 +1039,24 @@ public:
             NodeToSymbolicExpressionRange<const ByteInterval>()));
   }
 
+  /// \brief Return an iterator to the element following the last \ref
+  /// SymbolicExpression.
   const_symbolic_expression_iterator symbolic_expressions_end() const {
     return const_symbolic_expression_iterator();
   }
 
+  /// \brief Return a range of all the \ref SymbolicExpression objects.
   const_symbolic_expression_range symbolic_expressions() const {
     return boost::make_iterator_range(symbolic_expressions_begin(),
                                       symbolic_expressions_end());
   }
 
+  /// \brief Find all the symbolic expressions that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are at the address
+  /// \p A.
   symbolic_expression_range findSymbolicExpressionsAt(Addr A) {
     struct FindSymExprs {
       Addr A;
@@ -805,6 +1076,14 @@ public:
         symbolic_expression_range::iterator());
   }
 
+  /// \brief Find all the symbolic expressions that start between a range of
+  /// addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are between the
+  /// addresses.
   symbolic_expression_range findSymbolicExpressionsAt(Addr Low, Addr High) {
     struct FindSymExprs {
       Addr Low, High;
@@ -824,6 +1103,12 @@ public:
         symbolic_expression_range::iterator());
   }
 
+  /// \brief Find all the symbolic expressions that start at an address.
+  ///
+  /// \param A The address to look up.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are at the address
+  /// \p A.
   const_symbolic_expression_range findSymbolicExpressionsAt(Addr A) const {
     struct FindSymExprs {
       Addr A;
@@ -843,6 +1128,14 @@ public:
         const_symbolic_expression_range::iterator());
   }
 
+  /// \brief Find all the symbolic expressions that start between a range of
+  /// addresses.
+  ///
+  /// \param Low  The low address, inclusive.
+  /// \param High The high address, exclusive.
+  ///
+  /// \return A range of \ref SymbolicExpression objects that are between the
+  /// addresses.
   const_symbolic_expression_range findSymbolicExpressionsAt(Addr Low,
                                                             Addr High) const {
     struct FindSymExprs {
