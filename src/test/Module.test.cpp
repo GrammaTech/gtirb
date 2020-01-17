@@ -39,14 +39,6 @@ TEST(Unit_Module, compilationIteratorTypes) {
   static_assert(
       std::is_same_v<Module::const_code_block_subrange::iterator::reference,
                      const CodeBlock&>);
-  // Actually calling the constructor and assignment operator tends to produce
-  // more informative error messages than std::is_constructible and
-  // std::is_assignable.
-  {
-    Module::code_block_iterator it;
-    Module::const_code_block_iterator cit(it);
-    cit = it;
-  }
 
   static_assert(
       std::is_same_v<Module::data_block_iterator::reference, DataBlock&>);
@@ -57,11 +49,6 @@ TEST(Unit_Module, compilationIteratorTypes) {
   static_assert(
       std::is_same_v<Module::const_data_block_subrange::iterator::reference,
                      const DataBlock&>);
-  {
-    Module::data_block_iterator it;
-    Module::const_data_block_iterator cit(it);
-    cit = it;
-  }
 
   static_assert(std::is_same_v<Module::section_iterator::reference, Section&>);
   static_assert(std::is_same_v<Module::const_section_iterator::reference,
@@ -76,29 +63,11 @@ TEST(Unit_Module, compilationIteratorTypes) {
       std::is_same_v<Module::const_section_subrange::iterator::reference,
                      const Section&>);
 
-  {
-    Module::section_iterator it;
-    Module::const_section_iterator cit(it);
-    cit = it;
-  }
-
-  {
-    Module::section_name_iterator it;
-    Module::const_section_name_iterator cit(it);
-    cit = it;
-  }
-
   static_assert(std::is_same_v<Module::symbolic_expression_iterator::reference,
-                               SymbolicExpression&>);
+                               ByteInterval::SymbolicExpressionElement>);
   static_assert(
       std::is_same_v<Module::const_symbolic_expression_iterator::reference,
-                     const SymbolicExpression&>);
-  static_assert(
-      std::is_same_v<Module::symbolic_expression_addr_iterator::reference,
-                     SymbolicExpression&>);
-  static_assert(
-      std::is_same_v<Module::const_symbolic_expression_addr_iterator::reference,
-                     const SymbolicExpression&>);
+                     ByteInterval::ConstSymbolicExpressionElement>);
 
   static_assert(std::is_same_v<Module::symbol_iterator::reference, Symbol&>);
   static_assert(
@@ -107,12 +76,6 @@ TEST(Unit_Module, compilationIteratorTypes) {
       std::is_same_v<Module::symbol_addr_iterator::reference, Symbol&>);
   static_assert(std::is_same_v<Module::const_symbol_addr_iterator::reference,
                                const Symbol&>);
-
-  {
-    Module::symbol_iterator it;
-    Module::const_symbol_iterator cit(it);
-    cit = it;
-  }
 }
 
 static Context Ctx;
@@ -195,13 +158,13 @@ TEST(Unit_Module, getPreferredAddrDefault) {
   EXPECT_EQ(Addr{}, M->getPreferredAddr());
 }
 
-TEST(Unit_Module, getISAID) {
+TEST(Unit_Module, getISA) {
   auto* M = Module::Create(Ctx);
 
-  EXPECT_EQ(gtirb::ISAID::Undefined, M->getISAID());
+  EXPECT_EQ(gtirb::ISA::Undefined, M->getISA());
 
-  M->setISAID(gtirb::ISAID::X64);
-  EXPECT_EQ(gtirb::ISAID::X64, M->getISAID());
+  M->setISA(gtirb::ISA::X64);
+  EXPECT_EQ(gtirb::ISA::X64, M->getISA());
 }
 
 TEST(Unit_Module, setPreferredAddr) {
@@ -227,36 +190,36 @@ TEST(Unit_Module, getName) {
 TEST(Unit_Module, sections) {
   auto* M = Module::Create(Ctx);
   M->addSection(Section::Create(Ctx, "test"));
-  EXPECT_EQ(M->section_begin()->getName(), "test");
-  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 1);
-  EXPECT_EQ(std::distance(M->section_by_name_begin(), M->section_by_name_end()),
-            1);
+  EXPECT_EQ(M->sections_begin()->getName(), "test");
+  EXPECT_EQ(std::distance(M->sections_begin(), M->sections_end()), 1);
+  EXPECT_EQ(
+      std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 1);
 }
 
-TEST(Unit_Module, findSection) {
+TEST(Unit_Module, findSections) {
   auto* M = Module::Create(Ctx);
   auto* S = M->addSection(Section::Create(Ctx, "test"));
   S->addByteInterval(ByteInterval::Create(Ctx, Addr(1), 123));
 
   {
-    auto F = M->findSection(Addr(1));
+    auto F = M->findSectionsIn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(F.begin()->getName(), "test");
 
-    F = M->findSection(Addr(123));
+    F = M->findSectionsIn(Addr(123));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
 
-    F = M->findSection(Addr(124));
+    F = M->findSectionsIn(Addr(124));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 
   {
-    auto F = M->findSection("test");
-    EXPECT_NE(F, M->section_by_name_end());
+    auto F = M->findSections("test");
+    EXPECT_NE(F, M->sections_by_name_end());
     EXPECT_EQ(F->getName(), "test");
 
-    F = M->findSection("dummy");
-    EXPECT_EQ(F, M->section_by_name_end());
+    F = M->findSections("dummy");
+    EXPECT_EQ(F, M->sections_by_name_end());
   }
 }
 
@@ -299,32 +262,32 @@ TEST(Unit_Module, findBlock) {
   auto* B2 = BI->addBlock(5, CodeBlock::Create(Ctx, 10));
 
   {
-    auto F = M->findCodeBlock(Addr(0));
+    auto F = M->findCodeBlocksIn(Addr(0));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
 
-    F = M->findCodeBlock(Addr(1));
+    F = M->findCodeBlocksIn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
-    F = M->findCodeBlock(Addr(5));
+    F = M->findCodeBlocksIn(Addr(5));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), B1);
     EXPECT_EQ(&*++F.begin(), B2);
 
-    F = M->findCodeBlock(Addr(14));
+    F = M->findCodeBlocksIn(Addr(14));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), B1);
     EXPECT_EQ(&*++F.begin(), B2);
 
-    F = M->findCodeBlock(Addr(15));
+    F = M->findCodeBlocksIn(Addr(15));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
-    F = M->findCodeBlock(Addr(20));
+    F = M->findCodeBlocksIn(Addr(20));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
-    F = M->findCodeBlock(Addr(21));
+    F = M->findCodeBlocksIn(Addr(21));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }
@@ -346,32 +309,32 @@ TEST(Unit_Module, findData) {
   auto* D2 = BI->addBlock(5, DataBlock::Create(Ctx, 10));
 
   {
-    auto F = M->findDataBlock(Addr(0));
+    auto F = M->findDataBlocksIn(Addr(0));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
 
-    F = M->findDataBlock(Addr(1));
+    F = M->findDataBlocksIn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D1);
 
-    F = M->findDataBlock(Addr(5));
+    F = M->findDataBlocksIn(Addr(5));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
-    F = M->findDataBlock(Addr(10));
+    F = M->findDataBlocksIn(Addr(10));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
-    F = M->findDataBlock(Addr(11));
+    F = M->findDataBlocksIn(Addr(11));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D2);
 
-    F = M->findDataBlock(Addr(14));
+    F = M->findDataBlocksIn(Addr(14));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D2);
 
-    F = M->findDataBlock(Addr(15));
+    F = M->findDataBlocksIn(Addr(15));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }
@@ -618,7 +581,7 @@ TEST(Unit_Module, symbolicExpressions) {
             1);
 }
 
-TEST(Unit_Module, findSymbolicExpressions) {
+TEST(Unit_Module, findSymbolicExpressionsAts) {
   auto* M = Module::Create(Ctx);
   auto* S = M->addSection(Section::Create(Ctx, "test"));
   auto* BI = S->addByteInterval(ByteInterval::Create(Ctx, Addr(0), 10));
@@ -630,26 +593,30 @@ TEST(Unit_Module, findSymbolicExpressions) {
   BI->addSymbolicExpression(5, SymAddrConst{0, S2});
 
   {
-    auto F = M->findSymbolicExpression(Addr(1), Addr(5));
+    auto F = M->findSymbolicExpressionsAt(Addr(1), Addr(5));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
-    EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
+    EXPECT_EQ(std::get<SymAddrConst>(F.begin()->getSymbolicExpression()).Sym,
+              S1);
   }
 
   {
-    auto F = M->findSymbolicExpression(Addr(1), Addr(6));
+    auto F = M->findSymbolicExpressionsAt(Addr(1), Addr(6));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
-    EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
-    EXPECT_EQ(std::get<SymAddrConst>(*++F.begin()).Sym, S2);
+    EXPECT_EQ(std::get<SymAddrConst>(F.begin()->getSymbolicExpression()).Sym,
+              S1);
+    EXPECT_EQ(
+        std::get<SymAddrConst>((++F.begin())->getSymbolicExpression()).Sym, S2);
   }
 
   {
-    auto F = M->findSymbolicExpression(Addr(1), Addr(3));
+    auto F = M->findSymbolicExpressionsAt(Addr(1), Addr(3));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
-    EXPECT_EQ(std::get<SymAddrConst>(*F.begin()).Sym, S1);
+    EXPECT_EQ(std::get<SymAddrConst>(F.begin()->getSymbolicExpression()).Sym,
+              S1);
   }
 
   {
-    auto F = M->findSymbolicExpression(Addr(6), Addr(50));
+    auto F = M->findSymbolicExpressionsAt(Addr(6), Addr(50));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }
@@ -667,7 +634,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
-    Original->setISAID(ISAID::X64);
+    Original->setISA(ISA::X64);
     Original->addAuxData("test", AuxData());
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(1), "name1"));
     Original->addSymbol(Symbol::Create(InnerCtx, Addr(2), "name1"));
@@ -681,8 +648,8 @@ TEST(Unit_Module, protobufRoundTrip) {
     BlockID = blocks(Original->getCFG()).begin()->getUUID();
     DataID = Original->data_blocks_begin()->getUUID();
     ProxyID = P->getUUID();
-    SectionID = Original->section_begin()->getUUID();
-    WhichSymbolic = Original->symbolic_expressions_begin()->index();
+    SectionID = Original->sections_begin()->getUUID();
+    WhichSymbolic = Original->symbolic_expressions_begin()->getOffset();
 
     Original->toProtobuf(&Message);
   }
@@ -693,11 +660,11 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result->getPreferredAddr(), Addr(3));
   EXPECT_EQ(Result->getRebaseDelta(), 4);
   EXPECT_EQ(Result->getFileFormat(), FileFormat::ELF);
-  EXPECT_EQ(Result->getISAID(), ISAID::X64);
+  EXPECT_EQ(Result->getISA(), ISA::X64);
   EXPECT_EQ(Result->getName(), "module");
 
   // Make sure all symbols are present despite repeated names and addresses.
-  EXPECT_EQ(std::distance(Result->symbol_begin(), Result->symbol_end()), 3);
+  EXPECT_EQ(std::distance(Result->symbols_begin(), Result->symbols_end()), 3);
   {
     auto Found = Result->findSymbols("name1");
     EXPECT_EQ(distance(Found.begin(), Found.end()), 2);
@@ -728,13 +695,13 @@ TEST(Unit_Module, protobufRoundTrip) {
       std::distance(Result->data_blocks_begin(), Result->data_blocks_end()), 1);
   EXPECT_EQ(Result->data_blocks_begin()->getUUID(), DataID);
 
-  EXPECT_EQ(std::distance(Result->section_begin(), Result->section_end()), 1);
-  EXPECT_EQ(Result->section_begin()->getUUID(), SectionID);
+  EXPECT_EQ(std::distance(Result->sections_begin(), Result->sections_end()), 1);
+  EXPECT_EQ(Result->sections_begin()->getUUID(), SectionID);
 
   EXPECT_EQ(std::distance(Result->symbolic_expressions_begin(),
                           Result->symbolic_expressions_end()),
             1);
-  EXPECT_EQ(Result->symbolic_expressions_begin()->index(), WhichSymbolic);
+  EXPECT_EQ(Result->symbolic_expressions_begin()->getOffset(), WhichSymbolic);
 }
 
 TEST(Unit_Module, protobufNodePointers) {
@@ -779,12 +746,17 @@ TEST(Unit_Module, protobufNodePointers) {
             nullptr);
 
   const auto& Symbolic =
-      get<SymAddrConst>(*Result->findSymbolicExpression(Addr(3)));
+      get<SymAddrConst>(Result->findSymbolicExpressionsAt(Addr(3))
+                            .begin()
+                            ->getSymbolicExpression());
   EXPECT_NE(Symbolic.Sym, nullptr);
   EXPECT_EQ(Symbolic.Sym->getName(), "data");
 
   // Dangling reference becomes nullptr
-  EXPECT_EQ(get<SymAddrConst>(*Result->findSymbolicExpression(Addr(4))).Sym,
+  EXPECT_EQ(get<SymAddrConst>(Result->findSymbolicExpressionsAt(Addr(4))
+                                  .begin()
+                                  ->getSymbolicExpression())
+                .Sym,
             nullptr);
 }
 
@@ -797,37 +769,41 @@ TEST(Unit_Module, removeNodes) {
   auto* P = M->addProxyBlock(ProxyBlock::Create(Ctx));
   auto* Sym = M->addSymbol(Symbol::Create(Ctx, "test"));
 
-  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 1);
-  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 1);
+  EXPECT_EQ(std::distance(M->sections_begin(), M->sections_end()), 1);
+  EXPECT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
+            1);
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
   EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 1);
   EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 1);
-  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 1);
+  EXPECT_EQ(std::distance(M->symbols_begin(), M->symbols_end()), 1);
 
   M->removeSection(S);
 
-  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 0);
-  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 0);
+  EXPECT_EQ(std::distance(M->sections_begin(), M->sections_end()), 0);
+  EXPECT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
+            0);
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 1);
-  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 1);
+  EXPECT_EQ(std::distance(M->symbols_begin(), M->symbols_end()), 1);
 
   M->removeProxyBlock(P);
 
-  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 0);
-  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 0);
+  EXPECT_EQ(std::distance(M->sections_begin(), M->sections_end()), 0);
+  EXPECT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
+            0);
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 0);
-  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 1);
+  EXPECT_EQ(std::distance(M->symbols_begin(), M->symbols_end()), 1);
 
   M->removeSymbol(Sym);
 
-  EXPECT_EQ(std::distance(M->section_begin(), M->section_end()), 0);
-  EXPECT_EQ(std::distance(M->byte_interval_begin(), M->byte_interval_end()), 0);
+  EXPECT_EQ(std::distance(M->sections_begin(), M->sections_end()), 0);
+  EXPECT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
+            0);
   EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->data_blocks_begin(), M->data_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 0);
-  EXPECT_EQ(std::distance(M->symbol_begin(), M->symbol_end()), 0);
+  EXPECT_EQ(std::distance(M->symbols_begin(), M->symbols_end()), 0);
 }

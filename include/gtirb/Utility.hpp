@@ -35,7 +35,11 @@ namespace gtirb {
 ///           signature "std::optional<Addr> getAddress() const".
 template <typename T> struct AddressOrder {
   using key_type = std::optional<Addr>;
+
   static key_type key(const T& N) { return N.getAddress(); }
+  static key_type key(const T* N) { return N->getAddress(); }
+
+  bool operator()(const T& N1, const T& N2) const { return key(N1) < key(N2); }
   bool operator()(const T* N1, const T* N2) const {
     return key(*N1) < key(*N2);
   }
@@ -48,9 +52,15 @@ template <typename T> struct AddressOrder {
 /// address order.
 struct GTIRB_EXPORT_API BlockAddressOrder {
   using key_type = std::optional<Addr>;
-  static key_type getAddress(const Node* N);
+
+  static key_type key(const Node& N);
+  static key_type key(const Node* N) { return key(*N); }
+
+  bool operator()(const Node* N1, const Node* N2) const {
+    return key(*N1) < key(*N2);
+  }
   bool operator()(const Node& N1, const Node& N2) const {
-    return getAddress(&N1) < getAddress(&N2);
+    return key(N1) < key(N2);
   }
 };
 

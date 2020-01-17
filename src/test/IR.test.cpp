@@ -30,13 +30,14 @@ static bool hasPreferredAddr(const Module& M, Addr X) {
 }
 
 TEST(Unit_IR, compilationIteratorTypes) {
-  static_assert(std::is_same_v<IR::iterator::reference, Module&>);
-  static_assert(std::is_same_v<IR::const_iterator::reference, const Module&>);
+  static_assert(std::is_same_v<IR::module_iterator::reference, Module&>);
+  static_assert(
+      std::is_same_v<IR::const_module_iterator::reference, const Module&>);
   // Actually calling the constructor and assignment operator tends to produce
   // more informative error messages than std::is_constructible and
   // std::is_assignable.
-  IR::iterator It;
-  IR::const_iterator CIt(It);
+  IR::module_iterator It;
+  IR::const_module_iterator CIt(It);
   CIt = It;
 }
 
@@ -49,8 +50,8 @@ TEST(Unit_IR, moduleIterationOrder) {
   auto* M2 = Ir->addModule(Module::Create(Ctx, "a"));
   auto* M3 = Ir->addModule(Module::Create(Ctx, "a"));
 
-  EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
-  auto It = Ir->begin();
+  EXPECT_EQ(std::distance(Ir->modules_begin(), Ir->modules_end()), 3);
+  auto It = Ir->modules_begin();
   // Order of M2 and M3 is unspecified.
   if (&*It == M2) {
     ++It;
@@ -80,10 +81,10 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
     Ir->addModule(Module::Create(Ctx));
   }
 
-  size_t Count =
-      std::count_if(Ir->begin(), Ir->end(), [PreferredAddr](const Module& M) {
-        return hasPreferredAddr(M, PreferredAddr);
-      });
+  size_t Count = std::count_if(Ir->modules_begin(), Ir->modules_end(),
+                               [PreferredAddr](const Module& M) {
+                                 return hasPreferredAddr(M, PreferredAddr);
+                               });
   EXPECT_FALSE(Count == 0);
   EXPECT_EQ(ModulesWithAddr, Count);
 }
@@ -144,12 +145,12 @@ TEST(Unit_IR, protobufRoundTrip) {
     Original->addModule(Module::Create(InnerCtx));
     Original->addAuxData("test", AuxData());
 
-    MainID = Original->begin()->getUUID();
+    MainID = Original->modules_begin()->getUUID();
     Original->toProtobuf(&Message);
   }
   auto* Result = IR::fromProtobuf(Ctx, Message);
 
-  EXPECT_EQ(Result->begin()->getUUID(), MainID);
+  EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 }
@@ -164,13 +165,13 @@ TEST(Unit_IR, jsonRoundTrip) {
     Original->addModule(Module::Create(InnerCtx));
     Original->addAuxData("test", AuxData());
 
-    MainID = Original->begin()->getUUID();
+    MainID = Original->modules_begin()->getUUID();
     Original->saveJSON(Out);
   }
   std::istringstream In(Out.str());
   auto* Result = IR::loadJSON(Ctx, In);
 
-  EXPECT_EQ(Result->begin()->getUUID(), MainID);
+  EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData("test"), nullptr);
 }
@@ -194,8 +195,8 @@ TEST(Unit_IR, setModuleName) {
   auto* M3 = Ir->addModule(Module::Create(Ctx, "c"));
 
   M2->setName("d");
-  EXPECT_EQ(std::distance(Ir->begin(), Ir->end()), 3);
-  auto It = Ir->begin();
+  EXPECT_EQ(std::distance(Ir->modules_begin(), Ir->modules_end()), 3);
+  auto It = Ir->modules_begin();
   EXPECT_EQ(&*It++, M1);
   EXPECT_EQ(&*It++, M3);
   EXPECT_EQ(&*It++, M2);

@@ -6,13 +6,13 @@
 
 using namespace gtirb;
 
-BlockAddressOrder::key_type BlockAddressOrder::getAddress(const Node* N) {
-  if (isa<CodeBlock>(N)) {
-    return cast<CodeBlock>(N)->getAddress();
+BlockAddressOrder::key_type BlockAddressOrder::key(const Node& N) {
+  if (isa<CodeBlock>(&N)) {
+    return cast<CodeBlock>(&N)->getAddress();
   }
 
-  if (isa<DataBlock>(N)) {
-    return cast<DataBlock>(N)->getAddress();
+  if (isa<DataBlock>(&N)) {
+    return cast<DataBlock>(&N)->getAddress();
   }
 
   assert(!"BlockAddressOrder got an unknown node type!");

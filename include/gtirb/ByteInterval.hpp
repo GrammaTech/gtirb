@@ -395,7 +395,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using code_block_subrange = boost::iterator_range<boost::transform_iterator<
-      BlockToNode<Node>,
+      BlockToNode<CodeBlock>,
       boost::filter_iterator<
           BlockKindEquals<Node::Kind::CodeBlock>,
           boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
@@ -420,7 +420,7 @@ public:
   /// same offset, thier order is not specified.
   using const_code_block_subrange =
       boost::iterator_range<boost::transform_iterator<
-          BlockToNode<const Node>,
+          BlockToNode<const CodeBlock>,
           boost::filter_iterator<
               BlockKindEquals<Node::Kind::CodeBlock>,
               boost::indirect_iterator<
@@ -572,7 +572,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using data_block_subrange = boost::iterator_range<boost::transform_iterator<
-      BlockToNode<Node>,
+      BlockToNode<DataBlock>,
       boost::filter_iterator<
           BlockKindEquals<Node::Kind::DataBlock>,
           boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
@@ -597,7 +597,7 @@ public:
   /// same offset, thier order is not specified.
   using const_data_block_subrange =
       boost::iterator_range<boost::transform_iterator<
-          BlockToNode<const Node>,
+          BlockToNode<const DataBlock>,
           boost::filter_iterator<
               BlockKindEquals<Node::Kind::DataBlock>,
               boost::indirect_iterator<
@@ -746,7 +746,7 @@ private:
       return SymbolicExpressionElementBase<const ByteIntervalType>(BI, Off, SE);
     }
 
-    class AddressOrder {
+    struct AddressOrder {
       using key_type = std::optional<Addr>;
       static key_type
       key(const SymbolicExpressionElementBase<ByteIntervalType>& SEE) {

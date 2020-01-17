@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   cs_option(CsHandle, CS_OPT_DETAIL, CS_OPT_ON);
 
   // Examine all blocks in the first module
-  for (const auto& B : blocks(Ir->begin()->getCFG())) {
+  for (const auto& B : blocks(Ir->modules_begin()->getCFG())) {
     // Get the contents of the block and decode with capstone
     cs_insn* Insn;
     size_t count =

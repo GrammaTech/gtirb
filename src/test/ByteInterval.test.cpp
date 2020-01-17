@@ -202,17 +202,18 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
                             Result->symbolic_expressions_end()),
               1);
 
-    EXPECT_EQ(Result->symbolic_expressions_begin()->first, 5);
+    EXPECT_EQ(Result->symbolic_expressions_begin()->getByteInterval(), Result);
+    EXPECT_EQ(Result->symbolic_expressions_begin()->getOffset(), 5);
     EXPECT_TRUE(std::holds_alternative<SymAddrConst>(
-        Result->symbolic_expressions_begin()->second));
-    EXPECT_EQ(
-        std::get<SymAddrConst>(Result->symbolic_expressions_begin()->second)
-            .Offset,
-        8);
-    EXPECT_EQ(
-        std::get<SymAddrConst>(Result->symbolic_expressions_begin()->second)
-            .Sym,
-        Sym);
+        Result->symbolic_expressions_begin()->getSymbolicExpression()));
+    EXPECT_EQ(std::get<SymAddrConst>(
+                  Result->symbolic_expressions_begin()->getSymbolicExpression())
+                  .Offset,
+              8);
+    EXPECT_EQ(std::get<SymAddrConst>(
+                  Result->symbolic_expressions_begin()->getSymbolicExpression())
+                  .Sym,
+              Sym);
   }
 }
 

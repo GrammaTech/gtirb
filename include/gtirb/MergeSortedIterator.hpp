@@ -18,6 +18,7 @@
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_traits.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <functional>
 #include <iterator>
