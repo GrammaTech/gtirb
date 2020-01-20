@@ -84,13 +84,8 @@ public:
   /// \param Begin The beginning of the ranges to build this iterator from.
   /// \param End   The end of the ranges to build this iterator from.
   template <typename RangeIterator>
-  MergeSortedIterator(RangeIterator Begin, RangeIterator End) {
-    for (const auto& Range : boost::make_iterator_range(Begin, End)) {
-      if (auto RBegin = Range.begin(), REnd = Range.end(); RBegin != REnd) {
-        Ranges.emplace_back(RBegin, REnd);
-      }
-    }
-  }
+  MergeSortedIterator(RangeIterator Begin, RangeIterator End)
+      : MergeSortedIterator(boost::make_iterator_range(Begin, End)) {}
 
   // Beginning of functions for iterator facade compatibility.
   typename std::iterator_traits<ForwardIterator>::reference
