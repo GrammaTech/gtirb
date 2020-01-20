@@ -325,6 +325,320 @@ using NodeToProxyBlockRange = NodeToChildRange<
                        typename T::const_proxy_block_iterator (T::*)() const,
                        typename T::proxy_block_iterator (T::*)()>,
     &T::proxy_blocks_begin, &T::proxy_blocks_end>;
+
+/// \class FindNodesAt
+///
+/// \brief A function object for merging together calls to "findNodeAt" style
+/// methods, taking one address parameter.
+///
+/// \tparam T The type of node to call \p FindAtMethod on.
+/// \tparam MethodType The type of \p Method.
+/// \tparam Method A pointer to a method on \p T that takes an
+/// address and returns a range.
+template <typename T, typename MethodType, MethodType Method>
+struct FindNodesAt {
+  Addr A;
+
+  FindNodesAt(Addr A_) : A{A_} {}
+
+  decltype((std::declval<T>().*Method)(Addr())) operator()(T& N) const {
+    return (N.*Method)(A);
+  }
+};
+
+/// \class FindNodesBetween
+///
+/// \brief A function object for merging together calls to "findNodeAt" style
+/// methods, taking two address parameters.
+///
+/// \tparam T The type of node to call \p FindAtMethod on.
+/// \tparam MethodType The type of \p Method.
+/// \tparam Method A pointer to a method on \p T that takes two
+/// addresses and returns a range.
+template <typename T, typename MethodType, MethodType Method>
+struct FindNodesBetween {
+  Addr Low, High;
+
+  FindNodesBetween(Addr Low_, Addr High_) : Low{Low_}, High{High_} {}
+
+  decltype((std::declval<T>().*Method)(Addr(), Addr())) operator()(T& N) const {
+    return (N.*Method)(Low, High);
+  }
+};
+
+/// \class FindBlocksIn
+///
+/// \brief A function object for merging together calls to findBlocksIn.
+///
+/// \tparam T The node to call findBlocksIn from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindBlocksIn = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_block_subrange (T::*)(Addr) const,
+                       typename T::block_subrange (T::*)(Addr)>,
+    &T::findBlocksIn>;
+
+/// \class FindBlocksAt
+///
+/// \brief A function object for merging together calls to findBlocksAt, taking
+/// one address parameter.
+///
+/// \tparam T The node to call findBlocksAt from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindBlocksAt = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_block_range (T::*)(Addr) const,
+                       typename T::block_range (T::*)(Addr)>,
+    &T::findBlocksAt>;
+
+/// \class FindBlocksBetween
+///
+/// \brief A function object for merging together calls to findBlocksAt, taking
+/// two address parameters.
+///
+/// \tparam T The node to call findBlocksAt from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindBlocksBetween = FindNodesBetween<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_block_range (T::*)(Addr, Addr) const,
+                       typename T::block_range (T::*)(Addr, Addr)>,
+    &T::findBlocksAt>;
+
+/// \class FindCodeBlocksIn
+///
+/// \brief A function object for merging together calls to findCodeBlocksIn.
+///
+/// \tparam T The node to call findCodeBlocksIn from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindCodeBlocksIn = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_code_block_subrange (T::*)(Addr) const,
+                       typename T::code_block_subrange (T::*)(Addr)>,
+    &T::findCodeBlocksIn>;
+
+/// \class FindCodeBlocksAt
+///
+/// \brief A function object for merging together calls to findCodeBlocksAt,
+/// taking one address parameter.
+///
+/// \tparam T The node to call findCodeBlocksAt from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindCodeBlocksAt = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_code_block_range (T::*)(Addr) const,
+                       typename T::code_block_range (T::*)(Addr)>,
+    &T::findCodeBlocksAt>;
+
+/// \class FindCodeBlocksBetween
+///
+/// \brief A function object for merging together calls to findCodeBlocksAt,
+/// taking two address parameters.
+///
+/// \tparam T The node to call findCodeBlocksAt from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindCodeBlocksBetween = FindNodesBetween<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_code_block_range (T::*)(Addr, Addr)
+                           const,
+                       typename T::code_block_range (T::*)(Addr, Addr)>,
+    &T::findCodeBlocksAt>;
+
+/// \class FindDataBlocksIn
+///
+/// \brief A function object for merging together calls to findDataBlocksIn.
+///
+/// \tparam T The node to call findDataBlocksIn from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindDataBlocksIn = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_data_block_subrange (T::*)(Addr) const,
+                       typename T::data_block_subrange (T::*)(Addr)>,
+    &T::findDataBlocksIn>;
+
+/// \class FindDataBlocksAt
+///
+/// \brief A function object for merging together calls to findDataBlocksAt,
+/// taking one address parameter.
+///
+/// \tparam T The node to call findDataBlocksAt from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindDataBlocksAt = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_data_block_range (T::*)(Addr) const,
+                       typename T::data_block_range (T::*)(Addr)>,
+    &T::findDataBlocksAt>;
+
+/// \class FindDataBlocksBetween
+///
+/// \brief A function object for merging together calls to findDataBlocksAt,
+/// taking two address parameters.
+///
+/// \tparam T The node to call findDataBlocksAt from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindDataBlocksBetween = FindNodesBetween<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_data_block_range (T::*)(Addr, Addr)
+                           const,
+                       typename T::data_block_range (T::*)(Addr, Addr)>,
+    &T::findDataBlocksAt>;
+
+/// \class FindSymExprsAt
+///
+/// \brief A function object for merging together calls to
+/// findSymbolicExpressionsAt, taking one address parameter.
+///
+/// \tparam T The node to call findSymbolicExpressionsAt from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindSymExprsAt = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_symbolic_expression_range (T::*)(Addr)
+                           const,
+                       typename T::symbolic_expression_range (T::*)(Addr)>,
+    &T::findSymbolicExpressionsAt>;
+
+/// \class FindSymExprsBetween
+///
+/// \brief A function object for merging together calls to
+/// findSymbolicExpressionsAt, taking two address parameters.
+///
+/// \tparam T The node to call findSymbolicExpressionsAt from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindSymExprsBetween = FindNodesBetween<
+    T,
+    std::conditional_t<
+        std::is_const_v<T>,
+        typename T::const_symbolic_expression_range (T::*)(Addr, Addr) const,
+        typename T::symbolic_expression_range (T::*)(Addr, Addr)>,
+    &T::findSymbolicExpressionsAt>;
+
+/// \class FindByteIntervalsIn
+///
+/// \brief A function object for merging together calls to findByteIntervalsIn.
+///
+/// \tparam T The node to call findByteIntervalsIn from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindByteIntervalsIn =
+    FindNodesAt<T,
+                std::conditional_t<
+                    std::is_const_v<T>,
+                    typename T::const_byte_interval_subrange (T::*)(Addr) const,
+                    typename T::byte_interval_subrange (T::*)(Addr)>,
+                &T::findByteIntervalsIn>;
+
+/// \class FindByteIntervalsAt
+///
+/// \brief A function object for merging together calls to
+/// findByteIntervalsAt, taking one address parameter.
+///
+/// \tparam T The node to call findByteIntervalsAt from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindByteIntervalsAt = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_byte_interval_range (T::*)(Addr) const,
+                       typename T::byte_interval_range (T::*)(Addr)>,
+    &T::findByteIntervalsAt>;
+
+/// \class FindByteIntervalsBetween
+///
+/// \brief A function object for merging together calls to
+/// findByteIntervalsAt, taking two address parameters.
+///
+/// \tparam T The node to call findByteIntervalsAt from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindByteIntervalsBetween = FindNodesBetween<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_byte_interval_range (T::*)(Addr, Addr)
+                           const,
+                       typename T::byte_interval_range (T::*)(Addr, Addr)>,
+    &T::findByteIntervalsAt>;
+
+/// \class FindSectionsIn
+///
+/// \brief A function object for merging together calls to findSectionsIn.
+///
+/// \tparam T The node to call findSectionsIn from. If const-qualified,
+///           the const functions on this type are used; else the non-const
+///           functions are used.
+template <typename T>
+using FindSectionsIn = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_section_subrange (T::*)(Addr) const,
+                       typename T::section_subrange (T::*)(Addr)>,
+    &T::findSectionsIn>;
+
+/// \class FindSectionsAt
+///
+/// \brief A function object for merging together calls to
+/// findSectionsAt, taking one address parameter.
+///
+/// \tparam T The node to call findSectionsAt from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindSectionsAt = FindNodesAt<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_section_range (T::*)(Addr) const,
+                       typename T::section_range (T::*)(Addr)>,
+    &T::findSectionsAt>;
+
+/// \class FindSectionsBetween
+///
+/// \brief A function object for merging together calls to
+/// findSectionsAt, taking two address parameters.
+///
+/// \tparam T The node to call findSectionsAt from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindSectionsBetween = FindNodesBetween<
+    T,
+    std::conditional_t<std::is_const_v<T>,
+                       typename T::const_section_range (T::*)(Addr, Addr) const,
+                       typename T::section_range (T::*)(Addr, Addr)>,
+    &T::findSectionsAt>;
+
 /// @endcond
 
 } // namespace gtirb
