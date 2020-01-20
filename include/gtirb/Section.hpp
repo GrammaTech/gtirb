@@ -28,7 +28,6 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
-#include <unordered_set>
 
 /// \file Section.hpp
 /// \brief Class gtirb::Section.
