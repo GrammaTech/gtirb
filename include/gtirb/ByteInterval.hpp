@@ -313,12 +313,12 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
   block_subrange findBlocksIn(Addr A) {
-    auto It = BlockAddrs.find(A);
-    if (It == BlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        block_subrange::iterator(It->second.begin()),
-        block_subrange::iterator(It->second.end()));
+    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
+      return boost::make_iterator_range(
+          block_subrange::iterator(It->second.begin()),
+          block_subrange::iterator(It->second.end()));
+    }
+    return {};
   }
 
   /// \brief Find all the blocks that have bytes that lie within the address
@@ -329,12 +329,12 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
   const_block_subrange findBlocksIn(Addr A) const {
-    auto It = BlockAddrs.find(A);
-    if (It == BlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        const_block_subrange::iterator(It->second.begin()),
-        const_block_subrange::iterator(It->second.end()));
+    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
+      return boost::make_iterator_range(
+          const_block_subrange::iterator(It->second.begin()),
+          const_block_subrange::iterator(It->second.end()));
+    }
+    return {};
   }
 
   /// \brief Find all the blocks that start at an offset.
@@ -531,16 +531,18 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   code_block_subrange findCodeBlocksIn(Addr A) {
-    auto It = BlockAddrs.find(A);
-    if (It == BlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        code_block_subrange::iterator(code_block_subrange::iterator::base_type(
-            boost::make_indirect_iterator(It->second.begin()),
-            boost::make_indirect_iterator(It->second.end()))),
-        code_block_subrange::iterator(code_block_subrange::iterator::base_type(
-            boost::make_indirect_iterator(It->second.end()),
-            boost::make_indirect_iterator(It->second.end()))));
+    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
+      return boost::make_iterator_range(
+          code_block_subrange::iterator(
+              code_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.begin()),
+                  boost::make_indirect_iterator(It->second.end()))),
+          code_block_subrange::iterator(
+              code_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.end()),
+                  boost::make_indirect_iterator(It->second.end()))));
+    }
+    return {};
   }
 
   /// \brief Find all the code blocks that have bytes that lie within the
@@ -550,18 +552,18 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   const_code_block_subrange findCodeBlocksIn(Addr A) const {
-    auto It = BlockAddrs.find(A);
-    if (It == BlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        const_code_block_subrange::iterator(
-            const_code_block_subrange::iterator::base_type(
-                boost::make_indirect_iterator(It->second.begin()),
-                boost::make_indirect_iterator(It->second.end()))),
-        const_code_block_subrange::iterator(
-            const_code_block_subrange::iterator::base_type(
-                boost::make_indirect_iterator(It->second.end()),
-                boost::make_indirect_iterator(It->second.end()))));
+    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
+      return boost::make_iterator_range(
+          const_code_block_subrange::iterator(
+              const_code_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.begin()),
+                  boost::make_indirect_iterator(It->second.end()))),
+          const_code_block_subrange::iterator(
+              const_code_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.end()),
+                  boost::make_indirect_iterator(It->second.end()))));
+    }
+    return {};
   }
 
   /// \brief Find all the code blocks that start at an offset.
@@ -764,16 +766,18 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
   data_block_subrange findDataBlocksIn(Addr A) {
-    auto It = BlockAddrs.find(A);
-    if (It == BlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        data_block_subrange::iterator(data_block_subrange::iterator::base_type(
-            boost::make_indirect_iterator(It->second.begin()),
-            boost::make_indirect_iterator(It->second.end()))),
-        data_block_subrange::iterator(data_block_subrange::iterator::base_type(
-            boost::make_indirect_iterator(It->second.end()),
-            boost::make_indirect_iterator(It->second.end()))));
+    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
+      return boost::make_iterator_range(
+          data_block_subrange::iterator(
+              data_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.begin()),
+                  boost::make_indirect_iterator(It->second.end()))),
+          data_block_subrange::iterator(
+              data_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.end()),
+                  boost::make_indirect_iterator(It->second.end()))));
+    }
+    return {};
   }
 
   /// \brief Find all the data blocks that have bytes that lie within the
@@ -783,18 +787,18 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
   const_data_block_subrange findDataBlocksIn(Addr A) const {
-    auto It = BlockAddrs.find(A);
-    if (It == BlockAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        const_data_block_subrange::iterator(
-            const_data_block_subrange::iterator::base_type(
-                boost::make_indirect_iterator(It->second.begin()),
-                boost::make_indirect_iterator(It->second.end()))),
-        const_data_block_subrange::iterator(
-            const_data_block_subrange::iterator::base_type(
-                boost::make_indirect_iterator(It->second.end()),
-                boost::make_indirect_iterator(It->second.end()))));
+    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
+      return boost::make_iterator_range(
+          const_data_block_subrange::iterator(
+              const_data_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.begin()),
+                  boost::make_indirect_iterator(It->second.end()))),
+          const_data_block_subrange::iterator(
+              const_data_block_subrange::iterator::base_type(
+                  boost::make_indirect_iterator(It->second.end()),
+                  boost::make_indirect_iterator(It->second.end()))));
+    }
+    return {};
   }
 
   /// \brief Find all the data blocks that start at an offset.

@@ -155,12 +155,12 @@ public:
   /// \return A range of \ref ByteInterval objects that intersect the address \p
   /// A.
   byte_interval_subrange findByteIntervalsIn(Addr A) {
-    auto It = ByteIntervalAddrs.find(A);
-    if (It == ByteIntervalAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        boost::make_indirect_iterator(It->second.begin()),
-        boost::make_indirect_iterator(It->second.end()));
+    if (auto It = ByteIntervalAddrs.find(A); It != ByteIntervalAddrs.end()) {
+      return boost::make_iterator_range(
+          boost::make_indirect_iterator(It->second.begin()),
+          boost::make_indirect_iterator(It->second.end()));
+    }
+    return {};
   }
 
   /// \brief Find all the intervals that have bytes that lie within the address
@@ -171,12 +171,12 @@ public:
   /// \return A range of \ref ByteInterval objects that intersect the address \p
   /// A.
   const_byte_interval_subrange findByteIntervalsIn(Addr A) const {
-    auto It = ByteIntervalAddrs.find(A);
-    if (It == ByteIntervalAddrs.end())
-      return {};
-    return boost::make_iterator_range(
-        boost::make_indirect_iterator(It->second.begin()),
-        boost::make_indirect_iterator(It->second.end()));
+    if (auto It = ByteIntervalAddrs.find(A); It != ByteIntervalAddrs.end()) {
+      return boost::make_iterator_range(
+          boost::make_indirect_iterator(It->second.begin()),
+          boost::make_indirect_iterator(It->second.end()));
+    }
+    return {};
   }
 
   /// \brief Find all the intervals that start at an address.
