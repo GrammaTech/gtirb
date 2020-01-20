@@ -7,12 +7,12 @@
 using namespace gtirb;
 
 BlockAddressOrder::key_type BlockAddressOrder::key(const Node& N) {
-  if (isa<CodeBlock>(&N)) {
-    return cast<CodeBlock>(&N)->getAddress();
+  if (const auto *CB = dyn_cast<CodeBlock>(&N)) {
+    return CB->getAddress();
   }
 
-  if (isa<DataBlock>(&N)) {
-    return cast<DataBlock>(&N)->getAddress();
+  if (const auto *DB = dyn_cast<DataBlock>(&N)) {
+    return DB->getAddress();
   }
 
   assert(!"BlockAddressOrder got an unknown node type!");
