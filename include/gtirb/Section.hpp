@@ -104,6 +104,7 @@ public:
       boost::indirect_iterator<ByteIntervalSet::iterator>;
   /// \brief Range of \ref ByteInterval objects.
   using byte_interval_range = boost::iterator_range<byte_interval_iterator>;
+  /// \brief Sub-range of \ref ByteInterval objects overlapping addresses.
   using byte_interval_subrange = boost::iterator_range<
       boost::indirect_iterator<ByteIntervalIntMap::codomain_type::iterator>>;
   /// \brief Const iterator over \ref ByteInterval objects.
@@ -113,6 +114,7 @@ public:
   /// \brief Const range of \ref ByteInterval objects.
   using const_byte_interval_range =
       boost::iterator_range<const_byte_interval_iterator>;
+  /// \brief Const sub-range of \ref ByteInterval objects overlapping addresses.
   using const_byte_interval_subrange =
       boost::iterator_range<boost::indirect_iterator<
           ByteIntervalIntMap::codomain_type::const_iterator>>;
