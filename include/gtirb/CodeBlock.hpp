@@ -132,6 +132,9 @@ public:
 
   /// \brief Get an iterator to the first byte in this block.
   ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
+  ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
@@ -147,6 +150,9 @@ public:
 
   /// \brief Get an iterator past the last byte in this block.
   ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
+  ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
@@ -161,6 +167,9 @@ public:
   }
 
   /// \brief Get a range of the bytes in this block.
+  ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
   ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
@@ -178,6 +187,9 @@ public:
 
   /// \brief Get an iterator to the first byte in this block.
   ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
+  ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
@@ -193,6 +205,9 @@ public:
 
   /// \brief Get an iterator past the last byte in this block.
   ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
+  ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
@@ -207,6 +222,9 @@ public:
   }
 
   /// \brief Get a range of the bytes in this block.
+  ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
   ///
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
@@ -224,6 +242,9 @@ public:
 
   /// \brief Return the raw data underlying this block's byte vector.
   ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
+  ///
   /// Much like \ref std::vector::data, this function is low-level and
   /// potentially unsafe. This pointer refers to valid memory only where an
   /// iterator would be valid to point to. Modifying the size of the byte
@@ -240,6 +261,9 @@ public:
   }
 
   /// \brief Return the raw data underlying this block's byte vector.
+  ///
+  /// If this block is not associated with any \ref ByteInterval, than the
+  /// behavior of this function is undefined.
   ///
   /// Much like \ref std::vector::data, this function is low-level and
   /// potentially unsafe. This pointer refers to valid memory only where an
