@@ -168,8 +168,8 @@ struct GTIRB_EXPORT_API BlockAddressOrder {
 
 /// \class ArbitraryOrder
 ///
-/// \brief A comparison function object for comparing types in an arbitrary yet
-/// stable manner.
+/// \brief A comparison function object for comparing objects in a manner with
+/// no ordering guarantees.
 ///
 /// \tparam T Any type.
 template <typename T> struct ArbitraryOrder {
