@@ -59,7 +59,7 @@ public:
   /// \brief Create a MergeSortedIterator representing the end of iteration.
   ///
   /// Dereferencing or incrementing this iterator results in undefined behavior.
-  MergeSortedIterator() {}
+  MergeSortedIterator() = default;
 
   /// \brief Create a MergeSortedIterator from a range of ranges.
   ///
