@@ -122,7 +122,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     NodeType& operator()(const Block* B) const { return *B->Node; }
   };
 
-  struct OffsetOrder {
+  struct OffsetLess {
     bool operator()(const Block* b1, const Block* b2) const {
       return b1->Offset < b2->Offset;
     }
@@ -141,7 +141,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
   using BlockIntMap =
-      boost::icl::interval_map<Addr, std::multiset<const Block*, OffsetOrder>>;
+      boost::icl::interval_map<Addr, std::multiset<const Block*, OffsetLess>>;
   using SymbolicExpressionMap = std::map<uint64_t, SymbolicExpression>;
 
   /// \brief Get the \ref Block that corresponds to a \ref Node.
@@ -949,11 +949,11 @@ private:
       return SymbolicExpressionElementBase<const ByteIntervalType>(BI, Off, SE);
     }
 
-    /// \class AddressOrder
+    /// \class AddressLess
     ///
     /// \brief A comparison function object to order symbolic expression
     /// elements by the address in which they occur.
-    struct AddressOrder {
+    struct AddressLess {
       using key_type = std::optional<Addr>;
       static key_type
       key(const SymbolicExpressionElementBase<ByteIntervalType>& SEE) {

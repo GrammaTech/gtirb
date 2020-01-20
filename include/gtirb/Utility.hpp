@@ -124,13 +124,13 @@ private:
   }
 };
 
-/// \class AddressOrder
+/// \class AddressLess
 ///
 /// \brief A comparison function object for comparing nodes in address order.
 ///
 /// \tparam T The type to compare addresses with. Must have a method with the
 ///           signature "std::optional<Addr> getAddress() const".
-template <typename T> struct AddressOrder {
+template <typename T> struct AddressLess {
   using key_type = std::optional<Addr>;
 
   static key_type key(const T& N) { return N.getAddress(); }
@@ -142,12 +142,12 @@ template <typename T> struct AddressOrder {
   }
 };
 
-/// \class BlockAddressOrder
+/// \class BlockAddressLess
 ///
 /// \brief A comparison function object for comparing blocks (that is, \ref Node
 /// objects that are either \ref CodeBlock or \ref DastaBlock objects) in
 /// address order.
-struct GTIRB_EXPORT_API BlockAddressOrder {
+struct GTIRB_EXPORT_API BlockAddressLess {
   using key_type = std::optional<Addr>;
 
   static key_type key(const Node& N);
@@ -161,13 +161,13 @@ struct GTIRB_EXPORT_API BlockAddressOrder {
   }
 };
 
-/// \class ArbitraryOrder
+/// \class ArbitraryLess
 ///
 /// \brief A comparison function object for comparing objects in a manner with
 /// no ordering guarantees.
 ///
 /// \tparam T Any type.
-template <typename T> struct ArbitraryOrder {
+template <typename T> struct ArbitraryLess {
   bool operator()(const T& N1, const T& N2) const { return &N1 < &N2; }
 };
 
