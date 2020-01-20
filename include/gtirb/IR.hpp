@@ -151,19 +151,19 @@ public:
   ///
   /// Modules are returned in name order. If more than one module has the same
   /// name, the order in which they are returned is unspecified.
-  using range = boost::iterator_range<module_iterator>;
+  using module_range = boost::iterator_range<module_iterator>;
   /// \brief Constant range of \ref Module "Modules".
   ///
   /// Modules are returned in name order. If more than one module has the same
   /// name, the order in which they are returned is unspecified.
-  using const_range = boost::iterator_range<const_module_iterator>;
+  using const_module_range = boost::iterator_range<const_module_iterator>;
 
   /// \brief Returns a range of the \ref Module "Modules".
-  range modules() {
+  module_range modules() {
     return boost::make_iterator_range(modules_begin(), modules_end());
   }
   /// \brief Returns a constant range of the \ref Module "Modules".
-  const_range modules() const {
+  const_module_range modules() const {
     return boost::make_iterator_range(modules_begin(), modules_end());
   }
 
