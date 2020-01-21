@@ -35,11 +35,11 @@ include(CMakePackageConfigHelpers)
 # Build options
 # ---------------------------------------------------------------------------
 
-set(GTIRB_PARALLEL_COMPILE_JOBS
+set(GTIRB_MSVC_PARALLEL_COMPILE_JOBS
     "0"
     CACHE
       STRING
-      "Number of parallel compiler jobs. 0 means use all processors. Default is 0."
+      "Number of parallel compiler jobs used for Visual Studio compiles. 0 means use all processors. Default is 0."
 )
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
@@ -137,14 +137,15 @@ if(GTIRB_CXX_API)
 
   # MSVC-specific Options
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    if(NOT GTIRB_PARALLEL_COMPILE_JOBS STREQUAL "1")
-      if(GTIRB_PARALLEL_COMPILE_JOBS STREQUAL "0")
+    if(NOT GTIRB_MSVC_PARALLEL_COMPILE_JOBS STREQUAL "1")
+      if(GTIRB_MSVC_PARALLEL_COMPILE_JOBS STREQUAL "0")
         add_compile_options(-MP)
         message(STATUS "Parallel compilation enabled")
       else()
-        add_compile_options(-MP${GTIRB_PARALLEL_COMPILE_JOBS})
+        add_compile_options(-MP${GTIRB_MSVC_PARALLEL_COMPILE_JOBS})
         message(
-          STATUS "Parallel compilation with ${GTIRB_PARALLEL_COMPILE_JOBS} jobs"
+          STATUS
+            "Parallel compilation with ${GTIRB_MSVC_PARALLEL_COMPILE_JOBS} jobs"
         )
       endif()
     else()
