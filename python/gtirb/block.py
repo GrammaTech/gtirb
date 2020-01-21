@@ -13,7 +13,7 @@ class Block(Node):
     """
 
     @property
-    def referees(self):
+    def references(self):
         # type: () -> typing.Iterable["Symbol"]
         """Get all the symbols that refer to this block."""
 
@@ -96,7 +96,7 @@ class ByteBlock(Block):
         return self.byte_interval.address + self.offset
 
     @property
-    def referees(self):
+    def references(self):
         if (
             self.byte_interval is None
             or self.byte_interval.section is None
@@ -326,7 +326,7 @@ class ProxyBlock(CfgNode):
             value.proxies.add(self)
 
     @property
-    def referees(self):
+    def references(self):
         if self.module is None:
             return ()
         return (s for s in self.module.symbols if s.referent == self)

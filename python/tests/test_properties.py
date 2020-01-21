@@ -8,7 +8,7 @@ class TestProperties(unittest.TestCase):
 
         self.assertEquals(b.address, None)
         self.assertEquals(b.contents, b"")
-        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.references), set())
 
         bi = gtirb.ByteInterval(address=1, contents=b"abcd1234")
         b.offset = 2
@@ -17,7 +17,7 @@ class TestProperties(unittest.TestCase):
 
         self.assertEquals(b.address, 3)
         self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.references), set())
 
         s = gtirb.Section()
         bi.section = s
@@ -30,14 +30,14 @@ class TestProperties(unittest.TestCase):
 
         self.assertEquals(b.address, 3)
         self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.references), {sym1, sym3})
 
     def test_code_blocks(self):
         b = gtirb.CodeBlock()
 
         self.assertEquals(b.address, None)
         self.assertEquals(b.contents, b"")
-        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.references), set())
         self.assertEquals(set(b.incoming_edges), set())
         self.assertEquals(set(b.outgoing_edges), set())
 
@@ -48,7 +48,7 @@ class TestProperties(unittest.TestCase):
 
         self.assertEquals(b.address, 3)
         self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.references), set())
         self.assertEquals(set(b.incoming_edges), set())
         self.assertEquals(set(b.outgoing_edges), set())
 
@@ -63,7 +63,7 @@ class TestProperties(unittest.TestCase):
 
         self.assertEquals(b.address, 3)
         self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.references), {sym1, sym3})
         self.assertEquals(set(b.incoming_edges), set())
         self.assertEquals(set(b.outgoing_edges), set())
 
@@ -77,14 +77,14 @@ class TestProperties(unittest.TestCase):
 
         self.assertEquals(b.address, 3)
         self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.references), {sym1, sym3})
         self.assertEquals(set(b.incoming_edges), {e2, e4})
         self.assertEquals(set(b.outgoing_edges), {e1, e4})
 
     def test_proxy_blocks(self):
         b = gtirb.ProxyBlock()
 
-        self.assertEquals(set(b.referees), set())
+        self.assertEquals(set(b.references), set())
         self.assertEquals(set(b.incoming_edges), set())
         self.assertEquals(set(b.outgoing_edges), set())
 
@@ -95,7 +95,7 @@ class TestProperties(unittest.TestCase):
         m.symbols |= {sym1, sym2, sym3}
         b.module = m
 
-        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.references), {sym1, sym3})
         self.assertEquals(set(b.incoming_edges), set())
         self.assertEquals(set(b.outgoing_edges), set())
 
@@ -107,7 +107,7 @@ class TestProperties(unittest.TestCase):
         e4 = gtirb.Edge(b, b)
         i.cfg |= {e1, e2, e3, e4}
 
-        self.assertEquals(set(b.referees), {sym1, sym3})
+        self.assertEquals(set(b.references), {sym1, sym3})
         self.assertEquals(set(b.incoming_edges), {e2, e4})
         self.assertEquals(set(b.outgoing_edges), {e1, e4})
 
