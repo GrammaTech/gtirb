@@ -165,6 +165,9 @@ if(GTIRB_CXX_API)
     # Enable RTTI. FIXME: stop using typeid so we can disable this and add -fno-
     # rtti to the Clang/GCC compiler options.
     add_compile_options(-GR)
+    # Enable exceptions, which are basically required because of our reliance on
+    # boost.
+    add_compile_options(-EHsc)
     # Enabled a sensible warning level and treat all warnings as errors.
     add_compile_options(-W4)
     add_compile_options(-WX)
@@ -190,7 +193,7 @@ if(GTIRB_CXX_API)
                                                      STREQUAL Clang)
   )
     add_compile_options(-Wall -Wextra -Wpointer-arith -Wshadow -Werror)
-    add_compile_options(-fPIC -fno-exceptions)
+    add_compile_options(-fPIC)
   endif()
 endif()
 
