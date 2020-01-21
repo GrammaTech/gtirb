@@ -35,6 +35,13 @@ include(CMakePackageConfigHelpers)
 # Build options
 # ---------------------------------------------------------------------------
 
+set(GTIRB_PARALLEL_COMPILE_JOBS
+    "0"
+    CACHE
+      STRING
+      "Number of parallel compiler jobs. 0 means use all processors. Default is 0."
+)
+
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
 
 # This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON instead of
@@ -126,98 +133,63 @@ if(GTIRB_CXX_API)
   #
   # Global Options (Compile / Link)
   #
-  add_compile_options(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+  add_compile_definitions(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+
+  # MSVC-specific Options
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
-    add_compile_options(-D_MBCS)
-    add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
-    add_compile_options(-D_WIN32)
-    add_compile_options(-D_WINDOWS)
-    add_compile_options(-D_WINSOCKAPI_)
-    add_compile_options(-DMBCS)
-    add_compile_options(-DNOMINMAX)
-    add_compile_options(-EHsc)
+    if(NOT GTIRB_PARALLEL_COMPILE_JOBS STREQUAL "1")
+      if(GTIRB_PARALLEL_COMPILE_JOBS STREQUAL "0")
+        add_compile_options(-MP)
+        message(STATUS "Parallel compilation enabled")
+      else()
+        add_compile_options(-MP${GTIRB_PARALLEL_COMPILE_JOBS})
+        message(
+          STATUS "Parallel compilation with ${GTIRB_PARALLEL_COMPILE_JOBS} jobs"
+        )
+      endif()
+    else()
+      message(STATUS "Parallel compilation disabled")
+    endif()
+
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+    add_compile_definitions(_SCL_SECURE_NO_WARNINGS)
+    # We need to add both so that there is not a mismatch between Win32 SDK
+    # headers (which use UNICODE) and C Standard Library headers (which use
+    # _UNICODE).
+    add_compile_definitions(_UNICODE)
+    add_compile_definitions(UNICODE)
+    add_compile_definitions(_WIN32)
+    # Disable macro definitions for min and max that conflict with the STL.
+    add_compile_definitions(NOMINMAX)
+    # Enable RTTI. FIXME: stop using typeid so we can disable this and add -fno-
+    # rtti to the Clang/GCC compiler options.
     add_compile_options(-GR)
-    add_compile_options(-MP)
-    add_compile_options(-nologo)
+    # Enabled a sensible warning level and treat all warnings as errors.
     add_compile_options(-W4)
     add_compile_options(-WX)
 
+    add_compile_options(-sdl) # Enable extra security checks
+    add_compile_options(-permissive-) # Disable permissive mode
+
     add_compile_options(-wd4996) # VC8: Deprecated libc functions.
-    add_compile_options(
-      -wd4351
-    ) # This is a warning about a change in behavior from old versions of visual
-      # c++.  We want the new (standard-compliant) behavior, so we don't want
-      # the warning.  The warning is that using an array in a class initializer
-      # list will cause its elements to be default initialized.
+    # This is a warning about a change in behavior from old versions of visual
+    # c++.  We want the new (standard-compliant) behavior, so we don't want the
+    # warning.  The warning is that using an array in a class initializer list
+    # will cause its elements to be default initialized.
+    add_compile_options(-wd4351)
     add_compile_options(-wd4146) # unary minus operator applied to unsigned
                                  # type, result still unsigned
 
-    # Per-configuration options
-    add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)
-    add_compile_options($<$<CONFIG:Debug>:-DDEBUG>)
-    add_compile_options($<$<CONFIG:Debug>:-MDd>)
-    add_compile_options($<$<CONFIG:Debug>:-Ob0>) # Disables inline expansion
-    add_compile_options(
-      $<$<CONFIG:Debug>:-Od>
-    ) # Disables optimization, speeding compilation and simplifying debugging.
-      # https://msdn.microsoft.com/en- us/library/k1ack8f1.aspx
-    add_compile_options($<$<CONFIG:Debug>:-RTC1>) # Enables run-time error
-                                                  # checking.
-    add_compile_options($<$<CONFIG:Debug>:-W4>) # Sets warning level.
-    add_compile_options($<$<CONFIG:Debug>:-Zi>) # Generates complete debugging
-                                                # information.
-    add_compile_options($<$<CONFIG:Debug>:-bigobj>) # enables big obj
-                                                    # compilation option
-
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-D_NDEBUG>)
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-DNDEBUG>)
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-MD>)
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-O2>) # Creates fast code.
-    add_compile_options(
-      $<$<CONFIG:RelWithDebInfo>:-Ob2>
-    ) # The default value. Allows expansion of functions marked as inline,
-      # __inline, or __forceinline, and any other function that the compiler
-      # chooses.
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-Oi>) # Generates intrinsic
-                                                         # functions.
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-Ot>) # Favors fast code.
-    add_compile_options($<$<CONFIG:RelWithDebInfo>:-W4>) # Sets warning level.
-    add_compile_options(
-      $<$<CONFIG:RelWithDebInfo>:-Zi>
-    ) # Generates complete debugging information.
-    add_compile_options(
-      $<$<CONFIG:RelWithDebInfo>:-bigobj>
-    ) # enables big obj compilation option
-
-    add_compile_options($<$<CONFIG:Release>:-D_NDEBUG>)
-    add_compile_options($<$<CONFIG:Release>:-DNDEBUG>)
-    add_compile_options($<$<CONFIG:Release>:-MD>)
-    add_compile_options($<$<CONFIG:Release>:-O2>) # Creates fast code.
-    add_compile_options(
-      $<$<CONFIG:Release>:-Ob2>
-    ) # The default value. Allows expansion of functions marked as inline,
-      # __inline, or __forceinline, and any other function that the compiler
-      # chooses.
-    add_compile_options($<$<CONFIG:Release>:-Oi>) # Generates intrinsic
-                                                  # functions.
-    add_compile_options($<$<CONFIG:Release>:-Ot>) # Favors fast code.
-    add_compile_options($<$<CONFIG:Release>:-W4>) # Sets warning level.
-    add_compile_options($<$<CONFIG:Release>:-bigobj>) # enables big obj
-                                                      # compilation option
-
-    # Shove in some linker flags to support using 64-bit memory. 4099 -PDB
-    # 'filename' was not found with 'object/library' or at 'path'; linking
-    # object as if no debug info
-    set(CMAKE_SHARED_LINKER_FLAGS
-        "${CMAKE_SHARED_LINKER_FLAGS} /LARGEADDRESSAWARE"
-    )
-
+    # Release target options
+    add_compile_options($<$<CONFIG:Release>:-GL>) # Enable whole program
+                                                  # optimization
+    add_link_options($<$<CONFIG:Release>:-ltcg>) # Enable link-time code
+                                                 # generation
   elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU) OR (${CMAKE_CXX_COMPILER_ID}
                                                      STREQUAL Clang)
   )
     add_compile_options(-Wall -Wextra -Wpointer-arith -Wshadow -Werror)
-    add_compile_options(-fPIC)
+    add_compile_options(-fPIC -fno-exceptions)
   endif()
 endif()
 
@@ -227,8 +199,8 @@ endif()
 if(GTIRB_CXX_API)
   find_package(Boost 1.67 REQUIRED)
 
-  add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
-  add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
+  add_compile_definitions(BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+  add_compile_definitions(BOOST_SYSTEM_NO_DEPRECATED)
 
   # Boost versions 1.70.0+ may use Boost's provided CMake support rather than
   # CMake's internal Boost support. The former uses "Boost::boost" and so on,
