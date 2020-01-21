@@ -13,6 +13,14 @@ macro(GTIRB_BUILD_GTBINARY_MACRO)
     set(SYSLIBS)
   endif()
 
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    add_compile_options(-EHsc)
+  elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU) OR (${CMAKE_CXX_COMPILER_ID}
+                                                     STREQUAL Clang)
+  )
+    add_compile_options(-fexceptions)
+  endif()
+
   add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_H} ${${PROJECT_NAME}_SRC})
 
   set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "gtirb/test")
