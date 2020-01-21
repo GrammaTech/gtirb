@@ -7,7 +7,7 @@ from uuid import UUID
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
 from .byteinterval import ByteInterval
-from .util import SetWrapper
+from .util import SetWrapper, nodes_at, nodes_in
 
 
 class Section(Node):
@@ -192,7 +192,7 @@ class Section(Node):
         The address is calculated from the :class:`ByteInterval` objects in
         this section. More specifically, if the address of all byte intervals
         in this section are fixed, then it will return the address of the
-        interval lowest in memory. If any one section does not have an address,
+        interval lowest in memory. If any one interval does not have an address
         then this will be ``None``, as the address is not calculable in that
         case. Note that a section with no intervals in it has no address or
         size, so it will be ``None`` in that case.
@@ -214,7 +214,7 @@ class Section(Node):
         The address is calculated from the :class:`ByteInterval` objects in
         this section. More specifically, if the address of all byte intervals
         in this section are fixed, then it will return the difference between
-        the lowest and highest address among the intervals. If any one section
+        the lowest and highest address among the intervals. If any one interval
         does not have an address, then this will be ``None``, as the size is
         not calculable in that case. Note that a section with no intervals in
         it has no address or size, so it will be ``None`` in that case.
@@ -232,3 +232,83 @@ class Section(Node):
         if lowest is None or highest is None:
             return None
         return highest - lowest
+
+    def byte_intervals_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+        """Finds all the byte intervals that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.byte_intervals, addrs)
+
+    def byte_intervals_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+        """Finds all the byte intervals that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.byte_intervals, addrs)
+
+    def byte_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.byte_blocks, addrs)
+
+    def byte_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.byte_blocks, addrs)
+
+    def code_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.code_blocks, addrs)
+
+    def code_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.code_blocks, addrs)
+
+    def data_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.data_blocks, addrs)
+
+    def data_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.data_blocks, addrs)

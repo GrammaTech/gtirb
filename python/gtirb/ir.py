@@ -22,7 +22,7 @@ from .cfg import Edge
 from .module import Module
 from .section import Section
 from .symbol import Symbol
-from .util import DictLike, ListWrapper
+from .util import DictLike, ListWrapper, nodes_at, nodes_in
 from .version import PROTOBUF_VERSION
 
 
@@ -274,3 +274,123 @@ class IR(AuxDataContainer):
         """The :class:`CfgNode`\\s in this IR."""
 
         return itertools.chain.from_iterable(m.cfg_nodes for m in self.modules)
+
+    def modules_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[Module]
+        """Finds all the modules that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.modules, addrs)
+
+    def modules_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[Module]
+        """Finds all the modules that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.modules, addrs)
+
+    def sections_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+        """Finds all the sections that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.sections, addrs)
+
+    def sections_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+        """Finds all the sections that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.sections, addrs)
+
+    def byte_intervals_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+        """Finds all the byte intervals that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.byte_intervals, addrs)
+
+    def byte_intervals_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+        """Finds all the byte intervals that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.byte_intervals, addrs)
+
+    def byte_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.byte_blocks, addrs)
+
+    def byte_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.byte_blocks, addrs)
+
+    def code_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.code_blocks, addrs)
+
+    def code_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.code_blocks, addrs)
+
+    def data_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.data_blocks, addrs)
+
+    def data_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.data_blocks, addrs)

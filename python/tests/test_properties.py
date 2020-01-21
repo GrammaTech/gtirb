@@ -149,30 +149,32 @@ class TestProperties(unittest.TestCase):
 
     def test_modules(self):
         s1 = gtirb.Section(
-            byte_intervals=[gtirb.ByteInterval(address=4, size=4)]
+            name="s1", byte_intervals=[gtirb.ByteInterval(address=4, size=4)]
         )
         s2 = gtirb.Section(
-            byte_intervals=[gtirb.ByteInterval(address=8, size=8)]
+            name="s2", byte_intervals=[gtirb.ByteInterval(address=8, size=8)]
         )
         s3 = gtirb.Section(
-            byte_intervals=[gtirb.ByteInterval(address=100, size=1)]
+            name="s3", byte_intervals=[gtirb.ByteInterval(address=100, size=1)]
         )
-        s4 = gtirb.Section(byte_intervals=[gtirb.ByteInterval(size=1000)])
+        s4 = gtirb.Section(
+            name="s4", byte_intervals=[gtirb.ByteInterval(size=1000)]
+        )
         m = gtirb.Module(sections=[s1, s2, s3, s4])
 
-        self.assertEquals(m.section_at(3), None)
-        self.assertEquals(m.section_at(4), s1)
-        self.assertEquals(m.section_at(7), s1)
-        self.assertEquals(m.section_at(8), s2)
-        self.assertEquals(m.section_at(15), s2)
-        self.assertEquals(m.section_at(16), None)
-        self.assertEquals(m.section_at(99), None)
-        self.assertEquals(m.section_at(100), s3)
-        self.assertEquals(m.section_at(101), None)
+        self.assertEquals(set(m.sections_in(3)), set())
+        self.assertEquals(set(m.sections_in(4)), {s1})
+        self.assertEquals(set(m.sections_in(7)), {s1})
+        self.assertEquals(set(m.sections_in(8)), {s2})
+        self.assertEquals(set(m.sections_in(15)), {s2})
+        self.assertEquals(set(m.sections_in(16)), set())
+        self.assertEquals(set(m.sections_in(99)), set())
+        self.assertEquals(set(m.sections_in(100)), {s3})
+        self.assertEquals(set(m.sections_in(101)), set())
 
-        self.assertEquals(set(m.sections_in(0, 100)), {s1, s2})
-        self.assertEquals(set(m.sections_in(0, 101)), {s1, s2, s3})
-        self.assertEquals(set(m.sections_in(0, 102)), {s1, s2, s3})
-        self.assertEquals(set(m.sections_in(7, 4)), {s1, s2})
-        self.assertEquals(set(m.sections_in(8, 4)), {s2})
-        self.assertEquals(set(m.sections_in(17, 80)), set())
+        self.assertEquals(set(m.sections_in(range(0, 100))), {s1, s2})
+        self.assertEquals(set(m.sections_in(range(0, 101))), {s1, s2, s3})
+        self.assertEquals(set(m.sections_in(range(0, 102))), {s1, s2, s3})
+        self.assertEquals(set(m.sections_in(range(7, 7 + 4))), {s1, s2})
+        self.assertEquals(set(m.sections_in(range(8, 8 + 4))), {s2})
+        self.assertEquals(set(m.sections_in(range(17, 17 + 80))), set())

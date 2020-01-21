@@ -11,7 +11,7 @@ from .symbolicexpression import (
     SymStackConst,
     SymbolicOperand,
 )
-from .util import DictLike, SetWrapper
+from .util import DictLike, SetWrapper, nodes_at, nodes_in
 
 
 class ByteInterval(Node):
@@ -280,3 +280,63 @@ class ByteInterval(Node):
             "symbolic_operands={symbolic_operands!r}, "
             ")".format(**self.__dict__)
         )
+
+    def byte_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.byte_blocks, addrs)
+
+    def byte_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.byte_blocks, addrs)
+
+    def code_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.code_blocks, addrs)
+
+    def code_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.code_blocks, addrs)
+
+    def data_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.data_blocks, addrs)
+
+    def data_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.data_blocks, addrs)

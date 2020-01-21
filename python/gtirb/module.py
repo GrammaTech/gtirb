@@ -9,7 +9,7 @@ from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
 from .byteinterval import ByteInterval
 from .section import Section
 from .symbol import Symbol
-from .util import DictLike, SetWrapper
+from .util import DictLike, SetWrapper, nodes_in, nodes_at
 
 
 class Module(AuxDataContainer):
@@ -306,6 +306,55 @@ class Module(AuxDataContainer):
             value.modules.append(self)
 
     @property
+    def address(self):
+        # type: () -> typing.Optional[int]
+        """Get the address of this module, if known.
+
+        The address is calculated from the :class:`Section` objects in
+        this module. More specifically, if the address of all sections
+        in this module are fixed, then it will return the address of the
+        section lowest in memory. If any one section does not have an address,
+        then this will be ``None``, as the address is not calculable in that
+        case. Note that a module with no sections in it has no address or
+        size, so it will be ``None`` in that case.
+        """
+
+        lowest = None
+        for s in self.sections:
+            if s.address is None:
+                return None
+            if lowest is None or s.address < lowest:
+                lowest = s.address
+        return lowest
+
+    @property
+    def size(self):
+        # type: () -> typing.Optional[int]
+        """Get the size of this module, if known.
+
+        The address is calculated from the :class:`Section` objects in
+        this module. More specifically, if the address of all sections
+        in this module are fixed, then it will return the difference between
+        the lowest and highest address among the sections. If any one section
+        does not have an address, then this will be ``None``, as the size is
+        not calculable in that case. Note that a module with no sections in
+        it has no address or size, so it will be ``None`` in that case.
+        """
+
+        lowest = None
+        highest = None
+        for s in self.sections:
+            if s.address is None:
+                return None
+            if lowest is None or s.address < lowest:
+                lowest = s.address
+            if highest is None or s.address + s.size > highest:
+                highest = s.address + s.size
+        if lowest is None or highest is None:
+            return None
+        return highest - lowest
+
+    @property
     def byte_intervals(self):
         # type: () -> typing.Iterator[ByteInterval]
         """The :class:`ByteInterval`\\s in this module."""
@@ -348,83 +397,102 @@ class Module(AuxDataContainer):
 
         return itertools.chain(self.code_blocks, self.proxies)
 
-    def _node_at(self, nodes, addr):
-        for node in nodes:
-            node_addr = node.address
-            if node_addr is not None and addr in range(
-                node_addr, node_addr + node.size
-            ):
-                return node
-        return None
+    def sections_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+        """Finds all the sections that overlap an address or range of
+        addresses.
 
-    def _nodes_in(self, nodes, addr, size):
-        desired_range = range(addr, addr + size)
-        for node in nodes:
-            node_addr = node.address
-            if node_addr is not None:
-                node_range = range(node_addr, node_addr + node.size)
-                if range(
-                    max(desired_range.start, node_range.start),
-                    min(desired_range.stop, node_range.stop),
-                ):
-                    yield node
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-    def section_at(self, addr):
-        # type: (int) -> typing.Optional[Section]
-        """Gets a section located at an address, or ``None`` otherwise."""
+        return nodes_in(self.sections, addrs)
 
-        return self._node_at(self.sections, addr)
+    def sections_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+        """Finds all the sections that begin at an address or range of
+        addresses.
 
-    def sections_in(self, addr, size):
-        # type: (int, int) -> typing.Iterable[Section]
-        """Finds all sections between the bounds given."""
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-        return self._nodes_in(self.sections, addr, size)
+        return nodes_at(self.sections, addrs)
 
-    def byte_interval_at(self, addr):
-        # type: (int) -> typing.Optional[ByteInterval]
-        """Gets an interval located at an address, or ``None`` otherwise."""
+    def byte_intervals_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+        """Finds all the byte intervals that overlap an address or range of
+        addresses.
 
-        return self._node_at(self.byte_intervals, addr)
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-    def byte_interval_in(self, addr, size):
-        # type: (int, int) -> typing.Iterable[ByteInterval]
-        """Finds all intervals between the bounds given."""
+        return nodes_in(self.byte_intervals, addrs)
 
-        return self._nodes_in(self.byte_intervals, addr, size)
+    def byte_intervals_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+        """Finds all the byte intervals that begin at an address or range of
+        addresses.
 
-    def blocks_at(self, addr):
-        # type: (int) -> typing.Optional[ByteBlock]
-        """Finds all blocks located at an address."""
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-        return self._nodes_in(self.byte_blocks, addr, 1)
+        return nodes_at(self.byte_intervals, addrs)
 
-    def blocks_in(self, addr, size):
-        # type: (int, int) -> typing.Optional[ByteBlock]
-        """Finds all blocks between the bounds given."""
+    def byte_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that overlap an address or range of
+        addresses.
 
-        return self._nodes_in(self.byte_blocks, addr, size)
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-    def code_blocks_at(self, addr):
-        # type: (int) -> typing.Optional[CodeBlock]
-        """Finds all blocks located at an address."""
+        return nodes_in(self.byte_blocks, addrs)
 
-        return self._nodes_in(self.code_blocks, addr, 1)
+    def byte_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+        """Finds all the byte blocks that begin at an address or range of
+        addresses.
 
-    def code_blocks_in(self, addr, size):
-        # type: (int, int) -> typing.Optional[CodeBlock]
-        """Finds all blocks between the bounds given."""
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-        return self._nodes_in(self.code_blocks, addr, size)
+        return nodes_at(self.byte_blocks, addrs)
 
-    def data_blocks_at(self, addr):
-        # type: (int) -> typing.Optional[DataBlock]
-        """Finds all blocks located at an address."""
+    def code_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that overlap an address or range of
+        addresses.
 
-        return self._nodes_in(self.data_blocks, addr, 1)
+        :param addrs: Either a ``range`` object or a single address.
+        """
 
-    def data_blocks_in(self, addr, size):
-        # type: (int, int) -> typing.Optional[DataBlock]
-        """Finds all blocks between the bounds given."""
+        return nodes_in(self.code_blocks, addrs)
 
-        return self._nodes_in(self.data_blocks, addr, size)
+    def code_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+        """Finds all the code blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.code_blocks, addrs)
+
+    def data_blocks_in(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that overlap an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_in(self.data_blocks, addrs)
+
+    def data_blocks_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+        """Finds all the data blocks that begin at an address or range of
+        addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        """
+
+        return nodes_at(self.data_blocks, addrs)

@@ -108,3 +108,40 @@ class DictWrapper(typing.MutableMapping[K, V]):
 
     def __repr__(self):
         return repr(self._data)
+
+
+def get_desired_range(addrs):
+    # type: (typing.Union[int, range]) -> range
+    if isinstance(addrs, int):
+        return range(addrs, addrs + 1)
+    else:
+        return addrs
+
+
+def nodes_in(
+    nodes,  # type: typing.Iterable[T]
+    addrs,  # type: typing.Union[int, range]
+):
+    # type: (...) -> typing.Iterable[T]
+    desired_range = get_desired_range(addrs)
+    for node in nodes:
+        node_addr = node.address
+        if node_addr is not None:
+            node_range = range(node_addr, node_addr + node.size)
+            if range(
+                max(desired_range.start, node_range.start),
+                min(desired_range.stop, node_range.stop),
+            ):
+                yield node
+
+
+def nodes_at(
+    nodes,  # type: typing.Iterable[T]
+    addrs,  # type: typing.Union[int, range]
+):
+    # type: (...) -> typing.Iterable[T]
+    desired_range = get_desired_range(addrs)
+    for node in nodes:
+        node_addr = node.address
+        if node_addr is not None and node_addr in desired_range:
+            yield node
