@@ -178,3 +178,18 @@ class TestProperties(unittest.TestCase):
         self.assertEquals(set(m.sections_in(range(7, 7 + 4))), {s1, s2})
         self.assertEquals(set(m.sections_in(range(8, 8 + 4))), {s2})
         self.assertEquals(set(m.sections_in(range(17, 17 + 80))), set())
+
+        self.assertEquals(set(m.sections_at(3)), set())
+        self.assertEquals(set(m.sections_at(4)), {s1})
+        self.assertEquals(set(m.sections_at(5)), set())
+        self.assertEquals(set(m.sections_at(7)), set())
+        self.assertEquals(set(m.sections_at(8)), {s2})
+        self.assertEquals(set(m.sections_at(9)), set())
+        self.assertEquals(set(m.sections_at(99)), set())
+        self.assertEquals(set(m.sections_at(100)), {s3})
+        self.assertEquals(set(m.sections_at(101)), set())
+
+        self.assertEquals(set(m.sections_at(range(0, 100))), {s1, s2})
+        self.assertEquals(set(m.sections_at(range(0, 101))), {s1, s2, s3})
+        self.assertEquals(set(m.sections_at(range(5, 10))), {s2})
+        self.assertEquals(set(m.sections_at(range(95, 105))), {s3})
