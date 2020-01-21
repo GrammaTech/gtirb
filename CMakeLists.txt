@@ -133,7 +133,7 @@ if(GTIRB_CXX_API)
   #
   # Global Options (Compile / Link)
   #
-  add_compile_definitions(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+  add_compile_options(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
 
   # MSVC-specific Options
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -152,16 +152,16 @@ if(GTIRB_CXX_API)
       message(STATUS "Parallel compilation disabled")
     endif()
 
-    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-    add_compile_definitions(_SCL_SECURE_NO_WARNINGS)
+    add_compile_options(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
     # We need to add both so that there is not a mismatch between Win32 SDK
     # headers (which use UNICODE) and C Standard Library headers (which use
     # _UNICODE).
-    add_compile_definitions(_UNICODE)
-    add_compile_definitions(UNICODE)
-    add_compile_definitions(_WIN32)
+    add_compile_options(-D_UNICODE)
+    add_compile_options(-DUNICODE)
+    add_compile_options(-D_WIN32)
     # Disable macro definitions for min and max that conflict with the STL.
-    add_compile_definitions(NOMINMAX)
+    add_compile_options(-DNOMINMAX)
     # Enable RTTI. FIXME: stop using typeid so we can disable this and add -fno-
     # rtti to the Clang/GCC compiler options.
     add_compile_options(-GR)
@@ -203,8 +203,8 @@ endif()
 if(GTIRB_CXX_API)
   find_package(Boost 1.67 REQUIRED)
 
-  add_compile_definitions(BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
-  add_compile_definitions(BOOST_SYSTEM_NO_DEPRECATED)
+  add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+  add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)
 
   # Boost versions 1.70.0+ may use Boost's provided CMake support rather than
   # CMake's internal Boost support. The former uses "Boost::boost" and so on,
