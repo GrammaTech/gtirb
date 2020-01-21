@@ -8,7 +8,7 @@ from .symbol import Symbol
 
 
 class SymAddrAddr:
-    """Represents a symbolic operand of the form
+    """Represents a symbolic expression of the form
     "(Sym1 - Sym2) / Scale + Offset".
 
     :ivar scale: Constant scale factor.
@@ -97,7 +97,7 @@ class SymAddrAddr:
 
 
 class SymAddrConst:
-    """Represents a symbolic operand of the form "Sym + Offset".
+    """Represents a symbolic expression of the form "Sym + Offset".
 
     :ivar offset: Constant offset.
     :ivar symbol: Symbol representing an address.
@@ -160,7 +160,7 @@ class SymAddrConst:
 
 
 class SymStackConst:
-    """Represents a symbolic operand of the form "Sym + Offset",
+    """Represents a symbolic expression of the form "Sym + Offset",
     representing an offset from a stack variable.
 
     :ivar offset: Constant offset.
@@ -223,5 +223,5 @@ class SymStackConst:
         )
 
 
-SymbolicOperand = typing.Union[SymAddrAddr, SymAddrConst, SymStackConst]
-"""A type hint for any symbolic operand type."""
+SymbolicExpression = typing.Union[SymAddrAddr, SymAddrConst, SymStackConst]
+"""A type hint for any symbolic expression type."""

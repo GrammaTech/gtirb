@@ -242,7 +242,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -261,7 +261,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -282,7 +282,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -303,7 +303,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -324,7 +324,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -345,7 +345,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -366,7 +366,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=5, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -386,7 +386,7 @@ class DeepEqTest(unittest.TestCase):
             blocks=(
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -407,7 +407,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     6, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -428,7 +428,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 )
@@ -446,7 +446,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 7: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
@@ -467,7 +467,7 @@ class DeepEqTest(unittest.TestCase):
                 gtirb.DataBlock(size=1, offset=3, uuid=id2),
                 gtirb.CodeBlock(size=1, decode_mode=2, offset=3, uuid=id3),
             ),
-            symbolic_operands={
+            symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),

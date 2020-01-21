@@ -9,7 +9,7 @@ from .symbolicexpression import (
     SymAddrAddr,
     SymAddrConst,
     SymStackConst,
-    SymbolicOperand,
+    SymbolicExpression,
 )
 from .util import DictLike, SetWrapper, nodes_at, nodes_in
 
@@ -49,8 +49,8 @@ class ByteInterval(Node):
         when saving to file.
     :ivar contents: The bytes stored in this interval.
     :ivar blocks: A set of all :class:`ByteBlock`\\s in this interval.
-    :ivar symbolic_operands: A mapping, from offset in the interval, to a
-        :class:`SymbolicOperand` in the interval.
+    :ivar symbolic_expressions: A mapping, from offset in the interval, to a
+        :class:`SymbolicExpression` in the interval.
     """
 
     class _BlockSet(SetWrapper):
@@ -76,7 +76,7 @@ class ByteInterval(Node):
         initialized_size=None,  # type: typing.Optional[int]
         contents=b"",  # type: typing.ByteString
         blocks=(),  # type: typing.Iterable[ByteBlock]
-        symbolic_operands={},  # type: DictLike[int, SymbolicOperand]
+        symbolic_expressions={},  # type: DictLike[int, SymbolicExpression]
         uuid=None,  # type: typing.Optional[UUID]
     ):
         """
@@ -86,8 +86,8 @@ class ByteInterval(Node):
             interval.
         :param contents: The bytes stored in this interval.
         :param blocks: A set of all :class:`ByteBlock`\\s in this interval.
-        :param symbolic_operands: A mapping, from offset in the interval, to a
-            :class:`SymbolicOperand` in the interval.
+        :param symbolic_expressions: A mapping, from offset in the interval, to
+            a :class:`SymbolicExpression` in the interval.
         :param uuid: The UUID of this ``ByteInterval``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
@@ -112,9 +112,9 @@ class ByteInterval(Node):
         self.blocks = ByteInterval._BlockSet(
             self, blocks
         )  # type: typing.Set[ByteBlock]
-        self.symbolic_operands = dict(
-            symbolic_operands
-        )  # type: typing.Dict[int, SymbolicOperand]
+        self.symbolic_expressions = dict(
+            symbolic_expressions
+        )  # type: typing.Dict[int, SymbolicExpression]
         self._section = None  # type: typing.Optional["Section"]
         self._proto_interval = (
             None
@@ -172,7 +172,7 @@ class ByteInterval(Node):
                     % proto_expr.WhichOneof("value")
                 )
 
-        self.symbolic_operands = {
+        self.symbolic_expressions = {
             i: decode_symbolic_expression(v)
             for i, v in self._proto_interval.symbolic_expressions.items()
         }
@@ -204,7 +204,7 @@ class ByteInterval(Node):
                 )
             proto_interval.blocks.append(proto_block)
 
-        for k, v in self.symbolic_operands.items():
+        for k, v in self.symbolic_expressions.items():
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
             if isinstance(v, SymStackConst):
                 sym_exp.stack_const.CopyFrom(v._to_protobuf())
@@ -253,15 +253,17 @@ class ByteInterval(Node):
                     sorted(other.blocks, key=lambda b: b.uuid),
                 )
             )
-            and len(self.symbolic_operands) == len(other.symbolic_operands)
+            and len(self.symbolic_expressions)
+            == len(other.symbolic_expressions)
             and all(
                 self_kv[0] == other_kv[0] and self_kv[1].deep_eq(other_kv[1])
                 for self_kv, other_kv in zip(
                     sorted(
-                        self.symbolic_operands.items(), key=lambda kv: kv[0]
+                        self.symbolic_expressions.items(), key=lambda kv: kv[0]
                     ),
                     sorted(
-                        other.symbolic_operands.items(), key=lambda kv: kv[0]
+                        other.symbolic_expressions.items(),
+                        key=lambda kv: kv[0],
                     ),
                 )
             )
@@ -277,7 +279,7 @@ class ByteInterval(Node):
             "initialized_size={initialized_size}, "
             "contents={contents!r}, "
             "blocks={blocks!r}, "
-            "symbolic_operands={symbolic_operands!r}, "
+            "symbolic_expressions={symbolic_expressions!r}, "
             ")".format(**self.__dict__)
         )
 

@@ -138,7 +138,7 @@ class ReprTest(unittest.TestCase):
             size=789,
             contents=b"abc",
             blocks=(gtirb.DataBlock(size=0),),
-            symbolic_operands={
+            symbolic_expressions={
                 1: gtirb.SymAddrConst(offset=1, symbol=gtirb.Symbol("test"))
             },
         )
