@@ -38,15 +38,6 @@ class ByteInterval(Node):
         up by this interval consist of uninitialized bytes. This often occurs
         in BSS sections, where data is zero-initialized rather than stored as
         zeroes in the binary.
-    :ivar initialized_size: The number of initialized bytes in this interval.
-        Not all bytes in this interval may correspond to bytes physically
-        stored in the underlying file format. This can occur, for example, in
-        BSS sections, which are zero-initialized at loadtime, but these zeroes
-        are not stored in the file itself. If this number is smaller than
-        ``size``, this indicates that any bytes past this number are
-        unitialized bytes with values determined at loadtime. As such, all
-        bytes past this number in this interval's byte vector are truncated
-        when saving to file.
     :ivar contents: The bytes stored in this interval.
     :ivar blocks: A set of all :class:`ByteBlock`\\s in this interval.
     :ivar symbolic_expressions: A mapping, from offset in the interval, to a
@@ -95,20 +86,16 @@ class ByteInterval(Node):
 
         if size is None:
             size = len(contents)
-            if initialized_size is not None and initialized_size > size:
-                size = initialized_size
         if initialized_size is None:
-            initialized_size = size
-        if size > len(contents):
-            contents = contents + b"\0" * (size - len(contents))
+            initialized_size = len(contents)
         if initialized_size > size:
             raise ValueError("initialized_size must be <= size!")
 
         super().__init__(uuid=uuid)
         self.address = address  # type: typing.Optional[int]
         self.size = size  # type: int
-        self.initialized_size = initialized_size  # type: int
         self.contents = bytearray(contents)  # type: bytearray
+        self.initialized_size = initialized_size
         self.blocks = ByteInterval._BlockSet(
             self, blocks
         )  # type: typing.Set[ByteBlock]
@@ -119,6 +106,31 @@ class ByteInterval(Node):
         self._proto_interval = (
             None
         )  # type: typing.Optional[ByteInterval_pb2.ByteInterval]
+
+    @property
+    def initialized_size(self):
+        # type: () -> int
+        """The number of initialized bytes in this interval.
+
+        Not all bytes in this interval may correspond to bytes physically
+        stored in the underlying file format. This can occur, for example, in
+        BSS sections, which are zero-initialized at loadtime, but these zeroes
+        are not stored in the file itself. If this number is smaller than
+        ``size``, this indicates that any bytes past this number are
+        unitialized bytes with values determined at loadtime. As such, all
+        bytes past this number in this interval's byte vector are truncated
+        when saving to file.
+        """
+
+        return len(self.contents)
+
+    @initialized_size.setter
+    def initialized_size(self, value):
+        # type: (int) -> None
+        if value > len(self.contents):
+            self.contents += b"\0" * (value - len(self.contents))
+        elif value < len(self.contents):
+            self.contents = self.contents[:value]
 
     @classmethod
     def _decode_protobuf(cls, proto_interval, uuid):
@@ -189,7 +201,7 @@ class ByteInterval(Node):
             proto_interval.has_address = True
             proto_interval.address = self.address
         proto_interval.size = self.size
-        proto_interval.contents = bytes(self.contents[: self.initialized_size])
+        proto_interval.contents = bytes(self.contents)
 
         for block in self.blocks:
             proto_block = ByteInterval_pb2.Block()
@@ -244,7 +256,7 @@ class ByteInterval(Node):
             self.uuid == other.uuid
             and self.address == other.address
             and self.contents == other.contents
-            and self.initialized_size == other.initialized_size
+            and self.size == other.size
             and len(self.blocks) == len(other.blocks)
             and all(
                 self_node.deep_eq(other_node)
@@ -276,7 +288,6 @@ class ByteInterval(Node):
             "uuid={uuid!r}, "
             "address={address}, "
             "size={size}, "
-            "initialized_size={initialized_size}, "
             "contents={contents!r}, "
             "blocks={blocks!r}, "
             "symbolic_expressions={symbolic_expressions!r}, "
