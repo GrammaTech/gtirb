@@ -22,7 +22,7 @@ class Block(Node):
 
 class ByteBlock(Block):
     """The base class for blocks that belong to a :class:`ByteInterval` and
-    store thier bytes there.
+    store their bytes there.
 
     :ivar offset: The offset from the beginning of the byte interval to which
         this block belongs. Multiple blocks in the same interval may have the

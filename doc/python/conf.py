@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath("../../python"))
 
 project = "gtirb"
 author = "Grammatech, Inc"
-copyright = "2019, " + author
+copyright = "2020, " + author
 
 
 # -- General configuration ---------------------------------------------------

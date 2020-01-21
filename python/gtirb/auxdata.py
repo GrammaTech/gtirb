@@ -110,7 +110,7 @@ class AuxDataContainer(Node):
         """
         Instead of the overrided _decode_protobuf, this method requires the
         Protobuf message to read from. AuxDataContainers need to call this
-        method in thier own _decode_protobuf overrides.
+        method in their own _decode_protobuf overrides.
 
         :param proto_container: A Protobuf message with a field called
             ``aux_data``.
@@ -125,7 +125,7 @@ class AuxDataContainer(Node):
         """
         Instead of the overrided _to_protobuf, this method requires the
         Protobuf message to write into. AuxDataContainers need to call this
-        method in thier own _to_protobuf overrides.
+        method in their own _to_protobuf overrides.
 
         :param proto_container: A Protobuf message with a field called
             ``aux_data``.
