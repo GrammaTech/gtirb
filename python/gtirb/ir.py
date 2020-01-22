@@ -101,9 +101,9 @@ class IR(AuxDataContainer):
                 "Attempt to decode IR of version %s (expected version %s)"
                 % (proto_ir.version, PROTOBUF_VERSION)
             )
-        aux_data = AuxDataContainer._read_protobuf_aux_data(proto_ir)
         modules = [Module._from_protobuf(m) for m in proto_ir.modules]
         cfg = [Edge._from_protobuf(e) for e in proto_ir.cfg.edges]
+        aux_data = AuxDataContainer._read_protobuf_aux_data(proto_ir)
         return cls(
             modules=modules,
             aux_data=aux_data,
