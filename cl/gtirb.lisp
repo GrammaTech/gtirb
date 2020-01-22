@@ -226,6 +226,8 @@ address range for instances of the object."
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
          ,@(when parent
+             ;; TODO: Make parent optional, then raise errors on
+             ;;       relevant methods.
              `((,parent :accessor ,parent :type ,parent
                         :initarg ,(make-keyword parent)
                         :initform (error ,(format nil "~a created without a ~
@@ -415,6 +417,9 @@ modules and on GTIRB IR instances.")
 
 (defmethod get-address ((gtirb gtirb) start &optional end)
   (ranged-find (by-address gtirb) start end))
+
+;;; TODO: Find X starting at a given address.
+;;;       find-type-at and find-type-in.
 
 (define-constant +module-isa-map+
     '((#.proto:+isa-isa-undefined+ . :undefined)
@@ -696,6 +701,7 @@ elements as proxy blocks do not hold bytes.")
                    it)))
              (hash-table-alist symbolic-expression)))
       :documentation "Hash of symbolic-expressions keyed by offset."))
+    ;; TODO: Convert to a null-able address.
     ((addressp :type boolean :proto-field has-address
                :documentation
                "Does this byte-interval have an address.")
