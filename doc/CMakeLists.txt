@@ -8,3 +8,7 @@ endif()
 if(GTIRB_PY_API)
   add_subdirectory(python)
 endif()
+
+if(GTIRB_CL_API)
+  add_subdirectory(cl)
+endif()
