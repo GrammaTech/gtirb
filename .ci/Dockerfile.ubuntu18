@@ -35,6 +35,11 @@ RUN git clone https://github.com/google/protobuf -b v${PROTOBUF_VERSION} && \
     cd .. && \
     rm -rf protobuf
 
+# Install Quicklisp
+RUN sbcl --load /usr/share/cl-quicklisp/quicklisp.lisp \
+        --eval '(quicklisp-quickstart:install)' \
+        --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))'
+
 # Build GTIRB
 COPY . /gt/gtirb/
 RUN /gt/gtirb/.ci/build-linux.sh

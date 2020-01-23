@@ -15,6 +15,9 @@ RUN sed -i "s|^  cd \"\$srcdir/\$pkgname-\$pkgver\"|&\\n  sed -i 's/os.Geteuid()
 RUN cd /yay-aur && makepkg --noconfirm -si
 RUN yay --noconfirm -Sy emacs sbcl slime emacs-paredit cl-protobuf
 RUN curl -O https://beta.quicklisp.org/quicklisp.lisp
+RUN sbcl --load quicklisp.lisp \
+        --eval '(quicklisp-quickstart:install)' \
+        --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))'
 
 COPY . /gt/gtirb/
 RUN /gt/gtirb/.ci/build-linux.sh
