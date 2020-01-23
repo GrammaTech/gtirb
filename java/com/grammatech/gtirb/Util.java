@@ -9,7 +9,8 @@ public class Util {
 
     public static final UUID NIL_UUID = new UUID(0, 0);
 
-    public static UUID byteStringToUuid(com.google.protobuf.ByteString byteString) {
+    public static UUID
+    byteStringToUuid(com.google.protobuf.ByteString byteString) {
         if (byteString == com.google.protobuf.ByteString.EMPTY) {
             return new UUID(0, 0);
         }

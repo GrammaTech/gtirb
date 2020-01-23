@@ -8,12 +8,15 @@ import java.util.UUID;
 
 public class AuxData {
 
-    Map<UUID, ArrayList<UUID>> functionEntries = new HashMap<UUID, ArrayList<UUID>>();
-    Map<UUID, ArrayList<UUID>> functionBlocks = new HashMap<UUID, ArrayList<UUID>>();
+    Map<UUID, ArrayList<UUID>> functionEntries =
+        new HashMap<UUID, ArrayList<UUID>>();
+    Map<UUID, ArrayList<UUID>> functionBlocks =
+        new HashMap<UUID, ArrayList<UUID>>();
 
     public boolean initializeFunctionEntries(
-            com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData protoAuxData) {
-        Serialization serialization = new Serialization(protoAuxData.getData().toByteArray());
+        com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData protoAuxData) {
+        Serialization serialization =
+            new Serialization(protoAuxData.getData().toByteArray());
         int numFunctionEntries = serialization.getSize();
 
         int numEntryPoints;
@@ -37,8 +40,9 @@ public class AuxData {
     }
 
     public boolean initializeFunctionBlocks(
-            com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData protoAuxData) {
-        Serialization serialization = new Serialization(protoAuxData.getData().toByteArray());
+        com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData protoAuxData) {
+        Serialization serialization =
+            new Serialization(protoAuxData.getData().toByteArray());
         int numFunctions = serialization.getSize();
 
         int numBlocks;

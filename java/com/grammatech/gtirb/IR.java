@@ -11,7 +11,8 @@ public class IR {
     private Module module;
 
     public IR() {
-        this.protoIR = com.grammatech.gtirb.proto.IROuterClass.IR.getDefaultInstance();
+        this.protoIR =
+            com.grammatech.gtirb.proto.IROuterClass.IR.getDefaultInstance();
     }
 
     public static IR loadFile(InputStream fileIn) {
@@ -26,7 +27,8 @@ public class IR {
 
     private boolean doLoadFile(InputStream fileIn) {
         try {
-            this.protoIR = com.grammatech.gtirb.proto.IROuterClass.IR.parseFrom(fileIn);
+            this.protoIR =
+                com.grammatech.gtirb.proto.IROuterClass.IR.parseFrom(fileIn);
         } catch (FileNotFoundException fe) {
             return false;
         } catch (IOException ie) {
@@ -34,7 +36,8 @@ public class IR {
         }
 
         // Create a GTIRB API Module from the first protobuf Module
-        com.grammatech.gtirb.proto.ModuleOuterClass.Module m = protoIR.getModulesList().get(0);
+        com.grammatech.gtirb.proto.ModuleOuterClass.Module m =
+            protoIR.getModulesList().get(0);
         if (m == null) {
             return false;
         }
@@ -45,16 +48,12 @@ public class IR {
         boolean proxyBlockListInitialized = module.initializeProxyBlockList();
         boolean auxDataInitialized = module.initializeAuxData();
 
-        if ((!sectionListInitialized)
-                || (!symbolListInitialized)
-                || (!proxyBlockListInitialized)
-                || (!auxDataInitialized)) {
+        if ((!sectionListInitialized) || (!symbolListInitialized) ||
+            (!proxyBlockListInitialized) || (!auxDataInitialized)) {
             return false;
         }
         return true;
     }
 
-    public Module getModule() {
-        return this.module;
-    }
+    public Module getModule() { return this.module; }
 }

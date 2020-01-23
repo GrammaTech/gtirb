@@ -11,8 +11,8 @@ public final class ByteInterval extends Node {
     private long size;
     private ArrayList<Byte> bytes;
 
-    public ByteInterval(
-            com.grammatech.gtirb.proto.ByteIntervalOuterClass.ByteInterval protoByteInterval) {
+    public ByteInterval(com.grammatech.gtirb.proto.ByteIntervalOuterClass
+                            .ByteInterval protoByteInterval) {
         UUID myUuid = Util.byteStringToUuid(protoByteInterval.getUuid());
         super.setUuid(myUuid);
         if (protoByteInterval.getHasAddress()) {
@@ -26,32 +26,23 @@ public final class ByteInterval extends Node {
             this.bytes.add(b);
         }
 
-        List<com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block> protoBlockList =
-                protoByteInterval.getBlocksList();
+        List<com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block>
+            protoBlockList = protoByteInterval.getBlocksList();
         this.blockList = new ArrayList<Block>();
-        for (com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block protoBlock : protoBlockList) {
+        for (com.grammatech.gtirb.proto.ByteIntervalOuterClass
+                 .Block protoBlock : protoBlockList) {
             Block newBlock = new Block(protoBlock, myUuid);
             this.blockList.add(newBlock);
         }
     }
 
-    public Long getAddress() {
-        return this.address;
-    }
+    public Long getAddress() { return this.address; }
 
-    public boolean hasAddress() {
-        return (this.getAddress() != null);
-    }
+    public boolean hasAddress() { return (this.getAddress() != null); }
 
-    public List<Block> getBlockList() {
-        return this.blockList;
-    }
+    public List<Block> getBlockList() { return this.blockList; }
 
-    public long getSize() {
-        return this.size;
-    }
+    public long getSize() { return this.size; }
 
-    public ArrayList<Byte> getBytes() {
-        return this.bytes;
-    }
+    public ArrayList<Byte> getBytes() { return this.bytes; }
 }

@@ -20,13 +20,13 @@ public class testIrSanity {
 
         InputStream inputStream;
         boolean loadReturned;
-        //IR ir = new IR();
+        // IR ir = new IR();
         String fileName = args[0];
         File inputFile = new File(fileName);
         try {
             inputStream = new FileInputStream(inputFile);
-            IR ir  = IR.loadFile(inputStream);
-            //loadReturned = (ir == null);
+            IR ir = IR.loadFile(inputStream);
+            // loadReturned = (ir == null);
             if (ir == null) {
                 loadReturned = false;
             } else {

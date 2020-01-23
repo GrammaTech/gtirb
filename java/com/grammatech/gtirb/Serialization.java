@@ -25,7 +25,7 @@ public class Serialization {
             bb.get();
         }
         remaining = remaining - 8;
-        return (int) size;
+        return (int)size;
     }
 
     public long getLong() {
@@ -46,7 +46,5 @@ public class Serialization {
         return new UUID(longA, longB);
     }
 
-    public int getRemaining() {
-        return remaining;
-    }
+    public int getRemaining() { return remaining; }
 }

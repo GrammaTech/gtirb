@@ -10,9 +10,8 @@ public class CodeBlock extends Node {
     private UUID byteIntervalUuid;
 
     public CodeBlock(
-            com.grammatech.gtirb.proto.CodeBlockOuterClass.CodeBlock protoCodeBlock,
-            long offset,
-            UUID byteIntervalUuid) {
+        com.grammatech.gtirb.proto.CodeBlockOuterClass.CodeBlock protoCodeBlock,
+        long offset, UUID byteIntervalUuid) {
         UUID myUuid = Util.byteStringToUuid(protoCodeBlock.getUuid());
         super.setUuid(myUuid);
         this.offset = offset;
@@ -21,27 +20,15 @@ public class CodeBlock extends Node {
         this.byteIntervalUuid = byteIntervalUuid;
     }
 
-    public long getSize() {
-        return size;
-    }
+    public long getSize() { return size; }
 
-    public long getOffset() {
-        return offset;
-    }
+    public long getOffset() { return offset; }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
+    public void setSize(long size) { this.size = size; }
 
-    public long getDecodeMode() {
-        return decodeMode;
-    }
+    public long getDecodeMode() { return decodeMode; }
 
-    public void setDecodeMode(long decodeMode) {
-        this.decodeMode = decodeMode;
-    }
+    public void setDecodeMode(long decodeMode) { this.decodeMode = decodeMode; }
 
-    public UUID getByteIntervalUuid() {
-        return this.byteIntervalUuid;
-    }
+    public UUID getByteIntervalUuid() { return this.byteIntervalUuid; }
 }

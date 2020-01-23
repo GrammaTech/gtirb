@@ -9,9 +9,8 @@ public class DataBlock extends Node {
     private UUID byteIntervalUuid;
 
     public DataBlock(
-            com.grammatech.gtirb.proto.DataBlockOuterClass.DataBlock protoDataBlock,
-            long offset,
-            UUID byteIntervalUuid) {
+        com.grammatech.gtirb.proto.DataBlockOuterClass.DataBlock protoDataBlock,
+        long offset, UUID byteIntervalUuid) {
         UUID myUuid = Util.byteStringToUuid(protoDataBlock.getUuid());
         super.setUuid(myUuid);
         this.size = protoDataBlock.getSize();
@@ -19,15 +18,9 @@ public class DataBlock extends Node {
         this.byteIntervalUuid = byteIntervalUuid;
     }
 
-    public long getSize() {
-        return this.size;
-    }
+    public long getSize() { return this.size; }
 
-    public long getOffset() {
-        return this.offset;
-    }
+    public long getOffset() { return this.offset; }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
+    public void setSize(long size) { this.size = size; }
 }

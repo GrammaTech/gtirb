@@ -95,4 +95,7 @@ TabWidth:        8
 UseTab:          Never
 ---
 Language:        Proto
+---
+Language:        Java
+IndentWidth:     4
 ...

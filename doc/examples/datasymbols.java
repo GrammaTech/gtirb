@@ -61,7 +61,7 @@ class datasymbols {
         IR ir = IR.getDefaultInstance();
         DataObject data_obj;
 
-        if (args.length < 1){
+        if (args.length < 1) {
             System.err.println("No GTIRB file specified.");
             System.exit(-1);
         }
@@ -77,7 +77,6 @@ class datasymbols {
             System.exit(-1);
         }
 
-
         for (Module m : ir.getModulesList()) {
 
             // Print the name of each Module.
@@ -85,20 +84,21 @@ class datasymbols {
 
             // Make a map uuid->DataObject for the Module.
             Map<Long, DataObject> datamap = m.getDataMap();
-            Map<ByteString, DataObject> data_objects = new HashMap<ByteString,DataObject>();
-            for (DataObject d : datamap.values()){
-            data_objects.put(d.getUuid(), d);
+            Map<ByteString, DataObject> data_objects =
+                new HashMap<ByteString, DataObject>();
+            for (DataObject d : datamap.values()) {
+                data_objects.put(d.getUuid(), d);
             }
 
             // Examine all symbols in the module
             for (Symbol sym : m.getSymbolsList()) {
                 data_obj = data_objects.get(sym.getReferentUuid());
-                if (data_obj!=null){
-                    // If the symbol refers to data, print some information about it
-                    System.out.println(String.format("%s:\t0x%08X\t %d bytes",
-                                                     sym.getName(),
-                                                     data_obj.getAddress(),
-                                                     data_obj.getSize()));
+                if (data_obj != null) {
+                    // If the symbol refers to data, print some information
+                    // about it
+                    System.out.println(String.format(
+                        "%s:\t0x%08X\t %d bytes", sym.getName(),
+                        data_obj.getAddress(), data_obj.getSize()));
                 }
             }
         }

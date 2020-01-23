@@ -9,7 +9,7 @@ repos:
       - id: clang-format
         name: clang-format
         language: system
-        files: \.(c|h|cpp|hpp|proto)$
+        files: \.(c|h|cpp|hpp|proto|java)$
         entry: clang-format -i
   - repo: https://github.com/eschulte/lisp-format
     rev: master
