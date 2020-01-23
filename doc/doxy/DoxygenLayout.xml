@@ -22,6 +22,7 @@
       <tab type="globals" visible="yes" title="" intro=""/>
     </tab>
     <tab type="user" visible="yes" title="Python API" url="../../python/_build/html/index.html"/>
+    <tab type="user" visible="yes" title="Common Lisp API" url="../../cl/index.html"/>
     <tab type="examples" visible="yes" title="" intro=""/>
   </navindex>
 
