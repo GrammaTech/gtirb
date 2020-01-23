@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class Module extends Node {
 
-    enum FileFormat {
+    public enum FileFormat {
         Format_Undefined(
                 com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.Format_Undefined_VALUE),
         COFF(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.COFF_VALUE),
@@ -26,7 +26,7 @@ public class Module extends Node {
         }
     };
 
-    enum ISA {
+    public enum ISA {
         ISA_Undefined(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ISA_Undefined_VALUE),
         IA32(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.IA32_VALUE),
         PPC32(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.PPC32_VALUE),
@@ -144,12 +144,12 @@ public class Module extends Node {
         return this.symbolList;
     }
 
-    public int getFileFormat() {
-        return this.protoModule.getFileFormatValue();
+    public FileFormat getFileFormat() {
+        return this.fileFormat;
     }
 
-    public int getISA() {
-        return this.protoModule.getIsaValue();
+    public ISA getISA() {
+        return this.isa;
     }
 
     public String getName() {

@@ -21,7 +21,11 @@ public class Node {
     }
 
     public WeakReference<Node> setUuid(UUID uuid) {
+        this.uuid = uuid;
         return uuid_cache.put(uuid, new WeakReference<Node>(this));
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
 }

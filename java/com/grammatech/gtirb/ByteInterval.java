@@ -13,8 +13,8 @@ public final class ByteInterval extends Node {
 
     public ByteInterval(
             com.grammatech.gtirb.proto.ByteIntervalOuterClass.ByteInterval protoByteInterval) {
-        UUID uuid = Util.byteStringToUuid(protoByteInterval.getUuid());
-        super.setUuid(uuid);
+        UUID myUuid = Util.byteStringToUuid(protoByteInterval.getUuid());
+        super.setUuid(myUuid);
         if (protoByteInterval.getHasAddress()) {
             this.address = Long.valueOf(protoByteInterval.getAddress());
         } else {
@@ -30,7 +30,7 @@ public final class ByteInterval extends Node {
                 protoByteInterval.getBlocksList();
         this.blockList = new ArrayList<Block>();
         for (com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block protoBlock : protoBlockList) {
-            Block newBlock = new Block(protoBlock);
+            Block newBlock = new Block(protoBlock, myUuid);
             this.blockList.add(newBlock);
         }
     }
@@ -40,7 +40,7 @@ public final class ByteInterval extends Node {
     }
 
     public boolean hasAddress() {
-        return (this.getAddress() == null);
+        return (this.getAddress() != null);
     }
 
     public List<Block> getBlockList() {
