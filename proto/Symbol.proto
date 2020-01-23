@@ -1,4 +1,4 @@
-//===- Symbol.proto ---------------------------------------------*- C++ -*-===//
+//===- Symbol.proto -------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -16,13 +16,13 @@ syntax = "proto3";
 package proto;
 
 message Symbol {
-    reserved 4;
-    reserved "storage_kind";
+  reserved 4;
+  reserved "storage_kind";
 
-    bytes uuid = 1;
-    oneof optional_payload {
-      uint64 value = 2;
-      bytes referent_uuid = 5;
-    }
-    string name = 3;
+  bytes uuid = 1;
+  oneof optional_payload {
+    uint64 value = 2;
+    bytes referent_uuid = 5;
+  }
+  string name = 3;
 }

@@ -1,4 +1,4 @@
-//===- Offset.proto -------------------------------------*- C++ -*-===//
+//===- Offset.proto -------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -15,8 +15,7 @@
 syntax = "proto3";
 package protoV0;
 
-message Offset
-{
+message Offset {
   bytes element_id = 1;
   uint64 displacement = 2;
 }

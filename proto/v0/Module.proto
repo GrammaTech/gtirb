@@ -1,4 +1,4 @@
-//===- Module.proto ---------------------------------------------*- C++ -*-===//
+//===- Module.proto -------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -47,20 +47,20 @@ enum ISAID {
 };
 
 message Module {
-    bytes uuid = 1;
-    string binary_path = 2;
-    uint64 preferred_addr = 3;
-    int64 rebase_delta = 4;
-    FileFormat file_format = 5;
-    ISAID isa_id = 6;
-    string name = 7;
-    ImageByteMap image_byte_map = 8;
-    repeated Symbol symbols = 9;
-    CFG cfg = 10;
-    repeated Block blocks = 15;
-    repeated DataObject data = 11;
-    repeated ProxyBlock proxies = 16;
-    repeated Section sections = 12;
-    map<uint64, SymbolicExpression> symbolic_operands = 13;
-    AuxDataContainer aux_data_container = 14;
+  bytes uuid = 1;
+  string binary_path = 2;
+  uint64 preferred_addr = 3;
+  int64 rebase_delta = 4;
+  FileFormat file_format = 5;
+  ISAID isa_id = 6;
+  string name = 7;
+  ImageByteMap image_byte_map = 8;
+  repeated Symbol symbols = 9;
+  CFG cfg = 10;
+  repeated Block blocks = 15;
+  repeated DataObject data = 11;
+  repeated ProxyBlock proxies = 16;
+  repeated Section sections = 12;
+  map<uint64, SymbolicExpression> symbolic_operands = 13;
+  AuxDataContainer aux_data_container = 14;
 }

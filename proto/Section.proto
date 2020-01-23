@@ -1,4 +1,4 @@
-//===- Section.proto --------------------------------------------*- C++ -*-===//
+//===- Section.proto ------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -28,11 +28,11 @@ enum SectionFlag {
 }
 
 message Section {
-    reserved "address", "size";
-    reserved 3, 4;
+  reserved "address", "size";
+  reserved 3, 4;
 
-    bytes uuid = 1;
-    string name = 2;
-    repeated ByteInterval byte_intervals = 5;
-    repeated SectionFlag section_flags = 6;
+  bytes uuid = 1;
+  string name = 2;
+  repeated ByteInterval byte_intervals = 5;
+  repeated SectionFlag section_flags = 6;
 }

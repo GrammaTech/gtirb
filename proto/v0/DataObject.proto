@@ -1,4 +1,4 @@
-//===- DataObject.proto -----------------------------------------*- C++ -*-===//
+//===- DataObject.proto ---------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -16,7 +16,7 @@ syntax = "proto3";
 package protoV0;
 
 message DataObject {
-    bytes uuid = 1;
-    uint64 address = 2;
-    uint64 size = 3;
+  bytes uuid = 1;
+  uint64 address = 2;
+  uint64 size = 3;
 }

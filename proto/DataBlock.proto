@@ -1,4 +1,4 @@
-//===- DataBlock.proto ------------------------------------------*- C++ -*-===//
+//===- DataBlock.proto ----------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -16,9 +16,9 @@ syntax = "proto3";
 package proto;
 
 message DataBlock {
-    reserved "address";
-    reserved 2;
+  reserved "address";
+  reserved 2;
 
-    bytes uuid = 1;
-    uint64 size = 3;
+  bytes uuid = 1;
+  uint64 size = 3;
 }

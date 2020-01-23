@@ -1,4 +1,4 @@
-//===- CFG.proto ------------------------------------------------*- C++ -*-===//
+//===- CFG.proto ----------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -16,35 +16,33 @@ syntax = "proto3";
 package protoV0;
 
 enum EdgeType {
-    Type_Branch = 0;
-    Type_Call = 1;
-    Type_Fallthrough = 2;
-    Type_Return = 3;
-    Type_Syscall = 4;
-    Type_Sysret = 5;
+  Type_Branch = 0;
+  Type_Call = 1;
+  Type_Fallthrough = 2;
+  Type_Return = 3;
+  Type_Syscall = 4;
+  Type_Sysret = 5;
 }
 
 message EdgeLabel {
-    bool conditional = 1;
-    bool direct = 2;
-    EdgeType type = 3;
+  bool conditional = 1;
+  bool direct = 2;
+  EdgeType type = 3;
 }
 
-message Edge
-{
-    reserved 3, 4;
-    reserved "boolean", "integer";
+message Edge {
+  reserved 3, 4;
+  reserved "boolean", "integer";
 
-    bytes source_uuid = 1;
-    bytes target_uuid = 2;
-    EdgeLabel label = 5;
+  bytes source_uuid = 1;
+  bytes target_uuid = 2;
+  EdgeLabel label = 5;
 }
 
-message CFG
-{
-    reserved 1;
-    reserved "blocks";
+message CFG {
+  reserved 1;
+  reserved "blocks";
 
-    repeated bytes vertices = 3;
-    repeated Edge edges = 2;
+  repeated bytes vertices = 3;
+  repeated Edge edges = 2;
 }

@@ -1,4 +1,4 @@
-//===- Module.proto ---------------------------------------------*- C++ -*-===//
+//===- Module.proto -------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -42,20 +42,20 @@ enum ISA {
 };
 
 message Module {
-    reserved "image_byte_map", "data", "symbolic_operands",
-             "aux_data_container", "blocks", "cfg";
-    reserved 8, 10, 11, 13, 14, 15;
+  reserved "image_byte_map", "data", "symbolic_operands", "aux_data_container",
+      "blocks", "cfg";
+  reserved 8, 10, 11, 13, 14, 15;
 
-    bytes uuid = 1;
-    string binary_path = 2;
-    uint64 preferred_addr = 3;
-    int64 rebase_delta = 4;
-    FileFormat file_format = 5;
-    ISA isa = 6;
-    string name = 7;
-    repeated Symbol symbols = 9;
-    repeated ProxyBlock proxies = 16;
-    repeated Section sections = 12;
-    map<string, AuxData> aux_data = 17;
-    bytes entry_point = 18;
+  bytes uuid = 1;
+  string binary_path = 2;
+  uint64 preferred_addr = 3;
+  int64 rebase_delta = 4;
+  FileFormat file_format = 5;
+  ISA isa = 6;
+  string name = 7;
+  repeated Symbol symbols = 9;
+  repeated ProxyBlock proxies = 16;
+  repeated Section sections = 12;
+  map<string, AuxData> aux_data = 17;
+  bytes entry_point = 18;
 }

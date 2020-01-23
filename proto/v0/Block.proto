@@ -1,4 +1,4 @@
-//===- Block.proto ----------------------------------------------*- C++ -*-===//
+//===- Block.proto --------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -16,8 +16,8 @@ syntax = "proto3";
 package protoV0;
 
 message Block {
-    bytes uuid = 1;
-    uint64 address = 2;
-    uint64 size = 3;
-    uint64 decode_mode = 4;
+  bytes uuid = 1;
+  uint64 address = 2;
+  uint64 size = 3;
+  uint64 decode_mode = 4;
 }

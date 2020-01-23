@@ -1,4 +1,4 @@
-//===- CodeBlock.proto ------------------------------------------*- C++ -*-===//
+//===- CodeBlock.proto ----------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -16,10 +16,10 @@ syntax = "proto3";
 package proto;
 
 message CodeBlock {
-    reserved "address";
-    reserved 2;
+  reserved "address";
+  reserved 2;
 
-    bytes uuid = 1;
-    uint64 size = 3;
-    uint64 decode_mode = 4;
+  bytes uuid = 1;
+  uint64 size = 3;
+  uint64 decode_mode = 4;
 }

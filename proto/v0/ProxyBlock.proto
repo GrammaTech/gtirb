@@ -1,4 +1,4 @@
-//===- ProxyBlock.proto -----------------------------------------*- C++ -*-===//
+//===- ProxyBlock.proto ---------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -15,6 +15,4 @@
 syntax = "proto3";
 package protoV0;
 
-message ProxyBlock {
-    bytes uuid = 1;
-}
+message ProxyBlock { bytes uuid = 1; }

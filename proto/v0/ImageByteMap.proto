@@ -1,4 +1,4 @@
-//===- ImageByteMap.proto ---------------------------------------*- C++ -*-===//
+//===- ImageByteMap.proto -------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -17,12 +17,11 @@ package protoV0;
 
 import "ByteMap.proto";
 
-message ImageByteMap
-{
-    bytes uuid = 1;
-    ByteMap byte_map = 2;
-    uint64 addr_min = 3;
-    uint64 addr_max = 4;
-    uint64 base_address = 5;
-    uint64 entry_point_address = 6;
+message ImageByteMap {
+  bytes uuid = 1;
+  ByteMap byte_map = 2;
+  uint64 addr_min = 3;
+  uint64 addr_max = 4;
+  uint64 base_address = 5;
+  uint64 entry_point_address = 6;
 }

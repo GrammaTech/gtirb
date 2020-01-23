@@ -1,4 +1,4 @@
-//===- IR.proto -------------------------------------------------*- C++ -*-===//
+//===- IR.proto -----------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -19,7 +19,7 @@ import "AuxDataContainer.proto";
 import "Module.proto";
 
 message IR {
-    bytes uuid = 1;
-    repeated Module modules = 3;
-    AuxDataContainer aux_data_container = 4;
+  bytes uuid = 1;
+  repeated Module modules = 3;
+  AuxDataContainer aux_data_container = 4;
 }

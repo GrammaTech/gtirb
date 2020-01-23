@@ -1,4 +1,4 @@
-//===- Section.proto --------------------------------------------*- C++ -*-===//
+//===- Section.proto ------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2018 GrammaTech, Inc.
 //
@@ -16,8 +16,8 @@ syntax = "proto3";
 package protoV0;
 
 message Section {
-    bytes uuid = 1;
-    string name = 2;
-    uint64 address = 3;
-    uint64 size = 4;
+  bytes uuid = 1;
+  string name = 2;
+  uint64 address = 3;
+  uint64 size = 4;
 }

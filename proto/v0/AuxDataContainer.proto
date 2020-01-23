@@ -18,6 +18,4 @@ package protoV0;
 
 import "AuxData.proto";
 
-message AuxDataContainer {
-    map<string, AuxData> aux_data = 1;
-}
+message AuxDataContainer { map<string, AuxData> aux_data = 1; }

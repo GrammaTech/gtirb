@@ -1,4 +1,4 @@
-//===- SymbolicExpression.proto ---------------------------------*- C++ -*-===//
+//===- SymbolicExpression.proto -------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -15,31 +15,27 @@
 syntax = "proto3";
 package proto;
 
-message SymStackConst
-{
-    int32 offset = 1;
-    bytes symbol_uuid = 2;
+message SymStackConst {
+  int32 offset = 1;
+  bytes symbol_uuid = 2;
 }
 
-message SymAddrConst
-{
-    int64 offset = 1;
-    bytes symbol_uuid = 2;
+message SymAddrConst {
+  int64 offset = 1;
+  bytes symbol_uuid = 2;
 }
 
-message SymAddrAddr
-{
-    int64 scale = 1;
-    int64 offset = 2;
-    bytes symbol1_uuid = 3;
-    bytes symbol2_uuid = 4;
+message SymAddrAddr {
+  int64 scale = 1;
+  int64 offset = 2;
+  bytes symbol1_uuid = 3;
+  bytes symbol2_uuid = 4;
 }
 
-message SymbolicExpression
-{
-    oneof value {
-        SymStackConst stack_const = 1;
-        SymAddrConst addr_const = 2;
-        SymAddrAddr addr_addr = 3;
-    }
+message SymbolicExpression {
+  oneof value {
+    SymStackConst stack_const = 1;
+    SymAddrConst addr_const = 2;
+    SymAddrAddr addr_addr = 3;
+  }
 }

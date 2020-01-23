@@ -1,4 +1,4 @@
-//===- IR.proto -------------------------------------------------*- C++ -*-===//
+//===- IR.proto -----------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -20,16 +20,16 @@ import "CFG.proto";
 import "Module.proto";
 
 message IR {
-    // slot 4 has been used for multiple fields in the past
-    // (more specifically, main_module_id and aux_data_container),
-    // which is a Protobuf compatibility violation, but explains why we
-    // reserve more field names than field numbers.
-    reserved "tables", "main_module_id", "aux_data_container";
-    reserved 2, 4;
+  // slot 4 has been used for multiple fields in the past
+  // (more specifically, main_module_id and aux_data_container),
+  // which is a Protobuf compatibility violation, but explains why we
+  // reserve more field names than field numbers.
+  reserved "tables", "main_module_id", "aux_data_container";
+  reserved 2, 4;
 
-    bytes uuid = 1;
-    repeated Module modules = 3;
-    map<string, AuxData> aux_data = 5;
-    uint32 version = 6;
-    CFG cfg = 7;
+  bytes uuid = 1;
+  repeated Module modules = 3;
+  map<string, AuxData> aux_data = 5;
+  uint32 version = 6;
+  CFG cfg = 7;
 }
