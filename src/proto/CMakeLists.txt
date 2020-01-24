@@ -14,7 +14,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   ) # 'identifier' : class 'type' needs to have dll- interface to be used by
     # clients of class 'type2'
   add_compile_options(-wd4275) # Non-dll interface base classes.
-  add_compile_options("/FIgtirb/Export.hpp")
+  add_compile_options("/FI${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 else()
   add_compile_options(-Wno-shadow)
   add_compile_options(-Wno-unused-parameter)
