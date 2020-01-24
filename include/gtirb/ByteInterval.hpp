@@ -1483,10 +1483,10 @@ private:
 
     /// \brief Default-construct an iterator to a byte interval's bytes.
     ///
-    /// A default-constructed iterator compares equal to any iterator returned
-    /// by bytes_end() and also to all other default-constructed iterators.
-    /// Dereferencing, incremending, or decrementing a default-constructed
-    /// iterator results in undefined behavior.
+    /// A default-constructed iterator compares equal only to other
+    /// default-constructed iterators. Dereferencing, incremending, or
+    /// decrementing a default-constructed iterator results in undefined
+    /// behavior.
     BytesBaseIterator() = default;
 
     // Beginning of functions for iterator facade compatibility.
@@ -1496,16 +1496,6 @@ private:
     }
 
     bool equal(const self& other) const {
-      // If we were default-constructed: is the other one an end iterator?
-      if (!BI && other.BI) {
-        return other.I == other.BI->getSize();
-      }
-      // If the other wasdefault-constructed: are we an end iterator?
-      if (BI && !other.BI) {
-        return I == BI->getSize();
-      }
-      // If we're both null, BI will always be null and I will always be 0,
-      // else, check for actual iterator equality.
       return BI == other.BI && I == other.I;
     }
 
@@ -1525,15 +1515,6 @@ private:
     }
 
     typename self::difference_type distance_to(const self& other) const {
-      // If we were default-constructed: pretend we are an end iterator
-      if (!BI && other.BI) {
-        return (other.I - other.BI->getSize()) / sizeof(T);
-      }
-      // If the other was default-constructed: pretend it is an end iterator
-      if (BI && !other.BI) {
-        return (other.BI->getSize() - I) / sizeof(T);
-      }
-      // If we're both null, I will always be 0, else caluclate actual distance.
       return (other.I - I) / sizeof(T);
     }
     // End of functions for iterator facade compatibility.
