@@ -1389,7 +1389,7 @@ private:
   ///            type that satisfies Boost's EndianReversible concept.
   template <typename ByteIntervalType, typename T> class BytesReference {
   public:
-    BytesReference(ByteIntervalType& BI_, size_t I_,
+    BytesReference(ByteIntervalType* BI_, size_t I_,
                    boost::endian::order InputOrder_,
                    boost::endian::order OutputOrder_)
         : BI(BI_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
@@ -1400,10 +1400,10 @@ private:
     /// If uninitlized bytes are read from, then those bytes are treated as
     /// zeroes.
     operator T() const {
-      assert(I + sizeof(T) <= BI.Size &&
+      assert(I + sizeof(T) <= BI->Size &&
              "read into interval's bytes out of bounds!");
 
-      auto S = BI.Bytes.size();
+      auto S = BI->Bytes.size();
 
       if (I >= S) {
         // anything this far past the end of initialized bytes is composed of
@@ -1424,13 +1424,13 @@ private:
         // bytes.
         std::array<uint8_t, sizeof(T)> Array{};
         // Thanks to math, 0 < S - I < sizeof(T).
-        std::copy_n(BI.Bytes.begin() + I, S - I, Array.begin());
+        std::copy_n(BI->Bytes.begin() + I, S - I, Array.begin());
         return boost::endian::conditional_reverse(
             *reinterpret_cast<const T*>(Array.data()), InputOrder, OutputOrder);
       }
 
       return boost::endian::conditional_reverse(
-          *reinterpret_cast<const T*>(BI.Bytes.data() + I), InputOrder,
+          *reinterpret_cast<const T*>(BI->Bytes.data() + I), InputOrder,
           OutputOrder);
     }
 
@@ -1441,19 +1441,19 @@ private:
     /// is adjusted (see \ref getInitializedSize for details), padding with
     /// zeroes as necesary.
     BytesReference<ByteIntervalType, T>& operator=(const T& rhs) {
-      assert(I + sizeof(T) <= BI.Size &&
+      assert(I + sizeof(T) <= BI->Size &&
              "write into interval's bytes out of bounds!");
 
-      if (I + sizeof(T) > BI.Bytes.size()) {
-        BI.Bytes.resize(I + sizeof(T));
+      if (I + sizeof(T) > BI->Bytes.size()) {
+        BI->Bytes.resize(I + sizeof(T));
       }
 
-      *reinterpret_cast<T*>(BI.Bytes.data() + I) =
+      *reinterpret_cast<T*>(BI->Bytes.data() + I) =
           boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
       return *this;
     }
 
-    ByteIntervalType& BI;
+    ByteIntervalType* BI;
     size_t I;
     boost::endian::order InputOrder;
     boost::endian::order OutputOrder;
@@ -1470,31 +1470,70 @@ private:
       : public boost::iterator_facade<BytesBaseIterator<ByteIntervalType, T>, T,
                                       boost::random_access_traversal_tag,
                                       BytesReference<ByteIntervalType, T>> {
-  public:
+  private:
     using self = BytesBaseIterator<ByteIntervalType, T>;
-    using reference = BytesReference<ByteIntervalType, T>;
 
-    BytesBaseIterator(ByteIntervalType& BI_, size_t I_,
+    BytesBaseIterator(ByteIntervalType* BI_, size_t I_,
                       boost::endian::order InputOrder_,
                       boost::endian::order OutputOrder_)
         : BI(BI_), I(I_), InputOrder(InputOrder_), OutputOrder(OutputOrder_) {}
 
+  public:
+    using reference = BytesReference<ByteIntervalType, T>;
+
+    /// \brief Default-construct an iterator to a byte interval's bytes.
+    ///
+    /// A default-constructed iterator compares equal to any iterator returned
+    /// by bytes_end() and also to all other default-constructed iterators.
+    /// Dereferencing, incremending, or decrementing a default-constructed
+    /// iterator results in undefined behavior.
+    BytesBaseIterator() = default;
+
     // Beginning of functions for iterator facade compatibility.
     reference dereference() const {
+      assert(BI && "attempt to dereference default-constructed byte iterator!");
       return reference(BI, I, InputOrder, OutputOrder);
     }
 
     bool equal(const self& other) const {
-      return &BI == &other.BI && I == other.I;
+      // If we were default-constructed: is the other one an end iterator?
+      if (!BI && other.BI) {
+        return other.I == other.BI->getSize();
+      }
+      // If the other wasdefault-constructed: are we an end iterator?
+      if (BI && !other.BI) {
+        return I == BI->getSize();
+      }
+      // If we're both null, BI will always be null and I will always be 0,
+      // else, check for actual iterator equality.
+      return BI == other.BI && I == other.I;
     }
 
-    void increment() { I += sizeof(T); }
+    void increment() {
+      assert(BI && "attempt to increment default-constructed byte iterator!");
+      I += sizeof(T);
+    }
 
-    void decrement() { I -= sizeof(T); }
+    void decrement() {
+      assert(BI && "attempt to decrement default-constructed byte iterator!");
+      I -= sizeof(T);
+    }
 
-    void advance(typename self::difference_type n) { I += n * sizeof(T); }
+    void advance(typename self::difference_type n) {
+      assert(BI && "attempt to advance default-constructed byte iterator!");
+      I += n * sizeof(T);
+    }
 
     typename self::difference_type distance_to(const self& other) const {
+      // If we were default-constructed: pretend we are an end iterator
+      if (!BI && other.BI) {
+        return (other.I - other.BI->getSize()) / sizeof(T);
+      }
+      // If the other was default-constructed: pretend it is an end iterator
+      if (BI && !other.BI) {
+        return (other.BI->getSize() - I) / sizeof(T);
+      }
+      // If we're both null, I will always be 0, else caluclate actual distance.
       return (other.I - I) / sizeof(T);
     }
     // End of functions for iterator facade compatibility.
@@ -1506,10 +1545,10 @@ private:
     }
 
   private:
-    ByteIntervalType& BI;
-    size_t I;
-    boost::endian::order InputOrder;
-    boost::endian::order OutputOrder;
+    ByteIntervalType* BI{nullptr};
+    size_t I{0};
+    boost::endian::order InputOrder{boost::endian::order::native};
+    boost::endian::order OutputOrder{boost::endian::order::native};
 
     friend class ByteInterval;
   };
@@ -1551,7 +1590,7 @@ public:
   bytes_iterator<T>
   bytes_begin(boost::endian::order InputOrder = boost::endian::order::native,
               boost::endian::order OutputOrder = boost::endian::order::native) {
-    return bytes_iterator<T>(*this, 0, InputOrder, OutputOrder);
+    return bytes_iterator<T>(this, 0, InputOrder, OutputOrder);
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -1565,7 +1604,7 @@ public:
   bytes_iterator<T>
   bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
             boost::endian::order OutputOrder = boost::endian::order::native) {
-    return bytes_iterator<T>(*this, Size, InputOrder, OutputOrder);
+    return bytes_iterator<T>(this, Size, InputOrder, OutputOrder);
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -1594,7 +1633,7 @@ public:
   const_bytes_iterator<T> bytes_begin(
       boost::endian::order InputOrder = boost::endian::order::native,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
-    return const_bytes_iterator<T>(*this, 0, InputOrder, OutputOrder);
+    return const_bytes_iterator<T>(this, 0, InputOrder, OutputOrder);
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -1608,7 +1647,7 @@ public:
   const_bytes_iterator<T> bytes_end(
       boost::endian::order InputOrder = boost::endian::order::native,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
-    return const_bytes_iterator<T>(*this, Size, InputOrder, OutputOrder);
+    return const_bytes_iterator<T>(this, Size, InputOrder, OutputOrder);
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -1650,7 +1689,7 @@ public:
     if (Pos.I < Bytes.size()) {
       Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);
     }
-    *bytes_iterator<T>(*this, Pos.I, ElementOrder, VectorOrder) = X;
+    *bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X;
     return Pos;
   }
 
@@ -1684,7 +1723,7 @@ public:
     }
     // std::copy calls operator= one time for every element in the input iter.
     std::copy(Begin, End,
-              bytes_iterator<T>(*this, Pos.I, VectorOrder, ElementsOrder));
+              bytes_iterator<T>(this, Pos.I, VectorOrder, ElementsOrder));
     return Pos;
   }
 
