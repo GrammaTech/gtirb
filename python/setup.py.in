@@ -1,6 +1,16 @@
-from glob import glob
-from setuptools import setup, find_packages
+import sys
+import glob
+import setuptools
 import unittest
+
+# if version of setuptools is 20.8.1 or below, it doesn't support env specs
+if int(setuptools.__version__.split(".")[0]) < 21:
+    if sys.version_info[:3] < (3, 5, 3):
+        typing_dep = ["typing"]
+    else:
+        typing_dep = []
+else:
+    typing_dep = ["typing ; python_version<'3.5.3'"]
 
 
 def gtirb_test_suite():
@@ -10,20 +20,17 @@ def gtirb_test_suite():
 
 
 if __name__ == '__main__':
-    setup(
+    setuptools.setup(
         name="gtirb",
         version="@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@",
         author="abhaskar",
         author_email="abhaskar@grammatech.com",
-        data_files=[('.', glob('./*_pb2.py'))],
+        data_files=[('.', glob.glob('./*_pb2.py'))],
         description="The gtirb package",
         package_data={'gtirb': ['gtirb/*.py', '*_pb2.py']},
-        packages=find_packages(),
+        packages=setuptools.find_packages(),
         test_suite='setup.gtirb_test_suite',
-        install_requires=[
-            'protobuf',
-            "typing ; python_version<'3.5.3'",
-        ],
+        install_requires=[ 'protobuf' ] + typing_dep,
         classifiers=[
             "Programming Language :: Python :: 3"
         ],
