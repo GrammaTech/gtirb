@@ -104,7 +104,25 @@ information.
 
 #### Building Documentation
 
-You will need `cmake` and `Doxygen`.
+At minimum, you will need [CMake](https://cmake.org/) and [Doxygen](http://www.doxygen.nl/).
+In addition, for the other APIs you may have enabled:
+
+
+* For the Python API, [Sphinx](https://www.sphinx-doc.org/en/master/)
+  and [related plugins](https://pypi.org/project/sphinx-autodoc-typehints/)
+  are required. To install these via [pip](https://pip.pypa.io/en/stable/), run:
+
+  ```bash
+  pip3 install sphinx sphinx-autodoc-typehints
+  ```
+
+* For the Common Lisp API, [simpler-documentation-template (SDT)](https://github.com/eschulte/simpler-documentation-template)
+  is required. This package should automatically be downloaded via the build process;
+  see `cl/README.md` for details on how to prepare the Common Lisp API.
+
+
+To build the documentation:
+
 
 1. Create and change to a temporary build directory. We will refer to
    this directory as `build`.
@@ -114,15 +132,14 @@ You will need `cmake` and `Doxygen`.
    > cd build
    ```
 
-
 2. Build the documentation.
 
    ```bash
-   build> cmake <PATH_TO_GTIRB>/doc/doxy/
+   build> cmake <PATH_TO_GTIRB>
    build> cmake --build . --target doc
    ```
 
-3. Open the documentation home page `build/html/index.html`
+3. Open the documentation home page `build/doc/html/index.html`
    in your browser.
 
 

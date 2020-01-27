@@ -18,6 +18,10 @@ if(PYTHON)
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/conf.py
               ${CMAKE_CURRENT_BINARY_DIR}/
       COMMAND ${SPHINX_MAKE_CMD} html
+      COMMAND ${CMAKE_COMMAND} -E remove_directory
+              ${CMAKE_BINARY_DIR}/doc/html/python
+      COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/_build/html
+              ${CMAKE_BINARY_DIR}/doc/html/python
       COMMENT "Generating API documentation with Sphinx"
       VERBATIM
     )
