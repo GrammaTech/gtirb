@@ -66,7 +66,7 @@ class Section(Node):
         name="",  # type: str
         byte_intervals=(),  # type: typing.Iterable[ByteInterval]
         flags=set(),  # type: typing.Iterable[Section.Flag]
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None  # type: typing.Optional[UUID]
     ):
         """
         :param name: The name of this section.

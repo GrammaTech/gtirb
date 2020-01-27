@@ -68,7 +68,7 @@ class IR(AuxDataContainer):
         aux_data=dict(),  # type: DictLike[str, AuxData]
         cfg=set(),  # type: typing.Iterable[Edge]
         version=PROTOBUF_VERSION,  # type: int
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
         """

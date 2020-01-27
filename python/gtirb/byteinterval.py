@@ -68,7 +68,7 @@ class ByteInterval(Node):
         contents=b"",  # type: typing.ByteString
         blocks=(),  # type: typing.Iterable[ByteBlock]
         symbolic_expressions={},  # type: DictLike[int, SymbolicExpression]
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None  # type: typing.Optional[UUID]
     ):
         """
         :param address: The fixed address of this interval, if present.
