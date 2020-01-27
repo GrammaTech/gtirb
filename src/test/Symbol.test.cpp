@@ -30,16 +30,6 @@ TEST(Unit_Symbol, ctor_0) {
   EXPECT_NE(Symbol::Create(Ctx, nullptr, "test"), nullptr);
 }
 
-TEST(Unit_Symbol, setStorageKind) {
-  const gtirb::Symbol::StorageKind Value{gtirb::Symbol::StorageKind::Static};
-
-  auto* Node = Symbol::Create(Ctx, nullptr, "test");
-  EXPECT_EQ(gtirb::Symbol::StorageKind::Extern, Node->getStorageKind());
-
-  Node->setStorageKind(Value);
-  EXPECT_EQ(Value, Node->getStorageKind());
-}
-
 TEST(Unit_Symbol, setReferent) {
   auto* Mod = Module::Create(Ctx);
   auto* Sym = Mod->addSymbol(Ctx, "test");

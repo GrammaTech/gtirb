@@ -66,8 +66,6 @@ void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   std::visit(StorePayload(Message), Payload);
   Message->set_name(this->Name);
-  // FIXME: storage kind should be removed.
-  // Message->set_storage_kind(static_cast<proto::StorageKind>(this->Storage));
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
@@ -84,8 +82,6 @@ Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
   default:
       /* nothing to do */;
   }
-  // FIXME: storage kind should be removed.
-  S->setStorageKind(StorageKind::Undefined);
   setNodeUUIDFromBytes(S, Message.uuid());
   return S;
 }

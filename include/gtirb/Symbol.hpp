@@ -210,20 +210,6 @@ public:
                       std::decay_t<supported_referent_types>{});
   }
 
-  /// \enum StorageKind
-  ///
-  /// \brief Indicates how a symbol is stored and where it is accessible.
-  // FIXME: the protobuf definition of this enumeration was removed and so too
-  // should this API. I'm leaving this in to get a rebase to compile.
-  enum class StorageKind : uint8_t {
-    Undefined = 0, ///< Symbol is not defined.
-    Normal,        ///< Accessible outside the Module.
-    Static,        ///< Accessible within the Module.
-    Extern,        ///< Defined outside the Module.
-    Local          ///< Stored locally in the context of a function's
-                   ///< activation frame.
-  };
-
   /// \brief Create an unitialized Symbol object.
   /// \param C        The Context in which this Symbol will be held.
   /// \return         The newly created Symbol.
@@ -246,14 +232,11 @@ public:
   /// \param Parent The \ref Module in which to place this Symbol.
   /// \param X      The address of the symbol.
   /// \param Name   The name of the symbol.
-  /// \param Kind   The storage kind the symbol has; defaults to
-  /// StorageKind::Extern
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Module* Parent, Addr X,
-                        const std::string& Name,
-                        StorageKind Kind = StorageKind::Extern) {
-    return C.Create<Symbol>(C, Parent, X, Name, Kind);
+                        const std::string& Name) {
+    return C.Create<Symbol>(C, Parent, X, Name);
   }
 
   /// \brief Create a Symbol object.
@@ -262,16 +245,13 @@ public:
   /// \param Parent   The \ref Module in which to place this Symbol.
   /// \param Referent The DataBlock this symbol refers to.
   /// \param Name     The name of the symbol.
-  /// \param Kind     The storage kind the symbol has; defaults to
-  /// StorageKind::Extern
   ///
   /// \return The newly created object.
   template <typename NodeTy>
   static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
-                        const std::string& Name,
-                        StorageKind Kind = StorageKind::Extern) {
+                        const std::string& Name) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Parent, Referent, Name, Kind);
+    return C.Create<Symbol>(C, Parent, Referent, Name);
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
@@ -318,18 +298,6 @@ public:
   /// \return \p true if the symbol has a referent, \p false otherwise.
   bool hasReferent() const { return std::holds_alternative<Node*>(Payload); }
 
-  /// \brief Set the storage kind.
-  ///
-  /// \param X The storage kind to use.
-  ///
-  /// \return void
-  void setStorageKind(Symbol::StorageKind X) { Storage = X; }
-
-  /// \brief Get the storage kind.
-  ///
-  /// \return The storage kind.
-  Symbol::StorageKind getStorageKind() const { return Storage; }
-
   /// \brief Set the name of a symbol.
   void setName(const std::string& N) {
     this->mutateIndices([this, &N]() { Name = N; });
@@ -371,23 +339,19 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, Module* P, const std::string& N,
-         StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Name(N), Storage(SK) {}
-  Symbol(Context& C, Module* P, Addr X, const std::string& N,
-         StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), Storage(SK) {}
+  Symbol(Context& C, Module* P, const std::string& N)
+      : Node(C, Kind::Symbol), Parent(P), Name(N) {}
+  Symbol(Context& C, Module* P, Addr X, const std::string& N)
+      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N) {}
   template <typename NodeTy>
-  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N,
-         StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), Storage(SK) {}
+  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N)
+      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N) {}
 
   void setModule(Module* M) { Parent = M; }
 
   Module* Parent{nullptr};
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
-  Symbol::StorageKind Storage{StorageKind::Extern};
 
   friend class Context; // Allow Context to construct Symbols.
   friend class Module;  // Allow Module to call setModule.
