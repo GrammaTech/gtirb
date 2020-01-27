@@ -336,6 +336,25 @@
        (mappend #'sections)
        (modules new)))))
 
+(deftest simple-update-populates-byte-interval-addresses ()
+  (with-fixture hello-v0
+    (with-temporary-file (:pathname path)
+      (update *proto-path* path)
+      (nest
+       (let ((new (read-gtirb path))))
+       (is)
+       (every «and #'addressp [#'numberp #'address]»)
+       (mappend #'byte-intervals)
+       (mappend #'sections)
+       (modules new))
+      (nest
+       (let ((new (read-gtirb path))))
+       (is)
+       (every [#'proto:has-address #'gtirb/gtirb::proto])
+       (mappend #'byte-intervals)
+       (mappend #'sections)
+       (modules new)))))
+
 
 ;;;; Ranged collection test suite.
 (deftest inserted-is-found ()
