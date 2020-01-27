@@ -90,8 +90,7 @@ public:
 
 private:
   ProxyBlock(Context& C) : CfgNode(C, Kind::ProxyBlock) {}
-  ProxyBlock(Context& C, Module* Parent)
-      : CfgNode(C, Kind::ProxyBlock), Parent(Parent) {}
+  ProxyBlock(Context& C, Module* P) : CfgNode(C, Kind::ProxyBlock), Parent(P) {}
 
   void setModule(Module* M) { Parent = M; }
 

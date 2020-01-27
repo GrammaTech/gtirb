@@ -43,8 +43,8 @@ class ByteInterval; // Forward declared for the backpointer.
 class GTIRB_EXPORT_API DataBlock : public Node {
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, ByteInterval* Parent, uint64_t S)
-      : Node(C, Kind::DataBlock), Parent(Parent), Size(S) {}
+  DataBlock(Context& C, ByteInterval* P, uint64_t S)
+      : Node(C, Kind::DataBlock), Parent(P), Size(S) {}
 
 public:
   /// \brief Create an unitialized DataBlock object.

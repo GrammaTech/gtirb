@@ -47,8 +47,8 @@ class Module; // Forward declared for the backpointer.
 /// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, Module* Parent, const std::string& N)
-      : Node(C, Kind::Section), Parent(Parent), Name(N) {}
+  Section(Context& C, Module* P, const std::string& N)
+      : Node(C, Kind::Section), Parent(P), Name(N) {}
 
   struct by_address {};
   struct by_pointer {};

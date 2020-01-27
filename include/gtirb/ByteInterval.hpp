@@ -1843,15 +1843,15 @@ public:
 private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
 
-  ByteInterval(Context& C, Section* Parent, std::optional<Addr> A, uint64_t S,
+  ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t S,
                uint64_t InitSize)
-      : Node(C, Kind::ByteInterval), Parent(Parent), Address(A), Size(S),
+      : Node(C, Kind::ByteInterval), Parent(P), Address(A), Size(S),
         Bytes(InitSize) {}
 
   template <typename InputIterator>
-  ByteInterval(Context& C, Section* Parent, std::optional<Addr> A, uint64_t S,
+  ByteInterval(Context& C, Section* P, std::optional<Addr> A, uint64_t S,
                uint64_t InitSize, InputIterator Begin, InputIterator End)
-      : Node(C, Kind::ByteInterval), Parent(Parent), Address(A), Size(S),
+      : Node(C, Kind::ByteInterval), Parent(P), Address(A), Size(S),
         Bytes(Begin, End) {
     Bytes.resize(InitSize);
   }

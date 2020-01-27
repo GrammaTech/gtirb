@@ -324,9 +324,8 @@ public:
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
-  CodeBlock(Context& C, ByteInterval* Parent, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::CodeBlock), Parent(Parent), Size(S),
-        DecodeMode(Decode) {}
+  CodeBlock(Context& C, ByteInterval* P, uint64_t S, uint64_t Decode)
+      : CfgNode(C, Kind::CodeBlock), Parent(P), Size(S), DecodeMode(Decode) {}
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
 

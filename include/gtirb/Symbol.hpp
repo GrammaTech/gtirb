@@ -368,18 +368,16 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, Module* Parent, const std::string& N,
+  Symbol(Context& C, Module* P, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(Parent), Name(N), Storage(SK) {}
-  Symbol(Context& C, Module* Parent, Addr X, const std::string& N,
+      : Node(C, Kind::Symbol), Parent(P), Name(N), Storage(SK) {}
+  Symbol(Context& C, Module* P, Addr X, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(Parent), Payload(X), Name(N),
-        Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), Storage(SK) {}
   template <typename NodeTy>
-  Symbol(Context& C, Module* Parent, NodeTy* R, const std::string& N,
+  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Parent(Parent), Payload(R), Name(N),
-        Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), Storage(SK) {}
 
   void setModule(Module* M) { Parent = M; }
 
