@@ -26,6 +26,8 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
 
 CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const MessageType& Message) {
+  // Because we do not have an offset, we cannot create the code block and
+  // set its parent at the same time.
   auto* B = CodeBlock::Create(C, Message.size(), Message.decode_mode());
   B->setByteInterval(Parent);
   setNodeUUIDFromBytes(B, Message.uuid());

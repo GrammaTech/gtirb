@@ -26,6 +26,8 @@ void DataBlock::toProtobuf(MessageType* Message) const {
 
 DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
                                    const MessageType& Message) {
+  // Because we do not have an offset, we cannot create the data block and
+  // set its parent at the same time.
   auto* DO = DataBlock::Create(C, Message.size());
   DO->setByteInterval(Parent);
   setNodeUUIDFromBytes(DO, Message.uuid());

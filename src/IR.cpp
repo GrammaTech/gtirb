@@ -39,7 +39,6 @@ IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.modules()) {
     auto* M = Module::fromProtobuf(C, I, Elt);
     I->Modules.emplace(M);
-    M->setIR(I);
   }
   static_cast<AuxDataContainer*>(I)->fromProtobuf(C, Message);
   I->Version = Message.version();

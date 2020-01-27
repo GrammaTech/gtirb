@@ -76,13 +76,11 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   for (const auto& Elt : Message.sections()) {
     auto* S = Section::fromProtobuf(C, M, Elt);
     M->Sections.emplace(S);
-    S->setModule(M);
     S->addToIndices();
   }
   for (const auto& Elt : Message.symbols()) {
     auto* S = Symbol::fromProtobuf(C, M, Elt);
     M->Symbols.emplace(S);
-    S->setModule(M);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
