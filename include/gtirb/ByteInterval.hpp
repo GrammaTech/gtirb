@@ -1278,7 +1278,7 @@ public:
   /// \return       The newly created \ref CodeBlock.
   template <typename BlockType, typename... Args>
   BlockType* addBlock(Context& C, uint64_t O, Args... A) {
-    return addBlock(O, typename BlockType::Create(C, this, A...));
+    return addBlock(O, BlockType::Create(C, this, O, A...));
   }
 
   /// \brief Adds a new \ref SymbolicExpression to this interval.
