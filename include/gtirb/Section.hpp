@@ -315,6 +315,8 @@ public:
   /// \brief Creates a new \ref ByteInterval in this section.
   ///
   /// \tparam Args  The arguments to construct a \ref ByteInterval.
+  /// \param  C     The Context in which this object will be held.
+  /// \param  A     The arguments to construct a \ref ByteInterval.
   template <typename... Args>
   ByteInterval* addByteInterval(Context& C, Args... A) {
     return addByteInterval(ByteInterval::Create(C, this, A...));

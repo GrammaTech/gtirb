@@ -307,12 +307,12 @@ public:
 
   /// \brief Remove a \ref ProxyBlock object located in this module.
   ///
-  /// \param S The \ref ProxyBlock object to remove.
+  /// \param B The \ref ProxyBlock object to remove.
   void removeProxyBlock(ProxyBlock* B);
 
   /// \brief Move a \ref ProxyBlock object to be located in this module.
   ///
-  /// \param S The \ref ProxyBlock object to add.
+  /// \param B The \ref ProxyBlock object to add.
   void moveProxyBlock(ProxyBlock* B);
 
   /// \brief Adds a new \ref ProxyBlock in this module.
@@ -323,6 +323,8 @@ public:
   /// \brief Creates a new \ref ProxyBlock in this module.
   ///
   /// \tparam Args  The arguments to construct a \ref ProxyBlock.
+  /// \param  C     The Context in which this object will be held.
+  /// \param  A     The arguments to construct a \ref ProxyBlock.
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
     return addProxyBlock(ProxyBlock::Create(C, this, A...));
   }
@@ -539,6 +541,8 @@ public:
   /// \brief Creates a new \ref Symbol in this module.
   ///
   /// \tparam Args  The arguments to construct a \ref Symbol.
+  /// \param  C     The Context in which this object will be held.
+  /// \param  A     The arguments to construct a \ref Symbol.
   template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
     return addSymbol(Symbol::Create(C, this, A...));
   }
@@ -766,6 +770,8 @@ public:
   /// \brief Creates a new \ref Section in this module.
   ///
   /// \tparam Args  The arguments to construct a \ref Section.
+  /// \param  C     The Context in which this object will be held.
+  /// \param  A     The arguments to construct a \ref Section.
   template <typename... Args> Section* addSection(Context& C, Args... A) {
     return addSection(Section::Create(C, this, A...));
   }
@@ -1814,7 +1820,7 @@ private:
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
-  friend class Node;    // Allow Node::mutateIndicies, etc. to set indicies.
+  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
 
 } // namespace gtirb

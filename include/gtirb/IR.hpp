@@ -106,6 +106,8 @@ public:
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
 
+  /// \name Module-Related Public Types and Functions
+  /// @{
   /// \brief Iterator over \ref Module "Modules".
   ///
   /// Modules are returned in name order. If more than one module has the same

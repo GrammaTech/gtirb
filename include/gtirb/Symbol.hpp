@@ -231,8 +231,9 @@ public:
 
   /// \brief Create a Symbol object.
   ///
-  /// \param C    The Context in which this object will be held.
-  /// \param Name The name of the symbol.
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref Module in which to place this Symbol.
+  /// \param Name   The name of the symbol.
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
@@ -241,10 +242,11 @@ public:
 
   /// \brief Create a Symbol object.
   ///
-  /// \param C  The Context in which this object will be held.
-  /// \param X  The address of the symbol.
-  /// \param Name The name of the symbol.
-  /// \param Kind The storage kind the symbol has; defaults to
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref Module in which to place this Symbol.
+  /// \param X      The address of the symbol.
+  /// \param Name   The name of the symbol.
+  /// \param Kind   The storage kind the symbol has; defaults to
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
@@ -256,10 +258,11 @@ public:
 
   /// \brief Create a Symbol object.
   ///
-  /// \param C  The Context in which this object will be held.
+  /// \param C        The Context in which this object will be held.
+  /// \param Parent   The \ref Module in which to place this Symbol.
   /// \param Referent The DataBlock this symbol refers to.
-  /// \param Name The name of the symbol.
-  /// \param Kind The storage kind the symbol has; defaults to
+  /// \param Name     The name of the symbol.
+  /// \param Kind     The storage kind the symbol has; defaults to
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
