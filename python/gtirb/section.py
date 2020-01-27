@@ -24,25 +24,25 @@ class Section(Node):
     class Flag(Enum):
         """A flag representing a known property of a section."""
 
-        Undefined = Section_pb2.SectionFlag.Value(b"Undefined")
+        Undefined = Section_pb2.SectionFlag.Value("Undefined")
         """This value is defined for Protobuf compatibility. Do not use."""
 
-        Readable = Section_pb2.SectionFlag.Value(b"Readable")
+        Readable = Section_pb2.SectionFlag.Value("Readable")
         """This section can be read from at runtime."""
 
-        Writable = Section_pb2.SectionFlag.Value(b"Writable")
+        Writable = Section_pb2.SectionFlag.Value("Writable")
         """This section can be written to at runtime."""
 
-        Executable = Section_pb2.SectionFlag.Value(b"Executable")
+        Executable = Section_pb2.SectionFlag.Value("Executable")
         """This section contains executable code."""
 
-        Loaded = Section_pb2.SectionFlag.Value(b"Loaded")
+        Loaded = Section_pb2.SectionFlag.Value("Loaded")
         """This section is present in memory at runtime."""
 
-        Initialized = Section_pb2.SectionFlag.Value(b"Initialized")
+        Initialized = Section_pb2.SectionFlag.Value("Initialized")
         """This section has bytes allocated to it in the binary file."""
 
-        ThreadLocal = Section_pb2.SectionFlag.Value(b"ThreadLocal")
+        ThreadLocal = Section_pb2.SectionFlag.Value("ThreadLocal")
         """This section is created in memory once per thread."""
 
     class _ByteIntervalSet(SetWrapper):
