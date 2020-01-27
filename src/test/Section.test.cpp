@@ -26,19 +26,19 @@ TEST(Unit_Section, getAddress) {
   using OAddr = std::optional<Addr>;
   using OSize = std::optional<uint64_t>;
 
-  auto* S = Section::Create(Ctx, "test");
+  auto* S = Section::Create(Ctx, nullptr, "test");
   EXPECT_EQ(S->getAddress(), OAddr());
   EXPECT_EQ(S->getSize(), OSize());
 
-  S->addByteInterval(ByteInterval::Create(Ctx, Addr(5), 10));
+  S->addByteInterval(Ctx, Addr(5), 10);
   EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
   EXPECT_EQ(S->getSize(), OSize(10));
 
-  S->addByteInterval(ByteInterval::Create(Ctx, Addr(15), 10));
+  S->addByteInterval(Ctx, Addr(15), 10);
   EXPECT_EQ(S->getAddress(), OAddr(Addr(5)));
   EXPECT_EQ(S->getSize(), OSize(20));
 
-  S->addByteInterval(ByteInterval::Create(Ctx, OAddr(), 10));
+  S->addByteInterval(Ctx, OAddr(), 10);
   EXPECT_EQ(S->getAddress(), OAddr());
   EXPECT_EQ(S->getSize(), OSize());
 }
@@ -48,7 +48,7 @@ TEST(Unit_Section, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    auto* Original = Section::Create(InnerCtx, "name");
+    auto* Original = Section::Create(InnerCtx, nullptr, "name");
     Original->toProtobuf(&Message);
   }
   auto* Result = Section::fromProtobuf(Ctx, nullptr, Message);

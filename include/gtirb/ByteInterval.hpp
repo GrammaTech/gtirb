@@ -154,37 +154,46 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   }
 
 public:
+  /// \brief Create an unitialized ByteInterval object.
+  /// \param C        The Context in which this ByteInterval will be held.
+  /// \return         The newly created ByteInterval.
+  static ByteInterval* Create(Context& C) { return C.Create<ByteInterval>(C); }
+
   /// \brief Create a ByteInterval object.
   ///
   /// \param C         The \ref Context in which this interval will be held.
+  /// \param Parent    The \ref Section this interval belongs to.
   /// \param Size      The size of this interval in bytes.
   /// \param InitSize  The number of bytes with initialized values. Defaults
   ///                  to the value of Size.
   /// \return          The newly created ByteInterval.
-  static ByteInterval* Create(Context& C, uint64_t Size = 0,
+  static ByteInterval* Create(Context& C, Section* Parent, uint64_t Size = 0,
                               std::optional<uint64_t> InitSize = std::nullopt) {
-    return C.Create<ByteInterval>(C, std::nullopt, Size,
+    return C.Create<ByteInterval>(C, Parent, std::nullopt, Size,
                                   InitSize.value_or(Size));
   }
 
   /// \brief Create a ByteInterval object.
   ///
   /// \param C         The \ref Context in which this interval will be held.
+  /// \param Parent     The \ref Section this interval belongs to.
   /// \param Address   An (optional) fixed address for this interval.
   /// \param Size      The size of this interval in bytes.
   /// \param InitSize  The number of bytes with initialized values. Defaults
   ///                  to the value of Size.
   /// \return          The newly created ByteInterval.
-  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              uint64_t Size = 0,
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address, uint64_t Size = 0,
                               std::optional<uint64_t> InitSize = std::nullopt) {
-    return C.Create<ByteInterval>(C, Address, Size, InitSize.value_or(Size));
+    return C.Create<ByteInterval>(C, Parent, Address, Size,
+                                  InitSize.value_or(Size));
   }
 
   /// \brief Create a ByteInterval object.
   ///
   /// \tparam InputIterator An input iterator yielding bytes.
   /// \param C          The \ref Context in which this interval will be held.
+  /// \param Parent     The \ref Section this interval belongs to.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
   /// \param Size       The size of this interval in bytes. Defaults to the
@@ -196,12 +205,12 @@ public:
   ///                   zero out values from the range past this number.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
-  static ByteInterval* Create(Context& C, InputIterator Begin,
+  static ByteInterval* Create(Context& C, Section* Parent, InputIterator Begin,
                               InputIterator End,
                               std::optional<uint64_t> Size = std::nullopt,
                               std::optional<uint64_t> InitSize = std::nullopt) {
     return C.Create<ByteInterval>(
-        C, std::nullopt, Size ? *Size : std::distance(Begin, End),
+        C, Parent, std::nullopt, Size ? *Size : std::distance(Begin, End),
         InitSize ? *InitSize : std::distance(Begin, End), Begin, End);
   }
 
@@ -209,6 +218,7 @@ public:
   ///
   /// \tparam InputIterator An input iterator yielding bytes.
   /// \param C          The \ref Context in which this interval will be held.
+  /// \param Parent     The \ref Section this interval belongs to.
   /// \param Address    An (optional) fixed address for this interval.
   /// \param BytesBegin The start of the range to copy to the byte vector.
   /// \param BytesEnd   The end of the range to copy to the byte vector.
@@ -221,12 +231,13 @@ public:
   ///                   zero out values from the range past this number.
   /// \return           The newly created ByteInterval.
   template <typename InputIterator>
-  static ByteInterval* Create(Context& C, std::optional<Addr> Address,
-                              InputIterator Begin, InputIterator End,
+  static ByteInterval* Create(Context& C, Section* Parent,
+                              std::optional<Addr> Address, InputIterator Begin,
+                              InputIterator End,
                               std::optional<uint64_t> Size = std::nullopt,
                               std::optional<uint64_t> InitSize = std::nullopt) {
     return C.Create<ByteInterval>(
-        C, Address, Size ? *Size : std::distance(Begin, End),
+        C, Parent, Address, Size ? *Size : std::distance(Begin, End),
         InitSize ? *InitSize : std::distance(Begin, End), Begin, End);
   }
 
@@ -1252,9 +1263,22 @@ public:
     }
 
     N->setByteInterval(this);
-    Blocks.emplace(Off, N);
+    addBlockAt(Off, N);
     N->addToIndices();
     return N;
+  }
+
+  /// \brief Creates a new \ref Block of the given type at a given offset.
+  ///
+  /// \tparam BlockType Either \ref CodeBlock or \ref DataBlock.
+  /// \tparam Args  The arguments to construct a \ref CodeBlock.
+  /// \param  C     The \ref Context to use.
+  /// \param  O     The offset to add the new \ref CodeBlock at.
+  /// \param  A     The arguments to construct a \ref CodeBlock.
+  /// \return       The newly created \ref CodeBlock.
+  template <typename BlockType, typename... Args>
+  BlockType* addBlock(Context& C, uint64_t O, Args... A) {
+    return addBlock(O, typename BlockType::Create(C, this, A...));
   }
 
   /// \brief Adds a new \ref SymbolicExpression to this interval.
@@ -1267,6 +1291,21 @@ public:
                                             const SymbolicExpression& SymExpr) {
     this->mutateIndices([&]() { SymbolicExpressions.emplace(Off, SymExpr); });
     return SymbolicExpressions[Off];
+  }
+
+  /// \brief Adds a new \ref SymbolicExpression to this interval.
+  ///
+  /// \tparam ExprType  The type of symbolic expression to create
+  ///                   (\ref SymAddrConst, \ref SymAddrAddr, etc).
+  /// \tparam Args      The arguments to construct something of ExprType.
+  /// \param  O         The offset to add the new \ref SymbolicExpression at.
+  /// \param  A         The arguments to construct something of ExprType.
+  /// \return           The newly created \ref SymbolicExpression.
+  template <class ExprType, class... Args>
+  SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
+    this->mutateIndices(
+        [&]() { SymbolicExpressions.emplace(O, ExprType{A...}); });
+    return SymbolicExpressions[O];
   }
 
   /// \brief Removes a \ref SymbolicExpression at the given offset, if
@@ -1804,17 +1843,23 @@ public:
 private:
   ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
 
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize)
-      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(InitSize) {}
+  ByteInterval(Context& C, Section* Parent, std::optional<Addr> A, uint64_t S,
+               uint64_t InitSize)
+      : Node(C, Kind::ByteInterval), Parent(Parent), Address(A), Size(S),
+        Bytes(InitSize) {}
 
   template <typename InputIterator>
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize,
-               InputIterator Begin, InputIterator End)
-      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(Begin, End) {
+  ByteInterval(Context& C, Section* Parent, std::optional<Addr> A, uint64_t S,
+               uint64_t InitSize, InputIterator Begin, InputIterator End)
+      : Node(C, Kind::ByteInterval), Parent(Parent), Address(A), Size(S),
+        Bytes(Begin, End) {
     Bytes.resize(InitSize);
   }
 
   void setSection(Section* S) { Parent = S; }
+  template <typename BlockType> void addBlockAt(uint64_t Off, BlockType* B) {
+    Blocks.emplace(Off, B);
+  }
 
   Section* Parent{nullptr};
   std::optional<Addr> Address;

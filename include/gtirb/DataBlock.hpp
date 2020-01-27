@@ -43,7 +43,8 @@ class ByteInterval; // Forward declared for the backpointer.
 class GTIRB_EXPORT_API DataBlock : public Node {
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, uint64_t S) : Node(C, Kind::DataBlock), Size(S) {}
+  DataBlock(Context& C, ByteInterval* Parent, uint64_t S)
+      : Node(C, Kind::DataBlock), Parent(Parent), Size(S) {}
 
 public:
   /// \brief Create an unitialized DataBlock object.
@@ -53,16 +54,29 @@ public:
 
   /// \brief Create a DataBlock object.
   ///
+  /// \param C        The Context in which the newly-created DataBlock will be
+  /// \param Size     The size of the object in bytes.
+  /// \return The newly created DataBlock.
+  static DataBlock* Create(Context& C, uint64_t Size) {
+    return Create(C, nullptr, 0, Size);
+  }
+
+  /// \brief Create a DataBlock object.
+  ///
   /// \param C The Context in which the newly-created DataBlock will
   /// be held.
-  ///
-  /// \param Address  The initial address of the object.
-  ///
+  /// \param Parent   The parent byte interval for the data block.
+  /// \param Off      The offset at which to add the code block within its
+  ///                 parent.
   /// \param Size     The size of the object in bytes.
   ///
   /// \return The newly created DataBlock.
-  static DataBlock* Create(Context& C, uint64_t Size) {
-    return C.Create<DataBlock>(C, Size);
+  static DataBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
+                           uint64_t Size) {
+    auto* DB = C.Create<DataBlock>(C, Parent, Size);
+    if (Parent)
+      Parent->addBlockAt(Off, DB);
+    return DB;
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.

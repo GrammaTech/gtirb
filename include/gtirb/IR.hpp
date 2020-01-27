@@ -177,6 +177,18 @@ public:
     return M;
   }
 
+  /// \brief Creates a new \ref Module in this IR.
+  ///
+  /// \tparam Args  The arguments to construct a \ref Module.
+  // FIXME: this API may wind up getting removed because we perhaps want to
+  // support creating a Module that is not hooked up to any IR object and then
+  // set the parent on the module later. Personally, I think that is a
+  // dangerous design choice, but we can argue the merits of both approaches in
+  // a code review.
+  template <typename... Args> Module* addModule(Context& C, Args... A) {
+    return addModule(Module::Create(C, this, A...));
+  }
+
   /// @}
   // (end Module-Related Public Types and Functions)
 

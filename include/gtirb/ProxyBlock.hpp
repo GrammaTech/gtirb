@@ -48,6 +48,16 @@ public:
   /// \return         The newly created ProxyBlock.
   static ProxyBlock* Create(Context& C) { return C.Create<ProxyBlock>(C); }
 
+  /// \brief Create a ProxyBlock object.
+  ///
+  /// \param C      The Context in which this block will be held.
+  /// \param Parent The \ref Module this block belongs to.
+  ///
+  /// \return The newly created ProxyBlock.
+  static ProxyBlock* Create(Context& C, Module* Parent) {
+    return C.Create<ProxyBlock>(C, Parent);
+  }
+
   /// \brief Get the \ref Module this block belongs to.
   Module* getModule() { return Parent; }
   /// \brief Get the \ref Module this block belongs to.
@@ -80,6 +90,8 @@ public:
 
 private:
   ProxyBlock(Context& C) : CfgNode(C, Kind::ProxyBlock) {}
+  ProxyBlock(Context& C, Module* Parent)
+      : CfgNode(C, Kind::ProxyBlock), Parent(Parent) {}
 
   void setModule(Module* M) { Parent = M; }
 

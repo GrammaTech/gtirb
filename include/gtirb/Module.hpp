@@ -140,8 +140,9 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                                              &get_symbol_referent>>>>;
 
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
-  Module(Context& C, const std::string& N)
-      : AuxDataContainer(C, Kind::Module), Name(N) {}
+  Module(Context& C, IR* P) : AuxDataContainer(C, Kind::Module), Parent(P) {}
+  Module(Context& C, IR* P, const std::string& N)
+      : AuxDataContainer(C, Kind::Module), Parent(P), Name(N) {}
 
 public:
   /// \brief Create a Module object in its default state.
@@ -155,11 +156,22 @@ public:
   /// \brief Create a Module object.
   ///
   /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
+  ///
+  /// \return The newly created object.
+  static Module* Create(Context& C, IR* Parent) {
+    return C.Create<Module>(C, Parent);
+  }
+
+  /// \brief Create a Module object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
   /// \param Name   The name of this module.
   ///
   /// \return The newly created object.
-  static Module* Create(Context& C, const std::string& Name) {
-    return C.Create<Module>(C, Name);
+  static Module* Create(Context& C, IR* Parent, const std::string& Name) {
+    return C.Create<Module>(C, Parent, Name);
   }
 
   /// \brief Get the \ref IR this module belongs to.
@@ -303,13 +315,16 @@ public:
   /// \param S The \ref ProxyBlock object to add.
   void moveProxyBlock(ProxyBlock* B);
 
+  /// \brief Adds a new \ref ProxyBlock in this module.
+  ///
+  /// \param PB The \ref ProxyBlock object to add.
+  ProxyBlock* addProxyBlock(ProxyBlock* PB);
+
   /// \brief Creates a new \ref ProxyBlock in this module.
   ///
   /// \tparam Args  The arguments to construct a \ref ProxyBlock.
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
-    auto B = ProxyBlock::Create(C, this, A...);
-    addProxyBlock(B);
-    return B;
+    return addProxyBlock(ProxyBlock::Create(C, this, A...));
   }
 
   /// @}
@@ -519,6 +534,13 @@ public:
     Symbols.emplace(S);
     S->setModule(this);
     return S;
+  }
+
+  /// \brief Creates a new \ref Symbol in this module.
+  ///
+  /// \tparam Args  The arguments to construct a \ref Symbol.
+  template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
+    return addSymbol(Symbol::Create(C, this, A...));
   }
 
   /// \brief Find symbols by name
@@ -739,6 +761,13 @@ public:
     S->setModule(this);
     S->addToIndices();
     return S;
+  }
+
+  /// \brief Creates a new \ref Section in this module.
+  ///
+  /// \tparam Args  The arguments to construct a \ref Section.
+  template <typename... Args> Section* addSection(Context& C, Args... A) {
+    return addSection(Section::Create(C, this, A...));
   }
 
   /// \brief Find a Section containing an address.
@@ -1785,14 +1814,7 @@ private:
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR.
-
-  void addProxyBlock(ProxyBlock* PB);
-
-  // Allow mutation of Module indices
-  friend void GTIRB_EXPORT_API addToModuleIndices(Node* N);
-  friend void GTIRB_EXPORT_API
-  mutateModuleIndices(Node* N, const std::function<void()>& F);
-  friend void GTIRB_EXPORT_API removeFromModuleIndices(Node* N);
+  friend class Node;    // Allow Node::mutateIndicies, etc. to set indicies.
 };
 
 } // namespace gtirb

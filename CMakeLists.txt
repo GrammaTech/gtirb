@@ -183,6 +183,11 @@ if(GTIRB_CXX_API)
     add_compile_options(-W4)
     add_compile_options(-WX)
 
+    # Enable bigobj support, otherwise IR.cpp and Module.cpp will refuse to
+    # compile due to execeeding the number of sections allowed in an object
+    # file. FIXME: we should not have that many template instantiations.
+    add_compile_options(-bigobj)
+
     add_compile_options(-sdl) # Enable extra security checks
     add_compile_options(-permissive-) # Disable permissive mode
 

@@ -37,8 +37,7 @@ void Section::toProtobuf(MessageType* Message) const {
 
 Section* Section::fromProtobuf(Context& C, Module* Parent,
                                const MessageType& Message) {
-  auto* S = Section::Create(C, Message.name());
-  S->setModule(Parent);
+  auto* S = Section::Create(C, Parent, Message.name());
   setNodeUUIDFromBytes(S, Message.uuid());
   for (const auto& ProtoInterval : Message.byte_intervals()) {
     auto* BI = ByteInterval::fromProtobuf(C, S, ProtoInterval);

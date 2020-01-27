@@ -46,9 +46,9 @@ TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
-  auto* M1 = Ir->addModule(Module::Create(Ctx, "b"));
-  auto* M2 = Ir->addModule(Module::Create(Ctx, "a"));
-  auto* M3 = Ir->addModule(Module::Create(Ctx, "a"));
+  auto* M1 = Ir->addModule(Ctx, "b");
+  auto* M2 = Ir->addModule(Ctx, "a");
+  auto* M3 = Ir->addModule(Ctx, "a");
 
   EXPECT_EQ(std::distance(Ir->modules_begin(), Ir->modules_end()), 3);
   auto It = Ir->modules_begin();
@@ -190,9 +190,9 @@ TEST(Unit_IR, move) {
 
 TEST(Unit_IR, setModuleName) {
   auto* Ir = IR::Create(Ctx);
-  auto* M1 = Ir->addModule(Module::Create(Ctx, "a"));
-  auto* M2 = Ir->addModule(Module::Create(Ctx, "b"));
-  auto* M3 = Ir->addModule(Module::Create(Ctx, "c"));
+  auto* M1 = Ir->addModule(Ctx, "a");
+  auto* M2 = Ir->addModule(Ctx, "b");
+  auto* M3 = Ir->addModule(Ctx, "c");
 
   M2->setName("d");
   EXPECT_EQ(std::distance(Ir->modules_begin(), Ir->modules_end()), 3);

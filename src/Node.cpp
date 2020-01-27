@@ -111,7 +111,8 @@ void Node::addToIndices() {
     if (!M) {
       return;
     }
-    addVertex(B, M->Cfg);
+    if (IR* P = M->getIR())
+      addVertex(B, P->getCFG());
   } break;
   case Node::Kind::DataBlock: {
     auto* B = cast<DataBlock>(this);
@@ -130,7 +131,9 @@ void Node::addToIndices() {
     }
     addToICL(M->SectionAddrs, S);
   } break;
-  default: { assert(!"unexpected kind of node passed to addToModuleIndices!"); }
+  default: {
+    assert(!"unexpected kind of node passed to addToModuleIndices!");
+  }
   }
 }
 

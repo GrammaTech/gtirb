@@ -52,7 +52,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
+    default: {
+      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
+    }
     }
   }
 
@@ -71,9 +73,8 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
   }
 
   ByteInterval* BI = ByteInterval::Create(
-      C, A, Message.contents().begin(), Message.contents().end(),
+      C, Parent, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size());
-  BI->setSection(Parent);
 
   setNodeUUIDFromBytes(BI, Message.uuid());
 
@@ -81,14 +82,12 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
       auto* B = CodeBlock::fromProtobuf(C, BI, ProtoBlock.code());
-      B->setByteInterval(BI);
-      BI->Blocks.emplace(ProtoBlock.offset(), B);
+      BI->addBlockAt(ProtoBlock.offset(), B);
       B->addToIndices();
     } break;
     case proto::Block::ValueCase::kData: {
       auto* B = DataBlock::fromProtobuf(C, BI, ProtoBlock.data());
-      B->setByteInterval(BI);
-      BI->Blocks.emplace(ProtoBlock.offset(), B);
+      BI->addBlockAt(ProtoBlock.offset(), B);
       B->addToIndices();
     } break;
     default: {

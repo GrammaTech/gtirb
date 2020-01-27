@@ -213,13 +213,15 @@ public:
   /// \enum StorageKind
   ///
   /// \brief Indicates how a symbol is stored and where it is accessible.
+  // FIXME: the protobuf definition of this enumeration was removed and so too
+  // should this API. I'm leaving this in to get a rebase to compile.
   enum class StorageKind : uint8_t {
-    Undefined = proto::Storage_Undefined, ///< Symbol is not defined.
-    Normal = proto::Storage_Normal,       ///< Accessible outside the Module.
-    Static = proto::Storage_Static,       ///< Accessible within the Module.
-    Extern = proto::Storage_Extern,       ///< Defined outside the Module.
-    Local = proto::Storage_Local ///< Stored locally in the context of a
-                                 ///< function's activation frame.
+    Undefined = 0, ///< Symbol is not defined.
+    Normal,        ///< Accessible outside the Module.
+    Static,        ///< Accessible within the Module.
+    Extern,        ///< Defined outside the Module.
+    Local          ///< Stored locally in the context of a function's
+                   ///< activation frame.
   };
 
   /// \brief Create an unitialized Symbol object.
@@ -233,8 +235,8 @@ public:
   /// \param Name The name of the symbol.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, const std::string& Name) {
-    return C.Create<Symbol>(C, Name);
+  static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
+    return C.Create<Symbol>(C, Parent, Name);
   }
 
   /// \brief Create a Symbol object.
@@ -246,9 +248,10 @@ public:
   /// StorageKind::Extern
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+  static Symbol* Create(Context& C, Module* Parent, Addr X,
+                        const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
-    return C.Create<Symbol>(C, X, Name, Kind);
+    return C.Create<Symbol>(C, Parent, X, Name, Kind);
   }
 
   /// \brief Create a Symbol object.
@@ -261,10 +264,11 @@ public:
   ///
   /// \return The newly created object.
   template <typename NodeTy>
-  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name,
+  static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
+                        const std::string& Name,
                         StorageKind Kind = StorageKind::Extern) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Referent, Name, Kind);
+    return C.Create<Symbol>(C, Parent, Referent, Name, Kind);
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
@@ -364,15 +368,18 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, const std::string& N, StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Name(N), Storage(SK) {}
-  Symbol(Context& C, Addr X, const std::string& N,
+  Symbol(Context& C, Module* Parent, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Payload(X), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(Parent), Name(N), Storage(SK) {}
+  Symbol(Context& C, Module* Parent, Addr X, const std::string& N,
+         StorageKind SK = StorageKind::Extern)
+      : Node(C, Kind::Symbol), Parent(Parent), Payload(X), Name(N),
+        Storage(SK) {}
   template <typename NodeTy>
-  Symbol(Context& C, NodeTy* R, const std::string& N,
+  Symbol(Context& C, Module* Parent, NodeTy* R, const std::string& N,
          StorageKind SK = StorageKind::Extern)
-      : Node(C, Kind::Symbol), Payload(R), Name(N), Storage(SK) {}
+      : Node(C, Kind::Symbol), Parent(Parent), Payload(R), Name(N),
+        Storage(SK) {}
 
   void setModule(Module* M) { Parent = M; }
 
