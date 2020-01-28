@@ -1,6 +1,6 @@
-import sys
 import glob
 import setuptools
+import sys
 import unittest
 
 # if version of setuptools is 20.8.1 or below, it doesn't support env specs
