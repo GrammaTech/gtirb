@@ -51,9 +51,9 @@ if(GTIRB_ENABLE_TESTS)
     NAME testgtirbcl
     COMMAND
       ${LISP} --noinform --dynamic-space-size 16384 --no-userinit --no-sysinit
-      --disable-debugger --load ${QUICKLISP}/setup.lisp --eval
-      '(asdf:initialize-source-registry `(:source-registry (:tree "\"${CMAKE_CURRENT_SOURCE_DIR}\"") :inherit-configuration))'
-      --eval '(ql:quickload :gtirb/test)' --eval '(gtirb/test:batch-test)'
+      --disable-debugger --load "${QUICKLISP}/setup.lisp" --eval
+      "(asdf:initialize-source-registry `(:source-registry (:tree \\\"${CMAKE_CURRENT_SOURCE_DIR}\\\") :inherit-configuration))"
+      --eval "(ql:quickload :gtirb/test)" --eval "(gtirb/test:batch-test)"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
   )
 endif()
