@@ -10,13 +10,30 @@
         :graph
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file :md5sum-sequence)
-  (:import-from :uiop :nest :run-program :with-temporary-file)
+  (:import-from :uiop :nest :run-program :with-temporary-file :quit)
   (:shadowing-import-from :gtirb :symbol)
-  (:export :test))
+  (:export :test :batch-test))
 (in-package :gtirb/test)
 (in-readtable :curry-compose-reader-macros)
 
 (defvar *proto-path* nil "Path to protobuf.")
+
+(defun batch-test (&optional args)
+  "Run tests in 'batch' mode printing results to STDERR then quit.
+The ERRNO used when exiting lisp indicates success or failure."
+  (declare (ignorable args))
+  (let* ((stefil::*test-progress-print-right-margin* (expt 2 20))
+         (failures (coerce (stefil::failure-descriptions-of
+                            (without-debugging (test)))
+                           'list)))
+    (if failures
+        (format *error-output* "FAILURES~%~{  ~a~~%~}"
+                (mapc [#'stefil::name-of
+                       #'stefil::test-of
+                       #'car #'stefil::test-context-backtrace-of]
+                      failures))
+        (format *error-output* "SUCCESS~%"))
+    (quit (if failures 2 0))))
 
 
 ;;;; Fixtures.
