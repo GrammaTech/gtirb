@@ -226,13 +226,11 @@ address range for instances of the object."
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
          ,@(when parent
-             ;; TODO: Make parent optional, then raise errors on
-             ;;       relevant methods.
-             `((,parent :accessor ,parent :type ,parent
+             `((,parent :accessor ,parent :type (or null ,parent)
                         :initarg ,(make-keyword parent)
-                        :initform (error ,(format nil "~a created without a ~
+                        :initform (warn ,(format nil "~a created without a ~
                                                       pointer to enclosing ~a."
-                                                  class parent))
+                                                 class parent))
                         :documentation ,(format nil "Access the ~a of this ~a."
                                                 parent class))))
          ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}
@@ -241,14 +239,34 @@ Should not need to be manipulated by client code.")
         ,@(remove-if [«or {eql :parent} {eql :address-range}» #'car] options))
       ,@(when parent
           `((defmethod get-uuid (uuid (object ,class))
+              (assert (,parent object) (object)
+                      ,(format nil
+                               "`get-uuid' failed on a ~a without a ~a"
+                               class parent))
               (get-uuid uuid (,parent object)))
             (defmethod set-parent-uuid (new uuid (object ,class))
+              (assert (,parent object) (object)
+                      ,(format nil
+                               "`set-parent-uuid' failed on a ~a without a ~a"
+                               class parent))
               (setf (get-uuid uuid (,parent object)) new))
             (defmethod (setf get-uuid) (new uuid (object ,class))
+              (assert (,parent object) (object)
+                      ,(format nil
+                               "`get-uuid' failed on ~a without a ~a"
+                               class parent))
               (set-parent-uuid new uuid object))
             (defmethod remove-uuid (uuid (object ,class))
+              (assert (,parent object) (object)
+                      ,(format nil
+                               "`remove-uuid' failed on ~a without a ~a"
+                               class parent))
               (remove-uuid uuid (,parent object)))
             (defmethod get-address ((object ,class) start &optional end)
+              (assert (,parent object) (object)
+                      ,(format nil
+                               "`get-address' failed on ~a without a ~a"
+                               class parent))
               (get-address (,parent object) start end))))
       (defmethod address-range ((self ,class)) ,@address-range)
       (defmethod
