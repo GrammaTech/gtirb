@@ -34,4 +34,5 @@ WORKDIR /gt/gtirb/
 # utility, we should explicitly update the version tag in
 # .pre-commit-config.yaml.
 
-RUN pre-commit run --all-files
+RUN pre-commit run;echo "Configured pre-commit."
+CMD pre-commit run --all-files
