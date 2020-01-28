@@ -22,7 +22,9 @@ def gtirb_test_suite():
 if __name__ == "__main__":
     setuptools.setup(
         name="gtirb",
-        version="@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@",
+        version="@PROJECT_VERSION_MAJOR@"
+        ".@PROJECT_VERSION_MINOR@"
+        ".@PROJECT_VERSION_PATCH@",
         author="abhaskar",
         author_email="abhaskar@grammatech.com",
         data_files=[(".", glob.glob("./*_pb2.py"))],

@@ -4,6 +4,8 @@ repos:
     hooks:
       - id: black
         args: ["--line-length", "79"]
+        files: \.py(\.in)?$
+        types: [file]
   - repo: https://gitlab.com/daverona-env/pre-commit-cpp
     rev: 0.6.0
     hooks:
@@ -14,6 +16,8 @@ repos:
     rev: v2.4.0
     hooks:
       - id: flake8
+        files: \.py(\.in)?$
+        types: [file]
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
