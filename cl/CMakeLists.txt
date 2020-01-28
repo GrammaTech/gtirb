@@ -45,3 +45,14 @@ foreach(CL_EXECUTABLE_STEM ${CL_EXECUTABLE_STEMS})
 endforeach(CL_EXECUTABLE_STEM)
 
 add_custom_target(clgtirb ALL DEPENDS ${CL_EXECUTABLES})
+
+if(GTIRB_ENABLE_TESTS)
+  add_test(
+    NAME testgtirbcl
+    COMMAND
+      ${LISP} --noinform --dynamic-space-size 16384 --no-userinit --no-sysinit
+      --disable-debugger --load ${QUICKLISP}/setup.lisp --eval
+      '(ql:quickload :gtirb/test)' --eval '(gtirb/test:batch-test)'
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+  )
+endif()
