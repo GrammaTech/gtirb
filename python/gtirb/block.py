@@ -24,7 +24,7 @@ class ByteBlock(Block):
     """The base class for blocks that belong to a :class:`ByteInterval` and
     store their bytes there.
 
-    :ivar offset: The offset from the beginning of the byte interval to which
+    :ivar ~.offset: The offset from the beginning of the byte interval to which
         this block belongs. Multiple blocks in the same interval may have the
         same offset.
     """
@@ -131,7 +131,7 @@ class CfgNode(Block):
 class DataBlock(ByteBlock):
     """Represents a data object, possibly symbolic.
 
-    :ivar size: The size of the data object in bytes.
+    :ivar ~.size: The size of the data object in bytes.
     """
 
     def __init__(self, *, size=0, offset=0, uuid=None):
@@ -176,8 +176,8 @@ class CodeBlock(ByteBlock, CfgNode):
     Does not directly store data bytes, which are kept in a
     :class:`ByteInterval`.
 
-    :ivar size: The length of the block in bytes.
-    :ivar decode_mode: The decode mode of the block,
+    :ivar ~.size: The length of the block in bytes.
+    :ivar ~.decode_mode: The decode mode of the block,
         used in some ISAs to differentiate between sub-ISAs
         (e.g. differentiating blocks written in ARM and Thumb).
     """

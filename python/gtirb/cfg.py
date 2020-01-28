@@ -11,9 +11,9 @@ class Edge:
     """An edge in the CFG from ``source`` to ``target``, with optional
     control-flow details in ``label``.
 
-    :ivar source: The source CFG node.
-    :ivar target: The target CFG node.
-    :ivar label: An optional label containing more control flow information.
+    :ivar ~.source: The source CFG node.
+    :ivar ~.target: The target CFG node.
+    :ivar ~.label: An optional label containing more control flow information.
     """
 
     class Type(Enum):
@@ -69,19 +69,19 @@ class Edge:
         """Contains a more detailed description of a :class:`gtirb.Edge`
         in the CFG.
 
-        :ivar conditional: When this edge is part of a conditional branch,
+        :ivar ~.conditional: When this edge is part of a conditional branch,
             ``conditional`` is ``True`` when the edge represents the control
             flow taken when the branch's condition is met, and ``False``
             when it represents the control flow taken when the branch's
             condition is not met. Otherwise, it is always ``False``.
-        :ivar direct: ``True`` if the branch or call is direct,
+        :ivar ~.direct: ``True`` if the branch or call is direct,
                 and ``False`` if it is indirect. If an edge is indirect,
                 then all outgoing indirect edges represent the set of
                 possible locations the edge may branch to. If there
                 exists an indirect outgoing edge to a :class:`gtirb.ProxyBlock`
                 without any :class:`gtirb.Symbol` objects referring to it,
                 then the set of all possible branch locations is unknown.
-        :ivar type: The type of control flow the :class:`gtirb.Edge`
+        :ivar ~.type: The type of control flow the :class:`gtirb.Edge`
             represents.
         """
 

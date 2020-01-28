@@ -22,8 +22,8 @@ class AuxData:
     from ``str`` objects to ``UUID`` objects. All ``AuxData`` requires
     a valid type name in order to be serialized.
 
-    :ivar data: The value stored in this AuxData.
-    :ivar type_name: A string describing the type of ``data``.
+    :ivar ~.data: The value stored in this AuxData.
+    :ivar ~.type_name: A string describing the type of ``data``.
         Used to determine the proper codec for serializing this AuxData.
     """
 
@@ -82,7 +82,7 @@ class AuxDataContainer(Node):
     """The base class for anything that holds AuxData tables; that is,
     :class:`gtirb.IR` and :class:`gtirb.Module`.
 
-    :ivar aux_data: The auxiliary data associated
+    :ivar ~.aux_data: The auxiliary data associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`.
     """

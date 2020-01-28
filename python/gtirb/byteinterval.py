@@ -27,20 +27,20 @@ class ByteInterval(Node):
     ByteInterval, then it should be considered unknown if moving the two blocks
     relative to one another in memory is a safe operation.
 
-    :ivar address: The fixed address of this interval, if present. If this
+    :ivar ~.address: The fixed address of this interval, if present. If this
         field is present, it may indicate the original address at which this
         interval was located at in memory, or it may indicate that this block's
         address is fixed and must not be changed. If this field is not present,
         it indicates that the interval is free to be moved around in memory
         while preserving program semantics.
-    :ivar size: The size of this interval in bytes. If this number is greater
+    :ivar ~.size: The size of this interval in bytes. If this number is greater
         than ``initialized_size``, this indicates that the high addresses taken
         up by this interval consist of uninitialized bytes. This often occurs
         in BSS sections, where data is zero-initialized rather than stored as
         zeroes in the binary.
-    :ivar contents: The bytes stored in this interval.
-    :ivar blocks: A set of all :class:`ByteBlock`\\s in this interval.
-    :ivar symbolic_expressions: A mapping, from offset in the interval, to a
+    :ivar ~.contents: The bytes stored in this interval.
+    :ivar ~.blocks: A set of all :class:`ByteBlock`\\s in this interval.
+    :ivar ~.symbolic_expressions: A mapping, from offset in the interval, to a
         :class:`SymbolicExpression` in the interval.
     """
 

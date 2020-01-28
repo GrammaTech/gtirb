@@ -330,7 +330,7 @@ class Serialization:
     This example registers a new type name, ``my_custom_type``, and associate
     it with a new codec, ``MyCustomCodec``.
 
-    :ivar codecs: A mapping of type names to codecs. Codecs can be added
+    :ivar ~.codecs: A mapping of type names to codecs. Codecs can be added
         or overridden using this dictionary.
     """
 

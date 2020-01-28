@@ -15,25 +15,25 @@ from .util import DictLike, SetWrapper, nodes_in, nodes_at
 class Module(AuxDataContainer):
     """Represents a loadable object, such as an executable or library.
 
-    :ivar binary_path: The path to the loadable binary object
+    :ivar ~.binary_path: The path to the loadable binary object
         represented by this module. An empty string if not specified.
         The file represented by this path is indicitave of what file
         this ``Module`` was initially created from; it is not guaranteed to
         currently exist or have the same contents.
-    :ivar isa: The ISA of the binary.
-    :ivar file_format: The file format of the binary.
-    :ivar name: The name given to the binary. Some file formats use this
+    :ivar ~.isa: The ISA of the binary.
+    :ivar ~.file_format: The file format of the binary.
+    :ivar ~.name: The name given to the binary. Some file formats use this
         for linking and/or symbol resolution purposes. An empty string if
         not specified by the format.
-    :ivar preferred_addr: The preferred loading address of the binary.
-    :ivar proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s
+    :ivar ~.preferred_addr: The preferred loading address of the binary.
+    :ivar ~.proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s
         in the binary.
-    :ivar rebase_delta: The rebase delta of the binary.
-    :ivar sections: A set containing all the :class:`gtirb.Section`\\s
+    :ivar ~.rebase_delta: The rebase delta of the binary.
+    :ivar ~.sections: A set containing all the :class:`gtirb.Section`\\s
         in the binary.
-    :ivar symbols: A set containing all the :class:`gtirb.Symbol`\\s
+    :ivar ~.symbols: A set containing all the :class:`gtirb.Symbol`\\s
         in the binary.
-    :ivar entry_point: A :class:`CodeBlock` representing where
+    :ivar ~.entry_point: A :class:`CodeBlock` representing where
         control flow of this module begins at, or None if not present.
     """
 

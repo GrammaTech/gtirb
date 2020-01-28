@@ -11,10 +11,10 @@ class SymAddrAddr:
     """Represents a symbolic expression of the form
     "(Sym1 - Sym2) / Scale + Offset".
 
-    :ivar scale: Constant scale factor.
-    :ivar offset: Constant offset.
-    :ivar symbol1: Symbol representing the base address.
-    :ivar symbol2: Symbol to subtract from ``symbol1``.
+    :ivar ~.scale: Constant scale factor.
+    :ivar ~.offset: Constant offset.
+    :ivar ~.symbol1: Symbol representing the base address.
+    :ivar ~.symbol2: Symbol to subtract from ``symbol1``.
     """
 
     def __init__(
@@ -99,8 +99,8 @@ class SymAddrAddr:
 class SymAddrConst:
     """Represents a symbolic expression of the form "Sym + Offset".
 
-    :ivar offset: Constant offset.
-    :ivar symbol: Symbol representing an address.
+    :ivar ~.offset: Constant offset.
+    :ivar ~.symbol: Symbol representing an address.
     """
 
     def __init__(self, offset, symbol):
@@ -163,8 +163,8 @@ class SymStackConst:
     """Represents a symbolic expression of the form "Sym + Offset",
     representing an offset from a stack variable.
 
-    :ivar offset: Constant offset.
-    :ivar symbol: Symbol representing a stack variable.
+    :ivar ~.offset: Constant offset.
+    :ivar ~.symbol: Symbol representing a stack variable.
     """
 
     def __init__(self, offset, symbol):

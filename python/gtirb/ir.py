@@ -29,10 +29,10 @@ from .version import PROTOBUF_VERSION
 class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
 
-    :ivar modules: A list of :class:`Module`\\s contained in the IR.
-    :ivar cfg: A set of :class:`Edge`\\s representing the IR's control
+    :ivar ~.modules: A list of :class:`Module`\\s contained in the IR.
+    :ivar ~.cfg: A set of :class:`Edge`\\s representing the IR's control
         flow graph.
-    :ivar version: The Protobuf version of this IR.
+    :ivar ~.version: The Protobuf version of this IR.
     """
 
     class _ModuleList(ListWrapper[Module]):

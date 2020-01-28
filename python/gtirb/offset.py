@@ -8,9 +8,9 @@ class Offset:
     An Offset describes a location inside a :class:`gtirb.CodeBlock`
     or :class:`gtirb.DataBlock`.
 
-    :ivar element_id: The UUID of a :class:`gtirb.ByteBlock`
+    :ivar ~.element_id: The UUID of a :class:`gtirb.ByteBlock`
             containing the location of interest.
-    :ivar displacement: The offset inside the Node to point to.
+    :ivar ~.displacement: The offset inside the Node to point to.
     """
 
     def __init__(self, element_id, displacement):

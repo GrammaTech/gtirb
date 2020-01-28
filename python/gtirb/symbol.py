@@ -14,7 +14,7 @@ Payload = typing.Union[Block, int]
 class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
-    :ivar name: The name of this symbol.
+    :ivar ~.name: The name of this symbol.
     """
 
     def __init__(

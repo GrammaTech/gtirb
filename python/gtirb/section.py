@@ -16,9 +16,9 @@ class Section(Node):
     Does not directly store the contents of the section, which are
     kept in a :class:`gtirb.ImageByteMap`.
 
-    :ivar name: The section name (E.g. ".text", ".bss", etc).
-    :ivar byte_intervals: The :class:`ByteInterval`\\s in this section.
-    :ivar flags: The :class:`Section.Flag`\\s this section has.
+    :ivar ~.name: The section name (E.g. ".text", ".bss", etc).
+    :ivar ~.byte_intervals: The :class:`ByteInterval`\\s in this section.
+    :ivar ~.flags: The :class:`Section.Flag`\\s this section has.
     """
 
     class Flag(Enum):

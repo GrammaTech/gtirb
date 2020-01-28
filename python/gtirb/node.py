@@ -6,7 +6,7 @@ import typing
 class Node:
     """A Node is any GTIRB object which can be referenced by UUID.
 
-    :ivar uuid: The UUID of this Node.
+    :ivar ~.uuid: The UUID of this Node.
     """
 
     _uuid_cache = (
