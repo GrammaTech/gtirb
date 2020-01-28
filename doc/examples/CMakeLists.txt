@@ -1,4 +1,4 @@
-include_directories("${CMAKE_BINARY_DIR}/include/")
+include_directories("${CMAKE_SOURCE_DIR}/include")
 # Find protobuf generated headers in the build directory
 include_directories("${CMAKE_BINARY_DIR}/src/")
 

@@ -30,56 +30,45 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
   add_compile_options(-pthread)
 endif()
 
-# generate headers
-set(HEADER_NAMES
-    Allocator.hpp
-    AuxData.hpp
-    AuxDataContainer.hpp
-    ByteInterval.hpp
-    CodeBlock.hpp
-    Casting.hpp
-    Context.hpp
-    CFG.hpp
-    CfgNode.hpp
-    DataBlock.hpp
-    Addr.hpp
-    Export.hpp
-    IR.hpp
-    Module.hpp
-    Node.hpp
-    Offset.hpp
-    ProxyBlock.hpp
-    Section.hpp
-    Serialization.hpp
-    Symbol.hpp
-    SymbolicExpression.hpp
-    Utility.hpp
-    gtirb.hpp
-)
-
-foreach(HEADER_NAME ${HEADER_NAMES})
-  set(SOURCE_HEADER "${CMAKE_SOURCE_DIR}/include/gtirb/${HEADER_NAME}")
-  set(BUILD_HEADER "${CMAKE_BINARY_DIR}/include/gtirb/${HEADER_NAME}")
-  add_custom_command(
-    OUTPUT "${BUILD_HEADER}"
-    DEPENDS "${SOURCE_HEADER}"
-    COMMAND cmake -E copy "${SOURCE_HEADER}" "${BUILD_HEADER}"
-  )
-  list(APPEND ${PROJECT_NAME}_H "${BUILD_HEADER}")
-endforeach()
-
 # generate version.h from version.h.in
 configure_file(
   "${CMAKE_SOURCE_DIR}/include/gtirb/version.h.in"
-  "${CMAKE_BINARY_DIR}/include/gtirb/version.h" @ONLY
+  "${CMAKE_SOURCE_DIR}/include/gtirb/version.h" @ONLY
 )
-list(APPEND ${PROJECT_NAME}_H "${CMAKE_BINARY_DIR}/include/gtirb/version.h")
+
+# specify source files
+set(${PROJECT_NAME}_H
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/ByteInterval.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/DataBlock.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Node.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Offset.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Serialization.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Utility.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/version.h"
+)
 
 # Find our headers
-include_directories("${CMAKE_BINARY_DIR}/include")
+include_directories("${CMAKE_SOURCE_DIR}/include")
 
 # Find our headers without gtirb/ prefix
-include_directories("${CMAKE_BINARY_DIR}/include/gtirb")
+include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
 
 # Find protobuf generated headers in the build directory
 include_directories("${CMAKE_BINARY_DIR}/src/")
