@@ -41,6 +41,7 @@
         (size (proto-v0:size section)))
     (setf (proto:uuid new) (new-uuid)
           (proto:address new) address
+          (proto:has-address new) (proto-v0:has-address section)
           (proto:size new) size
           (proto:contents new)
           (module-bytes-subseq module address (+ address size))
