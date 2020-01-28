@@ -39,7 +39,7 @@ with open(infile, "r") as infh:
                 lambda m: m.group(1) + m.group(2).replace("\n", "\n    "),
             ),
             # .md file links to /doc/examples/* become Doxygen \ref
-            # links with no path component
+            # links with adjusted path component
             (r"\[([^]\n]*)\]\s*\(doc/examples/(.*?)\)", r'\\ref \2 "\1"'),
             # C++ has to be converted to doxygen \code ... \endcode
             # to get linking

@@ -70,34 +70,6 @@ namespace gtirb {
 /// \enddot
 ///
 
-// Examples
-// The location for these is arbitrary as Doxygen puts all examples in a
-// separate section.
-
-/// \example data-symbols.cpp
-/// Open an IR and print every symbol pointing to data.
-
-/// \example cfg-paths.cpp
-/// Open an IR and print every path from some point to some other point.
-
-/// \example functions.cpp
-/// Open an IR with function information in an auxiliary data store and print
-/// every function along with the number of other functions it calls.
-
-/// \example jumps.cpp
-/// Open an IR and print the Address of every jump instruction,
-/// along with the jump targets (if known).
-
-/// \example data-symbols.py
-/// Open an IR via protobuf and print every symbol pointing to data.
-
-/// \example cfg-paths.py
-/// Open an IR via protobuf and print every path from some point to some
-/// other point.
-
-/// \example datasymbols.java
-/// Open an IR via protobuf and print every symbol pointing to data.
-
 class GTIRB_EXPORT_API IR : public AuxDataContainer {
   IR(Context& C) : AuxDataContainer(C, Kind::IR) {}
 

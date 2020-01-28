@@ -1,4 +1,4 @@
-Frequently Asked Questions
+Frequently Asked Questions             {#FAQ}
 --------------------------
 
 - [I get compiler errors when I try to compile programs using GTIRB. How can I make them go away?](#compiler-errors)

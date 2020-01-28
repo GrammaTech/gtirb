@@ -39,6 +39,11 @@ if(DOXYGEN_FOUND)
     "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY
   )
 
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/examples.dox"
+    "${CMAKE_CURRENT_BINARY_DIR}/examples.dox" @ONLY
+  )
+
   # adapted from https://gist.github.com/abravalheri/11214134
 
   macro(move_filename file_list newdir)
@@ -74,6 +79,8 @@ if(DOXYGEN_FOUND)
   # ----------------------------------------------------------------------
 
   set(MDFILES_IN
+      "${DOC_INDIR}/general/ComponentsIndex.md"
+      "${DOC_INDIR}/general/Desc_Node.md"
       "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/AuxData.md"
       "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/FAQ.md" "${ROOTDIR}/PROTOBUF.md"
       "${ROOTDIR}/README.md"
@@ -101,14 +108,13 @@ if(DOXYGEN_FOUND)
   # ----------------------------------------------------------------------
 
   add_custom_target(
-    doxygen
+    general_doxyout
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${DOTFILES}
     DEPENDS ${MDFILES}
     COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-    COMMENT "Generating API documentation with Doxygen"
+    COMMENT "Generating general API documentation with Doxygen"
     VERBATIM
   )
 
-  add_dependencies(doc doxygen)
+  add_dependencies(doc general_doxyout)
 endif(DOXYGEN_FOUND)
