@@ -13,24 +13,29 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
 - Text files must end with a trailing newline.
 
 - All tests should be able to run and pass.
-  This can be checked by running `make check` on your build directory after running `cmake`.
+  This can be checked by running `make check` on your build directory
+  after running `cmake`.
 
-- All CMake files shall be formatted with [cmake-format](https://pypi.org/project/cmake-format/).
-  A `.cmake-format` file is provided in the root directory for the project,
-  and a pass through this tool is included as part of our `pre-commit` configuration (see below for details).
+- All CMake files shall be formatted with
+  [cmake-format](https://pypi.org/project/cmake-format/).  A
+  `.cmake-format` file is provided in the root directory for the
+  project, and a pass through this tool is included as part of our
+  `pre-commit` configuration (see below for details).
 
 ### pre-commit
 
-In general, code must follow a unified format. To make compliance with this format easier,
-we recommend the use of `[pre-commit](https://pre-commit.com/)`
-with the provided configuration file, `.pre-commit-config.yaml`, to manage formatting.
+In general, code must follow a unified format. To make compliance with
+this format easier, we recommend the use of
+[`pre-commit`](https://pre-commit.com/) with the provided
+configuration file, `.pre-commit-config.yaml`, to manage formatting.
 To use `pre-commit`:
 
-1. If `pre-commit` is not already installed on your system, install it now with `[pip](https://pypi.org/project/pip/)`
+1. If `pre-commit` is not already installed on your system, install it
+   now with [`pip`](https://pypi.org/project/pip/).
    ```shell
       pip3 install pre-commit
    ```
-2. If `[clang-format](https://clang.llvm.org/docs/ClangFormat.html)`
+2. If [`clang-format`](https://clang.llvm.org/docs/ClangFormat.html)
    is not already installed on your system, install it now.
 3. Install the formatters as a pre-commit hook. In the gtirb root directory:
    ```shell
@@ -71,7 +76,7 @@ To use `pre-commit`:
   initialization or if the deduced type is an abstract type
   alias.  Always explicitly specify type qualifiers, pointers, and
   references.  E.g.,
-  ```c++
+  ```cpp
   const auto *Ptr = dynamic_cast<const Foo *>(SomePtr);
   auto Val = static_cast<unsigned>(SomeValue);
   for (auto Iter = SomeContainer.begin(), End = SomeContainer.end(); Iter != End; ++Iter) {}
@@ -104,8 +109,9 @@ information.
 
 #### Building Documentation
 
-At minimum, you will need [CMake](https://cmake.org/) and [Doxygen](http://www.doxygen.nl/).
-In addition, for the other APIs you may have enabled:
+At minimum, you will need [CMake](https://cmake.org/) and
+[Doxygen](http://www.doxygen.nl/).  In addition, for the other APIs
+you may have enabled:
 
 
 * For the Python API, [Sphinx](https://www.sphinx-doc.org/en/master/)
@@ -114,6 +120,14 @@ In addition, for the other APIs you may have enabled:
 
   ```bash
   pip3 install sphinx sphinx-autodoc-typehints
+  ```
+
+  You will also need the Python `protobuf` module so that Sphinx can
+  properly handle the API implementation. If you haven't already
+  installed this, do so now.
+
+  ```bash
+  pip3 install protobuf
   ```
 
 * For the Common Lisp API, [simpler-documentation-template (SDT)](https://github.com/eschulte/simpler-documentation-template)
@@ -135,7 +149,7 @@ To build the documentation:
 2. Build the documentation.
 
    ```bash
-   build> cmake <PATH_TO_GTIRB>
+   build> cmake <PATH_TO_GTIRB> [<api_options>]
    build> cmake --build . --target doc
    ```
 
@@ -143,27 +157,59 @@ To build the documentation:
    in your browser.
 
 
+The `<api_options>` are as follows
+
+- `-DGTIRB_CXX_API=OFF` : do not generate C++ API documentation.
+
+  If this option is not specified, `cmake` will attempt to generate
+  C++ API documentation, failing (along with the documentation build
+  as a whole) if [Doxygen](http://www.doxygen.nl/) is not available.
+
+
+- `-DGTIRB_CL_API=OFF` : do not generate Common Lisp API documentation.
+
+  If this option is not specified, `cmake` will attempt to generate
+  Common Lisp API documentation if and only if it can locate a
+  SBCL/Quicklisp installation, failing if
+  [simpler-documentation-template
+  (SDT)](https://github.com/eschulte/simpler-documentation-template)
+  is not available.
+
+- `-DGTIRB_PY_API=OFF` : do not generate Python API documentation.
+
+  If this option is not specified, `cmake` will attempt to generate
+  Python API documentation if and only if it can locate a Python
+
+  installation, failing if [Sphinx](https://www.sphinx-doc.org/en/master/),
+  [sphinx-autodoc-typehints](https://pypi.org/project/sphinx-autodoc-typehints/),
+  or the Python `protobuf` module are not available.
+
+
 #### Contributing Markdown Documentation
 
 To add a new markdown document to the documentation:
 
-1. Create the new document as a child of /doc.
+1. Create the new document as a child of `/doc`.
    - File names start with `gtirb`.
    - File extension is `.md`.
    - Use github markdown syntax.
    - Wrap your markdown documents at 80 columns.
 
-2. Edit `/doc/doxy/Doxyfile.in` to add the basename of your new markdown
-   document to the `INPUT` rule setting. Note that the ordering of
-   file names here corresponds to table of contents ordering.
+2. Edit `/doc/general/Doxyfile.in` to add the basename of your new markdown
+   document to the `INPUT` rule setting.
 
-3. Edit `/doc/doxy/CMakeLists.txt` to add your new markdown document
+3. Edit `/doc/general/CMakeLists.txt` to add your new markdown document
    to  `MDFILES_IN`. Ordering is not important.
 
-4. [Build the documentation](#building-documentation) and check that
+4. Integrate your new markdown document into the documentation, either
+   by linking to it from an existing page or by updating
+   `/doc/general/DoxygenLayout.xml` to add an entry to the **More Information**
+   tab.
+
+5. [Build the documentation](#building-documentation) and check that
    your new page is present and rendered correctly.
    - If it is not rendered correctly, you may need to add a new
-     preprocessing step to `doc/doxy/preprocmd.py` to rewrite the
+     preprocessing step to `doc/general/preprocmd.py` to rewrite the
      corresponding github-style markdown into something Doxygen
      can handle correctly.
 
