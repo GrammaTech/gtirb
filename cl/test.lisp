@@ -282,6 +282,11 @@ The ERRNO used when exiting lisp indicates success or failure."
       (is (subtypep (type-of (payload referent-symbol)) 'number))
       (is (not (proto:has-referent-uuid (gtirb::proto referent-symbol)))))))
 
+(deftest can-create-without-parents ()
+  (is (typep (make-instance 'module) 'module))
+  (is (typep (make-instance 'section) 'section))
+  (is (typep (make-instance 'byte-interval) 'byte-interval)))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()

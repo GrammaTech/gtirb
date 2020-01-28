@@ -228,9 +228,7 @@ Should not need to be manipulated by client code.")
          ,@(when parent
              `((,parent :accessor ,parent :type (or null ,parent)
                         :initarg ,(make-keyword parent)
-                        :initform (warn ,(format nil "~a created without a ~
-                                                      pointer to enclosing ~a."
-                                                 class parent))
+                        :initform nil
                         :documentation ,(format nil "Access the ~a of this ~a."
                                                 parent class))))
          ,@(mapcar [{plist-drop :to-proto} {plist-drop :from-proto}
@@ -272,9 +270,10 @@ Should not need to be manipulated by client code.")
       (defmethod
           initialize-instance :after ((self ,class) &key)
           ,@(when parent
-              `((setf (get-uuid (uuid-to-integer (proto:uuid (proto self)))
-                                self)
-                      self)))
+              `((when (,parent self)
+                  (setf (get-uuid (uuid-to-integer (proto:uuid (proto self)))
+                                  self)
+                        self))))
           (with-slots (proto ,@(mapcar #'car from-proto-slots)) self
             ,@(mapcar
                (lambda (spec)
