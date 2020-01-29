@@ -719,7 +719,6 @@ elements as proxy blocks do not hold bytes.")
                    it)))
              (hash-table-alist symbolic-expression)))
       :documentation "Hash of symbolic-expressions keyed by offset."))
-    ;; TODO: Convert to a null-able address.
     ((addressp :type boolean :proto-field has-address
                :documentation
                "Does this byte-interval have an address.")
@@ -745,6 +744,9 @@ at runtime.")
     (format stream "~a ~a"
             (if (addressp obj) (address obj) "?")
             (size obj))))
+
+(defmethod address ((obj byte-interval))
+  (when (addressp obj) (proto:address (proto obj))))
 
 (defclass symbolic-expression ()
   ((symbols :accessor symbols :type '(list symbol)
