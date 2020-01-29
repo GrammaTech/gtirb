@@ -184,3 +184,6 @@ install(
 )
 install(FILES ${${PROJECT_NAME}_H} DESTINATION include/gtirb)
 install(DIRECTORY "${CMAKE_BINARY_DIR}/include/proto" DESTINATION include)
+install(FILES "${CMAKE_BINARY_DIR}/include/gtirb/version.h"
+        DESTINATION include/gtirb
+)
