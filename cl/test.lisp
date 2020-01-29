@@ -35,11 +35,19 @@ The ERRNO used when exiting lisp indicates success or failure."
         (format *error-output* "SUCCESS~%"))
     (quit (if failures 2 0))))
 
+(defvar *gtirb-dir* (nest (make-pathname :directory)
+                          (butlast)
+                          (pathname-directory)
+                          #.(or *compile-file-truename*
+                                *load-truename*
+                                *default-pathname-defaults*)))
+
 
 ;;;; Fixtures.
 (defixture hello-v0
   (:setup
    (progn
+     #+live-w-ddisasm
      (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
        (with-temporary-file (:pathname bin-path)
          (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
@@ -47,14 +55,18 @@ The ERRNO used when exiting lisp indicates success or failure."
                               bin-path) :force-shell t)
          (run-program (format nil "ddisasm --ir ~a ~a" gtirb-path bin-path))
          (delete-file bin-path))
-       (setf *proto-path* gtirb-path))))
+       (setf *proto-path* gtirb-path))
+     #-live-w-ddisasm
+     (setf *proto-path*
+           (merge-pathnames "python/tests/hello.v0.gtirb" *gtirb-dir*))))
   (:teardown (progn
-               (delete-file *proto-path*)
+               #+live-w-ddisasm (delete-file *proto-path*)
                (setf *proto-path* nil))))
 
 (defixture hello
   (:setup
    (progn
+     #+live-w-ddisasm
      (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
        (with-temporary-file (:pathname gtirb-v0-path)
          (with-temporary-file (:pathname gtirb-path-temp)
@@ -75,9 +87,12 @@ The ERRNO used when exiting lisp indicates success or failure."
            ;;        be good to find out what it is and remove it.
            (write-proto (upgrade (read-proto 'proto:ir gtirb-path-temp))
                         gtirb-path)))
-       (setf *proto-path* gtirb-path))))
+       (setf *proto-path* gtirb-path))
+     #-live-w-ddisasm
+     (setf *proto-path*
+           (merge-pathnames "python/tests/hello.v1.gtirb" *gtirb-dir*))))
   (:teardown (progn
-               (delete-file *proto-path*)
+               #+live-w-ddisasm (delete-file *proto-path*)
                (setf *proto-path* nil))))
 
 
