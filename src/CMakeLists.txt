@@ -64,18 +64,6 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/version.h.in"
 )
 
-# Find our headers
-include_directories("${CMAKE_SOURCE_DIR}/include")
-
-# Find our headers without gtirb/ prefix
-include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
-
-# Find protobuf generated headers in the build directory
-include_directories("${CMAKE_BINARY_DIR}/src/")
-
-# Find our version.h header file
-include_directories("${CMAKE_BINARY_DIR}/include")
-
 # specify source files
 set(${PROJECT_NAME}_SRC
     AuxData.cpp
@@ -125,6 +113,20 @@ if(WIN32)
   target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/version.rc)
   source_group(Resources FILES ${CMAKE_BINARY_DIR}/version.rc)
 endif()
+
+# Find our headers
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+)
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+)
+target_include_directories(
+  ${PROJECT_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include/gtirb>
+)
+target_include_directories(
+  ${PROJECT_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/src/>
+)
 
 target_link_libraries(
   ${PROJECT_NAME}
