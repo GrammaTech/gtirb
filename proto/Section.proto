@@ -18,7 +18,7 @@ package proto;
 import "ByteInterval.proto";
 
 enum SectionFlag {
-  Undefined = 0;
+  Section_Undefined = 0;
   Readable = 1;
   Writable = 2;
   Executable = 3;

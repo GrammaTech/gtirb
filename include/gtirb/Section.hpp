@@ -19,6 +19,8 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
+#include <proto/Section.pb.h>
+#include <algorithm>
 #include <boost/icl/interval_map.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
@@ -28,6 +30,7 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
+#include <set>
 
 /// \file Section.hpp
 /// \brief Class gtirb::Section.
@@ -38,6 +41,19 @@ class Section;
 
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
+
+/// \enum SectionFlag
+///
+/// \brief Idenfities the flags used for a section.
+enum class SectionFlag : uint8_t {
+  Undefined = proto::SectionFlag::Section_Undefined,
+  Readable = proto::SectionFlag::Readable,
+  Writable = proto::SectionFlag::Writable,
+  Executable = proto::SectionFlag::Executable,
+  Loaded = proto::SectionFlag::Loaded,
+  Initialized = proto::SectionFlag::Initialized,
+  ThreadLocal = proto::SectionFlag::ThreadLocal,
+};
 
 /// \class Section
 ///
@@ -99,6 +115,45 @@ public:
   ///
   /// \return The name.
   const std::string& getName() const { return Name; }
+
+  /// \brief Adds the flag to the Section.
+  ///
+  /// \param F The flag to be added.
+  void addFlag(SectionFlag F) { Flags.insert(F); }
+
+  /// \brief Adds all of the flags to the Section.
+  /// \tparam Fs A pack of \ref SectionFlag flags.
+  /// \param F The flags to be added to the Section.
+  template <typename... Fs> void addFlags(Fs... F) { (addFlag(F), ...); }
+
+  /// \brief Removes the flag from the Section.
+  ///
+  /// \param F The flag to be removed.
+  void removeFlag(SectionFlag F) { Flags.erase(F); }
+
+  /// \brief Tests whether the given flag is set for the Section.
+  ///
+  /// \param F The flag to test.
+  /// \return true if the flag is set, false otherwise.
+  bool isFlagSet(SectionFlag F) {
+    return std::find(Flags.begin(), Flags.end(), F) != Flags.end();
+  }
+
+  /// \brief Iterator over \ref SectionFlag flags.
+  using const_section_flag_iterator = std::set<SectionFlag>::const_iterator;
+  /// \brief Range of \ref SectionFlag flags.
+  using const_section_flag_range =
+      boost::iterator_range<const_section_flag_iterator>;
+
+  /// \brief Return a const iterator to the first \ref SectionFlag.
+  const_section_flag_iterator flags_begin() const { return Flags.begin(); }
+  /// \brief Return a const iterator to the element following the last \ref
+  /// SectionFlag.
+  const_section_flag_iterator flags_end() const { return Flags.end(); }
+  /// \brief Return a range of the \ref SectionFlag flags set for the Section.
+  const_section_flag_range flags() const {
+    return boost::make_iterator_range(flags_begin(), flags_end());
+  }
 
   /// \brief Iterator over \ref ByteInterval objects.
   using byte_interval_iterator =
@@ -1038,6 +1093,7 @@ private:
   std::string Name;
   ByteIntervalSet ByteIntervals;
   ByteIntervalIntMap ByteIntervalAddrs;
+  std::set<SectionFlag> Flags;
 
   void setModule(Module* M) { Parent = M; }
 

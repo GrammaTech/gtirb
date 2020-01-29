@@ -43,15 +43,42 @@ TEST(Unit_Section, getAddress) {
   EXPECT_EQ(S->getSize(), OSize());
 }
 
+TEST(Unit_Section, flags) {
+  auto* S = Section::Create(Ctx, nullptr, "test");
+  EXPECT_FALSE(S->isFlagSet(SectionFlag::Undefined));
+
+  S->addFlag(SectionFlag::Executable);
+  EXPECT_TRUE(S->isFlagSet(SectionFlag::Executable));
+
+  S->removeFlag(SectionFlag::Executable);
+  EXPECT_FALSE(S->isFlagSet(SectionFlag::Executable));
+
+  S->addFlags(SectionFlag::Initialized, SectionFlag::Loaded);
+  if (*S->flags_begin() == SectionFlag::Initialized)
+    EXPECT_EQ(SectionFlag::Loaded, *(++S->flags_begin()));
+  else {
+    EXPECT_EQ(SectionFlag::Loaded, *S->flags_begin());
+    EXPECT_EQ(SectionFlag::Initialized, *(++S->flags_begin()));
+  }
+}
+
 TEST(Unit_Section, protobufRoundTrip) {
   proto::Section Message;
 
   {
     Context InnerCtx;
     auto* Original = Section::Create(InnerCtx, nullptr, "name");
+    Original->addFlags(SectionFlag::Executable, SectionFlag::Loaded,
+                       SectionFlag::Writable);
     Original->toProtobuf(&Message);
   }
   auto* Result = Section::fromProtobuf(Ctx, nullptr, Message);
 
   EXPECT_EQ(Result->getName(), "name");
+  EXPECT_TRUE(Result->isFlagSet(SectionFlag::Executable));
+  EXPECT_TRUE(Result->isFlagSet(SectionFlag::Loaded));
+  EXPECT_TRUE(Result->isFlagSet(SectionFlag::Writable));
+  EXPECT_FALSE(Result->isFlagSet(SectionFlag::Initialized));
+  EXPECT_FALSE(Result->isFlagSet(SectionFlag::Readable));
+  EXPECT_FALSE(Result->isFlagSet(SectionFlag::ThreadLocal));
 }

@@ -14,7 +14,6 @@
 //===----------------------------------------------------------------------===//
 #include "Section.hpp"
 #include <gtirb/Serialization.hpp>
-#include <proto/Section.pb.h>
 
 using namespace gtirb;
 
@@ -30,6 +29,9 @@ bool Section::operator!=(const Section& Other) const {
 void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
+  for (auto Flag : flags()) {
+    Message->add_section_flags(static_cast<proto::SectionFlag>(Flag));
+  }
   for (const auto& Interval : byte_intervals()) {
     Interval.toProtobuf(Message->add_byte_intervals());
   }
@@ -38,6 +40,9 @@ void Section::toProtobuf(MessageType* Message) const {
 Section* Section::fromProtobuf(Context& C, Module* Parent,
                                const MessageType& Message) {
   auto* S = Section::Create(C, Parent, Message.name());
+  for (int I = 0, E = Message.section_flags_size(); I != E; ++I) {
+    S->addFlag(static_cast<SectionFlag>(Message.section_flags(I)));
+  }
   setNodeUUIDFromBytes(S, Message.uuid());
   for (const auto& ProtoInterval : Message.byte_intervals()) {
     auto* BI = ByteInterval::fromProtobuf(C, S, ProtoInterval);
