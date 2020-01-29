@@ -18,7 +18,8 @@
            :*is-equal-p-verbose-p*
            :get-uuid
            :remove-uuid
-           :get-address
+           :at-address
+           :in-address
            :address-range
            :uuid
            :update-proto
@@ -169,7 +170,7 @@ as all GTIRB structures."
   (:documentation
    "Delete ITEM from OBJECT between START-ADDRESS and END-ADDRESS."))
 
-(defgeneric get-address (object start-address &optional end-address)
+(defgeneric in-address (object start-address &optional end-address)
   (:documentation
    "Find all objects in OBJECT between START-ADDRESS and END-ADDRESS."))
 
@@ -260,12 +261,12 @@ Should not need to be manipulated by client code.")
                                "`remove-uuid' failed on ~a without a ~a"
                                class parent))
               (remove-uuid uuid (,parent object)))
-            (defmethod get-address ((object ,class) start &optional end)
+            (defmethod in-address ((object ,class) start &optional end)
               (assert (,parent object) (object)
                       ,(format nil
-                               "`get-address' failed on ~a without a ~a"
+                               "`in-address' failed on ~a without a ~a"
                                class parent))
-              (get-address (,parent object) start end))))
+              (in-address (,parent object) start end))))
       (defmethod address-range ((self ,class)) ,@address-range)
       (defmethod
           initialize-instance :after ((self ,class) &key)
@@ -432,7 +433,7 @@ modules and on GTIRB IR instances.")
 (defmethod delete-address ((gtirb gtirb) item start &optional end)
   (ranged-insert (by-address gtirb) item start end))
 
-(defmethod get-address ((gtirb gtirb) start &optional end)
+(defmethod in-address ((gtirb gtirb) start &optional end)
   (ranged-find (by-address gtirb) start end))
 
 ;;; TODO: Find X starting at a given address.
