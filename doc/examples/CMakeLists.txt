@@ -1,6 +1,8 @@
 include_directories("${CMAKE_SOURCE_DIR}/include")
 # Find protobuf generated headers in the build directory
 include_directories("${CMAKE_BINARY_DIR}/src/")
+# Find our version.h header file
+include_directories("${CMAKE_BINARY_DIR}/include")
 
 # Suppress warning from protobuf headers.
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)

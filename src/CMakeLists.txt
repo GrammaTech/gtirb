@@ -33,7 +33,7 @@ endif()
 # generate version.h from version.h.in
 configure_file(
   "${CMAKE_SOURCE_DIR}/include/gtirb/version.h.in"
-  "${CMAKE_SOURCE_DIR}/include/gtirb/version.h" @ONLY
+  "${CMAKE_BINARY_DIR}/include/gtirb/version.h" @ONLY
 )
 
 # specify source files
@@ -61,7 +61,7 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Utility.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp"
-    "${CMAKE_SOURCE_DIR}/include/gtirb/version.h"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/version.h.in"
 )
 
 # Find our headers
@@ -72,6 +72,9 @@ include_directories("${CMAKE_SOURCE_DIR}/include/gtirb")
 
 # Find protobuf generated headers in the build directory
 include_directories("${CMAKE_BINARY_DIR}/src/")
+
+# Find our version.h header file
+include_directories("${CMAKE_BINARY_DIR}/include")
 
 # specify source files
 set(${PROJECT_NAME}_SRC
