@@ -76,7 +76,7 @@ public:
                            uint64_t Size, uint64_t DecodeMode = 0) {
     auto* CB = C.Create<CodeBlock>(C, Parent, Size, DecodeMode);
     if (Parent)
-      Parent->addBlockAt(Off, CB);
+      Parent->Blocks.emplace(Off, CB);
     return CB;
   }
 

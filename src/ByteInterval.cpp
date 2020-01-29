@@ -80,12 +80,12 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
       auto* B = CodeBlock::fromProtobuf(C, BI, ProtoBlock.code());
-      BI->addBlockAt(ProtoBlock.offset(), B);
+      BI->Blocks.emplace(ProtoBlock.offset(), B);
       B->addToIndices();
     } break;
     case proto::Block::ValueCase::kData: {
       auto* B = DataBlock::fromProtobuf(C, BI, ProtoBlock.data());
-      BI->addBlockAt(ProtoBlock.offset(), B);
+      BI->Blocks.emplace(ProtoBlock.offset(), B);
       B->addToIndices();
     } break;
     default: {

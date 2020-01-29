@@ -75,7 +75,7 @@ public:
                            uint64_t Size) {
     auto* DB = C.Create<DataBlock>(C, Parent, Size);
     if (Parent)
-      Parent->addBlockAt(Off, DB);
+      Parent->Blocks.emplace(Off, DB);
     return DB;
   }
 

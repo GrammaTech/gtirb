@@ -1263,7 +1263,7 @@ public:
     }
 
     N->setByteInterval(this);
-    addBlockAt(Off, N);
+    Blocks.emplace(Off, N);
     N->addToIndices();
     return N;
   }
@@ -1857,9 +1857,6 @@ private:
   }
 
   void setSection(Section* S) { Parent = S; }
-  template <typename BlockType> void addBlockAt(uint64_t Off, BlockType* B) {
-    Blocks.emplace(Off, B);
-  }
 
   Section* Parent{nullptr};
   std::optional<Addr> Address;
