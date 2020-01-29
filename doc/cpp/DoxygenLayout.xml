@@ -2,9 +2,9 @@
   <!-- Customized for gtirb C++ API based on doxygen 1.8.14 -->
   <!-- Navigation index tabs for HTML output -->
   <navindex>
-    <tab type="mainpage" visible="no"/>
+    <tab type="mainpage" visible="yes" title="C++ API Home"/>
     <tab type="user" visible="yes" title="GTIRB Home" url="../index.html"/>
-    <tab type="classes" visible="yes" title="C++ API">
+    <tab type="classes" visible="yes" title="C++ API Details">
       <tab type="classlist" visible="yes" title="" intro=""/>
       <tab type="classindex" visible="$ALPHABETICAL_INDEX" title=""/>
       <tab type="hierarchy" visible="yes" title="" intro=""/>

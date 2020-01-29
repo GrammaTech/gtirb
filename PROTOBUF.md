@@ -1,4 +1,4 @@
-Using Serialized GTIRB Data          {#PROTOBUF}
+Using Serialized GTIRB Data
 ===========================
 
 The serialized [protobuf](https://github.com/google/protobuf/wiki)

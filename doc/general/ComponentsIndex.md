@@ -1,4 +1,4 @@
-GTIRB Components     {#COMPONENTS}
+GTIRB Components
 ================
 
 

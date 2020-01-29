@@ -1,4 +1,4 @@
-Standard AuxData Schemata               {#AuxData}
+Standard AuxData Schemata
 =========================
 
 The \ref AUXDATA_GROUP class provides generic storage for

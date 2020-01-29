@@ -5,11 +5,11 @@
     <tab type="mainpage" visible="yes" title=""/>
     <tab type="pages" visible="no"/>
     <tab type="usergroup" visible="yes" title="More Information" url="">
-      <tab type="user" visible="yes" title="Frequently Asked Questions" url="@ref FAQ"/>
-      <tab type="user" visible="yes" title="Using Serialized GTIRB Data" url="@ref PROTOBUF"/>
-      <tab type="user" visible="yes" title="Advice on when to Place ICFG Edges" url="@ref CFG-Edges"/>
-      <tab type="user" visible="yes" title="Standard AuxData Schemata" url="@ref AuxData"/>
-      <tab type="user" visible="yes" title="Contributing" url="@ref CONTRIBUTING"/>
+      <tab type="user" visible="yes" title="Frequently Asked Questions" url="@ref md_FAQ"/>
+      <tab type="user" visible="yes" title="Using Serialized GTIRB Data" url="@ref md_PROTOBUF"/>
+      <tab type="user" visible="yes" title="Advice on when to Place ICFG Edges" url="@ref md_CFG-Edges"/>
+      <tab type="user" visible="yes" title="Standard AuxData Schemata" url="@ref md_AuxData"/>
+      <tab type="user" visible="yes" title="Contributing" url="@ref md_CONTRIBUTING"/>
     </tab>
     
     <tab type="usergroup" visible="yes" title="GTIRB Tools">
@@ -19,10 +19,10 @@
       </tab>
     </tab>
     
-    <tab type="user" visible="yes" title="API Components" url="@ref COMPONENTS"/>
+    <tab type="user" visible="yes" title="API Components" url="@ref md_ComponentsIndex"/>
     
     <tab type="usergroup" visible="yes" title="API Implementations"> 
-       <tab type="user" visible="@CPP_API_VISIBLE@" title="C++ API" url="cpp/annotated.html"/>
+       <tab type="user" visible="@CPP_API_VISIBLE@" title="C++ API" url="cpp/index.html"/>
        <tab type="user" visible="@PY_API_VISIBLE@" title="Python API" url="python/index.html"/>
        <tab type="user" visible="@CL_API_VISIBLE@" title="Common Lisp API" url="cl/index.html"/>
     </tab>

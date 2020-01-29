@@ -6,10 +6,10 @@ cmake_minimum_required(VERSION 3.3)
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
 
-  set(DOC_INDIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
   set(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+  set(DOTDIR "${CMAKE_CURRENT_SOURCE_DIR}/../dot")
 
-  set(BUILDFILES_IN DoxygenLayout.xml)
+  set(BUILDFILES_IN ../preprocmd.py DoxygenLayout.xml)
   foreach(_inf ${BUILDFILES_IN})
     configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/${_inf} ${CMAKE_CURRENT_BINARY_DIR}/${_inf}
@@ -52,7 +52,7 @@ if(DOXYGEN_FOUND)
   # ----------------------------------------------------------------------
   # copy dot files into a subdir of the working directory
   # ----------------------------------------------------------------------
-  file(GLOB DOTFILES_IN "${DOC_INDIR}/dot/*")
+  file(GLOB DOTFILES_IN "${DOTDIR}/*")
 
   set(DOTFILES ${DOTFILES_IN})
   move_filename(DOTFILES ${CMAKE_CURRENT_BINARY_DIR})
@@ -64,10 +64,36 @@ if(DOXYGEN_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${DOTFILES_IN}
     COMMAND mkdir -p dot
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DOC_INDIR}/dot dot
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DOTDIR} dot
     COMMENT "copying dot dir"
     VERBATIM
   )
+
+
+  # ----------------------------------------------------------------------
+  # copy md files into the working directory
+  # ----------------------------------------------------------------------
+
+  set(MDFILES_IN
+      "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+  )
+
+  set(MDFILES ${MDFILES_IN})
+  move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
+  # message("MDFILES = ${MDFILES}")
+
+  foreach(_inmd ${MDFILES_IN})
+    get_filename_component(_outmd "${_inmd}" NAME)
+    add_custom_command(
+      OUTPUT ${_outmd}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      DEPENDS ${_inmd}
+      COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
+      COMMAND python ../preprocmd.py "${_outmd}.in" ${_outmd}
+      COMMENT "processing ${_outmd}"
+      VERBATIM
+    )
+  endforeach()
 
   # ----------------------------------------------------------------------
   # Main target
@@ -77,6 +103,7 @@ if(DOXYGEN_FOUND)
     cpp_doxyout
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${DOTFILES}
+    DEPENDS ${MDFILES}
     COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
     COMMENT "Generating C++ API documentation with Doxygen"
     VERBATIM

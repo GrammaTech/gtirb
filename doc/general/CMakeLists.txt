@@ -9,7 +9,7 @@ if(DOXYGEN_FOUND)
   set(DOC_INDIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
   set(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
-  set(BUILDFILES_IN preprocmd.py DoxygenLayout.xml)
+  set(BUILDFILES_IN ../preprocmd.py DoxygenLayout.xml)
   foreach(_inf ${BUILDFILES_IN})
     configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/${_inf} ${CMAKE_CURRENT_BINARY_DIR}/${_inf}
@@ -97,7 +97,7 @@ if(DOXYGEN_FOUND)
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       DEPENDS ${_inmd}
       COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
-      COMMAND python preprocmd.py "${_outmd}.in" ${_outmd}
+      COMMAND python ../preprocmd.py "${_outmd}.in" ${_outmd}
       COMMENT "processing ${_outmd}"
       VERBATIM
     )

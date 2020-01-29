@@ -1,4 +1,4 @@
-Contributing               {#CONTRIBUTING}
+Contributing
 ============
 
 
@@ -122,12 +122,14 @@ you may have enabled:
   pip3 install sphinx sphinx-autodoc-typehints
   ```
 
-  You will also need the Python `protobuf` module so that Sphinx can
-  properly handle the API implementation. If you haven't already
-  installed this, do so now.
+  You will also need all the dependencies of the GTIRB Python API
+  itself. If you haven't already installed the Python API (and don't
+  want to do so now) you can install just its dependencies as follows.
 
   ```bash
-  pip3 install protobuf
+  cd <PATH_TO_GTIRB>/build/python
+  python3 setup.py egg_info
+  pip3 install -r gtirb.egg-info/requires.txt
   ```
 
 * For the Common Lisp API, [simpler-documentation-template (SDT)](https://github.com/eschulte/simpler-documentation-template)
@@ -182,7 +184,7 @@ The `<api_options>` are as follows
 
   installation, failing if [Sphinx](https://www.sphinx-doc.org/en/master/),
   [sphinx-autodoc-typehints](https://pypi.org/project/sphinx-autodoc-typehints/),
-  or the Python `protobuf` module are not available.
+  or the Python API dependencies are not available.
 
 
 #### Contributing Markdown Documentation
