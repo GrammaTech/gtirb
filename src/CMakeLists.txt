@@ -105,6 +105,23 @@ else()
 endif()
 
 gtirb_add_library()
+set_target_properties(
+  ${PROJECT_NAME}
+  PROPERTIES
+    VERSION
+    ${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}
+)
+if(WIN32)
+  # FIXME: We need to figure out how to handle cutting a release build. For the
+  # moment, treat everything as a pre-release build.
+  set(GTIRB_IS_PRERELEASE 1)
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/resources/windows_version_resource.rc.in
+    ${CMAKE_BINARY_DIR}/version.rc @ONLY
+  )
+  target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/version.rc)
+  source_group(Resources FILES ${CMAKE_BINARY_DIR}/version.rc)
+endif()
 
 target_link_libraries(
   ${PROJECT_NAME}
