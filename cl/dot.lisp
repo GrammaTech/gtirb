@@ -26,6 +26,14 @@
     '((("help" #\h #\?) :type boolean :optional t
        :documentation "display help output"))))
 
+;;; NOTE: When Quicklisp updates graph to the latest this can be removed.
+(defmethod to-dot-file
+    ((object t) path &key attributes node-attrs edge-attrs
+                       subgraphs ranks)
+  (with-open-file (out path :direction :output :if-exists :supersede)
+    (to-dot object :stream out :attributes attributes :node-attrs node-attrs
+            :edge-attrs edge-attrs :subgraphs subgraphs :ranks ranks)))
+
 (define-command dot (gtirb-file dot-file &spec +udpate-args+)
   "Write first GTIRB module in GTIRB-FILE to DOT-FILE." ""
   (when help (show-help-for-dot) (quit))
