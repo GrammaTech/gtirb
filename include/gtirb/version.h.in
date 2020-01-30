@@ -31,9 +31,6 @@
 */
 #define GTIRB_PATCH_VERSION @PROJECT_VERSION_PATCH@
 
-#define GTIRB_STR_HELPER(x) #x
-#define GTIRB_STR(x) GTIRB_STR_HELPER(x)
-
 /// \file version.h
 /// \brief Holds the version macros. Read from version.txt
 
@@ -41,8 +38,7 @@
    Full version
 */
 #define GTIRB_VERSION_STRING                                                   \
-  (GTIRB_STR(GTIRB_MAJOR_VERSION) "." GTIRB_STR(                               \
-      GTIRB_MINOR_VERSION) "." GTIRB_STR(GTIRB_PATCH_VERSION))
+  "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
 
 /**@def GTIRB_PROTOBUF_VERSION
  * The version of the Protobuf files produced by this API.
