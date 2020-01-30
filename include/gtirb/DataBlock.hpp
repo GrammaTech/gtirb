@@ -58,25 +58,7 @@ public:
   /// \param Size     The size of the object in bytes.
   /// \return The newly created DataBlock.
   static DataBlock* Create(Context& C, uint64_t Size) {
-    return Create(C, nullptr, 0, Size);
-  }
-
-  /// \brief Create a DataBlock object.
-  ///
-  /// \param C The Context in which the newly-created DataBlock will
-  /// be held.
-  /// \param Parent   The parent byte interval for the data block.
-  /// \param Off      The offset at which to add the code block within its
-  ///                 parent.
-  /// \param Size     The size of the object in bytes.
-  ///
-  /// \return The newly created DataBlock.
-  static DataBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
-                           uint64_t Size) {
-    auto* DB = C.Create<DataBlock>(C, Parent, Size);
-    if (Parent)
-      Parent->Blocks.emplace(Off, DB);
-    return DB;
+    return C.Create<DataBlock>(C, nullptr, Size);
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
@@ -310,6 +292,24 @@ private:
   uint64_t Size{0};
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
+
+  /// \brief Create a DataBlock object.
+  ///
+  /// \param C The Context in which the newly-created DataBlock will
+  /// be held.
+  /// \param Parent   The parent byte interval for the data block.
+  /// \param Off      The offset at which to add the code block within its
+  ///                 parent.
+  /// \param Size     The size of the object in bytes.
+  ///
+  /// \return The newly created DataBlock.
+  static DataBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
+                           uint64_t Size) {
+    auto* DB = C.Create<DataBlock>(C, Parent, Size);
+    if (Parent)
+      Parent->Blocks.emplace(Off, DB);
+    return DB;
+  }
 
   friend class Context;
   friend class ByteInterval;

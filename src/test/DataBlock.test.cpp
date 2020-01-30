@@ -23,7 +23,7 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_DataBlock, getters) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
+  auto* BI = ByteInterval::Create(Ctx, Addr(0), 2);
   auto* B = BI->addBlock<DataBlock>(Ctx, 0, 1);
 
   EXPECT_EQ(Addr{0}, B->getAddress());
@@ -32,7 +32,7 @@ TEST(Unit_DataBlock, getters) {
 }
 
 TEST(Unit_DataBlock, getAddress) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(10), 10);
+  auto* BI = ByteInterval::Create(Ctx, Addr(10), 10);
   auto* B1 = BI->addBlock<DataBlock>(Ctx, 0, 0);
   auto* B2 = BI->addBlock<DataBlock>(Ctx, 1, 0);
   auto* B3 = BI->addBlock<DataBlock>(Ctx, 10, 0);
@@ -62,8 +62,8 @@ TEST(Unit_DataBlock, protobufRoundTrip) {
 
 TEST(Unit_DataBlock, byteVector) {
   std::string Contents = "hello, world!";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
   auto* B = BI->addBlock<DataBlock>(Ctx, 3, 4);
 
   auto OriginalIt = Contents.begin() + 3;

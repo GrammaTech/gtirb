@@ -23,8 +23,8 @@ using namespace gtirb;
 static Context Ctx;
 
 TEST(Unit_SymbolicExpression, protobufRoundTrip) {
-  Symbol* Sym1 = Symbol::Create(Ctx, nullptr, Addr(1), "test1");
-  Symbol* Sym2 = Symbol::Create(Ctx, nullptr, Addr(2), "test2");
+  Symbol* Sym1 = Symbol::Create(Ctx, Addr(1), "test1");
+  Symbol* Sym2 = Symbol::Create(Ctx, Addr(2), "test2");
 
   // SymStackConst
   {

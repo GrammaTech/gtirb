@@ -92,12 +92,11 @@ public:
   /// \brief Create a Section object.
   ///
   /// \param C        The Context in which this object will be held.
-  /// \param Parent   The \ref Module this section belongs to.
   /// \param Name     The name of the section.
   ///
   /// \return The newly created object.
-  static Section* Create(Context& C, Module* Parent, const std::string& Name) {
-    return C.Create<Section>(C, Parent, Name);
+  static Section* Create(Context& C, const std::string& Name) {
+    return C.Create<Section>(C, nullptr, Name);
   }
 
   /// \brief Equality operator overload.
@@ -1097,8 +1096,19 @@ private:
 
   void setModule(Module* M) { Parent = M; }
 
+  /// \brief Create a Section object.
+  ///
+  /// \param C        The Context in which this object will be held.
+  /// \param Parent   The \ref Module this section belongs to.
+  /// \param Name     The name of the section.
+  ///
+  /// \return The newly created object.
+  static Section* Create(Context& C, Module* Parent, const std::string& Name) {
+    return C.Create<Section>(C, Parent, Name);
+  }
+
   friend class Context; // Allow Context to construct sections.
-  friend class Module;  // Allow Module to call setModule.
+  friend class Module;  // Allow Module to call setModule, Create, etc.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
 } // namespace gtirb

@@ -156,22 +156,11 @@ public:
   /// \brief Create a Module object.
   ///
   /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
-  ///
-  /// \return The newly created object.
-  static Module* Create(Context& C, IR* Parent) {
-    return C.Create<Module>(C, Parent);
-  }
-
-  /// \brief Create a Module object.
-  ///
-  /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
   /// \param Name   The name of this module.
   ///
   /// \return The newly created object.
-  static Module* Create(Context& C, IR* Parent, const std::string& Name) {
-    return C.Create<Module>(C, Parent, Name);
+  static Module* Create(Context& C, const std::string& Name) {
+    return C.Create<Module>(C, nullptr, Name);
   }
 
   /// \brief Get the \ref IR this module belongs to.
@@ -1805,6 +1794,27 @@ public:
 private:
   void setIR(IR* I) { Parent = I; }
 
+  /// \brief Create a Module object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
+  ///
+  /// \return The newly created object.
+  static Module* Create(Context& C, IR* Parent) {
+    return C.Create<Module>(C, Parent);
+  }
+
+  /// \brief Create a Module object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref IR this module belongs to.
+  /// \param Name   The name of this module.
+  ///
+  /// \return The newly created object.
+  static Module* Create(Context& C, IR* Parent, const std::string& Name) {
+    return C.Create<Module>(C, Parent, Name);
+  }
+
   IR* Parent{nullptr};
   std::string BinaryPath;
   Addr PreferredAddr;
@@ -1819,7 +1829,7 @@ private:
   SymbolSet Symbols;
 
   friend class Context; // Allow Context to construct new Modules.
-  friend class IR;      // Allow IRs to call setIR.
+  friend class IR;      // Allow IRs to call setIR, Create, etc.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
 

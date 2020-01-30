@@ -24,7 +24,7 @@ static Context Ctx;
 TEST(Unit_CodeBlock, ctor) { EXPECT_NE(CodeBlock::Create(Ctx, 0), nullptr); }
 
 TEST(Unit_CodeBlock, getters) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(0), 2);
+  auto* BI = ByteInterval::Create(Ctx, Addr(0), 2);
   auto* B = BI->addBlock<CodeBlock>(Ctx, 0, 1, 2);
 
   EXPECT_EQ(Addr{0}, B->getAddress());
@@ -34,7 +34,7 @@ TEST(Unit_CodeBlock, getters) {
 }
 
 TEST(Unit_CodeBlock, getAddress) {
-  auto* BI = ByteInterval::Create(Ctx, nullptr, Addr(10), 10);
+  auto* BI = ByteInterval::Create(Ctx, Addr(10), 10);
   auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 0);
   auto* B2 = BI->addBlock<CodeBlock>(Ctx, 1, 0);
   auto* B3 = BI->addBlock<CodeBlock>(Ctx, 10, 0);
@@ -51,8 +51,8 @@ TEST(Unit_CodeBlock, getAddress) {
 
 TEST(Unit_CodeBlock, byteVector) {
   std::string Contents = "hello, world!";
-  auto* BI = ByteInterval::Create(Ctx, nullptr, std::optional<Addr>(),
-                                  Contents.begin(), Contents.end());
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
+                                  Contents.end());
   auto* B = BI->addBlock<CodeBlock>(Ctx, 3, 4);
 
   auto OriginalIt = Contents.begin() + 3;

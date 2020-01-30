@@ -48,16 +48,6 @@ public:
   /// \return         The newly created ProxyBlock.
   static ProxyBlock* Create(Context& C) { return C.Create<ProxyBlock>(C); }
 
-  /// \brief Create a ProxyBlock object.
-  ///
-  /// \param C      The Context in which this block will be held.
-  /// \param Parent The \ref Module this block belongs to.
-  ///
-  /// \return The newly created ProxyBlock.
-  static ProxyBlock* Create(Context& C, Module* Parent) {
-    return C.Create<ProxyBlock>(C, Parent);
-  }
-
   /// \brief Get the \ref Module this block belongs to.
   Module* getModule() { return Parent; }
   /// \brief Get the \ref Module this block belongs to.
@@ -94,10 +84,20 @@ private:
 
   void setModule(Module* M) { Parent = M; }
 
+  /// \brief Create a ProxyBlock object.
+  ///
+  /// \param C      The Context in which this block will be held.
+  /// \param Parent The \ref Module this block belongs to.
+  ///
+  /// \return The newly created ProxyBlock.
+  static ProxyBlock* Create(Context& C, Module* Parent) {
+    return C.Create<ProxyBlock>(C, Parent);
+  }
+
   Module* Parent{nullptr};
 
   friend class Context; // Allow Context to construct proxies.
-  friend class Module;  // Allow Module to call setModule.
+  friend class Module;  // Allow Module to call setModule, Create, etc.
 };
 
 } // namespace gtirb

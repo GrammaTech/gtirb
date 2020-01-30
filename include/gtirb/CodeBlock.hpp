@@ -62,24 +62,6 @@ public:
     return Create(C, nullptr, 0, Size, DecodeMode);
   }
 
-  /// \brief Create a CodeBlock object.
-  ///
-  /// \param C          The Context in which this block will be held.
-  /// \param Parent     The parent byte interval for the code block.
-  /// \param Off        The offset at which to add the code block within its
-  ///                   parent.
-  /// \param Size       The size of the block in bytes.
-  /// \param DecodeMode The decode mode of the block.
-  ///
-  /// \return The newly created CodeBlock.
-  static CodeBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
-                           uint64_t Size, uint64_t DecodeMode = 0) {
-    auto* CB = C.Create<CodeBlock>(C, Parent, Size, DecodeMode);
-    if (Parent)
-      Parent->Blocks.emplace(Off, CB);
-    return CB;
-  }
-
   /// \brief Get the \ref ByteInterval this block belongs to.
   ByteInterval* getByteInterval() { return Parent; }
   /// \brief Get the \ref ByteInterval this block belongs to.
@@ -328,6 +310,24 @@ private:
       : CfgNode(C, Kind::CodeBlock), Parent(P), Size(S), DecodeMode(Decode) {}
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
+
+  /// \brief Create a CodeBlock object.
+  ///
+  /// \param C          The Context in which this block will be held.
+  /// \param Parent     The parent byte interval for the code block.
+  /// \param Off        The offset at which to add the code block within its
+  ///                   parent.
+  /// \param Size       The size of the block in bytes.
+  /// \param DecodeMode The decode mode of the block.
+  ///
+  /// \return The newly created CodeBlock.
+  static CodeBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
+                           uint64_t Size, uint64_t DecodeMode = 0) {
+    auto* CB = C.Create<CodeBlock>(C, Parent, Size, DecodeMode);
+    if (Parent)
+      Parent->Blocks.emplace(Off, CB);
+    return CB;
+  }
 
   ByteInterval* Parent{nullptr};
   uint64_t Size{0};

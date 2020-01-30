@@ -26,9 +26,7 @@ using namespace gtirb;
 
 static Context Ctx;
 
-TEST(Unit_Symbol, ctor_0) {
-  EXPECT_NE(Symbol::Create(Ctx, nullptr, "test"), nullptr);
-}
+TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx, "test"), nullptr); }
 
 TEST(Unit_Symbol, setReferent) {
   auto* Mod = Module::Create(Ctx);
@@ -71,7 +69,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   {
     Context InnerCtx;
     auto* Mod = Module::Create(InnerCtx);
-    auto* Original = Symbol::Create(InnerCtx, nullptr, "test");
+    auto* Original = Symbol::Create(InnerCtx, "test");
 
     auto* S = Mod->addSection(InnerCtx, "test");
     auto* BI = S->addByteInterval(InnerCtx, Addr(0), 10);
@@ -100,7 +98,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with address
   {
     Context InnerCtx;
-    auto* Original = Symbol::Create(InnerCtx, nullptr, Addr(2), "test");
+    auto* Original = Symbol::Create(InnerCtx, Addr(2), "test");
     Original->toProtobuf(&SMessage);
   }
 
@@ -117,7 +115,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol without address
   {
     Context InnerCtx;
-    auto* Original = Symbol::Create(InnerCtx, nullptr, "test");
+    auto* Original = Symbol::Create(InnerCtx, "test");
     Original->toProtobuf(&SMessage);
   }
 
@@ -130,8 +128,8 @@ TEST(Unit_Symbol, protobufRoundTrip) {
 }
 
 TEST(Unit_Symbol, visitation) {
-  auto* Sym = Symbol::Create(Ctx, nullptr, CodeBlock::Create(Ctx, 2), "test");
-  auto* NoRef = Symbol::Create(Ctx, nullptr, "test2");
+  auto* Sym = Symbol::Create(Ctx, CodeBlock::Create(Ctx, 2), "test");
+  auto* NoRef = Symbol::Create(Ctx, "test2");
 
   struct Visitor {
     int operator()(CodeBlock* B) {

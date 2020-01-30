@@ -225,7 +225,8 @@ TEST(Unit_Module, findSections) {
 }
 
 TEST(Unit_Module, blocks) {
-  auto M = Module::Create(Ctx, IR::Create(Ctx));
+  auto I = IR::Create(Ctx);
+  auto M = I->addModule(Ctx);
   auto S = M->addSection(Ctx, "test");
   auto BI = S->addByteInterval(Ctx, Addr(1), 10);
   BI->addBlock<CodeBlock>(Ctx, 0, 10);
@@ -239,7 +240,8 @@ TEST(Unit_Module, blocks) {
 }
 
 TEST(Unit_Module, cfgNodes) {
-  auto* M = Module::Create(Ctx, IR::Create(Ctx));
+  auto* I = IR::Create(Ctx);
+  auto* M = I->addModule(Ctx);
   auto S = M->addSection(Ctx, "test");
   auto BI = S->addByteInterval(Ctx, Addr(1), 10);
   auto* B = BI->addBlock<CodeBlock>(Ctx, 0, 10);
@@ -630,7 +632,8 @@ TEST(Unit_Module, protobufRoundTrip) {
 
   {
     Context InnerCtx;
-    Module* Original = Module::Create(InnerCtx, IR::Create(InnerCtx), "module");
+    IR* OI = IR::Create(InnerCtx);
+    Module* Original = OI->addModule(InnerCtx, "module");
     Original->setBinaryPath("test");
     Original->setPreferredAddr(Addr(3));
     Original->setRebaseDelta(4);
@@ -731,7 +734,7 @@ TEST(Unit_Module, protobufNodePointers) {
     BI->addSymbolicExpression<SymAddrConst>(2, 0, DataSym);
 
     // Not part of IR
-    auto* DanglingSym = Symbol::Create(InnerCtx, nullptr, Addr(1), "foo");
+    auto* DanglingSym = Symbol::Create(InnerCtx, Addr(1), "foo");
     BI->addSymbolicExpression<SymAddrConst>(3, 0, DanglingSym);
 
     Original->toProtobuf(&Message);

@@ -218,40 +218,35 @@ public:
   /// \brief Create a Symbol object.
   ///
   /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref Module in which to place this Symbol.
   /// \param Name   The name of the symbol.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
-    return C.Create<Symbol>(C, Parent, Name);
+  static Symbol* Create(Context& C, const std::string& Name) {
+    return C.Create<Symbol>(C, nullptr, Name);
   }
 
   /// \brief Create a Symbol object.
   ///
   /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref Module in which to place this Symbol.
   /// \param X      The address of the symbol.
   /// \param Name   The name of the symbol.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, Addr X,
-                        const std::string& Name) {
-    return C.Create<Symbol>(C, Parent, X, Name);
+  static Symbol* Create(Context& C, Addr X, const std::string& Name) {
+    return C.Create<Symbol>(C, nullptr, X, Name);
   }
 
   /// \brief Create a Symbol object.
   ///
   /// \param C        The Context in which this object will be held.
-  /// \param Parent   The \ref Module in which to place this Symbol.
   /// \param Referent The DataBlock this symbol refers to.
   /// \param Name     The name of the symbol.
   ///
   /// \return The newly created object.
   template <typename NodeTy>
-  static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
-                        const std::string& Name) {
+  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Parent, Referent, Name);
+    return C.Create<Symbol>(C, nullptr, Referent, Name);
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
@@ -349,12 +344,51 @@ private:
 
   void setModule(Module* M) { Parent = M; }
 
+  /// \brief Create a Symbol object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref Module in which to place this Symbol.
+  /// \param Name   The name of the symbol.
+  ///
+  /// \return The newly created object.
+  static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
+    return C.Create<Symbol>(C, Parent, Name);
+  }
+
+  /// \brief Create a Symbol object.
+  ///
+  /// \param C      The Context in which this object will be held.
+  /// \param Parent The \ref Module in which to place this Symbol.
+  /// \param X      The address of the symbol.
+  /// \param Name   The name of the symbol.
+  ///
+  /// \return The newly created object.
+  static Symbol* Create(Context& C, Module* Parent, Addr X,
+                        const std::string& Name) {
+    return C.Create<Symbol>(C, Parent, X, Name);
+  }
+
+  /// \brief Create a Symbol object.
+  ///
+  /// \param C        The Context in which this object will be held.
+  /// \param Parent   The \ref Module in which to place this Symbol.
+  /// \param Referent The DataBlock this symbol refers to.
+  /// \param Name     The name of the symbol.
+  ///
+  /// \return The newly created object.
+  template <typename NodeTy>
+  static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
+                        const std::string& Name) {
+    static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
+    return C.Create<Symbol>(C, Parent, Referent, Name);
+  }
+
   Module* Parent{nullptr};
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
 
   friend class Context; // Allow Context to construct Symbols.
-  friend class Module;  // Allow Module to call setModule.
+  friend class Module;  // Allow Module to call setModule, Create, etc.
 };
 } // namespace gtirb
 
