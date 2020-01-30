@@ -1,5 +1,5 @@
 ---
-Checks:          'readability-*,performance-*,-readability-named-parameter,bugprone-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,modernize-*'
+Checks:          'readability-*,performance-*,-readability-named-parameter,bugprone-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,modernize-*,-modernize-use-trailing-return-type'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
