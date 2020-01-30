@@ -35,11 +35,11 @@ void IR::toProtobuf(MessageType* Message) const {
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C);
   setNodeUUIDFromBytes(I, Message.uuid());
-  gtirb::fromProtobuf(C, I->Cfg, Message.cfg());
   for (const auto& Elt : Message.modules()) {
     auto* M = Module::fromProtobuf(C, I, Elt);
     I->Modules.emplace(M);
   }
+  gtirb::fromProtobuf(C, I->Cfg, Message.cfg());
   static_cast<AuxDataContainer*>(I)->fromProtobuf(C, Message);
   I->Version = Message.version();
   return I;

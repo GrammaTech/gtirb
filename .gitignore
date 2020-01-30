@@ -25,4 +25,4 @@ include/gsl/
 include/proto/
 wiki/
 scratch.lisp
-include/gtirb/version.h
+/include/gtirb/version.h
