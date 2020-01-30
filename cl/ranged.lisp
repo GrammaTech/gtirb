@@ -28,12 +28,6 @@
 #-debug (declaim (optimize (speed 3) (safety 0) (debug 0)))
 #+debug (declaim (optimize (speed 0) (safety 3) (debug 3)))
 
-(defgeneric to-list (ranged)
-  (:documentation "Return the contents of RANGED as a list.")
-  (:method ((obj ranged) &aux results)
-    (preorder-walk (slot-value it 'tree) (lambda (it) (push it results)))
-    (nreverse results)))
-
 (defclass ranged ()
   ((tree :initform (make-instance 'binary-search-tree :key #'car :test #'=)
          :type binary-search-tree
@@ -44,6 +38,13 @@
         :reader ranged-max :documentation "Maximum possible range value."))
   (:documentation
    "A collection supporting retrieval of objects by 64-bit ranges."))
+
+#+debug
+(defgeneric to-list (ranged)
+  (:documentation "Return the contents of RANGED as a list.")
+  (:method ((obj ranged) &aux results)
+    (preorder-walk (slot-value obj 'tree) (lambda (it) (push it results)))
+    (nreverse results)))
 
 (defmethod initialize-instance :after ((ranged ranged) &key)
   (with-slots (tree) ranged
@@ -83,9 +84,10 @@
                                         (ranged-max ranged)))))
   "Return nodes of RANGED between START and END.
 Additionally, return the successor following END as a secondary value."
-  (declare (type ranged ranged)
-           (type (integer 0 #.(ash 1 63)) start)
-           (type (integer 0 #.(ash 1 63)) end))
+  #+debug (declare (optimize (debug 3) (safety 3) (speed 0)))
+  #-debug (declare (type ranged ranged)
+                   (type (integer 0 #.(ash 1 63)) start)
+                   (type (integer 0 #.(ash 1 63)) end))
   (with-slots (tree) ranged
     (let* ((start-item (find-successor-node tree (list start))))
       (if (< (key start-item) end)
@@ -93,13 +95,31 @@ Additionally, return the successor following END as a secondary value."
                 (last (successor tree start-item)))
             (loop
                :while (and last (< (key last) end))
-               :do (progn (push last ranges) (setf last (successor tree last)))
+               :do (progn
+                     (let ((next-last (successor tree last)))
+                       (if (= (key last) (key next-last))
+                           ;; Consolidate duplicate entries.
+                           (progn
+                             #+debug (format t "consolidate:~S~%" (key last))
+                             (delete-item tree last)
+                             (delete-item tree next-last)
+                             (nest (setf next-last)
+                                   (second) (multiple-value-list)
+                                   (insert-item tree)
+                                   (cons (car (element last))
+                                         (remove-duplicates
+                                          (append (cdr (element last))
+                                                  (cdr (element next-last)))))))
+                           ;; Collect and continue
+                           (push last ranges))
+                       (setf last next-last)))
                :finally (return (values (nreverse ranges) last))))
           (values nil start-item)))))
 
 (defun ranged-insert (ranged item start &optional end &aux previous)
   "Insert ITEM into ranged collection RANGED between START and END.
 Return the RANGED collection after inserting ITEM."
+  #+debug (declare (optimize (debug 3) (safety 3) (speed 0)))
   (check-type ranged ranged "A ranged collection")
   (check-type start (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
   (unless end (setf end (1+ start)))

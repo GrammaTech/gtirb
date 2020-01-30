@@ -276,7 +276,10 @@ The ERRNO used when exiting lisp indicates success or failure."
                                  (mappend #'sections)
                                  (modules it)))))
       (is (= 2 (length (address-range a-block))))
-      (is (member a-block (in-address it (first (address-range a-block))))))))
+      (is (member a-block (in-address it (first (address-range a-block)))))
+      (is (member a-block (at-address it (first (address-range a-block)))))
+      (is (not (member a-block (at-address it (second
+                                               (address-range a-block)))))))))
 
 (deftest payload-can-be-read-and-set ()
   (with-fixture hello
