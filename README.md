@@ -190,5 +190,3 @@ The GTIRB API is available in C++, Python, and Common Lisp.
   - [C++ API](doc/cpp/README.md)
   - [Python API](python/README.md)
   - [Common Lisp API](cl/README.md)
-
-

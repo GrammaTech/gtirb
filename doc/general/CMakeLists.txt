@@ -81,8 +81,11 @@ if(DOXYGEN_FOUND)
   set(MDFILES_IN
       "${DOC_INDIR}/general/ComponentsIndex.md"
       "${DOC_INDIR}/general/Desc_Node.md"
-      "${DOC_INDIR}/CFG-Edges.md" "${ROOTDIR}/AuxData.md"
-      "${ROOTDIR}/CONTRIBUTING.md" "${ROOTDIR}/FAQ.md" "${ROOTDIR}/PROTOBUF.md"
+      "${DOC_INDIR}/CFG-Edges.md"
+      "${ROOTDIR}/AuxData.md"
+      "${ROOTDIR}/CONTRIBUTING.md"
+      "${ROOTDIR}/FAQ.md"
+      "${ROOTDIR}/PROTOBUF.md"
       "${ROOTDIR}/README.md"
   )
 

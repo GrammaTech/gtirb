@@ -11,17 +11,17 @@
       <tab type="user" visible="yes" title="Standard AuxData Schemata" url="@ref md_AuxData"/>
       <tab type="user" visible="yes" title="Contributing" url="@ref md_CONTRIBUTING"/>
     </tab>
-    
+
     <tab type="usergroup" visible="yes" title="GTIRB Tools">
       <tab type="user" visible="yes" title="Disassembler (ddisasm)" url="https://github.com/GrammaTech/ddisasm">
       </tab>
       <tab type="user" visible="yes" title="Pretty Printer (gtirb-pprinter)" url="https://github.com/GrammaTech/gtirb-pprinter">
       </tab>
     </tab>
-    
+
     <tab type="user" visible="yes" title="API Components" url="@ref md_ComponentsIndex"/>
-    
-    <tab type="usergroup" visible="yes" title="API Implementations"> 
+
+    <tab type="usergroup" visible="yes" title="API Implementations">
        <tab type="user" visible="@CPP_API_VISIBLE@" title="C++ API" url="cpp/index.html"/>
        <tab type="user" visible="@PY_API_VISIBLE@" title="Python API" url="python/index.html"/>
        <tab type="user" visible="@CL_API_VISIBLE@" title="Common Lisp API" url="cl/index.html"/>

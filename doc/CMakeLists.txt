@@ -1,7 +1,6 @@
 add_custom_target(doc)
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html")
 
-
 if(GTIRB_CXX_API)
   set(CPP_TAGFILE "${CMAKE_CURRENT_BINARY_DIR}/CPP_DOXY.tag")
   set(CPP_TAGFILE_RULE "${CPP_TAGFILE}=../html/cpp")
@@ -14,7 +13,6 @@ else()
   set(CPP_API_VISIBLE "no")
 endif()
 
-
 if(GTIRB_PY_API)
   add_subdirectory(python)
   set(PY_DOX_ENABLED "PY_ONLY")
@@ -24,7 +22,6 @@ else()
   set(PY_API_VISIBLE "no")
 endif()
 
-
 if(GTIRB_CL_API)
   add_subdirectory(cl)
   set(CL_DOX_ENABLED "CL_ONLY")
@@ -33,7 +30,6 @@ else()
   set(CL_DOX_ENABLED "")
   set(CL_API_VISIBLE "no")
 endif()
-
 
 add_subdirectory(examples)
 add_subdirectory(general)

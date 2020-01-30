@@ -28,7 +28,7 @@ gtirb::Context object. Freeing the `Context` will also destroy all the
 objects within it.
 
 ```cpp
-Context C;                
+Context C;
 IR& ir = *IR::Create(C);
 ```
 
@@ -38,7 +38,7 @@ IR& ir = *IR::Create(C);
 Every IR holds a set of modules (gtirb::Module).
 
 ```cpp
-ir.addModule(Module::Create(C));    
+ir.addModule(Module::Create(C));
 Module& module = ir.modules()[0];
 ```
 

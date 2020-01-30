@@ -13,7 +13,7 @@
 
 - A facility to look up Node objects by UUID.
    - Any node still reachable in memory must be retrievable by UUID.
-   
+
 
 ## API Implementations
 
@@ -24,8 +24,3 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::Node | N.getUUID()              | gtirb::Node::getByUUID() |
 | Python      | gtirb.node  | N.uuid                   | gtirb.node.from_uuid()   |
 | Common Lisp | -           | (uuid N)                 | get-uuid                 |
-
-
-
-
-

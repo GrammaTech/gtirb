@@ -69,14 +69,11 @@ if(DOXYGEN_FOUND)
     VERBATIM
   )
 
-
   # ----------------------------------------------------------------------
   # copy md files into the working directory
   # ----------------------------------------------------------------------
 
-  set(MDFILES_IN
-      "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
-  )
+  set(MDFILES_IN "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
   set(MDFILES ${MDFILES_IN})
   move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
