@@ -52,7 +52,7 @@
     (insert-item tree (list (ranged-max ranged))))
   ranged)
 
-(defmethod print-object ((obj ranged) (stream stream))
+(defmethod print-object ((obj ranged) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (with-slots (tree) obj (format stream "~a" (size tree)))))
 

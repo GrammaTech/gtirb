@@ -419,7 +419,7 @@ modules and on GTIRB IR instances.")
     ()
   (:documentation "Base class of an instance of GTIRB IR."))
 
-(defmethod print-object ((obj gtirb) (stream stream))
+(defmethod print-object ((obj gtirb) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (modules obj))))
 
@@ -540,7 +540,7 @@ On those systems this field may be used to capture this address.")
 module represents."))
   (:documentation "Module of a GTIRB IR instance.") (:parent gtirb))
 
-(defmethod print-object ((obj module) (stream stream))
+(defmethod print-object ((obj module) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
@@ -567,7 +567,7 @@ and \"return\" are examples."))
   (:documentation "Label on a CFG edge.
 This indicates the type of control flow along this edge."))
 
-(defmethod print-object ((obj edge-label) (stream stream))
+(defmethod print-object ((obj edge-label) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~:[unconditional~;conditional~] ~:[undirect~;direct~]"
             (edge-type obj) (conditional obj) (direct obj))))
@@ -602,7 +602,7 @@ This indicates the type of control flow along this edge."))
 (defmethod (setf payload) ((new t) (symbol symbol))
   (error "Symbol payload ~S must be either a GTIRB element or an integer." new))
 
-(defmethod print-object ((obj symbol) (stream stream))
+(defmethod print-object ((obj symbol) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (name obj) (or (value obj) (referent-uuid obj)))))
 
@@ -635,7 +635,7 @@ section is loaded into memory at run-time or not, whether the section
 is zero initialized, and whether the section is thread-local."))
   (:documentation "Section in a GTIRB IR instance.") (:parent module))
 
-(defmethod print-object ((obj section) (stream stream))
+(defmethod print-object ((obj section) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (name obj) (length (byte-intervals obj)))))
 
@@ -749,7 +749,7 @@ at runtime.")
   (:address-range (when (addressp self)
                     (list (address self) (+ (address self) (size self))))))
 
-(defmethod print-object ((obj byte-interval) (stream stream))
+(defmethod print-object ((obj byte-interval) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a"
             (if (addressp obj) (address obj) "?")
@@ -762,7 +762,7 @@ at runtime.")
   ((symbols :accessor symbols :type '(list symbol)
             :documentation "Symbol(s) appearing in this symbolic expression.")))
 
-(defmethod print-object ((obj symbolic-expression) (stream stream))
+(defmethod print-object ((obj symbolic-expression) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~{~a~^, ~}" (offset obj) (symbols obj))))
 
@@ -858,7 +858,7 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
                     (list (+ (offset self) (first range))
                           (+ (offset self) (size self) (first range))))))
 
-(defmethod print-object ((obj code-block) (stream stream))
+(defmethod print-object ((obj code-block) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (size obj) (decode-mode obj))))
 
@@ -875,7 +875,7 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
                     (list (+ (offset self) (first range))
                           (+ (offset self) (size self) (first range))))))
 
-(defmethod print-object ((obj data-block) (stream stream))
+(defmethod print-object ((obj data-block) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (size obj))))
 
@@ -883,14 +883,14 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
   (:documentation "Proxy-block in a GTIRB IR instance.")
   (:parent module))
 
-(defmethod print-object ((obj proxy-block) (stream stream))
+(defmethod print-object ((obj proxy-block) stream)
   (print-unreadable-object (obj stream :type t :identity t)))
 
 
 ;;;; AuxData type and data handling.
 (define-proto-backed-class (aux-data proto:aux-data) () () ())
 
-(defmethod print-object ((obj aux-data) (stream stream))
+(defmethod print-object ((obj aux-data) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (aux-data-type obj))))
 
