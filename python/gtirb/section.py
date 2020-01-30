@@ -24,7 +24,7 @@ class Section(Node):
     class Flag(Enum):
         """A flag representing a known property of a section."""
 
-        Undefined = Section_pb2.SectionFlag.Value("Undefined")
+        Undefined = Section_pb2.SectionFlag.Value("Section_Undefined")
         """This value is defined for Protobuf compatibility. Do not use."""
 
         Readable = Section_pb2.SectionFlag.Value("Readable")
