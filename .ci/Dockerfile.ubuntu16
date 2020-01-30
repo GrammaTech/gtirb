@@ -50,17 +50,33 @@ RUN git clone https://github.com/google/protobuf -b v${PROTOBUF_VERSION} && \
     cd .. && \
     rm -rf protobuf
 
-# Install Quicklisp
+# Common-Lisp specific setup.
 RUN sbcl --load /usr/share/cl-quicklisp/quicklisp.lisp \
         --eval '(quicklisp-quickstart:install)' \
         --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))'
+RUN sbcl --eval '(ql:quickload :protobuf)' --eval '(sb-ext:exit)'
+RUN git clone https://github.com/brown/protobuf /root/quicklisp/local-projects/protobuf
+RUN cd /root/quicklisp/local-projects/protobuf/protoc/lisp && INSTALL_ROOT=/usr/ PROTOC_ROOT=/usr/ make install
+RUN git clone https://github.com/eschulte/simpler-documentation-template /root/quicklisp/local-projects/simpler-documentation-template
 
 # Build GTIRB
 COPY . /gt/gtirb/
-RUN /gt/gtirb/.ci/build-linux.sh
+
+# Ensure all Common Lisp dependencies are installed before the build.
+# Works around the fact that you can't run multiple Quicklisp dependency installs in parallel as done by 'make -j'.
+RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
+RUN sbcl --eval '(asdf:initialize-source-registry `(:source-registry (:tree "/gt/gtirb/cl") :inherit-configuration))' \
+        --eval '(ql:quickload :gtirb/test)' --eval '(sb-ext:exit)'
+
+# Build GTIRB.
+RUN mkdir build
+WORKDIR /gt/gtirb/build/
+RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
+RUN make -j
+
+# Run CPack.
 ARG CPACK_GENERATOR=""
 RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
 
-
-WORKDIR /gt/gtirb/
+# Set up envionment for interactive use.
 ENV PATH=/gt/gtirb/build/bin:$PATH
