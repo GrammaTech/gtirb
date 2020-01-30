@@ -111,8 +111,9 @@ void Node::addToIndices() {
     if (!M) {
       return;
     }
-    if (IR* P = M->getIR())
+    if (IR* P = M->getIR()) {
       addVertex(B, P->getCFG());
+    }
   } break;
   case Node::Kind::DataBlock: {
     auto* B = cast<DataBlock>(this);

@@ -70,8 +70,9 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   for (const auto& Elt : Message.proxies()) {
     auto* PB = ProxyBlock::fromProtobuf(C, M, Elt);
     M->ProxyBlocks.insert(PB);
-    if (Parent)
+    if (Parent) {
       addVertex(PB, Parent->getCFG());
+    }
   }
   for (const auto& Elt : Message.sections()) {
     auto* S = Section::fromProtobuf(C, M, Elt);
@@ -103,15 +104,17 @@ void Module::moveProxyBlock(ProxyBlock* B) {
   }
   ProxyBlocks.insert(B);
   B->setModule(this);
-  if (Parent)
+  if (Parent) {
     addVertex(B, Parent->getCFG());
+  }
 }
 
 void Module::removeProxyBlock(ProxyBlock* B) {
   ProxyBlocks.erase(B);
   B->setModule(nullptr);
-  if (Parent)
+  if (Parent) {
     removeVertex(B, Parent->getCFG());
+  }
 }
 
 ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
@@ -121,7 +124,8 @@ ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
 
   ProxyBlocks.insert(B);
   B->setModule(this);
-  if (Parent)
+  if (Parent) {
     addVertex(B, Parent->getCFG());
+  }
   return B;
 }
