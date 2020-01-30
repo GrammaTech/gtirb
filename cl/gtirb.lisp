@@ -170,6 +170,10 @@ as all GTIRB structures."
   (:documentation
    "Delete ITEM from OBJECT between START-ADDRESS and END-ADDRESS."))
 
+(defgeneric at-address (object address)
+  (:documentation
+   "Find all objects in OBJECT starting at ADDRESS."))
+
 (defgeneric in-address (object start-address &optional end-address)
   (:documentation
    "Find all objects in OBJECT between START-ADDRESS and END-ADDRESS."))
@@ -261,6 +265,12 @@ Should not need to be manipulated by client code.")
                                "`remove-uuid' failed on ~a without a ~a"
                                class parent))
               (remove-uuid uuid (,parent object)))
+            (defmethod at-address ((object ,class) address)
+              (assert (,parent object) (object)
+                      ,(format nil
+                               "`at-address' failed on ~a without a ~a"
+                               class parent))
+              (at-address (,parent object) address))
             (defmethod in-address ((object ,class) start &optional end)
               (assert (,parent object) (object)
                       ,(format nil
@@ -433,11 +443,11 @@ modules and on GTIRB IR instances.")
 (defmethod delete-address ((gtirb gtirb) item start &optional end)
   (ranged-insert (by-address gtirb) item start end))
 
+(defmethod at-address ((gtirb gtirb) address)
+  (ranged-find (by-address gtirb) address))
+
 (defmethod in-address ((gtirb gtirb) start &optional end)
   (ranged-find (by-address gtirb) start end))
-
-;;; TODO: Find X starting at a given address.
-;;;       find-type-at and find-type-in.
 
 (define-constant +module-isa-map+
     '((#.proto:+isa-isa-undefined+ . :undefined)

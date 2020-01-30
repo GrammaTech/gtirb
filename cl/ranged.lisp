@@ -17,7 +17,8 @@
   (:export :ranged
            :ranged-insert
            :ranged-delete
-           :ranged-find))
+           :ranged-find
+           :ranged-find-at))
 ;;; TODO: Check for equivalent blocks before and after modified ranges
 ;;; in `ranged-insert' and `ranged-delete' and collapse them into the
 ;;; existing range (maybe with the moral equivalent of an :after
@@ -62,6 +63,18 @@
 (declaim (inline find-predecessor-node))
 (defun find-predecessor-node (tree address)
   (predecessor tree (find-successor-node tree (list address))))
+
+(declaim (inline at-range))
+(defun at-range (ranged address)
+  "Return nodes of RANGED starting at ADDRESS."
+  (declare (type ranged ranged)
+           (type (integer 0 #.(ash 1 63)) address))
+  (with-slots (tree) ranged
+    (let ((succ (find-successor-node tree (list address))))
+      (when (and succ (= address (key succ)))
+        (let ((pred (predecessor tree succ)))
+          (set-difference (cdr (element succ))
+                          (when pred (cdr (element pred)))))))))
 
 (declaim (inline in-range))
 (defun in-range (ranged &optional
