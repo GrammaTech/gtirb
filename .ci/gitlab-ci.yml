@@ -24,10 +24,7 @@ check-format:
     - if $(docker run -v $(pwd):/gt/gtirb formatter >/dev/null); then
         exit 0;
       else
-        git reset --hard HEAD;
-        git filter-branch -f --prune-empty --tree-filter "docker run -v $(pwd):/gt/gtirb formatter;true" -- origin/master..HEAD;
-        git push origin "HEAD:${CI_COMMIT_REF_SLUG}-autoformat";
-        exit 1;
+        echo "Format check failed.";
       fi
 
 .build-template: &build
