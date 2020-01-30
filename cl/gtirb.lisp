@@ -607,7 +607,7 @@ This indicates the type of control flow along this edge."))
     (format stream "~a ~a" (name obj) (or (value obj) (referent-uuid obj)))))
 
 (define-constant +section-flags-map+
-    '((#.proto:+section-flag-undefined+ . :flag-undefined)
+    '((#.proto:+section-flag-section-undefined+ . :flag-undefined)
       (#.proto:+section-flag-readable+ . :readable)
       (#.proto:+section-flag-writable+ . :writable)
       (#.proto:+section-flag-executable+ . :executable)
