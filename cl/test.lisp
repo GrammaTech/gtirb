@@ -404,6 +404,28 @@ The ERRNO used when exiting lisp indicates success or failure."
     (is (null (ranged-find it 10)))
     (gtirb/ranged::in-range it)))
 
+(deftest range-ends-when-supposed-to ()
+  (let ((it (make-instance 'ranged)))
+    (gtirb/ranged::ranged-insert it :eric 0 10)
+    (is (null (gtirb/ranged::in-range it 15 20)))))
+
+(deftest empty-ranges-are-empty ()
+  (let ((it (make-instance 'ranged)))
+    (gtirb/ranged::ranged-insert it :eric 0 10)
+    (ranged-insert it :schulte 5 20)
+    (ranged-insert it :chris 100 111)
+    (is (null (cdr (gtirb/ranged::element (gtirb/ranged::find-successor-node
+                                           (slot-value it 'gtirb/ranged::tree)
+                                           (list 20))))))))
+
+(deftest only-inserted-are-found ()
+  (let ((it (make-instance 'ranged)))
+    (dotimes (n 40) (ranged-insert it (intern (string-upcase (format nil "~r" n))) n (+ n 2)))
+    (dotimes (n 30) (ranged-insert it (intern (string-upcase (format nil "~r" n))) (+ n 10) (+ n 12)))
+    (is (set-equal (ranged-find it 0) '(ZERO)))
+    (is (set-equal (ranged-find it 1) '(ZERO ONE)))
+    (is (set-equal (ranged-find it 10) '(ZERO NINE TEN)))))
+
 (deftest deleted-is-lost ()
   (let ((it (make-instance 'ranged)))
     (ranged-insert it :example 5 10)

@@ -24,3 +24,5 @@ gsl-src/
 include/gsl/
 include/proto/
 wiki/
+
+scratch.lisp
