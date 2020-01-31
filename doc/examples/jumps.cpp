@@ -32,7 +32,8 @@ int main(int argc, char** argv) {
 
   // Initialize capstone for decoding instructions.
   csh CsHandle;
-  assert(cs_open(CS_ARCH_X86, CS_MODE_64, &CsHandle) == CS_ERR_OK);
+  int Ret = cs_open(CS_ARCH_X86, CS_MODE_64, &CsHandle);
+  assert(Ret == CS_ERR_OK);
   cs_option(CsHandle, CS_OPT_DETAIL, CS_OPT_ON);
 
   // Examine all blocks in the first module
