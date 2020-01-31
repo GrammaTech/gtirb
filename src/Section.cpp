@@ -30,7 +30,7 @@ void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
   for (auto Flag : flags()) {
-    Message->add_section_flags(static_cast<proto::SectionFlag>(Flag));
+    Message->add_section_flags(Flag);
   }
   for (const auto& Interval : byte_intervals()) {
     Interval.toProtobuf(Message->add_byte_intervals());

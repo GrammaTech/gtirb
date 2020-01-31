@@ -48,6 +48,7 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/DataBlock.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/ExtensibleEnum.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp"

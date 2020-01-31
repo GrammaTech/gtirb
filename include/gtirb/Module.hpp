@@ -21,6 +21,7 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Export.hpp>
+#include <gtirb/ExtensibleEnum.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
@@ -49,38 +50,62 @@
 namespace gtirb {
 class IR;
 
-/// \enum FileFormat
+/// \class FileFormat
 ///
 /// \brief Identifies an exectuable file format.
-enum class FileFormat : uint8_t {
-  Undefined = proto::Format_Undefined, ///< Default value indicates an
-                                       ///< uninitialized state.
-  COFF = proto::COFF,                  ///< Common Object File Format (COFF)
-  ELF = proto::ELF, ///< Executable and Linkable Format (ELF, formerly named
-                    ///< Extensible Linking Format)
-  PE = proto::PE,   ///< Microsoft Portable Executable (PE) format.
-  IdaProDb32 = proto::IdaProDb32, ///< IDA Pro database file
-  IdaProDb64 = proto::IdaProDb64, ///< IDA Pro database file
-  XCOFF = proto::XCOFF, ///< Non-COFF (files start with ANON_OBJECT_HEADER*)
-  MACHO = proto::MACHO, ///< Mach object file format
-  RAW = proto::RAW      ///< Raw binary file (no format)
+class FileFormat : public ExtensibleEnum<proto::FileFormat> {
+  using inner = ExtensibleEnum<proto::FileFormat>;
+
+public:
+  constexpr FileFormat(const inner& E) : inner(E) {}
+  constexpr FileFormat() = default;
+
+  static constexpr inner Undefined =
+      proto::Format_Undefined; ///< Default value indicates an
+                               ///< uninitialized state.
+  static constexpr inner COFF =
+      proto::COFF; ///< Common Object File Format (COFF)
+  static constexpr inner ELF =
+      proto::ELF; ///< Executable and Linkable Format (ELF, formerly named
+                  ///< Extensible Linking Format)
+  static constexpr inner PE =
+      proto::PE; ///< Microsoft Portable Executable (PE) format.
+  static constexpr inner IdaProDb32 =
+      proto::IdaProDb32; ///< IDA Pro database file
+  static constexpr inner IdaProDb64 =
+      proto::IdaProDb64; ///< IDA Pro database file
+  static constexpr inner XCOFF =
+      proto::XCOFF; ///< Non-COFF (files start with ANON_OBJECT_HEADER*)
+  static constexpr inner MACHO = proto::MACHO; ///< Mach object file format
+  static constexpr inner RAW = proto::RAW;     ///< Raw binary file (no format)
 };
 
-/// \enum ISAID
+/// \class ISAID
 ///
 /// \brief Idenfities an instruction set.
-enum class ISA : uint8_t {
-  Undefined = proto::ISA_Undefined, ///< Default value to indicates an
-                                    ///< uninitialized state.
-  IA32 = proto::IA32,   ///< Intel Architecture, 32-bit. Also known as i386.
-  PPC32 = proto::PPC32, ///< Performance Optimization With Enhanced RISC –
-                        ///< Performance Computing, 32-bit.
-  X64 = proto::X64,     ///< The generic name for the 64-bit
-                        ///< extensions to both Intel's and AMD's 32-bit
-                        ///< x86 instruction set architecture (ISA).
-  ARM = proto::ARM,     ///< Advanced RISC Machine. also known as Acorn RISC
-                        ///< Machine.
-  ValidButUnsupported = proto::ValidButUnsupported
+class ISA : public ExtensibleEnum<proto::ISA> {
+  using inner = ExtensibleEnum<proto::ISA>;
+
+public:
+  constexpr ISA(const inner& E) : inner(E) {}
+  constexpr ISA() = default;
+
+  static constexpr inner Undefined =
+      proto::ISA_Undefined; ///< Default value to indicates an
+                            ///< uninitialized state.
+  static constexpr inner IA32 =
+      proto::IA32; ///< Intel Architecture, 32-bit. Also known as i386.
+  static constexpr inner PPC32 =
+      proto::PPC32; ///< Performance Optimization With Enhanced RISC –
+                    ///< Performance Computing, 32-bit.
+  static constexpr inner X64 =
+      proto::X64; ///< The generic name for the 64-bit
+                  ///< extensions to both Intel's and AMD's 32-bit
+                  ///< x86 instruction set architecture (ISA).
+  static constexpr inner ARM = proto::ARM; ///< Advanced RISC Machine. also
+                                           ///< known as Acorn RISC
+                                           ///< Machine.
+  static constexpr inner ValidButUnsupported = proto::ValidButUnsupported;
 };
 
 /// \class Module
