@@ -28,9 +28,9 @@ GTIRB has the following structure. Solid lines denote containment, and dotted li
 
        +--IPCFG--Edges...........................
        |                 .                      .
-       |         +-ProxyBlocks             +-Blocks
+       |         +-ProxyBlocks             +-CodeBlocks
        |         |                         |
-    IR-+-Modules-+-Sections--ByteIntervals-+
+    IR-+-Modules-+-Sections--ByteIntervals-+-DataBlocks
        |    |    |                         |
        |    |    +-Symbols.........        +-SymbolicExpressions
        +-AuxData                  .              .
