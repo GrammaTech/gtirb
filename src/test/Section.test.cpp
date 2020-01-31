@@ -62,6 +62,36 @@ TEST(Unit_Section, flags) {
   }
 }
 
+class ExtendedSectionFlags : public SectionFlag {
+  using inner = SectionFlag;
+
+public:
+  constexpr ExtendedSectionFlags(const inner& E) : inner(E) {}
+  constexpr ExtendedSectionFlags() = default;
+
+  static constexpr inner Frobble{12};
+  static constexpr inner Bobble{42};
+};
+
+TEST(Unit_Section, extendedFlags) {
+  auto* S = Section::Create(Ctx, "test");
+  EXPECT_FALSE(S->isFlagSet(SectionFlag::Undefined));
+
+  S->addFlag(ExtendedSectionFlags::Frobble);
+  EXPECT_TRUE(S->isFlagSet(ExtendedSectionFlags::Frobble));
+
+  S->removeFlag(ExtendedSectionFlags::Frobble);
+  EXPECT_FALSE(S->isFlagSet(ExtendedSectionFlags::Frobble));
+
+  S->addFlags(SectionFlag::Initialized, ExtendedSectionFlags::Bobble);
+  if (*S->flags_begin() == SectionFlag::Initialized)
+    EXPECT_EQ(ExtendedSectionFlags::Bobble, *(++S->flags_begin()));
+  else {
+    EXPECT_EQ(ExtendedSectionFlags::Bobble, *S->flags_begin());
+    EXPECT_EQ(SectionFlag::Initialized, *(++S->flags_begin()));
+  }
+}
+
 TEST(Unit_Section, protobufRoundTrip) {
   proto::Section Message;
 
