@@ -2,7 +2,7 @@ GTIRB Components
 ================
 
 
-* [Node](Desc_Node.md)
+* [Node](NODE.md)
 * Node subclasses that every API *must* implement
   * IR
   * Module

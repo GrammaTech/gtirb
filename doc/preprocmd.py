@@ -7,7 +7,7 @@ import os
 
 
 # Doxygen doesn't make heading anchors like it should.
-
+#
 # We can't insert them as a straight re substitution because we also
 # need to make sure we're not accidentally matching something inside a
 # codeblock.
@@ -45,6 +45,18 @@ def anchor_page_headings(pagetxt):
     )
 
 
+# Given a Python-looking token, compute its location in the Python API
+# documentation and return an HTML link.
+def makePyApiLink(pymatch):
+    pytoken = pymatch.group("pytoken")
+    parens = pymatch.group("parens")
+    href = '<a href="python/gtirb.html#{0}">{0}{1}</a>'.format(
+        pytoken, parens if parens is not None else ""
+    )
+    return href
+
+
+# Make an HTML link to an example file
 def makeDoxyExampleLink(exname, linktext, pathadj):
     fname = exname.replace(".", "_8") + "-example.html"
     return '<a href="{0}{1}">{2}</a>'.format(pathadj, fname, linktext)
@@ -87,8 +99,29 @@ substitutions = [
     (r"```cpp(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
 ]
 
+pytoken_re = r"(?P<pytoken>gtirb(\.[a-zA-Z]\w*)+)(?P<parens>\([^]\n]*?\))?"
+
 if outdir == "general":
     substitutions = [
+        # Heuristic recognition of links to Python API elements
+        # where a 'Python-looking token' has the form
+        # described by pytoken_re
+        #   heuristic 1: Python-looking token occurs in a table row
+        #   whose first cell contains "Python"
+        (
+            r"(^|\n)\| +[^|]*?Python.*? {0} .*?\n".format(pytoken_re),
+            lambda m: re.sub(pytoken_re, makePyApiLink, m.group(0)),
+        ),
+        #   heuristic 2: Python-looking token - optionally followed by
+        #   paretheses with arbitrary contents - is link text of a link
+        #   whose target is python/README.md
+        (
+            r"\[\s*{0}\s*\]".format(pytoken_re)
+            + r"\([\w\./]*(?<=[\(\/])python\/README.md\)",
+            makePyApiLink,
+        ),
+        # Links to other language APIs, iff those APIs are present
+        # (conditional managed by Doxygen)
         (
             r"\[([^]\n]*)\]\s*\(doc/cpp/README.md\)",
             r' \\if CPP_ONLY <a href="cpp/index.html">\1</a> '
@@ -98,7 +131,7 @@ if outdir == "general":
             r"\[([^]\n]*)\]\s*\((python|cl)/README.md\)",
             lambda m: (
                 ' \\if {0}_ONLY  <a href="{1}/index.html">{2}</a> '
-                r"\\else {2} (not available) \\endif \n"
+                "\\else {2} (not available) \\endif \n"
             ).format(
                 "PY" if m.group(2) == "python" else "CL",
                 m.group(2),

@@ -19,7 +19,7 @@
       </tab>
     </tab>
 
-    <tab type="user" visible="yes" title="API Components" url="@ref md_ComponentsIndex"/>
+    <tab type="user" visible="yes" title="API Components" url="@ref md_COMPONENTS"/>
 
     <tab type="usergroup" visible="yes" title="API Implementations">
        <tab type="user" visible="@CPP_API_VISIBLE@" title="C++ API" url="cpp/index.html"/>

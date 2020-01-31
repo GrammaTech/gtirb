@@ -181,7 +181,6 @@ The `<api_options>` are as follows
 
   If this option is not specified, `cmake` will attempt to generate
   Python API documentation if and only if it can locate a Python
-
   installation, failing if [Sphinx](https://www.sphinx-doc.org/en/master/),
   [sphinx-autodoc-typehints](https://pypi.org/project/sphinx-autodoc-typehints/),
   or the Python API dependencies are not available.

@@ -15,7 +15,7 @@
       <tab type="filelist" visible="yes" title="" intro=""/>
       <tab type="globals" visible="yes" title="" intro=""/>
     </tab>
-    <tab type="user" visible="yes" title="API Component Descriptions" url="../md__components_index.html"/>
+    <tab type="user" visible="yes" title="API Component Descriptions" url="../md__c_o_m_p_o_n_e_n_t_s.html"/>
   </navindex>
 
   <!-- Layout definition for a class page -->

@@ -785,8 +785,7 @@ WARN_LOGFILE           = doxygen_warnings.txt
 # TOC (otherwise it will be alphabetical)
 
 INPUT   += README.md FAQ.md PROTOBUF.md CFG-Edges.md AuxData.md CONTRIBUTING.md
-INPUT   += ComponentsIndex.md
-INPUT   += Desc_Node.md
+INPUT   += COMPONENTS.md NODE.md
 INPUT   += examples.dox
 
 
