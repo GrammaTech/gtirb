@@ -27,7 +27,7 @@ public:
   using type = std::underlying_type_t<UnderlyingEnum>;
 
 private:
-  type Value;
+  type Value{};
 
 public:
   // It is purposeful that the constructor is not explicit; this allows
