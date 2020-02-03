@@ -42,11 +42,49 @@ namespace gtirb {
 //
 // Unfortunately, C++ does not allow inheritance between enumerations. Instead,
 // we provide the ExtensibleEnum class as a way to model a scoped enumeration.
-
-// TODO: make ExtensibleEnum model an enum class, verify behavior against
-// enum classes, compile-time tests with static_assert, should be sort of
-// like the Addr class in terms of design principles.
-
+//
+// To define your own extensible enumeration, you should subclass the
+// ExtensibleEnum class to hold the enumerators you wish to expose. You will
+// have to expose the underlying constructors with a using declaration, and you
+// have to take care to define the enumerators in a way that allows them to be
+// used within a constexpr context without violating the ODR. A simple example
+// is:
+//
+// class MyExtensibleEnum : ExtensibleEnum<> { // Underlying type is int
+// public:
+//   using ExtensibleEnum::ExtensibleEnum; // Inherit base class constructors
+//
+//   // Declare the enumerators as static const members of the class type.
+//   // Note that you cannot declare them as constexpr because the type is
+//   // incomplete until reaching the closing brace.
+//   static const MyExtensibleEnum EnumeratorOne;
+//   static const MyExtensibleEnum EnumeratorTwo;
+// };
+// // Define the enumerators as inline constexpr members of the class type.
+// // This ensures that the enumerators can be used in a constexpr context and
+// // do not violate the ODR. Note that you must use a braced-init-list to
+// // initialize the value from an integral type (this also helps to ensure
+// // that there is no accidental narrowing conversion between the value and
+// // underlying type of the extensible enumeration).
+// inline constexpr MyExtensibleEnum MyExtensibleEnum::EnumeratorOne{12};
+// inline constexpr MyExtensibleEnum MyExtensibleEnum::EnumeratorTwo{42};
+//
+// To define an extension to an existing extensible enumeration, you shuold
+// subclass the extensible enumeration base class and add additional enumerator
+// members to it. This also requires introducing the base class constructors,
+// as well as an additional copy constructor so that the derived class can
+// properly interopate with objects of the base class type. A simple example is:
+//
+// class MyExtendedEnum : MyExtensibleEnum {
+// public:
+//
+//   using MyExtensibleEnum::MyExtensibleEnum; // Inherit base class ctors
+//   constexpr MyExtendedEnum(const MyExtensibleEnum& Other)
+//       : MyExtensibleEnum(Other) {}
+//
+//   static const MyExtendedEnum EnumeratorThree;
+// };
+// inline constexpr MyExtendedEnum MyExtendedEnum::EnumeratorThree{3};
 template <typename UnderlyingType = int> class GTIRB_EXPORT_API ExtensibleEnum {
   UnderlyingType Value;
 
