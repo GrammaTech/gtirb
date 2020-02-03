@@ -17,14 +17,6 @@
 
 using namespace gtirb;
 
-const SectionFlag SectionFlag::Undefined{proto::SectionFlag::Section_Undefined};
-const SectionFlag SectionFlag::Readable{proto::SectionFlag::Readable};
-const SectionFlag SectionFlag::Writable{proto::SectionFlag::Writable};
-const SectionFlag SectionFlag::Executable{proto::SectionFlag::Executable};
-const SectionFlag SectionFlag::Loaded{proto::SectionFlag::Loaded};
-const SectionFlag SectionFlag::Initialized{proto::SectionFlag::Initialized};
-const SectionFlag SectionFlag::ThreadLocal{proto::SectionFlag::ThreadLocal};
-
 bool Section::operator==(const Section& Other) const {
   return this->getAddress() == Other.getAddress() &&
          this->getSize() == Other.getSize() && this->Name == Other.Name;

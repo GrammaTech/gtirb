@@ -53,7 +53,7 @@ class IR;
 /// \class FileFormat
 ///
 /// \brief Identifies an exectuable file format.
-class GTIRB_EXPORT_API FileFormat : public ExtensibleEnum<> {
+class FileFormat : public ExtensibleEnum<> {
 public:
   using ExtensibleEnum::ExtensibleEnum;
 
@@ -71,10 +71,19 @@ public:
   static const FileFormat RAW;        ///< Raw binary file (no format)
 };
 
+inline constexpr FileFormat FileFormat::Undefined{proto::Format_Undefined};
+inline constexpr FileFormat FileFormat::COFF{proto::COFF};
+inline constexpr FileFormat FileFormat::ELF{proto::ELF};
+inline constexpr FileFormat FileFormat::PE{proto::PE};
+inline constexpr FileFormat FileFormat::IdaProDb32{proto::IdaProDb32};
+inline constexpr FileFormat FileFormat::IdaProDb64{proto::IdaProDb64};
+inline constexpr FileFormat FileFormat::MACHO{proto::MACHO};
+inline constexpr FileFormat FileFormat::RAW{proto::RAW};
+
 /// \class ISAID
 ///
 /// \brief Idenfities an instruction set.
-class GTIRB_EXPORT_API ISA : public ExtensibleEnum<> {
+class ISA : public ExtensibleEnum<> {
 public:
   using ExtensibleEnum::ExtensibleEnum;
 
@@ -90,6 +99,13 @@ public:
                           ///< Machine.
   static const ISA ValidButUnsupported;
 };
+
+inline constexpr ISA ISA::Undefined{proto::ISA_Undefined};
+inline constexpr ISA ISA::IA32{proto::IA32};
+inline constexpr ISA ISA::PPC32{proto::PPC32};
+inline constexpr ISA ISA::X64{proto::X64};
+inline constexpr ISA ISA::ARM{proto::ARM};
+inline constexpr ISA ISA::ValidButUnsupported{proto::ValidButUnsupported};
 
 /// \class Module
 ///

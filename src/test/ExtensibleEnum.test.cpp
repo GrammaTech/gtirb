@@ -33,9 +33,11 @@ public:
 
   static const TestShortEnum Apple;
   static const TestShortEnum Orange;
+  //  static const TestShortEnum Pear;
 };
 constexpr TestShortEnum TestShortEnum::Apple{1};
 constexpr TestShortEnum TestShortEnum::Orange{2};
+// constexpr TestShortEnum TestShortEnum::Pear{70000}; // narrowing conversion
 
 class ExtendedEnum : public TestIntEnum {
 public:
