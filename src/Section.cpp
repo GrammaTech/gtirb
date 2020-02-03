@@ -17,14 +17,13 @@
 
 using namespace gtirb;
 
-constexpr SectionFlag SectionFlag::Undefined{
-    proto::SectionFlag::Section_Undefined};
-constexpr SectionFlag SectionFlag::Readable{proto::SectionFlag::Readable};
-constexpr SectionFlag SectionFlag::Writable{proto::SectionFlag::Writable};
-constexpr SectionFlag SectionFlag::Executable{proto::SectionFlag::Executable};
-constexpr SectionFlag SectionFlag::Loaded{proto::SectionFlag::Loaded};
-constexpr SectionFlag SectionFlag::Initialized{proto::SectionFlag::Initialized};
-constexpr SectionFlag SectionFlag::ThreadLocal{proto::SectionFlag::ThreadLocal};
+const SectionFlag SectionFlag::Undefined{proto::SectionFlag::Section_Undefined};
+const SectionFlag SectionFlag::Readable{proto::SectionFlag::Readable};
+const SectionFlag SectionFlag::Writable{proto::SectionFlag::Writable};
+const SectionFlag SectionFlag::Executable{proto::SectionFlag::Executable};
+const SectionFlag SectionFlag::Loaded{proto::SectionFlag::Loaded};
+const SectionFlag SectionFlag::Initialized{proto::SectionFlag::Initialized};
+const SectionFlag SectionFlag::ThreadLocal{proto::SectionFlag::ThreadLocal};
 
 bool Section::operator==(const Section& Other) const {
   return this->getAddress() == Other.getAddress() &&

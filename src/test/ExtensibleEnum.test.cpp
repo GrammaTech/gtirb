@@ -152,6 +152,7 @@ TEST(Unit_ExtensibleEnum, operators_that_should_not_compile) {
 }
 
 TEST(Unit_ExtensibleEnum, Constexpr) {
+  [[maybe_unused]] int i[static_cast<unsigned>(TestIntEnum::One)];
   static_assert(TestIntEnum{TestIntEnum::One} == TestIntEnum::One);
   static_assert(static_cast<int>(TestShortEnum{TestShortEnum::Apple}) == 1);
   static_assert(TestIntEnum{12} < TestIntEnum{42});
