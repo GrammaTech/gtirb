@@ -15,38 +15,50 @@
 #ifndef GTIRB_EXTENSIBLEENUM_H
 #define GTIRB_EXTENSIBLEENUM_H
 
+#include <gtirb/Export.hpp>
+#include <initializer_list>
+#include <limits>
+#include <type_traits>
+
 namespace gtirb {
 
-// Base class is templated on the underlying enum that is being made
-// extensible. This helps ensure type safety so that it is harder to
-// compare enumerators from distinct enumerations, and it also allows
-// us to store values using the same representation as the enumeration
-// uses.
-template <typename UnderlyingEnum> class ExtensibleEnum {
+// Due to GTIRB's use as an intermediary representation for exchange between
+// processes, we need some way in which to handle extending enumerations more
+// gracefully than what C++ allows by default. Ideally, we wish we could do
+// something like:
+//
+// // In GTIRB proper:
+// enum class FileFormats {
+//   Undefined,
+//   COFF,
+//   ELF,
+// };
+//
+// // In an extension to GTIRB:
+// enum class ExtFileFormats : public FileFormats {
+//   PE32,
+//   Macho,
+// };
+//
+// Unfortunately, C++ does not allow inheritance between enumerations. Instead,
+// we provide the ExtensibleEnum class as a way to model a scoped enumeration.
+
+// TODO: make ExtensibleEnum model an enum class, verify behavior against
+// enum classes, compile-time tests with static_assert, should be sort of
+// like the Addr class in terms of design principles.
+
+template <typename UnderlyingType = int> class GTIRB_EXPORT_API ExtensibleEnum {
+  UnderlyingType Value;
+
 public:
-  using type = std::underlying_type_t<UnderlyingEnum>;
+  ExtensibleEnum() = default;
+  explicit constexpr ExtensibleEnum(UnderlyingType V) : Value(V) {}
 
-private:
-  type Value{};
-
-public:
-  // It is purposeful that the constructor is not explicit; this allows
-  // implicit conversions such as the ones used by the initialization of the
-  // enumerators listed in the specific enumeration subclasses.
-  constexpr ExtensibleEnum(type V) : Value(V) {}
-
-  // Defaulting the constructor to ensure that the enumeration is a regular
-  // type.
-  constexpr ExtensibleEnum() = default;
-
-  // It is purposeful that the conversion operator is explicit; this prevents
-  // accidental implicit conversion to the underlying type, adding extra type
-  // safety for the subclasses. Without this, you could compare two different
-  // enumerations because they would implicitly convert to their underlying
-  // integral types.
-  explicit constexpr operator type() const { return Value; }
-  constexpr operator UnderlyingEnum() const {
-    return static_cast<UnderlyingEnum>(Value);
+  template <typename IntegralOrEnumTy,
+            typename = std::enable_if_t<std::is_integral_v<IntegralOrEnumTy> ||
+                                        std::is_enum_v<IntegralOrEnumTy>>>
+  explicit constexpr operator IntegralOrEnumTy() const {
+    return static_cast<IntegralOrEnumTy>(Value);
   }
 
   friend constexpr bool operator<(const ExtensibleEnum& LHS,

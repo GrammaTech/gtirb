@@ -23,6 +23,22 @@
 
 using namespace gtirb;
 
+constexpr FileFormat FileFormat::Undefined{proto::Format_Undefined};
+constexpr FileFormat FileFormat::COFF{proto::COFF};
+constexpr FileFormat FileFormat::ELF{proto::ELF};
+constexpr FileFormat FileFormat::PE{proto::PE};
+constexpr FileFormat FileFormat::IdaProDb32{proto::IdaProDb32};
+constexpr FileFormat FileFormat::IdaProDb64{proto::IdaProDb64};
+constexpr FileFormat FileFormat::MACHO{proto::MACHO};
+constexpr FileFormat FileFormat::RAW{proto::RAW};
+
+constexpr ISA ISA::Undefined{proto::ISA_Undefined};
+constexpr ISA ISA::IA32{proto::IA32};
+constexpr ISA ISA::PPC32{proto::PPC32};
+constexpr ISA ISA::X64{proto::X64};
+constexpr ISA ISA::ARM{proto::ARM};
+constexpr ISA ISA::ValidButUnsupported{proto::ValidButUnsupported};
+
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);

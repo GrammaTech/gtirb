@@ -17,6 +17,15 @@
 
 using namespace gtirb;
 
+constexpr SectionFlag SectionFlag::Undefined{
+    proto::SectionFlag::Section_Undefined};
+constexpr SectionFlag SectionFlag::Readable{proto::SectionFlag::Readable};
+constexpr SectionFlag SectionFlag::Writable{proto::SectionFlag::Writable};
+constexpr SectionFlag SectionFlag::Executable{proto::SectionFlag::Executable};
+constexpr SectionFlag SectionFlag::Loaded{proto::SectionFlag::Loaded};
+constexpr SectionFlag SectionFlag::Initialized{proto::SectionFlag::Initialized};
+constexpr SectionFlag SectionFlag::ThreadLocal{proto::SectionFlag::ThreadLocal};
+
 bool Section::operator==(const Section& Other) const {
   return this->getAddress() == Other.getAddress() &&
          this->getSize() == Other.getSize() && this->Name == Other.Name;
@@ -30,7 +39,7 @@ void Section::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_name(this->Name);
   for (auto Flag : flags()) {
-    Message->add_section_flags(Flag);
+    Message->add_section_flags(static_cast<proto::SectionFlag>(Flag));
   }
   for (const auto& Interval : byte_intervals()) {
     Interval.toProtobuf(Message->add_byte_intervals());

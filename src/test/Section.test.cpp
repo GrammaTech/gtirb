@@ -63,15 +63,17 @@ TEST(Unit_Section, flags) {
 }
 
 class ExtendedSectionFlags : public SectionFlag {
-  using inner = SectionFlag;
-
 public:
-  constexpr ExtendedSectionFlags(const inner& E) : inner(E) {}
-  constexpr ExtendedSectionFlags() = default;
+  using SectionFlag::SectionFlag;
+  constexpr ExtendedSectionFlags(const SectionFlag& Other)
+      : SectionFlag(Other) {}
 
-  static constexpr inner Frobble{12};
-  static constexpr inner Bobble{42};
+  static const ExtendedSectionFlags Frobble;
+  static const ExtendedSectionFlags Bobble;
 };
+
+constexpr ExtendedSectionFlags ExtendedSectionFlags::Frobble{12};
+constexpr ExtendedSectionFlags ExtendedSectionFlags::Bobble{42};
 
 TEST(Unit_Section, extendedFlags) {
   auto* S = Section::Create(Ctx, "test");

@@ -46,20 +46,17 @@ class Module; // Forward declared for the backpointer.
 /// \class SectionFlag
 ///
 /// \brief Idenfities the flags used for a section.
-class SectionFlag : public ExtensibleEnum<proto::SectionFlag> {
-  using inner = ExtensibleEnum<proto::SectionFlag>;
-
+class GTIRB_EXPORT_API SectionFlag : public ExtensibleEnum<> {
 public:
-  constexpr SectionFlag(const inner& E) : inner(E) {}
-  constexpr SectionFlag() = default;
+  using ExtensibleEnum::ExtensibleEnum;
 
-  static constexpr inner Undefined = proto::SectionFlag::Section_Undefined;
-  static constexpr inner Readable = proto::SectionFlag::Readable;
-  static constexpr inner Writable = proto::SectionFlag::Writable;
-  static constexpr inner Executable = proto::SectionFlag::Executable;
-  static constexpr inner Loaded = proto::SectionFlag::Loaded;
-  static constexpr inner Initialized = proto::SectionFlag::Initialized;
-  static constexpr inner ThreadLocal = proto::SectionFlag::ThreadLocal;
+  static const SectionFlag Undefined;
+  static const SectionFlag Readable;
+  static const SectionFlag Writable;
+  static const SectionFlag Executable;
+  static const SectionFlag Loaded;
+  static const SectionFlag Initialized;
+  static const SectionFlag ThreadLocal;
 };
 
 /// \class Section

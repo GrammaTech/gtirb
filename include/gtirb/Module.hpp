@@ -53,59 +53,42 @@ class IR;
 /// \class FileFormat
 ///
 /// \brief Identifies an exectuable file format.
-class FileFormat : public ExtensibleEnum<proto::FileFormat> {
-  using inner = ExtensibleEnum<proto::FileFormat>;
-
+class GTIRB_EXPORT_API FileFormat : public ExtensibleEnum<> {
 public:
-  constexpr FileFormat(const inner& E) : inner(E) {}
-  constexpr FileFormat() = default;
+  using ExtensibleEnum::ExtensibleEnum;
 
-  static constexpr inner Undefined =
-      proto::Format_Undefined; ///< Default value indicates an
-                               ///< uninitialized state.
-  static constexpr inner COFF =
-      proto::COFF; ///< Common Object File Format (COFF)
-  static constexpr inner ELF =
-      proto::ELF; ///< Executable and Linkable Format (ELF, formerly named
-                  ///< Extensible Linking Format)
-  static constexpr inner PE =
-      proto::PE; ///< Microsoft Portable Executable (PE) format.
-  static constexpr inner IdaProDb32 =
-      proto::IdaProDb32; ///< IDA Pro database file
-  static constexpr inner IdaProDb64 =
-      proto::IdaProDb64; ///< IDA Pro database file
-  static constexpr inner XCOFF =
-      proto::XCOFF; ///< Non-COFF (files start with ANON_OBJECT_HEADER*)
-  static constexpr inner MACHO = proto::MACHO; ///< Mach object file format
-  static constexpr inner RAW = proto::RAW;     ///< Raw binary file (no format)
+  static const FileFormat Undefined; ///< Default value indicates an
+                                     ///< uninitialized state.
+  static const FileFormat COFF;      ///< Common Object File Format (COFF)
+  static const FileFormat ELF;       ///< Executable and Linkable Format (ELF,
+                               ///< formerly named Extensible Linking Format)
+  static const FileFormat PE; ///< Microsoft Portable Executable (PE) format.
+  static const FileFormat IdaProDb32; ///< IDA Pro database file
+  static const FileFormat IdaProDb64; ///< IDA Pro database file
+  static const FileFormat XCOFF;      ///< Non-COFF (files start with
+                                      ///< ANON_OBJECT_HEADER*)
+  static const FileFormat MACHO;      ///< Mach object file format
+  static const FileFormat RAW;        ///< Raw binary file (no format)
 };
 
 /// \class ISAID
 ///
 /// \brief Idenfities an instruction set.
-class ISA : public ExtensibleEnum<proto::ISA> {
-  using inner = ExtensibleEnum<proto::ISA>;
-
+class GTIRB_EXPORT_API ISA : public ExtensibleEnum<> {
 public:
-  constexpr ISA(const inner& E) : inner(E) {}
-  constexpr ISA() = default;
+  using ExtensibleEnum::ExtensibleEnum;
 
-  static constexpr inner Undefined =
-      proto::ISA_Undefined; ///< Default value to indicates an
-                            ///< uninitialized state.
-  static constexpr inner IA32 =
-      proto::IA32; ///< Intel Architecture, 32-bit. Also known as i386.
-  static constexpr inner PPC32 =
-      proto::PPC32; ///< Performance Optimization With Enhanced RISC –
-                    ///< Performance Computing, 32-bit.
-  static constexpr inner X64 =
-      proto::X64; ///< The generic name for the 64-bit
-                  ///< extensions to both Intel's and AMD's 32-bit
-                  ///< x86 instruction set architecture (ISA).
-  static constexpr inner ARM = proto::ARM; ///< Advanced RISC Machine. also
-                                           ///< known as Acorn RISC
-                                           ///< Machine.
-  static constexpr inner ValidButUnsupported = proto::ValidButUnsupported;
+  static const ISA Undefined; ///< Default value to indicates an uninitialized
+                              ///< state.
+  static const ISA IA32;  ///< Intel Architecture, 32-bit. Also known as i386.
+  static const ISA PPC32; ///< Performance Optimization With Enhanced RISC -
+                          ///< Performance Computing, 32-bit.
+  static const ISA X64;   ///< The generic name for the 64-bit extensions to
+                          ///< both Intel's and AMD's 32-bit x86 instruction
+                          ///< set architecture (ISA).
+  static const ISA ARM;   ///< Advanced RISC Machine. also known as Acorn RISC
+                          ///< Machine.
+  static const ISA ValidButUnsupported;
 };
 
 /// \class Module
