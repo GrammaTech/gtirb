@@ -121,10 +121,10 @@ TEST(Unit_ExtensibleEnum, comparisons_that_should_not_compile) {
   // bool b3 = E1 == 1;
 }
 
-void FuncAcceptingTestIntEnum(TestIntEnum E) {}
-void FuncAcceptingExtendedEnum(ExtendedEnum E) {}
-void FuncAcceptingTestShortEnum(TestShortEnum E) {}
-void FuncAcceptingInt(int E) {}
+void FuncAcceptingTestIntEnum(TestIntEnum) {}
+void FuncAcceptingExtendedEnum(ExtendedEnum) {}
+void FuncAcceptingTestShortEnum(TestShortEnum) {}
+void FuncAcceptingInt(int) {}
 
 TEST(Unit_ExtensibleEnum, conversion) {
   TestIntEnum E1;
