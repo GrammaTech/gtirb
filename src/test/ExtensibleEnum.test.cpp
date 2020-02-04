@@ -62,16 +62,16 @@ TEST(Unit_ExtensibleEnum, ctors) {
   EXPECT_NE(E1, E3);
 }
 
-TEST(Unit_ExtensibleEnum, ctors_that_should_not_compile) {
-  // TestIntEnum E1 = 12;
-  // TestIntEnum E2 = TestShortEnum::Apple;
-  // TestIntEnum E3{TestShortEnum::Apple};
-  // TestShortEnum E4{70000};
-
-  //// FIXME: paren init should be disabled, but I know of no way to do it that
-  //// continues to allow brace initialization.
-  // TestShortEnum E5(2);
-}
+// TEST(Unit_ExtensibleEnum, ctors_that_should_not_compile) {
+//   TestIntEnum E1 = 12;
+//   TestIntEnum E2 = TestShortEnum::Apple;
+//   TestIntEnum E3{TestShortEnum::Apple};
+//   TestShortEnum E4{70000};
+//
+//  // FIXME: paren init should be disabled, but I know of no way to do it that
+//  // continues to allow brace initialization.
+//   TestShortEnum E5(2);
+//}
 
 TEST(Unit_ExtensibleEnum, assignment) {
   TestIntEnum E1 = TestIntEnum::Two;
@@ -89,17 +89,17 @@ TEST(Unit_ExtensibleEnum, assignment) {
   E1 = ExtendedEnum::Four;
 }
 
-TEST(Unit_ExtensibleEnum, assignments_that_should_not_compile) {
-  // TestIntEnum E1;
-  // TestShortEnum E2;
-
-  // E1 = 12;
-  // E2 = E1;
-  // E1 = E2;
-
-  // int i;
-  // i = E1;
-}
+// TEST(Unit_ExtensibleEnum, assignments_that_should_not_compile) {
+//   TestIntEnum E1;
+//   TestShortEnum E2;
+//
+//   E1 = 12;
+//   E2 = E1;
+//   E1 = E2;
+//
+//   int i;
+//   i = E1;
+//}
 
 TEST(Unit_ExtensibleEnum, comparison) {
   TestIntEnum E1 = TestIntEnum::One, E2 = TestIntEnum::Two;
@@ -114,14 +114,14 @@ TEST(Unit_ExtensibleEnum, comparison) {
   EXPECT_TRUE(Extended <= E1);
 }
 
-TEST(Unit_ExtensibleEnum, comparisons_that_should_not_compile) {
-  // TestIntEnum E1{1};
-  // TestShortEnum E2{0};
-
-  // bool b1 = E1 < E2;
-  // bool b2 = E1 == E2;
-  // bool b3 = E1 == 1;
-}
+// TEST(Unit_ExtensibleEnum, comparisons_that_should_not_compile) {
+//   TestIntEnum E1{1};
+//   TestShortEnum E2{0};
+//
+//   bool b1 = E1 < E2;
+//   bool b2 = E1 == E2;
+//   bool b3 = E1 == 1;
+//}
 
 void FuncAcceptingTestIntEnum(TestIntEnum) {}
 void FuncAcceptingExtendedEnum(ExtendedEnum) {}
@@ -136,22 +136,22 @@ TEST(Unit_ExtensibleEnum, conversion) {
   FuncAcceptingTestIntEnum(E2);
 }
 
-TEST(Unit_ExtensibleEnum, conversions_that_should_not_compile) {
-  // TestIntEnum E1;
-  // int i, j = E1;
-  // i = E1;
-
-  // FuncAcceptingInt(E1);
-  // FuncAcceptingTestShortEnum(E1);
-}
-
-TEST(Unit_ExtensibleEnum, operators_that_should_not_compile) {
-  // TestIntEnum E1, E2;
-
-  // E1 = E1 | E2;
-  // E1 = E1 & E2;
-  // E1 = ~E1;
-}
+// TEST(Unit_ExtensibleEnum, conversions_that_should_not_compile) {
+//   TestIntEnum E1;
+//   int i, j = E1;
+//   i = E1;
+//
+//   FuncAcceptingInt(E1);
+//   FuncAcceptingTestShortEnum(E1);
+//}
+//
+// TEST(Unit_ExtensibleEnum, operators_that_should_not_compile) {
+//   TestIntEnum E1, E2;
+//
+//   E1 = E1 | E2;
+//   E1 = E1 & E2;
+//   E1 = ~E1;
+//}
 
 TEST(Unit_ExtensibleEnum, Constexpr) {
   [[maybe_unused]] int i[static_cast<unsigned>(TestIntEnum::One)];
