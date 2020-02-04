@@ -77,6 +77,7 @@ inline constexpr FileFormat FileFormat::ELF{proto::ELF};
 inline constexpr FileFormat FileFormat::PE{proto::PE};
 inline constexpr FileFormat FileFormat::IdaProDb32{proto::IdaProDb32};
 inline constexpr FileFormat FileFormat::IdaProDb64{proto::IdaProDb64};
+inline constexpr FileFormat FileFormat::XCOFF{proto::XCOFF};
 inline constexpr FileFormat FileFormat::MACHO{proto::MACHO};
 inline constexpr FileFormat FileFormat::RAW{proto::RAW};
 
