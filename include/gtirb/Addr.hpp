@@ -212,8 +212,8 @@ private:
 /// \return An address (\ref Addr) A such that A-1 is in \p Object and
 /// A is not.
 template <typename T> std::optional<Addr> addressLimit(const T& Object) {
-  if (Object.getAddress()) {
-    return *Object.getAddress() + Object.getSize();
+  if (auto A = Object.getAddress()) {
+    return *A + Object.getSize();
   }
   return std::nullopt;
 }
