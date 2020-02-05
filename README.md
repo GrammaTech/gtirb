@@ -1,23 +1,19 @@
 # GTIRB
 
-The GrammaTech Intermediate Representation for Binaries (GTIRB) is a format for representing executables, shared libraries, and object code. It is intended to facilitate programs performing binary disassembly, analysis, transformation, and pretty printing, seeking to encourage communication and interoperability between tools.
-
-GTIRB portably encodes binaries from a range of other formats, such as [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format), [PE](https://en.wikipedia.org/wiki/Portable_Executable), and [Mach-O](https://en.wikipedia.org/wiki/Mach-O), allowing conversion to and from these formats to GTIRB without loss of information. In addition, it encodes information above and beyond what these formats store; it stores control flow, reference information, and other analysis results, allowing binary analysis and rewriting tools to have full information about the binary without processing it prior. Finally, it allows user-extensible data to be attached to any part of the file, letting tools communicate with each other in a standard, in-file format.
+The GrammaTech Intermediate Representation for Binaries (GTIRB) is a
+machine code analysis and rewriting data structure.  It is intended to
+facilitate the communication of binary IR between programs performing
+binary disassembly, analysis, transformation, and pretty printing.
+GTIRB is modeled on LLVM-IR, and seeks to serve a similar
+functionality of encouraging communication and interoperability
+between tools.
 
 The remainder of this file describes various aspects of GTIRB:
-- [GTIRB](#gtirb)
-- [Overview](#overview)
-  - [IR](#ir)
-  - [Instructions](#instructions)
-  - [Auxiliary Data](#auxiliary-data)
-  - [UUIDs](#uuids)
+- [Structure](#structure)
 - [Building](#building)
-  - [Requirements](#requirements)
 - [Usage](#usage)
-  - [Using Serialized GTIRB Data](#using-serialized-gtirb-data)
-  - [GTIRB API Implementations](#gtirb-api-implementations)
 
-# Overview
+# Structure
 
 GTIRB has the following structure.  Solid lines denote inheritance.
 Dotted lines denote reference by UUID.
