@@ -13,10 +13,15 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/Addr.hpp>
+#include <gtirb/ByteInterval.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/Context.hpp>
 #include <gtest/gtest.h>
 #include <sstream>
 
 using namespace gtirb;
+
+static Context Ctx;
 
 TEST(Unit_Addr, ctor_0) { EXPECT_EQ(Addr(), Addr()); }
 
@@ -172,4 +177,15 @@ TEST(Unit_Addr, Constexpr) {
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
+}
+
+TEST(Unit_Addr, addressLimit) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  EXPECT_EQ(addressLimit(*BI), std::nullopt);
+
+  BI->setAddress(Addr(0));
+  auto* CB = BI->addBlock<CodeBlock>(Ctx, 0, 5);
+
+  EXPECT_EQ(addressLimit(*BI), Addr(10));
+  EXPECT_EQ(addressLimit(*CB), Addr(5));
 }
