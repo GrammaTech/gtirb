@@ -97,7 +97,9 @@ block) and an offset.
 
 # Building
 
-GTIRB should successfully build in 64-bits with GCC, Clang, and Visual Studio compilers supporting at least C++17.  GTIRB uses CMake which must be installed with at least version 3.9.
+GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
+Studio compilers supporting at least C++17.  GTIRB uses CMake which
+must be installed with at least version 3.9.
 
 The common build process looks like this:
 ```sh
@@ -116,28 +118,51 @@ To build and install GTIRB, the following requirements should be installed:
 
 - [CMake](https://cmake.org/), version 3.9.0 or higher.
    - Ubuntu 18 provides this version via the APT package `cmake`.
-   - Ubuntu 16 and earlier provide out of date versions; build from source on those versions.
-- [Protobuf](https://developers.google.com/protocol-buffers/), version 3.0.0 or later.
-  - Ubuntu 18 provides this version via the APT packages `libprotobuf-dev` and `protobuf-compiler`.
-  - Ubuntu 16 and earlier provide out of date versions; build from source on those versions.
+   - Ubuntu 16 and earlier provide out of date versions; build from
+     source on those versions.
+- [Protobuf](https://developers.google.com/protocol-buffers/), version
+  3.0.0 or later.
+  - Ubuntu 18 provides this version via the APT packages
+    `libprotobuf-dev` and `protobuf-compiler`.
+  - Ubuntu 16 and earlier provide out of date versions; build from
+    source on those versions.
 
 # Usage
 
-GTIRB is designed to be serialized using [Google's protocol buffers](https://developers.google.com/protocol-buffers/) (i.e., [protobuf](https://github.com/google/protobuf/wiki)), enabling [easy and efficient use from any programming language](#using-serialized-gtirb-data).
+GTIRB is designed to be serialized using [Google's protocol
+buffers](https://developers.google.com/protocol-buffers/) (i.e.,
+[protobuf](https://github.com/google/protobuf/wiki)), enabling [easy
+and efficient use from any programming
+language](#using-serialized-gtirb-data).
 
-GTIRB may also be used through a dedicated API implemented in multiple languages. The APIs provide efficient data structures suitable for use by binary analysis and rewriting applications; see [below](#gtirb-api-implementations) for details.
+GTIRB may also be used through a dedicated API implemented in multiple
+languages. The APIs provide efficient data structures suitable for use
+by binary analysis and rewriting applications; see
+[below](#gtirb-api-implementations) for details.
 
 ## Using Serialized GTIRB Data
 
-The serialized [protobuf](https://github.com/google/protobuf/wiki) data produced by GTIRB allows for exploration and manipulation in the language of your choice. The [Google protocol buffers](https://developers.google.com/protocol-buffers/) homepage lists the languages in which protocol buffers can be used directly; users of other languages can convert the protobuf-formatted data to JSON format and then use the JSON data in their applications.
+The serialized [protobuf](https://github.com/google/protobuf/wiki)
+data produced by GTIRB allows for exploration and manipulation in the
+language of your choice. The [Google protocol
+buffers](https://developers.google.com/protocol-buffers/) homepage
+lists the languages in which protocol buffers can be used directly;
+users of other languages can convert the protobuf-formatted data to
+JSON format and then use the JSON data in their applications.
 
-The `proto` directory in this repository contains the protocol buffer message type definitions for GTIRB. You can inspect these `.proto` files to determine the structure of the various GTIRB message types. The top-level message type is `IR`.
+The `proto` directory in this repository contains the protocol buffer
+message type definitions for GTIRB. You can inspect these `.proto`
+files to determine the structure of the various GTIRB message
+types. The top-level message type is `IR`.
 
 For more details, see [Using Serialized GTIRB Data](PROTOBUF.md).
 
 ## GTIRB API Implementations
 
-The GTIRB API is currently available in C++, Python, and Common Lisp. For language-independent API information, see [GTIRB Components](doc/general/ComponentsIndex.md). For information about the different API implementations, see:
+The GTIRB API is currently available in C++, Python, and Common
+Lisp. For language-independent API information, see [GTIRB
+Components](doc/general/ComponentsIndex.md). For information about the
+different API implementations, see:
 
   - [C++ API](doc/cpp/README.md)
   - [Python API](python/README.md)
