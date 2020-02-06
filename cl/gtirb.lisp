@@ -12,7 +12,9 @@
                 :int->octets
                 :octets->int64
                 :octets->uint64)
-  (:export :read-gtirb
+  (:export :gtirb-version
+           :protobuf-version
+           :read-gtirb
            :write-gtirb
            :is-equal-p
            :*is-equal-p-verbose-p*
@@ -26,6 +28,7 @@
 ;;; Classes and fields.
            :gtirb
            :cfg
+           :version
            ;; Module
            :module
            :name
@@ -74,9 +77,42 @@
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
+(defvar version.txt
+  `#.(let ((version-path
+            (make-pathname
+             :name "version" :type "txt"
+             :directory (append (pathname-directory
+                                 (or *compile-file-truename*
+                                     *load-truename*
+                                     *default-pathname-defaults*))
+                                (list "..")))))
+       (with-open-file (in version-path)
+         (loop for line = (read-line in nil :eof)
+            until (eql line :eof)
+            collect (let ((delim (position #\Space line)))
+                      (cons (intern (subseq line 0 delim))
+                            (parse-integer (subseq line (1+ delim)))))))))
+
+(define-constant gtirb-version
+    (format nil "~d.~d.~d"
+            (cdr (assoc 'VERSION_MAJOR version.txt))
+            (cdr (assoc 'VERSION_MINOR version.txt))
+            (cdr (assoc 'VERSION_PATCH version.txt)))
+  :test #'string=
+  :documentation "GTIRB Version as a string of \"MAJOR.MINOR.PATCH\".")
+
+(define-constant protobuf-version
+    (cdr (assoc 'VERSION_PROTOBUF version.txt))
+  :test #'=
+  :documentation "GTIRB Protobuf Version as a non-negative integer.")
+
 (defun read-gtirb (path)
   "Read a GTIRB IR object from PATH."
-  (make-instance 'gtirb :proto (read-proto 'proto:ir path)))
+  (let ((proto (read-proto 'proto:ir path)))
+    (unless (= protobuf-version (proto:version proto))
+      (error "Protobuf version mismatch version ~a from ~a isn't expected ~a"
+             (proto:version proto) path protobuf-version))
+    (make-instance 'gtirb :proto proto)))
 
 (defun write-gtirb (gtirb path)
   "Write a GTIRB IR object to PATH."
@@ -417,7 +453,7 @@ modules and on GTIRB IR instances.")
      (by-address :accessor by-address :type ranged
                  :initform (make-instance 'ranged) :skip-equal-p t
                  :documentation "Internal cache for Address-based lookup."))
-    ()
+    ((version :type unsigned-byte-64 :documentation "Protobuf version."))
   (:documentation "Base class of an instance of GTIRB IR."))
 
 (defmethod print-object ((obj gtirb) stream)

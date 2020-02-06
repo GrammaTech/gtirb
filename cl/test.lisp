@@ -100,6 +100,10 @@ The ERRNO used when exiting lisp indicates success or failure."
 (defsuite test)
 (in-suite test)
 
+(deftest we-have-versions ()
+  (is (stringp gtirb-version))
+  (is (integerp protobuf-version)))
+
 (deftest simple-read ()
   (with-fixture hello
     (is (eql 'proto:ir
