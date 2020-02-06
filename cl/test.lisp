@@ -180,6 +180,23 @@ The ERRNO used when exiting lisp indicates success or failure."
                                  :test #'string=)))
                     test-string))))))
 
+(deftest entry-points-on-modules ()
+  (with-fixture hello
+    (let* ((hello (read-gtirb *proto-path*))
+           (module (first (modules hello)))
+           (code-block (nest (first)
+                             (remove-if-not {typep _ 'code-block})
+                             (mappend #'blocks)
+                             (mappend #'byte-intervals)
+                             (mappend #'sections)
+                             (modules hello))))
+      ;; Entry-point is read as a code block.
+      (is (typep (entry-point module) 'code-block))
+      ;; Newly saved entry-point has the UUID of the code block.
+      (setf (entry-point module) code-block)
+      (is (= (uuid code-block)
+             (uuid-to-integer (proto:entry-point (gtirb::proto module))))))))
+
 (deftest back-pointers-work ()
   (with-fixture hello
     (let ((hello (read-gtirb *proto-path*)))
