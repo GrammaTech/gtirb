@@ -1,6 +1,5 @@
 """General utilities usable by any other GTIRB submoudle."""
 
-import enum
 import typing
 
 K = typing.TypeVar("K")
@@ -146,51 +145,3 @@ def nodes_at(
         node_addr = node.address
         if node_addr is not None and node_addr in desired_range:
             yield node
-
-
-class ExtensibleEnumMeta(enum.EnumMeta):
-    """This metaclass allows you to make an enum that supports vlaues not
-    declared in the set of known values.
-
-    To declare an extensible enum:
-
-    >>> class ExtensibleEnum(enum.Enum, metaclass=ExtensibleEnumMeta):
-    >>>     ...
-    """
-
-    def __call__(
-        cls,
-        value,
-        names=None,
-        *,
-        module=None,
-        qualname=None,
-        type=None,
-        start=1
-    ):
-        try:
-            # Attempt to get an existing enum member.
-            return super().__call__(
-                value,
-                names=names,
-                module=module,
-                qualname=qualname,
-                type=type,
-                start=start,
-            )
-        except ValueError:
-            # No such member exists; return the raw value.
-            return value
-        except TypeError:
-            # Some Python versions don't have "start" as a valid parameter,
-            # so try again without "start".
-            try:
-                return super().__call__(
-                    value,
-                    names=names,
-                    module=module,
-                    qualname=qualname,
-                    type=type,
-                )
-            except ValueError:
-                return value

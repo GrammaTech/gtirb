@@ -17,7 +17,6 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/ByteInterval.hpp>
-#include <gtirb/ExtensibleEnum.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
 #include <proto/Section.pb.h>
@@ -43,35 +42,18 @@ class Section;
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
 
-/// \class SectionFlag
+/// \enum SectionFlag
 ///
 /// \brief Idenfities the flags used for a section.
-class SectionFlag : public ExtensibleEnum<> {
-public:
-  using ExtensibleEnum::ExtensibleEnum;
-
-  static const SectionFlag Undefined;
-  static const SectionFlag Readable;
-  static const SectionFlag Writable;
-  static const SectionFlag Executable;
-  static const SectionFlag Loaded;
-  static const SectionFlag Initialized;
-  static const SectionFlag ThreadLocal;
+enum class SectionFlag : uint8_t {
+  Undefined = proto::SectionFlag::Section_Undefined,
+  Readable = proto::SectionFlag::Readable,
+  Writable = proto::SectionFlag::Writable,
+  Executable = proto::SectionFlag::Executable,
+  Loaded = proto::SectionFlag::Loaded,
+  Initialized = proto::SectionFlag::Initialized,
+  ThreadLocal = proto::SectionFlag::ThreadLocal,
 };
-
-inline constexpr SectionFlag SectionFlag::Undefined{
-    proto::SectionFlag::Section_Undefined};
-inline constexpr SectionFlag SectionFlag::Readable{
-    proto::SectionFlag::Readable};
-inline constexpr SectionFlag SectionFlag::Writable{
-    proto::SectionFlag::Writable};
-inline constexpr SectionFlag SectionFlag::Executable{
-    proto::SectionFlag::Executable};
-inline constexpr SectionFlag SectionFlag::Loaded{proto::SectionFlag::Loaded};
-inline constexpr SectionFlag SectionFlag::Initialized{
-    proto::SectionFlag::Initialized};
-inline constexpr SectionFlag SectionFlag::ThreadLocal{
-    proto::SectionFlag::ThreadLocal};
 
 /// \class Section
 ///

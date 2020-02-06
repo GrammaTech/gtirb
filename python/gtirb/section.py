@@ -7,7 +7,7 @@ from uuid import UUID
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
 from .byteinterval import ByteInterval
-from .util import SetWrapper, nodes_at, nodes_in, ExtensibleEnumMeta
+from .util import SetWrapper, nodes_at, nodes_in
 
 
 class Section(Node):
@@ -21,7 +21,7 @@ class Section(Node):
     :ivar ~.flags: The :class:`Section.Flag`\\s this section has.
     """
 
-    class Flag(Enum, metaclass=ExtensibleEnumMeta):
+    class Flag(Enum):
         """A flag representing a known property of a section."""
 
         Undefined = Section_pb2.SectionFlag.Value("Section_Undefined")

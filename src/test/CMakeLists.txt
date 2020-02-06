@@ -38,7 +38,6 @@ set(${PROJECT_NAME}_SRC
     SymbolicExpression.test.cpp
     AuxData.test.cpp
     TypedNodeTest.cpp
-    ExtensibleEnum.test.cpp
 )
 
 if(UNIX AND NOT WIN32)

@@ -9,7 +9,7 @@ from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
 from .byteinterval import ByteInterval
 from .section import Section
 from .symbol import Symbol
-from .util import DictLike, SetWrapper, nodes_in, nodes_at, ExtensibleEnumMeta
+from .util import DictLike, SetWrapper, nodes_in, nodes_at
 
 
 class Module(AuxDataContainer):
@@ -37,7 +37,7 @@ class Module(AuxDataContainer):
         control flow of this module begins at, or None if not present.
     """
 
-    class FileFormat(Enum, metaclass=ExtensibleEnumMeta):
+    class FileFormat(Enum):
         """Identifies the executable file format of the binary represented
         by a :class:`gtirb.Module`.
         """
@@ -74,7 +74,7 @@ class Module(AuxDataContainer):
         XCOFF = Module_pb2.FileFormat.Value("XCOFF")
         """The Extended Common Object File Format."""
 
-    class ISA(Enum, metaclass=ExtensibleEnumMeta):
+    class ISA(Enum):
         """Identifies the instruction set architecture (ISA)
         targeted by a :class:`gtirb.Module`.
         """
