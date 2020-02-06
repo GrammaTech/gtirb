@@ -18,3 +18,9 @@ BlockAddressLess::key_type BlockAddressLess::key(const Node& N) {
   assert(!"BlockAddressLess got an unknown node type!");
   return std::nullopt;
 }
+
+template <> std::optional<uint64_t> asOptionalSize(uint64_t X) { return X; }
+
+template <> std::optional<uint64_t> asOptionalSize(std::optional<uint64_t> X) {
+  return X;
+}
