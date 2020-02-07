@@ -582,15 +582,6 @@ module represents."))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
-(defgeneric entry-point (module)
-  (:documentation "The code-block which is the entry point of MODULE.")
-  (:method ((obj module))
-    (get-uuid (uuid-to-integer (proto:entry-point (proto obj))) obj)))
-
-(defmethod (setf entry-point) ((new code-block) (obj module))
-  (proto:clear-entry-point (proto obj))
-  (setf (proto:entry-point (proto obj)) (integer-to-uuid (uuid new))))
-
 (define-constant +edge-label-type-map+
     '((#.proto:+edge-type-type-branch+ . :branch)
       (#.proto:+edge-type-type-call+ . :call)
@@ -908,6 +899,15 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
 (defmethod print-object ((obj code-block) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (size obj) (decode-mode obj))))
+
+(defgeneric entry-point (module)
+  (:documentation "The code-block which is the entry point of MODULE.")
+  (:method ((obj module))
+    (get-uuid (uuid-to-integer (proto:entry-point (proto obj))) obj)))
+
+(defmethod (setf entry-point) ((new code-block) (obj module))
+  (proto:clear-entry-point (proto obj))
+  (setf (proto:entry-point (proto obj)) (integer-to-uuid (uuid new))))
 
 (define-proto-backed-class (data-block proto:data-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
