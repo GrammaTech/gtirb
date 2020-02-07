@@ -201,9 +201,6 @@ using const_block_iterator = cfg_node_cast_iter<const CodeBlock>;
 ///
 /// If the graph already contains the node, it is not modified.
 ///
-/// \warning This is a relatively low-level interface. For most purposes, prefer
-/// Module::addCfgNode.
-///
 /// \param N    The CFG node to add.
 /// \param Cfg  The graph to modify.
 ///
