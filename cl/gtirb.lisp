@@ -77,21 +77,22 @@
 (in-package :gtirb/gtirb)
 (in-readtable :curry-compose-reader-macros)
 
-(defvar version.txt
-  `#.(let ((version-path
-            (make-pathname
-             :name "version" :type "txt"
-             :directory (append (pathname-directory
-                                 (or *compile-file-truename*
-                                     *load-truename*
-                                     *default-pathname-defaults*))
-                                (list "..")))))
-       (with-open-file (in version-path)
-         (loop for line = (read-line in nil :eof)
-            until (eql line :eof)
-            collect (let ((delim (position #\Space line)))
-                      (cons (intern (subseq line 0 delim))
-                            (parse-integer (subseq line (1+ delim)))))))))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defvar version.txt
+    `#.(let ((version-path
+              (make-pathname
+               :name "version" :type "txt"
+               :directory (append (pathname-directory
+                                   (or *compile-file-truename*
+                                       *load-truename*
+                                       *default-pathname-defaults*))
+                                  (list "..")))))
+         (with-open-file (in version-path)
+           (loop for line = (read-line in nil :eof)
+              until (eql line :eof)
+              collect (let ((delim (position #\Space line)))
+                        (cons (intern (subseq line 0 delim))
+                              (parse-integer (subseq line (1+ delim))))))))))
 
 (define-constant gtirb-version
     (format nil "~d.~d.~d"
