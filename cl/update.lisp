@@ -231,4 +231,5 @@
 (define-command update (input-file output-file &spec +udpate-args+)
   "Update GTIRB protobuf from INPUT-FILE to OUTPUT-FILE." ""
   (when help (show-help-for-update) (quit))
+  (setf *random-state* (make-random-state t))
   (write-proto (upgrade (read-proto 'proto-v0:ir input-file)) output-file))
