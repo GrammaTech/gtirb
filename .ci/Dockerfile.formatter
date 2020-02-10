@@ -9,6 +9,9 @@ RUN apt-get update \
     git \
     curl
 
+# We install an old version of virtualenv so it doesn't conflict with the
+# version of Python packages Ubuntu provides by default:
+# https://github.com/pre-commit/pre-commit/issues/1325
 RUN pip3 install "virtualenv<20.0.0"
 RUN pip3 install pre-commit
 
