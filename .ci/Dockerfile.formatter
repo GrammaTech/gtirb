@@ -9,6 +9,7 @@ RUN apt-get update \
     git \
     curl
 
+RUN pip3 install "virtualenv<20.0.0"
 RUN pip3 install pre-commit
 
 COPY . /gt/gtirb/
