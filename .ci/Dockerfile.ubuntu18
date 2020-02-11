@@ -26,6 +26,8 @@ RUN curl -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boos
 # Build GTIRB
 COPY . /gt/gtirb/
 RUN /gt/gtirb/.ci/build-linux.sh
+ARG CPACK_GENERATOR=""
+RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
 
 WORKDIR /gt/gtirb/
 ENV PATH=/gt/gtirb/build/bin:$PATH

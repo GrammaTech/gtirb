@@ -37,7 +37,7 @@ check-format:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     # Build & test
-    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} .
+    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} .
     - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
     # Build & test with capstone
     - docker build -f .ci/Dockerfile.add-capstone --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
@@ -82,6 +82,7 @@ build-ubuntu18-gcc7:
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
+    CPACK_GENERATOR: 'DEB'
   <<: *build
 
 build-ubuntu18-clang:
