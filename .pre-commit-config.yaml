@@ -4,8 +4,6 @@ repos:
     hooks:
       - id: black
         args: ["--line-length", "79"]
-        files: \.py(\.in)?$
-        types: [file]
   - repo: local
     hooks:
       - id: clang-format
@@ -23,8 +21,6 @@ repos:
     rev: v2.4.0
     hooks:
       - id: flake8
-        files: \.py(\.in)?$
-        types: [file]
       - id: end-of-file-fixer
       - id: trailing-whitespace
         args: ["--chars"," \t"]
