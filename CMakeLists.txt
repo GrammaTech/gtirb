@@ -337,3 +337,23 @@ if(GTIRB_CXX_API)
   # This exports the targets to the install location.
   install(EXPORT gtirbTargets DESTINATION lib/gtirb)
 endif()
+
+# ---------------------------------------------------------------------------
+# Package generation with cpack
+# ---------------------------------------------------------------------------
+set(CMAKE_PROJECT_HOMEPAGE_URL https://github.com/GrammaTech/gtirb)
+
+set(CPACK_PACKAGE_VERSION_MAJOR ${GTIRB_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${GTIRB_MINOR_VERSION})
+set(CPACK_PACKAGE_VERSION_PATCH ${GTIRB_PATCH_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "The GrammaTech Intermediate Representation for Binaries (GTIRB) is a machine code analysis and rewriting data structure."
+)
+set(CPACK_PACKAGE_VENDOR "GrammaTech Inc.")
+set(CPACK_PACKAGE_CONTACT gtirb@grammatech.com)
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
+
+set(CPACK_DEBIAN_PACKAGE_SECTION devel)
+
+include(CPack)
