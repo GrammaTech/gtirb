@@ -168,7 +168,7 @@ cleanup:
       fi
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-test-install --build-arg IMAGE=$LOCAL_IMAGE --build-arg INSTALLER=$INSTALLER .
+    - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-test-install --build-arg IMAGE=$LOCAL_IMAGE --build-arg INSTALLER="$INSTALLER" .
 
 test-make-install:
   stage: test
