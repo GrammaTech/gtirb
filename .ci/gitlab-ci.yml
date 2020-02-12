@@ -185,3 +185,18 @@ test-debian-install:
     COMPILER: 'g++-7'
     INSTALLER: 'dpkg -i GTIRB-0.2.0-Linux.deb'
   <<: *test-install
+
+debian-installer:
+  stage: deploy
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+  script:
+    - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
+    - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-${OS}.container
+    - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
+    - mkdir -p $(dirname ${CONTAINER_FILE})
+    - docker create --cidfile="${CONTAINER_FILE}" ${LOCAL_IMAGE_BASE}
+    - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/GTIRB-0.2.0-Linux.deb GTIRB-0.2.0-Linux.deb
+    - docker container rm -f $(cat ${CONTAINER_FILE})
+    - file GTIRB-0.2.0-Linux.deb
