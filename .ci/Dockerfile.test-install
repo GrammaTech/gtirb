@@ -1,14 +1,14 @@
 # This file runs a test to ensure that this library can be installed once built,
 # and C++ code is able to link to it with the proper `-l` flags only.
 
-ARG INSTALLER="make install"
 # this test should be distro-agnostic
 ARG IMAGE=docker.grammatech.com/rewriting/gtirb/ubuntu18-gcc7
 FROM $IMAGE
 
 # install
+ARG INSTALLER="make install"
 WORKDIR /gt/gtirb/build
-RUN bash -c "${INSTALLER}"
+RUN $INSTALLER
 
 # delete build directories, to ensure we're not using anything from there
 WORKDIR /gt
