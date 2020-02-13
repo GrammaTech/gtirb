@@ -16,7 +16,7 @@ from uuid import UUID
 from .auxdata import AuxData, AuxDataContainer
 from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
-from .cfg import Edge
+from .cfg import CFG, Edge
 from .module import Module
 from .node import Node
 from .proto import CFG_pb2, IR_pb2
@@ -36,8 +36,7 @@ class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
 
     :ivar ~.modules: A list of :class:`Module`\\s contained in the IR.
-    :ivar ~.cfg: A set of :class:`Edge`\\s representing the IR's control
-        flow graph.
+    :ivar ~.cfg: The IR's control flow graph.
     :ivar ~.version: The Protobuf version of this IR.
     """
 
@@ -81,8 +80,8 @@ class IR(AuxDataContainer):
         # type: (...) -> None
         """
         :param modules: A list of Modules contained in the IR.
-        :param cfg: A set of :class:`Edge`\\s representing the IR's control
-            flow graph. Defaults to being empty.
+        :param cfg: A set of edge tuples representing the IR's control flow
+            graph. Defaults to being empty.
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`. Defaults to being empty.
@@ -98,7 +97,7 @@ class IR(AuxDataContainer):
         self.modules = IR._ModuleList(
             self, modules
         )  # type: typing.List[Module]
-        self.cfg = set(cfg)  # type: typing.Set[Edge]
+        self.cfg = CFG(cfg)  # type: CFG
         self.version = version  # type: int
         super().__init__(aux_data, uuid)
         self._local_uuid_cache[self.uuid] = self
@@ -116,9 +115,7 @@ class IR(AuxDataContainer):
         ir.modules.extend(
             Module._from_protobuf(m, ir) for m in proto_ir.modules
         )
-        ir.cfg.update(
-            Edge._from_protobuf(e, ir.get_by_uuid) for e in proto_ir.cfg.edges
-        )
+        ir.cfg = CFG._from_protobuf(proto_ir.cfg.edges, ir)
         ir.aux_data.update(
             AuxDataContainer._read_protobuf_aux_data(proto_ir, ir)
         )
@@ -132,7 +129,7 @@ class IR(AuxDataContainer):
         proto_ir.modules.extend(m._to_protobuf() for m in self.modules)
         proto_cfg = CFG_pb2.CFG()
         proto_cfg.vertices.extend(v.uuid.bytes for v in self.cfg_nodes)
-        proto_cfg.edges.extend(e._to_protobuf() for e in self.cfg)
+        proto_cfg.edges.extend(self.cfg._to_protobuf())
         proto_ir.cfg.CopyFrom(proto_cfg)
         self._write_protobuf_aux_data(proto_ir)
         return proto_ir
@@ -149,18 +146,7 @@ class IR(AuxDataContainer):
         for self_module, other_module in zip(self_modules, other_modules):
             if not self_module.deep_eq(other_module):
                 return False
-        self_edges = sorted(
-            self.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
-        )
-        other_edges = sorted(
-            other.cfg, key=lambda e: (e.source.uuid, e.target.uuid)
-        )
-        if not len(self_edges) == len(other_edges):
-            return False
-        for self_edge, other_edge in zip(self_edges, other_edges):
-            if not self_edge.deep_eq(other_edge):
-                return False
-        return self.version == other.version
+        return self.version == other.version and self.cfg.deep_eq(other.cfg)
 
     @staticmethod
     def load_protobuf_file(protobuf_file):

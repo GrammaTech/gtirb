@@ -297,10 +297,10 @@ class CodeBlock(ByteBlock, CfgNode):
             or self.byte_interval.section.module.ir is None
         ):
             return ()
-        return (
-            e
-            for e in self.byte_interval.section.module.ir.cfg
-            if e.target == self
+        return tuple(
+            self.byte_interval.section.module.ir.cfg.in_edges(
+                [self], data=True
+            )
         )
 
     @property
@@ -312,10 +312,10 @@ class CodeBlock(ByteBlock, CfgNode):
             or self.byte_interval.section.module.ir is None
         ):
             return ()
-        return (
-            e
-            for e in self.byte_interval.section.module.ir.cfg
-            if e.source == self
+        return tuple(
+            self.byte_interval.section.module.ir.cfg.out_edges(
+                [self], data=True
+            )
         )
 
 
@@ -390,13 +390,13 @@ class ProxyBlock(CfgNode):
     def incoming_edges(self):
         if self.module is None or self.module.ir is None:
             return ()
-        return (e for e in self.module.ir.cfg if e.target == self)
+        return tuple(self.module.ir.cfg.in_edges([self], data=True))
 
     @property
     def outgoing_edges(self):
         if self.module is None or self.module.ir is None:
             return ()
-        return (e for e in self.module.ir.cfg if e.source == self)
+        return tuple(self.module.ir.cfg.out_edges([self], data=True))
 
     @property
     def ir(self):

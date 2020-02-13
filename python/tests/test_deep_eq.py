@@ -626,14 +626,14 @@ class DeepEqTest(unittest.TestCase):
             gtirb.CodeBlock(size=1, uuid=id1),
             gtirb.CodeBlock(size=2, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Branch, conditional=True, direct=False
+                gtirb.EdgeType.Branch, conditional=True, direct=False
             ),
         )
         e2 = gtirb.Edge(
             gtirb.CodeBlock(size=1, uuid=id1),
             gtirb.CodeBlock(size=2, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Branch, conditional=True, direct=False
+                gtirb.EdgeType.Branch, conditional=True, direct=False
             ),
         )
         self.assertTrue(e1.deep_eq(e2))
@@ -642,7 +642,7 @@ class DeepEqTest(unittest.TestCase):
             gtirb.CodeBlock(size=3, uuid=id1),
             gtirb.CodeBlock(size=2, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Branch, conditional=True, direct=False
+                gtirb.EdgeType.Branch, conditional=True, direct=False
             ),
         )
         self.assertFalse(e1.deep_eq(e2))
@@ -651,7 +651,7 @@ class DeepEqTest(unittest.TestCase):
             gtirb.CodeBlock(size=1, uuid=id1),
             gtirb.CodeBlock(size=3, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Branch, conditional=True, direct=False
+                gtirb.EdgeType.Branch, conditional=True, direct=False
             ),
         )
         self.assertFalse(e1.deep_eq(e2))
@@ -660,7 +660,7 @@ class DeepEqTest(unittest.TestCase):
             gtirb.CodeBlock(size=1, uuid=id1),
             gtirb.CodeBlock(size=2, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Fallthrough, conditional=True, direct=False
+                gtirb.EdgeType.Fallthrough, conditional=True, direct=False
             ),
         )
         self.assertFalse(e1.deep_eq(e2))
@@ -669,7 +669,7 @@ class DeepEqTest(unittest.TestCase):
             gtirb.CodeBlock(size=1, uuid=id1),
             gtirb.CodeBlock(size=2, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Branch, conditional=False, direct=False
+                gtirb.EdgeType.Branch, conditional=False, direct=False
             ),
         )
         self.assertFalse(e1.deep_eq(e2))
@@ -678,7 +678,7 @@ class DeepEqTest(unittest.TestCase):
             gtirb.CodeBlock(size=1, uuid=id1),
             gtirb.CodeBlock(size=2, uuid=id2),
             gtirb.Edge.Label(
-                gtirb.Edge.Type.Branch, conditional=True, direct=True
+                gtirb.EdgeType.Branch, conditional=True, direct=True
             ),
         )
         self.assertFalse(e1.deep_eq(e2))

@@ -55,7 +55,7 @@ class ReprTest(unittest.TestCase):
             source=gtirb.CodeBlock(offset=1, size=2),
             target=gtirb.CodeBlock(offset=3, size=4),
             label=gtirb.Edge.Label(
-                gtirb.Edge.Type.Fallthrough, conditional=True, direct=False
+                gtirb.EdgeType.Fallthrough, conditional=True, direct=False
             ),
         )
         string = repr(node)

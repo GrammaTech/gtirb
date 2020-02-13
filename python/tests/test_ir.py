@@ -50,7 +50,7 @@ class IRTest(unittest.TestCase):
                 cb,
                 p,
                 gtirb.Edge.Label(
-                    gtirb.Edge.Type.Branch, conditional=False, direct=True
+                    gtirb.EdgeType.Branch, conditional=False, direct=True
                 ),
             )
         )
