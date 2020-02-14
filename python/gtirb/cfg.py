@@ -149,7 +149,34 @@ class CFG(networkx.MultiDiGraph):
 
     def __repr__(self):
         # type: () -> str
-        return "CFG(%r)" % list(self.edges(data=True))
+
+        # Normally, __repr__ puts quotes around strings.
+        # This class disables this behavior for when we print EdgeTypes
+        # with a custom format.
+        class ReprAsStr:
+            def __init__(self, value):
+                self.value = value
+
+            def __repr__(self):
+                return self.value
+
+        # actually print the CFG
+        return "CFG(%r)" % [
+            (
+                s,
+                t,
+                {
+                    "type": ReprAsStr("EdgeType." + l["type"]._name_)
+                    if "type" in l
+                    else None,
+                    "conditional": l["conditional"]
+                    if "conditional" in l
+                    else None,
+                    "direct": l["direct"] if "conditional" in l else None,
+                },
+            )
+            for s, t, l in self.edges(data=True)
+        ]
 
 
 Edge = typing.Tuple[CfgNode, CfgNode, dict]

@@ -70,17 +70,24 @@ class TestProperties(unittest.TestCase):
 
         i = gtirb.IR()
         m.ir = i
-        e1 = gtirb.Edge(b, gtirb.ProxyBlock())
-        e2 = gtirb.Edge(gtirb.ProxyBlock(), b)
-        e3 = gtirb.Edge(gtirb.ProxyBlock(), gtirb.ProxyBlock())
-        e4 = gtirb.Edge(b, b)
-        i.cfg |= {e1, e2, e3, e4}
+        p1 = gtirb.ProxyBlock()
+        p2 = gtirb.ProxyBlock()
+        p3 = gtirb.ProxyBlock()
+        p4 = gtirb.ProxyBlock()
+        i.cfg.add_edge(b, p1)
+        i.cfg.add_edge(p2, b)
+        i.cfg.add_edge(p3, p4)
+        i.cfg.add_edge(b, b)
 
         self.assertEquals(b.address, 3)
         self.assertEquals(b.contents, b"cd1")
         self.assertEquals(set(b.references), {sym1, sym3})
-        self.assertEquals(set(b.incoming_edges), {e2, e4})
-        self.assertEquals(set(b.outgoing_edges), {e1, e4})
+        self.assertEquals(
+            set((s, t) for s, t, l in b.incoming_edges), {(p2, b), (b, b)}
+        )
+        self.assertEquals(
+            set((s, t) for s, t, l in b.outgoing_edges), {(b, p1), (b, b)}
+        )
 
     def test_proxy_blocks(self):
         b = gtirb.ProxyBlock()
@@ -102,15 +109,22 @@ class TestProperties(unittest.TestCase):
 
         i = gtirb.IR()
         m.ir = i
-        e1 = gtirb.Edge(b, gtirb.ProxyBlock())
-        e2 = gtirb.Edge(gtirb.ProxyBlock(), b)
-        e3 = gtirb.Edge(gtirb.ProxyBlock(), gtirb.ProxyBlock())
-        e4 = gtirb.Edge(b, b)
-        i.cfg |= {e1, e2, e3, e4}
+        p1 = gtirb.ProxyBlock()
+        p2 = gtirb.ProxyBlock()
+        p3 = gtirb.ProxyBlock()
+        p4 = gtirb.ProxyBlock()
+        i.cfg.add_edge(b, p1)
+        i.cfg.add_edge(p2, b)
+        i.cfg.add_edge(p3, p4)
+        i.cfg.add_edge(b, b)
 
         self.assertEquals(set(b.references), {sym1, sym3})
-        self.assertEquals(set(b.incoming_edges), {e2, e4})
-        self.assertEquals(set(b.outgoing_edges), {e1, e4})
+        self.assertEquals(
+            set((s, t) for s, t, l in b.incoming_edges), {(p2, b), (b, b)}
+        )
+        self.assertEquals(
+            set((s, t) for s, t, l in b.outgoing_edges), {(b, p1), (b, b)}
+        )
 
     def test_sections(self):
         s = gtirb.Section()

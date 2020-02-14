@@ -73,7 +73,7 @@ class IR(AuxDataContainer):
         *,
         modules=list(),  # type: typing.Iterable[Module]
         aux_data=dict(),  # type: DictLike[str, AuxData]
-        cfg=set(),  # type: typing.Iterable[Edge]
+        cfg=list(),  # type: typing.Iterable[Edge]
         version=PROTOBUF_VERSION,  # type: int
         uuid=None  # type: typing.Optional[UUID]
     ):

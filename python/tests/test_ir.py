@@ -45,14 +45,8 @@ class IRTest(unittest.TestCase):
         bi.symbolic_expressions[2] = sac
         p = gtirb.ProxyBlock()
         p.module = m
-        ir.cfg.add(
-            gtirb.Edge(
-                cb,
-                p,
-                gtirb.Edge.Label(
-                    gtirb.EdgeType.Branch, conditional=False, direct=True
-                ),
-            )
+        ir.cfg.add_edge(
+            cb, p, type=gtirb.EdgeType.Branch, conditional=False, direct=True,
         )
         m.aux_data["key"] = gtirb.AuxData(gtirb.Offset(s, 777), "Offset")
         ir.aux_data["key"] = gtirb.AuxData("value", "string")

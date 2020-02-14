@@ -622,64 +622,106 @@ class DeepEqTest(unittest.TestCase):
         id1 = uuid.uuid4()
         id2 = uuid.uuid4()
 
-        e1 = gtirb.Edge(
-            gtirb.CodeBlock(size=1, uuid=id1),
-            gtirb.CodeBlock(size=2, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Branch, conditional=True, direct=False
-            ),
+        e1 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=1, uuid=id1),
+                    gtirb.CodeBlock(size=2, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Branch,
+                        "conditional": True,
+                        "direct": False,
+                    },
+                )
+            ]
         )
-        e2 = gtirb.Edge(
-            gtirb.CodeBlock(size=1, uuid=id1),
-            gtirb.CodeBlock(size=2, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Branch, conditional=True, direct=False
-            ),
+        e2 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=1, uuid=id1),
+                    gtirb.CodeBlock(size=2, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Branch,
+                        "conditional": True,
+                        "direct": False,
+                    },
+                )
+            ]
         )
         self.assertTrue(e1.deep_eq(e2))
 
-        e2 = gtirb.Edge(
-            gtirb.CodeBlock(size=3, uuid=id1),
-            gtirb.CodeBlock(size=2, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Branch, conditional=True, direct=False
-            ),
+        e2 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=3, uuid=id1),
+                    gtirb.CodeBlock(size=2, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Branch,
+                        "conditional": True,
+                        "direct": False,
+                    },
+                )
+            ]
         )
         self.assertFalse(e1.deep_eq(e2))
 
-        e2 = gtirb.Edge(
-            gtirb.CodeBlock(size=1, uuid=id1),
-            gtirb.CodeBlock(size=3, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Branch, conditional=True, direct=False
-            ),
+        e2 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=1, uuid=id1),
+                    gtirb.CodeBlock(size=3, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Branch,
+                        "conditional": True,
+                        "direct": False,
+                    },
+                )
+            ]
         )
         self.assertFalse(e1.deep_eq(e2))
 
-        e2 = gtirb.Edge(
-            gtirb.CodeBlock(size=1, uuid=id1),
-            gtirb.CodeBlock(size=2, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Fallthrough, conditional=True, direct=False
-            ),
+        e2 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=1, uuid=id1),
+                    gtirb.CodeBlock(size=2, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Fallthrough,
+                        "conditional": True,
+                        "direct": False,
+                    },
+                )
+            ]
         )
         self.assertFalse(e1.deep_eq(e2))
 
-        e2 = gtirb.Edge(
-            gtirb.CodeBlock(size=1, uuid=id1),
-            gtirb.CodeBlock(size=2, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Branch, conditional=False, direct=False
-            ),
+        e2 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=1, uuid=id1),
+                    gtirb.CodeBlock(size=2, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Branch,
+                        "conditional": False,
+                        "direct": False,
+                    },
+                )
+            ]
         )
         self.assertFalse(e1.deep_eq(e2))
 
-        e2 = gtirb.Edge(
-            gtirb.CodeBlock(size=1, uuid=id1),
-            gtirb.CodeBlock(size=2, uuid=id2),
-            gtirb.Edge.Label(
-                gtirb.EdgeType.Branch, conditional=True, direct=True
-            ),
+        e2 = gtirb.CFG(
+            [
+                (
+                    gtirb.CodeBlock(size=1, uuid=id1),
+                    gtirb.CodeBlock(size=2, uuid=id2),
+                    {
+                        "type": gtirb.EdgeType.Branch,
+                        "conditional": True,
+                        "direct": True,
+                    },
+                )
+            ]
         )
         self.assertFalse(e1.deep_eq(e2))
 
@@ -1073,15 +1115,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1094,15 +1134,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1117,15 +1155,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("other_value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1140,15 +1176,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1160,15 +1194,13 @@ class DeepEqTest(unittest.TestCase):
             modules=(gtirb.Module(name="m1", uuid=id2),),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1183,15 +1215,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=55, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1206,10 +1236,9 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,
@@ -1224,15 +1253,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=5,
@@ -1247,15 +1274,13 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
-                    None,
                 ),
-                gtirb.Edge(
+                (
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
-                    None,
                 ),
             ),
             version=1,

@@ -50,17 +50,25 @@ class ReprTest(unittest.TestCase):
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-    def test_edge(self):
-        node = gtirb.Edge(
-            source=gtirb.CodeBlock(offset=1, size=2),
-            target=gtirb.CodeBlock(offset=3, size=4),
-            label=gtirb.Edge.Label(
-                gtirb.EdgeType.Fallthrough, conditional=True, direct=False
-            ),
+    def test_cfg(self):
+        node = gtirb.CFG()
+        node.add_edge(
+            gtirb.CodeBlock(offset=1, size=2),
+            gtirb.CodeBlock(offset=3, size=4),
+            type=gtirb.EdgeType.Fallthrough,
+            conditional=True,
+            direct=False,
+        )
+        node.add_edge(
+            gtirb.CodeBlock(offset=5, size=6),
+            gtirb.CodeBlock(offset=7, size=8),
+            type=gtirb.EdgeType.Branch,
+            conditional=True,
+            direct=False,
         )
         string = repr(node)
         new_node = eval(string)
-        self.assertEqual(node, new_node)
+        self.assertTrue(node.deep_eq(new_node))
 
     def test_module(self):
         # TODO: expand this
