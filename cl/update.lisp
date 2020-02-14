@@ -122,8 +122,6 @@
         (map 'vector #'upgrade old)))
   (:method ((old proto-v0:ir) &key &allow-other-keys
             &aux (new (make-instance 'proto:ir)))
-    (assert (= (length (proto-v0:modules old)) 1) (old)
-            "Cannot unambiguously upgrade IR with multiple modules.")
     (setf (proto:uuid new) (proto-v0:uuid old)
           (proto:version new) 1
           (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
