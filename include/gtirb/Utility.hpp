@@ -634,8 +634,6 @@ using FindSectionsBetween = FindNodesBetween<
                        typename T::section_range (T::*)(Addr, Addr)>,
     &T::findSectionsAt>;
 
-template <typename T> std::optional<uint64_t> asOptionalSize(T X);
-
 /// @endcond
 
 } // namespace gtirb

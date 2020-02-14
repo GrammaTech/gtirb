@@ -25,8 +25,6 @@
 /// \file Addr.hpp
 /// \brief Class gtirb::Addr and related functions.
 
-template <typename T> std::optional<uint64_t> asOptionalSize(T X);
-
 namespace gtirb {
 /// \brief A special class to store an Effective Address.
 ///
@@ -202,6 +200,17 @@ public:
 private:
   value_type Address{0};
 };
+
+template <typename T> std::optional<uint64_t> asOptionalSize(T X);
+
+template <> std::optional<uint64_t> inline asOptionalSize(uint64_t X) {
+  return X;
+}
+
+template <>
+std::optional<uint64_t> inline asOptionalSize(std::optional<uint64_t> X) {
+  return X;
+}
 
 /// \relates Addr
 /// \brief Exclusive upper limit of an object's address range.
