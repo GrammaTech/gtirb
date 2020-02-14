@@ -16,6 +16,7 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
+#include <gtirb/Section.hpp>
 #include <gtest/gtest.h>
 #include <sstream>
 
@@ -188,4 +189,10 @@ TEST(Unit_Addr, addressLimit) {
 
   EXPECT_EQ(addressLimit(*BI), Addr(10));
   EXPECT_EQ(addressLimit(*CB), Addr(5));
+
+  auto* S = Section::Create(Ctx, "");
+  EXPECT_EQ(addressLimit(*S), std::nullopt);
+
+  S->addByteInterval(BI);
+  EXPECT_EQ(addressLimit(*S), Addr(10));
 }
