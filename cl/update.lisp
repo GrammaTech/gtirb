@@ -113,6 +113,11 @@
   (pb:merge-from-array it bytes 0 (length bytes))
   it)
 
+(defun combine-cfgs (cfgs)
+  (make-instance 'proto:cfg
+    :edges (coerce (mappend [{coerce _ 'list} #'proto:edges] cfgs) 'vector)
+    :vertices (coerce (mappend [{coerce _ 'list} #'proto:vertices] cfgs) 'vector)))
+
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
@@ -127,8 +132,8 @@
           (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
                                         :new-class 'proto:ir-aux-data-entry)
           (proto:modules new) (upgrade (proto-v0:modules old))
-          (proto:cfg new) (upgrade (proto-v0:cfg
-                                    (aref (proto-v0:modules old) 0))))
+          (proto:cfg new) (combine-cfgs (map 'list [#'upgrade #'proto-v0:cfg]
+                                             (proto-v0:modules old))))
     new)
   (:method ((old proto-v0:module) &key &allow-other-keys
             &aux (new (make-instance 'proto:module)))
