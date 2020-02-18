@@ -1284,7 +1284,7 @@ public:
   /// \return           The newly created \ref SymbolicExpression.
   SymbolicExpression& addSymbolicExpression(uint64_t Off,
                                             const SymbolicExpression& SymExpr) {
-    this->mutateIndices([&]() { SymbolicExpressions.emplace(Off, SymExpr); });
+    this->mutateIndices([&]() { SymbolicExpressions[Off] = SymExpr; });
     return SymbolicExpressions[Off];
   }
 
@@ -1297,10 +1297,9 @@ public:
   /// \param  A         The arguments to construct something of ExprType.
   /// \return           The newly created \ref SymbolicExpression.
   template <class ExprType, class... Args>
-  SymbolicExpression& addSymbolicExpression(uint64_t O, Args... A) {
-    this->mutateIndices(
-        [&]() { SymbolicExpressions.emplace(O, ExprType{A...}); });
-    return SymbolicExpressions[O];
+  SymbolicExpression& addSymbolicExpression(uint64_t Off, Args... A) {
+    this->mutateIndices([&]() { SymbolicExpressions[Off] = ExprType{A...}; });
+    return SymbolicExpressions[Off];
   }
 
   /// \brief Removes a \ref SymbolicExpression at the given offset, if

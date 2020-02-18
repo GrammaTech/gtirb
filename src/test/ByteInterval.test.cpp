@@ -604,3 +604,13 @@ TEST(Unit_ByteInterval, addSymbolicExpression) {
     ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym2, S);
   }
 }
+
+TEST(Unit_ByteInterval, updateSymbolicExpression) {
+  auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), 10);
+  auto* S = Symbol::Create(Ctx, "test");
+  BI->addSymbolicExpression(0, SymAddrConst{1, S});
+
+  auto& SE = BI->addSymbolicExpression(0, SymAddrConst{2, S});
+  ASSERT_TRUE(std::holds_alternative<SymAddrConst>(SE));
+  ASSERT_EQ(std::get<SymAddrConst>(SE).Offset, 2);
+}
