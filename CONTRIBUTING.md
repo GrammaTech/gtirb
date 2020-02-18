@@ -99,46 +99,45 @@ To use `pre-commit`:
 - Test names are prefixed with the type of test they are (`Unit_`, `System_`, `Integration_`).
 - No unit test should take more than 0.5 seconds.
 
+## Python Code Requirements
 
-### Documentation
+- Code must be [PEP8](https://www.python.org/dev/peps/pep-0008/) compliant.
+  To check for PEP8 compliance, [flake8](https://pypi.org/project/flake8/) is recommended,
+  and included as part of our `pre-commit` configuration.
+
+- All code must be formatted with [Black](https://pypi.org/project/black/)
+  (set to line lengths of 79, for PEP8 compliance).
+  A pass through this tool is included as part of our `pre-commit` configuration.
+  - Please note that `black` only works on Python version 3.6 and newer.
+    This is newer than what is available on some OSes by default (for example, Ubuntu 16),
+    so you may have to install Python 3.6 or newer to run `black`.
+    If installing Python 3.6+ on your system is not possible, there exists
+    [an online interface to Black](https://black.now.sh/?version=stable&state=_Td6WFoAAATm1rRGAgAhARYAAAB0L-Wj4AA-ACxdAD2IimZxl1N_W1ktIvcnCRyzdeeGA586U8RMKbisP9D6xUd8v4usX-jR3lIAACNC8ndFJAQXAAFIPxtdQK4ftvN9AQAAAAAEWVo=)
+    you can manually enter files into.
+
+- The Python API should be made to run on all version of Python 3.
+
+- Use `UpperCamelCase` for type names, `UPPER_CASE` for constant names,
+  and `snake_case` for other identifier names.
+
+### Testing Development
+
+- All code you care about should be tested.
+- Any code you don't care about should be removed.
+- Code testing is done via the built-in `unittest` framework.
+- No unit test should take more than 0.5 seconds.
+
+## Documentation
 
 The GTIRB documentation consists of complete documentation for all
 components of the GTIRB API, along with examples and other usage
 information.
 
 
-#### Building Documentation
+### Building Documentation
 
 At minimum, you will need [CMake](https://cmake.org/) and
-[Doxygen](http://www.doxygen.nl/).  In addition, for the other APIs
-you may have enabled:
-
-
-* For the Python API, [Sphinx](https://www.sphinx-doc.org/en/master/)
-  and [related plugins](https://pypi.org/project/sphinx-autodoc-typehints/)
-  are required. To install these via [pip](https://pip.pypa.io/en/stable/), run:
-
-  ```bash
-  pip3 install sphinx sphinx-autodoc-typehints
-  ```
-
-  You will also need all the dependencies of the GTIRB Python API
-  itself. If you haven't already installed the Python API (and don't
-  want to do so now) you can install just its dependencies as follows.
-
-  ```bash
-  cd <PATH_TO_GTIRB>/build/python
-  python3 setup.py egg_info
-  pip3 install -r gtirb.egg-info/requires.txt
-  ```
-
-* For the Common Lisp API, [simpler-documentation-template (SDT)](https://github.com/eschulte/simpler-documentation-template)
-  is required. This package should automatically be downloaded via the build process;
-  see `cl/README.md` for details on how to prepare the Common Lisp API.
-
-
-To build the documentation:
-
+[Doxygen](http://www.doxygen.nl/). To build the documentation:
 
 1. Create and change to a temporary build directory. We will refer to
    this directory as `build`.
@@ -186,7 +185,7 @@ The `<api_options>` are as follows
   or the Python API dependencies are not available.
 
 
-#### Contributing Markdown Documentation
+### Contributing Markdown Documentation
 
 To add a new markdown document to the documentation:
 
@@ -214,7 +213,7 @@ To add a new markdown document to the documentation:
      corresponding github-style markdown into something Doxygen
      can handle correctly.
 
-#### Graphviz
+### Graphviz
 
 - File names start with `gtirb`.
 - The color palette is `black`, `lightblue`, `cornflowerblue`, and `coral`.
@@ -222,37 +221,28 @@ To add a new markdown document to the documentation:
 	* Example: `dot -Tpng gtirbScope.dot > gtirbScope.png`
 - Use the `arial` font.
 
-## Python Code Requirements
+### Python
 
-- Code must be [PEP8](https://www.python.org/dev/peps/pep-0008/) compliant.
-  To check for PEP8 compliance, [flake8](https://pypi.org/project/flake8/) is recommended,
-  and included as part of our `pre-commit` configuration.
+For the Python API, [Sphinx](https://www.sphinx-doc.org/en/master/)
+and [related plugins](https://pypi.org/project/sphinx-autodoc-typehints/)
+are required. To install these via [pip](https://pip.pypa.io/en/stable/), run:
 
-- All code must be formatted with [Black](https://pypi.org/project/black/)
-  (set to line lengths of 79, for PEP8 compliance).
-  A pass through this tool is included as part of our `pre-commit` configuration.
-  - Please note that `black` only works on Python version 3.6 and newer.
-    This is newer than what is available on some OSes by default (for example, Ubuntu 16),
-    so you may have to install Python 3.6 or newer to run `black`.
-    If installing Python 3.6+ on your system is not possible, there exists
-    [an online interface to Black](https://black.now.sh/?version=stable&state=_Td6WFoAAATm1rRGAgAhARYAAAB0L-Wj4AA-ACxdAD2IimZxl1N_W1ktIvcnCRyzdeeGA586U8RMKbisP9D6xUd8v4usX-jR3lIAACNC8ndFJAQXAAFIPxtdQK4ftvN9AQAAAAAEWVo=)
-    you can manually enter files into.
+```bash
+pip3 install sphinx sphinx-autodoc-typehints
+```
 
-- The Python API should be made to run on all version of Python 3.
+You will also need all the dependencies of the GTIRB Python API
+itself. If you haven't already installed the Python API (and don't
+want to do so now) you can install just its dependencies as follows.
 
-- Use `UpperCamelCase` for type names, `UPPER_CASE` for constant names,
-  and `snake_case` for other identifier names.
+```bash
+cd <PATH_TO_GTIRB>/build/python
+python3 setup.py egg_info
+pip3 install -r gtirb.egg-info/requires.txt
+```
 
-### Testing Development
+### Common Lisp
 
-- All code you care about should be tested.
-- Any code you don't care about should be removed.
-- Code testing is done via the built-in `unittest` framework.
-- No unit test should take more than 0.5 seconds.
-
-### Documentation
-
-As with the C++ API, The GTIRB documentation consists of complete documentation for all
-components of the GTIRB API, along with examples and other usage information.
-
-<!-- TODO: documentation via Sphinx -->
+For the Common Lisp API, [simpler-documentation-template (SDT)](https://github.com/eschulte/simpler-documentation-template)
+is required. This package should automatically be downloaded via the build process;
+see `cl/README.md` for details on how to prepare the Common Lisp API.
