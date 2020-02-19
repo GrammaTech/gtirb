@@ -114,9 +114,12 @@
   it)
 
 (defun combine-cfgs (cfgs)
-  (make-instance 'proto:cfg
-    :edges (coerce (mappend [{coerce _ 'list} #'proto:edges] cfgs) 'vector)
-    :vertices (coerce (mappend [{coerce _ 'list} #'proto:vertices] cfgs) 'vector)))
+  (let ((it (make-instance 'proto:cfg)))
+    (setf (proto:edges it)
+          (coerce (mappend [{coerce _ 'list} #'proto:edges] cfgs) 'vector))
+    (setf (proto:vertices it)
+          (coerce (mappend [{coerce _ 'list} #'proto:vertices] cfgs) 'vector))
+    it))
 
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
