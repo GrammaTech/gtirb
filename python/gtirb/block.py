@@ -24,10 +24,10 @@ class ByteBlock(Block):
     """The base class for blocks that belong to a :class:`ByteInterval` and
     store their bytes there.
 
+    :ivar ~.size: The size of the block in bytes.
     :ivar ~.offset: The offset from the beginning of the byte interval to which
         this block belongs. Multiple blocks in the same interval may have the
         same offset.
-    :ivar ~.size: The size of the block in bytes.
     """
 
     def __init__(
@@ -38,6 +38,7 @@ class ByteBlock(Block):
         uuid=None  # type: typing.Optional[UUID]
     ):
         """
+        :param size: The size of the data object in bytes.
         :param offset: The offset from the beginning of the byte interval to
             which this block belongs.
         :param uuid: The UUID of this ``ByteBlock``,
