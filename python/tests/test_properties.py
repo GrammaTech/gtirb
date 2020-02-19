@@ -204,22 +204,30 @@ class TestProperties(unittest.TestCase):
         )
 
         self.assertEqual(set(bi.symbolic_expressions_at(9)), set())
-        self.assertEqual(set(bi.symbolic_expressions_at(10)), {se1})
+        self.assertEqual(set(bi.symbolic_expressions_at(10)), {(bi, 0, se1)})
         self.assertEqual(set(bi.symbolic_expressions_at(11)), set())
         self.assertEqual(set(bi.symbolic_expressions_at(13)), set())
-        self.assertEqual(set(bi.symbolic_expressions_at(14)), {se2})
+        self.assertEqual(set(bi.symbolic_expressions_at(14)), {(bi, 4, se2)})
         self.assertEqual(set(bi.symbolic_expressions_at(15)), set())
         self.assertEqual(set(bi.symbolic_expressions_at(18)), set())
-        self.assertEqual(set(bi.symbolic_expressions_at(19)), {se3})
+        self.assertEqual(set(bi.symbolic_expressions_at(19)), {(bi, 9, se3)})
         self.assertEqual(set(bi.symbolic_expressions_at(20)), set())
 
         self.assertEqual(set(bi.symbolic_expressions_at(range(0, 9))), set())
         self.assertEqual(set(bi.symbolic_expressions_at(range(11, 14))), set())
         self.assertEqual(set(bi.symbolic_expressions_at(range(20, 90))), set())
         self.assertEqual(
-            set(bi.symbolic_expressions_at(range(0, 90))), {se1, se2, se3}
+            set(bi.symbolic_expressions_at(range(0, 90))),
+            {(bi, 0, se1), (bi, 4, se2), (bi, 9, se3)},
         )
         self.assertEqual(
-            set(bi.symbolic_expressions_at(range(10, 19))), {se1, se2, se3}
+            set(bi.symbolic_expressions_at(range(10, 20))),
+            {(bi, 0, se1), (bi, 4, se2), (bi, 9, se3)},
         )
-        self.assertEqual(set(bi.symbolic_expressions_at(range(11, 18))), {se2})
+        self.assertEqual(
+            set(bi.symbolic_expressions_at(range(10, 19))),
+            {(bi, 0, se1), (bi, 4, se2)},
+        )
+        self.assertEqual(
+            set(bi.symbolic_expressions_at(range(11, 18))), {(bi, 4, se2)}
+        )
