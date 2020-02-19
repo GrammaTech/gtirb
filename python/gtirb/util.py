@@ -1,5 +1,6 @@
 """General utilities usable by any other GTIRB submoudle."""
 
+import itertools
 import typing
 
 K = typing.TypeVar("K")
@@ -145,3 +146,13 @@ def nodes_at(
         node_addr = node.address
         if node_addr is not None and node_addr in desired_range:
             yield node
+
+
+def symbolic_expressions_at(
+    nodes,  # type: typing.Iterable
+    addrs,  # type: typing.Union[int, range]
+):
+    # type: (...) -> typing.Iterable[typing.Tuple]
+    return itertools.chain.from_iterable(
+        node.symbolic_expressions_at(addrs) for node in nodes
+    )

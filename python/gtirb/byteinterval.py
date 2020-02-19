@@ -11,7 +11,12 @@ from .symbolicexpression import (
     SymStackConst,
     SymbolicExpression,
 )
-from .util import DictLike, SetWrapper, nodes_at, nodes_in
+from .util import DictLike, SetWrapper, nodes_at, nodes_in, get_desired_range
+
+
+SymbolicExpressionElement = typing.Tuple[
+    "ByteInterval", int, SymbolicExpression
+]
 
 
 class ByteInterval(Node):
@@ -353,3 +358,25 @@ class ByteInterval(Node):
         """
 
         return nodes_at(self.data_blocks, addrs)
+
+    def symbolic_expressions_at(
+        self, addrs  # type: typing.Union[int, range]
+    ):
+        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        """Finds all the symbolic expressions that begin at an address or
+        range of addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        :returns: Yields ``(interval, offset, symexpr)`` tuples for every
+            symbolic expression in the range.
+        """
+
+        if self.address is None:
+            return
+
+        addrs = get_desired_range(addrs)
+        for i, v in self.symbolic_expressions.items():
+            if self.address + i in addrs:
+                yield (self, i, v)
+            elif self.address + i >= addrs.stop:
+                return

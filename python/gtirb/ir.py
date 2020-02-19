@@ -17,12 +17,18 @@ from uuid import UUID
 
 from .auxdata import AuxData, AuxDataContainer
 from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
-from .byteinterval import ByteInterval
+from .byteinterval import ByteInterval, SymbolicExpressionElement
 from .cfg import Edge
 from .module import Module
 from .section import Section
 from .symbol import Symbol
-from .util import DictLike, ListWrapper, nodes_at, nodes_in
+from .util import (
+    DictLike,
+    ListWrapper,
+    nodes_at,
+    nodes_in,
+    symbolic_expressions_at,
+)
 from .version import PROTOBUF_VERSION
 
 
@@ -394,3 +400,17 @@ class IR(AuxDataContainer):
         """
 
         return nodes_at(self.data_blocks, addrs)
+
+    def symbolic_expressions_at(
+        self, addrs  # type: typing.Union[int, range]
+    ):
+        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        """Finds all the symbolic expressions that begin at an address or
+        range of addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        :returns: Yields ``(interval, offset, symexpr)`` tuples for every
+            symbolic expression in the range.
+        """
+
+        return symbolic_expressions_at(self.modules, addrs)

@@ -6,8 +6,8 @@ from uuid import UUID
 
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
-from .byteinterval import ByteInterval
-from .util import SetWrapper, nodes_at, nodes_in
+from .byteinterval import ByteInterval, SymbolicExpressionElement
+from .util import SetWrapper, nodes_at, nodes_in, symbolic_expressions_at
 
 
 class Section(Node):
@@ -66,7 +66,7 @@ class Section(Node):
         name="",  # type: str
         byte_intervals=(),  # type: typing.Iterable[ByteInterval]
         flags=set(),  # type: typing.Iterable[Section.Flag]
-        uuid=None  # type: typing.Optional[UUID]
+        uuid=None,  # type: typing.Optional[UUID]
     ):
         """
         :param name: The name of this section.
@@ -312,3 +312,17 @@ class Section(Node):
         """
 
         return nodes_at(self.data_blocks, addrs)
+
+    def symbolic_expressions_at(
+        self, addrs  # type: typing.Union[int, range]
+    ):
+        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        """Finds all the symbolic expressions that begin at an address or
+        range of addresses.
+
+        :param addrs: Either a ``range`` object or a single address.
+        :returns: Yields ``(interval, offset, symexpr)`` tuples for every
+            symbolic expression in the range.
+        """
+
+        return symbolic_expressions_at(self.byte_intervals, addrs)
