@@ -187,11 +187,15 @@ test-debian-install:
     INSTALLER: 'dpkg -i GTIRB-*-Linux.deb'
   <<: *test-install
 
-upload-debian-installer:
+debian-installer:
   stage: deploy
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - GTIRB-*-Linux.deb
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-${OS}.container
