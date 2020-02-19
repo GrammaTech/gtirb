@@ -198,10 +198,11 @@ debian-installer:
       - GTIRB-*-Linux.deb
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export CONTAINER_FILE=${LOCAL_IMAGE_NAME}-${OS}.container
+    - export CONTAINER_FILE=$(mktemp container-id.XXX)
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - mkdir -p $(dirname ${CONTAINER_FILE})
+    - rm $CONTAINER_FILE
     - GTIRB_VERSION=$(grep -o [0-9]\* version.txt | paste -sd.)
     - docker create --cidfile="${CONTAINER_FILE}" ${LOCAL_IMAGE_BASE}
     - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/GTIRB-${GTIRB_VERSION}-Linux.deb GTIRB-${GTIRB_VERSION}-Linux.deb
     - docker container rm -f $(cat ${CONTAINER_FILE})
+    - rm $CONTAINER_FILE
