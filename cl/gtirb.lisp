@@ -60,6 +60,7 @@
            :size
            ;; Block
            :gtirb-block
+           :gtirb-byte-block
            :code-block
            :data-block
            :decode-mode
