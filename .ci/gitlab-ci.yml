@@ -155,11 +155,15 @@ cleanup:
     - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu18-clang
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-gcc
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-clang
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-test-make-install
     - docker rmi -f ${LOCAL_IMAGE_NAME}-test-debian-install
   when: always
 
-.test-install-template: &test-install
+test-debian-install:
+  stage: test
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+    INSTALLER: 'dpkg -i GTIRB-*-Linux.deb'
   script:
     - if [ "$CI_COMMIT_REF_SLUG" = "master" ];
       then
@@ -170,22 +174,6 @@ cleanup:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-${CI_JOB_NAME} --build-arg IMAGE=$LOCAL_IMAGE --build-arg INSTALLER="$INSTALLER" .
-
-test-make-install:
-  stage: test
-  variables:
-    OS: 'ubuntu18'
-    COMPILER: 'g++-7'
-    INSTALLER: 'make install'
-  <<: *test-install
-
-test-debian-install:
-  stage: test
-  variables:
-    OS: 'ubuntu18'
-    COMPILER: 'g++-7'
-    INSTALLER: 'dpkg -i GTIRB-*-Linux.deb'
-  <<: *test-install
 
 debian-installer:
   stage: deploy
