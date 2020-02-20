@@ -388,6 +388,15 @@ Should not need to be manipulated by client code.")
                   (string `(setf ,base (pb:string-field new)))))))
           proto-fields)))))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defvar aux-data-slot-definition
+    "A-list of auxiliary data objects keyed by string name.
+Aux-Data tables may hold structured or unstructured data.  This data
+may refer to elements of the GTIRB IR through uuids.  Information
+relevant to a particular module will be stored in Aux-Data tables
+accessible from the specific module.  Aux-Data tables only exist on
+modules and on GTIRB IR instances."))
+
 
 ;;;; Classes.
 (define-proto-backed-class (gtirb proto:ir) ()
@@ -443,12 +452,7 @@ the graph.")
      (aux-data :accessor aux-data :type '(list aux-data)
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
-               :documentation "Auxiliary data objects on the IR.
-Aux-Data tables may hold structured or unstructured data.  This data
-may refer to elements of the GTIRB IR through uuids.  Information
-relevant to a particular module will be stored in Aux-Data tables
-accessible from the specific module.  Aux-Data tables only exist on
-modules and on GTIRB IR instances.")
+               :documentation #.aux-data-slot-definition)
      (by-uuid :accessor by-uuid :initform (make-hash-table) :type hash-table
               :skip-equal-p t
               :documentation "Internal cache for UUID-based lookup.")
@@ -551,14 +555,7 @@ function.")
      (aux-data :accessor aux-data :type '(list aux-data)
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
-               :documentation
-               "Auxiliary data objects on this module.
-Aux-Data tables may hold structured or unstructured data.  This data
-may refer to elements of the GTIRB IR through uuids.  Only information
-relevant to this module should be stored in Aux-Data tables under this
-module; IR-wide information should be stored in Aux-Data tables
-hanging off of the top-level IR.  Aux-Data tables only exist on
-modules and on GTIRB IR instances."))
+               :documentation #.aux-data-slot-definition))
     ((name :type string :documentation
            "An optional human-readable name for this module.")
      (binary-path :type string :documentation
