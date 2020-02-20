@@ -487,7 +487,7 @@ the graph.")
   (ranged-insert (by-address gtirb) item start end))
 
 (defmethod at-address ((gtirb gtirb) address)
-  (ranged-find (by-address gtirb) address))
+  (ranged-find-at (by-address gtirb) address))
 
 (defmethod in-address ((gtirb gtirb) start &optional end)
   (ranged-find (by-address gtirb) start end))

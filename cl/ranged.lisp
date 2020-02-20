@@ -199,3 +199,8 @@ Return the RANGED collection after deleting ITEM."
               (when-let ((pred (find-predecessor-node
                                 (slot-value ranged 'tree) start)))
                 (cdr (element pred)))))))
+
+(defun ranged-find-at (ranged start)
+  (check-type ranged ranged "A ranged collection")
+  (check-type start (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
+  (at-range ranged start))
