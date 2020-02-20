@@ -17,7 +17,9 @@ def anchor_page_headings(pagetxt):
     def heading_to_anchor(headtxt):
         anchortxt = reduce(
             lambda intxt, rep: intxt.replace(rep[0], rep[1]),
-            [headtxt.strip().lower(), (", ", ""), ("/", ""), (" ", "-")],
+            [headtxt.strip().lower()]
+            + [(ch,"") for ch in  (",","/","'",'"')]
+            + [(" ", "-")]
         )
         return '<a name="{0}" id="{0}"></a>\n'.format(anchortxt)
 
