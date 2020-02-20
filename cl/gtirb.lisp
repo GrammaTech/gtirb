@@ -53,11 +53,15 @@
            ;; Byte-Interval
            :byte-interval
            :blocks
-           :symbolic-expressions
            :addressp
            :address
            :contents
            :size
+           ;; Symbolic expressions
+           :symbolic-expressions
+           :sym-addr-const
+           :sym-stack-const
+           :sym-addr-addr
            ;; Block
            :gtirb-block
            :gtirb-byte-block
