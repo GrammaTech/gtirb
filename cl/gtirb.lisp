@@ -830,6 +830,10 @@ at runtime.")
   (:documentation "Super-class of the `code-block' and `data-block' classes.
 This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
+(defmethod address ((obj gtirb-byte-block))
+  (when-let ((base-address (address (byte-interval obj))))
+    (+ base-address (offset obj))))
+
 (defgeneric bytes (object)
   (:documentation "Return the bytes held by OBJECT.")
   (:method ((obj gtirb-byte-block))
