@@ -378,5 +378,3 @@ class ByteInterval(Node):
         for i, v in self.symbolic_expressions.items():
             if self.address + i in addrs:
                 yield (self, i, v)
-            elif self.address + i >= addrs.stop:
-                return
