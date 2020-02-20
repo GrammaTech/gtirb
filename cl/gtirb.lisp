@@ -62,6 +62,7 @@
            :sym-addr-const
            :sym-stack-const
            :sym-addr-addr
+           :scale
            ;; Block
            :gtirb-block
            :gtirb-byte-block
