@@ -44,8 +44,7 @@ The guaranteed functionality is provided as follows.
 |:------------|:------------------------|:-------------------------------------|
 | C++         | gtirb::AuxDataContainer | through inheritance from gtirb::Node |
 | Python      | gtirb.AuxDataContainer  | through inheritance from gtirb.Node  |
-| Common Lisp | ???   | ??? |
-
+| Common Lisp | No explicit implementation; relevant classes **ir** and **module** implement required functionality directly. | . |
 
 ### string->AuxData map
 
@@ -55,7 +54,8 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------|:--------------------------|:----------------|
 | C++         |  gtirb::AuxDataContainer::getAuxData () | gtirb::AuxDataContainer::addAuxData(), gtirb::AuxData::operator=() | gtirb::AuxDataContainer::removeAuxData() |
 | Python      | dict lookup in gtirb.AuxDataContainer.auxdata | dict insert/overwrite on gtirb.AuxDataContainer.auxdata | dict pop on gtirb.AuxDataContainer.auxdata |
-| Common Lisp | ??? | ??? | ???
+| Common Lisp | **aux-data** *object* => *result* has **module** and **gtirb** specializations; extract the required named data extraction from the *result* alist |  extract auxiliary data alist with **aux-data** accessor, update alist as needed, then use (setf (**aux-data** *object*) *new-value*) which has **module** and **gtirb** specializations | as for insert/overwrite |
+
 
 ### AuxData Inspection
 
