@@ -69,6 +69,7 @@
            :data-block
            :decode-mode
            :bytes
+           :offset
            ;; Edge-Label
            :edge-label
            :conditional
