@@ -54,12 +54,11 @@ Guaranteed Properties
   - Remove an existing **SymbolicExpression**.
   - Retrieve all **SymbolicExpression** objects at a specified offset.
   - Iterate over all **SymbolicExpression** objects.
-  - Find all **SymbolicExpression** objects that intersect a given
-    address or range of addresses.
   - Find all **SymbolicExpression** objects that start at a given
     address or range of addresses. This operation must complete in
     O(log n) time, where n is the number of **SymbolicExpression**
-    objects in **symbolic_expressions**.
+    objects in **symbolic_expressions**. (There is no corresponding
+    address *intersection* requirement: **SymbolicExpressions** have no size.)
 
 
 - The **contents** have the following requirements.
@@ -151,11 +150,11 @@ The guaranteed functionality is provided as follows.
 
 #### Find  SymbolicExpression Objects...
 
-| Language    | ...that intersect an address/range | ...that begin at an address/range
-|:------------|:---------------------------|:---------------------------|
-| C++         | gtirb::ByteInterval::findSymbolicExpressionsIn() | gtirb::ByteInterval::findSymbolicExpressionsAt() |
-| Python      | ??? | gtirb.ByteInterval.symbolic_expressions_at() |
-| Common Lisp | ??? | ??? |
+| Language    | ...that begin at an address/range                |
+|:------------|:-------------------------------------------------|
+| C++         | gtirb::ByteInterval::findSymbolicExpressionsAt() |
+| Python      | gtirb.ByteInterval.symbolic_expressions_at()     |
+| Common Lisp | ???                                              |
 
 
 
