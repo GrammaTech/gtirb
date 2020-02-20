@@ -21,4 +21,4 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------|
 | C++         | gtirb::CfgNode |
 | Python      | gtirb.CfgNode  |
-| Common Lisp | ???            |
+| Common Lisp | see [http://eschulte.github.io/graph/](http://eschulte.github.io/graph/). Nodes in the CFG contain the UUIDs of **code-block** objects which can be looked up using **get-uuid**. |

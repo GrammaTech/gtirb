@@ -123,7 +123,10 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------------|:---------------------------|
 | C++         | gtirb::ByteInterval::findCodeBlocksIn() | gtirb::ByteInterval::findCodeBlocksAt() |
 | Python      | gtirb.ByteInterval.code_blocks_in() | gtirb.ByteInterval.code_blocks_at() |
-| Common Lisp | ??? | ??? |
+| Common Lisp | **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **code-block** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **code-block** objects. [*] |
+
+[*] Address range checking is not yet implemented for Common Lisp
+**at-address**
 
 
 #### Find  DataBlock Objects...
@@ -132,14 +135,15 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------------|:---------------------------|
 | C++         | gtirb::ByteInterval::findDataBlocksIn() | gtirb::ByteInterval::findDataBlocksAt() |
 | Python      | gtirb.ByteInterval.data_blocks_in() | gtirb.ByteInterval.data_blocks_at() |
-| Common Lisp |  ??? | ??? |
+| Common Lisp |  **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **data-block** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **data-block** objects. [*] |
 
+[*] Address range checking is not yet implemented for Common Lisp
+**at-address**
 
 
 ### symbolic_expressions
 
 #### Get and Set
-
 
 | Language    | Get symbolic_expressions | Set symbolic_expressions |
 |:------------|:---------------|:---------------|
@@ -148,15 +152,16 @@ The guaranteed functionality is provided as follows.
 | Common Lisp | **symbolic-expressions** (*object* *byte-interval*) => *result* | (setf (**symbolic-expressions** (*object* *byte-interval*)) *new-value*) |
 
 
-#### Find  SymbolicExpression Objects...
+#### Find SymbolicExpression Objects...
 
 | Language    | ...that begin at an address/range                |
 |:------------|:-------------------------------------------------|
 | C++         | gtirb::ByteInterval::findSymbolicExpressionsAt() |
 | Python      | gtirb.ByteInterval.symbolic_expressions_at()     |
-| Common Lisp | ???                                              |
+| Common Lisp |  **at-address** *object* *address* => *result*, then filter *result* to extract the symbolic expression objects. [*] |
 
-
+[*] Address range checking is not yet implemented for Common Lisp
+**at-address**
 
 #### Other Required SymbolicExpression Operations
 
@@ -166,8 +171,6 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::ByteInterval::addSymbolicExpression() | gtirb::ByteInterval::removeBlock() | gtirb::ByteInterval::findSymbolicExpressionsAtOffset | gtirb::ByteInterval::symbolic_expressions_begin() |
 | Python      | for all these operations, interact directly with gtirb.ByteInterval.symbolic_expressions, which is a mapping indexed by offset. | . | . | . |
 | Common Lisp | for all these operations, interact with the SymbolicExpression objects through the **symbolic-expressions** accessor: **symbolic-expression** hashes are keyed by offset. | . | . | . |
-
-
 
 
 
@@ -190,7 +193,7 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------|:---------------------|
 | C++         | gtirb::ByteInterval::getInitializedSize() | gtirb::ByteInterval::setInitializedSize() |
 | Python      | get gtirb.ByteInterval.initialized_size | set gtirb.ByteInterval.initialized_size |
-| Common Lisp | ??? | ??? |
+| Common Lisp | Use the **contents** accessor and take the length of the result | ??? |
 
 
 

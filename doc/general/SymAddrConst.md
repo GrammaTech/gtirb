@@ -31,7 +31,7 @@ The guaranteed functionality is provided as follows.
 |:------------|:--------------------|
 | C++         | gtirb::SymAddrConst |
 | Python      | gtirb.SymAddrConst  |
-| Common Lisp | ???                 |
+| Common Lisp | **sym-addr-const**  |
 
 
 

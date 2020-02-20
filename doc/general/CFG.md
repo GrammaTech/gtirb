@@ -24,4 +24,4 @@ API Implementations
 |:------------|:-----------------------|
 | C++         | gtirb::CFG             |
 | Python      | typing.set[gtirb.Edge] |
-| Common Lisp | a `graph:digraph` whose nodes hold **code-block** UUIDs and edges are labeled with **edge_label** objects    |
+| Common Lisp | a [graph:digraph](http://eschulte.github.io/graph/) whose nodes hold **code-block** UUIDs and edges are labeled with **edge_label** objects    |

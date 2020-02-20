@@ -21,4 +21,4 @@ API Implementations
 |:------------|:--------------------------------------------------|
 | C++         | no explicit type: add edges with gtirb::addEdge() |
 | Python      | gtirb.Edge                                        |
-| Common Lisp | ???                                               |
+| Common Lisp | see [http://eschulte.github.io/graph/](http://eschulte.github.io/graph/). Edges in the CFG are labeled with **edge-label** objects. |

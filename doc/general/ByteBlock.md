@@ -2,9 +2,7 @@ ByteBlock
 ====================
 
 **ByteBlock** is the base class for blocks that belong to a
-[ByteInterval](ByteInterval) and store their bytes there.
-
-
+[ByteInterval](ByteInterval.md) and store their bytes there.
 
 
 Guaranteed Properties
@@ -27,8 +25,6 @@ Guaranteed Properties
 - If a **ByteBlock** belongs to a **ByteInterval** that has an address
   then it must be able to retrieve its address, calculated as the
   **ByteInterval** address plus the **ByteBlock** offset.
-
-
 
 
 API Implementations
@@ -68,10 +64,10 @@ The guaranteed functionality is provided as follows.
 
 #### ByteBlock Offset in Associated ByteInterval
 
-| Language    | Offset |
+| Language    | Offset                              |
 |:------------|:------------------------------------|
 | C++         | gtirb::CodeBlock::getOffset(), gtirb::DataBlock::getOffset() |
-| Python      | gtirb.ByteBlock.offset |
+| Python      | gtirb.ByteBlock.offset              |
 | Common Lisp | ??? |
 
 
@@ -82,4 +78,4 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------------------|
 | C++         | gtirb::DataBlock::getAddress(), gtirb::DataBlock::getAddress() |
 | Python      | gtirb.ByteBlock.address          |
-| Common Lisp | **address** *obj* => *result* ???|
+| Common Lisp | **address** *obj* => *result*    |

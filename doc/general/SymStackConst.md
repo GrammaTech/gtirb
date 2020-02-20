@@ -29,10 +29,10 @@ The guaranteed functionality is provided as follows.
 ### SymStackConst Classes
 
 | Language    | SymStackConst Class  |
-|:------------|:--------------------|
+|:------------|:---------------------|
 | C++         | gtirb::SymStackConst |
 | Python      | gtirb.SymStackConst  |
-| Common Lisp | ???                 |
+| Common Lisp | **sym-stack-const**  |
 
 
 

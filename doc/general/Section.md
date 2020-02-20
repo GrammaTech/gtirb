@@ -88,7 +88,10 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------------|:---------------------------|
 | C++         | gtirb::Section::findByteIntervalsIn() | gtirb::Section::findByteIntervalsAt() |
 | Python      | gtirb.Section.byte_intervals_in() | gtirb.Section.byte_intervals_at() |
-| Common Lisp | ???                        | ???                        |
+| Common Lisp |  **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **byte-interval** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **byte-interval** objects. [*] |
+
+[*] Address range checking is not yet implemented for Common Lisp
+**at-address**
 
 
 

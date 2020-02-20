@@ -30,10 +30,10 @@ The guaranteed functionality is provided as follows.
 ### SymAddrAddr Classes
 
 | Language    | SymAddrAddr Class  |
-|:------------|:--------------------|
+|:------------|:-------------------|
 | C++         | gtirb::SymAddrAddr |
 | Python      | gtirb.SymAddrAddr  |
-| Common Lisp | ???                 |
+| Common Lisp | **sym-addr-addr**  |
 
 
 

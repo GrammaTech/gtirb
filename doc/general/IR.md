@@ -40,7 +40,7 @@ The guaranteed functionality is provided as follows.
 |:------------|:----------|:-------------------------------------------------------------------|
 | C++         | gtirb::IR | by inheritance: gtirb::IR is a subclass of gtirb::AuxDataContainer |
 | Python      | gtirb.IR  | by inheritance: gtirb.IR is a subclass of gtirb.AuxDataContainer   |
-| Common Lisp | **gtirb** | via **aux-data** class and ??? |
+| Common Lisp | **gtirb** | via **aux-data** class and specializations **aux-data** (*object* *gtirb*) => *result*, (setf (**aux-data** (*object* *gtirb*)) *new-value*) |
 
 
 ### GTIRB Protobuf API Version

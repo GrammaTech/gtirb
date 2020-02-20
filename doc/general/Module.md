@@ -66,7 +66,8 @@ The guaranteed functionality is provided as follows.
 |:------------|:--------------|:-------------------------------|
 | C++         | gtirb::Module | by inheritance: gtirb::Module is a subclass of gtirb::AuxDataContainer |
 | Python      | gtirb.Module  | by inheritance: gtirb.Module is a subclass of gtirb.AuxDataContainer |
-| Common Lisp | **module**    | via **aux-data** class and ??? |
+| Common Lisp | **module**    | via **aux-data** class and specializations **aux-data** (*object* *module*) => *result*, (setf (**aux-data** (*object* *module*)) *new-value*) |
+
 
 ### Required Field Getters/Setters
 
@@ -140,6 +141,7 @@ The guaranteed functionality is provided as follows.
 | Python      | read gtirb.Module.symbols | write gtirb.Module.symbols |
 | Common Lisp | **symbols** (*object* *module*) => *result* | (setf (**symbols** (*object* *module*)) *new-value*) |
 
+
 #### proxy_blocks
 
 | Language    | Get proxy_blocks              | Set proxy_blocks           |
@@ -177,4 +179,8 @@ The guaranteed functionality is provided as follows.
 |:------------|:---------------------------|:---------------------------|
 | C++         | gtirb::Module::findSectionsIn() | gtirb::Module::findSectionsAt() |
 | Python      | gtirb.Module.sections_in() | gtirb.Module.sections_at() |
-| Common Lisp | ???                        | ???                        |
+| Common Lisp | **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **section** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **section** objects. [*] |
+
+[*] Address range checking is not yet implemented for Common Lisp
+**at-address**
+
