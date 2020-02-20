@@ -20,8 +20,8 @@ API Implementations
 --------------------
 
 
-| Language    | CFG Implementation |
-|:------------|:---------------|
-| C++         | gtirb::CFG |
-| Python      | ??? |
+| Language    | CFG Implementation     |
+|:------------|:-----------------------|
+| C++         | gtirb::CFG             |
+| Python      | typing.set[gtirb.Edge] |
 | Common Lisp | a `graph:digraph` whose nodes hold **code-block** UUIDs and edges are labeled with **edge_label** objects    |
