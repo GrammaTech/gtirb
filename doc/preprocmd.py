@@ -48,10 +48,16 @@ def anchor_page_headings(pagetxt):
 # Given a Python-looking token, compute its location in the Python API
 # documentation and return an HTML link.
 def makePyApiLink(pymatch):
-    pytoken = pymatch.group("pytoken")
     parens = pymatch.group("parens")
-    href = '<a href="python/gtirb.html#{0}">{0}{1}</a>'.format(
-        pytoken, parens if parens is not None else ""
+    parens = parens if parens is not None else ""
+
+    pytoken = pymatch.group("pytoken")
+    basename = ".".join((pytoken.split(".")[:-1]))
+    # heuristic to determine whether it's 'really' a submodule reference
+    basename = "gtirb" if not basename.islower() else basename
+
+    href = '<a href="python/{0}.html#{1}">{1}{2}</a>'.format(
+        basename, pytoken, parens
     )
     return href
 
@@ -66,6 +72,7 @@ def makeDoxyExampleLink(exname, linktext, pathadj):
 
 # This controls some of the substitutions
 outdir = os.path.basename(os.path.dirname(os.path.abspath(outfile)))
+indir = os.path.basename(os.path.dirname(os.path.abspath(infile)))
 
 substitutions = [
     # doxygen is specifically annoying about fenced code, which
@@ -99,10 +106,22 @@ substitutions = [
     (r"```cpp(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
 ]
 
-pytoken_re = r"(?P<pytoken>gtirb(\.[a-zA-Z]\w*)+)(?P<parens>\([^]\n]*?\))?"
+# ==============================
 
+# Start collecting substitutions
+substitutions = []
+
+
+# adjust relative links from gtirb/doc/general/*.md to gtirb/doc/*.md
+# and gtirb/*.md
+
+if indir == "general":
+    substitutions += [(r"(?<=\()\.\.\/(?:\.\.\/)?(\w+\.md)(?=\))", r"\1")]
+
+
+pytoken_re = r"(?P<pytoken>gtirb(\.[a-zA-Z]\w*)+)(?P<parens>\([^]\n]*?\))?"
 if outdir == "general":
-    substitutions = [
+    substitutions += [
         # Heuristic recognition of links to Python API elements
         # where a 'Python-looking token' has the form
         # described by pytoken_re
@@ -150,4 +169,5 @@ with open(infile, "r") as infh:
     )
 
     with open(outfile, "w") as outfh:
+        outfh.write("[TOC]\n")  # insert page TOC
         outfh.write(contents)
