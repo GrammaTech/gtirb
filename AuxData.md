@@ -47,6 +47,7 @@ The following are the sanctioned AuxData table schemata.
 |-------------------------------------------|----------------------------------------------------|
 | [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| [`"functionName"`](#functionname)         | ```std::map<gtirb::UUID, gtirb::Symbol>``` |
 | [`"types"`](#types)                       | ```std::map<gtirb::UUID, std::string>```           |
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```              |
 | [`"comments"`](#comments)                 | ```std::map<gtirb::Offset, std::string>```         |
@@ -56,51 +57,61 @@ The following are the sanctioned AuxData table schemata.
 
 ### functionBlocks
 
-| <!-- --> | <!-- -->                                                           |
-|----------|--------------------------------------------------------------------|
-| Label    | ```"functionBlocks"```                                             |
-| Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```                 |
-| Key      | Function UUID.                                                     |
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"functionBlocks"```                             |
+| Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| Key      | Function UUID.                                     |
 | Value    | The set of UUIDs of all the blocks (gtirb::Block) in the function. |
 
 
 ### functionEntries
 
-| <!-- --> | <!-- -->                                                                        |
-|----------|---------------------------------------------------------------------------------|
-| Label    | ```"functionEntries"```                                                         |
-| Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>```                              |
-| Key      | Function UUID.                                                                  |
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"functionEntries"```                            |
+| Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| Key      | Function UUID.                                     |
 | Value    | The set of UUIDs of all the block (gtirb::Block) entry points for the function. |
+
+
+### functionName
+
+| <!-- --> | <!-- -->                                                       |
+|----------|----------------------------------------------------------------|
+| Label    | ```"functionName"```                                           |
+| Type     | ```std::map<gtirb::UUID, gtirb::Symbol>```                     |
+| Key      | Function UUID.                                                 |
+| Value    | A Symbol whose `name` field contains the name of the function. |
 
 
 ### types
 
-| <!-- --> | <!-- -->                                                                          |
-|----------|-----------------------------------------------------------------------------------|
-| Label    | ```"types"```                                                                     |
-| Type     | ```std::map<gtirb::UUID,std::string>```                                           |
-| Key      | The gtirb::UUID of a gtirb::DataObject.                                           |
+| <!-- --> | <!-- -->                                |
+|----------|-----------------------------------------|
+| Label    | ```"types"```                           |
+| Type     | ```std::map<gtirb::UUID,std::string>``` |
+| Key      | The gtirb::UUID of a gtirb::DataObject. |
 | Value    | The type of the data, expressed as a std::string containing a C++ type specifier. |
 
 
 ### alignment
 
-| <!-- --> | <!-- -->                                                                 |
-|----------|--------------------------------------------------------------------------|
-| Label    | ```"alignment"```                                                        |
-| Type     | ```std::map<gtirb::UUID, uint64_t>```                                    |
+| <!-- --> | <!-- -->                                                  |
+|----------|-----------------------------------------------------------|
+| Label    | ```"alignment"```                                         |
+| Type     | ```std::map<gtirb::UUID, uint64_t>```                     |
 | Key      | The gtirb::UUID of a gtirb::Block, gtirb::DataObject, or gtirb::Section. |
-| Value    | Alignment requirements for the block/data object/section.                |
+| Value    | Alignment requirements for the block/data object/section. |
 
 
 ### comments
 
-| <!-- --> | <!-- -->                                                                        |
-|----------|---------------------------------------------------------------------------------|
-| Label    | ```"comments"```                                                                |
-| Type     | ```std::map<gtirb::Offset, std::string>```                                      |
-| Key      | The gtirb::Offset of a comment.                                                 |
+| <!-- --> | <!-- -->                                   |
+|----------|--------------------------------------------|
+| Label    | ```"comments"```                           |
+| Type     | ```std::map<gtirb::Offset, std::string>``` |
+| Key      | The gtirb::Offset of a comment.            |
 | Value    | A comment string relevant to the specified offset in the specified GTIRB entry. |
 
 
