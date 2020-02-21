@@ -393,4 +393,11 @@ set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 
+# set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>=1.67), libprotobuf-dev
+# (>=3.0.0), libprotobuf-dev (<<3.6.1)" )
+
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+    "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (<=3.3.0)"
+)
+
 include(CPack)
