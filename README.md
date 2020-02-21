@@ -97,27 +97,6 @@ block) and an offset.
 
 # Building
 
-## for Ubuntu or Debian
-
-We provide [APT](https://en.wikipedia.org/wiki/APT_(software)) packages for
-Debian systems. To install the GTIRB API through the `apt` command-line tool,
-first register our repository:
-
-```shell
-# TODO
-```
-
-Once it is registered, packages available from the repository include:
-
-* TODO
-
-## For Windows
-
-Pre-built binaries are available on
-[our releases page](https://github.com/GrammaTech/gtirb/releases).
-
-## From Source
-
 GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
 Studio compilers supporting at least C++17.  GTIRB uses CMake which
 must be installed with at least version 3.9.
@@ -133,7 +112,7 @@ cmake --build .
 bin/TestGTIRB
 ```
 
-### Requirements
+## Requirements
 
 To build and install GTIRB, the following requirements should be installed:
 
