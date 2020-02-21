@@ -275,6 +275,13 @@ address range for instances of the object."
                                `(make-instance ',proto-class))
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
+         ;; TODO: Consider throwing warnings in a `setf :around'
+         ;;       defmethod on the parents of objects with parents if
+         ;;       the objects are set to something that already has a
+         ;;       current parent.  This could avoid surprising
+         ;;       inconsistencies.  Alternately this could throw an
+         ;;       error with the option to copy the object with a new
+         ;;       corrected parent or to set the parent directly.
          ,@(when parent
              `((,parent :accessor ,parent :type (or null ,parent)
                         :initarg ,(make-keyword parent)
