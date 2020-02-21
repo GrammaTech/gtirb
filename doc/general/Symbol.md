@@ -61,7 +61,7 @@ The guaranteed functionality is provided as follows.
 | Language    | Get optional_payload     | Set optional_payload     |
 |:------------|:-------------------------|:-------------------------|
 | C++         | gtirb::Symbol::getAddress, gtirb::Symbol::getReferent() | gtirb::Symbol::setAddress(), gtirb::Symbol::setReferent() |
-| Python      | ???                      | ???                      |
+| Python      | read gtirb.Symbol.referent or gtirb.Symbol.value | write gtirb.Symbol.referent or gtirb.Symbol.value |
 | Common Lisp | **payload** *symbol* => *result* | (setf (**payload** *symbol*) *new*) |
 
 

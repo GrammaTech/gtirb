@@ -41,43 +41,43 @@ The guaranteed functionality is provided as follows.
 
 #### scale
 
-| Language    | Get/Set scale                  |
-|:------------|:-------------------------------|
-| C++         | read gtirb::SymAddrAddr::Scale |
-| Python      | read gtirb.SymAddrAddr.offset  |
-| Common Lisp | ???                            |
+| Language    | Get scale       | Set scale             |
+|:------------|:----------------|:----------------------|
+| C++         | read gtirb::SymAddrAddr::Scale | write gtirb::SymAddrAddr::Scale |
+| Python      | read gtirb.SymAddrAddr.scale | write gtirb.SymAddrAddr.scale |
+| Common Lisp | **scale** (*obj* *sym-addr-addr*) => *result* | (setf (**scale** (*obj* *sym-addr-addr*)) *new*) |
 
 
 
 #### offset
 
-| Language    | Get/Set offset                  |
-|:------------|:--------------------------------|
-| C++         | read gtirb::SymAddrAddr::Offset |
-| Python      | read gtirb.SymAddrAddr.offset   |
-| Common Lisp | ???                             |
+| Language    | Get offset         | Set offset    |
+|:------------|:-------------------|:--------------|
+| C++         | read gtirb::SymAddrAddr::Offset | write gtirb::SymAddrAddr::Offset |
+| Python      | read gtirb.SymAddrAddr.offset | write gtirb.SymAddrAddr.offset |
+| Common Lisp | **offset** (*obj* *sym-addr-addr*) => *result* | (setf (**offset** (*obj* *sym-addr-addr*)) *new*) |
 
 
 
 
 #### symbol1_uuid
 
-| Language    | Get/Set symbol1_uuid                 |
-|:------------|:-------------------------------------|
-| C++         | read/write gtirb::SymAddrAddr::Sym1  |
-| Python      | read/write gtirb.SymAddrAddr.symbol1 |
-| Common Lisp | ???                                  |
+| Language    | Get symbol1_uuid    | Set symbol1_uuid   |
+|:------------|:--------------------|:-----------------------|
+| C++         | read gtirb::SymAddrAddr::Sym1 | write gtirb::SymAddrAddr::Sym1 |
+| Python      | read gtirb.SymAddrAddr.symbol1 | write gtirb.SymAddrAddr.symbol1 |
+| Common Lisp | **symbols** (*object* *symbolic-expression*) => *result*, first **symbol** in *result* | (setf (**symbols** (*object* *symbolic-expression*)) *new-value*), first **symbol** in *new-value* |
 
 
 
 #### symbol2_uuid
 
-| Language    | Get/Set symbol2_uuid                 |
-|:------------|:-------------------------------------|
-| C++         | read/write gtirb::SymAddrAddr::Sym2  |
-| Python      | read/write gtirb.SymAddrAddr.symbol2 |
-| Common Lisp | ???                                  |
 
+| Language    | Get symbol2_uuid     | Set symbol2_uuid    |
+|:------------|:---------------------|:--------------------|
+| C++         | read gtirb::SymAddrAddr::Sym2  | read/write gtirb::SymAddrAddr::Sym2  |
+| Python      | read gtirb.SymAddrAddr.symbol2 | read/write gtirb.SymAddrAddr.symbol2 |
+| Common Lisp | **symbols** (*object* *symbolic-expression*) => *result*, second **symbol** in *result* | (setf (**symbols** (*object* *symbolic-expression*)) *new-value*), second **symbol** in *new-value* |
 
 Links
 --------------------

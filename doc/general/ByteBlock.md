@@ -68,7 +68,7 @@ The guaranteed functionality is provided as follows.
 |:------------|:------------------------------------|
 | C++         | gtirb::CodeBlock::getOffset(), gtirb::DataBlock::getOffset() |
 | Python      | gtirb.ByteBlock.offset              |
-| Common Lisp | ??? |
+| Common Lisp | **offset** (*obj* *code-block*) => *result*,  **offset** (*obj* *data-block*) => *result* |
 
 
 

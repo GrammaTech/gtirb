@@ -80,10 +80,10 @@ The guaranteed functionality is provided as follows.
 ### CFG
 
 
-| Language    | Get CFG                                | Set CFG                                         |
-|:------------|:---------------------------------------|:------------------------------------------------|
-| C++         | gtirb::IR::getCFG()                    | ???                                             |
-| Python      | read gtirb.IR.cfg                      | write gtirb.IR.cfg                              |
+| Language    | Get CFG                  | Set CFG                   |
+|:------------|:-------------------------|:--------------------------|
+| C++         | read gtirb::IR::getCFG() | write gtirb::IR::getCFG() |
+| Python      | read gtirb.IR.cfg        | write gtirb.IR.cfg        |
 | Common Lisp | **cfg** (*object* *gtirb*) => *result* | (setf (**cfg** (*object* *gtirb*)) *new-value*) |
 
 

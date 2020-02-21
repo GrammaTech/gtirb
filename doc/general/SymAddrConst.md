@@ -39,22 +39,22 @@ The guaranteed functionality is provided as follows.
 
 #### offset
 
-| Language    | Get/Set offset                    |
-|:------------|:----------------------------------|
-| C++         | read gtirb::SymAddrConst::Offset |
-| Python      | read gtirb.SymAddrConst.offset   |
-| Common Lisp | ???                               |
+| Language    | Get offset          | Set offset            |
+|:------------|:--------------------|:----------------------|
+| C++         | read gtirb::SymAddrConst::Offset | write gtirb::SymAddrConst::Offset |
+| Python      | read gtirb.SymAddrConst.offset | write gtirb.SymAddrConst.offset |
+| Common Lisp | **offset** (*obj* *sym-addr-const*) => *result* | (setf (**offset** (*obj* *sym-addr-const*)) *new*) |
 
 
 
 
 #### symbol_uuid
 
-| Language    | Get/Set symbol_uuid                   |
-|:------------|:--------------------------------------|
-| C++         | read/write gtirb::SymAddrConst::Sym  |
-| Python      | read/write gtirb.SymAddrConst.symbol |
-| Common Lisp | ???                                   |
+| Language    | Get symbol_uuid   | Get/Set symbol_uuid   |
+|:------------|:------------------|:----------------------|
+| C++         | read gtirb::SymAddrConst::Sym  | write gtirb::SymAddrConst::Sym  |
+| Python      | read gtirb.SymAddrConst.symbol | read gtirb.SymAddrConst.symbol |
+| Common Lisp | **symbols** (*object* *symbolic-expression*) => *result* | (setf (**symbols** (*object* *symbolic-expression*)) *new-value*) |
 
 
 Links
@@ -62,3 +62,4 @@ Links
 
 - [GTIRB Components](COMPONENTS.md)
 - [Using Serialized GTIRB Data](../../PROTOBUF.md)
+

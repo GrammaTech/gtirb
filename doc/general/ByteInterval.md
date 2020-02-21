@@ -62,9 +62,6 @@ Guaranteed Properties
 
 
 - The **contents** have the following requirements.
-  - There must be functionality for reading and writing the length of
-    the **contents** byte array (the *initialized size*). Writing must
-    resize the byte array, either by truncation or by zero-padding.
   - The size of **contents** must be less than or equal to the size of
     the **ByteInterval**.
   - If the size of a **ByteInterval** is changed to a value that is
@@ -113,8 +110,8 @@ The guaranteed functionality is provided as follows.
 | Language    | Insert at offset | Remove | Retrieve from offset | Iterate |
 |:------------|:---------------|:---------------|:---------------|:---------------|
 | C++         | gtirb::ByteInterval::addBlock() | gtirb::ByteInterval::removeBlock() | gtirb::ByteInterval::findBlocksAtOffset | gtirb::ByteInterval::blocks_begin() |
-| Python      | for all these operations, interact directly with gtirb.ByteInterval.contents: each gtirb.ByteBlock object stores its own offset. | . | . | . |
-| Common Lisp | for all these operations, interact with the contents through the **contents** accessor: each **byte-block** object stores its own offset. | . | . | . |
+| Python      | for all these operations, interact directly with gtirb.ByteInterval.blocks: each gtirb.ByteBlock object stores its own offset. | . | . | . |
+| Common Lisp | for all these operations, interact with the blocks through the **blocks** accessor: each **byte-block** object stores its own offset. | . | . | . |
 
 
 #### Find  CodeBlock Objects...
@@ -180,21 +177,10 @@ The guaranteed functionality is provided as follows.
 
 
 | Language    | Get contents | Set contents |
-|:------------|:---------------|:---------------|
-| C++         | gtirb::ByteInterval | gtirb::ByteInterval |
-| Python      | gtirb.ByteInterval |  gtirb.ByteInterval |
+|:------------|:-------------|:-------------|
+| C++         | read gtirb::ByteInterval::bytes() | write gtirb::ByteInterval::bytes() |
+| Python      | read gtirb.ByteInterval.contents  | write gtirb.ByteInterval.contents |
 | Common Lisp | **contents** (*obj* *byte-interval*) => *result* | (setf (**contents** (*obj* *byte-interval*)) *new*) |
-
-
-#### Initialized Size
-
-
-| Language    | Get initialized size | Set initialized size |
-|:------------|:---------------------|:---------------------|
-| C++         | gtirb::ByteInterval::getInitializedSize() | gtirb::ByteInterval::setInitializedSize() |
-| Python      | get gtirb.ByteInterval.initialized_size | set gtirb.ByteInterval.initialized_size |
-| Common Lisp | Use the **contents** accessor and take the length of the result | ??? |
-
 
 
 ### size

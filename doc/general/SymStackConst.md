@@ -40,22 +40,22 @@ The guaranteed functionality is provided as follows.
 
 #### offset
 
-| Language    | Get/Set offset                    |
-|:------------|:----------------------------------|
-| C++         | read gtirb::SymStackConst::Offset |
-| Python      | read gtirb.SymStackConst.offset   |
-| Common Lisp | ???                               |
+| Language    | Get offset              | Set offset               |
+|:------------|:------------------------|:-------------------------|
+| C++         | read gtirb::SymStackConst::Offset | write gtirb::SymStackConst::Offset |
+| Python      | read gtirb.SymStackConst.offset | write gtirb.SymStackConst.offset |
+| Common Lisp | **offset** (*obj* *sym-stack-const*) => *result* | (setf (**offset** (*obj* *sym-stack-const*)) *new*) |
 
 
 
 
 #### symbol_uuid
 
-| Language    | Get/Set symbol_uuid                   |
-|:------------|:--------------------------------------|
-| C++         | read/write gtirb::SymStackConst::Sym  |
-| Python      | read/write gtirb.SymStackConst.symbol |
-| Common Lisp | ???                                   |
+| Language    | Get/Set symbol_uuid  | Get/Set symbol_uuid   |
+|:------------|:---------------------|:----------------------|
+| C++         | read gtirb::SymStackConst::Sym  | write gtirb::SymStackConst::Sym  |
+| Python      | read gtirb.SymStackConst.symbol | write gtirb.SymStackConst.symbol |
+| Common Lisp | **symbols** (*object* *symbolic-expression*) => *result* | (setf (**symbols** (*object* *symbolic-expression*)) *new-value*) |
 
 
 Links
