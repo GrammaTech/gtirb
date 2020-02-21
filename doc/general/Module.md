@@ -177,10 +177,9 @@ The guaranteed functionality is provided as follows.
 
 | Language    | ...that intersect an address/range | ...that begin at an address/range
 |:------------|:---------------------------|:---------------------------|
-| C++         | gtirb::Module::findSectionsIn() | gtirb::Module::findSectionsAt() |
+| C++         | gtirb::Module::findSectionsOn() | gtirb::Module::findSectionsAt() |
 | Python      | gtirb.Module.sections_in() | gtirb.Module.sections_at() |
 | Common Lisp | **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **section** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **section** objects. [*] |
 
 [*] Address range checking is not yet implemented for Common Lisp
 **at-address**
-

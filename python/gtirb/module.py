@@ -12,7 +12,7 @@ from .symbol import Symbol
 from .util import (
     DictLike,
     SetWrapper,
-    nodes_in,
+    nodes_on,
     nodes_at,
     symbolic_expressions_at,
 )
@@ -403,7 +403,7 @@ class Module(AuxDataContainer):
 
         return itertools.chain(self.code_blocks, self.proxies)
 
-    def sections_in(self, addrs):
+    def sections_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[Section]
         """Finds all the sections that overlap an address or range of
         addresses.
@@ -411,7 +411,7 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.sections, addrs)
+        return nodes_on(self.sections, addrs)
 
     def sections_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[Section]
@@ -423,7 +423,7 @@ class Module(AuxDataContainer):
 
         return nodes_at(self.sections, addrs)
 
-    def byte_intervals_in(self, addrs):
+    def byte_intervals_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
         """Finds all the byte intervals that overlap an address or range of
         addresses.
@@ -431,7 +431,7 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.byte_intervals, addrs)
+        return nodes_on(self.byte_intervals, addrs)
 
     def byte_intervals_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
@@ -443,7 +443,7 @@ class Module(AuxDataContainer):
 
         return nodes_at(self.byte_intervals, addrs)
 
-    def byte_blocks_in(self, addrs):
+    def byte_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
         """Finds all the byte blocks that overlap an address or range of
         addresses.
@@ -451,7 +451,7 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.byte_blocks, addrs)
+        return nodes_on(self.byte_blocks, addrs)
 
     def byte_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -463,7 +463,7 @@ class Module(AuxDataContainer):
 
         return nodes_at(self.byte_blocks, addrs)
 
-    def code_blocks_in(self, addrs):
+    def code_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
         """Finds all the code blocks that overlap an address or range of
         addresses.
@@ -471,7 +471,7 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.code_blocks, addrs)
+        return nodes_on(self.code_blocks, addrs)
 
     def code_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -483,7 +483,7 @@ class Module(AuxDataContainer):
 
         return nodes_at(self.code_blocks, addrs)
 
-    def data_blocks_in(self, addrs):
+    def data_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
         """Finds all the data blocks that overlap an address or range of
         addresses.
@@ -491,7 +491,7 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.data_blocks, addrs)
+        return nodes_on(self.data_blocks, addrs)
 
     def data_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]

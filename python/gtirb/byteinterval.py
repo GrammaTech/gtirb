@@ -11,7 +11,7 @@ from .symbolicexpression import (
     SymStackConst,
     SymbolicExpression,
 )
-from .util import DictLike, SetWrapper, nodes_at, nodes_in, get_desired_range
+from .util import DictLike, SetWrapper, nodes_at, nodes_on, get_desired_range
 
 
 SymbolicExpressionElement = typing.Tuple[
@@ -299,7 +299,7 @@ class ByteInterval(Node):
             ")".format(**self.__dict__)
         )
 
-    def byte_blocks_in(self, addrs):
+    def byte_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
         """Finds all the byte blocks that overlap an address or range of
         addresses.
@@ -307,7 +307,7 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.byte_blocks, addrs)
+        return nodes_on(self.byte_blocks, addrs)
 
     def byte_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -319,7 +319,7 @@ class ByteInterval(Node):
 
         return nodes_at(self.byte_blocks, addrs)
 
-    def code_blocks_in(self, addrs):
+    def code_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
         """Finds all the code blocks that overlap an address or range of
         addresses.
@@ -327,7 +327,7 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.code_blocks, addrs)
+        return nodes_on(self.code_blocks, addrs)
 
     def code_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -339,7 +339,7 @@ class ByteInterval(Node):
 
         return nodes_at(self.code_blocks, addrs)
 
-    def data_blocks_in(self, addrs):
+    def data_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
         """Finds all the data blocks that overlap an address or range of
         addresses.
@@ -347,7 +347,7 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.data_blocks, addrs)
+        return nodes_on(self.data_blocks, addrs)
 
     def data_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]

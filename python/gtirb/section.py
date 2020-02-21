@@ -7,7 +7,7 @@ from uuid import UUID
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
 from .byteinterval import ByteInterval, SymbolicExpressionElement
-from .util import SetWrapper, nodes_at, nodes_in, symbolic_expressions_at
+from .util import SetWrapper, nodes_at, nodes_on, symbolic_expressions_at
 
 
 class Section(Node):
@@ -233,7 +233,7 @@ class Section(Node):
             return None
         return highest - lowest
 
-    def byte_intervals_in(self, addrs):
+    def byte_intervals_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
         """Finds all the byte intervals that overlap an address or range of
         addresses.
@@ -241,7 +241,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.byte_intervals, addrs)
+        return nodes_on(self.byte_intervals, addrs)
 
     def byte_intervals_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
@@ -253,7 +253,7 @@ class Section(Node):
 
         return nodes_at(self.byte_intervals, addrs)
 
-    def byte_blocks_in(self, addrs):
+    def byte_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
         """Finds all the byte blocks that overlap an address or range of
         addresses.
@@ -261,7 +261,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.byte_blocks, addrs)
+        return nodes_on(self.byte_blocks, addrs)
 
     def byte_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -273,7 +273,7 @@ class Section(Node):
 
         return nodes_at(self.byte_blocks, addrs)
 
-    def code_blocks_in(self, addrs):
+    def code_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
         """Finds all the code blocks that overlap an address or range of
         addresses.
@@ -281,7 +281,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.code_blocks, addrs)
+        return nodes_on(self.code_blocks, addrs)
 
     def code_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -293,7 +293,7 @@ class Section(Node):
 
         return nodes_at(self.code_blocks, addrs)
 
-    def data_blocks_in(self, addrs):
+    def data_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
         """Finds all the data blocks that overlap an address or range of
         addresses.
@@ -301,7 +301,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_in(self.data_blocks, addrs)
+        return nodes_on(self.data_blocks, addrs)
 
     def data_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]

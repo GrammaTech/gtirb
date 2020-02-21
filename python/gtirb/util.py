@@ -119,7 +119,7 @@ def get_desired_range(addrs):
         return addrs
 
 
-def nodes_in(
+def nodes_on(
     nodes,  # type: typing.Iterable[T]
     addrs,  # type: typing.Union[int, range]
 ):

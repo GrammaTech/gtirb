@@ -203,14 +203,14 @@ TEST(Unit_Module, findSections) {
   S->addByteInterval(Ctx, Addr(1), 123);
 
   {
-    auto F = M->findSectionsIn(Addr(1));
+    auto F = M->findSectionsOn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(F.begin()->getName(), "test");
 
-    F = M->findSectionsIn(Addr(123));
+    F = M->findSectionsOn(Addr(123));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
 
-    F = M->findSectionsIn(Addr(124));
+    F = M->findSectionsOn(Addr(124));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 
@@ -265,32 +265,32 @@ TEST(Unit_Module, findBlock) {
   auto* B2 = BI->addBlock<CodeBlock>(Ctx, 5, 10);
 
   {
-    auto F = M->findCodeBlocksIn(Addr(0));
+    auto F = M->findCodeBlocksOn(Addr(0));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
 
-    F = M->findCodeBlocksIn(Addr(1));
+    F = M->findCodeBlocksOn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
-    F = M->findCodeBlocksIn(Addr(5));
+    F = M->findCodeBlocksOn(Addr(5));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), B1);
     EXPECT_EQ(&*++F.begin(), B2);
 
-    F = M->findCodeBlocksIn(Addr(14));
+    F = M->findCodeBlocksOn(Addr(14));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), B1);
     EXPECT_EQ(&*++F.begin(), B2);
 
-    F = M->findCodeBlocksIn(Addr(15));
+    F = M->findCodeBlocksOn(Addr(15));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
-    F = M->findCodeBlocksIn(Addr(20));
+    F = M->findCodeBlocksOn(Addr(20));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
-    F = M->findCodeBlocksIn(Addr(21));
+    F = M->findCodeBlocksOn(Addr(21));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }
@@ -312,32 +312,32 @@ TEST(Unit_Module, findData) {
   auto* D2 = BI->addBlock<DataBlock>(Ctx, 5, 10);
 
   {
-    auto F = M->findDataBlocksIn(Addr(0));
+    auto F = M->findDataBlocksOn(Addr(0));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
 
-    F = M->findDataBlocksIn(Addr(1));
+    F = M->findDataBlocksOn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D1);
 
-    F = M->findDataBlocksIn(Addr(5));
+    F = M->findDataBlocksOn(Addr(5));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
-    F = M->findDataBlocksIn(Addr(10));
+    F = M->findDataBlocksOn(Addr(10));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
-    F = M->findDataBlocksIn(Addr(11));
+    F = M->findDataBlocksOn(Addr(11));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D2);
 
-    F = M->findDataBlocksIn(Addr(14));
+    F = M->findDataBlocksOn(Addr(14));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D2);
 
-    F = M->findDataBlocksIn(Addr(15));
+    F = M->findDataBlocksOn(Addr(15));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }

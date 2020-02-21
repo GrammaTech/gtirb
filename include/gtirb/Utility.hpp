@@ -363,9 +363,9 @@ struct FindNodesBetween {
 
 /// \class FindBlocksIn
 ///
-/// \brief A function object for merging together calls to findBlocksIn.
+/// \brief A function object for merging together calls to findBlocksOn.
 ///
-/// \tparam T The node to call findBlocksIn from. If const-qualified,
+/// \tparam T The node to call findBlocksOn from. If const-qualified,
 ///           the const functions on this type are used; else the non-const
 ///           functions are used.
 template <typename T>
@@ -374,7 +374,7 @@ using FindBlocksIn = FindNodesAt<
     std::conditional_t<std::is_const_v<T>,
                        typename T::const_block_subrange (T::*)(Addr) const,
                        typename T::block_subrange (T::*)(Addr)>,
-    &T::findBlocksIn>;
+    &T::findBlocksOn>;
 
 /// \class FindBlocksAt
 ///
@@ -410,9 +410,9 @@ using FindBlocksBetween = FindNodesBetween<
 
 /// \class FindCodeBlocksIn
 ///
-/// \brief A function object for merging together calls to findCodeBlocksIn.
+/// \brief A function object for merging together calls to findCodeBlocksOn.
 ///
-/// \tparam T The node to call findCodeBlocksIn from. If const-qualified,
+/// \tparam T The node to call findCodeBlocksOn from. If const-qualified,
 ///           the const functions on this type are used; else the non-const
 ///           functions are used.
 template <typename T>
@@ -421,7 +421,7 @@ using FindCodeBlocksIn = FindNodesAt<
     std::conditional_t<std::is_const_v<T>,
                        typename T::const_code_block_subrange (T::*)(Addr) const,
                        typename T::code_block_subrange (T::*)(Addr)>,
-    &T::findCodeBlocksIn>;
+    &T::findCodeBlocksOn>;
 
 /// \class FindCodeBlocksAt
 ///
@@ -458,9 +458,9 @@ using FindCodeBlocksBetween = FindNodesBetween<
 
 /// \class FindDataBlocksIn
 ///
-/// \brief A function object for merging together calls to findDataBlocksIn.
+/// \brief A function object for merging together calls to findDataBlocksOn.
 ///
-/// \tparam T The node to call findDataBlocksIn from. If const-qualified,
+/// \tparam T The node to call findDataBlocksOn from. If const-qualified,
 ///           the const functions on this type are used; else the non-const
 ///           functions are used.
 template <typename T>
@@ -469,7 +469,7 @@ using FindDataBlocksIn = FindNodesAt<
     std::conditional_t<std::is_const_v<T>,
                        typename T::const_data_block_subrange (T::*)(Addr) const,
                        typename T::data_block_subrange (T::*)(Addr)>,
-    &T::findDataBlocksIn>;
+    &T::findDataBlocksOn>;
 
 /// \class FindDataBlocksAt
 ///
@@ -540,9 +540,9 @@ using FindSymExprsBetween = FindNodesBetween<
 
 /// \class FindByteIntervalsIn
 ///
-/// \brief A function object for merging together calls to findByteIntervalsIn.
+/// \brief A function object for merging together calls to findByteIntervalsOn.
 ///
-/// \tparam T The node to call findByteIntervalsIn from. If const-qualified,
+/// \tparam T The node to call findByteIntervalsOn from. If const-qualified,
 ///           the const functions on this type are used; else the non-const
 ///           functions are used.
 template <typename T>
@@ -552,7 +552,7 @@ using FindByteIntervalsIn =
                     std::is_const_v<T>,
                     typename T::const_byte_interval_subrange (T::*)(Addr) const,
                     typename T::byte_interval_subrange (T::*)(Addr)>,
-                &T::findByteIntervalsIn>;
+                &T::findByteIntervalsOn>;
 
 /// \class FindByteIntervalsAt
 ///
@@ -589,9 +589,9 @@ using FindByteIntervalsBetween = FindNodesBetween<
 
 /// \class FindSectionsIn
 ///
-/// \brief A function object for merging together calls to findSectionsIn.
+/// \brief A function object for merging together calls to findSectionsOn.
 ///
-/// \tparam T The node to call findSectionsIn from. If const-qualified,
+/// \tparam T The node to call findSectionsOn from. If const-qualified,
 ///           the const functions on this type are used; else the non-const
 ///           functions are used.
 template <typename T>
@@ -600,7 +600,7 @@ using FindSectionsIn = FindNodesAt<
     std::conditional_t<std::is_const_v<T>,
                        typename T::const_section_subrange (T::*)(Addr) const,
                        typename T::section_subrange (T::*)(Addr)>,
-    &T::findSectionsIn>;
+    &T::findSectionsOn>;
 
 /// \class FindSectionsAt
 ///

@@ -121,7 +121,7 @@ The guaranteed functionality is provided as follows.
 
 | Language    | ...that intersect an address/range | ...that begin at an address/range
 |:------------|:---------------------------|:---------------------------|
-| C++         | gtirb::ByteInterval::findCodeBlocksIn() | gtirb::ByteInterval::findCodeBlocksAt() |
+| C++         | gtirb::ByteInterval::findCodeBlocksOn() | gtirb::ByteInterval::findCodeBlocksAt() |
 | Python      | gtirb.ByteInterval.code_blocks_in() | gtirb.ByteInterval.code_blocks_at() |
 | Common Lisp | **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **code-block** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **code-block** objects. [*] |
 
@@ -133,7 +133,7 @@ The guaranteed functionality is provided as follows.
 
 | Language    | ...that intersect an address/range | ...that begin at an address/range
 |:------------|:---------------------------|:---------------------------|
-| C++         | gtirb::ByteInterval::findDataBlocksIn() | gtirb::ByteInterval::findDataBlocksAt() |
+| C++         | gtirb::ByteInterval::findDataBlocksOn() | gtirb::ByteInterval::findDataBlocksAt() |
 | Python      | gtirb.ByteInterval.data_blocks_in() | gtirb.ByteInterval.data_blocks_at() |
 | Common Lisp |  **in-address** *object* *start-address* &optional *end-address* => *result*, then filter *result* to extract the **data-block** objects | **at-address** *object* *address* => *result*, then filter *result* to extract the **data-block** objects. [*] |
 

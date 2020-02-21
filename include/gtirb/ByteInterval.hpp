@@ -318,7 +318,7 @@ public:
   ///
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
-  block_subrange findBlocksIn(Addr A) {
+  block_subrange findBlocksOn(Addr A) {
     if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
       return boost::make_iterator_range(
           block_subrange::iterator(It->second.begin()),
@@ -334,7 +334,7 @@ public:
   ///
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
-  const_block_subrange findBlocksIn(Addr A) const {
+  const_block_subrange findBlocksOn(Addr A) const {
     if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
       return boost::make_iterator_range(
           const_block_subrange::iterator(It->second.begin()),
@@ -536,7 +536,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
-  code_block_subrange findCodeBlocksIn(Addr A) {
+  code_block_subrange findCodeBlocksOn(Addr A) {
     if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
       return boost::make_iterator_range(
           code_block_subrange::iterator(
@@ -557,7 +557,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
-  const_code_block_subrange findCodeBlocksIn(Addr A) const {
+  const_code_block_subrange findCodeBlocksOn(Addr A) const {
     if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
       return boost::make_iterator_range(
           const_code_block_subrange::iterator(
@@ -771,7 +771,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
-  data_block_subrange findDataBlocksIn(Addr A) {
+  data_block_subrange findDataBlocksOn(Addr A) {
     if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
       return boost::make_iterator_range(
           data_block_subrange::iterator(
@@ -792,7 +792,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
-  const_data_block_subrange findDataBlocksIn(Addr A) const {
+  const_data_block_subrange findDataBlocksOn(Addr A) const {
     if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
       return boost::make_iterator_range(
           const_data_block_subrange::iterator(

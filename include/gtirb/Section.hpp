@@ -209,7 +209,7 @@ public:
   ///
   /// \return A range of \ref ByteInterval objects that intersect the address \p
   /// A.
-  byte_interval_subrange findByteIntervalsIn(Addr A) {
+  byte_interval_subrange findByteIntervalsOn(Addr A) {
     if (auto It = ByteIntervalAddrs.find(A); It != ByteIntervalAddrs.end()) {
       return boost::make_iterator_range(
           boost::make_indirect_iterator(It->second.begin()),
@@ -225,7 +225,7 @@ public:
   ///
   /// \return A range of \ref ByteInterval objects that intersect the address \p
   /// A.
-  const_byte_interval_subrange findByteIntervalsIn(Addr A) const {
+  const_byte_interval_subrange findByteIntervalsOn(Addr A) const {
     if (auto It = ByteIntervalAddrs.find(A); It != ByteIntervalAddrs.end()) {
       return boost::make_iterator_range(
           boost::make_indirect_iterator(It->second.begin()),
@@ -458,7 +458,7 @@ public:
   ///
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
-  block_subrange findBlocksIn(Addr A) {
+  block_subrange findBlocksOn(Addr A) {
     return block_subrange(
         block_subrange::iterator(
             boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -475,7 +475,7 @@ public:
   ///
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
-  const_block_subrange findBlocksIn(Addr A) const {
+  const_block_subrange findBlocksOn(Addr A) const {
     return const_block_subrange(
         const_block_subrange::iterator(
             boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -642,7 +642,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref CodeNode object that intersect the address \p A.
-  code_block_subrange findCodeBlocksIn(Addr A) {
+  code_block_subrange findCodeBlocksOn(Addr A) {
     return code_block_subrange(
         code_block_subrange::iterator(
             boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -658,7 +658,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
-  const_code_block_subrange findCodeBlocksIn(Addr A) const {
+  const_code_block_subrange findCodeBlocksOn(Addr A) const {
     return const_code_block_subrange(
         const_code_block_subrange::iterator(
             boost::make_transform_iterator(
@@ -824,7 +824,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref DataNode object that intersect the address \p A.
-  data_block_subrange findDataBlocksIn(Addr A) {
+  data_block_subrange findDataBlocksOn(Addr A) {
     return data_block_subrange(
         data_block_subrange::iterator(
             boost::make_transform_iterator(this->byte_intervals_begin(),
@@ -840,7 +840,7 @@ public:
   /// \param A The address to look up.
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
-  const_data_block_subrange findDataBlocksIn(Addr A) const {
+  const_data_block_subrange findDataBlocksOn(Addr A) const {
     return const_data_block_subrange(
         const_data_block_subrange::iterator(
             boost::make_transform_iterator(
