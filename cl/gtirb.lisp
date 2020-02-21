@@ -21,7 +21,7 @@
            :get-uuid
            :remove-uuid
            :at-address
-           :in-address
+           :on-address
            :address-range
            :uuid
            :update-proto
@@ -219,7 +219,7 @@ as all GTIRB structures."
   (:documentation
    "Find all objects in OBJECT starting at ADDRESS."))
 
-(defgeneric in-address (object start-address &optional end-address)
+(defgeneric on-address (object start-address &optional end-address)
   (:documentation
    "Find all objects in OBJECT between START-ADDRESS and END-ADDRESS."))
 
@@ -316,12 +316,12 @@ Should not need to be manipulated by client code.")
                                "`at-address' failed on ~a without a ~a"
                                class parent))
               (at-address (,parent object) address))
-            (defmethod in-address ((object ,class) start &optional end)
+            (defmethod on-address ((object ,class) start &optional end)
               (assert (,parent object) (object)
                       ,(format nil
-                               "`in-address' failed on ~a without a ~a"
+                               "`on-address' failed on ~a without a ~a"
                                class parent))
-              (in-address (,parent object) start end))))
+              (on-address (,parent object) start end))))
       (defmethod address-range ((self ,class)) ,@address-range)
       (defmethod
           initialize-instance :after ((self ,class) &key)
@@ -495,7 +495,7 @@ the graph.")
 (defmethod at-address ((gtirb gtirb) address)
   (ranged-find-at (by-address gtirb) address))
 
-(defmethod in-address ((gtirb gtirb) start &optional end)
+(defmethod on-address ((gtirb gtirb) start &optional end)
   (ranged-find (by-address gtirb) start end))
 
 (define-constant +module-isa-map+
@@ -779,6 +779,8 @@ elements as proxy blocks do not hold bytes.")
               "Optionally specify the address in memory at which this
 ~ byte-interval should start.  Byte-intervals without address could
 exist anywhere in memory.")
+     ;; TODO: Truncate contents if size is set to less than contents size.
+     ;;       Also/instead should throw a warning.
      (size :type unsigned-byte-64 :documentation
            "The size of this byte-interval.
 It is possible for the size of a byte-interval to be larger than the
