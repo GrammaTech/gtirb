@@ -85,3 +85,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::IR::getCFG()                    | ???                                             |
 | Python      | read gtirb.IR.cfg                      | write gtirb.IR.cfg                              |
 | Common Lisp | **cfg** (*object* *gtirb*) => *result* | (setf (**cfg** (*object* *gtirb*)) *new-value*) |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

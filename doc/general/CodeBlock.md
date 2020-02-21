@@ -37,3 +37,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::CodeBlock::getDecodeMode() | gtirb::Section::setDecodeMode() |
 | Python      | read gtirb.CodeBlock.decode_mode | write gtirb.CodeBlock.decode_mode  |
 | Common Lisp | **decode-mode** (*obj* *code-block*) => *result* | (setf (**decode-mode** (*obj* *code-block*)) *new*) |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

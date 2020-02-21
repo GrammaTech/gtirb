@@ -77,3 +77,10 @@ The guaranteed functionality is provided as follows.
 | C++         | read/write gtirb::SymAddrAddr::Sym2  |
 | Python      | read/write gtirb.SymAddrAddr.symbol2 |
 | Common Lisp | ???                                  |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

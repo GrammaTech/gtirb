@@ -46,3 +46,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::ProxyBlock::getModule()                  |
 | Python      | gtirb.ProxyBlock.module                         |
 | Common Lisp | **module** (*object* *proxy-block*) => *result* |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

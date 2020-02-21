@@ -56,3 +56,10 @@ The guaranteed functionality is provided as follows.
 | C++         | read/write gtirb::SymStackConst::Sym  |
 | Python      | read/write gtirb.SymStackConst.symbol |
 | Common Lisp | ???                                   |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

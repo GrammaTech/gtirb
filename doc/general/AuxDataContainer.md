@@ -65,3 +65,12 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::AuxData::get()                    | gtirb::AuxData::typeName()               |
 | Python      | gtirb.AuxData.data                       | gtirb.AuxData.type_name                  |
 | Common Lisp | **aux-data-data** *aux-data* => *result* | **aux-data-type** *aux-data* => *result* |
+
+
+
+Links
+--------------------
+
+- [Standard AuxData Schemata](../../AuxData.md)
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

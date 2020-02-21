@@ -24,3 +24,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::DataBlock |
 | Python      | gtirb.DataBlock  |
 | Common Lisp | **data-block**   |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

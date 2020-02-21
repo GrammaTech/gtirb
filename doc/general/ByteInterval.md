@@ -234,3 +234,11 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::ByteInterval::getSection()                  |
 | Python      | gtirb.ByteInterval.section                         |
 | Common Lisp | **section** (*object* *byte-interval*) => *result* |
+
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

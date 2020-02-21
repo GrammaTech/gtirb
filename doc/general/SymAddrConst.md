@@ -55,3 +55,10 @@ The guaranteed functionality is provided as follows.
 | C++         | read/write gtirb::SymAddrConst::Sym  |
 | Python      | read/write gtirb.SymAddrConst.symbol |
 | Common Lisp | ???                                   |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

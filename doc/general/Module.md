@@ -183,3 +183,10 @@ The guaranteed functionality is provided as follows.
 
 [*] Address range checking is not yet implemented for Common Lisp
 **at-address**
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

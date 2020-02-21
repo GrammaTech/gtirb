@@ -79,3 +79,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::DataBlock::getAddress(), gtirb::DataBlock::getAddress() |
 | Python      | gtirb.ByteBlock.address          |
 | Common Lisp | **address** *obj* => *result*    |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

@@ -19,3 +19,10 @@ The required functionality is provided as follows.
 | C++         | macro GTIRB_VERSION_STRING  | macro GTIRB_PROTOBUF_VERSION   |
 | Python      | gtirb.version.API_VERSION   | gtirb.version.PROTOBUF_VERSION |
 | Common Lisp | constant **gtirb-version**  | constant **protobuf-version**  |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

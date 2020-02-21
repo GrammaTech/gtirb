@@ -73,3 +73,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::Symbol::getModule()                 |
 | Python      | gtirb.Symbol.module                        |
 | Common Lisp | **module** (*object* *symbol*) => *result* |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

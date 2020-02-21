@@ -104,3 +104,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::Section::getModule()                 |
 | Python      | gtirb.Section.module                        |
 | Common Lisp | **module** (*object* *section*) => *result* |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

@@ -22,3 +22,10 @@ The guaranteed functionality is provided as follows.
 | C++         | no explicit **Block** class; see individual classes gtirb::CodeBlock ([CodeBlock](CodeBlock.md)), gtirb::DataBlock ([DataBlock](DataBlock.md)),  gtirb::CfgNode ([CfgNode](CfgNode.md)) |
 | Python      | gtirb.Block     |
 | Common Lisp | **gtirb-block** |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

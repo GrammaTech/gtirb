@@ -27,3 +27,10 @@ The guaranteed functionality is provided as follows.
 | C++         | gtirb::Node | gtirb::Node::getUUID()        | gtirb::Node::getByUUID()                 |
 | Python      | gtirb.Node  | gtirb.Node.uuid               | gtirb.Node.from_uuid()                   |
 | Common Lisp | -           | **uuid** *object* => *result* | **get-uuid** *uuid* *object* => *result* |
+
+
+Links
+--------------------
+
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

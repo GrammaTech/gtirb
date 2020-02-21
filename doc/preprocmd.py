@@ -118,7 +118,7 @@ substitutions = []
 # and gtirb/*.md
 
 if indir == "general":
-    substitutions += [(r"(?<=\()\.\.\/(?:\.\.\/)?(\w+\.md)(?=\))", r"\1")]
+    substitutions += [(r"(?<=\()\.\.\/(?:\.\.\/)?([\w-]+\.md)(?=\))", r"\1")]
 
 
 pytoken_re = r"(?P<pytoken>gtirb(\.[a-zA-Z]\w*)+)(?P<parens>\([^]\n]*?\))?"

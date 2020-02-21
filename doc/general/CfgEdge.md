@@ -22,3 +22,12 @@ API Implementations
 | C++         | no explicit type: add edges with gtirb::addEdge() |
 | Python      | gtirb.Edge                                        |
 | Common Lisp | see [http://eschulte.github.io/graph/](http://eschulte.github.io/graph/). Edges in the CFG are labeled with **edge-label** objects. |
+
+
+
+Links
+--------------------
+
+- [Advice on when to Place ICFG Edges](../CFG-Edges.md)
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)

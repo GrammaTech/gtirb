@@ -63,3 +63,12 @@ API Implementations
 | C++         |  read std::get<EdgeType>(E) for gtirb::EdgeLabel E | read std::get<EdgeType>(E) for gtirb::EdgeLabel E |
 | Python      | read gtirb.CFG.label.type | write gtirb.CFG.label.type |
 | Common Lisp | **edge-type** (*obj* *edge-label*) => *result* | (setf (**edge-type** (*obj* *edge-label*)) *new*) |
+
+
+
+Links
+--------------------
+
+- [Advice on when to Place ICFG Edges](../CFG-Edges.md)
+- [GTIRB Components](COMPONENTS.md)
+- [Using Serialized GTIRB Data](../../PROTOBUF.md)
