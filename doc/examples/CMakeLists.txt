@@ -24,6 +24,14 @@ if(CAPSTONE)
   target_link_libraries(ex-jumps gtirb ${CAPSTONE})
 endif()
 
+macro(move_filename file_list newdir)
+  foreach(src_file ${${file_list}})
+    get_filename_component(src_file_name "${src_file}" NAME)
+    list(REMOVE_ITEM ${file_list} "${src_file}")
+    list(APPEND ${file_list} "${newdir}/${src_file_name}")
+  endforeach()
+endmacro()
+
 set(EXAMPLE_FILES_IN
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.py"
