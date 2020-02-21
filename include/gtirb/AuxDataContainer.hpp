@@ -144,9 +144,38 @@ public:
   ///
   bool removeAuxData(const std::string& X);
 
+  /// \brief An iterator over the set of AuxData in an
+  /// AuxDataContainer.
+  ///
+  /// Values are of type std::pair<std::string, gtirb::AuxData>&,
+  /// representing a name-AuxData pair.
+  ///
+  /// \sa aux_data()
   using aux_data_iterator = AuxDataSet::iterator;
+
+  /// \brief A range over the set of AuxData in an AuxDataContainer.
+  ///
+  /// Values are of type std::pair<std::string, gtirb::AuxData>&,
+  /// representing a name-AuxData pair.
+  ///
+  /// \sa aux_data()  
   using aux_data_range = boost::iterator_range<aux_data_iterator>;
+
+  /// \brief A const iterator over the set of AuxData in an
+  /// AuxDataContainer.
+  ///
+  /// Values are of type const std::pair<std::string, gtirb::AuxData>&,
+  /// representing a name-AuxData pair.
+  ///
+  /// \sa aux_data_begin() const, aux_data_end() const
   using const_aux_data_iterator = AuxDataSet::const_iterator;
+
+  /// \brief A const range over the set of AuxData in an AuxDataContainer.
+  ///
+  /// Values are of type const std::pair<std::string, gtirb::AuxData>&,
+  /// representing a name-AuxData pair.
+  ///
+  /// \sa aux_data() const
   using const_aux_data_range = boost::iterator_range<const_aux_data_iterator>;
 
   /// \brief Return an iterator to the first AuxData.
