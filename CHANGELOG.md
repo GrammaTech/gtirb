@@ -1,5 +1,9 @@
 # Unreleased
 
+No changes yet.
+
+# 0.3.0
+
 * You can now enable and disable the building of certain APIs when calling CMake,
   via the following flags:
   * `GTIRB_CXX_API` to control the building of the C++ API, on by default
