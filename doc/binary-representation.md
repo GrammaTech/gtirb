@@ -111,8 +111,8 @@ size of the data block.
 
 There are currently three kinds of symbolic expressions:
 
-| Kind            | Description                                                               |
-|-----------------|---------------------------------------------------------------------------|
-| *SymStackConst* | TODO                                                                      |
+| Kind            | Description       |
+|-----------------|-------------------|
+| *SymStackConst* | the address of a stack variable, plus or minus a fixed offset |
 | *SymAddrConst*  | the address of the referent of a symbol, plus or minus a fixed offset     |
 | *SymAddrAddr*   | the difference between two symbols, divided by a scale and plus an offset |
