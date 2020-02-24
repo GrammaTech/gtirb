@@ -6,6 +6,7 @@
     <tab type="pages" visible="no"/>
     <tab type="usergroup" visible="yes" title="More Information" url="">
       <tab type="user" visible="yes" title="Frequently Asked Questions" url="@ref md_FAQ"/>
+      <tab type="user" visible="yes" title="Binary Representation with GTIRB" url="@ref md_binary-representation"/>
       <tab type="user" visible="yes" title="Using Serialized GTIRB Data" url="@ref md_PROTOBUF"/>
       <tab type="user" visible="yes" title="Advice on when to Place ICFG Edges" url="@ref md_CFG-Edges"/>
       <tab type="user" visible="yes" title="Standard AuxData Schemata" url="@ref md_AuxData"/>
