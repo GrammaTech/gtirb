@@ -166,7 +166,6 @@ struct is_endian_type
     : std::integral_constant<bool, std::is_class_v<T> ||
                                        (std::is_integral_v<T> &&
                                         !std::is_same_v<T, bool>)> {};
-/// @endcond
 
 template <typename T, typename Enable = void> struct default_serialization {};
 

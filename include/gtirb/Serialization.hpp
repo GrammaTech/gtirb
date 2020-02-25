@@ -169,6 +169,7 @@ inline void fromProtobuf(Context& C, Offset& Result,
   Result.fromProtobuf(C, Message);
 }
 
+/// @cond INTERNAL
 namespace details {
 template <typename T> struct remove_pointer_ref_quals {
   using type =
@@ -177,6 +178,7 @@ template <typename T> struct remove_pointer_ref_quals {
 template <typename T>
 using remove_pointer_ref_quals_t = typename remove_pointer_ref_quals<T>::type;
 } // namespace details
+/// @endcond
 
 // Overrides for various other types.
 template <typename T, typename U, typename V, typename W>
