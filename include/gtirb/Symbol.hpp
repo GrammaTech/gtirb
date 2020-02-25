@@ -299,6 +299,10 @@ public:
   }
 
   /// \brief Set the referent of a symbol.
+  ///
+  /// If the referent of a symbol is set to null, then the value of the
+  /// symbol's payload will be cleared (that is, \ref hasReference will return
+  /// false).
   template <typename NodeTy>
   std::enable_if_t<is_supported_type<NodeTy>()> setReferent(NodeTy* N) {
     this->mutateIndices([this, N]() {

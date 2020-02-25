@@ -40,24 +40,33 @@ TEST(Unit_Symbol, setReferent) {
   // Symbol should have no referent yet.
   EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
   EXPECT_FALSE(Sym->getAddress());
+  EXPECT_FALSE(Sym->hasReferent());
 
   Sym->setReferent(Data);
   EXPECT_EQ(Sym->getReferent<CodeBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<DataBlock>(), Data);
   EXPECT_EQ(Sym->getReferent<ProxyBlock>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(0));
+  EXPECT_TRUE(Sym->hasReferent());
 
   Sym->setReferent(B);
   EXPECT_EQ(Sym->getReferent<CodeBlock>(), B);
   EXPECT_EQ(Sym->getReferent<DataBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<ProxyBlock>(), nullptr);
   EXPECT_EQ(Sym->getAddress(), Addr(1));
+  EXPECT_TRUE(Sym->hasReferent());
 
   Sym->setReferent(Proxy);
   EXPECT_EQ(Sym->getReferent<CodeBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<DataBlock>(), nullptr);
   EXPECT_EQ(Sym->getReferent<ProxyBlock>(), Proxy);
   EXPECT_FALSE(Sym->getAddress());
+  EXPECT_TRUE(Sym->hasReferent());
+
+  Sym->setReferent<DataBlock>(nullptr);
+  EXPECT_EQ(Sym->getReferent<Node>(), nullptr);
+  EXPECT_FALSE(Sym->getAddress());
+  EXPECT_FALSE(Sym->hasReferent());
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
