@@ -131,9 +131,8 @@ To build and install GTIRB, the following requirements should be installed:
 
 GTIRB is designed to be serialized using [Google's protocol
 buffers](https://developers.google.com/protocol-buffers/) (i.e.,
-[protobuf](https://github.com/google/protobuf/wiki)), enabling [easy
-and efficient use from any programming
-language](#using-serialized-gtirb-data).
+[protobuf](https://github.com/google/protobuf/wiki)), enabling
+[easy and efficient use from any programming language](#using-serialized-gtirb-data).
 
 GTIRB may also be used through a dedicated API implemented in multiple
 languages. The APIs provide efficient data structures suitable for use
