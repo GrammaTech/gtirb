@@ -301,7 +301,13 @@ public:
   /// \brief Set the referent of a symbol.
   template <typename NodeTy>
   std::enable_if_t<is_supported_type<NodeTy>()> setReferent(NodeTy* N) {
-    this->mutateIndices([this, N]() { Payload = N; });
+    this->mutateIndices([this, N]() {
+      if (N) {
+        Payload = N;
+      } else {
+        Payload = std::monostate{};
+      }
+    });
   }
 
   /// \brief Set the address of a symbol.
@@ -340,7 +346,11 @@ private:
       : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N) {}
   template <typename NodeTy>
   Symbol(Context& C, Module* P, NodeTy* R, const std::string& N)
-      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N) {}
+      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N) {
+    if (!R) {
+      Payload = std::monostate{};
+    }
+  }
 
   void setModule(Module* M) { Parent = M; }
 

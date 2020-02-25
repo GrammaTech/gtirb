@@ -73,12 +73,17 @@ Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
   Symbol* S = Symbol::Create(C, Parent, Message.name());
 
   switch (Message.optional_payload_case()) {
-  case proto::Symbol::kValue:
+  case proto::Symbol::kValue: {
     S->Payload = Addr{Message.value()};
-    break;
-  case proto::Symbol::kReferentUuid:
-    S->Payload = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
-    break;
+  } break;
+  case proto::Symbol::kReferentUuid: {
+    auto* N = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
+    if (N) {
+      S->Payload = N;
+    } else {
+      S->Payload = std::monostate{};
+    }
+  } break;
   default:
       /* nothing to do */;
   }
