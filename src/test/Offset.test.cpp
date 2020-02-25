@@ -13,13 +13,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include <gtirb/Offset.hpp>
+#include <boost/uuid/random_generator.hpp>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
 
 TEST(Unit_Offset, ordering) {
-  UUID uuid1;
-  UUID uuid2;
+  UUID uuid1{boost::uuids::random_generator()()};
+  UUID uuid2{boost::uuids::random_generator()()};
   uint64_t disp1(5);
   uint64_t disp2(10);
   Offset offset1(uuid1, disp1);
@@ -43,7 +44,7 @@ TEST(Unit_Offset, ordering) {
 }
 
 TEST(Unit_Offset, hash) {
-  UUID uuid1;
+  UUID uuid1{boost::uuids::random_generator()()};
   uint64_t disp1(5);
   uint64_t disp2(10);
   Offset offset1(uuid1, disp1);
