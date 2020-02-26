@@ -160,7 +160,6 @@ template <class T, class Enable = void> struct auxdata_traits {
 /// @cond INTERNAL
 template <class... Ts> struct TypeId {};
 
-/// @cond INTERNAL
 template <class T>
 struct is_endian_type
     : std::integral_constant<bool, std::is_class_v<T> ||
