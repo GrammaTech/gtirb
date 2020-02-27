@@ -55,10 +55,14 @@ set(GTIRB_API_JAVAS
     ByteInterval
     CodeBlock
     DataBlock
+    Directive
+    DynamicSymbol
+    Edge
+    ElfRelocation
     IR
-    # Kind
     Module
     Node
+    Offset
     ProxyBlock
     Section
     Serialization

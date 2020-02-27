@@ -1,3 +1,17 @@
+/*
+ *  Copyright (C) 2020 GrammaTech, Inc.
+ *
+ *  This code is licensed under the MIT license. See the LICENSE file in the
+ *  project root for license terms.
+ *
+ *  This project is sponsored by the Office of Naval Research, One Liberty
+ *  Center, 875 N. Randolph Street, Arlington, VA 22203 under contract #
+ *  N68335-17-C-0700.  The content of the information does not necessarily
+ *  reflect the position or policy of the Government and no official
+ *  endorsement should be inferred.
+ *
+ */
+
 package com.grammatech.gtirb;
 
 import java.util.ArrayList;
@@ -7,7 +21,7 @@ import java.util.UUID;
 public class Section extends Node {
     enum SectionFlag {
         Undefined(com.grammatech.gtirb.proto.SectionOuterClass.SectionFlag
-                      .Undefined_VALUE),
+                      .Section_Undefined_VALUE),
         Readable(com.grammatech.gtirb.proto.SectionOuterClass.SectionFlag
                      .Readable_VALUE),
         Writable(com.grammatech.gtirb.proto.SectionOuterClass.SectionFlag
@@ -25,16 +39,17 @@ public class Section extends Node {
 
         private SectionFlag(int value) { this.value = value; }
     }
-    ;
 
     private String name;
     private List<ByteInterval> byteIntervals;
     private List<SectionFlag> sectionFlags;
+    private long elfSectionFlags;
+    private long elfSectionType;
 
     public Section(
         com.grammatech.gtirb.proto.SectionOuterClass.Section protoSection) {
-        UUID uuid = Util.byteStringToUuid(protoSection.getUuid());
-        super.setUuid(uuid);
+        UUID myUuid = Util.byteStringToUuid(protoSection.getUuid());
+        super.setUuid(myUuid);
         this.name = protoSection.getName();
 
         this.byteIntervals = new ArrayList<ByteInterval>();
@@ -55,6 +70,10 @@ public class Section extends Node {
                 SectionFlag.values()[protoSectionFlag.getNumber()];
             this.sectionFlags.add(newSectionFlag);
         }
+        // If this is an ELF file, section type and flags may be coming from the
+        // AuxData elfSectionProperties, use these if that is the case
+        this.elfSectionType = 0;
+        this.elfSectionFlags = 0;
     }
 
     public String getName() { return name; }
@@ -62,4 +81,16 @@ public class Section extends Node {
     public List<ByteInterval> getByteIntervals() { return byteIntervals; }
 
     public List<SectionFlag> getSectionFlags() { return sectionFlags; }
+
+    public void setElfSectionType(long sectionType) {
+        this.elfSectionType = sectionType;
+    }
+
+    public long getElfSectionType() { return this.elfSectionType; }
+
+    public void setElfSectionFlags(long sectionFlags) {
+        this.elfSectionFlags = sectionFlags;
+    }
+
+    public long getElfSectionFlags() { return this.elfSectionFlags; }
 }

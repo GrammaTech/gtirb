@@ -14,10 +14,19 @@
 
 package com.grammatech.gtirb;
 
-public class ProxyBlock extends Node {
+import java.util.UUID;
 
-    public ProxyBlock(com.grammatech.gtirb.proto.ProxyBlockOuterClass
-                          .ProxyBlock protoProxyBlock) {
-        super.setUuid(Util.byteStringToUuid(protoProxyBlock.getUuid()));
+public class Offset {
+
+    private UUID elementId;
+    private long displacement;
+
+    public Offset(UUID elementId, long displacement) {
+        this.elementId = elementId;
+        this.displacement = displacement;
     }
+
+    public UUID getElementId() { return this.elementId; }
+
+    public long getDisplacement() { return this.displacement; }
 }

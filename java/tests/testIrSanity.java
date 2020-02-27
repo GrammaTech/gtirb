@@ -34,7 +34,7 @@ public class testIrSanity {
             }
             inputStream.close();
         } catch (Exception e) {
-            System.out.println("Unable to parse " + fileName + ".");
+            System.out.println("Unable to parse " + fileName + "." + e);
             System.err.println("test failed.");
             return;
         }

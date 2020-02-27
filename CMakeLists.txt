@@ -318,7 +318,7 @@ if(GTIRB_CL_API)
   add_subdirectory(cl)
 endif()
 
-add_subdirectory(doc)
+# add_subdirectory(doc)
 
 if(GTIRB_JAVA_API)
   add_subdirectory(java)

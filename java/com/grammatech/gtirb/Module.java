@@ -1,8 +1,21 @@
+/*
+ *  Copyright (C) 2020 GrammaTech, Inc.
+ *
+ *  This code is licensed under the MIT license. See the LICENSE file in the
+ *  project root for license terms.
+ *
+ *  This project is sponsored by the Office of Naval Research, One Liberty
+ *  Center, 875 N. Randolph Street, Arlington, VA 22203 under contract #
+ *  N68335-17-C-0700.  The content of the information does not necessarily
+ *  reflect the position or policy of the Government and no official
+ *  endorsement should be inferred.
+ *
+ */
+
 package com.grammatech.gtirb;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class Module extends Node {
@@ -27,7 +40,6 @@ public class Module extends Node {
 
         private FileFormat(int value) { this.value = value; }
     }
-    ;
 
     public enum ISA {
         ISA_Undefined(com.grammatech.gtirb.proto.ModuleOuterClass.ISA
@@ -43,7 +55,6 @@ public class Module extends Node {
 
         private ISA(int value) { this.value = value; }
     }
-    ;
 
     private com.grammatech.gtirb.proto.ModuleOuterClass.Module protoModule;
 
@@ -63,8 +74,8 @@ public class Module extends Node {
         com.grammatech.gtirb.proto.ModuleOuterClass.Module protoModule) {
         this.protoModule = protoModule;
 
-        UUID uuid = Util.byteStringToUuid(protoModule.getUuid());
-        super.setUuid(uuid);
+        UUID myUuid = Util.byteStringToUuid(protoModule.getUuid());
+        super.setUuid(myUuid);
         this.binaryPath = protoModule.getBinaryPath();
         this.preferredAddr = protoModule.getPreferredAddr();
         this.rebaseDelta = protoModule.getRebaseDelta();
@@ -121,25 +132,7 @@ public class Module extends Node {
     }
 
     public boolean initializeAuxData() {
-        this.auxData = new AuxData();
-
-        Map<String, com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData>
-            auxDataMap = this.protoModule.getAuxDataMap();
-        if (auxDataMap == null) {
-            return false;
-        }
-        com.grammatech.gtirb.proto.AuxDataOuterClass
-            .AuxData protoFunctionEntries = auxDataMap.get("functionEntries");
-        if (protoFunctionEntries != null) {
-            auxData.initializeFunctionEntries(protoFunctionEntries);
-        }
-
-        com.grammatech.gtirb.proto.AuxDataOuterClass
-            .AuxData protoFunctionBlocks = auxDataMap.get("functionBlocks");
-        if (protoFunctionBlocks != null) {
-            auxData.initializeFunctionBlocks(protoFunctionBlocks);
-        }
-
+        this.auxData = new AuxData(this.protoModule.getAuxDataMap());
         return true;
     }
 
@@ -159,7 +152,12 @@ public class Module extends Node {
         Node cb = Node.getByUuid(this.entryPointUuid);
         if ((cb != null) && (cb instanceof CodeBlock))
             return (CodeBlock)cb;
-        else
-            return null;
+        return null;
     }
+
+    public String getBinaryPath() { return binaryPath; }
+
+    public long getPreferredAddr() { return preferredAddr; }
+
+    public long getRebaseDelta() { return rebaseDelta; }
 }
