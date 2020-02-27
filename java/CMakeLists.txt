@@ -18,7 +18,7 @@ include(UseJava)
 # ---------------------------------------------------------------------------
 
 file(
-  DOWNLOAD 
+  DOWNLOAD
   https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.0.0/protobuf-java-3.0.0.jar
   ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-3.0.0.jar
 )
@@ -27,20 +27,16 @@ file(
 # Building the gtirb protobuf files into java
 # ---------------------------------------------------------------------------
 
-file(
-  GLOB
-  GTIRB_PROTO_FILES
-  ${PROJECT_SOURCE_DIR}/proto/*.proto
-)
+file(GLOB GTIRB_PROTO_FILES ${PROJECT_SOURCE_DIR}/proto/*.proto)
 
 foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
   get_filename_component(GTIRB_PROTO_BASENAME ${GTIRB_PROTO_FILE} NAME_WE)
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_SOURCE_DIR}/com/grammatech/gtirb/proto/${GTIRB_PROTO_BASENAME}OuterClass.java
-    COMMAND
-      ${Protobuf_PROTOC_EXECUTABLE} --java_out=${CMAKE_CURRENT_SOURCE_DIR}
-      --proto_path=${PROJECT_SOURCE_DIR}/proto ${GTIRB_PROTO_FILE}
+    COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+            --java_out=${CMAKE_CURRENT_SOURCE_DIR}
+            --proto_path=${PROJECT_SOURCE_DIR}/proto ${GTIRB_PROTO_FILE}
   )
   list(
     APPEND
@@ -81,8 +77,8 @@ endforeach()
 set(GTIRB_API_JARFILE
     gtirb_api-${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}
 )
-add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES} ${GTIRB_PROTOBUF_JAVA}
-        INCLUDE_JARS
+add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
+        ${GTIRB_PROTOBUF_JAVA} INCLUDE_JARS
         ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-3.0.0.jar
 )
 
@@ -92,9 +88,7 @@ add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES} ${GTIRB_PROTOBUF_JAVA}
 
 if(GTIRB_ENABLE_TESTS)
 
-  set(JAR_FILE_LIST
-      ${GTIRB_API_JARFILE}.jar:protobuf-java-3.0.0.jar
-  )
+  set(JAR_FILE_LIST ${GTIRB_API_JARFILE}.jar:protobuf-java-3.0.0.jar)
 
   add_custom_command(
     TARGET ${GTIRB_API_JARFILE}
