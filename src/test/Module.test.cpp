@@ -847,3 +847,29 @@ TEST(Unit_Module, mutateBlocksWithSymbols) {
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
   EXPECT_EQ(&Range.front(), SymC);
 }
+
+TEST(Unit_Module, addBlocksWithSymbols) {
+  auto* M = Module::Create(Ctx);
+  auto* S = M->addSection(Ctx, "test");
+  auto* BI1 = S->addByteInterval(Ctx, Addr(0), 10);
+  auto* BI2 = S->addByteInterval(Ctx, Addr(10), 10);
+  auto* B = BI1->addBlock<CodeBlock>(Ctx, 1, 2);
+  auto* Sym = M->addSymbol(Ctx, B, "code");
+  Module::symbol_addr_range Range;
+
+  Range = M->findSymbols(Addr(1));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), Sym);
+
+  Range = M->findSymbols(Addr(11));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+
+  BI2->addBlock(1, B);
+
+  Range = M->findSymbols(Addr(1));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+
+  Range = M->findSymbols(Addr(11));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), Sym);
+}
