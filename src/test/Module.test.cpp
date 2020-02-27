@@ -811,3 +811,39 @@ TEST(Unit_Module, removeNodes) {
   EXPECT_EQ(std::distance(M->proxy_blocks_begin(), M->proxy_blocks_end()), 0);
   EXPECT_EQ(std::distance(M->symbols_begin(), M->symbols_end()), 0);
 }
+
+TEST(Unit_Module, mutateBlocksWithSymbols) {
+  auto* M = Module::Create(Ctx);
+  auto* S = M->addSection(Ctx, "test");
+  auto* BIC = S->addByteInterval(Ctx, Addr(0), 10);
+  auto* BID = S->addByteInterval(Ctx, Addr(10), 10);
+  auto* CB = BIC->addBlock<CodeBlock>(Ctx, 1, 2);
+  auto* DB = BID->addBlock<DataBlock>(Ctx, 3, 4);
+  auto* SymC = M->addSymbol(Ctx, CB, "code");
+  auto* SymD = M->addSymbol(Ctx, DB, "data");
+  Module::symbol_addr_range Range;
+
+  Range = M->findSymbols(Addr(1));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), SymC);
+
+  Range = M->findSymbols(Addr(13));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), SymD);
+
+  Range = M->findSymbols(Addr(21));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+
+  BIC->setAddress(Addr(20));
+
+  Range = M->findSymbols(Addr(1));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+
+  Range = M->findSymbols(Addr(13));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), SymD);
+
+  Range = M->findSymbols(Addr(21));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), SymC);
+}

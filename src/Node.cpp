@@ -150,6 +150,24 @@ void Node::mutateIndices(const std::function<void()>& F) {
       modifyIndex(S->ByteIntervals.get<Section::by_pointer>(), BI, F);
     });
     addToICL(S->ByteIntervalAddrs, BI);
+
+    // Symbols may need thier address index updated if they refer to a block
+    // inside this BI.
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+
+    std::vector<Symbol*> Syms;
+    for (auto& BlockInBI : BI->blocks()) {
+      for (auto& Sym : M->findSymbols(BlockInBI)) {
+        Syms.push_back(&Sym);
+      }
+    }
+
+    for (auto* Sym : Syms) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), Sym, []() {});
+    }
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
