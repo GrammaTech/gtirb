@@ -47,7 +47,7 @@ The following are the sanctioned AuxData table schemata.
 |-------------------------------------------|----------------------------------------------------|
 | [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
-| [`"functionName"`](#functionname)         | ```std::map<gtirb::UUID, gtirb::Symbol>``` |
+| [`"functionName"`](#functionname)         | ```std::map<gtirb::UUID, gtirb::UUID>```           |
 | [`"types"`](#types)                       | ```std::map<gtirb::UUID, std::string>```           |
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```              |
 | [`"comments"`](#comments)                 | ```std::map<gtirb::Offset, std::string>```         |
@@ -77,12 +77,12 @@ The following are the sanctioned AuxData table schemata.
 
 ### functionName
 
-| <!-- --> | <!-- -->                                                       |
-|----------|----------------------------------------------------------------|
-| Label    | ```"functionName"```                                           |
-| Type     | ```std::map<gtirb::UUID, gtirb::Symbol>```                     |
-| Key      | Function UUID.                                                 |
-| Value    | A Symbol whose `name` field contains the name of the function. |
+| <!-- --> | <!-- -->                                                            |
+|----------|---------------------------------------------------------------------|
+| Label    | ```"functionName"```                                                |
+| Type     | ```std::map<gtirb::UUID, gtirb::UUID>```                            |
+| Key      | Function UUID.                                                      |
+| Value    | A Symbol UUID whose `name` field contains the name of the function. |
 
 
 ### types
