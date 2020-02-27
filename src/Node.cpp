@@ -151,7 +151,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
     });
     addToICL(S->ByteIntervalAddrs, BI);
 
-    // Symbols may need thier address index updated if they refer to a block
+    // Symbols may need their address index updated if they refer to a block
     // inside this BI.
     auto* M = S->getModule();
     if (!M) {
