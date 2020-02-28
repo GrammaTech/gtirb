@@ -1,3 +1,10 @@
+# Unreleased
+
+* Added a new API for accessing GTIRB, written in Java. This API is not yet
+  released, and as such, has missing features, is not yet documented, and may
+  change at any time. For more information, look at the contents of the `java`
+  directory.
+
 # 1.0.0
 
 This is a major backwards-incompatible release.  The protobuf
