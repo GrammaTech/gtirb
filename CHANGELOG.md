@@ -1,4 +1,4 @@
-# Unreleased
+# 1.1.0
 
 * Added a new API for accessing GTIRB, written in Java. This API is not yet
   released, and as such, has missing features, is not yet documented, and may
