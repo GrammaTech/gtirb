@@ -16,6 +16,8 @@
     <tab type="usergroup" visible="yes" title="GTIRB Tools">
       <tab type="user" visible="yes" title="Disassembler (ddisasm)" url="https://github.com/GrammaTech/ddisasm">
       </tab>
+      <tab type="user" visible="yes" title="Ghidra Plugin (gtirb-ghidra-plugin)" url="https://github.com/GrammaTech/gtirb-ghidra-plugin">
+      </tab>
       <tab type="user" visible="yes" title="Pretty Printer (gtirb-pprinter)" url="https://github.com/GrammaTech/gtirb-pprinter">
       </tab>
     </tab>
