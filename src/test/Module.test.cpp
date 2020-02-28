@@ -853,23 +853,35 @@ TEST(Unit_Module, addBlocksWithSymbols) {
   auto* S = M->addSection(Ctx, "test");
   auto* BI1 = S->addByteInterval(Ctx, Addr(0), 10);
   auto* BI2 = S->addByteInterval(Ctx, Addr(10), 10);
-  auto* B = BI1->addBlock<CodeBlock>(Ctx, 1, 2);
-  auto* Sym = M->addSymbol(Ctx, B, "code");
+  auto* BI3 = S->addByteInterval(Ctx, Addr(20), 10);
+  auto* BC = BI1->addBlock<CodeBlock>(Ctx, 1, 2);
+  auto* BD = BI2->addBlock<DataBlock>(Ctx, 1, 2);
+  auto* SymC = M->addSymbol(Ctx, BC, "code");
+  auto* SymD = M->addSymbol(Ctx, BD, "data");
+
   Module::symbol_addr_range Range;
 
   Range = M->findSymbols(Addr(1));
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
-  EXPECT_EQ(&Range.front(), Sym);
+  EXPECT_EQ(&Range.front(), SymC);
 
   Range = M->findSymbols(Addr(11));
-  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), SymD);
 
-  BI2->addBlock(1, B);
+  Range = M->findSymbols(Addr(21));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+
+  BI3->addBlock(1, BC);
 
   Range = M->findSymbols(Addr(1));
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
 
   Range = M->findSymbols(Addr(11));
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
-  EXPECT_EQ(&Range.front(), Sym);
+  EXPECT_EQ(&Range.front(), SymD);
+
+  Range = M->findSymbols(Addr(21));
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&Range.front(), SymC);
 }
