@@ -870,7 +870,7 @@ TEST(Unit_Module, addBlocksWithSymbols) {
   EXPECT_EQ(&Range.front(), SymD);
 
   Range = M->findSymbols(Addr(21));
-  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
 
   BI3->addBlock(1, BC);
 

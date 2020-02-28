@@ -81,9 +81,41 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
   return removeFromICL(IntMap, N, N->getAddress(), N->getSize());
 }
 
+template <typename IndexType>
+static void updateSymbolIndex(ByteInterval* BI, IndexType& Index) {
+  if (!BI) {
+    return;
+  }
+
+  auto* S = BI->getSection();
+  if (!S) {
+    return;
+  }
+
+  auto* M = S->getModule();
+  if (!M) {
+    return;
+  }
+
+  std::vector<Symbol*> Syms;
+  for (auto& BlockInBI : BI->blocks()) {
+    for (auto& Sym : M->findSymbols(BlockInBI)) {
+      Syms.push_back(&Sym);
+    }
+  }
+
+  for (auto* Sym : Syms) {
+    modifyIndex(Index, Sym, []() {});
+  }
+}
+
 // FIXME: For the internals of these index functions, it'd be nice to have
 // some sort of virtual dispatch nstead of one big switch. But how to do that
 // without (a) adding in RTTI or (b) making everything friends of each other...
+
+// FIXME: It would also be nice to be more discerning about what indices to
+// update, so we invalidate only the minimum of iterators. Right now, modifying
+// many properties invalidates more iterators that it strictly needs to.
 
 void Node::addToIndices() {
   switch (getKind()) {
@@ -94,35 +126,65 @@ void Node::addToIndices() {
       return;
     }
     addToICL(S->ByteIntervalAddrs, BI);
-  } break;
-  case Node::Kind::CodeBlock: {
-    auto* B = cast<CodeBlock>(this);
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      return;
-    }
-    addToICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
-             B->getSize());
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
+
+    // Symbols may need their address index updated if they refer to a block
+    // inside this BI.
     auto* M = S->getModule();
     if (!M) {
       return;
     }
+
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+  } break;
+  case Node::Kind::CodeBlock: {
+    auto* B = cast<CodeBlock>(this);
+
+    auto* BI = B->getByteInterval();
+    if (!BI) {
+      return;
+    }
+
+    addToICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
+             B->getSize());
+
+    auto* S = BI->getSection();
+    if (!S) {
+      return;
+    }
+
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+
     if (IR* P = M->getIR()) {
       addVertex(B, P->getCFG());
     }
   } break;
   case Node::Kind::DataBlock: {
     auto* B = cast<DataBlock>(this);
+
     auto* BI = B->getByteInterval();
     if (!BI) {
       return;
     }
+
     addToICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
              B->getSize());
+
+    auto* S = BI->getSection();
+    if (!S) {
+      return;
+    }
+
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
@@ -158,16 +220,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
       return;
     }
 
-    std::vector<Symbol*> Syms;
-    for (auto& BlockInBI : BI->blocks()) {
-      for (auto& Sym : M->findSymbols(BlockInBI)) {
-        Syms.push_back(&Sym);
-      }
-    }
-
-    for (auto* Sym : Syms) {
-      modifyIndex(M->Symbols.get<Module::by_pointer>(), Sym, []() {});
-    }
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
@@ -243,33 +296,65 @@ void Node::removeFromIndices() {
       return;
     }
     removeFromICL(S->ByteIntervalAddrs, BI);
-  } break;
-  case Node::Kind::CodeBlock: {
-    auto* B = cast<CodeBlock>(this);
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      return;
-    }
-    removeFromICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
-                  B->getSize());
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
+
+    // Symbols may need their address index updated if they refer to a block
+    // inside this BI.
     auto* M = S->getModule();
     if (!M) {
       return;
     }
-    // TODO: removeVertex(B, M->Cfg);
+
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
-  case Node::Kind::DataBlock: {
-    auto* B = cast<DataBlock>(this);
+  case Node::Kind::CodeBlock: {
+    auto* B = cast<CodeBlock>(this);
+
     auto* BI = B->getByteInterval();
     if (!BI) {
       return;
     }
+
     removeFromICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
                   B->getSize());
+
+    auto* S = BI->getSection();
+    if (!S) {
+      return;
+    }
+
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+
+    if (IR* P = M->getIR()) {
+      removeVertex(B, P->getCFG());
+    }
+  } break;
+  case Node::Kind::DataBlock: {
+    auto* B = cast<DataBlock>(this);
+
+    auto* BI = B->getByteInterval();
+    if (!BI) {
+      return;
+    }
+
+    removeFromICL(BI->BlockAddrs, &BI->nodeToBlock(B), B->getAddress(),
+                  B->getSize());
+
+    auto* S = BI->getSection();
+    if (!S) {
+      return;
+    }
+
+    auto* M = S->getModule();
+    if (!M) {
+      return;
+    }
+
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
