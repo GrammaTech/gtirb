@@ -26,3 +26,6 @@ include/proto/
 wiki/
 scratch.lisp
 /include/gtirb/version.h
+/java/com/grammatech/gtirb/proto/
+.mypy_cache/
+.vscode/

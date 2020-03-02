@@ -56,9 +56,7 @@ set(GTIRB_API_JAVAS
     CodeBlock
     DataBlock
     Directive
-    DynamicSymbol
     Edge
-    ElfRelocation
     IR
     Module
     Node
