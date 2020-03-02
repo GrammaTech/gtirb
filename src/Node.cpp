@@ -81,6 +81,9 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
   return removeFromICL(IntMap, N, N->getAddress(), N->getSize());
 }
 
+// IndexType will always be Module::SymbolSet::index<by_pointer>, but we use
+// it as a template argument because that class is private in Module, so only
+// Node's member functions can access it, and not static functions like this.
 template <typename IndexType>
 static void updateSymbolIndex(ByteInterval* BI, IndexType& Index) {
   if (!BI) {
@@ -126,6 +129,10 @@ void Node::addToIndices() {
       return;
     }
     addToICL(S->ByteIntervalAddrs, BI);
+    // Updating the symbol index isn't necesary, because no symbols are defined
+    // pointing to blocks in this interval if you're adding a whole new one,
+    // and the address will not change if you're moving an interval from
+    // one section to another.
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
@@ -287,6 +294,10 @@ void Node::removeFromIndices() {
       return;
     }
     removeFromICL(S->ByteIntervalAddrs, BI);
+    // Updating the symbol index isn't necesary, because no symbols should be
+    // defined pointing to blocks in this interval if you're removing one,
+    // and the address will not change if you're moving an interval from
+    // one section to another.
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
