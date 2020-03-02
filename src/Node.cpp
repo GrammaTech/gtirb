@@ -85,21 +85,7 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
 // it as a template argument because that class is private in Module, so only
 // Node's member functions can access it, and not static functions like this.
 template <typename IndexType>
-static void updateSymbolIndex(ByteInterval* BI, IndexType& Index) {
-  if (!BI) {
-    return;
-  }
-
-  auto* S = BI->getSection();
-  if (!S) {
-    return;
-  }
-
-  auto* M = S->getModule();
-  if (!M) {
-    return;
-  }
-
+static void updateSymbolIndex(Module* M, ByteInterval* BI, IndexType& Index) {
   std::vector<Symbol*> Syms;
   for (auto& BlockInBI : BI->blocks()) {
     for (auto& Sym : M->findSymbols(BlockInBI)) {
@@ -155,7 +141,7 @@ void Node::addToIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
 
     if (IR* P = M->getIR()) {
       addVertex(B, P->getCFG());
@@ -182,7 +168,7 @@ void Node::addToIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
@@ -218,7 +204,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
@@ -320,7 +306,7 @@ void Node::removeFromIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
 
     if (IR* P = M->getIR()) {
       removeVertex(B, P->getCFG());
@@ -347,7 +333,7 @@ void Node::removeFromIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
