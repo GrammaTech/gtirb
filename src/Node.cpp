@@ -126,15 +126,6 @@ void Node::addToIndices() {
       return;
     }
     addToICL(S->ByteIntervalAddrs, BI);
-
-    // Symbols may need their address index updated if they refer to a block
-    // inside this BI.
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
@@ -296,15 +287,6 @@ void Node::removeFromIndices() {
       return;
     }
     removeFromICL(S->ByteIntervalAddrs, BI);
-
-    // Symbols may need their address index updated if they refer to a block
-    // inside this BI.
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
