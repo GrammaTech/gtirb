@@ -17,10 +17,15 @@ include(UseJava)
 # Getting dependencies (protobuf-java jar file)
 # ---------------------------------------------------------------------------
 
+set(GTIRB_PROTOBUF_JAR_VERSION
+    "3.11.4"
+    CACHE STRING "The version of Protobuf GTIRB's Java API will use."
+)
+
 file(
   DOWNLOAD
-  https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.0.0/protobuf-java-3.0.0.jar
-  ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-3.0.0.jar
+  https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/${GTIRB_PROTOBUF_JAR_VERSION}/protobuf-java-${GTIRB_PROTOBUF_JAR_VERSION}.jar
+  ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${GTIRB_PROTOBUF_JAR_VERSION}.jar
 )
 
 # ---------------------------------------------------------------------------
@@ -79,9 +84,10 @@ endforeach()
 set(GTIRB_API_JARFILE
     gtirb_api-${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}
 )
-add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
-        ${GTIRB_PROTOBUF_JAVA} INCLUDE_JARS
-        ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-3.0.0.jar
+add_jar(
+  ${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES} ${GTIRB_PROTOBUF_JAVA}
+  INCLUDE_JARS
+  ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${GTIRB_PROTOBUF_JAR_VERSION}.jar
 )
 
 # ---------------------------------------------------------------------------
@@ -90,7 +96,9 @@ add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
 
 if(GTIRB_ENABLE_TESTS)
 
-  set(JAR_FILE_LIST ${GTIRB_API_JARFILE}.jar:protobuf-java-3.0.0.jar)
+  set(JAR_FILE_LIST
+      ${GTIRB_API_JARFILE}.jar:protobuf-java-${GTIRB_PROTOBUF_JAR_VERSION}.jar
+  )
 
   add_custom_command(
     TARGET ${GTIRB_API_JARFILE}
