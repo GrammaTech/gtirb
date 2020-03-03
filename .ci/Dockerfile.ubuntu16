@@ -15,8 +15,8 @@ RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
-    apt-get -y install autoconf build-essential curl g++-7 gcc-7 git libtool \
-        python3-setuptools wget \
+    apt-get -y install autoconf build-essential curl default-jdk g++-7 gcc-7 git \
+        libtool python3-setuptools wget \
         sbcl cl-quicklisp emacs-nox slime paredit-el
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \

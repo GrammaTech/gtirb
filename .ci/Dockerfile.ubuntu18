@@ -9,8 +9,8 @@ SHELL ["/bin/bash", "-c"]
 
 # install apt packages
 RUN apt-get -y update && \
-    apt-get -y install autoconf build-essential clang cmake curl git libtool \
-        python3-setuptools wget \
+    apt-get -y install autoconf build-essential clang cmake curl default-jdk git \
+        libtool python3-setuptools wget \
         sbcl cl-quicklisp emacs-nox slime elpa-paredit
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
