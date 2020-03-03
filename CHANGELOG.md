@@ -1,3 +1,8 @@
+# 1.1.1
+
+* Fixed a bug where changing the address of a block caused lookups of symbol
+  by address to fail in some cases.
+
 # 1.1.0
 
 * Added a new API for accessing GTIRB, written in Java. This API is not yet
