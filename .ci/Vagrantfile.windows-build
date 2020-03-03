@@ -71,7 +71,7 @@ Vagrant.configure("2") do |config|
     cd $HOME
     git clone https://github.com/protocolbuffers/protobuf.git
     cd protobuf
-    git checkout tags/v3.11.4
+    git checkout tags/v3.7.0
 
     mkdir cmake-build-debug
     cd cmake-build-debug
