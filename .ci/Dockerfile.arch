@@ -6,7 +6,7 @@ ARG EXTRA_CMAKE_FLAGS=
 RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pacman.conf
 RUN pacman --noconfirm -Syu archlinux-keyring
 RUN pacman --noconfirm -Syu autoconf base-devel boost clang cmake doxygen gcc \
-        gcc-libs git graphviz libtool protobuf python python-pip make wget
+        gcc-libs git graphviz jdk8-openjdk libtool protobuf python python-pip make wget
 
 # Common-Lisp specific setup.
 RUN sed -i "s/^\(OPT_LONG=(\)/\1'asroot' /;s/EUID == 0/1 == 0/" /usr/bin/makepkg
