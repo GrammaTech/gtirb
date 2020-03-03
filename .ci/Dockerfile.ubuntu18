@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 ARG CXX_COMPILER=g++-7
 ARG BOOST_VERSION=1.67.0
-ARG PROTOBUF_VERSION=3.7.0
+ARG PROTOBUF_VERSION=3.11.4
 
 # Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
