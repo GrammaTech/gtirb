@@ -85,11 +85,20 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
 // it as a template argument because that class is private in Module, so only
 // Node's member functions can access it, and not static functions like this.
 template <typename IndexType>
-static void updateSymbolIndex(Module* M, ByteInterval* BI, IndexType& Index) {
+static void updateSymbolIndex(ByteInterval* BI, IndexType& Index) {
   std::vector<Symbol*> Syms;
-  for (auto& BlockInBI : BI->blocks()) {
-    for (auto& Sym : M->findSymbols(BlockInBI)) {
-      Syms.push_back(&Sym);
+  for (auto* Sym : Index) {
+    if (Sym->hasReferent()) {
+      ByteInterval* ReferentBI = nullptr;
+      if (auto* CB = Sym->template getReferent<CodeBlock>()) {
+        ReferentBI = CB->getByteInterval();
+      } else if (auto* DB = Sym->template getReferent<DataBlock>()) {
+        ReferentBI = DB->getByteInterval();
+      }
+
+      if (ReferentBI == BI) {
+        Syms.push_back(Sym);
+      }
     }
   }
 
@@ -141,7 +150,7 @@ void Node::addToIndices() {
       return;
     }
 
-    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
 
     if (IR* P = M->getIR()) {
       addVertex(B, P->getCFG());
@@ -168,7 +177,7 @@ void Node::addToIndices() {
       return;
     }
 
-    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
@@ -204,7 +213,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
       return;
     }
 
-    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
@@ -306,7 +315,7 @@ void Node::removeFromIndices() {
       return;
     }
 
-    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
 
     if (IR* P = M->getIR()) {
       removeVertex(B, P->getCFG());
@@ -333,7 +342,7 @@ void Node::removeFromIndices() {
       return;
     }
 
-    updateSymbolIndex(M, BI, M->Symbols.get<Module::by_pointer>());
+    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
