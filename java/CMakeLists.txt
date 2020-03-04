@@ -91,7 +91,7 @@ add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
 if(GTIRB_ENABLE_TESTS)
 
   if(WIN32)
-    set(DIR_SEP ";")
+    set(DIR_SEP "\;")
   else()
     set(DIR_SEP ":")
   endif()
