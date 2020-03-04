@@ -178,7 +178,7 @@ cleanup:
     - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu18-clang
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-gcc
     - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-clang
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-test-debian-install
+    - docker rmi -f ${LOCAL_IMAGE_NAME}-test-install
   when: always
 
 test-install:
