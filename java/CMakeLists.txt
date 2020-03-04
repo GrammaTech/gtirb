@@ -90,8 +90,14 @@ add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
 
 if(GTIRB_ENABLE_TESTS)
 
+  if(WIN32)
+    set(DIR_SEP ";")
+  else()
+    set(DIR_SEP ":")
+  endif()
+
   set(JAR_FILE_LIST
-      ${GTIRB_API_JARFILE}.jar:protobuf-java-${Protobuf_VERSION}.jar
+      ${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${Protobuf_VERSION}.jar
   )
 
   add_custom_command(
@@ -104,8 +110,8 @@ if(GTIRB_ENABLE_TESTS)
   )
 
   add_test(NAME JavaSanityTest
-           COMMAND ${Java_JAVA_EXECUTABLE} -cp .:${JAR_FILE_LIST} testIrSanity
-                   ${CMAKE_CURRENT_SOURCE_DIR}/tests/testIr.gtirb
+           COMMAND ${Java_JAVA_EXECUTABLE} -cp .${DIR_SEP}${JAR_FILE_LIST}
+                   testIrSanity ${CMAKE_CURRENT_SOURCE_DIR}/tests/testIr.gtirb
   )
 
   set_tests_properties(
