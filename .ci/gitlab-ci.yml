@@ -181,12 +181,12 @@ cleanup:
     - docker rmi -f ${LOCAL_IMAGE_NAME}-test-debian-install
   when: always
 
-test-debian-install:
+test-install:
   stage: test
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
-    INSTALLER: 'dpkg -i GTIRB-*-Linux.deb'
+    INSTALLER: 'make install'
   script:
     - if [ "$CI_COMMIT_REF_SLUG" = "master" ];
       then
