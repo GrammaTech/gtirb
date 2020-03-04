@@ -97,7 +97,7 @@ if(GTIRB_ENABLE_TESTS)
   endif()
 
   set(JAR_FILE_LIST
-      ${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${Protobuf_VERSION}.jar
+      "${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${Protobuf_VERSION}.jar"
   )
 
   add_custom_command(
@@ -110,7 +110,7 @@ if(GTIRB_ENABLE_TESTS)
   )
 
   add_test(NAME JavaSanityTest
-           COMMAND ${Java_JAVA_EXECUTABLE} -cp .${DIR_SEP}${JAR_FILE_LIST}
+           COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
                    testIrSanity ${CMAKE_CURRENT_SOURCE_DIR}/tests/testIr.gtirb
   )
 
