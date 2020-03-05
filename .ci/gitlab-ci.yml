@@ -199,15 +199,7 @@ test-install:
     - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-${CI_JOB_NAME} --build-arg IMAGE=$LOCAL_IMAGE --build-arg INSTALLER="$INSTALLER" .
 
-debian-installer:
-  stage: deploy
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-7'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - GTIRB-*-Linux.deb
+.debian-installer-template: &debian-installer
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export CONTAINER_FILE=$(mktemp -d)/cidfile
@@ -217,4 +209,15 @@ debian-installer:
     - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/GTIRB-${GTIRB_VERSION}-Linux.deb GTIRB-${GTIRB_VERSION}-Linux.deb
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
-    - docker build -f .ci/Dockerfile.test-ubuntu16-package --build-arg CXX_COMPILER=${COMPILER} .
+    - docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .
+
+debian-installer-ubuntu16:
+  stage: deploy
+  variables:
+    OS: 'ubuntu16'
+    COMPILER: 'g++-7'
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - GTIRB-*-Linux.deb
+  <<: *debian-installer
