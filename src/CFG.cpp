@@ -34,7 +34,9 @@ CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg) {
 void removeVertex(CfgNode* N, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
   if (auto it = IdTable.find(N); it != IdTable.end()) {
+    clear_vertex(it->second, Cfg);
     remove_vertex(it->second, Cfg);
+    IdTable.erase(it);
   }
 }
 
