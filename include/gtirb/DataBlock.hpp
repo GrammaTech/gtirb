@@ -42,8 +42,8 @@ class DataBlock;
 class GTIRB_EXPORT_API DataBlock : public Node {
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, ByteInterval* P, uint64_t S)
-      : Node(C, Kind::DataBlock), Parent(P), Size(S) {}
+  DataBlock(Context& C, uint64_t S)
+      : Node(C, Kind::DataBlock), Size(S) {}
 
 public:
   /// \brief Create an unitialized DataBlock object.
@@ -57,7 +57,7 @@ public:
   /// \param Size     The size of the object in bytes.
   /// \return The newly created DataBlock.
   static DataBlock* Create(Context& C, uint64_t Size) {
-    return C.Create<DataBlock>(C, nullptr, Size);
+    return C.Create<DataBlock>(C, Size);
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
@@ -273,24 +273,6 @@ private:
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
 
-  /// \brief Create a DataBlock object.
-  ///
-  /// \param C The Context in which the newly-created DataBlock will
-  /// be held.
-  /// \param Parent   The parent byte interval for the data block.
-  /// \param Off      The offset at which to add the code block within its
-  ///                 parent.
-  /// \param Size     The size of the object in bytes.
-  ///
-  /// \return The newly created DataBlock.
-  static DataBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
-                           uint64_t Size) {
-    auto* DB = C.Create<DataBlock>(C, Parent, Size);
-    if (Parent)
-      Parent->Blocks.emplace(Off, DB);
-    return DB;
-  }
-
   /// \brief The protobuf message type used for serializing DataBlock.
   using MessageType = proto::DataBlock;
 
@@ -307,8 +289,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized DataBlock object, or null on failure.
-  static DataBlock* fromProtobuf(Context& C, ByteInterval* Parent,
-                                 const MessageType& Message);
+  static DataBlock* fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

@@ -25,12 +25,10 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
-                                   const MessageType& Message) {
+CodeBlock* CodeBlock::fromProtobuf(Context& C, const MessageType& Message) {
   // Because we do not have an offset, we cannot create the code block and
   // set its parent at the same time.
   auto* B = CodeBlock::Create(C, Message.size(), Message.decode_mode());
-  B->setByteInterval(Parent);
   if (!setNodeUUIDFromBytes(B, Message.uuid()))
     return nullptr;
   return B;
@@ -63,6 +61,6 @@ void CodeBlock::save(std::ostream& Out) const {
 CodeBlock* CodeBlock::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto CB = CodeBlock::fromProtobuf(C, nullptr, Message);
+  auto CB = CodeBlock::fromProtobuf(C, Message);
   return CB;
 }

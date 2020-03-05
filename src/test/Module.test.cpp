@@ -696,7 +696,8 @@ TEST(Unit_Module, protobufRoundTrip) {
     STH::save(*Original, ss);
   }
 
-  Module* Result = STH::load<Module>(Ctx, IR::Create(Ctx), ss);
+  Module* Result = STH::load<Module>(Ctx, ss);
+  IR::Create(Ctx)->addModule(Result);
 
   EXPECT_EQ(Result->getBinaryPath(), "test");
   EXPECT_EQ(Result->getPreferredAddr(), Addr(3));
@@ -721,7 +722,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   EXPECT_NE(Result->getAuxData<AnTest>(), nullptr);
 
-  EXPECT_EQ(num_vertices(Result->getIR()->getCFG()), 2);
+  ASSERT_EQ(num_vertices(Result->getIR()->getCFG()), 2);
   {
     auto Nodes = nodes(Result->getIR()->getCFG());
     auto It = Nodes.begin();

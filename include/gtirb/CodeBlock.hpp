@@ -56,7 +56,7 @@ public:
   ///
   /// \return The newly created CodeBlock.
   static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode = 0) {
-    return Create(C, nullptr, 0, Size, DecodeMode);
+    return C.Create<CodeBlock>(C, Size, DecodeMode);
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
@@ -284,28 +284,10 @@ public:
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
-  CodeBlock(Context& C, ByteInterval* P, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::CodeBlock), Parent(P), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C, uint64_t S, uint64_t Decode)
+      : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
 
   void setByteInterval(ByteInterval* BI) { Parent = BI; }
-
-  /// \brief Create a CodeBlock object.
-  ///
-  /// \param C          The Context in which this block will be held.
-  /// \param Parent     The parent byte interval for the code block.
-  /// \param Off        The offset at which to add the code block within its
-  ///                   parent.
-  /// \param Size       The size of the block in bytes.
-  /// \param DecodeMode The decode mode of the block.
-  ///
-  /// \return The newly created CodeBlock.
-  static CodeBlock* Create(Context& C, ByteInterval* Parent, uint64_t Off,
-                           uint64_t Size, uint64_t DecodeMode = 0) {
-    auto* CB = C.Create<CodeBlock>(C, Parent, Size, DecodeMode);
-    if (Parent)
-      Parent->Blocks.emplace(Off, CB);
-    return CB;
-  }
 
   /// \brief The protobuf message type used for serializing CodeBlock.
   using MessageType = proto::CodeBlock;
@@ -323,8 +305,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized CodeBlock object, or null on failure.
-  static CodeBlock* fromProtobuf(Context& C, ByteInterval* Parent,
-                                 const MessageType& Message);
+  static CodeBlock* fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

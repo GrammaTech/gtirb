@@ -189,7 +189,7 @@ public:
   // dangerous design choice, but we can argue the merits of both approaches in
   // a code review.
   template <typename... Args> Module* addModule(Context& C, Args... A) {
-    return addModule(Module::Create(C, this, A...));
+    return addModule(Module::Create(C, A...));
   }
 
   /// @}

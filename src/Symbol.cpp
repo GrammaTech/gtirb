@@ -78,9 +78,8 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_at_end(this->AtEnd);
 }
 
-Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
-                             const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, Parent, Message.name(), Message.at_end());
+Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
+  Symbol* S = Symbol::Create(C, Message.name(), Message.at_end());
 
   switch (Message.optional_payload_case()) {
   case proto::Symbol::kValue: {
@@ -116,6 +115,6 @@ void Symbol::save(std::ostream& Out) const {
 Symbol* Symbol::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto S = Symbol::fromProtobuf(C, nullptr, Message);
+  auto S = Symbol::fromProtobuf(C, Message);
   return S;
 }

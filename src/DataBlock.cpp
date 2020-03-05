@@ -24,12 +24,10 @@ void DataBlock::toProtobuf(MessageType* Message) const {
   Message->set_size(this->Size);
 }
 
-DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
-                                   const MessageType& Message) {
+DataBlock* DataBlock::fromProtobuf(Context& C, const MessageType& Message) {
   // Because we do not have an offset, we cannot create the data block and
   // set its parent at the same time.
   auto* DO = DataBlock::Create(C, Message.size());
-  DO->setByteInterval(Parent);
   if (!setNodeUUIDFromBytes(DO, Message.uuid()))
     return nullptr;
   return DO;
@@ -62,6 +60,6 @@ void DataBlock::save(std::ostream& Out) const {
 DataBlock* DataBlock::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto DB = DataBlock::fromProtobuf(C, nullptr, Message);
+  auto DB = DataBlock::fromProtobuf(C, Message);
   return DB;
 }

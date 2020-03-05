@@ -227,7 +227,7 @@ public:
   /// \return The newly created object.
   static Symbol* Create(Context& C, const std::string& Name,
                         bool AtEnd = false) {
-    return C.Create<Symbol>(C, nullptr, Name, AtEnd);
+    return C.Create<Symbol>(C, Name, AtEnd);
   }
 
   /// \brief Create a Symbol object.
@@ -241,7 +241,7 @@ public:
   /// \return The newly created object.
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
                         bool AtEnd = false) {
-    return C.Create<Symbol>(C, nullptr, X, Name, AtEnd);
+    return C.Create<Symbol>(C, X, Name, AtEnd);
   }
 
   /// \brief Create a Symbol object.
@@ -257,7 +257,7 @@ public:
   static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name,
                         bool AtEnd = false) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, nullptr, Referent, Name, AtEnd);
+    return C.Create<Symbol>(C, Referent, Name, AtEnd);
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
@@ -350,65 +350,19 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, Module* P, const std::string& N, bool AE)
-      : Node(C, Kind::Symbol), Parent(P), Name(N), AtEnd(AE) {}
-  Symbol(Context& C, Module* P, Addr X, const std::string& N, bool AE)
-      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), AtEnd(AE) {}
+  Symbol(Context& C, const std::string& N, bool AE)
+      : Node(C, Kind::Symbol), Name(N), AtEnd(AE) {}
+  Symbol(Context& C, Addr X, const std::string& N, bool AE)
+      : Node(C, Kind::Symbol), Payload(X), Name(N), AtEnd(AE) {}
   template <typename NodeTy>
-  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N, bool AE)
-      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), AtEnd(AE) {
+  Symbol(Context& C, NodeTy* R, const std::string& N, bool AE)
+      : Node(C, Kind::Symbol), Payload(R), Name(N), AtEnd(AE) {
     if (!R) {
       Payload = std::monostate{};
     }
   }
 
   void setModule(Module* M) { Parent = M; }
-
-  /// \brief Create a Symbol object.
-  ///
-  /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref Module in which to place this Symbol.
-  /// \param Name   The name of the symbol.
-  /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning. Defaults to false.
-  ///
-  /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, const std::string& Name,
-                        bool AtEnd = false) {
-    return C.Create<Symbol>(C, Parent, Name, AtEnd);
-  }
-
-  /// \brief Create a Symbol object.
-  ///
-  /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref Module in which to place this Symbol.
-  /// \param X      The address of the symbol.
-  /// \param Name   The name of the symbol.
-  /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning. Defaults to false.
-  ///
-  /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, Addr X,
-                        const std::string& Name, bool AtEnd = false) {
-    return C.Create<Symbol>(C, Parent, X, Name, AtEnd);
-  }
-
-  /// \brief Create a Symbol object.
-  ///
-  /// \param C        The Context in which this object will be held.
-  /// \param Parent   The \ref Module in which to place this Symbol.
-  /// \param Referent The DataBlock this symbol refers to.
-  /// \param Name     The name of the symbol.
-  /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning. Defaults to false.
-  ///
-  /// \return The newly created object.
-  template <typename NodeTy>
-  static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
-                        const std::string& Name, bool AtEnd = false) {
-    static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Parent, Referent, Name, AtEnd);
-  }
 
   /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
@@ -426,8 +380,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
-  static Symbol* fromProtobuf(Context& C, Module* Parent,
-                              const MessageType& Message);
+  static Symbol* fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

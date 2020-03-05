@@ -147,15 +147,13 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                                              &get_symbol_referent>>>>;
 
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
-  Module(Context& C, IR* P) : AuxDataContainer(C, Kind::Module), Parent(P) {}
-  Module(Context& C, IR* P, const std::string& N)
-      : AuxDataContainer(C, Kind::Module), Parent(P), Name(N) {}
+  Module(Context& C, const std::string& N)
+      : AuxDataContainer(C, Kind::Module), Name(N) {}
 
 public:
   /// \brief Create a Module object in its default state.
   ///
   /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
   ///
   /// \return The newly created object.
   static Module* Create(Context& C) { return C.Create<Module>(C); }
@@ -167,7 +165,7 @@ public:
   ///
   /// \return The newly created object.
   static Module* Create(Context& C, const std::string& Name) {
-    return C.Create<Module>(C, nullptr, Name);
+    return C.Create<Module>(C, Name);
   }
 
   /// \brief Get the \ref IR this module belongs to.
@@ -322,7 +320,7 @@ public:
   /// \param  C     The Context in which this object will be held.
   /// \param  A     The arguments to construct a \ref ProxyBlock.
   template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
-    return addProxyBlock(ProxyBlock::Create(C, this, A...));
+    return addProxyBlock(ProxyBlock::Create(C, A...));
   }
 
   /// @}
@@ -540,7 +538,7 @@ public:
   /// \param  C     The Context in which this object will be held.
   /// \param  A     The arguments to construct a \ref Symbol.
   template <typename... Args> Symbol* addSymbol(Context& C, Args... A) {
-    return addSymbol(Symbol::Create(C, this, A...));
+    return addSymbol(Symbol::Create(C, A...));
   }
 
   /// \brief Find symbols by name
@@ -769,7 +767,7 @@ public:
   /// \param  C     The Context in which this object will be held.
   /// \param  A     The arguments to construct a \ref Section.
   template <typename... Args> Section* addSection(Context& C, Args... A) {
-    return addSection(Section::Create(C, this, A...));
+    return addSection(Section::Create(C, A...));
   }
 
   /// \brief Find a Section containing an address.
@@ -1782,27 +1780,6 @@ public:
 private:
   void setIR(IR* I) { Parent = I; }
 
-  /// \brief Create a Module object.
-  ///
-  /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
-  ///
-  /// \return The newly created object.
-  static Module* Create(Context& C, IR* Parent) {
-    return C.Create<Module>(C, Parent);
-  }
-
-  /// \brief Create a Module object.
-  ///
-  /// \param C      The Context in which this object will be held.
-  /// \param Parent The \ref IR this module belongs to.
-  /// \param Name   The name of this module.
-  ///
-  /// \return The newly created object.
-  static Module* Create(Context& C, IR* Parent, const std::string& Name) {
-    return C.Create<Module>(C, Parent, Name);
-  }
-
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
 
@@ -1819,17 +1796,13 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Module object, or null on failure.
-  static Module* fromProtobuf(Context& C, IR* Parent,
-                              const MessageType& Message);
+  static Module* fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;
 
   // Present for testing purposes only.
   static Module* load(Context& C, std::istream& In);
-
-  // Present for testing purposes only.
-  static Module* load(Context& C, IR* Parent, std::istream& In);
 
   IR* Parent{nullptr};
   std::string BinaryPath;

@@ -22,9 +22,8 @@ void ProxyBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 }
 
-ProxyBlock* ProxyBlock::fromProtobuf(Context& C, Module* Parent,
-                                     const MessageType& Message) {
-  ProxyBlock* P = Create(C, Parent);
+ProxyBlock* ProxyBlock::fromProtobuf(Context& C, const MessageType& Message) {
+  ProxyBlock* P = Create(C);
   if (!setNodeUUIDFromBytes(P, Message.uuid()))
     return nullptr;
   return P;
@@ -41,6 +40,6 @@ void ProxyBlock::save(std::ostream& Out) const {
 ProxyBlock* ProxyBlock::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto CB = ProxyBlock::fromProtobuf(C, nullptr, Message);
+  auto CB = ProxyBlock::fromProtobuf(C, Message);
   return CB;
 }

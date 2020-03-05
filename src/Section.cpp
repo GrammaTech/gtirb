@@ -37,20 +37,18 @@ void Section::toProtobuf(MessageType* Message) const {
   }
 }
 
-Section* Section::fromProtobuf(Context& C, Module* Parent,
-                               const MessageType& Message) {
-  auto* S = Section::Create(C, Parent, Message.name());
+Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
+  auto* S = Section::Create(C, Message.name());
   for (int I = 0, E = Message.section_flags_size(); I != E; ++I) {
     S->addFlag(static_cast<SectionFlag>(Message.section_flags(I)));
   }
   if (!setNodeUUIDFromBytes(S, Message.uuid()))
     return nullptr;
   for (const auto& ProtoInterval : Message.byte_intervals()) {
-    auto* BI = ByteInterval::fromProtobuf(C, S, ProtoInterval);
+    auto* BI = ByteInterval::fromProtobuf(C, ProtoInterval);
     if (!BI)
       return nullptr;
-    BI->addToIndices();
-    S->mutateIndices([S, BI]() { S->ByteIntervals.emplace(BI); });
+    S->addByteInterval(BI);
   }
   return S;
 }
@@ -66,6 +64,6 @@ void Section::save(std::ostream& Out) const {
 Section* Section::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto S = Section::fromProtobuf(C, nullptr, Message);
+  auto S = Section::fromProtobuf(C, Message);
   return S;
 }

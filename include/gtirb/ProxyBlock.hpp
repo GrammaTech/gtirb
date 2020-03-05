@@ -56,7 +56,6 @@ public:
   /// \brief Get the \ref Module this block belongs to.
   const Module* getModule() const { return Parent; }
 
-  /// @cond INTERNAL
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ProxyBlock;
   }
@@ -64,19 +63,8 @@ public:
 
 private:
   ProxyBlock(Context& C) : CfgNode(C, Kind::ProxyBlock) {}
-  ProxyBlock(Context& C, Module* P) : CfgNode(C, Kind::ProxyBlock), Parent(P) {}
 
   void setModule(Module* M) { Parent = M; }
-
-  /// \brief Create a ProxyBlock object.
-  ///
-  /// \param C      The Context in which this block will be held.
-  /// \param Parent The \ref Module this block belongs to.
-  ///
-  /// \return The newly created ProxyBlock.
-  static ProxyBlock* Create(Context& C, Module* Parent) {
-    return C.Create<ProxyBlock>(C, Parent);
-  }
 
   /// \brief The protobuf message type used for serializing Block.
   using MessageType = proto::ProxyBlock;
@@ -94,8 +82,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Block object, or null on failure.
-  static ProxyBlock* fromProtobuf(Context& C, Module* Parent,
-                                  const MessageType& Message);
+  static ProxyBlock* fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

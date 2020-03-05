@@ -64,7 +64,7 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 }
 
-ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
+ByteInterval* ByteInterval::fromProtobuf(Context& C,
                                          const MessageType& Message) {
   std::optional<Addr> A;
   if (Message.has_address()) {
@@ -72,7 +72,7 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
   }
 
   ByteInterval* BI = ByteInterval::Create(
-      C, Parent, A, Message.contents().begin(), Message.contents().end(),
+      C, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size());
 
   if (!setNodeUUIDFromBytes(BI, Message.uuid()))
@@ -81,18 +81,16 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
   for (const auto& ProtoBlock : Message.blocks()) {
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
-      auto* B = CodeBlock::fromProtobuf(C, BI, ProtoBlock.code());
+      auto* B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
       if (!B)
         return nullptr;
-      BI->Blocks.emplace(ProtoBlock.offset(), B);
-      B->addToIndices();
+      BI->addBlock(ProtoBlock.offset(), B);
     } break;
     case proto::Block::ValueCase::kData: {
-      auto* B = DataBlock::fromProtobuf(C, BI, ProtoBlock.data());
+      auto* B = DataBlock::fromProtobuf(C, ProtoBlock.data());
       if (!B)
         return nullptr;
-      BI->Blocks.emplace(ProtoBlock.offset(), B);
-      B->addToIndices();
+      BI->addBlock(ProtoBlock.offset(), B);
     } break;
     default: {
       assert(!"unknown Block::ValueCase in ByteInterval::fromProtobuf");
@@ -131,7 +129,7 @@ void ByteInterval::save(std::ostream& Out) const {
 ByteInterval* ByteInterval::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto BI = ByteInterval::fromProtobuf(C, nullptr, Message);
+  auto BI = ByteInterval::fromProtobuf(C, Message);
   return BI;
 }
 

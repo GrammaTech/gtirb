@@ -55,10 +55,8 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
   });
 }
 
-Module* Module::fromProtobuf(Context& C, IR* Parent,
-                             const MessageType& Message) {
+Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   Module* M = Module::Create(C);
-  M->setIR(Parent);
   if (!setNodeUUIDFromBytes(M, Message.uuid()))
     return nullptr;
   M->BinaryPath = Message.binary_path();
@@ -68,26 +66,22 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   M->Isa = static_cast<ISA>(Message.isa());
   M->Name = Message.name();
   for (const auto& Elt : Message.proxies()) {
-    auto* PB = ProxyBlock::fromProtobuf(C, M, Elt);
+    auto* PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB)
       return nullptr;
     M->ProxyBlocks.insert(PB);
-    if (Parent) {
-      addVertex(PB, Parent->getCFG());
-    }
   }
   for (const auto& Elt : Message.sections()) {
-    auto* S = Section::fromProtobuf(C, M, Elt);
+    auto* S = Section::fromProtobuf(C, Elt);
     if (!S)
       return nullptr;
-    M->Sections.emplace(S);
-    S->addToIndices();
+    M->addSection(S);
   }
   for (const auto& Elt : Message.symbols()) {
-    auto* S = Symbol::fromProtobuf(C, M, Elt);
+    auto* S = Symbol::fromProtobuf(C, Elt);
     if (!S)
       return nullptr;
-    M->Symbols.emplace(S);
+    M->addSymbol(S);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
@@ -154,13 +148,8 @@ void Module::save(std::ostream& Out) const {
 
 // Present for testing purposes only.
 Module* Module::load(Context& C, std::istream& In) {
-  return load(C, nullptr, In);
-}
-
-// Present for testing purposes only.
-Module* Module::load(Context& C, IR* Parent, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto M = Module::fromProtobuf(C, Parent, Message);
+  auto M = Module::fromProtobuf(C, Message);
   return M;
 }

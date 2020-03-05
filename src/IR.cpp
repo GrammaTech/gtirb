@@ -58,10 +58,10 @@ IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
   if (!setNodeUUIDFromBytes(I, Message.uuid()))
     return nullptr;
   for (const auto& Elt : Message.modules()) {
-    auto* M = Module::fromProtobuf(C, I, Elt);
+    auto* M = Module::fromProtobuf(C, Elt);
     if (!M)
       return nullptr;
-    I->Modules.emplace(M);
+    I->addModule(M);
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
     return nullptr;
