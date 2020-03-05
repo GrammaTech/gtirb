@@ -106,7 +106,7 @@ public:
   ///
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
-
+ 
   /// \name Module-Related Public Types and Functions
   /// @{
   /// \brief Iterator over \ref Module "Modules".
@@ -158,11 +158,17 @@ public:
   /// \return Whether or not the operation succeeded. This operation can
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
-  bool removeModule(Module* S) {
+  bool removeModule(Module* M) {
     auto& Index = Modules.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end()) {
+    if (auto Iter = Index.find(M); Iter != Index.end()) {
+      for (ProxyBlock& PB : M->proxy_blocks()) {
+        removeVertex(&PB, Cfg);
+      }
+      for (CodeBlock& CB : M->code_blocks()) {
+        removeVertex(&CB, Cfg);
+      }
       Index.erase(Iter);
-      S->setIR(nullptr);
+      M->setIR(nullptr);
       return true;
     }
     return false;
@@ -174,6 +180,13 @@ public:
   Module* addModule(Module* M) {
     if (M->getIR()) {
       M->getIR()->removeModule(M);
+    }
+
+    for (ProxyBlock& PB : M->proxy_blocks()) {
+      addVertex(&PB, Cfg);
+    }
+    for (CodeBlock& CB : M->code_blocks()) {
+      addVertex(&CB, Cfg);
     }
     Modules.emplace(M);
     M->setIR(this);

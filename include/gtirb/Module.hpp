@@ -304,11 +304,6 @@ public:
   /// \param B The \ref ProxyBlock object to remove.
   void removeProxyBlock(ProxyBlock* B);
 
-  /// \brief Move a \ref ProxyBlock object to be located in this module.
-  ///
-  /// \param B The \ref ProxyBlock object to add.
-  void moveProxyBlock(ProxyBlock* B);
-
   /// \brief Adds a new \ref ProxyBlock in this module.
   ///
   /// \param PB The \ref ProxyBlock object to add.

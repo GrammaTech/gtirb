@@ -107,23 +107,9 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   return M;
 }
 
-void Module::moveProxyBlock(ProxyBlock* B) {
-  if (B->getModule()) {
-    B->getModule()->removeProxyBlock(B);
-  }
-  ProxyBlocks.insert(B);
-  B->setModule(this);
-  if (Parent) {
-    addVertex(B, Parent->getCFG());
-  }
-}
-
 void Module::removeProxyBlock(ProxyBlock* B) {
-  ProxyBlocks.erase(B);
+  B->removeFromIndices();
   B->setModule(nullptr);
-  if (Parent) {
-    removeVertex(B, Parent->getCFG());
-  }
 }
 
 ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
@@ -131,11 +117,8 @@ ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
     M->removeProxyBlock(B);
   }
 
-  ProxyBlocks.insert(B);
   B->setModule(this);
-  if (Parent) {
-    addVertex(B, Parent->getCFG());
-  }
+  B->addToIndices();
   return B;
 }
 

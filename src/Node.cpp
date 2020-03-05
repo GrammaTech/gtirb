@@ -135,7 +135,7 @@ void Node::addToIndices() {
 
     // Update CFG.
     if (IR* P = M->getIR()) {
-      addVertex(B, P->getCFG());
+      addVertex(B, P->Cfg);
     }
   } break;
   case Node::Kind::DataBlock: {
@@ -165,6 +165,23 @@ void Node::addToIndices() {
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
+  } break;
+  case Node::Kind::ProxyBlock: {
+    auto* B = cast<ProxyBlock>(this);
+
+    auto* M = B->getModule();
+    if (!M) {
+      return;
+    }
+
+    M->ProxyBlocks.insert(B);
+
+    auto* I = M->getIR();
+    if (!I) {
+      return;
+    }
+
+    addVertex(B, I->Cfg);
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
@@ -313,7 +330,7 @@ void Node::removeFromIndices() {
 
     // Update CFG.
     if (IR* P = M->getIR()) {
-      removeVertex(B, P->getCFG());
+      removeVertex(B, P->Cfg);
     }
   } break;
   case Node::Kind::DataBlock: {
@@ -343,6 +360,23 @@ void Node::removeFromIndices() {
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
+  } break;
+  case Node::Kind::ProxyBlock: {
+    auto* B = cast<ProxyBlock>(this);
+
+    auto* M = B->getModule();
+    if (!M) {
+      return;
+    }
+
+    M->ProxyBlocks.erase(B);
+
+    auto* I = M->getIR();
+    if (!I) {
+      return;
+    }
+
+    removeVertex(B, I->Cfg);
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
