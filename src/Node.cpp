@@ -125,6 +125,8 @@ void Node::addToIndices() {
     }
 
     // Update symbol referents.
+    // Note that we update the symbol's address index while iterating over its
+    // referent index, so one doesn't invalidate the other.
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
@@ -156,6 +158,8 @@ void Node::addToIndices() {
     }
 
     // Update symbol referents.
+    // Note that we update the symbol's address index while iterating over its
+    // referent index, so one doesn't invalidate the other.
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
@@ -189,6 +193,8 @@ void Node::mutateIndices(const std::function<void()>& F) {
 
     // Symbols may need their address index updated if they refer to a block
     // inside this BI.
+    // Note that we update the symbol's address index while iterating over its
+    // referent index, so one doesn't invalidate the other.
     auto* M = S->getModule();
     if (!M) {
       return;
@@ -301,6 +307,8 @@ void Node::removeFromIndices() {
     }
 
     // Update symbol referents.
+    // Note that we update the symbol's address index while iterating over its
+    // referent index, so one doesn't invalidate the other.
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
@@ -332,6 +340,8 @@ void Node::removeFromIndices() {
     }
 
     // Update symbol referents.
+    // Note that we update the symbol's address index while iterating over its
+    // referent index, so one doesn't invalidate the other.
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
