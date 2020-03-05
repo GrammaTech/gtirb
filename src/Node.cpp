@@ -215,9 +215,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
     }
     auto* Blk = &BI->nodeToBlock(B);
     removeFromICL(BI->BlockAddrs, Blk, B->getAddress(), B->getSize());
-    BI->mutateIndices([&]() {
-      modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
-    });
+    modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
     addToICL(BI->BlockAddrs, Blk, B->getAddress(), B->getSize());
   } break;
   case Node::Kind::DataBlock: {
@@ -229,9 +227,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
     }
     auto* Blk = &BI->nodeToBlock(B);
     removeFromICL(BI->BlockAddrs, Blk, B->getAddress(), B->getSize());
-    BI->mutateIndices([&]() {
-      modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
-    });
+    modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
     addToICL(BI->BlockAddrs, Blk, B->getAddress(), B->getSize());
   } break;
   case Node::Kind::Section: {
