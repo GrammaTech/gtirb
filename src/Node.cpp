@@ -81,32 +81,6 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
   return removeFromICL(IntMap, N, N->getAddress(), N->getSize());
 }
 
-// IndexType will always be Module::SymbolSet::index<by_pointer>, but we use
-// it as a template argument because that class is private in Module, so only
-// Node's member functions can access it, and not static functions like this.
-template <typename IndexType>
-static void updateSymbolIndex(ByteInterval* BI, IndexType& Index) {
-  std::vector<Symbol*> Syms;
-  for (auto* Sym : Index) {
-    if (Sym->hasReferent()) {
-      ByteInterval* ReferentBI = nullptr;
-      if (auto* CB = Sym->template getReferent<CodeBlock>()) {
-        ReferentBI = CB->getByteInterval();
-      } else if (auto* DB = Sym->template getReferent<DataBlock>()) {
-        ReferentBI = DB->getByteInterval();
-      }
-
-      if (ReferentBI == BI) {
-        Syms.push_back(Sym);
-      }
-    }
-  }
-
-  for (auto* Sym : Syms) {
-    modifyIndex(Index, Sym, []() {});
-  }
-}
-
 // FIXME: For the internals of these index functions, it'd be nice to have
 // some sort of virtual dispatch nstead of one big switch. But how to do that
 // without (a) adding in RTTI or (b) making everything friends of each other...
@@ -150,8 +124,12 @@ void Node::addToIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    // Update symbol referents.
+    for (auto& Sym : M->findSymbols(*B)) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
+    }
 
+    // Update CFG.
     if (IR* P = M->getIR()) {
       addVertex(B, P->getCFG());
     }
@@ -177,7 +155,10 @@ void Node::addToIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    // Update symbol referents.
+    for (auto& Sym : M->findSymbols(*B)) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
+    }
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
@@ -213,7 +194,11 @@ void Node::mutateIndices(const std::function<void()>& F) {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    for (auto& B : BI->blocks()) {
+      for (auto& Sym : M->findSymbols(B)) {
+        modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
+      }
+    }
   } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
@@ -315,8 +300,12 @@ void Node::removeFromIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    // Update symbol referents.
+    for (auto& Sym : M->findSymbols(*B)) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
+    }
 
+    // Update CFG.
     if (IR* P = M->getIR()) {
       removeVertex(B, P->getCFG());
     }
@@ -342,7 +331,10 @@ void Node::removeFromIndices() {
       return;
     }
 
-    updateSymbolIndex(BI, M->Symbols.get<Module::by_pointer>());
+    // Update symbol referents.
+    for (auto& Sym : M->findSymbols(*B)) {
+      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
+    }
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
