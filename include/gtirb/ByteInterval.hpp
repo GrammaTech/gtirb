@@ -1284,7 +1284,7 @@ public:
   /// \return           The newly created \ref SymbolicExpression.
   SymbolicExpression& addSymbolicExpression(uint64_t Off,
                                             const SymbolicExpression& SymExpr) {
-    this->mutateIndices([&]() { SymbolicExpressions[Off] = SymExpr; });
+    SymbolicExpressions[Off] = SymExpr;
     return SymbolicExpressions[Off];
   }
 
@@ -1298,7 +1298,7 @@ public:
   /// \return           The newly created \ref SymbolicExpression.
   template <class ExprType, class... Args>
   SymbolicExpression& addSymbolicExpression(uint64_t Off, Args... A) {
-    this->mutateIndices([&]() { SymbolicExpressions[Off] = ExprType{A...}; });
+    SymbolicExpressions[Off] = ExprType{A...};
     return SymbolicExpressions[Off];
   }
 
@@ -1312,7 +1312,7 @@ public:
   /// with.
   bool removeSymbolicExpression(uint64_t Off) {
     std::size_t N;
-    this->mutateIndices([&]() { N = SymbolicExpressions.erase(Off); });
+    N = SymbolicExpressions.erase(Off);
     return N != 0;
   }
 
