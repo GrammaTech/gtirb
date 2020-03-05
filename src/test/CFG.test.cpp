@@ -74,6 +74,49 @@ TEST(Unit_CFG, getVertex) {
   EXPECT_EQ(getVertex(P, Cfg), DescriptorP);
 }
 
+TEST(Unit_CFG, removeVertex) {
+  CFG Cfg;
+  CfgNode* B1 = CodeBlock::Create(Ctx, 0);
+  CfgNode* B2 = CodeBlock::Create(Ctx, 1);
+  addVertex(B1, Cfg);
+  addVertex(B2, Cfg);
+
+  {
+    auto [Begin, End] = vertices(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 2);
+    EXPECT_EQ((std::set{Cfg[*Begin], Cfg[*std::next(Begin)]}),
+              (std::set{B1, B2}));
+    ASSERT_TRUE(getVertex(B1, Cfg));
+    EXPECT_EQ(Cfg[*getVertex(B1, Cfg)], B1);
+    ASSERT_TRUE(getVertex(B2, Cfg));
+    EXPECT_EQ(Cfg[*getVertex(B2, Cfg)], B2);
+  }
+
+  removeVertex(B1, Cfg);
+
+  {
+    auto [Begin, End] = vertices(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 1);
+    EXPECT_EQ(Cfg[*Begin], B2);
+    ASSERT_TRUE(getVertex(B2, Cfg));
+    EXPECT_EQ(Cfg[*getVertex(B2, Cfg)], B2);
+  }
+
+  addVertex(B1, Cfg);
+
+  {
+    auto [Begin, End] = vertices(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 2);
+    EXPECT_EQ((std::set{Cfg[*Begin], Cfg[*std::next(Begin)]}),
+              (std::set{B1, B2}));
+
+    ASSERT_TRUE(getVertex(B1, Cfg));
+    EXPECT_EQ(Cfg[*getVertex(B1, Cfg)], B1);
+    ASSERT_TRUE(getVertex(B2, Cfg));
+    EXPECT_EQ(Cfg[*getVertex(B2, Cfg)], B2);
+  }
+}
+
 TEST(Unit_CFG, cfgIterator) {
   CFG Cfg;
   auto* B1 = CodeBlock::Create(Ctx, 2);
