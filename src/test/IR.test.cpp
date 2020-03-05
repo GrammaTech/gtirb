@@ -241,3 +241,40 @@ TEST(Unit_IR, setModuleName) {
   EXPECT_EQ(&*It++, M3);
   EXPECT_EQ(&*It++, M2);
 }
+
+TEST(Unit_IR, CFG) {
+  Module* M1 = Module::Create(Ctx, "a");
+  Section* S1 = M1->addSection(Ctx, "a1");
+  ByteInterval* BI1 = S1->addByteInterval(Ctx, 10);
+  BI1->addBlock<CodeBlock>(Ctx, 0, 10);
+  M1->addProxyBlock(Ctx);
+
+  Module* M2 = Module::Create(Ctx, "b");
+  Section* S2 = M2->addSection(Ctx, "b2");
+  ByteInterval* BI2 = S2->addByteInterval(Ctx, 1);
+  BI2->addBlock<DataBlock>(Ctx, 0, 1);
+  M2->addProxyBlock(Ctx);
+
+  IR* Ir = IR::Create(Ctx);
+  Ir->addModule(M1);
+  Ir->addModule(M2);
+
+  {
+    auto [Begin, End] = vertices(Ir->getCFG());
+    ASSERT_EQ(std::distance(Begin, End), 3);
+    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
+                        Ir->getCFG()[*std::next(Begin, 1)],
+                        Ir->getCFG()[*std::next(Begin, 2)]}),
+              (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
+                                  &*M1->code_blocks_begin(),
+                                  &*M2->proxy_blocks_begin()}));
+  }
+
+  Ir->removeModule(M1);
+
+  {
+    auto [Begin, End] = vertices(Ir->getCFG());
+    ASSERT_EQ(std::distance(Begin, End), 1);
+    EXPECT_EQ(Ir->getCFG()[*Begin], &*M2->proxy_blocks_begin());
+  }
+}
