@@ -47,7 +47,7 @@ RUN make -j
 
 # Run CPack.
 ARG CPACK_GENERATOR=""
-RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
+RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}" -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)"; fi
 
 # Set up envionment for interactive use.
 ENV PATH=/gt/gtirb/build/bin:$PATH
