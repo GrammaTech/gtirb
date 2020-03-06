@@ -47,6 +47,7 @@
 namespace gtirb {
 class ByteInterval;
 class IR;
+class ModuleParent;
 
 /// \enum FileFormat
 ///
@@ -169,9 +170,9 @@ public:
   }
 
   /// \brief Get the \ref IR this module belongs to.
-  const IR* getIR() const { return Parent; }
+  const IR* getIR() const;
   /// \brief Get the \ref IR this module belongs to.
-  IR* getIR() { return Parent; }
+  IR* getIR();
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
@@ -635,9 +636,7 @@ public:
   const std::string& getName() const { return Name; }
 
   /// \brief Set the module name.
-  void setName(const std::string& X) {
-    this->mutateIndices([this, &X]() { Name = X; });
-  }
+  void setName(const std::string& X);
 
   /// \name Section-Related Public Types and Functions
   /// @{
@@ -732,29 +731,12 @@ public:
   /// \return Whether or not the operation succeeded. This operation can
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
-  bool removeSection(Section* S) {
-    S->removeFromIndices();
-    auto& Index = Sections.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end()) {
-      Index.erase(Iter);
-      S->setModule(nullptr);
-      return true;
-    }
-    return false;
-  }
+  bool removeSection(Section* S);
 
   /// \brief Move a \ref Section object to be located in this module.
   ///
   /// \param S The \ref Section object to add.
-  Section* addSection(Section* S) {
-    if (S->getModule()) {
-      S->getModule()->removeSection(S);
-    }
-    Sections.emplace(S);
-    S->setModule(this);
-    S->addToIndices();
-    return S;
-  }
+  Section* addSection(Section* S);
 
   /// \brief Creates a new \ref Section in this module.
   ///
@@ -1248,6 +1230,19 @@ public:
   using const_code_block_subrange = boost::iterator_range<MergeSortedIterator<
       Section::const_code_block_subrange::iterator, AddressLess<CodeBlock>>>;
 
+private:
+  code_block_range makeCodeBlockRange(SectionSet::iterator Begin,
+                                      SectionSet::iterator End) {
+    NodeToCodeBlockRange<Section> Transformer;
+    return boost::make_iterator_range(
+        code_block_iterator(
+            boost::make_transform_iterator(section_iterator(Begin),
+                                           Transformer),
+            boost::make_transform_iterator(section_iterator(End), Transformer)),
+        code_block_iterator());
+  }
+
+public:
   /// \brief Return an iterator to the first \ref CodeBlock.
   code_block_iterator code_blocks_begin() {
     return code_block_iterator(
@@ -1773,8 +1768,6 @@ public:
   /// @endcond
 
 private:
-  void setIR(IR* I) { Parent = I; }
-
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
 
@@ -1799,7 +1792,9 @@ private:
   // Present for testing purposes only.
   static Module* load(Context& C, std::istream& In);
 
-  IR* Parent{nullptr};
+  void setParent(ModuleParent* P) { Parent = P; }
+
+  ModuleParent* Parent{nullptr};
   std::string BinaryPath;
   Addr PreferredAddr;
   int64_t RebaseDelta{0};
@@ -1820,6 +1815,87 @@ private:
   friend class SerializationTestHarness; // Testing support.
 };
 
+/// \class ModuleParent
+///
+/// \brief Interface for the parent of a Module to receive updates when certain
+/// events occur.
+///
+
+class GTIRB_EXPORT_API ModuleParent {
+public:
+  virtual ~ModuleParent() = default;
+
+  /// \brief Retrieve a pointer to the parent.
+  virtual IR* getParent() const = 0;
+
+  /// \brief Notify the parent when this Module's name changes.
+  ///
+  /// Called after the Module updates its internal state.
+  ///
+  /// \param M        the Module whose name changed.
+  /// \param OldName  the Module's previous name.
+  /// \param NewName  the new name of this Module.
+  virtual void nameChange(Module* M, const std::string& OldName,
+                          const std::string& NewName) const = 0;
+
+  /// \brief Notify the parent when new ProxyBlocks are added to the Module.
+  ///
+  /// Called after the Module updates its internal state.
+  ///
+  /// \param M       the Module to which the ProxyBlocks were added.
+  /// \param Blocks  a range containing the new ProxyBlocks.
+  virtual void addProxyBlocks(Module* M,
+                              Module::proxy_block_range Blocks) const = 0;
+
+  /// \brief Notify the parent when ProxyBlocks are removed from the Module.
+  ///
+  /// Called before the Module updates its internal state.
+  ///
+  /// \param M       the Module from which ProxyBlocks will be removed.
+  /// \param Blocks  a range containing ProxyBlocks to remove.
+  virtual void removeProxyBlocks(Module* M,
+                                 Module::proxy_block_range Blocks) const = 0;
+
+  /// \brief Notify the parent when CodeBlocks are added to the Module.
+  ///
+  /// Called after the Module updates its internal state.
+  ///
+  /// \param M       the Module to which CodeBlocks were added.
+  /// \param Blocks  a range containing the new CodeBlocks.
+  virtual void addCodeBlocks(Module* M,
+                             Module::code_block_range Blocks) const = 0;
+
+  /// \brief Notify the parent when CodeBlocks are removed from the Module.
+  ///
+  /// Called before the Module updates its internal state.
+  ///
+  /// \param M       the Module from which CodeBlocks will be removed.
+  /// \param Blocks  a range containing the CodeBlocks to remove.
+  virtual void removeCodeBlocks(Module* M,
+                                Module::code_block_range Blocks) const = 0;
+};
+
+inline const IR* Module::getIR() const {
+  if (Parent)
+    return Parent->getParent();
+  return nullptr;
+}
+
+inline IR* Module::getIR() {
+  if (Parent)
+    return Parent->getParent();
+  return nullptr;
+}
+
+inline void Module::setName(const std::string& X) {
+  if (Parent) {
+    std::string OldName = X;
+    std::swap(Name, OldName);
+    Parent->nameChange(this, OldName, Name);
+  } else {
+    Name = X;
+  }
+}
 } // namespace gtirb
 
 #endif // GTIRB_MODULE_H

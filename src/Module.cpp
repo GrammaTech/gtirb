@@ -108,8 +108,14 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
 }
 
 void Module::removeProxyBlock(ProxyBlock* B) {
-  B->removeFromIndices();
-  B->setModule(nullptr);
+  if (auto It = ProxyBlocks.find(B); It != ProxyBlocks.end()) {
+    if (Parent) {
+      Parent->removeProxyBlocks(this,
+                                boost::make_iterator_range(It, std::next(It)));
+    }
+    ProxyBlocks.erase(B);
+    B->setModule(nullptr);
+  }
 }
 
 ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
@@ -118,7 +124,11 @@ ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
   }
 
   B->setModule(this);
-  B->addToIndices();
+  ProxyBlocks.insert(B);
+  if (Parent) {
+    auto It = ProxyBlocks.find(B);
+    Parent->addProxyBlocks(this, boost::make_iterator_range(It, std::next(It)));
+  }
   return B;
 }
 
@@ -135,4 +145,33 @@ Module* Module::load(Context& C, std::istream& In) {
   Message.ParseFromIstream(&In);
   auto M = Module::fromProtobuf(C, Message);
   return M;
+}
+
+bool Module::removeSection(Section* S) {
+  S->removeFromIndices();
+  auto& Index = Sections.get<by_pointer>();
+  if (auto Iter = Index.find(S); Iter != Index.end()) {
+    if (Parent) {
+      auto Begin = Sections.project<by_address>(Iter);
+      auto End = std::next(Begin);
+      Parent->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+    }
+    Index.erase(Iter);
+    S->setModule(nullptr);
+    return true;
+  }
+  return false;
+}
+
+Section* Module::addSection(Section* S) {
+  if (S->getModule()) {
+    S->getModule()->removeSection(S);
+  }
+  S->setModule(this);
+  auto [Iter, Inserted] = Sections.emplace(S);
+  if (Inserted && Parent) {
+    Parent->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
+  }
+  S->addToIndices();
+  return S;
 }

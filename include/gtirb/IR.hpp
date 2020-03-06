@@ -88,6 +88,58 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
                        boost::multi_index::tag<by_pointer>,
                        boost::multi_index::identity<Module*>>>>;
 
+  /// \class ModuleListener
+  ///
+  /// \brief Impements the ModuleParent interface to update an IR when Module
+  /// events occur.
+  ///
+
+  class ModuleListener : public ModuleParent {
+  public:
+    ModuleListener(IR* I_) : I(I_) {}
+
+    IR* getParent() const override { return I; }
+
+    void nameChange(Module* M, const std::string& /*OldName*/,
+                    const std::string& /*NewName*/) const override {
+      auto& Index = I->Modules.get<by_pointer>();
+      if (auto It = Index.find(M); It != Index.end()) {
+        Index.modify(It, [](Module*) {});
+      }
+    }
+
+    void addProxyBlocks(Module* /*M*/,
+                        Module::proxy_block_range Blocks) const override {
+      for (ProxyBlock& PB : Blocks) {
+        addVertex(&PB, I->Cfg);
+      }
+    }
+
+    void removeProxyBlocks(Module* /*M*/,
+                           Module::proxy_block_range Blocks) const override {
+      for (ProxyBlock& PB : Blocks) {
+        removeVertex(&PB, I->Cfg);
+      }
+    }
+
+    void addCodeBlocks(Module* /*M*/,
+                       Module::code_block_range Blocks) const override {
+      for (CodeBlock& CB : Blocks) {
+        addVertex(&CB, I->Cfg);
+      }
+    }
+
+    void removeCodeBlocks(Module* /*M*/,
+                          Module::code_block_range Blocks) const override {
+      for (CodeBlock& CB : Blocks) {
+        removeVertex(&CB, I->Cfg);
+      }
+    }
+
+  private:
+    IR* I;
+  };
+
 public:
   /// \brief Create an IR object in its default state.
   ///
@@ -161,14 +213,10 @@ public:
   bool removeModule(Module* M) {
     auto& Index = Modules.get<by_pointer>();
     if (auto Iter = Index.find(M); Iter != Index.end()) {
-      for (ProxyBlock& PB : M->proxy_blocks()) {
-        removeVertex(&PB, Cfg);
-      }
-      for (CodeBlock& CB : M->code_blocks()) {
-        removeVertex(&CB, Cfg);
-      }
+      ML.removeProxyBlocks(M, M->proxy_blocks());
+      ML.removeCodeBlocks(M, M->code_blocks());
       Index.erase(Iter);
-      M->setIR(nullptr);
+      M->setParent(nullptr);
       return true;
     }
     return false;
@@ -182,14 +230,10 @@ public:
       M->getIR()->removeModule(M);
     }
 
-    for (ProxyBlock& PB : M->proxy_blocks()) {
-      addVertex(&PB, Cfg);
-    }
-    for (CodeBlock& CB : M->code_blocks()) {
-      addVertex(&CB, Cfg);
-    }
+    ML.addProxyBlocks(M, M->proxy_blocks());
+    ML.addCodeBlocks(M, M->code_blocks());
     Modules.emplace(M);
-    M->setIR(this);
+    M->setParent(&ML);
     return M;
   }
 
@@ -1396,6 +1440,7 @@ private:
   static IR* fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
+  ModuleListener ML{this};
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
   CFG Cfg;
