@@ -1,0 +1,24 @@
+FROM ubuntu:18.04
+
+# dpkg-dev: for dpkg-scanpackages
+# software-properties-common: for add-apt-repository
+RUN apt-get -y update && apt-get -y install build-essential dpkg-dev software-properties-common wget
+
+# for protobuf 3.8.0
+RUN add-apt-repository ppa:roehling/grpc
+
+# for boost 1.67
+RUN add-apt-repository ppa:mhier/libboost-latest
+
+# setup apt repository
+RUN mkdir -p /gt/apt-repo
+COPY GTIRB-*-Linux.deb /gt/apt-repo
+RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
+RUN echo "\ndeb [trusted=yes] file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
+
+# test the installer
+ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+COPY .ci/test-install.cpp test-install.cpp
+RUN apt-get update && apt-get install -y --allow-unauthenticated gtirb
+ARG CXX_COMPILER=c++
+RUN $CXX_COMPILER test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++

@@ -221,3 +221,14 @@ debian-installer-ubuntu16:
     paths:
       - GTIRB-*-Linux.deb
   <<: *debian-installer
+
+debian-installer-ubuntu18:
+  stage: deploy
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - GTIRB-*-Linux.deb
+  <<: *debian-installer

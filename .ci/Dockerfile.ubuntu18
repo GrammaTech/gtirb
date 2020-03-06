@@ -10,30 +10,16 @@ SHELL ["/bin/bash", "-c"]
 # install apt packages
 RUN apt-get -y update && \
     apt-get -y install autoconf build-essential clang cmake curl default-jdk git \
-        libtool python3-setuptools wget \
+        libtool python3-setuptools wget software-properties-common \
         sbcl cl-quicklisp emacs-nox slime elpa-paredit
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 
-# Install Boost headers
-RUN curl -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION//./_}.tar.gz > boost.tar.gz && \
-    tar vxfz boost.tar.gz > /dev/null && \
-    cd boost_${BOOST_VERSION//./_} && \
-    ./bootstrap.sh --prefix=/usr/local --with-libraries=program_options > /dev/null && \
-    ./b2 install --prefix=/usr/local > /dev/null && \
-    rm ../boost.tar.gz && \
-    cd .. && \
-    rm -rf boost_${BOOST_VERSION//./_}
 
-# Install Protobuf
-RUN git clone https://github.com/google/protobuf -b v${PROTOBUF_VERSION} && \
-    cd protobuf && \
-    sh ./autogen.sh && \
-    CXX=${CXX_COMPILER} ./configure --prefix=/usr/local --enable-shared && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf protobuf
+RUN add-apt-repository ppa:mhier/libboost-latest && \
+    add-apt-repository ppa:roehling/grpc && \
+    apt-get -y update && \
+    apt-get -y install libboost1.70-dev libprotobuf-dev protobuf-compiler libprotoc-dev
 
 # Common-Lisp specific setup.
 RUN sbcl --load /usr/share/cl-quicklisp/quicklisp.lisp \

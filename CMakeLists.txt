@@ -397,7 +397,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 # (>=3.0.0), libprotobuf-dev (<<3.6.1)" )
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~)"
+    "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${Protobuf_VERSION}-1)"
 )
 
 include(CPack)
