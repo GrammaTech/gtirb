@@ -96,12 +96,12 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
 
   class ModuleListener : public ModuleParent {
   public:
-    ModuleListener(IR* I_) : I(I_) {}
+    explicit ModuleListener(IR* I_) : I(I_) {}
 
-    IR* getParent() const override { return I; }
+    IR* getParent() override { return I; }
 
     void nameChange(Module* M, const std::string& /*OldName*/,
-                    const std::string& /*NewName*/) const override {
+                    const std::string& /*NewName*/) override {
       auto& Index = I->Modules.get<by_pointer>();
       if (auto It = Index.find(M); It != Index.end()) {
         Index.modify(It, [](Module*) {});
@@ -109,28 +109,28 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
     }
 
     void addProxyBlocks(Module* /*M*/,
-                        Module::proxy_block_range Blocks) const override {
+                        Module::proxy_block_range Blocks) override {
       for (ProxyBlock& PB : Blocks) {
         addVertex(&PB, I->Cfg);
       }
     }
 
     void removeProxyBlocks(Module* /*M*/,
-                           Module::proxy_block_range Blocks) const override {
+                           Module::proxy_block_range Blocks) override {
       for (ProxyBlock& PB : Blocks) {
         removeVertex(&PB, I->Cfg);
       }
     }
 
     void addCodeBlocks(Module* /*M*/,
-                       Module::code_block_range Blocks) const override {
+                       Module::code_block_range Blocks) override {
       for (CodeBlock& CB : Blocks) {
         addVertex(&CB, I->Cfg);
       }
     }
 
     void removeCodeBlocks(Module* /*M*/,
-                          Module::code_block_range Blocks) const override {
+                          Module::code_block_range Blocks) override {
       for (CodeBlock& CB : Blocks) {
         removeVertex(&CB, I->Cfg);
       }

@@ -1826,7 +1826,7 @@ public:
   virtual ~ModuleParent() = default;
 
   /// \brief Retrieve a pointer to the parent.
-  virtual IR* getParent() const = 0;
+  virtual IR* getParent() = 0;
 
   /// \brief Notify the parent when this Module's name changes.
   ///
@@ -1836,7 +1836,7 @@ public:
   /// \param OldName  the Module's previous name.
   /// \param NewName  the new name of this Module.
   virtual void nameChange(Module* M, const std::string& OldName,
-                          const std::string& NewName) const = 0;
+                          const std::string& NewName) = 0;
 
   /// \brief Notify the parent when new ProxyBlocks are added to the Module.
   ///
@@ -1845,7 +1845,7 @@ public:
   /// \param M       the Module to which the ProxyBlocks were added.
   /// \param Blocks  a range containing the new ProxyBlocks.
   virtual void addProxyBlocks(Module* M,
-                              Module::proxy_block_range Blocks) const = 0;
+                              Module::proxy_block_range Blocks) = 0;
 
   /// \brief Notify the parent when ProxyBlocks are removed from the Module.
   ///
@@ -1854,7 +1854,7 @@ public:
   /// \param M       the Module from which ProxyBlocks will be removed.
   /// \param Blocks  a range containing ProxyBlocks to remove.
   virtual void removeProxyBlocks(Module* M,
-                                 Module::proxy_block_range Blocks) const = 0;
+                                 Module::proxy_block_range Blocks) = 0;
 
   /// \brief Notify the parent when CodeBlocks are added to the Module.
   ///
@@ -1863,7 +1863,7 @@ public:
   /// \param M       the Module to which CodeBlocks were added.
   /// \param Blocks  a range containing the new CodeBlocks.
   virtual void addCodeBlocks(Module* M,
-                             Module::code_block_range Blocks) const = 0;
+                             Module::code_block_range Blocks) = 0;
 
   /// \brief Notify the parent when CodeBlocks are removed from the Module.
   ///
@@ -1872,7 +1872,7 @@ public:
   /// \param M       the Module from which CodeBlocks will be removed.
   /// \param Blocks  a range containing the CodeBlocks to remove.
   virtual void removeCodeBlocks(Module* M,
-                                Module::code_block_range Blocks) const = 0;
+                                Module::code_block_range Blocks) = 0;
 };
 
 inline const IR* Module::getIR() const {

@@ -113,7 +113,7 @@ void Module::removeProxyBlock(ProxyBlock* B) {
       Parent->removeProxyBlocks(this,
                                 boost::make_iterator_range(It, std::next(It)));
     }
-    ProxyBlocks.erase(B);
+    ProxyBlocks.erase(It);
     B->setModule(nullptr);
   }
 }
