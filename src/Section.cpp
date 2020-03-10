@@ -67,3 +67,65 @@ Section* Section::load(Context& C, std::istream& In) {
   auto S = Section::fromProtobuf(C, Message);
   return S;
 }
+
+bool Section::removeByteInterval(ByteInterval* BI) {
+  auto& Index = ByteIntervals.get<by_pointer>();
+  if (auto Iter = Index.find(BI); Iter != Index.end()) {
+    if (Parent) {
+      auto Begin = ByteIntervals.project<by_address>(Iter);
+      auto End = std::next(Begin);
+      Parent->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+    }
+
+    // Section::mutateIndices updates the Module's SectionAddrs and Sections
+    // data structures in case removing the ByteInterval causes the range of
+    // addresses in this Section to change...
+    //
+    // The ByteInterval is removed inside the lambda so that getAddress and
+    // getSize return the old address and size, respectively, before the lambda
+    // is invoked, and the new address and size afterwards.
+    this->mutateIndices([&Index, Iter]() mutable { Index.erase(Iter); });
+
+    // ByteInterval::removeFromIndices removes the ByteInterval from this
+    // Section's ByteIntervalAddrs...
+
+    BI->removeFromIndices();
+
+    // Unset the ByteInterval's Section *after* calling removeFromIndices.
+
+    BI->setSection(nullptr);
+    return true;
+  }
+  return false;
+}
+
+ByteInterval* Section::addByteInterval(ByteInterval* BI) {
+  if (BI->getSection()) {
+    BI->getSection()->removeByteInterval(BI);
+  }
+  // Set the ByteInterval's Section *before* calling addToIndices.
+
+  BI->setSection(this);
+
+  // ByteInterval::addToIndices adds the ByteInterval to this Section's
+  // ByteIntervalAddrs...
+
+  BI->addToIndices();
+
+  // Section::mutateIndices updates the Module's SectionAddrs and Sections data
+  // structures in case the new ByteInterval caused the range of addresses in
+  // this Section to change...
+  //
+  // The ByteInterval is emplaced inside the lambda so that getAddress and
+  // getSize return the old address and size, respectively, before the lambda
+  // is invoked, and the new address and size afterwards. It is not necessary
+  // to call addCodeBlocks from inside the lambda, but it is convenient.
+
+  this->mutateIndices([this, BI]() mutable {
+    auto [Iter, Inserted] = ByteIntervals.emplace(BI);
+    if (Inserted && Parent) {
+      Parent->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
+    }
+  });
+  return BI;
+}

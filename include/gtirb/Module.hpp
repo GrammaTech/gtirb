@@ -147,6 +147,27 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               boost::multi_index::global_fun<const Symbol&, const Node*,
                                              &get_symbol_referent>>>>;
 
+  /// \class SectionParent
+  ///
+  /// \brief Implements the SectionParent interface to update a Module when
+  /// certain events occur.
+  ///
+
+  class SectionListener : public SectionParent {
+  public:
+    SectionListener(Module* M_) : M(M_) {}
+
+    Module* getParent() override { return M; }
+
+    void addCodeBlocks(Section* S, Section::code_block_range Blocks) override;
+
+    void removeCodeBlocks(Section* S,
+                          Section::code_block_range Blocks) override;
+
+  private:
+    Module* M;
+  };
+
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
   Module(Context& C, const std::string& N)
       : AuxDataContainer(C, Kind::Module), Name(N) {}
@@ -1807,6 +1828,8 @@ private:
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
 
+  SectionListener SL{this};
+
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
@@ -1844,8 +1867,7 @@ public:
   ///
   /// \param M       the Module to which the ProxyBlocks were added.
   /// \param Blocks  a range containing the new ProxyBlocks.
-  virtual void addProxyBlocks(Module* M,
-                              Module::proxy_block_range Blocks) = 0;
+  virtual void addProxyBlocks(Module* M, Module::proxy_block_range Blocks) = 0;
 
   /// \brief Notify the parent when ProxyBlocks are removed from the Module.
   ///
@@ -1862,8 +1884,7 @@ public:
   ///
   /// \param M       the Module to which CodeBlocks were added.
   /// \param Blocks  a range containing the new CodeBlocks.
-  virtual void addCodeBlocks(Module* M,
-                             Module::code_block_range Blocks) = 0;
+  virtual void addCodeBlocks(Module* M, Module::code_block_range Blocks) = 0;
 
   /// \brief Notify the parent when CodeBlocks are removed from the Module.
   ///
@@ -1871,8 +1892,7 @@ public:
   ///
   /// \param M       the Module from which CodeBlocks will be removed.
   /// \param Blocks  a range containing the CodeBlocks to remove.
-  virtual void removeCodeBlocks(Module* M,
-                                Module::code_block_range Blocks) = 0;
+  virtual void removeCodeBlocks(Module* M, Module::code_block_range Blocks) = 0;
 };
 
 inline const IR* Module::getIR() const {

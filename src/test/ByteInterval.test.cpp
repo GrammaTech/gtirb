@@ -617,6 +617,13 @@ TEST(Unit_ByteInterval, addSymbolicExpression) {
     ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym1, S);
     ASSERT_EQ(std::get<SymAddrAddr>(SE).Sym2, S);
   }
+
+  {
+    auto Range = BI->symbolic_expressions();
+    ASSERT_EQ(std::distance(Range.begin(), Range.end()), 6);
+    for (uint64_t i = 0; i < 6; ++i)
+      EXPECT_EQ(std::next(Range.begin(), i)->getOffset(), i);
+  }
 }
 
 TEST(Unit_ByteInterval, updateSymbolicExpression) {
@@ -627,4 +634,54 @@ TEST(Unit_ByteInterval, updateSymbolicExpression) {
   auto& SE = BI->addSymbolicExpression(0, SymAddrConst{2, S});
   ASSERT_TRUE(std::holds_alternative<SymAddrConst>(SE));
   ASSERT_EQ(std::get<SymAddrConst>(SE).Offset, 2);
+}
+
+TEST(Unit_ByteInterval, findSymbolicExpressionsAtOffset) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* S1 = Symbol::Create(Ctx, "A");
+  auto* S2 = Symbol::Create(Ctx, "B");
+  BI->addSymbolicExpression(2, SymAddrConst{0, S1});
+  BI->addSymbolicExpression(4, SymStackConst{5, S2});
+
+  auto Range = BI->findSymbolicExpressionsAtOffset(2);
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+
+  const SymbolicExpression* SE = &Range.front().getSymbolicExpression();
+  ASSERT_TRUE(std::holds_alternative<SymAddrConst>(*SE));
+  EXPECT_EQ(std::get<SymAddrConst>(*SE).Offset, 0);
+  EXPECT_EQ(std::get<SymAddrConst>(*SE).Sym, S1);
+
+  Range = BI->findSymbolicExpressionsAtOffset(4);
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+
+  SE = &Range.front().getSymbolicExpression();
+  ASSERT_TRUE(std::holds_alternative<SymStackConst>(*SE));
+  EXPECT_EQ(std::get<SymStackConst>(*SE).Offset, 5);
+  EXPECT_EQ(std::get<SymStackConst>(*SE).Sym, S2);
+
+  Range = BI->findSymbolicExpressionsAtOffset(6);
+  ASSERT_TRUE(Range.empty());
+
+  Range = BI->findSymbolicExpressionsAtOffset(0, 10);
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 2);
+
+  SE = &Range.front().getSymbolicExpression();
+  ASSERT_TRUE(std::holds_alternative<SymAddrConst>(*SE));
+  EXPECT_EQ(std::get<SymAddrConst>(*SE).Sym, S1);
+
+  SE = &Range.back().getSymbolicExpression();
+  ASSERT_TRUE(std::holds_alternative<SymStackConst>(*SE));
+  EXPECT_EQ(std::get<SymStackConst>(*SE).Sym, S2);
+}
+
+TEST(Unit_ByteInterval, removeSymbolicExpression) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* S = Symbol::Create(Ctx, "test");
+  BI->addSymbolicExpression(5, SymAddrConst{0, S});
+
+  ASSERT_FALSE(BI->symbolic_expressions().empty());
+
+  BI->removeSymbolicExpression(5);
+
+  EXPECT_TRUE(BI->symbolic_expressions().empty());
 }

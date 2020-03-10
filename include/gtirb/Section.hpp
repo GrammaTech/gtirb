@@ -37,6 +37,7 @@
 
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
+class SectionParent;
 
 /// \enum SectionFlag
 ///
@@ -59,8 +60,7 @@ enum class SectionFlag : uint8_t {
 /// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, const std::string& N)
-      : Node(C, Kind::Section), Name(N) {}
+  Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
 
   struct by_address {};
   struct by_pointer {};
@@ -102,9 +102,9 @@ public:
   bool operator!=(const Section& Other) const;
 
   /// \brief Get the \ref Module this section belongs to.
-  Module* getModule() { return Parent; }
+  Module* getModule();
   /// \brief Get the \ref Module this section belongs to.
-  const Module* getModule() const { return Parent; }
+  const Module* getModule() const;
 
   /// \brief Get the name of a Section.
   ///
@@ -340,27 +340,10 @@ public:
   /// \return Whether or not the operation succeeded. This operation can
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
-  bool removeByteInterval(ByteInterval* N) {
-    N->removeFromIndices();
-    auto& Index = ByteIntervals.get<by_pointer>();
-    if (auto Iter = Index.find(N); Iter != Index.end()) {
-      Index.erase(Iter);
-      N->setSection(nullptr);
-      return true;
-    }
-    return false;
-  }
+  bool removeByteInterval(ByteInterval* N);
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
-  ByteInterval* addByteInterval(ByteInterval* N) {
-    if (N->getSection()) {
-      N->getSection()->removeByteInterval(N);
-    }
-    N->setSection(this);
-    N->addToIndices();
-    this->mutateIndices([this, N]() { ByteIntervals.emplace(N); });
-    return N;
-  }
+  ByteInterval* addByteInterval(ByteInterval* BI);
 
   /// \brief Creates a new \ref ByteInterval in this section.
   ///
@@ -592,6 +575,19 @@ public:
   using const_code_block_subrange = boost::iterator_range<MergeSortedIterator<
       ByteInterval::const_code_block_subrange::iterator, BlockAddressLess>>;
 
+private:
+  code_block_range makeCodeBlockRange(ByteIntervalSet::iterator Begin,
+                                      ByteIntervalSet::iterator End) {
+    NodeToCodeBlockRange<ByteInterval> Transformer;
+    return boost::make_iterator_range(
+        code_block_iterator(boost::make_transform_iterator(
+                                byte_interval_iterator(Begin), Transformer),
+                            boost::make_transform_iterator(
+                                byte_interval_iterator(End), Transformer)),
+        code_block_iterator());
+  }
+
+public:
   /// \brief Return an iterator to the first \ref CodeBlock.
   code_block_iterator code_blocks_begin() {
     return code_block_iterator(
@@ -1065,13 +1061,13 @@ public:
   /// @endcond
 
 private:
-  Module* Parent{nullptr};
+  SectionParent* Parent{nullptr};
   std::string Name;
   ByteIntervalSet ByteIntervals;
   ByteIntervalIntMap ByteIntervalAddrs;
   std::set<SectionFlag> Flags;
 
-  void setModule(Module* M) { Parent = M; }
+  void setParent(SectionParent* P) { Parent = P; }
 
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
@@ -1104,6 +1100,49 @@ private:
   template <typename T> friend typename T::MessageType toProtobuf(const T&);
   friend class SerializationTestHarness; // Testing support.
 };
+
+/// \class SectionParent
+///
+/// \brief Interface for the parent of a Section to receive updates when
+/// certain events occur.
+///
+
+class GTIRB_EXPORT_API SectionParent {
+public:
+  virtual ~SectionParent() = default;
+
+  /// \brief Retrieve a pointer to the parent.
+  virtual Module* getParent() = 0;
+
+  /// \brief Notify the parent when new CodeBlocks are added to the Section.
+  ///
+  /// Called after the Section updates its internal state.
+  ///
+  /// \param S       the Section to which CodeBlocks were added.
+  /// \param Blocks  a range containing the new CodeBlocks.
+  virtual void addCodeBlocks(Section* S, Section::code_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when CodeBlocks are removed from the Section.
+  ///
+  /// Called before the Section updates its internal state.
+  ///
+  /// \param S       the Section from which CodeBlocks will be removed.
+  /// \param Blocks  a range containing the CodeBlocks to remove.
+  virtual void removeCodeBlocks(Section* S,
+                                Section::code_block_range Blocks) = 0;
+};
+
+inline Module* Section::getModule() {
+  if (Parent)
+    return Parent->getParent();
+  return nullptr;
+}
+
+inline const Module* Section::getModule() const {
+  if (Parent)
+    return Parent->getParent();
+  return nullptr;
+}
 } // namespace gtirb
 
 #endif // GTIRB_SECTION_H

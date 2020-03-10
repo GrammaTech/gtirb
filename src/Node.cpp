@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Node.hpp"
+#include "gtirb/CodeBlock.hpp"
 #include "gtirb/DataBlock.hpp"
 #include "gtirb/IR.hpp"
 #include "gtirb/Module.hpp"
@@ -240,8 +241,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
       return;
     }
     removeFromICL(M->SectionAddrs, S);
-    M->mutateIndices(
-        [&]() { modifyIndex(M->Sections.get<Module::by_pointer>(), S, F); });
+    modifyIndex(M->Sections.get<Module::by_pointer>(), S, F);
     addToICL(M->SectionAddrs, S);
   } break;
   case Node::Kind::Symbol: {
@@ -251,17 +251,7 @@ void Node::mutateIndices(const std::function<void()>& F) {
       F();
       return;
     }
-    M->mutateIndices(
-        [&]() { modifyIndex(M->Symbols.get<Module::by_pointer>(), S, F); });
-  } break;
-  case Node::Kind::Module: {
-    auto* M = cast<Module>(this);
-    auto* I = M->getIR();
-    if (!I) {
-      F();
-      return;
-    }
-    modifyIndex(I->Modules.get<IR::by_pointer>(), M, F);
+    modifyIndex(M->Symbols.get<Module::by_pointer>(), S, F);
   } break;
   default: {
     assert(!"unexpected kind of node passed to mutateModuleIndices!");

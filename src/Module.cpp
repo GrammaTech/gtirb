@@ -148,7 +148,6 @@ Module* Module::load(Context& C, std::istream& In) {
 }
 
 bool Module::removeSection(Section* S) {
-  S->removeFromIndices();
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
     if (Parent) {
@@ -157,7 +156,15 @@ bool Module::removeSection(Section* S) {
       Parent->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
     }
     Index.erase(Iter);
-    S->setModule(nullptr);
+
+    // Section::removeFromIndices removes the Section from this Module's
+    // SectionAddrs...
+
+    S->removeFromIndices();
+
+    // Unset the parent *after* calling removeFromIndices.
+
+    S->setParent(nullptr);
     return true;
   }
   return false;
@@ -167,11 +174,47 @@ Section* Module::addSection(Section* S) {
   if (S->getModule()) {
     S->getModule()->removeSection(S);
   }
-  S->setModule(this);
+  // Set the parent *before* calling addToIndices.
+
+  S->setParent(&SL);
+
+  // Section::addToIndices adds the Section to this Module's SectionAddrs...
+
+  S->addToIndices();
+
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Parent) {
     Parent->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
   }
-  S->addToIndices();
   return S;
+}
+
+void Module::SectionListener::addCodeBlocks(Section* S,
+                                            Section::code_block_range Blocks) {
+  if (M->Parent) {
+    auto& Index = M->Sections.get<by_pointer>();
+    if (auto Iter = Index.find(S); Iter != Index.end()) {
+      // code_block_iterator takes a range of ranges, so wrap the given block
+      // range in a one-element array.
+      std::array Range{Blocks};
+      M->Parent->addCodeBlocks(
+          M, boost::make_iterator_range(code_block_iterator(Range),
+                                        code_block_iterator()));
+    }
+  }
+}
+
+void Module::SectionListener::removeCodeBlocks(
+    Section* S, Section::code_block_range Blocks) {
+  if (M->Parent) {
+    auto& Index = M->Sections.get<by_pointer>();
+    if (auto Iter = Index.find(S); Iter != Index.end()) {
+      // code_block_iterator takes a range of ranges, so wrap the given block
+      // range in a one-element array.
+      std::array Range{Blocks};
+      M->Parent->removeCodeBlocks(
+          M, boost::make_iterator_range(code_block_iterator(Range),
+                                        code_block_iterator()));
+    }
+  }
 }

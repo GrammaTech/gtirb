@@ -828,6 +828,29 @@ TEST(Unit_Module, removeNodes) {
   EXPECT_EQ(std::distance(M->symbols_begin(), M->symbols_end()), 0);
 }
 
+TEST(Unit_Module, removeInvalidSection) {
+  auto* M1 = Module::Create(Ctx, "M1");
+  auto* M2 = Module::Create(Ctx, "M2");
+  auto* S1 = M1->addSection(Ctx, "S1");
+  S1->addByteInterval(Ctx, Addr(0), 10);
+  auto* S2 = M2->addSection(Ctx, "S2");
+  S2->addByteInterval(Ctx, Addr(0), 10);
+
+  EXPECT_FALSE(M1->sections().empty());
+  EXPECT_FALSE(M1->findSectionsOn(Addr(5)).empty());
+  EXPECT_FALSE(M2->sections().empty());
+  EXPECT_FALSE(M2->findSectionsOn(Addr(5)).empty());
+
+  // Removing a section from a Module that isn't its parent should have no
+  // effect.
+  M1->removeSection(S2);
+
+  EXPECT_FALSE(M1->sections().empty());
+  EXPECT_FALSE(M1->findSectionsOn(Addr(5)).empty());
+  EXPECT_FALSE(M2->sections().empty());
+  EXPECT_FALSE(M2->findSectionsOn(Addr(5)).empty());
+}
+
 TEST(Unit_Module, mutateBlocksWithSymbols) {
   auto* M = Module::Create(Ctx);
   auto* S = M->addSection(Ctx, "test");
