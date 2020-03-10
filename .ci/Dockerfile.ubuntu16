@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 ARG CMAKE_VERSION=3.9
-ARG PROTOBUF_VERSION=3.7.0
+ARG PROTOBUF_VERSION=3.1.0-0ubuntu1~maarten0
 ARG CXX_COMPILER=g++-7
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
@@ -28,7 +28,7 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     add-apt-repository ppa:maarten-fonville/protobuf && \
     apt-get -y update && \
-    apt-get -y install libboost1.67-dev libprotobuf-dev protobuf-compiler
+    apt-get -y install libboost1.67-dev libprotobuf-dev=$PROTOBUF_VERSION protobuf-compiler=$PROTOBUF_VERSION
 
 # Install CMake
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
