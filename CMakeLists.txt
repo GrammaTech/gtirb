@@ -209,6 +209,10 @@ if(GTIRB_CXX_API)
     add_compile_options(-wd4146) # unary minus operator applied to unsigned
                                  # type, result still unsigned
 
+    # C4505: 'google::protobuf::internal::MapField<...>::ContainsMapKey':
+    # unreferenced local function has been removed
+    add_compile_options(-wd4505)
+
     # Release target options
     add_compile_options($<$<CONFIG:Release>:-GL>) # Enable whole program
                                                   # optimization
