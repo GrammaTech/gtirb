@@ -82,12 +82,19 @@ endif()
 
 # TODO: test the CL API on other CL interpreters and search for those in
 # addition to SBCL when looking for a default CL interpeter
+set(LISP_MINIMUM_VERSION "1.4.5")
 find_program(LISP "sbcl")
 set(QUICKLISP
     "$ENV{HOME}/quicklisp"
     CACHE STRING "The Quicklisp installation to use."
 )
 if(LISP AND EXISTS "${QUICKLISP}")
+  execute_process(COMMAND "${LISP}" "--version" OUTPUT_VARIABLE LISP_VERSION)
+  string(REPLACE "SBCL" "" LISP_VERSION "${LISP_VERSION}")
+  string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
+  if("${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
+    message(SEND_ERROR "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required: ${LISP_MINIMUM_VERSION}")
+  endif()
   set(GTIRB_CL_API_DEFAULT ON)
 else()
   set(GTIRB_CL_API_DEFAULT OFF)
