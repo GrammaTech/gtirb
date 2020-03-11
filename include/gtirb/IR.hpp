@@ -104,6 +104,9 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
                     const std::string& /*NewName*/) override {
       auto& Index = I->Modules.get<by_pointer>();
       if (auto It = Index.find(M); It != Index.end()) {
+        // The lambda would ordinarily update the Module such that the result
+        // of Module::getName changes. Because that change happened before this
+        // method was called, the lambda doesn't need to do anything.
         Index.modify(It, [](Module*) {});
       }
     }
