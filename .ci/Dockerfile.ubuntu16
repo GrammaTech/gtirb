@@ -3,6 +3,7 @@ FROM ubuntu:16.04
 ARG CMAKE_VERSION=3.9
 ARG PROTOBUF_VERSION=3.1.0-0ubuntu1~maarten0
 ARG CXX_COMPILER=g++-7
+ARG PYTHON_VERSION=3.5.1-3
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 
@@ -14,9 +15,9 @@ RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
-    apt-get -y install apt-transport-https autoconf build-essential curl \
-        default-jdk g++-7 gcc-7 git libtool python3-setuptools wget \
-        sbcl cl-quicklisp emacs-nox slime paredit-el
+    apt-get -y install apt-transport-https autoconf build-essential curl
+        default-jdk g++-7 gcc-7 git libtool python3=$PYTHON_VERSION \
+        python3-setuptools wget sbcl cl-quicklisp emacs-nox slime paredit-el
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \
@@ -28,7 +29,8 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     add-apt-repository ppa:maarten-fonville/protobuf && \
     apt-get -y update && \
-    apt-get -y install libboost1.67-dev libprotobuf-dev=$PROTOBUF_VERSION protobuf-compiler=$PROTOBUF_VERSION
+    apt-get -y install libboost1.67-dev libprotobuf-dev=$PROTOBUF_VERSION \
+        protobuf-compiler=$PROTOBUF_VERSION
 
 # Install CMake
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
