@@ -355,6 +355,9 @@ if(GTIRB_CXX_API)
   file(
     WRITE "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake"
     "
+              function(check_gtirb_branch GTIRB_BRANCH_NAME)
+                if(\"\$\{GTIRB_BRANCH_NAME\}\" STREQUAL \"${PACKAGE_BRANCH}\"
+              endfunction()
               include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")
               set_property(
                   TARGET gtirb
