@@ -15,9 +15,10 @@ RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
-    apt-get -y install apt-transport-https autoconf build-essential curl
-        default-jdk g++-7 gcc-7 git libtool python3=$PYTHON_VERSION \
-        python3-setuptools wget sbcl cl-quicklisp emacs-nox slime paredit-el
+    apt-get -y install apt-transport-https autoconf build-essential curl \
+        default-jdk=2:1.8-56ubuntu2 g++-7 gcc-7 git libtool \
+        python3=$PYTHON_VERSION python3-setuptools wget sbcl cl-quicklisp \
+        emacs-nox slime paredit-el
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \

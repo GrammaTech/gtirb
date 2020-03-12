@@ -11,9 +11,11 @@ SHELL ["/bin/bash", "-c"]
 
 # install apt packages
 RUN apt-get -y update && \
-    apt-get -y install autoconf build-essential clang cmake curl default-jdk git \
-        libtool python3=$PYTHON_VERSION python3-setuptools wget \
-        software-properties-common sbcl=$SBCL_VERSION cl-quicklisp emacs-nox slime elpa-paredit
+    apt-get -y install autoconf build-essential clang cmake curl \
+        default-jdk=2:1.11-68ubuntu1~18.04.1 git libtool \
+        python3=$PYTHON_VERSION python3-setuptools wget \
+        software-properties-common sbcl=$SBCL_VERSION cl-quicklisp emacs-nox \
+        slime elpa-paredit
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 

@@ -100,7 +100,7 @@ else()
   set(GTIRB_CL_API_DEFAULT OFF)
 endif()
 
-find_package(Java COMPONENTS Development)
+find_package(Java 1.8.0 COMPONENTS Development)
 if(JAVA_FOUND)
   set(GTIRB_JAVA_API_DEFAULT ON)
 else()
