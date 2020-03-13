@@ -40,7 +40,7 @@ IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
     I->Modules.emplace(M);
   }
   gtirb::fromProtobuf(C, I->Cfg, Message.cfg());
-  static_cast<AuxDataContainer*>(I)->fromProtobuf(C, Message);
+  static_cast<AuxDataContainer*>(I)->fromProtobuf(Message);
   I->Version = Message.version();
   return I;
 }

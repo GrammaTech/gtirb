@@ -14,31 +14,13 @@
 //===----------------------------------------------------------------------===//
 
 #include "AuxDataContainer.hpp"
+#include "AuxData.hpp"
+#include "Context.hpp"
+#include "Serialization.hpp"
+
+#include <memory>
+#include <string>
 
 using namespace gtirb;
 
-void AuxDataContainer::addAuxData(const std::string& Name, AuxData&& X) {
-  this->AuxDatas[Name] = std::move(X);
-}
-
-gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) {
-  auto Found = this->AuxDatas.find(X);
-  if (Found != std::end(this->AuxDatas)) {
-    return &(Found->second);
-  }
-
-  return nullptr;
-}
-
-const gtirb::AuxData* AuxDataContainer::getAuxData(const std::string& X) const {
-  auto Found = this->AuxDatas.find(X);
-  if (Found != std::end(this->AuxDatas)) {
-    return &(Found->second);
-  }
-
-  return nullptr;
-}
-
-bool AuxDataContainer::removeAuxData(const std::string& X) {
-  return this->AuxDatas.erase(X) > 0;
-}
+AuxDataContainer::AuxDataTypeMap AuxDataContainer::TypeMap;

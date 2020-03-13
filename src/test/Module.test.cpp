@@ -28,7 +28,35 @@
 #include <tuple>
 #include <utility>
 
+namespace gtirb {
+namespace schema {
+
+struct Foo {
+  static constexpr const char* Name = "foo";
+  typedef std::vector<int64_t> Type;
+};
+
+struct Bar {
+  static constexpr const char* Name = "bar";
+  typedef std::vector<char> Type;
+};
+
+struct AnTest {
+  static constexpr const char* Name = "test";
+  typedef uint32_t Type;
+};
+
+} // namespace schema
+} // namespace gtirb
+
 using namespace gtirb;
+using namespace gtirb::schema;
+
+void registerModuleTestAuxDataTypes() {
+  AuxDataContainer::registerAuxDataType<Foo>();
+  AuxDataContainer::registerAuxDataType<Bar>();
+  AuxDataContainer::registerAuxDataType<AnTest>();
+}
 
 TEST(Unit_Module, compilationIteratorTypes) {
   static_assert(
@@ -100,14 +128,14 @@ TEST(Unit_Module, getFileFormatDefault) {
 
 TEST(Unit_Module, auxDataRanges) {
   auto* M = Module::Create(Ctx);
-  M->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
-  M->addAuxData("bar", std::vector<char>{'a', 'b', 'c'});
+  M->addAuxData<Foo>(std::vector<int64_t>{1, 2, 3});
+  M->addAuxData<Bar>(std::vector<char>{'a', 'b', 'c'});
 
   auto A = M->aux_data();
   EXPECT_EQ(std::distance(A.begin(), A.end()), 2);
   // AuxDatas are sorted by range, but this is an implementation detail
-  EXPECT_EQ(A.begin()->first, "bar");
-  EXPECT_EQ((++A.begin())->first, "foo");
+  EXPECT_EQ(A.begin()->Key, Bar::Name);
+  EXPECT_EQ((++A.begin())->Key, Foo::Name);
 }
 
 TEST(Unit_Module, setFileFormat) {
@@ -639,7 +667,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISA(ISA::X64);
-    Original->addAuxData("test", AuxData());
+    Original->addAuxData<AnTest>(0);
     Original->addSymbol(InnerCtx, Addr(1), "name1");
     Original->addSymbol(InnerCtx, Addr(2), "name1");
     Original->addSymbol(InnerCtx, Addr(1), "name3");
@@ -681,7 +709,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   // Make sure various collections and node members are serialized, but
   // don't check in detail as they have their own unit tests.
   EXPECT_EQ(Result->getAuxDataSize(), 1);
-  EXPECT_NE(Result->getAuxData("test"), nullptr);
+  EXPECT_NE(Result->getAuxData<AnTest>(), nullptr);
 
   EXPECT_EQ(num_vertices(Result->getIR()->getCFG()), 2);
   {

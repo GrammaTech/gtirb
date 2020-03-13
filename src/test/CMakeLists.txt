@@ -29,6 +29,7 @@ set(${PROJECT_NAME}_SRC
     DataBlock.test.cpp
     Addr.test.cpp
     IR.test.cpp
+    Main.test.cpp
     MergeSortedIterator.test.cpp
     Module.test.cpp
     Node.test.cpp
@@ -49,7 +50,13 @@ endif()
 gtirb_add_executable_gtest()
 
 target_link_libraries(
-  ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb
+  ${PROJECT_NAME}
+  ${SYSLIBS}
+  ${Boost_LIBRARIES}
+  gtest
+  gtest_main
+  gtirb
+  proto
 )
 
 # Add tests to make test

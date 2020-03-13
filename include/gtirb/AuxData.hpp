@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Offset.hpp>
+#include <proto/AuxData.pb.h>
 #include <boost/endian/conversion.hpp>
 #include <deque>
 #include <list>
@@ -30,7 +31,7 @@
 
 /// \file AuxData.hpp
 /// \ingroup AUXDATA_GROUP
-/// \brief  Types and operations for auxiliar data.
+/// \brief  Types and operations for auxiliary data.
 /// \see AUXDATA_GROUP
 
 namespace proto {
@@ -70,8 +71,19 @@ class Context;
 ///
 /// ### 'Sanctioned' AuxData Tables
 ///
-/// We specify a small number of standard AuxData table schemate to
-/// support interoperability. For details, see \ref md_AuxData.
+/// We specify a small number of standard AuxData table schemata to
+/// support interoperability. For details, see \ref md_AuxData. C++
+/// schemata for the sanctioned tables are present in \ref
+/// AuxDataSchema.hpp.
+///
+/// ### Adding Custom AuxData Tables
+///
+/// Clients may add their own AuxData tables in the C++ API by
+/// defining their own schemata. Schemata should be defined by
+/// extending the gtirb::schema namespace. Each schema should be a
+/// struct declaring public members for the type's name and its C++
+/// type. One can follow the model provided by the schemata in \ref
+/// AuxDataSchema.hpp.
 ///
 /// ### Serialization Format
 ///
@@ -154,7 +166,7 @@ template <class T, class Enable = void> struct auxdata_traits {
   /// types. Integral types are represented with an exact size (e.g.
   /// "uint32_t"). Sequential containers are represented as "sequence<...>", and
   /// mapping containers are represented as "mapping<...>".
-  static std::string type_id() = delete;
+  static std::string type_name() = delete;
 };
 
 /// @cond INTERNAL
@@ -199,7 +211,7 @@ struct default_serialization<
 
 template <>
 struct auxdata_traits<std::byte> : default_serialization<std::byte> {
-  static std::string type_id() { return "byte"; }
+  static std::string type_name() { return "byte"; }
 
   static void toBytes(std::byte object, to_iterator It) {
     *It = static_cast<char>(object);
@@ -213,18 +225,18 @@ struct auxdata_traits<std::byte> : default_serialization<std::byte> {
 };
 
 template <> struct auxdata_traits<Addr> : default_serialization<Addr> {
-  static std::string type_id() { return "Addr"; }
+  static std::string type_name() { return "Addr"; }
 };
 
 template <> struct auxdata_traits<UUID> : default_serialization<UUID> {
-  static std::string type_id() { return "UUID"; }
+  static std::string type_name() { return "UUID"; }
 };
 
 template <class T>
 struct auxdata_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
                                                    std::is_signed<T>::value>>
     : default_serialization<T> {
-  static std::string type_id() {
+  static std::string type_name() {
     return "int" + std::to_string(8 * sizeof(T)) + "_t";
   }
 };
@@ -233,13 +245,13 @@ template <class T>
 struct auxdata_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
                                                    std::is_unsigned<T>::value>>
     : default_serialization<T> {
-  static std::string type_id() {
+  static std::string type_name() {
     return "uint" + std::to_string(8 * sizeof(T)) + "_t";
   }
 };
 
 template <> struct auxdata_traits<std::string> {
-  static std::string type_id() { return "string"; }
+  static std::string type_name() { return "string"; }
 
   static void toBytes(const std::string& Object, to_iterator It) {
     auxdata_traits<uint64_t>::toBytes(Object.size(), It);
@@ -260,7 +272,7 @@ template <> struct auxdata_traits<std::string> {
 };
 
 template <> struct auxdata_traits<Offset> {
-  static std::string type_id() { return "Offset"; }
+  static std::string type_name() { return "Offset"; }
 
   static void toBytes(const Offset& Object, to_iterator It) {
     auxdata_traits<UUID>::toBytes(Object.ElementId, It);
@@ -276,7 +288,7 @@ template <> struct auxdata_traits<Offset> {
 
 template <class T>
 struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
-  static std::string type_id() {
+  static std::string type_name() {
     return "sequence<" + TypeId<typename T::value_type>::value() + ">";
   }
 
@@ -303,7 +315,7 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
 template <class... Args> struct auxdata_traits<std::set<Args...>> {
   using T = std::set<Args...>;
 
-  static std::string type_id() {
+  static std::string type_name() {
     return "set<" + TypeId<typename T::value_type>::value() + ">";
   }
 
@@ -329,7 +341,7 @@ template <class... Args> struct auxdata_traits<std::set<Args...>> {
 
 template <class T>
 struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
-  static std::string type_id() {
+  static std::string type_name() {
     return "mapping<" +
            TypeId<typename T::key_type, typename T::mapped_type>::value() + ">";
   }
@@ -363,7 +375,7 @@ template <class T> struct tuple_traits {};
 template <class... Ts> struct tuple_traits<std::tuple<Ts...>> {
   using Tuple = std::tuple<Ts...>;
 
-  static std::string type_id() {
+  static std::string type_name() {
     return "tuple<" + TypeId<Ts...>::value() + ">";
   }
 };
@@ -402,139 +414,117 @@ struct auxdata_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
 
 /// @cond INTERNAL
 template <class T> struct TypeId<T> {
-  static std::string value() { return auxdata_traits<T>::type_id(); }
+  static std::string value() { return auxdata_traits<T>::type_name(); }
 };
 
 template <class T, class... Ts> struct TypeId<T, Ts...> {
   static std::string value() {
-    return auxdata_traits<T>::type_id() + "," + TypeId<Ts...>::value();
+    return auxdata_traits<T>::type_name() + "," + TypeId<Ts...>::value();
   }
 };
 /// @endcond
 
 /// @cond INTERNAL
-class AuxDataImpl {
+class GTIRB_EXPORT_API AuxData {
 public:
-  virtual ~AuxDataImpl() = default;
-  virtual void toBytes(std::string& Bytes) const = 0;
-  virtual void fromBytes(const std::string& Bytes) = 0;
-  virtual const std::type_info& storedType() const = 0;
-  virtual std::string typeName() const = 0;
-  virtual void* get() = 0;
-};
+  /// !brief Structure containing the serialized representation of an
+  /// !AuxData.
+  struct SerializedForm {
+    std::string RawBytes;
+    std::string ProtobufType;
+  };
 
-template <class T> class AuxDataTemplate : public AuxDataImpl {
-public:
-  AuxDataTemplate() = default;
-  AuxDataTemplate(const T& Val) : Object(Val){};
-  AuxDataTemplate(T&& Val) : Object(std::move(Val)){};
-
-  void toBytes(std::string& Bytes) const override {
-    auxdata_traits<T>::toBytes(Object, std::back_inserter(Bytes));
-  }
-
-  void fromBytes(const std::string& Bytes) override {
-    auxdata_traits<T>::fromBytes(Object, Bytes.begin());
-  }
-
-  const std::type_info& storedType() const override { return typeid(T); }
-
-  std::string typeName() const override { return TypeId<T>::value(); }
-
-  void* get() override { return static_cast<void*>(&Object); }
-
-  T Object;
-};
-/// @endcond
-
-/// \brief A generic object for storing additional client-specific data.
-///
-/// \see \ref AUXDATA_GROUP
-
-class AuxData {
-public:
   /// \brief Construct an empty table.
   AuxData() = default;
 
-  /// \brief Construct an \ref AuxData containing a value.
+  virtual ~AuxData() = default;
+
+  /// \brief Returns the serialized representation of this AuxData.
   ///
-  /// \param Value  The contents of the \ref AuxData.
-  template <typename T>
-  AuxData(T&& Value)
-      : Impl(std::make_unique<AuxDataTemplate<std::remove_reference_t<T>>>(
-            std::forward<T>(Value))) {}
-
-  /// \brief Store a new value, destroying the previous contents.
+  /// If the object is newly constructed (and wasn't unserialized from
+  /// protobuf), the content present in the returned structure will be
+  /// empty.
   ///
-  /// \param Value  The value to store.
-  template <typename T> AuxData& operator=(T&& Value) {
-    this->Impl = std::make_unique<AuxDataTemplate<std::remove_reference_t<T>>>(
-        std::forward<T>(Value));
-    return *this;
-  }
-
-  /// \brief Get the contents of the \ref AuxData.
+  /// If the object has been modified since being unserialized, the
+  /// content returned here will not incorporate those modifications.
   ///
-  /// \tparam T  The expected type of the contents.
-  ///
-  /// \returns If the \ref AuxData contains an object of type T, return a
-  /// pointer to it. Otherwise return nullptr.
-  //
-  template <typename T> T* get() {
-    if (!this->RawBytes.empty()) {
-      // Reconstruct from deserialized data, but wait to update the impl until
-      // after checking that the types match.
-      auto TempImpl = std::make_unique<AuxDataTemplate<T>>();
+  /// This interface is provided primarily as a means for clients to
+  /// inspect the raw data of AuxData objects whose types have not
+  /// been registered.
+  const SerializedForm& rawData() const { return this->SF; }
 
-      if (TempImpl->typeName() != this->TypeName) {
-        return nullptr;
-      }
+  /// !brief The degenerate api type id used for AuxData types that
+  /// haven't been registered.
+  static constexpr std::size_t UNREGISTERED_API_TYPE_ID = 0;
 
-      this->Impl = std::move(TempImpl);
-      this->Impl->fromBytes(this->RawBytes);
-      this->RawBytes.clear();
-      this->TypeName.clear();
-    } else if (this->Impl == nullptr || typeid(T) != this->Impl->storedType()) {
-      return nullptr;
-    }
+  /// !brief Retrieve a type-trait-specific Id number.
+  virtual std::size_t getApiTypeId() const { return UNREGISTERED_API_TYPE_ID; }
 
-    return static_cast<T*>(this->Impl->get());
-  }
+  /// \brief The protobuf message type used for serializing AuxData.
+  using MessageType = proto::AuxData;
 
-  /// \brief A string representation of the type of the stored data.
-  ///
-  /// \returns The type name, or an empty string if no value is stored.
-  std::string typeName() const {
-    if (this->Impl) {
-      return this->Impl->typeName();
-    } else {
-      return this->TypeName;
-    }
-  }
-
-  /// @cond INTERNAL
   /// \brief Initialize an AuxData from a protobuf message.
   ///
-  /// \param <unnamed>   Not used.
   /// \param Message     The protobuf message from which to deserialize.
   /// \param[out] Result  The AuxData to initialize.
-  GTIRB_EXPORT_API friend void fromProtobuf(Context&, AuxData& Result,
-                                            const proto::AuxData& Message);
+  static void fromProtobuf(AuxData& Result, const MessageType& Message);
 
   /// \brief Serialize into a protobuf message.
   ///
-  /// \param <unnamed>     The AuxData to serialize.
-  ///
-  /// \return A protobuf message representing the AuxData.
-  GTIRB_EXPORT_API friend proto::AuxData toProtobuf(const AuxData&);
-  /// @endcond
+  /// \param[out] Message  A protobuf message representing the AuxData.
+  virtual void toProtobuf(MessageType* Message) const;
+
 private:
-  std::unique_ptr<AuxDataImpl> Impl;
-  std::string RawBytes;
-  std::string TypeName;
+  SerializedForm SF;
 };
 
-/// @}
+template <class Schema> class AuxDataImpl : public AuxData {
+public:
+  AuxDataImpl() = default;
+  AuxDataImpl(typename Schema::Type&& Val) : Object(std::move(Val)){};
+
+  /// !brief Register/retrieve a type-trait-specific Id number.
+  static std::size_t staticGetApiTypeId() {
+    return typeid(typename Schema::Type).hash_code();
+  }
+
+  /// \brief Retrieve a type-trait-specific Id number.
+  virtual std::size_t getApiTypeId() const override {
+    return staticGetApiTypeId();
+  }
+
+  const typename Schema::Type* get() const { return &Object; }
+
+  static std::unique_ptr<AuxDataImpl<Schema>>
+  fromProtobuf(const MessageType& Message) {
+    // Check if the serialized type isn't compatible with the type
+    // we're trying to deserialize to.
+    if (Message.type_name() !=
+        auxdata_traits<typename Schema::Type>::type_name()) {
+      return nullptr;
+    }
+
+    auto TypedAuxData = std::make_unique<AuxDataImpl<Schema>>();
+    AuxData::fromProtobuf(*TypedAuxData, Message);
+    auxdata_traits<typename Schema::Type>::fromBytes(TypedAuxData->Object,
+                                                     Message.data().begin());
+    return TypedAuxData;
+  }
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param Message     The Message to serialize into.
+  virtual void toProtobuf(MessageType* Message) const override {
+    Message->set_type_name(auxdata_traits<typename Schema::Type>::type_name());
+    auxdata_traits<typename Schema::Type>::toBytes(
+        this->Object, std::back_inserter(*Message->mutable_data()));
+  }
+
+private:
+  typename Schema::Type Object;
+};
+/// @endcond
+
 // (end \defgroup AUXDATA_GROUP)
 
 } // namespace gtirb

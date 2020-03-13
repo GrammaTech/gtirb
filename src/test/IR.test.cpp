@@ -23,7 +23,47 @@
 #include <proto/IR.pb.h>
 #include <gtest/gtest.h>
 
+namespace gtirb {
+namespace schema {
+
+struct TestVectorInt64 {
+  static constexpr const char* Name = "test vector<int64_t>";
+  typedef std::vector<int64_t> Type;
+};
+
+struct FooVectorInt64 {
+  static constexpr const char* Name = "foo vector<int64_t>";
+  typedef std::vector<int64_t> Type;
+};
+
+struct AnAuxDataMap {
+  static constexpr const char* Name = "AuxData map";
+  typedef std::map<std::string, int64_t> Type;
+};
+
+struct BarVectorChar {
+  static constexpr const char* Name = "bar vector<char>";
+  typedef std::vector<char> Type;
+};
+
+struct TestInt32 {
+  static constexpr const char* Name = "test int32";
+  typedef int32_t Type;
+};
+
+} // namespace schema
+} // namespace gtirb
+
 using namespace gtirb;
+using namespace gtirb::schema;
+
+void registerIrTestAuxDataTypes() {
+  AuxDataContainer::registerAuxDataType<TestVectorInt64>();
+  AuxDataContainer::registerAuxDataType<FooVectorInt64>();
+  AuxDataContainer::registerAuxDataType<AnAuxDataMap>();
+  AuxDataContainer::registerAuxDataType<BarVectorChar>();
+  AuxDataContainer::registerAuxDataType<TestInt32>();
+}
 
 static bool hasPreferredAddr(const Module& M, Addr X) {
   return M.getPreferredAddr() == X;
@@ -92,10 +132,10 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
 TEST(Unit_IR, addAuxData) {
   std::vector<int64_t> AuxData = {1, 2, 3};
   auto* Ir = IR::Create(Ctx);
-  Ir->addAuxData("test", std::move(AuxData));
+  Ir->addAuxData<TestVectorInt64>(std::move(AuxData));
 
-  EXPECT_NE(Ir->getAuxData("test"), nullptr);
-  EXPECT_EQ(*Ir->getAuxData("test")->get<std::vector<int64_t>>(),
+  ASSERT_NE(Ir->getAuxData<TestVectorInt64>(), nullptr);
+  EXPECT_EQ(*Ir->getAuxData<TestVectorInt64>(),
             std::vector<int64_t>({1, 2, 3}));
 }
 
@@ -103,36 +143,36 @@ TEST(Unit_IR, getAuxData) {
   std::vector<int64_t> AuxDataVec = {1, 2, 3};
   std::map<std::string, int64_t> AuxDataMap = {{"foo", 1}, {"bar", 2}};
   auto* Ir = IR::Create(Ctx);
-  Ir->addAuxData("foo", std::move(AuxDataVec));
-  Ir->addAuxData("bar", std::move(AuxDataMap));
+  Ir->addAuxData<FooVectorInt64>(std::move(AuxDataVec));
+  Ir->addAuxData<AnAuxDataMap>(std::move(AuxDataMap));
 
-  auto* FooAuxData = Ir->getAuxData<std::vector<int64_t>>("foo");
-  EXPECT_NE(FooAuxData, nullptr);
+  auto* FooAuxData = Ir->getAuxData<FooVectorInt64>();
+  ASSERT_NE(FooAuxData, nullptr);
   EXPECT_EQ(*FooAuxData, std::vector<int64_t>({1, 2, 3}));
 
-  auto* BarAuxData = Ir->getAuxData<std::map<std::string, int64_t>>("bar");
+  auto* StoredAuxDataMap = Ir->getAuxData<AnAuxDataMap>();
   std::map<std::string, int64_t> ToCompare = {{"foo", 1}, {"bar", 2}};
   std::map<std::string, int64_t> BadToCompare = {{"foo", 1}, {"bar", 3}};
-  EXPECT_NE(BarAuxData, nullptr);
-  EXPECT_NE(*BarAuxData, BadToCompare);
-  EXPECT_EQ(*BarAuxData, ToCompare);
+  ASSERT_NE(StoredAuxDataMap, nullptr);
+  EXPECT_NE(*StoredAuxDataMap, BadToCompare);
+  EXPECT_EQ(*StoredAuxDataMap, ToCompare);
 }
 
 TEST(Unit_IR, auxDataRange) {
   auto* Ir = IR::Create(Ctx);
-  Ir->addAuxData("foo", std::vector<int64_t>{1, 2, 3});
-  Ir->addAuxData("bar", std::vector<char>{'a', 'b', 'c'});
+  Ir->addAuxData<FooVectorInt64>(std::vector<int64_t>{1, 2, 3});
+  Ir->addAuxData<BarVectorChar>(std::vector<char>{'a', 'b', 'c'});
 
   auto A = Ir->aux_data();
   EXPECT_EQ(std::distance(A.begin(), A.end()), 2);
   // AuxDatas are sorted by range, but this is an implementation detail
-  EXPECT_EQ(A.begin()->first, "bar");
-  EXPECT_EQ((++A.begin())->first, "foo");
+  EXPECT_EQ(A.begin()->Key, "bar vector<char>");
+  EXPECT_EQ((++A.begin())->Key, "foo vector<int64_t>");
 }
 
 TEST(Unit_IR, missingAuxData) {
   auto* Ir = IR::Create(Ctx);
-  EXPECT_EQ(Ir->getAuxData("missing"), nullptr);
+  EXPECT_EQ(Ir->getAuxData<FooVectorInt64>(), nullptr);
 }
 
 TEST(Unit_IR, protobufRoundTrip) {
@@ -143,7 +183,7 @@ TEST(Unit_IR, protobufRoundTrip) {
     Context InnerCtx;
     auto* Original = IR::Create(InnerCtx);
     Original->addModule(Module::Create(InnerCtx));
-    Original->addAuxData("test", AuxData());
+    Original->addAuxData<TestInt32>(42);
 
     MainID = Original->modules_begin()->getUUID();
     Original->toProtobuf(&Message);
@@ -152,7 +192,8 @@ TEST(Unit_IR, protobufRoundTrip) {
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
-  EXPECT_NE(Result->getAuxData("test"), nullptr);
+  ASSERT_NE(Result->getAuxData<TestInt32>(), nullptr);
+  EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
 }
 
 TEST(Unit_IR, jsonRoundTrip) {
@@ -163,7 +204,7 @@ TEST(Unit_IR, jsonRoundTrip) {
     Context InnerCtx;
     auto* Original = IR::Create(InnerCtx);
     Original->addModule(Module::Create(InnerCtx));
-    Original->addAuxData("test", AuxData());
+    Original->addAuxData<TestInt32>(42);
 
     MainID = Original->modules_begin()->getUUID();
     Original->saveJSON(Out);
@@ -173,19 +214,21 @@ TEST(Unit_IR, jsonRoundTrip) {
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
-  EXPECT_NE(Result->getAuxData("test"), nullptr);
+  ASSERT_NE(Result->getAuxData<TestInt32>(), nullptr);
+  EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
 }
 
 TEST(Unit_IR, move) {
   auto* Original = IR::Create(Ctx);
   EXPECT_TRUE(Original->getAuxDataEmpty());
 
-  Original->addAuxData("test", AuxData());
+  Original->addAuxData<TestInt32>(42);
 
   IR Moved(std::move(*Original));
   EXPECT_FALSE(Moved.getAuxDataEmpty());
   EXPECT_EQ(Moved.getAuxDataSize(), 1);
-  EXPECT_NE(Moved.getAuxData("test"), nullptr);
+  ASSERT_NE(Moved.getAuxData<TestInt32>(), nullptr);
+  EXPECT_EQ(*Moved.getAuxData<TestInt32>(), 42);
 }
 
 TEST(Unit_IR, setModuleName) {

@@ -16,29 +16,13 @@
 #include <proto/AuxData.pb.h>
 
 namespace gtirb {
-void fromProtobuf(Context&, AuxData& Result, const proto::AuxData& Message) {
-  Result.Impl = nullptr;
-  Result.TypeName = Message.type_name();
-  Result.RawBytes = Message.data();
+void AuxData::fromProtobuf(AuxData& Result, const MessageType& Message) {
+  Result.SF.ProtobufType = Message.type_name();
+  Result.SF.RawBytes = Message.data();
 }
 
-proto::AuxData toProtobuf(const AuxData& T) {
-  proto::AuxData Message;
-
-  if (T.Impl != nullptr) {
-    // Prefer the Impl, if it exists, since the user may have modified it after
-    // deserialization.
-    Message.set_type_name(T.Impl->typeName());
-    Message.mutable_data()->clear();
-    T.Impl->toBytes(*Message.mutable_data());
-  } else if (!T.RawBytes.empty()) {
-    // If there is no Impl, but RawBytes is not empty, the data must have been
-    // deserialized from protobuf, but never used. So we can just put them back
-    // into a protobuf.
-    Message.set_type_name(T.TypeName);
-    Message.set_data(T.RawBytes);
-  }
-
-  return Message;
+void AuxData::toProtobuf(MessageType* Message) const {
+  Message->set_type_name(this->SF.ProtobufType);
+  *Message->mutable_data() = this->SF.RawBytes;
 }
 } // namespace gtirb

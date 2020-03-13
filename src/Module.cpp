@@ -94,7 +94,7 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
     M->EntryPoint = cast<CodeBlock>(
         Node::getByUUID(C, uuidFromBytes(Message.entry_point())));
   }
-  static_cast<AuxDataContainer*>(M)->fromProtobuf(C, Message);
+  static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
   return M;
 }
 

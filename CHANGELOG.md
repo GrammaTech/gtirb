@@ -1,3 +1,12 @@
+# 1.2.0
+
+* AuxData and AuxDataContainer in the C++ API have been reworked to provide cleaner type safety.
+  * AuxData is now retrieved directly from an AuxDataContainer using
+	a schema class that specifies both the name of the AuxData object
+	as well as its type.
+  * Schemata for AuxData types must be registered at process startup
+    before GTIRB objects are constructed or unserialized.
+
 # 1.1.1
 
 * Fixed a bug where changing the address of a block caused lookups of symbol

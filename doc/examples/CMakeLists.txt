@@ -16,7 +16,7 @@ add_executable(ex-cfg-paths cfg-paths.cpp)
 target_link_libraries(ex-cfg-paths gtirb)
 
 add_executable(ex-functions functions.cpp)
-target_link_libraries(ex-functions gtirb)
+target_link_libraries(ex-functions gtirb proto)
 
 find_library(CAPSTONE NAMES capstone)
 if(CAPSTONE)

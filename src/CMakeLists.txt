@@ -41,6 +41,7 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataSchema.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/ByteInterval.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Casting.hpp"

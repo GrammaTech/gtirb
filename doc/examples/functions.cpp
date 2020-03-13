@@ -2,6 +2,7 @@
 // functions.
 
 #include <gtirb/gtirb.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -17,7 +18,16 @@ std::ostream& operator<<(std::ostream& Os, Addr A) {
   return Os;
 }
 
+void register_aux_data_types() {
+  using namespace gtirb::schema;
+  AuxDataContainer::registerAuxDataType<FunctionEntries>();
+  AuxDataContainer::registerAuxDataType<FunctionBlocks>();
+}
+
 int main(int argc, char** argv) {
+  // Register the AuxData we'll want to use.
+  register_aux_data_types();
+
   // Create a context to manage memory for gtirb objects
   Context C;
 
@@ -30,34 +40,43 @@ int main(int argc, char** argv) {
     I = IR::load(C, in);
   }
 
-  // Build a map of basic blocks by address
-  std::map<Addr, const CodeBlock*> BlocksByAddr;
-  auto Blocks = blocks(I->getCFG());
-  std::for_each(Blocks.begin(), Blocks.end(), [&BlocksByAddr](const auto& B) {
-    if (std::optional<Addr> A = B.getAddress())
-      BlocksByAddr.emplace(*A, &B);
-  });
-
   // Load function information from AuxData.
   // This information is not guaranteed to be present. For the purposes of
   // this example we assume that it exists, but real code should check for
-  // nullptr in the return value of getAuxData and get.
-  auto& Functions =
-      *(I->getAuxData("functions")
-            ->get<std::vector<std::tuple<std::string, Addr, uint64_t>>>());
+  // nullptr in the return value of getAuxData.
+  auto& FunctionEntries =
+      *(I->modules_begin()->getAuxData<gtirb::schema::FunctionEntries>());
+  auto& FunctionBlocks =
+      *(I->modules_begin()->getAuxData<gtirb::schema::FunctionBlocks>());
 
   // Print function information
-  for (auto& [Name, Address, Size] : Functions) {
-    Addr EndAddr = Address + Size;
-    std::cout << Name << "\t" << Address << "-" << EndAddr;
+  for (auto& [Function, Entries] : FunctionEntries) {
 
-    // Examine all blocks in the function, looking for calls.
-    auto End = BlocksByAddr.end();
-    int CallCount = 0;
-    for (auto It = BlocksByAddr.find(Address); It != End && It->first < EndAddr;
-         It++) {
-      // FIXME: implement in terms of edge labels once those are available
+    // Note: this prints out the function's UUID.
+    std::cout << boost::uuids::to_string(Function) << "\n";
+
+    // Print information about entry points.
+    // TODO: add symbols
+    std::cout << "  Entries:\n";
+    for (auto EntryUUID : Entries) {
+      auto EntryNode = Node::getByUUID(C, EntryUUID);
+      assert(EntryNode);
+      auto EntryBlock = dyn_cast_or_null<CodeBlock>(EntryNode);
+      assert(EntryBlock);
+      std::cout << "    " << EntryBlock->getAddress() << "\n";
     }
-    std::cout << ", contains " << CallCount << " calls\n";
+
+    // Examine all blocks in the function.
+    std::cout << "  Blocks:\n";
+    auto It = FunctionBlocks.find(Function);
+    assert(It != FunctionBlocks.end());
+    auto& Blocks = It->second;
+    for (auto BlockUUID : Blocks) {
+      auto BlockNode = Node::getByUUID(C, BlockUUID);
+      assert(BlockNode);
+      auto Block = dyn_cast_or_null<CodeBlock>(BlockNode);
+      assert(Block);
+      std::cout << "    " << Block->getAddress() << "\n";
+    }
   }
 }

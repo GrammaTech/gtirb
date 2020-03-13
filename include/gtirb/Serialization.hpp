@@ -76,6 +76,9 @@ template <typename T> T& deref_if_ptr(T& V) { return V; }
 template <typename T> const T& deref_if_ptr(const T& V) { return V; }
 template <typename T> T& deref_if_ptr(T* V) { return *V; }
 template <typename T> const T& deref_if_ptr(const T* V) { return *V; }
+template <typename T> const T& deref_if_ptr(const std::unique_ptr<T>& V) {
+  return *V;
+}
 
 template <typename T, typename U>
 auto toProtobuf(const std::pair<T, U>& Val) -> google::protobuf::MapPair<
