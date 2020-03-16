@@ -7,7 +7,11 @@
         :command-line-arguments)
   (:import-from :proto)
   (:import-from :proto-v0)
+  (:import-from :uiop :nest)
   (:import-from :uiop/image :quit)
+  (:import-from :gtirb
+                :aux-data :aux-data-type :aux-data-data
+                :+module-file-format-map+)
   (:export :update :upgrade :read-proto :write-proto))
 (in-package :gtirb/update)
 (in-readtable :curry-compose-reader-macros)
@@ -121,6 +125,27 @@
           (coerce (mappend [{coerce _ 'list} #'proto:vertices] cfgs) 'vector))
     it))
 
+(define-constant +symbol-storage-kind+
+    '((#.proto-v0:+storage-kind-storage-undefined+ . :undefined)
+      (#.proto-v0:+storage-kind-storage-normal+ . :normal)
+      (#.proto-v0:+storage-kind-storage-static+ . :static)
+      (#.proto-v0:+storage-kind-storage-extern+ . :extern)
+      (#.proto-v0:+storage-kind-storage-local+ . :local))
+  :test #'equal)
+
+(defun symbol-type (file-format symbol)
+  "Return the symbolType AuxData table entry for SYMBOL based on its
+`proto-v0:storage-kind'."
+  (ecase (cdr (assoc (proto-v0:storage-kind symbol) +symbol-storage-kind+))
+    (:normal (ecase file-format
+               (:elf "GLOBAL")
+               (:pe "PUBLIC")))
+    (:extern "EXTERN")
+    (:local "LOCAL")
+    (:static (ecase file-format
+               (:elf "LOCAL")
+               (:pe "EXTERN")))))
+
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
@@ -150,6 +175,22 @@
                                     (proto-v0:sections old)))
     (if-let ((entry-point (entry-point old)))
       (setf (proto:entry-point new) entry-point))
+    ;; Add a symbolType AuxData table of type mapping<UUID, string> to
+    ;; track the storage kinds of all symbols.
+    (let ((ad (make-instance 'aux-data))
+          (ade-proto (make-instance 'proto:module-aux-data-entry)))
+      (setf (aux-data-type ad) '(:mapping :uuid :string)
+            (aux-data-data ad)
+            (alist-hash-table
+             (map 'list «cons [#'uuid-to-integer #'proto-v0:uuid]
+                              {symbol-type (cdr (assoc
+                                                 (proto-v0:file-format old)
+                                                 +module-file-format-map+))}»
+                  (proto-v0:symbols old))))
+      (setf (proto:key ade-proto) (pb:string-field "symbolType")
+            (proto:value ade-proto) (gtirb::proto ad))
+      (coerce (append (list ade-proto) (coerce (proto:aux-data new) 'list))
+              'vector))
     new)
   (:method ((old proto-v0:aux-data-container) &key new-class &allow-other-keys)
     (map 'vector (lambda (entry)
@@ -188,7 +229,6 @@
     new)
   (:method ((old proto-v0:symbol) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbol)))
-    ;; TODO: Populate an AuxData table for storage-kind.
     (transfer-fields new old uuid name)
     (cond                ; Variant "oneof" 'value' or 'referent_uuid'.
       ((proto-v0:has-value old)
