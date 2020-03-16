@@ -133,18 +133,28 @@
       (#.proto-v0:+storage-kind-storage-local+ . :local))
   :test #'equal)
 
-(defun symbol-type (file-format symbol)
-  "Return the symbolType AuxData table entry for SYMBOL based on its
-`proto-v0:storage-kind'."
-  (ecase (cdr (assoc (proto-v0:storage-kind symbol) +symbol-storage-kind+))
-    (:normal (ecase file-format
-               (:elf "GLOBAL")
-               (:pe "PUBLIC")))
-    (:extern "EXTERN")
-    (:local "LOCAL")
-    (:static (ecase file-format
-               (:elf "LOCAL")
-               (:pe "EXTERN")))))
+(defvar *code-block-uuids* (make-hash-table))
+(defvar *data-block-uuids* (make-hash-table))
+
+(defun storage-kind (symbol)
+  (cdr (assoc (proto-v0:storage-kind symbol) +symbol-storage-kind+)))
+
+(defun elf-symbol-info (symbol)
+  "Return an elfSymbolInfo entry for SYMBOL using its `proto-v0:storage-kind'."
+  (list
+   0
+   ;; Point to data "OBJ," if it points to a code "FUNC," else "NOTYPE."
+   (cond
+     ((gethash (proto-v0:uuid symbol) *data-block-uuids*) "OBJ")
+     ((gethash (proto-v0:uuid symbol) *code-block-uuids*) "FUNC")
+     (t "NOTYPE"))
+   (ecase (storage-kind symbol)
+     ((:normal :static) "GLOBAL")
+     (:local "LOCAL"))
+   (ecase (storage-kind symbol)
+     (:normal "DEFAULT")
+     ((:local :static) "HIDDEN"))
+   0))
 
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
@@ -177,20 +187,50 @@
       (setf (proto:entry-point new) entry-point))
     ;; Add a symbolType AuxData table of type mapping<UUID, string> to
     ;; track the storage kinds of all symbols.
-    (let ((ad (make-instance 'aux-data))
-          (ade-proto (make-instance 'proto:module-aux-data-entry)))
-      (setf (aux-data-type ad) '(:mapping :uuid :string)
-            (aux-data-data ad)
-            (alist-hash-table
-             (map 'list «cons [#'uuid-to-integer #'proto-v0:uuid]
-                              {symbol-type (cdr (assoc
-                                                 (proto-v0:file-format old)
-                                                 +module-file-format-map+))}»
-                  (proto-v0:symbols old))))
-      (setf (proto:key ade-proto) (pb:string-field "symbolType")
-            (proto:value ade-proto) (gtirb::proto ad))
-      (coerce (append (list ade-proto) (coerce (proto:aux-data new) 'list))
-              'vector))
+    (ecase (cdr (assoc (proto-v0:file-format old) +module-file-format-map+))
+      (:elf
+       (let ((ad (make-instance 'aux-data))
+             (ade (make-instance 'proto:module-aux-data-entry)))
+         (setf (aux-data-type ad)
+               '(:mapping :uuid
+                 (:tuple :uint64-t :string :string :string :uint64-t))
+               (aux-data-data ad)
+               (alist-hash-table
+                (map 'list «cons [#'uuid-to-integer #'proto-v0:uuid]
+                                 #'elf-symbol-info»
+                     (remove-if [{eql :extern} #'storage-kind]
+                                (proto-v0:symbols old)))))
+         (setf (proto:key ade) (pb:string-field "elfSymbolInfo")
+               (proto:value ade) (gtirb::proto ad))
+         (setf (proto:aux-data new)
+               (coerce (append (list ade) (coerce (proto:aux-data new) 'list))
+                       'vector))))
+      (:pe (flet ((symbols-to-aux-data (name symbols)
+                    (let ((ad (make-instance 'aux-data))
+                          (ade (make-instance 'proto:module-aux-data-entry)))
+                      (setf (aux-data-type ad) '(:set :uuid)
+                            (aux-data-data ad) symbols
+                            (proto:key ade) (pb:string-field name)
+                            (proto:value ade) (gtirb::proto ad))
+                      ade)))
+             (let ((in (symbols-to-aux-data
+                        "peImportedSymbols"
+                        (nest
+                         (mapcar [#'uuid-to-integer #'proto-v0:uuid])
+                         (remove-if-not [{member _ '(:local :static)}
+                                         #'storage-kind])
+                         (proto-v0:symbols old))))
+                   (out (symbols-to-aux-data
+                         "peExportedSymbols"
+                         (nest
+                          (mapcar [#'uuid-to-integer #'proto-v0:uuid]) 
+                          (remove-if-not [{member _ '(:normal :extern)}
+                                          #'storage-kind])
+                          (proto-v0:symbols old)))))
+               (setf (proto:aux-data new)
+                     (coerce (append (list in out)
+                                     (coerce (proto:aux-data new) 'list))
+                             'vector))))))
     new)
   (:method ((old proto-v0:aux-data-container) &key new-class &allow-other-keys)
     (map 'vector (lambda (entry)
@@ -267,10 +307,12 @@
     new)
   (:method ((old proto-v0:block) &key &allow-other-keys
             &aux (new (make-instance 'proto:code-block)))
+    (setf (gethash (proto-v0:uuid old) *code-block-uuids*) t)
     (transfer-fields new old uuid size decode-mode)
     new)
   (:method ((old proto-v0:data-object) &key &allow-other-keys
             &aux (new (make-instance 'proto:data-block)))
+    (setf (gethash (proto-v0:uuid old) *data-block-uuids*) t)
     (transfer-fields new old uuid size)
     new))
 
