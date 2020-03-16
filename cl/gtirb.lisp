@@ -565,7 +565,7 @@ function.")
                       (proto:sections proto)))
                :to-proto (lambda (sections) (map 'vector #'update-proto sections))
                :documentation "List of the sections comprising this module.")
-     (aux-data :accessor aux-data :type '(list aux-data)
+     (aux-data :accessor aux-data :type '(list (cons string aux-data))
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
                :documentation #.aux-data-slot-definition))
