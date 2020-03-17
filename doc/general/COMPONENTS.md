@@ -24,7 +24,7 @@ Components that must be represented
 | [ByteInterval](ByteInterval.md)           | `ByteInterval`        | A contiguous region of bytes in a binary.|
 | [CodeBlock](CodeBlock.md)                 | `CodeBlock`           | A basic block in the binary. |
 | [DataBlock](DataBlock.md)                 | `DataBlock`           | A data object, possibly symbolic. |
-| [ProxyBlock](ProxyBlock.md)               | `ProxyBlock`          | A placeholder to serve as the endpoint of a CFG edge. |
+| [ProxyBlock](ProxyBlock.md)               | `ProxyBlock`          | A placeholder to serve as the endpoint (source or target) of a [CfgEdge](CfgEdge.md). |
 | [Symbol](Symbol.md)                       | `Symbol`              | Maps a name to an object in the IR. |
 | [CFG](CFG.md)                             | `CFG`                 | The interprocedural control flow graph. |
 | [AuxDataContainer](AuxDataContainer.md)   | -                     | Functionality for associating [auxiliary data](AuxData.md) with elements of the representation.      |

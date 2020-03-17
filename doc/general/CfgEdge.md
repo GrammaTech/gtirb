@@ -1,8 +1,8 @@
 CfgEdge
 ====================
 
-A **CfgEdge** represents an edge in the interprocedural [control flow
-graph](CFG.md) (CFG).
+A **CfgEdge** represents an edge in the interprocedural
+[control flow graph](CFG.md) (CFG).
 
 The corresponding Protobuf message type is `Edge`.
 

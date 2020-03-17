@@ -29,16 +29,17 @@ class Module;
 
 /// \class ProxyBlock
 ///
-/// \brief A placeholder to serve as the endpoint of a CFG edge.
+/// \brief A placeholder that serves as the endpoint (source or target)
+/// of a CFG edge.
 ///
-/// A ProxyBlock exists in the CFG so that edges to or from another node may be
-/// constructed. For example, a call to a function in another module may be
-/// represented by an edge that originates at the calling block and targets a
-/// proxy. Another example would be an edge to represent an indirect jump whose
-/// target is not known.
+/// ProxyBlock objects allow the construction of CFG edges to or from
+/// another node. For example, a call to a function in another module
+/// may be represented by an edge that originates at the calling
+/// CodeBlock and targets a ProxyBlock. Another example would be an
+/// edge that represents an indirect jump whose target is not known.
 ///
-/// ProxyBlocks do not represent any instructions and so have neither an address
-/// nor a size.
+/// A ProxyBlock does not represent any instructions and so has neither
+/// an address nor a size.
 ///
 /// \see \ref CFG_GROUP
 class GTIRB_EXPORT_API ProxyBlock : public CfgNode {

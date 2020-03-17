@@ -1,7 +1,18 @@
 ProxyBlock
 ====================
 
-A **ProxyBlock** represents a basic block in the binary.
+A **ProxyBlock** is a placeholder that serves as the endpoint (source
+or target) of a [CfgEdge](CfgEdge.md).
+
+**ProxyBlock** objects allow the construction of CFG edges to or from
+another node. For example, a call to a function in another module may
+be represented by an edge that originates at the calling
+[CodeBlock](CodeBlock.md) and targets a **ProxyBlock**. Another
+example would be an edge that represents an indirect jump whose target
+is not known.
+
+A **ProxyBlock** does not represent any instructions and so has
+neither an address nor a size.
 
 The corresponding Protobuf message type is `ProxyBlock`.
 
