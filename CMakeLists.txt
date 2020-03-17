@@ -25,7 +25,8 @@ cmake_policy(SET CMP0048 NEW)
 project(
   GTIRB
   VERSION "${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}"
-)
+  )
+set(PACKAGE_BRANCH "bfairservice/debian-dependencies")
 
 include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
