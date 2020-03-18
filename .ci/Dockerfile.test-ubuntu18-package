@@ -4,9 +4,6 @@ FROM ubuntu:18.04
 # software-properties-common: for add-apt-repository
 RUN apt-get -y update && apt-get -y install build-essential dpkg-dev software-properties-common wget
 
-# for protobuf 3.8.0
-RUN add-apt-repository ppa:roehling/grpc
-
 # for boost 1.67
 RUN add-apt-repository ppa:mhier/libboost-latest
 
