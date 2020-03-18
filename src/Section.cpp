@@ -71,10 +71,10 @@ Section* Section::load(Context& C, std::istream& In) {
 bool Section::removeByteInterval(ByteInterval* BI) {
   auto& Index = ByteIntervals.get<by_pointer>();
   if (auto Iter = Index.find(BI); Iter != Index.end()) {
-    if (Parent) {
+    if (Observer) {
       auto Begin = ByteIntervals.project<by_address>(Iter);
       auto End = std::next(Begin);
-      Parent->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+      Observer->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
     }
 
     // Section::mutateIndices updates the Module's SectionAddrs and Sections
@@ -123,8 +123,8 @@ ByteInterval* Section::addByteInterval(ByteInterval* BI) {
 
   this->mutateIndices([this, BI]() mutable {
     auto [Iter, Inserted] = ByteIntervals.emplace(BI);
-    if (Inserted && Parent) {
-      Parent->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
+    if (Inserted && Observer) {
+      Observer->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
     }
   });
   return BI;

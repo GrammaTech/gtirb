@@ -37,7 +37,7 @@
 
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
-class SectionParent;
+class SectionObserver;
 
 /// \enum SectionFlag
 ///
@@ -102,9 +102,9 @@ public:
   bool operator!=(const Section& Other) const;
 
   /// \brief Get the \ref Module this section belongs to.
-  Module* getModule();
+  Module* getModule() { return Parent; }
   /// \brief Get the \ref Module this section belongs to.
-  const Module* getModule() const;
+  const Module* getModule() const { return Parent; }
 
   /// \brief Get the name of a Section.
   ///
@@ -1061,13 +1061,17 @@ public:
   /// @endcond
 
 private:
-  SectionParent* Parent{nullptr};
+  Module* Parent{nullptr};
+  SectionObserver* Observer{nullptr};
   std::string Name;
   ByteIntervalSet ByteIntervals;
   ByteIntervalIntMap ByteIntervalAddrs;
   std::set<SectionFlag> Flags;
 
-  void setParent(SectionParent* P) { Parent = P; }
+  void setParent(Module* M, SectionObserver* O) {
+    Parent = M;
+    Observer = O;
+  }
 
   /// \brief The protobuf message type used for serializing Section.
   using MessageType = proto::Section;
@@ -1101,18 +1105,14 @@ private:
   friend class SerializationTestHarness; // Testing support.
 };
 
-/// \class SectionParent
+/// \class SectionObserver
 ///
-/// \brief Interface for the parent of a Section to receive updates when
-/// certain events occur.
+/// \brief Interface for notifing observers when the Section is modified.
 ///
 
-class GTIRB_EXPORT_API SectionParent {
+class GTIRB_EXPORT_API SectionObserver {
 public:
-  virtual ~SectionParent() = default;
-
-  /// \brief Retrieve a pointer to the parent.
-  virtual Module* getParent() = 0;
+  virtual ~SectionObserver() = default;
 
   /// \brief Notify the parent when new CodeBlocks are added to the Section.
   ///
@@ -1132,17 +1132,6 @@ public:
                                 Section::code_block_range Blocks) = 0;
 };
 
-inline Module* Section::getModule() {
-  if (Parent)
-    return Parent->getParent();
-  return nullptr;
-}
-
-inline const Module* Section::getModule() const {
-  if (Parent)
-    return Parent->getParent();
-  return nullptr;
-}
 } // namespace gtirb
 
 #endif // GTIRB_SECTION_H

@@ -47,7 +47,7 @@
 namespace gtirb {
 class ByteInterval;
 class IR;
-class ModuleParent;
+class ModuleObserver;
 
 /// \enum FileFormat
 ///
@@ -147,17 +147,15 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               boost::multi_index::global_fun<const Symbol&, const Node*,
                                              &get_symbol_referent>>>>;
 
-  /// \class SectionParent
+  /// \class SectionObserverImpl
   ///
-  /// \brief Implements the SectionParent interface to update a Module when
+  /// \brief Implements the SectionObserver interface to update a Module when
   /// certain events occur.
   ///
 
-  class SectionListener : public SectionParent {
+  class SectionObserverImpl : public SectionObserver {
   public:
-    SectionListener(Module* M_) : M(M_) {}
-
-    Module* getParent() override { return M; }
+    SectionObserverImpl(Module* M_) : M(M_) {}
 
     void addCodeBlocks(Section* S, Section::code_block_range Blocks) override;
 
@@ -191,9 +189,9 @@ public:
   }
 
   /// \brief Get the \ref IR this module belongs to.
-  const IR* getIR() const;
+  const IR* getIR() const { return Parent; }
   /// \brief Get the \ref IR this module belongs to.
-  IR* getIR();
+  IR* getIR() { return Parent; }
 
   /// \brief Set the location of the corresponding binary on disk.
   ///
@@ -1813,9 +1811,13 @@ private:
   // Present for testing purposes only.
   static Module* load(Context& C, std::istream& In);
 
-  void setParent(ModuleParent* P) { Parent = P; }
+  void setParent(IR* I, ModuleObserver* O) {
+    Parent = I;
+    Observer = O;
+  }
 
-  ModuleParent* Parent{nullptr};
+  IR* Parent{nullptr};
+  ModuleObserver* Observer{nullptr};
   std::string BinaryPath;
   Addr PreferredAddr;
   int64_t RebaseDelta{0};
@@ -1828,7 +1830,7 @@ private:
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
 
-  SectionListener SL{this};
+  SectionObserverImpl SO{this};
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.
@@ -1838,18 +1840,14 @@ private:
   friend class SerializationTestHarness; // Testing support.
 };
 
-/// \class ModuleParent
+/// \class ModuleObserver
 ///
-/// \brief Interface for the parent of a Module to receive updates when certain
-/// events occur.
+/// \brief Interface for notifying observers when the Module is updated.
 ///
 
-class GTIRB_EXPORT_API ModuleParent {
+class GTIRB_EXPORT_API ModuleObserver {
 public:
-  virtual ~ModuleParent() = default;
-
-  /// \brief Retrieve a pointer to the parent.
-  virtual IR* getParent() = 0;
+  virtual ~ModuleObserver() = default;
 
   /// \brief Notify the parent when this Module's name changes.
   ///
@@ -1895,23 +1893,11 @@ public:
   virtual void removeCodeBlocks(Module* M, Module::code_block_range Blocks) = 0;
 };
 
-inline const IR* Module::getIR() const {
-  if (Parent)
-    return Parent->getParent();
-  return nullptr;
-}
-
-inline IR* Module::getIR() {
-  if (Parent)
-    return Parent->getParent();
-  return nullptr;
-}
-
 inline void Module::setName(const std::string& X) {
-  if (Parent) {
+  if (Observer) {
     std::string OldName = X;
     std::swap(Name, OldName);
-    Parent->nameChange(this, OldName, Name);
+    Observer->nameChange(this, OldName, Name);
   } else {
     Name = X;
   }

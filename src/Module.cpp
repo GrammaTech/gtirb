@@ -109,8 +109,8 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
 
 void Module::removeProxyBlock(ProxyBlock* B) {
   if (auto It = ProxyBlocks.find(B); It != ProxyBlocks.end()) {
-    if (Parent) {
-      Parent->removeProxyBlocks(this,
+    if (Observer) {
+      Observer->removeProxyBlocks(this,
                                 boost::make_iterator_range(It, std::next(It)));
     }
     ProxyBlocks.erase(It);
@@ -125,9 +125,9 @@ ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
 
   B->setModule(this);
   ProxyBlocks.insert(B);
-  if (Parent) {
+  if (Observer) {
     auto It = ProxyBlocks.find(B);
-    Parent->addProxyBlocks(this, boost::make_iterator_range(It, std::next(It)));
+    Observer->addProxyBlocks(this, boost::make_iterator_range(It, std::next(It)));
   }
   return B;
 }
@@ -150,10 +150,10 @@ Module* Module::load(Context& C, std::istream& In) {
 bool Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
-    if (Parent) {
+    if (Observer) {
       auto Begin = Sections.project<by_address>(Iter);
       auto End = std::next(Begin);
-      Parent->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+      Observer->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
     }
     Index.erase(Iter);
 
@@ -164,7 +164,7 @@ bool Module::removeSection(Section* S) {
 
     // Unset the parent *after* calling removeFromIndices.
 
-    S->setParent(nullptr);
+    S->setParent(nullptr, nullptr);
     return true;
   }
   return false;
@@ -176,43 +176,43 @@ Section* Module::addSection(Section* S) {
   }
   // Set the parent *before* calling addToIndices.
 
-  S->setParent(&SL);
+  S->setParent(this, &SO);
 
   // Section::addToIndices adds the Section to this Module's SectionAddrs...
 
   S->addToIndices();
 
   auto [Iter, Inserted] = Sections.emplace(S);
-  if (Inserted && Parent) {
-    Parent->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
+  if (Inserted && Observer) {
+    Observer->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
   }
   return S;
 }
 
-void Module::SectionListener::addCodeBlocks(Section* S,
+void Module::SectionObserverImpl::addCodeBlocks(Section* S,
                                             Section::code_block_range Blocks) {
-  if (M->Parent) {
+  if (M->Observer) {
     auto& Index = M->Sections.get<by_pointer>();
     if (auto Iter = Index.find(S); Iter != Index.end()) {
       // code_block_iterator takes a range of ranges, so wrap the given block
       // range in a one-element array.
       std::array Range{Blocks};
-      M->Parent->addCodeBlocks(
+      M->Observer->addCodeBlocks(
           M, boost::make_iterator_range(code_block_iterator(Range),
                                         code_block_iterator()));
     }
   }
 }
 
-void Module::SectionListener::removeCodeBlocks(
+void Module::SectionObserverImpl::removeCodeBlocks(
     Section* S, Section::code_block_range Blocks) {
-  if (M->Parent) {
+  if (M->Observer) {
     auto& Index = M->Sections.get<by_pointer>();
     if (auto Iter = Index.find(S); Iter != Index.end()) {
       // code_block_iterator takes a range of ranges, so wrap the given block
       // range in a one-element array.
       std::array Range{Blocks};
-      M->Parent->removeCodeBlocks(
+      M->Observer->removeCodeBlocks(
           M, boost::make_iterator_range(code_block_iterator(Range),
                                         code_block_iterator()));
     }

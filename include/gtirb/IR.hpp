@@ -88,17 +88,15 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
                        boost::multi_index::tag<by_pointer>,
                        boost::multi_index::identity<Module*>>>>;
 
-  /// \class ModuleListener
+  /// \class ModuleObserverImpl
   ///
-  /// \brief Impements the ModuleParent interface to update an IR when Module
+  /// \brief Impements the ModuleObserver interface to update an IR when Module
   /// events occur.
   ///
 
-  class ModuleListener : public ModuleParent {
+  class ModuleObserverImpl : public ModuleObserver {
   public:
-    explicit ModuleListener(IR* I_) : I(I_) {}
-
-    IR* getParent() override { return I; }
+    explicit ModuleObserverImpl(IR* I_) : I(I_) {}
 
     void nameChange(Module* M, const std::string& /*OldName*/,
                     const std::string& /*NewName*/) override {
@@ -216,10 +214,10 @@ public:
   bool removeModule(Module* M) {
     auto& Index = Modules.get<by_pointer>();
     if (auto Iter = Index.find(M); Iter != Index.end()) {
-      ML.removeProxyBlocks(M, M->proxy_blocks());
-      ML.removeCodeBlocks(M, M->code_blocks());
+      MO.removeProxyBlocks(M, M->proxy_blocks());
+      MO.removeCodeBlocks(M, M->code_blocks());
       Index.erase(Iter);
-      M->setParent(nullptr);
+      M->setParent(nullptr, nullptr);
       return true;
     }
     return false;
@@ -233,10 +231,10 @@ public:
       M->getIR()->removeModule(M);
     }
 
-    ML.addProxyBlocks(M, M->proxy_blocks());
-    ML.addCodeBlocks(M, M->code_blocks());
+    MO.addProxyBlocks(M, M->proxy_blocks());
+    MO.addCodeBlocks(M, M->code_blocks());
     Modules.emplace(M);
-    M->setParent(&ML);
+    M->setParent(this, &MO);
     return M;
   }
 
@@ -1443,7 +1441,7 @@ private:
   static IR* fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
-  ModuleListener ML{this};
+  ModuleObserverImpl MO{this};
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
   CFG Cfg;
