@@ -34,4 +34,8 @@ WORKDIR /gt/gtirb/build/
 RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
 RUN make -j
 
+# Run CPack.
+ARG CPACK_GENERATOR=""
+RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
+
 ENV PATH=/gt/gtirb/build/bin:$PATH

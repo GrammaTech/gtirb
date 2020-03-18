@@ -120,6 +120,7 @@ build-arch-gcc:
   variables:
     OS: 'arch'
     COMPILER: 'g++'
+    CPACK_GENERATOR: 'TGZ'
   <<: *build
 
 build-arch-clang:
@@ -199,36 +200,50 @@ test-install:
     - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-${CI_JOB_NAME} --build-arg IMAGE=$LOCAL_IMAGE --build-arg INSTALLER="$INSTALLER" .
 
-.debian-installer-template: &debian-installer
+.linux-installer-template: &linux-installer
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export CONTAINER_FILE=$(mktemp -d)/cidfile
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
     - GTIRB_VERSION=$(grep -o [0-9]\* version.txt | head -3 | paste -sd.)
     - docker create --cidfile="${CONTAINER_FILE}" ${LOCAL_IMAGE_BASE}
-    - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/GTIRB-${GTIRB_VERSION}-Linux.deb GTIRB-${GTIRB_VERSION}-Linux.deb
+    - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/GTIRB-${GTIRB_VERSION}-Linux.${PACKAGE_EXTENSION} GTIRB-${GTIRB_VERSION}-Linux.${PACKAGE_EXTENSION}
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
-    - docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .
+    - if [ -f .ci/Dockerfile.test-${OS}-package ]; then docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .; fi
 
 debian-installer-ubuntu16:
   stage: deploy
   variables:
     OS: 'ubuntu16'
     COMPILER: 'g++-7'
+    PACKAGE_EXTENSION: 'deb'
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - GTIRB-*-Linux.deb
-  <<: *debian-installer
+  <<: *linux-installer
 
 debian-installer-ubuntu18:
   stage: deploy
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
+    PACKAGE_EXTENSION: 'deb'
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - GTIRB-*-Linux.deb
-  <<: *debian-installer
+  <<: *linux-installer
+
+tar-arch:
+  stage: deploy
+  variables:
+    OS: 'arch'
+    COMPILER: 'g++'
+    PACKAGE_EXTENSION: 'tar.gz'
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - GTIRB-*-Linux.tar.gz
+  <<: *linux-installer
