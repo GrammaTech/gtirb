@@ -2,9 +2,9 @@ FROM ubuntu:18.04
 
 ARG CXX_COMPILER=g++-7
 ARG BOOST_VERSION=1.67.0
-ARG PROTOBUF_VERSION=3.8.0-0~18.04
+ARG PROTOBUF_VERSION=3.6.1-1~maarten0+bionic
 ARG PYTHON_VERSION=3.6.7-1~18.04
-ARG SBCL_VERSION=2:1.4.5-1
+#ARG SBCL_VERSION=2:1.4.5-1
 
 # Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
@@ -14,34 +14,18 @@ RUN apt-get -y update && \
     apt-get -y install autoconf build-essential clang cmake curl \
         default-jdk=2:1.11-68ubuntu1~18.04.1 git libtool \
         python3=$PYTHON_VERSION python3-setuptools wget \
-        software-properties-common sbcl=$SBCL_VERSION cl-quicklisp emacs-nox \
-        slime elpa-paredit
+        software-properties-common
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 
 
 RUN add-apt-repository ppa:mhier/libboost-latest && \
-    add-apt-repository ppa:roehling/grpc && \
+    add-apt-repository ppa:maarten-fonville/protobuf && \
     apt-get -y update && \
     apt-get -y install libboost1.70-dev libprotobuf-dev=$PROTOBUF_VERSION protobuf-compiler=$PROTOBUF_VERSION libprotoc-dev=$PROTOBUF_VERSION
 
-# Common-Lisp specific setup.
-RUN sbcl --load /usr/share/cl-quicklisp/quicklisp.lisp \
-        --eval '(quicklisp-quickstart:install)' \
-        --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))'
-RUN sbcl --eval '(ql:quickload :protobuf)' --eval '(sb-ext:exit)'
-RUN git clone https://github.com/brown/protobuf /root/quicklisp/local-projects/protobuf
-RUN cd /root/quicklisp/local-projects/protobuf/protoc/lisp && INSTALL_ROOT=/usr/ PROTOC_ROOT=/usr/ make install
-RUN git clone https://github.com/eschulte/simpler-documentation-template /root/quicklisp/local-projects/simpler-documentation-template
-
 # Build GTIRB
 COPY . /gt/gtirb/
-
-# Ensure all Common Lisp dependencies are installed before the build.
-# Works around the fact that you can't run multiple Quicklisp dependency installs in parallel as done by 'make -j'.
-RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
-RUN sbcl --eval '(asdf:initialize-source-registry `(:source-registry (:tree "/gt/gtirb/cl") :inherit-configuration))' \
-        --eval '(ql:quickload :gtirb/test)' --eval '(sb-ext:exit)'
 
 # Build GTIRB.
 RUN mkdir build

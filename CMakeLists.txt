@@ -312,7 +312,11 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-find_package(Protobuf 3.1.0 REQUIRED)
+if(GTIRB_CL_API)
+  find_package(Protobuf 3.7.0 REQUIRED)
+else()
+  find_package(Protobuf 3.0.0 REQUIRED)
+endif()
 
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)
