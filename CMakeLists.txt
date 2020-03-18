@@ -422,11 +422,15 @@ set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 
-# set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>=1.67), libprotobuf-dev
-# (>=3.0.0), libprotobuf-dev (<<3.6.1)" )
+string(REGEX MATCH "([^\.]+)\.([^\.]+)\.([^\.]+)" PROTOBUF_VERSION_MATCH ${Protobuf_VERSION})
+set(PROTOBUF_MAJOR_VERSION ${CMAKE_MATCH_1})
+set(PROTOBUF_MINOR_VERSION ${CMAKE_MATCH_2})
+set(PROTOBUF_PATCH_VERSION ${CMAKE_MATCH_3})
+MATH(EXPR NEXT_PROTOBUF_PATCH "${PROTOBUF_PATCH_VERSION}+1")
+set(PROTOBUF_VERSION_BOUND "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.${NEXT_PROTOBUF_PATCH}")
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${Protobuf_VERSION}-1)"
+    "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${PROTOBUF_VERSION_BOUND})"
 )
 
 include(CPack)
