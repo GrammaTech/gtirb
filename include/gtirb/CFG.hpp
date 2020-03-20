@@ -98,7 +98,7 @@ struct CfgBuilder {
 /// \brief Interprocedural \ref CFG_GROUP "control flow graph", with
 /// vertices of type \ref Block.
 using CFG = CfgBuilder<boost::listS,         // allow parallel edges
-                       boost::listS,         // preserve vertex order
+                       boost::listS,         // preserve IDs after mutations
                        boost::bidirectionalS // successor and predecessor edges
                        >::type;
 /// @cond INTERNAL
@@ -122,7 +122,6 @@ private:
 
   void increment() { ++it; }
   void decrement() { --it; }
-  void advance(int n) { std::advance(it, n); }
 
   std::ptrdiff_t distance_to(const cfg_node_iter_base& other) const {
     return std::distance(it, other.it);
