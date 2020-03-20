@@ -21,7 +21,7 @@ Guaranteed Properties
 - Each **Symbol** must belong to either zero (0) or one (1)
   [Module](Module.md) objects. The owning **Module** must be stored as
   a reference.
-  - This reference may be null, in which case the **ProxyBlock** is
+  - This reference may be null, in which case the **Symbol** is
     freestanding and does not belong to any **Module**.
   - The reference must be readable.
   - If the reference is writable, setting it must automatically update
