@@ -77,6 +77,7 @@ check-format:
     - ./bin/TestGTIRB.exe
     # Generate and upload installer
     - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cpack.exe -G \"TGZ\""
+    - cp *.tar.gz ../
 
 # This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
 #
@@ -141,7 +142,7 @@ build-windows-msvc-debug:
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - build/GTIRB-*-win64.tar.gz
+      - GTIRB-*-win64.tar.gz
   <<: *windows-build
 
 build-windows-msvc-release:
@@ -153,7 +154,7 @@ build-windows-msvc-release:
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - build/GTIRB-*-win64.tar.gz
+      - GTIRB-*-win64.tar.gz
   <<: *windows-build
 
 pages:
