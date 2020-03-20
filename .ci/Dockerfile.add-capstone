@@ -4,12 +4,9 @@ FROM ${BASE_IMAGE}
 ARG CXX_COMPILER=g++-7
 
 # Install capstone
-WORKDIR /usr/local/src
-RUN wget https://github.com/aquynh/capstone/archive/4.0.1.tar.gz
-RUN tar xf 4.0.1.tar.gz
-WORKDIR /usr/local/src/capstone-4.0.1
-RUN CAPSTONE_ARCHS=x86 ./make.sh
-RUN CAPSTONE_ARCHS=x86 ./make.sh install
+WORKDIR /gt/
+COPY ./libcapstone-dev_4.0.1-1_amd64.deb ./
+RUN dpkg -i libcapstone-dev_4.0.1-1_amd64.deb
 
 # Build GTIRB
 WORKDIR /gt/gtirb/build

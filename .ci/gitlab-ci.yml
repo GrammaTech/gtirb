@@ -38,6 +38,7 @@ check-format:
       fi
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
+    - cp /u1/bfairservice/share/extra-packages/libcapstone-dev_4.0.1-1_amd64.deb ./
     # Build & test
     - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} .
     - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
