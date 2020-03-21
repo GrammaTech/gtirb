@@ -23,12 +23,22 @@ int main() {
   // all the objects within it.
   Context C;
   auto* Ir = IR::Create(C);
+
   // Every IR holds a set of modules (`gtirb::Module`).
-  auto* M = Ir->addModule(Module::Create(C));
+  auto* M = Module::Create(C);
+  Ir->addModule(M);
+  // Could also have written: auto* M = Ir->addModule(C);
+
   // Every module holds a set of sections (`gtirb::Section`).
-  auto* S = M->addSection(Section::Create(C, ".text"));
+  auto* S = Section::Create(C, ".text");
+  M->addSection(S);
+  // Could also have written: auto* S = M->addSection(C, ".text");
+
   // Every section has a set of byte intervals (`gtirb::ByteInterval`).
-  auto* BI = S->addByteInterval(ByteInterval::Create(C, Addr(2048), 466));
+  auto* BI = ByteInterval::Create(C, Addr(2048), 466);
+  S->addByteInterval(BI);
+  // Could also have written: auto* BI = S->addByteInterval(C, Addr(2048), 466);
+
   // Create some data objects. These only define the layout and do not directly
   // store any data.
   auto* D1 = DataBlock::Create(C, 6);

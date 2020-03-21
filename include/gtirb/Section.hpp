@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Observer.hpp>
 #include <gtirb/Utility.hpp>
 #include <gtirb/proto/Section.pb.h>
 #include <algorithm>
@@ -343,7 +344,11 @@ public:
   bool removeByteInterval(ByteInterval* N);
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
-  ByteInterval* addByteInterval(ByteInterval* BI);
+  ///
+  /// \return a ChangeStatus indicating whether the insertion took place
+  /// (\c ACCEPTED), was unnecessary because this node already contained the
+  /// ByteInterval (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  ChangeStatus addByteInterval(ByteInterval* BI);
 
   /// \brief Creates a new \ref ByteInterval in this section.
   ///
@@ -351,8 +356,15 @@ public:
   /// \param  C     The Context in which this object will be held.
   /// \param  A     The arguments to construct a \ref ByteInterval.
   template <typename... Args>
-  ByteInterval* addByteInterval(Context& C, Args... A) {
-    return addByteInterval(ByteInterval::Create(C, A...));
+  ByteInterval* addByteInterval(Context& C, Args&&... A) {
+    ByteInterval* BI = ByteInterval::Create(C, std::forward<Args>(A)...);
+    [[maybe_unused]] ChangeStatus status = addByteInterval(BI);
+    // addByteInterval(ByteInterval*) does not currently reject any insertions
+    // and the result cannot be NO_CHANGE because we just inserted a newly
+    // created ByteInterval.
+    assert(status == ChangeStatus::ACCEPTED &&
+           "unexpected result when inserting ByteInterval");
+    return BI;
   }
 
   /// \brief Set this section's name.
@@ -1120,7 +1132,10 @@ public:
   ///
   /// \param S       the Section to which CodeBlocks were added.
   /// \param Blocks  a range containing the new CodeBlocks.
-  virtual void addCodeBlocks(Section* S, Section::code_block_range Blocks) = 0;
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus addCodeBlocks(Section* S,
+                                     Section::code_block_range Blocks) = 0;
 
   /// \brief Notify the parent when CodeBlocks are removed from the Section.
   ///
@@ -1128,8 +1143,10 @@ public:
   ///
   /// \param S       the Section from which CodeBlocks will be removed.
   /// \param Blocks  a range containing the CodeBlocks to remove.
-  virtual void removeCodeBlocks(Section* S,
-                                Section::code_block_range Blocks) = 0;
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus removeCodeBlocks(Section* S,
+                                        Section::code_block_range Blocks) = 0;
 };
 
 } // namespace gtirb

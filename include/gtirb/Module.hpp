@@ -20,6 +20,7 @@
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Observer.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
@@ -157,10 +158,11 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   public:
     SectionObserverImpl(Module* M_) : M(M_) {}
 
-    void addCodeBlocks(Section* S, Section::code_block_range Blocks) override;
+    ChangeStatus addCodeBlocks(Section* S,
+                               Section::code_block_range Blocks) override;
 
-    void removeCodeBlocks(Section* S,
-                          Section::code_block_range Blocks) override;
+    ChangeStatus removeCodeBlocks(Section* S,
+                                  Section::code_block_range Blocks) override;
 
   private:
     Module* M;
@@ -322,20 +324,37 @@ public:
   /// \brief Remove a \ref ProxyBlock object located in this module.
   ///
   /// \param B The \ref ProxyBlock object to remove.
-  void removeProxyBlock(ProxyBlock* B);
+  ///
+  /// \return Whether or not the operation succeeded. This operation can fail
+  /// if the node to remove is not actually part of this node to begin with.
+  bool removeProxyBlock(ProxyBlock* B);
 
   /// \brief Adds a new \ref ProxyBlock in this module.
   ///
   /// \param PB The \ref ProxyBlock object to add.
-  ProxyBlock* addProxyBlock(ProxyBlock* PB);
+  ///
+  /// \return a ChangeStatus indicating whether the insertion took place
+  /// (\c ACCEPTED), was unnecessary because this node already contained the
+  /// ProxyBlock (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  ChangeStatus addProxyBlock(ProxyBlock* PB);
 
   /// \brief Creates a new \ref ProxyBlock in this module.
   ///
   /// \tparam Args  The arguments to construct a \ref ProxyBlock.
   /// \param  C     The Context in which this object will be held.
   /// \param  A     The arguments to construct a \ref ProxyBlock.
-  template <typename... Args> ProxyBlock* addProxyBlock(Context& C, Args... A) {
-    return addProxyBlock(ProxyBlock::Create(C, A...));
+  ///
+  /// \return the created ProxyBlock.
+  template <typename... Args>
+  ProxyBlock* addProxyBlock(Context& C, Args&&... A) {
+    ProxyBlock* PB = ProxyBlock::Create(C, std::forward<Args>(A)...);
+    [[maybe_unused]] ChangeStatus status = addProxyBlock(PB);
+    // addProxyBlock(ProxyBlock*) does not currently reject any changes and,
+    // because we just created the ProxyBlock to add, it cannot result in
+    // NO_CHANGE.
+    assert(status == ChangeStatus::ACCEPTED &&
+           "unexpected result when inserting ProxyBlock");
+    return PB;
   }
 
   /// @}
@@ -755,15 +774,27 @@ public:
   /// \brief Move a \ref Section object to be located in this module.
   ///
   /// \param S The \ref Section object to add.
-  Section* addSection(Section* S);
+  ///
+  /// \return a ChangeStatus indicating whether the insertion took place
+  /// (\c ACCEPTED), was unnecessary because this node already contained the
+  // Section (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  ChangeStatus addSection(Section* S);
 
   /// \brief Creates a new \ref Section in this module.
   ///
   /// \tparam Args  The arguments to construct a \ref Section.
   /// \param  C     The Context in which this object will be held.
   /// \param  A     The arguments to construct a \ref Section.
-  template <typename... Args> Section* addSection(Context& C, Args... A) {
-    return addSection(Section::Create(C, A...));
+  ///
+  /// \return the created Section.
+  template <typename... Args> Section* addSection(Context& C, Args&&... A) {
+    Section* S = Section::Create(C, std::forward<Args>(A)...);
+    [[maybe_unused]] ChangeStatus status = addSection(S);
+    // addSection(Section*) does not currently reject any changes and, because
+    // we just created the Section to add, it cannot result in NO_CHANGE.
+    assert(status == ChangeStatus::ACCEPTED &&
+           "unexpected result when inserting Section");
+    return S;
   }
 
   /// \brief Find a Section containing an address.
@@ -1856,8 +1887,8 @@ public:
   /// \param M        the Module whose name changed.
   /// \param OldName  the Module's previous name.
   /// \param NewName  the new name of this Module.
-  virtual void nameChange(Module* M, const std::string& OldName,
-                          const std::string& NewName) = 0;
+  virtual ChangeStatus nameChange(Module* M, const std::string& OldName,
+                                  const std::string& NewName) = 0;
 
   /// \brief Notify the parent when new ProxyBlocks are added to the Module.
   ///
@@ -1865,7 +1896,8 @@ public:
   ///
   /// \param M       the Module to which the ProxyBlocks were added.
   /// \param Blocks  a range containing the new ProxyBlocks.
-  virtual void addProxyBlocks(Module* M, Module::proxy_block_range Blocks) = 0;
+  virtual ChangeStatus addProxyBlocks(Module* M,
+                                      Module::proxy_block_range Blocks) = 0;
 
   /// \brief Notify the parent when ProxyBlocks are removed from the Module.
   ///
@@ -1873,8 +1905,8 @@ public:
   ///
   /// \param M       the Module from which ProxyBlocks will be removed.
   /// \param Blocks  a range containing ProxyBlocks to remove.
-  virtual void removeProxyBlocks(Module* M,
-                                 Module::proxy_block_range Blocks) = 0;
+  virtual ChangeStatus removeProxyBlocks(Module* M,
+                                         Module::proxy_block_range Blocks) = 0;
 
   /// \brief Notify the parent when CodeBlocks are added to the Module.
   ///
@@ -1882,7 +1914,8 @@ public:
   ///
   /// \param M       the Module to which CodeBlocks were added.
   /// \param Blocks  a range containing the new CodeBlocks.
-  virtual void addCodeBlocks(Module* M, Module::code_block_range Blocks) = 0;
+  virtual ChangeStatus addCodeBlocks(Module* M,
+                                     Module::code_block_range Blocks) = 0;
 
   /// \brief Notify the parent when CodeBlocks are removed from the Module.
   ///
@@ -1890,14 +1923,20 @@ public:
   ///
   /// \param M       the Module from which CodeBlocks will be removed.
   /// \param Blocks  a range containing the CodeBlocks to remove.
-  virtual void removeCodeBlocks(Module* M, Module::code_block_range Blocks) = 0;
+  virtual ChangeStatus removeCodeBlocks(Module* M,
+                                        Module::code_block_range Blocks) = 0;
 };
 
 inline void Module::setName(const std::string& X) {
   if (Observer) {
     std::string OldName = X;
     std::swap(Name, OldName);
-    Observer->nameChange(this, OldName, Name);
+    [[maybe_unused]] ChangeStatus status =
+        Observer->nameChange(this, OldName, Name);
+    // The known observers do not reject insertions. If that changes, this
+    // method must be updated.
+    assert(status != ChangeStatus::REJECTED &&
+           "recovering from rejected name change is unimplemented");
   } else {
     Name = X;
   }

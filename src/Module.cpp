@@ -107,29 +107,47 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   return M;
 }
 
-void Module::removeProxyBlock(ProxyBlock* B) {
+bool Module::removeProxyBlock(ProxyBlock* B) {
   if (auto It = ProxyBlocks.find(B); It != ProxyBlocks.end()) {
     if (Observer) {
-      Observer->removeProxyBlocks(this,
-                                boost::make_iterator_range(It, std::next(It)));
+      auto BlockRange = boost::make_iterator_range(It, std::next(It));
+      [[maybe_unused]] ChangeStatus status =
+          Observer->removeProxyBlocks(this, BlockRange);
+      // The known observers do not reject removals. If that changes, this
+      // method must be updated. Because addProxyBlock(ProxyBlock*) also
+      // assumes removals are never rejected, that method should be updated
+      // as well.
+      assert(status != ChangeStatus::REJECTED &&
+             "recovering from rejected removal is unimplemented");
     }
     ProxyBlocks.erase(It);
     B->setModule(nullptr);
+    return true;
   }
+  return false;
 }
 
-ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
+ChangeStatus Module::addProxyBlock(ProxyBlock* B) {
   if (Module* M = B->getModule()) {
+    if (M == this)
+      return ChangeStatus::NO_CHANGE;
+    // Do not need to check the return status because the removal cannot be
+    // rejected (see removeProxyBlock()).
     M->removeProxyBlock(B);
   }
 
   B->setModule(this);
-  ProxyBlocks.insert(B);
-  if (Observer) {
-    auto It = ProxyBlocks.find(B);
-    Observer->addProxyBlocks(this, boost::make_iterator_range(It, std::next(It)));
+  auto [It, Inserted] = ProxyBlocks.insert(B);
+  if (Inserted && Observer) {
+    auto BlockRange = boost::make_iterator_range(It, std::next(It));
+    [[maybe_unused]] ChangeStatus status =
+        Observer->addProxyBlocks(this, BlockRange);
+    // The known observers do not reject insertions. If that changes, this
+    // method must be updated.
+    assert(status != ChangeStatus::REJECTED &&
+           "recovering from rejected insertion is unimplemented");
   }
-  return B;
+  return ChangeStatus::ACCEPTED;
 }
 
 // Present for testing purposes only.
@@ -153,7 +171,14 @@ bool Module::removeSection(Section* S) {
     if (Observer) {
       auto Begin = Sections.project<by_address>(Iter);
       auto End = std::next(Begin);
-      Observer->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+      auto BlockRange = makeCodeBlockRange(Begin, End);
+      [[maybe_unused]] ChangeStatus status =
+          Observer->removeCodeBlocks(this, BlockRange);
+      // The known observers do not reject removals. If that changes, this
+      // method must be updated. Because addSection(Section*) also assumes
+      // removals are never rejected, that method should be updated as well.
+      assert(status != ChangeStatus::REJECTED &&
+             "recovering from rejected removal is unimplemented");
     }
     Index.erase(Iter);
 
@@ -170,10 +195,15 @@ bool Module::removeSection(Section* S) {
   return false;
 }
 
-Section* Module::addSection(Section* S) {
-  if (S->getModule()) {
-    S->getModule()->removeSection(S);
+ChangeStatus Module::addSection(Section* S) {
+  if (Module* M = S->getModule()) {
+    if (M == this)
+      return ChangeStatus::NO_CHANGE;
+    // Do not need to check the return status because the removal cannot be
+    // rejected (see removeSection()).
+    M->removeSection(S);
   }
+
   // Set the parent *before* calling addToIndices.
 
   S->setParent(this, &SO);
@@ -184,37 +214,46 @@ Section* Module::addSection(Section* S) {
 
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Observer) {
-    Observer->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
+    auto BlockRange = makeCodeBlockRange(Iter, std::next(Iter));
+    [[maybe_unused]] ChangeStatus status =
+        Observer->addCodeBlocks(this, BlockRange);
+    // The known observers do not reject insertions. If that changes, this
+    // method must be updated.
+    assert(status != ChangeStatus::REJECTED &&
+           "recovering from rejected insertion is unimplemented");
   }
-  return S;
+  return ChangeStatus::ACCEPTED;
 }
 
-void Module::SectionObserverImpl::addCodeBlocks(Section* S,
-                                            Section::code_block_range Blocks) {
+ChangeStatus
+Module::SectionObserverImpl::addCodeBlocks(Section* S,
+                                           Section::code_block_range Blocks) {
   if (M->Observer) {
     auto& Index = M->Sections.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end()) {
-      // code_block_iterator takes a range of ranges, so wrap the given block
-      // range in a one-element array.
-      std::array Range{Blocks};
-      M->Observer->addCodeBlocks(
-          M, boost::make_iterator_range(code_block_iterator(Range),
-                                        code_block_iterator()));
-    }
+    auto Iter = Index.find(S);
+    assert(Iter != Index.end() && "section observed by non-owner");
+    // code_block_iterator takes a range of ranges, so wrap the given block
+    // range in a one-element array.
+    std::array Range{Blocks};
+    return M->Observer->addCodeBlocks(
+        M, boost::make_iterator_range(code_block_iterator(Range),
+                                      code_block_iterator()));
   }
+  return ChangeStatus::NO_CHANGE;
 }
 
-void Module::SectionObserverImpl::removeCodeBlocks(
+ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
     Section* S, Section::code_block_range Blocks) {
   if (M->Observer) {
     auto& Index = M->Sections.get<by_pointer>();
-    if (auto Iter = Index.find(S); Iter != Index.end()) {
-      // code_block_iterator takes a range of ranges, so wrap the given block
-      // range in a one-element array.
-      std::array Range{Blocks};
-      M->Observer->removeCodeBlocks(
-          M, boost::make_iterator_range(code_block_iterator(Range),
-                                        code_block_iterator()));
-    }
+    auto Iter = Index.find(S);
+    assert(Iter != Index.end() && "section observed by non-owner");
+    // code_block_iterator takes a range of ranges, so wrap the given block
+    // range in a one-element array.
+    std::array Range{Blocks};
+    return M->Observer->removeCodeBlocks(
+        M, boost::make_iterator_range(code_block_iterator(Range),
+                                      code_block_iterator()));
   }
+  return ChangeStatus::NO_CHANGE;
 }

@@ -93,6 +93,43 @@ TEST(Unit_IR, noCopyMoveConstructors) {
 static Context Ctx;
 TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
+TEST(Unit_IR, addRemoveXferModules) {
+  auto* I1 = IR::Create(Ctx);
+  auto* I2 = IR::Create(Ctx);
+  auto* M1 = Module::Create(Ctx, "M1");
+  auto* M2 = Module::Create(Ctx, "M2");
+
+  I1->addModule(M1);
+  ASSERT_EQ(std::distance(I1->modules_begin(), I1->modules_end()), 1);
+  EXPECT_EQ(&*I1->modules_begin(), M1);
+
+  I1->addModule(M2);
+  ASSERT_EQ(std::distance(I1->modules_begin(), I1->modules_end()), 2);
+  EXPECT_EQ((std::set<Module*>{&*std::next(I1->modules_begin(), 0),
+                               &*std::next(I1->modules_begin(), 1)}),
+            (std::set<Module*>{M1, M2}));
+
+  // Check addModule() removes the module from its former owner.
+
+  I2->addModule(M1);
+  ASSERT_EQ(std::distance(I1->modules_begin(), I1->modules_end()), 1);
+  EXPECT_EQ(&*I1->modules_begin(), M2);
+  ASSERT_EQ(std::distance(I2->modules_begin(), I2->modules_end()), 1);
+  EXPECT_EQ(&*I2->modules_begin(), M1);
+
+  // Check removeModule() does nothing if the IR does not own the Module.
+
+  I1->removeModule(M1);
+  ASSERT_EQ(std::distance(I1->modules_begin(), I1->modules_end()), 1);
+  EXPECT_EQ(&*I1->modules_begin(), M2);
+  ASSERT_EQ(std::distance(I2->modules_begin(), I2->modules_end()), 1);
+  EXPECT_EQ(&*I2->modules_begin(), M1);
+
+  // Check removeModule() removes the module if it is owned.
+  I1->removeModule(M2);
+  EXPECT_TRUE(I1->modules().empty());
+}
+
 TEST(Unit_IR, moduleIterationOrder) {
   auto* Ir = IR::Create(Ctx);
   auto* M1 = Ir->addModule(Ctx, "b");

@@ -74,7 +74,13 @@ bool Section::removeByteInterval(ByteInterval* BI) {
     if (Observer) {
       auto Begin = ByteIntervals.project<by_address>(Iter);
       auto End = std::next(Begin);
-      Observer->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+      [[maybe_unused]] ChangeStatus status =
+          Observer->removeCodeBlocks(this, makeCodeBlockRange(Begin, End));
+      // None of the known observers reject removals. If that changes, this
+      // implementation will need to be changed as well. Because addByteInterval
+      // assumes that removal will not be rejected, it will need to be updated.
+      assert(status != ChangeStatus::REJECTED &&
+             "recovering from rejected removal is not implemented yet");
     }
 
     // Section::mutateIndices updates the Module's SectionAddrs and Sections
@@ -99,10 +105,16 @@ bool Section::removeByteInterval(ByteInterval* BI) {
   return false;
 }
 
-ByteInterval* Section::addByteInterval(ByteInterval* BI) {
-  if (BI->getSection()) {
-    BI->getSection()->removeByteInterval(BI);
+ChangeStatus Section::addByteInterval(ByteInterval* BI) {
+  if (Section* S = BI->getSection()) {
+    if (S == this) {
+      return ChangeStatus::NO_CHANGE;
+    }
+    // No need to check the return status because removeByteInterval never
+    // rejects a removal.
+    S->removeByteInterval(BI);
   }
+
   // Set the ByteInterval's Section *before* calling addToIndices.
 
   BI->setSection(this);
@@ -124,8 +136,15 @@ ByteInterval* Section::addByteInterval(ByteInterval* BI) {
   this->mutateIndices([this, BI]() mutable {
     auto [Iter, Inserted] = ByteIntervals.emplace(BI);
     if (Inserted && Observer) {
-      Observer->addCodeBlocks(this, makeCodeBlockRange(Iter, std::next(Iter)));
+      auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
+      [[maybe_unused]] ChangeStatus status =
+          Observer->addCodeBlocks(this, Blocks);
+      // None of the known observers reject insertions. If that changes, this
+      // implementation must be updated.
+      assert(status != ChangeStatus::REJECTED &&
+             "recovering from rejected insertion is unimplemented");
     }
   });
-  return BI;
+
+  return ChangeStatus::ACCEPTED;
 }

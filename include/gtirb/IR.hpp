@@ -22,6 +22,7 @@
 #include <gtirb/ErrorOr.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Observer.hpp>
 #include <gtirb/Utility.hpp>
 #include <gtirb/version.h>
 #include <boost/iterator/indirect_iterator.hpp>
@@ -98,43 +99,64 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
   public:
     explicit ModuleObserverImpl(IR* I_) : I(I_) {}
 
-    void nameChange(Module* M, const std::string& /*OldName*/,
-                    const std::string& /*NewName*/) override {
+    ChangeStatus nameChange(Module* M, const std::string& /*OldName*/,
+                            const std::string& /*NewName*/) override {
       auto& Index = I->Modules.get<by_pointer>();
-      if (auto It = Index.find(M); It != Index.end()) {
-        // The lambda would ordinarily update the Module such that the result
-        // of Module::getName changes. Because that change happened before this
-        // method was called, the lambda doesn't need to do anything.
-        Index.modify(It, [](Module*) {});
-      }
+      auto It = Index.find(M);
+      assert(It != Index.end() && "module observed by non-owner");
+      // The lambda would ordinarily update the Module such that the result
+      // of Module::getName changes. Because that change happened before this
+      // method was called, the lambda doesn't need to do anything.
+      Index.modify(It, [](Module*) {});
+      return ChangeStatus::ACCEPTED;
     }
 
-    void addProxyBlocks(Module* /*M*/,
-                        Module::proxy_block_range Blocks) override {
-      for (ProxyBlock& PB : Blocks) {
-        addVertex(&PB, I->Cfg);
+    ChangeStatus addProxyBlocks(Module* /*M*/,
+                                Module::proxy_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (ProxyBlock& PB : Blocks) {
+          assert(!getVertex(&PB, I->Cfg) && "ProxyBlock already added");
+          addVertex(&PB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
+      return ChangeStatus::NO_CHANGE;
     }
 
-    void removeProxyBlocks(Module* /*M*/,
-                           Module::proxy_block_range Blocks) override {
-      for (ProxyBlock& PB : Blocks) {
-        removeVertex(&PB, I->Cfg);
+    ChangeStatus removeProxyBlocks(Module* /*M*/,
+                                   Module::proxy_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (ProxyBlock& PB : Blocks) {
+          assert(getVertex(&PB, I->Cfg) && "ProxyBlock was not present");
+          removeVertex(&PB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
+      return ChangeStatus::NO_CHANGE;
     }
 
-    void addCodeBlocks(Module* /*M*/,
-                       Module::code_block_range Blocks) override {
-      for (CodeBlock& CB : Blocks) {
-        addVertex(&CB, I->Cfg);
+    ChangeStatus addCodeBlocks(Module* /*M*/,
+                               Module::code_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (CodeBlock& CB : Blocks) {
+          assert(!getVertex(&CB, I->Cfg) && "CodeBlock already added");
+          addVertex(&CB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
+      return ChangeStatus::NO_CHANGE;
     }
 
-    void removeCodeBlocks(Module* /*M*/,
-                          Module::code_block_range Blocks) override {
-      for (CodeBlock& CB : Blocks) {
-        removeVertex(&CB, I->Cfg);
+    ChangeStatus removeCodeBlocks(Module* /*M*/,
+                                  Module::code_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (CodeBlock& CB : Blocks) {
+          assert(getVertex(&CB, I->Cfg) && "CodeBlock was not present");
+          removeVertex(&CB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
+      return ChangeStatus::NO_CHANGE;
     }
 
   private:

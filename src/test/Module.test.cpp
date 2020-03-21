@@ -225,6 +225,14 @@ TEST(Unit_Module, getName) {
   EXPECT_TRUE(M->getName().empty());
 }
 
+TEST(Unit_Module, setName) {
+  auto* M = Module::Create(Ctx);
+  EXPECT_TRUE(M->getName().empty());
+
+  M->setName("test");
+  EXPECT_EQ(M->getName(), "test");
+}
+
 TEST(Unit_Module, sections) {
   auto* M = Module::Create(Ctx);
   M->addSection(Ctx, "test");
