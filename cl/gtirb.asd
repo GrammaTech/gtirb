@@ -9,7 +9,7 @@
   raw protocol buffer serialization with a more Lispy interface."
     :depends-on (:gtirb/gtirb)
     :class :package-inferred-system
-    :defsystem-depends-on (:asdf-package-system :protobuf)
+    :defsystem-depends-on (:asdf-package-system)
     :in-order-to ((test-op (load-op "gtirb/test")))
     :perform (test-op (o c) (symbol-call :gtirb/test '#:test)))
 
@@ -18,7 +18,7 @@
     :description "Common Lisp interface to (old V0) GTIRB protobuf files"
     :author "GrammaTech"
     :license "MIT"
-    :defsystem-depends-on (:protobuf)
+    :depends-on (:protobuf)
     :components
     ((:static-file "README.md")
      ;; See the protobuf defsystem extension for how the gtirb.proto
@@ -26,27 +26,27 @@
      (:module proto
               :pathname "../proto/v0/"
               :components
-              ((:protobuf-source-file "AuxDataContainer")
-               (:protobuf-source-file "CFG")
-               (:protobuf-source-file "Section")
-               (:protobuf-source-file "Offset")
-               (:protobuf-source-file "IR")
-               (:protobuf-source-file "ByteMap")
-               (:protobuf-source-file "ProxyBlock")
-               (:protobuf-source-file "AuxData")
-               (:protobuf-source-file "Module")
-               (:protobuf-source-file "DataObject")
-               (:protobuf-source-file "ImageByteMap")
-               (:protobuf-source-file "SymbolicExpression")
-               (:protobuf-source-file "Symbol")
-               (:protobuf-source-file "Block")))))
+              ((:file "AuxDataContainer")
+               (:file "CFG")
+               (:file "Section")
+               (:file "Offset")
+               (:file "IR")
+               (:file "ByteMap")
+               (:file "ProxyBlock")
+               (:file "AuxData")
+               (:file "Module")
+               (:file "DataObject")
+               (:file "ImageByteMap")
+               (:file "SymbolicExpression")
+               (:file "Symbol")
+               (:file "Block")))))
 
 (defsystem "proto"
     :name "proto"
     :description "Common Lisp interface to GTIRB protobuf files"
     :author "GrammaTech"
     :license "MIT"
-    :defsystem-depends-on (:protobuf)
+    :depends-on (:protobuf)
     :components
     ((:static-file "README.md")
      ;; See the protobuf defsystem extension for how the gtirb.proto
@@ -54,17 +54,17 @@
      (:module proto
               :pathname "../proto"
               :components
-              ((:protobuf-source-file "AuxData")
-               (:protobuf-source-file "ByteInterval")
-               (:protobuf-source-file "CFG")
-               (:protobuf-source-file "CodeBlock")
-               (:protobuf-source-file "DataBlock")
-               (:protobuf-source-file "IR")
-               (:protobuf-source-file "Module")
-               (:protobuf-source-file "ProxyBlock")
-               (:protobuf-source-file "Section")
-               (:protobuf-source-file "Symbol")
-               (:protobuf-source-file "SymbolicExpression")))))
+              ((:file "AuxData")
+               (:file "ByteInterval")
+               (:file "CFG")
+               (:file "CodeBlock")
+               (:file "DataBlock")
+               (:file "IR")
+               (:file "Module")
+               (:file "ProxyBlock")
+               (:file "Section")
+               (:file "Symbol")
+               (:file "SymbolicExpression")))))
 
 (defsystem "gtirb/run-update"
     :author "GrammaTech"
@@ -85,4 +85,5 @@
     :entry-point "gtirb/dot::run-dot")
 
 (register-system-packages "proto" '(:gtirb.proto))
+(register-system-packages "protobuf" '(:protocol-buffer))
 (register-system-packages "cl-interval" '(:interval))

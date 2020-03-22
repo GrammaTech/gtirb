@@ -1,5 +1,6 @@
 (defpackage :gtirb/utility
   (:use :common-lisp)
+  (:import-from :protocol-buffer)
   (:import-from :cl-intbytes
                 :int->octets
                 :octets->int)
