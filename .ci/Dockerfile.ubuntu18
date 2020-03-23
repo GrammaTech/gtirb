@@ -4,18 +4,19 @@ ARG CXX_COMPILER=g++-7
 ARG PROTOBUF_VERSION=3.0.0-9.1ubuntu1
 ARG PYTHON_VERSION=3.6.7-1~18.04
 
+ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+
 # Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
 
-# install apt packages
+# Install apt packages
 RUN apt-get -y update && \
     apt-get -y install autoconf build-essential clang cmake curl \
         default-jdk=2:1.11-68ubuntu1~18.04.1 git libtool \
         python3=$PYTHON_VERSION python3-setuptools wget \
         software-properties-common
 
-ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
-
+# Install boost and protobuf
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     apt-get -y update && \
     apt-get -y install libboost1.67-dev libprotobuf-dev=$PROTOBUF_VERSION protobuf-compiler=$PROTOBUF_VERSION libprotoc-dev=$PROTOBUF_VERSION

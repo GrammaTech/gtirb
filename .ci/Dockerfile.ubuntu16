@@ -10,7 +10,7 @@ ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 # Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
 
-# install apt packages
+# Install apt packages
 RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
@@ -19,6 +19,7 @@ RUN apt-get -y update && \
         default-jdk=2:1.8-56ubuntu2 g++-7 gcc-7 git libtool \
         python3=$PYTHON_VERSION python3-setuptools wget
 
+# Install clang
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main' && \
     apt-get -y update && \
@@ -26,6 +27,7 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
     update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 60 \
                         --slave /usr/bin/clang++ clang++ /usr/bin/clang++-8
 
+# Install boost and protobuf
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     add-apt-repository ppa:maarten-fonville/protobuf && \
     apt-get -y update && \
