@@ -43,7 +43,8 @@ check-format:
     - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} .
     - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
     # Build & test with capstone
-    - docker build -f .ci/Dockerfile.add-capstone --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
+    - CAPSTONE_OS=$(echo ${OS} | sed 's/[[:digit:]]//g')
+    - docker build -f .ci/Dockerfile.add-capstone-${CAPSTONE_OS} --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
     - docker tag ${LOCAL_IMAGE_BASE} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
