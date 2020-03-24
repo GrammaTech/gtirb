@@ -1,10 +1,7 @@
 ---
-Checks:          'readability-*,performance-*,-readability-named-parameter,bugprone-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,modernize-*,-modernize-use-trailing-return-type'
+Checks:          '-*,clang-analyzer-*,bugprone*,modernize*,performance*,-modernize-pass-by-value,-modernize-use-auto,-modernize-use-using'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
-CheckOptions:
-  - key:             readability-implicit-bool-conversion.AllowPointerConditions
-    value:           '1'
 ...
