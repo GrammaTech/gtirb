@@ -10,7 +10,8 @@
     :depends-on (:gtirb/gtirb)
     :class :package-inferred-system
     :defsystem-depends-on (:asdf-package-system :protobuf)
-    :in-order-to ((test-op (test-op "gtirb/test"))))
+    :in-order-to ((test-op (load-op "gtirb/test")))
+    :perform (test-op (o c) (symbol-call :gtirb/test '#:test)))
 
 (defsystem "proto-v0"
     :name "proto-v0"
@@ -82,11 +83,3 @@
     :build-operation "asdf:program-op"
     :build-pathname "gtirb-dot"
     :entry-point "gtirb/dot::run-dot")
-
-(defsystem "gtirb/test"
-    :author "GrammaTech"
-    :licence "MIT"
-    :description "Test the GTIRB package."
-    :depends-on (gtirb/update)
-    :perform
-    (test-op (o c) (symbol-call :gtirb/test '#:test)))
