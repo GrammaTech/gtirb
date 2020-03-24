@@ -68,7 +68,7 @@ Section* Section::load(Context& C, std::istream& In) {
   return S;
 }
 
-bool Section::removeByteInterval(ByteInterval* BI) {
+ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
   auto& Index = ByteIntervals.get<by_pointer>();
   if (auto Iter = Index.find(BI); Iter != Index.end()) {
     if (Observer) {
@@ -100,9 +100,9 @@ bool Section::removeByteInterval(ByteInterval* BI) {
     // Unset the ByteInterval's Section *after* calling removeFromIndices.
 
     BI->setSection(nullptr);
-    return true;
+    return ChangeStatus::ACCEPTED;
   }
-  return false;
+  return ChangeStatus::NO_CHANGE;
 }
 
 ChangeStatus Section::addByteInterval(ByteInterval* BI) {
@@ -110,9 +110,9 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
     if (S == this) {
       return ChangeStatus::NO_CHANGE;
     }
-    // No need to check the return status because removeByteInterval never
-    // rejects a removal.
-    S->removeByteInterval(BI);
+    [[maybe_unused]] ChangeStatus status = S->removeByteInterval(BI);
+    assert(status != ChangeStatus::REJECTED &&
+           !"failed to remove node from parent");
   }
 
   // Set the ByteInterval's Section *before* calling addToIndices.

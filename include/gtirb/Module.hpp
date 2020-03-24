@@ -325,9 +325,11 @@ public:
   ///
   /// \param B The \ref ProxyBlock object to remove.
   ///
-  /// \return Whether or not the operation succeeded. This operation can fail
-  /// if the node to remove is not actually part of this node to begin with.
-  bool removeProxyBlock(ProxyBlock* B);
+  /// \return Whether the operation succeeded (\c ACCEPTED), made no change
+  /// (\c NO_CHANGE), or could not be completed (\c REJECTED). In particular,
+  /// if the node to remove is not actually part of this node to begin with,
+  /// the result will be \c NO_CHANGE.
+  ChangeStatus removeProxyBlock(ProxyBlock* B);
 
   /// \brief Adds a new \ref ProxyBlock in this module.
   ///
@@ -766,10 +768,11 @@ public:
   ///
   /// \param S The \ref Section object to remove.
   ///
-  /// \return Whether or not the operation succeeded. This operation can
-  /// fail if the node to remove is not actually part of this node to begin
-  /// with.
-  bool removeSection(Section* S);
+  /// \return Whether the operation succeeded (\c ACCEPTED), made no change
+  /// (\c NO_CHANGE), or could not be completed (\c REJECTED). In particular,
+  /// if the node to remove is not actually part of this node to begin with,
+  /// the result will be \c NO_CHANGE.
+  ChangeStatus removeSection(Section* S);
 
   /// \brief Move a \ref Section object to be located in this module.
   ///

@@ -338,10 +338,11 @@ public:
 
   /// \brief Remove an interval from this section.
   ///
-  /// \return Whether or not the operation succeeded. This operation can
-  /// fail if the node to remove is not actually part of this node to begin
-  /// with.
-  bool removeByteInterval(ByteInterval* N);
+  /// \return Whether the operation succeeded (\c ACCEPTED), no change was made
+  /// (\c NO_CHANGE), or the operation could not be completed (\c REJECTED). In
+  /// particular, if the node to remove is not actually part of this node to
+  /// begin with, the result will be \c NO_CHANGE.
+  ChangeStatus removeByteInterval(ByteInterval* N);
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
   ///

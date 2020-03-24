@@ -107,7 +107,7 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   return M;
 }
 
-bool Module::removeProxyBlock(ProxyBlock* B) {
+ChangeStatus Module::removeProxyBlock(ProxyBlock* B) {
   if (auto It = ProxyBlocks.find(B); It != ProxyBlocks.end()) {
     if (Observer) {
       auto BlockRange = boost::make_iterator_range(It, std::next(It));
@@ -122,18 +122,18 @@ bool Module::removeProxyBlock(ProxyBlock* B) {
     }
     ProxyBlocks.erase(It);
     B->setModule(nullptr);
-    return true;
+    return ChangeStatus::ACCEPTED;
   }
-  return false;
+  return ChangeStatus::NO_CHANGE;
 }
 
 ChangeStatus Module::addProxyBlock(ProxyBlock* B) {
   if (Module* M = B->getModule()) {
     if (M == this)
       return ChangeStatus::NO_CHANGE;
-    // Do not need to check the return status because the removal cannot be
-    // rejected (see removeProxyBlock()).
-    M->removeProxyBlock(B);
+    [[maybe_unused]] ChangeStatus status = M->removeProxyBlock(B);
+    assert(status != ChangeStatus::REJECTED &&
+           "failed to remove block from former parent");
   }
 
   B->setModule(this);
@@ -165,7 +165,7 @@ Module* Module::load(Context& C, std::istream& In) {
   return M;
 }
 
-bool Module::removeSection(Section* S) {
+ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
     if (Observer) {
@@ -190,18 +190,18 @@ bool Module::removeSection(Section* S) {
     // Unset the parent *after* calling removeFromIndices.
 
     S->setParent(nullptr, nullptr);
-    return true;
+    return ChangeStatus::ACCEPTED;
   }
-  return false;
+  return ChangeStatus::NO_CHANGE;
 }
 
 ChangeStatus Module::addSection(Section* S) {
   if (Module* M = S->getModule()) {
     if (M == this)
       return ChangeStatus::NO_CHANGE;
-    // Do not need to check the return status because the removal cannot be
-    // rejected (see removeSection()).
-    M->removeSection(S);
+    [[maybe_unused]] ChangeStatus status = M->removeSection(S);
+    assert(status != ChangeStatus::REJECTED &&
+           "failed to remove section from former parent");
   }
 
   // Set the parent *before* calling addToIndices.
