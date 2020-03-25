@@ -4,6 +4,7 @@ ARG CMAKE_VERSION=3.9
 ARG PROTOBUF_VERSION=3.1.0-0ubuntu1~maarten0
 ARG CXX_COMPILER=g++-7
 ARG PYTHON_VERSION=3.5.1-3
+ARG BOOST_VERSION=1.67
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 
@@ -31,7 +32,7 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     add-apt-repository ppa:maarten-fonville/protobuf && \
     apt-get -y update && \
-    apt-get -y install libboost1.67-dev libprotobuf-dev=$PROTOBUF_VERSION \
+    apt-get -y install libboost${BOOST_VERSION}-dev libprotobuf-dev=$PROTOBUF_VERSION \
         protobuf-compiler=$PROTOBUF_VERSION
 
 # Install CMake
