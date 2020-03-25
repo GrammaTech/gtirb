@@ -300,41 +300,41 @@ Should not need to be manipulated by client code.")
         ,@(remove-if [«or {eql :parent} {eql :address-range}» #'car] options))
       ,@(when parent
           `((defmethod get-uuid (uuid (object ,class))
-              (assert (,parent object) (object)
+              (assert (or (ir object) (,parent object)) (object)
                       ,(format nil
                                "`get-uuid' failed on a ~a without a ~a"
                                class parent))
-              (get-uuid uuid (,parent object)))
+              (get-uuid uuid (or (ir object) (,parent object))))
             (defmethod set-parent-uuid (new uuid (object ,class))
-              (assert (,parent object) (object)
+              (assert (or (ir object) (,parent object)) (object)
                       ,(format nil
                                "`set-parent-uuid' failed on a ~a without a ~a"
                                class parent))
-              (setf (get-uuid uuid (,parent object)) new))
+              (setf (get-uuid uuid (or (ir object) (,parent object))) new))
             (defmethod (setf get-uuid) (new uuid (object ,class))
-              (assert (,parent object) (object)
+              (assert (or (ir object) (,parent object)) (object)
                       ,(format nil
                                "`get-uuid' failed on ~a without a ~a"
                                class parent))
               (set-parent-uuid new uuid object))
             (defmethod remove-uuid (uuid (object ,class))
-              (assert (,parent object) (object)
+              (assert (or (ir object) (,parent object)) (object)
                       ,(format nil
                                "`remove-uuid' failed on ~a without a ~a"
                                class parent))
-              (remove-uuid uuid (,parent object)))
+              (remove-uuid uuid (or (ir object) (,parent object))))
             (defmethod at-address ((object ,class) address)
-              (assert (,parent object) (object)
+              (assert (or (ir object) (,parent object)) (object)
                       ,(format nil
                                "`at-address' failed on ~a without a ~a"
                                class parent))
-              (at-address (,parent object) address))
+              (at-address (or (ir object) (,parent object)) address))
             (defmethod on-address ((object ,class) start &optional end)
-              (assert (,parent object) (object)
+              (assert (or (ir object) (,parent object)) (object)
                       ,(format nil
                                "`on-address' failed on ~a without a ~a"
                                class parent))
-              (on-address (,parent object) start end))))
+              (on-address (or (ir object) (,parent object)) start end))))
       (defmethod address-range ((self ,class)) ,@address-range)
       (defmethod
           initialize-instance :after ((self ,class) &key)
