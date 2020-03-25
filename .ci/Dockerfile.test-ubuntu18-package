@@ -17,5 +17,4 @@ RUN echo "\ndeb [trusted=yes] file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 COPY .ci/test-install.cpp test-install.cpp
 RUN apt-get update && apt-get install -y --allow-unauthenticated gtirb
-ARG CXX_COMPILER=c++
-RUN $CXX_COMPILER test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+RUN g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
