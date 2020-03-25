@@ -50,6 +50,11 @@ check-format:
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
 
 .windows-build-template: &windows-build
+  stage: build
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - GTIRB-*-win64.tar.gz
   script:
     # Build & test
     - rm -rf build CMakeCache.txt CMakeFiles CMakeScripts
@@ -136,27 +141,17 @@ build-arch-clang:
   <<: *build
 
 build-windows-msvc-debug:
-  stage: build
   tags:
     - gtirb-windows
   variables:
     BUILD_TYPE: 'Debug'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - GTIRB-*-win64.tar.gz
   <<: *windows-build
 
 build-windows-msvc-release:
-  stage: build
   tags:
     - gtirb-windows
   variables:
     BUILD_TYPE: 'Release'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - GTIRB-*-win64.tar.gz
   <<: *windows-build
 
 pages:
@@ -214,6 +209,11 @@ test-install:
     - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-${CI_JOB_NAME} --build-arg IMAGE=$LOCAL_IMAGE --build-arg INSTALLER="$INSTALLER" .
 
 .linux-installer-template: &linux-installer
+  stage: deploy
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - GTIRB-*-Linux.deb
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export CONTAINER_FILE=$(mktemp -d)/cidfile
@@ -226,37 +226,22 @@ test-install:
     - if [ -f .ci/Dockerfile.test-${OS}-package ]; then docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .; fi
 
 debian-installer-ubuntu16:
-  stage: deploy
   variables:
     OS: 'ubuntu16'
     COMPILER: 'g++-7'
     PACKAGE_EXTENSION: 'deb'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - GTIRB-*-Linux.deb
   <<: *linux-installer
 
 debian-installer-ubuntu18:
-  stage: deploy
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
     PACKAGE_EXTENSION: 'deb'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - GTIRB-*-Linux.deb
   <<: *linux-installer
 
 tar-arch:
-  stage: deploy
   variables:
     OS: 'arch'
     COMPILER: 'g++'
     PACKAGE_EXTENSION: 'tar.gz'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - GTIRB-*-Linux.tar.gz
   <<: *linux-installer
