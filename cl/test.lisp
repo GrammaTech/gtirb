@@ -326,6 +326,14 @@ The ERRNO used when exiting lisp indicates success or failure."
   (is (typep (make-instance 'section) 'section))
   (is (typep (make-instance 'byte-interval) 'byte-interval)))
 
+(deftest direct-ir-access ()
+  (with-fixture hello
+    (let* ((it (read-gtirb *proto-path*)))
+      (is (typep (ir (setf it (first (modules it)))) 'gtirb))
+      (is (typep (ir (setf it (first (sections it)))) 'gtirb))
+      (is (typep (ir (setf it (first (byte-intervals it)))) 'gtirb))
+      (is (typep (ir (setf it (first (blocks it)))) 'gtirb)))))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()

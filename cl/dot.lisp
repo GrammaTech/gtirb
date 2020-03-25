@@ -4,7 +4,7 @@
         :named-readtables :curry-compose-reader-macros)
   (:import-from :uiop :nest)
   (:import-from :uiop/image :quit)
-  (:import-from :proto-v0 :ir)
+  (:shadowing-import-from :proto-v0 :ir)
   (:shadowing-import-from :gtirb :symbol)
   (:export :to-dot :to-dot-file))
 (in-package :gtirb/dot)

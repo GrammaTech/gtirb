@@ -27,6 +27,7 @@
            :update-proto
 ;;; Classes and fields.
            :gtirb
+           :ir
            :cfg
            :version
            ;; Module
@@ -275,6 +276,11 @@ address range for instances of the object."
                                `(make-instance ',proto-class))
                 :documentation "Backing protobuf object.
 Should not need to be manipulated by client code.")
+         (ir :accessor ir :type (or null gtirb)
+             :initarg :ir
+             :initform nil
+             :documentation
+             ,(format nil "Access the top-level IR of this ~a." class))
          ;; TODO: Consider throwing warnings in a `setf :around'
          ;;       defmethod on the parents of objects with parents if
          ;;       the objects are set to something that already has a
@@ -419,7 +425,8 @@ modules and on GTIRB IR instances."))
               (lambda (proto)
                 (mapcar
                  (lambda (module-proto)
-                   (make-instance 'module :gtirb self :proto module-proto))
+                   (make-instance 'module
+                     :ir self :gtirb self :proto module-proto))
                  (coerce (proto:modules proto) 'list)))
               :to-proto
               (lambda (modules) (map 'vector #'update-proto modules))
@@ -536,7 +543,7 @@ the graph.")
                     (let ((it (aref proto-proxies n)))
                       (setf (gethash (uuid-to-integer (proto:uuid it)) table)
                             (make-instance 'proxy-block
-                              :module self :proto it))))))
+                              :ir (ir self) :module self :proto it))))))
               :to-proto
               (lambda (proxies)
                 (map 'vector (lambda (uuid)
@@ -554,14 +561,16 @@ function.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
               :from-proto
-              (lambda (proto) (map 'list {make-instance 'symbol :module self :proto}
+              (lambda (proto) (map 'list {make-instance 'symbol
+                                           :ir (ir self) :module self :proto}
                                    (proto:symbols proto)))
               :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
               :documentation "Hash-table of symbols keyed by UUID.")
      (sections :accessor sections :type '(list section)
                :from-proto
                (lambda (proto)
-                 (map 'list {make-instance 'section :module self :proto}
+                 (map 'list {make-instance 'section
+                              :ir (ir self) :module self :proto}
                       (proto:sections proto)))
                :to-proto (lambda (sections) (map 'vector #'update-proto sections))
                :documentation "List of the sections comprising this module.")
@@ -670,7 +679,8 @@ This indicates the type of control flow along this edge."))
       :accessor byte-intervals :type '(list byte-interval)
       :from-proto
       (lambda (proto)
-        (map 'list {make-instance 'byte-interval :section self :proto}
+        (map 'list {make-instance 'byte-interval
+                     :ir (ir self) :section self :proto}
              (proto:byte-intervals proto)))
       :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
       :documentation "Byte-intervals holding all of the section's bytes."))
@@ -701,11 +711,13 @@ is zero initialized, and whether the section is thread-local."))
                                   ((not (emptyp
                                          (proto:uuid (proto:data proto-block))))
                                    (make-instance 'data-block
+                                     :ir (ir self)
                                      :byte-interval self
                                      :proto (proto:data proto-block)))
                                   ((not (emptyp
                                          (proto:uuid (proto:code proto-block))))
                                    (make-instance 'code-block
+                                     :ir (ir self)
                                      :byte-interval self
                                      :proto (proto:code proto-block))))))
                         (setf (offset it) (proto:offset proto-block))
@@ -718,7 +730,7 @@ is zero initialized, and whether the section is thread-local."))
              :to-proto
              (lambda (blocks)
                (map 'vector (lambda (gtirb-block)
-                              (let ((it (make-instance 'proto:block)))
+                              (let ((it (make-instance 'proto:block )))
                                 (setf (proto:offset it) (offset gtirb-block))
                                 (etypecase gtirb-block
                                   (code-block
@@ -747,12 +759,15 @@ elements as proxy blocks do not hold bytes.")
                   (cond
                     ((proto:stack-const symbolic-expression)
                      (make-instance 'sym-stack-const
+                       :ir (ir self)
                        :proto (proto:stack-const symbolic-expression)))
                     ((proto:addr-const symbolic-expression)
                      (make-instance 'sym-addr-const
+                       :ir (ir self)
                        :proto (proto:addr-const symbolic-expression)))
                     ((proto:addr-addr symbolic-expression)
                      (make-instance 'sym-addr-addr
+                       :ir (ir self)
                        :proto (proto:addr-addr symbolic-expression))))))))
       :to-proto
       (lambda (symbolic-expression)
@@ -760,10 +775,10 @@ elements as proxy blocks do not hold bytes.")
              (lambda (pair)
                (destructuring-bind (offset . symbolic-expression) pair
                  (let ((it (make-instance
-                               'proto:byte-interval-symbolic-expressions-entry)))
+                               'proto:byte-interval-symbolic-expressions-entry )))
                    (setf (proto:key it) offset
                          (proto:value it)
-                         (let ((it (make-instance 'proto:symbolic-expression)))
+                         (let ((it (make-instance 'proto:symbolic-expression )))
                            (etypecase symbolic-expression
                              (sym-stack-const
                               (setf (proto:stack-const it)
@@ -885,6 +900,7 @@ Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
          (setf (subseq (contents (byte-interval object)) (offset object)) new))
      ;; Extract OBJECT into a new fresh byte-interval if different size.
      (let ((byte-interval (make-instance 'byte-interval
+                            :ir (ir (byte-interval object))
                             :section (section (byte-interval object))
                             ;; NOTE: Symbolic expressions are not coppied over.
                             :symbolic-expressions (make-hash-table)
