@@ -724,7 +724,7 @@ is zero initialized, and whether the section is thread-local."))
              :to-proto
              (lambda (blocks)
                (map 'vector (lambda (gtirb-block)
-                              (let ((it (make-instance 'proto:block )))
+                              (let ((it (make-instance 'proto:block)))
                                 (setf (proto:offset it) (offset gtirb-block))
                                 (etypecase gtirb-block
                                   (code-block
@@ -769,10 +769,10 @@ elements as proxy blocks do not hold bytes.")
              (lambda (pair)
                (destructuring-bind (offset . symbolic-expression) pair
                  (let ((it (make-instance
-                               'proto:byte-interval-symbolic-expressions-entry )))
+                               'proto:byte-interval-symbolic-expressions-entry)))
                    (setf (proto:key it) offset
                          (proto:value it)
-                         (let ((it (make-instance 'proto:symbolic-expression )))
+                         (let ((it (make-instance 'proto:symbolic-expression)))
                            (etypecase symbolic-expression
                              (sym-stack-const
                               (setf (proto:stack-const it)
