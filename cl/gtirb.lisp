@@ -424,8 +424,7 @@ modules and on GTIRB IR instances."))
               :from-proto
               [{mapcar {make-instance 'module :ir self :gtirb self :proto}}
                {coerce _ 'list} #'proto:modules]
-              :to-proto
-              (lambda (modules) (map 'vector #'update-proto modules))
+              :to-proto {map 'vector #'update-proto}
               :documentation
               "List of the modules on a top-level GTIRB IR instance.")
      (cfg :accessor cfg :type digraph
@@ -541,12 +540,11 @@ the graph.")
                             (make-instance 'proxy-block
                               :ir (ir self) :module self :proto it))))))
               :to-proto
-              (lambda (proxies)
-                (map 'vector (lambda (uuid)
-                               (let ((it (make-instance 'proto:proxy-block)))
-                                 (setf (proto:uuid it) (integer-to-uuid uuid))
-                                 it))
-                     (mapcar #'car (hash-table-alist proxies))))
+              [{map 'vector (lambda (uuid)
+                              (let ((it (make-instance 'proto:proxy-block)))
+                                (setf (proto:uuid it) (integer-to-uuid uuid))
+                                it))}
+               {mapcar #'car} #'hash-table-alist]
               :documentation
               "Hash-table of proxy-blocks keyed by UUID.
 Proxy-blocks in GTIRB are used to represent cross-module linkages.
@@ -560,14 +558,14 @@ function.")
               [{map 'list
                     {make-instance 'symbol :ir (ir self) :module self :proto}}
                #'proto:symbols]
-              :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
+              :to-proto {map 'vector #'update-proto}
               :documentation "Hash-table of symbols keyed by UUID.")
      (sections :accessor sections :type '(list section)
                :from-proto
                [{map 'list
                      {make-instance 'section :ir (ir self) :module self :proto}}
                 #'proto:sections]
-               :to-proto (lambda (sections) (map 'vector #'update-proto sections))
+               :to-proto {map 'vector #'update-proto}
                :documentation "List of the sections comprising this module.")
      (aux-data :accessor aux-data :type '(list (cons string aux-data))
                :from-proto #'aux-data-from-proto
@@ -676,7 +674,7 @@ This indicates the type of control flow along this edge."))
       [{map 'list
             {make-instance 'byte-interval :ir (ir self) :section self :proto}}
        #'proto:byte-intervals]
-      :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
+      :to-proto {map 'vector #'update-proto}
       :documentation "Byte-intervals holding all of the section's bytes."))
     ((name :type string :documentation "Name of this section.")
      (flags :type enumeration :enumeration +section-flags-map+
@@ -698,43 +696,39 @@ is zero initialized, and whether the section is thread-local."))
     ;;       balanced tree.
     ((blocks :initarg :blocks :accessor blocks :type '(list gtirb-byte-block)
              :from-proto
-             (lambda (proto)
-               (map 'list
-                    (lambda (proto-block)
-                      (let ((it (cond
-                                  ((not (emptyp
-                                         (proto:uuid (proto:data proto-block))))
-                                   (make-instance 'data-block
-                                     :ir (ir self)
-                                     :byte-interval self
-                                     :proto (proto:data proto-block)))
-                                  ((not (emptyp
-                                         (proto:uuid (proto:code proto-block))))
-                                   (make-instance 'code-block
-                                     :ir (ir self)
-                                     :byte-interval self
-                                     :proto (proto:code proto-block))))))
-                        (setf (offset it) (proto:offset proto-block))
-                        #+debug
-                        (when (emptyp (proto:uuid (proto it)))
-                          (warn "BAD BLOCK ~a with empty uuid from ~a.~%~A~%"
-                                it (name (section self)) proto-block))
-                        it))
-                    (proto:blocks proto)))
+             [{map 'list
+                   (lambda (proto-block)
+                     (let ((it (cond
+                                 ((not (emptyp
+                                        (proto:uuid (proto:data proto-block))))
+                                  (make-instance 'data-block
+                                    :ir (ir self)
+                                    :byte-interval self
+                                    :proto (proto:data proto-block)))
+                                 ((not (emptyp
+                                        (proto:uuid (proto:code proto-block))))
+                                  (make-instance 'code-block
+                                    :ir (ir self)
+                                    :byte-interval self
+                                    :proto (proto:code proto-block))))))
+                       (setf (offset it) (proto:offset proto-block))
+                       #+debug
+                       (when (emptyp (proto:uuid (proto it)))
+                         (warn "BAD BLOCK ~a with empty uuid from ~a.~%~A~%"
+                               it (name (section self)) proto-block))
+                       it))}
+              #'proto:blocks]
              :to-proto
-             (lambda (blocks)
-               (map 'vector (lambda (gtirb-block)
-                              (let ((it (make-instance 'proto:block)))
-                                (setf (proto:offset it) (offset gtirb-block))
-                                (etypecase gtirb-block
-                                  (code-block
-                                   (setf (proto:code it)
-                                         (update-proto gtirb-block)))
-                                  (data-block
-                                   (setf (proto:data it)
-                                         (update-proto gtirb-block))))
-                                it))
-                    blocks))
+             {map 'vector
+                  (lambda (gtirb-block)
+                    (let ((it (make-instance 'proto:block)))
+                      (setf (proto:offset it) (offset gtirb-block))
+                      (etypecase gtirb-block
+                        (code-block
+                         (setf (proto:code it) (update-proto gtirb-block)))
+                        (data-block
+                         (setf (proto:data it) (update-proto gtirb-block))))
+                      it))}
              :documentation
              "Blocks in this byte-interval.
 This list could include `code-block' or `data-block' elements (which
@@ -764,28 +758,27 @@ elements as proxy blocks do not hold bytes.")
                        :ir (ir self)
                        :proto (proto:addr-addr symbolic-expression))))))))
       :to-proto
-      (lambda (symbolic-expression)
-        (map 'vector
-             (lambda (pair)
-               (destructuring-bind (offset . symbolic-expression) pair
-                 (let ((it (make-instance
-                               'proto:byte-interval-symbolic-expressions-entry)))
-                   (setf (proto:key it) offset
-                         (proto:value it)
-                         (let ((it (make-instance 'proto:symbolic-expression)))
-                           (etypecase symbolic-expression
-                             (sym-stack-const
-                              (setf (proto:stack-const it)
-                                    (proto symbolic-expression)))
-                             (sym-addr-const
-                              (setf (proto:addr-const it)
-                                    (proto symbolic-expression)))
-                             (sym-addr-addr
-                              (setf (proto:addr-addr it)
-                                    (proto symbolic-expression))))
-                           it))
-                   it)))
-             (hash-table-alist symbolic-expression)))
+      [{map 'vector
+            (lambda (pair)
+              (destructuring-bind (offset . symbolic-expression) pair
+                (let ((it (make-instance
+                              'proto:byte-interval-symbolic-expressions-entry)))
+                  (setf (proto:key it) offset
+                        (proto:value it)
+                        (let ((it (make-instance 'proto:symbolic-expression)))
+                          (etypecase symbolic-expression
+                            (sym-stack-const
+                             (setf (proto:stack-const it)
+                                   (proto symbolic-expression)))
+                            (sym-addr-const
+                             (setf (proto:addr-const it)
+                                   (proto symbolic-expression)))
+                            (sym-addr-addr
+                             (setf (proto:addr-addr it)
+                                   (proto symbolic-expression))))
+                          it))
+                  it)))}
+       #'hash-table-alist]
       :documentation "Hash of symbolic-expressions keyed by offset."))
     ((addressp :type boolean :proto-field has-address
                :documentation
