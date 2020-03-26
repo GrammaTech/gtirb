@@ -422,12 +422,8 @@ modules and on GTIRB IR instances."))
     ((modules :initarg modules :accessor modules :type '(list module)
               :initform nil
               :from-proto
-              (lambda (proto)
-                (mapcar
-                 (lambda (module-proto)
-                   (make-instance 'module
-                     :ir self :gtirb self :proto module-proto))
-                 (coerce (proto:modules proto) 'list)))
+              [{mapcar {make-instance 'module :ir self :gtirb self :proto}}
+               {coerce _ 'list} #'proto:modules]
               :to-proto
               (lambda (modules) (map 'vector #'update-proto modules))
               :documentation
@@ -561,17 +557,16 @@ function.")
      (symbols :accessor symbols :type hash-table
               :initform (make-hash-table)
               :from-proto
-              (lambda (proto) (map 'list {make-instance 'symbol
-                                           :ir (ir self) :module self :proto}
-                                   (proto:symbols proto)))
+              [{map 'list
+                    {make-instance 'symbol :ir (ir self) :module self :proto}}
+               #'proto:symbols]
               :to-proto (lambda (symbols) (map 'vector #'update-proto symbols))
               :documentation "Hash-table of symbols keyed by UUID.")
      (sections :accessor sections :type '(list section)
                :from-proto
-               (lambda (proto)
-                 (map 'list {make-instance 'section
-                              :ir (ir self) :module self :proto}
-                      (proto:sections proto)))
+               [{map 'list
+                     {make-instance 'section :ir (ir self) :module self :proto}}
+                #'proto:sections]
                :to-proto (lambda (sections) (map 'vector #'update-proto sections))
                :documentation "List of the sections comprising this module.")
      (aux-data :accessor aux-data :type '(list (cons string aux-data))
@@ -678,10 +673,9 @@ This indicates the type of control flow along this edge."))
     ((byte-intervals
       :accessor byte-intervals :type '(list byte-interval)
       :from-proto
-      (lambda (proto)
-        (map 'list {make-instance 'byte-interval
-                     :ir (ir self) :section self :proto}
-             (proto:byte-intervals proto)))
+      [{map 'list
+            {make-instance 'byte-interval :ir (ir self) :section self :proto}}
+       #'proto:byte-intervals]
       :to-proto (lambda (byte-intervals) (map 'vector #'update-proto byte-intervals))
       :documentation "Byte-intervals holding all of the section's bytes."))
     ((name :type string :documentation "Name of this section.")
