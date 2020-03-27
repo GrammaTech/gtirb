@@ -1,7 +1,6 @@
 FROM ubuntu:18.04
 
 ARG CXX_COMPILER=g++-7
-ARG PROTOBUF_VERSION=3.0.0-9.1ubuntu1
 ARG BOOST_VERSION=1.67
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
@@ -18,7 +17,7 @@ RUN apt-get -y update && \
 # Install boost and protobuf
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     apt-get -y update && \
-    apt-get -y install libboost${BOOST_VERSION}-dev libprotobuf-dev=$PROTOBUF_VERSION protobuf-compiler=$PROTOBUF_VERSION libprotoc-dev=$PROTOBUF_VERSION
+    apt-get -y install libboost${BOOST_VERSION}-dev libprotobuf-dev libprotoc-dev protobuf-compiler
 
 # Build GTIRB
 COPY . /gt/gtirb/
