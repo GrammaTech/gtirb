@@ -378,16 +378,8 @@ if(GTIRB_CXX_API)
   if(NOT DEFINED PACKAGE_BRANCH)
     set(PACKAGE_BRANCH "No package branch specified")
   endif()
-  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake"
-       "
-              function(check_gtirb_branch GTIRB_BRANCH_NAME)
-                if(NOT \"\$\{GTIRB_BRANCH_NAME\}\" STREQUAL \"${PACKAGE_BRANCH}\")
-                  message(SEND_ERROR \"The requested gtirb branch $\{GTIRB_BRANCH_NAME\} is not the branch which was used in the gtirb build.  Gtirb's package branch was: ${PACKAGE_BRANCH}.\")
-                endif()
-              endfunction()
-              include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")
-          "
-  )
+  configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake" @ONLY)
+
   # In this mode, find_package also seems to require a version file
   set(version_file "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig-version.cmake")
   write_basic_package_version_file(
