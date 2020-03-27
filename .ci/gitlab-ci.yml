@@ -212,7 +212,7 @@ test-install:
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - GTIRB-*-Linux.deb
+      - GTIRB-*-Linux.$PACKAGE_EXTENSION
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export CONTAINER_FILE=$(mktemp -d)/cidfile
