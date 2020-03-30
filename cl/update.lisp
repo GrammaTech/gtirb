@@ -223,7 +223,7 @@
                    (out (symbols-to-aux-data
                          "peExportedSymbols"
                          (nest
-                          (mapcar [#'uuid-to-integer #'proto-v0:uuid]) 
+                          (mapcar [#'uuid-to-integer #'proto-v0:uuid])
                           (remove-if-not [{member _ '(:normal :extern)}
                                           #'storage-kind])
                           (proto-v0:symbols old)))))

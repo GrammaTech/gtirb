@@ -62,4 +62,3 @@ Links
 
 - [GTIRB Components](COMPONENTS.md)
 - [Using Serialized GTIRB Data](../../PROTOBUF.md)
-
