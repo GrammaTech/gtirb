@@ -25,6 +25,7 @@ check-format:
         exit 0;
       else
         echo "Format check failed.";
+        exit 1;
       fi
 
 .build-template: &build
