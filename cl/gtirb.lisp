@@ -87,20 +87,21 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar version.txt
-    `#.(let ((version-path
-              (make-pathname
-               :name "version" :type "txt"
-               :directory (append (pathname-directory
-                                   (or *compile-file-truename*
-                                       *load-truename*
-                                       *default-pathname-defaults*))
-                                  (list "..")))))
-         (with-open-file (in version-path)
-           (loop for line = (read-line in nil :eof)
-              until (eql line :eof)
-              collect (let ((delim (position #\Space line)))
-                        (cons (intern (subseq line 0 delim))
-                              (parse-integer (subseq line (1+ delim))))))))))
+    `#.(nest (or version.txt)
+             (let ((version-path
+                    (make-pathname
+                     :name "version" :type "txt"
+                     :directory (append (pathname-directory
+                                         (or *compile-file-truename*
+                                             *load-truename*
+                                             *default-pathname-defaults*))
+                                        (list ".."))))))
+             (with-open-file (in version-path))
+             (loop for line = (read-line in nil :eof)
+                until (eql line :eof)
+                collect (let ((delim (position #\Space line)))
+                          (cons (intern (subseq line 0 delim))
+                                (parse-integer (subseq line (1+ delim)))))))))
 
 (define-constant gtirb-version
     (format nil "~d.~d.~d"
@@ -851,10 +852,13 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
   (when-let ((base-address (address (byte-interval obj))))
     (+ base-address (offset obj))))
 
-(defgeneric bytes (object)
+(defgeneric bytes (object &optional start end)
   (:documentation "Return the bytes held by OBJECT.")
-  (:method ((obj byte-interval)) (contents obj))
-  (:method ((obj gtirb-byte-block))
+  (:method ((obj byte-interval) &optional (start 0) end)
+    (if end
+        (subseq (contents obj) start end)
+        (subseq (contents obj) start)))
+  (:method ((obj gtirb-byte-block) &optional (start 0) (end (size obj)))
     #+debug (format t "[~S] ~S:[~S:~S]<-[~S:~S]~%"
                     (proto:uuid (proto obj))
                     (name (section (byte-interval obj)))
@@ -863,8 +867,8 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
                         "?")
                     (size (byte-interval obj))
                     (offset obj) (size obj))
-    (let ((start (offset obj))
-          (end (+ (offset obj) (size obj))))
+    (let* ((start (+ (offset obj) start))
+           (end (+ (offset obj) end)))
       (assert (<= end (size (byte-interval obj))) (obj)
               "Block's end ~d exceeds size of containing byte-interval ~d."
               end (size (byte-interval obj)))
@@ -878,32 +882,91 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
           (t                          ; Un-allocated bytes, zero-fill.
            (make-array (size obj) :initial-element 0)))))))
 
-(defgeneric (setf bytes) (new object)
-  (:documentation "Set the `bytes' for OBJECT to NEW.")
-  (:method (new (object byte-interval))
-    (setf (contents object) new))
-  (:method (new (object gtirb-byte-block))
-    "If NEW has the same length as (BYTES OBJECT) update in place.
-Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
-    (nest
-     (if (= (length new) (length (bytes object))) ; In place if same size.
-         (setf (subseq (contents (byte-interval object)) (offset object)) new))
-     ;; Extract OBJECT into a new fresh byte-interval if different size.
-     (let ((byte-interval (make-instance 'byte-interval
-                            :ir (ir (byte-interval object))
-                            :section (section (byte-interval object))
-                            ;; NOTE: Symbolic expressions are not coppied over.
-                            :symbolic-expressions (make-hash-table)
-                            :blocks (list object))))
-       ;; Set field of byte-interval stored in the protobuf object.
-       (setf (addressp byte-interval) nil
-             (size byte-interval) (length new)
-             (contents byte-interval) new)
-       (setf (byte-interval object) byte-interval ; Block to new byte-interval.
-             (offset object) 0)
-       ;; Add new byte interval to its section.
-       (push byte-interval (byte-intervals (section byte-interval)))))
-    new))
+(defun shift-subseq (sequence start end)
+  "Return a copy of SEQUENCE bounded by START and END."
+  (subseq sequence start end))
+
+(define-setf-expander shift-subseq (sequence start end &environment env)
+  "Update the subseq of SEQUENCE bounded by START and END."
+  (multiple-value-bind (dummies vals newval setter getter)
+      (get-setf-expansion sequence env)
+    (declare (ignorable newval setter))
+    (let ((store (gensym)))
+      (values
+       dummies                          ; Temporary variables
+       vals                             ; Value forms.
+       (list store)                     ; Store variables.
+       `(progn
+          (cond
+            ((zerop ,start)
+             (setf ,getter
+                   (concatenate 'vector ,store (subseq ,getter ,end))))
+            ((= (length ,store) (- ,end ,start))
+             (setf (subseq ,getter ,start ,end) ,store))
+            ((>= ,end (length ,getter))
+             (setf ,getter
+                   (concatenate 'vector (subseq ,getter 0 ,start) ,store)))
+            (t (setf ,getter (concatenate 'vector
+                                          (subseq ,getter 0 ,start)
+                                          ,store
+                                          (subseq ,getter ,end)))))
+          ,store)                       ; Storing form.
+       `(shift-subseq ,getter)))))      ; Accessing form.
+
+(define-setf-expander bytes (sequence &optional (start 0) end &environment env)
+  (multiple-value-bind (dummies vals newval setter getter)
+      (get-setf-expansion sequence env)
+    (declare (ignorable newval setter))
+    (let ((store (gensym))
+          (end `(or ,end (length (bytes ,getter)))))
+      (values
+       dummies                          ; Temporary variables
+       vals                             ; Value forms.
+       (list store)                     ; Store variables.
+       `(progn
+          (etypecase ,getter
+            (gtirb::byte-interval
+             (setf (shift-subseq (contents ,getter) ,start ,end) ,store))
+            (gtirb::gtirb-byte-block
+             (with-slots (offset) ,getter
+               (setf (shift-subseq (contents (byte-interval ,getter))
+                                   (+ offset ,start) (+ offset ,end))
+                     ,store)
+               (setf-bytes-after ,store (byte-interval ,getter)
+                                 (+ offset ,start) (+ offset ,end)))))
+          (setf-bytes-after ,store ,getter ,start ,end)
+          ,store)                       ; Storing form.
+       `(bytes ,getter)))))             ; Accessing form.
+
+(defgeneric setf-bytes-after (new object &optional start end)
+  (:documentation
+   "Update the offsets into BYTE-INTERVAL due to saving NEW into START END.")
+  (:method (new (byte-interval byte-interval)
+            &optional (start 0) (end (size byte-interval)))
+    (setf (size byte-interval)
+          (+ start (length new) (- (size byte-interval) end)))
+    (let ((difference (- (length new) (- end start))))
+      ;; Symbolic expressions.
+      (nest (setf (symbolic-expressions byte-interval))
+            (alist-hash-table)
+            (mappend (lambda (pair)
+                       (destructuring-bind (offset . sym-expr) pair
+                         (cond
+                           ((< offset start) (list (cons offset sym-expr)))
+                           ((>= offset end)
+                            (list (cons (+ offset difference) sym-expr)))
+                           ;; Clear symbolic expressions in the modified range.
+                           (t nil)))))
+            (hash-table-alist (symbolic-expressions byte-interval)))
+      ;; Byte-Blocks.
+      (mapc (lambda (bb)
+              (with-slots (offset) bb
+                (when (>= offset end)
+                  (incf offset difference))))
+            (blocks byte-interval))))
+  (:method (new (bb gtirb-byte-block) &optional (start 0) (end (size bb)))
+    ;; Update the size of the byte-block
+    (setf (size bb) (+ start (length new) (- (size bb) end)))))
 
 (define-proto-backed-class (code-block proto:code-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number

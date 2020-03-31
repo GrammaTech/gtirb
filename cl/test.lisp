@@ -248,6 +248,14 @@ The ERRNO used when exiting lisp indicates success or failure."
         (nodes)
         (cfg it)))
 
+(deftest shift-subseq-adds-and-removes-as-expected ()
+  (let ((it #(1 2 3 4 5)))
+    (setf (gtirb::shift-subseq it 2 3) #(9 9 9 9))
+    (is (equalp it #(1 2 9 9 9 9 4 5))))
+  (let ((it #(1 2 3 4 5)))
+    (setf (gtirb::shift-subseq it 2 3) #())
+    (is (equalp it #(1 2 4 5)))))
+
 (deftest set-block-bytes-to-the-same-size ()
   (with-fixture hello
     (let* ((it (read-gtirb *proto-path*))
@@ -280,14 +288,29 @@ The ERRNO used when exiting lisp indicates success or failure."
     (let* ((it (read-gtirb *proto-path*))
            (original-byte-intervals (nest (mappend #'byte-intervals)
                                           (mappend #'sections)
-                                          (modules it))))
-      (let ((target (first (mappend #'blocks original-byte-intervals))))
-        (setf (bytes target)
-              (make-array (* 2 (length (bytes target))) :initial-element 9))
-        (is (= (1+ (length original-byte-intervals)) ; One new byte intervals.
-               (length (nest (mappend #'byte-intervals)
-                             (mappend #'sections)
-                             (modules it)))))))))
+                                          (modules it)))
+           (target (first (mappend #'blocks original-byte-intervals)))
+           (original-bi-size (size (byte-interval target)))
+           (original-bi-bytes (bytes (byte-interval target)))
+           (original-size (length (bytes target)))
+           (rest-block-bytes
+            (cdr (mapcar #'bytes (blocks (byte-interval target))))))
+      (setf (bytes target) (make-array (* 2 original-size) :initial-element 9))
+      ;; First block bytes are updated.
+      (is (equalp (bytes (first (mappend #'blocks original-byte-intervals)))
+                  (make-array (* 2 original-size) :initial-element 9)))
+      ;; Block size is updated.
+      (is (equalp (size target) (* 2 original-size)))
+      ;; Byte-interval size is updated.
+      (is (equalp (size (byte-interval target))
+                  (+ original-bi-size original-size)))
+      ;; Remainder of the byte-interval's bytes are the same.
+      (is (equalp (subseq (bytes (byte-interval target)) (* 2 original-size))
+                  (subseq original-bi-bytes original-size)))
+      ;; Remaining blocks bytes are the same.
+      (is (every #'equalp
+                 rest-block-bytes
+                 (cdr (mapcar #'bytes (blocks (byte-interval target)))))))))
 
 (deftest address-range-block-lookup ()
   (with-fixture hello
@@ -301,6 +324,40 @@ The ERRNO used when exiting lisp indicates success or failure."
       (is (member a-block (at-address it (first (address-range a-block)))))
       (is (not (member a-block (at-address it (second
                                                (address-range a-block)))))))))
+
+(deftest symbolic-expressions-pushed-back ()
+  (with-fixture hello
+    ;; Collect a byte-interval with offset symbolic expressions.
+    (let* ((bi (nest (find-if [{some [#'not #'zerop #'car]}
+                               #'hash-table-alist #'symbolic-expressions])
+                     (cdr) (mappend #'byte-intervals)
+                     (sections) (first) (modules)
+                     (read-gtirb *proto-path*)))
+           (original-length (length (bytes bi)))
+           (original-offsets (hash-table-keys (symbolic-expressions bi)))
+           (largest-offset (extremum original-offsets #'>))
+           (smallest-offset (extremum original-offsets #'<)))
+      ;; Add bytes after the last symbol.
+      (setf (bytes bi largest-offset largest-offset)
+            (make-array 2 :initial-element 9))
+      ;; Ensure bytes have been altered.
+      (is (> (length (bytes bi)) original-length))
+      ;; Ensure symbolic expressions before last have not moved.
+      (is (set-equal (remove (+ largest-offset 2)
+                             (hash-table-keys (symbolic-expressions bi)))
+                     (remove largest-offset original-offsets)))
+      ;; Remove those added bytes
+      (setf (bytes bi largest-offset (+ largest-offset 2)) #())
+      ;; Add bytes at the beginning.
+      (setf (bytes bi 0 0) (make-array 1 :initial-element 9))
+      ;; Ensure symbolic expressions have actually been pushed back.
+      (is (set-equal (mapcar #'1+ original-offsets)
+                     (hash-table-keys (symbolic-expressions bi))))
+      ;; Drop bytes at the beginning.
+      (setf (bytes bi 0 (1+ smallest-offset)) #())
+      ;; Ensure this symbolic expression now starts at the beginning.
+      (is (zerop (extremum (hash-table-keys (symbolic-expressions bi))
+                           #'<))))))
 
 (deftest payload-can-be-read-and-set ()
   (with-fixture hello
