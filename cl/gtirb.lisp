@@ -812,7 +812,7 @@ at runtime.")
   (when (addressp obj) (proto:address (proto obj))))
 
 (defclass symbolic-expression ()
-  ((symbols :accessor symbols :type '(list symbol)
+  ((symbols :accessor symbols :initform nil :type '(list symbol)
             :documentation "Symbol(s) appearing in this symbolic expression.")))
 
 (defmethod print-object ((obj symbolic-expression) stream)
