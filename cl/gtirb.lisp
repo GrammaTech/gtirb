@@ -853,6 +853,7 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
 (defgeneric bytes (object)
   (:documentation "Return the bytes held by OBJECT.")
+  (:method ((obj byte-interval)) (contents obj))
   (:method ((obj gtirb-byte-block))
     #+debug (format t "[~S] ~S:[~S:~S]<-[~S:~S]~%"
                     (proto:uuid (proto obj))
@@ -879,6 +880,8 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
 (defgeneric (setf bytes) (new object)
   (:documentation "Set the `bytes' for OBJECT to NEW.")
+  (:method (new (object byte-interval))
+    (setf (contents object) new))
   (:method (new (object gtirb-byte-block))
     "If NEW has the same length as (BYTES OBJECT) update in place.
 Otherwise, extract OBJECT into a new BYTE-INTERVAL to hold the new bytes."
