@@ -208,7 +208,7 @@ class ByteInterval(Node):
         proto_interval.size = self.size
         proto_interval.contents = bytes(self.contents)
 
-        for block in self.blocks:
+        def to_proto_block(block):
             proto_block = ByteInterval_pb2.Block()
             proto_block.offset = block.offset
             if isinstance(block, CodeBlock):
@@ -219,7 +219,9 @@ class ByteInterval(Node):
                 raise TypeError(
                     "Unknown block type in interval: %s" % type(block)
                 )
-            proto_interval.blocks.append(proto_block)
+            return proto_block
+
+        proto_interval.blocks.extend(to_proto_block(b) for b in self.blocks)
 
         for k, v in self.symbolic_expressions.items():
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
