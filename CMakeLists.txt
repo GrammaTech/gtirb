@@ -25,7 +25,7 @@ cmake_policy(SET CMP0048 NEW)
 project(
   GTIRB
   VERSION "${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}"
-  )
+)
 set(PACKAGE_BRANCH master)
 
 include(CheckFunctionExists)
@@ -71,10 +71,15 @@ option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
 set(PYTHON_MINIMUM_VERSION "3.5.2")
 find_program(PYTHON "python3")
 if(PYTHON)
-  execute_process(COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION)
+  execute_process(
+    COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION
+  )
   string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
   if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
-    message(SEND_ERROR "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required: ${PYTHON_MINIMUM_VERSION}")
+    message(
+      SEND_ERROR
+        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required: ${PYTHON_MINIMUM_VERSION}"
+    )
   endif()
   set(GTIRB_PY_API_DEFAULT ON)
 else()
@@ -94,7 +99,10 @@ if(LISP AND EXISTS "${QUICKLISP}")
   string(REPLACE "SBCL" "" LISP_VERSION "${LISP_VERSION}")
   string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
   if("${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
-    message(SEND_ERROR "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required: ${LISP_MINIMUM_VERSION}")
+    message(
+      SEND_ERROR
+        "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required: ${LISP_MINIMUM_VERSION}"
+    )
   endif()
   set(GTIRB_CL_API_DEFAULT ON)
 else()
@@ -373,19 +381,21 @@ if(GTIRB_CXX_API)
   export(PACKAGE gtirb)
 
   # --- For the installed copy ---
-  # Main config file for find_package, includes the targets file and defines
-  # the check_gtirb_branch function.
+  # Main config file for find_package, includes the targets file and defines the
+  # check_gtirb_branch function.
   if(NOT DEFINED PACKAGE_BRANCH)
     set(PACKAGE_BRANCH "No package branch specified")
   endif()
   # FIXME: The installed version of gtirbConfig currently contains the
-  # check_gtirb_branch function, which requires users to explicitly call it.
-  # We ought to move this functionality to gtirbConfig-version, so that
-  # checking the gtirb version also checks the branch, requiring users to
-  # opt-out of the branch check, rather than opt-in by calling
-  # check_gtirb_branch.
-  # See: GitLab issue #93
-  configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake" @ONLY)
+  # check_gtirb_branch function, which requires users to explicitly call it. We
+  # ought to move this functionality to gtirbConfig-version, so that checking
+  # the gtirb version also checks the branch, requiring users to opt-out of the
+  # branch check, rather than opt-in by calling check_gtirb_branch. See: GitLab
+  # issue #93
+  configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/gtirbConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake" @ONLY
+  )
 
   # In this mode, find_package also seems to require a version file
   set(version_file "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig-version.cmake")
@@ -421,12 +431,16 @@ set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 
-string(REGEX MATCH "([^\.]+)\.([^\.]+)\.([^\.]+)" PROTOBUF_VERSION_MATCH ${Protobuf_VERSION})
+string(REGEX MATCH "([^\.]+)\.([^\.]+)\.([^\.]+)" PROTOBUF_VERSION_MATCH
+             ${Protobuf_VERSION}
+)
 set(PROTOBUF_MAJOR_VERSION ${CMAKE_MATCH_1})
 set(PROTOBUF_MINOR_VERSION ${CMAKE_MATCH_2})
 set(PROTOBUF_PATCH_VERSION ${CMAKE_MATCH_3})
-MATH(EXPR NEXT_PROTOBUF_PATCH "${PROTOBUF_PATCH_VERSION}+1")
-set(PROTOBUF_VERSION_BOUND "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.${NEXT_PROTOBUF_PATCH}")
+math(EXPR NEXT_PROTOBUF_PATCH "${PROTOBUF_PATCH_VERSION}+1")
+set(PROTOBUF_VERSION_BOUND
+    "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.${NEXT_PROTOBUF_PATCH}"
+)
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
     "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${PROTOBUF_VERSION_BOUND})"

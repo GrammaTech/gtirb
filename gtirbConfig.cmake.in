@@ -1,6 +1,9 @@
 function(check_gtirb_branch GTIRB_BRANCH_NAME)
   if(NOT "${GTIRB_BRANCH_NAME}" STREQUAL "@PACKAGE_BRANCH@")
-    message(SEND_ERROR "The requested gtirb branch ${GTIRB_BRANCH_NAME} is not the branch which was used in the gtirb build.  Gtirb's package branch was: @PACKAGE_BRANCH@.")
+    message(
+      SEND_ERROR
+        "The requested gtirb branch ${GTIRB_BRANCH_NAME} is not the branch which was used in the gtirb build.  Gtirb's package branch was: @PACKAGE_BRANCH@."
+    )
   endif()
 endfunction()
 include("${CMAKE_CURRENT_LIST_DIR}/gtirbTargets.cmake")
