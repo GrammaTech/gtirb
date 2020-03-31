@@ -378,6 +378,13 @@ if(GTIRB_CXX_API)
   if(NOT DEFINED PACKAGE_BRANCH)
     set(PACKAGE_BRANCH "No package branch specified")
   endif()
+  # FIXME: The installed version of gtirbConfig currently contains the
+  # check_gtirb_branch function, which requires users to explicitly call it.
+  # We ought to move this functionality to gtirbConfig-version, so that
+  # checking the gtirb version also checks the branch, requiring users to
+  # opt-out of the branch check, rather than opt-in by calling
+  # check_gtirb_branch.
+  # See: GitLab issue #93
   configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake" @ONLY)
 
   # In this mode, find_package also seems to require a version file
