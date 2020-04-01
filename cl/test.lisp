@@ -11,6 +11,7 @@
         :named-readtables :curry-compose-reader-macros)
   (:import-from :md5 :md5sum-file :md5sum-sequence)
   (:import-from :uiop :nest :run-program :with-temporary-file :quit)
+  (:import-from :asdf/system :system-relative-pathname)
   (:shadowing-import-from :gtirb :symbol)
   (:export :test :batch-test))
 (in-package :gtirb/test)
@@ -35,12 +36,7 @@ The ERRNO used when exiting lisp indicates success or failure."
         (format *error-output* "SUCCESS~%"))
     (quit (if failures 2 0))))
 
-(defvar *gtirb-dir* (nest (make-pathname :directory)
-                          (butlast)
-                          (pathname-directory)
-                          #.(or *compile-file-truename*
-                                *load-truename*
-                                *default-pathname-defaults*)))
+(defvar *gtirb-dir* (system-relative-pathname "gtirb" "../"))
 
 
 ;;;; Fixtures.

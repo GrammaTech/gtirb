@@ -8,6 +8,7 @@
   (:shadow :symbol)
   (:import-from :proto)
   (:import-from :uiop :nest)
+  (:import-from :asdf/system :system-relative-pathname)
   (:import-from :cl-intbytes
                 :int->octets
                 :octets->int64
@@ -86,16 +87,9 @@
 (in-readtable :curry-compose-reader-macros)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defparameter version.txt
-    `#.(nest (or (and (boundp 'version.txt) (symbol-value 'version.txt)))
-             (let ((version-path
-                    (make-pathname
-                     :name "version" :type "txt"
-                     :directory (append (pathname-directory
-                                         (or *compile-file-truename*
-                                             *load-truename*
-                                             *default-pathname-defaults*))
-                                        (list ".."))))))
+  (defvar version.txt
+    `#.(nest (let ((version-path
+                    (system-relative-pathname "gtirb" "../version.txt"))))
              (with-open-file (in version-path))
              (loop for line = (read-line in nil :eof)
                 until (eql line :eof)
