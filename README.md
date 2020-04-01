@@ -95,6 +95,32 @@ Instructions and symbolic operands can be addressed by the class
 `Offset` which encapsulates a UUID (that refers to the instruction's
 block) and an offset.
 
+# Installing
+Packages for Ubuntu 16 and 18 are available in the GTIRB apt repository.  The
+GTIRB package has some dependencies which are only available in other PPAs.  You
+will have to add these PPAs to your system in order to install the GTIRB
+package.
+
+Instructions for adding the appropriate PPAS and installing GTIRB on each
+platform follow.
+
+## Ubuntu16
+```sh
+sudo add-apt-repository ppa:maarten-fonville/protobuf
+sudo add-apt-repository ppa:mhier/libboost-latest
+sudo echo "deb <FIXME: URL to the apt repository>/xenial ./" >> /etc/apt/sources.list
+
+sudo apt-get install --allow-unauthenticated gtirb
+```
+
+## Ubuntu18
+```sh
+sudo add-apt-repository ppa:mhier/libboost-latest
+sudo echo "deb [trusted=yes] <FIXME: URL to the apt repository>/bionic ./" >> /etc/apt/sources.list
+
+sudo apt-get install gtirb
+```
+
 # Building
 
 GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
