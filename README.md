@@ -97,15 +97,19 @@ Instructions and symbolic operands can be addressed by the class
 block) and an offset.
 
 # Installing
-Packages for Ubuntu 16 and 18 are available in the GTIRB apt repository.  The
-GTIRB package has some dependencies which are only available in other PPAs.  You
-will have to add these PPAs to your system in order to install the GTIRB
-package.
+Packages currently existing for easily installing GTIRB (and attendant
+tooling on Ubuntu and Arch Linux).  See below for instructions.
+
+## Ubuntu
+Packages for Ubuntu 16 and 18 are available in the GTIRB apt
+repository.  The GTIRB package has some dependencies which are only
+available in other PPAs.  You will have to add these PPAs to your
+system in order to install the GTIRB package.
 
 Instructions for adding the appropriate PPAS and installing GTIRB on each
 platform follow.
 
-## Ubuntu16
+### Ubuntu16
 ```sh
 sudo add-apt-repository ppa:maarten-fonville/protobuf
 sudo add-apt-repository ppa:mhier/libboost-latest
@@ -120,6 +124,20 @@ sudo add-apt-repository ppa:mhier/libboost-latest
 sudo echo "deb [trusted=yes] https://grammatech.github.io/gtirb/ppa/bionic ./" >> /etc/apt/sources.list
 
 sudo apt-get install gtirb
+```
+
+## Arch Linux
+The Arch User Repository (AUR) https://aur.archlinux.org/ has packages
+for GTIRB (`gtirb-git`) the GTIRB Pretty Printer
+(`gtirb-pprinter-git`) and the datalog disassembler (`ddisasm-git`).
+Note that installing `ddisasm-git` will cause the other two packages
+to be installed as well given that they are both dependencies.
+
+The following command will install GTIRB using the popular
+[aur helper](https://wiki.archlinux.org/index.php/AUR_helpers)
+[yay](https://github.com/Jguer/yay).
+```sh
+yay gtirb-git
 ```
 
 # Building
