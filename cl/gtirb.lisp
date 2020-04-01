@@ -420,7 +420,7 @@ modules and on GTIRB IR instances."))
 
 ;;;; Classes.
 (define-proto-backed-class (gtirb proto:ir) ()
-    ((modules :initarg modules :accessor modules :type '(list module)
+    ((modules :initarg modules :accessor modules :type list
               :initform nil
               :from-proto
               [{mapcar {make-instance 'module :ir self :gtirb self :proto}}
@@ -465,7 +465,7 @@ Nodes in the graph hold the UUIDs of code blocks which may be looked
 up using `get-uuid'.  Edges on the graph are labeled with `edge-label'
 objects which provide information on the nature of the control flow of
 the graph.")
-     (aux-data :accessor aux-data :type '(list aux-data)
+     (aux-data :accessor aux-data :type list
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
                :documentation #.aux-data-slot-definition)
@@ -561,14 +561,14 @@ function.")
                #'proto:symbols]
               :to-proto {map 'vector #'update-proto}
               :documentation "Hash-table of symbols keyed by UUID.")
-     (sections :accessor sections :type '(list section)
+     (sections :accessor sections :type list
                :from-proto
                [{map 'list
                      {make-instance 'section :ir (ir self) :module self :proto}}
                 #'proto:sections]
                :to-proto {map 'vector #'update-proto}
                :documentation "List of the sections comprising this module.")
-     (aux-data :accessor aux-data :type '(list (cons string aux-data))
+     (aux-data :accessor aux-data :type list
                :from-proto #'aux-data-from-proto
                :to-proto #'aux-data-to-proto
                :documentation #.aux-data-slot-definition))
@@ -670,7 +670,7 @@ This indicates the type of control flow along this edge."))
 
 (define-proto-backed-class (section proto:section) ()
     ((byte-intervals
-      :accessor byte-intervals :type '(list byte-interval)
+      :accessor byte-intervals :type list
       :from-proto
       [{map 'list
             {make-instance 'byte-interval :ir (ir self) :section self :proto}}
@@ -695,7 +695,7 @@ is zero initialized, and whether the section is thread-local."))
     ;; TODO: What's a better data structure to use to store a sorted
     ;;       collection of pairs which permits duplicates.  Maybe a
     ;;       balanced tree.
-    ((blocks :initarg :blocks :accessor blocks :type '(list gtirb-byte-block)
+    ((blocks :initarg :blocks :accessor blocks :type list
              :from-proto
              [{map 'list
                    (lambda (proto-block)
@@ -813,7 +813,7 @@ at runtime.")
   (when (addressp obj) (proto:address (proto obj))))
 
 (defclass symbolic-expression ()
-  ((symbols :accessor symbols :initform nil :type '(list symbol)
+  ((symbols :accessor symbols :initform nil :type list
             :documentation "Symbol(s) appearing in this symbolic expression.")))
 
 (defmethod print-object ((obj symbolic-expression) stream)
