@@ -443,7 +443,7 @@ set(PROTOBUF_VERSION_BOUND
 )
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${PROTOBUF_VERSION_BOUND})"
+    "libstdc++6, libc6, libgcc1, libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${PROTOBUF_VERSION_BOUND})"
 )
 
 include(CPack)
