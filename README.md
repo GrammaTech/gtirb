@@ -10,6 +10,7 @@ between tools.
 
 The remainder of this file describes various aspects of GTIRB:
 - [Structure](#structure)
+- [Installing](#installing)
 - [Building](#building)
 - [Usage](#usage)
 
