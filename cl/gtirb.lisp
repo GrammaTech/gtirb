@@ -156,7 +156,7 @@ as all GTIRB structures."
                   (subseq *is-equal-p-verbose-output-buffer*
                           0 *is-equal-p-verbose-output-length*)))))))
 
-(defmethod :around is-equal-p-internal ((left t) (right t))
+(defmethod is-equal-p-internal :around ((left t) (right t))
   (let ((equalp (call-next-method)))
     (when equalp (setf *is-equal-p-verbose-output-buffer* nil))
     equalp))
