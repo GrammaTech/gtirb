@@ -86,8 +86,8 @@
 (in-readtable :curry-compose-reader-macros)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defvar version.txt
-    `#.(nest (or version.txt)
+  (defparameter version.txt
+    `#.(nest (or (and (boundp 'version.txt) (symbol-value 'version.txt)))
              (let ((version-path
                     (make-pathname
                      :name "version" :type "txt"
