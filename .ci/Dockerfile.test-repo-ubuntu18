@@ -1,0 +1,17 @@
+FROM ubuntu:18.04
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get -y update && apt-get -y install software-properties-common
+
+# for boost
+RUN add-apt-repository ppa:mhier/libboost-latest
+
+# our projects
+ARG REPO_ROOT=""
+RUN echo "deb [trusted=yes] $REPO_ROOT/bionic ./" >> /etc/apt/sources.list
+
+RUN apt-get -y update
+
+ARG PROJECT="$PROJECT"
+RUN apt-get -y install $PROJECT
+RUN find / -iname *$PROJECT.so -exec ldd \{\} \;
