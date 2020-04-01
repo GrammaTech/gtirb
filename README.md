@@ -108,15 +108,15 @@ platform follow.
 ```sh
 sudo add-apt-repository ppa:maarten-fonville/protobuf
 sudo add-apt-repository ppa:mhier/libboost-latest
-sudo echo "deb <FIXME: URL to the apt repository>/xenial ./" >> /etc/apt/sources.list
+sudo echo "deb https://grammatech.github.io/gtirb/ppa/xenial ./" >> /etc/apt/sources.list
 
 sudo apt-get install --allow-unauthenticated gtirb
 ```
 
-## Ubuntu18
+### Ubuntu18
 ```sh
 sudo add-apt-repository ppa:mhier/libboost-latest
-sudo echo "deb [trusted=yes] <FIXME: URL to the apt repository>/bionic ./" >> /etc/apt/sources.list
+sudo echo "deb [trusted=yes] https://grammatech.github.io/gtirb/ppa/bionic ./" >> /etc/apt/sources.list
 
 sudo apt-get install gtirb
 ```
