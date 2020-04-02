@@ -19,6 +19,9 @@
            :ranged-delete
            :ranged-find
            :ranged-find-at))
+;;; TODO: Consider using the following package instead of this
+;;;       implementation.  https://github.com/rpav/spatial-trees
+;;;
 ;;; TODO: Check for equivalent blocks before and after modified ranges
 ;;; in `ranged-insert' and `ranged-delete' and collapse them into the
 ;;; existing range (maybe with the moral equivalent of an :after
