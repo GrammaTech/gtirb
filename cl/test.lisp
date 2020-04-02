@@ -355,6 +355,13 @@ The ERRNO used when exiting lisp indicates success or failure."
       (is (zerop (extremum (hash-table-keys (symbolic-expressions bi))
                            #'<))))))
 
+(deftest block-symbolic-expressions ()
+  (with-fixture hello
+    (is (nest (mappend [#'hash-table-values #'symbolic-expressions])
+              (mappend #'blocks) (mappend #'byte-intervals)
+              (sections) (first) (modules)
+              (read-gtirb *proto-path*)))))
+
 (deftest payload-can-be-read-and-set ()
   (with-fixture hello
     (let* ((it (read-gtirb *proto-path*))

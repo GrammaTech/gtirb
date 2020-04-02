@@ -848,6 +848,14 @@ at runtime.")
   (:documentation "Super-class of the `code-block' and `data-block' classes.
 This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
+(defmethod symbolic-expressions ((bb gtirb-byte-block))
+  (nest
+   (alist-hash-table)
+   (remove-if-not [«and {< (offset bb)} {>= (+ (offset bb) (size bb))}» #'car])
+   (hash-table-alist)
+   (symbolic-expressions)
+   (byte-interval bb)))
+
 (defmethod address ((obj gtirb-byte-block))
   (when-let ((base-address (address (byte-interval obj))))
     (+ base-address (offset obj))))
