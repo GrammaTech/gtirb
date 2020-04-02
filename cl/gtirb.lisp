@@ -19,6 +19,7 @@
            :write-gtirb
            :is-equal-p
            :*is-equal-p-verbose-p*
+           :gtirb-node
            :get-uuid
            :remove-uuid
            :at-address
@@ -187,7 +188,10 @@ as all GTIRB structures."
                              (graph:edges-w-values right)
                              :test #'is-equal-p-internal))))
 
-(defclass proto-backed () ()
+(defclass gtirb-node () ()
+  (:documentation "Objects with a UUID contained in a GTIRB instance."))
+
+(defclass proto-backed (gtirb-node) ()
   (:documentation "Objects which may be serialized to/from protobuf."))
 
 (defgeneric uuid (object)
