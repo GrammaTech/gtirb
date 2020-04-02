@@ -362,6 +362,31 @@ The ERRNO used when exiting lisp indicates success or failure."
               (sections) (first) (modules)
               (read-gtirb *proto-path*)))))
 
+(deftest symbolic-expressions-maintained ()
+  (nest
+   (with-fixture hello)
+   (mapc (lambda (db)
+           (let ((o-bi-size (size (byte-interval db)))
+                 (o-db-size (size db))
+                 (o-bi-se-size (hash-table-size
+                                (symbolic-expressions (byte-interval db))))
+                 (o-se-size (hash-table-size
+                             (symbolic-expressions db))))
+             (setf (bytes db 0 0) #(#x90 #x90 #x90 #x90))
+             (is (= (+ 4 o-bi-size) (size (byte-interval db))))
+             (is (= (+ 4 o-db-size) (size db)))
+             (is (= o-bi-se-size
+                    (hash-table-size
+                     (symbolic-expressions (byte-interval db)))))
+             (is (= o-se-size
+                    (hash-table-size
+                     (symbolic-expressions db)))))))
+   (mappend #'blocks)
+   (mappend #'byte-intervals)
+   (mappend #'sections)
+   (modules)
+   (read-gtirb *proto-path*)))
+
 (deftest payload-can-be-read-and-set ()
   (with-fixture hello
     (let* ((it (read-gtirb *proto-path*))
