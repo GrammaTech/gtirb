@@ -435,7 +435,7 @@ modules and on GTIRB IR instances."))
                :edges-w-values
                (mapcar
                 (lambda (edge)
-                  (list (list (uuid-to-integer (proto:source-uuid edge))
+                  (cons (list (uuid-to-integer (proto:source-uuid edge))
                               (uuid-to-integer (proto:target-uuid edge)))
                         (make-instance 'edge-label :proto (proto:label edge))))
                 (coerce (proto:edges p-cfg) 'list))
@@ -448,7 +448,7 @@ modules and on GTIRB IR instances."))
              (proto:edges p-cfg)
              (map 'vector
                   (lambda (edge)
-                    (destructuring-bind ((source target) label) edge
+                    (destructuring-bind ((source target) . label) edge
                       (let ((p-edge (make-instance 'proto:edge)))
                         (setf
                          (proto:source-uuid p-edge) (integer-to-uuid source)
