@@ -1,0 +1,57 @@
+\tikzstyle{object} = [draw]
+\tikzstyle{owner} = [thick]
+\tikzstyle{owner-many} = [-triangle 90 reversed,thick]
+\tikzstyle{reference} = [owner, dashed]
+\begin{tikzpicture}
+
+  \node[object, ] (ir) {IR (1)};
+  \node[object, below right=1em and 2em of ir, text width=6.25em] (auxdata) {AuxData\\
+    \vspace*{0.25em}
+    \hspace*{-1em}
+    \begin{tabular}{r|l}
+      ID1 & DATA1 \\
+      ID2 & DATA2 \\
+      ID3 & DATA3 \\
+      ID4 & DATA4
+    \end{tabular}
+  };
+  \node[right=2em of auxdata] (anything) {{\em any UUID}};
+  \node[object, above right=4em and 2em of ir] (cfg) {IPCFG (1)};
+  \node[object, right=4em of cfg] (edges) {Edges};
+
+  \node[object, right=4em of ir] (modules) {Modules};
+  \node[object, below right=1em and 4em of modules] (symbols) {Symbols};
+
+  \node[object, right=4em of modules] (sections) {Sections};
+
+  \node[object, right=2em of sections] (byteintervals) {ByteIntervals};
+
+  \node[object, above=2em of byteintervals] (proxies) {Proxy blocks};
+  \node[object, right=2.5em of proxies] (codeblocks) {Code Blocks};
+  \node[object, below=0.5em of codeblocks] (datablocks) {Data Blocks};
+  \node[fit={(proxies) (codeblocks)}, draw, thick, dotted] (edgeblocks) {};
+  \node[above=0em of edgeblocks.165] (eblocks) {Edge Blocks};
+  \node[fit={(codeblocks) (datablocks)}, draw, thick, dotted, inner sep=0.75em] (byteblocks) {};
+  \node[below=0em of byteblocks] (bblocks) {Byte Blocks};
+
+  \node[object, below right=1em and 2.5em of byteintervals] (symexpr) {SymbolicExpressions};
+
+  %% Ownership
+  \draw[owner-many] (ir) -- (modules);
+  \draw[owner] (ir) -- ++(1.0,0) |- (cfg);
+  \draw[owner-many] (ir) -- ++(1.0,0) |- (auxdata);
+  \draw[owner-many] (cfg) -- (edges);
+  \draw[owner-many] (modules) -- ++(1.5,0) |- (symbols);
+  \draw[owner-many] (modules) -- (sections);
+  \draw[owner-many] (modules) -- ++(1.5,0) |- (proxies);
+  \draw[owner-many] (modules.south) -- (auxdata.north-|modules.south);
+  \draw[owner-many] (sections) -- (byteintervals);
+  \draw[owner-many] (byteintervals) -- ++(1.75,0) |- (symexpr);
+  \draw[owner-many] (byteintervals) -- ++(1.75,0) |- (bblocks);
+
+  %% References
+  \draw[reference] (edges.east) |- (eblocks);
+  \draw[reference] (symexpr.south) |- ++(-4,-1) |- (symbols.east);
+  \draw[reference] (auxdata) -- (anything);
+
+\end{tikzpicture}

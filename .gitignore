@@ -29,3 +29,5 @@ scratch.lisp
 /java/com/grammatech/gtirb/proto/
 .mypy_cache/
 .vscode/
+
+.gtirb.pdf
