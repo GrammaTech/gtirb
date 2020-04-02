@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 SHELL ["/bin/bash", "-c"]
 
-RUN apt-get -y update && apt-get -y install software-properties-common
+RUN apt-get -y update && apt-get -y install apt-transport-https software-properties-common
 
 # for protobuf (only required on ubuntu 16)
 RUN add-apt-repository ppa:maarten-fonville/protobuf
@@ -11,7 +11,7 @@ RUN add-apt-repository ppa:mhier/libboost-latest
 
 # for our projects
 ARG REPO_ROOT=""
-RUN echo "deb $REPO_ROOT/xenial ./" >> /etc/apt/sources.list
+RUN echo "deb $REPO_ROOT/xenial ./" | tee -a /etc/apt/sources.list.d/gtirb.list
 
 RUN apt-get -y update
 

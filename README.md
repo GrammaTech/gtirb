@@ -113,16 +113,16 @@ platform follow.
 ```sh
 sudo add-apt-repository ppa:maarten-fonville/protobuf
 sudo add-apt-repository ppa:mhier/libboost-latest
-sudo echo "deb https://grammatech.github.io/gtirb/ppa/xenial ./" >> /etc/apt/sources.list
-
+echo "deb https://grammatech.github.io/gtirb/ppa/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+sudo apt-get update
 sudo apt-get install --allow-unauthenticated gtirb
 ```
 
 ### Ubuntu18
 ```sh
 sudo add-apt-repository ppa:mhier/libboost-latest
-sudo echo "deb [trusted=yes] https://grammatech.github.io/gtirb/ppa/bionic ./" >> /etc/apt/sources.list
-
+echo "deb [trusted=yes] https://grammatech.github.io/gtirb/ppa/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+sudo apt-get update
 sudo apt-get install gtirb
 ```
 
