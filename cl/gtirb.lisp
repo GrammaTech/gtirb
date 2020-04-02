@@ -476,6 +476,8 @@ the graph.")
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (modules obj))))
 
+(defmethod ir ((obj gtirb)) obj)
+
 (defmethod get-uuid (uuid (obj gtirb))
   (gethash uuid (by-uuid obj)))
 
