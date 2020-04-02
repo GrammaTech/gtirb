@@ -366,13 +366,15 @@ The ERRNO used when exiting lisp indicates success or failure."
   (nest
    (with-fixture hello)
    (mapc (lambda (db)
-           (let ((o-bi-size (size (byte-interval db)))
+           (let ((o-offset (offset db))
+                 (o-bi-size (size (byte-interval db)))
                  (o-db-size (size db))
                  (o-bi-se-size (hash-table-size
                                 (symbolic-expressions (byte-interval db))))
                  (o-se-size (hash-table-size
                              (symbolic-expressions db))))
              (setf (bytes db 0 0) #(#x90 #x90 #x90 #x90))
+             (is (= o-offset (offset db)))
              (is (= (+ 4 o-bi-size) (size (byte-interval db))))
              (is (= (+ 4 o-db-size) (size db)))
              (is (= o-bi-se-size

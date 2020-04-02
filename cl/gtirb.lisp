@@ -937,11 +937,14 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
              (setf (shift-subseq (contents ,getter) ,start ,end) ,store))
             (gtirb::gtirb-byte-block
              (with-slots (offset) ,getter
-               (setf (shift-subseq (contents (byte-interval ,getter))
+               (let ((original-offset offset))
+                 (setf (shift-subseq (contents (byte-interval ,getter))
+                                     (+ offset ,start) (+ offset ,end))
+                       ,store)
+                 (setf-bytes-after ,store (byte-interval ,getter)
                                    (+ offset ,start) (+ offset ,end))
-                     ,store)
-               (setf-bytes-after ,store (byte-interval ,getter)
-                                 (+ offset ,start) (+ offset ,end)))))
+                 ;; Ensure the offset for THIS block isn't pushed back change.
+                 (setf offset original-offset)))))
           (setf-bytes-after ,store ,getter ,start ,end)
           ,store)                       ; Storing form.
        `(bytes ,getter)))))             ; Accessing form.
