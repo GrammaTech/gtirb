@@ -971,10 +971,12 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
               (with-slots (offset) bb
                 (when (>= offset end)
                   (incf offset difference))))
-            (blocks byte-interval))))
+            (blocks byte-interval)))
+    new)
   (:method (new (bb gtirb-byte-block) &optional (start 0) (end (size bb)))
     ;; Update the size of the byte-block
-    (setf (size bb) (+ start (length new) (- (size bb) end)))))
+    (setf (size bb) (+ start (length new) (- (size bb) end)))
+    new))
 
 (define-proto-backed-class (code-block proto:code-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
