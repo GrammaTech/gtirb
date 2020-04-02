@@ -5,46 +5,42 @@
 \begin{tikzpicture}
 
   \node[object, ] (ir) {IR (1)};
-  \node[object, below right=1em and 2em of ir, text width=6.25em] (auxdata) {AuxData\\
-    \vspace*{0.25em}
-    \hspace*{-1em}
-    \begin{tabular}{r|l}
-      ID1 & DATA1 \\
-      ID2 & DATA2 \\
-      ID3 & DATA3 \\
-      ID4 & DATA4
-    \end{tabular}
-  };
+  \node[object, below right=1em and 2em of ir, text width=6.25em] (ad0) {AuxData};
+  \node[below=0.25em of ad0.south] (ad1) {ID1 & DATA1};
+  \node[below=0em of ad1] (ad2) {ID2 & DATA2};
+  \node[below=0em of ad2] (ad3) {ID3 & DATA3};
+  \node[below=0em of ad3] (ad4) {\ldots{}};
+  \node[fit={(ad1) (ad4)}, draw, thick, dotted, inner sep=0.25em] (auxdata) {};
   \node[right=2em of auxdata] (anything) {{\em any UUID}};
   \node[object, above right=4em and 2em of ir] (cfg) {IPCFG (1)};
-  \node[object, right=4em of cfg] (edges) {Edges};
+  \node[object, right=4em of cfg, text width=5em] (edges) {Edges};
 
-  \node[object, right=4em of ir] (modules) {Modules};
-  \node[object, below right=1em and 4em of modules] (symbols) {Symbols};
+  \node[object, right=4em of ir, text width=6em] (modules) {Modules};
+  \node[object, below right=1em and 4em of modules, text width=6em] (symbols) {Symbols};
 
-  \node[object, right=4em of modules] (sections) {Sections};
+  \node[object, right=4em of modules, text width=6em] (sections) {Sections};
 
-  \node[object, right=2em of sections] (byteintervals) {ByteIntervals};
+  \node[object, right=2em of sections, text width=8em] (byteintervals) {ByteIntervals};
 
-  \node[object, above=2em of byteintervals] (proxies) {Proxy blocks};
-  \node[object, right=2.5em of proxies] (codeblocks) {Code Blocks};
-  \node[object, below=0.5em of codeblocks] (datablocks) {Data Blocks};
+  \node[object, above=2em of byteintervals, text width=8em] (proxies) {Proxy blocks};
+  \node[object, right=2.5em of proxies, text width=7em] (codeblocks) {Code Blocks};
+  \node[object, below=0.5em of codeblocks, text width=7em] (datablocks) {Data Blocks};
   \node[fit={(proxies) (codeblocks)}, draw, thick, dotted] (edgeblocks) {};
   \node[above=0em of edgeblocks.165] (eblocks) {Edge Blocks};
   \node[fit={(codeblocks) (datablocks)}, draw, thick, dotted, inner sep=0.75em] (byteblocks) {};
-  \node[below=0em of byteblocks] (bblocks) {Byte Blocks};
+  \node[below=0em of byteblocks, text width=6em] (bblocks) {Byte Blocks};
 
-  \node[object, below right=1em and 2.5em of byteintervals] (symexpr) {SymbolicExpressions};
+  \node[object, below right=1em and 2.5em of byteintervals, text width=10.5em] (symexpr) {SymbolicExpressions};
 
   %% Ownership
   \draw[owner-many] (ir) -- (modules);
   \draw[owner] (ir) -- ++(1.0,0) |- (cfg);
-  \draw[owner-many] (ir) -- ++(1.0,0) |- (auxdata);
+  \draw[owner-many] (ir) -- ++(1.0,0) |- (ad0);
   \draw[owner-many] (cfg) -- (edges);
   \draw[owner-many] (modules) -- ++(1.5,0) |- (symbols);
   \draw[owner-many] (modules) -- (sections);
   \draw[owner-many] (modules) -- ++(1.5,0) |- (proxies);
-  \draw[owner-many] (modules.south) -- (auxdata.north-|modules.south);
+  \draw[owner-many] (modules.south) -- (ad0.north-|modules.south);
   \draw[owner-many] (sections) -- (byteintervals);
   \draw[owner-many] (byteintervals) -- ++(1.75,0) |- (symexpr);
   \draw[owner-many] (byteintervals) -- ++(1.75,0) |- (bblocks);
