@@ -27,28 +27,22 @@ file(
 # Building the gtirb protobuf files into java
 # ---------------------------------------------------------------------------
 
-# Directory containing the configured *.proto file
-set(GTIRB_JAVA_PROTO_DIR "${CMAKE_CURRENT_BINARY_DIR}/proto")
-
 # Directory containing the *.class files generated from the *.proto files
-set(GTIRB_JAVA_PROTO_CLASS_DIR
+set(GTIRB_PROTO_CLASS_DIR
     "${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb/proto"
 )
-
-# Configure the *.proto files
-gtirb_make_proto_files(GTIRB_PROTO_FILES DIRECTORY ${GTIRB_JAVA_PROTO_DIR})
 
 # Add commands to compile the *.proto files to *.class files
 foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
   get_filename_component(GTIRB_PROTO_BASENAME ${GTIRB_PROTO_FILE} NAME_WE)
   set(GTIRB_PROTO_CLASS_FILE
-      ${GTIRB_JAVA_PROTO_CLASS_DIR}/${GTIRB_PROTO_BASENAME}OuterClass.java
+      ${GTIRB_PROTO_CLASS_DIR}/${GTIRB_PROTO_BASENAME}OuterClass.java
   )
   add_custom_command(
     OUTPUT ${GTIRB_PROTO_CLASS_FILE}
     COMMAND ${Protobuf_PROTOC_EXECUTABLE}
             --java_out=${CMAKE_CURRENT_BINARY_DIR}
-            --proto_path=${GTIRB_JAVA_PROTO_DIR} ${GTIRB_PROTO_FILE}
+            --proto_path=${GTIRB_PROTO_DIR} ${GTIRB_PROTO_FILE}
   )
   list(APPEND GTIRB_PROTOBUF_JAVA ${GTIRB_PROTO_CLASS_FILE})
 endforeach()

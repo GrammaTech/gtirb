@@ -21,11 +21,9 @@ else()
   add_compile_options(-include "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 endif()
 
-gtirb_make_proto_files(PROTO_CPP_FILES)
-
 protobuf_generate_cpp(
   PROTO_CPP_SOURCES PROTO_CPP_HEADERS EXPORT_MACRO "GTIRB_EXPORT_API"
-  ${PROTO_CPP_FILES}
+  ${GTIRB_PROTO_FILES}
 )
 
 # Copy headers to the right place
