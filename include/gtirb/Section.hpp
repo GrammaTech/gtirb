@@ -19,7 +19,7 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
-#include <proto/Section.pb.h>
+#include <gtirb/proto/Section.pb.h>
 #include <algorithm>
 #include <boost/icl/interval_map.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
@@ -35,11 +35,11 @@
 /// \file Section.hpp
 /// \brief Class gtirb::Section.
 
+namespace gtirb {
 namespace proto {
 class Section;
 }
 
-namespace gtirb {
 class Module; // Forward declared for the backpointer.
 
 /// \enum SectionFlag

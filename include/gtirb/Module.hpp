@@ -26,7 +26,7 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/Utility.hpp>
-#include <proto/Module.pb.h>
+#include <gtirb/proto/Module.pb.h>
 #include <algorithm>
 #include <boost/icl/interval_map.hpp>
 #include <boost/iterator/indirect_iterator.hpp>

@@ -21,7 +21,7 @@
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
-#include <proto/CodeBlock.pb.h>
+#include <gtirb/proto/CodeBlock.pb.h>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
@@ -33,11 +33,11 @@
 /// \brief Classes gtirb::CodeBlock and gtirb::Offset.
 /// \see CFG_GROUP
 
+namespace gtirb {
 namespace proto {
 class Offset;
 } // namespace proto
 
-namespace gtirb {
 class ByteInterval; // Forward declared for the backpointer.
 
 /// \class CodeBlock

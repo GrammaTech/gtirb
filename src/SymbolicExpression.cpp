@@ -16,7 +16,7 @@
 #include "Serialization.hpp"
 #include <gtirb/Context.hpp>
 #include <gtirb/Symbol.hpp>
-#include <proto/SymbolicExpression.pb.h>
+#include <gtirb/proto/SymbolicExpression.pb.h>
 #include <variant>
 
 namespace gtirb {

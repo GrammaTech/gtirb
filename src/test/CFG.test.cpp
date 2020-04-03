@@ -16,7 +16,7 @@
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/ProxyBlock.hpp>
-#include <proto/CFG.pb.h>
+#include <gtirb/proto/CFG.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;

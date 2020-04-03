@@ -33,11 +33,11 @@
 ///
 /// \see CFG_GROUP
 
+namespace gtirb {
 namespace proto {
 class CFG;
 }
 
-namespace gtirb {
 class CfgNode;
 
 /// \defgroup CFG_GROUP Control Flow Graphs (CFGs)

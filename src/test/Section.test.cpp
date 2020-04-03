@@ -14,7 +14,7 @@
 //===----------------------------------------------------------------------===//
 #include <gtirb/Context.hpp>
 #include <gtirb/Section.hpp>
-#include <proto/Section.pb.h>
+#include <gtirb/proto/Section.pb.h>
 #include <gtest/gtest.h>
 #include <limits>
 

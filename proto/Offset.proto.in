@@ -1,4 +1,4 @@
-//===- SymbolicExpression.proto -------------------------------*- Proto -*-===//
+//===- Offset.proto -------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -13,30 +13,10 @@
 //
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
-package proto;
+package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
-message SymStackConst {
-  int32 offset = 1;
-  bytes symbol_uuid = 2;
-}
-
-message SymAddrConst {
-  int64 offset = 1;
-  bytes symbol_uuid = 2;
-}
-
-message SymAddrAddr {
-  int64 scale = 1;
-  int64 offset = 2;
-  bytes symbol1_uuid = 3;
-  bytes symbol2_uuid = 4;
-}
-
-message SymbolicExpression {
-  oneof value {
-    SymStackConst stack_const = 1;
-    SymAddrConst addr_const = 2;
-    SymAddrAddr addr_addr = 3;
-  }
+message Offset {
+  bytes element_id = 1;
+  uint64 displacement = 2;
 }

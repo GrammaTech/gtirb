@@ -13,7 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "AuxData.hpp"
-#include <proto/AuxData.pb.h>
+#include <gtirb/proto/AuxData.pb.h>
 
 namespace gtirb {
 void AuxData::fromProtobuf(AuxData& Result, const MessageType& Message) {

@@ -18,7 +18,7 @@
 
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
-#include <proto/Offset.pb.h>
+#include <gtirb/proto/Offset.pb.h>
 #include <boost/functional/hash.hpp>
 #include <cstdint>
 #include <functional>

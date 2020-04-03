@@ -15,7 +15,7 @@
 #include "CFG.hpp"
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Serialization.hpp>
-#include <proto/CFG.pb.h>
+#include <gtirb/proto/CFG.pb.h>
 #include <map>
 
 namespace gtirb {

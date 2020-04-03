@@ -27,12 +27,12 @@
 /// \file AuxDataContainer.hpp
 /// \brief Class gtirb::AuxDataContainer.
 
+namespace gtirb {
+
 namespace proto {
 class IR;
 class Module;
 } // namespace proto
-
-namespace gtirb {
 
 /// @cond INTERNAL
 template <typename MessageType> struct message_has_aux_data_container {

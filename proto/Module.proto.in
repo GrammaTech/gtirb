@@ -13,13 +13,13 @@
 //
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
-package proto;
+package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
-import "AuxData.proto";
-import "ProxyBlock.proto";
-import "Section.proto";
-import "Symbol.proto";
+import "@GTIRB_PROTO_PATH@AuxData.proto";
+import "@GTIRB_PROTO_PATH@ProxyBlock.proto";
+import "@GTIRB_PROTO_PATH@Section.proto";
+import "@GTIRB_PROTO_PATH@Symbol.proto";
 
 enum FileFormat {
   Format_Undefined = 0;

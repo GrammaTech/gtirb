@@ -21,21 +21,29 @@ else()
   add_compile_options(-include "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 endif()
 
+set(PROTO_CPP_FILES)
+foreach(PROTO_FILE_IN ${PROTO_FILES})
+  get_filename_component(PROTO_CPP_FILE ${PROTO_FILE_IN} NAME_WE)
+  set(PROTO_CPP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROTO_CPP_FILE}.proto")
+  configure_file(${PROTO_FILE_IN} ${PROTO_CPP_FILE} @ONLY)
+  list(APPEND PROTO_CPP_FILES ${PROTO_CPP_FILE})
+endforeach()
+
 protobuf_generate_cpp(
   PROTO_CPP_SOURCES PROTO_CPP_HEADERS EXPORT_MACRO "GTIRB_EXPORT_API"
-  ${PROTO_FILES}
+  ${PROTO_CPP_FILES}
 )
 
 # Copy headers to the right place
 add_custom_command(
-  OUTPUT "${CMAKE_BINARY_DIR}/include/proto"
+  OUTPUT "${CMAKE_BINARY_DIR}/include/gtirb/proto"
   COMMAND "${CMAKE_COMMAND}" -E make_directory
-          "${CMAKE_BINARY_DIR}/include/proto"
+          "${CMAKE_BINARY_DIR}/include/gtirb/proto"
 )
 
 foreach(PROTO_H ${PROTO_CPP_HEADERS})
   get_filename_component(PROTO_H_NAME "${PROTO_H}" NAME)
-  set(COPIED_PROTO_H "${CMAKE_BINARY_DIR}/include/proto/${PROTO_H_NAME}")
+  set(COPIED_PROTO_H "${CMAKE_BINARY_DIR}/include/gtirb/proto/${PROTO_H_NAME}")
   list(APPEND PROTO_COPIED_HEADERS "${COPIED_PROTO_H}")
 
   add_custom_command(

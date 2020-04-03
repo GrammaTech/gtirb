@@ -26,10 +26,10 @@
 /// \file DataBlock.hpp
 /// \brief Class gtirb::DataBlock.
 
+namespace gtirb {
 namespace proto {
 class DataBlock;
 }
-namespace gtirb {
 class ByteInterval; // Forward declared for the backpointer.
 
 ///

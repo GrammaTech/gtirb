@@ -20,10 +20,10 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <proto/IR.pb.h>
-#include <proto/Module.pb.h>
-#include <proto/Section.pb.h>
-#include <proto/Symbol.pb.h>
+#include <gtirb/proto/IR.pb.h>
+#include <gtirb/proto/Module.pb.h>
+#include <gtirb/proto/Section.pb.h>
+#include <gtirb/proto/Symbol.pb.h>
 #include <boost/uuid/uuid_generators.hpp>
 #include <gtest/gtest.h>
 #include <type_traits>

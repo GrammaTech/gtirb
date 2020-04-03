@@ -27,10 +27,10 @@
 /// \brief Types and operations for symbolic expressions.
 ///
 /// \see \ref SYMBOLIC_EXPRESSION_GROUP.
+namespace gtirb {
 namespace proto {
 class SymbolicExpression;
 }
-namespace gtirb {
 class Context; // Forward reference for fromProtobuf.
 class Symbol;  // Forward refernece for Sym, Sym1, Sym2, etc.
 

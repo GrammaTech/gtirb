@@ -1,4 +1,4 @@
-//===- AuxData.proto ------------------------------------------*- Proto -*-===//
+//===- DataBlock.proto ----------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -13,10 +13,13 @@
 //
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
-package proto;
+package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
-message AuxData {
-  string type_name = 1;
-  bytes data = 2;
+message DataBlock {
+  reserved "address";
+  reserved 2;
+
+  bytes uuid = 1;
+  uint64 size = 3;
 }

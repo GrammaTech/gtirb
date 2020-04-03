@@ -19,7 +19,7 @@
 #include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <proto/IR.pb.h>
+#include <gtirb/proto/IR.pb.h>
 #include <google/protobuf/util/json_util.h>
 
 using namespace gtirb;

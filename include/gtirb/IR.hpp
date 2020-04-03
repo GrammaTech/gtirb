@@ -33,10 +33,10 @@
 /// \file IR.hpp
 /// \brief Class gtirb::IR.
 
+namespace gtirb {
 namespace proto {
 class IR;
 }
-namespace gtirb {
 /// \class IR
 ///
 /// \brief A complete internal representation consisting of Modules

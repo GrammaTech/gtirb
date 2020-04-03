@@ -18,7 +18,7 @@
 #include <gtirb/IR.hpp>
 #include <gtirb/Serialization.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <proto/Module.pb.h>
+#include <gtirb/proto/Module.pb.h>
 #include <map>
 
 using namespace gtirb;

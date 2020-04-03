@@ -20,7 +20,7 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <proto/IR.pb.h>
+#include <gtirb/proto/IR.pb.h>
 #include <gtest/gtest.h>
 
 namespace gtirb {

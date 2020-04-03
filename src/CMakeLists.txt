@@ -1,6 +1,6 @@
 set(PROJECT_NAME gtirb)
 
-add_subdirectory(proto)
+add_subdirectory(gtirb/proto)
 
 if(GTIRB_RUN_CLANG_TIDY)
   find_program(
@@ -86,7 +86,7 @@ set(${PROJECT_NAME}_SRC
     Utility.cpp
 )
 
-file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
+file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/gtirb/proto/*.proto")
 set(${PROJECT_NAME}_PROTO ${ProtoFiles})
 source_group("proto" FILES ${ProtoFiles})
 
@@ -187,7 +187,9 @@ install(
   ARCHIVE DESTINATION lib
 )
 install(FILES ${${PROJECT_NAME}_H} DESTINATION include/gtirb)
-install(DIRECTORY "${CMAKE_BINARY_DIR}/include/proto" DESTINATION include)
+install(DIRECTORY "${CMAKE_BINARY_DIR}/include/gtirb/proto"
+        DESTINATION include/gtirb
+)
 install(FILES "${CMAKE_BINARY_DIR}/include/gtirb/version.h"
         DESTINATION include/gtirb
 )

@@ -19,7 +19,7 @@
 #include <gtirb/Module.hpp>
 #include <gtirb/ProxyBlock.hpp>
 #include <gtirb/Symbol.hpp>
-#include <proto/Symbol.pb.h>
+#include <gtirb/proto/Symbol.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;

@@ -44,11 +44,11 @@
 /// \file ByteInterval.hpp
 /// \brief Class gtirb::ByteInterval.
 
+namespace gtirb {
 namespace proto {
 class ByteInterval;
 } // namespace proto
 
-namespace gtirb {
 class Section;   // Forward declared for the backpointer.
 class CodeBlock; // Forward declared so Blocks can store CodeBlocks.
 class DataBlock; // Forward declared so Blocks can store DataBlocks.

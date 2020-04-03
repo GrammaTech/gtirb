@@ -17,7 +17,7 @@
 
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Node.hpp>
-#include <proto/ProxyBlock.pb.h>
+#include <gtirb/proto/ProxyBlock.pb.h>
 
 /// \file ProxyBlock.hpp
 /// \ingroup CFG_GROUP

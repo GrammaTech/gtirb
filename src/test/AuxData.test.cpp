@@ -14,7 +14,7 @@
 //===----------------------------------------------------------------------===//
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
-#include <proto/AuxData.pb.h>
+#include <gtirb/proto/AuxData.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
 

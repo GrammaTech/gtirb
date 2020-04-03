@@ -1,4 +1,4 @@
-//===- ProxyBlock.proto ---------------------------------------*- Proto -*-===//
+//===- Section.proto ------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -13,7 +13,27 @@
 //
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
-package proto;
+package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
-message ProxyBlock { bytes uuid = 1; }
+import "@GTIRB_PROTO_PATH@ByteInterval.proto";
+
+enum SectionFlag {
+  Section_Undefined = 0;
+  Readable = 1;
+  Writable = 2;
+  Executable = 3;
+  Loaded = 4;
+  Initialized = 5;
+  ThreadLocal = 6;
+}
+
+message Section {
+  reserved "address", "size";
+  reserved 3, 4;
+
+  bytes uuid = 1;
+  string name = 2;
+  repeated ByteInterval byte_intervals = 5;
+  repeated SectionFlag section_flags = 6;
+}

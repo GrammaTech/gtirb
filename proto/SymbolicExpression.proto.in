@@ -1,4 +1,4 @@
-//===- CFG.proto ----------------------------------------------*- Proto -*-===//
+//===- SymbolicExpression.proto -------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -13,37 +13,30 @@
 //
 //===----------------------------------------------------------------------===//
 syntax = "proto3";
-package proto;
+package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
-enum EdgeType {
-  Type_Branch = 0;
-  Type_Call = 1;
-  Type_Fallthrough = 2;
-  Type_Return = 3;
-  Type_Syscall = 4;
-  Type_Sysret = 5;
+message SymStackConst {
+  int32 offset = 1;
+  bytes symbol_uuid = 2;
 }
 
-message EdgeLabel {
-  bool conditional = 1;
-  bool direct = 2;
-  EdgeType type = 3;
+message SymAddrConst {
+  int64 offset = 1;
+  bytes symbol_uuid = 2;
 }
 
-message Edge {
-  reserved 3, 4;
-  reserved "boolean", "integer";
-
-  bytes source_uuid = 1;
-  bytes target_uuid = 2;
-  EdgeLabel label = 5;
+message SymAddrAddr {
+  int64 scale = 1;
+  int64 offset = 2;
+  bytes symbol1_uuid = 3;
+  bytes symbol2_uuid = 4;
 }
 
-message CFG {
-  reserved 1;
-  reserved "blocks";
-
-  repeated bytes vertices = 3;
-  repeated Edge edges = 2;
+message SymbolicExpression {
+  oneof value {
+    SymStackConst stack_const = 1;
+    SymAddrConst addr_const = 2;
+    SymAddrAddr addr_addr = 3;
+  }
 }

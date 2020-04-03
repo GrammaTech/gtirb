@@ -15,7 +15,7 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Module.hpp>
-#include <proto/ByteInterval.pb.h>
+#include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
 
 using namespace gtirb;

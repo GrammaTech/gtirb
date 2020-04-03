@@ -21,7 +21,7 @@
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <proto/Module.pb.h>
+#include <gtirb/proto/Module.pb.h>
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <iterator>

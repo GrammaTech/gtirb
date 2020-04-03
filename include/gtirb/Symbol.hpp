@@ -20,7 +20,7 @@
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/ProxyBlock.hpp>
-#include <proto/Symbol.pb.h>
+#include <gtirb/proto/Symbol.pb.h>
 #include <functional>
 #include <optional>
 #include <type_traits>
