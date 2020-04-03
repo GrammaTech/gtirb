@@ -21,13 +21,7 @@ else()
   add_compile_options(-include "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 endif()
 
-set(PROTO_CPP_FILES)
-foreach(PROTO_FILE_IN ${PROTO_FILES})
-  get_filename_component(PROTO_CPP_FILE ${PROTO_FILE_IN} NAME_WE)
-  set(PROTO_CPP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROTO_CPP_FILE}.proto")
-  configure_file(${PROTO_FILE_IN} ${PROTO_CPP_FILE} @ONLY)
-  list(APPEND PROTO_CPP_FILES ${PROTO_CPP_FILE})
-endforeach()
+gtirb_make_proto_files(PROTO_CPP_FILES)
 
 protobuf_generate_cpp(
   PROTO_CPP_SOURCES PROTO_CPP_HEADERS EXPORT_MACRO "GTIRB_EXPORT_API"
