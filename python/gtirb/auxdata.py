@@ -2,7 +2,7 @@ from io import BytesIO
 import typing
 from uuid import UUID
 
-import AuxData_pb2
+from .proto import AuxData_pb2
 
 from .node import Node
 from .serialization import Serialization

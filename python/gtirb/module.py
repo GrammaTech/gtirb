@@ -1,8 +1,9 @@
 from enum import Enum
 from uuid import UUID
-import Module_pb2
 import typing
 import itertools
+
+from .proto import Module_pb2
 
 from .auxdata import AuxData, AuxDataContainer
 from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock

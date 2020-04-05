@@ -1,8 +1,9 @@
-import Section_pb2
 import typing
 import itertools
 from enum import Enum
 from uuid import UUID
+
+from .proto import Section_pb2
 
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node

@@ -4,26 +4,28 @@ set(PROTO_IN_FILES
     PARENT_SCOPE
 )
 
-# gtirb_make_proto_files
+# gtirb_make_proto_files(var [DIRECTORY install-dir] [PROTO_PATH include-dir])
 #
 # Generate *.proto files from the *.proto.in definitions.
 #
-# Arguments:
+# :param var:          name of variable to contain paths to generated files
 #
-# ``VAR``
+# :param install-dir:  directory to install generated files into. Defaults to
+# ${CMAKE_CURRENT_BINARY_DIR}.
 #
-# Variable to define with the names of the *.proto files.
-#
-# DIRECTORY ``DIR``
-#
-# Directory to install the *.proto files into. Defaults to
-# CMAKE_CURRENT_BINARY_DIR
+# :param include-dir:  path to use when including proto files from one another.
+# Defaults to "".
 
 function(GTIRB_MAKE_PROTO_FILES VAR)
-  cmake_parse_arguments(GTIRB_MAKE_PROTO "" "DIRECTORY" "" ${ARGN})
+  cmake_parse_arguments(GTIRB_MAKE_PROTO "" "DIRECTORY;PROTO_PATH" "" ${ARGN})
 
   if(NOT GTIRB_MAKE_PROTO_DIRECTORY)
     set(GTIRB_MAKE_PROTO_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+  if(GTIRB_MAKE_PROTO_PROTO_PATH)
+    set(GTIRB_PROTO_PATH ${GTIRB_MAKE_PROTO_PROTO_PATH})
+  else()
+    set(GTIRB_PROTO_PATH "")
   endif()
 
   message(STATUS "generating proto files in ${GTIRB_MAKE_PROTO_DIRECTORY}")

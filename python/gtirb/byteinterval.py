@@ -1,7 +1,8 @@
-import ByteInterval_pb2
-import SymbolicExpression_pb2
 import typing
 from uuid import UUID
+
+from .proto import ByteInterval_pb2
+from .proto import SymbolicExpression_pb2
 
 from .node import Node
 from .block import ByteBlock, CodeBlock, DataBlock

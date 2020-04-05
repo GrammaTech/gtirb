@@ -9,11 +9,12 @@
     >>> ir.save_protobuf('filename.gtirb')
 """
 
-import CFG_pb2
-import IR_pb2
 import typing
 import itertools
 from uuid import UUID
+
+from .proto import CFG_pb2
+from .proto import IR_pb2
 
 from .auxdata import AuxData, AuxDataContainer
 from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock

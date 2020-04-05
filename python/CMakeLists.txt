@@ -9,8 +9,23 @@ or give -DGTIRB_PY_API=OFF to CMake to disable Python support."
   )
 endif()
 
-# protobuf generated files
-protobuf_generate_python(PROTO_PY_SOURCES ${PROTO_FILES})
+# ---------------------------------------------------------------------------
+# Building the gtirb protobuf files into python
+# ---------------------------------------------------------------------------
+
+# Generate *.proto files in the currect submodule (DIRECTORY) and look for them
+# there (PROTO_PATH).
+gtirb_make_proto_files(
+  GTIRB_PY_PROTO_FILES DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gtirb/proto/
+  PROTO_PATH gtirb/proto/
+)
+
+# Remove "gtirb/proto" from the include path
+set(PROTOBUF_GENERATE_CPP_APPEND_PATH off)
+# Add "." to the include path
+set(Protobuf_IMPORT_DIRS "${CMAKE_CURRENT_BINARY_DIR}")
+# Generate the python protobuf files
+protobuf_generate_python(PROTO_PY_SOURCES ${GTIRB_PY_PROTO_FILES})
 
 # existing Python files
 file(GLOB PY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/gtirb/*.py
@@ -42,6 +57,10 @@ if(GTIRB_ENABLE_TESTS)
   )
 endif()
 
-install(
-  CODE "execute_process(COMMAND ${PYTHON} setup.py install WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )"
-)
+# Move the `setup.py install` command into a separate script. This extra layer
+# of indirection allows us to detect the value of ENV{DESTDIR} at installation
+# time, rather than configure time, so that the installation will go to the
+# correct directory.
+
+configure_file(install.cmake.in install.cmake @ONLY)
+install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/install.cmake)

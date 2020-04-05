@@ -1,7 +1,8 @@
-import CFG_pb2
 from enum import Enum
 import typing
 from uuid import UUID
+
+from .proto import CFG_pb2
 
 from .block import CfgNode
 from .node import Node

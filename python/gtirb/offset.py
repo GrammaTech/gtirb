@@ -1,6 +1,6 @@
 from uuid import UUID
 
-import Offset_pb2
+from .proto import Offset_pb2
 
 
 class Offset:

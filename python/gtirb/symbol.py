@@ -1,7 +1,7 @@
 from uuid import UUID
 import typing
 
-import Symbol_pb2
+from .proto import Symbol_pb2
 
 from .block import Block
 from .node import Node
