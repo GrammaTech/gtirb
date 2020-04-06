@@ -553,8 +553,8 @@ For example when code in a module calls to a function defined in an
 external library, the CFG for that IR instance may represent this call
 with a call edge to a proxy block representing the external called
 function.")
-     (symbols :accessor symbols :type hash-table
-              :initform (make-hash-table)
+     (symbols :accessor symbols :type list
+              :initform nil
               :from-proto
               [{map 'list
                     {make-instance 'symbol :ir (ir self) :module self :proto}}
