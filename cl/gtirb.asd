@@ -66,6 +66,15 @@
                (:protobuf-source-file "Symbol")
                (:protobuf-source-file "SymbolicExpression")))))
 
+(defsystem "gtirb/run-validate"
+    :author "GrammaTech"
+    :licence "MIT"
+    :description "Validate a GTIRB instance."
+    :depends-on (gtirb/validate)
+    :build-operation "asdf:program-op"
+    :build-pathname "gtirb-validate"
+    :entry-point "gtirb/validate::run-validate-file")
+
 (defsystem "gtirb/run-update"
     :author "GrammaTech"
     :licence "MIT"
