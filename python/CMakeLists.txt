@@ -13,19 +13,32 @@ endif()
 # Building the gtirb protobuf files into python
 # ---------------------------------------------------------------------------
 
-# Generate *.proto files in the currect submodule (DIRECTORY) and look for them
-# there (PROTO_PATH).
-gtirb_make_proto_files(
-  GTIRB_PY_PROTO_FILES DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gtirb/proto/
-  PROTO_PATH gtirb/proto/
-)
+set(PROTO_PY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gtirb/proto)
 
-# Remove "gtirb/proto" from the include path
-set(PROTOBUF_GENERATE_CPP_APPEND_PATH off)
-# Add "." to the include path
-set(Protobuf_IMPORT_DIRS "${CMAKE_CURRENT_BINARY_DIR}")
-# Generate the python protobuf files
-protobuf_generate_python(PROTO_PY_SOURCES ${GTIRB_PY_PROTO_FILES})
+# Rewrite the proto definitions to use paths when including other definitions.
+# We do this instead of using the one-line configure_file() command so that the
+# proto/*.proto files in the source directory do not need to be rewritten for
+# the CL API.
+
+foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
+  get_filename_component(PROTO_BASE ${GTIRB_PROTO_FILE} NAME_WE)
+  set(PROTO_PY_OUT "${PROTO_PY_DIR}/${PROTO_BASE}.proto")
+  file(READ ${GTIRB_PROTO_FILE} PROTO_DEF_STR)
+  string(REGEX REPLACE "import \"" "import \"gtirb/proto/" PROTO_DEF_STR
+                       "${PROTO_DEF_STR}"
+  )
+  file(WRITE ${PROTO_PY_OUT} "${PROTO_DEF_STR}")
+
+  set(PROTO_PY_SOURCE "${PROTO_PY_DIR}/${PROTO_BASE}_pb2.py")
+  add_custom_command(
+    OUTPUT "${PROTO_PY_SOURCE}"
+    COMMAND protobuf::protoc --python_out ${CMAKE_CURRENT_BINARY_DIR} -I
+            "${CMAKE_CURRENT_BINARY_DIR}" ${PROTO_PY_OUT}
+    DEPENDS ${PROTO_PY_OUT} protobuf::protoc
+    VERBATIM
+  )
+  list(APPEND PROTO_PY_SOURCES "${PROTO_PY_SOURCE}")
+endforeach()
 
 # existing Python files
 file(GLOB PY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/gtirb/*.py

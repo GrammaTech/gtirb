@@ -1,4 +1,4 @@
-//===- ByteInterval.proto -------------------------------------*- Proto -*-===//
+//===- IR.proto -----------------------------------------------*- Proto -*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
 //
@@ -16,24 +16,21 @@ syntax = "proto3";
 package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
-import "@GTIRB_PROTO_PATH@CodeBlock.proto";
-import "@GTIRB_PROTO_PATH@DataBlock.proto";
-import "@GTIRB_PROTO_PATH@SymbolicExpression.proto";
+import "AuxData.proto";
+import "CFG.proto";
+import "Module.proto";
 
-message Block {
-  uint64 offset = 1;
-  oneof value {
-    CodeBlock code = 2;
-    DataBlock data = 3;
-  }
-}
+message IR {
+  // slot 4 has been used for multiple fields in the past
+  // (more specifically, main_module_id and aux_data_container),
+  // which is a Protobuf compatibility violation, but explains why we
+  // reserve more field names than field numbers.
+  reserved "tables", "main_module_id", "aux_data_container";
+  reserved 2, 4;
 
-message ByteInterval {
   bytes uuid = 1;
-  repeated Block blocks = 2;
-  map<uint64, SymbolicExpression> symbolic_expressions = 3;
-  bool has_address = 4;
-  uint64 address = 5;
-  uint64 size = 6;
-  bytes contents = 7;
+  repeated Module modules = 3;
+  map<string, AuxData> aux_data = 5;
+  uint32 version = 6;
+  CFG cfg = 7;
 }
