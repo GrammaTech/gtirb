@@ -9,6 +9,8 @@
         :gtirb/ranged
         :graph
         :named-readtables :curry-compose-reader-macros)
+  (:import-from :trivial-package-local-nicknames :add-package-local-nickname)
+  (:import-from :gtirb.proto)
   (:import-from :md5 :md5sum-file :md5sum-sequence)
   (:import-from :uiop :nest :run-program :with-temporary-file :quit)
   (:import-from :asdf/system :system-relative-pathname)
@@ -16,6 +18,9 @@
   (:export :test :batch-test))
 (in-package :gtirb/test)
 (in-readtable :curry-compose-reader-macros)
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (add-package-local-nickname :proto :gtirb.proto))
 
 (defvar *proto-path* nil "Path to protobuf.")
 

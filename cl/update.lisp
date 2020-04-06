@@ -5,7 +5,8 @@
         :named-readtables
         :curry-compose-reader-macros
         :command-line-arguments)
-  (:import-from :proto)
+  (:import-from :gtirb.proto)
+  (:import-from :trivial-package-local-nicknames :add-package-local-nickname)
   (:import-from :proto-v0)
   (:import-from :uiop :nest)
   (:import-from :uiop/image :quit)
@@ -17,6 +18,7 @@
 (in-readtable :curry-compose-reader-macros)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  (add-package-local-nickname :proto :gtirb.proto)
   (defparameter +udpate-args+
     '((("help" #\h #\?) :type boolean :optional t
        :documentation "display help output"))))

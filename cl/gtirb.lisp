@@ -6,7 +6,8 @@
         :gtirb/utility
         :named-readtables :curry-compose-reader-macros)
   (:shadow :symbol)
-  (:import-from :proto)
+  (:import-from :gtirb.proto)
+  (:import-from :trivial-package-local-nicknames :add-package-local-nickname)
   (:import-from :uiop :nest)
   (:import-from :asdf/system :system-relative-pathname)
   (:import-from :cl-intbytes
@@ -88,6 +89,7 @@
 (in-readtable :curry-compose-reader-macros)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  (add-package-local-nickname :proto :gtirb.proto)
   (defvar version.txt
     `#.(nest (let ((version-path
                     (system-relative-pathname "gtirb" "../version.txt"))))

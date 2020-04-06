@@ -83,3 +83,5 @@
     :build-operation "asdf:program-op"
     :build-pathname "gtirb-dot"
     :entry-point "gtirb/dot::run-dot")
+
+(register-system-packages "proto" '(:gtirb.proto))
