@@ -65,16 +65,13 @@ Vagrant.configure("2") do |config|
     Invoke-WebRequest "https://ayera.dl.sourceforge.net/project/boost/boost-binaries/1.67.0/boost_1_67_0-msvc-14.1-64.exe" -OutFile "boost_1_67_0-msvc-14.1-64.exe"
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = "C:\\Users\\vagrant\\boost_1_67_0-msvc-14.1-64.exe"
-    $startInfo.Arguments = "/NORESTART /DIR=""C:\\Boost-stage"" /SILENT"
+    $startInfo.Arguments = "/NORESTART /DIR=""C:\\Boost"" /SILENT"
     $startInfo.UseShellExecute = $true
     $startInfo.CreateNoWindow = $false
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $startInfo
     $process.Start()
     $process.WaitForExit()
-    cd C:\\Boost-stage
-    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && .\\bootstrap.bat"
-    cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && .\\b2.exe install address-model=64 variant=debug,release link=shared runtime-link=shared --with-system"
   SHELL
 
   config.vm.provision "build-protobuf", type: "shell", inline: <<-SHELL
