@@ -1,3 +1,10 @@
+# 1.2.1
+
+* Moved protobuf definitions into gtirb.proto package (gtirb::proto namespace
+  in C++).
+* Installing the Python API now respects CMAKE_INSTALL_PREFIX and DESTDIR with
+  their usual semantics.
+
 # 1.2.0
 
 * AuxData and AuxDataContainer in the C++ API have been reworked to provide cleaner type safety.

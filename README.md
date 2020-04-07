@@ -144,7 +144,7 @@ yay gtirb-git
 
 GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
 Studio compilers supporting at least C++17.  GTIRB uses CMake which
-must be installed with at least version 3.9.
+must be installed with at least version 3.10.
 
 The common build process looks like this:
 ```sh
@@ -161,7 +161,7 @@ bin/TestGTIRB
 
 To build and install GTIRB, the following requirements should be installed:
 
-- [CMake](https://cmake.org/), version 3.9.0 or higher.
+- [CMake](https://cmake.org/), version 3.10.0 or higher.
    - Ubuntu 18 provides this version via the APT package `cmake`.
    - Ubuntu 16 and earlier provide out of date versions; build from
      source on those versions.
