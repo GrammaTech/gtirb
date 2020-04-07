@@ -43,8 +43,8 @@ function setup_repo {
   unzip gtirb-artifacts.zip
   rm *.zip
   dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-  popd  
+  popd
 };
-  
+
 setup_repo 16 xenial
 setup_repo 18 bionic

@@ -225,6 +225,7 @@ class ByteInterval(Node):
                     "Unknown block type in interval: %s" % type(block)
                 )
             return proto_block
+
         proto_interval.blocks.extend(to_proto_block(b) for b in self.blocks)
 
         for k, v in self.symbolic_expressions.items():
