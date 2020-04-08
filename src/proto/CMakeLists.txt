@@ -33,7 +33,6 @@ add_custom_command(
           "${CMAKE_BINARY_DIR}/include/proto"
 )
 
-unset(PROTO_COPIED_HEADERS)
 foreach(PROTO_H ${PROTO_CPP_HEADERS})
   get_filename_component(PROTO_H_NAME "${PROTO_H}" NAME)
   set(COPIED_PROTO_H "${CMAKE_BINARY_DIR}/include/proto/${PROTO_H_NAME}")
