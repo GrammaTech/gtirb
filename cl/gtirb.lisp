@@ -970,6 +970,20 @@ at runtime.")
         (proto:symbol2-uuid (proto sym))
         (integer-to-uuid (uuid (second (symbols sym))))))
 
+(defmethod update-proto :before ((sym sym-stack-const))
+  (setf (proto:symbol-uuid (proto sym))
+        (integer-to-uuid (uuid (first (symbols sym))))))
+
+(defmethod update-proto :before ((sym sym-addr-const))
+  (setf (proto:symbol-uuid (proto sym))
+        (integer-to-uuid (uuid (first (symbols sym))))))
+
+(defmethod update-proto :before ((sym sym-addr-addr))
+  (setf (proto:symbol1-uuid (proto sym))
+        (integer-to-uuid (uuid (first (symbols sym))))
+        (proto:symbol2-uuid (proto sym))
+        (integer-to-uuid (uuid (second (symbols sym))))))
+
 (defclass gtirb-block () ())
 
 (defclass gtirb-byte-block (gtirb-block) ()
