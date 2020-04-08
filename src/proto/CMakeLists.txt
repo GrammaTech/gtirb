@@ -26,28 +26,40 @@ protobuf_generate_cpp(
   ${PROTO_FILES}
 )
 
-add_library(proto STATIC ${PROTO_CPP_SOURCES} ${PROTO_CPP_HEADERS})
+# Copy headers to the right place
+add_custom_command(
+  OUTPUT "${CMAKE_BINARY_DIR}/include/proto"
+  COMMAND "${CMAKE_COMMAND}" -E make_directory
+          "${CMAKE_BINARY_DIR}/include/proto"
+)
+
+unset(PROTO_COPIED_HEADERS)
+foreach(PROTO_H ${PROTO_CPP_HEADERS})
+  get_filename_component(PROTO_H_NAME "${PROTO_H}" NAME)
+  set(COPIED_PROTO_H "${CMAKE_BINARY_DIR}/include/proto/${PROTO_H_NAME}")
+  list(APPEND PROTO_COPIED_HEADERS "${COPIED_PROTO_H}")
+
+  add_custom_command(
+    DEPENDS "${PROTO_H}"
+    OUTPUT "${COPIED_PROTO_H}"
+    COMMAND "${CMAKE_COMMAND}" -E copy "${PROTO_H}" "${COPIED_PROTO_H}"
+  )
+endforeach(PROTO_H)
+
+# Add proto library target
+add_library(proto STATIC ${PROTO_CPP_SOURCES} ${PROTO_COPIED_HEADERS})
 
 target_link_libraries(proto ${Boost_LIBRARIES} ${Protobuf_LIBRARIES})
 target_compile_definitions(proto PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
+
 include_directories(SYSTEM "${PROTOBUF_INCLUDE_DIRS}")
+target_include_directories(
+  proto PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+)
 
 install(
   TARGETS proto
   EXPORT gtirbTargets
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-)
-
-add_custom_command(
-  TARGET proto
-  POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E make_directory
-          "${CMAKE_BINARY_DIR}/include/proto"
-)
-add_custom_command(
-  TARGET proto
-  POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy ${PROTO_CPP_HEADERS}
-          "${CMAKE_BINARY_DIR}/include/proto"
 )
