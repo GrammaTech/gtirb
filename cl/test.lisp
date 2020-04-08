@@ -426,6 +426,41 @@ The ERRNO used when exiting lisp indicates success or failure."
       (is (typep (ir (setf it (first (byte-intervals it)))) 'gtirb))
       (is (typep (ir (setf it (first (blocks it)))) 'gtirb)))))
 
+(deftest every-symbolic-expression-has-symbols ()
+  (flet ((every-symbolic-expression-has-symbols-proto (path)
+           (every (lambda (se)
+                    (cond
+                      ((proto:has-stack-const se)
+                       (proto:symbol-uuid (proto:stack-const se)))
+                      ((proto:has-addr-const se)
+                       (proto:symbol-uuid (proto:addr-const se)))
+                      ((proto:has-addr-addr se)
+                       (proto:symbol1-uuid (proto:addr-addr se)))))
+                  (nest
+                   (mapcar #'proto:value)
+                   (mappend [{coerce _ 'list} #'proto:symbolic-expressions])
+                   (mappend [{coerce _ 'list} #'proto:byte-intervals])
+                   (coerce (proto:sections
+                            (aref (proto:modules
+                                   (read-proto 'proto:ir path)) 0))
+                           'list))))
+         (every-symbolic-expression-has-symbols-gtirb (path)
+           (nest (every #'symbols)
+                 (mappend [#'hash-table-values #'symbolic-expressions])
+                 (mappend #'byte-intervals)
+                 (mappend #'sections)
+                 (modules (read-gtirb path)))))
+    (with-fixture hello
+      ;; First confirm for the protobuf
+      (is (every-symbolic-expression-has-symbols-proto *proto-path*))
+      ;; Second confirm for the GTIRB representation.
+      (is (every-symbolic-expression-has-symbols-gtirb *proto-path*))
+      ;; Then re-confirm both for a rewritten protobuf file.
+      (uiop:with-temporary-file (:pathname temporary-file)
+        (write-gtirb (read-gtirb *proto-path*) temporary-file)
+        (is (every-symbolic-expression-has-symbols-proto temporary-file))
+        (is (every-symbolic-expression-has-symbols-gtirb temporary-file))))))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()

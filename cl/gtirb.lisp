@@ -753,24 +753,44 @@ elements as proxy blocks do not hold bytes.")
       :initarg :symbolic-expressions
       :from-proto
       (lambda (proto &aux (table (make-hash-table)))
-        (dotimes (n (length (proto:symbolic-expressions proto)) table)
-          (let* ((proto (aref (proto:symbolic-expressions proto) n))
-                 (offset (proto:key proto))
-                 (symbolic-expression (proto:value proto)))
-            (setf (gethash offset table)
-                  (cond
-                    ((proto:stack-const symbolic-expression)
-                     (make-instance 'sym-stack-const
-                       :ir (ir self)
-                       :proto (proto:stack-const symbolic-expression)))
-                    ((proto:addr-const symbolic-expression)
-                     (make-instance 'sym-addr-const
-                       :ir (ir self)
-                       :proto (proto:addr-const symbolic-expression)))
-                    ((proto:addr-addr symbolic-expression)
-                     (make-instance 'sym-addr-addr
-                       :ir (ir self)
-                       :proto (proto:addr-addr symbolic-expression))))))))
+        (flet ((process-symbols (&rest symbols)
+                 (mappend (lambda (uuid)
+                            (if-let ((sym (get-uuid (uuid-to-integer uuid)
+                                                    (ir self))))
+                              (list sym)
+                              (unless (emptyp uuid)
+                                (warn "Symbol UUID ~S not found" uuid))))
+                          symbols)))
+          (dotimes (n (length (proto:symbolic-expressions proto)) table)
+            (let* ((proto (aref (proto:symbolic-expressions proto) n))
+                   (offset (proto:key proto))
+                   (symbolic-expression (proto:value proto)))
+              (setf (gethash offset table)
+                    (cond
+                      ((proto:has-stack-const symbolic-expression)
+                       (make-instance 'sym-stack-const
+                         :ir (ir self)
+                         :symbols (process-symbols
+                                   (proto:symbol-uuid
+                                    (proto:addr-const symbolic-expression)))
+                         :proto (proto:stack-const symbolic-expression)))
+                      ((proto:has-addr-const symbolic-expression)
+                       (make-instance 'sym-addr-const
+                         :ir (ir self)
+                         :symbols (process-symbols
+                                   (proto:symbol-uuid
+                                    (proto:addr-const symbolic-expression)))
+                         :proto (proto:addr-const symbolic-expression)))
+                      ((proto:has-addr-addr symbolic-expression)
+                       (make-instance 'sym-addr-addr
+                         :ir (ir self)
+                         :symbols (process-symbols
+                                   (proto:symbol1-uuid
+                                    (proto:addr-addr symbolic-expression))
+                                   (proto:symbol2-uuid
+                                    (proto:addr-addr symbolic-expression)))
+                         :proto (proto:addr-addr symbolic-expression)))
+                      (t (assert "Symbolic expression of unknown kind."))))))))
       :to-proto
       [{map 'vector
             (lambda (pair)
@@ -783,13 +803,13 @@ elements as proxy blocks do not hold bytes.")
                           (etypecase symbolic-expression
                             (sym-stack-const
                              (setf (proto:stack-const it)
-                                   (proto symbolic-expression)))
+                                   (update-proto symbolic-expression)))
                             (sym-addr-const
                              (setf (proto:addr-const it)
-                                   (proto symbolic-expression)))
+                                   (update-proto symbolic-expression)))
                             (sym-addr-addr
                              (setf (proto:addr-addr it)
-                                   (proto symbolic-expression))))
+                                   (update-proto symbolic-expression))))
                           it))
                   it)))}
        #'hash-table-alist]
@@ -826,7 +846,7 @@ at runtime.")
   (when (addressp obj) (proto:address (proto obj))))
 
 (defclass symbolic-expression ()
-  ((symbols :accessor symbols :initform nil :type list
+  ((symbols :accessor symbols :initarg :symbols :initform nil :type list
             :documentation "Symbol(s) appearing in this symbolic expression.")))
 
 (defmethod print-object ((obj symbolic-expression) stream)
@@ -854,6 +874,20 @@ at runtime.")
     (sym-addr-addr proto:sym-addr-addr) (symbolic-expression) ()
     ((offset :type unsigned-byte-64)
      (scale :type unsigned-byte-64)))
+
+(defmethod update-proto :before ((sym sym-stack-const))
+  (setf (proto:symbol-uuid (proto sym))
+        (integer-to-uuid (uuid (first (symbols sym))))))
+
+(defmethod update-proto :before ((sym sym-addr-const))
+  (setf (proto:symbol-uuid (proto sym))
+        (integer-to-uuid (uuid (first (symbols sym))))))
+
+(defmethod update-proto :before ((sym sym-addr-addr))
+  (setf (proto:symbol1-uuid (proto sym))
+        (integer-to-uuid (uuid (first (symbols sym))))
+        (proto:symbol2-uuid (proto sym))
+        (integer-to-uuid (uuid (second (symbols sym))))))
 
 (defclass gtirb-block () ())
 
