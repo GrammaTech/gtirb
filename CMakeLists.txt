@@ -127,6 +127,8 @@ option(GTIRB_JAVA_API "Whether or not the Java API is built."
        ${GTIRB_JAVA_API_DEFAULT}
 )
 
+option(GTIRB_DOCUMENTATION "Whether or not documentation is built." ON)
+
 # ---------------------------------------------------------------------------
 # Global settings
 # ---------------------------------------------------------------------------
@@ -348,7 +350,9 @@ if(GTIRB_CL_API)
   add_subdirectory(cl)
 endif()
 
-add_subdirectory(doc)
+if(GTIRB_DOCUMENTATION)
+  add_subdirectory(doc)
+endif()
 
 if(GTIRB_JAVA_API)
   add_subdirectory(java)
