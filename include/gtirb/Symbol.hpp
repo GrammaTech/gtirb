@@ -220,7 +220,7 @@ public:
   /// \param C      The Context in which this object will be held.
   /// \param Name   The name of the symbol.
   /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning.
+  ///               rather than at the beginning. Defaults to false.
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, const std::string& Name,
@@ -234,7 +234,7 @@ public:
   /// \param X      The address of the symbol.
   /// \param Name   The name of the symbol.
   /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning.
+  ///               rather than at the beginning. Defaults to false.
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Addr X, const std::string& Name,
@@ -248,7 +248,7 @@ public:
   /// \param Referent The DataBlock this symbol refers to.
   /// \param Name     The name of the symbol.
   /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning.
+  ///               rather than at the beginning. Defaults to false.
   ///
   /// \return The newly created object.
   template <typename NodeTy>
@@ -387,7 +387,7 @@ private:
   /// \param Parent The \ref Module in which to place this Symbol.
   /// \param Name   The name of the symbol.
   /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning.
+  ///               rather than at the beginning. Defaults to false.
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Module* Parent, const std::string& Name,
@@ -402,7 +402,7 @@ private:
   /// \param X      The address of the symbol.
   /// \param Name   The name of the symbol.
   /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning.
+  ///               rather than at the beginning. Defaults to false.
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Module* Parent, Addr X,
@@ -417,7 +417,7 @@ private:
   /// \param Referent The DataBlock this symbol refers to.
   /// \param Name     The name of the symbol.
   /// \param AtEnd  If true, this symbol points to the end of its referent,
-  ///               rather than at the beginning.
+  ///               rather than at the beginning. Defaults to false.
   ///
   /// \return The newly created object.
   template <typename NodeTy>
