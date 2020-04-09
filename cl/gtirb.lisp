@@ -691,6 +691,13 @@ is zero initialized, and whether the section is thread-local."))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a" (name obj) (length (byte-intervals obj)))))
 
+(defmethod address ((obj section))
+  (extremum (mapcar #'address (byte-intervals obj)) #'<))
+
+(defmethod size ((it section))
+  (- (extremum (mapcar «+ #'address #'size» (byte-intervals it)) #'> :key #'car)
+     (address it)))
+
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
     ;; TODO: What's a better data structure to use to store a sorted
     ;;       collection of pairs which permits duplicates.  Maybe a
