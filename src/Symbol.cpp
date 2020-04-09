@@ -35,7 +35,7 @@ private:
 
 std::optional<Addr> Symbol::getAddress() const {
   return std::visit(
-      [](const auto& Arg) -> std::optional<Addr> {
+      [this](const auto& Arg) -> std::optional<Addr> {
         using T = std::decay_t<decltype(Arg)>;
         if constexpr (std::is_same_v<T, std::monostate>) {
           return std::nullopt;
@@ -43,9 +43,17 @@ std::optional<Addr> Symbol::getAddress() const {
           return Arg;
         } else if constexpr (std::is_same_v<T, Node*>) {
           if (auto* B = dyn_cast_or_null<CodeBlock>(Arg)) {
-            return B->getAddress();
+            if (auto A = B->getAddress()) {
+              return *A + (AtEnd ? B->getSize() : 0);
+            } else {
+              return std::nullopt;
+            }
           } else if (auto* D = dyn_cast_or_null<DataBlock>(Arg)) {
-            return D->getAddress();
+            if (auto A = D->getAddress()) {
+              return *A + (AtEnd ? D->getSize() : 0);
+            } else {
+              return std::nullopt;
+            }
           } else if (auto* P = dyn_cast_or_null<ProxyBlock>(Arg)) {
             return std::nullopt;
           } else {
@@ -66,11 +74,12 @@ void Symbol::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   std::visit(StorePayload(Message), Payload);
   Message->set_name(this->Name);
+  Message->set_at_end(this->AtEnd);
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
                              const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, Parent, Message.name());
+  Symbol* S = Symbol::Create(C, Parent, Message.name(), Message.at_end());
 
   switch (Message.optional_payload_case()) {
   case proto::Symbol::kValue: {

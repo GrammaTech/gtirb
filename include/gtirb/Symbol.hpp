@@ -219,10 +219,13 @@ public:
   ///
   /// \param C      The Context in which this object will be held.
   /// \param Name   The name of the symbol.
+  /// \param AtEnd  If true, this symbol points to the end of its referent,
+  ///               rather than at the beginning.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, const std::string& Name) {
-    return C.Create<Symbol>(C, nullptr, Name);
+  static Symbol* Create(Context& C, const std::string& Name,
+                        bool AtEnd = false) {
+    return C.Create<Symbol>(C, nullptr, Name, AtEnd);
   }
 
   /// \brief Create a Symbol object.
@@ -230,10 +233,13 @@ public:
   /// \param C      The Context in which this object will be held.
   /// \param X      The address of the symbol.
   /// \param Name   The name of the symbol.
+  /// \param AtEnd  If true, this symbol points to the end of its referent,
+  ///               rather than at the beginning.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Addr X, const std::string& Name) {
-    return C.Create<Symbol>(C, nullptr, X, Name);
+  static Symbol* Create(Context& C, Addr X, const std::string& Name,
+                        bool AtEnd = false) {
+    return C.Create<Symbol>(C, nullptr, X, Name, AtEnd);
   }
 
   /// \brief Create a Symbol object.
@@ -241,12 +247,15 @@ public:
   /// \param C        The Context in which this object will be held.
   /// \param Referent The DataBlock this symbol refers to.
   /// \param Name     The name of the symbol.
+  /// \param AtEnd  If true, this symbol points to the end of its referent,
+  ///               rather than at the beginning.
   ///
   /// \return The newly created object.
   template <typename NodeTy>
-  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name) {
+  static Symbol* Create(Context& C, NodeTy* Referent, const std::string& Name,
+                        bool AtEnd = false) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, nullptr, Referent, Name);
+    return C.Create<Symbol>(C, nullptr, Referent, Name, AtEnd);
   }
 
   /// \brief Get the \ref Module this symbol belongs to.
@@ -319,6 +328,20 @@ public:
     this->mutateIndices([this, A]() { Payload = A; });
   }
 
+  /// \brief If true, this symbol is pointing to the end of the referent
+  /// rather than at the beginning.
+  ///
+  /// This value has no meaning for integral symbols.
+  bool getAtEnd() const { return AtEnd; }
+
+  /// \brief sets whether or not this symbol is pointing to the end of the
+  /// referent rather than at the beginning.
+  ///
+  /// This value has no meaning for integral symbols.
+  void setAtEnd(bool AE) {
+    this->mutateIndices([this, AE]() { AtEnd = AE; });
+  }
+
   /// @cond INTERNAL
   /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
@@ -344,13 +367,13 @@ public:
 
 private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
-  Symbol(Context& C, Module* P, const std::string& N)
-      : Node(C, Kind::Symbol), Parent(P), Name(N) {}
-  Symbol(Context& C, Module* P, Addr X, const std::string& N)
-      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N) {}
+  Symbol(Context& C, Module* P, const std::string& N, bool AE)
+      : Node(C, Kind::Symbol), Parent(P), Name(N), AtEnd(AE) {}
+  Symbol(Context& C, Module* P, Addr X, const std::string& N, bool AE)
+      : Node(C, Kind::Symbol), Parent(P), Payload(X), Name(N), AtEnd(AE) {}
   template <typename NodeTy>
-  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N)
-      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N) {
+  Symbol(Context& C, Module* P, NodeTy* R, const std::string& N, bool AE)
+      : Node(C, Kind::Symbol), Parent(P), Payload(R), Name(N), AtEnd(AE) {
     if (!R) {
       Payload = std::monostate{};
     }
@@ -363,10 +386,13 @@ private:
   /// \param C      The Context in which this object will be held.
   /// \param Parent The \ref Module in which to place this Symbol.
   /// \param Name   The name of the symbol.
+  /// \param AtEnd  If true, this symbol points to the end of its referent,
+  ///               rather than at the beginning.
   ///
   /// \return The newly created object.
-  static Symbol* Create(Context& C, Module* Parent, const std::string& Name) {
-    return C.Create<Symbol>(C, Parent, Name);
+  static Symbol* Create(Context& C, Module* Parent, const std::string& Name,
+                        bool AtEnd = false) {
+    return C.Create<Symbol>(C, Parent, Name, AtEnd);
   }
 
   /// \brief Create a Symbol object.
@@ -375,11 +401,13 @@ private:
   /// \param Parent The \ref Module in which to place this Symbol.
   /// \param X      The address of the symbol.
   /// \param Name   The name of the symbol.
+  /// \param AtEnd  If true, this symbol points to the end of its referent,
+  ///               rather than at the beginning.
   ///
   /// \return The newly created object.
   static Symbol* Create(Context& C, Module* Parent, Addr X,
-                        const std::string& Name) {
-    return C.Create<Symbol>(C, Parent, X, Name);
+                        const std::string& Name, bool AtEnd = false) {
+    return C.Create<Symbol>(C, Parent, X, Name, AtEnd);
   }
 
   /// \brief Create a Symbol object.
@@ -388,18 +416,21 @@ private:
   /// \param Parent   The \ref Module in which to place this Symbol.
   /// \param Referent The DataBlock this symbol refers to.
   /// \param Name     The name of the symbol.
+  /// \param AtEnd  If true, this symbol points to the end of its referent,
+  ///               rather than at the beginning.
   ///
   /// \return The newly created object.
   template <typename NodeTy>
   static Symbol* Create(Context& C, Module* Parent, NodeTy* Referent,
-                        const std::string& Name) {
+                        const std::string& Name, bool AtEnd = false) {
     static_assert(is_supported_type<NodeTy>(), "unsupported referent type");
-    return C.Create<Symbol>(C, Parent, Referent, Name);
+    return C.Create<Symbol>(C, Parent, Referent, Name, AtEnd);
   }
 
   Module* Parent{nullptr};
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
+  bool AtEnd = false;
 
   friend class Context; // Allow Context to construct Symbols.
   friend class Module;  // Allow Module to call setModule, Create, etc.
