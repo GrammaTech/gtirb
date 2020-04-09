@@ -1,3 +1,8 @@
+# 1.3.0
+
+* Added a new field to symbols, `at_end`, which allows symbols to point to the end
+  of thier referents as well as the beginning.
+
 # 1.2.1
 
 * Moved protobuf definitions into gtirb.proto package (gtirb::proto namespace
