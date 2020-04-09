@@ -26,4 +26,5 @@ message Symbol {
     bytes referent_uuid = 5;
   }
   string name = 3;
+  bool at_end = 6;
 }
