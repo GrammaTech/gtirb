@@ -212,3 +212,28 @@ TEST(Unit_Symbol, visitation) {
   //};
   // Sym->visit(IncorrectReturnTypes{}); // Error
 }
+
+TEST(Unit_Symbol, atEnd) {
+  auto* Mod = Module::Create(Ctx);
+  auto* Sym = Mod->addSymbol(Ctx, "test");
+  auto* S = Mod->addSection(Ctx, "test");
+  auto* BI = S->addByteInterval(Ctx, Addr(0), 4);
+  auto* Data = BI->addBlock<DataBlock>(Ctx, 0, 2);
+  auto* B = BI->addBlock<CodeBlock>(Ctx, 1, 2);
+
+  Sym->setReferent(B);
+  Sym->setAtEnd(true);
+  EXPECT_EQ(Sym->getAddress(), gtirb::Addr{3});
+
+  Sym->setReferent(B);
+  Sym->setAtEnd(false);
+  EXPECT_EQ(Sym->getAddress(), gtirb::Addr{1});
+
+  Sym->setReferent(Data);
+  Sym->setAtEnd(true);
+  EXPECT_EQ(Sym->getAddress(), gtirb::Addr{2});
+
+  Sym->setReferent(Data);
+  Sym->setAtEnd(false);
+  EXPECT_EQ(Sym->getAddress(), gtirb::Addr{0});
+}
