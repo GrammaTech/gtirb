@@ -276,7 +276,9 @@
       ((proto-v0:has-value old)
        (setf (proto:value new) (proto-v0:value old)))
       ((proto-v0:has-referent-uuid old)
-       (setf (proto:referent-uuid new) (upgrade (proto-v0:referent-uuid old)))))
+       (setf (proto:referent-uuid new) (upgrade (proto-v0:referent-uuid old))
+             ;; This field was added after GTIRB-V.0.
+             (proto:at-end new) nil)))
     new)
   (:method ((old proto-v0:symbolic-expression) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbolic-expression)))
