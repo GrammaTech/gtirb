@@ -58,6 +58,27 @@
   :action 'size-matches-contents
   :object 'gtirb)
 
+(flet ((nothing-overlaps- (things &aux (min 0))
+         (and (every (lambda (pair)
+                       (destructuring-bind (address . size) pair
+                         (prog1 (>= address min)
+                           (setf min (max min (+ address size))))))
+                     (sort (mapcar «cons #'address #'size» things) #'<
+                           :key #'car))
+              (every #'nothing-overlaps things))))
+  (defgeneric nothing-overlaps (object)
+    (:method ((obj gtirb)) (every #'nothing-overlaps (modules obj)))
+    (:method ((obj module)) (nothing-overlaps- (sections obj)))
+    (:method ((obj section)) (nothing-overlaps- (byte-intervals obj)))
+    (:method ((obj byte-interval))
+      (nothing-overlaps- (remove-if-not {typep _ 'code-block} (blocks obj))))
+    (:method ((obj code-block)) t)))
+
+(make-instance 'check
+  :name 'nothing-overlaps
+  :action 'nothing-overlaps
+  :object 'gtirb)
+
 
 ;;;; Command-line interface
 (eval-when (:compile-toplevel :load-toplevel :execute)
