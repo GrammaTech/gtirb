@@ -15,6 +15,8 @@ class Symbol(Node):
     """Represents a symbol, which maps a name to an object in the IR.
 
     :ivar ~.name: The name of this symbol.
+    :ivar ~.at_end: True if this symbol is at the end of its referent, rather
+        than at the beginning. Has no meaning for integral symbols.
     """
 
     def __init__(
@@ -22,6 +24,7 @@ class Symbol(Node):
         name,  # type: str
         uuid=None,  # type: typing.Optional[UUID]
         payload=None,  # type: typing.Optional[Payload]
+        at_end=False,  # type: bool
     ):
         """
         :param name: The name of this symbol.
@@ -30,10 +33,13 @@ class Symbol(Node):
             Defaults to None.
         :param payload: The value this symbol points to.
             May be an address, a Node, or None.
+        :param at_end: True if this symbol is at the end of its referent,
+            rather than at the beginning.
         """
 
         super().__init__(uuid)
         self.name = name  # type: str
+        self.at_end = at_end  # type: bool
         self._payload = payload  # type: typing.Optional[Payload]
         self._module = None  # type: "Module"
 
@@ -72,7 +78,9 @@ class Symbol(Node):
     @classmethod
     def _decode_protobuf(cls, proto_symbol, uuid):
         # type: (Symbol_pb2.Symbol,UUID) -> Symbol
-        symbol = cls(name=proto_symbol.name, uuid=uuid)
+        symbol = cls(
+            name=proto_symbol.name, at_end=proto_symbol.at_end, uuid=uuid
+        )
         if proto_symbol.HasField("value"):
             symbol.value = proto_symbol.value
         if proto_symbol.HasField("referent_uuid"):
@@ -92,6 +100,7 @@ class Symbol(Node):
         elif self.referent is not None:
             proto_symbol.referent_uuid = self.referent.uuid.bytes
         proto_symbol.name = self.name
+        proto_symbol.at_end = self.at_end
         return proto_symbol
 
     def deep_eq(self, other):
@@ -107,7 +116,11 @@ class Symbol(Node):
         else:
             if not self.referent.deep_eq(other.referent):
                 return False
-        return self.name == other.name and self.uuid == other.uuid
+        return (
+            self.name == other.name
+            and self.at_end == other.at_end
+            and self.uuid == other.uuid
+        )
 
     def __repr__(self):
         # type: () -> str
@@ -116,6 +129,7 @@ class Symbol(Node):
             "uuid={uuid!r}, "
             "name={name!r}, "
             "payload={_payload!r}, "
+            "at_end={at_end!r}, "
             ")".format(**self.__dict__)
         )
 
