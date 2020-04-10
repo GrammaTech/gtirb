@@ -83,13 +83,14 @@ install(
 )
 
 # Convenience targets for installing python
-add_custom_target(install-python
+add_custom_target(
+  install-python
   DEPENDS pygtirb
-  COMMAND
-    "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=python
-    -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=python -P
+          "${CMAKE_BINARY_DIR}/cmake_install.cmake"
 )
-add_custom_target(python-egg
+add_custom_target(
+  python-egg
   DEPENDS pygtirb
   COMMAND "${PYTHON}" setup.py bdist_egg
 )
