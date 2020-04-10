@@ -86,7 +86,8 @@ check-format:
     - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cpack.exe -G \"ZIP\""
     - cp *.zip ../
     # Generate and upload python egg
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja install"
+    - cd python
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && \"C:\\Python38\\python.exe\" setup.py bdist_egg"
     - cp ./python/dist/gtirb-*-py*.egg ../
 
 # This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
