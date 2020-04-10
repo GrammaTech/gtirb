@@ -1,3 +1,8 @@
+# 1.3.1
+
+* No longer installs Python files by default. Added a new 'install-python'
+  target to install Python files.
+
 # 1.3.0
 
 * Added a new field to symbols, `at_end`, which allows symbols to point to the end
