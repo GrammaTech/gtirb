@@ -120,6 +120,9 @@ The ERRNO used when exiting lisp indicates success or failure."
   (with-fixture hello
     (with-temporary-file (:pathname path)
       (gtirb::write-proto (read-proto 'proto:ir *proto-path*) path)
+      ;; Protobuf provides multiple options for serializing repeated
+      ;; enums, so this check can fail even with valid serialization.
+      #+inhibited
       (is (equalp (md5sum-file *proto-path*)
                   (md5sum-file path))))))
 
