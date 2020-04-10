@@ -31,7 +31,7 @@ ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=$PROTOBUF_PYTHON_RUNTIME
 
 FROM base
 
-RUN make -C /gt/gtirb/build install && rm -rf /gt/gtirb/build
+RUN make -C /gt/gtirb/build install install-python && rm -rf /gt/gtirb/build
 RUN /gt/gtirb/.ci/test-install-all.sh
 
 ########
@@ -43,7 +43,7 @@ RUN cd /gt/gtirb/build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
 RUN echo /tmp/prefix/lib/python$(python3 -c "import sys; print('%s.%s' % sys.version_info[:2])")/site-packages > pydir
 RUN mkdir -p $(cat pydir)
 RUN PYTHONPATH=$(cat pydir) \
-    make -C /gt/gtirb/build install && rm -rf /gt/gtirb/build
+    make -C /gt/gtirb/build install install-python && rm -rf /gt/gtirb/build
 RUN PYTHONPATH=$(cat pydir) \
     CPPFLAGS=-I/tmp/prefix/include \
     LDFLAGS=-L/tmp/prefix/lib \
@@ -55,7 +55,7 @@ RUN PYTHONPATH=$(cat pydir) \
 
 FROM base as destdir-install
 
-RUN DESTDIR=/tmp/destdir make -C /gt/gtirb/build install
+RUN DESTDIR=/tmp/destdir make -C /gt/gtirb/build install install-python
 
 # Copy the DESTDIR onto a fresh base. This simulates DESTDIR packages and
 # chroot
