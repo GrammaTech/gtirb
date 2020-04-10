@@ -75,7 +75,7 @@ struct SymbolForwarding {
 /// \brief Schema class for padding auxiliary data.
 struct Padding {
   static constexpr const char* Name = "padding";
-  typedef std::map<gtirb::Addr, uint64_t> Type;
+  typedef std::map<gtirb::Offset, uint64_t> Type;
 };
 
 } // namespace schema

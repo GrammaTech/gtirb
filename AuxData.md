@@ -52,7 +52,7 @@ The following are the sanctioned AuxData table schemata.
 | [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```              |
 | [`"comments"`](#comments)                 | ```std::map<gtirb::Offset, std::string>```         |
 | [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID, gtirb::UUID>```           |
-| [`"padding"`](#padding)                   | ```std::map<gtirb::Addr, uint64_t>```              |
+| [`"padding"`](#padding)                   | ```std::map<gtirb::Offset, uint64_t>```              |
 
 
 ### functionBlocks
