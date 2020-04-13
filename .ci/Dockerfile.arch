@@ -38,4 +38,8 @@ RUN make -j
 ARG CPACK_GENERATOR=""
 RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
 
+# Build python wheel
+RUN python3 -m pip install wheel
+RUN make python-wheel
+
 ENV PATH=/gt/gtirb/build/bin:$PATH

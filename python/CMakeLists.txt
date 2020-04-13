@@ -90,7 +90,7 @@ add_custom_target(
           "${CMAKE_BINARY_DIR}/cmake_install.cmake"
 )
 add_custom_target(
-  python-egg
+  python-wheel
   DEPENDS pygtirb
-  COMMAND "${PYTHON}" setup.py bdist_egg
+  COMMAND "${PYTHON}" setup.py bdist_wheel
 )

@@ -16,7 +16,8 @@ RUN apt-get -y update && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
     apt-get -y install apt-transport-https autoconf build-essential curl \
-        default-jdk g++-7 gcc-7 git libtool python3 python3-setuptools wget
+        default-jdk g++-7 gcc-7 git libtool python3 python3-pip \
+        python3-setuptools wget
 
 # Install clang
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
@@ -49,6 +50,9 @@ RUN make -j
 # Run CPack.
 ARG CPACK_GENERATOR=""
 RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
+
+# Build python wheel
+RUN make python-wheel
 
 # Set up envionment for interactive use.
 ENV PATH=/gt/gtirb/build/bin:$PATH
