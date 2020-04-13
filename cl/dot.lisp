@@ -12,7 +12,7 @@
 
 (defun dot-edge-label (graph edge)
   (let ((obj (edge-value graph edge)))
-    (format nil "~a[~:[U~;C~]:~:[I~;D~]]"
+    (format nil "\"~a[~:[U~;C~]:~:[I~;D~]]\""
             (edge-type obj) (conditional obj) (direct obj))))
 
 (defmethod to-dot ((obj gtirb) &rest rest)
