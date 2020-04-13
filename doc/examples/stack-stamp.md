@@ -1,6 +1,8 @@
 GTIRB Stack Stamp
 =================
 
+> **WIP**: this tutorial is a **Work in Progress**
+
 TLDR; It is very easy to write binary transforms in GTIRB, see
 [gtirb-stack-stamp](https://github.com/grammatech/gtirb-stack-stamp).
 
@@ -114,4 +116,4 @@ gtirb-pprinter /tmp/ls.ss.gtirb --skip-section .eh_frame \
 
 ## Visualize the difference using gtirb-ghidra-plugin
 
-> TODO.
+> **TODO**.
