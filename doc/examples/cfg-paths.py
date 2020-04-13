@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+############################################################################
+# NOTE: This example is currently out of date!
+# This uses the raw Protobuf API instead of the recommended high-level API.
+# See the generated Python documentation for details on the recommended API.
+############################################################################
+
 # An example program which opens an IR and prints every control-flow
 # path from some basic block to another basic block.
 #
