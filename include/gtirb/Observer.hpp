@@ -25,3 +25,4 @@ enum class ChangeStatus {
 }
 
 #endif // GTIRB_OBSERVER_H
+

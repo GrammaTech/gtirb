@@ -156,7 +156,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
 
   class SectionObserverImpl : public SectionObserver {
   public:
-    SectionObserverImpl(Module* M_) : M(M_) {}
+    explicit SectionObserverImpl(Module* M_) : M(M_) {}
 
     ChangeStatus addCodeBlocks(Section* S,
                                Section::code_block_range Blocks) override;
