@@ -45,17 +45,17 @@
 //          java cfgpaths <path-to-ir>  <source-addr> <target-addr>
 
 import com.google.protobuf.ByteString;
-import proto.IROuterClass.IR;
-import proto.BlockOuterClass.Block;
-import proto.CFGOuterClass.CFG;
-import proto.CFGOuterClass.Edge;
-import proto.ModuleOuterClass.Module;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
 import java.lang.Long;
+import java.util.*;
+import proto.BlockOuterClass.Block;
+import proto.CFGOuterClass.CFG;
+import proto.CFGOuterClass.Edge;
+import proto.IROuterClass.IR;
+import proto.ModuleOuterClass.Module;
 
 class cfgpaths {
 

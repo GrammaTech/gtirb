@@ -1,7 +1,6 @@
 #!/usr/bin/python
 #
-# An example program which opens an IR and prints all paths between
-# two blocks.
+# An example program which opens an IR and draws the CFG to the screen.
 #
 # To run this example, do the following.
 #
@@ -15,13 +14,14 @@
 # 3. Execute the following command to run the program on the
 #    serialized GTIRB data.
 #
-#    $ ./doc/examples/cfg-paths.py /tmp/hello.gtirb
+#    $ ./doc/examples/show-cfg.py /tmp/hello.gtirb
 import sys
 import networkx as nx
+import matplotlib.pyplot as plt
 import gtirb
 
-if len(sys.argv) < 4:
-    print(f"Usage: {sys.argv[0]} /path/to/file.gtirb source target")
+if len(sys.argv) < 2:
+    print(f"Usage: {sys.argv[0]} /path/to/file.gtirb")
     quit(1)
 
 ir = gtirb.ir.IR.load_protobuf(sys.argv[1])
@@ -34,5 +34,5 @@ for edge in ir.cfg:
     else:
         G.add_edge(edge.source.address, edge.target.address)
 
-for path in nx.all_simple_paths(G, int(sys.argv[2]), int(sys.argv[3])):
-    print(path)
+nx.draw(G, with_labels=True)
+plt.show()

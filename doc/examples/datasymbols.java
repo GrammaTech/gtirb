@@ -43,16 +43,16 @@
 //          java datasymbols <path-to-ir>
 
 import com.google.protobuf.ByteString;
-import proto.IROuterClass.IR;
-import proto.ModuleOuterClass.Module;
-import proto.DataObjectOuterClass.DataObject;
-import proto.SymbolOuterClass.Symbol;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
 import java.lang.Long;
+import java.util.*;
+import proto.DataObjectOuterClass.DataObject;
+import proto.IROuterClass.IR;
+import proto.ModuleOuterClass.Module;
+import proto.SymbolOuterClass.Symbol;
 
 class datasymbols {
 
