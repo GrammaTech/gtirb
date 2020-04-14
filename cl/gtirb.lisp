@@ -718,14 +718,15 @@ is zero initialized, and whether the section is thread-local."))
                                   (make-instance 'data-block
                                     :ir (ir self)
                                     :byte-interval self
+                                    :offset (proto:offset proto-block)
                                     :proto (proto:data proto-block)))
                                  ((not (emptyp
                                         (proto:uuid (proto:code proto-block))))
                                   (make-instance 'code-block
                                     :ir (ir self)
                                     :byte-interval self
+                                    :offset (proto:offset proto-block)
                                     :proto (proto:code proto-block))))))
-                       (setf (offset it) (proto:offset proto-block))
                        #+debug
                        (when (emptyp (proto:uuid (proto it)))
                          (warn "BAD BLOCK ~a with empty uuid from ~a.~%~A~%"
@@ -864,16 +865,28 @@ at runtime.")
 ;;; `make-instance' calls in byte-interval.
 (define-proto-backed-class
     (sym-stack-const proto:sym-stack-const) (symbolic-expression) ()
-    ((offset :type unsigned-byte-64)))
+    ((offset :type unsigned-byte-64))
+  (:address-range (when (addressp (byte-interval self))
+                    (let ((address (+ (address (byte-interval self))
+                                      (offset self))))
+                      (list address address)))))
 
 (define-proto-backed-class
     (sym-addr-const proto:sym-addr-const) (symbolic-expression) ()
-    ((offset :type unsigned-byte-64)))
+    ((offset :type unsigned-byte-64))
+  (:address-range (when (addressp (byte-interval self))
+                    (let ((address (+ (address (byte-interval self))
+                                      (offset self))))
+                      (list address address)))))
 
 (define-proto-backed-class
     (sym-addr-addr proto:sym-addr-addr) (symbolic-expression) ()
     ((offset :type unsigned-byte-64)
-     (scale :type unsigned-byte-64)))
+     (scale :type unsigned-byte-64))
+  (:address-range (when (addressp (byte-interval self))
+                    (let ((address (+ (address (byte-interval self))
+                                      (offset self))))
+                      (list address address)))))
 
 (defmethod update-proto :before ((sym sym-stack-const))
   (setf (proto:symbol-uuid (proto sym))
@@ -1030,7 +1043,6 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
 (define-proto-backed-class (code-block proto:code-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
-             :initform 0
              :documentation
              "Offset into this block's bytes in the block's byte-interval."))
     ((size :type unsigned-byte-64
@@ -1057,7 +1069,6 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
 
 (define-proto-backed-class (data-block proto:data-block) (gtirb-byte-block)
     ((offset :initarg :offset :accessor offset :type number
-             :initform 0
              :documentation
              "Offset into this block's bytes in the block's byte-interval."))
     ((size :type unsigned-byte-64 :documentation

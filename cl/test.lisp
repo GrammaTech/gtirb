@@ -464,6 +464,26 @@ The ERRNO used when exiting lisp indicates success or failure."
         (is (every-symbolic-expression-has-symbols-proto temporary-file))
         (is (every-symbolic-expression-has-symbols-gtirb temporary-file))))))
 
+(deftest everythings-address-matches-its-index-in-by-address ()
+  (with-fixture hello
+    (let ((it (read-gtirb *proto-path*)))
+      (gtirb/ranged::preorder-walk
+       (with-slots (gtirb/ranged::tree) (gtirb/gtirb::by-address it)
+         gtirb/ranged::tree)
+       (lambda (index)
+         (is (every [{= (car index)} #'address]
+                    (at-address it (car index)))))))))
+
+(deftest every-block-is-found-at-its-address ()
+  (with-fixture hello
+    (let ((it (read-gtirb *proto-path*)))
+      (nest (is)
+            (every «member #'identity [{at-address it} #'address]»)
+            (mappend #'blocks)
+            (mappend #'byte-intervals)
+            (mappend #'sections)
+            (modules it)))))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()
