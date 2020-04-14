@@ -26,9 +26,8 @@ RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lis
 
 # Cache pre-commit hook installation between runs.
 WORKDIR /gt/gtirb/
-COPY .pre-commit-config.yaml .
-
 RUN git init
+COPY .pre-commit-config.yaml .
 RUN pre-commit install-hooks
 RUN rm -rf .git
 
