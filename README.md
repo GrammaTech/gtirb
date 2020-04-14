@@ -19,20 +19,7 @@ The remainder of this file describes various aspects of GTIRB:
 GTIRB has the following structure.  Solid lines denote inheritance.
 Dotted lines denote reference by UUID.
 
-![
-       +--IPCFG--Edges...........................
-       |                 .                      .
-       |         +-ProxyBlocks             +-CodeBlocks
-       |         |                         |
-    IR-+-Modules-+-Sections--ByteIntervals-+-DataBlocks
-       |    |    |                         |
-       |    |    +-Symbols.........        +-SymbolicExpressions
-       +-AuxData                  .              .
-        --------                  ................
-        ID0|DATA0
-        ID1|DATA1....*anything*
-        ID2|DATA2
-](.gtirb.svg)
+![GTIRB Data Structure](.gtirb.svg)
 
 ## IR
 
