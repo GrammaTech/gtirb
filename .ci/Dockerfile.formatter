@@ -24,15 +24,12 @@ RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-form
 RUN chmod +x /usr/bin/lisp-format
 RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
 
+# Configure pre-commit in the hope that this stage is cached between runs.
+COPY ./.pre-commit-config.yaml /gt/gtirb/.pre-commit-config.yaml
+RUN pre-commit run
+
+# Run pre-commit on all our files.
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
 
-# Note: do not run pre-commit autoupdate. Doing so potentially changes
-# the versions of the utilities we're using to check things like our
-# cmake formatting. And that could lead to us comparing against a
-# moving measuring stick. If we want to use a newer version of a
-# utility, we should explicitly update the version tag in
-# .pre-commit-config.yaml.
-
-RUN pre-commit run;echo "Configured pre-commit."
 CMD pre-commit run --all-files

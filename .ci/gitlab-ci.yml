@@ -18,15 +18,9 @@ stages:
 
 check-format:
   stage: check-format
-  allow_failure: true
   script:
     - docker build -f .ci/Dockerfile.formatter -t formatter .
-    - if $(docker run -v $(pwd):/gt/gtirb formatter >/dev/null); then
-        exit 0;
-      else
-        echo "Format check failed.";
-        exit 1;
-      fi
+    - docker run -v $(pwd):/gt/gtirb formatter
 
 .build-template: &build
   script:
