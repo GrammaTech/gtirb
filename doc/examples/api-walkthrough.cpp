@@ -1,4 +1,5 @@
 #include <gtirb/gtirb.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -33,8 +34,8 @@ int main() {
   // Symbols (`gtirb::Symbol`) associate a name with a block in the IR, such as
   // code blocks, data blocks, or proxy blocks. They can optionally store an
   // address instead.
-  auto* Sym1 = M->addSymbol(Symbol::Create(C, D1, "data1"));
-  auto* Sym2 = M->addSymbol(Symbol::Create(C, D2, "data2"));
+  [[maybe_unused]] auto* Sym1 = M->addSymbol(Symbol::Create(C, D1, "data1"));
+  [[maybe_unused]] auto* Sym2 = M->addSymbol(Symbol::Create(C, D2, "data2"));
   // GTIRB can store multiple symbols with the same address or referent.
   M->addSymbol(Symbol::Create(C, D2, "duplicateReferent"));
   M->addSymbol(Symbol::Create(C, Addr(2048), "duplicateName"));
@@ -60,10 +61,11 @@ int main() {
   // Finally, auxiliary data can be used to store additional information at the
   // IR and module level. A `gtirb::AuxData` object can store integers, strings,
   // GTIRB types such as `gtirb::Addr` and `gtirb::UUID`, and various containers
-  // over these types.
-  Ir->addAuxData("addrTable", std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
-  M->addAuxData("stringMap", std::map<std::string, std::string>(
-                                 {{"a", "str1"}, {"b", "str2"}}));
+  // over these types. THere are predefined AuxData schema for you to use, but
+  // you can also use your own custom AuxData schema. Here is use of a
+  // predefined schema, `gtirb::schema::Types`:
+  M->addAuxData<gtirb::schema::Types>(
+      {{D1->getUUID(), "string"}, {D2->getUUID(), "uleb128"}});
   //
   // ### Querying the IR
   //
@@ -126,17 +128,13 @@ int main() {
               << (std::get<EdgeType>(Label) == EdgeType::Fallthrough)
               << std::endl;
   }
-  // Aux data have to be resolved to the correct type with the `get()` method
-  // before use. This will return null if the wrong type is requested.
-  auto addrTable = Ir->getAuxData("addrTable")->get<std::vector<Addr>>();
-  for (auto A : *addrTable) {
-    std::cout << "Addr: " << uint64_t(A) << std::endl;
-  }
-
-  auto* stringMap =
-      M->getAuxData("stringMap")->get<std::map<std::string, std::string>>();
-  for (auto P : *stringMap) {
-    std::cout << P.first << " => " << P.second << std::endl;
+  // Aux data can be retrieved based on the schema and queried upon.
+  auto* typesMap = M->getAuxData<gtirb::schema::Types>();
+  if (typesMap) {
+    for (const auto& [DataBlockID, BlockType] : *typesMap) {
+      std::cout << "Data block with UUID " << DataBlockID << " is of type "
+                << BlockType << "!";
+    }
   }
   //
   // ### Serialization
@@ -146,7 +144,7 @@ int main() {
   Ir->save(Out);
   // Deserialize from a file with `gtirb::IR::load`.
   std::ifstream In("path/to/file");
-  auto& NewIR = *IR::load(C, In);
+  [[maybe_unused]] auto& NewIR = *IR::load(C, In);
   // END
   return 0;
 }

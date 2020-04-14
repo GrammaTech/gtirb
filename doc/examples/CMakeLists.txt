@@ -10,7 +10,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 add_executable(ex-api-walkthrough api-walkthrough.cpp)
-target_link_libraries(ex-api-walkthrough gtirb)
+target_link_libraries(ex-api-walkthrough gtirb proto)
 
 add_executable(ex-data-symbols data-symbols.cpp)
 target_link_libraries(ex-data-symbols gtirb)
