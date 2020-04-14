@@ -109,10 +109,8 @@ if(DOXYGEN_FOUND)
       "${ROOTDIR}/PROTOBUF.md"
       "${ROOTDIR}/README.md"
   )
-
   set(MDFILES ${MDFILES_IN})
   move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
-  # message("MDFILES = ${MDFILES}")
 
   foreach(_inmd ${MDFILES_IN})
     get_filename_component(_outmd "${_inmd}" NAME)
@@ -127,6 +125,22 @@ if(DOXYGEN_FOUND)
     )
   endforeach()
 
+  set(SVGFILES_IN "${ROOTDIR}/.gtirb.svg")
+  set(SVGFILES ${SVGFILES_IN})
+  move_filename(SVGFILES ${CMAKE_CURRENT_BINARY_DIR})
+
+  foreach(_insvg ${SVGFILES_IN})
+    get_filename_component(_outsvg "${_insvg}" NAME)
+    add_custom_command(
+      OUTPUT ${_outsvg}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      DEPENDS ${_insvg}
+      COMMAND ${CMAKE_COMMAND} -E copy ${_insvg} "${_outsvg}"
+      COMMENT "copying ${_outsvg}"
+      VERBATIM
+    )
+  endforeach()
+
   # ----------------------------------------------------------------------
   # Main target
   # ----------------------------------------------------------------------
@@ -135,6 +149,7 @@ if(DOXYGEN_FOUND)
     general_doxyout
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${MDFILES}
+    DEPENDS ${SVGFILES}
     COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
     COMMENT "Generating general API documentation with Doxygen"
     VERBATIM
