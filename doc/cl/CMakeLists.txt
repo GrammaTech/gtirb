@@ -11,8 +11,9 @@ add_custom_command(
   COMMAND
     ${LISP} --noinform --dynamic-space-size 16384 --no-userinit --no-sysinit
     --disable-debugger --load ${QUICKLISP}/setup.lisp --eval
-    '(asdf:initialize-source-registry `(:source-registry (:tree "\"${CMAKE_SOURCE_DIR}/cl\"") :inherit-configuration))'
+    "(asdf:initialize-source-registry `(:source-registry (:tree \"${CMAKE_SOURCE_DIR}/cl\") :inherit-configuration))"
     --script ${SDT_SCRIPT} gtirb ${README} ${HTML_INDEX}
+  VERBATIM
   COMMENT "Generating API documentation with SDT"
 )
 add_custom_target(sdt ALL DEPENDS ${HTML_INDEX})

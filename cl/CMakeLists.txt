@@ -33,14 +33,15 @@ foreach(CL_EXECUTABLE_STEM ${CL_EXECUTABLE_STEMS})
     COMMAND
       ${LISP} --noinform --dynamic-space-size 16384 --no-userinit --no-sysinit
       --disable-debugger --load ${QUICKLISP}/setup.lisp --eval
-      '(asdf:initialize-source-registry `(:source-registry (:tree "\"${CMAKE_CURRENT_SOURCE_DIR}\"") :inherit-configuration))'
-      --eval '(ql:quickload :gtirb/${CL_EXECUTABLE_STEM})' --eval
-      '(setf uiop/image::*lisp-interaction* nil)' --eval
-      '(asdf:make :gtirb/run-${CL_EXECUTABLE_STEM} :type :program :monolithic t)'
-      --eval '(uiop/image:quit)'
+      "(asdf:initialize-source-registry `(:source-registry (:tree \"${CMAKE_CURRENT_SOURCE_DIR}\") :inherit-configuration))"
+      --eval "(ql:quickload :gtirb/${CL_EXECUTABLE_STEM})" --eval
+      "(setf uiop/image::*lisp-interaction* nil)" --eval
+      "(asdf:make :gtirb/run-${CL_EXECUTABLE_STEM} :type :program :monolithic t)"
+      --eval "(uiop/image:quit)"
     COMMAND ${CMAKE_COMMAND} -E copy gtirb-${CL_EXECUTABLE_STEM}
             ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${CMAKE_COMMAND} -E remove gtirb-${CL_EXECUTABLE_STEM}
+    VERBATIM
   )
 endforeach(CL_EXECUTABLE_STEM)
 
