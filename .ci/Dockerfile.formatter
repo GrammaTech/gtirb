@@ -24,14 +24,13 @@ RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-form
 RUN chmod +x /usr/bin/lisp-format
 RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
 
-# Cache pre-commit hook installation between runs using the same commit...
-# Hopefully. It depends on .git not changing between commits, so it's not
-# exactly reliable.
+# Cache pre-commit hook installation between runs.
 WORKDIR /gt/gtirb/
 COPY .pre-commit-config.yaml .
-COPY .git/ .git/
 
+RUN git init
 RUN pre-commit install-hooks
+RUN rm -rf .git
 
 # Run pre-commit on all our files.
 COPY . /gt/gtirb/
