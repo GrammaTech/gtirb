@@ -24,10 +24,6 @@ RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-form
 RUN chmod +x /usr/bin/lisp-format
 RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
 
-# Configure pre-commit in the hope that this stage is cached between runs.
-COPY ./.pre-commit-config.yaml /gt/gtirb/.pre-commit-config.yaml
-RUN pre-commit run
-
 # Run pre-commit on all our files.
 COPY . /gt/gtirb/
 WORKDIR /gt/gtirb/
