@@ -1,6 +1,9 @@
 
 ///@if CPPONLY
 
+/// \example api-walkthrough.cpp
+/// Demonstrate many different elements of the GTIRB API.
+
 /// \example data-symbols.cpp
 /// Open an IR and print every symbol pointing to data.
 

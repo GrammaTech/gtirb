@@ -9,6 +9,9 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   add_compile_options(-wd4100)
 endif()
 
+add_executable(ex-api-walkthrough api-walkthrough.cpp)
+target_link_libraries(ex-api-walkthrough gtirb)
+
 add_executable(ex-data-symbols data-symbols.cpp)
 target_link_libraries(ex-data-symbols gtirb)
 
@@ -33,6 +36,7 @@ macro(move_filename file_list newdir)
 endmacro()
 
 set(EXAMPLE_FILES_IN
+    "${CMAKE_CURRENT_SOURCE_DIR}/api-walkthrough.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.lisp"

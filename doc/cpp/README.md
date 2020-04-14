@@ -59,4 +59,6 @@ find_package(gtirb REQUIRED)
 
 ## Using the API
 
-See [example.cpp](example.cpp) for a basic introcution to using the GTIRB API in C++.
+See [api-walkthrough.cpp](../api-walkthrough_8cpp-example.html) (in
+the repository at `gtirb/doc/examples/api-walkthrough.cpp`) for a
+basic introcution to using the GTIRB API in C++.
