@@ -32,6 +32,5 @@ RUN pre-commit install-hooks
 RUN rm -rf .git
 
 # Run pre-commit on all our files.
-COPY . /gt/gtirb/
 
 CMD pre-commit run --all-files
