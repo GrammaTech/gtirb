@@ -21,11 +21,26 @@
 /// @if PY_ONLY
 
 /// \example data-symbols.py
-/// Open an IR via protobuf and print every symbol pointing to data.
+/// Open an IR and print every symbol pointing to data.
 
 /// \example cfg-paths.py
-/// Open an IR via protobuf and print every path from some point to some
-/// other point.
+/// Open an IR and print every path from some point to some other point.
+
+/// \example show-cfg.py
+/// Open an IR and draw the CFG to the screen.
+
+/// @endif
+
+/// @if CL_ONLY
+
+/// \example data-symbols.lisp
+/// Open an IR and print every symbol pointing to data.
+
+/// \example cfg-paths.lisp
+/// Open an IR and print every path from some point to some other point.
+
+/// \example show-cfg.lisp
+/// Open an IR and draw the CFG to a png.
 
 /// @endif
 
