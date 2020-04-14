@@ -71,19 +71,19 @@ int main() {
   //
   // Symbols can be looked up by address or name.  Any number of symbols can
   // share an address or name, so be prepared to deal with multiple results.
-  for (const auto& Sym : M->findSymbols(Addr(2054))) {
+  for ([[maybe_unused]] const auto& Sym : M->findSymbols(Addr(2054))) {
     assert(Sym.getAddress() == Addr(2054));
     assert(Sym.getName() == "data2" || Sym.getName() == "duplicateReferent");
     assert(Sym.getReferent<DataBlock>() == nullptr ||
            Sym.getReferent<DataBlock>() == D2);
   }
-  for (const auto& Sym : M->findSymbols("duplicateName")) {
+  for ([[maybe_unused]] const auto& Sym : M->findSymbols("duplicateName")) {
     assert(Sym.getName() == "duplicateName");
     assert(Sym.getAddress() == Addr(2048) || Sym.getAddress() == Addr(4096));
   }
   // Use a symbol's referent (either a Block or DataObject) to get more
   // information about the object to which the symbol points.
-  auto* Referent = Sym1->getReferent<DataBlock>();
+  [[maybe_unused]] auto* Referent = Sym1->getReferent<DataBlock>();
   assert(Referent != nullptr);
   assert(Referent->getAddress() == Addr(2054));
   assert(Referent->getSize() == 2);
