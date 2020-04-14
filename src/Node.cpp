@@ -172,9 +172,7 @@ void Node::addToIndices() {
     }
     addToICL(M->SectionAddrs, S);
   } break;
-  default: {
-    assert(!"unexpected kind of node passed to addToModuleIndices!");
-  }
+  default: { assert(!"unexpected kind of node passed to addToModuleIndices!"); }
   }
 }
 
