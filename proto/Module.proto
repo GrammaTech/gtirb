@@ -40,6 +40,10 @@ enum ISA {
   X64 = 3;
   ARM = 4;
   ValidButUnsupported = 5;
+  PPC64 = 6;
+  ARM64 = 7;
+  MIPS32 = 8;
+  MIPS64 = 9;
 };
 
 message Module {

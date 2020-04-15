@@ -78,9 +78,17 @@ enum class ISA : uint8_t {
   X64 = proto::X64,     ///< The generic name for the 64-bit
                         ///< extensions to both Intel's and AMD's 32-bit
                         ///< x86 instruction set architecture (ISA).
-  ARM = proto::ARM,     ///< Advanced RISC Machine. also known as Acorn RISC
-                        ///< Machine.
-  ValidButUnsupported = proto::ValidButUnsupported
+  ARM = proto::ARM,     ///< Advanced RISC Machine, also known as Acorn RISC
+                        ///< Machine, 32-bit.
+  ValidButUnsupported = proto::ValidButUnsupported,
+  PPC64 = proto::PPC64,   ///< Performance Optimization With Enhanced RISC –
+                          ///< Performance Computing, 64-bit.
+  ARM64 = proto::ARM64,   ///< Advanced RISC Machine, also known as Acorn RISC
+                          ///< Machine, 64-bit.
+  MIPS32 = proto::MIPS32, ///< Microprocessor without Interlocked Pipelined
+                          ///< Stages, 32-bit.
+  MIPS64 = proto::MIPS64  ///< Microprocessor without Interlocked Pipelined
+                          ///< Stages, 64-bit.
 };
 
 /// \class Module
