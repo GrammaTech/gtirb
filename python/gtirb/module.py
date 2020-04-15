@@ -94,7 +94,10 @@ class Module(AuxDataContainer):
         """
 
         ARM = Module_pb2.ISA.Value("ARM")
-        """The Acorn RISC Machine."""
+        """The Acorn RISC Machine, 32-bit."""
+
+        ARM64 = Module_pb2.ISA.Value("ARM64")
+        """The Acorn RISC Machine, 64-bit."""
 
         IA32 = Module_pb2.ISA.Value("IA32")
         """The 32-bit Intel Architecture. Also known as i386, x86, or x32."""
@@ -102,6 +105,16 @@ class Module(AuxDataContainer):
         PPC32 = Module_pb2.ISA.Value("PPC32")
         """IBM's 32-bit PowerPC (Performance Optimization with Enhanced RISC /
         Performance Computing) architecture."""
+
+        PPC64 = Module_pb2.ISA.Value("PPC64")
+        """IBM's 64-bit PowerPC (Performance Optimization with Enhanced RISC /
+        Performance Computing) architecture."""
+
+        MIPS32 = Module_pb2.ISA.Value("MIPS32")
+        """Microprocessor without Interlocked Pipelined Stages, 32-bit."""
+
+        MIPS64 = Module_pb2.ISA.Value("MIPS64")
+        """Microprocessor without Interlocked Pipelined Stages, 64-bit."""
 
         X64 = Module_pb2.ISA.Value("X64")
         """The 64-bit Intel Architecture. Also known as x86_64."""
