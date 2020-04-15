@@ -5,12 +5,12 @@ import unittest
 
 # if version of setuptools is 20.8.1 or below, it doesn't support env specs
 if int(setuptools.__version__.split(".")[0]) < 21:
-    if sys.version_info[:3] < (3, 5, 3):
+    if sys.version_info[:3] < (3, 5, 0):
         typing_dep = ["typing"]
     else:
         typing_dep = []
 else:
-    typing_dep = ["typing ; python_version<'3.5.3'"]
+    typing_dep = ["typing ; python_version<'3.5.0'"]
 
 
 def gtirb_test_suite():
