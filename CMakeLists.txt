@@ -2,8 +2,8 @@
 # Cmake Configuration
 #
 
-# Need 3.9 to support CXX_STANDARD=17 and protobuf
-cmake_minimum_required(VERSION 3.9.0)
+# Need 3.10 to support CXX_STANDARD=17 and protobuf::protoc
+cmake_minimum_required(VERSION 3.10.0)
 
 # The version.txt file is the official record of the version number. We use the
 # contents of that file to set the project version for use in other CMake files.
