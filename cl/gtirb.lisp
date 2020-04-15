@@ -517,7 +517,11 @@ the graph.")
       (#.proto:+isa-ppc32+ . :ppc32)
       (#.proto:+isa-x64+ . :x64)
       (#.proto:+isa-arm+ . :arm)
-      (#.proto:+isa-valid-but-unsupported+ . :valid-but-unsupported))
+      (#.proto:+isa-valid-but-unsupported+ . :valid-but-unsupported)
+      (#.proto:+isa-ppc64+ . :ppc64)
+      (#.proto:+isa-arm64+ . :arm64)
+      (#.proto:+isa-mips32+ . :mips32)
+      (#.proto:+isa-mips64+ . :mips64))
   :test #'equal)
 
 (define-constant +module-file-format-map+
