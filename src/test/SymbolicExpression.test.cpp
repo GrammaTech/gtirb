@@ -12,11 +12,13 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/Context.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/proto/SymbolicExpression.pb.h>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -31,8 +33,9 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     SymbolicExpression original(SymStackConst{1, Sym1});
 
     gtirb::SymbolicExpression Result;
-    auto Message = toProtobuf(original);
-    fromProtobuf(Ctx, Result, Message);
+    std::stringstream ss;
+    symbolicExpressionSave(original, ss);
+    symbolicExpressionLoad(Ctx, Result, ss);
 
     SymStackConst S = std::get<SymStackConst>(Result);
     EXPECT_EQ(S.Offset, 1);
@@ -44,8 +47,9 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     SymbolicExpression original(SymAddrConst{1, Sym1});
 
     gtirb::SymbolicExpression Result;
-    auto Message = toProtobuf(original);
-    fromProtobuf(Ctx, Result, Message);
+    std::stringstream ss;
+    symbolicExpressionSave(original, ss);
+    symbolicExpressionLoad(Ctx, Result, ss);
 
     SymAddrConst S = std::get<SymAddrConst>(Result);
     EXPECT_EQ(S.Offset, 1);
@@ -57,8 +61,9 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     SymbolicExpression original(SymAddrAddr{1, 2, Sym1, Sym2});
 
     gtirb::SymbolicExpression Result;
-    auto Message = toProtobuf(original);
-    fromProtobuf(Ctx, Result, Message);
+    std::stringstream ss;
+    symbolicExpressionSave(original, ss);
+    symbolicExpressionLoad(Ctx, Result, ss);
 
     SymAddrAddr S = std::get<SymAddrAddr>(Result);
     EXPECT_EQ(S.Scale, 1);

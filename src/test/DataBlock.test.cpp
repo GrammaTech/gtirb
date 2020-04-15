@@ -12,11 +12,13 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/proto/DataBlock.pb.h>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -48,13 +50,14 @@ TEST(Unit_DataBlock, getAddress) {
 }
 
 TEST(Unit_DataBlock, protobufRoundTrip) {
-  proto::DataBlock Message;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
   {
     Context InnerCtx;
     DataBlock* Original = DataBlock::Create(InnerCtx, 1234);
-    Original->toProtobuf(&Message);
+    STH::save(*Original, ss);
   }
-  DataBlock* Result = DataBlock::fromProtobuf(Ctx, nullptr, Message);
+  DataBlock* Result = STH::load<DataBlock>(Ctx, ss);
 
   EXPECT_EQ(Result->getSize(), 1234);
   EXPECT_EQ(Result->getByteInterval(), nullptr);

@@ -1065,25 +1065,6 @@ public:
   }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing Section.
-  using MessageType = proto::Section;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a Section from a protobuf message.
-  ///
-  /// \param C   The Context in which the deserialized Section will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized Section object, or null on failure.
-  static Section* fromProtobuf(Context& C, Module* Parent,
-                               const MessageType& Message);
-
   static bool classof(const Node* N) { return N->getKind() == Kind::Section; }
   /// @endcond
 
@@ -1107,9 +1088,37 @@ private:
     return C.Create<Section>(C, Parent, Name);
   }
 
+  /// \brief The protobuf message type used for serializing Section.
+  using MessageType = proto::Section;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a Section from a protobuf message.
+  ///
+  /// \param C   The Context in which the deserialized Section will be held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized Section object, or null on failure.
+  static Section* fromProtobuf(Context& C, Module* Parent,
+                               const MessageType& Message);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static Section* load(Context& C, std::istream& In);
+
   friend class Context; // Allow Context to construct sections.
   friend class Module;  // Allow Module to call setModule, Create, etc.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
+  // Allows serializaton from Module via sequenceToProtobuf.
+  template <typename T> friend typename T::MessageType toProtobuf(const T&);
+  friend class SerializationTestHarness; // Testing support.
 };
 } // namespace gtirb
 

@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/AuxData.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
@@ -25,6 +26,7 @@
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <iterator>
+#include <sstream>
 #include <tuple>
 #include <utility>
 
@@ -653,7 +655,8 @@ TEST(Unit_Module, findSymbolicExpressionsAts) {
 }
 
 TEST(Unit_Module, protobufRoundTrip) {
-  proto::Module Message;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
 
   UUID BlockID, DataID, ProxyID, SectionID;
   size_t WhichSymbolic;
@@ -683,10 +686,10 @@ TEST(Unit_Module, protobufRoundTrip) {
     SectionID = Original->sections_begin()->getUUID();
     WhichSymbolic = Original->symbolic_expressions_begin()->getOffset();
 
-    Original->toProtobuf(&Message);
+    STH::save(*Original, ss);
   }
 
-  Module* Result = Module::fromProtobuf(Ctx, IR::Create(Ctx), Message);
+  Module* Result = STH::load<Module>(Ctx, IR::Create(Ctx), ss);
 
   EXPECT_EQ(Result->getBinaryPath(), "test");
   EXPECT_EQ(Result->getPreferredAddr(), Addr(3));
@@ -743,7 +746,8 @@ TEST(Unit_Module, protobufNodePointers) {
   // Node::getByUUID will fail if the corresponding Node has not yet been
   // deserialized.
 
-  proto::Module Message;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
 
   {
     Context InnerCtx;
@@ -765,10 +769,10 @@ TEST(Unit_Module, protobufNodePointers) {
     auto* DanglingSym = Symbol::Create(InnerCtx, Addr(1), "foo");
     BI->addSymbolicExpression<SymAddrConst>(3, 0, DanglingSym);
 
-    Original->toProtobuf(&Message);
+    STH::save(*Original, ss);
   }
 
-  auto* Result = Module::fromProtobuf(Ctx, nullptr, Message);
+  auto* Result = STH::load<Module>(Ctx, ss);
   EXPECT_NE(Result->findSymbols("data").begin()->getReferent<DataBlock>(),
             nullptr);
   EXPECT_NE(Result->findSymbols("code").begin()->getReferent<CodeBlock>(),

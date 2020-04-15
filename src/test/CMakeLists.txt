@@ -22,22 +22,23 @@ endif()
 set(${PROJECT_NAME}_H)
 
 set(${PROJECT_NAME}_SRC
-    Allocator.test.cpp
-    ByteInterval.test.cpp
-    CodeBlock.test.cpp
-    CFG.test.cpp
-    DataBlock.test.cpp
     Addr.test.cpp
+    Allocator.test.cpp
+    AuxData.test.cpp
+    ByteInterval.test.cpp
+    CFG.test.cpp
+    CodeBlock.test.cpp
+    DataBlock.test.cpp
     IR.test.cpp
     Main.test.cpp
     MergeSortedIterator.test.cpp
     Module.test.cpp
     Node.test.cpp
     Offset.test.cpp
+    ProxyBlock.test.cpp
     Section.test.cpp
     Symbol.test.cpp
     SymbolicExpression.test.cpp
-    AuxData.test.cpp
     TypedNodeTest.cpp
 )
 

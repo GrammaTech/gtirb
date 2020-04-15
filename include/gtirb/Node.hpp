@@ -165,9 +165,11 @@ private:
   // objects, as there are no constructors allowing the user to set the UUID on
   // construction.
   void setUUID(UUID X);
+
+  // Allows unserialization in derived classes
   friend void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 
-  friend class Context;
+  friend class Context; // Enables Context::Create
 };
 
 } // namespace gtirb

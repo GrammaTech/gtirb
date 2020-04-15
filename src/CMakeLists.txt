@@ -57,7 +57,6 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/Offset.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/ProxyBlock.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Section.hpp"
-    "${CMAKE_SOURCE_DIR}/include/gtirb/Serialization.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Symbol.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Utility.hpp"

@@ -1,3 +1,9 @@
+# 1.3.2
+
+* Access functions for converting to/from protobuf are no longer public in the C++ API.
+* The proto library is no longer dllexported.
+* GTIRB_EXPORT_API no longer uses dllimport on the client side.
+
 # 1.3.1
 
 * No longer installs Python files by default. Added a new 'install-python'

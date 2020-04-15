@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
@@ -22,6 +23,7 @@
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/proto/IR.pb.h>
 #include <gtest/gtest.h>
+#include <sstream>
 
 namespace gtirb {
 namespace schema {
@@ -176,7 +178,8 @@ TEST(Unit_IR, missingAuxData) {
 }
 
 TEST(Unit_IR, protobufRoundTrip) {
-  proto::IR Message;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
   UUID MainID;
 
   {
@@ -186,9 +189,9 @@ TEST(Unit_IR, protobufRoundTrip) {
     Original->addAuxData<TestInt32>(42);
 
     MainID = Original->modules_begin()->getUUID();
-    Original->toProtobuf(&Message);
+    STH::save(*Original, ss);
   }
-  auto* Result = IR::fromProtobuf(Ctx, Message);
+  auto* Result = STH::load<IR>(Ctx, ss);
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);

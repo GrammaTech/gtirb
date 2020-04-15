@@ -12,9 +12,9 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "Serialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
-#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
@@ -48,4 +48,19 @@ std::optional<Addr> CodeBlock::getAddress() const {
     return *BaseAddr + getOffset();
   }
   return std::nullopt;
+}
+
+// Present for testing purposes only.
+void CodeBlock::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+CodeBlock* CodeBlock::load(Context& C, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto CB = CodeBlock::fromProtobuf(C, nullptr, Message);
+  return CB;
 }

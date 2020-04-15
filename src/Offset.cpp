@@ -12,8 +12,8 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "Serialization.hpp"
 #include <gtirb/Offset.hpp>
-#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 

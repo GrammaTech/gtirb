@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
@@ -26,6 +27,7 @@
 #include <gtirb/proto/Symbol.pb.h>
 #include <boost/uuid/uuid_generators.hpp>
 #include <gtest/gtest.h>
+#include <sstream>
 #include <type_traits>
 
 using testing::Types;
@@ -82,34 +84,37 @@ TYPED_TEST_P(TypedNodeTest, getByUUID) {
 }
 
 TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip) {
-  typename Type::MessageType Message;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
   gtirb::UUID OrigId;
   {
     gtirb::Context InnerCtx;
     TypeParam Node1 = Type::Create(InnerCtx);
     OrigId = Node1->getUUID();
-    Node1->toProtobuf(&Message);
+
+    STH::save(*Node1, ss);
   }
 
-  TypeParam Node2 = Type::fromProtobuf(Ctx, nullptr, Message);
+  TypeParam Node2 = STH::load<Type>(Ctx, ss);
   EXPECT_EQ(Node2->getUUID(), OrigId);
 }
 
 TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
+  using STH = gtirb::SerializationTestHarness;
   gtirb::UUID Id;
-  typename Type::MessageType Message;
+  std::stringstream ss;
 
   {
     gtirb::Context InnerCtx;
     TypeParam Node1 = Type::Create(InnerCtx);
     Id = Node1->getUUID();
 
-    Node1->toProtobuf(&Message);
+    STH::save(*Node1, ss);
   }
 
   EXPECT_EQ(Type::getByUUID(Ctx, Id), nullptr);
 
-  TypeParam Node2 = Type::fromProtobuf(Ctx, nullptr, Message);
+  TypeParam Node2 = STH::load<Type>(Ctx, ss);
   EXPECT_EQ(Type::getByUUID(Ctx, Id), Node2);
 }
 

@@ -13,16 +13,16 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Symbol.hpp"
+#include "Serialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
-#include <gtirb/Serialization.hpp>
 
 using namespace gtirb;
 
 class StorePayload {
 public:
-  StorePayload(Symbol::MessageType* Message) : M(Message) {}
+  StorePayload(proto::Symbol* Message) : M(Message) {}
   void operator()(std::monostate) const { M->clear_value(); }
   void operator()(Addr X) const { M->set_value(static_cast<uint64_t>(X)); }
   void operator()(const Node* Referent) const {
@@ -30,7 +30,7 @@ public:
   }
 
 private:
-  Symbol::MessageType* M;
+  proto::Symbol* M;
 };
 
 std::optional<Addr> Symbol::getAddress() const {
@@ -97,5 +97,20 @@ Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
       /* nothing to do */;
   }
   setNodeUUIDFromBytes(S, Message.uuid());
+  return S;
+}
+
+// Present for testing purposes only.
+void Symbol::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+Symbol* Symbol::load(Context& C, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto S = Symbol::fromProtobuf(C, nullptr, Message);
   return S;
 }

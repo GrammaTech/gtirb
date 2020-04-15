@@ -1777,25 +1777,6 @@ public:
   }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing Module.
-  using MessageType = proto::Module;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a Module from a protobuf message.
-  ///
-  /// \param C   The Context in which the deserialized Module will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized Module object, or null on failure.
-  static Module* fromProtobuf(Context& C, IR* Parent,
-                              const MessageType& Message);
-
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
   /// @endcond
 
@@ -1823,6 +1804,34 @@ private:
     return C.Create<Module>(C, Parent, Name);
   }
 
+  /// \brief The protobuf message type used for serializing Module.
+  using MessageType = proto::Module;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a Module from a protobuf message.
+  ///
+  /// \param C   The Context in which the deserialized Module will be held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized Module object, or null on failure.
+  static Module* fromProtobuf(Context& C, IR* Parent,
+                              const MessageType& Message);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static Module* load(Context& C, std::istream& In);
+
+  // Present for testing purposes only.
+  static Module* load(Context& C, IR* Parent, std::istream& In);
+
   IR* Parent{nullptr};
   std::string BinaryPath;
   Addr PreferredAddr;
@@ -1839,6 +1848,9 @@ private:
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
+  // Allow serialization from IR via containerToProtobuf.
+  template <typename T> friend typename T::MessageType toProtobuf(const T&);
+  friend class SerializationTestHarness; // Testing support.
 };
 
 } // namespace gtirb

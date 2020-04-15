@@ -89,6 +89,10 @@ To use `pre-commit`:
   forward declarations of classes when possible to avoid including
   their definitions.
 
+- Do not introduce variables to the code that would require a client
+  to dllimport them. Export.hpp does not setup dllimport declarations
+  for clients. For example, do not add static function-local variables
+  in inline functions in header files.
 
 ### Testing Development
 

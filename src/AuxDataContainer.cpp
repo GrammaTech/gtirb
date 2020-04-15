@@ -21,6 +21,52 @@
 #include <memory>
 #include <string>
 
-using namespace gtirb;
+namespace gtirb {
 
-AuxDataContainer::AuxDataTypeMap AuxDataContainer::TypeMap;
+struct AuxDataTypeMap {
+  bool Locked = false;
+  std::map<std::string, std::unique_ptr<AuxDataContainer::AuxDataType>> Map;
+};
+
+// Note: we are explicitly allocating the type map here w/ static
+// storage to avoid having a variable symbol in the DLL interface on
+// Windows. This allows us to not have to worry about dllimport'ing
+// this symbol in client applications.
+static AuxDataTypeMap TypeMap;
+
+void AuxDataContainer::registerAuxDataTypeInternal(
+    const char* Name, std::unique_ptr<AuxDataType> ADT) {
+  assert(!TypeMap.Locked && "New AuxData types cannot be added at this point.");
+
+  if (auto it = TypeMap.Map.find(Name); it != TypeMap.Map.end()) {
+    // Failing this assertion indicates that two attempts to
+    // register the same AuxData name are using different types.
+    assert(it->second->getApiTypeId() == ADT->getApiTypeId() &&
+           "Different types registered for the same AuxData name.");
+    return;
+  }
+
+  TypeMap.Map.insert(std::make_pair(std::string(Name), std::move(ADT)));
+}
+
+void AuxDataContainer::checkAuxDataRegistration(const char* Name,
+                                                std::size_t Id) {
+  [[maybe_unused]] auto TypeEntry = TypeMap.Map.find(Name);
+  assert(TypeEntry != TypeMap.Map.end() &&
+         TypeEntry->second->getApiTypeId() == Id &&
+         "Attempting to add AuxData with unregistered or incorrect type.");
+}
+
+const AuxDataContainer::AuxDataType*
+AuxDataContainer::lookupAuxDataType(const std::string& Name) {
+  if (auto It = TypeMap.Map.find(Name); It != TypeMap.Map.end()) {
+    return It->second.get();
+  }
+  return nullptr;
+}
+
+AuxDataContainer::AuxDataContainer(Context& C, Node::Kind knd) : Node(C, knd) {
+  // Once this is called, we outlaw registering new AuxData types.
+  TypeMap.Locked = true;
+}
+}; // namespace gtirb

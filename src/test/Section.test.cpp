@@ -12,11 +12,13 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/Context.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/proto/Section.pb.h>
 #include <gtest/gtest.h>
 #include <limits>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -63,16 +65,17 @@ TEST(Unit_Section, flags) {
 }
 
 TEST(Unit_Section, protobufRoundTrip) {
-  proto::Section Message;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
 
   {
     Context InnerCtx;
     auto* Original = Section::Create(InnerCtx, "name");
     Original->addFlags(SectionFlag::Executable, SectionFlag::Loaded,
                        SectionFlag::Writable);
-    Original->toProtobuf(&Message);
+    STH::save(*Original, ss);
   }
-  auto* Result = Section::fromProtobuf(Ctx, nullptr, Message);
+  auto* Result = STH::load<Section>(Ctx, ss);
 
   EXPECT_EQ(Result->getName(), "name");
   EXPECT_TRUE(Result->isFlagSet(SectionFlag::Executable));

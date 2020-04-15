@@ -43,27 +43,6 @@ struct GTIRB_EXPORT_API Offset {
   /// \brief Default constructor.
   Offset() = default;
 
-  /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing Offset.
-  using MessageType = proto::Offset;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a Offset from a protobuf message.
-  ///
-  /// \param C  The Context in which the deserialized Offset will be
-  ///           held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized Offset object, or null on failure.
-  void fromProtobuf(Context& C, const MessageType& Message);
-  /// @endcond
-
   /// \brief Equality operator for \ref Offset.
   // Note: boost::uuid is not constexpr.
   friend bool operator==(const Offset& LHS, const Offset& RHS) noexcept {
@@ -100,6 +79,31 @@ struct GTIRB_EXPORT_API Offset {
                                    const Offset& RHS) noexcept {
     return !operator<(LHS, RHS);
   }
+
+private:
+  /// @cond INTERNAL
+  /// \brief The protobuf message type used for serializing Offset.
+  using MessageType = proto::Offset;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a Offset from a protobuf message.
+  ///
+  /// \param C  The Context in which the deserialized Offset will be
+  ///           held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized Offset object, or null on failure.
+  void fromProtobuf(Context& C, const MessageType& Message);
+  /// @endcond
+
+  // Enables serialization.
+  friend void fromProtobuf(Context&, Offset&, const MessageType&);
 };
 
 } // namespace gtirb

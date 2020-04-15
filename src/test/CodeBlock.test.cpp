@@ -12,10 +12,12 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -69,4 +71,17 @@ TEST(Unit_CodeBlock, byteVector) {
   EXPECT_EQ(NewIt, NewEnd);
 }
 
-// Note: see Unit_CFG::protobufRoundTrip for Block serialization tests.
+TEST(Unit_CodeBlock, protobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream ss;
+  {
+    Context InnerCtx;
+    CodeBlock* Original = CodeBlock::Create(InnerCtx, 1234, 98);
+    STH::save(*Original, ss);
+  }
+  CodeBlock* Result = STH::load<CodeBlock>(Ctx, ss);
+
+  EXPECT_EQ(Result->getSize(), 1234);
+  EXPECT_EQ(Result->getDecodeMode(), 98);
+  EXPECT_EQ(Result->getByteInterval(), nullptr);
+}

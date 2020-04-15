@@ -13,10 +13,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include "IR.hpp"
+#include "CFGSerialization.hpp"
+#include "Serialization.hpp"
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/proto/IR.pb.h>

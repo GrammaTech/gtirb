@@ -13,7 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ProxyBlock.hpp"
-#include <gtirb/Serialization.hpp>
+#include "Serialization.hpp"
 #include <gtirb/proto/ProxyBlock.pb.h>
 
 using namespace gtirb;
@@ -27,4 +27,19 @@ ProxyBlock* ProxyBlock::fromProtobuf(Context& C, Module* Parent,
   ProxyBlock* P = Create(C, Parent);
   setNodeUUIDFromBytes(P, Message.uuid());
   return P;
+}
+
+// Present for testing purposes only.
+void ProxyBlock::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+ProxyBlock* ProxyBlock::load(Context& C, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto CB = ProxyBlock::fromProtobuf(C, nullptr, Message);
+  return CB;
 }

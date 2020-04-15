@@ -36,7 +36,15 @@
 #ifdef GTIRB_gtirb_EXPORTS
 #define GTIRB_EXPORT_API _declspec(dllexport)
 #else
-#define GTIRB_EXPORT_API _declspec(dllimport)
+// Note: We do not have clients explicitly dllimport from the gtirb
+// library. GTIRB exports no data symbols. And using dllimport is
+// optional for function symbols (dllimport provides only a very
+// slight performance improvement on function calls). Using dllimport
+// creates a certain amount of headache for Windows clients that may
+// want to sometimes statically and sometimes dynamically link against
+// GTIRB. The confusion and frustration this creates generally
+// outweighs the performance benefit.
+#define GTIRB_EXPORT_API
 #endif // GTIRB_gtirb_EXPORTS
 #elif defined(__GNUC__) || __has_attribute(visibility)
 #define GTIRB_EXPORT_API __attribute__((visibility("default")))

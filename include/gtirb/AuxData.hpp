@@ -460,6 +460,7 @@ public:
   /// !brief Retrieve a type-trait-specific Id number.
   virtual std::size_t getApiTypeId() const { return UNREGISTERED_API_TYPE_ID; }
 
+protected:
   /// \brief The protobuf message type used for serializing AuxData.
   using MessageType = proto::AuxData;
 
@@ -472,12 +473,44 @@ public:
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message  A protobuf message representing the AuxData.
-  virtual void toProtobuf(MessageType* Message) const;
+  virtual void toProtobuf(MessageType* Message) const {
+    toProtobuf(Message, this->SF);
+  }
+
+  // This version of protobuf accepts a SerializedForm object to
+  // serialize rather than serializing AuxData's SerializedForm
+  // member. This is used by AuxDataImpl to serialize a typed AuxData
+  // object. We structure it this way to avoid having the AuxDataImpl
+  // template (which is instantiated in client code) access
+  // MessageType fields directly, which would introduce
+  // dllimport/dllexport issues on Windows.
+  void toProtobuf(MessageType* Message,
+                  const SerializedForm& SFToSerialize) const;
+
+  // Utility function for the AuxDataImpl template that allows us to
+  // check the embedded type name in the serialized protobuf against an
+  // expected typename without exposing the MessageType to clients.
+  static bool checkAuxDataMessageType(const AuxData::MessageType& Message,
+                                      const std::string& ExpectedName);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static std::unique_ptr<AuxData>
+  load(std::istream& In, std::unique_ptr<AuxData> (*FPPtr)(const MessageType&));
 
 private:
   SerializedForm SF;
-};
 
+  friend class AuxDataContainer; // Friend to enable fromProtobuf.
+  // Enables serialization by AuxDataContainer via containerToProtobuf.
+  template <typename T> friend typename T::MessageType toProtobuf(const T&);
+  friend class SerializationTestHarness; // Testing support.
+};
+/// @endcond
+
+/// @cond INTERNAL
 template <class Schema> class AuxDataImpl : public AuxData {
 public:
   AuxDataImpl() = default;
@@ -495,19 +528,23 @@ public:
 
   const typename Schema::Type* get() const { return &Object; }
 
-  static std::unique_ptr<AuxDataImpl<Schema>>
-  fromProtobuf(const MessageType& Message) {
+private:
+  static std::unique_ptr<AuxData> fromProtobuf(const MessageType& Message) {
     // Check if the serialized type isn't compatible with the type
     // we're trying to deserialize to.
-    if (Message.type_name() !=
-        auxdata_traits<typename Schema::Type>::type_name()) {
+    if (!checkAuxDataMessageType(
+            Message, auxdata_traits<typename Schema::Type>::type_name())) {
       return nullptr;
     }
 
+    // Note: Do not edit Message's contents here. That would introduce
+    // dllexport/dllimport problems on Windows. Call the base class's
+    // fromProtobuf function and then unserialize from its
+    // SerializedForm structure.
     auto TypedAuxData = std::make_unique<AuxDataImpl<Schema>>();
     AuxData::fromProtobuf(*TypedAuxData, Message);
-    auxdata_traits<typename Schema::Type>::fromBytes(TypedAuxData->Object,
-                                                     Message.data().begin());
+    auxdata_traits<typename Schema::Type>::fromBytes(
+        TypedAuxData->Object, TypedAuxData->rawData().RawBytes.begin());
     return TypedAuxData;
   }
 
@@ -515,13 +552,31 @@ public:
   ///
   /// \param Message     The Message to serialize into.
   virtual void toProtobuf(MessageType* Message) const override {
-    Message->set_type_name(auxdata_traits<typename Schema::Type>::type_name());
+    // Note: Do not edit Message's contents here. That would introduce
+    // dllexport/dllimport problems on Windows. Store to a
+    // SerializedForm, and then call the base class's toProtobuf
+    // function.
+    AuxData::SerializedForm TypedSF;
+    TypedSF.ProtobufType = auxdata_traits<typename Schema::Type>::type_name();
     auxdata_traits<typename Schema::Type>::toBytes(
-        this->Object, std::back_inserter(*Message->mutable_data()));
+        this->Object, std::back_inserter(TypedSF.RawBytes));
+    AuxData::toProtobuf(Message, TypedSF);
   }
 
-private:
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const { AuxData::save(Out); }
+
+  // Present for testing purposes only.
+  static std::unique_ptr<AuxDataImpl> load([[maybe_unused]] Context& C,
+                                           std::istream& In) {
+    return std::unique_ptr<AuxDataImpl>{
+        static_cast<AuxDataImpl*>(AuxData::load(In, fromProtobuf).release())};
+  }
+
   typename Schema::Type Object;
+
+  friend class AuxDataContainer;         // Friend to enable to/fromProtobuf.
+  friend class SerializationTestHarness; // Testing support.
 };
 /// @endcond
 

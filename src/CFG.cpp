@@ -13,8 +13,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "CFG.hpp"
+#include "Serialization.hpp"
 #include <gtirb/CodeBlock.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/proto/CFG.pb.h>
 #include <map>
 
@@ -136,4 +136,24 @@ void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
     }
   }
 }
+
+// This function is defined here w/ GTIRB_EXPORT_API to provide a
+// means for test code to directly invoke serialization routines on a
+// CFG. This is a capability not supported for GTIRB clients, but must
+// be made available to the testing system.
+void GTIRB_EXPORT_API cfgSave(const CFG& Cfg, std::ostream& Out) {
+  proto::CFG Message = toProtobuf(Cfg);
+  Message.SerializeToOstream(&Out);
+}
+
+// This function is defined here w/ GTIRB_EXPORT_API to provide a
+// means for test code to directly invoke serialization routines on a
+// CFG. This is a capability not supported for GTIRB clients, but must
+// be made available to the testing system.
+void GTIRB_EXPORT_API cfgLoad(Context& C, CFG& Result, std::istream& In) {
+  proto::CFG Message;
+  Message.ParseFromIstream(&In);
+  fromProtobuf(C, Result, Message);
+}
+
 } // namespace gtirb

@@ -12,10 +12,11 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "Serialization.hpp"
+#include "SymbolicExpressionSerialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <iterator>
 
@@ -105,4 +106,26 @@ void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
       SymbolicExpressions[Pair.first] = SymExpr;
     }
   });
+}
+
+// Present for testing purposes only.
+void ByteInterval::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+ByteInterval* ByteInterval::load(Context& C, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto BI = ByteInterval::fromProtobuf(C, nullptr, Message);
+  return BI;
+}
+
+// Present for testing purposes only.
+void ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  ByteInterval::symbolicExpressionsFromProtobuf(C, Message);
 }

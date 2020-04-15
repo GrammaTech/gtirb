@@ -12,11 +12,13 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -65,15 +67,16 @@ TEST(Unit_ByteInterval, gettersSetters) {
 }
 
 TEST(Unit_ByteInterval, protobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   // Test with fixed address.
   {
-    proto::ByteInterval Message;
+    std::stringstream ss;
     {
       Context InnerCtx;
       auto* Original = ByteInterval::Create(InnerCtx, Addr(1), 2);
-      Original->toProtobuf(&Message);
+      STH::save(*Original, ss);
     }
-    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = STH::load<ByteInterval>(Ctx, ss);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>(1));
     EXPECT_EQ(Result->getSize(), 2);
@@ -82,13 +85,13 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
 
   // Test without fixed address.
   {
-    proto::ByteInterval Message;
+    std::stringstream ss;
     {
       Context InnerCtx;
       auto* Original = ByteInterval::Create(InnerCtx, std::optional<Addr>(), 2);
-      Original->toProtobuf(&Message);
+      STH::save(*Original, ss);
     }
-    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = STH::load<ByteInterval>(Ctx, ss);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
     EXPECT_EQ(Result->getSize(), 2);
@@ -97,15 +100,15 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
 
   // Test with bytes.
   {
-    proto::ByteInterval Message;
+    std::stringstream ss;
     {
       Context InnerCtx;
       std::string Contents = "abcd";
       auto* Original = ByteInterval::Create(InnerCtx, std::optional<Addr>(),
                                             Contents.begin(), Contents.end());
-      Original->toProtobuf(&Message);
+      STH::save(*Original, ss);
     }
-    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = STH::load<ByteInterval>(Ctx, ss);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
     EXPECT_EQ(Result->getSize(), 4);
@@ -120,16 +123,16 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
 
   // Test truncating of unallocated bytes.
   {
-    proto::ByteInterval Message;
+    std::stringstream ss;
     {
       Context InnerCtx;
       std::string Contents = "abcd";
       auto* Original =
           ByteInterval::Create(InnerCtx, std::optional<Addr>(),
                                Contents.begin(), Contents.end(), 4, 2);
-      Original->toProtobuf(&Message);
+      STH::save(*Original, ss);
     }
-    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    auto* Result = STH::load<ByteInterval>(Ctx, ss);
 
     EXPECT_EQ(Result->getAddress(), std::optional<Addr>());
     EXPECT_EQ(Result->getSize(), 4);
@@ -152,7 +155,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
   {
     auto* Sym = Symbol::Create(Ctx, "test");
 
-    proto::ByteInterval Message;
+    std::stringstream ss;
     {
       Context InnerCtx;
       auto* Original = ByteInterval::Create(InnerCtx, Addr(0), 10);
@@ -160,9 +163,13 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
       Original->addBlock<CodeBlock>(InnerCtx, 6, 1);
       Original->addBlock<DataBlock>(InnerCtx, 6, 1);
       Original->addSymbolicExpression<SymAddrConst>(5, 8, Sym);
-      Original->toProtobuf(&Message);
+      STH::save(*Original, ss);
     }
-    auto* Result = ByteInterval::fromProtobuf(Ctx, nullptr, Message);
+    // Copy the stream so we can read from it a second time to do the
+    // symbolic expressions.
+    std::stringstream ss2;
+    ss2 << ss.str();
+    auto* Result = STH::load<ByteInterval>(Ctx, ss);
 
     EXPECT_EQ(std::distance(Result->blocks_begin(), Result->blocks_end()), 3);
     EXPECT_EQ(
@@ -197,7 +204,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(Result->data_blocks_begin()->getOffset(), 6);
 
     // Populate the sym exprs now.
-    Result->symbolicExpressionsFromProtobuf(Ctx, Message);
+    STH::byteIntervalLoadSymbolicExpressions(Ctx, *Result, ss2);
     EXPECT_EQ(std::distance(Result->symbolic_expressions_begin(),
                             Result->symbolic_expressions_end()),
               1);

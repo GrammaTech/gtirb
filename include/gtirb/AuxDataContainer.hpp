@@ -18,7 +18,6 @@
 
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/Serialization.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <type_traits>
 
@@ -85,21 +84,8 @@ public:
 
   /// \brief Register a type to be used with AuxData of the given name.
   template <typename Schema> static void registerAuxDataType() {
-    assert(!TypeMap.Locked &&
-           "New AuxData types cannot be added at this point.");
-
-    if (auto it = TypeMap.Map.find(Schema::Name); it != TypeMap.Map.end()) {
-      // Failing this assertion indicates that two attempts to
-      // register the same AuxData name are using different types.
-      assert(it->second->getApiTypeId() ==
-                 AuxDataImpl<Schema>::staticGetApiTypeId() &&
-             "Different types registered for the same AuxData name.");
-      return;
-    }
-
-    TypeMap.Map.insert(
-        std::make_pair(std::string(Schema::Name),
-                       std::make_unique<AuxDataTypeImpl<Schema>>()));
+    registerAuxDataTypeInternal(Schema::Name,
+                                std::make_unique<AuxDataTypeImpl<Schema>>());
   }
 
   /// \brief Add a new \ref AuxData, transferring ownership.
@@ -110,11 +96,8 @@ public:
   ///
   template <typename Schema> void addAuxData(typename Schema::Type&& X) {
     // Make sure this type matches a registered type.
-    [[maybe_unused]] auto TypeEntry = TypeMap.Map.find(Schema::Name);
-    assert(TypeEntry != TypeMap.Map.end() &&
-           TypeEntry->second->getApiTypeId() ==
-               AuxDataImpl<Schema>::staticGetApiTypeId() &&
-           "Attempting to add AuxData with unregistered or incorrect type.");
+    checkAuxDataRegistration(Schema::Name,
+                             AuxDataImpl<Schema>::staticGetApiTypeId());
     this->AuxDatas[Schema::Name] =
         std::make_unique<AuxDataImpl<Schema>>(std::move(X));
   }
@@ -285,8 +268,8 @@ public:
       std::string Key = M.first;
 
       // See if the name for this AuxData is registered.
-      if (auto Lookup = TypeMap.Map.find(Key); Lookup != TypeMap.Map.end()) {
-        Val = Lookup->second->fromProtobuf(M.second);
+      if (const auto* ADT = lookupAuxDataType(Key)) {
+        Val = ADT->fromProtobuf(M.second);
       }
 
       // If it wasn't registered or was registered with an incompatible
@@ -302,10 +285,7 @@ public:
   }
 
 protected:
-  AuxDataContainer(Context& C, Kind knd) : Node(C, knd) {
-    // Once this is called, we outlaw registering new AuxData types.
-    TypeMap.Locked = true;
-  }
+  AuxDataContainer(Context& C, Kind knd);
 
 private:
   AuxDataSet AuxDatas;
@@ -313,27 +293,26 @@ private:
   struct AuxDataType {
     virtual ~AuxDataType() = default;
     virtual std::unique_ptr<AuxData>
-    fromProtobuf(const proto::AuxData& Message) = 0;
-    virtual std::size_t getApiTypeId() = 0;
+    fromProtobuf(const proto::AuxData& Message) const = 0;
+    virtual std::size_t getApiTypeId() const = 0;
   };
 
   template <typename Schema> struct AuxDataTypeImpl : public AuxDataType {
     std::unique_ptr<AuxData>
-    fromProtobuf(const proto::AuxData& Message) override {
+    fromProtobuf(const proto::AuxData& Message) const override {
       return AuxDataImpl<Schema>::fromProtobuf(Message);
     }
 
-    std::size_t getApiTypeId() override {
+    std::size_t getApiTypeId() const override {
       return AuxDataImpl<Schema>::staticGetApiTypeId();
     }
   };
 
-  struct AuxDataTypeMap {
-    bool Locked = false;
-    std::map<std::string, std::unique_ptr<AuxDataType>> Map;
-  };
-
-  static AuxDataTypeMap TypeMap;
+  static void registerAuxDataTypeInternal(const char* Name,
+                                          std::unique_ptr<AuxDataType> ADT);
+  static void checkAuxDataRegistration(const char* Name, std::size_t Id);
+  static const AuxDataType* lookupAuxDataType(const std::string& Name);
+  friend struct AuxDataTypeMap; // Allows AuxDataTypeMap to use AuxDataType
 };
 } // namespace gtirb
 #endif // GTIRB_AUXDATACONTAINER_H

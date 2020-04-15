@@ -282,25 +282,6 @@ public:
   }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing CodeBlock.
-  using MessageType = proto::CodeBlock;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a CodeBlock from a protobuf message.
-  ///
-  /// \param C  The Context in which the deserialized CodeBlock will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized CodeBlock object, or null on failure.
-  static CodeBlock* fromProtobuf(Context& C, ByteInterval* Parent,
-                                 const MessageType& Message);
-
   static bool classof(const Node* N) { return N->getKind() == Kind::CodeBlock; }
   /// @endcond
 
@@ -329,12 +310,38 @@ private:
     return CB;
   }
 
+  /// \brief The protobuf message type used for serializing CodeBlock.
+  using MessageType = proto::CodeBlock;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a CodeBlock from a protobuf message.
+  ///
+  /// \param C  The Context in which the deserialized CodeBlock will be held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized CodeBlock object, or null on failure.
+  static CodeBlock* fromProtobuf(Context& C, ByteInterval* Parent,
+                                 const MessageType& Message);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static CodeBlock* load(Context& C, std::istream& In);
+
   ByteInterval* Parent{nullptr};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 
-  friend class Context;
-  friend class ByteInterval;
+  friend class Context;      // Enables Context::Create
+  friend class ByteInterval; // Enables to/fromProtobuf, setByteInterval
+  friend class SerializationTestHarness; // Testing support.
 };
 
 } // namespace gtirb

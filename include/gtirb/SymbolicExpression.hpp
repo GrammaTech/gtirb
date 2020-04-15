@@ -28,11 +28,7 @@
 ///
 /// \see \ref SYMBOLIC_EXPRESSION_GROUP.
 namespace gtirb {
-namespace proto {
-class SymbolicExpression;
-}
-class Context; // Forward reference for fromProtobuf.
-class Symbol;  // Forward refernece for Sym, Sym1, Sym2, etc.
+class Symbol; // Forward refernece for Sym, Sym1, Sym2, etc.
 
 /// \defgroup SYMBOLIC_EXPRESSION_GROUP Symbolic Expressions and Operands
 /// \brief Represent data values or instruction operands which
@@ -94,27 +90,6 @@ struct SymAddrAddr {
 using SymbolicExpression =
     std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
 
-/// @cond INTERNAL
-/// \brief Initialize a SymbolicExpression from a protobuf message.
-///
-/// \param      C        The Context in which the deserialized
-///                      SymbolicExpression will be held.
-/// \param      Message  The protobuf message from which to deserialize.
-/// \param[out] Result   The SymbolicExpression to initialize.
-///
-/// \return void
-GTIRB_EXPORT_API void fromProtobuf(Context& C, SymbolicExpression& Result,
-                                   const proto::SymbolicExpression& Message);
-
-/// \brief Serialize a SymbolicExpression into a protobuf message.
-///
-/// \param Value   The SymbolicExpression to serialize.
-///
-/// \return A protobuf message representing the SymbolicExpression.
-GTIRB_EXPORT_API proto::SymbolicExpression
-toProtobuf(const SymbolicExpression& Value);
-
-/// @endcond
 /// @}
 // (end \defgroup SYMBOLIC_EXPRESSION_GROUP)
 

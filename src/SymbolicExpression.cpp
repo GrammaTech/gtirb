@@ -95,4 +95,27 @@ void fromProtobuf(Context& C, SymbolicExpression& Result,
     assert(false);
   }
 }
+
+// This function is defined here w/ GTIRB_EXPORT_API to provide a
+// means for test code to directly invoke serialization routines on a
+// CFG. This is a capability not supported for GTIRB clients, but must
+// be made available to the testing system.
+void GTIRB_EXPORT_API symbolicExpressionSave(const SymbolicExpression& SE,
+                                             std::ostream& Out) {
+  proto::SymbolicExpression Message = toProtobuf(SE);
+  Message.SerializeToOstream(&Out);
+}
+
+// This function is defined here w/ GTIRB_EXPORT_API to provide a
+// means for test code to directly invoke serialization routines on a
+// CFG. This is a capability not supported for GTIRB clients, but must
+// be made available to the testing system.
+void GTIRB_EXPORT_API symbolicExpressionLoad(Context& C,
+                                             SymbolicExpression& Result,
+                                             std::istream& In) {
+  proto::SymbolicExpression Message;
+  Message.ParseFromIstream(&In);
+  fromProtobuf(C, Result, Message);
+}
+
 } // namespace gtirb

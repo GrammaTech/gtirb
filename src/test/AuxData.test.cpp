@@ -12,11 +12,13 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/proto/AuxData.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
+#include <sstream>
 
 struct MoveTest;
 
@@ -182,17 +184,18 @@ using namespace gtirb::schema;
 static Context Ctx;
 
 TEST(Unit_AuxData, eaMapProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   using MapT = std::map<Addr, std::string>;
   AuxDataImpl<MapAddrToString> Original =
       MapT({{Addr(1), {"a"}}, {Addr(2), {"b"}}});
 
-  AuxData::MessageType Message1;
-  Original.toProtobuf(&Message1);
-  auto Intermediate = AuxDataImpl<MapAddrToString>::fromProtobuf(Message1);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Intermediate = STH::load<AuxDataImpl<MapAddrToString>>(Ctx, ss);
   // Test that deserialized data can be reserialized again.
-  AuxData::MessageType Message2;
-  Intermediate->toProtobuf(&Message2);
-  auto Result = AuxDataImpl<MapAddrToString>::fromProtobuf(Message2);
+  std::stringstream ss2;
+  STH::save(*Intermediate, ss2);
+  auto Result = STH::load<AuxDataImpl<MapAddrToString>>(Ctx, ss2);
 
   const MapT* M = Result->get();
   EXPECT_TRUE(M);
@@ -202,12 +205,13 @@ TEST(Unit_AuxData, eaMapProtobufRoundTrip) {
 }
 
 TEST(Unit_AuxData, intMapProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   using MapT = std::map<int64_t, std::string>;
   AuxDataImpl<MapInt64ToString> Original = MapT({{1, {"a"}}, {2, {"b"}}});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<MapInt64ToString>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<MapInt64ToString>>(Ctx, ss);
 
   MapT M = *Result->get();
   EXPECT_EQ(M.size(), 2);
@@ -216,12 +220,13 @@ TEST(Unit_AuxData, intMapProtobufRoundTrip) {
 }
 
 TEST(Unit_AuxData, stringMapProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   using MapT = std::map<std::string, std::string>;
   AuxDataImpl<MapStringToString> Original = MapT({{"1", {"a"}}, {"2", {"b"}}});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<MapStringToString>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<MapStringToString>>(Ctx, ss);
 
   MapT M = *Result->get();
   EXPECT_EQ(M.size(), 2);
@@ -230,14 +235,15 @@ TEST(Unit_AuxData, stringMapProtobufRoundTrip) {
 }
 
 TEST(Unit_AuxData, uuidMapProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   using MapT = std::map<UUID, std::string>;
   UUID Id1 = Node::Create(Ctx)->getUUID();
   UUID Id2 = Node::Create(Ctx)->getUUID();
   AuxDataImpl<MapUUIDToString> Original = MapT({{Id1, {"a"}}, {Id2, {"b"}}});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<MapUUIDToString>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<MapUUIDToString>>(Ctx, ss);
 
   MapT M = *Result->get();
   EXPECT_EQ(M.size(), 2);
@@ -246,70 +252,76 @@ TEST(Unit_AuxData, uuidMapProtobufRoundTrip) {
 }
 
 TEST(Unit_AuxData, mapVectorProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   auto Val = std::vector<std::map<std::string, int>>{{{"key", {1}}}};
   auto ValOrig = Val;
 
   AuxDataImpl<VectorMapStringToInt> Original(std::move(Val));
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<VectorMapStringToInt>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VectorMapStringToInt>>(Ctx, ss);
 
   auto New = *Result->get();
   EXPECT_EQ(New, ValOrig);
 }
 
 TEST(Unit_AuxData, eaVectorProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   AuxDataImpl<VectorAddr> Original =
       std::vector<Addr>({Addr(1), Addr(2), Addr(3)});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<VectorAddr>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VectorAddr>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), std::vector<Addr>({Addr(1), Addr(2), Addr(3)}));
 }
 
 TEST(Unit_AuxData, intVectorProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   AuxDataImpl<VectorInt64> Original = std::vector<int64_t>({1, 2, 3});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<VectorInt64>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VectorInt64>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), std::vector<int64_t>({1, 2, 3}));
 }
 
 TEST(Unit_AuxData, stringVectorProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   AuxDataImpl<VectorString> Original =
       std::vector<std::string>({"1", "2", "3"});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<VectorString>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VectorString>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), std::vector<std::string>({"1", "2", "3"}));
 }
 
 TEST(Unit_AuxData, uuidVectorProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
        Id3 = Node::Create(Ctx)->getUUID();
   AuxDataImpl<VectorUUID> Original = std::vector<UUID>({Id1, Id2, Id3});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<VectorUUID>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VectorUUID>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), std::vector<UUID>({Id1, Id2, Id3}));
 }
 
 TEST(Unit_AuxData, uuidSetProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
        Id3 = Node::Create(Ctx)->getUUID();
   AuxDataImpl<SetUUID> Original = std::set<UUID>({Id1, Id2, Id3});
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  auto Result = AuxDataImpl<SetUUID>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<SetUUID>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), std::set<UUID>({Id1, Id2, Id3}));
   EXPECT_EQ(Result->rawData().ProtobufType, "set<UUID>");
@@ -409,109 +421,118 @@ TEST(Unit_AuxData, getTuple) {
 }
 
 TEST(Unit_AuxData, protobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   int64_t A = 123;
   auto Copy = A;
   AuxDataImpl<AnInt64> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<AnInt64>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<AnInt64>>(Ctx, ss);
 
   EXPECT_EQ(A, *Result->get());
 }
 
 TEST(Unit_AuxData, vectorProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   std::vector<int64_t> V({1, 2, 3});
   auto Copy = V;
   AuxDataImpl<VectorInt64> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<VectorInt64>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<VectorInt64>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), V);
 }
 
 TEST(Unit_AuxData, listProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   std::list<int64_t> V({1, 2, 3});
   auto Copy = V;
   AuxDataImpl<ListInt64> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<ListInt64>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<ListInt64>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), V);
 }
 
 TEST(Unit_AuxData, stringProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   std::string S("abcd");
   auto Copy = S;
   AuxDataImpl<AString> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<AString>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<AString>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), S);
 }
 
 TEST(Unit_AuxData, addrProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   Addr A(0x1234);
   auto Copy = A;
   AuxDataImpl<AnAddr> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<AnAddr>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<AnAddr>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), A);
 }
 
 TEST(Unit_AuxData, mapProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   std::map<char, int64_t> M({{'a', 1}, {'b', 2}, {'c', 3}});
   auto Copy = M;
   AuxDataImpl<MapCharToInt64> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<MapCharToInt64>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<MapCharToInt64>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), M);
 }
 
 TEST(Unit_AuxData, tupleProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   std::tuple<char, int64_t> T('a', 1);
   auto Copy = T;
   AuxDataImpl<TupleOfCharAndInt64> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<TupleOfCharAndInt64>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<TupleOfCharAndInt64>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), T);
 }
 
 TEST(Unit_AuxData, uuidProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   UUID Val = Node::Create(Ctx)->getUUID();
   auto Copy = Val;
   AuxDataImpl<AUUID> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<AUUID>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<AUUID>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), Val);
 }
 
 TEST(Unit_AuxData, OffsetProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   Offset Val{Node::Create(Ctx)->getUUID(), 123};
   auto Copy = Val;
   AuxDataImpl<AnOffset> P(std::move(Copy));
 
-  AuxData::MessageType Message;
-  P.toProtobuf(&Message);
-  auto Result = AuxDataImpl<AnOffset>::fromProtobuf(Message);
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<AnOffset>>(Ctx, ss);
 
   auto NewVal = *Result->get();
   EXPECT_EQ(NewVal.ElementId, Val.ElementId);
@@ -519,45 +540,48 @@ TEST(Unit_AuxData, OffsetProtobufRoundTrip) {
 }
 
 TEST(Unit_AuxData, nestedProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
+
   // Outer vector
-  proto::AuxData Message1;
+  std::stringstream ss1;
   std::vector<std::map<char, std::tuple<int64_t, uint64_t>>> N1;
   N1.push_back({{'a', {0, 1}}, {'b', {2, 3}}});
   N1.push_back({{'c', {4, 5}}, {'d', {6, 7}}});
   auto Copy1 = N1;
   AuxDataImpl<VectorOfMapOfTuple> Original1 = std::move(Copy1);
-  Original1.toProtobuf(&Message1);
-  auto Result1 = AuxDataImpl<VectorOfMapOfTuple>::fromProtobuf(Message1);
+  STH::save(Original1, ss1);
+  auto Result1 = STH::load<AuxDataImpl<VectorOfMapOfTuple>>(Ctx, ss1);
 
   EXPECT_EQ(*Result1->get(), N1);
 
   // Outer map
-  proto::AuxData Message2;
+  std::stringstream ss2;
   std::map<std::string, std::vector<int64_t>> N2{{"a", {1, 2, 3}}};
   auto Copy2 = N2;
   AuxDataImpl<MapOfVector> Original2 = std::move(Copy2);
-  Original2.toProtobuf(&Message2);
-  auto Result2 = AuxDataImpl<MapOfVector>::fromProtobuf(Message2);
+  STH::save(Original2, ss2);
+  auto Result2 = STH::load<AuxDataImpl<MapOfVector>>(Ctx, ss2);
 
   EXPECT_EQ(*Result2->get(), N2);
 
   // Outer tuple
-  proto::AuxData Message3;
+  std::stringstream ss3;
   std::tuple<std::string, std::vector<int64_t>> N3{"a", {1, 2, 3}};
   auto Copy3 = N3;
   AuxDataImpl<TupleOfVector> Original3 = std::move(Copy3);
-  Original3.toProtobuf(&Message3);
-  auto Result3 = AuxDataImpl<TupleOfVector>::fromProtobuf(Message3);
+  STH::save(Original3, ss3);
+  auto Result3 = STH::load<AuxDataImpl<TupleOfVector>>(Ctx, ss3);
 
   EXPECT_EQ(*Result3->get(), N3);
 }
 
 TEST(Unit_AuxData, wrongTypeAfterProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
   AuxDataImpl<AnInt32> Original(1234);
 
-  AuxData::MessageType Message;
-  Original.toProtobuf(&Message);
-  EXPECT_EQ(AuxDataImpl<AString>::fromProtobuf(Message), nullptr);
+  std::stringstream ss;
+  STH::save(Original, ss);
+  EXPECT_EQ(STH::load<AuxDataImpl<AString>>(Ctx, ss), nullptr);
 }
 
 struct MoveTest {

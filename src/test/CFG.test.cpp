@@ -12,12 +12,14 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/CFG.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/ProxyBlock.hpp>
 #include <gtirb/proto/CFG.pb.h>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -263,7 +265,7 @@ TEST(Unit_CFG, edgeLabels) {
 
 TEST(Unit_CFG, protobufRoundTrip) {
   CFG Result;
-  proto::CFG Message;
+  std::stringstream ss;
 
   auto B1 = CodeBlock::Create(Ctx, 1, 2);
   auto B2 = CodeBlock::Create(Ctx, 3, 4);
@@ -282,9 +284,9 @@ TEST(Unit_CFG, protobufRoundTrip) {
     Original[*E2] = std::make_tuple(ConditionalEdge::OnFalse,
                                     DirectEdge::IsIndirect, EdgeType::Call);
 
-    Message = toProtobuf(Original);
+    cfgSave(Original, ss);
   }
-  fromProtobuf(Ctx, Result, Message);
+  cfgLoad(Ctx, Result, ss);
 
   auto Range = nodes(Result);
   EXPECT_EQ(std::distance(Range.begin(), Range.end()), 3);

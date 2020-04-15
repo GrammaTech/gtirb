@@ -224,26 +224,6 @@ public:
   /// \return The deserialized IR object.
   static IR* loadJSON(Context& C, std::istream& In);
 
-  /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing IR.
-  using MessageType = proto::IR;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a IR from a protobuf message.
-  ///
-  /// \param C   The Context in which the deserialized IR will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized IR object, or null on failure.
-  static IR* fromProtobuf(Context& C, const MessageType& Message);
-  /// @endcond
-
   /// \name ProxyBlock-Related Public Types and Functions
   /// @{
 
@@ -1375,6 +1355,26 @@ public:
   void setVersion(uint32_t V) { Version = V; }
 
 private:
+  /// @cond INTERNAL
+  /// \brief The protobuf message type used for serializing IR.
+  using MessageType = proto::IR;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a IR from a protobuf message.
+  ///
+  /// \param C   The Context in which the deserialized IR will be held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized IR object, or null on failure.
+  static IR* fromProtobuf(Context& C, const MessageType& Message);
+  /// @endcond
+
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
   CFG Cfg;

@@ -13,10 +13,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Module.hpp"
+#include "Serialization.hpp"
 #include <gtirb/CFG.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/IR.hpp>
-#include <gtirb/Serialization.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/proto/Module.pb.h>
 #include <map>
@@ -128,4 +128,24 @@ ProxyBlock* Module::addProxyBlock(ProxyBlock* B) {
     addVertex(B, Parent->getCFG());
   }
   return B;
+}
+
+// Present for testing purposes only.
+void Module::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+Module* Module::load(Context& C, std::istream& In) {
+  return load(C, nullptr, In);
+}
+
+// Present for testing purposes only.
+Module* Module::load(Context& C, IR* Parent, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto M = Module::fromProtobuf(C, Parent, Message);
+  return M;
 }

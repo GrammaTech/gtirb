@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "SerializationTestHarness.hpp"
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/Context.hpp>
@@ -21,6 +22,7 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/proto/Symbol.pb.h>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace gtirb;
 
@@ -70,8 +72,9 @@ TEST(Unit_Symbol, setReferent) {
 }
 
 TEST(Unit_Symbol, protobufRoundTrip) {
-  proto::Symbol SMessage;
-  proto::Module MMessage;
+  using STH = gtirb::SerializationTestHarness;
+  std::stringstream sym_ss;
+  std::stringstream mod_ss;
   UUID DataUUID;
 
   // Symbol with referent
@@ -86,17 +89,17 @@ TEST(Unit_Symbol, protobufRoundTrip) {
     DataUUID = Data->getUUID();
     Original->setReferent(Data);
 
-    Original->toProtobuf(&SMessage);
+    STH::save(*Original, sym_ss);
 
     // We must manually serialize the symbol referent. This would typically be
     // done automatically for the user when they serialized the IR.
-    Mod->toProtobuf(&MMessage);
+    STH::save(*Mod, mod_ss);
   }
 
   {
     Context InnerCtx;
-    (void)Module::fromProtobuf(InnerCtx, nullptr, MMessage); // See above.
-    auto* Result = Symbol::fromProtobuf(InnerCtx, nullptr, SMessage);
+    (void)STH::load<Module>(InnerCtx, mod_ss); // See above.
+    auto* Result = STH::load<Symbol>(InnerCtx, sym_ss);
 
     EXPECT_EQ(Result->getAddress(), Addr(1));
     EXPECT_EQ(Result->getName(), "test");
@@ -105,15 +108,16 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   }
 
   // Symbol with address
+  std::stringstream sym_ss2;
   {
     Context InnerCtx;
     auto* Original = Symbol::Create(InnerCtx, Addr(2), "test");
-    Original->toProtobuf(&SMessage);
+    STH::save(*Original, sym_ss2);
   }
 
   {
     Context InnerCtx;
-    auto* Result = Symbol::fromProtobuf(InnerCtx, nullptr, SMessage);
+    auto* Result = STH::load<Symbol>(InnerCtx, sym_ss2);
 
     EXPECT_EQ(Result->getAddress(), Addr(2));
     EXPECT_EQ(Result->getName(), "test");
@@ -122,15 +126,16 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   }
 
   // Symbol without address
+  std::stringstream sym_ss3;
   {
     Context InnerCtx;
     auto* Original = Symbol::Create(InnerCtx, "test");
-    Original->toProtobuf(&SMessage);
+    STH::save(*Original, sym_ss3);
   }
 
   {
     Context InnerCtx;
-    auto* Result = Symbol::fromProtobuf(InnerCtx, nullptr, SMessage);
+    auto* Result = STH::load<Symbol>(InnerCtx, sym_ss3);
     EXPECT_FALSE(Result->getAddress());
     EXPECT_EQ(Result->getName(), "test");
   }

@@ -13,7 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Section.hpp"
-#include <gtirb/Serialization.hpp>
+#include "Serialization.hpp"
 
 using namespace gtirb;
 
@@ -49,5 +49,20 @@ Section* Section::fromProtobuf(Context& C, Module* Parent,
     BI->addToIndices();
     S->mutateIndices([S, BI]() { S->ByteIntervals.emplace(BI); });
   }
+  return S;
+}
+
+// Present for testing purposes only.
+void Section::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+Section* Section::load(Context& C, std::istream& In) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto S = Section::fromProtobuf(C, nullptr, Message);
   return S;
 }

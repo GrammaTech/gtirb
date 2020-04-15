@@ -21,8 +21,31 @@ void AuxData::fromProtobuf(AuxData& Result, const MessageType& Message) {
   Result.SF.RawBytes = Message.data();
 }
 
-void AuxData::toProtobuf(MessageType* Message) const {
-  Message->set_type_name(this->SF.ProtobufType);
-  *Message->mutable_data() = this->SF.RawBytes;
+void AuxData::toProtobuf(MessageType* Message,
+                         const AuxData::SerializedForm& SFToSerialize) const {
+  *Message->mutable_type_name() = SFToSerialize.ProtobufType;
+  *Message->mutable_data() = SFToSerialize.RawBytes;
+}
+
+bool AuxData::checkAuxDataMessageType(const AuxData::MessageType& Message,
+                                      const std::string& ExpectedName) {
+  return Message.type_name() == ExpectedName;
+}
+
+// Present for testing purposes only.
+void AuxData::save(std::ostream& Out) const {
+  MessageType Message;
+  this->toProtobuf(&Message);
+  Message.SerializeToOstream(&Out);
+}
+
+// Present for testing purposes only.
+std::unique_ptr<AuxData>
+AuxData::load(std::istream& In,
+              std::unique_ptr<AuxData> (*FPPtr)(const MessageType&)) {
+  MessageType Message;
+  Message.ParseFromIstream(&In);
+  auto AD = FPPtr(Message);
+  return AD;
 }
 } // namespace gtirb

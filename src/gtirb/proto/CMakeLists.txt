@@ -21,10 +21,7 @@ else()
   add_compile_options(-include "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp")
 endif()
 
-protobuf_generate_cpp(
-  PROTO_CPP_SOURCES PROTO_CPP_HEADERS EXPORT_MACRO "GTIRB_EXPORT_API"
-  ${GTIRB_PROTO_FILES}
-)
+protobuf_generate_cpp(PROTO_CPP_SOURCES PROTO_CPP_HEADERS ${GTIRB_PROTO_FILES})
 
 # Copy headers to the right place
 add_custom_command(

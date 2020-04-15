@@ -265,25 +265,6 @@ public:
   }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing DataBlock.
-  using MessageType = proto::DataBlock;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a DataBlock from a protobuf message.
-  ///
-  /// \param C   The Context in which the deserialized DataBlock will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized DataBlock object, or null on failure.
-  static DataBlock* fromProtobuf(Context& C, ByteInterval* Parent,
-                                 const MessageType& Message);
-
   static bool classof(const Node* N) { return N->getKind() == Kind::DataBlock; }
   /// @endcond
 
@@ -311,8 +292,34 @@ private:
     return DB;
   }
 
-  friend class Context;
-  friend class ByteInterval;
+  /// \brief The protobuf message type used for serializing DataBlock.
+  using MessageType = proto::DataBlock;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a DataBlock from a protobuf message.
+  ///
+  /// \param C   The Context in which the deserialized DataBlock will be held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized DataBlock object, or null on failure.
+  static DataBlock* fromProtobuf(Context& C, ByteInterval* Parent,
+                                 const MessageType& Message);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static DataBlock* load(Context& C, std::istream& In);
+
+  friend class Context;      // Enables Context::Create
+  friend class ByteInterval; // Enables to/fromProtobuf, setByteInterval
+  friend class SerializationTestHarness; // Testing support.
 };
 } // namespace gtirb
 

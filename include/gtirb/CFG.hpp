@@ -34,9 +34,6 @@
 /// \see CFG_GROUP
 
 namespace gtirb {
-namespace proto {
-class CFG;
-}
 
 class CfgNode;
 
@@ -281,27 +278,5 @@ GTIRB_EXPORT_API boost::iterator_range<block_iterator> blocks(CFG& Cfg);
 GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& Cfg);
 
-/// @cond INTERNAL
-/// \ingroup CFG_GROUP
-/// \brief Serialize a \ref CFG into a protobuf message.
-///
-/// \param Cfg   The CFG to serialize.
-///
-/// \return A protobuf message representing the \ref CFG and its
-/// component blocks (\ref Block).
-GTIRB_EXPORT_API proto::CFG toProtobuf(const CFG& Cfg);
-
-/// \ingroup CFG_GROUP
-/// \brief Initialize a \ref CFG from a protobuf message.
-///
-/// \param      C        The Context in which the deserialized CFG will be held.
-/// \param      Message  The protobuf message from which to deserialize.
-/// \param[out] Result   The CFG to initialize.
-///
-/// \return void
-GTIRB_EXPORT_API void fromProtobuf(Context& C, CFG& Result,
-                                   const proto::CFG& Message);
-/// @endcond
 } // namespace gtirb
-
 #endif // GTIRB_CFG_H

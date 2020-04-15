@@ -1802,33 +1802,6 @@ public:
   }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing ByteInterval.
-  using MessageType = proto::ByteInterval;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a ByteInterval from a protobuf message.
-  ///
-  /// \param C  The Context in which the deserialized ByteInterval will be
-  /// held. \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized ByteInterval object, or null on failure.
-  static ByteInterval* fromProtobuf(Context& C, Section* Parent,
-                                    const MessageType& Message);
-
-  /// \brief Populate symbolic expressions from a Protobuf message.
-  ///
-  /// \param C  The Context in which the deserialized SymbolicExpressions will
-  /// be held.
-  ///
-  /// \param Message  The protobuf message from which to deserialize.
-  void symbolicExpressionsFromProtobuf(Context& C, const MessageType& Message);
-
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ByteInterval;
   }
@@ -1934,6 +1907,42 @@ private:
         InitSize ? *InitSize : std::distance(Begin, End), Begin, End);
   }
 
+  /// \brief The protobuf message type used for serializing ByteInterval.
+  using MessageType = proto::ByteInterval;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a ByteInterval from a protobuf message.
+  ///
+  /// \param C  The Context in which the deserialized ByteInterval will be
+  /// held. \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized ByteInterval object, or null on failure.
+  static ByteInterval* fromProtobuf(Context& C, Section* Parent,
+                                    const MessageType& Message);
+
+  /// \brief Populate symbolic expressions from a Protobuf message.
+  ///
+  /// \param C  The Context in which the deserialized SymbolicExpressions will
+  /// be held.
+  ///
+  /// \param Message  The protobuf message from which to deserialize.
+  void symbolicExpressionsFromProtobuf(Context& C, const MessageType& Message);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static ByteInterval* load(Context& C, std::istream& In);
+
+  // Present for testing purposes only.
+  void loadSymbolicExpressions(Context& C, std::istream& In);
+
   Section* Parent{nullptr};
   std::optional<Addr> Address;
   uint64_t Size{0};
@@ -1947,7 +1956,10 @@ private:
                           // Create, etc.
   friend class CodeBlock; // Friend to enable CodeBlock::getAddress.
   friend class DataBlock; // Friend to enable DataBlock::getAddress.
+  friend class Module;    // Allow Module::fromProtobuf to deserialize symbolic
+                          // expressions.
   friend class Node;      // Allow Node::mutateIndices, etc. to set indices.
+  friend class SerializationTestHarness; // Testing support.
 };
 
 } // namespace gtirb

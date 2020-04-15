@@ -55,25 +55,6 @@ public:
   const Module* getModule() const { return Parent; }
 
   /// @cond INTERNAL
-  /// \brief The protobuf message type used for serializing Block.
-  using MessageType = proto::ProxyBlock;
-
-  /// \brief Serialize into a protobuf message.
-  ///
-  /// \param[out] Message   Serialize into this message.
-  ///
-  /// \return void
-  void toProtobuf(MessageType* Message) const;
-
-  /// \brief Construct a Block from a protobuf message.
-  ///
-  /// \param C  The Context in which the deserialized Block will be held.
-  /// \param Message  The protobuf message from which to deserialize.
-  ///
-  /// \return The deserialized Block object, or null on failure.
-  static ProxyBlock* fromProtobuf(Context& C, Module* Parent,
-                                  const MessageType& Message);
-
   static bool classof(const Node* N) {
     return N->getKind() == Kind::ProxyBlock;
   }
@@ -95,10 +76,38 @@ private:
     return C.Create<ProxyBlock>(C, Parent);
   }
 
+  /// \brief The protobuf message type used for serializing Block.
+  using MessageType = proto::ProxyBlock;
+
+  /// \brief Serialize into a protobuf message.
+  ///
+  /// \param[out] Message   Serialize into this message.
+  ///
+  /// \return void
+  void toProtobuf(MessageType* Message) const;
+
+  /// \brief Construct a Block from a protobuf message.
+  ///
+  /// \param C  The Context in which the deserialized Block will be held.
+  /// \param Message  The protobuf message from which to deserialize.
+  ///
+  /// \return The deserialized Block object, or null on failure.
+  static ProxyBlock* fromProtobuf(Context& C, Module* Parent,
+                                  const MessageType& Message);
+
+  // Present for testing purposes only.
+  void save(std::ostream& Out) const;
+
+  // Present for testing purposes only.
+  static ProxyBlock* load(Context& C, std::istream& In);
+
   Module* Parent{nullptr};
 
   friend class Context; // Allow Context to construct proxies.
   friend class Module;  // Allow Module to call setModule, Create, etc.
+  // Allows serializaton from Module via sequenceToProtobuf.
+  template <typename T> friend typename T::MessageType toProtobuf(const T&);
+  friend class SerializationTestHarness; // Testing support.
 };
 
 } // namespace gtirb
