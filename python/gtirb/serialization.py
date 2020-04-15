@@ -39,17 +39,17 @@ class UnknownCodecError(CodecError):
         self.name = name
 
 
-class SubtypeTree(typing.Tuple[str, typing.Iterable["SubtypeTree"]]):
-    """A type hint representing a parsed serialization type name.
-    A ``SubtypeTree`` is a ``tuple`` with two items: A ``str`` giving
-    the name of the type and a ``tuple`` of type parameters
-    (which are also ``SubtypeTree``\\s). For example, the following are all
-    valid ``SubtypeTree``\\s:
+SubtypeTree = typing.Tuple[str, typing.Iterable["SubtypeTree"]]
+"""A type hint representing a parsed serialization type name.
+A ``SubtypeTree`` is a ``tuple`` with two items: A ``str`` giving
+the name of the type and a ``tuple`` of type parameters
+(which are also ``SubtypeTree``\\s). For example, the following are all
+valid ``SubtypeTree``\\s:
 
-    >>> ('string', ())
-    >>> ('sequence', (('UUID',()),))
-    >>> ('mapping', (('string', ()),('set', (('UUID', ()),))))
-    """
+>>> ('string', ())
+>>> ('sequence', (('UUID',()),))
+>>> ('mapping', (('string', ()),('set', (('UUID', ()),))))
+"""
 
 
 class Codec:
