@@ -1,3 +1,11 @@
+# 1.4.2
+
+* Don't use __declspec(dllimport) on Windows.
+
+# 1.4.1
+
+* Add ISA enums for PPC64, ARM64, MIPS32, and MIPS64.
+
 # 1.3.2
 
 * Access functions for converting to/from protobuf are no longer public in the C++ API.
