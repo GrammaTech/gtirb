@@ -43,6 +43,15 @@ class ListWrapper(typing.MutableSequence[T]):
     def insert(self, i, v):
         return self._data.insert(i, v)
 
+    # The version of typing.py which comes with python 3.5.2 doesn't provide
+    # definitions for append or remove on MutableList, so we have to do it
+    # ourselves.
+    def append(self, v):
+        self.insert(len(self), v)
+
+    def remove(self, v):
+        del self[self._data.index(v)]
+
     # end functions for ABC
     def __str__(self):
         return str(self._data)
@@ -72,6 +81,15 @@ class SetWrapper(typing.MutableSet[T]):
 
     def discard(self, v):
         return self._data.discard(v)
+
+    # The version of typing.py which comes with python 3.5.2 doesn't provide
+    # definitions for __or__ or clear on MutableSet, so we have to do it
+    # ourselves.
+    def __or__(self, other):
+        return self._data | other
+
+    def clear(self):
+        self._data.clear()
 
     # end functions for ABC
     def __str__(self):
