@@ -244,7 +244,7 @@ python-wheel:
     paths:
       - gtirb-*-py*-none-any.whl
   script:
-    - CID=$(docker create ${LOCAL_IMAGE_NAME}-ubuntu16-gcc7)
+    - CID=$(docker create ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7)
     - docker cp $CID:/gt/gtirb/build/python/dist python-dist
     - cp python-dist/*.whl ./
     - docker container rm -f $CID
