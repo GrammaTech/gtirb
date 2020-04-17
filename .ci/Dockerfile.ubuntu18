@@ -29,12 +29,12 @@ WORKDIR /gt/gtirb/build/
 RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)"
 RUN make -j
 
+# Build python wheel
+RUN make python-wheel
+
 # Run CPack.
 ARG CPACK_GENERATOR=""
 RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
-
-# Build python wheel
-RUN make python-wheel
 
 # Set up envionment for interactive use.
 ENV PATH=/gt/gtirb/build/bin:$PATH
