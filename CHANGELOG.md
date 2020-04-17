@@ -1,3 +1,6 @@
+# 1.4.3
+* Remove the python-egg cmake target, add the python-wheel cmake target
+
 # 1.4.2
 
 * Don't use __declspec(dllimport) on Windows.
