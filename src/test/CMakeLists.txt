@@ -51,13 +51,7 @@ endif()
 gtirb_add_executable_gtest()
 
 target_link_libraries(
-  ${PROJECT_NAME}
-  ${SYSLIBS}
-  ${Boost_LIBRARIES}
-  gtest
-  gtest_main
-  gtirb
-  proto
+  ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb
 )
 
 # Add tests to make test

@@ -10,7 +10,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 add_executable(ex-api-walkthrough api-walkthrough.cpp)
-target_link_libraries(ex-api-walkthrough gtirb proto)
+target_link_libraries(ex-api-walkthrough gtirb)
 
 add_executable(ex-data-symbols data-symbols.cpp)
 target_link_libraries(ex-data-symbols gtirb)
@@ -19,7 +19,7 @@ add_executable(ex-cfg-paths cfg-paths.cpp)
 target_link_libraries(ex-cfg-paths gtirb)
 
 add_executable(ex-functions functions.cpp)
-target_link_libraries(ex-functions gtirb proto)
+target_link_libraries(ex-functions gtirb)
 
 find_library(CAPSTONE NAMES capstone)
 if(CAPSTONE)
