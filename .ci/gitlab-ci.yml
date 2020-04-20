@@ -184,14 +184,19 @@ test-install:
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - GTIRB-*-Linux.$PACKAGE_EXTENSION
+      - ./*.$PACKAGE_EXTENSION
   script:
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export CONTAINER_FILE=$(mktemp -d)/cidfile
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - GTIRB_VERSION=$(grep -o [0-9]\* version.txt | head -3 | paste -sd.)
     - docker create --cidfile="${CONTAINER_FILE}" ${LOCAL_IMAGE_BASE}
-    - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/GTIRB-${GTIRB_VERSION}-Linux.${PACKAGE_EXTENSION} GTIRB-${GTIRB_VERSION}-Linux.${PACKAGE_EXTENSION}
+    - if [ "$OS" = "arch" ];
+      then
+        export PKGFILE="gtirb-git-$(git describe --abbrev=8 --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s|gt/pristine/||')-1-x86_64.pkg.tar.xz";
+      else
+        export PKGFILE="GTIRB-$(grep -o [0-9]\* version.txt | head -3 | paste -sd.)-Linux.deb";
+      fi
+    - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/${PKGFILE} ./${PKGFILE}
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
     - if [ -f .ci/Dockerfile.test-${OS}-package ]; then docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .; fi
@@ -210,11 +215,11 @@ debian-installer-ubuntu18:
     PACKAGE_EXTENSION: 'deb'
   <<: *linux-installer
 
-tar-arch:
+package-arch:
   variables:
     OS: 'arch'
     COMPILER: 'g++'
-    PACKAGE_EXTENSION: 'tar.gz'
+    PACKAGE_EXTENSION: 'pkg.tar.xz'
   <<: *linux-installer
 
 python-wheel:

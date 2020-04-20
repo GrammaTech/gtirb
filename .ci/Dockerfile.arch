@@ -39,8 +39,12 @@ RUN make -j
 # Build python wheel
 RUN make python-wheel
 
-# Run CPack.
-ARG CPACK_GENERATOR=""
-RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then cd /gt/gtirb/build && cpack -G "${CPACK_GENERATOR}"; fi
+# Run makepkg.
+RUN mkdir /tmp/aur
+RUN cp /gt/gtirb/.ci/PKGBUILD /tmp/aur
+WORKDIR /tmp/aur
+RUN sed -i 's|git://github.com/grammatech/gtirb.git|git+file:///gt/gtirb|' PKGBUILD
+RUN makepkg
+RUN cp *.xz /gt/gtirb/build/
 
 ENV PATH=/gt/gtirb/build/bin:$PATH
