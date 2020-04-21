@@ -453,3 +453,13 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
 )
 
 include(CPack)
+
+# ---------------------------------------------------------------------------
+# Report APIs and features built
+# ---------------------------------------------------------------------------
+
+message("APIs built:")
+message("    C++     ${GTIRB_CXX_API}")
+message("    Python  ${GTIRB_PY_API}")
+message("    Lisp    ${GTIRB_CL_API}")
+message("    Java    ${GTIRB_JAVA_API}")
