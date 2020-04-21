@@ -77,11 +77,13 @@ if(PYTHON)
   string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
   if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
     message(
-      SEND_ERROR
-        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required: ${PYTHON_MINIMUM_VERSION}"
+      WARNING
+        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required (${PYTHON_MINIMUM_VERSION}); Python API may not work properly."
     )
+    set(GTIRB_PY_API_DEFAULT OFF)
+  else()
+    set(GTIRB_PY_API_DEFAULT ON)
   endif()
-  set(GTIRB_PY_API_DEFAULT ON)
 else()
   set(GTIRB_PY_API_DEFAULT OFF)
 endif()
