@@ -3,6 +3,9 @@
   (:import-from :cl-intbytes
                 :int->octets
                 :octets->int)
+  (:import-from :alexandria
+                :read-stream-content-into-byte-vector
+                :read-file-into-byte-vector)
   (:export :read-proto
            :write-proto
            :new-uuid
@@ -12,18 +15,22 @@
 (in-package :gtirb/utility)
 (declaim (optimize (speed 3) (safety 0) (debug 0)))
 
-(defun read-proto (class path)
-  "Read protobuf object of class CLASS from PATH."
-  (assert (probe-file path) (path)
-          "Can't read GTIRB from ~s, because the file doesn't exist."
-          path)
-  (let ((gtirb (make-instance class)))
-    (with-open-file (input path
-                           :direction :input :element-type 'unsigned-byte)
-      (let* ((size (file-length input))
-             (buffer (make-array size :element-type '(unsigned-byte 8))))
-        (read-sequence buffer input)
-        (pb:merge-from-array gtirb buffer 0 size)))
+(defgeneric read-proto (class source)
+  (:documentation "Read protobuf object of class CLASS from SOURCE.")
+  (:method :before
+    (class (path pathname))
+    (assert (probe-file path) (path)
+            "Can't read Protobuf from ~s, because the file doesn't exist."
+            path))
+  (:method (class (path string)) (read-proto class (pathname path)))
+  (:method (class (path pathname))
+    (with-open-file (input path :direction :input :element-type 'unsigned-byte)
+      (read-proto class input)))
+  (:method (class (input stream) &aux (gtirb (make-instance class)))
+    (let ((buffer (if (uiop/stream::file-stream-p input)
+                      (read-file-into-byte-vector input)
+                      (read-stream-content-into-byte-vector input))))
+      (pb:merge-from-array gtirb buffer 0 (length buffer)))
     gtirb))
 
 (defun write-proto (object path)

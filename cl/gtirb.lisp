@@ -114,13 +114,18 @@
   :test #'=
   :documentation "GTIRB Protobuf Version as a non-negative integer.")
 
-(defun read-gtirb (path)
-  "Read a GTIRB IR object from PATH."
-  (let ((proto (read-proto 'proto:ir path)))
-    (unless (= protobuf-version (proto:version proto))
+(defgeneric read-gtirb (source)
+  (:documentation "Read a protobuf serialized GTIRB instance from SOURCE.")
+  (:method ((path t))
+    (make-instance 'gtirb :proto (read-proto 'proto:ir path))))
+
+(defmethod read-gtirb :around (source)
+  "Check the protobuf version."
+  (let ((gtirb (call-next-method)))
+    (unless (= protobuf-version (proto:version (proto gtirb)))
       (error "Protobuf version mismatch version ~a from ~a isn't expected ~a"
              (proto:version proto) path protobuf-version))
-    (make-instance 'gtirb :proto proto)))
+    gtirb))
 
 (defun write-gtirb (gtirb path)
   "Write a GTIRB IR object to PATH."

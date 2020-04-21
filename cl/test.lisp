@@ -126,6 +126,12 @@ The ERRNO used when exiting lisp indicates success or failure."
       (is (equalp (md5sum-file *proto-path*)
                   (md5sum-file path))))))
 
+(deftest read-gtirb-from-streams-and-files ()
+  (with-fixture hello
+    (is (typep (read-gtirb *proto-path*) 'gtirb))
+    (is (typep (with-open-file (input *proto-path*) (read-gtirb input))
+               'gtirb))))
+
 (deftest idempotent-read-write-w-class ()
   (nest
    (with-fixture hello)
