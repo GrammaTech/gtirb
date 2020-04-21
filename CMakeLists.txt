@@ -78,7 +78,7 @@ if(PYTHON)
   if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
     message(
       WARNING
-        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required (${PYTHON_MINIMUM_VERSION}); Python API may not work properly."
+        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required (${PYTHON_MINIMUM_VERSION}); this API may not build correctly."
     )
     set(GTIRB_PY_API_DEFAULT OFF)
   else()
@@ -102,11 +102,13 @@ if(LISP AND EXISTS "${QUICKLISP}")
   string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
   if("${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
     message(
-      SEND_ERROR
-        "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required: ${LISP_MINIMUM_VERSION}"
+      WARNING
+        "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required (${LISP_MINIMUM_VERSION}); this API may not build correctly."
     )
+    set(GTIRB_CL_API_DEFAULT OFF)
+  else()
+    set(GTIRB_CL_API_DEFAULT ON)
   endif()
-  set(GTIRB_CL_API_DEFAULT ON)
 else()
   set(GTIRB_CL_API_DEFAULT OFF)
 endif()
@@ -458,7 +460,7 @@ include(CPack)
 # Report APIs and features built
 # ---------------------------------------------------------------------------
 
-message("APIs built:")
+message("APIs to be built:")
 message("    C++     ${GTIRB_CXX_API}")
 message("    Python  ${GTIRB_PY_API}")
 message("    Lisp    ${GTIRB_CL_API}")
