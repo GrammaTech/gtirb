@@ -146,6 +146,13 @@ cmake --build .
 bin/TestGTIRB
 ```
 
+For customizing the GTIRB build, you can get a list of customization options by
+navigating to your build directory and running:
+
+```sh
+cmake -LH
+```
+
 ## Requirements
 
 To build and install GTIRB, the following requirements should be installed:
