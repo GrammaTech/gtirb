@@ -1,209 +1,39 @@
 (defpackage :gtirb/ranged
   (:use :common-lisp)
-  (:import-from :uiop :nest)
-  (:import-from :alexandria
-                :when-let
-                :mappend)
-  (:import-from :cl-containers
-                :preorder-walk
-                :binary-search-tree
-                :insert-item
-                :delete-item
-                :size
-                :element
-                :find-successor-node
-                :predecessor
-                :successor)
-  (:export :ranged
+  (:import-from :interval)
+  (:export :make-ranged
            :ranged-insert
            :ranged-delete
            :ranged-find
            :ranged-find-at))
-;;; TODO: Consider using the following package instead of this
-;;;       implementation.  https://github.com/rpav/spatial-trees
-;;;
-;;; TODO: Check for equivalent blocks before and after modified ranges
-;;; in `ranged-insert' and `ranged-delete' and collapse them into the
-;;; existing range (maybe with the moral equivalent of an :after
-;;; method).  This will avoid the monotonic increase in the number of
-;;; ranges in the tree over time.
 (in-package :gtirb/ranged)
 #-debug (declaim (optimize (speed 3) (safety 0) (debug 0)))
 #+debug (declaim (optimize (speed 0) (safety 3) (debug 3)))
 
-(defclass ranged ()
-  ((tree :initform (make-instance 'binary-search-tree :key #'car :test #'=)
-         :type binary-search-tree
-         :documentation "Internal store.")
-   (min :initform 0 :initarg :min :type (integer 0 #.(ash 1 63))
-        :reader ranged-min :documentation "Minimum possible range value.")
-   (max :initform (ash 1 63) :initarg :max :type (integer 0 #.(ash 1 63))
-        :reader ranged-max :documentation "Maximum possible range value."))
-  (:documentation
-   "A collection supporting retrieval of objects by 64-bit ranges."))
+(defun make-ranged ()
+  (interval:make-tree))
 
-#+debug
-(defgeneric to-list (ranged)
-  (:documentation "Return the contents of RANGED as a list.")
-  (:method ((obj ranged) &aux results)
-    (preorder-walk (slot-value obj 'tree) (lambda (it) (push it results)))
-    (nreverse results)))
+(defstruct (uuid-interval (:include interval:interval))
+  (uuid 0 :type integer))
 
-(defmethod initialize-instance :after ((ranged ranged) &key)
-  (with-slots (tree) ranged
-    (insert-item tree (list (ranged-min ranged)))
-    (insert-item tree (list (ranged-max ranged))))
-  ranged)
+(defun uuid-interval= (i1 i2)
+  (= (uuid-interval-uuid i1) (uuid-interval-uuid i2)))
 
-(defmethod print-object ((obj ranged) stream)
-  (print-unreadable-object (obj stream :type t :identity t)
-    (with-slots (tree) obj (format stream "~a" (size tree)))))
+(defun ranged-insert (tree uuid start end)
+  (interval:insert tree (make-uuid-interval :uuid uuid
+                                            :start start
+                                            :end end)))
 
-(declaim (inline key))
-(declaim (ftype (function (cl-containers::bst-node) (integer 0 #.(ash 1 63)))
-                key))
-(defun key (node) (car (element node)))
+(defun ranged-delete (tree uuid start end)
+  (interval:delete tree (make-uuid-interval :uuid uuid
+                                            :start start
+                                            :end end)))
 
-(declaim (inline find-predecessor-node))
-(defun find-predecessor-node (tree address)
-  (predecessor tree (find-successor-node tree (list address))))
+(defun ranged-find-at (tree address)
+  (mapcar #'uuid-interval-uuid
+          (remove-if-not (lambda (i)
+                           (= address (interval:interval-start i)))
+                         (interval:find-all tree address))))
 
-(declaim (inline at-range))
-(defun at-range (ranged address)
-  "Return nodes of RANGED starting at ADDRESS."
-  (declare (type ranged ranged)
-           (type (integer 0 #.(ash 1 63)) address))
-  (with-slots (tree) ranged
-    (let ((succ (find-successor-node tree (list address))))
-      (when (and succ (= address (key succ)))
-        (let ((pred (predecessor tree succ)))
-          (set-difference (cdr (element succ))
-                          (when pred (cdr (element pred)))))))))
-
-(declaim (inline in-range))
-(defun in-range (ranged &optional
-                          (start (ranged-min ranged))
-                          (end (1- (the (integer 0 #.(ash 1 63))
-                                        (ranged-max ranged)))))
-  "Return nodes of RANGED between START and END.
-Additionally, return the successor following END as a secondary value."
-  #+debug (declare (optimize (debug 3) (safety 3) (speed 0)))
-  #-debug (declare (type ranged ranged)
-                   (type (integer 0 #.(ash 1 63)) start)
-                   (type (integer 0 #.(ash 1 63)) end))
-  (with-slots (tree) ranged
-    (let* ((start-item (find-successor-node tree (list start))))
-      (if (< (key start-item) end)
-          (let ((ranges (list start-item))
-                (last (successor tree start-item)))
-            (loop
-               :while (and last (< (key last) end))
-               :do (progn
-                     (let ((next-last (successor tree last)))
-                       (if (= (key last) (key next-last))
-                           ;; Consolidate duplicate entries.
-                           (progn
-                             #+debug (format t "consolidate:~S~%" (key last))
-                             (delete-item tree last)
-                             (delete-item tree next-last)
-                             (nest (setf next-last)
-                                   (second) (multiple-value-list)
-                                   (insert-item tree)
-                                   (cons (car (element last))
-                                         (remove-duplicates
-                                          (append (cdr (element last))
-                                                  (cdr (element next-last)))))))
-                           ;; Collect and continue
-                           (push last ranges))
-                       (setf last next-last)))
-               :finally (return (values (nreverse ranges) last))))
-          (values nil start-item)))))
-
-(defun ranged-insert (ranged item start &optional end &aux previous)
-  "Insert ITEM into ranged collection RANGED between START and END.
-Return the RANGED collection after inserting ITEM."
-  #+debug (declare (optimize (debug 3) (safety 3) (speed 0)))
-  (check-type ranged ranged "A ranged collection")
-  (check-type start (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (unless end (setf end (1+ start)))
-  (check-type end (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (nest
-   (with-slots (tree) ranged)
-   (flet ((add-item-to-node (node &aux (element (element node)))
-            (delete-item tree node)
-            (insert-item tree (cons (car element) (cons item (cdr element)))))
-          (place-item-in-range (place)
-            (nest (second) (multiple-value-list) (insert-item tree)
-                  (cons place (cons item (ranged-find ranged place)))))))
-   (multiple-value-bind (ranges successor) (in-range ranged start end)
-     (unless ranges
-       (setf ranges (list (find-predecessor-node tree start))))
-     ;; Possibly split the first range.
-     (let ((first (pop ranges)))
-       (cond
-         ((< start (key first))
-          (place-item-in-range start)
-          (add-item-to-node first)
-          (setf previous first))
-         ((= start (key first))
-          (add-item-to-node first)
-          (setf previous first))
-         ((> start (key first))
-          (setf previous (place-item-in-range start)))))
-     ;; Handle the remaining ranges.
-     (loop :until (null ranges)
-        :do (add-item-to-node (setf previous (pop ranges))))
-     ;; Possibly split the previous range.
-     (unless (= end (key successor))
-       (insert-item tree (cons end (remove item (cdr (element previous))))))))
-  ranged)
-
-(defun ranged-delete (ranged item start &optional end &aux last)
-  "Delete ITEM from ranged collection RANGED between START and END.
-Return the RANGED collection after deleting ITEM."
-  (check-type ranged ranged "A ranged collection")
-  (check-type start (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (unless end (setf end (1+ start)))
-  (check-type end (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (nest
-   (with-slots (tree) ranged)
-   (flet ((replace-node (node &aux (element (element node)))
-            (delete-item tree node)
-            (insert-item tree (cons (car element)
-                                    (remove item (cdr element)))))))
-   (multiple-value-bind (ranges successor) (in-range ranged start end)
-     ;; Possibly split the first range.
-     (let ((first (pop ranges)))
-       (setf last first)
-       (if (= start (key first))
-           ;; No need to split, simply replace.
-           (replace-node first)
-           ;; Add a new node (without deleting the original) which has
-           ;; the effect of splitting the range of the original.
-           (insert-item tree (cons start (remove item (cdr (element first)))))))
-     ;; Handle the remaining ranges.
-     (loop :until (null ranges) :do (replace-node (setf last (pop ranges))))
-     ;; Possibly split the last range.
-     (unless (= end (key successor))
-       (insert-item tree (cons end (remove item (cdr (element last))))))))
-  ranged)
-
-(defun ranged-find (ranged start &optional end)
-  "Find all items in RANGED between START and END."
-  (check-type ranged ranged "A ranged collection")
-  (check-type start (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (unless end (setf end (1+ start)))
-  (check-type end (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (let ((ranges (in-range ranged start end)))
-    (append (mappend (lambda (node) (cdr (element node)))
-                     (in-range ranged start end))
-            ;; Check for before the first node.
-            (unless (and ranges (= start (key (first ranges))))
-              (when-let ((pred (find-predecessor-node
-                                (slot-value ranged 'tree) start)))
-                (cdr (element pred)))))))
-
-(defun ranged-find-at (ranged start)
-  (check-type ranged ranged "A ranged collection")
-  (check-type start (integer 0 #.(ash 1 63)) "A 64-bit ranged index")
-  (at-range ranged start))
+(defun ranged-find (tree start &optional (end start))
+  (mapcar #'uuid-interval-uuid (interval:find-all tree (cons start end))))

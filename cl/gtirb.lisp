@@ -124,7 +124,7 @@
   (let ((gtirb (call-next-method)))
     (unless (= protobuf-version (proto:version (proto gtirb)))
       (error "Protobuf version mismatch version ~a from ~a isn't expected ~a"
-             (proto:version proto) path protobuf-version))
+             (proto:version (proto gtirb)) source protobuf-version))
     gtirb))
 
 (defun write-gtirb (gtirb path)
@@ -478,8 +478,7 @@ the graph.")
      (by-uuid :accessor by-uuid :initform (make-hash-table) :type hash-table
               :skip-equal-p t
               :documentation "Internal cache for UUID-based lookup.")
-     (by-address :accessor by-address :type ranged
-                 :initform (make-instance 'ranged) :skip-equal-p t
+     (by-address :accessor by-address :initform (make-ranged) :skip-equal-p t
                  :documentation "Internal cache for Address-based lookup."))
     ((version :type unsigned-byte-64 :documentation "Protobuf version."))
   (:documentation "Base class of an instance of GTIRB IR."))
@@ -505,16 +504,16 @@ the graph.")
   (remhash uuid (by-uuid obj)))
 
 (defmethod insert-address ((gtirb gtirb) item start &optional end)
-  (ranged-insert (by-address gtirb) item start end))
+  (ranged-insert (by-address gtirb) (uuid item) start end))
 
 (defmethod delete-address ((gtirb gtirb) item start &optional end)
-  (ranged-insert (by-address gtirb) item start end))
+  (ranged-delete (by-address gtirb) (uuid item) start end))
 
 (defmethod at-address ((gtirb gtirb) address)
-  (ranged-find-at (by-address gtirb) address))
+  (mapcar {get-uuid _ gtirb} (ranged-find-at (by-address gtirb) address)))
 
-(defmethod on-address ((gtirb gtirb) start &optional end)
-  (ranged-find (by-address gtirb) start end))
+(defmethod on-address ((gtirb gtirb) start &optional (end start))
+  (mapcar {get-uuid _ gtirb} (ranged-find (by-address gtirb) start end)))
 
 (define-constant +module-isa-map+
     '((#.proto:+isa-isa-undefined+ . :undefined)

@@ -85,3 +85,4 @@
     :entry-point "gtirb/dot::run-dot")
 
 (register-system-packages "proto" '(:gtirb.proto))
+(register-system-packages "cl-interval" '(:interval))

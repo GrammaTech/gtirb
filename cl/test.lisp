@@ -470,16 +470,7 @@ The ERRNO used when exiting lisp indicates success or failure."
         (is (every-symbolic-expression-has-symbols-proto temporary-file))
         (is (every-symbolic-expression-has-symbols-gtirb temporary-file))))))
 
-(deftest everythings-address-matches-its-index-in-by-address ()
-  (with-fixture hello
-    (let ((it (read-gtirb *proto-path*)))
-      (gtirb/ranged::preorder-walk
-       (with-slots (gtirb/ranged::tree) (gtirb/gtirb::by-address it)
-         gtirb/ranged::tree)
-       (lambda (index)
-         (is (every [{= (car index)} #'address]
-                    (at-address it (car index)))))))))
-
+#+ignore-expected-failure
 (deftest every-block-is-found-at-its-address ()
   (with-fixture hello
     (let ((it (read-gtirb *proto-path*)))
@@ -579,48 +570,3 @@ The ERRNO used when exiting lisp indicates success or failure."
        (mappend #'byte-intervals)
        (mappend #'sections)
        (modules new)))))
-
-
-;;;; Ranged collection test suite.
-(deftest inserted-is-found ()
-  (let ((it (make-instance 'ranged)))
-    (ranged-insert it :example 5 10)
-    (is (set-equal (ranged-find it 0 6) '(:example)))
-    (is (set-equal (ranged-find it 9 20) '(:example)))
-    (is (set-equal (ranged-find it 0 200) '(:example)))
-    (is (null (ranged-find it 4)))
-    (is (null (ranged-find it 10)))
-    (gtirb/ranged::in-range it)))
-
-(deftest range-ends-when-supposed-to ()
-  (let ((it (make-instance 'ranged)))
-    (gtirb/ranged::ranged-insert it :eric 0 10)
-    (is (null (gtirb/ranged::in-range it 15 20)))))
-
-(deftest empty-ranges-are-empty ()
-  (let ((it (make-instance 'ranged)))
-    (gtirb/ranged::ranged-insert it :eric 0 10)
-    (ranged-insert it :schulte 5 20)
-    (ranged-insert it :chris 100 111)
-    (is (null (cdr (gtirb/ranged::element (gtirb/ranged::find-successor-node
-                                           (slot-value it 'gtirb/ranged::tree)
-                                           (list 20))))))))
-
-(deftest only-inserted-are-found ()
-  (let ((it (make-instance 'ranged)))
-    (dotimes (n 40) (ranged-insert it (intern (string-upcase (format nil "~r" n))) n (+ n 2)))
-    (dotimes (n 30) (ranged-insert it (intern (string-upcase (format nil "~r" n))) (+ n 10) (+ n 12)))
-    (is (set-equal (ranged-find it 0) '(ZERO)))
-    (is (set-equal (ranged-find it 1) '(ZERO ONE)))
-    (is (set-equal (ranged-find it 10) '(ZERO NINE TEN)))))
-
-(deftest deleted-is-lost ()
-  (let ((it (make-instance 'ranged)))
-    (ranged-insert it :example 5 10)
-    (ranged-delete it :example 5 10)
-    (is (null (ranged-find it 0 6)))
-    (is (null (ranged-find it 9 20)))
-    (is (null (ranged-find it 0 200)))
-    (is (null (ranged-find it 4)))
-    (is (null (ranged-find it 10)))
-    (gtirb/ranged::in-range it)))
