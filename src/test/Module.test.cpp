@@ -242,14 +242,90 @@ TEST(Unit_Module, sections) {
       std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 1);
 }
 
+TEST(Unit_Module, byteIntervals) {
+  auto* M = Module::Create(Ctx);
+  auto* S1 = M->addSection(Ctx, "gamma");
+  auto* S2 = M->addSection(Ctx, "beta");
+  auto* S3 = M->addSection(Ctx, "alpha");
+  auto* BI1 = S1->addByteInterval(Ctx, 10);
+  auto* BI2 = S2->addByteInterval(Ctx, Addr(0), 10);
+  auto* BI3 = S3->addByteInterval(Ctx, Addr(10), 10);
+
+  // Iteration should be in order of increasing start address.
+  ASSERT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
+            3);
+  EXPECT_EQ(&*std::next(M->byte_intervals_begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(M->byte_intervals_begin(), 1), BI2);
+  EXPECT_EQ(&*std::next(M->byte_intervals_begin(), 2), BI3);
+
+  ASSERT_EQ(std::distance(M->sections_begin(), M->sections_end()), 3);
+  EXPECT_EQ(&*std::next(M->sections_begin(), 0), S1);
+  EXPECT_EQ(&*std::next(M->sections_begin(), 1), S2);
+  EXPECT_EQ(&*std::next(M->sections_begin(), 2), S3);
+
+  // Iteration should be alphabetical by section name
+  ASSERT_EQ(
+      std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 3);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 0), S3);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 1), S2);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 2), S1);
+
+  BI2->setAddress(Addr(20));
+
+  // BI2 should now come last...
+  ASSERT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
+            3);
+  EXPECT_EQ(&*std::next(M->byte_intervals_begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(M->byte_intervals_begin(), 1), BI3);
+  EXPECT_EQ(&*std::next(M->byte_intervals_begin(), 2), BI2);
+
+  ASSERT_EQ(std::distance(M->sections_begin(), M->sections_end()), 3);
+  EXPECT_EQ(&*std::next(M->sections_begin(), 0), S1);
+  EXPECT_EQ(&*std::next(M->sections_begin(), 1), S3);
+  EXPECT_EQ(&*std::next(M->sections_begin(), 2), S2);
+
+  // Iteration should be unaffected by changing addresses...
+  ASSERT_EQ(
+      std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 3);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 0), S3);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 1), S2);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 2), S1);
+}
+
+TEST(Unit_Module, getAddressAndSize) {
+  auto* M = Module::Create(Ctx);
+  auto* S = M->addSection(Ctx, "test");
+  auto* BI = S->addByteInterval(Ctx, 100);
+
+  EXPECT_FALSE(M->getAddress());
+  EXPECT_FALSE(M->getSize());
+
+  BI->setAddress(Addr(200));
+
+  ASSERT_TRUE(M->getAddress());
+  EXPECT_EQ(M->getAddress(), Addr(200));
+  ASSERT_TRUE(M->getSize());
+  EXPECT_EQ(M->getSize(), 100);
+
+  BI->setAddress(Addr(0));
+
+  EXPECT_EQ(M->getAddress(), Addr(0));
+  EXPECT_EQ(M->getSize(), 100);
+
+  BI->setSize(15);
+
+  EXPECT_EQ(M->getAddress(), Addr(0));
+  EXPECT_EQ(M->getSize(), 15);
+}
+
 TEST(Unit_Module, findSections) {
   auto* M = Module::Create(Ctx);
   auto* S = M->addSection(Ctx, "test");
-  S->addByteInterval(Ctx, Addr(1), 123);
+  auto* BI = S->addByteInterval(Ctx, Addr(1), 123);
 
   {
     auto F = M->findSectionsOn(Addr(1));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(F.begin()->getName(), "test");
 
     F = M->findSectionsOn(Addr(123));
@@ -259,9 +335,16 @@ TEST(Unit_Module, findSections) {
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 
+  BI->setAddress(std::nullopt);
+
+  {
+    auto F = M->findSectionsOn(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+  }
+
   {
     auto F = M->findSections("test");
-    EXPECT_NE(F, M->sections_by_name_end());
+    ASSERT_NE(F, M->sections_by_name_end());
     EXPECT_EQ(F->getName(), "test");
 
     F = M->findSections("dummy");
@@ -276,11 +359,11 @@ TEST(Unit_Module, blocks) {
   auto BI = S->addByteInterval(Ctx, Addr(1), 10);
   BI->addBlock<CodeBlock>(Ctx, 0, 10);
 
-  EXPECT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
+  ASSERT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 1);
   EXPECT_EQ(M->code_blocks_begin()->getAddress(), std::optional<Addr>(Addr(1)));
 
   auto F = blocks(M->getIR()->getCFG());
-  EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+  ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
   EXPECT_EQ(F.begin()->getAddress(), Addr(1));
 }
 
@@ -314,25 +397,25 @@ TEST(Unit_Module, findBlock) {
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
 
     F = M->findCodeBlocksOn(Addr(1));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
     F = M->findCodeBlocksOn(Addr(5));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), B1);
     EXPECT_EQ(&*++F.begin(), B2);
 
     F = M->findCodeBlocksOn(Addr(14));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), B1);
     EXPECT_EQ(&*++F.begin(), B2);
 
     F = M->findCodeBlocksOn(Addr(15));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
     F = M->findCodeBlocksOn(Addr(20));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), B1);
 
     F = M->findCodeBlocksOn(Addr(21));
@@ -345,6 +428,7 @@ TEST(Unit_Module, dataObjects) {
   auto* S = M->addSection(Ctx, "test");
   auto* BI = S->addByteInterval(Ctx, Addr(1), 123);
   BI->addBlock<DataBlock>(Ctx, 0, 123);
+  ASSERT_NE(M->data_blocks_begin(), M->data_blocks_end());
   EXPECT_EQ(M->data_blocks_begin()->getAddress(), Addr(1));
 }
 
@@ -361,25 +445,25 @@ TEST(Unit_Module, findData) {
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
 
     F = M->findDataBlocksOn(Addr(1));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D1);
 
     F = M->findDataBlocksOn(Addr(5));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
     F = M->findDataBlocksOn(Addr(10));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(&*F.begin(), D1);
     EXPECT_EQ(&*(++F.begin()), D2);
 
     F = M->findDataBlocksOn(Addr(11));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D2);
 
     F = M->findDataBlocksOn(Addr(14));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(&*F.begin(), D2);
 
     F = M->findDataBlocksOn(Addr(15));
@@ -400,12 +484,7 @@ TEST(Unit_Module, symbolIterationOrder) {
     // symbol_name_iterator returns values in name order but does not specify
     // order for symbols with the same name.
     EXPECT_EQ(&*It++, S2);
-    if (&*It == S3) {
-      EXPECT_EQ(&*++It, S1);
-    } else {
-      EXPECT_EQ(&*It++, S1);
-      EXPECT_EQ(&*It++, S3);
-    }
+    EXPECT_EQ((std::set<Symbol*>{&*It++, &*It++}), (std::set<Symbol*>{S1, S3}));
   }
 }
 
@@ -642,14 +721,14 @@ TEST(Unit_Module, findSymbolicExpressionsAts) {
 
   {
     auto F = M->findSymbolicExpressionsAt(Addr(1), Addr(5));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(std::get<SymAddrConst>(F.begin()->getSymbolicExpression()).Sym,
               S1);
   }
 
   {
     auto F = M->findSymbolicExpressionsAt(Addr(1), Addr(6));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
     EXPECT_EQ(std::get<SymAddrConst>(F.begin()->getSymbolicExpression()).Sym,
               S1);
     EXPECT_EQ(
@@ -658,7 +737,7 @@ TEST(Unit_Module, findSymbolicExpressionsAts) {
 
   {
     auto F = M->findSymbolicExpressionsAt(Addr(1), Addr(3));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
     EXPECT_EQ(std::get<SymAddrConst>(F.begin()->getSymbolicExpression()).Sym,
               S1);
   }
@@ -742,14 +821,14 @@ TEST(Unit_Module, protobufRoundTrip) {
     EXPECT_TRUE(It->getUUID() == BlockID || It->getUUID() == ProxyID);
   }
 
-  EXPECT_EQ(
+  ASSERT_EQ(
       std::distance(Result->data_blocks_begin(), Result->data_blocks_end()), 1);
   EXPECT_EQ(Result->data_blocks_begin()->getUUID(), DataID);
 
-  EXPECT_EQ(std::distance(Result->sections_begin(), Result->sections_end()), 1);
+  ASSERT_EQ(std::distance(Result->sections_begin(), Result->sections_end()), 1);
   EXPECT_EQ(Result->sections_begin()->getUUID(), SectionID);
 
-  EXPECT_EQ(std::distance(Result->symbolic_expressions_begin(),
+  ASSERT_EQ(std::distance(Result->symbolic_expressions_begin(),
                           Result->symbolic_expressions_end()),
             1);
   EXPECT_EQ(Result->symbolic_expressions_begin()->getOffset(), WhichSymbolic);

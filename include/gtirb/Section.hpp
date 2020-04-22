@@ -1148,6 +1148,19 @@ public:
   /// \return indication of whether the observer accepts the change.
   virtual ChangeStatus removeCodeBlocks(Section* S,
                                         Section::code_block_range Blocks) = 0;
+
+  /// \brief Notify parent when the range of addresses in the Section changes.
+  ///
+  /// Called after the Section updates its internal state.
+  ///
+  /// \param S          the Section that changed.
+  /// \param OldExtent  the previous range of addresses in the Section.
+  /// \param NewExtent  the new range of addresses in the Section.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus changeExtent(Section* S,
+                                    std::optional<AddrRange> OldExtent,
+                                    std::optional<AddrRange> NewExtent) = 0;
 };
 
 } // namespace gtirb

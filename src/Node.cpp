@@ -51,7 +51,6 @@ static void modifyIndex(CollectionType& Index, NodeType* N,
   }
 }
 
-static uint64_t extractSize(uint64_t t) { return t; }
 static uint64_t extractSize(std::optional<uint64_t> t) { return *t; }
 
 template <typename NodeType, typename IntMapType, typename SizeType>
@@ -167,14 +166,6 @@ void Node::addToIndices() {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
   } break;
-  case Node::Kind::Section: {
-    auto* S = cast<Section>(this);
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-    addToICL(M->SectionAddrs, S);
-  } break;
   default: { assert(!"unexpected kind of node passed to addToModuleIndices!"); }
   }
 }
@@ -235,14 +226,14 @@ void Node::mutateIndices(const std::function<void()>& F) {
   } break;
   case Node::Kind::Section: {
     auto* S = cast<Section>(this);
-    auto* M = S->getModule();
-    if (!M) {
-      F();
-      return;
+    std::optional<AddrRange> OldExtent = addressRange(*S);
+    F();
+    if (S->Observer) {
+      [[maybe_unused]] ChangeStatus status =
+          S->Observer->changeExtent(S, OldExtent, addressRange(*S));
+      assert(status != ChangeStatus::REJECTED &&
+             "recovering from rejected removal is not implemented yet");
     }
-    removeFromICL(M->SectionAddrs, S);
-    modifyIndex(M->Sections.get<Module::by_pointer>(), S, F);
-    addToICL(M->SectionAddrs, S);
   } break;
   case Node::Kind::Symbol: {
     auto* S = cast<Symbol>(this);
@@ -333,14 +324,6 @@ void Node::removeFromIndices() {
     for (auto& Sym : M->findSymbols(*B)) {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
-  } break;
-  case Node::Kind::Section: {
-    auto* S = cast<Section>(this);
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-    removeFromICL(M->SectionAddrs, S);
   } break;
   default: {
     assert(!"unexpected kind of node passed to mutateModuleIndices!");

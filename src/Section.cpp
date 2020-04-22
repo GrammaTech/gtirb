@@ -82,20 +82,20 @@ ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
       assert(status != ChangeStatus::REJECTED &&
              "recovering from rejected removal is not implemented yet");
     }
-
-    // Section::mutateIndices updates the Module's SectionAddrs and Sections
-    // data structures in case removing the ByteInterval causes the range of
-    // addresses in this Section to change...
-    //
-    // The ByteInterval is removed inside the lambda so that getAddress and
-    // getSize return the old address and size, respectively, before the lambda
-    // is invoked, and the new address and size afterwards.
-    this->mutateIndices([&Index, Iter]() mutable { Index.erase(Iter); });
+    Index.erase(Iter);
 
     // ByteInterval::removeFromIndices removes the ByteInterval from this
     // Section's ByteIntervalAddrs...
 
+    std::optional<AddrRange> OldExtent = addressRange(*this);
     BI->removeFromIndices();
+
+    if (Observer) {
+      [[maybe_unused]] ChangeStatus status =
+          Observer->changeExtent(this, OldExtent, addressRange(*this));
+      assert(status != ChangeStatus::REJECTED &&
+             "recovering from rejected removal is not implemented yet");
+    }
 
     // Unset the ByteInterval's Section *after* calling removeFromIndices.
 
@@ -119,32 +119,27 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
 
   BI->setSection(this);
 
+  std::optional<AddrRange> OldExtent = addressRange(*this);
+
   // ByteInterval::addToIndices adds the ByteInterval to this Section's
   // ByteIntervalAddrs...
 
   BI->addToIndices();
 
-  // Section::mutateIndices updates the Module's SectionAddrs and Sections data
-  // structures in case the new ByteInterval caused the range of addresses in
-  // this Section to change...
-  //
-  // The ByteInterval is emplaced inside the lambda so that getAddress and
-  // getSize return the old address and size, respectively, before the lambda
-  // is invoked, and the new address and size afterwards. It is not necessary
-  // to call addCodeBlocks from inside the lambda, but it is convenient.
+  auto [Iter, Inserted] = ByteIntervals.emplace(BI);
+  if (Inserted && Observer) {
+    auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
+    [[maybe_unused]] ChangeStatus status =
+        Observer->addCodeBlocks(this, Blocks);
+    // None of the known observers reject insertions. If that changes, this
+    // implementation must be updated.
+    assert(status != ChangeStatus::REJECTED &&
+           "recovering from rejected insertion is unimplemented");
 
-  this->mutateIndices([this, BI]() mutable {
-    auto [Iter, Inserted] = ByteIntervals.emplace(BI);
-    if (Inserted && Observer) {
-      auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
-      [[maybe_unused]] ChangeStatus status =
-          Observer->addCodeBlocks(this, Blocks);
-      // None of the known observers reject insertions. If that changes, this
-      // implementation must be updated.
-      assert(status != ChangeStatus::REJECTED &&
-             "recovering from rejected insertion is unimplemented");
-    }
-  });
+    status = Observer->changeExtent(this, OldExtent, addressRange(*this));
+    assert(status != ChangeStatus::REJECTED &&
+           "recovering from rejected insertion is unimplemented");
+  }
 
   return ChangeStatus::ACCEPTED;
 }

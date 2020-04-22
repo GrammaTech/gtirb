@@ -168,6 +168,8 @@ Module* Module::load(Context& C, std::istream& In) {
 ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
+    SO.changeExtent(S, addressRange(*S), std::nullopt);
+
     if (Observer) {
       auto Begin = Sections.project<by_address>(Iter);
       auto End = std::next(Begin);
@@ -181,13 +183,6 @@ ChangeStatus Module::removeSection(Section* S) {
              "recovering from rejected removal is unimplemented");
     }
     Index.erase(Iter);
-
-    // Section::removeFromIndices removes the Section from this Module's
-    // SectionAddrs...
-
-    S->removeFromIndices();
-
-    // Unset the parent *after* calling removeFromIndices.
 
     S->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
@@ -204,13 +199,7 @@ ChangeStatus Module::addSection(Section* S) {
            "failed to remove section from former parent");
   }
 
-  // Set the parent *before* calling addToIndices.
-
   S->setParent(this, &SO);
-
-  // Section::addToIndices adds the Section to this Module's SectionAddrs...
-
-  S->addToIndices();
 
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Observer) {
@@ -222,6 +211,9 @@ ChangeStatus Module::addSection(Section* S) {
     assert(status != ChangeStatus::REJECTED &&
            "recovering from rejected insertion is unimplemented");
   }
+
+  SO.changeExtent(S, std::nullopt, addressRange(*S));
+
   return ChangeStatus::ACCEPTED;
 }
 
@@ -254,6 +246,39 @@ ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
     return M->Observer->removeCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus
+Module::SectionObserverImpl::changeExtent(Section* S,
+                                          std::optional<AddrRange> OldExtent,
+                                          std::optional<AddrRange> NewExtent) {
+  if (OldExtent == NewExtent)
+    return ChangeStatus::NO_CHANGE;
+
+  auto& Index = M->Sections.get<by_pointer>();
+  if (auto It = Index.find(S); It != Index.end()) {
+    std::optional<AddrRange> Previous = addressRange(*M);
+    if (OldExtent)
+      M->SectionAddrs.subtract(
+          std::make_pair(SectionIntMap::interval_type::right_open(
+                             OldExtent->lower(), OldExtent->upper()),
+                         SectionIntMap::codomain_type({S})));
+
+    // The following lambda is intentionally a no-op. Because the Section's
+    // address has already been updated before this method executes, we only
+    // need to tell the index to re-synchronize.
+    Index.modify(It, [](Section*) {});
+
+    if (NewExtent)
+      M->SectionAddrs.add(
+          std::make_pair(SectionIntMap::interval_type::right_open(
+                             NewExtent->lower(), NewExtent->upper()),
+                         SectionIntMap::codomain_type({S})));
+
+    if (Previous != addressRange(*M))
+      return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
 }

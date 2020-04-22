@@ -201,6 +201,31 @@ private:
   value_type Address{0};
 };
 
+/// \brief A range of addresses starting at \c First and extending for \c Size
+/// bytes.
+struct AddrRange {
+  /// \brief The first address in the range.
+  Addr First;
+  /// \brief The number of bytes in the range.
+  uint64_t Size;
+
+  /// \brief Equality operator for \ref AddrRange.
+  bool operator==(const AddrRange& RHS) const {
+    return First == RHS.First && Size == RHS.Size;
+  }
+
+  /// \brief Inequality operator for \ref AddrRange.
+  bool operator!=(const AddrRange& RHS) const {
+    return First != RHS.First || Size != RHS.Size;
+  }
+
+  /// \brief Inclusive lower bound of the address range.
+  Addr lower() const { return First; }
+
+  /// \brief Exclusive upper bound of the address range.
+  Addr upper() const { return First + Size; }
+};
+
 template <typename T> std::optional<uint64_t> asOptionalSize(T X);
 
 template <> std::optional<uint64_t> inline asOptionalSize(uint64_t X) {
@@ -210,6 +235,26 @@ template <> std::optional<uint64_t> inline asOptionalSize(uint64_t X) {
 template <>
 std::optional<uint64_t> inline asOptionalSize(std::optional<uint64_t> X) {
   return X;
+}
+
+/// \relates Addr
+/// \brief Address range of an object.
+///
+/// \tparam T         Any type that specifies a range of addresses via
+/// getAddress() and getSize() methods (e.g., DataBlock).
+///
+/// \param Object     The object to interrogate.
+///
+/// \return An address range (\ref AddrRange) [L, H) such that all and only the
+/// addresses L <= A < H are in \p Object, or \c std::nullopt if the object's
+/// addresses are not defined.
+template <typename T> std::optional<AddrRange> addressRange(const T& Object) {
+  if (std::optional<Addr> A = Object.getAddress()) {
+    if (std::optional<uint64_t> S = Object.getSize()) {
+      return AddrRange{*A, *S};
+    }
+  }
+  return std::nullopt;
 }
 
 /// \relates Addr
