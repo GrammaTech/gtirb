@@ -37,3 +37,4 @@ repos:
     rev: 4.3.19
     hooks:
       - id: isort
+        files: \.py$
