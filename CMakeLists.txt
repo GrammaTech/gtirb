@@ -69,13 +69,15 @@ option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
 
 # These options control what APIs get built.
 # === Python ===
-find_program(PYTHON "python3")
-set(PYTHON_MINIMUM_VERSION "3.5.2")
-if(PYTHON)
-  execute_process(
-    COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION
-  )
-  string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
+if(NOT DEFINED GTIRB_PY_API OR GTIRB_PY_API)
+  find_program(PYTHON "python3")
+  set(PYTHON_MINIMUM_VERSION "3.5.2")
+  if(PYTHON)
+    execute_process(
+      COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION
+    )
+    string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
+  endif()
 endif()
 
 if(DEFINED GTIRB_PY_API)
@@ -107,16 +109,18 @@ endif()
 # === Common Lisp ===
 # TODO: test the CL API on other CL interpreters and search for those in
 # addition to SBCL when looking for a default CL interpeter
-find_program(LISP "sbcl")
-set(QUICKLISP
-    "$ENV{HOME}/quicklisp"
-    CACHE STRING "The Quicklisp installation to use."
-)
-set(LISP_MINIMUM_VERSION "1.4.5")
-if(LISP AND EXISTS "${QUICKLISP}")
-  execute_process(COMMAND "${LISP}" "--version" OUTPUT_VARIABLE LISP_VERSION)
-  string(REPLACE "SBCL" "" LISP_VERSION "${LISP_VERSION}")
-  string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
+if(NOT DEFINED GTIRB_CL_API OR GTIRB_CL_API)
+  find_program(LISP "sbcl")
+  set(QUICKLISP
+      "$ENV{HOME}/quicklisp"
+      CACHE STRING "The Quicklisp installation to use."
+  )
+  set(LISP_MINIMUM_VERSION "1.4.5")
+  if(LISP AND EXISTS "${QUICKLISP}")
+    execute_process(COMMAND "${LISP}" "--version" OUTPUT_VARIABLE LISP_VERSION)
+    string(REPLACE "SBCL" "" LISP_VERSION "${LISP_VERSION}")
+    string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
+  endif()
 endif()
 
 if(DEFINED GTIRB_CL_API)
