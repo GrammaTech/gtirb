@@ -23,6 +23,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_ProxyBlock, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<ProxyBlock>);
+  EXPECT_FALSE(std::is_move_constructible_v<ProxyBlock>);
+  EXPECT_FALSE(std::is_copy_assignable_v<ProxyBlock>);
+  EXPECT_FALSE(std::is_move_assignable_v<ProxyBlock>);
+}
+
 TEST(Unit_ProxyBlock, protobufRoundTrip) {
   using STH = gtirb::SerializationTestHarness;
   std::stringstream ss;

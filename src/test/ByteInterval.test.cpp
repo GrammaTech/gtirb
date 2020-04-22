@@ -24,6 +24,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_ByteInterval, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<ByteInterval>);
+  EXPECT_FALSE(std::is_move_constructible_v<ByteInterval>);
+  EXPECT_FALSE(std::is_copy_assignable_v<ByteInterval>);
+  EXPECT_FALSE(std::is_move_assignable_v<ByteInterval>);
+}
+
 TEST(Unit_ByteInterval, ctor) {
   EXPECT_NE(ByteInterval::Create(Ctx, Addr(1), 100), nullptr);
 }

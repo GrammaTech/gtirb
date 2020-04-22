@@ -81,8 +81,20 @@ public:
   /// \return The newly created object.
   static Node* Create(Context& C) { return C.Create<Node>(C, Kind::Node); }
 
+  /// \brief Copying Nodes is explicitly disabled.
+  Node(const Node&) = delete;
+
+  /// \brief Move-constructing Nodes is explicitly disabled.
+  Node(Node&&) = delete;
+
   /// \brief Cleans up resources no longer needed by the Node object.
   ~Node() noexcept;
+
+  /// \brief Copying Nodes is explicilty disabled.
+  Node& operator=(const Node&) = delete;
+
+  /// \brief Move-assigning Nodes is explicilty disabled.
+  Node& operator=(Node&&) = delete;
 
   /// \brief Get the Universally Unique ID (UUID) for \c this.
   ///

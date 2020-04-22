@@ -109,6 +109,13 @@ TEST(Unit_Module, compilationIteratorTypes) {
                                const Symbol&>);
 }
 
+TEST(Unit_Module, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<Module>);
+  EXPECT_FALSE(std::is_move_constructible_v<Module>);
+  EXPECT_FALSE(std::is_copy_assignable_v<Module>);
+  EXPECT_FALSE(std::is_move_assignable_v<Module>);
+}
+
 static Context Ctx;
 
 TEST(Unit_Module, ctor_0) { EXPECT_NE(Module::Create(Ctx), nullptr); }

@@ -23,6 +23,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_CodeBlock, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<CodeBlock>);
+  EXPECT_FALSE(std::is_move_constructible_v<CodeBlock>);
+  EXPECT_FALSE(std::is_copy_assignable_v<CodeBlock>);
+  EXPECT_FALSE(std::is_move_assignable_v<CodeBlock>);
+}
+
 TEST(Unit_CodeBlock, ctor) { EXPECT_NE(CodeBlock::Create(Ctx, 0), nullptr); }
 
 TEST(Unit_CodeBlock, getters) {

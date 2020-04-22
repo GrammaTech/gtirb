@@ -24,6 +24,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_DataBlock, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<DataBlock>);
+  EXPECT_FALSE(std::is_move_constructible_v<DataBlock>);
+  EXPECT_FALSE(std::is_copy_assignable_v<DataBlock>);
+  EXPECT_FALSE(std::is_move_assignable_v<DataBlock>);
+}
+
 TEST(Unit_DataBlock, getters) {
   auto* BI = ByteInterval::Create(Ctx, Addr(0), 2);
   auto* B = BI->addBlock<DataBlock>(Ctx, 0, 1);

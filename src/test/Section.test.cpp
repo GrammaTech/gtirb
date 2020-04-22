@@ -24,6 +24,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_Section, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<Section>);
+  EXPECT_FALSE(std::is_move_constructible_v<Section>);
+  EXPECT_FALSE(std::is_copy_assignable_v<Section>);
+  EXPECT_FALSE(std::is_move_assignable_v<Section>);
+}
+
 TEST(Unit_Section, getAddress) {
   using OAddr = std::optional<Addr>;
   using OSize = std::optional<uint64_t>;

@@ -28,6 +28,13 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_Symbol, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<Symbol>);
+  EXPECT_FALSE(std::is_move_constructible_v<Symbol>);
+  EXPECT_FALSE(std::is_copy_assignable_v<Symbol>);
+  EXPECT_FALSE(std::is_move_assignable_v<Symbol>);
+}
+
 TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx, "test"), nullptr); }
 
 TEST(Unit_Symbol, setReferent) {

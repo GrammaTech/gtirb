@@ -1,3 +1,9 @@
+# 1.5.0
+
+* Explicitly disable copy and move constructors for the Node class hierarchy in
+  C++. This avoids a class of errors where nodes cannot be found by
+  Node::getByUUID.
+
 # 1.4.4
 
 * Build/install libgtirb.so.1 symlink on linux.

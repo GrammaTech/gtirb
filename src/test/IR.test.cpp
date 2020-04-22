@@ -83,6 +83,13 @@ TEST(Unit_IR, compilationIteratorTypes) {
   CIt = It;
 }
 
+TEST(Unit_IR, noCopyMoveConstructors) {
+  EXPECT_FALSE(std::is_copy_constructible_v<IR>);
+  EXPECT_FALSE(std::is_move_constructible_v<IR>);
+  EXPECT_FALSE(std::is_copy_assignable_v<IR>);
+  EXPECT_FALSE(std::is_move_assignable_v<IR>);
+}
+
 static Context Ctx;
 TEST(Unit_IR, ctor_0) { EXPECT_NE(IR::Create(Ctx), nullptr); }
 
@@ -219,19 +226,6 @@ TEST(Unit_IR, jsonRoundTrip) {
   EXPECT_EQ(Result->getAuxDataSize(), 1);
   ASSERT_NE(Result->getAuxData<TestInt32>(), nullptr);
   EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
-}
-
-TEST(Unit_IR, move) {
-  auto* Original = IR::Create(Ctx);
-  EXPECT_TRUE(Original->getAuxDataEmpty());
-
-  Original->addAuxData<TestInt32>(42);
-
-  IR Moved(std::move(*Original));
-  EXPECT_FALSE(Moved.getAuxDataEmpty());
-  EXPECT_EQ(Moved.getAuxDataSize(), 1);
-  ASSERT_NE(Moved.getAuxData<TestInt32>(), nullptr);
-  EXPECT_EQ(*Moved.getAuxData<TestInt32>(), 42);
 }
 
 TEST(Unit_IR, setModuleName) {
