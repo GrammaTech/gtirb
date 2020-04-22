@@ -1,15 +1,6 @@
 #
 # Cmake configuration for java build
 #
-if(NOT Java_FOUND)
-  message(
-    FATAL_ERROR
-      "Java installation not found.
-You may set the variable JAVA_HOME to explicitly specify an installation.
-If you do not have Java installed, use -DGTIRB_JAVA_API=OFF when invoking
-CMake to disable the Java API build."
-  )
-endif()
 
 include(UseJava)
 

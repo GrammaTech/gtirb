@@ -67,106 +67,99 @@ enable_testing()
 # Whether or not to run clang-tidy (if present)
 option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
 
-# These options control what APIs get built.
+# Define the cache variables for the API options.
+option(GTIRB_CXX_API "Whether or not the C++ API is built." ON)
+option(GTIRB_PY_API "Whether or not the Python API is built." ON)
+option(GTIRB_CL_API "Whether or not the Common Lisp API is built." ON)
+option(GTIRB_JAVA_API "Whether or not the Java API is built." ON)
+
+# Determine whether or not the APIs are REALLY built or not.
+# === C++ ===
+set(CXX_API ${GTIRB_CXX_API})
+
 # === Python ===
-if(NOT DEFINED GTIRB_PY_API OR GTIRB_PY_API)
+set(PY_API ${GTIRB_PY_API})
+if(GTIRB_PY_API)
   find_program(PYTHON "python3")
-  set(PYTHON_MINIMUM_VERSION "3.5.2")
+
   if(PYTHON)
+    set(PYTHON_MINIMUM_VERSION "3.5.2")
     execute_process(
       COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION
     )
     string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
-  endif()
-endif()
 
-if(DEFINED GTIRB_PY_API)
-  set(GTIRB_PY_API_DEFAULT ${GTIRB_PY_API})
-  if(GTIRB_PY_API AND "${PYTHON_VERSION}" VERSION_LESS
-                      "${PYTHON_MINIMUM_VERSION}"
-  )
-    message(
-      FATAL_ERROR
-        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required, ${PYTHON_MINIMUM_VERSION}."
-    )
-  endif()
-else()
-  if(PYTHON)
     if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
       message(
         WARNING
-          "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required, ${PYTHON_MINIMUM_VERSION}; disabling building of API by default."
+          "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required, ${PYTHON_MINIMUM_VERSION}; disabling building of API."
       )
-      set(GTIRB_PY_API_DEFAULT OFF)
-    else()
-      set(GTIRB_PY_API_DEFAULT ON)
+      set(PY_API OFF)
     endif()
   else()
-    set(GTIRB_PY_API_DEFAULT OFF)
+    message(
+      WARNING
+        "Python interpreter not found; disabling building of Python API.
+If this is in error, try giving -DPYTHON=... to CMake to specify what program to use."
+    )
+    set(PY_API OFF)
   endif()
 endif()
 
 # === Common Lisp ===
 # TODO: test the CL API on other CL interpreters and search for those in
 # addition to SBCL when looking for a default CL interpeter
-if(NOT DEFINED GTIRB_CL_API OR GTIRB_CL_API)
+set(CL_API ${GTIRB_CL_API})
+if(GTIRB_CL_API)
   find_program(LISP "sbcl")
   set(QUICKLISP
       "$ENV{HOME}/quicklisp"
       CACHE STRING "The Quicklisp installation to use."
   )
   set(LISP_MINIMUM_VERSION "1.4.5")
-  if(LISP AND EXISTS "${QUICKLISP}")
+
+  if(NOT LISP)
+    message(
+      WARNING
+        "Lisp interpreter not found; disabling building of Lisp API.
+If this is in error, try giving -DLISP=... to CMake to specify what program to use."
+    )
+    set(CL_API OFF)
+  elseif(NOT EXISTS "${QUICKLISP}")
+    message(
+      WARNING
+        "Quicklisp installation not found; disabling building of Lisp API.
+If this is in error, try giving -DQUICKLISP=... to CMake to specify what directory to use."
+    )
+    set(CL_API OFF)
+  else()
     execute_process(COMMAND "${LISP}" "--version" OUTPUT_VARIABLE LISP_VERSION)
     string(REPLACE "SBCL" "" LISP_VERSION "${LISP_VERSION}")
     string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
-  endif()
-endif()
 
-if(DEFINED GTIRB_CL_API)
-  set(GTIRB_CL_API_DEFAULT ${GTIRB_CL_API})
-  if(GTIRB_CL_API AND "${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
-    message(
-      FATAL_ERROR
-        "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required, ${LISP_MINIMUM_VERSION}."
-    )
-  endif()
-else()
-  if(LISP AND EXISTS "${QUICKLISP}")
     if("${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
       message(
         WARNING
-          "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required, ${LISP_MINIMUM_VERSION}; disabling building of API by default."
+          "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required, ${LISP_MINIMUM_VERSION}; disabling building of API."
       )
-      set(GTIRB_CL_API_DEFAULT OFF)
-    else()
-      set(GTIRB_CL_API_DEFAULT ON)
+      set(CL_API OFF)
     endif()
-  else()
-    set(GTIRB_CL_API_DEFAULT OFF)
   endif()
 endif()
 
 # === Java ===
-find_package(Java 1.8.0 COMPONENTS Development)
-if(JAVA_FOUND)
-  set(GTIRB_JAVA_API_DEFAULT ON)
-else()
-  set(GTIRB_JAVA_API_DEFAULT OFF)
+set(JAVA_API ${GTIRB_JAVA_API})
+if(GTIRB_JAVA_API)
+  find_package(Java 1.8.0 COMPONENTS Development)
+  if(NOT JAVA_FOUND)
+    message(WARNING "Java 8 compiler not found; disabling building of Java API.
+If this is in error, try setting the environment variable $JAVA_HOME."
+    )
+    set(JAVA_API OFF)
+  endif()
 endif()
 
-# Define the cache variables for the API options.
-option(GTIRB_CXX_API "Whether or not the C++ API is built." ON)
-option(GTIRB_PY_API "Whether or not the Python API is built."
-       ${GTIRB_PY_API_DEFAULT}
-)
-option(GTIRB_CL_API "Whether or not the Common Lisp API is built."
-       ${GTIRB_CL_API_DEFAULT}
-)
-option(GTIRB_JAVA_API "Whether or not the Java API is built."
-       ${GTIRB_JAVA_API_DEFAULT}
-)
-
+# Documentation options.
 option(GTIRB_DOCUMENTATION "Whether or not documentation is built." ON)
 
 # ---------------------------------------------------------------------------
@@ -197,7 +190,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-if(GTIRB_CXX_API)
+if(CXX_API)
   # Use C++17
   set(CMAKE_CXX_STANDARD 17)
   # Error if it's not available
@@ -293,7 +286,7 @@ endif()
 # ---------------------------------------------------------------------------
 # Boost
 # ---------------------------------------------------------------------------
-if(GTIRB_CXX_API)
+if(CXX_API)
   find_package(Boost 1.67 REQUIRED)
 
   add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
@@ -315,7 +308,7 @@ endif()
 # ---------------------------------------------------------------------------
 # Google Test Application
 # ---------------------------------------------------------------------------
-if(GTIRB_ENABLE_TESTS AND GTIRB_CXX_API)
+if(GTIRB_ENABLE_TESTS AND CXX_API)
   # Pull in Google Test
   # https://github.com/google/googletest/tree/master/googletest#incorporating-
   # into-an-existing-cmake-project
@@ -362,7 +355,7 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-if(GTIRB_CL_API)
+if(CL_API)
   find_package(Protobuf 3.7.0 REQUIRED)
 else()
   find_package(Protobuf 3.0.0 REQUIRED)
@@ -378,31 +371,31 @@ add_subdirectory(proto)
 # ---------------------------------------------------------------------------
 # gtirb sources
 # ---------------------------------------------------------------------------
-if(GTIRB_CXX_API)
+if(CXX_API)
   add_subdirectory(src)
 endif()
 
-if(GTIRB_PY_API)
+if(PY_API)
   add_subdirectory(python)
 endif()
 
-if(GTIRB_CL_API)
+if(CL_API)
   add_subdirectory(cl)
+endif()
+
+if(JAVA_API)
+  add_subdirectory(java)
 endif()
 
 if(GTIRB_DOCUMENTATION)
   add_subdirectory(doc)
 endif()
 
-if(GTIRB_JAVA_API)
-  add_subdirectory(java)
-endif()
-
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
 # ---------------------------------------------------------------------------
 
-if(GTIRB_CXX_API)
+if(CXX_API)
   # --- For direct use from the build directory/cmake registry ---
   # This exports the targets
   export(TARGETS gtirb proto
@@ -497,7 +490,7 @@ include(CPack)
 # ---------------------------------------------------------------------------
 
 message("APIs to be built:")
-message("    C++     ${GTIRB_CXX_API}")
-message("    Python  ${GTIRB_PY_API}")
-message("    Lisp    ${GTIRB_CL_API}")
-message("    Java    ${GTIRB_JAVA_API}")
+message("    C++     ${CXX_API}")
+message("    Python  ${PY_API}")
+message("    Lisp    ${CL_API}")
+message("    Java    ${JAVA_API}")

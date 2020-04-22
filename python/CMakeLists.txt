@@ -1,14 +1,5 @@
 configure_file(setup.py.in setup.py @ONLY)
 
-if(NOT PYTHON)
-  message(
-    FATAL_ERROR
-      "Python 3 installation not found.
-Try giving -DPYTHON=... to CMake to specify what Python to use,
-or give -DGTIRB_PY_API=OFF to CMake to disable Python support."
-  )
-endif()
-
 # ---------------------------------------------------------------------------
 # Building the gtirb protobuf files into python
 # ---------------------------------------------------------------------------

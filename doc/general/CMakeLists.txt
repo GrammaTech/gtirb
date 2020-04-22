@@ -157,7 +157,7 @@ if(DOXYGEN_FOUND)
 
   add_dependencies(doc general_doxyout)
 
-  if(GTIRB_CXX_API)
+  if(CXX_API)
     add_dependencies(general_doxyout cpp_doxyout)
   endif()
 

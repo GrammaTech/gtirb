@@ -1,21 +1,3 @@
-if(NOT LISP)
-  message(
-    FATAL_ERROR
-      "Common Lisp installation not found.
-Try giving -DLISP=... to CMake to specify what Common Lisp interpreter to use,
-or give -DGTIRB_CL_API=OFF to CMake to disable Common Lisp support."
-  )
-endif()
-
-if(NOT EXISTS "${QUICKLISP}")
-  message(
-    FATAL_ERROR
-      "Quicklisp installation not found at ${QUICKLISP}.
-Try giving -DQUICKLISP=... to CMake to specify what Quicklisp installation to use,
-or give -DGTIRB_CL_API=OFF to CMake to disable Common Lisp support."
-  )
-endif()
-
 file(GLOB CL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.lisp
      ${CMAKE_CURRENT_SOURCE_DIR}/*.asd
 )
