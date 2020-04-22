@@ -1,3 +1,7 @@
+# 1.4.4
+
+* Build/install libgtirb.so.1 symlink on linux.
+
 # 1.4.3
 * Remove the python-egg cmake target, add the python-wheel cmake target
 

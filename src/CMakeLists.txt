@@ -97,10 +97,8 @@ endif()
 
 gtirb_add_library()
 set_target_properties(
-  ${PROJECT_NAME}
-  PROPERTIES
-    VERSION
-    ${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}
+  ${PROJECT_NAME} PROPERTIES VERSION ${GTIRB_VERSION} SOVERSION
+                                                      ${GTIRB_MAJOR_VERSION}
 )
 if(WIN32)
   # FIXME: We need to figure out how to handle cutting a release build. For the
