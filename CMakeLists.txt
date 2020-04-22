@@ -68,51 +68,82 @@ enable_testing()
 option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
 
 # These options control what APIs get built.
-set(PYTHON_MINIMUM_VERSION "3.5.2")
+# === Python ===
 find_program(PYTHON "python3")
+set(PYTHON_MINIMUM_VERSION "3.5.2")
 if(PYTHON)
   execute_process(
     COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION
   )
   string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
-  if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
-    message(
-      WARNING
-        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required (${PYTHON_MINIMUM_VERSION}); this API may not build correctly."
-    )
-    set(GTIRB_PY_API_DEFAULT OFF)
-  else()
-    set(GTIRB_PY_API_DEFAULT ON)
-  endif()
-else()
-  set(GTIRB_PY_API_DEFAULT OFF)
 endif()
 
+if(DEFINED GTIRB_PY_API)
+  set(GTIRB_PY_API_DEFAULT ${GTIRB_PY_API})
+  if(GTIRB_PY_API AND "${PYTHON_VERSION}" VERSION_LESS
+                      "${PYTHON_MINIMUM_VERSION}"
+  )
+    message(
+      FATAL_ERROR
+        "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required, ${PYTHON_MINIMUM_VERSION}."
+    )
+  endif()
+else()
+  if(PYTHON)
+    if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
+      message(
+        WARNING
+          "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required, ${PYTHON_MINIMUM_VERSION}; disabling building of API by default."
+      )
+      set(GTIRB_PY_API_DEFAULT OFF)
+    else()
+      set(GTIRB_PY_API_DEFAULT ON)
+    endif()
+  else()
+    set(GTIRB_PY_API_DEFAULT OFF)
+  endif()
+endif()
+
+# === Common Lisp ===
 # TODO: test the CL API on other CL interpreters and search for those in
 # addition to SBCL when looking for a default CL interpeter
-set(LISP_MINIMUM_VERSION "1.4.5")
 find_program(LISP "sbcl")
 set(QUICKLISP
     "$ENV{HOME}/quicklisp"
     CACHE STRING "The Quicklisp installation to use."
 )
+set(LISP_MINIMUM_VERSION "1.4.5")
 if(LISP AND EXISTS "${QUICKLISP}")
   execute_process(COMMAND "${LISP}" "--version" OUTPUT_VARIABLE LISP_VERSION)
   string(REPLACE "SBCL" "" LISP_VERSION "${LISP_VERSION}")
   string(REPLACE ".debian" "" LISP_VERSION "${LISP_VERSION}")
-  if("${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
-    message(
-      WARNING
-        "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required (${LISP_MINIMUM_VERSION}); this API may not build correctly."
-    )
-    set(GTIRB_CL_API_DEFAULT OFF)
-  else()
-    set(GTIRB_CL_API_DEFAULT ON)
-  endif()
-else()
-  set(GTIRB_CL_API_DEFAULT OFF)
 endif()
 
+if(DEFINED GTIRB_CL_API)
+  set(GTIRB_CL_API_DEFAULT ${GTIRB_CL_API})
+  if(GTIRB_CL_API AND "${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
+    message(
+      FATAL_ERROR
+        "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required, ${LISP_MINIMUM_VERSION}."
+    )
+  endif()
+else()
+  if(LISP AND EXISTS "${QUICKLISP}")
+    if("${LISP_VERSION}" VERSION_LESS "${LISP_VERSION}")
+      message(
+        WARNING
+          "${LISP} --version is ${LISP_VERSION}, which is less then the minimum required, ${LISP_MINIMUM_VERSION}; disabling building of API by default."
+      )
+      set(GTIRB_CL_API_DEFAULT OFF)
+    else()
+      set(GTIRB_CL_API_DEFAULT ON)
+    endif()
+  else()
+    set(GTIRB_CL_API_DEFAULT OFF)
+  endif()
+endif()
+
+# === Java ===
 find_package(Java 1.8.0 COMPONENTS Development)
 if(JAVA_FOUND)
   set(GTIRB_JAVA_API_DEFAULT ON)
@@ -120,6 +151,7 @@ else()
   set(GTIRB_JAVA_API_DEFAULT OFF)
 endif()
 
+# Define the cache variables for the API options.
 option(GTIRB_CXX_API "Whether or not the C++ API is built." ON)
 option(GTIRB_PY_API "Whether or not the Python API is built."
        ${GTIRB_PY_API_DEFAULT}
