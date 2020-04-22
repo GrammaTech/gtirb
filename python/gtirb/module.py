@@ -1,20 +1,19 @@
+import itertools
+import typing
 from enum import Enum
 from uuid import UUID
-import typing
-import itertools
-
-from .proto import Module_pb2
 
 from .auxdata import AuxData, AuxDataContainer
-from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
+from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
+from .proto import Module_pb2
 from .section import Section
 from .symbol import Symbol
 from .util import (
     DictLike,
     SetWrapper,
-    nodes_on,
     nodes_at,
+    nodes_on,
     symbolic_expressions_at,
 )
 

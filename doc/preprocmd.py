@@ -1,10 +1,9 @@
 # doxygen is annoying about certain .md things so we have to
 # preprocess before doxygenating
+import os
 import re
 import sys
 from functools import reduce
-import os
-
 
 # Doxygen doesn't make heading anchors like it should.
 #

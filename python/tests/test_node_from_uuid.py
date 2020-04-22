@@ -1,6 +1,7 @@
 import unittest
-import gtirb
 import uuid
+
+import gtirb
 
 
 class NodeFromUUIDTest(unittest.TestCase):

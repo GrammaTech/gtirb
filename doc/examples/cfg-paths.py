@@ -17,8 +17,9 @@
 #
 #    $ ./doc/examples/cfg-paths.py /tmp/hello.gtirb
 import sys
-import networkx as nx
+
 import gtirb
+import networkx as nx
 
 if len(sys.argv) < 4:
     print(f"Usage: {sys.argv[0]} /path/to/file.gtirb source target")

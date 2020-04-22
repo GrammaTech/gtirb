@@ -9,18 +9,16 @@
     >>> ir.save_protobuf('filename.gtirb')
 """
 
-import typing
 import itertools
+import typing
 from uuid import UUID
 
-from .proto import CFG_pb2
-from .proto import IR_pb2
-
 from .auxdata import AuxData, AuxDataContainer
-from .block import CodeBlock, DataBlock, ProxyBlock, CfgNode, ByteBlock
+from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
 from .cfg import Edge
 from .module import Module
+from .proto import CFG_pb2, IR_pb2
 from .section import Section
 from .symbol import Symbol
 from .util import (

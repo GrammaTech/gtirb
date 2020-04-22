@@ -1,9 +1,8 @@
-from uuid import UUID
 import typing
-
-from .proto import SymbolicExpression_pb2
+from uuid import UUID
 
 from .node import Node
+from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
 
 

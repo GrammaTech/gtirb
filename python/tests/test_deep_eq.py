@@ -1,6 +1,7 @@
-import gtirb
 import unittest
 import uuid
+
+import gtirb
 
 
 class DeepEqTest(unittest.TestCase):

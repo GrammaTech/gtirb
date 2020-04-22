@@ -1,10 +1,9 @@
 import os
 import unittest
-
 from collections import namedtuple
 from uuid import UUID
 
-from gtirb import CodeBlock, DataBlock, IR, Offset, Section, Symbol, Node
+from gtirb import IR, CodeBlock, DataBlock, Node, Offset, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):

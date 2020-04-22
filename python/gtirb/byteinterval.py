@@ -1,19 +1,16 @@
 import typing
 from uuid import UUID
 
-from .proto import ByteInterval_pb2
-from .proto import SymbolicExpression_pb2
-
-from .node import Node
 from .block import ByteBlock, CodeBlock, DataBlock
+from .node import Node
+from .proto import ByteInterval_pb2, SymbolicExpression_pb2
 from .symbolicexpression import (
     SymAddrAddr,
     SymAddrConst,
-    SymStackConst,
     SymbolicExpression,
+    SymStackConst,
 )
-from .util import DictLike, SetWrapper, nodes_at, nodes_on, get_desired_range
-
+from .util import DictLike, SetWrapper, get_desired_range, nodes_at, nodes_on
 
 SymbolicExpressionElement = typing.Tuple[
     "ByteInterval", int, SymbolicExpression

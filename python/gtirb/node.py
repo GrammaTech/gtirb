@@ -1,6 +1,6 @@
+import typing
 from uuid import UUID, uuid4
 from weakref import WeakValueDictionary
-import typing
 
 
 class Node:

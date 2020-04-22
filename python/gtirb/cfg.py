@@ -1,11 +1,10 @@
-from enum import Enum
 import typing
+from enum import Enum
 from uuid import UUID
-
-from .proto import CFG_pb2
 
 from .block import CfgNode
 from .node import Node
+from .proto import CFG_pb2
 
 
 class Edge:

@@ -1,8 +1,8 @@
-import gtirb
 import os
 import tempfile
 import unittest
 
+import gtirb
 
 IR_FILE = tempfile.mktemp(suffix=".gtirb")
 

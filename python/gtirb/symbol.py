@@ -1,11 +1,9 @@
-from uuid import UUID
 import typing
-
-from .proto import Symbol_pb2
+from uuid import UUID
 
 from .block import Block
 from .node import Node
-
+from .proto import Symbol_pb2
 
 Payload = typing.Union[Block, int]
 """A type hint representing the possible Symbol payloads."""

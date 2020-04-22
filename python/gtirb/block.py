@@ -1,11 +1,8 @@
 import typing
 from uuid import UUID
 
-from .proto import CodeBlock_pb2
-from .proto import DataBlock_pb2
-from .proto import ProxyBlock_pb2
-
 from .node import Node
+from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
 
 
 class Block(Node):

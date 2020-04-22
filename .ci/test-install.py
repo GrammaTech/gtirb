@@ -1,7 +1,7 @@
-import gtirb
-import tempfile
 import sys
+import tempfile
 
+import gtirb
 
 filename = tempfile.mktemp()
 ir = gtirb.IR()

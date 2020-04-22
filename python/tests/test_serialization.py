@@ -1,6 +1,7 @@
-import unittest
-import gtirb.serialization
 import io
+import unittest
+
+import gtirb.serialization
 
 
 class TestSerialization(unittest.TestCase):

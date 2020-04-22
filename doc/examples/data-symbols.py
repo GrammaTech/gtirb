@@ -17,6 +17,7 @@
 #
 #    $ ./doc/examples/data-symbols.py /tmp/hello.gtirb
 import sys
+
 import gtirb
 
 if len(sys.argv) < 2:

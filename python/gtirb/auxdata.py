@@ -1,10 +1,9 @@
-from io import BytesIO
 import typing
+from io import BytesIO
 from uuid import UUID
 
-from .proto import AuxData_pb2
-
 from .node import Node
+from .proto import AuxData_pb2
 from .serialization import Serialization
 from .util import DictLike
 

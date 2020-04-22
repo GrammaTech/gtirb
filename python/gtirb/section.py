@@ -1,13 +1,12 @@
-import typing
 import itertools
+import typing
 from enum import Enum
 from uuid import UUID
 
-from .proto import Section_pb2
-
 from .block import ByteBlock, CodeBlock, DataBlock
-from .node import Node
 from .byteinterval import ByteInterval, SymbolicExpressionElement
+from .node import Node
+from .proto import Section_pb2
 from .util import SetWrapper, nodes_at, nodes_on, symbolic_expressions_at
 
 

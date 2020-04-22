@@ -1,10 +1,10 @@
-from re import findall
-from uuid import UUID
 import io
 import typing
+from re import findall
+from uuid import UUID
 
-from .offset import Offset
 from .node import Node
+from .offset import Offset
 
 
 class CodecError(Exception):
