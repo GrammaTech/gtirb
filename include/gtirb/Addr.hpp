@@ -287,4 +287,15 @@ operator<<(std::basic_ostream<CharT, Traits>& Stream, std::optional<Addr> A) {
 
 } // namespace gtirb
 
+namespace std {
+
+/// \brief Hash operation for \ref Addr.
+template <> struct hash<gtirb::Addr> {
+  size_t operator()(const gtirb::Addr& A) const {
+    return std::hash<uint64_t>{}(static_cast<uint64_t>(A));
+  }
+};
+
+} // namespace std
+
 #endif // GTIRB_ADDR_H

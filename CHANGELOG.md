@@ -1,3 +1,7 @@
+# 1.4.6
+
+* Implement std::hash for Addr objects.
+
 # 1.4.5
 
 * Explicitly disable copy and move constructors for the Node class hierarchy in

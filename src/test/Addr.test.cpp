@@ -196,3 +196,8 @@ TEST(Unit_Addr, addressLimit) {
   S->addByteInterval(BI);
   EXPECT_EQ(addressLimit(*S), Addr(10));
 }
+
+TEST(Unit_Addr, hash) {
+  std::unordered_set<Addr> Addrs{Addr(0), Addr(10), Addr(10)};
+  EXPECT_EQ(Addrs.size(), 2);
+}
