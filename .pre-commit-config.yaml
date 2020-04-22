@@ -25,8 +25,15 @@ repos:
       - id: trailing-whitespace
         args: ["--chars"," \t"]
       - id: check-merge-conflict
+      - id: check-yaml
+      - id: debug-statements
+      - id: mixed-line-ending
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
     rev: v0.6.2
     hooks:
       - id: cmake-format
         exclude: build
+  - repo: https://github.com/timothycrosley/isort
+    rev: 4.3.19
+    hooks:
+      - id: isort
