@@ -1,4 +1,4 @@
-# 1.5.0
+# 1.4.5
 
 * Explicitly disable copy and move constructors for the Node class hierarchy in
   C++. This avoids a class of errors where nodes cannot be found by
