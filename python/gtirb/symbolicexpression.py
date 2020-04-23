@@ -1,7 +1,6 @@
 import typing
 from uuid import UUID
 
-from .node import Node
 from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
 
@@ -37,10 +36,14 @@ class SymAddrAddr:
         self.symbol2 = symbol2  # type: Symbol
 
     @classmethod
-    def _from_protobuf(cls, proto_symaddraddr):
-        # type: (SymbolicExpression_pb2.SymAddrAddr) -> SymAddrAddr
-        symbol1 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol1_uuid)]
-        symbol2 = Node._uuid_cache[UUID(bytes=proto_symaddraddr.symbol2_uuid)]
+    def _from_protobuf(
+        cls,
+        proto_symaddraddr,  # type: SymbolicExpression_pb2.SymAddrAddr
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> SymAddrAddr
+        symbol1 = ir.get_by_uuid(UUID(bytes=proto_symaddraddr.symbol1_uuid))
+        symbol2 = ir.get_by_uuid(UUID(bytes=proto_symaddraddr.symbol2_uuid))
         return cls(
             proto_symaddraddr.scale, proto_symaddraddr.offset, symbol1, symbol2
         )
@@ -113,9 +116,13 @@ class SymAddrConst:
         self.symbol = symbol  # type: Symbol
 
     @classmethod
-    def _from_protobuf(cls, proto_symaddrconst):
-        # type: (SymbolicExpression_pb2.SymAddrConst) -> SymAddrConst
-        symbol = Node._uuid_cache[UUID(bytes=proto_symaddrconst.symbol_uuid)]
+    def _from_protobuf(
+        cls,
+        proto_symaddrconst,  # type: SymbolicExpression_pb2.SymAddrConst
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> SymAddrConst
+        symbol = ir.get_by_uuid(UUID(bytes=proto_symaddrconst.symbol_uuid))
         return cls(proto_symaddrconst.offset, symbol)
 
     def _to_protobuf(self):
@@ -177,9 +184,13 @@ class SymStackConst:
         self.symbol = symbol  # type: Symbol
 
     @classmethod
-    def _from_protobuf(cls, proto_symstackconst):
-        # type: (SymbolicExpression_pb2.SymStackConst) -> SymStackConst
-        symbol = Node._uuid_cache[UUID(bytes=proto_symstackconst.symbol_uuid)]
+    def _from_protobuf(
+        cls,
+        proto_symstackconst,  # type: SymbolicExpression_pb2.SymStackConst
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> SymStackConst
+        symbol = ir.get_by_uuid(UUID(bytes=proto_symstackconst.symbol_uuid))
         return cls(proto_symstackconst.offset, symbol)
 
     def _to_protobuf(self):

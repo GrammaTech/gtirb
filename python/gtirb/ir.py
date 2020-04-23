@@ -104,23 +104,23 @@ class IR(AuxDataContainer):
         self._local_uuid_cache[self.uuid] = self
 
     @classmethod
-    def _decode_protobuf(cls, proto_ir, uuid):
-        # type: (IR_pb2.IR, UUID) -> IR
+    def _decode_protobuf(cls, proto_ir, uuid, _):
+        # type: (IR_pb2.IR, UUID, typing.Optional["IR"]) -> IR
         if proto_ir.version != PROTOBUF_VERSION:
             raise ValueError(
                 "Attempt to decode IR of version %s (expected version %s)"
                 % (proto_ir.version, PROTOBUF_VERSION)
             )
-        modules = [Module._from_protobuf(m) for m in proto_ir.modules]
-        cfg = [Edge._from_protobuf(e) for e in proto_ir.cfg.edges]
-        aux_data = AuxDataContainer._read_protobuf_aux_data(proto_ir)
-        return cls(
-            modules=modules,
-            aux_data=aux_data,
-            cfg=cfg,
-            version=proto_ir.version,
-            uuid=uuid,
+
+        ir = cls(version=proto_ir.version, uuid=uuid)
+        ir.modules.extend(
+            Module._from_protobuf(m, ir) for m in proto_ir.modules
         )
+        ir.cfg.update(Edge._from_protobuf(e, ir) for e in proto_ir.cfg.edges)
+        ir.aux_data.update(
+            AuxDataContainer._read_protobuf_aux_data(proto_ir, ir)
+        )
+        return ir
 
     def _to_protobuf(self):
         # type: () -> IR_pb2.IR
@@ -177,7 +177,7 @@ class IR(AuxDataContainer):
 
         ir = IR_pb2.IR()
         ir.ParseFromString(protobuf_file.read())
-        return IR._from_protobuf(ir)
+        return IR._from_protobuf(ir, None)
 
     @staticmethod
     def load_protobuf(file_name):

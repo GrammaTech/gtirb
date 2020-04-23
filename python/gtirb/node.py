@@ -52,8 +52,8 @@ class Node:
         return node
 
     @classmethod
-    def _decode_protobuf(cls, proto_object, uuid):
-        # type: (typing.Any, UUID) -> Node
+    def _decode_protobuf(cls, proto_object, uuid, ir):
+        # type: (typing.Any, UUID, typing.Optional["IR"]) -> Node
         """Decode a Protobuf object to a Python GTIRB object.
         Must be overridden by subclasses.
 
@@ -64,8 +64,8 @@ class Node:
         raise NotImplementedError
 
     @classmethod
-    def _from_protobuf(cls, proto_object):
-        # type: (typing.Any) -> Node
+    def _from_protobuf(cls, proto_object, ir):
+        # type: (typing.Any, typing.Optional["IR"]) -> Node
         """Deserialize a Node from Protobuf.
 
         Performs a cache lookup for the object's UUID in the cache, calling the
@@ -73,9 +73,11 @@ class Node:
         """
 
         uuid = UUID(bytes=proto_object.uuid)
-        node = cls.from_uuid(uuid)
+        node = None
+        if ir is not None:
+            node = ir.get_by_uuid(uuid)
         if node is None:
-            node = cls._decode_protobuf(proto_object, uuid)
+            node = cls._decode_protobuf(proto_object, uuid, ir)
         return node
 
     def _to_protobuf(self):

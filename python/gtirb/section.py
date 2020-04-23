@@ -98,17 +98,19 @@ class Section(Node):
         self.flags = set(flags)  # type: typing.Set[Section.Flag]
 
     @classmethod
-    def _decode_protobuf(cls, proto_section, uuid):
-        # type: (Section_pb2.Section, UUID) -> Section
-        return cls(
+    def _decode_protobuf(cls, proto_section, uuid, ir):
+        # type: (Section_pb2.Section, UUID, typing.Optional["IR"]) -> Section
+        s = cls(
             name=proto_section.name,
-            byte_intervals=(
-                ByteInterval._from_protobuf(bi)
-                for bi in proto_section.byte_intervals
-            ),
             flags=(Section.Flag(f) for f in proto_section.section_flags),
             uuid=uuid,
         )
+        s._add_to_uuid_cache(ir._local_uuid_cache)
+        s.byte_intervals.update(
+            ByteInterval._from_protobuf(bi, ir)
+            for bi in proto_section.byte_intervals
+        )
+        return s
 
     def _to_protobuf(self):
         # type: () -> Section_pb2.Section

@@ -204,43 +204,48 @@ class Module(AuxDataContainer):
         super().__init__(aux_data, uuid)
 
     @classmethod
-    def _decode_protobuf(cls, proto_module, uuid):
-        # type: (Module_pb2.Module. UUID) -> Module
-
-        # proxies depend on nothing
-        proxies = [ProxyBlock._from_protobuf(p) for p in proto_module.proxies]
-        # sections depend on symbolic expressions, so that step is split out
-        # from _decode_protobuf into _decode_symbolic_expressions
-        sections = [Section._from_protobuf(s) for s in proto_module.sections]
-        # entry point is a code block, which depends on sections
-        entry_point = (
-            CodeBlock.from_uuid(UUID(bytes=proto_module.entry_point))
-            if proto_module.entry_point
-            else None
-        )
-        # symbols depend on blocks
-        symbols = [Symbol._from_protobuf(s) for s in proto_module.symbols]
-        # symbolic expressions depend on symbols
-        for section in sections:
-            for interval in section.byte_intervals:
-                interval._decode_symbolic_expressions()
-        # aux data may depend on any node
-        aux_data = AuxDataContainer._read_protobuf_aux_data(proto_module)
-
-        return cls(
-            aux_data=aux_data,
+    def _decode_protobuf(cls, proto_module, uuid, ir):
+        # type: (Module_pb2.Module. UUID, typing.Optiona["IR"]) -> Module
+        m = cls(
             binary_path=proto_module.binary_path,
             isa=Module.ISA(proto_module.isa),
             file_format=Module.FileFormat(proto_module.file_format),
             name=proto_module.name,
             preferred_addr=proto_module.preferred_addr,
-            proxies=proxies,
             rebase_delta=proto_module.rebase_delta,
-            sections=sections,
-            symbols=symbols,
-            entry_point=entry_point,
             uuid=uuid,
         )
+        m._add_to_uuid_cache(ir._local_uuid_cache)
+
+        # proxies depend on nothing
+        m.proxies.update(
+            ProxyBlock._from_protobuf(p, ir) for p in proto_module.proxies
+        )
+        # sections depend on symbolic expressions, so that step is split out
+        # from _decode_protobuf into _decode_symbolic_expressions
+        m.sections.update(
+            Section._from_protobuf(s, ir) for s in proto_module.sections
+        )
+        # entry point is a code block, which depends on sections
+        m.entry_point = (
+            ir.get_by_uuid(UUID(bytes=proto_module.entry_point))
+            if proto_module.entry_point
+            else None
+        )
+        # symbols depend on blocks
+        m.symbols.update(
+            Symbol._from_protobuf(s, ir) for s in proto_module.symbols
+        )
+        # symbolic expressions depend on symbols
+        for section in m.sections:
+            for interval in section.byte_intervals:
+                interval._decode_symbolic_expressions()
+        # aux data may depend on any node
+        m.aux_data.update(
+            AuxDataContainer._read_protobuf_aux_data(proto_module, ir)
+        )
+
+        return m
 
     def _to_protobuf(self):
         # type: () -> Module_pb2.Module

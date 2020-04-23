@@ -157,8 +157,13 @@ class DataBlock(ByteBlock):
         super().__init__(size=size, offset=offset, uuid=uuid)
 
     @classmethod
-    def _decode_protobuf(cls, proto_dataobject, uuid):
-        # type: (DataBlock_pb2.DataBlock, uuid.UUID) -> DataBlock
+    def _decode_protobuf(
+        cls,
+        proto_dataobject,  # type: DataBlock_pb2.DataBlock
+        uuid,  # type: uuid.UUID
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> DataBlock
         return cls(size=proto_dataobject.size, uuid=uuid)
 
     def _to_protobuf(self):
@@ -216,8 +221,13 @@ class CodeBlock(ByteBlock, CfgNode):
         self.decode_mode = decode_mode  # type: int
 
     @classmethod
-    def _decode_protobuf(cls, proto_block, uuid):
-        # type: (CodeBlock_pb2.CodeBlock, UUID) -> CodeBlock
+    def _decode_protobuf(
+        cls,
+        proto_block,  # type: CodeBlock_pb2.CodeBlock
+        uuid,  # type: UUID
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> CodeBlock
         return cls(
             decode_mode=proto_block.decode_mode,
             size=proto_block.size,
@@ -301,9 +311,16 @@ class ProxyBlock(CfgNode):
         self._module = None  # type: "Module"
 
     @classmethod
-    def _decode_protobuf(cls, proto_proxy, uuid):
-        # type: (ProxyBlock_pb2.ProxyBlock, UUID) -> ProxyBlock
-        return cls(uuid=uuid)
+    def _decode_protobuf(
+        cls,
+        proto_proxy,  # type: ProxyBlock_pb2.ProxyBlock
+        uuid,  # type: UUID
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> ProxyBlock
+        b = cls(uuid=uuid)
+        b._add_to_uuid_cache(ir._local_uuid_cache)
+        return b
 
     def _to_protobuf(self):
         # type: () -> ProxyBlock_pb2.ProxyBlock

@@ -74,8 +74,8 @@ class Symbol(Node):
         self._payload = referent
 
     @classmethod
-    def _decode_protobuf(cls, proto_symbol, uuid):
-        # type: (Symbol_pb2.Symbol,UUID) -> Symbol
+    def _decode_protobuf(cls, proto_symbol, uuid, ir):
+        # type: (Symbol_pb2.Symbol,UUID, typing.Optional["IR"]) -> Symbol
         symbol = cls(
             name=proto_symbol.name, at_end=proto_symbol.at_end, uuid=uuid
         )
@@ -87,6 +87,7 @@ class Symbol(Node):
                 symbol.referent = Node._uuid_cache[referent_uuid]
             except KeyError as e:
                 raise KeyError("Could not find referent UUID %s" % e)
+        symbol._add_to_uuid_cache(ir._local_uuid_cache)
         return symbol
 
     def _to_protobuf(self):

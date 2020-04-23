@@ -3,7 +3,6 @@ from enum import Enum
 from uuid import UUID
 
 from .block import CfgNode
-from .node import Node
 from .proto import CFG_pb2
 
 
@@ -165,26 +164,24 @@ class Edge:
         self.label = label  # type: typing.Optional["Edge.Label"]
 
     @classmethod
-    def _from_protobuf(cls, edge):
-        # type: (CFG_pb2.Edge) -> Edge
+    def _from_protobuf(cls, edge, ir):
+        # type: (CFG_pb2.Edge, typing.Optional["IR"]) -> Edge
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
-        try:
-            source = Node._uuid_cache[source_uuid]
-            target = Node._uuid_cache[target_uuid]
-            if not isinstance(source, CfgNode):
-                raise ValueError(
-                    "source UUID %s is not a CfgNode" % source_uuid
-                )
-            if not isinstance(target, CfgNode):
-                raise ValueError(
-                    "target UUID %s is not a CfgNode" % target_uuid
-                )
-        except KeyError as e:
-            raise KeyError(
-                "Could not find UUID %s when creating edge %s -> %s"
-                % (e, source_uuid, target_uuid)
+
+        source = ir.get_by_uuid(source_uuid)
+        target = ir.get_by_uuid(target_uuid)
+        if not isinstance(source, CfgNode):
+            raise ValueError(
+                "In CFG: source UUID %s is a %s, not a CfgNode"
+                % (source_uuid, type(source).__name__)
             )
+        if not isinstance(target, CfgNode):
+            raise ValueError(
+                "In CFG: target UUID %s is a %s, not a CfgNode"
+                % (target_uuid, type(target).__name__)
+            )
+
         label = None
         if edge.label is not None:
             label = Edge.Label._from_protobuf(edge.label)

@@ -82,6 +82,8 @@ class SetWrapper(typing.MutableSet[T]):
     def discard(self, v):
         return self._data.discard(v)
 
+    # end functions for ABC
+
     # The version of typing.py which comes with python 3.5.2 doesn't provide
     # definitions for __or__ or clear on MutableSet, so we have to do it
     # ourselves.
@@ -91,7 +93,12 @@ class SetWrapper(typing.MutableSet[T]):
     def clear(self):
         self._data.clear()
 
-    # end functions for ABC
+    # For whatever reason, update isn't included as part of abc.MutableSet.
+    def update(self, *others):
+        for other in others:
+            for v in other:
+                self.add(v)
+
     def __str__(self):
         return str(self._data)
 

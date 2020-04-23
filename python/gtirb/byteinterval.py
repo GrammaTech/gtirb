@@ -152,14 +152,19 @@ class ByteInterval(Node):
             self.contents = self.contents[:value]
 
     @classmethod
-    def _decode_protobuf(cls, proto_interval, uuid):
-        # type: (ByteInterval_pb2.ByteInterval, UUID) -> ByteInterval
+    def _decode_protobuf(
+        cls,
+        proto_interval,  # type: ByteInterval_pb2.ByteInterval
+        uuid,  # type: UUID
+        ir,  # type: typing.Optional["IR"]
+    ):
+        # type: (...) -> ByteInterval
 
         def decode_block(proto_block):
             if proto_block.HasField("code"):
-                block = CodeBlock._from_protobuf(proto_block.code)
+                block = CodeBlock._from_protobuf(proto_block.code, ir)
             elif proto_block.HasField("data"):
-                block = DataBlock._from_protobuf(proto_block.data)
+                block = DataBlock._from_protobuf(proto_block.data, ir)
             else:
                 raise TypeError(
                     "Unknown type inside proto block: %s"
@@ -177,12 +182,15 @@ class ByteInterval(Node):
             else None,
             size=proto_interval.size,
             contents=proto_interval.contents,
-            blocks=(decode_block(b) for b in proto_interval.blocks),
             uuid=uuid,
         )
-        # we store the interval here so we can use it later, when
+        result._add_to_uuid_cache(ir._local_uuid_cache)
+        result.blocks.update(decode_block(b) for b in proto_interval.blocks)
+        # We store the interval and IR here so we can use it later, when
         # _decode_symbolic_expressions is called.
         result._proto_interval = proto_interval
+        result._init_ir = ir
+        # Return the new BI.
         return result
 
     def _decode_symbolic_expressions(self):
@@ -192,11 +200,17 @@ class ByteInterval(Node):
 
         def decode_symbolic_expression(proto_expr):
             if proto_expr.HasField("stack_const"):
-                return SymStackConst._from_protobuf(proto_expr.stack_const)
+                return SymStackConst._from_protobuf(
+                    proto_expr.stack_const, self._init_ir
+                )
             elif proto_expr.HasField("addr_const"):
-                return SymAddrConst._from_protobuf(proto_expr.addr_const)
+                return SymAddrConst._from_protobuf(
+                    proto_expr.addr_const, self._init_ir
+                )
             elif proto_expr.HasField("addr_addr"):
-                return SymAddrAddr._from_protobuf(proto_expr.addr_addr)
+                return SymAddrAddr._from_protobuf(
+                    proto_expr.addr_addr, self._init_ir
+                )
             else:
                 raise TypeError(
                     "Unknown type inside proto sym expr: %s"
@@ -207,6 +221,8 @@ class ByteInterval(Node):
             i: decode_symbolic_expression(v)
             for i, v in self._proto_interval.symbolic_expressions.items()
         }
+
+        self._init_ir = None
         self._proto_interval = None
 
     def _to_protobuf(self):

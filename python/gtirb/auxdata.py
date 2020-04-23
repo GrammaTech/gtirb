@@ -44,8 +44,8 @@ class AuxData:
         self.type_name = type_name  # type: str
 
     @classmethod
-    def _from_protobuf(cls, aux_data):
-        # type: (AuxData_pb2.AuxData) -> AuxData
+    def _from_protobuf(cls, aux_data, ir):
+        # type: (AuxData_pb2.AuxData, typing.Optional["IR"]) -> AuxData
         """Deserialize AuxData from Protobuf.
 
         :param aux_data: The Protobuf AuxData object.
@@ -104,8 +104,8 @@ class AuxDataContainer(Node):
         self.aux_data = dict(aux_data)  # type: typing.Dict[str, AuxData]
 
     @classmethod
-    def _read_protobuf_aux_data(cls, proto_container):
-        # type: (typing.Any) -> typing.Dict[str, AuxData]
+    def _read_protobuf_aux_data(cls, proto_container, ir):
+        # type: (typing.Any,typing.Optional["IR"]) -> typing.Dict[str, AuxData]
         """
         Instead of the overrided _decode_protobuf, this method requires the
         Protobuf message to read from. AuxDataContainers need to call this
@@ -115,7 +115,7 @@ class AuxDataContainer(Node):
             ``aux_data``.
         """
         return {
-            key: AuxData._from_protobuf(val)
+            key: AuxData._from_protobuf(val, ir)
             for key, val in proto_container.aux_data.items()
         }
 
