@@ -3,7 +3,7 @@ import unittest
 from collections import namedtuple
 from uuid import UUID
 
-from gtirb import IR, CodeBlock, DataBlock, Node, Offset, Section, Symbol
+from gtirb import IR, CodeBlock, DataBlock, Offset, Section, Symbol
 
 
 class AuxDataTest(unittest.TestCase):
@@ -99,7 +99,6 @@ class AuxDataTest(unittest.TestCase):
                         table_test.items_test(aux_data[table].data.items())
 
         for ir_file in ("test%s.gtirb" % n for n in range(1, 3)):
-            Node._uuid_cache.clear()
             ir = IR.load_protobuf(os.path.join(test_path, ir_file))
             for module in ir.modules:
                 test_standard_auxdata(module.aux_data)

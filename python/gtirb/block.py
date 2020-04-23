@@ -164,7 +164,9 @@ class DataBlock(ByteBlock):
         ir,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> DataBlock
-        return cls(size=proto_dataobject.size, uuid=uuid)
+        b = cls(size=proto_dataobject.size, uuid=uuid)
+        b._add_to_uuid_cache(ir._local_uuid_cache)
+        return b
 
     def _to_protobuf(self):
         # type: () -> DataBlock_pb2.DataBlock
@@ -228,11 +230,13 @@ class CodeBlock(ByteBlock, CfgNode):
         ir,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> CodeBlock
-        return cls(
+        b = cls(
             decode_mode=proto_block.decode_mode,
             size=proto_block.size,
             uuid=uuid,
         )
+        b._add_to_uuid_cache(ir._local_uuid_cache)
+        return b
 
     def _to_protobuf(self):
         # type: () -> CodeBlock_pb2.CodeBlock

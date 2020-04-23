@@ -59,8 +59,6 @@ class IRTest(unittest.TestCase):
 
     def setUp(self):
         self.ir.save_protobuf(IR_FILE)
-        # Clear node cache so no re-using of nodes is done
-        gtirb.Node._uuid_cache.clear()
 
     def tearDown(self):
         os.remove(IR_FILE)

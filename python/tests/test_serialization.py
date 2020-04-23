@@ -87,6 +87,72 @@ class TestSerialization(unittest.TestCase):
         serializer.encode(ostream, blob, "mapping<foobar,sequence<string>>")
         self.assertEqual(ostream.getvalue(), raw_bytes)
 
+    def test_uuid_codec(self):
+        ir = gtirb.IR(
+            modules=[
+                gtirb.Module(
+                    sections=[
+                        gtirb.Section(
+                            byte_intervals=[
+                                gtirb.ByteInterval(blocks=[gtirb.CodeBlock()])
+                            ]
+                        )
+                    ]
+                )
+            ]
+        )
+        b = next(iter(ir.code_blocks))
+
+        # test finding block in same IR
+        bstream = io.BytesIO()
+        gtirb.AuxData.serializer.encode(bstream, b.uuid, "UUID")
+        result = gtirb.AuxData.serializer.decode(
+            bstream.getvalue(), "UUID", ir
+        )
+        self.assertEqual(result, b)
+
+        # test not finding block with same UUID in other IR
+        ir2 = gtirb.IR(
+            modules=[
+                gtirb.Module(
+                    sections=[
+                        gtirb.Section(
+                            byte_intervals=[
+                                gtirb.ByteInterval(
+                                    blocks=[gtirb.CodeBlock(uuid=b.uuid)]
+                                )
+                            ]
+                        )
+                    ]
+                )
+            ]
+        )
+        b2 = next(iter(ir2.code_blocks))
+
+        bstream = io.BytesIO()
+        gtirb.AuxData.serializer.encode(bstream, b.uuid, "UUID")
+        result = gtirb.AuxData.serializer.decode(
+            bstream.getvalue(), "UUID", ir
+        )
+        self.assertEqual(result, b)
+
+        bstream = io.BytesIO()
+        gtirb.AuxData.serializer.encode(bstream, b.uuid, "UUID")
+        result = gtirb.AuxData.serializer.decode(
+            bstream.getvalue(), "UUID", ir2
+        )
+        self.assertEqual(result, b2)
+
+        # test not finding the UUID of a free block
+        b3 = gtirb.CodeBlock()
+
+        bstream = io.BytesIO()
+        gtirb.AuxData.serializer.encode(bstream, b3.uuid, "UUID")
+        result = gtirb.AuxData.serializer.decode(
+            bstream.getvalue(), "UUID", ir
+        )
+        self.assertEqual(result, b3.uuid)
+
 
 if __name__ == "__main__":
     unittest.main()
