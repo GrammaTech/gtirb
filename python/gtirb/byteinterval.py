@@ -56,10 +56,26 @@ class ByteInterval(Node):
             if v._byte_interval is not None:
                 v._byte_interval.blocks.discard(v)
             v._byte_interval = self._node
+            if (
+                self._node.section is not None
+                and self._node.section.module is not None
+                and self._node.section.module.ir is not None
+            ):
+                v._add_to_uuid_cache(
+                    self._node.section.module.ir._local_uuid_cache
+                )
             return super().add(v)
 
         def discard(self, v):
             v._byte_interval = None
+            if (
+                self._node.section is not None
+                and self._node.section.module is not None
+                and self._node.section.module.ir is not None
+            ):
+                v._remove_from_uuid_cache(
+                    self._node.section.module.ir._local_uuid_cache
+                )
             return super().discard(v)
 
     def __init__(
@@ -95,6 +111,7 @@ class ByteInterval(Node):
             raise ValueError("initialized_size must be <= size!")
 
         super().__init__(uuid=uuid)
+        self._section = None  # type: typing.Optional["Section"]
         self.address = address  # type: typing.Optional[int]
         self.size = size  # type: int
         self.contents = bytearray(contents)  # type: bytearray
@@ -105,7 +122,6 @@ class ByteInterval(Node):
         self.symbolic_expressions = dict(
             symbolic_expressions
         )  # type: typing.Dict[int, SymbolicExpression]
-        self._section = None  # type: typing.Optional["Section"]
         self._proto_interval = (
             None
         )  # type: typing.Optional[ByteInterval_pb2.ByteInterval]
@@ -382,3 +398,24 @@ class ByteInterval(Node):
         for i, v in self.symbolic_expressions.items():
             if self.address + i in addrs:
                 yield (self, i, v)
+
+    def get_by_uuid(self, uuid):
+        if self.section is None:
+            return None
+        return self.section.get_by_uuid(uuid)
+
+    def _add_to_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is added."""
+
+        cache[self.uuid] = self
+        for block in self.blocks:
+            block._add_to_uuid_cache(cache)
+
+    def _remove_from_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is removed."""
+
+        del cache[self.uuid]
+        for block in self.blocks:
+            block._remove_from_uuid_cache(cache)

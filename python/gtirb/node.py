@@ -39,6 +39,8 @@ class Node:
             function from the desired subclass. For example, calling
             ``gtirb.CodeBlock.from_uuid`` will return a
             :class:`gtirb.CodeBlock` or raise a ``TypeError``.
+
+        :deprecated 1.4.5: Use :meth:`gtirb.Node.get_by_uuid` instead.
         """
 
         node = Node._uuid_cache.get(uuid)
@@ -96,6 +98,21 @@ class Node:
         you have manually constructed Nodes that may share the same UUID
         despite being different objects, and you need to check for structural
         equality.
+        """
+
+        raise NotImplementedError
+
+    def get_by_uuid(self, uuid):
+        # type: (UUID) -> typing.Optional[Node]
+        """Look up a node by its UUID.
+
+        This method will find any node currently attached to this node's IR.
+        It will not find any nodes attached to other IRs, or not attached to
+        any IR.
+
+        :param uuid: The UUID to look up.
+        :returns: The Node this UUID corresponds to, or None if no node exists
+            with that UUID.
         """
 
         raise NotImplementedError

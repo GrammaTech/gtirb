@@ -143,3 +143,20 @@ class Symbol(Node):
             self._module.symbols.discard(self)
         if value is not None:
             value.symbols.add(self)
+
+    def get_by_uuid(self, uuid):
+        if self.module is None:
+            return None
+        return self.module.get_by_uuid(uuid)
+
+    def _add_to_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is added."""
+
+        cache[self.uuid] = self
+
+    def _remove_from_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is removed."""
+
+        del cache[self.uuid]

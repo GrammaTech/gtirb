@@ -54,10 +54,22 @@ class Section(Node):
             if v._section is not None:
                 v._section.byte_intervals.discard(v)
             v._section = self._node
+            if (
+                self._node.module is not None
+                and self._node.module.ir is not None
+            ):
+                v._add_to_uuid_cache(self._node.module.ir._local_uuid_cache)
             return super().add(v)
 
         def discard(self, v):
             v._section = None
+            if (
+                self._node.module is not None
+                and self._node.module.ir is not None
+            ):
+                v._remove_from_uuid_cache(
+                    self._node.module.ir._local_uuid_cache
+                )
             return super().discard(v)
 
     def __init__(
@@ -78,12 +90,12 @@ class Section(Node):
         """
 
         super().__init__(uuid)
+        self._module = None  # type: "Module"
         self.name = name  # type: str
         self.byte_intervals = Section._ByteIntervalSet(
             self, byte_intervals
         )  # type: typing.Set[ByteInterval]
         self.flags = set(flags)  # type: typing.Set[Section.Flag]
-        self._module = None  # type: "Module"
 
     @classmethod
     def _decode_protobuf(cls, proto_section, uuid):
@@ -326,3 +338,24 @@ class Section(Node):
         """
 
         return symbolic_expressions_at(self.byte_intervals, addrs)
+
+    def get_by_uuid(self, uuid):
+        if self.module is None:
+            return None
+        return self.module.get_by_uuid(uuid)
+
+    def _add_to_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is added."""
+
+        cache[self.uuid] = self
+        for bi in self.byte_intervals:
+            bi._add_to_uuid_cache(cache)
+
+    def _remove_from_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is removed."""
+
+        del cache[self.uuid]
+        for bi in self.byte_intervals:
+            bi._remove_from_uuid_cache(cache)

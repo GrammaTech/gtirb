@@ -17,6 +17,18 @@ class Block(Node):
 
         raise NotImplementedError
 
+    def _add_to_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is added."""
+
+        cache[self.uuid] = self
+
+    def _remove_from_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is removed."""
+
+        del cache[self.uuid]
+
 
 class ByteBlock(Block):
     """The base class for blocks that belong to a :class:`ByteInterval` and
@@ -340,3 +352,8 @@ class ProxyBlock(CfgNode):
         if self.module is None or self.module.ir is None:
             return ()
         return (e for e in self.module.ir.cfg if e.source == self)
+
+    def get_by_uuid(self, uuid):
+        if self.module is None:
+            return None
+        return self.module.get_by_uuid(uuid)

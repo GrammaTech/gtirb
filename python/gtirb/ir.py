@@ -18,6 +18,7 @@ from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
 from .cfg import Edge
 from .module import Module
+from .node import Node
 from .proto import CFG_pb2, IR_pb2
 from .section import Section
 from .symbol import Symbol
@@ -47,11 +48,13 @@ class IR(AuxDataContainer):
 
         def _remove(self, v):
             v._ir = None
+            v._remove_from_uuid_cache(self._node._local_uuid_cache)
 
         def _add(self, v):
             if v._ir is not None:
                 v._ir.modules.remove(v)
             v._ir = self._node
+            v._add_to_uuid_cache(self._node._local_uuid_cache)
 
         def __setitem__(self, i, v):
             self._remove(self[i])
@@ -89,6 +92,7 @@ class IR(AuxDataContainer):
             Defaults to None.
         """
 
+        self._local_uuid_cache = dict()  # type: typing.Dict[UUID, Node]
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
         self.modules = IR._ModuleList(
@@ -97,6 +101,7 @@ class IR(AuxDataContainer):
         self.cfg = set(cfg)  # type: typing.Set[Edge]
         self.version = version  # type: int
         super().__init__(aux_data, uuid)
+        self._local_uuid_cache[self.uuid] = self
 
     @classmethod
     def _decode_protobuf(cls, proto_ir, uuid):
@@ -413,3 +418,6 @@ class IR(AuxDataContainer):
         """
 
         return symbolic_expressions_at(self.modules, addrs)
+
+    def get_by_uuid(self, uuid):
+        return self._local_uuid_cache.get(uuid)

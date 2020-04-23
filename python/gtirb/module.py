@@ -6,6 +6,7 @@ from uuid import UUID
 from .auxdata import AuxData, AuxDataContainer
 from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
+from .node import Node
 from .proto import Module_pb2
 from .section import Section
 from .symbol import Symbol
@@ -131,10 +132,14 @@ class Module(AuxDataContainer):
             if v._module is not None:
                 getattr(v._module, self._field).discard(v)
             v._module = self._node
+            if self._node.ir is not None:
+                v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
 
         def discard(self, v):
             v._module = None
+            if self._node.ir is not None:
+                v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
     def __init__(
@@ -178,6 +183,7 @@ class Module(AuxDataContainer):
             Defaults to None.
         """
 
+        self._ir = None  # type: "IR"
         self.binary_path = binary_path  # type: str
         self.isa = isa  # type: Module.ISA
         self.file_format = file_format  # type: Module.FileFormat
@@ -194,7 +200,6 @@ class Module(AuxDataContainer):
             self, "symbols", symbols
         )  # type: typing.Set[Symbol]
         self.entry_point = entry_point  # type: typing.Optional[CodeBlock]
-        self._ir = None  # type: "IR"
         # Initialize the aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
 
@@ -529,3 +534,28 @@ class Module(AuxDataContainer):
         """
 
         return symbolic_expressions_at(self.sections, addrs)
+
+    def get_by_uuid(self, uuid):
+        if self.ir is None:
+            return None
+        return self.ir.get_by_uuid(uuid)
+
+    def _add_to_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is added."""
+
+        cache[self.uuid] = self
+        for section in self.sections:
+            section._add_to_uuid_cache(cache)
+        for symbol in self.symbols:
+            symbol._add_to_uuid_cache(cache)
+
+    def _remove_from_uuid_cache(self, cache):
+        # type: (typing.Dict[UUID, Node]) -> None
+        """Update the UUID cache when this node is removed."""
+
+        del cache[self.uuid]
+        for section in self.sections:
+            section._remove_from_uuid_cache(cache)
+        for symbol in self.symbols:
+            symbol._remove_from_uuid_cache(cache)
