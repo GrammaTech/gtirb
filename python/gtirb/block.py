@@ -121,6 +121,11 @@ class ByteBlock(Block):
             if s.referent == self
         )
 
+    def get_by_uuid(self, uuid):
+        if self.byte_interval is None:
+            return None
+        return self.byte_interval.get_by_uuid(uuid)
+
 
 class CfgNode(Block):
     """The base class for blocks that may appear as vertices in the CFG."""
