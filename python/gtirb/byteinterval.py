@@ -222,7 +222,7 @@ class ByteInterval(Node):
             for i, v in self._proto_interval.symbolic_expressions.items()
         }
 
-        self._init_ir = None
+        del self._init_ir
         self._proto_interval = None
 
     def _to_protobuf(self):
