@@ -545,6 +545,8 @@ class Module(AuxDataContainer):
         """Update the UUID cache when this node is added."""
 
         cache[self.uuid] = self
+        for proxy in self.proxies:
+            proxy._add_to_uuid_cache(cache)
         for section in self.sections:
             section._add_to_uuid_cache(cache)
         for symbol in self.symbols:
@@ -556,7 +558,7 @@ class Module(AuxDataContainer):
 
         del cache[self.uuid]
         for proxy in self.proxies:
-            proxy._add_to_uuid_cache(cache)
+            proxy._remove_from_uuid_cache(cache)
         for section in self.sections:
             section._remove_from_uuid_cache(cache)
         for symbol in self.symbols:
