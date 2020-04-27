@@ -189,28 +189,21 @@ class ByteInterval(Node):
         # We store the interval and IR here so we can use it later, when
         # _decode_symbolic_expressions is called.
         result._proto_interval = proto_interval
-        result._init_ir = ir
         # Return the new BI.
         return result
 
-    def _decode_symbolic_expressions(self):
+    def _decode_symbolic_expressions(self, ir):
         """Called by modules after symbols are decoded, but before the module
         is done decoding.
         """
 
         def decode_symbolic_expression(proto_expr):
             if proto_expr.HasField("stack_const"):
-                return SymStackConst._from_protobuf(
-                    proto_expr.stack_const, self._init_ir
-                )
+                return SymStackConst._from_protobuf(proto_expr.stack_const, ir)
             elif proto_expr.HasField("addr_const"):
-                return SymAddrConst._from_protobuf(
-                    proto_expr.addr_const, self._init_ir
-                )
+                return SymAddrConst._from_protobuf(proto_expr.addr_const, ir)
             elif proto_expr.HasField("addr_addr"):
-                return SymAddrAddr._from_protobuf(
-                    proto_expr.addr_addr, self._init_ir
-                )
+                return SymAddrAddr._from_protobuf(proto_expr.addr_addr, ir)
             else:
                 raise TypeError(
                     "Unknown type inside proto sym expr: %s"
@@ -222,8 +215,7 @@ class ByteInterval(Node):
             for i, v in self._proto_interval.symbolic_expressions.items()
         }
 
-        del self._init_ir
-        self._proto_interval = None
+        del self._proto_interval
 
     def _to_protobuf(self):
         # type: () -> ByteInterval_pb2.ByteInterval

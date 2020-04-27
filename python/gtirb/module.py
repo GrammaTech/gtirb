@@ -239,7 +239,7 @@ class Module(AuxDataContainer):
         # symbolic expressions depend on symbols
         for section in m.sections:
             for interval in section.byte_intervals:
-                interval._decode_symbolic_expressions()
+                interval._decode_symbolic_expressions(ir)
         # aux data may depend on any node
         m.aux_data.update(
             AuxDataContainer._read_protobuf_aux_data(proto_module, ir)
