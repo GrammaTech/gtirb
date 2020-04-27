@@ -145,11 +145,6 @@ class Symbol(Node):
         if value is not None:
             value.symbols.add(self)
 
-    def get_by_uuid(self, uuid):
-        if self.module is None:
-            return None
-        return self.module.get_by_uuid(uuid)
-
     def _add_to_uuid_cache(self, cache):
         # type: (typing.Dict[UUID, Node]) -> None
         """Update the UUID cache when this node is added."""
@@ -161,3 +156,11 @@ class Symbol(Node):
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]
+
+    @property
+    def ir(self):
+        # type: () -> "IR"
+        """Get the IR this node ultimately belongs to."""
+        if self.module is None:
+            return None
+        return self.module.ir

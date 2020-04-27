@@ -1,9 +1,12 @@
 # 1.5.0
 
-* In the Python API: Deprecated `Node.from_uuid` and added `get_by_uuid` to all
-  node types. This changes UUID lookup from a global cache to a per-IR cache;
-  this means you can now have two IRs exist that share UUIDs but have different
-  contents, for example.
+* In the Python API:
+  * Deprecated `Node.from_uuid` and added `get_by_uuid` to `IR`s.
+    This changes UUID lookup from a global cache to a per-IR cache;
+    this means you can now have two IRs exist that share UUIDs but have
+    different contents, for example.
+  * Added convienience properties to all node types to find the parent nodes
+    they belong to.
 
 # 1.4.6
 

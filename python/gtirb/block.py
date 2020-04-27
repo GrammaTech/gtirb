@@ -121,10 +121,29 @@ class ByteBlock(Block):
             if s.referent == self
         )
 
-    def get_by_uuid(self, uuid):
+    @property
+    def section(self):
+        # type: () -> "Section"
+        """Get the section this node ultimately belongs to."""
         if self.byte_interval is None:
             return None
-        return self.byte_interval.get_by_uuid(uuid)
+        return self.byte_interval.section
+
+    @property
+    def module(self):
+        # type: () -> "Module"
+        """Get the module this node ultimately belongs to."""
+        if self.section is None:
+            return None
+        return self.section.module
+
+    @property
+    def ir(self):
+        # type: () -> "IR"
+        """Get the IR this node ultimately belongs to."""
+        if self.module is None:
+            return None
+        return self.module.ir
 
 
 class CfgNode(Block):
@@ -379,7 +398,10 @@ class ProxyBlock(CfgNode):
             return ()
         return (e for e in self.module.ir.cfg if e.source == self)
 
-    def get_by_uuid(self, uuid):
+    @property
+    def ir(self):
+        # type: () -> "IR"
+        """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None
-        return self.module.get_by_uuid(uuid)
+        return self.module.ir

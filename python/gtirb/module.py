@@ -540,11 +540,6 @@ class Module(AuxDataContainer):
 
         return symbolic_expressions_at(self.sections, addrs)
 
-    def get_by_uuid(self, uuid):
-        if self.ir is None:
-            return None
-        return self.ir.get_by_uuid(uuid)
-
     def _add_to_uuid_cache(self, cache):
         # type: (typing.Dict[UUID, Node]) -> None
         """Update the UUID cache when this node is added."""

@@ -415,11 +415,6 @@ class ByteInterval(Node):
             if self.address + i in addrs:
                 yield (self, i, v)
 
-    def get_by_uuid(self, uuid):
-        if self.section is None:
-            return None
-        return self.section.get_by_uuid(uuid)
-
     def _add_to_uuid_cache(self, cache):
         # type: (typing.Dict[UUID, Node]) -> None
         """Update the UUID cache when this node is added."""
@@ -435,3 +430,19 @@ class ByteInterval(Node):
         del cache[self.uuid]
         for block in self.blocks:
             block._remove_from_uuid_cache(cache)
+
+    @property
+    def module(self):
+        # type: () -> "Module"
+        """Get the module this node ultimately belongs to."""
+        if self.section is None:
+            return None
+        return self.section.module
+
+    @property
+    def ir(self):
+        # type: () -> "IR"
+        """Get the IR this node ultimately belongs to."""
+        if self.module is None:
+            return None
+        return self.module.ir

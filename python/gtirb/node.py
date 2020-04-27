@@ -103,18 +103,3 @@ class Node:
         """
 
         raise NotImplementedError
-
-    def get_by_uuid(self, uuid):
-        # type: (UUID) -> typing.Optional[Node]
-        """Look up a node by its UUID.
-
-        This method will find any node currently attached to this node's IR.
-        It will not find any nodes attached to other IRs, or not attached to
-        any IR.
-
-        :param uuid: The UUID to look up.
-        :returns: The Node this UUID corresponds to, or None if no node exists
-            with that UUID.
-        """
-
-        raise NotImplementedError

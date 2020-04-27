@@ -341,11 +341,6 @@ class Section(Node):
 
         return symbolic_expressions_at(self.byte_intervals, addrs)
 
-    def get_by_uuid(self, uuid):
-        if self.module is None:
-            return None
-        return self.module.get_by_uuid(uuid)
-
     def _add_to_uuid_cache(self, cache):
         # type: (typing.Dict[UUID, Node]) -> None
         """Update the UUID cache when this node is added."""
@@ -361,3 +356,11 @@ class Section(Node):
         del cache[self.uuid]
         for bi in self.byte_intervals:
             bi._remove_from_uuid_cache(cache)
+
+    @property
+    def ir(self):
+        # type: () -> "IR"
+        """Get the IR this node ultimately belongs to."""
+        if self.module is None:
+            return None
+        return self.module.ir
