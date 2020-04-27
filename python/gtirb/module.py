@@ -555,6 +555,8 @@ class Module(AuxDataContainer):
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]
+        for proxy in self.proxies:
+            proxy._add_to_uuid_cache(cache)
         for section in self.sections:
             section._remove_from_uuid_cache(cache)
         for symbol in self.symbols:
