@@ -8,6 +8,14 @@ using namespace gtirb;
 int main() {
   // BEGIN
   //
+  // ### Initialization for AuxData usage
+  //
+  // To make use of the auxiliary data mechanism, each schema that is
+  // intended to be used must be registered with the API before doing
+  // anything else with GTIRB. Typically, this is easiest to do as one
+  // of the first steps in main().
+  AuxDataContainer::registerAuxDataType<gtirb::schema::Types>();
+  //
   // ### Populating the IR
   //
   // GTIRB representation objects have class `gtirb::IR`, and are created within
@@ -61,7 +69,7 @@ int main() {
   // Finally, auxiliary data can be used to store additional information at the
   // IR and module level. A `gtirb::AuxData` object can store integers, strings,
   // GTIRB types such as `gtirb::Addr` and `gtirb::UUID`, and various containers
-  // over these types. THere are predefined AuxData schema for you to use, but
+  // over these types. There are predefined AuxData schema for you to use, but
   // you can also use your own custom AuxData schema. Here is use of a
   // predefined schema, `gtirb::schema::Types`:
   M->addAuxData<gtirb::schema::Types>(
