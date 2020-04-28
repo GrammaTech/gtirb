@@ -54,22 +54,14 @@ class Section(Node):
             if v._section is not None:
                 v._section.byte_intervals.discard(v)
             v._section = self._node
-            if (
-                self._node.module is not None
-                and self._node.module.ir is not None
-            ):
-                v._add_to_uuid_cache(self._node.module.ir._local_uuid_cache)
+            if self._node.ir is not None:
+                v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
 
         def discard(self, v):
             v._section = None
-            if (
-                self._node.module is not None
-                and self._node.module.ir is not None
-            ):
-                v._remove_from_uuid_cache(
-                    self._node.module.ir._local_uuid_cache
-                )
+            if self._node.ir is not None:
+                v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
     def __init__(

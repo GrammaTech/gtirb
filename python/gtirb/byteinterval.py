@@ -62,14 +62,8 @@ class ByteInterval(Node):
 
         def discard(self, v):
             v._byte_interval = None
-            if (
-                self._node.section is not None
-                and self._node.section.module is not None
-                and self._node.section.module.ir is not None
-            ):
-                v._remove_from_uuid_cache(
-                    self._node.section.module.ir._local_uuid_cache
-                )
+            if self._node.ir is not None:
+                v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
     def __init__(
