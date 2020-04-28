@@ -56,14 +56,8 @@ class ByteInterval(Node):
             if v._byte_interval is not None:
                 v._byte_interval.blocks.discard(v)
             v._byte_interval = self._node
-            if (
-                self._node.section is not None
-                and self._node.section.module is not None
-                and self._node.section.module.ir is not None
-            ):
-                v._add_to_uuid_cache(
-                    self._node.section.module.ir._local_uuid_cache
-                )
+            if self._node.ir is not None:
+                v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
 
         def discard(self, v):
