@@ -107,7 +107,7 @@ class TestSerialization(unittest.TestCase):
         bstream = io.BytesIO()
         gtirb.AuxData.serializer.encode(bstream, b.uuid, "UUID")
         result = gtirb.AuxData.serializer.decode(
-            bstream.getvalue(), "UUID", ir
+            bstream.getvalue(), "UUID", ir.get_by_uuid
         )
         self.assertEqual(result, b)
 
@@ -132,14 +132,14 @@ class TestSerialization(unittest.TestCase):
         bstream = io.BytesIO()
         gtirb.AuxData.serializer.encode(bstream, b.uuid, "UUID")
         result = gtirb.AuxData.serializer.decode(
-            bstream.getvalue(), "UUID", ir
+            bstream.getvalue(), "UUID", ir.get_by_uuid
         )
         self.assertEqual(result, b)
 
         bstream = io.BytesIO()
         gtirb.AuxData.serializer.encode(bstream, b.uuid, "UUID")
         result = gtirb.AuxData.serializer.decode(
-            bstream.getvalue(), "UUID", ir2
+            bstream.getvalue(), "UUID", ir2.get_by_uuid
         )
         self.assertEqual(result, b2)
 
@@ -149,7 +149,7 @@ class TestSerialization(unittest.TestCase):
         bstream = io.BytesIO()
         gtirb.AuxData.serializer.encode(bstream, b3.uuid, "UUID")
         result = gtirb.AuxData.serializer.decode(
-            bstream.getvalue(), "UUID", ir
+            bstream.getvalue(), "UUID", ir.get_by_uuid
         )
         self.assertEqual(result, b3.uuid)
 

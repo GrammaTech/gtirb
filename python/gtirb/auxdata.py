@@ -52,7 +52,7 @@ class AuxData:
         """
 
         data = AuxData.serializer.decode(
-            BytesIO(aux_data.data), aux_data.type_name, ir
+            BytesIO(aux_data.data), aux_data.type_name, ir.get_by_uuid
         )
         return cls(data=data, type_name=aux_data.type_name)
 

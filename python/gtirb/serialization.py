@@ -61,7 +61,7 @@ class Codec:
         *,
         serialization=None,  # type: Serialization
         subtypes=tuple(),  # type: SubtypeTree
-        ir=None  # type: "IR"
+        get_by_uuid=None  # type: "IR"
     ):
         # type: (...) -> typing.Any
         """Decode the specified raw data into a Python object.
@@ -70,7 +70,7 @@ class Codec:
         :param serialization: A Serialization instance used to invoke
             other codecs if needed.
         :param subtypes: The parsed type of this object.
-        :param ir: The IR that this aux data's container belongs to.
+        :param get_by_uuid: The IR that this aux data's container belongs to.
         :returns: A new Python object, as decoded from ``raw_bytes``.
         """
 
@@ -101,7 +101,9 @@ class Int64Codec(Codec):
     """A Codec for 64-bit signed integers."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple(), ir=None):
+    def decode(
+        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+    ):
         if subtypes != ():
             raise DecodeError("int64_t should have no subtypes")
         return int.from_bytes(
@@ -119,7 +121,7 @@ class MappingCodec(Codec):
     """A Codec for mapping<K,V> entries. Implemented via ``dict``."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization, subtypes, ir=None):
+    def decode(raw_bytes, *, serialization, subtypes, get_by_uuid=None):
         try:
             key_type, val_type = subtypes
         except (TypeError, ValueError):
@@ -129,8 +131,8 @@ class MappingCodec(Codec):
         mapping = dict()
         mapping_len = Uint64Codec.decode(raw_bytes)
         for _ in range(mapping_len):
-            key = serialization._decode_tree(raw_bytes, key_type, ir)
-            val = serialization._decode_tree(raw_bytes, val_type, ir)
+            key = serialization._decode_tree(raw_bytes, key_type, get_by_uuid)
+            val = serialization._decode_tree(raw_bytes, val_type, get_by_uuid)
             mapping[key] = val
         return mapping
 
@@ -154,10 +156,12 @@ class OffsetCodec(Codec):
     """
 
     @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple(), ir=None):
+    def decode(
+        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+    ):
         if subtypes != ():
             raise DecodeError("Offset should have no subtypes")
-        element_uuid = UUIDCodec.decode(raw_bytes, ir=ir)
+        element_uuid = UUIDCodec.decode(raw_bytes, get_by_uuid=get_by_uuid)
         displacement = Uint64Codec.decode(raw_bytes)
 
         return Offset(element_uuid, displacement)
@@ -174,7 +178,7 @@ class SequenceCodec(Codec):
     """A Codec for sequence<T> entries. Implemented via ``list``."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization, subtypes, ir=None):
+    def decode(raw_bytes, *, serialization, subtypes, get_by_uuid=None):
         try:
             (subtype,) = subtypes
         except (TypeError, ValueError) as e:
@@ -182,7 +186,9 @@ class SequenceCodec(Codec):
         sequence = list()
         sequence_len = Uint64Codec.decode(raw_bytes)
         for _ in range(sequence_len):
-            sequence.append(serialization._decode_tree(raw_bytes, subtype, ir))
+            sequence.append(
+                serialization._decode_tree(raw_bytes, subtype, get_by_uuid)
+            )
         return sequence
 
     @staticmethod
@@ -200,7 +206,7 @@ class SetCodec(Codec):
     """A Codec for set<T> entries. Implemented via ``set``."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization, subtypes, ir=None):
+    def decode(raw_bytes, *, serialization, subtypes, get_by_uuid=None):
         try:
             (subtype,) = subtypes
         except (TypeError, ValueError) as e:
@@ -208,7 +214,9 @@ class SetCodec(Codec):
         decoded_set = set()
         set_len = Uint64Codec.decode(raw_bytes)
         for _ in range(set_len):
-            decoded_set.add(serialization._decode_tree(raw_bytes, subtype, ir))
+            decoded_set.add(
+                serialization._decode_tree(raw_bytes, subtype, get_by_uuid)
+            )
         return decoded_set
 
     @staticmethod
@@ -226,13 +234,13 @@ class TupleCodec(Codec):
     """A Codec for tuple<...> entries. Implemented via ``tuple``."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization, subtypes, ir=None):
+    def decode(raw_bytes, *, serialization, subtypes, get_by_uuid=None):
         # The length of a tuple is not contained in the Protobuf
         # representation, so error checking cannot be done here.
         decoded_list = list()
         for subtype in subtypes:
             decoded_list.append(
-                serialization._decode_tree(raw_bytes, subtype, ir)
+                serialization._decode_tree(raw_bytes, subtype, get_by_uuid)
             )
         return tuple(decoded_list)
 
@@ -248,7 +256,9 @@ class StringCodec(Codec):
     """A Codec for strings."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple(), ir=None):
+    def decode(
+        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+    ):
         if subtypes != tuple():
             raise DecodeError("string should have no subtypes")
         size = Uint64Codec.decode(raw_bytes)
@@ -266,7 +276,9 @@ class Uint64Codec(Codec):
     """A Codec for 64-bit unsigned integers."""
 
     @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple(), ir=None):
+    def decode(
+        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+    ):
         if subtypes != ():
             raise DecodeError("uint64_t should have no subtypes")
         return int.from_bytes(
@@ -289,11 +301,13 @@ class UUIDCodec(Codec):
     """
 
     @staticmethod
-    def decode(raw_bytes, *, serialization=None, subtypes=tuple(), ir=None):
+    def decode(
+        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+    ):
         if subtypes != ():
             raise DecodeError("UUID should have no subtypes")
         uuid = UUID(bytes=raw_bytes.read(16))
-        existing_node = ir.get_by_uuid(uuid)
+        existing_node = get_by_uuid(uuid)
         return uuid if existing_node is None else existing_node
 
     @staticmethod
@@ -354,7 +368,7 @@ class Serialization:
             "UUID": UUIDCodec,
         }  # type: typing.Dict[str, Codec]
 
-    def _decode_tree(self, raw_bytes, type_tree, ir):
+    def _decode_tree(self, raw_bytes, type_tree, get_by_uuid):
         # type: (typing.BinaryIO, SubtypeTree, "IR") -> typing.Any
         """Decode the data in ``raw_bytes`` given a parsed type tree.
 
@@ -371,7 +385,10 @@ class Serialization:
             raise UnknownCodecError(type_name)
         codec = self.codecs[type_name]
         return codec.decode(
-            raw_bytes, serialization=self, subtypes=subtypes, ir=ir
+            raw_bytes,
+            serialization=self,
+            subtypes=subtypes,
+            get_by_uuid=get_by_uuid,
         )
 
     def _encode_tree(self, out, val, type_tree):
@@ -472,14 +489,19 @@ class Serialization:
             raise TypeNameError(type_name)
         return parse_tree
 
-    def decode(self, raw_bytes, type_name, ir=None):
-        # type: (typing.BinaryIO, str, "IR") -> typing.Any
+    def decode(
+        self,
+        raw_bytes,  # typing.BinaryIO
+        type_name,  # str
+        get_by_uuid=None,  # typing.Optional[typing.Callable[[UUID], Node]]
+    ):
+        # type: (...) -> typing.Any
         """Decode a :class:`gtirb.AuxData` of the specified type
         from the specified byte stream.
 
         :param raw_bytes: The byte stream from which to read the encoded value.
         :param type_name: The type name of the object encoded by ``raw_bytes``.
-        :param ir: The IR this aux data is a part of.
+        :param get_by_uuid: A function to look up nodes by UUID.
         :returns: The object encoded by ``raw_bytes``.
         """
 
@@ -490,7 +512,9 @@ class Serialization:
         else:
             all_bytes = raw_bytes.read()
         try:
-            return self._decode_tree(io.BytesIO(all_bytes), parse_tree, ir)
+            return self._decode_tree(
+                io.BytesIO(all_bytes), parse_tree, get_by_uuid
+            )
         except UnknownCodecError:
             # we found an unknwon codec; the entire data structure can't be
             # parsed; return a blob of bytes
