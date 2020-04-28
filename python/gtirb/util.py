@@ -52,6 +52,12 @@ class ListWrapper(typing.MutableSequence[T]):
     def remove(self, v):
         del self[self._data.index(v)]
 
+    # extend is not in every version of Python 3, so list wrapper adds it here
+    # itself.
+    def extend(self, other):
+        for v in other:
+            self.append(v)
+
     # end functions for ABC
     def __str__(self):
         return str(self._data)
