@@ -70,7 +70,7 @@ class Codec:
         :param serialization: A Serialization instance used to invoke
             other codecs if needed.
         :param subtypes: The parsed type of this object.
-        :param get_by_uuid: The IR that this aux data's container belongs to.
+        :param get_by_uuid: A function to look up nodes by UUID.
         :returns: A new Python object, as decoded from ``raw_bytes``.
         """
 
