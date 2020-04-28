@@ -1,6 +1,5 @@
 import typing
 from uuid import UUID, uuid4
-from weakref import WeakValueDictionary
 
 
 class Node:
@@ -8,10 +7,6 @@ class Node:
 
     :ivar ~.uuid: The UUID of this Node.
     """
-
-    _uuid_cache = (
-        WeakValueDictionary()
-    )  # type: typing.ClassVar[typing.Mapping[UUID, "Node"]]
 
     def __init__(self, uuid=None):
         # type: (typing.Optional[UUID]) -> None
@@ -24,32 +19,6 @@ class Node:
         if uuid is None:
             uuid = uuid4()
         self.uuid = uuid  # type: UUID
-        Node._uuid_cache[self.uuid] = self
-
-    @classmethod
-    def from_uuid(cls, uuid):
-        # type: (UUID) -> typing.Optional[Node]
-        """
-        Get the ``Node`` with the specified UUID,
-        or ``None`` if no such ``Node`` exists.
-
-        :param uuid: The UUID to look up.
-        :raises TypeError: if the Node is not of the requested type.
-            To request that the output be of a specific type, call this
-            function from the desired subclass. For example, calling
-            ``gtirb.CodeBlock.from_uuid`` will return a
-            :class:`gtirb.CodeBlock` or raise a ``TypeError``.
-
-        :deprecated 1.4.5: Use :meth:`gtirb.IR.get_by_uuid` instead.
-        """
-
-        node = Node._uuid_cache.get(uuid)
-        if node is not None and not isinstance(node, cls):
-            raise TypeError(
-                "%s is node of type %s, not %s"
-                % (uuid, type(node).__name__, cls.__name__)
-            )
-        return node
 
     @classmethod
     def _decode_protobuf(cls, proto_object, uuid, ir):
