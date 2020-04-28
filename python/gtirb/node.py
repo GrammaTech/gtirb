@@ -40,7 +40,7 @@ class Node:
             ``gtirb.CodeBlock.from_uuid`` will return a
             :class:`gtirb.CodeBlock` or raise a ``TypeError``.
 
-        :deprecated 1.4.5: Use :meth:`gtirb.Node.get_by_uuid` instead.
+        :deprecated 1.4.5: Use :meth:`gtirb.IR.get_by_uuid` instead.
         """
 
         node = Node._uuid_cache.get(uuid)
