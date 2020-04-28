@@ -199,11 +199,17 @@ class ByteInterval(Node):
 
         def decode_symbolic_expression(proto_expr):
             if proto_expr.HasField("stack_const"):
-                return SymStackConst._from_protobuf(proto_expr.stack_const, ir)
+                return SymStackConst._from_protobuf(
+                    proto_expr.stack_const, ir.get_by_uuid
+                )
             elif proto_expr.HasField("addr_const"):
-                return SymAddrConst._from_protobuf(proto_expr.addr_const, ir)
+                return SymAddrConst._from_protobuf(
+                    proto_expr.addr_const, ir.get_by_uuid
+                )
             elif proto_expr.HasField("addr_addr"):
-                return SymAddrAddr._from_protobuf(proto_expr.addr_addr, ir)
+                return SymAddrAddr._from_protobuf(
+                    proto_expr.addr_addr, ir.get_by_uuid
+                )
             else:
                 raise TypeError(
                     "Unknown type inside proto sym expr: %s"

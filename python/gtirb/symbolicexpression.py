@@ -1,6 +1,7 @@
 import typing
 from uuid import UUID
 
+from .node import Node
 from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
 
@@ -39,11 +40,11 @@ class SymAddrAddr:
     def _from_protobuf(
         cls,
         proto_symaddraddr,  # type: SymbolicExpression_pb2.SymAddrAddr
-        ir,  # type: typing.Optional["IR"]
+        get_by_uuid,  # type: typing.Callable[[UUID], Node]
     ):
         # type: (...) -> SymAddrAddr
-        symbol1 = ir.get_by_uuid(UUID(bytes=proto_symaddraddr.symbol1_uuid))
-        symbol2 = ir.get_by_uuid(UUID(bytes=proto_symaddraddr.symbol2_uuid))
+        symbol1 = get_by_uuid(UUID(bytes=proto_symaddraddr.symbol1_uuid))
+        symbol2 = get_by_uuid(UUID(bytes=proto_symaddraddr.symbol2_uuid))
         return cls(
             proto_symaddraddr.scale, proto_symaddraddr.offset, symbol1, symbol2
         )
@@ -119,10 +120,10 @@ class SymAddrConst:
     def _from_protobuf(
         cls,
         proto_symaddrconst,  # type: SymbolicExpression_pb2.SymAddrConst
-        ir,  # type: typing.Optional["IR"]
+        get_by_uuid,  # type: typing.Callable[[UUID], Node]
     ):
         # type: (...) -> SymAddrConst
-        symbol = ir.get_by_uuid(UUID(bytes=proto_symaddrconst.symbol_uuid))
+        symbol = get_by_uuid(UUID(bytes=proto_symaddrconst.symbol_uuid))
         return cls(proto_symaddrconst.offset, symbol)
 
     def _to_protobuf(self):
@@ -187,10 +188,10 @@ class SymStackConst:
     def _from_protobuf(
         cls,
         proto_symstackconst,  # type: SymbolicExpression_pb2.SymStackConst
-        ir,  # type: typing.Optional["IR"]
+        get_by_uuid,  # type: typing.Callable[[UUID], Node]
     ):
         # type: (...) -> SymStackConst
-        symbol = ir.get_by_uuid(UUID(bytes=proto_symstackconst.symbol_uuid))
+        symbol = get_by_uuid(UUID(bytes=proto_symstackconst.symbol_uuid))
         return cls(proto_symstackconst.offset, symbol)
 
     def _to_protobuf(self):

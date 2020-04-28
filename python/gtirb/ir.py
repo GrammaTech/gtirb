@@ -116,7 +116,9 @@ class IR(AuxDataContainer):
         ir.modules.extend(
             Module._from_protobuf(m, ir) for m in proto_ir.modules
         )
-        ir.cfg.update(Edge._from_protobuf(e, ir) for e in proto_ir.cfg.edges)
+        ir.cfg.update(
+            Edge._from_protobuf(e, ir.get_by_uuid) for e in proto_ir.cfg.edges
+        )
         ir.aux_data.update(
             AuxDataContainer._read_protobuf_aux_data(proto_ir, ir)
         )

@@ -3,6 +3,7 @@ from enum import Enum
 from uuid import UUID
 
 from .block import CfgNode
+from .node import Node
 from .proto import CFG_pb2
 
 
@@ -164,13 +165,13 @@ class Edge:
         self.label = label  # type: typing.Optional["Edge.Label"]
 
     @classmethod
-    def _from_protobuf(cls, edge, ir):
-        # type: (CFG_pb2.Edge, typing.Optional["IR"]) -> Edge
+    def _from_protobuf(cls, edge, get_by_uuid):
+        # type: (CFG_pb2.Edge, typing.Callable[[UUID], Node]) -> Edge
         source_uuid = UUID(bytes=edge.source_uuid)
         target_uuid = UUID(bytes=edge.target_uuid)
 
-        source = ir.get_by_uuid(source_uuid)
-        target = ir.get_by_uuid(target_uuid)
+        source = get_by_uuid(source_uuid)
+        target = get_by_uuid(target_uuid)
         if not isinstance(source, CfgNode):
             raise ValueError(
                 "In CFG: source UUID %s is a %s, not a CfgNode"
