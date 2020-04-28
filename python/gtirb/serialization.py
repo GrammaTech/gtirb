@@ -6,6 +6,11 @@ from uuid import UUID
 from .node import Node
 from .offset import Offset
 
+if typing.TYPE_CHECKING:
+    CacheLookupFn = typing.Optional[
+        typing.Callable[[UUID], typing.Optional[Node]]
+    ]
+
 
 class CodecError(Exception):
     """Base class for codec exceptions."""
@@ -61,7 +66,7 @@ class Codec:
         *,
         serialization=None,  # type: Serialization
         subtypes=tuple(),  # type: SubtypeTree
-        get_by_uuid=None  # type: "IR"
+        get_by_uuid=None  # type: CacheLookupFn
     ):
         # type: (...) -> typing.Any
         """Decode the specified raw data into a Python object.
@@ -369,7 +374,7 @@ class Serialization:
         }  # type: typing.Dict[str, Codec]
 
     def _decode_tree(self, raw_bytes, type_tree, get_by_uuid):
-        # type: (typing.BinaryIO, SubtypeTree, "IR") -> typing.Any
+        # type: (typing.BinaryIO, SubtypeTree, CacheLookupFn) -> typing.Any
         """Decode the data in ``raw_bytes`` given a parsed type tree.
 
         :param raw_bytes: The binary stream to read bytes from.
@@ -491,9 +496,9 @@ class Serialization:
 
     def decode(
         self,
-        raw_bytes,  # typing.BinaryIO
-        type_name,  # str
-        get_by_uuid=None,  # typing.Optional[typing.Callable[[UUID], Node]]
+        raw_bytes,  # type: typing.BinaryIO
+        type_name,  # type: str
+        get_by_uuid=None,  # type: CacheLookupFn
     ):
         # type: (...) -> typing.Any
         """Decode a :class:`gtirb.AuxData` of the specified type
