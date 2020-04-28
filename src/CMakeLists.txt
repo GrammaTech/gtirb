@@ -176,6 +176,7 @@ endif()
 
 install(
   TARGETS ${PROJECT_NAME}
+  COMPONENT library
   EXPORT gtirbTargets
   INCLUDES
   DESTINATION include
@@ -183,10 +184,18 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
-install(FILES ${${PROJECT_NAME}_H} DESTINATION include/gtirb)
-install(DIRECTORY "${CMAKE_BINARY_DIR}/include/gtirb/proto"
-        DESTINATION include/gtirb
+install(
+  FILES ${${PROJECT_NAME}_H}
+  COMPONENT headers
+  DESTINATION include/gtirb
 )
-install(FILES "${CMAKE_BINARY_DIR}/include/gtirb/version.h"
-        DESTINATION include/gtirb
+install(
+  DIRECTORY "${CMAKE_BINARY_DIR}/include/gtirb/proto"
+  COMPONENT proto_files
+  DESTINATION include/gtirb
+)
+install(
+  FILES "${CMAKE_BINARY_DIR}/include/gtirb/version.h"
+  COMPONENT version
+  DESTINATION include/gtirb
 )

@@ -446,28 +446,35 @@ if(CXX_API)
   )
 
   # Copy the config files to the install location
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake
-                ${version_file} DESTINATION lib/gtirb
+  install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbConfig.cmake ${version_file}
+    DESTINATION lib/gtirb
+    COMPONENT cmake_config
   )
   # This exports the targets to the install location.
-  install(EXPORT gtirbTargets DESTINATION lib/gtirb)
+  install(
+    EXPORT gtirbTargets
+    COMPONENT cmake_target
+    DESTINATION lib/gtirb
+  )
 endif()
 
 # ---------------------------------------------------------------------------
 # Package generation with cpack
 # ---------------------------------------------------------------------------
-set(CMAKE_PROJECT_HOMEPAGE_URL https://github.com/GrammaTech/gtirb)
+set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cpack-config.cmake)
 
+set(CMAKE_PROJECT_HOMEPAGE_URL https://github.com/GrammaTech/gtirb)
 set(CPACK_PACKAGE_VERSION_MAJOR ${GTIRB_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${GTIRB_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${GTIRB_PATCH_VERSION})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-    "The GrammaTech Intermediate Representation for Binaries (GTIRB) is a machine code analysis and rewriting data structure."
-)
 set(CPACK_PACKAGE_VENDOR "GrammaTech Inc.")
 set(CPACK_PACKAGE_CONTACT gtirb@grammatech.com)
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
 set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "The GrammaTech Intermediate Representation for Binaries (GTIRB) is a machine code analysis and rewriting data structure."
+)
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 
@@ -478,13 +485,10 @@ set(PROTOBUF_MAJOR_VERSION ${CMAKE_MATCH_1})
 set(PROTOBUF_MINOR_VERSION ${CMAKE_MATCH_2})
 set(PROTOBUF_PATCH_VERSION ${CMAKE_MATCH_3})
 math(EXPR NEXT_PROTOBUF_PATCH "${PROTOBUF_PATCH_VERSION}+1")
-set(PROTOBUF_VERSION_BOUND
+set(CPACK_PROTOBUF_VERSION_UPPER_BOUND
     "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.${NEXT_PROTOBUF_PATCH}"
 )
-
-set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libstdc++6, libc6, libgcc1, libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${Protobuf_VERSION}~), libprotobuf-dev (<<${PROTOBUF_VERSION_BOUND})"
-)
+set(CPACK_PROTOBUF_VERSION_LOWER_BOUND "${Protobuf_VERSION}")
 
 include(CPack)
 
