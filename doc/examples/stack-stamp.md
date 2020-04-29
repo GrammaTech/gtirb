@@ -59,7 +59,23 @@ The following should be sufficient to install all requirements:
   [yay](https://github.com/Jguer/yay),
 
   ```
-  yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git gtirb-functions-git gtirb-capstone-git
+  yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git TODO:gtirb-functions-git TODO:gtirb-capstone-git
+  ```
+
+Note: if you're developing using Python or Common Lisp then you may
+prefer to install the `gtirb-functions` and `gtirb-capstone` libraries
+using your language's package manager.
+
+- Python.
+
+  ```
+  pip install gtirb-functions-git gtirb-capstone-git
+  ```
+
+- Common Lisp.
+
+  ```
+  (mapc #'ql:quickload '(:gtirb-functions :gtirb-capstone))
   ```
 
 ## Lift a binary to GTIRB
@@ -67,7 +83,7 @@ Run the datalog disassembler to analyze a binary and produce a GTIRB
 representation.
 
 ```
-ddisasm $(which ls) /tmp/ls.gtirb
+ddisasm $(which ls) --ir /tmp/ls.gtirb
 ```
 
 If a binary on your system doesn't work, please
