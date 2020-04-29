@@ -4,17 +4,16 @@ FROM ubuntu:18.04
 # software-properties-common: for add-apt-repository
 RUN apt-get -y update && apt-get -y install build-essential dpkg-dev software-properties-common wget
 
-# for boost 1.67
 RUN add-apt-repository ppa:mhier/libboost-latest
 
 # setup apt repository
 RUN mkdir -p /gt/apt-repo
-COPY libgtirb-dev.deb /gt/apt-repo
+COPY python3-gtirb.deb /gt/apt-repo
 RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
 RUN echo "\ndeb [trusted=yes] file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
 
 # test the installer
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
-COPY .ci/test-install.cpp test-install.cpp
-RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb-dev
-RUN g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+COPY .ci/test-install.py test-install.py
+RUN apt-get update && apt-get install -y --allow-unauthenticated python3-gtirb
+RUN python3 test-install.py

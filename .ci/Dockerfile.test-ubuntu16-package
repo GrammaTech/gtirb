@@ -16,12 +16,12 @@ RUN add-apt-repository ppa:mhier/libboost-latest
 
 # setup apt repository
 RUN mkdir -p /gt/apt-repo
-COPY GTIRB-*-Linux.deb /gt/apt-repo
+COPY libgtirb-dev.deb /gt/apt-repo
 RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
 RUN echo "\ndeb file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
 
 # test the installer
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 COPY .ci/test-install.cpp test-install.cpp
-RUN apt-get update && apt-get install -y --allow-unauthenticated gtirb
+RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb-dev
 RUN g++-7 test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++

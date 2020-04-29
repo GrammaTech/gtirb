@@ -193,10 +193,13 @@ test-install:
     - if [ "$OS" = "arch" ];
       then
         export PKGFILE="gtirb-git-$(git describe --abbrev=8 --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s|gt/pristine/||')-1-x86_64.pkg.tar.xz";
-      else
-        export PKGFILE="GTIRB-$(grep -o [0-9]\* version.txt | head -3 | paste -sd.)-Linux.deb";
+        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/${PKGFILE} ./${PKGFILE};
+      elif [[ "$OS" =~ ubuntu1[68] ]];
+      then
+        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb.deb ./libgtirb.deb;
+        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb-dev.deb ./libgtirb-dev.deb;
+        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/python3-gtirb.deb ./python3-gtirb.deb;
       fi
-    - docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/${PKGFILE} ./${PKGFILE}
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
     - if [ -f .ci/Dockerfile.test-${OS}-package ]; then docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .; fi
