@@ -202,7 +202,14 @@ test-install:
       fi
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
-    - if [ -f .ci/Dockerfile.test-${OS}-package ]; then docker build -f .ci/Dockerfile.test-${OS}-package --build-arg CXX_COMPILER=${COMPILER} .; fi
+    - if compgen -G .ci/Dockerfile.test-${OS}-*package > /dev/null;
+      then
+        for PACKAGE_TEST in .ci/Dockerfile.test-${OS}-*package;
+        do
+          echo "Testing $PACKAGE_TEST...";
+          docker build -f $PACKAGE_TEST --build-arg CXX_COMPILER=${COMPILER} .;
+        done
+      fi
 
 debian-installer-ubuntu16:
   variables:
