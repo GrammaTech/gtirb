@@ -39,8 +39,10 @@ function setup_repo {
   local CODENAME=$2
   mkdir $DEPLOY_DIR/$CODENAME
   pushd $DEPLOY_DIR/$CODENAME
-  curl -L https://git.grammatech.com/rewriting/gtirb/-/jobs/artifacts/master/download?job=debian-installer-ubuntu$OS_NUM --output "gtirb-artifacts.zip"
-  unzip gtirb-artifacts.zip
+  for PROJECT in gtirb gtirb-pprinter ddisasm;do
+    curl -L https://git.grammatech.com/rewriting/${PROJECT}/-/jobs/artifacts/master/download?job=debian-installer-ubuntu$OS_NUM --output "${PROJECT}-artifacts.zip"
+    unzip ${PROJECT}-artifacts.zip
+  done
   rm *.zip
   dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
   popd
