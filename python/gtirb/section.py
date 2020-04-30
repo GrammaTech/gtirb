@@ -59,6 +59,8 @@ class Section(Node):
             return super().add(v)
 
         def discard(self, v):
+            if v not in self:
+                return
             v._section = None
             if self._node.ir is not None:
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
