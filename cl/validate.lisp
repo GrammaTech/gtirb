@@ -1,5 +1,6 @@
 (defpackage :gtirb/validate
   (:use :gt/full :gtirb :graph :command-line-arguments)
+  (:import-from :gtirb.proto)
   (:shadowing-import-from :gt/full :size :copy)
   (:shadowing-import-from :gtirb :symbol)
   (:export :validate))
@@ -77,6 +78,21 @@
 (make-instance 'check
   :name 'nothing-overlaps
   :action 'nothing-overlaps
+  :object 'gtirb)
+
+(defgeneric all-referents-exist (object)
+  (:method ((obj gtirb))
+    (and (every #'all-referents-exist (modules obj))
+         (every {get-uuid _ obj} (nodes (cfg obj)))))
+  (:method ((obj module)) (every #'all-referents-exist (symbols obj)))
+  (:method ((obj symbol))
+    (if (gtirb.proto:has-referent-uuid (proto obj))
+        (payload obj)
+        t)))
+
+(make-instance 'check
+  :name 'all-referents-exist
+  :action 'all-referents-exist
   :object 'gtirb)
 
 
