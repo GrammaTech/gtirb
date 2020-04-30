@@ -85,6 +85,21 @@ class NodeFromUUIDTest(unittest.TestCase):
         self.assertEqual(ir1.get_by_uuid(b.uuid), b)
         self.assertEqual(ir1.get_by_uuid(sym.uuid), sym)
 
+    def test_remove_from_cache(self):
+        ir = gtirb.IR()
+        m = gtirb.Module()
+        m.ir = ir
+        s = gtirb.Section()
+
+        s.module = m
+        self.assertEqual(ir.get_by_uuid(s.uuid), s)
+
+        s.module = None
+        self.assertIsNone(ir.get_by_uuid(s.uuid))
+
+        m.sections -= {s}
+        self.assertIsNone(ir.get_by_uuid(s.uuid))
+
 
 if __name__ == "__main__":
     unittest.main()
