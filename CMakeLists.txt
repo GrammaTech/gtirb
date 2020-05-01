@@ -402,10 +402,13 @@ if(CXX_API)
          FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake"
   )
   # This is the main config file that find_package will look for.
+  configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/gtirbConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake" @ONLY
+  )
   file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake"
+    APPEND "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake"
     "
-              include(\"\$\{CMAKE_CURRENT_LIST_DIR\}/gtirbTargets.cmake\")
               set_property(
                   TARGET gtirb
                   APPEND PROPERTY
