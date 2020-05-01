@@ -62,6 +62,8 @@
            :address
            :contents
            :size
+           :truncate-contents
+           :ignore
            ;; Symbolic expressions
            :symbolic-expressions
            :sym-addr-const
@@ -483,6 +485,14 @@ the graph.")
     ((version :type unsigned-byte-64 :documentation "Protobuf version."))
   (:documentation "Base class of an instance of GTIRB IR."))
 
+(define-condition ir (error)
+  ((message :initarg :message :initform nil :reader message)
+   (object :initarg :object :initform nil :reader object))
+  (:report (lambda (condition stream)
+             (format stream "GTIRB error ~S on ~S."
+                     (message condition) (object condition))))
+  (:documentation "Condition raised on GTIRB data structure violations."))
+
 (defmethod print-object ((obj gtirb) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a" (modules obj))))
@@ -828,8 +838,6 @@ elements as proxy blocks do not hold bytes.")
               "Optionally specify the address in memory at which this
 ~ byte-interval should start.  Byte-intervals without address could
 exist anywhere in memory.")
-     ;; TODO: Truncate contents if size is set to less than contents size.
-     ;;       Also/instead should throw a warning.
      (size :type unsigned-byte-64 :documentation
            "The size of this byte-interval.
 It is possible for the size of a byte-interval to be larger than the
@@ -841,6 +849,18 @@ at runtime.")
   (:documentation "Byte-interval in a GTIRB instance.") (:parent section)
   (:address-range (when (addressp self)
                     (list (address self) (+ (address self) (size self))))))
+
+(defmethod (setf size) :before (new (obj byte-interval))
+  (restart-case
+      (when (> (length (contents obj)) new)
+        (error (make-condition 'ir
+                               :message "size smaller than contents"
+                               :object obj)))
+    (truncate-contents ()
+      :report "Truncate the contents of the byte-interval to the new size."
+      (setf (contents obj) (subseq (contents obj) 0 new)))
+    (ignore ()
+      :report "Ignore and leave the byte-interval in an inconsistent state.")))
 
 (defmethod print-object ((obj byte-interval) stream)
   (print-unreadable-object (obj stream :type t :identity t)

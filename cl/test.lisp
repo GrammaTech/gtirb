@@ -481,6 +481,42 @@ The ERRNO used when exiting lisp indicates success or failure."
             (mappend #'sections)
             (modules it)))))
 
+(deftest truncating-size-on-byte-interval-errors-and-truncates ()
+  (with-fixture hello
+    (let ((byte-intervals (nest (mappend #'byte-intervals)
+                                (mappend #'sections)
+                                (modules)
+                                (read-gtirb *proto-path*))))
+      ;; Truncation signals an error.
+      (signals ir
+        (setf (size (first byte-intervals))
+              (1- (length (contents (first byte-intervals))))))
+      ;; Truncate restart works.
+      (let* ((bi (second byte-intervals))
+             (original-length (length (contents bi))))
+        (handler-bind
+            ((ir
+              (lambda (e)
+                (if (find-restart 'truncate-contents)
+                    (invoke-restart 'truncate-contents)
+                    (error e)))))
+          (setf (size bi) (1- original-length)))
+        (is (= original-length
+               (+ 1 (size bi))
+               (+ 1 (length (contents bi))))))
+      ;; Ignore restart works.
+      (let* ((bi (third byte-intervals))
+             (original-length (length (contents bi))))
+        (handler-bind
+            ((ir
+              (lambda (e)
+                (if (find-restart 'ignore)
+                    (invoke-restart 'ignore)
+                    (error e)))))
+          (setf (size bi) (1- original-length)))
+        (is (= original-length (length (contents bi))))
+        (is (> original-length (size bi)))))))
+
 
 ;;;; Dot test suite
 (deftest write-dot-to-file ()
