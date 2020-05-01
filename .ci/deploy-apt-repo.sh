@@ -44,6 +44,7 @@ function setup_repo {
     unzip ${PROJECT}-artifacts.zip
   done
   rm *.zip
+  curl http://otsego.grammatech.com/u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt1_amd64.deb --output libcapstone-dev_4.0.1-gt1_amd64.deb
   dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
   popd
 };
