@@ -202,9 +202,9 @@ test-install:
       fi
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
-    - if compgen -G .ci/Dockerfile.test-${OS}-*package > /dev/null;
+    - if compgen -G .ci/Dockerfile.test-${OS}-*-package > /dev/null;
       then
-        for PACKAGE_TEST in .ci/Dockerfile.test-${OS}-*package;
+        for PACKAGE_TEST in .ci/Dockerfile.test-${OS}-*-package;
         do
           echo "Testing $PACKAGE_TEST...";
           docker build -f $PACKAGE_TEST --build-arg CXX_COMPILER=${COMPILER} .;
