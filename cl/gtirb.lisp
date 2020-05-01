@@ -713,9 +713,6 @@ is zero initialized, and whether the section is thread-local."))
      (address it)))
 
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
-    ;; TODO: What's a better data structure to use to store a sorted
-    ;;       collection of pairs which permits duplicates.  Maybe a
-    ;;       balanced tree.
     ((blocks :initarg :blocks :accessor blocks :type list
              :from-proto
              [{map 'list
