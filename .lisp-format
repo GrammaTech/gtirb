@@ -68,6 +68,7 @@
         (when-let* 1)
         (defixture 1)
         (lambda-bind 1)
+        (signals 1)
         (match 1)
         (start-case 1)
         (define-proto-backed-class 4)
