@@ -198,7 +198,7 @@ test-install:
       then
         docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb.deb ./libgtirb.deb;
         docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb-dev.deb ./libgtirb-dev.deb;
-        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/python3-gtirb.deb ./python3-gtirb.deb;
+        [ $OS = 'ubuntu18' ] && docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/python3-gtirb.deb ./python3-gtirb.deb;
       fi
     - docker container rm -f $(cat ${CONTAINER_FILE})
     - rm -rf $(dirname ${CONTAINER_FILE})
