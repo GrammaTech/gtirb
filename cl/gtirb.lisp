@@ -638,7 +638,7 @@ This indicates the type of control flow along this edge."))
 (define-proto-backed-class (symbol proto:symbol) () ()
     ((name :type string)
      (value :type unsigned-byte-64)
-     (referent-uuid :type uuid) ; TODO: Just hold the referent directly.
+     (referent-uuid :type uuid)
      (at-end :type boolean))
   (:documentation
    "Symbol with it's NAME and an optional VALUE or REFERENT.")
