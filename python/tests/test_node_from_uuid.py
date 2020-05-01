@@ -97,7 +97,7 @@ class NodeFromUUIDTest(unittest.TestCase):
         s.module = None
         self.assertIsNone(ir.get_by_uuid(s.uuid))
 
-        m.sections -= {s}
+        m.sections.discard(s)
         self.assertIsNone(ir.get_by_uuid(s.uuid))
 
 
