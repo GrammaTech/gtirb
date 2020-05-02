@@ -12,3 +12,4 @@ ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 COPY .ci/test-install.cpp test-install.cpp
 RUN pacman --noconfirm -U /tmp/gtirb-git-*.pkg.tar.xz
 RUN g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+RUN ./test-install

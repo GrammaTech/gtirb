@@ -25,3 +25,4 @@ ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 COPY .ci/test-install.cpp test-install.cpp
 RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb-dev
 RUN g++-7 test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+RUN ./test-install
