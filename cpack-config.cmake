@@ -14,11 +14,11 @@ if("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "lib")
 elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "dev")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dev")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-dev")
-  set(CPACK_COMPONENTS_ALL library headers version proto_files cmake_config
+  set(CPACK_COMPONENTS_ALL headers version proto_files cmake_config
                            cmake_target
   )
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "libstdc++6, libc6, libgcc1, libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf-dev (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
+      "libstdc++6, libc6, libgcc1, libgtirb (=${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf-dev (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
   )
 elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "python")
   set(CPACK_DEBIAN_PACKAGE_NAME "python3-gtirb")

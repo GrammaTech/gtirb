@@ -475,7 +475,6 @@ set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "The GrammaTech Intermediate Representation for Binaries (GTIRB) is a machine code analysis and rewriting data structure."
 )
-
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 
 string(REGEX MATCH "([^\.]+)\.([^\.]+)\.([^\.]+)" PROTOBUF_VERSION_MATCH
@@ -489,6 +488,7 @@ set(CPACK_PROTOBUF_VERSION_UPPER_BOUND
     "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.${NEXT_PROTOBUF_PATCH}"
 )
 set(CPACK_PROTOBUF_VERSION_LOWER_BOUND "${Protobuf_VERSION}")
+set(CPACK_GTIRB_VERSION "${GTIRB_VERSION}")
 
 include(CPack)
 
