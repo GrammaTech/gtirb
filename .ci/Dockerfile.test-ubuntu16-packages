@@ -11,8 +11,10 @@ RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
 RUN echo "\ndeb file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
 
 FROM test-base AS test-libgtirb-dev
+RUN add-apt-repository ppa:jonathonf/gcc-7.1
+RUN apt-get update && apt-get install -y gcc-7 g++-7
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
-WORKDIR /test-install
+WORKDIR /test/
 COPY .ci/test-install.cpp test-install.cpp
 RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb-dev
 RUN g++-7 test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
@@ -20,6 +22,6 @@ RUN ./test-install
 
 FROM test-base AS test-libgtirb
 RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb
-COPY --from=test-libgtirb-dev /test-install /test-install
-WORKDIR /test-install
+COPY --from=test-libgtirb-dev /test/test-install /test/test-install
+WORKDIR /test/
 RUN ./test-install

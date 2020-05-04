@@ -12,6 +12,7 @@ RUN echo "\ndeb [trusted=yes] file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
 
 FROM test-base as test-libgtirb-dev
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+WORKDIR /test/
 COPY .ci/test-install.cpp test-install.cpp
 RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb-dev
 RUN g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
@@ -19,12 +20,13 @@ RUN ./test-install
 
 FROM test-base AS test-libgtirb
 RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb
-COPY --from=test-libgtirb-dev /test-install /test-install
-WORKDIR /test-install
+COPY --from=test-libgtirb-dev /test/test-install /test/test-install
+WORKDIR /test
 RUN ./test-install
 
 FROM test-base as test-python3-gtirb
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+WORKDIR /test/
 COPY .ci/test-install.py test-install.py
 RUN apt-get update && apt-get install -y --allow-unauthenticated python3-gtirb
 RUN python3 test-install.py
