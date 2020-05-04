@@ -140,7 +140,7 @@ build-windows-msvc-debug:
     BUILD_TYPE: 'Debug'
   <<: *windows-build
 
-build-windows-msvc-release:
+build-windows-msvc-relwithdebinfo:
   tags:
     - gtirb-windows
   variables:
