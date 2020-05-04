@@ -102,7 +102,7 @@ platform follow.
 ```sh
 sudo add-apt-repository ppa:maarten-fonville/protobuf
 sudo add-apt-repository ppa:mhier/libboost-latest
-echo "deb https://grammatech.github.io/gtirb/ppa/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+echo "deb https://grammatech.github.io/gtirb/pkgs/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
 sudo apt-get update
 sudo apt-get install --allow-unauthenticated gtirb
 ```
@@ -110,19 +110,23 @@ sudo apt-get install --allow-unauthenticated gtirb
 ### Ubuntu18
 ```sh
 sudo add-apt-repository ppa:mhier/libboost-latest
-echo "deb [trusted=yes] https://grammatech.github.io/gtirb/ppa/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
 sudo apt-get update
 sudo apt-get install gtirb
 ```
 
 ## Arch Linux
-The Arch User Repository (AUR) https://aur.archlinux.org/ has packages
+Arch packages are available for download from
+[https://grammatech.github.io/gtirb/pkgs/arch/](https://grammatech.github.io/gtirb/pkgs/arch/)
+and may be directly installed with `pacman`.
+
+Additionally, the Arch User Repository (AUR) https://aur.archlinux.org/ has packages
 for GTIRB (`gtirb-git`) the GTIRB Pretty Printer
 (`gtirb-pprinter-git`) and the datalog disassembler (`ddisasm-git`).
 Note that installing `ddisasm-git` will cause the other two packages
 to be installed as well given that they are both dependencies.
 
-The following command will install GTIRB using the popular
+The following command will build and install GTIRB using the popular
 [aur helper](https://wiki.archlinux.org/index.php/AUR_helpers)
 [yay](https://github.com/Jguer/yay).
 ```sh
