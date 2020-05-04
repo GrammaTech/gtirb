@@ -144,7 +144,7 @@ build-windows-msvc-release:
   tags:
     - gtirb-windows
   variables:
-    BUILD_TYPE: 'Release'
+    BUILD_TYPE: 'RelWithDebInfo'
   <<: *windows-build
 
 cleanup:
