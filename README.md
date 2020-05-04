@@ -87,7 +87,24 @@ block) and an offset.
 
 # Installing
 Packages currently existing for easily installing GTIRB (and attendant
-tooling on Ubuntu and Arch Linux).  See below for instructions.
+tooling including the [ddisasm](https://github.com/GrammaTech/ddisasm)
+disassembler and
+[gtirb-pprinter](https://github.com/GrammaTech/gtirb-pprinter) pretty
+printer) on Windows, Ubuntu, and Arch Linux.  See below for
+instructions.
+
+## Windows
+Pre-built debug and release binaries are available for Windows at:
+[windows-debug/](https://grammatech.github.io/gtirb/pkgs/windows-debug/),
+and
+[windows-release/](https://grammatech.github.io/gtirb/pkgs/windows-release/).
+A symbol server for the debugging symbols for both the release and
+debug binaries is available at
+[https://download.grammatech.com/gtirb/files/](https://download.grammatech.com/gtirb/files/).
+For information about how to use a symbol server with your debugger,
+please see
+[docs.microsoft.com#Specify_symbol_locations_and_loading_behavior](https://docs.microsoft.com/en-us/visualstudio/debugger/specify-symbol-dot-pdb-and-source-files-in-the-visual-studio-debugger?view=vs-2019#BKMK_Specify_symbol_locations_and_loading_behavior)
+or your debugger's documentation.
 
 ## Ubuntu
 Packages for Ubuntu 16 and 18 are available in the GTIRB apt
@@ -133,11 +150,12 @@ The following command will build and install GTIRB using the popular
 yay gtirb-git
 ```
 
+
 # Building
 
-GTIRB should successfully build in 64-bits with GCC, Clang, and Visual
-Studio compilers supporting at least C++17.  GTIRB uses CMake which
-must be installed with at least version 3.10.
+GTIRB's C++ API should successfully build in 64-bits with GCC, Clang,
+and Visual Studio compilers supporting at least C++17.  GTIRB uses
+CMake which must be installed with at least version 3.10.
 
 The common build process looks like this:
 ```sh

@@ -43,13 +43,24 @@ function setup_repo {
     ubuntu16) JOB_NAME='debian-installer-ubuntu16' ;;
     ubuntu18) JOB_NAME='debian-installer-ubuntu18' ;;
     arch) JOB_NAME='package-arch' ;;
+    windows-debug) JOB_NAME='build-windows-msvc-debug';;
+    windows-release) JOB_NAME='build-windows-msvc-relwithdebinfo';;
   esac
   for PROJECT in gtirb gtirb-pprinter ddisasm;do
-    curl -L https://git.grammatech.com/rewriting/${PROJECT}/-/jobs/artifacts/master/download?job=$JOB_NAME \
+    curl -L https://git.grammatech.com/rewriting/${PROJECT}/-/jobs/artifacts/master/download?job=${JOB_NAME} \
          --output "${PROJECT}-artifacts.zip"
-    unzip ${PROJECT}-artifacts.zip
+    case $OS in
+      arch|ubuntu16|ubuntu18)
+        unzip ${PROJECT}-artifacts.zip
+        rm *.zip
+        ;;
+      windows*)
+        mkdir -p /tmp/pdb/
+        unzip ${PROJECT}-artifacts.zip \*.pdb -d /tmp/pdb/
+        zip -d ${PROJECT}-artifacts.zip \*.pdb
+        ;;
+    esac
   done
-  rm *.zip
   case $OS in
     ubuntu16|ubuntu18)
       curl http://otsego.grammatech.com/u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt1_amd64.deb \
@@ -60,6 +71,15 @@ function setup_repo {
   popd
 };
 
+rm -rf /tmp/pdb/
+
 setup_repo ubuntu16 xenial
 setup_repo ubuntu18 bionic
 setup_repo arch arch
+setup_repo windows-debug windows-debug
+setup_repo windows-release windows-release
+
+pushd /tmp/pdb/
+symstore . $(find . -name \*.pdb)
+rm -rf *-win64
+popd
