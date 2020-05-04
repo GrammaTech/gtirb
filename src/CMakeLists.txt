@@ -191,11 +191,11 @@ install(
 )
 install(
   DIRECTORY "${CMAKE_BINARY_DIR}/include/gtirb/proto"
-  COMPONENT proto_files
+  COMPONENT headers
   DESTINATION include/gtirb
 )
 install(
   FILES "${CMAKE_BINARY_DIR}/include/gtirb/version.h"
-  COMPONENT version
+  COMPONENT headers
   DESTINATION include/gtirb
 )
