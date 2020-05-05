@@ -1,8 +1,11 @@
+
+# test-base builds the apt repo which contains our packages, and adds the
+# PPAs upon which we depend.
 FROM ubuntu:18.04 AS test-base
 # dpkg-dev: for dpkg-scanpackages
 # software-properties-common: for add-apt-repository
 RUN apt-get -y update && apt-get -y install build-essential dpkg-dev software-properties-common wget
-RUN add-apt-repository ppa:mhier/libboost-latest
+RUN add-apt-repository ppa:mhier/libboost-latest # for boost 1.67
 RUN mkdir -p /gt/apt-repo
 COPY libgtirb-dev.deb /gt/apt-repo
 COPY libgtirb.deb /gt/apt-repo
@@ -10,6 +13,8 @@ COPY python3-gtirb.deb /gt/apt-repo
 RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
 RUN echo "\ndeb [trusted=yes] file:/gt/apt-repo ./\n" >> /etc/apt/sources.list
 
+# test-libgtirb-dev tests libgtirb-dev by building and running a program which
+# includes the gtirb headers, and links to libgtirb.
 FROM test-base as test-libgtirb-dev
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 WORKDIR /test/
@@ -18,12 +23,16 @@ RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb-dev
 RUN g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
 RUN ./test-install
 
+# test-libgtirb tests libgtirb by copying the program built in the last step,
+# and running it.
 FROM test-base AS test-libgtirb
 RUN apt-get update && apt-get install -y --allow-unauthenticated libgtirb
 COPY --from=test-libgtirb-dev /test/test-install /test/test-install
 WORKDIR /test
 RUN ./test-install
 
+# test-python3-gtirb tests python3-gtirb by copying in the test-install.py
+# program and running it.
 FROM test-base as test-python3-gtirb
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 WORKDIR /test/
