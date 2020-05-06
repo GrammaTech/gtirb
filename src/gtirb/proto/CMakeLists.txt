@@ -55,6 +55,7 @@ target_include_directories(
 
 install(
   TARGETS proto
+  COMPONENT proto_library
   EXPORT gtirbTargets
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
