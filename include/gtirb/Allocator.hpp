@@ -301,6 +301,15 @@ public:
   /// Allocate space for an array of objects without constructing them.
   T* Allocate(size_t num = 1) { return Allocator.Allocate<T>(num); }
 
+  /// Forgets all allocations from the underlying allocator, effectively
+  /// leaking the memory. This is useful when the allocator is no longer needed
+  /// and the operating system will be reclaiming the memory (such as at
+  // program shutdown time).
+  void ForgetAllocations() {
+    Allocator.Slabs.clear();
+    Allocator.CustomSizedSlabs.clear();
+  }
+
 private:
   /// Call the destructor of each allocated object and deallocate all but the
   /// current slab and reset the current pointer to the beginning of it, freeing

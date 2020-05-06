@@ -110,6 +110,11 @@ public:
   Context();
   ~Context();
 
+  /// \brief Forgets all arena allocations held by this \ref Context object.
+  /// This can be useful under circumstances where leaking the memory is
+  /// acceptable, such as when shutting a program down.
+  void ForgetAllocations();
+
   /// \brief Create an object of type \ref T.
   ///
   /// \tparam NodeTy   The type of object for which to allocate memory.

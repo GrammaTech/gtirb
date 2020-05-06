@@ -33,6 +33,18 @@ Context::~Context() = default;
 
 void Context::unregisterNode(const Node* N) { UuidMap.erase(N->getUUID()); }
 
+void Context::ForgetAllocations() {
+  NodeAllocator.ForgetAllocations();
+  CodeBlockAllocator.ForgetAllocations();
+  ByteIntervalAllocator.ForgetAllocations();
+  DataBlockAllocator.ForgetAllocations();
+  IrAllocator.ForgetAllocations();
+  ModuleAllocator.ForgetAllocations();
+  ProxyBlockAllocator.ForgetAllocations();
+  SectionAllocator.ForgetAllocations();
+  SymbolAllocator.ForgetAllocations();
+}
+
 const Node* Context::findNode(const UUID& ID) const {
   auto Iter = UuidMap.find(ID);
   return Iter != UuidMap.end() ? Iter->second : nullptr;
