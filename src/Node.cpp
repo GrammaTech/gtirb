@@ -22,8 +22,10 @@
 
 using namespace gtirb;
 
-Node::Node(Context& C, Kind Knd)
-    : K(Knd), Uuid(boost::uuids::random_generator()()), Ctx(&C) {
+// TODO: accessing this object between threads requires synchronization.
+static boost::uuids::random_generator UUIDGenerator;
+
+Node::Node(Context& C, Kind Knd) : K(Knd), Uuid(UUIDGenerator()), Ctx(&C) {
   Ctx->registerNode(Uuid, this);
 }
 
