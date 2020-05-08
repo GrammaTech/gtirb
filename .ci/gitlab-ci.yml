@@ -244,4 +244,4 @@ upload-to-pypi:
   stage: deploy
   script:
     - docker run ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7 bash -c
-        "cd /gt/gtirb/build/python && twine upload dist/* -u __token__ -p $PYPI_API_KEY"
+        "pip3 install twine && cd /gt/gtirb/build/python && twine upload dist/* -u __token__ -p $PYPI_API_KEY"
