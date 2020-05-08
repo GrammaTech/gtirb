@@ -141,7 +141,8 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
   using BlockIntMap =
-      boost::icl::interval_map<Addr, std::multiset<const Block*, OffsetLess>>;
+      boost::icl::interval_map<uint64_t,
+                               std::multiset<const Block*, OffsetLess>>;
   using SymbolicExpressionMap = std::map<uint64_t, SymbolicExpression>;
 
   /// \brief Get the \ref Block that corresponds to a \ref Node.
@@ -252,14 +253,14 @@ public:
   /// \brief Iterator over \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// same offset, their order is not specified.
   using block_iterator =
       boost::transform_iterator<BlockToNode<Node>,
                                 BlockSet::index<by_offset>::type::iterator>;
   /// \brief Range of \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// same offset, their order is not specified.
   using block_range = boost::iterator_range<block_iterator>;
   /// \brief Sub-range of blocks overlapping an address or range of addreses.
   ///
@@ -310,6 +311,32 @@ public:
     return boost::make_iterator_range(blocks_begin(), blocks_end());
   }
 
+  /// \brief Find all the blocks that have a byte at the specified offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock or
+  /// \ref CodeBlock objects, that contain the offset \p Off.
+  block_subrange findBlocksOnOffset(uint64_t Off) {
+    if (auto It = BlockOffsets.find(Off); It != BlockOffsets.end()) {
+      return block_subrange(It->second.begin(), It->second.end());
+    }
+    return {};
+  }
+
+  /// \brief Find all the blocks that have a byte at the specified offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref Node objects, which are either \ref DataBlock or
+  /// \ref CodeBlock objects, that contain the offset \p Off.
+  const_block_subrange findBlocksOnOffset(uint64_t Off) const {
+    if (auto It = BlockOffsets.find(Off); It != BlockOffsets.end()) {
+      return const_block_subrange(It->second.begin(), It->second.end());
+    }
+    return {};
+  }
+
   /// \brief Find all the blocks that have bytes that lie within the address
   /// specified.
   ///
@@ -318,10 +345,8 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
   block_subrange findBlocksOn(Addr A) {
-    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
-      return boost::make_iterator_range(
-          block_subrange::iterator(It->second.begin()),
-          block_subrange::iterator(It->second.end()));
+    if (Address) {
+      return findBlocksOnOffset(A - *Address);
     }
     return {};
   }
@@ -334,10 +359,8 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that intersect the address \p A.
   const_block_subrange findBlocksOn(Addr A) const {
-    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
-      return boost::make_iterator_range(
-          const_block_subrange::iterator(It->second.begin()),
-          const_block_subrange::iterator(It->second.end()));
+    if (Address) {
+      return findBlocksOnOffset(A - *Address);
     }
     return {};
   }
@@ -363,8 +386,10 @@ public:
   /// objects or \ref CodeBlock objects, that are between the offsets.
   block_range findBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
-    return boost::make_iterator_range(block_iterator(Index.lower_bound(Low)),
-                                      block_iterator(Index.lower_bound(High)));
+    auto LowIt = Index.lower_bound(Low);
+    auto HighIt = Index.lower_bound(std::max(Low, High));
+    return boost::make_iterator_range(block_iterator(LowIt),
+                                      block_iterator(HighIt));
   }
 
   /// \brief Find all the blocks that start at an address.
@@ -375,9 +400,10 @@ public:
   /// objects or \ref CodeBlock objects, that are at the address \p A.
   block_range findBlocksAt(Addr A) {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findBlocksAtOffset(0, 0);
     }
-    return findBlocksAtOffset(A - *Address);
+    return findBlocksAtOffset(A - std::min(*Address, A));
   }
 
   /// \brief Find all the blocks that start between a range of addresses.
@@ -389,9 +415,11 @@ public:
   /// objects or \ref CodeBlock objects, that are between the addresses.
   block_range findBlocksAt(Addr Low, Addr High) {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findBlocksAtOffset(0, 0);
     }
-    return findBlocksAtOffset(Low - *Address, High - *Address);
+    return findBlocksAtOffset(Low - std::min(*Address, Low),
+                              High - std::min(*Address, High));
   }
 
   /// \brief Find all the blocks that start at an offset.
@@ -415,9 +443,10 @@ public:
   /// objects or \ref CodeBlock objects, that are between the offsets.
   const_block_range findBlocksAtOffset(uint64_t Low, uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
-    return boost::make_iterator_range(
-        const_block_iterator(Index.lower_bound(Low)),
-        const_block_iterator(Index.lower_bound(High)));
+    auto LowIt = Index.lower_bound(Low);
+    auto HighIt = Index.lower_bound(std::max(Low, High));
+    return boost::make_iterator_range(const_block_iterator(LowIt),
+                                      const_block_iterator(HighIt));
   }
 
   /// \brief Find all the blocks that start at an address.
@@ -428,9 +457,10 @@ public:
   /// objects or \ref CodeBlock objects, that are at the address \p A.
   const_block_range findBlocksAt(Addr A) const {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findBlocksAtOffset(0, 0);
     }
-    return findBlocksAtOffset(A - *Address);
+    return findBlocksAtOffset(A - std::min(*Address, A));
   }
 
   /// \brief Find all the blocks that start between a range of addresses.
@@ -442,9 +472,11 @@ public:
   /// objects or \ref CodeBlock objects, that are between the addresses.
   const_block_range findBlocksAt(Addr Low, Addr High) const {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findBlocksAtOffset(0, 0);
     }
-    return findBlocksAtOffset(Low - *Address, High - *Address);
+    return findBlocksAtOffset(Low - std::min(*Address, Low),
+                              High - std::min(*Address, High));
   }
 
   /// \brief Iterator over \ref CodeBlock objects.
@@ -529,6 +561,38 @@ public:
     return boost::make_iterator_range(code_blocks_begin(), code_blocks_end());
   }
 
+  /// \brief Find all the code blocks that have a byte at the specified offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects, that contain the offset \p Off.
+  code_block_subrange findCodeBlocksOnOffset(uint64_t Off) {
+    if (auto It = BlockOffsets.find(Off); It != BlockOffsets.end()) {
+      auto End = boost::make_indirect_iterator(It->second.end());
+      return code_block_subrange(
+          code_block_subrange::iterator::base_type(
+              boost::make_indirect_iterator(It->second.begin()), End),
+          code_block_subrange::iterator::base_type(End, End));
+    }
+    return {};
+  }
+
+  /// \brief Find all the code blocks that have a byte at the specified offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref CodeBlock objects, that contain the addres \p Off.
+  const_code_block_subrange findCodeBlocksOnOffset(uint64_t Off) const {
+    if (auto It = BlockOffsets.find(Off); It != BlockOffsets.end()) {
+      auto End = boost::make_indirect_iterator(It->second.end());
+      return const_code_block_subrange(
+          const_code_block_subrange::iterator::base_type(
+              boost::make_indirect_iterator(It->second.begin()), End),
+          const_code_block_subrange::iterator::base_type(End, End));
+    }
+    return {};
+  }
+
   /// \brief Find all the code blocks that have bytes that lie within the
   /// address specified.
   ///
@@ -536,16 +600,8 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   code_block_subrange findCodeBlocksOn(Addr A) {
-    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
-      return boost::make_iterator_range(
-          code_block_subrange::iterator(
-              code_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.begin()),
-                  boost::make_indirect_iterator(It->second.end()))),
-          code_block_subrange::iterator(
-              code_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.end()),
-                  boost::make_indirect_iterator(It->second.end()))));
+    if (Address) {
+      return findCodeBlocksOnOffset(A - *Address);
     }
     return {};
   }
@@ -557,16 +613,8 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   const_code_block_subrange findCodeBlocksOn(Addr A) const {
-    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
-      return boost::make_iterator_range(
-          const_code_block_subrange::iterator(
-              const_code_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.begin()),
-                  boost::make_indirect_iterator(It->second.end()))),
-          const_code_block_subrange::iterator(
-              const_code_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.end()),
-                  boost::make_indirect_iterator(It->second.end()))));
+    if (Address) {
+      return findCodeBlocksOnOffset(A - *Address);
     }
     return {};
   }
@@ -594,7 +642,7 @@ public:
   code_block_range findCodeBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(High);
+    auto HighIt = Index.lower_bound(std::max(Low, High));
     return boost::make_iterator_range(
         code_block_iterator(code_block_iterator::base_type(LowIt, HighIt)),
         code_block_iterator(code_block_iterator::base_type(HighIt, HighIt)));
@@ -607,9 +655,10 @@ public:
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   code_block_range findCodeBlocksAt(Addr A) {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findCodeBlocksAtOffset(0, 0);
     }
-    return findCodeBlocksAtOffset(A - *Address);
+    return findCodeBlocksAtOffset(A - std::min(*Address, A));
   }
 
   /// \brief Find all the code blocks that start between a range of addresses.
@@ -620,9 +669,11 @@ public:
   /// \return A range of \ref CodeBlock objects that are between the addresses.
   code_block_range findCodeBlocksAt(Addr Low, Addr High) {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findCodeBlocksAtOffset(0, 0);
     }
-    return findCodeBlocksAtOffset(Low - *Address, High - *Address);
+    return findCodeBlocksAtOffset(Low - std::min(*Address, Low),
+                                  High - std::min(*Address, High));
   }
 
   /// \brief Find all the code blocks that start at an offset.
@@ -649,7 +700,7 @@ public:
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(High);
+    auto HighIt = Index.lower_bound(std::max(Low, High));
     return boost::make_iterator_range(
         const_code_block_iterator(
             const_code_block_iterator::base_type(LowIt, HighIt)),
@@ -664,9 +715,10 @@ public:
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   const_code_block_range findCodeBlocksAt(Addr A) const {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findCodeBlocksAtOffset(0, 0);
     }
-    return findCodeBlocksAtOffset(A - *Address);
+    return findCodeBlocksAtOffset(A - std::min(*Address, A));
   }
 
   /// \brief Find all the code blocks that start between a range of addresses.
@@ -677,9 +729,11 @@ public:
   /// \return A range of \ref CodeBlock objects that are between the addresses.
   const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findCodeBlocksAtOffset(0, 0);
     }
-    return findCodeBlocksAtOffset(Low - *Address, High - *Address);
+    return findCodeBlocksAtOffset(Low - std::min(*Address, Low),
+                                  High - std::min(*Address, High));
   }
 
   /// \brief Iterator over \ref DataBlock objects.
@@ -764,6 +818,38 @@ public:
     return boost::make_iterator_range(data_blocks_begin(), data_blocks_end());
   }
 
+  /// \brief Find all the data blocks that have a byte at the specified offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref DataBlock objects, that contain the offset \p Off.
+  data_block_subrange findDataBlocksOnOffset(uint64_t Off) {
+    if (auto It = BlockOffsets.find(Off); It != BlockOffsets.end()) {
+      auto End = boost::make_indirect_iterator(It->second.end());
+      return data_block_subrange(
+          data_block_subrange::iterator::base_type(
+              boost::make_indirect_iterator(It->second.begin()), End),
+          data_block_subrange::iterator::base_type(End, End));
+    }
+    return {};
+  }
+
+  /// \brief Find all the data blocks that have a byte at the specified offset.
+  ///
+  /// \param Off The offset to look up.
+  ///
+  /// \return A range of \ref DataBlock objects, that contain the addres \p Off.
+  const_data_block_subrange findDataBlocksOnOffset(uint64_t Off) const {
+    if (auto It = BlockOffsets.find(Off); It != BlockOffsets.end()) {
+      auto End = boost::make_indirect_iterator(It->second.end());
+      return const_data_block_subrange(
+          const_data_block_subrange::iterator::base_type(
+              boost::make_indirect_iterator(It->second.begin()), End),
+          const_data_block_subrange::iterator::base_type(End, End));
+    }
+    return {};
+  }
+
   /// \brief Find all the data blocks that have bytes that lie within the
   /// address specified.
   ///
@@ -771,16 +857,8 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
   data_block_subrange findDataBlocksOn(Addr A) {
-    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
-      return boost::make_iterator_range(
-          data_block_subrange::iterator(
-              data_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.begin()),
-                  boost::make_indirect_iterator(It->second.end()))),
-          data_block_subrange::iterator(
-              data_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.end()),
-                  boost::make_indirect_iterator(It->second.end()))));
+    if (Address) {
+      return findDataBlocksOnOffset(A - *Address);
     }
     return {};
   }
@@ -792,16 +870,8 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
   const_data_block_subrange findDataBlocksOn(Addr A) const {
-    if (auto It = BlockAddrs.find(A); It != BlockAddrs.end()) {
-      return boost::make_iterator_range(
-          const_data_block_subrange::iterator(
-              const_data_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.begin()),
-                  boost::make_indirect_iterator(It->second.end()))),
-          const_data_block_subrange::iterator(
-              const_data_block_subrange::iterator::base_type(
-                  boost::make_indirect_iterator(It->second.end()),
-                  boost::make_indirect_iterator(It->second.end()))));
+    if (Address) {
+      return findDataBlocksOnOffset(A - *Address);
     }
     return {};
   }
@@ -829,7 +899,7 @@ public:
   data_block_range findDataBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(High);
+    auto HighIt = Index.lower_bound(std::max(Low, High));
     return boost::make_iterator_range(
         data_block_iterator(data_block_iterator::base_type(LowIt, HighIt)),
         data_block_iterator(data_block_iterator::base_type(HighIt, HighIt)));
@@ -842,9 +912,10 @@ public:
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   data_block_range findDataBlocksAt(Addr A) {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findDataBlocksAtOffset(0, 0);
     }
-    return findDataBlocksAtOffset(A - *Address);
+    return findDataBlocksAtOffset(A - std::min(*Address, A));
   }
 
   /// \brief Find all the data blocks that start between a range of addresses.
@@ -855,9 +926,11 @@ public:
   /// \return A range of \ref DataBlock objects that are between the addresses.
   data_block_range findDataBlocksAt(Addr Low, Addr High) {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findDataBlocksAtOffset(0, 0);
     }
-    return findDataBlocksAtOffset(Low - *Address, High - *Address);
+    return findDataBlocksAtOffset(Low - std::min(*Address, Low),
+                                  High - std::min(*Address, High));
   }
 
   /// \brief Find all the data blocks that start at an offset.
@@ -884,7 +957,7 @@ public:
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
     auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(High);
+    auto HighIt = Index.lower_bound(std::max(Low, High));
     return boost::make_iterator_range(
         const_data_block_iterator(
             const_data_block_iterator::base_type(LowIt, HighIt)),
@@ -899,9 +972,10 @@ public:
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   const_data_block_range findDataBlocksAt(Addr A) const {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findDataBlocksAtOffset(0, 0);
     }
-    return findDataBlocksAtOffset(A - *Address);
+    return findDataBlocksAtOffset(A - std::min(*Address, A));
   }
 
   /// \brief Find all the data blocks that start between a range of addresses.
@@ -912,9 +986,11 @@ public:
   /// \return A range of \ref DataBlock objects that are between the addresses.
   const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
     if (!Address) {
-      return {};
+      // Return an empty range without default-constructing the iterators
+      return findDataBlocksAtOffset(0, 0);
     }
-    return findDataBlocksAtOffset(Low - *Address, High - *Address);
+    return findDataBlocksAtOffset(Low - std::min(*Address, Low),
+                                  High - std::min(*Address, High));
   }
 
 private:
@@ -1813,10 +1889,9 @@ private:
       : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(InitSize) {}
 
   template <typename InputIterator>
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
-               uint64_t InitSize, InputIterator Begin, InputIterator End)
-      : Node(C, Kind::ByteInterval), Address(A), Size(S),
-        Bytes(Begin, End) {
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize,
+               InputIterator Begin, InputIterator End)
+      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(Begin, End) {
     Bytes.resize(InitSize);
   }
 
@@ -1862,7 +1937,7 @@ private:
   std::optional<Addr> Address;
   uint64_t Size{0};
   BlockSet Blocks;
-  BlockIntMap BlockAddrs;
+  BlockIntMap BlockOffsets;
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;
 

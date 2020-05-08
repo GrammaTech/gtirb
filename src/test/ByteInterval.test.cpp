@@ -15,7 +15,7 @@
 #include "SerializationTestHarness.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
-#include <gtirb/Module.hpp>
+#include <gtirb/Symbol.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
 #include <sstream>
@@ -23,6 +23,14 @@
 using namespace gtirb;
 
 static Context Ctx;
+
+// Transforms a range of references into a range of pointers.
+template <typename RangeTy> auto pointers(const RangeTy& Range) {
+  auto GetPointer = [](auto& arg) { return &arg; };
+  return boost::make_iterator_range(
+      boost::make_transform_iterator(Range.begin(), GetPointer),
+      boost::make_transform_iterator(Range.end(), GetPointer));
+}
 
 TEST(Unit_ByteInterval, noCopyMoveConstructors) {
   EXPECT_FALSE(std::is_copy_constructible_v<ByteInterval>);
@@ -506,9 +514,7 @@ TEST(Unit_ByteInterval, byteVectorErase) {
 }
 
 TEST(Unit_ByteInterval, removeBlock) {
-  auto* M = Module::Create(Ctx);
-  auto* S = M->addSection(Ctx, "test");
-  auto* BI = S->addByteInterval(Ctx, Addr(0), 10);
+  auto* BI = ByteInterval::Create(Ctx, Addr(0), 10);
 
   auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 1);
   auto* B2 = BI->addBlock<DataBlock>(Ctx, 1, 1);
@@ -516,7 +522,7 @@ TEST(Unit_ByteInterval, removeBlock) {
   auto* B4 = BI->addBlock<DataBlock>(Ctx, 3, 1);
 
   {
-    auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
+    auto Begin = BI->code_blocks_begin(), End = BI->code_blocks_end();
     ASSERT_EQ(std::distance(Begin, End), 2);
     ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B1 == &N; }),
               End);
@@ -525,7 +531,7 @@ TEST(Unit_ByteInterval, removeBlock) {
   }
 
   {
-    auto Begin = M->data_blocks_begin(), End = M->data_blocks_end();
+    auto Begin = BI->data_blocks_begin(), End = BI->data_blocks_end();
     ASSERT_EQ(std::distance(Begin, End), 2);
     ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B2 == &N; }),
               End);
@@ -536,14 +542,14 @@ TEST(Unit_ByteInterval, removeBlock) {
   BI->removeBlock(B1);
 
   {
-    auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
+    auto Begin = BI->code_blocks_begin(), End = BI->code_blocks_end();
     ASSERT_EQ(std::distance(Begin, End), 1);
     ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B3 == &N; }),
               End);
   }
 
   {
-    auto Begin = M->data_blocks_begin(), End = M->data_blocks_end();
+    auto Begin = BI->data_blocks_begin(), End = BI->data_blocks_end();
     ASSERT_EQ(std::distance(Begin, End), 2);
     ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B2 == &N; }),
               End);
@@ -554,14 +560,14 @@ TEST(Unit_ByteInterval, removeBlock) {
   BI->removeBlock(B2);
 
   {
-    auto Begin = M->code_blocks_begin(), End = M->code_blocks_end();
+    auto Begin = BI->code_blocks_begin(), End = BI->code_blocks_end();
     ASSERT_EQ(std::distance(Begin, End), 1);
     ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B3 == &N; }),
               End);
   }
 
   {
-    auto Begin = M->data_blocks_begin(), End = M->data_blocks_end();
+    auto Begin = BI->data_blocks_begin(), End = BI->data_blocks_end();
     ASSERT_EQ(std::distance(Begin, End), 1);
     ASSERT_NE(std::find_if(Begin, End, [&](const auto& N) { return B4 == &N; }),
               End);
@@ -684,4 +690,427 @@ TEST(Unit_ByteInterval, removeSymbolicExpression) {
   BI->removeSymbolicExpression(5);
 
   EXPECT_TRUE(BI->symbolic_expressions().empty());
+}
+
+TEST(Unit_ByteInterval, findBlocksOn) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 5, 3);
+  const ByteInterval* CBI = BI;
+
+  // Querying an out-of-bounds offset produces an empty range.
+
+  auto BlockOffsetRange = BI->findBlocksOnOffset(10);
+  EXPECT_TRUE(BlockOffsetRange.empty());
+
+  auto ConstBlockOffsetRange = CBI->findBlocksOnOffset(10);
+  EXPECT_TRUE(ConstBlockOffsetRange.empty());
+
+  // Querying an in-bounds offset returns the appropriate block.
+
+  BlockOffsetRange = BI->findBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 1);
+  EXPECT_EQ(&*BlockOffsetRange.begin(), B2);
+
+  ConstBlockOffsetRange = CBI->findBlocksOnOffset(6);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      1);
+  EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+
+  // Address queries produce empty ranges if the ByteInterval has no address.
+
+  auto BlockAddrRange = BI->findBlocksOn(Addr(6));
+  EXPECT_TRUE(BlockAddrRange.empty());
+
+  auto ConstBlockAddrRange = CBI->findBlocksOn(Addr(6));
+  EXPECT_TRUE(ConstBlockAddrRange.empty());
+
+  // Once the ByteInterval has an address, address queries are non-empty.
+
+  BI->setAddress(Addr(0));
+  BlockAddrRange = BI->findBlocksOn(Addr(6));
+  ASSERT_EQ(std::distance(BlockAddrRange.begin(), BlockAddrRange.end()), 1);
+  EXPECT_EQ(&*BlockAddrRange.begin(), B2);
+
+  ConstBlockAddrRange = CBI->findBlocksOn(Addr(6));
+  ASSERT_EQ(
+      std::distance(ConstBlockAddrRange.begin(), ConstBlockAddrRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockAddrRange.begin(), B2);
+
+  // If the address changes, the returned blocks may change.
+
+  BI->setAddress(Addr(5));
+  BlockAddrRange = BI->findBlocksOn(Addr(6));
+  ASSERT_EQ(std::distance(BlockAddrRange.begin(), BlockAddrRange.end()), 1);
+  EXPECT_EQ(&*BlockAddrRange.begin(), B1);
+
+  ConstBlockAddrRange = CBI->findBlocksOn(Addr(6));
+  ASSERT_EQ(
+      std::distance(ConstBlockAddrRange.begin(), ConstBlockAddrRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockAddrRange.begin(), B1);
+
+  // Querying offsets is not affected by address changes.
+
+  BlockOffsetRange = BI->findBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 1);
+  EXPECT_EQ(&*BlockOffsetRange.begin(), B2);
+
+  ConstBlockOffsetRange = CBI->findBlocksOnOffset(6);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      1);
+  EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+}
+
+TEST(Unit_ByteInterval, findCodeBlocksOn) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 5, 3);
+  const ByteInterval* CBI = BI;
+
+  // Querying an out-of-bounds offset produces an empty range.
+
+  auto BlockOffsetRange = BI->findCodeBlocksOnOffset(10);
+  EXPECT_TRUE(BlockOffsetRange.empty());
+
+  auto ConstBlockOffsetRange = CBI->findCodeBlocksOnOffset(10);
+  EXPECT_TRUE(ConstBlockOffsetRange.empty());
+
+  // Querying an in-bounds offset returns the appropriate block.
+
+  BlockOffsetRange = BI->findCodeBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 1);
+  EXPECT_EQ(&*BlockOffsetRange.begin(), B2);
+
+  ConstBlockOffsetRange = CBI->findCodeBlocksOnOffset(6);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      1);
+  EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+
+  // Address queries produce empty ranges if the ByteInterval has no address.
+
+  auto BlockAddrRange = BI->findCodeBlocksOn(Addr(6));
+  EXPECT_TRUE(BlockAddrRange.empty());
+
+  auto ConstBlockAddrRange = CBI->findCodeBlocksOn(Addr(6));
+  EXPECT_TRUE(ConstBlockAddrRange.empty());
+
+  // Once the ByteInterval has an address, address queries are non-empty.
+
+  BI->setAddress(Addr(0));
+  BlockAddrRange = BI->findCodeBlocksOn(Addr(6));
+  ASSERT_EQ(std::distance(BlockAddrRange.begin(), BlockAddrRange.end()), 1);
+  EXPECT_EQ(&*BlockAddrRange.begin(), B2);
+
+  ConstBlockAddrRange = CBI->findCodeBlocksOn(Addr(6));
+  ASSERT_EQ(
+      std::distance(ConstBlockAddrRange.begin(), ConstBlockAddrRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockAddrRange.begin(), B2);
+
+  // If the address changes, the returned blocks may change.
+
+  BI->setAddress(Addr(5));
+  BlockAddrRange = BI->findCodeBlocksOn(Addr(6));
+  ASSERT_EQ(std::distance(BlockAddrRange.begin(), BlockAddrRange.end()), 1);
+  EXPECT_EQ(&*BlockAddrRange.begin(), B1);
+
+  ConstBlockAddrRange = CBI->findCodeBlocksOn(Addr(6));
+  ASSERT_EQ(
+      std::distance(ConstBlockAddrRange.begin(), ConstBlockAddrRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockAddrRange.begin(), B1);
+
+  // Querying offsets is not affected by address changes.
+
+  BlockOffsetRange = BI->findCodeBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 1);
+  EXPECT_EQ(&*BlockOffsetRange.begin(), B2);
+
+  ConstBlockOffsetRange = CBI->findCodeBlocksOnOffset(6);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      1);
+  EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+}
+
+TEST(Unit_ByteInterval, findDataBlocksOn) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* B1 = BI->addBlock<DataBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<DataBlock>(Ctx, 5, 3);
+  const ByteInterval* CBI = BI;
+
+  // Querying an out-of-bounds offset produces an empty range.
+
+  auto BlockOffsetRange = BI->findDataBlocksOnOffset(10);
+  EXPECT_TRUE(BlockOffsetRange.empty());
+
+  auto ConstBlockOffsetRange = CBI->findDataBlocksOnOffset(10);
+  EXPECT_TRUE(ConstBlockOffsetRange.empty());
+
+  // Querying an in-bounds offset returns the appropriate block.
+
+  BlockOffsetRange = BI->findDataBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 1);
+  EXPECT_EQ(&*BlockOffsetRange.begin(), B2);
+
+  ConstBlockOffsetRange = CBI->findDataBlocksOnOffset(6);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      1);
+  EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+
+  // Address queries produce empty ranges if the ByteInterval has no address.
+
+  auto BlockAddrRange = BI->findDataBlocksOn(Addr(6));
+  EXPECT_TRUE(BlockAddrRange.empty());
+
+  auto ConstBlockAddrRange = CBI->findDataBlocksOn(Addr(6));
+  EXPECT_TRUE(ConstBlockAddrRange.empty());
+
+  // Once the ByteInterval has an address, address queries are non-empty.
+
+  BI->setAddress(Addr(0));
+  BlockAddrRange = BI->findDataBlocksOn(Addr(6));
+  ASSERT_EQ(std::distance(BlockAddrRange.begin(), BlockAddrRange.end()), 1);
+  EXPECT_EQ(&*BlockAddrRange.begin(), B2);
+
+  ConstBlockAddrRange = CBI->findDataBlocksOn(Addr(6));
+  ASSERT_EQ(
+      std::distance(ConstBlockAddrRange.begin(), ConstBlockAddrRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockAddrRange.begin(), B2);
+
+  // If the address changes, the returned blocks may change.
+
+  BI->setAddress(Addr(5));
+  BlockAddrRange = BI->findDataBlocksOn(Addr(6));
+  ASSERT_EQ(std::distance(BlockAddrRange.begin(), BlockAddrRange.end()), 1);
+  EXPECT_EQ(&*BlockAddrRange.begin(), B1);
+
+  ConstBlockAddrRange = CBI->findDataBlocksOn(Addr(6));
+  ASSERT_EQ(
+      std::distance(ConstBlockAddrRange.begin(), ConstBlockAddrRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockAddrRange.begin(), B1);
+
+  // Querying offsets is not affected by address changes.
+
+  BlockOffsetRange = BI->findDataBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 1);
+  EXPECT_EQ(&*BlockOffsetRange.begin(), B2);
+
+  ConstBlockOffsetRange = CBI->findDataBlocksOnOffset(6);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      1);
+  EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+}
+
+TEST(Unit_ByteInterval, findBlocksAt) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 5, 3);
+  const ByteInterval* CBI = BI;
+
+  // Methods return empty ranges if ByteInterval has no address.
+
+  auto BlockRange = BI->findBlocksAt(Addr(0));
+  EXPECT_TRUE(BlockRange.empty());
+
+  auto ConstBlockRange = CBI->findBlocksAt(Addr(0));
+  EXPECT_TRUE(ConstBlockRange.empty());
+
+  BlockRange = BI->findBlocksAt(Addr(0), Addr(-1));
+  EXPECT_TRUE(BlockRange.empty());
+
+  ConstBlockRange = CBI->findBlocksAt(Addr(0), Addr(-1));
+  EXPECT_TRUE(BlockRange.empty());
+
+  // Once the address is set, the ranges are no longer empty.
+
+  BI->setAddress(Addr(0));
+  BlockRange = BI->findBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 1);
+  EXPECT_EQ(&*BlockRange.begin(), B2);
+
+  ConstBlockRange = CBI->findBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockRange.begin(), B2);
+
+  // Changing the ByteInterval address changes which blocks are found.
+
+  BI->setAddress(Addr(5));
+  BlockRange = BI->findBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 1);
+  EXPECT_EQ(&*BlockRange.begin(), B1);
+
+  ConstBlockRange = CBI->findBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockRange.begin(), B1);
+
+  // Querying a range of addreses that start before and/or ends after the
+  // ByteInterval is equivalent to querying the ByteInterval's bounds.
+
+  BlockRange = BI->findBlocksAt(Addr(0), Addr(20));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(pointers(BlockRange),
+            pointers(BI->findBlocksAt(*BI->getAddress(),
+                                      *BI->getAddress() + BI->getSize())));
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), B2);
+
+  ConstBlockRange = CBI->findBlocksAt(Addr(0), Addr(20));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(pointers(ConstBlockRange),
+            pointers(CBI->findBlocksAt(*BI->getAddress(),
+                                       *BI->getAddress() + BI->getSize())));
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), B2);
+
+  // Order matters: querying an empty range produces an empty result.
+
+  BlockRange = BI->findBlocksAt(Addr(20), Addr(0));
+  EXPECT_TRUE(BlockRange.empty());
+
+  ConstBlockRange = CBI->findBlocksAt(Addr(20), Addr(0));
+  EXPECT_TRUE(ConstBlockRange.empty());
+}
+
+TEST(Unit_ByteInterval, findCodeBlocksAt) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 5, 3);
+  const ByteInterval* CBI = BI;
+
+  // Methods return empty ranges if ByteInterval has no address.
+
+  auto BlockRange = BI->findCodeBlocksAt(Addr(0));
+  EXPECT_TRUE(BlockRange.empty());
+
+  auto ConstBlockRange = CBI->findCodeBlocksAt(Addr(0));
+  EXPECT_TRUE(ConstBlockRange.empty());
+
+  BlockRange = BI->findCodeBlocksAt(Addr(0), Addr(-1));
+  EXPECT_TRUE(BlockRange.empty());
+
+  ConstBlockRange = CBI->findCodeBlocksAt(Addr(0), Addr(-1));
+  EXPECT_TRUE(BlockRange.empty());
+
+  // Once the address is set, the ranges are no longer empty.
+
+  BI->setAddress(Addr(0));
+  BlockRange = BI->findCodeBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 1);
+  EXPECT_EQ(&*BlockRange.begin(), B2);
+
+  ConstBlockRange = CBI->findCodeBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockRange.begin(), B2);
+
+  // Changing the ByteInterval address changes which blocks are found.
+
+  BI->setAddress(Addr(5));
+  BlockRange = BI->findCodeBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 1);
+  EXPECT_EQ(&*BlockRange.begin(), B1);
+
+  ConstBlockRange = CBI->findCodeBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockRange.begin(), B1);
+
+  // Querying a range of addreses that start before and/or ends after the
+  // ByteInterval is equivalent to querying the ByteInterval's bounds.
+
+  BlockRange = BI->findCodeBlocksAt(Addr(0), Addr(20));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(pointers(BlockRange),
+            pointers(BI->findCodeBlocksAt(*BI->getAddress(),
+                                          *BI->getAddress() + BI->getSize())));
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), B2);
+
+  ConstBlockRange = CBI->findCodeBlocksAt(Addr(0), Addr(20));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(pointers(ConstBlockRange),
+            pointers(CBI->findCodeBlocksAt(*BI->getAddress(),
+                                           *BI->getAddress() + BI->getSize())));
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), B2);
+
+  // Order matters: querying an empty range produces an empty result.
+
+  BlockRange = BI->findCodeBlocksAt(Addr(20), Addr(0));
+  EXPECT_TRUE(BlockRange.empty());
+
+  ConstBlockRange = CBI->findCodeBlocksAt(Addr(20), Addr(0));
+  EXPECT_TRUE(ConstBlockRange.empty());
+}
+
+TEST(Unit_ByteInterval, findDataBlocksAt) {
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* B1 = BI->addBlock<DataBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<DataBlock>(Ctx, 5, 3);
+  const ByteInterval* CBI = BI;
+
+  // Methods return empty ranges if ByteInterval has no address.
+
+  auto BlockRange = BI->findDataBlocksAt(Addr(0));
+  EXPECT_TRUE(BlockRange.empty());
+
+  auto ConstBlockRange = CBI->findDataBlocksAt(Addr(0));
+  EXPECT_TRUE(ConstBlockRange.empty());
+
+  BlockRange = BI->findDataBlocksAt(Addr(0), Addr(-1));
+  EXPECT_TRUE(BlockRange.empty());
+
+  ConstBlockRange = CBI->findDataBlocksAt(Addr(0), Addr(-1));
+  EXPECT_TRUE(BlockRange.empty());
+
+  // Once the address is set, the ranges are no longer empty.
+
+  BI->setAddress(Addr(0));
+  BlockRange = BI->findDataBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 1);
+  EXPECT_EQ(&*BlockRange.begin(), B2);
+
+  ConstBlockRange = CBI->findDataBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockRange.begin(), B2);
+
+  // Changing the ByteInterval address changes which blocks are found.
+
+  BI->setAddress(Addr(5));
+  BlockRange = BI->findDataBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 1);
+  EXPECT_EQ(&*BlockRange.begin(), B1);
+
+  ConstBlockRange = CBI->findDataBlocksAt(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
+  EXPECT_EQ(&*ConstBlockRange.begin(), B1);
+
+  // Querying a range of addreses that start before and/or ends after the
+  // ByteInterval is equivalent to querying the ByteInterval's bounds.
+
+  BlockRange = BI->findDataBlocksAt(Addr(0), Addr(20));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(pointers(BlockRange),
+            pointers(BI->findDataBlocksAt(*BI->getAddress(),
+                                          *BI->getAddress() + BI->getSize())));
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), B2);
+
+  ConstBlockRange = CBI->findDataBlocksAt(Addr(0), Addr(20));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(pointers(ConstBlockRange),
+            pointers(CBI->findDataBlocksAt(*BI->getAddress(),
+                                           *BI->getAddress() + BI->getSize())));
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), B2);
+
+  // Order matters: querying an empty range produces an empty result.
+
+  BlockRange = BI->findDataBlocksAt(Addr(20), Addr(0));
+  EXPECT_TRUE(BlockRange.empty());
+
+  ConstBlockRange = CBI->findDataBlocksAt(Addr(20), Addr(0));
+  EXPECT_TRUE(ConstBlockRange.empty());
 }
