@@ -132,4 +132,47 @@ gtirb-pprinter /tmp/ls.ss.gtirb --skip-section .eh_frame \
 
 ## Visualize the difference using gtirb-ghidra-plugin
 
-> **TODO**.
+Ghidra is a reverse engineering framework developed by the NSA. With a 
+GTIRB plug-in, Ghidra offers a useful GUI for examining the differences
+between GTIRB files.
+
+To follow this procedure you must first download and install
+[Ghidra](https://ghidra-sre.org/) and add the 
+[GTIRB Ghidra plugin](https://github.com/GrammaTech/gtirb-ghidra-plugin).
+Also, Java 11 is a prerequisite for Ghidra (here are installation instructions for
+[Ubuntu](https://www.linuxbabe.com/ubuntu/install-oracle-java-8-openjdk-11-ubuntu-18-04-18-10) and
+[Windows](https://access.redhat.com/documentation/en-us/openjdk/11/html/openjdk_11_for_windows_getting_started_guide/index))
+                                                                                                                        
+### Procedure         
+                                                                                   
+1. Import and analyze the files                                                   
+2. Use the Version Tracking tool to match function locations
+3. Examine the changes in a side-by-side view                    
+
+                                                                                              
+**Import and analyze the files**      
+
+Start Ghidra and open a project or create a new one. Import ls.gtirb and double-click it to open a Code Browser.
+When prompted to analyze it, hit "Yes" and select "Disassemble Entry Points" (only).
+This will populate the listing with disassembly for all functions.
+When the analysis is complete, save the file and close the Code Browser. Repeat for ls.ss.gtirb
+
+**Use the Version Tracking tool to match function locations** 
+
+Click on the "Footprints" icon to start the Version Tracking tool. The Version Tracking
+tool also has a footprints icon, click on this to start a new session wizard. Enter a session
+name and select the before and after files as Source and Destination. Skip the precondition checks and
+hit Finish. This will open source and destination tools, which you can minimize as
+we don't need them.
+
+**Examine the changes in a side-by-side view**
+
+In the Version Tracking tool, click the green "+" (plus sign) to start comparing the files.
+In the wizard that comes up, select "Exact Symbol Name Match" (only), this will allow us to
+do a side-by-side comparison of functions of the same name. Click Next and Finish, and the
+Version Tracking Matches window will be populated with a list of matches. (If you don't see
+a Version Tracking Matches window, go to Window in the top menu and select Version Tracking
+Matches). Select a function by clicking on a row with type Function. Then go to the Version
+Tracking Markup window to see a comparison of this function (if you don't see source and
+destination sections in the Version Tracking Markup window, click the "Book" icon in the
+upper right corner of the Version Tracking Markup window.
