@@ -239,3 +239,9 @@ python-wheel:
     - docker cp $CID:/gt/gtirb/build/python/dist python-dist
     - cp python-dist/*.whl ./
     - docker container rm -f $CID
+
+upload-to-pypi:
+  stage: deploy
+  script:
+    - docker run ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7 bash -c
+        "cd /gt/gtirb/build/python && twine upload dist/* -u __token__ -p $PYPI_API_KEY"

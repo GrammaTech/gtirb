@@ -83,5 +83,5 @@ add_custom_target(
 add_custom_target(
   python-wheel
   DEPENDS pygtirb
-  COMMAND "${PYTHON}" setup.py bdist_wheel
+  COMMAND "${PYTHON}" setup.py sdist bdist_wheel
 )
