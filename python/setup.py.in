@@ -2,6 +2,8 @@ import glob
 import setuptools
 import sys
 import unittest
+import os
+import shutil
 
 # if version of setuptools is 20.8.1 or below, it doesn't support env specs
 if int(setuptools.__version__.split(".")[0]) < 21:
@@ -19,7 +21,17 @@ def gtirb_test_suite():
     return test_suite
 
 
+# copy over files needed for sdist: README and LICENCE
+root_dir = "@CMAKE_SOURCE_DIR@"
+this_dir = os.path.dirname(__file__)
+shutil.copyfile(os.path.join(root_dir, "README.md"), "README")
+shutil.copyfile(os.path.join(root_dir, "LICENSE.txt"), "LICENSE")
+
+# run setuptools
 if __name__ == "__main__":
+    with open("README", "r") as fh:
+        long_description = fh.read()
+
     setuptools.setup(
         name="gtirb",
         version=(
@@ -27,11 +39,19 @@ if __name__ == "__main__":
             ".@PROJECT_VERSION_MINOR@"
             ".@PROJECT_VERSION_PATCH@"
         ),
-        author="abhaskar",
-        author_email="abhaskar@grammatech.com",
-        description="The gtirb package",
+        author="GrammaTech",
+        author_email="gtirb@grammatech.com",
+        description="GrammaTech Intermediate Representation for Binaries",
         packages=setuptools.find_packages(),
         test_suite="setup.gtirb_test_suite",
         install_requires=["protobuf"] + typing_dep,
-        classifiers=["Programming Language :: Python :: 3"],
+        classifiers=[
+            "Programming Language :: Python :: 3",
+            "License :: OSI Approved :: MIT License",
+            "Operating System :: OS Independent",
+        ],
+        python_requires=">=3",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        url="https://github.com/grammatech/gtirb",
     )
