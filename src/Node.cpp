@@ -109,18 +109,6 @@ static void removeFromICL(IntMapType& IntMap, NodeType* N) {
 
 void Node::addToIndices() {
   switch (getKind()) {
-  case Node::Kind::ByteInterval: {
-    auto* BI = cast<ByteInterval>(this);
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-    addToICL(S->ByteIntervalAddrs, BI);
-    // Updating the symbol index isn't necesary, because no symbols are defined
-    // pointing to blocks in this interval if you're adding a whole new one,
-    // and the address will not change if you're moving an interval from
-    // one section to another.
-  } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
 
@@ -268,18 +256,6 @@ void Node::mutateIndices(const std::function<void()>& F) {
 
 void Node::removeFromIndices() {
   switch (getKind()) {
-  case Node::Kind::ByteInterval: {
-    auto* BI = cast<ByteInterval>(this);
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-    removeFromICL(S->ByteIntervalAddrs, BI);
-    // Updating the symbol index isn't necesary, because no symbols should be
-    // defined pointing to blocks in this interval if you're removing one,
-    // and the address will not change if you're moving an interval from
-    // one section to another.
-  } break;
   case Node::Kind::CodeBlock: {
     auto* B = cast<CodeBlock>(this);
 

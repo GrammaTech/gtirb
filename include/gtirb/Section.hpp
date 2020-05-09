@@ -80,6 +80,31 @@ class GTIRB_EXPORT_API Section : public Node {
   using ByteIntervalIntMap = boost::icl::interval_map<
       Addr, std::set<ByteInterval*, AddressLess<ByteInterval>>>;
 
+  /// \class ByteIntervalObserverImpl
+  ///
+  /// \brief Implements the ByteIntervalObserver interface to update a Section
+  /// when certain events occur.
+  ///
+
+  class ByteIntervalObserverImpl : public ByteIntervalObserver {
+  public:
+    explicit ByteIntervalObserverImpl(Section* S_) : S(S_) {}
+
+    ChangeStatus addCodeBlocks(ByteInterval* BI,
+                               ByteInterval::code_block_range Blocks) override;
+
+    ChangeStatus
+    removeCodeBlocks(ByteInterval* BI,
+                     ByteInterval::code_block_range Blocks) override;
+
+    ChangeStatus changeExtent(ByteInterval* BI,
+                              std::optional<AddrRange> OldExtent,
+                              std::optional<AddrRange> NewExtent) override;
+
+  private:
+    Section* S;
+  };
+
 public:
   /// \brief Create an unitialized Section object.
   /// \param C        The Context in which this Section will be held.
@@ -1081,6 +1106,8 @@ private:
   ByteIntervalIntMap ByteIntervalAddrs;
   std::set<SectionFlag> Flags;
 
+  ByteIntervalObserverImpl BIO{this};
+
   void setParent(Module* M, SectionObserver* O) {
     Parent = M;
     Observer = O;
@@ -1120,7 +1147,7 @@ private:
 
 /// \class SectionObserver
 ///
-/// \brief Interface for notifing observers when the Section is modified.
+/// \brief Interface for notifying observers when the Section is modified.
 ///
 
 class GTIRB_EXPORT_API SectionObserver {

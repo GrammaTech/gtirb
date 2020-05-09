@@ -18,6 +18,7 @@
 
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/Observer.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <array>
 #include <boost/endian/conversion.hpp>
@@ -52,6 +53,7 @@ class ByteInterval;
 class Section;   // Forward declared for the backpointer.
 class CodeBlock; // Forward declared so Blocks can store CodeBlocks.
 class DataBlock; // Forward declared so Blocks can store DataBlocks.
+class ByteIntervalObserver;
 
 /// \class ByteInterval
 ///
@@ -1304,39 +1306,41 @@ public:
 
   /// \brief Remove a block from this interval.
   ///
-  /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
-  /// \param  N           The block to remove.
+  /// \param  B           The block to remove.
   ///
   /// \return Whether or not the operation succeeded. This operation can
   /// fail if the node to remove is not actually part of this node to begin
   /// with.
-  template <class BlockType> bool removeBlock(BlockType* N) {
-    N->removeFromIndices();
-    auto& Index = Blocks.get<by_pointer>();
-    if (auto Iter = Index.find(N); Iter != Index.end()) {
-      Index.erase(Iter);
-      N->setByteInterval(nullptr);
-      return true;
-    }
-    return false;
-  }
+  ChangeStatus removeBlock(CodeBlock* B);
 
-  /// \brief Move an existing Block to be a part of this interval.
+  /// \brief Remove a block from this interval.
   ///
-  /// \tparam BlockType   Either \ref CodeBlock or \ref DataBlock.
-  /// \param  Off           The offset to move the block to.
-  /// \param  N           The block to move.
-  template <typename BlockType>
-  BlockType* addBlock(uint64_t Off, BlockType* N) {
-    if (N->getByteInterval()) {
-      N->getByteInterval()->removeBlock(N);
-    }
+  /// \param  B           The block to remove.
+  ///
+  /// \return Whether or not the operation succeeded. This operation can
+  /// fail if the node to remove is not actually part of this node to begin
+  /// with.
+  ChangeStatus removeBlock(DataBlock* B);
 
-    N->setByteInterval(this);
-    Blocks.emplace(Off, N);
-    N->addToIndices();
-    return N;
-  }
+  /// \brief Move an existing CodeBlock to be a part of this interval.
+  ///
+  /// \param  Off         The offset to move the block to.
+  /// \param  N           The block to move.
+  ///
+  /// \return a ChangeStatus indicating whether the insertion took place
+  /// (\c ACCEPTED), was unnecessary because this node already contained the
+  /// CodeBlock (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  ChangeStatus addBlock(uint64_t Off, CodeBlock* N);
+
+  /// \brief Move an existing DataBlock to be a part of this interval.
+  ///
+  /// \param  Off         The offset to move the block to.
+  /// \param  N           The block to move.
+  ///
+  /// \return a ChangeStatus indicating whether the insertion took place
+  /// (\c ACCEPTED), was unnecessary because this node already contained the
+  /// DataBlock (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  ChangeStatus addBlock(uint64_t Off, DataBlock* N);
 
   /// \brief Creates a new \ref Block of the given type at a given offset.
   ///
@@ -1347,8 +1351,15 @@ public:
   /// \param  A     The arguments to construct a \ref CodeBlock.
   /// \return       The newly created \ref CodeBlock.
   template <typename BlockType, typename... Args>
-  BlockType* addBlock(Context& C, uint64_t O, Args... A) {
-    return addBlock(O, BlockType::Create(C, A...));
+  BlockType* addBlock(Context& C, uint64_t O, Args&&... A) {
+    BlockType* B = BlockType::Create(C, std::forward<Args>(A)...);
+    [[maybe_unused]] ChangeStatus Status = addBlock(O, B);
+    // addBlock(uint64_t, BlockType*) does not currently reject any insertions
+    // and the result cannot be NO_CHANGE because we just inserted a newly
+    // created ByteInterval.
+    assert(Status == ChangeStatus::ACCEPTED &&
+           "unexpected result when inserting ByteInterval");
+    return B;
   }
 
   /// \brief Adds a new \ref SymbolicExpression to this interval.
@@ -1423,9 +1434,7 @@ public:
   ///
   /// \param A  Either the new address, or an empty \ref std::optional if you
   ///           wish to remove the address.
-  void setAddress(std::optional<Addr> A) {
-    this->mutateIndices([this, A]() { Address = A; });
-  }
+  void setAddress(std::optional<Addr> A);
 
   /// \brief Get the size of this interval in bytes.
   ///
@@ -1442,12 +1451,7 @@ public:
   /// than the initialized size.
   ///
   /// \param S  The new size.
-  void setSize(uint64_t S) {
-    this->mutateIndices([this, S]() { Size = S; });
-    if (S < getInitializedSize()) {
-      setInitializedSize(S);
-    }
-  }
+  void setSize(uint64_t S);
 
   /// \brief Get the number of initialized bytes in this interval.
   ///
@@ -1895,7 +1899,10 @@ private:
     Bytes.resize(InitSize);
   }
 
-  void setSection(Section* S) { Parent = S; }
+  void setParent(Section* S, ByteIntervalObserver* O) {
+    Parent = S;
+    Observer = O;
+  }
 
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
@@ -1934,6 +1941,7 @@ private:
   bool loadSymbolicExpressions(Context& C, std::istream& In);
 
   Section* Parent{nullptr};
+  ByteIntervalObserver* Observer{nullptr};
   std::optional<Addr> Address;
   uint64_t Size{0};
   BlockSet Blocks;
@@ -1950,6 +1958,51 @@ private:
                           // expressions.
   friend class Node;      // Allow Node::mutateIndices, etc. to set indices.
   friend class SerializationTestHarness; // Testing support.
+};
+
+///
+/// \brief Interface for notifying observers when the ByteInterval is modified.
+///
+
+class GTIRB_EXPORT_API ByteIntervalObserver {
+public:
+  virtual ~ByteIntervalObserver() = default;
+
+  /// \brief Notify the parent when new CodeBlocks are added to the interval.
+  ///
+  /// Called after the ByteInterval updates its internal state.
+  ///
+  /// \param BI      the ByteInterval to which the CodeBlocks were added.
+  /// \param Blocks  a range containing the new CodeBlocks.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus addCodeBlocks(ByteInterval* BI,
+                                     ByteInterval::code_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when CodeBlocks are removed from the interval.
+  ///
+  /// Called before the ByteInterval updates its internal state.
+  ///
+  /// \param BI      the ByteInterval from which the CodeBlocks will be removed.
+  /// \param Blocks  a range containing the CodeBlocks to remove.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus
+  removeCodeBlocks(ByteInterval* BI, ByteInterval::code_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when the range of addresses in the interval
+  /// changes.
+  ///
+  /// Called after the ByteInterval updates its internal state.
+  ///
+  /// \param BI         the ByteInterval that changed.
+  /// \param OldExtent  the previous range of addresses in the ByteInterval.
+  /// \param NewExtent  the new range of addresses in the ByteInterval.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus changeExtent(ByteInterval* BI,
+                                    std::optional<AddrRange> OldExtent,
+                                    std::optional<AddrRange> NewExtent) = 0;
 };
 
 } // namespace gtirb

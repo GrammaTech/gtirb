@@ -139,3 +139,120 @@ bool ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
   Message.ParseFromIstream(&In);
   return ByteInterval::symbolicExpressionsFromProtobuf(C, Message);
 }
+
+void ByteInterval::setAddress(std::optional<Addr> A) {
+  if (Observer) {
+    std::optional<AddrRange> OldExtent = addressRange(*this);
+    this->mutateIndices([this, A]() { Address = A; });
+    [[maybe_unused]] ChangeStatus Status =
+        Observer->changeExtent(this, OldExtent, addressRange(*this));
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected address change is not implemented yet");
+  } else {
+    Address = A;
+  }
+}
+
+void ByteInterval::setSize(uint64_t S) {
+  if (Observer) {
+    std::optional<AddrRange> OldExtent = addressRange(*this);
+    this->mutateIndices([this, S]() { Size = S; });
+    [[maybe_unused]] ChangeStatus Status =
+        Observer->changeExtent(this, OldExtent, addressRange(*this));
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected size change is not implemented yet");
+  } else {
+    Size = S;
+  }
+  if (S < getInitializedSize()) {
+    setInitializedSize(S);
+  }
+}
+
+ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
+  auto& Index = Blocks.get<by_pointer>();
+  if (auto Iter = Index.find(B); Iter != Index.end()) {
+    if (Observer) {
+      auto Begin = Blocks.project<0>(Iter);
+      auto End = std::next(Begin);
+      auto Range = boost::make_iterator_range(
+          code_block_iterator(code_block_iterator::base_type(Begin, End)),
+          code_block_iterator(code_block_iterator::base_type(End, End)));
+      [[maybe_unused]] ChangeStatus Status =
+          Observer->removeCodeBlocks(this, Range);
+      // None of the known observers reject removals. If that changes, this
+      // implementation will need to be changed as well. Because addBlock
+      // assumes that this removal will not be rejected, it will also need to
+      // be updated.
+      assert(Status != ChangeStatus::REJECTED &&
+             "recovering from rejected removal is not implemented yet");
+    }
+    // Call removeFromIndices before removing the block from Blocks so that
+    // nodeToBlock will work.
+    B->removeFromIndices();
+    Index.erase(Iter);
+    B->setByteInterval(nullptr);
+    return ChangeStatus::ACCEPTED;
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus ByteInterval::removeBlock(DataBlock* B) {
+  auto& Index = Blocks.get<by_pointer>();
+  if (auto Iter = Index.find(B); Iter != Index.end()) {
+    // Call removeFromIndices before removing the block from Blocks so that
+    // nodeToBlock will work.
+    B->removeFromIndices();
+    Index.erase(Iter);
+    B->setByteInterval(nullptr);
+    return ChangeStatus::ACCEPTED;
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
+  if (ByteInterval* BI = B->getByteInterval()) {
+    if (BI == this) {
+      return ChangeStatus::NO_CHANGE;
+    }
+    [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
+    assert(Status != ChangeStatus::REJECTED &&
+           "failed to remove node from parent");
+  }
+
+  B->setByteInterval(this);
+  auto [Iter, Inserted] = Blocks.emplace(Off, B);
+  if (Inserted && Observer) {
+    auto End = std::next(Iter);
+    auto Range = boost::make_iterator_range(
+        code_block_iterator(code_block_iterator::base_type(Iter, End)),
+        code_block_iterator(code_block_iterator::base_type(End, End)));
+    [[maybe_unused]] ChangeStatus Status = Observer->addCodeBlocks(this, Range);
+    // None of the known observers reject insertions. If that changes, this
+    // implementation must be updated.
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected insertion is unimplemented");
+  }
+
+  // Call addToIndices after inserting the block in Blocks so that blockToNode
+  // will work.
+  B->addToIndices();
+  return ChangeStatus::ACCEPTED;
+}
+
+ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
+  if (ByteInterval* BI = B->getByteInterval()) {
+    if (BI == this) {
+      return ChangeStatus::NO_CHANGE;
+    }
+    [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
+    assert(Status != ChangeStatus::REJECTED &&
+           "failed to remove node from parent");
+  }
+
+  B->setByteInterval(this);
+  Blocks.emplace(Off, B);
+  // Call addToIndices after inserting the block in Blocks so that blockToNode
+  // will work.
+  B->addToIndices();
+  return ChangeStatus::ACCEPTED;
+}

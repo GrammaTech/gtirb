@@ -168,18 +168,20 @@ Module* Module::load(Context& C, std::istream& In) {
 ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
-    SO.changeExtent(S, addressRange(*S), std::nullopt);
+    [[maybe_unused]] ChangeStatus Status =
+        SO.changeExtent(S, addressRange(*S), std::nullopt);
+    assert(Status != ChangeStatus::REJECTED &&
+           "failed to update Module extent when removing section");
 
     if (Observer) {
       auto Begin = Sections.project<by_address>(Iter);
       auto End = std::next(Begin);
       auto BlockRange = makeCodeBlockRange(Begin, End);
-      [[maybe_unused]] ChangeStatus status =
-          Observer->removeCodeBlocks(this, BlockRange);
+      Status = Observer->removeCodeBlocks(this, BlockRange);
       // The known observers do not reject removals. If that changes, this
       // method must be updated. Because addSection(Section*) also assumes
       // removals are never rejected, that method should be updated as well.
-      assert(status != ChangeStatus::REJECTED &&
+      assert(Status != ChangeStatus::REJECTED &&
              "recovering from rejected removal is unimplemented");
     }
     Index.erase(Iter);
@@ -194,8 +196,8 @@ ChangeStatus Module::addSection(Section* S) {
   if (Module* M = S->getModule()) {
     if (M == this)
       return ChangeStatus::NO_CHANGE;
-    [[maybe_unused]] ChangeStatus status = M->removeSection(S);
-    assert(status != ChangeStatus::REJECTED &&
+    [[maybe_unused]] ChangeStatus Status = M->removeSection(S);
+    assert(Status != ChangeStatus::REJECTED &&
            "failed to remove section from former parent");
   }
 
@@ -204,25 +206,27 @@ ChangeStatus Module::addSection(Section* S) {
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Observer) {
     auto BlockRange = makeCodeBlockRange(Iter, std::next(Iter));
-    [[maybe_unused]] ChangeStatus status =
+    [[maybe_unused]] ChangeStatus Status =
         Observer->addCodeBlocks(this, BlockRange);
     // The known observers do not reject insertions. If that changes, this
     // method must be updated.
-    assert(status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::REJECTED &&
            "recovering from rejected insertion is unimplemented");
   }
 
-  SO.changeExtent(S, std::nullopt, addressRange(*S));
-
+  [[maybe_unused]] ChangeStatus Status =
+      SO.changeExtent(S, std::nullopt, addressRange(*S));
+  assert(Status != ChangeStatus::REJECTED &&
+         "failed to update Module extent after adding section");
   return ChangeStatus::ACCEPTED;
 }
 
 ChangeStatus
-Module::SectionObserverImpl::addCodeBlocks(Section* S,
+Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
                                            Section::code_block_range Blocks) {
   if (M->Observer) {
-    auto& Index = M->Sections.get<by_pointer>();
-    auto Iter = Index.find(S);
+    [[maybe_unused]] auto& Index = M->Sections.get<by_pointer>();
+    [[maybe_unused]] auto Iter = Index.find(S);
     assert(Iter != Index.end() && "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
@@ -235,10 +239,10 @@ Module::SectionObserverImpl::addCodeBlocks(Section* S,
 }
 
 ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
-    Section* S, Section::code_block_range Blocks) {
+    [[maybe_unused]] Section* S, Section::code_block_range Blocks) {
   if (M->Observer) {
-    auto& Index = M->Sections.get<by_pointer>();
-    auto Iter = Index.find(S);
+    [[maybe_unused]] auto& Index = M->Sections.get<by_pointer>();
+    [[maybe_unused]] auto Iter = Index.find(S);
     assert(Iter != Index.end() && "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
