@@ -158,6 +158,9 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   public:
     explicit SectionObserverImpl(Module* M_) : M(M_) {}
 
+    ChangeStatus nameChange(Section* S, const std::string& OldName,
+                            const std::string& NewName) override;
+
     ChangeStatus addCodeBlocks(Section* S,
                                Section::code_block_range Blocks) override;
 

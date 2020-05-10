@@ -222,6 +222,20 @@ ChangeStatus Module::addSection(Section* S) {
 }
 
 ChangeStatus
+Module::SectionObserverImpl::nameChange(Section* S,
+                                        const std::string& /*OldName*/,
+                                        const std::string& /*NewName*/) {
+  auto& Index = M->Sections.get<by_pointer>();
+  auto It = Index.find(S);
+  assert(It != Index.end() && "section observed by non-owner");
+  // The following lambda is intentionally a no-op. Because the Section's name
+  // has already been updated before this method executes, we only need to tell
+  // the index to re-synchronize.
+  Index.modify(It, [](Section*) {});
+  return ChangeStatus::ACCEPTED;
+}
+
+ChangeStatus
 Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
                                            Section::code_block_range Blocks) {
   if (M->Observer) {

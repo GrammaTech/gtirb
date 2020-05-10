@@ -224,17 +224,6 @@ void Node::mutateIndices(const std::function<void()>& F) {
     modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
     addToICL(BI->BlockOffsets, Blk, B->getOffset(), B->getSize());
   } break;
-  case Node::Kind::Section: {
-    auto* S = cast<Section>(this);
-    std::optional<AddrRange> OldExtent = addressRange(*S);
-    F();
-    if (S->Observer) {
-      [[maybe_unused]] ChangeStatus status =
-          S->Observer->changeExtent(S, OldExtent, addressRange(*S));
-      assert(status != ChangeStatus::REJECTED &&
-             "recovering from rejected removal is not implemented yet");
-    }
-  } break;
   case Node::Kind::Symbol: {
     auto* S = cast<Symbol>(this);
     auto* M = S->getModule();

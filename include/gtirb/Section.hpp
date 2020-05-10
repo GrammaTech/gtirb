@@ -378,9 +378,7 @@ public:
   }
 
   /// \brief Set this section's name.
-  void setName(const std::string& N) {
-    this->mutateIndices([this, &N]() { Name = N; });
-  }
+  void setName(const std::string& N);
 
   /// \brief Iterator over blocks.
   ///
@@ -1139,6 +1137,18 @@ class GTIRB_EXPORT_API SectionObserver {
 public:
   virtual ~SectionObserver() = default;
 
+  /// \brief Notify the parent when this Section's name changes.
+  ///
+  /// Called after the Section updates its internal state.
+  ///
+  /// \param S        the Section whose name changed.
+  /// \param OldName  the Section's previous name.
+  /// \param NewName  the new name of this section.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus nameChange(Section* S, const std::string& OldName,
+                                  const std::string& NewName) = 0;
+
   /// \brief Notify the parent when new CodeBlocks are added to the Section.
   ///
   /// Called after the Section updates its internal state.
@@ -1175,6 +1185,20 @@ public:
                                     std::optional<AddrRange> NewExtent) = 0;
 };
 
+inline void Section::setName(const std::string& X) {
+  if (Observer) {
+    std::string OldName = X;
+    std::swap(Name, OldName);
+    [[maybe_unused]] ChangeStatus status =
+        Observer->nameChange(this, OldName, Name);
+    // The known observers do not reject insertions. If that changes, this
+    // method must be updated.
+    assert(status != ChangeStatus::REJECTED &&
+           "recovering from rejected name change is unimplemented");
+  } else {
+    Name = X;
+  }
+}
 } // namespace gtirb
 
 #endif // GTIRB_SECTION_H

@@ -352,6 +352,26 @@ TEST(Unit_Module, findSections) {
   }
 }
 
+TEST(Unit_Module, sectionNameOrder) {
+  auto* M = Module::Create(Ctx);
+  auto* S1 = M->addSection(Ctx, "gamma");
+  auto* S2 = M->addSection(Ctx, "beta");
+  auto* S3 = M->addSection(Ctx, "alpha");
+
+  ASSERT_EQ(
+      std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 3);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 0), S3); // alpha
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 1), S2); // beta
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 2), S1); // gamma
+
+  S2->setName("omega");
+  ASSERT_EQ(
+      std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 3);
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 0), S3); // alpha
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 1), S1); // gamma
+  EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 2), S2); // omega
+}
+
 TEST(Unit_Module, blocks) {
   auto I = IR::Create(Ctx);
   auto M = I->addModule(Ctx);
