@@ -42,8 +42,7 @@ class DataBlock;
 class GTIRB_EXPORT_API DataBlock : public Node {
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
 
-  DataBlock(Context& C, uint64_t S)
-      : Node(C, Kind::DataBlock), Size(S) {}
+  DataBlock(Context& C, uint64_t S) : Node(C, Kind::DataBlock), Size(S) {}
 
 public:
   /// \brief Create an unitialized DataBlock object.
@@ -86,7 +85,15 @@ public:
   /// bytes, or symbolic expressions. This simply changes the extents of a block
   /// in its \ref ByteInterval.
   void setSize(uint64_t S) {
-    this->mutateIndices([this, S]() { Size = S; });
+    if (Observer) {
+      std::swap(S, Size);
+      [[maybe_unused]] ChangeStatus Status =
+          Observer->changeSize(this, S, Size);
+      assert(Status != ChangeStatus::REJECTED &&
+             "recovering from rejected size change is not implemented yet");
+    } else {
+      Size = S;
+    }
   }
 
   /// \brief Iterator over bytes in this block.
@@ -269,9 +276,13 @@ public:
 
 private:
   ByteInterval* Parent{nullptr};
+  DataBlockObserver* Observer{nullptr};
   uint64_t Size{0};
 
-  void setByteInterval(ByteInterval* BI) { Parent = BI; }
+  void setParent(ByteInterval* BI, DataBlockObserver* O) {
+    Parent = BI;
+    Observer = O;
+  }
 
   /// \brief The protobuf message type used for serializing DataBlock.
   using MessageType = proto::DataBlock;

@@ -51,58 +51,6 @@ static void modifyIndex(CollectionType& Index, NodeType* N,
   }
 }
 
-static uint64_t extractSize(std::optional<uint64_t> t) { return *t; }
-
-template <typename NodeType, typename IntMapType, typename SizeType>
-static void addToICL(IntMapType& IntMap, NodeType* N, uint64_t Off,
-                     SizeType S) {
-  IntMap.add(std::make_pair(
-      IntMapType::interval_type::right_open(Off, Off + extractSize(S)),
-      typename IntMapType::codomain_type({N})));
-}
-
-template <typename NodeType, typename IntMapType, typename SizeType>
-static void addToICL(IntMapType& IntMap, NodeType* N, std::optional<Addr> A,
-                     SizeType S) {
-  if (A) {
-    IntMap.add(std::make_pair(
-        IntMapType::interval_type::right_open(*A, *A + extractSize(S)),
-        typename IntMapType::codomain_type({N})));
-  }
-}
-
-template <typename NodeType, typename IntMapType, typename SizeType>
-static void removeFromICL(IntMapType& IntMap, NodeType* N, uint64_t Off,
-                          SizeType S) {
-  IntMap.subtract(std::make_pair(
-      IntMapType::interval_type::right_open(Off, Off + extractSize(S)),
-      typename IntMapType::codomain_type({N})));
-}
-
-template <typename NodeType, typename IntMapType, typename SizeType>
-static void removeFromICL(IntMapType& IntMap, NodeType* N,
-                          std::optional<Addr> A, SizeType S) {
-  if (A) {
-    IntMap.subtract(std::make_pair(
-        IntMapType::interval_type::right_open(*A, *A + extractSize(S)),
-        typename IntMapType::codomain_type({N})));
-  }
-}
-
-template <typename NodeType, typename IntMapType>
-static void addToICL(IntMapType& IntMap, NodeType* N) {
-  return addToICL(IntMap, N, N->getAddress(), N->getSize());
-}
-
-template <typename NodeType, typename IntMapType>
-static void removeFromICL(IntMapType& IntMap, NodeType* N) {
-  return removeFromICL(IntMap, N, N->getAddress(), N->getSize());
-}
-
-// FIXME: For the internals of these index functions, it'd be nice to have
-// some sort of virtual dispatch nstead of one big switch. But how to do that
-// without (a) adding in RTTI or (b) making everything friends of each other...
-
 // FIXME: It would also be nice to be more discerning about what indices to
 // update, so we invalidate only the minimum of iterators. Right now, modifying
 // many properties invalidates more iterators that it strictly needs to.
@@ -116,9 +64,6 @@ void Node::addToIndices() {
     if (!BI) {
       return;
     }
-
-    addToICL(BI->BlockOffsets, &BI->nodeToBlock(B), B->getOffset(),
-             B->getSize());
 
     auto* S = BI->getSection();
     if (!S) {
@@ -137,10 +82,6 @@ void Node::addToIndices() {
       modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
     }
 
-    // Update CFG.
-    if (IR* P = M->getIR()) {
-      addVertex(B, P->Cfg);
-    }
   } break;
   case Node::Kind::DataBlock: {
     auto* B = cast<DataBlock>(this);
@@ -149,9 +90,6 @@ void Node::addToIndices() {
     if (!BI) {
       return;
     }
-
-    addToICL(BI->BlockOffsets, &BI->nodeToBlock(B), B->getOffset(),
-             B->getSize());
 
     auto* S = BI->getSection();
     if (!S) {
@@ -200,30 +138,6 @@ void Node::mutateIndices(const std::function<void()>& F) {
       }
     }
   } break;
-  case Node::Kind::CodeBlock: {
-    auto* B = cast<CodeBlock>(this);
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      F();
-      return;
-    }
-    auto* Blk = &BI->nodeToBlock(B);
-    removeFromICL(BI->BlockOffsets, Blk, B->getOffset(), B->getSize());
-    modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
-    addToICL(BI->BlockOffsets, Blk, B->getOffset(), B->getSize());
-  } break;
-  case Node::Kind::DataBlock: {
-    auto* B = cast<DataBlock>(this);
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      F();
-      return;
-    }
-    auto* Blk = &BI->nodeToBlock(B);
-    removeFromICL(BI->BlockOffsets, Blk, B->getOffset(), B->getSize());
-    modifyIndex(BI->Blocks.get<ByteInterval::by_pointer>(), B, F);
-    addToICL(BI->BlockOffsets, Blk, B->getOffset(), B->getSize());
-  } break;
   case Node::Kind::Symbol: {
     auto* S = cast<Symbol>(this);
     auto* M = S->getModule();
@@ -248,9 +162,6 @@ void Node::removeFromIndices() {
     if (!BI) {
       return;
     }
-
-    removeFromICL(BI->BlockOffsets, &BI->nodeToBlock(B), B->getOffset(),
-                  B->getSize());
 
     auto* S = BI->getSection();
     if (!S) {
@@ -281,9 +192,6 @@ void Node::removeFromIndices() {
     if (!BI) {
       return;
     }
-
-    removeFromICL(BI->BlockOffsets, &BI->nodeToBlock(B), B->getOffset(),
-                  B->getSize());
 
     auto* S = BI->getSection();
     if (!S) {

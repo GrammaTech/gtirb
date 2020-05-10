@@ -189,11 +189,11 @@ ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
       assert(Status != ChangeStatus::REJECTED &&
              "recovering from rejected removal is not implemented yet");
     }
-    // Call removeFromIndices before removing the block from Blocks so that
-    // nodeToBlock will work.
+
+    BO.changeSize(B, B->getSize(), 0);
     B->removeFromIndices();
     Index.erase(Iter);
-    B->setByteInterval(nullptr);
+    B->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
@@ -202,15 +202,15 @@ ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
 ChangeStatus ByteInterval::removeBlock(DataBlock* B) {
   auto& Index = Blocks.get<by_pointer>();
   if (auto Iter = Index.find(B); Iter != Index.end()) {
-    // Call removeFromIndices before removing the block from Blocks so that
-    // nodeToBlock will work.
+    BO.changeSize(B, B->getSize(), 0);
     B->removeFromIndices();
     Index.erase(Iter);
-    B->setByteInterval(nullptr);
+    B->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
 }
+
 ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
   if (ByteInterval* BI = B->getByteInterval()) {
     if (BI == this) {
@@ -221,7 +221,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
            "failed to remove node from parent");
   }
 
-  B->setByteInterval(this);
+  B->setParent(this, &BO);
   auto [Iter, Inserted] = Blocks.emplace(Off, B);
   if (Inserted && Observer) {
     auto End = std::next(Iter);
@@ -235,8 +235,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
            "recovering from rejected insertion is unimplemented");
   }
 
-  // Call addToIndices after inserting the block in Blocks so that blockToNode
-  // will work.
+  BO.changeSize(B, 0, B->getSize());
   B->addToIndices();
   return ChangeStatus::ACCEPTED;
 }
@@ -251,10 +250,26 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
            "failed to remove node from parent");
   }
 
-  B->setByteInterval(this);
+  B->setParent(this, &BO);
   Blocks.emplace(Off, B);
-  // Call addToIndices after inserting the block in Blocks so that blockToNode
-  // will work.
+  BO.changeSize(B, 0, B->getSize());
   B->addToIndices();
+  return ChangeStatus::ACCEPTED;
+}
+
+ChangeStatus ByteInterval::BlockObserverImpl::changeSize(Node* N,
+                                                         uint64_t OldSize,
+                                                         uint64_t NewSize) {
+  auto& Index = BI->Blocks.get<by_pointer>();
+  auto Iter = Index.find(N);
+  assert(Iter != Index.end() && "block observed by non-owner");
+  BI->BlockOffsets.subtract(
+      std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
+                         Iter->Offset, Iter->Offset + OldSize),
+                     ByteInterval::BlockIntMap::codomain_type({&*Iter})));
+  BI->BlockOffsets.add(
+      std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
+                         Iter->Offset, Iter->Offset + NewSize),
+                     ByteInterval::BlockIntMap::codomain_type({&*Iter})));
   return ChangeStatus::ACCEPTED;
 }

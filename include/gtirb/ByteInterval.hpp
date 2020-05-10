@@ -55,6 +55,48 @@ class CodeBlock; // Forward declared so Blocks can store CodeBlocks.
 class DataBlock; // Forward declared so Blocks can store DataBlocks.
 class ByteIntervalObserver;
 
+///
+/// \brief Interface for notifying observers when a CodeBlock is modified.
+///
+
+class GTIRB_EXPORT_API CodeBlockObserver {
+public:
+  virtual ~CodeBlockObserver() = default;
+
+  /// \brief Notify the parent when the CodeBlock changes size.
+  ///
+  /// Called after the CodeBlock updates its internal state.
+  ///
+  /// \param B        the CodeBlock that changed.
+  /// \param OldSize  the previous size of the CodeBlock.
+  /// \param NewSize  the new size of the CodeBlock.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus changeSize(CodeBlock* B, uint64_t OldSize,
+                                  uint64_t NewSize) = 0;
+};
+
+///
+/// \brief Interface for notifying observers when a DataBlock is modified.
+///
+
+class GTIRB_EXPORT_API DataBlockObserver {
+public:
+  virtual ~DataBlockObserver() = default;
+
+  /// \brief Notify the parent when the DataBlock changes size.
+  ///
+  /// Called after the DataBlock updates its internal state.
+  ///
+  /// \param B        the DataBlock that changed.
+  /// \param OldSize  the previous size of the DataBlock.
+  /// \param NewSize  the new size of the DataBlock.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus changeSize(DataBlock* B, uint64_t OldSize,
+                                  uint64_t NewSize) = 0;
+};
+
 /// \class ByteInterval
 ///
 /// \brief A contiguous region of bytes in a binary.
@@ -155,6 +197,26 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
            "ByteInterval::nodeToBlock called with block not in interval");
     return *It;
   }
+
+  class BlockObserverImpl : public CodeBlockObserver, public DataBlockObserver {
+  public:
+    BlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
+
+    ChangeStatus changeSize(CodeBlock* B, uint64_t OldSize,
+                            uint64_t NewSize) override {
+      return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
+    }
+
+    ChangeStatus changeSize(DataBlock* B, uint64_t OldSize,
+                            uint64_t NewSize) override {
+      return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
+    }
+
+  private:
+    ChangeStatus changeSize(Node* N, uint64_t OldSize, uint64_t NewSize);
+
+    ByteInterval* BI;
+  };
 
 public:
   /// \brief Create an unitialized ByteInterval object.
@@ -1948,6 +2010,8 @@ private:
   BlockIntMap BlockOffsets;
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;
+
+  BlockObserverImpl BO{this};
 
   friend class Context;   // Friend to enable Context::Create.
   friend class Section;   // Friend to enable Section::(re)moveByteInterval,

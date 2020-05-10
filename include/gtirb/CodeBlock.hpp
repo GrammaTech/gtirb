@@ -95,7 +95,15 @@ public:
   /// bytes, or symbolic expressions. This simply changes the extents of a block
   /// in its \ref ByteInterval.
   void setSize(uint64_t S) {
-    this->mutateIndices([this, S]() { Size = S; });
+    if (Observer) {
+      std::swap(Size, S);
+      [[maybe_unused]] ChangeStatus Status =
+          Observer->changeSize(this, S, Size);
+      assert(Status != ChangeStatus::REJECTED &&
+             "recovering from rejected size change is not implemented yet");
+    } else {
+      Size = S;
+    }
   }
 
   /// \brief Set the decode mode of this block.
@@ -287,7 +295,10 @@ private:
   CodeBlock(Context& C, uint64_t S, uint64_t Decode)
       : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
 
-  void setByteInterval(ByteInterval* BI) { Parent = BI; }
+  void setParent(ByteInterval* BI, CodeBlockObserver* O) {
+    Parent = BI;
+    Observer = O;
+  }
 
   /// \brief The protobuf message type used for serializing CodeBlock.
   using MessageType = proto::CodeBlock;
@@ -314,6 +325,7 @@ private:
   static CodeBlock* load(Context& C, std::istream& In);
 
   ByteInterval* Parent{nullptr};
+  CodeBlockObserver* Observer{nullptr};
   uint64_t Size{0};
   uint64_t DecodeMode{0};
 

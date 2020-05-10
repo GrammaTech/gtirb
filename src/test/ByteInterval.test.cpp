@@ -761,6 +761,21 @@ TEST(Unit_ByteInterval, findBlocksOn) {
       std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
       1);
   EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+
+  // If the block size changes, queries will be affected.
+
+  B1->setSize(10);
+
+  BlockOffsetRange = BI->findBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 1), B2);
+
+  ConstBlockOffsetRange = CBI->findBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(ConstBlockOffsetRange.begin(),
+                          ConstBlockOffsetRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 1), B2);
 }
 
 TEST(Unit_ByteInterval, findCodeBlocksOn) {
@@ -832,6 +847,21 @@ TEST(Unit_ByteInterval, findCodeBlocksOn) {
       std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
       1);
   EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+
+  // If the block size changes, queries will be affected.
+
+  B1->setSize(10);
+
+  BlockOffsetRange = BI->findCodeBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 1), B2);
+
+  ConstBlockOffsetRange = CBI->findCodeBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(ConstBlockOffsetRange.begin(),
+                          ConstBlockOffsetRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 1), B2);
 }
 
 TEST(Unit_ByteInterval, findDataBlocksOn) {
@@ -903,6 +933,21 @@ TEST(Unit_ByteInterval, findDataBlocksOn) {
       std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
       1);
   EXPECT_EQ(&*ConstBlockOffsetRange.begin(), B2);
+
+  // If the block size changes, queries will be affected.
+
+  B1->setSize(10);
+
+  BlockOffsetRange = BI->findDataBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(BlockOffsetRange.begin(), BlockOffsetRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 1), B2);
+
+  ConstBlockOffsetRange = CBI->findDataBlocksOnOffset(6);
+  ASSERT_EQ(std::distance(ConstBlockOffsetRange.begin(),
+                          ConstBlockOffsetRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 0), B1);
+  EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 1), B2);
 }
 
 TEST(Unit_ByteInterval, findBlocksAt) {
