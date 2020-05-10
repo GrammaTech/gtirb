@@ -177,17 +177,13 @@ void Node::addToIndices() {
 void Node::mutateIndices(const std::function<void()>& F) {
   switch (getKind()) {
   case Node::Kind::ByteInterval: {
+    F();
+
     auto* BI = cast<ByteInterval>(this);
     auto* S = BI->getSection();
     if (!S) {
-      F();
       return;
     }
-    removeFromICL(S->ByteIntervalAddrs, BI);
-    S->mutateIndices([&]() {
-      modifyIndex(S->ByteIntervals.get<Section::by_pointer>(), BI, F);
-    });
-    addToICL(S->ByteIntervalAddrs, BI);
 
     // Symbols may need their address index updated if they refer to a block
     // inside this BI.

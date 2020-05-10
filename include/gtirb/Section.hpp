@@ -317,19 +317,10 @@ public:
   /// in that case. Note that a section with no intervals in it has no address
   /// or size, so it will return \ref std::nullopt in that case.
   std::optional<Addr> getAddress() const {
-    if (ByteIntervals.empty()) {
-      return std::nullopt;
+    if (Extent) {
+      return Extent->First;
     }
-
-    Addr result{std::numeric_limits<Addr::value_type>::max()};
-    for (const auto* Interval : ByteIntervals) {
-      if (auto A = Interval->getAddress()) {
-        result = std::min(result, *A);
-      } else {
-        return std::nullopt;
-      }
-    }
-    return result;
+    return std::nullopt;
   }
 
   /// \brief Return the size of this section, if known.
@@ -342,23 +333,10 @@ public:
   /// not calculable in that case. Note that a section with no intervals in it
   /// has no address or size, so it will return \ref std::nullopt in that case.
   std::optional<uint64_t> getSize() const {
-    if (ByteIntervals.empty()) {
-      return std::nullopt;
+    if (Extent) {
+      return Extent->Size;
     }
-
-    Addr LowAddr{std::numeric_limits<Addr::value_type>::max()};
-    Addr HighAddr{0};
-
-    for (const auto* Interval : ByteIntervals) {
-      if (auto A = Interval->getAddress()) {
-        LowAddr = std::min(LowAddr, *A);
-        HighAddr = std::max(HighAddr, *A + Interval->getSize());
-      } else {
-        return std::nullopt;
-      }
-    }
-
-    return static_cast<uint64_t>(HighAddr - LowAddr);
+    return std::nullopt;
   }
 
   /// \brief Remove an interval from this section.
@@ -1104,6 +1082,7 @@ private:
   std::string Name;
   ByteIntervalSet ByteIntervals;
   ByteIntervalIntMap ByteIntervalAddrs;
+  std::optional<AddrRange> Extent;
   std::set<SectionFlag> Flags;
 
   ByteIntervalObserverImpl BIO{this};

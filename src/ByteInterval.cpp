@@ -143,7 +143,8 @@ bool ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
 void ByteInterval::setAddress(std::optional<Addr> A) {
   if (Observer) {
     std::optional<AddrRange> OldExtent = addressRange(*this);
-    this->mutateIndices([this, A]() { Address = A; });
+    Address = A;
+    this->mutateIndices([]() {});
     [[maybe_unused]] ChangeStatus Status =
         Observer->changeExtent(this, OldExtent, addressRange(*this));
     assert(Status != ChangeStatus::REJECTED &&
@@ -156,7 +157,8 @@ void ByteInterval::setAddress(std::optional<Addr> A) {
 void ByteInterval::setSize(uint64_t S) {
   if (Observer) {
     std::optional<AddrRange> OldExtent = addressRange(*this);
-    this->mutateIndices([this, S]() { Size = S; });
+    Size = S;
+    this->mutateIndices([]() {});
     [[maybe_unused]] ChangeStatus Status =
         Observer->changeExtent(this, OldExtent, addressRange(*this));
     assert(Status != ChangeStatus::REJECTED &&

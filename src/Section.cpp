@@ -71,10 +71,7 @@ Section* Section::load(Context& C, std::istream& In) {
 ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
   auto& Index = ByteIntervals.get<by_pointer>();
   if (auto Iter = Index.find(BI); Iter != Index.end()) {
-    std::optional<AddrRange> OldExtent;
-
     if (Observer) {
-      OldExtent = addressRange(*this);
       auto Begin = ByteIntervals.project<by_address>(Iter);
       auto End = std::next(Begin);
       [[maybe_unused]] ChangeStatus Status =
@@ -86,24 +83,12 @@ ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
              "recovering from rejected removal is not implemented yet");
     }
     Index.erase(Iter);
-
-    std::optional<AddrRange> BIExtent = addressRange(*BI);
-    if (BIExtent)
-      ByteIntervalAddrs.subtract(
-          std::make_pair(ByteIntervalIntMap::interval_type::right_open(
-                             BIExtent->lower(), BIExtent->upper()),
-                         ByteIntervalIntMap::codomain_type({BI})));
-    if (Observer) {
-      std::optional<AddrRange> NewExtent = addressRange(*this);
-      if (NewExtent != OldExtent) {
-        [[maybe_unused]] ChangeStatus Status =
-            Observer->changeExtent(this, OldExtent, NewExtent);
-        assert(Status != ChangeStatus::REJECTED &&
-               "failed to update Section extent after removing ByteInterval");
-      }
-    }
-
     BI->setParent(nullptr, nullptr);
+
+    [[maybe_unused]] ChangeStatus Status =
+        BIO.changeExtent(BI, addressRange(*BI), std::nullopt);
+    assert(Status != ChangeStatus::REJECTED &&
+           "failed to change Section extent after removing ByteInterval");
     return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
@@ -119,10 +104,7 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
            "failed to remove node from parent");
   }
 
-  std::optional<AddrRange> OldExtent = addressRange(*this);
-
   BI->setParent(this, &BIO);
-
   auto [Iter, Inserted] = ByteIntervals.emplace(BI);
   if (Inserted && Observer) {
     auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
@@ -134,22 +116,10 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
            "recovering from rejected insertion is unimplemented");
   }
 
-  std::optional<AddrRange> BIExtent = addressRange(*BI);
-  if (BIExtent)
-    ByteIntervalAddrs.add(
-        std::make_pair(ByteIntervalIntMap::interval_type::right_open(
-                           BIExtent->lower(), BIExtent->upper()),
-                       ByteIntervalIntMap::codomain_type({BI})));
-  if (Observer) {
-    std::optional<AddrRange> NewExtent = addressRange(*this);
-    if (NewExtent != OldExtent) {
-      [[maybe_unused]] ChangeStatus Status =
-          Observer->changeExtent(this, OldExtent, NewExtent);
-      assert(Status != ChangeStatus::REJECTED &&
-             "failed to update Section extent after adding ByteInterval");
-    }
-  }
-
+  [[maybe_unused]] ChangeStatus Status =
+      BIO.changeExtent(BI, std::nullopt, addressRange(*BI));
+  assert(Status != ChangeStatus::REJECTED &&
+         "failed to change Section extent after adding ByteInterval");
   return ChangeStatus::ACCEPTED;
 }
 
@@ -188,34 +158,50 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
 ChangeStatus Section::ByteIntervalObserverImpl::changeExtent(
     ByteInterval* BI, std::optional<AddrRange> OldExtent,
     std::optional<AddrRange> NewExtent) {
-  if (OldExtent == NewExtent)
-    return ChangeStatus::NO_CHANGE;
-
   auto& Index = S->ByteIntervals.get<by_pointer>();
   if (auto It = Index.find(BI); It != Index.end()) {
-    std::optional<AddrRange> Previous = addressRange(*S);
-    if (OldExtent)
-      S->ByteIntervalAddrs.subtract(
-          std::make_pair(ByteIntervalIntMap::interval_type::right_open(
-                             OldExtent->lower(), OldExtent->upper()),
-                         ByteIntervalIntMap::codomain_type({BI})));
-
     // The following lambda is intentionally a no-op. Because the ByteInterval's
     // address has already been updated before this method executes, we only
     // need to tell the index to re-synchronize.
     Index.modify(It, [](ByteInterval*) {});
 
-    if (NewExtent)
+    if (OldExtent) {
+      S->ByteIntervalAddrs.subtract(
+          std::make_pair(ByteIntervalIntMap::interval_type::right_open(
+                             OldExtent->lower(), OldExtent->upper()),
+                         ByteIntervalIntMap::codomain_type({BI})));
+    }
+    if (NewExtent) {
       S->ByteIntervalAddrs.add(
           std::make_pair(ByteIntervalIntMap::interval_type::right_open(
                              NewExtent->lower(), NewExtent->upper()),
                          ByteIntervalIntMap::codomain_type({BI})));
+    }
 
-    std::optional<AddrRange> Current = addressRange(*S);
-    if (Previous != Current) {
+    std::optional<AddrRange> Previous = S->Extent;
+    S->Extent.reset();
+    if (!S->ByteIntervals.empty()) {
+      // Any ByteIntervals without an address will be at the front of the map
+      // because nullopt sorts lower than any address.
+      if (std::optional<Addr> Lower =
+              (*S->ByteIntervals.begin())->getAddress()) {
+        // All the ByteIntervals have an address, so we can calculate the
+        // Section's extent. Get the address of the last ByteInterval in case it
+        // has zero size; ByteIntervalAddrs does not track empty ByteIntervals.
+        Addr Upper = *(*S->ByteIntervals.rbegin())->getAddress();
+        if (!S->ByteIntervalAddrs.empty()) {
+          // The last address is the max of the first address in the last
+          // interval and the last address in intervals with non-zero size.
+          Upper = std::max(Upper, S->ByteIntervalAddrs.rbegin()->first.upper());
+        }
+        S->Extent = AddrRange{*Lower, static_cast<uint64_t>(Upper - *Lower)};
+      }
+    }
+
+    if (Previous != S->Extent) {
       if (S->Observer) {
         [[maybe_unused]] ChangeStatus Status =
-            S->Observer->changeExtent(S, Previous, Current);
+            S->Observer->changeExtent(S, Previous, S->Extent);
         assert(Status != ChangeStatus::REJECTED &&
                "recovering from rejected extent changes is unimplemented");
       }
