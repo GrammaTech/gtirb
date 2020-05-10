@@ -276,6 +276,9 @@ public:
   /// addresses.
   byte_interval_range findByteIntervalsAt(Addr Low, Addr High) {
     auto& Index = ByteIntervals.get<by_address>();
+    if (High < Low) {
+      return boost::make_iterator_range(Index.end(), Index.end());
+    }
     return boost::make_iterator_range(
         byte_interval_iterator(Index.lower_bound(Low)),
         byte_interval_iterator(Index.lower_bound(High)));
@@ -302,6 +305,9 @@ public:
   /// addresses.
   const_byte_interval_range findByteIntervalsAt(Addr Low, Addr High) const {
     auto& Index = ByteIntervals.get<by_address>();
+    if (High < Low) {
+      return boost::make_iterator_range(Index.end(), Index.end());
+    }
     return boost::make_iterator_range(
         const_byte_interval_iterator(Index.lower_bound(Low)),
         const_byte_interval_iterator(Index.lower_bound(High)));

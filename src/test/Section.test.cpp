@@ -92,3 +92,111 @@ TEST(Unit_Section, protobufRoundTrip) {
   EXPECT_FALSE(Result->isFlagSet(SectionFlag::Readable));
   EXPECT_FALSE(Result->isFlagSet(SectionFlag::ThreadLocal));
 }
+
+TEST(Unit_Section, findByteIntervalsOn) {
+  auto* S = Section::Create(Ctx, "test");
+  auto* BI1 = S->addByteInterval(Ctx, 16);
+  auto* BI2 = S->addByteInterval(Ctx, Addr(8), 16);
+  const Section* CS = S;
+
+  // Querying an out-of-bounds address returns an empty range.
+
+  auto Range = S->findByteIntervalsOn(Addr(0));
+  EXPECT_TRUE(Range.empty());
+
+  auto ConstRange = CS->findByteIntervalsOn(Addr(0));
+  EXPECT_TRUE(Range.empty());
+
+  // Querying a in-bounds address returns the correct range.
+
+  Range = S->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&*Range.begin(), BI2);
+
+  ConstRange = CS->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
+  EXPECT_EQ(&*ConstRange.begin(), BI2);
+
+  // Query returns correct set after addresses are updated.
+
+  BI1->setAddress(Addr(0));
+  Range = S->findByteIntervalsOn(Addr(0));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&*Range.begin(), BI1);
+
+  ConstRange = CS->findByteIntervalsOn(Addr(0));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
+  EXPECT_EQ(&*ConstRange.begin(), BI1);
+
+  Range = S->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  EXPECT_EQ(&*std::next(Range.begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(Range.begin(), 1), BI2);
+
+  ConstRange = CS->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI2);
+}
+
+TEST(Unit_Section, findByteIntervalsAt) {
+  auto* S = Section::Create(Ctx, "test");
+  auto* BI1 = S->addByteInterval(Ctx, 16);
+  auto* BI2 = S->addByteInterval(Ctx, Addr(8), 16);
+  const Section* CS = S;
+
+  // Querying an out-of-bounds address returns an empty range.
+
+  auto Range = S->findByteIntervalsAt(Addr(0));
+  EXPECT_TRUE(Range.empty());
+
+  auto ConstRange = CS->findByteIntervalsAt(Addr(0));
+  EXPECT_TRUE(ConstRange.empty());
+
+  // Querying exact start address returns the correct interval.
+
+  Range = S->findByteIntervalsAt(Addr(8));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&*Range.begin(), BI2);
+
+  ConstRange = CS->findByteIntervalsAt(Addr(8));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
+  EXPECT_EQ(&*ConstRange.begin(), BI2);
+
+  // Querying a range of addresses returns everything in range.
+
+  Range = S->findByteIntervalsAt(Addr(0), Addr(-1));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&*Range.begin(), BI2);
+
+  ConstRange = CS->findByteIntervalsAt(Addr(0), Addr(-1));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
+  EXPECT_EQ(&*ConstRange.begin(), BI2);
+
+  Range = S->findByteIntervalsAt(Addr(16), Addr(32));
+  EXPECT_TRUE(Range.empty());
+
+  ConstRange = CS->findByteIntervalsAt(Addr(16), Addr(32));
+  EXPECT_TRUE(ConstRange.empty());
+
+  // Querying an invalid address range returns an empty ByteInterval range.
+
+  Range = S->findByteIntervalsAt(Addr(16), Addr(0));
+  EXPECT_TRUE(Range.empty());
+
+  ConstRange = CS->findByteIntervalsAt(Addr(16), Addr(0));
+  EXPECT_TRUE(ConstRange.empty());
+
+  // Changing the ByteInterval addresses changes the results.
+
+  BI1->setAddress(Addr(4));
+  Range = S->findByteIntervalsAt(Addr(0), Addr(32));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  EXPECT_EQ(&*std::next(Range.begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(Range.begin(), 1), BI2);
+
+  ConstRange = CS->findByteIntervalsAt(Addr(0), Addr(32));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI2);
+}
