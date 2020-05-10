@@ -181,7 +181,7 @@ public:
   ///
   /// \return The associated CFG.
   CFG& getCFG() { return Cfg; }
- 
+
   /// \name Module-Related Public Types and Functions
   /// @{
   /// \brief Iterator over \ref Module "Modules".
@@ -1469,7 +1469,6 @@ private:
   CFG Cfg;
 
   friend class Context; // Allow Context to construct new IRs.
-  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
 
 /// \brief The error category used to represent load failures.

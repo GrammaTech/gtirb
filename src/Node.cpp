@@ -13,12 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Node.hpp"
-#include "gtirb/CodeBlock.hpp"
-#include "gtirb/DataBlock.hpp"
-#include "gtirb/IR.hpp"
 #include "gtirb/Module.hpp"
-#include "gtirb/Section.hpp"
-#include "gtirb/SymbolicExpression.hpp"
 #include <boost/uuid/uuid_generators.hpp>
 
 using namespace gtirb;
@@ -56,88 +51,11 @@ static void modifyIndex(CollectionType& Index, NodeType* N,
 // many properties invalidates more iterators that it strictly needs to.
 
 void Node::addToIndices() {
-  switch (getKind()) {
-  case Node::Kind::CodeBlock: {
-    auto* B = cast<CodeBlock>(this);
-
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      return;
-    }
-
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    // Update symbol referents.
-    // Note that we update the symbol's address index while iterating over its
-    // referent index, so one doesn't invalidate the other.
-    for (auto& Sym : M->findSymbols(*B)) {
-      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
-    }
-
-  } break;
-  case Node::Kind::DataBlock: {
-    auto* B = cast<DataBlock>(this);
-
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      return;
-    }
-
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    // Update symbol referents.
-    // Note that we update the symbol's address index while iterating over its
-    // referent index, so one doesn't invalidate the other.
-    for (auto& Sym : M->findSymbols(*B)) {
-      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
-    }
-  } break;
-  default: { assert(!"unexpected kind of node passed to addToModuleIndices!"); }
-  }
+  assert(!"unexpected kind of node passed to addToModuleIndices!");
 }
 
 void Node::mutateIndices(const std::function<void()>& F) {
   switch (getKind()) {
-  case Node::Kind::ByteInterval: {
-    F();
-
-    auto* BI = cast<ByteInterval>(this);
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-
-    // Symbols may need their address index updated if they refer to a block
-    // inside this BI.
-    // Note that we update the symbol's address index while iterating over its
-    // referent index, so one doesn't invalidate the other.
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    for (auto& B : BI->blocks()) {
-      for (auto& Sym : M->findSymbols(B)) {
-        modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
-      }
-    }
-  } break;
   case Node::Kind::Symbol: {
     auto* S = cast<Symbol>(this);
     auto* M = S->getModule();
@@ -154,64 +72,5 @@ void Node::mutateIndices(const std::function<void()>& F) {
 }
 
 void Node::removeFromIndices() {
-  switch (getKind()) {
-  case Node::Kind::CodeBlock: {
-    auto* B = cast<CodeBlock>(this);
-
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      return;
-    }
-
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    // Update symbol referents.
-    // Note that we update the symbol's address index while iterating over its
-    // referent index, so one doesn't invalidate the other.
-    for (auto& Sym : M->findSymbols(*B)) {
-      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
-    }
-
-    // Update CFG.
-    if (IR* P = M->getIR()) {
-      removeVertex(B, P->Cfg);
-    }
-  } break;
-  case Node::Kind::DataBlock: {
-    auto* B = cast<DataBlock>(this);
-
-    auto* BI = B->getByteInterval();
-    if (!BI) {
-      return;
-    }
-
-    auto* S = BI->getSection();
-    if (!S) {
-      return;
-    }
-
-    auto* M = S->getModule();
-    if (!M) {
-      return;
-    }
-
-    // Update symbol referents.
-    // Note that we update the symbol's address index while iterating over its
-    // referent index, so one doesn't invalidate the other.
-    for (auto& Sym : M->findSymbols(*B)) {
-      modifyIndex(M->Symbols.get<Module::by_pointer>(), &Sym, []() {});
-    }
-  } break;
-  default: {
-    assert(!"unexpected kind of node passed to mutateModuleIndices!");
-  }
-  }
+  assert(!"unexpected kind of node passed to mutateModuleIndices!");
 }

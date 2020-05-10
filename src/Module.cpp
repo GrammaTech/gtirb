@@ -238,34 +238,92 @@ Module::SectionObserverImpl::nameChange(Section* S,
 ChangeStatus
 Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
                                            Section::code_block_range Blocks) {
+  ChangeStatus Status = ChangeStatus::NO_CHANGE;
   if (M->Observer) {
-    [[maybe_unused]] auto& Index = M->Sections.get<by_pointer>();
-    [[maybe_unused]] auto Iter = Index.find(S);
-    assert(Iter != Index.end() && "section observed by non-owner");
+    [[maybe_unused]] auto& SectionIndex = M->Sections.get<by_pointer>();
+    assert(SectionIndex.find(S) != SectionIndex.end() &&
+           "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return M->Observer->addCodeBlocks(
+    Status = M->Observer->addCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected insertion is not implemented");
   }
-  return ChangeStatus::NO_CHANGE;
+
+  if (moveCodeBlocks(S, Blocks) == ChangeStatus::ACCEPTED)
+    return ChangeStatus::ACCEPTED;
+  return Status;
+}
+
+ChangeStatus
+Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
+                                            Section::code_block_range Blocks) {
+  ChangeStatus Status = ChangeStatus::NO_CHANGE;
+  auto& Index = M->Symbols.get<by_referent>();
+  for (CodeBlock& Block : Blocks) {
+    for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
+      // Re-synchronize the address associated with the symbol. This should not
+      // invalidate the iterators into the referent index because only the
+      // address index needs to be updated.
+      Index.modify(It, [](Symbol*) {});
+      Status = ChangeStatus::ACCEPTED;
+    }
+  }
+
+  return Status;
 }
 
 ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
     [[maybe_unused]] Section* S, Section::code_block_range Blocks) {
+  ChangeStatus Status = ChangeStatus::NO_CHANGE;
   if (M->Observer) {
-    [[maybe_unused]] auto& Index = M->Sections.get<by_pointer>();
-    [[maybe_unused]] auto Iter = Index.find(S);
-    assert(Iter != Index.end() && "section observed by non-owner");
+    [[maybe_unused]] auto& SectionIndex = M->Sections.get<by_pointer>();
+    assert(SectionIndex.find(S) != SectionIndex.end() &&
+           "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return M->Observer->removeCodeBlocks(
+    Status = M->Observer->removeCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from failed removal is not implemented");
   }
-  return ChangeStatus::NO_CHANGE;
+
+  if (moveCodeBlocks(S, Blocks) == ChangeStatus::ACCEPTED)
+    return ChangeStatus::ACCEPTED;
+  return Status;
+}
+
+ChangeStatus
+Module::SectionObserverImpl::addDataBlocks(Section* S,
+                                           Section::data_block_range Blocks) {
+  return moveDataBlocks(S, Blocks);
+}
+
+ChangeStatus
+Module::SectionObserverImpl::moveDataBlocks(Section* /* S */,
+                                            Section::data_block_range Blocks) {
+  ChangeStatus Status = ChangeStatus::NO_CHANGE;
+  auto& Index = M->Symbols.get<by_referent>();
+  for (DataBlock& Block : Blocks) {
+    for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
+      // Re-synchronize the address associated with the symbol. This should not
+      // invalidate the iterators into the referent index because only the
+      // address index needs to be updated.
+      Index.modify(It, [](Symbol*) {});
+      Status = ChangeStatus::ACCEPTED;
+    }
+  }
+  return Status;
+}
+
+ChangeStatus Module::SectionObserverImpl::removeDataBlocks(
+    Section* S, Section::data_block_range Blocks) {
+  return moveDataBlocks(S, Blocks);
 }
 
 ChangeStatus

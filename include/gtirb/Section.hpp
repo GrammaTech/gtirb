@@ -93,9 +93,22 @@ class GTIRB_EXPORT_API Section : public Node {
     ChangeStatus addCodeBlocks(ByteInterval* BI,
                                ByteInterval::code_block_range Blocks) override;
 
+    ChangeStatus moveCodeBlocks(ByteInterval* BI,
+                                ByteInterval::code_block_range Blocks) override;
+
     ChangeStatus
     removeCodeBlocks(ByteInterval* BI,
                      ByteInterval::code_block_range Blocks) override;
+
+    ChangeStatus addDataBlocks(ByteInterval* BI,
+                               ByteInterval::data_block_range Blocks) override;
+
+    ChangeStatus moveDataBlocks(ByteInterval* BI,
+                                ByteInterval::data_block_range Blocks) override;
+
+    ChangeStatus
+    removeDataBlocks(ByteInterval* BI,
+                     ByteInterval::data_block_range Blocks) override;
 
     ChangeStatus changeExtent(ByteInterval* BI,
                               std::optional<AddrRange> OldExtent,
@@ -1122,7 +1135,6 @@ private:
 
   friend class Context; // Allow Context to construct sections.
   friend class Module;  // Allow Module to call setModule, Create, etc.
-  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
   // Allows serializaton from Module via sequenceToProtobuf.
   template <typename T> friend typename T::MessageType toProtobuf(const T&);
   friend class SerializationTestHarness; // Testing support.
@@ -1160,6 +1172,17 @@ public:
   virtual ChangeStatus addCodeBlocks(Section* S,
                                      Section::code_block_range Blocks) = 0;
 
+  /// \brief Notify the parent when the addresses of existing CodeBlocks change.
+  ///
+  /// Called after the Section updates its internal state.
+  ///
+  /// \param S       the Section containing the CodeBlocks.
+  /// \param Blocks  a range containing the CodeBlocks that moved.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus moveCodeBlocks(Section* S,
+                                      Section::code_block_range Blocks) = 0;
+
   /// \brief Notify the parent when CodeBlocks are removed from the Section.
   ///
   /// Called before the Section updates its internal state.
@@ -1170,6 +1193,39 @@ public:
   /// \return indication of whether the observer accepts the change.
   virtual ChangeStatus removeCodeBlocks(Section* S,
                                         Section::code_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when new DataBlocks are added to the Section.
+  ///
+  /// Called after the Section updates its internal state.
+  ///
+  /// \param S       the Section to which DataBlocks were added.
+  /// \param Blocks  a range containing the new DataBlocks.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus addDataBlocks(Section* S,
+                                     Section::data_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when the addresses of existing DataBlocks change.
+  ///
+  /// Called after the Section updates its internal state.
+  ///
+  /// \param S       the Section containing the DataBlocks.
+  /// \param Blocks  a range containing the DataBlocks that moved.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus moveDataBlocks(Section* S,
+                                      Section::data_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when DataBlocks are removed from the Section.
+  ///
+  /// Called before the Section updates its internal state.
+  ///
+  /// \param S       the Section from which DataBlocks will be removed.
+  /// \param Blocks  a range containing the DataBlocks to remove.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus removeDataBlocks(Section* S,
+                                        Section::data_block_range Blocks) = 0;
 
   /// \brief Notify parent when the range of addresses in the Section changes.
   ///

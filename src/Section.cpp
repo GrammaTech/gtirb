@@ -126,9 +126,9 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
 ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
     ByteInterval* BI, ByteInterval::code_block_range Blocks) {
   if (S->Observer) {
-    auto& Index = S->ByteIntervals.get<by_pointer>();
-    auto Iter = Index.find(BI);
-    assert(Iter != Index.end() && "byte interval observed by non-owner");
+    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+    assert(Index.find(BI) != Index.end() &&
+           "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
@@ -139,18 +139,82 @@ ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
   return ChangeStatus::NO_CHANGE;
 }
 
+ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
+    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
+  if (S->Observer) {
+    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+    assert(Index.find(BI) != Index.end() &&
+           "byte interval observed by non-owner");
+    // code_block_iterator takes a range of ranges, so wrap the given block
+    // range in a one-element array.
+    std::array Range{Blocks};
+    return S->Observer->moveCodeBlocks(
+        S, boost::make_iterator_range(code_block_iterator(Range),
+                                      code_block_iterator()));
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+
 ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
     ByteInterval* BI, ByteInterval::code_block_range Blocks) {
   if (S->Observer) {
-    auto& Index = S->ByteIntervals.get<by_pointer>();
-    auto Iter = Index.find(BI);
-    assert(Iter != Index.end() && "byte interval observed by non-owner");
+    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+    assert(Index.find(BI) != Index.end() &&
+           "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
     return S->Observer->removeCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
+    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
+  if (S->Observer) {
+    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+    assert(Index.find(BI) != Index.end() &&
+           "byte interval observed by non-owner");
+    // data_block_iterator takes a range of ranges, so wrap the given block
+    // range in a one-element array.
+    std::array Range{Blocks};
+    return S->Observer->addDataBlocks(
+        S, boost::make_iterator_range(data_block_iterator(Range),
+                                      data_block_iterator()));
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
+    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
+  if (S->Observer) {
+    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+    assert(Index.find(BI) != Index.end() &&
+           "byte interval observed by non-owner");
+    // data_block_iterator takes a range of ranges, so wrap the given block
+    // range in a one-element array.
+    std::array Range{Blocks};
+    return S->Observer->moveDataBlocks(
+        S, boost::make_iterator_range(data_block_iterator(Range),
+                                      data_block_iterator()));
+  }
+  return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
+    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
+  if (S->Observer) {
+    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+    assert(Index.find(BI) != Index.end() &&
+           "byte interval observed by non-owner");
+    // data_block_iterator takes a range of ranges, so wrap the given block
+    // range in a one-element array.
+    std::array Range{Blocks};
+    return S->Observer->removeDataBlocks(
+        S, boost::make_iterator_range(data_block_iterator(Range),
+                                      data_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }

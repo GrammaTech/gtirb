@@ -164,8 +164,20 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
     ChangeStatus addCodeBlocks(Section* S,
                                Section::code_block_range Blocks) override;
 
+    ChangeStatus moveCodeBlocks(Section* S,
+                                Section::code_block_range Blocks) override;
+
     ChangeStatus removeCodeBlocks(Section* S,
                                   Section::code_block_range Blocks) override;
+
+    ChangeStatus addDataBlocks(Section* S,
+                               Section::data_block_range Blocks) override;
+
+    ChangeStatus moveDataBlocks(Section* S,
+                                Section::data_block_range Blocks) override;
+
+    ChangeStatus removeDataBlocks(Section* S,
+                                  Section::data_block_range Blocks) override;
 
     ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
                               std::optional<AddrRange> NewExtent) override;

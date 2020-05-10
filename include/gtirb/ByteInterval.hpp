@@ -2002,6 +2002,14 @@ private:
   // Present for testing purposes only.
   bool loadSymbolicExpressions(Context& C, std::istream& In);
 
+  // Shared implementation for adding CodeBlocks and DataBlocks.
+  template <typename BlockType, typename IterType>
+  ChangeStatus addBlock(uint64_t Off, BlockType* B);
+
+  // Shared implementation for removing CodeBlocks and DataBlocks.
+  template <typename BlockType, typename IterType>
+  ChangeStatus removeBlock(BlockType* B);
+
   Section* Parent{nullptr};
   ByteIntervalObserver* Observer{nullptr};
   std::optional<Addr> Address;
@@ -2020,7 +2028,6 @@ private:
   friend class DataBlock; // Friend to enable DataBlock::getAddress.
   friend class Module;    // Allow Module::fromProtobuf to deserialize symbolic
                           // expressions.
-  friend class Node;      // Allow Node::mutateIndices, etc. to set indices.
   friend class SerializationTestHarness; // Testing support.
 };
 
@@ -2043,6 +2050,17 @@ public:
   virtual ChangeStatus addCodeBlocks(ByteInterval* BI,
                                      ByteInterval::code_block_range Blocks) = 0;
 
+  /// \brief Notify the parent when the addresses of existing CodeBlocks change.
+  ///
+  /// Called after the ByteInterval updates its internal state.
+  ///
+  /// \param BI      the ByteInterval containing the CodeBlocks.
+  /// \param Blocks  a range containing the CodeBlocks that moved.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus
+  moveCodeBlocks(ByteInterval* BI, ByteInterval::code_block_range Blocks) = 0;
+
   /// \brief Notify the parent when CodeBlocks are removed from the interval.
   ///
   /// Called before the ByteInterval updates its internal state.
@@ -2053,6 +2071,39 @@ public:
   /// \return indication of whether the observer accepts the change.
   virtual ChangeStatus
   removeCodeBlocks(ByteInterval* BI, ByteInterval::code_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when new DataBlocks are added to the interval.
+  ///
+  /// Called after the ByteInterval updates its internal state.
+  ///
+  /// \param BI      the ByteInterval to which the DataBlocks were added.
+  /// \param Blocks  a range containing the new DataBlocks.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus addDataBlocks(ByteInterval* BI,
+                                     ByteInterval::data_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when the addresses of existing CodeBlocks change.
+  ///
+  /// Called after the ByteInterval updates its internal state.
+  ///
+  /// \param BI      the ByteInterval containing the DataBlocks.
+  /// \param Blocks  a range containing the DataBlocks that moved.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus
+  moveDataBlocks(ByteInterval* BI, ByteInterval::data_block_range Blocks) = 0;
+
+  /// \brief Notify the parent when DataBlocks are removed from the interval.
+  ///
+  /// Called before the ByteInterval updates its internal state.
+  ///
+  /// \param BI      the ByteInterval from which the DataBlocks will be removed.
+  /// \param Blocks  a range containing the DataBlocks to remove.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus
+  removeDataBlocks(ByteInterval* BI, ByteInterval::data_block_range Blocks) = 0;
 
   /// \brief Notify the parent when the range of addresses in the interval
   /// changes.

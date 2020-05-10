@@ -104,17 +104,15 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C,
 bool ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
                                                    const MessageType& Message) {
   bool Result = true;
-  this->mutateIndices([&]() {
-    for (const auto& Pair : Message.symbolic_expressions()) {
-      SymbolicExpression SymExpr;
-      if (gtirb::fromProtobuf(C, SymExpr, Pair.second))
-        SymbolicExpressions[Pair.first] = SymExpr;
-      else {
-        Result = false;
-        break;
-      }
+  for (const auto& Pair : Message.symbolic_expressions()) {
+    SymbolicExpression SymExpr;
+    if (gtirb::fromProtobuf(C, SymExpr, Pair.second))
+      SymbolicExpressions[Pair.first] = SymExpr;
+    else {
+      Result = false;
+      break;
     }
-  });
+  }
   return Result;
 }
 
@@ -144,9 +142,14 @@ void ByteInterval::setAddress(std::optional<Addr> A) {
   if (Observer) {
     std::optional<AddrRange> OldExtent = addressRange(*this);
     Address = A;
-    this->mutateIndices([]() {});
     [[maybe_unused]] ChangeStatus Status =
         Observer->changeExtent(this, OldExtent, addressRange(*this));
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected address change is not implemented yet");
+    Status = Observer->moveCodeBlocks(this, code_blocks());
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected address change is not implemented yet");
+    Status = Observer->moveDataBlocks(this, data_blocks());
     assert(Status != ChangeStatus::REJECTED &&
            "recovering from rejected address change is not implemented yet");
   } else {
@@ -158,7 +161,6 @@ void ByteInterval::setSize(uint64_t S) {
   if (Observer) {
     std::optional<AddrRange> OldExtent = addressRange(*this);
     Size = S;
-    this->mutateIndices([]() {});
     [[maybe_unused]] ChangeStatus Status =
         Observer->changeExtent(this, OldExtent, addressRange(*this));
     assert(Status != ChangeStatus::REJECTED &&
@@ -171,17 +173,30 @@ void ByteInterval::setSize(uint64_t S) {
   }
 }
 
-ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
+static ChangeStatus removeBlocks(ByteIntervalObserver* Observer,
+                                 ByteInterval* BI,
+                                 ByteInterval::code_block_range Range) {
+  return Observer->removeCodeBlocks(BI, Range);
+}
+
+static ChangeStatus removeBlocks(ByteIntervalObserver* Observer,
+                                 ByteInterval* BI,
+                                 ByteInterval::data_block_range Range) {
+  return Observer->removeDataBlocks(BI, Range);
+}
+
+template <typename BlockType, typename IterType>
+ChangeStatus ByteInterval::removeBlock(BlockType* B) {
   auto& Index = Blocks.get<by_pointer>();
   if (auto Iter = Index.find(B); Iter != Index.end()) {
     if (Observer) {
       auto Begin = Blocks.project<0>(Iter);
       auto End = std::next(Begin);
       auto Range = boost::make_iterator_range(
-          code_block_iterator(code_block_iterator::base_type(Begin, End)),
-          code_block_iterator(code_block_iterator::base_type(End, End)));
+          IterType(typename IterType::base_type(Begin, End)),
+          IterType(typename IterType::base_type(End, End)));
       [[maybe_unused]] ChangeStatus Status =
-          Observer->removeCodeBlocks(this, Range);
+          removeBlocks(Observer, this, Range);
       // None of the known observers reject removals. If that changes, this
       // implementation will need to be changed as well. Because addBlock
       // assumes that this removal will not be rejected, it will also need to
@@ -191,27 +206,33 @@ ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
     }
 
     BO.changeSize(B, B->getSize(), 0);
-    B->removeFromIndices();
     Index.erase(Iter);
     B->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
+  return removeBlock<CodeBlock, code_block_iterator>(B);
 }
 
 ChangeStatus ByteInterval::removeBlock(DataBlock* B) {
-  auto& Index = Blocks.get<by_pointer>();
-  if (auto Iter = Index.find(B); Iter != Index.end()) {
-    BO.changeSize(B, B->getSize(), 0);
-    B->removeFromIndices();
-    Index.erase(Iter);
-    B->setParent(nullptr, nullptr);
-    return ChangeStatus::ACCEPTED;
-  }
-  return ChangeStatus::NO_CHANGE;
+  return removeBlock<DataBlock, data_block_iterator>(B);
 }
 
-ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
+static ChangeStatus addBlocks(ByteIntervalObserver* Observer, ByteInterval* BI,
+                              ByteInterval::code_block_range Range) {
+  return Observer->addCodeBlocks(BI, Range);
+}
+
+static ChangeStatus addBlocks(ByteIntervalObserver* Observer, ByteInterval* BI,
+                              ByteInterval::data_block_range Range) {
+  return Observer->addDataBlocks(BI, Range);
+}
+
+template <typename BlockType, typename IterType>
+ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
   if (ByteInterval* BI = B->getByteInterval()) {
     if (BI == this) {
       return ChangeStatus::NO_CHANGE;
@@ -226,9 +247,9 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
   if (Inserted && Observer) {
     auto End = std::next(Iter);
     auto Range = boost::make_iterator_range(
-        code_block_iterator(code_block_iterator::base_type(Iter, End)),
-        code_block_iterator(code_block_iterator::base_type(End, End)));
-    [[maybe_unused]] ChangeStatus Status = Observer->addCodeBlocks(this, Range);
+        IterType(typename IterType::base_type(Iter, End)),
+        IterType(typename IterType::base_type(End, End)));
+    [[maybe_unused]] ChangeStatus Status = addBlocks(Observer, this, Range);
     // None of the known observers reject insertions. If that changes, this
     // implementation must be updated.
     assert(Status != ChangeStatus::REJECTED &&
@@ -236,25 +257,15 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
   }
 
   BO.changeSize(B, 0, B->getSize());
-  B->addToIndices();
   return ChangeStatus::ACCEPTED;
 }
 
-ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
-  if (ByteInterval* BI = B->getByteInterval()) {
-    if (BI == this) {
-      return ChangeStatus::NO_CHANGE;
-    }
-    [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
-    assert(Status != ChangeStatus::REJECTED &&
-           "failed to remove node from parent");
-  }
+ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
+  return addBlock<CodeBlock, code_block_iterator>(Off, B);
+}
 
-  B->setParent(this, &BO);
-  Blocks.emplace(Off, B);
-  BO.changeSize(B, 0, B->getSize());
-  B->addToIndices();
-  return ChangeStatus::ACCEPTED;
+ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
+  return addBlock<DataBlock, data_block_iterator>(Off, B);
 }
 
 ChangeStatus ByteInterval::BlockObserverImpl::changeSize(Node* N,
