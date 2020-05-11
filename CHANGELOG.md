@@ -1,3 +1,8 @@
+# 1.8.3
+
+* Fix bug that didn't add CodeBlocks to the CFG if the CodeBlocks were added to
+  a ByteInterval before it was added to the IR.
+
 # 1.8.2
 
 * The C++ API build no longer generates a `libgtirb.so.1` symlink. This has the
