@@ -33,6 +33,7 @@ namespace proto {
 class Symbol;
 }
 class Module; // Forward declared for the backpointer.
+class SymbolObserver;
 
 /// \class Symbol
 ///
@@ -305,9 +306,7 @@ public:
   bool hasReferent() const { return std::holds_alternative<Node*>(Payload); }
 
   /// \brief Set the name of a symbol.
-  void setName(const std::string& N) {
-    this->mutateIndices([this, &N]() { Name = N; });
-  }
+  void setName(const std::string& N);
 
   /// \brief Set the referent of a symbol.
   ///
@@ -316,19 +315,11 @@ public:
   /// false).
   template <typename NodeTy>
   std::enable_if_t<is_supported_type<NodeTy>()> setReferent(NodeTy* N) {
-    this->mutateIndices([this, N]() {
-      if (N) {
-        Payload = N;
-      } else {
-        Payload = std::monostate{};
-      }
-    });
+    setReferentFromNode(N);
   }
 
   /// \brief Set the address of a symbol.
-  void setAddress(Addr A) {
-    this->mutateIndices([this, A]() { Payload = A; });
-  }
+  void setAddress(Addr A);
 
   /// \brief If true, this symbol is pointing to the end of the referent
   /// rather than at the beginning.
@@ -340,9 +331,7 @@ public:
   /// referent rather than at the beginning.
   ///
   /// This value has no meaning for integral symbols.
-  void setAtEnd(bool AE) {
-    this->mutateIndices([this, AE]() { AtEnd = AE; });
-  }
+  void setAtEnd(bool AE) { AtEnd = AE; }
 
   /// @cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Symbol; }
@@ -362,7 +351,12 @@ private:
     }
   }
 
-  void setModule(Module* M) { Parent = M; }
+  void setParent(Module* M, SymbolObserver* O) {
+    Parent = M;
+    Observer = O;
+  }
+
+  void setReferentFromNode(Node* N);
 
   /// \brief The protobuf message type used for serializing Symbol.
   using MessageType = proto::Symbol;
@@ -389,6 +383,7 @@ private:
   static Symbol* load(Context& C, std::istream& In);
 
   Module* Parent{nullptr};
+  SymbolObserver* Observer{nullptr};
   std::variant<std::monostate, Addr, Node*> Payload;
   std::string Name;
   bool AtEnd = false;
@@ -399,6 +394,84 @@ private:
   template <typename T> friend typename T::MessageType toProtobuf(const T&);
   friend class SerializationTestHarness; // Testing support.
 };
+
+/// \class SymbolObserver
+///
+/// \brief Interface for notifying observers when the Symbol is updated.
+///
+
+class GTIRB_EXPORT_API SymbolObserver {
+public:
+  virtual ~SymbolObserver() = default;
+
+  /// \brief Notify parent when the Symbol's name changes.
+  ///
+  /// Called after the Symbol updates its internal state.
+  ///
+  /// \param S        the Symbol whose name changed.
+  /// \param OldName  the Symbol's previous name.
+  /// \param NewName  the new name of the Symbol.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus nameChange(Symbol* S, const std::string& OldName,
+                                  const std::string& NewName) = 0;
+
+  /// \brief Notify parent when the Symbol's referent (Node or Addr) changes.
+  ///
+  /// Called after the Symbol updates its internal state.
+  ///
+  /// \param S            the Symbol whose referent changed.
+  /// \param OldReferent  the Symbol's previous referent.
+  /// \param NewReferent  the new value the Symbol refers to.
+  ///
+  /// \return indication of whether the observer accepts the change.
+  virtual ChangeStatus
+  referentChange(Symbol* S,
+                 std::variant<std::monostate, Addr, Node*> OldReferent,
+                 std::variant<std::monostate, Addr, Node*> NewReferent) = 0;
+};
+
+inline void Symbol::setName(const std::string& N) {
+  if (Observer) {
+    std::string OldName(N);
+    std::swap(Name, OldName);
+    [[maybe_unused]] ChangeStatus Status =
+        Observer->nameChange(this, OldName, Name);
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected name change is unsupported");
+  } else {
+    Name = N;
+  }
+}
+
+inline void Symbol::setAddress(Addr A) {
+  if (Observer) {
+    std::variant<std::monostate, Addr, Node*> OldValue = Payload;
+    Payload = A;
+    [[maybe_unused]] ChangeStatus Status =
+        Observer->referentChange(this, OldValue, Payload);
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected address change is unsupported");
+  } else {
+    Payload = A;
+  }
+}
+
+inline void Symbol::setReferentFromNode(Node* N) {
+  std::variant<std::monostate, Addr, Node*> OldValue = Payload;
+  if (N) {
+    Payload = N;
+  } else {
+    Payload = std::monostate{};
+  }
+  if (Observer) {
+    [[maybe_unused]] ChangeStatus Status =
+        Observer->referentChange(this, OldValue, Payload);
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected referent change is unsupported");
+  }
+}
+
 } // namespace gtirb
 
 #endif // GTIRB_SYMBOL_H

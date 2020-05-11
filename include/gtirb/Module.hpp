@@ -186,6 +186,27 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
     Module* M;
   };
 
+  /// \class SymbolObserverImpl
+  ///
+  /// \brief Implements the SymbolObserver interface to update a Module when
+  /// certain events occur.
+  ///
+
+  class SymbolObserverImpl : public SymbolObserver {
+  public:
+    SymbolObserverImpl(Module* M_) : M(M_) {}
+
+    ChangeStatus nameChange(Symbol* S, const std::string& OldName,
+                            const std::string& NewName) override;
+
+    ChangeStatus referentChange(
+        Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
+        std::variant<std::monostate, Addr, Node*> NewReferent) override;
+
+  private:
+    Module* M;
+  };
+
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
   Module(Context& C, const std::string& N)
       : AuxDataContainer(C, Kind::Module), Name(N) {}
@@ -568,7 +589,7 @@ public:
     auto& Index = Symbols.get<by_pointer>();
     if (auto Iter = Index.find(S); Iter != Index.end()) {
       Index.erase(Iter);
-      S->setModule(nullptr);
+      S->setParent(nullptr, nullptr);
       return true;
     }
     return false;
@@ -582,7 +603,7 @@ public:
       S->getModule()->removeSymbol(S);
     }
     Symbols.emplace(S);
-    S->setModule(this);
+    S->setParent(this, &SymObs);
     return S;
   }
 
@@ -1882,11 +1903,11 @@ private:
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
 
-  SectionObserverImpl SO{this};
+  SectionObserverImpl SecObs{this};
+  SymbolObserverImpl SymObs{this};
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.
-  friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
   // Allow serialization from IR via containerToProtobuf.
   template <typename T> friend typename T::MessageType toProtobuf(const T&);
   friend class SerializationTestHarness; // Testing support.

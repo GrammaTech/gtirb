@@ -169,7 +169,7 @@ ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
     [[maybe_unused]] ChangeStatus Status =
-        SO.changeExtent(S, addressRange(*S), std::nullopt);
+        SecObs.changeExtent(S, addressRange(*S), std::nullopt);
     assert(Status != ChangeStatus::REJECTED &&
            "failed to update Module extent when removing section");
 
@@ -201,7 +201,7 @@ ChangeStatus Module::addSection(Section* S) {
            "failed to remove section from former parent");
   }
 
-  S->setParent(this, &SO);
+  S->setParent(this, &SecObs);
 
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Observer) {
@@ -215,11 +215,13 @@ ChangeStatus Module::addSection(Section* S) {
   }
 
   [[maybe_unused]] ChangeStatus Status =
-      SO.changeExtent(S, std::nullopt, addressRange(*S));
+      SecObs.changeExtent(S, std::nullopt, addressRange(*S));
   assert(Status != ChangeStatus::REJECTED &&
          "failed to update Module extent after adding section");
   return ChangeStatus::ACCEPTED;
 }
+
+static auto NoOp = [](auto*) {};
 
 ChangeStatus
 Module::SectionObserverImpl::nameChange(Section* S,
@@ -231,7 +233,7 @@ Module::SectionObserverImpl::nameChange(Section* S,
   // The following lambda is intentionally a no-op. Because the Section's name
   // has already been updated before this method executes, we only need to tell
   // the index to re-synchronize.
-  Index.modify(It, [](Section*) {});
+  Index.modify(It, NoOp);
   return ChangeStatus::ACCEPTED;
 }
 
@@ -268,7 +270,7 @@ Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
       // Re-synchronize the address associated with the symbol. This should not
       // invalidate the iterators into the referent index because only the
       // address index needs to be updated.
-      Index.modify(It, [](Symbol*) {});
+      Index.modify(It, NoOp);
       Status = ChangeStatus::ACCEPTED;
     }
   }
@@ -314,7 +316,7 @@ Module::SectionObserverImpl::moveDataBlocks(Section* /* S */,
       // Re-synchronize the address associated with the symbol. This should not
       // invalidate the iterators into the referent index because only the
       // address index needs to be updated.
-      Index.modify(It, [](Symbol*) {});
+      Index.modify(It, NoOp);
       Status = ChangeStatus::ACCEPTED;
     }
   }
@@ -345,7 +347,7 @@ Module::SectionObserverImpl::changeExtent(Section* S,
     // The following lambda is intentionally a no-op. Because the Section's
     // address has already been updated before this method executes, we only
     // need to tell the index to re-synchronize.
-    Index.modify(It, [](Section*) {});
+    Index.modify(It, NoOp);
 
     if (NewExtent)
       M->SectionAddrs.add(
@@ -357,4 +359,30 @@ Module::SectionObserverImpl::changeExtent(Section* S,
       return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
+}
+
+ChangeStatus Module::SymbolObserverImpl::nameChange(Symbol* S,
+                                                    const std::string&,
+                                                    const std::string&) {
+  auto& Index = M->Symbols.get<by_pointer>();
+  auto It = Index.find(S);
+  assert(It != Index.end() && "symbol observed by non-owner");
+  // The following lambda is intentionally a no-op. Because the Symbol's name
+  // has already been updated before this method executes, we only need to tell
+  // the index to re-synchronize.
+  Index.modify(It, NoOp);
+  return ChangeStatus::ACCEPTED;
+}
+
+ChangeStatus Module::SymbolObserverImpl::referentChange(
+    Symbol* S, std::variant<std::monostate, Addr, Node*>,
+    std::variant<std::monostate, Addr, Node*>) {
+  auto& Index = M->Symbols.get<by_pointer>();
+  auto It = Index.find(S);
+  assert(It != Index.end() && "symbol observed by non-owner");
+  // The following lambda is intentionally a no-op. Because the Symbol's
+  // referent or address has already been updated before this method executes,
+  // we only need to tell the index to re-synchronize.
+  Index.modify(It, NoOp);
+  return ChangeStatus::ACCEPTED;
 }
