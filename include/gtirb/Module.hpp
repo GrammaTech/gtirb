@@ -1812,16 +1812,7 @@ public:
     if (Sections.empty()) {
       return std::nullopt;
     }
-
-    Addr result{std::numeric_limits<Addr::value_type>::max()};
-    for (const auto* Section : Sections) {
-      if (auto A = Section->getAddress()) {
-        result = std::min(result, *A);
-      } else {
-        return std::nullopt;
-      }
-    }
-    return result;
+    return (*Sections.begin())->getAddress();
   }
 
   /// \brief Return the size of this module, if known.
@@ -1834,25 +1825,23 @@ public:
   /// not calculable in that case. Note that a module with no sections in it
   /// has no address or size, so it will return \ref std::nullopt in that case.
   std::optional<uint64_t> getSize() const {
-    if (Sections.empty()) {
-      return std::nullopt;
-    }
-
-    Addr LowAddr{std::numeric_limits<Addr::value_type>::max()};
-    Addr HighAddr{0};
-
-    for (const auto* Section : Sections) {
-      auto A = Section->getAddress();
-      auto S = Section->getSize();
-      if (A && S) {
-        LowAddr = std::min(LowAddr, *A);
-        HighAddr = std::max(HighAddr, *A + *S);
-      } else {
-        return std::nullopt;
+    if (!Sections.empty()) {
+      // Any Sections without an address will be at the front of the map because
+      // nullopt sorts lower than any address.
+      if (std::optional<Addr> LowAddr = (*Sections.begin())->getAddress()) {
+        // Every Section has an address, so we can calculate the size. Get the
+        // address of the last Section in case it zero size; SectionAddrs does
+        // not track empty Sections.
+        Addr HighAddr = *(*Sections.rbegin())->getAddress();
+        if (!SectionAddrs.empty()) {
+          // The last address is the max of the first address in the last
+          // Section and the last address in the Sections with non-zero size.
+          HighAddr = std::max(HighAddr, SectionAddrs.rbegin()->first.upper());
+        }
+        return static_cast<uint64_t>(HighAddr - *LowAddr);
       }
     }
-
-    return static_cast<uint64_t>(HighAddr - LowAddr);
+    return std::nullopt;
   }
 
   /// @cond INTERNAL
