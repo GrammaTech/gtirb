@@ -205,7 +205,7 @@ ChangeStatus ByteInterval::removeBlock(BlockType* B) {
              "recovering from rejected removal is not implemented yet");
     }
 
-    changeSize(B, B->getSize(), 0);
+    sizeChange(B, B->getSize(), 0);
     Index.erase(Iter);
     B->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
@@ -256,7 +256,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
            "recovering from rejected insertion is unimplemented");
   }
 
-  changeSize(B, 0, B->getSize());
+  sizeChange(B, 0, B->getSize());
   return ChangeStatus::ACCEPTED;
 }
 
@@ -268,17 +268,17 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
   return addBlock<DataBlock, data_block_iterator>(Off, B);
 }
 
-ChangeStatus ByteInterval::changeSize(CodeBlock* B, uint64_t OldSize,
+ChangeStatus ByteInterval::sizeChange(CodeBlock* B, uint64_t OldSize,
                                       uint64_t NewSize) {
-  return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
+  return sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
 }
 
-ChangeStatus ByteInterval::changeSize(DataBlock* B, uint64_t OldSize,
+ChangeStatus ByteInterval::sizeChange(DataBlock* B, uint64_t OldSize,
                                       uint64_t NewSize) {
-  return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
+  return sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
 }
 
-ChangeStatus ByteInterval::changeSize(Node* N, uint64_t OldSize,
+ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
                                       uint64_t NewSize) {
   auto& Index = Blocks.get<by_pointer>();
   auto Iter = Index.find(N);

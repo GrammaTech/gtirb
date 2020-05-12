@@ -72,7 +72,7 @@ public:
   /// \param NewSize  the new size of the CodeBlock.
   ///
   /// \return indication of whether the observer accepts the change.
-  virtual ChangeStatus changeSize(CodeBlock* B, uint64_t OldSize,
+  virtual ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
                                   uint64_t NewSize) = 0;
 };
 
@@ -93,7 +93,7 @@ public:
   /// \param NewSize  the new size of the DataBlock.
   ///
   /// \return indication of whether the observer accepts the change.
-  virtual ChangeStatus changeSize(DataBlock* B, uint64_t OldSize,
+  virtual ChangeStatus sizeChange(DataBlock* B, uint64_t OldSize,
                                   uint64_t NewSize) = 0;
 };
 
@@ -202,15 +202,15 @@ class GTIRB_EXPORT_API ByteInterval : public Node,
 
   // Implementation of the CodeBlockObserver interface:
 
-  ChangeStatus changeSize(CodeBlock* B, uint64_t OldSize,
+  ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
                           uint64_t NewSize) override;
 
   // Implementation of the DataBlockObserver interface:
 
-  ChangeStatus changeSize(DataBlock* B, uint64_t OldSize,
+  ChangeStatus sizeChange(DataBlock* B, uint64_t OldSize,
                           uint64_t NewSize) override;
 
-  ChangeStatus changeSize(Node* N, uint64_t OldSize, uint64_t NewSize);
+  ChangeStatus sizeChange(Node* N, uint64_t OldSize, uint64_t NewSize);
 
 public:
   /// \brief Create an unitialized ByteInterval object.
