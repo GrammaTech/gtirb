@@ -86,7 +86,7 @@ ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
     BI->setParent(nullptr, nullptr);
 
     [[maybe_unused]] ChangeStatus Status =
-        BIO.changeExtent(BI, addressRange(*BI), std::nullopt);
+        changeExtent(BI, addressRange(*BI), std::nullopt);
     assert(Status != ChangeStatus::REJECTED &&
            "failed to change Section extent after removing ByteInterval");
     return ChangeStatus::ACCEPTED;
@@ -104,7 +104,7 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
            "failed to remove node from parent");
   }
 
-  BI->setParent(this, &BIO);
+  BI->setParent(this, this);
   auto [Iter, Inserted] = ByteIntervals.emplace(BI);
   if (Inserted && Observer) {
     auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
@@ -117,112 +117,112 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
   }
 
   [[maybe_unused]] ChangeStatus Status =
-      BIO.changeExtent(BI, std::nullopt, addressRange(*BI));
+      changeExtent(BI, std::nullopt, addressRange(*BI));
   assert(Status != ChangeStatus::REJECTED &&
          "failed to change Section extent after adding ByteInterval");
   return ChangeStatus::ACCEPTED;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
-    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
-  if (S->Observer) {
-    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::addCodeBlocks(ByteInterval* BI,
+                                    ByteInterval::code_block_range Blocks) {
+  if (Observer) {
+    [[maybe_unused]] auto& Index = ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
            "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return S->Observer->addCodeBlocks(
-        S, boost::make_iterator_range(code_block_iterator(Range),
-                                      code_block_iterator()));
+    return Observer->addCodeBlocks(
+        this, boost::make_iterator_range(code_block_iterator(Range),
+                                         code_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
-    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
-  if (S->Observer) {
-    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::moveCodeBlocks(ByteInterval* BI,
+                                     ByteInterval::code_block_range Blocks) {
+  if (Observer) {
+    [[maybe_unused]] auto& Index = ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
            "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return S->Observer->moveCodeBlocks(
-        S, boost::make_iterator_range(code_block_iterator(Range),
-                                      code_block_iterator()));
+    return Observer->moveCodeBlocks(
+        this, boost::make_iterator_range(code_block_iterator(Range),
+                                         code_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
-    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
-  if (S->Observer) {
-    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::removeCodeBlocks(ByteInterval* BI,
+                                       ByteInterval::code_block_range Blocks) {
+  if (Observer) {
+    [[maybe_unused]] auto& Index = ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
            "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return S->Observer->removeCodeBlocks(
-        S, boost::make_iterator_range(code_block_iterator(Range),
-                                      code_block_iterator()));
+    return Observer->removeCodeBlocks(
+        this, boost::make_iterator_range(code_block_iterator(Range),
+                                         code_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
-    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
-  if (S->Observer) {
-    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::addDataBlocks(ByteInterval* BI,
+                                    ByteInterval::data_block_range Blocks) {
+  if (Observer) {
+    [[maybe_unused]] auto& Index = ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
            "byte interval observed by non-owner");
     // data_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return S->Observer->addDataBlocks(
-        S, boost::make_iterator_range(data_block_iterator(Range),
-                                      data_block_iterator()));
+    return Observer->addDataBlocks(
+        this, boost::make_iterator_range(data_block_iterator(Range),
+                                         data_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
-    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
-  if (S->Observer) {
-    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::moveDataBlocks(ByteInterval* BI,
+                                     ByteInterval::data_block_range Blocks) {
+  if (Observer) {
+    [[maybe_unused]] auto& Index = ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
            "byte interval observed by non-owner");
     // data_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return S->Observer->moveDataBlocks(
-        S, boost::make_iterator_range(data_block_iterator(Range),
-                                      data_block_iterator()));
+    return Observer->moveDataBlocks(
+        this, boost::make_iterator_range(data_block_iterator(Range),
+                                         data_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
-    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
-  if (S->Observer) {
-    [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::removeDataBlocks(ByteInterval* BI,
+                                       ByteInterval::data_block_range Blocks) {
+  if (Observer) {
+    [[maybe_unused]] auto& Index = ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
            "byte interval observed by non-owner");
     // data_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    return S->Observer->removeDataBlocks(
-        S, boost::make_iterator_range(data_block_iterator(Range),
-                                      data_block_iterator()));
+    return Observer->removeDataBlocks(
+        this, boost::make_iterator_range(data_block_iterator(Range),
+                                         data_block_iterator()));
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Section::ByteIntervalObserverImpl::changeExtent(
-    ByteInterval* BI, std::optional<AddrRange> OldExtent,
-    std::optional<AddrRange> NewExtent) {
-  auto& Index = S->ByteIntervals.get<by_pointer>();
+ChangeStatus Section::changeExtent(ByteInterval* BI,
+                                   std::optional<AddrRange> OldExtent,
+                                   std::optional<AddrRange> NewExtent) {
+  auto& Index = ByteIntervals.get<by_pointer>();
   if (auto It = Index.find(BI); It != Index.end()) {
     // The following lambda is intentionally a no-op. Because the ByteInterval's
     // address has already been updated before this method executes, we only
@@ -230,42 +230,41 @@ ChangeStatus Section::ByteIntervalObserverImpl::changeExtent(
     Index.modify(It, [](ByteInterval*) {});
 
     if (OldExtent) {
-      S->ByteIntervalAddrs.subtract(
+      ByteIntervalAddrs.subtract(
           std::make_pair(ByteIntervalIntMap::interval_type::right_open(
                              OldExtent->lower(), OldExtent->upper()),
                          ByteIntervalIntMap::codomain_type({BI})));
     }
     if (NewExtent) {
-      S->ByteIntervalAddrs.add(
+      ByteIntervalAddrs.add(
           std::make_pair(ByteIntervalIntMap::interval_type::right_open(
                              NewExtent->lower(), NewExtent->upper()),
                          ByteIntervalIntMap::codomain_type({BI})));
     }
 
-    std::optional<AddrRange> Previous = S->Extent;
-    S->Extent.reset();
-    if (!S->ByteIntervals.empty()) {
+    std::optional<AddrRange> Previous = Extent;
+    Extent.reset();
+    if (!ByteIntervals.empty()) {
       // Any ByteIntervals without an address will be at the front of the map
       // because nullopt sorts lower than any address.
-      if (std::optional<Addr> Lower =
-              (*S->ByteIntervals.begin())->getAddress()) {
+      if (std::optional<Addr> Lower = (*ByteIntervals.begin())->getAddress()) {
         // All the ByteIntervals have an address, so we can calculate the
         // Section's extent. Get the address of the last ByteInterval in case it
         // has zero size; ByteIntervalAddrs does not track empty ByteIntervals.
-        Addr Upper = *(*S->ByteIntervals.rbegin())->getAddress();
-        if (!S->ByteIntervalAddrs.empty()) {
+        Addr Upper = *(*ByteIntervals.rbegin())->getAddress();
+        if (!ByteIntervalAddrs.empty()) {
           // The last address is the max of the first address in the last
           // interval and the last address in intervals with non-zero size.
-          Upper = std::max(Upper, S->ByteIntervalAddrs.rbegin()->first.upper());
+          Upper = std::max(Upper, ByteIntervalAddrs.rbegin()->first.upper());
         }
-        S->Extent = AddrRange{*Lower, static_cast<uint64_t>(Upper - *Lower)};
+        Extent = AddrRange{*Lower, static_cast<uint64_t>(Upper - *Lower)};
       }
     }
 
-    if (Previous != S->Extent) {
-      if (S->Observer) {
+    if (Previous != Extent) {
+      if (Observer) {
         [[maybe_unused]] ChangeStatus Status =
-            S->Observer->changeExtent(S, Previous, S->Extent);
+            Observer->changeExtent(this, Previous, Extent);
         assert(Status != ChangeStatus::REJECTED &&
                "recovering from rejected extent changes is unimplemented");
       }

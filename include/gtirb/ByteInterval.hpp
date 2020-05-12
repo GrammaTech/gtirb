@@ -110,7 +110,9 @@ public:
 /// relative to the other in memory. If two blocks are in the same ByteInterval,
 /// then it should be considered unknown if moving the two blocks relative to
 /// one another in memory is a safe operation.
-class GTIRB_EXPORT_API ByteInterval : public Node {
+class GTIRB_EXPORT_API ByteInterval : public Node,
+                                      private CodeBlockObserver,
+                                      private DataBlockObserver {
   /// \class Block
   ///
   /// \brief A node (either a \ref CodeBlock or \ref DataBlock), alongside an
@@ -198,25 +200,17 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     return *It;
   }
 
-  class BlockObserverImpl : public CodeBlockObserver, public DataBlockObserver {
-  public:
-    BlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
+  // Implementation of the CodeBlockObserver interface:
 
-    ChangeStatus changeSize(CodeBlock* B, uint64_t OldSize,
-                            uint64_t NewSize) override {
-      return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
-    }
+  ChangeStatus changeSize(CodeBlock* B, uint64_t OldSize,
+                          uint64_t NewSize) override;
 
-    ChangeStatus changeSize(DataBlock* B, uint64_t OldSize,
-                            uint64_t NewSize) override {
-      return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
-    }
+  // Implementation of the DataBlockObserver interface:
 
-  private:
-    ChangeStatus changeSize(Node* N, uint64_t OldSize, uint64_t NewSize);
+  ChangeStatus changeSize(DataBlock* B, uint64_t OldSize,
+                          uint64_t NewSize) override;
 
-    ByteInterval* BI;
-  };
+  ChangeStatus changeSize(Node* N, uint64_t OldSize, uint64_t NewSize);
 
 public:
   /// \brief Create an unitialized ByteInterval object.
@@ -2018,8 +2012,6 @@ private:
   BlockIntMap BlockOffsets;
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;
-
-  BlockObserverImpl BO{this};
 
   friend class Context;   // Friend to enable Context::Create.
   friend class Section;   // Friend to enable Section::(re)moveByteInterval,

@@ -205,7 +205,7 @@ ChangeStatus ByteInterval::removeBlock(BlockType* B) {
              "recovering from rejected removal is not implemented yet");
     }
 
-    BO.changeSize(B, B->getSize(), 0);
+    changeSize(B, B->getSize(), 0);
     Index.erase(Iter);
     B->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
@@ -242,7 +242,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
            "failed to remove node from parent");
   }
 
-  B->setParent(this, &BO);
+  B->setParent(this, this);
   auto [Iter, Inserted] = Blocks.emplace(Off, B);
   if (Inserted && Observer) {
     auto End = std::next(Iter);
@@ -256,7 +256,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
            "recovering from rejected insertion is unimplemented");
   }
 
-  BO.changeSize(B, 0, B->getSize());
+  changeSize(B, 0, B->getSize());
   return ChangeStatus::ACCEPTED;
 }
 
@@ -268,17 +268,26 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
   return addBlock<DataBlock, data_block_iterator>(Off, B);
 }
 
-ChangeStatus ByteInterval::BlockObserverImpl::changeSize(Node* N,
-                                                         uint64_t OldSize,
-                                                         uint64_t NewSize) {
-  auto& Index = BI->Blocks.get<by_pointer>();
+ChangeStatus ByteInterval::changeSize(CodeBlock* B, uint64_t OldSize,
+                                      uint64_t NewSize) {
+  return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
+}
+
+ChangeStatus ByteInterval::changeSize(DataBlock* B, uint64_t OldSize,
+                                      uint64_t NewSize) {
+  return changeSize(reinterpret_cast<Node*>(B), OldSize, NewSize);
+}
+
+ChangeStatus ByteInterval::changeSize(Node* N, uint64_t OldSize,
+                                      uint64_t NewSize) {
+  auto& Index = Blocks.get<by_pointer>();
   auto Iter = Index.find(N);
   assert(Iter != Index.end() && "block observed by non-owner");
-  BI->BlockOffsets.subtract(
+  BlockOffsets.subtract(
       std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
                          Iter->Offset, Iter->Offset + OldSize),
                      ByteInterval::BlockIntMap::codomain_type({&*Iter})));
-  BI->BlockOffsets.add(
+  BlockOffsets.add(
       std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
                          Iter->Offset, Iter->Offset + NewSize),
                      ByteInterval::BlockIntMap::codomain_type({&*Iter})));

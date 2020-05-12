@@ -59,7 +59,7 @@ enum class SectionFlag : uint8_t {
 ///
 /// Does not directly store the contents of the section, which are kept in
 /// \ref ImageByteMap.
-class GTIRB_EXPORT_API Section : public Node {
+class GTIRB_EXPORT_API Section : public Node, private ByteIntervalObserver {
   Section(Context& C) : Node(C, Kind::Section) {}
   Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
 
@@ -80,43 +80,29 @@ class GTIRB_EXPORT_API Section : public Node {
   using ByteIntervalIntMap = boost::icl::interval_map<
       Addr, std::set<ByteInterval*, AddressLess<ByteInterval>>>;
 
-  /// \class ByteIntervalObserverImpl
-  ///
-  /// \brief Implements the ByteIntervalObserver interface to update a Section
-  /// when certain events occur.
-  ///
+  // Implemention of the ByteIntervalObserver interface:
 
-  class ByteIntervalObserverImpl : public ByteIntervalObserver {
-  public:
-    explicit ByteIntervalObserverImpl(Section* S_) : S(S_) {}
+  ChangeStatus addCodeBlocks(ByteInterval* BI,
+                             ByteInterval::code_block_range Blocks) override;
 
-    ChangeStatus addCodeBlocks(ByteInterval* BI,
-                               ByteInterval::code_block_range Blocks) override;
+  ChangeStatus moveCodeBlocks(ByteInterval* BI,
+                              ByteInterval::code_block_range Blocks) override;
 
-    ChangeStatus moveCodeBlocks(ByteInterval* BI,
+  ChangeStatus removeCodeBlocks(ByteInterval* BI,
                                 ByteInterval::code_block_range Blocks) override;
 
-    ChangeStatus
-    removeCodeBlocks(ByteInterval* BI,
-                     ByteInterval::code_block_range Blocks) override;
+  ChangeStatus addDataBlocks(ByteInterval* BI,
+                             ByteInterval::data_block_range Blocks) override;
 
-    ChangeStatus addDataBlocks(ByteInterval* BI,
-                               ByteInterval::data_block_range Blocks) override;
+  ChangeStatus moveDataBlocks(ByteInterval* BI,
+                              ByteInterval::data_block_range Blocks) override;
 
-    ChangeStatus moveDataBlocks(ByteInterval* BI,
+  ChangeStatus removeDataBlocks(ByteInterval* BI,
                                 ByteInterval::data_block_range Blocks) override;
 
-    ChangeStatus
-    removeDataBlocks(ByteInterval* BI,
-                     ByteInterval::data_block_range Blocks) override;
-
-    ChangeStatus changeExtent(ByteInterval* BI,
-                              std::optional<AddrRange> OldExtent,
-                              std::optional<AddrRange> NewExtent) override;
-
-  private:
-    Section* S;
-  };
+  ChangeStatus changeExtent(ByteInterval* BI,
+                            std::optional<AddrRange> OldExtent,
+                            std::optional<AddrRange> NewExtent) override;
 
 public:
   /// \brief Create an unitialized Section object.
@@ -1101,8 +1087,6 @@ private:
   ByteIntervalIntMap ByteIntervalAddrs;
   std::optional<AddrRange> Extent;
   std::set<SectionFlag> Flags;
-
-  ByteIntervalObserverImpl BIO{this};
 
   void setParent(Module* M, SectionObserver* O) {
     Parent = M;

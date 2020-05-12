@@ -95,7 +95,9 @@ enum class ISA : uint8_t {
 /// \class Module
 ///
 /// \brief Represents a single binary (library or executable).
-class GTIRB_EXPORT_API Module : public AuxDataContainer {
+class GTIRB_EXPORT_API Module : public AuxDataContainer,
+                                private SectionObserver,
+                                private SymbolObserver {
   struct by_address {};
   struct by_name {};
   struct by_pointer {};
@@ -148,64 +150,40 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               boost::multi_index::global_fun<const Symbol&, const Node*,
                                              &get_symbol_referent>>>>;
 
-  /// \class SectionObserverImpl
-  ///
-  /// \brief Implements the SectionObserver interface to update a Module when
-  /// certain events occur.
-  ///
+  // Implementation of the SectionObserver interface:
 
-  class SectionObserverImpl : public SectionObserver {
-  public:
-    explicit SectionObserverImpl(Module* M_) : M(M_) {}
+  ChangeStatus nameChange(Section* S, const std::string& OldName,
+                          const std::string& NewName) override;
 
-    ChangeStatus nameChange(Section* S, const std::string& OldName,
-                            const std::string& NewName) override;
+  ChangeStatus addCodeBlocks(Section* S,
+                             Section::code_block_range Blocks) override;
 
-    ChangeStatus addCodeBlocks(Section* S,
-                               Section::code_block_range Blocks) override;
+  ChangeStatus moveCodeBlocks(Section* S,
+                              Section::code_block_range Blocks) override;
 
-    ChangeStatus moveCodeBlocks(Section* S,
+  ChangeStatus removeCodeBlocks(Section* S,
                                 Section::code_block_range Blocks) override;
 
-    ChangeStatus removeCodeBlocks(Section* S,
-                                  Section::code_block_range Blocks) override;
+  ChangeStatus addDataBlocks(Section* S,
+                             Section::data_block_range Blocks) override;
 
-    ChangeStatus addDataBlocks(Section* S,
-                               Section::data_block_range Blocks) override;
+  ChangeStatus moveDataBlocks(Section* S,
+                              Section::data_block_range Blocks) override;
 
-    ChangeStatus moveDataBlocks(Section* S,
+  ChangeStatus removeDataBlocks(Section* S,
                                 Section::data_block_range Blocks) override;
 
-    ChangeStatus removeDataBlocks(Section* S,
-                                  Section::data_block_range Blocks) override;
+  ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
+                            std::optional<AddrRange> NewExtent) override;
 
-    ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
-                              std::optional<AddrRange> NewExtent) override;
+  // Implemention of the SymbolObserver interface.
 
-  private:
-    Module* M;
-  };
+  ChangeStatus nameChange(Symbol* S, const std::string& OldName,
+                          const std::string& NewName) override;
 
-  /// \class SymbolObserverImpl
-  ///
-  /// \brief Implements the SymbolObserver interface to update a Module when
-  /// certain events occur.
-  ///
-
-  class SymbolObserverImpl : public SymbolObserver {
-  public:
-    SymbolObserverImpl(Module* M_) : M(M_) {}
-
-    ChangeStatus nameChange(Symbol* S, const std::string& OldName,
-                            const std::string& NewName) override;
-
-    ChangeStatus referentChange(
-        Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
-        std::variant<std::monostate, Addr, Node*> NewReferent) override;
-
-  private:
-    Module* M;
-  };
+  ChangeStatus referentChange(
+      Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
+      std::variant<std::monostate, Addr, Node*> NewReferent) override;
 
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
   Module(Context& C, const std::string& N)
@@ -603,7 +581,7 @@ public:
       S->getModule()->removeSymbol(S);
     }
     Symbols.emplace(S);
-    S->setParent(this, &SymObs);
+    S->setParent(this, this);
     return S;
   }
 
@@ -1891,9 +1869,6 @@ private:
   SectionSet Sections;
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
-
-  SectionObserverImpl SecObs{this};
-  SymbolObserverImpl SymObs{this};
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.
