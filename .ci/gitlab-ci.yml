@@ -32,8 +32,13 @@ check-format:
       fi
     - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
+    # Disable cache on arch builds to avoid mixing cached old files with latest
+    # downloads.
+    - if [ "$OS" = "arch" ]; then
+        CACHE=--no-cache;
+      fi
     # Build & test
-    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} .
+    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} ${CACHE} .
     - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
     # Build & test with capstone
     - CAPSTONE_OS=$(echo ${OS} | sed 's/[[:digit:]]//g')

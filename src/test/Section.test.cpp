@@ -165,11 +165,12 @@ TEST(Unit_Section, findByteIntervalsAt) {
 
   // Querying a range of addresses returns everything in range.
 
-  Range = S->findByteIntervalsAt(Addr(0), Addr(-1));
+  Range = S->findByteIntervalsAt(Addr(0), Addr(static_cast<uint64_t>(-1)));
   ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
   EXPECT_EQ(&*Range.begin(), BI2);
 
-  ConstRange = CS->findByteIntervalsAt(Addr(0), Addr(-1));
+  ConstRange =
+      CS->findByteIntervalsAt(Addr(0), Addr(static_cast<uint64_t>(-1)));
   ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
   EXPECT_EQ(&*ConstRange.begin(), BI2);
 
