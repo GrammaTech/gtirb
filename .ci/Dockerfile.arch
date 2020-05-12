@@ -21,6 +21,7 @@ RUN sbcl --load quicklisp.lisp \
         --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))'
 RUN git clone https://github.com/eschulte/simpler-documentation-template /root/quicklisp/local-projects/simpler-documentation-template
 RUN git clone https://github.com/rpav/cl-interval /root/quicklisp/local-projects/cl-interval
+RUN git clone https://github.com/brown/protobuf /root/quicklisp/local-projects/protobuf
 
 COPY . /gt/gtirb/
 
