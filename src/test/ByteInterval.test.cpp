@@ -967,10 +967,12 @@ TEST(Unit_ByteInterval, findBlocksAt) {
   auto ConstBlockRange = CBI->findBlocksAt(Addr(0));
   EXPECT_TRUE(ConstBlockRange.empty());
 
-  BlockRange = BI->findBlocksAt(Addr(0), Addr(-1));
+  BlockRange =
+      BI->findBlocksAt(Addr(0), Addr(static_cast<Addr::value_type>(-1)));
   EXPECT_TRUE(BlockRange.empty());
 
-  ConstBlockRange = CBI->findBlocksAt(Addr(0), Addr(-1));
+  ConstBlockRange =
+      CBI->findBlocksAt(Addr(0), Addr(static_cast<Addr::value_type>(-1)));
   EXPECT_TRUE(BlockRange.empty());
 
   // Once the address is set, the ranges are no longer empty.
@@ -1037,10 +1039,12 @@ TEST(Unit_ByteInterval, findCodeBlocksAt) {
   auto ConstBlockRange = CBI->findCodeBlocksAt(Addr(0));
   EXPECT_TRUE(ConstBlockRange.empty());
 
-  BlockRange = BI->findCodeBlocksAt(Addr(0), Addr(-1));
+  BlockRange =
+      BI->findCodeBlocksAt(Addr(0), Addr(static_cast<Addr::value_type>(-1)));
   EXPECT_TRUE(BlockRange.empty());
 
-  ConstBlockRange = CBI->findCodeBlocksAt(Addr(0), Addr(-1));
+  ConstBlockRange =
+      CBI->findCodeBlocksAt(Addr(0), Addr(static_cast<Addr::value_type>(-1)));
   EXPECT_TRUE(BlockRange.empty());
 
   // Once the address is set, the ranges are no longer empty.
@@ -1107,10 +1111,12 @@ TEST(Unit_ByteInterval, findDataBlocksAt) {
   auto ConstBlockRange = CBI->findDataBlocksAt(Addr(0));
   EXPECT_TRUE(ConstBlockRange.empty());
 
-  BlockRange = BI->findDataBlocksAt(Addr(0), Addr(-1));
+  BlockRange =
+      BI->findDataBlocksAt(Addr(0), Addr(static_cast<Addr::value_type>(-1)));
   EXPECT_TRUE(BlockRange.empty());
 
-  ConstBlockRange = CBI->findDataBlocksAt(Addr(0), Addr(-1));
+  ConstBlockRange =
+      CBI->findDataBlocksAt(Addr(0), Addr(static_cast<Addr::value_type>(-1)));
   EXPECT_TRUE(BlockRange.empty());
 
   // Once the address is set, the ranges are no longer empty.
