@@ -772,8 +772,9 @@ TEST(Unit_ByteInterval, findBlocksOn) {
   EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 1), B2);
 
   ConstBlockOffsetRange = CBI->findBlocksOnOffset(6);
-  ASSERT_EQ(std::distance(ConstBlockOffsetRange.begin(),
-                          ConstBlockOffsetRange.end()), 2);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      2);
   EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 0), B1);
   EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 1), B2);
 }
@@ -858,8 +859,9 @@ TEST(Unit_ByteInterval, findCodeBlocksOn) {
   EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 1), B2);
 
   ConstBlockOffsetRange = CBI->findCodeBlocksOnOffset(6);
-  ASSERT_EQ(std::distance(ConstBlockOffsetRange.begin(),
-                          ConstBlockOffsetRange.end()), 2);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      2);
   EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 0), B1);
   EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 1), B2);
 }
@@ -944,8 +946,9 @@ TEST(Unit_ByteInterval, findDataBlocksOn) {
   EXPECT_EQ(&*std::next(BlockOffsetRange.begin(), 1), B2);
 
   ConstBlockOffsetRange = CBI->findDataBlocksOnOffset(6);
-  ASSERT_EQ(std::distance(ConstBlockOffsetRange.begin(),
-                          ConstBlockOffsetRange.end()), 2);
+  ASSERT_EQ(
+      std::distance(ConstBlockOffsetRange.begin(), ConstBlockOffsetRange.end()),
+      2);
   EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 0), B1);
   EXPECT_EQ(&*std::next(ConstBlockOffsetRange.begin(), 1), B2);
 }
