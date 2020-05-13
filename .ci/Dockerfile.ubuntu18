@@ -30,6 +30,7 @@ RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEAS
 RUN make -j
 
 # Build python wheel
+RUN pip3 install setuptools wheel --upgrade
 RUN make python-wheel
 
 # Run CPack.
