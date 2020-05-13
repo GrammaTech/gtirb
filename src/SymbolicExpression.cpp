@@ -63,7 +63,7 @@ proto::SymbolicExpression toProtobuf(const SymbolicExpression& Value) {
 
 namespace {
 Symbol* symbolFromProto(Context& C, const std::string& Bytes) {
-  if (UUID Id; uuidFromBytes(Bytes, Id))
+  if (UUID Id; !Bytes.empty() && uuidFromBytes(Bytes, Id))
     return dyn_cast_or_null<Symbol>(Node::getByUUID(C, Id));
   return nullptr;
 }

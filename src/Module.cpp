@@ -90,7 +90,8 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
           BI->symbolicExpressionsFromProtobuf(C, ProtoBI);
     }
   }
-  if (UUID Id; uuidFromBytes(Message.entry_point(), Id)) {
+  if (UUID Id; !Message.entry_point().empty() &&
+               uuidFromBytes(Message.entry_point(), Id)) {
     M->EntryPoint = cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
   }
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
