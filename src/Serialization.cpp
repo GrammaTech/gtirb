@@ -16,11 +16,12 @@
 #include <gtirb/Node.hpp>
 
 namespace gtirb {
-UUID uuidFromBytes(const std::string& Bytes) {
-  UUID Id;
-  assert(Bytes.size() == sizeof(Id.data));
-  std::copy(Bytes.begin(), Bytes.end(), std::begin(Id.data));
-  return Id;
+bool uuidFromBytes(const std::string& Bytes, UUID& Uuid) {
+  if (Bytes.size() <= sizeof(UUID::data)) {
+    std::copy(Bytes.begin(), Bytes.end(), std::begin(Uuid.data));
+    return true;
+  }
+  return false;
 }
 
 void uuidToBytes(UUID Uuid, std::string& Bytes) {
@@ -34,8 +35,12 @@ void nodeUUIDToBytes(const Node* Node, std::string& Bytes) {
   uuidToBytes(Node->getUUID(), Bytes);
 }
 
-void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes) {
-  Node->setUUID(uuidFromBytes(Bytes));
+bool setNodeUUIDFromBytes(Node* Node, const std::string& Bytes) {
+  if (UUID Id; uuidFromBytes(Bytes, Id)) {
+    Node->setUUID(Id);
+    return true;
+  }
+  return false;
 }
 
 uint64_t toProtobuf(const Addr Val) { return static_cast<uint64_t>(Val); }
@@ -57,7 +62,8 @@ void fromProtobuf(Context&, Addr& Result, const uint64_t& Message) {
 }
 
 void fromProtobuf(Context&, UUID& Result, const std::string& Message) {
-  Result = uuidFromBytes(Message);
+  // FIXME: need a way to signal failure from this function.
+  (void)uuidFromBytes(Message, Result);
 }
 
 } // namespace gtirb

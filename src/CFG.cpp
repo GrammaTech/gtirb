@@ -115,15 +115,18 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 
 void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
   for (const auto& M : Message.vertices()) {
-    auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, uuidFromBytes(M)));
-    assert(N && "CFG message contains vertex that is not a CfgNode!");
-    addVertex(N, Result);
+    if (UUID Id; uuidFromBytes(M, Id)) {
+      auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+      assert(N && "CFG message contains vertex that is not a CfgNode!");
+      addVertex(N, Result);
+    }
   }
   for (const auto& M : Message.edges()) {
-    auto* Source = dyn_cast_or_null<CfgNode>(
-        Node::getByUUID(C, uuidFromBytes(M.source_uuid())));
-    auto* Target = dyn_cast_or_null<CfgNode>(
-        Node::getByUUID(C, uuidFromBytes(M.target_uuid())));
+    CfgNode *Source = nullptr, *Target = nullptr;
+    if (UUID Id; uuidFromBytes(M.source_uuid(), Id))
+      Source = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    if (UUID Id; uuidFromBytes(M.target_uuid(), Id))
+      Target = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
     if (Source && Target) {
       if (auto E = addEdge(Source, Target, Result); E && M.has_label()) {
         auto& L = M.label();

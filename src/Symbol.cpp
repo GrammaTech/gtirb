@@ -86,11 +86,14 @@ Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
     S->Payload = Addr{Message.value()};
   } break;
   case proto::Symbol::kReferentUuid: {
-    auto* N = Node::getByUUID(C, uuidFromBytes(Message.referent_uuid()));
-    if (N) {
-      S->Payload = N;
+    if (UUID Id; uuidFromBytes(Message.referent_uuid(), Id)) {
+      if (auto* N = Node::getByUUID(C, Id)) {
+        S->Payload = N;
+      } else {
+        S->Payload = std::monostate{};
+      }
     } else {
-      S->Payload = std::monostate{};
+      return nullptr;
     }
   } break;
   default:

@@ -179,7 +179,7 @@ private:
   void setUUID(UUID X);
 
   // Allows unserialization in derived classes
-  friend void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
+  friend bool setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 
   friend class Context; // Enables Context::Create
 };

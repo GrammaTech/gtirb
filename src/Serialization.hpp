@@ -28,9 +28,10 @@ namespace gtirb {
 /// \brief Create UUID from string containing raw bytes.
 ///
 /// \param Bytes  A string containing the raw bytes of the UUID.
+/// \param Uuid   A reference to the resulting UUID.
 ///
-/// \return A UUID constructed from the contents of Bytes.
-UUID uuidFromBytes(const std::string& Bytes);
+/// \return true if the bytes can be decoded into a UUID, false otherwise.
+bool uuidFromBytes(const std::string& Bytes, UUID& Uuid);
 
 /// \brief Copy raw bytes of UUID into a string.
 ///
@@ -53,8 +54,9 @@ void nodeUUIDToBytes(const Node* Node, std::string& Bytes);
 /// \param Node   The Node to modify.
 /// \param Bytes  A string containing the raw bytes of the UUID.
 ///
-/// \return void
-void setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
+/// \return Returns false if the UUID cannot be set from the given bytes, true
+/// otherwise.
+bool setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 
 // Generic protobuf conversion for IR classes which implement toProtobuf.
 template <typename T> typename T::MessageType toProtobuf(const T& Val) {

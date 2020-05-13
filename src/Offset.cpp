@@ -23,6 +23,6 @@ void Offset::toProtobuf(MessageType* Message) const {
 }
 
 void Offset::fromProtobuf(Context&, const MessageType& Message) {
-  this->ElementId = uuidFromBytes(Message.element_id());
+  (void)uuidFromBytes(Message.element_id(), this->ElementId);
   this->Displacement = Message.displacement();
 }

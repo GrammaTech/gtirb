@@ -85,14 +85,13 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
-      auto* BI =
-          cast<ByteInterval>(getByUUID(C, uuidFromBytes(ProtoBI.uuid())));
-      BI->symbolicExpressionsFromProtobuf(C, ProtoBI);
+      if (UUID Id; uuidFromBytes(ProtoBI.uuid(), Id))
+        if (auto* BI = cast_or_null<ByteInterval>(getByUUID(C, Id)))
+          BI->symbolicExpressionsFromProtobuf(C, ProtoBI);
     }
   }
-  if (!Message.entry_point().empty()) {
-    M->EntryPoint = cast<CodeBlock>(
-        Node::getByUUID(C, uuidFromBytes(Message.entry_point())));
+  if (UUID Id; uuidFromBytes(Message.entry_point(), Id)) {
+    M->EntryPoint = cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
   }
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
   return M;
