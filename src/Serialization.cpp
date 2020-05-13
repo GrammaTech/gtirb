@@ -17,7 +17,7 @@
 
 namespace gtirb {
 bool uuidFromBytes(const std::string& Bytes, UUID& Uuid) {
-  if (Bytes.size() <= sizeof(UUID::data)) {
+  if (Bytes.size() == sizeof(UUID::data)) {
     std::copy(Bytes.begin(), Bytes.end(), std::begin(Uuid.data));
     return true;
   }
