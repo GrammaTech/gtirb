@@ -21,6 +21,7 @@ bool uuidFromBytes(const std::string& Bytes, UUID& Uuid) {
     std::copy(Bytes.begin(), Bytes.end(), std::begin(Uuid.data));
     return true;
   }
+  assert(false && "Incorrect number of UUID bytes passed in");
   return false;
 }
 
