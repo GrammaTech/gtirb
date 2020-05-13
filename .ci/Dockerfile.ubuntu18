@@ -44,4 +44,4 @@ RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then \
 
 # Set up envionment for interactive use.
 ENV PATH=/gt/gtirb/build/bin:$PATH
-RUN cd build/python && python3 setup.py develop
+RUN cd python && python3 setup.py develop
