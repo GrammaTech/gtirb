@@ -242,7 +242,8 @@ python-wheel:
 
 upload-to-pypi:
   stage: deploy
-  only: master
+  only:
+    - branch: master
   script:
     - GTIRB_IMAGE=${LOCAL_IMAGE_NAME}-ubuntu18-gcc7
     - GTIRB_VERSION=$(docker run $GTIRB_IMAGE python3 -c "import gtirb; print(gtirb.__version__)")
