@@ -243,5 +243,11 @@ python-wheel:
 upload-to-pypi:
   stage: deploy
   script:
-    - docker run ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7 bash -c
-        "pip3 install twine --upgrade && cd /gt/gtirb/build/python && twine check dist/* && twine upload dist/* -u __token__ -p $PYPI_API_KEY"
+    - GTIRB_IMAGE=${LOCAL_IMAGE_NAME}-ubuntu18-gcc7
+    - GTIRB_VERSION=$(docker run $GTIRB_IMAGE python3 -c "import gtirb; print(gtirb.__version__)")
+    - REPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
+    - if [[ "$REPONSE_CODE" == "404" ]];
+    - then
+    -   docker run $GTIRB_IMAGE bash -c
+          "pip3 install twine --upgrade && cd /gt/gtirb/build/python && twine check dist/* && twine upload dist/* -u __token__ -p $PYPI_API_KEY";
+    - fi
