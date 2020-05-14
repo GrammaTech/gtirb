@@ -21,13 +21,15 @@ int main(int argc, char** argv) {
   Context C;
 
   // Load the IR
-  IR* I;
+  IR* I = nullptr;
 
-  assert(argc == 2);
-  {
+  if (argc == 2) {
     std::ifstream in(argv[1]);
     I = IR::load(C, in);
   }
+
+  if (!I)
+    return EXIT_FAILURE;
 
   for (const auto& M : I->modules()) {
     std::cout << "Module " << M.getName() << "\n";
@@ -40,4 +42,5 @@ int main(int argc, char** argv) {
       }
     }
   }
+  return EXIT_SUCCESS;
 }

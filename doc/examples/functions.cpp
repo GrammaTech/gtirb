@@ -32,13 +32,15 @@ int main(int argc, char** argv) {
   Context C;
 
   // Load the IR
-  IR* I;
+  IR* I = nullptr;
 
-  assert(argc == 2);
-  {
+  if (argc == 2) {
     std::ifstream in(argv[1]);
     I = IR::load(C, in);
   }
+
+  if (!I)
+    return EXIT_FAILURE;
 
   // Load function information from AuxData.
   // This information is not guaranteed to be present. For the purposes of
@@ -79,4 +81,5 @@ int main(int argc, char** argv) {
       std::cout << "    " << Block->getAddress() << "\n";
     }
   }
+  return EXIT_SUCCESS;
 }

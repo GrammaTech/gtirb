@@ -22,13 +22,15 @@ int main(int argc, char** argv) {
   Context C;
 
   // Load the IR
-  IR* Ir;
+  IR* Ir = nullptr;
 
-  assert(argc == 2);
-  {
+  if (argc == 2) {
     std::ifstream in(argv[1]);
     Ir = IR::load(C, in);
   }
+
+  if (!Ir)
+    return EXIT_FAILURE;
 
   // Initialize capstone for decoding instructions.
   csh CsHandle;
@@ -67,4 +69,5 @@ int main(int argc, char** argv) {
       }
     }
   }
+  return EXIT_SUCCESS;
 }

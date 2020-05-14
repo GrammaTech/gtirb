@@ -69,13 +69,15 @@ int main(int argc, char** argv) {
   Context C;
 
   // Load the IR
-  IR* I;
+  IR* I = nullptr;
 
-  assert(argc == 4);
-  {
+  if (argc == 4) {
     std::ifstream in(argv[1]);
     I = IR::load(C, in);
   }
+
+  if (!I)
+    return EXIT_FAILURE;
 
   // Addresses of source and target blocks
   Addr Source(std::stoul(argv[2], nullptr, 16));
@@ -90,18 +92,19 @@ int main(int argc, char** argv) {
     SourceBlock = &*Range.begin();
   } else {
     std::cerr << "No block at source address " << Source << "\n";
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   if (auto Range = Mod.findCodeBlocksAt(Target); !Range.empty()) {
     TargetBlock = &*Range.begin();
   } else {
     std::cerr << "No block at target address " << Target << "\n";
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   std::cout << "Paths from " << SourceBlock->getAddress() << " to "
             << TargetBlock->getAddress() << "\n";
   // Print paths
   PrintPathsVisitor(Cfg, *TargetBlock).visit(*getVertex(SourceBlock, Cfg));
+  return EXIT_SUCCESS;
 }
