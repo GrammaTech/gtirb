@@ -842,8 +842,16 @@ TEST(Unit_Module, protobufRoundTrip) {
   }
 
   ASSERT_EQ(
+      std::distance(Result->code_blocks_begin(), Result->code_blocks_end()), 1);
+  EXPECT_EQ(Result->code_blocks_begin()->getUUID(), BlockID);
+  ASSERT_EQ(
       std::distance(Result->data_blocks_begin(), Result->data_blocks_end()), 1);
   EXPECT_EQ(Result->data_blocks_begin()->getUUID(), DataID);
+  ASSERT_EQ(
+      std::distance(Result->proxy_blocks_begin(), Result->proxy_blocks_end()),
+      1);
+  EXPECT_EQ(Result->proxy_blocks_begin()->getUUID(), ProxyID);
+  EXPECT_EQ(Result->proxy_blocks_begin()->getModule(), Result);
 
   ASSERT_EQ(std::distance(Result->sections_begin(), Result->sections_end()), 1);
   EXPECT_EQ(Result->sections_begin()->getUUID(), SectionID);

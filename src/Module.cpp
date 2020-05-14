@@ -69,7 +69,7 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
     auto* PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB)
       return nullptr;
-    M->ProxyBlocks.insert(PB);
+    M->addProxyBlock(PB);
   }
   for (const auto& Elt : Message.sections()) {
     auto* S = Section::fromProtobuf(C, Elt);
