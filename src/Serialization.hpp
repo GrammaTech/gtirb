@@ -165,13 +165,14 @@ T* fromProtobuf(Context& C, const U& Message) {
 }
 
 // Generic template for simple types which require no conversion.
-template <typename T> void fromProtobuf(Context&, T& Result, const T& Message) {
+template <typename T> bool fromProtobuf(Context&, T& Result, const T& Message) {
   Result = Message;
+  return true;
 }
 
-inline void fromProtobuf(Context& C, Offset& Result,
+inline bool fromProtobuf(Context& C, Offset& Result,
                          const Offset::MessageType& Message) {
-  Result.fromProtobuf(C, Message);
+  return Result.fromProtobuf(C, Message);
 }
 
 /// @cond INTERNAL
@@ -187,19 +188,19 @@ using remove_pointer_ref_quals_t = typename remove_pointer_ref_quals<T>::type;
 
 // Overrides for various other types.
 template <typename T, typename U, typename V, typename W>
-void fromProtobuf(Context& C, std::pair<T, U>& Val,
+bool fromProtobuf(Context& C, std::pair<T, U>& Val,
                   const google::protobuf::MapPair<V, W>& Message) {
-  fromProtobuf(C, Val.first, Message.first);
-  fromProtobuf(C, Val.second, Message.second);
+  return fromProtobuf(C, Val.first, Message.first) &&
+         fromProtobuf(C, Val.second, Message.second);
 }
 
-void fromProtobuf(Context&, Addr& Result, const uint64_t& Message);
-void fromProtobuf(Context&, UUID& Result, const std::string& Message);
+bool fromProtobuf(Context&, Addr& Result, const uint64_t& Message);
+bool fromProtobuf(Context&, UUID& Result, const std::string& Message);
 
 // Convert the contents for a Container into IR classes; does not participate
 // in overload resolution if the container stores Node subclasses.
 template <typename ContainerT, typename MessageT>
-void containerFromProtobuf(
+bool containerFromProtobuf(
     Context& C, ContainerT& Values, MessageT& Message,
     std::enable_if_t<
         !std::is_base_of_v<Node, details::remove_pointer_ref_quals_t<
@@ -208,15 +209,17 @@ void containerFromProtobuf(
   initContainer(Values, Message.size());
   std::for_each(Message.begin(), Message.end(), [&Values, &C](const auto& M) {
     typename ContainerT::value_type Val;
-    fromProtobuf(C, Val, M);
+    if (!fromProtobuf(C, Val, M))
+      return false;
     addElement(Values, std::move(Val));
   });
+  return true;
 }
 
 // Convert the contents for a Container into IR classes. Only participates in
 // overload resolution if the container stores Node subclasses.
 template <typename ContainerT, typename MessageT>
-void containerFromProtobuf(
+bool containerFromProtobuf(
     Context& C, ContainerT& Values, MessageT& Message,
     std::enable_if_t<
         std::is_base_of_v<Node, details::remove_pointer_ref_quals_t<
@@ -226,13 +229,17 @@ void containerFromProtobuf(
       details::remove_pointer_ref_quals_t<typename ContainerT::value_type>;
   initContainer(Values, Message.size());
   std::for_each(Message.begin(), Message.end(), [&Values, &C](const auto& M) {
-    addElement(Values, BaseType::fromProtobuf(C, M));
+    BaseType* Elem = BaseType::fromProtobuf(C, M);
+    if (!Elem)
+      return false;
+    addElement(Values, Elem);
   });
+  return true;
 }
 
 // Special case for std::map
 template <typename KeyType, typename ValueType, typename MessageT>
-void containerFromProtobuf(Context& C, std::map<KeyType, ValueType>& Values,
+bool containerFromProtobuf(Context& C, std::map<KeyType, ValueType>& Values,
                            MessageT& Message) {
   Values.clear();
   std::for_each(Message.begin(), Message.end(), [&Values, &C](const auto& M) {
@@ -241,9 +248,11 @@ void containerFromProtobuf(Context& C, std::map<KeyType, ValueType>& Values,
     // pair where the first Element is const, so we can't pass it to
     // fromProtobuf().
     std::pair<KeyType, ValueType> Val;
-    fromProtobuf(C, Val, M);
+    if (!fromProtobuf(C, Val, M))
+      return false;
     Values.insert(std::move(Val));
   });
+  return true;
 }
 } // namespace gtirb
 

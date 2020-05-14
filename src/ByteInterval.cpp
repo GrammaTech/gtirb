@@ -75,37 +75,49 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C, Section* Parent,
       C, Parent, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size());
 
-  setNodeUUIDFromBytes(BI, Message.uuid());
+  if (!setNodeUUIDFromBytes(BI, Message.uuid()))
+    return nullptr;
 
   for (const auto& ProtoBlock : Message.blocks()) {
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
       auto* B = CodeBlock::fromProtobuf(C, BI, ProtoBlock.code());
+      if (!B)
+        return nullptr;
       BI->Blocks.emplace(ProtoBlock.offset(), B);
       B->addToIndices();
     } break;
     case proto::Block::ValueCase::kData: {
       auto* B = DataBlock::fromProtobuf(C, BI, ProtoBlock.data());
+      if (!B)
+        return nullptr;
       BI->Blocks.emplace(ProtoBlock.offset(), B);
       B->addToIndices();
     } break;
     default: {
       assert(!"unknown Block::ValueCase in ByteInterval::fromProtobuf");
+      return nullptr;
     }
     }
   }
   return BI;
 }
 
-void ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
+bool ByteInterval::symbolicExpressionsFromProtobuf(Context& C,
                                                    const MessageType& Message) {
+  bool Result = true;
   this->mutateIndices([&]() {
     for (const auto& Pair : Message.symbolic_expressions()) {
       SymbolicExpression SymExpr;
-      gtirb::fromProtobuf(C, SymExpr, Pair.second);
-      SymbolicExpressions[Pair.first] = SymExpr;
+      if (gtirb::fromProtobuf(C, SymExpr, Pair.second))
+        SymbolicExpressions[Pair.first] = SymExpr;
+      else {
+        Result = false;
+        break;
+      }
     }
   });
+  return Result;
 }
 
 // Present for testing purposes only.
@@ -127,5 +139,5 @@ ByteInterval* ByteInterval::load(Context& C, std::istream& In) {
 void ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  ByteInterval::symbolicExpressionsFromProtobuf(C, Message);
+  (void)ByteInterval::symbolicExpressionsFromProtobuf(C, Message);
 }

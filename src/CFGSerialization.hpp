@@ -41,8 +41,8 @@ proto::CFG toProtobuf(const CFG& Cfg);
 /// \param      Message  The protobuf message from which to deserialize.
 /// \param[out] Result   The CFG to initialize.
 ///
-/// \return void
-void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message);
+/// \return true if the \ref CFG could be deserialized, false otherwise.
+bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message);
 /// @endcond
 
 } // namespace gtirb

@@ -58,13 +58,13 @@ std::string toProtobuf(const UUID& Val) {
   return Result;
 }
 
-void fromProtobuf(Context&, Addr& Result, const uint64_t& Message) {
+bool fromProtobuf(Context&, Addr& Result, const uint64_t& Message) {
   Result = Addr(Message);
+  return true;
 }
 
-void fromProtobuf(Context&, UUID& Result, const std::string& Message) {
-  // FIXME: need a way to signal failure from this function.
-  (void)uuidFromBytes(Message, Result);
+bool fromProtobuf(Context&, UUID& Result, const std::string& Message) {
+  return uuidFromBytes(Message, Result);
 }
 
 } // namespace gtirb

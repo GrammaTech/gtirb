@@ -69,29 +69,31 @@ Symbol* symbolFromProto(Context& C, const std::string& Bytes) {
 }
 } // namespace
 
-void fromProtobuf(Context& C, SymbolicExpression& Result,
+bool fromProtobuf(Context& C, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message) {
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
     const auto& Val = Message.stack_const();
     Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
-    break;
+    return std::get<SymStackConst>(Result).Sym != nullptr;
   }
   case proto::SymbolicExpression::kAddrConst: {
     const auto& Val = Message.addr_const();
     Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
-    break;
+    return std::get<SymAddrConst>(Result).Sym != nullptr;
   }
   case proto::SymbolicExpression::kAddrAddr: {
     const auto& Val = Message.addr_addr();
     Result = SymAddrAddr{Val.scale(), Val.offset(),
                          symbolFromProto(C, Val.symbol1_uuid()),
                          symbolFromProto(C, Val.symbol2_uuid())};
-    break;
+    return std::get<SymAddrAddr>(Result).Sym1 != nullptr &&
+           std::get<SymAddrAddr>(Result).Sym2 != nullptr;
   }
   case proto::SymbolicExpression::VALUE_NOT_SET:
-    assert(false);
+    assert(false && "unknown symbolic expression kind");
   }
+  return false;
 }
 
 // This function is defined here w/ GTIRB_EXPORT_API to provide a

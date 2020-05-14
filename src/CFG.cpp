@@ -113,20 +113,26 @@ proto::CFG toProtobuf(const CFG& Cfg) {
   return Message;
 }
 
-void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
+bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
   for (const auto& M : Message.vertices()) {
-    if (UUID Id; uuidFromBytes(M, Id)) {
-      auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
-      assert(N && "CFG message contains vertex that is not a CfgNode!");
-      addVertex(N, Result);
-    }
+    UUID Id;
+    if (!uuidFromBytes(M, Id))
+      return false;
+    auto* N = cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    assert(N && "CFG message contains vertex that is not a CfgNode!");
+    if (!N)
+      return false;
+    addVertex(N, Result);
   }
   for (const auto& M : Message.edges()) {
-    CfgNode *Source = nullptr, *Target = nullptr;
-    if (UUID Id; uuidFromBytes(M.source_uuid(), Id))
-      Source = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
-    if (UUID Id; uuidFromBytes(M.target_uuid(), Id))
-      Target = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    UUID Id;
+    if (!uuidFromBytes(M.source_uuid(), Id))
+      return false;
+    CfgNode* Source = cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+
+    if (!uuidFromBytes(M.target_uuid(), Id))
+      return false;
+    CfgNode* Target = cast_or_null<CfgNode>(Node::getByUUID(C, Id));
     if (Source && Target) {
       if (auto E = addEdge(Source, Target, Result); E && M.has_label()) {
         auto& L = M.label();
@@ -138,6 +144,7 @@ void fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
       }
     }
   }
+  return true;
 }
 
 // This function is defined here w/ GTIRB_EXPORT_API to provide a
@@ -156,7 +163,7 @@ void GTIRB_EXPORT_API cfgSave(const CFG& Cfg, std::ostream& Out) {
 void GTIRB_EXPORT_API cfgLoad(Context& C, CFG& Result, std::istream& In) {
   proto::CFG Message;
   Message.ParseFromIstream(&In);
-  fromProtobuf(C, Result, Message);
+  (void)fromProtobuf(C, Result, Message);
 }
 
 } // namespace gtirb

@@ -678,7 +678,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setFileFormat(FileFormat::ELF);
     Original->setISA(ISA::X64);
     Original->addAuxData<AnTest>(0);
-    Original->addSymbol(InnerCtx, Addr(1), "name1");
+    Symbol* Sym = Original->addSymbol(InnerCtx, Addr(1), "name1");
     Original->addSymbol(InnerCtx, Addr(2), "name1");
     Original->addSymbol(InnerCtx, Addr(1), "name3");
     auto S = Original->addSection(InnerCtx, "test");
@@ -686,7 +686,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     BI->addBlock<CodeBlock>(InnerCtx, 0, 2);
     BI->addBlock<DataBlock>(InnerCtx, 0, 2);
     auto* P = Original->addProxyBlock(InnerCtx);
-    BI->addSymbolicExpression<SymAddrConst>(7);
+    BI->addSymbolicExpression<SymAddrConst>(7, 0, Sym);
     BlockID = blocks(Original->getIR()->getCFG()).begin()->getUUID();
     DataID = Original->data_blocks_begin()->getUUID();
     ProxyID = P->getUUID();
@@ -747,12 +747,8 @@ TEST(Unit_Module, protobufRoundTrip) {
 }
 
 TEST(Unit_Module, protobufNodePointers) {
-  // Ensure that deserialization handles node pointers (e.g. in Symbol and
-  // SymbolicExpression) correctly.
-  // This is order-dependent: the pointers are serialized as UUIDs, and
-  // Node::getByUUID will fail if the corresponding Node has not yet been
-  // deserialized.
-
+  // Ensure that when we cannot load an object that does not exist in the
+  // serialized form that we fail to load the GTIRB again because it is wrong.
   using STH = gtirb::SerializationTestHarness;
   std::stringstream ss;
 
@@ -780,27 +776,7 @@ TEST(Unit_Module, protobufNodePointers) {
   }
 
   auto* Result = STH::load<Module>(Ctx, ss);
-  EXPECT_NE(Result->findSymbols("data").begin()->getReferent<DataBlock>(),
-            nullptr);
-  EXPECT_NE(Result->findSymbols("code").begin()->getReferent<CodeBlock>(),
-            nullptr);
-  // Dangling reference becomes nullptr
-  EXPECT_EQ(Result->findSymbols("dangling").begin()->getReferent<CodeBlock>(),
-            nullptr);
-
-  const auto& Symbolic =
-      get<SymAddrConst>(Result->findSymbolicExpressionsAt(Addr(3))
-                            .begin()
-                            ->getSymbolicExpression());
-  EXPECT_NE(Symbolic.Sym, nullptr);
-  EXPECT_EQ(Symbolic.Sym->getName(), "data");
-
-  // Dangling reference becomes nullptr
-  EXPECT_EQ(get<SymAddrConst>(Result->findSymbolicExpressionsAt(Addr(4))
-                                  .begin()
-                                  ->getSymbolicExpression())
-                .Sym,
-            nullptr);
+  EXPECT_EQ(Result, nullptr);
 }
 
 TEST(Unit_Module, removeNodes) {

@@ -1919,8 +1919,8 @@ private:
 
   /// \brief Construct a ByteInterval from a protobuf message.
   ///
-  /// \param C  The Context in which the deserialized ByteInterval will be
-  /// held. \param Message  The protobuf message from which to deserialize.
+  /// \param C  The Context in which the deserialized ByteInterval will be held.
+  /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ByteInterval object, or null on failure.
   static ByteInterval* fromProtobuf(Context& C, Section* Parent,
@@ -1930,9 +1930,10 @@ private:
   ///
   /// \param C  The Context in which the deserialized SymbolicExpressions will
   /// be held.
-  ///
   /// \param Message  The protobuf message from which to deserialize.
-  void symbolicExpressionsFromProtobuf(Context& C, const MessageType& Message);
+  /// \return true if the symbolic expression could be loaded from protobuf,
+  /// false otherwise.
+  bool symbolicExpressionsFromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

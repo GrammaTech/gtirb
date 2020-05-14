@@ -30,7 +30,8 @@ CodeBlock* CodeBlock::fromProtobuf(Context& C, ByteInterval* Parent,
   // set its parent at the same time.
   auto* B = CodeBlock::Create(C, Message.size(), Message.decode_mode());
   B->setByteInterval(Parent);
-  setNodeUUIDFromBytes(B, Message.uuid());
+  if (!setNodeUUIDFromBytes(B, Message.uuid()))
+    return nullptr;
   return B;
 }
 

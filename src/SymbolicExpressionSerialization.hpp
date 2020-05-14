@@ -32,8 +32,9 @@ class SymbolicExpression;
 /// \param      Message  The protobuf message from which to deserialize.
 /// \param[out] Result   The SymbolicExpression to initialize.
 ///
-/// \return void
-void fromProtobuf(Context& C, SymbolicExpression& Result,
+/// \return true if the expression could be deserialized from protobuf, false
+/// otherwise.
+bool fromProtobuf(Context& C, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message);
 
 /// \brief Serialize a SymbolicExpression into a protobuf message.

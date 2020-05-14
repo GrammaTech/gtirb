@@ -99,7 +99,8 @@ Symbol* Symbol::fromProtobuf(Context& C, Module* Parent,
   default:
       /* nothing to do */;
   }
-  setNodeUUIDFromBytes(S, Message.uuid());
+  if (!setNodeUUIDFromBytes(S, Message.uuid()))
+    return nullptr;
   return S;
 }
 

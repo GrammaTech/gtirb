@@ -30,7 +30,8 @@ DataBlock* DataBlock::fromProtobuf(Context& C, ByteInterval* Parent,
   // set its parent at the same time.
   auto* DO = DataBlock::Create(C, Message.size());
   DO->setByteInterval(Parent);
-  setNodeUUIDFromBytes(DO, Message.uuid());
+  if (!setNodeUUIDFromBytes(DO, Message.uuid()))
+    return nullptr;
   return DO;
 }
 

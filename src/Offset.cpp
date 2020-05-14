@@ -22,7 +22,9 @@ void Offset::toProtobuf(MessageType* Message) const {
   Message->set_displacement(this->Displacement);
 }
 
-void Offset::fromProtobuf(Context&, const MessageType& Message) {
-  (void)uuidFromBytes(Message.element_id(), this->ElementId);
+bool Offset::fromProtobuf(Context&, const MessageType& Message) {
+  if (!uuidFromBytes(Message.element_id(), this->ElementId))
+    return false;
   this->Displacement = Message.displacement();
+  return true;
 }

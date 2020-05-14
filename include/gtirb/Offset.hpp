@@ -98,12 +98,12 @@ private:
   ///           held.
   /// \param Message  The protobuf message from which to deserialize.
   ///
-  /// \return The deserialized Offset object, or null on failure.
-  void fromProtobuf(Context& C, const MessageType& Message);
+  /// \return true if the \ref Offset could be deserialized, false otherwise.
+  bool fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
   // Enables serialization.
-  friend void fromProtobuf(Context&, Offset&, const MessageType&);
+  friend bool fromProtobuf(Context&, Offset&, const MessageType&);
 };
 
 } // namespace gtirb
