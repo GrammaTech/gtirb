@@ -19,6 +19,7 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/CFG.hpp>
+#include <gtirb/ErrorOr.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Utility.hpp>
@@ -208,21 +209,28 @@ public:
   /// \return void
   void saveJSON(std::ostream& Out) const;
 
+  /// \enum load_error
+  /// \brief Specifies various failure modes when loading an IR.
+  enum class load_error {
+    IncorrectVersion = 1, ///< The version number in the file does not match.
+    CorruptFile, ///< The content of the file could not be deserialized.
+  };
+
   /// \brief Deserialize binary format from an input stream.
   ///
   /// \param C   The Context in which this IR will be loaded.
   /// \param In  The input stream.
   ///
-  /// \return The deserialized IR object.
-  static IR* load(Context& C, std::istream& In);
+  /// \return The deserialized IR object or an error.
+  static ErrorOr<IR*> load(Context& C, std::istream& In);
 
   /// \brief Deserialize JSON format from an input stream.
   ///
   /// \param C   The Context in which this IR will be loaded.
   /// \param In  The input stream.
   ///
-  /// \return The deserialized IR object.
-  static IR* loadJSON(Context& C, std::istream& In);
+  /// \return The deserialized IR object or an error.
+  static ErrorOr<IR*> loadJSON(Context& C, std::istream& In);
 
   /// \name ProxyBlock-Related Public Types and Functions
   /// @{
@@ -1382,6 +1390,22 @@ private:
   friend class Context; // Allow Context to construct new IRs.
   friend class Node;    // Allow Node::mutateIndices, etc. to set indices.
 };
+
+/// \brief The error category used to represent load failures.
+/// \return The load failure error category.
+const std::error_category& loadErrorCategory();
+
+/// \brief Makes an \ref std::error_code object from an \ref IR::load_error
+/// object.
+/// \return The error code.
+inline std::error_code make_error_code(gtirb::IR::load_error e) {
+  return std::error_code(static_cast<int>(e), loadErrorCategory());
+}
 } // namespace gtirb
+
+namespace std {
+template <>
+struct is_error_code_enum<gtirb::IR::load_error> : std::true_type {};
+} // namespace std
 
 #endif // GTIRB_IR_H

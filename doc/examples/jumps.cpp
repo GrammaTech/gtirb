@@ -26,7 +26,8 @@ int main(int argc, char** argv) {
 
   if (argc == 2) {
     std::ifstream in(argv[1]);
-    Ir = IR::load(C, in);
+    if (auto IoE = IR::load(C, in); IoE)
+      I = *IoE;
   }
 
   if (!Ir)

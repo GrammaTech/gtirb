@@ -25,6 +25,26 @@
 
 using namespace gtirb;
 
+class IRLoadErrorCategory : public std::error_category {
+public:
+  const char* name() const noexcept override { return "gt.gtirb.ir"; }
+  std::string message(int Condition) const override {
+    switch (static_cast<IR::load_error>(Condition)) {
+    case IR::load_error::IncorrectVersion:
+      return "GTIRB file has an incompatible version number";
+    case IR::load_error::CorruptFile:
+      return "Corrupted GTIRB file";
+    }
+    assert(false && "Expected to handle all error codes");
+    return "";
+  }
+};
+
+const std::error_category& gtirb::loadErrorCategory() {
+  static IRLoadErrorCategory Cat;
+  return Cat;
+}
+
 void IR::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   *Message->mutable_cfg() = gtirb::toProtobuf(this->Cfg);
@@ -56,12 +76,16 @@ void IR::save(std::ostream& Out) const {
   Message.SerializeToOstream(&Out);
 }
 
-IR* IR::load(Context& C, std::istream& In) {
+ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  auto I = IR::fromProtobuf(C, Message);
-  if (I && I->Version != GTIRB_PROTOBUF_VERSION) {
-    return nullptr;
+
+  auto* I = IR::fromProtobuf(C, Message);
+  if (!I) {
+    return IR::load_error::CorruptFile;
+  }
+  if (I->Version != GTIRB_PROTOBUF_VERSION) {
+    return IR::load_error::IncorrectVersion;
   }
   return I;
 }
@@ -74,10 +98,18 @@ void IR::saveJSON(std::ostream& Out) const {
   Out << S;
 }
 
-IR* IR::loadJSON(Context& C, std::istream& In) {
+ErrorOr<IR*> IR::loadJSON(Context& C, std::istream& In) {
   MessageType Message;
   std::string S;
   google::protobuf::util::JsonStringToMessage(
       std::string(std::istreambuf_iterator<char>(In), {}), &Message);
-  return IR::fromProtobuf(C, Message);
+
+  auto* I = IR::fromProtobuf(C, Message);
+  if (!I) {
+    return IR::load_error::CorruptFile;
+  }
+  if (I->Version != GTIRB_PROTOBUF_VERSION) {
+    return IR::load_error::IncorrectVersion;
+  }
+  return I;
 }

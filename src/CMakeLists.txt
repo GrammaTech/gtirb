@@ -38,6 +38,7 @@ configure_file(
 
 # specify source files
 set(${PROJECT_NAME}_H
+    "${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/AuxData.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/AuxDataContainer.hpp"
@@ -49,7 +50,7 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/CFG.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/CfgNode.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/DataBlock.hpp"
-    "${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/ErrorOr.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp"

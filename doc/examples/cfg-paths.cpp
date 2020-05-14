@@ -73,7 +73,8 @@ int main(int argc, char** argv) {
 
   if (argc == 4) {
     std::ifstream in(argv[1]);
-    I = IR::load(C, in);
+    if (auto IoE = IR::load(C, in); IoE)
+      I = *IoE;
   }
 
   if (!I)

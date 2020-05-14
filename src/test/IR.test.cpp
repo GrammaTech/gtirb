@@ -198,7 +198,7 @@ TEST(Unit_IR, protobufRoundTrip) {
     MainID = Original->modules_begin()->getUUID();
     STH::save(*Original, ss);
   }
-  auto* Result = STH::load<IR>(Ctx, ss);
+  auto* Result = *STH::load<IR>(Ctx, ss);
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
@@ -220,7 +220,7 @@ TEST(Unit_IR, jsonRoundTrip) {
     Original->saveJSON(Out);
   }
   std::istringstream In(Out.str());
-  auto* Result = IR::loadJSON(Ctx, In);
+  auto* Result = *IR::loadJSON(Ctx, In);
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
