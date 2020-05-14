@@ -26,7 +26,7 @@ project(
   GTIRB
   VERSION "${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}"
 )
-set(PACKAGE_BRANCH master)
+set(PACKAGE_BRANCH jdorn/fix-cfg-manipulation)
 
 include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
