@@ -250,7 +250,7 @@ upload-to-pypi:
     - echo $GTIRB_VERSION
     - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
     - echo $RESPONSE_CODE
-    - if [[ "$RESPONSE_CODE" == "404" ]];
+    - if [ "$RESPONSE_CODE" = "404" ];
     - then
     -   docker run $GTIRB_IMAGE bash -c
           "pip3 install twine --upgrade && cd /gt/gtirb/build/python && twine check dist/* && twine upload dist/* -u __token__ -p $PYPI_API_KEY";

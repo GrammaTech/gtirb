@@ -31,6 +31,11 @@ shutil.copyfile(os.path.join(root_dir, "LICENSE.txt"), "LICENSE")
 if __name__ == "__main__":
     with open("README", "r") as fh:
         long_description = fh.read()
+        long_description.replace(
+            ".gtirb.svg",
+            "https://raw.githubusercontent.com/"
+            "GrammaTech/gtirb/master/.gtirb.svg",
+        )
 
     setuptools.setup(
         name="gtirb",
