@@ -247,9 +247,7 @@ upload-to-pypi:
   script:
     - GTIRB_IMAGE=${LOCAL_IMAGE_NAME}-ubuntu18-gcc7
     - GTIRB_VERSION=$(docker run $GTIRB_IMAGE python3 -c "import gtirb; print(gtirb.__version__)")
-    - echo $GTIRB_VERSION
     - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
-    - echo $RESPONSE_CODE
     - if [ "$RESPONSE_CODE" = "404" ];
       then
         docker run $GTIRB_IMAGE bash -c
