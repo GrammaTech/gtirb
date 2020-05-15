@@ -136,8 +136,8 @@ ByteInterval* ByteInterval::load(Context& C, std::istream& In) {
 }
 
 // Present for testing purposes only.
-void ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
+bool ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
-  (void)ByteInterval::symbolicExpressionsFromProtobuf(C, Message);
+  return ByteInterval::symbolicExpressionsFromProtobuf(C, Message);
 }

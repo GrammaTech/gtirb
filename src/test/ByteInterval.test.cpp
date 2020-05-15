@@ -211,7 +211,7 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(Result->data_blocks_begin()->getOffset(), 6);
 
     // Populate the sym exprs now.
-    STH::byteIntervalLoadSymbolicExpressions(Ctx, *Result, ss2);
+    EXPECT_TRUE(STH::byteIntervalLoadSymbolicExpressions(Ctx, *Result, ss2));
     EXPECT_EQ(std::distance(Result->symbolic_expressions_begin(),
                             Result->symbolic_expressions_end()),
               1);

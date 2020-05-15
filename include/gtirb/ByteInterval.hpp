@@ -1942,7 +1942,7 @@ private:
   static ByteInterval* load(Context& C, std::istream& In);
 
   // Present for testing purposes only.
-  void loadSymbolicExpressions(Context& C, std::istream& In);
+  bool loadSymbolicExpressions(Context& C, std::istream& In);
 
   Section* Parent{nullptr};
   std::optional<Addr> Address;

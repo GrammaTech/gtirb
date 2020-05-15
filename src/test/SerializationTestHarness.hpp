@@ -52,10 +52,10 @@ public:
     return T::load(C, Parent, In);
   }
 
-  static void byteIntervalLoadSymbolicExpressions(Context& Ctx,
+  static bool byteIntervalLoadSymbolicExpressions(Context& Ctx,
                                                   ByteInterval& BI,
                                                   std::istream& In) {
-    BI.loadSymbolicExpressions(Ctx, In);
+    return BI.loadSymbolicExpressions(Ctx, In);
   }
 };
 
