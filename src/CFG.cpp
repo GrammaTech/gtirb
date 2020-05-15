@@ -114,11 +114,15 @@ proto::CFG toProtobuf(const CFG& Cfg) {
 }
 
 bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
+  // Because we're deserializing, we have to assume the data is attacker-
+  // controlled and may be malicious. We cannot use cast<> because an attacker
+  // could specify the UUID to a node of the incorrect type. Instead, we use
+  // dyn_cast<> and assert as needed.
   for (const auto& M : Message.vertices()) {
     UUID Id;
     if (!uuidFromBytes(M, Id))
       return false;
-    auto* N = cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
     assert(N && "CFG message contains vertex that is not a CfgNode!");
     if (!N)
       return false;
@@ -128,11 +132,11 @@ bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
     UUID Id;
     if (!uuidFromBytes(M.source_uuid(), Id))
       return false;
-    CfgNode* Source = cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    CfgNode* Source = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
 
     if (!uuidFromBytes(M.target_uuid(), Id))
       return false;
-    CfgNode* Target = cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    CfgNode* Target = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
     if (Source && Target) {
       if (auto E = addEdge(Source, Target, Result); E && M.has_label()) {
         auto& L = M.label();
