@@ -95,7 +95,7 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
       UUID Id;
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
         return nullptr;
-      auto* BI = cast_or_null<ByteInterval>(getByUUID(C, Id));
+      auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
       if (!BI)
         return nullptr;
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI))
@@ -106,7 +106,7 @@ Module* Module::fromProtobuf(Context& C, IR* Parent,
     UUID Id;
     if (!uuidFromBytes(Message.entry_point(), Id))
       return nullptr;
-    M->EntryPoint = cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
+    M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
     if (!M->EntryPoint)
       return nullptr;
   }
