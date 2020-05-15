@@ -136,7 +136,26 @@ template <class... Args>
 struct is_tuple<std::tuple<Args...>> : std::true_type {};
 
 using to_iterator = std::back_insert_iterator<std::string>;
-using from_iterator = std::string::const_iterator;
+
+class FromByteStream {
+public:
+  FromByteStream(const std::string& Bytes)
+      : Curr(Bytes.begin()), End(Bytes.end()) {}
+
+  bool operator>>(std::byte& Byte) {
+    if (Curr == End)
+      return false;
+
+    Byte = std::byte(*Curr);
+    ++Curr;
+    return true;
+  }
+
+private:
+  std::string::const_iterator Curr;
+  std::string::const_iterator End;
+};
+
 ///@endcond
 
 /// \struct auxdata_traits
@@ -156,9 +175,9 @@ template <class T, class Enable = void> struct auxdata_traits {
   ///
   /// \param Object  The object to deserialize.
   /// \param It      Read bytes from here.
-  /// \return An iterator pointing to the first byte after the representation
-  /// of \p Object.
-  static from_iterator fromBytes(T& Object, from_iterator It) = delete;
+  /// \return True/false dependending on if the bytes were deserialized
+  /// successfully.
+  static bool fromBytes(T& Object, FromByteStream& FBS) = delete;
 
   /// \brief String representation of the serialized type of T.
   ///
@@ -194,18 +213,23 @@ struct default_serialization<
                    [](auto b) { return char(b); });
   }
 
-  static from_iterator fromBytes(T& object, from_iterator It) {
+  static bool fromBytes(T& object, FromByteStream& FBS) {
     auto dest_begin = reinterpret_cast<std::byte*>(&object);
     auto dest_end = reinterpret_cast<std::byte*>(&object + 1);
-    std::for_each(dest_begin, dest_end, [&It](auto& b) {
-      b = std::byte(*It);
-      ++It;
+    bool Success = true;
+    std::for_each(dest_begin, dest_end, [&](auto& b) {
+      if (!(FBS >> b))
+        Success = false;
     });
+    if (!Success) {
+      return false;
+    }
+
     // Data stored as little-endian.
     boost::endian::conditional_reverse_inplace<boost::endian::order::little,
                                                boost::endian::order::native>(
         object);
-    return It;
+    return true;
   }
 };
 
@@ -217,10 +241,8 @@ struct auxdata_traits<std::byte> : default_serialization<std::byte> {
     *It = static_cast<char>(object);
   }
 
-  static from_iterator fromBytes(std::byte& object, from_iterator It) {
-    object = std::byte(*It);
-    ++It;
-    return It;
+  static bool fromBytes(std::byte& object, FromByteStream& FBS) {
+    return FBS >> object;
   }
 };
 
@@ -258,16 +280,19 @@ template <> struct auxdata_traits<std::string> {
     std::copy(Object.begin(), Object.end(), It);
   }
 
-  static from_iterator fromBytes(std::string& Object, from_iterator It) {
+  static bool fromBytes(std::string& Object, FromByteStream& FBS) {
     uint64_t Count;
-    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
+    if (!auxdata_traits<uint64_t>::fromBytes(Count, FBS))
+      return false;
 
     Object.resize(Count);
-    std::for_each(Object.begin(), Object.end(), [&It](auto& elt) {
-      It = auxdata_traits<char>::fromBytes(elt, It);
+    bool Success = true;
+    std::for_each(Object.begin(), Object.end(), [&](auto& elt) {
+      if (!auxdata_traits<char>::fromBytes(elt, FBS))
+        Success = false;
     });
 
-    return It;
+    return Success;
   }
 };
 
@@ -279,10 +304,10 @@ template <> struct auxdata_traits<Offset> {
     auxdata_traits<uint64_t>::toBytes(Object.Displacement, It);
   }
 
-  static from_iterator fromBytes(Offset& Object, from_iterator It) {
-    It = auxdata_traits<UUID>::fromBytes(Object.ElementId, It);
-    It = auxdata_traits<uint64_t>::fromBytes(Object.Displacement, It);
-    return It;
+  static bool fromBytes(Offset& Object, FromByteStream& FBS) {
+    if (!auxdata_traits<UUID>::fromBytes(Object.ElementId, FBS))
+      return false;
+    return auxdata_traits<uint64_t>::fromBytes(Object.Displacement, FBS);
   }
 };
 
@@ -299,16 +324,19 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
     });
   }
 
-  static from_iterator fromBytes(T& Object, from_iterator It) {
+  static bool fromBytes(T& Object, FromByteStream& FBS) {
     uint64_t Count;
-    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
+    if (!auxdata_traits<uint64_t>::fromBytes(Count, FBS))
+      return false;
 
     Object.resize(Count);
-    std::for_each(Object.begin(), Object.end(), [&It](auto& Elt) {
-      It = auxdata_traits<typename T::value_type>::fromBytes(Elt, It);
+    bool Success = true;
+    std::for_each(Object.begin(), Object.end(), [&](auto& Elt) {
+      if (!auxdata_traits<typename T::value_type>::fromBytes(Elt, FBS))
+        Success = false;
     });
 
-    return It;
+    return Success;
   }
 };
 
@@ -325,17 +353,19 @@ template <class... Args> struct auxdata_traits<std::set<Args...>> {
       auxdata_traits<typename T::value_type>::toBytes(Elt, It);
   }
 
-  static from_iterator fromBytes(T& Object, from_iterator It) {
+  static bool fromBytes(T& Object, FromByteStream& FBS) {
     uint64_t Count;
-    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
+    if (!auxdata_traits<uint64_t>::fromBytes(Count, FBS))
+      return false;
 
     for (uint64_t i = 0; i < Count; i++) {
       typename T::value_type V;
-      It = auxdata_traits<decltype(V)>::fromBytes(V, It);
+      if (!auxdata_traits<decltype(V)>::fromBytes(V, FBS))
+        return false;
       Object.emplace(std::move(V));
     }
 
-    return It;
+    return true;
   }
 };
 
@@ -354,18 +384,21 @@ struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
     });
   }
 
-  static from_iterator fromBytes(T& Object, from_iterator It) {
+  static bool fromBytes(T& Object, FromByteStream& FBS) {
     uint64_t Count;
-    It = auxdata_traits<uint64_t>::fromBytes(Count, It);
+    if (!auxdata_traits<uint64_t>::fromBytes(Count, FBS))
+      return false;
 
     for (uint64_t i = 0; i < Count; i++) {
       typename T::key_type K;
-      It = auxdata_traits<decltype(K)>::fromBytes(K, It);
+      if (!auxdata_traits<decltype(K)>::fromBytes(K, FBS))
+        return false;
       typename T::mapped_type V;
-      It = auxdata_traits<decltype(V)>::fromBytes(V, It);
+      if (!auxdata_traits<decltype(V)>::fromBytes(V, FBS))
+        return false;
       Object.emplace(std::move(K), std::move(V));
     }
-    return It;
+    return true;
   }
 };
 /// @endcond
@@ -398,16 +431,18 @@ struct auxdata_traits<T, typename std::enable_if_t<is_tuple<T>::value>>
         std::make_index_sequence<std::tuple_size<T>::value>{});
   }
 
-  static from_iterator fromBytes(T& Object, from_iterator It) {
+  static bool fromBytes(T& Object, FromByteStream& FBS) {
+    bool Success = true;
     static_for(
-        [&It, &Object](auto i) {
+        [&](auto i) {
           auto& F = std::get<i>(Object);
-          It = auxdata_traits<std::remove_cv_t<
-              std::remove_reference_t<decltype(F)>>>::fromBytes(F, It);
+          if (!auxdata_traits<std::remove_cv_t<
+                  std::remove_reference_t<decltype(F)>>>::fromBytes(F, FBS))
+            Success = false;
         },
         std::make_index_sequence<std::tuple_size<T>::value>{});
 
-    return It;
+    return Success;
   }
 };
 /// @endcond
@@ -537,14 +572,16 @@ private:
       return nullptr;
     }
 
-    // Note: Do not edit Message's contents here. That would introduce
+    // Note: Do not access Message's contents here. That would introduce
     // dllexport/dllimport problems on Windows. Call the base class's
     // fromProtobuf function and then unserialize from its
     // SerializedForm structure.
     auto TypedAuxData = std::make_unique<AuxDataImpl<Schema>>();
     AuxData::fromProtobuf(*TypedAuxData, Message);
-    auxdata_traits<typename Schema::Type>::fromBytes(
-        TypedAuxData->Object, TypedAuxData->rawData().RawBytes.begin());
+    FromByteStream FBS(TypedAuxData->rawData().RawBytes);
+    if (!auxdata_traits<typename Schema::Type>::fromBytes(TypedAuxData->Object,
+                                                          FBS))
+      return nullptr;
     return TypedAuxData;
   }
 
