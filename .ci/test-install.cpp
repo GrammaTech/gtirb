@@ -12,5 +12,5 @@ int main() {
   std::ifstream ifs{filename, std::ios_base::binary};
   auto ctx2 = gtirb::Context();
   auto ir2 = gtirb::IR::load(ctx2, ifs);
-  return ir2.get()->modules().empty() ? 0 : 1;
+  return ir2->modules().empty() ? 0 : 1;
 }
