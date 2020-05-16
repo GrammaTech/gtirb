@@ -323,7 +323,7 @@ public:
   /// or size, so it will return \ref std::nullopt in that case.
   std::optional<Addr> getAddress() const {
     if (Extent) {
-      return Extent->First;
+      return Extent->lower();
     }
     return std::nullopt;
   }
@@ -339,7 +339,7 @@ public:
   /// has no address or size, so it will return \ref std::nullopt in that case.
   std::optional<uint64_t> getSize() const {
     if (Extent) {
-      return Extent->Size;
+      return Extent->size();
     }
     return std::nullopt;
   }

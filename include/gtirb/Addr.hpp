@@ -201,29 +201,53 @@ private:
   value_type Address{0};
 };
 
-/// \brief A range of addresses starting at \c First and extending for \c Size
-/// bytes.
-struct AddrRange {
-  /// \brief The first address in the range.
-  Addr First;
-  /// \brief The number of bytes in the range.
-  uint64_t Size;
+/// \brief A range of addresses.
+class GTIRB_EXPORT_API AddrRange {
+public:
+  /// \brief Construct a range starting at \p Lower, extending up to, but not
+  /// including, \p Upper.
+  ///
+  /// Ranges cannot have negative size, so `AddrRange(Addr(20), Addr(10))`
+  /// creates a range starting at `Addr(20)` with size 0.
+  ///
+  /// \param Lower  first address in the range.
+  /// \param Upper  address after the last address contained in the range.
+  constexpr explicit AddrRange(Addr Lower, Addr Upper) noexcept
+      : First(Lower), Size(Upper - (Lower < Upper ? Lower : Upper)) {}
+
+  /// \brief Construct a range starting at \p Lower and containing a total of
+  /// \p Count addresses.
+  ///
+  /// \param Lower  first address in the range.
+  /// \param Count  number of addresses in the range.
+  constexpr explicit AddrRange(Addr Lower, uint64_t Count) noexcept
+      : First(Lower), Size(Count) {}
 
   /// \brief Equality operator for \ref AddrRange.
-  bool operator==(const AddrRange& RHS) const {
+  constexpr bool operator==(const AddrRange& RHS) const noexcept {
     return First == RHS.First && Size == RHS.Size;
   }
 
   /// \brief Inequality operator for \ref AddrRange.
-  bool operator!=(const AddrRange& RHS) const {
+  constexpr bool operator!=(const AddrRange& RHS) const noexcept {
     return First != RHS.First || Size != RHS.Size;
   }
 
   /// \brief Inclusive lower bound of the address range.
-  Addr lower() const { return First; }
+  constexpr Addr lower() const noexcept { return First; }
 
   /// \brief Exclusive upper bound of the address range.
-  Addr upper() const { return First + Size; }
+  constexpr Addr upper() const noexcept { return First + Size; }
+
+  /// \brief Number of addresses in the range.
+  constexpr uint64_t size() const noexcept { return Size; }
+
+private:
+  /// \brief The first address in the range.
+  Addr First;
+
+  /// \brief The number of bytes in the range.
+  uint64_t Size;
 };
 
 template <typename T> std::optional<uint64_t> asOptionalSize(T X);
