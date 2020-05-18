@@ -205,7 +205,9 @@ ChangeStatus ByteInterval::removeBlock(BlockType* B) {
              "recovering from rejected removal is not implemented yet");
     }
 
-    sizeChange(B, B->getSize(), 0);
+    [[maybe_unused]] ChangeStatus Status = sizeChange(B, B->getSize(), 0);
+    assert(Status != ChangeStatus::REJECTED &&
+           "recovering from rejected removal is not implemented yet");
     Index.erase(Iter);
     B->setParent(nullptr, nullptr);
     return ChangeStatus::ACCEPTED;
@@ -268,7 +270,9 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
            "recovering from rejected insertion is unimplemented");
   }
 
-  sizeChange(B, 0, B->getSize());
+  [[maybe_unused]] ChangeStatus Status = sizeChange(B, 0, B->getSize());
+  assert(Status != ChangeStatus::REJECTED &&
+         "recovering from rejected size change is unimplemented");
   return ChangeStatus::ACCEPTED;
 }
 
