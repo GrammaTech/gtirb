@@ -169,7 +169,7 @@ ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
     [[maybe_unused]] ChangeStatus Status =
-        changeExtent(S, addressRange(*S), std::nullopt);
+        SecObs.changeExtent(S, addressRange(*S), std::nullopt);
     assert(Status != ChangeStatus::REJECTED &&
            "failed to update Module extent when removing section");
 
@@ -201,7 +201,7 @@ ChangeStatus Module::addSection(Section* S) {
            "failed to remove section from former parent");
   }
 
-  S->setParent(this, this);
+  S->setParent(this, &SecObs);
 
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Observer) {
@@ -215,7 +215,7 @@ ChangeStatus Module::addSection(Section* S) {
   }
 
   [[maybe_unused]] ChangeStatus Status =
-      changeExtent(S, std::nullopt, addressRange(*S));
+      SecObs.changeExtent(S, std::nullopt, addressRange(*S));
   assert(Status != ChangeStatus::REJECTED &&
          "failed to update Module extent after adding section");
   return ChangeStatus::ACCEPTED;
@@ -223,9 +223,11 @@ ChangeStatus Module::addSection(Section* S) {
 
 static auto NoOp = [](auto*) {};
 
-ChangeStatus Module::nameChange(Section* S, const std::string& /*OldName*/,
-                                const std::string& /*NewName*/) {
-  auto& Index = Sections.get<by_pointer>();
+ChangeStatus
+Module::SectionObserverImpl::nameChange(Section* S,
+                                        const std::string& /*OldName*/,
+                                        const std::string& /*NewName*/) {
+  auto& Index = M->Sections.get<by_pointer>();
   auto It = Index.find(S);
   assert(It != Index.end() && "section observed by non-owner");
   // The following lambda is intentionally a no-op. Because the Section's name
@@ -235,19 +237,20 @@ ChangeStatus Module::nameChange(Section* S, const std::string& /*OldName*/,
   return ChangeStatus::ACCEPTED;
 }
 
-ChangeStatus Module::addCodeBlocks([[maybe_unused]] Section* S,
-                                   Section::code_block_range Blocks) {
+ChangeStatus
+Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
+                                           Section::code_block_range Blocks) {
   ChangeStatus Status = ChangeStatus::NO_CHANGE;
-  if (Observer) {
-    [[maybe_unused]] auto& SectionIndex = Sections.get<by_pointer>();
+  if (M->Observer) {
+    [[maybe_unused]] auto& SectionIndex = M->Sections.get<by_pointer>();
     assert(SectionIndex.find(S) != SectionIndex.end() &&
            "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    Status = Observer->addCodeBlocks(
-        this, boost::make_iterator_range(code_block_iterator(Range),
-                                         code_block_iterator()));
+    Status = M->Observer->addCodeBlocks(
+        M, boost::make_iterator_range(code_block_iterator(Range),
+                                      code_block_iterator()));
     assert(Status != ChangeStatus::REJECTED &&
            "recovering from rejected insertion is not implemented");
   }
@@ -257,10 +260,11 @@ ChangeStatus Module::addCodeBlocks([[maybe_unused]] Section* S,
   return Status;
 }
 
-ChangeStatus Module::moveCodeBlocks([[maybe_unused]] Section* S,
-                                    Section::code_block_range Blocks) {
+ChangeStatus
+Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
+                                            Section::code_block_range Blocks) {
   ChangeStatus Status = ChangeStatus::NO_CHANGE;
-  auto& Index = Symbols.get<by_referent>();
+  auto& Index = M->Symbols.get<by_referent>();
   for (CodeBlock& Block : Blocks) {
     for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
       // Re-synchronize the address associated with the symbol. This should not
@@ -274,19 +278,19 @@ ChangeStatus Module::moveCodeBlocks([[maybe_unused]] Section* S,
   return Status;
 }
 
-ChangeStatus Module::removeCodeBlocks([[maybe_unused]] Section* S,
-                                      Section::code_block_range Blocks) {
+ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
+    [[maybe_unused]] Section* S, Section::code_block_range Blocks) {
   ChangeStatus Status = ChangeStatus::NO_CHANGE;
-  if (Observer) {
-    [[maybe_unused]] auto& SectionIndex = Sections.get<by_pointer>();
+  if (M->Observer) {
+    [[maybe_unused]] auto& SectionIndex = M->Sections.get<by_pointer>();
     assert(SectionIndex.find(S) != SectionIndex.end() &&
            "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
     std::array Range{Blocks};
-    Status = Observer->removeCodeBlocks(
-        this, boost::make_iterator_range(code_block_iterator(Range),
-                                         code_block_iterator()));
+    Status = M->Observer->removeCodeBlocks(
+        M, boost::make_iterator_range(code_block_iterator(Range),
+                                      code_block_iterator()));
     assert(Status != ChangeStatus::REJECTED &&
            "recovering from failed removal is not implemented");
   }
@@ -296,15 +300,17 @@ ChangeStatus Module::removeCodeBlocks([[maybe_unused]] Section* S,
   return Status;
 }
 
-ChangeStatus Module::addDataBlocks(Section* S,
-                                   Section::data_block_range Blocks) {
+ChangeStatus
+Module::SectionObserverImpl::addDataBlocks(Section* S,
+                                           Section::data_block_range Blocks) {
   return moveDataBlocks(S, Blocks);
 }
 
-ChangeStatus Module::moveDataBlocks(Section* /* S */,
-                                    Section::data_block_range Blocks) {
+ChangeStatus
+Module::SectionObserverImpl::moveDataBlocks(Section* /* S */,
+                                            Section::data_block_range Blocks) {
   ChangeStatus Status = ChangeStatus::NO_CHANGE;
-  auto& Index = Symbols.get<by_referent>();
+  auto& Index = M->Symbols.get<by_referent>();
   for (DataBlock& Block : Blocks) {
     for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
       // Re-synchronize the address associated with the symbol. This should not
@@ -317,22 +323,23 @@ ChangeStatus Module::moveDataBlocks(Section* /* S */,
   return Status;
 }
 
-ChangeStatus Module::removeDataBlocks(Section* S,
-                                      Section::data_block_range Blocks) {
+ChangeStatus Module::SectionObserverImpl::removeDataBlocks(
+    Section* S, Section::data_block_range Blocks) {
   return moveDataBlocks(S, Blocks);
 }
 
-ChangeStatus Module::changeExtent(Section* S,
-                                  std::optional<AddrRange> OldExtent,
-                                  std::optional<AddrRange> NewExtent) {
+ChangeStatus
+Module::SectionObserverImpl::changeExtent(Section* S,
+                                          std::optional<AddrRange> OldExtent,
+                                          std::optional<AddrRange> NewExtent) {
   if (OldExtent == NewExtent)
     return ChangeStatus::NO_CHANGE;
 
-  auto& Index = Sections.get<by_pointer>();
+  auto& Index = M->Sections.get<by_pointer>();
   if (auto It = Index.find(S); It != Index.end()) {
-    std::optional<AddrRange> Previous = addressRange(*this);
+    std::optional<AddrRange> Previous = addressRange(*M);
     if (OldExtent)
-      SectionAddrs.subtract(
+      M->SectionAddrs.subtract(
           std::make_pair(SectionIntMap::interval_type::right_open(
                              OldExtent->lower(), OldExtent->upper()),
                          SectionIntMap::codomain_type({S})));
@@ -343,20 +350,21 @@ ChangeStatus Module::changeExtent(Section* S,
     Index.modify(It, NoOp);
 
     if (NewExtent)
-      SectionAddrs.add(
+      M->SectionAddrs.add(
           std::make_pair(SectionIntMap::interval_type::right_open(
                              NewExtent->lower(), NewExtent->upper()),
                          SectionIntMap::codomain_type({S})));
 
-    if (Previous != addressRange(*this))
+    if (Previous != addressRange(*M))
       return ChangeStatus::ACCEPTED;
   }
   return ChangeStatus::NO_CHANGE;
 }
 
-ChangeStatus Module::nameChange(Symbol* S, const std::string&,
-                                const std::string&) {
-  auto& Index = Symbols.get<by_pointer>();
+ChangeStatus Module::SymbolObserverImpl::nameChange(Symbol* S,
+                                                    const std::string&,
+                                                    const std::string&) {
+  auto& Index = M->Symbols.get<by_pointer>();
   auto It = Index.find(S);
   assert(It != Index.end() && "symbol observed by non-owner");
   // The following lambda is intentionally a no-op. Because the Symbol's name
@@ -366,10 +374,10 @@ ChangeStatus Module::nameChange(Symbol* S, const std::string&,
   return ChangeStatus::ACCEPTED;
 }
 
-ChangeStatus Module::referentChange(Symbol* S,
-                                    std::variant<std::monostate, Addr, Node*>,
-                                    std::variant<std::monostate, Addr, Node*>) {
-  auto& Index = Symbols.get<by_pointer>();
+ChangeStatus Module::SymbolObserverImpl::referentChange(
+    Symbol* S, std::variant<std::monostate, Addr, Node*>,
+    std::variant<std::monostate, Addr, Node*>) {
+  auto& Index = M->Symbols.get<by_pointer>();
   auto It = Index.find(S);
   assert(It != Index.end() && "symbol observed by non-owner");
   // The following lambda is intentionally a no-op. Because the Symbol's

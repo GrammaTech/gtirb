@@ -73,7 +73,7 @@ class IR;
 /// \enddot
 ///
 
-class GTIRB_EXPORT_API IR : public AuxDataContainer, private ModuleObserver {
+class GTIRB_EXPORT_API IR : public AuxDataContainer {
   IR(Context& C) : AuxDataContainer(C, Kind::IR) {}
 
   struct by_name {};
@@ -89,67 +89,73 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer, private ModuleObserver {
                        boost::multi_index::tag<by_pointer>,
                        boost::multi_index::identity<Module*>>>>;
 
-  // Implementation of the ModuleObserver interface:
+  class ModuleObserverImpl : public ModuleObserver {
+  public:
+    explicit ModuleObserverImpl(IR* I_) : I(I_) {}
 
-  ChangeStatus nameChange(Module* M, const std::string& /*OldName*/,
-                          const std::string& /*NewName*/) override {
-    auto& Index = Modules.get<by_pointer>();
-    auto It = Index.find(M);
-    assert(It != Index.end() && "module observed by non-owner");
-    // The lambda would ordinarily update the Module such that the result
-    // of Module::getName changes. Because that change happened before this
-    // method was called, the lambda doesn't need to do anything.
-    Index.modify(It, [](Module*) {});
-    return ChangeStatus::ACCEPTED;
-  }
-
-  ChangeStatus addProxyBlocks(Module* /*M*/,
-                              Module::proxy_block_range Blocks) override {
-    if (!Blocks.empty()) {
-      for (ProxyBlock& PB : Blocks) {
-        assert(!getVertex(&PB, Cfg) && "ProxyBlock already added");
-        addVertex(&PB, Cfg);
-      }
+    ChangeStatus nameChange(Module* M, const std::string& /*OldName*/,
+                            const std::string& /*NewName*/) override {
+      auto& Index = I->Modules.get<by_pointer>();
+      auto It = Index.find(M);
+      assert(It != Index.end() && "module observed by non-owner");
+      // The lambda would ordinarily update the Module such that the result
+      // of Module::getName changes. Because that change happened before this
+      // method was called, the lambda doesn't need to do anything.
+      Index.modify(It, [](Module*) {});
       return ChangeStatus::ACCEPTED;
     }
-    return ChangeStatus::NO_CHANGE;
-  }
 
-  ChangeStatus removeProxyBlocks(Module* /*M*/,
-                                 Module::proxy_block_range Blocks) override {
-    if (!Blocks.empty()) {
-      for (ProxyBlock& PB : Blocks) {
-        assert(getVertex(&PB, Cfg) && "ProxyBlock was not present");
-        removeVertex(&PB, Cfg);
+    ChangeStatus addProxyBlocks(Module* /*M*/,
+                                Module::proxy_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (ProxyBlock& PB : Blocks) {
+          assert(!getVertex(&PB, I->Cfg) && "ProxyBlock already added");
+          addVertex(&PB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::ACCEPTED;
+      return ChangeStatus::NO_CHANGE;
     }
-    return ChangeStatus::NO_CHANGE;
-  }
 
-  ChangeStatus addCodeBlocks(Module* /*M*/,
-                             Module::code_block_range Blocks) override {
-    if (!Blocks.empty()) {
-      for (CodeBlock& CB : Blocks) {
-        assert(!getVertex(&CB, Cfg) && "CodeBlock already added");
-        addVertex(&CB, Cfg);
+    ChangeStatus removeProxyBlocks(Module* /*M*/,
+                                   Module::proxy_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (ProxyBlock& PB : Blocks) {
+          assert(getVertex(&PB, I->Cfg) && "ProxyBlock was not present");
+          removeVertex(&PB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::ACCEPTED;
+      return ChangeStatus::NO_CHANGE;
     }
-    return ChangeStatus::NO_CHANGE;
-  }
 
-  ChangeStatus removeCodeBlocks(Module* /*M*/,
-                                Module::code_block_range Blocks) override {
-    if (!Blocks.empty()) {
-      for (CodeBlock& CB : Blocks) {
-        assert(getVertex(&CB, Cfg) && "CodeBlock was not present");
-        removeVertex(&CB, Cfg);
+    ChangeStatus addCodeBlocks(Module* /*M*/,
+                               Module::code_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (CodeBlock& CB : Blocks) {
+          assert(!getVertex(&CB, I->Cfg) && "CodeBlock already added");
+          addVertex(&CB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::ACCEPTED;
+      return ChangeStatus::NO_CHANGE;
     }
-    return ChangeStatus::NO_CHANGE;
-  }
+
+    ChangeStatus removeCodeBlocks(Module* /*M*/,
+                                  Module::code_block_range Blocks) override {
+      if (!Blocks.empty()) {
+        for (CodeBlock& CB : Blocks) {
+          assert(getVertex(&CB, I->Cfg) && "CodeBlock was not present");
+          removeVertex(&CB, I->Cfg);
+        }
+        return ChangeStatus::ACCEPTED;
+      }
+      return ChangeStatus::NO_CHANGE;
+    }
+
+  private:
+    IR* I;
+  };
 
 public:
   /// \brief Create an IR object in its default state.
@@ -224,8 +230,8 @@ public:
   bool removeModule(Module* M) {
     auto& Index = Modules.get<by_pointer>();
     if (auto Iter = Index.find(M); Iter != Index.end()) {
-      removeProxyBlocks(M, M->proxy_blocks());
-      removeCodeBlocks(M, M->code_blocks());
+      MO.removeProxyBlocks(M, M->proxy_blocks());
+      MO.removeCodeBlocks(M, M->code_blocks());
       Index.erase(Iter);
       M->setParent(nullptr, nullptr);
       return true;
@@ -241,10 +247,10 @@ public:
       M->getIR()->removeModule(M);
     }
 
-    addProxyBlocks(M, M->proxy_blocks());
-    addCodeBlocks(M, M->code_blocks());
+    MO.addProxyBlocks(M, M->proxy_blocks());
+    MO.addCodeBlocks(M, M->code_blocks());
     Modules.emplace(M);
-    M->setParent(this, this);
+    M->setParent(this, &MO);
     return M;
   }
 
@@ -1451,6 +1457,7 @@ private:
   static IR* fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
+  ModuleObserverImpl MO{this};
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
   CFG Cfg;

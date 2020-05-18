@@ -173,15 +173,15 @@ void ByteInterval::setSize(uint64_t S) {
   }
 }
 
-static ChangeStatus removeBlocks(ByteIntervalObserver* Observer,
-                                 ByteInterval* BI,
-                                 ByteInterval::code_block_range Range) {
+static inline ChangeStatus removeBlocks(ByteIntervalObserver* Observer,
+                                        ByteInterval* BI,
+                                        ByteInterval::code_block_range Range) {
   return Observer->removeCodeBlocks(BI, Range);
 }
 
-static ChangeStatus removeBlocks(ByteIntervalObserver* Observer,
-                                 ByteInterval* BI,
-                                 ByteInterval::data_block_range Range) {
+static inline ChangeStatus removeBlocks(ByteIntervalObserver* Observer,
+                                        ByteInterval* BI,
+                                        ByteInterval::data_block_range Range) {
   return Observer->removeDataBlocks(BI, Range);
 }
 
@@ -221,13 +221,25 @@ ChangeStatus ByteInterval::removeBlock(DataBlock* B) {
   return removeBlock<DataBlock, data_block_iterator>(B);
 }
 
-static ChangeStatus addBlocks(ByteIntervalObserver* Observer, ByteInterval* BI,
-                              ByteInterval::code_block_range Range) {
+static inline CodeBlockObserver* getObserver(CodeBlock*, CodeBlockObserver* CBO,
+                                             DataBlockObserver*) {
+  return CBO;
+}
+
+static inline DataBlockObserver* getObserver(DataBlock*, CodeBlockObserver*,
+                                             DataBlockObserver* DBO) {
+  return DBO;
+}
+
+static inline ChangeStatus addBlocks(ByteIntervalObserver* Observer,
+                                     ByteInterval* BI,
+                                     ByteInterval::code_block_range Range) {
   return Observer->addCodeBlocks(BI, Range);
 }
 
-static ChangeStatus addBlocks(ByteIntervalObserver* Observer, ByteInterval* BI,
-                              ByteInterval::data_block_range Range) {
+static inline ChangeStatus addBlocks(ByteIntervalObserver* Observer,
+                                     ByteInterval* BI,
+                                     ByteInterval::data_block_range Range) {
   return Observer->addDataBlocks(BI, Range);
 }
 
@@ -242,7 +254,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
            "failed to remove node from parent");
   }
 
-  B->setParent(this, this);
+  B->setParent(this, getObserver(B, &CBO, &DBO));
   auto [Iter, Inserted] = Blocks.emplace(Off, B);
   if (Inserted && Observer) {
     auto End = std::next(Iter);
@@ -268,14 +280,16 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
   return addBlock<DataBlock, data_block_iterator>(Off, B);
 }
 
-ChangeStatus ByteInterval::sizeChange(CodeBlock* B, uint64_t OldSize,
-                                      uint64_t NewSize) {
-  return sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
+ChangeStatus ByteInterval::CodeBlockObserverImpl::sizeChange(CodeBlock* B,
+                                                             uint64_t OldSize,
+                                                             uint64_t NewSize) {
+  return BI->sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
 }
 
-ChangeStatus ByteInterval::sizeChange(DataBlock* B, uint64_t OldSize,
-                                      uint64_t NewSize) {
-  return sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
+ChangeStatus ByteInterval::DataBlockObserverImpl::sizeChange(DataBlock* B,
+                                                             uint64_t OldSize,
+                                                             uint64_t NewSize) {
+  return BI->sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
 }
 
 ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,

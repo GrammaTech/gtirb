@@ -110,9 +110,7 @@ public:
 /// relative to the other in memory. If two blocks are in the same ByteInterval,
 /// then it should be considered unknown if moving the two blocks relative to
 /// one another in memory is a safe operation.
-class GTIRB_EXPORT_API ByteInterval : public Node,
-                                      private CodeBlockObserver,
-                                      private DataBlockObserver {
+class GTIRB_EXPORT_API ByteInterval : public Node {
   /// \class Block
   ///
   /// \brief A node (either a \ref CodeBlock or \ref DataBlock), alongside an
@@ -200,15 +198,27 @@ class GTIRB_EXPORT_API ByteInterval : public Node,
     return *It;
   }
 
-  // Implementation of the CodeBlockObserver interface:
+  class CodeBlockObserverImpl : public CodeBlockObserver {
+  public:
+    CodeBlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
 
-  ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
-                          uint64_t NewSize) override;
+    ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
+                            uint64_t NewSize) override;
 
-  // Implementation of the DataBlockObserver interface:
+  private:
+    ByteInterval* BI;
+  };
 
-  ChangeStatus sizeChange(DataBlock* B, uint64_t OldSize,
-                          uint64_t NewSize) override;
+  class DataBlockObserverImpl : public DataBlockObserver {
+  public:
+    DataBlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
+
+    ChangeStatus sizeChange(DataBlock* B, uint64_t OldSize,
+                            uint64_t NewSize) override;
+
+  private:
+    ByteInterval* BI;
+  };
 
   ChangeStatus sizeChange(Node* N, uint64_t OldSize, uint64_t NewSize);
 
@@ -2012,6 +2022,9 @@ private:
   BlockIntMap BlockOffsets;
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;
+
+  CodeBlockObserverImpl CBO{this};
+  DataBlockObserverImpl DBO{this};
 
   friend class Context;   // Friend to enable Context::Create.
   friend class Section;   // Friend to enable Section::(re)moveByteInterval,

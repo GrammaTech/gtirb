@@ -95,9 +95,7 @@ enum class ISA : uint8_t {
 /// \class Module
 ///
 /// \brief Represents a single binary (library or executable).
-class GTIRB_EXPORT_API Module : public AuxDataContainer,
-                                private SectionObserver,
-                                private SymbolObserver {
+class GTIRB_EXPORT_API Module : public AuxDataContainer {
   struct by_address {};
   struct by_name {};
   struct by_pointer {};
@@ -150,40 +148,52 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer,
               boost::multi_index::global_fun<const Symbol&, const Node*,
                                              &get_symbol_referent>>>>;
 
-  // Implementation of the SectionObserver interface:
+  class SectionObserverImpl : public SectionObserver {
+  public:
+    SectionObserverImpl(Module* M_) : M(M_) {}
 
-  ChangeStatus nameChange(Section* S, const std::string& OldName,
-                          const std::string& NewName) override;
+    ChangeStatus nameChange(Section* S, const std::string& OldName,
+                            const std::string& NewName) override;
 
-  ChangeStatus addCodeBlocks(Section* S,
-                             Section::code_block_range Blocks) override;
+    ChangeStatus addCodeBlocks(Section* S,
+                               Section::code_block_range Blocks) override;
 
-  ChangeStatus moveCodeBlocks(Section* S,
-                              Section::code_block_range Blocks) override;
-
-  ChangeStatus removeCodeBlocks(Section* S,
+    ChangeStatus moveCodeBlocks(Section* S,
                                 Section::code_block_range Blocks) override;
 
-  ChangeStatus addDataBlocks(Section* S,
-                             Section::data_block_range Blocks) override;
+    ChangeStatus removeCodeBlocks(Section* S,
+                                  Section::code_block_range Blocks) override;
 
-  ChangeStatus moveDataBlocks(Section* S,
-                              Section::data_block_range Blocks) override;
+    ChangeStatus addDataBlocks(Section* S,
+                               Section::data_block_range Blocks) override;
 
-  ChangeStatus removeDataBlocks(Section* S,
+    ChangeStatus moveDataBlocks(Section* S,
                                 Section::data_block_range Blocks) override;
 
-  ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
-                            std::optional<AddrRange> NewExtent) override;
+    ChangeStatus removeDataBlocks(Section* S,
+                                  Section::data_block_range Blocks) override;
 
-  // Implemention of the SymbolObserver interface.
+    ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
+                              std::optional<AddrRange> NewExtent) override;
 
-  ChangeStatus nameChange(Symbol* S, const std::string& OldName,
-                          const std::string& NewName) override;
+  private:
+    Module* M;
+  };
 
-  ChangeStatus referentChange(
-      Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
-      std::variant<std::monostate, Addr, Node*> NewReferent) override;
+  class SymbolObserverImpl : public SymbolObserver {
+  public:
+    explicit SymbolObserverImpl(Module* M_) : M(M_) {}
+
+    ChangeStatus nameChange(Symbol* S, const std::string& OldName,
+                            const std::string& NewName) override;
+
+    ChangeStatus referentChange(
+        Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
+        std::variant<std::monostate, Addr, Node*> NewReferent) override;
+
+  private:
+    Module* M;
+  };
 
   Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
   Module(Context& C, const std::string& N)
@@ -581,7 +591,7 @@ public:
       S->getModule()->removeSymbol(S);
     }
     Symbols.emplace(S);
-    S->setParent(this, this);
+    S->setParent(this, &SymObs);
     return S;
   }
 
@@ -1869,6 +1879,9 @@ private:
   SectionSet Sections;
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
+
+  SectionObserverImpl SecObs{this};
+  SymbolObserverImpl SymObs{this};
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.
