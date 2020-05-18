@@ -107,50 +107,62 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
 
     ChangeStatus addProxyBlocks(Module* /*M*/,
                                 Module::proxy_block_range Blocks) override {
+      ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (ProxyBlock& PB : Blocks) {
-          assert(!getVertex(&PB, I->Cfg) && "ProxyBlock already added");
-          addVertex(&PB, I->Cfg);
+          // User could have called addVertex themselves, so check first.
+          if (!getVertex(&PB, I->Cfg)) {
+            addVertex(&PB, I->Cfg);
+            Status = ChangeStatus::ACCEPTED;
+          }
         }
-        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::NO_CHANGE;
+      return Status;
     }
 
     ChangeStatus removeProxyBlocks(Module* /*M*/,
                                    Module::proxy_block_range Blocks) override {
+      ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (ProxyBlock& PB : Blocks) {
-          assert(getVertex(&PB, I->Cfg) && "ProxyBlock was not present");
-          removeVertex(&PB, I->Cfg);
+          // User could have called removeVertex themselves, so check first.
+          if (getVertex(&PB, I->Cfg)) {
+            removeVertex(&PB, I->Cfg);
+            Status = ChangeStatus::ACCEPTED;
+          }
         }
-        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::NO_CHANGE;
+      return Status;
     }
 
     ChangeStatus addCodeBlocks(Module* /*M*/,
                                Module::code_block_range Blocks) override {
+      ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (CodeBlock& CB : Blocks) {
-          assert(!getVertex(&CB, I->Cfg) && "CodeBlock already added");
-          addVertex(&CB, I->Cfg);
+          // User could have called addVertex themselves, so check first.
+          if (!getVertex(&CB, I->Cfg)) {
+            addVertex(&CB, I->Cfg);
+            Status = ChangeStatus::ACCEPTED;
+          }
         }
-        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::NO_CHANGE;
+      return Status;
     }
 
     ChangeStatus removeCodeBlocks(Module* /*M*/,
                                   Module::code_block_range Blocks) override {
+      ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (CodeBlock& CB : Blocks) {
-          assert(getVertex(&CB, I->Cfg) && "CodeBlock was not present");
-          removeVertex(&CB, I->Cfg);
+          // User could have called removeVertex themselves, so check first.
+          if (getVertex(&CB, I->Cfg)) {
+            removeVertex(&CB, I->Cfg);
+            Status = ChangeStatus::ACCEPTED;
+          }
         }
-        return ChangeStatus::ACCEPTED;
       }
-      return ChangeStatus::NO_CHANGE;
+      return Status;
     }
 
   private:
