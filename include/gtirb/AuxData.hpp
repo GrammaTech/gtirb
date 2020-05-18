@@ -139,10 +139,10 @@ using to_iterator = std::back_insert_iterator<std::string>;
 
 class FromByteStream {
 public:
-  FromByteStream(const std::string& Bytes)
+  explicit FromByteStream(const std::string& Bytes)
       : Curr(Bytes.begin()), End(Bytes.end()) {}
 
-  bool operator>>(std::byte& Byte) {
+  bool read(std::byte& Byte) {
     if (Curr == End)
       return false;
 
@@ -218,7 +218,7 @@ struct default_serialization<
     auto dest_end = reinterpret_cast<std::byte*>(&object + 1);
     bool Success = true;
     std::for_each(dest_begin, dest_end, [&](auto& b) {
-      if (!(FBS >> b))
+      if (!FBS.read(b))
         Success = false;
     });
     if (!Success) {
@@ -242,7 +242,7 @@ struct auxdata_traits<std::byte> : default_serialization<std::byte> {
   }
 
   static bool fromBytes(std::byte& object, FromByteStream& FBS) {
-    return FBS >> object;
+    return FBS.read(object);
   }
 };
 
