@@ -283,13 +283,13 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, DataBlock* B) {
 ChangeStatus ByteInterval::CodeBlockObserverImpl::sizeChange(CodeBlock* B,
                                                              uint64_t OldSize,
                                                              uint64_t NewSize) {
-  return BI->sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
+  return BI->sizeChange(B, OldSize, NewSize);
 }
 
 ChangeStatus ByteInterval::DataBlockObserverImpl::sizeChange(DataBlock* B,
                                                              uint64_t OldSize,
                                                              uint64_t NewSize) {
-  return BI->sizeChange(reinterpret_cast<Node*>(B), OldSize, NewSize);
+  return BI->sizeChange(B, OldSize, NewSize);
 }
 
 ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
