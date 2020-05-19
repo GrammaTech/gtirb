@@ -161,6 +161,10 @@ public:
     return true;
   }
 
+  uint64_t remainingBytesToRead() const {
+    return static_cast<uint64_t>(std::distance(Curr, End));
+  }
+
 private:
   std::string::const_iterator Curr;
   std::string::const_iterator End;
@@ -291,6 +295,9 @@ template <> struct auxdata_traits<std::string> {
   static bool fromBytes(std::string& Object, FromByteRange& FBR) {
     uint64_t Count;
     if (!auxdata_traits<uint64_t>::fromBytes(Count, FBR))
+      return false;
+
+    if (Count > FBR.remainingBytesToRead())
       return false;
 
     Object.resize(Count);
