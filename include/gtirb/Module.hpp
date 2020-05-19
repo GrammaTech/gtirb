@@ -1818,8 +1818,8 @@ public:
       // nullopt sorts lower than any address.
       if (std::optional<Addr> LowAddr = (*Sections.begin())->getAddress()) {
         // Every Section has an address, so we can calculate the size. Get the
-        // address of the last Section in case it zero size; SectionAddrs does
-        // not track empty Sections.
+        // address of the last Section in case it has zero size; SectionAddrs
+        // does not track empty Sections.
         Addr HighAddr = *(*Sections.rbegin())->getAddress();
         if (!SectionAddrs.empty()) {
           // The last address is the max of the first address in the last

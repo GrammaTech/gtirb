@@ -263,7 +263,7 @@ TEST(Unit_Module, byteIntervals) {
   EXPECT_EQ(&*std::next(M->sections_begin(), 1), S2);
   EXPECT_EQ(&*std::next(M->sections_begin(), 2), S3);
 
-  // Iteration should be alphabetical by section name
+  // Iteration should be alphabetical by section name.
   ASSERT_EQ(
       std::distance(M->sections_by_name_begin(), M->sections_by_name_end()), 3);
   EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 0), S3);
