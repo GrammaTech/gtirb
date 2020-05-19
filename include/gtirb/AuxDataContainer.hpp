@@ -110,11 +110,17 @@ public:
 
     AuxData& AD = *(Found->second);
 
-    assert(AD.getApiTypeId() != AuxData::UNREGISTERED_API_TYPE_ID &&
-           "Attempting to retrieve AuxData with an unregistered type.");
+    // Is this type registered?
+    if (AD.getApiTypeId() == AuxData::UNREGISTERED_API_TYPE_ID) {
+      return nullptr;
+    }
 
-    assert(AD.getApiTypeId() == AuxDataImpl<Schema>::staticGetApiTypeId() &&
-           "Attempting to retrieve AuxData with incorrect type.");
+    // Does the type match the type being requested?
+    if (AD.getApiTypeId() != AuxDataImpl<Schema>::staticGetApiTypeId()) {
+      return nullptr;
+    }
+
+    // If we get here, it should be safe to downcast to the typed AuxDataImpl.
     auto& ADI = static_cast<AuxDataImpl<Schema>&>(AD);
     return ADI.get();
   }

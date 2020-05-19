@@ -344,6 +344,9 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
     if (!auxdata_traits<uint64_t>::fromBytes(Count, FBR))
       return false;
 
+    if (Count > FBR.remainingBytesToRead())
+      return false;
+
     Object.resize(Count);
     bool Success = true;
     std::for_each(Object.begin(), Object.end(), [&](auto& Elt) {
@@ -371,6 +374,9 @@ template <class... Args> struct auxdata_traits<std::set<Args...>> {
   static bool fromBytes(T& Object, FromByteRange& FBR) {
     uint64_t Count;
     if (!auxdata_traits<uint64_t>::fromBytes(Count, FBR))
+      return false;
+
+    if (Count > FBR.remainingBytesToRead())
       return false;
 
     for (uint64_t i = 0; i < Count; i++) {
@@ -402,6 +408,9 @@ struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
   static bool fromBytes(T& Object, FromByteRange& FBR) {
     uint64_t Count;
     if (!auxdata_traits<uint64_t>::fromBytes(Count, FBR))
+      return false;
+
+    if (Count > FBR.remainingBytesToRead())
       return false;
 
     for (uint64_t i = 0; i < Count; i++) {
