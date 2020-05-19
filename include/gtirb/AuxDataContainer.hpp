@@ -112,11 +112,14 @@ public:
 
     // Is this type registered?
     if (AD.getApiTypeId() == AuxData::UNREGISTERED_API_TYPE_ID) {
+      assert(false &&
+             "Attempting to retrieve AuxData with an unregistered type.");
       return nullptr;
     }
 
     // Does the type match the type being requested?
     if (AD.getApiTypeId() != AuxDataImpl<Schema>::staticGetApiTypeId()) {
+      assert(false && "Attempting to retrieve AuxData with incorrect type.");
       return nullptr;
     }
 
