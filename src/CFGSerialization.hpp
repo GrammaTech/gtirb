@@ -17,9 +17,9 @@
 #define GTIRB_CFG_SERIALIZATION_HPP
 
 #include <gtirb/CFG.hpp>
-#include <gtirb/Context.hpp>
 
 namespace gtirb {
+class Context;
 namespace proto {
 class CFG;
 }

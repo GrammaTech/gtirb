@@ -14,6 +14,7 @@
 //===----------------------------------------------------------------------===//
 #include "Serialization.hpp"
 #include <gtirb/Offset.hpp>
+#include <gtirb/proto/Offset.pb.h>
 
 using namespace gtirb;
 

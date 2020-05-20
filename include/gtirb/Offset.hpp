@@ -1,4 +1,3 @@
-
 //===- Offset.hpp ------------------------------------------------*- C++-*-===//
 //
 //  Copyright (C) 2020 GrammaTech, Inc.
@@ -18,12 +17,14 @@
 
 #include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
-#include <gtirb/proto/Offset.pb.h>
 #include <boost/functional/hash.hpp>
 #include <cstdint>
 #include <functional>
 
 namespace gtirb {
+namespace proto {
+class Offset;
+}
 
 /// \class Offset
 ///

@@ -17,11 +17,9 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/ByteInterval.hpp>
-#include <gtirb/CFG.hpp>
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/proto/CodeBlock.pb.h>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
@@ -36,9 +34,8 @@
 namespace gtirb {
 namespace proto {
 class Offset;
+class CodeBlock;
 } // namespace proto
-
-class ByteInterval; // Forward declared for the backpointer.
 
 /// \class CodeBlock
 ///

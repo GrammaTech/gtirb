@@ -16,7 +16,6 @@
 #define GTIRB_CFG_H
 
 #include <gtirb/Casting.hpp>
-#include <gtirb/Context.hpp>
 #include <gtirb/Export.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/filter_iterator.hpp>
@@ -34,8 +33,8 @@
 /// \see CFG_GROUP
 
 namespace gtirb {
-
 class CfgNode;
+class CodeBlock;
 
 /// \defgroup CFG_GROUP Control Flow Graphs (CFGs)
 /// \brief Interprocedural control flow graph, with vertices of type

@@ -20,6 +20,7 @@
 #include <gtirb/Context.hpp> // UUID
 #include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 
 /// \file AuxDataSchema.hpp

@@ -18,10 +18,9 @@
 
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Node.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <type_traits>
-
-#include <boost/iterator/transform_iterator.hpp>
 
 /// \file AuxDataContainer.hpp
 /// \brief Class gtirb::AuxDataContainer.

@@ -16,13 +16,13 @@
 #ifndef GTIRB_SYMBOLIC_EXPRESSION_SERIALIZATION_HPP
 #define GTIRB_SYMBOLIC_EXPRESSION_SERIALIZATION_HPP
 
-#include <gtirb/Context.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 
 namespace gtirb {
 namespace proto {
 class SymbolicExpression;
 }
+class Context;
 
 /// @cond INTERNAL
 /// \brief Initialize a SymbolicExpression from a protobuf message.

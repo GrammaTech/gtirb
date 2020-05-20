@@ -18,7 +18,6 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Offset.hpp>
-#include <gtirb/proto/AuxData.pb.h>
 #include <boost/endian/conversion.hpp>
 #include <deque>
 #include <list>
@@ -38,7 +37,6 @@ namespace gtirb {
 namespace proto {
 class AuxData;
 } // namespace proto
-
 class Context;
 
 /// \defgroup AUXDATA_GROUP AuxData

@@ -20,7 +20,6 @@
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/ProxyBlock.hpp>
-#include <gtirb/proto/Symbol.pb.h>
 #include <functional>
 #include <optional>
 #include <type_traits>
@@ -30,6 +29,9 @@
 /// \brief Class gtirb::Symbol.
 
 namespace gtirb {
+namespace proto {
+class Symbol;
+}
 class Module; // Forward declared for the backpointer.
 
 /// \class Symbol

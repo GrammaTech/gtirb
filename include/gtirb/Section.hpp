@@ -36,10 +36,6 @@
 /// \brief Class gtirb::Section.
 
 namespace gtirb {
-namespace proto {
-class Section;
-}
-
 class Module; // Forward declared for the backpointer.
 
 /// \enum SectionFlag

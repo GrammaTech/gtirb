@@ -18,7 +18,6 @@
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/SymbolicExpression.hpp>
-#include <gtirb/proto/Module.pb.h>
 #include <map>
 
 using namespace gtirb;

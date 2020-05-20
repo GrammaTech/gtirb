@@ -17,8 +17,6 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/AuxDataContainer.hpp>
-#include <gtirb/ByteInterval.hpp>
-#include <gtirb/CFG.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
@@ -47,6 +45,7 @@
 /// \brief Class gtirb::Module and related functions and types.
 
 namespace gtirb {
+class ByteInterval;
 class IR;
 
 /// \enum FileFormat

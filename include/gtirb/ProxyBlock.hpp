@@ -17,7 +17,6 @@
 
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Node.hpp>
-#include <gtirb/proto/ProxyBlock.pb.h>
 
 /// \file ProxyBlock.hpp
 /// \ingroup CFG_GROUP
@@ -25,6 +24,9 @@
 /// \see CFG_GROUP
 
 namespace gtirb {
+namespace proto {
+class ProxyBlock;
+}
 class Module;
 
 /// \class ProxyBlock

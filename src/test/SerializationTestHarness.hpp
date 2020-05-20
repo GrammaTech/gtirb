@@ -17,6 +17,7 @@
 #define SERIALIZATION_TEST_HARNESS_HPP
 
 #include <gtirb/ByteInterval.hpp>
+#include <gtirb/CFG.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Module.hpp>

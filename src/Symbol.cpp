@@ -17,6 +17,7 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
+#include <gtirb/proto/Symbol.pb.h>
 
 using namespace gtirb;
 

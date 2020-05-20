@@ -30,7 +30,6 @@ namespace gtirb {
 namespace proto {
 class DataBlock;
 }
-class ByteInterval; // Forward declared for the backpointer.
 
 ///
 /// \class DataBlock

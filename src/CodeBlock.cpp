@@ -15,6 +15,7 @@
 #include "Serialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
+#include <gtirb/proto/CodeBlock.pb.h>
 
 using namespace gtirb;
 
