@@ -47,20 +47,24 @@ static Context Ctx;
 TEST(Unit_CFG, addVertex) {
   CFG Cfg;
   auto* B = CodeBlock::Create(Ctx, 2);
-  auto Descriptor1 = addVertex(B, Cfg);
+  auto [Descriptor1, Added1] = addVertex(B, Cfg);
+  EXPECT_TRUE(Added1);
   EXPECT_EQ(Cfg[Descriptor1], B);
   EXPECT_EQ(dyn_cast<CodeBlock>(Cfg[Descriptor1])->getSize(), 2);
 
   // adding the same block again doesn't change the graph
-  auto Descriptor2 = addVertex(B, Cfg);
+  auto [Descriptor2, Added2] = addVertex(B, Cfg);
+  EXPECT_FALSE(Added2);
   EXPECT_EQ(Descriptor2, Descriptor1);
   auto Vertices = vertices(Cfg);
   EXPECT_EQ(std::distance(Vertices.first, Vertices.second), 1);
 
   auto* P = ProxyBlock::Create(Ctx);
-  auto Descriptor3 = addVertex(P, Cfg);
+  auto [Descriptor3, Added3] = addVertex(P, Cfg);
+  EXPECT_TRUE(Added3);
   EXPECT_EQ(Cfg[Descriptor3], P);
-  auto Descriptor4 = addVertex(P, Cfg);
+  auto [Descriptor4, Added4] = addVertex(P, Cfg);
+  EXPECT_FALSE(Added4);
   EXPECT_EQ(Descriptor4, Descriptor3);
   Vertices = vertices(Cfg);
   EXPECT_EQ(std::distance(Vertices.first, Vertices.second), 2);
@@ -70,8 +74,8 @@ TEST(Unit_CFG, getVertex) {
   CFG Cfg;
   auto* B = CodeBlock::Create(Ctx, 2);
   auto* P = ProxyBlock::Create(Ctx);
-  auto DescriptorB = addVertex(B, Cfg);
-  auto DescriptorP = addVertex(P, Cfg);
+  auto DescriptorB = addVertex(B, Cfg).first;
+  auto DescriptorP = addVertex(P, Cfg).first;
   EXPECT_EQ(getVertex(B, Cfg), DescriptorB);
   EXPECT_EQ(getVertex(P, Cfg), DescriptorP);
 }

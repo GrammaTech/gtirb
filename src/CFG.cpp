@@ -19,25 +19,27 @@
 #include <map>
 
 namespace gtirb {
-CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg) {
+std::pair<CFG::vertex_descriptor, bool> addVertex(CfgNode* B, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
   if (auto it = IdTable.find(B); it != IdTable.end()) {
-    return it->second;
+    return std::make_pair(it->second, false);
   }
 
   auto Vertex = add_vertex(Cfg);
   Cfg[Vertex] = B;
   IdTable[B] = Vertex;
-  return Vertex;
+  return std::make_pair(Vertex, true);
 }
 
-void removeVertex(CfgNode* N, CFG& Cfg) {
+bool removeVertex(CfgNode* N, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
   if (auto it = IdTable.find(N); it != IdTable.end()) {
     clear_vertex(it->second, Cfg);
     remove_vertex(it->second, Cfg);
     IdTable.erase(it);
+    return true;
   }
+  return false;
 }
 
 std::optional<CFG::vertex_descriptor> getVertex(const CfgNode* N,

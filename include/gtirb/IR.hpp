@@ -110,11 +110,10 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
       ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (ProxyBlock& PB : Blocks) {
-          // User could have called addVertex themselves, so check first.
-          if (!getVertex(&PB, I->Cfg)) {
-            addVertex(&PB, I->Cfg);
+          // User could have called addVertex themselves, so check whether we
+          // actually modified the graph.
+          if (addVertex(&PB, I->Cfg).second)
             Status = ChangeStatus::ACCEPTED;
-          }
         }
       }
       return Status;
@@ -125,11 +124,10 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
       ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (ProxyBlock& PB : Blocks) {
-          // User could have called removeVertex themselves, so check first.
-          if (getVertex(&PB, I->Cfg)) {
-            removeVertex(&PB, I->Cfg);
+          // User could have called removeVertex themselves, so check whether
+          // we actually modified the graph.
+          if (removeVertex(&PB, I->Cfg))
             Status = ChangeStatus::ACCEPTED;
-          }
         }
       }
       return Status;
@@ -140,11 +138,10 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
       ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (CodeBlock& CB : Blocks) {
-          // User could have called addVertex themselves, so check first.
-          if (!getVertex(&CB, I->Cfg)) {
-            addVertex(&CB, I->Cfg);
+          // User could have called addVertex themselves, so check whether we
+          // actually modified the graph.
+          if (addVertex(&CB, I->Cfg).second)
             Status = ChangeStatus::ACCEPTED;
-          }
         }
       }
       return Status;
@@ -155,11 +152,10 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
       ChangeStatus Status = ChangeStatus::NO_CHANGE;
       if (!Blocks.empty()) {
         for (CodeBlock& CB : Blocks) {
-          // User could have called removeVertex themselves, so check first.
-          if (getVertex(&CB, I->Cfg)) {
-            removeVertex(&CB, I->Cfg);
+          // User could have called removeVertex themselves, so check whether
+          // we actually modified the graph.
+          if (removeVertex(&CB, I->Cfg))
             Status = ChangeStatus::ACCEPTED;
-          }
         }
       }
       return Status;

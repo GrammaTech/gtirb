@@ -199,8 +199,10 @@ using const_block_iterator = cfg_node_cast_iter<const CodeBlock>;
 /// \param N    The CFG node to add.
 /// \param Cfg  The graph to modify.
 ///
-/// \return A descriptor which can be used to retrieve the node from the graph.
-GTIRB_EXPORT_API CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg);
+/// \return A pair consisting of a descriptor to the vertex for that node and a
+/// \c bool indicating whether the graph was modified.
+GTIRB_EXPORT_API std::pair<CFG::vertex_descriptor, bool>
+addVertex(CfgNode* B, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Remove a node from the CFG.
@@ -209,7 +211,9 @@ GTIRB_EXPORT_API CFG::vertex_descriptor addVertex(CfgNode* B, CFG& Cfg);
 ///
 /// \param N    The CFG node to remove.
 /// \param Cfg  The graph to modify.
-GTIRB_EXPORT_API void removeVertex(CfgNode* N, CFG& Cfg);
+///
+/// \return A \c bool indicating whether the graph was modified.
+GTIRB_EXPORT_API bool removeVertex(CfgNode* N, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Get the boost::graph vertex descriptor for a CfgNode if it is in the
