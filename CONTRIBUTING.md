@@ -94,6 +94,28 @@ To use `pre-commit`:
   for clients. For example, do not add static function-local variables
   in inline functions in header files.
 
+## Build Performance Tips
+
+Some tips to keep in mind to not needlessly regress build performance when
+working with GTIRB:
+
+- Do not include a protobuf header from within a .hpp file unless you need the
+  enum values from protobuf. A forward declare + include in the .cpp file is
+  sufficient and cuts out 100s of transitive headers to parse.
+- CFG.hpp and ByteInterval.hpp are the most expensive headers you can possibly
+  include. Avoid including these whenever humanly possible (getting rid of 2
+  includes of CFG.hpp cut out ~2500 transitive header includes).
+- Boost headers are extremely heavy to parse, try to push as much of their
+  inclusions down into a .cpp file as possible. For instance, including boost's
+  endian header requires ~200 transitive headers by itself. Things like the
+  boost containers are considerably more expensive. This is what contributes to
+  ByteInterval and CFG being so expensive to include. Be wary when adding
+  includes to boost headers or adding new boost dependencies.
+- Do not blindly trust the output from tools like include what you use; they
+  sometimes do silly things like include a header file when a forward declare is
+  sufficient. When adding an include to a .hpp file, try hard to avoid adding
+  the include.
+
 ### Testing Development
 
 - All code you care about should be tested.
