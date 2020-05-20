@@ -221,11 +221,13 @@ For more details, see [Using Serialized GTIRB Data](PROTOBUF.md).
 
 ## GTIRB API Implementations
 
-The GTIRB API is currently available in C++, Python, and Common
-Lisp. For language-independent API information, see [GTIRB
+The GTIRB API is currently available in C++, Python, and Common Lisp.
+There is a *partial* Java API which is not ready for external use.
+For language-independent API information, see [GTIRB
 Components](doc/general/ComponentsIndex.md). For information about the
 different API implementations, see:
 
   - [C++ API](doc/cpp/README.md)
   - [Python API](python/README.md)
   - [Common Lisp API](cl/README.md)
+  - Java API **incomplete**
