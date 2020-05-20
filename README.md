@@ -91,7 +91,12 @@ tooling including the [ddisasm](https://github.com/GrammaTech/ddisasm)
 disassembler and
 [gtirb-pprinter](https://github.com/GrammaTech/gtirb-pprinter) pretty
 printer) on Windows, Ubuntu, and Arch Linux.  See below for
-instructions.
+instructions.  GTIRB is versioned with Major.Minor.Patch versioning
+where Major version increments will require significant source changes
+but should be very rare, Minor version increments may require small
+source changes, and Patch version increments shouldn't break any
+downstream builds.  We do not yet provide ABI compatibility across any
+version changes.
 
 ## Windows
 Pre-built debug and release binaries are available for Windows at:
