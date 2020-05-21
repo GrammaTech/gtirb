@@ -236,7 +236,8 @@
   ;; uint64 value = 2[json_name = "value"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 16))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'value))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'value))))
   ;; string name = 3[json_name = "name"];
   (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 26))
@@ -248,7 +249,8 @@
   ;; bool at_end = 6[json_name = "atEnd"];
   (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 48))
-    (cl:setf index (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'at-end))))
+    (cl:setf index
+             (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'at-end))))
   index)
 
 (cl:defmethod pb:merge-from-array ((self symbol) buffer start limit)
@@ -314,9 +316,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self symbol) (from symbol))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -334,6 +334,6 @@
   (cl:when (cl:logbitp 4 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'at-end) (cl:slot-value from 'at-end))
     (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

@@ -68,10 +68,10 @@
               :element-type 'gtirb.proto::section-flag
               :fill-pointer 0 :adjustable cl:t)
    :type (cl:vector gtirb.proto::section-flag))
-  (&section-flags-cached-size
-   :accessor &section-flags-cached-size
+  (pb::%section-flags-cached-size%
+   :accessor pb::%section-flags-cached-size%
    :initform 0
-   :type com.google.base:vector-index)
+   :type (cl:integer 0 #.(cl:1- cl:array-dimension-limit)))
   (%has-bits%
    :accessor %has-bits%
    :initform 0
@@ -217,10 +217,9 @@
               (data-size 0))
       (cl:when (cl:plusp length)
         (cl:dotimes (i length)
-          (cl:incf data-size (varint:length32 (cl:ldb (cl:byte 32 0) (cl:aref x i)))))
+          (cl:incf data-size (varint:length64 (cl:ldb (cl:byte 64 0) (cl:aref x i)))))
         (cl:incf size (cl:+ 1 (varint:length32 data-size) data-size)))
-      (cl:setf (cl:slot-value self '&section-flags-cached-size) data-size))
-
+      (cl:setf (cl:slot-value self 'pb::%section-flags-cached-size%) data-size))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -249,8 +248,8 @@
     (cl:when (cl:plusp length)
       (cl:setf index (varint:encode-uint32-carefully buffer index limit 50))
       (cl:setf index
-               (varint:encode-uint32-carefully buffer index limit
-                                               (cl:slot-value self '&section-flags-cached-size)))
+               (varint:encode-uint32-carefully
+                buffer index limit (cl:slot-value self 'pb::%section-flags-cached-size%)))
       (cl:loop for i from 0 below length do
         (cl:setf index
                  (varint:encode-uint64-carefully
@@ -313,8 +312,9 @@
                   (cl:loop while (cl:< index end) do
                     (cl:multiple-value-bind (value new-index)
                         (varint:parse-int32-carefully buffer index limit)
-                      ;; XXXXX: when valid, set field, else add to unknown fields
-                      (cl:vector-push-extend value (cl:slot-value self 'section-flags))
+                      ;; XXXX: When invalid, add to unknown fields.
+                      (cl:when (cl:typep value 'gtirb.proto::section-flag)
+                        (cl:vector-push-extend value (cl:slot-value self 'section-flags)))
                       (cl:setf index new-index))))))
             ((cl:= wire-type wire-format:+length-delimited+)
               (cl:multiple-value-bind (length new-index)
@@ -324,16 +324,15 @@
                   (cl:loop while (cl:< index end) do
                     (cl:multiple-value-bind (value new-index)
                         (varint:parse-int32-carefully buffer index limit)
-                      ;; XXXXX: when valid, set field, else add to unknown fields
-                      (cl:vector-push-extend value (cl:slot-value self 'section-flags))
+                      ;; XXXX: When invalid, add to unknown fields.
+                      (cl:when (cl:typep value 'gtirb.proto::section-flag)
+                        (cl:vector-push-extend value (cl:slot-value self 'section-flags)))
                       (cl:setf index new-index))))))
             (cl:t (cl:error 'wire-format:alignment))))
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self section) (from section))
   (cl:let* ((v (cl:slot-value self 'byte-intervals))
@@ -352,6 +351,6 @@
   (cl:when (cl:logbitp 1 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'name) (cl:slot-value from 'name))
     (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

@@ -330,9 +330,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self ir-aux-data-entry) (from ir-aux-data-entry))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -345,7 +343,7 @@
         (cl:setf (cl:slot-value self 'value) message)
         (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'value))))
-)
+  )
 
 
 
@@ -438,7 +436,8 @@
   ;; uint32 version = 6[json_name = "version"];
   (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 48))
-    (cl:setf index (varint:encode-uint32-carefully buffer index limit (cl:slot-value self 'version))))
+    (cl:setf index
+             (varint:encode-uint32-carefully buffer index limit (cl:slot-value self 'version))))
   ;; .gtirb.proto.CFG cfg = 7[json_name = "cfg"];
   (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 58))
@@ -499,7 +498,9 @@
           (cl:cond
             ((cl:= wire-type wire-format:+varint+)
               (cl:multiple-value-bind (value new-index)
-                  (varint:parse-uint32-carefully buffer index limit)
+                  (cl:multiple-value-bind (x new-index)
+    (varint:parse-uint64-carefully buffer index limit)
+  (cl:values (cl:ldb (cl:byte 32 0) x) new-index))
                 (cl:setf (cl:slot-value self 'version) value)
                 (cl:setf (cl:ldb (cl:byte 1 3) (cl:slot-value self '%has-bits%)) 1)
                 (cl:setf index new-index)))
@@ -524,9 +525,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self ir) (from ir))
   (cl:let* ((v (cl:slot-value self 'modules))
@@ -552,6 +551,6 @@
         (cl:setf (cl:slot-value self 'cfg) message)
         (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'cfg))))
-)
+  )
 
 

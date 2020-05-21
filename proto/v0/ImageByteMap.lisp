@@ -282,19 +282,23 @@
   ;; uint64 addr_min = 3[json_name = "addrMin"];
   (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 24))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'addr-min))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'addr-min))))
   ;; uint64 addr_max = 4[json_name = "addrMax"];
   (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 32))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'addr-max))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'addr-max))))
   ;; uint64 base_address = 5[json_name = "baseAddress"];
   (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 40))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'base-address))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'base-address))))
   ;; uint64 entry_point_address = 6[json_name = "entryPointAddress"];
   (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 48))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'entry-point-address))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'entry-point-address))))
   index)
 
 (cl:defmethod pb:merge-from-array ((self image-byte-map) buffer start limit)
@@ -377,9 +381,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self image-byte-map) (from image-byte-map))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -404,6 +406,6 @@
   (cl:when (cl:logbitp 5 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'entry-point-address) (cl:slot-value from 'entry-point-address))
     (cl:setf (cl:ldb (cl:byte 1 5) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

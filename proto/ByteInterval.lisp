@@ -176,7 +176,8 @@
   ;; uint64 offset = 1[json_name = "offset"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'offset))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'offset))))
   ;; .gtirb.proto.CodeBlock code = 2[json_name = "code"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 18))
@@ -246,9 +247,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self block) (from block))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -268,7 +267,7 @@
         (cl:setf (cl:slot-value self 'data) message)
         (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'data))))
-)
+  )
 
 
 (cl:defclass byte-interval-symbolic-expressions-entry (pb:protocol-buffer)
@@ -587,7 +586,8 @@
   ;; uint64 key = 1[json_name = "key"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'key))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'key))))
   ;; .gtirb.proto.SymbolicExpression value = 2[json_name = "value"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 18))
@@ -635,9 +635,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self byte-interval-symbolic-expressions-entry) (from byte-interval-symbolic-expressions-entry))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -650,7 +648,7 @@
         (cl:setf (cl:slot-value self 'value) message)
         (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'value))))
-)
+  )
 
 
 
@@ -758,15 +756,18 @@
   ;; bool has_address = 4[json_name = "hasAddress"];
   (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 32))
-    (cl:setf index (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'has-address))))
+    (cl:setf index
+             (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'has-address))))
   ;; uint64 address = 5[json_name = "address"];
   (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 40))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'address))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'address))))
   ;; uint64 size = 6[json_name = "size"];
   (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 48))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'size))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'size))))
   ;; bytes contents = 7[json_name = "contents"];
   (cl:when (cl:logbitp 6 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 58))
@@ -864,9 +865,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self byte-interval) (from byte-interval))
   (cl:let* ((v (cl:slot-value self 'blocks))
@@ -894,6 +893,6 @@
   (cl:when (cl:logbitp 6 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'contents) (cl:slot-value from 'contents))
     (cl:setf (cl:ldb (cl:byte 1 6) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

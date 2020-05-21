@@ -217,9 +217,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self aux-data-container-aux-data-entry) (from aux-data-container-aux-data-entry))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -232,7 +230,7 @@
         (cl:setf (cl:slot-value self 'value) message)
         (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'value))))
-)
+  )
 
 
 
@@ -305,9 +303,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self aux-data-container) (from aux-data-container))
   (cl:let* ((v (cl:slot-value self 'aux-data))
@@ -315,6 +311,6 @@
             (length (cl:length vf)))
     (cl:loop for i from 0 below length do
       (cl:vector-push-extend (cl:aref vf i) v)))
-)
+  )
 
 

@@ -127,7 +127,8 @@
   ;; uint64 size = 3[json_name = "size"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 24))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'size))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'size))))
   index)
 
 (cl:defmethod pb:merge-from-array ((self data-block) buffer start limit)
@@ -163,9 +164,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self data-block) (from data-block))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -174,6 +173,6 @@
   (cl:when (cl:logbitp 1 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'size) (cl:slot-value from 'size))
     (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

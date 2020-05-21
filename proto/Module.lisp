@@ -582,9 +582,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self module-aux-data-entry) (from module-aux-data-entry))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -597,7 +595,7 @@
         (cl:setf (cl:slot-value self 'value) message)
         (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'value))))
-)
+  )
 
 
 
@@ -742,23 +740,25 @@
   ;; uint64 preferred_addr = 3[json_name = "preferredAddr"];
   (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 24))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'preferred-addr))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'preferred-addr))))
   ;; int64 rebase_delta = 4[json_name = "rebaseDelta"];
   (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 32))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'rebase-delta)))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'rebase-delta)))))
   ;; .gtirb.proto.FileFormat file_format = 5[json_name = "fileFormat"];
   (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 40))
     (cl:setf index
-     (varint:encode-uint64-carefully buffer index limit
-      (cl:ldb (cl:byte 64 0) (cl:slot-value self 'file-format)))))
+             (varint:encode-uint64-carefully buffer index limit
+               (cl:ldb (cl:byte 64 0) (cl:slot-value self 'file-format)))))
   ;; .gtirb.proto.ISA isa = 6[json_name = "isa"];
   (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 48))
     (cl:setf index
-     (varint:encode-uint64-carefully buffer index limit
-      (cl:ldb (cl:byte 64 0) (cl:slot-value self 'isa)))))
+             (varint:encode-uint64-carefully buffer index limit
+               (cl:ldb (cl:byte 64 0) (cl:slot-value self 'isa)))))
   ;; string name = 7[json_name = "name"];
   (cl:when (cl:logbitp 6 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 58))
@@ -853,9 +853,10 @@
             ((cl:= wire-type wire-format:+varint+)
               (cl:multiple-value-bind (value new-index)
                   (varint:parse-int32-carefully buffer index limit)
-                ;; XXXXX: when valid, set field, else add to unknown fields
-                (cl:setf (cl:slot-value self 'file-format) value)
-                (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1)
+                ;; XXXX: When invalid, add to unknown fields.
+                (cl:when (cl:typep value 'gtirb.proto::file-format)
+                  (cl:setf (cl:slot-value self 'file-format) value)
+                  (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1))
                 (cl:setf index new-index)))
             (cl:t (cl:error 'wire-format:alignment))))
         ;; .gtirb.proto.ISA isa = 6[json_name = "isa"];
@@ -864,9 +865,10 @@
             ((cl:= wire-type wire-format:+varint+)
               (cl:multiple-value-bind (value new-index)
                   (varint:parse-int32-carefully buffer index limit)
-                ;; XXXXX: when valid, set field, else add to unknown fields
-                (cl:setf (cl:slot-value self 'isa) value)
-                (cl:setf (cl:ldb (cl:byte 1 5) (cl:slot-value self '%has-bits%)) 1)
+                ;; XXXX: When invalid, add to unknown fields.
+                (cl:when (cl:typep value 'gtirb.proto::isa)
+                  (cl:setf (cl:slot-value self 'isa) value)
+                  (cl:setf (cl:ldb (cl:byte 1 5) (cl:slot-value self '%has-bits%)) 1))
                 (cl:setf index new-index)))
             (cl:t (cl:error 'wire-format:alignment))))
         ;; string name = 7[json_name = "name"];
@@ -948,9 +950,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self module) (from module))
   (cl:let* ((v (cl:slot-value self 'symbols))
@@ -997,6 +997,6 @@
   (cl:when (cl:logbitp 11 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'entry-point) (cl:slot-value from 'entry-point))
     (cl:setf (cl:ldb (cl:byte 1 11) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

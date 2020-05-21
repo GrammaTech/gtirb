@@ -123,7 +123,8 @@
   ;; uint64 address = 1[json_name = "address"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'address))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'address))))
   ;; bytes data = 2[json_name = "data"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 18))
@@ -163,9 +164,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self region) (from region))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -174,7 +173,7 @@
   (cl:when (cl:logbitp 1 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'data) (cl:slot-value from 'data))
     (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 
 (cl:defclass byte-map (pb:protocol-buffer)
@@ -281,9 +280,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self byte-map) (from byte-map))
   (cl:let* ((v (cl:slot-value self 'regions))
@@ -291,6 +288,6 @@
             (length (cl:length vf)))
     (cl:loop for i from 0 below length do
       (cl:vector-push-extend (cl:aref vf i) v)))
-)
+  )
 
 

@@ -123,7 +123,8 @@
   ;; int32 offset = 1[json_name = "offset"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset)))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset)))))
   ;; bytes symbol_uuid = 2[json_name = "symbolUuid"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 18))
@@ -163,9 +164,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self sym-stack-const) (from sym-stack-const))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -174,7 +173,7 @@
   (cl:when (cl:logbitp 1 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'symbol-uuid) (cl:slot-value from 'symbol-uuid))
     (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 
 (cl:defclass sym-addr-const (pb:protocol-buffer)
@@ -289,7 +288,8 @@
   ;; int64 offset = 1[json_name = "offset"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset)))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset)))))
   ;; bytes symbol_uuid = 2[json_name = "symbolUuid"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 18))
@@ -329,9 +329,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self sym-addr-const) (from sym-addr-const))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -340,7 +338,7 @@
   (cl:when (cl:logbitp 1 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'symbol-uuid) (cl:slot-value from 'symbol-uuid))
     (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 
 (cl:defclass sym-addr-addr (pb:protocol-buffer)
@@ -527,11 +525,13 @@
   ;; int64 scale = 1[json_name = "scale"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'scale)))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'scale)))))
   ;; int64 offset = 2[json_name = "offset"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 16))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset)))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset)))))
   ;; bytes symbol1_uuid = 3[json_name = "symbol1Uuid"];
   (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 26))
@@ -595,9 +595,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self sym-addr-addr) (from sym-addr-addr))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -612,7 +610,7 @@
   (cl:when (cl:logbitp 3 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'symbol2-uuid) (cl:slot-value from 'symbol2-uuid))
     (cl:setf (cl:ldb (cl:byte 1 3) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 
 (cl:defclass symbolic-expression (pb:protocol-buffer)
@@ -868,9 +866,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self symbolic-expression) (from symbolic-expression))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -894,6 +890,6 @@
         (cl:setf (cl:slot-value self 'addr-addr) message)
         (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'addr-addr))))
-)
+  )
 
 

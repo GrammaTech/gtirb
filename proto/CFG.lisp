@@ -186,17 +186,19 @@
   ;; bool conditional = 1[json_name = "conditional"];
   (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 8))
-    (cl:setf index (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'conditional))))
+    (cl:setf index
+             (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'conditional))))
   ;; bool direct = 2[json_name = "direct"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 16))
-    (cl:setf index (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'direct))))
+    (cl:setf index
+             (wire-format:write-boolean-carefully buffer index limit (cl:slot-value self 'direct))))
   ;; .gtirb.proto.EdgeType type = 3[json_name = "type"];
   (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 24))
     (cl:setf index
-     (varint:encode-uint64-carefully buffer index limit
-      (cl:ldb (cl:byte 64 0) (cl:slot-value self 'type)))))
+             (varint:encode-uint64-carefully buffer index limit
+               (cl:ldb (cl:byte 64 0) (cl:slot-value self 'type)))))
   index)
 
 (cl:defmethod pb:merge-from-array ((self edge-label) buffer start limit)
@@ -235,17 +237,16 @@
             ((cl:= wire-type wire-format:+varint+)
               (cl:multiple-value-bind (value new-index)
                   (varint:parse-int32-carefully buffer index limit)
-                ;; XXXXX: when valid, set field, else add to unknown fields
-                (cl:setf (cl:slot-value self 'type) value)
-                (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1)
+                ;; XXXX: When invalid, add to unknown fields.
+                (cl:when (cl:typep value 'gtirb.proto::edge-type)
+                  (cl:setf (cl:slot-value self 'type) value)
+                  (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1))
                 (cl:setf index new-index)))
             (cl:t (cl:error 'wire-format:alignment))))
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self edge-label) (from edge-label))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -257,7 +258,7 @@
   (cl:when (cl:logbitp 2 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'type) (cl:slot-value from 'type))
     (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 
 (cl:defclass edge (pb:protocol-buffer)
@@ -481,9 +482,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self edge) (from edge))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -499,7 +498,7 @@
         (cl:setf (cl:slot-value self 'label) message)
         (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'label))))
-)
+  )
 
 
 (cl:defclass cfg (pb:protocol-buffer)
@@ -656,9 +655,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self cfg) (from cfg))
   (cl:let ((v (cl:slot-value self 'vertices))
@@ -670,6 +667,6 @@
             (length (cl:length vf)))
     (cl:loop for i from 0 below length do
       (cl:vector-push-extend (cl:aref vf i) v)))
-)
+  )
 
 

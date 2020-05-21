@@ -233,9 +233,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self ir) (from ir))
   (cl:let* ((v (cl:slot-value self 'modules))
@@ -253,6 +251,6 @@
         (cl:setf (cl:slot-value self 'aux-data-container) message)
         (cl:setf (cl:ldb (cl:byte 1 2) (cl:slot-value self '%has-bits%)) 1))
      (pb:merge-from-message message (cl:slot-value from 'aux-data-container))))
-)
+  )
 
 

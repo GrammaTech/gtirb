@@ -127,7 +127,8 @@
   ;; uint64 displacement = 2[json_name = "displacement"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 16))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'displacement))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'displacement))))
   index)
 
 (cl:defmethod pb:merge-from-array ((self offset) buffer start limit)
@@ -163,9 +164,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self offset) (from offset))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -174,6 +173,6 @@
   (cl:when (cl:logbitp 1 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'displacement) (cl:slot-value from 'displacement))
     (cl:setf (cl:ldb (cl:byte 1 1) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 

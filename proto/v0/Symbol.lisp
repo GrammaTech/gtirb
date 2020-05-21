@@ -263,7 +263,8 @@
   ;; uint64 value = 2[json_name = "value"];
   (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 16))
-    (cl:setf index (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'value))))
+    (cl:setf index
+             (varint:encode-uint64-carefully buffer index limit (cl:slot-value self 'value))))
   ;; string name = 3[json_name = "name"];
   (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 26))
@@ -272,8 +273,8 @@
   (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 32))
     (cl:setf index
-     (varint:encode-uint64-carefully buffer index limit
-      (cl:ldb (cl:byte 64 0) (cl:slot-value self 'storage-kind)))))
+             (varint:encode-uint64-carefully buffer index limit
+               (cl:ldb (cl:byte 64 0) (cl:slot-value self 'storage-kind)))))
   ;; bytes referent_uuid = 5[json_name = "referentUuid"];
   (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
     (cl:setf index (varint:encode-uint32-carefully buffer index limit 42))
@@ -326,9 +327,10 @@
             ((cl:= wire-type wire-format:+varint+)
               (cl:multiple-value-bind (value new-index)
                   (varint:parse-int32-carefully buffer index limit)
-                ;; XXXXX: when valid, set field, else add to unknown fields
-                (cl:setf (cl:slot-value self 'storage-kind) value)
-                (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1)
+                ;; XXXX: When invalid, add to unknown fields.
+                (cl:when (cl:typep value 'proto-v0::storage-kind)
+                  (cl:setf (cl:slot-value self 'storage-kind) value)
+                  (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1))
                 (cl:setf index new-index)))
             (cl:t (cl:error 'wire-format:alignment))))
         ;; bytes referent_uuid = 5[json_name = "referentUuid"];
@@ -344,9 +346,7 @@
         (cl:t
           (cl:when (cl:= wire-type wire-format:+end-group+)
             (cl:return-from pb:merge-from-array index))
-          (cl:setf index
-            (wire-format:skip-field field-number wire-type buffer index limit))
-          )))))
+          (cl:setf index (wire-format:skip-field field-number wire-type buffer index limit)))))))
 
 (cl:defmethod pb:merge-from-message ((self symbol) (from symbol))
   (cl:when (cl:logbitp 0 (cl:slot-value from '%has-bits%))
@@ -364,6 +364,6 @@
   (cl:when (cl:logbitp 4 (cl:slot-value from '%has-bits%))
     (cl:setf (cl:slot-value self 'storage-kind) (cl:slot-value from 'storage-kind))
     (cl:setf (cl:ldb (cl:byte 1 4) (cl:slot-value self '%has-bits%)) 1))
-)
+  )
 
 
