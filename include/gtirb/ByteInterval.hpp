@@ -1375,8 +1375,8 @@ public:
   /// \param  N           The block to move.
   ///
   /// \return a ChangeStatus indicating whether the insertion took place
-  /// (\c ACCEPTED), was unnecessary because this node already contained the
-  /// CodeBlock (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  /// (\c Accepted), was unnecessary because this node already contained the
+  /// CodeBlock (\c NoChange), or could not be completed (\c Rejected).
   ChangeStatus addBlock(uint64_t Off, CodeBlock* N);
 
   /// \brief Move an existing DataBlock to be a part of this interval.
@@ -1385,8 +1385,8 @@ public:
   /// \param  N           The block to move.
   ///
   /// \return a ChangeStatus indicating whether the insertion took place
-  /// (\c ACCEPTED), was unnecessary because this node already contained the
-  /// DataBlock (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  /// (\c Accepted), was unnecessary because this node already contained the
+  /// DataBlock (\c NoChange), or could not be completed (\c Rejected).
   ChangeStatus addBlock(uint64_t Off, DataBlock* N);
 
   /// \brief Creates a new \ref Block of the given type at a given offset.
@@ -1402,9 +1402,9 @@ public:
     BlockType* B = BlockType::Create(C, std::forward<Args>(A)...);
     [[maybe_unused]] ChangeStatus Status = addBlock(O, B);
     // addBlock(uint64_t, BlockType*) does not currently reject any insertions
-    // and the result cannot be NO_CHANGE because we just inserted a newly
+    // and the result cannot be NoChange because we just inserted a newly
     // created ByteInterval.
-    assert(Status == ChangeStatus::ACCEPTED &&
+    assert(Status == ChangeStatus::Accepted &&
            "unexpected result when inserting ByteInterval");
     return B;
   }

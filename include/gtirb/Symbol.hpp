@@ -437,7 +437,7 @@ inline void Symbol::setName(const std::string& N) {
     std::swap(Name, OldName);
     [[maybe_unused]] ChangeStatus Status =
         Observer->nameChange(this, OldName, Name);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected name change is unsupported");
   } else {
     Name = N;
@@ -450,7 +450,7 @@ inline void Symbol::setAddress(Addr A) {
     Payload = A;
     [[maybe_unused]] ChangeStatus Status =
         Observer->referentChange(this, OldValue, Payload);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected address change is unsupported");
   } else {
     Payload = A;
@@ -467,7 +467,7 @@ inline void Symbol::setReferentFromNode(Node* N) {
   if (Observer) {
     [[maybe_unused]] ChangeStatus Status =
         Observer->referentChange(this, OldValue, Payload);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected referent change is unsupported");
   }
 }

@@ -174,13 +174,13 @@ void ByteInterval::setAddress(std::optional<Addr> A) {
     Address = A;
     [[maybe_unused]] ChangeStatus Status =
         Observer->changeExtent(this, OldExtent, addressRange(*this));
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected address change is not implemented yet");
     Status = Observer->moveCodeBlocks(this, code_blocks());
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected address change is not implemented yet");
     Status = Observer->moveDataBlocks(this, data_blocks());
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected address change is not implemented yet");
   } else {
     Address = A;
@@ -193,7 +193,7 @@ void ByteInterval::setSize(uint64_t S) {
     Size = S;
     [[maybe_unused]] ChangeStatus Status =
         Observer->changeExtent(this, OldExtent, addressRange(*this));
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected size change is not implemented yet");
   } else {
     Size = S;
@@ -231,18 +231,18 @@ ChangeStatus ByteInterval::removeBlock(BlockType* B) {
       // implementation will need to be changed as well. Because addBlock
       // assumes that this removal will not be rejected, it will also need to
       // be updated.
-      assert(Status != ChangeStatus::REJECTED &&
+      assert(Status != ChangeStatus::Rejected &&
              "recovering from rejected removal is not implemented yet");
     }
 
     [[maybe_unused]] ChangeStatus Status = sizeChange(B, B->getSize(), 0);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected removal is not implemented yet");
     Index.erase(Iter);
     B->setParent(nullptr, nullptr);
-    return ChangeStatus::ACCEPTED;
+    return ChangeStatus::Accepted;
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus ByteInterval::removeBlock(CodeBlock* B) {
@@ -279,10 +279,10 @@ template <typename BlockType, typename IterType>
 ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
   if (ByteInterval* BI = B->getByteInterval()) {
     if (BI == this) {
-      return ChangeStatus::NO_CHANGE;
+      return ChangeStatus::NoChange;
     }
     [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "failed to remove node from parent");
   }
 
@@ -296,14 +296,14 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
     [[maybe_unused]] ChangeStatus Status = addBlocks(Observer, this, Range);
     // None of the known observers reject insertions. If that changes, this
     // implementation must be updated.
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected insertion is unimplemented");
   }
 
   [[maybe_unused]] ChangeStatus Status = sizeChange(B, 0, B->getSize());
-  assert(Status != ChangeStatus::REJECTED &&
+  assert(Status != ChangeStatus::Rejected &&
          "recovering from rejected size change is unimplemented");
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }
 
 ChangeStatus ByteInterval::addBlock(uint64_t Off, CodeBlock* B) {
@@ -339,5 +339,5 @@ ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
       std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
                          Iter->Offset, Iter->Offset + NewSize),
                      ByteInterval::BlockIntMap::codomain_type({&*Iter})));
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }

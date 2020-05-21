@@ -99,7 +99,7 @@ public:
       std::swap(Size, S);
       [[maybe_unused]] ChangeStatus Status =
           Observer->sizeChange(this, S, Size);
-      assert(Status != ChangeStatus::REJECTED &&
+      assert(Status != ChangeStatus::Rejected &&
              "recovering from rejected size change is not implemented yet");
     } else {
       Size = S;

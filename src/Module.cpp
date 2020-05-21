@@ -171,22 +171,22 @@ ChangeStatus Module::removeProxyBlock(ProxyBlock* B) {
       // method must be updated. Because addProxyBlock(ProxyBlock*) also
       // assumes removals are never rejected, that method should be updated
       // as well.
-      assert(status != ChangeStatus::REJECTED &&
+      assert(status != ChangeStatus::Rejected &&
              "recovering from rejected removal is unimplemented");
     }
     ProxyBlocks.erase(It);
     B->setModule(nullptr);
-    return ChangeStatus::ACCEPTED;
+    return ChangeStatus::Accepted;
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Module::addProxyBlock(ProxyBlock* B) {
   if (Module* M = B->getModule()) {
     if (M == this)
-      return ChangeStatus::NO_CHANGE;
+      return ChangeStatus::NoChange;
     [[maybe_unused]] ChangeStatus status = M->removeProxyBlock(B);
-    assert(status != ChangeStatus::REJECTED &&
+    assert(status != ChangeStatus::Rejected &&
            "failed to remove block from former parent");
   }
 
@@ -198,10 +198,10 @@ ChangeStatus Module::addProxyBlock(ProxyBlock* B) {
         Observer->addProxyBlocks(this, BlockRange);
     // The known observers do not reject insertions. If that changes, this
     // method must be updated.
-    assert(status != ChangeStatus::REJECTED &&
+    assert(status != ChangeStatus::Rejected &&
            "recovering from rejected insertion is unimplemented");
   }
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }
 
 // Present for testing purposes only.
@@ -224,7 +224,7 @@ ChangeStatus Module::removeSection(Section* S) {
   if (auto Iter = Index.find(S); Iter != Index.end()) {
     [[maybe_unused]] ChangeStatus Status =
         SecObs->changeExtent(S, addressRange(*S), std::nullopt);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "failed to update Module extent when removing section");
 
     if (Observer) {
@@ -235,23 +235,23 @@ ChangeStatus Module::removeSection(Section* S) {
       // The known observers do not reject removals. If that changes, this
       // method must be updated. Because addSection(Section*) also assumes
       // removals are never rejected, that method should be updated as well.
-      assert(Status != ChangeStatus::REJECTED &&
+      assert(Status != ChangeStatus::Rejected &&
              "recovering from rejected removal is unimplemented");
     }
     Index.erase(Iter);
 
     S->setParent(nullptr, nullptr);
-    return ChangeStatus::ACCEPTED;
+    return ChangeStatus::Accepted;
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Module::addSection(Section* S) {
   if (Module* M = S->getModule()) {
     if (M == this)
-      return ChangeStatus::NO_CHANGE;
+      return ChangeStatus::NoChange;
     [[maybe_unused]] ChangeStatus Status = M->removeSection(S);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "failed to remove section from former parent");
   }
 
@@ -264,15 +264,15 @@ ChangeStatus Module::addSection(Section* S) {
         Observer->addCodeBlocks(this, BlockRange);
     // The known observers do not reject insertions. If that changes, this
     // method must be updated.
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected insertion is unimplemented");
   }
 
   [[maybe_unused]] ChangeStatus Status =
       SecObs->changeExtent(S, std::nullopt, addressRange(*S));
-  assert(Status != ChangeStatus::REJECTED &&
+  assert(Status != ChangeStatus::Rejected &&
          "failed to update Module extent after adding section");
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }
 
 static auto NoOp = [](auto*) {};
@@ -288,13 +288,13 @@ Module::SectionObserverImpl::nameChange(Section* S,
   // has already been updated before this method executes, we only need to tell
   // the index to re-synchronize.
   Index.modify(It, NoOp);
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }
 
 ChangeStatus
 Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
                                            Section::code_block_range Blocks) {
-  ChangeStatus Status = ChangeStatus::NO_CHANGE;
+  ChangeStatus Status = ChangeStatus::NoChange;
   if (M->Observer) {
     [[maybe_unused]] auto& SectionIndex = M->Sections.get<by_pointer>();
     assert(SectionIndex.find(S) != SectionIndex.end() &&
@@ -305,19 +305,19 @@ Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
     Status = M->Observer->addCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected insertion is not implemented");
   }
 
-  if (moveCodeBlocks(S, Blocks) == ChangeStatus::ACCEPTED)
-    return ChangeStatus::ACCEPTED;
+  if (moveCodeBlocks(S, Blocks) == ChangeStatus::Accepted)
+    return ChangeStatus::Accepted;
   return Status;
 }
 
 ChangeStatus
 Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
                                             Section::code_block_range Blocks) {
-  ChangeStatus Status = ChangeStatus::NO_CHANGE;
+  ChangeStatus Status = ChangeStatus::NoChange;
   auto& Index = M->Symbols.get<by_referent>();
   for (CodeBlock& Block : Blocks) {
     for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
@@ -325,7 +325,7 @@ Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
       // invalidate the iterators into the referent index because only the
       // address index needs to be updated.
       Index.modify(It, NoOp);
-      Status = ChangeStatus::ACCEPTED;
+      Status = ChangeStatus::Accepted;
     }
   }
 
@@ -334,7 +334,7 @@ Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
 
 ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
     [[maybe_unused]] Section* S, Section::code_block_range Blocks) {
-  ChangeStatus Status = ChangeStatus::NO_CHANGE;
+  ChangeStatus Status = ChangeStatus::NoChange;
   if (M->Observer) {
     [[maybe_unused]] auto& SectionIndex = M->Sections.get<by_pointer>();
     assert(SectionIndex.find(S) != SectionIndex.end() &&
@@ -345,12 +345,12 @@ ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
     Status = M->Observer->removeCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from failed removal is not implemented");
   }
 
-  if (moveCodeBlocks(S, Blocks) == ChangeStatus::ACCEPTED)
-    return ChangeStatus::ACCEPTED;
+  if (moveCodeBlocks(S, Blocks) == ChangeStatus::Accepted)
+    return ChangeStatus::Accepted;
   return Status;
 }
 
@@ -363,7 +363,7 @@ Module::SectionObserverImpl::addDataBlocks(Section* S,
 ChangeStatus
 Module::SectionObserverImpl::moveDataBlocks(Section* /* S */,
                                             Section::data_block_range Blocks) {
-  ChangeStatus Status = ChangeStatus::NO_CHANGE;
+  ChangeStatus Status = ChangeStatus::NoChange;
   auto& Index = M->Symbols.get<by_referent>();
   for (DataBlock& Block : Blocks) {
     for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
@@ -371,7 +371,7 @@ Module::SectionObserverImpl::moveDataBlocks(Section* /* S */,
       // invalidate the iterators into the referent index because only the
       // address index needs to be updated.
       Index.modify(It, NoOp);
-      Status = ChangeStatus::ACCEPTED;
+      Status = ChangeStatus::Accepted;
     }
   }
   return Status;
@@ -387,7 +387,7 @@ Module::SectionObserverImpl::changeExtent(Section* S,
                                           std::optional<AddrRange> OldExtent,
                                           std::optional<AddrRange> NewExtent) {
   if (OldExtent == NewExtent)
-    return ChangeStatus::NO_CHANGE;
+    return ChangeStatus::NoChange;
 
   auto& Index = M->Sections.get<by_pointer>();
   if (auto It = Index.find(S); It != Index.end()) {
@@ -410,9 +410,9 @@ Module::SectionObserverImpl::changeExtent(Section* S,
                          SectionIntMap::codomain_type({S})));
 
     if (Previous != addressRange(*M))
-      return ChangeStatus::ACCEPTED;
+      return ChangeStatus::Accepted;
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Module::SymbolObserverImpl::nameChange(Symbol* S,
@@ -425,7 +425,7 @@ ChangeStatus Module::SymbolObserverImpl::nameChange(Symbol* S,
   // has already been updated before this method executes, we only need to tell
   // the index to re-synchronize.
   Index.modify(It, NoOp);
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }
 
 ChangeStatus Module::SymbolObserverImpl::referentChange(
@@ -438,5 +438,5 @@ ChangeStatus Module::SymbolObserverImpl::referentChange(
   // referent or address has already been updated before this method executes,
   // we only need to tell the index to re-synchronize.
   Index.modify(It, NoOp);
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }

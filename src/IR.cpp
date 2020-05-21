@@ -38,18 +38,18 @@ public:
     // of Module::getName changes. Because that change happened before this
     // method was called, the lambda doesn't need to do anything.
     Index.modify(It, [](Module*) {});
-    return ChangeStatus::ACCEPTED;
+    return ChangeStatus::Accepted;
   }
 
   ChangeStatus addProxyBlocks(Module* /*M*/,
                               Module::proxy_block_range Blocks) override {
-    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    ChangeStatus Status = ChangeStatus::NoChange;
     if (!Blocks.empty()) {
       for (ProxyBlock& PB : Blocks) {
         // User could have called addVertex themselves, so check whether we
         // actually modified the graph.
         if (addVertex(&PB, I->Cfg).second)
-          Status = ChangeStatus::ACCEPTED;
+          Status = ChangeStatus::Accepted;
       }
     }
     return Status;
@@ -57,13 +57,13 @@ public:
 
   ChangeStatus removeProxyBlocks(Module* /*M*/,
                                  Module::proxy_block_range Blocks) override {
-    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    ChangeStatus Status = ChangeStatus::NoChange;
     if (!Blocks.empty()) {
       for (ProxyBlock& PB : Blocks) {
         // User could have called removeVertex themselves, so check whether
         // we actually modified the graph.
         if (removeVertex(&PB, I->Cfg))
-          Status = ChangeStatus::ACCEPTED;
+          Status = ChangeStatus::Accepted;
       }
     }
     return Status;
@@ -71,13 +71,13 @@ public:
 
   ChangeStatus addCodeBlocks(Module* /*M*/,
                              Module::code_block_range Blocks) override {
-    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    ChangeStatus Status = ChangeStatus::NoChange;
     if (!Blocks.empty()) {
       for (CodeBlock& CB : Blocks) {
         // User could have called addVertex themselves, so check whether we
         // actually modified the graph.
         if (addVertex(&CB, I->Cfg).second)
-          Status = ChangeStatus::ACCEPTED;
+          Status = ChangeStatus::Accepted;
       }
     }
     return Status;
@@ -85,13 +85,13 @@ public:
 
   ChangeStatus removeCodeBlocks(Module* /*M*/,
                                 Module::code_block_range Blocks) override {
-    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    ChangeStatus Status = ChangeStatus::NoChange;
     if (!Blocks.empty()) {
       for (CodeBlock& CB : Blocks) {
         // User could have called removeVertex themselves, so check whether
         // we actually modified the graph.
         if (removeVertex(&CB, I->Cfg))
-          Status = ChangeStatus::ACCEPTED;
+          Status = ChangeStatus::Accepted;
       }
     }
     return Status;

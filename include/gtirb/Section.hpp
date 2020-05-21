@@ -324,17 +324,17 @@ public:
 
   /// \brief Remove an interval from this section.
   ///
-  /// \return Whether the operation succeeded (\c ACCEPTED), no change was made
-  /// (\c NO_CHANGE), or the operation could not be completed (\c REJECTED). In
+  /// \return Whether the operation succeeded (\c Accepted), no change was made
+  /// (\c NoChange), or the operation could not be completed (\c Rejected). In
   /// particular, if the node to remove is not actually part of this node to
-  /// begin with, the result will be \c NO_CHANGE.
+  /// begin with, the result will be \c NoChange.
   ChangeStatus removeByteInterval(ByteInterval* N);
 
   /// \brief Move an existing \ref ByteInterval to be a part of this section.
   ///
   /// \return a ChangeStatus indicating whether the insertion took place
-  /// (\c ACCEPTED), was unnecessary because this node already contained the
-  /// ByteInterval (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  /// (\c Accepted), was unnecessary because this node already contained the
+  /// ByteInterval (\c NoChange), or could not be completed (\c Rejected).
   ChangeStatus addByteInterval(ByteInterval* BI);
 
   /// \brief Creates a new \ref ByteInterval in this section.
@@ -347,9 +347,9 @@ public:
     ByteInterval* BI = ByteInterval::Create(C, std::forward<Args>(A)...);
     [[maybe_unused]] ChangeStatus status = addByteInterval(BI);
     // addByteInterval(ByteInterval*) does not currently reject any insertions
-    // and the result cannot be NO_CHANGE because we just inserted a newly
+    // and the result cannot be NoChange because we just inserted a newly
     // created ByteInterval.
-    assert(status == ChangeStatus::ACCEPTED &&
+    assert(status == ChangeStatus::Accepted &&
            "unexpected result when inserting ByteInterval");
     return BI;
   }
@@ -1213,7 +1213,7 @@ inline void Section::setName(const std::string& X) {
         Observer->nameChange(this, OldName, Name);
     // The known observers do not reject insertions. If that changes, this
     // method must be updated.
-    assert(status != ChangeStatus::REJECTED &&
+    assert(status != ChangeStatus::Rejected &&
            "recovering from rejected name change is unimplemented");
   } else {
     Name = X;

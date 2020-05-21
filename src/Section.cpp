@@ -115,7 +115,7 @@ ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
       // None of the known observers reject removals. If that changes, this
       // implementation will need to be changed as well. Because addByteInterval
       // assumes that removal will not be rejected, it will need to be updated.
-      assert(Status != ChangeStatus::REJECTED &&
+      assert(Status != ChangeStatus::Rejected &&
              "recovering from rejected removal is not implemented yet");
     }
     Index.erase(Iter);
@@ -123,20 +123,20 @@ ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
 
     [[maybe_unused]] ChangeStatus Status =
         BIO->changeExtent(BI, addressRange(*BI), std::nullopt);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "failed to change Section extent after removing ByteInterval");
-    return ChangeStatus::ACCEPTED;
+    return ChangeStatus::Accepted;
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::addByteInterval(ByteInterval* BI) {
   if (Section* S = BI->getSection()) {
     if (S == this) {
-      return ChangeStatus::NO_CHANGE;
+      return ChangeStatus::NoChange;
     }
     [[maybe_unused]] ChangeStatus Status = S->removeByteInterval(BI);
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "failed to remove node from parent");
   }
 
@@ -148,15 +148,15 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
         Observer->addCodeBlocks(this, Blocks);
     // None of the known observers reject insertions. If that changes, this
     // implementation must be updated.
-    assert(Status != ChangeStatus::REJECTED &&
+    assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected insertion is unimplemented");
   }
 
   [[maybe_unused]] ChangeStatus Status =
       BIO->changeExtent(BI, std::nullopt, addressRange(*BI));
-  assert(Status != ChangeStatus::REJECTED &&
+  assert(Status != ChangeStatus::Rejected &&
          "failed to change Section extent after adding ByteInterval");
-  return ChangeStatus::ACCEPTED;
+  return ChangeStatus::Accepted;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
@@ -172,7 +172,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
@@ -188,7 +188,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
@@ -204,7 +204,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
@@ -220,7 +220,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
         S, boost::make_iterator_range(data_block_iterator(Range),
                                       data_block_iterator()));
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
@@ -236,7 +236,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
         S, boost::make_iterator_range(data_block_iterator(Range),
                                       data_block_iterator()));
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
@@ -252,7 +252,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
         S, boost::make_iterator_range(data_block_iterator(Range),
                                       data_block_iterator()));
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::changeExtent(
@@ -302,11 +302,11 @@ ChangeStatus Section::ByteIntervalObserverImpl::changeExtent(
       if (S->Observer) {
         [[maybe_unused]] ChangeStatus Status =
             S->Observer->changeExtent(S, Previous, S->Extent);
-        assert(Status != ChangeStatus::REJECTED &&
+        assert(Status != ChangeStatus::Rejected &&
                "recovering from rejected extent changes is unimplemented");
       }
-      return ChangeStatus::ACCEPTED;
+      return ChangeStatus::Accepted;
     }
   }
-  return ChangeStatus::NO_CHANGE;
+  return ChangeStatus::NoChange;
 }

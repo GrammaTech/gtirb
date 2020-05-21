@@ -307,10 +307,10 @@ public:
   ///
   /// \param B The \ref ProxyBlock object to remove.
   ///
-  /// \return Whether the operation succeeded (\c ACCEPTED), made no change
-  /// (\c NO_CHANGE), or could not be completed (\c REJECTED). In particular,
+  /// \return Whether the operation succeeded (\c Accepted), made no change
+  /// (\c NoChange), or could not be completed (\c Rejected). In particular,
   /// if the node to remove is not actually part of this node to begin with,
-  /// the result will be \c NO_CHANGE.
+  /// the result will be \c NoChange.
   ChangeStatus removeProxyBlock(ProxyBlock* B);
 
   /// \brief Adds a new \ref ProxyBlock in this module.
@@ -318,8 +318,8 @@ public:
   /// \param PB The \ref ProxyBlock object to add.
   ///
   /// \return a ChangeStatus indicating whether the insertion took place
-  /// (\c ACCEPTED), was unnecessary because this node already contained the
-  /// ProxyBlock (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  /// (\c Accepted), was unnecessary because this node already contained the
+  /// ProxyBlock (\c NoChange), or could not be completed (\c Rejected).
   ChangeStatus addProxyBlock(ProxyBlock* PB);
 
   /// \brief Creates a new \ref ProxyBlock in this module.
@@ -335,8 +335,8 @@ public:
     [[maybe_unused]] ChangeStatus status = addProxyBlock(PB);
     // addProxyBlock(ProxyBlock*) does not currently reject any changes and,
     // because we just created the ProxyBlock to add, it cannot result in
-    // NO_CHANGE.
-    assert(status == ChangeStatus::ACCEPTED &&
+    // NoChange.
+    assert(status == ChangeStatus::Accepted &&
            "unexpected result when inserting ProxyBlock");
     return PB;
   }
@@ -750,10 +750,10 @@ public:
   ///
   /// \param S The \ref Section object to remove.
   ///
-  /// \return Whether the operation succeeded (\c ACCEPTED), made no change
-  /// (\c NO_CHANGE), or could not be completed (\c REJECTED). In particular,
+  /// \return Whether the operation succeeded (\c Accepted), made no change
+  /// (\c NoChange), or could not be completed (\c Rejected). In particular,
   /// if the node to remove is not actually part of this node to begin with,
-  /// the result will be \c NO_CHANGE.
+  /// the result will be \c NoChange.
   ChangeStatus removeSection(Section* S);
 
   /// \brief Move a \ref Section object to be located in this module.
@@ -761,8 +761,8 @@ public:
   /// \param S The \ref Section object to add.
   ///
   /// \return a ChangeStatus indicating whether the insertion took place
-  /// (\c ACCEPTED), was unnecessary because this node already contained the
-  // Section (\c NO_CHANGE), or could not be completed (\c REJECTED).
+  /// (\c Accepted), was unnecessary because this node already contained the
+  // Section (\c NoChange), or could not be completed (\c Rejected).
   ChangeStatus addSection(Section* S);
 
   /// \brief Creates a new \ref Section in this module.
@@ -776,8 +776,8 @@ public:
     Section* S = Section::Create(C, std::forward<Args>(A)...);
     [[maybe_unused]] ChangeStatus status = addSection(S);
     // addSection(Section*) does not currently reject any changes and, because
-    // we just created the Section to add, it cannot result in NO_CHANGE.
-    assert(status == ChangeStatus::ACCEPTED &&
+    // we just created the Section to add, it cannot result in NoChange.
+    assert(status == ChangeStatus::Accepted &&
            "unexpected result when inserting Section");
     return S;
   }
@@ -1909,7 +1909,7 @@ inline void Module::setName(const std::string& X) {
         Observer->nameChange(this, OldName, Name);
     // The known observers do not reject insertions. If that changes, this
     // method must be updated.
-    assert(status != ChangeStatus::REJECTED &&
+    assert(status != ChangeStatus::Rejected &&
            "recovering from rejected name change is unimplemented");
   } else {
     Name = X;

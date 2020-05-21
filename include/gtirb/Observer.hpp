@@ -17,10 +17,10 @@
 
 namespace gtirb {
 enum class ChangeStatus {
-  REJECTED, //< The requested change cannot be completed and must be rolled
+  Rejected, //< The requested change cannot be completed and must be rolled
             //< back.
-  ACCEPTED, //< The requested change was implemented successfully.
-  NO_CHANGE //< The requested change would not alter the data structure.
+  Accepted, //< The requested change was implemented successfully.
+  NoChange  //< The requested change would not alter the data structure.
 };
 }
 
