@@ -201,8 +201,8 @@ using const_block_iterator = cfg_node_cast_iter<const CodeBlock>;
 ///
 /// \return A pair consisting of a descriptor to the vertex for that node and a
 /// \c bool indicating whether the graph was modified.
-GTIRB_EXPORT_API std::pair<CFG::vertex_descriptor, bool>
-addVertex(CfgNode* B, CFG& Cfg);
+GTIRB_EXPORT_API std::pair<CFG::vertex_descriptor, bool> addVertex(CfgNode* B,
+                                                                   CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Remove a node from the CFG.
