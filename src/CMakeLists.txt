@@ -100,10 +100,10 @@ else()
 endif()
 
 gtirb_add_library()
-set_target_properties(
-  ${PROJECT_NAME} PROPERTIES VERSION ${GTIRB_VERSION} SOVERSION
-                                                      ${GTIRB_MAJOR_VERSION}
-)
+# FIXME We should be setting SOVERSION with an ABI version number once the ABI
+# stabilizes. For now, since most patches affect the ABI anyway, we just use the
+# GTIRB_VERSION as the SOVERSION.
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${GTIRB_VERSION})
 if(WIN32)
   # FIXME: We need to figure out how to handle cutting a release build. For the
   # moment, treat everything as a pre-release build.

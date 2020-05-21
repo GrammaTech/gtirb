@@ -1,3 +1,10 @@
+# 1.8.2
+
+* The C++ API build no longer generates a `libgtirb.so.1` symlink. This has the
+  effect of requiring clients to link against the full version number (e.g.,
+  `libgtirb.so.1.8.2`) to ensure ABI compatibility while we continue to make
+  rapid improvements to the library.
+
 # 1.5.0
 
 * In the Python API:
