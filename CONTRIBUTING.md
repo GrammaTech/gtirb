@@ -22,6 +22,13 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
   project, and a pass through this tool is included as part of our
   `pre-commit` configuration (see below for details).
 
+- We ask that all contributors complete our Contributor License
+  Agreement (CLA), which can be found at
+  [GrammaTech-CLA-GTIRB.pdf](./GrammaTech-CLA-GTIRB.pdf), and email
+  the completed form to `CLA@GrammaTech.com`.  Under this agreement
+  contributors retain the copyright to their work but grants
+  GrammaTech unlimited license to the work.
+
 ### pre-commit
 
 In general, code must follow a unified format. To make compliance with
