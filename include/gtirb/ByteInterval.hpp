@@ -198,27 +198,8 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     return *It;
   }
 
-  class CodeBlockObserverImpl : public CodeBlockObserver {
-  public:
-    CodeBlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
-
-    ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
-                            uint64_t NewSize) override;
-
-  private:
-    ByteInterval* BI;
-  };
-
-  class DataBlockObserverImpl : public DataBlockObserver {
-  public:
-    DataBlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
-
-    ChangeStatus sizeChange(DataBlock* B, uint64_t OldSize,
-                            uint64_t NewSize) override;
-
-  private:
-    ByteInterval* BI;
-  };
+  class CodeBlockObserverImpl;
+  class DataBlockObserverImpl;
 
   ChangeStatus sizeChange(Node* N, uint64_t OldSize, uint64_t NewSize);
 
@@ -1953,15 +1934,16 @@ public:
   /// @endcond
 
 private:
-  ByteInterval(Context& C) : Node(C, Kind::ByteInterval) {}
+  ByteInterval(Context& C);
 
-  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize)
-      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(InitSize) {}
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
+               uint64_t InitSize);
 
   template <typename InputIterator>
   ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize,
                InputIterator Begin, InputIterator End)
-      : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(Begin, End) {
+      : ByteInterval(C, A, S, 0) {
+    Bytes.insert(Bytes.end(), Begin, End);
     Bytes.resize(InitSize);
   }
 
@@ -2023,8 +2005,8 @@ private:
   SymbolicExpressionMap SymbolicExpressions;
   std::vector<uint8_t> Bytes;
 
-  CodeBlockObserverImpl CBO{this};
-  DataBlockObserverImpl DBO{this};
+  std::unique_ptr<CodeBlockObserver> CBO;
+  std::unique_ptr<DataBlockObserver> DBO;
 
   friend class Context;   // Friend to enable Context::Create.
   friend class Section;   // Friend to enable Section::(re)moveByteInterval,

@@ -74,7 +74,7 @@ class IR;
 ///
 
 class GTIRB_EXPORT_API IR : public AuxDataContainer {
-  IR(Context& C) : AuxDataContainer(C, Kind::IR) {}
+  IR(Context& C);
 
   struct by_name {};
   struct by_pointer {};
@@ -89,81 +89,7 @@ class GTIRB_EXPORT_API IR : public AuxDataContainer {
                        boost::multi_index::tag<by_pointer>,
                        boost::multi_index::identity<Module*>>>>;
 
-  class ModuleObserverImpl : public ModuleObserver {
-  public:
-    explicit ModuleObserverImpl(IR* I_) : I(I_) {}
-
-    ChangeStatus nameChange(Module* M, const std::string& /*OldName*/,
-                            const std::string& /*NewName*/) override {
-      auto& Index = I->Modules.get<by_pointer>();
-      auto It = Index.find(M);
-      assert(It != Index.end() && "module observed by non-owner");
-      // The lambda would ordinarily update the Module such that the result
-      // of Module::getName changes. Because that change happened before this
-      // method was called, the lambda doesn't need to do anything.
-      Index.modify(It, [](Module*) {});
-      return ChangeStatus::ACCEPTED;
-    }
-
-    ChangeStatus addProxyBlocks(Module* /*M*/,
-                                Module::proxy_block_range Blocks) override {
-      ChangeStatus Status = ChangeStatus::NO_CHANGE;
-      if (!Blocks.empty()) {
-        for (ProxyBlock& PB : Blocks) {
-          // User could have called addVertex themselves, so check whether we
-          // actually modified the graph.
-          if (addVertex(&PB, I->Cfg).second)
-            Status = ChangeStatus::ACCEPTED;
-        }
-      }
-      return Status;
-    }
-
-    ChangeStatus removeProxyBlocks(Module* /*M*/,
-                                   Module::proxy_block_range Blocks) override {
-      ChangeStatus Status = ChangeStatus::NO_CHANGE;
-      if (!Blocks.empty()) {
-        for (ProxyBlock& PB : Blocks) {
-          // User could have called removeVertex themselves, so check whether
-          // we actually modified the graph.
-          if (removeVertex(&PB, I->Cfg))
-            Status = ChangeStatus::ACCEPTED;
-        }
-      }
-      return Status;
-    }
-
-    ChangeStatus addCodeBlocks(Module* /*M*/,
-                               Module::code_block_range Blocks) override {
-      ChangeStatus Status = ChangeStatus::NO_CHANGE;
-      if (!Blocks.empty()) {
-        for (CodeBlock& CB : Blocks) {
-          // User could have called addVertex themselves, so check whether we
-          // actually modified the graph.
-          if (addVertex(&CB, I->Cfg).second)
-            Status = ChangeStatus::ACCEPTED;
-        }
-      }
-      return Status;
-    }
-
-    ChangeStatus removeCodeBlocks(Module* /*M*/,
-                                  Module::code_block_range Blocks) override {
-      ChangeStatus Status = ChangeStatus::NO_CHANGE;
-      if (!Blocks.empty()) {
-        for (CodeBlock& CB : Blocks) {
-          // User could have called removeVertex themselves, so check whether
-          // we actually modified the graph.
-          if (removeVertex(&CB, I->Cfg))
-            Status = ChangeStatus::ACCEPTED;
-        }
-      }
-      return Status;
-    }
-
-  private:
-    IR* I;
-  };
+  class ModuleObserverImpl;
 
 public:
   /// \brief Create an IR object in its default state.
@@ -238,8 +164,8 @@ public:
   bool removeModule(Module* M) {
     auto& Index = Modules.get<by_pointer>();
     if (auto Iter = Index.find(M); Iter != Index.end()) {
-      MO.removeProxyBlocks(M, M->proxy_blocks());
-      MO.removeCodeBlocks(M, M->code_blocks());
+      MO->removeProxyBlocks(M, M->proxy_blocks());
+      MO->removeCodeBlocks(M, M->code_blocks());
       Index.erase(Iter);
       M->setParent(nullptr, nullptr);
       return true;
@@ -255,10 +181,10 @@ public:
       M->getIR()->removeModule(M);
     }
 
-    MO.addProxyBlocks(M, M->proxy_blocks());
-    MO.addCodeBlocks(M, M->code_blocks());
+    MO->addProxyBlocks(M, M->proxy_blocks());
+    MO->addCodeBlocks(M, M->code_blocks());
     Modules.emplace(M);
-    M->setParent(this, &MO);
+    M->setParent(this, MO.get());
     return M;
   }
 
@@ -1465,10 +1391,11 @@ private:
   static IR* fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
-  ModuleObserverImpl MO{this};
   ModuleSet Modules;
   uint32_t Version{GTIRB_PROTOBUF_VERSION};
   CFG Cfg;
+
+  std::unique_ptr<ModuleObserver> MO;
 
   friend class Context; // Allow Context to construct new IRs.
 };

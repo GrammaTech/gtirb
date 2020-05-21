@@ -22,6 +22,60 @@
 
 using namespace gtirb;
 
+class Module::SectionObserverImpl : public SectionObserver {
+public:
+  SectionObserverImpl(Module* M_) : M(M_) {}
+
+  ChangeStatus nameChange(Section* S, const std::string& OldName,
+                          const std::string& NewName) override;
+
+  ChangeStatus addCodeBlocks(Section* S,
+                             Section::code_block_range Blocks) override;
+
+  ChangeStatus moveCodeBlocks(Section* S,
+                              Section::code_block_range Blocks) override;
+
+  ChangeStatus removeCodeBlocks(Section* S,
+                                Section::code_block_range Blocks) override;
+
+  ChangeStatus addDataBlocks(Section* S,
+                             Section::data_block_range Blocks) override;
+
+  ChangeStatus moveDataBlocks(Section* S,
+                              Section::data_block_range Blocks) override;
+
+  ChangeStatus removeDataBlocks(Section* S,
+                                Section::data_block_range Blocks) override;
+
+  ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
+                            std::optional<AddrRange> NewExtent) override;
+
+private:
+  Module* M;
+};
+
+class Module::SymbolObserverImpl : public SymbolObserver {
+public:
+  explicit SymbolObserverImpl(Module* M_) : M(M_) {}
+
+  ChangeStatus nameChange(Symbol* S, const std::string& OldName,
+                          const std::string& NewName) override;
+
+  ChangeStatus referentChange(
+      Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
+      std::variant<std::monostate, Addr, Node*> NewReferent) override;
+
+private:
+  Module* M;
+};
+
+Module::Module(Context& C) : Module(C, std::string{}) {}
+
+Module::Module(Context& C, const std::string& N)
+    : AuxDataContainer(C, Kind::Module), Name(N),
+      SecObs(std::make_unique<SectionObserverImpl>(this)),
+      SymObs(std::make_unique<SymbolObserverImpl>(this)) {}
+
 void Module::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_binary_path(this->BinaryPath);
@@ -169,7 +223,7 @@ ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
     [[maybe_unused]] ChangeStatus Status =
-        SecObs.changeExtent(S, addressRange(*S), std::nullopt);
+        SecObs->changeExtent(S, addressRange(*S), std::nullopt);
     assert(Status != ChangeStatus::REJECTED &&
            "failed to update Module extent when removing section");
 
@@ -201,7 +255,7 @@ ChangeStatus Module::addSection(Section* S) {
            "failed to remove section from former parent");
   }
 
-  S->setParent(this, &SecObs);
+  S->setParent(this, SecObs.get());
 
   auto [Iter, Inserted] = Sections.emplace(S);
   if (Inserted && Observer) {
@@ -215,7 +269,7 @@ ChangeStatus Module::addSection(Section* S) {
   }
 
   [[maybe_unused]] ChangeStatus Status =
-      SecObs.changeExtent(S, std::nullopt, addressRange(*S));
+      SecObs->changeExtent(S, std::nullopt, addressRange(*S));
   assert(Status != ChangeStatus::REJECTED &&
          "failed to update Module extent after adding section");
   return ChangeStatus::ACCEPTED;

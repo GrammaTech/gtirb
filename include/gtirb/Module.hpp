@@ -148,56 +148,11 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
               boost::multi_index::global_fun<const Symbol&, const Node*,
                                              &get_symbol_referent>>>>;
 
-  class SectionObserverImpl : public SectionObserver {
-  public:
-    SectionObserverImpl(Module* M_) : M(M_) {}
+  class SectionObserverImpl;
+  class SymbolObserverImpl;
 
-    ChangeStatus nameChange(Section* S, const std::string& OldName,
-                            const std::string& NewName) override;
-
-    ChangeStatus addCodeBlocks(Section* S,
-                               Section::code_block_range Blocks) override;
-
-    ChangeStatus moveCodeBlocks(Section* S,
-                                Section::code_block_range Blocks) override;
-
-    ChangeStatus removeCodeBlocks(Section* S,
-                                  Section::code_block_range Blocks) override;
-
-    ChangeStatus addDataBlocks(Section* S,
-                               Section::data_block_range Blocks) override;
-
-    ChangeStatus moveDataBlocks(Section* S,
-                                Section::data_block_range Blocks) override;
-
-    ChangeStatus removeDataBlocks(Section* S,
-                                  Section::data_block_range Blocks) override;
-
-    ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
-                              std::optional<AddrRange> NewExtent) override;
-
-  private:
-    Module* M;
-  };
-
-  class SymbolObserverImpl : public SymbolObserver {
-  public:
-    explicit SymbolObserverImpl(Module* M_) : M(M_) {}
-
-    ChangeStatus nameChange(Symbol* S, const std::string& OldName,
-                            const std::string& NewName) override;
-
-    ChangeStatus referentChange(
-        Symbol* S, std::variant<std::monostate, Addr, Node*> OldReferent,
-        std::variant<std::monostate, Addr, Node*> NewReferent) override;
-
-  private:
-    Module* M;
-  };
-
-  Module(Context& C) : AuxDataContainer(C, Kind::Module) {}
-  Module(Context& C, const std::string& N)
-      : AuxDataContainer(C, Kind::Module), Name(N) {}
+  Module(Context& C);
+  Module(Context& C, const std::string& N);
 
 public:
   /// \brief Create a Module object in its default state.
@@ -591,7 +546,7 @@ public:
       S->getModule()->removeSymbol(S);
     }
     Symbols.emplace(S);
-    S->setParent(this, &SymObs);
+    S->setParent(this, SymObs.get());
     return S;
   }
 
@@ -1880,8 +1835,8 @@ private:
   SectionIntMap SectionAddrs;
   SymbolSet Symbols;
 
-  SectionObserverImpl SecObs{this};
-  SymbolObserverImpl SymObs{this};
+  std::unique_ptr<SectionObserver> SecObs;
+  std::unique_ptr<SymbolObserver> SymObs;
 
   friend class Context; // Allow Context to construct new Modules.
   friend class IR;      // Allow IRs to call setIR, Create, etc.

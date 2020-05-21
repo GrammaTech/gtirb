@@ -60,8 +60,8 @@ enum class SectionFlag : uint8_t {
 /// Does not directly store the contents of the section, which are kept in
 /// \ref ImageByteMap.
 class GTIRB_EXPORT_API Section : public Node {
-  Section(Context& C) : Node(C, Kind::Section) {}
-  Section(Context& C, const std::string& N) : Node(C, Kind::Section), Name(N) {}
+  Section(Context& C);
+  Section(Context& C, const std::string& N);
 
   struct by_address {};
   struct by_pointer {};
@@ -80,37 +80,7 @@ class GTIRB_EXPORT_API Section : public Node {
   using ByteIntervalIntMap = boost::icl::interval_map<
       Addr, std::set<ByteInterval*, AddressLess<ByteInterval>>>;
 
-  class ByteIntervalObserverImpl : public ByteIntervalObserver {
-  public:
-    ByteIntervalObserverImpl(Section* S_) : S(S_) {}
-
-    ChangeStatus addCodeBlocks(ByteInterval* BI,
-                               ByteInterval::code_block_range Blocks) override;
-
-    ChangeStatus moveCodeBlocks(ByteInterval* BI,
-                                ByteInterval::code_block_range Blocks) override;
-
-    ChangeStatus
-    removeCodeBlocks(ByteInterval* BI,
-                     ByteInterval::code_block_range Blocks) override;
-
-    ChangeStatus addDataBlocks(ByteInterval* BI,
-                               ByteInterval::data_block_range Blocks) override;
-
-    ChangeStatus moveDataBlocks(ByteInterval* BI,
-                                ByteInterval::data_block_range Blocks) override;
-
-    ChangeStatus
-    removeDataBlocks(ByteInterval* BI,
-                     ByteInterval::data_block_range Blocks) override;
-
-    ChangeStatus changeExtent(ByteInterval* BI,
-                              std::optional<AddrRange> OldExtent,
-                              std::optional<AddrRange> NewExtent) override;
-
-  private:
-    Section* S;
-  };
+  class ByteIntervalObserverImpl;
 
 public:
   /// \brief Create an unitialized Section object.
@@ -1096,7 +1066,7 @@ private:
   std::optional<AddrRange> Extent;
   std::set<SectionFlag> Flags;
 
-  ByteIntervalObserverImpl BIO{this};
+  std::unique_ptr<ByteIntervalObserver> BIO;
 
   void setParent(Module* M, SectionObserver* O) {
     Parent = M;

@@ -17,6 +17,42 @@
 
 using namespace gtirb;
 
+class Section::ByteIntervalObserverImpl : public ByteIntervalObserver {
+public:
+  ByteIntervalObserverImpl(Section* S_) : S(S_) {}
+
+  ChangeStatus addCodeBlocks(ByteInterval* BI,
+                             ByteInterval::code_block_range Blocks) override;
+
+  ChangeStatus moveCodeBlocks(ByteInterval* BI,
+                              ByteInterval::code_block_range Blocks) override;
+
+  ChangeStatus removeCodeBlocks(ByteInterval* BI,
+                                ByteInterval::code_block_range Blocks) override;
+
+  ChangeStatus addDataBlocks(ByteInterval* BI,
+                             ByteInterval::data_block_range Blocks) override;
+
+  ChangeStatus moveDataBlocks(ByteInterval* BI,
+                              ByteInterval::data_block_range Blocks) override;
+
+  ChangeStatus removeDataBlocks(ByteInterval* BI,
+                                ByteInterval::data_block_range Blocks) override;
+
+  ChangeStatus changeExtent(ByteInterval* BI,
+                            std::optional<AddrRange> OldExtent,
+                            std::optional<AddrRange> NewExtent) override;
+
+private:
+  Section* S;
+};
+
+Section::Section(Context& C) : Section(C, std::string{}) {}
+
+Section::Section(Context& C, const std::string& N)
+    : Node(C, Kind::Section), Name(N),
+      BIO(std::make_unique<ByteIntervalObserverImpl>(this)) {}
+
 bool Section::operator==(const Section& Other) const {
   return this->getAddress() == Other.getAddress() &&
          this->getSize() == Other.getSize() && this->Name == Other.Name;
@@ -86,7 +122,7 @@ ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
     BI->setParent(nullptr, nullptr);
 
     [[maybe_unused]] ChangeStatus Status =
-        BIO.changeExtent(BI, addressRange(*BI), std::nullopt);
+        BIO->changeExtent(BI, addressRange(*BI), std::nullopt);
     assert(Status != ChangeStatus::REJECTED &&
            "failed to change Section extent after removing ByteInterval");
     return ChangeStatus::ACCEPTED;
@@ -104,7 +140,7 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
            "failed to remove node from parent");
   }
 
-  BI->setParent(this, &BIO);
+  BI->setParent(this, BIO.get());
   auto [Iter, Inserted] = ByteIntervals.emplace(BI);
   if (Inserted && Observer) {
     auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
@@ -117,7 +153,7 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
   }
 
   [[maybe_unused]] ChangeStatus Status =
-      BIO.changeExtent(BI, std::nullopt, addressRange(*BI));
+      BIO->changeExtent(BI, std::nullopt, addressRange(*BI));
   assert(Status != ChangeStatus::REJECTED &&
          "failed to change Section extent after adding ByteInterval");
   return ChangeStatus::ACCEPTED;

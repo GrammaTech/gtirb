@@ -22,6 +22,36 @@
 
 using namespace gtirb;
 
+class ByteInterval::CodeBlockObserverImpl : public CodeBlockObserver {
+public:
+  CodeBlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
+
+  ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
+                          uint64_t NewSize) override;
+
+private:
+  ByteInterval* BI;
+};
+
+class ByteInterval::DataBlockObserverImpl : public DataBlockObserver {
+public:
+  DataBlockObserverImpl(ByteInterval* BI_) : BI(BI_) {}
+
+  ChangeStatus sizeChange(DataBlock* B, uint64_t OldSize,
+                          uint64_t NewSize) override;
+
+private:
+  ByteInterval* BI;
+};
+
+ByteInterval::ByteInterval(Context& C) : ByteInterval(C, std::nullopt, 0, 0) {}
+
+ByteInterval::ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
+                           uint64_t InitSize)
+    : Node(C, Kind::ByteInterval), Address(A), Size(S), Bytes(InitSize),
+      CBO(std::make_unique<CodeBlockObserverImpl>(this)),
+      DBO(std::make_unique<DataBlockObserverImpl>(this)) {}
+
 void ByteInterval::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 
@@ -256,7 +286,7 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
            "failed to remove node from parent");
   }
 
-  B->setParent(this, getObserver(B, &CBO, &DBO));
+  B->setParent(this, getObserver(B, CBO.get(), DBO.get()));
   auto [Iter, Inserted] = Blocks.emplace(Off, B);
   if (Inserted && Observer) {
     auto End = std::next(Iter);

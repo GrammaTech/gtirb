@@ -25,6 +25,86 @@
 
 using namespace gtirb;
 
+class IR::ModuleObserverImpl : public ModuleObserver {
+public:
+  explicit ModuleObserverImpl(IR* I_) : I(I_) {}
+
+  ChangeStatus nameChange(Module* M, const std::string& /*OldName*/,
+                          const std::string& /*NewName*/) override {
+    auto& Index = I->Modules.get<by_pointer>();
+    auto It = Index.find(M);
+    assert(It != Index.end() && "module observed by non-owner");
+    // The lambda would ordinarily update the Module such that the result
+    // of Module::getName changes. Because that change happened before this
+    // method was called, the lambda doesn't need to do anything.
+    Index.modify(It, [](Module*) {});
+    return ChangeStatus::ACCEPTED;
+  }
+
+  ChangeStatus addProxyBlocks(Module* /*M*/,
+                              Module::proxy_block_range Blocks) override {
+    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    if (!Blocks.empty()) {
+      for (ProxyBlock& PB : Blocks) {
+        // User could have called addVertex themselves, so check whether we
+        // actually modified the graph.
+        if (addVertex(&PB, I->Cfg).second)
+          Status = ChangeStatus::ACCEPTED;
+      }
+    }
+    return Status;
+  }
+
+  ChangeStatus removeProxyBlocks(Module* /*M*/,
+                                 Module::proxy_block_range Blocks) override {
+    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    if (!Blocks.empty()) {
+      for (ProxyBlock& PB : Blocks) {
+        // User could have called removeVertex themselves, so check whether
+        // we actually modified the graph.
+        if (removeVertex(&PB, I->Cfg))
+          Status = ChangeStatus::ACCEPTED;
+      }
+    }
+    return Status;
+  }
+
+  ChangeStatus addCodeBlocks(Module* /*M*/,
+                             Module::code_block_range Blocks) override {
+    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    if (!Blocks.empty()) {
+      for (CodeBlock& CB : Blocks) {
+        // User could have called addVertex themselves, so check whether we
+        // actually modified the graph.
+        if (addVertex(&CB, I->Cfg).second)
+          Status = ChangeStatus::ACCEPTED;
+      }
+    }
+    return Status;
+  }
+
+  ChangeStatus removeCodeBlocks(Module* /*M*/,
+                                Module::code_block_range Blocks) override {
+    ChangeStatus Status = ChangeStatus::NO_CHANGE;
+    if (!Blocks.empty()) {
+      for (CodeBlock& CB : Blocks) {
+        // User could have called removeVertex themselves, so check whether
+        // we actually modified the graph.
+        if (removeVertex(&CB, I->Cfg))
+          Status = ChangeStatus::ACCEPTED;
+      }
+    }
+    return Status;
+  }
+
+private:
+  IR* I;
+};
+
+IR::IR(Context& C)
+    : AuxDataContainer(C, Kind::IR),
+      MO(std::make_unique<ModuleObserverImpl>(this)) {}
+
 class IRLoadErrorCategory : public std::error_category {
 public:
   const char* name() const noexcept override { return "gt.gtirb.ir"; }
