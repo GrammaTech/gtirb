@@ -141,9 +141,9 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
   }
 
   BI->setParent(this, BIO.get());
-  auto [Iter, Inserted] = ByteIntervals.emplace(BI);
-  if (Inserted && Observer) {
-    auto Blocks = makeCodeBlockRange(Iter, std::next(Iter));
+  auto P = ByteIntervals.emplace(BI);
+  if (P.second && Observer) {
+    auto Blocks = makeCodeBlockRange(P.first, std::next(P.first));
     [[maybe_unused]] ChangeStatus Status =
         Observer->addCodeBlocks(this, Blocks);
     // None of the known observers reject insertions. If that changes, this
@@ -160,7 +160,7 @@ ChangeStatus Section::addByteInterval(ByteInterval* BI) {
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
-    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
+    ByteInterval*, ByteInterval::code_block_range Blocks) {
   if (S->Observer) {
     [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
@@ -176,7 +176,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
-    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
+    ByteInterval*, ByteInterval::code_block_range Blocks) {
   if (S->Observer) {
     [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
@@ -192,7 +192,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
-    ByteInterval* BI, ByteInterval::code_block_range Blocks) {
+    ByteInterval*, ByteInterval::code_block_range Blocks) {
   if (S->Observer) {
     [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
@@ -208,7 +208,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
-    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
+    ByteInterval*, ByteInterval::data_block_range Blocks) {
   if (S->Observer) {
     [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
@@ -224,7 +224,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
-    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
+    ByteInterval*, ByteInterval::data_block_range Blocks) {
   if (S->Observer) {
     [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
@@ -240,7 +240,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
-    ByteInterval* BI, ByteInterval::data_block_range Blocks) {
+    ByteInterval*, ByteInterval::data_block_range Blocks) {
   if (S->Observer) {
     [[maybe_unused]] auto& Index = S->ByteIntervals.get<by_pointer>();
     assert(Index.find(BI) != Index.end() &&
