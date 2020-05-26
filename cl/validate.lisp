@@ -86,7 +86,7 @@
          (every {get-uuid _ obj} (nodes (cfg obj)))))
   (:method ((obj module)) (every #'all-referents-exist (symbols obj)))
   (:method ((obj symbol))
-    (if (gtirb.proto:has-referent-uuid (proto obj))
+    (if (gtirb.proto:has-referent-uuid (gtirb::proto obj))
         (payload obj)
         t)))
 
@@ -120,10 +120,10 @@
 (define-command validate-file (gtirb-file &spec +validate-args+)
   "Validate GTIRB-FILE." ""
   (flet ((exit (code)
-           `(if *lisp-interaction*
-                (return-from validate code)
-                (quit code))))
-    (when help (show-help-for-validate) (quit))
+           (if *lisp-interaction*
+               (return-from validate-file (zerop code))
+               (quit code))))
+    (when help (show-help-for-validate-file) (quit))
     (if (validate (read-gtirb gtirb-file))
-        (exit 1)
+        (exit 0)
         (exit 2))))
