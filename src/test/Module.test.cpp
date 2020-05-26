@@ -251,6 +251,28 @@ TEST(Unit_Module, byteIntervals) {
   auto* BI2 = S2->addByteInterval(Ctx, Addr(0), 10);
   auto* BI3 = S3->addByteInterval(Ctx, Addr(10), 10);
 
+  // Create CodeBlocks and Symbols such that pointers do not change
+  // monotonically with respect to address. This will help determine whether
+  // CodeBlock and Symbol iteration is updated properly when ByteIntervals are
+  // relocated.
+
+  CodeBlock* CB[20];
+  Symbol* Sym[20];
+  for (int i = 0; i < 10; ++i) {
+    int index = (i & 0x1) ? 4 - (i >> 1) : 5 + (i >> 1);
+    CB[index] = BI2->addBlock<CodeBlock>(Ctx, index, 1);
+    CB[index + 10] = BI3->addBlock<CodeBlock>(Ctx, index, 1);
+
+    std::string name = "sym_";
+    Sym[index] = M->addSymbol(Ctx, CB[index], name.append(1, 'a' + index));
+    Sym[index + 10] =
+        M->addSymbol(Ctx, CB[index + 10], name.append(1, 'a' + index + 10));
+  }
+  for (int i = 0; i < 20; ++i) {
+    ASSERT_EQ(CB[i]->getAddress(), Addr(i));
+    ASSERT_EQ(Sym[i]->getAddress(), Addr(i));
+  }
+
   // Iteration should be in order of increasing start address.
   ASSERT_EQ(std::distance(M->byte_intervals_begin(), M->byte_intervals_end()),
             3);
@@ -262,6 +284,22 @@ TEST(Unit_Module, byteIntervals) {
   EXPECT_EQ(&*std::next(M->sections_begin(), 0), S1);
   EXPECT_EQ(&*std::next(M->sections_begin(), 1), S2);
   EXPECT_EQ(&*std::next(M->sections_begin(), 2), S3);
+
+  // CodeBlocks and symbols should be in order.
+  ASSERT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 20);
+  for (int i = 0; i < 20; ++i) {
+    CodeBlock& CBi = *std::next(M->code_blocks_begin(), i);
+    EXPECT_EQ(CBi.getAddress(), Addr(i));
+    EXPECT_EQ(&CBi, CB[i]);
+  }
+
+  ASSERT_EQ(std::distance(M->symbols_by_addr_begin(), M->symbols_by_addr_end()),
+            20);
+  for (int i = 0; i < 20; ++i) {
+    Symbol& S = *std::next(M->symbols_by_addr_begin(), i);
+    EXPECT_EQ(S.getAddress(), Addr(i));
+    EXPECT_EQ(&S, Sym[i]);
+  }
 
   // Iteration should be alphabetical by section name.
   ASSERT_EQ(
@@ -283,6 +321,33 @@ TEST(Unit_Module, byteIntervals) {
   EXPECT_EQ(&*std::next(M->sections_begin(), 0), S1);
   EXPECT_EQ(&*std::next(M->sections_begin(), 1), S3);
   EXPECT_EQ(&*std::next(M->sections_begin(), 2), S2);
+
+  // The first 10 CodeBlocks and Symbols (in BI2) should come after the second
+  // 10 (in BI3).
+  ASSERT_EQ(std::distance(M->code_blocks_begin(), M->code_blocks_end()), 20);
+  for (int i = 0; i < 10; ++i) {
+    CodeBlock& CBi = *std::next(M->code_blocks_begin(), i);
+    EXPECT_EQ(CBi.getAddress(), Addr(i + 10));
+    EXPECT_EQ(&CBi, CB[i + 10]);
+  }
+  for (int i = 0; i < 10; ++i) {
+    CodeBlock& CBi = *std::next(M->code_blocks_begin(), i + 10);
+    EXPECT_EQ(CBi.getAddress(), Addr(i + 20));
+    EXPECT_EQ(&CBi, CB[i]);
+  }
+
+  ASSERT_EQ(std::distance(M->symbols_by_addr_begin(), M->symbols_by_addr_end()),
+            20);
+  for (int i = 0; i < 10; ++i) {
+    Symbol& S = *std::next(M->symbols_by_addr_begin(), i);
+    EXPECT_EQ(S.getAddress(), Addr(i + 10));
+    EXPECT_EQ(&S, Sym[i + 10]);
+  }
+  for (int i = 0; i < 10; ++i) {
+    Symbol& S = *std::next(M->symbols_by_addr_begin(), i + 10);
+    EXPECT_EQ(S.getAddress(), Addr(i + 20));
+    EXPECT_EQ(&S, Sym[i]);
+  }
 
   // Iteration should be unaffected by changing addresses...
   ASSERT_EQ(

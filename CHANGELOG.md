@@ -1,3 +1,8 @@
+# 1.8.4
+
+* Fix bug where Symbol iteration could get out of order when symbols refer to
+  blocks in byte intervals that are relocated.
+
 # 1.8.3
 
 * Fix bug that didn't add CodeBlocks to the CFG if the CodeBlocks were added to

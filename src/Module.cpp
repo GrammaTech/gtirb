@@ -319,15 +319,23 @@ Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
                                             Section::code_block_range Blocks) {
   ChangeStatus Status = ChangeStatus::NoChange;
   auto& Index = M->Symbols.get<by_referent>();
+
+  // Remove the affected symbols from M->Symbols and reinsert them. We cannot
+  // simply call modify() because the by_address index may be arbitrarily
+  // corrupt when this method is called. If we try to modify a symbol that
+  // happens to be in the correct position relative to its neighbors, that
+  // symbol will not be updated even if the neighbors are not in their correct
+  // positions.
+
+  std::vector<Symbol*> ModifiedSymbols;
   for (CodeBlock& Block : Blocks) {
-    for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
-      // Re-synchronize the address associated with the symbol. This should not
-      // invalidate the iterators into the referent index because only the
-      // address index needs to be updated.
-      Index.modify(It, NoOp);
+    for (auto [It, End] = Index.equal_range(&Block); It != End;) {
+      ModifiedSymbols.push_back(*It);
+      It = Index.erase(It);
       Status = ChangeStatus::Accepted;
     }
   }
+  M->Symbols.insert(ModifiedSymbols.begin(), ModifiedSymbols.end());
 
   return Status;
 }
@@ -365,15 +373,24 @@ Module::SectionObserverImpl::moveDataBlocks(Section* /* S */,
                                             Section::data_block_range Blocks) {
   ChangeStatus Status = ChangeStatus::NoChange;
   auto& Index = M->Symbols.get<by_referent>();
+
+  // Remove the affected symbols from M->Symbols and reinsert them. We cannot
+  // simply call modify() because the by_address index may be arbitrarily
+  // corrupt when this method is called. If we try to modify a symbol that
+  // happens to be in the correct position relative to its neighbors, that
+  // symbol will not be updated even if the neighbors are not in their correct
+  // positions.
+
+  std::vector<Symbol*> ModifiedSymbols;
   for (DataBlock& Block : Blocks) {
-    for (auto [It, End] = Index.equal_range(&Block); It != End; ++It) {
-      // Re-synchronize the address associated with the symbol. This should not
-      // invalidate the iterators into the referent index because only the
-      // address index needs to be updated.
-      Index.modify(It, NoOp);
+    for (auto [It, End] = Index.equal_range(&Block); It != End;) {
+      ModifiedSymbols.push_back(*It);
+      It = Index.erase(It);
       Status = ChangeStatus::Accepted;
     }
   }
+  M->Symbols.insert(ModifiedSymbols.begin(), ModifiedSymbols.end());
+
   return Status;
 }
 
