@@ -95,6 +95,21 @@
   :action 'all-referents-exist
   :object 'gtirb)
 
+(defgeneric symbolic-expression-size-well-formed (object)
+  (:method ((obj gtirb))
+    (every [{every «member #'second
+                           [#'hash-table-keys #'symbolic-expressions
+                                              {get-uuid _ obj} #'car]»}
+            #'hash-table-keys #'aux-data-data #'cdr
+            (lambda (el) (assoc "symbolicExpressionSizes" el :test #'string=))
+            #'aux-data]
+           (modules obj))))
+
+(make-instance 'check
+  :name 'symbolic-expression-size-well-formed
+  :action 'symbolic-expression-size-well-formed
+  :object 'gtirb)
+
 
 ;;;; Command-line interface
 (eval-when (:compile-toplevel :load-toplevel :execute)
