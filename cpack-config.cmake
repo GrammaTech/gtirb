@@ -23,4 +23,11 @@ elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "python")
   set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
   set(CPACK_COMPONENTS_ALL python)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS "python3, python3-protobuf")
+elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "debug")
+  set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dbg")
+  set(CPACK_PACKAGE_FILE_NAME "libgtirb-dbg")
+  set(CPACK_COMPONENTS_ALL debug-file)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS
+      "libgtirb (=${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE})"
+  )
 endif()

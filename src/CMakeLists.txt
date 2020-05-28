@@ -169,6 +169,33 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
                                                          # base classes.
 endif()
 
+if(UNIX
+   AND NOT CYGWIN
+   AND ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo" OR "${CMAKE_BUILD_TYPE}"
+                                                           STREQUAL "Debug")
+)
+  string(
+    RANDOM
+    LENGTH 32
+    ALPHABET "abcdef0123456789" BUILD_ID
+  )
+  string(SUBSTRING "${BUILD_ID}" 0 2 BUILD_ID_PREFIX)
+  string(SUBSTRING "${BUILD_ID}" 2 32 BUILD_ID_SUFFIX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE "-Wl,--build-id=0x${BUILD_ID}")
+  add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND objcopy --only-keep-debug $<TARGET_FILE:${PROJECT_NAME}>
+            ${CMAKE_BINARY_DIR}/bin/${BUILD_ID_SUFFIX}.debug
+    COMMAND objcopy --strip-debug $<TARGET_FILE:${PROJECT_NAME}>
+  )
+  install(
+    FILES "${CMAKE_BINARY_DIR}/bin/${BUILD_ID_SUFFIX}.debug"
+    COMPONENT debug-file
+    DESTINATION "lib/debug/.build-id/${BUILD_ID_PREFIX}"
+  )
+endif()
+
 if(CLANG_TIDY_EXE)
   set_target_properties(
     ${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
