@@ -1,3 +1,8 @@
+# 1.8.5
+
+* Make Python Offset objects immutable and make Offsets equivalent when they
+  refer to the same displacement from the same element.
+
 # 1.8.4
 
 * Fix bug where Symbol iteration could get out of order when symbols refer to
