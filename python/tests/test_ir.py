@@ -52,7 +52,7 @@ class IRTest(unittest.TestCase):
                 ),
             )
         )
-        m.aux_data["key"] = gtirb.AuxData(777, "uint64_t")
+        m.aux_data["key"] = gtirb.AuxData(gtirb.Offset(s, 777), "Offset")
         ir.aux_data["key"] = gtirb.AuxData("value", "string")
 
         self.ir = ir
@@ -66,6 +66,10 @@ class IRTest(unittest.TestCase):
     def test_ir_protobuf_load(self):
         new_ir = gtirb.IR.load_protobuf(IR_FILE)
         self.assertTrue(self.ir.deep_eq(new_ir))
+        self.assertNotEqual(
+            self.ir.modules[0].aux_data["key"].data,
+            new_ir.modules[0].aux_data["key"].data,
+        )
 
 
 if __name__ == "__main__":
