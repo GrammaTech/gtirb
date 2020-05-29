@@ -122,19 +122,21 @@ platform follow.
 
 ### Ubuntu16
 ```sh
+sudo apt-get install software-properties-common
 sudo add-apt-repository ppa:maarten-fonville/protobuf
 sudo add-apt-repository ppa:mhier/libboost-latest
 echo "deb https://grammatech.github.io/gtirb/pkgs/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
 sudo apt-get update
-sudo apt-get install --allow-unauthenticated gtirb
+sudo apt-get install --allow-unauthenticated libgtirb gtirb-pprinter ddisasm
 ```
 
 ### Ubuntu18
 ```sh
+sudo apt-get install software-properties-common
 sudo add-apt-repository ppa:mhier/libboost-latest
 echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
 sudo apt-get update
-sudo apt-get install gtirb
+sudo apt-get install libgtirb gtirb-pprinter ddisasm
 ```
 
 ## Arch Linux
