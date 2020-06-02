@@ -34,7 +34,8 @@ RUN sbcl --eval '(asdf:initialize-source-registry `(:source-registry (:tree "/gt
 # Build GTIRB.
 RUN mkdir build
 WORKDIR /gt/gtirb/build/
-RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
+ARG BUILD_TYPE=RelWithDebInfo
+RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 RUN make -j
 
 # Build python wheel

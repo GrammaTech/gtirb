@@ -38,11 +38,11 @@ check-format:
         CACHE=--no-cache;
       fi
     # Build & test
-    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} ${CACHE} .
+    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} --build-arg BUILD_TYPE=$BUILD_TYPE ${CACHE} .
     - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
     # Build & test with capstone
     - CAPSTONE_OS=$(echo ${OS} | sed 's/[[:digit:]]//g')
-    - docker build -f .ci/Dockerfile.add-capstone-${CAPSTONE_OS} --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} .
+    - docker build -f .ci/Dockerfile.add-capstone-${CAPSTONE_OS} --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} --build-arg BUILD_TYPE=$BUILD_TYPE .
     - docker tag ${LOCAL_IMAGE_BASE} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
     - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
@@ -103,6 +103,7 @@ build-ubuntu16-gcc7:
     OS: 'ubuntu16'
     COMPILER: 'g++-7'
     CPACK_GENERATOR: 'DEB'
+    BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-ubuntu16-clang:
@@ -110,6 +111,7 @@ build-ubuntu16-clang:
   variables:
     OS: 'ubuntu16'
     COMPILER: 'clang++'
+    BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-ubuntu18-gcc7:
@@ -118,6 +120,7 @@ build-ubuntu18-gcc7:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
     CPACK_GENERATOR: 'DEB'
+    BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-ubuntu18-clang:
@@ -125,6 +128,7 @@ build-ubuntu18-clang:
   variables:
     OS: 'ubuntu18'
     COMPILER: 'clang++'
+    BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-arch-gcc:
@@ -132,7 +136,7 @@ build-arch-gcc:
   variables:
     OS: 'arch'
     COMPILER: 'g++'
-    CPACK_GENERATOR: 'TGZ'
+    BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-arch-clang:
@@ -140,6 +144,55 @@ build-arch-clang:
   variables:
     OS: 'arch'
     COMPILER: 'clang++'
+    BUILD_TYPE: 'RelWithDebInfo'
+  <<: *build
+
+build-ubuntu16-gcc7-debug:
+  stage: build
+  variables:
+    OS: 'ubuntu16'
+    COMPILER: 'g++-7'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
+build-ubuntu16-clang-debug:
+  stage: build
+  variables:
+    OS: 'ubuntu16'
+    COMPILER: 'clang++'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
+build-ubuntu18-gcc7-debug:
+  stage: build
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
+build-ubuntu18-clang-debug:
+  stage: build
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'clang++'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
+build-arch-gcc-debug:
+  stage: build
+  variables:
+    OS: 'arch'
+    COMPILER: 'g++'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
+build-arch-clang-debug:
+  stage: build
+  variables:
+    OS: 'arch'
+    COMPILER: 'clang++'
+    BUILD_TYPE: 'Debug'
   <<: *build
 
 build-windows-msvc-debug:

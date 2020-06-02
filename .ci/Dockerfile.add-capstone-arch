@@ -9,7 +9,8 @@ RUN pacman --noconfirm -Syu capstone
 
 # Build GTIRB
 WORKDIR /gt/gtirb/build
-RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -B.
+ARG BUILD_TYPE=RelWithDebInfo
+RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B.
 RUN make -j
 
 RUN TestGTIRB
