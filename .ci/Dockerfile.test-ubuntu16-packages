@@ -8,6 +8,7 @@ RUN add-apt-repository ppa:maarten-fonville/protobuf # for protobuf >= 3.0.0
 RUN add-apt-repository ppa:mhier/libboost-latest # for boost 1.67
 RUN mkdir -p /gt/apt-repo
 COPY libgtirb.deb /gt/apt-repo
+COPY libgtirb-dbg.deb /gt/apt-repo
 COPY libgtirb-dev.deb /gt/apt-repo
 RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
 RUN echo "\ndeb file:/gt/apt-repo ./\n" >> /etc/apt/sources.list

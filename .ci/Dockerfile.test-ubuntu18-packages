@@ -8,6 +8,7 @@ RUN apt-get -y update && apt-get -y install build-essential dpkg-dev software-pr
 RUN add-apt-repository ppa:mhier/libboost-latest # for boost 1.67
 RUN mkdir -p /gt/apt-repo
 COPY libgtirb-dev.deb /gt/apt-repo
+COPY libgtirb-dbg.deb /gt/apt-repo
 COPY libgtirb.deb /gt/apt-repo
 COPY python3-gtirb.deb /gt/apt-repo
 RUN cd /gt/apt-repo && dpkg-scanpackages . /dev/null > Packages
