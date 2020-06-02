@@ -147,22 +147,6 @@ build-arch-clang:
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
-build-ubuntu16-gcc7-debug:
-  stage: build
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-7'
-    BUILD_TYPE: 'Debug'
-  <<: *build
-
-build-ubuntu16-clang-debug:
-  stage: build
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'clang++'
-    BUILD_TYPE: 'Debug'
-  <<: *build
-
 build-ubuntu18-gcc7-debug:
   stage: build
   variables:
