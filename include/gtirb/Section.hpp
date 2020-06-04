@@ -17,6 +17,8 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/ByteInterval.hpp>
+#include <gtirb/CodeBlock.hpp>
+#include <gtirb/DataBlock.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Observer.hpp>
 #include <gtirb/Utility.hpp>

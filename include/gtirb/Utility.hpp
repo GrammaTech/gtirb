@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
+#include <algorithm>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_traits.hpp>
@@ -39,7 +40,9 @@ namespace gtirb {
 /// a single sorted output iterator.
 ///
 /// This iterator is a forward iterator, irrespective of the class of the base
-/// iterator.
+/// iterator. Iterating over a sequence of N total elements from a combined M
+/// base iterators requires O(N log M) comparisons. Constructing a iterator
+/// with M base iterators requires O(M) comparisons.
 ///
 /// \tparam ForwardIterator The type of forward iterator to be merged. Results
 ///                         from these iterators must be in sorted order.
@@ -74,6 +77,8 @@ public:
         Ranges.emplace_back(RBegin, REnd);
       }
     }
+    // Establish the heap invariant for Ranges.
+    std::make_heap(Ranges.begin(), Ranges.end(), rangeGreaterThan);
   }
 
   /// \brief Create a MergeSortedIterator from an iterator of ranges.
@@ -91,7 +96,7 @@ public:
   typename std::iterator_traits<ForwardIterator>::reference
   dereference() const {
     assert(!Ranges.empty() && "Attempt to dereference end of iterator!");
-    return *Ranges[minIndex()].first;
+    return *Ranges.front().first;
   }
 
   bool equal(const MergeSortedIterator<ForwardIterator, Compare>& Other) const {
@@ -100,28 +105,39 @@ public:
 
   void increment() {
     assert(!Ranges.empty() && "Attempt to increment end of iterator!");
-    auto MinIndex = minIndex();
-    auto& MinRange = Ranges[MinIndex];
-    MinRange.first++;
-    if (MinRange.first == MinRange.second) {
-      Ranges.erase(Ranges.begin() + MinIndex);
+    // After incrementing the first range, it may no longer have the lowest
+    // first element. Removing the range, then re-inserting it ensures that the
+    // heap invariant is maintained.
+    std::pop_heap(Ranges.begin(), Ranges.end(), rangeGreaterThan);
+    ++Ranges.back().first;
+    if (Ranges.back().first == Ranges.back().second) {
+      Ranges.pop_back();
+    } else {
+      std::push_heap(Ranges.begin(), Ranges.end(), rangeGreaterThan);
     }
   }
   // End of functions for iterator facade compatibility.
 private:
-  std::vector<std::pair<ForwardIterator, ForwardIterator>> Ranges;
+  using RangeType = std::pair<ForwardIterator, ForwardIterator>;
 
-  /// \brief Get the index in \p Ranges containing the iterator with the
-  /// smallest item, as determined via /p Compare.
-  size_t minIndex() const {
-    size_t Result = 0;
-    for (size_t I = 0; I < Ranges.size(); I++) {
-      if (Compare()(*Ranges[I].first, *Ranges[Result].first)) {
-        Result = I;
-      }
-    }
-    return Result;
+  // Compares two ranges according to the relationship of their first elements
+  // given by \c Compare. Empty ranges are treated as being greater than any
+  // non-empty range.
+  static bool rangeGreaterThan(const RangeType& R1, const RangeType& R2) {
+    if (R1.first == R1.second)
+      // An empty R1 is greater than every R2.
+      return true;
+    if (R2.first == R2.second)
+      // Any R1 is less than an empty R2.
+      return false;
+    // Flip the comparison to implement "greater-than".
+    return Compare()(*R2.first, *R1.first);
   }
+
+  // Ranges is a heap ordered by \c rangeGreaterThan. This ensures that the
+  // range with the lowest first element (according to \c Compare) is always at
+  // the front.
+  std::vector<RangeType> Ranges;
 };
 
 /// \class AddressLess

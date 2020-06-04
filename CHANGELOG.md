@@ -1,3 +1,8 @@
+# Unreleased
+
+* Reduce asymptotic complexity of iterating over blocks in a large number of
+  byte intervals.
+
 # 1.8.5
 
 * Make Python Offset objects immutable and make Offsets equivalent when they
