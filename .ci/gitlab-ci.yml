@@ -17,10 +17,12 @@ stages:
   - cleanup
 
 check-format:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/formatter
   stage: check-format
+  tags:
+    - gtirb-docker-executor
   script:
-    - docker build -f .ci/Dockerfile.formatter -t formatter .
-    - docker run -v $(pwd):/gt/gtirb formatter
+    - pre-commit run --all-files
 
 .build-template: &build
   script:
