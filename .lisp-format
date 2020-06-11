@@ -10,13 +10,16 @@
       (apply #'append
              (mapcar
               (lambda (pkg-glob)
-                (directory-files
-                 ;; Use quicklisp if the user has it setup.
-                 (if (getenv "QUICK_LISP")
-                     (concat (getenv "QUICK_LISP") "/dists/quicklisp/software/")
-                   ;; Default for Ubuntu apt-get installs.
-                   "/usr/share/emacs25/site-lisp/elpa/")
-                 t pkg-glob))
+                (loop for path in
+                  (directory-files
+                   ;; Use quicklisp if the user has it setup.
+                   (if (getenv "QUICK_LISP")
+                       (concat (getenv "QUICK_LISP") "/dists/quicklisp/software/")
+                     ;; Search for the site-lisp path in load-path
+                     (loop for path in load-path
+                        if (string-match-p "site-lisp" path) do (return path)))
+                   t pkg-glob)
+                if (file-directory-p path) collect path))
               (list "slime*" "paredit*"))))
 (defun verbose-require (package)
   (unless (ignore-errors (require package))

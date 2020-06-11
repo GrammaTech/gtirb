@@ -6,18 +6,20 @@ variables:
 before_script:
   - case "$(uname -s)" in
         CYGWIN*) systeminfo;;
-        *) docker info;;
+        *) inxi -F -c 0;;
     esac
 
 stages:
   - check-format
   - build
-  - test
+  - build-installers
+  - test-setup
+  - test-packages1
+  - test-packages2
   - deploy
-  - cleanup
 
 check-format:
-  image: $DOCKER_REGISTRY/rewriting/gtirb/formatter
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   stage: check-format
   tags:
     - gtirb-docker-executor
@@ -25,29 +27,18 @@ check-format:
     - pre-commit run --all-files
 
 .build-template: &build
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  tags:
+    - gtirb-docker-executor
   script:
-    - if [ "$CI_COMMIT_REF_SLUG" = "master" ];
-      then
-          PUSH_TAG=latest;
-      else
-          PUSH_TAG=$CI_COMMIT_REF_SLUG;
-      fi
-    - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    # Disable cache on arch builds to avoid mixing cached old files with latest
-    # downloads.
-    - if [ "$OS" = "arch" ]; then
-        CACHE=--no-cache;
-      fi
-    # Build & test
-    - docker build -f .ci/Dockerfile.${OS} -t ${LOCAL_IMAGE_BASE} --build-arg CXX_COMPILER=${COMPILER} --build-arg CPACK_GENERATOR=${CPACK_GENERATOR} --build-arg BUILD_TYPE=$BUILD_TYPE ${CACHE} .
-    - docker run ${LOCAL_IMAGE_BASE} bash -c 'cd /gt/gtirb/build ; ctest -V'
-    # Build & test with capstone
-    - CAPSTONE_OS=$(echo ${OS} | sed 's/[[:digit:]]//g')
-    - docker build -f .ci/Dockerfile.add-capstone-${CAPSTONE_OS} --build-arg CXX_COMPILER=${COMPILER} --build-arg BASE_IMAGE=${LOCAL_IMAGE_BASE} --build-arg BUILD_TYPE=$BUILD_TYPE .
-    - docker tag ${LOCAL_IMAGE_BASE} $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
-    - docker push $DOCKER_REGISTRY/$CI_PROJECT_PATH/${OS}-${COMPILER_NAME}:${PUSH_TAG};
+    - mkdir build
+    - cd build
+    - cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+    - make -j
+    - ctest -V
 
 .windows-build-template: &windows-build
   stage: build
@@ -55,6 +46,8 @@ check-format:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - GTIRB-*-win64
+  tags:
+    - gtirb-windows
   script:
     # Build & test
     - rm -rf build CMakeCache.txt CMakeFiles CMakeScripts
@@ -90,171 +83,352 @@ check-format:
     - cp bin/$(echo "gtirb$(echo $BUILD_TYPE | sed 's/Debug/d/;s/RelWithDebInfo//').pdb") $BASE_DIRECTORY/bin/
     - cp -r $BASE_DIRECTORY ../
 
-# This does not work: Ubuntu 14.04 has gcc 4.8.4, which is too old.
-#
-# build-ubuntu14:
-#   stage: build
-#   variables:
-#     OS: 'ubuntu14'
-#     COMPILER: 'g++'
-#   <<: *build
-
 build-ubuntu16-gcc7:
   stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
   variables:
     OS: 'ubuntu16'
-    COMPILER: 'g++-7'
+    CXX_COMPILER: 'g++-7'
     CPACK_GENERATOR: 'DEB'
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-ubuntu18-gcc7:
   stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   variables:
     OS: 'ubuntu18'
-    COMPILER: 'g++-7'
+    CXX_COMPILER: 'g++-7'
     CPACK_GENERATOR: 'DEB'
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-arch-gcc:
   stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   variables:
     OS: 'arch'
-    COMPILER: 'g++'
+    CXX_COMPILER: 'g++'
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
 build-arch-gcc-debug:
   stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   variables:
     OS: 'arch'
-    COMPILER: 'g++'
+    CXX_COMPILER: 'g++'
     BUILD_TYPE: 'Debug'
   <<: *build
 
 build-arch-clang-debug:
   stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   variables:
     OS: 'arch'
-    COMPILER: 'clang++'
+    CXX_COMPILER: 'clang++'
     BUILD_TYPE: 'Debug'
   <<: *build
 
 build-windows-msvc-debug:
-  tags:
-    - gtirb-windows
   variables:
     BUILD_TYPE: 'Debug'
   <<: *windows-build
 
 build-windows-msvc-relwithdebinfo:
-  tags:
-    - gtirb-windows
   variables:
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *windows-build
 
-cleanup:
-  stage: cleanup
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-7'
-  script:
-    - export LOCAL_IMAGE_NAME=$(echo ${LOCAL_IMAGE_NAME} |  tr A-Z a-z)
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu16-gcc7
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu16-clang
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-ubuntu18-clang
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-gcc
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-arch-clang
-    - docker rmi -f ${LOCAL_IMAGE_NAME}-test-install
-  when: always
-
-test-install:
-  stage: test
-  variables:
-    OS: 'ubuntu18'
-    COMPILER: 'g++-7'
-  script:
-    - if [ "$CI_COMMIT_REF_SLUG" = "master" ];
-      then
-          PUSH_TAG=latest;
-      else
-          PUSH_TAG=$CI_COMMIT_REF_SLUG;
-      fi
-    - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export LOCAL_IMAGE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - docker build -f .ci/Dockerfile.test-install -t ${LOCAL_IMAGE_NAME}-${CI_JOB_NAME} --build-arg IMAGE=$LOCAL_IMAGE .
-
-.linux-installer-template: &linux-installer
-  stage: deploy
+build-ubuntu16-packages:
+  stage: build-installers
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
+  tags:
+    - gtirb-docker-executor
+  needs: [build-ubuntu16-gcc7]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - ./*.$PACKAGE_EXTENSION
+      - build
   script:
-    - export COMPILER_NAME=$(echo ${COMPILER} | sed 's/clang++/clang/;s/g++/gcc/;s/-*//g' )
-    - export CONTAINER_FILE=$(mktemp -d)/cidfile
-    - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME}-${OS}-${COMPILER_NAME} |  tr A-Z a-z)
-    - docker create --cidfile="${CONTAINER_FILE}" ${LOCAL_IMAGE_BASE}
-    - if [ "$OS" = "arch" ];
-      then
-        export PKGFILE="gtirb-git-$(git describe --abbrev=8 --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s|gt/pristine/||')-1-x86_64.pkg.tar.xz";
-        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/${PKGFILE} ./${PKGFILE};
-      elif [[ "$OS" =~ ubuntu1[68] ]];
-      then
-        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb.deb ./libgtirb.deb;
-        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb-dev.deb ./libgtirb-dev.deb;
-        docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/libgtirb-dbg.deb ./libgtirb-dbg.deb;
-        [ $OS = 'ubuntu18' ] && docker cp $(cat ${CONTAINER_FILE}):/gt/gtirb/build/python3-gtirb.deb ./python3-gtirb.deb;
-      fi
-    - docker container rm -f $(cat ${CONTAINER_FILE})
-    - rm -rf $(dirname ${CONTAINER_FILE})
-    - docker build -f .ci/Dockerfile.test-${OS}-packages --build-arg CXX_COMPILER=${COMPILER} .;
+    - cd build
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
 
-debian-installer-ubuntu16:
-  variables:
-    OS: 'ubuntu16'
-    COMPILER: 'g++-7'
-    PACKAGE_EXTENSION: 'deb'
-  <<: *linux-installer
+build-ubuntu18-packages:
+  stage: build-installers
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  tags:
+    - gtirb-docker-executor
+  needs: [build-ubuntu18-gcc7]
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  script:
+    - pip3 install setuptools wheel --upgrade
+    - cd build
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=python;
 
-debian-installer-ubuntu18:
+build-arch-package:
+  stage: build-installers
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
+  tags:
+    - gtirb-docker-executor
+  needs: [build-arch-gcc]
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  script:
+    - mkdir /tmp/aur
+    - cp .ci/PKGBUILD /tmp/aur
+    - sed -i 's|git://github.com/grammatech/gtirb.git|git+file:///gt/gtirb|' /tmp/aur/PKGBUILD
+    - pushd /tmp/aur/
+    - makepkg
+    - popd
+    - cp /tmp/aur/*.xz ./build
+
+test-default-install:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  tags:
+    - gtirb-docker-executor
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
-    PACKAGE_EXTENSION: 'deb'
-  <<: *linux-installer
+    PROTOBUF_PYTHON_RUNTIME: 'cpp'
+  needs: ['build-ubuntu18-gcc7']
+  script:
+    - make -t -C build
+    - make -C build install install-python && rm -rf build
+    - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-all.sh
+
+test-install-different-prefix:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  tags:
+    - gtirb-docker-executor
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+    PROTOBUF_PYTHON_RUNTIME: 'cpp'
+  needs: ['build-ubuntu18-gcc7']
+  script:
+    - make -t -C ./build
+    - cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
+    - cd ..
+    - echo /tmp/prefix/lib/python$(python3 -c "import sys; print('%s.%s' % sys.version_info[:2])")/site-packages > pydir
+    - mkdir -p $(cat pydir)
+    - PYTHONPATH=$(cat pydir) make -C build install install-python && rm -rf build
+    - PYTHONPATH=$(cat pydir) CPPFLAGS=-I/tmp/prefix/include LDFLAGS=-L/tmp/prefix/lib LD_LIBRARY_PATH=/tmp/prefix/lib .ci/test-install-all.sh
+
+test-install-with-destdir:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  tags:
+    - gtirb-docker-executor
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+    PROTOBUF_PYTHON_RUNTIME: 'cpp'
+  needs: ['build-ubuntu18-gcc7']
+  script:
+    - make -t -C ./build
+    - DESTDIR=/tmp/destdir make -C ./build install install-python
+
+test-install-python-virtualenv:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  tags:
+    - gtirb-docker-executor
+  variables:
+    OS: 'ubuntu18'
+    COMPILER: 'g++-7'
+    PROTOBUF_PYTHON_RUNTIME: 'cpp'
+  needs: ['build-ubuntu18-gcc7']
+  script:
+    - mkdir /tmp/myvenv
+    - python3 -m venv /tmp/myvenv
+    - sh -c '. /tmp/myvenv/bin/activate ; cd build/python && python3 setup.py install'
+    - rm -rf build
+    - sh -c '. /tmp/myvenv/bin/activate ; python3 .ci/test-install.py'
+
+.setup-test-apt-repo: &setup-test-apt-repo
+  stage: test-setup
+  tags:
+    - gtirb-docker-executor
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - apt-repo
+  script:
+    - mkdir apt-repo
+    - cp build/*.deb apt-repo
+    - cd apt-repo && dpkg-scanpackages . /dev/null > Packages
+
+.test-ubuntu-libgtirb-dev: &test-ubuntu-libgtirb-dev
+  stage: test-packages1
+  tags:
+    - gtirb-docker-executor
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - test-install
+  script:
+    - if [ $(lsb_release -sc) == "bionic" ]; then TRUSTED="[trusted=yes]"; fi
+    - echo $TRUSTED
+    - echo -e "\ndeb $TRUSTED file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
+    - cat /etc/apt/sources.list
+    - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb-dev
+    - cp .ci/test-install.cpp ./
+    - g++-7 test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+    - ./test-install
+
+.test-ubuntu-libgtirb: &test-ubuntu-libgtirb
+  stage: test-packages2
+  tags:
+    - gtirb-docker-executor
+  script:
+    - if [ $(lsb_release -sc) == "bionic" ]; then TRUSTED="[trusted=yes]"; fi
+    - echo -e "\ndeb $TRUSTED file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
+    - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb
+    - ./test-install
+
+.test-ubuntu-libgtirb-dbg: &test-ubuntu-libgtirb-dbg
+  stage: test-packages1
+  tags:
+    - gtirb-docker-executor
+  script:
+    - if [ $(lsb_release -sc) == "bionic" ]; then TRUSTED="[trusted=yes]"; fi
+    - echo -e "\ndeb $TRUSTED file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
+    - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb-dbg
+    - '[ -f /usr/lib/debug/.build-id/$(readelf -n /usr/lib/libgtirb.so | grep ''Build ID: '' | cut -d":" -f2 | sed -E ''s/ ([a-f0-9]{2,})([a-f0-9]{30,})/\1\/\2/g'').debug ]'
+
+setup-ubuntu16-test-apt-repo:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
+   needs: [build-ubuntu16-packages]
+   <<: *setup-test-apt-repo
+
+test-ubuntu16-libgtirb-dev:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
+   needs: [setup-ubuntu16-test-apt-repo]
+   <<: *test-ubuntu-libgtirb-dev
+
+test-ubuntu16-libgtirb-dbg:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
+   needs: [setup-ubuntu16-test-apt-repo]
+   <<: *test-ubuntu-libgtirb-dbg
+
+test-ubuntu16-libgtirb:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
+   needs: [setup-ubuntu16-test-apt-repo,test-ubuntu16-libgtirb-dev]
+   <<: *test-ubuntu-libgtirb
+
+setup-ubuntu18-test-apt-repo:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+   needs: [build-ubuntu18-packages]
+   <<: *setup-test-apt-repo
+
+test-ubuntu18-libgtirb-dev:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+   needs: [setup-ubuntu18-test-apt-repo]
+   <<: *test-ubuntu-libgtirb-dev
+
+test-ubuntu18-libgtirb-dbg:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+   needs: [setup-ubuntu18-test-apt-repo]
+   <<: *test-ubuntu-libgtirb-dbg
+
+test-ubuntu18-libgtirb:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+   needs: [setup-ubuntu18-test-apt-repo,test-ubuntu18-libgtirb-dev]
+   <<: *test-ubuntu-libgtirb
+
+test-arch-package:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
+  needs: [build-arch-package]
+  tags:
+    - gtirb-docker-executor
+  script:
+    - cp .ci/test-install.cpp ./
+    - pacman --noconfirm -U build/gtirb-git-*.pkg.tar.xz
+    - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+    - ./test-install
+
+debian-installer-ubuntu16:
+  stage: deploy
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
+  needs: [test-ubuntu16-libgtirb, build-ubuntu16-packages]
+  tags:
+    - gtirb-docker-executor
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - '*gtirb*.deb'
+  script:
+    - cp build/*gtirb*.deb ./
+
+debian-installer-ubuntu18:
+  stage: deploy
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  needs: [test-ubuntu18-libgtirb, build-ubuntu18-packages]
+  tags:
+    - gtirb-docker-executor
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - '*gtirb*.deb'
+  script:
+    - cp build/*gtirb*.deb ./
 
 package-arch:
-  variables:
-    OS: 'arch'
-    COMPILER: 'g++'
-    PACKAGE_EXTENSION: 'pkg.tar.xz'
-  <<: *linux-installer
+  stage: deploy
+  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
+  needs: [test-arch-package, build-arch-package]
+  tags:
+    - gtirb-docker-executor
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - 'gtirb-git-*.pkg.tar.xz'
+  script:
+    - cp build/gtirb-git-*.pkg.tar.xz ./
 
 python-wheel:
+  stage: deploy
+  needs: [build-ubuntu18-gcc7]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  tags:
+    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - gtirb-*-py*-none-any.whl
   script:
-    - CID=$(docker create ${LOCAL_IMAGE_NAME}-ubuntu18-gcc7)
-    - docker cp $CID:/gt/gtirb/build/python/dist python-dist
-    - cp python-dist/*.whl ./
-    - docker container rm -f $CID
+    - make -t -C build
+    - make -C build python-wheel
+    - cp build/python/dist/*.whl ./
 
 upload-to-pypi:
   stage: deploy
+  needs: [build-ubuntu18-gcc7]
+  tags:
+    - gtirb-docker-executor
   only:
     - master
   script:
-    - GTIRB_IMAGE=${LOCAL_IMAGE_NAME}-ubuntu18-gcc7
-    - GTIRB_VERSION=$(docker run $GTIRB_IMAGE python3 -c "import gtirb; print(gtirb.__version__)")
+    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
     - if [ "$RESPONSE_CODE" = "404" ];
       then
-        docker run $GTIRB_IMAGE bash -c
-          "pip3 install twine --upgrade && cd /gt/gtirb/build/python && twine check dist/* && twine upload dist/* -u __token__ -p $PYPI_API_KEY";
+        pip3 install twine --upgrade;
+        cd build/python;
+        twine check dist/*;
+        twine upload dist/* -u __token__ -p $PYPI_API_KEY;
       fi
