@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.grammatech.gtirb.proto.AuxDataOuterClass;
+
 public class AuxData {
 
     private Map<String, com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData>
@@ -82,8 +84,6 @@ public class AuxData {
             Serialization serialization =
                 new Serialization(protoCfiDirectives.getData().toByteArray());
             long numCfiDirectives = serialization.getLong();
-            System.out.println("Num CFI directives:" + numCfiDirectives);
-            // System.out.println(displacement);
 
             for (int i = 0; i < numCfiDirectives; i++) {
 
@@ -198,7 +198,7 @@ public class AuxData {
 
             for (int i = 0; i < numFunctionEntries; i++) {
                 UUID functionUuid = serialization.getUuid();
-                int numEntryPoints = serialization.getSize();
+                int numEntryPoints = (int)serialization.getLong();
                 ArrayList<UUID> pointList = new ArrayList<UUID>();
                 for (int j = 0; j < numEntryPoints; j++) {
                     UUID entryPointUuid = serialization.getUuid();
@@ -224,7 +224,7 @@ public class AuxData {
 
             for (int i = 0; i < numFunctions; i++) {
                 UUID functionUuid = serialization.getUuid();
-                int numBlocks = serialization.getSize();
+                int numBlocks = (int)serialization.getLong();
                 ArrayList<UUID> blockList = new ArrayList<UUID>();
                 for (int j = 0; j < numBlocks; j++) {
                     UUID blockUuid = serialization.getUuid();
@@ -348,5 +348,9 @@ public class AuxData {
             return types;
         }
         return null;
+    }
+
+    public AuxDataOuterClass.AuxData getProtoAuxData(String auxDataType) {
+        return protoAuxDataMap.get(auxDataType);
     }
 }

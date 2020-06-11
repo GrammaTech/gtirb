@@ -16,14 +16,21 @@ package com.grammatech.gtirb;
 
 import java.util.ArrayList;
 
+import com.grammatech.gtirb.proto.CFGOuterClass;
+
 public class CFG {
 
     private ArrayList<Edge> edgeList;
     private ArrayList<byte[]> verticeList;
 
+    // TODO the saving of protoCfg and using it for mergeFrom
+    // should be replaced with deriving CFG from listing
+    private CFGOuterClass.CFG protoCfg;
+
     public CFG(com.grammatech.gtirb.proto.CFGOuterClass.CFG protoCfg) {
         this.edgeList = new ArrayList<Edge>();
         this.verticeList = new ArrayList<byte[]>();
+        this.protoCfg = protoCfg;
 
         for (com.grammatech.gtirb.proto.CFGOuterClass.Edge protoEdge :
              protoCfg.getEdgesList()) {
@@ -40,4 +47,10 @@ public class CFG {
     public ArrayList<Edge> getEdgeList() { return this.edgeList; }
 
     public ArrayList<byte[]> getVerticeList() { return this.verticeList; }
+
+    public CFGOuterClass.CFG.Builder buildCFG() {
+        CFGOuterClass.CFG.Builder newCFG = CFGOuterClass.CFG.newBuilder();
+        newCFG.mergeFrom(this.protoCfg);
+        return newCFG;
+    }
 }

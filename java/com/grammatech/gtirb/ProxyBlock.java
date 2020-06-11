@@ -14,10 +14,19 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
+
 public class ProxyBlock extends Node {
+
+    private ProxyBlockOuterClass.ProxyBlock protoProxyBlock;
 
     public ProxyBlock(com.grammatech.gtirb.proto.ProxyBlockOuterClass
                           .ProxyBlock protoProxyBlock) {
+        this.protoProxyBlock = protoProxyBlock;
         super.setUuid(Util.byteStringToUuid(protoProxyBlock.getUuid()));
+    }
+
+    public ProxyBlockOuterClass.ProxyBlock getProtoProxyBlock() {
+        return this.protoProxyBlock;
     }
 }

@@ -14,31 +14,29 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
-
 public class Block extends Node {
     private long offset;
     private com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block
         .ValueCase valueCase;
     private CodeBlock codeBlock;
     private DataBlock dataBlock;
+    private ByteInterval byteInterval;
 
     public Block(
         com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block protoBlock,
-        UUID byteIntervalUuid) {
+        ByteInterval byteInterval) {
 
         this.offset = protoBlock.getOffset();
         this.valueCase = protoBlock.getValueCase();
+        this.byteInterval = byteInterval;
         if (this.valueCase == com.grammatech.gtirb.proto.ByteIntervalOuterClass
                                   .Block.ValueCase.CODE) {
-            this.codeBlock =
-                new CodeBlock(protoBlock.getCode(), offset, byteIntervalUuid);
+            this.codeBlock = new CodeBlock(protoBlock.getCode(), offset, this);
             this.dataBlock = null;
         } else if (this.valueCase ==
                    com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block
                        .ValueCase.DATA) {
-            this.dataBlock =
-                new DataBlock(protoBlock.getData(), offset, byteIntervalUuid);
+            this.dataBlock = new DataBlock(protoBlock.getData(), offset, this);
             this.codeBlock = null;
         } else {
             throw new IllegalArgumentException(
@@ -51,4 +49,6 @@ public class Block extends Node {
     public CodeBlock getCodeBlock() { return this.codeBlock; }
 
     public DataBlock getDataBlock() { return this.dataBlock; }
+
+    public ByteInterval getByteInterval() { return this.byteInterval; }
 }

@@ -49,7 +49,7 @@ public final class ByteInterval extends Node {
         this.blockList = new ArrayList<Block>();
         for (com.grammatech.gtirb.proto.ByteIntervalOuterClass
                  .Block protoBlock : protoBlockList) {
-            Block newBlock = new Block(protoBlock, myUuid);
+            Block newBlock = new Block(protoBlock, this);
             this.blockList.add(newBlock);
         }
     }

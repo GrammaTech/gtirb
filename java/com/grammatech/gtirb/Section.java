@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.grammatech.gtirb.proto.SectionOuterClass;
+
 public class Section extends Node {
-    enum SectionFlag {
+    public enum SectionFlag {
         Undefined(com.grammatech.gtirb.proto.SectionOuterClass.SectionFlag
                       .Section_Undefined_VALUE),
         Readable(com.grammatech.gtirb.proto.SectionOuterClass.SectionFlag
@@ -45,9 +47,12 @@ public class Section extends Node {
     private List<SectionFlag> sectionFlags;
     private long elfSectionFlags;
     private long elfSectionType;
+    private com.grammatech.gtirb.proto.SectionOuterClass.Section protoSection;
 
     public Section(
         com.grammatech.gtirb.proto.SectionOuterClass.Section protoSection) {
+
+        this.protoSection = protoSection;
         UUID myUuid = Util.byteStringToUuid(protoSection.getUuid());
         super.setUuid(myUuid);
         this.name = protoSection.getName();
@@ -93,4 +98,8 @@ public class Section extends Node {
     }
 
     public long getElfSectionFlags() { return this.elfSectionFlags; }
+
+    public SectionOuterClass.Section getProtoSection() {
+        return this.protoSection;
+    }
 }

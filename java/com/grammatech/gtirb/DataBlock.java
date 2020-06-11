@@ -15,27 +15,28 @@
 package com.grammatech.gtirb;
 
 import java.util.UUID;
+import com.grammatech.gtirb.Block;
 
 public class DataBlock extends Node {
     private long size;
     private long offset;
-    private UUID byteIntervalUuid;
+    private Block block;
 
     public DataBlock(
         com.grammatech.gtirb.proto.DataBlockOuterClass.DataBlock protoDataBlock,
-        long offset, UUID byteIntervalUuid) {
+        long offset, Block block) {
         UUID myUuid = Util.byteStringToUuid(protoDataBlock.getUuid());
         super.setUuid(myUuid);
         this.size = protoDataBlock.getSize();
         this.offset = offset;
-        this.byteIntervalUuid = byteIntervalUuid;
+        this.block = block;
     }
 
     public long getSize() { return this.size; }
 
     public long getOffset() { return this.offset; }
 
-    public void setSize(long size) { this.size = size; }
+    public Block getBlock() { return this.block; }
 
-    public UUID getByteIntervalUuid() { return this.byteIntervalUuid; }
+    public void setSize(long size) { this.size = size; }
 }

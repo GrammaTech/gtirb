@@ -16,7 +16,11 @@ package com.grammatech.gtirb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.UUID;
+
+import com.grammatech.gtirb.proto.ModuleOuterClass;
 
 public class Module extends Node {
 
@@ -69,6 +73,8 @@ public class Module extends Node {
     private AuxData auxData;
     private String name;
     private UUID entryPointUuid;
+    private NavigableMap<Long, Block> blockAddressMap;
+    private boolean blockAddressMapInitialized;
 
     public Module(
         com.grammatech.gtirb.proto.ModuleOuterClass.Module protoModule) {
@@ -84,6 +90,8 @@ public class Module extends Node {
         this.name = protoModule.getName();
         this.entryPointUuid =
             Util.byteStringToUuid(protoModule.getEntryPoint());
+        this.blockAddressMap = new TreeMap<Long, Block>();
+        this.blockAddressMapInitialized = false;
     }
 
     public boolean initializeSectionList() {
@@ -140,6 +148,8 @@ public class Module extends Node {
 
     public ArrayList<Symbol> getSymbols() { return this.symbolList; }
 
+    public ArrayList<ProxyBlock> getProxyBlockList() { return proxyBlockList; }
+
     public FileFormat getFileFormat() { return this.fileFormat; }
 
     public ISA getISA() { return this.isa; }
@@ -160,4 +170,65 @@ public class Module extends Node {
     public long getPreferredAddr() { return preferredAddr; }
 
     public long getRebaseDelta() { return rebaseDelta; }
+
+    public ModuleOuterClass.Module getProtoModule() { return this.protoModule; }
+
+    public boolean initializeBlockAddressMap() {
+        if (this.blockAddressMapInitialized) {
+            return true;
+        }
+
+        // Remove old entries if there are any
+        this.blockAddressMap.clear();
+
+        // Iterate through all blocks in all sections, storing the address
+        for (Section section : this.sectionList) {
+            for (ByteInterval byteInterval : section.getByteIntervals()) {
+                Long byteIntervalAddress = byteInterval.getAddress();
+                if (byteIntervalAddress == null) {
+                    continue;
+                }
+                for (Block block : byteInterval.getBlockList()) {
+                    Long blockStartAddress =
+                        byteIntervalAddress + block.getOffset();
+                    this.blockAddressMap.put(blockStartAddress, block);
+                }
+            }
+        }
+        this.blockAddressMapInitialized = true;
+        return true;
+    }
+
+    public Block getBlockFromAddress(Long address) {
+        //
+        // Make sure the address map has been initialized
+        //     IF/WHEN block addresses are ever changed,
+        //     blockAddressMapInitialized should be set to false, so
+        //     that the map will be refreshed before being used.
+        //
+        if (this.blockAddressMapInitialized != true) {
+            if (this.initializeBlockAddressMap() != true) {
+                return null;
+            }
+        }
+
+        Block block = this.blockAddressMap.floorEntry(address).getValue();
+        if (block != null) {
+            long size;
+            if (block.getCodeBlock() != null) {
+                size = block.getCodeBlock().getSize();
+            } else if (block.getDataBlock() != null) {
+                size = block.getDataBlock().getSize();
+            } else {
+                return null;
+            }
+            Long byteIntervalAddress = block.getByteInterval().getAddress();
+            Long blockEndAddress =
+                byteIntervalAddress + block.getOffset() + size;
+            if (address < blockEndAddress) {
+                return block;
+            }
+        }
+        return null;
+    }
 }

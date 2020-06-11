@@ -18,6 +18,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.google.protobuf.ByteString;
+
 public class Util {
 
     public static final UUID NIL_UUID = new UUID(0, 0);
@@ -30,6 +32,14 @@ public class Util {
         byte[] uuidByteArray = byteString.toByteArray();
         ByteBuffer bb = ByteBuffer.wrap(uuidByteArray);
         return new UUID(bb.getLong(), bb.getLong());
+    }
+
+    public static com.google.protobuf.ByteString uuidToByteString(UUID uuid) {
+        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+        ByteString bs = ByteString.copyFrom(bb.array());
+        return (bs);
     }
 
     public static byte[] toByteArray(ArrayList<Byte> in) {

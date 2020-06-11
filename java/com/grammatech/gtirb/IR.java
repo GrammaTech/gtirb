@@ -19,13 +19,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
+
+import com.grammatech.gtirb.proto.IROuterClass;
 
 public class IR {
 
     private com.grammatech.gtirb.proto.IROuterClass.IR protoIR;
-    // TODO: Make this a list
+    // TODO: Need to support a list of modules, not just one.
     private Module module;
     private CFG cfg;
+    private UUID uuid;
+    private int version;
 
     public IR() {
         this.protoIR =
@@ -48,7 +53,6 @@ public class IR {
             FileInputStream fileInputStream = new FileInputStream(fileIn);
             return loadFile(fileInputStream);
         } catch (Exception e) {
-            System.out.println("Unable to open file: " + e);
             return null;
         }
     }
@@ -62,6 +66,10 @@ public class IR {
         } catch (IOException ie) {
             return false;
         }
+
+        // True, these aren't used. But won't they be needed eventually?
+        this.version = protoIR.getVersion();
+        this.uuid = Util.byteStringToUuid(protoIR.getUuid());
 
         // Create a GTIRB API Module from the first protobuf Module
         com.grammatech.gtirb.proto.ModuleOuterClass.Module m =
@@ -90,4 +98,6 @@ public class IR {
     public Module getModule() { return this.module; }
 
     public CFG getCfg() { return this.cfg; }
+
+    public IROuterClass.IR getProtoIR() { return this.protoIR; }
 }

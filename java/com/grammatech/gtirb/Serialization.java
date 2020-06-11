@@ -29,18 +29,7 @@ public class Serialization {
         this.remaining = bytes.length;
     }
 
-    public int getSize() {
-        // Call this at the beginning of a collection to get the
-        // number of elements to expect. At that point, the next
-        // byte will have the size, followed by 7 empty bytes.
-        byte size = bb.get();
-        // move position along a total of 8
-        for (int i = 1; i < 8; i++) {
-            bb.get();
-        }
-        remaining = remaining - 8;
-        return (int)size;
-    }
+    public ByteBuffer getByteBuffer() { return this.bb; }
 
     private long getByteSwappedLong() {
         final int longSize = 8;
@@ -51,6 +40,18 @@ public class Serialization {
         remaining = remaining - longSize;
         ByteBuffer swappedBuffer = ByteBuffer.wrap(swappedBytes);
         return swappedBuffer.getLong();
+    }
+
+    private ByteBuffer putByteSwappedLong(long value) {
+        final int longSize = 8;
+        byte[] swappedBytes = new byte[longSize];
+        ByteBuffer swappedBuffer = ByteBuffer.wrap(swappedBytes);
+        swappedBuffer.putLong(value);
+        for (int i = 0; i < 8; i++) {
+            bb.put(swappedBytes[i]);
+        }
+        remaining = remaining - longSize;
+        return this.bb;
     }
 
     public byte getByte() {
@@ -101,9 +102,15 @@ public class Serialization {
         return retval;
     }
 
+    public ByteBuffer putLong(long value) {
+        remaining -= 8;
+        return (bb.putLong(value));
+    }
+
     public String getString() {
         int length = (int)getLong();
-        byte[] strBytes = new byte[length + 1];
+        byte[] strBytes = new byte[length];
+
         for (int i = 0; i < length; i++) {
             strBytes[i] = bb.get();
             remaining = remaining - 1;
@@ -112,10 +119,27 @@ public class Serialization {
         return str;
     }
 
+    public ByteBuffer putString(String string) {
+        byte[] strBytes = string.getBytes(StandardCharsets.UTF_8);
+        long length = strBytes.length;
+        bb.putLong(length);
+        for (int i = 0; i < length; i++) {
+            bb.put(strBytes[i]);
+            remaining = remaining - 1;
+        }
+        return this.bb;
+    }
+
     public UUID getUuid() {
         long longA = this.getByteSwappedLong();
         long longB = this.getByteSwappedLong();
         return new UUID(longA, longB);
+    }
+
+    public ByteBuffer putUuid(UUID uuid) {
+        this.putByteSwappedLong(uuid.getMostSignificantBits());
+        this.putByteSwappedLong(uuid.getLeastSignificantBits());
+        return this.bb;
     }
 
     public int getRemaining() { return remaining; }
