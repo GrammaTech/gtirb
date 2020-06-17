@@ -3,12 +3,6 @@ variables:
   LOCAL_IMAGE_NAME: '$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
 
-before_script:
-  - case "$(uname -s)" in
-        CYGWIN*) systeminfo;;
-        *) inxi -F -c 0;;
-    esac
-
 stages:
   - check-format
   - build
@@ -18,11 +12,12 @@ stages:
   - test-packages2
   - deploy
 
+default:
+  tags: [gtirb-docker-executor]
+
 check-format:
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   stage: check-format
-  tags:
-    - gtirb-docker-executor
   script:
     - pre-commit run --all-files
 
@@ -31,8 +26,6 @@ check-format:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - build
-  tags:
-    - gtirb-docker-executor
   script:
     - mkdir build
     - cd build
@@ -46,9 +39,9 @@ check-format:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - GTIRB-*-win64
-  tags:
-    - gtirb-windows
+  tags: [gtirb-windows]
   script:
+    - systeminfo
     # Build & test
     - rm -rf build CMakeCache.txt CMakeFiles CMakeScripts
     - mkdir build
@@ -143,8 +136,6 @@ build-windows-msvc-relwithdebinfo:
 build-ubuntu16-packages:
   stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-  tags:
-    - gtirb-docker-executor
   needs: [build-ubuntu16-gcc7]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
@@ -159,8 +150,6 @@ build-ubuntu16-packages:
 build-ubuntu18-packages:
   stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  tags:
-    - gtirb-docker-executor
   needs: [build-ubuntu18-gcc7]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
@@ -177,8 +166,6 @@ build-ubuntu18-packages:
 build-arch-package:
   stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  tags:
-    - gtirb-docker-executor
   needs: [build-arch-gcc]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
@@ -196,8 +183,6 @@ build-arch-package:
 test-default-install:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  tags:
-    - gtirb-docker-executor
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
@@ -211,8 +196,6 @@ test-default-install:
 test-install-different-prefix:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  tags:
-    - gtirb-docker-executor
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
@@ -230,8 +213,6 @@ test-install-different-prefix:
 test-install-with-destdir:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  tags:
-    - gtirb-docker-executor
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
@@ -244,8 +225,6 @@ test-install-with-destdir:
 test-install-python-virtualenv:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  tags:
-    - gtirb-docker-executor
   variables:
     OS: 'ubuntu18'
     COMPILER: 'g++-7'
@@ -260,8 +239,6 @@ test-install-python-virtualenv:
 
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
-  tags:
-    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -273,8 +250,6 @@ test-install-python-virtualenv:
 
 .test-ubuntu-libgtirb-dev: &test-ubuntu-libgtirb-dev
   stage: test-packages1
-  tags:
-    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -291,8 +266,6 @@ test-install-python-virtualenv:
 
 .test-ubuntu-libgtirb: &test-ubuntu-libgtirb
   stage: test-packages2
-  tags:
-    - gtirb-docker-executor
   script:
     - if [ $(lsb_release -sc) == "bionic" ]; then TRUSTED="[trusted=yes]"; fi
     - echo -e "\ndeb $TRUSTED file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
@@ -301,8 +274,6 @@ test-install-python-virtualenv:
 
 .test-ubuntu-libgtirb-dbg: &test-ubuntu-libgtirb-dbg
   stage: test-packages1
-  tags:
-    - gtirb-docker-executor
   script:
     - if [ $(lsb_release -sc) == "bionic" ]; then TRUSTED="[trusted=yes]"; fi
     - echo -e "\ndeb $TRUSTED file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
@@ -353,8 +324,6 @@ test-arch-package:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   needs: [build-arch-package]
-  tags:
-    - gtirb-docker-executor
   script:
     - cp .ci/test-install.cpp ./
     - pacman --noconfirm -U build/gtirb-git-*.pkg.tar.xz
@@ -365,8 +334,6 @@ debian-installer-ubuntu16:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
   needs: [test-ubuntu16-libgtirb, build-ubuntu16-packages]
-  tags:
-    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -378,8 +345,6 @@ debian-installer-ubuntu18:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   needs: [test-ubuntu18-libgtirb, build-ubuntu18-packages]
-  tags:
-    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -391,8 +356,6 @@ package-arch:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   needs: [test-arch-package, build-arch-package]
-  tags:
-    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -404,8 +367,6 @@ python-wheel:
   stage: deploy
   needs: [build-ubuntu18-gcc7]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  tags:
-    - gtirb-docker-executor
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -418,8 +379,6 @@ python-wheel:
 upload-to-pypi:
   stage: deploy
   needs: [build-ubuntu18-gcc7]
-  tags:
-    - gtirb-docker-executor
   only:
     - master
   script:

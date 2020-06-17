@@ -3,47 +3,16 @@ FROM ubuntu:18.04
 ARG CXX_COMPILER=g++-7
 ARG BOOST_VERSION=1.67
 
-ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
-
-# Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
 
 # Install apt packages
 RUN apt-get -y update && \
-    apt-get -y install autoconf build-essential clang cmake curl \
-        default-jdk git libprotobuf-dev libprotoc-dev libtool protobuf-compiler \
-        python3 python3-protobuf python3-pip python3-setuptools wget \
-        software-properties-common
+    apt-get -y install autoconf build-essential libcapstone-dev clang cmake curl \
+        default-jdk emacs-nox git libprotobuf-dev libprotoc-dev libtool \
+        protobuf-compiler python3 python3-protobuf python3-pip \
+        python3-setuptools python3-venv wget software-properties-common
 
 # Install boost
 RUN add-apt-repository ppa:mhier/libboost-latest && \
     apt-get -y update && \
     apt-get -y install libboost${BOOST_VERSION}-dev
-
-# Build GTIRB
-COPY . /gt/gtirb/
-
-# Build GTIRB.
-RUN mkdir build
-WORKDIR /gt/gtirb/build/
-ARG BUILD_TYPE=RelWithDebInfo
-RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-RUN make -j
-
-# Build python wheel
-RUN pip3 install setuptools wheel --upgrade
-RUN make python-wheel
-
-# Run CPack.
-ARG CPACK_GENERATOR=""
-RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then \
-      cd /gt/gtirb/build && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=python ; \
-    fi
-
-# Set up envionment for interactive use.
-ENV PATH=/gt/gtirb/build/bin:$PATH
-RUN cd python && python3 setup.py develop

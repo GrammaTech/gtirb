@@ -3,11 +3,7 @@ FROM ubuntu:16.04
 ARG BOOST_VERSION=1.67
 ARG CMAKE_VERSION=3.10
 ARG PROTOBUF_VERSION=3.1.0-0ubuntu1~maarten0
-ARG CXX_COMPILER=g++-7
 
-ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
-
-# Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
 
 # Install apt packages
@@ -15,8 +11,8 @@ RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:jonathonf/gcc-7.1 && \
     apt-get -y update && \
-    apt-get -y install apt-transport-https autoconf build-essential curl \
-        default-jdk g++-7 gcc-7 git libtool python3 python3-pip \
+    apt-get -y install apt-transport-https autoconf build-essential libcapstone-dev \
+        curl default-jdk g++-7 gcc-7 git libtool python3 python3-pip \
         python3-setuptools wget
 
 # Install clang
@@ -37,28 +33,3 @@ RUN add-apt-repository ppa:mhier/libboost-latest && \
 # Install CMake
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
     |tar -xz --strip-components=1 -C /usr/local
-
-# Build GTIRB
-COPY . /gt/gtirb/
-
-# Build GTIRB.
-RUN mkdir build
-WORKDIR /gt/gtirb/build/
-ARG BUILD_TYPE=RelWithDebInfo
-RUN cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-RUN make -j
-
-# Build python wheel
-RUN make python-wheel
-
-# Run CPack.
-ARG CPACK_GENERATOR=""
-RUN if [ ! -z "${CPACK_GENERATOR}" ] ; then \
-      cd /gt/gtirb/build && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug && \
-      cpack -G "${CPACK_GENERATOR}" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev ; \
-    fi
-
-# Set up envionment for interactive use.
-ENV PATH=/gt/gtirb/build/bin:$PATH
