@@ -14,9 +14,8 @@
 
 package com.grammatech.gtirb;
 
-import java.util.ArrayList;
-
 import com.grammatech.gtirb.proto.CFGOuterClass;
+import java.util.ArrayList;
 
 public class CFG {
 

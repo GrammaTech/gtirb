@@ -14,13 +14,12 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.ModuleOuterClass;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.UUID;
-
-import com.grammatech.gtirb.proto.ModuleOuterClass;
 
 public class Module extends Node {
 

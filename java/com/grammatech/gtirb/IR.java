@@ -14,14 +14,13 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.IROuterClass;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
-
-import com.grammatech.gtirb.proto.IROuterClass;
 
 public class IR {
 

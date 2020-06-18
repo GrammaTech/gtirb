@@ -14,8 +14,8 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
 import com.grammatech.gtirb.Block;
+import java.util.UUID;
 
 public class CodeBlock extends Node {
     private long offset;

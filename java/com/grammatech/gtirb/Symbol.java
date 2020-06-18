@@ -14,10 +14,9 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
-
 import com.grammatech.gtirb.proto.ModuleOuterClass;
 import com.grammatech.gtirb.proto.SymbolOuterClass;
+import java.util.UUID;
 
 public class Symbol extends Node {
     private String name;

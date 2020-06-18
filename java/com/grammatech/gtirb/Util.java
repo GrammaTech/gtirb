@@ -14,11 +14,10 @@
 
 package com.grammatech.gtirb;
 
+import com.google.protobuf.ByteString;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.UUID;
-
-import com.google.protobuf.ByteString;
 
 public class Util {
 

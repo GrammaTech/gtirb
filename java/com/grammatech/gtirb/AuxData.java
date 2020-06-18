@@ -14,13 +14,12 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.AuxDataOuterClass;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import com.grammatech.gtirb.proto.AuxDataOuterClass;
 
 public class AuxData {
 

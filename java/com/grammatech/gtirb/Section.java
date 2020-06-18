@@ -14,11 +14,10 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.SectionOuterClass;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import com.grammatech.gtirb.proto.SectionOuterClass;
 
 public class Section extends Node {
     public enum SectionFlag {
