@@ -11,6 +11,7 @@ stages:
   - test-packages1
   - test-packages2
   - deploy
+  - deploy-to-pypi
 
 default:
   tags: [gtirb-docker-executor]
@@ -377,11 +378,13 @@ python-wheel:
     - cp build/python/dist/*.whl ./
 
 upload-to-pypi:
-  stage: deploy
-  needs: [build-ubuntu18-gcc7]
+  stage: deploy-to-pypi
+  needs: [build-ubuntu18-gcc7, python-wheel]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   only:
     - master
   script:
+    - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
     - if [ "$RESPONSE_CODE" = "404" ];
