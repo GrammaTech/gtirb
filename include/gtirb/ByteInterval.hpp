@@ -448,11 +448,11 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that are at the address \p A.
   block_range findBlocksAt(Addr A) {
-    if (!Address) {
+    if (!Address || A < *Address) {
       // Return an empty range without default-constructing the iterators.
       return findBlocksAtOffset(0, 0);
     }
-    return findBlocksAtOffset(A - std::min(*Address, A));
+    return findBlocksAtOffset(A - *Address);
   }
 
   /// \brief Find all the blocks that start between a range of addresses.
@@ -505,11 +505,11 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that are at the address \p A.
   const_block_range findBlocksAt(Addr A) const {
-    if (!Address) {
+    if (!Address || A < *Address) {
       // Return an empty range without default-constructing the iterators.
       return findBlocksAtOffset(0, 0);
     }
-    return findBlocksAtOffset(A - std::min(*Address, A));
+    return findBlocksAtOffset(A - *Address);
   }
 
   /// \brief Find all the blocks that start between a range of addresses.
@@ -703,11 +703,11 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   code_block_range findCodeBlocksAt(Addr A) {
-    if (!Address) {
+    if (!Address || A < *Address) {
       // Return an empty range without default-constructing the iterators.
       return findCodeBlocksAtOffset(0, 0);
     }
-    return findCodeBlocksAtOffset(A - std::min(*Address, A));
+    return findCodeBlocksAtOffset(A - *Address);
   }
 
   /// \brief Find all the code blocks that start between a range of addresses.
@@ -763,11 +763,11 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   const_code_block_range findCodeBlocksAt(Addr A) const {
-    if (!Address) {
+    if (!Address || A < *Address) {
       // Return an empty range without default-constructing the iterators.
       return findCodeBlocksAtOffset(0, 0);
     }
-    return findCodeBlocksAtOffset(A - std::min(*Address, A));
+    return findCodeBlocksAtOffset(A - *Address);
   }
 
   /// \brief Find all the code blocks that start between a range of addresses.
@@ -960,11 +960,11 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   data_block_range findDataBlocksAt(Addr A) {
-    if (!Address) {
+    if (!Address || A < *Address) {
       // Return an empty range without default-constructing the iterators.
       return findDataBlocksAtOffset(0, 0);
     }
-    return findDataBlocksAtOffset(A - std::min(*Address, A));
+    return findDataBlocksAtOffset(A - *Address);
   }
 
   /// \brief Find all the data blocks that start between a range of addresses.
@@ -1020,11 +1020,11 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   const_data_block_range findDataBlocksAt(Addr A) const {
-    if (!Address) {
+    if (!Address || A < *Address) {
       // Return an empty range without default-constructing the iterators.
       return findDataBlocksAtOffset(0, 0);
     }
-    return findDataBlocksAtOffset(A - std::min(*Address, A));
+    return findDataBlocksAtOffset(A - *Address);
   }
 
   /// \brief Find all the data blocks that start between a range of addresses.

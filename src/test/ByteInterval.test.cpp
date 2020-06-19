@@ -1002,6 +1002,16 @@ TEST(Unit_ByteInterval, findBlocksAt) {
   ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
   EXPECT_EQ(&*ConstBlockRange.begin(), B1);
 
+  // Method returns empty range if no block starts at address.
+
+  EXPECT_TRUE(BI->findBlocksAt(Addr(0)).empty());
+  EXPECT_TRUE(BI->findBlocksAt(Addr(7)).empty());
+  EXPECT_TRUE(BI->findBlocksAt(Addr(15)).empty());
+
+  EXPECT_TRUE(CBI->findBlocksAt(Addr(0)).empty());
+  EXPECT_TRUE(CBI->findBlocksAt(Addr(7)).empty());
+  EXPECT_TRUE(CBI->findBlocksAt(Addr(15)).empty());
+
   // Querying a range of addreses that start before and/or ends after the
   // ByteInterval is equivalent to querying the ByteInterval's bounds.
 
@@ -1074,6 +1084,16 @@ TEST(Unit_ByteInterval, findCodeBlocksAt) {
   ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
   EXPECT_EQ(&*ConstBlockRange.begin(), B1);
 
+  // Method returns empty range if no block starts at address.
+
+  EXPECT_TRUE(BI->findCodeBlocksAt(Addr(0)).empty());
+  EXPECT_TRUE(BI->findCodeBlocksAt(Addr(7)).empty());
+  EXPECT_TRUE(BI->findCodeBlocksAt(Addr(15)).empty());
+
+  EXPECT_TRUE(CBI->findCodeBlocksAt(Addr(0)).empty());
+  EXPECT_TRUE(CBI->findCodeBlocksAt(Addr(7)).empty());
+  EXPECT_TRUE(CBI->findCodeBlocksAt(Addr(15)).empty());
+
   // Querying a range of addreses that start before and/or ends after the
   // ByteInterval is equivalent to querying the ByteInterval's bounds.
 
@@ -1145,6 +1165,16 @@ TEST(Unit_ByteInterval, findDataBlocksAt) {
   ConstBlockRange = CBI->findDataBlocksAt(Addr(5));
   ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 1);
   EXPECT_EQ(&*ConstBlockRange.begin(), B1);
+
+  // Method returns empty range if no block starts at address.
+
+  EXPECT_TRUE(BI->findDataBlocksAt(Addr(0)).empty());
+  EXPECT_TRUE(BI->findDataBlocksAt(Addr(7)).empty());
+  EXPECT_TRUE(BI->findDataBlocksAt(Addr(15)).empty());
+
+  EXPECT_TRUE(CBI->findDataBlocksAt(Addr(0)).empty());
+  EXPECT_TRUE(CBI->findDataBlocksAt(Addr(7)).empty());
+  EXPECT_TRUE(CBI->findDataBlocksAt(Addr(15)).empty());
 
   // Querying a range of addreses that start before and/or ends after the
   // ByteInterval is equivalent to querying the ByteInterval's bounds.

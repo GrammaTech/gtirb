@@ -2,6 +2,7 @@
 
 * Reduce asymptotic complexity of iterating over blocks in a large number of
   byte intervals.
+* Fixed bug where searching for blocks by address could return incorrect matches.
 
 # 1.8.5
 
