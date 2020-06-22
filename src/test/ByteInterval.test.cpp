@@ -1203,3 +1203,21 @@ TEST(Unit_ByteInterval, findDataBlocksAt) {
   ConstBlockRange = CBI->findDataBlocksAt(Addr(20), Addr(0));
   EXPECT_TRUE(ConstBlockRange.empty());
 }
+
+TEST(Unit_ByteInterval, moveBlock) {
+
+  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* CB = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* DB = BI->addBlock<DataBlock>(Ctx, 0, 2);
+
+  EXPECT_EQ(CB->getOffset(), 0);
+  EXPECT_EQ(BI->addBlock(5, CB), ChangeStatus::Accepted);
+  EXPECT_EQ(CB->getOffset(), 5);
+
+  EXPECT_EQ(DB->getOffset(), 0);
+  EXPECT_EQ(BI->addBlock(5, DB), ChangeStatus::Accepted);
+  EXPECT_EQ(DB->getOffset(), 5);
+
+  EXPECT_EQ(BI->addBlock(5, CB), ChangeStatus::NoChange);
+  EXPECT_EQ(BI->addBlock(5, DB), ChangeStatus::NoChange);
+}

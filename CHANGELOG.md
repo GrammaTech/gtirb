@@ -3,6 +3,8 @@
 * Reduce asymptotic complexity of iterating over blocks in a large number of
   byte intervals.
 * Fixed bug where searching for blocks by address could return incorrect matches.
+* Fixed bug where `ByteInterval::addBlock` would refuse to move an existing
+  block to a new offset if it was already present.
 
 # 1.8.5
 

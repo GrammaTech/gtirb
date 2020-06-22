@@ -83,9 +83,7 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: {
-      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
-    }
+    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
     }
   }
 
@@ -279,8 +277,10 @@ static inline ChangeStatus addBlocks(ByteIntervalObserver* Observer,
 
 template <typename BlockType, typename IterType>
 ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
-  if (ByteInterval* BI = B->getByteInterval()) {
-    if (BI == this) {
+  ByteInterval* BI = B->getByteInterval();
+
+  if (BI) {
+    if (BI == this && Off == B->getOffset()) {
       return ChangeStatus::NoChange;
     }
     [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
