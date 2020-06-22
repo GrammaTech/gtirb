@@ -277,9 +277,7 @@ static inline ChangeStatus addBlocks(ByteIntervalObserver* Observer,
 
 template <typename BlockType, typename IterType>
 ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
-  ByteInterval* BI = B->getByteInterval();
-
-  if (BI) {
+  if (ByteInterval* BI = B->getByteInterval()) {
     if (BI == this && Off == B->getOffset()) {
       return ChangeStatus::NoChange;
     }
