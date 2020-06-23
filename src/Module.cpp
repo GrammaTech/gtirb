@@ -329,11 +329,12 @@ Module::SectionObserverImpl::moveCodeBlocks([[maybe_unused]] Section* S,
 
   std::vector<Symbol*> ModifiedSymbols;
   for (CodeBlock& Block : Blocks) {
-    for (auto [It, End] = Index.equal_range(&Block); It != End;) {
-      ModifiedSymbols.push_back(*It);
-      It = Index.erase(It);
+    auto [Begin, End] = Index.equal_range(&Block);
+    for (auto* Sym : boost::make_iterator_range(Begin, End)) {
+      ModifiedSymbols.push_back(Sym);
       Status = ChangeStatus::Accepted;
     }
+    Index.erase(Begin, End);
   }
   M->Symbols.insert(ModifiedSymbols.begin(), ModifiedSymbols.end());
 

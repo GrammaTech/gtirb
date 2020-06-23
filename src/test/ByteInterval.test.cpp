@@ -15,6 +15,7 @@
 #include "SerializationTestHarness.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/Context.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Symbol.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
@@ -1205,10 +1206,16 @@ TEST(Unit_ByteInterval, findDataBlocksAt) {
 }
 
 TEST(Unit_ByteInterval, moveBlock) {
-
-  auto* BI = ByteInterval::Create(Ctx, 10);
+  auto* I = IR::Create(Ctx);
+  auto* M = I->addModule(Ctx);
+  auto* PB = M->addProxyBlock(Ctx);
+  auto* S = M->addSection(Ctx, ".text");
+  auto* BI = S->addByteInterval(Ctx, 10);
   auto* CB = BI->addBlock<CodeBlock>(Ctx, 0, 2);
   auto* DB = BI->addBlock<DataBlock>(Ctx, 0, 2);
+
+  addEdge(CB, PB, I->getCFG());
+  EXPECT_EQ(boost::num_edges(I->getCFG()), 1);
 
   EXPECT_EQ(CB->getOffset(), 0);
   EXPECT_EQ(BI->addBlock(5, CB), ChangeStatus::Accepted);
@@ -1220,4 +1227,6 @@ TEST(Unit_ByteInterval, moveBlock) {
 
   EXPECT_EQ(BI->addBlock(5, CB), ChangeStatus::NoChange);
   EXPECT_EQ(BI->addBlock(5, DB), ChangeStatus::NoChange);
+
+  EXPECT_EQ(boost::num_edges(I->getCFG()), 1);
 }

@@ -83,7 +83,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
+    default: {
+      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
+    }
     }
   }
 
@@ -275,15 +277,51 @@ static inline ChangeStatus addBlocks(ByteIntervalObserver* Observer,
   return Observer->addDataBlocks(BI, Range);
 }
 
+static inline ChangeStatus moveBlocks(ByteIntervalObserver* Observer,
+                                      ByteInterval* BI,
+                                      ByteInterval::code_block_range Range) {
+  return Observer->moveCodeBlocks(BI, Range);
+}
+
+static inline ChangeStatus moveBlocks(ByteIntervalObserver* Observer,
+                                      ByteInterval* BI,
+                                      ByteInterval::data_block_range Range) {
+  return Observer->moveDataBlocks(BI, Range);
+}
+
 template <typename BlockType, typename IterType>
 ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
   if (ByteInterval* BI = B->getByteInterval()) {
-    if (BI == this && Off == B->getOffset()) {
-      return ChangeStatus::NoChange;
+    if (BI == this) {
+      if (Off == B->getOffset()) {
+        return ChangeStatus::NoChange;
+      } else {
+        auto& Index = Blocks.get<by_pointer>();
+        auto Begin = Index.find(B);
+        assert(Begin != Index.end());
+        auto End = std::next(Begin);
+
+        Index.modify(Begin, [Off](auto& Entry) { Entry.Offset = Off; });
+
+        [[maybe_unused]] ChangeStatus Status = moveBlocks(
+            Observer, this,
+            boost::make_iterator_range(IterType(typename IterType::base_type(
+                                           Blocks.project<by_offset>(Begin),
+                                           Blocks.project<by_offset>(End))),
+                                       IterType(typename IterType::base_type(
+                                           Blocks.project<by_offset>(End),
+                                           Blocks.project<by_offset>(End)))));
+        // None of the known observers reject moves. If that changes, this
+        // implementation must be updated.
+        assert(Status != ChangeStatus::Rejected &&
+               "recovering from rejected move is unimplemented");
+        return ChangeStatus::Accepted;
+      }
+    } else {
+      [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
+      assert(Status != ChangeStatus::Rejected &&
+             "failed to remove node from parent");
     }
-    [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
-    assert(Status != ChangeStatus::Rejected &&
-           "failed to remove node from parent");
   }
 
   B->setParent(this, getObserver(B, CBO.get(), DBO.get()));
