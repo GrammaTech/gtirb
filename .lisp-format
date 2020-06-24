@@ -16,8 +16,11 @@
                    (if (getenv "QUICK_LISP")
                        (concat (getenv "QUICK_LISP") "/dists/quicklisp/software/")
                      ;; Search for the site-lisp path in load-path
+                     (add-to-list 'load-path "/usr/share/emacs25/site-lisp/elpa/")
                      (loop for path in load-path
-                        if (string-match-p "site-lisp" path) do (return path)))
+                        if (and (string-match-p "site-lisp" path)
+                                (file-expand-wildcards (concat (file-name-as-directory path) "slime*")))
+                        do (return path)))
                    t pkg-glob)
                 if (file-directory-p path) collect path))
               (list "slime*" "paredit*"))))

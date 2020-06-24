@@ -30,14 +30,3 @@ COPY . /gt/gtirb/
 RUN rm -rf /gt/gtirb/build /gt/gtirb/CMakeCache.txt /gt/gtirb/CMakeFiles /gt/gtirb/CMakeScripts
 RUN sbcl --eval '(asdf:initialize-source-registry `(:source-registry (:tree "/gt/gtirb/cl") :inherit-configuration))' \
         --eval '(ql:quickload :gtirb/test)' --eval '(sb-ext:exit)'
-
-# Install the lisp-format pre-commit format checker.
-RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
-RUN chmod +x /usr/bin/lisp-format
-RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
-
-# Cache pre-commit hook installation
-WORKDIR /build/git-repo
-RUN git init
-COPY .pre-commit-config.yaml .
-RUN pre-commit install-hooks
