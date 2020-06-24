@@ -296,21 +296,20 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
       if (Off == B->getOffset()) {
         return ChangeStatus::NoChange;
       } else {
-        auto& Index = Blocks.get<by_pointer>();
-        auto Begin = Index.find(B);
-        assert(Begin != Index.end());
+        Blocks.get<by_pointer>().modify(
+            Blocks.get<by_pointer>().find(B),
+            [Off](auto& Entry) { Entry.Offset = Off; });
+
+        auto Begin =
+            Blocks.project<by_offset>(Blocks.get<by_pointer>().find(B));
+        assert(Begin != Blocks.get<by_offset>().end());
         auto End = std::next(Begin);
 
-        Index.modify(Begin, [Off](auto& Entry) { Entry.Offset = Off; });
-
-        [[maybe_unused]] ChangeStatus Status = moveBlocks(
-            Observer, this,
-            boost::make_iterator_range(IterType(typename IterType::base_type(
-                                           Blocks.project<by_offset>(Begin),
-                                           Blocks.project<by_offset>(End))),
-                                       IterType(typename IterType::base_type(
-                                           Blocks.project<by_offset>(End),
-                                           Blocks.project<by_offset>(End)))));
+        [[maybe_unused]] ChangeStatus Status =
+            moveBlocks(Observer, this,
+                       boost::make_iterator_range(
+                           IterType(typename IterType::base_type(Begin, End)),
+                           IterType(typename IterType::base_type(End, End))));
         // None of the known observers reject moves. If that changes, this
         // implementation must be updated.
         assert(Status != ChangeStatus::Rejected &&
