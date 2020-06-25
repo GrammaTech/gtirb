@@ -291,57 +291,78 @@ static inline ChangeStatus moveBlocks(ByteIntervalObserver* Observer,
 
 template <typename BlockType, typename IterType>
 ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
-  if (ByteInterval* BI = B->getByteInterval()) {
+  // Determine if we're moving or adding a block.
+  bool IsMove = false;
+  ByteInterval* BI = B->getByteInterval();
+  if (BI) {
     if (BI == this) {
       if (Off == B->getOffset()) {
         return ChangeStatus::NoChange;
       } else {
-        Blocks.get<by_pointer>().modify(
-            Blocks.get<by_pointer>().find(B),
-            [Off](auto& Entry) { Entry.Offset = Off; });
-
-        auto Begin =
-            Blocks.project<by_offset>(Blocks.get<by_pointer>().find(B));
-        assert(Begin != Blocks.get<by_offset>().end());
-        auto End = std::next(Begin);
-
-        if (Observer) {
-          [[maybe_unused]] ChangeStatus Status =
-              moveBlocks(Observer, this,
-                         boost::make_iterator_range(
-                             IterType(typename IterType::base_type(Begin, End)),
-                             IterType(typename IterType::base_type(End, End))));
-          // None of the known observers reject moves. If that changes, this
-          // implementation must be updated.
-          assert(Status != ChangeStatus::Rejected &&
-                 "recovering from rejected move is unimplemented");
-        }
-        return ChangeStatus::Accepted;
+        IsMove = true;
       }
-    } else {
+    }
+  }
+
+  // Remove the old block.
+  if (!IsMove) {
+    if (BI) {
       [[maybe_unused]] ChangeStatus Status = BI->removeBlock(B);
       assert(Status != ChangeStatus::Rejected &&
              "failed to remove node from parent");
     }
+
+    B->setParent(this, getObserver(B, CBO.get(), DBO.get()));
   }
 
-  B->setParent(this, getObserver(B, CBO.get(), DBO.get()));
-  auto [Iter, Inserted] = Blocks.emplace(Off, B);
-  if (Inserted && Observer) {
-    auto End = std::next(Iter);
-    auto Range = boost::make_iterator_range(
-        IterType(typename IterType::base_type(Iter, End)),
-        IterType(typename IterType::base_type(End, End)));
-    [[maybe_unused]] ChangeStatus Status = addBlocks(Observer, this, Range);
-    // None of the known observers reject insertions. If that changes, this
-    // implementation must be updated.
-    assert(Status != ChangeStatus::Rejected &&
-           "recovering from rejected insertion is unimplemented");
+  // Update our own indices, part 1.
+  if (IsMove) {
+    [[maybe_unused]] ChangeStatus ResizeStatus = sizeChange(B, B->getSize(), 0);
+    assert(ResizeStatus != ChangeStatus::Rejected &&
+           "recovering from rejected size change is unimplemented");
   }
 
-  [[maybe_unused]] ChangeStatus Status = sizeChange(B, 0, B->getSize());
-  assert(Status != ChangeStatus::Rejected &&
+  // Actually modify the offset.
+  auto Begin = Blocks.get<by_offset>().end();
+  if (IsMove) {
+    Blocks.get<by_pointer>().modify(Blocks.get<by_pointer>().find(B),
+                                    [Off](auto& Entry) { Entry.Offset = Off; });
+    Begin = Blocks.project<by_offset>(Blocks.get<by_pointer>().find(B));
+  } else {
+    Begin = Blocks.emplace(Off, B).first;
+  }
+
+  // Update our own indices, part 2.
+  [[maybe_unused]] ChangeStatus ResizeStatus = sizeChange(B, 0, B->getSize());
+  assert(ResizeStatus != ChangeStatus::Rejected &&
          "recovering from rejected size change is unimplemented");
+
+  // Only fire events if we have an observer.
+  if (!Observer) {
+    return ChangeStatus::Accepted;
+  }
+
+  // Get the range to use.
+  assert(Begin != Blocks.get<by_offset>().end());
+  auto End = std::next(Begin);
+  auto Range = boost::make_iterator_range(
+      IterType(typename IterType::base_type(Begin, End)),
+      IterType(typename IterType::base_type(End, End)));
+
+  // Fire the move/add event.
+  [[maybe_unused]] ChangeStatus Status;
+  if (IsMove) {
+    Status = moveBlocks(Observer, this, Range);
+  } else {
+    Status = addBlocks(Observer, this, Range);
+  }
+
+  // None of the known observers reject insertions. If that changes, this
+  // implementation must be updated.
+  assert(Status != ChangeStatus::Rejected &&
+         "recovering from rejected insertion is unimplemented");
+
+  // All good.
   return ChangeStatus::Accepted;
 }
 

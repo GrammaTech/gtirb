@@ -1230,3 +1230,32 @@ TEST(Unit_ByteInterval, moveBlock) {
 
   EXPECT_EQ(boost::num_edges(I->getCFG()), 1);
 }
+
+TEST(Unit_ByteInterval, moveBlockIndices) {
+  auto* BI = ByteInterval::Create(Ctx, Addr{0}, 10);
+  auto* CB = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* DB = BI->addBlock<DataBlock>(Ctx, 0, 2);
+
+  {
+    auto Range = BI->findBlocksOn(Addr{0});
+    EXPECT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  }
+
+  {
+    auto Range = BI->findBlocksOn(Addr{5});
+    EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+  }
+
+  EXPECT_EQ(BI->addBlock(5, CB), ChangeStatus::Accepted);
+  EXPECT_EQ(BI->addBlock(5, DB), ChangeStatus::Accepted);
+
+  {
+    auto Range = BI->findBlocksOn(Addr{0});
+    EXPECT_EQ(std::distance(Range.begin(), Range.end()), 0);
+  }
+
+  {
+    auto Range = BI->findBlocksOn(Addr{5});
+    EXPECT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  }
+}
