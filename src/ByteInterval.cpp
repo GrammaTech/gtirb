@@ -294,13 +294,11 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
   // Determine if we're moving or adding a block.
   bool IsMove = false;
   ByteInterval* BI = B->getByteInterval();
-  if (BI) {
-    if (BI == this) {
-      if (Off == B->getOffset()) {
-        return ChangeStatus::NoChange;
-      } else {
-        IsMove = true;
-      }
+  if (BI == this) {
+    if (Off == B->getOffset()) {
+      return ChangeStatus::NoChange;
+    } else {
+      IsMove = true;
     }
   }
 
