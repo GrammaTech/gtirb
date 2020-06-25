@@ -305,15 +305,17 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
         assert(Begin != Blocks.get<by_offset>().end());
         auto End = std::next(Begin);
 
-        [[maybe_unused]] ChangeStatus Status =
-            moveBlocks(Observer, this,
-                       boost::make_iterator_range(
-                           IterType(typename IterType::base_type(Begin, End)),
-                           IterType(typename IterType::base_type(End, End))));
-        // None of the known observers reject moves. If that changes, this
-        // implementation must be updated.
-        assert(Status != ChangeStatus::Rejected &&
-               "recovering from rejected move is unimplemented");
+        if (Observer) {
+          [[maybe_unused]] ChangeStatus Status =
+              moveBlocks(Observer, this,
+                         boost::make_iterator_range(
+                             IterType(typename IterType::base_type(Begin, End)),
+                             IterType(typename IterType::base_type(End, End))));
+          // None of the known observers reject moves. If that changes, this
+          // implementation must be updated.
+          assert(Status != ChangeStatus::Rejected &&
+                 "recovering from rejected move is unimplemented");
+        }
         return ChangeStatus::Accepted;
       }
     } else {
