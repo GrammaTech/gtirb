@@ -18,9 +18,9 @@ GTIRB.  In practice the stack-stamp transform could be chained with
 other GTIRB binary analysis or transformation passes.  Implementations
 of the stack stamping transform are given in all three GTIRB API
 languages;
-[Python API](https://grammatech.github.io/gtirb/python/index.html)/[Python Stack-Stamp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py),
-[C++ API](https://grammatech.github.io/gtirb/cpp/index.html)/[C++ Stack-Stamp](TODO), and
-[Common Lisp API](https://grammatech.github.io/gtirb/cl/index.html)/[Common Lisp Stack-Stamp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp).
+Python [API](https://grammatech.github.io/gtirb/python/index.html)/[stack_stamp.py](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py),
+C++ [API](https://grammatech.github.io/gtirb/cpp/index.html)/[TODO](TODO), and
+Common Lisp [API](https://grammatech.github.io/gtirb/cl/index.html)/[gtirb-stack-stamp.lisp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp).
 
 This document walks through the whole process of writing and applying
 the *stack stamping* binary ROP protection in following steps:
