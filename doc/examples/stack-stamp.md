@@ -30,6 +30,9 @@ the *stack stamping* binary ROP protection in following steps:
 3. [Implement the transform](#implement-the-transform)
 4. [Serialize GTIRB to a new executable and test](#serialize-gtirb-to-a-new-executable-and-test)
 5. [Visualize the difference using the gtirb-ghidra-plugin](#visualize-the-difference-using-gtirb-ghidra-plugin)
+6. Let us know what you think.  You can open an issue against
+   [github.com/grammatech/gtirb](https://github.com/grammatech/gtirb)
+   or email us at `gtirb@gramamtech.com`.
 
 
 ## 1. Install Dependencies
