@@ -7,19 +7,20 @@ TLDR; It is very easy to write binary transforms in GTIRB, see
 [gtirb-stack-stamp](https://github.com/grammatech/gtirb-stack-stamp).
 
 This tutorial demonstrates the development of a binary hardening
-transform built on GTIRB.  We will implement *stack stamping* (a
-simple <abbr title="Return Oriented Programming">ROP</abbr> defense)
-as a GTIRB-to-GTIRB transformation.  We will leverage the
+transform built on GTIRB.  We implement *stack stamping* (a simple
+<abbr title="Return Oriented Programming">ROP</abbr> defense) as a
+GTIRB-to-GTIRB transformation.  We leverage the
 [ddisasm](https://github.com/grammatech/ddisasm) front-end to
-disassemble binaries and the
+disassemble binaries to GTIRB and the
 [gtirb-pprinter](https://github.com/grammatech/gtirb-pprinter)
-back-end to produce a new hardened executable.  In practice the
-stack-stamp transform could be chained with other GTIRB binary
-analysis or transformation passes.  The implementation of this
-transform is presented in all three GTIRB API languages;
-[Python](https://grammatech.github.io/gtirb/python/index.html),
-[C++](https://grammatech.github.io/gtirb/cpp/index.html), and
-[Common Lisp](https://grammatech.github.io/gtirb/cl/index.html).
+back-end to produce a new hardened executable from the stack stamped
+GTIRB.  In practice the stack-stamp transform could be chained with
+other GTIRB binary analysis or transformation passes.  Implementations
+of the stack stamping transform are given in all three GTIRB API
+languages;
+[Python API](https://grammatech.github.io/gtirb/python/index.html)/[Python Stack-Stamp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py),
+[C++ API](https://grammatech.github.io/gtirb/cpp/index.html)/[C++ Stack-Stamp](TODO), and
+[Common Lisp API](https://grammatech.github.io/gtirb/cl/index.html)/[Common Lisp Stack-Stamp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp).
 
 This document walks through the whole process of writing and applying
 the *stack stamping* binary ROP protection in following steps:
@@ -73,7 +74,7 @@ need the `ddisasm` and `gtirb-pprinter` executables installed above.
 - Common Lisp.
 
   ```
-  (mapc #'ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
+  (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
   ```
 
 
