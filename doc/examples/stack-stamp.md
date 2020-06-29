@@ -41,32 +41,8 @@ The following should be sufficient to install the required GTIRB
 libraries and utilities (for complete installation instructions see
 [GTIRB#Install](https://github.com/grammatech/gtirb#installing)):
 
-- On Windows grab the binaries from
-  [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release).
-
-- On Ubuntu,
-
-  ```
-  sudo add-apt-repository ppa:mhier/libboost-latest
-  echo "deb [trusted=yes] https://grammatech.github.io/gtirb/ppa/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
-  sudo apt-get update
-  sudo apt-get install gtirb gtirb-pprinter ddisasm gtirb-functions gtirb-capstone
-  ```
-
-- On Arch Linux install pre-built `pacman` packages from
-  [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
-  or install using the popular [aur
-  helper](https://wiki.archlinux.org/index.php/AUR_helpers)
-  [yay](https://github.com/Jguer/yay),
-
-  ```
-  yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git gtirb-functions-git gtirb-capstone-git
-  ```
-
-If you're developing using the Python or Common Lisp APIs then you may
-prefer to install the (i.e., 'gtirb', `gtirb-functions` and
-`gtirb-capstone`) using your language's package manager.  You'll still
-need the `ddisasm` and `gtirb-pprinter` executables installed above.
+`gtirb-functions` and `gtirb-capstone` packages are available for
+Python and Common Lisp.
 
 - Python.
 
@@ -80,6 +56,41 @@ need the `ddisasm` and `gtirb-pprinter` executables installed above.
   (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
   ```
 
+You'll also need the `ddisasm` and `gtirb-pprinter` executables installed:
+
+- On Windows grab the binaries from
+  [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release).
+
+- On Ubuntu16 install the binaries from the GTIRB xenial repository:
+
+  ```
+  sudo apt-get install software-properties-common
+  sudo add-apt-repository ppa:maarten-fonville/protobuf
+  sudo add-apt-repository ppa:mhier/libboost-latest
+  echo "deb https://grammatech.github.io/gtirb/pkgs/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+  sudo apt-get update
+  sudo apt-get install --allow-unauthenticated libgtirb-dev gtirb-pprinter ddisasm
+  ```
+
+- On Ubuntu18 install the binaries the GTIRB bionic repository:
+
+  ```
+  sudo apt-get install software-properties-common
+  sudo add-apt-repository ppa:mhier/libboost-latest
+  echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+  sudo apt-get update
+  sudo apt-get install libgtirb-dev gtirb-pprinter ddisasm
+  ```
+
+- On Arch Linux install pre-built `pacman` packages from
+  [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
+  or install using the popular [aur
+  helper](https://wiki.archlinux.org/index.php/AUR_helpers)
+  [yay](https://github.com/Jguer/yay),
+
+  ```
+  yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
+  ```
 
 ## 2. Lift a binary to GTIRB
 
