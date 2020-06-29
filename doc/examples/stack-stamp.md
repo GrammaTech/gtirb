@@ -19,7 +19,7 @@ other GTIRB binary analysis or transformation passes.  Implementations
 of the stack stamping transform are given in all three GTIRB API
 languages;
 Python [API](https://grammatech.github.io/gtirb/python/index.html)/[stack_stamp.py](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py),
-C++ [API](https://grammatech.github.io/gtirb/cpp/index.html)/[gtirb_stack_stamp.hpp]([](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/include/gtirb_stack_stamp.hpp)), and
+C++ [API](https://grammatech.github.io/gtirb/cpp/index.html)/[gtirb_stack_stamp.hpp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/include/gtirb_stack_stamp.hpp), and
 Common Lisp [API](https://grammatech.github.io/gtirb/cl/index.html)/[gtirb-stack-stamp.lisp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp).
 
 This document walks through the whole process of writing and applying
