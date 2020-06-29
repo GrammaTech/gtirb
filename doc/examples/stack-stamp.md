@@ -19,7 +19,7 @@ other GTIRB binary analysis or transformation passes.  Implementations
 of the stack stamping transform are given in all three GTIRB API
 languages;
 Python [API](https://grammatech.github.io/gtirb/python/index.html)/[stack_stamp.py](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py),
-C++ [API](https://grammatech.github.io/gtirb/cpp/index.html)/[TODO](TODO), and
+C++ [API](https://grammatech.github.io/gtirb/cpp/index.html)/[gtirb_stack_stamp.hpp]([](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/include/gtirb_stack_stamp.hpp)), and
 Common Lisp [API](https://grammatech.github.io/gtirb/cl/index.html)/[gtirb-stack-stamp.lisp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp).
 
 This document walks through the whole process of writing and applying
@@ -129,16 +129,23 @@ manual](https://grammatech.github.io/gtirb/) as a reference.  When
 you're done you can compare to the completed transforms implemented in
 each language at
 [Python](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py#L36),
-[C++](#FIXME), and
+[C++](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/src/gtirb_stack_stamp.cpp), and
 [Common Lisp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp#L24).
 
 If you're developing in Python or Common Lisp you should first start
 up a <abbr title="Read Eval Print Loop">REPL</abbr> and load the your
-GTIRB instance.
+GTIRB instance. To load an IR from file:
 
 - Python
   ```python
   ir = IR.load_protobuf("/tmp/ls.gtirb")
+  ```
+
+- C++
+  ```c++
+  gtirb::Context Ctx;
+  std::ifstream File("/tmp/ls.gtirb");
+  gtirb::IR* Ir = *gtirb::IR::load(Ctx, File);
   ```
 
 - Common Lisp
@@ -146,12 +153,18 @@ GTIRB instance.
   (defparameter *ir* (read-gtirb "/tmp/ls.gtirb"))
   ```
 
-You can then develop and apply the transform interactively.  When
-you're done serialize the resulting GTIRB to a new file.
+You can then develop and apply the transform.  When
+you're done, serialize the resulting GTIRB to a new file:
 
 - Python
   ```python
   ir.save_protobuf("/tmp/ls-ss.gtirb")
+  ```
+
+- C++
+  ```c++
+  std::ofstream File("/tmp/ls-ss.gtirb");
+  Ir->save(File);
   ```
 
 - Common Lisp
