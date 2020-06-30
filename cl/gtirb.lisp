@@ -1324,7 +1324,15 @@ intersecting the assigned part of the object.")
       (:uuid
        (prog1 (uuid-to-integer (subseq *decode-data* 0 16)) (advance 16)))
       (:offset
-       (list (decode :uuid) (decode :uint64-t)))
+       (handler-bind
+           ((error
+             (lambda (e)
+               (declare (ignorable e))
+               (let* ((offset (make-instance 'proto:offset))
+                      (size (pb:octet-size offset)))
+                 (pb:merge-from-array offset *decode-data* 0 size)
+                 (prog1 offset (advance size))))))
+         (list (decode :uuid) (decode :uint64-t))))
       (:string
        (let ((size (decode :uint64-t)))
          (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
@@ -1359,8 +1367,10 @@ intersecting the assigned part of the object.")
       (:offset
        (etypecase data
          (proto:offset
-          (progn (encode :uuid (uuid-to-integer (proto:element-id data)))
-                 (encode :uint64-t (proto:displacement data))))
+          (let* ((size (pb:octet-size data))
+                 (buffer (make-array size :element-type '(unsigned-byte 8))))
+            (pb:serialize data buffer 0 size)
+            (extend buffer)))
          (list
           (progn (encode :uuid (first data))
                  (encode :uint64-t (second data))))))
