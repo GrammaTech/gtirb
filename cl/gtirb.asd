@@ -58,6 +58,7 @@
                (:protobuf-source-file "ByteInterval")
                (:protobuf-source-file "CFG")
                (:protobuf-source-file "CodeBlock")
+               (:protobuf-source-file "Offset")
                (:protobuf-source-file "DataBlock")
                (:protobuf-source-file "IR")
                (:protobuf-source-file "Module")

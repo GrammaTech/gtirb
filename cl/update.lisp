@@ -5,6 +5,7 @@
         :named-readtables
         :curry-compose-reader-macros
         :command-line-arguments)
+  (:import-from :serapeum :take-while)
   (:import-from :gtirb.proto)
   (:import-from :trivial-package-local-nicknames :add-package-local-nickname)
   (:import-from :proto-v0)
@@ -158,6 +159,41 @@
      ((:local :static) "HIDDEN"))
    0))
 
+(defun update-padding-table (data offset-bases)
+  "Convert DATA which is keyed by addresses to be keyed by offset.
+Use OFFSET-BASES, an alist of base address and byte-interval, to do
+this conversion."
+  (let* ((it (make-instance 'aux-data :proto data))
+         (data (aux-data-data it)))
+    (nest (setf (aux-data-type it) '(:mapping :offset :uint64-t)
+                (aux-data-data it))
+          (alist-hash-table)
+          (mapcar (lambda (pair)
+                    (destructuring-bind (addr . value) pair
+                      (let ((base (nest (lastcar)
+                                        (take-while [{> addr} #'car])
+                                        offset-bases)))
+                        (destructuring-bind (base . id) base
+                          (cons
+                           (let ((it (make-instance 'proto:offset)))
+                             (setf (proto:element-id it) id)
+                             (setf (proto:displacement it) (- addr base))
+                             it)
+                           value))))))
+          (hash-table-alist)
+          data)
+    (gtirb::proto it)))
+
+(defun offset-bases (new-sections)
+  (nest (apply #'append)
+        (map 'list (lambda (section)
+                     (map 'list (lambda (bi)
+                                  (assert (proto:has-address bi))
+                                  (cons (proto:address bi)
+                                        (proto:uuid bi)))
+                          (proto:byte-intervals section))))
+        new-sections))
+
 (defgeneric upgrade (object &key &allow-other-keys)
   (:documentation "Upgrade OBJECT to the next protobuf version.")
   (:method ((old t) &key &allow-other-keys) old)
@@ -180,11 +216,14 @@
     (transfer-fields new old
                      uuid binary-path preferred-addr rebase-delta file-format
                      name symbols proxies name)
-    (setf (proto:isa new) (proto-v0:isa-id old)
-          (proto:aux-data new) (upgrade (proto-v0:aux-data-container old)
-                                        :new-class 'proto:module-aux-data-entry)
-          (proto:sections new) (map 'vector {upgrade _ :module old}
-                                    (proto-v0:sections old)))
+    (let ((new-sections (map 'vector {upgrade _ :module old}
+                             (proto-v0:sections old))))
+      (setf (proto:isa new) (proto-v0:isa-id old)
+            (proto:aux-data new)
+            (upgrade (proto-v0:aux-data-container old)
+                     :new-class 'proto:module-aux-data-entry
+                     :offset-bases (offset-bases new-sections))
+            (proto:sections new) new-sections))
     (if-let ((entry-point (entry-point old)))
       (setf (proto:entry-point new) entry-point))
     ;; Add a symbolType AuxData table of type mapping<UUID, string> to
@@ -234,11 +273,17 @@
                                      (coerce (proto:aux-data new) 'list))
                              'vector))))))
     new)
-  (:method ((old proto-v0:aux-data-container) &key new-class &allow-other-keys)
+  (:method ((old proto-v0:aux-data-container) &key new-class offset-bases
+                                                &allow-other-keys)
     (map 'vector (lambda (entry)
                    (let ((it (make-instance new-class)))
-                     (setf (proto:key it) (proto-v0:key entry)
-                           (proto:value it) (upgrade (proto-v0:value entry)))
+                     (let ((new-value (upgrade (proto-v0:value entry))))
+                       (when (string= "padding"
+                                      (pb:string-value (proto-v0:key entry)))
+                         (setf new-value (update-padding-table
+                                          new-value offset-bases)))
+                       (setf (proto:key it) (proto-v0:key entry)
+                             (proto:value it) new-value))
                      it))
          (proto-v0:aux-data old)))
   (:method ((old proto-v0:aux-data) &key &allow-other-keys

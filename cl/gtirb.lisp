@@ -1357,8 +1357,13 @@ intersecting the assigned part of the object.")
       (:uuid
        (extend (integer-to-uuid data)))
       (:offset
-       (progn (encode :uuid (first data))
-              (encode :uint64-t (second data))))
+       (etypecase data
+         (proto:offset
+          (progn (encode :uuid (uuid-to-integer (proto:element-id data)))
+                 (encode :uint64-t (proto:displacement data))))
+         (list
+          (progn (encode :uuid (first data))
+                 (encode :uint64-t (second data))))))
       (:string
        (let ((string-bytes (string-to-utf-8-bytes data)))
          (encode :uint64-t (length string-bytes))
