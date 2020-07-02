@@ -32,7 +32,7 @@ the *stack stamping* binary ROP protection in following steps:
 5. [Visualize the difference using the gtirb-ghidra-plugin](#visualize-the-difference-using-gtirb-ghidra-plugin)
 6. Let us know what you think.  You can open an issue against
    [github.com/grammatech/gtirb](https://github.com/grammatech/gtirb)
-   or email us at `gtirb@gramamtech.com`.
+   or email us at `gtirb@grammatech.com`.
 
 
 ## 1. Install Dependencies
@@ -42,7 +42,7 @@ libraries and utilities (for complete installation instructions see
 [GTIRB#Install](https://github.com/grammatech/gtirb#installing)):
 
 - On Windows grab the binaries from
-  [https://gramamtech.github.io/gtirb/pkgs/windows-release](https://gramamtech.github.io/gtirb/pkgs/windows-release).
+  [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release).
 
 - On Ubuntu,
 
@@ -54,7 +54,7 @@ libraries and utilities (for complete installation instructions see
   ```
 
 - On Arch Linux install pre-built `pacman` packages from
-  [https://gramamtech.github.io/gtirb/pkgs/arch](https://gramamtech.github.io/gtirb/pkgs/arch)
+  [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
   or install using the popular [aur
   helper](https://wiki.archlinux.org/index.php/AUR_helpers)
   [yay](https://github.com/Jguer/yay),
