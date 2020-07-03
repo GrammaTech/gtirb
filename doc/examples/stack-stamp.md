@@ -25,41 +25,29 @@ Common Lisp [API](https://grammatech.github.io/gtirb/cl/index.html)/[gtirb-stack
 This document walks through the whole process of writing and applying
 the *stack stamping* binary ROP protection in following steps:
 
-1. [Install Dependencies](#install-dependencies)
-2. [Lift a binary to GTIRB](#lift-a-binary-to-gtirb)
-3. [Implement the transform](#implement-the-transform)
-4. [Serialize GTIRB to a new executable and test](#serialize-gtirb-to-a-new-executable-and-test)
-5. [Visualize the difference using the gtirb-ghidra-plugin](#visualize-the-difference-using-gtirb-ghidra-plugin)
-6. Let us know what you think.  You can open an issue against
-   [github.com/grammatech/gtirb](https://github.com/grammatech/gtirb)
-   or email us at `gtirb@grammatech.com`.
+- A. [Install Dependencies](#install-dependencies)
+- B. [Lift a binary to GTIRB](#lift-a-binary-to-gtirb)
+- C. [Implement the transform](#implement-the-transform)
+- D. [Serialize GTIRB to a new executable and test](#serialize-gtirb-to-a-new-executable-and-test)
+- E. [Visualize the difference using the gtirb-ghidra-plugin](#visualize-the-difference-using-gtirb-ghidra-plugin)
+- F. Let us know what you think.  You can open an issue against
+  [github.com/grammatech/gtirb](https://github.com/grammatech/gtirb)
+  or email us at `gtirb@grammatech.com`.
 
 
-## 1. Install Dependencies
+## A. Install all required libraries and utilities
 
 The following should be sufficient to install the required GTIRB
 libraries and utilities (for complete installation instructions see
 [GTIRB#Install](https://github.com/grammatech/gtirb#installing)):
 
-`gtirb-functions` and `gtirb-capstone` packages are available for
-Python and Common Lisp.
-
-- Python.
-
-  ```
-  pip3 install gtirb gtirb-functions gtirb-capstone
-  ```
-
-- Common Lisp.
-
-  ```
-  (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
-  ```
-
-You'll also need the `ddisasm` and `gtirb-pprinter` executables installed:
-
-- On Windows grab the binaries from
-  [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release).
+- On Windows,
+  1. Download `ddisasm-artifacts.zip`, `gtirb-artifacts.zip`, and
+     `gtirb-pprinter-artifacts.zip` from
+     [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release);
+  2. Extract each ZIP file to a suitable location.
+  3. Add the /bin directory from each extracted ZIP file to your `PATH` environment variable.
+     (Alternatively, provide the full path when you invoke the extracted executables.)
 
 - On Ubuntu16 install the binaries from the GTIRB xenial repository:
 
@@ -92,20 +80,84 @@ You'll also need the `ddisasm` and `gtirb-pprinter` executables installed:
   yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
   ```
 
-## 2. Lift a binary to GTIRB
+- If you're developing using the Python or Common Lisp APIs then you
+  may prefer to install the core GTIRB components (`gtirb`,
+  `gtirb-functions`, `gtirb-capstone`) using your language's
+  package manager.
 
-Run the datalog disassembler to analyze a binary and produce a GTIRB
-representation.
+  1. Install the `ddisasm` and `gtirb-pprinter` executables using the
+     appropriate system-specific mechanism described above.
 
-```
-ddisasm $(which ls) --ir /tmp/ls.gtirb
-```
+  2. Use the language package manager to install the GTIRB core
+     components.
 
-If a binary on your system doesn't work, please
-[open an issue](https://github.com/GrammaTech/ddisasm/issues/new)
-to let us know.
+     - Python
 
-## Implement the transform
+       ```
+       pip3 install gtirb gtirb-functions gtirb-capstone
+       ``` 
+
+     - Common Lisp
+
+       ```
+       (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
+       ```
+       
+## B. Lift a binary to GTIRB
+
+The tooling provided for this tutorial supports analysis for ELF
+binaries only.
+
+The example used in this tutorial is a Linux `ls` binary.  If you
+prefer, you can work with a different ELF binary: just amend the
+command lines as necessary to accommodate any file name differences.
+
+If you are on a Linux system, you can analyze your system `ls`. For
+Windows users, we have provided additional instructions for obtaining
+a Linux `ls` binary.
+
+Ubuntu 16, Ubuntu18, Arch Linux:
+
+  1. Change to a suitable working directory.
+
+  2. Run the datalog disassembler to analyze the binary and produce a
+     GTIRB representation.
+
+     ```
+     ddisasm $(which ls) --ir ls.gtirb
+     ```
+
+
+Windows:
+
+  1. Do you easy access to a Linux `ls` binary? (For example, can you
+     copy one from another local system?)
+
+     - YES: Copy the binary to a suitable working directory and go to step 4.
+
+     - NO: Go on to step 2.
+
+  2. Download a Linux coreutils package from
+     http://launchpadlibrarian.net/340091849/coreutils_8.26-3ubuntu4_amd64.deb
+     (or another location if you prefer).
+
+  3. Use a tool such as [7-Zip](https://www.7-zip.org/) to extract
+     `/bin/ls` from the package, then copy it to a suitable working
+     directory.
+     
+     (If your tool does not support selective extraction, unpack the
+     entire package to a temporary location, then copy `/bin/ls` to
+     your working directory.)
+
+  4. Change to your working directory.
+
+
+If you are not able to successfully analyze the binary, please
+[open an issue](https://github.com/GrammaTech/ddisasm/issues/new) to
+let us know.
+
+
+## C. Implement the transform
 
 Stack stamping is a technique to help mitigate ROP style attacks.
 This is done by 'stamping' (`xor`ing with a random number) the return
@@ -130,124 +182,164 @@ transform will be the same--we'll write a GTIRB-to-GTIRB rewriting
 pass (the design of GTIRB is similar to LLVM in that it leverages
 stand-alone passes for analysis or transformation).
 
-1. For those functions which have a single entry and return.
-2. Build a random key for that function.
-3. Encrypt the return address on entry to the function using this key.
-4. Decrypt the return address on exit from the function using this key.
-
-Try to write this yourself using the [GTIRB
-manual](https://grammatech.github.io/gtirb/) as a reference.  When
-you're done you can compare to the completed transforms implemented in
-each language at
-[Python](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py#L36),
-[C++](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/src/gtirb_stack_stamp.cpp), and
-[Common Lisp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp#L24).
-
-If you're developing in Python or Common Lisp you should first start
-up a <abbr title="Read Eval Print Loop">REPL</abbr> and load the your
-GTIRB instance. To load an IR from file:
-
-- Python
-  ```python
-  ir = IR.load_protobuf("/tmp/ls.gtirb")
-  ```
-
-- C++
-  ```c++
-  gtirb::Context Ctx;
-  std::ifstream File("/tmp/ls.gtirb");
-  gtirb::IR* Ir = *gtirb::IR::load(Ctx, File);
-  ```
-
-- Common Lisp
-  ```lisp
-  (defparameter *ir* (read-gtirb "/tmp/ls.gtirb"))
-  ```
-
-You can then develop and apply the transform.  When
-you're done, serialize the resulting GTIRB to a new file:
-
-- Python
-  ```python
-  ir.save_protobuf("/tmp/ls-ss.gtirb")
-  ```
-
-- C++
-  ```c++
-  std::ofstream File("/tmp/ls-ss.gtirb");
-  Ir->save(File);
-  ```
-
-- Common Lisp
-  ```lisp
-  (write-gtirb *ir* "/tmp/ls-ss.gtirb")
-  ```
-
-
-## 3. Serialize GTIRB to a new executable and test
-
-Finally, you can run the GTIRB pretty printer to serialize your GTIRB
-representation to a new binary.
-
 ```
-gtirb-pprinter /tmp/ls-ss.gtirb --skip-section .eh_frame \
-               --asm /tmp/ls.ss.s \
-               --binary /tmp/ls.ss
+  For each function f that has a single entry and single return.
+     Build a random key k_f for f.
+     On entry to f, encrypt the return address using k_f.
+     On exit from f, decrypt the return address using k_f.
 ```
 
-Test out the resulting binary, it should be indistinguishable from the
-original.
+
+1. Implement the transform, using the [GTIRB
+   manual](https://grammatech.github.io/gtirb/) as a reference.
+
+   If you're developing in Python or Common Lisp you should first
+   start up a <abbr title="Read Eval Print Loop">REPL</abbr> and load the
+   your GTIRB instance.
+
+   To load an IR from file:
+
+   - Python
+     ```python
+     ir = IR.load_protobuf("ls.gtirb")
+     ```
+
+   - C++
+     ```c++
+     gtirb::Context Ctx;
+     std::ifstream File("ls.gtirb");
+     gtirb::IR* Ir = *gtirb::IR::load(Ctx, File);
+     ```
+
+   - Common Lisp
+     ```lisp
+     (defparameter *ir* (read-gtirb "ls.gtirb"))
+     ```
+
+2. When you're done, compare your implementation to the corresponding
+   completed transform in the gtirb-stack-stamp repository on GitHub:
+
+   - [Python](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb_stack_stamp/stack_stamp.py#L36)
+   - [C++](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/src/gtirb_stack_stamp.cpp)
+   - [Common Lisp](https://github.com/GrammaTech/gtirb-stack-stamp/blob/master/gtirb-stack-stamp.lisp#L24)
 
 
-## 4. Visualize the difference using gtirb-ghidra-plugin
+3. Apply your transform to `ls.gtirb`.
+
+4. Serialize the transformed GTIRB to a new file `ls-ss.gtirb`.
+
+   - Python
+     ```python
+     ir.save_protobuf("ls-ss.gtirb")
+     ```
+
+   - C++
+     ```c++
+     std::ofstream File("ls-ss.gtirb");
+     Ir->save(File);
+     ```
+
+   - Common Lisp
+     ```lisp
+     (write-gtirb *ir* "ls-ss.gtirb")
+     ```
+
+## D. Serialize GTIRB to a new executable and test
+
+The final step is to use the GTIRB pretty printer to convert your
+GTIRB representation to a new binary.
+
+1. Run the following command.
+
+   ```
+   gtirb-pprinter ls-ss.gtirb --skip-section .eh_frame \
+               --asm ls.ss.s \
+               --binary ls.ss
+   ```
+
+2. Try running the new binary. Its behavior should be
+   indistinguishable from the original.
+   
+   (You will not be able to do this on Windows. However, if you have
+   access to a Linux system, you can copy your new binary there and
+   try it out.)
+
+## E. Visualize the difference using gtirb-ghidra-plugin
 
 Ghidra is a reverse engineering framework developed by the NSA. With a
 GTIRB plug-in, Ghidra offers a useful GUI for examining the
-differences between GTIRB files.  To follow the rest of this example
-you must first download and install
-[Ghidra](https://ghidra-sre.org/) and add the
-[GTIRB Ghidra plugin](https://github.com/GrammaTech/gtirb-ghidra-plugin).
-Also, Java 11 is a prerequisite for Ghidra (here are installation instructions for
-[Ubuntu](https://www.linuxbabe.com/ubuntu/install-oracle-java-8-openjdk-11-ubuntu-18-04-18-10) and
-[Windows](https://access.redhat.com/documentation/en-us/openjdk/11/html/openjdk_11_for_windows_getting_started_guide/index))
-
+differences between GTIRB files.  
 
 Procedure:
 
-1. Import and analyze the files
-2. Use the Version Tracking tool to match function locations
-3. Examine the changes in a side-by-side view
+- a. Install prerequisites if they are not already installed
+- b. Import and analyze the files
+- c. Use the Version Tracking tool to match function locations
+- d. Examine the changes in a side-by-side view
 
 
-#### 1. Import and analyze the files
+### a. Install prerequisites if they are not already installed
 
-Start Ghidra and open a project or create a new one. Import `ls.gtirb`
-and double-click it to open a Code Browser.  When prompted to analyze
-it, hit "Yes" and select "Disassemble Entry Points" (only).  This will
-populate the listing with disassembly for all functions.  When the
-analysis is complete, save the file and close the Code Browser. Repeat
-for `ls-ss.gtirb`
+1. Java 11 (a prerequisite for Ghidra):
+   [Ubuntu](https://www.linuxbabe.com/ubuntu/install-oracle-java-8-openjdk-11-ubuntu-18-04-18-10),
+   [Windows](https://access.redhat.com/documentation/en-us/openjdk/11/html/openjdk_11_for_windows_getting_started_guide/index)
 
-#### 2. Use the Version Tracking tool to match function locations
+2. [Ghidra](https://ghidra-sre.org/).
 
-Click on the "Footprints" icon to start the Version Tracking tool. The
-Version Tracking tool also has a footprints icon, click on this to
-start a new session wizard. Enter a session name and select the before
-and after files as Source and Destination. Skip the precondition
-checks and hit Finish. This will open source and destination tools,
-which you can minimize as we don't need them.
+3. The [GTIRB Ghidra plugin](https://github.com/GrammaTech/gtirb-ghidra-plugin).
 
-#### 3. Examine the changes in a side-by-side view
 
-In the Version Tracking tool, click the green "+" (plus sign) to start
-comparing the files.  In the wizard that comes up, select "Exact
-Symbol Name Match" (only), this will allow us to do a side-by-side
-comparison of functions of the same name. Click Next and Finish, and
-the Version Tracking Matches window will be populated with a list of
-matches. (If you don't see a Version Tracking Matches window, go to
-Window in the top menu and select Version Tracking Matches). Select a
-function by clicking on a row with type Function. Then go to the
-Version Tracking Markup window to see a comparison of this function
-(if you don't see source and destination sections in the Version
-Tracking Markup window, click the "Book" icon in the upper right
-corner of the Version Tracking Markup window.
+#### b. Import and analyze the files
+
+1. Start Ghidra and open a project or create a new one.
+
+2. Import `ls.gtirb` and double-click it to open a Code Browser.
+
+3. When prompted to analyze it, hit "Yes" and select "Disassemble
+   Entry Points" (only).
+
+   This will populate the listing with disassembly for all functions.
+
+4. When the analysis is complete, save the file and close the Code
+   Browser.
+
+5. Repeat steps 2-4 for `ls-ss.gtirb`
+
+#### c. Use the Version Tracking tool to match function locations
+
+1. Click on the "Footprints" icon to start the Version Tracking tool.
+
+2. The Version Tracking tool also has a footprints icon, click on this
+   to start a new session wizard.
+
+3. Enter a session name and select the before and after files as
+   Source and Destination.
+
+4. Skip the precondition checks and click Finish.
+
+   This will open source and destination tools, which you can
+   minimize as we don't need them.
+
+#### d. Examine the changes in a side-by-side view
+
+1. In the Version Tracking tool, click the green "+" (plus sign) to start
+   comparing the files.
+
+2. In the wizard that comes up, select "Exact Symbol Name Match"
+   (only). This will allow us to do a side-by-side comparison of
+   functions of the same name.
+
+3. Click Next and Finish.
+
+   The Version Tracking Matches window will be populated with a list
+   of matches. (If you don't see a Version Tracking Matches window, go
+   to Window in the top menu and select Version Tracking
+   Matches).
+
+4. Select a function by clicking on a row with type
+   Function.
+
+5. Go to the Version Tracking Markup window to see a comparison of
+   this function (if you don't see source and destination sections in
+   the Version Tracking Markup window, click the "Book" icon in the
+   upper right corner of the Version Tracking Markup window.
