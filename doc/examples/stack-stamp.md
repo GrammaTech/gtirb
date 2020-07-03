@@ -95,14 +95,14 @@ libraries and utilities (for complete installation instructions see
 
        ```
        pip3 install gtirb gtirb-functions gtirb-capstone
-       ``` 
+       ```
 
      - Common Lisp
 
        ```
        (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
        ```
-       
+
 ## B. Lift a binary to GTIRB
 
 The tooling provided for this tutorial supports analysis for ELF
@@ -144,7 +144,7 @@ Windows:
   3. Use a tool such as [7-Zip](https://www.7-zip.org/) to extract
      `/bin/ls` from the package, then copy it to a suitable working
      directory.
-     
+
      (If your tool does not support selective extraction, unpack the
      entire package to a temporary location, then copy `/bin/ls` to
      your working directory.)
@@ -259,7 +259,7 @@ GTIRB representation to a new binary.
 
 2. Try running the new binary. Its behavior should be
    indistinguishable from the original.
-   
+
    (You will not be able to do this on Windows. However, if you have
    access to a Linux system, you can copy your new binary there and
    try it out.)
@@ -268,7 +268,7 @@ GTIRB representation to a new binary.
 
 Ghidra is a reverse engineering framework developed by the NSA. With a
 GTIRB plug-in, Ghidra offers a useful GUI for examining the
-differences between GTIRB files.  
+differences between GTIRB files.
 
 Procedure:
 
