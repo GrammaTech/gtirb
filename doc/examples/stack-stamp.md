@@ -192,19 +192,22 @@ stand-alone passes for analysis or transformation).
 1. Implement the transform, using the [GTIRB
    manual](https://grammatech.github.io/gtirb/) as a reference.
 
-   If you're developing in Python or Common Lisp you should first
-   start up a <abbr title="Read Eval Print Loop">REPL</abbr> and load the
-   your GTIRB instance.
+   If you're developing in Python or Common Lisp you work directly in
+   a <abbr title="Read Eval Print Loop">REPL</abbr>, or use it to
+   prototype a stand-alone implementation.
 
-   To load an IR from file:
+   For all languages, start by importing the `gtirb` API and
+   loading your `ls.gtirb` file.
 
    - Python
      ```python
+     from gtirb import *     
      ir = IR.load_protobuf("ls.gtirb")
      ```
 
    - C++
      ```c++
+     #include <gtirb.hpp>
      gtirb::Context Ctx;
      std::ifstream File("ls.gtirb");
      gtirb::IR* Ir = *gtirb::IR::load(Ctx, File);
@@ -212,6 +215,8 @@ stand-alone passes for analysis or transformation).
 
    - Common Lisp
      ```lisp
+     (ql:quickload :gtirb)
+     (use-package :gtirb)
      (defparameter *ir* (read-gtirb "ls.gtirb"))
      ```
 
