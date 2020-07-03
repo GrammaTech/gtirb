@@ -39,69 +39,68 @@ the *stack stamping* binary ROP protection in following steps:
 
 The following should be sufficient to install the required GTIRB
 libraries and utilities (for complete installation instructions see
-[GTIRB#Install](https://github.com/grammatech/gtirb#installing)):
+[GTIRB#Install](https://github.com/grammatech/gtirb#installing)).
 
-- On Windows,
-  1. Download `ddisasm-artifacts.zip`, `gtirb-artifacts.zip`, and
-     `gtirb-pprinter-artifacts.zip` from
-     [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release);
-  2. Extract each ZIP file to a suitable location.
-  3. Add the /bin directory from each extracted ZIP file to your `PATH` environment variable.
-     (Alternatively, provide the full path when you invoke the extracted executables.)
+1. Install the required binaries.
 
-- On Ubuntu16 install the binaries from the GTIRB xenial repository:
+   - Windows:
+     1. Download `ddisasm-artifacts.zip`, `gtirb-artifacts.zip`, and
+        `gtirb-pprinter-artifacts.zip` from
+        [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release);
+     2. Extract each ZIP file to a suitable location.
+     3. Add the /bin directory from each extracted ZIP file to your `PATH` environment variable.
+        (Alternatively, provide the full path when you invoke the extracted executables.)
+     4. If it is not already present on your system, install
+        [Protobuf](https://developers.google.com/protocol-buffers/)
+        version 3.0.0 or higher.
+     5. If you plan to work in C++, you will also need
+        [Boost](https://www.boost.org/), version 1.67.0 or higher.
 
-  ```
-  sudo apt-get install software-properties-common
-  sudo add-apt-repository ppa:maarten-fonville/protobuf
-  sudo add-apt-repository ppa:mhier/libboost-latest
-  echo "deb https://grammatech.github.io/gtirb/pkgs/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
-  sudo apt-get update
-  sudo apt-get install --allow-unauthenticated libgtirb-dev gtirb-pprinter ddisasm
-  ```
+   - Ubuntu16: install the binaries from the GTIRB xenial repository as follows.
+     ```
+     sudo apt-get install software-properties-common
+     sudo add-apt-repository ppa:maarten-fonville/protobuf
+     sudo add-apt-repository ppa:mhier/libboost-latest
+     echo "deb https://grammatech.github.io/gtirb/pkgs/xenial ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+     sudo apt-get update
+     sudo apt-get install --allow-unauthenticated libgtirb-dev gtirb-pprinter ddisasm
+     ```
 
-- On Ubuntu18 install the binaries the GTIRB bionic repository:
+   - Ubuntu18: install the binaries from the GTIRB bionic repository as follows.
+     ```
+     sudo apt-get install software-properties-common
+     sudo add-apt-repository ppa:mhier/libboost-latest
+     echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+     sudo apt-get update
+     sudo apt-get install libgtirb-dev gtirb-pprinter ddisasm
+     ```
 
-  ```
-  sudo apt-get install software-properties-common
-  sudo add-apt-repository ppa:mhier/libboost-latest
-  echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
-  sudo apt-get update
-  sudo apt-get install libgtirb-dev gtirb-pprinter ddisasm
-  ```
+   - Arch Linux: install pre-built `pacman` packages from
+     [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
+     or install using the popular [aur helper](https://wiki.archlinux.org/index.php/AUR_helpers)
+     [yay](https://github.com/Jguer/yay),
+     ```
+     yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
+     ```
 
-- On Arch Linux install pre-built `pacman` packages from
-  [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
-  or install using the popular [aur
-  helper](https://wiki.archlinux.org/index.php/AUR_helpers)
-  [yay](https://github.com/Jguer/yay),
+2. Make sure the required GTIRB components are available to your
+   development environment.  This will depend on the language you want
+   to work in:
 
-  ```
-  yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
-  ```
+   - C++: when you compile your transform, do all of the following.
+     - Specify that the GTIRB `lib/` is a library directory.
+     - Specify that the GTIRB `include/` is an include directory.
+     - Link against `gtirb.lib` and `proto.lib`.
 
-- If you're developing using the Python or Common Lisp APIs then you
-  may prefer to install the core GTIRB components (`gtirb`,
-  `gtirb-functions`, `gtirb-capstone`) using your language's
-  package manager.
+   - Python (note: must be Python 3):
+     ```
+     pip3 install gtirb gtirb-functions gtirb-capstone
+     ```
 
-  1. Install the `ddisasm` and `gtirb-pprinter` executables using the
-     appropriate system-specific mechanism described above.
-
-  2. Use the language package manager to install the GTIRB core
-     components.
-
-     - Python
-
-       ```
-       pip3 install gtirb gtirb-functions gtirb-capstone
-       ```
-
-     - Common Lisp
-
-       ```
-       (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
-       ```
+   - Common Lisp:
+     ```
+     (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
+     ```
 
 ## B. Lift a binary to GTIRB
 
