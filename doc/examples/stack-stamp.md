@@ -1,6 +1,10 @@
 GTIRB Stack Stamp
 =================
 
+> TODO:
+> - [ ] Mention that you can't build a binary on Windows (no `as` or `ld`)
+> - [ ] Mention that the CL API is not tested on Windows
+
 > **WIP**: this tutorial is a **Work in Progress**
 
 TLDR; It is very easy to write binary transforms in GTIRB, see
