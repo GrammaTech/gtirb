@@ -57,7 +57,7 @@ libraries and utilities (for complete installation instructions see
         [Boost](https://www.boost.org/), version 1.67.0 or higher.
 
    - Ubuntu16: install the binaries from the GTIRB xenial repository as follows.
-     ```
+     ```shell
      sudo apt-get install software-properties-common
      sudo add-apt-repository ppa:maarten-fonville/protobuf
      sudo add-apt-repository ppa:mhier/libboost-latest
@@ -67,7 +67,7 @@ libraries and utilities (for complete installation instructions see
      ```
 
    - Ubuntu18: install the binaries from the GTIRB bionic repository as follows.
-     ```
+     ```shell
      sudo apt-get install software-properties-common
      sudo add-apt-repository ppa:mhier/libboost-latest
      echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
@@ -79,7 +79,7 @@ libraries and utilities (for complete installation instructions see
      [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
      or install using the popular [aur helper](https://wiki.archlinux.org/index.php/AUR_helpers)
      [yay](https://github.com/Jguer/yay),
-     ```
+     ```shell
      yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
      ```
 
@@ -93,7 +93,7 @@ libraries and utilities (for complete installation instructions see
      - Link against `gtirb.lib` and `proto.lib`.
 
    - Python (note: must be Python 3):
-     ```
+     ```shell
      pip3 install gtirb gtirb-functions gtirb-capstone
      ```
 
@@ -132,7 +132,7 @@ Ubuntu 16, Ubuntu18, Arch Linux:
   2. Run the datalog disassembler to analyze the binary and produce a
      GTIRB representation.
 
-     ```
+     ```shell
      ddisasm $(which ls) --ir ls.gtirb
      ```
 
@@ -265,7 +265,7 @@ GTIRB representation to a new binary.
 
 1. Run the following command.
 
-   ```
+   ```shell
    gtirb-pprinter ls-ss.gtirb --skip-section .eh_frame \
                --asm ls.ss.s \
                --binary ls.ss
