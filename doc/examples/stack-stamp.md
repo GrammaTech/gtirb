@@ -1,9 +1,6 @@
 GTIRB Stack Stamp
 =================
 
-> TODO:
-> - [ ] Mention that the CL API is not tested on Windows
-
 > **WIP**: this tutorial is a **Work in Progress**
 
 TLDR; It is very easy to write binary transforms in GTIRB, see
@@ -47,6 +44,10 @@ libraries and utilities (for complete installation instructions see
 1. Install the required binaries.
 
    - Windows:
+     > NOTE: Windows users are warned that (1) you can't assemble and
+     > link your rewritten ELF file on Windows unless you have the
+     > required Linux build tool installed (2) the Common Lisp APIs
+     > are not tested on Windows -- although they might work.
      1. Download `ddisasm-artifacts.zip`, `gtirb-artifacts.zip`, and
         `gtirb-pprinter-artifacts.zip` from
         [https://grammatech.github.io/gtirb/pkgs/windows-release](https://grammatech.github.io/gtirb/pkgs/windows-release);
