@@ -94,7 +94,8 @@ libraries and utilities (for complete installation instructions see
    - C++: when you compile your transform, do all of the following.
      - Specify that the GTIRB `lib/` is a library directory.
      - Specify that the GTIRB `include/` is an include directory.
-     - Link against `gtirb.lib` and `proto.lib`.
+     - Link against the `gtirb` and `proto` libraries
+       (Windows: `gtirb.lib`, `proto.lib`; Linux: `gtirb.so`, `proto.so`).
 
    - Python (note: must be Python 3):
      ```shell
@@ -102,19 +103,20 @@ libraries and utilities (for complete installation instructions see
      ```
 
    - Common Lisp:
-     - Clone the latest versions of these repositories into your
-     `~/quicklisp/local-projects` directory (the versions in quicklisp
-     don't yet have some important bugfixes)
-     ```shell
-     cd ~/quicklisp/local-projects
-     git clone https://github.com/grammatech/gtirb
-     git clone https://github.com/grammatech/gtirb-capstone
-     git clone https://github.com/grammatech/gtirb-functions
-     ```
-     then install with quicklisp.
-     ```lisp
-     (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
-     ```
+     1. Clone the latest versions of these repositories into your
+        `~/quicklisp/local-projects` directory (the versions in quicklisp
+        don't yet have some important bugfixes)
+        ```shell
+        cd ~/quicklisp/local-projects
+        git clone https://github.com/grammatech/gtirb
+        git clone https://github.com/grammatech/gtirb-capstone
+        git clone https://github.com/grammatech/gtirb-functions
+        ```
+
+     2. Install with quicklisp.
+        ```lisp
+        (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
+        ```
 
 ## B. Lift a binary to GTIRB
 
@@ -246,7 +248,7 @@ stand-alone passes for analysis or transformation).
        sets of entry and exit blocks for each function.
 
      - C++: The GTIRB
-       [sanctioned AuxData tables])(https://grammatech.github.io/gtirb/md__aux_data.html)
+       [sanctioned AuxData tables](https://grammatech.github.io/gtirb/md__aux_data.html)
        are populated by `ddisasm`: use the `gtirb` API to access the
        information in these tables.
 
