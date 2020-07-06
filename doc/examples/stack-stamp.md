@@ -25,11 +25,11 @@ Common Lisp [API](https://grammatech.github.io/gtirb/cl/index.html)/[gtirb-stack
 This document walks through the whole process of writing and applying
 the *stack stamping* binary ROP protection in following steps:
 
-- A. [Install Dependencies](#install-all-required-libraries-and-utilities)
-- B. [Lift a binary to GTIRB](#lift-a-binary-to-gtirb)
-- C. [Implement the transform](#implement-the-transform)
-- D. [Serialize GTIRB to a new executable and test](#serialize-gtirb-to-a-new-executable-and-test)
-- E. [Visualize the difference using the gtirb-ghidra-plugin](#visualize-the-difference-using-gtirb-ghidra-plugin)
+- A. [Install Dependencies](#a-install-all-required-libraries-and-utilities)
+- B. [Lift a binary to GTIRB](#b-lift-a-binary-to-gtirb)
+- C. [Implement the transform](#c-implement-the-transform)
+- D. [Serialize GTIRB to a new executable and test](#d-serialize-gtirb-to-a-new-executable-and-test)
+- E. [Visualize the difference using the gtirb-ghidra-plugin](#e-visualize-the-difference-using-gtirb-ghidra-plugin)
 - F. Let us know what you think.  You can open an issue against
   [github.com/grammatech/gtirb](https://github.com/grammatech/gtirb)
   or email us at `gtirb@grammatech.com`.
@@ -287,10 +287,10 @@ differences between GTIRB files.
 
 Procedure:
 
-- a. [Install prerequisites if they are not already installed](#install-prerequisites-if-they-are-not-already-installed)
-- b. [Import and analyze the files](#import-and-analyze-the-files)
-- c. [Use the Version Tracking tool to match function locations](#use-the-version-tracking-tool-to-match-function-locations)
-- d. [Examine the changes in a side-by-side view](#examine-the-changes-in-a-side-by-side-view)
+- a. [Install prerequisites if they are not already installed](#a-install-prerequisites-if-they-are-not-already-installed)
+- b. [Import and analyze the files](#b-import-and-analyze-the-files)
+- c. [Use the Version Tracking tool to match function locations](#c-use-the-version-tracking-tool-to-match-function-locations)
+- d. [Examine the changes in a side-by-side view](#d-examine-the-changes-in-a-side-by-side-view)
 
 
 ### a. Install prerequisites if they are not already installed
