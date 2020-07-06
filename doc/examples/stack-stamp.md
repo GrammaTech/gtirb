@@ -235,7 +235,7 @@ stand-alone passes for analysis or transformation).
 
       - Common Lisp
         ```lisp
-        (use-package :gtirb :gtirb-functions :gtirb-capstone)
+        (mapcar #'use-package '(:gtirb :gtirb-capstone :gtirb-functions))
         (defparameter *ir* (read-gtirb "ls.gtirb"))
         ```
 
