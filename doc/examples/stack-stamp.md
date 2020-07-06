@@ -206,33 +206,55 @@ stand-alone passes for analysis or transformation).
 1. Implement the transform, using the [GTIRB
    manual](https://grammatech.github.io/gtirb/) as a reference.
 
-   If you're developing in Python or Common Lisp you work directly in
+   If you're developing in Python or Common Lisp you can work directly in
    a <abbr title="Read Eval Print Loop">REPL</abbr>, or use it to
    prototype a stand-alone implementation.
 
-   For all languages, start by importing the `gtirb` API and
-   loading your `ls.gtirb` file.
+   - For all languages, start by importing the `gtirb` API and then
+   loading your `ls.gtirb` file. For Common Lisp and Python, you will
+   also need to import the `gtirb-functions` and `gtirb-capstone`
+   APIs.
 
-   - Python
-     ```python
-     from gtirb import *
-     ir = IR.load_protobuf("ls.gtirb")
-     ```
+      - Python
+        ```python
+        from gtirb import *
+        import gtirb_functions
+        import gtirb_capstone
+        ir = IR.load_protobuf("ls.gtirb")
+        ```
 
-   - C++
-     ```c++
-     #include <gtirb.hpp>
-     gtirb::Context Ctx;
-     std::ifstream File("ls.gtirb");
-     gtirb::IR* Ir = *gtirb::IR::load(Ctx, File);
-     ```
+      - C++
+        ```c++
+        #include <gtirb.hpp>
+        gtirb::Context Ctx;
+        std::ifstream File("ls.gtirb");
+        gtirb::IR* Ir = *gtirb::IR::load(Ctx, File);
+        ```
 
-   - Common Lisp
-     ```lisp
-     (ql:quickload :gtirb)
-     (use-package :gtirb)
-     (defparameter *ir* (read-gtirb "ls.gtirb"))
-     ```
+      - Common Lisp
+        ```lisp
+        (use-package :gtirb :gtirb-functions :gtirb-capstone)
+        (defparameter *ir* (read-gtirb "ls.gtirb"))
+        ```
+
+   - The mechanism for identifying functions and their entry points
+     depends on the API language you are using.
+
+     - Python: Use the `gtirb-functions` API functionality
+       ([Python](https://github.com/GrammaTech/gtirb-functions/tree/master/gtirb_functions))
+       to obtain the set of recovered functions, and the
+       sets of entry and exit blocks for each function.
+
+     - C++: The GTIRB
+       [sanctioned AuxData tables])(https://grammatech.github.io/gtirb/md__aux_data.html)
+       are populated by `ddisasm`: use the `gtirb` API to access the
+       information in these tables.
+
+     - Common Lisp: Use the `gtirb-functions` API functionality
+       ([Common Lisp](https://github.com/GrammaTech/gtirb-functions/blob/master/gtirb-functions.lisp))
+       to obtain the set of recovered functions, and the
+       sets of entry and exit blocks for each function.
+
 
 2. When you're done, compare your implementation to the corresponding
    completed transform in the gtirb-stack-stamp repository on GitHub:
