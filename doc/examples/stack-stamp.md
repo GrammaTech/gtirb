@@ -25,7 +25,7 @@ Common Lisp [API](https://grammatech.github.io/gtirb/cl/index.html)/[gtirb-stack
 This document walks through the whole process of writing and applying
 the *stack stamping* binary ROP protection in following steps:
 
-- A. [Install Dependencies](#install-dependencies)
+- A. [Install Dependencies](#install-all-required-libraries-and-utilities)
 - B. [Lift a binary to GTIRB](#lift-a-binary-to-gtirb)
 - C. [Implement the transform](#implement-the-transform)
 - D. [Serialize GTIRB to a new executable and test](#serialize-gtirb-to-a-new-executable-and-test)
@@ -98,13 +98,23 @@ libraries and utilities (for complete installation instructions see
      ```
 
    - Common Lisp:
+     - Clone the latest versions of these repositories into your
+     `~/quicklisp/local-projects` directory (the versions in quicklisp
+     don't yet have some important bugfixes)
+     ```shell
+     cd ~/quicklisp/local-projects
+     git clone https://github.com/grammatech/gtirb
+     git clone https://github.com/grammatech/gtirb-capstone
+     git clone https://github.com/grammatech/gtirb-functions
      ```
+     then install with quicklisp.
+     ```lisp
      (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
      ```
 
 ## B. Lift a binary to GTIRB
 
-The tooling provided for this tutorial supports analysis for ELF
+GrammaTech's open-source GTIRB tooling supports disassembly of ELF
 binaries only.
 
 The example used in this tutorial is a Linux `ls` binary.  If you
@@ -129,8 +139,8 @@ Ubuntu 16, Ubuntu18, Arch Linux:
 
 Windows:
 
-  1. Do you easy access to a Linux `ls` binary? (For example, can you
-     copy one from another local system?)
+  1. Do you have easy access to a Linux `ls` binary? (For example, can
+     you copy one from another local system?)
 
      - YES: Copy the binary to a suitable working directory and go to step 4.
 
@@ -151,7 +161,7 @@ Windows:
   4. Change to your working directory.
 
 
-If you are not able to successfully analyze the binary, please
+If you are not able to successfully analyze your chosen binary, please
 [open an issue](https://github.com/GrammaTech/ddisasm/issues/new) to
 let us know.
 
@@ -177,7 +187,7 @@ binary making generic payloads impossible.
 ![Stack Stamp Figure](.stack-stamp.svg)
 
 Regardless of the implementation language the mechanics of this
-transform will be the same--we'll write a GTIRB-to-GTIRB rewriting
+transform will be the same -- we'll write a GTIRB-to-GTIRB rewriting
 pass (the design of GTIRB is similar to LLVM in that it leverages
 stand-alone passes for analysis or transformation).
 
@@ -201,7 +211,7 @@ stand-alone passes for analysis or transformation).
 
    - Python
      ```python
-     from gtirb import *     
+     from gtirb import *
      ir = IR.load_protobuf("ls.gtirb")
      ```
 
@@ -270,16 +280,17 @@ GTIRB representation to a new binary.
 
 ## E. Visualize the difference using gtirb-ghidra-plugin
 
-Ghidra is a reverse engineering framework developed by the NSA. With a
-GTIRB plug-in, Ghidra offers a useful GUI for examining the
+[Ghidra](https://ghidra-sre.org) is a reverse engineering framework
+developed by the <abbr title="National Security Agency">NSA</abbr>.
+With a GTIRB plug-in, Ghidra offers a useful GUI for examining the
 differences between GTIRB files.
 
 Procedure:
 
-- a. Install prerequisites if they are not already installed
-- b. Import and analyze the files
-- c. Use the Version Tracking tool to match function locations
-- d. Examine the changes in a side-by-side view
+- a. [Install prerequisites if they are not already installed](#install-prerequisites-if-they-are-not-already-installed)
+- b. [Import and analyze the files](#import-and-analyze-the-files)
+- c. [Use the Version Tracking tool to match function locations](#use-the-version-tracking-tool-to-match-function-locations)
+- d. [Examine the changes in a side-by-side view](#examine-the-changes-in-a-side-by-side-view)
 
 
 ### a. Install prerequisites if they are not already installed
