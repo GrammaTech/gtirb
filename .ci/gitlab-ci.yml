@@ -13,7 +13,7 @@ stages:
   - deploy-to-pypi
 
 default:
-  tags: [gtirb-docker-executor]
+  tags: [cluster]
 
 check-format:
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
