@@ -1006,12 +1006,13 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
           ,store)                       ; Storing form.
        `(shift-subseq ,getter)))))      ; Accessing form.
 
-(define-setf-expander bytes (sequence &optional (start 0) end &environment env)
+(define-setf-expander bytes (sequence &optional (start 0) (end nil end-p)
+                             &environment env)
   (multiple-value-bind (dummies vals newval setter getter)
       (get-setf-expansion sequence env)
     (declare (ignorable newval setter))
     (let ((store (gensym))
-          (end `(or ,end (length (bytes ,getter)))))
+          (end (if end-p end `(length (bytes ,getter)))))
       (values
        dummies                          ; Temporary variables
        vals                             ; Value forms.
