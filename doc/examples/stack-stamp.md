@@ -2,7 +2,6 @@ GTIRB Stack Stamp
 =================
 
 > TODO:
-> - [ ] Mention that you can't build a binary on Windows (no `as` or `ld`)
 > - [ ] Mention that the CL API is not tested on Windows
 
 > **WIP**: this tutorial is a **Work in Progress**
@@ -266,6 +265,12 @@ stand-alone passes for analysis or transformation).
 
 The final step is to use the GTIRB pretty printer to convert your
 GTIRB representation to a new binary.
+
+> NOTE: Although you can pretty-print GTIRB to assembly on Windows you
+> can't actually assemble or link the assembler to an ELF file on
+> Windows because the required `as` and `ld` commands are typically
+> not installed.  So this is likely the end of the road for users
+> without access to a Linux machine.
 
 1. Run the following command.
 
