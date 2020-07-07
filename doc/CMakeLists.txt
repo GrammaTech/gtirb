@@ -3,7 +3,7 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html")
 
 if(CXX_API)
   set(CPP_TAGFILE "${CMAKE_CURRENT_BINARY_DIR}/CPP_DOXY.tag")
-  set(CPP_TAGFILE_RULE "${CPP_TAGFILE}=../html/cpp")
+  set(CPP_TAGFILE_RULE "${CPP_TAGFILE}=cpp")
   set(CPP_DOX_ENABLED "CPP_ONLY")
   set(CPP_API_VISIBLE "yes")
   add_subdirectory(cpp)
