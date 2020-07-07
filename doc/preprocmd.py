@@ -89,7 +89,7 @@ substitutions = [
         r"\[([^]\n]*)\]\s*\(doc/examples/(.*?)\)",
         (
             lambda m: (
-                r'\\ref \2 "\1"'.format(m.group(2), m.group(1))
+                '\\ref {} "{}"'.format(m.group(2), m.group(1))
                 if outdir == "general"
                 else makeDoxyExampleLink(m.group(2), m.group(1), "../")
             )
@@ -106,12 +106,6 @@ substitutions = [
     (r"```c\+\+(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
     (r"```cpp(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
 ]
-
-# ==============================
-
-# Start collecting substitutions
-substitutions = []
-
 
 # adjust relative links from gtirb/doc/general/*.md to gtirb/doc/*.md
 # and gtirb/*.md
