@@ -109,7 +109,7 @@ The following are the sanctioned AuxData table schemata.
 | Label    | ```"functionBlocks"```                             |
 | Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | Key      | Function UUID.                                     |
-| Value    | The set of UUIDs of all the blocks (gtirb::Block) in the function. |
+| Value    | The set of UUIDs of all the blocks (gtirb::CodeBlock) in the function. |
 | AttachedTo | Module |
 
 
@@ -120,7 +120,7 @@ The following are the sanctioned AuxData table schemata.
 | Label    | ```"functionEntries"```                            |
 | Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | Key      | Function UUID.                                     |
-| Value    | The set of UUIDs of all the block (gtirb::Block) entry points for the function. |
+| Value    | The set of UUIDs of all the entry points blocks (gtirb::CodeBlock) for the function. |
 | AttachedTo | Module |
 
 
@@ -141,7 +141,7 @@ The following are the sanctioned AuxData table schemata.
 |----------|-----------------------------------------|
 | Label    | ```"types"```                           |
 | Type     | ```std::map<gtirb::UUID,std::string>``` |
-| Key      | The gtirb::UUID of a gtirb::DataObject. |
+| Key      | The gtirb::UUID of a gtirb::DataBlock. |
 | Value    | The type of the data, expressed as a std::string containing a C++ type specifier. |
 | AttachedTo | Module |
 
@@ -152,7 +152,7 @@ The following are the sanctioned AuxData table schemata.
 |----------|-----------------------------------------------------------|
 | Label    | ```"alignment"```                                         |
 | Type     | ```std::map<gtirb::UUID, uint64_t>```                     |
-| Key      | The gtirb::UUID of a gtirb::Block, gtirb::DataObject, or gtirb::Section. |
+| Key      | The gtirb::UUID of a gtirb::CodeBlock, gtirb::DataBlock, or gtirb::Section. |
 | Value    | Alignment requirements for the block/data object/section. |
 | AttachedTo | Module |
 
