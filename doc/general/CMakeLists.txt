@@ -117,7 +117,7 @@ if(DOXYGEN_FOUND)
     add_custom_command(
       OUTPUT ${_outmd}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      DEPENDS ${_inmd}
+      DEPENDS ${_inmd} ../preprocmd.py
       COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
       COMMAND python ../preprocmd.py "${_outmd}.in" ${_outmd}
       COMMENT "processing ${_outmd}"
