@@ -103,7 +103,22 @@ build-arch-gcc:
     OS: 'arch'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'RelWithDebInfo'
-  <<: *build
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  script:
+    - mkdir /tmp/aur
+    - cp .ci/PKGBUILD /tmp/aur
+    - sed -i "s|git://github.com/grammatech/gtirb.git|git+file://${CI_PROJECT_DIR}|" /tmp/aur/PKGBUILD
+    - pushd /tmp/aur/
+    - makepkg
+    - cd /tmp/aur/src/gtirb/build
+    - ctest -V
+    - cd ..
+    - cp -r build $CI_PROJECT_DIR
+    - popd
+    - cp /tmp/aur/*.xz ./build
 
 build-arch-gcc-debug:
   stage: build
@@ -162,23 +177,6 @@ build-ubuntu18-packages:
     - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
     - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
     - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=python;
-
-build-arch-package:
-  stage: build-installers
-  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  needs: [build-arch-gcc]
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - build
-  script:
-    - mkdir /tmp/aur
-    - cp .ci/PKGBUILD /tmp/aur
-    - sed -i 's|git://github.com/grammatech/gtirb.git|git+file:///gt/gtirb|' /tmp/aur/PKGBUILD
-    - pushd /tmp/aur/
-    - makepkg
-    - popd
-    - cp /tmp/aur/*.xz ./build
 
 test-default-install:
   stage: test-packages1
@@ -323,7 +321,7 @@ test-ubuntu18-libgtirb:
 test-arch-package:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  needs: [build-arch-package]
+  needs: ['build-arch-gcc']
   script:
     - cp .ci/test-install.cpp ./
     - pacman --noconfirm -U build/gtirb-git-*.pkg.tar.xz
@@ -355,7 +353,7 @@ debian-installer-ubuntu18:
 package-arch:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  needs: [test-arch-package, build-arch-package]
+  needs: [test-arch-package, build-arch-gcc]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:

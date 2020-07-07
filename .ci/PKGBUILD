@@ -21,7 +21,9 @@ pkgver() {
 
 build() {
     cd "$_srcname/"
-    cmake . -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DGTIRB_CL_API=OFF
+    cmake . -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DGTIRB_CL_API=OFF \
+      -DCMAKE_BUILD_TYPE=${BUILD_TYPE-RelWithDebInfo} \
+      -DCMAKE_CXX_COMPILER=${COMPILER-g++}
     cmake --build build --target all doc
 }
 
