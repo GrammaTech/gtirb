@@ -120,7 +120,7 @@ The following are the sanctioned AuxData table schemata.
 | Label    | ```"functionEntries"```                            |
 | Type     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | Key      | Function UUID.                                     |
-| Value    | The set of UUIDs of all the entry points blocks (gtirb::CodeBlock) for the function. |
+| Value    | The set of UUIDs of all the entry blocks (gtirb::CodeBlock) for the function. |
 | AttachedTo | Module |
 
 
