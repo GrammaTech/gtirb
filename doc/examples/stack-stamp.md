@@ -27,8 +27,8 @@ the *stack stamping* binary ROP protection in following steps:
 
 - A. [Install Dependencies](#a-install-all-required-libraries-and-utilities)
 - B. [Lift a binary to GTIRB](#b-lift-a-binary-to-gtirb)
-- C.a [Implement your own transform](#c-a-implement-your-own-transform)
-- C.b [Just run our stack-stamp](#c-b-just-run-our-stack-stamp-transform)
+- C.a [Implement your own stack-stamp transform](#ca-implement-your-own-transform)
+- C.b [Just run our stack-stamp transform](#cb-just-run-our-stack-stamp-transform)
 - D. [Serialize GTIRB to a new executable and test](#d-serialize-gtirb-to-a-new-executable-and-test)
 - E. [Visualize the difference using the gtirb-ghidra-plugin](#e-visualize-the-difference-using-gtirb-ghidra-plugin)
 - F. Let us know what you think.  You can open an issue against
@@ -173,7 +173,7 @@ If you are not able to successfully analyze your chosen binary, please
 let us know.
 
 
-## C.a Implement your own transform
+## C.a Implement your own stack-stamp transform
 
 Stack stamping is a technique to help mitigate ROP style attacks.
 This is done by 'stamping' (`xor`ing with a random number) the return
