@@ -27,7 +27,8 @@ the *stack stamping* binary ROP protection in following steps:
 
 - A. [Install Dependencies](#a-install-all-required-libraries-and-utilities)
 - B. [Lift a binary to GTIRB](#b-lift-a-binary-to-gtirb)
-- C. [Implement the transform](#c-implement-the-transform)
+- C.a [Implement the transform](#c-a-implement-the-transform)
+- C.b [Just run our stack-stamp](#c-b-just-run-our-stack-stamp)
 - D. [Serialize GTIRB to a new executable and test](#d-serialize-gtirb-to-a-new-executable-and-test)
 - E. [Visualize the difference using the gtirb-ghidra-plugin](#e-visualize-the-difference-using-gtirb-ghidra-plugin)
 - F. Let us know what you think.  You can open an issue against
@@ -172,7 +173,7 @@ If you are not able to successfully analyze your chosen binary, please
 let us know.
 
 
-## C. Implement the transform
+## C.a Implement the transform
 
 Stack stamping is a technique to help mitigate ROP style attacks.
 This is done by 'stamping' (`xor`ing with a random number) the return
@@ -285,6 +286,33 @@ stand-alone passes for analysis or transformation).
      ```lisp
      (write-gtirb *ir* "ls-ss.gtirb")
      ```
+
+## C.b Just run our stack-stamp
+
+If you're interested in applying this transform but not writing it
+yourself you can try our implementation available at
+[https://github.com/GrammaTech/gtirb-stack-stamp](https://github.com/GrammaTech/gtirb-stack-stamp).
+
+- Python
+  ```shell
+  python setup.py install
+  python -m gtirb_stack_stamp /tmp/ls.gtirb --outfile /tmp/ls-ss.gtirb --rebuild /tmp/ls-ss
+  ```
+
+- C++
+  ```shell
+  mkdir build
+  cmake -Bbuild
+  make -Cbuild
+  ./build/bin/gtirb-stack-stamp -i /tmp/ls.gtirb -o /tmp/ls-ss.gtirb
+  gtirb-pprinter --skip-section .eh_frame --binary /tmp/ls-ss /tmp/ls-ss.gtirb
+  ```
+
+- Common Lisp
+  ```shell
+  sbcl --eval '(ql:quickload :gtirb-stack-stamp)' --eval '(asdf:make :gtirb-stack-stamp :type :program :monolithic t)'
+  ./stack-stamp -g /tmp/ls-ss.gtirb -b /tmp/ls-ss
+  ```
 
 ## D. Serialize GTIRB to a new executable and test
 
