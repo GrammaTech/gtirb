@@ -135,7 +135,7 @@ public:
   ///
   /// \param F The flag to test.
   /// \return true if the flag is set, false otherwise.
-  bool isFlagSet(SectionFlag F) {
+  bool isFlagSet(SectionFlag F) const {
     return std::find(Flags.begin(), Flags.end(), F) != Flags.end();
   }
 
