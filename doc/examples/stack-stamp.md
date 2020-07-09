@@ -109,8 +109,7 @@ libraries and utilities (for complete installation instructions see
         don't yet have some important bugfixes)
         ```shell
         cd ~/quicklisp/local-projects
-        git clone https://github.com/grammatech/cl-utils gt
-        git clone https://github.com/grammatech/gtirb
+        git clone --branch quicklisp https://github.com/grammatech/gtirb
         git clone https://github.com/grammatech/gtirb-capstone
         git clone https://github.com/grammatech/gtirb-functions
         ```
