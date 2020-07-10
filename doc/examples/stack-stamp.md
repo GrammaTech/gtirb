@@ -80,6 +80,14 @@ libraries and utilities (for complete installation instructions see
      sudo apt-get install libgtirb-dev gtirb-pprinter ddisasm
      ```
 
+   - Ubuntu20: install the binaries from the GTIRB focal repository as follows.
+     ```shell
+     sudo apt-get install software-properties-common
+     echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/focal ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+     sudo apt-get update
+     sudo apt-get install libgtirb-dev gtirb-pprinter ddisasm
+     ```
+
    - Arch Linux: install pre-built `pacman` packages from
      [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
      or install using the popular [aur helper](https://wiki.archlinux.org/index.php/AUR_helpers)
@@ -133,7 +141,7 @@ If you are on a Linux system, you can analyze your system `ls`. For
 Windows users, we have provided additional instructions for obtaining
 a Linux `ls` binary.
 
-Ubuntu 16, Ubuntu18, Arch Linux:
+Ubuntu 16, Ubuntu18, Ubuntu20, Arch Linux:
 
   1. Change to a suitable working directory.
 
@@ -359,7 +367,7 @@ Procedure:
 ### a. Install prerequisites if they are not already installed
 
 1. Java 11 (a prerequisite for Ghidra):
-   [Ubuntu](https://www.linuxbabe.com/ubuntu/install-oracle-java-8-openjdk-11-ubuntu-18-04-18-10),
+   [Ubuntu18](https://www.linuxbabe.com/ubuntu/install-oracle-java-8-openjdk-11-ubuntu-18-04-18-10),
    [Windows](https://access.redhat.com/documentation/en-us/openjdk/11/html/openjdk_11_for_windows_getting_started_guide/index)
 
 2. [Ghidra](https://ghidra-sre.org/).
