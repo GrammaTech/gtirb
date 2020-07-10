@@ -11,5 +11,4 @@ RUN apt-get -y update && \
     apt-get -y install autoconf build-essential libcapstone-dev clang cmake curl \
         default-jdk emacs-nox git libprotobuf-dev libprotoc-dev libtool libboost-dev \
         protobuf-compiler python3 python3-protobuf python3-pip \
-        python3-setuptools python3-venv wget software-properties-common \
-        aptly
+        python3-setuptools python3-venv wget software-properties-common
