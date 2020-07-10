@@ -112,7 +112,7 @@ please see
 or your debugger's documentation.
 
 ## Ubuntu
-Packages for Ubuntu 16 and 18 are available in the GTIRB apt
+Packages for Ubuntu 16, 18, and 20 are available in the GTIRB apt
 repository.  The GTIRB package has some dependencies which are only
 available in other PPAs.  You will have to add these PPAs to your
 system in order to install the GTIRB package.
@@ -135,6 +135,14 @@ sudo apt-get install --allow-unauthenticated libgtirb gtirb-pprinter ddisasm
 sudo apt-get install software-properties-common
 sudo add-apt-repository ppa:mhier/libboost-latest
 echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
+sudo apt-get update
+sudo apt-get install libgtirb gtirb-pprinter ddisasm
+```
+
+### Ubuntu20
+```sh
+sudo apt-get install software-properties-common
+echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/focal ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
 sudo apt-get update
 sudo apt-get install libgtirb gtirb-pprinter ddisasm
 ```
