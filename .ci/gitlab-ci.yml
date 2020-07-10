@@ -286,7 +286,8 @@ test-install-python-virtualenv:
     - cat /etc/apt/sources.list
     - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb-dev
     - cp .ci/test-install.cpp ./
-    - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+    - if [ $(lsb_release -sc) == "xenial" ]; then CC=g++-7; else CC=g++; fi
+    - ${CC} test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
     - ./test-install
 
 .test-ubuntu-libgtirb: &test-ubuntu-libgtirb
