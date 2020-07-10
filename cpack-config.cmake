@@ -8,9 +8,15 @@ if("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "lib")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb")
   set(CPACK_COMPONENTS_ALL library)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "libstdc++6, libc6, libgcc1, libprotobuf10 (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf10 (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
-  )
+  if("${CPACK_DEBIAN_PACKAGE_RELEASE}" STREQUAL "focal")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libstdc++6, libc6, libgcc1, libprotobuf17"
+    )
+  else()
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libstdc++6, libc6, libgcc1, libprotobuf10 (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf10 (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
+    )
+  endif()
 elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "dev")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dev")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-dev")
