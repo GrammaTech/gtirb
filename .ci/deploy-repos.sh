@@ -51,12 +51,12 @@ function setup_repo {
          --output "${PROJECT}-artifacts.zip"
     case $OS in
       arch|ubuntu16|ubuntu18|ubuntu20)
-        unzip ${PROJECT}-artifacts.zip
+        unzip -o ${PROJECT}-artifacts.zip
         rm *.zip
         ;;
       windows*)
         mkdir -p /tmp/pdb/
-        unzip ${PROJECT}-artifacts.zip \*.pdb -d /tmp/pdb/
+        unzip -o ${PROJECT}-artifacts.zip \*.pdb -d /tmp/pdb/
         zip -d ${PROJECT}-artifacts.zip \*.pdb
         ;;
     esac
