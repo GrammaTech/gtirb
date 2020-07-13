@@ -452,3 +452,4 @@ upload-to-pypi:
         twine check dist/*;
         twine upload dist/* -u __token__ -p $PYPI_API_KEY;
       fi
+  allow_failure: true
