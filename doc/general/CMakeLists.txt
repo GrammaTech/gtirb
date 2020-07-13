@@ -126,7 +126,9 @@ if(DOXYGEN_FOUND)
     )
   endforeach()
 
-  set(SVGFILES_IN "${ROOTDIR}/.gtirb.svg")
+  set(SVGFILES_IN "${ROOTDIR}/.gtirb.svg"
+                  "${DOC_INDIR}/examples/.stack-stamp.svg"
+  )
   set(SVGFILES ${SVGFILES_IN})
   move_filename(SVGFILES ${CMAKE_CURRENT_BINARY_DIR})
 

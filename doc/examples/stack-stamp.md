@@ -60,7 +60,7 @@ libraries and utilities (for complete installation instructions see
         [Boost](https://www.boost.org/), version 1.67.0 or higher.
 
    - Ubuntu16: install the binaries from the GTIRB xenial repository as follows.
-     ```shell
+     ```bash
      sudo apt-get install software-properties-common
      sudo add-apt-repository ppa:maarten-fonville/protobuf
      sudo add-apt-repository ppa:mhier/libboost-latest
@@ -70,7 +70,7 @@ libraries and utilities (for complete installation instructions see
      ```
 
    - Ubuntu18: install the binaries from the GTIRB bionic repository as follows.
-     ```shell
+     ```bash
      sudo apt-get install software-properties-common
      sudo add-apt-repository ppa:mhier/libboost-latest
      echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/bionic ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
@@ -79,7 +79,7 @@ libraries and utilities (for complete installation instructions see
      ```
 
    - Ubuntu20: install the binaries from the GTIRB focal repository as follows.
-     ```shell
+     ```bash
      sudo apt-get install software-properties-common
      echo "deb [trusted=yes] https://grammatech.github.io/gtirb/pkgs/focal ./" | sudo tee -a /etc/apt/sources.list.d/gtirb.list
      sudo apt-get update
@@ -90,7 +90,7 @@ libraries and utilities (for complete installation instructions see
      [https://grammatech.github.io/gtirb/pkgs/arch](https://grammatech.github.io/gtirb/pkgs/arch)
      or install using the popular [aur helper](https://wiki.archlinux.org/index.php/AUR_helpers)
      [yay](https://github.com/Jguer/yay),
-     ```shell
+     ```bash
      yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
      ```
 
@@ -105,7 +105,7 @@ libraries and utilities (for complete installation instructions see
        (Windows: `gtirb.lib`, `proto.lib`; Linux: `gtirb.so`, `proto.so`).
 
    - Python (note: must be Python 3):
-     ```shell
+     ```bash
      pip3 install gtirb gtirb-functions gtirb-capstone
      ```
 
@@ -113,7 +113,7 @@ libraries and utilities (for complete installation instructions see
      1. Clone the latest versions of these repositories into your
         `~/quicklisp/local-projects` directory (the versions in quicklisp
         don't yet have some important bugfixes)
-        ```shell
+        ```bash
         cd ~/quicklisp/local-projects
         git clone https://github.com/brown/protobuf
         git clone --branch quicklisp https://github.com/grammatech/gtirb
@@ -146,7 +146,7 @@ Ubuntu 16, Ubuntu18, Ubuntu20, Arch Linux:
   2. Run the datalog disassembler to analyze the binary and produce a
      GTIRB representation.
 
-     ```shell
+     ```bash
      ddisasm $(which ls) --ir ls.gtirb
      ```
 
@@ -301,13 +301,13 @@ yourself you can try our implementation available at
 [https://github.com/GrammaTech/gtirb-stack-stamp](https://github.com/GrammaTech/gtirb-stack-stamp).
 
 - Python
-  ```shell
+  ```bash
   python setup.py install
   python -m gtirb_stack_stamp /tmp/ls.gtirb --outfile /tmp/ls-ss.gtirb --rebuild /tmp/ls-ss
   ```
 
 - C++
-  ```shell
+  ```bash
   mkdir build
   cmake -Bbuild
   make -Cbuild
@@ -316,7 +316,7 @@ yourself you can try our implementation available at
   ```
 
 - Common Lisp
-  ```shell
+  ```bash
   sbcl --eval '(ql:quickload :gtirb-stack-stamp)' --eval '(asdf:make :gtirb-stack-stamp :type :program :monolithic t)'
   ./stack-stamp -g /tmp/ls-ss.gtirb -b /tmp/ls-ss
   ```
@@ -334,7 +334,7 @@ GTIRB representation to a new binary.
 
 1. Run the following command.
 
-   ```shell
+   ```bash
    gtirb-pprinter ls-ss.gtirb --skip-section .eh_frame \
                --asm ls.ss.s \
                --binary ls.ss
