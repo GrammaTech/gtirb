@@ -1,8 +1,6 @@
 GTIRB Stack Stamp
 =================
 
-> **WIP**: this tutorial is a **Work in Progress**
-
 TLDR; It is very easy to write binary transforms in GTIRB, see
 [gtirb-stack-stamp](https://github.com/grammatech/gtirb-stack-stamp).
 
