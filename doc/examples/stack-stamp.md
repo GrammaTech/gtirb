@@ -373,7 +373,7 @@ Procedure:
 3. The [GTIRB Ghidra plugin](https://github.com/GrammaTech/gtirb-ghidra-plugin).
 
 
-#### b. Import and analyze the files
+### b. Import and analyze the files
 
 1. Start Ghidra and open a project or create a new one.
 
@@ -389,7 +389,7 @@ Procedure:
 
 5. Repeat steps 2-4 for `ls-ss.gtirb`
 
-#### c. Use the Version Tracking tool to match function locations
+### c. Use the Version Tracking tool to match function locations
 
 1. Click on the "Footprints" icon to start the Version Tracking tool.
 
@@ -404,7 +404,7 @@ Procedure:
    This will open source and destination tools, which you can
    minimize as we don't need them.
 
-#### d. Examine the changes in a side-by-side view
+### d. Examine the changes in a side-by-side view
 
 1. In the Version Tracking tool, click the green "+" (plus sign) to start
    comparing the files.
