@@ -76,12 +76,6 @@ outdir = os.path.basename(os.path.dirname(os.path.abspath(outfile)))
 indir = os.path.basename(os.path.dirname(os.path.abspath(infile)))
 
 substitutions = [
-    # doxygen is specifically annoying about fenced code, which
-    # only occurs in README.md.
-    (
-        r"\n( +)```bash(\n(.*\n)*?)\1```",
-        lambda m: m.group(1) + m.group(2).replace("\n", "\n    "),
-    ),
     # .md file links to /doc/examples/*
     # become Doxygen \ref links with adjusted path component
     # (from main section) or finalized Doxygen links (otherwise)
@@ -105,6 +99,11 @@ substitutions = [
     # to get linking
     (r"```c\+\+(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
     (r"```cpp(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
+    # doxygen is specifically annoying about fenced code.
+    (
+        r"\n( +)```(.*)(\n(.*\n)*?)\1```",
+        lambda m: m.group(1) + m.group(3).replace("\n", "\n    "),
+    ),
 ]
 
 # adjust relative links from gtirb/doc/general/*.md to gtirb/doc/*.md
