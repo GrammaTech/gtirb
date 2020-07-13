@@ -101,8 +101,8 @@ substitutions = [
     (r"```cpp(\n(.*\n)*?)```", r"\\code{.cpp}\1\\endcode"),
     # doxygen is specifically annoying about fenced code.
     (
-        r"\n( +)```(.*)(\n(.*\n)*?)\1```",
-        lambda m: m.group(1) + m.group(3).replace("\n", "\n    "),
+        r"```.*\n((?:.*\n)*?) *```",
+        lambda m: "\n    " + m.group(1).replace("\n", "\n    "),
     ),
 ]
 
