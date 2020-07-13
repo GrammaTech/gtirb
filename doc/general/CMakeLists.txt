@@ -108,6 +108,7 @@ if(DOXYGEN_FOUND)
       "${ROOTDIR}/FAQ.md"
       "${ROOTDIR}/PROTOBUF.md"
       "${ROOTDIR}/README.md"
+      "${DOC_INDIR}/examples/stack-stamp.md"
   )
   set(MDFILES ${MDFILES_IN})
   move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})

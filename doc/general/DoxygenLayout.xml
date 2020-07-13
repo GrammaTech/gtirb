@@ -11,6 +11,7 @@
       <tab type="user" visible="yes" title="Advice on when to Place ICFG Edges" url="@ref md_CFG-Edges"/>
       <tab type="user" visible="yes" title="Standard AuxData Schemata" url="@ref md_AuxData"/>
       <tab type="user" visible="yes" title="Contributing" url="@ref md_CONTRIBUTING"/>
+      <tab type="user" visible="yes" title="Tutorial: Stack Stamping" url="@ref md_stack-stamp"/>
     </tab>
 
     <tab type="usergroup" visible="yes" title="GTIRB Tools">
