@@ -326,7 +326,6 @@ yourself you can try our implementation available at
   cmake -Bbuild
   make -Cbuild
   ./build/bin/gtirb-stack-stamp -i /tmp/ls.gtirb -o /tmp/ls-ss.gtirb
-  gtirb-pprinter --skip-section .eh_frame --binary /tmp/ls-ss /tmp/ls-ss.gtirb
   ```
 
 - Common Lisp
