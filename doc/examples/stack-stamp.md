@@ -94,7 +94,7 @@ libraries and utilities (for complete installation instructions see
      yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
      ```
 
-3. For the Common Lisp and C++ API, install [Keystone](https://github.com/keystone-engine/keystone).
+2. For the Common Lisp and C++ API, install [Keystone](https://github.com/keystone-engine/keystone).
    Keystone does not have prebuilt packages, so you must install this from
    source.  For Linux systems, this generally looks like:
    ```bash
