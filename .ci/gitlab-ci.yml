@@ -439,10 +439,8 @@ upload-to-pypi:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  # TEMP do not push to master TEMP
-  # only:
-  #   - master
-  # TEMP do not push to master TEMP
+  only:
+    - master
   script:
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
