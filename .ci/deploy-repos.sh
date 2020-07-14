@@ -65,7 +65,9 @@ function setup_repo {
     ubuntu16|ubuntu18|ubuntu20)
       curl http://otsego.grammatech.com/u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt1_amd64.deb \
            --output libcapstone-dev_4.0.1-gt1_amd64.deb
-      dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+      curl http://otsego.grammatech.com/u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.2-gt2_amd64.deb \
+           --output libcapstone-dev_4.0.1-gt2_amd64.deb
+      dpkg-scanpackages -m . /dev/null | gzip -9c > Packages.gz
       ;;
   esac
   popd
