@@ -449,6 +449,7 @@ upload-to-pypi:
       then
         pip3 install twine --upgrade;
         cd build/python;
+        python3 setup.py sdist bdist_wheel;
         twine check dist/*;
         twine upload dist/* -u __token__ -p $PYPI_API_KEY;
       fi
