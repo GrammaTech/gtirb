@@ -116,7 +116,7 @@ libraries and utilities (for complete installation instructions see
         ```bash
         cd ~/quicklisp/local-projects
         git clone https://github.com/brown/protobuf
-        git clone --branch quicklisp https://github.com/grammatech/gtirb
+        git clone --single-branch --branch quicklisp https://github.com/grammatech/gtirb
         git clone https://github.com/grammatech/gtirb-capstone
         git clone https://github.com/grammatech/gtirb-functions
         ```
