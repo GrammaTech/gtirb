@@ -439,8 +439,10 @@ upload-to-pypi:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  only:
-    - master
+  # TEMP do not push to master TEMP
+  # only:
+  #   - master
+  # TEMP do not push to master TEMP
   script:
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
@@ -449,7 +451,7 @@ upload-to-pypi:
       then
         pip3 install twine --upgrade;
         cd build/python;
-        rm -rf dist/*;
+        rm -rf build dist gtirb.egg-info;
         python3 setup.py sdist bdist_wheel;
         twine check dist/*;
         twine upload dist/* -u __token__ -p $PYPI_API_KEY;
