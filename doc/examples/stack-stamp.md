@@ -94,7 +94,19 @@ libraries and utilities (for complete installation instructions see
      yay -Sy gtirb-git gtirb-pprinter-git ddisasm-git
      ```
 
-2. Make sure the required GTIRB components are available to your
+3. For the Common Lisp and C++ API, install [Keystone](https://github.com/keystone-engine/keystone).
+   Keystone does not have prebuilt packages, so you must install this from
+   source.  For Linux systems, this generally looks like:
+   ```bash
+   git clone https://github.com/keystone-engine/keystone.git
+   cd keystone
+   mkdir build
+   cd build
+   ../make-share.sh
+   make install
+   ```
+
+3. Make sure the required GTIRB components are available to your
    development environment.  This will depend on the language you want
    to work in:
 
@@ -125,18 +137,6 @@ libraries and utilities (for complete installation instructions see
         ```lisp
         (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
         ```
-
-3. For the C++ API, install [Keystone](https://github.com/keystone-engine/keystone).
-   Keystone does not have prebuilt packages, so you must install this from
-   source. For Linux systems, this generally looks like:
-   ```bash
-   git clone https://github.com/keystone-engine/keystone.git
-   cd keystone
-   mkdir build
-   cd build
-   ../make-share.sh
-   make install
-   ```
 
 ## B. Lift a binary to GTIRB
 
