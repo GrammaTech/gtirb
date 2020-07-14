@@ -126,6 +126,18 @@ libraries and utilities (for complete installation instructions see
         (ql:quickload '(:gtirb :gtirb-functions :gtirb-capstone))
         ```
 
+3. For the C++ API, install [Keystone](https://github.com/keystone-engine/keystone).
+   Keystone does not have prebuilt packages, so you must install this from
+   source. For Linux systems, this generally looks like:
+   ```bash
+   git clone https://github.com/keystone-engine/keystone.git
+   cd keystone
+   mkdir build
+   cd build
+   ../make-share.sh
+   make install
+   ```
+
 ## B. Lift a binary to GTIRB
 
 GrammaTech's open-source GTIRB tooling supports disassembly of ELF
