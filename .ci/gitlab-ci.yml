@@ -449,7 +449,7 @@ upload-to-pypi:
     - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
     - if [ "$RESPONSE_CODE" = "404" ];
       then
-        pip3 install twine --upgrade;
+        pip3 install twine wheel setuptools --upgrade;
         cd build/python;
         rm -rf build dist gtirb.egg-info;
         python3 setup.py sdist bdist_wheel;
