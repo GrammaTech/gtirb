@@ -231,7 +231,7 @@ stand-alone passes for analysis or transformation).
    manual](https://grammatech.github.io/gtirb/) as a reference.
 
    If you're developing in Python or Common Lisp you can work directly in
-   a <abbr title="Read Eval Print Loop">REPL</abbr>, or use it to
+   a Read Eval Print Loop (REPL), or use it to
    prototype a stand-alone implementation.
 
    - For all languages, start by importing the `gtirb` API and then
@@ -363,7 +363,7 @@ GTIRB representation to a new binary.
 ## E. Visualize the difference using gtirb-ghidra-plugin
 
 [Ghidra](https://ghidra-sre.org) is a reverse engineering framework
-developed by the <abbr title="National Security Agency">NSA</abbr>.
+developed by the National Security Agency (NSA).
 With a GTIRB plug-in, Ghidra offers a useful GUI for examining the
 differences between GTIRB files.
 
