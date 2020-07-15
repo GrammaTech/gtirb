@@ -8,10 +8,20 @@ include(UseJava)
 # Getting dependencies (protobuf-java jar file)
 # ---------------------------------------------------------------------------
 
+# Use only minor version, patch versions might not be available
+string(REGEX MATCH "([^\.]+)\.([^\.]+)\.([^\.]+)" PROTOBUF_VERSION_MATCH
+             ${Protobuf_VERSION}
+)
+set(PROTOBUF_MAJOR_VERSION ${CMAKE_MATCH_1})
+set(PROTOBUF_MINOR_VERSION ${CMAKE_MATCH_2})
+set(JAVA_PROTOBUF_VERSION
+    "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.0"
+)
+
 file(
   DOWNLOAD
-  https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/${Protobuf_VERSION}/protobuf-java-${Protobuf_VERSION}.jar
-  ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${Protobuf_VERSION}.jar
+  https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/${JAVA_PROTOBUF_VERSION}/protobuf-java-${JAVA_PROTOBUF_VERSION}.jar
+  ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${JAVA_PROTOBUF_VERSION}.jar
 )
 
 # ---------------------------------------------------------------------------
@@ -74,7 +84,7 @@ set(GTIRB_API_JARFILE
 )
 add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
         ${GTIRB_PROTOBUF_JAVA} INCLUDE_JARS
-        ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${Protobuf_VERSION}.jar
+        ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${JAVA_PROTOBUF_VERSION}.jar
 )
 
 # ---------------------------------------------------------------------------
@@ -90,7 +100,7 @@ if(GTIRB_ENABLE_TESTS)
   endif()
 
   set(JAR_FILE_LIST
-      "${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${Protobuf_VERSION}.jar"
+      "${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${JAVA_PROTOBUF_VERSION}.jar"
   )
 
   add_custom_command(
