@@ -5,8 +5,9 @@ TLDR; It is very easy to write binary transforms in GTIRB, see
 [gtirb-stack-stamp](https://github.com/grammatech/gtirb-stack-stamp).
 
 This tutorial demonstrates the development of a binary hardening
-transform built on GTIRB.  We implement *stack stamping* (a simple
-return oriented programming, or ROP, defense) as a
+transform built on [GTIRB](https://grammatech.github.io/gtirb) (a data
+structure that represents binary executables).  We implement *stack
+stamping* (a simple return oriented programming, or ROP, defense) as a
 GTIRB-to-GTIRB transformation.  We leverage the
 [ddisasm](https://github.com/grammatech/ddisasm) front-end to
 disassemble binaries to GTIRB and the
