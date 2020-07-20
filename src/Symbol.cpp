@@ -79,14 +79,18 @@ void Symbol::toProtobuf(MessageType* Message) const {
 }
 
 Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
-  Symbol* S = Symbol::Create(C, Message.name(), Message.at_end());
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
+    return nullptr;
+
+  Symbol* S = Symbol::Create(C, Message.name(), Message.at_end(), Id);
 
   switch (Message.optional_payload_case()) {
   case proto::Symbol::kValue: {
     S->Payload = Addr{Message.value()};
   } break;
   case proto::Symbol::kReferentUuid: {
-    if (UUID Id; uuidFromBytes(Message.referent_uuid(), Id)) {
+    if (uuidFromBytes(Message.referent_uuid(), Id)) {
       if (auto* N = Node::getByUUID(C, Id)) {
         S->Payload = N;
       } else {
@@ -99,8 +103,6 @@ Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   default:
       /* nothing to do */;
   }
-  if (!setNodeUUIDFromBytes(S, Message.uuid()))
-    return nullptr;
   return S;
 }
 

@@ -49,15 +49,6 @@ void uuidToBytes(UUID Uuid, std::string& Bytes);
 /// \return void
 void nodeUUIDToBytes(const Node* Node, std::string& Bytes);
 
-/// \brief Set Node's UUID from a string containing raw bytes.
-///
-/// \param Node   The Node to modify.
-/// \param Bytes  A string containing the raw bytes of the UUID.
-///
-/// \return Returns false if the UUID cannot be set from the given bytes, true
-/// otherwise.
-bool setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
-
 // Generic protobuf conversion for IR classes which implement toProtobuf.
 template <typename T> typename T::MessageType toProtobuf(const T& Val) {
   typename T::MessageType Message;

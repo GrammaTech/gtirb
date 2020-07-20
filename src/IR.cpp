@@ -105,6 +105,10 @@ IR::IR(Context& C)
     : AuxDataContainer(C, Kind::IR),
       MO(std::make_unique<ModuleObserverImpl>(this)) {}
 
+IR::IR(Context& C, const UUID& Uuid)
+    : AuxDataContainer(C, Kind::IR, Uuid),
+      MO(std::make_unique<ModuleObserverImpl>(this)) {}
+
 class IRLoadErrorCategory : public std::error_category {
 public:
   const char* name() const noexcept override { return "gt.gtirb.ir"; }
@@ -134,9 +138,11 @@ void IR::toProtobuf(MessageType* Message) const {
 }
 
 IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* I = IR::Create(C);
-  if (!setNodeUUIDFromBytes(I, Message.uuid()))
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
     return nullptr;
+
+  auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
     auto* M = Module::fromProtobuf(C, Elt);
     if (!M)

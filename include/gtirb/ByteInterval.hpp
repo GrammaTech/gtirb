@@ -1936,6 +1936,9 @@ public:
 private:
   ByteInterval(Context& C);
 
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize,
+               const UUID& Uuid);
+
   ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
                uint64_t InitSize);
 
@@ -1947,9 +1950,27 @@ private:
     Bytes.resize(InitSize);
   }
 
+  template <typename InputIterator>
+  ByteInterval(Context& C, std::optional<Addr> A, uint64_t S, uint64_t InitSize,
+               InputIterator Begin, InputIterator End, const UUID& Uuid)
+      : ByteInterval(C, A, S, 0, Uuid) {
+    Bytes.insert(Bytes.end(), Begin, End);
+    Bytes.resize(InitSize);
+  }
+
   void setParent(Section* S, ByteIntervalObserver* O) {
     Parent = S;
     Observer = O;
+  }
+
+  template <typename InputIterator>
+  static ByteInterval*
+  Create(Context& C, std::optional<Addr> Address, InputIterator Begin,
+         InputIterator End, std::optional<uint64_t> Size,
+         std::optional<uint64_t> InitSize, const UUID& Uuid) {
+    return C.Create<ByteInterval>(
+        C, Address, Size ? *Size : std::distance(Begin, End),
+        InitSize ? *InitSize : std::distance(Begin, End), Begin, End, Uuid);
   }
 
   /// \brief The protobuf message type used for serializing ByteInterval.

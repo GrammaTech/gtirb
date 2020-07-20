@@ -69,4 +69,11 @@ AuxDataContainer::AuxDataContainer(Context& C, Node::Kind knd) : Node(C, knd) {
   // Once this is called, we outlaw registering new AuxData types.
   TypeMap.Locked = true;
 }
+
+AuxDataContainer::AuxDataContainer(Context& C, Node::Kind knd, const UUID& Uuid)
+    : Node(C, knd, Uuid) {
+  // Once this is called, we outlaw registering new AuxData types.
+  TypeMap.Locked = true;
+}
+
 }; // namespace gtirb

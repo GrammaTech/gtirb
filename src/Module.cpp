@@ -70,9 +70,12 @@ private:
 };
 
 Module::Module(Context& C) : Module(C, std::string{}) {}
-
 Module::Module(Context& C, const std::string& N)
     : AuxDataContainer(C, Kind::Module), Name(N),
+      SecObs(std::make_unique<SectionObserverImpl>(this)),
+      SymObs(std::make_unique<SymbolObserverImpl>(this)) {}
+Module::Module(Context& C, const std::string& N, const UUID& Uuid)
+    : AuxDataContainer(C, Kind::Module, Uuid), Name(N),
       SecObs(std::make_unique<SectionObserverImpl>(this)),
       SymObs(std::make_unique<SymbolObserverImpl>(this)) {}
 
@@ -110,9 +113,11 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
 }
 
 Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
-  Module* M = Module::Create(C);
-  if (!setNodeUUIDFromBytes(M, Message.uuid()))
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
     return nullptr;
+
+  Module* M = Module::Create(C, Id);
   M->BinaryPath = Message.binary_path();
   M->PreferredAddr = Addr(Message.preferred_addr());
   M->RebaseDelta = Message.rebase_delta();
@@ -139,7 +144,6 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
-      UUID Id;
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
         return nullptr;
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
@@ -150,7 +154,6 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
     }
   }
   if (!Message.entry_point().empty()) {
-    UUID Id;
     if (!uuidFromBytes(Message.entry_point(), Id))
       return nullptr;
     M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));

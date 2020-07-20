@@ -75,6 +75,11 @@ class IR;
 
 class GTIRB_EXPORT_API IR : public AuxDataContainer {
   IR(Context& C);
+  IR(Context& C, const UUID& Uuid);
+
+  static IR* Create(Context& C, const UUID& Uuid) {
+    return C.Create<IR>(C, Uuid);
+  }
 
   struct by_name {};
   struct by_pointer {};

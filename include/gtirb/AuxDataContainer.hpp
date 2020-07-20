@@ -273,6 +273,7 @@ public:
 
 protected:
   AuxDataContainer(Context& C, Kind knd);
+  AuxDataContainer(Context& C, Kind knd, const UUID& Uuid);
 
 private:
   AuxDataSet AuxDatas;

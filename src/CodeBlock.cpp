@@ -28,10 +28,11 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
 CodeBlock* CodeBlock::fromProtobuf(Context& C, const MessageType& Message) {
   // Because we do not have an offset, we cannot create the code block and
   // set its parent at the same time.
-  auto* B = CodeBlock::Create(C, Message.size(), Message.decode_mode());
-  if (!setNodeUUIDFromBytes(B, Message.uuid()))
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
     return nullptr;
-  return B;
+
+  return CodeBlock::Create(C, Message.size(), Message.decode_mode(), Id);
 }
 
 uint64_t CodeBlock::getOffset() const {

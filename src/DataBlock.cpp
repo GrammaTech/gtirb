@@ -25,12 +25,13 @@ void DataBlock::toProtobuf(MessageType* Message) const {
 }
 
 DataBlock* DataBlock::fromProtobuf(Context& C, const MessageType& Message) {
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
+    return nullptr;
+
   // Because we do not have an offset, we cannot create the data block and
   // set its parent at the same time.
-  auto* DO = DataBlock::Create(C, Message.size());
-  if (!setNodeUUIDFromBytes(DO, Message.uuid()))
-    return nullptr;
-  return DO;
+  return DataBlock::Create(C, Message.size(), Id);
 }
 
 uint64_t DataBlock::getOffset() const {

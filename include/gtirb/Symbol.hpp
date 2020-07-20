@@ -341,6 +341,8 @@ private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
   Symbol(Context& C, const std::string& N, bool AE)
       : Node(C, Kind::Symbol), Name(N), AtEnd(AE) {}
+  Symbol(Context& C, const std::string& N, bool AE, const UUID& Uuid)
+      : Node(C, Kind::Symbol, Uuid), Name(N), AtEnd(AE) {}
   Symbol(Context& C, Addr X, const std::string& N, bool AE)
       : Node(C, Kind::Symbol), Payload(X), Name(N), AtEnd(AE) {}
   template <typename NodeTy>
@@ -349,6 +351,11 @@ private:
     if (!R) {
       Payload = std::monostate{};
     }
+  }
+
+  static Symbol* Create(Context& C, const std::string& Name, bool AtEnd,
+                        const UUID& Uuid) {
+    return C.Create<Symbol>(C, Name, AtEnd, Uuid);
   }
 
   void setParent(Module* M, SymbolObserver* O) {

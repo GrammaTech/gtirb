@@ -64,6 +64,12 @@ enum class SectionFlag : uint8_t {
 class GTIRB_EXPORT_API Section : public Node {
   Section(Context& C);
   Section(Context& C, const std::string& N);
+  Section(Context& C, const std::string& N, const UUID& Uuid);
+
+  static Section* Create(Context& C, const std::string& Name,
+                         const UUID& Uuid) {
+    return C.Create<Section>(C, Name, Uuid);
+  }
 
   struct by_address {};
   struct by_pointer {};

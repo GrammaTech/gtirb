@@ -53,6 +53,10 @@ Section::Section(Context& C, const std::string& N)
     : Node(C, Kind::Section), Name(N),
       BIO(std::make_unique<ByteIntervalObserverImpl>(this)) {}
 
+Section::Section(Context& C, const std::string& N, const UUID& Uuid)
+    : Node(C, Kind::Section, Uuid), Name(N),
+      BIO(std::make_unique<ByteIntervalObserverImpl>(this)) {}
+
 bool Section::operator==(const Section& Other) const {
   return this->getAddress() == Other.getAddress() &&
          this->getSize() == Other.getSize() && this->Name == Other.Name;
@@ -74,12 +78,14 @@ void Section::toProtobuf(MessageType* Message) const {
 }
 
 Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
-  auto* S = Section::Create(C, Message.name());
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
+    return nullptr;
+
+  auto* S = Section::Create(C, Message.name(), Id);
   for (int I = 0, E = Message.section_flags_size(); I != E; ++I) {
     S->addFlag(static_cast<SectionFlag>(Message.section_flags(I)));
   }
-  if (!setNodeUUIDFromBytes(S, Message.uuid()))
-    return nullptr;
   for (const auto& ProtoInterval : Message.byte_intervals()) {
     auto* BI = ByteInterval::fromProtobuf(C, ProtoInterval);
     if (!BI)

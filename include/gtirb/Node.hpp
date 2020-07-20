@@ -116,6 +116,9 @@ protected:
   /// \cond INTERNAL
   Node(Context& C, Kind Knd);
 
+  /// \cond INTERNAL
+  Node(Context& C, Kind Knd, const UUID& Uuid);
+
 private:
   Kind K;
   UUID Uuid;
@@ -124,14 +127,6 @@ private:
   // the Context object because we want to keep the Node class copyable and
   // Context needs to own a move-only allocator.
   Context* Ctx;
-
-  // Assign a new UUID to this node. This is only needed when deserializing
-  // objects, as there are no constructors allowing the user to set the UUID on
-  // construction.
-  void setUUID(UUID X);
-
-  // Allows unserialization in derived classes
-  friend bool setNodeUUIDFromBytes(Node* Node, const std::string& Bytes);
 
   friend class Context; // Enables Context::Create
 };

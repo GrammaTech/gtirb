@@ -23,10 +23,11 @@ void ProxyBlock::toProtobuf(MessageType* Message) const {
 }
 
 ProxyBlock* ProxyBlock::fromProtobuf(Context& C, const MessageType& Message) {
-  ProxyBlock* P = Create(C);
-  if (!setNodeUUIDFromBytes(P, Message.uuid()))
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
     return nullptr;
-  return P;
+
+  return Create(C, Id);
 }
 
 // Present for testing purposes only.

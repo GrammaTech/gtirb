@@ -52,6 +52,12 @@ ByteInterval::ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
       CBO(std::make_unique<CodeBlockObserverImpl>(this)),
       DBO(std::make_unique<DataBlockObserverImpl>(this)) {}
 
+ByteInterval::ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
+                           uint64_t InitSize, const UUID& Uuid)
+    : Node(C, Kind::ByteInterval, Uuid), Address(A), Size(S), Bytes(InitSize),
+      CBO(std::make_unique<CodeBlockObserverImpl>(this)),
+      DBO(std::make_unique<DataBlockObserverImpl>(this)) {}
+
 void ByteInterval::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 
@@ -83,9 +89,7 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: {
-      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
-    }
+    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
     }
   }
 
@@ -103,12 +107,13 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C,
     A = Addr(Message.address());
   }
 
+  UUID Id;
+  if (!uuidFromBytes(Message.uuid(), Id))
+    return nullptr;
+
   ByteInterval* BI = ByteInterval::Create(
       C, A, Message.contents().begin(), Message.contents().end(),
-      Message.size(), Message.contents().size());
-
-  if (!setNodeUUIDFromBytes(BI, Message.uuid()))
-    return nullptr;
+      Message.size(), Message.contents().size(), Id);
 
   for (const auto& ProtoBlock : Message.blocks()) {
     switch (ProtoBlock.value_case()) {

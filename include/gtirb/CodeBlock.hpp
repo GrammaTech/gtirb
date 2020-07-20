@@ -294,10 +294,17 @@ private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
   CodeBlock(Context& C, uint64_t S, uint64_t Decode)
       : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C, uint64_t S, uint64_t Decode, const UUID& Uuid)
+      : CfgNode(C, Kind::CodeBlock, Uuid), Size(S), DecodeMode(Decode) {}
 
   void setParent(ByteInterval* BI, CodeBlockObserver* O) {
     Parent = BI;
     Observer = O;
+  }
+
+  static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode,
+                           const UUID& Uuid) {
+    return C.Create<CodeBlock>(C, Size, DecodeMode, Uuid);
   }
 
   /// \brief The protobuf message type used for serializing CodeBlock.
