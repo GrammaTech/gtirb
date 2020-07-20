@@ -19,8 +19,7 @@ check-format:
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
   stage: check-format
   script:
-    - pre-commit run --all-files
-    - git diff
+    - pre-commit run --all-files --show-diff-on-failure
 
 .build-template: &build
   artifacts:
