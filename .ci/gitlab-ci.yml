@@ -20,6 +20,7 @@ check-format:
   stage: check-format
   script:
     - pre-commit run --all-files
+    - git diff
 
 .build-template: &build
   artifacts:
