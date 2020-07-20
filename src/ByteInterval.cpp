@@ -53,8 +53,8 @@ ByteInterval::ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
       DBO(std::make_unique<DataBlockObserverImpl>(this)) {}
 
 ByteInterval::ByteInterval(Context& C, std::optional<Addr> A, uint64_t S,
-                           uint64_t InitSize, const UUID& Uuid)
-    : Node(C, Kind::ByteInterval, Uuid), Address(A), Size(S), Bytes(InitSize),
+                           uint64_t InitSize, const UUID& U)
+    : Node(C, Kind::ByteInterval, U), Address(A), Size(S), Bytes(InitSize),
       CBO(std::make_unique<CodeBlockObserverImpl>(this)),
       DBO(std::make_unique<DataBlockObserverImpl>(this)) {}
 

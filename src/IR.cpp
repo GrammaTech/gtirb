@@ -105,8 +105,8 @@ IR::IR(Context& C)
     : AuxDataContainer(C, Kind::IR),
       MO(std::make_unique<ModuleObserverImpl>(this)) {}
 
-IR::IR(Context& C, const UUID& Uuid)
-    : AuxDataContainer(C, Kind::IR, Uuid),
+IR::IR(Context& C, const UUID& U)
+    : AuxDataContainer(C, Kind::IR, U),
       MO(std::make_unique<ModuleObserverImpl>(this)) {}
 
 class IRLoadErrorCategory : public std::error_category {

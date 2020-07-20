@@ -74,8 +74,8 @@ Module::Module(Context& C, const std::string& N)
     : AuxDataContainer(C, Kind::Module), Name(N),
       SecObs(std::make_unique<SectionObserverImpl>(this)),
       SymObs(std::make_unique<SymbolObserverImpl>(this)) {}
-Module::Module(Context& C, const std::string& N, const UUID& Uuid)
-    : AuxDataContainer(C, Kind::Module, Uuid), Name(N),
+Module::Module(Context& C, const std::string& N, const UUID& U)
+    : AuxDataContainer(C, Kind::Module, U), Name(N),
       SecObs(std::make_unique<SectionObserverImpl>(this)),
       SymObs(std::make_unique<SymbolObserverImpl>(this)) {}
 

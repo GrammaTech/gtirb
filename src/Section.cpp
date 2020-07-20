@@ -53,8 +53,8 @@ Section::Section(Context& C, const std::string& N)
     : Node(C, Kind::Section), Name(N),
       BIO(std::make_unique<ByteIntervalObserverImpl>(this)) {}
 
-Section::Section(Context& C, const std::string& N, const UUID& Uuid)
-    : Node(C, Kind::Section, Uuid), Name(N),
+Section::Section(Context& C, const std::string& N, const UUID& U)
+    : Node(C, Kind::Section, U), Name(N),
       BIO(std::make_unique<ByteIntervalObserverImpl>(this)) {}
 
 bool Section::operator==(const Section& Other) const {

@@ -63,11 +63,10 @@ public:
 
 private:
   ProxyBlock(Context& C) : CfgNode(C, Kind::ProxyBlock) {}
-  ProxyBlock(Context& C, const UUID& Uuid)
-      : CfgNode(C, Kind::ProxyBlock, Uuid) {}
+  ProxyBlock(Context& C, const UUID& U) : CfgNode(C, Kind::ProxyBlock, U) {}
 
-  static ProxyBlock* Create(Context& C, const UUID& Uuid) {
-    return C.Create<ProxyBlock>(C, Uuid);
+  static ProxyBlock* Create(Context& C, const UUID& U) {
+    return C.Create<ProxyBlock>(C, U);
   }
 
   void setModule(Module* M) { Parent = M; }

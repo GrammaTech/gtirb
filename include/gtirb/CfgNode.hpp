@@ -37,7 +37,7 @@ public:
   /// \endcond
 protected:
   CfgNode(Context& C, Kind Knd) : Node(C, Knd) {}
-  CfgNode(Context& C, Kind Knd, const UUID& Uuid) : Node(C, Knd, Uuid) {}
+  CfgNode(Context& C, Kind Knd, const UUID& U) : Node(C, Knd, U) {}
 };
 
 } // namespace gtirb

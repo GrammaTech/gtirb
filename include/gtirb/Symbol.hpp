@@ -341,8 +341,8 @@ private:
   Symbol(Context& C) : Node(C, Kind::Symbol) {}
   Symbol(Context& C, const std::string& N, bool AE)
       : Node(C, Kind::Symbol), Name(N), AtEnd(AE) {}
-  Symbol(Context& C, const std::string& N, bool AE, const UUID& Uuid)
-      : Node(C, Kind::Symbol, Uuid), Name(N), AtEnd(AE) {}
+  Symbol(Context& C, const std::string& N, bool AE, const UUID& U)
+      : Node(C, Kind::Symbol, U), Name(N), AtEnd(AE) {}
   Symbol(Context& C, Addr X, const std::string& N, bool AE)
       : Node(C, Kind::Symbol), Payload(X), Name(N), AtEnd(AE) {}
   template <typename NodeTy>
@@ -354,8 +354,8 @@ private:
   }
 
   static Symbol* Create(Context& C, const std::string& Name, bool AtEnd,
-                        const UUID& Uuid) {
-    return C.Create<Symbol>(C, Name, AtEnd, Uuid);
+                        const UUID& U) {
+    return C.Create<Symbol>(C, Name, AtEnd, U);
   }
 
   void setParent(Module* M, SymbolObserver* O) {

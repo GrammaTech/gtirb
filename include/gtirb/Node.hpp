@@ -117,7 +117,7 @@ protected:
   Node(Context& C, Kind Knd);
 
   /// \cond INTERNAL
-  Node(Context& C, Kind Knd, const UUID& Uuid);
+  Node(Context& C, Kind Knd, const UUID& U);
 
 private:
   Kind K;

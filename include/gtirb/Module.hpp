@@ -153,10 +153,10 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
 
   Module(Context& C);
   Module(Context& C, const std::string& N);
-  Module(Context& C, const std::string& N, const UUID& Uuid);
+  Module(Context& C, const std::string& N, const UUID& U);
 
-  static Module* Create(Context& C, const UUID& Uuid) {
-    return C.Create<Module>(C, "", Uuid);
+  static Module* Create(Context& C, const UUID& U) {
+    return C.Create<Module>(C, "", U);
   }
 
 public:

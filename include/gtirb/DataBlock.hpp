@@ -41,12 +41,12 @@ class DataBlock;
 ///
 class GTIRB_EXPORT_API DataBlock : public Node {
   DataBlock(Context& C) : Node(C, Kind::DataBlock) {}
-  DataBlock(Context& C, uint64_t S, const UUID& Uuid)
-      : Node(C, Kind::DataBlock, Uuid), Size(S) {}
+  DataBlock(Context& C, uint64_t S, const UUID& U)
+      : Node(C, Kind::DataBlock, U), Size(S) {}
   DataBlock(Context& C, uint64_t S) : Node(C, Kind::DataBlock), Size(S) {}
 
-  static DataBlock* Create(Context& C, uint64_t S, const UUID& Uuid) {
-    return C.Create<DataBlock>(C, S, Uuid);
+  static DataBlock* Create(Context& C, uint64_t S, const UUID& U) {
+    return C.Create<DataBlock>(C, S, U);
   }
 
 public:

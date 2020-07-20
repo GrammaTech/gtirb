@@ -70,8 +70,8 @@ AuxDataContainer::AuxDataContainer(Context& C, Node::Kind knd) : Node(C, knd) {
   TypeMap.Locked = true;
 }
 
-AuxDataContainer::AuxDataContainer(Context& C, Node::Kind knd, const UUID& Uuid)
-    : Node(C, knd, Uuid) {
+AuxDataContainer::AuxDataContainer(Context& C, Node::Kind knd, const UUID& U)
+    : Node(C, knd, U) {
   // Once this is called, we outlaw registering new AuxData types.
   TypeMap.Locked = true;
 }
