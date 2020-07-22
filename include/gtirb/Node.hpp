@@ -115,9 +115,8 @@ public:
 protected:
   /// \cond INTERNAL
   Node(Context& C, Kind Knd);
-
-  /// \cond INTERNAL
   Node(Context& C, Kind Knd, const UUID& U);
+  /// \endcond
 
 private:
   Kind K;
