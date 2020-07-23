@@ -396,6 +396,21 @@ test-ubuntu20-libgtirb:
    needs: [setup-ubuntu20-test-apt-repo,test-ubuntu20-libgtirb-dev]
    <<: *test-ubuntu-libgtirb
 
+test-static-libgtirb-dev:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+   needs: [setup-static-test-apt-repo]
+   <<: *test-ubuntu-libgtirb-dev
+
+test-static-libgtirb-dbg:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+   needs: [setup-static-test-apt-repo]
+   <<: *test-ubuntu-libgtirb-dbg
+
+test-static-libgtirb:
+   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+   needs: [setup-static-test-apt-repo,test-static-libgtirb-dev]
+   <<: *test-ubuntu-libgtirb
+
 test-arch-package:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
