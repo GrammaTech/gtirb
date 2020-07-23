@@ -218,6 +218,20 @@ build-ubuntu20-packages:
     - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
     - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=python;
 
+build-static-packages:
+  stage: build-installers
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  needs: [build-static]
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  script:
+    - cd build
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
+
 test-default-install:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
