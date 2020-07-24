@@ -116,7 +116,7 @@ build-static:
   script:
     - mkdir build
     - cd build
-    - cmake ../ -DGTIRB_BUILD_SHARED_LIBS=OFF
+    - cmake ../ -DGTIRB_BUILD_SHARED_LIBS=OFF -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)"
     - make -j
     - ctest -V
 
