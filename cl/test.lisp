@@ -200,10 +200,7 @@ The ERRNO used when exiting lisp indicates success or failure."
            (module (first (modules hello)))
            (code-block (nest (first)
                              (remove-if-not {typep _ 'code-block})
-                             (mappend #'blocks)
-                             (mappend #'byte-intervals)
-                             (mappend #'sections)
-                             (modules hello))))
+                             (blocks hello))))
       ;; Entry-point is read as a code block.
       (is (typep (entry-point module) 'code-block))
       ;; Newly saved entry-point has the UUID of the code block.
@@ -234,10 +231,7 @@ The ERRNO used when exiting lisp indicates success or failure."
 (deftest access-block-bytes ()
   (with-fixture hello
     (is (every [#'not #'null #'bytes]
-               (nest (mappend #'blocks)
-                     (mappend #'byte-intervals)
-                     (mappend #'sections)
-                     (modules (read-gtirb *proto-path*)))))))
+               (blocks (read-gtirb *proto-path*))))))
 
 (deftest find-every-block-in-the-module ()
   (nest (with-fixture hello)
@@ -245,10 +239,7 @@ The ERRNO used when exiting lisp indicates success or failure."
         (is)
         (every {get-uuid _ it})
         (mapcar #'uuid)
-        (mappend #'blocks)
-        (mappend #'byte-intervals)
-        (mappend #'sections)
-        (modules it)))
+        (blocks it)))
 
 (deftest get-blocks-and-bytes-from-cfg-nodes ()
   (nest (with-fixture hello)
@@ -325,10 +316,7 @@ The ERRNO used when exiting lisp indicates success or failure."
 (deftest address-range-block-lookup ()
   (with-fixture hello
     (let* ((it (read-gtirb *proto-path*))
-           (a-block (first (nest (mappend #'blocks)
-                                 (mappend #'byte-intervals)
-                                 (mappend #'sections)
-                                 (modules it)))))
+           (a-block (first (blocks it))))
       (is (= 2 (length (address-range a-block))))
       (is (member a-block (on-address it (first (address-range a-block)))))
       (is (member a-block (at-address it (first (address-range a-block)))))
@@ -397,11 +385,7 @@ The ERRNO used when exiting lisp indicates success or failure."
              (is (= o-se-size
                     (hash-table-size
                      (symbolic-expressions db)))))))
-   (mappend #'blocks)
-   (mappend #'byte-intervals)
-   (mappend #'sections)
-   (modules)
-   (read-gtirb *proto-path*)))
+   (blocks (read-gtirb *proto-path*))))
 
 (deftest payload-can-be-read-and-set ()
   (with-fixture hello

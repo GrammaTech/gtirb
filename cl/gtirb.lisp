@@ -722,6 +722,13 @@ is zero initialized, and whether the section is thread-local."))
   (- (extremum (mapcar «+ #'address #'size» (byte-intervals it)) #'> :key #'car)
      (address it)))
 
+(defgeneric blocks (obj)
+  (:documentation "List of gtirb-byte-block objects in this object.
+Primitive accessor for byte-interval.")
+  (:method ((obj gtirb)) (mappend #'blocks (modules obj)))
+  (:method ((obj module)) (mappend #'blocks (sections obj)))
+  (:method ((obj section)) (mappend #'blocks (byte-intervals obj))))
+
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
     ((blocks :initarg :blocks :accessor blocks :type list
              :from-proto
