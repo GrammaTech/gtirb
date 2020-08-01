@@ -173,6 +173,7 @@ if(UNIX
    AND NOT CYGWIN
    AND ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo" OR "${CMAKE_BUILD_TYPE}"
                                                            STREQUAL "Debug")
+   AND ${GTIRB_STRIP_DEBUG_SYMBOLS}
 )
   string(
     RANDOM

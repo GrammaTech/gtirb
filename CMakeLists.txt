@@ -73,6 +73,12 @@ option(GTIRB_PY_API "Whether or not the Python API is built." ON)
 option(GTIRB_CL_API "Whether or not the Common Lisp API is built." ON)
 option(GTIRB_JAVA_API "Whether or not the Java API is built." ON)
 
+# Determine whether or not to strip debug symbols and set the build-id. This is
+# only really needed when we are building ubuntu *-dbg packages
+option(GTIRB_STRIP_DEBUG_SYMBOLS
+       "Whether or not to strip debug symbols and set the build-id." OFF
+)
+
 # Determine whether or not the APIs are REALLY built or not.
 # === C++ ===
 set(CXX_API ${GTIRB_CXX_API})
