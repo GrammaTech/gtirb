@@ -146,7 +146,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${PROTOBUF_INCLUDE_DIRS}")
 if(BUILD_SHARED_LIBS OR ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   target_link_libraries(${PROJECT_NAME} PRIVATE proto)
 else()
-  target_link_libraries(${PROJECT_NAME} PRIVATE -Wl,--whole-archive proto -Wl,--no-whole-archive -lz)
+  target_link_libraries(
+    ${PROJECT_NAME} PRIVATE -Wl,--whole-archive proto -Wl,--no-whole-archive
+                            -lz
+  )
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
