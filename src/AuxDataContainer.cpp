@@ -49,12 +49,11 @@ void AuxDataContainer::registerAuxDataTypeInternal(
   TypeMap.Map.insert(std::make_pair(std::string(Name), std::move(ADT)));
 }
 
-void AuxDataContainer::checkAuxDataRegistration(
-    const char* Name, [[maybe_unused]] std::size_t Id) {
-  [[maybe_unused]] auto TypeEntry = TypeMap.Map.find(Name);
-  assert(TypeEntry != TypeMap.Map.end() &&
-         TypeEntry->second->getApiTypeId() == Id &&
-         "Attempting to add AuxData with unregistered or incorrect type.");
+bool AuxDataContainer::checkAuxDataRegistration(const char* Name,
+                                                std::size_t Id) {
+  auto TypeEntry = TypeMap.Map.find(Name);
+  return TypeEntry != TypeMap.Map.end() &&
+         TypeEntry->second->getApiTypeId() == Id;
 }
 
 const AuxDataContainer::AuxDataType*

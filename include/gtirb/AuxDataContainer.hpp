@@ -74,8 +74,9 @@ public:
   ///
   template <typename Schema> void addAuxData(typename Schema::Type&& X) {
     // Make sure this type matches a registered type.
-    checkAuxDataRegistration(Schema::Name,
-                             AuxDataImpl<Schema>::staticGetApiTypeId());
+    assert(checkAuxDataRegistration(
+               Schema::Name, AuxDataImpl<Schema>::staticGetApiTypeId()) &&
+           "Attempting to add AuxData with unregistered or incorrect type.");
     this->AuxDatas[Schema::Name] =
         std::make_unique<AuxDataImpl<Schema>>(std::move(X));
   }
@@ -109,9 +110,22 @@ public:
 
     AuxData& AD = *(Found->second);
 
-    // Is this type registered?
+    // Is the type of the AuxData registered?
     if (AD.getApiTypeId() == AuxData::UNREGISTERED_API_TYPE_ID) {
-      assert(false &&
+      // We can get here for two reasons:
+      //
+      //  1) The type is not registered. We treat this as a developer
+      //  error and assert. getAuxData should only ever be called for
+      //  types that are registered.
+      //
+      //  2) The type is registered, but the attempt to unserialized
+      //  the AuxData using the registered type failed. This is a
+      //  legitimate runtime error situation. An example might be
+      //  loading a GTIRB file that has a previous version of the
+      //  AuxData with a different type. In this situation, we don't
+      //  want to assert, just return nullptr.
+      assert(checkAuxDataRegistration(
+                 Schema::Name, AuxDataImpl<Schema>::staticGetApiTypeId()) &&
              "Attempting to retrieve AuxData with an unregistered type.");
       return nullptr;
     }
@@ -298,7 +312,7 @@ private:
 
   static void registerAuxDataTypeInternal(const char* Name,
                                           std::unique_ptr<AuxDataType> ADT);
-  static void checkAuxDataRegistration(const char* Name, std::size_t Id);
+  static bool checkAuxDataRegistration(const char* Name, std::size_t Id);
   static const AuxDataType* lookupAuxDataType(const std::string& Name);
   friend struct AuxDataTypeMap; // Allows AuxDataTypeMap to use AuxDataType
 };
