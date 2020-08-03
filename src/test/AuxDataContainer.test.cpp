@@ -66,8 +66,8 @@ template <> struct auxdata_traits<schema::BadDeSerializationType::Type> {
     std::for_each(srcBytes_begin, srcBytes_end, [&](auto b) { TBR.write(b); });
   }
 
-  static bool fromBytes(T& Object[[maybe_unused]],
-                        FromByteRange& FBR[[maybe_unused]]) {
+  static bool fromBytes(T& Object [[maybe_unused]],
+                        FromByteRange& FBR [[maybe_unused]]) {
     // Fail to deserialize.
     return false;
   }
