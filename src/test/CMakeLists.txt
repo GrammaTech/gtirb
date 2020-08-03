@@ -25,6 +25,7 @@ set(${PROJECT_NAME}_SRC
     Addr.test.cpp
     Allocator.test.cpp
     AuxData.test.cpp
+    AuxDataContainer.test.cpp
     ByteInterval.test.cpp
     CFG.test.cpp
     CodeBlock.test.cpp
