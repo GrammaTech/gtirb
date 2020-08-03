@@ -137,20 +137,12 @@ target_link_libraries(
          ${Boost_LIBRARIES}
          # Link in this static lib, but don't make it a transitive dependency of
          # TestGTIRB, etc
+  PRIVATE proto
 )
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS
 )
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROTOBUF_INCLUDE_DIRS}")
-
-if(BUILD_SHARED_LIBS OR ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  target_link_libraries(${PROJECT_NAME} PRIVATE proto)
-else()
-  target_link_libraries(
-    ${PROJECT_NAME} PRIVATE -Wl,--whole-archive proto -Wl,--no-whole-archive
-                            -lz
-  )
-endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   # These four warnings come from protobuf headers, disabling them this way
