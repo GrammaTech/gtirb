@@ -124,22 +124,26 @@ TEST(Unit_AuxDataContainer, addAuxDataRegistered) {
 
 // Test that GTIRB correctly triggers an assertion failure when the client fails
 // to register an AuxData schema.
+#ifndef NDEBUG
 TEST(Unit_AuxDataContainerDeathTest, addAuxDataUnregistered) {
   auto* Ir = IR::Create(Ctx);
   EXPECT_DEATH(
       Ir->addAuxData<UnRegisteredType>(5),
       "Attempting to add AuxData with unregistered or incorrect type.");
 }
+#endif
 
 // Test that GTIRB correctly triggers an assertion failure when the client tries
 // to use a schema that has the same name as a registered schema, but is
 // actually a different type.
+#ifndef NDEBUG
 TEST(Unit_AuxDataContainerDeathTest, addAuxDataDuplicateName) {
   auto* Ir = IR::Create(Ctx);
   EXPECT_DEATH(
       Ir->addAuxData<DuplicateNameType>(5),
       "Attempting to add AuxData with unregistered or incorrect type.");
 }
+#endif
 
 // Test that GTIRB correctly returns null when attempting to fetch
 // AuxData that fails to unserialize.
@@ -183,8 +187,12 @@ TEST(Unit_AuxDataContainer, getAuxDataNotPresent) {
 TEST(Unit_AuxDataContainerDeathTest, getAuxDataIncompatibleSchema) {
   auto* Ir = IR::Create(Ctx);
   Ir->addAuxData<RegisteredType>(5);
+#ifdef NDEBUG
+  EXPECT_EQ(Ir->getAuxData<DuplicateNameType>(), nullptr);
+#else
   EXPECT_DEATH(Ir->getAuxData<DuplicateNameType>(),
                "Attempting to retrieve AuxData with incorrect type.");
+#endif
 }
 
 // Removing AuxData
