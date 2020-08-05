@@ -2,6 +2,7 @@ set(PROJECT_NAME TestGTIRB)
 
 enable_testing()
 include_directories(${GTEST_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_compile_options(-DDEBUG)
 
@@ -18,6 +19,14 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
   add_compile_options(-mtune=generic)
   add_compile_options(-pthread)
 endif()
+
+# Check for access to resource.h
+include(CheckIncludeFiles)
+check_include_files(sys/resource.h HAVE_RESOURCE_H)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/config-test.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/config-test.h
+)
 
 set(${PROJECT_NAME}_H)
 
