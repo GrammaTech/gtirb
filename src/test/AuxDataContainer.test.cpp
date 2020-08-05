@@ -142,7 +142,7 @@ TEST(Unit_AuxDataContainer, addAuxDataRegistered) {
 TEST(Unit_AuxDataContainerDeathTest, addAuxDataUnregistered) {
   auto* Ir = IR::Create(Ctx);
   {
-    PrepDeathTest PDT;
+    [[maybe_unused]] PrepDeathTest PDT;
     EXPECT_DEATH(
         Ir->addAuxData<UnRegisteredType>(5),
         "Attempting to add AuxData with unregistered or incorrect type.");
@@ -157,7 +157,7 @@ TEST(Unit_AuxDataContainerDeathTest, addAuxDataUnregistered) {
 TEST(Unit_AuxDataContainerDeathTest, addAuxDataDuplicateName) {
   auto* Ir = IR::Create(Ctx);
   {
-    PrepDeathTest PDT;
+    [[maybe_unused]] PrepDeathTest PDT;
     EXPECT_DEATH(
         Ir->addAuxData<DuplicateNameType>(5),
         "Attempting to add AuxData with unregistered or incorrect type.");
@@ -212,7 +212,7 @@ TEST(Unit_AuxDataContainerDeathTest, getAuxDataIncompatibleSchema) {
   EXPECT_EQ(Ir->getAuxData<DuplicateNameType>(), nullptr);
 #else
   {
-    PrepDeathTest PDT;
+    [[maybe_unused]] PrepDeathTest PDT;
     EXPECT_DEATH(Ir->getAuxData<DuplicateNameType>(),
                  "Attempting to retrieve AuxData with incorrect type.");
   }
