@@ -407,7 +407,7 @@ test-static-libgtirb-dev:
    image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
    needs: [setup-static-test-apt-repo]
    variables:
-    CCARGS: -lgtirb_proto
+    CCARGS: -lgtirb_proto -lprotobuf
    <<: *test-ubuntu-libgtirb-dev
 
 test-static-libgtirb-dbg:
