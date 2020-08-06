@@ -404,7 +404,7 @@ endif()
 if(CXX_API)
   # --- For direct use from the build directory/cmake registry ---
   # This exports the targets
-  export(TARGETS gtirb proto
+  export(TARGETS gtirb gtirb_proto
          FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbTargets.cmake"
   )
   # This is the main config file that find_package will look for.

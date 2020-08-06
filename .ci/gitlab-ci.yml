@@ -315,7 +315,7 @@ test-install-python-virtualenv:
     - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb-dev
     - cp .ci/test-install.cpp ./
     - if [ $(lsb_release -sc) == "xenial" ]; then CC=g++-7; else CC=g++; fi
-    - ${CC} test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+    - ${CC} test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++ ${CCARGS}
     - ./test-install
 
 .test-ubuntu-libgtirb: &test-ubuntu-libgtirb
@@ -406,6 +406,8 @@ setup-static-test-apt-repo:
 test-static-libgtirb-dev:
    image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
    needs: [setup-static-test-apt-repo]
+   variables:
+    CCARGS: -lgtirb_proto
    <<: *test-ubuntu-libgtirb-dev
 
 test-static-libgtirb-dbg:
@@ -454,6 +456,17 @@ debian-installer-ubuntu20:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
   needs: [test-ubuntu20-libgtirb, build-ubuntu20-packages]
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - '*gtirb*.deb'
+  script:
+    - cp build/*gtirb*.deb ./
+
+debian-installer-static:
+  stage: deploy
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  needs: [test-static-libgtirb, build-static-packages]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:

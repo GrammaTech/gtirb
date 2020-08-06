@@ -137,7 +137,7 @@ target_link_libraries(
          ${Boost_LIBRARIES}
          # Link in this static lib, but don't make it a transitive dependency of
          # TestGTIRB, etc
-  PRIVATE proto
+  PRIVATE gtirb_proto
 )
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS
