@@ -114,9 +114,12 @@ TEST(Unit_AuxDataContainer, addAuxDataRegistered) {
 
   // Access it immediately?
   {
-    const auto* CV = Ir->getAuxData<RegisteredType>();
+    const auto* CV =
+        static_cast<const gtirb::IR*>(Ir)->getAuxData<RegisteredType>();
+    EXPECT_NE(CV, nullptr);
     EXPECT_EQ(*CV, 5);
     auto* V = Ir->getAuxData<RegisteredType>();
+    EXPECT_NE(V, nullptr);
     EXPECT_EQ(*V, 5);
   }
 
@@ -192,9 +195,7 @@ TEST(Unit_AuxDataContainer, addAuxDataBadUnserialize) {
             auxdata_traits<schema::BadDeSerializationType::Type>::type_name());
   std::string ExpectedBytes = {0x5, 0x0, 0x0, 0x0, 0xA, 0x0, 0x0, 0x0};
   ASSERT_EQ(Raw.RawBytes.size(), ExpectedBytes.size());
-  for (size_t i = 0; i < ExpectedBytes.size(); ++i) {
-    EXPECT_EQ(Raw.RawBytes[i], ExpectedBytes[i]);
-  }
+  EXPECT_EQ(Raw.RawBytes, ExpectedBytes);
 }
 
 // AuxData not present
