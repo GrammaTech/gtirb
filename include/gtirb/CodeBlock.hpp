@@ -28,12 +28,11 @@
 
 /// \file CodeBlock.hpp
 /// \ingroup CFG_GROUP
-/// \brief Classes gtirb::CodeBlock and gtirb::Offset.
+/// \brief Class gtirb::CodeBlock.
 /// \see CFG_GROUP
 
 namespace gtirb {
 namespace proto {
-class Offset;
 class CodeBlock;
 } // namespace proto
 
