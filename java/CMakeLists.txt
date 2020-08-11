@@ -52,6 +52,21 @@ endforeach()
 # Building the gtirb java API
 # ---------------------------------------------------------------------------
 
+file(
+  COPY ${CMAKE_CURRENT_SOURCE_DIR}/com/grammatech/gtirb/
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb
+  FILES_MATCHING
+  PATTERN "*.java"
+)
+
+# ---------------------------------------------------------------------------
+# Creating a version file to report version information
+# ---------------------------------------------------------------------------
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Version.java.in
+  ${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb/Version.java @ONLY
+)
+
 set(GTIRB_API_JAVAS
     AuxData
     Block
@@ -69,13 +84,14 @@ set(GTIRB_API_JAVAS
     Serialization
     Symbol
     Util
+    Version
 )
 
 foreach(GTIRB_API_JAVA ${GTIRB_API_JAVAS})
   list(
     APPEND
       GTIRB_API_SOURCES
-      ${CMAKE_CURRENT_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
+      ${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
   )
 endforeach()
 
@@ -93,6 +109,10 @@ add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
 
 if(GTIRB_ENABLE_TESTS)
 
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/
+       DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests
+  )
+
   if(WIN32)
     set(DIR_SEP "\;")
   else()
@@ -108,13 +128,13 @@ if(GTIRB_ENABLE_TESTS)
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_SOURCE_DIR}/tests/testIrSanity.java
+            ${CMAKE_CURRENT_BINARY_DIR}/tests/testIrSanity.java
     COMMENT "Building testIrSanity"
   )
 
   add_test(NAME JavaSanityTest
            COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-                   testIrSanity ${CMAKE_CURRENT_SOURCE_DIR}/tests/testIr.gtirb
+                   testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/testIr.gtirb
   )
 
   set_tests_properties(

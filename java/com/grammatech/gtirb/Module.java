@@ -52,7 +52,11 @@ public class Module extends Node {
         X64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.X64_VALUE),
         ARM(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ARM_VALUE),
         ValidButUnsupported(com.grammatech.gtirb.proto.ModuleOuterClass.ISA
-                                .ValidButUnsupported_VALUE);
+                                .ValidButUnsupported_VALUE),
+        PPC64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.PPC64_VALUE),
+        ARM64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ARM64_VALUE),
+        MIPS32(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.MIPS32_VALUE),
+        MIPS64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ARM64_VALUE);
 
         private int value;
 
