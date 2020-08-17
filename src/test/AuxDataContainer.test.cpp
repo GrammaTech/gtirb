@@ -205,7 +205,7 @@ TEST(Unit_AuxDataContainer, getAuxDataNotPresent) {
 }
 
 // AuxData present, but accessed w/ incompatible schema
-#ifdef NDEBUG
+#ifndef NDEBUG
 TEST(Unit_AuxDataContainerDeathTest, getAuxDataIncompatibleSchema) {
   auto* Ir = IR::Create(Ctx);
   Ir->addAuxData<RegisteredType>(5);
