@@ -141,7 +141,7 @@ public:
     return ADI.get();
   }
 
-  /// \brief Remove an \ref AuxData by name.
+  /// \brief Remove an \ref AuxData by schema.
   ///
   /// This will invalidate any pointers that may have been held externally.
   ///
@@ -150,7 +150,22 @@ public:
   /// Note that this function can only be used for AuxData for which a
   /// type has been registered with registerAuxDataType().
   template <typename Schema> bool removeAuxData() {
+    assert(checkAuxDataRegistration(
+               Schema::Name, AuxDataImpl<Schema>::staticGetApiTypeId()) &&
+           "Attempting to remove AuxData with an unregistered type.");
     return this->AuxDatas.erase(Schema::Name) > 0;
+  }
+
+  /// \brief Remove an \ref AuxData by name.
+  ///
+  /// This will invalidate any pointers that may have been held externally.
+  ///
+  /// \return     \c true on success, \c false otherwise.
+  ///
+  /// Note that this function can be used for any AuxData regardless
+  /// of whether or not it has a registered schema.
+  bool removeAuxData(std::string Name) {
+    return this->AuxDatas.erase(Name) > 0;
   }
 
   /// \brief An interface for accessing the serialized form of an AuxData

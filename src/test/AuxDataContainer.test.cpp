@@ -205,23 +205,20 @@ TEST(Unit_AuxDataContainer, getAuxDataNotPresent) {
 }
 
 // AuxData present, but accessed w/ incompatible schema
+#ifdef NDEBUG
 TEST(Unit_AuxDataContainerDeathTest, getAuxDataIncompatibleSchema) {
   auto* Ir = IR::Create(Ctx);
   Ir->addAuxData<RegisteredType>(5);
-#ifdef NDEBUG
-  // Expected to return null in release mode.
-  EXPECT_EQ(Ir->getAuxData<DuplicateNameType>(), nullptr);
-#else
   {
     [[maybe_unused]] PrepDeathTest PDT;
     EXPECT_DEATH(Ir->getAuxData<DuplicateNameType>(),
                  "Attempting to retrieve AuxData with incorrect type.");
   }
-#endif
 }
+#endif
 
-// Removing AuxData
-TEST(Unit_AuxDataContainer, removeAuxData) {
+// Removing AuxData by schema
+TEST(Unit_AuxDataContainer, removeAuxDataBySchema) {
   auto* Ir = IR::Create(Ctx);
   Ir->addAuxData<RegisteredType>(5);
   const auto* CV = Ir->getAuxData<RegisteredType>();
@@ -230,8 +227,31 @@ TEST(Unit_AuxDataContainer, removeAuxData) {
   EXPECT_TRUE(Ir->removeAuxData<RegisteredType>());
   EXPECT_EQ(Ir->getAuxData<RegisteredType>(), nullptr);
   EXPECT_FALSE(Ir->removeAuxData<RegisteredType>());
-  EXPECT_FALSE(Ir->removeAuxData<UnRegisteredType>());
 }
+
+// Removing AuxData by name
+TEST(Unit_AuxDataContainer, removeAuxDataByName) {
+  auto* Ir = IR::Create(Ctx);
+  Ir->addAuxData<RegisteredType>(5);
+  const auto* CV = Ir->getAuxData<RegisteredType>();
+  ASSERT_NE(CV, nullptr);
+  EXPECT_EQ(*CV, 5);
+  EXPECT_TRUE(Ir->removeAuxData("registered type"));
+  EXPECT_EQ(Ir->getAuxData<RegisteredType>(), nullptr);
+  EXPECT_FALSE(Ir->removeAuxData("registered type"));
+}
+
+// Removing unregistered AuxData
+#ifndef NDEBUG
+TEST(Unit_AuxDataContainerDeathTest, removeAuxDataUnregistered) {
+  auto* Ir = IR::Create(Ctx);
+  {
+    [[maybe_unused]] PrepDeathTest PDT;
+    EXPECT_DEATH(Ir->removeAuxData<UnRegisteredType>(),
+                 "Attempting to remove AuxData with an unregistered type.");
+  }
+}
+#endif
 
 // Iteration and container size
 TEST(Unit_AuxDataContainer, iteration) {
