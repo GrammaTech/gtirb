@@ -16,7 +16,7 @@ sha512sums=('SKIP')
 
 pkgver() {
   cd "$_srcname"
-  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  git describe --long --tags --exclude "gt/*" | sed 's/\([^-]*-g\)/r\1/;s/[-:/ ]/./g'
 }
 
 build() {
