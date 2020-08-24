@@ -1,0 +1,27 @@
+FROM ubuntu:20.04
+
+ARG BOOST_VERSION=1.67
+
+SHELL ["/bin/bash", "-c"]
+
+# Install apt packages
+RUN export DEBIAN_FRONTEND=noninteractive
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+RUN apt-get -y update && \
+    apt-get -y install autoconf build-essential libcapstone-dev clang clang-format cmake curl \
+        git libtool unzip wget software-properties-common
+
+# Install Protobuf
+RUN curl -L https://github.com/protocolbuffers/protobuf/archive/v3.7.0.tar.gz -o protobuf.tar.gz \
+    && gunzip protobuf.tar.gz \
+    && tar xf protobuf.tar \
+    && cd protobuf-3.7.0 \
+    && ./autogen.sh \
+    && ./configure "CFLAGS=-g" "CXXFLAGS=-g" \
+    && make \
+    && make install
+
+# Install boost
+RUN add-apt-repository ppa:mhier/libboost-latest && \
+    apt-get -y update && \
+    apt-get -y install libboost${BOOST_VERSION}-dev
