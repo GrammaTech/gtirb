@@ -119,6 +119,9 @@ build-static:
     - cmake ../ -DGTIRB_BUILD_SHARED_LIBS=OFF -DGTIRB_PY_API=OFF
     - make -j
     - ctest -V
+    # ensure that we produced a .a file instead of a .so
+    - '[ -e lib/libgtirb.a ]'
+    - '[ ! -e lib/libgtirb.so ]'
 
 build-arch-gcc:
   stage: build
@@ -230,6 +233,15 @@ test-default-install:
     - make -t -C build
     - make -C build install install-python && rm -rf build
     - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-all.sh
+
+test-default-install-static:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/static
+  needs: ['build-static']
+  script:
+    - make -t -C build
+    - make -C build install && rm -rf build
+    - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-static.sh
 
 test-install-different-prefix:
   stage: test-packages1
