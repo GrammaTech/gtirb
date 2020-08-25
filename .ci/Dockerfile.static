@@ -20,6 +20,7 @@ RUN curl -L https://github.com/protocolbuffers/protobuf/archive/v3.7.0.tar.gz -o
     && ./configure "CFLAGS=-g" "CXXFLAGS=-g" \
     && make \
     && make install
+RUN ldconfig /usr/local/lib
 
 # Install boost
 RUN add-apt-repository ppa:mhier/libboost-latest && \

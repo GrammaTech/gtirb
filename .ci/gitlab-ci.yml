@@ -116,7 +116,7 @@ build-static:
   script:
     - mkdir build
     - cd build
-    - cmake ../ -DGTIRB_BUILD_SHARED_LIBS=OFF
+    - cmake ../ -DGTIRB_BUILD_SHARED_LIBS=OFF -DGTIRB_PY_API=OFF
     - make -j
     - ctest -V
 
