@@ -57,6 +57,12 @@ If the C++ client in question also uses CMake, then it can find gtirb as a depen
 find_package(gtirb REQUIRED)
 ```
 
+On Linux systems, If GTIRB was installed (perhaps via `make install` or via APT package),
+using GTIRB as a library is as simple as specifying `-lgtirb` or similar on your C compiler's command line.
+
+If you choose to install a static build of GTIRB (via `-DGTIRB_BUILD_SHARED_LIBS=OFF`),
+then you must provide `-lgtirb_proto` on your command line as well as `-lgtirb`.
+
 ## Using the API
 
 See [api-walkthrough.cpp](../api-walkthrough_8cpp-example.html) (in
