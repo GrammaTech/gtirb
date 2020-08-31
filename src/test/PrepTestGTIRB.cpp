@@ -9,6 +9,7 @@
 #include <gtirb/Context.hpp>
 #include <gtirb/IR.hpp>
 #include <fstream>
+#include <iostream>
 
 void registerAuxDataTypes() {
   // This schema is *registered* here but unregistered in the unit test.
