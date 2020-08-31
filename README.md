@@ -180,7 +180,7 @@ cd build
 cmake <path/to/gtirb>
 cmake --build .
 # Run the test suite.
-bin/TestGTIRB
+ctest
 ```
 
 For customizing the GTIRB build, you can get a list of customization options by
