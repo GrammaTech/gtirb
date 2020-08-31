@@ -26,7 +26,7 @@ TEST(Unit_AuxDataContainerDeathTest, SchemaRegistration) {
   // Assertion if registering a second schema w/ duplicate name but
   // incompatibable type.
   {
-    PrepDeathTest PDT;
+    [[maybe_unused]] PrepDeathTest PDT;
     EXPECT_DEATH(AuxDataContainer::registerAuxDataType<DuplicateNameType>(),
                  "Different types registered for the same AuxData name.");
   }
