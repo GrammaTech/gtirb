@@ -437,6 +437,30 @@ debian-installer-ubuntu20:
   script:
     - cp build/*gtirb*.deb ./
 
+conan-ubuntu18:
+  stage: deploy
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  script:
+    - python3 -m pip install conan
+    - export PYTHONPATH="$(pwd)"
+    - python3 .ci/build.py
+
+conan-windows:
+  stage: deploy
+  tags: [gtirb-windows]
+  script:
+    - systeminfo
+    - export PATH="C:\\Program Files\\Python38;$PATH"
+    # Install conan
+    - python -m pip install conan
+    # Run build script
+    - export PYTHONPATH="$(cygpath -w $(pwd))"
+    - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
+    - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
+    - export PYTHON="C:\\Python38\\python.exe"
+    - export BOOST_ROOT="C:\\Boost"
+    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py
+
 package-arch:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/arch
