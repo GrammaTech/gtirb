@@ -1,3 +1,6 @@
+# TestGTIRB
+#
+# This is the main executable containing unit tests for the GTIRB C++ API.
 set(PROJECT_NAME TestGTIRB)
 
 enable_testing()
@@ -67,6 +70,12 @@ target_link_libraries(
   ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb
 )
 
+# PrepTestGTIRB
+#
+# This binary's purpose is to construct a GTIRB IR file in one process that has
+# a certain set of AUxData schemas registered that is different from the set
+# registered in TestGTIRB, allowing tests in TestGTIRB to exercise functionality
+# that is specific to handling unregistered schemas.
 set(PROJECT_NAME PrepTestGTIRB)
 
 set(${PROJECT_NAME}_H AuxDataContainerSchema.hpp)
@@ -78,7 +87,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb/test")
 
 target_link_libraries(${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtirb)
 
-# Add tests to make test
+# Add a single test that runs both the PrepTestGTIRB and TestGTIRB executables
+# in sequence, passing the output GTIRB file from the former to the latter.
 add_test(
   NAME testgtirbc++
   COMMAND ${CMAKE_COMMAND} -DCMD1=$<TARGET_FILE:PrepTestGTIRB>
@@ -86,13 +96,19 @@ add_test(
           ${CMAKE_CURRENT_SOURCE_DIR}/runtests.cmake
 )
 
+# testgtirb_schemac++
+#
+# This is a separate test executable setup explicitly to exercise AuxData schema
+# registration code that runs before the AuxData TypeMap gets locked. These
+# tests cannot be effectively executed in the main test executable above, which
+# locks the TypeMap before any of the tests are executed.
 set(PROJECT_NAME testgtirb_schemac++)
 
 set(${PROJECT_NAME}_H AuxDataContainerSchema.hpp PrepDeathTest.hpp)
 
 set(${PROJECT_NAME}_SRC AuxDataSchemaRegistration.test.cpp)
 
-# Add tests to make test
+# Add this test to ctest
 gtirb_add_executable_gtest()
 
 target_link_libraries(

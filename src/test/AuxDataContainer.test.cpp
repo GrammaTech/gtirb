@@ -36,12 +36,6 @@ using namespace gtirb::schema;
 Context Ctx;
 
 void registerAuxDataContainerTestAuxDataTypes() {
-  // Unfortunately, there doesn't seem to be an easy way to test the
-  // error checks in registerAuxDataTypeInternal(). We can't check
-  // them at this point because googletest isn't initialized yet. And
-  // calling registerAuxData() in one of the test functions below
-  // isn't guaranteed to occur before the type map gets locked by
-  // serialization happening in one of the other unit tests.
   AuxDataContainer::registerAuxDataType<RegisteredType>();
   AuxDataContainer::registerAuxDataType<BadDeSerializationType>();
 }
@@ -172,6 +166,7 @@ TEST(Unit_AuxDataContainerDeathTest, getAuxDataIncompatibleSchema) {
 #ifndef NDEBUG
 TEST(Unit_AuxDataContainerDeathTest, getAuxDataUnregisteredType) {
   const auto* Ir = getTestIr();
+  ASSERT_NE(Ir, nullptr);
   {
     [[maybe_unused]] PrepDeathTest PDT;
     EXPECT_DEATH(Ir->getAuxData<UnRegisteredType>(),

@@ -29,9 +29,10 @@ int main(int argc, char** argv) {
     GtirbFilename = argv[1];
   }
 
+  std::stringstream error_msgs;
   if (GtirbFilename.empty()) {
-    std::cerr << "*\n* No pre-built GTIRB file specified, cross-process tests "
-                 "will fail!\n*\n";
+    error_msgs << "*\n* No pre-built GTIRB file specified, cross-process tests "
+                  "will fail!\n*\n";
   } else {
     std::ifstream GtirbFile;
     GtirbFile.open(GtirbFilename, std::ifstream::in);
@@ -44,12 +45,14 @@ int main(int argc, char** argv) {
     }
 
     if (!TestIr) {
-      std::cerr << "*\n* Failed to load pre-built GTIRB file: " << GtirbFilename
-                << "\n";
-      std::cerr << "* Cross-process tests will fail!\n*\n";
+      error_msgs << "*\n* Failed to load pre-built GTIRB file: "
+                 << GtirbFilename << "\n";
+      error_msgs << "* Cross-process tests will fail!\n*\n";
     }
   }
 
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  auto rv = RUN_ALL_TESTS();
+  std::cerr << error_msgs.str();
+  return rv;
 }
