@@ -99,4 +99,6 @@ public class IR {
     public CFG getCfg() { return this.cfg; }
 
     public IROuterClass.IR getProtoIR() { return this.protoIR; }
+
+    public int getVersion() { return this.version; }
 }

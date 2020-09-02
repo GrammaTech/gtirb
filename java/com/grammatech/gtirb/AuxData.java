@@ -165,6 +165,34 @@ public class AuxData {
         return null;
     }
 
+    public Map<UUID, SymbolInfo> getElfSymbolInfo() {
+        com.grammatech.gtirb.proto.AuxDataOuterClass
+            .AuxData protoElfSymbolInfo =
+            this.protoAuxDataMap.get("elfSymbolInfo");
+        if (protoElfSymbolInfo != null) {
+            Map<UUID, SymbolInfo> elfSymbolInfo =
+                new HashMap<UUID, SymbolInfo>();
+            Serialization serialization =
+                new Serialization(protoElfSymbolInfo.getData().toByteArray());
+            long numSymbolInfo = serialization.getLong();
+
+            for (int i = 0; i < numSymbolInfo; i++) {
+                UUID symbolUuid = serialization.getUuid();
+                long symbolSize = serialization.getLong();
+                String symbolType = serialization.getString();
+                String symbolBinding = serialization.getString();
+                String symbolVisibility = serialization.getString();
+                long symbolSection = serialization.getLong();
+                SymbolInfo symbolInfo =
+                    new SymbolInfo(symbolSize, symbolType, symbolBinding,
+                                   symbolVisibility, symbolSection);
+                elfSymbolInfo.put(symbolUuid, symbolInfo);
+            }
+            return elfSymbolInfo;
+        }
+        return null;
+    }
+
     public Map<UUID, String> getEncodings() {
         com.grammatech.gtirb.proto.AuxDataOuterClass.AuxData protoEncodings =
             this.protoAuxDataMap.get("encodings");
