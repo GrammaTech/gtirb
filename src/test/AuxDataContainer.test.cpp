@@ -42,13 +42,15 @@ void registerAuxDataContainerTestAuxDataTypes() {
 
 #ifndef NDEBUG
 TEST(Unit_AuxDataContainerDeathTest, registerSchemaTooLate) {
-  [[maybe_unused]] PrepDeathTest PDT;
-  // The AuxData type map should be locked at this point due to the
-  // loading of a pre-built GTIRB IR in Main.test.cpp, so we should
-  // expect an assertion failure if we try to register a new schema at
-  // this point.
-  EXPECT_DEATH(AuxDataContainer::registerAuxDataType<UnRegisteredType>(),
-               "New AuxData types cannot be added at this point.");
+  // Guarantee that the AuxData TypeMap is locked.
+  [[maybe_unused]] auto* Ir = IR::Create(Ctx);
+
+  // It should now be illegal to attempt to add a new AuxData schema.
+  {
+    [[maybe_unused]] PrepDeathTest PDT;
+    EXPECT_DEATH(AuxDataContainer::registerAuxDataType<UnRegisteredType>(),
+                 "New AuxData types cannot be added at this point.");
+  }
 }
 #endif
 
