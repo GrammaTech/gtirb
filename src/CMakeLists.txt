@@ -64,9 +64,6 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/Utility.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/version.h.in"
-    "CFGSerialization.hpp"
-    "Serialization.hpp"
-    "SymbolicExpressionSerialization.hpp"
 )
 
 # specify source files
