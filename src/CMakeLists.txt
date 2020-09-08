@@ -36,7 +36,7 @@ configure_file(
   "${CMAKE_BINARY_DIR}/include/gtirb/version.h" @ONLY
 )
 
-# specify source files
+# specify header files that need to be installed
 set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/Addr.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Allocator.hpp"
@@ -63,7 +63,6 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/SymbolicExpression.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Utility.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/gtirb.hpp"
-    "${CMAKE_SOURCE_DIR}/include/gtirb/version.h.in"
 )
 
 # specify source files
