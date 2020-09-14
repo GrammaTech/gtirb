@@ -25,8 +25,12 @@ class Properties:
         return "%s/%s@%s" % (self.name, self.version, self.conan_ref)
 
 
-class GtribConan(Properties, ConanFile):
-    requires = ("protobuf/3.9.1@bincrafters/stable",)
+class GtirbConan(Properties, ConanFile):
+    protobuf_version = "3.9.1"
+    requires = (
+        "protobuf/{0}@bincrafters/stable".format(protobuf_version),
+        "protoc_installer/{0}@bincrafters/stable".format(protobuf_version),
+    )
     settings = "os", "build_type"
     generators = "cmake"
 
@@ -48,8 +52,14 @@ class GtribConan(Properties, ConanFile):
             self.build_cmake()
 
     def build_cmake(self):
+        # Note: Only build the C++ API
         defs = {
             "CMAKE_VERBOSE_MAKEFILE:BOOL": "ON",
+            "ENABLE_CONAN:BOOL": "ON",
+            "GTIRB_CXX_API:BOOL": "ON",
+            "GTIRB_PY_API:BOOL": "OFF",
+            "GTIRB_CL_API:BOOL": "OFF",
+            "GTIRB_JAVA_API:BOOL": "OFF",
         }
         if self.settings.os == "Windows":
             cmake = CMake(self, generator="Ninja")
@@ -71,7 +81,7 @@ class GtribConan(Properties, ConanFile):
             source_folder=self.name, defs=defs,
         )
         cmake.build()
-        cmake.test()
+        cmake.test(output_on_failure=True)
         cmake.install()
 
     def package(self):

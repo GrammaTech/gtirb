@@ -35,6 +35,13 @@ include(Macros.cmake)
 include(AlignOf.cmake)
 include(CMakePackageConfigHelpers)
 
+option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
+
+if(ENABLE_CONAN)
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  conan_basic_setup()
+endif()
+
 # ---------------------------------------------------------------------------
 # Build options
 # ---------------------------------------------------------------------------
@@ -275,6 +282,10 @@ if(CXX_API)
     # C4505: 'google::protobuf::internal::MapField<...>::ContainsMapKey':
     # unreferenced local function has been removed
     add_compile_options(-wd4505)
+
+    # C4267: protobuf-generated headers, at least w/ protobuf 3.9.1, trigger
+    # MSVC's "conversion from 'size_t' to 'int', possible loss of data" warning.
+    add_compile_options(-wd4267)
 
     # Release target options
     add_compile_options($<$<CONFIG:Release>:-GL>) # Enable whole program
