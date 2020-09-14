@@ -1,11 +1,30 @@
 import os
+import re
 
 from conans import CMake, ConanFile, tools
 
 
+def get_gtirb_version():
+    with open(os.path.join(os.environ["CI_PROJECT_DIR"], "version.txt")) as f:
+        s = f.read()
+        match = re.search(
+            r"VERSION_MAJOR(\s+)(\S+)(\s+)"
+            r"VERSION_MINOR(\s+)(\S+)(\s+)"
+            r"VERSION_PATCH(\s+)(\S+)(\s+)",
+            s,
+        )
+        if match:
+            major = match.group(2)
+            minor = match.group(5)
+            patch = match.group(8)
+            return major + "." + minor + "." + patch
+        else:
+            return "<ERROR: no version found>"
+
+
 class Properties:
     name = "gtirb"
-    version = "1.8.7"
+    version = get_gtirb_version()
     rel_url = "rewriting/gtirb"
 
     @property
