@@ -28,13 +28,12 @@ class Offset;
 
 /// \class Offset
 ///
-/// \brief Describes a location inside a block or data object.
+/// \brief Describes a location inside a node (byte interval, block, etc).
 struct GTIRB_EXPORT_API Offset {
-  /// \brief The UUID of the block or data object.
+  /// \brief The UUID of the node.
   UUID ElementId;
 
-  /// \brief The displacement from the start of the block or data object, in
-  /// bytes.
+  /// \brief The displacement from the start of the node, in bytes.
   uint64_t Displacement{0};
 
   /// \brief Constructor using a ElemId uuid and a Displacement.
