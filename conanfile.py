@@ -45,8 +45,10 @@ class Properties:
 
 
 class GtirbConan(Properties, ConanFile):
+    boost_version = "1.69.0"
     protobuf_version = "3.9.1"
     requires = (
+        "boost/{0}@conan/stable".format(boost_version),
         "protobuf/{0}@bincrafters/stable".format(protobuf_version),
         "protoc_installer/{0}@bincrafters/stable".format(protobuf_version),
     )
