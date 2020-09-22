@@ -45,7 +45,7 @@ endforeach(PROTO_H)
 # Add proto library target
 add_library(gtirb_proto STATIC ${PROTO_CPP_SOURCES} ${PROTO_COPIED_HEADERS})
 
-target_link_libraries(gtirb_proto ${Boost_LIBRARIES} ${Protobuf_LIBRARIES})
+target_link_libraries(gtirb_proto ${Boost_LIBRARIES} protobuf::libprotobuf)
 target_compile_definitions(gtirb_proto PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS)
 
 include_directories(SYSTEM "${PROTOBUF_INCLUDE_DIRS}")
