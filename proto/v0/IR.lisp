@@ -142,18 +142,18 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .protoV0.AuxDataContainer aux_data_container = 4[json_name = "auxDataContainer"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'aux-data-container))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; repeated .protoV0.Module modules = 3[json_name = "modules"];
     (cl:let* ((v (cl:slot-value self 'modules))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

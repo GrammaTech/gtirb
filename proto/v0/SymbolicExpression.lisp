@@ -107,12 +107,12 @@
     ;; int32 offset = 1[json_name = "offset"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset))))))
+        (cl:+ 1 (varint:length-int32 (cl:slot-value self 'offset)))))
     ;; bytes symbol_uuid = 2[json_name = "symbolUuid"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'symbol-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -272,12 +272,12 @@
     ;; int64 offset = 1[json_name = "offset"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset))))))
+        (cl:+ 1 (varint:length-uint64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset))))))
     ;; bytes symbol_uuid = 2[json_name = "symbolUuid"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'symbol-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -500,21 +500,21 @@
     ;; int64 scale = 1[json_name = "scale"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'scale))))))
+        (cl:+ 1 (varint:length-uint64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'scale))))))
     ;; int64 offset = 2[json_name = "offset"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset))))))
+        (cl:+ 1 (varint:length-uint64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'offset))))))
     ;; bytes symbol1_uuid = 3[json_name = "symbol1Uuid"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'symbol1-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; bytes symbol2_uuid = 4[json_name = "symbol2Uuid"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'symbol2-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -769,15 +769,15 @@
     ;; .protoV0.SymStackConst stack_const = 1[json_name = "stackConst"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'stack-const))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; .protoV0.SymAddrConst addr_const = 2[json_name = "addrConst"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'addr-const))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; .protoV0.SymAddrAddr addr_addr = 3[json_name = "addrAddr"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'addr-addr))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

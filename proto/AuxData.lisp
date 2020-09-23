@@ -109,12 +109,12 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'type-name))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; bytes data = 2[json_name = "data"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'data))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

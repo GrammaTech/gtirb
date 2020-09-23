@@ -108,11 +108,11 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'element-id))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; uint64 displacement = 2[json_name = "displacement"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'displacement)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'displacement)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

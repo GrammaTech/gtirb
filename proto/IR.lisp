@@ -267,11 +267,11 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'key))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .gtirb.proto.AuxData value = 2[json_name = "value"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'value))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -385,29 +385,29 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; uint32 version = 6[json_name = "version"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length32 (cl:slot-value self 'version)))))
+        (cl:+ 1 (varint:length-uint32 (cl:slot-value self 'version)))))
     ;; .gtirb.proto.CFG cfg = 7[json_name = "cfg"];
     (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'cfg))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; repeated .gtirb.proto.Module modules = 3[json_name = "modules"];
     (cl:let* ((v (cl:slot-value self 'modules))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; map<string, .gtirb.proto.AuxData> aux_data = 5[json_name = "auxData"];
     (cl:let* ((v (cl:slot-value self 'aux-data))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

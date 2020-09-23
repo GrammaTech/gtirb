@@ -519,11 +519,11 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'key))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .gtirb.proto.AuxData value = 2[json_name = "value"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'value))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -662,66 +662,66 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; string binary_path = 2[json_name = "binaryPath"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'binary-path))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; uint64 preferred_addr = 3[json_name = "preferredAddr"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'preferred-addr)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'preferred-addr)))))
     ;; int64 rebase_delta = 4[json_name = "rebaseDelta"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'rebase-delta))))))
+        (cl:+ 1 (varint:length-uint64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'rebase-delta))))))
     ;; .gtirb.proto.FileFormat file_format = 5[json_name = "fileFormat"];
     (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
-      (cl:incf size (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'file-format)))))
+      (cl:incf size (varint:length-int32 (cl:slot-value self 'file-format))))
     ;; .gtirb.proto.ISA isa = 6[json_name = "isa"];
     (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
-      (cl:incf size (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'isa)))))
+      (cl:incf size (varint:length-int32 (cl:slot-value self 'isa))))
     ;; string name = 7[json_name = "name"];
     (cl:when (cl:logbitp 6 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'name))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; bytes entry_point = 18[json_name = "entryPoint"];
     (cl:when (cl:logbitp 11 (cl:slot-value self '%has-bits%))
       (cl:incf size 2)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'entry-point))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; repeated .gtirb.proto.Symbol symbols = 9[json_name = "symbols"];
     (cl:let* ((v (cl:slot-value self 'symbols))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .gtirb.proto.ProxyBlock proxies = 16[json_name = "proxies"];
     (cl:let* ((v (cl:slot-value self 'proxies))
               (length (cl:length v)))
       (cl:incf size (cl:* 2 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .gtirb.proto.Section sections = 12[json_name = "sections"];
     (cl:let* ((v (cl:slot-value self 'sections))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; map<string, .gtirb.proto.AuxData> aux_data = 17[json_name = "auxData"];
     (cl:let* ((v (cl:slot-value self 'aux-data))
               (length (cl:length v)))
       (cl:incf size (cl:* 2 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

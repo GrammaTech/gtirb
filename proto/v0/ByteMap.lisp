@@ -107,12 +107,12 @@
     ;; uint64 address = 1[json_name = "address"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'address)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'address)))))
     ;; bytes data = 2[json_name = "data"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'data))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -236,7 +236,7 @@
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

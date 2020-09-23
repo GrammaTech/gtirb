@@ -203,21 +203,21 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; uint64 value = 2[json_name = "value"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'value)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'value)))))
     ;; bytes referent_uuid = 5[json_name = "referentUuid"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'referent-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; string name = 3[json_name = "name"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'name))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; bool at_end = 6[json_name = "atEnd"];
     (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
       (cl:incf size

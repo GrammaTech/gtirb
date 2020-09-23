@@ -154,11 +154,11 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'key))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .protoV0.AuxData value = 2[json_name = "value"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'value))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -259,7 +259,7 @@
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

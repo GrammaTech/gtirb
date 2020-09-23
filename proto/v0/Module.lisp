@@ -628,11 +628,11 @@
     ;; uint64 key = 1[json_name = "key"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'key)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'key)))))
     ;; .protoV0.SymbolicExpression value = 2[json_name = "value"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'value))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -788,87 +788,87 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; string binary_path = 2[json_name = "binaryPath"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'binary-path))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; uint64 preferred_addr = 3[json_name = "preferredAddr"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'preferred-addr)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'preferred-addr)))))
     ;; int64 rebase_delta = 4[json_name = "rebaseDelta"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'rebase-delta))))))
+        (cl:+ 1 (varint:length-uint64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'rebase-delta))))))
     ;; .protoV0.FileFormat file_format = 5[json_name = "fileFormat"];
     (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
-      (cl:incf size (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'file-format)))))
+      (cl:incf size (varint:length-int32 (cl:slot-value self 'file-format))))
     ;; .protoV0.ISAID isa_id = 6[json_name = "isaId"];
     (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
-      (cl:incf size (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'isa-id)))))
+      (cl:incf size (varint:length-int32 (cl:slot-value self 'isa-id))))
     ;; string name = 7[json_name = "name"];
     (cl:when (cl:logbitp 6 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (pb::%utf8-string-length% (cl:slot-value self 'name))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .protoV0.ImageByteMap image_byte_map = 8[json_name = "imageByteMap"];
     (cl:when (cl:logbitp 7 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'image-byte-map))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; .protoV0.CFG cfg = 10[json_name = "cfg"];
     (cl:when (cl:logbitp 9 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'cfg))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; .protoV0.AuxDataContainer aux_data_container = 14[json_name = "auxDataContainer"];
     (cl:when (cl:logbitp 15 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'aux-data-container))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; repeated .protoV0.Symbol symbols = 9[json_name = "symbols"];
     (cl:let* ((v (cl:slot-value self 'symbols))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .protoV0.Block blocks = 15[json_name = "blocks"];
     (cl:let* ((v (cl:slot-value self 'blocks))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .protoV0.DataObject data = 11[json_name = "data"];
     (cl:let* ((v (cl:slot-value self 'data))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .protoV0.ProxyBlock proxies = 16[json_name = "proxies"];
     (cl:let* ((v (cl:slot-value self 'proxies))
               (length (cl:length v)))
       (cl:incf size (cl:* 2 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .protoV0.Section sections = 12[json_name = "sections"];
     (cl:let* ((v (cl:slot-value self 'sections))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; map<uint64, .protoV0.SymbolicExpression> symbolic_operands = 13[json_name = "symbolicOperands"];
     (cl:let* ((v (cl:slot-value self 'symbolic-operands))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

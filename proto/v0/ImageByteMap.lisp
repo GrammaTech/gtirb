@@ -242,27 +242,27 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .protoV0.ByteMap byte_map = 2[json_name = "byteMap"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'byte-map))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; uint64 addr_min = 3[json_name = "addrMin"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'addr-min)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'addr-min)))))
     ;; uint64 addr_max = 4[json_name = "addrMax"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'addr-max)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'addr-max)))))
     ;; uint64 base_address = 5[json_name = "baseAddress"];
     (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'base-address)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'base-address)))))
     ;; uint64 entry_point_address = 6[json_name = "entryPointAddress"];
     (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'entry-point-address)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'entry-point-address)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

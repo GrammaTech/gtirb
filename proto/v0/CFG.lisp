@@ -175,7 +175,7 @@
     ;; .protoV0.EdgeType type = 3[json_name = "type"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
-      (cl:incf size (varint:length64 (cl:ldb (cl:byte 64 0) (cl:slot-value self 'type)))))
+      (cl:incf size (varint:length-int32 (cl:slot-value self 'type))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -400,16 +400,16 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'source-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; bytes target_uuid = 2[json_name = "targetUuid"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'target-uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; .protoV0.EdgeLabel label = 5[json_name = "label"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'label))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -589,14 +589,14 @@
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:incf size (cl:let ((s (cl:length (cl:aref x i))))
-  (cl:+ s (varint:length32 s))))))
+  (cl:+ s (varint:length-uint32 s))))))
     ;; repeated .protoV0.Edge edges = 2[json_name = "edges"];
     (cl:let* ((v (cl:slot-value self 'edges))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 

@@ -157,15 +157,15 @@
     ;; uint64 offset = 1[json_name = "offset"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'offset)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'offset)))))
     ;; .gtirb.proto.CodeBlock code = 2[json_name = "code"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'code))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     ;; .gtirb.proto.DataBlock data = 3[json_name = "data"];
     (cl:when (cl:logbitp 2 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'data))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -571,11 +571,11 @@
     ;; uint64 key = 1[json_name = "key"];
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'key)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'key)))))
     ;; .gtirb.proto.SymbolicExpression value = 2[json_name = "value"];
     (cl:when (cl:logbitp 1 (cl:slot-value self '%has-bits%))
       (cl:let ((s (pb:octet-size (cl:slot-value self 'value))))
-        (cl:incf size (cl:+ 1 s (varint:length32 s)))))
+        (cl:incf size (cl:+ 1 s (varint:length-uint32 s)))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
@@ -696,7 +696,7 @@
     (cl:when (cl:logbitp 0 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'uuid))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; bool has_address = 4[json_name = "hasAddress"];
     (cl:when (cl:logbitp 3 (cl:slot-value self '%has-bits%))
       (cl:incf size
@@ -704,30 +704,30 @@
     ;; uint64 address = 5[json_name = "address"];
     (cl:when (cl:logbitp 4 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'address)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'address)))))
     ;; uint64 size = 6[json_name = "size"];
     (cl:when (cl:logbitp 5 (cl:slot-value self '%has-bits%))
       (cl:incf size
-        (cl:+ 1 (varint:length64 (cl:slot-value self 'size)))))
+        (cl:+ 1 (varint:length-uint64 (cl:slot-value self 'size)))))
     ;; bytes contents = 7[json_name = "contents"];
     (cl:when (cl:logbitp 6 (cl:slot-value self '%has-bits%))
       (cl:incf size 1)
       (cl:incf size (cl:let ((s (cl:length (cl:slot-value self 'contents))))
-        (cl:+ s (varint:length32 s)))))
+        (cl:+ s (varint:length-uint32 s)))))
     ;; repeated .gtirb.proto.Block blocks = 2[json_name = "blocks"];
     (cl:let* ((v (cl:slot-value self 'blocks))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     ;; map<uint64, .gtirb.proto.SymbolicExpression> symbolic_expressions = 3[json_name = "symbolicExpressions"];
     (cl:let* ((v (cl:slot-value self 'symbolic-expressions))
               (length (cl:length v)))
       (cl:incf size (cl:* 1 length))
       (cl:dotimes (i length)
         (cl:let ((s (pb:octet-size (cl:aref v i))))
-          (cl:incf size (cl:+ s (varint:length32 s))))))
+          (cl:incf size (cl:+ s (varint:length-uint32 s))))))
     (cl:setf (cl:slot-value self 'pb::%cached-size%) size)
     size))
 
