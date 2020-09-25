@@ -131,6 +131,7 @@ target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC ${SYSLIBS}
          ${Boost_LIBRARIES}
+         protobuf::libprotobuf
          # Link in this static lib, but don't make it a transitive dependency of
          # TestGTIRB, etc
   PRIVATE gtirb_proto
