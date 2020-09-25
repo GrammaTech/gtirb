@@ -90,6 +90,7 @@ class GtirbConan(Properties, ConanFile):
                     for k in ["BOOST_ROOT", "CMAKE_PREFIX_PATH", "PYTHON"]
                 }
             )
+            defs.update({"Protobuf_USE_STATIC_LIBS": "ON"})
         else:
             cmake = CMake(self, generator=None)
             defs.update(

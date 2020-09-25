@@ -46,7 +46,7 @@ check-format:
     - rm -rf build CMakeCache.txt CMakeFiles CMakeScripts
     - mkdir build
     - cd build
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DBOOST_ROOT=\"C:\\Boost\" -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPYTHON=\"C:\\Python38\\python.exe\" .."
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DBOOST_ROOT=\"C:\\Boost\" -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPYTHON=\"C:\\Python38\\python.exe\" -DProtobuf_USE_STATIC_LIBS=ON .."
     - PATH="$PATH;C:\\Program Files\\CMake\\bin" cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja -j 1"
     - cd build && cmd.exe /C "C:\\PROGRA~1\\CMake\\bin\\ctest.exe -V"
     # Build & test with capstone
@@ -65,7 +65,7 @@ check-format:
     - popd
     # Build GTIRB
     - cd build
-    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DCAPSTONE=C:\\capstone-${BUILD_TYPE}\\lib\\capstone.lib -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\" -DCMAKE_CXX_FLAGS=\"/I C:\\capstone-${BUILD_TYPE}\\include\" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} .."
+    - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && C:\\PROGRA~1\\CMake\\bin\\cmake.exe -G "Ninja" -DCAPSTONE=C:\\capstone-${BUILD_TYPE}\\lib\\capstone.lib -DCMAKE_PREFIX_PATH=\"C:\\Program Files (x86)\\protobuf\" -DCMAKE_CXX_FLAGS=\"/I C:\\capstone-${BUILD_TYPE}\\include\" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DProtobuf_USE_STATIC_LIBS=ON .."
     - cmd.exe /C "C:\\VS\\VC\\Auxiliary\\Build\\vcvars64.bat && ninja -j 1"
     - cmd.exe /C "C:\\PROGRA~1\\CMake\\bin\\ctest.exe -V -C ${BUILD_TYPE}"
     # Generate and upload installer
