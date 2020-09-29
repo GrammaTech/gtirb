@@ -381,6 +381,7 @@ endif()
 if(NOT BUILD_SHARED_LIBS)
   set(Protobuf_USE_STATIC_LIBS ON)
 endif()
+include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 
 add_subdirectory(proto)
 

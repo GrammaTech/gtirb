@@ -131,7 +131,6 @@ target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC ${SYSLIBS}
          ${Boost_LIBRARIES}
-         protobuf::libprotobuf
          # Link in this static lib, but don't make it a transitive dependency of
          # TestGTIRB, etc
   PRIVATE gtirb_proto
@@ -139,6 +138,7 @@ target_link_libraries(
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS
 )
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROTOBUF_INCLUDE_DIRS}")
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   # These four warnings come from protobuf headers, disabling them this way
