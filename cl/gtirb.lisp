@@ -70,6 +70,7 @@
            :sym-stack-const
            :sym-addr-addr
            :scale
+           :*preserve-symbolic-expressions*
            ;; Block
            :gtirb-block
            :gtirb-byte-block
@@ -986,6 +987,10 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
   "Return a copy of SEQUENCE bounded by START and END."
   (subseq sequence start end))
 
+(defparameter *preserve-symbolic-expressions* nil
+  "When true, (setf bytes) preserves symbolic expressions
+intersecting the assigned part of the object.")
+
 (define-setf-expander shift-subseq (sequence start end &environment env)
   "Update the subseq of SEQUENCE bounded by START and END."
   (multiple-value-bind (dummies vals newval setter getter)
@@ -1059,8 +1064,9 @@ This class abstracts over all GTIRB blocks which are able to hold bytes."))
                            ((< offset start) (list (cons offset sym-expr)))
                            ((>= offset end)
                             (list (cons (+ offset difference) sym-expr)))
-                           ;; Clear symbolic expressions in the modified range.
-                           (t nil)))))
+                           ;; Clear symbolic expressions in the modified range,
+                           ;; unless *preserve-symbolic-expressions* is true.
+                           (t (if *preserve-symbolic-expressions* (list pair) nil))))))
             (hash-table-alist (symbolic-expressions byte-interval)))
       ;; Byte-Blocks.
       (mapc (lambda (bb)
