@@ -110,4 +110,4 @@ class GtirbConan(Properties, ConanFile):
         pass
 
     def package_info(self):
-        pass
+        self.cpp_info.libs = ["gtirb"]
