@@ -482,9 +482,17 @@ the graph.")
               :skip-equal-p t
               :documentation "Internal cache for UUID-based lookup.")
      (by-address :accessor by-address :initform (make-ranged) :skip-equal-p t
-                 :documentation "Internal cache for Address-based lookup."))
+                 :documentation "Internal cache for Address-based lookup.")
+     (aux-data-w-offsets :accessor aux-data-w-offsets :initform nil
+                         :skip-equal-p t
+                         :documentation "Cache for fast offset updates."))
     ((version :type unsigned-byte-64 :documentation "Protobuf version."))
   (:documentation "Base class of an instance of GTIRB IR."))
+
+(defmethod initialize-instance :around ((self gtirb) &key)
+  (call-next-method)
+  ;; Populate the aux-data tables with offsets.
+  (setf (aux-data-w-offsets self) (get-aux-data-w-offsets self)))
 
 (define-condition ir (error)
   ((message :initarg :message :initform nil :reader message)
@@ -618,6 +626,24 @@ module represents."))
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
 
+(defgeneric get-aux-data-w-offsets (object)
+  (:documentation "Collect all Aux-Data tables with offsets in their types.")
+  (:method ((list list))
+    (remove-if-not [{find :offset} #'flatten #'aux-data-type #'cdr] list))
+  (:method ((self module)) (get-aux-data-w-offsets (aux-data self)))
+  (:method ((self gtirb))
+    (apply #'append
+           (get-aux-data-w-offsets (aux-data self))
+           (mapcar #'get-aux-data-w-offsets (modules self)))))
+
+(defmethod (setf aux-data) :after (new-value (self gtirb))
+  (declare (ignorable new-value))
+  (setf (aux-data-w-offsets self) (get-aux-data-w-offsets self)))
+
+(defmethod (setf aux-data) :after (new-value (self module))
+  (declare (ignorable new-value))
+  (setf (aux-data-w-offsets (ir self)) (get-aux-data-w-offsets (ir self))))
+
 (define-constant +edge-label-type-map+
     '((#.proto:+edge-type-type-branch+ . :branch)
       (#.proto:+edge-type-type-call+ . :call)
@@ -729,6 +755,11 @@ Primitive accessor for byte-interval.")
   (:method ((obj gtirb)) (mappend #'blocks (modules obj)))
   (:method ((obj module)) (mappend #'blocks (sections obj)))
   (:method ((obj section)) (mappend #'blocks (byte-intervals obj))))
+
+(define-proto-backed-class (offset proto:offset) () ()
+    ((element-id :type uuid)
+     (displacement :type unsigned-byte-64))
+  (:documentation "Offset into a GTIRB object."))
 
 (define-constant +se-attribute-flag-map+
     '((#.proto:+se-attribute-flag-part0+ . :part0)
@@ -1092,9 +1123,13 @@ intersecting the assigned part of the object.")
                                    (+ offset ,start) (+ offset ,end))
                  ;; Ensure the offset for THIS block isn't pushed back change.
                  (setf offset original-offset)))))
+
           (setf-bytes-after ,store ,getter ,start ,end)
           ,store)                       ; Storing form.
        `(bytes ,getter)))))             ; Accessing form.
+
+(defvar *update-aux-data-offsets* nil
+  "Are offsets in AuxData tables updated as bytes are modified.")
 
 (defgeneric setf-bytes-after (new object &optional start end)
   (:documentation
@@ -1117,6 +1152,52 @@ intersecting the assigned part of the object.")
                            ;; unless *preserve-symbolic-expressions* is true.
                            (t (if *preserve-symbolic-expressions* (list pair) nil))))))
             (hash-table-alist (symbolic-expressions byte-interval)))
+      (when *update-aux-data-offsets*
+        ;; Update offsets in AuxData tables.
+        (labels ((update-offset (data type)
+                   (cond
+                     ((and (listp type) (eql :mapping (car type)))
+                      (nest (alist-hash-table)
+                            (mapcar «cons
+                                     [{update-offset _ (second type)} #'car]
+                                     [{update-offset _ (third type)} #'cdr]»)
+                            (hash-table-alist data)))
+                     ((and (listp type) (eql :sequence (car type)))
+                      (mapcar {update-offset _ (cdr type)} data))
+                     ((eql :offset type)
+                      ;; NOTE: Since we are already adjusting all
+                      ;;       other code blocks and offsets are
+                      ;;       currently stored by code block we only
+                      ;;       need to update offsets in the current
+                      ;;       code block.
+                      ;; NOTE: Offsets are relative to the base of the
+                      ;;       code block but START is relative to the
+                      ;;       base of the byte-interval.
+                      ;; NOTE: Only update offsets in the current
+                      ;;       block.
+                      (let* ((obj (get-uuid (first data) byte-interval))
+                             (obj-start (offset obj))
+                             (obj-end (+ obj-start (size obj)))
+                             (off (second data)))
+                        (when (and (typep obj 'gtirb-byte-block)
+                                   ;; Changes bytes intersect this block
+                                   (or (and (>= obj-start start)
+                                            (<= obj-start end))
+                                       (and (>= obj-end start)
+                                            (<= obj-end end)))
+                                   ;; This offset is after the start
+                                   ;; of the changed bytes
+                                   (>= (+ (offset obj) off) start))
+                          (incf (second data) difference)))
+                      data)
+                     (t data))))
+          (mapcar
+           (lambda (pair)
+             (let ((table (cdr pair)))
+               (setf (aux-data-data table)
+                     (update-offset (aux-data-data table)
+                                    (aux-data-type table)))))
+           (aux-data-w-offsets (ir byte-interval)))))
       ;; Byte-Blocks.
       (mapc (lambda (bb)
               (with-slots (offset) bb

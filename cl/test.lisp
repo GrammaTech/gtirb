@@ -401,6 +401,34 @@ The ERRNO used when exiting lisp indicates success or failure."
           (format stream "~4X" (aref bytes step)))
         (when (= 7 (mod step 8)) (format stream "~&"))))))
 
+(defun block-comments (data-block it)
+  (sort (nest (remove-if-not [{= (uuid data-block)} #'caar])
+              (hash-table-alist)
+              (aux-data-data) (cdr)
+              (assoc "comments" (gtirb::aux-data-w-offsets (ir it))
+                     :test #'equalp))
+        #'< :key #'offset))
+
+(deftest offsets-pushed-back ()
+  (nest (let ((gtirb::*update-aux-data-offsets* t)))
+        (with-fixture hello)
+        (let* ((it (read-gtirb *proto-path*))
+               (text (find-if [{string= ".text"} #'name]
+                              (sections (first (modules it)))))
+               (commented-block (find-if {block-comments _ it} (blocks text)))
+               (comment (first (block-comments commented-block it)))
+               (starting-offset (cadar comment)))
+          (is (gtirb::get-aux-data-w-offsets it)
+              "We're finding aux-data tables with offsets. ~
+             Should be at least comments and cfiDirectives.")
+          (is (gtirb::aux-data-w-offsets it)
+              "The `aux-data-w-offsets' was populated.")
+          #+nil (listing commented-block :comments t)
+          (setf (bytes commented-block 0 0) #(0 0 0 0))
+          #+nil (listing commented-block :comments t)
+          (is (= (+ 4 starting-offset)
+                 (cadar (first (block-comments commented-block it))))))))
+
 (deftest block-symbolic-expressions ()
   (with-fixture hello
     (is (nest (mappend [#'hash-table-values #'symbolic-expressions])
