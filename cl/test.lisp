@@ -164,10 +164,18 @@ The ERRNO used when exiting lisp indicates success or failure."
     (let ((hello (read-gtirb *proto-path*)))
       (mapc (lambda (pair)
               (destructuring-bind (name . aux-data) pair
-                (let ((orig (proto:data (gtirb::proto aux-data)))
-                      (new (gtirb::aux-data-encode
-                            (aux-data-type aux-data) (aux-data-data aux-data))))
-                  (is (equalp orig new)
+                (let* ((orig (proto:data (gtirb::proto aux-data)))
+                       (type (aux-data-type aux-data))
+                       (new (gtirb::aux-data-encode
+                             type (aux-data-data aux-data))))
+                  (is (if (and (listp type) (eql :mapping (car type)))
+                          ;; Hashmaps may differ due to unspecified sort order,
+                          ;; so check decoded set equality in this case.
+                          (set-equal
+                           (hash-table-alist (gtirb::aux-data-decode type new))
+                           (hash-table-alist (gtirb::aux-data-decode type orig))
+                           :test #'equalp)
+                          (equalp orig new))
                       "~s with type ~a encodes/decodes is not idempotent~%~s"
                       name (aux-data-type aux-data)
                       (list orig new)))))
