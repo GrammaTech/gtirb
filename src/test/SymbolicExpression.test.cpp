@@ -40,11 +40,15 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     SymStackConst S = std::get<SymStackConst>(Result);
     EXPECT_EQ(S.Offset, 1);
     EXPECT_EQ(S.Sym->getName(), "test1");
+    EXPECT_EQ(S.Attributes, SymAttributeSet());
   }
 
   // SymAddrConst
   {
-    SymbolicExpression original(SymAddrConst{1, Sym1});
+    SymAttributeSet OrigSASet;
+    OrigSASet.addFlags(SymAttribute::Part0, SymAttribute::Adjusted,
+                       SymAttribute::PltRef);
+    SymbolicExpression original(SymAddrConst{1, Sym1, OrigSASet});
 
     gtirb::SymbolicExpression Result;
     std::stringstream ss;
@@ -54,6 +58,7 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     SymAddrConst S = std::get<SymAddrConst>(Result);
     EXPECT_EQ(S.Offset, 1);
     EXPECT_EQ(S.Sym->getName(), "test1");
+    EXPECT_EQ(S.Attributes, OrigSASet);
   }
 
   // SymAddrAddr
@@ -71,4 +76,78 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
     EXPECT_EQ(S.Sym1->getName(), "test1");
     EXPECT_EQ(S.Sym2->getName(), "test2");
   }
+}
+
+TEST(Unit_SymAttributeSet, Base) {
+  gtirb::SymAttributeSet SASet;
+
+  EXPECT_EQ(SASet.begin(), SASet.end());
+  for (size_t I = 0; I <= static_cast<size_t>(SymAttribute::Max); ++I) {
+    EXPECT_FALSE(SASet.isFlagSet(static_cast<SymAttribute>(I)));
+  }
+
+  // Note: using Max here instead of PltRef so test continues to
+  // work if more attributes are added.
+  SASet.addFlags(SymAttribute::Part0, SymAttribute::Adjusted,
+                 SymAttribute::Max);
+  EXPECT_TRUE(SASet.isFlagSet(SymAttribute::Part0));
+  EXPECT_TRUE(SASet.isFlagSet(SymAttribute::Adjusted));
+  EXPECT_TRUE(SASet.isFlagSet(SymAttribute::Max));
+  EXPECT_FALSE(SASet.isFlagSet(SymAttribute::Part1));
+
+  SASet.removeFlag(SymAttribute::Part0);
+  EXPECT_FALSE(SASet.isFlagSet(SymAttribute::Part0));
+
+  SASet.addFlag(SymAttribute::Part1);
+  EXPECT_TRUE(SASet.isFlagSet(SymAttribute::Part1));
+
+  bool SawPart1 = false;
+  bool SawAdj = false;
+  bool SawMax = false;
+  bool SawUnexpected = false;
+  for (auto It = SASet.flags().begin(); It != SASet.flags().end(); ++It) {
+    switch (*It) {
+    case SymAttribute::Part1:
+      SawPart1 = true;
+      break;
+    case SymAttribute::Adjusted:
+      SawAdj = true;
+      break;
+    case SymAttribute::Max:
+      SawMax = true;
+      break;
+    default:
+      SawUnexpected = true;
+    }
+  }
+  EXPECT_TRUE(SawPart1);
+  EXPECT_TRUE(SawAdj);
+  EXPECT_TRUE(SawMax);
+  EXPECT_FALSE(SawUnexpected);
+
+  SawPart1 = false;
+  SawAdj = false;
+  SawMax = false;
+  auto It = SASet.end();
+  do {
+    --It;
+    ASSERT_NE(It, SASet.flags().end());
+    switch (*It) {
+    case SymAttribute::Part1:
+      SawPart1 = true;
+      break;
+    case SymAttribute::Adjusted:
+      SawAdj = true;
+      break;
+    case SymAttribute::Max:
+      SawMax = true;
+      break;
+    default:
+      SawUnexpected = true;
+    }
+  } while (It != SASet.begin());
+  EXPECT_TRUE(SawPart1);
+  EXPECT_TRUE(SawAdj);
+  EXPECT_TRUE(SawMax);
+  EXPECT_FALSE(SawUnexpected);
 }

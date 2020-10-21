@@ -33,10 +33,28 @@ message SymAddrAddr {
   bytes symbol2_uuid = 4;
 }
 
+enum SEAttributeFlag {
+  Part0 = 0;
+  Part1 = 1;
+  Part2 = 2;
+  Part3 = 3;
+  Adjusted = 4;
+  Got = 5;
+  GotRelPC = 6;
+  GotRelGot = 7;
+  AddrRelGot = 8;
+  GotRelAddr = 9;
+  GotPage = 10;
+  GotPageOfst = 11;
+  PltCall = 12;
+  PltRef = 13;
+}
+
 message SymbolicExpression {
   oneof value {
     SymStackConst stack_const = 1;
     SymAddrConst addr_const = 2;
     SymAddrAddr addr_addr = 3;
   }
+  repeated SEAttributeFlag attribute_flags = 4;
 }

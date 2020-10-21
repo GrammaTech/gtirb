@@ -20,6 +20,23 @@
 #include <variant>
 
 namespace gtirb {
+
+static void symAttributeSetToProtobuf(const SymAttributeSet& SASet,
+                                      proto::SymbolicExpression* Message) {
+  for (auto It = SASet.begin(); It != SASet.end(); ++It) {
+    Message->add_attribute_flags(static_cast<proto::SEAttributeFlag>(*It));
+  }
+}
+
+static SymAttributeSet
+symAttributeSetFromProtobuf(const proto::SymbolicExpression& Message) {
+  SymAttributeSet SASet;
+  for (size_t I = 0, E = Message.attribute_flags_size(); I != E; ++I) {
+    SASet.addFlag(static_cast<SymAttribute>(Message.attribute_flags(I)));
+  }
+  return SASet;
+}
+
 class SymbolicVisitor {
 public:
   proto::SymbolicExpression* Message;
@@ -32,6 +49,7 @@ public:
     if (Val.Sym) {
       uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
     }
+    symAttributeSetToProtobuf(Val.Attributes, Message);
   }
 
   void operator()(const SymAddrConst& Val) const {
@@ -40,6 +58,7 @@ public:
     if (Val.Sym) {
       uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
     }
+    symAttributeSetToProtobuf(Val.Attributes, Message);
   }
 
   void operator()(const SymAddrAddr& Val) const {
@@ -52,6 +71,7 @@ public:
     if (Val.Sym2) {
       uuidToBytes(Val.Sym2->getUUID(), *M->mutable_symbol2_uuid());
     }
+    symAttributeSetToProtobuf(Val.Attributes, Message);
   }
 };
 
@@ -74,19 +94,22 @@ bool fromProtobuf(Context& C, SymbolicExpression& Result,
   switch (Message.value_case()) {
   case proto::SymbolicExpression::kStackConst: {
     const auto& Val = Message.stack_const();
-    Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
+    Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid()),
+                           symAttributeSetFromProtobuf(Message)};
     return std::get<SymStackConst>(Result).Sym != nullptr;
   }
   case proto::SymbolicExpression::kAddrConst: {
     const auto& Val = Message.addr_const();
-    Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid())};
+    Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid()),
+                          symAttributeSetFromProtobuf(Message)};
     return std::get<SymAddrConst>(Result).Sym != nullptr;
   }
   case proto::SymbolicExpression::kAddrAddr: {
     const auto& Val = Message.addr_addr();
     Result = SymAddrAddr{Val.scale(), Val.offset(),
                          symbolFromProto(C, Val.symbol1_uuid()),
-                         symbolFromProto(C, Val.symbol2_uuid())};
+                         symbolFromProto(C, Val.symbol2_uuid()),
+                         symAttributeSetFromProtobuf(Message)};
     return std::get<SymAddrAddr>(Result).Sym1 != nullptr &&
            std::get<SymAddrAddr>(Result).Sym2 != nullptr;
   }
