@@ -788,12 +788,16 @@ elements as proxy blocks do not hold bytes.")
           (dotimes (n (length (proto:symbolic-expressions proto)) table)
             (let* ((proto (aref (proto:symbolic-expressions proto) n))
                    (offset (proto:key proto))
+                   (attribute-flags
+                    (map 'list [#'cdr {assoc _ +se-attribute-flag-map+}]
+                         (proto:attribute-flags (proto:value proto))))
                    (symbolic-expression (proto:value proto)))
               (setf (gethash offset table)
                     (cond
                       ((proto:has-stack-const symbolic-expression)
                        (make-instance 'sym-stack-const
                          :ir (ir self)
+                         :attribute-flags attribute-flags
                          :symbols (process-symbols
                                    (proto:symbol-uuid
                                     (proto:addr-const symbolic-expression)))
@@ -801,6 +805,7 @@ elements as proxy blocks do not hold bytes.")
                       ((proto:has-addr-const symbolic-expression)
                        (make-instance 'sym-addr-const
                          :ir (ir self)
+                         :attribute-flags attribute-flags
                          :symbols (process-symbols
                                    (proto:symbol-uuid
                                     (proto:addr-const symbolic-expression)))
@@ -808,6 +813,7 @@ elements as proxy blocks do not hold bytes.")
                       ((proto:has-addr-addr symbolic-expression)
                        (make-instance 'sym-addr-addr
                          :ir (ir self)
+                         :attribute-flags attribute-flags
                          :symbols (process-symbols
                                    (proto:symbol1-uuid
                                     (proto:addr-addr symbolic-expression))
@@ -819,23 +825,32 @@ elements as proxy blocks do not hold bytes.")
       [{map 'vector
             (lambda (pair)
               (destructuring-bind (offset . symbolic-expression) pair
-                (let ((it (make-instance
-                              'proto:byte-interval-symbolic-expressions-entry)))
-                  (setf (proto:key it) offset
-                        (proto:value it)
-                        (let ((it (make-instance 'proto:symbolic-expression)))
-                          (etypecase symbolic-expression
-                            (sym-stack-const
-                             (setf (proto:stack-const it)
-                                   (update-proto symbolic-expression)))
-                            (sym-addr-const
-                             (setf (proto:addr-const it)
-                                   (update-proto symbolic-expression)))
-                            (sym-addr-addr
-                             (setf (proto:addr-addr it)
-                                   (update-proto symbolic-expression))))
-                          it))
-                  it)))}
+                (flet ((force-mod-14-array (array)
+                         (declare (type (simple-array) array))
+                         (make-array (length array) :element-type '(mod 14)
+                                     :initial-contents array)))
+                  (let ((it (make-instance
+                                'proto:byte-interval-symbolic-expressions-entry)))
+                    (setf (proto:key it) offset
+                          (proto:value it)
+                          (let ((it (make-instance 'proto:symbolic-expression)))
+                            (setf (proto:attribute-flags it)
+                                  (force-mod-14-array
+                                   (map 'vector
+                                        [#'car {rassoc _ +se-attribute-flag-map+}]
+                                        (attribute-flags symbolic-expression))))
+                            (etypecase symbolic-expression
+                              (sym-stack-const
+                               (setf (proto:stack-const it)
+                                     (update-proto symbolic-expression)))
+                              (sym-addr-const
+                               (setf (proto:addr-const it)
+                                     (update-proto symbolic-expression)))
+                              (sym-addr-addr
+                               (setf (proto:addr-addr it)
+                                     (update-proto symbolic-expression))))
+                            it))
+                    it))))}
        #'hash-table-alist]
       :documentation "Hash of symbolic-expressions keyed by offset."))
     ((addressp :type boolean :proto-field has-address
@@ -879,9 +894,28 @@ at runtime.")
 (defmethod address ((obj byte-interval))
   (when (addressp obj) (proto:address (proto obj))))
 
+(define-constant +se-attribute-flag-map+
+    '((#.proto:+se-attribute-flag-part0+ . :part0)
+      (#.proto:+se-attribute-flag-part1+ . :part1)
+      (#.proto:+se-attribute-flag-part2+ . :part2)
+      (#.proto:+se-attribute-flag-part3+ . :part3)
+      (#.proto:+se-attribute-flag-adjusted+ . :adjusted)
+      (#.proto:+se-attribute-flag-got+ . :got)
+      (#.proto:+se-attribute-flag-got-rel-pc+ . :got-rel-pc)
+      (#.proto:+se-attribute-flag-got-rel-got+ . :got-rel-got)
+      (#.proto:+se-attribute-flag-addr-rel-got+ . :addr-rel-got)
+      (#.proto:+se-attribute-flag-got-rel-addr+ . :got-rel-addr)
+      (#.proto:+se-attribute-flag-got-page+ . :got-page)
+      (#.proto:+se-attribute-flag-got-page-ofst+ . :got-page-ofst)
+      (#.proto:+se-attribute-flag-plt-call+ . :plt-call)
+      (#.proto:+se-attribute-flag-plt-ref+ . :plt-ref))
+  :test #'equal)
+
 (defclass symbolic-expression ()
   ((symbols :accessor symbols :initarg :symbols :initform nil :type list
-            :documentation "Symbol(s) appearing in this symbolic expression.")))
+            :documentation "Symbol(s) appearing in this symbolic expression.")
+   (attribute-flags :accessor attribute-flags :initarg :attribute-flags
+                    :initform nil :type list)))
 
 (defmethod print-object ((obj symbolic-expression) stream)
   (print-unreadable-object (obj stream :type t :identity t)
