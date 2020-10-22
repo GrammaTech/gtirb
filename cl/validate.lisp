@@ -16,10 +16,11 @@
 
 (defvar *failed-checks*)
 
-(defgeneric validate (object)
+(defgeneric validate (object &key requirements)
   (:documentation "Validate that OBJECT satisfies the requirements in .")
-  (:method ((object t) &aux (*failed-checks* nil))
-    (values (every {check object} (cdr (assoc (type-of object) *requirements*)))
+  (:method
+      ((object t) &key (requirements *requirements*) &aux (*failed-checks* nil))
+    (values (every {check object} (cdr (assoc (type-of object) requirements)))
             *failed-checks*)))
 
 (defclass check ()
@@ -31,10 +32,11 @@
          :type string :documentation "Name of the check."))
   (:documentation "Check objects hold validation checks for gtirb instances."))
 
-(defmethod initialize-instance :after ((check check) &key &allow-other-keys)
-  (unless (assoc (object check) *requirements*)
-    (push (list (object check)) *requirements*))
-  (pushnew check (cdr (assoc (object check) *requirements*)) :key #'name))
+(defmethod initialize-instance :after
+    ((check check) &key (requirements *requirements*) &allow-other-keys)
+  (unless (assoc (object check) requirements)
+    (push (list (object check)) requirements))
+  (pushnew check (cdr (assoc (object check) requirements)) :key #'name))
 
 (defgeneric check (object requirement)
   (:documentation "Check that OBJECT satisfies REQUIREMENT.")
