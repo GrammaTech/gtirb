@@ -915,7 +915,8 @@ at runtime.")
   ((symbols :accessor symbols :initarg :symbols :initform nil :type list
             :documentation "Symbol(s) appearing in this symbolic expression.")
    (attribute-flags :accessor attribute-flags :initarg :attribute-flags
-                    :initform nil :type list)))
+                    :initform nil :type list
+                    :documentation "Attributes holding the relocation type.")))
 
 (defmethod print-object ((obj symbolic-expression) stream)
   (print-unreadable-object (obj stream :type t :identity t)
