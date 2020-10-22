@@ -730,6 +730,23 @@ Primitive accessor for byte-interval.")
   (:method ((obj module)) (mappend #'blocks (sections obj)))
   (:method ((obj section)) (mappend #'blocks (byte-intervals obj))))
 
+(define-constant +se-attribute-flag-map+
+    '((#.proto:+se-attribute-flag-part0+ . :part0)
+      (#.proto:+se-attribute-flag-part1+ . :part1)
+      (#.proto:+se-attribute-flag-part2+ . :part2)
+      (#.proto:+se-attribute-flag-part3+ . :part3)
+      (#.proto:+se-attribute-flag-adjusted+ . :adjusted)
+      (#.proto:+se-attribute-flag-got+ . :got)
+      (#.proto:+se-attribute-flag-got-rel-pc+ . :got-rel-pc)
+      (#.proto:+se-attribute-flag-got-rel-got+ . :got-rel-got)
+      (#.proto:+se-attribute-flag-addr-rel-got+ . :addr-rel-got)
+      (#.proto:+se-attribute-flag-got-rel-addr+ . :got-rel-addr)
+      (#.proto:+se-attribute-flag-got-page+ . :got-page)
+      (#.proto:+se-attribute-flag-got-page-ofst+ . :got-page-ofst)
+      (#.proto:+se-attribute-flag-plt-call+ . :plt-call)
+      (#.proto:+se-attribute-flag-plt-ref+ . :plt-ref))
+  :test #'equal)
+
 (define-proto-backed-class (byte-interval proto:byte-interval) ()
     ((blocks :initarg :blocks :accessor blocks :type list
              :from-proto
@@ -893,23 +910,6 @@ at runtime.")
 
 (defmethod address ((obj byte-interval))
   (when (addressp obj) (proto:address (proto obj))))
-
-(define-constant +se-attribute-flag-map+
-    '((#.proto:+se-attribute-flag-part0+ . :part0)
-      (#.proto:+se-attribute-flag-part1+ . :part1)
-      (#.proto:+se-attribute-flag-part2+ . :part2)
-      (#.proto:+se-attribute-flag-part3+ . :part3)
-      (#.proto:+se-attribute-flag-adjusted+ . :adjusted)
-      (#.proto:+se-attribute-flag-got+ . :got)
-      (#.proto:+se-attribute-flag-got-rel-pc+ . :got-rel-pc)
-      (#.proto:+se-attribute-flag-got-rel-got+ . :got-rel-got)
-      (#.proto:+se-attribute-flag-addr-rel-got+ . :addr-rel-got)
-      (#.proto:+se-attribute-flag-got-rel-addr+ . :got-rel-addr)
-      (#.proto:+se-attribute-flag-got-page+ . :got-page)
-      (#.proto:+se-attribute-flag-got-page-ofst+ . :got-page-ofst)
-      (#.proto:+se-attribute-flag-plt-call+ . :plt-call)
-      (#.proto:+se-attribute-flag-plt-ref+ . :plt-ref))
-  :test #'equal)
 
 (defclass symbolic-expression ()
   ((symbols :accessor symbols :initarg :symbols :initform nil :type list
