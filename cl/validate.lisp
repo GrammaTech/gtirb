@@ -51,16 +51,18 @@
 
 
 ;;;; GTIRB Checks
-(defgeneric size-matches-contents (object)
+(defmacro define-check-generic (name (object) &body methods)
+  `(progn (defgeneric ,name (,object) ,@methods)
+          (make-instance 'check
+            :name ',name
+            :action ',name
+            :object ',(second (first (second (first methods)))))))
+
+(define-check-generic size-matches-contents (object)
   (:method ((obj gtirb)) (every #'size-matches-contents (modules obj)))
   (:method ((obj module)) (every #'size-matches-contents (sections obj)))
   (:method ((obj section)) (every #'size-matches-contents (byte-intervals obj)))
   (:method ((obj byte-interval)) (= (size obj) (length (contents obj)))))
-
-(make-instance 'check
-  :name 'size-matches-contents
-  :action 'size-matches-contents
-  :object 'gtirb)
 
 (flet ((nothing-overlaps- (things &aux (min 0))
          (and (every (lambda (pair)
@@ -70,7 +72,7 @@
                      (sort (mapcar «cons #'address #'size» things) #'<
                            :key #'car))
               (every #'nothing-overlaps things))))
-  (defgeneric nothing-overlaps (object)
+  (define-check-generic nothing-overlaps (object)
     (:method ((obj gtirb)) (every #'nothing-overlaps (modules obj)))
     (:method ((obj module)) (nothing-overlaps- (sections obj)))
     (:method ((obj section)) (nothing-overlaps- (byte-intervals obj)))
@@ -78,12 +80,7 @@
       (nothing-overlaps- (remove-if-not {typep _ 'code-block} (blocks obj))))
     (:method ((obj code-block)) t)))
 
-(make-instance 'check
-  :name 'nothing-overlaps
-  :action 'nothing-overlaps
-  :object 'gtirb)
-
-(defgeneric all-referents-exist (object)
+(define-check-generic all-referents-exist (object)
   (:method ((obj gtirb))
     (and (every #'all-referents-exist (modules obj))
          (every {get-uuid _ obj} (nodes (cfg obj)))))
@@ -93,12 +90,7 @@
         (payload obj)
         t)))
 
-(make-instance 'check
-  :name 'all-referents-exist
-  :action 'all-referents-exist
-  :object 'gtirb)
-
-(defgeneric symbolic-expression-size-well-formed (object)
+(define-check-generic symbolic-expression-size-well-formed (object)
   (:method ((obj gtirb))
     (every [{every «member #'second
                            [#'hash-table-keys #'symbolic-expressions
@@ -107,11 +99,6 @@
             (lambda (el) (assoc "symbolicExpressionSizes" el :test #'string=))
             #'aux-data]
            (modules obj))))
-
-(make-instance 'check
-  :name 'symbolic-expression-size-well-formed
-  :action 'symbolic-expression-size-well-formed
-  :object 'gtirb)
 
 
 ;;;; Command-line interface
