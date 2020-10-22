@@ -1,9 +1,31 @@
 import typing
+from enum import Enum
 from uuid import UUID
 
 from .node import Node
 from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
+
+
+class SymAttribute(Enum):
+    """Attributes that can be applied to a symbolic expression,
+    :class:`gtirb.SymAddrAddr`, :class:`gtirbSymAddrConst`, or
+    :class:`gtrib.SymStackConst`."""
+
+    Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
+    Part1 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part1")
+    Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
+    Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
+    Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
+    Got = SymbolicExpression_pb2.SEAttributeFlag.Value("Got")
+    GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
+    GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
+    AddrRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("AddrRelGot")
+    GotRelAddr = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelAddr")
+    GotPage = SymbolicExpression_pb2.SEAttributeFlag.Value("GotPage")
+    GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value("GotPageOfst")
+    PltCall = SymbolicExpression_pb2.SEAttributeFlag.Value("PltCall")
+    PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
 
 
 class SymAddrAddr:
@@ -22,6 +44,7 @@ class SymAddrAddr:
         offset,  # type: int
         symbol1,  # type: Symbol
         symbol2,  # type: Symbol
+        attributes=set(),  # type: typing.Iterable[SymAttribute]
     ):
         # type: (...) -> None
         """
@@ -29,12 +52,14 @@ class SymAddrAddr:
         :param offset: Constant offset.
         :param symbol1: Symbol representing the base address.
         :param symbol2: Symbol to subtract from ``symbol1``.
+        :param attributes: :class:`SymAttribute`\\s of this expression.
         """
 
         self.scale = scale  # type: int
         self.offset = offset  # type: int
         self.symbol1 = symbol1  # type: Symbol
         self.symbol2 = symbol2  # type: Symbol
+        self.attributes = set(attributes)  # type: typing.Set[SymAttribute]
 
     @classmethod
     def _from_protobuf(
@@ -67,6 +92,7 @@ class SymAddrAddr:
             and self.offset == other.offset
             and self.symbol1.uuid == other.symbol1.uuid
             and self.symbol2.uuid == other.symbol2.uuid
+            and self.attributes == other.attributes
         )
 
     def __hash__(self):
@@ -96,6 +122,7 @@ class SymAddrAddr:
             and self.offset == other.offset
             and self.symbol1.deep_eq(other.symbol1)
             and self.symbol2.deep_eq(other.symbol2)
+            and self.attributes == other.attributes
         )
 
 
@@ -106,15 +133,17 @@ class SymAddrConst:
     :ivar ~.symbol: Symbol representing an address.
     """
 
-    def __init__(self, offset, symbol):
+    def __init__(self, offset, symbol, attributes=set()):
         # type: (int,Symbol) -> None
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing an address.
+        :param attributes: :class:`SymAttribute`\\s of this expression.
         """
 
         self.offset = offset  # type: int
         self.symbol = symbol  # type: Symbol
+        self.attributes = set(attributes)  # type: typing.Set[SymAttribute]
 
     @classmethod
     def _from_protobuf(
@@ -141,6 +170,7 @@ class SymAddrConst:
         return (
             self.offset == other.offset
             and self.symbol.uuid == other.symbol.uuid
+            and self.attributes == other.attributes
         )
 
     def __hash__(self):
@@ -161,8 +191,10 @@ class SymAddrConst:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, SymAddrConst):
             return False
-        return self.offset == other.offset and self.symbol.deep_eq(
-            other.symbol
+        return (
+            self.offset == other.offset
+            and self.symbol.deep_eq(other.symbol)
+            and self.attributes == other.attributes
         )
 
 
@@ -174,15 +206,17 @@ class SymStackConst:
     :ivar ~.symbol: Symbol representing a stack variable.
     """
 
-    def __init__(self, offset, symbol):
+    def __init__(self, offset, symbol, attributes=set()):
         # type: (int,Symbol) -> None
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing a stack variable.
+        :param attributes: :class:`SymAttribute`\\s of this expression.
         """
 
         self.offset = offset  # type: int
         self.symbol = symbol  # type: Symbol
+        self.attributes = set(attributes)  # type: typing.Set[SymAttribute]
 
     @classmethod
     def _from_protobuf(
@@ -209,6 +243,7 @@ class SymStackConst:
         return (
             self.offset == other.offset
             and self.symbol.uuid == other.symbol.uuid
+            and self.attributes == other.attributes
         )
 
     def __hash__(self):
@@ -229,8 +264,10 @@ class SymStackConst:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, SymStackConst):
             return False
-        return self.offset == other.offset and self.symbol.deep_eq(
-            other.symbol
+        return (
+            self.offset == other.offset
+            and self.symbol.deep_eq(other.symbol)
+            and self.attributes == other.attributes
         )
 
 

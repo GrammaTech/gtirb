@@ -7,6 +7,7 @@ from .proto import ByteInterval_pb2, SymbolicExpression_pb2
 from .symbolicexpression import (
     SymAddrAddr,
     SymAddrConst,
+    SymAttribute,
     SymbolicExpression,
     SymStackConst,
 )
@@ -206,10 +207,11 @@ class ByteInterval(Node):
                     % proto_expr.WhichOneof("value")
                 )
 
-        self.symbolic_expressions = {
-            i: decode_symbolic_expression(v)
-            for i, v in self._proto_interval.symbolic_expressions.items()
-        }
+        self.symbolic_expressions = {}
+        for i, v in self._proto_interval.symbolic_expressions.items():
+            expr = decode_symbolic_expression(v)
+            expr.attributes = set(SymAttribute(f) for f in v.attribute_flags)
+            self.symbolic_expressions[i] = expr
 
         del self._proto_interval
 
@@ -257,6 +259,7 @@ class ByteInterval(Node):
                 raise ValueError(
                     "Expected sym expr type in interval: %s" % type(v)
                 )
+            sym_exp.attribute_flags.extend(a.value for a in v.attributes)
             proto_interval.symbolic_expressions[k].CopyFrom(sym_exp)
 
         return proto_interval
