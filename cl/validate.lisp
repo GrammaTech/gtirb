@@ -28,7 +28,8 @@
    (object :reader object :initarg :object
            :type symbol :documentation "Type of object the check applies to.")
    (name :reader name :initarg :name
-         :type string :documentation "Name of the check.")))
+         :type string :documentation "Name of the check."))
+  (:documentation "Check objects hold validation checks for gtirb instances."))
 
 (defmethod initialize-instance :after ((check check) &key &allow-other-keys)
   (unless (assoc (object check) *requirements*)
