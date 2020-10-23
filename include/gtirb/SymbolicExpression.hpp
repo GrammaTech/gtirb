@@ -42,7 +42,7 @@ class Symbol; // Forward refernece for Sym, Sym1, Sym2, etc.
 ///
 /// \brief The space of attributes that can be applied to a symbolic
 /// expression.
-enum SymAttribute {
+enum class SymAttribute : uint8_t {
   Part0 = proto::SEAttributeFlag::Part0,
   Part1 = proto::SEAttributeFlag::Part1,
   Part2 = proto::SEAttributeFlag::Part2,
@@ -110,7 +110,7 @@ public:
                                       SymAttribute> {
   public:
     SymAttribute dereference() const {
-      assert(CurrIndex <= static_cast<size_t>(Max));
+      assert(CurrIndex <= static_cast<size_t>(SymAttribute::Max));
       assert(SASet.Flags.test(CurrIndex));
       return static_cast<SymAttribute>(CurrIndex);
     }
@@ -120,7 +120,7 @@ public:
     }
 
     void increment() {
-      assert(CurrIndex <= static_cast<size_t>(Max));
+      assert(CurrIndex <= static_cast<size_t>(SymAttribute::Max));
       moveToNextBit();
     }
 
@@ -176,7 +176,7 @@ public:
   /// \brief Return a const iterator to the element following the last \ref
   /// Attribute.
   const_iterator end() const {
-    return const_iterator(*this, static_cast<size_t>(SymAttribute::Max + 1));
+    return const_iterator(*this, static_cast<size_t>(SymAttribute::Max) + 1);
   }
 
   /// \brief Return a range of the \ref SymAttribute flags set for the
@@ -186,7 +186,7 @@ public:
   }
 
 private:
-  std::bitset<static_cast<size_t>(SymAttribute::Max + 1)> Flags;
+  std::bitset<static_cast<size_t>(SymAttribute::Max) + 1> Flags;
 
   friend class const_iterator;
 };
