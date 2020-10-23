@@ -100,7 +100,7 @@ public:
   void addFlag(SymAttribute F) {
     size_t index = static_cast<size_t>(F);
     assert(index <= static_cast<size_t>(SymAttribute::Max));
-    Flags.set(index);
+    Flags[index] = 1;
   }
 
   /// \brief Adds all of the flags to the SymbolicExpression.
@@ -114,7 +114,7 @@ public:
   void removeFlag(SymAttribute F) {
     size_t index = static_cast<size_t>(F);
     assert(index <= static_cast<size_t>(SymAttribute::Max));
-    Flags.reset(index);
+    Flags[index] = 0;
   }
 
   /// \brief Tests whether the given flag is set for the SymbolicExpression.
@@ -124,7 +124,7 @@ public:
   bool isFlagSet(SymAttribute F) const {
     size_t index = static_cast<size_t>(F);
     assert(index <= static_cast<size_t>(SymAttribute::Max));
-    return Flags.test(index);
+    return Flags[index];
   }
 
   friend bool operator==(const SymAttributeSet& LHS,
@@ -140,7 +140,7 @@ public:
   public:
     SymAttribute dereference() const {
       assert(CurrIndex <= static_cast<size_t>(SymAttribute::Max));
-      assert(SASet.Flags.test(CurrIndex));
+      assert(SASet.Flags[CurrIndex]);
       return static_cast<SymAttribute>(CurrIndex);
     }
 
@@ -162,7 +162,7 @@ public:
     const_iterator(const SymAttributeSet& SASet_, size_t start)
         : SASet(SASet_), CurrIndex(start) {
       if (start <= static_cast<size_t>(SymAttribute::Max) &&
-          !SASet.Flags.test(CurrIndex))
+          !SASet.Flags[CurrIndex])
         moveToNextBit();
     }
 
@@ -171,7 +171,7 @@ public:
         do {
           ++CurrIndex;
         } while (CurrIndex <= static_cast<size_t>(SymAttribute::Max) &&
-                 !SASet.Flags.test(CurrIndex));
+                 !SASet.Flags[CurrIndex]);
       }
     }
 
@@ -179,13 +179,13 @@ public:
       size_t NewIndex = CurrIndex;
       while (NewIndex > 0) {
         --NewIndex;
-        if (SASet.Flags.test(NewIndex))
+        if (SASet.Flags[NewIndex])
           break;
       }
       // Assert if there is no earlier bit.
       // This would indicate an attempt to move before begin().
-      assert(SASet.Flags.test(NewIndex));
-      if (SASet.Flags.test(NewIndex)) {
+      assert(SASet.Flags[NewIndex]);
+      if (SASet.Flags[NewIndex]) {
         CurrIndex = NewIndex;
       }
     }
