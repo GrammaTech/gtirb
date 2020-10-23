@@ -43,19 +43,48 @@ class Symbol; // Forward refernece for Sym, Sym1, Sym2, etc.
 /// \brief The space of attributes that can be applied to a symbolic
 /// expression.
 enum class SymAttribute : uint8_t {
-  Part0 = proto::SEAttributeFlag::Part0,
-  Part1 = proto::SEAttributeFlag::Part1,
-  Part2 = proto::SEAttributeFlag::Part2,
-  Part3 = proto::SEAttributeFlag::Part3,
+  Part0 = proto::SEAttributeFlag::Part0, ///< Only bytes [0,1] are used
+  Part1 = proto::SEAttributeFlag::Part1, ///< Only bytes [2,3] are used
+  Part2 = proto::SEAttributeFlag::Part2, ///< Only bytes [4,5] are used
+  Part3 = proto::SEAttributeFlag::Part3, ///< Only bytes [6,7] are used
+
+  /// Indiates that the Parts are composed by addition, and that the
+  /// lower part is sign extended. Thus the upper parts must be
+  /// adjusted to account for that. Applies to Part1-Part3, but not
+  /// Part0.
   Adjusted = proto::SEAttributeFlag::Adjusted,
-  Got = proto::SEAttributeFlag::Got,
+
+  /// Value is the address of the GOT entry for the symbol.
+  GotRef = proto::SEAttributeFlag::GotRef,
+
+  /// Value is the PC-relative address of the GOT entry for the
+  /// symbol. How the PC relates to the address of the instruction is
+  /// ISA-dependent.
   GotRelPC = proto::SEAttributeFlag::GotRelPC,
+
+  /// Value is the address of the GOT entry for the symbol relative to
+  /// the global pointer, which is the address of the GOT plus an
+  /// offset. The offset is ISA-dependent, and in the case of certain
+  /// PPC ABIs, may also depend on which object file the instruction
+  /// originally came from.
   GotRelGot = proto::SEAttributeFlag::GotRelGot,
+
+  /// Value is the address as computed by the symbolic expression
+  /// relative to the global pointer, defined above.
   AddrRelGot = proto::SEAttributeFlag::AddrRelGot,
+
+  /// Value is the negative of GOT_RELGOT. That is, it is the global
+  /// pointer relative to the address of the GOT entry for the symbol.
   GotRelAddr = proto::SEAttributeFlag::GotRelAddr,
+
+  /// Value is the address of a special GOT entry for the symbol,
+  /// relative to the global pointer.
   GotPage = proto::SEAttributeFlag::GotPage,
+
+  /// Value is the address of the symbol, relative to the GOT_PAGE value.
   GotPageOfst = proto::SEAttributeFlag::GotPageOfst,
-  PltCall = proto::SEAttributeFlag::PltCall,
+
+  /// Value is the address of the PLT entry for the symbol.
   PltRef = proto::SEAttributeFlag::PltRef,
 
   Max = PltRef

@@ -39,15 +39,14 @@ enum SEAttributeFlag {
   Part2 = 2;
   Part3 = 3;
   Adjusted = 4;
-  Got = 5;
+  GotRef = 5;
   GotRelPC = 6;
   GotRelGot = 7;
   AddrRelGot = 8;
   GotRelAddr = 9;
   GotPage = 10;
   GotPageOfst = 11;
-  PltCall = 12;
-  PltRef = 13;
+  PltRef = 12;
 }
 
 message SymbolicExpression {
