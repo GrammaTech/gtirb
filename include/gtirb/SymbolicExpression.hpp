@@ -137,7 +137,7 @@ public:
       : public boost::iterator_facade<const_iterator, SymAttribute,
                                       boost::bidirectional_traversal_tag,
                                       SymAttribute> {
-  public:
+  private:
     SymAttribute dereference() const {
       assert(CurrIndex <= static_cast<size_t>(SymAttribute::Max));
       assert(SASet.Flags[CurrIndex]);
@@ -158,7 +158,6 @@ public:
       moveToPreviousBit();
     }
 
-  private:
     const_iterator(const SymAttributeSet& SASet_, size_t start)
         : SASet(SASet_), CurrIndex(start) {
       if (start <= static_cast<size_t>(SymAttribute::Max) &&
@@ -194,6 +193,7 @@ public:
     size_t CurrIndex;
 
     friend class SymAttributeSet;
+    friend class boost::iterator_core_access;
   };
 
   /// \brief Range of \ref Attribute flags.
