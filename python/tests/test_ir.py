@@ -39,7 +39,7 @@ class IRTest(unittest.TestCase):
         db.byte_interval = bi
         sym = gtirb.Symbol(name="name", payload=cb)
         sym.module = m
-        sac = gtirb.SymAddrConst(0, sym)
+        sac = gtirb.SymAddrConst(0, sym, {gtirb.SymAttribute.Part1})
         bi.symbolic_expressions[2] = sac
         p = gtirb.ProxyBlock()
         p.module = m

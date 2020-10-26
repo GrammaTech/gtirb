@@ -9,7 +9,7 @@ from .symbol import Symbol
 
 class SymAttribute(Enum):
     """Attributes that can be applied to a symbolic expression,
-    :class:`gtirb.SymAddrAddr`, :class:`gtirbSymAddrConst`, or
+    :class:`gtirb.SymAddrAddr`, :class:`gtirb.SymAddrConst`, or
     :class:`gtrib.SymStackConst`."""
 
     Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
