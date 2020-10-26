@@ -109,12 +109,12 @@ class DeepEqTest(unittest.TestCase):
         s1 = gtirb.SymAddrConst(
             offset=1,
             symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymAddrConst(
             offset=1,
             symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         self.assertTrue(s1.deep_eq(s2))
 
@@ -137,7 +137,7 @@ class DeepEqTest(unittest.TestCase):
         s1 = gtirb.SymAddrConst(
             offset=1,
             symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymAddrConst(
             offset=1, symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
@@ -148,12 +148,12 @@ class DeepEqTest(unittest.TestCase):
         s1 = gtirb.SymStackConst(
             offset=1,
             symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymStackConst(
             offset=1,
             symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         self.assertTrue(s1.deep_eq(s2))
 
@@ -176,7 +176,7 @@ class DeepEqTest(unittest.TestCase):
         s1 = gtirb.SymStackConst(
             offset=1,
             symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymStackConst(
             offset=1, symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
@@ -189,14 +189,14 @@ class DeepEqTest(unittest.TestCase):
             scale=2,
             symbol1=gtirb.Symbol(name="name1", payload=None, uuid=id1),
             symbol2=gtirb.Symbol(name="name2", payload=None, uuid=id2),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymAddrAddr(
             offset=1,
             scale=2,
             symbol1=gtirb.Symbol(name="name1", payload=None, uuid=id1),
             symbol2=gtirb.Symbol(name="name2", payload=None, uuid=id2),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         self.assertTrue(s1.deep_eq(s2))
 
@@ -261,7 +261,7 @@ class DeepEqTest(unittest.TestCase):
             scale=2,
             symbol1=gtirb.Symbol(name="name1", payload=None, uuid=id1),
             symbol2=gtirb.Symbol(name="name2", payload=None, uuid=id2),
-            attributes={gtirb.SymAttribute.Part1},
+            attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymAddrAddr(
             offset=1,

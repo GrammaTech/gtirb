@@ -7,28 +7,37 @@ from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
 
 
-class SymAttribute(Enum):
-    """Attributes that can be applied to a symbolic expression,
-    :class:`gtirb.SymAddrAddr`, :class:`gtirb.SymAddrConst`, or
-    :class:`gtrib.SymStackConst`."""
+class SymbolicExpression:
+    """Base class of symbolic expressions types."""
 
-    Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
-    Part1 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part1")
-    Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
-    Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
-    Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
-    Got = SymbolicExpression_pb2.SEAttributeFlag.Value("Got")
-    GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
-    GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
-    AddrRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("AddrRelGot")
-    GotRelAddr = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelAddr")
-    GotPage = SymbolicExpression_pb2.SEAttributeFlag.Value("GotPage")
-    GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value("GotPageOfst")
-    PltCall = SymbolicExpression_pb2.SEAttributeFlag.Value("PltCall")
-    PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
+    class Attribute(Enum):
+        """Attributes representing a known property of a symbolic
+        expression."""
+
+        Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
+        Part1 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part1")
+        Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
+        Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
+        Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
+        Got = SymbolicExpression_pb2.SEAttributeFlag.Value("Got")
+        GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
+        GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
+        AddrRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("AddrRelGot")
+        GotRelAddr = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelAddr")
+        GotPage = SymbolicExpression_pb2.SEAttributeFlag.Value("GotPage")
+        GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value(
+            "GotPageOfst"
+        )
+        PltCall = SymbolicExpression_pb2.SEAttributeFlag.Value("PltCall")
+        PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
+
+    def __init__(
+        self, attributes=set(),
+    ):
+        self.attributes = attributes
 
 
-class SymAddrAddr:
+class SymAddrAddr(SymbolicExpression):
     """Represents a symbolic expression of the form
     "(Sym1 - Sym2) / Scale + Offset".
 
@@ -44,7 +53,7 @@ class SymAddrAddr:
         offset,  # type: int
         symbol1,  # type: Symbol
         symbol2,  # type: Symbol
-        attributes=set(),  # type: typing.Iterable[SymAttribute]
+        attributes=set(),
     ):
         # type: (...) -> None
         """
@@ -52,14 +61,14 @@ class SymAddrAddr:
         :param offset: Constant offset.
         :param symbol1: Symbol representing the base address.
         :param symbol2: Symbol to subtract from ``symbol1``.
-        :param attributes: :class:`SymAttribute`\\s of this expression.
+        :param attributes: :class:`SymobolicExpression.Attribute`\\s of this
+            expression.
         """
-
+        super().__init__(attributes)
         self.scale = scale  # type: int
         self.offset = offset  # type: int
         self.symbol1 = symbol1  # type: Symbol
         self.symbol2 = symbol2  # type: Symbol
-        self.attributes = set(attributes)  # type: typing.Set[SymAttribute]
 
     @classmethod
     def _from_protobuf(
@@ -126,7 +135,7 @@ class SymAddrAddr:
         )
 
 
-class SymAddrConst:
+class SymAddrConst(SymbolicExpression):
     """Represents a symbolic expression of the form "Sym + Offset".
 
     :ivar ~.offset: Constant offset.
@@ -138,12 +147,12 @@ class SymAddrConst:
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing an address.
-        :param attributes: :class:`SymAttribute`\\s of this expression.
+        :param attributes: :class:`SymbolicExpression.Attribute`\\s of this
+            expression.
         """
-
+        super().__init__(attributes)
         self.offset = offset  # type: int
         self.symbol = symbol  # type: Symbol
-        self.attributes = set(attributes)  # type: typing.Set[SymAttribute]
 
     @classmethod
     def _from_protobuf(
@@ -198,7 +207,7 @@ class SymAddrConst:
         )
 
 
-class SymStackConst:
+class SymStackConst(SymbolicExpression):
     """Represents a symbolic expression of the form "Sym + Offset",
     representing an offset from a stack variable.
 
@@ -211,12 +220,13 @@ class SymStackConst:
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing a stack variable.
-        :param attributes: :class:`SymAttribute`\\s of this expression.
+        :param attributes: :class:`SymbolicExpression.Attribute`\\s of this
+            expression.
         """
 
+        super().__init__(attributes)
         self.offset = offset  # type: int
         self.symbol = symbol  # type: Symbol
-        self.attributes = set(attributes)  # type: typing.Set[SymAttribute]
 
     @classmethod
     def _from_protobuf(
@@ -269,7 +279,3 @@ class SymStackConst:
             and self.symbol.deep_eq(other.symbol)
             and self.attributes == other.attributes
         )
-
-
-SymbolicExpression = typing.Union[SymAddrAddr, SymAddrConst, SymStackConst]
-"""A type hint for any symbolic expression type."""

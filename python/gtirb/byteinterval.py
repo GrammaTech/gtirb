@@ -7,7 +7,6 @@ from .proto import ByteInterval_pb2, SymbolicExpression_pb2
 from .symbolicexpression import (
     SymAddrAddr,
     SymAddrConst,
-    SymAttribute,
     SymbolicExpression,
     SymStackConst,
 )
@@ -210,7 +209,9 @@ class ByteInterval(Node):
         self.symbolic_expressions = {}
         for i, v in self._proto_interval.symbolic_expressions.items():
             expr = decode_symbolic_expression(v)
-            expr.attributes = set(SymAttribute(f) for f in v.attribute_flags)
+            expr.attributes = set(
+                SymbolicExpression.Attribute(f) for f in v.attribute_flags
+            )
             self.symbolic_expressions[i] = expr
 
         del self._proto_interval
