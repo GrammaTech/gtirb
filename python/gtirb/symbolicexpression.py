@@ -8,7 +8,7 @@ from .symbol import Symbol
 
 
 class SymbolicExpression:
-    """Base class of symbolic expressions types."""
+    """Base class of symbolic expression types."""
 
     class Attribute(Enum):
         """Attributes representing a known property of a symbolic
