@@ -19,7 +19,7 @@ class SymbolicExpression:
         Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
         Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
         Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
-        Got = SymbolicExpression_pb2.SEAttributeFlag.Value("Got")
+        GotRef = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRef")
         GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
         GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
         AddrRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("AddrRelGot")
@@ -28,7 +28,6 @@ class SymbolicExpression:
         GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value(
             "GotPageOfst"
         )
-        PltCall = SymbolicExpression_pb2.SEAttributeFlag.Value("PltCall")
         PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
 
     def __init__(
