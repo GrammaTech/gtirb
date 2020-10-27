@@ -48,7 +48,7 @@ enum class SymAttribute : uint8_t {
   Part2 = proto::SEAttributeFlag::Part2, ///< Only bytes [4,5] are used
   Part3 = proto::SEAttributeFlag::Part3, ///< Only bytes [6,7] are used
 
-  /// Indiates that the Parts are composed by addition, and that the
+  /// Indicates that the Parts are composed by addition, and that the
   /// lower part is sign extended. Thus the upper parts must be
   /// adjusted to account for that. Applies to Part1-Part3, but not
   /// Part0.
