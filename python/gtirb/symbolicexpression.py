@@ -33,7 +33,7 @@ class SymbolicExpression:
     def __init__(
         self, attributes=set(),
     ):
-        self.attributes = attributes
+        self.attributes = set(attributes)
 
 
 class SymAddrAddr(SymbolicExpression):
