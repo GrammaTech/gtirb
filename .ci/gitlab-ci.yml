@@ -145,7 +145,7 @@ build-arch-gcc:
     - cd ..
     - cp -r build $CI_PROJECT_DIR
     - popd
-    - cp /tmp/aur/*.xz ./build
+    - cp /tmp/aur/*.pkg.tar.* ./build
 
 build-arch-gcc-debug:
   stage: build
@@ -400,7 +400,7 @@ test-arch-package:
   needs: ['build-arch-gcc']
   script:
     - cp .ci/test-install.cpp ./
-    - pacman --noconfirm -U build/gtirb-git-*.pkg.tar.xz
+    - pacman --noconfirm -U build/gtirb-git-*.pkg.tar.*
     - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
     - ./test-install
 
@@ -470,9 +470,9 @@ package-arch:
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - 'gtirb-git-*.pkg.tar.xz'
+      - 'gtirb-git-*.pkg.tar.*'
   script:
-    - cp build/gtirb-git-*.pkg.tar.xz ./
+    - cp build/gtirb-git-*.pkg.tar.* ./
 
 python-wheel:
   stage: deploy
