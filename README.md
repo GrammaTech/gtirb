@@ -98,6 +98,14 @@ source changes, and Patch version increments shouldn't break any
 downstream builds.  We do not yet provide ABI compatibility across any
 version changes.
 
+## Python API
+The GTIRB Python API may be installed with the following.  Note
+however, that installation of the `ddisasm` and `gtirb-pprinter`
+packages as described below is recommended for every API.
+```sh
+pip install gtirb
+```
+
 ## Windows
 Pre-built debug and release binaries are available for Windows at:
 [windows-debug/](https://grammatech.github.io/gtirb/pkgs/windows-debug/),
