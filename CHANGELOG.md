@@ -1,5 +1,8 @@
 # Unreleased
 
+# 1.9.0
+
+* Introduce attributes for symbolic expressions to the core IR.
 * Reduce asymptotic complexity of iterating over blocks in a large number of
   byte intervals.
 * Fixed bug where searching for blocks by address could return incorrect matches.
