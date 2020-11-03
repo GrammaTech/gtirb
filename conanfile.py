@@ -2,24 +2,35 @@ import os
 import re
 
 from conans import CMake, ConanFile, tools
+from conans.errors import ConanInvalidConfiguration
 
 
 def get_gtirb_version():
-    with open(os.path.join(os.environ["CI_PROJECT_DIR"], "version.txt")) as f:
-        s = f.read()
-        match = re.search(
-            r"VERSION_MAJOR(\s+)(\S+)(\s+)"
-            r"VERSION_MINOR(\s+)(\S+)(\s+)"
-            r"VERSION_PATCH(\s+)(\S+)(\s+)",
-            s,
-        )
-        if match:
-            major = match.group(2)
-            minor = match.group(5)
-            patch = match.group(8)
-            return major + "." + minor + "." + patch
-        else:
-            return "<ERROR: no version found>"
+    try:
+        with open("version.txt") as f:
+            s = f.read()
+            match = re.search(
+                r"VERSION_MAJOR(\s+)(\S+)(\s+)"
+                r"VERSION_MINOR(\s+)(\S+)(\s+)"
+                r"VERSION_PATCH(\s+)(\S+)(\s+)",
+                s,
+            )
+            if match:
+                major = match.group(2)
+                minor = match.group(5)
+                patch = match.group(8)
+                return major + "." + minor + "." + patch
+            else:
+                return "<ERROR: no version found>"
+    except Exception:
+        return None
+
+
+def branch_to_channel(branch):
+    if branch == "master":
+        return "stable"
+    else:
+        return branch.replace("/", "+")
 
 
 class Properties:
@@ -34,6 +45,21 @@ class Properties:
     @property
     def url(self):
         return "https://git.grammatech.com/%s" % self.rel_url
+
+    @property
+    def conan_channel(self):
+        channel = "local"
+        if "CI_COMMIT_BRANCH" in os.environ:
+            branch = os.environ["CI_COMMIT_BRANCH"]
+            channel = branch_to_channel(branch)
+        return channel
+
+    # Add to this list branch names to have conan packages for
+    # branches archived in gitlab.
+    @property
+    def archived_channels(self):
+        archived_branches = ["master"]
+        return list(map(branch_to_channel, archived_branches))
 
     @property
     def conan_ref(self):
@@ -52,8 +78,17 @@ class GtirbConan(Properties, ConanFile):
         "protobuf/{0}@bincrafters/stable".format(protobuf_version),
         "protoc_installer/{0}@bincrafters/stable".format(protobuf_version),
     )
-    settings = "os", "build_type"
+    settings = "os", "build_type", "compiler"
     generators = "cmake"
+
+    def configure(self):
+        if (
+            self.settings.compiler == "gcc"
+            and self.settings.compiler.libcxx != "libstdc++11"
+        ):
+            raise ConanInvalidConfiguration(
+                "gtirb requires libstdc++11 ABI, update your conan profile"
+            )
 
     def source(self):
         project_dir = os.environ["CI_PROJECT_DIR"]
