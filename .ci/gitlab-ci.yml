@@ -514,7 +514,7 @@ internal-pypi:
   # TODO: remove once this hits master
   # only:
   #  - master
-script:
+  script:
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     # - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://TODO/gtirb/${GTIRB_VERSION}/)
