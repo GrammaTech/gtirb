@@ -515,11 +515,11 @@ internal-pypi:
   # only:
   #  - master
   script:
+    - apt install -y jq
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    # - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://TODO/gtirb/${GTIRB_VERSION}/)
-    - RESPONSE_CODE=404 # TODO: remove once we find the URL for doing this lookup
-    - if [ "$RESPONSE_CODE" = "404" ];
+    - curl -L -o response.json "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages?package_type=pypi&package_name=gtirb"
+    - if [ "$(cat response.json | jq "map(select(.version == \"$GTIRB_VERSION\")) | .[0].version")" = "null" ];
       then
         pip3 install twine wheel setuptools --upgrade;
         cd build/python;
