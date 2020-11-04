@@ -526,8 +526,9 @@ internal-pypi:
         rm -rf build dist gtirb.egg-info;
         python3 setup.py sdist bdist_wheel;
         twine check dist/*;
-        twine upload dist/* \
+        twine upload \
               --repository-url $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/pypi \
               --username $GITLAB_PYPI_USER \
-              --password $GITLAB_PYPI_PASS ;
+              --password $GITLAB_PYPI_PASS \
+              dist/*;
       fi
