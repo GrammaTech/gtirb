@@ -487,7 +487,7 @@ python-wheel:
     - make -C build python-wheel
     - cp build/python/dist/*.whl ./
 
-upload-to-pypi:
+external-pypi:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
@@ -505,4 +505,29 @@ upload-to-pypi:
         python3 setup.py sdist bdist_wheel;
         twine check dist/*;
         twine upload dist/* -u __token__ -p $PYPI_API_KEY;
+      fi
+
+internal-pypi:
+  stage: deploy-to-pypi
+  needs: [build-ubuntu18-gcc7, python-wheel]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  # TODO: remove once this hits master
+  # only:
+  #  - master
+script:
+    - pip3 install gtirb-*-py*-none-any.whl
+    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+    # - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://TODO/gtirb/${GTIRB_VERSION}/)
+    - RESPONSE_CODE=404 # TODO: remove once we find the URL for doing this lookup
+    - if [ "$RESPONSE_CODE" = "404" ];
+      then
+        pip3 install twine wheel setuptools --upgrade;
+        cd build/python;
+        rm -rf build dist gtirb.egg-info;
+        python3 setup.py sdist bdist_wheel;
+        twine check dist/*;
+        twine upload dist/* \
+              --repository-url $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/pypi \
+              --username $GITLAB_PYPI_USER \
+              --password $GITLAB_PYPI_PASS ;
       fi
