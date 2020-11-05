@@ -167,7 +167,9 @@ void IR::save(std::ostream& Out) const {
 ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   google::protobuf::io::IstreamInputStream InputStream(&In);
   google::protobuf::io::CodedInputStream CodedStream(&InputStream);
+#ifdef PROTOBUF_SET_BYTES_LIMIT
   CodedStream.SetTotalBytesLimit(INT_MAX, INT_MAX);
+#endif
 
   MessageType Message;
   Message.ParseFromCodedStream(&CodedStream);
