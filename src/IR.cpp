@@ -21,6 +21,8 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/SymbolicExpression.hpp>
 #include <gtirb/proto/IR.pb.h>
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/util/json_util.h>
 
 using namespace gtirb;
@@ -163,8 +165,12 @@ void IR::save(std::ostream& Out) const {
 }
 
 ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
+  google::protobuf::io::IstreamInputStream InputStream(&In);
+  google::protobuf::io::CodedInputStream CodedStream(&InputStream);
+  CodedStream.SetTotalBytesLimit(INT_MAX, INT_MAX);
+
   MessageType Message;
-  Message.ParseFromIstream(&In);
+  Message.ParseFromCodedStream(&CodedStream);
 
   auto* I = IR::fromProtobuf(C, Message);
   if (!I) {
