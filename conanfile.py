@@ -21,9 +21,9 @@ def get_gtirb_version():
                 patch = match.group(8)
                 return major + "." + minor + "." + patch
             else:
-                return "<ERROR: no version found>"
+                return "<ERROR: no version found in version.txt>"
     except Exception:
-        return None
+        return "<ERROR: version.txt not found>"
 
 
 def branch_to_channel(branch):
@@ -35,8 +35,17 @@ def branch_to_channel(branch):
 
 class Properties:
     name = "gtirb"
-    version = get_gtirb_version()
     rel_url = "rewriting/gtirb"
+
+    @property
+    def version(self):
+        if not hasattr(self, "_version"):
+            self._version = get_gtirb_version()
+        return self._version
+
+    @version.setter
+    def version(self, ver):
+        self._version = ver
 
     @property
     def description(self):
