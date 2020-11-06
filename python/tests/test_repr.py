@@ -55,14 +55,14 @@ class ReprTest(unittest.TestCase):
         node.add_edge(
             gtirb.CodeBlock(offset=1, size=2),
             gtirb.CodeBlock(offset=3, size=4),
-            type=gtirb.EdgeType.Fallthrough,
+            type=gtirb.Edge.Type.Fallthrough,
             conditional=True,
             direct=False,
         )
         node.add_edge(
             gtirb.CodeBlock(offset=5, size=6),
             gtirb.CodeBlock(offset=7, size=8),
-            type=gtirb.EdgeType.Branch,
+            type=gtirb.Edge.Type.Branch,
             conditional=True,
             direct=False,
         )

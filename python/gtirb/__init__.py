@@ -8,7 +8,7 @@ __all__ = [
     "CfgNode",
     "CodeBlock",
     "DataBlock",
-    "EdgeType",
+    "Edge",
     "IR",
     "Module",
     "Node",
@@ -26,7 +26,7 @@ __all__ = [
 from .auxdata import AuxData, AuxDataContainer
 from .block import Block, ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval
-from .cfg import CFG, EdgeType
+from .cfg import CFG, Edge
 from .ir import IR
 from .module import Module
 from .node import Node

@@ -48,7 +48,7 @@ if __name__ == "__main__":
         description="GrammaTech Intermediate Representation for Binaries",
         packages=setuptools.find_packages(),
         test_suite="setup.gtirb_test_suite",
-        install_requires=["protobuf<3.12.2"] + typing_dep,
+        install_requires=["networkx", "protobuf<3.12.2"] + typing_dep,
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: MIT License",

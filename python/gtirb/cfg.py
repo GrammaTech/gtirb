@@ -8,51 +8,108 @@ from .block import CfgNode
 from .proto import CFG_pb2
 
 
-class EdgeType(Enum):
-    """The type of control flow transfer indicated by an edge."""
+class Edge(
+    typing.NamedTuple(
+        "NamedTuple",
+        (
+            ("source", CfgNode),
+            ("target", CfgNode),
+            ("label", "typing.Optional[Edge.Label]"),
+        ),
+    )
+):
+    """An edge in the CFG from ``source`` to ``target``, with optional
+    control-flow details in ``label``.
 
-    Branch = CFG_pb2.EdgeType.Value("Type_Branch")
-    """This edge is the explicit target of a jump instruction.
-    May be conditional or unconditional. If conditional, there will be
-    a corresponding edge of type :attr:`gtirb.EdgeType.Fallthrough`.
+    :ivar ~.source: The source CFG node.
+    :ivar ~.target: The target CFG node.
+    :ivar ~.label: An optional label containing more control flow information.
     """
 
-    Call = CFG_pb2.EdgeType.Value("Type_Call")
-    """This edge is the explicit target of a call instruction.
-    Unless the function does not return, there will also be a
-    corresponding edge of type :attr:`gtirb.EdgeType.Fallthrough`.
-    """
+    __slots__ = ()
 
-    Fallthrough = CFG_pb2.EdgeType.Value("Type_Fallthrough")
-    """This edge represents two blocks executing in sequence.
-    This occurs on the non-branching paths of conditional branch
-    instructions, after call instructons have returned, and when two
-    blocks have no control flow between them, but another edge targets the
-    target block. If there exists a fallthrough edge from block ``A`` to
-    block ``B``, then ``A`` must immediately precede ``B`` in memory.
-    """
+    class Type(Enum):
+        """The type of control flow transfer indicated by a
+        :class:`gtirb.Edge`.
+        """
 
-    Return = CFG_pb2.EdgeType.Value("Type_Return")
-    """This edge represents a return from a function, generally via a
-    return instruction. Return edges may be omitted from valid CFGs;
-    a function may have an uncomputable number of possible return sites,
-    due to the possibility of indirect calls.
-    """
+        Branch = CFG_pb2.EdgeType.Value("Type_Branch")
+        """This edge is the explicit target of a jump instruction.
+        May be conditional or unconditional. If conditional, there will be
+        a corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.
+        """
 
-    Syscall = CFG_pb2.EdgeType.Value("Type_Syscall")
-    """This edge is the explicit target of a system call instruction.
-    Unless the function does not return, there will also be a
-    corresponding edge of type :attr:`gtirb.EdgeType.Fallthrough`. This
-    is the system call equivalent to :class:`gtirb.EdgeType.Call`.
-    """
+        Call = CFG_pb2.EdgeType.Value("Type_Call")
+        """This edge is the explicit target of a call instruction.
+        Unless the function does not return, there will also be a
+        corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`.
+        """
 
-    Sysret = CFG_pb2.EdgeType.Value("Type_Sysret")
-    """This edge represents a return from a system call, generally via a
-    return instruction. Return edges may be omitted from valid CFGs;
-    a function may have an uncomputable number of possible return sites,
-    due to the possibility of indirect calls. This is the system call
-    equivalent to :class:`gtirb.EdgeType.Return`.
-    """
+        Fallthrough = CFG_pb2.EdgeType.Value("Type_Fallthrough")
+        """This edge represents two blocks executing in sequence.
+        This occurs on the non-branching paths of conditional branch
+        instructions, after call instructons have returned, and when two
+        blocks have no control flow between them, but another
+        :class:`gtirb.Edge` targets the target block.
+        If there exists a fallthrough edge from block ``A`` to block ``B``,
+        then ``A`` must immediately precede ``B`` in memory.
+        """
+
+        Return = CFG_pb2.EdgeType.Value("Type_Return")
+        """This edge represents a return from a function, generally via a
+        return instruction. Return edges may be omitted from valid CFGs;
+        a function may have an uncomputable number of possible return sites,
+        due to the possibility of indirect calls.
+        """
+
+        Syscall = CFG_pb2.EdgeType.Value("Type_Syscall")
+        """This edge is the explicit target of a system call instruction.
+        Unless the function does not return, there will also be a
+        corresponding edge of type :attr:`gtirb.Edge.Type.Fallthrough`. This
+        is the system call equivalent to :class:`gtirb.Edge.Type.Call`.
+        """
+
+        Sysret = CFG_pb2.EdgeType.Value("Type_Sysret")
+        """This edge represents a return from a system call, generally via a
+        return instruction. Return edges may be omitted from valid CFGs;
+        a function may have an uncomputable number of possible return sites,
+        due to the possibility of indirect calls. This is the system call
+        equivalent to :class:`gtirb.Edge.Type.Return`.
+        """
+
+    class Label(
+        typing.NamedTuple(
+            "NamedTuple",
+            (("type", "Edge.Type"), ("conditional", bool), ("direct", bool)),
+        )
+    ):
+        """Contains a more detailed description of a :class:`gtirb.Edge`
+        in the CFG.
+
+        :ivar ~.conditional: When this edge is part of a conditional branch,
+            ``conditional`` is ``True`` when the edge represents the control
+            flow taken when the branch's condition is met, and ``False``
+            when it represents the control flow taken when the branch's
+            condition is not met. Otherwise, it is always ``False``.
+        :ivar ~.direct: ``True`` if the branch or call is direct,
+                and ``False`` if it is indirect. If an edge is indirect,
+                then all outgoing indirect edges represent the set of
+                possible locations the edge may branch to. If there
+                exists an indirect outgoing edge to a :class:`gtirb.ProxyBlock`
+                without any :class:`gtirb.Symbol` objects referring to it,
+                then the set of all possible branch locations is unknown.
+        :ivar ~.type: The type of control flow the :class:`gtirb.Edge`
+            represents.
+        """
+
+        __slots__ = ()
+
+    # Default values for Label.conditional and Label.direct.
+    Label.__new__.__defaults__ = (False, True)
+
+
+# Default value for Edge.label:
+Edge.__new__.__defaults__ = (None,)
 
 
 class CFG(networkx.MultiDiGraph):
@@ -61,7 +118,7 @@ class CFG(networkx.MultiDiGraph):
 
     Edges in the graph have three optional values in thier attribute map:
 
-    * ``type``: an :class:`EdgeType`. The type of control flow the edge
+    * ``type``: an :class:`Edge.Type`. The type of control flow the edge
       represents.
 
     * ``conditional``: a ``bool``. When this edge is part of a conditional
@@ -92,7 +149,7 @@ class CFG(networkx.MultiDiGraph):
             target = ir.get_by_uuid(UUID(bytes=edge.target_uuid))
             label = {}
             if edge.label is not None:
-                label["type"] = EdgeType(edge.label.type)
+                label["type"] = Edge.Type(edge.label.type)
                 label["conditional"] = edge.label.conditional
                 label["direct"] = edge.label.direct
             result.add_edge(source, target, **label)
@@ -151,7 +208,7 @@ class CFG(networkx.MultiDiGraph):
         # type: () -> str
 
         # Normally, __repr__ puts quotes around strings.
-        # This class disables this behavior for when we print EdgeTypes
+        # This class disables this behavior for when we print Edge Types
         # with a custom format.
         class ReprAsStr:
             def __init__(self, value):
@@ -166,7 +223,7 @@ class CFG(networkx.MultiDiGraph):
                 s,
                 t,
                 {
-                    "type": ReprAsStr("EdgeType." + l["type"]._name_)
+                    "type": ReprAsStr("Edge.Type." + l["type"]._name_)
                     if "type" in l
                     else None,
                     "conditional": l["conditional"]
@@ -177,10 +234,3 @@ class CFG(networkx.MultiDiGraph):
             )
             for s, t, l in self.edges(data=True)
         ]
-
-
-Edge = typing.Tuple[CfgNode, CfgNode, dict]
-"""
-Edges in the CFG are represented as (source, target, label) tuples. See
-:class:`gtirb.CFG` for details.
-"""

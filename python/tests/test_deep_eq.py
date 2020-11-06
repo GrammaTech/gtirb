@@ -628,7 +628,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Branch,
+                        "type": gtirb.Edge.Type.Branch,
                         "conditional": True,
                         "direct": False,
                     },
@@ -641,7 +641,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Branch,
+                        "type": gtirb.Edge.Type.Branch,
                         "conditional": True,
                         "direct": False,
                     },
@@ -656,7 +656,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=3, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Branch,
+                        "type": gtirb.Edge.Type.Branch,
                         "conditional": True,
                         "direct": False,
                     },
@@ -671,7 +671,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=3, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Branch,
+                        "type": gtirb.Edge.Type.Branch,
                         "conditional": True,
                         "direct": False,
                     },
@@ -686,7 +686,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Fallthrough,
+                        "type": gtirb.Edge.Type.Fallthrough,
                         "conditional": True,
                         "direct": False,
                     },
@@ -701,7 +701,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Branch,
+                        "type": gtirb.Edge.Type.Branch,
                         "conditional": False,
                         "direct": False,
                     },
@@ -716,7 +716,7 @@ class DeepEqTest(unittest.TestCase):
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
                     {
-                        "type": gtirb.EdgeType.Branch,
+                        "type": gtirb.Edge.Type.Branch,
                         "conditional": True,
                         "direct": True,
                     },

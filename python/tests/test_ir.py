@@ -46,7 +46,7 @@ class IRTest(unittest.TestCase):
         p = gtirb.ProxyBlock()
         p.module = m
         ir.cfg.add_edge(
-            cb, p, type=gtirb.EdgeType.Branch, conditional=False, direct=True,
+            cb, p, type=gtirb.Edge.Type.Branch, conditional=False, direct=True,
         )
         m.aux_data["key"] = gtirb.AuxData(gtirb.Offset(s, 777), "Offset")
         ir.aux_data["key"] = gtirb.AuxData("value", "string")
