@@ -511,9 +511,8 @@ internal-pypi:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  # TODO: uncomment before merging
-  # only:
-  # - master
+  only:
+    - master
   script:
     - cd build/python
     - pip3 install twine wheel setuptools --upgrade
