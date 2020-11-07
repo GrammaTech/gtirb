@@ -290,33 +290,15 @@ class CodeBlock(ByteBlock, CfgNode):
 
     @property
     def incoming_edges(self):
-        if (
-            self.byte_interval is None
-            or self.byte_interval.section is None
-            or self.byte_interval.section.module is None
-            or self.byte_interval.section.module.ir is None
-        ):
+        if self.ir is None:
             return ()
-        return tuple(
-            self.byte_interval.section.module.ir.cfg.in_edges(
-                [self], data=True
-            )
-        )
+        return self.ir.cfg.in_edges(self)
 
     @property
     def outgoing_edges(self):
-        if (
-            self.byte_interval is None
-            or self.byte_interval.section is None
-            or self.byte_interval.section.module is None
-            or self.byte_interval.section.module.ir is None
-        ):
+        if self.ir is None:
             return ()
-        return tuple(
-            self.byte_interval.section.module.ir.cfg.out_edges(
-                [self], data=True
-            )
-        )
+        return self.ir.cfg.out_edges(self)
 
 
 class ProxyBlock(CfgNode):
@@ -388,15 +370,15 @@ class ProxyBlock(CfgNode):
 
     @property
     def incoming_edges(self):
-        if self.module is None or self.module.ir is None:
+        if self.ir is None:
             return ()
-        return tuple(self.module.ir.cfg.in_edges([self], data=True))
+        return self.ir.cfg.in_edges(self)
 
     @property
     def outgoing_edges(self):
-        if self.module is None or self.module.ir is None:
+        if self.ir is None:
             return ()
-        return tuple(self.module.ir.cfg.out_edges([self], data=True))
+        return self.ir.cfg.out_edges(self)
 
     @property
     def ir(self):

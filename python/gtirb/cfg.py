@@ -104,6 +104,16 @@ class Edge(
 
         __slots__ = ()
 
+        def __repr__(self):
+            # type: () -> str
+            return (
+                "Edge.Label("
+                "type=Edge.{type!s}, "
+                "conditional={conditional!r}, "
+                "direct={direct!r}, "
+                ")".format(**self._asdict())
+            )
+
     # Default values for Label.conditional and Label.direct.
     Label.__new__.__defaults__ = (False, True)
 
@@ -112,71 +122,132 @@ class Edge(
 Edge.__new__.__defaults__ = (None,)
 
 
-class CFG(networkx.MultiDiGraph):
+class CFG(typing.MutableSet[Edge]):
     """A control-flow graph for an :class:`IR`. Vertices are
-    :class:`CfgNode`\\s, and edges may optionally contain edge labels.
+    :class:`CfgNode`\\s, and edges may optionally contain
+    :class:`Edge.Label`\\s.
 
-    Edges in the graph have three optional values in thier attribute map:
-
-    * ``type``: an :class:`Edge.Type`. The type of control flow the edge
-      represents.
-
-    * ``conditional``: a ``bool``. When this edge is part of a conditional
-      branch, ``conditional`` is ``True`` when the edge represents the
-      control flow taken when the branch's condition is met, and
-      ``False`` when it represents the control flow taken when the
-      branch's condition is not met. Otherwise, it is always ``False``.
-
-    * ``direct``: a ``bool``. ``True`` if the branch or call is direct,
-      and ``False`` if it is indirect. If an edge is indirect,
-      then all outgoing indirect edges represent the set of
-      possible locations the edge may branch to. If there
-      exists an indirect outgoing edge to a :class:`gtirb.ProxyBlock`
-      without any :class:`gtirb.Symbol` objects referring to it,
-      then the set of all possible branch locations is unknown.
+    The graph may be viewed simply as a set of :class:`Edge`\\s. For
+    convenience, the :meth:`out_edges` and :meth:`in_edges` methods provide
+    access to the outgoing or incoming edges of individual nodes.
 
     For efficency, only vertices with edges are guaranteed to be stored in this
     graph. If you want to find all vertices possible (that is, all
     :class:`CfgNode`\\s), use :meth:`IR.cfg_nodes` instead.
+
+    Internally, the graph is stored as a NetworkX instance, which can be
+    accessed using :meth:`nx`. This allows NetworkX's large library of graph
+    algorithms to be used on CFGs, if desired.
     """
+
+    def __init__(self, edges=None):
+        # type: (typing.Iterable[Edge]) -> None
+        self._nxg = networkx.MultiDiGraph()
+        if edges is not None:
+            self.update(edges)
+
+    def _edge_key(self, edge):
+        # type: (Edge) -> typing.Optional[typing.Hashable]
+        if edge.source in self._nxg:
+            neighbors = self._nxg[edge.source]
+            if edge.target in neighbors:
+                for key, e in neighbors[edge.target].items():
+                    if "label" in e and e["label"] == edge.label:
+                        return key
+        return None
+
+    def __contains__(self, edge):
+        # type: (Edge) -> bool
+        return self._edge_key(edge) is not None
+
+    def __iter__(self):
+        # type: () -> typing.Iterable[Edge]
+        for s, t, l in self._nxg.edges(data="label"):
+            yield Edge(s, t, l)
+
+    def __len__(self):
+        # type: () -> int
+        return len(self._nxg.edges)
+
+    def update(self, edges):
+        # type: (typing.Iterable[Edge]) -> None
+        for edge in edges:
+            self.add(edge)
+
+    def add(self, edge):
+        # type: (Edge) -> None
+        if edge not in self:
+            self._nxg.add_edge(edge.source, edge.target, label=edge.label)
+
+    def clear(self):
+        # type: () -> None
+        self._nxg.clear()
+
+    def discard(self, edge):
+        # type: (Edge) -> None
+        key = self._edge_key(edge)
+        if key is not None:
+            self._nxg.remove_edge(edge.source, edge.target, key=key)
+
+    def out_edges(self, node):
+        # type: (CfgNode) -> typing.Iterable[Edge]
+        if node in self._nxg:
+            for s, t, l in self._nxg.out_edges(node, data="label"):
+                yield Edge(s, t, l)
+
+    def in_edges(self, node):
+        # type: (CfgNode) -> typing.Iterable[Edge]
+        if node in self._nxg:
+            for s, t, l in self._nxg.in_edges(node, data="label"):
+                yield Edge(s, t, l)
 
     @classmethod
     def _from_protobuf(cls, edges, ir):
         # type: (typing.Iterable[CFG_pb2.Edge]) -> CFG
-        result = CFG()
-        for edge in edges:
-            source = ir.get_by_uuid(UUID(bytes=edge.source_uuid))
-            target = ir.get_by_uuid(UUID(bytes=edge.target_uuid))
-            label = {}
-            if edge.label is not None:
-                label["type"] = Edge.Type(edge.label.type)
-                label["conditional"] = edge.label.conditional
-                label["direct"] = edge.label.direct
-            result.add_edge(source, target, **label)
-        return result
+        return CFG(
+            Edge(
+                ir.get_by_uuid(UUID(bytes=edge.source_uuid)),
+                ir.get_by_uuid(UUID(bytes=edge.target_uuid)),
+                label=None
+                if edge.label is None
+                else Edge.Label(
+                    Edge.Type(edge.label.type),
+                    edge.label.conditional,
+                    edge.label.direct,
+                ),
+            )
+            for edge in edges
+        )
 
     def _to_protobuf(self):
         # type: () -> typing.Iterable[CFG_pb2.Edge]
-        for source, target, label in self.edges(data=True):
+        for s, t, l in self._nxg.edges(data="label"):
             proto_edge = CFG_pb2.Edge()
-            proto_edge.source_uuid = source.uuid.bytes
-            proto_edge.target_uuid = target.uuid.bytes
-            if label:
-                proto_edge.label.type = label["type"].value
-                proto_edge.label.conditional = label["conditional"]
-                proto_edge.label.direct = label["direct"]
+            proto_edge.source_uuid = s.uuid.bytes
+            proto_edge.target_uuid = t.uuid.bytes
+            if l:
+                proto_edge.label.type = l.type.value
+                proto_edge.label.conditional = l.conditional
+                proto_edge.label.direct = l.direct
             yield proto_edge
 
+    def nx(self):
+        # type: () -> networkx.MultiDiGraph
+        return self._nxg
+
     def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+        # type: (CFG) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
 
         def edge_sort_key(edge):
-            return (
-                edge[0].uuid,
-                edge[1].uuid,
-                sorted(edge[2].items()) if edge[2] else None,
-            )
+            label_key = -1, False, False
+            if edge.label is not None:
+                label_key = (
+                    edge.label.type.value,
+                    edge.label.conditional,
+                    edge.label.direct,
+                )
+            return (edge.source.uuid, edge.target.uuid, label_key)
 
         if not isinstance(other, CFG):
             return False
@@ -186,20 +257,18 @@ class CFG(networkx.MultiDiGraph):
         # vertex, and if it has edges, a failure of deep_eq will be detected
         # when comparing edges.
 
-        if self.number_of_edges() != other.number_of_edges():
+        if self._nxg.number_of_edges() != other._nxg.number_of_edges():
             return False
 
-        self_edges = sorted(self.edges(data=True), key=edge_sort_key)
-        other_edges = sorted(other.edges(data=True), key=edge_sort_key)
+        self_edges = sorted(self, key=edge_sort_key)
+        other_edges = sorted(other, key=edge_sort_key)
 
         for self_edge, other_edge in zip(self_edges, other_edges):
-            self_source, self_target, self_attrs = self_edge
-            other_source, other_target, other_attrs = other_edge
-            if not self_source.deep_eq(other_source):
+            if self_edge.label != other_edge.label:
                 return False
-            if not self_target.deep_eq(other_target):
+            if not self_edge.source.deep_eq(other_edge.source):
                 return False
-            if self_attrs != other_attrs:
+            if not self_edge.target.deep_eq(other_edge.target):
                 return False
 
         return True
@@ -218,19 +287,4 @@ class CFG(networkx.MultiDiGraph):
                 return self.value
 
         # actually print the CFG
-        return "CFG(%r)" % [
-            (
-                s,
-                t,
-                {
-                    "type": ReprAsStr("Edge.Type." + l["type"]._name_)
-                    if "type" in l
-                    else None,
-                    "conditional": l["conditional"]
-                    if "conditional" in l
-                    else None,
-                    "direct": l["direct"] if "conditional" in l else None,
-                },
-            )
-            for s, t, l in self.edges(data=True)
-        ]
+        return "CFG(%r)" % list(self)

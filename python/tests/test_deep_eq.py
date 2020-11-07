@@ -624,27 +624,27 @@ class DeepEqTest(unittest.TestCase):
 
         e1 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Branch,
-                        "conditional": True,
-                        "direct": False,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Branch,
+                        conditional=True,
+                        direct=False,
+                    ),
                 )
             ]
         )
         e2 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Branch,
-                        "conditional": True,
-                        "direct": False,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Branch,
+                        conditional=True,
+                        direct=False,
+                    ),
                 )
             ]
         )
@@ -652,14 +652,14 @@ class DeepEqTest(unittest.TestCase):
 
         e2 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Branch,
-                        "conditional": True,
-                        "direct": False,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Branch,
+                        conditional=True,
+                        direct=False,
+                    ),
                 )
             ]
         )
@@ -667,14 +667,14 @@ class DeepEqTest(unittest.TestCase):
 
         e2 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=3, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Branch,
-                        "conditional": True,
-                        "direct": False,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Branch,
+                        conditional=True,
+                        direct=False,
+                    ),
                 )
             ]
         )
@@ -682,14 +682,14 @@ class DeepEqTest(unittest.TestCase):
 
         e2 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Fallthrough,
-                        "conditional": True,
-                        "direct": False,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Fallthrough,
+                        conditional=True,
+                        direct=False,
+                    ),
                 )
             ]
         )
@@ -697,14 +697,14 @@ class DeepEqTest(unittest.TestCase):
 
         e2 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Branch,
-                        "conditional": False,
-                        "direct": False,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Branch,
+                        conditional=False,
+                        direct=False,
+                    ),
                 )
             ]
         )
@@ -712,14 +712,14 @@ class DeepEqTest(unittest.TestCase):
 
         e2 = gtirb.CFG(
             [
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id1),
                     gtirb.CodeBlock(size=2, uuid=id2),
-                    {
-                        "type": gtirb.Edge.Type.Branch,
-                        "conditional": True,
-                        "direct": True,
-                    },
+                    gtirb.Edge.Label(
+                        type=gtirb.Edge.Type.Branch,
+                        conditional=True,
+                        direct=True,
+                    ),
                 )
             ]
         )
@@ -1115,11 +1115,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1134,11 +1134,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1155,11 +1155,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("other_value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1176,11 +1176,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1194,11 +1194,11 @@ class DeepEqTest(unittest.TestCase):
             modules=(gtirb.Module(name="m1", uuid=id2),),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1215,11 +1215,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=55, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1236,7 +1236,7 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1253,11 +1253,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
@@ -1274,11 +1274,11 @@ class DeepEqTest(unittest.TestCase):
             ),
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
                     gtirb.CodeBlock(size=2, uuid=id4),
                 ),
-                (
+                gtirb.Edge(
                     gtirb.CodeBlock(size=3, uuid=id4),
                     gtirb.CodeBlock(size=4, uuid=id4),
                 ),
