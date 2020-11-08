@@ -635,6 +635,22 @@ class DeepEqTest(unittest.TestCase):
                 )
             ]
         )
+        self.assertFalse(
+            e1.deep_eq(
+                [
+                    gtirb.Edge(
+                        gtirb.CodeBlock(size=1, uuid=id1),
+                        gtirb.CodeBlock(size=2, uuid=id2),
+                        gtirb.Edge.Label(
+                            type=gtirb.Edge.Type.Branch,
+                            conditional=True,
+                            direct=False,
+                        ),
+                    )
+                ]
+            )
+        )
+
         e2 = gtirb.CFG(
             [
                 gtirb.Edge(

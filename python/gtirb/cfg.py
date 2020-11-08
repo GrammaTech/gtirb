@@ -208,13 +208,13 @@ class CFG(typing.MutableSet[Edge]):
             Edge(
                 ir.get_by_uuid(UUID(bytes=edge.source_uuid)),
                 ir.get_by_uuid(UUID(bytes=edge.target_uuid)),
-                label=None
-                if edge.label is None
-                else Edge.Label(
+                label=Edge.Label(
                     Edge.Type(edge.label.type),
                     edge.label.conditional,
                     edge.label.direct,
-                ),
+                )
+                if edge.HasField("label")
+                else None,
             )
             for edge in edges
         )
@@ -275,16 +275,4 @@ class CFG(typing.MutableSet[Edge]):
 
     def __repr__(self):
         # type: () -> str
-
-        # Normally, __repr__ puts quotes around strings.
-        # This class disables this behavior for when we print Edge Types
-        # with a custom format.
-        class ReprAsStr:
-            def __init__(self, value):
-                self.value = value
-
-            def __repr__(self):
-                return self.value
-
-        # actually print the CFG
         return "CFG(%r)" % list(self)

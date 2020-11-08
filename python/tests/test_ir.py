@@ -54,6 +54,7 @@ class IRTest(unittest.TestCase):
                 ),
             )
         )
+        ir.cfg.add(gtirb.Edge(p, p))
         m.aux_data["key"] = gtirb.AuxData(gtirb.Offset(s, 777), "Offset")
         ir.aux_data["key"] = gtirb.AuxData("value", "string")
 
