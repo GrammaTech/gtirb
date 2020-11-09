@@ -1123,6 +1123,9 @@ class DeepEqTest(unittest.TestCase):
         id3 = uuid.uuid4()
         id4 = uuid.uuid4()
         id5 = uuid.uuid4()
+        id6 = uuid.uuid4()
+        id7 = uuid.uuid4()
+        id8 = uuid.uuid4()
 
         ir1 = gtirb.IR(
             modules=(
@@ -1133,11 +1136,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1152,11 +1155,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1173,11 +1176,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1194,11 +1197,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1212,11 +1215,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1233,11 +1236,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=55, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1253,8 +1256,8 @@ class DeepEqTest(unittest.TestCase):
             aux_data={"key": gtirb.AuxData("value", "string")},
             cfg=(
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
@@ -1271,11 +1274,11 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=5,
@@ -1292,15 +1295,15 @@ class DeepEqTest(unittest.TestCase):
             cfg=(
                 gtirb.Edge(
                     gtirb.CodeBlock(size=1, uuid=id4),
-                    gtirb.CodeBlock(size=2, uuid=id4),
+                    gtirb.CodeBlock(size=2, uuid=id5),
                 ),
                 gtirb.Edge(
-                    gtirb.CodeBlock(size=3, uuid=id4),
-                    gtirb.CodeBlock(size=4, uuid=id4),
+                    gtirb.CodeBlock(size=3, uuid=id6),
+                    gtirb.CodeBlock(size=4, uuid=id7),
                 ),
             ),
             version=1,
-            uuid=id5,
+            uuid=id8,
         )
         self.assertFalse(ir1.deep_eq(ir2))
 
