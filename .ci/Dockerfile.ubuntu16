@@ -33,3 +33,8 @@ RUN add-apt-repository ppa:mhier/libboost-latest && \
 # Install CMake
 RUN curl -SL https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0-Linux-x86_64.tar.gz \
     |tar -xz --strip-components=1 -C /usr/local
+
+# Upgrade pip before installing networkx because older versions of setuptools
+# and pip don't respect dependency constraints correctly.
+RUN pip3 install pip --upgrade && \
+    pip3 install networkx
