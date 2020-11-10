@@ -73,15 +73,15 @@ class IR(AuxDataContainer):
         *,
         modules=list(),  # type: typing.Iterable[Module]
         aux_data=dict(),  # type: DictLike[str, AuxData]
-        cfg=list(),  # type: typing.Iterable[Edge]
+        cfg=set(),  # type: typing.Iterable[Edge]
         version=PROTOBUF_VERSION,  # type: int
         uuid=None  # type: typing.Optional[UUID]
     ):
         # type: (...) -> None
         """
         :param modules: A list of Modules contained in the IR.
-        :param cfg: A set of edge tuples representing the IR's control flow
-            graph. Defaults to being empty.
+        :param cfg: A set of :class:`Edge`\\s representing the IR's control
+            flow graph. Defaults to being empty.
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
             :class:`gtirb.AuxData`. Defaults to being empty.
