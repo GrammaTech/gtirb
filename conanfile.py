@@ -37,8 +37,15 @@ class Properties:
     name = "gtirb"
     rel_url = "rewriting/gtirb"
 
-    def set_version(self):
-        self.version = get_gtirb_version()
+    @property
+    def version(self):
+        if not hasattr(self, "_version"):
+            self._version = get_gtirb_version()
+        return self._version
+
+    @version.setter
+    def version(self, ver):
+        self._version = ver
 
     @property
     def description(self):
