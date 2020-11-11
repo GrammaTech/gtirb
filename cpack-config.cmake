@@ -28,7 +28,9 @@ elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "python")
   set(CPACK_DEBIAN_PACKAGE_NAME "python3-gtirb")
   set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
   set(CPACK_COMPONENTS_ALL python)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "python3, python3-protobuf")
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS
+      "python3, python3-protobuf, python3-networkx"
+  )
 elseif("${CPACK_GTIRB_DEBIAN_PACKAGE}" STREQUAL "debug")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dbg")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-dbg")
