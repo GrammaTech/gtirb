@@ -6,7 +6,7 @@ RUN sed -i 's/#\[multilib\]/\[multilib\]/; /^\[multilib\]/,/^$/ s/^#//' /etc/pac
 RUN pacman --noconfirm -Syu archlinux-keyring
 RUN pacman --noconfirm -Syu autoconf base-devel boost capstone clang cmake curl \
         doxygen gcc gcc-libs git graphviz jdk8-openjdk libtool make protobuf \
-        python python-pip wget
+        python python-networkx python-pip wget
 RUN python3 -m pip install pre-commit wheel
 
 # Common-Lisp specific setup.
