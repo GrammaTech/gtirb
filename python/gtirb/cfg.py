@@ -167,7 +167,7 @@ class CFG(typing.MutableSet[Edge]):
 
     def __len__(self):
         # type: () -> int
-        return len(self._nxg.edges)
+        return len(self._nxg.edges())
 
     def update(self, edges):
         # type: (typing.Iterable[Edge]) -> None
