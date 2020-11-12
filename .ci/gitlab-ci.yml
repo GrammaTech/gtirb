@@ -519,6 +519,7 @@ internal-pypi:
     - rm -rf build dist *.egg-info
     - python3 setup.py sdist bdist_wheel
     - twine check dist/*
+    - echo 0 > exitcode.txt
     - (twine upload --verbose --repository-url $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/pypi --username gitlab-ci-token --password "$CI_JOB_TOKEN" dist/* | tee response.txt) || (echo $? > exitcode.txt; exit 0)
     # do not fail if we try to re-upload a package of the same version
     - if [[ "$(cat exitcode.txt)" != 0 && -z "$(cat response.txt | grep "File name has already been taken")" ]];
