@@ -132,6 +132,26 @@ working with GTIRB:
 - Test names are prefixed with the type of test they are (`Unit_`, `System_`, `Integration_`).
 - No unit test should take more than 0.5 seconds.
 
+## Building under Windows
+
+Most of the build issues on Windows arise from having to define the location of
+many dependencies.
+
+### Troubleshooting
+- When using a batch file to call `cmake`, make sure to quote all paths and
+  escape all backshlases in paths.  i.e. `-DCMAKE_PREFIX_PATH="c:\\Program
+Files\\capstone"` and do not leave a trailing backslash on paths.
+- Use `-Dprotobuf_DEBUG=ON` for protobuf related build issues in general.
+- `'../src/gtirb/proto/protobuf::protoc', needed by
+  'src/gtirb/proto/AuxData.pb.h', missing and no known rule to make it`
+  - due to missing or unusable protoc protobuf compiler.  You may need to define
+    `-Dprotobuf_EXECUTABLE="<path to protoc.exe>"`, or check that the
+CMAKE_PREFIX_PATH has a path to the protobuf dir (resulting from `ninja install`
+after building).
+- `CMAKE_PREFIX_PATH` is not additive.  If you set it again, it will silently
+  overwrite prior settings.  Add to the one definition, separtaing with
+semi-colons.
+
 ## Python Code Requirements
 
 - Code must be [PEP8](https://www.python.org/dev/peps/pep-0008/) compliant.
