@@ -375,6 +375,7 @@ endif()
 if(CL_API)
   find_package(Protobuf 3.7.0 REQUIRED)
 else()
+  # If updating this, must also update gtirbConfig.cmake.in
   find_package(Protobuf 3.0.0 REQUIRED)
 endif()
 
