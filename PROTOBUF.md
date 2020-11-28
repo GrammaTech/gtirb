@@ -1,6 +1,10 @@
 Using Serialized GTIRB Data
 ===========================
 
+> Note that for language with GTIRB APIs (at least C++, Python, Common
+> Lisp) using the GTIRB API is preferrable to manipulating protobuf
+> directly.
+
 The serialized [protobuf](https://github.com/google/protobuf/wiki)
 data produced by GTIRB allows for exploration and manipulation in the
 language of your choice. The [Google protocol
@@ -10,7 +14,7 @@ users of other languages can convert the protobuf-formatted data to
 JSON format and then use the JSON data in their applications. In the
 future we intend to define a standard JSON schema for GTIRB.
 
-Directory `gtirb/src/proto' contains the protocol buffer message type
+Directory `gtirb/src/proto` contains the protocol buffer message type
 definitions for GTIRB. You can inspect these `.proto` files to
 determine the structure of the various GTIRB message types. The
 top-level message type is `IR`.
