@@ -127,11 +127,15 @@ target_include_directories(
   ${PROJECT_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/src/>
 )
 
+# NOTE (2020-12): tried using protobuf::libprotobuf to get relocatable exports,
+# but it is apparently treated inconsistently between static and shared builds.
+# For simplicity, we revert to using ${Protobuf_LIBRARIES} for now.
+
 target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC ${SYSLIBS}
          ${Boost_LIBRARIES}
-         protobuf::libprotobuf
+         ${Protobuf_LIBRARIES}
          # Link in this static lib, but don't make it a transitive dependency of
          # TestGTIRB, etc
   PRIVATE gtirb_proto
