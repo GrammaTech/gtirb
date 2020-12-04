@@ -70,7 +70,6 @@ private:
   Module* M;
 };
 
-Module::Module(Context& C) : Module(C, std::string{}) {}
 Module::Module(Context& C, const std::string& N)
     : AuxDataContainer(C, Kind::Module), Name(N),
       SecObs(std::make_unique<SectionObserverImpl>(this)),
@@ -118,13 +117,12 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   if (!uuidFromBytes(Message.uuid(), Id))
     return nullptr;
 
-  Module* M = Module::Create(C, Id);
+  Module* M = Module::Create(C, Message.name(), Id);
   M->BinaryPath = Message.binary_path();
   M->PreferredAddr = Addr(Message.preferred_addr());
   M->RebaseDelta = Message.rebase_delta();
   M->FileFormat = static_cast<gtirb::FileFormat>(Message.file_format());
   M->Isa = static_cast<ISA>(Message.isa());
-  M->Name = Message.name();
   for (const auto& Elt : Message.proxies()) {
     auto* PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB)

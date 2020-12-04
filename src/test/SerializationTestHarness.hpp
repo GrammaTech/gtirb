@@ -20,6 +20,7 @@
 #include <gtirb/CFG.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
@@ -59,6 +60,14 @@ public:
     return BI.loadSymbolicExpressions(Ctx, In);
   }
 };
+
+template <>
+inline auto SerializationTestHarness::load<IR>(Context& C, std::istream& In) {
+  ErrorOr<IR*> Result = IR::load(C, In);
+  if (Result)
+    return *Result;
+  return static_cast<IR*>(nullptr);
+}
 
 // Serializaton for CFGs, for which there isn't a class-level protobuf
 // concept in the C++ API.

@@ -73,7 +73,7 @@ TEST(Unit_AuxDataContainer, addAuxDataRegistered) {
   std::stringstream ss;
   STH::save(*Ir, ss);
   Context ResultCtx;
-  auto* Result = *STH::load<IR>(ResultCtx, ss);
+  auto* Result = STH::load<IR>(ResultCtx, ss);
 
   // Access it after serialization?
   {
@@ -125,7 +125,7 @@ TEST(Unit_AuxDataContainer, addAuxDataBadUnserialize) {
   std::stringstream ss;
   STH::save(*Ir, ss);
   Context ResultCtx;
-  auto* Result = *STH::load<IR>(ResultCtx, ss);
+  auto* Result = STH::load<IR>(ResultCtx, ss);
 
   // Access it after serialization?
   {

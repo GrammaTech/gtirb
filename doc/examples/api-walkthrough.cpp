@@ -25,7 +25,7 @@ int main() {
   auto* Ir = IR::Create(C);
 
   // Every IR holds a set of modules (`gtirb::Module`).
-  auto* M = Module::Create(C);
+  auto* M = Module::Create(C, "example");
   Ir->addModule(M);
   // Could also have written: auto* M = Ir->addModule(C);
 

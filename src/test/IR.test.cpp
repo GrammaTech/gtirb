@@ -158,13 +158,17 @@ TEST(Unit_IR, getModulesWithPreferredAddr) {
 
   auto* Ir = IR::Create(Ctx);
 
+  std::string ModName = "with_addr0";
   for (size_t I = 0; I < ModulesWithAddr; ++I) {
-    auto* M = Ir->addModule(Module::Create(Ctx));
+    ModName[ModName.size() - 1] = '0' + I;
+    auto* M = Ir->addModule(Module::Create(Ctx, ModName));
     M->setPreferredAddr(PreferredAddr);
   }
 
+  ModName = "without_addr0";
   for (size_t I = 0; I < ModulesWithoutAddr; ++I) {
-    Ir->addModule(Module::Create(Ctx));
+    ModName[ModName.size() - 1] = '0' + I;
+    Ir->addModule(Module::Create(Ctx, ModName));
   }
 
   size_t Count = std::count_if(Ir->modules_begin(), Ir->modules_end(),
@@ -229,13 +233,13 @@ TEST(Unit_IR, protobufRoundTrip) {
   {
     Context InnerCtx;
     auto* Original = IR::Create(InnerCtx);
-    Original->addModule(Module::Create(InnerCtx));
+    Original->addModule(Module::Create(InnerCtx, "test"));
     Original->addAuxData<TestInt32>(42);
 
     MainID = Original->modules_begin()->getUUID();
     STH::save(*Original, ss);
   }
-  auto* Result = *STH::load<IR>(Ctx, ss);
+  auto* Result = STH::load<IR>(Ctx, ss);
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
   EXPECT_EQ(Result->getAuxDataSize(), 1);
@@ -250,7 +254,7 @@ TEST(Unit_IR, jsonRoundTrip) {
   {
     Context InnerCtx;
     auto* Original = IR::Create(InnerCtx);
-    Original->addModule(Module::Create(InnerCtx));
+    Original->addModule(Module::Create(InnerCtx, "test"));
     Original->addAuxData<TestInt32>(42);
 
     MainID = Original->modules_begin()->getUUID();

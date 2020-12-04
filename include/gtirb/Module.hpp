@@ -151,22 +151,14 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
   class SectionObserverImpl;
   class SymbolObserverImpl;
 
-  Module(Context& C);
   Module(Context& C, const std::string& N);
   Module(Context& C, const std::string& N, const UUID& U);
 
-  static Module* Create(Context& C, const UUID& U) {
-    return C.Create<Module>(C, "", U);
+  static Module* Create(Context& C, const std::string& N, const UUID& U) {
+    return C.Create<Module>(C, N, U);
   }
 
 public:
-  /// \brief Create a Module object in its default state.
-  ///
-  /// \param C      The Context in which this object will be held.
-  ///
-  /// \return The newly created object.
-  static Module* Create(Context& C) { return C.Create<Module>(C); }
-
   /// \brief Create a Module object.
   ///
   /// \param C      The Context in which this object will be held.

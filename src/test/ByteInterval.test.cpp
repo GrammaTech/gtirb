@@ -1207,7 +1207,7 @@ TEST(Unit_ByteInterval, findDataBlocksAt) {
 
 TEST(Unit_ByteInterval, moveBlock) {
   auto* I = IR::Create(Ctx);
-  auto* M = I->addModule(Ctx);
+  auto* M = I->addModule(Ctx, "test");
   auto* PB = M->addProxyBlock(Ctx);
   auto* S = M->addSection(Ctx, ".text");
   auto* BI = S->addByteInterval(Ctx, 10);

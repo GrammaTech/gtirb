@@ -35,13 +35,26 @@ using testing::Types;
 typedef Types<gtirb::ByteInterval*, //
               gtirb::CodeBlock*,    //
               gtirb::DataBlock*,    //
+              gtirb::IR*,           //
               gtirb::Module*,       //
+              gtirb::ProxyBlock*,   //
               gtirb::Section*,      //
               gtirb::Symbol*        //
               >
     TypeImplementations;
 
 static gtirb::Context Ctx;
+
+// ----------------------------------------------------------------------------
+// Helper for constructing nodes. Most nodes can be created with no arguments
+// and can use the main template. But the template can be sepcialized for node
+// types that require constructor arguments (e.g., Module).
+
+template <class T> auto Create(gtirb::Context& C) { return T::Create(C); }
+
+template <> auto Create<gtirb::Module>(gtirb::Context& C) {
+  return gtirb::Module::Create(C, "test");
+}
 
 // ----------------------------------------------------------------------------
 // Typed test fixture.
@@ -61,14 +74,14 @@ TYPED_TEST_SUITE_P(TypedNodeTest);
 // ----------------------------------------------------------------------------
 // Tests to run on all types.
 
-TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NE(Type::Create(Ctx), nullptr); }
+TYPED_TEST_P(TypedNodeTest, ctor_0) { EXPECT_NE(Create<Type>(Ctx), nullptr); }
 
 TYPED_TEST_P(TypedNodeTest, uniqueUuids) {
   std::vector<gtirb::UUID> Uuids;
   // Create a bunch of UUID's, then make sure we don't have any duplicates.
 
   for (size_t I = 0; I < 64; ++I) {
-    const TypeParam N = Type::Create(Ctx);
+    const TypeParam N = Create<Type>(Ctx);
     Uuids.push_back(N->getUUID());
   }
 
@@ -79,7 +92,7 @@ TYPED_TEST_P(TypedNodeTest, uniqueUuids) {
 }
 
 TYPED_TEST_P(TypedNodeTest, getByUUID) {
-  TypeParam Node = Type::Create(Ctx);
+  TypeParam Node = Create<Type>(Ctx);
   EXPECT_EQ(gtirb::Node::getByUUID(Ctx, Node->getUUID()), Node);
 }
 
@@ -89,7 +102,7 @@ TYPED_TEST_P(TypedNodeTest, protobufUUIDRoundTrip) {
   gtirb::UUID OrigId;
   {
     gtirb::Context InnerCtx;
-    TypeParam Node1 = Type::Create(InnerCtx);
+    TypeParam Node1 = Create<Type>(InnerCtx);
     OrigId = Node1->getUUID();
 
     STH::save(*Node1, ss);
@@ -106,7 +119,7 @@ TYPED_TEST_P(TypedNodeTest, deserializeUpdatesUUIDMap) {
 
   {
     gtirb::Context InnerCtx;
-    TypeParam Node1 = Type::Create(InnerCtx);
+    TypeParam Node1 = Create<Type>(InnerCtx);
     Id = Node1->getUUID();
 
     STH::save(*Node1, ss);

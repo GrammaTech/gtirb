@@ -38,7 +38,7 @@ TEST(Unit_Symbol, noCopyMoveConstructors) {
 TEST(Unit_Symbol, ctor_0) { EXPECT_NE(Symbol::Create(Ctx, "test"), nullptr); }
 
 TEST(Unit_Symbol, setReferent) {
-  auto* Mod = Module::Create(Ctx);
+  auto* Mod = Module::Create(Ctx, "test");
   auto* Sym = Mod->addSymbol(Ctx, "test");
   auto* S = Mod->addSection(Ctx, "test");
   auto* BI = S->addByteInterval(Ctx, Addr(0), 4);
@@ -87,7 +87,7 @@ TEST(Unit_Symbol, protobufRoundTrip) {
   // Symbol with referent
   {
     Context InnerCtx;
-    auto* Mod = Module::Create(InnerCtx);
+    auto* Mod = Module::Create(InnerCtx, "test");
     auto* Original = Symbol::Create(InnerCtx, "test");
 
     auto* S = Mod->addSection(InnerCtx, "test");
@@ -226,7 +226,7 @@ TEST(Unit_Symbol, visitation) {
 }
 
 TEST(Unit_Symbol, atEnd) {
-  auto* Mod = Module::Create(Ctx);
+  auto* Mod = Module::Create(Ctx, "test");
   auto* Sym = Mod->addSymbol(Ctx, "test");
   auto* S = Mod->addSection(Ctx, "test");
   auto* BI = S->addByteInterval(Ctx, Addr(0), 4);

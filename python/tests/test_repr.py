@@ -80,7 +80,7 @@ class ReprTest(unittest.TestCase):
 
     def test_module(self):
         # TODO: expand this
-        node = gtirb.Module()
+        node = gtirb.Module(name="M")
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))

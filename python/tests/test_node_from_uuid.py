@@ -20,7 +20,7 @@ class NodeFromUUIDTest(unittest.TestCase):
         self.assertEqual(ir1.get_by_uuid(ir1.uuid), ir1)
         self.assertEqual(ir2.get_by_uuid(ir2.uuid), ir2)
 
-        m = gtirb.Module()
+        m = gtirb.Module(name="M")
         m.ir = ir1
         s = gtirb.Section()
         s.module = m
@@ -87,7 +87,7 @@ class NodeFromUUIDTest(unittest.TestCase):
 
     def test_remove_from_cache(self):
         ir = gtirb.IR()
-        m = gtirb.Module()
+        m = gtirb.Module(name="M")
         m.ir = ir
         s = gtirb.Section()
 

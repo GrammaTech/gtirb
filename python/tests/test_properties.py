@@ -22,7 +22,7 @@ class TestProperties(unittest.TestCase):
 
         s = gtirb.Section()
         bi.section = s
-        m = gtirb.Module()
+        m = gtirb.Module(name="M")
         sym1 = gtirb.Symbol("test", payload=b)
         sym2 = gtirb.Symbol("test", payload=123)
         sym3 = gtirb.Symbol("test", payload=b)
@@ -55,7 +55,7 @@ class TestProperties(unittest.TestCase):
 
         s = gtirb.Section()
         bi.section = s
-        m = gtirb.Module()
+        m = gtirb.Module(name="M")
         sym1 = gtirb.Symbol("test", payload=b)
         sym2 = gtirb.Symbol("test", payload=123)
         sym3 = gtirb.Symbol("test", payload=b)
@@ -96,7 +96,7 @@ class TestProperties(unittest.TestCase):
         self.assertEquals(set(b.incoming_edges), set())
         self.assertEquals(set(b.outgoing_edges), set())
 
-        m = gtirb.Module()
+        m = gtirb.Module(name="M")
         sym1 = gtirb.Symbol("test", payload=b)
         sym2 = gtirb.Symbol("test", payload=123)
         sym3 = gtirb.Symbol("test", payload=b)
@@ -175,7 +175,7 @@ class TestProperties(unittest.TestCase):
         s4 = gtirb.Section(
             name="s4", byte_intervals=[gtirb.ByteInterval(size=1000)]
         )
-        m = gtirb.Module(sections=[s1, s2, s3, s4])
+        m = gtirb.Module(name="M", sections=[s1, s2, s3, s4])
 
         self.assertEquals(set(m.sections_on(3)), set())
         self.assertEquals(set(m.sections_on(4)), {s1})

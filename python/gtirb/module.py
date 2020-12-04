@@ -147,11 +147,11 @@ class Module(AuxDataContainer):
     def __init__(
         self,
         *,
+        name,  # type: str
         aux_data=dict(),  # type: DictLike[str, AuxData]
         binary_path="",  # type: str
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         isa=ISA.Undefined,  # type: Module.ISA
-        name="",  # type: str
         preferred_addr=0,  # type: int
         proxies=set(),  # type: typing.Iterable[ProxyBlock]
         rebase_delta=0,  # type: int

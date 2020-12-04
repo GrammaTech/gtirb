@@ -91,13 +91,14 @@ class TestSerialization(unittest.TestCase):
         ir = gtirb.IR(
             modules=[
                 gtirb.Module(
+                    name="M",
                     sections=[
                         gtirb.Section(
                             byte_intervals=[
                                 gtirb.ByteInterval(blocks=[gtirb.CodeBlock()])
                             ]
                         )
-                    ]
+                    ],
                 )
             ]
         )
@@ -115,6 +116,7 @@ class TestSerialization(unittest.TestCase):
         ir2 = gtirb.IR(
             modules=[
                 gtirb.Module(
+                    name="M",
                     sections=[
                         gtirb.Section(
                             byte_intervals=[
@@ -123,7 +125,7 @@ class TestSerialization(unittest.TestCase):
                                 )
                             ]
                         )
-                    ]
+                    ],
                 )
             ]
         )
