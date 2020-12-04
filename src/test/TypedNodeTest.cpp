@@ -47,7 +47,7 @@ static gtirb::Context Ctx;
 
 // ----------------------------------------------------------------------------
 // Helper for constructing nodes. Most nodes can be created with no arguments
-// and can use the main template. But the template can be sepcialized for node
+// and can use the main template. But the template can be specialized for node
 // types that require constructor arguments (e.g., Module).
 
 template <class T> auto Create(gtirb::Context& C) { return T::Create(C); }
