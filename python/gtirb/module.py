@@ -30,8 +30,8 @@ class Module(AuxDataContainer):
     :ivar ~.isa: The ISA of the binary.
     :ivar ~.file_format: The file format of the binary.
     :ivar ~.name: The name given to the binary. Some file formats use this
-        for linking and/or symbol resolution purposes. An empty string if
-        not specified by the format.
+        for linking and/or symbol resolution purposes. The file name (without
+        directory components) if not specified by the format.
     :ivar ~.preferred_addr: The preferred loading address of the binary.
     :ivar ~.proxies: A set containing all the :class:`gtirb.ProxyBlock`\\s
         in the binary.

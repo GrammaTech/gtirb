@@ -21,7 +21,7 @@ Guaranteed Properties
   - **rebase_delta**
   - **file_format**
   - **isa**
-  - **name**
+  - **name** (as a non-empty string)
   - **sections** (as a collection of [Section](Section.md), order
       defined by target language)
   - **symbols** (as a collection of [Symbol](Symbol.md), order defined
