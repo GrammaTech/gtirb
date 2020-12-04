@@ -19,8 +19,6 @@ check-format:
   image: $DOCKER_REGISTRY/rewriting/gtirb/formatter
   stage: check-format
   script:
-    - pre-commit run --all-files --show-diff-on-failure
-    # helper message for new committers
     - |+
       cat <<EOF
       ================================================================================
@@ -40,6 +38,7 @@ check-format:
       use is EXACTLY version 6.0.0. This is available in Ubuntu 18 by default.
       ================================================================================
       EOF
+    - pre-commit run --all-files --show-diff-on-failure
 
 .build-template: &build
   artifacts:
