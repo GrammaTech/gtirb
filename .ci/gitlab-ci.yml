@@ -20,7 +20,7 @@ check-format:
   stage: check-format
   script:
     - |+
-      pre-commit run --all-files --show-diff-on-failure || ((cat <<EOF
+      pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
       ================================================================================
       If this stage fails, the formatting of your changes may be incorrect.
       To automatically format your files, install pre-commit:
