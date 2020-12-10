@@ -202,6 +202,21 @@ The ERRNO used when exiting lisp indicates success or failure."
                                  :test #'string=)))
                     test-string))))))
 
+(deftest create-module-with-a-name ()
+  (is (string= "foo"
+               (nest
+                (pb:string-value)
+                (proto:name)
+                (gtirb::proto)
+                (make-instance 'module :name "foo" :allow-other-keys t)))))
+
+(deftest create-module-without-a-name ()
+  (is (emptyp (nest
+               (pb:string-value)
+               (proto:name)
+               (gtirb::proto)
+               (make-instance 'module)))))
+
 (deftest entry-points-on-modules ()
   (with-fixture hello
     (let* ((hello (read-gtirb *proto-path*))

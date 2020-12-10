@@ -622,6 +622,16 @@ On those systems this field may be used to capture this address.")
 module represents."))
   (:documentation "Module of a GTIRB IR instance.") (:parent gtirb))
 
+(defmethod make-instance :around
+    ((class (eql 'module)) &rest initargs &key &allow-other-keys)
+  (let ((proto (or (getf initargs :proto)
+                   (let ((new-proto (make-instance 'proto:module)))
+                     (if-let ((name (getf initargs :name)))
+                       (setf (proto:name new-proto) (pb:string-field name))
+                       (warn "Modules created without a name"))
+                     new-proto))))
+    (apply #'call-next-method class :proto proto initargs)))
+
 (defmethod print-object ((obj module) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~a ~s" (file-format obj) (isa obj) (name obj))))
