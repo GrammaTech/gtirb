@@ -210,6 +210,9 @@ The ERRNO used when exiting lisp indicates success or failure."
                 (gtirb::proto)
                 (make-instance 'module :name "foo" :allow-other-keys t)))))
 
+;; FIXME: create-module-without-a-name should verify that the appropriate
+;; warning is emitted, but for some reason the warning doesn't percolate up
+;; to the point where the signals testing macro is able to catch it.
 (deftest create-module-without-a-name ()
   (is (emptyp (nest
                (pb:string-value)
