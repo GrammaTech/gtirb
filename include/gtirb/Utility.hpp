@@ -144,19 +144,41 @@ private:
 ///
 /// \brief A comparison function object for comparing nodes in address order.
 ///
-/// \tparam T The type to compare addresses with. Must have a method with the
-///           signature "std::optional<Addr> getAddress() const".
-template <typename T> struct AddressLess {
-  using key_type = std::optional<Addr>;
+/// If both nodes have the same address, their sizes are compared. If both
+/// nodes have the same addresses and sizes, their UUIDs are compared.
+struct GTIRB_EXPORT_API AddressLess {
+  template <typename NodeType> auto key(const NodeType* N) const {
+    return std::make_tuple(N->getAddress(), N->getSize(), N->getUUID());
+  }
 
-  static key_type key(const T& N) { return N.getAddress(); }
-  static key_type key(const T* N) { return N->getAddress(); }
+  template <typename NodeType>
+  bool operator()(const NodeType* N1, const NodeType* N2) const {
+    return key(N1) < key(N2);
+  }
 
-  bool operator()(const T& N1, const T& N2) const { return key(N1) < key(N2); }
-  bool operator()(const T* N1, const T* N2) const {
-    return key(*N1) < key(*N2);
+  template <typename NodeType, typename = std::enable_if_t<
+                                   std::negation_v<std::is_pointer<NodeType>>>>
+  bool operator()(const NodeType& N1, const NodeType& N2) const {
+    return operator()(&N1, &N2);
+  }
+
+  /// \brief Compare a node's address to a query address.
+  template <typename NodeType>
+  bool operator()(const NodeType* N1, const Addr& A2) const {
+    return N1->getAddress() < A2;
+  }
+
+  /// \brief Compare a node's address to a query address.
+  template <typename NodeType>
+  bool operator()(const Addr& A1, const NodeType* N2) const {
+    return A1 < N2->getAddress();
   }
 };
+
+/// \brief Compare CodeBlocks by address, size, decode mode, and UUID.
+template <>
+bool AddressLess::operator()<CodeBlock>(const CodeBlock* B1,
+                                        const CodeBlock* B2) const;
 
 /// \class BlockAddressLess
 ///

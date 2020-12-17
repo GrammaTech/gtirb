@@ -123,9 +123,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
       Section*, boost::multi_index::indexed_by<
                     boost::multi_index::ordered_non_unique<
                         boost::multi_index::tag<by_address>,
-                        boost::multi_index::global_fun<
-                            const Section&, AddressLess<Section>::key_type,
-                            &AddressLess<Section>::key>>,
+                        boost::multi_index::identity<Section*>, AddressLess>,
                     boost::multi_index::ordered_non_unique<
                         boost::multi_index::tag<by_name>,
                         boost::multi_index::const_mem_fun<
@@ -134,7 +132,7 @@ class GTIRB_EXPORT_API Module : public AuxDataContainer {
                         boost::multi_index::tag<by_pointer>,
                         boost::multi_index::identity<Section*>>>>;
   using SectionIntMap =
-      boost::icl::interval_map<Addr, std::set<Section*, AddressLess<Section>>>;
+      boost::icl::interval_map<Addr, std::set<Section*, AddressLess>>;
 
   using SymbolSet = boost::multi_index::multi_index_container<
       Symbol*,
@@ -896,24 +894,22 @@ public:
 
   /// \brief Iterator over \ref ByteInterval objects.
   using byte_interval_iterator =
-      MergeSortedIterator<Section::byte_interval_iterator,
-                          AddressLess<ByteInterval>>;
+      MergeSortedIterator<Section::byte_interval_iterator, AddressLess>;
   /// \brief Range of \ref ByteInterval objects.
   using byte_interval_range = boost::iterator_range<byte_interval_iterator>;
   /// \brief Sub-range of \ref ByteInterval objects overlapping addresses.
   using byte_interval_subrange = boost::iterator_range<MergeSortedIterator<
-      Section::byte_interval_subrange::iterator, AddressLess<ByteInterval>>>;
+      Section::byte_interval_subrange::iterator, AddressLess>>;
   /// \brief Const iterator over \ref ByteInterval objects.
   using const_byte_interval_iterator =
-      MergeSortedIterator<Section::const_byte_interval_iterator,
-                          AddressLess<ByteInterval>>;
+      MergeSortedIterator<Section::const_byte_interval_iterator, AddressLess>;
   /// \brief Const range of \ref ByteInterval objects.
   using const_byte_interval_range =
       boost::iterator_range<const_byte_interval_iterator>;
   /// \brief Sub-range of \ref ByteInterval objects overlapping addresses.
-  using const_byte_interval_subrange = boost::iterator_range<
-      MergeSortedIterator<Section::const_byte_interval_subrange::iterator,
-                          AddressLess<ByteInterval>>>;
+  using const_byte_interval_subrange =
+      boost::iterator_range<MergeSortedIterator<
+          Section::const_byte_interval_subrange::iterator, AddressLess>>;
 
   /// \brief Return an iterator to the first \ref ByteInterval.
   byte_interval_iterator byte_intervals_begin() {
@@ -1245,7 +1241,7 @@ public:
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
   using code_block_iterator =
-      MergeSortedIterator<Section::code_block_iterator, AddressLess<CodeBlock>>;
+      MergeSortedIterator<Section::code_block_iterator, AddressLess>;
   /// \brief Range of \ref CodeBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
@@ -1256,15 +1252,14 @@ public:
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
-  using code_block_subrange = boost::iterator_range<MergeSortedIterator<
-      Section::code_block_subrange::iterator, AddressLess<CodeBlock>>>;
+  using code_block_subrange = boost::iterator_range<
+      MergeSortedIterator<Section::code_block_subrange::iterator, AddressLess>>;
   /// \brief Iterator over \ref CodeBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
   using const_code_block_iterator =
-      MergeSortedIterator<Section::const_code_block_iterator,
-                          AddressLess<CodeBlock>>;
+      MergeSortedIterator<Section::const_code_block_iterator, AddressLess>;
   /// \brief Range of \ref CodeBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
@@ -1277,7 +1272,7 @@ public:
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
   using const_code_block_subrange = boost::iterator_range<MergeSortedIterator<
-      Section::const_code_block_subrange::iterator, AddressLess<CodeBlock>>>;
+      Section::const_code_block_subrange::iterator, AddressLess>>;
 
 private:
   code_block_range makeCodeBlockRange(SectionSet::iterator Begin,
@@ -1437,7 +1432,7 @@ public:
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
   using data_block_iterator =
-      MergeSortedIterator<Section::data_block_iterator, AddressLess<DataBlock>>;
+      MergeSortedIterator<Section::data_block_iterator, AddressLess>;
   /// \brief Range of \ref DataBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
@@ -1448,15 +1443,14 @@ public:
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
-  using data_block_subrange = boost::iterator_range<MergeSortedIterator<
-      Section::data_block_subrange::iterator, AddressLess<DataBlock>>>;
+  using data_block_subrange = boost::iterator_range<
+      MergeSortedIterator<Section::data_block_subrange::iterator, AddressLess>>;
   /// \brief Iterator over \ref DataBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
   using const_data_block_iterator =
-      MergeSortedIterator<Section::const_data_block_iterator,
-                          AddressLess<DataBlock>>;
+      MergeSortedIterator<Section::const_data_block_iterator, AddressLess>;
   /// \brief Range of \ref DataBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
@@ -1469,7 +1463,7 @@ public:
   /// Blocks are yielded in address order, ascending. If two blocks have the
   /// same address, thier order is not specified.
   using const_data_block_subrange = boost::iterator_range<MergeSortedIterator<
-      Section::const_data_block_subrange::iterator, AddressLess<DataBlock>>>;
+      Section::const_data_block_subrange::iterator, AddressLess>>;
 
   /// \brief Return an iterator to the first \ref DataBlock.
   data_block_iterator data_blocks_begin() {
