@@ -92,6 +92,13 @@ enum class ISA : uint8_t {
                           ///< Stages, 64-bit.
 };
 
+enum class Endianess : uint8_t {
+  Undefined = proto::Endianess_Undefined, ///< Unknown or uninitialized
+                                          ///< endianess.
+  Big = proto::BigEndian,                 ///< Big endian.
+  Little = proto::LittleEndian,           ///< Little endian.
+};
+
 /// \class Module
 ///
 /// \brief Represents a single binary (library or executable).
@@ -248,6 +255,16 @@ public:
   ///
   /// \return The ISA ID.
   gtirb::ISA getISA() const { return Isa; }
+
+  /// \brief Set the endianess of the instructions in this Module.
+  ///
+  /// \param X The endianess to set.
+  void setEndianess(gtirb::Endianess X) { Endianess = X; }
+
+  /// \brief Get the endianess of the instructions in this Module.
+  ///
+  /// \return The endianess.
+  gtirb::Endianess getEndianess() const { return Endianess; }
 
   /// \brief Get the entry point of this module, or null if not present.
   const CodeBlock* getEntryPoint() const { return EntryPoint; }
@@ -1825,6 +1842,7 @@ private:
   int64_t RebaseDelta{0};
   gtirb::FileFormat FileFormat{FileFormat::Undefined};
   gtirb::ISA Isa{ISA::Undefined};
+  gtirb::Endianess Endianess{Endianess::Undefined};
   std::string Name;
   CodeBlock* EntryPoint{nullptr};
   ProxyBlockSet ProxyBlocks;

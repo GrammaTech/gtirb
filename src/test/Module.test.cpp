@@ -205,6 +205,15 @@ TEST(Unit_Module, getISA) {
   EXPECT_EQ(gtirb::ISA::X64, M->getISA());
 }
 
+TEST(Unit_Module, getEndianess) {
+  auto* M = Module::Create(Ctx, "M");
+
+  EXPECT_EQ(gtirb::Endianess::Undefined, M->getEndianess());
+
+  M->setEndianess(gtirb::Endianess::Big);
+  EXPECT_EQ(gtirb::Endianess::Big, M->getEndianess());
+}
+
 TEST(Unit_Module, setPreferredAddr) {
   auto* M = Module::Create(Ctx, "M");
   Addr Preferred{64};

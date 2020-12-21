@@ -122,6 +122,19 @@ class Module(AuxDataContainer):
         ValidButUnsupported = Module_pb2.ISA.Value("ValidButUnsupported")
         """An unknown or undefined ISA."""
 
+    class Endianess(Enum):
+        """Identifies the endianess of a :class:`gtirb.Module`.
+        """
+
+        Undefined = Module_pb2.Endianess.Value("Endianess_Undefined")
+        """An unknown or uninitialized endianess."""
+
+        Big = Module_pb2.Endianess.Value("BigEndian")
+        """Big endian."""
+
+        Little = Module_pb2.Endianess.Value("LittleEndian")
+        """Little endian."""
+
     class _NodeSet(SetWrapper):
         def __init__(self, node, field, *args):
             self._node = node  # type: Module
@@ -152,6 +165,7 @@ class Module(AuxDataContainer):
         binary_path="",  # type: str
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         isa=ISA.Undefined,  # type: Module.ISA
+        endianess=Endianess.Undefined,  # type: Module.Endianess
         preferred_addr=0,  # type: int
         proxies=set(),  # type: typing.Iterable[ProxyBlock]
         rebase_delta=0,  # type: int
@@ -168,6 +182,7 @@ class Module(AuxDataContainer):
         :param binary_path: The path to the loadable binary object
             represented by this module.
         :param isa: The ISA of the binary.
+        :param endianess: The endianess of the binary.
         :param file_format: The file format of the binary.
         :param name: The name given to the binary.
         :param preferred_addr: The preferred loading address of the binary.
@@ -188,6 +203,7 @@ class Module(AuxDataContainer):
         self._ir = None  # type: "IR"
         self.binary_path = binary_path  # type: str
         self.isa = isa  # type: Module.ISA
+        self.endianess = endianess  # type: Module.Endianess
         self.file_format = file_format  # type: Module.FileFormat
         self.name = name  # type: str
         self.preferred_addr = preferred_addr  # type: int
@@ -277,6 +293,7 @@ class Module(AuxDataContainer):
         for attr in (
             "binary_path",
             "isa",
+            "endianess",
             "file_format",
             "name",
             "preferred_addr",
@@ -311,6 +328,7 @@ class Module(AuxDataContainer):
             "name={name!r}, "
             "binary_path={binary_path!r}, "
             "isa=Module.{isa!s}, "
+            "endianess=Module.{endianess!s}, "
             "file_format=Module.{file_format!s}, "
             "preferred_addr={preferred_addr:#x}, "
             "rebase_delta={rebase_delta:#x}, "
