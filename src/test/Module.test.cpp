@@ -858,6 +858,7 @@ TEST(Unit_Module, protobufRoundTrip) {
     Original->setRebaseDelta(4);
     Original->setFileFormat(FileFormat::ELF);
     Original->setISA(ISA::X64);
+    Original->setByteOrder(ByteOrder::Little);
     Original->addAuxData<AnTest>(0);
     Symbol* Sym = Original->addSymbol(InnerCtx, Addr(1), "name1");
     Original->addSymbol(InnerCtx, Addr(2), "name1");
@@ -885,6 +886,7 @@ TEST(Unit_Module, protobufRoundTrip) {
   EXPECT_EQ(Result->getRebaseDelta(), 4);
   EXPECT_EQ(Result->getFileFormat(), FileFormat::ELF);
   EXPECT_EQ(Result->getISA(), ISA::X64);
+  EXPECT_EQ(Result->getByteOrder(), ByteOrder::Little);
   EXPECT_EQ(Result->getName(), "module");
 
   // Make sure all symbols are present despite repeated names and addresses.
