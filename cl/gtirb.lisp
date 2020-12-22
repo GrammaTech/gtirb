@@ -39,6 +39,7 @@
            :binary-path
            :isa
            :file-format
+           :byte-order
            :preferred-addr
            :rebase-delta
            :symbols
@@ -559,10 +560,10 @@ the graph.")
       (#.proto:+file-format-format-undefined+ . :format-undefined))
   :test #'equal)
 
-(define-constant +module-endianess-map+
-    `((#.proto:+endianess-endianess-undefined+ . :undefined)
-      (#.proto:+endianess-big-endian+ . :big-endian)
-      (#.proto:+endianess-little-endian+ . :little-endian))
+(define-constant +module-byte-order-map+
+    `((#.proto:+byte-order-byte-order-undefined+ . :undefined)
+      (#.proto:+byte-order-big-endian+ . :big-endian)
+      (#.proto:+byte-order-little-endian+ . :little-endian))
   :test #'equal)
 
 (define-proto-backed-class (module proto:module) ()
@@ -626,8 +627,8 @@ On those systems this field may be used to capture this address.")
                   :documentation
                   "The binary file format of the original file this
 module represents.")
-     (endianess :type enumeration :enumeration +module-endianess-map+ :documentation
-                "The endianess of the bytes in this module."))
+     (byte-order :type enumeration :enumeration +module-byte-order-map+ :documentation
+                 "The byte-order of the bytes in this module."))
   (:documentation "Module of a GTIRB IR instance.") (:parent gtirb))
 
 (defmethod make-instance :around
