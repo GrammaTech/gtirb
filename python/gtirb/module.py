@@ -29,6 +29,7 @@ class Module(AuxDataContainer):
         currently exist or have the same contents.
     :ivar ~.isa: The ISA of the binary.
     :ivar ~.file_format: The file format of the binary.
+    :ivar ~.byte_order: The endianness of the binary.
     :ivar ~.name: The name given to the binary. Some file formats use this
         for linking and/or symbol resolution purposes. The file name (without
         directory components) if not specified by the format.
@@ -122,17 +123,17 @@ class Module(AuxDataContainer):
         ValidButUnsupported = Module_pb2.ISA.Value("ValidButUnsupported")
         """An unknown or undefined ISA."""
 
-    class Endianess(Enum):
-        """Identifies the endianess of a :class:`gtirb.Module`.
+    class ByteOrder(Enum):
+        """Identifies the endianness of a :class:`gtirb.Module`.
         """
 
-        Undefined = Module_pb2.Endianess.Value("Endianess_Undefined")
-        """An unknown or uninitialized endianess."""
+        Undefined = Module_pb2.ByteOrder.Value("ByteOrder_Undefined")
+        """An unknown or uninitialized endianness."""
 
-        Big = Module_pb2.Endianess.Value("BigEndian")
+        Big = Module_pb2.ByteOrder.Value("BigEndian")
         """Big endian."""
 
-        Little = Module_pb2.Endianess.Value("LittleEndian")
+        Little = Module_pb2.ByteOrder.Value("LittleEndian")
         """Little endian."""
 
     class _NodeSet(SetWrapper):
@@ -165,7 +166,7 @@ class Module(AuxDataContainer):
         binary_path="",  # type: str
         file_format=FileFormat.Undefined,  # type: Module.FileFormat
         isa=ISA.Undefined,  # type: Module.ISA
-        endianess=Endianess.Undefined,  # type: Module.Endianess
+        byte_order=ByteOrder.Undefined,  # type: Module.ByteOrder
         preferred_addr=0,  # type: int
         proxies=set(),  # type: typing.Iterable[ProxyBlock]
         rebase_delta=0,  # type: int
@@ -182,7 +183,7 @@ class Module(AuxDataContainer):
         :param binary_path: The path to the loadable binary object
             represented by this module.
         :param isa: The ISA of the binary.
-        :param endianess: The endianess of the binary.
+        :param byte_order: The endianness of the binary.
         :param file_format: The file format of the binary.
         :param name: The name given to the binary.
         :param preferred_addr: The preferred loading address of the binary.
@@ -203,7 +204,7 @@ class Module(AuxDataContainer):
         self._ir = None  # type: "IR"
         self.binary_path = binary_path  # type: str
         self.isa = isa  # type: Module.ISA
-        self.endianess = endianess  # type: Module.Endianess
+        self.byte_order = byte_order  # type: Module.ByteOrder
         self.file_format = file_format  # type: Module.FileFormat
         self.name = name  # type: str
         self.preferred_addr = preferred_addr  # type: int
@@ -293,7 +294,7 @@ class Module(AuxDataContainer):
         for attr in (
             "binary_path",
             "isa",
-            "endianess",
+            "byte_order",
             "file_format",
             "name",
             "preferred_addr",
@@ -328,7 +329,7 @@ class Module(AuxDataContainer):
             "name={name!r}, "
             "binary_path={binary_path!r}, "
             "isa=Module.{isa!s}, "
-            "endianess=Module.{endianess!s}, "
+            "byte_order=Module.{byte_order!s}, "
             "file_format=Module.{file_format!s}, "
             "preferred_addr={preferred_addr:#x}, "
             "rebase_delta={rebase_delta:#x}, "

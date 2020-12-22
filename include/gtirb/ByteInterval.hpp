@@ -1724,8 +1724,8 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the vector.
-  /// \param  OutputOrder The endianess you wish to read out from the vector.
+  /// \param  InputOrder  The endianness of the data in the vector.
+  /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   bytes_iterator<T>
   bytes_begin(boost::endian::order InputOrder = boost::endian::order::native,
@@ -1738,8 +1738,8 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the vector.
-  /// \param  OutputOrder The endianess you wish to read out from the vector.
+  /// \param  InputOrder  The endianness of the data in the vector.
+  /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   bytes_iterator<T>
   bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
@@ -1752,8 +1752,8 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the vector.
-  /// \param  OutputOrder The endianess you wish to read out from the vector.
+  /// \param  InputOrder  The endianness of the data in the vector.
+  /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   bytes_range<T>
   bytes(boost::endian::order InputOrder = boost::endian::order::native,
@@ -1767,8 +1767,8 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the vector.
-  /// \param  OutputOrder The endianess you wish to read out from the vector.
+  /// \param  InputOrder  The endianness of the data in the vector.
+  /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   const_bytes_iterator<T> bytes_begin(
       boost::endian::order InputOrder = boost::endian::order::native,
@@ -1781,8 +1781,8 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the vector.
-  /// \param  OutputOrder The endianess you wish to read out from the vector.
+  /// \param  InputOrder  The endianness of the data in the vector.
+  /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   const_bytes_iterator<T> bytes_end(
       boost::endian::order InputOrder = boost::endian::order::native,
@@ -1795,8 +1795,8 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the vector.
-  /// \param  OutputOrder The endianess you wish to read out from the vector.
+  /// \param  InputOrder  The endianness of the data in the vector.
+  /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   const_bytes_range<T>
   bytes(boost::endian::order InputOrder = boost::endian::order::native,
@@ -1813,8 +1813,8 @@ public:
   ///
   /// \param  Pos           The position in the byte vector to insert data at.
   /// \param  X             The data to insert.
-  /// \param  VectorOrder   The endianess of the data in the byte vector.
-  /// \param  ElementOrder  The endianess of the data to be inserted.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
@@ -1844,8 +1844,8 @@ public:
   /// \param  Pos           The position in the byte vector to insert data at.
   /// \param  Begin         The start of the data to insert.
   /// \param  End           The end of the data to insert.
-  /// \param  VectorOrder   The endianess of the data in the byte vector.
-  /// \param  ElementsOrder The endianess of the data to be inserted.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementsOrder The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
   template <typename T, typename InputIterator>

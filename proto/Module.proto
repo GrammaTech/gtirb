@@ -46,8 +46,8 @@ enum ISA {
   MIPS64 = 9;
 };
 
-enum Endianess {
-  Endianess_Undefined = 0;
+enum ByteOrder {
+  ByteOrder_Undefined = 0;
   BigEndian = 1;
   LittleEndian = 2;
 }
@@ -69,5 +69,5 @@ message Module {
   repeated Section sections = 12;
   map<string, AuxData> aux_data = 17;
   bytes entry_point = 18;
-  Endianess endianess = 19;
+  ByteOrder byte_order = 19;
 }

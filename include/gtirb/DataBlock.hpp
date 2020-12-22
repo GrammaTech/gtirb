@@ -132,8 +132,8 @@ public:
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the block.
-  /// \param  OutputOrder The endianess you wish to read out from the block.
+  /// \param  InputOrder  The endianness of the data in the block.
+  /// \param  OutputOrder The endianness you wish to read out from the block.
   template <typename T>
   bytes_iterator<T>
   bytes_begin(boost::endian::order InputOrder = boost::endian::order::native,
@@ -150,8 +150,8 @@ public:
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the block.
-  /// \param  OutputOrder The endianess you wish to read out from the block.
+  /// \param  InputOrder  The endianness of the data in the block.
+  /// \param  OutputOrder The endianness you wish to read out from the block.
   template <typename T>
   bytes_iterator<T>
   bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
@@ -168,8 +168,8 @@ public:
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the block.
-  /// \param  OutputOrder The endianess you wish to read out from the block.
+  /// \param  InputOrder  The endianness of the data in the block.
+  /// \param  OutputOrder The endianness you wish to read out from the block.
   template <typename T>
   bytes_range<T>
   bytes(boost::endian::order InputOrder = boost::endian::order::native,
@@ -187,8 +187,8 @@ public:
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the block.
-  /// \param  OutputOrder The endianess you wish to read out from the block.
+  /// \param  InputOrder  The endianness of the data in the block.
+  /// \param  OutputOrder The endianness you wish to read out from the block.
   template <typename T>
   const_bytes_iterator<T> bytes_begin(
       boost::endian::order InputOrder = boost::endian::order::native,
@@ -205,8 +205,8 @@ public:
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the block.
-  /// \param  OutputOrder The endianess you wish to read out from the block.
+  /// \param  InputOrder  The endianness of the data in the block.
+  /// \param  OutputOrder The endianness you wish to read out from the block.
   template <typename T>
   const_bytes_iterator<T> bytes_end(
       boost::endian::order InputOrder = boost::endian::order::native,
@@ -223,8 +223,8 @@ public:
   /// \tparam T The type of data stored in this block's byte vector. Must be
   /// a POD type that satisfies Boost's EndianReversible concept.
   ///
-  /// \param  InputOrder  The endianess of the data in the block.
-  /// \param  OutputOrder The endianess you wish to read out from the block.
+  /// \param  InputOrder  The endianness of the data in the block.
+  /// \param  OutputOrder The endianness you wish to read out from the block.
   template <typename T>
   const_bytes_range<T>
   bytes(boost::endian::order InputOrder = boost::endian::order::native,
