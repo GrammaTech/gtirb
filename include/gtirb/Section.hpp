@@ -1069,6 +1069,18 @@ private:
 
   std::unique_ptr<ByteIntervalObserver> BIO;
 
+  /// \brief Remove a ByteInterval from ByteIntervalAddrs.
+  void removeByteIntervalAddrs(ByteInterval* BI);
+
+  /// \brief Add a ByteInterval to ByteIntervalAddrs.
+  ///
+  /// The caller is responsible for ensuring that the ByteInterval is owned
+  /// by this Section.
+  void insertByteIntervalAddrs(ByteInterval* BI);
+
+  /// \brief Update the extent after adding/removing a ByteInterval.
+  ChangeStatus updateExtent();
+
   void setParent(Module* M, SectionObserver* O) {
     Parent = M;
     Observer = O;

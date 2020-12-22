@@ -36,6 +36,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <optional>
 #include <type_traits>
@@ -2211,8 +2212,7 @@ public:
   ///
   /// \return indication of whether the observer accepts the change.
   virtual ChangeStatus changeExtent(ByteInterval* BI,
-                                    std::optional<AddrRange> OldExtent,
-                                    std::optional<AddrRange> NewExtent) = 0;
+                                    std::function<void()> Callback) = 0;
 };
 
 } // namespace gtirb

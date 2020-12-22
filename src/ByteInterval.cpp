@@ -179,10 +179,8 @@ bool ByteInterval::loadSymbolicExpressions(Context& C, std::istream& In) {
 
 void ByteInterval::setAddress(std::optional<Addr> A) {
   if (Observer) {
-    std::optional<AddrRange> OldExtent = addressRange(*this);
-    Address = A;
     [[maybe_unused]] ChangeStatus Status =
-        Observer->changeExtent(this, OldExtent, addressRange(*this));
+        Observer->changeExtent(this, [this, &A]() { this->Address = A; });
     assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected address change is not implemented yet");
     Status = Observer->moveCodeBlocks(this, code_blocks());
@@ -198,10 +196,8 @@ void ByteInterval::setAddress(std::optional<Addr> A) {
 
 void ByteInterval::setSize(uint64_t S) {
   if (Observer) {
-    std::optional<AddrRange> OldExtent = addressRange(*this);
-    Size = S;
     [[maybe_unused]] ChangeStatus Status =
-        Observer->changeExtent(this, OldExtent, addressRange(*this));
+        Observer->changeExtent(this, [this, &S]() { this->Size = S; });
     assert(Status != ChangeStatus::Rejected &&
            "recovering from rejected size change is not implemented yet");
   } else {

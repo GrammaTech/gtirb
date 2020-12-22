@@ -93,10 +93,19 @@ TEST(Unit_Section, protobufRoundTrip) {
   EXPECT_FALSE(Result->isFlagSet(SectionFlag::ThreadLocal));
 }
 
+template <typename RangeType, typename NodeType>
+static bool inRange(const RangeType& Range, const NodeType* Expected) {
+  auto It = std::find_if(
+      Range.begin(), Range.end(),
+      [Expected](const NodeType& Node) { return &Node == Expected; });
+  return It != Range.end();
+}
+
 TEST(Unit_Section, findByteIntervalsOn) {
   auto* S = Section::Create(Ctx, "test");
   auto* BI1 = S->addByteInterval(Ctx, 16);
   auto* BI2 = S->addByteInterval(Ctx, Addr(8), 16);
+  auto* BI3 = S->addByteInterval(Ctx, Addr(13), 8);
   const Section* CS = S;
 
   // Querying an out-of-bounds address returns an empty range.
@@ -137,6 +146,49 @@ TEST(Unit_Section, findByteIntervalsOn) {
   ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
   EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI1);
   EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI2);
+
+  // Query is correct for ByteIntervals with overlapping start addresses.
+
+  BI1->setAddress(Addr(13));
+  Range = S->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 3);
+  EXPECT_TRUE(inRange(Range, BI1));
+  EXPECT_TRUE(inRange(Range, BI2));
+  EXPECT_TRUE(inRange(Range, BI3));
+
+  ConstRange = CS->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 3);
+  EXPECT_TRUE(inRange(ConstRange, BI1));
+  EXPECT_TRUE(inRange(ConstRange, BI2));
+  EXPECT_TRUE(inRange(ConstRange, BI3));
+
+  // Moving a ByteInterval does not leave duplicates in codomain tree.
+
+  BI2->setAddress(Addr(13));
+  Range = S->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 3);
+  EXPECT_TRUE(inRange(Range, BI1));
+  EXPECT_TRUE(inRange(Range, BI2));
+  EXPECT_TRUE(inRange(Range, BI3));
+
+  ConstRange = CS->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 3);
+  EXPECT_TRUE(inRange(ConstRange, BI1));
+  EXPECT_TRUE(inRange(ConstRange, BI2));
+  EXPECT_TRUE(inRange(ConstRange, BI3));
+
+  // Removing a ByteInterval with an overlapping address does not remove others.
+
+  BI3->setAddress(std::nullopt);
+  Range = S->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  EXPECT_TRUE(inRange(Range, BI1));
+  EXPECT_TRUE(inRange(Range, BI2));
+
+  ConstRange = CS->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
+  EXPECT_TRUE(inRange(ConstRange, BI1));
+  EXPECT_TRUE(inRange(ConstRange, BI2));
 }
 
 TEST(Unit_Section, findByteIntervalsAt) {
