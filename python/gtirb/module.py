@@ -232,6 +232,7 @@ class Module(AuxDataContainer):
             name=proto_module.name,
             preferred_addr=proto_module.preferred_addr,
             rebase_delta=proto_module.rebase_delta,
+            byte_order=Module.ByteOrder(proto_module.byte_order),
             uuid=uuid,
         )
         m._add_to_uuid_cache(ir._local_uuid_cache)
@@ -281,6 +282,7 @@ class Module(AuxDataContainer):
         proto_module.symbols.extend(s._to_protobuf() for s in self.symbols)
         if self.entry_point is not None:
             proto_module.entry_point = self.entry_point.uuid.bytes
+        proto_module.byte_order = self.byte_order.value
         proto_module.uuid = self.uuid.bytes
         return proto_module
 

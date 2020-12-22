@@ -95,6 +95,7 @@ void Module::toProtobuf(MessageType* Message) const {
   if (EntryPoint) {
     nodeUUIDToBytes(EntryPoint, *Message->mutable_entry_point());
   }
+  Message->set_byte_order(static_cast<proto::ByteOrder>(this->ByteOrder));
   AuxDataContainer::toProtobuf(Message);
 }
 
@@ -159,6 +160,7 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
     if (!M->EntryPoint)
       return nullptr;
   }
+  M->ByteOrder = static_cast<gtirb::ByteOrder>(Message.byte_order());
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
   return M;
 }
