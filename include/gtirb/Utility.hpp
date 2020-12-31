@@ -156,8 +156,8 @@ struct GTIRB_EXPORT_API AddressLess {
     return key(N1) < key(N2);
   }
 
-  template <typename NodeType, typename = std::enable_if_t<
-                                   std::negation_v<std::is_pointer<NodeType>>>>
+  template <typename NodeType,
+            typename = std::enable_if_t<!std::is_pointer_v<NodeType>>>
   bool operator()(const NodeType& N1, const NodeType& N2) const {
     return operator()(&N1, &N2);
   }
@@ -180,23 +180,25 @@ template <>
 bool AddressLess::operator()<CodeBlock>(const CodeBlock* B1,
                                         const CodeBlock* B2) const;
 
+/// \brief Compare DataBlocks by address, size, and UUID.
+///
+/// Although this mimics the default comparison order, this specialization is
+/// necessary for compatibility with the CodeBlock order so that CodeBlocks
+/// and DataBlocks can be handled uniformly by block_iterator and friends.
+template <>
+bool AddressLess::operator()<DataBlock>(const DataBlock* B1,
+                                        const DataBlock* B2) const;
+
 /// \class BlockAddressLess
 ///
 /// \brief A comparison function object for comparing blocks (that is, \ref Node
 /// objects that are either \ref CodeBlock or \ref DastaBlock objects) in
 /// address order.
 struct GTIRB_EXPORT_API BlockAddressLess {
-  using key_type = std::optional<Addr>;
-
-  static key_type key(const Node& N);
-  static key_type key(const Node* N) { return key(*N); }
-
   bool operator()(const Node* N1, const Node* N2) const {
-    return key(*N1) < key(*N2);
+    return operator()(*N1, *N2);
   }
-  bool operator()(const Node& N1, const Node& N2) const {
-    return key(N1) < key(N2);
-  }
+  bool operator()(const Node& N1, const Node& N2) const;
 };
 
 /// \class ArbitraryLess

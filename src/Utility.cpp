@@ -7,8 +7,24 @@
 using namespace gtirb;
 
 inline auto codeBlockKey(const CodeBlock* B) {
-  return std::make_tuple(B->getAddress(), B->getSize(), B->getDecodeMode(),
-                         B->getUUID());
+  return std::make_tuple(B->getAddress(), B->getSize(), B->getKind(),
+                         B->getDecodeMode(), B->getUUID());
+}
+
+inline auto dataBlockKey(const DataBlock* B) {
+  // Include a dummy "decode mode" to match the key type for CodeBlocks for
+  // blockKey().
+  return std::make_tuple(B->getAddress(), B->getSize(), B->getKind(),
+                         (uint64_t)0, B->getUUID());
+}
+
+inline auto blockKey(const Node& N) {
+  if (const auto* CB = dyn_cast<CodeBlock>(&N)) {
+    return codeBlockKey(CB);
+  } else {
+    auto* DB = cast<DataBlock>(&N);
+    return dataBlockKey(DB);
+  }
 }
 
 template <>
@@ -17,15 +33,12 @@ bool AddressLess::operator()<CodeBlock>(const CodeBlock* B1,
   return codeBlockKey(B1) < codeBlockKey(B2);
 }
 
-BlockAddressLess::key_type BlockAddressLess::key(const Node& N) {
-  if (const auto* CB = dyn_cast<CodeBlock>(&N)) {
-    return CB->getAddress();
-  }
+template <>
+bool AddressLess::operator()<DataBlock>(const DataBlock* B1,
+                                        const DataBlock* B2) const {
+  return dataBlockKey(B1) < dataBlockKey(B2);
+}
 
-  if (const auto* DB = dyn_cast<DataBlock>(&N)) {
-    return DB->getAddress();
-  }
-
-  assert(!"BlockAddressLess got an unknown node type!");
-  return std::nullopt;
+bool BlockAddressLess::operator()(const Node& N1, const Node& N2) const {
+  return blockKey(N1) < blockKey(N2);
 }
