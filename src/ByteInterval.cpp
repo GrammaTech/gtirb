@@ -17,6 +17,8 @@
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/DataBlock.hpp>
+#include <gtirb/Module.hpp>
+#include <gtirb/Section.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <iterator>
 
@@ -89,7 +91,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
+    default: {
+      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
+    }
     }
   }
 
@@ -403,4 +407,14 @@ ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
                          Iter->Offset, Iter->Offset + NewSize),
                      ByteInterval::BlockIntMap::codomain_type({&*Iter})));
   return ChangeStatus::Accepted;
+}
+
+boost::endian::order gtirb::ByteInterval::getBoostEndianOrder() const {
+  if (auto* S = getSection()) {
+    if (auto* M = S->getModule()) {
+      return M->getBoostEndianOrder();
+    }
+  }
+
+  return boost::endian::order::native;
 }

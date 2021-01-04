@@ -1728,8 +1728,11 @@ public:
   /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   bytes_iterator<T>
-  bytes_begin(boost::endian::order InputOrder = boost::endian::order::native,
+  bytes_begin(boost::endian::order InputOrder = BOOST_ENDIAN_ORDER_UNSET,
               boost::endian::order OutputOrder = boost::endian::order::native) {
+    if (InputOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      InputOrder = getBoostEndianOrder();
+    }
     return bytes_iterator<T>(this, 0, InputOrder, OutputOrder);
   }
 
@@ -1742,8 +1745,11 @@ public:
   /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   bytes_iterator<T>
-  bytes_end(boost::endian::order InputOrder = boost::endian::order::native,
+  bytes_end(boost::endian::order InputOrder = BOOST_ENDIAN_ORDER_UNSET,
             boost::endian::order OutputOrder = boost::endian::order::native) {
+    if (InputOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      InputOrder = getBoostEndianOrder();
+    }
     return bytes_iterator<T>(this, Size, InputOrder, OutputOrder);
   }
 
@@ -1756,8 +1762,11 @@ public:
   /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   bytes_range<T>
-  bytes(boost::endian::order InputOrder = boost::endian::order::native,
+  bytes(boost::endian::order InputOrder = BOOST_ENDIAN_ORDER_UNSET,
         boost::endian::order OutputOrder = boost::endian::order::native) {
+    if (InputOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      InputOrder = getBoostEndianOrder();
+    }
     return bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
                           bytes_end<T>(InputOrder, OutputOrder));
   }
@@ -1771,8 +1780,11 @@ public:
   /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   const_bytes_iterator<T> bytes_begin(
-      boost::endian::order InputOrder = boost::endian::order::native,
+      boost::endian::order InputOrder = BOOST_ENDIAN_ORDER_UNSET,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
+    if (InputOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      InputOrder = getBoostEndianOrder();
+    }
     return const_bytes_iterator<T>(this, 0, InputOrder, OutputOrder);
   }
 
@@ -1785,8 +1797,11 @@ public:
   /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   const_bytes_iterator<T> bytes_end(
-      boost::endian::order InputOrder = boost::endian::order::native,
+      boost::endian::order InputOrder = BOOST_ENDIAN_ORDER_UNSET,
       boost::endian::order OutputOrder = boost::endian::order::native) const {
+    if (InputOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      InputOrder = getBoostEndianOrder();
+    }
     return const_bytes_iterator<T>(this, Size, InputOrder, OutputOrder);
   }
 
@@ -1799,8 +1814,11 @@ public:
   /// \param  OutputOrder The endianness you wish to read out from the vector.
   template <typename T>
   const_bytes_range<T>
-  bytes(boost::endian::order InputOrder = boost::endian::order::native,
+  bytes(boost::endian::order InputOrder = BOOST_ENDIAN_ORDER_UNSET,
         boost::endian::order OutputOrder = boost::endian::order::native) const {
+    if (InputOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      InputOrder = getBoostEndianOrder();
+    }
     return const_bytes_range<T>(bytes_begin<T>(InputOrder, OutputOrder),
                                 bytes_end<T>(InputOrder, OutputOrder));
   }
@@ -1820,8 +1838,12 @@ public:
   template <typename T>
   const_bytes_iterator<T> insertBytes(
       const const_bytes_iterator<T> Pos, const T& X,
-      boost::endian::order VectorOrder = boost::endian::order::native,
+      boost::endian::order VectorOrder = BOOST_ENDIAN_ORDER_UNSET,
       boost::endian::order ElementOrder = boost::endian::order::native) {
+    if (VectorOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      VectorOrder = getBoostEndianOrder();
+    }
+
     setSize(Size + sizeof(T));
     // If the position to insert is currently outside the initilized bytes,
     // we let the iterator's operator= handle resizing the byte vector,
@@ -1851,8 +1873,12 @@ public:
   template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(
       const const_bytes_iterator<T> Pos, InputIterator Begin, InputIterator End,
-      boost::endian::order VectorOrder = boost::endian::order::native,
+      boost::endian::order VectorOrder = BOOST_ENDIAN_ORDER_UNSET,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
+    if (VectorOrder == BOOST_ENDIAN_ORDER_UNSET) {
+      VectorOrder = getBoostEndianOrder();
+    }
+
     auto N = std::distance(Begin, End) * sizeof(T);
     setSize(Size + N);
     // If the position to insert is currently outside the initilized bytes,
@@ -1972,6 +1998,10 @@ private:
         C, Address, Size ? *Size : std::distance(Begin, End),
         InitSize ? *InitSize : std::distance(Begin, End), Begin, End, U);
   }
+
+  static constexpr boost::endian::order BOOST_ENDIAN_ORDER_UNSET =
+      static_cast<boost::endian::order>(-1);
+  boost::endian::order getBoostEndianOrder() const;
 
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;
