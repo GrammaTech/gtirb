@@ -1959,6 +1959,10 @@ public:
   }
   /// @endcond
 
+  /// \brief Get the ``boost::endian::order`` of this module, suitable for
+  /// passing to the ``bytes`` iterator.
+  boost::endian::order getBoostEndianOrder() const;
+
 private:
   ByteInterval(Context& C);
 
@@ -2001,7 +2005,6 @@ private:
 
   static constexpr boost::endian::order BOOST_ENDIAN_ORDER_UNSET =
       static_cast<boost::endian::order>(-1);
-  boost::endian::order getBoostEndianOrder() const;
 
   /// \brief The protobuf message type used for serializing ByteInterval.
   using MessageType = proto::ByteInterval;

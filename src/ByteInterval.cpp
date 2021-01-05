@@ -91,7 +91,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
+    default: {
+      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
+    }
     }
   }
 
@@ -410,7 +412,14 @@ ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
 boost::endian::order gtirb::ByteInterval::getBoostEndianOrder() const {
   if (auto* S = getSection()) {
     if (auto* M = S->getModule()) {
-      return M->getBoostEndianOrder();
+      switch (M->getByteOrder()) {
+      case (ByteOrder::Big):
+        return boost::endian::order::big;
+      case (ByteOrder::Little):
+        return boost::endian::order::little;
+      default:
+        return boost::endian::order::native;
+      }
     }
   }
 

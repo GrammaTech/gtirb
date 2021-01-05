@@ -276,18 +276,6 @@ public:
   /// \param CB The entry point of this module, or null if not present.
   void setEntryPoint(CodeBlock* CB) { EntryPoint = CB; }
 
-  /// \brief Get the ``boost::endian::order`` of this module.
-  boost::endian::order getBoostEndianOrder() const {
-    switch (ByteOrder) {
-    case (ByteOrder::Big):
-      return boost::endian::order::big;
-    case (ByteOrder::Little):
-      return boost::endian::order::little;
-    default:
-      return boost::endian::order::native;
-    }
-  }
-
   /// \name ProxyBlock-Related Public Types and Functions
   /// @{
 
