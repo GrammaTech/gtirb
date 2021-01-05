@@ -289,6 +289,10 @@ public:
   static bool classof(const Node* N) { return N->getKind() == Kind::CodeBlock; }
   /// @endcond
 
+  /// \brief Get the ``boost::endian::order`` of this module, suitable for
+  /// passing to the ``bytes`` iterator.
+  boost::endian::order getBoostEndianOrder() const;
+
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
   CodeBlock(Context& C, uint64_t S, uint64_t Decode)

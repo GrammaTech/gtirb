@@ -279,6 +279,10 @@ public:
   static bool classof(const Node* N) { return N->getKind() == Kind::DataBlock; }
   /// @endcond
 
+  /// \brief Get the ``boost::endian::order`` of this module, suitable for
+  /// passing to the ``bytes`` iterator.
+  boost::endian::order getBoostEndianOrder() const;
+
 private:
   ByteInterval* Parent{nullptr};
   DataBlockObserver* Observer{nullptr};
