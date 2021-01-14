@@ -19,6 +19,7 @@
 #include <gtirb/ProxyBlock.hpp>
 #include <gtirb/proto/CFG.pb.h>
 #include <gtest/gtest.h>
+#include <map>
 #include <sstream>
 
 using namespace gtirb;
@@ -197,6 +198,18 @@ TEST(Unit_CFG, blockIterator) {
   EXPECT_EQ(Cit, ConstRange.end());
 }
 
+// Helper for validating CfgPreds and CfgSuccs.
+// Uses a multimap to normalize (sort) values, even though the pointer-based
+// ordering may change between processes.
+typedef std::multimap<CfgNode*, EdgeLabel> NodeEdgeMMap;
+template <typename ContainerT> NodeEdgeMMap toMultiMap(const ContainerT& C) {
+  NodeEdgeMMap Result;
+  for (const auto& [Node, Label] : C) {
+    Result.emplace(&Node, Label);
+  }
+  return Result;
+}
+
 TEST(Unit_CFG, edges) {
   CFG Cfg;
   auto B1 = CodeBlock::Create(Ctx, 1);
@@ -222,6 +235,19 @@ TEST(Unit_CFG, edges) {
   auto E4 = addEdge(B1, P1, Cfg);
   EXPECT_EQ(Cfg[source(*E4, Cfg)], B1);
   EXPECT_EQ(Cfg[target(*E4, Cfg)], P1);
+
+  // Successor edge iterator
+  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *B1)),
+            (NodeEdgeMMap{{P1, std::nullopt}, {P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *B2)), (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *P1)), (NodeEdgeMMap{{B1, std::nullopt}}));
+
+  // Predecessor edge iterator
+  EXPECT_EQ(toMultiMap(CfgPreds(Cfg, *P1)),
+            (NodeEdgeMMap{
+                {B1, std::nullopt}, {B1, std::nullopt}, {B2, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(CfgPreds(Cfg, *B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(CfgPreds(Cfg, *B2)), (NodeEdgeMMap{}));
 }
 
 TEST(Unit_CFG, edgeLabels) {
@@ -242,12 +268,15 @@ TEST(Unit_CFG, edgeLabels) {
 
   // Create a number of parallel edges with different labels.
   std::vector<CFG::edge_descriptor> Descriptors;
+  NodeEdgeMMap EdgesToCheck;
   for (ConditionalEdge Cond : Conds) {
     for (DirectEdge Dir : Dirs) {
       for (EdgeType Type : Types) {
         E = addEdge(B1, B2, Cfg);
-        Cfg[*E] = std::make_tuple(Cond, Dir, Type);
+        const EdgeLabel Label{std::in_place, Cond, Dir, Type};
+        Cfg[*E] = Label;
         Descriptors.push_back(*E);
+        EdgesToCheck.emplace(B2, Label);
       }
     }
   }
@@ -265,6 +294,8 @@ TEST(Unit_CFG, edgeLabels) {
       }
     }
   }
+  // Successor edge iterator check
+  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *B1)), EdgesToCheck);
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
