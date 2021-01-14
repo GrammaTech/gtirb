@@ -22,6 +22,22 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
   project, and a pass through this tool is included as part of our
   `pre-commit` configuration (see below for details).
 
+- The GTIRB version saved in `version.txt` in the base of the GTIRB
+  repository is like [semantic versioning](https://semver.org) but
+  offset by one (because we're still early enough as a project to have
+  many backwards in-compatible changes and we don't want to be at
+  version 50.x in 5 years).  So with a version of `X.Y.Z` the first
+  `X` is incremented very rarely and only for major updates, the
+  second `Y` is incremented for every backwards incompatible change,
+  and the third `Z` is incremented when new features are added.
+
+- We also track a Protobuf version number in `version.txt` (as
+  `VERSION_PROTOBUF`).  This number is incremented whenever our
+  protobuf files (under `proto/` in the GTIRB repository) are changed
+  in any way that affects the serialized protobuf -- even if the
+  change could potentially be backwards compatible because of the way
+  protobuf gracefully handles unknown new fields.
+
 - We ask that all contributors complete our Contributor License
   Agreement (CLA), which can be found at
   [GrammaTech-CLA-GTIRB.pdf](./GrammaTech-CLA-GTIRB.pdf), and email
