@@ -143,7 +143,7 @@ public:
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> bytes_iterator<T> bytes_begin() {
     assert(Parent && "Block has no byte interval!");
-    return Parent->bytes_begin<T>() + getOffset();
+    return bytes_begin<T>(Parent->getBoostEndianOrder());
   }
 
   /// \brief Get an iterator to the first byte in this block.
@@ -173,7 +173,7 @@ public:
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> bytes_iterator<T> bytes_end() {
     assert(Parent && "Block has no byte interval!");
-    return Parent->bytes_begin<T>() + getOffset() + Size;
+    return bytes_end<T>(Parent->getBoostEndianOrder());
   }
 
   /// \brief Get an iterator past the last byte in this block.
@@ -203,7 +203,7 @@ public:
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> bytes_range<T> bytes() {
     assert(Parent && "Block has no byte interval!");
-    return bytes_range<T>(bytes_begin<T>(), bytes_end<T>());
+    return bytes<T>(Parent->getBoostEndianOrder());
   }
 
   /// \brief Get a range of the bytes in this block.
@@ -234,7 +234,7 @@ public:
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> const_bytes_iterator<T> bytes_begin() const {
     assert(Parent && "Block has no byte interval!");
-    return Parent->bytes_begin<T>() + getOffset();
+    return bytes_begin<T>(Parent->getBoostEndianOrder());
   }
 
   /// \brief Get an iterator to the first byte in this block.
@@ -264,7 +264,7 @@ public:
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> const_bytes_iterator<T> bytes_end() const {
     assert(Parent && "Block has no byte interval!");
-    return Parent->bytes_begin<T>() + getOffset() + Size;
+    return bytes_end<T>(Parent->getBoostEndianOrder());
   }
 
   /// \brief Get an iterator past the last byte in this block.
@@ -294,7 +294,7 @@ public:
   /// a POD type that satisfies Boost's EndianReversible concept.
   template <typename T> const_bytes_range<T> bytes() const {
     assert(Parent && "Block has no byte interval!");
-    return const_bytes_range<T>(bytes_begin<T>(), bytes_end<T>());
+    return bytes<T>(Parent->getBoostEndianOrder());
   }
 
   /// \brief Get a range of the bytes in this block.
@@ -360,10 +360,6 @@ public:
   /// @cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::CodeBlock; }
   /// @endcond
-
-  /// \brief Get the ``boost::endian::order`` of this module, suitable for
-  /// passing to the ``bytes`` iterator.
-  boost::endian::order getBoostEndianOrder() const;
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}

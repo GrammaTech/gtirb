@@ -64,11 +64,3 @@ DataBlock* DataBlock::load(Context& C, std::istream& In) {
   auto DB = DataBlock::fromProtobuf(C, Message);
   return DB;
 }
-
-boost::endian::order gtirb::DataBlock::getBoostEndianOrder() const {
-  if (auto* BI = getByteInterval()) {
-    return BI->getBoostEndianOrder();
-  }
-
-  return boost::endian::order::native;
-}

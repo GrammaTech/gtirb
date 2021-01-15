@@ -65,11 +65,3 @@ CodeBlock* CodeBlock::load(Context& C, std::istream& In) {
   auto CB = CodeBlock::fromProtobuf(C, Message);
   return CB;
 }
-
-boost::endian::order gtirb::CodeBlock::getBoostEndianOrder() const {
-  if (auto* BI = getByteInterval()) {
-    return BI->getBoostEndianOrder();
-  }
-
-  return boost::endian::order::native;
-}
