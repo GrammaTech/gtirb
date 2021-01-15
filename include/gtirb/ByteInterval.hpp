@@ -1724,8 +1724,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T> bytes_iterator<T> bytes_begin() {
-    return bytes_iterator<T>(this, 0, getBoostEndianOrder(),
-                             boost::endian::order::native);
+    return bytes_begin<T>(getBoostEndianOrder());
   }
 
   /// \brief Get an iterator to the beginning of this byte vector.
@@ -1747,8 +1746,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T> bytes_iterator<T> bytes_end() {
-    return bytes_iterator<T>(this, Size, getBoostEndianOrder(),
-                             boost::endian::order::native);
+    return bytes_end<T>(getBoostEndianOrder());
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -1770,10 +1768,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T> bytes_range<T> bytes() {
-    auto BoostEndianOrder = getBoostEndianOrder();
-    return bytes_range<T>(
-        bytes_begin<T>(BoostEndianOrder, boost::endian::order::native),
-        bytes_end<T>(BoostEndianOrder, boost::endian::order::native));
+    return bytes<T>(getBoostEndianOrder());
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -1796,8 +1791,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T> const_bytes_iterator<T> bytes_begin() const {
-    return const_bytes_iterator<T>(this, 0, getBoostEndianOrder(),
-                                   boost::endian::order::native);
+    return bytes_begin<T>(getBoostEndianOrder());
   }
 
   /// \brief Get an iterator to the beginning of this byte vector.
@@ -1819,8 +1813,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T> const_bytes_iterator<T> bytes_end() const {
-    return const_bytes_iterator<T>(this, Size, getBoostEndianOrder(),
-                                   boost::endian::order::native);
+    return bytes_end<T>(getBoostEndianOrder());
   }
 
   /// \brief Get an iterator past the end of this byte vector.
@@ -1842,10 +1835,7 @@ public:
   /// \tparam T  The type of data stored in this byte vector. Must be a
   /// POD type that satisfies Boost's EndianReversible concept.
   template <typename T> const_bytes_range<T> bytes() const {
-    auto BoostEndianOrder = getBoostEndianOrder();
-    return const_bytes_range<T>(
-        bytes_begin<T>(BoostEndianOrder, boost::endian::order::native),
-        bytes_end<T>(BoostEndianOrder, boost::endian::order::native));
+    return bytes<T>(getBoostEndianOrder());
   }
 
   /// \brief Get a range of data in this byte vector.
@@ -1876,16 +1866,7 @@ public:
   template <typename T>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       const T& X) {
-    setSize(Size + sizeof(T));
-    // If the position to insert is currently outside the initilized bytes,
-    // we let the iterator's operator= handle resizing the byte vector,
-    // otherwise we insert zeroes and then overwrite them via said operator=.
-    if (Pos.I < Bytes.size()) {
-      Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);
-    }
-    *bytes_iterator<T>(this, Pos.I, getBoostEndianOrder(),
-                       boost::endian::order::native) = X;
-    return Pos;
+    return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
 
   /// \brief Insert a single datum into this byte vector.
@@ -1932,19 +1913,7 @@ public:
   template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
-    auto N = std::distance(Begin, End) * sizeof(T);
-    setSize(Size + N);
-    // If the position to insert is currently outside the initilized bytes,
-    // we let the iterator's operator= handle resizing the byte vector,
-    // otherwise we insert zeroes and then overwrite them via said operator=.
-    if (Pos.I < Bytes.size()) {
-      Bytes.insert(Bytes.begin() + Pos.I, N, 0);
-    }
-    // std::copy calls operator= one time for every element in the input iter.
-    std::copy(Begin, End,
-              bytes_iterator<T>(this, Pos.I, getBoostEndianOrder(),
-                                boost::endian::order::native));
-    return Pos;
+    return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
   }
 
   /// \brief Insert data into this byte vector.
