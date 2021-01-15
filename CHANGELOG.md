@@ -1,5 +1,10 @@
 # Unreleased
 
+# 1.10.2
+
+* Added module-level endianess flag, for use in archtectures with multiple
+  possible endians for its code blocks.
+
 # 1.9.0
 
 * Introduce attributes for symbolic expressions to the core IR.
