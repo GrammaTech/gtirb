@@ -282,13 +282,13 @@ GTIRB_EXPORT_API boost::iterator_range<const_block_iterator>
 blocks(const CFG& Cfg);
 
 /// @cond INTERNAL
-// Traits for instantiating CfgEdgeIters as CfgPreds.
+// Traits for instantiating cfgEdgeIters as cfgPreds.
 struct CfgPredTraits {
-  typedef boost::graph_traits<CFG>::in_edge_iterator BGEdgeIter;
-  static CfgNode* getNode(BGEdgeIter BGIt, const CFG& Cfg) {
-    return Cfg[source(*BGIt, Cfg)];
+  using edge_iterator = boost::graph_traits<CFG>::in_edge_iterator;
+  static CfgNode* getNode(const CFG::edge_descriptor& EDesc, const CFG& Cfg) {
+    return Cfg[source(EDesc, Cfg)];
   }
-  static std::pair<BGEdgeIter, BGEdgeIter>
+  static std::pair<edge_iterator, edge_iterator>
   getEdges(const CFG::vertex_descriptor& VtxDescr, const CFG& Cfg) {
     return in_edges(VtxDescr, Cfg);
   }
@@ -296,13 +296,13 @@ struct CfgPredTraits {
 /// @endcond
 
 /// @cond INTERNAL
-// Traits for instantiating CfgEdgeIters as CfgSuccs.
+// Traits for instantiating cfgEdgeIters as cfgSuccs.
 struct CfgSuccTraits {
-  typedef boost::graph_traits<CFG>::out_edge_iterator BGEdgeIter;
-  static CfgNode* getNode(BGEdgeIter BGIt, const CFG& Cfg) {
-    return Cfg[target(*BGIt, Cfg)];
+  using edge_iterator = boost::graph_traits<CFG>::out_edge_iterator;
+  static CfgNode* getNode(const CFG::edge_descriptor& EDesc, const CFG& Cfg) {
+    return Cfg[target(EDesc, Cfg)];
   }
-  static std::pair<BGEdgeIter, BGEdgeIter>
+  static std::pair<edge_iterator, edge_iterator>
   getEdges(const CFG::vertex_descriptor& VtxDescr, const CFG& Cfg) {
     return out_edges(VtxDescr, Cfg);
   }
@@ -310,98 +310,77 @@ struct CfgSuccTraits {
 /// @endcond
 
 /// @cond INTERNAL
-// Template class underlying the CfgPreds and CfgSuccs helpers for iterating
-// CFG predecessor and successor edges respectively from a given node.
-// Each instance of a CfgEdgeIters object provides a container-like interface
-// with a begin() and end() method for iterating the edges.  The iterator type
-// is an internal Iter class whose value_type (type returned by dereference
-// operator*) is a pair<CfgNode&, EdgeLabel>.
-// Internally it stores a handle to the CFG and a pair of underlying
-// boost::graph edge_iterators for begin and end.
-template <class Traits> class CfgEdgeIters {
-  // BG == "boost::graph"
-  typedef typename Traits::BGEdgeIter BGEdgeIter;
+// Helper to convert a CFG::edge_descriptor to a pair<CfgNode&, EdgeLabel>.
+template <class Traits> struct EdgeDescrToNodeLabel {
+  const CFG* Cfg = nullptr; // Should only be null for end iterator
 
-public:
-  // Iterator type returned by CfgEdgeIters's begin() and end() methods.
-  // Its value_type (type returned by dereference operator*) is a
-  // pair<CfgNode&, EdgeLabel>.
-  // Internally it stores a handle to the CFG and the underlying boost::graph
-  // edge_iterator.
-  class Iter {
-  public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<CfgNode&, EdgeLabel>;
-    using difference_type = typename BGEdgeIter::difference_type;
-    using pointer = value_type*;
-    using reference = value_type&;
-
-  private:
-    const CFG& Cfg;
-    BGEdgeIter BGIt;
-
-  public:
-    Iter(const Iter&) = default;
-    Iter(const CFG& G, const BGEdgeIter& I) : Cfg(G), BGIt(I) {}
-
-    value_type operator*() const {
-      // NOTE: for some reason, std::make_pair does not compile.
-      return value_type{*Traits::getNode(BGIt, Cfg), Cfg[*BGIt]};
-    }
-    bool operator==(const Iter& rhs) const { return BGIt == rhs.BGIt; }
-    bool operator!=(const Iter& rhs) const { return BGIt != rhs.BGIt; }
-    Iter& operator++() {
-      ++BGIt;
-      return *this;
-    }
-    Iter operator++(int) {
-      auto Tmp = *this;
-      ++BGIt;
-      return Tmp;
-    }
-  };
-
-private:
-  const CFG& Cfg;
-  const std::pair<BGEdgeIter, BGEdgeIter> BGEIters;
-
-  // Helper method for construction
-  static std::pair<BGEdgeIter, BGEdgeIter> initBGEIters(const CFG& G,
-                                                        const CfgNode& N) {
-    const std::optional<CFG::vertex_descriptor> OptVtxDescr = getVertex(&N, G);
-    return (OptVtxDescr != std::nullopt)
-               ? Traits::getEdges(OptVtxDescr.value(), G)
-               : std::pair<BGEdgeIter, BGEdgeIter>();
+  std::pair<CfgNode&, EdgeLabel>
+  operator()(const CFG::edge_descriptor& EDesc) const {
+    // NOTE: std::make_pair does not compile (because & is not copyable)
+    return {*Traits::getNode(EDesc, *Cfg), (*Cfg)[EDesc]};
   }
-
-public:
-  CfgEdgeIters(const CFG& G, const CfgNode& N)
-      : Cfg(G), BGEIters(initBGEIters(G, N)) {}
-
-  Iter begin() const { return Iter(Cfg, BGEIters.first); }
-  Iter end() const { return Iter(Cfg, BGEIters.second); }
 };
 /// @endcond
 
+/// \brief Returns a iterator_range to iterate the predecessors or successors
+/// of a \ref CfgNode.
+///
+/// This template method is instantiated as cfgPreds and cfgSuccs for iterating
+/// CFG predecessor and successor edges respectively from a given node.
+/// The underlying iterator's value_type (type returned by dereference
+/// operator*) is a pair<CfgNode&, EdgeLabel>.
+///
+/// \param G  The \ref CFG containing N.
+///
+/// \param N  The \ref CfgNode whose edges will be iterated.
+///
+/// \return A range over \p N's predecessors or successors.
+template <class Traits> auto cfgEdgeIters(const CFG& G, const CfgNode& N) {
+  const std::optional<CFG::vertex_descriptor> OptVtxDescr = getVertex(&N, G);
+  if (OptVtxDescr == std::nullopt) {
+    // FYI: this is the return type
+    return boost::iterator_range<boost::transform_iterator<
+        EdgeDescrToNodeLabel<Traits>, typename Traits::edge_iterator>>();
+  } else {
+    const auto [Begin, End] = Traits::getEdges(OptVtxDescr.value(), G);
+    return boost::make_iterator_range(
+        boost::make_transform_iterator(Begin, EdgeDescrToNodeLabel<Traits>{&G}),
+        boost::make_transform_iterator(End, EdgeDescrToNodeLabel<Traits>{&G}));
+  }
+}
+/// @endcond
+
 /// \ingroup CFG_GROUP
-/// \brief A container-like interface to iterate the predecessors
+/// \brief Returns an iterator_range to iterate the predecessors
 /// of a \ref CfgNode.
 ///
 /// To iterate the predecessors of node N in graph G:
 /// \code
-/// for (const auto& [PredNode, EdgeLabel] : gtirb::CfgPreds(G, N)) { ... }
+/// for (const auto& [PredNode, EdgeLabel] : gtirb::cfgPreds(G, N)) { ... }
 /// \endcode
-typedef CfgEdgeIters<CfgPredTraits> CfgPreds;
+///
+/// \param G  The \ref CFG containing N.
+///
+/// \param N  The \ref CfgNode whose predecessors will be iterated.
+///
+/// \return A range over \p N's predecessors.
+constexpr auto cfgPreds = cfgEdgeIters<CfgPredTraits>;
 
 /// \ingroup CFG_GROUP
-/// \brief A container-like interface to iterate the successors
+/// \brief Returns an iterator_range to iterate the successors
 /// of a \ref CfgNode.
 ///
 /// To iterate the successors of node N in graph G:
 /// \code
-/// for (const auto& [SuccNode, EdgeLabel] : gtirb::CfgSuccs(G, N)) { ... }
+/// for (const auto& [SuccNode, EdgeLabel] : gtirb::cfgSuccs(G, N)) { ... }
 /// \endcode
-typedef CfgEdgeIters<CfgSuccTraits> CfgSuccs;
+///
+/// \param G  The \ref CFG containing N.
+///
+/// \param N  The \ref CfgNode whose successors will be iterated.
+///
+/// \return A range over \p N's successors.
+constexpr auto cfgSuccs = cfgEdgeIters<CfgSuccTraits>;
 
 } // namespace gtirb
 #endif // GTIRB_CFG_H

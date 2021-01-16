@@ -198,7 +198,7 @@ TEST(Unit_CFG, blockIterator) {
   EXPECT_EQ(Cit, ConstRange.end());
 }
 
-// Helper for validating CfgPreds and CfgSuccs.
+// Helper for validating cfgPreds and cfgSuccs.
 // Uses a multimap to normalize (sort) values, even though the pointer-based
 // ordering may change between processes.
 typedef std::multimap<CfgNode*, EdgeLabel> NodeEdgeMMap;
@@ -237,17 +237,17 @@ TEST(Unit_CFG, edges) {
   EXPECT_EQ(Cfg[target(*E4, Cfg)], P1);
 
   // Successor edge iterator
-  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *B1)),
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *B1)),
             (NodeEdgeMMap{{P1, std::nullopt}, {P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *B2)), (NodeEdgeMMap{{P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *P1)), (NodeEdgeMMap{{B1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *B2)), (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *P1)), (NodeEdgeMMap{{B1, std::nullopt}}));
 
   // Predecessor edge iterator
-  EXPECT_EQ(toMultiMap(CfgPreds(Cfg, *P1)),
+  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *P1)),
             (NodeEdgeMMap{
                 {B1, std::nullopt}, {B1, std::nullopt}, {B2, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(CfgPreds(Cfg, *B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(CfgPreds(Cfg, *B2)), (NodeEdgeMMap{}));
+  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *B2)), (NodeEdgeMMap{}));
 }
 
 TEST(Unit_CFG, edgeLabels) {
@@ -295,7 +295,7 @@ TEST(Unit_CFG, edgeLabels) {
     }
   }
   // Successor edge iterator check
-  EXPECT_EQ(toMultiMap(CfgSuccs(Cfg, *B1)), EdgesToCheck);
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *B1)), EdgesToCheck);
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
