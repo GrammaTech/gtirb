@@ -201,7 +201,7 @@ TEST(Unit_CFG, blockIterator) {
 // Helper for validating cfgPreds and cfgSuccs.
 // Uses a multimap to normalize (sort) values, even though the pointer-based
 // ordering may change between processes.
-typedef std::multimap<CfgNode*, EdgeLabel> NodeEdgeMMap;
+typedef std::multimap<const CfgNode*, EdgeLabel> NodeEdgeMMap;
 template <typename ContainerT> NodeEdgeMMap toMultiMap(const ContainerT& C) {
   NodeEdgeMMap Result;
   for (const auto& [Node, Label] : C) {
