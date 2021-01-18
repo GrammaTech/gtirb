@@ -248,6 +248,22 @@ TEST(Unit_CFG, edges) {
                 {B1, std::nullopt}, {B1, std::nullopt}, {B2, std::nullopt}}));
   EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
   EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *B2)), (NodeEdgeMMap{}));
+
+  // Const vs. non-const edge iterator: check constness of CfgNode reference.
+  static_assert(std::is_same_v<gtirb::CfgNode&,
+                               decltype(cfgSuccs(Cfg, *B1).begin()->first)>);
+  static_assert(std::is_same_v<
+                const gtirb::CfgNode&,
+                decltype(cfgSuccs(std::as_const(Cfg), *B1).begin()->first)>);
+  // In structured-binding context
+  for (auto [Node, Label] : cfgSuccs(Cfg, *B1)) {
+    static_assert(std::is_same_v<gtirb::CfgNode&, decltype(Node)>);
+    (void)Label;
+  }
+  for (auto [Node, Label] : cfgSuccs(std::as_const(Cfg), *B1)) {
+    static_assert(std::is_same_v<const gtirb::CfgNode&, decltype(Node)>);
+    (void)Label;
+  }
 }
 
 TEST(Unit_CFG, edgeLabels) {
