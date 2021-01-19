@@ -41,6 +41,32 @@ TEST(Unit_CFG, compilationIteratorTypes) {
     const_block_iterator cit(it);
     cit = it;
   }
+
+  // Check const-convertibility of [const_]cfg_preds_range[::iterator]
+  static_assert(std::is_same_v<cfg_preds_range::iterator::reference::first_type,
+                               CfgNode*>);
+  static_assert(
+      std::is_same_v<const_cfg_preds_range::iterator::reference::first_type,
+                     const CfgNode*>);
+  static_assert(std::is_convertible_v<cfg_preds_range, const_cfg_preds_range>);
+  static_assert(!std::is_convertible_v<const_cfg_preds_range, cfg_preds_range>);
+  static_assert(std::is_convertible_v<cfg_preds_range::iterator,
+                                      const_cfg_preds_range::iterator>);
+  static_assert(!std::is_convertible_v<const_cfg_preds_range::iterator,
+                                       cfg_preds_range::iterator>);
+  // Repeat for ..._succs_...
+  static_assert(std::is_same_v<cfg_succs_range::iterator::reference::first_type,
+                               CfgNode*>);
+  static_assert(
+      std::is_same_v<const_cfg_succs_range::iterator::reference::first_type,
+                     const CfgNode*>);
+  // Const-convertibility of [const_]cfg_succs_range[::iterator]
+  static_assert(std::is_convertible_v<cfg_succs_range, const_cfg_succs_range>);
+  static_assert(!std::is_convertible_v<const_cfg_succs_range, cfg_succs_range>);
+  static_assert(std::is_convertible_v<cfg_succs_range::iterator,
+                                      const_cfg_succs_range::iterator>);
+  static_assert(!std::is_convertible_v<const_cfg_succs_range::iterator,
+                                       cfg_succs_range::iterator>);
 }
 
 static Context Ctx;
@@ -203,6 +229,10 @@ TEST(Unit_CFG, blockIterator) {
 // ordering may change between processes.
 typedef std::multimap<const CfgNode*, EdgeLabel> NodeEdgeMMap;
 template <typename ContainerT> NodeEdgeMMap toMultiMap(const ContainerT& C) {
+  // Note: this could be implemented with the following one-liner:
+  //    return NodeEdgeMMap(C.begin(), C.end());
+  // but instead we use the following loop construct, which is the expected
+  // common usage of the cfgPreds/cfgSuccs interface.
   NodeEdgeMMap Result;
   for (auto [Node, Label] : C) {
     Result.emplace(Node, Label);

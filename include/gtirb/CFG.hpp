@@ -321,6 +321,13 @@ template <class Traits, typename CfgNodePtr> struct EdgeDescrToNodeLabel {
   // constness in the public interface functions cfgPreds and cfgSuccs.
   const CFG* Cfg = nullptr; // Should only be null for end iterator
 
+  EdgeDescrToNodeLabel() = default;
+  EdgeDescrToNodeLabel(const CFG* G) : Cfg(G) {}
+  // This quasi-copy constructor enables conversion from non-const iterator to
+  // const iterator, but not vice versa.
+  EdgeDescrToNodeLabel(const EdgeDescrToNodeLabel<Traits, CfgNode*>& Rhs)
+      : Cfg(Rhs.Cfg) {}
+
   std::pair<CfgNodePtr, EdgeLabel>
   operator()(const CFG::edge_descriptor& EDesc) const {
     return {Traits::getNode(EDesc, *Cfg), (*Cfg)[EDesc]};
