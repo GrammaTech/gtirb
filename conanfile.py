@@ -150,6 +150,7 @@ class GtirbConan(Properties, ConanFile):
         cmake.build()
         cmake.test(output_on_failure=True)
         cmake.install()
+        cmake.patch_config_paths()
 
     def package(self):
         pass
