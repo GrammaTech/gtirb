@@ -367,7 +367,7 @@ auto cfgEdgeIters(const CFG& G, const CfgNode* N) {
 ///
 /// To iterate the predecessors of node N in graph G:
 /// \code
-/// for (const auto& [PredNode, EdgeLabel] : gtirb::cfgPreds(G, N)) { ... }
+/// for (auto [PredNode, EdgeLabel] : gtirb::cfgPreds(G, N)) { ... }
 /// \endcode
 ///
 /// \param G  The \ref CFG containing N.
@@ -386,7 +386,7 @@ inline auto cfgPreds(const CFG& G, const CfgNode* N) {
 ///
 /// To iterate the successors of node N in graph G:
 /// \code
-/// for (const auto& [SuccNode, EdgeLabel] : gtirb::cfgSuccs(G, N)) { ... }
+/// for (auto [SuccNode, EdgeLabel] : gtirb::cfgSuccs(G, N)) { ... }
 /// \endcode
 ///
 /// \param G  The \ref CFG containing N.

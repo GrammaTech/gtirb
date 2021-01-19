@@ -204,7 +204,7 @@ TEST(Unit_CFG, blockIterator) {
 typedef std::multimap<const CfgNode*, EdgeLabel> NodeEdgeMMap;
 template <typename ContainerT> NodeEdgeMMap toMultiMap(const ContainerT& C) {
   NodeEdgeMMap Result;
-  for (const auto& [Node, Label] : C) {
+  for (auto [Node, Label] : C) {
     Result.emplace(Node, Label);
   }
   return Result;
@@ -249,13 +249,13 @@ TEST(Unit_CFG, edges) {
   EXPECT_EQ(toMultiMap(cfgPreds(Cfg, B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
   EXPECT_EQ(toMultiMap(cfgPreds(Cfg, B2)), (NodeEdgeMMap{}));
 
-  // Const vs. non-const edge iterator: check constness of CfgNode reference.
+  // Const vs. non-const edge iterator: check constness of referenced CfgNode.
   static_assert(std::is_same_v<gtirb::CfgNode*,
                                decltype(cfgSuccs(Cfg, B1).begin()->first)>);
   static_assert(std::is_same_v<
                 const gtirb::CfgNode*,
                 decltype(cfgSuccs(std::as_const(Cfg), B1).begin()->first)>);
-  // In structured-binding context
+  // Const vs. non-const edge iterator, in structured-binding context.
   for (auto [Node, Label] : cfgSuccs(Cfg, B1)) {
     static_assert(std::is_same_v<gtirb::CfgNode*, decltype(Node)>);
     (void)Label;
