@@ -310,21 +310,20 @@ struct CfgSuccTraits {
 /// @endcond
 
 /// @cond INTERNAL
-/// \brief Convert a CFG edge_descriptor to a pair<[const] CfgNode&, EdgeLabel>.
+/// \brief Convert a CFG edge_descriptor to a pair<[const] CfgNode*, EdgeLabel>.
 ///
 /// \tparam Traits     Controls edge direction (predecessor vs successor).
-/// \tparam CfgNodeRef Specifies constness of the returned CfgNode reference.
-template <class Traits, typename CfgNodeRef> struct EdgeDescrToNodeLabel {
+/// \tparam CfgNodePtr Specifies constness of the returned CfgNode.
+template <class Traits, typename CfgNodePtr> struct EdgeDescrToNodeLabel {
   // Yes, this stores a const CFG* even for the version that returns a
   // non-const CfgNode.  We can do this because the constness of the two are
   // actually independent, though we maintain the illusion of their related
   // constness in the public interface functions cfgPreds and cfgSuccs.
   const CFG* Cfg = nullptr; // Should only be null for end iterator
 
-  std::pair<CfgNodeRef, EdgeLabel>
+  std::pair<CfgNodePtr, EdgeLabel>
   operator()(const CFG::edge_descriptor& EDesc) const {
-    // NOTE: std::make_pair does not compile (because & is not copyable)
-    return {*Traits::getNode(EDesc, *Cfg), (*Cfg)[EDesc]};
+    return {Traits::getNode(EDesc, *Cfg), (*Cfg)[EDesc]};
   }
 };
 /// @endcond
@@ -336,28 +335,28 @@ template <class Traits, typename CfgNodeRef> struct EdgeDescrToNodeLabel {
 /// This template method is instantiated as cfgPreds and cfgSuccs for iterating
 /// CFG predecessor and successor edges respectively from a given node.
 /// The underlying iterator's value_type (type returned by dereference
-/// operator*) is a pair<[const] CfgNode&, EdgeLabel>.
+/// operator*) is a pair<[const] CfgNode*, EdgeLabel>.
 ///
 /// \tparam Traits     Controls edge direction (predecessor vs successor).
-/// \tparam CfgNodeRef Specifies constness of the returned CfgNode reference.
+/// \tparam CfgNodePtr Specifies constness of the returned CfgNode.
 /// \param G  The \ref CFG containing N.
 /// \param N  The \ref CfgNode whose edges will be iterated.
 /// \return A range over \p N's predecessors or successors.
-template <class Traits, typename CfgNodeRef>
-auto cfgEdgeIters(const CFG& G, const CfgNode& N) {
-  const std::optional<CFG::vertex_descriptor> OptVtxDescr = getVertex(&N, G);
+template <class Traits, typename CfgNodePtr>
+auto cfgEdgeIters(const CFG& G, const CfgNode* N) {
+  const std::optional<CFG::vertex_descriptor> OptVtxDescr = getVertex(N, G);
   if (OptVtxDescr == std::nullopt) {
     // FYI: this is the return type
     return boost::iterator_range<
-        boost::transform_iterator<EdgeDescrToNodeLabel<Traits, CfgNodeRef>,
+        boost::transform_iterator<EdgeDescrToNodeLabel<Traits, CfgNodePtr>,
                                   typename Traits::edge_iterator>>();
   } else {
     const auto [Begin, End] = Traits::getEdges(OptVtxDescr.value(), G);
     return boost::make_iterator_range(
         boost::make_transform_iterator(
-            Begin, EdgeDescrToNodeLabel<Traits, CfgNodeRef>{&G}),
+            Begin, EdgeDescrToNodeLabel<Traits, CfgNodePtr>{&G}),
         boost::make_transform_iterator(
-            End, EdgeDescrToNodeLabel<Traits, CfgNodeRef>{&G}));
+            End, EdgeDescrToNodeLabel<Traits, CfgNodePtr>{&G}));
   }
 }
 /// @endcond
@@ -374,11 +373,11 @@ auto cfgEdgeIters(const CFG& G, const CfgNode& N) {
 /// \param G  The \ref CFG containing N.
 /// \param N  The \ref CfgNode whose predecessors will be iterated.
 /// \return A range over \p N's predecessors.
-inline auto cfgPreds(CFG& G, const CfgNode& N) {
-  return cfgEdgeIters<CfgPredTraits, CfgNode&>(G, N);
+inline auto cfgPreds(CFG& G, const CfgNode* N) {
+  return cfgEdgeIters<CfgPredTraits, CfgNode*>(G, N);
 }
-inline auto cfgPreds(const CFG& G, const CfgNode& N) {
-  return cfgEdgeIters<CfgPredTraits, const CfgNode&>(G, N);
+inline auto cfgPreds(const CFG& G, const CfgNode* N) {
+  return cfgEdgeIters<CfgPredTraits, const CfgNode*>(G, N);
 }
 
 /// \ingroup CFG_GROUP
@@ -393,11 +392,11 @@ inline auto cfgPreds(const CFG& G, const CfgNode& N) {
 /// \param G  The \ref CFG containing N.
 /// \param N  The \ref CfgNode whose successors will be iterated.
 /// \return A range over \p N's successors.
-inline auto cfgSuccs(CFG& G, const CfgNode& N) {
-  return cfgEdgeIters<CfgSuccTraits, CfgNode&>(G, N);
+inline auto cfgSuccs(CFG& G, const CfgNode* N) {
+  return cfgEdgeIters<CfgSuccTraits, CfgNode*>(G, N);
 }
-inline auto cfgSuccs(const CFG& G, const CfgNode& N) {
-  return cfgEdgeIters<CfgSuccTraits, const CfgNode&>(G, N);
+inline auto cfgSuccs(const CFG& G, const CfgNode* N) {
+  return cfgEdgeIters<CfgSuccTraits, const CfgNode*>(G, N);
 }
 
 } // namespace gtirb

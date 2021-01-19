@@ -205,7 +205,7 @@ typedef std::multimap<const CfgNode*, EdgeLabel> NodeEdgeMMap;
 template <typename ContainerT> NodeEdgeMMap toMultiMap(const ContainerT& C) {
   NodeEdgeMMap Result;
   for (const auto& [Node, Label] : C) {
-    Result.emplace(&Node, Label);
+    Result.emplace(Node, Label);
   }
   return Result;
 }
@@ -237,31 +237,31 @@ TEST(Unit_CFG, edges) {
   EXPECT_EQ(Cfg[target(*E4, Cfg)], P1);
 
   // Successor edge iterator
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *B1)),
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, B1)),
             (NodeEdgeMMap{{P1, std::nullopt}, {P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *B2)), (NodeEdgeMMap{{P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *P1)), (NodeEdgeMMap{{B1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, B2)), (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, P1)), (NodeEdgeMMap{{B1, std::nullopt}}));
 
   // Predecessor edge iterator
-  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *P1)),
+  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, P1)),
             (NodeEdgeMMap{
                 {B1, std::nullopt}, {B1, std::nullopt}, {B2, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, *B2)), (NodeEdgeMMap{}));
+  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, B2)), (NodeEdgeMMap{}));
 
   // Const vs. non-const edge iterator: check constness of CfgNode reference.
-  static_assert(std::is_same_v<gtirb::CfgNode&,
-                               decltype(cfgSuccs(Cfg, *B1).begin()->first)>);
+  static_assert(std::is_same_v<gtirb::CfgNode*,
+                               decltype(cfgSuccs(Cfg, B1).begin()->first)>);
   static_assert(std::is_same_v<
-                const gtirb::CfgNode&,
-                decltype(cfgSuccs(std::as_const(Cfg), *B1).begin()->first)>);
+                const gtirb::CfgNode*,
+                decltype(cfgSuccs(std::as_const(Cfg), B1).begin()->first)>);
   // In structured-binding context
-  for (auto [Node, Label] : cfgSuccs(Cfg, *B1)) {
-    static_assert(std::is_same_v<gtirb::CfgNode&, decltype(Node)>);
+  for (auto [Node, Label] : cfgSuccs(Cfg, B1)) {
+    static_assert(std::is_same_v<gtirb::CfgNode*, decltype(Node)>);
     (void)Label;
   }
-  for (auto [Node, Label] : cfgSuccs(std::as_const(Cfg), *B1)) {
-    static_assert(std::is_same_v<const gtirb::CfgNode&, decltype(Node)>);
+  for (auto [Node, Label] : cfgSuccs(std::as_const(Cfg), B1)) {
+    static_assert(std::is_same_v<const gtirb::CfgNode*, decltype(Node)>);
     (void)Label;
   }
 }
@@ -311,7 +311,7 @@ TEST(Unit_CFG, edgeLabels) {
     }
   }
   // Successor edge iterator check
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, *B1)), EdgesToCheck);
+  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, B1)), EdgesToCheck);
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
