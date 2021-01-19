@@ -361,6 +361,23 @@ auto cfgEdgeIters(const CFG& G, const CfgNode* N) {
 }
 /// @endcond
 
+/// \brief iterator_range over a CfgNode's predecessors, non-const version
+using cfg_preds_range = boost::iterator_range<
+    boost::transform_iterator<EdgeDescrToNodeLabel<CfgPredTraits, CfgNode*>,
+                              CfgPredTraits::edge_iterator>>;
+/// \brief iterator_range over a CfgNode's predecessors, const version
+using const_cfg_preds_range = boost::iterator_range<boost::transform_iterator<
+    EdgeDescrToNodeLabel<CfgPredTraits, const CfgNode*>,
+    CfgPredTraits::edge_iterator>>;
+/// \brief iterator_range over a CfgNode's successors, non-const version
+using cfg_succs_range = boost::iterator_range<
+    boost::transform_iterator<EdgeDescrToNodeLabel<CfgSuccTraits, CfgNode*>,
+                              CfgSuccTraits::edge_iterator>>;
+/// \brief iterator_range over a CfgNode's successors, const version
+using const_cfg_succs_range = boost::iterator_range<boost::transform_iterator<
+    EdgeDescrToNodeLabel<CfgSuccTraits, const CfgNode*>,
+    CfgSuccTraits::edge_iterator>>;
+
 /// \ingroup CFG_GROUP
 /// \brief Returns an iterator_range to iterate the predecessors
 /// of a \ref CfgNode.
@@ -373,10 +390,10 @@ auto cfgEdgeIters(const CFG& G, const CfgNode* N) {
 /// \param G  The \ref CFG containing N.
 /// \param N  The \ref CfgNode whose predecessors will be iterated.
 /// \return A range over \p N's predecessors.
-inline auto cfgPreds(CFG& G, const CfgNode* N) {
+inline cfg_preds_range cfgPreds(CFG& G, const CfgNode* N) {
   return cfgEdgeIters<CfgPredTraits, CfgNode*>(G, N);
 }
-inline auto cfgPreds(const CFG& G, const CfgNode* N) {
+inline const_cfg_preds_range cfgPreds(const CFG& G, const CfgNode* N) {
   return cfgEdgeIters<CfgPredTraits, const CfgNode*>(G, N);
 }
 
@@ -392,10 +409,10 @@ inline auto cfgPreds(const CFG& G, const CfgNode* N) {
 /// \param G  The \ref CFG containing N.
 /// \param N  The \ref CfgNode whose successors will be iterated.
 /// \return A range over \p N's successors.
-inline auto cfgSuccs(CFG& G, const CfgNode* N) {
+inline cfg_succs_range cfgSuccs(CFG& G, const CfgNode* N) {
   return cfgEdgeIters<CfgSuccTraits, CfgNode*>(G, N);
 }
-inline auto cfgSuccs(const CFG& G, const CfgNode* N) {
+inline const_cfg_succs_range cfgSuccs(const CFG& G, const CfgNode* N) {
   return cfgEdgeIters<CfgSuccTraits, const CfgNode*>(G, N);
 }
 
