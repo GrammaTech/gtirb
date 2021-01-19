@@ -427,16 +427,6 @@ if(CXX_API)
     "${CMAKE_CURRENT_LIST_DIR}/gtirbConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake" @ONLY
   )
-  file(
-    APPEND "${CMAKE_CURRENT_BINARY_DIR}/gtirbConfig.cmake"
-    "
-              set_property(
-                  TARGET gtirb
-                  APPEND PROPERTY
-                      INTERFACE_INCLUDE_DIRECTORIES \"${CMAKE_BINARY_DIR}/include\" \"${PROTOBUF_INCLUDE_DIRS}\"
-              )
-          "
-  )
   # Add the build directory to the user CMake registry, so find_package can
   # locate it automatically.
   export(PACKAGE gtirb)
