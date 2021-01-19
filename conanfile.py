@@ -72,7 +72,8 @@ class Properties:
 
     @property
     def conan_ref(self):
-        return "%s/stable" % self.rel_url.replace("/", "+")
+        channel = self.conan_channel
+        return "%s/%s" % (self.rel_url.replace("/", "+"), channel)
 
     @property
     def conan_recipe(self):
