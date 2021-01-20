@@ -1,6 +1,6 @@
 # Unreleased
 
-# 1.10.2
+# 1.10.1
 
 * Added module-level endianess flag, for use in archtectures with multiple
   possible endians for its code blocks.
