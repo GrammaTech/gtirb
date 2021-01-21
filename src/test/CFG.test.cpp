@@ -42,18 +42,21 @@ TEST(Unit_CFG, compilationIteratorTypes) {
     cit = it;
   }
 
-  // Check const-convertibility of [const_]cfg_preds_range[::iterator]
-  static_assert(std::is_same_v<cfg_preds_range::iterator::reference::first_type,
-                               CfgNode*>);
+  // Check const-convertibility of [const_]cfg_predecessors_range[::iterator]
   static_assert(
-      std::is_same_v<const_cfg_preds_range::iterator::reference::first_type,
-                     const CfgNode*>);
-  static_assert(std::is_convertible_v<cfg_preds_range, const_cfg_preds_range>);
-  static_assert(!std::is_convertible_v<const_cfg_preds_range, cfg_preds_range>);
-  static_assert(std::is_convertible_v<cfg_preds_range::iterator,
-                                      const_cfg_preds_range::iterator>);
-  static_assert(!std::is_convertible_v<const_cfg_preds_range::iterator,
-                                       cfg_preds_range::iterator>);
+      std::is_same_v<cfg_predecessors_range::iterator::reference::first_type,
+                     CfgNode*>);
+  static_assert(std::is_same_v<
+                const_cfg_predecessors_range::iterator::reference::first_type,
+                const CfgNode*>);
+  static_assert(std::is_convertible_v<cfg_predecessors_range,
+                                      const_cfg_predecessors_range>);
+  static_assert(!std::is_convertible_v<const_cfg_predecessors_range,
+                                       cfg_predecessors_range>);
+  static_assert(std::is_convertible_v<cfg_predecessors_range::iterator,
+                                      const_cfg_predecessors_range::iterator>);
+  static_assert(!std::is_convertible_v<const_cfg_predecessors_range::iterator,
+                                       cfg_predecessors_range::iterator>);
   // Repeat for ..._succs_...
   static_assert(std::is_same_v<cfg_succs_range::iterator::reference::first_type,
                                CfgNode*>);
@@ -224,7 +227,7 @@ TEST(Unit_CFG, blockIterator) {
   EXPECT_EQ(Cit, ConstRange.end());
 }
 
-// Helper for validating cfgPreds and cfgSuccs.
+// Helper for validating cfgPredecessors and cfgSuccessors.
 // Uses a multimap to normalize (sort) values, even though the pointer-based
 // ordering may change between processes.
 typedef std::multimap<const CfgNode*, EdgeLabel> NodeEdgeMMap;
@@ -232,7 +235,7 @@ template <typename ContainerT> NodeEdgeMMap toMultiMap(const ContainerT& C) {
   // Note: this could be implemented with the following one-liner:
   //    return NodeEdgeMMap(C.begin(), C.end());
   // but instead we use the following loop construct, which is the expected
-  // common usage of the cfgPreds/cfgSuccs interface.
+  // common usage of the cfgPredecessors/cfgSuccessors interface.
   NodeEdgeMMap Result;
   for (auto [Node, Label] : C) {
     Result.emplace(Node, Label);
@@ -267,30 +270,35 @@ TEST(Unit_CFG, edges) {
   EXPECT_EQ(Cfg[target(*E4, Cfg)], P1);
 
   // Successor edge iterator
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, B1)),
+  EXPECT_EQ(toMultiMap(cfgSuccessors(Cfg, B1)),
             (NodeEdgeMMap{{P1, std::nullopt}, {P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, B2)), (NodeEdgeMMap{{P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, P1)), (NodeEdgeMMap{{B1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgSuccessors(Cfg, B2)),
+            (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgSuccessors(Cfg, P1)),
+            (NodeEdgeMMap{{B1, std::nullopt}}));
 
   // Predecessor edge iterator
-  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, P1)),
+  EXPECT_EQ(toMultiMap(cfgPredecessors(Cfg, P1)),
             (NodeEdgeMMap{
                 {B1, std::nullopt}, {B1, std::nullopt}, {B2, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, B1)), (NodeEdgeMMap{{P1, std::nullopt}}));
-  EXPECT_EQ(toMultiMap(cfgPreds(Cfg, B2)), (NodeEdgeMMap{}));
+  EXPECT_EQ(toMultiMap(cfgPredecessors(Cfg, B1)),
+            (NodeEdgeMMap{{P1, std::nullopt}}));
+  EXPECT_EQ(toMultiMap(cfgPredecessors(Cfg, B2)), (NodeEdgeMMap{}));
 
   // Const vs. non-const edge iterator: check constness of referenced CfgNode.
-  static_assert(std::is_same_v<gtirb::CfgNode*,
-                               decltype(cfgSuccs(Cfg, B1).begin()->first)>);
-  static_assert(std::is_same_v<
-                const gtirb::CfgNode*,
-                decltype(cfgSuccs(std::as_const(Cfg), B1).begin()->first)>);
+  static_assert(
+      std::is_same_v<gtirb::CfgNode*,
+                     decltype(cfgSuccessors(Cfg, B1).begin()->first)>);
+  static_assert(
+      std::is_same_v<
+          const gtirb::CfgNode*,
+          decltype(cfgSuccessors(std::as_const(Cfg), B1).begin()->first)>);
   // Const vs. non-const edge iterator, in structured-binding context.
-  for (auto [Node, Label] : cfgSuccs(Cfg, B1)) {
+  for (auto [Node, Label] : cfgSuccessors(Cfg, B1)) {
     static_assert(std::is_same_v<gtirb::CfgNode*, decltype(Node)>);
     (void)Label;
   }
-  for (auto [Node, Label] : cfgSuccs(std::as_const(Cfg), B1)) {
+  for (auto [Node, Label] : cfgSuccessors(std::as_const(Cfg), B1)) {
     static_assert(std::is_same_v<const gtirb::CfgNode*, decltype(Node)>);
     (void)Label;
   }
@@ -341,7 +349,7 @@ TEST(Unit_CFG, edgeLabels) {
     }
   }
   // Successor edge iterator check
-  EXPECT_EQ(toMultiMap(cfgSuccs(Cfg, B1)), EdgesToCheck);
+  EXPECT_EQ(toMultiMap(cfgSuccessors(Cfg, B1)), EdgesToCheck);
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {

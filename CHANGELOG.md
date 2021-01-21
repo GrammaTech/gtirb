@@ -4,7 +4,7 @@
 
 * Added module-level endianess flag, for use in archtectures with multiple
   possible endians for its code blocks.
-* Introduce iteration helpers cfgPreds and cfgSuccs.
+* Introduce iteration helpers cfgPredecessors and cfgSuccessors.
 
 # 1.9.0
 
