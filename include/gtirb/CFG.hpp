@@ -379,13 +379,14 @@ using const_cfg_predecessors_range =
         EdgeDescrToNodeLabel<CfgPredecessorTraits, const CfgNode*>,
         CfgPredecessorTraits::edge_iterator>>;
 /// \brief iterator_range over a CfgNode's successors, non-const version
-using cfg_succs_range = boost::iterator_range<boost::transform_iterator<
+using cfg_successors_range = boost::iterator_range<boost::transform_iterator<
     EdgeDescrToNodeLabel<CfgSuccessorTraits, CfgNode*>,
     CfgSuccessorTraits::edge_iterator>>;
 /// \brief iterator_range over a CfgNode's successors, const version
-using const_cfg_succs_range = boost::iterator_range<boost::transform_iterator<
-    EdgeDescrToNodeLabel<CfgSuccessorTraits, const CfgNode*>,
-    CfgSuccessorTraits::edge_iterator>>;
+using const_cfg_successors_range =
+    boost::iterator_range<boost::transform_iterator<
+        EdgeDescrToNodeLabel<CfgSuccessorTraits, const CfgNode*>,
+        CfgSuccessorTraits::edge_iterator>>;
 
 /// \ingroup CFG_GROUP
 /// \brief Returns an iterator_range to iterate the predecessors
@@ -419,10 +420,11 @@ inline const_cfg_predecessors_range cfgPredecessors(const CFG& G,
 /// \param G  The \ref CFG containing N.
 /// \param N  The \ref CfgNode whose successors will be iterated.
 /// \return A range over \p N's successors.
-inline cfg_succs_range cfgSuccessors(CFG& G, const CfgNode* N) {
+inline cfg_successors_range cfgSuccessors(CFG& G, const CfgNode* N) {
   return cfgEdgeIters<CfgSuccessorTraits, CfgNode*>(G, N);
 }
-inline const_cfg_succs_range cfgSuccessors(const CFG& G, const CfgNode* N) {
+inline const_cfg_successors_range cfgSuccessors(const CFG& G,
+                                                const CfgNode* N) {
   return cfgEdgeIters<CfgSuccessorTraits, const CfgNode*>(G, N);
 }
 

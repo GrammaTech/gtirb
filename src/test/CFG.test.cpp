@@ -57,19 +57,22 @@ TEST(Unit_CFG, compilationIteratorTypes) {
                                       const_cfg_predecessors_range::iterator>);
   static_assert(!std::is_convertible_v<const_cfg_predecessors_range::iterator,
                                        cfg_predecessors_range::iterator>);
-  // Repeat for ..._succs_...
-  static_assert(std::is_same_v<cfg_succs_range::iterator::reference::first_type,
-                               CfgNode*>);
+  // Repeat for ..._successors_...
   static_assert(
-      std::is_same_v<const_cfg_succs_range::iterator::reference::first_type,
-                     const CfgNode*>);
-  // Const-convertibility of [const_]cfg_succs_range[::iterator]
-  static_assert(std::is_convertible_v<cfg_succs_range, const_cfg_succs_range>);
-  static_assert(!std::is_convertible_v<const_cfg_succs_range, cfg_succs_range>);
-  static_assert(std::is_convertible_v<cfg_succs_range::iterator,
-                                      const_cfg_succs_range::iterator>);
-  static_assert(!std::is_convertible_v<const_cfg_succs_range::iterator,
-                                       cfg_succs_range::iterator>);
+      std::is_same_v<cfg_successors_range::iterator::reference::first_type,
+                     CfgNode*>);
+  static_assert(std::is_same_v<
+                const_cfg_successors_range::iterator::reference::first_type,
+                const CfgNode*>);
+  // Const-convertibility of [const_]cfg_successors_range[::iterator]
+  static_assert(
+      std::is_convertible_v<cfg_successors_range, const_cfg_successors_range>);
+  static_assert(
+      !std::is_convertible_v<const_cfg_successors_range, cfg_successors_range>);
+  static_assert(std::is_convertible_v<cfg_successors_range::iterator,
+                                      const_cfg_successors_range::iterator>);
+  static_assert(!std::is_convertible_v<const_cfg_successors_range::iterator,
+                                       cfg_successors_range::iterator>);
 }
 
 static Context Ctx;
