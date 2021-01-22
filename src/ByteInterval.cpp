@@ -19,6 +19,7 @@
 #include <gtirb/DataBlock.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
+#include <gtirb/Utility.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <iterator>
 
@@ -45,6 +46,13 @@ public:
 private:
   ByteInterval* BI;
 };
+
+bool ByteInterval::OffsetLess::operator()(const Block* B1,
+                                          const Block* B2) const {
+  if (B1->Offset != B2->Offset)
+    return B1->Offset < B2->Offset;
+  return BlockAddressLess()(B1->Node, B2->Node);
+}
 
 ByteInterval::ByteInterval(Context& C) : ByteInterval(C, std::nullopt, 0, 0) {}
 

@@ -168,9 +168,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   };
 
   struct OffsetLess {
-    bool operator()(const Block* b1, const Block* b2) const {
-      return b1->Offset < b2->Offset;
-    }
+    bool operator()(const Block* b1, const Block* b2) const;
   };
 
   struct by_offset {};
