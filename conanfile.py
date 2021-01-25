@@ -36,6 +36,7 @@ def branch_to_channel(branch):
 class Properties:
     name = "gtirb"
     rel_url = "rewriting/gtirb"
+    exports_sources = "*", "!*_CPack_Packages*", "!*java*.class"
 
     @property
     def version(self):
@@ -100,10 +101,6 @@ class GtirbConan(Properties, ConanFile):
                 "gtirb requires libstdc++11 ABI, update your conan profile"
             )
 
-    def source(self):
-        project_dir = os.environ["CI_PROJECT_DIR"]
-        self.run("git clone %s %s" % (project_dir, self.name))
-
     def build_requirements(self):
         if self.settings.os == "Windows":
             self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
@@ -145,7 +142,7 @@ class GtirbConan(Properties, ConanFile):
                 }
             )
         cmake.configure(
-            source_folder=self.name, defs=defs,
+            source_folder=".", defs=defs,
         )
         cmake.build()
         cmake.test(output_on_failure=True)
