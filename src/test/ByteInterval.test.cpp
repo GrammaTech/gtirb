@@ -33,6 +33,37 @@ template <typename RangeTy> auto pointers(const RangeTy& Range) {
       boost::make_transform_iterator(Range.end(), GetPointer));
 }
 
+TEST(Unit_ByteInterval, compilationIteratorTypes) {
+  static_assert(std::is_same_v<ByteInterval::block_iterator::reference, Node&>);
+  static_assert(std::is_same_v<ByteInterval::const_block_iterator::reference,
+                               const Node&>);
+  static_assert(
+      std::is_same_v<ByteInterval::block_subrange::iterator::reference, Node&>);
+  static_assert(
+      std::is_same_v<ByteInterval::const_block_subrange::iterator::reference,
+                     const Node&>);
+
+  {
+    ByteInterval::block_iterator BIt;
+    ByteInterval::const_block_iterator CBIt(BIt);
+    CBIt = BIt;
+
+    ByteInterval::block_range BRng;
+    ByteInterval::const_block_range CBRng(BRng);
+    CBRng = BRng;
+
+    ByteInterval::block_subrange BSubRng;
+    ByteInterval::const_block_subrange CBSubRng(BSubRng);
+    CBSubRng = BSubRng;
+  }
+  static_assert(!std::is_convertible_v<ByteInterval::const_block_iterator,
+                                       ByteInterval::block_iterator>);
+  static_assert(!std::is_convertible_v<ByteInterval::const_block_range,
+                                       ByteInterval::block_range>);
+  static_assert(!std::is_convertible_v<ByteInterval::const_block_subrange,
+                                       ByteInterval::block_subrange>);
+}
+
 TEST(Unit_ByteInterval, noCopyMoveConstructors) {
   EXPECT_FALSE(std::is_copy_constructible_v<ByteInterval>);
   EXPECT_FALSE(std::is_move_constructible_v<ByteInterval>);

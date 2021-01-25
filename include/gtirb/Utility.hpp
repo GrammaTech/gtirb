@@ -64,6 +64,25 @@ public:
   /// Dereferencing or incrementing this iterator results in undefined behavior.
   MergeSortedIterator() = default;
 
+  /// \brief Converting constructor from a MergeSortedIterator with a compatible
+  /// base iterator type.
+  ///
+  /// This allows converting a non-const iterator to a const iterator, for
+  /// example, as long as the base iterators are convertible. The comparison
+  /// types must match exactly.
+  ///
+  /// \tparam OtherForwardIterator  base iterator type of the
+  /// MergeSortedIterator to convert.
+  ///
+  /// \param MSI  MergeSortedIterator to convert.
+  template <typename OtherForwardIterator>
+  MergeSortedIterator(
+      const MergeSortedIterator<OtherForwardIterator, Compare>& MSI,
+      std::enable_if_t<
+          std::is_convertible_v<OtherForwardIterator, ForwardIterator>, void*> =
+          0)
+      : Ranges(MSI.Ranges.begin(), MSI.Ranges.end()) {}
+
   /// \brief Create a MergeSortedIterator from a range of ranges.
   ///
   /// \tparam RangeIteratorRange Any class fulfilling the Boost concept
@@ -118,6 +137,9 @@ public:
   }
   // End of functions for iterator facade compatibility.
 private:
+  template <typename OtherForwardIterator, typename OtherCompare>
+  friend class MergeSortedIterator;
+
   using RangeType = std::pair<ForwardIterator, ForwardIterator>;
 
   // Compares two ranges according to the relationship of their first elements

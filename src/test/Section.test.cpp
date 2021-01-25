@@ -24,6 +24,31 @@ using namespace gtirb;
 
 static Context Ctx;
 
+TEST(Unit_Section, compilationIteratorTypes) {
+  static_assert(std::is_same_v<Section::block_iterator::reference, Node&>);
+  static_assert(
+      std::is_same_v<Section::const_block_iterator::reference, const Node&>);
+  static_assert(
+      std::is_same_v<Section::block_subrange::iterator::reference, Node&>);
+  static_assert(
+      std::is_same_v<Section::const_block_subrange::iterator::reference,
+                     const Node&>);
+
+  {
+    Section::block_iterator BIt;
+    Section::const_block_iterator CBIt = BIt;
+    CBIt = BIt;
+
+    Section::block_range BRng;
+    Section::const_block_range CBRng = BRng;
+    CBRng = BRng;
+  }
+  static_assert(!std::is_convertible_v<Section::const_block_iterator,
+                                       Section::block_iterator>);
+  static_assert(
+      !std::is_convertible_v<Section::const_block_range, Section::block_range>);
+}
+
 TEST(Unit_Section, noCopyMoveConstructors) {
   EXPECT_FALSE(std::is_copy_constructible_v<Section>);
   EXPECT_FALSE(std::is_move_constructible_v<Section>);

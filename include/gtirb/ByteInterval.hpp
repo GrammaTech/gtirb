@@ -152,18 +152,18 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   ///
   /// \brief A function for a transform iterator to turn blocks into nodes.
   template <typename NodeType> struct BlockToNode {
+    BlockToNode() {}
+
+    /// \brief Non-const to const conversion constructor.
+    BlockToNode(const BlockToNode<std::remove_const_t<NodeType>>&) {}
+
     NodeType& operator()(const Block& B) const {
       // We avoid the call to cast() here because we use this function after
       // BlockKindEquals, which confirms the type of the Node for us
       // (and more importantly, we avoid having to include Code/DataBlock).
       return *reinterpret_cast<NodeType*>(B.Node);
     }
-  };
 
-  /// \class BlockPointerToNode
-  ///
-  /// \brief A function for a transform iterator to turn blocks into nodes.
-  template <typename NodeType> struct BlockPointerToNode {
     NodeType& operator()(const Block* B) const { return *B->Node; }
   };
 
@@ -315,7 +315,7 @@ public:
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
   using block_subrange = boost::iterator_range<boost::transform_iterator<
-      BlockPointerToNode<Node>, BlockIntMap::codomain_type::iterator>>;
+      BlockToNode<Node>, BlockIntMap::codomain_type::iterator>>;
   /// \brief Const iterator over \ref Block objects.
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
@@ -333,9 +333,8 @@ public:
   ///
   /// Blocks are yielded in offset order, ascending. If two blocks have the
   /// same offset, thier order is not specified.
-  using const_block_subrange = boost::iterator_range<
-      boost::transform_iterator<BlockPointerToNode<const Node>,
-                                BlockIntMap::codomain_type::const_iterator>>;
+  using const_block_subrange = boost::iterator_range<boost::transform_iterator<
+      BlockToNode<const Node>, BlockIntMap::codomain_type::const_iterator>>;
 
   /// \brief Return an iterator to the first \ref Block.
   block_iterator blocks_begin() { return block_iterator(Blocks.begin()); }
