@@ -1803,6 +1803,15 @@ private:
   /// \brief The protobuf message type used for serializing Module.
   using MessageType = proto::Module;
 
+  /// \brief Remove a Section from SectionAddrs.
+  void removeSectionAddrs(Section* S);
+
+  /// \brief Add a Section to SectionAddrs.
+  ///
+  /// The caller is responsible for ensuring that the Section is owned by this
+  /// Module.
+  void insertSectionAddrs(Section* S);
+
   /// \brief Serialize into a protobuf message.
   ///
   /// \param[out] Message   Serialize into this message.

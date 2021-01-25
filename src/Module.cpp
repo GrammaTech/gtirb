@@ -48,8 +48,8 @@ public:
   ChangeStatus removeDataBlocks(Section* S,
                                 Section::data_block_range Blocks) override;
 
-  ChangeStatus changeExtent(Section* S, std::optional<AddrRange> OldExtent,
-                            std::optional<AddrRange> NewExtent) override;
+  ChangeStatus changeExtent(Section* S,
+                            std::function<void(Section*)> Callback) override;
 
 private:
   Module* M;
@@ -226,24 +226,21 @@ Module* Module::load(Context& C, std::istream& In) {
 ChangeStatus Module::removeSection(Section* S) {
   auto& Index = Sections.get<by_pointer>();
   if (auto Iter = Index.find(S); Iter != Index.end()) {
-    [[maybe_unused]] ChangeStatus Status =
-        SecObs->changeExtent(S, addressRange(*S), std::nullopt);
-    assert(Status != ChangeStatus::Rejected &&
-           "failed to update Module extent when removing section");
-
     if (Observer) {
       auto Begin = Sections.project<by_address>(Iter);
       auto End = std::next(Begin);
       auto BlockRange = makeCodeBlockRange(Begin, End);
-      Status = Observer->removeCodeBlocks(this, BlockRange);
+      [[maybe_unused]] ChangeStatus Status =
+          Observer->removeCodeBlocks(this, BlockRange);
       // The known observers do not reject removals. If that changes, this
       // method must be updated. Because addSection(Section*) also assumes
       // removals are never rejected, that method should be updated as well.
       assert(Status != ChangeStatus::Rejected &&
              "recovering from rejected removal is unimplemented");
     }
-    Index.erase(Iter);
 
+    removeSectionAddrs(S);
+    Index.erase(Iter);
     S->setParent(nullptr, nullptr);
     return ChangeStatus::Accepted;
   }
@@ -272,11 +269,25 @@ ChangeStatus Module::addSection(Section* S) {
            "recovering from rejected insertion is unimplemented");
   }
 
-  [[maybe_unused]] ChangeStatus Status =
-      SecObs->changeExtent(S, std::nullopt, addressRange(*S));
-  assert(Status != ChangeStatus::Rejected &&
-         "failed to update Module extent after adding section");
+  insertSectionAddrs(S);
   return ChangeStatus::Accepted;
+}
+
+void Module::removeSectionAddrs(Section* S) {
+  if (std::optional<AddrRange> OldExtent = addressRange(*S)) {
+    SectionAddrs.subtract(
+        std::make_pair(SectionIntMap::interval_type::right_open(
+                           OldExtent->lower(), OldExtent->upper()),
+                       SectionIntMap::codomain_type({S})));
+  }
+}
+
+void Module::insertSectionAddrs(Section* S) {
+  if (std::optional<AddrRange> NewExtent = addressRange(*S)) {
+    SectionAddrs.add(std::make_pair(SectionIntMap::interval_type::right_open(
+                                        NewExtent->lower(), NewExtent->upper()),
+                                    SectionIntMap::codomain_type({S})));
+  }
 }
 
 static auto NoOp = [](auto*) {};
@@ -403,33 +414,14 @@ ChangeStatus Module::SectionObserverImpl::removeDataBlocks(
   return moveDataBlocks(S, Blocks);
 }
 
-ChangeStatus
-Module::SectionObserverImpl::changeExtent(Section* S,
-                                          std::optional<AddrRange> OldExtent,
-                                          std::optional<AddrRange> NewExtent) {
-  if (OldExtent == NewExtent)
-    return ChangeStatus::NoChange;
-
+ChangeStatus Module::SectionObserverImpl::changeExtent(
+    Section* S, std::function<void(Section*)> Callback) {
   auto& Index = M->Sections.get<by_pointer>();
   if (auto It = Index.find(S); It != Index.end()) {
     std::optional<AddrRange> Previous = addressRange(*M);
-    if (OldExtent)
-      M->SectionAddrs.subtract(
-          std::make_pair(SectionIntMap::interval_type::right_open(
-                             OldExtent->lower(), OldExtent->upper()),
-                         SectionIntMap::codomain_type({S})));
-
-    // The following lambda is intentionally a no-op. Because the Section's
-    // address has already been updated before this method executes, we only
-    // need to tell the index to re-synchronize.
-    Index.modify(It, NoOp);
-
-    if (NewExtent)
-      M->SectionAddrs.add(
-          std::make_pair(SectionIntMap::interval_type::right_open(
-                             NewExtent->lower(), NewExtent->upper()),
-                         SectionIntMap::codomain_type({S})));
-
+    M->removeSectionAddrs(S);
+    Index.modify(It, Callback);
+    M->insertSectionAddrs(S);
     if (Previous != addressRange(*M))
       return ChangeStatus::Accepted;
   }

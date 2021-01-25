@@ -2202,15 +2202,16 @@ public:
   /// \brief Notify the parent when the range of addresses in the interval
   /// changes.
   ///
-  /// Called after the ByteInterval updates its internal state.
+  /// Called before the ByteInterval's extent changes. This method should
+  /// invoke the callback with \p BI to update its extent.
   ///
-  /// \param BI         the ByteInterval that changed.
-  /// \param OldExtent  the previous range of addresses in the ByteInterval.
-  /// \param NewExtent  the new range of addresses in the ByteInterval.
+  /// \param BI        the ByteInterval that changed.
+  /// \param Callback  callable to update the ByteInterval's extent.
   ///
   /// \return indication of whether the observer accepts the change.
-  virtual ChangeStatus changeExtent(ByteInterval* BI,
-                                    std::function<void()> Callback) = 0;
+  virtual ChangeStatus
+  changeExtent(ByteInterval* BI,
+               std::function<void(ByteInterval*)> Callback) = 0;
 };
 
 } // namespace gtirb

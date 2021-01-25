@@ -33,6 +33,7 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
+#include <functional>
 #include <set>
 
 /// \file Section.hpp
@@ -1206,16 +1207,15 @@ public:
 
   /// \brief Notify parent when the range of addresses in the Section changes.
   ///
-  /// Called after the Section updates its internal state.
+  /// Called before the Section's extent changes. This method should invoke the
+  /// callback with \p S to update its extent.
   ///
-  /// \param S          the Section that changed.
-  /// \param OldExtent  the previous range of addresses in the Section.
-  /// \param NewExtent  the new range of addresses in the Section.
+  /// \param S         the Section that changed.
+  /// \param Callback  callable to update the ByteInterval's extent.
   ///
   /// \return indication of whether the observer accepts the change.
   virtual ChangeStatus changeExtent(Section* S,
-                                    std::optional<AddrRange> OldExtent,
-                                    std::optional<AddrRange> NewExtent) = 0;
+                                    std::function<void(Section*)> Callback) = 0;
 };
 
 inline void Section::setName(const std::string& X) {

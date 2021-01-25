@@ -39,8 +39,9 @@ public:
   ChangeStatus removeDataBlocks(ByteInterval* BI,
                                 ByteInterval::data_block_range Blocks) override;
 
-  ChangeStatus changeExtent(ByteInterval* BI,
-                            std::function<void()> Callback) override;
+  ChangeStatus
+  changeExtent(ByteInterval* BI,
+               std::function<void(ByteInterval*)> Callback) override;
 
 private:
   Section* S;
@@ -183,8 +184,7 @@ void Section::insertByteIntervalAddrs(ByteInterval* BI) {
 }
 
 ChangeStatus Section::updateExtent() {
-  std::optional<AddrRange> Previous = Extent;
-  Extent.reset();
+  std::optional<AddrRange> NewExtent;
   if (!ByteIntervals.empty()) {
     // Any ByteIntervals without an address will be at the front of the map
     // because nullopt sorts lower than any address.
@@ -198,16 +198,18 @@ ChangeStatus Section::updateExtent() {
         // interval and the last address in intervals with non-zero size.
         Upper = std::max(Upper, ByteIntervalAddrs.rbegin()->first.upper());
       }
-      Extent = AddrRange{*Lower, static_cast<uint64_t>(Upper - *Lower)};
+      NewExtent = AddrRange{*Lower, static_cast<uint64_t>(Upper - *Lower)};
     }
   }
 
-  if (Previous != Extent) {
+  if (NewExtent != Extent) {
     if (Observer) {
-      [[maybe_unused]] ChangeStatus Status =
-          Observer->changeExtent(this, Previous, Extent);
+      [[maybe_unused]] ChangeStatus Status = Observer->changeExtent(
+          this, [&NewExtent](Section* S) { S->Extent = NewExtent; });
       assert(Status != ChangeStatus::Rejected &&
              "recovering from rejected extent changes is unimplemented");
+    } else {
+      Extent = NewExtent;
     }
     return ChangeStatus::Accepted;
   }
@@ -311,11 +313,11 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
 }
 
 ChangeStatus Section::ByteIntervalObserverImpl::changeExtent(
-    ByteInterval* BI, std::function<void()> Callback) {
+    ByteInterval* BI, std::function<void(ByteInterval*)> Callback) {
   auto& Index = S->ByteIntervals.get<by_pointer>();
   if (auto It = Index.find(BI); It != Index.end()) {
     S->removeByteIntervalAddrs(BI);
-    Index.modify(It, [&Callback](ByteInterval*) { Callback(); });
+    Index.modify(It, Callback);
     S->insertByteIntervalAddrs(BI);
   }
 

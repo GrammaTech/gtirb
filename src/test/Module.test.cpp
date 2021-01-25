@@ -394,32 +394,74 @@ TEST(Unit_Module, getAddressAndSize) {
 
 TEST(Unit_Module, findSections) {
   auto* M = Module::Create(Ctx, "M");
-  auto* S = M->addSection(Ctx, "test");
-  auto* BI = S->addByteInterval(Ctx, Addr(1), 123);
+  auto* S1 = M->addSection(Ctx, "S1");
+  auto* S2 = M->addSection(Ctx, "S2");
+  auto* S3 = M->addSection(Ctx, "S3");
+  auto* BI1 = S1->addByteInterval(Ctx, Addr(1), 123);
+  auto* BI2 = S2->addByteInterval(Ctx, 100);
+  S3->addByteInterval(Ctx, Addr(50), 50);
 
   {
     auto F = M->findSectionsOn(Addr(1));
     ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
-    EXPECT_EQ(F.begin()->getName(), "test");
+    EXPECT_EQ(F.begin()->getName(), "S1");
+
+    F = M->findSectionsOn(Addr(50));
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S1");
+    EXPECT_EQ(std::next(F.begin(), 1)->getName(), "S3");
 
     F = M->findSectionsOn(Addr(123));
-    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(F.begin()->getName(), "S1");
 
     F = M->findSectionsOn(Addr(124));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 
-  BI->setAddress(std::nullopt);
+  BI2->setAddress(Addr(50));
+
+  {
+    auto F = M->findSectionsOn(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S1");
+
+    F = M->findSectionsOn(Addr(50));
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 3);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S1");
+    EXPECT_EQ(std::next(F.begin(), 1)->getName(), "S3");
+    EXPECT_EQ(std::next(F.begin(), 2)->getName(), "S2");
+  }
+
+  BI1->setAddress(Addr(50));
 
   {
     auto F = M->findSectionsOn(Addr(1));
     EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+
+    F = M->findSectionsOn(Addr(50));
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 3);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S3");
+    EXPECT_EQ(std::next(F.begin(), 1)->getName(), "S2");
+    EXPECT_EQ(std::next(F.begin(), 2)->getName(), "S1");
+  }
+
+  BI1->setAddress(std::nullopt);
+
+  {
+    auto F = M->findSectionsOn(Addr(1));
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 0);
+
+    F = M->findSectionsOn(Addr(50));
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S3");
+    EXPECT_EQ(std::next(F.begin(), 1)->getName(), "S2");
   }
 
   {
-    auto F = M->findSections("test");
+    auto F = M->findSections("S1");
     ASSERT_NE(F, M->sections_by_name_end());
-    EXPECT_EQ(F->getName(), "test");
+    EXPECT_EQ(F->getName(), "S1");
 
     F = M->findSections("dummy");
     EXPECT_EQ(F, M->sections_by_name_end());
