@@ -54,17 +54,23 @@ set(EXAMPLE_FILES_IN
 set(EXAMPLE_FILES ${EXAMPLE_FILES_IN})
 move_filename(EXAMPLE_FILES ${CMAKE_CURRENT_BINARY_DIR})
 
-foreach(_inmd ${EXAMPLE_FILES_IN})
-  get_filename_component(_outmd "${_inmd}" NAME)
-  add_custom_command(
-    OUTPUT ${_outmd}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${_inmd}
-    COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}"
-    COMMENT "copying ${_outmd}"
-    VERBATIM
-  )
-endforeach()
+if(NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+  foreach(_inmd ${EXAMPLE_FILES_IN})
+    message(STATUS "source: ${CMAKE_CURRENT_SOURCE_DIR}")
+    message(STATUS "binary: ${CMAKE_CURRENT_BINARY_DIR}")
+    message(STATUS "INMD: ${_inmd}")
+    message(STATUS "OUTMD: ${CMAKE_CURRENT_BINARY_DIR}/${_outmd}")
+    get_filename_component(_outmd "${_inmd}" NAME)
+    add_custom_command(
+      OUTPUT ${_outmd}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      DEPENDS ${_inmd}
+      COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}"
+      COMMENT "copying ${_outmd}"
+      VERBATIM
+    )
+  endforeach()
+endif()
 
 add_custom_target(
   doc_examples
