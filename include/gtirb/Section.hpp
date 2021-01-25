@@ -634,11 +634,12 @@ public:
   ///
   /// \return A range of \ref CodeNode object that intersect the address \p A.
   code_block_subrange findCodeBlocksOn(Addr A) {
+    byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return code_block_subrange(
         code_block_subrange::iterator(
-            boost::make_transform_iterator(this->byte_intervals_begin(),
+            boost::make_transform_iterator(Intervals.begin(),
                                            FindCodeBlocksIn<ByteInterval>(A)),
-            boost::make_transform_iterator(this->byte_intervals_end(),
+            boost::make_transform_iterator(Intervals.end(),
                                            FindCodeBlocksIn<ByteInterval>(A))),
         code_block_subrange::iterator());
   }
@@ -650,14 +651,13 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   const_code_block_subrange findCodeBlocksOn(Addr A) const {
+    const_byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return const_code_block_subrange(
         const_code_block_subrange::iterator(
             boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindCodeBlocksIn<const ByteInterval>(A)),
+                Intervals.begin(), FindCodeBlocksIn<const ByteInterval>(A)),
             boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindCodeBlocksIn<const ByteInterval>(A))),
+                Intervals.end(), FindCodeBlocksIn<const ByteInterval>(A))),
         const_code_block_subrange::iterator());
   }
 
@@ -667,11 +667,12 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   code_block_range findCodeBlocksAt(Addr A) {
+    byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return code_block_range(
         code_block_range::iterator(
-            boost::make_transform_iterator(this->byte_intervals_begin(),
+            boost::make_transform_iterator(Intervals.begin(),
                                            FindCodeBlocksAt<ByteInterval>(A)),
-            boost::make_transform_iterator(this->byte_intervals_end(),
+            boost::make_transform_iterator(Intervals.end(),
                                            FindCodeBlocksAt<ByteInterval>(A))),
         code_block_range::iterator());
   }
@@ -683,15 +684,12 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are between the addresses.
   code_block_range findCodeBlocksAt(Addr Low, Addr High) {
-    return code_block_range(
-        code_block_range::iterator(
-            boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindCodeBlocksBetween<ByteInterval>(Low, High)),
-            boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindCodeBlocksBetween<ByteInterval>(Low, High))),
-        code_block_range::iterator());
+    std::vector<ByteInterval::code_block_range> Ranges;
+    for (ByteInterval& BI : findByteIntervalsOn(Low))
+      Ranges.push_back(BI.findCodeBlocksAt(Low, High));
+    for (ByteInterval& BI : findByteIntervalsAt(Low + 1, High))
+      Ranges.push_back(BI.findCodeBlocksAt(Low, High));
+    return code_block_range(code_block_iterator(Ranges), code_block_iterator());
   }
 
   /// \brief Find all the code blocks that start at an address.
@@ -700,14 +698,13 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   const_code_block_range findCodeBlocksAt(Addr A) const {
+    const_byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return const_code_block_range(
         const_code_block_range::iterator(
             boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindCodeBlocksAt<const ByteInterval>(A)),
+                Intervals.begin(), FindCodeBlocksAt<const ByteInterval>(A)),
             boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindCodeBlocksAt<const ByteInterval>(A))),
+                Intervals.end(), FindCodeBlocksAt<const ByteInterval>(A))),
         const_code_block_range::iterator());
   }
 
@@ -718,15 +715,13 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are between the addresses.
   const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
-    return const_code_block_range(
-        const_code_block_range::iterator(
-            boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindCodeBlocksBetween<const ByteInterval>(Low, High)),
-            boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindCodeBlocksBetween<const ByteInterval>(Low, High))),
-        const_code_block_range::iterator());
+    std::vector<ByteInterval::const_code_block_range> Ranges;
+    for (const ByteInterval& BI : findByteIntervalsOn(Low))
+      Ranges.push_back(BI.findCodeBlocksAt(Low, High));
+    for (const ByteInterval& BI : findByteIntervalsAt(Low + 1, High))
+      Ranges.push_back(BI.findCodeBlocksAt(Low, High));
+    return const_code_block_range(const_code_block_iterator(Ranges),
+                                  const_code_block_iterator());
   }
 
   /// \brief Iterator over \ref DataBlock objects.
@@ -814,11 +809,12 @@ public:
   ///
   /// \return A range of \ref DataNode object that intersect the address \p A.
   data_block_subrange findDataBlocksOn(Addr A) {
+    byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return data_block_subrange(
         data_block_subrange::iterator(
-            boost::make_transform_iterator(this->byte_intervals_begin(),
+            boost::make_transform_iterator(Intervals.begin(),
                                            FindDataBlocksIn<ByteInterval>(A)),
-            boost::make_transform_iterator(this->byte_intervals_end(),
+            boost::make_transform_iterator(Intervals.end(),
                                            FindDataBlocksIn<ByteInterval>(A))),
         data_block_subrange::iterator());
   }
@@ -830,14 +826,13 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that intersect the address \p A.
   const_data_block_subrange findDataBlocksOn(Addr A) const {
+    const_byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return const_data_block_subrange(
         const_data_block_subrange::iterator(
             boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindDataBlocksIn<const ByteInterval>(A)),
+                Intervals.begin(), FindDataBlocksIn<const ByteInterval>(A)),
             boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindDataBlocksIn<const ByteInterval>(A))),
+                Intervals.end(), FindDataBlocksIn<const ByteInterval>(A))),
         const_data_block_subrange::iterator());
   }
 
@@ -847,11 +842,12 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   data_block_range findDataBlocksAt(Addr A) {
+    byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return data_block_range(
         data_block_range::iterator(
-            boost::make_transform_iterator(this->byte_intervals_begin(),
+            boost::make_transform_iterator(Intervals.begin(),
                                            FindDataBlocksAt<ByteInterval>(A)),
-            boost::make_transform_iterator(this->byte_intervals_end(),
+            boost::make_transform_iterator(Intervals.end(),
                                            FindDataBlocksAt<ByteInterval>(A))),
         data_block_range::iterator());
   }
@@ -863,15 +859,12 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are between the addresses.
   data_block_range findDataBlocksAt(Addr Low, Addr High) {
-    return data_block_range(
-        data_block_range::iterator(
-            boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindDataBlocksBetween<ByteInterval>(Low, High)),
-            boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindDataBlocksBetween<ByteInterval>(Low, High))),
-        data_block_range::iterator());
+    std::vector<ByteInterval::data_block_range> Ranges;
+    for (ByteInterval& BI : findByteIntervalsOn(Low))
+      Ranges.push_back(BI.findDataBlocksAt(Low, High));
+    for (ByteInterval& BI : findByteIntervalsAt(Low + 1, High))
+      Ranges.push_back(BI.findDataBlocksAt(Low, High));
+    return data_block_range(data_block_iterator(Ranges), data_block_iterator());
   }
 
   /// \brief Find all the data blocks that start at an address.
@@ -880,14 +873,13 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   const_data_block_range findDataBlocksAt(Addr A) const {
+    const_byte_interval_subrange Intervals = findByteIntervalsOn(A);
     return const_data_block_range(
         const_data_block_range::iterator(
             boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindDataBlocksAt<const ByteInterval>(A)),
+                Intervals.begin(), FindDataBlocksAt<const ByteInterval>(A)),
             boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindDataBlocksAt<const ByteInterval>(A))),
+                Intervals.end(), FindDataBlocksAt<const ByteInterval>(A))),
         const_data_block_range::iterator());
   }
 
@@ -898,15 +890,13 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are between the addresses.
   const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
-    return const_data_block_range(
-        const_data_block_range::iterator(
-            boost::make_transform_iterator(
-                this->byte_intervals_begin(),
-                FindDataBlocksBetween<const ByteInterval>(Low, High)),
-            boost::make_transform_iterator(
-                this->byte_intervals_end(),
-                FindDataBlocksBetween<const ByteInterval>(Low, High))),
-        const_data_block_range::iterator());
+    std::vector<ByteInterval::const_data_block_range> Ranges;
+    for (const ByteInterval& BI : findByteIntervalsOn(Low))
+      Ranges.push_back(BI.findDataBlocksAt(Low, High));
+    for (const ByteInterval& BI : findByteIntervalsAt(Low + 1, High))
+      Ranges.push_back(BI.findDataBlocksAt(Low, High));
+    return const_data_block_range(const_data_block_iterator(Ranges),
+                                  const_data_block_iterator());
   }
 
   /// \brief Iterator over \ref SymbolicExpressionElement objects.

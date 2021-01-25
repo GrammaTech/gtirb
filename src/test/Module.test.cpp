@@ -366,6 +366,99 @@ TEST(Unit_Module, byteIntervals) {
   EXPECT_EQ(&*std::next(M->sections_by_name_begin(), 2), S1);
 }
 
+TEST(Unit_Module, findByteIntervalsOn) {
+  auto* M = Module::Create(Ctx, "test");
+  auto* S1 = M->addSection(Ctx, "S1");
+  auto* BI1 = S1->addByteInterval(Ctx, 16);
+  auto* S2 = M->addSection(Ctx, "S2");
+  auto* BI2 = S2->addByteInterval(Ctx, Addr(8), 12);
+  auto* S3 = M->addSection(Ctx, "S3");
+  auto* BI3 = S3->addByteInterval(Ctx, Addr(13), 8);
+  const Module* CM = M;
+
+  // Querying an out-of-bounds address returns an empty range.
+
+  auto Range = M->findByteIntervalsOn(Addr(0));
+  EXPECT_TRUE(Range.empty());
+
+  auto ConstRange = CM->findByteIntervalsOn(Addr(0));
+  EXPECT_TRUE(Range.empty());
+
+  // Querying a in-bounds address returns the correct range.
+
+  Range = M->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&*Range.begin(), BI2);
+
+  ConstRange = CM->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
+  EXPECT_EQ(&*ConstRange.begin(), BI2);
+
+  // Query returns correct set after addresses are updated.
+
+  BI1->setAddress(Addr(0));
+  Range = M->findByteIntervalsOn(Addr(0));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 1);
+  EXPECT_EQ(&*Range.begin(), BI1);
+
+  ConstRange = CM->findByteIntervalsOn(Addr(0));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 1);
+  EXPECT_EQ(&*ConstRange.begin(), BI1);
+
+  Range = M->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  EXPECT_EQ(&*std::next(Range.begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(Range.begin(), 1), BI2);
+
+  ConstRange = CM->findByteIntervalsOn(Addr(12));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI1);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI2);
+
+  // Query is correct for ByteIntervals with overlapping start addresses.
+
+  BI1->setAddress(Addr(13));
+  Range = M->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 3);
+  EXPECT_EQ(&*std::next(Range.begin(), 0), BI2);
+  EXPECT_EQ(&*std::next(Range.begin(), 1), BI3);
+  EXPECT_EQ(&*std::next(Range.begin(), 2), BI1);
+
+  ConstRange = CM->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 3);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI3);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 2), BI1);
+
+  // Moving a ByteInterval does not leave duplicates in codomain tree.
+
+  BI2->setAddress(Addr(13));
+  Range = M->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 3);
+  EXPECT_EQ(&*std::next(Range.begin(), 0), BI3);
+  EXPECT_EQ(&*std::next(Range.begin(), 1), BI2);
+  EXPECT_EQ(&*std::next(Range.begin(), 2), BI1);
+
+  ConstRange = CM->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 3);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI3);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 2), BI1);
+
+  // Removing a ByteInterval with an overlapping address does not remove others.
+
+  BI3->setAddress(std::nullopt);
+  Range = M->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  EXPECT_EQ(&*std::next(Range.begin(), 0), BI2);
+  EXPECT_EQ(&*std::next(Range.begin(), 1), BI1);
+
+  ConstRange = CM->findByteIntervalsOn(Addr(14));
+  ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI2);
+  EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI1);
+}
+
 TEST(Unit_Module, getAddressAndSize) {
   auto* M = Module::Create(Ctx, "M");
   auto* S = M->addSection(Ctx, "test");
@@ -634,6 +727,166 @@ TEST(Unit_Module, findBlocksOn) {
   EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB11);
 
   ConstBlockRange = CM->findBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB11);
+}
+
+TEST(Unit_Module, findCodeBlocksOn) {
+  auto* M = Module::Create(Ctx, "test");
+  auto* S1 = M->addSection(Ctx, "S1");
+  auto* BI1 = S1->addByteInterval(Ctx, 16);
+  auto* CB11 = BI1->addBlock<CodeBlock>(Ctx, 0, 4);
+  auto* S2 = M->addSection(Ctx, "S2");
+  auto* BI2 = S2->addByteInterval(Ctx, Addr(0), 10);
+  auto* CB21 = BI2->addBlock<CodeBlock>(Ctx, 0, 2);
+  auto* CB22 = BI2->addBlock<CodeBlock>(Ctx, 5, 2);
+  auto* S3 = M->addSection(Ctx, "S3");
+  auto* BI3 = S3->addByteInterval(Ctx, Addr(4), 4);
+  auto* CB31 = BI3->addBlock<CodeBlock>(Ctx, 0, 3);
+  const Module* CM = M;
+
+  // Querying an out-of-bounds offset produces an empty range.
+
+  auto BlockRange = M->findCodeBlocksOn(Addr(10));
+  EXPECT_TRUE(BlockRange.empty());
+
+  auto ConstBlockRange = CM->findCodeBlocksOn(Addr(10));
+  EXPECT_TRUE(ConstBlockRange.empty());
+
+  // Querying an in-bounds offset returns the appropriate blocks from all
+  // ByteIntervals.
+
+  BlockRange = M->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB22);
+
+  ConstBlockRange = CM->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB22);
+
+  // Assigning a ByteInterval address may change the query results.
+
+  BI1->setAddress(Addr(4));
+
+  BlockRange = M->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB11);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 2), CB22);
+
+  ConstBlockRange = CM->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB11);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 2), CB22);
+
+  // Changing a ByteInterval's address may change the query results.
+
+  BI2->setAddress(Addr(4));
+
+  BlockRange = M->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB31);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 2), CB11);
+
+  ConstBlockRange = CM->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB31);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 2), CB11);
+
+  BI3->setAddress(Addr(0));
+
+  BlockRange = M->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB11);
+
+  ConstBlockRange = CM->findCodeBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB11);
+}
+
+TEST(Unit_Module, findDataBlocksOn) {
+  auto* M = Module::Create(Ctx, "test");
+  auto* S1 = M->addSection(Ctx, "S1");
+  auto* BI1 = S1->addByteInterval(Ctx, 16);
+  auto* CB11 = BI1->addBlock<DataBlock>(Ctx, 0, 4);
+  auto* S2 = M->addSection(Ctx, "S2");
+  auto* BI2 = S2->addByteInterval(Ctx, Addr(0), 10);
+  auto* CB21 = BI2->addBlock<DataBlock>(Ctx, 0, 2);
+  auto* CB22 = BI2->addBlock<DataBlock>(Ctx, 5, 2);
+  auto* S3 = M->addSection(Ctx, "S3");
+  auto* BI3 = S3->addByteInterval(Ctx, Addr(4), 4);
+  auto* CB31 = BI3->addBlock<DataBlock>(Ctx, 0, 3);
+  const Module* CM = M;
+
+  // Querying an out-of-bounds offset produces an empty range.
+
+  auto BlockRange = M->findDataBlocksOn(Addr(10));
+  EXPECT_TRUE(BlockRange.empty());
+
+  auto ConstBlockRange = CM->findDataBlocksOn(Addr(10));
+  EXPECT_TRUE(ConstBlockRange.empty());
+
+  // Querying an in-bounds offset returns the appropriate blocks from all
+  // ByteIntervals.
+
+  BlockRange = M->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB22);
+
+  ConstBlockRange = CM->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB22);
+
+  // Assigning a ByteInterval address may change the query results.
+
+  BI1->setAddress(Addr(4));
+
+  BlockRange = M->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB11);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 2), CB22);
+
+  ConstBlockRange = CM->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB31);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB11);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 2), CB22);
+
+  // Changing a ByteInterval's address may change the query results.
+
+  BI2->setAddress(Addr(4));
+
+  BlockRange = M->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB31);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 2), CB11);
+
+  ConstBlockRange = CM->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 3);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB31);
+  EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 2), CB11);
+
+  BI3->setAddress(Addr(0));
+
+  BlockRange = M->findDataBlocksOn(Addr(5));
+  ASSERT_EQ(std::distance(BlockRange.begin(), BlockRange.end()), 2);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 0), CB21);
+  EXPECT_EQ(&*std::next(BlockRange.begin(), 1), CB11);
+
+  ConstBlockRange = CM->findDataBlocksOn(Addr(5));
   ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
   EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB21);
   EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB11);

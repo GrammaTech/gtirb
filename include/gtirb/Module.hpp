@@ -961,11 +961,12 @@ public:
   /// \return A range of \ref ByteInterval objects that intersect the address \p
   /// A.
   byte_interval_subrange findByteIntervalsOn(Addr A) {
+    section_subrange Range = findSectionsOn(A);
     return byte_interval_subrange(
         byte_interval_subrange::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindByteIntervalsIn<Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindByteIntervalsIn<Section>(A))),
         byte_interval_subrange::iterator());
   }
@@ -978,12 +979,13 @@ public:
   /// \return A range of \ref ByteInterval objects that intersect the address \p
   /// A.
   const_byte_interval_subrange findByteIntervalsOn(Addr A) const {
+    const_section_subrange Range = findSectionsOn(A);
     return const_byte_interval_subrange(
         const_byte_interval_subrange::iterator(
             boost::make_transform_iterator(
-                this->sections_begin(), FindByteIntervalsIn<const Section>(A)),
+                Range.begin(), FindByteIntervalsIn<const Section>(A)),
             boost::make_transform_iterator(
-                this->sections_end(), FindByteIntervalsIn<const Section>(A))),
+                Range.end(), FindByteIntervalsIn<const Section>(A))),
         const_byte_interval_subrange::iterator());
   }
 
@@ -993,11 +995,12 @@ public:
   ///
   /// \return A range of \ref ByteInterval objects that are at the address \p A.
   byte_interval_range findByteIntervalsAt(Addr A) {
+    section_subrange Range = findSectionsOn(A);
     return byte_interval_range(
         byte_interval_range::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindByteIntervalsAt<Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindByteIntervalsAt<Section>(A))),
         byte_interval_range::iterator());
   }
@@ -1010,15 +1013,13 @@ public:
   /// \return A range of \ref ByteInterval objects that are between the
   /// addresses.
   byte_interval_range findByteIntervalsAt(Addr Low, Addr High) {
-    return byte_interval_range(
-        byte_interval_range::iterator(
-            boost::make_transform_iterator(
-                this->sections_begin(),
-                FindByteIntervalsBetween<Section>(Low, High)),
-            boost::make_transform_iterator(
-                this->sections_end(),
-                FindByteIntervalsBetween<Section>(Low, High))),
-        byte_interval_range::iterator());
+    std::vector<Section::byte_interval_range> Ranges;
+    for (Section& S : findSectionsOn(Low))
+      Ranges.push_back(S.findByteIntervalsAt(Low, High));
+    for (Section& S : findSectionsAt(Low + 1, High))
+      Ranges.push_back(S.findByteIntervalsAt(Low, High));
+    return byte_interval_range(byte_interval_iterator(Ranges),
+                               byte_interval_iterator());
   }
 
   /// \brief Find all the intervals that start at an address.
@@ -1027,12 +1028,13 @@ public:
   ///
   /// \return A range of \ref ByteInterval objects that are at the address \p A.
   const_byte_interval_range findByteIntervalsAt(Addr A) const {
+    const_section_subrange Range = findSectionsOn(A);
     return const_byte_interval_range(
         const_byte_interval_range::iterator(
             boost::make_transform_iterator(
-                this->sections_begin(), FindByteIntervalsAt<const Section>(A)),
+                Range.begin(), FindByteIntervalsAt<const Section>(A)),
             boost::make_transform_iterator(
-                this->sections_end(), FindByteIntervalsAt<const Section>(A))),
+                Range.end(), FindByteIntervalsAt<const Section>(A))),
         const_byte_interval_range::iterator());
   }
 
@@ -1044,15 +1046,13 @@ public:
   /// \return A range of \ref ByteInterval objects that are between the
   /// addresses.
   const_byte_interval_range findByteIntervalsAt(Addr Low, Addr High) const {
-    return const_byte_interval_range(
-        const_byte_interval_range::iterator(
-            boost::make_transform_iterator(
-                this->sections_begin(),
-                FindByteIntervalsBetween<const Section>(Low, High)),
-            boost::make_transform_iterator(
-                this->sections_end(),
-                FindByteIntervalsBetween<const Section>(Low, High))),
-        const_byte_interval_range::iterator());
+    std::vector<Section::const_byte_interval_range> Ranges;
+    for (const Section& S : findSectionsOn(Low))
+      Ranges.push_back(S.findByteIntervalsAt(Low, High));
+    for (const Section& S : findSectionsAt(Low + 1, High))
+      Ranges.push_back(S.findByteIntervalsAt(Low, High));
+    return const_byte_interval_range(const_byte_interval_iterator(Ranges),
+                                     const_byte_interval_iterator());
   }
   /// @}
   // (end group of ByteInterval-related types and functions)
@@ -1332,11 +1332,12 @@ public:
   ///
   /// \return A range of \ref CodeNode object that intersect the address \p A.
   code_block_subrange findCodeBlocksOn(Addr A) {
+    section_subrange Range = findSectionsOn(A);
     return code_block_subrange(
         code_block_subrange::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindCodeBlocksIn<Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindCodeBlocksIn<Section>(A))),
         code_block_subrange::iterator());
   }
@@ -1348,11 +1349,12 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that intersect the address \p A.
   const_code_block_subrange findCodeBlocksOn(Addr A) const {
+    const_section_subrange Range = findSectionsOn(A);
     return const_code_block_subrange(
         const_code_block_subrange::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindCodeBlocksIn<const Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindCodeBlocksIn<const Section>(A))),
         const_code_block_subrange::iterator());
   }
@@ -1363,11 +1365,12 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   code_block_range findCodeBlocksAt(Addr A) {
+    section_subrange Range = findSectionsOn(A);
     return code_block_range(
         code_block_range::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindCodeBlocksAt<Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindCodeBlocksAt<Section>(A))),
         code_block_range::iterator());
   }
@@ -1379,14 +1382,12 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are between the addresses.
   code_block_range findCodeBlocksAt(Addr Low, Addr High) {
-    return code_block_range(code_block_range::iterator(
-                                boost::make_transform_iterator(
-                                    this->sections_begin(),
-                                    FindCodeBlocksBetween<Section>(Low, High)),
-                                boost::make_transform_iterator(
-                                    this->sections_end(),
-                                    FindCodeBlocksBetween<Section>(Low, High))),
-                            code_block_range::iterator());
+    std::vector<Section::code_block_range> Ranges;
+    for (Section& S : findSectionsOn(Low))
+      Ranges.push_back(S.findCodeBlocksAt(Low, High));
+    for (Section& S : findSectionsAt(Low + 1, High))
+      Ranges.push_back(S.findCodeBlocksAt(Low, High));
+    return code_block_range(code_block_iterator(Ranges), code_block_iterator());
   }
 
   /// \brief Find all the code blocks that start at an address.
@@ -1395,11 +1396,12 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the address \p A.
   const_code_block_range findCodeBlocksAt(Addr A) const {
+    const_section_subrange Range = findSectionsOn(A);
     return const_code_block_range(
         const_code_block_range::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindCodeBlocksAt<const Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindCodeBlocksAt<const Section>(A))),
         const_code_block_range::iterator());
   }
@@ -1411,15 +1413,13 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are between the addresses.
   const_code_block_range findCodeBlocksAt(Addr Low, Addr High) const {
-    return const_code_block_range(
-        const_code_block_range::iterator(
-            boost::make_transform_iterator(
-                this->sections_begin(),
-                FindCodeBlocksBetween<const Section>(Low, High)),
-            boost::make_transform_iterator(
-                this->sections_end(),
-                FindCodeBlocksBetween<const Section>(Low, High))),
-        const_code_block_range::iterator());
+    std::vector<Section::const_code_block_range> Ranges;
+    for (const Section& S : findSectionsOn(Low))
+      Ranges.push_back(S.findCodeBlocksAt(Low, High));
+    for (const Section& S : findSectionsAt(Low + 1, High))
+      Ranges.push_back(S.findCodeBlocksAt(Low, High));
+    return const_code_block_range(const_code_block_iterator(Ranges),
+                                  const_code_block_iterator());
   }
   /// @}
   // (end group of CodeBlock-related types and functions)
@@ -1510,11 +1510,12 @@ public:
   ///
   /// \return A range of \ref DataNode object that intersect the address \p A.
   data_block_subrange findDataBlocksOn(Addr A) {
+    section_subrange Range = findSectionsOn(A);
     return data_block_subrange(
         data_block_subrange::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindDataBlocksIn<Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindDataBlocksIn<Section>(A))),
         data_block_subrange::iterator());
   }
@@ -1526,11 +1527,12 @@ public:
   ///
   /// \return A range of \ref DataNode object that intersect the address \p A.
   const_data_block_subrange findDataBlocksOn(Addr A) const {
+    const_section_subrange Range = findSectionsOn(A);
     return const_data_block_subrange(
         const_data_block_subrange::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindDataBlocksIn<const Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindDataBlocksIn<const Section>(A))),
         const_data_block_subrange::iterator());
   }
@@ -1541,11 +1543,12 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   data_block_range findDataBlocksAt(Addr A) {
+    section_subrange Range = findSectionsOn(A);
     return data_block_range(
         data_block_range::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindDataBlocksAt<Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindDataBlocksAt<Section>(A))),
         data_block_range::iterator());
   }
@@ -1557,14 +1560,12 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are between the addresses.
   data_block_range findDataBlocksAt(Addr Low, Addr High) {
-    return data_block_range(data_block_range::iterator(
-                                boost::make_transform_iterator(
-                                    this->sections_begin(),
-                                    FindDataBlocksBetween<Section>(Low, High)),
-                                boost::make_transform_iterator(
-                                    this->sections_end(),
-                                    FindDataBlocksBetween<Section>(Low, High))),
-                            data_block_range::iterator());
+    std::vector<Section::data_block_range> Ranges;
+    for (Section& S : findSectionsOn(Low))
+      Ranges.push_back(S.findDataBlocksAt(Low, High));
+    for (Section& S : findSectionsAt(Low + 1, High))
+      Ranges.push_back(S.findDataBlocksAt(Low, High));
+    return data_block_range(data_block_iterator(Ranges), data_block_iterator());
   }
 
   /// \brief Find all the data blocks that start at an address.
@@ -1573,11 +1574,12 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the address \p A.
   const_data_block_range findDataBlocksAt(Addr A) const {
+    const_section_subrange Range = findSectionsOn(A);
     return const_data_block_range(
         const_data_block_range::iterator(
-            boost::make_transform_iterator(this->sections_begin(),
+            boost::make_transform_iterator(Range.begin(),
                                            FindDataBlocksAt<const Section>(A)),
-            boost::make_transform_iterator(this->sections_end(),
+            boost::make_transform_iterator(Range.end(),
                                            FindDataBlocksAt<const Section>(A))),
         const_data_block_range::iterator());
   }
@@ -1589,15 +1591,13 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are between the addresses.
   const_data_block_range findDataBlocksAt(Addr Low, Addr High) const {
-    return const_data_block_range(
-        const_data_block_range::iterator(
-            boost::make_transform_iterator(
-                this->sections_begin(),
-                FindDataBlocksBetween<const Section>(Low, High)),
-            boost::make_transform_iterator(
-                this->sections_end(),
-                FindDataBlocksBetween<const Section>(Low, High))),
-        const_data_block_range::iterator());
+    std::vector<Section::const_data_block_range> Ranges;
+    for (const Section& S : findSectionsOn(Low))
+      Ranges.push_back(S.findDataBlocksAt(Low, High));
+    for (const Section& S : findSectionsAt(Low + 1, High))
+      Ranges.push_back(S.findDataBlocksAt(Low, High));
+    return const_data_block_range(const_data_block_iterator(Ranges),
+                                  const_data_block_iterator());
   }
   /// @}
   // (end group of DataBlock-related types and functions)
