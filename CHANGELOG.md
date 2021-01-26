@@ -1,5 +1,14 @@
 # Unreleased
 
+# 1.10.2
+
+* Updated "address" iteration order to compare size if addresses are the same
+  and UUIDs if addresses and sizes are the same so that it can be used to
+  store objects in ordered containers.
+* Fixed some bugs where modifying an object's address or size would cause
+  findNodeOn to return incorrect results.
+* Improved performance of findNodeOn and findNodeAt queries.
+
 # 1.10.1
 
 * Added module-level endianess flag, for use in archtectures with multiple
