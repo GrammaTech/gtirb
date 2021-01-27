@@ -57,9 +57,11 @@ class Edge(
 
         Return = CFG_pb2.EdgeType.Value("Type_Return")
         """This edge represents a return from a function, generally via a
-        return instruction. Return edges may be omitted from valid CFGs;
-        a function may have an uncomputable number of possible return sites,
-        due to the possibility of indirect calls.
+        return instruction. Return edges may either go to a symbolless
+        :class:`gtirb.ProxyBlock`, which indicates that the set of possible
+        return targets is unknown, or there may be one return edge per
+        return target, which indicates that the set of possible return targets
+        if fully known.
         """
 
         Syscall = CFG_pb2.EdgeType.Value("Type_Syscall")
@@ -71,10 +73,12 @@ class Edge(
 
         Sysret = CFG_pb2.EdgeType.Value("Type_Sysret")
         """This edge represents a return from a system call, generally via a
-        return instruction. Return edges may be omitted from valid CFGs;
-        a function may have an uncomputable number of possible return sites,
-        due to the possibility of indirect calls. This is the system call
-        equivalent to :class:`gtirb.Edge.Type.Return`.
+        return instruction. Return edges may either go to a symbolless
+        :class:`gtirb.ProxyBlock`, which indicates that the set of possible
+        return targets is unknown, or there may be one return edge per
+        return target, which indicates that the set of possible return targets
+        if fully known. This is the system call equivalent to
+        :class:`gtirb.Edge.Type.Return`.
         """
 
     class Label(
