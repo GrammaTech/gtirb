@@ -160,5 +160,3 @@ class GtirbConan(Properties, ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["gtirb"]
-        if self.settings.os == "Windows":
-            self.env_info.path.append(os.path.join(self.package_folder, "bin"))
