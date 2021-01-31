@@ -214,7 +214,7 @@ operator()<DataBlock>(const DataBlock* B1, const DataBlock* B2) const;
 /// \class BlockAddressLess
 ///
 /// \brief A comparison function object for comparing blocks (that is, \ref Node
-/// objects that are either \ref CodeBlock or \ref DastaBlock objects) in
+/// objects that are either \ref CodeBlock or \ref DataBlock objects) in
 /// address order.
 struct GTIRB_EXPORT_API BlockAddressLess {
   bool operator()(const Node* N1, const Node* N2) const {

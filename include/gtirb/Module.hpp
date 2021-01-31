@@ -953,8 +953,7 @@ public:
                                       byte_intervals_end());
   }
 
-  /// \brief Find all the intervals that have bytes that lie within the address
-  /// specified.
+  /// \brief Find all the intervals that contain the address specified.
   ///
   /// \param A The address to look up.
   ///
@@ -971,8 +970,7 @@ public:
         byte_interval_subrange::iterator());
   }
 
-  /// \brief Find all the intervals that have bytes that lie within the address
-  /// specified.
+  /// \brief Find all the intervals that contain the address specified.
   ///
   /// \param A The address to look up.
   ///
@@ -1239,7 +1237,7 @@ public:
   /// \brief Iterator over \ref CodeBlock objects.
   ///
   /// Blocks are yielded in address order, ascending. If two blocks have the
-  /// same address, thier order is not specified.
+  /// same address, their order is not specified.
   using code_block_iterator =
       MergeSortedIterator<Section::code_block_iterator, AddressLess>;
   /// \brief Range of \ref CodeBlock objects.
