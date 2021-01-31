@@ -18,6 +18,7 @@
 
 #include <gtirb/Addr.hpp>
 #include <gtirb/Context.hpp> // UUID
+#include <gtirb/Offset.hpp>
 #include <cstdint>
 #include <map>
 #include <set>
