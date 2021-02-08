@@ -1,0 +1,29 @@
+FROM ubuntu:18.04
+
+ARG CXX_COMPILER=g++-7
+ARG BOOST_VERSION=1.67
+
+SHELL ["/bin/bash", "-c"]
+
+# Install apt packages
+RUN apt-get -y update && \
+    apt-get -y install clang clang-format curl \
+        elpa-paredit emacs-nox git \
+        python3 python3-pip \
+        wget sbcl slime
+
+# Upgrade pip before installing networkx because older versions of setuptools
+# and pip don't respect dependency constraints correctly.
+RUN pip3 install pip --upgrade && \
+    pip3 install networkx pre-commit
+
+# Install the lisp-format pre-commit format checker.
+RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
+RUN chmod +x /usr/bin/lisp-format
+RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
+
+# Setup pre-commit
+WORKDIR /build/git-repo
+RUN git init
+COPY .pre-commit-config.yaml .
+RUN pre-commit install-hooks

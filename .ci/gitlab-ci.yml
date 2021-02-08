@@ -16,7 +16,7 @@ default:
   tags: [cluster]
 
 check-format:
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  image: $DOCKER_REGISTRY/rewriting/gtirb/formatter
   stage: check-format
   script:
     - pre-commit run --all-files --show-diff-on-failure
