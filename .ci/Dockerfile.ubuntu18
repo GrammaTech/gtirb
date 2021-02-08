@@ -17,11 +17,10 @@ RUN add-apt-repository ppa:mhier/libboost-latest && \
     apt-get -y update && \
     apt-get -y install libboost${BOOST_VERSION}-dev
 
-# We install an old version of virtualenv so it doesn't conflict with the
-# version of Python packages Ubuntu provides by default:
-# https://github.com/pre-commit/pre-commit/issues/1325
-RUN pip3 install "virtualenv<20.0.0"
-RUN pip3 install pre-commit
+# Upgrade pip before installing networkx because older versions of setuptools
+# and pip don't respect dependency constraints correctly.
+RUN pip3 install pip --upgrade && \
+    pip3 install networkx pre-commit
 
 # Install the lisp-format pre-commit format checker.
 RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
@@ -29,7 +28,6 @@ RUN chmod +x /usr/bin/lisp-format
 RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
 
 # Setup pre-commit
-RUN python3 -m pip install pre-commit
 WORKDIR /build/git-repo
 RUN git init
 COPY .pre-commit-config.yaml .
