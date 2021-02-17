@@ -145,6 +145,18 @@ class ByteBlock(Block):
             return None
         return self.module.ir
 
+    def contains_offset(self, offset: int) -> bool:
+        """Indicate if the provided offset is within this block."""
+        return self.offset <= offset < (self.offset + self.size)
+
+    def contains_address(self, address: int) -> bool:
+        """Indicate if the provided address is within this block.
+        Returns False if the block has no address.
+        """
+        if self.address is not None:
+            return self.contains_offset(address - self.byte_interval.address)
+        return False
+
 
 class CfgNode(Block):
     """The base class for blocks that may appear as vertices in the CFG."""
