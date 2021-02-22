@@ -31,8 +31,6 @@ def get_gtirb_version():
 
 
 def branch_to_channel(branch):
-    if branch == "master":
-        return "dev"
     if re.match(r"v[\d]+\.[\d]+\.[\d]+", branch):
         return "stable"
     else:
