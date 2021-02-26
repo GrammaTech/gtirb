@@ -6,8 +6,8 @@ from conans.errors import ConanInvalidConfiguration
 
 
 def get_gtirb_version():
-    if "CI_COMMIT_BRANCH" in os.environ:
-        branch = os.environ["CI_COMMIT_BRANCH"]
+    if "CI_COMMIT_REF_NAME" in os.environ:
+        branch = os.environ["CI_COMMIT_REF_NAME"]
         if branch == "master":
             return "dev"
     try:
@@ -31,7 +31,7 @@ def get_gtirb_version():
 
 
 def branch_to_channel(branch):
-    if re.match(r"v[\d]+\.[\d]+\.[\d]+", branch):
+    if re.match(r"^release-.*", branch):
         return "stable"
     else:
         return branch.replace("/", "+")
@@ -63,8 +63,8 @@ class Properties:
     @property
     def conan_channel(self):
         channel = "local"
-        if "CI_COMMIT_BRANCH" in os.environ:
-            branch = os.environ["CI_COMMIT_BRANCH"]
+        if "CI_COMMIT_REF_NAME" in os.environ:
+            branch = os.environ["CI_COMMIT_REF_NAME"]
             channel = branch_to_channel(branch)
         return channel
 
