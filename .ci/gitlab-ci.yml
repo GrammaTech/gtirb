@@ -1,4 +1,5 @@
 variables:
+  EXTRA_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@git.grammatech.com/api/v4/projects/1587/packages/pypi/simple
   LOCAL_IMAGE_NAME: '$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -524,8 +525,11 @@ external-pypi:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  only:
-    - master
+  rules:
+    - if: '$CI_MERGE_REQUEST_REF_PATH'
+      changes:
+        - version.txt
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
@@ -544,18 +548,17 @@ internal-pypi:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  only:
-    - master
+  rules:
+    - if: '$CI_MERGE_REQUEST_REF_PATH'
+      changes:
+        - version.txt
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
+    - pip3 install twine wheel setuptools --upgrade;
     - cd build/python
-    - pip3 install twine wheel setuptools --upgrade
-    - rm -rf build dist *.egg-info
-    - python3 setup.py sdist bdist_wheel
+    - python3 setup.py sdist bdist_wheel --dist-dir=$CI_PROJECT_DIR/dist
     - twine check dist/*
-    - echo 0 > exitcode.txt
-    - (twine upload --verbose --repository-url $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/pypi --username gitlab-ci-token --password "$CI_JOB_TOKEN" dist/* | tee response.txt) || (echo $? > exitcode.txt; exit 0)
-    # do not fail if we try to re-upload a package of the same version
-    - if [[ "$(cat exitcode.txt)" != 0 && -z "$(cat response.txt | grep "File name has already been taken")" ]];
-      then
-        exit 1;
-      fi
+    - ls $CI_PROJECT_DIR/dist/*.whl | xargs $CI_PROJECT_DIR/delete_remote_packages.py $GL_PKG_API_TOKEN
+    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" $CI_PROJECT_DIR/.pypirc > ~/.pypirc
+    - python3 -m twine upload --verbose --repository repypi $CI_PROJECT_DIR/dist/*.whl
