@@ -79,7 +79,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 
   Message->set_size(getSize());
-  auto BytesIt = bytes_begin<char>();
+  // The `native` param below is a temporary workaround for a boost bug.
+  // See issue #130.
+  auto BytesIt = bytes_begin<char>(boost::endian::order::native);
   auto InitSize = getInitializedSize();
   Message->mutable_contents()->reserve(InitSize);
   std::copy(BytesIt, BytesIt + InitSize,
