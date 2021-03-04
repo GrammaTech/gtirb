@@ -503,6 +503,24 @@ conan-windows:
     - export BOOST_ROOT="C:\\Boost"
     - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py
 
+conan-windows-32:
+  stage: deploy
+  tags: [gtirb-windows]
+  variables:
+    ARCHITECTURE: x64
+  script:
+    - systeminfo
+    - export PATH="C:\\Program Files\\Python38;$PATH"
+    # Install conan
+    - python -m pip install conan
+    # Run build script
+    - export PYTHONPATH="$(cygpath -w $(pwd))"
+    - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
+    - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
+    - export PYTHON="C:\\Python38\\python.exe"
+    - export BOOST_ROOT="C:\\Boost"
+    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 --build=protobuf --build=gtirb
+
 package-arch:
   allow_failure: true
   stage: deploy

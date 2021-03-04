@@ -98,7 +98,7 @@ class GtirbConan(Properties, ConanFile):
         "boost/{0}".format(boost_version),
         "protobuf/{0}".format(protobuf_version),
     )
-    settings = "os", "build_type", "compiler"
+    settings = "os", "build_type", "compiler", "arch"
     generators = "cmake"
 
     def configure(self):

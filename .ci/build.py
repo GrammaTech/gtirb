@@ -34,7 +34,7 @@ def build():
 
     props = conanfile.Properties()
     authenticate()
-    run_conan(["create", ".", props.conan_ref])
+    run_conan(["create"] + sys.argv[1:] + [".", props.conan_ref])
     archived_channels = props.archived_channels
     if props.conan_channel in archived_channels:
         run_conan(["upload", props.conan_recipe, "--all", "--remote", remote])
