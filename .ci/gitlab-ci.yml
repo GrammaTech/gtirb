@@ -552,10 +552,26 @@ internal-pypi:
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
-    - pip3 install twine wheel setuptools --upgrade;
+    - pip3 install twine wheel setuptools --upgrade
+    - pip3 install gtirb-*-py*-none-any.whl
+    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+    # If this is a *-dev* package, delete any currently existing remote package
+    - if [[ "$GTIRB_VERSION" =~ ([[:digit:]]+\.){2}[[:digit:]]+-dev[[:digit:]]* ]];
+      then
+        wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py
+        python3 delete_remote_packages.py $GL_PKG_API_TOKEN dist/gtirb-*-py*-none-any.whl
+      fi
+    - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
+    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
+    # Now try to do the upload
     - cd build/python
-    - python3 setup.py sdist bdist_wheel --dist-dir=$CI_PROJECT_DIR/dist
+    - rm -rf build dist *.egg-info
+    - python3 setup.py sdist bdist_wheel
     - twine check dist/*
-    - ls $CI_PROJECT_DIR/dist/*.whl | xargs $CI_PROJECT_DIR/delete_remote_packages.py $GL_PKG_API_TOKEN
-    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" $CI_PROJECT_DIR/.pypirc > ~/.pypirc
-    - python3 -m twine upload --verbose --repository repypi $CI_PROJECT_DIR/dist/*.whl
+    - echo 0 > exitcode.txt
+    - (twine upload --verbose --repository-url $EXTRA_INDEX_URL --username gitlab-ci-token --password "$CI_JOB_TOKEN" dist/* | tee response.txt) || (echo $? > exitcode.txt; exit 0)
+    # do not fail if we try to re-upload a package of the same version
+    - if [[ "$(cat exitcode.txt)" != 0 && -z "$(cat response.txt | grep "File name has already been taken")" ]];
+      then
+        exit 1;
+      fi
