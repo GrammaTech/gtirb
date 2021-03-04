@@ -1535,6 +1535,21 @@ public:
   }
 
 private:
+  // Wrapper to boost::endian::conditional_reverse which skips the call for
+  // 1-byte types (char, [un]signed char, [u]int8_t).
+  // This layer was added to work around a bug in boost 1.67 (fixed as of 1.74)
+  // which gave wrong results for T=char.
+  template <typename T>
+  static inline std::enable_if_t<sizeof(T) != 1, T>
+  endian_flip(T From, boost::endian::order In, boost::endian::order Out) {
+    return boost::endian::conditional_reverse(From, In, Out);
+  }
+  template <typename T>
+  static inline std::enable_if_t<sizeof(T) == 1, T>
+  endian_flip(T From, boost::endian::order, boost::endian::order) {
+    return From;
+  }
+
   /// \class BytesReference
   ///
   /// \brief A reference to a section of the byte interval, allowing for
@@ -1582,13 +1597,12 @@ private:
         std::array<uint8_t, sizeof(T)> Array{};
         // Thanks to math, 0 < S - I < sizeof(T).
         std::copy_n(BI->Bytes.begin() + I, S - I, Array.begin());
-        return boost::endian::conditional_reverse(
-            *reinterpret_cast<const T*>(Array.data()), InputOrder, OutputOrder);
+        return endian_flip(*reinterpret_cast<const T*>(Array.data()),
+                           InputOrder, OutputOrder);
       }
 
-      return boost::endian::conditional_reverse(
-          *reinterpret_cast<const T*>(BI->Bytes.data() + I), InputOrder,
-          OutputOrder);
+      return endian_flip(*reinterpret_cast<const T*>(BI->Bytes.data() + I),
+                         InputOrder, OutputOrder);
     }
 
     /// \brief Use this reference as an lvalue.
@@ -1606,7 +1620,7 @@ private:
       }
 
       *reinterpret_cast<T*>(BI->Bytes.data() + I) =
-          boost::endian::conditional_reverse(rhs, OutputOrder, InputOrder);
+          endian_flip(rhs, OutputOrder, InputOrder);
       return *this;
     }
 
