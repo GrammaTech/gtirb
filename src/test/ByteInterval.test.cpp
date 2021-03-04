@@ -162,10 +162,137 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
     EXPECT_EQ(Result->getInitializedSize(), 4);
     EXPECT_EQ(Result->getSection(), nullptr);
 
-    std::string ResultBytes;
-    std::copy(Result->bytes_begin<char>(), Result->bytes_end<char>(),
-              std::back_inserter(ResultBytes));
-    ASSERT_EQ(ResultBytes, "abcd");
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<char>();
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+    // Try with different endianness.
+    // For fetching bytes this should not matter, but a bug in boost 1.67
+    // broke this for <char> and endian::order::big, prior to 2021-03 fix.
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<char>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<char>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<signed char>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<unsigned char>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<int8_t>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+    {
+      std::string ResultBytes;
+      auto It = Result->bytes_begin<uint8_t>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes, "abcd");
+    }
+
+    // Try fetching shorts, assumed to be 16-bit, with different endianness.
+    // These were added to confirm that the boost bug for <char> above did not
+    // affect shorts and int16s.
+    assert(sizeof(short) == sizeof(int16_t));
+    {
+      std::vector<int16_t> ResultShorts;
+      auto It = Result->bytes_begin<int16_t>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize() / sizeof(int16_t),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6261); // 'b','a'
+      EXPECT_EQ(ResultShorts.at(1), 0x6463); // 'd','c'
+    }
+    {
+      std::vector<uint16_t> ResultShorts;
+      auto It = Result->bytes_begin<uint16_t>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize() / sizeof(uint16_t),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6261); // 'b','a'
+      EXPECT_EQ(ResultShorts.at(1), 0x6463); // 'd','c'
+    }
+    {
+      std::vector<short> ResultShorts;
+      auto It = Result->bytes_begin<short>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize() / sizeof(short),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6261); // 'b','a'
+      EXPECT_EQ(ResultShorts.at(1), 0x6463); // 'd','c'
+    }
+    {
+      std::vector<signed short> ResultShorts;
+      auto It = Result->bytes_begin<signed short>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize() / sizeof(signed short),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6261); // 'b','a'
+      EXPECT_EQ(ResultShorts.at(1), 0x6463); // 'd','c'
+    }
+    {
+      std::vector<unsigned short> ResultShorts;
+      auto It =
+          Result->bytes_begin<unsigned short>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize() / sizeof(unsigned short),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6261); // 'b','a'
+      EXPECT_EQ(ResultShorts.at(1), 0x6463); // 'd','c'
+    }
+    {
+      std::vector<int16_t> ResultShorts;
+      auto It = Result->bytes_begin<int16_t>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize() / sizeof(int16_t),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6162); // 'a','b'
+      EXPECT_EQ(ResultShorts.at(1), 0x6364); // 'c','d'
+    }
+    {
+      std::vector<uint16_t> ResultShorts;
+      auto It = Result->bytes_begin<uint16_t>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize() / sizeof(uint16_t),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6162); // 'a','b'
+      EXPECT_EQ(ResultShorts.at(1), 0x6364); // 'c','d'
+    }
+    {
+      std::vector<short> ResultShorts;
+      auto It = Result->bytes_begin<short>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize() / sizeof(short),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6162); // 'a','b'
+      EXPECT_EQ(ResultShorts.at(1), 0x6364); // 'c','d'
+    }
+    {
+      std::vector<signed short> ResultShorts;
+      auto It = Result->bytes_begin<signed short>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize() / sizeof(signed short),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6162); // 'a','b'
+      EXPECT_EQ(ResultShorts.at(1), 0x6364); // 'c','d'
+    }
+    {
+      std::vector<unsigned short> ResultShorts;
+      auto It = Result->bytes_begin<unsigned short>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize() / sizeof(unsigned short),
+                std::back_inserter(ResultShorts));
+      EXPECT_EQ(ResultShorts.at(0), 0x6162); // 'a','b'
+      EXPECT_EQ(ResultShorts.at(1), 0x6364); // 'c','d'
+    }
   }
 
   // Test truncating of unallocated bytes.
