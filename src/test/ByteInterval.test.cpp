@@ -207,6 +207,25 @@ TEST(Unit_ByteInterval, protobufRoundTrip) {
       std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
       EXPECT_EQ(ResultBytes, "abcd");
     }
+    // vector<byte>
+    {
+      std::vector<std::byte> ResultBytes;
+      auto It = Result->bytes_begin<std::byte>(boost::endian::order::little);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes.at(0), std::byte{'a'});
+      EXPECT_EQ(ResultBytes.at(1), std::byte{'b'});
+      EXPECT_EQ(ResultBytes.at(2), std::byte{'c'});
+      EXPECT_EQ(ResultBytes.at(3), std::byte{'d'});
+    }
+    {
+      std::vector<std::byte> ResultBytes;
+      auto It = Result->bytes_begin<std::byte>(boost::endian::order::big);
+      std::copy(It, It + Result->getSize(), std::back_inserter(ResultBytes));
+      EXPECT_EQ(ResultBytes.at(0), std::byte{'a'});
+      EXPECT_EQ(ResultBytes.at(1), std::byte{'b'});
+      EXPECT_EQ(ResultBytes.at(2), std::byte{'c'});
+      EXPECT_EQ(ResultBytes.at(3), std::byte{'d'});
+    }
 
     // Try fetching shorts, assumed to be 16-bit, with different endianness.
     // These were added to confirm that the boost bug for <char> above did not

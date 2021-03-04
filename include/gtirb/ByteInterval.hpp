@@ -1539,6 +1539,7 @@ private:
   // 1-byte types (char, [un]signed char, [u]int8_t).
   // This layer was added to work around a bug in boost 1.67 (fixed as of 1.74)
   // which gave wrong results for T=char.
+  // It also allows BytesReference to work for std::byte.
   template <typename T>
   static inline std::enable_if_t<sizeof(T) != 1, T>
   endian_flip(T From, boost::endian::order In, boost::endian::order Out) {
