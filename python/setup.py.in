@@ -4,7 +4,7 @@ import sys
 import unittest
 import os
 import shutil
-from version import API_VERSION
+from gtirb.version import API_VERSION
 
 # if version of setuptools is 20.8.1 or below, it doesn't support env specs
 if int(setuptools.__version__.split(".")[0]) < 21:
