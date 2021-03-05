@@ -548,7 +548,7 @@ external-pypi:
   - rm -rf build dist *.egg-info
   - python3 setup.py sdist bdist_wheel
   - twine check dist/*
-  - twine upload --verbose --repository-url $EXTRA_INDEX_URL --username gitlab-ci-token --password "$CI_JOB_TOKEN" dist/*
+  - twine upload --verbose --repository-url $EXTRA_INDEX_URL --username gitlab-ci-token "--password=$CI_JOB_TOKEN" dist/*
 
 internal-pypi-master:
   stage: deploy-to-pypi
