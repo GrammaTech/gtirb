@@ -1,5 +1,4 @@
 variables:
-  EXTRA_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@git.grammatech.com/api/v4/projects/1587/packages/pypi/simple
   LOCAL_IMAGE_NAME: '$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -548,7 +547,7 @@ external-pypi:
   - rm -rf build dist *.egg-info
   - python3 setup.py sdist bdist_wheel
   - twine check dist/*
-  - twine upload --verbose --repository-url $EXTRA_INDEX_URL --username gitlab-ci-token "--password=$CI_JOB_TOKEN" dist/*
+  - twine upload --verbose --repository repypi dist/*
 
 internal-pypi-master:
   stage: deploy-to-pypi
