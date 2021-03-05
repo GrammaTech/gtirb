@@ -530,42 +530,63 @@ external-pypi:
   script:
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb/${GTIRB_VERSION}/)
-    - if [ "$RESPONSE_CODE" = "404" ];
-      then
-        pip3 install twine wheel setuptools --upgrade;
-        cd build/python;
-        rm -rf build dist gtirb.egg-info;
-        python3 setup.py sdist bdist_wheel;
-        twine check dist/*;
-        twine upload dist/* -u __token__ -p $PYPI_API_KEY;
-      fi
+    # We won't be releasing our dev packages externally, so fail if this is a
+    # -dev package.
+    - if [[ "$GTIRB_VERSION" =~ -dev[[:digit:]]*$ ]]; then exit 1 fi
+    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+    - pip3 install twine wheel setuptools --upgrade;
+    - cd build/python;
+    - rm -rf build dist gtirb.egg-info;
+    - python3 setup.py sdist bdist_wheel;
+    - twine check dist/*;
+    - twine upload dist/* -u __token__ -p $PYPI_API_KEY;
 
-internal-pypi:
+.internal-upload: &internal-upload |
+  - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
+  - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
+  - cd build/python
+  - rm -rf build dist *.egg-info
+  - python3 setup.py sdist bdist_wheel
+  - twine check dist/*
+  - twine upload --verbose --repository-url $EXTRA_INDEX_URL --username gitlab-ci-token --password "$CI_JOB_TOKEN" dist/*
+
+internal-pypi-master:
   stage: deploy-to-pypi
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   rules:
-    - if: '$CI_MERGE_REQUEST_REF_PATH'
-      changes:
-        - version.txt
     - if: '$CI_COMMIT_BRANCH == "master"'
+  script:
+    - pip3 install twine wheel setuptools --upgrade
+    - pip3 install gtirb-*-py*-none-any.whl
+    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+    # On master, we only upload and overwrite `-dev` versions of the python
+    # package.  Non-dev versions should only be uploaded on versioned
+    # release-.* branches.  This is so the versioning of our python packages
+    # coincides with that of our conan packages, where dev packages are
+    # produced from master, and stable, versioned packages are produced
+    # on release-.* branches.
+    - if [[ ! "$GTIRB_VERSION" =~ -dev[[:digit:]]*$ ]]; then exit 1; fi
+    - wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py
+    - python3 delete_remote_packages.py $GL_PKG_API_TOKEN gtirb-*-py*-none-any.whl
+    - *internal-upload
+
+internal-pypi-release:
+  stage: deploy-to-pypi
+  needs: [build-ubuntu18-gcc7, python-wheel]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
     - pip3 install twine wheel setuptools --upgrade
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    # If this is a *-dev* package, delete any currently existing remote package
-    - if [[ "$GTIRB_VERSION" =~ ([[:digit:]]+\.){2}[[:digit:]]+-dev[[:digit:]]* ]];
-      then
-        wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py
-        python3 delete_remote_packages.py $GL_PKG_API_TOKEN dist/gtirb-*-py*-none-any.whl
-      fi
-    - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
-    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
-    # Now try to do the upload
-    - cd build/python
-    - rm -rf build dist *.egg-info
-    - python3 setup.py sdist bdist_wheel
-    - twine check dist/*
-    - twine upload --verbose --repository-url $EXTRA_INDEX_URL --username gitlab-ci-token --password "$CI_JOB_TOKEN" dist/*
+    # On a release branch, we should never be uploading a `-dev` version.
+    # This is because our conan jobs will automatically upload a package with
+    # a normal, semantic version to the stable channel on a release branch, and
+    # we want our python and conan versions to coincide.
+    # Furthermore, unlike the above internal-pypi-master job, we never
+    # overwrite a package here, since we don't want to overwrite non-dev
+    # packages.
+    - if [[ "$GTIRB_VERSION" =~ -dev[[:digit:]]*$ ]]; then exit 1; fi
+    - *internal-upload
