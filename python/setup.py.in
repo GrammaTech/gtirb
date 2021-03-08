@@ -4,7 +4,7 @@ import sys
 import unittest
 import os
 import shutil
-from gtirb.version import API_VERSION
+import gtirb
 
 # if version of setuptools is 20.8.1 or below, it doesn't support env specs
 if int(setuptools.__version__.split(".")[0]) < 21:
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     setuptools.setup(
         name="gtirb",
-        version=API_VERSION,
+        version=gtirb.__version__,
         author="GrammaTech",
         author_email="gtirb@grammatech.com",
         description="GrammaTech Intermediate Representation for Binaries",
