@@ -2,7 +2,7 @@ API_VERSION = (
     "@PROJECT_VERSION_MAJOR@."
     "@PROJECT_VERSION_MINOR@."
     "@PROJECT_VERSION_PATCH@"
-    "-dev1"
+    "-dev"
 )  # type: str
 """The semantic version of this API."""
 
