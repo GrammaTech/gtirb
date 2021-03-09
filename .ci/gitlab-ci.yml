@@ -560,8 +560,8 @@ internal-pypi:
     - pip3 install gtirb-*-py*-none-any.whl
     - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     - if [[ "$NEW_VERSION" =~ -dev[[:digit:]]*$ && "$CI_COMMIT_REF_NAME" =~ /^release-.*/ ]]; then exit 1; fi
-    - if [[ ( ! "$NEW_VERSION" =~ -dev[[:digit:]]*$ ) && "$CI_COMMIT_BRANCH" == "master" ]]; then exit 1; fi
     - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+        if [[ ( ! "$NEW_VERSION" =~ -dev[[:digit:]]*$ ) ]]; then exit 1; fi
         if [[ python3 -c "from packaging import version; exit(version.parse('$(NEW_VERSION)') < version.parse('$(UPLOADED_VERSION)'))" ]]; then
           echo "The package version being published on master should always be >= the version in the repository."
           exit 1;
