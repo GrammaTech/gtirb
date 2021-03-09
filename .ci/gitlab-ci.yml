@@ -556,13 +556,12 @@ internal-pypi:
     - pip3 install twine wheel setuptools --upgrade
     - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
     - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
-    - "UPLOADED_VERSION=$(pip show gtirb | awk -F: 'FNR == 2 {print $2}')"
     - pip3 install gtirb-*-py*-none-any.whl
     - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     - if [[ "$NEW_VERSION" =~ -dev[[:digit:]]*$ && "$CI_COMMIT_REF_NAME" =~ /^release-.*/ ]]; then exit 1; fi
     - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
         if [[ ( ! "$NEW_VERSION" =~ -dev[[:digit:]]*$ ) ]]; then exit 1; fi
-        if [[ python3 -c "from packaging import version; exit(version.parse('$(NEW_VERSION)') < version.parse('$(UPLOADED_VERSION)'))" ]]; then
+        if pip3 install "gtirb>$NEW_VERSION" 2>/dev/null; then
           echo "The package version being published on master should always be >= the version in the repository."
           exit 1;
         fi
