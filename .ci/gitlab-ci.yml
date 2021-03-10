@@ -1,6 +1,7 @@
 variables:
   LOCAL_IMAGE_NAME: '$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
+  EXTRA_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@git.grammatech.com/api/v4/projects/1587/packages/pypi/simple
 
 stages:
   - check-format
@@ -561,7 +562,7 @@ internal-pypi:
     - if [[ "$NEW_VERSION" =~ -dev[[:digit:]]*$ && "$CI_COMMIT_REF_NAME" =~ /^release-.*/ ]]; then exit 1; fi
     - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
         if [[ ! "$NEW_VERSION" =~ -dev[[:digit:]]*$ ]]; then exit 1; fi
-        if pip3 install "gtirb>$NEW_VERSION" 2>/dev/null; then
+        if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb>$NEW_VERSION" 2>/dev/null; then
           echo "The package version being published on master should always be >= the version in the repository."
           exit 1;
         fi
