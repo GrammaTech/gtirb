@@ -553,6 +553,12 @@ internal-pypi:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+    # If you need to publish a package for a specific branch, change the
+    # package version to something like, '0.0.0.dev0+mybranchname', uncomment
+    # the rule below and replace 'mybranchname' with your branch name.
+    #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
+    #  changes:
+    #    - src/version.py
   script:
     - pip3 install twine wheel setuptools --upgrade
     - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
