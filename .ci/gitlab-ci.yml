@@ -561,7 +561,10 @@ internal-pypi:
     - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*$ && "$CI_COMMIT_REF_NAME" =~ /^release-.*/ ]]; then exit 1; fi
     - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
-        if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then exit 1; fi
+        if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
+          echo "Only -dev versions can be uploaded from the master branch."
+          exit 1;
+        fi
         if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb>$NEW_VERSION" 2>/dev/null; then
           echo "The package version being published on master should always be >= the version in the repository."
           exit 1;
