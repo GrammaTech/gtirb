@@ -469,6 +469,7 @@ debian-installer-ubuntu20:
 
 conan-ubuntu18:
   stage: deploy
+  needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   script:
     - python3 -m pip install conan
@@ -479,6 +480,7 @@ conan-ubuntu18:
 
 conan-windows:
   stage: deploy
+  needs: [check-format]
   tags: [gtirb-windows]
   script:
     - systeminfo
@@ -495,6 +497,7 @@ conan-windows:
 
 conan-windows-VC15:
   stage: deploy
+  needs: [check-format]
   tags: [windows]
   image: docker.grammatech.com/gt/gitlab-base-build-images/cpp.win1909
   script:
