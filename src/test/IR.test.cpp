@@ -303,9 +303,9 @@ TEST(Unit_IR, CFG) {
   {
     auto [Begin, End] = vertices(Ir->getCFG());
     ASSERT_EQ(std::distance(Begin, End), 3);
-    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
-                        Ir->getCFG()[*std::next(Begin, 1)],
-                        Ir->getCFG()[*std::next(Begin, 2)]}),
+    EXPECT_EQ((std::set<CfgNode*>{Ir->getCFG()[*std::next(Begin, 0)],
+                                  Ir->getCFG()[*std::next(Begin, 1)],
+                                  Ir->getCFG()[*std::next(Begin, 2)]}),
               (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
                                   &*M1->code_blocks_begin(),
                                   &*M2->proxy_blocks_begin()}));
@@ -324,9 +324,9 @@ TEST(Unit_IR, CFG) {
   {
     auto [Begin, End] = vertices(Ir->getCFG());
     ASSERT_EQ(std::distance(Begin, End), 3);
-    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
-                        Ir->getCFG()[*std::next(Begin, 1)],
-                        Ir->getCFG()[*std::next(Begin, 2)]}),
+    EXPECT_EQ((std::set<CfgNode*>{Ir->getCFG()[*std::next(Begin, 0)],
+                                  Ir->getCFG()[*std::next(Begin, 1)],
+                                  Ir->getCFG()[*std::next(Begin, 2)]}),
               (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
                                   &*M1->code_blocks_begin(),
                                   &*M2->proxy_blocks_begin()}));
@@ -337,8 +337,8 @@ TEST(Unit_IR, CFG) {
   {
     auto [Begin, End] = vertices(Ir->getCFG());
     ASSERT_EQ(std::distance(Begin, End), 2);
-    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
-                        Ir->getCFG()[*std::next(Begin, 1)]}),
+    EXPECT_EQ((std::set<CfgNode*>{Ir->getCFG()[*std::next(Begin, 0)],
+                                  Ir->getCFG()[*std::next(Begin, 1)]}),
               (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
                                   &*M2->proxy_blocks_begin()}));
   }
@@ -349,10 +349,10 @@ TEST(Unit_IR, CFG) {
   {
     auto [Begin, End] = vertices(Ir->getCFG());
     ASSERT_EQ(std::distance(Begin, End), 4);
-    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
-                        Ir->getCFG()[*std::next(Begin, 1)],
-                        Ir->getCFG()[*std::next(Begin, 2)],
-                        Ir->getCFG()[*std::next(Begin, 3)]}),
+    EXPECT_EQ((std::set<CfgNode*>{Ir->getCFG()[*std::next(Begin, 0)],
+                                  Ir->getCFG()[*std::next(Begin, 1)],
+                                  Ir->getCFG()[*std::next(Begin, 2)],
+                                  Ir->getCFG()[*std::next(Begin, 3)]}),
               (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
                                   &*M1->code_blocks_begin(),
                                   &*std::next(M1->code_blocks_begin()),
@@ -364,8 +364,8 @@ TEST(Unit_IR, CFG) {
   {
     auto [Begin, End] = vertices(Ir->getCFG());
     ASSERT_EQ(std::distance(Begin, End), 2);
-    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
-                        Ir->getCFG()[*std::next(Begin, 1)]}),
+    EXPECT_EQ((std::set<CfgNode*>{Ir->getCFG()[*std::next(Begin, 0)],
+                                  Ir->getCFG()[*std::next(Begin, 1)]}),
               (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
                                   &*M2->proxy_blocks_begin()}));
   }
@@ -375,10 +375,10 @@ TEST(Unit_IR, CFG) {
   {
     auto [Begin, End] = vertices(Ir->getCFG());
     ASSERT_EQ(std::distance(Begin, End), 4);
-    EXPECT_EQ((std::set{Ir->getCFG()[*std::next(Begin, 0)],
-                        Ir->getCFG()[*std::next(Begin, 1)],
-                        Ir->getCFG()[*std::next(Begin, 2)],
-                        Ir->getCFG()[*std::next(Begin, 3)]}),
+    EXPECT_EQ((std::set<CfgNode*>{Ir->getCFG()[*std::next(Begin, 0)],
+                                  Ir->getCFG()[*std::next(Begin, 1)],
+                                  Ir->getCFG()[*std::next(Begin, 2)],
+                                  Ir->getCFG()[*std::next(Begin, 3)]}),
               (std::set<CfgNode*>{&*M1->proxy_blocks_begin(),
                                   &*M1->code_blocks_begin(),
                                   &*std::next(M1->code_blocks_begin()),

@@ -224,7 +224,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::addCodeBlocks(
            "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     return S->Observer->addCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
@@ -240,7 +240,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::moveCodeBlocks(
            "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     return S->Observer->moveCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
@@ -256,7 +256,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeCodeBlocks(
            "byte interval observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     return S->Observer->removeCodeBlocks(
         S, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
@@ -272,7 +272,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::addDataBlocks(
            "byte interval observed by non-owner");
     // data_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     return S->Observer->addDataBlocks(
         S, boost::make_iterator_range(data_block_iterator(Range),
                                       data_block_iterator()));
@@ -288,7 +288,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::moveDataBlocks(
            "byte interval observed by non-owner");
     // data_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     return S->Observer->moveDataBlocks(
         S, boost::make_iterator_range(data_block_iterator(Range),
                                       data_block_iterator()));
@@ -304,7 +304,7 @@ ChangeStatus Section::ByteIntervalObserverImpl::removeDataBlocks(
            "byte interval observed by non-owner");
     // data_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     return S->Observer->removeDataBlocks(
         S, boost::make_iterator_range(data_block_iterator(Range),
                                       data_block_iterator()));

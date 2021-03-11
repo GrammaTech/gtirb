@@ -493,6 +493,18 @@ conan-windows:
     - export BOOST_ROOT="C:\\Boost"
     - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py
 
+conan-windows-VC15:
+  stage: deploy
+  tags: [windows]
+  image: docker.grammatech.com/gt/gitlab-base-build-images/cpp.win1909
+  script:
+    - conan profile new default --detect
+    - conan profile remove settings.compiler.libcxx default
+    - conan profile update "settings.compiler=Visual Studio" default
+    - conan profile update settings.compiler.version=15 default
+    - $env:PYTHONPATH=Get-Location
+    - python .ci/build.py
+
 package-arch:
   allow_failure: true
   stage: deploy

@@ -316,7 +316,7 @@ Module::SectionObserverImpl::addCodeBlocks([[maybe_unused]] Section* S,
            "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     Status = M->Observer->addCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));
@@ -364,7 +364,7 @@ ChangeStatus Module::SectionObserverImpl::removeCodeBlocks(
            "section observed by non-owner");
     // code_block_iterator takes a range of ranges, so wrap the given block
     // range in a one-element array.
-    std::array Range{Blocks};
+    std::array<decltype(Blocks), 1> Range{Blocks};
     Status = M->Observer->removeCodeBlocks(
         M, boost::make_iterator_range(code_block_iterator(Range),
                                       code_block_iterator()));

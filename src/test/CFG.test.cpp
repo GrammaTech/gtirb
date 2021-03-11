@@ -123,8 +123,8 @@ TEST(Unit_CFG, removeVertex) {
   {
     auto [Begin, End] = vertices(Cfg);
     ASSERT_EQ(std::distance(Begin, End), 2);
-    EXPECT_EQ((std::set{Cfg[*Begin], Cfg[*std::next(Begin)]}),
-              (std::set{B1, B2}));
+    EXPECT_EQ((std::set<CfgNode*>{Cfg[*Begin], Cfg[*std::next(Begin)]}),
+              (std::set<CfgNode*>{B1, B2}));
     ASSERT_TRUE(getVertex(B1, Cfg));
     EXPECT_EQ(Cfg[*getVertex(B1, Cfg)], B1);
     ASSERT_TRUE(getVertex(B2, Cfg));
@@ -146,8 +146,8 @@ TEST(Unit_CFG, removeVertex) {
   {
     auto [Begin, End] = vertices(Cfg);
     ASSERT_EQ(std::distance(Begin, End), 2);
-    EXPECT_EQ((std::set{Cfg[*Begin], Cfg[*std::next(Begin)]}),
-              (std::set{B1, B2}));
+    EXPECT_EQ((std::set<CfgNode*>{Cfg[*Begin], Cfg[*std::next(Begin)]}),
+              (std::set<CfgNode*>{B1, B2}));
 
     ASSERT_TRUE(getVertex(B1, Cfg));
     EXPECT_EQ(Cfg[*getVertex(B1, Cfg)], B1);

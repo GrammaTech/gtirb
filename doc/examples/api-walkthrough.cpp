@@ -89,13 +89,15 @@ int main() {
   //
   // Symbols can be looked up by address or name.  Any number of symbols can
   // share an address or name, so be prepared to deal with multiple results.
-  for ([[maybe_unused]] const auto& Sym : M->findSymbols(Addr(2054))) {
+  for (const auto& Sym : M->findSymbols(Addr(2054))) {
+    [[maybe_unused]] const auto& _ = Sym;
     assert(Sym.getAddress() == Addr(2054));
     assert(Sym.getName() == "data2" || Sym.getName() == "duplicateReferent");
     assert(Sym.getReferent<DataBlock>() == nullptr ||
            Sym.getReferent<DataBlock>() == D2);
   }
-  for ([[maybe_unused]] const auto& Sym : M->findSymbols("duplicateName")) {
+  for (const auto& Sym : M->findSymbols("duplicateName")) {
+    [[maybe_unused]] const auto& _ = Sym;
     assert(Sym.getName() == "duplicateName");
     assert(Sym.getAddress() == Addr(2048) || Sym.getAddress() == Addr(4096));
   }
