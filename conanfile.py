@@ -135,12 +135,7 @@ class GtirbConan(Properties, ConanFile):
             "GTIRB_JAVA_API:BOOL": "OFF",
         }
         if self.settings.os == "Windows":
-            generator = (
-                "Visual Studio 15 2017 Win64"
-                if self.settings.compiler.version == "15"
-                else "Ninja"
-            )
-            cmake = CMake(self, generator=generator)
+            cmake = CMake(self, generator="Ninja")
             defs.update(
                 {
                     k: os.environ.get(k)
