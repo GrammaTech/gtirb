@@ -3,7 +3,7 @@ import re
 
 from conans import CMake, ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
-
+from conans.model.version import Version
 
 def get_gtirb_version():
     if "CI_COMMIT_REF_NAME" in os.environ:
@@ -174,3 +174,8 @@ class GtirbConan(Properties, ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["gtirb"]
+
+    def package_id(self):
+        v = Version(str(self.settings.compiler.version))
+        if self.settings.compiler == "Visual Studio" and v in ['15', '16']:
+            self.info.settings.compiler.version = "Visual Studio 15 and 16"
