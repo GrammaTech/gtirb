@@ -40,18 +40,8 @@ Vagrant.configure("2") do |config|
     choco install -y cmake
     choco install -y ninja
     choco install -y openjdk8
-    choco install -y python3
-    cd $HOME
-    Invoke-WebRequest "https://download.visualstudio.microsoft.com/download/pr/57d28351-e762-4ee1-aca4-16b6d3faaa33/9fd19a14823506bdbd249be8f519e4a17af494df5cd92e3dc65e110a744d6ebb/vs_Community.exe" -OutFile vs_community.exe
-    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $startInfo.FileName = "C:\\Users\\vagrant\\vs_community.exe"
-    $startInfo.Arguments = "--installPath ""C:\\VS"" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Redist.14.Latest --add Microsoft.VisualStudio.Component.Windows10SDK --add Microsoft.VisualStudio.Component.Windows10SDK.18362 --includeRecommended --passive --wait"
-    $startInfo.UseShellExecute = $true
-    $startInfo.CreateNoWindow = $false
-    $process = New-Object System.Diagnostics.Process
-    $process.StartInfo = $startInfo
-    $process.Start()
-    $process.WaitForExit()
+    choco install -y python3 --version=3.8.0
+    choco install -y visualstudio2019community --version=16.8.4.0 --package-parameters "--installPath ""C:\\VS""  --passive --wait --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Redist.14.Latest --add Microsoft.VisualStudio.Component.Windows10SDK --add Microsoft.VisualStudio.Component.Windows10SDK.18362 --includeRecommended"
   SHELL
 
   # The provisioner belows uses the installer from sourceforge, because it is
@@ -75,6 +65,8 @@ Vagrant.configure("2") do |config|
   SHELL
 
   config.vm.provision "build-protobuf", type: "shell", inline: <<-SHELL
+    python -m pip install protobuf==3.7.0
+
     cd $HOME
     git clone https://github.com/protocolbuffers/protobuf.git
     cd protobuf
