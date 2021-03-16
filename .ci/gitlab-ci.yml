@@ -558,7 +558,7 @@ internal-pypi:
     # the rule below and replace 'mybranchname' with your branch name.
     #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
     #  changes:
-    #    - src/version.py
+    #    - python/gtirb/setup.py.in
   script:
     - pip3 install twine wheel setuptools --upgrade
     - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
