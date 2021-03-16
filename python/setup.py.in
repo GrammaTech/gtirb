@@ -47,8 +47,6 @@ if __name__ == "__main__":
 
     setuptools.setup(
         name="gtirb",
-        # When changing the package version, change API_VERSION in version.py,
-        # because it is also used as the value of gtirb.__version__
         version=version,
         author="GrammaTech",
         author_email="gtirb@grammatech.com",
