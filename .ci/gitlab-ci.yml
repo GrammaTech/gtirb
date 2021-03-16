@@ -532,7 +532,7 @@ external-pypi:
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     # We won't be releasing our dev packages externally, so fail if this is a
     # .dev package.
-    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*$ ]]; then exit 1 fi
+    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1 fi
     - pip3 install twine wheel setuptools --upgrade;
     - cd build/python;
     - rm -rf build dist gtirb.egg-info;
@@ -565,7 +565,7 @@ internal-pypi:
     - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
     - pip3 install gtirb-*-py*-none-any.whl
     - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
+    - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
     - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
         if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
           echo "Only .dev versions can be uploaded from the master branch.";
