@@ -1,9 +1,6 @@
-API_VERSION = (
-    "@PROJECT_VERSION_MAJOR@."
-    "@PROJECT_VERSION_MINOR@."
-    "@PROJECT_VERSION_PATCH@"
-    "-dev"
-)  # type: str
+import pkg_resources
+
+API_VERSION = pkg_resources.require("gtirb")[0].version  # type: str
 """The semantic version of this API."""
 
 PROTOBUF_VERSION = @GTIRB_PROTOBUF_VERSION@  # type: int

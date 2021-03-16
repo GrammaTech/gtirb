@@ -4,7 +4,6 @@ import sys
 import unittest
 import os
 import shutil
-import gtirb
 
 # if version of setuptools is 20.8.1 or below, it doesn't support env specs
 if int(setuptools.__version__.split(".")[0]) < 21:
@@ -28,6 +27,15 @@ this_dir = os.path.dirname(__file__)
 shutil.copyfile(os.path.join(root_dir, "README.md"), "README")
 shutil.copyfile(os.path.join(root_dir, "LICENSE.txt"), "LICENSE")
 
+
+# Set the version
+version = (
+    "@PROJECT_VERSION_MAJOR@."
+    "@PROJECT_VERSION_MINOR@."
+    "@PROJECT_VERSION_PATCH@"
+    "-dev"
+)
+
 # run setuptools
 if __name__ == "__main__":
     with open("README", "r") as fh:
@@ -39,7 +47,9 @@ if __name__ == "__main__":
 
     setuptools.setup(
         name="gtirb",
-        version=gtirb.__version__,
+        # When changing the package version, change API_VERSION in version.py,
+        # because it is also used as the value of gtirb.__version__
+        version=version,
         author="GrammaTech",
         author_email="gtirb@grammatech.com",
         description="GrammaTech Intermediate Representation for Binaries",

@@ -42,4 +42,7 @@ from .symbolicexpression import (
 )
 from .version import API_VERSION
 
+# Always set __version__ to API_VERSION.  If you want to change the value of
+# __version__, change the API_VERSION, because it is used both here and in
+# setup.py.
 __version__ = API_VERSION
