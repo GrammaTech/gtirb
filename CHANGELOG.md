@@ -1,5 +1,11 @@
 # Unreleased
 
+# 1.10.3
+
+* Added offset helpers to Python API
+* Better support for `std::byte` when working with `ByteInterval`
+* Fixed a bug which manifested when serializing a big-endian IR
+
 # 1.10.2
 
 * Updated "address" iteration order to compare size if addresses are the same
