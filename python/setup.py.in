@@ -33,7 +33,6 @@ version = (
     "@PROJECT_VERSION_MAJOR@."
     "@PROJECT_VERSION_MINOR@."
     "@PROJECT_VERSION_PATCH@"
-    ".dev"
 )
 
 # run setuptools
