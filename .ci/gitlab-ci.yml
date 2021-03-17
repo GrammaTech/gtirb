@@ -532,7 +532,7 @@ external-pypi:
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     # We won't be releasing our dev packages externally, so fail if this is a
     # .dev package.
-    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1 fi
+    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1; fi
     - pip3 install twine wheel setuptools --upgrade;
     - cd build/python;
     - rm -rf build dist gtirb.egg-info;
