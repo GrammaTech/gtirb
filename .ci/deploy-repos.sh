@@ -16,8 +16,7 @@
 #         - Packages.gz
 #
 #   deploy_directory gets completely whiped out and recreated by this script,
-#   so be careful.  For the moment, the only package we include is gtirb.  We
-#   pull the package from the master branch's job artifacts.
+#   so be careful.  
 #
 #   In order to install packages from the created repositories, one would add
 #   one of the above directories to their /etc/apt/sources.list file (see the
