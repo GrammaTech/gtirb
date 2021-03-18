@@ -24,44 +24,31 @@ import java.util.UUID;
 public class Module extends Node {
 
     public enum FileFormat {
-        Format_Undefined(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat
-                             .Format_Undefined_VALUE),
-        COFF(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.COFF_VALUE),
-        ELF(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.ELF_VALUE),
-        PE(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.PE_VALUE),
-        IdaProDb32(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat
-                       .IdaProDb32_VALUE),
-        IdaProDb64(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat
-                       .IdaProDb64_VALUE),
-        XCOFF(
-            com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.XCOFF_VALUE),
-        MACHO(
-            com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.MACHO_VALUE),
-        RAW(com.grammatech.gtirb.proto.ModuleOuterClass.FileFormat.RAW_VALUE);
-
-        private int value;
-
-        private FileFormat(int value) { this.value = value; }
+        Format_Undefined,
+        COFF,
+        ELF,
+        PE,
+        IdaProDb32,
+        IdaProDb64,
+        XCOFF,
+        MACHO,
+        RAW
     }
 
     public enum ISA {
-        ISA_Undefined(com.grammatech.gtirb.proto.ModuleOuterClass.ISA
-                          .ISA_Undefined_VALUE),
-        IA32(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.IA32_VALUE),
-        PPC32(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.PPC32_VALUE),
-        X64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.X64_VALUE),
-        ARM(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ARM_VALUE),
-        ValidButUnsupported(com.grammatech.gtirb.proto.ModuleOuterClass.ISA
-                                .ValidButUnsupported_VALUE),
-        PPC64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.PPC64_VALUE),
-        ARM64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ARM64_VALUE),
-        MIPS32(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.MIPS32_VALUE),
-        MIPS64(com.grammatech.gtirb.proto.ModuleOuterClass.ISA.ARM64_VALUE);
-
-        private int value;
-
-        private ISA(int value) { this.value = value; }
+        ISA_Undefined,
+        IA32,
+        PPC32,
+        X64,
+        ARM,
+        ValidButUnsupported,
+        PPC64,
+        ARM64,
+        MIPS32,
+        MIPS64
     }
+
+    public enum ByteOrder { ByteOrder_Undefined, BigEndian, LittleEndian }
 
     private com.grammatech.gtirb.proto.ModuleOuterClass.Module protoModule;
 
@@ -76,6 +63,7 @@ public class Module extends Node {
     private AuxData auxData;
     private String name;
     private UUID entryPointUuid;
+    private ByteOrder byteOrder;
     private NavigableMap<Long, Block> blockAddressMap;
     private boolean blockAddressMapInitialized;
 
@@ -93,6 +81,7 @@ public class Module extends Node {
         this.name = protoModule.getName();
         this.entryPointUuid =
             Util.byteStringToUuid(protoModule.getEntryPoint());
+        this.byteOrder = ByteOrder.values()[protoModule.getByteOrderValue()];
         this.blockAddressMap = new TreeMap<Long, Block>();
         this.blockAddressMapInitialized = false;
     }
@@ -156,6 +145,8 @@ public class Module extends Node {
     public FileFormat getFileFormat() { return this.fileFormat; }
 
     public ISA getISA() { return this.isa; }
+
+    public ByteOrder getByteOrder() { return this.byteOrder; }
 
     public String getName() { return this.name; }
 
