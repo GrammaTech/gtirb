@@ -156,11 +156,7 @@ sudo apt-get install libgtirb gtirb-pprinter ddisasm
 ```
 
 ## Arch Linux
-Arch packages are available for download from
-[https://grammatech.github.io/gtirb/pkgs/arch/](https://grammatech.github.io/gtirb/pkgs/arch/)
-and may be directly installed with `pacman`.
-
-Additionally, the Arch User Repository (AUR) https://aur.archlinux.org/ has packages
+The Arch User Repository (AUR) https://aur.archlinux.org/ has packages
 for GTIRB (`gtirb-git`) the GTIRB Pretty Printer
 (`gtirb-pprinter-git`) and the datalog disassembler (`ddisasm-git`).
 Note that installing `ddisasm-git` will cause the other two packages
