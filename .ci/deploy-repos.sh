@@ -3,7 +3,7 @@
 # deploy-repos.sh
 #
 # Usage:
-#   ./deploy_repos.sh deploy_directory/
+#   GTIRB_BRANCH=release-1.10.3 GTIRB_PPRINTER_BRANCH=release-1.6.0 DDISASM_BRANCH=release-1.4.0 ./deploy_repos.sh deploy_directory/
 #
 # Summary: Creates three apt repositories underneath deploy_directory
 #   (for xenial, bionic, and focal).  The created directory structure is:
@@ -16,7 +16,7 @@
 #         - Packages.gz
 #
 #   deploy_directory gets completely whiped out and recreated by this script,
-#   so be careful.  
+#   so be careful.
 #
 #   In order to install packages from the created repositories, one would add
 #   one of the above directories to their /etc/apt/sources.list file (see the
@@ -28,6 +28,10 @@ set -o errexit
 set -o pipefail
 
 DEPLOY_DIR=$1
+
+GTIRB_BRANCH=${GTIRB_BRANCH:?Please specify the GTIRB_BRANCH}
+GTIRB_PPRINTER_BRANCH=${GTIRB_PPRINTER_BRANCH:?Please specify the GTIRB_PPRINTER_BRANCH}
+DDISASM_BRANCH=${DDISASM_BRANCH:?Please specify the DDISASM_BRANCH}
 
 rm -rf $DEPLOY_DIR
 mkdir -p $DEPLOY_DIR
@@ -46,7 +50,10 @@ function setup_repo {
     windows-release) JOB_NAME='build-windows-msvc-relwithdebinfo';;
   esac
   for PROJECT in gtirb gtirb-pprinter ddisasm;do
-    curl -L https://git.grammatech.com/rewriting/${PROJECT}/-/jobs/artifacts/master/download?job=${JOB_NAME} \
+    VAR_NAME="${PROJECT^^}_BRANCH"
+    VAR_NAME="${VAR_NAME/-/_}"
+    BRANCH=${!VAR_NAME}
+    curl -L https://git.grammatech.com/rewriting/${PROJECT}/-/jobs/artifacts/$BRANCH/download?job=${JOB_NAME} \
          --output "${PROJECT}-artifacts.zip"
     case $OS in
       arch|ubuntu16|ubuntu18|ubuntu20)
@@ -66,6 +73,8 @@ function setup_repo {
            --output libcapstone-dev_4.0.1-gt1_amd64.deb
       curl http://otsego.grammatech.com/u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt2_amd64.deb \
            --output libcapstone-dev_4.0.1-gt2_amd64.deb
+            curl http://otsego.grammatech.com/u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt3_amd64.deb \
+           --output libcapstone-dev_4.0.1-gt3_amd64.deb
       dpkg-scanpackages -m . /dev/null | gzip -9c > Packages.gz
       ;;
   esac
@@ -77,7 +86,10 @@ rm -rf /tmp/pdb/
 setup_repo ubuntu16 xenial
 setup_repo ubuntu18 bionic
 setup_repo ubuntu20 focal
-setup_repo arch arch
+
+# No pacman packages for now
+# setup_repo arch arch
+
 setup_repo windows-debug windows-debug
 setup_repo windows-release windows-release
 
