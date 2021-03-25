@@ -472,12 +472,19 @@ conan-ubuntu18:
   stage: deploy
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  script:
+  script: &conan-build
     - python3 -m pip install conan
     - conan profile new default --detect
     - conan profile update settings.compiler.libcxx=libstdc++11 default
     - export PYTHONPATH="$(pwd)"
     - python3 .ci/build.py
+
+conan-ubuntu20:
+  stage: deploy
+  needs: [check-format]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  script:
+    *conan-build
 
 conan-windows:
   stage: deploy
