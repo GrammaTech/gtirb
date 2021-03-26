@@ -468,7 +468,7 @@ debian-installer-ubuntu20:
   script:
     - cp build/*gtirb*.deb ./
 
-conan-ubuntu18:
+conan-linux-gcc7:
   stage: deploy
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
@@ -479,7 +479,7 @@ conan-ubuntu18:
     - export PYTHONPATH="$(pwd)"
     - python3 .ci/build.py
 
-conan-ubuntu20:
+conan-linux-gcc9:
   stage: deploy
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
