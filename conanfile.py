@@ -93,11 +93,10 @@ class Properties:
 
 class GtirbConan(Properties, ConanFile):
     boost_version = "1.69.0"
-    protobuf_version = "3.9.1"
+    protobuf_version = "3.15.5"
     requires = (
         "boost/{0}".format(boost_version),
-        "protobuf/{0}@bincrafters/stable".format(protobuf_version),
-        "protoc_installer/{0}@bincrafters/stable".format(protobuf_version),
+        "protobuf/{0}".format(protobuf_version),
     )
     settings = "os", "build_type", "compiler"
     generators = "cmake"
