@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-ARG CXX_COMPILER=g++-7
+ARG CXX_COMPILER=g++-9
 
 SHELL ["/bin/bash", "-c"]
 

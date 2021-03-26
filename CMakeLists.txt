@@ -38,6 +38,7 @@ include(CMakePackageConfigHelpers)
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
 if(ENABLE_CONAN)
+  set(CONAN_SYSTEM_INCLUDES ON)
   include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
   conan_basic_setup()
 endif()
