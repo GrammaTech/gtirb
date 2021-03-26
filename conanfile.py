@@ -145,12 +145,7 @@ class GtirbConan(Properties, ConanFile):
             defs.update({"Protobuf_USE_STATIC_LIBS": "ON"})
         else:
             cmake = CMake(self, generator=None)
-            defs.update(
-                {
-                    "CMAKE_CXX_COMPILER": "g++-7",
-                    "GTIRB_STRIP_DEBUG_SYMBOLS:BOOL": "ON",
-                }
-            )
+            defs.update({"GTIRB_STRIP_DEBUG_SYMBOLS:BOOL": "ON"})
         cmake.configure(
             source_folder=".", defs=defs,
         )
