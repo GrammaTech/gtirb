@@ -28,6 +28,7 @@ RUN dnf install -y \
     libtool \
     make \
     python3 \
+    rpm-build \
     unzip
 
 RUN curl -SL https://cmake.org/files/v$(echo $CMAKE_VERSION | sed -r 's/\.[0-9]+$//;')/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz \
