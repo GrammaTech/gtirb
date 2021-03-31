@@ -45,17 +45,17 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-debug")
       "libgtirb (=${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE})"
   )
 
-# RPM packages
+  # RPM packages
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-lib")
   set(CPACK_RPM_FILE_NAME "gtirb.rpm")
   set(CPACK_RPM_PACKAGE_NAME "gtirb")
-  set(CPACK_RPM_PACKAGE_REQUIRES
-    "boost169 = 1.69.0, protobuf = 3.5.0")
+  set(CPACK_RPM_PACKAGE_REQUIRES "boost169 = 1.69.0, protobuf = 3.5.0")
   set(CPACK_COMPONENTS_ALL ${LIB_COMPONENTS})
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-dev")
   set(CPACK_RPM_FILE_NAME "gtirb-devel.rpm")
   set(CPACK_RPM_PACKAGE_NAME "gtirb-devel")
   set(CPACK_RPM_PACKAGE_REQUIRES
-    "gtirb = ${CPACK_GTIRB_VERSION}, boost169-devel = 1.69.0, protobuf-devel = 3.5.0")
+      "gtirb = ${CPACK_GTIRB_VERSION}, boost169-devel = 1.69.0, protobuf-devel = 3.5.0"
+  )
   set(CPACK_COMPONENTS_ALL ${DEV_COMPONENTS})
 endif()

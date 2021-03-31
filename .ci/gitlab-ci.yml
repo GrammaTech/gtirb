@@ -218,7 +218,7 @@ build-centos8-gcc-release:
     - make
     - cpack -G "RPM" -D CPACK_GTIRB_PACKAGE=rpm-lib
     - cpack -G "RPM" -D CPACK_GTIRB_PACKAGE=rpm-dev
-  
+
 build-ubuntu16-packages:
   stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
@@ -370,7 +370,7 @@ test-centos8-libgtirb:
     - cp .ci/test-install.cpp ./
     - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
     - ./test-install
-    
+
 .test-ubuntu-libgtirb: &test-ubuntu-libgtirb
   stage: test-packages2
   script:
