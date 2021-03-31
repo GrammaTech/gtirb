@@ -223,9 +223,9 @@ build-ubuntu16-packages:
       - build
   script:
     - cd build
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-debug;
 
 build-ubuntu18-packages:
   stage: build-installers
@@ -238,10 +238,10 @@ build-ubuntu18-packages:
   script:
     - pip3 install setuptools wheel --upgrade
     - cd build
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=python;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-debug;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-python;
 
 build-ubuntu20-packages:
   stage: build-installers
@@ -254,10 +254,10 @@ build-ubuntu20-packages:
   script:
     - pip3 install setuptools wheel --upgrade
     - cd build
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=lib;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=dev;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=debug;
-    - cpack -G "DEB" -D CPACK_GTIRB_DEBIAN_PACKAGE=python;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-debug;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-python;
 
 test-default-install:
   stage: test-packages1
