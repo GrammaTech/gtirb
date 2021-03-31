@@ -205,6 +205,14 @@ build-windows-msvc-relwithdebinfo:
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *windows-build
 
+build-centos8-gcc-release:
+  stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/centos8
+  script:
+    - mkdir build && cd build
+    - cmake -DBOOST_INCLUDEDIR='/usr/include/boost169' -DCMAKE_CXX_FLAGS="-I/usr/include/c++/8/i686-redhat-linux" ..
+    - make
+  
 build-ubuntu16-packages:
   stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
