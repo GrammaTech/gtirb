@@ -1,9 +1,10 @@
 # Global properties
 set(CMAKE_PROJECT_HOMEPAGE_URL https://github.com/GrammaTech/gtirb)
+set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 
 set(CPACK_DEB_COMPONENT_INSTALL ON)
+
 set(CPACK_RPM_COMPONENT_INSTALL ON)
-set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 
 # Reusable lists of components
 set(LIB_COMPONENTS library)
@@ -50,6 +51,8 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-lib")
   set(CPACK_RPM_FILE_NAME "gtirb.rpm")
   set(CPACK_RPM_PACKAGE_NAME "gtirb")
   set(CPACK_RPM_PACKAGE_REQUIRES "boost169 = 1.69.0, protobuf = 3.5.0")
+  set(CPACK_RPM_DEBUGINFO_PACKAGE ON)
+  set(CPACK_RPM_DEBUGINFO_FILE_NAME "gtirb-debuginfo.rpm")
   set(CPACK_COMPONENTS_ALL ${LIB_COMPONENTS})
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-dev")
   set(CPACK_RPM_FILE_NAME "gtirb-devel.rpm")
@@ -58,4 +61,9 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-dev")
       "gtirb = ${CPACK_GTIRB_VERSION}, boost169-devel = 1.69.0, protobuf-devel = 3.5.0"
   )
   set(CPACK_COMPONENTS_ALL ${DEV_COMPONENTS})
+elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-python")
+  set(CPACK_RPM_PACKAGE_NAME "python3-gtirb")
+  set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
+  set(CPACK_COMPONENTS_ALL python)
+  set(CPACK_RPM_PACKAGE_DEPENDS "python3, python3-protobuf, python3-networkx")
 endif()
