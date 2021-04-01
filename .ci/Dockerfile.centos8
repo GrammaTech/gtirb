@@ -1,11 +1,6 @@
 FROM centos:8
 
-ARG BOOST_VERSION=1.75.0
 ARG CMAKE_VERSION=3.12.1
-
-ARG PROTOBUF_VERSION=3.14.0
-
-ARG BUILD_JOBS=4
 
 # Use bash for more convenient variable substitution syntax
 SHELL ["/bin/bash", "-c"]
@@ -39,5 +34,3 @@ RUN dnf install -y 'dnf-command(config-manager)'
 RUN dnf config-manager --set-enabled powertools
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 RUN dnf install -y boost169-devel protobuf-devel
-
-# cmake -DBOOST_INCLUDEDIR='/usr/include/boost169' -DCMAKE_CXX_FLAGS="-I/usr/include/c++/8/i686-redhat-linux" ..
