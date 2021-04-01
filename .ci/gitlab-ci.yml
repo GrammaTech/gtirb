@@ -331,6 +331,34 @@ test-install-python-virtualenv:
     - rm -rf build
     - sh -c '. /tmp/myvenv/bin/activate ; python3 .ci/test-install.py'
 
+test-centos8-gtirb-devel:
+  needs: ['build-centos8-gcc-release']
+  stage: test-packages1
+  image: ${DOCKER_REGISTRY}/rewriting/gtirb/centos8
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  script:
+    - cd build
+    - dnf --nogpgcheck localinstall -y gtirb.rpm gtirb-devel.rpm
+    - cp ../.ci/test-install.cpp ./
+    - g++ test-install.cpp -I/usr/include/c++/8/i686-redhat-linux -I/usr/include/boost169 -std=c++17 -o test-install -lgtirb -lstdc++
+    - ./test-install
+
+test-centos8-gtirb:
+  needs: ['test-centos8-gtirb-devel']
+  stage: test-packages2
+  image: ${DOCKER_REGISTRY}/rewriting/gtirb/centos8
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - build
+  script:
+    - cd build
+    - dnf --nogpgcheck localinstall -y gtirb.rpm
+    - ./test-install
+
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
   artifacts:
@@ -358,17 +386,6 @@ test-install-python-virtualenv:
     - cp .ci/test-install.cpp ./
     - if [ $(lsb_release -sc) == "xenial" ]; then CC=g++-7; else CC=g++; fi
     - ${CC} test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
-    - ./test-install
-
-test-centos8-libgtirb:
-  needs: ['build-centos8-gcc-release']
-  stage: test-packages1
-  image: ${DOCKER_REGISTRY}/rewriting/gtirb/centos8
-  script:
-    - cd build
-    - dnf --nogpgcheck localinstall gtirb.rpm
-    - cp .ci/test-install.cpp ./
-    - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
     - ./test-install
 
 .test-ubuntu-libgtirb: &test-ubuntu-libgtirb
@@ -558,6 +575,17 @@ package-arch:
       - 'gtirb-git-*.pkg.tar.*'
   script:
     - cp build/gtirb-git-*.pkg.tar.* ./
+
+package-centos8:
+  stage: deploy
+  image: $DOCKER_REGISTRY/rewriting/gtirb/centos8
+  needs: ['test-centos8-gtirb']
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - '*.rpm'
+  script:
+    - cp build/*.rpm ./
 
 python-wheel:
   stage: deploy
