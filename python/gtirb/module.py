@@ -174,7 +174,7 @@ class Module(AuxDataContainer):
         symbols=set(),  # type: typing.Iterable[Symbol]
         entry_point=None,  # type: typing.Optional[CodeBlock]
         uuid=None,  # type: typing.Optional[UUID]
-        ir=None,  # type: typing.Optional["IR"]
+        ir=None  # type: typing.Optional["IR"]
     ):
         # type: (...) -> None
         """

@@ -46,7 +46,7 @@ class ByteBlock(Block):
         size=0,  # type: int
         offset=0,  # type: int
         uuid=None,  # type: typing.Optional[UUID]
-        byte_interval=None,  # type: typing.Optional["ByteInterval"]
+        byte_interval=None  # type: typing.Optional["ByteInterval"]
     ):
         """
         :param size: The size of the data object in bytes.
@@ -189,7 +189,7 @@ class DataBlock(ByteBlock):
         size=0,  # type: int
         offset=0,  # type: int
         uuid=None,  # type: typing.Optional[UUID]
-        byte_interval=None,  # type: typing.Optional["ByteInterval"]
+        byte_interval=None  # type: typing.Optional["ByteInterval"]
     ):
         # type: (...) -> None
         """
@@ -254,7 +254,7 @@ class CodeBlock(ByteBlock, CfgNode):
         size=0,  # type: int
         offset=0,  # type: int
         uuid=None,  # type: typing.Optional[UUID]
-        byte_interval=None,  # type: typing.Optional["ByteInterval"]
+        byte_interval=None  # type: typing.Optional["ByteInterval"]
     ):
         # type: (...) -> None
         """
@@ -350,7 +350,7 @@ class ProxyBlock(CfgNode):
         self,
         *,
         uuid=None,  # type: typing.Optional[UUID]
-        module=None,  # type: typing.Optional["Module"]
+        module=None  # type: typing.Optional["Module"]
     ):
         super().__init__(uuid=uuid)
         self._module = None  # type: "Module"
