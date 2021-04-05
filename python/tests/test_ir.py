@@ -19,8 +19,8 @@ class IRTest(unittest.TestCase):
             name="name",
             preferred_addr=1,
             rebase_delta=2,
+            ir=ir,
         )
-        m.ir = ir
         s = gtirb.Section(
             name="name",
             flags=(
@@ -29,22 +29,19 @@ class IRTest(unittest.TestCase):
                 gtirb.Section.Flag.Loaded,
                 gtirb.Section.Flag.Initialized,
             ),
+            module=m,
         )
-        s.module = m
-        bi = gtirb.ByteInterval(address=0, size=10, contents=b"abcd")
-        bi.section = s
-        cb = gtirb.CodeBlock(size=4, offset=0, decode_mode=1)
-        cb.byte_interval = bi
-        db = gtirb.DataBlock(size=6, offset=4)
-        db.byte_interval = bi
-        sym = gtirb.Symbol(name="name", payload=cb)
-        sym.module = m
+        bi = gtirb.ByteInterval(
+            address=0, size=10, contents=b"abcd", section=s
+        )
+        cb = gtirb.CodeBlock(size=4, offset=0, decode_mode=1, byte_interval=bi)
+        _ = gtirb.DataBlock(size=6, offset=4, byte_interval=bi)
+        sym = gtirb.Symbol(name="name", payload=cb, module=m)
         sac = gtirb.SymAddrConst(
             0, sym, {gtirb.SymbolicExpression.Attribute.Part1}
         )
         bi.symbolic_expressions[2] = sac
-        p = gtirb.ProxyBlock()
-        p.module = m
+        p = gtirb.ProxyBlock(module=m)
         ir.cfg.add(
             gtirb.Edge(
                 cb,

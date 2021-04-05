@@ -77,7 +77,8 @@ class ByteInterval(Node):
         contents=b"",  # type: typing.ByteString
         blocks=(),  # type: typing.Iterable[ByteBlock]
         symbolic_expressions={},  # type: DictLike[int, SymbolicExpression]
-        uuid=None  # type: typing.Optional[UUID]
+        uuid=None,  # type: typing.Optional[UUID]
+        section=None,  # type: typing.Optional["Section"]
     ):
         """
         :param address: The fixed address of this interval, if present.
@@ -91,6 +92,7 @@ class ByteInterval(Node):
         :param uuid: The UUID of this ``ByteInterval``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
+        :param section: The :class:`Section` this interval belongs to.
         """
 
         if size is None:
@@ -115,6 +117,9 @@ class ByteInterval(Node):
         self._proto_interval = (
             None
         )  # type: typing.Optional[ByteInterval_pb2.ByteInterval]
+
+        # Use the property setter to ensure correct invariants.
+        self.section = section
 
     @property
     def initialized_size(self):

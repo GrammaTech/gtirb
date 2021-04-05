@@ -23,6 +23,7 @@ class Symbol(Node):
         uuid=None,  # type: typing.Optional[UUID]
         payload=None,  # type: typing.Optional[Payload]
         at_end=False,  # type: bool
+        module=None,  # type: typing.Optional["Module"]
     ):
         """
         :param name: The name of this symbol.
@@ -33,6 +34,7 @@ class Symbol(Node):
             May be an address, a Node, or None.
         :param at_end: True if this symbol is at the end of its referent,
             rather than at the beginning.
+        :param module: The :class:`Module` this symbol belongs to.
         """
 
         super().__init__(uuid)
@@ -40,6 +42,8 @@ class Symbol(Node):
         self.at_end = at_end  # type: bool
         self._payload = payload  # type: typing.Optional[Payload]
         self._module = None  # type: "Module"
+        # Use the property setter to ensure correct invariants.
+        self.module = module
 
     @property
     def value(self):

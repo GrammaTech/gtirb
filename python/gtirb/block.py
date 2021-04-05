@@ -45,7 +45,8 @@ class ByteBlock(Block):
         *,
         size=0,  # type: int
         offset=0,  # type: int
-        uuid=None  # type: typing.Optional[UUID]
+        uuid=None,  # type: typing.Optional[UUID]
+        byte_interval=None,  # type: typing.Optional["ByteInterval"]
     ):
         """
         :param size: The size of the data object in bytes.
@@ -54,12 +55,15 @@ class ByteBlock(Block):
         :param uuid: The UUID of this ``ByteBlock``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
+        :param byte_interval: The :class:`ByteInterval` this block belongs to.
         """
 
         super().__init__(uuid=uuid)
         self.size = size  # type: int
         self.offset = offset  # type: int
         self._byte_interval = None  # type: typing.Optional["ByteInterval"]
+        # Use the property setter to ensure correct invariants.
+        self.byte_interval = byte_interval
 
     @property
     def byte_interval(self):
@@ -179,8 +183,15 @@ class CfgNode(Block):
 class DataBlock(ByteBlock):
     """Represents a data object, possibly symbolic."""
 
-    def __init__(self, *, size=0, offset=0, uuid=None):
-        # type: (int, int, typing.Optional[UUID]) -> None
+    def __init__(
+        self,
+        *,
+        size=0,  # type: int
+        offset=0,  # type: int
+        uuid=None,  # type: typing.Optional[UUID]
+        byte_interval=None,  # type: typing.Optional["ByteInterval"]
+    ):
+        # type: (...) -> None
         """
         :param size: The size of the data object in bytes.
         :param offset: The offset from the beginning of the byte interval to
@@ -188,9 +199,12 @@ class DataBlock(ByteBlock):
         :param uuid: The UUID of this ``DataBlock``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
+        :param byte_interval: The :class:`ByteInterval` this block belongs to.
         """
 
-        super().__init__(size=size, offset=offset, uuid=uuid)
+        super().__init__(
+            size=size, offset=offset, uuid=uuid, byte_interval=byte_interval
+        )
 
     @classmethod
     def _decode_protobuf(
@@ -239,7 +253,8 @@ class CodeBlock(ByteBlock, CfgNode):
         decode_mode=0,  # type: int
         size=0,  # type: int
         offset=0,  # type: int
-        uuid=None  # type: typing.Optional[UUID]
+        uuid=None,  # type: typing.Optional[UUID]
+        byte_interval=None,  # type: typing.Optional["ByteInterval"]
     ):
         # type: (...) -> None
         """
@@ -253,9 +268,12 @@ class CodeBlock(ByteBlock, CfgNode):
         :param uuid: The UUID of this ``CodeBlock``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
+        :param byte_interval: The :class:`ByteInterval` this block belongs to.
         """
 
-        super().__init__(size=size, offset=offset, uuid=uuid)
+        super().__init__(
+            size=size, offset=offset, uuid=uuid, byte_interval=byte_interval
+        )
         self.decode_mode = decode_mode  # type: int
 
     @classmethod
@@ -328,9 +346,16 @@ class ProxyBlock(CfgNode):
     an address nor a size.
     """
 
-    def __init__(self, *, uuid=None):
+    def __init__(
+        self,
+        *,
+        uuid=None,  # type: typing.Optional[UUID]
+        module=None,  # type: typing.Optional["Module"]
+    ):
         super().__init__(uuid=uuid)
         self._module = None  # type: "Module"
+        # Use the property setter to ensure correct invariants.
+        self.module = module
 
     @classmethod
     def _decode_protobuf(

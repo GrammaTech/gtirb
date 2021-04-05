@@ -173,7 +173,8 @@ class Module(AuxDataContainer):
         sections=set(),  # type: typing.Iterable[Section]
         symbols=set(),  # type: typing.Iterable[Symbol]
         entry_point=None,  # type: typing.Optional[CodeBlock]
-        uuid=None  # type: typing.Optional[UUID]
+        uuid=None,  # type: typing.Optional[UUID]
+        ir=None,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> None
         """
@@ -199,6 +200,7 @@ class Module(AuxDataContainer):
         :param uuid: The UUID of this ``Module``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
+        :param ir: The :class:`IR` this module belongs to.
         """
 
         self._ir = None  # type: "IR"
@@ -221,6 +223,9 @@ class Module(AuxDataContainer):
         self.entry_point = entry_point  # type: typing.Optional[CodeBlock]
         # Initialize the aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
+
+        # Use the property setter to ensure correct invariants.
+        self.ir = ir
 
     @classmethod
     def _decode_protobuf(cls, proto_module, uuid, ir):

@@ -72,7 +72,8 @@ class Section(Node):
         name="",  # type: str
         byte_intervals=(),  # type: typing.Iterable[ByteInterval]
         flags=set(),  # type: typing.Iterable[Section.Flag]
-        uuid=None  # type: typing.Optional[UUID]
+        uuid=None,  # type: typing.Optional[UUID]
+        module=None,  # type: typing.Optional["Module"]
     ):
         """
         :param name: The name of this section.
@@ -81,6 +82,7 @@ class Section(Node):
         :param uuid: The UUID of this ``Section``,
             or None if a new UUID needs generated via :func:`uuid.uuid4`.
             Defaults to None.
+        :param module: The :class:`Module` this section belongs to.
         """
 
         super().__init__(uuid)
@@ -90,6 +92,9 @@ class Section(Node):
             self, byte_intervals
         )  # type: typing.Set[ByteInterval]
         self.flags = set(flags)  # type: typing.Set[Section.Flag]
+
+        # Use the property setter to ensure correct invariants.
+        self.module = module
 
     @classmethod
     def _decode_protobuf(cls, proto_section, uuid, ir):
