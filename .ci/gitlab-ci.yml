@@ -519,7 +519,7 @@ conan-windows-32:
     - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
     - export PYTHON="C:\\Python38\\python.exe"
     - export BOOST_ROOT="C:\\Boost"
-    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf --build=gtirb
+    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf --build=gtirb --build=boost --build=libiconv
 
 package-arch:
   allow_failure: true
