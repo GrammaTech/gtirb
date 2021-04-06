@@ -1,4 +1,5 @@
 import glob
+import imp
 import setuptools
 import sys
 import unittest
@@ -27,14 +28,10 @@ this_dir = os.path.dirname(__file__)
 shutil.copyfile(os.path.join(root_dir, "README.md"), "README")
 shutil.copyfile(os.path.join(root_dir, "LICENSE.txt"), "LICENSE")
 
-
 # Set the version
-version = (
-    "@PROJECT_VERSION_MAJOR@."
-    "@PROJECT_VERSION_MINOR@."
-    "@PROJECT_VERSION_PATCH@"
-    ".dev"
-)
+version = imp.load_source(
+    "pkginfo.version", "gtirb/version.py"
+).API_VERSION
 
 # run setuptools
 if __name__ == "__main__":
