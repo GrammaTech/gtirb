@@ -269,6 +269,14 @@ TEST(Unit_IR, jsonRoundTrip) {
   EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
 }
 
+TEST(Unit_IR, loadCorruptFile) {
+  std::stringstream Stream("JUNK");
+  Context C;
+  ErrorOr<IR*> Result = IR::load(C, Stream);
+  EXPECT_FALSE(Result);
+  EXPECT_EQ(Result, gtirb::IR::load_error::CorruptFile);
+}
+
 TEST(Unit_IR, setModuleName) {
   auto* Ir = IR::Create(Ctx);
   auto* M1 = Ir->addModule(Ctx, "a");

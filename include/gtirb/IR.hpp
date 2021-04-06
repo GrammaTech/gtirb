@@ -1401,7 +1401,7 @@ private:
 
 /// \brief The error category used to represent load failures.
 /// \return The load failure error category.
-const std::error_category& loadErrorCategory();
+GTIRB_EXPORT_API const std::error_category& loadErrorCategory();
 
 /// \brief Makes an \ref std::error_code object from an \ref IR::load_error
 /// object.
