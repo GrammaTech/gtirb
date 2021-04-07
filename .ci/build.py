@@ -18,7 +18,9 @@ def run_conan(args):
 def authenticate():
     token = os.environ.get("CI_JOB_TOKEN")
     if token:
-        run_conan(["user", "-p", token, "-r", remote, "ci_user"])
+        run_conan(
+            ["user", "--password={}".format(token), "-r", remote, "ci_user"]
+        )
 
 
 def build():
