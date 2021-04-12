@@ -215,6 +215,11 @@ build-centos8-gcc-relwithdebuginfo:
   script:
     # What's the deal with PADDED_DIR? See:
     # https://cmake.org/cmake/help/latest/cpack_gen/rpm.html#variable:CPACK_RPM_BUILD_SOURCE_DIRS_PREFIX
+    # From the above link: "...Limitation is that replaced path part must
+    # be shorter or of equal length than the length of its replacement.  If
+    # that is not the case either CPACK_RPM_BUILD_SOURCE_DIRS_PREFIX variable
+    # has to be set to a shorter path or source directories must be placed on
+    # a longer path."
     - PADDED_DIR=long-dir-name-padding-for-CPACK_RPM_BUILD_SOURCE_DIRS_PREFIX
     - mkdir $PADDED_DIR && cd $PADDED_DIR
     - git clone .. .
