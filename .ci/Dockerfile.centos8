@@ -19,6 +19,8 @@ RUN dnf install -y \
     libtool \
     make \
     python3 \
+    python3-protobuf \
+    python3-networkx \
     rpm-build \
     unzip
 
