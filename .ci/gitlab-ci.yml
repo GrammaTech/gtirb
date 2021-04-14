@@ -361,7 +361,7 @@ test-centos8-gtirb-devel:
       - build
   script:
     - cd build
-    - dnf --nogpgcheck localinstall -y gtirb.rpm gtirb-devel.rpm
+    - dnf --nogpgcheck localinstall -y libgtirb.rpm libgtirb-devel.rpm
     - cp ../.ci/test-install.cpp ./
     - g++ test-install.cpp -I/usr/include/boost169 -std=c++17 -o test-install -lgtirb -lstdc++
     - ./test-install
@@ -376,7 +376,7 @@ test-centos8-gtirb:
       - build
   script:
     - cd build
-    - dnf --nogpgcheck localinstall -y gtirb.rpm
+    - dnf --nogpgcheck localinstall -y libgtirb.rpm
     - ./test-install
 
 .setup-test-apt-repo: &setup-test-apt-repo

@@ -48,17 +48,17 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-debug")
 
   # RPM packages
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-lib")
-  set(CPACK_RPM_FILE_NAME "gtirb.rpm")
-  set(CPACK_RPM_PACKAGE_NAME "gtirb")
+  set(CPACK_RPM_FILE_NAME "libgtirb.rpm")
+  set(CPACK_RPM_PACKAGE_NAME "libgtirb")
   set(CPACK_RPM_PACKAGE_REQUIRES "protobuf = 3.5.0")
   set(CPACK_RPM_DEBUGINFO_PACKAGE ON)
-  set(CPACK_RPM_DEBUGINFO_FILE_NAME "gtirb-debuginfo.rpm")
+  set(CPACK_RPM_DEBUGINFO_FILE_NAME "libgtirb-debuginfo.rpm")
   set(CPACK_COMPONENTS_ALL ${LIB_COMPONENTS})
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-dev")
-  set(CPACK_RPM_FILE_NAME "gtirb-devel.rpm")
-  set(CPACK_RPM_PACKAGE_NAME "gtirb-devel")
+  set(CPACK_RPM_FILE_NAME "libgtirb-devel.rpm")
+  set(CPACK_RPM_PACKAGE_NAME "libgtirb-devel")
   set(CPACK_RPM_PACKAGE_REQUIRES
-      "gtirb = ${CPACK_GTIRB_VERSION}, boost169-devel = 1.69.0, protobuf-devel = 3.5.0"
+      "libgtirb = ${CPACK_GTIRB_VERSION}, boost169-devel = 1.69.0, protobuf-devel = 3.5.0"
   )
   set(CPACK_COMPONENTS_ALL ${DEV_COMPONENTS})
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-python")
