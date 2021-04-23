@@ -87,14 +87,17 @@ enum class SymAttribute : uint8_t {
   /// Value is the address of the PLT entry for the symbol.
   PltRef = proto::SEAttributeFlag::PltRef,
 
-  /// Value is the offset of the symbol relative to the TLS block end.
-  TPOff = proto::SEAttributeFlag::TPOff,
+  /// Value is the offset of the symbol from GOT.
+  GOTOFF = proto::SEAttributeFlag::GOTOFF,
 
-  /// Value is the negative offset of the symbol to the static TLS block.
-  NTPOff = proto::SEAttributeFlag::NTPOff,
+  /// Value is the offset of the symbol relative to the TLS block end.
+  TPOFF = proto::SEAttributeFlag::TPOFF,
 
   /// Value is a "general dynamic" TLS symbol reference.
-  TlsGD = proto::SEAttributeFlag::TlsGD,
+  TLSGD = proto::SEAttributeFlag::TLSGD,
+
+  /// Value is the negative offset of the symbol to the static TLS block.
+  NTPOFF = proto::SEAttributeFlag::NTPOFF,
 
   Max = PltRef
 };
