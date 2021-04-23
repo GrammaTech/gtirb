@@ -168,3 +168,16 @@ class Symbol(Node):
         if self.module is None:
             return None
         return self.module.ir
+
+    @property
+    def symbolic_expressions(self):
+        # type: () -> typing.Iterable["SymbolicExpression"]
+        """Get all symbolic expressions in this module which reference this
+        symbol.
+        """
+
+        for bi in self.module.byte_intervals:
+            for se in bi.symbolic_expressions.values():
+                for sym in se.symbols:
+                    if sym == self:
+                        yield se
