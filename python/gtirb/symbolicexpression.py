@@ -57,9 +57,7 @@ class SymbolicExpression:
 
 
 if typing.TYPE_CHECKING:
-    AttributesCtorType = typing.Optional[
-        typing.Iterable[SymbolicExpression.Attribute]
-    ]
+    AttributesCtorType = typing.Iterable[SymbolicExpression.Attribute]
 
 
 class SymAddrAddr(SymbolicExpression):
@@ -138,17 +136,14 @@ class SymAddrAddr(SymbolicExpression):
     def __repr__(self):
         # type: () -> str
         return (
-            (
-                "SymAddrAddr("
-                "scale={scale!r}, "
-                "offset={offset!r}, "
-                "symbol1={symbol1!r}, "
-                "symbol2={symbol2!r}, "
-                "attributes="
-            ).format(**self.__dict__)
-            + self._attributes_repr()
-            + ")"
-        )
+            "SymAddrAddr("
+            "scale={scale!r}, "
+            "offset={offset!r}, "
+            "symbol1={symbol1!r}, "
+            "symbol2={symbol2!r}, "
+            "attributes={attributes_repr!s}, "
+            ")"
+        ).format(attributes_repr=self._attributes_repr(), **self.__dict__)
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
@@ -223,15 +218,12 @@ class SymAddrConst(SymbolicExpression):
     def __repr__(self):
         # type: () -> str
         return (
-            (
-                "SymAddrConst("
-                "offset={offset!r}, "
-                "symbol={symbol!r}, "
-                "attributes="
-            ).format(**self.__dict__)
-            + self._attributes_repr()
-            + ")"
-        )
+            "SymAddrConst("
+            "offset={offset!r}, "
+            "symbol={symbol!r}, "
+            "attributes={attributes_repr!s}, "
+            ")"
+        ).format(attributes_repr=self._attributes_repr(), **self.__dict__)
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
@@ -305,15 +297,12 @@ class SymStackConst(SymbolicExpression):
     def __repr__(self):
         # type: () -> str
         return (
-            (
-                "SymStackConst("
-                "offset={offset!r}, "
-                "symbol={symbol!r}, "
-                "attributes="
-            ).format(**self.__dict__)
-            + self._attributes_repr()
-            + ")"
-        )
+            "SymStackConst("
+            "offset={offset!r}, "
+            "symbol={symbol!r}, "
+            "attributes={attributes_repr!s}, "
+            ")"
+        ).format(attributes_repr=self._attributes_repr(), **self.__dict__)
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
