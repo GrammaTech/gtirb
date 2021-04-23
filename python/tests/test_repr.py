@@ -121,6 +121,7 @@ class ReprTest(unittest.TestCase):
         node = gtirb.SymAddrConst(
             offset=123,
             symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
+            attributes=set(),
         )
         string = repr(node)
         new_node = eval(string)
@@ -130,6 +131,7 @@ class ReprTest(unittest.TestCase):
         node = gtirb.SymStackConst(
             offset=123,
             symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
+            attributes={gtirb.SymbolicExpression.Attribute.Adjusted},
         )
         string = repr(node)
         new_node = eval(string)
@@ -141,6 +143,10 @@ class ReprTest(unittest.TestCase):
             scale=2,
             symbol1=gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock()),
             symbol2=gtirb.Symbol(name="symbol2", payload=gtirb.ProxyBlock()),
+            attributes={
+                gtirb.SymbolicExpression.Attribute.Adjusted,
+                gtirb.SymbolicExpression.Attribute.Part0,
+            },
         )
         string = repr(node)
         new_node = eval(string)

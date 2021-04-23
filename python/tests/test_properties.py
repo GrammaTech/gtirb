@@ -246,3 +246,32 @@ class TestProperties(unittest.TestCase):
         self.assertEqual(
             set(bi.symbolic_expressions_at(range(11, 18))), {(bi, 4, se2)}
         )
+
+    def test_sym_exprs(self):
+        node = gtirb.SymAddrConst(
+            offset=123,
+            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
+            attributes=set(),
+        )
+        self.assertEqual({x.name for x in node.symbols}, {"symbol"})
+
+        node = gtirb.SymStackConst(
+            offset=123,
+            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
+            attributes={gtirb.SymbolicExpression.Attribute.Adjusted},
+        )
+        self.assertEqual({x.name for x in node.symbols}, {"symbol"})
+
+        node = gtirb.SymAddrAddr(
+            offset=123,
+            scale=2,
+            symbol1=gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock()),
+            symbol2=gtirb.Symbol(name="symbol2", payload=gtirb.ProxyBlock()),
+            attributes={
+                gtirb.SymbolicExpression.Attribute.Adjusted,
+                gtirb.SymbolicExpression.Attribute.Part0,
+            },
+        )
+        self.assertEqual(
+            {x.name for x in node.symbols}, {"symbol1", "symbol2"}
+        )

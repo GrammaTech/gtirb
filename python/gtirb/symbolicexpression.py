@@ -33,7 +33,33 @@ class SymbolicExpression:
     def __init__(
         self, attributes=set(),
     ):
+        # type: ("AttributesCtorType") -> None
         self.attributes = set(attributes)
+
+    @property
+    def symbols(self):
+        # type: () -> typing.Iterable[Symbol]
+        """Get all the symbols involved with this symbolic expression,
+        regardless of role.
+        """
+
+        return ()
+
+    def _attributes_repr(self):
+        # type: () -> str
+        if not self.attributes:
+            return "set()"
+        else:
+            return "{%s}" % ",".join(
+                "SymbolicExpression.Attribute.%s" % a.name
+                for a in self.attributes
+            )
+
+
+if typing.TYPE_CHECKING:
+    AttributesCtorType = typing.Optional[
+        typing.Iterable[SymbolicExpression.Attribute]
+    ]
 
 
 class SymAddrAddr(SymbolicExpression):
@@ -52,7 +78,7 @@ class SymAddrAddr(SymbolicExpression):
         offset,  # type: int
         symbol1,  # type: Symbol
         symbol2,  # type: Symbol
-        attributes=set(),
+        attributes=set(),  # type: AttributesCtorType
     ):
         # type: (...) -> None
         """
@@ -112,12 +138,16 @@ class SymAddrAddr(SymbolicExpression):
     def __repr__(self):
         # type: () -> str
         return (
-            "SymAddrAddr("
-            "scale={scale!r}, "
-            "offset={offset!r}, "
-            "symbol1={symbol1!r}, "
-            "symbol2={symbol2!r}, "
-            ")".format(**self.__dict__)
+            (
+                "SymAddrAddr("
+                "scale={scale!r}, "
+                "offset={offset!r}, "
+                "symbol1={symbol1!r}, "
+                "symbol2={symbol2!r}, "
+                "attributes="
+            ).format(**self.__dict__)
+            + self._attributes_repr()
+            + ")"
         )
 
     def deep_eq(self, other):
@@ -133,6 +163,11 @@ class SymAddrAddr(SymbolicExpression):
             and self.attributes == other.attributes
         )
 
+    @property
+    def symbols(self):
+        yield self.symbol1
+        yield self.symbol2
+
 
 class SymAddrConst(SymbolicExpression):
     """Represents a symbolic expression of the form "Sym + Offset".
@@ -142,7 +177,7 @@ class SymAddrConst(SymbolicExpression):
     """
 
     def __init__(self, offset, symbol, attributes=set()):
-        # type: (int,Symbol) -> None
+        # type: (int, Symbol, AttributesCtorType) -> None
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing an address.
@@ -188,10 +223,14 @@ class SymAddrConst(SymbolicExpression):
     def __repr__(self):
         # type: () -> str
         return (
-            "SymAddrConst("
-            "offset={offset!r}, "
-            "symbol={symbol!r}, "
-            ")".format(**self.__dict__)
+            (
+                "SymAddrConst("
+                "offset={offset!r}, "
+                "symbol={symbol!r}, "
+                "attributes="
+            ).format(**self.__dict__)
+            + self._attributes_repr()
+            + ")"
         )
 
     def deep_eq(self, other):
@@ -205,6 +244,10 @@ class SymAddrConst(SymbolicExpression):
             and self.attributes == other.attributes
         )
 
+    @property
+    def symbols(self):
+        yield self.symbol
+
 
 class SymStackConst(SymbolicExpression):
     """Represents a symbolic expression of the form "Sym + Offset",
@@ -215,7 +258,7 @@ class SymStackConst(SymbolicExpression):
     """
 
     def __init__(self, offset, symbol, attributes=set()):
-        # type: (int,Symbol) -> None
+        # type: (int, Symbol, AttributesCtorType) -> None
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing a stack variable.
@@ -262,10 +305,14 @@ class SymStackConst(SymbolicExpression):
     def __repr__(self):
         # type: () -> str
         return (
-            "SymStackConst("
-            "offset={offset!r}, "
-            "symbol={symbol!r}, "
-            ")".format(**self.__dict__)
+            (
+                "SymStackConst("
+                "offset={offset!r}, "
+                "symbol={symbol!r}, "
+                "attributes="
+            ).format(**self.__dict__)
+            + self._attributes_repr()
+            + ")"
         )
 
     def deep_eq(self, other):
@@ -278,3 +325,7 @@ class SymStackConst(SymbolicExpression):
             and self.symbol.deep_eq(other.symbol)
             and self.attributes == other.attributes
         )
+
+    @property
+    def symbols(self):
+        yield self.symbol
