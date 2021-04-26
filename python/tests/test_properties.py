@@ -269,26 +269,3 @@ class TestProperties(unittest.TestCase):
         self.assertEqual(
             {x.name for x in node.symbols}, {"symbol1", "symbol2"}
         )
-
-    def test_symbols(self):
-        m = gtirb.Module(name="test")
-        s = gtirb.Section(module=m, name=".text")
-        sym1 = gtirb.Symbol(module=m, name="sym1")
-        sym2 = gtirb.Symbol(module=m, name="sym2")
-        sym3 = gtirb.Symbol(module=m, name="sym3")
-        bi = gtirb.ByteInterval(
-            section=s,
-            symbolic_expressions={
-                0: gtirb.SymAddrConst(0, sym2),
-                1: gtirb.SymAddrAddr(0, 0, sym2, sym3),
-            },
-        )
-
-        self.assertEqual(set(sym1.symbolic_expressions), set())
-        self.assertEqual(
-            set(sym2.symbolic_expressions),
-            {bi.symbolic_expressions[0], bi.symbolic_expressions[1]},
-        )
-        self.assertEqual(
-            set(sym3.symbolic_expressions), {bi.symbolic_expressions[1]}
-        )
