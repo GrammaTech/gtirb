@@ -125,8 +125,7 @@ class ReprTest(unittest.TestCase):
         )
         string = repr(node)
         new_node = eval(string)
-        self.assertEqual(node.offset, new_node.offset)
-        self.assertTrue(node.symbol.deep_eq(new_node.symbol))
+        self.assertTrue(node.deep_eq(new_node))
 
         node = gtirb.SymStackConst(
             offset=123,
@@ -135,8 +134,7 @@ class ReprTest(unittest.TestCase):
         )
         string = repr(node)
         new_node = eval(string)
-        self.assertEqual(node.offset, new_node.offset)
-        self.assertTrue(node.symbol.deep_eq(new_node.symbol))
+        self.assertTrue(node.deep_eq(new_node))
 
         node = gtirb.SymAddrAddr(
             offset=123,
@@ -150,10 +148,7 @@ class ReprTest(unittest.TestCase):
         )
         string = repr(node)
         new_node = eval(string)
-        self.assertEqual(node.offset, new_node.offset)
-        self.assertEqual(node.scale, new_node.scale)
-        self.assertTrue(node.symbol1.deep_eq(new_node.symbol1))
-        self.assertTrue(node.symbol2.deep_eq(new_node.symbol2))
+        self.assertTrue(node.deep_eq(new_node))
 
     def test_byte_interval(self):
         node = gtirb.ByteInterval(
