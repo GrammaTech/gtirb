@@ -99,7 +99,25 @@ enum class SymAttribute : uint8_t {
   /// Value is the negative offset of the symbol to the static TLS block.
   NtpOff = proto::SEAttributeFlag::NtpOff,
 
-  Max = PltRef
+  /// Value is the lower 16 bits of the expression.
+  Lower16 = proto::SEAttributeFlag::Lower16,
+
+  /// Value is the upper 16 bits of the expression.
+  Upper16 = proto::SEAttributeFlag::Upper16,
+
+  /// Value uses only the bits [0,11].
+  Lo12 = proto::SEAttributeFlag::Lo12,
+
+  /// Value is an expression of the absolute address.
+  Abs = proto::SEAttributeFlag::Abs,
+
+  /// Value of expression is signed.
+  Signed = proto::SEAttributeFlag::Signed,
+
+  /// No overflow check is performed on the expression.
+  NoOverflowCheck = proto::SEAttributeFlag::NoOverflowCheck,
+
+  Max = NoOverflowCheck
 };
 
 /// \brief A class for tracking a set of boolean flags that represent attributes

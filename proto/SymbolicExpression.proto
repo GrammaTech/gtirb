@@ -51,6 +51,12 @@ enum SEAttributeFlag {
   TpOff = 14;
   TlsGd = 15;
   NtpOff = 16;
+  Lower16 = 17;
+  Upper16 = 18;
+  Lo12 = 19;
+  Abs = 20;
+  Signed = 21;
+  NoOverflowCheck = 22;
 }
 
 message SymbolicExpression {
