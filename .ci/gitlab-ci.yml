@@ -582,7 +582,7 @@ conan-windows-32:
     - export PYTHON="C:\\Python38\\python.exe"
     - export BOOST_ROOT="C:\\Boost"
     # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
-    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf --build=gtirb --build=boost --build=b2 --build=bzip2 --build zlib -o boost:without_locale=True -o boost:without_log=True
+    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=b2
 
 package-arch:
   allow_failure: true
