@@ -47,10 +47,10 @@ enum SEAttributeFlag {
   GotPage = 10;
   GotPageOfst = 11;
   PltRef = 12;
-  GOTOFF = 13;
-  TPOFF = 14;
-  TLSGD = 15;
-  NTPOFF = 16;
+  GotOff = 13;
+  TpOff = 14;
+  TlsGd = 15;
+  NtpOff = 16;
 }
 
 message SymbolicExpression {
