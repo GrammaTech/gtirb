@@ -29,6 +29,17 @@ class SymbolicExpression:
             "GotPageOfst"
         )
         PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
+        TpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("TpOff")
+        TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
+        NtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("NtpOff")
+        Lower16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lower16")
+        Upper16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Upper16")
+        Lo12 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo12")
+        Abs = SymbolicExpression_pb2.SEAttributeFlag.Value("Abs")
+        Signed = SymbolicExpression_pb2.SEAttributeFlag.Value("Signed")
+        NoOverflowCheck = SymbolicExpression_pb2.SEAttributeFlag.Value(
+            "NoOverflowCheck"
+        )
 
     def __init__(
         self, attributes=set(),
