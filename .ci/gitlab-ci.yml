@@ -687,6 +687,7 @@ internal-pypi:
 .apt-template: &apt-template
   stage: deploy-to-apt
   trigger: rewriting/utility/package-uploader
+  strategy: depend
 
 
 unstable-bionic:
