@@ -29,6 +29,7 @@ class SymbolicExpression:
             "GotPageOfst"
         )
         PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
+        GotOff = SymbolicExpression_pb2.SEAttributeFlag.Value("GotOff")
         TpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("TpOff")
         TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
         NtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("NtpOff")
