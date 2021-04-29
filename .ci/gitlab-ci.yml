@@ -695,12 +695,12 @@ unstable-bionic:
   <<: *apt-template
   variables:
     ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu18
-    APT_REP_COMPONENT: unstable
-    APT_REP_CODENAME: bionic
+    APT_REPO_COMPONENT: unstable
+    APT_REPO_CODENAME: bionic
 
 unstable-focal:
   <<: *apt-template
   variables:
     ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu20
-    APT_REP_COMPONENT: unstable
-    APT_REP_CODENAME: focal
+    APT_REPO_COMPONENT: unstable
+    APT_REPO_CODENAME: focal
