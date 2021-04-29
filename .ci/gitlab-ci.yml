@@ -685,13 +685,15 @@ internal-pypi:
     - twine upload --verbose --repository repypi dist/*
 
 .apt-upload: &apt-upload
-  stage: check-format
+  stage: deploy-to-apt
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
 
 public-bionic-unstable:
   <<: *apt-upload
+  rules:
+    if: '$CI_COMMIT_BRANCH == "master"'
   variables:
     ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu18
     APT_REPO: public
@@ -700,24 +702,30 @@ public-bionic-unstable:
 
 public-focal-unstable:
   <<: *apt-upload
+  rules:
+    if: '$CI_COMMIT_BRANCH == "master"'
   variables:
     ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu20
     APT_REPO: public
     APT_REPO_CODENAME: focal
     APT_REPO_COMPONENT: unstable
 
-internal-bionic-unstable:
+public-bionic-stable:
   <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/master/download?job=debian-installer-ubuntu18
-    APT_REPO: internal
+    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu18
+    APT_REPO: public
     APT_REPO_CODENAME: bionic
-    APT_REPO_COMPONENT: unstable
+    APT_REPO_COMPONENT: stable
 
-internal-focal-unstable:
+public-focal-stable:
   <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/master/download?job=debian-installer-ubuntu20
-    APT_REPO: internal
+    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu20
+    APT_REPO: public
     APT_REPO_CODENAME: focal
-    APT_REPO_COMPONENT: unstable
+    APT_REPO_COMPONENT: stable
