@@ -729,3 +729,43 @@ public-focal-stable:
     APT_REPO: public
     APT_REPO_CODENAME: focal
     APT_REPO_COMPONENT: stable
+
+internal-bionic-unstable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu18
+    APT_REPO: internal
+    APT_REPO_CODENAME: bionic
+    APT_REPO_COMPONENT: unstable
+
+internal-focal-unstable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu20
+    APT_REPO: internal
+    APT_REPO_CODENAME: focal
+    APT_REPO_COMPONENT: unstable
+
+internal-bionic-stable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu18
+    APT_REPO: internal
+    APT_REPO_CODENAME: bionic
+    APT_REPO_COMPONENT: stable
+
+internal-focal-stable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    ARTIFACT_URL: ${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=debian-installer-ubuntu20
+    APT_REPO: internal
+    APT_REPO_CODENAME: focal
+    APT_REPO_COMPONENT: stable
