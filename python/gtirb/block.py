@@ -1,8 +1,11 @@
 import typing
 from uuid import UUID
 
+from intervaltree import Interval
+
 from .node import Node
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
+from .util import _IndexedAttribute
 
 
 class Block(Node):
@@ -40,6 +43,9 @@ class ByteBlock(Block):
         same offset.
     """
 
+    size = _IndexedAttribute[int]("size", lambda self: self.byte_interval)
+    offset = _IndexedAttribute[int]("offset", lambda self: self.byte_interval)
+
     def __init__(
         self,
         *,
@@ -59,11 +65,15 @@ class ByteBlock(Block):
         """
 
         super().__init__(uuid=uuid)
+        self._byte_interval = None  # type: typing.Optional["ByteInterval"]
         self.size = size  # type: int
         self.offset = offset  # type: int
-        self._byte_interval = None  # type: typing.Optional["ByteInterval"]
         # Use the property setter to ensure correct invariants.
         self.byte_interval = byte_interval
+
+    @property
+    def _offset_interval(self):
+        return Interval(self.offset, self.offset + max(self.size, 1), self)
 
     @property
     def byte_interval(self):
@@ -232,7 +242,7 @@ class DataBlock(ByteBlock):
             "uuid={uuid!r}, "
             "size={size}, "
             "offset={offset}, "
-            ")".format(**self.__dict__)
+            ")".format(uuid=self.uuid, size=self.size, offset=self.offset)
         )
 
 
@@ -315,7 +325,12 @@ class CodeBlock(ByteBlock, CfgNode):
             "size={size}, "
             "offset={offset}, "
             "decode_mode={decode_mode}, "
-            ")".format(**self.__dict__)
+            ")".format(
+                uuid=self.uuid,
+                size=self.size,
+                offset=self.offset,
+                decode_mode=self.decode_mode,
+            )
         )
 
     @property

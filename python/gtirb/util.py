@@ -3,6 +3,8 @@
 import itertools
 import typing
 
+import intervaltree
+
 K = typing.TypeVar("K")
 V = typing.TypeVar("V")
 T = typing.TypeVar("T")
@@ -142,6 +144,40 @@ class DictWrapper(typing.MutableMapping[K, V]):
         return repr(self._data)
 
 
+class _IndexedAttribute(typing.Generic[T]):
+    """
+    A descriptor that will notify a parent when the value is set and can be
+    otherwise used like a normal attribute.
+    """
+
+    def __init__(self, name, parent_getter):
+        # type: (str, typing.Callable[[T], typing.Any]) -> None
+        self.name = name
+        self.parent_getter = parent_getter
+
+    def __get__(self, instance, owner=None):
+        # type: (typing.Any, typing.Any) -> T
+        return getattr(instance, f"_{self.name}")
+
+    def __set__(self, instance, value):
+        # type: (typing.Any, T) -> None
+        parent = self.parent_getter(instance)
+        if parent:
+            parent._index_discard(instance)
+        setattr(instance, f"_{self.name}", value)
+        if parent:
+            parent._index_add(instance)
+
+    def __delete__(self, instance):
+        raise AttributeError(f"can't delete attribute {self.name}")
+
+    def __set_name__(self, owner, name):
+        # This is only invoked in Python 3.6+. Once GTIRB has that as a
+        # minimum, the name paramter can be removed from the initializer and
+        # taken from this instead.
+        pass
+
+
 def get_desired_range(addrs):
     # type: (typing.Union[int, range]) -> range
     if isinstance(addrs, int):
@@ -177,6 +213,55 @@ def nodes_at(
         node_addr = node.address
         if node_addr is not None and node_addr in desired_range:
             yield node
+
+
+def _nodes_on_interval_tree(
+    tree,  # type: intervaltree.IntervalTree
+    addrs,  # type: typing.Union[int, range]
+    adjustment=0,  # type: int
+):
+    # type: (...) -> typing.Iterable
+    """
+    Implements nodes_on for an IntervalTree.
+    :param tree: The IntervalTree to search.
+    :param addrs: The address or addresses to locate nodes on.
+    :param adjustment: An adjustment to be applied to the search range before
+           consulting the interval tree.
+    """
+
+    desired_range = get_desired_range(addrs)
+    for interval in tree.overlap(
+        desired_range.start + adjustment, desired_range.stop + adjustment
+    ):
+        # We explicitly exclude zero-sized blocks to match the existing
+        # nodes_on function and prior behavior of callers before they switched
+        # to using an interval tree.
+        if interval.data.size:
+            yield interval.data
+
+
+def _nodes_at_interval_tree(
+    tree,  # type: intervaltree.IntervalTree
+    addrs,  # type: typing.Union[int, range]
+    adjustment=0,  # type: int
+):
+    # type: (...) -> typing.Iterable
+    """
+    Implements nodes_at for an IntervalTree.
+    :param tree: The IntervalTree to search.
+    :param addrs: The address or addresses to locate nodes at.
+    :param adjustment: An adjustment to be applied to the search range before
+           consulting the interval tree.
+    """
+
+    desired_range = get_desired_range(addrs)
+    for interval in tree.overlap(
+        desired_range.start + adjustment, desired_range.stop + adjustment
+    ):
+        # Check that it's actually in our desired range, which may have a
+        # step value that excludes it. This is a constant time operation.
+        if interval.data.address in desired_range:
+            yield interval.data
 
 
 def symbolic_expressions_at(

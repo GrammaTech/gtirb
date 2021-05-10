@@ -1,3 +1,4 @@
+import collections
 import itertools
 import typing
 from enum import Enum
@@ -146,6 +147,7 @@ class Module(AuxDataContainer):
             if v._module is not None:
                 getattr(v._module, self._field).discard(v)
             v._module = self._node
+            self._node._index_add(v)
             if self._node.ir is not None:
                 v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
@@ -154,6 +156,7 @@ class Module(AuxDataContainer):
             if v not in self:
                 return
             v._module = None
+            self._node._index_discard(v)
             if self._node.ir is not None:
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
@@ -203,6 +206,7 @@ class Module(AuxDataContainer):
         :param ir: The :class:`IR` this module belongs to.
         """
 
+        self._symbol_index = collections.defaultdict(set)
         self._ir = None  # type: "IR"
         self.binary_path = binary_path  # type: str
         self.isa = isa  # type: Module.ISA
@@ -347,6 +351,21 @@ class Module(AuxDataContainer):
             ")".format(**self.__dict__)
         )
 
+    def _index_add(self, v):
+        if isinstance(v, Symbol):
+            self._symbol_index[v.name].add(v)
+
+    def _index_discard(self, v):
+        if isinstance(v, Symbol):
+            self._symbol_index[v.name].discard(v)
+
+    def lookup_symbol(self, name):
+        # type: (str) -> typing.Iterator[Symbol]
+        "Finds all symbols with a given name."
+        symbols = self._symbol_index.get(name, None)
+        if symbols:
+            yield from symbols
+
     @property
     def ir(self):
         # type: () -> typing.Optional["IR"]
@@ -482,7 +501,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.byte_intervals, addrs)
+        return itertools.chain.from_iterable(
+            s.byte_intervals_on(addrs) for s in self.sections
+        )
 
     def byte_intervals_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
@@ -492,7 +513,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.byte_intervals, addrs)
+        return itertools.chain.from_iterable(
+            s.byte_intervals_at(addrs) for s in self.sections
+        )
 
     def byte_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -502,7 +525,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.byte_blocks, addrs)
+        return itertools.chain.from_iterable(
+            s.byte_blocks_on(addrs) for s in self.sections
+        )
 
     def byte_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -512,7 +537,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.byte_blocks, addrs)
+        return itertools.chain.from_iterable(
+            s.byte_blocks_at(addrs) for s in self.sections
+        )
 
     def code_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -522,7 +549,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.code_blocks, addrs)
+        return itertools.chain.from_iterable(
+            s.code_blocks_on(addrs) for s in self.sections
+        )
 
     def code_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -532,7 +561,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.code_blocks, addrs)
+        return itertools.chain.from_iterable(
+            s.code_blocks_at(addrs) for s in self.sections
+        )
 
     def data_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
@@ -542,7 +573,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.data_blocks, addrs)
+        return itertools.chain.from_iterable(
+            s.data_blocks_on(addrs) for s in self.sections
+        )
 
     def data_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
@@ -552,7 +585,9 @@ class Module(AuxDataContainer):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.data_blocks, addrs)
+        return itertools.chain.from_iterable(
+            s.data_blocks_at(addrs) for s in self.sections
+        )
 
     def symbolic_expressions_at(
         self, addrs  # type: typing.Union[int, range]

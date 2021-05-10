@@ -3,11 +3,13 @@ import typing
 from enum import Enum
 from uuid import UUID
 
+from intervaltree import IntervalTree
+
 from .block import ByteBlock, CodeBlock, DataBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
 from .node import Node
 from .proto import Section_pb2
-from .util import SetWrapper, nodes_at, nodes_on, symbolic_expressions_at
+from .util import SetWrapper, _nodes_at_interval_tree, _nodes_on_interval_tree
 
 
 class Section(Node):
@@ -53,6 +55,7 @@ class Section(Node):
         def add(self, v):
             if v._section is not None:
                 v._section.byte_intervals.discard(v)
+            self._node._index_add(v)
             v._section = self._node
             if self._node.ir is not None:
                 v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
@@ -61,6 +64,7 @@ class Section(Node):
         def discard(self, v):
             if v not in self:
                 return
+            self._node._index_discard(v)
             v._section = None
             if self._node.ir is not None:
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
@@ -86,6 +90,7 @@ class Section(Node):
         """
 
         super().__init__(uuid)
+        self._interval_index = IntervalTree()
         self._module = None  # type: "Module"
         self.name = name  # type: str
         self.byte_intervals = Section._ByteIntervalSet(
@@ -95,6 +100,16 @@ class Section(Node):
 
         # Use the property setter to ensure correct invariants.
         self.module = module
+
+    def _index_add(self, byte_interval):
+        address_interval = byte_interval._address_interval()
+        if address_interval:
+            self._interval_index.add(address_interval)
+
+    def _index_discard(self, byte_interval):
+        address_interval = byte_interval._address_interval()
+        if address_interval:
+            self._interval_index.discard(address_interval)
 
     @classmethod
     def _decode_protobuf(cls, proto_section, uuid, ir):
@@ -254,7 +269,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.byte_intervals, addrs)
+        return _nodes_on_interval_tree(self._interval_index, addrs)
 
     def byte_intervals_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
@@ -264,7 +279,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.byte_intervals, addrs)
+        return _nodes_at_interval_tree(self._interval_index, addrs)
 
     def byte_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -274,7 +289,8 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.byte_blocks, addrs)
+        for interval in self.byte_intervals_on(addrs):
+            yield from interval.byte_blocks_on(addrs)
 
     def byte_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -284,7 +300,8 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.byte_blocks, addrs)
+        for interval in self.byte_intervals_on(addrs):
+            yield from interval.byte_blocks_at(addrs)
 
     def code_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -294,7 +311,11 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.code_blocks, addrs)
+        return (
+            block
+            for block in self.byte_blocks_on(addrs)
+            if isinstance(block, CodeBlock)
+        )
 
     def code_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -304,7 +325,11 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.code_blocks, addrs)
+        return (
+            block
+            for block in self.byte_blocks_at(addrs)
+            if isinstance(block, CodeBlock)
+        )
 
     def data_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
@@ -314,7 +339,11 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.data_blocks, addrs)
+        return (
+            block
+            for block in self.byte_blocks_on(addrs)
+            if isinstance(block, DataBlock)
+        )
 
     def data_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
@@ -324,7 +353,11 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.data_blocks, addrs)
+        return (
+            block
+            for block in self.byte_blocks_at(addrs)
+            if isinstance(block, DataBlock)
+        )
 
     def symbolic_expressions_at(
         self, addrs  # type: typing.Union[int, range]
@@ -338,7 +371,8 @@ class Section(Node):
             symbolic expression in the range.
         """
 
-        return symbolic_expressions_at(self.byte_intervals, addrs)
+        for interval in self.byte_intervals_on(addrs):
+            yield from interval.symbolic_expressions_at(addrs)
 
     def _add_to_uuid_cache(self, cache):
         # type: (typing.Dict[UUID, Node]) -> None

@@ -4,6 +4,7 @@ from uuid import UUID
 from .block import Block
 from .node import Node
 from .proto import Symbol_pb2
+from .util import _IndexedAttribute
 
 Payload = typing.Union[Block, int]
 """A type hint representing the possible Symbol payloads."""
@@ -16,6 +17,8 @@ class Symbol(Node):
     :ivar ~.at_end: True if this symbol is at the end of its referent, rather
         than at the beginning. Has no meaning for integral symbols.
     """
+
+    name = _IndexedAttribute[str]("name", lambda self: self.module)
 
     def __init__(
         self,
@@ -38,10 +41,10 @@ class Symbol(Node):
         """
 
         super().__init__(uuid)
+        self._module = None  # type: "Module"
         self.name = name  # type: str
         self.at_end = at_end  # type: bool
         self._payload = payload  # type: typing.Optional[Payload]
-        self._module = None  # type: "Module"
         # Use the property setter to ensure correct invariants.
         self.module = module
 
@@ -133,7 +136,7 @@ class Symbol(Node):
             "name={name!r}, "
             "payload={_payload!r}, "
             "at_end={at_end!r}, "
-            ")".format(**self.__dict__)
+            ")".format(name=self.name, **self.__dict__)
         )
 
     @property

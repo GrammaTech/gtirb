@@ -1,5 +1,9 @@
+import collections
 import typing
 from uuid import UUID
+
+from intervaltree import Interval, IntervalTree
+from sortedcontainers import SortedDict
 
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
@@ -10,7 +14,14 @@ from .symbolicexpression import (
     SymbolicExpression,
     SymStackConst,
 )
-from .util import DictLike, SetWrapper, get_desired_range, nodes_at, nodes_on
+from .util import (
+    DictLike,
+    SetWrapper,
+    _IndexedAttribute,
+    _nodes_at_interval_tree,
+    _nodes_on_interval_tree,
+    get_desired_range,
+)
 
 SymbolicExpressionElement = typing.Tuple[
     "ByteInterval", int, SymbolicExpression
@@ -56,6 +67,7 @@ class ByteInterval(Node):
             if v._byte_interval is not None:
                 v._byte_interval.blocks.discard(v)
             v._byte_interval = self._node
+            self._node._index_add(v)
             if self._node.ir is not None:
                 v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
@@ -63,10 +75,16 @@ class ByteInterval(Node):
         def discard(self, v):
             if v not in self:
                 return
+            self._node._index_discard(v)
             v._byte_interval = None
             if self._node.ir is not None:
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
+
+    address = _IndexedAttribute[typing.Optional[int]](
+        "address", lambda self: self.section
+    )
+    size = _IndexedAttribute[int]("size", lambda self: self.section)
 
     def __init__(
         self,
@@ -103,6 +121,8 @@ class ByteInterval(Node):
             raise ValueError("initialized_size must be <= size!")
 
         super().__init__(uuid=uuid)
+        self._interval_tree = IntervalTree()
+        self._symbols_to_exprs = collections.defaultdict(set)
         self._section = None  # type: typing.Optional["Section"]
         self.address = address  # type: typing.Optional[int]
         self.size = size  # type: int
@@ -111,7 +131,7 @@ class ByteInterval(Node):
         self.blocks = ByteInterval._BlockSet(
             self, blocks
         )  # type: typing.Set[ByteBlock]
-        self.symbolic_expressions = dict(
+        self.symbolic_expressions = SortedDict(
             symbolic_expressions
         )  # type: typing.Dict[int, SymbolicExpression]
         self._proto_interval = (
@@ -120,6 +140,28 @@ class ByteInterval(Node):
 
         # Use the property setter to ensure correct invariants.
         self.section = section
+
+    def _address_interval(self):
+        if self.address:
+            return Interval(
+                self.address, self.address + max(self.size, 1), self
+            )
+        else:
+            return None
+
+    def _index_add(self, v):
+        if isinstance(v, ByteBlock):
+            self._interval_tree.add(v._offset_interval)
+        elif isinstance(v, SymbolicExpression):
+            for symbol in v.symbols:
+                self._symbols_to_exprs[symbol].add(v)
+
+    def _index_discard(self, v):
+        if isinstance(v, ByteBlock):
+            self._interval_tree.discard(v._offset_interval)
+        elif isinstance(v, SymbolicExpression):
+            for symbol in v.symbols:
+                self._symbols_to_exprs[symbol].discard(v)
 
     @property
     def initialized_size(self):
@@ -321,6 +363,16 @@ class ByteInterval(Node):
 
     def __repr__(self):
         # type: () -> str
+
+        # The symbolic expression SortedDict's repr isn't what what needs to
+        # be passed to the ByteInterval constructor, so create our own string
+        # for it.
+        exprs_items = (
+            "{!r}: {!r}".format(key, value)
+            for key, value in self.symbolic_expressions.items()
+        )
+        exprs = "{" + ", ".join(exprs_items) + "}"
+
         return (
             "ByteInterval("
             "uuid={uuid!r}, "
@@ -328,8 +380,15 @@ class ByteInterval(Node):
             "size={size}, "
             "contents={contents!r}, "
             "blocks={blocks!r}, "
-            "symbolic_expressions={symbolic_expressions!r}, "
-            ")".format(**self.__dict__)
+            "symbolic_expressions={symbolic_expressions}, "
+            ")".format(
+                uuid=self.uuid,
+                address=self.address,
+                size=self.size,
+                contents=self.contents,
+                blocks=self.blocks,
+                symbolic_expressions=exprs,
+            )
         )
 
     def byte_blocks_on(self, addrs):
@@ -340,7 +399,12 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.byte_blocks, addrs)
+        if self.address is None:
+            return ()
+
+        return _nodes_on_interval_tree(
+            self._interval_tree, addrs, -self.address
+        )
 
     def byte_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
@@ -350,7 +414,12 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.byte_blocks, addrs)
+        if self.address is None:
+            return ()
+
+        return _nodes_at_interval_tree(
+            self._interval_tree, addrs, -self.address
+        )
 
     def code_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -360,7 +429,9 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.code_blocks, addrs)
+        return (
+            b for b in self.byte_blocks_on(addrs) if isinstance(b, CodeBlock)
+        )
 
     def code_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
@@ -370,7 +441,9 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.code_blocks, addrs)
+        return (
+            b for b in self.byte_blocks_at(addrs) if isinstance(b, CodeBlock)
+        )
 
     def data_blocks_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
@@ -380,7 +453,9 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_on(self.data_blocks, addrs)
+        return (
+            b for b in self.byte_blocks_on(addrs) if isinstance(b, DataBlock)
+        )
 
     def data_blocks_at(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
@@ -390,7 +465,9 @@ class ByteInterval(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return nodes_at(self.data_blocks, addrs)
+        return (
+            b for b in self.byte_blocks_at(addrs) if isinstance(b, DataBlock)
+        )
 
     def symbolic_expressions_at(
         self, addrs  # type: typing.Union[int, range]
@@ -408,9 +485,13 @@ class ByteInterval(Node):
             return
 
         addrs = get_desired_range(addrs)
-        for i, v in self.symbolic_expressions.items():
+        for i in self.symbolic_expressions.irange(
+            addrs.start - self.address,
+            addrs.stop - self.address,
+            inclusive=(True, False),
+        ):
             if self.address + i in addrs:
-                yield (self, i, v)
+                yield (self, i, self.symbolic_expressions[i])
 
     def _add_to_uuid_cache(self, cache):
         # type: (typing.Dict[UUID, Node]) -> None
