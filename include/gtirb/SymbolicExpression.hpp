@@ -43,6 +43,9 @@ class Symbol; // Forward refernece for Sym, Sym1, Sym2, etc.
 /// \brief The space of attributes that can be applied to a symbolic
 /// expression.
 enum class SymAttribute : uint8_t {
+
+  // General bit/byte masking and indexing operations:
+  //
   Part0 = proto::SEAttributeFlag::Part0, ///< Only bytes [0,1] are used
   Part1 = proto::SEAttributeFlag::Part1, ///< Only bytes [2,3] are used
   Part2 = proto::SEAttributeFlag::Part2, ///< Only bytes [4,5] are used
@@ -54,6 +57,19 @@ enum class SymAttribute : uint8_t {
   /// Part0.
   Adjusted = proto::SEAttributeFlag::Adjusted,
 
+  /// Value is the lower 16 bits of the expression.
+  Lower16 = proto::SEAttributeFlag::Lower16,
+
+  /// Value is the upper 16 bits of the expression.
+  Upper16 = proto::SEAttributeFlag::Upper16,
+
+  /// Value uses only the bits [0,11].
+  Lo12 = proto::SEAttributeFlag::Lo12,
+  //
+  //
+
+  // GOT and GOT-relative attributes:
+  //
   /// Value is the address of the GOT entry for the symbol.
   GotRef = proto::SEAttributeFlag::GotRef,
 
@@ -84,12 +100,20 @@ enum class SymAttribute : uint8_t {
   /// Value is the address of the symbol, relative to the GOT_PAGE value.
   GotPageOfst = proto::SEAttributeFlag::GotPageOfst,
 
-  /// Value is the address of the PLT entry for the symbol.
-  PltRef = proto::SEAttributeFlag::PltRef,
-
   /// Value is the offset of the symbol from GOT.
   GotOff = proto::SEAttributeFlag::GotOff,
+  //
+  //
 
+  // PLT specific attributes:
+  //
+  /// Value is the address of the PLT entry for the symbol.
+  PltRef = proto::SEAttributeFlag::PltRef,
+  //
+  //
+
+  // TLS specific attributes:
+  //
   /// Value is the offset of the symbol relative to the TLS block end.
   TpOff = proto::SEAttributeFlag::TpOff,
 
@@ -98,24 +122,21 @@ enum class SymAttribute : uint8_t {
 
   /// Value is the negative offset of the symbol to the static TLS block.
   NtpOff = proto::SEAttributeFlag::NtpOff,
+  //
+  //
 
-  /// Value is the lower 16 bits of the expression.
-  Lower16 = proto::SEAttributeFlag::Lower16,
-
-  /// Value is the upper 16 bits of the expression.
-  Upper16 = proto::SEAttributeFlag::Upper16,
-
-  /// Value uses only the bits [0,11].
-  Lo12 = proto::SEAttributeFlag::Lo12,
-
-  /// Value is an expression of the absolute address.
+  // Attribute modifiers:
+  //
+  /// Value is an expression of the absolute address. (ARM)
   Abs = proto::SEAttributeFlag::Abs,
 
-  /// Value of expression is signed.
+  /// Value of expression is signed. (ARM)
   Signed = proto::SEAttributeFlag::Signed,
 
-  /// No overflow check is performed on the expression.
+  /// No overflow check is performed on the expression. (ARM)
   NoOverflowCheck = proto::SEAttributeFlag::NoOverflowCheck,
+  //
+  //
 
   Max = NoOverflowCheck
 };

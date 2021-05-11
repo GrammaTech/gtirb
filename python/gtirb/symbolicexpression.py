@@ -14,11 +14,17 @@ class SymbolicExpression:
         """Attributes representing a known property of a symbolic
         expression."""
 
+        # General bit/byte masking and indexing operations:
         Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
         Part1 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part1")
         Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
         Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
         Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
+        Lower16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lower16")
+        Upper16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Upper16")
+        Lo12 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo12")
+
+        # GOT and GOT-relative attributes:
         GotRef = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRef")
         GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
         GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
@@ -28,14 +34,17 @@ class SymbolicExpression:
         GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value(
             "GotPageOfst"
         )
-        PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
         GotOff = SymbolicExpression_pb2.SEAttributeFlag.Value("GotOff")
+
+        # PLT specific attributes:
+        PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
+
+        # TLS specific attributes:
         TpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("TpOff")
         TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
         NtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("NtpOff")
-        Lower16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lower16")
-        Upper16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Upper16")
-        Lo12 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo12")
+
+        # Attribute modifiers:
         Abs = SymbolicExpression_pb2.SEAttributeFlag.Value("Abs")
         Signed = SymbolicExpression_pb2.SEAttributeFlag.Value("Signed")
         NoOverflowCheck = SymbolicExpression_pb2.SEAttributeFlag.Value(
