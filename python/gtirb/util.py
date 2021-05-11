@@ -157,19 +157,19 @@ class _IndexedAttribute(typing.Generic[T]):
 
     def __get__(self, instance, owner=None):
         # type: (typing.Any, typing.Any) -> T
-        return getattr(instance, f"_{self.name}")
+        return getattr(instance, "_" + self.name)
 
     def __set__(self, instance, value):
         # type: (typing.Any, T) -> None
         parent = self.parent_getter(instance)
         if parent:
             parent._index_discard(instance)
-        setattr(instance, f"_{self.name}", value)
+        setattr(instance, "_" + self.name, value)
         if parent:
             parent._index_add(instance)
 
     def __delete__(self, instance):
-        raise AttributeError(f"can't delete attribute {self.name}")
+        raise AttributeError("can't delete attribute %s" % (self.name))
 
     def __set_name__(self, owner, name):
         # This is only invoked in Python 3.6+. Once GTIRB has that as a

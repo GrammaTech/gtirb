@@ -5,10 +5,10 @@ import gtirb
 
 
 class SearchScope(enum.Enum):
-    ir = enum.auto()
-    module = enum.auto()
-    section = enum.auto()
-    byte_interval = enum.auto()
+    ir = 1
+    module = 2
+    section = 3
+    byte_interval = 4
 
     def select(self, ir, m, s, bi):
         """

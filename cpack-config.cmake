@@ -36,7 +36,7 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-python")
   set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
   set(CPACK_COMPONENTS_ALL python)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "python3, python3-protobuf, python3-networkx"
+      "python3, python3-protobuf, python3-networkx, python3-intervaltree, python3-sortedcontainers"
   )
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-debug")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dbg")
@@ -65,5 +65,10 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-python")
   set(CPACK_RPM_PACKAGE_NAME "python3-gtirb")
   set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
   set(CPACK_COMPONENTS_ALL python)
-  set(CPACK_RPM_PACKAGE_DEPENDS "python3, python3-protobuf, python3-networkx")
+  set(CPACK_RPM_PACKAGE_DEPENDS
+      "python3, python3-protobuf, python3-networkx, python3-pip"
+  )
+  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
+      "${CPACK_SOURCE_DIR}/cpack-centos-post-install.sh"
+  )
 endif()

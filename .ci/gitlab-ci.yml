@@ -52,6 +52,7 @@ check-format:
     paths:
       - build
   script:
+    - python3 -m pip install --upgrade pip setuptools wheel
     - mkdir build
     - cd build
     - cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DGTIRB_STRIP_DEBUG_SYMBOLS=On
@@ -67,6 +68,8 @@ check-format:
   tags: [gtirb-windows]
   script:
     - systeminfo
+    # upgrade pip3
+    - python -m pip install --upgrade pip setuptools wheel
     # Build & test
     - rm -rf build CMakeCache.txt CMakeFiles CMakeScripts
     - mkdir build
