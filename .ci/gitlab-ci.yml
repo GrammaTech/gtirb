@@ -131,6 +131,24 @@ build-ubuntu20-gcc:
     BUILD_TYPE: 'RelWithDebInfo'
   <<: *build
 
+build-ubuntu20-gcc-debug:
+  stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  variables:
+    OS: 'ubuntu20'
+    CXX_COMPILER: 'g++'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
+build-ubuntu20-clang-debug:
+  stage: build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  variables:
+    OS: 'ubuntu20'
+    CXX_COMPILER: 'clang++'
+    BUILD_TYPE: 'Debug'
+  <<: *build
+
 build-static:
   stage: build
   image: $DOCKER_REGISTRY/rewriting/gtirb/static
@@ -147,54 +165,6 @@ build-static:
     # ensure that we produced a .a file instead of a .so
     - '[ -e lib/libgtirb.a ]'
     - '[ ! -e lib/libgtirb.so ]'
-
-build-arch-gcc:
-  # TODO: The most recent versions of protobuf on arch break our build.
-  # at some point, we'll need to figure this out, but in the meantime,
-  # we allow_failure so our pipelines will go through.
-  allow_failure: true
-  stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  variables:
-    OS: 'arch'
-    CXX_COMPILER: 'g++'
-    BUILD_TYPE: 'RelWithDebInfo'
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - build
-  script:
-    - mkdir /tmp/aur
-    - cp .ci/PKGBUILD /tmp/aur
-    - sed -i "s|git://github.com/grammatech/gtirb.git|git+file://${CI_PROJECT_DIR}|" /tmp/aur/PKGBUILD
-    - pushd /tmp/aur/
-    - makepkg
-    - cd /tmp/aur/src/gtirb/build
-    - ctest -V
-    - cd ..
-    - cp -r build $CI_PROJECT_DIR
-    - popd
-    - cp /tmp/aur/*.pkg.tar.* ./build
-
-build-arch-gcc-debug:
-  allow_failure: true
-  stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  variables:
-    OS: 'arch'
-    CXX_COMPILER: 'g++'
-    BUILD_TYPE: 'Debug'
-  <<: *build
-
-build-arch-clang-debug:
-  allow_failure: true
-  stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  variables:
-    OS: 'arch'
-    CXX_COMPILER: 'clang++'
-    BUILD_TYPE: 'Debug'
-  <<: *build
 
 build-windows-msvc-debug:
   variables:
@@ -334,17 +304,6 @@ test-centos8-gtirb:
     - dnf --nogpgcheck localinstall -y libgtirb.rpm
     - ./test-install
 
-test-arch-package:
-  allow_failure: true
-  stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  needs: ['build-arch-gcc']
-  script:
-    - cp .ci/test-install.cpp ./
-    - pacman --noconfirm -U build/gtirb-git-*.pkg.tar.*
-    - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
-    - ./test-install
-
 conan-linux-gcc7:
   stage: deploy
   needs: [check-format]
@@ -398,18 +357,6 @@ conan-windows-32:
     - export BOOST_ROOT="C:\\Boost"
     # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
     - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=b2
-
-package-arch:
-  allow_failure: true
-  stage: deploy
-  image: $DOCKER_REGISTRY/rewriting/gtirb/arch
-  needs: [test-arch-package, build-arch-gcc]
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - 'gtirb-git-*.pkg.tar.*'
-  script:
-    - cp build/gtirb-git-*.pkg.tar.* ./
 
 package-centos8:
   stage: deploy
