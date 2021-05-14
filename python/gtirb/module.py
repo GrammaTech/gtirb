@@ -401,7 +401,7 @@ class Module(AuxDataContainer):
             for parent, idx in expr._instances:
                 yield parent, idx, expr
 
-    def lookup_symbol(self, name):
+    def symbols_named(self, name):
         # type: (str) -> typing.Iterator[Symbol]
         "Finds all symbols with a given name."
         symbols = self._symbol_index.get(name, None)
