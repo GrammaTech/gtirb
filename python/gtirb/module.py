@@ -11,6 +11,7 @@ from .node import Node
 from .proto import Module_pb2
 from .section import Section
 from .symbol import Symbol
+from .symbolicexpression import SymbolicExpression
 from .util import (
     DictLike,
     SetWrapper,
@@ -207,6 +208,9 @@ class Module(AuxDataContainer):
         """
 
         self._symbol_index = collections.defaultdict(set)
+        self._symbolic_expression_index = collections.defaultdict(
+            collections.Counter
+        )
         self._ir = None  # type: "IR"
         self.binary_path = binary_path  # type: str
         self.isa = isa  # type: Module.ISA
@@ -354,10 +358,48 @@ class Module(AuxDataContainer):
     def _index_add(self, v):
         if isinstance(v, Symbol):
             self._symbol_index[v.name].add(v)
+        elif isinstance(v, SymbolicExpression):
+            for sym in v.symbols:
+                self._symbolic_expression_index[sym][v] += 1
+        elif isinstance(v, Section):
+            for bi in v.byte_intervals:
+                self._index_add(bi)
+        elif isinstance(v, ByteInterval):
+            for expr in v.symbolic_expressions.values():
+                self._index_add(expr)
 
     def _index_discard(self, v):
         if isinstance(v, Symbol):
             self._symbol_index[v.name].discard(v)
+        elif isinstance(v, SymbolicExpression):
+            for sym in v.symbols:
+                # This is a bit complicated because we want to clean up keys
+                # that are no longer used. Otherwise we would keep objects
+                # alive longer than needed.
+                counter = self._symbolic_expression_index[sym]
+                count = counter[v]
+                count -= 1
+                if count != 0:
+                    counter[v] = count
+                else:
+                    del counter[v]
+                    if not counter:
+                        del self._symbolic_expression_index[sym]
+        elif isinstance(v, Section):
+            for bi in v.byte_intervals:
+                self._index_discard(bi)
+        elif isinstance(v, ByteInterval):
+            for expr in v.symbolic_expressions.values():
+                self._index_discard(expr)
+
+    def symbolic_expressions_referencing(self, sym):
+        exprs = self._symbolic_expression_index.get(sym)
+        if not exprs:
+            return
+
+        for expr in exprs:
+            for parent, idx in expr._instances:
+                yield parent, idx, expr
 
     def lookup_symbol(self, name):
         # type: (str) -> typing.Iterator[Symbol]

@@ -150,10 +150,21 @@ class _IndexedAttribute(typing.Generic[T]):
     otherwise used like a normal attribute.
     """
 
-    def __init__(self, name, parent_getter):
-        # type: (str, typing.Callable[[T], typing.Any]) -> None
+    def __init__(self, name, parent_getter, multiple=False):
+        # type: (str, typing.Callable[[T], typing.Any], bool) -> None
         self.name = name
         self.parent_getter = parent_getter
+        self.multiple = multiple
+
+    def _parents(self, instance):
+        if self.multiple:
+            for parent in self.parent_getter(instance):
+                if parent:
+                    yield parent
+        else:
+            parent = self.parent_getter(instance)
+            if parent:
+                yield parent
 
     def __get__(self, instance, owner=None):
         # type: (typing.Any, typing.Any) -> T
@@ -161,11 +172,10 @@ class _IndexedAttribute(typing.Generic[T]):
 
     def __set__(self, instance, value):
         # type: (typing.Any, T) -> None
-        parent = self.parent_getter(instance)
-        if parent:
+        for parent in self._parents(instance):
             parent._index_discard(instance)
         setattr(instance, "_" + self.name, value)
-        if parent:
+        for parent in self._parents(instance):
             parent._index_add(instance)
 
     def __delete__(self, instance):

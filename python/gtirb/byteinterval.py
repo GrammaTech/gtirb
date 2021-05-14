@@ -81,6 +81,45 @@ class ByteInterval(Node):
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
+    class _SymbolicExprDict(typing.MutableMapping[int, SymbolicExpression]):
+        def __init__(self, interval, *args):
+            self._interval = interval
+            self._data = SortedDict()
+            for i, v in dict(*args).items():
+                self[i] = v
+
+        # begin functions for ABC
+        def __getitem__(self, i):
+            return self._data[i]
+
+        def __setitem__(self, i, v):
+            v._instances.add((self._interval, i))
+            self._interval._index_add(v)
+            self._data[i] = v
+
+        def __delitem__(self, i):
+            v = self._data[i]
+            v._instances.discard((self._interval, i))
+            self._interval._index_discard(v)
+            del self._data[i]
+
+        def __iter__(self):
+            return iter(self._data)
+
+        def __len__(self):
+            return len(self._data)
+
+        # end functions for ABC
+        def __str__(self):
+            return str(self._data)
+
+        def __repr__(self):
+            items = (
+                "{!r}: {!r}".format(key, value)
+                for key, value in self._data.items()
+            )
+            return "{" + ", ".join(items) + "}"
+
     address = _IndexedAttribute[typing.Optional[int]](
         "address", lambda self: self.section
     )
@@ -131,8 +170,8 @@ class ByteInterval(Node):
         self.blocks = ByteInterval._BlockSet(
             self, blocks
         )  # type: typing.Set[ByteBlock]
-        self.symbolic_expressions = SortedDict(
-            symbolic_expressions
+        self.symbolic_expressions = ByteInterval._SymbolicExprDict(
+            self, symbolic_expressions
         )  # type: typing.Dict[int, SymbolicExpression]
         self._proto_interval = (
             None
@@ -152,16 +191,14 @@ class ByteInterval(Node):
     def _index_add(self, v):
         if isinstance(v, ByteBlock):
             self._interval_tree.add(v._offset_interval)
-        elif isinstance(v, SymbolicExpression):
-            for symbol in v.symbols:
-                self._symbols_to_exprs[symbol].add(v)
+        elif isinstance(v, SymbolicExpression) and self.module:
+            self.module._index_add(v)
 
     def _index_discard(self, v):
         if isinstance(v, ByteBlock):
             self._interval_tree.discard(v._offset_interval)
-        elif isinstance(v, SymbolicExpression):
-            for symbol in v.symbols:
-                self._symbols_to_exprs[symbol].discard(v)
+        elif isinstance(v, SymbolicExpression) and self.module:
+            self.module._index_discard(v)
 
     @property
     def initialized_size(self):
@@ -364,15 +401,6 @@ class ByteInterval(Node):
     def __repr__(self):
         # type: () -> str
 
-        # The symbolic expression SortedDict's repr isn't what what needs to
-        # be passed to the ByteInterval constructor, so create our own string
-        # for it.
-        exprs_items = (
-            "{!r}: {!r}".format(key, value)
-            for key, value in self.symbolic_expressions.items()
-        )
-        exprs = "{" + ", ".join(exprs_items) + "}"
-
         return (
             "ByteInterval("
             "uuid={uuid!r}, "
@@ -380,14 +408,14 @@ class ByteInterval(Node):
             "size={size}, "
             "contents={contents!r}, "
             "blocks={blocks!r}, "
-            "symbolic_expressions={symbolic_expressions}, "
+            "symbolic_expressions={symbolic_expressions!r}, "
             ")".format(
                 uuid=self.uuid,
                 address=self.address,
                 size=self.size,
                 contents=self.contents,
                 blocks=self.blocks,
-                symbolic_expressions=exprs,
+                symbolic_expressions=self.symbolic_expressions,
             )
         )
 
@@ -485,7 +513,7 @@ class ByteInterval(Node):
             return
 
         addrs = get_desired_range(addrs)
-        for i in self.symbolic_expressions.irange(
+        for i in self.symbolic_expressions._data.irange(
             addrs.start - self.address,
             addrs.stop - self.address,
             inclusive=(True, False),

@@ -105,11 +105,15 @@ class Section(Node):
         address_interval = byte_interval._address_interval()
         if address_interval:
             self._interval_index.add(address_interval)
+        if self.module:
+            self.module._index_add(byte_interval)
 
     def _index_discard(self, byte_interval):
         address_interval = byte_interval._address_interval()
         if address_interval:
             self._interval_index.discard(address_interval)
+        if self.module:
+            self.module._index_discard(byte_interval)
 
     @classmethod
     def _decode_protobuf(cls, proto_section, uuid, ir):

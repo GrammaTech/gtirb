@@ -5,6 +5,7 @@ from uuid import UUID
 from .node import Node
 from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
+from .util import _IndexedAttribute
 
 
 class SymbolicExpression:
@@ -35,6 +36,13 @@ class SymbolicExpression:
     ):
         # type: ("AttributesCtorType") -> None
         self.attributes = set(attributes)
+        self._instances = set()
+
+    def _modules(self):
+        for bi, _ in self._instances:
+            m = bi.module
+            if m:
+                yield m
 
     @property
     def symbols(self):
@@ -69,6 +77,9 @@ class SymAddrAddr(SymbolicExpression):
     :ivar ~.symbol1: Symbol representing the base address.
     :ivar ~.symbol2: Symbol to subtract from ``symbol1``.
     """
+
+    symbol1 = _IndexedAttribute("symbol1", lambda self: self._modules(), True)
+    symbol2 = _IndexedAttribute("symbol2", lambda self: self._modules(), True)
 
     def __init__(
         self,
@@ -143,7 +154,13 @@ class SymAddrAddr(SymbolicExpression):
             "symbol2={symbol2!r}, "
             "attributes={attributes_repr!s}, "
             ")"
-        ).format(attributes_repr=self._attributes_repr(), **self.__dict__)
+        ).format(
+            scale=self.scale,
+            offset=self.offset,
+            symbol1=self.symbol1,
+            symbol2=self.symbol2,
+            attributes_repr=self._attributes_repr(),
+        )
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
@@ -170,6 +187,8 @@ class SymAddrConst(SymbolicExpression):
     :ivar ~.offset: Constant offset.
     :ivar ~.symbol: Symbol representing an address.
     """
+
+    symbol = _IndexedAttribute("symbol", lambda self: self._modules(), True)
 
     def __init__(self, offset, symbol, attributes=set()):
         # type: (int, Symbol, AttributesCtorType) -> None
@@ -223,7 +242,11 @@ class SymAddrConst(SymbolicExpression):
             "symbol={symbol!r}, "
             "attributes={attributes_repr!s}, "
             ")"
-        ).format(attributes_repr=self._attributes_repr(), **self.__dict__)
+        ).format(
+            offset=self.offset,
+            symbol=self.symbol,
+            attributes_repr=self._attributes_repr(),
+        )
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
@@ -248,6 +271,8 @@ class SymStackConst(SymbolicExpression):
     :ivar ~.offset: Constant offset.
     :ivar ~.symbol: Symbol representing a stack variable.
     """
+
+    symbol = _IndexedAttribute("symbol", lambda self: self._modules(), True)
 
     def __init__(self, offset, symbol, attributes=set()):
         # type: (int, Symbol, AttributesCtorType) -> None
@@ -302,7 +327,11 @@ class SymStackConst(SymbolicExpression):
             "symbol={symbol!r}, "
             "attributes={attributes_repr!s}, "
             ")"
-        ).format(attributes_repr=self._attributes_repr(), **self.__dict__)
+        ).format(
+            offset=self.offset,
+            symbol=self.symbol,
+            attributes_repr=self._attributes_repr(),
+        )
 
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
