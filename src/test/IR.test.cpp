@@ -1,6 +1,6 @@
 //===- IR.test.cpp ----------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -149,6 +149,29 @@ TEST(Unit_IR, moduleIterationOrder) {
   }
   ++It;
   EXPECT_EQ(&*It, M1);
+}
+
+TEST(Unit_IR, findModules) {
+  auto* Ir = IR::Create(Ctx);
+  auto* M1 = Ir->addModule(Ctx, "foo");
+  auto* M2 = Ir->addModule(Ctx, "bar");
+  auto* M3 = Ir->addModule(Ctx, "foo");
+
+  {
+    auto F = Ir->findModules("foo");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 2);
+    // Order of M1 and M3 is unspecified.
+    EXPECT_EQ((std::set<Module*>{&*F.begin(), &*std::next(F.begin(), 1)}),
+              (std::set<Module*>{M1, M3}));
+  }
+
+  {
+    auto F = Ir->findModules("bar");
+    EXPECT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(&*F.begin(), M2);
+  }
+
+  EXPECT_TRUE(Ir->findModules("notfound").empty());
 }
 
 TEST(Unit_IR, getModulesWithPreferredAddr) {
