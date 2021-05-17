@@ -155,14 +155,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     BlockToNode() {}
 
     /// \brief Non-const to const conversion constructor.
-    template <typename NonConst = BlockToNode<std::remove_const_t<NodeType>>>
-    BlockToNode(
-        const std::enable_if_t<std::is_const<NodeType>::value, NonConst>&) {
-      static_assert(
-          std::is_same<NonConst,
-                       BlockToNode<std::remove_const_t<NodeType>>>::value,
-          "Do not pass template parameters to this constructor.");
-    }
+    BlockToNode(const BlockToNode<std::remove_const_t<NodeType>>&) {}
 
     NodeType& operator()(const Block& B) const {
       // We avoid the call to cast() here because we use this function after
