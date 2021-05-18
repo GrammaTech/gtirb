@@ -1,4 +1,5 @@
 import collections
+import collections.abc
 import typing
 from uuid import UUID
 
@@ -81,7 +82,7 @@ class ByteInterval(Node):
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
-    class _SymbolicExprDict(typing.MutableMapping[int, SymbolicExpression]):
+    class _SymbolicExprDict(collections.abc.MutableMapping):
         def __init__(self, interval, *args):
             self._interval = interval
             self._data = SortedDict()
