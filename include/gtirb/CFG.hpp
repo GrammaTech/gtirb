@@ -1,6 +1,6 @@
 //===- CFG.hpp --------------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -238,6 +238,34 @@ getVertex(const CfgNode* N, const CFG& Cfg);
 /// returns \c std::nullopt instead.
 GTIRB_EXPORT_API std::optional<CFG::edge_descriptor>
 addEdge(const CfgNode* From, const CfgNode* To, CFG& Cfg);
+
+/// \ingroup CFG_GROUP
+/// \brief Remove all edges between the source and target nodes from the CFG.
+///
+/// If the graph does not contain any of these nodes, it is not modified.
+///
+/// \param Cfg  The graph to modify.
+/// \param From  The source node.
+/// \param To    The target node.
+///
+/// \return A \c bool indicating whether the graph was modified.
+GTIRB_EXPORT_API bool removeEdge(const CfgNode* From, const CfgNode* To,
+                                 CFG& Cfg);
+
+/// \ingroup CFG_GROUP
+/// \brief Remove all edges with given label between the source and target nodes
+/// from the CFG.
+///
+/// If the graph does not contain any of these nodes, it is not modified.
+///
+/// \param Cfg  The graph to modify.
+/// \param From  The source node.
+/// \param To    The target node.
+/// \param Label The Edge label. Only edges with this label will be removed.
+///
+/// \return A \c bool indicating whether the graph was modified.
+GTIRB_EXPORT_API bool removeEdge(const CfgNode* From, const CfgNode* To,
+                                 const EdgeLabel* Label, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Get a range of the \ref CfgNode elements in the specified graph.

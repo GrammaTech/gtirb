@@ -1,6 +1,6 @@
 //===- CFG.cpp --------------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -62,6 +62,66 @@ std::optional<CFG::edge_descriptor> addEdge(const CfgNode* From,
     }
   }
   return std::nullopt;
+}
+
+bool removeEdge(const CfgNode* From, const CfgNode* To, CFG& Cfg) {
+  const auto& IdTable = Cfg[boost::graph_bundle];
+  if (auto it = IdTable.find(From); it != IdTable.end()) {
+    auto FromVertex = it->second;
+    if (it = IdTable.find(To); it != IdTable.end()) {
+      auto ToVertex = it->second;
+      remove_edge(FromVertex, ToVertex, Cfg);
+      return true;
+    }
+  }
+  return false;
+}
+
+bool removeEdge(const CfgNode* From, const CfgNode* To, const EdgeLabel* Label,
+                CFG& Cfg) {
+  bool remove_called = true, deleted = false;
+  const auto& IdTable = Cfg[boost::graph_bundle];
+  boost::graph_traits<CFG>::out_edge_iterator ei, edge_end;
+  if (auto it = IdTable.find(From); it != IdTable.end()) {
+    auto FromVertex = it->second;
+    if (it = IdTable.find(To); it != IdTable.end()) {
+      while (remove_called) {
+        remove_called = false;
+        for (boost::tie(ei, edge_end) = out_edges(FromVertex, Cfg);
+             ei != edge_end; ++ei) {
+          if (Cfg[target(*ei, Cfg)] == To) {
+            if (!Label) {
+              if (!Cfg[*ei]) {
+                remove_edge(ei, Cfg);
+                // As remove_edge invalidate all iterators
+                // the iteration process should be restarted
+                remove_called = true;
+                deleted = true;
+                break;
+              }
+            } else {
+              if (Cfg[*ei]) {
+                if ((std::get<ConditionalEdge>(*Cfg[*ei]) ==
+                     std::get<ConditionalEdge>(**Label)) &&
+                    (std::get<DirectEdge>(*Cfg[*ei]) ==
+                     std::get<DirectEdge>(**Label)) &&
+                    (std::get<EdgeType>(*Cfg[*ei]) ==
+                     std::get<EdgeType>(**Label))) {
+                  remove_edge(ei, Cfg);
+                  // As remove_edge invalidate all iterators
+                  // the iteration process should be restarted
+                  remove_called = true;
+                  deleted = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return deleted;
 }
 
 boost::iterator_range<const_cfg_iterator> nodes(const CFG& Cfg) {

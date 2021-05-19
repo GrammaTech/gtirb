@@ -1,6 +1,6 @@
 //===- CFG.test.cpp ---------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -305,6 +305,41 @@ TEST(Unit_CFG, edges) {
     static_assert(std::is_same_v<const gtirb::CfgNode*, decltype(Node)>);
     (void)Label;
   }
+
+  // Remove edge part
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 4);
+  }
+
+  // Remove one edge
+  removeEdge(B2, P1, Cfg);
+  {
+    auto [It, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(It, End), 3);
+    EXPECT_EQ(Cfg[source(*It, Cfg)], B1);
+    EXPECT_EQ(Cfg[target(*It, Cfg)], P1);
+    ++It;
+    EXPECT_EQ(Cfg[source(*It, Cfg)], P1);
+    EXPECT_EQ(Cfg[target(*It, Cfg)], B1);
+    ++It;
+    EXPECT_EQ(Cfg[source(*It, Cfg)], B1);
+    EXPECT_EQ(Cfg[target(*It, Cfg)], P1);
+  }
+
+  // Remove parallel edges
+  removeEdge(B1, P1, Cfg);
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 1);
+    EXPECT_EQ(Cfg[source(*Begin, Cfg)], P1);
+    EXPECT_EQ(Cfg[target(*Begin, Cfg)], B1);
+  }
+
+  // Remove not existing edge
+  auto B3 = CodeBlock::Create(Ctx, 3);
+  EXPECT_FALSE(removeEdge(B3, P1, Cfg));
+  EXPECT_FALSE(removeEdge(P1, B3, Cfg));
 }
 
 TEST(Unit_CFG, edgeLabels) {
@@ -353,6 +388,80 @@ TEST(Unit_CFG, edgeLabels) {
   }
   // Successor edge iterator check
   EXPECT_EQ(toMultiMap(cfgSuccessors(Cfg, B1)), EdgesToCheck);
+
+  // Remove an edge with a label part
+  const EdgeLabel Label{std::in_place, ConditionalEdge::OnFalse,
+                        DirectEdge::IsDirect, EdgeType::Branch};
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 25);
+  }
+  // Remove non existing edge
+  // There is B2 -> B1 edge without a label
+  removeEdge(B2, B1, &Label, Cfg);
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 25);
+  }
+  // Remove the given edge
+  removeEdge(B1, B2, &Label, Cfg);
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 24);
+  }
+  // Check that the correct edge removed
+  {
+    auto [ie, end] = edges(Cfg);
+    while (ie != end) {
+      if (Cfg[*ie]) {
+        if ((Cfg[source(*ie, Cfg)], B1) && (Cfg[target(*ie, Cfg)], B2) &&
+            (std::get<ConditionalEdge>(*Cfg[*ie]) ==
+             std::get<ConditionalEdge>(*Label)) &&
+            (std::get<DirectEdge>(*Cfg[*ie]) == std::get<DirectEdge>(*Label)) &&
+            (std::get<EdgeType>(*Cfg[*ie]) == std::get<EdgeType>(*Label))) {
+          EXPECT_FALSE(true);
+        }
+      }
+      ++ie;
+    }
+  }
+  // Check that 2 parallel edges with the same same label can be deleted
+  // Create 2 parallel edges
+  E = addEdge(B1, B2, Cfg);
+  Cfg[*E] = Label;
+  E = addEdge(B1, B2, Cfg);
+  Cfg[*E] = Label;
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 26);
+  }
+  // Remove them
+  removeEdge(B1, B2, &Label, Cfg);
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 24);
+  }
+  // Create second paralle edge with no label
+  E = addEdge(B2, B1, Cfg);
+  EXPECT_FALSE(Cfg[*E]);
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 25);
+  }
+  // Remove 2 parallel edges with no labels
+  removeEdge(B2, B1, NULL, Cfg);
+  {
+    auto [Begin, End] = edges(Cfg);
+    ASSERT_EQ(std::distance(Begin, End), 23);
+  }
+  // Check that there are no edges without label
+  {
+    auto [ie, end] = edges(Cfg);
+    while (ie != end) {
+      EXPECT_TRUE(Cfg[*ie]);
+      ++ie;
+    }
+  }
 }
 
 TEST(Unit_CFG, protobufRoundTrip) {
