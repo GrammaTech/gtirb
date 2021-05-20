@@ -265,7 +265,7 @@ GTIRB_EXPORT_API bool removeEdge(const CfgNode* From, const CfgNode* To,
 ///
 /// \return A \c bool indicating whether the graph was modified.
 GTIRB_EXPORT_API bool removeEdge(const CfgNode* From, const CfgNode* To,
-                                 const EdgeLabel* Label, CFG& Cfg);
+                                 const EdgeLabel Label, CFG& Cfg);
 
 /// \ingroup CFG_GROUP
 /// \brief Get a range of the \ref CfgNode elements in the specified graph.

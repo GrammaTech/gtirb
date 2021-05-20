@@ -77,7 +77,7 @@ bool removeEdge(const CfgNode* From, const CfgNode* To, CFG& Cfg) {
   return false;
 }
 
-bool removeEdge(const CfgNode* From, const CfgNode* To, const EdgeLabel* Label,
+bool removeEdge(const CfgNode* From, const CfgNode* To, const EdgeLabel Label,
                 CFG& Cfg) {
   bool remove_called = true, deleted = false;
   const auto& IdTable = Cfg[boost::graph_bundle];
@@ -90,7 +90,7 @@ bool removeEdge(const CfgNode* From, const CfgNode* To, const EdgeLabel* Label,
         for (boost::tie(ei, edge_end) = out_edges(FromVertex, Cfg);
              ei != edge_end; ++ei) {
           if (Cfg[target(*ei, Cfg)] == To) {
-            if (!Label) {
+            if (Label == std::nullopt) {
               if (!Cfg[*ei]) {
                 remove_edge(ei, Cfg);
                 // As remove_edge invalidate all iterators
@@ -102,11 +102,11 @@ bool removeEdge(const CfgNode* From, const CfgNode* To, const EdgeLabel* Label,
             } else {
               if (Cfg[*ei]) {
                 if ((std::get<ConditionalEdge>(*Cfg[*ei]) ==
-                     std::get<ConditionalEdge>(**Label)) &&
+                     std::get<ConditionalEdge>(*Label)) &&
                     (std::get<DirectEdge>(*Cfg[*ei]) ==
-                     std::get<DirectEdge>(**Label)) &&
+                     std::get<DirectEdge>(*Label)) &&
                     (std::get<EdgeType>(*Cfg[*ei]) ==
-                     std::get<EdgeType>(**Label))) {
+                     std::get<EdgeType>(*Label))) {
                   remove_edge(ei, Cfg);
                   // As remove_edge invalidate all iterators
                   // the iteration process should be restarted

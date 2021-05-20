@@ -398,13 +398,16 @@ TEST(Unit_CFG, edgeLabels) {
   }
   // Remove non existing edge
   // There is B2 -> B1 edge without a label
-  removeEdge(B2, B1, &Label, Cfg);
+  removeEdge(B2, B1,
+             (const EdgeLabel){std::in_place, ConditionalEdge::OnTrue,
+                               DirectEdge::IsDirect, EdgeType::Fallthrough},
+             Cfg);
   {
     auto [Begin, End] = edges(Cfg);
     ASSERT_EQ(std::distance(Begin, End), 25);
   }
   // Remove the given edge
-  removeEdge(B1, B2, &Label, Cfg);
+  removeEdge(B1, B2, Label, Cfg);
   {
     auto [Begin, End] = edges(Cfg);
     ASSERT_EQ(std::distance(Begin, End), 24);
@@ -436,7 +439,7 @@ TEST(Unit_CFG, edgeLabels) {
     ASSERT_EQ(std::distance(Begin, End), 26);
   }
   // Remove them
-  removeEdge(B1, B2, &Label, Cfg);
+  removeEdge(B1, B2, Label, Cfg);
   {
     auto [Begin, End] = edges(Cfg);
     ASSERT_EQ(std::distance(Begin, End), 24);
@@ -449,7 +452,7 @@ TEST(Unit_CFG, edgeLabels) {
     ASSERT_EQ(std::distance(Begin, End), 25);
   }
   // Remove 2 parallel edges with no labels
-  removeEdge(B2, B1, NULL, Cfg);
+  removeEdge(B2, B1, std::nullopt, Cfg);
   {
     auto [Begin, End] = edges(Cfg);
     ASSERT_EQ(std::distance(Begin, End), 23);
