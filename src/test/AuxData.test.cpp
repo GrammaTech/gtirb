@@ -100,6 +100,11 @@ struct TupleOfCharAndInt64 {
   typedef std::tuple<char, int64_t> Type;
 };
 
+struct PairOfCharAndInt64 {
+  static constexpr const char* Name = "Pair of char and int64";
+  typedef std::pair<char, int64_t> Type;
+};
+
 struct AnInt64 {
   static constexpr const char* Name = "A 64-bit integer";
   typedef int64_t Type;
@@ -509,6 +514,19 @@ TEST(Unit_AuxData, tupleProtobufRoundTrip) {
   auto Result = STH::load<AuxDataImpl<TupleOfCharAndInt64>>(Ctx, ss);
 
   EXPECT_EQ(*Result->get(), T);
+}
+
+TEST(Unit_AuxData, pairProtobufRoundTrip) {
+  using STH = gtirb::SerializationTestHarness;
+  std::pair<char, int64_t> Peer('a', 1);
+  auto Copy = Peer;
+  AuxDataImpl<PairOfCharAndInt64> P(std::move(Copy));
+
+  std::stringstream ss;
+  STH::save(P, ss);
+  auto Result = STH::load<AuxDataImpl<PairOfCharAndInt64>>(Ctx, ss);
+
+  EXPECT_EQ(*Result->get(), Peer);
 }
 
 TEST(Unit_AuxData, uuidProtobufRoundTrip) {

@@ -134,6 +134,9 @@ template <class T> struct is_tuple : std::false_type {};
 template <class... Args>
 struct is_tuple<std::tuple<Args...>> : std::true_type {};
 
+template <class... Args>
+struct is_tuple<std::pair<Args...>> : std::true_type {};
+
 // Utility class for serializing AuxData.
 class ToByteRange {
 public:
@@ -429,6 +432,14 @@ struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
 /// @cond INTERNAL
 template <class T> struct tuple_traits {};
 template <class... Ts> struct tuple_traits<std::tuple<Ts...>> {
+  using Tuple = std::tuple<Ts...>;
+
+  static std::string type_name() {
+    return "tuple<" + TypeId<Ts...>::value() + ">";
+  }
+};
+
+template <class... Ts> struct tuple_traits<std::pair<Ts...>> {
   using Tuple = std::tuple<Ts...>;
 
   static std::string type_name() {
