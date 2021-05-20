@@ -399,8 +399,8 @@ TEST(Unit_CFG, edgeLabels) {
   // Remove non existing edge
   // There is B2 -> B1 edge without a label
   removeEdge(B2, B1,
-             (const EdgeLabel){std::in_place, ConditionalEdge::OnTrue,
-                               DirectEdge::IsDirect, EdgeType::Fallthrough},
+             EdgeLabel{std::in_place, ConditionalEdge::OnTrue,
+                       DirectEdge::IsDirect, EdgeType::Fallthrough},
              Cfg);
   {
     auto [Begin, End] = edges(Cfg);
