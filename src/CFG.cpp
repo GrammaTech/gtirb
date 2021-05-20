@@ -89,33 +89,13 @@ bool removeEdge(const CfgNode* From, const CfgNode* To, const EdgeLabel Label,
         remove_called = false;
         for (boost::tie(ei, edge_end) = out_edges(FromVertex, Cfg);
              ei != edge_end; ++ei) {
-          if (Cfg[target(*ei, Cfg)] == To) {
-            if (Label == std::nullopt) {
-              if (!Cfg[*ei]) {
-                remove_edge(ei, Cfg);
-                // As remove_edge invalidate all iterators
-                // the iteration process should be restarted
-                remove_called = true;
-                deleted = true;
-                break;
-              }
-            } else {
-              if (Cfg[*ei]) {
-                if ((std::get<ConditionalEdge>(*Cfg[*ei]) ==
-                     std::get<ConditionalEdge>(*Label)) &&
-                    (std::get<DirectEdge>(*Cfg[*ei]) ==
-                     std::get<DirectEdge>(*Label)) &&
-                    (std::get<EdgeType>(*Cfg[*ei]) ==
-                     std::get<EdgeType>(*Label))) {
-                  remove_edge(ei, Cfg);
-                  // As remove_edge invalidate all iterators
-                  // the iteration process should be restarted
-                  remove_called = true;
-                  deleted = true;
-                  break;
-                }
-              }
-            }
+          if (Cfg[*ei] == Label) {
+            remove_edge(ei, Cfg);
+            // As remove_edge invalidate all iterators
+            // the iteration process should be restarted
+            remove_called = true;
+            deleted = true;
+            break;
           }
         }
       }
