@@ -19,9 +19,9 @@
 #include <gtirb/ProxyBlock.hpp>
 #include <gtirb/proto/CFG.pb.h>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <map>
 #include <sstream>
-#include <iostream>
 
 using namespace gtirb;
 

@@ -21,67 +21,69 @@
 
 namespace gtirb {
 
-
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os, const ConditionalEdge& ce){
-	switch (ce){
-		case ConditionalEdge::OnFalse:
-			os << "OnFalse";
-			break;
-		case ConditionalEdge::OnTrue:
-			os << "OnTrue";
-			break;
-		}
-	return os;
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+                                          const ConditionalEdge& ce) {
+  switch (ce) {
+  case ConditionalEdge::OnFalse:
+    os << "OnFalse";
+    break;
+  case ConditionalEdge::OnTrue:
+    os << "OnTrue";
+    break;
+  }
+  return os;
 }
 
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os, const EdgeType& et){
-	switch (et){
-		case EdgeType::Branch:
-			os << "Branch";
-			break;
-		case EdgeType::Call:
-			os << "Call";
-			break;
-		case EdgeType::Fallthrough:
-			os << "Fallthrough";
-			break;
-		case EdgeType::Return:
-			os << "Return";
-			break;
-                case EdgeType::Syscall:
-			os << "Syscall";
-			break;
-                case EdgeType::Sysret:
-			os << "Sysret";
-			break;
-		default :
-			os << "EdgeType -- Not Printed";
-		}
-	return os;
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+                                          const EdgeType& et) {
+  switch (et) {
+  case EdgeType::Branch:
+    os << "Branch";
+    break;
+  case EdgeType::Call:
+    os << "Call";
+    break;
+  case EdgeType::Fallthrough:
+    os << "Fallthrough";
+    break;
+  case EdgeType::Return:
+    os << "Return";
+    break;
+  case EdgeType::Syscall:
+    os << "Syscall";
+    break;
+  case EdgeType::Sysret:
+    os << "Sysret";
+    break;
+  default:
+    os << "EdgeType -- Not Printed";
+  }
+  return os;
 }
 
-
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os, const DirectEdge& de){
-	switch (de){
-		case DirectEdge::IsIndirect:
-			os << "IsIndirect";
-			break;
-		case DirectEdge::IsDirect:
-			os << "IsDirect";
-			break;
-		}
-	return os;
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+                                          const DirectEdge& de) {
+  switch (de) {
+  case DirectEdge::IsIndirect:
+    os << "IsIndirect";
+    break;
+  case DirectEdge::IsDirect:
+    os << "IsDirect";
+    break;
+  }
+  return os;
 }
 
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os, const EdgeLabel &label){
-	auto label_tuple = label.value();
-	auto et = std::get<EdgeType>(label_tuple);
-	auto de = std::get<DirectEdge>(label_tuple);
-	auto ce = std:: get<ConditionalEdge>(label_tuple);
-	os << "(" << ce << ", " << de << ", " << et <<")";
-	return os;
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+                                          const EdgeLabel& label) {
+  auto label_tuple = label.value();
+  auto et = std::get<EdgeType>(label_tuple);
+  auto de = std::get<DirectEdge>(label_tuple);
+  auto ce = std::get<ConditionalEdge>(label_tuple);
+  os << "(" << ce << ", " << de << ", " << et << ")";
+  return os;
 }
-	
+
 std::pair<CFG::vertex_descriptor, bool> addVertex(CfgNode* B, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
   if (auto it = IdTable.find(B); it != IdTable.end()) {
