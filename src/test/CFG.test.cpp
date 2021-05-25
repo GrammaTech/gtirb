@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 #include <map>
 #include <sstream>
+#include <iostream>
 
 using namespace gtirb;
 
