@@ -18,10 +18,10 @@ from .symbolicexpression import (
 from .util import (
     DictLike,
     SetWrapper,
-    _IndexedAttribute,
     _nodes_at_interval_tree,
     _nodes_on_interval_tree,
     _offset_interval,
+    _SingleParentIndexedAttribute,
     get_desired_range,
 )
 
@@ -124,10 +124,10 @@ class ByteInterval(Node):
             )
             return "{" + ", ".join(items) + "}"
 
-    address = _IndexedAttribute[
+    address = _SingleParentIndexedAttribute[
         typing.Optional[int], "ByteInterval", "Module"
     ]("address", lambda self: self.section)
-    size = _IndexedAttribute[int, "ByteInterval", "Module"](
+    size = _SingleParentIndexedAttribute[int, "ByteInterval", "Module"](
         "size", lambda self: self.section
     )
 

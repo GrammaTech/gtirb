@@ -152,28 +152,23 @@ AttributeT = typing.TypeVar("AttributeT")
 
 class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
     """
-    A descriptor that will notify a parent when the value is set and can be
+    A descriptor that will notify parents when the value is set and can be
     otherwise used like a normal attribute.
     """
 
-    CallbackT = typing.Callable[
-        [InstanceT], typing.Union[typing.Iterable[ParentT], ParentT]
+    ParentsGetterT = typing.Callable[
+        [InstanceT], typing.Iterable[typing.Optional[ParentT]]
     ]
 
-    def __init__(self, name, parent_getter, multiple=False):
-        # type: (str, "CallbackT", bool) -> None
+    def __init__(self, name, parents_getter):
+        # type: (str, "ParentsGetterT") -> None
         self.name = name
         self.attribute_name = "_" + name
-        self.parent_getter = parent_getter
-        self.multiple = multiple
+        self.parents_getter = parents_getter
 
     def _parents(self, instance):
-        if self.multiple:
-            for parent in self.parent_getter(instance):
-                if parent:
-                    yield parent
-        else:
-            parent = self.parent_getter(instance)
+        # type: (InstanceT) -> typing.Iterator[ParentT]
+        for parent in self.parents_getter(instance):
             if parent:
                 yield parent
 
@@ -197,6 +192,20 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
         # minimum, the name paramter can be removed from the initializer and
         # taken from this instead.
         pass
+
+
+class _SingleParentIndexedAttribute(
+    _IndexedAttribute[AttributeT, InstanceT, ParentT]
+):
+    """
+    A version of _IndexedAttribute that is more convenient for single parents.
+    """
+
+    ParentGetterT = typing.Callable[[InstanceT], typing.Optional[ParentT]]
+
+    def __init__(self, name, parent_getter):
+        # type: (str, "ParentGetterT") -> None
+        super().__init__(name, parents_getter=lambda x: (parent_getter(x),))
 
 
 def get_desired_range(addrs):

@@ -5,7 +5,7 @@ from intervaltree import Interval
 
 from .node import Node
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
-from .util import _IndexedAttribute
+from .util import _SingleParentIndexedAttribute
 
 
 class Block(Node):
@@ -43,10 +43,10 @@ class ByteBlock(Block):
         same offset.
     """
 
-    size = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
+    size = _SingleParentIndexedAttribute[int, "ByteBlock", "ByteInterval"](
         "size", lambda self: self.byte_interval
     )
-    offset = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
+    offset = _SingleParentIndexedAttribute[int, "ByteBlock", "ByteInterval"](
         "offset", lambda self: self.byte_interval
     )
 

@@ -79,10 +79,10 @@ class SymAddrAddr(SymbolicExpression):
     """
 
     symbol1 = _IndexedAttribute[Symbol, "SymAddrAddr", "Module"](
-        "symbol1", lambda self: self._modules(), True
+        "symbol1", lambda self: self._modules()
     )
     symbol2 = _IndexedAttribute[Symbol, "SymAddrAddr", "Module"](
-        "symbol2", lambda self: self._modules(), True
+        "symbol2", lambda self: self._modules()
     )
 
     def __init__(
@@ -193,7 +193,7 @@ class SymAddrConst(SymbolicExpression):
     """
 
     symbol = _IndexedAttribute[Symbol, "SymAddrConst", "Module"](
-        "symbol", lambda self: self._modules(), True
+        "symbol", lambda self: self._modules()
     )
 
     def __init__(self, offset, symbol, attributes=set()):
@@ -279,7 +279,7 @@ class SymStackConst(SymbolicExpression):
     """
 
     symbol = _IndexedAttribute[Symbol, "SymStackConst", "Module"](
-        "symbol", lambda self: self._modules(), True
+        "symbol", lambda self: self._modules()
     )
 
     def __init__(self, offset, symbol, attributes=set()):
