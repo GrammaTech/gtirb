@@ -225,6 +225,30 @@ def nodes_at(
             yield node
 
 
+def _address_interval(node):
+    # type: ("Node") -> typing.Optional[intervaltree.Interval]
+    """
+    Creates an interval tree interval based on a GTIRB node's address and
+    size or returns None, if the node has no address.
+    """
+    if node.address:
+        return intervaltree.Interval(
+            node.address, node.address + node.size + 1, node
+        )
+    else:
+        return None
+
+
+def _offset_interval(node):
+    # type: ("Node") -> intervaltree.Interval
+    """
+    Creates an interval tree interval based on a GTIRB node's offset and size.
+    """
+    return intervaltree.Interval(
+        node.offset, node.offset + node.size + 1, node
+    )
+
+
 def _nodes_on_interval_tree(
     tree,  # type: intervaltree.IntervalTree
     addrs,  # type: typing.Union[int, range]
@@ -243,11 +267,22 @@ def _nodes_on_interval_tree(
     for interval in tree.overlap(
         desired_range.start + adjustment, desired_range.stop + adjustment
     ):
+        node = interval.data
+        if not node.address:
+            continue
+
         # We explicitly exclude zero-sized blocks to match the existing
         # nodes_on function and prior behavior of callers before they switched
         # to using an interval tree.
-        if interval.data.size:
-            yield interval.data
+        if not node.size:
+            continue
+
+        # Our interval tree ranges are closed, so we need to make sure not to
+        # return items the caller didn't request.
+        if node.address + node.size <= desired_range.start:
+            continue
+
+        yield node
 
 
 def _nodes_at_interval_tree(

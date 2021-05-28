@@ -9,7 +9,12 @@ from .block import ByteBlock, CodeBlock, DataBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
 from .node import Node
 from .proto import Section_pb2
-from .util import SetWrapper, _nodes_at_interval_tree, _nodes_on_interval_tree
+from .util import (
+    SetWrapper,
+    _address_interval,
+    _nodes_at_interval_tree,
+    _nodes_on_interval_tree,
+)
 
 
 class Section(Node):
@@ -102,14 +107,14 @@ class Section(Node):
         self.module = module
 
     def _index_add(self, byte_interval):
-        address_interval = byte_interval._address_interval()
+        address_interval = _address_interval(byte_interval)
         if address_interval:
             self._interval_index.add(address_interval)
         if self.module:
             self.module._index_add(byte_interval)
 
     def _index_discard(self, byte_interval):
-        address_interval = byte_interval._address_interval()
+        address_interval = _address_interval(byte_interval)
         if address_interval:
             self._interval_index.discard(address_interval)
         if self.module:

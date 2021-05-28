@@ -3,7 +3,7 @@ import collections.abc
 import typing
 from uuid import UUID
 
-from intervaltree import Interval, IntervalTree
+from intervaltree import IntervalTree
 from sortedcontainers import SortedDict
 
 from .block import ByteBlock, CodeBlock, DataBlock
@@ -21,6 +21,7 @@ from .util import (
     _IndexedAttribute,
     _nodes_at_interval_tree,
     _nodes_on_interval_tree,
+    _offset_interval,
     get_desired_range,
 )
 
@@ -181,23 +182,15 @@ class ByteInterval(Node):
         # Use the property setter to ensure correct invariants.
         self.section = section
 
-    def _address_interval(self):
-        if self.address:
-            return Interval(
-                self.address, self.address + max(self.size, 1), self
-            )
-        else:
-            return None
-
     def _index_add(self, v):
         if isinstance(v, ByteBlock):
-            self._interval_tree.add(v._offset_interval)
+            self._interval_tree.add(_offset_interval(v))
         elif isinstance(v, SymbolicExpression) and self.module:
             self.module._index_add(v)
 
     def _index_discard(self, v):
         if isinstance(v, ByteBlock):
-            self._interval_tree.discard(v._offset_interval)
+            self._interval_tree.discard(_offset_interval(v))
         elif isinstance(v, SymbolicExpression) and self.module:
             self.module._index_discard(v)
 
