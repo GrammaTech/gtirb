@@ -116,6 +116,8 @@ class ByteInterval(Node):
             return str(self._data)
 
         def __repr__(self):
+            # We can't just return the repr of self._data because it will
+            # create a SortedDict and that isn't part of our public interface.
             items = (
                 "{!r}: {!r}".format(key, value)
                 for key, value in self._data.items()
