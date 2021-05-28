@@ -235,13 +235,10 @@ class Section(Node):
         size, so it will be ``None`` in that case.
         """
 
-        lowest = None
-        for bi in self.byte_intervals:
-            if bi.address is None:
-                return None
-            if lowest is None or bi.address < lowest:
-                lowest = bi.address
-        return lowest
+        if 0 < len(self._interval_index) == len(self.byte_intervals):
+            return self._interval_index.begin()
+
+        return None
 
     @property
     def size(self):
@@ -257,18 +254,10 @@ class Section(Node):
         it has no address or size, so it will be ``None`` in that case.
         """
 
-        lowest = None
-        highest = None
-        for bi in self.byte_intervals:
-            if bi.address is None:
-                return None
-            if lowest is None or bi.address < lowest:
-                lowest = bi.address
-            if highest is None or bi.address + bi.size > highest:
-                highest = bi.address + bi.size
-        if lowest is None or highest is None:
-            return None
-        return highest - lowest
+        if 0 < len(self._interval_index) == len(self.byte_intervals):
+            return self._interval_index.span() - 1
+
+        return None
 
     def byte_intervals_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
