@@ -370,7 +370,10 @@ class Module(AuxDataContainer):
 
     def _index_discard(self, v):
         if isinstance(v, Symbol):
-            self._symbol_index[v.name].discard(v)
+            symbol_set = self._symbol_index[v.name]
+            symbol_set.discard(v)
+            if not symbol_set:
+                del self._symbol_index[v.name]
         elif isinstance(v, SymbolicExpression):
             for sym in v.symbols:
                 # This is a bit complicated because we want to clean up keys
