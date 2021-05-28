@@ -99,7 +99,8 @@ class SetWrapper(typing.MutableSet[T]):
         return self._data | other
 
     def clear(self):
-        self._data.clear()
+        while self:
+            self.pop()
 
     # For whatever reason, update isn't included as part of abc.MutableSet.
     def update(self, *others):
