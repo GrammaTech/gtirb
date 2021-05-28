@@ -61,14 +61,4 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-dev")
       "libgtirb = ${CPACK_GTIRB_VERSION}, boost169-devel = 1.69.0, protobuf-devel = 3.5.0"
   )
   set(CPACK_COMPONENTS_ALL ${DEV_COMPONENTS})
-elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "rpm-python")
-  set(CPACK_RPM_PACKAGE_NAME "python3-gtirb")
-  set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
-  set(CPACK_COMPONENTS_ALL python)
-  set(CPACK_RPM_PACKAGE_DEPENDS
-      "python3, python3-protobuf, python3-networkx, python3-pip"
-  )
-  set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
-      "${CPACK_SOURCE_DIR}/cpack-centos-post-install.sh"
-  )
 endif()
