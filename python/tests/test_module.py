@@ -1,6 +1,7 @@
 import unittest
 
 import gtirb
+from helpers import create_interval_etc
 
 
 class ModuleTests(unittest.TestCase):
@@ -173,4 +174,22 @@ class SymbolicExpressionsReferencingTests(unittest.TestCase):
         self.assertEqual(
             set(m.symbolic_expressions_referencing(sym2)),
             {(bi1, 1, expr), (bi1, 2, expr), (bi2, 4, expr)},
+        )
+
+    def test_equal_exprs(self):
+        ir, m, s, bi = create_interval_etc(0x1000, 4)
+        sym = gtirb.Symbol(name="A", module=m)
+
+        # These symbolic expressions will all compare as equal and hash the
+        # same.
+        expr1 = gtirb.SymAddrConst(0, sym)
+        expr2 = gtirb.SymAddrConst(0, sym)
+        expr = gtirb.SymAddrConst(0, sym)
+
+        bi.symbolic_expressions[1] = expr1
+        bi.symbolic_expressions[2] = expr2
+
+        self.assertEqual(
+            set(m.symbolic_expressions_referencing(sym)),
+            {(bi, 1, expr), (bi, 2, expr)},
         )

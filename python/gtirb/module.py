@@ -355,12 +355,18 @@ class Module(AuxDataContainer):
             ")".format(**self.__dict__)
         )
 
+    def _sym_expr_key(self, expr):
+        # Symbolic expressions hash and compare the same based on their
+        # values, but we want to store them based off of object identity.
+        return (expr, id(expr))
+
     def _index_add(self, v):
         if isinstance(v, Symbol):
             self._symbol_index[v.name].add(v)
         elif isinstance(v, SymbolicExpression):
+            expr_key = self._sym_expr_key(v)
             for sym in v.symbols:
-                self._symbolic_expression_index[sym][v] += 1
+                self._symbolic_expression_index[sym][expr_key] += 1
         elif isinstance(v, Section):
             for bi in v.byte_intervals:
                 self._index_add(bi)
@@ -375,17 +381,18 @@ class Module(AuxDataContainer):
             if not symbol_set:
                 del self._symbol_index[v.name]
         elif isinstance(v, SymbolicExpression):
+            expr_key = self._sym_expr_key(v)
             for sym in v.symbols:
                 # This is a bit complicated because we want to clean up keys
                 # that are no longer used. Otherwise we would keep objects
                 # alive longer than needed.
                 counter = self._symbolic_expression_index[sym]
-                count = counter[v]
+                count = counter[expr_key]
                 count -= 1
                 if count != 0:
-                    counter[v] = count
+                    counter[expr_key] = count
                 else:
-                    del counter[v]
+                    del counter[expr_key]
                     if not counter:
                         del self._symbolic_expression_index[sym]
         elif isinstance(v, Section):
@@ -400,7 +407,7 @@ class Module(AuxDataContainer):
         if not exprs:
             return
 
-        for expr in exprs:
+        for expr, _ in exprs.keys():
             for parent, idx in expr._instances:
                 yield parent, idx, expr
 
