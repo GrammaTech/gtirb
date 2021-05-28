@@ -122,10 +122,12 @@ class ByteInterval(Node):
             )
             return "{" + ", ".join(items) + "}"
 
-    address = _IndexedAttribute[typing.Optional[int]](
-        "address", lambda self: self.section
+    address = _IndexedAttribute[
+        typing.Optional[int], "ByteInterval", "Module"
+    ]("address", lambda self: self.section)
+    size = _IndexedAttribute[int, "ByteInterval", "Module"](
+        "size", lambda self: self.section
     )
-    size = _IndexedAttribute[int]("size", lambda self: self.section)
 
     def __init__(
         self,

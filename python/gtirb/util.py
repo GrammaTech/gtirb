@@ -145,14 +145,23 @@ class DictWrapper(typing.MutableMapping[K, V]):
         return repr(self._data)
 
 
-class _IndexedAttribute(typing.Generic[T]):
+InstanceT = typing.TypeVar("InstanceT")
+ParentT = typing.TypeVar("ParentT")
+AttributeT = typing.TypeVar("AttributeT")
+
+
+class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
     """
     A descriptor that will notify a parent when the value is set and can be
     otherwise used like a normal attribute.
     """
 
+    CallbackT = typing.Callable[
+        [InstanceT], typing.Union[typing.Iterable[ParentT], ParentT]
+    ]
+
     def __init__(self, name, parent_getter, multiple=False):
-        # type: (str, typing.Callable[[T], typing.Any], bool) -> None
+        # type: (str, "CallbackT", bool) -> None
         self.name = name
         self.parent_getter = parent_getter
         self.multiple = multiple
@@ -168,11 +177,11 @@ class _IndexedAttribute(typing.Generic[T]):
                 yield parent
 
     def __get__(self, instance, owner=None):
-        # type: (typing.Any, typing.Any) -> T
+        # type: (InstanceT, typing.Any) -> AttributeT
         return getattr(instance, "_" + self.name)
 
     def __set__(self, instance, value):
-        # type: (typing.Any, T) -> None
+        # type: (InstanceT, AttributeT) -> None
         for parent in self._parents(instance):
             parent._index_discard(instance)
         setattr(instance, "_" + self.name, value)

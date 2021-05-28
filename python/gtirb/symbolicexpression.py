@@ -78,8 +78,12 @@ class SymAddrAddr(SymbolicExpression):
     :ivar ~.symbol2: Symbol to subtract from ``symbol1``.
     """
 
-    symbol1 = _IndexedAttribute("symbol1", lambda self: self._modules(), True)
-    symbol2 = _IndexedAttribute("symbol2", lambda self: self._modules(), True)
+    symbol1 = _IndexedAttribute[Symbol, "SymAddrAddr", "Module"](
+        "symbol1", lambda self: self._modules(), True
+    )
+    symbol2 = _IndexedAttribute[Symbol, "SymAddrAddr", "Module"](
+        "symbol2", lambda self: self._modules(), True
+    )
 
     def __init__(
         self,
@@ -188,7 +192,9 @@ class SymAddrConst(SymbolicExpression):
     :ivar ~.symbol: Symbol representing an address.
     """
 
-    symbol = _IndexedAttribute("symbol", lambda self: self._modules(), True)
+    symbol = _IndexedAttribute[Symbol, "SymAddrConst", "Module"](
+        "symbol", lambda self: self._modules(), True
+    )
 
     def __init__(self, offset, symbol, attributes=set()):
         # type: (int, Symbol, AttributesCtorType) -> None
@@ -272,7 +278,9 @@ class SymStackConst(SymbolicExpression):
     :ivar ~.symbol: Symbol representing a stack variable.
     """
 
-    symbol = _IndexedAttribute("symbol", lambda self: self._modules(), True)
+    symbol = _IndexedAttribute[Symbol, "SymStackConst", "Module"](
+        "symbol", lambda self: self._modules(), True
+    )
 
     def __init__(self, offset, symbol, attributes=set()):
         # type: (int, Symbol, AttributesCtorType) -> None

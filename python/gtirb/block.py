@@ -43,8 +43,12 @@ class ByteBlock(Block):
         same offset.
     """
 
-    size = _IndexedAttribute[int]("size", lambda self: self.byte_interval)
-    offset = _IndexedAttribute[int]("offset", lambda self: self.byte_interval)
+    size = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
+        "size", lambda self: self.byte_interval
+    )
+    offset = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
+        "offset", lambda self: self.byte_interval
+    )
 
     def __init__(
         self,

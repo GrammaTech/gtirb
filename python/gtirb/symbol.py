@@ -18,7 +18,9 @@ class Symbol(Node):
         than at the beginning. Has no meaning for integral symbols.
     """
 
-    name = _IndexedAttribute[str]("name", lambda self: self.module)
+    name = _IndexedAttribute[str, "Symbol", "Module"](
+        "name", lambda self: self.module
+    )
 
     def __init__(
         self,
