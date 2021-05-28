@@ -163,6 +163,7 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
     def __init__(self, name, parent_getter, multiple=False):
         # type: (str, "CallbackT", bool) -> None
         self.name = name
+        self.attribute_name = "_" + name
         self.parent_getter = parent_getter
         self.multiple = multiple
 
@@ -178,13 +179,13 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
 
     def __get__(self, instance, owner=None):
         # type: (InstanceT, typing.Any) -> AttributeT
-        return getattr(instance, "_" + self.name)
+        return getattr(instance, self.attribute_name)
 
     def __set__(self, instance, value):
         # type: (InstanceT, AttributeT) -> None
         for parent in self._parents(instance):
             parent._index_discard(instance)
-        setattr(instance, "_" + self.name, value)
+        setattr(instance, self.attribute_name, value)
         for parent in self._parents(instance):
             parent._index_add(instance)
 
