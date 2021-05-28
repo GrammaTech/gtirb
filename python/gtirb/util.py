@@ -98,6 +98,22 @@ class SetWrapper(typing.MutableSet[T]):
     def __or__(self, other):
         return self._data | other
 
+    def __ior__(self, other):
+        for value in other:
+            self.add(value)
+        return self
+
+    def pop(self):
+        it = iter(self)
+        # pop is documented as raising a KeyError if it's empty, not
+        # StopIteration
+        try:
+            result = next(it)
+        except StopIteration:
+            raise KeyError
+        self.discard(result)
+        return result
+
     def clear(self):
         while self:
             self.pop()
