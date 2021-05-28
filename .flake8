@@ -7,5 +7,6 @@
 [flake8]
 ignore = E203,W503
 
+# Ignore unused variables in tests, which tend to come up when building gtirb.
 per-file-ignores =
   python/tests/*:F841
