@@ -264,7 +264,7 @@ test-install-python-virtualenv:
   script:
     - mkdir /tmp/myvenv
     - python3 -m venv /tmp/myvenv
-    - sh -c '. /tmp/myvenv/bin/activate ; cd build/python && python3 setup.py install'
+    - sh -c '. /tmp/myvenv/bin/activate ; cd build/python && pip3 install -e .'
     - rm -rf build
     - sh -c '. /tmp/myvenv/bin/activate ; python3 .ci/test-install.py'
 
