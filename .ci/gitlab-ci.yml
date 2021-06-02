@@ -101,16 +101,6 @@ check-format:
     - cp bin/$(echo "gtirb$(echo $BUILD_TYPE | sed 's/Debug/d/;s/RelWithDebInfo//').pdb") $BASE_DIRECTORY/bin/
     - cp -r $BASE_DIRECTORY ../
 
-build-ubuntu16-gcc7:
-  stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-  variables:
-    OS: 'ubuntu16'
-    CXX_COMPILER: 'g++-7'
-    CPACK_GENERATOR: 'DEB'
-    BUILD_TYPE: 'RelWithDebInfo'
-  <<: *build
-
 build-ubuntu18-gcc7:
   stage: build
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
@@ -447,20 +437,6 @@ internal-pypi:
 
 
 # Apt packaging related jobs
-build-ubuntu16-packages:
-  stage: build-installers
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-  needs: [build-ubuntu16-gcc7]
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - build
-  script:
-    - cd build
-    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
-    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-dev;
-    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-debug;
-
 build-ubuntu18-packages:
   stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
@@ -518,8 +494,7 @@ build-ubuntu20-packages:
     - cat /etc/apt/sources.list
     - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb-dev
     - cp .ci/test-install.cpp ./
-    - if [ $(lsb_release -sc) == "xenial" ]; then CC=g++-7; else CC=g++; fi
-    - ${CC} test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
+    - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
     - ./test-install
 
 .test-ubuntu-libgtirb: &test-ubuntu-libgtirb
@@ -539,26 +514,6 @@ build-ubuntu20-packages:
     - echo -e "\ndeb $TRUSTED file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
     - apt-get update -y && apt-get install -y --allow-unauthenticated libgtirb-dbg
     - '[ -f /usr/lib/debug/.build-id/$(readelf -n /usr/lib/libgtirb.so | grep ''Build ID: '' | cut -d":" -f2 | sed -E ''s/ ([a-f0-9]{2,})([a-f0-9]{30,})/\1\/\2/g'').debug ];'
-
-setup-ubuntu16-test-apt-repo:
-   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-   needs: [build-ubuntu16-packages]
-   <<: *setup-test-apt-repo
-
-test-ubuntu16-libgtirb-dev:
-   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-   needs: [setup-ubuntu16-test-apt-repo]
-   <<: *test-ubuntu-libgtirb-dev
-
-test-ubuntu16-libgtirb-dbg:
-   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-   needs: [setup-ubuntu16-test-apt-repo]
-   <<: *test-ubuntu-libgtirb-dbg
-
-test-ubuntu16-libgtirb:
-   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-   needs: [setup-ubuntu16-test-apt-repo,test-ubuntu16-libgtirb-dev]
-   <<: *test-ubuntu-libgtirb
 
 setup-ubuntu18-test-apt-repo:
    image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
@@ -599,17 +554,6 @@ test-ubuntu20-libgtirb:
    image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
    needs: [setup-ubuntu20-test-apt-repo,test-ubuntu20-libgtirb-dev]
    <<: *test-ubuntu-libgtirb
-
-debian-installer-ubuntu16:
-  stage: deploy
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu16
-  needs: [test-ubuntu16-libgtirb, build-ubuntu16-packages]
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - '*gtirb*.deb'
-  script:
-    - cp build/*gtirb*.deb ./
 
 debian-installer-ubuntu18:
   stage: deploy
