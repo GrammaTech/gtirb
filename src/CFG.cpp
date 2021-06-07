@@ -21,69 +21,67 @@
 
 namespace gtirb {
 
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
                                           const ConditionalEdge& CondEdge) {
   switch (CondEdge) {
   case ConditionalEdge::OnFalse:
-    os << "OnFalse";
+    OS << "OnFalse";
     break;
   case ConditionalEdge::OnTrue:
-    os << "OnTrue";
+    OS << "OnTrue";
     break;
   }
-  return os;
+  return OS;
 }
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
                                           const EdgeType& EdType) {
   switch (EdType) {
   case EdgeType::Branch:
-    os << "Branch";
+    OS << "Branch";
     break;
   case EdgeType::Call:
-    os << "Call";
+    OS << "Call";
     break;
   case EdgeType::Fallthrough:
-    os << "Fallthrough";
+    OS << "Fallthrough";
     break;
   case EdgeType::Return:
-    os << "Return";
+    OS << "Return";
     break;
   case EdgeType::Syscall:
-    os << "Syscall";
+    OS << "Syscall";
     break;
   case EdgeType::Sysret:
-    os << "Sysret";
+    OS << "Sysret";
     break;
-  default:
-    os << "EdgeType -- Not Printed";
   }
-  return os;
+  return OS;
 }
 
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
                                           const DirectEdge& DirEdge) {
   switch (DirEdge) {
   case DirectEdge::IsIndirect:
-    os << "IsIndirect";
+    OS << "IsIndirect";
     break;
   case DirectEdge::IsDirect:
-    os << "IsDirect";
+    OS << "IsDirect";
     break;
   }
-  return os;
+  return OS;
 }
 
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
-                                          const EdgeLabel& label) {
-  if (!label) {
-    os << "<no label>";
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const EdgeLabel& Label) {
+  if (!Label) {
+    OS << "<no label>";
   } else {
-    auto et = std::get<EdgeType>(*label);
-    auto de = std::get<DirectEdge>(*label);
-    auto ce = std::get<ConditionalEdge>(*label);
+    auto et = std::get<EdgeType>(*Label);
+    auto de = std::get<DirectEdge>(*Label);
+    auto ce = std::get<ConditionalEdge>(*Label);
     os << "(" << ce << ", " << de << ", " << et << ")";
-    return os;
+    return OS;
   }
 }
 
