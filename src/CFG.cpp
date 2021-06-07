@@ -22,8 +22,8 @@
 namespace gtirb {
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
-                                          const ConditionalEdge& ce) {
-  switch (ce) {
+                                          const ConditionalEdge& CondEdge) {
+  switch (CondEdge) {
   case ConditionalEdge::OnFalse:
     os << "OnFalse";
     break;
@@ -34,9 +34,9 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
   return os;
 }
 
-GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
-                                          const EdgeType& et) {
-  switch (et) {
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const EdgeType& EdType) {
+  switch (EdType) {
   case EdgeType::Branch:
     os << "Branch";
     break;
@@ -62,8 +62,8 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
 }
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
-                                          const DirectEdge& de) {
-  switch (de) {
+                                          const DirectEdge& DirEdge) {
+  switch (DirEdge) {
   case DirectEdge::IsIndirect:
     os << "IsIndirect";
     break;
@@ -76,12 +76,15 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& os,
                                           const EdgeLabel& label) {
-  auto label_tuple = label.value();
-  auto et = std::get<EdgeType>(label_tuple);
-  auto de = std::get<DirectEdge>(label_tuple);
-  auto ce = std::get<ConditionalEdge>(label_tuple);
-  os << "(" << ce << ", " << de << ", " << et << ")";
-  return os;
+  if (!label) {
+    os << "<no label>";
+  } else {
+    auto et = std::get<EdgeType>(*label);
+    auto de = std::get<DirectEdge>(*label);
+    auto ce = std::get<ConditionalEdge>(*label);
+    os << "(" << ce << ", " << de << ", " << et << ")";
+    return os;
+  }
 }
 
 std::pair<CFG::vertex_descriptor, bool> addVertex(CfgNode* B, CFG& Cfg) {
