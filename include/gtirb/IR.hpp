@@ -1,6 +1,6 @@
 //===- IR.hpp ---------------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -157,6 +157,31 @@ public:
     return boost::make_iterator_range(modules_begin(), modules_end());
   }
 
+  /// \brief Iterator over modules \ref Module "Modules".
+  ///
+  /// This iterator returns modules in name order. If two modules have the same
+  /// name, their order is unspecified.
+  using module_name_iterator =
+      boost::indirect_iterator<ModuleSet::index<by_name>::type::iterator>;
+  /// \brief Range of modules \ref Module "Modules".
+  ///
+  /// This range returns modules in name order. If two modules have the same
+  /// name, their order is unspecified.
+  using module_name_range = boost::iterator_range<module_name_iterator>;
+  /// \brief Constant iterator over modules \ref Module "Modules".
+  ///
+  /// This iterator returns modules in name order. If two modules have the same
+  /// name, their order is unspecified.
+  using const_module_name_iterator =
+      boost::indirect_iterator<ModuleSet::index<by_name>::type::const_iterator,
+                               const Module>;
+  /// \brief Constant range of modules \ref Module "Modules".
+  ///
+  /// This range returns modules in name order. If two modules have the same
+  /// name, their order is unspecified.
+  using const_module_name_range =
+      boost::iterator_range<const_module_name_iterator>;
+
   /// \brief Remove a \ref Module object located in this IR.
   ///
   /// \param S The \ref Module object to remove.
@@ -201,6 +226,28 @@ public:
   // a code review.
   template <typename... Args> Module* addModule(Context& C, Args... A) {
     return addModule(Module::Create(C, A...));
+  }
+
+  /// \brief Find modules by name
+  ///
+  /// \param N The name to look up.
+  ///
+  /// \return A possibly empty range of all the modules with the
+  /// given name.
+  module_name_range findModules(const std::string& N) {
+    auto Found = Modules.get<by_name>().equal_range(N);
+    return boost::make_iterator_range(Found.first, Found.second);
+  }
+
+  /// \brief Find modules by name
+  ///
+  /// \param N The name to look up.
+  ///
+  /// \return A possibly empty constant range of all the modules with the
+  /// given name.
+  const_module_name_range findModules(const std::string& N) const {
+    auto Found = Modules.get<by_name>().equal_range(N);
+    return boost::make_iterator_range(Found.first, Found.second);
   }
 
   /// @}

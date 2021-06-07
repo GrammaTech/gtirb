@@ -157,6 +157,10 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     /// \brief Non-const to const conversion constructor.
     BlockToNode(const BlockToNode<std::remove_const_t<NodeType>>&) {}
 
+    BlockToNode& operator=(const BlockToNode<std::remove_const_t<NodeType>>&) {
+      return *this;
+    }
+
     NodeType& operator()(const Block& B) const {
       // We avoid the call to cast() here because we use this function after
       // BlockKindEquals, which confirms the type of the Node for us
