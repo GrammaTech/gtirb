@@ -62,8 +62,27 @@ class ByteInterval(Node):
 
     class _BlockSet(SetWrapper):
         def __init__(self, node, *args):
+            # By creating the interval tree with all of the initial items
+            # instead of adding each node individually, we can shave off a
+            # good chunk of the overhead of the index. Unfortunately this
+            # means duplicating code that's in add.
             self._node = node  # type: ByteInterval
-            super().__init__(*args)
+            self._data = set(*args)
+
+            for v in self._data:
+                if v._byte_interval is not None:
+                    v._byte_interval.blocks.discard(v)
+                v._byte_interval = self._node
+                if self._node.ir is not None:
+                    v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
+
+            assert not self._node._interval_tree
+            self._node._interval_tree = IntervalTree(
+                _offset_interval(v) for v in self._data
+            )
+
+            # We intentionally do not call super's __init__ because we
+            # explicitly are avoiding its per-item adding.
 
         def add(self, v):
             if v._byte_interval is not None:
@@ -255,9 +274,9 @@ class ByteInterval(Node):
             size=proto_interval.size,
             contents=proto_interval.contents,
             uuid=uuid,
+            blocks=(decode_block(b) for b in proto_interval.blocks),
         )
         result._add_to_uuid_cache(ir._local_uuid_cache)
-        result.blocks.update(decode_block(b) for b in proto_interval.blocks)
         # We store the interval and IR here so we can use it later, when
         # _decode_symbolic_expressions is called.
         result._proto_interval = proto_interval
