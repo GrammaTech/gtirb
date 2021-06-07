@@ -80,9 +80,9 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
     auto et = std::get<EdgeType>(*Label);
     auto de = std::get<DirectEdge>(*Label);
     auto ce = std::get<ConditionalEdge>(*Label);
-    os << "(" << ce << ", " << de << ", " << et << ")";
-    return OS;
+    OS << "(" << ce << ", " << de << ", " << et << ")";
   }
+  return OS;
 }
 
 std::pair<CFG::vertex_descriptor, bool> addVertex(CfgNode* B, CFG& Cfg) {
