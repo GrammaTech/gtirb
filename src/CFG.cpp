@@ -27,7 +27,8 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
     OS << "OnFalse";
     break;
   case ConditionalEdge::OnTrue:
-    OS << "OnTrue" break;
+    OS << "OnTrue";
+    break;
   }
   return OS;
 }
