@@ -22,8 +22,8 @@
 namespace gtirb {
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
-                                          const ConditionalEdge& CondEdge) {
-  switch (CondEdge) {
+                                          const ConditionalEdge& CE) {
+  switch (CE) {
   case ConditionalEdge::OnFalse:
     OS << "OnFalse";
     break;
@@ -35,8 +35,8 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
 }
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
-                                          const EdgeType& EdType) {
-  switch (EdType) {
+                                          const EdgeType& ET) {
+  switch (ET) {
   case EdgeType::Branch:
     OS << "Branch";
     break;
@@ -60,8 +60,8 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
 }
 
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
-                                          const DirectEdge& DirEdge) {
-  switch (DirEdge) {
+                                          const DirectEdge& DE) {
+  switch (DE) {
   case DirectEdge::IsIndirect:
     OS << "IsIndirect";
     break;
