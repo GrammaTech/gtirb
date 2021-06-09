@@ -342,6 +342,19 @@ TEST(Unit_CFG, edges) {
   EXPECT_FALSE(removeEdge(P1, B3, Cfg));
 }
 
+TEST(Unit_CFG, edgeLabelPrinting) {
+  std::stringstream LabelOutput;
+  gtirb::EdgeLabel Label;
+  LabelOutput << Label;
+  EXPECT_EQ(LabelOutput.str(), "<no label>");
+
+  Label.emplace(gtirb::ConditionalEdge::OnFalse, gtirb::DirectEdge::IsDirect,
+                gtirb::EdgeType::Fallthrough);
+  LabelOutput.str(std::string());
+  LabelOutput << Label;
+  EXPECT_EQ(LabelOutput.str(), "(OnFalse, IsDirect, Fallthrough)");
+}
+
 TEST(Unit_CFG, edgeLabels) {
   CFG Cfg;
   auto B1 = CodeBlock::Create(Ctx, 1);
