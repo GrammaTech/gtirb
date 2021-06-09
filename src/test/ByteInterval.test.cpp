@@ -593,11 +593,16 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
   }
 }
 
+void prependInt(gtirb::ByteInterval& BI, char value){
+   BI.insertBytes(BI.bytes_begin<char>(), value);
+}
+
 TEST(Unit_ByteInterval, byteVectorInsert) {
   std::string Contents = "0123456789";
   auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
                                   Contents.end());
   {
+    prependInt(*BI, 'a');	  
     std::string toInsert = "abcd";
     BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
                           toInsert.end());
