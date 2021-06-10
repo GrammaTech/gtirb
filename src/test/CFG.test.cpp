@@ -346,7 +346,7 @@ TEST(Unit_CFG, edgeLabelPrinting) {
   std::stringstream LabelOutput;
   gtirb::EdgeLabel Label;
   LabelOutput << Label;
-  EXPECT_EQ(LabelOutput.str(), "<no label>");
+  EXPECT_EQ(LabelOutput.str(), "<No EdgeLabel>");
 
   Label.emplace(gtirb::ConditionalEdge::OnFalse, gtirb::DirectEdge::IsDirect,
                 gtirb::EdgeType::Fallthrough);
