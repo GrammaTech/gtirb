@@ -74,12 +74,12 @@ GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
                                           const EdgeLabel& Label) {
   if (!Label) {
-    OS << "<no label>";
+    OS << "<No EdgeLabel>";
   } else {
-    auto et = std::get<EdgeType>(*Label);
-    auto de = std::get<DirectEdge>(*Label);
-    auto ce = std::get<ConditionalEdge>(*Label);
-    OS << "(" << ce << ", " << de << ", " << et << ")";
+    auto ET = std::get<EdgeType>(*Label);
+    auto DE = std::get<DirectEdge>(*Label);
+    auto CE = std::get<ConditionalEdge>(*Label);
+    OS << "(" << CE << ", " << DE << ", " << ET << ")";
   }
   return OS;
 }
