@@ -66,7 +66,7 @@ class Codec:
         *,
         serialization=None,  # type: Serialization
         subtypes=tuple(),  # type: SubtypeTree
-        get_by_uuid=None  # type: CacheLookupFn
+        get_by_uuid=None,  # type: CacheLookupFn
     ):
         # type: (...) -> typing.Any
         """Decode the specified raw data into a Python object.
@@ -87,7 +87,7 @@ class Codec:
         item,  # type: typing.Any
         *,
         serialization=None,  # type: Serialization
-        subtypes=tuple()  # type: SubtypeTree
+        subtypes=tuple(),  # type: SubtypeTree
     ):
         # type: (...) -> None
         """Encode an item, writing the serialized object to ``out``.
@@ -100,26 +100,6 @@ class Codec:
         """
 
         raise NotImplementedError
-
-
-class Int64Codec(Codec):
-    """A Codec for 64-bit signed integers."""
-
-    @staticmethod
-    def decode(
-        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
-    ):
-        if subtypes != ():
-            raise DecodeError("int64_t should have no subtypes")
-        return int.from_bytes(
-            raw_bytes.read(8), byteorder="little", signed=True
-        )
-
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise EncodeError("int64_t should have no subtypes")
-        out.write(val.to_bytes(8, byteorder="little", signed=True))
 
 
 class MappingCodec(Codec):
@@ -277,24 +257,90 @@ class StringCodec(Codec):
         out.write(val.encode())
 
 
+# Class decorator for Codec's for integer types.
+def _integer_codec(typname, bytesize, signed):
+    def inner_decorator(codec_cls):
+        def decode(
+            raw_bytes,
+            *,
+            serialization=None,
+            subtypes=tuple(),
+            get_by_uuid=None,
+        ):
+            if subtypes != ():
+                raise DecodeError(f"{typname} should have no subtypes")
+            return int.from_bytes(
+                raw_bytes.read(bytesize), byteorder="little", signed=signed
+            )
+
+        codec_cls.decode = decode
+
+        def encode(out, val, *, serialization=None, subtypes=tuple()):
+            if subtypes != ():
+                raise EncodeError(f"{typname} should have no subtypes")
+            out.write(val.to_bytes(bytesize, byteorder="little"))
+
+        codec_cls.encode = encode
+
+        return codec_cls
+
+    return inner_decorator
+
+
+@_integer_codec("uint64_t", 8, False)
 class Uint64Codec(Codec):
     """A Codec for 64-bit unsigned integers."""
 
-    @staticmethod
-    def decode(
-        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
-    ):
-        if subtypes != ():
-            raise DecodeError("uint64_t should have no subtypes")
-        return int.from_bytes(
-            raw_bytes.read(8), byteorder="little", signed=False
-        )
+    pass
 
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise EncodeError("uint64_t should have no subtypes")
-        out.write(val.to_bytes(8, byteorder="little"))
+
+@_integer_codec("uint32_t", 4, False)
+class Uint32Codec(Codec):
+    """A Codec for 32-bit unsigned integers."""
+
+    pass
+
+
+@_integer_codec("uint16_t", 2, False)
+class Uint16Codec(Codec):
+    """A Codec for 16-bit unsigned integers."""
+
+    pass
+
+
+@_integer_codec("uint8_t", 1, False)
+class Uint8Codec(Codec):
+    """A Codec for 8-bit unsigned integers."""
+
+    pass
+
+
+@_integer_codec("int64_t", 8, True)
+class Int64Codec(Codec):
+    """A Codec for 64-bit signed integers."""
+
+    pass
+
+
+@_integer_codec("int32_t", 4, True)
+class Int32Codec(Codec):
+    """A Codec for 32-bit signed integers."""
+
+    pass
+
+
+@_integer_codec("int16_t", 2, True)
+class Int16Codec(Codec):
+    """A Codec for 16-bit signed integers."""
+
+    pass
+
+
+@_integer_codec("int8_t", 1, True)
+class Int8Codec(Codec):
+    """A Codec for 8-bit signed integers."""
+
+    pass
 
 
 class UUIDCodec(Codec):
@@ -364,12 +410,18 @@ class Serialization:
             "Addr": Uint64Codec,
             "Offset": OffsetCodec,
             "int64_t": Int64Codec,
+            "int32_t": Int32Codec,
+            "int16_t": Int16Codec,
+            "int8_t": Int8Codec,
             "mapping": MappingCodec,
             "sequence": SequenceCodec,
             "set": SetCodec,
             "string": StringCodec,
             "tuple": TupleCodec,
             "uint64_t": Uint64Codec,
+            "uint32_t": Uint32Codec,
+            "uint16_t": Uint16Codec,
+            "uint8_t": Uint8Codec,
             "UUID": UUIDCodec,
         }  # type: typing.Dict[str, Codec]
 
