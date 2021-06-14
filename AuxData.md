@@ -219,6 +219,7 @@ The following are the provisional AuxData table schemata.
 | [`"peImportedSymbols"`](#peImportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         |
 | [`"peExportedSymbols"`](#peExportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         |
 | [`"peResource"`](#peResource)                           | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                           |
+| [`"profile"`](#profile)                                 | ```std::map<gtirb::UUID, uint64_t>```                                                                  |
 
 
 ### encodings
@@ -379,3 +380,14 @@ The following are the provisional AuxData table schemata.
 | Value    | A resource header, data length, and data pointer.           |
 | AttachedTo | gtirb::Module |
 | Note     | List of PE resources. A resource header, data length, and data pointer. |
+
+### profile
+
+| <!-- --> | <!-- -->                                                 |
+|----------|----------------------------------------------------------|
+| Label    | ```"profile"```                                          |
+| Type     | ```std::map<gtirb:UUID,uint64_t>```                      |
+| Key      | The gtirb::UUID of a gtirb::CodeBlock.                   |
+| Value    | The number of times that block was executed.             |
+| AttachedTo | gtirb::Module                                          |
+| Notes    | An entry in this table describes how many times a code block was executed. Blocks that are not present in this aux data table should be assumed to have a value of 0, indicating that they were not executed. |
