@@ -1897,19 +1897,11 @@ public:
   /// \param  X             The data to insert.
   ///
   /// \return An iterator pointing to the element inserted by this call.
-  template <typename T>
-  const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
+template <typename T>
+  auto insertBytes(auto Pos,
                                       const T& X) {
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
-
-  template <typename T>
-  bytes_iterator<T> insertBytes(bytes_iterator<T> Pos,
-                                      const T& X) {
-    return insertBytes<T>(Pos, X, getBoostEndianOrder());
-  }
-
-
 
   /// \brief Insert a single datum into this byte vector.
   ///
@@ -1923,31 +1915,9 @@ public:
   /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the element inserted by this call.
-  
-  
-  
-  
-#define MK_INSERT_BYTES(IT_TYPE) template<typename T>         \
-IT_TYPE<T> insertBytes( IT_TYPE<T> Pos, const T& X, VectorOrder,  ElementOrder = boost::endian::order::native){  \
-setSize(Size + sizeof(T));       \
-if (Pos.I < Bytes.size()) {      \
-  Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);    \
-}                               \
-*bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X; \
- return Pos;         \
-}
-
-MK_INSERT_BYTES(bytes_iterator);
-MK_INSERT_BYTES(const_bytes_iterator);
-#undef MK_INSERT_BYTES
-
-
-  
-  
-  /*
   template <typename T>
-  const_bytes_iterator<T> insertBytes(
-      const const_bytes_iterator<T> Pos, const T& X,
+  auto insertBytes(
+      auto Pos, const T& X,
       boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
     setSize(Size + sizeof(T));
@@ -1961,22 +1931,6 @@ MK_INSERT_BYTES(const_bytes_iterator);
     return Pos;
   }
 
-  template <typename T>
-  bytes_iterator<T> insertBytes(
-      bytes_iterator<T> Pos, const T& X,
-      boost::endian::order VectorOrder,
-      boost::endian::order ElementOrder = boost::endian::order::native) {
-    setSize(Size + sizeof(T));
-    // If the position to insert is currently outside the initilized bytes,
-    // we let the iterator's operator= handle resizing the byte vector,
-    // otherwise we insert zeroes and then overwrite them via said operator=.
-    if (Pos.I < Bytes.size()) {
-      Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);
-    }
-    *bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X;
-    return Pos;
-  }
-*/
   /// \brief Insert data into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
@@ -1990,18 +1944,19 @@ MK_INSERT_BYTES(const_bytes_iterator);
   /// \param  End           The end of the data to insert.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-  template <typename T, typename InputIterator>
+  
+template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
     return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
   }
-
+  
   template <typename T, typename InputIterator>
   bytes_iterator<T> insertBytes(bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
     return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
   }
-
+  
   /// \brief Insert data into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
@@ -2017,9 +1972,9 @@ MK_INSERT_BYTES(const_bytes_iterator);
   /// \param  ElementsOrder The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-  template <typename T, typename InputIterator>
-  const_bytes_iterator<T> insertBytes(
-      const const_bytes_iterator<T> Pos, InputIterator Begin, InputIterator End,
+template <typename T, typename InputIterator>
+  auto insertBytes(
+      auto Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
     auto N = std::distance(Begin, End) * sizeof(T);
@@ -2036,24 +1991,6 @@ MK_INSERT_BYTES(const_bytes_iterator);
     return Pos;
   }
 
- template <typename T, typename InputIterator>
-  bytes_iterator<T> insertBytes(
-      bytes_iterator<T> Pos, InputIterator Begin, InputIterator End,
-      boost::endian::order VectorOrder,
-      boost::endian::order ElementsOrder = boost::endian::order::native) {
-    auto N = std::distance(Begin, End) * sizeof(T);
-    setSize(Size + N);
-    // If the position to insert is currently outside the initilized bytes,
-    // we let the iterator's operator= handle resizing the byte vector,
-    // otherwise we insert zeroes and then overwrite them via said operator=.
-    if (Pos.I < Bytes.size()) {
-      Bytes.insert(Bytes.begin() + Pos.I, N, 0);
-    }
-    // std::copy calls operator= one time for every element in the input iter.
-    std::copy(Begin, End,
-              bytes_iterator<T>(this, Pos.I, VectorOrder, ElementsOrder));
-    return Pos;
-  }
 
   /// \brief Erase data from this byte vector.
   ///
@@ -2064,7 +2001,8 @@ MK_INSERT_BYTES(const_bytes_iterator);
   ///
   /// \return An iterator pointing to the first element after those erased by
   /// this call.
-  template <typename T>
+  
+template <typename T>
   const_bytes_iterator<T> eraseBytes(const const_bytes_iterator<T> Begin,
                                      const const_bytes_iterator<T> End) {
     assert(Begin.I <= End.I && "eraseBytes: Begin > End!");

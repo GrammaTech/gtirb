@@ -20,6 +20,7 @@
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
 #include <sstream>
+#include <iostream>
 
 using namespace gtirb;
 
@@ -594,7 +595,10 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
 }
 
 void prependInt(gtirb::ByteInterval& BI, char value){
-   BI.insertBytes(BI.bytes_begin<char>(), value);
+   BI.insertBytes<char>(BI.bytes_begin<char>(), value);
+   const gtirb::ByteInterval& CBI(BI);
+   BI.insertBytes(CBI.bytes_begin<char>(), value);
+
 }
 
 TEST(Unit_ByteInterval, byteVectorInsert) {
@@ -602,24 +606,24 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
   auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
                                   Contents.end());
   {
-    prependInt(*BI, 'd');	  
+    prependInt(*BI, 'd');
     std::string toInsert = "abc";
     BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
                           toInsert.end());
     std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
               std::back_inserter(Result));
-    ASSERT_EQ(Result, "abcd0123456789");
+    ASSERT_EQ(Result, "abcdd0123456789");
   }
 
   {
     std::string toInsert = "efg";
-    BI->insertBytes<char>(BI->bytes_begin<char>() + 6, toInsert.begin(),
+    BI->insertBytes<char>(BI->bytes_begin<char>() + 7, toInsert.begin(),
                           toInsert.end());
     std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
               std::back_inserter(Result));
-    ASSERT_EQ(Result, "abcd01efg23456789");
+    ASSERT_EQ(Result, "abcdd01efg23456789");
   }
 
   {
@@ -629,7 +633,7 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
     std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
               std::back_inserter(Result));
-    ASSERT_EQ(Result, "abcd01efg23456789hi");
+    ASSERT_EQ(Result, "abcdd01efg23456789hi");
   }
 
   // Test with larger, non-char values.
@@ -641,7 +645,7 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
     std::string Result;
     std::copy(BI->bytes_begin<char>(), BI->bytes_end<char>(),
               std::back_inserter(Result));
-    ASSERT_EQ(Result, "abcd(hello.)01efg23456789hi");
+    ASSERT_EQ(Result, "abcd(hello.)d01efg23456789hi");
   }
 }
 
