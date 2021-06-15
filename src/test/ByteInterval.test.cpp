@@ -602,8 +602,8 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
   auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
                                   Contents.end());
   {
-    prependInt(*BI, 'a');	  
-    std::string toInsert = "abcd";
+    prependInt(*BI, 'd');	  
+    std::string toInsert = "abc";
     BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
                           toInsert.end());
     std::string Result;

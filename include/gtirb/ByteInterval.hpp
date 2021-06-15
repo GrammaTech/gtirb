@@ -48,6 +48,23 @@
 
 namespace gtirb {
 namespace proto {
+
+/*
+#define MK_INSERT_BYTES(IT_TYPE) template<typename T>         \
+IT_TYPE<T> insertBytes( IT_TYPE<T> Pos, const T& X, boost::endian::oorder VectorOrder, boost::endian::order ElementOrder = boost::endian::order::native){  \
+setSize(Size + sizeof(T));       \
+if (Pos.I < Bytes.size()) {      \
+  Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);    \
+}                               \
+*bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X; \
+ return Pos;         \
+}
+
+MK_INSERT_BYTES(bytes_iterator);
+MK_INSERT_BYTES(const_bytes_iterator);
+#undef MK_INSERT_BYTES
+*/
+
 class ByteInterval;
 } // namespace proto
 
@@ -1906,6 +1923,28 @@ public:
   /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the element inserted by this call.
+  
+  
+  
+  
+#define MK_INSERT_BYTES(IT_TYPE) template<typename T>         \
+IT_TYPE<T> insertBytes( IT_TYPE<T> Pos, const T& X, VectorOrder,  ElementOrder = boost::endian::order::native){  \
+setSize(Size + sizeof(T));       \
+if (Pos.I < Bytes.size()) {      \
+  Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);    \
+}                               \
+*bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X; \
+ return Pos;         \
+}
+
+MK_INSERT_BYTES(bytes_iterator);
+MK_INSERT_BYTES(const_bytes_iterator);
+#undef MK_INSERT_BYTES
+
+
+  
+  
+  /*
   template <typename T>
   const_bytes_iterator<T> insertBytes(
       const const_bytes_iterator<T> Pos, const T& X,
@@ -1937,7 +1976,7 @@ public:
     *bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X;
     return Pos;
   }
-
+*/
   /// \brief Insert data into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
