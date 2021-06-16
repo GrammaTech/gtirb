@@ -50,8 +50,9 @@ enum SEAttributeFlag {
 }
 
 message SymbolicExpression {
+  reserved "stack_const";
+  reserved 1;
   oneof value {
-    SymStackConst stack_const = 1;
     SymAddrConst addr_const = 2;
     SymAddrAddr addr_addr = 3;
   }

@@ -513,8 +513,6 @@ The ERRNO used when exiting lisp indicates success or failure."
   (flet ((every-symbolic-expression-has-symbols-proto (path)
            (every (lambda (se)
                     (cond
-                      ((proto:has-stack-const se)
-                       (proto:symbol-uuid (proto:stack-const se)))
                       ((proto:has-addr-const se)
                        (proto:symbol-uuid (proto:addr-const se)))
                       ((proto:has-addr-addr se)

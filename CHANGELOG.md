@@ -1,5 +1,7 @@
 # Unreleased (1.10.4)
 
+* Removed SymStackConst support
+
 # 1.10.3
 
 * Added offset helpers to Python API

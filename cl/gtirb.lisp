@@ -68,7 +68,6 @@
            ;; Symbolic expressions
            :symbolic-expressions
            :sym-addr-const
-           :sym-stack-const
            :sym-addr-addr
            :scale
            :*preserve-symbolic-expressions*
@@ -127,8 +126,8 @@
   "Check the protobuf version."
   (let ((gtirb (call-next-method)))
     (unless (= protobuf-version (proto:version (proto gtirb)))
-      (error "Protobuf version mismatch version ~a from ~a isn't expected ~a"
-             (proto:version (proto gtirb)) source protobuf-version))
+      (warn "Protobuf version mismatch version ~a from ~a isn't expected ~a"
+            (proto:version (proto gtirb)) source protobuf-version))
     gtirb))
 
 (defun write-gtirb (gtirb path)
@@ -860,14 +859,6 @@ elements as proxy blocks do not hold bytes.")
                    (symbolic-expression (proto:value proto)))
               (setf (gethash offset table)
                     (cond
-                      ((proto:has-stack-const symbolic-expression)
-                       (make-instance 'sym-stack-const
-                         :ir (ir self)
-                         :attribute-flags attribute-flags
-                         :symbols (process-symbols
-                                   (proto:symbol-uuid
-                                    (proto:addr-const symbolic-expression)))
-                         :proto (proto:stack-const symbolic-expression)))
                       ((proto:has-addr-const symbolic-expression)
                        (make-instance 'sym-addr-const
                          :ir (ir self)
@@ -906,9 +897,6 @@ elements as proxy blocks do not hold bytes.")
                                         [#'car {rassoc _ +se-attribute-flag-map+}]
                                         (attribute-flags symbolic-expression))))
                             (etypecase symbolic-expression
-                              (sym-stack-const
-                               (setf (proto:stack-const it)
-                                     (update-proto symbolic-expression)))
                               (sym-addr-const
                                (setf (proto:addr-const it)
                                      (update-proto symbolic-expression)))
@@ -981,14 +969,6 @@ at runtime.")
 ;;; and then go back up and add ":byte-interval self" to their
 ;;; `make-instance' calls in byte-interval.
 (define-proto-backed-class
-    (sym-stack-const proto:sym-stack-const) (symbolic-expression) ()
-    ((offset :type unsigned-byte-64))
-  (:address-range (when (addressp (byte-interval self))
-                    (let ((address (+ (address (byte-interval self))
-                                      (offset self))))
-                      (list address address)))))
-
-(define-proto-backed-class
     (sym-addr-const proto:sym-addr-const) (symbolic-expression) ()
     ((offset :type unsigned-byte-64))
   (:address-range (when (addressp (byte-interval self))
@@ -1005,10 +985,6 @@ at runtime.")
                                       (offset self))))
                       (list address address)))))
 
-(defmethod update-proto :before ((sym sym-stack-const))
-  (setf (proto:symbol-uuid (proto sym))
-        (integer-to-uuid (uuid (first (symbols sym))))))
-
 (defmethod update-proto :before ((sym sym-addr-const))
   (setf (proto:symbol-uuid (proto sym))
         (integer-to-uuid (uuid (first (symbols sym))))))
@@ -1018,10 +994,6 @@ at runtime.")
         (integer-to-uuid (uuid (first (symbols sym))))
         (proto:symbol2-uuid (proto sym))
         (integer-to-uuid (uuid (second (symbols sym))))))
-
-(defmethod update-proto :before ((sym sym-stack-const))
-  (setf (proto:symbol-uuid (proto sym))
-        (integer-to-uuid (uuid (first (symbols sym))))))
 
 (defmethod update-proto :before ((sym sym-addr-const))
   (setf (proto:symbol-uuid (proto sym))

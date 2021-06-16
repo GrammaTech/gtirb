@@ -43,15 +43,6 @@ public:
 
   SymbolicVisitor(proto::SymbolicExpression* M) : Message(M) {}
 
-  void operator()(const SymStackConst& Val) const {
-    auto M = Message->mutable_stack_const();
-    M->set_offset(Val.Offset);
-    if (Val.Sym) {
-      uuidToBytes(Val.Sym->getUUID(), *M->mutable_symbol_uuid());
-    }
-    symAttributeSetToProtobuf(Val.Attributes, Message);
-  }
-
   void operator()(const SymAddrConst& Val) const {
     auto M = Message->mutable_addr_const();
     M->set_offset(Val.Offset);
@@ -92,12 +83,6 @@ Symbol* symbolFromProto(Context& C, const std::string& Bytes) {
 bool fromProtobuf(Context& C, SymbolicExpression& Result,
                   const proto::SymbolicExpression& Message) {
   switch (Message.value_case()) {
-  case proto::SymbolicExpression::kStackConst: {
-    const auto& Val = Message.stack_const();
-    Result = SymStackConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid()),
-                           symAttributeSetFromProtobuf(Message)};
-    return std::get<SymStackConst>(Result).Sym != nullptr;
-  }
   case proto::SymbolicExpression::kAddrConst: {
     const auto& Val = Message.addr_const();
     Result = SymAddrConst{Val.offset(), symbolFromProto(C, Val.symbol_uuid()),
