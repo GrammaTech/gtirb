@@ -212,49 +212,35 @@ class TestProperties(unittest.TestCase):
     def test_byte_intervals(self):
         s = gtirb.Symbol(name="test")
         se1 = gtirb.SymAddrConst(0, s)
-        se2 = gtirb.SymStackConst(0, s)
         se3 = gtirb.SymAddrAddr(0, 1, s, s)
         bi = gtirb.ByteInterval(
-            address=10, size=10, symbolic_expressions={0: se1, 4: se2, 9: se3}
+            address=10, size=5, symbolic_expressions={0: se1, 4: se3}
         )
 
         self.assertEqual(set(bi.symbolic_expressions_at(9)), set())
         self.assertEqual(set(bi.symbolic_expressions_at(10)), {(bi, 0, se1)})
         self.assertEqual(set(bi.symbolic_expressions_at(11)), set())
         self.assertEqual(set(bi.symbolic_expressions_at(13)), set())
-        self.assertEqual(set(bi.symbolic_expressions_at(14)), {(bi, 4, se2)})
+        self.assertEqual(set(bi.symbolic_expressions_at(14)), {(bi, 4, se3)})
         self.assertEqual(set(bi.symbolic_expressions_at(15)), set())
-        self.assertEqual(set(bi.symbolic_expressions_at(18)), set())
-        self.assertEqual(set(bi.symbolic_expressions_at(19)), {(bi, 9, se3)})
-        self.assertEqual(set(bi.symbolic_expressions_at(20)), set())
 
         self.assertEqual(set(bi.symbolic_expressions_at(range(0, 9))), set())
         self.assertEqual(set(bi.symbolic_expressions_at(range(11, 14))), set())
         self.assertEqual(set(bi.symbolic_expressions_at(range(20, 90))), set())
         self.assertEqual(
             set(bi.symbolic_expressions_at(range(0, 90))),
-            {(bi, 0, se1), (bi, 4, se2), (bi, 9, se3)},
+            {(bi, 0, se1), (bi, 4, se3)},
         )
         self.assertEqual(
-            set(bi.symbolic_expressions_at(range(10, 20))),
-            {(bi, 0, se1), (bi, 4, se2), (bi, 9, se3)},
+            set(bi.symbolic_expressions_at(range(10, 15))),
+            {(bi, 0, se1), (bi, 4, se3)},
         )
         self.assertEqual(
-            set(bi.symbolic_expressions_at(range(10, 19))),
-            {(bi, 0, se1), (bi, 4, se2)},
-        )
-        self.assertEqual(
-            set(bi.symbolic_expressions_at(range(11, 18))), {(bi, 4, se2)}
+            set(bi.symbolic_expressions_at(range(11, 18))), {(bi, 4, se3)}
         )
 
     def test_sym_exprs(self):
         node = gtirb.SymAddrConst(
-            offset=123,
-            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
-        )
-        self.assertEqual({x.name for x in node.symbols}, {"symbol"})
-
-        node = gtirb.SymStackConst(
             offset=123,
             symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
         )

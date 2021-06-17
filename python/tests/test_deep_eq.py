@@ -144,45 +144,6 @@ class DeepEqTest(unittest.TestCase):
         )
         self.assertFalse(s1.deep_eq(s2))
 
-        # SymStackConst
-        s1 = gtirb.SymStackConst(
-            offset=1,
-            symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymbolicExpression.Attribute.Part1},
-        )
-        s2 = gtirb.SymStackConst(
-            offset=1,
-            symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymbolicExpression.Attribute.Part1},
-        )
-        self.assertTrue(s1.deep_eq(s2))
-
-        s1 = gtirb.SymStackConst(
-            offset=1, symbol=gtirb.Symbol(name="name", payload=None, uuid=id1)
-        )
-        s2 = gtirb.SymStackConst(
-            offset=2, symbol=gtirb.Symbol(name="name", payload=None, uuid=id1)
-        )
-        self.assertFalse(s1.deep_eq(s2))
-
-        s1 = gtirb.SymStackConst(
-            offset=1, symbol=gtirb.Symbol(name="name1", payload=None, uuid=id1)
-        )
-        s2 = gtirb.SymStackConst(
-            offset=1, symbol=gtirb.Symbol(name="name2", payload=None, uuid=id1)
-        )
-        self.assertFalse(s1.deep_eq(s2))
-
-        s1 = gtirb.SymStackConst(
-            offset=1,
-            symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-            attributes={gtirb.SymbolicExpression.Attribute.Part1},
-        )
-        s2 = gtirb.SymStackConst(
-            offset=1, symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
-        )
-        self.assertFalse(s1.deep_eq(s2))
-
         # SymAddrAddr
         s1 = gtirb.SymAddrAddr(
             offset=1,
@@ -276,7 +237,6 @@ class DeepEqTest(unittest.TestCase):
         id2 = uuid.uuid4()
         id3 = uuid.uuid4()
         id4 = uuid.uuid4()
-        id5 = uuid.uuid4()
         id6 = uuid.uuid4()
 
         b1 = gtirb.ByteInterval(
@@ -291,9 +251,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -310,9 +267,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -332,9 +286,6 @@ class DeepEqTest(unittest.TestCase):
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
-                ),
             },
             uuid=id1,
         )
@@ -352,9 +303,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -374,9 +322,6 @@ class DeepEqTest(unittest.TestCase):
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
-                ),
             },
             uuid=id1,
         )
@@ -394,9 +339,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -416,9 +358,6 @@ class DeepEqTest(unittest.TestCase):
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
                 ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
-                ),
             },
             uuid=id1,
         )
@@ -435,9 +374,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -456,9 +392,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     6, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -481,7 +414,7 @@ class DeepEqTest(unittest.TestCase):
             },
             uuid=id1,
         )
-        self.assertFalse(b1.deep_eq(b2))
+        self.assertTrue(b1.deep_eq(b2))
 
         b2 = gtirb.ByteInterval(
             address=1,
@@ -495,9 +428,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 7: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                8: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id1,
@@ -516,9 +446,6 @@ class DeepEqTest(unittest.TestCase):
             symbolic_expressions={
                 2: gtirb.SymAddrConst(
                     3, gtirb.Symbol(name="name1", payload=4, uuid=id4)
-                ),
-                3: gtirb.SymStackConst(
-                    4, gtirb.Symbol(name="name2", payload=8, uuid=id5)
                 ),
             },
             uuid=id6,

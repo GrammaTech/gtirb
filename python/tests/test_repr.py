@@ -127,15 +127,6 @@ class ReprTest(unittest.TestCase):
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
 
-        node = gtirb.SymStackConst(
-            offset=123,
-            symbol=gtirb.Symbol(name="symbol", payload=gtirb.ProxyBlock()),
-            attributes={gtirb.SymbolicExpression.Attribute.Adjusted},
-        )
-        string = repr(node)
-        new_node = eval(string)
-        self.assertTrue(node.deep_eq(new_node))
-
         node = gtirb.SymAddrAddr(
             offset=123,
             scale=2,

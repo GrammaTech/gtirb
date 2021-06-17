@@ -328,8 +328,6 @@ this conversion."
   (:method ((old proto-v0:symbolic-expression) &key &allow-other-keys
             &aux (new (make-instance 'proto:symbolic-expression)))
     (cond                               ; Variant "oneof" field.
-      ((proto-v0:has-stack-const old)
-       (setf (proto:stack-const new) (upgrade (proto-v0:stack-const old))))
       ((proto-v0:has-addr-const old)
        (setf (proto:addr-const new) (upgrade (proto-v0:addr-const old))))
       ((proto-v0:has-addr-addr old)
@@ -341,10 +339,6 @@ this conversion."
       (describe old)
       (format t "~%NEW:~S~%" (serial new))
       (describe new))
-    new)
-  (:method ((old proto-v0:sym-stack-const) &key &allow-other-keys
-            &aux (new (make-instance 'proto:sym-stack-const)))
-    (transfer-fields new old offset symbol-uuid)
     new)
   (:method ((old proto-v0:sym-addr-const) &key &allow-other-keys
             &aux (new (make-instance 'proto:sym-addr-const)))

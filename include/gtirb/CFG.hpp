@@ -52,20 +52,26 @@ enum class ConditionalEdge : bool {
   OnTrue   ///< \brief Indicates a conditional edge that fires when the
            ///< condition is true.
 };
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const ConditionalEdge& CE);
 
 /// \ingroup CFG_GROUP
 /// \brief Indicates whether an edge represents indirect control flow.
 enum class DirectEdge : bool { IsIndirect, IsDirect };
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const DirectEdge& DE);
 
 /// \ingroup CFG_GROUP
 /// \brief Indicates the type of control flow transfer indicated by this edge.
 enum class EdgeType { Branch, Call, Fallthrough, Return, Syscall, Sysret };
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS, const EdgeType& ET);
 
 /// \ingroup CFG_GROUP
 /// \brief A label on a \ref CFG edge.
 using EdgeLabel =
     std::optional<std::tuple<ConditionalEdge, DirectEdge, EdgeType>>;
-
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const EdgeLabel& Label);
 /// @cond INTERNAL
 
 // Helper for constructing the CFG type. The graph property needs to refer to

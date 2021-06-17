@@ -222,24 +222,6 @@ private:
 
 /// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
-/// "Sym + Offset", representing an offset from a stack variable.
-struct SymStackConst {
-  int Offset;  ///< Constant offset.
-  Symbol* Sym; ///< Symbol representing a stack variable.
-  SymAttributeSet Attributes = SymAttributeSet();
-
-  friend bool operator==(const SymStackConst& LHS, const SymStackConst& RHS) {
-    return LHS.Offset == RHS.Offset && LHS.Sym == RHS.Sym &&
-           LHS.Attributes == RHS.Attributes;
-  }
-
-  friend bool operator!=(const SymStackConst& LHS, const SymStackConst& RHS) {
-    return !operator==(LHS, RHS);
-  }
-};
-
-/// \brief Represents a
-/// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form
 /// "Sym + Offset".
 struct SymAddrConst {
   int64_t Offset; ///< Constant offset.
@@ -278,8 +260,7 @@ struct SymAddrAddr {
 };
 
 /// \brief A \ref SYMBOLIC_EXPRESSION_GROUP "symbolic expression".
-using SymbolicExpression =
-    std::variant<SymStackConst, SymAddrConst, SymAddrAddr>;
+using SymbolicExpression = std::variant<SymAddrConst, SymAddrAddr>;
 
 /// @}
 // (end \defgroup SYMBOLIC_EXPRESSION_GROUP)
@@ -287,17 +268,6 @@ using SymbolicExpression =
 } // namespace gtirb
 
 namespace std {
-template <> struct hash<gtirb::SymStackConst> {
-  typedef gtirb::SymStackConst argument_type;
-  typedef std::size_t result_type;
-
-  result_type operator()(const argument_type& Obj) const noexcept {
-    const result_type Off = std::hash<int>{}(Obj.Offset);
-    const result_type P = std::hash<gtirb::Symbol*>{}(Obj.Sym);
-    return Off ^ (P << 1);
-  }
-};
-
 template <> struct hash<gtirb::SymAddrConst> {
   typedef gtirb::SymAddrConst argument_type;
   typedef std::size_t result_type;

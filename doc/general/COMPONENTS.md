@@ -34,7 +34,6 @@ Components that must be represented
 | [CfgEdge](CfgEdge.md)                     | `Edge`                | An edge in the CFG. |
 | [CfgEdgeLabel](CfgEdgeLabel.md)           | `EdgeLabel`           | The label on a CfgEdge. |
 | [SymbolicExpression](SymbolicExpression.md) | -                     | A data value or instruction operand which should be interpreted as referring to a symbol. |
-| [SymStackConst](SymStackConst.md)         | `SymStackConst`       | A symbolic operand of the form "Sym + Offset", representing an offset from a stack variable. |
 | [SymAddrConst](SymAddrConst.md)           | `SymAddrConst`        | A symbolic operand of the form "Sym + Offset". |
 | [SymAddrAddr](SymAddrAddr.md)             | `SymAddrAddr`         | A symbolic operand of the form "(Sym1 - Sym2) / Scale + Offset". |
 | [Version information](Version.md)         | -                     | The applicable GTIRB and Protobuf versions. |

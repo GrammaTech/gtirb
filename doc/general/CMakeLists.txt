@@ -99,7 +99,6 @@ if(DOXYGEN_FOUND)
       "${DOC_INDIR}/general/SymbolicExpression.md"
       "${DOC_INDIR}/general/SymAddrAddr.md"
       "${DOC_INDIR}/general/SymAddrConst.md"
-      "${DOC_INDIR}/general/SymStackConst.md"
       "${DOC_INDIR}/general/Version.md"
       "${DOC_INDIR}/binary-representation.md"
       "${DOC_INDIR}/CFG-Edges.md"

@@ -9,12 +9,7 @@ from sortedcontainers import SortedDict
 from .block import ByteBlock, CodeBlock, DataBlock
 from .node import Node
 from .proto import ByteInterval_pb2, SymbolicExpression_pb2
-from .symbolicexpression import (
-    SymAddrAddr,
-    SymAddrConst,
-    SymbolicExpression,
-    SymStackConst,
-)
+from .symbolicexpression import SymAddrAddr, SymAddrConst, SymbolicExpression
 from .util import (
     DictLike,
     SetWrapper,
@@ -289,11 +284,7 @@ class ByteInterval(Node):
         """
 
         def decode_symbolic_expression(proto_expr):
-            if proto_expr.HasField("stack_const"):
-                return SymStackConst._from_protobuf(
-                    proto_expr.stack_const, ir.get_by_uuid
-                )
-            elif proto_expr.HasField("addr_const"):
+            if proto_expr.HasField("addr_const"):
                 return SymAddrConst._from_protobuf(
                     proto_expr.addr_const, ir.get_by_uuid
                 )
@@ -351,9 +342,7 @@ class ByteInterval(Node):
 
         for k, v in self.symbolic_expressions.items():
             sym_exp = SymbolicExpression_pb2.SymbolicExpression()
-            if isinstance(v, SymStackConst):
-                sym_exp.stack_const.CopyFrom(v._to_protobuf())
-            elif isinstance(v, SymAddrConst):
+            if isinstance(v, SymAddrConst):
                 sym_exp.addr_const.CopyFrom(v._to_protobuf())
             elif isinstance(v, SymAddrAddr):
                 sym_exp.addr_addr.CopyFrom(v._to_protobuf())

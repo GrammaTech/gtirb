@@ -28,21 +28,6 @@ TEST(Unit_SymbolicExpression, protobufRoundTrip) {
   Symbol* Sym1 = Symbol::Create(Ctx, Addr(1), "test1");
   Symbol* Sym2 = Symbol::Create(Ctx, Addr(2), "test2");
 
-  // SymStackConst
-  {
-    SymbolicExpression original(SymStackConst{1, Sym1});
-
-    gtirb::SymbolicExpression Result;
-    std::stringstream ss;
-    symbolicExpressionSave(original, ss);
-    symbolicExpressionLoad(Ctx, Result, ss);
-
-    SymStackConst S = std::get<SymStackConst>(Result);
-    EXPECT_EQ(S.Offset, 1);
-    EXPECT_EQ(S.Sym->getName(), "test1");
-    EXPECT_EQ(S.Attributes, SymAttributeSet());
-  }
-
   // SymAddrConst
   {
     SymAttributeSet OrigSASet;

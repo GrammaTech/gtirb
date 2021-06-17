@@ -17,8 +17,73 @@
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/proto/CFG.pb.h>
 #include <map>
+#include <tuple>
 
 namespace gtirb {
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const ConditionalEdge& CE) {
+  switch (CE) {
+  case ConditionalEdge::OnFalse:
+    OS << "OnFalse";
+    break;
+  case ConditionalEdge::OnTrue:
+    OS << "OnTrue";
+    break;
+  }
+  return OS;
+}
+
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const EdgeType& ET) {
+  switch (ET) {
+  case EdgeType::Branch:
+    OS << "Branch";
+    break;
+  case EdgeType::Call:
+    OS << "Call";
+    break;
+  case EdgeType::Fallthrough:
+    OS << "Fallthrough";
+    break;
+  case EdgeType::Return:
+    OS << "Return";
+    break;
+  case EdgeType::Syscall:
+    OS << "Syscall";
+    break;
+  case EdgeType::Sysret:
+    OS << "Sysret";
+    break;
+  }
+  return OS;
+}
+
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const DirectEdge& DE) {
+  switch (DE) {
+  case DirectEdge::IsIndirect:
+    OS << "IsIndirect";
+    break;
+  case DirectEdge::IsDirect:
+    OS << "IsDirect";
+    break;
+  }
+  return OS;
+}
+
+GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
+                                          const EdgeLabel& Label) {
+  if (!Label) {
+    OS << "<No EdgeLabel>";
+  } else {
+    auto ET = std::get<EdgeType>(*Label);
+    auto DE = std::get<DirectEdge>(*Label);
+    auto CE = std::get<ConditionalEdge>(*Label);
+    OS << "(" << CE << ", " << DE << ", " << ET << ")";
+  }
+  return OS;
+}
+
 std::pair<CFG::vertex_descriptor, bool> addVertex(CfgNode* B, CFG& Cfg) {
   auto& IdTable = Cfg[boost::graph_bundle];
   if (auto it = IdTable.find(B); it != IdTable.end()) {
