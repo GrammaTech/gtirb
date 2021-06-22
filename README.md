@@ -137,7 +137,7 @@ debugger's documentation.
 
 ## Ubuntu
 
-Packages for Ubuntu 18, and 20 are available in the GTIRB apt
+Packages for Ubuntu 18 and 20 are available in the GTIRB apt
 repository and may be installed per the following instructions.
 
 First, add GrammaTech's APT key.
@@ -153,6 +153,7 @@ Where:
 - `[distribution]` is either `bionic` or `focal` if you're on Ubuntu 18 or 20 respectively, and
 - `[component]` is either `stable`, which holds the last versioned release, or `unstable`, which holds the HEAD of the repository.
 
+> **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost package from a PPA.  You can add it like this: `add-apt-repository ppa:mhier/libboost-latest`
 
 ## Arch Linux
 
