@@ -1900,10 +1900,12 @@ public:
   /// \param  X             The data to insert.
   ///
   /// \return An iterator pointing to the element inserted by this call.
-  template <typename T, typename U> U insertBytes(U Pos, const T& X) {
-    static_assert(std::is_same<U, bytes_iterator<T>>::value ||
-                      std::is_same<U, const_bytes_iterator<T>>::value,
-                  "Only byte_iterators are supported");
+  template <typename T, typename BytesIterator>
+  BytesIterator insertBytes(BytesIterator Pos, const T& X) {
+    static_assert(
+        std::is_same<BytesIterator, bytes_iterator<T>>::value ||
+            std::is_same<BytesIterator, const_bytes_iterator<T>>::value,
+        "Only byte_iterators are supported");
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
 
@@ -1919,13 +1921,14 @@ public:
   /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the element inserted by this call.
-  template <typename T, typename U>
-  U insertBytes(
-      U Pos, const T& X, boost::endian::order VectorOrder,
+  template <typename T, typename BytesIterator>
+  BytesIterator insertBytes(
+      BytesIterator Pos, const T& X, boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
-    static_assert(std::is_same<U, bytes_iterator<T>>::value ||
-                      std::is_same<U, const_bytes_iterator<T>>::value,
-                  "Only byte_iterators are supported");
+    static_assert(
+        std::is_same<BytesIterator, bytes_iterator<T>>::value ||
+            std::is_same<BytesIterator, const_bytes_iterator<T>>::value,
+        "Only byte_iterators are supported");
     setSize(Size + sizeof(T));
     // If the position to insert is currently outside the initilized bytes,
     // we let the iterator's operator= handle resizing the byte vector,
@@ -1978,14 +1981,15 @@ public:
   /// \param  ElementsOrder The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-  template <typename T, typename U, typename InputIterator>
-  U insertBytes(
-      U Pos, InputIterator Begin, InputIterator End,
+  template <typename T, typename BytesIterator, typename InputIterator>
+  BytesIterator insertBytes(
+      BytesIterator Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
-    static_assert(std::is_same<U, bytes_iterator<T>>::value ||
-                      std::is_same<U, const_bytes_iterator<T>>::value,
-                  "Only byte_iterators are supported");
+    static_assert(
+        std::is_same<BytesIterator, bytes_iterator<T>>::value ||
+            std::is_same<BytesIterator, const_bytes_iterator<T>>::value,
+        "Only byte_iterators are supported");
 
     auto N = std::distance(Begin, End) * sizeof(T);
     setSize(Size + N);
