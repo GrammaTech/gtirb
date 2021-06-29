@@ -387,6 +387,3 @@ The following are the provisional AuxData table schemata.
 | Value    | A resource header, data length, and data pointer.           |
 | AttachedTo | gtirb::Module |
 | Note     | List of PE resources. A resource header, data length, and data pointer. |
-
-
-
