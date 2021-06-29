@@ -42,6 +42,7 @@
 #include <type_traits>
 #include <variant>
 #include <vector>
+#include <iostream>
 
 /// \file ByteInterval.hpp
 /// \brief Class gtirb::ByteInterval.
@@ -1900,6 +1901,8 @@ public:
 template <typename T, typename U>
   U insertBytes(U Pos,
                                       const T& X) {
+    static_assert(std::is_same<U, bytes_iterator<T>>::value || std::is_same<U, const_bytes_iterator<T>>::value,
+		    "Only byte_iterators are supported");
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
 
@@ -1920,6 +1923,8 @@ template <typename T, typename U>
       U Pos, const T& X,
       boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
+    static_assert(std::is_same<U, bytes_iterator<T>>::value || std::is_same<U, const_bytes_iterator<T>>::value,
+		    "Only byte_iterators are supported");
     setSize(Size + sizeof(T));
     // If the position to insert is currently outside the initilized bytes,
     // we let the iterator's operator= handle resizing the byte vector,
@@ -1977,6 +1982,9 @@ template <typename T, typename U, typename InputIterator>
       U Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
+     static_assert(std::is_same<U, bytes_iterator<T>>::value || std::is_same<U, const_bytes_iterator<T>>::value,
+		    "Only byte_iterators are supported");
+
     auto N = std::distance(Begin, End) * sizeof(T);
     setSize(Size + N);
     // If the position to insert is currently outside the initilized bytes,
