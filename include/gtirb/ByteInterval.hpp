@@ -37,7 +37,6 @@
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
-#include <iostream>
 #include <map>
 #include <optional>
 #include <type_traits>
@@ -49,25 +48,6 @@
 
 namespace gtirb {
 namespace proto {
-
-/*
-#define MK_INSERT_BYTES(IT_TYPE) template<typename T>         \
-IT_TYPE<T> insertBytes( IT_TYPE<T> Pos, const T& X, boost::endian::oorder
-VectorOrder, boost::endian::order ElementOrder = boost::endian::order::native){
-\
-setSize(Size + sizeof(T));       \
-if (Pos.I < Bytes.size()) {      \
-  Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);    \
-}                               \
-*bytes_iterator<T>(this, Pos.I, ElementOrder, VectorOrder) = X; \
- return Pos;         \
-}
-
-MK_INSERT_BYTES(bytes_iterator);
-MK_INSERT_BYTES(const_bytes_iterator);
-#undef MK_INSERT_BYTES
-*/
-
 class ByteInterval;
 } // namespace proto
 

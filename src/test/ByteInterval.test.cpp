@@ -19,7 +19,6 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <sstream>
 
 using namespace gtirb;
@@ -594,7 +593,7 @@ TEST(Unit_ByteInterval, byteVectorEndian) {
   }
 }
 
-void prependInt(gtirb::ByteInterval& BI, char value) {
+void prependChar(gtirb::ByteInterval& BI, char value) {
   BI.insertBytes<char>(BI.bytes_begin<char>(), value);
   const gtirb::ByteInterval& CBI(BI);
   BI.insertBytes(CBI.bytes_begin<char>(), value);
@@ -605,7 +604,7 @@ TEST(Unit_ByteInterval, byteVectorInsert) {
   auto* BI = ByteInterval::Create(Ctx, std::optional<Addr>(), Contents.begin(),
                                   Contents.end());
   {
-    prependInt(*BI, 'd');
+    prependChar(*BI, 'd');
     std::string toInsert = "abc";
     BI->insertBytes<char>(BI->bytes_begin<char>(), toInsert.begin(),
                           toInsert.end());
