@@ -37,12 +37,12 @@
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <type_traits>
 #include <variant>
 #include <vector>
-#include <iostream>
 
 /// \file ByteInterval.hpp
 /// \brief Class gtirb::ByteInterval.
@@ -52,7 +52,9 @@ namespace proto {
 
 /*
 #define MK_INSERT_BYTES(IT_TYPE) template<typename T>         \
-IT_TYPE<T> insertBytes( IT_TYPE<T> Pos, const T& X, boost::endian::oorder VectorOrder, boost::endian::order ElementOrder = boost::endian::order::native){  \
+IT_TYPE<T> insertBytes( IT_TYPE<T> Pos, const T& X, boost::endian::oorder
+VectorOrder, boost::endian::order ElementOrder = boost::endian::order::native){
+\
 setSize(Size + sizeof(T));       \
 if (Pos.I < Bytes.size()) {      \
   Bytes.insert(Bytes.begin() + Pos.I, sizeof(T), 0);    \
@@ -1898,11 +1900,10 @@ public:
   /// \param  X             The data to insert.
   ///
   /// \return An iterator pointing to the element inserted by this call.
-template <typename T, typename U>
-  U insertBytes(U Pos,
-                                      const T& X) {
-    static_assert(std::is_same<U, bytes_iterator<T>>::value || std::is_same<U, const_bytes_iterator<T>>::value,
-		    "Only byte_iterators are supported");
+  template <typename T, typename U> U insertBytes(U Pos, const T& X) {
+    static_assert(std::is_same<U, bytes_iterator<T>>::value ||
+                      std::is_same<U, const_bytes_iterator<T>>::value,
+                  "Only byte_iterators are supported");
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
 
@@ -1920,11 +1921,11 @@ template <typename T, typename U>
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T, typename U>
   U insertBytes(
-      U Pos, const T& X,
-      boost::endian::order VectorOrder,
+      U Pos, const T& X, boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
-    static_assert(std::is_same<U, bytes_iterator<T>>::value || std::is_same<U, const_bytes_iterator<T>>::value,
-		    "Only byte_iterators are supported");
+    static_assert(std::is_same<U, bytes_iterator<T>>::value ||
+                      std::is_same<U, const_bytes_iterator<T>>::value,
+                  "Only byte_iterators are supported");
     setSize(Size + sizeof(T));
     // If the position to insert is currently outside the initilized bytes,
     // we let the iterator's operator= handle resizing the byte vector,
@@ -1949,19 +1950,19 @@ template <typename T, typename U>
   /// \param  End           The end of the data to insert.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-  
-template <typename T, typename InputIterator>
+
+  template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
     return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
   }
-  
- template <typename T, typename InputIterator>
-  bytes_iterator<T> insertBytes(bytes_iterator<T> Pos,
-                                      InputIterator Begin, InputIterator End) {
+
+  template <typename T, typename InputIterator>
+  bytes_iterator<T> insertBytes(bytes_iterator<T> Pos, InputIterator Begin,
+                                InputIterator End) {
     return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
   }
-  
+
   /// \brief Insert data into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
@@ -1977,13 +1978,14 @@ template <typename T, typename InputIterator>
   /// \param  ElementsOrder The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
-template <typename T, typename U, typename InputIterator>
+  template <typename T, typename U, typename InputIterator>
   U insertBytes(
       U Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
-     static_assert(std::is_same<U, bytes_iterator<T>>::value || std::is_same<U, const_bytes_iterator<T>>::value,
-		    "Only byte_iterators are supported");
+    static_assert(std::is_same<U, bytes_iterator<T>>::value ||
+                      std::is_same<U, const_bytes_iterator<T>>::value,
+                  "Only byte_iterators are supported");
 
     auto N = std::distance(Begin, End) * sizeof(T);
     setSize(Size + N);
@@ -1999,7 +2001,6 @@ template <typename T, typename U, typename InputIterator>
     return Pos;
   }
 
-
   /// \brief Erase data from this byte vector.
   ///
   /// \tparam T  The type of data you wish to erase.
@@ -2009,8 +2010,8 @@ template <typename T, typename U, typename InputIterator>
   ///
   /// \return An iterator pointing to the first element after those erased by
   /// this call.
-  
-template <typename T>
+
+  template <typename T>
   const_bytes_iterator<T> eraseBytes(const const_bytes_iterator<T> Begin,
                                      const const_bytes_iterator<T> End) {
     assert(Begin.I <= End.I && "eraseBytes: Begin > End!");
