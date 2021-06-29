@@ -3,7 +3,7 @@
 #
 
 # Need 3.10 to support CXX_STANDARD=17 and protobuf::protoc
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 # The version.txt file is the official record of the version number. We use the
 # contents of that file to set the project version for use in other CMake files.
@@ -37,19 +37,20 @@ include(CMakePackageConfigHelpers)
 
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
-option(ENABLE_CODE_COVERAGE
-	       "Build with instrumentation for collecting code coverage" OFF)
-
-if(ENABLE_CODE_COVERAGE)
-   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
-			                              Clang)
-       add_compile_options(--coverage)
-       add_link_options(--coverage)
-   else()
-      message(FATAL_ERROR "no support for code coverage on this target")
-  endif()
-endif()
-
+#
+#option(ENABLE_CODE_COVERAGE
+#	       "Build with instrumentation for collecting code coverage" OFF)
+#
+#if(ENABLE_CODE_COVERAGE)
+#   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
+#			                              Clang)
+#       add_compile_options(--coverage)
+#       add_link_options(--coverage)
+#   else()
+#      message(FATAL_ERROR "no support for code coverage on this target")
+#  endif()
+#endif()
+#
 
 
 
@@ -87,6 +88,22 @@ if(UNIX AND NOT BUILD_SHARED_LIBS)
 endif()
 
 enable_testing()
+
+
+option(ENABLE_CODE_COVERAGE
+	       "Build with instrumentation for collecting code coverage" OFF)
+
+if(ENABLE_CODE_COVERAGE)
+   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
+			                              Clang)
+       add_compile_options(--coverage)
+       link_libraries(--coverage)
+   else()
+      message(FATAL_ERROR "no support for code coverage on this target")
+  endif()
+endif()
+
+
 
 # Whether or not to run clang-tidy (if present)
 option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
