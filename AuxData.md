@@ -200,4 +200,193 @@ The following are the sanctioned AuxData table schemata.
 
 ## Provisional AuxData Tables
 
-There are currently no provisional table schemata.
+The following are the provisional AuxData table schemata.
+
+
+| Label                                     | Type                                               |
+|-------------------------------------------|----------------------------------------------------|
+| [`"encodings"`](#encodings)     | ```std::map<gtirb::UUID, std::string>``` |
+| [`"elfSectionProperties"`](#elfSectionProperties)   | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>``` |
+| [`"cfiDirectives"`](#cfiDirectives)       | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```           |
+| [`"elfSymbolInfo"`](#elfSymbolInfo)                       | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
+| [`"libraries"`](#libraries)               | ```std::vector<std::string>```              |
+| [`"libraryPaths"`](#libraryPaths)                 | ```std::vector<std::string>```         |
+| [`"binaryType"`](#binaryType) | ```std::vector<std::string>```           |
+| [`"SCCs"`](#SCCs)                   | ```std::map<gtirb::UUID, int64_t>```              |
+| [`"symbolicExpressionSizes"`](#symbolicExpressionSizes)                   | ```std::map<gtirb::Offset, uint64_t>```              |
+| [`"peImportEntries"`](#peImportEntries)                   | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```              |
+| [`"peExportEntries"`](#peExportEntries)                   | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```              |
+| [`"peImportedSymbols"`](#peImportedSymbols)                   | ```std::vector<gtirb::UUID>```              |
+| [`"peExportedSymbols"`](#peExportedSymbols)                   | ```std::vector<gtirb::UUID>```              |
+| [`"peResource"`](#peResource)                   | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```              |
+
+
+### encodings
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"encodings"```                                |
+| Type     | ```std::map<gtirb::UUID, std::string>```        |
+| Key      | The gtirb::UUID of a data object. |
+| Value    | The encoding of the data object.           |
+| AttachedTo | gtirb::Module |
+| Note     | Map from (typed) data objects to the encoding of the data,  expressed as a std::string containing an assembler encoding specifier: "string", "uleb128" or "sleb128". |
+
+
+### elfSectionProperties
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"elfSectionProperties"```                                |
+| Type     | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```        |
+| Key      | The gtirb::UUID of a section. |
+| Value    | The tuple with the ELF section types and flag.           |
+| AttachedTo | gtirb::Module |
+| Note     | Map from section UUIDs to tuples with the ELF section types and flags. |
+
+
+### cfiDirectives
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"cfiDirectives"```                                |
+| Type     | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```        |
+| Key      | The gtirb::Offset of a cfi directive. |
+| Value    | cfi directive contains: a string describing the directive, a vector  of numeric arguments, and an optional symbolic argument (represented with the UUID of the symbol           |
+| AttachedTo | gtirb::Module |
+| Note     | Map from Offsets to  vector of cfi directives. A cfi directive contains: a string describing the directive, a vector  of numeric arguments, and an optional symbolic argument (represented with the UUID of the symbol). |
+
+
+### elfSymbolInfo
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"elfSymbolInfo"```                                |
+| Type     | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```        |
+| Key      | The gtirb::UUID of a symbol. |
+| Value    | The type, binding, and visibility categories of the symbol.           |
+| AttachedTo | gtirb::Module |
+| Note     | On ELF targets only: Map from symbols to their type, binding, and visibility categories. |
+
+
+### libraries
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"libraries"```                                |
+| Type     | ```std::vector<std::string>```        |
+| Key      | N/A |
+| Value    | A name of the library.           |
+| AttachedTo | gtirb::Module |
+| Note     | Names of the libraries that are needed. |
+
+
+### libraryPaths
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"libraryPaths"```                                |
+| Type     | ```std::vector<std::string>```        |
+| Key      | N/A |
+| Value    | A path contained in the rpath of the binary.           |
+| AttachedTo | gtirb::Module |
+| Note     | Paths contained in the rpath of the binary. |
+
+
+### binaryType
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"binaryType"```                                |
+| Type     | ```std::vector<std::string>```        |
+| Key      | N/A |
+| Value    | A binary type descriptor.           |
+| AttachedTo | gtirb::Module |
+| Note     | A set of binary type descriptors e.g. for ELF whether the binary is PIE "DYN" or not, "EXEC". PE binaries have additional descriptors, "DLL" or "EXE, and subsystem descriptor, e.g. WINDOWS_GUI or WINDOWS_CUI. |
+
+
+### SCCs
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"SCCs"```                                |
+| Type     | ```std::map<gtirb::UUID, int64_t>```        |
+| Key      | The gtirb::UUID of a block |
+| Value    | The intra-procedural SCC identifier of the block.           |
+| AttachedTo | gtirb::Module |
+| Note     | The intra-procedural SCC identifier of each block. |
+
+
+### symbolicExpressionSizes
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"symbolicExpressionSizes"```                                |
+| Type     | ```std::map<gtirb::Offset, uint64_t>```        |
+| Key      | The gtirb::Offset of a symbolic expression. |
+| Value    | The size of the expression, in bytes.           |
+| AttachedTo | gtirb::Module |
+| Note     | Map from an Offset of a symbolic expression in a ByteInterval to its extent, a size in bytes. |
+
+
+### peImportEntries
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"peImportEntries"```                                |
+| Type     | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```        |
+| Key      | N/A |
+| Value    | A tuples containing details of an imported function.          |
+| AttachedTo | gtirb::Module |
+| Note     | List of tuples detailing an imported function address, ordinal, function name, and library names for PE. |
+
+
+### peExportEntries
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"peExportEntries"```                                |
+| Type     | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```        |
+| Key      | N/A |
+| Value    | A tuples containing details of an exported function.          |
+| AttachedTo | gtirb::Module |
+| Note     | List of tuples detailing an exported address, ordinal, and name for PE. |
+
+
+### peImportedSymbols
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"peImportedSymbols"```                                |
+| Type     | ```std::vector<gtirb::UUID>```        |
+| Key      | N/A |
+| Value    | gtirb::UUID of an imported symbol.           |
+| AttachedTo | gtirb::Module |
+| Note     | UUIDs of the imported symbols for PE. |
+
+
+### peExportedSymbols
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"peExportedSymbols"```                                |
+| Type     | ```std::vector<gtirb::UUID>```        |
+| Key      | N/A |
+| Value    | gtirb::UUID of an exported symbol.           |
+| AttachedTo | gtirb::Module |
+| Note     | UUIDs of the exported symbols for PE. |
+
+
+### peResource
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"peResource"```                                |
+| Type     | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```        |
+| Key      | N/A |
+| Value    | A resource header, data length, and data pointer.           |
+| AttachedTo | gtirb::Module |
+| Note     | List of PE resources. A resource header, data length, and data pointer. |
+
+
+
