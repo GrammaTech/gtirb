@@ -37,16 +37,6 @@ include(CMakePackageConfigHelpers)
 
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
-#
-# option(ENABLE_CODE_COVERAGE "Build with instrumentation for collecting code
-# coverage" OFF)
-#
-# if(ENABLE_CODE_COVERAGE) if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR
-# ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang) add_compile_options(--coverage)
-# add_link_options(--coverage) else() message(FATAL_ERROR "no support for code
-# coverage on this target") endif() endif()
-#
-
 if(ENABLE_CONAN)
   set(CONAN_SYSTEM_INCLUDES ON)
   include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
@@ -82,6 +72,7 @@ endif()
 
 enable_testing()
 
+# Set ENABEL_CODE_COVERAGE to default off, unless you want to test c++ coverage 
 option(ENABLE_CODE_COVERAGE
        "Build with instrumentation for collecting code coverage" OFF
 )
