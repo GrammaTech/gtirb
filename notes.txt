@@ -1,3 +1,0 @@
-To get C++ Coverage to work had to install gcovr
-Removed cmake and pip install cmake, (to get updated cmake)
-Had to apt-get install cmake to get old version of cmake (to get ctest)

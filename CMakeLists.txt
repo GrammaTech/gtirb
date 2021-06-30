@@ -72,7 +72,7 @@ endif()
 
 enable_testing()
 
-# Set ENABEL_CODE_COVERAGE to default off, unless you want to test c++ coverage 
+# Set ENABEL_CODE_COVERAGE to default off, unless you want to test c++ coverage
 option(ENABLE_CODE_COVERAGE
        "Build with instrumentation for collecting code coverage" OFF
 )
