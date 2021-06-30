@@ -159,7 +159,7 @@ coverage:
   stage: build
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  script: 
+  script:
     - mkdir build
     - cd build
     - pip install gcovr

@@ -38,21 +38,14 @@ include(CMakePackageConfigHelpers)
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
 #
-#option(ENABLE_CODE_COVERAGE
-#	       "Build with instrumentation for collecting code coverage" OFF)
+# option(ENABLE_CODE_COVERAGE "Build with instrumentation for collecting code
+# coverage" OFF)
 #
-#if(ENABLE_CODE_COVERAGE)
-#   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
-#			                              Clang)
-#       add_compile_options(--coverage)
-#       add_link_options(--coverage)
-#   else()
-#      message(FATAL_ERROR "no support for code coverage on this target")
-#  endif()
-#endif()
+# if(ENABLE_CODE_COVERAGE) if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR
+# ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang) add_compile_options(--coverage)
+# add_link_options(--coverage) else() message(FATAL_ERROR "no support for code
+# coverage on this target") endif() endif()
 #
-
-
 
 if(ENABLE_CONAN)
   set(CONAN_SYSTEM_INCLUDES ON)
@@ -89,21 +82,20 @@ endif()
 
 enable_testing()
 
-
 option(ENABLE_CODE_COVERAGE
-	       "Build with instrumentation for collecting code coverage" OFF)
+       "Build with instrumentation for collecting code coverage" OFF
+)
 
 if(ENABLE_CODE_COVERAGE)
-   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
-			                              Clang)
-       add_compile_options(--coverage)
-       link_libraries(--coverage)
-   else()
-      message(FATAL_ERROR "no support for code coverage on this target")
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
+                                              Clang
+  )
+    add_compile_options(--coverage)
+    link_libraries(--coverage)
+  else()
+    message(FATAL_ERROR "no support for code coverage on this target")
   endif()
 endif()
-
-
 
 # Whether or not to run clang-tidy (if present)
 option(GTIRB_RUN_CLANG_TIDY "Enable running of clang-tidy." ON)
