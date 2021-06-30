@@ -164,8 +164,13 @@ coverage:
     - cd build
     - pip install gcovr
     - pip install coverage
+    - pip install nose
     - cmake -DENABLE_CODE_COVERAGE=ON ..
+    - cmake --build .
+    - ctest
     - gcovr -e googletest-src -r ..
+    - cd python
+    - python3 setup.py test
     - coverage run -m nose
 
 test-default-install:
