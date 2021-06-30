@@ -279,7 +279,9 @@ class IntegerCodec(Codec):
     def encode(cls, out, val, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
             raise EncodeError(f"{cls.typname} should have no subtypes")
-        out.write(val.to_bytes(cls.bytesize, byteorder="little"))
+        out.write(
+            val.to_bytes(cls.bytesize, byteorder="little", signed=cls.signed)
+        )
 
 
 class Uint64Codec(IntegerCodec):
