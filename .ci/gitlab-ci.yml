@@ -172,6 +172,7 @@ coverage:
     - cd python
     - python3 setup.py test
     - coverage run -m nose
+    - coverage report -m
 
 test-default-install:
   stage: test-packages1
