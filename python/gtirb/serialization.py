@@ -257,90 +257,93 @@ class StringCodec(Codec):
         out.write(val.encode())
 
 
-# Class decorator for Codec's for integer types.
-def _integer_codec(typname, bytesize, signed):
-    def inner_decorator(codec_cls):
-        def decode(
-            raw_bytes,
-            *,
-            serialization=None,
-            subtypes=tuple(),
-            get_by_uuid=None,
-        ):
-            if subtypes != ():
-                raise DecodeError(f"{typname} should have no subtypes")
-            return int.from_bytes(
-                raw_bytes.read(bytesize), byteorder="little", signed=signed
-            )
+class IntegerCodec(Codec):
+    """Generic base class for integer-based Codecs"""
 
-        codec_cls.decode = decode
+    @classmethod
+    def decode(
+        cls,
+        raw_bytes,
+        *,
+        serialization=None,
+        subtypes=tuple(),
+        get_by_uuid=None,
+    ):
+        if subtypes != ():
+            raise DecodeError(f"{cls.typname} should have no subtypes")
+        return int.from_bytes(
+            raw_bytes.read(cls.bytesize), byteorder="little", signed=cls.signed
+        )
 
-        def encode(out, val, *, serialization=None, subtypes=tuple()):
-            if subtypes != ():
-                raise EncodeError(f"{typname} should have no subtypes")
-            out.write(val.to_bytes(bytesize, byteorder="little"))
-
-        codec_cls.encode = encode
-
-        return codec_cls
-
-    return inner_decorator
+    @classmethod
+    def encode(cls, out, val, *, serialization=None, subtypes=tuple()):
+        if subtypes != ():
+            raise EncodeError(f"{cls.typname} should have no subtypes")
+        out.write(val.to_bytes(cls.bytesize, byteorder="little"))
 
 
-@_integer_codec("uint64_t", 8, False)
-class Uint64Codec(Codec):
+class Uint64Codec(IntegerCodec):
     """A Codec for 64-bit unsigned integers."""
 
-    pass
+    typname = "uint64_t"
+    bytesize = 8
+    signed = False
 
 
-@_integer_codec("uint32_t", 4, False)
-class Uint32Codec(Codec):
+class Uint32Codec(IntegerCodec):
     """A Codec for 32-bit unsigned integers."""
 
-    pass
+    typname = "uint32_t"
+    bytesize = 4
+    signed = False
 
 
-@_integer_codec("uint16_t", 2, False)
-class Uint16Codec(Codec):
+class Uint16Codec(IntegerCodec):
     """A Codec for 16-bit unsigned integers."""
 
-    pass
+    typname = "uint16_t"
+    bytesize = 2
+    signed = False
 
 
-@_integer_codec("uint8_t", 1, False)
-class Uint8Codec(Codec):
+class Uint8Codec(IntegerCodec):
     """A Codec for 8-bit unsigned integers."""
 
-    pass
+    typname = "uint8_t"
+    bytesize = 1
+    signed = False
 
 
-@_integer_codec("int64_t", 8, True)
-class Int64Codec(Codec):
+class Int64Codec(IntegerCodec):
     """A Codec for 64-bit signed integers."""
 
-    pass
+    typname = "int64_t"
+    bytesize = 8
+    signed = True
 
 
-@_integer_codec("int32_t", 4, True)
-class Int32Codec(Codec):
+class Int32Codec(IntegerCodec):
     """A Codec for 32-bit signed integers."""
 
-    pass
+    typname = "int32_t"
+    bytesize = 4
+    signed = True
 
 
-@_integer_codec("int16_t", 2, True)
-class Int16Codec(Codec):
+class Int16Codec(IntegerCodec):
     """A Codec for 16-bit signed integers."""
 
-    pass
+    typname = "int16_t"
+    bytesize = 2
+    signed = True
 
 
-@_integer_codec("int8_t", 1, True)
-class Int8Codec(Codec):
+class Int8Codec(IntegerCodec):
     """A Codec for 8-bit signed integers."""
 
-    pass
+    typname = "int8_t"
+    bytesize = 1
+    signed = True
 
 
 class UUIDCodec(Codec):
