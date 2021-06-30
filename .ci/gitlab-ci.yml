@@ -155,6 +155,19 @@ test-capstone-example:
     - make -j
     - '[[ -f bin/ex-jumps ]]'
 
+coverage:
+  stage: build
+  needs: [check-format]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  script: 
+    - mkdir build
+    - cd build
+    - pip install gcovr
+    - pip install coverage
+    - cmake -DENABLE_CODE_COVERAGE=ON ..
+    - gcovr -e googletest-src -r ..
+    - coverage run -m nose
+
 test-default-install:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
