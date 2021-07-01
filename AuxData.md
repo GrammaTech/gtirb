@@ -90,16 +90,16 @@ void do_stuff_with_gtirb()
 The following are the sanctioned AuxData table schemata.
 
 
-| Label                                     | Type                                               | Mandatory?            |
-|-------------------------------------------|----------------------------------------------------|-----------------------|
-| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` | No                    |
-| [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` | No                    |
-| [`"functionNames"`](#functionnames)       | ```std::map<gtirb::UUID, gtirb::UUID>```           | No                    |
-| [`"types"`](#types)                       | ```std::map<gtirb::UUID, std::string>```           | No                    |
-| [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```              | No                    |
-| [`"comments"`](#comments)                 | ```std::map<gtirb::Offset, std::string>```         | No                    |
-| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID, gtirb::UUID>```           | No                    |
-| [`"padding"`](#padding)                   | ```std::map<gtirb::Offset, uint64_t>```            | No                    |
+| Label                                     | Type                                               |
+|-------------------------------------------|----------------------------------------------------|
+| [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
+| [`"functionNames"`](#functionnames)       | ```std::map<gtirb::UUID, gtirb::UUID>```           |
+| [`"types"`](#types)                       | ```std::map<gtirb::UUID, std::string>```           |
+| [`"alignment"`](#alignment)               | ```std::map<gtirb::UUID, uint64_t>```              |
+| [`"comments"`](#comments)                 | ```std::map<gtirb::Offset, std::string>```         |
+| [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID, gtirb::UUID>```           |
+| [`"padding"`](#padding)                   | ```std::map<gtirb::Offset, uint64_t>```            |
 
 
 ### functionBlocks
@@ -203,22 +203,22 @@ The following are the sanctioned AuxData table schemata.
 The following are the provisional AuxData table schemata.
 
 
-| Label                                                   | Type                                                                                                   | Mandatory?            |
-|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-----------------------|
-| [`"encodings"`](#encodings)                             | ```std::map<gtirb::UUID, std::string>```                                                               | No                    |
-| [`"elfSectionProperties"`](#elfSectionProperties)       | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                          | No                    |
-| [`"cfiDirectives"`](#cfiDirectives)                     | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>``` | No                    |
-| [`"elfSymbolInfo"`](#elfSymbolInfo)                     | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```     | No                    |
-| [`"libraries"`](#libraries)                             | ```std::vector<std::string>```                                                                         | No                    |
-| [`"libraryPaths"`](#libraryPaths)                       | ```std::vector<std::string>```                                                                         | No                    |
-| [`"binaryType"`](#binaryType)                           | ```std::vector<std::string>```                                                                         | No                    |
-| [`"SCCs"`](#SCCs)                                       | ```std::map<gtirb::UUID, int64_t>```                                                                   | No                    |
-| [`"symbolicExpressionSizes"`](#symbolicExpressionSizes) | ```std::map<gtirb::Offset, uint64_t>```                                                                | No                    |
-| [`"peImportEntries"`](#peImportEntries)                 | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```                             | No                    |
-| [`"peExportEntries"`](#peExportEntries)                 | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```                                          | No                    |
-| [`"peImportedSymbols"`](#peImportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         | No                    |
-| [`"peExportedSymbols"`](#peExportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         | No                    |
-| [`"peResource"`](#peResource)                           | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                           | No                    |
+| Label                                                   | Type                                                                                                   |
+|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| [`"encodings"`](#encodings)                             | ```std::map<gtirb::UUID, std::string>```                                                               |
+| [`"elfSectionProperties"`](#elfSectionProperties)       | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                          |
+| [`"cfiDirectives"`](#cfiDirectives)                     | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>``` |
+| [`"elfSymbolInfo"`](#elfSymbolInfo)                     | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```     |
+| [`"libraries"`](#libraries)                             | ```std::vector<std::string>```                                                                         |
+| [`"libraryPaths"`](#libraryPaths)                       | ```std::vector<std::string>```                                                                         |
+| [`"binaryType"`](#binaryType)                           | ```std::vector<std::string>```                                                                         |
+| [`"SCCs"`](#SCCs)                                       | ```std::map<gtirb::UUID, int64_t>```                                                                   |
+| [`"symbolicExpressionSizes"`](#symbolicExpressionSizes) | ```std::map<gtirb::Offset, uint64_t>```                                                                |
+| [`"peImportEntries"`](#peImportEntries)                 | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```                             |
+| [`"peExportEntries"`](#peExportEntries)                 | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```                                          |
+| [`"peImportedSymbols"`](#peImportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         |
+| [`"peExportedSymbols"`](#peExportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         |
+| [`"peResource"`](#peResource)                           | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                           |
 
 
 ### encodings
@@ -275,7 +275,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"libraries"```                                |
 | Type     | ```std::vector<std::string>```        |
-| Key      | N/A |
 | Value    | A name of the library.           |
 | AttachedTo | gtirb::Module |
 | Note     | Names of the libraries that are needed. |
@@ -287,7 +286,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"libraryPaths"```                                |
 | Type     | ```std::vector<std::string>```        |
-| Key      | N/A |
 | Value    | A path contained in the rpath of the binary.           |
 | AttachedTo | gtirb::Module |
 | Note     | Paths contained in the rpath of the binary. |
@@ -299,7 +297,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"binaryType"```                                |
 | Type     | ```std::vector<std::string>```        |
-| Key      | N/A |
 | Value    | A binary type descriptor.           |
 | AttachedTo | gtirb::Module |
 | Note     | A set of binary type descriptors e.g. for ELF whether the binary is PIE "DYN" or not, "EXEC". PE binaries have additional descriptors, "DLL" or "EXE, and subsystem descriptor, e.g. WINDOWS_GUI or WINDOWS_CUI. |
@@ -335,7 +332,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"peImportEntries"```                                |
 | Type     | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```        |
-| Key      | N/A |
 | Value    | A tuples containing details of an imported function.          |
 | AttachedTo | gtirb::Module |
 | Note     | List of tuples detailing an imported function address, ordinal, function name, and library names for PE. |
@@ -347,7 +343,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"peExportEntries"```                                |
 | Type     | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```        |
-| Key      | N/A |
 | Value    | A tuples containing details of an exported function.          |
 | AttachedTo | gtirb::Module |
 | Note     | List of tuples detailing an exported address, ordinal, and name for PE. |
@@ -359,7 +354,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"peImportedSymbols"```                                |
 | Type     | ```std::vector<gtirb::UUID>```        |
-| Key      | N/A |
 | Value    | gtirb::UUID of an imported symbol.           |
 | AttachedTo | gtirb::Module |
 | Note     | UUIDs of the imported symbols for PE. |
@@ -371,7 +365,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"peExportedSymbols"```                                |
 | Type     | ```std::vector<gtirb::UUID>```        |
-| Key      | N/A |
 | Value    | gtirb::UUID of an exported symbol.           |
 | AttachedTo | gtirb::Module |
 | Note     | UUIDs of the exported symbols for PE. |
@@ -383,7 +376,6 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"peResource"```                                |
 | Type     | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```        |
-| Key      | N/A |
 | Value    | A resource header, data length, and data pointer.           |
 | AttachedTo | gtirb::Module |
 | Note     | List of PE resources. A resource header, data length, and data pointer. |
