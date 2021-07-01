@@ -20,6 +20,7 @@ __all__ = [
     "SymbolicExpression",
     "SymAddrAddr",
     "SymAddrConst",
+    "Variant",
 ]
 
 from .auxdata import AuxData, AuxDataContainer
@@ -31,7 +32,7 @@ from .module import Module
 from .node import Node
 from .offset import Offset
 from .section import Section
-from .serialization import Serialization
+from .serialization import Serialization, Variant
 from .symbol import Symbol
 from .symbolicexpression import SymAddrAddr, SymAddrConst, SymbolicExpression
 from .version import API_VERSION

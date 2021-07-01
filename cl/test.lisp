@@ -146,20 +146,25 @@ The ERRNO used when exiting lisp indicates success or failure."
       (is (tree-equal
            (mapcar [#'pb:string-value #'proto:type-name #'gtirb::proto #'cdr]
                    (aux-data (first (modules it))))
-           (mapcar [#'gtirb::aux-data-type-print #'aux-data-type #'cdr]
+           (mapcar [{format nil "~/gtirb::aux-data-type-print/"} #'aux-data-type #'cdr]
                    (aux-data (first (modules it))))
            :test #'string=)))))
 
 (deftest idempotent-aux-data-decode-encode ()
   (let ((type1 '(:tuple :uuid :uint64-t :int64-t :uint64-t))
         (type2 '(:sequence :uuid))
-        (data '(1 2 3 4)))
+        (type3 '(:sequence (:variant :uuid :string)))
+        (data '(1 2 3 4))
+        (data2 '((0 . 1) (1 . "foo") (0 . 3) (1 . "bar"))))
     (is (equalp
          (gtirb::aux-data-decode type1 (gtirb::aux-data-encode type1 data))
          data))
     (is (equalp
          (gtirb::aux-data-decode type2 (gtirb::aux-data-encode type2 data))
-         data)))
+         data))
+    (is (equalp
+         (gtirb::aux-data-decode type3 (gtirb::aux-data-encode type3 data2))
+         data2)))
   (with-fixture hello
     (let ((hello (read-gtirb *proto-path*)))
       (mapc (lambda (pair)

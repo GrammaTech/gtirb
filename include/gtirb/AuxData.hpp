@@ -223,8 +223,8 @@ struct default_serialization<
     // Store as little-endian.
     T reversed = boost::endian::conditional_reverse<
         boost::endian::order::little, boost::endian::order::native>(object);
-    auto srcBytes_begin = reinterpret_cast<std::byte*>(&reversed);
-    auto srcBytes_end = reinterpret_cast<std::byte*>(&reversed + 1);
+    auto srcBytes_begin = reinterpret_cast<const std::byte*>(&reversed);
+    auto srcBytes_end = reinterpret_cast<const std::byte*>(&reversed + 1);
     std::for_each(srcBytes_begin, srcBytes_end, [&](auto b) { TBR.write(b); });
   }
 
@@ -424,6 +424,61 @@ struct auxdata_traits<T, typename std::enable_if_t<is_mapping<T>::value>> {
         return false;
       Object.emplace(std::move(K), std::move(V));
     }
+    return true;
+  }
+};
+
+/// \brief std::variant support
+///
+/// Warning!
+/// Members of the union (std::variant) should be default constructable.
+template <class... Args> struct auxdata_traits<std::variant<Args...>> {
+  using T = std::variant<Args...>;
+
+  static std::string type_name() {
+    return "variant<" + TypeId<Args...>::value() + ">";
+  }
+
+  static std::variant<Args...> expand_type(uint64_t i) {
+    assert(i < sizeof...(Args));
+    static const std::variant<Args...> table[] = {Args{}...};
+    return table[i];
+  }
+
+  static void toBytes(const T& Object, ToByteRange& TBR) {
+    uint64_t Index = Object.index();
+    auxdata_traits<uint64_t>::toBytes(Index, TBR);
+    std::visit(
+        [TBR](auto&& arg) mutable {
+          auxdata_traits<typename std::remove_const<
+              typename std::remove_reference<decltype(arg)>::type>::type>::
+              toBytes(arg, TBR);
+        },
+        Object);
+  }
+
+  static bool fromBytes(T& Object, FromByteRange& FBR) {
+    uint64_t Index;
+    if (!auxdata_traits<uint64_t>::fromBytes(Index, FBR))
+      return false;
+
+    if (Index > FBR.remainingBytesToRead())
+      return false;
+
+    auto V = expand_type(Index);
+    bool res_code = false;
+    std::visit(
+        [&Object, &res_code, FBR](auto&& arg) mutable {
+          typename std::remove_reference<decltype(arg)>::type Val;
+          res_code = auxdata_traits<typename std::remove_reference<decltype(
+              arg)>::type>::fromBytes(Val, FBR);
+          if (!res_code)
+            return;
+          Object = Val;
+        },
+        V);
+    if (!res_code)
+      return false;
     return true;
   }
 };

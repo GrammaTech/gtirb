@@ -1292,6 +1292,11 @@ intersecting the assigned part of the object.")
                  body))))
 
 (defun matching (open-char close-char string)
+  "Return the first balanced offset of CLOSE-CHAR in STRING.
+STRING is assumed to already have one extant OPEN-CHAR which needs to
+be matched.  New instances of OPEN-CHAR must be closed by balanced
+CLOSE-CHARs before the CLOSE-CHAR matching the implicit extant
+OPEN-CHAR."
   (let ((offset 1))
     (dotimes (n (length string))
       (cond
@@ -1320,6 +1325,10 @@ intersecting the assigned part of the object.")
        (let ((close (matching #\< #\> type-string)))
          (cons (cons :tuple (aux-data-type-read (subseq type-string 0 close)))
                (aux-data-type-read (subseq type-string close)))))
+      ("variant<"
+       (let ((close (matching #\< #\> type-string)))
+         (cons (cons :variant (aux-data-type-read (subseq type-string 0 close)))
+               (aux-data-type-read (subseq type-string close)))))
       ("," (aux-data-type-read type-string))
       (">" (aux-data-type-read type-string))
       ("UUID" (cons :uuid (aux-data-type-read type-string)))
@@ -1336,39 +1345,36 @@ intersecting the assigned part of the object.")
     (first (aux-data-type-read
             (pb:string-value (proto:type-name (proto obj)))))))
 
-(defun aux-data-type-print (aux-data-type)
-  (when aux-data-type
-    (if (listp aux-data-type)
-        (case (first aux-data-type)
+(defun aux-data-type-print (stream
+                            type
+                            &optional
+                              colon-modifier-supplied-p
+                              at-sign-modifier-supplied-p
+                              (repetitions 1))
+  (declare (type (or null (eql t) stream string) stream))
+  (declare (ignorable colon-modifier-supplied-p at-sign-modifier-supplied-p repetitions))
+  (when type
+    (if (listp type)
+        (case (first type)
           (:mapping
-           (concatenate 'string
-                        "mapping<" (aux-data-type-print (second aux-data-type))
-                        "," (aux-data-type-print (third aux-data-type)) ">"))
-          (:set
-           (concatenate 'string
-                        "set<" (aux-data-type-print (second aux-data-type)) ">"))
-          (:sequence
-           (concatenate 'string
-                        "sequence<" (aux-data-type-print (second aux-data-type)) ">"))
-          (:tuple
-           (concatenate 'string
-                        "tuple<"
-                        (aux-data-type-print (second aux-data-type))
-                        (apply #'concatenate 'string
-                               (mapcar [{concatenate 'string ","} #'aux-data-type-print]
-                                       (cddr aux-data-type)))
-                        ">")))
-        (case aux-data-type
-          (:uuid "UUID")
-          (:addr "Addr")
-          (:offset "Offset")
-          (:string "string")
-          (:uint64-t "uint64_t")
-          (:int64-t "int64_t")))))
+           (format stream "mapping<~/gtirb:aux-data-type-print/,~/gtirb:aux-data-type-print/>"
+                   (second type)
+                   (third type)))
+          (:set (format stream "set<~/gtirb:aux-data-type-print/>" (second type)))
+          (:sequence (format stream "sequence<~/gtirb:aux-data-type-print/>" (second type)))
+          (:tuple (format stream "tuple<~{~/gtirb:aux-data-type-print/~^,~}>" (cdr type)))
+          (:variant (format stream "variant<~{~/gtirb:aux-data-type-print/~^,~}>" (cdr type))))
+        (format stream (ecase type
+                         (:uuid "UUID")
+                         (:addr "Addr")
+                         (:offset "Offset")
+                         (:string "string")
+                         (:uint64-t "uint64_t")
+                         (:int64-t "int64_t"))))))
 
 (defmethod (setf aux-data-type) (new (obj aux-data))
   (setf (proto:type-name (proto obj))
-        (pb:string-field (aux-data-type-print new))))
+        (pb:string-field (format nil "~/gtirb::aux-data-type-print/" new))))
 
 (defgeneric aux-data-data (aux-data)
   (:documentation "Access the structured representation of AUX-DATAs data.")
@@ -1422,7 +1428,10 @@ intersecting the assigned part of the object.")
             (declare (ignorable n))
             (push (decode type) result)))))
       ((list* :tuple types)
-       (mapcar #'decode types)))))
+       (mapcar #'decode types))
+      ((list* :variant types)
+       (let ((index (decode :uint64-t)))
+         (cons index (decode (nth index types))))))))
 (defun aux-data-decode (type data)
   (let ((*decode-data* data))
     (decode type)))
@@ -1463,7 +1472,10 @@ intersecting the assigned part of the object.")
       ((list* :tuple types)
        (mapc (lambda (type datum)
                (encode type datum))
-             types data)))))
+             types data))
+      ((list* :variant types)
+       (encode :uint64-t (car data))
+       (encode (nth (car data) types) (cdr data))))))
 (defun aux-data-encode (type data)
   (let ((*decode-data* nil))
     (encode type data)

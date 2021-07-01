@@ -1,6 +1,7 @@
 # Unreleased (1.10.4)
 
 * Removed SymStackConst support
+* Added variant (union) support for AuxData
 
 # 1.10.3
 
