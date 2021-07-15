@@ -870,20 +870,23 @@ public:
   ///
   /// \param X The name to look up.
   ///
-  /// \return An iterator to the first Section with the requested name or
-  /// \ref section_by_name_end() if not found.
-  section_name_iterator findSections(const std::string& X) {
-    return Sections.get<by_name>().find(X);
+  /// \return A range of \ref Section objects with the requested name.
+
+  section_name_range findSections(const std::string& X) {
+    auto Pair = Sections.get<by_name>().equal_range(X);
+    return boost::make_iterator_range(section_name_iterator(Pair.first),
+                                      section_name_iterator(Pair.second));
   }
 
   /// \brief Find a Section by name.
   ///
   /// \param X The name to look up.
   ///
-  /// \return An iterator to the first Section with the requested name or
-  /// \ref section_by_name_end() if not found.
-  const_section_name_iterator findSections(const std::string& X) const {
-    return Sections.get<by_name>().find(X);
+  /// \return A range of \ref Section objects with the requested name.
+  const_section_name_range findSections(const std::string& X) const {
+    auto Pair = Sections.get<by_name>().equal_range(X);
+    return boost::make_iterator_range(const_section_name_iterator(Pair.first),
+                                      const_section_name_iterator(Pair.second));
   }
 
   /// @}
