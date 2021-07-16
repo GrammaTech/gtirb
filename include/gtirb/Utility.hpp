@@ -1,6 +1,6 @@
 //===- Utility.hpp ----------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -403,6 +403,25 @@ struct FindNodesAt {
   }
 };
 
+/// \class FindNodes
+///
+/// \brief A function object for merging together calls to "findNode" style
+/// methods, taking one string parameter.
+///
+/// \tparam T The type of node to call \p FindMethod on.
+/// \tparam MethodType The type of \p Method.
+/// \tparam Method A pointer to a method on \p T that takes a
+/// string and returns a range.
+template <typename T, typename MethodType, MethodType Method> struct FindNodes {
+  std::string X;
+
+  FindNodes(std::string X_) : X{X_} {}
+
+  decltype((std::declval<T>().*Method)(std::string())) operator()(T& N) const {
+    return (N.*Method)((std::string&)X);
+  }
+};
+
 /// \class FindNodesBetween
 ///
 /// \brief A function object for merging together calls to "findNodeAt" style
@@ -679,6 +698,23 @@ using FindSectionsAt = FindNodesAt<
                        typename T::const_section_range (T::*)(Addr) const,
                        typename T::section_range (T::*)(Addr)>,
     &T::findSectionsAt>;
+
+/// \class FindSections
+///
+/// \brief A function object for merging together calls to
+/// findSections, taking one string parameter.
+///
+/// \tparam T The node to call findSections from. If
+/// const-qualified, the const functions on this type are used; else the
+/// non-const functions are used.
+template <typename T>
+using FindSections = FindNodes<
+    T,
+    std::conditional_t<
+        std::is_const_v<T>,
+        typename T::const_section_name_range (T::*)(const std::string& X) const,
+        typename T::section_name_range (T::*)(const std::string& X)>,
+    &T::findSections>;
 
 /// \class FindSectionsBetween
 ///
