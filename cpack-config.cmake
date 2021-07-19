@@ -12,7 +12,7 @@ set(DEV_COMPONENTS headers proto_library cmake_config cmake_target)
 
 # Debian packages
 set(CPACK_APT_PKG_NAME_SUFFIX "")
-if(${CPACK_STABLE_PKG_NAME})
+if("${CPACK_STABLE_PKG_NAME}")
   set(CPACK_APT_PKG_NAME_SUFFIX
       "-${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}"
   )

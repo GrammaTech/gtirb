@@ -420,10 +420,10 @@ build-ubuntu18-packages:
     - cd build
     - CPACK_STABLE_PKG_NAME=OFF
     - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || CPACK_STABLE_PKG_NAME=ON'
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-lib;
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-dev;
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-debug;
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-python;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-lib;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-dev;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-debug;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-python;
 
 build-ubuntu20-packages:
   stage: build-installers
@@ -438,10 +438,10 @@ build-ubuntu20-packages:
     - cd build
     - CPACK_STABLE_PKG_NAME=OFF
     - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || CPACK_STABLE_PKG_NAME=ON'
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-lib;
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-dev;
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-debug;
-    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-python;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-lib;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-dev;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-debug;
+    - cpack -G "DEB" -D CPACK_STABLE_PKG_NAME=$CPACK_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-python;
 
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
