@@ -1744,55 +1744,6 @@ public:
   /// @}
   // (end group of SymbolicExpression-related types and functions)
 
-  /// \brief Return the address of this module, if known.
-  ///
-  /// The address is calculated from the \ref Section objects in this
-  /// module. More specifically, if the address of all sections in this
-  /// module are fixed, then it will return the address of the section lowest
-  /// in memory. If any one section does not have an address, then this function
-  /// will return \ref std::nullopt, as the address is not calculable in that
-  /// case. Note that a module with no sections in it has no address or size,
-  /// so it will return \ref std::nullopt in that case.
-  ///
-  /// Note that this returns the current address of this module, which can be
-  /// distinct from the value returned by \ref getPreferredAddr if the module
-  /// has been moved (see \ref isRelocated for details).
-  std::optional<Addr> getAddress() const {
-    if (Sections.empty()) {
-      return std::nullopt;
-    }
-    return (*Sections.begin())->getAddress();
-  }
-
-  /// \brief Return the size of this module, if known.
-  ///
-  /// The size is calculated from the \ref Section objects in this module.
-  /// More specifically, if the address of all sections in this module
-  /// are fixed, then it will return the difference between the lowest and
-  /// highest address among the sections. If any one section does not have an
-  /// address, then this function will return \ref std::nullopt, as the size is
-  /// not calculable in that case. Note that a module with no sections in it
-  /// has no address or size, so it will return \ref std::nullopt in that case.
-  std::optional<uint64_t> getSize() const {
-    if (!Sections.empty()) {
-      // Any Sections without an address will be at the front of the map because
-      // nullopt sorts lower than any address.
-      if (std::optional<Addr> LowAddr = (*Sections.begin())->getAddress()) {
-        // Every Section has an address, so we can calculate the size. Get the
-        // address of the last Section in case it has zero size; SectionAddrs
-        // does not track empty Sections.
-        Addr HighAddr = *(*Sections.rbegin())->getAddress();
-        if (!SectionAddrs.empty()) {
-          // The last address is the max of the first address in the last
-          // Section and the last address in the Sections with non-zero size.
-          HighAddr = std::max(HighAddr, SectionAddrs.rbegin()->first.upper());
-        }
-        return static_cast<uint64_t>(HighAddr - *LowAddr);
-      }
-    }
-    return std::nullopt;
-  }
-
   /// @cond INTERNAL
   static bool classof(const Node* N) { return N->getKind() == Kind::Module; }
   /// @endcond

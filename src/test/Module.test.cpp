@@ -1,6 +1,6 @@
 //===- Module.test.cpp ------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -457,32 +457,6 @@ TEST(Unit_Module, findByteIntervalsOn) {
   ASSERT_EQ(std::distance(ConstRange.begin(), ConstRange.end()), 2);
   EXPECT_EQ(&*std::next(ConstRange.begin(), 0), BI2);
   EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI1);
-}
-
-TEST(Unit_Module, getAddressAndSize) {
-  auto* M = Module::Create(Ctx, "M");
-  auto* S = M->addSection(Ctx, "test");
-  auto* BI = S->addByteInterval(Ctx, 100);
-
-  EXPECT_FALSE(M->getAddress());
-  EXPECT_FALSE(M->getSize());
-
-  BI->setAddress(Addr(200));
-
-  ASSERT_TRUE(M->getAddress());
-  EXPECT_EQ(M->getAddress(), Addr(200));
-  ASSERT_TRUE(M->getSize());
-  EXPECT_EQ(M->getSize(), 100);
-
-  BI->setAddress(Addr(0));
-
-  EXPECT_EQ(M->getAddress(), Addr(0));
-  EXPECT_EQ(M->getSize(), 100);
-
-  BI->setSize(15);
-
-  EXPECT_EQ(M->getAddress(), Addr(0));
-  EXPECT_EQ(M->getSize(), 15);
 }
 
 TEST(Unit_Module, findSections) {
