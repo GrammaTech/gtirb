@@ -12,7 +12,7 @@ set(DEV_COMPONENTS headers proto_library cmake_config cmake_target)
 
 # Debian packages
 set(CPACK_GTIRB_PKG_NAME_SUFFIX "")
-if("${CPACK_GTIRB_STABLE_PKG_NAME}")
+if(CPACK_GTIRB_STABLE_PKG_NAME)
   set(CPACK_GTIRB_PKG_NAME_SUFFIX "-${CPACK_GTIRB_VERSION}")
 endif()
 if("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-lib")
