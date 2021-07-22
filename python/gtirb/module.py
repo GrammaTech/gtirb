@@ -363,55 +363,6 @@ class Module(AuxDataContainer):
             value.modules.append(self)
 
     @property
-    def address(self):
-        # type: () -> typing.Optional[int]
-        """Get the address of this module, if known.
-
-        The address is calculated from the :class:`Section` objects in
-        this module. More specifically, if the address of all sections
-        in this module are fixed, then it will return the address of the
-        section lowest in memory. If any one section does not have an address,
-        then this will be ``None``, as the address is not calculable in that
-        case. Note that a module with no sections in it has no address or
-        size, so it will be ``None`` in that case.
-        """
-
-        lowest = None
-        for s in self.sections:
-            if s.address is None:
-                return None
-            if lowest is None or s.address < lowest:
-                lowest = s.address
-        return lowest
-
-    @property
-    def size(self):
-        # type: () -> typing.Optional[int]
-        """Get the size of this module, if known.
-
-        The address is calculated from the :class:`Section` objects in
-        this module. More specifically, if the address of all sections
-        in this module are fixed, then it will return the difference between
-        the lowest and highest address among the sections. If any one section
-        does not have an address, then this will be ``None``, as the size is
-        not calculable in that case. Note that a module with no sections in
-        it has no address or size, so it will be ``None`` in that case.
-        """
-
-        lowest = None
-        highest = None
-        for s in self.sections:
-            if s.address is None:
-                return None
-            if lowest is None or s.address < lowest:
-                lowest = s.address
-            if highest is None or s.address + s.size > highest:
-                highest = s.address + s.size
-        if lowest is None or highest is None:
-            return None
-        return highest - lowest
-
-    @property
     def byte_intervals(self):
         # type: () -> typing.Iterator[ByteInterval]
         """The :class:`ByteInterval`\\s in this module."""
