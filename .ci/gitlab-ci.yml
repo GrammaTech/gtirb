@@ -139,6 +139,19 @@ build-centos8-gcc-relwithdebuginfo:
     - cpack -G "RPM" -D CPACK_GTIRB_PACKAGE=rpm-python
     - cd ../ && mv build ../build
 
+test-capstone-example:
+  stage: test-packages1
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  needs: ['build-ubuntu20-gcc']
+  script:
+    - cd build
+    - '[[ ! -f bin/ex-jumps ]]'
+    - rm -rf *
+    - apt-get install -y libcapstone-dev
+    - cmake ..
+    - make -j
+    - '[[ -f bin/ex-jumps ]]'
+
 test-default-install:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
