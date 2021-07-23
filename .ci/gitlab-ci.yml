@@ -149,6 +149,7 @@ test-default-install:
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
   needs: ['build-ubuntu18-gcc7']
   script:
+    - apt-get install -y libcapstone-dev
     - make -t -C build
     - make -C build install install-python && rm -rf build
     - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-all.sh
@@ -171,6 +172,7 @@ test-install-different-prefix:
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
   needs: ['build-ubuntu18-gcc7']
   script:
+    - apt-get install -y libcapstone-dev
     - make -t -C ./build
     - cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
     - cd ..
@@ -188,6 +190,7 @@ test-install-with-destdir:
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
   needs: ['build-ubuntu18-gcc7']
   script:
+    - apt-get install -y libcapstone-dev
     - make -t -C ./build
     - DESTDIR=/tmp/destdir make -C ./build install install-python
 
@@ -326,6 +329,7 @@ python-wheel:
     paths:
       - gtirb-*-py*-none-any.whl
   script:
+    - apt-get install -y libcapstone-dev
     - make -t -C build
     - make -C build python-wheel
     - cp build/python/dist/*.whl ./
@@ -404,6 +408,7 @@ build-ubuntu18-packages:
     paths:
       - build
   script:
+    - apt-get install -y libcapstone-dev
     - pip3 install setuptools wheel --upgrade
     - cd build
     - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
@@ -420,6 +425,7 @@ build-ubuntu20-packages:
     paths:
       - build
   script:
+    - apt-get install -y libcapstone-dev
     - pip3 install setuptools wheel --upgrade
     - cd build
     - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
