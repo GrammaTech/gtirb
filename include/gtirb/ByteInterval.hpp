@@ -1882,10 +1882,6 @@ public:
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T, typename BytesIterator>
   BytesIterator insertBytes(BytesIterator Pos, const T& X) {
-    static_assert(
-        std::is_same<BytesIterator, bytes_iterator<T>>::value ||
-            std::is_same<BytesIterator, const_bytes_iterator<T>>::value,
-        "Only byte_iterators are supported");
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
 
@@ -1908,7 +1904,7 @@ public:
     static_assert(
         std::is_same<BytesIterator, bytes_iterator<T>>::value ||
             std::is_same<BytesIterator, const_bytes_iterator<T>>::value,
-        "Only byte_iterators are supported");
+        "Pos must be a byte_iterator<T> or a const_byte_iterator<T>");
     setSize(Size + sizeof(T));
     // If the position to insert is currently outside the initilized bytes,
     // we let the iterator's operator= handle resizing the byte vector,
@@ -1934,6 +1930,14 @@ public:
   ///
   /// \return An iterator pointing to the first element inserted by this call.
 
+
+  template<typename BytesIterator, typename InputIterator>
+  BytesIterator insertBytes(const BytesIterator Pos,
+                                      InputIterator Begin, InputIterator End) {
+    return insertBytes(Pos, Begin, End, getBoostEndianOrder());
+  }
+
+/*
   template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
@@ -1944,7 +1948,7 @@ public:
   bytes_iterator<T> insertBytes(bytes_iterator<T> Pos, InputIterator Begin,
                                 InputIterator End) {
     return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
-  }
+  }*/
 
   /// \brief Insert data into this byte vector.
   ///
@@ -1969,7 +1973,7 @@ public:
     static_assert(
         std::is_same<BytesIterator, bytes_iterator<T>>::value ||
             std::is_same<BytesIterator, const_bytes_iterator<T>>::value,
-        "Only byte_iterators are supported");
+        "Pos must be a byte_iterator<T> or a const_byte_iterator<T>");
 
     auto N = std::distance(Begin, End) * sizeof(T);
     setSize(Size + N);
