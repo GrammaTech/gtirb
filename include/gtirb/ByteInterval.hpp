@@ -1931,13 +1931,6 @@ public:
   /// \return An iterator pointing to the first element inserted by this call.
 
 
-  template<typename BytesIterator, typename InputIterator>
-  BytesIterator insertBytes(const BytesIterator Pos,
-                                      InputIterator Begin, InputIterator End) {
-    return insertBytes(Pos, Begin, End, getBoostEndianOrder());
-  }
-
-/*
   template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
@@ -1948,7 +1941,7 @@ public:
   bytes_iterator<T> insertBytes(bytes_iterator<T> Pos, InputIterator Begin,
                                 InputIterator End) {
     return insertBytes<T>(Pos, Begin, End, getBoostEndianOrder());
-  }*/
+  }
 
   /// \brief Insert data into this byte vector.
   ///
