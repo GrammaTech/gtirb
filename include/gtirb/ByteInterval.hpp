@@ -1930,7 +1930,6 @@ public:
   ///
   /// \return An iterator pointing to the first element inserted by this call.
 
-
   template <typename T, typename InputIterator>
   const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
                                       InputIterator Begin, InputIterator End) {
