@@ -1,6 +1,6 @@
 # Unreleased (1.10.5)
 
-* TBD
+* Added various symbolic expression attributes.
 
 # 1.10.4
 
