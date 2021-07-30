@@ -41,8 +41,10 @@ class SymbolicExpression:
 
         # TLS specific attributes:
         TpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("TpOff")
-        TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
         NtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("NtpOff")
+        DtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("DtpOff")
+        TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
+        TlsLd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsLd")
 
         # Attribute modifiers:
         Abs = SymbolicExpression_pb2.SEAttributeFlag.Value("Abs")
