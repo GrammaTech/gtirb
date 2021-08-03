@@ -1,8 +1,6 @@
 import typing
 from uuid import UUID
 
-from intervaltree import Interval
-
 from .node import Node
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
 from .util import _SingleParentIndexedAttribute
@@ -74,10 +72,6 @@ class ByteBlock(Block):
         self.offset = offset  # type: int
         # Use the property setter to ensure correct invariants.
         self.byte_interval = byte_interval
-
-    @property
-    def _offset_interval(self):
-        return Interval(self.offset, self.offset + max(self.size, 1), self)
 
     @property
     def byte_interval(self):
