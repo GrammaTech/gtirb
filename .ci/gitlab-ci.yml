@@ -168,6 +168,7 @@ coverage:
     - ctest
     - gcovr -e googletest-src -r ..
     - cd python
+    - coverage run --source=gtirb setup.py test
     - coverage report --omit=gtirb/proto/*,gtirb/doc/* -m
 
 test-default-install:
