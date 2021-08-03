@@ -1,5 +1,6 @@
 import collections
 import collections.abc
+import itertools
 import typing
 from uuid import UUID
 
@@ -57,36 +58,27 @@ class ByteInterval(Node):
 
     class _BlockSet(SetWrapper):
         def __init__(self, node, *args):
-            # By creating the interval tree with all of the initial items
-            # instead of adding each node individually, we can shave off a
-            # good chunk of the overhead of the index. Unfortunately this
-            # means duplicating code that's in add.
+            super().__init__()
             self._node = node  # type: ByteInterval
-            self._data = set(*args)
+            self.update(*args)
 
-            for v in self._data:
+        def add(self, v):
+            # We're defining add in terms of update so that we can optimize
+            # adding multiple blocks at once.
+            self.update((v,))
+
+        def update(self, *iterables):
+            node_ir = self._node.ir
+            new_items = set(*iterables) - self._data
+            for v in new_items:
                 if v._byte_interval is not None:
                     v._byte_interval.blocks.discard(v)
                 v._byte_interval = self._node
-                if self._node.ir is not None:
-                    v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
+                if node_ir is not None:
+                    v._add_to_uuid_cache(node_ir._local_uuid_cache)
 
-            assert not self._node._interval_tree
-            self._node._interval_tree = IntervalTree(
-                _offset_interval(v) for v in self._data
-            )
-
-            # We intentionally do not call super's __init__ because we
-            # explicitly are avoiding its per-item adding.
-
-        def add(self, v):
-            if v._byte_interval is not None:
-                v._byte_interval.blocks.discard(v)
-            v._byte_interval = self._node
-            self._node._index_add(v)
-            if self._node.ir is not None:
-                v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
-            return super().add(v)
+            self._node._index_add_multiple(self._data, new_items)
+            self._data.update(new_items)
 
         def discard(self, v):
             if v not in self:
@@ -199,6 +191,16 @@ class ByteInterval(Node):
 
         # Use the property setter to ensure correct invariants.
         self.section = section
+
+    def _index_add_multiple(self, old_blocks, new_blocks):
+        if len(old_blocks) < len(new_blocks):
+            self._interval_tree = IntervalTree(
+                _offset_interval(block)
+                for block in itertools.chain(old_blocks, new_blocks)
+            )
+        else:
+            for block in new_blocks:
+                self._index_add(block)
 
     def _index_add(self, v):
         if isinstance(v, ByteBlock):
