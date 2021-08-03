@@ -165,9 +165,9 @@ coverage:
     - pip install gcovr coverage
     - cmake -DENABLE_CODE_COVERAGE=ON ..
     - cmake --build .
+    - ctest
     - gcovr -e googletest-src -r ..
     - cd python
-    - coverage run --source=gtirb setup.py test
     - coverage report --omit=gtirb/proto/*,gtirb/doc/* -m
 
 test-default-install:
