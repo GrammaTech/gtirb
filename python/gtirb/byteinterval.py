@@ -182,7 +182,7 @@ class ByteInterval(Node):
         self.blocks = ByteInterval._BlockSet(
             self, blocks
         )  # type: typing.Set[ByteBlock]
-        self.symbolic_expressions = ByteInterval._SymbolicExprDict(
+        self._symbolic_expressions = ByteInterval._SymbolicExprDict(
             self, symbolic_expressions
         )  # type: typing.Dict[int, SymbolicExpression]
         self._proto_interval = (
@@ -372,6 +372,17 @@ class ByteInterval(Node):
         if value is not None:
             value.byte_intervals.add(self)
 
+    @property
+    def symbolic_expressions(self):
+        # type: () -> typing.Dict[int, SymbolicExpression]
+        return self._symbolic_expressions
+
+    @symbolic_expressions.setter
+    def symbolic_expressions(self, value):
+        # type: (typing.Dict[int, SymbolicExpression]) -> None
+        self._symbolic_expressions.clear()
+        self._symbolic_expressions.update(value)
+
     def deep_eq(self, other):
         # type: (typing.Any) -> bool
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
@@ -521,7 +532,7 @@ class ByteInterval(Node):
             return
 
         addrs = get_desired_range(addrs)
-        for i in self.symbolic_expressions._data.irange(
+        for i in self._symbolic_expressions._data.irange(
             addrs.start - self.address,
             addrs.stop - self.address,
             inclusive=(True, False),
