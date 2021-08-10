@@ -2,6 +2,10 @@ variables:
   LOCAL_IMAGE_NAME: '$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID'
   GIT_SUBMODULE_STRATEGY: recursive
   EXTRA_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@git.grammatech.com/api/v4/projects/1587/packages/pypi/simple
+  # The follow two variables are used by the package-uploader.
+  PROJECT_ID: $CI_PROJECT_ID
+  PIPELINE_ID: $CI_PIPELINE_ID
+
 
 stages:
   - check-format
@@ -565,8 +569,6 @@ public-bionic-unstable:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu18
     APT_REPO: public
     APT_REPO_CODENAME: bionic
@@ -577,8 +579,6 @@ public-focal-unstable:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
     APT_REPO_CODENAME: focal
@@ -589,8 +589,6 @@ public-bionic-stable:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu18
     APT_REPO: public
     APT_REPO_CODENAME: bionic
@@ -601,8 +599,6 @@ public-focal-stable:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
     APT_REPO_CODENAME: focal
@@ -613,8 +609,6 @@ internal-bionic-unstable:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu18
     APT_REPO: internal
     APT_REPO_CODENAME: bionic
@@ -625,8 +619,6 @@ internal-focal-unstable:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
     APT_REPO_CODENAME: focal
@@ -637,8 +629,6 @@ internal-bionic-stable:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu18
     APT_REPO: internal
     APT_REPO_CODENAME: bionic
@@ -649,8 +639,6 @@ internal-focal-stable:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    PROJECT_ID: $CI_PROJECT_ID
-    PIPELINE_ID: $CI_PIPELINE_ID
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
     APT_REPO_CODENAME: focal
