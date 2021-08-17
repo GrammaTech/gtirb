@@ -303,24 +303,24 @@ conan-windows-release:
     BUILD_TYPE: Release
   <<: *conan-windows
 
-conan-windows-32:
-  stage: deploy
-  tags: [gtirb-windows]
-  variables:
-    ARCHITECTURE: x64
-  script:
-    - systeminfo
-    - export PATH="C:\\Program Files\\Python38;$PATH"
-    # Install conan
-    - python -m pip install conan
-    # Run build script
-    - export PYTHONPATH="$(cygpath -w $(pwd))"
-    - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
-    - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
-    - export PYTHON="C:\\Python38\\python.exe"
-    - export BOOST_ROOT="C:\\Boost"
-    # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
-    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=b2
+#conan-windows-32:
+#  stage: deploy
+#  tags: [gtirb-windows]
+#  variables:
+#    ARCHITECTURE: x64
+#  script:
+#    - systeminfo
+#    - export PATH="C:\\Program Files\\Python38;$PATH"
+#    # Install conan
+#    - python -m pip install conan
+#    # Run build script
+#    - export PYTHONPATH="$(cygpath -w $(pwd))"
+#    - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
+#    - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
+#    - export PYTHON="C:\\Python38\\python.exe"
+#    - export BOOST_ROOT="C:\\Boost"
+#    # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
+#    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=b2
 
 package-centos8:
   stage: deploy
@@ -346,24 +346,24 @@ python-wheel:
     - make -C build python-wheel
     - cp build/python/dist/*.whl ./
 
-external-pypi:
-  stage: deploy-to-pypi
-  needs: [build-ubuntu18-gcc7, python-wheel]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  script:
-    - pip3 install gtirb-*-py*-none-any.whl
-    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    # We won't be releasing our dev packages externally, so fail if this is a
-    # .dev package.
-    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1; fi
-    - pip3 install twine wheel setuptools --upgrade;
-    - cd build/python;
-    - rm -rf build dist gtirb.egg-info;
-    - python3 setup.py sdist bdist_wheel;
-    - twine check dist/*;
-    - twine upload dist/* -u __token__ -p $PYPI_API_KEY;
+#external-pypi:
+#  stage: deploy-to-pypi
+#  needs: [build-ubuntu18-gcc7, python-wheel]
+#  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+#  script:
+#    - pip3 install gtirb-*-py*-none-any.whl
+#    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+#    # We won't be releasing our dev packages externally, so fail if this is a
+#    # .dev package.
+#    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1; fi
+#    - pip3 install twine wheel setuptools --upgrade;
+#    - cd build/python;
+#    - rm -rf build dist gtirb.egg-info;
+#    - python3 setup.py sdist bdist_wheel;
+#    - twine check dist/*;
+#    - twine upload dist/* -u __token__ -p $PYPI_API_KEY;
 
 # On master, we only upload and overwrite `.dev` versions of the python
 # package.  Non-.dev versions should only be uploaded on versioned
@@ -371,43 +371,43 @@ external-pypi:
 # coincides with that of our conan packages, where dev packages are
 # produced from master, and stable, versioned packages are produced
 # on release-.* branches.
-internal-pypi:
-  stage: deploy-to-pypi
-  needs: [build-ubuntu18-gcc7, python-wheel]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-    # If you need to publish a package for a specific branch, change the
-    # package version to something like, '0.0.0.dev0+mybranchname', uncomment
-    # the rule below and replace 'mybranchname' with your branch name.
-    #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
-    #  changes:
-    #    - python/gtirb/setup.py.in
-  script:
-    - pip3 install twine wheel setuptools --upgrade
-    - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
-    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
-    - pip3 install gtirb-*-py*-none-any.whl
-    - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
-    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
-        if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
-          echo "[ERROR] Only .dev versions can be uploaded from the master branch.";
-          exit 1;
-        fi;
-        if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb>$NEW_VERSION" 2>/dev/null; then
-          echo "[ERROR] The package version being published on master should always be >= the version in the repository.";
-          exit 1;
-        fi;
-        wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py;
-        python3 delete_remote_packages.py $GL_PKG_API_TOKEN gtirb-*-py*-none-any.whl;
-      fi
-    - cd build/python
-    - rm -rf build dist *.egg-info
-    - python3 setup.py sdist bdist_wheel
-    - twine check dist/*
-    - twine upload --verbose --repository repypi dist/*
+#internal-pypi:
+#  stage: deploy-to-pypi
+#  needs: [build-ubuntu18-gcc7, python-wheel]
+#  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+#  rules:
+#    - if: '$CI_COMMIT_BRANCH == "master"'
+#    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+#    # If you need to publish a package for a specific branch, change the
+#    # package version to something like, '0.0.0.dev0+mybranchname', uncomment
+#    # the rule below and replace 'mybranchname' with your branch name.
+#    #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
+#    #  changes:
+#    #    - python/gtirb/setup.py.in
+#  script:
+#    - pip3 install twine wheel setuptools --upgrade
+#    - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
+#    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
+#    - pip3 install gtirb-*-py*-none-any.whl
+#    - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+#    - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
+#    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+#        if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
+#          echo "[ERROR] Only .dev versions can be uploaded from the master branch.";
+#          exit 1;
+#        fi;
+#        if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb>$NEW_VERSION" 2>/dev/null; then
+#          echo "[ERROR] The package version being published on master should always be >= the version in the repository.";
+#          exit 1;
+#        fi;
+#        wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py;
+#        python3 delete_remote_packages.py $GL_PKG_API_TOKEN gtirb-*-py*-none-any.whl;
+#      fi
+#    - cd build/python
+#    - rm -rf build dist *.egg-info
+#    - python3 setup.py sdist bdist_wheel
+#    - twine check dist/*
+#    - twine upload --verbose --repository repypi dist/*
 
 
 # Apt packaging related jobs
