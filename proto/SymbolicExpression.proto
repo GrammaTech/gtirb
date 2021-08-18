@@ -53,8 +53,8 @@ enum SEAttributeFlag {
   DtpOff = 16;
   TlsGd = 17;
   TlsLd = 18;
-  Lower16 = 19;
-  Upper16 = 20;
+  Lo = 19;
+  Hi = 20;
   Lo12 = 21;
   Abs = 22;
   Signed = 23;

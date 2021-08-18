@@ -20,8 +20,8 @@ class SymbolicExpression:
         Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
         Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
         Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
-        Lower16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lower16")
-        Upper16 = SymbolicExpression_pb2.SEAttributeFlag.Value("Upper16")
+        Hi = SymbolicExpression_pb2.SEAttributeFlag.Value("Hi")
+        Lo = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo")
         Lo12 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo12")
 
         # GOT and GOT-relative attributes:

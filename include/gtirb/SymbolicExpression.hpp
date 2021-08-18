@@ -57,14 +57,14 @@ enum class SymAttribute : uint8_t {
   /// Part0.
   Adjusted = proto::SEAttributeFlag::Adjusted,
 
-  /// Value is the lower 16 bits of the expression.
-  Lower16 = proto::SEAttributeFlag::Lower16,
-
-  /// Value is the upper 16 bits of the expression.
-  Upper16 = proto::SEAttributeFlag::Upper16,
-
-  /// Value uses only the bits [0,11].
+  /// Value uses only the bits [0,11] (ARM).
   Lo12 = proto::SEAttributeFlag::Lo12,
+
+  /// Value is the upper 16 bits of the expression (MIPS).
+  Hi = proto::SEAttributeFlag::Hi,
+
+  /// Value is the upper 16 bits of the expression (MIPS).
+  Lo = proto::SEAttributeFlag::Lo,
   //
   //
 
