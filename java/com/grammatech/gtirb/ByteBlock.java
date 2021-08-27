@@ -12,8 +12,6 @@
  *
  */
 
-/* TODO Must be able to retrieve address, unless byte interval has no address */
-
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;

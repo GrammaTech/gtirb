@@ -29,12 +29,7 @@ public class Node {
     /**
      * Default constructor
      */
-    public Node() {
-        // TODO: Assign a new UUID here.
-        // (However, so far I am only working with objects that have already
-        // been created,
-        //  so would only have to be replaced with the correct UUID.)
-    }
+    public Node() {}
 
     /**
      * Find a node using its UUID.

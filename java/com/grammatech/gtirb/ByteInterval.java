@@ -764,16 +764,7 @@ public final class ByteInterval extends Node implements TreeListItem {
                 symbolicExpression.getOffset(),
                 protoSymbolicExpression.build());
         }
-
-        //        // Get bytes as byte array then convert to ByteString
-        //        // !TODO Storing bytes as ArrayList<Byte> is very inefficient,
-        //        // find out why this is being done this way and fix it
-        //        byte[] contents = new byte[this.bytes.size()];
-        //        for (int i = 0; i < this.bytes.size(); i++) {
-        //            contents[i] = this.bytes.get(i).byteValue();
-        //        }
         protoByteInterval.setContents(ByteString.copyFrom(this.bytes));
-
         return protoByteInterval;
     }
 }

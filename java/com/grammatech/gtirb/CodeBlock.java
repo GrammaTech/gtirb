@@ -31,7 +31,7 @@ public class CodeBlock extends ByteBlock {
      */
     public CodeBlock(ByteIntervalOuterClass.Block protoBlock,
                      ByteInterval byteInterval) {
-        // TODO Could verify that this protoBlock IS code
+        // Could verify that this protoBlock is really Code.
         super(protoBlock, byteInterval);
         CodeBlockOuterClass.CodeBlock protoCodeBlock = protoBlock.getCode();
         this.uuid = Util.byteStringToUuid(protoCodeBlock.getUuid());

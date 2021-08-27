@@ -30,7 +30,7 @@ public class DataBlock extends ByteBlock {
      */
     public DataBlock(ByteIntervalOuterClass.Block protoBlock,
                      ByteInterval byteInterval) {
-        // Could verify that his protoBlock is really Data.
+        // Could verify that this protoBlock is really Data.
         super(protoBlock, byteInterval);
         DataBlockOuterClass.DataBlock protoDataBlock = protoBlock.getData();
         this.uuid = Util.byteStringToUuid(protoDataBlock.getUuid());
