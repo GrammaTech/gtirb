@@ -4,12 +4,11 @@
  * <p>Open a gtirb file and read its contents using the GTIRB Java API.
  */
 import com.grammatech.gtirb.IR;
-import com.grammatech.gtirb.Version;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-public class testIrSanity {
+public class testByteIntervals {
 
     public static void main(String[] args) {
 
@@ -46,9 +45,7 @@ public class testIrSanity {
             return;
         }
 
-        System.out.println("Version: " + Version.gtirbApiVersion);
-        System.out.println("Protobuf Version: " + Version.gtirbProtobufVersion);
-        System.err.println("Sanity test OK.");
+        System.err.println("Byte interval test OK.");
         return;
     }
 }

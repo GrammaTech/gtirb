@@ -15,40 +15,98 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.IROuterClass;
+import com.grammatech.gtirb.proto.ModuleOuterClass;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public class IR {
+/**
+ * A complete internal representation. IR describes the internal representation
+ * of a software artifact.
+ */
+public class IR extends AuxDataContainer {
 
-    private com.grammatech.gtirb.proto.IROuterClass.IR protoIR;
-    // TODO: Need to support a list of modules, not just one.
-    private Module module;
+    private IROuterClass.IR protoIR;
+    private List<Module> modules;
     private CFG cfg;
-    private UUID uuid;
-    private int version;
+    private int version; // This is the protobuf version from the protoIr
 
+    /**
+     * Default class constructor for IR.
+     */
     public IR() {
-        this.protoIR =
-            com.grammatech.gtirb.proto.IROuterClass.IR.getDefaultInstance();
+        super(null);
+        // shouldn't this be null?
+        this.protoIR = IROuterClass.IR.getDefaultInstance();
     }
 
-    public static IR loadFile(InputStream fileIn) {
-        IR ir = new IR();
-        boolean rv = ir.doLoadFile(fileIn);
-        if (rv == true) {
-            return ir;
+    /**
+     * Class constructor for IR from an IR protobuf.
+     * @param  protoIr  The {@link IR} as serialized into a protocol buffer.
+     */
+    public IR(IROuterClass.IR protoIr) {
+        super(protoIr.getAuxDataMap());
+        this.protoIR = protoIr;
+    }
+
+    /**
+     * Load IR from protobuf.
+     *
+     * @return  true if load is successful, false otherwise.
+     */
+    private boolean loadProtobuf() {
+        // If no protobuf, can't load it.
+        if (this.protoIR == null)
+            return false;
+        this.version = protoIR.getVersion();
+        this.uuid = Util.byteStringToUuid(protoIR.getUuid());
+        // Import the modules
+        this.modules = new ArrayList<Module>();
+        for (ModuleOuterClass.Module protoModule : protoIR.getModulesList()) {
+            Module module = Module.fromProtobuf(protoModule, this);
+            this.modules.add(module);
         }
+        // Import the CFG
+        this.cfg = new CFG(protoIR.getCfg());
+        return true;
+    }
+
+    /**
+     * Load IR from a protobuf file stream.
+     *
+     * @return  IR if load is successful, null otherwise.
+     */
+    public static IR loadFile(InputStream fileIn) {
+        IROuterClass.IR protoIr;
+        try {
+            protoIr = IROuterClass.IR.parseFrom(fileIn);
+        } catch (FileNotFoundException fe) {
+            return null;
+        } catch (IOException ie) {
+            return null;
+        }
+        IR ir = new IR(protoIr);
+        boolean rv = ir.loadProtobuf();
+        if (rv == true)
+            return ir;
         return null;
     }
 
-    // TODO: support opening a file based on file name, this is experimental
-    public static IR loadFileByName(String filename) {
+    /**
+     * Load IR from a protobuf file.
+     *
+     * @return  IR if load is successful, null otherwise.
+     */
+    public static IR loadFile(String fileInName) {
         try {
-            File fileIn = new File(filename);
+            File fileIn = new File(fileInName);
             FileInputStream fileInputStream = new FileInputStream(fileIn);
             return loadFile(fileInputStream);
         } catch (Exception e) {
@@ -56,49 +114,106 @@ public class IR {
         }
     }
 
-    private boolean doLoadFile(InputStream fileIn) {
+    /**
+     * Get the list of modules belonging to this {@link IR}.
+     *
+     * @return  A {@link Module} list.
+     */
+    public List<Module> getModules() { return this.modules; }
+
+    /**
+     * Set the list of modules belonging to this {@link IR}.
+     *
+     * @param modules  A {@link Module} list.
+     */
+    public void setModules(List<Module> modules) { this.modules = modules; }
+
+    /**
+     * Get the CFG belonging to this {@link IR}.
+     *
+     * @return  A {@link CFG}.
+     */
+    public CFG getCfg() { return this.cfg; }
+
+    /**
+     * Set the CFG belonging to this {@link IR}.
+     *
+     * @param cfg  A {@link CFG}.
+     */
+    public void setCfg(CFG cfg) { this.cfg = cfg; }
+
+    /**
+     * Get the original protobuf of this {@link IR}.
+     *
+     * @return The protobuf the IR was imported from, or the IR
+     * {@link com.grammatech.gtirb.proto.IROuterClass.IR#getDefaultInstance()
+     * DefaultInstance} if it was not imported from a protobuf.
+     */
+    public IROuterClass.IR getProtoIR() { return this.protoIR; }
+
+    /**
+     * Get the protobuf version of this {@link IR}.
+     *
+     * @return Protobuf version.
+     */
+    public int getVersion() { return this.version; }
+
+    /**
+     * Set the protobuf version of this {@link IR}.
+     *
+     * @param version Protobuf version.
+     */
+    public void setVersion(int version) { this.version = version; }
+
+    /**
+     * Serialize this IR into a protobuf.
+     *
+     * @return IR protocol buffer.
+     */
+    public IROuterClass.IR.Builder toProtobuf() {
+        IROuterClass.IR.Builder protoIr = IROuterClass.IR.newBuilder();
+        protoIr.setUuid(Util.uuidToByteString(this.getUuid()));
+        // Add modules
+        for (Module module : this.modules) {
+            ModuleOuterClass.Module.Builder protoModule = module.toProtobuf();
+            protoIr.addModules(protoModule);
+        }
+        // Add CFG
+        protoIr.setCfg(this.cfg.toProtobuf());
+        return protoIr;
+    }
+
+    /**
+     * Save IR to a protobuf file stream.
+     *
+     * @return  true if save is successful, false otherwise.
+     */
+    public boolean saveFile(OutputStream fileOut) {
+        IROuterClass.IR protoIr = this.toProtobuf().build();
         try {
-            this.protoIR =
-                com.grammatech.gtirb.proto.IROuterClass.IR.parseFrom(fileIn);
+            protoIr.writeTo(fileOut);
         } catch (FileNotFoundException fe) {
             return false;
         } catch (IOException ie) {
             return false;
         }
-
-        // True, these aren't used. But won't they be needed eventually?
-        this.version = protoIR.getVersion();
-        this.uuid = Util.byteStringToUuid(protoIR.getUuid());
-
-        // Create a GTIRB API Module from the first protobuf Module
-        com.grammatech.gtirb.proto.ModuleOuterClass.Module m =
-            protoIR.getModulesList().get(0);
-        if (m == null) {
-            return false;
-        }
-
-        this.module = new Module(m);
-        boolean sectionListInitialized = module.initializeSectionList();
-        boolean symbolListInitialized = module.initializeSymbolList();
-        boolean proxyBlockListInitialized = module.initializeProxyBlockList();
-        boolean auxDataInitialized = module.initializeAuxData();
-
-        com.grammatech.gtirb.proto.CFGOuterClass.CFG protoCfg =
-            protoIR.getCfg();
-        this.cfg = new CFG(protoCfg);
-
-        if ((!sectionListInitialized) || (!symbolListInitialized) ||
-            (!proxyBlockListInitialized) || (!auxDataInitialized)) {
-            return false;
-        }
         return true;
     }
 
-    public Module getModule() { return this.module; }
-
-    public CFG getCfg() { return this.cfg; }
-
-    public IROuterClass.IR getProtoIR() { return this.protoIR; }
-
-    public int getVersion() { return this.version; }
+    /**
+     * Save IR to a protobuf file.
+     *
+     * @return  true if save is successful, false otherwise.
+     */
+    public boolean saveFile(String fileOutName) {
+        boolean rv;
+        try {
+            File fileOut = new File(fileOutName);
+            FileOutputStream fileOutputStream = new FileOutputStream(fileOut);
+            rv = this.saveFile(fileOutputStream);
+        } catch (Exception e) {
+            return false;
+        }
+        return rv;
+    }
 }

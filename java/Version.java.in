@@ -13,6 +13,10 @@
  */
 package com.grammatech.gtirb;
 
+/**
+ * The semantic version of this API and version of protobuf this API
+ * can read and write from.
+ */
 public class Version {
         // The semantic version of this API.
 	public static final String gtirbApiVersion =

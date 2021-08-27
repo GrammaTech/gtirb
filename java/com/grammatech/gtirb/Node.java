@@ -18,11 +18,17 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ * Node is the root class for many GTIRB components.
+ */
 public class Node {
     UUID uuid;
     private static HashMap<UUID, WeakReference<Node>> uuid_cache =
         new HashMap<UUID, WeakReference<Node>>();
 
+    /**
+     * Default constructor
+     */
     public Node() {
         // TODO: Assign a new UUID here.
         // (However, so far I am only working with objects that have already
@@ -30,14 +36,29 @@ public class Node {
         //  so would only have to be replaced with the correct UUID.)
     }
 
+    /**
+     * Find a node using its UUID.
+     *
+     * @return  The node with the given UUID.
+     */
     public static Node getByUuid(UUID uuid) {
         return uuid_cache.get(uuid).get();
     }
 
+    /**
+     * Get the UUID of this node.
+     *
+     * @return  The UUID.
+     */
+    public UUID getUuid() { return uuid; }
+
+    /**
+     * Set the UUID of this node.
+     *
+     * @param uuid  The UUID.
+     */
     public WeakReference<Node> setUuid(UUID uuid) {
         this.uuid = uuid;
         return uuid_cache.put(uuid, new WeakReference<Node>(this));
     }
-
-    public UUID getUuid() { return uuid; }
 }

@@ -14,25 +14,27 @@
 
 package com.grammatech.gtirb;
 
+import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.CFGOuterClass;
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * A CFG represents the interprocedural control flow graph.
+ */
 public class CFG {
 
-    private ArrayList<Edge> edgeList;
-    private ArrayList<byte[]> verticeList;
+    private List<Edge> edgeList;
+    private List<byte[]> verticeList;
 
-    // TODO the saving of protoCfg and using it for mergeFrom
-    // should be replaced with deriving CFG from listing
-    private CFGOuterClass.CFG protoCfg;
-
-    public CFG(com.grammatech.gtirb.proto.CFGOuterClass.CFG protoCfg) {
+    /**
+     * Class constructor for a {@link CFG} from a protobuf CFG.
+     * @param  protoCfg  The CFG as serialized into a protocol buffer.
+     */
+    public CFG(CFGOuterClass.CFG protoCfg) {
         this.edgeList = new ArrayList<Edge>();
         this.verticeList = new ArrayList<byte[]>();
-        this.protoCfg = protoCfg;
-
-        for (com.grammatech.gtirb.proto.CFGOuterClass.Edge protoEdge :
-             protoCfg.getEdgesList()) {
+        for (CFGOuterClass.Edge protoEdge : protoCfg.getEdgesList()) {
             Edge edge = new Edge(protoEdge);
             edgeList.add(edge);
         }
@@ -43,13 +45,75 @@ public class CFG {
         }
     }
 
-    public ArrayList<Edge> getEdgeList() { return this.edgeList; }
+    /**
+     * Class constructor for a {@link CFG}.
+     * @param  edgeList  The edges belonging to to this CFG.
+     * @param  verticeList  The vertices belonging to this CFG.
+     */
+    public CFG(List<Edge> edgeList, List<byte[]> verticeList) {
+        this.edgeList = edgeList;
+        this.verticeList = verticeList;
+    }
 
-    public ArrayList<byte[]> getVerticeList() { return this.verticeList; }
+    /**
+     * Get the {@link Edge} list of a {@link CFG}.
+     *
+     * @return  The edge list.
+     */
+    public List<Edge> getEdgeList() { return this.edgeList; }
 
-    public CFGOuterClass.CFG.Builder buildCFG() {
-        CFGOuterClass.CFG.Builder newCFG = CFGOuterClass.CFG.newBuilder();
-        newCFG.mergeFrom(this.protoCfg);
-        return newCFG;
+    /**
+     * Set the {@link Edge} list of a {@link CFG}.
+     *
+     * @param edgeList  The edge list.
+     */
+    public void setEdgeList(List<Edge> edgeList) { this.edgeList = edgeList; }
+
+    /**
+     * Get the vertice list of a {@link CFG}.
+     *
+     * @return  The vertice list.
+     */
+    public List<byte[]> getVerticeList() { return this.verticeList; }
+
+    /**
+     * Set the vertice list of a {@link CFG}.
+     *
+     * @param verticeList  The vertice list.
+     */
+    public void setVerticeList(List<byte[]> verticeList) {
+        this.verticeList = verticeList;
+    }
+
+    // DEPRECATED
+    //    public CFGOuterClass.CFG.Builder buildCFG() {
+    //        CFGOuterClass.CFG.Builder newCFG = CFGOuterClass.CFG.newBuilder();
+    //        newCFG.mergeFrom(this.protoCfg);
+    //        return newCFG;
+    //    }
+
+    /**
+     * De-serialize a {@link CFG} from a protobuf .
+     *
+     * @param  protoCFG  The CFG as serialized into a protocol buffer.
+     * @return An initialized CFG.
+     */
+    public static CFG fromProtobuf(CFGOuterClass.CFG protoCFG) {
+        return new CFG(protoCFG);
+    }
+
+    /**
+     * Serialize this {@link CFG} into a protobuf.
+     *
+     * @return edge protocol buffer.
+     */
+    public CFGOuterClass.CFG.Builder toProtobuf() {
+        CFGOuterClass.CFG.Builder protoCfg = CFGOuterClass.CFG.newBuilder();
+
+        for (byte[] vertice : this.verticeList)
+            protoCfg.addVertices(ByteString.copyFrom(vertice));
+        for (Edge edge : this.edgeList)
+            protoCfg.addEdges(edge.toProtobuf());
+        return protoCfg;
     }
 }

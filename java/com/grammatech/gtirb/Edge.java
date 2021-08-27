@@ -16,29 +16,25 @@ package com.grammatech.gtirb;
 
 import java.util.UUID;
 
+import com.grammatech.gtirb.proto.CFGOuterClass;
+
+/**
+ * A CFG Edge represents an edge in the interprocedural control flow graph
+ * (CFG).
+ */
 public class Edge {
 
+    /**
+     * Indicates the type of control flow transfer indicated by this edge.
+     */
     public enum EdgeType {
-        Type_Branch(com.grammatech.gtirb.proto.CFGOuterClass.EdgeType
-                        .Type_Branch_VALUE),
-        Type_Call(
-            com.grammatech.gtirb.proto.CFGOuterClass.EdgeType.Type_Call_VALUE),
-        Type_Fallthrough(com.grammatech.gtirb.proto.CFGOuterClass.EdgeType
-                             .Type_Fallthrough_VALUE),
-        Type_Return(com.grammatech.gtirb.proto.CFGOuterClass.EdgeType
-                        .Type_Return_VALUE),
-        Type_Syscall(com.grammatech.gtirb.proto.CFGOuterClass.EdgeType
-                         .Type_Syscall_VALUE),
-        Type_Sysret(com.grammatech.gtirb.proto.CFGOuterClass.EdgeType
-                        .Type_Sysret_VALUE);
-
-        private int value;
-
-        private EdgeType(int value) { this.setValue(value); }
-
-        public int getValue() { return value; }
-
-        public void setValue(int value) { this.value = value; }
+        Branch,
+        Call,
+        Fallthrough,
+        Return,
+        Syscall,
+        Sysret,
+        Unlabelled
     }
 
     private UUID sourceUuid;
@@ -47,37 +43,143 @@ public class Edge {
     private boolean edgeLabelConditional;
     private boolean edgeLabelDirect;
 
-    public Edge(com.grammatech.gtirb.proto.CFGOuterClass.Edge protoEdge) {
+    /**
+     * Class constructor for an Edge from a protobuf edge.
+     * @param  protoEdge  The edge as serialized into a protocol buffer.
+     */
+    public Edge(CFGOuterClass.Edge protoEdge) {
         this.setSourceUuid(Util.byteStringToUuid(protoEdge.getSourceUuid()));
         this.setTargetUuid(Util.byteStringToUuid(protoEdge.getTargetUuid()));
-        com.grammatech.gtirb.proto.CFGOuterClass.EdgeLabel protoEdgeLabel =
-            protoEdge.getLabel();
-        this.setEdgeLabelConditional(protoEdgeLabel.getConditional());
-        this.setEdgeLabelDirect(protoEdgeLabel.getDirect());
-        this.setEdgeType(EdgeType.values()[protoEdgeLabel.getTypeValue()]);
+        if (protoEdge.hasLabel()) {
+            CFGOuterClass.EdgeLabel protoEdgeLabel = protoEdge.getLabel();
+            this.edgeType = EdgeType.values()[protoEdgeLabel.getTypeValue()];
+            this.setEdgeLabelConditional(protoEdgeLabel.getConditional());
+            this.setEdgeLabelDirect(protoEdgeLabel.getDirect());
+        } else {
+            this.edgeType = EdgeType.Unlabelled;
+        }
     }
 
-    public UUID getSourceUuid() { return sourceUuid; }
+    /**
+     * Class constructor for an Edge.
+     * @param  sourceUuid  UUID of the source node.
+     * @param  targetUuid  UUID of the target node.
+     * @param  edgeType  The {@link EdgeType}.
+     * @param  isConditional  True if the edge id conditional.
+     * @param  isDirect  True if the edge is direct.
+     */
+    public Edge(UUID sourceUuid, UUID targetUuid, EdgeType edgeType,
+                boolean isConditional, boolean isDirect) {
+        this.setSourceUuid(sourceUuid);
+        this.setTargetUuid(targetUuid);
+        this.edgeType = edgeType;
+        this.edgeLabelConditional = isConditional;
+        this.edgeLabelDirect = isDirect;
+    }
 
+    /**
+     * Get the source node of an {@link Edge}.
+     *
+     * @return  The edge source node (UUID).
+     */
+    public UUID getSourceUuid() { return this.sourceUuid; }
+
+    /**
+     * Set the source node of an {@link Edge}.
+     *
+     * @param sourceUuid  The edge source node (UUID).
+     */
     public void setSourceUuid(UUID sourceUuid) { this.sourceUuid = sourceUuid; }
 
-    public UUID getTargetUuid() { return targetUuid; }
+    /**
+     * Get the target node of an {@link Edge}.
+     *
+     * @return  The edge target node (UUID).
+     */
+    public UUID getTargetUuid() { return this.targetUuid; }
 
+    /**
+     * Set the target node of an {@link Edge}.
+     *
+     * @param targetUuid  The edge target node (UUID).
+     */
     public void setTargetUuid(UUID targetUuid) { this.targetUuid = targetUuid; }
 
-    public EdgeType getEdgeType() { return edgeType; }
+    /**
+     * Get the {@link EdgeType} of an {@link Edge}.
+     *
+     * @return  The edge type.
+     */
+    public EdgeType getEdgeType() { return this.edgeType; }
 
+    /**
+     * Set the {@link EdgeType} of an {@link Edge}.
+     *
+     * @param edgeType  The edge type.
+     */
     public void setEdgeType(EdgeType edgeType) { this.edgeType = edgeType; }
 
-    public boolean isEdgeLabelConditional() { return edgeLabelConditional; }
+    /**
+     * Whether an {@link Edge}.
+     *
+     * @return  True if the edge is conditional.
+     */
+    public boolean isConditional() { return this.edgeLabelConditional; }
 
-    public void setEdgeLabelConditional(boolean edgeLabelConditional) {
-        this.edgeLabelConditional = edgeLabelConditional;
+    /**
+     * Set whether an {@link Edge} is conditional or not.
+     *
+     * @param conditional  True if the edge is conditional.
+     */
+    public void setEdgeLabelConditional(boolean conditional) {
+        this.edgeLabelConditional = conditional;
     }
 
-    public boolean isEdgeLabelDirect() { return edgeLabelDirect; }
+    /**
+     * Whether an {@link Edge}.
+     *
+     * @return  True if the edge is direct.
+     */
+    public boolean isDirect() { return this.edgeLabelDirect; }
 
-    public void setEdgeLabelDirect(boolean edgeLabelDirect) {
-        this.edgeLabelDirect = edgeLabelDirect;
+    /**
+     * Set the name of a {@link Edge}.
+     *
+     * @param direct  True if the edge is direct.
+     */
+    public void setEdgeLabelDirect(boolean direct) {
+        this.edgeLabelDirect = direct;
+    }
+
+    /**
+     * De-serialize a {@link Edge} from a protobuf .
+     *
+     * @param  protoEdge  The edge as serialized into a protocol buffer.
+     * @return An initialized Edge.
+     */
+    public static Edge fromProtobuf(CFGOuterClass.Edge protoEdge) {
+        return new Edge(protoEdge);
+    }
+
+    /**
+     * Serialize this {@link Edge} into a protobuf.
+     *
+     * @return edge protocol buffer.
+     */
+    public CFGOuterClass.Edge.Builder toProtobuf() {
+        CFGOuterClass.Edge.Builder protoEdge = CFGOuterClass.Edge.newBuilder();
+        if (this.edgeType == EdgeType.Unlabelled) {
+            protoEdge.clearLabel();
+        } else {
+            CFGOuterClass.EdgeLabel.Builder protoEdgeLabel =
+                CFGOuterClass.EdgeLabel.newBuilder();
+            protoEdgeLabel.setTypeValue(this.edgeType.ordinal());
+            protoEdgeLabel.setConditional(this.edgeLabelConditional);
+            protoEdgeLabel.setDirect(this.edgeLabelDirect);
+            protoEdge.setLabel(protoEdgeLabel);
+        }
+        protoEdge.setSourceUuid(Util.uuidToByteString(this.sourceUuid));
+        protoEdge.setTargetUuid(Util.uuidToByteString(this.targetUuid));
+        return protoEdge;
     }
 }

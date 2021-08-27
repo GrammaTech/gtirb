@@ -14,41 +14,7 @@
 
 package com.grammatech.gtirb;
 
-public class Block extends Node {
-    private long offset;
-    private com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block
-        .ValueCase valueCase;
-    private CodeBlock codeBlock;
-    private DataBlock dataBlock;
-    private ByteInterval byteInterval;
-
-    public Block(
-        com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block protoBlock,
-        ByteInterval byteInterval) {
-
-        this.offset = protoBlock.getOffset();
-        this.valueCase = protoBlock.getValueCase();
-        this.byteInterval = byteInterval;
-        if (this.valueCase == com.grammatech.gtirb.proto.ByteIntervalOuterClass
-                                  .Block.ValueCase.CODE) {
-            this.codeBlock = new CodeBlock(protoBlock.getCode(), offset, this);
-            this.dataBlock = null;
-        } else if (this.valueCase ==
-                   com.grammatech.gtirb.proto.ByteIntervalOuterClass.Block
-                       .ValueCase.DATA) {
-            this.dataBlock = new DataBlock(protoBlock.getData(), offset, this);
-            this.codeBlock = null;
-        } else {
-            throw new IllegalArgumentException(
-                "Block must be either a CodeBlock or a DataBlock.");
-        }
-    }
-
-    public long getOffset() { return this.offset; }
-
-    public CodeBlock getCodeBlock() { return this.codeBlock; }
-
-    public DataBlock getDataBlock() { return this.dataBlock; }
-
-    public ByteInterval getByteInterval() { return this.byteInterval; }
-}
+/**
+ * The Block class is a base class for all byte blocks and proxy blocks.
+ */
+public class Block extends Node {}

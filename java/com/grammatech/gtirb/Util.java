@@ -16,13 +16,23 @@ package com.grammatech.gtirb;
 
 import com.google.protobuf.ByteString;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.UUID;
 
+/**
+ * General purpose methods.
+ */
 public class Util {
 
     public static final UUID NIL_UUID = new UUID(0, 0);
+    public static final long NIL_ADDR = 0;
 
+    /**
+     * Convert a ByteString to a UUID.
+     *
+     * @param byteString  The byte string.
+     * @return            A UUID having the value retrieved from the byte
+     * string.
+     */
     public static UUID
     byteStringToUuid(com.google.protobuf.ByteString byteString) {
         if (byteString == com.google.protobuf.ByteString.EMPTY) {
@@ -33,6 +43,12 @@ public class Util {
         return new UUID(bb.getLong(), bb.getLong());
     }
 
+    /**
+     * Convert a UUID to a ByteString.
+     *
+     * @param uuid  The UUID.
+     * @return      A ByteString storing the value of the UUID.
+     */
     public static com.google.protobuf.ByteString uuidToByteString(UUID uuid) {
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
         bb.putLong(uuid.getMostSignificantBits());
@@ -41,15 +57,15 @@ public class Util {
         return (bs);
     }
 
-    public static byte[] toByteArray(ArrayList<Byte> in) {
-        if (in == null) {
-            return null;
-        }
-        final int n = in.size();
-        byte ret[] = new byte[n];
-        for (int i = 0; i < n; i++) {
-            ret[i] = in.get(i);
-        }
-        return ret;
-    }
+    //    public static byte[] toByteArray(ArrayList<Byte> in) {
+    //        if (in == null) {
+    //            return null;
+    //        }
+    //        final int n = in.size();
+    //        byte ret[] = new byte[n];
+    //        for (int i = 0; i < n; i++) {
+    //            ret[i] = in.get(i);
+    //        }
+    //        return ret;
+    //    }
 }
