@@ -133,13 +133,10 @@ public class SymAddrAddr extends SymbolicExpression {
         protoSymbolicExpression.setAddrAddr(protoSymAddrAddr);
 
         // NOTE for this to be valid, a one-to-one mapping of enums must be
-        // maintained May be simplified, see Section.toProtobuf()
-        for (AttributeFlag attributeFlag : this.getAttributeFlags()) {
-            SymbolicExpressionOuterClass.SEAttributeFlag protoAttributeFlag =
-                SymbolicExpressionOuterClass.SEAttributeFlag
-                    .values()[attributeFlag.ordinal()];
-            protoSymbolicExpression.addAttributeFlags(protoAttributeFlag);
-        }
+        // maintained
+        for (AttributeFlag attributeFlag : this.getAttributeFlags())
+            protoSymbolicExpression.addAttributeFlagsValue(
+                attributeFlag.ordinal());
         return protoSymbolicExpression;
     }
 }

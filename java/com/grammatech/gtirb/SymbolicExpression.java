@@ -26,30 +26,23 @@ public class SymbolicExpression implements TreeListItem {
         GotRelAddr,
         GotPage,
         GotPageOfst,
-        PltRef
+        PltRef,
+        GotOff,
+        TpOff,
+        NtpOff,
+        DtpOff,
+        TlsGd,
+        TlsLd,
+        Lo,
+        Hi,
+        Lo12,
+        Abs,
+        Signed,
+        NoOverflowCheck
     }
 
     private long offset;
     private List<AttributeFlag> attributeFlags;
-
-    // This needed no longer
-    //    /**
-    //     * Class constructor for a SymbolicExpression from a protobuf symbolic
-    //     * expression.
-    //     * @param  protoSymbolicExpression     The symbolic expression as
-    //     serialized
-    //     * into a protocol buffer.
-    //     */
-    //    public SymbolicExpression(
-    //        SymbolicExpressionOuterClass.SymbolicExpression
-    //        protoSymbolicExpression, long offset) { this.setOffset(offset);
-    //        this.attributeFlags = new ArrayList<AttributeFlag>();
-    //        for (Integer value :
-    //        protoSymbolicExpression.getAttributeFlagsValueList()) {
-    //            AttributeFlag attributeFlag = AttributeFlag.values()[value];
-    //            this.attributeFlags.add(attributeFlag);
-    //        }
-    //    }
 
     // This is the constructor used when instantiating a sub class
     // NOTE: Offset is not set in constructor because subclasss doesn't

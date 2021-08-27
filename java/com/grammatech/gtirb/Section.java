@@ -358,13 +358,8 @@ public class Section extends Node implements TreeListItem {
             protoSection.addByteIntervals(protoByteInterval);
         }
 
-        for (SectionFlag sectionFlag : this.sectionFlags) {
-            //            SectionOuterClass.SectionFlag protoSectionFlag =
-            //                SectionOuterClass.SectionFlag.values()[sectionFlag.ordinal()];
-            //            protoSection.addSectionFlags(protoSectionFlag);
-            // could this not be:
+        for (SectionFlag sectionFlag : this.sectionFlags)
             protoSection.addSectionFlagsValue(sectionFlag.ordinal());
-        }
         return protoSection;
     }
 }

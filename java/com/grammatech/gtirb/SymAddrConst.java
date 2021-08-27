@@ -89,12 +89,9 @@ public class SymAddrConst extends SymbolicExpression {
         protoSymbolicExpression.setAddrConst(protoSymAddrConst);
         // NOTE for this to be valid, a one-to-one mapping of enums must be
         // maintained
-        for (AttributeFlag attributeFlag : this.getAttributeFlags()) {
-            SymbolicExpressionOuterClass.SEAttributeFlag protoAttributeFlag =
-                SymbolicExpressionOuterClass.SEAttributeFlag
-                    .values()[attributeFlag.ordinal()];
-            protoSymbolicExpression.addAttributeFlags(protoAttributeFlag);
-        }
+        for (AttributeFlag attributeFlag : this.getAttributeFlags())
+            protoSymbolicExpression.addAttributeFlagsValue(
+                attributeFlag.ordinal());
         return protoSymbolicExpression;
     }
 }
