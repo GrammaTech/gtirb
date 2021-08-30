@@ -1914,9 +1914,7 @@ private:
     return Pos;
   }
 
-
-
-public:  
+public:
   /// \brief Insert a single datum into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
@@ -1926,9 +1924,10 @@ public:
   /// \param  Pos           The position in the byte vector to insert data at.
   /// \param  X             The data to insert.
   ///
-  /// \return An iterator pointing to the element inserted by this call. 
+  /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
-  const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos, const T& X) {
+  const_bytes_iterator<T> insertBytes(const const_bytes_iterator<T> Pos,
+                                      const T& X) {
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
 
@@ -1951,16 +1950,17 @@ public:
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
   const_bytes_iterator<T> insertBytes(
-      const const_bytes_iterator<T> Pos, const T& X, boost::endian::order VectorOrder,
+      const const_bytes_iterator<T> Pos, const T& X,
+      boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
-	  return insertSingleByte<T>(Pos, X, VectorOrder, ElementOrder); 
+    return insertSingleByte<T>(Pos, X, VectorOrder, ElementOrder);
   }
 
   template <typename T>
   bytes_iterator<T> insertBytes(
       bytes_iterator<T> Pos, const T& X, boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
-	  return insertSingleByte<T>(Pos, X, VectorOrder, ElementOrder); 
+    return insertSingleByte<T>(Pos, X, VectorOrder, ElementOrder);
   }
 
   /// \brief Insert data into this byte vector.
@@ -2009,15 +2009,15 @@ public:
       const const_bytes_iterator<T> Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
-        return insertByteVec<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
+    return insertByteVec<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
   }
-  
+
   template <typename T, typename InputIterator>
   bytes_iterator<T> insertBytes(
       bytes_iterator<T> Pos, InputIterator Begin, InputIterator End,
       boost::endian::order VectorOrder,
       boost::endian::order ElementsOrder = boost::endian::order::native) {
-        return insertByteVec<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
+    return insertByteVec<T>(Pos, Begin, End, VectorOrder, ElementsOrder);
   }
 
   /// \brief Erase data from this byte vector.
