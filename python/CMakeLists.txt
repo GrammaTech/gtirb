@@ -85,14 +85,3 @@ add_custom_target(
   DEPENDS pygtirb
   COMMAND "${PYTHON}" setup.py sdist bdist_wheel
 )
-
-# Run python coverage test
-message("CHECK IF STATEMENT")
-if(ENABLE_CODE_COVERAGE)
-	message("CODE COVERAGE RUNNINGS ${CMAKE_BINARY_DIR}/")
-  execute_process(
-	  COMMAND "coverage run --source=gtirb setup.py test"
-	  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
-  )
-  message("COMPLETED")
-endif()
