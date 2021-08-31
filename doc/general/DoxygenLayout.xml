@@ -29,6 +29,7 @@
        <tab type="user" visible="@CPP_API_VISIBLE@" title="C++ API" url="cpp/index.html"/>
        <tab type="user" visible="@PY_API_VISIBLE@" title="Python API" url="python/index.html"/>
        <tab type="user" visible="@CL_API_VISIBLE@" title="Common Lisp API" url="cl/index.html"/>
+       <tab type="user" visible="@JAVA_API_VISIBLE@" title="Java API" url="java/index.html"/>
     </tab>
 
     <tab type="examples" visible="yes" title="" intro=""/>
