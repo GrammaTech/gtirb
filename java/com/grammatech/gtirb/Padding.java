@@ -37,7 +37,7 @@ public class Padding {
      * @param offset The of address of padding
      * @return  The padding at that address, in bytes.
      */
-    public Long getPadding(Offset offset) { return this.map.get(offset); }
+    public long getPadding(Offset offset) { return this.map.get(offset); }
 
     /**
      * Set padding at an address.
@@ -45,7 +45,7 @@ public class Padding {
      * @param offset The of address of padding
      * @param padding The padding at that address, in bytes.
      */
-    public void setPadding(Offset offset, Long padding) {
+    public void setPadding(Offset offset, long padding) {
         this.map.put(offset, padding);
     }
 

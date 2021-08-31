@@ -20,14 +20,12 @@ public class testIrSanity {
         }
 
         InputStream inputStream;
-        boolean loadReturned;
-        // IR ir = new IR();
+        boolean loadReturned = false;
         String fileName = args[0];
         File inputFile = new File(fileName);
         try {
             inputStream = new FileInputStream(inputFile);
             IR ir = IR.loadFile(inputStream);
-            // loadReturned = (ir == null);
             if (ir == null) {
                 loadReturned = false;
             } else {
@@ -37,18 +35,18 @@ public class testIrSanity {
         } catch (Exception e) {
             System.out.println("Unable to parse " + fileName + "." + e);
             System.err.println("test failed.");
-            return;
+            System.exit(1);
         }
 
         if (loadReturned != true) {
             System.out.println("Unable to load " + fileName + ".");
             System.err.println("test failed.");
-            return;
+            System.exit(1);
         }
 
         System.out.println("Version: " + Version.gtirbApiVersion);
         System.out.println("Protobuf Version: " + Version.gtirbProtobufVersion);
         System.err.println("Sanity test OK.");
-        return;
+        System.exit(0);
     }
 }

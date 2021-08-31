@@ -128,12 +128,8 @@ public final class ByteInterval extends Node implements TreeListItem {
      * Set the address of this ByteInterval.
      *
      * @param address    The new address to give to this ByteInterval
-     * @return  An address if the ByteInterval has one, otherwise null.
      */
-    public Long setAddress(Long address) {
-        this.address = address;
-        return this.address;
-    }
+    public void setAddress(Long address) { this.address = address; }
 
     /**
      * Check that this ByteInterval has an address.

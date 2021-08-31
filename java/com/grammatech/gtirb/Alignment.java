@@ -39,7 +39,7 @@ public class Alignment {
      * @param uuid The UUID of a block/data object/section.
      * @return  Alignment requirement.
      */
-    public Long getAlignment(UUID uuid) { return this.map.get(uuid); }
+    public long getAlignment(UUID uuid) { return this.map.get(uuid); }
 
     /**
      * Set alignment.
@@ -47,7 +47,7 @@ public class Alignment {
      * @param uuid The UUID of a block/data object/section.
      * @param alignment Alignment requirement.
      */
-    public void setAlignment(UUID uuid, Long alignment) {
+    public void setAlignment(UUID uuid, long alignment) {
         this.map.put(uuid, alignment);
     }
 

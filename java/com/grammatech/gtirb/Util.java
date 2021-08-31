@@ -56,16 +56,4 @@ public class Util {
         ByteString bs = ByteString.copyFrom(bb.array());
         return (bs);
     }
-
-    //    public static byte[] toByteArray(ArrayList<Byte> in) {
-    //        if (in == null) {
-    //            return null;
-    //        }
-    //        final int n = in.size();
-    //        byte ret[] = new byte[n];
-    //        for (int i = 0; i < n; i++) {
-    //            ret[i] = in.get(i);
-    //        }
-    //        return ret;
-    //    }
 }
