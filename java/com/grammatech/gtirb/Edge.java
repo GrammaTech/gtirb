@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.

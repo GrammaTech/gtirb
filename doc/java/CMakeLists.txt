@@ -41,8 +41,8 @@ if(GTIRB_JAVA_API)
     javadoc
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND
-      ${Java_JAVADOC_EXECUTABLE} -d ${CMAKE_BINARY_DIR}/doc/html/java -cp
-      ${JAR_FILE_LIST} -sourcepath ${CMAKE_BINARY_DIR}/java com.grammatech.gtirb
+      ${Java_JAVADOC_EXECUTABLE} -d ${JAVADOC_DIR} -cp ${JAR_FILE_LIST}
+      -sourcepath ${CMAKE_BINARY_DIR}/java com.grammatech.gtirb
     COMMENT "Generating API documentation with javadoc"
     VERBATIM
   )
