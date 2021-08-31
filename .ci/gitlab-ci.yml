@@ -166,9 +166,8 @@ coverage:
     - cmake -DENABLE_CODE_COVERAGE=ON ..
     - cmake --build .
     - ctest
-    - gcovr -e googletest-src --exclude=../build/doc/ --exclude=..*/proto -r ..
+    - gcovr -e googletest-src --exclude=..*/doc/ --exclude=..*/proto -r ..
     - cd python
-    # - coverage run --source=gtirb setup.py test
     - coverage report --omit=gtirb/proto/*,gtirb/doc/* -m
 
 test-default-install:
