@@ -25,8 +25,8 @@ import java.util.UUID;
 import com.grammatech.gtirb.proto.AuxDataOuterClass;
 
 /**
- * An AuxDataContainer object provides functionality for associating auxiliary
- * data with elements of the representation.
+ * Provides functionality for associating auxiliary
+ * data with elements of the intermediate representation.
  */
 public class AuxDataContainer extends Node {
 

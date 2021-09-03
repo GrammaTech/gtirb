@@ -28,7 +28,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 /**
- * The {@link Module} class represents a single binary (library or executable),
+ * Represents a single binary (library or executable),
  */
 public class Module extends AuxDataContainer {
 
@@ -84,7 +84,7 @@ public class Module extends AuxDataContainer {
     private ByteOrder byteOrder;
 
     /**
-     * Class constructor for a {@link Module} from a protobuf module.
+     * Class constructor for a Module from a protobuf module.
      * @param  protoModule   The module as serialized into a protocol buffer.
      * @param  ir            The IR that owns this Module.
      */
@@ -140,7 +140,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the {@link IR} this {@link Module} belongs to.
+     * Get the {@link IR} this Module belongs to.
      *
      * @return  The IR this module belongs to.
      */
@@ -209,7 +209,7 @@ public class Module extends AuxDataContainer {
     public FileFormat getFileFormat() { return this.fileFormat; }
 
     /**
-     * Set the file format of this {@link Module}.
+     * Set the file format of this Module.
      *
      * @param fileFormat    The module file format.
      */
@@ -218,35 +218,35 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the ISA of the instructions in this {@link Module}.
+     * Get the ISA of the instructions in this Module.
      *
      * @return  The module {@link ISA}.
      */
     public ISA getIsa() { return this.isa; }
 
     /**
-     * Set the ISA of the instructions in this {@link Module}.
+     * Set the ISA of the instructions in this Module.
      *
      * @param isa    The module {@link ISA}.
      */
     public void setIsa(ISA isa) { this.isa = isa; }
 
     /**
-     * Get the name of this {@link Module}.
+     * Get the name of this Module.
      *
      * @return  The module name.
      */
     public String getName() { return this.name; }
 
     /**
-     * Set the name of this {@link Module}.
+     * Set the name of this Module.
      *
      * @param name    The module name.
      */
     public void setName(String name) { this.name = name; }
 
     /**
-     * Get the section list of this {@link Module}.
+     * Get the section list of this Module.
      *
      * @return  The module section list.
      */
@@ -259,7 +259,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Set the section list of this {@link Module}.
+     * Set the section list of this Module.
      *
      * @param sectionList    The module section list.
      */
@@ -270,14 +270,14 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the symbol list of this {@link Module}.
+     * Get the symbol list of this Module.
      *
      * @return  The module symbol list.
      */
     public List<Symbol> getSymbols() { return this.symbolList; }
 
     /**
-     * Set the symbol list of this {@link Module}.
+     * Set the symbol list of this Module.
      *
      * @param symbolList   The module symbol list.
      */
@@ -286,14 +286,14 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the proxy block list of this {@link Module}.
+     * Get the proxy block list of this Module.
      *
      * @return  The module proxy block list.
      */
     public List<ProxyBlock> getProxyBlocks() { return this.proxyBlockList; }
 
     /**
-     * Set the proxy block list of this {@link Module}.
+     * Set the proxy block list of this Module.
      *
      * @param proxyBlockList    The module proxy block list.
      */
@@ -315,7 +315,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Set the entry point of this {@link Module}.
+     * Set the entry point of this Module.
      *
      * @param entryCodeBlock    The module entry point (a {@link CodeBlock}).
      */
@@ -324,14 +324,14 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the ByteOrder of this {@link Module}.
+     * Get the ByteOrder of this Module.
      *
      * @return  The module byte order (endianness).
      */
     public ByteOrder getByteOrder() { return this.byteOrder; }
 
     /**
-     * Set the byte order of this {@link Module}.
+     * Set the byte order of this Module.
      *
      * @param  byteOrder    The module byte order (endianness).
      */
@@ -340,7 +340,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the original protobuf of this {@link Module}.
+     * Get the original protobuf of this Module.
      *
      * @return The protobuf the module was imported from, or
      * null if it was not imported from a protobuf.
@@ -355,7 +355,7 @@ public class Module extends AuxDataContainer {
      * buffers of those sections.
      *
      */
-    public void initializeSectionList() {
+    private void initializeSectionList() {
         this.sectionTree = new TreeMap<Long, List<Section>>();
         // For each section, add to sectionList in this class
         List<SectionOuterClass.Section> protoSectionList =
@@ -374,7 +374,7 @@ public class Module extends AuxDataContainer {
      * buffers of those symbols.
      *
      */
-    public void initializeSymbolList() {
+    private void initializeSymbolList() {
         this.symbolList = new ArrayList<Symbol>();
         // For each symbol, add to symbolList in this class
         List<SymbolOuterClass.Symbol> protoSymbolList =
@@ -393,7 +393,7 @@ public class Module extends AuxDataContainer {
      * buffers of those proxy blocks.
      *
      */
-    public void initializeProxyBlockList() {
+    private void initializeProxyBlockList() {
         this.proxyBlockList = new ArrayList<ProxyBlock>();
         // For each proxy block, add to proxyBlockList in this class
         List<ProxyBlockOuterClass.ProxyBlock> protoProxyBlockList =
@@ -434,7 +434,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Find all the intervals that start at an address.
+     * Find all the sections that start at an address.
      *
      * @param address      The address to look for.
      * @return             A list of {@link Section} objects that start at the
@@ -445,7 +445,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Find all the intervals that start between a range of addresses.
+     * Find all the sections that start between a range of addresses.
      *
      * @param startAddress      The beginning of the address range to look for.
      * @param endAddress        The last address in the address to look for.
@@ -458,7 +458,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * De-serialize this {@link Module} from a protobuf .
+     * De-serialize this Module from a protobuf .
      *
      * @param  protoModule   The module as serialized into a protocol buffer.
      * @param  ir            The IR that owns this Module.
@@ -474,7 +474,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Serialize this {@link Module} into a protobuf .
+     * Serialize this Module into a protobuf .
      *
      * @return Module protocol buffer.
      */

@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * Schema class for padding auxiliary data.
- * Key: An address (@{link Offset}) at which padding has been inserted.
+ * Key: An address ({@link Offset}) at which padding has been inserted.
  * Value: The length of the padding, in bytes.
  * Attached To: Module
  */

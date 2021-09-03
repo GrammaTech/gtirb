@@ -18,7 +18,7 @@ import com.grammatech.gtirb.proto.SymbolOuterClass;
 import java.util.UUID;
 
 /**
- * The Symbol class maps a name to an object in the IR.
+ * Maps a name to an object in the IR.
  * A Symbol may have a referent or a value, or neither. A referent is
  * a ByteBlock, somewhere in the IR. A value is an integer.
  * Use the hasValue() method to determine if the payload is a value,
@@ -26,6 +26,9 @@ import java.util.UUID;
  */
 public class Symbol extends Node {
 
+	/**
+     * 	Symbol payload options.
+     */
     public enum PayloadType { REFERENT, VALUE, NONE }
 
     private String name;
