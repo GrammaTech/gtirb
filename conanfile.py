@@ -112,7 +112,7 @@ class GtirbConan(Properties, ConanFile):
 
     def build_requirements(self):
         if self.settings.os == "Windows":
-            self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
+            self.build_requires("ninja/1.10.2")
 
     def build(self):
         if self.settings.os == "Windows":
