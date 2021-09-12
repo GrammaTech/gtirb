@@ -173,6 +173,7 @@ public class IR extends AuxDataContainer {
     public IROuterClass.IR.Builder toProtobuf() {
         IROuterClass.IR.Builder protoIr = IROuterClass.IR.newBuilder();
         protoIr.setUuid(Util.uuidToByteString(this.getUuid()));
+        protoIr.setVersion(this.version);
         // Add modules
         for (Module module : this.modules) {
             ModuleOuterClass.Module.Builder protoModule = module.toProtobuf();
@@ -193,8 +194,10 @@ public class IR extends AuxDataContainer {
         try {
             protoIr.writeTo(fileOut);
         } catch (FileNotFoundException fe) {
+            System.err.println(fe);
             return false;
         } catch (IOException ie) {
+            System.err.println(ie);
             return false;
         }
         return true;
@@ -212,6 +215,7 @@ public class IR extends AuxDataContainer {
             FileOutputStream fileOutputStream = new FileOutputStream(fileOut);
             rv = this.saveFile(fileOutputStream);
         } catch (Exception e) {
+            System.err.println(e);
             return false;
         }
         return rv;

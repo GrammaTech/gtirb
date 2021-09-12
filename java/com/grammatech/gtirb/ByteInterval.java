@@ -745,7 +745,9 @@ public final class ByteInterval extends Node implements TreeListItem {
             ByteBlock block = blocks.next();
             ByteIntervalOuterClass.Block.Builder protoBlock =
                 block.toProtobuf();
-            protoByteInterval.addBlocks((int)block.getOffset(), protoBlock);
+            //            protoByteInterval.addBlocks((int)block.getOffset(),
+            //            protoBlock);
+            protoByteInterval.addBlocks(protoBlock);
         }
 
         // Iterate through symbolic expressions, adding them

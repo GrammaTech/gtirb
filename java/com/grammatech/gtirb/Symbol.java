@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 public class Symbol extends Node {
 
-	/**
+    /**
      * 	Symbol payload options.
      */
     public enum PayloadType { REFERENT, VALUE, NONE }

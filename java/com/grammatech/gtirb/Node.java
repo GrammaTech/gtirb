@@ -37,7 +37,10 @@ public class Node {
      * @return  The node with the given UUID.
      */
     public static Node getByUuid(UUID uuid) {
-        return uuid_cache.get(uuid).get();
+        WeakReference<Node> noderef = uuid_cache.get(uuid);
+        if (noderef != null)
+            return noderef.get();
+        return null;
     }
 
     /**

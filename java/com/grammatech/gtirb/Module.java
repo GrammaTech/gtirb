@@ -489,8 +489,11 @@ public class Module extends AuxDataContainer {
         protoModule.setFileFormatValue(this.fileFormat.ordinal());
         protoModule.setIsaValue(this.isa.ordinal());
         protoModule.setByteOrderValue(this.byteOrder.ordinal());
-        protoModule.setEntryPoint(
-            Util.uuidToByteString(this.getEntryPoint().getUuid()));
+        CodeBlock entryPoint = this.getEntryPoint();
+        if (entryPoint != null) {
+            protoModule.setEntryPoint(
+                Util.uuidToByteString(this.getEntryPoint().getUuid()));
+        }
         // Add collections by calling toProtobuf on each item
         for (Symbol symbol : this.symbolList)
             protoModule.addSymbols(symbol.toProtobuf());
