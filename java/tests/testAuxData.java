@@ -19,18 +19,20 @@ public class testAuxData {
             System.out.println("Module has no name.");
         }
         AuxDataSerialization auxDataSerialization = new AuxDataSerialization();
-        Map<String,AuxData> auxDataMap = m.getAuxDataMap();
-    	AuxData auxData1 = auxDataMap.get("SCCs");
-        Object object = auxDataSerialization.decode(auxData1.getData(), auxData1.getType());
-        if (object instanceof Map<?,?>) {
-        	Map<?,?> map = (Map<?,?>)object;
-        	System.out.println("Map size " + map.size());
-            byte[] rawBytes = auxDataSerialization.encode(object, auxData1.getType());
-            AuxData auxData2 = new AuxData(rawBytes, "newSCCs", auxData1.getType());
+        Map<String, AuxData> auxDataMap = m.getAuxDataMap();
+        AuxData auxData1 = auxDataMap.get("SCCs");
+        Object object =
+            auxDataSerialization.decode(auxData1.getData(), auxData1.getType());
+        if (object instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>)object;
+            System.out.println("Map size " + map.size());
+            byte[] rawBytes =
+                auxDataSerialization.encode(object, auxData1.getType());
+            AuxData auxData2 =
+                new AuxData(rawBytes, "newSCCs", auxData1.getType());
             auxDataMap.put("newSCCs", auxData2);
-        }
-        else
-        	return false;
+        } else
+            return false;
         return true;
     }
 
@@ -71,10 +73,9 @@ public class testAuxData {
         }
 
         if (testAuxDataDecodeEncode(ir))
-        	System.out.println("AuxData Test OK.");
+            System.out.println("AuxData Test OK.");
         else
-        	System.err.println("AuxData test failed.");
+            System.err.println("AuxData test failed.");
         System.exit(0);
-        
     }
 }

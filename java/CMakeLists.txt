@@ -200,10 +200,9 @@ if(GTIRB_ENABLE_TESTS)
             testByteIntervals ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
   )
 
-  add_test(
-    NAME JavaAuxDataTest
-    COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-            testAuxData ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
+  add_test(NAME JavaAuxDataTest
+           COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
+                   testAuxData ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
   )
 
   set_tests_properties(
