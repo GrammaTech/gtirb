@@ -71,26 +71,38 @@ set(GTIRB_API_JAVAS
     Alignment
     AuxDataContainer
     AuxData
+    AuxDataSerialization
     Block
     ByteBlock
     ByteInterval
     CFG
     CodeBlock
+    Codec
     Comments
     DataBlock
+    DecodeException
     Edge
+    EncodeException
     FiveTuple
     FunctionBlocks
     FunctionEntries
     FunctionNames
+    IntegerCodec
     IR
+    MappingCodec
     Module
     Node
+    OffsetCodec
     Offset
     Padding
+    ParsedProduct
     ProxyBlock
     Section
+    SequenceCodec
     Serialization
+    SetCodec
+    StreamSerialization
+    StringCodec
     SymAddrAddr
     SymAddrConst
     SymbolForwarding
@@ -99,9 +111,13 @@ set(GTIRB_API_JAVAS
     ThreeTuple
     TreeListItem
     TreeListUtils
+    TupleCodec
     TwoTuple
     Types
+    UnknownCodecException
+    UnknownData
     Util
+    UuidCodec
     Version
 )
 
@@ -164,20 +180,36 @@ if(GTIRB_ENABLE_TESTS)
     COMMENT "Building testByteIntervals"
   )
 
+  add_custom_command(
+    TARGET ${GTIRB_API_JARFILE}
+    POST_BUILD
+    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/tests/testAuxData.java
+    COMMENT "Building testAuxData"
+  )
+
   add_test(NAME JavaSanityTest
            COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-                   testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/test2.gtirb
+                   testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
   )
 
   add_test(
     NAME JavaByteIntervalsTest
     COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-            testByteIntervals ${CMAKE_CURRENT_BINARY_DIR}/tests/test2.gtirb
+            testByteIntervals ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
+  )
+
+  add_test(
+    NAME JavaAuxDataTest
+    COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
+            testAuxData ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
   )
 
   set_tests_properties(
     JavaSanityTest
     PROPERTIES PASS_REGULAR_EXPRESSION "test OK." JavaByteIntervalsTest
+    PROPERTIES PASS_REGULAR_EXPRESSION "test OK." JavaAuxDataTest
     PROPERTIES PASS_REGULAR_EXPRESSION "test OK."
   )
 
