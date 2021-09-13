@@ -32,29 +32,45 @@ class AuxData:
     :mod:`gtirb.serialization` for details.
     """
 
-    def __init__(self, data, type_name):
+    def __init__(self, data, type_name, lazy_deserialize=None):
         # type: (typing.Any, str) -> None
         """
         :param data: The value stored in this AuxData.
         :param type_name: A string describing the type of ``data``.
             Used to determine the proper codec for serializing this AuxData.
+        :param lazy_deserialize: A callback that will lazily deserialize the
+            auxdata table backing this object, or None.
         """
-
-        self.data = data  # type: typing.Any
+        assert lazy_deserialize is None or hasattr(
+            lazy_deserialize, "__call__"
+        )
+        self._lazy_deserialize = lazy_deserialize
+        self._data = data  # type: typing.Any
         self.type_name = type_name  # type: str
+
+    @property
+    def data(self):
+        if self._lazy_deserialize is not None:
+            self._data = self._lazy_deserialize()
+            self._lazy_deserialize = None
+        return self._data
 
     @classmethod
     def _from_protobuf(cls, aux_data, ir):
         # type: (AuxData_pb2.AuxData, typing.Optional["IR"]) -> AuxData
-        """Deserialize AuxData from Protobuf.
+        """Deserialize AuxData from Protobuf. Lazy, will not perform
+        deserialization until .data is accessed.
 
         :param aux_data: The Protobuf AuxData object.
         """
 
-        data = AuxData.serializer.decode(
-            BytesIO(aux_data.data), aux_data.type_name, ir.get_by_uuid
-        )
-        return cls(data=data, type_name=aux_data.type_name)
+        # Defer deserialization until someone accesses .data
+        def f():
+            return AuxData.serializer.decode(
+                BytesIO(aux_data.data), aux_data.type_name, ir.get_by_uuid
+            )
+
+        return cls(data=None, type_name=aux_data.type_name, lazy_deserialize=f)
 
     def _to_protobuf(self):
         # type: () -> AuxData_pb2.AuxData
@@ -73,7 +89,7 @@ class AuxData:
             "AuxData("
             "type_name={type_name!r}, "
             "data={data!r}, "
-            ")".format(**self.__dict__)
+            ")".format(type_name=self.type_name, data=self.data)
         )
 
 

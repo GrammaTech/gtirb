@@ -253,7 +253,7 @@ class StringCodec(Codec):
         if subtypes != tuple():
             raise DecodeError("string should have no subtypes")
         size = Uint64Codec.decode(raw_bytes)
-        return str(raw_bytes.read(size), "utf-8")
+        return raw_bytes.read(size).decode("utf-8")
 
     @staticmethod
     def encode(out, val, *, serialization=None, subtypes=tuple()):
