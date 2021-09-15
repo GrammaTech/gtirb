@@ -166,7 +166,8 @@ coverage:
     - cmake -DENABLE_CODE_COVERAGE=ON ..
     - cmake --build .
     - ctest
-    - gcovr -e googletest-src --exclude=..*/doc/ --exclude=..*/proto -r ..
+    #- gcovr -e googletest-src --exclude=doc --exclude=..*/proto --exclude=..*/test --root ..
+    - gcovr -e googletest-src --exclude-directories=doc --exclude-directories=..*/proto --exclude-directories=..*/test --root ..
     - cd python
     - coverage report --omit=gtirb/proto/*,gtirb/doc/* -m
 
