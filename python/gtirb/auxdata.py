@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import Any, Callable, ClassVar, Dict, Optional
+from typing import Any, ClassVar, Dict, Optional
 from uuid import UUID
 
 from .node import Node
@@ -33,7 +33,6 @@ class _LazyDataContainer:
         instead (the default).
         """
         if self.raw_data is not None:
-            assert self.get_by_uuid is not None
             rv = AuxData.serializer.decode(
                 self.raw_data, self.type_name, self.get_by_uuid
             )
@@ -82,7 +81,7 @@ class AuxData:
     """
 
     def __init__(self, data, type_name, lazy_container=None):
-        # type: (Any, str, Optional[Callable[[], None]]) -> None
+        # type: (Any, str, Optional[_LazyDataContainer]) -> None
         """
         :param data: The value stored in this AuxData.
         :param type_name: A string describing the type of ``data``.
