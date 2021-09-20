@@ -47,12 +47,14 @@ class _LazyDataContainer:
         still-serialized data that we started with (then just wrap it and
         return it).
         """
-        if self.raw_data is None:
-            self.raw_data = BytesIO()
-            AuxData.serializer.encode(self.raw_data, data, self.type_name)
+        if self.raw_data is not None:
+            data_stream = self.raw_data
+        else:
+            data_stream = BytesIO()
+            AuxData.serializer.encode(data_stream, data, self.type_name)
         proto_auxdata = AuxData_pb2.AuxData()
         proto_auxdata.type_name = self.type_name
-        proto_auxdata.data = self.raw_data.getvalue()
+        proto_auxdata.data = data_stream.getvalue()
         return proto_auxdata
 
 
