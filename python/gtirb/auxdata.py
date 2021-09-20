@@ -1,11 +1,60 @@
-import typing
 from io import BytesIO
+from typing import Any, Callable, ClassVar, Dict, Optional
 from uuid import UUID
 
 from .node import Node
 from .proto import AuxData_pb2
 from .serialization import Serialization
 from .util import DictLike
+
+
+class _LazyDataContainer:
+    """
+    Container that holds the raw byte stream until it is read, then releases
+    it. If it is never read, then serialization skips re-encoding (and
+    deserializing) the data.
+    """
+
+    def __init__(self, raw_data, type_name, get_by_uuid):
+        self.raw_data = raw_data
+        self.type_name = type_name
+        self.get_by_uuid = get_by_uuid
+
+    def clear(self):
+        """
+        Clear any pending still-serialized data.
+        """
+        self.raw_data = None
+
+    def get_data(self, data):
+        # type: (Any) -> Any
+        """
+        Get any pending still-serialized data, or return the passed data
+        instead (the default).
+        """
+        if self.raw_data is not None:
+            assert self.get_by_uuid is not None
+            rv = AuxData.serializer.decode(
+                self.raw_data, self.type_name, self.get_by_uuid
+            )
+            self.raw_data = None
+            return rv
+        return data
+
+    def encode_for_serialization(self, data):
+        # type: (Any) -> AuxData_pb2.AuxData
+        """
+        Encode the given data for serialization, _unless_ no one has read the
+        still-serialized data that we started with (then just wrap it and
+        return it).
+        """
+        if self.raw_data is None:
+            self.raw_data = BytesIO()
+            AuxData.serializer.encode(self.raw_data, data, self.type_name)
+        proto_auxdata = AuxData_pb2.AuxData()
+        proto_auxdata.type_name = self.type_name
+        proto_auxdata.data = self.raw_data.getvalue()
+        return proto_auxdata
 
 
 class AuxData:
@@ -26,38 +75,44 @@ class AuxData:
         Used to determine the proper codec for serializing this AuxData.
     """
 
-    serializer = Serialization()  # type: typing.ClassVar[Serialization]
+    serializer = Serialization()  # type: ClassVar[Serialization]
     """This is a :class:`gtirb.Serialization` instance, used to
     encode and decode ``data`` fields of all ``AuxData``. See
     :mod:`gtirb.serialization` for details.
     """
 
-    def __init__(self, data, type_name, lazy_deserialize=None):
-        # type: (typing.Any, str) -> None
+    def __init__(self, data, type_name, lazy_container=None):
+        # type: (Any, str, Optional[Callable[[], None]]) -> None
         """
         :param data: The value stored in this AuxData.
         :param type_name: A string describing the type of ``data``.
             Used to determine the proper codec for serializing this AuxData.
-        :param lazy_deserialize: A callback that will lazily deserialize the
+        :param lazy_container: An object that will lazily deserialize the
             auxdata table backing this object, or None.
         """
-        assert lazy_deserialize is None or hasattr(
-            lazy_deserialize, "__call__"
-        )
-        self._lazy_deserialize = lazy_deserialize
-        self._data = data  # type: typing.Any
+        if lazy_container is not None:
+            self._lazy_container = lazy_container
+        else:
+            self._lazy_container = _LazyDataContainer(None, type_name, None)
+        self._data = data  # type: Any
         self.type_name = type_name  # type: str
 
     @property
     def data(self):
-        if self._lazy_deserialize is not None:
-            self._data = self._lazy_deserialize()
-            self._lazy_deserialize = None
+        self._data = self._lazy_container.get_data(self._data)
         return self._data
+
+    # Allow client code to assign to .data
+    def __setattr__(self, attr, value):
+        if attr == "data":
+            self._data = value
+            self._lazy_container.clear()
+        else:
+            super(AuxData, self).__setattr__(attr, value)
 
     @classmethod
     def _from_protobuf(cls, aux_data, ir):
-        # type: (AuxData_pb2.AuxData, typing.Optional["IR"]) -> AuxData
+        # type: (AuxData_pb2.AuxData, Optional["IR"]) -> AuxData
         """Deserialize AuxData from Protobuf. Lazy, will not perform
         deserialization until .data is accessed.
 
@@ -65,23 +120,20 @@ class AuxData:
         """
 
         # Defer deserialization until someone accesses .data
-        def f():
-            return AuxData.serializer.decode(
-                BytesIO(aux_data.data), aux_data.type_name, ir.get_by_uuid
-            )
-
-        return cls(data=None, type_name=aux_data.type_name, lazy_deserialize=f)
+        lazy_container = _LazyDataContainer(
+            BytesIO(aux_data.data), aux_data.type_name, ir.get_by_uuid
+        )
+        return cls(
+            data=None,
+            type_name=aux_data.type_name,
+            lazy_container=lazy_container,
+        )
 
     def _to_protobuf(self):
         # type: () -> AuxData_pb2.AuxData
         """Get a Protobuf representation of the AuxData."""
 
-        out_bytes_array = BytesIO()
-        AuxData.serializer.encode(out_bytes_array, self.data, self.type_name)
-        proto_auxdata = AuxData_pb2.AuxData()
-        proto_auxdata.type_name = self.type_name
-        proto_auxdata.data = out_bytes_array.getvalue()
-        return proto_auxdata
+        return self._lazy_container.encode_for_serialization(self._data)
 
     def __repr__(self):
         # type: () -> str
@@ -105,7 +157,7 @@ class AuxDataContainer(Node):
     def __init__(
         self,
         aux_data={},  # type: DictLike[str, AuxData]
-        uuid=None,  # type: typing.Optional[UUID]
+        uuid=None,  # type: Optional[UUID]
     ):
         # type: (...) -> None
         """
@@ -117,11 +169,11 @@ class AuxDataContainer(Node):
             Defaults to None.
         """
         super().__init__(uuid)
-        self.aux_data = dict(aux_data)  # type: typing.Dict[str, AuxData]
+        self.aux_data = dict(aux_data)  # type: Dict[str, AuxData]
 
     @classmethod
     def _read_protobuf_aux_data(cls, proto_container, ir):
-        # type: (typing.Any,typing.Optional["IR"]) -> typing.Dict[str, AuxData]
+        # type: (Any,Optional["IR"]) -> Dict[str, AuxData]
         """
         Instead of the overrided _decode_protobuf, this method requires the
         Protobuf message to read from. AuxDataContainers need to call this
@@ -136,7 +188,7 @@ class AuxDataContainer(Node):
         }
 
     def _write_protobuf_aux_data(self, proto_container):
-        # type: (typing.Any) -> None
+        # type: (Any) -> None
         """
         Instead of the overrided _to_protobuf, this method requires the
         Protobuf message to write into. AuxDataContainers need to call this
@@ -149,7 +201,7 @@ class AuxDataContainer(Node):
             proto_container.aux_data[k].CopyFrom(v._to_protobuf())
 
     def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+        # type: (Any) -> bool
         """This overrides :func:`gtirb.Node.deep_eq` to check for
         AuxData equality.
 
