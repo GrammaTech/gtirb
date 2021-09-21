@@ -20,42 +20,25 @@ class _LazyDataContainer:
         self.type_name = type_name
         self.get_by_uuid = get_by_uuid
 
-    def clear(self):
-        """
-        Clear any pending still-serialized data.
-        """
-        self.raw_data = None
-
-    def get_data(self, data):
+    def get_data(self):
         # type: (Any) -> Any
         """
         Get any pending still-serialized data, or return the passed data
         instead (the default).
         """
-        if self.raw_data is not None:
-            rv = AuxData.serializer.decode(
-                self.raw_data, self.type_name, self.get_by_uuid
-            )
-            self.raw_data = None
-            return rv
-        return data
+        assert self.raw_data is not None
+        rv = AuxData.serializer.decode(
+            self.raw_data, self.type_name, self.get_by_uuid
+        )
+        self.raw_data = None
+        return rv
 
-    def encode_for_serialization(self, data):
-        # type: (Any) -> AuxData_pb2.AuxData
+    def get_raw_data(self):
+        # type: () -> bytes
         """
-        Encode the given data for serialization, _unless_ no one has read the
-        still-serialized data that we started with (then just wrap it and
-        return it).
         """
-        if self.raw_data is not None:
-            data_stream = self.raw_data
-        else:
-            data_stream = BytesIO()
-            AuxData.serializer.encode(data_stream, data, self.type_name)
-        proto_auxdata = AuxData_pb2.AuxData()
-        proto_auxdata.type_name = self.type_name
-        proto_auxdata.data = data_stream.getvalue()
-        return proto_auxdata
+        assert self.raw_data is not None
+        return self.raw_data
 
 
 class AuxData:
@@ -91,25 +74,21 @@ class AuxData:
         :param lazy_container: An object that will lazily deserialize the
             auxdata table backing this object, or None.
         """
-        if lazy_container is not None:
-            self._lazy_container = lazy_container
-        else:
-            self._lazy_container = _LazyDataContainer(None, type_name, None)
+        self._lazy_container = lazy_container
         self._data = data  # type: Any
         self.type_name = type_name  # type: str
 
     @property
     def data(self):
-        self._data = self._lazy_container.get_data(self._data)
+        if self._lazy_container is not None:
+            self._data = self._lazy_container.get_data()
+            self._lazy_container = None
         return self._data
 
-    # Allow client code to assign to .data
-    def __setattr__(self, attr, value):
-        if attr == "data":
-            self._data = value
-            self._lazy_container.clear()
-        else:
-            super(AuxData, self).__setattr__(attr, value)
+    @data.setter
+    def data(self, value):
+        self._data = value
+        self._lazy_container = None
 
     @classmethod
     def _from_protobuf(cls, aux_data, ir):
@@ -122,7 +101,7 @@ class AuxData:
 
         # Defer deserialization until someone accesses .data
         lazy_container = _LazyDataContainer(
-            BytesIO(aux_data.data), aux_data.type_name, ir.get_by_uuid
+            aux_data.data, aux_data.type_name, ir.get_by_uuid
         )
         return cls(
             data=None,
@@ -134,7 +113,15 @@ class AuxData:
         # type: () -> AuxData_pb2.AuxData
         """Get a Protobuf representation of the AuxData."""
 
-        return self._lazy_container.encode_for_serialization(self._data)
+        proto_auxdata = AuxData_pb2.AuxData()
+        proto_auxdata.type_name = self.type_name
+        if self._lazy_container is not None:
+            proto_auxdata.data = self._lazy_container.get_raw_data()
+        else:
+            data_stream = BytesIO()
+            AuxData.serializer.encode(data_stream, self.data, self.type_name)
+            proto_auxdata.data = data_stream.getvalue()
+        return proto_auxdata
 
     def __repr__(self):
         # type: () -> str
