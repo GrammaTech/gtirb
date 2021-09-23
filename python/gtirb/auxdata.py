@@ -115,7 +115,11 @@ class AuxData:
 
         proto_auxdata = AuxData_pb2.AuxData()
         proto_auxdata.type_name = self.type_name
-        if self._lazy_container is not None:
+        # If we are serializing the same data, and the way that data is encoded
+        # has not changed, then just use the already serialized copy.
+        if self._lazy_container is not None and (
+            self.type_name == self._lazy_container.type_name
+        ):
             proto_auxdata.data = self._lazy_container.get_raw_data()
         else:
             data_stream = BytesIO()
