@@ -1,4 +1,4 @@
-# Unreleased (1.10.5)
+# 1.10.5
 
 * Added various symbolic expression attributes.
 
