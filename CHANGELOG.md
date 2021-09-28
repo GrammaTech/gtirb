@@ -1,3 +1,7 @@
+# 1.10.6 (Unreleased)
+
+* TBA
+
 # 1.10.5
 
 * Added various symbolic expression attributes.
