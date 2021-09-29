@@ -1,6 +1,7 @@
 import io
 import typing
 from re import findall
+from typing import Any, NamedTuple
 from uuid import UUID
 
 from .node import Node
@@ -57,6 +58,11 @@ valid ``SubtypeTree``\\s:
 """
 
 
+class Variant(NamedTuple):
+    index: int
+    val: Any
+
+
 class Codec:
     """The base class for codecs."""
 
@@ -66,7 +72,7 @@ class Codec:
         *,
         serialization=None,  # type: Serialization
         subtypes=tuple(),  # type: SubtypeTree
-        get_by_uuid=None  # type: CacheLookupFn
+        get_by_uuid=None,  # type: CacheLookupFn
     ):
         # type: (...) -> typing.Any
         """Decode the specified raw data into a Python object.
@@ -87,7 +93,7 @@ class Codec:
         item,  # type: typing.Any
         *,
         serialization=None,  # type: Serialization
-        subtypes=tuple()  # type: SubtypeTree
+        subtypes=tuple(),  # type: SubtypeTree
     ):
         # type: (...) -> None
         """Encode an item, writing the serialized object to ``out``.
@@ -100,26 +106,6 @@ class Codec:
         """
 
         raise NotImplementedError
-
-
-class Int64Codec(Codec):
-    """A Codec for 64-bit signed integers."""
-
-    @staticmethod
-    def decode(
-        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
-    ):
-        if subtypes != ():
-            raise DecodeError("int64_t should have no subtypes")
-        return int.from_bytes(
-            raw_bytes.read(8), byteorder="little", signed=True
-        )
-
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
-        if subtypes != ():
-            raise EncodeError("int64_t should have no subtypes")
-        out.write(val.to_bytes(8, byteorder="little", signed=True))
 
 
 class MappingCodec(Codec):
@@ -277,24 +263,95 @@ class StringCodec(Codec):
         out.write(val.encode())
 
 
-class Uint64Codec(Codec):
-    """A Codec for 64-bit unsigned integers."""
+class IntegerCodec(Codec):
+    """Generic base class for integer-based Codecs"""
 
-    @staticmethod
+    @classmethod
     def decode(
-        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+        cls,
+        raw_bytes,
+        *,
+        serialization=None,
+        subtypes=tuple(),
+        get_by_uuid=None,
     ):
         if subtypes != ():
-            raise DecodeError("uint64_t should have no subtypes")
+            raise DecodeError(f"{cls.typname} should have no subtypes")
         return int.from_bytes(
-            raw_bytes.read(8), byteorder="little", signed=False
+            raw_bytes.read(cls.bytesize), byteorder="little", signed=cls.signed
         )
 
-    @staticmethod
-    def encode(out, val, *, serialization=None, subtypes=tuple()):
+    @classmethod
+    def encode(cls, out, val, *, serialization=None, subtypes=tuple()):
         if subtypes != ():
-            raise EncodeError("uint64_t should have no subtypes")
-        out.write(val.to_bytes(8, byteorder="little"))
+            raise EncodeError(f"{cls.typname} should have no subtypes")
+        out.write(
+            val.to_bytes(cls.bytesize, byteorder="little", signed=cls.signed)
+        )
+
+
+class Uint64Codec(IntegerCodec):
+    """A Codec for 64-bit unsigned integers."""
+
+    typname = "uint64_t"
+    bytesize = 8
+    signed = False
+
+
+class Uint32Codec(IntegerCodec):
+    """A Codec for 32-bit unsigned integers."""
+
+    typname = "uint32_t"
+    bytesize = 4
+    signed = False
+
+
+class Uint16Codec(IntegerCodec):
+    """A Codec for 16-bit unsigned integers."""
+
+    typname = "uint16_t"
+    bytesize = 2
+    signed = False
+
+
+class Uint8Codec(IntegerCodec):
+    """A Codec for 8-bit unsigned integers."""
+
+    typname = "uint8_t"
+    bytesize = 1
+    signed = False
+
+
+class Int64Codec(IntegerCodec):
+    """A Codec for 64-bit signed integers."""
+
+    typname = "int64_t"
+    bytesize = 8
+    signed = True
+
+
+class Int32Codec(IntegerCodec):
+    """A Codec for 32-bit signed integers."""
+
+    typname = "int32_t"
+    bytesize = 4
+    signed = True
+
+
+class Int16Codec(IntegerCodec):
+    """A Codec for 16-bit signed integers."""
+
+    typname = "int16_t"
+    bytesize = 2
+    signed = True
+
+
+class Int8Codec(IntegerCodec):
+    """A Codec for 8-bit signed integers."""
+
+    typname = "int8_t"
+    bytesize = 1
+    signed = True
 
 
 class UUIDCodec(Codec):
@@ -325,6 +382,35 @@ class UUIDCodec(Codec):
             out.write(val.bytes)
         else:
             raise EncodeError("UUID codec only supports UUIDs or Nodes")
+
+
+class VariantCodec(Codec):
+    """A Codec for variant<Ts...> entries.
+
+    An encoded record containg two part:
+    index - position of member of variant's list
+    value - encoded values of selected member
+    """
+
+    @staticmethod
+    def decode(
+        raw_bytes, *, serialization=None, subtypes=tuple(), get_by_uuid=None
+    ):
+        index = int.from_bytes(
+            raw_bytes.read(8), byteorder="little", signed=False
+        )
+        val = serialization._decode_tree(
+            raw_bytes, subtypes[index], get_by_uuid
+        )
+        return Variant(index, val)
+
+    @staticmethod
+    def encode(out, variant, *, serialization=None, subtypes=tuple()):
+        # variant is a named tuple containg index and value
+        # writing the index
+        out.write(variant.index.to_bytes(8, byteorder="little"))
+        # writing the value
+        serialization._encode_tree(out, variant.val, subtypes[variant.index])
 
 
 class UnknownData(bytes):
@@ -364,13 +450,20 @@ class Serialization:
             "Addr": Uint64Codec,
             "Offset": OffsetCodec,
             "int64_t": Int64Codec,
+            "int32_t": Int32Codec,
+            "int16_t": Int16Codec,
+            "int8_t": Int8Codec,
             "mapping": MappingCodec,
             "sequence": SequenceCodec,
             "set": SetCodec,
             "string": StringCodec,
             "tuple": TupleCodec,
             "uint64_t": Uint64Codec,
+            "uint32_t": Uint32Codec,
+            "uint16_t": Uint16Codec,
+            "uint8_t": Uint8Codec,
             "UUID": UUIDCodec,
+            "variant": VariantCodec,
         }  # type: typing.Dict[str, Codec]
 
     def _decode_tree(self, raw_bytes, type_tree, get_by_uuid):

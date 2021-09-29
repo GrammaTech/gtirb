@@ -180,6 +180,19 @@ struct AMoveTest {
   typedef MoveTest Type;
 };
 
+struct SimpleVariant {
+  static constexpr const char* Name =
+      "Simple variant of uint8_t, int32_t and Addr";
+  typedef std::variant<uint8_t, int32_t, Addr> Type;
+};
+
+struct ComplexVariant {
+  using Map = std::map<std::string, std::vector<int64_t>>;
+  static constexpr const char* Name =
+      "Complex variant of uint8_t, int32_t and complex map";
+  typedef std::variant<uint8_t, int32_t, Map> Type;
+};
+
 } // namespace schema
 } // namespace gtirb
 
@@ -332,6 +345,80 @@ TEST(Unit_AuxData, uuidSetProtobufRoundTrip) {
   EXPECT_EQ(Result->rawData().ProtobufType, "set<UUID>");
 }
 
+TEST(Unit_AuxData, simpleVariantProtobufFirst) {
+  using STH = gtirb::SerializationTestHarness;
+  uint8_t ui = 1;
+  std::variant<uint8_t, int32_t, Addr> Val(ui);
+  auto ValOrig = Val;
+
+  AuxDataImpl<SimpleVariant> Original(std::move(Val));
+  std::stringstream ss;
+  STH::save(Original, ss);
+
+  auto Result = STH::load<AuxDataImpl<SimpleVariant>>(Ctx, ss);
+  auto New = *Result->get();
+
+  EXPECT_EQ(New, ValOrig);
+
+  EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
+}
+
+TEST(Unit_AuxData, simpleVariantProtobufSecond) {
+  using STH = gtirb::SerializationTestHarness;
+  int32_t i = -1000;
+  std::variant<uint8_t, int32_t, Addr> Val(i);
+  auto ValOrig = Val;
+
+  AuxDataImpl<SimpleVariant> Original(std::move(Val));
+  std::stringstream ss;
+  STH::save(Original, ss);
+
+  auto Result = STH::load<AuxDataImpl<SimpleVariant>>(Ctx, ss);
+  auto New = *Result->get();
+
+  EXPECT_EQ(New, ValOrig);
+
+  EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
+}
+
+TEST(Unit_AuxData, simpleVariantProtobufThird) {
+  using STH = gtirb::SerializationTestHarness;
+  Addr addr(0x1234);
+  std::variant<uint8_t, int32_t, Addr> Val(addr);
+  auto ValOrig = Val;
+
+  AuxDataImpl<SimpleVariant> Original(std::move(Val));
+  std::stringstream ss;
+  STH::save(Original, ss);
+
+  auto Result = STH::load<AuxDataImpl<SimpleVariant>>(Ctx, ss);
+  auto New = *Result->get();
+
+  EXPECT_EQ(New, ValOrig);
+
+  EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
+}
+
+TEST(Unit_AuxData, complexVariantProtobufThird) {
+  using STH = gtirb::SerializationTestHarness;
+  using Map = std::map<std::string, std::vector<int64_t>>;
+  Map M{{"a", {1, 2, 3}}};
+  std::variant<uint8_t, int32_t, Map> Val(M);
+  auto ValOrig = Val;
+
+  AuxDataImpl<ComplexVariant> Original(std::move(Val));
+  std::stringstream ss;
+  STH::save(Original, ss);
+
+  auto Result = STH::load<AuxDataImpl<ComplexVariant>>(Ctx, ss);
+  auto New = *Result->get();
+
+  EXPECT_EQ(New, ValOrig);
+
+  EXPECT_EQ(Result->rawData().ProtobufType,
+            "variant<uint8_t,int32_t,mapping<string,sequence<int64_t>>>");
+}
+
 TEST(Unit_AuxData, auxdata_traits_type_name) {
   EXPECT_EQ(auxdata_traits<uint64_t>().type_name(), "uint64_t");
   EXPECT_EQ(auxdata_traits<std::vector<uint64_t>>().type_name(),
@@ -350,6 +437,13 @@ TEST(Unit_AuxData, auxdata_traits_type_name) {
 
   X = auxdata_traits<std::set<int32_t>>().type_name();
   EXPECT_EQ(X, "set<int32_t>");
+
+  X = auxdata_traits<std::variant<uint8_t, int32_t, Addr>>().type_name();
+  EXPECT_EQ(X, "variant<uint8_t,int32_t,Addr>");
+
+  using Map = std::map<std::string, std::vector<int64_t>>;
+  X = auxdata_traits<std::variant<uint8_t, int32_t, Map>>().type_name();
+  EXPECT_EQ(X, "variant<uint8_t,int32_t,mapping<string,sequence<int64_t>>>");
 }
 
 TEST(Unit_AuxData, getPrimitiveTypes) {

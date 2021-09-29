@@ -2,6 +2,7 @@ import io
 import unittest
 
 import gtirb.serialization
+from gtirb.serialization import Variant
 
 
 class TestSerialization(unittest.TestCase):
@@ -154,6 +155,79 @@ class TestSerialization(unittest.TestCase):
             bstream.getvalue(), "UUID", ir.get_by_uuid
         )
         self.assertEqual(result, b3.uuid)
+
+    def test_variant_codec(self):
+        serializer = gtirb.serialization.Serialization()
+        ostream = io.BytesIO()
+        variant = Variant(2, {5: ["a", "b"], 15: ["cc", "ddd"]})
+        serializer.encode(
+            ostream,
+            variant,
+            "variant<string,int64_t,mapping<int64_t,sequence<string>>>",
+        )
+        raw_bytes = ostream.getvalue()
+        var_val = serializer.decode(
+            raw_bytes,
+            "variant<string,int64_t,mapping<int64_t,sequence<string>>>",
+        )
+        self.assertEqual(var_val, variant)
+
+        ostream = io.BytesIO()
+        variant = Variant(1, 10)
+        serializer.encode(
+            ostream, variant, "variant<string,int64_t,string>",
+        )
+        raw_bytes = ostream.getvalue()
+        var_val = serializer.decode(
+            raw_bytes, "variant<string,int64_t,string>"
+        )
+        self.assertEqual(var_val, variant)
+
+        ostream = io.BytesIO()
+        variant = Variant(0, "zzzz")
+        serializer.encode(
+            ostream, variant, "variant<string,int64_t,string>",
+        )
+        raw_bytes = ostream.getvalue()
+        var_val = serializer.decode(
+            raw_bytes, "variant<string,int64_t,string>"
+        )
+        self.assertEqual(var_val, variant)
+
+        ostream = io.BytesIO()
+        mapping = {"aa": Variant(0, 5), "bbb": Variant(1, "ccccc")}
+        serializer.encode(
+            ostream, mapping, "mapping<string,variant<int64_t,string>>",
+        )
+        raw_bytes = ostream.getvalue()
+        mapping_val = serializer.decode(
+            raw_bytes, "mapping<string,variant<int64_t,string>>"
+        )
+        self.assertEqual(mapping_val, mapping)
+
+    def test_int_serializers(self):
+        def _check_val(typename, val):
+            bstream = io.BytesIO()
+            gtirb.AuxData.serializer.encode(bstream, val, typename)
+            result = gtirb.AuxData.serializer.decode(
+                bstream.getvalue(), typename
+            )
+            self.assertEqual(result, val)
+
+        # Signed types
+        def _test_range(typename, minval, maxval):
+            _check_val(typename, 127)
+            _check_val(typename, minval)
+            _check_val(typename, maxval)
+
+        _test_range("int8_t", -(2 ** 7), (2 ** 7) - 1)
+        _test_range("int16_t", -(2 ** 15), (2 ** 15) - 1)
+        _test_range("int32_t", -(2 ** 31), (2 ** 31) - 1)
+        _test_range("int64_t", -(2 ** 63), (2 ** 63) - 1)
+        _test_range("uint8_t", 0, (2 ** 8) - 1)
+        _test_range("uint16_t", 0, (2 ** 16) - 1)
+        _test_range("uint32_t", 0, (2 ** 32) - 1)
+        _test_range("uint64_t", 0, (2 ** 64) - 1)
 
 
 if __name__ == "__main__":
