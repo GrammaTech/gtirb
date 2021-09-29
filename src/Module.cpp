@@ -1,6 +1,6 @@
 //===- Module.cpp -----------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -418,12 +418,9 @@ ChangeStatus Module::SectionObserverImpl::changeExtent(
     Section* S, std::function<void(Section*)> Callback) {
   auto& Index = M->Sections.get<by_pointer>();
   if (auto It = Index.find(S); It != Index.end()) {
-    std::optional<AddrRange> Previous = addressRange(*M);
     M->removeSectionAddrs(S);
     Index.modify(It, Callback);
     M->insertSectionAddrs(S);
-    if (Previous != addressRange(*M))
-      return ChangeStatus::Accepted;
   }
   return ChangeStatus::NoChange;
 }

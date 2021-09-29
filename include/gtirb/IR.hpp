@@ -423,6 +423,17 @@ public:
   /// \brief Sub-range of \ref Section objects overlapping an address.
   using const_section_subrange = boost::iterator_range<MergeSortedIterator<
       Module::const_section_subrange::iterator, AddressLess>>;
+  /// \brief Iterator over \ref Section objects.
+  using section_name_iterator =
+      MergeSortedIterator<Module::section_name_iterator, AddressLess>;
+  /// \brief Range of \ref Section objects.
+  using section_name_range = boost::iterator_range<section_name_iterator>;
+  /// \brief Iterator over \ref Section objects.
+  using const_section_name_iterator =
+      MergeSortedIterator<Module::const_section_name_iterator, AddressLess>;
+  /// \brief Range of \ref Section objects.
+  using const_section_name_range =
+      boost::iterator_range<const_section_name_iterator>;
 
   /// \brief Return an iterator to the first \ref Section.
   section_iterator sections_begin() {
@@ -552,6 +563,35 @@ public:
                 this->modules_end(),
                 FindSectionsBetween<const Module>(Low, High))),
         const_section_range::iterator());
+  }
+  /// \brief Find all the sections containing a name.
+  ///
+  /// \param A The string name to look up.
+  ///
+  /// \return A range of \ref Section objects containing the name.
+  section_name_range findSections(const std::string& X) {
+    return section_name_range(
+        section_name_range::iterator(
+            boost::make_transform_iterator(this->modules_begin(),
+                                           FindSections<Module>(X)),
+            boost::make_transform_iterator(this->modules_end(),
+                                           FindSections<Module>(X))),
+        section_name_range::iterator());
+  }
+
+  /// \brief Find all the sections containing a name.
+  ///
+  /// \param A The string name to look up.
+  ///
+  /// \return A range of \ref Section objects containing the name.
+  const_section_name_range findSections(const std::string& X) const {
+    return const_section_name_range(
+        const_section_name_range::iterator(
+            boost::make_transform_iterator(this->modules_begin(),
+                                           FindSections<const Module>(X)),
+            boost::make_transform_iterator(this->modules_end(),
+                                           FindSections<const Module>(X))),
+        const_section_name_range::iterator());
   }
   /// @}
   // (end Section-Related Public Types and Functions)

@@ -155,6 +155,12 @@ Where:
 
 > **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost package from a PPA.  You can add it like this: `add-apt-repository ppa:mhier/libboost-latest`
 
+Finally update your package database and install the core GTIRB tools:
+```sh
+sudo apt-get update
+sudo apt-get install libgtirb gtirb-pprinter ddisasm
+```
+
 ## Arch Linux
 
 The Arch User Repository ([AUR][]) includes packages for GTIRB:

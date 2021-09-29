@@ -81,6 +81,16 @@ struct Padding {
 };
 
 } // namespace schema
+
+namespace provisional_schema {
+
+/// \brief Schema class for profile aux data.
+struct Profile {
+  static constexpr const char* Name = "profile";
+  typedef std::map<gtirb::Offset, uint64_t> Type;
+};
+
+} // namespace provisional_schema
 } // namespace gtirb
 
 #endif // GTIRB_AUXDATASCHEMA_HPP

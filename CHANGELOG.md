@@ -1,7 +1,18 @@
-# Unreleased (1.10.4)
+# 1.10.6 (Unreleased)
+
+* TBA
+
+# 1.10.5
+
+* Added various symbolic expression attributes.
+
+# 1.10.4
 
 * Removed SymStackConst support
 * Added variant (union) support for AuxData
+* Removed address and size from modules
+* Modified Module::findSections(string) to return a range instead of iterator
+* Added IR::findSection(string) to C++ API
 
 # 1.10.3
 

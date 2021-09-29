@@ -1,6 +1,6 @@
 //===- Module.test.cpp ------------------------------------------*- C++ -*-===//
 //
-//  Copyright (C) 2020 GrammaTech, Inc.
+//  Copyright (C) 2021 GrammaTech, Inc.
 //
 //  This code is licensed under the MIT license. See the LICENSE file in the
 //  project root for license terms.
@@ -459,40 +459,16 @@ TEST(Unit_Module, findByteIntervalsOn) {
   EXPECT_EQ(&*std::next(ConstRange.begin(), 1), BI1);
 }
 
-TEST(Unit_Module, getAddressAndSize) {
-  auto* M = Module::Create(Ctx, "M");
-  auto* S = M->addSection(Ctx, "test");
-  auto* BI = S->addByteInterval(Ctx, 100);
-
-  EXPECT_FALSE(M->getAddress());
-  EXPECT_FALSE(M->getSize());
-
-  BI->setAddress(Addr(200));
-
-  ASSERT_TRUE(M->getAddress());
-  EXPECT_EQ(M->getAddress(), Addr(200));
-  ASSERT_TRUE(M->getSize());
-  EXPECT_EQ(M->getSize(), 100);
-
-  BI->setAddress(Addr(0));
-
-  EXPECT_EQ(M->getAddress(), Addr(0));
-  EXPECT_EQ(M->getSize(), 100);
-
-  BI->setSize(15);
-
-  EXPECT_EQ(M->getAddress(), Addr(0));
-  EXPECT_EQ(M->getSize(), 15);
-}
-
 TEST(Unit_Module, findSections) {
   auto* M = Module::Create(Ctx, "M");
   auto* S1 = M->addSection(Ctx, "S1");
   auto* S2 = M->addSection(Ctx, "S2");
+  auto* S22 = M->addSection(Ctx, "S2");
   auto* S3 = M->addSection(Ctx, "S3");
   auto* BI1 = S1->addByteInterval(Ctx, Addr(1), 123);
   auto* BI2 = S2->addByteInterval(Ctx, 100);
   S3->addByteInterval(Ctx, Addr(50), 50);
+  S22->addByteInterval(Ctx, Addr(2), 22);
 
   {
     auto F = M->findSectionsOn(Addr(1));
@@ -553,11 +529,16 @@ TEST(Unit_Module, findSections) {
 
   {
     auto F = M->findSections("S1");
-    ASSERT_NE(F, M->sections_by_name_end());
-    EXPECT_EQ(F->getName(), "S1");
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 1);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S1");
+
+    F = M->findSections("S2");
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 2);
+    EXPECT_EQ(std::next(F.begin(), 0)->getName(), "S2");
+    EXPECT_EQ(std::next(F.begin(), 1)->getName(), "S2");
 
     F = M->findSections("dummy");
-    EXPECT_EQ(F, M->sections_by_name_end());
+    ASSERT_EQ(std::distance(F.begin(), F.end()), 0);
   }
 }
 

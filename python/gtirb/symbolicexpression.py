@@ -15,11 +15,17 @@ class SymbolicExpression:
         """Attributes representing a known property of a symbolic
         expression."""
 
+        # General bit/byte masking and indexing operations:
         Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
         Part1 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part1")
         Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
         Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
         Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
+        Hi = SymbolicExpression_pb2.SEAttributeFlag.Value("Hi")
+        Lo = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo")
+        Lo12 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo12")
+
+        # GOT and GOT-relative attributes:
         GotRef = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRef")
         GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
         GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
@@ -29,7 +35,24 @@ class SymbolicExpression:
         GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value(
             "GotPageOfst"
         )
+        GotOff = SymbolicExpression_pb2.SEAttributeFlag.Value("GotOff")
+
+        # PLT specific attributes:
         PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
+
+        # TLS specific attributes:
+        TpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("TpOff")
+        NtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("NtpOff")
+        DtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("DtpOff")
+        TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
+        TlsLd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsLd")
+
+        # Attribute modifiers:
+        Abs = SymbolicExpression_pb2.SEAttributeFlag.Value("Abs")
+        Signed = SymbolicExpression_pb2.SEAttributeFlag.Value("Signed")
+        NoOverflowCheck = SymbolicExpression_pb2.SEAttributeFlag.Value(
+            "NoOverflowCheck"
+        )
 
     def __init__(
         self, attributes=set(),
