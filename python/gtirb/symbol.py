@@ -4,7 +4,7 @@ from uuid import UUID
 from .block import Block
 from .node import Node
 from .proto import Symbol_pb2
-from .util import _SingleParentIndexedAttribute
+from .util import _IndexedAttribute
 
 Payload = typing.Union[Block, int]
 """A type hint representing the possible Symbol payloads."""
@@ -18,7 +18,7 @@ class Symbol(Node):
         than at the beginning. Has no meaning for integral symbols.
     """
 
-    name = _SingleParentIndexedAttribute[str, "Symbol", "Module"](
+    name = _IndexedAttribute[str, "Symbol", "Module"](
         "name", lambda self: self.module
     )
 

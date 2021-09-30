@@ -14,10 +14,10 @@ from .symbolicexpression import SymAddrAddr, SymAddrConst, SymbolicExpression
 from .util import (
     DictLike,
     SetWrapper,
+    _IndexedAttribute,
     _nodes_at_interval_tree,
     _nodes_on_interval_tree,
     _offset_interval,
-    _SingleParentIndexedAttribute,
     get_desired_range,
 )
 
@@ -101,14 +101,9 @@ class ByteInterval(Node):
             return self._data[i]
 
         def __setitem__(self, i, v):
-            v._instances.add((self._interval, i))
-            self._interval._index_add(v)
             self._data[i] = v
 
         def __delitem__(self, i):
-            v = self._data[i]
-            v._instances.discard((self._interval, i))
-            self._interval._index_discard(v)
             del self._data[i]
 
         def __iter__(self):
@@ -130,10 +125,10 @@ class ByteInterval(Node):
             )
             return "{" + ", ".join(items) + "}"
 
-    address = _SingleParentIndexedAttribute[
+    address = _IndexedAttribute[
         typing.Optional[int], "ByteInterval", "Module"
     ]("address", lambda self: self.section)
-    size = _SingleParentIndexedAttribute[int, "ByteInterval", "Module"](
+    size = _IndexedAttribute[int, "ByteInterval", "Module"](
         "size", lambda self: self.section
     )
 
@@ -202,17 +197,11 @@ class ByteInterval(Node):
             for block in new_blocks:
                 self._index_add(block)
 
-    def _index_add(self, v):
-        if isinstance(v, ByteBlock):
-            self._interval_tree.add(_offset_interval(v))
-        elif isinstance(v, SymbolicExpression) and self.module:
-            self.module._index_add(v)
+    def _index_add(self, block):
+        self._interval_tree.add(_offset_interval(block))
 
-    def _index_discard(self, v):
-        if isinstance(v, ByteBlock):
-            self._interval_tree.discard(_offset_interval(v))
-        elif isinstance(v, SymbolicExpression) and self.module:
-            self.module._index_discard(v)
+    def _index_discard(self, block):
+        self._interval_tree.discard(_offset_interval(block))
 
     @property
     def initialized_size(self):

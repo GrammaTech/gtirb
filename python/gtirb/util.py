@@ -168,25 +168,17 @@ AttributeT = typing.TypeVar("AttributeT")
 
 class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
     """
-    A descriptor that will notify parents when the value is set and can be
+    A descriptor that will notify a parent when the value is set and can be
     otherwise used like a normal attribute.
     """
 
-    ParentsGetterT = typing.Callable[
-        [InstanceT], typing.Iterable[typing.Optional[ParentT]]
-    ]
+    ParentGetterT = typing.Callable[[InstanceT], typing.Optional[ParentT]]
 
-    def __init__(self, name, parents_getter):
-        # type: (str, "ParentsGetterT") -> None
+    def __init__(self, name, parent_getter):
+        # type: (str, "ParentGetterT") -> None
         self.name = name
         self.attribute_name = "_" + name
-        self.parents_getter = parents_getter
-
-    def _parents(self, instance):
-        # type: (InstanceT) -> typing.Iterator[ParentT]
-        for parent in self.parents_getter(instance):
-            if parent:
-                yield parent
+        self.parent_getter = parent_getter
 
     def __get__(self, instance, owner=None):
         # type: (InstanceT, typing.Any) -> AttributeT
@@ -194,10 +186,12 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
 
     def __set__(self, instance, value):
         # type: (InstanceT, AttributeT) -> None
-        for parent in self._parents(instance):
+        parent = self.parent_getter(instance)
+        if parent:
             parent._index_discard(instance)
         setattr(instance, self.attribute_name, value)
-        for parent in self._parents(instance):
+        parent = self.parent_getter(instance)
+        if parent:
             parent._index_add(instance)
 
     def __delete__(self, instance):
@@ -208,20 +202,6 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
         # minimum, the name paramter can be removed from the initializer and
         # taken from this instead.
         pass
-
-
-class _SingleParentIndexedAttribute(
-    _IndexedAttribute[AttributeT, InstanceT, ParentT]
-):
-    """
-    A version of _IndexedAttribute that is more convenient for single parents.
-    """
-
-    ParentGetterT = typing.Callable[[InstanceT], typing.Optional[ParentT]]
-
-    def __init__(self, name, parent_getter):
-        # type: (str, "ParentGetterT") -> None
-        super().__init__(name, parents_getter=lambda x: (parent_getter(x),))
 
 
 def get_desired_range(addrs):

@@ -5,7 +5,6 @@ from uuid import UUID
 from .node import Node
 from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
-from .util import _IndexedAttribute
 
 
 class SymbolicExpression:
@@ -59,13 +58,6 @@ class SymbolicExpression:
     ):
         # type: ("AttributesCtorType") -> None
         self.attributes = set(attributes)
-        self._instances = set()
-
-    def _modules(self):
-        for bi, _ in self._instances:
-            m = bi.module
-            if m:
-                yield m
 
     @property
     def symbols(self):
@@ -100,13 +92,6 @@ class SymAddrAddr(SymbolicExpression):
     :ivar ~.symbol1: Symbol representing the base address.
     :ivar ~.symbol2: Symbol to subtract from ``symbol1``.
     """
-
-    symbol1 = _IndexedAttribute[Symbol, "SymAddrAddr", "Module"](
-        "symbol1", lambda self: self._modules()
-    )
-    symbol2 = _IndexedAttribute[Symbol, "SymAddrAddr", "Module"](
-        "symbol2", lambda self: self._modules()
-    )
 
     def __init__(
         self,
@@ -214,10 +199,6 @@ class SymAddrConst(SymbolicExpression):
     :ivar ~.offset: Constant offset.
     :ivar ~.symbol: Symbol representing an address.
     """
-
-    symbol = _IndexedAttribute[Symbol, "SymAddrConst", "Module"](
-        "symbol", lambda self: self._modules()
-    )
 
     def __init__(self, offset, symbol, attributes=set()):
         # type: (int, Symbol, AttributesCtorType) -> None

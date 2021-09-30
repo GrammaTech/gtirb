@@ -3,7 +3,7 @@ from uuid import UUID
 
 from .node import Node
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
-from .util import _SingleParentIndexedAttribute
+from .util import _IndexedAttribute
 
 
 class Block(Node):
@@ -41,10 +41,10 @@ class ByteBlock(Block):
         same offset.
     """
 
-    size = _SingleParentIndexedAttribute[int, "ByteBlock", "ByteInterval"](
+    size = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
         "size", lambda self: self.byte_interval
     )
-    offset = _SingleParentIndexedAttribute[int, "ByteBlock", "ByteInterval"](
+    offset = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
         "offset", lambda self: self.byte_interval
     )
 
