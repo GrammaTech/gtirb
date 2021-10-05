@@ -1896,15 +1896,13 @@ private:
     return Pos;
   }
 
-
   /// Insert a single element into a byte vector
   template <typename T, typename BytesIterator>
   BytesIterator insertSingleByte(
       BytesIterator Pos, const T& X, boost::endian::order VectorOrder,
       boost::endian::order ElementOrder = boost::endian::order::native) {
-   return insertByteVec<T>(Pos, &X, &X+1, VectorOrder, ElementOrder);
+    return insertByteVec<T>(Pos, &X, &X + 1, VectorOrder, ElementOrder);
   }
-
 
 public:
   /// \brief Insert a single datum into this byte vector.
