@@ -23,16 +23,16 @@ namespace gtirb {
 
 static void symAttributeSetToProtobuf(const SymAttributeSet& SASet,
                                       proto::SymbolicExpression* Message) {
-  for (auto It = SASet.begin(); It != SASet.end(); ++It) {
-    Message->add_attribute_flags(static_cast<proto::SEAttributeFlag>(*It));
+  for (auto Attr : SASet) {
+    Message->add_attribute_flags(static_cast<proto::SymAttribute>(Attr));
   }
 }
 
 static SymAttributeSet
 symAttributeSetFromProtobuf(const proto::SymbolicExpression& Message) {
   SymAttributeSet SASet;
-  for (size_t I = 0, E = Message.attribute_flags_size(); I != E; ++I) {
-    SASet.addFlag(static_cast<SymAttribute>(Message.attribute_flags(I)));
+  for (int I = 0, E = Message.attribute_flags_size(); I != E; ++I) {
+    SASet.insert(static_cast<SymAttribute>(Message.attribute_flags(I)));
   }
   return SASet;
 }

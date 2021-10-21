@@ -44,7 +44,7 @@ class IRTest(unittest.TestCase):
         _ = gtirb.DataBlock(size=6, offset=4, byte_interval=bi)
         sym = gtirb.Symbol(name="name", payload=cb, module=m)
         sac = gtirb.SymAddrConst(
-            0, sym, {gtirb.SymbolicExpression.Attribute.Part1}
+            0, sym, {gtirb.SymbolicExpression.Attribute.G1}
         )
         bi.symbolic_expressions[2] = sac
         p = gtirb.ProxyBlock(module=m)

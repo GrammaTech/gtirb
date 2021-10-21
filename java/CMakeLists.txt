@@ -210,6 +210,16 @@ if(GTIRB_ENABLE_TESTS)
     COMMENT "Building testAuxData"
   )
 
+  add_custom_command(
+    TARGET gtirb-java-api
+    POST_BUILD
+    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/tests/testSymbolicExpressions.java
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testSymbolicExpressions.class
+    COMMENT "Building testSymbolicExpressions"
+  )
+
   add_test(NAME JavaSanityTest
            COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
                    testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
@@ -224,6 +234,11 @@ if(GTIRB_ENABLE_TESTS)
   add_test(NAME JavaAuxDataTest
            COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
                    testAuxData ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
+  )
+
+  add_test(NAME JavaSymbolicExpressionsTest
+           COMMAND ${Java_JAVA_EXECUTABLE} -ea -cp
+                   ".${DIR_SEP}${JAR_FILE_LIST}" testSymbolicExpressions
   )
 
   set_tests_properties(

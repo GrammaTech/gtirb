@@ -33,32 +33,85 @@ message SymAddrAddr {
   bytes symbol2_uuid = 4;
 }
 
-enum SEAttributeFlag {
-  Part0 = 0;
-  Part1 = 1;
-  Part2 = 2;
-  Part3 = 3;
-  Adjusted = 4;
-  GotRef = 5;
-  GotRelPC = 6;
-  GotRelGot = 7;
-  AddrRelGot = 8;
-  GotRelAddr = 9;
-  GotPage = 10;
-  GotPageOfst = 11;
-  PltRef = 12;
-  GotOff = 13;
-  TpOff = 14;
-  NtpOff = 15;
-  DtpOff = 16;
-  TlsGd = 17;
-  TlsLd = 18;
-  Lo = 19;
-  Hi = 20;
-  Lo12 = 21;
-  Abs = 22;
-  Signed = 23;
-  NoOverflowCheck = 24;
+// NOTE:
+// We do not generalize or otherwise unify relocation attributes across
+// architectures and instead prefer an explicit mapping of attributes names
+// to the labels used in the assembly of each architecture.
+enum SymAttribute {
+  // ELF
+  GOT = 0;
+  GOTPC = 1;
+  GOTOFF = 2;
+  GOTREL = 3;
+  PLT = 4;
+  PLTOFF = 5;
+  PCREL = 6;
+  SECREL = 7;
+  TLS = 8;
+  TLSGD = 9;
+  TLSLD = 10;
+  TLSLDM = 11;
+  TLSCALL = 12;
+  TLSDESC = 13;
+  TPREL = 14;
+  TPOFF = 15;
+  DTPREL = 16;
+  DTPOFF = 17;
+  NTPOFF = 18;
+  DTPMOD = 19;
+  PAGE = 20;
+  PAGEOFF = 21;
+  CALL = 22;
+  LO = 23;
+  HI = 24;
+  HIGHER = 25;
+  HIGHEST = 26;
+
+  // X86
+  GOTNTPOFF = 1000;
+  INDNTPOFF = 1001;
+
+  // ARM
+  G0 = 2001;
+  G1 = 2002;
+  G2 = 2003;
+  G3 = 2004;
+  UPPER16 = 2005;
+  LOWER16 = 2006;
+  LO12 = 2007;
+  LO15 = 2008;
+  LO14 = 2009;
+  HI12 = 2010;
+  HI21 = 2011;
+  S = 2012;
+  PG = 2013;
+  NC = 2014;
+  ABS = 2015;
+  PREL = 2016;
+  PREL31 = 2017;
+  TARGET1 = 2018;
+  TARGET2 = 2019;
+  SBREL = 2020;
+  TLSLDO = 2021;
+
+  // MIPS
+  HI16 = 3000;
+  LO16 = 3001;
+  GPREL = 3002;
+  DISP = 3003;
+  OFST = 3004;
+
+  // PPC
+  H = 4000;
+  L = 4001;
+  HA = 4002;
+  HIGH = 4003;
+  HIGHA = 4004;
+  HIGHERA = 4005;
+  HIGHESTA = 4006;
+  TOCBASE = 4007;
+  TOC = 4008;
+  NOTOC = 4009;
 }
 
 message SymbolicExpression {
@@ -68,5 +121,5 @@ message SymbolicExpression {
     SymAddrConst addr_const = 2;
     SymAddrAddr addr_addr = 3;
   }
-  repeated SEAttributeFlag attribute_flags = 4;
+  repeated SymAttribute attribute_flags = 4;
 }

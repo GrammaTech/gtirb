@@ -204,7 +204,9 @@ public class IR extends AuxDataContainer {
             protoIr.addModules(protoModule);
         }
         // Add CFG
-        protoIr.setCfg(this.cfg.toProtobuf());
+        if (this.cfg != null) {
+            protoIr.setCfg(this.cfg.toProtobuf());
+        }
         return protoIr;
     }
 

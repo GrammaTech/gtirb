@@ -42,241 +42,86 @@ class Symbol; // Forward refernece for Sym, Sym1, Sym2, etc.
 ///
 /// \brief The space of attributes that can be applied to a symbolic
 /// expression.
-enum class SymAttribute : uint8_t {
+///
+/// See doc/general/SymbolicExpression.md for more details.
+enum class SymAttribute : uint16_t {
+  // Common ELF relocation labels.
+  GOT = proto::SymAttribute::GOT,
+  GOTPC = proto::SymAttribute::GOTPC,
+  GOTOFF = proto::SymAttribute::GOTOFF,
+  GOTREL = proto::SymAttribute::GOTREL,
+  PLT = proto::SymAttribute::PLT,
+  PLTOFF = proto::SymAttribute::PLTOFF,
+  PCREL = proto::SymAttribute::PCREL,
+  SECREL = proto::SymAttribute::SECREL,
+  TLS = proto::SymAttribute::TLS,
+  TLSGD = proto::SymAttribute::TLSGD,
+  TLSLD = proto::SymAttribute::TLSLD,
+  TLSLDM = proto::SymAttribute::TLSLDM,
+  TLSCALL = proto::SymAttribute::TLSCALL,
+  TLSDESC = proto::SymAttribute::TLSDESC,
+  TPREL = proto::SymAttribute::TPREL,
+  TPOFF = proto::SymAttribute::TPOFF,
+  DTPREL = proto::SymAttribute::DTPREL,
+  DTPOFF = proto::SymAttribute::DTPOFF,
+  DTPMOD = proto::SymAttribute::DTPMOD,
+  NTPOFF = proto::SymAttribute::NTPOFF,
+  PAGE = proto::SymAttribute::PAGE,
+  PAGEOFF = proto::SymAttribute::PAGEOFF,
+  CALL = proto::SymAttribute::CALL,
+  LO = proto::SymAttribute::LO,
+  HI = proto::SymAttribute::HI,
+  HIGHER = proto::SymAttribute::HIGHER,
+  HIGHEST = proto::SymAttribute::HIGHEST,
 
-  // General bit/byte masking and indexing operations:
-  //
-  Part0 = proto::SEAttributeFlag::Part0, ///< Only bytes [0,1] are used
-  Part1 = proto::SEAttributeFlag::Part1, ///< Only bytes [2,3] are used
-  Part2 = proto::SEAttributeFlag::Part2, ///< Only bytes [4,5] are used
-  Part3 = proto::SEAttributeFlag::Part3, ///< Only bytes [6,7] are used
+  // X86-specific relocation labels.
+  GOTNTPOFF = proto::SymAttribute::GOTNTPOFF,
+  INDNTPOFF = proto::SymAttribute::INDNTPOFF,
 
-  /// Indicates that the Parts are composed by addition, and that the
-  /// lower part is sign extended. Thus the upper parts must be
-  /// adjusted to account for that. Applies to Part1-Part3, but not
-  /// Part0.
-  Adjusted = proto::SEAttributeFlag::Adjusted,
+  // ARM-specific relocation labels.
+  G0 = proto::SymAttribute::G0,
+  G1 = proto::SymAttribute::G1,
+  G2 = proto::SymAttribute::G2,
+  G3 = proto::SymAttribute::G3,
+  UPPER16 = proto::SymAttribute::UPPER16,
+  LOWER16 = proto::SymAttribute::LOWER16,
+  LO12 = proto::SymAttribute::LO12,
+  LO15 = proto::SymAttribute::LO15,
+  LO14 = proto::SymAttribute::LO14,
+  HI12 = proto::SymAttribute::HI12,
+  HI21 = proto::SymAttribute::HI21,
+  S = proto::SymAttribute::S,
+  PG = proto::SymAttribute::PG,
+  NC = proto::SymAttribute::NC,
+  ABS = proto::SymAttribute::ABS,
+  PREL = proto::SymAttribute::PREL,
+  PREL31 = proto::SymAttribute::PREL31,
+  TARGET1 = proto::SymAttribute::TARGET1,
+  TARGET2 = proto::SymAttribute::TARGET2,
+  SBREL = proto::SymAttribute::SBREL,
+  TLSLDO = proto::SymAttribute::TLSLDO,
 
-  /// Value uses only the bits [0,11] (ARM).
-  Lo12 = proto::SEAttributeFlag::Lo12,
+  // MIPS-specific relocation labels.
+  HI16 = proto::SymAttribute::HI16,
+  LO16 = proto::SymAttribute::LO16,
+  GPREL = proto::SymAttribute::GPREL,
+  DISP = proto::SymAttribute::DISP,
+  OFST = proto::SymAttribute::OFST,
 
-  /// Value is the upper 16 bits of the expression (MIPS).
-  Hi = proto::SEAttributeFlag::Hi,
-
-  /// Value is the upper 16 bits of the expression (MIPS).
-  Lo = proto::SEAttributeFlag::Lo,
-  //
-  //
-
-  // GOT and GOT-relative attributes:
-  //
-  /// Value is the address of the GOT entry for the symbol.
-  GotRef = proto::SEAttributeFlag::GotRef,
-
-  /// Value is the PC-relative address of the GOT entry for the
-  /// symbol. How the PC relates to the address of the instruction is
-  /// ISA-dependent.
-  GotRelPC = proto::SEAttributeFlag::GotRelPC,
-
-  /// Value is the address of the GOT entry for the symbol relative to
-  /// the global pointer, which is the address of the GOT plus an
-  /// offset. The offset is ISA-dependent, and in the case of certain
-  /// PPC ABIs, may also depend on which object file the instruction
-  /// originally came from.
-  GotRelGot = proto::SEAttributeFlag::GotRelGot,
-
-  /// Value is the address as computed by the symbolic expression
-  /// relative to the global pointer, defined above.
-  AddrRelGot = proto::SEAttributeFlag::AddrRelGot,
-
-  /// Value is the negative of GOT_RELGOT. That is, it is the global
-  /// pointer relative to the address of the GOT entry for the symbol.
-  GotRelAddr = proto::SEAttributeFlag::GotRelAddr,
-
-  /// Value is the address of a special GOT entry for the symbol,
-  /// relative to the global pointer.
-  GotPage = proto::SEAttributeFlag::GotPage,
-
-  /// Value is the address of the symbol, relative to the GOT_PAGE value.
-  GotPageOfst = proto::SEAttributeFlag::GotPageOfst,
-
-  /// Value is the offset of the symbol from GOT.
-  GotOff = proto::SEAttributeFlag::GotOff,
-  //
-  //
-
-  // PLT specific attributes:
-  //
-  /// Value is the address of the PLT entry for the symbol.
-  PltRef = proto::SEAttributeFlag::PltRef,
-  //
-  //
-
-  // TLS specific attributes:
-  //
-  /// Value is the offset of the symbol relative to the TLS block end.
-  TpOff = proto::SEAttributeFlag::TpOff,
-
-  /// Value is the negative offset of the symbol to the static TLS block.
-  NtpOff = proto::SEAttributeFlag::NtpOff,
-
-  /// Value is the offset of the symbol relative to the start of the TLS block,
-  /// used as an immediate value of an addend.
-  DtpOff = proto::SEAttributeFlag::DtpOff,
-
-  /// Value is a "general dynamic" TLS symbol reference.
-  TlsGd = proto::SEAttributeFlag::TlsGd,
-
-  /// Value is a "local dynamic" TLS symbol reference.
-  TlsLd = proto::SEAttributeFlag::TlsLd,
-  //
-  //
-
-  // Attribute modifiers:
-  //
-  /// Value is an expression of the absolute address. (ARM)
-  Abs = proto::SEAttributeFlag::Abs,
-
-  /// Value of expression is signed. (ARM)
-  Signed = proto::SEAttributeFlag::Signed,
-
-  /// No overflow check is performed on the expression. (ARM)
-  NoOverflowCheck = proto::SEAttributeFlag::NoOverflowCheck,
-  //
-  //
-
-  Max = NoOverflowCheck
+  // PPC
+  H = proto::SymAttribute::H,
+  L = proto::SymAttribute::L,
+  HA = proto::SymAttribute::HA,
+  HIGH = proto::SymAttribute::HIGH,
+  HIGHA = proto::SymAttribute::HIGHA,
+  HIGHERA = proto::SymAttribute::HIGHERA,
+  HIGHESTA = proto::SymAttribute::HIGHESTA,
+  TOCBASE = proto::SymAttribute::TOCBASE,
+  TOC = proto::SymAttribute::TOC,
+  NOTOC = proto::SymAttribute::NOTOC,
 };
 
-/// \brief A class for tracking a set of boolean flags that represent attributes
-/// for SymbolicExpressions.
-class SymAttributeSet {
-public:
-  /// \brief Adds the flag to the SymbolicExpression.
-  ///
-  /// \param F The flag to be added.
-  void addFlag(SymAttribute F) {
-    size_t index = static_cast<size_t>(F);
-    assert(index <= static_cast<size_t>(SymAttribute::Max));
-    Flags[index] = 1;
-  }
-
-  /// \brief Adds all of the flags to the SymbolicExpression.
-  /// \tparam Fs A pack of \ref Attribute flags.
-  /// \param F The flags to be added to the SymbolicExpression.
-  template <typename... Fs> void addFlags(Fs... F) { (addFlag(F), ...); }
-
-  /// \brief Removes the flag from the SymbolicExpression.
-  ///
-  /// \param F The flag to be removed.
-  void removeFlag(SymAttribute F) {
-    size_t index = static_cast<size_t>(F);
-    assert(index <= static_cast<size_t>(SymAttribute::Max));
-    Flags[index] = 0;
-  }
-
-  /// \brief Tests whether the given flag is set for the SymbolicExpression.
-  ///
-  /// \param F The flag to test.
-  /// \return true if the flag is set, false otherwise.
-  bool isFlagSet(SymAttribute F) const {
-    size_t index = static_cast<size_t>(F);
-    assert(index <= static_cast<size_t>(SymAttribute::Max));
-    return Flags[index];
-  }
-
-  friend bool operator==(const SymAttributeSet& LHS,
-                         const SymAttributeSet& RHS) {
-    return LHS.Flags == RHS.Flags;
-  }
-
-  /// \brief Iterator over \ref Attribute flags.
-  class const_iterator
-      : public boost::iterator_facade<const_iterator, SymAttribute,
-                                      boost::bidirectional_traversal_tag,
-                                      SymAttribute> {
-  private:
-    SymAttribute dereference() const {
-      assert(CurrIndex <= static_cast<size_t>(SymAttribute::Max));
-      assert(SASet.Flags[CurrIndex]);
-      return static_cast<SymAttribute>(CurrIndex);
-    }
-
-    bool equal(const const_iterator& other) const {
-      return SASet == other.SASet && CurrIndex == other.CurrIndex;
-    }
-
-    void increment() {
-      assert(CurrIndex <= static_cast<size_t>(SymAttribute::Max));
-      moveToNextBit();
-    }
-
-    void decrement() {
-      assert(CurrIndex > 0);
-      moveToPreviousBit();
-    }
-
-    const_iterator(const SymAttributeSet& SASet_, size_t start)
-        : SASet(SASet_), CurrIndex(start) {
-      if (start <= static_cast<size_t>(SymAttribute::Max) &&
-          !SASet.Flags[CurrIndex])
-        moveToNextBit();
-    }
-
-    void moveToNextBit() {
-      if (CurrIndex <= static_cast<size_t>(SymAttribute::Max)) {
-        do {
-          ++CurrIndex;
-        } while (CurrIndex <= static_cast<size_t>(SymAttribute::Max) &&
-                 !SASet.Flags[CurrIndex]);
-      }
-    }
-
-    void moveToPreviousBit() {
-      size_t NewIndex = CurrIndex;
-      while (NewIndex > 0) {
-        --NewIndex;
-        if (SASet.Flags[NewIndex])
-          break;
-      }
-      // Assert if there is no earlier bit.
-      // This would indicate an attempt to move before begin().
-      assert(SASet.Flags[NewIndex]);
-      if (SASet.Flags[NewIndex]) {
-        CurrIndex = NewIndex;
-      }
-    }
-
-    const SymAttributeSet& SASet;
-    size_t CurrIndex;
-
-    friend class SymAttributeSet;
-    friend class boost::iterator_core_access;
-  };
-
-  /// \brief Range of \ref Attribute flags.
-  using const_range = boost::iterator_range<const_iterator>;
-
-  /// \brief Return a const iterator to the first \ref Attribute.
-  const_iterator begin() const { return const_iterator(*this, 0); }
-
-  /// \brief Return a const iterator to the element following the last \ref
-  /// Attribute.
-  const_iterator end() const {
-    return const_iterator(*this, static_cast<size_t>(SymAttribute::Max) + 1);
-  }
-
-  /// \brief Return a range of the \ref SymAttribute flags set for the
-  /// SymbolicExpression.
-  const_range flags() const {
-    return boost::make_iterator_range(begin(), end());
-  }
-
-private:
-  std::bitset<static_cast<size_t>(SymAttribute::Max) + 1> Flags;
-
-  friend class const_iterator;
-};
+using SymAttributeSet = std::set<SymAttribute>;
 
 /// \brief Represents a
 /// \ref SYMBOLIC_EXPRESSION_GROUP "symbolic operand" of the form

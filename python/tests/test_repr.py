@@ -135,8 +135,8 @@ class ReprTest(unittest.TestCase):
             symbol1=gtirb.Symbol(name="symbol1", payload=gtirb.ProxyBlock()),
             symbol2=gtirb.Symbol(name="symbol2", payload=gtirb.ProxyBlock()),
             attributes={
-                gtirb.SymbolicExpression.Attribute.Adjusted,
-                gtirb.SymbolicExpression.Attribute.Part0,
+                gtirb.SymbolicExpression.Attribute.ABS,
+                gtirb.SymbolicExpression.Attribute.G0,
             },
         )
         string = repr(node)

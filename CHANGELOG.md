@@ -1,6 +1,9 @@
-# 1.10.10 (Unreleased)
+# 1.11.0 (Unreleased)
 
-* TODO
+Note that this release, due to changes to the protobuf definitions of symbolic
+expression attributes, is backwards-incompatible with previous GTIRB files.
+
+* Replace symbolic expression attributes with composable labels.
 
 # 1.10.9
 

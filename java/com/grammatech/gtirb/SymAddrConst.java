@@ -100,11 +100,13 @@ public class SymAddrConst extends SymbolicExpression {
             Util.uuidToByteString(this.getSymbolUuid()));
         protoSymAddrConst.setOffset(this.getOffset());
         protoSymbolicExpression.setAddrConst(protoSymAddrConst);
-        // NOTE for this to be valid, a one-to-one mapping of enums must be
-        // maintained
-        for (AttributeFlag attributeFlag : this.getAttributeFlags())
+        for (AttributeFlag attributeFlag : this.getAttributeFlags()) {
             protoSymbolicExpression.addAttributeFlagsValue(
-                attributeFlag.ordinal());
+                attributeFlag.value());
+        }
+        for (Integer value : this.getUnknownAttributeFlags()) {
+            protoSymbolicExpression.addAttributeFlagsValue(value);
+        }
         return protoSymbolicExpression;
     }
 }

@@ -7,54 +7,93 @@ from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
 from .util import DeserializationError
 
-AttributesCtorType = typing.Iterable["SymbolicExpression.Attribute"]
+AttributesCtorType = typing.Iterable[
+    typing.Union[
+        "SymbolicExpression_pb2.SymAttribute.ValueType",
+        "SymbolicExpression.Attribute",
+    ]
+]
 
 
 class SymbolicExpression:
     """Base class of symbolic expression types."""
 
     class Attribute(Enum):
-        """Attributes representing a known property of a symbolic
-        expression."""
+        """Attributes representing a known property of a symbolic expression.
+        See https://grammatech.github.io/gtirb/md__symbolic_expression.html
+        """
 
-        # General bit/byte masking and indexing operations:
-        Part0 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part0")
-        Part1 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part1")
-        Part2 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part2")
-        Part3 = SymbolicExpression_pb2.SEAttributeFlag.Value("Part3")
-        Adjusted = SymbolicExpression_pb2.SEAttributeFlag.Value("Adjusted")
-        Hi = SymbolicExpression_pb2.SEAttributeFlag.Value("Hi")
-        Lo = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo")
-        Lo12 = SymbolicExpression_pb2.SEAttributeFlag.Value("Lo12")
+        GOT = SymbolicExpression_pb2.SymAttribute.Value("GOT")
+        GOTPC = SymbolicExpression_pb2.SymAttribute.Value("GOTPC")
+        GOTOFF = SymbolicExpression_pb2.SymAttribute.Value("GOTOFF")
+        GOTREL = SymbolicExpression_pb2.SymAttribute.Value("GOTREL")
+        PLT = SymbolicExpression_pb2.SymAttribute.Value("PLT")
+        PLTOFF = SymbolicExpression_pb2.SymAttribute.Value("PLTOFF")
+        PCREL = SymbolicExpression_pb2.SymAttribute.Value("PCREL")
+        SECREL = SymbolicExpression_pb2.SymAttribute.Value("SECREL")
+        TLS = SymbolicExpression_pb2.SymAttribute.Value("TLS")
+        TLSGD = SymbolicExpression_pb2.SymAttribute.Value("TLSGD")
+        TLSLD = SymbolicExpression_pb2.SymAttribute.Value("TLSLD")
+        TLSLDM = SymbolicExpression_pb2.SymAttribute.Value("TLSLDM")
+        TLSCALL = SymbolicExpression_pb2.SymAttribute.Value("TLSCALL")
+        TLSDESC = SymbolicExpression_pb2.SymAttribute.Value("TLSDESC")
+        TPREL = SymbolicExpression_pb2.SymAttribute.Value("TPREL")
+        TPOFF = SymbolicExpression_pb2.SymAttribute.Value("TPOFF")
+        DTPREL = SymbolicExpression_pb2.SymAttribute.Value("DTPREL")
+        DTPOFF = SymbolicExpression_pb2.SymAttribute.Value("DTPOFF")
+        DTPMOD = SymbolicExpression_pb2.SymAttribute.Value("DTPMOD")
+        NTPOFF = SymbolicExpression_pb2.SymAttribute.Value("NTPOFF")
+        PAGE = SymbolicExpression_pb2.SymAttribute.Value("PAGE")
+        PAGEOFF = SymbolicExpression_pb2.SymAttribute.Value("PAGEOFF")
+        CALL = SymbolicExpression_pb2.SymAttribute.Value("CALL")
+        LO = SymbolicExpression_pb2.SymAttribute.Value("LO")
+        HI = SymbolicExpression_pb2.SymAttribute.Value("HI")
+        HIGHER = SymbolicExpression_pb2.SymAttribute.Value("HIGHER")
+        HIGHEST = SymbolicExpression_pb2.SymAttribute.Value("HIGHEST")
+        GOTNTPOFF = SymbolicExpression_pb2.SymAttribute.Value("GOTNTPOFF")
+        INDNTPOFF = SymbolicExpression_pb2.SymAttribute.Value("INDNTPOFF")
+        G0 = SymbolicExpression_pb2.SymAttribute.Value("G0")
+        G1 = SymbolicExpression_pb2.SymAttribute.Value("G1")
+        G2 = SymbolicExpression_pb2.SymAttribute.Value("G2")
+        G3 = SymbolicExpression_pb2.SymAttribute.Value("G3")
+        UPPER16 = SymbolicExpression_pb2.SymAttribute.Value("UPPER16")
+        LOWER16 = SymbolicExpression_pb2.SymAttribute.Value("LOWER16")
+        LO12 = SymbolicExpression_pb2.SymAttribute.Value("LO12")
+        LO15 = SymbolicExpression_pb2.SymAttribute.Value("LO15")
+        LO14 = SymbolicExpression_pb2.SymAttribute.Value("LO14")
+        HI12 = SymbolicExpression_pb2.SymAttribute.Value("HI12")
+        HI21 = SymbolicExpression_pb2.SymAttribute.Value("HI21")
+        S = SymbolicExpression_pb2.SymAttribute.Value("S")
+        PG = SymbolicExpression_pb2.SymAttribute.Value("PG")
+        NC = SymbolicExpression_pb2.SymAttribute.Value("NC")
+        ABS = SymbolicExpression_pb2.SymAttribute.Value("ABS")
+        PREL = SymbolicExpression_pb2.SymAttribute.Value("PREL")
+        PREL31 = SymbolicExpression_pb2.SymAttribute.Value("PREL31")
+        TARGET1 = SymbolicExpression_pb2.SymAttribute.Value("TARGET1")
+        TARGET2 = SymbolicExpression_pb2.SymAttribute.Value("TARGET2")
+        SBREL = SymbolicExpression_pb2.SymAttribute.Value("SBREL")
+        TLSLDO = SymbolicExpression_pb2.SymAttribute.Value("TLSLDO")
+        HI16 = SymbolicExpression_pb2.SymAttribute.Value("HI16")
+        LO16 = SymbolicExpression_pb2.SymAttribute.Value("LO16")
+        GPREL = SymbolicExpression_pb2.SymAttribute.Value("GPREL")
+        DISP = SymbolicExpression_pb2.SymAttribute.Value("DISP")
+        OFST = SymbolicExpression_pb2.SymAttribute.Value("OFST")
+        H = SymbolicExpression_pb2.SymAttribute.Value("H")
+        L = SymbolicExpression_pb2.SymAttribute.Value("L")
+        HA = SymbolicExpression_pb2.SymAttribute.Value("HA")
+        HIGH = SymbolicExpression_pb2.SymAttribute.Value("HIGH")
+        HIGHA = SymbolicExpression_pb2.SymAttribute.Value("HIGHA")
+        HIGHERA = SymbolicExpression_pb2.SymAttribute.Value("HIGHERA")
+        HIGHESTA = SymbolicExpression_pb2.SymAttribute.Value("HIGHESTA")
+        TOCBASE = SymbolicExpression_pb2.SymAttribute.Value("TOCBASE")
+        TOC = SymbolicExpression_pb2.SymAttribute.Value("TOC")
+        NOTOC = SymbolicExpression_pb2.SymAttribute.Value("NOTOC")
 
-        # GOT and GOT-relative attributes:
-        GotRef = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRef")
-        GotRelPC = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelPC")
-        GotRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelGot")
-        AddrRelGot = SymbolicExpression_pb2.SEAttributeFlag.Value("AddrRelGot")
-        GotRelAddr = SymbolicExpression_pb2.SEAttributeFlag.Value("GotRelAddr")
-        GotPage = SymbolicExpression_pb2.SEAttributeFlag.Value("GotPage")
-        GotPageOfst = SymbolicExpression_pb2.SEAttributeFlag.Value(
-            "GotPageOfst"
-        )
-        GotOff = SymbolicExpression_pb2.SEAttributeFlag.Value("GotOff")
+        def __repr__(self) -> str:
+            return "SymbolicExpression.Attribute.%s" % self.name
 
-        # PLT specific attributes:
-        PltRef = SymbolicExpression_pb2.SEAttributeFlag.Value("PltRef")
-
-        # TLS specific attributes:
-        TpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("TpOff")
-        NtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("NtpOff")
-        DtpOff = SymbolicExpression_pb2.SEAttributeFlag.Value("DtpOff")
-        TlsGd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsGd")
-        TlsLd = SymbolicExpression_pb2.SEAttributeFlag.Value("TlsLd")
-
-        # Attribute modifiers:
-        Abs = SymbolicExpression_pb2.SEAttributeFlag.Value("Abs")
-        Signed = SymbolicExpression_pb2.SEAttributeFlag.Value("Signed")
-        NoOverflowCheck = SymbolicExpression_pb2.SEAttributeFlag.Value(
-            "NoOverflowCheck"
-        )
+        def __int__(self) -> int:
+            return self.value
 
     def __init__(
         self,
@@ -77,10 +116,7 @@ class SymbolicExpression:
         if not self.attributes:
             return "set()"
         else:
-            return "{%s}" % ",".join(
-                "SymbolicExpression.Attribute.%s" % a.name
-                for a in self.attributes
-            )
+            return "{%s}" % ",".join(repr(a) for a in self.attributes)
 
 
 class SymAddrAddr(SymbolicExpression):

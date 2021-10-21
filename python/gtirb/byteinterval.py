@@ -291,9 +291,11 @@ class ByteInterval(Node):
         self.symbolic_expressions = {}
         for i, v in self._proto_interval.symbolic_expressions.items():
             expr = decode_symbolic_expression(v)
-            expr.attributes = set(
-                SymbolicExpression.Attribute(f) for f in v.attribute_flags
-            )
+            for f in v.attribute_flags:
+                try:
+                    expr.attributes.add(SymbolicExpression.Attribute(f))
+                except ValueError:
+                    expr.attributes.add(f)
             self.symbolic_expressions[i] = expr
 
         del self._proto_interval
@@ -339,7 +341,11 @@ class ByteInterval(Node):
                 raise ValueError(
                     "Expected sym expr type in interval: %s" % type(v)
                 )
-            sym_exp.attribute_flags.extend(a.value for a in v.attributes)
+            attrs = (
+                a.value if isinstance(a, SymbolicExpression.Attribute) else a
+                for a in v.attributes
+            )
+            sym_exp.attribute_flags.extend(attrs)
             proto_interval.symbolic_expressions[k].CopyFrom(sym_exp)
 
         return proto_interval

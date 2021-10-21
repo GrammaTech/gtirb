@@ -522,7 +522,9 @@ public class Module extends AuxDataContainer {
         protoModule.setFileFormatValue(this.fileFormat.ordinal());
         protoModule.setIsaValue(this.isa.ordinal());
         protoModule.setName(this.getName());
-        protoModule.setByteOrderValue(this.byteOrder.ordinal());
+        if (this.byteOrder != null) {
+            protoModule.setByteOrderValue(this.byteOrder.ordinal());
+        }
         CodeBlock entryPoint = this.getEntryPoint();
         if (entryPoint != null) {
             protoModule.setEntryPoint(
