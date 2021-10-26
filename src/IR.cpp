@@ -12,10 +12,10 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
-#include "IR.hpp"
 #include "CFGSerialization.hpp"
 #include "Serialization.hpp"
 #include <gtirb/DataBlock.hpp>
+#include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/Symbol.hpp>
@@ -24,6 +24,7 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/util/json_util.h>
+#include <iostream>
 
 using namespace gtirb;
 
@@ -139,22 +140,33 @@ void IR::toProtobuf(MessageType* Message) const {
   Message->set_version(Version);
 }
 
-IR* IR::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return createStringError(make_error_code(IR::load_error::CorruptFile),
+                             "Could not load file");
 
   auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
     auto* M = Module::fromProtobuf(C, Elt);
-    if (!M)
-      return nullptr;
+    if (!M) {
+      return createStringError(make_error_code(IR::load_error::CorruptFile),
+                               "Could not parse module");
+    }
     I->addModule(M);
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
-    return nullptr;
+    return createStringError(IR::load_error::CorruptFile,
+                             "Could not parse CFG");
   static_cast<AuxDataContainer*>(I)->fromProtobuf(Message);
   I->Version = Message.version();
+
+  if (I->Version != GTIRB_PROTOBUF_VERSION) {
+    std::ostringstream ss("file has protobuf version ");
+    ss << I->Version << "; expected " << GTIRB_PROTOBUF_VERSION;
+    return createStringError(make_error_code(IR::load_error::IncorrectVersion),
+                             ss.str().c_str());
+  }
   return I;
 }
 
@@ -174,14 +186,7 @@ ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromCodedStream(&CodedStream);
 
-  auto* I = IR::fromProtobuf(C, Message);
-  if (!I) {
-    return IR::load_error::CorruptFile;
-  }
-  if (I->Version != GTIRB_PROTOBUF_VERSION) {
-    return IR::load_error::IncorrectVersion;
-  }
-  return I;
+  return expectedToErrorOr(IR::fromProtobuf(C, Message));
 }
 
 void IR::saveJSON(std::ostream& Out) const {
@@ -192,18 +197,11 @@ void IR::saveJSON(std::ostream& Out) const {
   Out << S;
 }
 
-ErrorOr<IR*> IR::loadJSON(Context& C, std::istream& In) {
+Expected<IR*> IR::loadJSON(Context& C, std::istream& In) {
   MessageType Message;
   std::string S;
   google::protobuf::util::JsonStringToMessage(
       std::string(std::istreambuf_iterator<char>(In), {}), &Message);
 
-  auto* I = IR::fromProtobuf(C, Message);
-  if (!I) {
-    return IR::load_error::CorruptFile;
-  }
-  if (I->Version != GTIRB_PROTOBUF_VERSION) {
-    return IR::load_error::IncorrectVersion;
-  }
-  return I;
+  return std::move(IR::fromProtobuf(C, Message));
 }

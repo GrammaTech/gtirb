@@ -27,6 +27,8 @@
 #include <functional>
 #include <iterator>
 #include <optional>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -731,6 +733,29 @@ using FindSectionsBetween = FindNodesBetween<
                        typename T::const_section_range (T::*)(Addr, Addr) const,
                        typename T::section_range (T::*)(Addr, Addr)>,
     &T::findSectionsAt>;
+
+template <typename InputIt>
+std::string join(InputIt first, InputIt last,
+                 const std::string& separator = ", ",
+                 const std::string& concluder = "") {
+  if (first == last) {
+    return concluder;
+  }
+
+  std::stringstream ss;
+  ss << *first;
+  ++first;
+
+  while (first != last) {
+    ss << separator;
+    ss << *first;
+    ++first;
+  }
+
+  ss << concluder;
+
+  return ss.str();
+}
 
 /// @endcond
 

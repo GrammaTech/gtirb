@@ -19,6 +19,7 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/CFG.hpp>
+#include <gtirb/Error.hpp>
 #include <gtirb/ErrorOr.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
@@ -288,7 +289,7 @@ public:
   /// \param In  The input stream.
   ///
   /// \return The deserialized IR object or an error.
-  static ErrorOr<IR*> loadJSON(Context& C, std::istream& In);
+  static Expected<IR*> loadJSON(Context& C, std::istream& In);
 
   /// \name ProxyBlock-Related Public Types and Functions
   /// @{
@@ -1474,7 +1475,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized IR object, or null on failure.
-  static IR* fromProtobuf(Context& C, const MessageType& Message);
+  static Expected<IR*> fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
   ModuleSet Modules;
