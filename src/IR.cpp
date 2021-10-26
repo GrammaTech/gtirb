@@ -156,7 +156,7 @@ Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
     I->addModule(M);
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
-    return createStringError(IR::load_error::CorruptFile,
+    return createStringError(make_error_code(IR::load_error::CorruptFile),
                              "Could not parse CFG");
   static_cast<AuxDataContainer*>(I)->fromProtobuf(Message);
   I->Version = Message.version();
@@ -186,7 +186,11 @@ ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromCodedStream(&CodedStream);
 
-  return expectedToErrorOr(IR::fromProtobuf(C, Message));
+  auto MaybeIR = IR::fromProtobuf(C, Message);
+  if (MaybeIR) {
+    return *MaybeIR;
+  };
+  return errorToErrorCode(MaybeIR.takeError());
 }
 
 void IR::saveJSON(std::ostream& Out) const {

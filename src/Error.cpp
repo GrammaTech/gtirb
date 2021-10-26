@@ -91,8 +91,6 @@ std::error_code errorToErrorCode(Error Err) {
   handleAllErrors(std::move(Err), [&](const ErrorInfoBase& EI) {
     EC = EI.convertToErrorCode();
   });
-  if (EC == inconvertibleErrorCode())
-    report_fatal_error(EC.message().c_str());
   return EC;
 }
 

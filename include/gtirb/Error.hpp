@@ -38,7 +38,7 @@ class ErrorSuccess;
 
 /// Base class for error info classes. Do not extend this directly: Extend
 /// the ErrorInfo template subclass instead.
-class ErrorInfoBase {
+class GTIRB_EXPORT_API ErrorInfoBase {
 public:
   virtual ~ErrorInfoBase() = default;
 
@@ -147,7 +147,7 @@ private:
 /// *All* Error instances must be checked before destruction, even if
 /// they're moved-assigned or constructed from Success values that have already
 /// been checked. This enforces checking through all levels of the call stack.
-class [[nodiscard]] Error {
+class GTIRB_EXPORT_API Error {
   // ErrorList needs to be able to yank ErrorInfoBase pointers out of Errors
   // to add to the error list. It can't rely on handleErrors for this, since
   // handleErrors does not support ErrorList handlers.
@@ -155,7 +155,7 @@ class [[nodiscard]] Error {
 
   // handleErrors needs to be able to set the Checked flag.
   template <typename... HandlerTs>
-  friend Error handleErrors(Error E, HandlerTs && ... Handlers);
+  friend Error handleErrors(Error E, HandlerTs&&... Handlers);
 
   // Expected<T> needs to be able to steal the payload when constructed from an
   // error.
@@ -178,7 +178,7 @@ public:
   /// Move-construct an error value. The newly constructed error is considered
   /// unchecked, even if the source error had been checked. The original error
   /// becomes a checked Success value, regardless of its original state.
-  Error(Error && Other) {
+  Error(Error&& Other) {
     setChecked(true);
     *this = std::move(Other);
   }
@@ -258,7 +258,7 @@ private:
         reinterpret_cast<uintptr_t>(Payload) & ~static_cast<uintptr_t>(0x1));
   }
 
-  void setPtr(ErrorInfoBase * EI) {
+  void setPtr(ErrorInfoBase* EI) {
     Payload = reinterpret_cast<ErrorInfoBase*>(
         (reinterpret_cast<uintptr_t>(EI) & ~static_cast<uintptr_t>(0x1)) |
         (reinterpret_cast<uintptr_t>(Payload) & 0x1));
@@ -1196,10 +1196,8 @@ inline Error createStringError(std::error_code ErrCode, char const* Fmt,
   return make_error<StringError>(Stream.str(), ErrCode);
 }
 
-Error createStringError(std::error_code EC, char const* Msg);
-
 inline Error createStringError(std::error_code ErrCode, const char* S) {
-  return createStringError(ErrCode, S);
+  return make_error<StringError>(S, ErrCode);
 }
 
 template <typename... Ts>
