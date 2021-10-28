@@ -115,13 +115,12 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
 
 Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
-  auto Problem =
-      createStringError(IR::load_error::CorruptFile, "Could not load module");
   if (!uuidFromBytes(Message.uuid(), Id))
-    return Problem;
+    return createStringError(IR::load_error::CorruptFile,
+                             "Could not load module");
 
-  Problem = createStringError(IR::load_error::CorruptFile,
-                              "Could not load module " + Message.name());
+  auto Problem = createStringError(IR::load_error::CorruptFile,
+                                   "Could not load module " + Message.name());
 
   Module* M = Module::Create(C, Message.name(), Id);
   M->BinaryPath = Message.binary_path();
@@ -150,21 +149,35 @@ Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
-        return nullptr;
+        return joinErrors(
+            std::move(Problem),
+            createStringError(IR::load_error::CorruptFile,
+                              "could not deserialize byteinterval"));
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
       if (!BI)
-        return nullptr;
+        return joinErrors(
+            std::move(Problem),
+            createStringError(IR::load_error::CorruptFile,
+                              "could not deserialize byteinterval"));
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI))
-        return nullptr;
+        return joinErrors(
+            std::move(Problem),
+            createStringError(IR::load_error::CorruptFile,
+                              "could not deserialize symbolic expression"));
     }
   }
   if (!Message.entry_point().empty()) {
     if (!uuidFromBytes(Message.entry_point(), Id))
-      return nullptr;
+      return joinErrors(
+          std::move(Problem),
+          createStringError(IR::load_error::CorruptFile, "bad entry point"));
     M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
     if (!M->EntryPoint)
-      return nullptr;
+      return joinErrors(std::move(Problem),
+                        createStringError(IR::load_error::CorruptFile,
+                                          "could not find entry point"));
   }
+  consumeError(std::move(Problem));
   M->ByteOrder = static_cast<gtirb::ByteOrder>(Message.byte_order());
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
   return M;

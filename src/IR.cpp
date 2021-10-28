@@ -148,9 +148,8 @@ Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
     auto M = Module::fromProtobuf(C, Elt);
-    if (!M) {
-      return createStringError(load_error::CorruptFile,
-                               "Could not parse module");
+    if (auto ModErr = M.takeError()) {
+      return ModErr;
     }
     I->addModule(*M);
   }

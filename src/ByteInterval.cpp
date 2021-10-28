@@ -145,13 +145,13 @@ Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     case proto::Block::ValueCase::kCode: {
       auto B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
       if (!B)
-        return joinErrors(Err, B.takeError());
+        return joinErrors(std::move(Err), B.takeError());
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     case proto::Block::ValueCase::kData: {
       auto B = DataBlock::fromProtobuf(C, ProtoBlock.data());
       if (!B)
-        return joinErrors(Err, B.takeError());
+        return joinErrors(std::move(Err), B.takeError());
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     default: {
@@ -161,6 +161,7 @@ Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     }
     }
   }
+  consumeError(std::move(Err));
   return BI;
 }
 
