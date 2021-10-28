@@ -32,6 +32,8 @@ namespace gtirb {
 namespace proto {
 class Symbol;
 }
+
+template <class T> class Expected;
 class Module; // Forward declared for the backpointer.
 class SymbolObserver;
 
@@ -381,7 +383,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
-  static Symbol* fromProtobuf(Context& C, const MessageType& Message);
+  static Expected<Symbol*> fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

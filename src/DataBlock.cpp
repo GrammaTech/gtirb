@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "IR.hpp"
 #include "Serialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/DataBlock.hpp>
@@ -24,10 +25,12 @@ void DataBlock::toProtobuf(MessageType* Message) const {
   Message->set_size(this->Size);
 }
 
-DataBlock* DataBlock::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<DataBlock*> DataBlock::fromProtobuf(Context& C,
+                                             const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return createStringError(IR::load_error::CorruptFile,
+                             "Cannot load data block");
 
   // Because we do not have an offset, we cannot create the data block and
   // set its parent at the same time.
@@ -62,5 +65,8 @@ DataBlock* DataBlock::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto DB = DataBlock::fromProtobuf(C, Message);
-  return DB;
+  if (DB)
+    return *DB;
+  consumeError(DB.takeError());
+  return nullptr;
 }

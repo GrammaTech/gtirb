@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Symbol.hpp"
+#include "IR.hpp"
 #include "Serialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
@@ -78,10 +79,11 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_at_end(this->AtEnd);
 }
 
-Symbol* Symbol::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<Symbol*> Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return createStringError(IR::load_error::CorruptFile,
+                             "could not load symbol");
 
   Symbol* S = Symbol::Create(C, Message.name(), Message.at_end(), Id);
 
@@ -118,5 +120,8 @@ Symbol* Symbol::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto S = Symbol::fromProtobuf(C, Message);
-  return S;
+  if (S)
+    return *S;
+  consumeError(S.takeError());
+  return nullptr;
 }

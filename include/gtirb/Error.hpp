@@ -1174,6 +1174,7 @@ public:
 
   // Prints S and converts to EC
   StringError(const char* S, std::error_code EC);
+  StringError(std::string&& S, std::error_code EC);
 
   void log(std::ostream& OS) const override;
   std::error_code convertToErrorCode() const override;
@@ -1186,18 +1187,8 @@ private:
   const bool PrintMsgOnly = false;
 };
 
-/// Create formatted StringError object.
-template <typename... Ts>
-inline Error createStringError(std::error_code ErrCode, char const* Fmt,
-                               const Ts&... Vals) {
-  std::string Buffer;
-  std::ostringstream Stream(Buffer);
-  Stream << format(Fmt, Vals...);
-  return make_error<StringError>(Stream.str(), ErrCode);
-}
-
-inline Error createStringError(std::error_code ErrCode, const char* S) {
-  return make_error<StringError>(S, ErrCode);
+inline Error createStringError(std::error_code ErrCode, std::string S) {
+  return make_error<StringError>(std::move(S), ErrCode);
 }
 
 template <typename... Ts>

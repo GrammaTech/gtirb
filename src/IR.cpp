@@ -143,29 +143,26 @@ void IR::toProtobuf(MessageType* Message) const {
 Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(make_error_code(IR::load_error::CorruptFile),
-                             "Could not load file");
+    return createStringError(load_error::CorruptFile, "Could not load file");
 
   auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
-    auto* M = Module::fromProtobuf(C, Elt);
+    auto M = Module::fromProtobuf(C, Elt);
     if (!M) {
-      return createStringError(make_error_code(IR::load_error::CorruptFile),
+      return createStringError(load_error::CorruptFile,
                                "Could not parse module");
     }
-    I->addModule(M);
+    I->addModule(*M);
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
-    return createStringError(make_error_code(IR::load_error::CorruptFile),
-                             "Could not parse CFG");
+    return createStringError(load_error::CorruptFile, "Could not parse CFG");
   static_cast<AuxDataContainer*>(I)->fromProtobuf(Message);
   I->Version = Message.version();
 
   if (I->Version != GTIRB_PROTOBUF_VERSION) {
     std::ostringstream ss("file has protobuf version ");
     ss << I->Version << "; expected " << GTIRB_PROTOBUF_VERSION;
-    return createStringError(make_error_code(IR::load_error::IncorrectVersion),
-                             ss.str().c_str());
+    return createStringError(load_error::IncorrectVersion, ss.str());
   }
   return I;
 }

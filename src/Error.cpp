@@ -53,6 +53,9 @@ StringError::StringError(std::error_code ErrCode, const char* S)
 StringError::StringError(const char* S, std::error_code ErrCode)
     : Msg(S), EC(ErrCode), PrintMsgOnly(true) {}
 
+StringError::StringError(std::string&& S, std::error_code ErrCode)
+    : Msg(S), EC(ErrCode), PrintMsgOnly(true) {}
+
 std::error_code StringError::convertToErrorCode() const { return EC; }
 
 void StringError::log(std::ostream& OS) const {

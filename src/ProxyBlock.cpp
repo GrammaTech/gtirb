@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ProxyBlock.hpp"
+#include "IR.hpp"
 #include "Serialization.hpp"
 #include <gtirb/proto/ProxyBlock.pb.h>
 
@@ -22,10 +23,12 @@ void ProxyBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 }
 
-ProxyBlock* ProxyBlock::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<ProxyBlock*> ProxyBlock::fromProtobuf(Context& C,
+                                               const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return createStringError(IR::load_error::CorruptFile,
+                             "Could not create proxy block");
 
   return Create(C, Id);
 }
@@ -42,5 +45,8 @@ ProxyBlock* ProxyBlock::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto CB = ProxyBlock::fromProtobuf(C, Message);
-  return CB;
+  if (CB)
+    return *CB;
+  consumeError(CB.takeError());
+  return nullptr;
 }

@@ -113,10 +113,15 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
   });
 }
 
-Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
+  auto Problem =
+      createStringError(IR::load_error::CorruptFile, "Could not load module");
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return Problem;
+
+  Problem = createStringError(IR::load_error::CorruptFile,
+                              "Could not load module " + Message.name());
 
   Module* M = Module::Create(C, Message.name(), Id);
   M->BinaryPath = Message.binary_path();
@@ -125,22 +130,22 @@ Module* Module::fromProtobuf(Context& C, const MessageType& Message) {
   M->FileFormat = static_cast<gtirb::FileFormat>(Message.file_format());
   M->Isa = static_cast<ISA>(Message.isa());
   for (const auto& Elt : Message.proxies()) {
-    auto* PB = ProxyBlock::fromProtobuf(C, Elt);
+    auto PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB)
-      return nullptr;
-    M->addProxyBlock(PB);
+      return joinErrors(std::move(Problem), PB.takeError());
+    M->addProxyBlock(*PB);
   }
   for (const auto& Elt : Message.sections()) {
-    auto* S = Section::fromProtobuf(C, Elt);
+    auto S = Section::fromProtobuf(C, Elt);
     if (!S)
-      return nullptr;
-    M->addSection(S);
+      return joinErrors(std::move(Problem), S.takeError());
+    M->addSection(*S);
   }
   for (const auto& Elt : Message.symbols()) {
-    auto* S = Symbol::fromProtobuf(C, Elt);
+    auto S = Symbol::fromProtobuf(C, Elt);
     if (!S)
-      return nullptr;
-    M->addSymbol(S);
+      return joinErrors(std::move(Problem), S.takeError());
+    M->addSymbol(*S);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
@@ -220,7 +225,11 @@ Module* Module::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto M = Module::fromProtobuf(C, Message);
-  return M;
+  if (M) {
+    return *M;
+  }
+  consumeError(M.takeError());
+  return nullptr;
 }
 
 ChangeStatus Module::removeSection(Section* S) {

@@ -1091,7 +1091,8 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Section object, or null on failure.
-  static Section* fromProtobuf(Context& C, const MessageType& Message);
+  static Expected<Section*> fromProtobuf(Context& C,
+                                         const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

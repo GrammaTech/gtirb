@@ -32,6 +32,8 @@
 /// \see CFG_GROUP
 
 namespace gtirb {
+template <class T> class Expected;
+
 namespace proto {
 class CodeBlock;
 } // namespace proto
@@ -394,7 +396,8 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized CodeBlock object, or null on failure.
-  static CodeBlock* fromProtobuf(Context& C, const MessageType& Message);
+  static Expected<CodeBlock*> fromProtobuf(Context& C,
+                                           const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

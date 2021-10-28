@@ -50,6 +50,8 @@ class ByteInterval;
 class IR;
 class ModuleObserver;
 
+template <class T> class Expected;
+
 /// \enum FileFormat
 ///
 /// \brief Identifies an exectuable file format.
@@ -1777,7 +1779,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Module object, or null on failure.
-  static Module* fromProtobuf(Context& C, const MessageType& Message);
+  static Expected<Module*> fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

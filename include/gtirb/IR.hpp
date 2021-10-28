@@ -1497,6 +1497,11 @@ GTIRB_EXPORT_API const std::error_category& loadErrorCategory();
 inline std::error_code make_error_code(gtirb::IR::load_error e) {
   return std::error_code(static_cast<int>(e), loadErrorCategory());
 }
+
+inline Error createStringError(gtirb::IR::load_error e, std::string&& s) {
+  return createStringError(make_error_code(e), s);
+}
+
 } // namespace gtirb
 
 namespace std {

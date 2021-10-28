@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "IR.hpp"
 #include "Serialization.hpp"
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CodeBlock.hpp>
@@ -25,12 +26,14 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-CodeBlock* CodeBlock::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<CodeBlock*> CodeBlock::fromProtobuf(Context& C,
+                                             const MessageType& Message) {
   // Because we do not have an offset, we cannot create the code block and
   // set its parent at the same time.
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return createStringError(IR::load_error::CorruptFile,
+                             "Cannot load code block");
 
   return CodeBlock::Create(C, Message.size(), Message.decode_mode(), Id);
 }
@@ -63,5 +66,8 @@ CodeBlock* CodeBlock::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto CB = CodeBlock::fromProtobuf(C, Message);
-  return CB;
+  if (CB)
+    return *CB;
+  consumeError(CB.takeError());
+  return nullptr;
 }

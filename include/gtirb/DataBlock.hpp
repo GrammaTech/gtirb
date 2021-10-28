@@ -31,6 +31,8 @@ namespace proto {
 class DataBlock;
 }
 
+template <class T> class Expected;
+
 ///
 /// \class DataBlock
 ///
@@ -377,7 +379,8 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized DataBlock object, or null on failure.
-  static DataBlock* fromProtobuf(Context& C, const MessageType& Message);
+  static Expected<DataBlock*> fromProtobuf(Context& C,
+                                           const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

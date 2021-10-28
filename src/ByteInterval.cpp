@@ -12,6 +12,7 @@
 //  endorsement should be inferred.
 //
 //===----------------------------------------------------------------------===//
+#include "IR.hpp"
 #include "Serialization.hpp"
 #include "SymbolicExpressionSerialization.hpp"
 #include <gtirb/ByteInterval.hpp>
@@ -110,16 +111,30 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 }
 
-ByteInterval* ByteInterval::fromProtobuf(Context& C,
-                                         const MessageType& Message) {
+Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
+                                                   const MessageType& Message) {
   std::optional<Addr> A;
   if (Message.has_address()) {
     A = Addr(Message.address());
   }
 
+  std::string ErrMsg;
+  {
+    std::stringstream ss;
+    ss << "Could not load byte interval ";
+    if (A)
+      ss << "at " << *A;
+    ErrMsg = ss.str();
+  }
+
   UUID Id;
-  if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+  if (!uuidFromBytes(Message.uuid(), Id)) {
+    ErrMsg += "Bad UUID";
+    auto Err = createStringError(IR::load_error::CorruptFile, ErrMsg);
+    return Err;
+  }
+
+  auto Err = createStringError(IR::load_error::CorruptFile, ErrMsg);
 
   ByteInterval* BI = ByteInterval::Create(
       C, A, Message.contents().begin(), Message.contents().end(),
@@ -128,20 +143,21 @@ ByteInterval* ByteInterval::fromProtobuf(Context& C,
   for (const auto& ProtoBlock : Message.blocks()) {
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
-      auto* B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
+      auto B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
       if (!B)
-        return nullptr;
-      BI->addBlock(ProtoBlock.offset(), B);
+        return joinErrors(Err, B.takeError());
+      BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     case proto::Block::ValueCase::kData: {
-      auto* B = DataBlock::fromProtobuf(C, ProtoBlock.data());
+      auto B = DataBlock::fromProtobuf(C, ProtoBlock.data());
       if (!B)
-        return nullptr;
-      BI->addBlock(ProtoBlock.offset(), B);
+        return joinErrors(Err, B.takeError());
+      BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     default: {
-      assert(!"unknown Block::ValueCase in ByteInterval::fromProtobuf");
-      return nullptr;
+      return createStringError(
+          IR::load_error::CorruptFile,
+          "unknown Block::ValueCase in ByteInterval::fromProtobuf");
     }
     }
   }
@@ -175,7 +191,11 @@ ByteInterval* ByteInterval::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto BI = ByteInterval::fromProtobuf(C, Message);
-  return BI;
+  if (auto err = BI.takeError()) {
+    consumeError(std::move(err));
+    return nullptr;
+  }
+  return *BI;
 }
 
 // Present for testing purposes only.

@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Section.hpp"
+#include "IR.hpp"
 #include "Serialization.hpp"
 
 using namespace gtirb;
@@ -77,20 +78,25 @@ void Section::toProtobuf(MessageType* Message) const {
   }
 }
 
-Section* Section::fromProtobuf(Context& C, const MessageType& Message) {
+Expected<Section*> Section::fromProtobuf(Context& C,
+                                         const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return nullptr;
+    return createStringError(IR::load_error::CorruptFile,
+                             "Could not load section");
 
   auto* S = Section::Create(C, Message.name(), Id);
   for (int I = 0, E = Message.section_flags_size(); I != E; ++I) {
     S->addFlag(static_cast<SectionFlag>(Message.section_flags(I)));
   }
   for (const auto& ProtoInterval : Message.byte_intervals()) {
-    auto* BI = ByteInterval::fromProtobuf(C, ProtoInterval);
+    auto BI = ByteInterval::fromProtobuf(C, ProtoInterval);
     if (!BI)
-      return nullptr;
-    S->addByteInterval(BI);
+      return joinErrors(
+          createStringError(IR::load_error::CorruptFile,
+                            "Could not load section" + Message.name()),
+          BI.takeError());
+    S->addByteInterval(*BI);
   }
   return S;
 }
@@ -107,7 +113,10 @@ Section* Section::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto S = Section::fromProtobuf(C, Message);
-  return S;
+  if (S)
+    return *S;
+  consumeError(S.takeError());
+  return nullptr;
 }
 
 ChangeStatus Section::removeByteInterval(ByteInterval* BI) {
