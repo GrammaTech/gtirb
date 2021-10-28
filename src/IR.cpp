@@ -121,6 +121,16 @@ public:
       return "GTIRB file has an incompatible version number";
     case IR::load_error::CorruptFile:
       return "Corrupted GTIRB file";
+    case IR::load_error::CorruptModule:
+      return "Corrupted GTIRB module";
+    case IR::load_error::CorruptByteInterval:
+      return "Corrupted byte interval";
+    case IR::load_error::BadCFG:
+      return "Error in parsing CFG";
+    case IR::load_error::BadUUID:
+      return "Bytes not valid UUID";
+    case IR::load_error::MissingUUID:
+      return "Could not locate UUID"
     }
     assert(false && "Expected to handle all error codes");
     return "";
@@ -154,7 +164,7 @@ Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
     I->addModule(*M);
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
-    return createStringError(load_error::CorruptFile, "Could not parse CFG");
+    return createStringError(load_error::BadCFG, "Could not parse CFG");
   static_cast<AuxDataContainer*>(I)->fromProtobuf(Message);
   I->Version = Message.version();
 

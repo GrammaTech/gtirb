@@ -273,6 +273,11 @@ public:
   enum class load_error {
     IncorrectVersion = 1, ///< The version number in the file does not match.
     CorruptFile, ///< The content of the file could not be deserialized.
+    CorruptModule,
+    CorruptByteInterval,
+    BadCFG, ///< The control flow graph could not be deserialized
+    BadUUID,
+    MissingUUID,
   };
 
   /// \brief Deserialize binary format from an input stream.
