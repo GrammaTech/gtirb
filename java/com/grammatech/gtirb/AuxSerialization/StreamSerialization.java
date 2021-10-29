@@ -12,7 +12,7 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

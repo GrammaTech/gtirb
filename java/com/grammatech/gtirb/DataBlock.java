@@ -14,8 +14,7 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
-
+import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.DataBlockOuterClass;
 
@@ -28,12 +27,10 @@ public class DataBlock extends ByteBlock {
      * Class constructor for a {@link DataBlock} from a protobuf DataBlock.
      * @param  protoBlock  The DataBlock as serialized into a protocol buffer.
      */
-    public DataBlock(ByteIntervalOuterClass.Block protoBlock,
-                     ByteInterval byteInterval) {
-        // Could verify that this protoBlock is really Data.
-        super(protoBlock, byteInterval);
-        DataBlockOuterClass.DataBlock protoDataBlock = protoBlock.getData();
-        this.uuid = Util.byteStringToUuid(protoDataBlock.getUuid());
+    private DataBlock(ByteString protoUuid,
+                      ByteIntervalOuterClass.Block protoBlock, long size,
+                      ByteInterval byteInterval) {
+        super(protoUuid, protoBlock, size, byteInterval);
     }
 
     /**
@@ -41,18 +38,24 @@ public class DataBlock extends ByteBlock {
      */
     public DataBlock(long size, long offset, ByteInterval byteInterval) {
         super(size, offset, byteInterval);
-        this.uuid = UUID.randomUUID();
     }
 
     /**
-     * De-serialize a {@link DataBlock} from a protobuf .
+     * De-serialize a {@link DataBlock} from a protobuf Block.
      *
      * @return An initialized DataBlock.
      */
-    public static DataBlock
-    fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
-                 ByteInterval byteInterval) {
-        return new DataBlock(protoBlock, byteInterval);
+    static DataBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
+                                  ByteInterval byteInterval) {
+        // Avoid using protoBlock.hasData() for compatibility with older
+        // protobuf
+        if (protoBlock.getValueCase() !=
+            ByteIntervalOuterClass.Block.ValueCase.DATA) {
+            return null;
+        }
+        DataBlockOuterClass.DataBlock protoDataBlock = protoBlock.getData();
+        return new DataBlock(protoDataBlock.getUuid(), protoBlock,
+                             protoDataBlock.getSize(), byteInterval);
     }
 
     /**
@@ -61,7 +64,7 @@ public class DataBlock extends ByteBlock {
      * @return Block protocol buffer containing this DataBlock.
      */
     @Override
-    public ByteIntervalOuterClass.Block.Builder toProtobuf() {
+    ByteIntervalOuterClass.Block.Builder toProtobuf() {
         // The protoBlock is in ByteInterval outer class, and it gets a data
         // block added to it with the setData() method. So first create the
         // protoBlock, then create the protoDataBlock and add it to the

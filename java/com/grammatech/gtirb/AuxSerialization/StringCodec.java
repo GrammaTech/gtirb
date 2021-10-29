@@ -12,20 +12,18 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.List;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 /**
  * A Codec for strings.
  */
 public class StringCodec extends Codec {
 
-    public Object decode(Serialization byteBuffer,
-                         List<TwoTuple<String, Object>> subtypes) {
+    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new DecodeException("string should have no subtypes");
         String string = byteBuffer.getString();
@@ -33,7 +31,7 @@ public class StringCodec extends Codec {
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
+                       List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new EncodeException("string should have no subtypes");
         outstream.putString((String)val);

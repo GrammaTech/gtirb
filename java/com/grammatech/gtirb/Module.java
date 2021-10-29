@@ -68,7 +68,7 @@ public class Module extends AuxDataContainer {
      */
     public enum ByteOrder { ByteOrder_Undefined, BigEndian, LittleEndian }
 
-    private ModuleOuterClass.Module protoModule;
+    private final ModuleOuterClass.Module protoModule;
 
     private IR ir;
     private String binaryPath;
@@ -80,7 +80,7 @@ public class Module extends AuxDataContainer {
     private TreeMap<Long, List<Section>> sectionTree;
     private List<Symbol> symbolList;
     private List<ProxyBlock> proxyBlockList;
-    private UUID entryPointUuid;
+    private CodeBlock entryPoint;
     private ByteOrder byteOrder;
 
     /**
@@ -88,20 +88,27 @@ public class Module extends AuxDataContainer {
      * @param  protoModule   The module as serialized into a protocol buffer.
      * @param  ir            The IR that owns this Module.
      */
-    public Module(ModuleOuterClass.Module protoModule, IR ir) {
-        super(protoModule.getAuxDataMap());
+    Module(ModuleOuterClass.Module protoModule, IR ir) {
+        super(protoModule.getUuid(), protoModule.getAuxDataMap());
         this.protoModule = protoModule;
-        this.uuid = Util.byteStringToUuid(protoModule.getUuid());
         this.binaryPath = protoModule.getBinaryPath();
         this.preferredAddr = protoModule.getPreferredAddr();
         this.rebaseDelta = protoModule.getRebaseDelta();
         this.fileFormat = FileFormat.values()[protoModule.getFileFormatValue()];
         this.isa = ISA.values()[protoModule.getIsaValue()];
         this.name = protoModule.getName();
-        this.entryPointUuid =
-            Util.byteStringToUuid(protoModule.getEntryPoint());
         this.byteOrder = ByteOrder.values()[protoModule.getByteOrderValue()];
         this.ir = ir;
+
+        initializeSectionList();
+        initializeSymbolList();
+        initializeProxyBlockList();
+
+        // Sections must be initialized before looking up the entry point
+        UUID entryUUID = Util.byteStringToUuid(protoModule.getEntryPoint());
+        Node entryNode = Node.getByUuid(entryUUID);
+        if (entryNode instanceof CodeBlock)
+            this.entryPoint = (CodeBlock)entryNode;
     }
 
     /**
@@ -115,18 +122,15 @@ public class Module extends AuxDataContainer {
      * @param  sections         A list of Sections belonging to this Module.
      * @param  symbols          A list of Symbols belonging to this Module.
      * @param  proxyBlocks      A list of ProxyBlocks belonging to this Module.
-     * @param  entryPoint       The entry point of this module if known, null
-     * otherwise.
-     * @param  ir               The Intermediate Representation that owns this
-     * Section.
+     * @param  entryPoint       The entry point of this module or null.
+     * @param  ir               The IR that owns this Module.
      */
     public Module(String binaryPath, long preferredAddr, long rebaseDelta,
                   FileFormat fileFormat, ISA isa, String name,
                   List<Section> sections, List<Symbol> symbols,
                   List<ProxyBlock> proxyBlocks, CodeBlock entryPoint, IR ir) {
-        super(null);
+        super();
         this.protoModule = null;
-        this.uuid = UUID.randomUUID();
         this.binaryPath = binaryPath;
         this.preferredAddr = preferredAddr;
         this.rebaseDelta = rebaseDelta;
@@ -135,8 +139,34 @@ public class Module extends AuxDataContainer {
         this.name = name;
         this.symbolList = symbols;
         this.proxyBlockList = proxyBlocks;
-        this.entryPointUuid = entryPoint.getUuid();
+        this.entryPoint = entryPoint;
         this.ir = ir;
+        this.setSections(sections);
+    }
+
+    /**
+     * Class Constructor for a minimal module with no sections, symbols, or
+     * proxyBlocks.
+     * @param  binaryPath       The binary path of this Module.
+     * @param  preferredAddr    The preferred address of this Module.
+     * @param  rebaseDelta      The rebase delta of this Module.
+     * @param  fileFormat       The file format of this Module.
+     * @param  isa              The ISA of this Module.
+     * @param  name             The name of this Module.
+     */
+    public Module(String binaryPath, long preferredAddr, long rebaseDelta,
+                  FileFormat fileFormat, ISA isa, String name) {
+        super();
+        this.protoModule = null;
+        this.binaryPath = binaryPath;
+        this.preferredAddr = preferredAddr;
+        this.rebaseDelta = rebaseDelta;
+        this.fileFormat = fileFormat;
+        this.isa = isa;
+        this.name = name;
+        this.symbolList = new ArrayList<>();
+        this.proxyBlockList = new ArrayList<>();
+        this.entryPoint = null;
     }
 
     /**
@@ -264,9 +294,22 @@ public class Module extends AuxDataContainer {
      * @param sectionList    The module section list.
      */
     public void setSections(List<Section> sectionList) {
-        this.sectionTree.clear();
+        if (sectionTree == null) {
+            sectionTree = new TreeMap<Long, List<Section>>();
+        } else {
+            sectionTree.clear();
+        }
         for (Section section : sectionList)
-            TreeListUtils.insertItem(section, this.sectionTree);
+            TreeListUtils.insertItem(section, sectionTree);
+    }
+
+    /**
+     * Add one section to this Module.
+     *
+     * @param section The section to insert.
+     */
+    public void addSection(Section section) {
+        TreeListUtils.insertItem(section, sectionTree);
     }
 
     /**
@@ -307,12 +350,7 @@ public class Module extends AuxDataContainer {
      * @return  The module entry point (a code block) or null if no entry is
      * point has been designated.
      */
-    public CodeBlock getEntryPoint() {
-        Node cb = Node.getByUuid(this.entryPointUuid);
-        if ((cb != null) && (cb instanceof CodeBlock))
-            return (CodeBlock)cb;
-        return null;
-    }
+    public CodeBlock getEntryPoint() { return entryPoint; }
 
     /**
      * Set the entry point of this Module.
@@ -320,7 +358,7 @@ public class Module extends AuxDataContainer {
      * @param entryCodeBlock    The module entry point (a {@link CodeBlock}).
      */
     public void setEntryPoint(CodeBlock entryCodeBlock) {
-        this.entryPointUuid = entryCodeBlock.uuid;
+        this.entryPoint = entryCodeBlock;
     }
 
     /**
@@ -356,12 +394,12 @@ public class Module extends AuxDataContainer {
      *
      */
     private void initializeSectionList() {
-        this.sectionTree = new TreeMap<Long, List<Section>>();
+        this.sectionTree = new TreeMap<>();
         // For each section, add to sectionList in this class
         List<SectionOuterClass.Section> protoSectionList =
             protoModule.getSectionsList();
         for (SectionOuterClass.Section protoSection : protoSectionList) {
-            Section newSection = new Section(protoSection, this);
+            Section newSection = Section.fromProtobuf(protoSection, this);
             TreeListUtils.insertItem(newSection, this.sectionTree);
         }
     }
@@ -380,7 +418,7 @@ public class Module extends AuxDataContainer {
         List<SymbolOuterClass.Symbol> protoSymbolList =
             protoModule.getSymbolsList();
         for (SymbolOuterClass.Symbol protoSymbol : protoSymbolList) {
-            Symbol newSymbol = new Symbol(protoSymbol, this);
+            Symbol newSymbol = Symbol.fromProtobuf(protoSymbol, this);
             symbolList.add(newSymbol);
         }
     }
@@ -400,7 +438,8 @@ public class Module extends AuxDataContainer {
             protoModule.getProxiesList();
         for (ProxyBlockOuterClass.ProxyBlock protoProxyBlock :
              protoProxyBlockList) {
-            ProxyBlock newProxyBlock = new ProxyBlock(protoProxyBlock, this);
+            ProxyBlock newProxyBlock =
+                ProxyBlock.fromProtobuf(protoProxyBlock, this);
             proxyBlockList.add(newProxyBlock);
         }
     }
@@ -464,13 +503,8 @@ public class Module extends AuxDataContainer {
      * @param  ir            The IR that owns this Module.
      * @return An initialized Module.
      */
-    public static Module fromProtobuf(ModuleOuterClass.Module protoModule,
-                                      IR ir) {
-        Module module = new Module(protoModule, ir);
-        module.initializeSectionList();
-        module.initializeSymbolList();
-        module.initializeProxyBlockList();
-        return module;
+    static Module fromProtobuf(ModuleOuterClass.Module protoModule, IR ir) {
+        return new Module(protoModule, ir);
     }
 
     /**
@@ -478,7 +512,7 @@ public class Module extends AuxDataContainer {
      *
      * @return Module protocol buffer.
      */
-    public ModuleOuterClass.Module.Builder toProtobuf() {
+    ModuleOuterClass.Module.Builder toProtobuf() {
         ModuleOuterClass.Module.Builder protoModule =
             ModuleOuterClass.Module.newBuilder();
         protoModule.setUuid(Util.uuidToByteString(this.getUuid()));

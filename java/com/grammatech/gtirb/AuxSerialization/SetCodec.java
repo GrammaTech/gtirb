@@ -12,25 +12,23 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 /**
  * A Codec for set<T> entries. Implemented via HashSet.
  */
 public class SetCodec extends Codec {
 
-    public Object decode(Serialization byteBuffer,
-                         List<TwoTuple<String, Object>> subtypes) {
+    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
         Set<Object> set = new HashSet<Object>();
-        Long len = byteBuffer.getLong();
-        TwoTuple<String, Object> subtype;
+        long len = byteBuffer.getLong();
+        AuxTypeTree subtype;
         if (subtypes.size() == 1)
             subtype = subtypes.get(0);
         else
@@ -42,8 +40,8 @@ public class SetCodec extends Codec {
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
-        TwoTuple<String, Object> subtype;
+                       List<AuxTypeTree> subtypes) {
+        AuxTypeTree subtype;
         if (subtypes.size() == 1)
             subtype = subtypes.get(0);
         else

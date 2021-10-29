@@ -44,9 +44,9 @@ public class Symbol extends Node {
      * @param  protoSymbol   The Symbol as serialized into a protocol buffer.
      * @param  module        The Module that owns this Section.
      */
-    public Symbol(SymbolOuterClass.Symbol protoSymbol, Module module) {
+    private Symbol(SymbolOuterClass.Symbol protoSymbol, Module module) {
+        super(Util.byteStringToUuid(protoSymbol.getUuid()));
         this.protoSymbol = protoSymbol;
-        this.uuid = Util.byteStringToUuid(protoSymbol.getUuid());
         this.name = protoSymbol.getName();
         this.atEnd = protoSymbol.getAtEnd();
         // Set default values:
@@ -75,6 +75,7 @@ public class Symbol extends Node {
      * @param  module        The Module that owns this Section.
      */
     public Symbol(String name, UUID referentUuid, Module module) {
+        super();
         this.name = name;
         this.referentUuid = referentUuid;
         this.payloadType = PayloadType.REFERENT;
@@ -90,6 +91,7 @@ public class Symbol extends Node {
      * @param  module        The Module that owns this Section.
      */
     public Symbol(String name, long value, Module module) {
+        super();
         this.name = name;
         this.value = value;
         this.payloadType = PayloadType.VALUE;
@@ -104,6 +106,7 @@ public class Symbol extends Node {
      * @param  module        The Module that owns this Section.
      */
     public Symbol(String name, Module module) {
+        super();
         this.name = name;
         this.payloadType = PayloadType.NONE;
         this.value = 0;
@@ -131,7 +134,7 @@ public class Symbol extends Node {
      *
      * @return  The symbol's referent, or null if there is no referent.
      */
-    public Node getReferentUuid() {
+    public Node getReferent() {
         if (this.payloadType == PayloadType.REFERENT)
             return Node.getByUuid(this.referentUuid);
         return null;
@@ -143,7 +146,7 @@ public class Symbol extends Node {
      * @return  The UUID of this symbol's referent, or NIL UUID if there is no
      * referent.
      */
-    public UUID getReferentByUuid() { return this.referentUuid; }
+    public UUID getReferentUuid() { return this.referentUuid; }
 
     /**
      * Set the UUID of this Symbol's referent.
@@ -152,7 +155,7 @@ public class Symbol extends Node {
      *
      * @param uuid  The UUID of this symbol's referent..
      */
-    public void setReferentByUuid(UUID uuid) {
+    public void setReferentUuid(UUID uuid) {
         this.referentUuid = uuid;
         this.payloadType = PayloadType.REFERENT;
     }
@@ -235,8 +238,8 @@ public class Symbol extends Node {
      * @param module The module this symbols to, or null if none.
      * @return An initialized symbol.
      */
-    public static Symbol fromProtobuf(SymbolOuterClass.Symbol protoSymbol,
-                                      Module module) {
+    static Symbol fromProtobuf(SymbolOuterClass.Symbol protoSymbol,
+                               Module module) {
         return new Symbol(protoSymbol, module);
     }
 
@@ -245,7 +248,7 @@ public class Symbol extends Node {
      *
      * @return Symbol protocol buffer.
      */
-    public SymbolOuterClass.Symbol.Builder toProtobuf() {
+    SymbolOuterClass.Symbol.Builder toProtobuf() {
         SymbolOuterClass.Symbol.Builder protoSymbol =
             SymbolOuterClass.Symbol.newBuilder();
         protoSymbol.setUuid(Util.uuidToByteString(this.getUuid()));

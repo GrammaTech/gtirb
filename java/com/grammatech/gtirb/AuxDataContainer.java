@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.AuxDataOuterClass;
 
 /**
@@ -30,19 +31,18 @@ import com.grammatech.gtirb.proto.AuxDataOuterClass;
  */
 public class AuxDataContainer extends Node {
 
-    private Map<String, AuxData> auxDataMap;
+    private final Map<String, AuxData> auxDataMap;
 
     /**
      * Class constructor for an AuxDataContainer from a protobuf AuxData Map.
-     * @param  protoAuxDataMap  A Map of AuxData names to protocol buffer
-     * AuxData objects.
+     * @param  protoUuid        The UUID of this container.
+     * @param  protoAuxDataMap  A Map of AuxData names to protobuf AuxData
+     * objects.
      */
-    public AuxDataContainer(
-        Map<String, AuxDataOuterClass.AuxData> protoAuxDataMap) {
-        if (this.auxDataMap == null)
-            this.auxDataMap = new HashMap<String, AuxData>();
-        else
-            this.auxDataMap.clear();
+    AuxDataContainer(ByteString protoUuid,
+                     Map<String, AuxDataOuterClass.AuxData> protoAuxDataMap) {
+        super(Util.byteStringToUuid(protoUuid));
+        this.auxDataMap = new HashMap<>();
         if (protoAuxDataMap != null) {
             Set<String> auxDataNames = protoAuxDataMap.keySet();
             for (String name : auxDataNames) {
@@ -52,6 +52,11 @@ public class AuxDataContainer extends Node {
                 auxDataMap.put(name, auxDataNew);
             }
         }
+    }
+
+    public AuxDataContainer() {
+        super();
+        this.auxDataMap = new HashMap<>();
     }
 
     private List<String> importListOfString(AuxData auxData) {

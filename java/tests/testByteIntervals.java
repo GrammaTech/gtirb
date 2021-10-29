@@ -44,7 +44,7 @@ public class testByteIntervals {
             for (com.grammatech.gtirb.DataBlock dataBlock : intersecting) {
                 System.out.println(
                     " - Data Block @ Address: " +
-                    String.format("0x%08X", dataBlock.getAddress()) +
+                    String.format("0x%08X", dataBlock.getAddress().orElse(0)) +
                     ", Size: " + dataBlock.getSize());
             }
         }
@@ -59,7 +59,7 @@ public class testByteIntervals {
                 }
                 System.out.println(
                     " - Code Block @ Address: " +
-                    String.format("0x%08X", codeBlock.getAddress()) +
+                    String.format("0x%08X", codeBlock.getAddress().orElse(0)) +
                     ", Size: " + codeBlock.getSize());
             }
         }
@@ -79,7 +79,8 @@ public class testByteIntervals {
                 System.out.println(
                     " Byte interval size: " + byteInterval.getSize() +
                     " address: " +
-                    String.format("0x%08X", byteInterval.getAddress()));
+                    String.format("0x%08X",
+                                  byteInterval.getAddress().orElse(0)));
                 testBlockRetrieval(byteInterval);
                 testIterators(byteInterval);
             }

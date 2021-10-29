@@ -14,14 +14,16 @@
 
 package com.grammatech.gtirb;
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Option;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
-import com.grammatech.gtirb.proto.CodeBlockOuterClass;
-import com.grammatech.gtirb.proto.DataBlockOuterClass;
+
+import java.util.OptionalLong;
 
 /**
  * The ByteBlock class is a base class for code blocks and data blocks.
  */
-public class ByteBlock extends Block implements TreeListItem {
+public abstract class ByteBlock extends Node implements TreeListItem {
 
     private long size;
     private long offset;
@@ -31,23 +33,13 @@ public class ByteBlock extends Block implements TreeListItem {
      * Class constructor for a ByteBlock from a protobuf byte block.
      * @param  protoBlock     The byte block as serialized into a protocol
      * buffer.
+     * @param  size           The size of this ByteBlock in bytes.
      * @param  byteInterval   The ByteInterval that owns this ByteBlock.
      */
-    public ByteBlock(ByteIntervalOuterClass.Block protoBlock,
-                     ByteInterval byteInterval) {
-
-        if (protoBlock.getValueCase() ==
-            ByteIntervalOuterClass.Block.ValueCase.CODE) {
-            CodeBlockOuterClass.CodeBlock codeBlock = protoBlock.getCode();
-            this.size = codeBlock.getSize();
-        } else if (protoBlock.getValueCase() ==
-                   ByteIntervalOuterClass.Block.ValueCase.DATA) {
-            DataBlockOuterClass.DataBlock dataBlock = protoBlock.getData();
-            this.size = dataBlock.getSize();
-        } else {
-            throw new IllegalArgumentException(
-                "Block must be either a CodeBlock or a DataBlock.");
-        }
+    ByteBlock(ByteString protoUuid, ByteIntervalOuterClass.Block protoBlock,
+              long size, ByteInterval byteInterval) {
+        super(Util.byteStringToUuid(protoUuid));
+        this.size = size;
         this.offset = protoBlock.getOffset();
         this.byteInterval = byteInterval;
     }
@@ -59,6 +51,7 @@ public class ByteBlock extends Block implements TreeListItem {
      * @param  byteInterval   The ByteInterval that owns this ByteBlock.
      */
     public ByteBlock(long size, long offset, ByteInterval byteInterval) {
+        super();
         this.size = size;
         this.offset = offset;
         this.byteInterval = byteInterval;
@@ -106,11 +99,13 @@ public class ByteBlock extends Block implements TreeListItem {
      * @return  The ByteBlock address, if the ByteInterval has an address,
      * otherwise null.
      */
-    public long getAddress() {
-        if (byteInterval == null || byteInterval.getAddress() == Util.NIL_ADDR)
-            return Util.NIL_ADDR;
-        else
-            return byteInterval.getAddress() + this.offset;
+    public OptionalLong getAddress() {
+        if (byteInterval == null)
+            return OptionalLong.empty();
+        OptionalLong biAddress = byteInterval.getAddress();
+        if (biAddress.isEmpty())
+            return OptionalLong.empty();
+        return OptionalLong.of(biAddress.getAsLong() + offset);
     }
 
     /**
@@ -122,27 +117,13 @@ public class ByteBlock extends Block implements TreeListItem {
     public ByteInterval getByteInterval() { return this.byteInterval; }
 
     /**
-     * De-serialize a ByteBlock from a protobuf .
-     *
-     * @param  protoByteBlock The byte block as serialized into a protocol
-     * buffer.
-     * @param  byteInterval   The ByteInterval that owns this ByteBlock.
-     * @return An initialized ByteBlock.
-     */
-    public static ByteBlock
-    fromProtobuf(ByteIntervalOuterClass.Block protoByteBlock,
-                 ByteInterval byteInterval) {
-        return new ByteBlock(protoByteBlock, byteInterval);
-    }
-
-    /**
      * Serialize this ByteBlock into a protobuf.
      *
      * This method is intended to be overridden on the base classes.
      *
      * @return Block protocol buffer containing this ByteBlock.
      */
-    public ByteIntervalOuterClass.Block.Builder toProtobuf() {
+    ByteIntervalOuterClass.Block.Builder toProtobuf() {
         return ByteIntervalOuterClass.Block.newBuilder();
     }
 }

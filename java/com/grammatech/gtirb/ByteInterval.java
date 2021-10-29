@@ -14,13 +14,7 @@
 
 package com.grammatech.gtirb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
@@ -32,11 +26,11 @@ import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
  */
 public final class ByteInterval extends Node implements TreeListItem {
 
-    private TreeMap<Long, List<ByteBlock>> blockTree =
-        new TreeMap<Long, List<ByteBlock>>();
+    private TreeMap<Long, List<ByteBlock>> blockTree = new TreeMap<>();
     private TreeMap<Long, List<SymbolicExpression>> symbolicExpressionTree =
-        new TreeMap<Long, List<SymbolicExpression>>();
-    private Long address;
+        new TreeMap<>();
+    private OptionalLong address;
+    private long size;
     private byte[] bytes;
     private Section section;
 
@@ -46,28 +40,32 @@ public final class ByteInterval extends Node implements TreeListItem {
      * protocol buffer.
      * @param  section            The Section that owns this ByteInterval.
      */
-    public ByteInterval(ByteIntervalOuterClass.ByteInterval protoByteInterval,
-                        Section section) {
+    private ByteInterval(ByteIntervalOuterClass.ByteInterval protoByteInterval,
+                         Section section) {
+        super(Util.byteStringToUuid(protoByteInterval.getUuid()));
         this.section = section;
-        super.setUuid(Util.byteStringToUuid(protoByteInterval.getUuid()));
         if (protoByteInterval.getHasAddress()) {
-            this.address = Long.valueOf(protoByteInterval.getAddress());
+            this.address = OptionalLong.of(protoByteInterval.getAddress());
         } else {
-            this.address = null;
+            this.address = OptionalLong.empty();
         }
 
         this.bytes = protoByteInterval.getContents().toByteArray();
+        this.size = protoByteInterval.getSize();
         List<ByteIntervalOuterClass.Block> protoBlockList =
             protoByteInterval.getBlocksList();
         for (ByteIntervalOuterClass.Block protoBlock : protoBlockList) {
-            ByteBlock newBlock;
+            ByteBlock newBlock = null;
+            // Avoid using protoBlock.hasData() or protoBlock.hasCode() for
+            // compatibility with older protobuf versions.
             if (protoBlock.getValueCase() ==
-                ByteIntervalOuterClass.Block.ValueCase.CODE) {
-                newBlock = new CodeBlock(protoBlock, this);
+                ByteIntervalOuterClass.Block.ValueCase.DATA) {
+                newBlock = DataBlock.fromProtobuf(protoBlock, this);
             } else if (protoBlock.getValueCase() ==
-                       ByteIntervalOuterClass.Block.ValueCase.DATA) {
-                newBlock = new DataBlock(protoBlock, this);
-            } else {
+                       ByteIntervalOuterClass.Block.ValueCase.CODE) {
+                newBlock = CodeBlock.fromProtobuf(protoBlock, this);
+            }
+            if (newBlock == null) {
                 throw new IllegalArgumentException(
                     "Block must be either a CodeBlock or a DataBlock.");
             }
@@ -86,14 +84,10 @@ public final class ByteInterval extends Node implements TreeListItem {
             if (protoSymbolicExpression.getValueCase() ==
                 SymbolicExpressionOuterClass.SymbolicExpression.ValueCase
                     .ADDR_CONST) {
-                // SymbolicExpressionOuterClass.SymAddrConst protoSymAddrConst =
-                // protoSymbolicExpression.getAddrConst();
                 symbolicExpression = new SymAddrConst(protoSymbolicExpression);
             } else if (protoSymbolicExpression.getValueCase() ==
                        SymbolicExpressionOuterClass.SymbolicExpression.ValueCase
                            .ADDR_ADDR) {
-                // SymbolicExpressionOuterClass.SymAddrAddr protoSymAddrAddr =
-                // protoSymbolicExpression.getAddrAddr();
                 symbolicExpression = new SymAddrAddr(protoSymbolicExpression);
             } else {
                 throw new IllegalArgumentException(
@@ -106,38 +100,57 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Class Constructor.
      * @param  bytes      The array of bytes to be stored in the ByteInterval.
-     * @param  address    The address of the ByteInterval, or null.
+     * @param  address    The address of the ByteInterval.
      * @param  section    The Section that owns this ByteInterval.
      */
     public ByteInterval(byte[] bytes, long address, Section section) {
+        super();
         this.section = section;
-        UUID myUuid = UUID.randomUUID();
-        super.setUuid(myUuid);
-        this.address = address;
+        this.address = OptionalLong.of(address);
         this.bytes = bytes;
+        if (bytes != null) {
+            this.size = bytes.length;
+        }
+    }
+
+    /**
+     * Class Constructor.
+     * @param  section    The Section that owns this ByteInterval.
+     */
+    public ByteInterval(Section section) {
+        super();
+        this.section = section;
+        this.address = OptionalLong.empty();
     }
 
     /**
      * Get the address of this ByteInterval.
      *
-     * @return  An address if the ByteInterval has one, otherwise null.
+     * @return  An OptionalLong that either is empty or holds a valid address.
      */
-    public Long getAddress() { return this.address; }
+    public OptionalLong getAddress() { return this.address; }
 
     /**
      * Set the address of this ByteInterval.
      *
      * @param address    The new address to give to this ByteInterval
      */
-    public void setAddress(Long address) { this.address = address; }
+    public void setAddress(long address) {
+        this.address = OptionalLong.of(address);
+    }
+
+    /**
+     * Clears the address of this ByteInterval.
+     */
+    public void clearAddress() { this.address = OptionalLong.empty(); }
 
     /**
      * Check that this ByteInterval has an address.
      *
-     * @return       <code>true</code> if this ByteInterval has a non-null
+     * @return       <code>true</code> if this ByteInterval has an
      * address; <code>false</code> otherwise.
      */
-    public boolean hasAddress() { return (this.getAddress() != null); }
+    public boolean hasAddress() { return address.isPresent(); }
 
     /**
      * Get the blocks of this ByteInterval.
@@ -157,28 +170,22 @@ public final class ByteInterval extends Node implements TreeListItem {
      *
      * @return  The number of bytes in this ByteInterval.
      */
-    public long getSize() { return this.bytes.length; }
+    public long getSize() { return this.size; }
 
     /**
-     * Set the size of this ByteInterval. If the new size is greater than the
-     * actual number of bytes, the size will not be changed. If the new size is
-     * less than the actual number of bytes, the byte array will be truncated to
-     * the new length.
+     * Set the size of this ByteInterval.
+     *
+     * If the new size is less than the actual bytes, the byte array will be
+     * truncated to the new length.
      *
      * @param size  The new size to give to this ByteInterval.
-     * @return      The new number of bytes in this ByteInterval.
      */
-    public long setSize(long size) {
-        if (size < this.bytes.length) {
+    public void setSize(long size) {
+        if (this.bytes != null && size < this.bytes.length) {
             // Create truncated byte array of the given size
             this.bytes = Arrays.copyOfRange(this.bytes, 0, (int)size);
-            //            ArrayList<Byte> subItems =
-            //                new ArrayList<Byte>(this.bytes.subList(0,
-            //                (int)size));
-            //            this.bytes = subItems;
         }
-        //        return this.bytes.size();
-        return this.bytes.length;
+        this.size = size;
     }
 
     /**
@@ -193,7 +200,12 @@ public final class ByteInterval extends Node implements TreeListItem {
      *
      * @param bytes    The new byte array to give to this ByteInterval.
      */
-    public void setBytes(byte[] bytes) { this.bytes = bytes; }
+    public void setBytes(byte[] bytes) {
+        if (bytes != null) {
+            this.size = bytes.length;
+        }
+        this.bytes = bytes;
+    }
 
     // DEPRECATED:
     //  NOTE: getBytes() returns a byte array and should be used instead of
@@ -229,11 +241,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      * address, so this method just returns the address.
      * @return  The ByteInterval index, which is it's address.
      */
-    public long getIndex() {
-        if (this.address == null)
-            return 0L;
-        return this.address;
-    }
+    public long getIndex() { return this.address.orElse(0); }
 
     /////////////////////////////////////////////////////////////
     // GENERIC METHODS
@@ -275,11 +283,14 @@ public final class ByteInterval extends Node implements TreeListItem {
     // with a given address
     private <T extends TreeListItem> List<T>
     getItemsIntersectingAddress(long address, TreeMap<Long, List<T>> tree) {
-        // Address is not valid if it is below the start if this byte interval.
-        if (this.address == null || address < this.address)
+        if (this.address.isEmpty())
             return null;
-        Long offset = address - this.address;
-        offset = offset < 0 ? 0L : offset;
+        long ownAddress = this.address.getAsLong();
+
+        // Address is not valid if it is below the start if this byte interval.
+        if (Long.compareUnsigned(address, ownAddress) < 0)
+            return null;
+        long offset = address - ownAddress;
 
         return TreeListUtils.getItemsIntersectingIndex(offset, tree);
     }
@@ -289,13 +300,20 @@ public final class ByteInterval extends Node implements TreeListItem {
     private <T extends TreeListItem> List<T>
     getItemsIntersectingAddressRange(long startAddress, long endAddress,
                                      TreeMap<Long, List<T>> tree) {
-        // Address is not valid if it is below the start if this byte interval.
-        if (this.address == null || endAddress < this.address)
+        if (this.address.isEmpty())
             return null;
-        Long startOffset = startAddress - this.address;
-        Long endOffset = endAddress - this.address;
-        startOffset = startOffset < 0 ? 0 : startOffset;
-        endOffset = endOffset < 0 ? 0 : endOffset;
+        long ownAddress = this.address.getAsLong();
+
+        // End address cannot be below the start of this ByteInterval
+        if (Long.compareUnsigned(endAddress, ownAddress) < 0)
+            return null;
+        long endOffset = endAddress - ownAddress;
+
+        // Allow ranges that start before this ByteInterval
+        long startOffset = 0;
+        if (Long.compareUnsigned(startAddress, ownAddress) >= 0) {
+            startOffset = startAddress - ownAddress;
+        }
 
         return TreeListUtils.getItemsIntersectingIndexRange(startOffset,
                                                             endOffset, tree);
@@ -304,11 +322,15 @@ public final class ByteInterval extends Node implements TreeListItem {
     // Generic method for retrieving items that start at a given address
     private <T extends TreeListItem> List<T>
     getItemsAtStartAddress(long address, TreeMap<Long, List<T>> tree) {
-        // Address is not valid if it is below the start if this byte interval.
-        if (this.address == null || address < this.address)
+        if (this.address.isEmpty())
             return null;
-        Long offset = address - this.address;
-        offset = offset < 0 ? 0L : offset;
+        long ownAddress = this.address.getAsLong();
+
+        // Address is not valid if it is below the start of this byte interval.
+        if (Long.compareUnsigned(address, ownAddress) < 0)
+            return null;
+        long offset = address - ownAddress;
+
         return TreeListUtils.getItemsAtStartIndex(offset, tree);
     }
 
@@ -316,16 +338,17 @@ public final class ByteInterval extends Node implements TreeListItem {
     private <T extends TreeListItem> List<T>
     getItemsAtStartAddressRange(long startAddress, long endAddress,
                                 TreeMap<Long, List<T>> tree) {
-        // Address is not valid if it is below the start if this byte interval.
-        if (this.address == null ||
-            startAddress > (this.getAddress() + this.getSize()) ||
-            endAddress < this.getAddress())
+        if (this.address.isEmpty())
+            return null;
+        long ownAddress = this.address.getAsLong();
+
+        // Range is not valid if either address falls outside the ByteInterval.
+        if (Long.compareUnsigned(startAddress, ownAddress + this.size) > 0 ||
+            Long.compareUnsigned(endAddress, ownAddress) < 0)
             return null;
 
-        Long startOffset = startAddress - this.address;
-        Long endOffset = endAddress - this.address;
-        startOffset = startOffset < 0 ? 0L : startOffset;
-        endOffset = endOffset < 0 ? 0L : endOffset;
+        long startOffset = startAddress - ownAddress;
+        long endOffset = endAddress - ownAddress;
         return TreeListUtils.getItemsAtStartIndexRange(startOffset, endOffset,
                                                        tree);
     }
@@ -717,7 +740,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @param  section            The Section that owns this ByteInterval.
      * @return An initialized ByteInterval.
      */
-    public static ByteInterval
+    static ByteInterval
     fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval,
                  Section section) {
         return new ByteInterval(protoByteInterval, section);
@@ -732,12 +755,9 @@ public final class ByteInterval extends Node implements TreeListItem {
         ByteIntervalOuterClass.ByteInterval.Builder protoByteInterval =
             ByteIntervalOuterClass.ByteInterval.newBuilder();
         protoByteInterval.setUuid(Util.uuidToByteString(this.getUuid()));
-        protoByteInterval.setAddress(this.getAddress());
+        protoByteInterval.setAddress(this.getAddress().orElse(0));
         protoByteInterval.setSize(this.getSize());
-        if (this.address != null)
-            protoByteInterval.setHasAddress(true);
-        else
-            protoByteInterval.setHasAddress(false);
+        protoByteInterval.setHasAddress(this.hasAddress());
 
         // Iterate through blocks, adding them
         Iterator<ByteBlock> blocks = this.byteBlockIterator();
@@ -745,8 +765,6 @@ public final class ByteInterval extends Node implements TreeListItem {
             ByteBlock block = blocks.next();
             ByteIntervalOuterClass.Block.Builder protoBlock =
                 block.toProtobuf();
-            //            protoByteInterval.addBlocks((int)block.getOffset(),
-            //            protoBlock);
             protoByteInterval.addBlocks(protoBlock);
         }
 
@@ -762,7 +780,11 @@ public final class ByteInterval extends Node implements TreeListItem {
                 symbolicExpression.getOffset(),
                 protoSymbolicExpression.build());
         }
-        protoByteInterval.setContents(ByteString.copyFrom(this.bytes));
+        if (this.bytes == null) {
+            protoByteInterval.setContents(ByteString.EMPTY);
+        } else {
+            protoByteInterval.setContents(ByteString.copyFrom(this.bytes));
+        }
         return protoByteInterval;
     }
 }

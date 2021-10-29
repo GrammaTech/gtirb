@@ -12,7 +12,7 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +27,10 @@ public class TupleCodec extends Codec {
 
     public TupleCodec() {}
 
-    public Object decode(Serialization byteBuffer,
-                         List<TwoTuple<String, Object>> subtypes) {
+    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
         List<Object> list = new ArrayList<Object>();
 
-        for (TwoTuple<String, Object> subtype : subtypes) {
+        for (AuxTypeTree subtype : subtypes) {
             Object item = AuxDataSerialization.decodeTree(byteBuffer, subtype);
             list.add(item);
         }
@@ -39,7 +38,7 @@ public class TupleCodec extends Codec {
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
+                       List<AuxTypeTree> subtypes) {
         if (val instanceof List<?>) {
             List<Object> tuple = (List<Object>)val;
             outstream.putByteSwappedLong(tuple.size());

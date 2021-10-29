@@ -12,18 +12,16 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.List;
 import java.util.UUID;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 public class UuidCodec extends Codec {
 
-    public Object decode(Serialization byteBuffer,
-                         List<TwoTuple<String, Object>> subtypes) {
+    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new DecodeException("UUID should have no subtypes");
         UUID uuid = byteBuffer.getUuid();
@@ -31,7 +29,7 @@ public class UuidCodec extends Codec {
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
+                       List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new EncodeException("UUID should have no subtypes");
         if (val instanceof UUID) {

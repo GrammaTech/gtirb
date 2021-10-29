@@ -1,0 +1,56 @@
+/* Gradle build for GTIRB Java API
+ *
+ * NOTE: The supported build system is CMake.
+ * This Gradle build exists as a convenience to make it easier to develop in
+ * IDEs like IntelliJ, Eclipse, etc.
+ *
+ * Before running Gradle, generate Protobuf Java sources:
+ *   $ protoc --java_out=. --proto-path=proto ../proto/*.proto
+ *
+ * After IntelliJ import, it may help to add to its .idea/gradle.xml:
+ *   <option name="resolveModulePerSourceSet" value="false" />
+ */
+apply plugin: 'java'
+
+repositories { mavenCentral() }
+
+sourceSets {
+    main.java.srcDirs = ['.', "${buildDir}/generated/java"]
+}
+
+dependencies {
+    compile 'com.google.protobuf:protobuf-java:3.11.1'
+}
+
+compileJava {
+    doFirst {
+        def pkg = "com/grammatech/gtirb"
+
+        // Read the version information from version.txt
+        def versionTxt = new File("${projectDir}/../version.txt")
+        def versionMap = [:]
+        versionTxt.eachLine { String line ->
+                def (name, value) = line.split()
+                versionMap[name] = value
+        }
+
+        // This version number appears in the output JAR filename
+        version = versionMap["VERSION_MAJOR"] + "." +
+            versionMap["VERSION_MINOR"] + "." + versionMap["VERSION_PATCH"]
+
+        // Generate Version.java based on the Version.java.in template
+        ant.mkdir(dir: "${buildDir}/generated/java/${pkg}/gtirb")
+        def newVersion = new File("${buildDir}/generated/java/${pkg}/Version.java")
+        def templateVersion = new File("${projectDir}/Version.java.in")
+        newVersion.withWriter { def writer ->
+            templateVersion.eachLine { def line ->
+                def newLine = line
+                    .replace("@PROJECT_VERSION_MAJOR@", versionMap["VERSION_MAJOR"])
+                    .replace("@PROJECT_VERSION_MINOR@", versionMap["VERSION_MINOR"])
+                    .replace("@PROJECT_VERSION_PATCH@", versionMap["VERSION_PATCH"])
+                    .replace("@GTIRB_PROTOBUF_VERSION@", versionMap["VERSION_PROTOBUF"])
+                writer.write(newLine + "\n");
+            }
+        }
+    }
+}

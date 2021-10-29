@@ -12,17 +12,16 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 // CONSIDER: Should this be an interface rather than an object hierarchy?
 // What at all is gained from doing it this way?
-// If there are classes without implmenations of encode/decode, maybe _they_
+// If there are classes without implementations of encode/decode, maybe _they_
 // have a parent class.
 
 import java.util.List;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 public class Codec {
 
@@ -32,14 +31,12 @@ public class Codec {
     public Codec() {}
 
     public Object decode(Serialization serialization,
-                         List<TwoTuple<String, Object>> subtypes) {
-        System.err.println("Codec.decode: Unknown Codec");
-        throw new Error();
+                         List<AuxTypeTree> subtypes) {
+        throw new Error("Codec.decode: Unknown Codec");
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
-        System.err.println("Codec.encode: Unknown Codec");
-        throw new Error();
+                       List<AuxTypeTree> subtypes) {
+        throw new Error("Codec.encode: Unknown Codec");
     }
 }

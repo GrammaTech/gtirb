@@ -16,11 +16,8 @@ package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.UUID;
+
+import java.util.*;
 
 /**
  * The Section class represents a named section or segment of a program file,
@@ -30,7 +27,7 @@ import java.util.UUID;
 public class Section extends Node implements TreeListItem {
 
     /**
-     * Idenfities the flags used for a section.
+     * Identities the flags used for a section.
      */
     public enum SectionFlag {
         Undefined,
@@ -43,9 +40,9 @@ public class Section extends Node implements TreeListItem {
     }
 
     private String name;
-    private TreeMap<Long, List<ByteInterval>> byteIntervalTree;
+    private final TreeMap<Long, List<ByteInterval>> byteIntervalTree;
     private List<SectionFlag> sectionFlags;
-    private SectionOuterClass.Section protoSection;
+    private final SectionOuterClass.Section protoSection;
     private Module module;
 
     /**
@@ -53,11 +50,10 @@ public class Section extends Node implements TreeListItem {
      * @param  protoSection  The section as serialized into a protocol buffer.
      * @param  module        The Module that owns this Section.
      */
-    public Section(SectionOuterClass.Section protoSection, Module module) {
+    private Section(SectionOuterClass.Section protoSection, Module module) {
+        super(Util.byteStringToUuid(protoSection.getUuid()));
 
         this.protoSection = protoSection;
-        UUID myUuid = Util.byteStringToUuid(protoSection.getUuid());
-        super.setUuid(myUuid);
         this.name = protoSection.getName();
         this.module = module;
 
@@ -67,7 +63,7 @@ public class Section extends Node implements TreeListItem {
         for (ByteIntervalOuterClass.ByteInterval protoByteInterval :
              protoByteIntervalList) {
             ByteInterval byteInterval =
-                new ByteInterval(protoByteInterval, this);
+                ByteInterval.fromProtobuf(protoByteInterval, this);
             TreeListUtils.insertItem(byteInterval, byteIntervalTree);
         }
 
@@ -88,8 +84,8 @@ public class Section extends Node implements TreeListItem {
      */
     public Section(String name, List<SectionFlag> flags,
                    List<ByteInterval> byteIntervals, Module module) {
+        super();
         this.protoSection = null;
-        this.uuid = UUID.randomUUID();
         this.setName(name);
         this.setSectionFlags(flags);
         this.setModule(module);
@@ -196,27 +192,34 @@ public class Section extends Node implements TreeListItem {
      * calculable in that case. Note that a section with no intervals in it has
      * no address or size, so it will return null in that case.
      *
-     * @return The size of this section if known, otherwise null.
+     * @return The size of this section if known, otherwise 0.
      */
     public long getSize() {
         if (byteIntervalTree.size() == 0)
             return 0;
+
+        // Check whether any ByteIntervals lack an address (with key 0).
+        for (ByteInterval byteInterval : byteIntervalTree.get(0))
+            if (!byteInterval.hasAddress())
+                return 0;
+
+        // If we get here, there is at least one ByteInterval, and every one has
+        // an address.
         Iterator<ByteInterval> byteIntervalTreeIterator =
             this.getByteIntervalIterator();
-        // Verify all ByteIntervals have an address
-        Long startAddress = 0L;
-        Long endAddress = 0L;
+        ByteInterval byteInterval = byteIntervalTreeIterator.next();
+        long sectionStart = byteInterval.getAddress().orElseThrow();
+        long sectionEnd = sectionStart + byteInterval.getSize();
         while (byteIntervalTreeIterator.hasNext()) {
-            ByteInterval byteInterval = byteIntervalTreeIterator.next();
-            if (byteInterval.hasAddress() == false)
-                return 0;
-            if (startAddress == 0L)
-                startAddress = byteInterval.getAddress();
-            endAddress = byteInterval.getAddress() + byteInterval.getSize();
+            byteInterval = byteIntervalTreeIterator.next();
+            long biStart = byteInterval.getAddress().orElseThrow();
+            long biEnd = biStart + byteInterval.getSize();
+            if (Long.compareUnsigned(biStart, sectionStart) < 0)
+                sectionStart = biStart;
+            if (Long.compareUnsigned(biEnd, sectionEnd) > 0)
+                sectionEnd = biEnd;
         }
-        // Return the difference between start of first and end of last byte
-        // interval
-        return (endAddress - startAddress);
+        return sectionEnd - sectionStart;
     }
 
     /**
@@ -232,22 +235,27 @@ public class Section extends Node implements TreeListItem {
      *
      * @return The address of this section if known, otherwise null.
      */
-    public Long getAddress() {
+    public OptionalLong getAddress() {
         if (byteIntervalTree.size() == 0)
-            return null;
+            return OptionalLong.empty();
         Iterator<ByteInterval> byteIntervalTreeIterator =
             this.getByteIntervalIterator();
-        // Verify all ByteIntervals have an address
-        Long startAddress = 0L;
+        OptionalLong minAddress = OptionalLong.empty();
         while (byteIntervalTreeIterator.hasNext()) {
             ByteInterval byteInterval = byteIntervalTreeIterator.next();
-            if (byteInterval.hasAddress() == false)
-                return null;
-            if (startAddress == 0L)
-                startAddress = byteInterval.getAddress();
+            OptionalLong biAddress = byteInterval.getAddress();
+            if (biAddress.isEmpty())
+                return OptionalLong.empty();
+            // This iterator is sorted, but with signed comparison.
+            // Checking every ByteInterval here instead of just using the first
+            // iteration helps avoid any (unlikely) signedness issues.
+            if (minAddress.isEmpty() ||
+                Long.compareUnsigned(minAddress.getAsLong(),
+                                     biAddress.getAsLong()) > 0)
+                minAddress = biAddress;
         }
         // Return the start of the first byte interval
-        return (startAddress);
+        return minAddress;
     }
 
     /**
@@ -258,12 +266,7 @@ public class Section extends Node implements TreeListItem {
      * address, so this method just returns the address.
      * @return  The ByteInterval index, which is it's address.
      */
-    public long getIndex() {
-        Long address = this.getAddress();
-        if (address == null)
-            return 0;
-        return address;
-    }
+    public long getIndex() { return this.getAddress().orElse(0); }
 
     /**
      * Get the original protobuf of this {@link Section}.
@@ -333,8 +336,8 @@ public class Section extends Node implements TreeListItem {
      *
      * @return An initialized section.
      */
-    public static Section fromProtobuf(SectionOuterClass.Section protoSection,
-                                       Module module) {
+    static Section fromProtobuf(SectionOuterClass.Section protoSection,
+                                Module module) {
         return new Section(protoSection, module);
     }
 
@@ -343,7 +346,7 @@ public class Section extends Node implements TreeListItem {
      *
      * @return Section protocol buffer.
      */
-    public SectionOuterClass.Section.Builder toProtobuf() {
+    SectionOuterClass.Section.Builder toProtobuf() {
         SectionOuterClass.Section.Builder protoSection =
             SectionOuterClass.Section.newBuilder();
         protoSection.setUuid(Util.uuidToByteString(this.getUuid()));

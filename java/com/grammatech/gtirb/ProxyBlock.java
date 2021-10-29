@@ -33,9 +33,9 @@ public class ProxyBlock extends Node {
      * buffer.
      * @param  module        The Module that owns this Section.
      */
-    public ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock,
-                      Module module) {
-        this.uuid = Util.byteStringToUuid(protoProxyBlock.getUuid());
+    private ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock,
+                       Module module) {
+        super(Util.byteStringToUuid(protoProxyBlock.getUuid()));
         this.module = module;
         this.protoProxyBlock = protoProxyBlock;
     }
@@ -44,7 +44,7 @@ public class ProxyBlock extends Node {
      * Class Constructor.
      */
     public ProxyBlock(Module module) {
-        this.uuid = UUID.randomUUID();
+        super();
         this.module = module;
         this.protoProxyBlock = null;
     }
@@ -75,7 +75,7 @@ public class ProxyBlock extends Node {
      * @param  module        The Module that owns this Section.
      * @return An initialized proxy block.
      */
-    public static ProxyBlock
+    static ProxyBlock
     fromProtobuf(ProxyBlockOuterClass.ProxyBlock protoProxyBlock,
                  Module module) {
         return new ProxyBlock(protoProxyBlock, module);
@@ -86,7 +86,7 @@ public class ProxyBlock extends Node {
      *
      * @return A protocol buffer containing this ProxyBlock.
      */
-    public ProxyBlockOuterClass.ProxyBlock.Builder toProtobuf() {
+    ProxyBlockOuterClass.ProxyBlock.Builder toProtobuf() {
         ProxyBlockOuterClass.ProxyBlock.Builder protoProxyBlock =
             ProxyBlockOuterClass.ProxyBlock.newBuilder();
         protoProxyBlock.setUuid(Util.uuidToByteString(this.getUuid()));

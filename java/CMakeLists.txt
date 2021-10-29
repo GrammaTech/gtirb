@@ -63,41 +63,44 @@ configure_file(
 )
 
 set(GTIRB_API_JAVAS
+    AuxSerialization/AuxDataSerialization
+    AuxSerialization/AuxTypeTree
+    AuxSerialization/Codec
+    AuxSerialization/DecodeException
+    AuxSerialization/EncodeException
+    AuxSerialization/IntegerCodec
+    AuxSerialization/MappingCodec
+    AuxSerialization/OffsetCodec
+    AuxSerialization/SequenceCodec
+    AuxSerialization/SetCodec
+    AuxSerialization/StreamSerialization
+    AuxSerialization/StringCodec
+    AuxSerialization/TupleCodec
+    AuxSerialization/UnknownCodecException
+    AuxSerialization/UnknownData
+    AuxSerialization/UuidCodec
     Alignment
     AuxDataContainer
     AuxData
-    AuxDataSerialization
-    Block
     ByteBlock
     ByteInterval
     CFG
     CodeBlock
-    Codec
     Comments
     DataBlock
-    DecodeException
     Edge
-    EncodeException
     FiveTuple
     FunctionBlocks
     FunctionEntries
     FunctionNames
-    IntegerCodec
     IR
-    MappingCodec
     Module
     Node
-    OffsetCodec
     Offset
     Padding
-    ParsedProduct
     ProxyBlock
     Section
-    SequenceCodec
     Serialization
-    SetCodec
-    StreamSerialization
-    StringCodec
     SymAddrAddr
     SymAddrConst
     SymbolForwarding
@@ -106,13 +109,9 @@ set(GTIRB_API_JAVAS
     ThreeTuple
     TreeListItem
     TreeListUtils
-    TupleCodec
     TwoTuple
     Types
-    UnknownCodecException
-    UnknownData
     Util
-    UuidCodec
     Version
 )
 

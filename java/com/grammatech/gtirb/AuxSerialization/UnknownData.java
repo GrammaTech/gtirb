@@ -12,7 +12,7 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 /**
  * This class is a blob of bytes representing data with an unknown type.

@@ -14,8 +14,7 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
-import com.grammatech.gtirb.ByteBlock;
+import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.CodeBlockOuterClass;
 
@@ -29,13 +28,11 @@ public class CodeBlock extends ByteBlock {
      * Class constructor for a {@link CodeBlock} from a protobuf CodeBlock.
      * @param  protoBlock  The CodeBlock as serialized into a protocol buffer.
      */
-    public CodeBlock(ByteIntervalOuterClass.Block protoBlock,
-                     ByteInterval byteInterval) {
-        // Could verify that this protoBlock is really Code.
-        super(protoBlock, byteInterval);
-        CodeBlockOuterClass.CodeBlock protoCodeBlock = protoBlock.getCode();
-        this.uuid = Util.byteStringToUuid(protoCodeBlock.getUuid());
-        this.decodeMode = protoCodeBlock.getDecodeMode();
+    private CodeBlock(ByteString protoUuid,
+                      ByteIntervalOuterClass.Block protoBlock, long size,
+                      ByteInterval byteInterval) {
+        super(protoUuid, protoBlock, size, byteInterval);
+        this.decodeMode = protoBlock.getCode().getDecodeMode();
     }
 
     /**
@@ -44,7 +41,6 @@ public class CodeBlock extends ByteBlock {
     public CodeBlock(long size, long offset, long decodeMode,
                      ByteInterval byteInterval) {
         super(size, offset, byteInterval);
-        this.uuid = UUID.randomUUID();
         this.decodeMode = decodeMode;
     }
 
@@ -63,14 +59,21 @@ public class CodeBlock extends ByteBlock {
     public void setDecodeMode(long decodeMode) { this.decodeMode = decodeMode; }
 
     /**
-     * De-serialize a {@link CodeBlock} from a protobuf .
+     * De-serialize a {@link CodeBlock} from a protobuf Block.
      *
      * @return An initialized CodeBlock.
      */
-    public static CodeBlock
-    fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
-                 ByteInterval byteInterval) {
-        return new CodeBlock(protoBlock, byteInterval);
+    static CodeBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
+                                  ByteInterval byteInterval) {
+        // Avoid using protoBlock.hasCode() for compatibility with older
+        // protobuf
+        if (protoBlock.getValueCase() !=
+            ByteIntervalOuterClass.Block.ValueCase.CODE) {
+            return null;
+        }
+        CodeBlockOuterClass.CodeBlock protoCodeBlock = protoBlock.getCode();
+        return new CodeBlock(protoCodeBlock.getUuid(), protoBlock,
+                             protoCodeBlock.getSize(), byteInterval);
     }
 
     /**
@@ -79,7 +82,7 @@ public class CodeBlock extends ByteBlock {
      * @return Block protocol buffer containing this CodeBlock.
      */
     @Override
-    public ByteIntervalOuterClass.Block.Builder toProtobuf() {
+    ByteIntervalOuterClass.Block.Builder toProtobuf() {
         // The protoBlock is in ByteInterval outer class, and it gets a code
         // block added to it with the setCode() method. So first create the
         // protoBlock, then create the protoCodeBlock and add it to the

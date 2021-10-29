@@ -12,14 +12,12 @@
  *
  */
 
-package com.grammatech.gtirb;
-
-import java.util.List;
+package com.grammatech.gtirb.AuxSerialization;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Codec for sequence<T> entries. Implemented via ArrayList.
@@ -31,11 +29,10 @@ public class SequenceCodec extends Codec {
      */
     public SequenceCodec() {}
 
-    public Object decode(Serialization byteBuffer,
-                         List<TwoTuple<String, Object>> subtypes) {
+    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
         List<Object> sequence = new ArrayList<Object>();
-        Long len = byteBuffer.getLong();
-        TwoTuple<String, Object> subtype;
+        long len = byteBuffer.getLong();
+        AuxTypeTree subtype;
         if (subtypes.size() == 1)
             subtype = subtypes.get(0);
         else
@@ -48,8 +45,8 @@ public class SequenceCodec extends Codec {
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
-        TwoTuple<String, Object> subtype;
+                       List<AuxTypeTree> subtypes) {
+        AuxTypeTree subtype;
         if (subtypes.size() == 1)
             subtype = subtypes.get(0);
         else

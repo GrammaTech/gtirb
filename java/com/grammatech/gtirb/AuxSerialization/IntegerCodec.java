@@ -12,12 +12,11 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.List;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 public class IntegerCodec extends Codec {
     int size;
@@ -29,7 +28,7 @@ public class IntegerCodec extends Codec {
     public IntegerCodec(int size) { this.size = size; }
 
     public Object decode(Serialization serialization,
-                         List<TwoTuple<String, Object>> subtypes) {
+                         List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new DecodeException("integer should have no subtypes");
         if (size == 8)
@@ -38,13 +37,13 @@ public class IntegerCodec extends Codec {
             return serialization.getInt();
         else if (size == 2)
             return serialization.getShort();
-        else if (size == 2)
+        else if (size == 1)
             return serialization.getByte();
-        return null;
+        throw new DecodeException("Invalid integer size: " + size);
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
+                       List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new EncodeException("integer should have no subtypes");
 
@@ -54,8 +53,7 @@ public class IntegerCodec extends Codec {
             outstream.putByteSwappedInt((Integer)val);
         else if (size == 2)
             outstream.putByteSwappedShort((Short)val);
-        else if (size == 2)
+        else if (size == 1)
             outstream.putByte((Byte)val);
-        return;
     }
 }

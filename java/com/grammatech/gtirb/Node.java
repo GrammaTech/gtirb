@@ -22,14 +22,22 @@ import java.util.UUID;
  * Node is the root class for many GTIRB components.
  */
 public class Node {
-    UUID uuid;
+    private final UUID uuid;
     private static HashMap<UUID, WeakReference<Node>> uuid_cache =
         new HashMap<UUID, WeakReference<Node>>();
 
     /**
-     * Default constructor
+     * Create a Node with a randomly generated UUID.
      */
-    public Node() {}
+    public Node() { this(UUID.randomUUID()); }
+
+    /**
+     * Create a Node with a specified UUID.
+     */
+    public Node(UUID uuid) {
+        this.uuid = uuid;
+        uuid_cache.put(uuid, new WeakReference<>(this));
+    }
 
     /**
      * Find a node using its UUID.
@@ -44,19 +52,25 @@ public class Node {
     }
 
     /**
+     * Find a node of the given type by UUID.
+     *
+     * @return  The node with the given UUID.
+     */
+    public static <T extends Node> T getByUuid(UUID uuid, Class<T> type) {
+        WeakReference<Node> noderef = uuid_cache.get(uuid);
+        if (noderef != null) {
+            Node node = noderef.get();
+            if (type.isInstance(node)) {
+                return type.cast(node);
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get the UUID of this node.
      *
      * @return  The UUID.
      */
     public UUID getUuid() { return uuid; }
-
-    /**
-     * Set the UUID of this node.
-     *
-     * @param uuid  The UUID.
-     */
-    public WeakReference<Node> setUuid(UUID uuid) {
-        this.uuid = uuid;
-        return uuid_cache.put(uuid, new WeakReference<Node>(this));
-    }
 }

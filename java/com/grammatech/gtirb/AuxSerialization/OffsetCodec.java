@@ -12,28 +12,27 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.List;
 import java.util.UUID;
 
 import com.grammatech.gtirb.Offset;
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 public class OffsetCodec extends Codec {
 
     public Object decode(Serialization serialization,
-                         List<TwoTuple<String, Object>> subtypes) {
+                         List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new DecodeException("Offset should have no subtypes");
         UUID elementUuid = serialization.getUuid();
-        Long displacement = serialization.getLong();
+        long displacement = serialization.getLong();
         return new Offset(elementUuid, displacement);
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
+                       List<AuxTypeTree> subtypes) {
         if (subtypes.size() != 0)
             throw new EncodeException("Offset should have no subtypes");
         if (val instanceof Offset) {

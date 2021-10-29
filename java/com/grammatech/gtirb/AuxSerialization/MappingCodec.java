@@ -12,41 +12,29 @@
  *
  */
 
-package com.grammatech.gtirb;
+package com.grammatech.gtirb.AuxSerialization;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 /**
  * A Codec for mapping&lt;K,V&gt; entries. Implemented via HashMap.
  */
 public class MappingCodec extends Codec {
 
-    //	/**
-    //	 * Default Constructor
-    //	 * @return
-    //	 */
-    //	public MappingCodec() {
-    //	}
-
-    public Object decode(Serialization byteBuffer,
-                         List<TwoTuple<String, Object>> subtypes)
+    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes)
         throws DecodeException {
         Map<Object, Object> mapping = new HashMap<Object, Object>();
         Long len = byteBuffer.getLong();
-        TwoTuple<String, Object> keytype;
-        TwoTuple<String, Object> valtype;
+        AuxTypeTree keytype;
+        AuxTypeTree valtype;
         if (subtypes.size() == 2) {
             keytype = subtypes.get(0);
-            // System.out.println("keyType: "+keyType.getFirst());
             valtype = subtypes.get(1);
-            // System.out.println("valType: "+valType.getFirst());
         } else
             throw new DecodeException("could not unpack mapping types: " +
                                       subtypes);
@@ -60,9 +48,9 @@ public class MappingCodec extends Codec {
     }
 
     public void encode(StreamSerialization outstream, Object val,
-                       List<TwoTuple<String, Object>> subtypes) {
-        TwoTuple<String, Object> keytype;
-        TwoTuple<String, Object> valtype;
+                       List<AuxTypeTree> subtypes) {
+        AuxTypeTree keytype;
+        AuxTypeTree valtype;
         if (subtypes.size() == 2) {
             keytype = subtypes.get(0);
             valtype = subtypes.get(1);

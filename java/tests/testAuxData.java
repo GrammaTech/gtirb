@@ -1,5 +1,5 @@
 import com.grammatech.gtirb.AuxData;
-import com.grammatech.gtirb.AuxDataSerialization;
+import com.grammatech.gtirb.AuxSerialization.AuxDataSerialization;
 import com.grammatech.gtirb.IR;
 import com.grammatech.gtirb.Module;
 import java.io.File;
@@ -41,6 +41,7 @@ public class testAuxData {
         if (args.length < 1) {
             System.err.println("No GTIRB file specified.");
             System.err.println("test failed.");
+            System.exit(1);
             return;
         }
 
@@ -69,13 +70,13 @@ public class testAuxData {
             System.out.println("Unable to load " + fileName + ".");
             System.err.println("test failed.");
             System.exit(1);
-            return;
         }
 
-        if (testAuxDataDecodeEncode(ir))
+        if (testAuxDataDecodeEncode(ir)) {
             System.out.println("AuxData Test OK.");
-        else
+        } else {
             System.err.println("AuxData test failed.");
-        System.exit(0);
+            System.exit(1);
+        }
     }
 }

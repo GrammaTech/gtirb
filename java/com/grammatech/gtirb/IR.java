@@ -42,7 +42,7 @@ public class IR extends AuxDataContainer {
      * Default class constructor for IR.
      */
     public IR() {
-        super(null);
+        super();
         // shouldn't this be null?
         this.protoIR = IROuterClass.IR.getDefaultInstance();
     }
@@ -52,7 +52,7 @@ public class IR extends AuxDataContainer {
      * @param  protoIr  The {@link IR} as serialized into a protocol buffer.
      */
     public IR(IROuterClass.IR protoIr) {
-        super(protoIr.getAuxDataMap());
+        super(protoIr.getUuid(), protoIr.getAuxDataMap());
         this.protoIR = protoIr;
     }
 
@@ -66,7 +66,6 @@ public class IR extends AuxDataContainer {
         if (this.protoIR == null)
             return false;
         this.version = protoIR.getVersion();
-        this.uuid = Util.byteStringToUuid(protoIR.getUuid());
         // Import the modules
         this.modules = new ArrayList<Module>();
         for (ModuleOuterClass.Module protoModule : protoIR.getModulesList()) {
@@ -186,38 +185,18 @@ public class IR extends AuxDataContainer {
 
     /**
      * Save IR to a protobuf file stream.
-     *
-     * @return  true if save is successful, false otherwise.
      */
-    public boolean saveFile(OutputStream fileOut) {
+    public void saveFile(OutputStream fileOut) throws IOException {
         IROuterClass.IR protoIr = this.toProtobuf().build();
-        try {
-            protoIr.writeTo(fileOut);
-        } catch (FileNotFoundException fe) {
-            System.err.println(fe);
-            return false;
-        } catch (IOException ie) {
-            System.err.println(ie);
-            return false;
-        }
-        return true;
+        protoIr.writeTo(fileOut);
     }
 
     /**
      * Save IR to a protobuf file.
-     *
-     * @return  true if save is successful, false otherwise.
      */
-    public boolean saveFile(String fileOutName) {
-        boolean rv;
-        try {
-            File fileOut = new File(fileOutName);
-            FileOutputStream fileOutputStream = new FileOutputStream(fileOut);
-            rv = this.saveFile(fileOutputStream);
-        } catch (Exception e) {
-            System.err.println(e);
-            return false;
-        }
-        return rv;
+    public void saveFile(String fileOutName) throws IOException {
+        File fileOut = new File(fileOutName);
+        FileOutputStream fileOutputStream = new FileOutputStream(fileOut);
+        this.saveFile(fileOutputStream);
     }
 }
