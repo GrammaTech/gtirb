@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -14,29 +14,67 @@
 
 package com.grammatech.gtirb;
 
-import com.grammatech.gtirb.Block;
 import java.util.UUID;
 
-public class DataBlock extends Node {
-    private long size;
-    private long offset;
-    private Block block;
+import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
+import com.grammatech.gtirb.proto.DataBlockOuterClass;
 
-    public DataBlock(
-        com.grammatech.gtirb.proto.DataBlockOuterClass.DataBlock protoDataBlock,
-        long offset, Block block) {
-        UUID myUuid = Util.byteStringToUuid(protoDataBlock.getUuid());
-        super.setUuid(myUuid);
-        this.size = protoDataBlock.getSize();
-        this.offset = offset;
-        this.block = block;
+/**
+ * DataBlock represents a data object, possibly symbolic.
+ */
+public class DataBlock extends ByteBlock {
+
+    /**
+     * Class constructor for a {@link DataBlock} from a protobuf DataBlock.
+     * @param  protoBlock  The DataBlock as serialized into a protocol buffer.
+     */
+    public DataBlock(ByteIntervalOuterClass.Block protoBlock,
+                     ByteInterval byteInterval) {
+        // Could verify that this protoBlock is really Data.
+        super(protoBlock, byteInterval);
+        DataBlockOuterClass.DataBlock protoDataBlock = protoBlock.getData();
+        this.uuid = Util.byteStringToUuid(protoDataBlock.getUuid());
     }
 
-    public long getSize() { return this.size; }
+    /**
+     * Class constructor for a {@link DataBlock}.
+     */
+    public DataBlock(long size, long offset, ByteInterval byteInterval) {
+        super(size, offset, byteInterval);
+        this.uuid = UUID.randomUUID();
+    }
 
-    public long getOffset() { return this.offset; }
+    /**
+     * De-serialize a {@link DataBlock} from a protobuf .
+     *
+     * @return An initialized DataBlock.
+     */
+    public static DataBlock
+    fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
+                 ByteInterval byteInterval) {
+        return new DataBlock(protoBlock, byteInterval);
+    }
 
-    public Block getBlock() { return this.block; }
+    /**
+     * Serialize this DataBlock into a protobuf.
+     *
+     * @return Block protocol buffer containing this DataBlock.
+     */
+    @Override
+    public ByteIntervalOuterClass.Block.Builder toProtobuf() {
+        // The protoBlock is in ByteInterval outer class, and it gets a data
+        // block added to it with the setData() method. So first create the
+        // protoBlock, then create the protoDataBlock and add it to the
+        // protoBlock.
+        ByteIntervalOuterClass.Block.Builder protoBlock =
+            ByteIntervalOuterClass.Block.newBuilder();
 
-    public void setSize(long size) { this.size = size; }
+        DataBlockOuterClass.DataBlock.Builder protoDataBlock =
+            DataBlockOuterClass.DataBlock.newBuilder();
+        protoDataBlock.setUuid(Util.uuidToByteString(this.getUuid()));
+        protoDataBlock.setSize(this.getSize());
+        protoBlock.setOffset(this.getOffset());
+        protoBlock.setData(protoDataBlock);
+        return protoBlock;
+    }
 }

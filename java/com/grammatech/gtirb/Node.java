@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -18,26 +18,45 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ * Node is the root class for many GTIRB components.
+ */
 public class Node {
     UUID uuid;
     private static HashMap<UUID, WeakReference<Node>> uuid_cache =
         new HashMap<UUID, WeakReference<Node>>();
 
-    public Node() {
-        // TODO: Assign a new UUID here.
-        // (However, so far I am only working with objects that have already
-        // been created,
-        //  so would only have to be replaced with the correct UUID.)
-    }
+    /**
+     * Default constructor
+     */
+    public Node() {}
 
+    /**
+     * Find a node using its UUID.
+     *
+     * @return  The node with the given UUID.
+     */
     public static Node getByUuid(UUID uuid) {
-        return uuid_cache.get(uuid).get();
+        WeakReference<Node> noderef = uuid_cache.get(uuid);
+        if (noderef != null)
+            return noderef.get();
+        return null;
     }
 
+    /**
+     * Get the UUID of this node.
+     *
+     * @return  The UUID.
+     */
+    public UUID getUuid() { return uuid; }
+
+    /**
+     * Set the UUID of this node.
+     *
+     * @param uuid  The UUID.
+     */
     public WeakReference<Node> setUuid(UUID uuid) {
         this.uuid = uuid;
         return uuid_cache.put(uuid, new WeakReference<Node>(this));
     }
-
-    public UUID getUuid() { return uuid; }
 }

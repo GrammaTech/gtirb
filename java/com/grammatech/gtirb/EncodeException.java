@@ -15,6 +15,14 @@
 package com.grammatech.gtirb;
 
 /**
- * The Block class is a base class for all byte blocks and proxy blocks.
+ * An exception during encoding.
  */
-public class Block extends Node {}
+public class EncodeException extends RuntimeException {
+
+    /**
+     * Auto-generated default serial version iD.
+     */
+    private static final long serialVersionUID = 1L;
+
+    public EncodeException(String errorMessage) { super(errorMessage); }
+}

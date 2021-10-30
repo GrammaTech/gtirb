@@ -68,22 +68,56 @@ configure_file(
 )
 
 set(GTIRB_API_JAVAS
+    Alignment
+    AuxDataContainer
     AuxData
+    AuxDataSerialization
     Block
+    ByteBlock
     ByteInterval
+    CFG
     CodeBlock
+    Codec
+    Comments
     DataBlock
-    Directive
+    DecodeException
     Edge
+    EncodeException
+    FiveTuple
+    FunctionBlocks
+    FunctionEntries
+    FunctionNames
+    IntegerCodec
     IR
+    MappingCodec
     Module
     Node
+    OffsetCodec
     Offset
+    Padding
+    ParsedProduct
     ProxyBlock
     Section
+    SequenceCodec
     Serialization
+    SetCodec
+    StreamSerialization
+    StringCodec
+    SymAddrAddr
+    SymAddrConst
+    SymbolForwarding
+    SymbolicExpression
     Symbol
+    ThreeTuple
+    TreeListItem
+    TreeListUtils
+    TupleCodec
+    TwoTuple
+    Types
+    UnknownCodecException
+    UnknownData
     Util
+    UuidCodec
     Version
 )
 
@@ -123,6 +157,11 @@ if(GTIRB_ENABLE_TESTS)
       "${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${JAVA_PROTOBUF_VERSION}.jar"
   )
 
+  # Start work on a command to generate docs add_custom_command( OUTPUT docs
+  # POST_BUILD COMMAND if [[ ! -d ${CMAKE_CURRENT_BINARY_DIR}/docs ]]; then
+  # mkdir #{CMAKE_CURRENT_BINARY_DIR}/docs; fi COMMAND javadoc -d doc -cp
+  # .:${JAR_FILE_LIST} com/grammatech/gtirb/*.java COMMENT "Creating docs" )
+
   add_custom_command(
     TARGET ${GTIRB_API_JARFILE}
     POST_BUILD
@@ -132,13 +171,45 @@ if(GTIRB_ENABLE_TESTS)
     COMMENT "Building testIrSanity"
   )
 
+  add_custom_command(
+    TARGET ${GTIRB_API_JARFILE}
+    POST_BUILD
+    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/tests/testByteIntervals.java
+    COMMENT "Building testByteIntervals"
+  )
+
+  add_custom_command(
+    TARGET ${GTIRB_API_JARFILE}
+    POST_BUILD
+    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/tests/testAuxData.java
+    COMMENT "Building testAuxData"
+  )
+
   add_test(NAME JavaSanityTest
            COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-                   testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/testIr.gtirb
+                   testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
+  )
+
+  add_test(
+    NAME JavaByteIntervalsTest
+    COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
+            testByteIntervals ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
+  )
+
+  add_test(NAME JavaAuxDataTest
+           COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
+                   testAuxData ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
   )
 
   set_tests_properties(
-    JavaSanityTest PROPERTIES PASS_REGULAR_EXPRESSION "test OK."
+    JavaSanityTest
+    PROPERTIES PASS_REGULAR_EXPRESSION "test OK." JavaByteIntervalsTest
+    PROPERTIES PASS_REGULAR_EXPRESSION "test OK." JavaAuxDataTest
+    PROPERTIES PASS_REGULAR_EXPRESSION "test OK."
   )
 
 endif()

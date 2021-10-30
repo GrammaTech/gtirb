@@ -14,7 +14,12 @@
 
 package com.grammatech.gtirb;
 
-/**
- * The Block class is a base class for all byte blocks and proxy blocks.
- */
-public class Block extends Node {}
+public class UnknownCodecException extends RuntimeException {
+
+    /**
+     * Default version serial ID.
+     */
+    private static final long serialVersionUID = 1L;
+
+    public UnknownCodecException(String errorMessage) { super(errorMessage); }
+}

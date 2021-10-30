@@ -270,7 +270,7 @@ conan-linux-gcc9:
 .conan-windows: &conan-windows
   stage: deploy
   needs: [check-format]
-  tags: [gtirb-windows]
+  tags: [ddisasm-windows]
   script:
     - systeminfo
     - export PATH="C:\\Program Files\\Python38;$PATH"

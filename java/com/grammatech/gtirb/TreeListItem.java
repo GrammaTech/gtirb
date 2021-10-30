@@ -15,6 +15,25 @@
 package com.grammatech.gtirb;
 
 /**
- * The Block class is a base class for all byte blocks and proxy blocks.
+ * Interface for generic items to be stored in sorted order.
  */
-public class Block extends Node {}
+public interface TreeListItem {
+
+    /**
+     * Get the item index.
+     *
+     * Item index is used to store the items in sorted order.
+     *
+     * @return The item index..
+     */
+    long getIndex();
+
+    /**
+     * Get the item size.
+     *
+     * Item size is used to determine overlapping addresses.
+     *
+     * @return The item size.
+     */
+    long getSize();
+}

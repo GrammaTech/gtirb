@@ -5,6 +5,7 @@
 # 1.10.5
 
 * Added various symbolic expression attributes.
+* Updated Java API
 
 # 1.10.4
 
