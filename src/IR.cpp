@@ -123,6 +123,8 @@ public:
       return "Corrupted GTIRB file";
     case IR::load_error::CorruptModule:
       return "Corrupted GTIRB module";
+    case IR::load_error::CorruptSection:
+      return "Corrupted GTIRB section";
     case IR::load_error::CorruptByteInterval:
       return "Corrupted byte interval";
     case IR::load_error::BadCFG:
@@ -130,7 +132,7 @@ public:
     case IR::load_error::BadUUID:
       return "Bytes not valid UUID";
     case IR::load_error::MissingUUID:
-      return "Could not locate UUID"
+      return "Could not locate UUID";
     }
     assert(false && "Expected to handle all error codes");
     return "";
@@ -182,7 +184,7 @@ void IR::save(std::ostream& Out) const {
   Message.SerializeToOstream(&Out);
 }
 
-ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
+Expected<IR*> IR::load(Context& C, std::istream& In) {
   google::protobuf::io::IstreamInputStream InputStream(&In);
   google::protobuf::io::CodedInputStream CodedStream(&InputStream);
 #ifdef PROTOBUF_SET_BYTES_LIMIT
@@ -192,11 +194,11 @@ ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromCodedStream(&CodedStream);
 
-  auto MaybeIR = IR::fromProtobuf(C, Message);
-  if (MaybeIR) {
-    return *MaybeIR;
-  };
-  return errorToErrorCode(MaybeIR.takeError());
+  return IR::fromProtobuf(C, Message);
+  // if (MaybeIR) {
+  //   return *MaybeIR;
+  // };
+  // return errorToErrorCode(MaybeIR.takeError());
 }
 
 void IR::saveJSON(std::ostream& Out) const {

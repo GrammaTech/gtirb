@@ -16,6 +16,7 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
+#include <gtirb/Error.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
@@ -300,9 +301,10 @@ TEST(Unit_IR, jsonRoundTrip) {
 TEST(Unit_IR, loadCorruptFile) {
   std::stringstream Stream("JUNK");
   Context C;
-  ErrorOr<IR*> Result = IR::load(C, Stream);
+  auto Result = IR::load(C, Stream);
   EXPECT_FALSE(Result);
-  EXPECT_EQ(Result, gtirb::IR::load_error::CorruptFile);
+  EXPECT_EQ(errorToErrorCode(Result.takeError()),
+            gtirb::IR::load_error::CorruptFile);
 }
 
 TEST(Unit_IR, setModuleName) {

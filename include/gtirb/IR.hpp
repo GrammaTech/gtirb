@@ -274,6 +274,7 @@ public:
     IncorrectVersion = 1, ///< The version number in the file does not match.
     CorruptFile, ///< The content of the file could not be deserialized.
     CorruptModule,
+    CorruptSection,
     CorruptByteInterval,
     BadCFG, ///< The control flow graph could not be deserialized
     BadUUID,
@@ -286,7 +287,7 @@ public:
   /// \param In  The input stream.
   ///
   /// \return The deserialized IR object or an error.
-  static ErrorOr<IR*> load(Context& C, std::istream& In);
+  static Expected<IR*> load(Context& C, std::istream& In);
 
   /// \brief Deserialize JSON format from an input stream.
   ///

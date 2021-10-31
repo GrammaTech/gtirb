@@ -246,7 +246,7 @@ private:
   // of debug prints can cause the function to be too large for inlining.  So
   // it's important that we define this function out of line so that it can't be
   // inlined.
-  [[noreturn]] void fatalUncheckedError() const;
+  void fatalUncheckedError() const;
 
   void assertIsChecked() {
     if (LLVM_UNLIKELY(!getChecked() || getPtr()))
@@ -1117,13 +1117,13 @@ protected:
 std::error_code inconvertibleErrorCode();
 
 /// Helper for converting an std::error_code to a Error.
-Error errorCodeToError(std::error_code EC);
+GTIRB_EXPORT_API Error errorCodeToError(std::error_code EC);
 
 /// Helper for converting an ECError to a std::error_code.
 ///
 /// This method requires that Err be Error() or an ECError, otherwise it
 /// will trigger a call to abort().
-std::error_code errorToErrorCode(Error Err);
+GTIRB_EXPORT_API std::error_code errorToErrorCode(Error Err);
 
 /// Convert an ErrorOr<T> to an Expected<T>.
 template <typename T>
