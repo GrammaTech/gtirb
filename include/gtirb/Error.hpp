@@ -15,7 +15,6 @@
 
 #define LLVM_UNLIKELY(X) X
 
-#include "gtirb/ErrorOr.hpp"
 #include "gtirb/Utility.hpp"
 
 #include <algorithm>
@@ -1124,22 +1123,6 @@ GTIRB_EXPORT_API Error errorCodeToError(std::error_code EC);
 /// This method requires that Err be Error() or an ECError, otherwise it
 /// will trigger a call to abort().
 GTIRB_EXPORT_API std::error_code errorToErrorCode(Error Err);
-
-/// Convert an ErrorOr<T> to an Expected<T>.
-template <typename T>
-GTIRB_EXPORT_API Expected<T> errorOrToExpected(ErrorOr<T>&& EO) {
-  if (auto EC = EO.getError())
-    return errorCodeToError(EC);
-  return std::move(*EO);
-}
-
-/// Convert an Expected<T> to an ErrorOr<T>.
-template <typename T>
-GTIRB_EXPORT_API ErrorOr<T> expectedToErrorOr(Expected<T>&& E) {
-  if (auto Err = E.takeError())
-    return errorToErrorCode(std::move(Err));
-  return std::move(*E);
-}
 
 /// This class wraps a string in an Error.
 ///

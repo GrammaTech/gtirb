@@ -20,7 +20,6 @@
 #include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/CFG.hpp>
 #include <gtirb/Error.hpp>
-#include <gtirb/ErrorOr.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Observer.hpp>
