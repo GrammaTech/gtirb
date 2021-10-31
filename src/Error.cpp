@@ -105,7 +105,6 @@ void Error::fatalUncheckedError() const {
   } else
     std::cerr << "Error value was Success. (Note: Success values must still be "
                  "checked prior to being destroyed).\n";
-  abort();
 }
 
 } // namespace gtirb
