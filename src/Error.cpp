@@ -37,6 +37,7 @@ public:
       return "A file error occurred.";
     }
     assert(!"Unhandled error code");
+    return "";
   }
 };
 
