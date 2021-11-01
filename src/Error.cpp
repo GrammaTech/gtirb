@@ -103,9 +103,11 @@ void Error::fatalUncheckedError() const {
   if (getPtr()) {
     getPtr()->log(std::cerr);
     std::cerr << "\n";
+    assert(false);
   } else
     std::cerr << "Error value was Success. (Note: Success values must still be "
                  "checked prior to being destroyed).\n";
+  assert(false);
 }
 
 } // namespace gtirb
