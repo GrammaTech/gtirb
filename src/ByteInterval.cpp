@@ -130,8 +130,7 @@ Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id)) {
     ErrMsg += "Bad UUID";
-    auto Err = createStringError(IR::load_error::CorruptFile, ErrMsg);
-    return Err;
+    return createStringError(IR::load_error::CorruptFile, ErrMsg);
   }
 
   auto Err = createStringError(IR::load_error::CorruptFile, ErrMsg);

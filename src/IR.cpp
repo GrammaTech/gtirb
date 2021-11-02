@@ -161,7 +161,7 @@ Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.modules()) {
     auto M = Module::fromProtobuf(C, Elt);
     if (auto ModErr = M.takeError()) {
-      return ModErr;
+      return Expected<IR*>{std::move(ModErr)};
     }
     I->addModule(*M);
   }
@@ -215,5 +215,5 @@ Expected<IR*> IR::loadJSON(Context& C, std::istream& In) {
   google::protobuf::util::JsonStringToMessage(
       std::string(std::istreambuf_iterator<char>(In), {}), &Message);
 
-  return std::move(IR::fromProtobuf(C, Message));
+  return IR::fromProtobuf(C, Message);
 }
