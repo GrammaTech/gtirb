@@ -79,7 +79,7 @@ std::error_code FileError::convertToErrorCode() const {
                          ErrorErrorCat);
 }
 
-Error errorCodeToError(std::error_code EC) {
+GTIRB_EXPORT_API Error errorCodeToError(std::error_code EC) {
   if (!EC)
     return Error::success();
   return Error(std::make_unique<ECError>(ECError(EC)));
@@ -90,7 +90,7 @@ Error errorCodeToError(std::error_code EC) {
   abort();
 }
 
-std::error_code errorToErrorCode(Error Err) {
+GTIRB_EXPORT_API std::error_code errorToErrorCode(Error Err) {
   std::error_code EC;
   handleAllErrors(std::move(Err), [&](const ErrorInfoBase& EI) {
     EC = EI.convertToErrorCode();
