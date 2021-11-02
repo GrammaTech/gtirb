@@ -660,7 +660,7 @@ private:
           << "Expected<T> value was in success state. (Note: Expected<T> "
              "values in success mode must still be checked prior to being "
              "destroyed).\n";
-    abort();
+    assert(false);
   }
 
   void
