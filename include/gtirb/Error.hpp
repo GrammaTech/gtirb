@@ -650,7 +650,7 @@ private:
   // Used by ExpectedAsOutParameter to reset the checked flag.
   void setUnchecked() { Unchecked = true; }
 
-  [[noreturn]] void fatalUncheckedExpected() const {
+  void fatalUncheckedExpected() const {
     std::cerr << "Expected<T> must be checked before access or destruction.\n";
     if (HasError) {
       std::cerr << "Unchecked Expected<T> contained error:\n";
@@ -663,8 +663,7 @@ private:
     assert(false);
   }
 
-  void
-  assertIsChecked() const {
+  void assertIsChecked() const {
     if (LLVM_UNLIKELY(Unchecked))
       fatalUncheckedExpected();
   }
