@@ -6,7 +6,7 @@ namespace gtirb {
 
 void ErrorInfoBase::anchor() {}
 char ErrorInfoBase::ID = 0;
-char ErrorList::ID = 0;
+// char ErrorList::ID = 0;
 void ECError::anchor() {}
 char ECError::ID = 0;
 char StringError::ID = 0;
@@ -43,10 +43,10 @@ public:
 
 static ErrorErrorCategory ErrorErrorCat;
 
-std::error_code ErrorList::convertToErrorCode() const {
-  return std::error_code(static_cast<int>(ErrorErrorCode::MultipleErrors),
-                         ErrorErrorCat);
-}
+// std::error_code ErrorList::convertToErrorCode() const {
+//   return std::error_code(static_cast<int>(ErrorErrorCode::MultipleErrors),
+//                          ErrorErrorCat);
+// }
 
 StringError::StringError(std::error_code ErrCode, const char* S)
     : Msg(S), EC(ErrCode){};

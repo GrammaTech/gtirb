@@ -150,7 +150,7 @@ class GTIRB_EXPORT_API Error {
   // ErrorList needs to be able to yank ErrorInfoBase pointers out of Errors
   // to add to the error list. It can't rely on handleErrors for this, since
   // handleErrors does not support ErrorList handlers.
-  friend class ErrorList;
+  // friend class ErrorList;
 
   // handleErrors needs to be able to set the Checked flag.
   template <typename... HandlerTs>
@@ -327,78 +327,78 @@ public:
   }
 };
 
-/// Special ErrorInfo subclass representing a list of ErrorInfos.
-/// Instances of this class are constructed by joinError.
-class GTIRB_EXPORT_API ErrorList final : public ErrorInfo<ErrorList> {
-  // handleErrors needs to be able to iterate the payload list of an
-  // ErrorList.
+// /// Special ErrorInfo subclass representing a list of ErrorInfos.
+// /// Instances of this class are constructed by joinError.
+// class GTIRB_EXPORT_API ErrorList final : public ErrorInfo<ErrorList> {
+//   // handleErrors needs to be able to iterate the payload list of an
+//   // ErrorList.
 
-  template <typename... HandlerTs>
-  friend Error handleErrors(Error E, HandlerTs&&... Handlers);
+//   template <typename... HandlerTs>
+//   friend Error handleErrors(Error E, HandlerTs&&... Handlers);
 
-  // joinErrors is implemented in terms of join.
-  friend Error joinErrors(Error, Error);
+//   // joinErrors is implemented in terms of join.
+//   friend Error joinErrors(Error, Error);
 
-public:
-  void log(std::ostream& OS) const override {
-    OS << "Multiple errors:\n";
-    for (const auto& ErrPayload : Payloads) {
-      ErrPayload->log(OS);
-      OS << "\n";
-    }
-  }
+// public:
+//   void log(std::ostream& OS) const override {
+//     OS << "Multiple errors:\n";
+//     for (const auto& ErrPayload : Payloads) {
+//       ErrPayload->log(OS);
+//       OS << "\n";
+//     }
+//   }
 
-  std::error_code convertToErrorCode() const override;
+//   std::error_code convertToErrorCode() const override;
 
-  // Used by ErrorInfo::classID.
-  static char ID;
+//   // Used by ErrorInfo::classID.
+//   static char ID;
 
-private:
-  ErrorList(std::unique_ptr<ErrorInfoBase> Payload1,
-            std::unique_ptr<ErrorInfoBase> Payload2) {
-    assert(!Payload1->isA<ErrorList>() && !Payload2->isA<ErrorList>() &&
-           "ErrorList constructor payloads should be singleton errors");
-    Payloads.push_back(std::move(Payload1));
-    Payloads.push_back(std::move(Payload2));
-  }
+// private:
+//   ErrorList(std::unique_ptr<ErrorInfoBase> Payload1,
+//             std::unique_ptr<ErrorInfoBase> Payload2) {
+//     assert(!Payload1->isA<ErrorList>() && !Payload2->isA<ErrorList>() &&
+//            "ErrorList constructor payloads should be singleton errors");
+//     Payloads.push_back(std::move(Payload1));
+//     Payloads.push_back(std::move(Payload2));
+//   }
 
-  static Error join(Error E1, Error E2) {
-    if (!E1)
-      return E2;
-    if (!E2)
-      return E1;
-    if (E1.isA<ErrorList>()) {
-      auto& E1List = static_cast<ErrorList&>(*E1.getPtr());
-      auto E2Payload = E2.takePayload();
-      if (E2.isA<ErrorList>()) {
-        auto& E2List = static_cast<ErrorList&>(*E2Payload);
-        for (auto& Payload : E2List.Payloads)
-          E1List.Payloads.push_back(std::move(Payload));
-      } else
-        E1List.Payloads.push_back(std::move(E2Payload));
+//   static Error join(Error E1, Error E2) {
+//     if (!E1)
+//       return E2;
+//     if (!E2)
+//       return E1;
+//     if (E1.isA<ErrorList>()) {
+//       auto& E1List = static_cast<ErrorList&>(*E1.getPtr());
+//       auto E2Payload = E2.takePayload();
+//       if (E2.isA<ErrorList>()) {
+//         auto& E2List = static_cast<ErrorList&>(*E2Payload);
+//         for (auto& Payload : E2List.Payloads)
+//           E1List.Payloads.push_back(std::move(Payload));
+//       } else
+//         E1List.Payloads.push_back(std::move(E2Payload));
 
-      return E1;
-    }
-    if (E2.isA<ErrorList>()) {
-      auto& E2List = static_cast<ErrorList&>(*E2.getPtr());
-      auto E1Payload = E1.takePayload();
-      E2List.Payloads.insert(E2List.Payloads.begin(), std::move(E1Payload));
-      return E2;
-    }
+//       return E1;
+//     }
+//     if (E2.isA<ErrorList>()) {
+//       auto& E2List = static_cast<ErrorList&>(*E2.getPtr());
+//       auto E1Payload = E1.takePayload();
+//       E2List.Payloads.insert(E2List.Payloads.begin(), std::move(E1Payload));
+//       return E2;
+//     }
 
-    return Error(std::unique_ptr<ErrorList>(
-        new ErrorList(E1.takePayload(), E2.takePayload())));
-  }
+//     return Error(std::unique_ptr<ErrorList>(
+//         new ErrorList(E1.takePayload(), E2.takePayload())));
+//   }
 
-  std::vector<std::unique_ptr<ErrorInfoBase>> Payloads;
-};
+//   std::vector<std::unique_ptr<ErrorInfoBase>> Payloads;
+// };
 
-/// Concatenate errors. The resulting Error is unchecked, and contains the
-/// ErrorInfo(s), if any, contained in E1, followed by the
-/// ErrorInfo(s), if any, contained in E2.
-inline Error joinErrors(Error E1, Error E2) {
-  return ErrorList::join(std::move(E1), std::move(E2));
-}
+// /// Concatenate errors. The resulting Error is unchecked, and contains the
+// /// ErrorInfo(s), if any, contained in E1, followed by the
+// /// ErrorInfo(s), if any, contained in E2.
+// inline Error joinErrors(Error E1, Error E2) {
+//   return ErrorList::join(std::move(E1), std::move(E2));
+// }
 
 /// Tagged union holding either a T or a Error.
 ///
@@ -899,15 +899,15 @@ Error handleErrors(Error E, HandlerTs&&... Hs) {
 
   std::unique_ptr<ErrorInfoBase> Payload = E.takePayload();
 
-  if (Payload->isA<ErrorList>()) {
-    ErrorList& List = static_cast<ErrorList&>(*Payload);
-    Error R;
-    for (auto& P : List.Payloads)
-      R = ErrorList::join(
-          std::move(R),
-          handleErrorImpl(std::move(P), std::forward<HandlerTs>(Hs)...));
-    return R;
-  }
+  // if (Payload->isA<ErrorList>()) {
+  //   ErrorList& List = static_cast<ErrorList&>(*Payload);
+  //   Error R;
+  //   for (auto& P : List.Payloads)
+  //     R = ErrorList::join(
+  //         std::move(R),
+  //         handleErrorImpl(std::move(P), std::forward<HandlerTs>(Hs)...));
+  // return R;
+  // }
 
   return handleErrorImpl(std::move(Payload), std::forward<HandlerTs>(Hs)...);
 }
