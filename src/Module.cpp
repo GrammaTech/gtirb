@@ -131,7 +131,7 @@ Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.proxies()) {
     auto PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB)
-      return Expected<Module*>{std::move(Problem)};
+      return joinErrors(std::move(Problem), PB.takeError());
     M->addProxyBlock(*PB);
   }
   for (const auto& Elt : Message.sections()) {
