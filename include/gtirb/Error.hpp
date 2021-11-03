@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
+#include <forward_list>
 #include <functional>
 #include <iostream>
 #include <list>
@@ -359,8 +360,8 @@ private:
             std::unique_ptr<ErrorInfoBase> Payload2) {
     assert(!Payload1->isA<ErrorList>() && !Payload2->isA<ErrorList>() &&
            "ErrorList constructor payloads should be singleton errors");
-    Payloads.push_back(std::move(Payload1));
-    Payloads.push_back(std::move(Payload2));
+    Payloads.push_front(std::move(Payload1));
+    Payloads.push_front(std::move(Payload2));
   }
 
   static Error join(Error E1, Error E2) {
@@ -374,16 +375,17 @@ private:
       if (E2.isA<ErrorList>()) {
         auto& E2List = static_cast<ErrorList&>(*E2Payload);
         for (auto& Payload : E2List.Payloads)
-          E1List.Payloads.push_back(std::move(Payload));
+          E1List.Payloads.push_front(std::move(Payload));
       } else
-        E1List.Payloads.push_back(std::move(E2Payload));
+        E1List.Payloads.push_front(std::move(E2Payload));
 
       return E1;
     }
     if (E2.isA<ErrorList>()) {
       auto& E2List = static_cast<ErrorList&>(*E2.getPtr());
       auto E1Payload = E1.takePayload();
-      E2List.Payloads.insert(E2List.Payloads.begin(), std::move(E1Payload));
+      E2List.Payloads.insert_after(E2List.Payloads.begin(),
+                                   std::move(E1Payload));
       return E2;
     }
 
@@ -391,7 +393,7 @@ private:
         new ErrorList(E1.takePayload(), E2.takePayload())));
   }
 
-  std::list<std::unique_ptr<ErrorInfoBase>> Payloads;
+  std::forward_list<std::unique_ptr<ErrorInfoBase>> Payloads;
 };
 
 // /// Concatenate errors. The resulting Error is unchecked, and contains the
