@@ -5,7 +5,6 @@
 namespace gtirb {
 
 void ErrorInfoBase::anchor() {}
-char ErrorInfoBase::ID = 0;
 // char ErrorList::ID = 0;
 void ECError::anchor() {}
 char ECError::ID = 0;

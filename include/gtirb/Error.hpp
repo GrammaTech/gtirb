@@ -78,7 +78,7 @@ public:
 private:
   virtual void anchor();
 
-  static char ID;
+  constexpr static char ID = 0;
 };
 
 /// Lightweight error class with error context and mandatory checking.
