@@ -90,7 +90,7 @@ Error errorCodeToError(std::error_code EC) {
   abort();
 }
 
-GTIRB_EXPORT_API std::error_code errorToErrorCode(Error Err) {
+std::error_code errorToErrorCode(Error Err) {
   std::error_code EC;
   handleAllErrors(std::move(Err), [&](const ErrorInfoBase& EI) {
     EC = EI.convertToErrorCode();

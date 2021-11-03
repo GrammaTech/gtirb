@@ -921,7 +921,6 @@ void handleAllErrors(Error E, HandlerTs&&... Handlers) {
 }
 
 /// Check that E is a non-error, then drop it.
-/// If E is an error, llvm_unreachable will be called.
 inline void handleAllErrors(Error E) { cantFail(std::move(E)); }
 
 /// Handle any errors (if present) in an Expected<T>, then try a recovery path.
@@ -1123,6 +1122,9 @@ Error errorCodeToError(std::error_code EC);
 ///
 /// This method requires that Err be Error() or an ECError, otherwise it
 /// will trigger a call to abort().
+#if !defined(__MSC_VER)
+GTIRB_EXPORT_API
+#endif
 std::error_code errorToErrorCode(Error Err);
 
 /// This class wraps a string in an Error.
