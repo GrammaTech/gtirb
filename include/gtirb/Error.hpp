@@ -385,13 +385,11 @@ private:
       E2List.Payloads.insert(E2List.Payloads.begin(), std::move(E1Payload));
       return E2;
     }
+
     return Error(std::unique_ptr<ErrorList>(
         new ErrorList(E1.takePayload(), E2.takePayload())));
   }
 
-#if defined(__MSC_VER)
-  std::unique_ptr<ErrorInfoBase> ErrorStub;
-#endif
   std::vector<std::unique_ptr<ErrorInfoBase>> Payloads;
 };
 

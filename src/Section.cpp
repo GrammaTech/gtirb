@@ -91,10 +91,8 @@ Expected<Section*> Section::fromProtobuf(Context& C,
   for (const auto& ProtoInterval : Message.byte_intervals()) {
     auto BI = ByteInterval::fromProtobuf(C, ProtoInterval);
     if (!BI)
-      return joinErrors(
-          createStringError(IR::load_error::CorruptSection,
-                            "Could not load section" + Message.name()),
-          BI.takeError());
+      return createStringError(IR::load_error::CorruptSection,
+                               "Could not load section" + Message.name());
     S->addByteInterval(*BI);
   }
   return S;
