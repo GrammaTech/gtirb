@@ -369,19 +369,20 @@ private:
       return E1;
     if (E1.isA<ErrorList>()) {
       auto& E1List = static_cast<ErrorList&>(*E1.getPtr());
+      auto E2Payload = E2.takePayload();
       if (E2.isA<ErrorList>()) {
-        auto E2Payload = E2.takePayload();
         auto& E2List = static_cast<ErrorList&>(*E2Payload);
         for (auto& Payload : E2List.Payloads)
           E1List.Payloads.push_back(std::move(Payload));
       } else
-        E1List.Payloads.push_back(E2.takePayload());
+        E1List.Payloads.push_back(std::move(E2Payload));
 
       return E1;
     }
     if (E2.isA<ErrorList>()) {
       auto& E2List = static_cast<ErrorList&>(*E2.getPtr());
-      E2List.Payloads.insert(E2List.Payloads.begin(), E1.takePayload());
+      auto E1Payload = E1.takePayload();
+      E2List.Payloads.insert(E2List.Payloads.begin(), std::move(E1Payload));
       return E2;
     }
     return Error(std::unique_ptr<ErrorList>(
