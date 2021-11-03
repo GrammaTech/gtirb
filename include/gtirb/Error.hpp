@@ -375,18 +375,17 @@ private:
         for (auto& Payload : E2List.Payloads)
           E1List.Payloads.push_back(std::move(Payload));
       } else
-        E1List.Payloads.push_back(std::move(E2.takePayload()));
+        E1List.Payloads.push_back(E2.takePayload());
 
       return E1;
     }
     if (E2.isA<ErrorList>()) {
       auto& E2List = static_cast<ErrorList&>(*E2.getPtr());
-      E2List.Payloads.insert(E2List.Payloads.begin(),
-                             std::move(E1.takePayload()));
+      E2List.Payloads.insert(E2List.Payloads.begin(), E1.takePayload());
       return E2;
     }
-    return Error(std::unique_ptr<ErrorList>(new ErrorList(
-        std::move(E1.takePayload()), std::move(E2.takePayload()))));
+    return Error(std::unique_ptr<ErrorList>(
+        new ErrorList(E1.takePayload(), E2.takePayload())));
   }
 
   std::vector<std::unique_ptr<ErrorInfoBase>> Payloads;
