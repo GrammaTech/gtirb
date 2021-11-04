@@ -133,8 +133,6 @@ Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     return createStringError(IR::load_error::CorruptFile, ErrMsg);
   }
 
-  auto Err = createStringError(IR::load_error::CorruptFile, ErrMsg);
-
   ByteInterval* BI = ByteInterval::Create(
       C, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size(), Id);
@@ -160,7 +158,6 @@ Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     }
     }
   }
-  consumeError(std::move(Err));
   return BI;
 }
 

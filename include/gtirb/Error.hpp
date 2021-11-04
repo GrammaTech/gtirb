@@ -21,10 +21,8 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
-#include <forward_list>
 #include <functional>
 #include <iostream>
-#include <list>
 #include <memory>
 #include <new>
 #include <string>
@@ -360,8 +358,8 @@ private:
             std::unique_ptr<ErrorInfoBase> Payload2) {
     assert(!Payload1->isA<ErrorList>() && !Payload2->isA<ErrorList>() &&
            "ErrorList constructor payloads should be singleton errors");
-    Payloads.push_front(std::move(Payload1));
-    Payloads.push_front(std::move(Payload2));
+    Payloads.push_back(std::shared_ptr<ErrorInfoBase>(Payload1.release()));
+    Payloads.push_back(std::shared_ptr<ErrorInfoBase>(Payload2.release()));
   }
 
   static Error join(Error E1, Error E2) {
@@ -375,17 +373,17 @@ private:
       if (E2.isA<ErrorList>()) {
         auto& E2List = static_cast<ErrorList&>(*E2Payload);
         for (auto& Payload : E2List.Payloads)
-          E1List.Payloads.push_front(std::move(Payload));
+          E1List.Payloads.push_back(Payload);
       } else
-        E1List.Payloads.push_front(std::move(E2Payload));
-
+        E1List.Payloads.push_back(
+            std::shared_ptr<ErrorInfoBase>(E2Payload.release()));
       return E1;
     }
     if (E2.isA<ErrorList>()) {
       auto& E2List = static_cast<ErrorList&>(*E2.getPtr());
-      auto E1Payload = E1.takePayload();
-      E2List.Payloads.insert_after(E2List.Payloads.begin(),
-                                   std::move(E1Payload));
+      E2List.Payloads.insert(
+          E2List.Payloads.begin(),
+          std::shared_ptr<ErrorInfoBase>(E1.takePayload().release()));
       return E2;
     }
 
@@ -393,7 +391,7 @@ private:
         new ErrorList(E1.takePayload(), E2.takePayload())));
   }
 
-  std::forward_list<std::unique_ptr<ErrorInfoBase>> Payloads;
+  std::vector<std::shared_ptr<ErrorInfoBase>> Payloads;
 };
 
 // /// Concatenate errors. The resulting Error is unchecked, and contains the
@@ -821,7 +819,7 @@ public:
   template <typename HandlerT>
   static Error apply(HandlerT&& H, std::unique_ptr<ErrorInfoBase> E) {
     assert(appliesTo(*E) && "Applying incorrect handler");
-    std::unique_ptr<ErrT> SubE(static_cast<ErrT*>(E.release()));
+    std::unique_ptr<ErrT> SubE(static_cast<ErrT*>(E.get()));
     return H(std::move(SubE));
   }
 };
@@ -837,7 +835,7 @@ public:
   template <typename HandlerT>
   static Error apply(HandlerT&& H, std::unique_ptr<ErrorInfoBase> E) {
     assert(appliesTo(*E) && "Applying incorrect handler");
-    std::unique_ptr<ErrT> SubE(static_cast<ErrT*>(E.release()));
+    std::unique_ptr<ErrT> SubE(static_cast<ErrT*>(E.get()));
     H(std::move(SubE));
     return Error::success();
   }
@@ -1119,6 +1117,9 @@ protected:
 std::error_code inconvertibleErrorCode();
 
 /// Helper for converting an std::error_code to a Error.
+#if !defined(__MSC_VER)
+GTIRB_EXPORT_API
+#endif
 Error errorCodeToError(std::error_code EC);
 
 /// Helper for converting an ECError to a std::error_code.
