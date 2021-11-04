@@ -1117,9 +1117,6 @@ protected:
 std::error_code inconvertibleErrorCode();
 
 /// Helper for converting an std::error_code to a Error.
-#if !defined(__MSC_VER)
-GTIRB_EXPORT_API
-#endif
 Error errorCodeToError(std::error_code EC);
 
 /// Helper for converting an ECError to a std::error_code.
