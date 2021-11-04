@@ -90,9 +90,9 @@ macro(GTIRB_ADD_ALL_SUBDIRS)
   endforeach()
 endmacro()
 
-# Provide a vaguely consistent interface to find a Python 3 interpreter. Just use
-# FindPython3 if it exists, but fall back to looking for the interpreter program
-# if we have to.
+# Provide a vaguely consistent interface to find a Python 3 interpreter. Just
+# use FindPython3 if it exists, but fall back to looking for the interpreter
+# program if we have to.
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12")
   macro(GTIRB_FIND_PYTHON)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
