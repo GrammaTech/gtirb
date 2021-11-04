@@ -137,43 +137,50 @@ Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.sections()) {
     auto S = Section::fromProtobuf(C, Elt);
     if (!S)
-      return Expected<Module*>{std::move(Problem)};
+      return joinErrors(std::move(Problem), S.takeError());
     M->addSection(*S);
   }
   for (const auto& Elt : Message.symbols()) {
     auto S = Symbol::fromProtobuf(C, Elt);
     if (!S)
-      return Expected<Module*>{std::move(Problem)};
+      return joinErrors(std::move(Problem), S.takeError());
     M->addSymbol(*S);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
-        return Expected<Module*>{std::move(Problem)};
+        return joinErrors(std::move(Problem),
+                          createStringError(IR::load_error::CorruptByteInterval,
+                                            "Could not parse ByteInterval"));
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
       if (!BI)
-        return createStringError(IR::load_error::MissingUUID,
-                                 "could not find byteinterval");
+        return joinErrors(std::move(Problem),
+                          createStringError(IR::load_error::MissingUUID,
+                                            "could not find byteinterval"));
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI)) {
         std::stringstream msg{
             "could not deserialize symbolic expression in byteinterval"};
         if (auto Addr = BI->getAddress())
           msg << " @" << Addr;
-        consumeError(std::move(Problem));
-        return createStringError(IR::load_error::CorruptModule, msg.str());
+        return joinErrors(
+            std::move(Problem),
+            createStringError(IR::load_error::CorruptModule, msg.str()));
       }
     }
   }
 
-  consumeError(std::move(Problem));
   if (!Message.entry_point().empty()) {
     if (!uuidFromBytes(Message.entry_point(), Id))
-      return createStringError(IR::load_error::BadUUID, "Bad entry point");
+      return joinErrors(
+          std::move(Problem),
+          createStringError(IR::load_error::BadUUID, "Bad entry point"));
     M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
     if (!M->EntryPoint)
-      return createStringError(IR::load_error::MissingUUID,
-                               "could not find entry point");
+      return joinErrors(std::move(Problem),
+                        createStringError(IR::load_error::MissingUUID,
+                                          "could not find entry point"));
   }
+  consumeError(std::move(Problem));
   M->ByteOrder = static_cast<gtirb::ByteOrder>(Message.byte_order());
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
   return M;
