@@ -110,7 +110,7 @@ set(CXX_API ${GTIRB_CXX_API})
 # === Python ===
 set(PY_API ${GTIRB_PY_API})
 if(GTIRB_PY_API)
-  find_program(PYTHON "python3")
+  gtirb_find_python()
 
   if(PYTHON)
     set(PYTHON_MINIMUM_VERSION "3.5.2")

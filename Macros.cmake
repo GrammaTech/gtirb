@@ -89,3 +89,29 @@ macro(GTIRB_ADD_ALL_SUBDIRS)
     add_subdirectory(${subdir})
   endforeach()
 endmacro()
+
+# Provide a vaguely consistent interface to find a Python 3 interpreter. Just use
+# FindPython3 if it exists, but fall back to looking for the interpreter program
+# if we have to.
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12")
+  macro(GTIRB_FIND_PYTHON)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    if(Python3_EXECUTABLE)
+      set(PYTHON ${Python3_EXECUTABLE})
+    endif()
+  endmacro()
+else()
+  macro(GTIRB_FIND_PYTHON)
+    find_program(PYTHON NAMES python3 python py)
+    if(PYTHON)
+      execute_process(
+        COMMAND "${PYTHON}" --version OUTPUT_VARIABLE PYTHON_VERSION
+      )
+      string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
+      if("${PYTHON_VERSION}" VERSION_LESS 3)
+        unset(PYTHON)
+        unset(PYTHON_VERSION)
+      endif()
+    endif()
+  endmacro()
+endif()

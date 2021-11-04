@@ -56,6 +56,7 @@ if __name__ == "__main__":
             "intervaltree",
             "sortedcontainers"
         ] + typing_dep,
+        extras_require={"doc": ["sphinx", "sphinx-autodoc-typehints"]},
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: MIT License",

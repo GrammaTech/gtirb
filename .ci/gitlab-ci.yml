@@ -50,6 +50,28 @@ check-format:
       EOF
       ) && exit 1)
 
+build-docs:
+  stage: doc
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - html
+  script:
+    - apt-get update && apt-get -y install doxygen graphviz
+    - mkdir build
+    - cd build
+    # Build java and python APIs to get the gtirb jar and setup.py
+    - cmake .. -DGTIRB_CL_API=OFF -DGTIRB_CXX_API=OFF -DGTIRB_JAVA_API=ON -DGTIRB_PY_API=ON -DGTIRB_ENABLE_TESTS=OFF
+    - make
+    - cd python
+    - pip install -e '.[doc]'
+    - cd ..
+    # Build documentation
+    - cmake .. -DGTIRB_CL_API=OFF -DGTIRB_CXX_API=ON -DGTIRB_JAVA_API=ON -DGTIRB_PY_API=ON
+    - make doc
+    - mv doc/html ..
+
 .build-template: &build
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"

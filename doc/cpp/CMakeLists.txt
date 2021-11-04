@@ -79,6 +79,8 @@ if(DOXYGEN_FOUND)
   move_filename(MDFILES ${CMAKE_CURRENT_BINARY_DIR})
   # message("MDFILES = ${MDFILES}")
 
+  gtirb_find_python()
+
   foreach(_inmd ${MDFILES_IN})
     get_filename_component(_outmd "${_inmd}" NAME)
     add_custom_command(
@@ -86,7 +88,7 @@ if(DOXYGEN_FOUND)
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       DEPENDS ${_inmd}
       COMMAND ${CMAKE_COMMAND} -E copy ${_inmd} "${_outmd}.in"
-      COMMAND python ../preprocmd.py "${_outmd}.in" ${_outmd}
+      COMMAND ${PYTHON} ../preprocmd.py "${_outmd}.in" ${_outmd}
       COMMENT "processing ${_outmd}"
       VERBATIM
     )
