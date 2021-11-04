@@ -51,7 +51,7 @@ check-format:
       ) && exit 1)
 
 build-docs:
-  stage: doc
+  stage: build
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
