@@ -315,6 +315,7 @@ template <typename ErrT, typename... ArgTs> Error make_error(ArgTs&&... Args) {
 /// method, which is used by the Error RTTI system.
 template <typename ThisErrT, typename ParentErrT = ErrorInfoBase>
 class GTIRB_EXPORT_API ErrorInfo : public ParentErrT {
+
 public:
   using ParentErrT::ParentErrT; // inherit constructors
 
@@ -1088,7 +1089,7 @@ private:
 /// This is useful if you're writing an interface that returns a Error
 /// (or Expected) and you want to call code that still returns
 /// std::error_codes.
-class ECError : public ErrorInfo<ECError> {
+class GTIRB_EXPORT_API ECError : public ErrorInfo<ECError> {
   friend Error errorCodeToError(std::error_code);
 
   virtual void anchor() override;
@@ -1101,10 +1102,10 @@ public:
   // Used by ErrorInfo::classID.
   static char ID;
 
-protected:
-  ECError() = default;
   ECError(std::error_code ErrCode) : EC(ErrCode) {}
 
+protected:
+  ECError() = default;
   std::error_code EC;
 };
 
@@ -1152,7 +1153,8 @@ std::error_code errorToErrorCode(Error Err);
 ///   }
 ///   @endcode
 ///
-class StringError : public ErrorInfo<StringError> {
+
+class GTIRB_EXPORT_API StringError : public ErrorInfo<StringError> {
 public:
   static char ID;
 
