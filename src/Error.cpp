@@ -68,6 +68,16 @@ void StringError::log(std::ostream& OS) const {
   }
 }
 
+void logAllUnhandledErrors(Error E, std::ostream& OS, std::string ErrorBanner) {
+  if (!E)
+    return;
+  OS << ErrorBanner;
+  handleAllErrors(std::move(E), [&](const ErrorInfoBase& EI) {
+    EI.log(OS);
+    OS << "\n";
+  });
+}
+
 std::error_code inconvertibleErrorCode() {
   return std::error_code(static_cast<int>(ErrorErrorCode::InconvertibleError),
                          ErrorErrorCat);
