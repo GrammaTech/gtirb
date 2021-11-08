@@ -972,8 +972,8 @@ Expected<T> handleExpected(Expected<T> ValOrErr, RecoveryFtor&& RecoveryPath,
 /// This is useful in the base level of your program to allow clean termination
 /// (allowing clean deallocation of resources, etc.), while reporting error
 /// information to the user.
-void logAllUnhandledErrors(Error E, std::ostream& OS,
-                           std::string ErrorBanner = {});
+void GTIRB_EXPORT_API logAllUnhandledErrors(Error E, std::ostream& OS,
+                                            std::string ErrorBanner = {});
 
 /// Write all error messages (if any) in E to a string. The newline character
 /// is used to separate error messages.
