@@ -286,16 +286,12 @@ TEST(Unit_IR, jsonRoundTrip) {
   }
   std::istringstream In(Out.str());
   auto ResultOrErr = IR::loadJSON(Ctx, In);
-  if (!ResultOrErr) {
-    consumeError(ResultOrErr.takeError());
-  } else {
-    auto* Result = *ResultOrErr;
+  auto* Result = *ResultOrErr;
 
-    EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
-    EXPECT_EQ(Result->getAuxDataSize(), 1);
-    ASSERT_NE(Result->getAuxData<TestInt32>(), nullptr);
-    EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
-  }
+  EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);
+  EXPECT_EQ(Result->getAuxDataSize(), 1);
+  ASSERT_NE(Result->getAuxData<TestInt32>(), nullptr);
+  EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
 }
 
 TEST(Unit_IR, loadCorruptFile) {
