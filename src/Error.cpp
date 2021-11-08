@@ -107,8 +107,8 @@ std::error_code errorToErrorCode(Error Err) {
   return EC;
 }
 
-void Error::fatalUncheckedError() const {
-  std::cerr << "Program aborted due to an unhandled Error:\n";
+void Error::reportUncheckedError() const {
+  std::cerr << "Program containes an unhandled Error:\n";
   if (getPtr()) {
     getPtr()->log(std::cerr);
     std::cerr << "\n";

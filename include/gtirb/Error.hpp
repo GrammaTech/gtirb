@@ -245,11 +245,11 @@ private:
   // of debug prints can cause the function to be too large for inlining.  So
   // it's important that we define this function out of line so that it can't be
   // inlined.
-  void fatalUncheckedError() const;
+  void reportUncheckedError() const;
 
   void assertIsChecked() {
     if (LLVM_UNLIKELY(!getChecked() || getPtr()))
-      fatalUncheckedError();
+      reportUncheckedError();
   }
 
   ErrorInfoBase* getPtr() const {
@@ -654,7 +654,7 @@ private:
   // Used by ExpectedAsOutParameter to reset the checked flag.
   void setUnchecked() { Unchecked = true; }
 
-  void fatalUncheckedExpected() const {
+  void reportUncheckedExpected() const {
     std::cerr << "Expected<T> must be checked before access or destruction.\n";
     if (HasError) {
       std::cerr << "Unchecked Expected<T> contained error:\n";
@@ -668,7 +668,7 @@ private:
 
   void assertIsChecked() const {
     if (LLVM_UNLIKELY(Unchecked))
-      fatalUncheckedExpected();
+      reportUncheckedExpected();
   }
 
   union {
