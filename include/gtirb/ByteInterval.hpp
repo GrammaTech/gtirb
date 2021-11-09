@@ -1871,7 +1871,22 @@ public:
   }
 
 private:
-  /// Insert a vector into a byte vector
+  /// \brief Insert data into this byte vector.
+  ///
+  /// \tparam T  The type of data you wish to insert into the byte
+  /// vector. Must be a POD type that satisfies Boost's EndianReversible
+  /// concept.
+  ///
+  /// \tparam BytesIterator  The type of iterator you wish to determine
+  /// the position of where the inserted data will go.
+  ///
+  /// \tparam InputIterator       The type of an iterator yielding T.
+  ///
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
+  ///
+  /// \return An iterator pointing to the first element inserted by this call.
   template <typename T, typename BytesIterator, typename InputIterator>
   BytesIterator insertByteVec(
       BytesIterator Pos, InputIterator Begin, InputIterator End,
@@ -1896,7 +1911,21 @@ private:
     return Pos;
   }
 
-  /// Insert a single element into a byte vector
+  /// \brief Insert a single datum into this byte vector.
+  ///
+  /// \tparam T  The type of data you wish to insert into the byte
+  /// vector. Must be a POD type that satisfies Boost's EndianReversible
+  /// concept.
+  ///
+  /// \tparam BytesIterator  The type of iterator you wish to determine
+  /// the position of where the inserted data will go.
+  ///
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  X             The data to insert.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementOrder  The endianness of the data to be inserted.
+  ///
+  /// \return An iterator pointing to the element inserted by this call. 
   template <typename T, typename BytesIterator>
   BytesIterator insertSingleByte(
       BytesIterator Pos, const T& X, boost::endian::order VectorOrder,
@@ -1911,8 +1940,8 @@ public:
   /// vector. Must be a POD type that satisfies Boost's EndianReversible
   /// concept.
   ///
-  /// \param  Pos(const_bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  X                         The data to insert.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  X             The data to insert.
   ///
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
@@ -1927,8 +1956,8 @@ public:
   /// vector. Must be a POD type that satisfies Boost's EndianReversible
   /// concept.
   ///
-  /// \param  Pos(bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  X                   The data to insert.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  X             The data tprivato insert.
   ///
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
@@ -1942,10 +1971,10 @@ public:
   /// vector. Must be a POD type that satisfies Boost's EndianReversible
   /// concept.
   ///
-  /// \param  Pos(const_bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  X                         The data to insert.
-  /// \param  VectorOrder               The endianness of the data in the byte vector.
-  /// \param  ElementOrder              The endianness of the data to be inserted.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  X             The data to insert.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
@@ -1963,10 +1992,10 @@ public:
   /// vector. Must be a POD type that satisfies Boost's EndianReversible
   /// concept.
   ///
-  /// \param  Pos(bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  X                   The data to insert.
-  /// \param  VectorOrder         The endianness of the data in the byte vector.
-  /// \param  ElementOrder        The endianness of the data to be inserted.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  X             The data to insert.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the element inserted by this call.
   template <typename T>
@@ -1984,9 +2013,9 @@ public:
   ///
   /// \tparam InputIterator      The type of an iterator yielding T.
   ///
-  /// \param  Pos(const_bytes_interator) The position in the byte vector to insert data at.
-  /// \param  Begin                      The start of the data to insert.
-  /// \param  End                        The end of the data to insert.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
 
@@ -2003,9 +2032,9 @@ public:
   ///
   /// \tparam InputIterator       The type of an iterator yielding T.
   ///
-  /// \param  Pos(bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  Begin               The start of the data to insert.
-  /// \param  End                 The end of the data to insert.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
   template <typename T, typename InputIterator>
@@ -2022,11 +2051,11 @@ public:
   ///
   /// \tparam InputIterator             The type of an iterator yielding T.
   ///
-  /// \param  Pos(const_bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  Begin                     The start of the data to insert.
-  /// \param  End                       The end of the data to insert.
-  /// \param  VectorOrder               The endianness of the data in the byte vector.
-  /// \param  ElementsOrder             The endianness of the data to be inserted.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementsOrder The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
   template <typename T, typename InputIterator>
@@ -2045,11 +2074,11 @@ public:
   ///
   /// \tparam InputIterator       The type of an iterator yielding T.
   ///
-  /// \param  Pos(bytes_iterator) The position in the byte vector to insert data at.
-  /// \param  Begin               The start of the data to insert.
-  /// \param  End                 The end of the data to insert.
-  /// \param  VectorOrder         The endianness of the data in the byte vector.
-  /// \param  ElementsOrder       The endianness of the data to be inserted.
+  /// \param  Pos           The position in the byte vector to insert data at.
+  /// \param  Begin         The start of the data to insert.
+  /// \param  End           The end of the data to insert.
+  /// \param  VectorOrder   The endianness of the data in the byte vector.
+  /// \param  ElementsOrder The endianness of the data to be inserted.
   ///
   /// \return An iterator pointing to the first element inserted by this call.
   template <typename T, typename InputIterator>
