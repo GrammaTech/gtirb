@@ -18,6 +18,7 @@ RUN dnf install -y \
     java \
     libtool \
     make \
+    maven \
     python3 \
     python3-protobuf \
     python3-networkx \
