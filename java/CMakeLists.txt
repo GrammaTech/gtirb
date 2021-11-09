@@ -2,10 +2,9 @@
 # Cmake configuration for java build
 #
 
-include(UseJava)
-
 # ---------------------------------------------------------------------------
-# Getting dependencies (protobuf-java jar file)
+# Get protobuf version to DL from maven repository.
+# This value is used in pom.xml.in.
 # ---------------------------------------------------------------------------
 
 # Use only minor version, patch versions might not be available
@@ -18,19 +17,14 @@ set(JAVA_PROTOBUF_VERSION
     "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.0"
 )
 
-file(
-  DOWNLOAD
-  https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/${JAVA_PROTOBUF_VERSION}/protobuf-java-${JAVA_PROTOBUF_VERSION}.jar
-  ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${JAVA_PROTOBUF_VERSION}.jar
-)
-
 # ---------------------------------------------------------------------------
 # Building the gtirb protobuf files into java
 # ---------------------------------------------------------------------------
+set(GTIRB_JAVA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src)
 
 # Directory containing the *.class files generated from the *.proto files
 set(GTIRB_PROTO_CLASS_DIR
-    "${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb/proto"
+    "${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/proto"
 )
 
 # Add commands to compile the *.proto files to *.class files
@@ -42,7 +36,7 @@ foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
   add_custom_command(
     OUTPUT ${GTIRB_PROTO_CLASS_FILE}
     COMMAND ${Protobuf_PROTOC_EXECUTABLE}
-            --java_out=${CMAKE_CURRENT_BINARY_DIR}
+            --java_out=${GTIRB_JAVA_SOURCE_DIR}
             --proto_path=${GTIRB_PROTO_DIR} ${GTIRB_PROTO_FILE}
   )
   list(APPEND GTIRB_PROTOBUF_JAVA ${GTIRB_PROTO_CLASS_FILE})
@@ -51,10 +45,14 @@ endforeach()
 # ---------------------------------------------------------------------------
 # Building the gtirb java API
 # ---------------------------------------------------------------------------
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/pom.xml.in
+  ${CMAKE_CURRENT_BINARY_DIR}/pom.xml @ONLY
+)
 
 file(
   COPY ${CMAKE_CURRENT_SOURCE_DIR}/com/grammatech/gtirb/
-  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb
+  DESTINATION ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb
   FILES_MATCHING
   PATTERN "*.java"
 )
@@ -64,7 +62,7 @@ file(
 # ---------------------------------------------------------------------------
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/Version.java.in
-  ${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb/Version.java @ONLY
+  ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/Version.java @ONLY
 )
 
 set(GTIRB_API_JAVAS
@@ -125,67 +123,86 @@ foreach(GTIRB_API_JAVA ${GTIRB_API_JAVAS})
   list(
     APPEND
       GTIRB_API_SOURCES
-      ${CMAKE_CURRENT_BINARY_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
+      ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
   )
 endforeach()
 
-set(GTIRB_API_JARFILE
-    gtirb_api-${GTIRB_MAJOR_VERSION}.${GTIRB_MINOR_VERSION}.${GTIRB_PATCH_VERSION}
+set(GTIRB_JAVA_API_VERSION
+  "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+  )
+set(GTIRB_JAVA_API_JARS
+  "gtirb_api-${GTIRB_JAVA_API_VERSION}.jar"
+  "gtirb_api-${GTIRB_JAVA_API_VERSION}-sources.jar"
+  "gtirb_api-${GTIRB_JAVA_API_VERSION}-javadoc.jar"
+  )
+
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/target/${GTIRB_JAVA_API_JARS}
+  COMMAND mvn package
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+  DEPENDS ${GTIRB_API_SOURCES} ${GTIRB_PROTOBUF_JAVA}
 )
-add_jar(${GTIRB_API_JARFILE} SOURCES ${GTIRB_API_SOURCES}
-        ${GTIRB_PROTOBUF_JAVA} INCLUDE_JARS
-        ${CMAKE_CURRENT_BINARY_DIR}/protobuf-java-${JAVA_PROTOBUF_VERSION}.jar
+
+add_custom_target(
+  GTIRB_JAVA_API ALL
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/target/${GTIRB_JAVA_API_JARS}
 )
+
 
 # ---------------------------------------------------------------------------
 # Building the test code
 # ---------------------------------------------------------------------------
 
+
 if(GTIRB_ENABLE_TESTS)
-
-  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/
-       DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests
-  )
-
   if(WIN32)
     set(DIR_SEP "\;")
   else()
     set(DIR_SEP ":")
   endif()
 
-  set(JAR_FILE_LIST
-      "${GTIRB_API_JARFILE}.jar${DIR_SEP}protobuf-java-${JAVA_PROTOBUF_VERSION}.jar"
+  execute_process(
+    COMMAND mvn
+            -q exec:exec
+            -Dexec.classpathScope=compile
+            -Dexec.executable=echo
+            -Dexec.args=%classpath
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    OUTPUT_VARIABLE JAR_FILE_LIST
+  )
+  string(STRIP ${JAR_FILE_LIST} JAR_FILE_LIST)
+
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/
+       DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests
   )
 
-  # Start work on a command to generate docs add_custom_command( OUTPUT docs
-  # POST_BUILD COMMAND if [[ ! -d ${CMAKE_CURRENT_BINARY_DIR}/docs ]]; then
-  # mkdir #{CMAKE_CURRENT_BINARY_DIR}/docs; fi COMMAND javadoc -d doc -cp
-  # .:${JAR_FILE_LIST} com/grammatech/gtirb/*.java COMMENT "Creating docs" )
-
   add_custom_command(
-    TARGET ${GTIRB_API_JARFILE}
+    TARGET GTIRB_JAVA_API
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}/tests/testIrSanity.java
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testIrSanity.class
     COMMENT "Building testIrSanity"
   )
 
   add_custom_command(
-    TARGET ${GTIRB_API_JARFILE}
+    TARGET GTIRB_JAVA_API
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}/tests/testByteIntervals.java
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testByteIntervals.class
     COMMENT "Building testByteIntervals"
   )
 
   add_custom_command(
-    TARGET ${GTIRB_API_JARFILE}
+    TARGET GTIRB_JAVA_API
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}/tests/testAuxData.java
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testAuxData.class
     COMMENT "Building testAuxData"
   )
 
