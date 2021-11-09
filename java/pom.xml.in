@@ -1,6 +1,6 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
- 
+
   <groupId>com.grammatech.gtirb</groupId>
   <artifactId>gtirb_api</artifactId>
   <version>@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@</version>

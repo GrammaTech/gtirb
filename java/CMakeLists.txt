@@ -3,8 +3,8 @@
 #
 
 # ---------------------------------------------------------------------------
-# Get protobuf version to DL from maven repository.
-# This value is used in pom.xml.in.
+# Get protobuf version to DL from maven repository. This value is used in
+# pom.xml.in.
 # ---------------------------------------------------------------------------
 
 # Use only minor version, patch versions might not be available
@@ -23,9 +23,7 @@ set(JAVA_PROTOBUF_VERSION
 set(GTIRB_JAVA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src)
 
 # Directory containing the *.class files generated from the *.proto files
-set(GTIRB_PROTO_CLASS_DIR
-    "${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/proto"
-)
+set(GTIRB_PROTO_CLASS_DIR "${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/proto")
 
 # Add commands to compile the *.proto files to *.class files
 foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
@@ -35,8 +33,7 @@ foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
   )
   add_custom_command(
     OUTPUT ${GTIRB_PROTO_CLASS_FILE}
-    COMMAND ${Protobuf_PROTOC_EXECUTABLE}
-            --java_out=${GTIRB_JAVA_SOURCE_DIR}
+    COMMAND ${Protobuf_PROTOC_EXECUTABLE} --java_out=${GTIRB_JAVA_SOURCE_DIR}
             --proto_path=${GTIRB_PROTO_DIR} ${GTIRB_PROTO_FILE}
   )
   list(APPEND GTIRB_PROTOBUF_JAVA ${GTIRB_PROTO_CLASS_FILE})
@@ -46,8 +43,8 @@ endforeach()
 # Building the gtirb java API
 # ---------------------------------------------------------------------------
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/pom.xml.in
-  ${CMAKE_CURRENT_BINARY_DIR}/pom.xml @ONLY
+  ${CMAKE_CURRENT_SOURCE_DIR}/pom.xml.in ${CMAKE_CURRENT_BINARY_DIR}/pom.xml
+  @ONLY
 )
 
 file(
@@ -121,20 +118,19 @@ set(GTIRB_API_JAVAS
 
 foreach(GTIRB_API_JAVA ${GTIRB_API_JAVAS})
   list(
-    APPEND
-      GTIRB_API_SOURCES
-      ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
+    APPEND GTIRB_API_SOURCES
+           ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
   )
 endforeach()
 
 set(GTIRB_JAVA_API_VERSION
-  "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
-  )
+    "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+)
 set(GTIRB_JAVA_API_JARS
-  "gtirb_api-${GTIRB_JAVA_API_VERSION}.jar"
-  "gtirb_api-${GTIRB_JAVA_API_VERSION}-sources.jar"
-  "gtirb_api-${GTIRB_JAVA_API_VERSION}-javadoc.jar"
-  )
+    "gtirb_api-${GTIRB_JAVA_API_VERSION}.jar"
+    "gtirb_api-${GTIRB_JAVA_API_VERSION}-sources.jar"
+    "gtirb_api-${GTIRB_JAVA_API_VERSION}-javadoc.jar"
+)
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/target/${GTIRB_JAVA_API_JARS}
@@ -148,11 +144,9 @@ add_custom_target(
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/target/${GTIRB_JAVA_API_JARS}
 )
 
-
 # ---------------------------------------------------------------------------
 # Building the test code
 # ---------------------------------------------------------------------------
-
 
 if(GTIRB_ENABLE_TESTS)
   if(WIN32)
@@ -162,11 +156,8 @@ if(GTIRB_ENABLE_TESTS)
   endif()
 
   execute_process(
-    COMMAND mvn
-            -q exec:exec
-            -Dexec.classpathScope=compile
-            -Dexec.executable=echo
-            -Dexec.args=%classpath
+    COMMAND mvn -q exec:exec -Dexec.classpathScope=compile
+            -Dexec.executable=echo -Dexec.args=%classpath
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
     OUTPUT_VARIABLE JAR_FILE_LIST
   )

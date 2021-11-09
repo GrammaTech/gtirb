@@ -190,10 +190,10 @@ public class AuxDataSerialization {
      * {@code
      * >> _parse_type('foo')
      * 'foo', ())
-     * 
+     *
      * >>> _parse_type('foo<bar>')
      * ('foo', (('bar',()),))
-     * 
+     *
      * >>> _parse_type('foo<bar<baz>>')
      * ('foo', (('bar', (('baz', ()),)),))
      * }
