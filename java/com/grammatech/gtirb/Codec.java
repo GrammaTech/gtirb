@@ -28,7 +28,6 @@ public class Codec {
 
     /**
      * Default constructor
-     * @param raw_bytes
      */
     public Codec() {}
 

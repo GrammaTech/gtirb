@@ -34,7 +34,6 @@ public class AuxDataSerialization {
 
     /**
      * Class Constructor
-     * @param raw_data
      */
     public AuxDataSerialization() {}
 
@@ -184,20 +183,23 @@ public class AuxDataSerialization {
     /**
      * parseType
      *
-     * type: (str) -> SubtypeTree
+     * type: (str) -&gt; SubtypeTree
      *
      * Given an encoded aux_data type_name, generate its parse tree.
+     * <pre>
+     * {@code
+     * >> _parse_type('foo')
+     * 'foo', ())
+     * 
+     * >>> _parse_type('foo<bar>')
+     * ('foo', (('bar',()),))
+     * 
+     * >>> _parse_type('foo<bar<baz>>')
+     * ('foo', (('bar', (('baz', ()),)),))
+     * }
+     * </pre>
      *
-     * >>> _parse_type('foo')
-     * ('foo', ())
-     *
-     *  >>> _parse_type('foo<bar>')
-     *  ('foo', (('bar',()),))
-     *
-     *  >>> _parse_type('foo<bar<baz>>')
-     *  ('foo', (('bar', (('baz', ()),)),))
-     *
-     *  {@param} typeName: The type name to parse into a "SubtypeTree".
+     * @param typeName: The type name to parse into a "SubtypeTree".
      *
      */
     public TwoTuple<String, Object> parseType(String typeName) {

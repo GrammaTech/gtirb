@@ -21,7 +21,7 @@ import com.grammatech.gtirb.Serialization;
 import com.grammatech.gtirb.TwoTuple;
 
 /**
- * A Codec for tuple<...> entries. Implemented via ArrayList.
+ * A Codec for tuple&lt;...&gt; entries. Implemented via ArrayList.
  */
 public class TupleCodec extends Codec {
 

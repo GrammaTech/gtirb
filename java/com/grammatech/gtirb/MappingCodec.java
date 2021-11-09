@@ -24,7 +24,7 @@ import com.grammatech.gtirb.Serialization;
 import com.grammatech.gtirb.TwoTuple;
 
 /**
- * A Codec for mapping<K,V> entries. Implemented via HashMap.
+ * A Codec for mapping&lt;K,V&gt; entries. Implemented via HashMap.
  */
 public class MappingCodec extends Codec {
 
