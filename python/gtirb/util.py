@@ -247,7 +247,7 @@ def _address_interval(node):
     Creates an interval tree interval based on a GTIRB node's address and
     size or returns None, if the node has no address.
     """
-    if node.address:
+    if node.address is not None:
         return intervaltree.Interval(
             node.address, node.address + node.size + 1, node
         )
@@ -284,7 +284,7 @@ def _nodes_on_interval_tree(
         desired_range.start + adjustment, desired_range.stop + adjustment
     ):
         node = interval.data
-        if not node.address:
+        if node.address is None:
             continue
 
         # We explicitly exclude zero-sized blocks to match the existing

@@ -38,6 +38,16 @@ class BlocksOnTests(unittest.TestCase):
         self.assertEqual(found, {code_block})
 
     @parameterize_one("scope", list(SearchScope))
+    def test_blocks_on_zero(self, scope):
+        ir, m, s, bi = create_interval_etc(address=0, size=4)
+        search_in = scope.select(ir, m, s, bi)
+
+        code_block = gtirb.CodeBlock(offset=0, size=3, byte_interval=bi)
+
+        found = set(search_in.byte_blocks_on(0))
+        self.assertEqual(found, {code_block})
+
+    @parameterize_one("scope", list(SearchScope))
     def test_blocks_on_with_overlapping_blocks(self, scope):
         "Test that byte_blocks_on returns all blocks that overlap an address"
         ir, m, s, bi = create_interval_etc(address=0x1000, size=4)
