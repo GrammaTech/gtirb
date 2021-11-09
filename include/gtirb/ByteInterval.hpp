@@ -1925,7 +1925,7 @@ private:
   /// \param  VectorOrder   The endianness of the data in the byte vector.
   /// \param  ElementOrder  The endianness of the data to be inserted.
   ///
-  /// \return An iterator pointing to the element inserted by this call. 
+  /// \return An iterator pointing to the element inserted by this call.
   template <typename T, typename BytesIterator>
   BytesIterator insertSingleByte(
       BytesIterator Pos, const T& X, boost::endian::order VectorOrder,
@@ -1949,7 +1949,7 @@ public:
                                       const T& X) {
     return insertBytes<T>(Pos, X, getBoostEndianOrder());
   }
-  
+
   /// \brief Insert a single datum into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
@@ -1985,7 +1985,6 @@ public:
     return insertSingleByte<T>(Pos, X, VectorOrder, ElementOrder);
   }
 
- 
   /// \brief Insert a single datum into this byte vector.
   ///
   /// \tparam T  The type of data you wish to insert into the byte
