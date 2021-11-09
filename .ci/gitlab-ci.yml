@@ -168,7 +168,7 @@ coverage:
     - ctest
     - gcovr --exclude=googletest-src --exclude=doc --exclude=..*/proto --exclude=..*/test --root ..
     - cd python
-    - coverage report --omit=gtirb/proto/* -m
+    - coverage report --omit=gtirb/proto/* --show-missing
 
 test-default-install:
   stage: test-packages1
