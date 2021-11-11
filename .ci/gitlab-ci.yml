@@ -297,6 +297,7 @@ conan-windows-release:
 conan-windows-32:
   stage: deploy
   tags: [gtirb-windows]
+  needs: []
   variables:
     ARCHITECTURE: x64
   script:
