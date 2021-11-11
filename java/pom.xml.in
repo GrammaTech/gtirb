@@ -3,7 +3,40 @@
 
   <groupId>com.grammatech.gtirb</groupId>
   <artifactId>gtirb_api</artifactId>
-  <version>@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@</version>
+  <version>
+    @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@
+  </version>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>
+    The GrammaTech Intermediate Representation for Binaries (GTIRB) is a
+    machine code analysis and rewriting data structure.
+  </description>
+  <url>https://github.com/GrammaTech/gtirb</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>
+        https://raw.githubusercontent.com/GrammaTech/gtirb/master/LICENSE.txt
+      </url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Timothy Neale</name>
+      <email>tneale@grammatech.com</email>
+      <organization>GrammaTech</organization>
+      <organizationUrl>https://www.grammatech.com/</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/GrammaTech/gtirb.git</connection>
+    <developerConnection>scm:git:ssh://github.com:GrammaTech/gtirb.git</developerConnection>
+    <url>http://github.com/GrammaTech/gtirb/tree/master</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
