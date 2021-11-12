@@ -171,7 +171,7 @@ if(GTIRB_ENABLE_TESTS)
   )
 
   add_custom_command(
-    TARGET GTIRB_JAVA_API
+    TARGET gtirb-java-api
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
@@ -181,7 +181,7 @@ if(GTIRB_ENABLE_TESTS)
   )
 
   add_custom_command(
-    TARGET GTIRB_JAVA_API
+    TARGET gtirb-java-api
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
@@ -191,7 +191,7 @@ if(GTIRB_ENABLE_TESTS)
   )
 
   add_custom_command(
-    TARGET GTIRB_JAVA_API
+    TARGET gtirb-java-api
     POST_BUILD
     COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
             ${CMAKE_CURRENT_BINARY_DIR}
