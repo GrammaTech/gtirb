@@ -126,23 +126,26 @@ endforeach()
 set(GTIRB_JAVA_API_VERSION
     "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
 )
+set(TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
+set(GTIRB_JAVA_APIDOCS_DIR
+    "${TARGET_DIR}/apidocs"
+    PARENT_SCOPE
+)
+
 set(GTIRB_JAVA_API_JARS
-    "gtirb_api-${GTIRB_JAVA_API_VERSION}.jar"
-    "gtirb_api-${GTIRB_JAVA_API_VERSION}-sources.jar"
-    "gtirb_api-${GTIRB_JAVA_API_VERSION}-javadoc.jar"
+    "${TARGET_DIR}/gtirb_api-${GTIRB_JAVA_API_VERSION}.jar"
+    "${TARGET_DIR}/gtirb_api-${GTIRB_JAVA_API_VERSION}-sources.jar"
+    "${TARGET_DIR}/gtirb_api-${GTIRB_JAVA_API_VERSION}-javadoc.jar"
 )
 
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/target/${GTIRB_JAVA_API_JARS}
+  OUTPUT ${GTIRB_JAVA_API_JARS} ${GTIRB_JAVA_APIDOCS_DIR}/index.html
   COMMAND mvn package
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
   DEPENDS ${GTIRB_API_SOURCES} ${GTIRB_PROTOBUF_JAVA}
 )
 
-add_custom_target(
-  GTIRB_JAVA_API ALL
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/target/${GTIRB_JAVA_API_JARS}
-)
+add_custom_target(gtirb-java-api ALL DEPENDS ${GTIRB_JAVA_API_JARS})
 
 # ---------------------------------------------------------------------------
 # Building the test code

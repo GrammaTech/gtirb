@@ -61,14 +61,14 @@ build-docs:
     - apt-get update && apt-get -y install doxygen graphviz
     - mkdir build
     - cd build
-    # Build java and python APIs to get the gtirb jar and setup.py
-    - cmake .. -DGTIRB_CL_API=OFF -DGTIRB_CXX_API=OFF -DGTIRB_JAVA_API=ON -DGTIRB_PY_API=ON -DGTIRB_ENABLE_TESTS=OFF
-    - make
+    # Need to configure Python API to get setup.py file
+    - cmake .. -DGTIRB_ENABLE_TESTS=OFF
+    # Install python dependencies
     - cd python
     - pip install -e '.[doc]'
     - cd ..
-    # Build documentation
-    - cmake .. -DGTIRB_CL_API=OFF -DGTIRB_CXX_API=ON -DGTIRB_JAVA_API=ON -DGTIRB_PY_API=ON
+    # Re-configure to pick up python dependencies
+    - cmake ..
     - make doc
     - mv doc/html ..
 

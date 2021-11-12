@@ -39,11 +39,10 @@ if(GTIRB_JAVA_API)
   # The javadoc command line
   add_custom_target(
     javadoc
+    DEPENDS gtirb-java-api
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND
-      ${Java_JAVADOC_EXECUTABLE} -d ${JAVADOC_DIR} -cp ${JAR_FILE_LIST}
-      -sourcepath ${CMAKE_BINARY_DIR}/java com.grammatech.gtirb
-    COMMENT "Generating API documentation with javadoc"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${GTIRB_JAVA_APIDOCS_DIR}
+            ${JAVADOC_DIR}
     VERBATIM
   )
 
