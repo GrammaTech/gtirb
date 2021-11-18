@@ -58,7 +58,6 @@ build-docs:
     paths:
       - html
   script:
-    - apt-get update && apt-get -y install doxygen graphviz
     - mkdir build
     - cd build
     # Need to configure Python API to get setup.py file
