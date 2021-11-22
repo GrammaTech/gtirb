@@ -203,23 +203,25 @@ The following are the sanctioned AuxData table schemata.
 The following are the provisional AuxData table schemata.
 
 
-| Label                                                   | Type                                                                                                   |
-|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| [`"encodings"`](#encodings)                             | ```std::map<gtirb::UUID, std::string>```                                                               |
-| [`"elfSectionProperties"`](#elfSectionProperties)       | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                          |
-| [`"cfiDirectives"`](#cfiDirectives)                     | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>``` |
-| [`"elfSymbolInfo"`](#elfSymbolInfo)                     | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```     |
-| [`"libraries"`](#libraries)                             | ```std::vector<std::string>```                                                                         |
-| [`"libraryPaths"`](#libraryPaths)                       | ```std::vector<std::string>```                                                                         |
-| [`"binaryType"`](#binaryType)                           | ```std::vector<std::string>```                                                                         |
-| [`"SCCs"`](#SCCs)                                       | ```std::map<gtirb::UUID, int64_t>```                                                                   |
-| [`"symbolicExpressionSizes"`](#symbolicExpressionSizes) | ```std::map<gtirb::Offset, uint64_t>```                                                                |
-| [`"peImportEntries"`](#peImportEntries)                 | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```                             |
-| [`"peExportEntries"`](#peExportEntries)                 | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```                                          |
-| [`"peImportedSymbols"`](#peImportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         |
-| [`"peExportedSymbols"`](#peExportedSymbols)             | ```std::vector<gtirb::UUID>```                                                                         |
-| [`"peResource"`](#peResource)                           | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                           |
-| [`"profile"`](#profile)                                 | ```std::map<gtirb::UUID, uint64_t>```                                                                  |
+| Label                                                       | Type                                                                                                         |
+|-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [`"encodings"`](#encodings)                                 | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"elfSectionProperties"`](#elfSectionProperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
+| [`"cfiDirectives"`](#cfiDirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
+| [`"elfSymbolInfo"`](#elfSymbolInfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
+| [`"libraryNames"`](#libraryNames)                           | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"libraryPaths"`](#libraryPaths)                           | ```std::vector<std::string>```                                                                               |
+| [`"binaryType"`](#binaryType)                               | ```std::vector<std::string>```                                                                               |
+| [`"SCCs"`](#SCCs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
+| [`"symbolicExpressionSizes"`](#symbolicExpressionSizes)     | ```std::map<gtirb::Offset, uint64_t>```                                                                      |
+| [`"peImportEntries"`](#peImportEntries)                     | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```                                   |
+| [`"peExportEntries"`](#peExportEntries)                     | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```                                                |
+| [`"peImportedSymbols"`](#peImportedSymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
+| [`"peExportedSymbols"`](#peExportedSymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
+| [`"peResource"`](#peResource)                               | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                                 |
+| [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
+| [`"functionNameProbabilities"`](#functionNameProbabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
+| [`"libraryVersions"`](#libraryVersions)                     | ```std::map<gtirb::UUID, std::string>```                                                                     |
 
 
 ### encodings
@@ -270,15 +272,16 @@ The following are the provisional AuxData table schemata.
 | Note     | On ELF targets only: Map from symbols to their type, binding, and visibility categories. |
 
 
-### libraries
+### libraryNames
 
-| <!-- --> | <!-- -->                                       |
-|----------|------------------------------------------------|
-| Label    | ```"libraries"```                                |
-| Type     | ```std::vector<std::string>```        |
-| Value    | A name of the library.           |
-| AttachedTo | gtirb::Module |
-| Note     | Names of the libraries that are needed. |
+| <!-- -->   | <!-- -->                                 |
+|------------|------------------------------------------|
+| Label      | ```"libraryNames"```                     |
+| Type       | ```std::map<gtirb::UUID, std::string>``` |
+| Key        | Library UUID.                            |
+| Value      | The name of the library.                 |
+| AttachedTo | gtirb::Module                            |
+| Note       | Names of the libraries that are needed.  |
 
 
 ### libraryPaths
@@ -391,3 +394,25 @@ The following are the provisional AuxData table schemata.
 | Value    | The number of times that block was executed.             |
 | AttachedTo | gtirb::Module                                          |
 | Notes    | An entry in this table describes how many times a code block was executed. Blocks that are not present in this aux data table should be assumed to have a value of 0, indicating that they were not executed. |
+
+### functionNameProbabilities
+
+| <!-- -->   | <!-- -->                                                                                                     |
+|------------|--------------------------------------------------------------------------------------------------------------|
+| Label      | ```"functionNameProbabilities"```                                                                            |
+| Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
+| Key        | String tool name of the tool that made the predictions.                                                      |
+| Value      | Map from function UUID to a list of weighted predictions.                                                    |
+| AttachedTo | gtirb::Module                                                                                                |
+| Notes      | Used to collect results from tools that identify functions.                                                  |
+
+### libraryVersions
+
+| <!-- -->   | <!-- -->                                      |
+|------------|-----------------------------------------------|
+| Label      | ```"libraryVersions"```                       |
+| Type       | ```std::map<gtirb::UUID, std::string>```      |
+| Key        | Library UUID.                                 |
+| Value      | Version string for the library.               |
+| AttachedTo | gtirb::Module                                 |
+| Notes      | Versions of libraries required by the binary. |
