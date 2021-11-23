@@ -20,6 +20,7 @@
 #include <gtirb/CfgNode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
+#include <gtirb/proto/CodeBlock.pb.h>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
@@ -38,6 +39,14 @@ namespace proto {
 class CodeBlock;
 } // namespace proto
 
+/// \enum DecodeMode
+///
+/// \brief Variations on decoding a particular ISA
+enum class DecodeMode : uint8_t {
+  Default = proto::All_Default, ///< Default decode mode for all ISAs
+  Thumb = proto::ARM_Thumb,     ///< Thumb decode mode for ARM32
+};
+
 /// \class CodeBlock
 ///
 /// \brief A basic block.
@@ -53,11 +62,12 @@ public:
   ///
   /// \param C          The Context in which this block will be held.
   /// \param Size       The size of the block in bytes.
-  /// \param DecodeMode The decode mode of the block.
+  /// \param DMode      The decode mode of the block.
   ///
   /// \return The newly created CodeBlock.
-  static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode = 0) {
-    return C.Create<CodeBlock>(C, Size, DecodeMode);
+  static CodeBlock* Create(Context& C, uint64_t Size,
+                           gtirb::DecodeMode DMode = DecodeMode::Default) {
+    return C.Create<CodeBlock>(C, Size, DMode);
   }
 
   /// \brief Get the \ref ByteInterval this block belongs to.
@@ -79,7 +89,7 @@ public:
   /// differentiate between sub-ISAs; ARM and Thumb, for example.
   ///
   /// \return The decode mode.
-  uint64_t getDecodeMode() const { return DecodeMode; }
+  gtirb::DecodeMode getDecodeMode() const { return this->DecodeMode; }
 
   /// \brief Get the offset from the beginning of the \ref ByteInterval this
   /// block belongs to.
@@ -111,7 +121,7 @@ public:
   ///
   /// This field is used in some ISAs where it is used to
   /// differentiate between sub-ISAs; ARM and Thumb, for example.
-  void setDecodeMode(uint64_t DM) { DecodeMode = DM; }
+  void setDecodeMode(gtirb::DecodeMode DM) { this->DecodeMode = DM; }
 
   /// \brief Iterator over bytes in this block.
   ///
@@ -365,19 +375,19 @@ public:
 
 private:
   CodeBlock(Context& C) : CfgNode(C, Kind::CodeBlock) {}
-  CodeBlock(Context& C, uint64_t S, uint64_t Decode)
-      : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(Decode) {}
-  CodeBlock(Context& C, uint64_t S, uint64_t Decode, const UUID& U)
-      : CfgNode(C, Kind::CodeBlock, U), Size(S), DecodeMode(Decode) {}
+  CodeBlock(Context& C, uint64_t S, gtirb::DecodeMode DMode)
+      : CfgNode(C, Kind::CodeBlock), Size(S), DecodeMode(DMode) {}
+  CodeBlock(Context& C, uint64_t S, gtirb::DecodeMode DMode, const UUID& U)
+      : CfgNode(C, Kind::CodeBlock, U), Size(S), DecodeMode(DMode) {}
 
   void setParent(ByteInterval* BI, CodeBlockObserver* O) {
     Parent = BI;
     Observer = O;
   }
 
-  static CodeBlock* Create(Context& C, uint64_t Size, uint64_t DecodeMode,
+  static CodeBlock* Create(Context& C, uint64_t Size, gtirb::DecodeMode DMode,
                            const UUID& U) {
-    return C.Create<CodeBlock>(C, Size, DecodeMode, U);
+    return C.Create<CodeBlock>(C, Size, DMode, U);
   }
 
   /// \brief The protobuf message type used for serializing CodeBlock.
@@ -408,7 +418,7 @@ private:
   ByteInterval* Parent{nullptr};
   CodeBlockObserver* Observer{nullptr};
   uint64_t Size{0};
-  uint64_t DecodeMode{0};
+  gtirb::DecodeMode DecodeMode{DecodeMode::Default};
 
   friend class Context;      // Enables Context::Create
   friend class ByteInterval; // Enables to/fromProtobuf, setByteInterval

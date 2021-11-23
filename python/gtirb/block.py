@@ -1,4 +1,5 @@
 import typing
+from enum import Enum
 from uuid import UUID
 
 from .node import Node, _NodeMessage
@@ -243,10 +244,20 @@ class CodeBlock(ByteBlock, CfgNode):
         (e.g. differentiating blocks written in ARM and Thumb).
     """
 
+    class DecodeMode(Enum):
+        """ Variations on decoding a particular ISA
+        """
+
+        Default = CodeBlock_pb2.DecodeMode.Value("All_Default")
+        """Default decode mode for all ISAs"""
+
+        Thumb = CodeBlock_pb2.DecodeMode.Value("ARM_Thumb")
+        """Thumb decode mode for ARM32"""
+
     def __init__(
         self,
         *,
-        decode_mode: int = 0,
+        decode_mode: DecodeMode = DecodeMode.Default,
         size: int = 0,
         offset: int = 0,
         uuid: typing.Optional[UUID] = None,
@@ -257,7 +268,7 @@ class CodeBlock(ByteBlock, CfgNode):
         :param decode_mode: The decode mode of the block,
             used in some ISAs to differentiate between sub-ISAs
             (e.g. differentiating blocks written in ARM and Thumb).
-            Defaults to 0.
+            Defaults to DecodeMode.Default.
         :param offset: The offset from the beginning of the byte interval to
             which this block belongs.
         :param uuid: The UUID of this ``CodeBlock``,
@@ -269,7 +280,7 @@ class CodeBlock(ByteBlock, CfgNode):
         super().__init__(
             size=size, offset=offset, uuid=uuid, byte_interval=byte_interval
         )
-        self.decode_mode = decode_mode
+        self.decode_mode = decode_mode  # type: CodeBlock.DecodeMode
 
     @classmethod
     def _decode_protobuf(
@@ -281,7 +292,7 @@ class CodeBlock(ByteBlock, CfgNode):
         assert ir
         assert isinstance(proto_block, CodeBlock_pb2.CodeBlock)
         b = cls(
-            decode_mode=proto_block.decode_mode,
+            decode_mode=CodeBlock.DecodeMode(proto_block.decode_mode),
             size=proto_block.size,
             uuid=uuid,
         )
@@ -292,7 +303,7 @@ class CodeBlock(ByteBlock, CfgNode):
         proto_block = CodeBlock_pb2.CodeBlock()
         proto_block.uuid = self.uuid.bytes
         proto_block.size = self.size
-        proto_block.decode_mode = self.decode_mode
+        proto_block.decode_mode = self.decode_mode.value
         return proto_block
 
     def deep_eq(self, other: object) -> bool:

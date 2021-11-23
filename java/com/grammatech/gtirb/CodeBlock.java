@@ -22,7 +22,15 @@ import com.grammatech.gtirb.proto.CodeBlockOuterClass;
  * CodeBlock represents a basic block in the binary.
  */
 public class CodeBlock extends ByteBlock {
-    private long decodeMode;
+    /**
+     * Variations on decoding a particular ISA
+     */
+    public enum DecodeMode {
+        Default,
+        Thumb,
+    }
+
+    private DecodeMode decodeMode;
 
     /**
      * Class constructor for a {@link CodeBlock} from a protobuf CodeBlock.
@@ -32,13 +40,14 @@ public class CodeBlock extends ByteBlock {
                       ByteIntervalOuterClass.Block protoBlock, long size,
                       ByteInterval byteInterval) {
         super(protoUuid, protoBlock, size, byteInterval);
-        this.decodeMode = protoBlock.getCode().getDecodeMode();
+        this.decodeMode =
+            DecodeMode.values()[protoCodeBlock.getDecodeModeValue()];
     }
 
     /**
      * Class constructor for a {@link CodeBlock}.
      */
-    public CodeBlock(long size, long offset, long decodeMode,
+    public CodeBlock(long size, long offset, DecodeMode decodeMode,
                      ByteInterval byteInterval) {
         super(size, offset, byteInterval);
         this.decodeMode = decodeMode;
@@ -49,14 +58,16 @@ public class CodeBlock extends ByteBlock {
      *
      * @return  The decode mode.
      */
-    public long getDecodeMode() { return decodeMode; }
+    public DecodeMode getDecodeMode() { return decodeMode; }
 
     /**
      * Set the decode mode of this {@link CodeBlock}.
      *
      * @param decodeMode    The decode mode.
      */
-    public void setDecodeMode(long decodeMode) { this.decodeMode = decodeMode; }
+    public void setDecodeMode(DecodeMode decodeMode) {
+        this.decodeMode = decodeMode;
+    }
 
     /**
      * De-serialize a {@link CodeBlock} from a protobuf Block.
@@ -92,7 +103,7 @@ public class CodeBlock extends ByteBlock {
 
         CodeBlockOuterClass.CodeBlock.Builder protoCodeBlock =
             CodeBlockOuterClass.CodeBlock.newBuilder();
-        protoCodeBlock.setDecodeMode(this.getDecodeMode());
+        protoCodeBlock.setDecodeModeValue(this.decodeMode.ordinal());
         protoCodeBlock.setUuid(Util.uuidToByteString(this.getUuid()));
         protoCodeBlock.setSize(this.getSize());
         protoBlock.setOffset(this.getOffset());

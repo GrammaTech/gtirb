@@ -16,11 +16,16 @@ syntax = "proto3";
 package gtirb.proto;
 option java_package = "com.grammatech.gtirb.proto";
 
+enum DecodeMode {
+  All_Default = 0;
+  ARM_Thumb = 1;
+};
+
 message CodeBlock {
   reserved "address";
   reserved 2;
 
   bytes uuid = 1;
   uint64 size = 3;
-  uint64 decode_mode = 4;
+  DecodeMode decode_mode = 4;
 }

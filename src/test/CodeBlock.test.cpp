@@ -34,11 +34,11 @@ TEST(Unit_CodeBlock, ctor) { EXPECT_NE(CodeBlock::Create(Ctx, 0), nullptr); }
 
 TEST(Unit_CodeBlock, getters) {
   auto* BI = ByteInterval::Create(Ctx, Addr(0), 2);
-  auto* B = BI->addBlock<CodeBlock>(Ctx, 0, 1, 2);
+  auto* B = BI->addBlock<CodeBlock>(Ctx, 0, 1, DecodeMode::Thumb);
 
   EXPECT_EQ(Addr{0}, B->getAddress());
   EXPECT_EQ(uint64_t{1}, B->getSize());
-  EXPECT_EQ(uint64_t{2}, B->getDecodeMode());
+  EXPECT_EQ(DecodeMode::Thumb, B->getDecodeMode());
   EXPECT_EQ(BI, B->getByteInterval());
 }
 
@@ -83,12 +83,12 @@ TEST(Unit_CodeBlock, protobufRoundTrip) {
   std::stringstream ss;
   {
     Context InnerCtx;
-    CodeBlock* Original = CodeBlock::Create(InnerCtx, 1234, 98);
+    CodeBlock* Original = CodeBlock::Create(InnerCtx, 1234, DecodeMode::Thumb);
     STH::save(*Original, ss);
   }
   CodeBlock* Result = STH::load<CodeBlock>(Ctx, ss);
 
   EXPECT_EQ(Result->getSize(), 1234);
-  EXPECT_EQ(Result->getDecodeMode(), 98);
+  EXPECT_EQ(Result->getDecodeMode(), DecodeMode::Thumb);
   EXPECT_EQ(Result->getByteInterval(), nullptr);
 }

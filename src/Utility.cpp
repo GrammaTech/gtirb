@@ -15,7 +15,7 @@ inline auto dataBlockKey(const DataBlock* B) {
   // Include a dummy "decode mode" to match the key type for CodeBlocks for
   // blockKey().
   return std::make_tuple(B->getAddress(), B->getSize(), B->getKind(),
-                         (uint64_t)0, B->getUUID());
+                         DecodeMode::Default, B->getUUID());
 }
 
 inline auto blockKey(const Node& N) {

@@ -144,6 +144,16 @@ set(GTIRB_JAVA_API_JARS
     "${TARGET_DIR}/gtirb_api-${GTIRB_JAVA_API_VERSION}-javadoc.jar"
 )
 
+find_program(
+  MAVEN mvn
+  HINTS $ENV{PATH}
+  DOC "mvn (maven) must be in your PATH to build the GTIRB Java API."
+)
+
+if(NOT GTIRB_JAVADOCS)
+  set(MAVEN_ARGS "-Dmaven.javadoc.skip=true")
+endif()
+
 add_custom_command(
   OUTPUT ${GTIRB_JAVA_API_JARS} ${GTIRB_JAVA_APIDOCS_DIR}/index.html
   COMMAND ${MVN} package

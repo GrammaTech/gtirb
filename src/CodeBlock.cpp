@@ -23,7 +23,7 @@ using namespace gtirb;
 void CodeBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
   Message->set_size(this->Size);
-  Message->set_decode_mode(this->DecodeMode);
+  Message->set_decode_mode(static_cast<proto::DecodeMode>(this->DecodeMode));
 }
 
 ErrorOr<CodeBlock*> CodeBlock::fromProtobuf(Context& C,
@@ -34,7 +34,9 @@ ErrorOr<CodeBlock*> CodeBlock::fromProtobuf(Context& C,
   if (!uuidFromBytes(Message.uuid(), Id))
     return {IR::load_error::BadUUID, "Cannot load code block"};
 
-  return CodeBlock::Create(C, Message.size(), Message.decode_mode(), Id);
+  return CodeBlock::Create(
+      C, Message.size(), static_cast<gtirb::DecodeMode>(Message.decode_mode()),
+      Id);
 }
 
 uint64_t CodeBlock::getOffset() const {

@@ -484,8 +484,8 @@ TEST(Unit_CFG, protobufRoundTrip) {
   CFG Result;
   std::stringstream ss;
 
-  auto B1 = CodeBlock::Create(Ctx, 1, 2);
-  auto B2 = CodeBlock::Create(Ctx, 3, 4);
+  auto B1 = CodeBlock::Create(Ctx, 1, DecodeMode::Default);
+  auto B2 = CodeBlock::Create(Ctx, 3, DecodeMode::Thumb);
   auto P1 = ProxyBlock::Create(Ctx);
   {
     CFG Original;
@@ -510,11 +510,11 @@ TEST(Unit_CFG, protobufRoundTrip) {
   auto It = Range.begin();
   EXPECT_EQ(It->getUUID(), B1->getUUID());
   EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 1);
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 2);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), DecodeMode::Default);
   ++It;
   EXPECT_EQ(It->getUUID(), B2->getUUID());
   EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getSize(), 3);
-  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), 4);
+  EXPECT_EQ(dyn_cast<CodeBlock>(&*It)->getDecodeMode(), DecodeMode::Thumb);
   ++It;
   EXPECT_EQ(It->getUUID(), P1->getUUID());
 
