@@ -14,7 +14,7 @@ RUN apt-get -y update && \
 
 RUN pip3 install --upgrade pip mypy mypy-protobuf
 
-# The default version of maven on ubuntu18 complains about illegal reflective
+# The default version of maven on Ubuntu 20 complains about illegal reflective
 # accesses, so download 3.6.3 directly from apache.
 RUN wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp
 RUN tar xf /tmp/apache-maven-*.tar.gz -C /opt

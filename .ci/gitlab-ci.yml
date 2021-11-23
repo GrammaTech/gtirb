@@ -15,8 +15,7 @@ stages:
   - test-packages1
   - test-packages2
   - deploy
-  - deploy-to-pypi
-  - deploy-to-apt
+  - deploy-apt
 
 default:
   tags: [cluster]
@@ -360,7 +359,7 @@ package-centos8:
     - cp build/*.rpm ./
 
 python-wheel:
-  stage: deploy
+  stage: build-installers
   needs: [build-ubuntu18-gcc7]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   artifacts:
@@ -373,7 +372,7 @@ python-wheel:
     - cp build/python/dist/*.whl ./
 
 external-pypi:
-  stage: deploy-to-pypi
+  stage: deploy
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   rules:
@@ -398,7 +397,7 @@ external-pypi:
 # produced from master, and stable, versioned packages are produced
 # on release-.* branches.
 internal-pypi:
-  stage: deploy-to-pypi
+  stage: deploy
   needs: [build-ubuntu18-gcc7, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   rules:
@@ -583,7 +582,7 @@ debian-installer-ubuntu20:
     - cp build/*gtirb*.deb ./
 
 .apt-upload: &apt-upload
-  stage: deploy-to-apt
+  stage: deploy-apt
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
@@ -667,3 +666,14 @@ internal-focal-stable:
     APT_REPO: internal
     APT_REPO_CODENAME: focal
     APT_REPO_COMPONENT: stable
+
+maven-central-upload:
+  stage: deploy
+  trigger:
+    project: rewriting/utility/package-uploader
+    strategy: depend
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    JOB_NAME: build-ubuntu18-gcc7
+    JAVA_POM_SUBDIR: ./build/java
