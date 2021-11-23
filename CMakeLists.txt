@@ -55,6 +55,7 @@ set(GTIRB_MSVC_PARALLEL_COMPILE_JOBS
 )
 
 option(GTIRB_ENABLE_TESTS "Enable building and running unit tests." ON)
+option(GTIRB_ENABLE_MYPY "Enable checking python types with mypy." ON)
 
 # This just sets the builtin BUILD_SHARED_LIBS, but if defaults to ON instead of
 # OFF.

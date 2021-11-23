@@ -1,3 +1,25 @@
+if(GTIRB_ENABLE_MYPY)
+  find_program(MYPY mypy)
+  find_program(MYPY_PROTOBUF protoc-gen-mypy)
+  if(MYPY AND MYPY_PROTOBUF)
+    set(ENABLE_MYPY ON)
+    set(MYPY_PROTOBUF_FLAGS --mypy_out=${CMAKE_CURRENT_BINARY_DIR})
+  else()
+    set(ENABLE_MYPY OFF)
+    if(NOT MYPY)
+      message(
+        WARNING "mypy not found. Type checking with mypy will be disabled."
+      )
+    endif()
+    if(NOT MYPY_PROTOBUF)
+      message(
+        WARNING
+          "protoc-gen-mypy not found. Type checking with mypy will be disabled."
+      )
+    endif()
+  endif()
+endif()
+
 configure_file(setup.py.in setup.py @ONLY)
 
 # ---------------------------------------------------------------------------
@@ -23,20 +45,22 @@ foreach(GTIRB_PROTO_FILE ${GTIRB_PROTO_FILES})
   set(PROTO_PY_SOURCE "${PROTO_PY_DIR}/${PROTO_BASE}_pb2.py")
   add_custom_command(
     OUTPUT "${PROTO_PY_SOURCE}"
-    COMMAND protobuf::protoc --python_out ${CMAKE_CURRENT_BINARY_DIR} -I
-            "${CMAKE_CURRENT_BINARY_DIR}" ${PROTO_PY_OUT}
+    COMMAND
+      protobuf::protoc --python_out ${CMAKE_CURRENT_BINARY_DIR}
+      ${MYPY_PROTOBUF_FLAGS} -I "${CMAKE_CURRENT_BINARY_DIR}" ${PROTO_PY_OUT}
     DEPENDS ${PROTO_PY_OUT} protobuf::protoc
     VERBATIM
   )
   list(APPEND PROTO_PY_SOURCES "${PROTO_PY_SOURCE}")
 endforeach()
+add_custom_target(py-proto DEPENDS ${PROTO_PY_SOURCES})
 
 # existing Python files
 file(GLOB PY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/gtirb/*.py
      ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.py
 )
 
-add_custom_target(pygtirb ALL DEPENDS ${PY_SOURCES} ${PROTO_PY_SOURCES})
+add_custom_target(pygtirb ALL DEPENDS ${PY_SOURCES} py-proto)
 add_custom_command(
   TARGET pygtirb
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/gtirb"
@@ -54,6 +78,14 @@ configure_file(
 )
 
 if(GTIRB_ENABLE_TESTS)
+  if(ENABLE_MYPY)
+    add_test(
+      NAME mypy
+      COMMAND mypy --non-interactive --install-types gtirb
+      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
+    )
+  endif()
+
   if(ENABLE_CODE_COVERAGE)
     add_test(
       NAME testgtirbpy
