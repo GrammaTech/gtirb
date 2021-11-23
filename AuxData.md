@@ -209,7 +209,7 @@ The following are the provisional AuxData table schemata.
 | [`"elfSectionProperties"`](#elfSectionProperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
 | [`"cfiDirectives"`](#cfiDirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
 | [`"elfSymbolInfo"`](#elfSymbolInfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
-| [`"libraryNames"`](#libraryNames)                           | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"libraries"`](#libraries)                                 | ```std::vector<std::string>```                                                                               |
 | [`"libraryPaths"`](#libraryPaths)                           | ```std::vector<std::string>```                                                                               |
 | [`"binaryType"`](#binaryType)                               | ```std::vector<std::string>```                                                                               |
 | [`"SCCs"`](#SCCs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
@@ -221,6 +221,7 @@ The following are the provisional AuxData table schemata.
 | [`"peResource"`](#peResource)                               | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                                 |
 | [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
 | [`"functionNameProbabilities"`](#functionNameProbabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
+| [`"libraryNames"`](#libraryNames)                           | ```std::map<gtirb::UUID, std::string>```                                                                     |
 | [`"libraryVersions"`](#libraryVersions)                     | ```std::map<gtirb::UUID, std::string>```                                                                     |
 
 
@@ -272,16 +273,15 @@ The following are the provisional AuxData table schemata.
 | Note     | On ELF targets only: Map from symbols to their type, binding, and visibility categories. |
 
 
-### libraryNames
+### libraries
 
-| <!-- -->   | <!-- -->                                 |
-|------------|------------------------------------------|
-| Label      | ```"libraryNames"```                     |
-| Type       | ```std::map<gtirb::UUID, std::string>``` |
-| Key        | Library UUID.                            |
-| Value      | The name of the library.                 |
-| AttachedTo | gtirb::Module                            |
-| Note       | Names of the libraries that are needed.  |
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"libraries"```                                |
+| Type     | ```std::vector<std::string>```        |
+| Value    | A name of the library.           |
+| AttachedTo | gtirb::Module |
+| Note     | Names of the libraries that are needed. |
 
 
 ### libraryPaths
@@ -405,6 +405,19 @@ The following are the provisional AuxData table schemata.
 | Value      | Map from function UUID to a list of weighted predictions.                                                    |
 | AttachedTo | gtirb::Module                                                                                                |
 | Notes      | Used to collect results from tools that identify functions.                                                  |
+
+
+### LibraryNames
+
+| <!-- -->   | <!-- -->                                 |
+|------------|------------------------------------------|
+| Label      | ```"libraryNames"```                     |
+| Type       | ```std::map<gtirb::UUID, std::string>``` |
+| Key        | Library UUID.                            |
+| Value      | The name of the library.                 |
+| AttachedTo | gtirb::Module                            |
+| Note       | Names of the libraries that are needed.  |
+
 
 ### libraryVersions
 
