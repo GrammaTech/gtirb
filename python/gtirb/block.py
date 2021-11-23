@@ -292,7 +292,7 @@ class CodeBlock(ByteBlock, CfgNode):
         assert ir
         assert isinstance(proto_block, CodeBlock_pb2.CodeBlock)
         b = cls(
-            decode_mode=CodeBlock.DecodeMode(proto_block.decode_mode),
+            decode_mode=cls.DecodeMode(proto_block.decode_mode),
             size=proto_block.size,
             uuid=uuid,
         )
@@ -318,7 +318,7 @@ class CodeBlock(ByteBlock, CfgNode):
             "uuid={uuid!r}, "
             "size={size}, "
             "offset={offset}, "
-            "decode_mode={decode_mode}, "
+            "decode_mode=CodeBlock.{decode_mode!s}, "
             ")".format(
                 uuid=self.uuid,
                 size=self.size,

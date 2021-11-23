@@ -26,7 +26,9 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(node.data, new_node.data)
 
     def test_block(self):
-        node = gtirb.CodeBlock(offset=123, size=456, decode_mode=789)
+        node = gtirb.CodeBlock(
+            offset=123, size=456, decode_mode=gtirb.CodeBlock.DecodeMode.Thumb
+        )
         string = repr(node)
         new_node = eval(string)
         self.assertTrue(node.deep_eq(new_node))
