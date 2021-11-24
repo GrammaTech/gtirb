@@ -35,7 +35,6 @@ include(Macros.cmake)
 include(AlignOf.cmake)
 include(CMakePackageConfigHelpers)
 
-option(GTIRB_JAVADOCS "Create javadocs for GTIRB Java API" ON)
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
 if(ENABLE_CONAN)
