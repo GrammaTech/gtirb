@@ -35,7 +35,12 @@ class IRTest(unittest.TestCase):
         bi = gtirb.ByteInterval(
             address=0, size=10, contents=b"abcd", section=s
         )
-        cb = gtirb.CodeBlock(size=4, offset=0, decode_mode=1, byte_interval=bi)
+        cb = gtirb.CodeBlock(
+            size=4,
+            offset=0,
+            decode_mode=gtirb.CodeBlock.DecodeMode.Thumb,
+            byte_interval=bi,
+        )
         _ = gtirb.DataBlock(size=6, offset=4, byte_interval=bi)
         sym = gtirb.Symbol(name="name", payload=cb, module=m)
         sac = gtirb.SymAddrConst(

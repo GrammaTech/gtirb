@@ -145,13 +145,11 @@ set(GTIRB_JAVA_API_JARS
 )
 
 find_program(
-  MAVEN mvn
-  HINTS $ENV{PATH}
-  DOC "mvn (maven) must be in your PATH to build the GTIRB Java API."
+  MAVEN mvn DOC "mvn (maven) must be in your PATH to build the GTIRB Java API."
 )
 
-if(NOT GTIRB_JAVADOCS)
-  set(MAVEN_ARGS "-Dmaven.javadoc.skip=true")
+if(NOT GTIRB_DOCUMENTATION)
+  set(MAVEN_PACKAGE_ARGS "-Dmaven.javadoc.skip=true")
 endif()
 
 add_custom_command(
