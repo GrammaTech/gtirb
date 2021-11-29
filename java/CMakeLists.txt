@@ -140,7 +140,7 @@ set(GTIRB_JAVA_API_JARS
 
 add_custom_command(
   OUTPUT ${GTIRB_JAVA_API_JARS} ${GTIRB_JAVA_APIDOCS_DIR}/index.html
-  COMMAND mvn package
+  COMMAND ${MVN} package
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
   DEPENDS ${GTIRB_API_SOURCES} ${GTIRB_PROTOBUF_JAVA}
 )
@@ -159,7 +159,7 @@ if(GTIRB_ENABLE_TESTS)
   endif()
 
   execute_process(
-    COMMAND mvn -q exec:exec -Dexec.classpathScope=compile
+    COMMAND ${MVN} -q exec:exec -Dexec.classpathScope=compile
             -Dexec.executable=echo -Dexec.args=%classpath
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
     OUTPUT_VARIABLE JAR_FILE_LIST

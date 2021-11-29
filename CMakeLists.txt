@@ -186,6 +186,16 @@ if(GTIRB_JAVA_API)
 If this is in error, try setting the environment variable $JAVA_HOME."
     )
     set(JAVA_API OFF)
+  else()
+    find_program(MVN mvn)
+    if(NOT MVN)
+      message(
+        WARNING
+          "Maven not found; disabling building of Java API. If this is in "
+          "error, try setting -DMVN=<path-to-maven> on the CMake command-line"
+      )
+      set(JAVA_API OFF)
+    endif()
   endif()
 endif()
 
