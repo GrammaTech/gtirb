@@ -676,6 +676,7 @@ maven-central-upload:
     project: rewriting/utility/package-uploader
     strategy: depend
   rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
     JOB_NAME: build-ubuntu18-gcc7
