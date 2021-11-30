@@ -671,6 +671,7 @@ internal-focal-stable:
 
 maven-central-upload:
   stage: deploy
+  needs: [build-ubuntu18-gcc7]
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
