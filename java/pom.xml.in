@@ -4,7 +4,7 @@
   <groupId>com.grammatech.gtirb</groupId>
   <artifactId>gtirb_api</artifactId>
   <version>
-    @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@
+    @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@@GTIRB_JAVA_SNAPSHOT_SUFFIX@
   </version>
 
   <name>${project.groupId}:${project.artifactId}</name>

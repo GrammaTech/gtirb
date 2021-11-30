@@ -75,6 +75,12 @@ add_custom_command(
           "${CMAKE_CURRENT_BINARY_DIR}/tests"
 )
 
+if(GTIRB_RELEASE_VERSION)
+  set(GTIRB_PYTHON_DEV_SUFFIX "")
+else()
+  set(GTIRB_PYTHON_DEV_SUFFIX ".dev")
+endif()
+
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/gtirb/version.py @ONLY

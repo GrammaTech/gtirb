@@ -4,7 +4,7 @@ API_VERSION = (
     "@PROJECT_VERSION_MAJOR@."
     "@PROJECT_VERSION_MINOR@."
     "@PROJECT_VERSION_PATCH@"
-    ".dev"
+    "@GTIRB_PYTHON_DEV_SUFFIX@"
 )  # type: str
 """The semantic version of this API."""
 

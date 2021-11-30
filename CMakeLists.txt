@@ -104,6 +104,12 @@ option(GTIRB_STRIP_DEBUG_SYMBOLS
        "Whether or not to strip debug symbols and set the build-id." OFF
 )
 
+option(
+  GTIRB_RELEASE_VERSION
+  "Whether or not to build package versions without dev/SNAPSHOT suffixes.  Applies to the python and java APIs."
+  OFF
+)
+
 # Determine whether or not the APIs are REALLY built or not.
 # === C++ ===
 set(CXX_API ${GTIRB_CXX_API})

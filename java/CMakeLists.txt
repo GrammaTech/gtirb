@@ -42,6 +42,12 @@ endforeach()
 # ---------------------------------------------------------------------------
 # Building the gtirb java API
 # ---------------------------------------------------------------------------
+if(GTIRB_RELEASE_VERSION)
+  set(GTIRB_JAVA_SNAPSHOT_SUFFIX "")
+else()
+  set(GTIRB_JAVA_SNAPSHOT_SUFFIX "-SNAPSHOT")
+endif()
+
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/pom.xml.in ${CMAKE_CURRENT_BINARY_DIR}/pom.xml
   @ONLY
