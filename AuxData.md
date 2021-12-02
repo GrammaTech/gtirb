@@ -221,8 +221,8 @@ The following are the provisional AuxData table schemata.
 | [`"peResource"`](#peResource)                               | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                                 |
 | [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
 | [`"functionNameProbabilities"`](#functionNameProbabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
-| [`"libraryNames"`](#libraryNames)                           | ```std::map<gtirb::UUID, std::string>```                                                                     |
-| [`"libraryVersions"`](#libraryVersions)                     | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"includedLibraryNames"`](#includedLibraryNames)           | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"includedLibraryVersions"`](#includedLibraryVersions)     | ```std::map<gtirb::UUID, std::string>```                                                                     |
 
 
 ### encodings
@@ -281,7 +281,7 @@ The following are the provisional AuxData table schemata.
 | Type     | ```std::vector<std::string>```        |
 | Value    | A name of the library.           |
 | AttachedTo | gtirb::Module |
-| Note     | Names of the libraries that are needed. |
+| Note     | Names of the external libraries that are needed dynamically at run time. |
 
 
 ### libraryPaths
@@ -397,35 +397,35 @@ The following are the provisional AuxData table schemata.
 
 ### functionNameProbabilities
 
-| <!-- -->   | <!-- -->                                                                                                     |
-|------------|--------------------------------------------------------------------------------------------------------------|
-| Label      | ```"functionNameProbabilities"```                                                                            |
-| Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
-| Key        | String tool name of the tool that made the predictions.                                                      |
-| Value      | Map from function UUID to a list of weighted predictions.                                                    |
-| AttachedTo | gtirb::Module                                                                                                |
-| Notes      | Used to collect results from tools that identify functions.                                                  |
+| <!-- -->   | <!-- -->                                                                                                                              |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Label      | ```"functionNameProbabilities"```                                                                                                     |
+| Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>```                          |
+| Key        | String tool name of the tool that made the predictions.                                                                               |
+| Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, IncludedLibrary UUID, score> |
+| AttachedTo | gtirb::Module                                                                                                                         |
+| Notes      | Used to collect results from tools that identify functions and their source libraries                                                 |
 
 
-### LibraryNames
+### IncludedLibraryNames
 
 | <!-- -->   | <!-- -->                                 |
 |------------|------------------------------------------|
-| Label      | ```"libraryNames"```                     |
+| Label      | ```"includedLibraryNames"```                     |
 | Type       | ```std::map<gtirb::UUID, std::string>``` |
-| Key        | Library UUID.                            |
+| Key        | Included library UUID.                   |
 | Value      | The name of the library.                 |
 | AttachedTo | gtirb::Module                            |
-| Note       | Names of the libraries that are needed.  |
+| Notes      | Names of libraries that are included in an executable (i.e., their code is intermingled with the executable code). |
 
 
-### libraryVersions
+### IncludedlibraryVersions
 
-| <!-- -->   | <!-- -->                                      |
-|------------|-----------------------------------------------|
-| Label      | ```"libraryVersions"```                       |
-| Type       | ```std::map<gtirb::UUID, std::string>```      |
-| Key        | Library UUID.                                 |
-| Value      | Version string for the library.               |
-| AttachedTo | gtirb::Module                                 |
-| Notes      | Versions of libraries required by the binary. |
+| <!-- -->   | <!-- -->                                                                                                              |
+|------------|-----------------------------------------------------------------------------------------------------------------------|
+| Label      | ```"includedLibraryVersions"```                                                                                               |
+| Type       | ```std::map<gtirb::UUID, std::string>```                                                                              |
+| Key        | Included library UUID.                                                                                                |
+| Value      | Version string for the included library.                                                                              |
+| AttachedTo | gtirb::Module                                                                                                         |
+| Notes      | Versions of libraries that are included in an executable (i.e., their code is intermingled with the executable code). |
