@@ -279,7 +279,7 @@ The following are the provisional AuxData table schemata.
 |----------|------------------------------------------------|
 | Label    | ```"libraries"```                                |
 | Type     | ```std::vector<std::string>```        |
-| Value    | A name of the library.           |
+| Value    | The name of a library.           |
 | AttachedTo | gtirb::Module |
 | Note     | Names of the external libraries that are needed dynamically at run time. |
 
@@ -401,7 +401,7 @@ The following are the provisional AuxData table schemata.
 |------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Label      | ```"functionNameProbabilities"```                                                                                                                                                                                                       |
 | Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>```                                                                                                                            |
-| Key        | String tool name of the tool that made the predictions.                                                                                                                                                                                 |
+| Key        | Name of the tool that made the predictions.                                                                                                                                                                                 |
 | Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, IncludedLibrary UUID, score> where the score's meaning is tool dependent.                                                      |
 | AttachedTo | gtirb::Module                                                                                                                                                                                                                           |
 | Notes      | Used to collect results from tools that identify functions and their source libraries.  Source library information is tracked in [IncludedLibraryNames](#includedlibrarynames) and [IncludedlibraryVersions](#includedlibraryversions). |
