@@ -205,24 +205,24 @@ The following are the provisional AuxData table schemata.
 
 | Label                                                       | Type                                                                                                         |
 |-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [`"binaryType"`](#binarytype)                               | ```std::vector<std::string>```                                                                               |
+| [`"cfiDirectives"`](#cfidirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
+| [`"elfSectionProperties"`](#elfsectionproperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
+| [`"elfSymbolInfo"`](#elfsymbolinfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
 | [`"encodings"`](#encodings)                                 | ```std::map<gtirb::UUID, std::string>```                                                                     |
-| [`"elfSectionProperties"`](#elfSectionProperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
-| [`"cfiDirectives"`](#cfiDirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
-| [`"elfSymbolInfo"`](#elfSymbolInfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
+| [`"functionNameProbabilities"`](#functionnameprobabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
+| [`"includedLibraryNames"`](#includedlibrarynames)           | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"includedLibraryVersions"`](#includedlibraryversions)     | ```std::map<gtirb::UUID, std::string>```                                                                     |
 | [`"libraries"`](#libraries)                                 | ```std::vector<std::string>```                                                                               |
-| [`"libraryPaths"`](#libraryPaths)                           | ```std::vector<std::string>```                                                                               |
-| [`"binaryType"`](#binaryType)                               | ```std::vector<std::string>```                                                                               |
-| [`"SCCs"`](#SCCs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
-| [`"symbolicExpressionSizes"`](#symbolicExpressionSizes)     | ```std::map<gtirb::Offset, uint64_t>```                                                                      |
-| [`"peImportEntries"`](#peImportEntries)                     | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```                                   |
-| [`"peExportEntries"`](#peExportEntries)                     | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```                                                |
-| [`"peImportedSymbols"`](#peImportedSymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
-| [`"peExportedSymbols"`](#peExportedSymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
-| [`"peResource"`](#peResource)                               | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                                 |
+| [`"libraryPaths"`](#librarypaths)                           | ```std::vector<std::string>```                                                                               |
+| [`"peExportEntries"`](#peexportentries)                     | ```std::vector<std::tuple<uint64_t, int64_t, std::string>>```                                                |
+| [`"peExportedSymbols"`](#peexportedsymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
+| [`"peImportEntries"`](#peimportentries)                     | ```std::vector<std::tuple<uint64_t, int64_t, std::string, std::string>>```                                   |
+| [`"peImportedSymbols"`](#peimportedsymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
+| [`"peResource"`](#peresource)                               | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                                 |
 | [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
-| [`"functionNameProbabilities"`](#functionNameProbabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
-| [`"includedLibraryNames"`](#includedLibraryNames)           | ```std::map<gtirb::UUID, std::string>```                                                                     |
-| [`"includedLibraryVersions"`](#includedLibraryVersions)     | ```std::map<gtirb::UUID, std::string>```                                                                     |
+| [`"sccs"`](#sccs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
+| [`"symbolicExpressionSizes"`](#symbolicexpressionsizes)     | ```std::map<gtirb::Offset, uint64_t>```                                                                      |
 
 
 ### encodings
