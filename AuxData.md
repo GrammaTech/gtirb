@@ -404,10 +404,10 @@ The following are the provisional AuxData table schemata.
 | Key        | Name of the tool that made the predictions.                                                                                                                                                                                 |
 | Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, IncludedLibrary UUID, score> where the score's meaning is tool dependent.                                                      |
 | AttachedTo | gtirb::Module                                                                                                                                                                                                                           |
-| Notes      | Used to collect results from tools that identify functions and their source libraries.  Source library information is tracked in [IncludedLibraryNames](#includedlibrarynames) and [IncludedlibraryVersions](#includedlibraryversions). |
+| Notes      | Used to collect results from tools that identify functions and their source libraries.  Source library information is tracked in [includedLibraryNames](#includedlibrarynames) and [includedlibraryVersions](#includedlibraryversions).  Several existing tools use the convention that higher score is a better match. |
 
 
-### IncludedLibraryNames
+### includedLibraryNames
 
 | <!-- -->   | <!-- -->                                 |
 |------------|------------------------------------------|
@@ -419,7 +419,7 @@ The following are the provisional AuxData table schemata.
 | Notes      | Names of libraries that are included in an executable (i.e., their code is intermingled with the executable code). |
 
 
-### IncludedlibraryVersions
+### includedlibraryVersions
 
 | <!-- -->   | <!-- -->                                                                                                              |
 |------------|-----------------------------------------------------------------------------------------------------------------------|
