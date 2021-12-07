@@ -401,17 +401,17 @@ The following are the provisional AuxData table schemata.
 |------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Label      | ```"functionNameProbabilities"```                                                                                                                                                                                                       |
 | Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>```                                                                                                                            |
-| Key        | Name of the tool that made the predictions.                                                                                                                                                                                 |
-| Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, IncludedLibrary UUID, score> where the score's meaning is tool dependent.                                                      |
+| Key        | Name of the tool that made the predictions.                                                                                                                                                                                             |
+| Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, IncludedLibrary UUID, score> where the score's meaning is tool dependent. Several existing tools use the convention that higher score is a better match and values ranging from 0.0 to 1.0.                                                      |
 | AttachedTo | gtirb::Module                                                                                                                                                                                                                           |
-| Notes      | Used to collect results from tools that identify functions and their source libraries.  Source library information is tracked in [includedLibraryNames](#includedlibrarynames) and [includedlibraryVersions](#includedlibraryversions).  Several existing tools use the convention that higher score is a better match. |
+| Notes      | Used to collect results from tools that identify functions and their source libraries.  Source library information is tracked in [includedLibraryNames](#includedlibrarynames) and [includedlibraryVersions](#includedlibraryversions). |
 
 
 ### includedLibraryNames
 
 | <!-- -->   | <!-- -->                                 |
 |------------|------------------------------------------|
-| Label      | ```"includedLibraryNames"```                     |
+| Label      | ```"includedLibraryNames"```             |
 | Type       | ```std::map<gtirb::UUID, std::string>``` |
 | Key        | Included library UUID.                   |
 | Value      | The name of the library.                 |
@@ -423,7 +423,7 @@ The following are the provisional AuxData table schemata.
 
 | <!-- -->   | <!-- -->                                                                                                              |
 |------------|-----------------------------------------------------------------------------------------------------------------------|
-| Label      | ```"includedLibraryVersions"```                                                                                               |
+| Label      | ```"includedLibraryVersions"```                                                                                       |
 | Type       | ```std::map<gtirb::UUID, std::string>```                                                                              |
 | Key        | Included library UUID.                                                                                                |
 | Value      | Version string for the included library.                                                                              |
