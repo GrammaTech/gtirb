@@ -52,7 +52,7 @@ if __name__ == "__main__":
         test_suite="setup.gtirb_test_suite",
         install_requires=[
             "networkx",
-            "protobuf<3.12.2",
+            "protobuf",
             "intervaltree",
             "sortedcontainers"
         ] + typing_dep,
