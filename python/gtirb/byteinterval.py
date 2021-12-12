@@ -172,7 +172,7 @@ class ByteInterval(Node):
             raise ValueError("initialized_size must be <= size!")
 
         super().__init__(uuid=uuid)
-        self._interval_tree = IntervalTree()
+        self._interval_tree: "IntervalTree[int, ByteBlock]" = IntervalTree()
         self._section = None  # type: typing.Optional["Section"]
         self.address = address
         self.size = size

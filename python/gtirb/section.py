@@ -100,7 +100,7 @@ class Section(Node):
         """
 
         super().__init__(uuid)
-        self._interval_index = IntervalTree()
+        self._interval_index: "IntervalTree[int,ByteInterval]" = IntervalTree()
         self._module = None  # type: typing.Optional["Module"]
         self.name = name  # type: str
         self.byte_intervals = Section._ByteIntervalSet(self, byte_intervals)

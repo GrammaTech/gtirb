@@ -1,14 +1,22 @@
-import typing
 from enum import Enum
+from typing import (
+    TYPE_CHECKING,
+    Hashable,
+    Iterable,
+    Iterator,
+    MutableSet,
+    NamedTuple,
+    Optional,
+)
 from uuid import UUID
 
-import networkx
+from networkx import MultiDiGraph
 
 from .block import CfgNode
 from .proto import CFG_pb2
 from .util import DeserializationError
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .ir import IR
 
 
@@ -70,7 +78,7 @@ _Type = Type
 
 
 class Label(
-    typing.NamedTuple(
+    NamedTuple(
         "NamedTuple",
         (("type", "Type"), ("conditional", bool), ("direct", bool)),
     )
@@ -115,12 +123,12 @@ _Label = Label
 
 
 class Edge(
-    typing.NamedTuple(
+    NamedTuple(
         "NamedTuple",
         (
             ("source", CfgNode),
             ("target", CfgNode),
-            ("label", "typing.Optional[Label]"),
+            ("label", "Optional[Label]"),
         ),
     )
 ):
@@ -135,14 +143,14 @@ class Edge(
     __slots__ = ()
 
     def __new__(cls, source, target, label=None):
-        # type: (CfgNode, CfgNode, typing.Optional[Label]) -> "Edge"
+        # type: (CfgNode, CfgNode, Optional[Label]) -> "Edge"
         return super().__new__(cls, source, target, label)
 
     Type = _Type
     Label = _Label
 
 
-class CFG(typing.MutableSet[Edge]):
+class CFG(MutableSet[Edge]):
     """A control-flow graph for an :class:`IR`. Vertices are
     :class:`CfgNode`\\s, and edges may optionally contain
     :class:`Edge.Label`\\s.
@@ -161,13 +169,15 @@ class CFG(typing.MutableSet[Edge]):
     """
 
     def __init__(self, edges=None):
-        # type: (typing.Iterable[Edge]) -> None
-        self._nxg = networkx.MultiDiGraph()
+        # type: (Iterable[Edge]) -> None
+        self._nxg: "MultiDiGraph[CfgNode, Hashable, Optional[Label]]" = (
+            MultiDiGraph()
+        )
         if edges is not None:
             self.update(edges)
 
     def _edge_key(self, edge):
-        # type: (Edge) -> typing.Optional[typing.Hashable]
+        # type: (Edge) -> Optional[Hashable]
         if edge.source in self._nxg:
             neighbors = self._nxg[edge.source]
             if edge.target in neighbors:
@@ -181,7 +191,7 @@ class CFG(typing.MutableSet[Edge]):
         return isinstance(edge, Edge) and self._edge_key(edge) is not None
 
     def __iter__(self):
-        # type: () -> typing.Iterator[Edge]
+        # type: () -> Iterator[Edge]
         for s, t, l in self._nxg.edges(data="label"):
             yield Edge(s, t, l)
 
@@ -190,7 +200,7 @@ class CFG(typing.MutableSet[Edge]):
         return len(self._nxg.edges())
 
     def update(self, edges):
-        # type: (typing.Iterable[Edge]) -> None
+        # type: (Iterable[Edge]) -> None
         for edge in edges:
             self.add(edge)
 
@@ -210,20 +220,20 @@ class CFG(typing.MutableSet[Edge]):
             self._nxg.remove_edge(edge.source, edge.target, key=key)
 
     def out_edges(self, node):
-        # type: (CfgNode) -> typing.Iterable[Edge]
+        # type: (CfgNode) -> Iterable[Edge]
         if node in self._nxg:
             for s, t, l in self._nxg.out_edges(node, data="label"):
                 yield Edge(s, t, l)
 
     def in_edges(self, node):
-        # type: (CfgNode) -> typing.Iterable[Edge]
+        # type: (CfgNode) -> Iterable[Edge]
         if node in self._nxg:
             for s, t, l in self._nxg.in_edges(node, data="label"):
                 yield Edge(s, t, l)
 
     @classmethod
     def _from_protobuf(cls, edges, ir):
-        # type: (typing.Iterable[CFG_pb2.Edge], typing.Optional[IR]) -> CFG
+        # type: (Iterable[CFG_pb2.Edge], Optional[IR]) -> CFG
         assert ir
 
         def make_edge(ir, edge):
@@ -242,7 +252,7 @@ class CFG(typing.MutableSet[Edge]):
                     "CFG: UUID %s is not a CfgNode" % target_uuid
                 )
 
-            label = None  # type: typing.Optional[Label]
+            label = None  # type: Optional[Label]
             if edge.HasField("label"):
                 label = Edge.Label(
                     Edge.Type(edge.label.type),
@@ -255,7 +265,7 @@ class CFG(typing.MutableSet[Edge]):
         return CFG(make_edge(ir, edge) for edge in edges)
 
     def _to_protobuf(self):
-        # type: () -> typing.Iterable[CFG_pb2.Edge]
+        # type: () -> Iterable[CFG_pb2.Edge]
         for s, t, l in self._nxg.edges(data="label"):
             proto_edge = CFG_pb2.Edge()
             proto_edge.source_uuid = s.uuid.bytes
@@ -267,7 +277,7 @@ class CFG(typing.MutableSet[Edge]):
             yield proto_edge
 
     def nx(self):
-        # type: () -> networkx.MultiDiGraph
+        # type: () -> MultiDiGraph
         return self._nxg
 
     def deep_eq(self, other):
