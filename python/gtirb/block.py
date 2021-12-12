@@ -5,6 +5,15 @@ from .node import Node
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
 from .util import _IndexedAttribute
 
+if typing.TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .byteinterval import ByteInterval  # noqa: F401
+    from .cfg import Edge  # noqa: F401
+    from .ir import IR  # noqa: F401
+    from .module import Module  # noqa: F401
+    from .section import Section  # noqa: F401
+    from .symbol import Symbol  # noqa: F401
+
 
 class Block(Node):
     """The base class for blocks. Symbols may have references to any subclass
@@ -41,10 +50,10 @@ class ByteBlock(Block):
         same offset.
     """
 
-    size = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
+    size = _IndexedAttribute[int, "ByteBlock"](
         "size", lambda self: self.byte_interval
     )
-    offset = _IndexedAttribute[int, "ByteBlock", "ByteInterval"](
+    offset = _IndexedAttribute[int, "ByteBlock"](
         "offset", lambda self: self.byte_interval
     )
 
@@ -68,8 +77,8 @@ class ByteBlock(Block):
 
         super().__init__(uuid=uuid)
         self._byte_interval = None  # type: typing.Optional["ByteInterval"]
-        self.size = size  # type: int
-        self.offset = offset  # type: int
+        self.size = size
+        self.offset = offset
         # Use the property setter to ensure correct invariants.
         self.byte_interval = byte_interval
 
@@ -135,7 +144,7 @@ class ByteBlock(Block):
 
     @property
     def section(self):
-        # type: () -> "Section"
+        # type: () -> typing.Optional["Section"]
         """Get the section this node ultimately belongs to."""
         if self.byte_interval is None:
             return None
@@ -143,7 +152,7 @@ class ByteBlock(Block):
 
     @property
     def module(self):
-        # type: () -> "Module"
+        # type: () -> typing.Optional["Module"]
         """Get the module this node ultimately belongs to."""
         if self.section is None:
             return None
@@ -151,7 +160,7 @@ class ByteBlock(Block):
 
     @property
     def ir(self):
-        # type: () -> "IR"
+        # type: () -> typing.Optional["IR"]
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None
@@ -165,8 +174,11 @@ class ByteBlock(Block):
         """Indicate if the provided address is within this block.
         Returns False if the block has no address.
         """
-        if self.address is not None:
-            return self.contains_offset(address - self.byte_interval.address)
+        byte_interval = self.byte_interval
+        if byte_interval is not None:
+            base = byte_interval.address
+            if base is not None:
+                return self.contains_offset(address - base)
         return False
 
 
@@ -218,10 +230,11 @@ class DataBlock(ByteBlock):
     def _decode_protobuf(
         cls,
         proto_dataobject,  # type: DataBlock_pb2.DataBlock
-        uuid,  # type: uuid.UUID
+        uuid,  # type: UUID
         ir,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> DataBlock
+        assert ir
         b = cls(size=proto_dataobject.size, uuid=uuid)
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
@@ -292,6 +305,7 @@ class CodeBlock(ByteBlock, CfgNode):
         ir,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> CodeBlock
+        assert ir
         b = cls(
             decode_mode=proto_block.decode_mode,
             size=proto_block.size,
@@ -366,7 +380,7 @@ class ProxyBlock(CfgNode):
         module=None  # type: typing.Optional["Module"]
     ):
         super().__init__(uuid=uuid)
-        self._module = None  # type: "Module"
+        self._module = None  # type: typing.Optional["Module"]
         # Use the property setter to ensure correct invariants.
         self.module = module
 
@@ -378,6 +392,7 @@ class ProxyBlock(CfgNode):
         ir,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> ProxyBlock
+        assert ir
         b = cls(uuid=uuid)
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
@@ -401,12 +416,12 @@ class ProxyBlock(CfgNode):
 
     @property
     def module(self):
-        # type: () -> "Module"
+        # type: () -> typing.Optional["Module"]
         return self._module
 
     @module.setter
     def module(self, value):
-        # type: ("Module") -> None
+        # type: (typing.Optional["Module"]) -> None
         if self._module is not None:
             self._module.proxies.discard(self)
         if value is not None:
@@ -432,7 +447,7 @@ class ProxyBlock(CfgNode):
 
     @property
     def ir(self):
-        # type: () -> "IR"
+        # type: () -> typing.Optional["IR"]
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

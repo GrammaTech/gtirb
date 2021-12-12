@@ -4,23 +4,37 @@ import itertools
 import typing
 
 import intervaltree
+import typing_extensions
 
 K = typing.TypeVar("K")
 V = typing.TypeVar("V")
 T = typing.TypeVar("T")
+T_cov = typing.TypeVar("T_cov", covariant=True)
+T_contra = typing.TypeVar("T_contra", contravariant=True)
 
 
-class DictLike(typing.Generic[K, V]):
-    """Any value that can be passed to the constructor of ``dict``;
-    that is, a mapping or iterable yielding key-value tuples.
-    """
+DictLike = typing.Union[
+    typing.Mapping[K, V], typing.Iterable[typing.Tuple[K, V]],
+]
+"""Any value that can be passed to the constructor of ``dict``;
+that is, a mapping or iterable yielding key-value tuples.
+"""
 
-    # NOTE: this should inherit from:
-    # typing.Union[
-    #     typing.Mapping[K, V],
-    #     typing.Iterable[typing.Tuple[K, V]],
-    # ]
-    # but cannot, due to metaclass conflicts.
+
+class GtirbError(Exception):
+    pass
+
+
+class DeserializationError(GtirbError):
+    pass
+
+
+class _SymbolicExpressionContainer(typing_extensions.Protocol[T_cov]):
+    """A container of symbolic expressions at addresses."""
+
+    def symbolic_expressions_at(self, addrs):
+        # type: (typing.Union[int, range]) -> typing.Iterable[T_cov]
+        ...
 
 
 class ListWrapper(typing.MutableSequence[T]):
@@ -162,20 +176,37 @@ class DictWrapper(typing.MutableMapping[K, V]):
 
 
 InstanceT = typing.TypeVar("InstanceT")
-ParentT = typing.TypeVar("ParentT")
 AttributeT = typing.TypeVar("AttributeT")
 
 
-class _IndexedAttribute(typing.Generic[AttributeT, InstanceT, ParentT]):
+class IndexedContainer(typing_extensions.Protocol[T_contra]):
+    """Container wth an index that can be updated."""
+
+    def _index_discard(self, instance):
+        # type: (T_contra) -> None
+        ...
+
+    def _index_add(self, instance):
+        # type: (T_contra) -> None
+        ...
+
+
+class ParentGetter(typing_extensions.Protocol[T_contra]):
+    """Interface for getting an _IndexedContainer for an instance."""
+
+    def __call__(self, instance):
+        # type: (T_contra) -> typing.Optional[IndexedContainer[T_contra]]
+        ...
+
+
+class _IndexedAttribute(typing.Generic[AttributeT, InstanceT]):
     """
     A descriptor that will notify a parent when the value is set and can be
     otherwise used like a normal attribute.
     """
 
-    ParentGetterT = typing.Callable[[InstanceT], typing.Optional[ParentT]]
-
     def __init__(self, name, parent_getter):
-        # type: (str, "ParentGetterT") -> None
+        # type: (str, "ParentGetter[InstanceT]") -> None
         self.name = name
         self.attribute_name = "_" + name
         self.parent_getter = parent_getter
@@ -212,16 +243,41 @@ def get_desired_range(addrs):
         return addrs
 
 
+class AddrRange(typing_extensions.Protocol):
+    """An object spanning a range of addresses."""
+
+    # Protocol field types mut match exactly, but properties are alloaed to
+    # return subtypes. This means that a class whose address or size is an int
+    # will match Optional[int] properties, but not Optional[int] fields.
+
+    @property
+    def address(self):
+        # type: () -> typing.Optional[int]
+        ...
+
+    @property
+    def size(self):
+        # type: () -> typing.Optional[int]
+        ...
+
+
+# Need a TypeVar bounded by the protocol so that nodes_on callers will get
+# back the actual node type, not an AddrRange.
+AddrRangeT = typing.TypeVar("AddrRangeT", bound=AddrRange)
+
+
 def nodes_on(
-    nodes,  # type: typing.Iterable[T]
+    nodes,  # type: typing.Iterable[AddrRangeT]
     addrs,  # type: typing.Union[int, range]
 ):
-    # type: (...) -> typing.Iterable[T]
+    # type: (...) -> typing.Iterable[AddrRangeT]
     desired_range = get_desired_range(addrs)
     for node in nodes:
         node_addr = node.address
         if node_addr is not None:
-            node_range = range(node_addr, node_addr + node.size)
+            node_size = node.size
+            assert node_size is not None
+            node_range = range(node_addr, node_addr + node_size)
             if range(
                 max(desired_range.start, node_range.start),
                 min(desired_range.stop, node_range.stop),
@@ -230,10 +286,10 @@ def nodes_on(
 
 
 def nodes_at(
-    nodes,  # type: typing.Iterable[T]
+    nodes,  # type: typing.Iterable[AddrRangeT]
     addrs,  # type: typing.Union[int, range]
 ):
-    # type: (...) -> typing.Iterable[T]
+    # type: (...) -> typing.Iterable[AddrRangeT]
     desired_range = get_desired_range(addrs)
     for node in nodes:
         node_addr = node.address
@@ -242,21 +298,38 @@ def nodes_at(
 
 
 def _address_interval(node):
-    # type: ("Node") -> typing.Optional[intervaltree.Interval]
+    # type: (AddrRange) -> typing.Optional[intervaltree.Interval]
     """
     Creates an interval tree interval based on a GTIRB node's address and
     size or returns None, if the node has no address.
     """
-    if node.address is not None:
+    node_address = node.address
+    if node_address is not None:
+        node_size = node.size
+        assert node_size is not None
         return intervaltree.Interval(
-            node.address, node.address + node.size + 1, node
+            node_address, node_address + node_size + 1, node
         )
     else:
         return None
 
 
+class OffsetRange(typing_extensions.Protocol):
+    """An object spanning a range of offsets."""
+
+    @property
+    def offset(self):
+        # type: () -> int
+        ...
+
+    @property
+    def size(self):
+        # type: () -> int
+        ...
+
+
 def _offset_interval(node):
-    # type: ("Node") -> intervaltree.Interval
+    # type: (OffsetRange) -> intervaltree.Interval
     """
     Creates an interval tree interval based on a GTIRB node's offset and size.
     """
@@ -326,10 +399,10 @@ def _nodes_at_interval_tree(
 
 
 def symbolic_expressions_at(
-    nodes,  # type: typing.Iterable
+    nodes,  # type: typing.Iterable[_SymbolicExpressionContainer[T_cov]]
     addrs,  # type: typing.Union[int, range]
 ):
-    # type: (...) -> typing.Iterable[typing.Tuple]
+    # type: (...) -> typing.Iterable[T_cov]
     return itertools.chain.from_iterable(
         node.symbolic_expressions_at(addrs) for node in nodes
     )

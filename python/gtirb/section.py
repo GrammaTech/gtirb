@@ -16,6 +16,11 @@ from .util import (
     _nodes_on_interval_tree,
 )
 
+if typing.TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
+    from .module import Module  # noqa: F401
+
 
 class Section(Node):
     """Represents a named section of the binary.
@@ -96,11 +101,9 @@ class Section(Node):
 
         super().__init__(uuid)
         self._interval_index = IntervalTree()
-        self._module = None  # type: "Module"
+        self._module = None  # type: typing.Optional["Module"]
         self.name = name  # type: str
-        self.byte_intervals = Section._ByteIntervalSet(
-            self, byte_intervals
-        )  # type: typing.Set[ByteInterval]
+        self.byte_intervals = Section._ByteIntervalSet(self, byte_intervals)
         self.flags = set(flags)  # type: typing.Set[Section.Flag]
 
         # Use the property setter to ensure correct invariants.
@@ -119,6 +122,7 @@ class Section(Node):
     @classmethod
     def _decode_protobuf(cls, proto_section, uuid, ir):
         # type: (Section_pb2.Section, UUID, typing.Optional["IR"]) -> Section
+        assert ir
         s = cls(
             name=proto_section.name,
             flags=(Section.Flag(f) for f in proto_section.section_flags),
@@ -181,14 +185,14 @@ class Section(Node):
 
     @property
     def module(self):
-        # type: () -> "Module"
+        # type: () -> typing.Optional["Module"]
         """The :class:`Module` this section belongs to."""
 
         return self._module
 
     @module.setter
     def module(self, value):
-        # type: ("Module") -> None
+        # type: (typing.Optional["Module"]) -> None
         if self._module is not None:
             self._module.sections.discard(self)
         if value is not None:
@@ -386,7 +390,7 @@ class Section(Node):
 
     @property
     def ir(self):
-        # type: () -> "IR"
+        # type: () -> typing.Optional["IR"]
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

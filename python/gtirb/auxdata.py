@@ -1,11 +1,15 @@
 from io import BytesIO
-from typing import Any, ClassVar, Dict, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional
 from uuid import UUID
 
 from .node import Node
 from .proto import AuxData_pb2
 from .serialization import Serialization
 from .util import DictLike
+
+if TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
 
 
 class _LazyDataContainer:
@@ -100,6 +104,7 @@ class AuxData:
         """
 
         # Defer deserialization until someone accesses .data
+        assert ir
         lazy_container = _LazyDataContainer(
             aux_data.data, aux_data.type_name, ir.get_by_uuid
         )

@@ -4,7 +4,13 @@ from uuid import UUID
 from .block import Block
 from .node import Node
 from .proto import Symbol_pb2
-from .util import _IndexedAttribute
+from .util import DeserializationError, _IndexedAttribute
+
+if typing.TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
+    from .module import Module  # noqa: F401
+
 
 Payload = typing.Union[Block, int]
 """A type hint representing the possible Symbol payloads."""
@@ -18,9 +24,7 @@ class Symbol(Node):
         than at the beginning. Has no meaning for integral symbols.
     """
 
-    name = _IndexedAttribute[str, "Symbol", "Module"](
-        "name", lambda self: self.module
-    )
+    name = _IndexedAttribute[str, "Symbol"]("name", lambda self: self.module)
 
     def __init__(
         self,
@@ -43,8 +47,8 @@ class Symbol(Node):
         """
 
         super().__init__(uuid)
-        self._module = None  # type: "Module"
-        self.name = name  # type: str
+        self._module = None  # type: typing.Optional["Module"]
+        self.name = name
         self.at_end = at_end  # type: bool
         self._payload = payload  # type: typing.Optional[Payload]
         # Use the property setter to ensure correct invariants.
@@ -61,6 +65,11 @@ class Symbol(Node):
             return self._payload
         return None
 
+    @value.setter
+    def value(self, value):
+        # type: (typing.Optional[int]) -> None
+        self._payload = value
+
     @property
     def referent(self):
         # type: () -> typing.Optional[Block]
@@ -72,11 +81,6 @@ class Symbol(Node):
             return self._payload
         return None
 
-    @value.setter
-    def value(self, value):
-        # type: (typing.Optional[int]) -> None
-        self._payload = value
-
     @referent.setter
     def referent(self, referent):
         # type: (typing.Optional[Block]) -> None
@@ -85,6 +89,7 @@ class Symbol(Node):
     @classmethod
     def _decode_protobuf(cls, proto_symbol, uuid, ir):
         # type: (Symbol_pb2.Symbol,UUID, typing.Optional["IR"]) -> Symbol
+        assert ir
         symbol = cls(
             name=proto_symbol.name, at_end=proto_symbol.at_end, uuid=uuid
         )
@@ -92,10 +97,12 @@ class Symbol(Node):
             symbol.value = proto_symbol.value
         if proto_symbol.HasField("referent_uuid"):
             referent_uuid = UUID(bytes=proto_symbol.referent_uuid)
-            try:
-                symbol.referent = ir.get_by_uuid(referent_uuid)
-            except KeyError as e:
-                raise KeyError("Could not find referent UUID %s" % e)
+            referent = ir.get_by_uuid(referent_uuid)
+            if not isinstance(referent, Block):
+                raise DeserializationError(
+                    "Symbol: UUID %s is not a block" % referent_uuid
+                )
+            symbol.referent = referent
         symbol._add_to_uuid_cache(ir._local_uuid_cache)
         return symbol
 
@@ -143,12 +150,12 @@ class Symbol(Node):
 
     @property
     def module(self):
-        # type: () -> "Module"
+        # type: () -> typing.Optional["Module"]
         return self._module
 
     @module.setter
     def module(self, value):
-        # type: ("Module") -> None
+        # type: (typing.Optional["Module"]) -> None
         if self._module is not None:
             self._module.symbols.discard(self)
         if value is not None:
@@ -168,7 +175,7 @@ class Symbol(Node):
 
     @property
     def ir(self):
-        # type: () -> "IR"
+        # type: () -> typing.Optional["IR"]
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

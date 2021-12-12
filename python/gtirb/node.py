@@ -1,6 +1,15 @@
 import typing
 from uuid import UUID, uuid4
 
+from .util import DeserializationError
+
+if typing.TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
+
+
+_T = typing.TypeVar("_T", bound="Node")
+
 
 class Node:
     """A Node is any GTIRB object which can be referenced by UUID.
@@ -22,7 +31,7 @@ class Node:
 
     @classmethod
     def _decode_protobuf(cls, proto_object, uuid, ir):
-        # type: (typing.Any, UUID, typing.Optional["IR"]) -> Node
+        # type: (typing.Type[_T], typing.Any, UUID, typing.Optional[IR]) -> _T
         """Decode a Protobuf object to a Python GTIRB object.
         Must be overridden by subclasses.
 
@@ -34,7 +43,7 @@ class Node:
 
     @classmethod
     def _from_protobuf(cls, proto_object, ir):
-        # type: (typing.Any, typing.Optional["IR"]) -> Node
+        # type: (typing.Type[_T], typing.Any, typing.Optional["IR"]) -> _T
         """Deserialize a Node from Protobuf.
 
         Performs a cache lookup for the object's UUID in the cache, calling the
@@ -44,7 +53,14 @@ class Node:
         uuid = UUID(bytes=proto_object.uuid)
         node = None
         if ir is not None:
-            node = ir.get_by_uuid(uuid)
+            cached_node = ir.get_by_uuid(uuid)
+            if isinstance(cached_node, cls):
+                node = cached_node
+            elif cached_node is not None:
+                raise DeserializationError(
+                    "got %s for UUID %s but expected %s"
+                    % (type(cached_node).__name__, uuid, cls.__name__)
+                )
         if node is None:
             node = cls._decode_protobuf(proto_object, uuid, ir)
         return node

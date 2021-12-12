@@ -1,16 +1,24 @@
 import io
-import typing
 from re import findall
-from typing import Any, NamedTuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    BinaryIO,
+    Callable,
+    Dict,
+    Iterable,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+)
 from uuid import UUID
 
 from .node import Node
 from .offset import Offset
 
-if typing.TYPE_CHECKING:
-    CacheLookupFn = typing.Optional[
-        typing.Callable[[UUID], typing.Optional[Node]]
-    ]
+if TYPE_CHECKING:
+    CacheLookupFn = Optional[Callable[[UUID], Optional[Node]]]
 
 
 class CodecError(Exception):
@@ -45,21 +53,39 @@ class UnknownCodecError(CodecError):
         self.name = name
 
 
-SubtypeTree = typing.Tuple[str, typing.Iterable["SubtypeTree"]]
-"""A type hint representing a parsed serialization type name.
-A ``SubtypeTree`` is a ``tuple`` with two items: A ``str`` giving
-the name of the type and a ``tuple`` of type parameters
-(which are also ``SubtypeTree``\\s). For example, the following are all
-valid ``SubtypeTree``\\s:
+class SubtypeTree:
+    """A type hint representing a parsed serialization type name.
+    A ``SubtypeTree`` is has two items: A ``str`` giving
+    the name of the type and a Sequence of type parameters
+    (which are also ``SubtypeTree``\\s). For example, the following are all
+    valid ``SubtypeTree``\\s:
 
->>> ('string', ())
->>> ('sequence', (('UUID',()),))
->>> ('mapping', (('string', ()),('set', (('UUID', ()),))))
-"""
+    >>> SubtypeTree('string', ())
+    >>> SubtypeTree('sequence', (SubtypeTree('UUID',()),))
+    >>> SubtypeTree(
+        'mapping', (
+            SubtypeTree('string', ()),
+            SubtypeTree('set', (SubtypeTree('UUID', ()),))
+        )
+    )
+    """
+
+    def __init__(self, name, subtypes):
+        # type: (str, Sequence[SubtypeTree]) -> None
+        self.name = name
+        self.subtypes = subtypes
+
+    def __eq__(self, other):
+        # type: (object) -> bool
+        if isinstance(other, SubtypeTree):
+            return self.name == other.name and self.subtypes == other.subtypes
+        if isinstance(other, tuple):
+            return (self.name, self.subtypes) == other
+        return False
 
 
 class Variant(NamedTuple):
-    index: int
+    num: int
     val: Any
 
 
@@ -68,13 +94,13 @@ class Codec:
 
     @staticmethod
     def decode(
-        raw_bytes,  # type: typing.BinaryIO
+        raw_bytes,  # type: BinaryIO
         *,
         serialization=None,  # type: Serialization
-        subtypes=tuple(),  # type: SubtypeTree
+        subtypes=tuple(),  # type: Sequence[SubtypeTree]
         get_by_uuid=None,  # type: CacheLookupFn
     ):
-        # type: (...) -> typing.Any
+        # type: (...) -> Any
         """Decode the specified raw data into a Python object.
 
         :param raw_bytes: The BytesIO object to be decoded.
@@ -89,11 +115,11 @@ class Codec:
 
     @staticmethod
     def encode(
-        out,  # type: typing.BinaryIO
-        item,  # type: typing.Any
+        out,  # type: BinaryIO
+        item,  # type: Any
         *,
         serialization=None,  # type: Serialization
-        subtypes=tuple(),  # type: SubtypeTree
+        subtypes=tuple(),  # type: Sequence[SubtypeTree]
     ):
         # type: (...) -> None
         """Encode an item, writing the serialized object to ``out``.
@@ -408,9 +434,9 @@ class VariantCodec(Codec):
     def encode(out, variant, *, serialization=None, subtypes=tuple()):
         # variant is a named tuple containg index and value
         # writing the index
-        out.write(variant.index.to_bytes(8, byteorder="little"))
+        out.write(variant.num.to_bytes(8, byteorder="little"))
         # writing the value
-        serialization._encode_tree(out, variant.val, subtypes[variant.index])
+        serialization._encode_tree(out, variant.val, subtypes[variant.num])
 
 
 class UnknownData(bytes):
@@ -464,10 +490,10 @@ class Serialization:
             "uint8_t": Uint8Codec,
             "UUID": UUIDCodec,
             "variant": VariantCodec,
-        }  # type: typing.Dict[str, Codec]
+        }  # type: Dict[str, Codec]
 
     def _decode_tree(self, raw_bytes, type_tree, get_by_uuid):
-        # type: (typing.BinaryIO, SubtypeTree, CacheLookupFn) -> typing.Any
+        # type: (BinaryIO, SubtypeTree, CacheLookupFn) -> Any
         """Decode the data in ``raw_bytes`` given a parsed type tree.
 
         :param raw_bytes: The binary stream to read bytes from.
@@ -475,22 +501,18 @@ class Serialization:
             ``raw_bytes``.
         """
 
-        try:
-            type_name, subtypes = type_tree
-        except ValueError:
-            raise DecodeError("could not unpack type tree %s" % str(type_tree))
-        if type_name not in self.codecs:
-            raise UnknownCodecError(type_name)
-        codec = self.codecs[type_name]
+        if type_tree.name not in self.codecs:
+            raise UnknownCodecError(type_tree.name)
+        codec = self.codecs[type_tree.name]
         return codec.decode(
             raw_bytes,
             serialization=self,
-            subtypes=subtypes,
+            subtypes=type_tree.subtypes,
             get_by_uuid=get_by_uuid,
         )
 
     def _encode_tree(self, out, val, type_tree):
-        # type: (typing.BinaryIO, typing.Any, SubtypeTree) -> None
+        # type: (BinaryIO, Any, SubtypeTree) -> None
         """Encode the data in ``val`` given a parsed type tree.
 
         :param out: A binary stream to write bytes to.
@@ -498,14 +520,12 @@ class Serialization:
         :param type_tree: The parsed type to encode ``val`` as.
         """
 
-        try:
-            type_name, subtypes = type_tree
-        except ValueError:
-            raise EncodeError("could not unpack type tree %s" % str(type_tree))
-        if type_name not in self.codecs:
-            raise UnknownCodecError(type_name)
-        codec = self.codecs[type_name]
-        return codec.encode(out, val, serialization=self, subtypes=subtypes)
+        if type_tree.name not in self.codecs:
+            raise UnknownCodecError(type_tree.name)
+        codec = self.codecs[type_tree.name]
+        return codec.encode(
+            out, val, serialization=self, subtypes=type_tree.subtypes
+        )
 
     @staticmethod
     def _parse_type(type_name):
@@ -525,7 +545,11 @@ class Serialization:
         """
         tokens = findall("[^<>,]+|<|>|,", type_name)
 
-        def parse(tokens, tree):
+        def parse(
+            tokens,  # type: Sequence[str]
+            tree,  # type: Iterable[SubtypeTree]
+        ):
+            # type: (...) -> Tuple[Tuple[SubtypeTree, ...], Sequence[None]]
             tree = list(tree)
             # It is an error to parse nothing
             if len(tokens) == 0:
@@ -538,13 +562,13 @@ class Serialization:
 
             # Base case
             if len(tail) == 0:
-                tree.append((first_token, ()))
+                tree.append(SubtypeTree(first_token, ()))
                 return tuple(tree), []
             next_token, *tail = tail
 
             # No subtypes
             if next_token == ",":
-                tree.append((first_token, ()))
+                tree.append(SubtypeTree(first_token, ()))
 
             # Parse subtypes
             if next_token == "<":
@@ -567,7 +591,7 @@ class Serialization:
                 # Parsing should consume all subtype tokens
                 if len(remaining) != 0:
                     raise TypeNameError(type_name)
-                tree.append((first_token, subtypes))
+                tree.append(SubtypeTree(first_token, subtypes))
                 # Finish if all tokens are consumed
                 if len(remaining_tokens) == 0:
                     return tuple(tree), []
@@ -589,11 +613,11 @@ class Serialization:
 
     def decode(
         self,
-        raw_bytes,  # type: typing.BinaryIO
+        raw_bytes,  # type: BinaryIO
         type_name,  # type: str
         get_by_uuid=None,  # type: CacheLookupFn
     ):
-        # type: (...) -> typing.Any
+        # type: (...) -> Any
         """Decode a :class:`gtirb.AuxData` of the specified type
         from the specified byte stream.
 
@@ -619,7 +643,7 @@ class Serialization:
             return UnknownData(all_bytes)
 
     def encode(self, out, val, type_name):
-        # type: (typing.BinaryIO,typing.Any,str) -> None
+        # type: (BinaryIO,Any,str) -> None
         """Encodes the value of an AuxData value to bytes.
 
         :param out: A binary stream to write bytes to.

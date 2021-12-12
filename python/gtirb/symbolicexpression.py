@@ -5,6 +5,7 @@ from uuid import UUID
 from .node import Node
 from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
+from .util import DeserializationError
 
 
 class SymbolicExpression:
@@ -68,6 +69,10 @@ class SymbolicExpression:
 
         return ()
 
+    def deep_eq(self, other):
+        # type: (typing.Any) -> bool
+        raise NotImplementedError
+
     def _attributes_repr(self):
         # type: () -> str
         if not self.attributes:
@@ -123,8 +128,18 @@ class SymAddrAddr(SymbolicExpression):
         get_by_uuid,  # type: typing.Callable[[UUID], Node]
     ):
         # type: (...) -> SymAddrAddr
-        symbol1 = get_by_uuid(UUID(bytes=proto_symaddraddr.symbol1_uuid))
-        symbol2 = get_by_uuid(UUID(bytes=proto_symaddraddr.symbol2_uuid))
+        symbol1_uuid = UUID(bytes=proto_symaddraddr.symbol1_uuid)
+        symbol1 = get_by_uuid(symbol1_uuid)
+        if not isinstance(symbol1, Symbol):
+            raise DeserializationError(
+                "SymAddrAddr: UUID %s is not a Symbol" % symbol1_uuid
+            )
+        symbol2_uuid = UUID(bytes=proto_symaddraddr.symbol2_uuid)
+        symbol2 = get_by_uuid(symbol2_uuid)
+        if not isinstance(symbol2, Symbol):
+            raise DeserializationError(
+                "SymAddrAddr: UUID %s is not a Symbol" % symbol2_uuid
+            )
         return cls(
             proto_symaddraddr.scale, proto_symaddraddr.offset, symbol1, symbol2
         )
@@ -219,7 +234,12 @@ class SymAddrConst(SymbolicExpression):
         get_by_uuid,  # type: typing.Callable[[UUID], Node]
     ):
         # type: (...) -> SymAddrConst
-        symbol = get_by_uuid(UUID(bytes=proto_symaddrconst.symbol_uuid))
+        symbol_uuid = UUID(bytes=proto_symaddrconst.symbol_uuid)
+        symbol = get_by_uuid(symbol_uuid)
+        if not isinstance(symbol, Symbol):
+            raise DeserializationError(
+                "SymAddrConst: UUID %s is not a Symbol" % symbol_uuid
+            )
         return cls(proto_symaddrconst.offset, symbol)
 
     def _to_protobuf(self):

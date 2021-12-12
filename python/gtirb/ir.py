@@ -94,9 +94,7 @@ class IR(AuxDataContainer):
         self._local_uuid_cache = dict()  # type: typing.Dict[UUID, Node]
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
-        self.modules = IR._ModuleList(
-            self, modules
-        )  # type: typing.List[Module]
+        self.modules = IR._ModuleList(self, modules)
         self.cfg = CFG(cfg)  # type: CFG
         self.version = version  # type: int
         super().__init__(aux_data, uuid)
@@ -272,26 +270,6 @@ class IR(AuxDataContainer):
         """The :class:`CfgNode`\\s in this IR."""
 
         return itertools.chain.from_iterable(m.cfg_nodes for m in self.modules)
-
-    def modules_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[Module]
-        """Finds all the modules that overlap an address or range of
-        addresses.
-
-        :param addrs: Either a ``range`` object or a single address.
-        """
-
-        return nodes_on(self.modules, addrs)
-
-    def modules_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[Module]
-        """Finds all the modules that begin at an address or range of
-        addresses.
-
-        :param addrs: Either a ``range`` object or a single address.
-        """
-
-        return nodes_at(self.modules, addrs)
 
     def sections_on(self, addrs):
         # type: (typing.Union[int, range]) -> typing.Iterable[Section]

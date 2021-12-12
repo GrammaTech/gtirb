@@ -1,5 +1,3 @@
-import collections
-import collections.abc
 import itertools
 import typing
 from uuid import UUID
@@ -20,6 +18,13 @@ from .util import (
     _offset_interval,
     get_desired_range,
 )
+
+if typing.TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
+    from .module import Module  # noqa: F401
+    from .section import Section  # noqa: F401
+
 
 SymbolicExpressionElement = typing.Tuple[
     "ByteInterval", int, SymbolicExpression
@@ -56,7 +61,7 @@ class ByteInterval(Node):
         :class:`SymbolicExpression` in the interval.
     """
 
-    class _BlockSet(SetWrapper):
+    class _BlockSet(SetWrapper[ByteBlock]):
         def __init__(self, node, *args):
             super().__init__()
             self._node = node  # type: ByteInterval
@@ -89,7 +94,7 @@ class ByteInterval(Node):
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
-    class _SymbolicExprDict(collections.abc.MutableMapping):
+    class _SymbolicExprDict(typing.MutableMapping[int, SymbolicExpression]):
         def __init__(self, interval, *args):
             self._interval = interval
             self._data = SortedDict()
@@ -125,10 +130,10 @@ class ByteInterval(Node):
             )
             return "{" + ", ".join(items) + "}"
 
-    address = _IndexedAttribute[
-        typing.Optional[int], "ByteInterval", "Module"
-    ]("address", lambda self: self.section)
-    size = _IndexedAttribute[int, "ByteInterval", "Module"](
+    address = _IndexedAttribute[typing.Optional[int], "ByteInterval"](
+        "address", lambda self: self.section
+    )
+    size = _IndexedAttribute[int, "ByteInterval"](
         "size", lambda self: self.section
     )
 
@@ -168,18 +173,17 @@ class ByteInterval(Node):
 
         super().__init__(uuid=uuid)
         self._interval_tree = IntervalTree()
-        self._symbols_to_exprs = collections.defaultdict(set)
         self._section = None  # type: typing.Optional["Section"]
-        self.address = address  # type: typing.Optional[int]
-        self.size = size  # type: int
+        self.address = address
+        self.size = size
         self.contents = bytearray(contents)  # type: bytearray
         self.initialized_size = initialized_size
         self.blocks = ByteInterval._BlockSet(
             self, blocks
-        )  # type: typing.Set[ByteBlock]
+        )  # type: SetWrapper[ByteBlock]
         self._symbolic_expressions = ByteInterval._SymbolicExprDict(
             self, symbolic_expressions
-        )  # type: typing.Dict[int, SymbolicExpression]
+        )
         self._proto_interval = (
             None
         )  # type: typing.Optional[ByteInterval_pb2.ByteInterval]
@@ -236,6 +240,7 @@ class ByteInterval(Node):
         ir,  # type: typing.Optional["IR"]
     ):
         # type: (...) -> ByteInterval
+        assert ir
 
         def decode_block(proto_block):
             if proto_block.HasField("code"):
@@ -363,7 +368,7 @@ class ByteInterval(Node):
 
     @property
     def symbolic_expressions(self):
-        # type: () -> typing.Dict[int, SymbolicExpression]
+        # type: () -> typing.MutableMapping[int, SymbolicExpression]
         return self._symbolic_expressions
 
     @symbolic_expressions.setter
@@ -547,7 +552,7 @@ class ByteInterval(Node):
 
     @property
     def module(self):
-        # type: () -> "Module"
+        # type: () -> typing.Optional["Module"]
         """Get the module this node ultimately belongs to."""
         if self.section is None:
             return None
@@ -555,7 +560,7 @@ class ByteInterval(Node):
 
     @property
     def ir(self):
-        # type: () -> "IR"
+        # type: () -> typing.Optional["IR"]
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

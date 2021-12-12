@@ -1,8 +1,12 @@
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Optional
 from uuid import UUID
 
 from .node import Node
 from .proto import Offset_pb2
+from .util import DeserializationError
+
+if TYPE_CHECKING:
+    from .ir import IR
 
 
 class Offset(
@@ -19,14 +23,20 @@ class Offset(
 
     @classmethod
     def _from_protobuf(cls, offset, ir):
-        # type: (Offset_pb2.Offset) -> Offset
+        # type: (Offset_pb2.Offset, Optional[IR]) -> Offset
         """Decode a Protobuf object to an offset.
 
         :param offset: The Protobuf object.
         """
 
+        assert ir
         element_id = UUID(bytes=offset.element_id)
-        return cls(ir.get_by_uuid(element_id), offset.displacement)
+        element = ir.get_by_uuid(element_id)
+        if not element:
+            raise DeserializationError(
+                "Offset: UUID %s does not refer to a Node" % element_id
+            )
+        return cls(element, offset.displacement)
 
     def _to_protobuf(self):
         # type: () -> Offset_pb2.Offset

@@ -12,12 +12,17 @@ from .proto import Module_pb2
 from .section import Section
 from .symbol import Symbol
 from .util import (
+    DeserializationError,
     DictLike,
     SetWrapper,
     nodes_at,
     nodes_on,
     symbolic_expressions_at,
 )
+
+if typing.TYPE_CHECKING:
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
 
 
 class Module(AuxDataContainer):
@@ -206,24 +211,20 @@ class Module(AuxDataContainer):
         :param ir: The :class:`IR` this module belongs to.
         """
 
-        self._symbol_index = collections.defaultdict(set)
-        self._ir = None  # type: "IR"
+        self._symbol_index = collections.defaultdict(
+            set
+        )  # type: typing.Mapping[str, typing.Set[Symbol]]
+        self._ir = None  # type: typing.Optional["IR"]
         self.binary_path = binary_path  # type: str
         self.isa = isa  # type: Module.ISA
         self.byte_order = byte_order  # type: Module.ByteOrder
         self.file_format = file_format  # type: Module.FileFormat
         self.name = name  # type: str
         self.preferred_addr = preferred_addr  # type: int
-        self.proxies = Module._NodeSet(
-            self, "proxies", proxies
-        )  # type: typing.Set[ProxyBlock]
+        self.proxies = Module._NodeSet(self, "proxies", proxies)
         self.rebase_delta = rebase_delta  # type: int
-        self.sections = Module._NodeSet(
-            self, "sections", sections
-        )  # type: typing.Set[Section]
-        self.symbols = Module._NodeSet(
-            self, "symbols", symbols
-        )  # type: typing.Set[Symbol]
+        self.sections = Module._NodeSet(self, "sections", sections)
+        self.symbols = Module._NodeSet(self, "symbols", symbols)
         self.entry_point = entry_point  # type: typing.Optional[CodeBlock]
         # Initialize the aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
@@ -233,7 +234,8 @@ class Module(AuxDataContainer):
 
     @classmethod
     def _decode_protobuf(cls, proto_module, uuid, ir):
-        # type: (Module_pb2.Module. UUID, typing.Optiona["IR"]) -> Module
+        # type: (Module_pb2.Module, UUID, typing.Optional["IR"]) -> Module
+        assert ir
         m = cls(
             binary_path=proto_module.binary_path,
             isa=Module.ISA(proto_module.isa),
@@ -256,11 +258,16 @@ class Module(AuxDataContainer):
             Section._from_protobuf(s, ir) for s in proto_module.sections
         )
         # entry point is a code block, which depends on sections
-        m.entry_point = (
-            ir.get_by_uuid(UUID(bytes=proto_module.entry_point))
-            if proto_module.entry_point
-            else None
-        )
+        m.entry_point = None
+        if proto_module.entry_point:
+            entry_point_uuid = UUID(bytes=proto_module.entry_point)
+            entry_point = ir.get_by_uuid(entry_point_uuid)
+            if not isinstance(entry_point, CodeBlock):
+                raise DeserializationError(
+                    "Module: entry block UUID %s is not a CodeBlock"
+                    % entry_point_uuid
+                )
+            m.entry_point = entry_point
         # symbols depend on blocks
         m.symbols.update(
             Symbol._from_protobuf(s, ir) for s in proto_module.symbols
