@@ -64,7 +64,7 @@ class ByteInterval(Node):
     class _BlockSet(SetWrapper[ByteBlock]):
         def __init__(self, node, *args):
             super().__init__()
-            self._node = node  # type: ByteInterval
+            self._node: "ByteInterval" = node
             self.update(*args)
 
         def add(self, v):
@@ -131,23 +131,21 @@ class ByteInterval(Node):
             return "{" + ", ".join(items) + "}"
 
     address = _IndexedAttribute[typing.Optional[int], "ByteInterval"](
-        "address", lambda self: self.section
+        lambda self: self.section
     )
-    size = _IndexedAttribute[int, "ByteInterval"](
-        "size", lambda self: self.section
-    )
+    size = _IndexedAttribute[int, "ByteInterval"](lambda self: self.section)
 
     def __init__(
         self,
         *,
-        address=None,  # type: typing.Optional[int]
-        size=None,  # type: typing.Optional[int]
-        initialized_size=None,  # type: typing.Optional[int]
-        contents=b"",  # type: typing.ByteString
-        blocks=(),  # type: typing.Iterable[ByteBlock]
-        symbolic_expressions={},  # type: DictLike[int, SymbolicExpression]
-        uuid=None,  # type: typing.Optional[UUID]
-        section=None  # type: typing.Optional["Section"]
+        address: typing.Optional[int] = None,
+        size: typing.Optional[int] = None,
+        initialized_size: typing.Optional[int] = None,
+        contents: typing.ByteString = b"",
+        blocks: typing.Iterable[ByteBlock] = (),
+        symbolic_expressions: DictLike[int, SymbolicExpression] = {},
+        uuid: typing.Optional[UUID] = None,
+        section: typing.Optional["Section"] = None,
     ):
         """
         :param address: The fixed address of this interval, if present.
@@ -173,20 +171,20 @@ class ByteInterval(Node):
 
         super().__init__(uuid=uuid)
         self._interval_tree: "IntervalTree[int, ByteBlock]" = IntervalTree()
-        self._section = None  # type: typing.Optional["Section"]
+        self._section: typing.Optional["Section"] = None
         self.address = address
         self.size = size
-        self.contents = bytearray(contents)  # type: bytearray
+        self.contents = bytearray(contents)
         self.initialized_size = initialized_size
-        self.blocks = ByteInterval._BlockSet(
+        self.blocks: SetWrapper[ByteBlock] = ByteInterval._BlockSet(
             self, blocks
-        )  # type: SetWrapper[ByteBlock]
+        )
         self._symbolic_expressions = ByteInterval._SymbolicExprDict(
             self, symbolic_expressions
         )
-        self._proto_interval = (
-            None
-        )  # type: typing.Optional[ByteInterval_pb2.ByteInterval]
+        self._proto_interval: typing.Optional[
+            ByteInterval_pb2.ByteInterval
+        ] = (None)
 
         # Use the property setter to ensure correct invariants.
         self.section = section
@@ -208,8 +206,7 @@ class ByteInterval(Node):
         self._interval_tree.discard(_offset_interval(block))
 
     @property
-    def initialized_size(self):
-        # type: () -> int
+    def initialized_size(self) -> int:
         """The number of initialized bytes in this interval.
 
         Not all bytes in this interval may correspond to bytes physically
@@ -225,8 +222,7 @@ class ByteInterval(Node):
         return len(self.contents)
 
     @initialized_size.setter
-    def initialized_size(self, value):
-        # type: (int) -> None
+    def initialized_size(self, value: int) -> None:
         if value > len(self.contents):
             self.contents += b"\0" * (value - len(self.contents))
         elif value < len(self.contents):
@@ -235,11 +231,10 @@ class ByteInterval(Node):
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_interval,  # type: ByteInterval_pb2.ByteInterval
-        uuid,  # type: UUID
-        ir,  # type: typing.Optional["IR"]
-    ):
-        # type: (...) -> ByteInterval
+        proto_interval: ByteInterval_pb2.ByteInterval,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "ByteInterval":
         assert ir
 
         def decode_block(proto_block):
@@ -304,8 +299,7 @@ class ByteInterval(Node):
 
         del self._proto_interval
 
-    def _to_protobuf(self):
-        # type: () -> ByteInterval_pb2.ByteInterval
+    def _to_protobuf(self) -> ByteInterval_pb2.ByteInterval:
         proto_interval = ByteInterval_pb2.ByteInterval()
 
         proto_interval.uuid = self.uuid.bytes
@@ -352,33 +346,32 @@ class ByteInterval(Node):
         return proto_interval
 
     @property
-    def section(self):
-        # type: () -> typing.Optional["Section"]
+    def section(self) -> typing.Optional["Section"]:
         """The :class:`Section` this interval belongs to."""
 
         return self._section
 
     @section.setter
-    def section(self, value):
-        # type: (typing.Optional["Section"]) -> None
+    def section(self, value: typing.Optional["Section"]) -> None:
         if self._section is not None:
             self._section.byte_intervals.discard(self)
         if value is not None:
             value.byte_intervals.add(self)
 
     @property
-    def symbolic_expressions(self):
-        # type: () -> typing.MutableMapping[int, SymbolicExpression]
+    def symbolic_expressions(
+        self,
+    ) -> typing.MutableMapping[int, SymbolicExpression]:
         return self._symbolic_expressions
 
     @symbolic_expressions.setter
-    def symbolic_expressions(self, value):
-        # type: (typing.Dict[int, SymbolicExpression]) -> None
+    def symbolic_expressions(
+        self, value: typing.Dict[int, SymbolicExpression]
+    ) -> None:
         self._symbolic_expressions.clear()
         self._symbolic_expressions.update(value)
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ByteInterval):
             return False
@@ -411,8 +404,7 @@ class ByteInterval(Node):
             )
         )
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
 
         return (
             "ByteInterval("
@@ -432,8 +424,9 @@ class ByteInterval(Node):
             )
         )
 
-    def byte_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that overlap an address or range of
         addresses.
 
@@ -447,8 +440,9 @@ class ByteInterval(Node):
             self._interval_tree, addrs, -self.address
         )
 
-    def byte_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that begin at an address or range of
         addresses.
 
@@ -462,8 +456,9 @@ class ByteInterval(Node):
             self._interval_tree, addrs, -self.address
         )
 
-    def code_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that overlap an address or range of
         addresses.
 
@@ -474,8 +469,9 @@ class ByteInterval(Node):
             b for b in self.byte_blocks_on(addrs) if isinstance(b, CodeBlock)
         )
 
-    def code_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that begin at an address or range of
         addresses.
 
@@ -486,8 +482,9 @@ class ByteInterval(Node):
             b for b in self.byte_blocks_at(addrs) if isinstance(b, CodeBlock)
         )
 
-    def data_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that overlap an address or range of
         addresses.
 
@@ -498,8 +495,9 @@ class ByteInterval(Node):
             b for b in self.byte_blocks_on(addrs) if isinstance(b, DataBlock)
         )
 
-    def data_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that begin at an address or range of
         addresses.
 
@@ -511,9 +509,8 @@ class ByteInterval(Node):
         )
 
     def symbolic_expressions_at(
-        self, addrs  # type: typing.Union[int, range]
-    ):
-        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[SymbolicExpressionElement]:
         """Finds all the symbolic expressions that begin at an address or
         range of addresses.
 
@@ -534,16 +531,14 @@ class ByteInterval(Node):
             if self.address + i in addrs:
                 yield (self, i, self.symbolic_expressions[i])
 
-    def _add_to_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
 
         cache[self.uuid] = self
         for block in self.blocks:
             block._add_to_uuid_cache(cache)
 
-    def _remove_from_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _remove_from_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]
@@ -551,16 +546,14 @@ class ByteInterval(Node):
             block._remove_from_uuid_cache(cache)
 
     @property
-    def module(self):
-        # type: () -> typing.Optional["Module"]
+    def module(self) -> typing.Optional["Module"]:
         """Get the module this node ultimately belongs to."""
         if self.section is None:
             return None
         return self.section.module
 
     @property
-    def ir(self):
-        # type: () -> typing.Optional["IR"]
+    def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

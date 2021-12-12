@@ -32,8 +32,9 @@ class DeserializationError(GtirbError):
 class _SymbolicExpressionContainer(typing_extensions.Protocol[T_cov]):
     """A container of symbolic expressions at addresses."""
 
-    def symbolic_expressions_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[T_cov]
+    def symbolic_expressions_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[T_cov]:
         ...
 
 
@@ -182,20 +183,19 @@ AttributeT = typing.TypeVar("AttributeT")
 class IndexedContainer(typing_extensions.Protocol[T_contra]):
     """Container wth an index that can be updated."""
 
-    def _index_discard(self, instance):
-        # type: (T_contra) -> None
+    def _index_discard(self, instance: T_contra) -> None:
         ...
 
-    def _index_add(self, instance):
-        # type: (T_contra) -> None
+    def _index_add(self, instance: T_contra) -> None:
         ...
 
 
 class ParentGetter(typing_extensions.Protocol[T_contra]):
     """Interface for getting an _IndexedContainer for an instance."""
 
-    def __call__(self, instance):
-        # type: (T_contra) -> typing.Optional[IndexedContainer[T_contra]]
+    def __call__(
+        self, instance: T_contra
+    ) -> typing.Optional[IndexedContainer[T_contra]]:
         ...
 
 
@@ -205,18 +205,15 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT]):
     otherwise used like a normal attribute.
     """
 
-    def __init__(self, name, parent_getter):
-        # type: (str, "ParentGetter[InstanceT]") -> None
-        self.name = name
-        self.attribute_name = "_" + name
+    def __init__(self, parent_getter: "ParentGetter[InstanceT]"):
         self.parent_getter = parent_getter
 
-    def __get__(self, instance, owner=None):
-        # type: (InstanceT, typing.Any) -> AttributeT
+    def __get__(
+        self, instance: InstanceT, owner: typing.Any = None
+    ) -> AttributeT:
         return getattr(instance, self.attribute_name)
 
-    def __set__(self, instance, value):
-        # type: (InstanceT, AttributeT) -> None
+    def __set__(self, instance: InstanceT, value: AttributeT) -> None:
         parent = self.parent_getter(instance)
         if parent:
             parent._index_discard(instance)
@@ -229,14 +226,11 @@ class _IndexedAttribute(typing.Generic[AttributeT, InstanceT]):
         raise AttributeError("can't delete attribute %s" % (self.name))
 
     def __set_name__(self, owner, name):
-        # This is only invoked in Python 3.6+. Once GTIRB has that as a
-        # minimum, the name paramter can be removed from the initializer and
-        # taken from this instead.
-        pass
+        self.name = name
+        self.attribute_name = "_" + name
 
 
-def get_desired_range(addrs):
-    # type: (typing.Union[int, range]) -> range
+def get_desired_range(addrs: typing.Union[int, range]) -> range:
     if isinstance(addrs, int):
         return range(addrs, addrs + 1)
     else:
@@ -251,13 +245,11 @@ class AddrRange(typing_extensions.Protocol):
     # will match Optional[int] properties, but not Optional[int] fields.
 
     @property
-    def address(self):
-        # type: () -> typing.Optional[int]
+    def address(self) -> typing.Optional[int]:
         ...
 
     @property
-    def size(self):
-        # type: () -> typing.Optional[int]
+    def size(self) -> typing.Optional[int]:
         ...
 
 
@@ -267,10 +259,8 @@ AddrRangeT = typing.TypeVar("AddrRangeT", bound=AddrRange)
 
 
 def nodes_on(
-    nodes,  # type: typing.Iterable[AddrRangeT]
-    addrs,  # type: typing.Union[int, range]
-):
-    # type: (...) -> typing.Iterable[AddrRangeT]
+    nodes: typing.Iterable[AddrRangeT], addrs: typing.Union[int, range],
+) -> typing.Iterable[AddrRangeT]:
     desired_range = get_desired_range(addrs)
     for node in nodes:
         node_addr = node.address
@@ -286,10 +276,8 @@ def nodes_on(
 
 
 def nodes_at(
-    nodes,  # type: typing.Iterable[AddrRangeT]
-    addrs,  # type: typing.Union[int, range]
-):
-    # type: (...) -> typing.Iterable[AddrRangeT]
+    nodes: typing.Iterable[AddrRangeT], addrs: typing.Union[int, range],
+) -> typing.Iterable[AddrRangeT]:
     desired_range = get_desired_range(addrs)
     for node in nodes:
         node_addr = node.address
@@ -297,8 +285,9 @@ def nodes_at(
             yield node
 
 
-def _address_interval(node):
-    # type: (AddrRange) -> typing.Optional[intervaltree.Interval]
+def _address_interval(
+    node: AddrRange,
+) -> typing.Optional[intervaltree.Interval]:
     """
     Creates an interval tree interval based on a GTIRB node's address and
     size or returns None, if the node has no address.
@@ -318,18 +307,15 @@ class OffsetRange(typing_extensions.Protocol):
     """An object spanning a range of offsets."""
 
     @property
-    def offset(self):
-        # type: () -> int
+    def offset(self) -> int:
         ...
 
     @property
-    def size(self):
-        # type: () -> int
+    def size(self) -> int:
         ...
 
 
-def _offset_interval(node):
-    # type: (OffsetRange) -> intervaltree.Interval
+def _offset_interval(node: OffsetRange) -> intervaltree.Interval:
     """
     Creates an interval tree interval based on a GTIRB node's offset and size.
     """
@@ -339,11 +325,10 @@ def _offset_interval(node):
 
 
 def _nodes_on_interval_tree(
-    tree,  # type: intervaltree.IntervalTree
-    addrs,  # type: typing.Union[int, range]
-    adjustment=0,  # type: int
-):
-    # type: (...) -> typing.Iterable
+    tree: intervaltree.IntervalTree,
+    addrs: typing.Union[int, range],
+    adjustment: int = 0,
+) -> typing.Iterable:
     """
     Implements nodes_on for an IntervalTree.
     :param tree: The IntervalTree to search.
@@ -375,11 +360,10 @@ def _nodes_on_interval_tree(
 
 
 def _nodes_at_interval_tree(
-    tree,  # type: intervaltree.IntervalTree
-    addrs,  # type: typing.Union[int, range]
-    adjustment=0,  # type: int
-):
-    # type: (...) -> typing.Iterable
+    tree: intervaltree.IntervalTree,
+    addrs: typing.Union[int, range],
+    adjustment: int = 0,
+) -> typing.Iterable:
     """
     Implements nodes_at for an IntervalTree.
     :param tree: The IntervalTree to search.
@@ -399,10 +383,9 @@ def _nodes_at_interval_tree(
 
 
 def symbolic_expressions_at(
-    nodes,  # type: typing.Iterable[_SymbolicExpressionContainer[T_cov]]
-    addrs,  # type: typing.Union[int, range]
-):
-    # type: (...) -> typing.Iterable[T_cov]
+    nodes: typing.Iterable[_SymbolicExpressionContainer[T_cov]],
+    addrs: typing.Union[int, range],
+) -> typing.Iterable[T_cov]:
     return itertools.chain.from_iterable(
         node.symbolic_expressions_at(addrs) for node in nodes
     )

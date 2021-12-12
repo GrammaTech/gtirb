@@ -6,7 +6,8 @@ from .proto import Offset_pb2
 from .util import DeserializationError
 
 if TYPE_CHECKING:
-    from .ir import IR
+    # Ignore flake8 "imported but unused" errors.
+    from .ir import IR  # noqa: F401
 
 
 class Offset(
@@ -22,8 +23,9 @@ class Offset(
     """
 
     @classmethod
-    def _from_protobuf(cls, offset, ir):
-        # type: (Offset_pb2.Offset, Optional[IR]) -> Offset
+    def _from_protobuf(
+        cls, offset: Offset_pb2.Offset, ir: Optional["IR"]
+    ) -> "Offset":
         """Decode a Protobuf object to an offset.
 
         :param offset: The Protobuf object.
@@ -38,8 +40,7 @@ class Offset(
             )
         return cls(element, offset.displacement)
 
-    def _to_protobuf(self):
-        # type: () -> Offset_pb2.Offset
+    def _to_protobuf(self) -> Offset_pb2.Offset:
         """Encode this offset into a Protobuf object."""
 
         proto_offset = Offset_pb2.Offset()

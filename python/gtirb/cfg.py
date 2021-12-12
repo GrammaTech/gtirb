@@ -104,12 +104,12 @@ class Label(
 
     __slots__ = ()
 
-    def __new__(cls, type, conditional=False, direct=True):
-        # type: (Type, bool, bool) -> "Label"
+    def __new__(
+        cls, type: Type, conditional: bool = False, direct: bool = True
+    ) -> "Label":
         return super().__new__(cls, type, conditional, direct)
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "Edge.Label("
             "type=Edge.{type!s}, "
@@ -142,8 +142,9 @@ class Edge(
 
     __slots__ = ()
 
-    def __new__(cls, source, target, label=None):
-        # type: (CfgNode, CfgNode, Optional[Label]) -> "Edge"
+    def __new__(
+        cls, source: CfgNode, target: CfgNode, label: Optional[Label] = None
+    ) -> "Edge":
         return super().__new__(cls, source, target, label)
 
     Type = _Type
@@ -168,16 +169,14 @@ class CFG(MutableSet[Edge]):
     algorithms to be used on CFGs, if desired.
     """
 
-    def __init__(self, edges=None):
-        # type: (Iterable[Edge]) -> None
+    def __init__(self, edges: Optional[Iterable[Edge]] = None):
         self._nxg: "MultiDiGraph[CfgNode, Hashable, Optional[Label]]" = (
             MultiDiGraph()
         )
         if edges is not None:
             self.update(edges)
 
-    def _edge_key(self, edge):
-        # type: (Edge) -> Optional[Hashable]
+    def _edge_key(self, edge: Edge) -> Optional[Hashable]:
         if edge.source in self._nxg:
             neighbors = self._nxg[edge.source]
             if edge.target in neighbors:
@@ -186,58 +185,49 @@ class CFG(MutableSet[Edge]):
                         return key
         return None
 
-    def __contains__(self, edge):
-        # type: (object) -> bool
+    def __contains__(self, edge: object) -> bool:
         return isinstance(edge, Edge) and self._edge_key(edge) is not None
 
-    def __iter__(self):
-        # type: () -> Iterator[Edge]
+    def __iter__(self) -> Iterator[Edge]:
         for s, t, l in self._nxg.edges(data="label"):
             yield Edge(s, t, l)
 
-    def __len__(self):
-        # type: () -> int
+    def __len__(self) -> int:
         return len(self._nxg.edges())
 
-    def update(self, edges):
-        # type: (Iterable[Edge]) -> None
+    def update(self, edges: Iterable[Edge]) -> None:
         for edge in edges:
             self.add(edge)
 
-    def add(self, edge):
-        # type: (Edge) -> None
+    def add(self, edge: Edge) -> None:
         if edge not in self:
             self._nxg.add_edge(edge.source, edge.target, label=edge.label)
 
-    def clear(self):
-        # type: () -> None
+    def clear(self) -> None:
         self._nxg.clear()
 
-    def discard(self, edge):
-        # type: (Edge) -> None
+    def discard(self, edge: Edge) -> None:
         key = self._edge_key(edge)
         if key is not None:
             self._nxg.remove_edge(edge.source, edge.target, key=key)
 
-    def out_edges(self, node):
-        # type: (CfgNode) -> Iterable[Edge]
+    def out_edges(self, node: CfgNode) -> Iterable[Edge]:
         if node in self._nxg:
             for s, t, l in self._nxg.out_edges(node, data="label"):
                 yield Edge(s, t, l)
 
-    def in_edges(self, node):
-        # type: (CfgNode) -> Iterable[Edge]
+    def in_edges(self, node: CfgNode) -> Iterable[Edge]:
         if node in self._nxg:
             for s, t, l in self._nxg.in_edges(node, data="label"):
                 yield Edge(s, t, l)
 
     @classmethod
-    def _from_protobuf(cls, edges, ir):
-        # type: (Iterable[CFG_pb2.Edge], Optional[IR]) -> CFG
+    def _from_protobuf(
+        cls, edges: Iterable[CFG_pb2.Edge], ir: Optional["IR"]
+    ) -> "CFG":
         assert ir
 
-        def make_edge(ir, edge):
-            # type: (IR, CFG_pb2.Edge) -> Edge
+        def make_edge(ir: "IR", edge: CFG_pb2.Edge) -> Edge:
             source_uuid = UUID(bytes=edge.source_uuid)
             source = ir.get_by_uuid(source_uuid)
             if not isinstance(source, CfgNode):
@@ -252,7 +242,7 @@ class CFG(MutableSet[Edge]):
                     "CFG: UUID %s is not a CfgNode" % target_uuid
                 )
 
-            label = None  # type: Optional[Label]
+            label: Optional[Label] = None
             if edge.HasField("label"):
                 label = Edge.Label(
                     Edge.Type(edge.label.type),
@@ -264,8 +254,7 @@ class CFG(MutableSet[Edge]):
 
         return CFG(make_edge(ir, edge) for edge in edges)
 
-    def _to_protobuf(self):
-        # type: () -> Iterable[CFG_pb2.Edge]
+    def _to_protobuf(self) -> Iterable[CFG_pb2.Edge]:
         for s, t, l in self._nxg.edges(data="label"):
             proto_edge = CFG_pb2.Edge()
             proto_edge.source_uuid = s.uuid.bytes
@@ -276,12 +265,10 @@ class CFG(MutableSet[Edge]):
                 proto_edge.label.direct = l.direct
             yield proto_edge
 
-    def nx(self):
-        # type: () -> MultiDiGraph
+    def nx(self) -> MultiDiGraph:
         return self._nxg
 
-    def deep_eq(self, other):
-        # type: (CFG) -> bool
+    def deep_eq(self, other: "CFG") -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
 
         def edge_sort_key(edge):
@@ -318,6 +305,5 @@ class CFG(MutableSet[Edge]):
 
         return True
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return "CFG(%r)" % list(self)

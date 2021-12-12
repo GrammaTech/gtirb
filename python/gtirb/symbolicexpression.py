@@ -7,6 +7,8 @@ from .proto import SymbolicExpression_pb2
 from .symbol import Symbol
 from .util import DeserializationError
 
+AttributesCtorType = typing.Iterable["SymbolicExpression.Attribute"]
+
 
 class SymbolicExpression:
     """Base class of symbolic expression types."""
@@ -55,26 +57,22 @@ class SymbolicExpression:
         )
 
     def __init__(
-        self, attributes=set(),
+        self, attributes: AttributesCtorType = set(),
     ):
-        # type: ("AttributesCtorType") -> None
         self.attributes = set(attributes)
 
     @property
-    def symbols(self):
-        # type: () -> typing.Iterable[Symbol]
+    def symbols(self) -> typing.Iterable[Symbol]:
         """Get all the symbols involved with this symbolic expression,
         regardless of role.
         """
 
         return ()
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         raise NotImplementedError
 
-    def _attributes_repr(self):
-        # type: () -> str
+    def _attributes_repr(self) -> str:
         if not self.attributes:
             return "set()"
         else:
@@ -82,10 +80,6 @@ class SymbolicExpression:
                 "SymbolicExpression.Attribute.%s" % a.name
                 for a in self.attributes
             )
-
-
-if typing.TYPE_CHECKING:
-    AttributesCtorType = typing.Iterable[SymbolicExpression.Attribute]
 
 
 class SymAddrAddr(SymbolicExpression):
@@ -100,13 +94,12 @@ class SymAddrAddr(SymbolicExpression):
 
     def __init__(
         self,
-        scale,  # type: int
-        offset,  # type: int
-        symbol1,  # type: Symbol
-        symbol2,  # type: Symbol
-        attributes=set(),  # type: AttributesCtorType
+        scale: int,
+        offset: int,
+        symbol1: Symbol,
+        symbol2: Symbol,
+        attributes: AttributesCtorType = set(),
     ):
-        # type: (...) -> None
         """
         :param scale: Constant scale factor.
         :param offset: Constant offset.
@@ -116,18 +109,17 @@ class SymAddrAddr(SymbolicExpression):
             expression.
         """
         super().__init__(attributes)
-        self.scale = scale  # type: int
-        self.offset = offset  # type: int
-        self.symbol1 = symbol1  # type: Symbol
-        self.symbol2 = symbol2  # type: Symbol
+        self.scale = scale
+        self.offset = offset
+        self.symbol1 = symbol1
+        self.symbol2 = symbol2
 
     @classmethod
     def _from_protobuf(
         cls,
-        proto_symaddraddr,  # type: SymbolicExpression_pb2.SymAddrAddr
-        get_by_uuid,  # type: typing.Callable[[UUID], Node]
-    ):
-        # type: (...) -> SymAddrAddr
+        proto_symaddraddr: SymbolicExpression_pb2.SymAddrAddr,
+        get_by_uuid: typing.Callable[[UUID], Node],
+    ) -> "SymAddrAddr":
         symbol1_uuid = UUID(bytes=proto_symaddraddr.symbol1_uuid)
         symbol1 = get_by_uuid(symbol1_uuid)
         if not isinstance(symbol1, Symbol):
@@ -144,8 +136,7 @@ class SymAddrAddr(SymbolicExpression):
             proto_symaddraddr.scale, proto_symaddraddr.offset, symbol1, symbol2
         )
 
-    def _to_protobuf(self):
-        # type: () -> SymbolicExpression_pb2.SymAddrAddr
+    def _to_protobuf(self) -> SymbolicExpression_pb2.SymAddrAddr:
         proto_symaddraddr = SymbolicExpression_pb2.SymAddrAddr()
         proto_symaddraddr.scale = self.scale
         proto_symaddraddr.offset = self.offset
@@ -153,8 +144,7 @@ class SymAddrAddr(SymbolicExpression):
         proto_symaddraddr.symbol2_uuid = self.symbol2.uuid.bytes
         return proto_symaddraddr
 
-    def __eq__(self, other):
-        # type: (typing.Any) -> bool
+    def __eq__(self, other: typing.Any) -> bool:
         if not isinstance(other, SymAddrAddr):
             return False
         return (
@@ -165,14 +155,12 @@ class SymAddrAddr(SymbolicExpression):
             and self.attributes == other.attributes
         )
 
-    def __hash__(self):
-        # type: () -> int
+    def __hash__(self) -> int:
         return hash(
             (self.offset, self.scale, self.symbol1.uuid, self.symbol2.uuid)
         )
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "SymAddrAddr("
             "scale={scale!r}, "
@@ -189,8 +177,7 @@ class SymAddrAddr(SymbolicExpression):
             attributes_repr=self._attributes_repr(),
         )
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, SymAddrAddr):
             return False
@@ -215,8 +202,12 @@ class SymAddrConst(SymbolicExpression):
     :ivar ~.symbol: Symbol representing an address.
     """
 
-    def __init__(self, offset, symbol, attributes=set()):
-        # type: (int, Symbol, AttributesCtorType) -> None
+    def __init__(
+        self,
+        offset: int,
+        symbol: Symbol,
+        attributes: AttributesCtorType = set(),
+    ):
         """
         :param offset: Constant offset.
         :param symbol: Symbol representing an address.
@@ -224,16 +215,15 @@ class SymAddrConst(SymbolicExpression):
             expression.
         """
         super().__init__(attributes)
-        self.offset = offset  # type: int
-        self.symbol = symbol  # type: Symbol
+        self.offset = offset
+        self.symbol = symbol
 
     @classmethod
     def _from_protobuf(
         cls,
-        proto_symaddrconst,  # type: SymbolicExpression_pb2.SymAddrConst
-        get_by_uuid,  # type: typing.Callable[[UUID], Node]
-    ):
-        # type: (...) -> SymAddrConst
+        proto_symaddrconst: SymbolicExpression_pb2.SymAddrConst,
+        get_by_uuid: typing.Callable[[UUID], Node],
+    ) -> "SymAddrConst":
         symbol_uuid = UUID(bytes=proto_symaddrconst.symbol_uuid)
         symbol = get_by_uuid(symbol_uuid)
         if not isinstance(symbol, Symbol):
@@ -242,16 +232,14 @@ class SymAddrConst(SymbolicExpression):
             )
         return cls(proto_symaddrconst.offset, symbol)
 
-    def _to_protobuf(self):
-        # type: () -> SymbolicExpression_pb2.SymAddrConst
+    def _to_protobuf(self) -> SymbolicExpression_pb2.SymAddrConst:
         proto_symaddrconst = SymbolicExpression_pb2.SymAddrConst()
         proto_symaddrconst.offset = self.offset
         if self.symbol is not None:
             proto_symaddrconst.symbol_uuid = self.symbol.uuid.bytes
         return proto_symaddrconst
 
-    def __eq__(self, other):
-        # type: (typing.Any) -> bool
+    def __eq__(self, other: typing.Any) -> bool:
         if not isinstance(other, SymAddrConst):
             return False
         return (
@@ -260,12 +248,10 @@ class SymAddrConst(SymbolicExpression):
             and self.attributes == other.attributes
         )
 
-    def __hash__(self):
-        # type: () -> int
+    def __hash__(self) -> int:
         return hash((self.offset, self.symbol.uuid))
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "SymAddrConst("
             "offset={offset!r}, "
@@ -278,8 +264,7 @@ class SymAddrConst(SymbolicExpression):
             attributes_repr=self._attributes_repr(),
         )
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, SymAddrConst):
             return False

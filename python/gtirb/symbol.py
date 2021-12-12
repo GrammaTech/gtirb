@@ -24,15 +24,15 @@ class Symbol(Node):
         than at the beginning. Has no meaning for integral symbols.
     """
 
-    name = _IndexedAttribute[str, "Symbol"]("name", lambda self: self.module)
+    name = _IndexedAttribute[str, "Symbol"](lambda self: self.module)
 
     def __init__(
         self,
-        name,  # type: str
-        uuid=None,  # type: typing.Optional[UUID]
-        payload=None,  # type: typing.Optional[Payload]
-        at_end=False,  # type: bool
-        module=None,  # type: typing.Optional["Module"]
+        name: str,
+        uuid: typing.Optional[UUID] = None,
+        payload: typing.Optional[Payload] = None,
+        at_end: bool = False,
+        module: typing.Optional["Module"] = None,
     ):
         """
         :param name: The name of this symbol.
@@ -47,16 +47,15 @@ class Symbol(Node):
         """
 
         super().__init__(uuid)
-        self._module = None  # type: typing.Optional["Module"]
+        self._module: typing.Optional["Module"] = None
         self.name = name
-        self.at_end = at_end  # type: bool
-        self._payload = payload  # type: typing.Optional[Payload]
+        self.at_end = at_end
+        self._payload = payload
         # Use the property setter to ensure correct invariants.
         self.module = module
 
     @property
-    def value(self):
-        # type: () -> typing.Optional[int]
+    def value(self) -> typing.Optional[int]:
         """The value of a Symbol, which is an integer or None.
         ``value`` and ``referent`` are mutually exclusive.
         """
@@ -66,13 +65,11 @@ class Symbol(Node):
         return None
 
     @value.setter
-    def value(self, value):
-        # type: (typing.Optional[int]) -> None
+    def value(self, value: typing.Optional[int]) -> None:
         self._payload = value
 
     @property
-    def referent(self):
-        # type: () -> typing.Optional[Block]
+    def referent(self) -> typing.Optional[Block]:
         """The object referred to by a Symbol, which is :class:`Block`
         or None. ``value`` and ``referent`` are mutually exclusive.
         """
@@ -82,13 +79,16 @@ class Symbol(Node):
         return None
 
     @referent.setter
-    def referent(self, referent):
-        # type: (typing.Optional[Block]) -> None
+    def referent(self, referent: typing.Optional[Block]) -> None:
         self._payload = referent
 
     @classmethod
-    def _decode_protobuf(cls, proto_symbol, uuid, ir):
-        # type: (Symbol_pb2.Symbol,UUID, typing.Optional["IR"]) -> Symbol
+    def _decode_protobuf(
+        cls,
+        proto_symbol: Symbol_pb2.Symbol,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "Symbol":
         assert ir
         symbol = cls(
             name=proto_symbol.name, at_end=proto_symbol.at_end, uuid=uuid
@@ -106,8 +106,7 @@ class Symbol(Node):
         symbol._add_to_uuid_cache(ir._local_uuid_cache)
         return symbol
 
-    def _to_protobuf(self):
-        # type: () -> Symbol_pb2.Symbol
+    def _to_protobuf(self) -> Symbol_pb2.Symbol:
         proto_symbol = Symbol_pb2.Symbol()
         proto_symbol.uuid = self.uuid.bytes
         if self.value is not None:
@@ -118,8 +117,7 @@ class Symbol(Node):
         proto_symbol.at_end = self.at_end
         return proto_symbol
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Symbol):
             return False
@@ -137,8 +135,7 @@ class Symbol(Node):
             and self.uuid == other.uuid
         )
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "Symbol("
             "uuid={uuid!r}, "
@@ -149,33 +146,28 @@ class Symbol(Node):
         )
 
     @property
-    def module(self):
-        # type: () -> typing.Optional["Module"]
+    def module(self) -> typing.Optional["Module"]:
         return self._module
 
     @module.setter
-    def module(self, value):
-        # type: (typing.Optional["Module"]) -> None
+    def module(self, value: typing.Optional["Module"]) -> None:
         if self._module is not None:
             self._module.symbols.discard(self)
         if value is not None:
             value.symbols.add(self)
 
-    def _add_to_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
 
         cache[self.uuid] = self
 
-    def _remove_from_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _remove_from_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]
 
     @property
-    def ir(self):
-        # type: () -> typing.Optional["IR"]
+    def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

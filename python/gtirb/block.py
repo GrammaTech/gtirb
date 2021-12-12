@@ -21,20 +21,17 @@ class Block(Node):
     """
 
     @property
-    def references(self):
-        # type: () -> typing.Iterable["Symbol"]
+    def references(self) -> typing.Iterable["Symbol"]:
         """Get all the symbols that refer to this block."""
 
         raise NotImplementedError
 
-    def _add_to_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
 
         cache[self.uuid] = self
 
-    def _remove_from_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _remove_from_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]
@@ -50,20 +47,18 @@ class ByteBlock(Block):
         same offset.
     """
 
-    size = _IndexedAttribute[int, "ByteBlock"](
-        "size", lambda self: self.byte_interval
-    )
+    size = _IndexedAttribute[int, "ByteBlock"](lambda self: self.byte_interval)
     offset = _IndexedAttribute[int, "ByteBlock"](
-        "offset", lambda self: self.byte_interval
+        lambda self: self.byte_interval
     )
 
     def __init__(
         self,
         *,
-        size=0,  # type: int
-        offset=0,  # type: int
-        uuid=None,  # type: typing.Optional[UUID]
-        byte_interval=None  # type: typing.Optional["ByteInterval"]
+        size: int = 0,
+        offset: int = 0,
+        uuid: typing.Optional[UUID] = None,
+        byte_interval: typing.Optional["ByteInterval"] = None,
     ):
         """
         :param size: The size of the data object in bytes.
@@ -76,29 +71,26 @@ class ByteBlock(Block):
         """
 
         super().__init__(uuid=uuid)
-        self._byte_interval = None  # type: typing.Optional["ByteInterval"]
+        self._byte_interval: typing.Optional["ByteInterval"] = None
         self.size = size
         self.offset = offset
         # Use the property setter to ensure correct invariants.
         self.byte_interval = byte_interval
 
     @property
-    def byte_interval(self):
-        # type: () -> typing.Optional["ByteInterval"]
+    def byte_interval(self) -> typing.Optional["ByteInterval"]:
         """The :class:`ByteInterval` this block belongs to."""
 
         return self._byte_interval
 
     @byte_interval.setter
-    def byte_interval(self, value):
-        # type: (typing.Optional["ByteInterval"]) -> None
+    def byte_interval(self, value: typing.Optional["ByteInterval"]) -> None:
         if self._byte_interval is not None:
             self._byte_interval.blocks.discard(self)
         if value is not None:
             value.blocks.add(self)
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ByteBlock):
             return False
@@ -109,8 +101,7 @@ class ByteBlock(Block):
         )
 
     @property
-    def contents(self):
-        # type: () -> bytes
+    def contents(self) -> bytes:
         """Get the bytes in this block."""
 
         if self.byte_interval is None:
@@ -120,8 +111,7 @@ class ByteBlock(Block):
         ]
 
     @property
-    def address(self):
-        # type: () -> typing.Optional[int]
+    def address(self) -> typing.Optional[int]:
         """Get the address of this block, or None if not present."""
 
         if self.byte_interval is None or self.byte_interval.address is None:
@@ -143,24 +133,21 @@ class ByteBlock(Block):
         )
 
     @property
-    def section(self):
-        # type: () -> typing.Optional["Section"]
+    def section(self) -> typing.Optional["Section"]:
         """Get the section this node ultimately belongs to."""
         if self.byte_interval is None:
             return None
         return self.byte_interval.section
 
     @property
-    def module(self):
-        # type: () -> typing.Optional["Module"]
+    def module(self) -> typing.Optional["Module"]:
         """Get the module this node ultimately belongs to."""
         if self.section is None:
             return None
         return self.section.module
 
     @property
-    def ir(self):
-        # type: () -> typing.Optional["IR"]
+    def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None
@@ -186,15 +173,13 @@ class CfgNode(Block):
     """The base class for blocks that may appear as vertices in the CFG."""
 
     @property
-    def incoming_edges(self):
-        # type: () -> typing.Iterable["Edge"]
+    def incoming_edges(self) -> typing.Iterable["Edge"]:
         """Get the edges that point to this CFG node."""
 
         raise NotImplementedError
 
     @property
-    def outgoing_edges(self):
-        # type: () -> typing.Iterable["Edge"]
+    def outgoing_edges(self) -> typing.Iterable["Edge"]:
         """Get the edges that start at this CFG node."""
 
         raise NotImplementedError
@@ -206,12 +191,11 @@ class DataBlock(ByteBlock):
     def __init__(
         self,
         *,
-        size=0,  # type: int
-        offset=0,  # type: int
-        uuid=None,  # type: typing.Optional[UUID]
-        byte_interval=None  # type: typing.Optional["ByteInterval"]
+        size: int = 0,
+        offset: int = 0,
+        uuid: typing.Optional[UUID] = None,
+        byte_interval: typing.Optional["ByteInterval"] = None,
     ):
-        # type: (...) -> None
         """
         :param size: The size of the data object in bytes.
         :param offset: The offset from the beginning of the byte interval to
@@ -229,25 +213,22 @@ class DataBlock(ByteBlock):
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_dataobject,  # type: DataBlock_pb2.DataBlock
-        uuid,  # type: UUID
-        ir,  # type: typing.Optional["IR"]
-    ):
-        # type: (...) -> DataBlock
+        proto_dataobject: DataBlock_pb2.DataBlock,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "DataBlock":
         assert ir
         b = cls(size=proto_dataobject.size, uuid=uuid)
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
 
-    def _to_protobuf(self):
-        # type: () -> DataBlock_pb2.DataBlock
+    def _to_protobuf(self) -> DataBlock_pb2.DataBlock:
         proto_dataobject = DataBlock_pb2.DataBlock()
         proto_dataobject.uuid = self.uuid.bytes
         proto_dataobject.size = self.size
         return proto_dataobject
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "DataBlock("
             "uuid={uuid!r}, "
@@ -271,13 +252,12 @@ class CodeBlock(ByteBlock, CfgNode):
     def __init__(
         self,
         *,
-        decode_mode=0,  # type: int
-        size=0,  # type: int
-        offset=0,  # type: int
-        uuid=None,  # type: typing.Optional[UUID]
-        byte_interval=None  # type: typing.Optional["ByteInterval"]
+        decode_mode: int = 0,
+        size: int = 0,
+        offset: int = 0,
+        uuid: typing.Optional[UUID] = None,
+        byte_interval: typing.Optional["ByteInterval"] = None,
     ):
-        # type: (...) -> None
         """
         :param size: The length of the block in bytes.
         :param decode_mode: The decode mode of the block,
@@ -295,16 +275,15 @@ class CodeBlock(ByteBlock, CfgNode):
         super().__init__(
             size=size, offset=offset, uuid=uuid, byte_interval=byte_interval
         )
-        self.decode_mode = decode_mode  # type: int
+        self.decode_mode = decode_mode
 
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_block,  # type: CodeBlock_pb2.CodeBlock
-        uuid,  # type: UUID
-        ir,  # type: typing.Optional["IR"]
-    ):
-        # type: (...) -> CodeBlock
+        proto_block: CodeBlock_pb2.CodeBlock,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "CodeBlock":
         assert ir
         b = cls(
             decode_mode=proto_block.decode_mode,
@@ -314,23 +293,20 @@ class CodeBlock(ByteBlock, CfgNode):
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
 
-    def _to_protobuf(self):
-        # type: () -> CodeBlock_pb2.CodeBlock
+    def _to_protobuf(self) -> CodeBlock_pb2.CodeBlock:
         proto_block = CodeBlock_pb2.CodeBlock()
         proto_block.uuid = self.uuid.bytes
         proto_block.size = self.size
         proto_block.decode_mode = self.decode_mode
         return proto_block
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, CodeBlock):
             return False
         return super().deep_eq(other) and self.decode_mode == other.decode_mode
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "CodeBlock("
             "uuid={uuid!r}, "
@@ -376,52 +352,46 @@ class ProxyBlock(CfgNode):
     def __init__(
         self,
         *,
-        uuid=None,  # type: typing.Optional[UUID]
-        module=None  # type: typing.Optional["Module"]
+        uuid: typing.Optional[UUID] = None,
+        module: typing.Optional["Module"] = None,
     ):
         super().__init__(uuid=uuid)
-        self._module = None  # type: typing.Optional["Module"]
+        self._module: typing.Optional["Module"] = None
         # Use the property setter to ensure correct invariants.
         self.module = module
 
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_proxy,  # type: ProxyBlock_pb2.ProxyBlock
-        uuid,  # type: UUID
-        ir,  # type: typing.Optional["IR"]
-    ):
-        # type: (...) -> ProxyBlock
+        proto_proxy: ProxyBlock_pb2.ProxyBlock,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "ProxyBlock":
         assert ir
         b = cls(uuid=uuid)
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
 
-    def _to_protobuf(self):
-        # type: () -> ProxyBlock_pb2.ProxyBlock
+    def _to_protobuf(self) -> ProxyBlock_pb2.ProxyBlock:
         proto_proxyblock = ProxyBlock_pb2.ProxyBlock()
         proto_proxyblock.uuid = self.uuid.bytes
         return proto_proxyblock
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ProxyBlock):
             return False
         return self.uuid == other.uuid
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return "ProxyBlock(" "uuid={uuid!r}, " ")".format(**self.__dict__)
 
     @property
-    def module(self):
-        # type: () -> typing.Optional["Module"]
+    def module(self) -> typing.Optional["Module"]:
         return self._module
 
     @module.setter
-    def module(self, value):
-        # type: (typing.Optional["Module"]) -> None
+    def module(self, value: typing.Optional["Module"]) -> None:
         if self._module is not None:
             self._module.proxies.discard(self)
         if value is not None:
@@ -446,8 +416,7 @@ class ProxyBlock(CfgNode):
         return self.ir.cfg.out_edges(self)
 
     @property
-    def ir(self):
-        # type: () -> typing.Optional["IR"]
+    def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

@@ -144,8 +144,8 @@ class Module(AuxDataContainer):
 
     class _NodeSet(SetWrapper):
         def __init__(self, node, field, *args):
-            self._node = node  # type: Module
-            self._field = field  # type: str
+            self._node: Module = node
+            self._field: str = field
             super().__init__(*args)
 
         def add(self, v):
@@ -169,22 +169,21 @@ class Module(AuxDataContainer):
     def __init__(
         self,
         *,
-        name,  # type: str
-        aux_data=dict(),  # type: DictLike[str, AuxData]
-        binary_path="",  # type: str
-        file_format=FileFormat.Undefined,  # type: Module.FileFormat
-        isa=ISA.Undefined,  # type: Module.ISA
-        byte_order=ByteOrder.Undefined,  # type: Module.ByteOrder
-        preferred_addr=0,  # type: int
-        proxies=set(),  # type: typing.Iterable[ProxyBlock]
-        rebase_delta=0,  # type: int
-        sections=set(),  # type: typing.Iterable[Section]
-        symbols=set(),  # type: typing.Iterable[Symbol]
-        entry_point=None,  # type: typing.Optional[CodeBlock]
-        uuid=None,  # type: typing.Optional[UUID]
-        ir=None  # type: typing.Optional["IR"]
+        name: str,
+        aux_data: DictLike[str, AuxData] = {},
+        binary_path: str = "",
+        file_format=FileFormat.Undefined,
+        isa=ISA.Undefined,
+        byte_order=ByteOrder.Undefined,
+        preferred_addr: int = 0,
+        proxies: typing.Iterable[ProxyBlock] = set(),
+        rebase_delta: int = 0,
+        sections: typing.Iterable[Section] = set(),
+        symbols: typing.Iterable[Symbol] = set(),
+        entry_point: typing.Optional[CodeBlock] = None,
+        uuid: typing.Optional[UUID] = None,
+        ir: typing.Optional["IR"] = None,
     ):
-        # type: (...) -> None
         """
         :param aux_data: The initial auxiliary data to be associated
             with the object, as a mapping from names to
@@ -211,21 +210,21 @@ class Module(AuxDataContainer):
         :param ir: The :class:`IR` this module belongs to.
         """
 
-        self._symbol_index = collections.defaultdict(
-            set
-        )  # type: typing.Mapping[str, typing.Set[Symbol]]
-        self._ir = None  # type: typing.Optional["IR"]
-        self.binary_path = binary_path  # type: str
-        self.isa = isa  # type: Module.ISA
-        self.byte_order = byte_order  # type: Module.ByteOrder
-        self.file_format = file_format  # type: Module.FileFormat
-        self.name = name  # type: str
-        self.preferred_addr = preferred_addr  # type: int
+        self._symbol_index: typing.Mapping[
+            str, typing.Set[Symbol]
+        ] = collections.defaultdict(set)
+        self._ir: typing.Optional["IR"] = None
+        self.binary_path = binary_path
+        self.isa = isa
+        self.byte_order = byte_order
+        self.file_format = file_format
+        self.name = name
+        self.preferred_addr = preferred_addr
         self.proxies = Module._NodeSet(self, "proxies", proxies)
-        self.rebase_delta = rebase_delta  # type: int
+        self.rebase_delta = rebase_delta
         self.sections = Module._NodeSet(self, "sections", sections)
         self.symbols = Module._NodeSet(self, "symbols", symbols)
-        self.entry_point = entry_point  # type: typing.Optional[CodeBlock]
+        self.entry_point = entry_point
         # Initialize the aux data last so that the cache is populated
         super().__init__(aux_data, uuid)
 
@@ -233,8 +232,12 @@ class Module(AuxDataContainer):
         self.ir = ir
 
     @classmethod
-    def _decode_protobuf(cls, proto_module, uuid, ir):
-        # type: (Module_pb2.Module, UUID, typing.Optional["IR"]) -> Module
+    def _decode_protobuf(
+        cls,
+        proto_module: Module_pb2.Module,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "Module":
         assert ir
         m = cls(
             binary_path=proto_module.binary_path,
@@ -283,8 +286,7 @@ class Module(AuxDataContainer):
 
         return m
 
-    def _to_protobuf(self):
-        # type: () -> Module_pb2.Module
+    def _to_protobuf(self) -> Module_pb2.Module:
         proto_module = Module_pb2.Module()
         self._write_protobuf_aux_data(proto_module)
         proto_module.binary_path = self.binary_path
@@ -302,8 +304,7 @@ class Module(AuxDataContainer):
         proto_module.uuid = self.uuid.bytes
         return proto_module
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not super().deep_eq(other):
             return False
@@ -339,8 +340,7 @@ class Module(AuxDataContainer):
 
         return True
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "Module("
             "uuid={uuid!r}, "
@@ -369,31 +369,27 @@ class Module(AuxDataContainer):
             if not symbol_set:
                 del self._symbol_index[node.name]
 
-    def symbols_named(self, name):
-        # type: (str) -> typing.Iterator[Symbol]
+    def symbols_named(self, name: str) -> typing.Iterator[Symbol]:
         "Finds all symbols with a given name."
         symbols = self._symbol_index.get(name, None)
         if symbols:
             yield from symbols
 
     @property
-    def ir(self):
-        # type: () -> typing.Optional["IR"]
+    def ir(self) -> typing.Optional["IR"]:
         """The :class:`IR` this module belongs to."""
 
         return self._ir
 
     @ir.setter
-    def ir(self, value):
-        # type: (typing.Optional["IR"]) -> None
+    def ir(self, value: typing.Optional["IR"]) -> None:
         if self._ir is not None:
             self._ir.modules.remove(self)
         if value is not None:
             value.modules.append(self)
 
     @property
-    def byte_intervals(self):
-        # type: () -> typing.Iterator[ByteInterval]
+    def byte_intervals(self) -> typing.Iterator[ByteInterval]:
         """The :class:`ByteInterval`\\s in this module."""
 
         return itertools.chain.from_iterable(
@@ -401,8 +397,7 @@ class Module(AuxDataContainer):
         )
 
     @property
-    def byte_blocks(self):
-        # type: () -> typing.Iterator[ByteBlock]
+    def byte_blocks(self) -> typing.Iterator[ByteBlock]:
         """The :class:`ByteBlock`\\s in this module."""
 
         return itertools.chain.from_iterable(
@@ -410,8 +405,7 @@ class Module(AuxDataContainer):
         )
 
     @property
-    def code_blocks(self):
-        # type: () -> typing.Iterator[CodeBlock]
+    def code_blocks(self) -> typing.Iterator[CodeBlock]:
         """The :class:`CodeBlock`\\s in this module."""
 
         return itertools.chain.from_iterable(
@@ -419,8 +413,7 @@ class Module(AuxDataContainer):
         )
 
     @property
-    def data_blocks(self):
-        # type: () -> typing.Iterator[DataBlock]
+    def data_blocks(self) -> typing.Iterator[DataBlock]:
         """The :class:`DataBlock`\\s in this module."""
 
         return itertools.chain.from_iterable(
@@ -428,14 +421,14 @@ class Module(AuxDataContainer):
         )
 
     @property
-    def cfg_nodes(self):
-        # type: () -> typing.Iterator[CfgNode]
+    def cfg_nodes(self) -> typing.Iterator[CfgNode]:
         """The :class:`CfgNode`\\s in this module."""
 
         return itertools.chain(self.code_blocks, self.proxies)
 
-    def sections_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+    def sections_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[Section]:
         """Finds all the sections that overlap an address or range of
         addresses.
 
@@ -444,8 +437,9 @@ class Module(AuxDataContainer):
 
         return nodes_on(self.sections, addrs)
 
-    def sections_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+    def sections_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[Section]:
         """Finds all the sections that begin at an address or range of
         addresses.
 
@@ -454,8 +448,9 @@ class Module(AuxDataContainer):
 
         return nodes_at(self.sections, addrs)
 
-    def byte_intervals_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+    def byte_intervals_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteInterval]:
         """Finds all the byte intervals that overlap an address or range of
         addresses.
 
@@ -466,8 +461,9 @@ class Module(AuxDataContainer):
             s.byte_intervals_on(addrs) for s in self.sections
         )
 
-    def byte_intervals_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+    def byte_intervals_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteInterval]:
         """Finds all the byte intervals that begin at an address or range of
         addresses.
 
@@ -478,8 +474,9 @@ class Module(AuxDataContainer):
             s.byte_intervals_at(addrs) for s in self.sections
         )
 
-    def byte_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that overlap an address or range of
         addresses.
 
@@ -490,8 +487,9 @@ class Module(AuxDataContainer):
             s.byte_blocks_on(addrs) for s in self.sections
         )
 
-    def byte_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that begin at an address or range of
         addresses.
 
@@ -502,8 +500,9 @@ class Module(AuxDataContainer):
             s.byte_blocks_at(addrs) for s in self.sections
         )
 
-    def code_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that overlap an address or range of
         addresses.
 
@@ -514,8 +513,9 @@ class Module(AuxDataContainer):
             s.code_blocks_on(addrs) for s in self.sections
         )
 
-    def code_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that begin at an address or range of
         addresses.
 
@@ -526,8 +526,9 @@ class Module(AuxDataContainer):
             s.code_blocks_at(addrs) for s in self.sections
         )
 
-    def data_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that overlap an address or range of
         addresses.
 
@@ -538,8 +539,9 @@ class Module(AuxDataContainer):
             s.data_blocks_on(addrs) for s in self.sections
         )
 
-    def data_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that begin at an address or range of
         addresses.
 
@@ -551,9 +553,8 @@ class Module(AuxDataContainer):
         )
 
     def symbolic_expressions_at(
-        self, addrs  # type: typing.Union[int, range]
-    ):
-        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[SymbolicExpressionElement]:
         """Finds all the symbolic expressions that begin at an address or
         range of addresses.
 
@@ -564,8 +565,7 @@ class Module(AuxDataContainer):
 
         return symbolic_expressions_at(self.sections, addrs)
 
-    def _add_to_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
 
         cache[self.uuid] = self
@@ -576,8 +576,7 @@ class Module(AuxDataContainer):
         for symbol in self.symbols:
             symbol._add_to_uuid_cache(cache)
 
-    def _remove_from_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _remove_from_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]

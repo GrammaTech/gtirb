@@ -59,7 +59,7 @@ class Section(Node):
 
     class _ByteIntervalSet(SetWrapper):
         def __init__(self, node, *args):
-            self._node = node  # type: Section
+            self._node: "Section" = node
             super().__init__(*args)
 
         def add(self, v):
@@ -83,11 +83,11 @@ class Section(Node):
     def __init__(
         self,
         *,
-        name="",  # type: str
-        byte_intervals=(),  # type: typing.Iterable[ByteInterval]
-        flags=set(),  # type: typing.Iterable[Section.Flag]
-        uuid=None,  # type: typing.Optional[UUID]
-        module=None  # type: typing.Optional["Module"]
+        name: str = "",
+        byte_intervals: typing.Iterable[ByteInterval] = (),
+        flags: typing.Iterable["Section.Flag"] = set(),
+        uuid: typing.Optional[UUID] = None,
+        module: typing.Optional["Module"] = None,
     ):
         """
         :param name: The name of this section.
@@ -101,10 +101,10 @@ class Section(Node):
 
         super().__init__(uuid)
         self._interval_index: "IntervalTree[int,ByteInterval]" = IntervalTree()
-        self._module = None  # type: typing.Optional["Module"]
-        self.name = name  # type: str
+        self._module: typing.Optional["Module"] = None
+        self.name = name
         self.byte_intervals = Section._ByteIntervalSet(self, byte_intervals)
-        self.flags = set(flags)  # type: typing.Set[Section.Flag]
+        self.flags = set(flags)
 
         # Use the property setter to ensure correct invariants.
         self.module = module
@@ -120,8 +120,12 @@ class Section(Node):
             self._interval_index.discard(address_interval)
 
     @classmethod
-    def _decode_protobuf(cls, proto_section, uuid, ir):
-        # type: (Section_pb2.Section, UUID, typing.Optional["IR"]) -> Section
+    def _decode_protobuf(
+        cls,
+        proto_section: Section_pb2.Section,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
+    ) -> "Section":
         assert ir
         s = cls(
             name=proto_section.name,
@@ -135,8 +139,7 @@ class Section(Node):
         )
         return s
 
-    def _to_protobuf(self):
-        # type: () -> Section_pb2.Section
+    def _to_protobuf(self) -> Section_pb2.Section:
         """Get a Protobuf representation of ``self``."""
 
         proto_section = Section_pb2.Section()
@@ -148,8 +151,7 @@ class Section(Node):
         proto_section.section_flags.extend(f.value for f in self.flags)
         return proto_section
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Section):
             return False
@@ -167,8 +169,7 @@ class Section(Node):
             and self.flags == other.flags
         )
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "Section("
             "uuid={uuid!r}, "
@@ -184,23 +185,20 @@ class Section(Node):
         )
 
     @property
-    def module(self):
-        # type: () -> typing.Optional["Module"]
+    def module(self) -> typing.Optional["Module"]:
         """The :class:`Module` this section belongs to."""
 
         return self._module
 
     @module.setter
-    def module(self, value):
-        # type: (typing.Optional["Module"]) -> None
+    def module(self, value: typing.Optional["Module"]) -> None:
         if self._module is not None:
             self._module.sections.discard(self)
         if value is not None:
             value.sections.add(self)
 
     @property
-    def byte_blocks(self):
-        # type: () -> typing.Iterator[ByteBlock]
+    def byte_blocks(self) -> typing.Iterator[ByteBlock]:
         """The :class:`ByteBlock`\\s in this section."""
 
         return itertools.chain.from_iterable(
@@ -208,22 +206,19 @@ class Section(Node):
         )
 
     @property
-    def code_blocks(self):
-        # type: () -> typing.Iterator[CodeBlock]
+    def code_blocks(self) -> typing.Iterator[CodeBlock]:
         """The :class:`CodeBlock`\\s in this section."""
 
         return (b for b in self.byte_blocks if isinstance(b, CodeBlock))
 
     @property
-    def data_blocks(self):
-        # type: () -> typing.Iterator[DataBlock]
+    def data_blocks(self) -> typing.Iterator[DataBlock]:
         """The :class:`DataBlock`\\s in this section."""
 
         return (b for b in self.byte_blocks if isinstance(b, DataBlock))
 
     @property
-    def address(self):
-        # type: () -> typing.Optional[int]
+    def address(self) -> typing.Optional[int]:
         """Get the address of this section, if known.
 
         The address is calculated from the :class:`ByteInterval` objects in
@@ -241,8 +236,7 @@ class Section(Node):
         return None
 
     @property
-    def size(self):
-        # type: () -> typing.Optional[int]
+    def size(self) -> typing.Optional[int]:
         """Get the size of this section, if known.
 
         The address is calculated from the :class:`ByteInterval` objects in
@@ -259,8 +253,9 @@ class Section(Node):
 
         return None
 
-    def byte_intervals_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+    def byte_intervals_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteInterval]:
         """Finds all the byte intervals that overlap an address or range of
         addresses.
 
@@ -269,8 +264,9 @@ class Section(Node):
 
         return _nodes_on_interval_tree(self._interval_index, addrs)
 
-    def byte_intervals_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+    def byte_intervals_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteInterval]:
         """Finds all the byte intervals that begin at an address or range of
         addresses.
 
@@ -279,8 +275,9 @@ class Section(Node):
 
         return _nodes_at_interval_tree(self._interval_index, addrs)
 
-    def byte_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that overlap an address or range of
         addresses.
 
@@ -290,8 +287,9 @@ class Section(Node):
         for interval in self.byte_intervals_on(addrs):
             yield from interval.byte_blocks_on(addrs)
 
-    def byte_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that begin at an address or range of
         addresses.
 
@@ -301,8 +299,9 @@ class Section(Node):
         for interval in self.byte_intervals_on(addrs):
             yield from interval.byte_blocks_at(addrs)
 
-    def code_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that overlap an address or range of
         addresses.
 
@@ -315,8 +314,9 @@ class Section(Node):
             if isinstance(block, CodeBlock)
         )
 
-    def code_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that begin at an address or range of
         addresses.
 
@@ -329,8 +329,9 @@ class Section(Node):
             if isinstance(block, CodeBlock)
         )
 
-    def data_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that overlap an address or range of
         addresses.
 
@@ -343,8 +344,9 @@ class Section(Node):
             if isinstance(block, DataBlock)
         )
 
-    def data_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that begin at an address or range of
         addresses.
 
@@ -358,9 +360,8 @@ class Section(Node):
         )
 
     def symbolic_expressions_at(
-        self, addrs  # type: typing.Union[int, range]
-    ):
-        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[SymbolicExpressionElement]:
         """Finds all the symbolic expressions that begin at an address or
         range of addresses.
 
@@ -372,16 +373,14 @@ class Section(Node):
         for interval in self.byte_intervals_on(addrs):
             yield from interval.symbolic_expressions_at(addrs)
 
-    def _add_to_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
 
         cache[self.uuid] = self
         for bi in self.byte_intervals:
             bi._add_to_uuid_cache(cache)
 
-    def _remove_from_uuid_cache(self, cache):
-        # type: (typing.Dict[UUID, Node]) -> None
+    def _remove_from_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is removed."""
 
         del cache[self.uuid]
@@ -389,8 +388,7 @@ class Section(Node):
             bi._remove_from_uuid_cache(cache)
 
     @property
-    def ir(self):
-        # type: () -> typing.Optional["IR"]
+    def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
         if self.module is None:
             return None

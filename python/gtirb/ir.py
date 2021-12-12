@@ -42,7 +42,7 @@ class IR(AuxDataContainer):
 
     class _ModuleList(ListWrapper[Module]):
         def __init__(self, node, *args):
-            self._node = node  # type: IR
+            self._node: "IR" = node
             super().__init__(*args)
 
         def _remove(self, v):
@@ -71,13 +71,12 @@ class IR(AuxDataContainer):
     def __init__(
         self,
         *,
-        modules=list(),  # type: typing.Iterable[Module]
-        aux_data=dict(),  # type: DictLike[str, AuxData]
-        cfg=set(),  # type: typing.Iterable[Edge]
-        version=PROTOBUF_VERSION,  # type: int
-        uuid=None  # type: typing.Optional[UUID]
+        modules: typing.Iterable[Module] = [],
+        aux_data: DictLike[str, AuxData] = {},
+        cfg: typing.Iterable[Edge] = set(),
+        version: int = PROTOBUF_VERSION,
+        uuid: typing.Optional[UUID] = None,
     ):
-        # type: (...) -> None
         """
         :param modules: A list of Modules contained in the IR.
         :param cfg: A set of :class:`Edge`\\s representing the IR's control
@@ -91,18 +90,19 @@ class IR(AuxDataContainer):
             Defaults to None.
         """
 
-        self._local_uuid_cache = dict()  # type: typing.Dict[UUID, Node]
+        self._local_uuid_cache: typing.Dict[UUID, Node] = {}
         # Modules are decoded before the aux data, since the UUID decoder
         # checks Node's cache.
         self.modules = IR._ModuleList(self, modules)
-        self.cfg = CFG(cfg)  # type: CFG
-        self.version = version  # type: int
+        self.cfg = CFG(cfg)
+        self.version = version
         super().__init__(aux_data, uuid)
         self._local_uuid_cache[self.uuid] = self
 
     @classmethod
-    def _decode_protobuf(cls, proto_ir, uuid, _):
-        # type: (IR_pb2.IR, UUID, typing.Optional["IR"]) -> IR
+    def _decode_protobuf(
+        cls, proto_ir: IR_pb2.IR, uuid: UUID, _: typing.Optional["IR"]
+    ) -> "IR":
         if proto_ir.version != PROTOBUF_VERSION:
             raise ValueError(
                 "Attempt to decode IR of version %s (expected version %s)"
@@ -119,8 +119,7 @@ class IR(AuxDataContainer):
         )
         return ir
 
-    def _to_protobuf(self):
-        # type: () -> IR_pb2.IR
+    def _to_protobuf(self) -> IR_pb2.IR:
         proto_ir = IR_pb2.IR()
         proto_ir.uuid = self.uuid.bytes
         proto_ir.version = self.version
@@ -132,8 +131,7 @@ class IR(AuxDataContainer):
         self._write_protobuf_aux_data(proto_ir)
         return proto_ir
 
-    def deep_eq(self, other):
-        # type: (typing.Any) -> bool
+    def deep_eq(self, other: typing.Any) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, IR) or not super().deep_eq(other):
             return False
@@ -147,8 +145,7 @@ class IR(AuxDataContainer):
         return self.version == other.version and self.cfg.deep_eq(other.cfg)
 
     @staticmethod
-    def load_protobuf_file(protobuf_file):
-        # type: (typing.BinaryIO) -> IR
+    def load_protobuf_file(protobuf_file: typing.BinaryIO) -> "IR":
         """Load IR from a Protobuf object.
 
         Use this function when you have a Protobuf object already loaded,
@@ -166,8 +163,7 @@ class IR(AuxDataContainer):
         return IR._from_protobuf(ir, None)
 
     @staticmethod
-    def load_protobuf(file_name):
-        # type: (str) -> IR
+    def load_protobuf(file_name: str) -> "IR":
         """Load IR from a Protobuf file at the specified path.
 
         :param file_name: The path to the Protobuf file.
@@ -176,8 +172,7 @@ class IR(AuxDataContainer):
         with open(file_name, "rb") as f:
             return IR.load_protobuf_file(f)
 
-    def save_protobuf_file(self, protobuf_file):
-        # type: (typing.BinaryIO) -> None
+    def save_protobuf_file(self, protobuf_file: typing.BinaryIO) -> None:
         """Save ``self`` to a Protobuf object.
 
         :param protobuf_file: The byte stream to write the GTIRB Protobuf
@@ -186,8 +181,7 @@ class IR(AuxDataContainer):
 
         protobuf_file.write(self._to_protobuf().SerializeToString())
 
-    def save_protobuf(self, file_name):
-        # type: (str) -> None
+    def save_protobuf(self, file_name: str) -> None:
         """Save ``self`` to a Protobuf file at the specified path.
 
         :param file_name: The file path at which to
@@ -196,8 +190,7 @@ class IR(AuxDataContainer):
         with open(file_name, "wb") as f:
             self.save_protobuf_file(f)
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return (
             "IR("
             "uuid={uuid!r}, "
@@ -208,29 +201,25 @@ class IR(AuxDataContainer):
         )
 
     @property
-    def proxy_blocks(self):
-        # type: () -> typing.Iterator[ProxyBlock]
+    def proxy_blocks(self) -> typing.Iterator[ProxyBlock]:
         """The :class:`ProxyBlock`\\s in this IR."""
 
         return itertools.chain.from_iterable(m.proxies for m in self.modules)
 
     @property
-    def sections(self):
-        # type: () -> typing.Iterator[Section]
+    def sections(self) -> typing.Iterator[Section]:
         """The :class:`Section`\\s in this IR."""
 
         return itertools.chain.from_iterable(m.sections for m in self.modules)
 
     @property
-    def symbols(self):
-        # type: () -> typing.Iterator[Symbol]
+    def symbols(self) -> typing.Iterator[Symbol]:
         """The :class:`Symbol`\\s in this IR."""
 
         return itertools.chain.from_iterable(m.symbols for m in self.modules)
 
     @property
-    def byte_intervals(self):
-        # type: () -> typing.Iterator[ByteInterval]
+    def byte_intervals(self) -> typing.Iterator[ByteInterval]:
         """The :class:`ByteInterval`\\s in this IR."""
 
         return itertools.chain.from_iterable(
@@ -238,8 +227,7 @@ class IR(AuxDataContainer):
         )
 
     @property
-    def byte_blocks(self):
-        # type: () -> typing.Iterator[ByteBlock]
+    def byte_blocks(self) -> typing.Iterator[ByteBlock]:
         """The :class:`ByteBlock`\\s in this IR."""
 
         return itertools.chain.from_iterable(
@@ -247,8 +235,7 @@ class IR(AuxDataContainer):
         )
 
     @property
-    def code_blocks(self):
-        # type: () -> typing.Iterator[CodeBlock]
+    def code_blocks(self) -> typing.Iterator[CodeBlock]:
         """The :class:`CodeBlock`\\s in this IR."""
 
         return itertools.chain.from_iterable(
@@ -256,8 +243,7 @@ class IR(AuxDataContainer):
         )
 
     @property
-    def data_blocks(self):
-        # type: () -> typing.Iterator[DataBlock]
+    def data_blocks(self) -> typing.Iterator[DataBlock]:
         """The :class:`DataBlock`\\s in this IR."""
 
         return itertools.chain.from_iterable(
@@ -265,14 +251,14 @@ class IR(AuxDataContainer):
         )
 
     @property
-    def cfg_nodes(self):
-        # type: () -> typing.Iterator[CfgNode]
+    def cfg_nodes(self) -> typing.Iterator[CfgNode]:
         """The :class:`CfgNode`\\s in this IR."""
 
         return itertools.chain.from_iterable(m.cfg_nodes for m in self.modules)
 
-    def sections_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+    def sections_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[Section]:
         """Finds all the sections that overlap an address or range of
         addresses.
 
@@ -281,8 +267,9 @@ class IR(AuxDataContainer):
 
         return nodes_on(self.sections, addrs)
 
-    def sections_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[Section]
+    def sections_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[Section]:
         """Finds all the sections that begin at an address or range of
         addresses.
 
@@ -291,8 +278,9 @@ class IR(AuxDataContainer):
 
         return nodes_at(self.sections, addrs)
 
-    def byte_intervals_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+    def byte_intervals_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteInterval]:
         """Finds all the byte intervals that overlap an address or range of
         addresses.
 
@@ -303,8 +291,9 @@ class IR(AuxDataContainer):
             m.byte_intervals_on(addrs) for m in self.modules
         )
 
-    def byte_intervals_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteInterval]
+    def byte_intervals_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteInterval]:
         """Finds all the byte intervals that begin at an address or range of
         addresses.
 
@@ -315,8 +304,9 @@ class IR(AuxDataContainer):
             m.byte_intervals_at(addrs) for m in self.modules
         )
 
-    def byte_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that overlap an address or range of
         addresses.
 
@@ -327,8 +317,9 @@ class IR(AuxDataContainer):
             m.byte_blocks_on(addrs) for m in self.modules
         )
 
-    def byte_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[ByteBlock]
+    def byte_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
         """Finds all the byte blocks that begin at an address or range of
         addresses.
 
@@ -339,8 +330,9 @@ class IR(AuxDataContainer):
             m.byte_blocks_at(addrs) for m in self.modules
         )
 
-    def code_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that overlap an address or range of
         addresses.
 
@@ -351,8 +343,9 @@ class IR(AuxDataContainer):
             m.code_blocks_on(addrs) for m in self.modules
         )
 
-    def code_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[CodeBlock]
+    def code_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
         """Finds all the code blocks that begin at an address or range of
         addresses.
 
@@ -363,8 +356,9 @@ class IR(AuxDataContainer):
             m.code_blocks_at(addrs) for m in self.modules
         )
 
-    def data_blocks_on(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_on(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that overlap an address or range of
         addresses.
 
@@ -375,8 +369,9 @@ class IR(AuxDataContainer):
             m.data_blocks_on(addrs) for m in self.modules
         )
 
-    def data_blocks_at(self, addrs):
-        # type: (typing.Union[int, range]) -> typing.Iterable[DataBlock]
+    def data_blocks_at(
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
         """Finds all the data blocks that begin at an address or range of
         addresses.
 
@@ -388,9 +383,8 @@ class IR(AuxDataContainer):
         )
 
     def symbolic_expressions_at(
-        self, addrs  # type: typing.Union[int, range]
-    ):
-        # type: (...) -> typing.Iterable[SymbolicExpressionElement]
+        self, addrs: typing.Union[int, range]
+    ) -> typing.Iterable[SymbolicExpressionElement]:
         """Finds all the symbolic expressions that begin at an address or
         range of addresses.
 
@@ -401,8 +395,7 @@ class IR(AuxDataContainer):
 
         return symbolic_expressions_at(self.modules, addrs)
 
-    def get_by_uuid(self, uuid):
-        # type: (UUID) -> typing.Optional[Node]
+    def get_by_uuid(self, uuid: UUID) -> typing.Optional[Node]:
         """Look up a node by its UUID.
 
         This method will find any node currently attached to this IR.
