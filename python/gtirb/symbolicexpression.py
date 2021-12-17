@@ -118,7 +118,7 @@ class SymAddrAddr(SymbolicExpression):
     def _from_protobuf(
         cls,
         proto_symaddraddr: SymbolicExpression_pb2.SymAddrAddr,
-        get_by_uuid: typing.Callable[[UUID], Node],
+        get_by_uuid: typing.Callable[[UUID], typing.Optional[Node]],
     ) -> "SymAddrAddr":
         symbol1_uuid = UUID(bytes=proto_symaddraddr.symbol1_uuid)
         symbol1 = get_by_uuid(symbol1_uuid)
@@ -190,7 +190,7 @@ class SymAddrAddr(SymbolicExpression):
         )
 
     @property
-    def symbols(self):
+    def symbols(self) -> typing.Iterable[Symbol]:
         yield self.symbol1
         yield self.symbol2
 
@@ -222,7 +222,7 @@ class SymAddrConst(SymbolicExpression):
     def _from_protobuf(
         cls,
         proto_symaddrconst: SymbolicExpression_pb2.SymAddrConst,
-        get_by_uuid: typing.Callable[[UUID], Node],
+        get_by_uuid: typing.Callable[[UUID], typing.Optional[Node]],
     ) -> "SymAddrConst":
         symbol_uuid = UUID(bytes=proto_symaddrconst.symbol_uuid)
         symbol = get_by_uuid(symbol_uuid)
@@ -275,5 +275,5 @@ class SymAddrConst(SymbolicExpression):
         )
 
     @property
-    def symbols(self):
+    def symbols(self) -> typing.Iterable[Symbol]:
         yield self.symbol

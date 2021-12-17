@@ -47,10 +47,8 @@ class ByteBlock(Block):
         same offset.
     """
 
-    size = _IndexedAttribute[int, "ByteBlock"](lambda self: self.byte_interval)
-    offset = _IndexedAttribute[int, "ByteBlock"](
-        lambda self: self.byte_interval
-    )
+    size = _IndexedAttribute[int]()(lambda self: self.byte_interval)
+    offset = _IndexedAttribute[int]()(lambda self: self.byte_interval)
 
     def __init__(
         self,
@@ -119,13 +117,13 @@ class ByteBlock(Block):
         return self.byte_interval.address + self.offset
 
     @property
-    def references(self):
+    def references(self) -> typing.Iterator["Symbol"]:
         if (
             self.byte_interval is None
             or self.byte_interval.section is None
             or self.byte_interval.section.module is None
         ):
-            return ()
+            return iter(())
         return (
             s
             for s in self.byte_interval.section.module.symbols
@@ -322,15 +320,15 @@ class CodeBlock(ByteBlock, CfgNode):
         )
 
     @property
-    def incoming_edges(self):
+    def incoming_edges(self) -> typing.Iterator["Edge"]:
         if self.ir is None:
-            return ()
+            return iter(())
         return self.ir.cfg.in_edges(self)
 
     @property
-    def outgoing_edges(self):
+    def outgoing_edges(self) -> typing.Iterator["Edge"]:
         if self.ir is None:
-            return ()
+            return iter(())
         return self.ir.cfg.out_edges(self)
 
 
@@ -398,21 +396,21 @@ class ProxyBlock(CfgNode):
             value.proxies.add(self)
 
     @property
-    def references(self):
+    def references(self) -> typing.Iterator["Symbol"]:
         if self.module is None:
-            return ()
+            return iter(())
         return (s for s in self.module.symbols if s.referent == self)
 
     @property
-    def incoming_edges(self):
+    def incoming_edges(self) -> typing.Iterator["Edge"]:
         if self.ir is None:
-            return ()
+            return iter(())
         return self.ir.cfg.in_edges(self)
 
     @property
-    def outgoing_edges(self):
+    def outgoing_edges(self) -> typing.Iterator["Edge"]:
         if self.ir is None:
-            return ()
+            return iter(())
         return self.ir.cfg.out_edges(self)
 
     @property

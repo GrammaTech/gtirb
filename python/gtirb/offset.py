@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 from uuid import UUID
 
 from .node import Node
@@ -11,7 +11,10 @@ if TYPE_CHECKING:
 
 
 class Offset(
-    NamedTuple("NamedTuple", (("element_id", Node), ("displacement", int)))
+    NamedTuple(
+        "NamedTuple",
+        (("element_id", Union[UUID, Node]), ("displacement", int)),
+    )
 ):
     """
     An Offset describes a location inside a :class:`gtirb.Node`, such as a
@@ -44,6 +47,9 @@ class Offset(
         """Encode this offset into a Protobuf object."""
 
         proto_offset = Offset_pb2.Offset()
-        proto_offset.element_id = self.element_id.uuid.bytes
+        if isinstance(self.element_id, UUID):
+            proto_offset.element_id = self.element_id.bytes
+        else:
+            proto_offset.element_id = self.element_id.uuid.bytes
         proto_offset.displacement = self.displacement
         return proto_offset

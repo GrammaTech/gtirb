@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, Optional
 from uuid import UUID
 
 from .node import Node
@@ -19,8 +19,13 @@ class _LazyDataContainer:
     deserializing) the data.
     """
 
-    def __init__(self, raw_data, type_name, get_by_uuid):
-        self.raw_data = raw_data
+    def __init__(
+        self,
+        raw_data: bytes,
+        type_name: str,
+        get_by_uuid: Callable[[UUID], Optional[Node]],
+    ):
+        self.raw_data: Optional[bytes] = raw_data
         self.type_name = type_name
         self.get_by_uuid = get_by_uuid
 
@@ -85,14 +90,14 @@ class AuxData:
         self.type_name: str = type_name
 
     @property
-    def data(self):
+    def data(self) -> Any:
         if self._lazy_container is not None:
             self._data = self._lazy_container.get_data()
             self._lazy_container = None
         return self._data
 
     @data.setter
-    def data(self, value):
+    def data(self, value: Any) -> None:
         self._data = value
         self._lazy_container = None
 

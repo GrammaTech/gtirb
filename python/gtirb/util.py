@@ -11,6 +11,7 @@ V = typing.TypeVar("V")
 T = typing.TypeVar("T")
 T_cov = typing.TypeVar("T_cov", covariant=True)
 T_contra = typing.TypeVar("T_contra", contravariant=True)
+S = typing.TypeVar("S")
 
 
 DictLike = typing.Union[
@@ -39,70 +40,142 @@ class _SymbolicExpressionContainer(typing_extensions.Protocol[T_cov]):
 
 
 class ListWrapper(typing.MutableSequence[T]):
-    def __init__(self, *args):
-        self._data = []
-        for v in list(*args):
-            self.append(v)
+    def __init__(self, *args: typing.Iterable[T]):
+        self._data: typing.List[T] = []
+        for values in args:
+            for value in values:
+                self.append(value)
+
+    def _add(self, value: T) -> None:
+        pass
+
+    def _remove(self, value: T) -> None:
+        pass
 
     # begin functions for ABC
-    def __getitem__(self, i):
+    @typing.overload
+    def __getitem__(self, i: int) -> T:
+        ...
+
+    @typing.overload
+    def __getitem__(self, i: slice) -> typing.MutableSequence[T]:
+        ...
+
+    def __getitem__(
+        self, i: typing.Union[int, slice]
+    ) -> typing.Union[T, typing.MutableSequence[T]]:
         return self._data[i]
 
-    def __setitem__(self, i, v):
-        self._data[i] = v
+    @typing.overload
+    def __setitem__(self, i: typing_extensions.SupportsIndex, v: T) -> None:
+        ...
 
-    def __delitem__(self, i):
+    @typing.overload
+    def __setitem__(self, i: slice, v: typing.Iterable[T]) -> None:
+        ...
+
+    def __setitem__(
+        self,
+        i: typing.Union[typing_extensions.SupportsIndex, slice],
+        v: typing.Union[T, typing.Iterable[T]],
+    ) -> None:
+        if isinstance(i, slice):
+            assert isinstance(v, typing.Iterable)
+            indices = range(*i.indices(len(self)))
+            values = list(v)
+        elif -len(self._data) <= i.__index__() < len(self._data):
+            indices = range(i.__index__(), i.__index__() + 1)
+            values = [typing.cast(T, v)]
+        else:
+            raise IndexError("list assignment index out of range")
+        for index in indices:
+            self._remove(self._data[index])
+        for value in values:
+            self._add(value)
+        if isinstance(i, slice):
+            self._data[i] = values
+        else:
+            self._data[i] = values[0]
+
+    @typing.overload
+    def __delitem__(self, i: int) -> None:
+        ...
+
+    @typing.overload
+    def __delitem__(self, i: slice) -> None:
+        ...
+
+    def __delitem__(self, i: typing.Union[int, slice]) -> None:
+        if isinstance(i, slice):
+            indices = range(*i.indices(len(self)))
+        else:
+            indices = range(i, i + 1)
+        for index in indices:
+            self._remove(self._data[index])
+
         del self._data[i]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._data)
 
-    def insert(self, i, v):
+    def insert(self, i: int, v: T) -> None:
+        self._add(v)
         return self._data.insert(i, v)
 
     # The version of typing.py which comes with python 3.5.2 doesn't provide
     # definitions for append or remove on MutableList, so we have to do it
     # ourselves.
-    def append(self, v):
+    def append(self, v: T) -> None:
         self.insert(len(self), v)
 
-    def remove(self, v):
+    def remove(self, v: T) -> None:
         del self[self._data.index(v)]
 
     # extend is not in every version of Python 3, so list wrapper adds it here
     # itself.
-    def extend(self, other):
+    def extend(self, other: typing.Iterable[T]) -> None:
         for v in other:
             self.append(v)
 
     # end functions for ABC
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._data)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self._data)
 
 
+# A type variable for the SetWrapper's "self" type. Since type variables cannot
+# have a generic bound (see https://github.com/python/mypy/issues/2756), we
+# need to use Any instead.
+#
+# Used in __ior__.
+_SetWrapperSelf = typing.TypeVar(
+    "_SetWrapperSelf", bound="SetWrapper[typing.Any]"
+)
+
+
 class SetWrapper(typing.MutableSet[T]):
-    def __init__(self, *args):
-        self._data = set()
-        for v in set(*args):
-            self.add(v)
+    def __init__(self, *args: typing.Iterable[T]):
+        self._data: typing.Set[T] = set()
+        for arg in args:
+            for v in arg:
+                self.add(v)
 
     # begin functions for ABC
-    def __contains__(self, v):
+    def __contains__(self, v: object) -> bool:
         return v in self._data
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterator[T]:
         return iter(self._data)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._data)
 
-    def add(self, v):
+    def add(self, v: T) -> None:
         return self._data.add(v)
 
-    def discard(self, v):
+    def discard(self, v: T) -> None:
         return self._data.discard(v)
 
     # end functions for ABC
@@ -110,15 +183,27 @@ class SetWrapper(typing.MutableSet[T]):
     # The version of typing.py which comes with python 3.5.2 doesn't provide
     # definitions for __or__ or clear on MutableSet, so we have to do it
     # ourselves.
-    def __or__(self, other):
+    def __or__(
+        self, other: typing.AbstractSet[S]
+    ) -> typing.Set[typing.Union[T, S]]:
         return self._data | other
 
-    def __ior__(self, other):
+    # The type declaration for __ior__ in typeshed's MutableSet is problematic.
+    # MutableSet requires __ior__ to accept an AbstractSet[S], and return a
+    # Mutable[T|S]. This results in a type error when the result is assigned
+    # back to the original variable unless S is T. Since this can't actually be
+    # used if S is not T and is much easier to implement if S is T anyway, we
+    # declare it to only accept AbstractSet[T]. This causes mypy to report an
+    # error for incompatible override types and different return types for
+    # __ior__ and __or__, which we ignore.
+    def __ior__(  # type: ignore
+        self: _SetWrapperSelf, other: typing.AbstractSet[T]
+    ) -> _SetWrapperSelf:
         for value in other:
             self.add(value)
         return self
 
-    def pop(self):
+    def pop(self) -> T:
         it = iter(self)
         # pop is documented as raising a KeyError if it's empty, not
         # StopIteration
@@ -129,50 +214,53 @@ class SetWrapper(typing.MutableSet[T]):
         self.discard(result)
         return result
 
-    def clear(self):
+    def clear(self) -> None:
         while self:
             self.pop()
 
     # For whatever reason, update isn't included as part of abc.MutableSet.
-    def update(self, *others):
+    def update(self, *others: typing.Iterable[T]) -> None:
         for other in others:
             for v in other:
                 self.add(v)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._data)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self._data)
 
 
 class DictWrapper(typing.MutableMapping[K, V]):
-    def __init__(self, *args):
-        self._data = {}
-        for i, v in dict(*args).items():
+    def __init__(self, *args: DictLike[K, V]):
+        self._data: typing.MutableMapping[K, V] = {}
+        # Create a temporary dictionary so we can uniformly access the items
+        # and add them to _data.
+        temp: typing.Dict[K, V] = dict(*args)
+        for i, v in temp.items():
             self[i] = v
 
     # begin functions for ABC
-    def __getitem__(self, i):
+    def __getitem__(self, i: K) -> V:
         return self._data[i]
 
-    def __setitem__(self, i, v):
+    def __setitem__(self, i: K, v: V) -> None:
         self._data[i] = v
 
-    def __delitem__(self, i):
+    def __delitem__(self, i: K) -> None:
         del self._data[i]
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterator[K]:
         return iter(self._data)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._data)
 
     # end functions for ABC
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._data)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self._data)
 
 
@@ -199,35 +287,62 @@ class ParentGetter(typing_extensions.Protocol[T_contra]):
         ...
 
 
-class _IndexedAttribute(typing.Generic[AttributeT, InstanceT]):
+class _IndexedAttribute(typing.Generic[AttributeT]):
     """
-    A descriptor that will notify a parent when the value is set and can be
-    otherwise used like a normal attribute.
+    The _IndexedAttribute descriptor notifies a parent when the attribute is
+    modified. The outer class is generic in the attribute type and provides a
+    __call__ method to deduce the remaining type parameters and construct the
+    descriptor itself.
+
+    Example usage:
+
+    class Foo:
+        my_int = _IndexedAttribute[int]()(lambda foo: foo.parent)
     """
 
-    def __init__(self, parent_getter: "ParentGetter[InstanceT]"):
-        self.parent_getter = parent_getter
+    class Descriptor(typing.Generic[InstanceT]):
+        """
+        A descriptor that will notify a parent when the value is set and can be
+        otherwise used like a normal attribute.
+        """
 
-    def __get__(
-        self, instance: InstanceT, owner: typing.Any = None
-    ) -> AttributeT:
-        return getattr(instance, self.attribute_name)
+        def __init__(self, parent_getter: ParentGetter[InstanceT]):
+            self.parent_getter = parent_getter
 
-    def __set__(self, instance: InstanceT, value: AttributeT) -> None:
-        parent = self.parent_getter(instance)
-        if parent:
-            parent._index_discard(instance)
-        setattr(instance, self.attribute_name, value)
-        parent = self.parent_getter(instance)
-        if parent:
-            parent._index_add(instance)
+        def __get__(
+            self, instance: InstanceT, owner: typing.Any = None
+        ) -> AttributeT:
+            return getattr(instance, self.attribute_name)
 
-    def __delete__(self, instance):
-        raise AttributeError("can't delete attribute %s" % (self.name))
+        def __set__(self, instance: InstanceT, value: AttributeT) -> None:
+            parent = self.parent_getter(instance)
+            if parent:
+                parent._index_discard(instance)
+            setattr(instance, self.attribute_name, value)
+            parent = self.parent_getter(instance)
+            if parent:
+                parent._index_add(instance)
 
-    def __set_name__(self, owner, name):
-        self.name = name
-        self.attribute_name = "_" + name
+        def __delete__(self, instance: InstanceT) -> None:
+            raise AttributeError("can't delete attribute %s" % (self.name))
+
+        def __set_name__(self, owner: InstanceT, name: str) -> None:
+            self.name = name
+            self.attribute_name = "_" + name
+
+    def __call__(self, parent_getter: ParentGetter[InstanceT]) -> AttributeT:
+        """
+        Create the descriptor, but tell mypy it is the attribute type.
+
+        The cast helps mypy recognize when the instance type satisfies a
+        protocol. Mypy checks to see if the class matches the protocol instead
+        of the instance. However, descriptors are treated as the descriptor
+        type in the class and the attribute type in the instance. This causes
+        mypy to reject the protocol, even though it works correctly at runtime.
+        """
+        return typing.cast(
+            AttributeT, self.Descriptor[InstanceT](parent_getter)
+        )
 
 
 def get_desired_range(addrs: typing.Union[int, range]) -> range:
@@ -286,7 +401,7 @@ def nodes_at(
 
 
 def _address_interval(
-    node: AddrRange,
+    node: AddrRangeT,
 ) -> typing.Optional[intervaltree.Interval]:
     """
     Creates an interval tree interval based on a GTIRB node's address and

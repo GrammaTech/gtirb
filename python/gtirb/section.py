@@ -57,12 +57,14 @@ class Section(Node):
         ThreadLocal = Section_pb2.SectionFlag.Value("ThreadLocal")
         """This section is created in memory once per thread."""
 
-    class _ByteIntervalSet(SetWrapper):
-        def __init__(self, node, *args):
-            self._node: "Section" = node
+    class _ByteIntervalSet(SetWrapper[ByteInterval]):
+        def __init__(
+            self, node: "Section", *args: typing.Iterable[ByteInterval]
+        ):
+            self._node = node
             super().__init__(*args)
 
-        def add(self, v):
+        def add(self, v: ByteInterval) -> None:
             if v._section is not None:
                 v._section.byte_intervals.discard(v)
             self._node._index_add(v)
@@ -71,7 +73,7 @@ class Section(Node):
                 v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
 
-        def discard(self, v):
+        def discard(self, v: ByteInterval) -> None:
             if v not in self:
                 return
             self._node._index_discard(v)
@@ -109,12 +111,12 @@ class Section(Node):
         # Use the property setter to ensure correct invariants.
         self.module = module
 
-    def _index_add(self, byte_interval):
+    def _index_add(self, byte_interval: ByteInterval) -> None:
         address_interval = _address_interval(byte_interval)
         if address_interval:
             self._interval_index.add(address_interval)
 
-    def _index_discard(self, byte_interval):
+    def _index_discard(self, byte_interval: ByteInterval) -> None:
         address_interval = _address_interval(byte_interval)
         if address_interval:
             self._interval_index.discard(address_interval)

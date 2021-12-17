@@ -1,3 +1,10 @@
 [mypy]
 python_version = 3.6
 mypy_path = @CMAKE_CURRENT_SOURCE_DIR@/stubs
+show_error_codes = True
+show_column_numbers = True
+
+disallow_incomplete_defs = True
+disallow_untyped_calls = True
+disallow_untyped_decorators = True
+disallow_untyped_defs = True

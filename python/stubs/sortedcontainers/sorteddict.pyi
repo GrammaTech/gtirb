@@ -1,4 +1,4 @@
-from typing import MutableMapping, Iterator, TypeVar
+from typing import MutableMapping, Iterator, Tuple, TypeVar
 
 K = TypeVar("K")
 V = TypeVar("V")
@@ -9,3 +9,10 @@ class SortedDict(MutableMapping[K, V]):
     def __iter__(self) -> Iterator[K]: ...
     def __len__(self) -> int: ...
     def __setitem__(self, key: K, value: V) -> None: ...
+    def irange(
+        self,
+        minimum: K | None = ...,
+        maximum: K | None = ...,
+        inclusive: Tuple[bool, bool] = ...,
+        reverse: bool = ...,
+    ) -> Iterator[K]: ...

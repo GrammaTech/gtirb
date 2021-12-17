@@ -7,6 +7,7 @@ from typing import (
     MutableSet,
     NamedTuple,
     Optional,
+    Tuple,
 )
 from uuid import UUID
 
@@ -211,12 +212,12 @@ class CFG(MutableSet[Edge]):
         if key is not None:
             self._nxg.remove_edge(edge.source, edge.target, key=key)
 
-    def out_edges(self, node: CfgNode) -> Iterable[Edge]:
+    def out_edges(self, node: CfgNode) -> Iterator[Edge]:
         if node in self._nxg:
             for s, t, l in self._nxg.out_edges(node, data="label"):
                 yield Edge(s, t, l)
 
-    def in_edges(self, node: CfgNode) -> Iterable[Edge]:
+    def in_edges(self, node: CfgNode) -> Iterator[Edge]:
         if node in self._nxg:
             for s, t, l in self._nxg.in_edges(node, data="label"):
                 yield Edge(s, t, l)
@@ -271,7 +272,9 @@ class CFG(MutableSet[Edge]):
     def deep_eq(self, other: "CFG") -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
 
-        def edge_sort_key(edge):
+        def edge_sort_key(
+            edge: Edge,
+        ) -> Tuple[UUID, UUID, Optional[Tuple[int, bool, bool]]]:
             label_key = -1, False, False
             if edge.label is not None:
                 label_key = (

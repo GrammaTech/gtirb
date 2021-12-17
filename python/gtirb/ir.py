@@ -41,32 +41,19 @@ class IR(AuxDataContainer):
     """
 
     class _ModuleList(ListWrapper[Module]):
-        def __init__(self, node, *args):
-            self._node: "IR" = node
+        def __init__(self, node: "IR", *args: typing.Iterable[Module]):
+            self._node = node
             super().__init__(*args)
 
-        def _remove(self, v):
+        def _remove(self, v: Module) -> None:
             v._ir = None
             v._remove_from_uuid_cache(self._node._local_uuid_cache)
 
-        def _add(self, v):
+        def _add(self, v: Module) -> None:
             if v._ir is not None:
                 v._ir.modules.remove(v)
             v._ir = self._node
             v._add_to_uuid_cache(self._node._local_uuid_cache)
-
-        def __setitem__(self, i, v):
-            self._remove(self[i])
-            super().__setitem__(i, v)
-            self._add(v)
-
-        def __delitem__(self, i):
-            self._remove(self[i])
-            super().__delitem__(i)
-
-        def insert(self, i, v):
-            self._add(v)
-            return super().insert(i, v)
 
     def __init__(
         self,

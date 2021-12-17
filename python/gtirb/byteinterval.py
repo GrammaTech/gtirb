@@ -11,6 +11,7 @@ from .proto import ByteInterval_pb2, SymbolicExpression_pb2
 from .symbolicexpression import SymAddrAddr, SymAddrConst, SymbolicExpression
 from .util import (
     DictLike,
+    DictWrapper,
     SetWrapper,
     _IndexedAttribute,
     _nodes_at_interval_tree,
@@ -62,17 +63,19 @@ class ByteInterval(Node):
     """
 
     class _BlockSet(SetWrapper[ByteBlock]):
-        def __init__(self, node, *args):
+        def __init__(
+            self, node: "ByteInterval", *args: typing.Iterable[ByteBlock]
+        ):
             super().__init__()
-            self._node: "ByteInterval" = node
+            self._node = node
             self.update(*args)
 
-        def add(self, v):
+        def add(self, v: ByteBlock) -> None:
             # We're defining add in terms of update so that we can optimize
             # adding multiple blocks at once.
             self.update((v,))
 
-        def update(self, *iterables):
+        def update(self, *iterables: typing.Iterable[ByteBlock]) -> None:
             node_ir = self._node.ir
             new_items = set(*iterables) - self._data
             for v in new_items:
@@ -85,7 +88,7 @@ class ByteInterval(Node):
             self._node._index_add_multiple(self._data, new_items)
             self._data.update(new_items)
 
-        def discard(self, v):
+        def discard(self, v: ByteBlock) -> None:
             if v not in self:
                 return
             self._node._index_discard(v)
@@ -94,34 +97,21 @@ class ByteInterval(Node):
                 v._remove_from_uuid_cache(self._node.ir._local_uuid_cache)
             return super().discard(v)
 
-    class _SymbolicExprDict(typing.MutableMapping[int, SymbolicExpression]):
-        def __init__(self, interval, *args):
+    class _SymbolicExprDict(DictWrapper[int, SymbolicExpression]):
+        def __init__(
+            self,
+            interval: "ByteInterval",
+            *args: DictLike[int, SymbolicExpression],
+        ):
+            # Do not call the DictWrapper constructor: _SymbolicExprDict needs
+            # to store data in a SortedDict, not a regular dict.
             self._interval = interval
-            self._data = SortedDict()
-            for i, v in dict(*args).items():
+            self._data: "SortedDict[int, SymbolicExpression]" = SortedDict()
+            temp: typing.Dict[int, SymbolicExpression] = dict(*args)
+            for i, v in temp.items():
                 self[i] = v
 
-        # begin functions for ABC
-        def __getitem__(self, i):
-            return self._data[i]
-
-        def __setitem__(self, i, v):
-            self._data[i] = v
-
-        def __delitem__(self, i):
-            del self._data[i]
-
-        def __iter__(self):
-            return iter(self._data)
-
-        def __len__(self):
-            return len(self._data)
-
-        # end functions for ABC
-        def __str__(self):
-            return str(self._data)
-
-        def __repr__(self):
+        def __repr__(self) -> str:
             # We can't just return the repr of self._data because it will
             # create a SortedDict and that isn't part of our public interface.
             items = (
@@ -130,10 +120,10 @@ class ByteInterval(Node):
             )
             return "{" + ", ".join(items) + "}"
 
-    address = _IndexedAttribute[typing.Optional[int], "ByteInterval"](
+    address = _IndexedAttribute[typing.Optional[int]]()(
         lambda self: self.section
     )
-    size = _IndexedAttribute[int, "ByteInterval"](lambda self: self.section)
+    size = _IndexedAttribute[int]()(lambda self: self.section)
 
     def __init__(
         self,
@@ -189,7 +179,11 @@ class ByteInterval(Node):
         # Use the property setter to ensure correct invariants.
         self.section = section
 
-    def _index_add_multiple(self, old_blocks, new_blocks):
+    def _index_add_multiple(
+        self,
+        old_blocks: typing.Collection[ByteBlock],
+        new_blocks: typing.Collection[ByteBlock],
+    ) -> None:
         if len(old_blocks) < len(new_blocks):
             self._interval_tree = IntervalTree(
                 _offset_interval(block)
@@ -199,10 +193,10 @@ class ByteInterval(Node):
             for block in new_blocks:
                 self._index_add(block)
 
-    def _index_add(self, block):
+    def _index_add(self, block: ByteBlock) -> None:
         self._interval_tree.add(_offset_interval(block))
 
-    def _index_discard(self, block):
+    def _index_discard(self, block: ByteBlock) -> None:
         self._interval_tree.discard(_offset_interval(block))
 
     @property
@@ -237,7 +231,8 @@ class ByteInterval(Node):
     ) -> "ByteInterval":
         assert ir
 
-        def decode_block(proto_block):
+        def decode_block(proto_block: ByteInterval_pb2.Block) -> ByteBlock:
+            block: ByteBlock
             if proto_block.HasField("code"):
                 block = CodeBlock._from_protobuf(proto_block.code, ir)
             elif proto_block.HasField("data"):
@@ -269,12 +264,15 @@ class ByteInterval(Node):
         # Return the new BI.
         return result
 
-    def _decode_symbolic_expressions(self, ir):
+    def _decode_symbolic_expressions(self, ir: "IR") -> None:
         """Called by modules after symbols are decoded, but before the module
         is done decoding.
         """
+        assert self._proto_interval
 
-        def decode_symbolic_expression(proto_expr):
+        def decode_symbolic_expression(
+            proto_expr: SymbolicExpression_pb2.SymbolicExpression,
+        ) -> SymbolicExpression:
             if proto_expr.HasField("addr_const"):
                 return SymAddrConst._from_protobuf(
                     proto_expr.addr_const, ir.get_by_uuid
@@ -315,7 +313,7 @@ class ByteInterval(Node):
         # because append() isn't supported in older versions of protobuf. Use a
         # comprehension and extend() instead.
 
-        def to_proto_block(block):
+        def to_proto_block(block: ByteBlock) -> ByteInterval_pb2.Block:
             proto_block = ByteInterval_pb2.Block()
             proto_block.offset = block.offset
             if isinstance(block, CodeBlock):

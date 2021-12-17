@@ -25,6 +25,9 @@ if typing.TYPE_CHECKING:
     from .ir import IR  # noqa: F401
 
 
+_T = typing.TypeVar("_T", bound=typing.Union[ProxyBlock, Section, Symbol])
+
+
 class Module(AuxDataContainer):
     """Represents a loadable object, such as an executable or library.
 
@@ -142,13 +145,15 @@ class Module(AuxDataContainer):
         Little = Module_pb2.ByteOrder.Value("LittleEndian")
         """Little endian."""
 
-    class _NodeSet(SetWrapper):
-        def __init__(self, node, field, *args):
+    class _NodeSet(SetWrapper[_T]):
+        def __init__(
+            self, node: "Module", field: str, *args: typing.Iterable[_T]
+        ):
             self._node: Module = node
             self._field: str = field
             super().__init__(*args)
 
-        def add(self, v):
+        def add(self, v: _T) -> None:
             if v._module is not None:
                 getattr(v._module, self._field).discard(v)
             v._module = self._node
@@ -157,7 +162,7 @@ class Module(AuxDataContainer):
                 v._add_to_uuid_cache(self._node.ir._local_uuid_cache)
             return super().add(v)
 
-        def discard(self, v):
+        def discard(self, v: _T) -> None:
             if v not in self:
                 return
             v._module = None
@@ -172,9 +177,9 @@ class Module(AuxDataContainer):
         name: str,
         aux_data: DictLike[str, AuxData] = {},
         binary_path: str = "",
-        file_format=FileFormat.Undefined,
-        isa=ISA.Undefined,
-        byte_order=ByteOrder.Undefined,
+        file_format: FileFormat = FileFormat.Undefined,
+        isa: ISA = ISA.Undefined,
+        byte_order: ByteOrder = ByteOrder.Undefined,
         preferred_addr: int = 0,
         proxies: typing.Iterable[ProxyBlock] = set(),
         rebase_delta: int = 0,
@@ -210,7 +215,7 @@ class Module(AuxDataContainer):
         :param ir: The :class:`IR` this module belongs to.
         """
 
-        self._symbol_index: typing.Mapping[
+        self._symbol_index: typing.MutableMapping[
             str, typing.Set[Symbol]
         ] = collections.defaultdict(set)
         self._ir: typing.Optional["IR"] = None
@@ -358,11 +363,15 @@ class Module(AuxDataContainer):
             ")".format(**self.__dict__)
         )
 
-    def _index_add(self, node):
+    def _index_add(
+        self, node: typing.Union[ProxyBlock, Section, Symbol]
+    ) -> None:
         if isinstance(node, Symbol):
             self._symbol_index[node.name].add(node)
 
-    def _index_discard(self, node):
+    def _index_discard(
+        self, node: typing.Union[ProxyBlock, Section, Symbol]
+    ) -> None:
         if isinstance(node, Symbol):
             symbol_set = self._symbol_index[node.name]
             symbol_set.discard(node)
