@@ -21,6 +21,8 @@ if(GTIRB_ENABLE_MYPY)
   endif()
 endif()
 
+# Create a PEP 561 py.typed to let clients find the inline type annotations.
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gtirb/py.typed "")
 configure_file(setup.py.in setup.py @ONLY)
 
 # ---------------------------------------------------------------------------
