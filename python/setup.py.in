@@ -46,6 +46,7 @@ if __name__ == "__main__":
             "protobuf",
             "intervaltree",
             "sortedcontainers",
+            "typing-extensions>=3.7.4.2",
         ],
         extras_require={
             "doc": ["sphinx", "sphinx-autodoc-typehints"],

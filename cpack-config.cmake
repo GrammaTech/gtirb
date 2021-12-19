@@ -35,13 +35,6 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-dev")
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
       "libstdc++6, libc6, libgcc1, libgtirb${CPACK_GTIRB_PKG_NAME_SUFFIX} (=${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf-dev (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
   )
-elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-python")
-  set(CPACK_DEBIAN_PACKAGE_NAME "python3-gtirb${CPACK_GTIRB_PKG_NAME_SUFFIX}")
-  set(CPACK_PACKAGE_FILE_NAME "python3-gtirb")
-  set(CPACK_COMPONENTS_ALL python)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "python3, python3-protobuf, python3-networkx, python3-intervaltree, python3-sortedcontainers"
-  )
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-debug")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dbg${CPACK_GTIRB_PKG_NAME_SUFFIX}")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-dbg")

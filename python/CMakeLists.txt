@@ -104,25 +104,7 @@ if(GTIRB_ENABLE_TESTS)
   endif()
 endif()
 
-# Move the `setup.py install` command into a separate script. This extra layer
-# of indirection allows us to detect the value of ENV{DESTDIR} at installation
-# time, rather than configure time, so that the installation will go to the
-# correct directory.
-
-configure_file(install.cmake.in install.cmake @ONLY)
-install(
-  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/install.cmake
-  COMPONENT python
-  EXCLUDE_FROM_ALL
-)
-
 # Convenience targets for installing python
-add_custom_target(
-  install-python
-  DEPENDS pygtirb
-  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=python -P
-          "${CMAKE_BINARY_DIR}/cmake_install.cmake"
-)
 add_custom_target(
   python-wheel
   DEPENDS pygtirb
