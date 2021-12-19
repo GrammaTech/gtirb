@@ -114,7 +114,7 @@ class Codec:
         :returns: A new Python object, as decoded from ``raw_bytes``.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @staticmethod
     def encode(
@@ -133,7 +133,7 @@ class Codec:
         :param subtypes: The parsed type of this object.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class MappingCodec(Codec):

@@ -67,10 +67,10 @@ class SymbolicExpression:
         regardless of role.
         """
 
-        return ()
+        raise NotImplementedError  # pragma: no cover
 
     def deep_eq(self, other: object) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _attributes_repr(self) -> str:
         if not self.attributes:

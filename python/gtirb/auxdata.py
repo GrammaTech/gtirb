@@ -9,7 +9,7 @@ from .proto import AuxData_pb2
 from .serialization import Serialization
 from .util import DictLike
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
     from .ir import IR  # noqa: F401
 

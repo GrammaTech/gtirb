@@ -17,7 +17,7 @@ from .block import CfgNode
 from .proto import CFG_pb2
 from .util import DeserializationError
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .ir import IR
 
 

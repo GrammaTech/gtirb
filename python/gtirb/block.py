@@ -5,7 +5,7 @@ from .node import Node, _NodeMessage
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
 from .util import _IndexedAttribute
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
     from .byteinterval import ByteInterval  # noqa: F401
     from .cfg import Edge  # noqa: F401
@@ -21,10 +21,10 @@ class Block(Node):
     """
 
     @property
-    def references(self) -> typing.Iterable["Symbol"]:
+    def references(self) -> typing.Iterator["Symbol"]:
         """Get all the symbols that refer to this block."""
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
@@ -174,13 +174,13 @@ class CfgNode(Block):
     def incoming_edges(self) -> typing.Iterable["Edge"]:
         """Get the edges that point to this CFG node."""
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @property
     def outgoing_edges(self) -> typing.Iterable["Edge"]:
         """Get the edges that start at this CFG node."""
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class DataBlock(ByteBlock):

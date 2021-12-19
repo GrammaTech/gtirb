@@ -6,7 +6,7 @@ from .node import Node, _NodeMessage
 from .proto import Symbol_pb2
 from .util import DeserializationError, _IndexedAttribute
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
     from .ir import IR  # noqa: F401
     from .module import Module  # noqa: F401

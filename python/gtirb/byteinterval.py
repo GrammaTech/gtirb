@@ -20,7 +20,7 @@ from .util import (
     get_desired_range,
 )
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
     from .ir import IR  # noqa: F401
     from .module import Module  # noqa: F401

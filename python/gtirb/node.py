@@ -6,7 +6,7 @@ from google.protobuf.message import Message
 
 from .util import DeserializationError
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
     from .ir import IR  # noqa: F401
 
@@ -49,7 +49,7 @@ class Node:
         :param uuid: The UUID of the object.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @classmethod
     def _from_protobuf(
@@ -83,7 +83,7 @@ class Node:
         Must be overridden by subclasses.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def deep_eq(self, other: object) -> bool:
         """Check: is ``self`` structurally equal to ``other``?
@@ -98,4 +98,4 @@ class Node:
         equality.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
