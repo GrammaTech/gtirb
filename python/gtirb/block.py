@@ -1,7 +1,7 @@
 import typing
 from uuid import UUID
 
-from .node import Node
+from .node import Node, _NodeMessage
 from .proto import CodeBlock_pb2, DataBlock_pb2, ProxyBlock_pb2
 from .util import _IndexedAttribute
 
@@ -88,7 +88,7 @@ class ByteBlock(Block):
         if value is not None:
             value.blocks.add(self)
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ByteBlock):
             return False
@@ -211,11 +211,12 @@ class DataBlock(ByteBlock):
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_dataobject: DataBlock_pb2.DataBlock,
+        proto_dataobject: _NodeMessage,
         uuid: UUID,
         ir: typing.Optional["IR"],
     ) -> "DataBlock":
         assert ir
+        assert isinstance(proto_dataobject, DataBlock_pb2.DataBlock)
         b = cls(size=proto_dataobject.size, uuid=uuid)
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
@@ -277,12 +278,10 @@ class CodeBlock(ByteBlock, CfgNode):
 
     @classmethod
     def _decode_protobuf(
-        cls,
-        proto_block: CodeBlock_pb2.CodeBlock,
-        uuid: UUID,
-        ir: typing.Optional["IR"],
+        cls, proto_block: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
     ) -> "CodeBlock":
         assert ir
+        assert isinstance(proto_block, CodeBlock_pb2.CodeBlock)
         b = cls(
             decode_mode=proto_block.decode_mode,
             size=proto_block.size,
@@ -298,7 +297,7 @@ class CodeBlock(ByteBlock, CfgNode):
         proto_block.decode_mode = self.decode_mode
         return proto_block
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, CodeBlock):
             return False
@@ -360,12 +359,10 @@ class ProxyBlock(CfgNode):
 
     @classmethod
     def _decode_protobuf(
-        cls,
-        proto_proxy: ProxyBlock_pb2.ProxyBlock,
-        uuid: UUID,
-        ir: typing.Optional["IR"],
+        cls, proto_proxy: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
     ) -> "ProxyBlock":
         assert ir
+        assert isinstance(proto_proxy, ProxyBlock_pb2.ProxyBlock)
         b = cls(uuid=uuid)
         b._add_to_uuid_cache(ir._local_uuid_cache)
         return b
@@ -375,7 +372,7 @@ class ProxyBlock(CfgNode):
         proto_proxyblock.uuid = self.uuid.bytes
         return proto_proxyblock
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ProxyBlock):
             return False

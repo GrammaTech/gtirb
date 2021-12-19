@@ -2,6 +2,8 @@ from io import BytesIO
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, Optional
 from uuid import UUID
 
+from google.protobuf.internal.containers import MessageMap
+
 from .node import Node
 from .proto import AuxData_pb2
 from .serialization import Serialization
@@ -29,7 +31,7 @@ class _LazyDataContainer:
         self.type_name = type_name
         self.get_by_uuid = get_by_uuid
 
-    def get_data(self) -> Any:
+    def get_data(self) -> object:
         """
         Get any pending still-serialized data, or return the passed data
         instead (the default).
@@ -74,7 +76,7 @@ class AuxData:
 
     def __init__(
         self,
-        data: Any,
+        data: object,
         type_name: str,
         lazy_container: Optional[_LazyDataContainer] = None,
     ):
@@ -86,18 +88,22 @@ class AuxData:
             auxdata table backing this object, or None.
         """
         self._lazy_container = lazy_container
-        self._data: Any = data
-        self.type_name: str = type_name
+        # _data has type Any to avoid disrupting clients want to type check
+        # their use of gtirb. If _data had type object, they would have to
+        # verify the element types of potentially large containers, or else
+        # just subvert the type system by casting anyway.
+        self._data: Any = data  # type: ignore[misc]
+        self.type_name = type_name
 
     @property
-    def data(self) -> Any:
+    def data(self) -> Any:  # type: ignore[misc]
         if self._lazy_container is not None:
             self._data = self._lazy_container.get_data()
             self._lazy_container = None
         return self._data
 
     @data.setter
-    def data(self, value: Any) -> None:
+    def data(self, value: object) -> None:
         self._data = value
         self._lazy_container = None
 
@@ -175,7 +181,9 @@ class AuxDataContainer(Node):
 
     @classmethod
     def _read_protobuf_aux_data(
-        cls, proto_container: Any, ir: Optional["IR"],
+        cls,
+        proto_container: "MessageMap[str, AuxData_pb2.AuxData]",
+        ir: Optional["IR"],
     ) -> Dict[str, AuxData]:
         """
         Instead of the overrided _decode_protobuf, this method requires the
@@ -187,10 +195,12 @@ class AuxDataContainer(Node):
         """
         return {
             key: AuxData._from_protobuf(val, ir)
-            for key, val in proto_container.aux_data.items()
+            for key, val in proto_container.items()
         }
 
-    def _write_protobuf_aux_data(self, proto_container: Any) -> None:
+    def _write_protobuf_aux_data(
+        self, proto_container: "MessageMap[str, AuxData_pb2.AuxData]"
+    ) -> None:
         """
         Instead of the overrided _to_protobuf, this method requires the
         Protobuf message to write into. AuxDataContainers need to call this
@@ -200,9 +210,9 @@ class AuxDataContainer(Node):
             ``aux_data``.
         """
         for k, v in self.aux_data.items():
-            proto_container.aux_data[k].CopyFrom(v._to_protobuf())
+            proto_container[k].CopyFrom(v._to_protobuf())
 
-    def deep_eq(self, other: Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         """This overrides :func:`gtirb.Node.deep_eq` to check for
         AuxData equality.
 

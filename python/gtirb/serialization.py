@@ -4,10 +4,10 @@ from typing import (
     Any,
     BinaryIO,
     Callable,
+    Collection,
     Dict,
     Iterable,
     Mapping,
-    NamedTuple,
     Optional,
     Sequence,
     Set,
@@ -82,9 +82,15 @@ class SubtypeTree:
         return False
 
 
-class Variant(NamedTuple):
-    num: int
-    val: Any
+class Variant:
+    def __init__(self, index: int, val: Any):  # type: ignore[misc]
+        self.index = index
+        self.val = val
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Variant):
+            return self.index == other.index and self.val == other.val
+        return False
 
 
 class Codec:
@@ -97,7 +103,7 @@ class Codec:
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
         get_by_uuid: CacheLookupFn = None,
-    ) -> Any:
+    ) -> object:
         """Decode the specified raw data into a Python object.
 
         :param raw_bytes: The BytesIO object to be decoded.
@@ -113,7 +119,7 @@ class Codec:
     @staticmethod
     def encode(
         out: BinaryIO,
-        item: Any,
+        item: object,
         *,
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
@@ -140,7 +146,7 @@ class MappingCodec(Codec):
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
         get_by_uuid: Optional[CacheLookupFn] = None,
-    ) -> Mapping[Any, Any]:
+    ) -> Mapping[object, object]:
         try:
             key_type, val_type = subtypes
         except (TypeError, ValueError):
@@ -158,11 +164,13 @@ class MappingCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        mapping: Any,
+        mapping: object,
         *,
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
     ) -> None:
+        if not isinstance(mapping, Mapping):
+            raise EncodeError("Mapping codec only supports Mappings")
         try:
             key_type, val_type = subtypes
         except (TypeError, ValueError):
@@ -198,11 +206,13 @@ class OffsetCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        val: Any,
+        val: object,
         *,
         serialization: "Serialization" = None,
         subtypes: Sequence[SubtypeTree] = (),
     ) -> None:
+        if not isinstance(val, Offset):
+            raise EncodeError("Offset codec only supports Offsets")
         if subtypes != ():
             raise EncodeError("Offset should have no subtypes")
         UUIDCodec.encode(out, val.element_id)
@@ -219,7 +229,7 @@ class SequenceCodec(Codec):
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
         get_by_uuid: Optional[CacheLookupFn] = None,
-    ) -> Sequence[Any]:
+    ) -> Sequence[object]:
         try:
             (subtype,) = subtypes
         except (TypeError, ValueError) as e:
@@ -235,11 +245,13 @@ class SequenceCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        sequence: Any,
+        sequence: object,
         *,
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
     ) -> None:
+        if not isinstance(sequence, Sequence):
+            raise EncodeError("Sequence codec only supports Collections")
         try:
             (subtype,) = subtypes
         except (TypeError, ValueError) as e:
@@ -259,7 +271,7 @@ class SetCodec(Codec):
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
         get_by_uuid: Optional[CacheLookupFn] = None,
-    ) -> Set[Any]:
+    ) -> Set[object]:
         try:
             (subtype,) = subtypes
         except (TypeError, ValueError) as e:
@@ -275,11 +287,13 @@ class SetCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        items: Any,
+        items: object,
         *,
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
     ) -> None:
+        if not isinstance(items, Collection):
+            raise EncodeError("Set codec only supports Collections")
         try:
             (subtype,) = subtypes
         except (TypeError, ValueError) as e:
@@ -299,7 +313,7 @@ class TupleCodec(Codec):
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
         get_by_uuid: Optional[CacheLookupFn] = None,
-    ) -> Tuple[Any, ...]:
+    ) -> Tuple[object, ...]:
         # The length of a tuple is not contained in the Protobuf
         # representation, so error checking cannot be done here.
         decoded_list = list()
@@ -312,11 +326,13 @@ class TupleCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        items: Any,
+        items: object,
         *,
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree],
     ) -> None:
+        if not isinstance(items, Collection):
+            raise EncodeError("Tuple codec only supports Collections")
         if len(items) != len(subtypes):
             raise EncodeError("length of tuple does not match subtype count")
         for item, subtype in zip(items, subtypes):
@@ -342,11 +358,13 @@ class StringCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        val: Any,
+        val: object,
         *,
         serialization: "Serialization" = None,
         subtypes: Sequence[SubtypeTree] = (),
     ) -> None:
+        if not isinstance(val, str):
+            raise EncodeError("String codec only supports strings")
         if subtypes != ():
             raise EncodeError("string should have no subtypes")
         Uint64Codec.encode(out, len(val))
@@ -379,11 +397,13 @@ class IntegerCodec(Codec):
     def encode(
         cls,
         out: BinaryIO,
-        val: Any,
+        val: object,
         *,
         serialization: "Serialization" = None,
         subtypes: Sequence[SubtypeTree] = (),
     ) -> None:
+        if not isinstance(val, int):
+            raise EncodeError("Integer codec only supports integers")
         if subtypes != ():
             raise EncodeError(f"{cls.typname} should have no subtypes")
         out.write(
@@ -480,7 +500,7 @@ class UUIDCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        val: Any,
+        val: object,
         *,
         serialization: "Serialization" = None,
         subtypes: Sequence[SubtypeTree] = (),
@@ -522,16 +542,18 @@ class VariantCodec(Codec):
     @staticmethod
     def encode(
         out: BinaryIO,
-        variant: Any,
+        variant: object,
         *,
         serialization: "Serialization",
         subtypes: Sequence[SubtypeTree] = (),
     ) -> None:
+        if not isinstance(variant, Variant):
+            raise EncodeError("Variant codec only supports variants")
         # variant is a named tuple containg index and value
         # writing the index
-        out.write(variant.num.to_bytes(8, byteorder="little"))
+        out.write(variant.index.to_bytes(8, byteorder="little"))
         # writing the value
-        serialization._encode_tree(out, variant.val, subtypes[variant.num])
+        serialization._encode_tree(out, variant.val, subtypes[variant.index])
 
 
 class UnknownData(bytes):
@@ -592,7 +614,7 @@ class Serialization:
         raw_bytes: BinaryIO,
         type_tree: SubtypeTree,
         get_by_uuid: CacheLookupFn,
-    ) -> Any:
+    ) -> object:
         """Decode the data in ``raw_bytes`` given a parsed type tree.
 
         :param raw_bytes: The binary stream to read bytes from.
@@ -611,7 +633,7 @@ class Serialization:
         )
 
     def _encode_tree(
-        self, out: BinaryIO, val: Any, type_tree: SubtypeTree
+        self, out: BinaryIO, val: object, type_tree: SubtypeTree
     ) -> None:
         """Encode the data in ``val`` given a parsed type tree.
 
@@ -713,7 +735,7 @@ class Serialization:
         raw_bytes: Union[bytes, bytearray, memoryview, BinaryIO],
         type_name: str,
         get_by_uuid: CacheLookupFn = None,
-    ) -> Any:
+    ) -> object:
         """Decode a :class:`gtirb.AuxData` of the specified type
         from the specified byte stream.
 
@@ -738,7 +760,7 @@ class Serialization:
             # parsed; return a blob of bytes
             return UnknownData(all_bytes)
 
-    def encode(self, out: BinaryIO, val: Any, type_name: str) -> None:
+    def encode(self, out: BinaryIO, val: object, type_name: str) -> None:
         """Encodes the value of an AuxData value to bytes.
 
         :param out: A binary stream to write bytes to.

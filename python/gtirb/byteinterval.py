@@ -6,7 +6,7 @@ from intervaltree import IntervalTree
 from sortedcontainers import SortedDict
 
 from .block import ByteBlock, CodeBlock, DataBlock
-from .node import Node
+from .node import Node, _NodeMessage
 from .proto import ByteInterval_pb2, SymbolicExpression_pb2
 from .symbolicexpression import SymAddrAddr, SymAddrConst, SymbolicExpression
 from .util import (
@@ -225,11 +225,12 @@ class ByteInterval(Node):
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_interval: ByteInterval_pb2.ByteInterval,
+        proto_interval: _NodeMessage,
         uuid: UUID,
         ir: typing.Optional["IR"],
     ) -> "ByteInterval":
         assert ir
+        assert isinstance(proto_interval, ByteInterval_pb2.ByteInterval)
 
         def decode_block(proto_block: ByteInterval_pb2.Block) -> ByteBlock:
             block: ByteBlock
@@ -369,7 +370,7 @@ class ByteInterval(Node):
         self._symbolic_expressions.clear()
         self._symbolic_expressions.update(value)
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, ByteInterval):
             return False

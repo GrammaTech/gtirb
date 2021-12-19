@@ -2,7 +2,7 @@ import typing
 from uuid import UUID
 
 from .block import Block
-from .node import Node
+from .node import Node, _NodeMessage
 from .proto import Symbol_pb2
 from .util import DeserializationError, _IndexedAttribute
 
@@ -84,12 +84,10 @@ class Symbol(Node):
 
     @classmethod
     def _decode_protobuf(
-        cls,
-        proto_symbol: Symbol_pb2.Symbol,
-        uuid: UUID,
-        ir: typing.Optional["IR"],
+        cls, proto_symbol: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
     ) -> "Symbol":
         assert ir
+        assert isinstance(proto_symbol, Symbol_pb2.Symbol)
         symbol = cls(
             name=proto_symbol.name, at_end=proto_symbol.at_end, uuid=uuid
         )
@@ -117,7 +115,7 @@ class Symbol(Node):
         proto_symbol.at_end = self.at_end
         return proto_symbol
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Symbol):
             return False

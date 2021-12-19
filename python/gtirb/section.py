@@ -7,7 +7,7 @@ from intervaltree import IntervalTree
 
 from .block import ByteBlock, CodeBlock, DataBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
-from .node import Node
+from .node import Node, _NodeMessage
 from .proto import Section_pb2
 from .util import (
     SetWrapper,
@@ -124,11 +124,12 @@ class Section(Node):
     @classmethod
     def _decode_protobuf(
         cls,
-        proto_section: Section_pb2.Section,
+        proto_section: _NodeMessage,
         uuid: UUID,
         ir: typing.Optional["IR"],
     ) -> "Section":
         assert ir
+        assert isinstance(proto_section, Section_pb2.Section)
         s = cls(
             name=proto_section.name,
             flags=(Section.Flag(f) for f in proto_section.section_flags),
@@ -153,7 +154,7 @@ class Section(Node):
         proto_section.section_flags.extend(f.value for f in self.flags)
         return proto_section
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, Section):
             return False

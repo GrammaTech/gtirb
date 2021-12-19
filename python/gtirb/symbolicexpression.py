@@ -69,7 +69,7 @@ class SymbolicExpression:
 
         return ()
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         raise NotImplementedError
 
     def _attributes_repr(self) -> str:
@@ -144,7 +144,7 @@ class SymAddrAddr(SymbolicExpression):
         proto_symaddraddr.symbol2_uuid = self.symbol2.uuid.bytes
         return proto_symaddraddr
 
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymAddrAddr):
             return False
         return (
@@ -177,7 +177,7 @@ class SymAddrAddr(SymbolicExpression):
             attributes_repr=self._attributes_repr(),
         )
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, SymAddrAddr):
             return False
@@ -239,7 +239,7 @@ class SymAddrConst(SymbolicExpression):
             proto_symaddrconst.symbol_uuid = self.symbol.uuid.bytes
         return proto_symaddrconst
 
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymAddrConst):
             return False
         return (
@@ -264,7 +264,7 @@ class SymAddrConst(SymbolicExpression):
             attributes_repr=self._attributes_repr(),
         )
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, SymAddrConst):
             return False

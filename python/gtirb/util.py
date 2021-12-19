@@ -147,10 +147,10 @@ class ListWrapper(typing.MutableSequence[T]):
 
 # A type variable for the SetWrapper's "self" type. Since type variables cannot
 # have a generic bound (see https://github.com/python/mypy/issues/2756), we
-# need to use Any instead.
+# need to use Any instead. Which we then have to tell mypy to ignore.
 #
 # Used in __ior__.
-_SetWrapperSelf = typing.TypeVar(
+_SetWrapperSelf = typing.TypeVar(  # type: ignore[misc]
     "_SetWrapperSelf", bound="SetWrapper[typing.Any]"
 )
 
@@ -310,7 +310,7 @@ class _IndexedAttribute(typing.Generic[AttributeT]):
             self.parent_getter = parent_getter
 
         def __get__(
-            self, instance: InstanceT, owner: typing.Any = None
+            self, instance: InstanceT, owner: typing.Type[InstanceT] = None,
         ) -> AttributeT:
             return getattr(instance, self.attribute_name)
 
@@ -402,7 +402,7 @@ def nodes_at(
 
 def _address_interval(
     node: AddrRangeT,
-) -> typing.Optional[intervaltree.Interval]:
+) -> "typing.Optional[intervaltree.Interval[int, AddrRangeT]]":
     """
     Creates an interval tree interval based on a GTIRB node's address and
     size or returns None, if the node has no address.
@@ -430,7 +430,12 @@ class OffsetRange(typing_extensions.Protocol):
         ...
 
 
-def _offset_interval(node: OffsetRange) -> intervaltree.Interval:
+OffsetRangeT = typing.TypeVar("OffsetRangeT", bound=OffsetRange)
+
+
+def _offset_interval(
+    node: OffsetRangeT,
+) -> "intervaltree.Interval[int, OffsetRangeT]":
     """
     Creates an interval tree interval based on a GTIRB node's offset and size.
     """
@@ -440,10 +445,10 @@ def _offset_interval(node: OffsetRange) -> intervaltree.Interval:
 
 
 def _nodes_on_interval_tree(
-    tree: intervaltree.IntervalTree,
+    tree: "intervaltree.IntervalTree[int, AddrRangeT]",
     addrs: typing.Union[int, range],
     adjustment: int = 0,
-) -> typing.Iterable:
+) -> typing.Iterable[AddrRangeT]:
     """
     Implements nodes_on for an IntervalTree.
     :param tree: The IntervalTree to search.
@@ -475,10 +480,10 @@ def _nodes_on_interval_tree(
 
 
 def _nodes_at_interval_tree(
-    tree: intervaltree.IntervalTree,
+    tree: "intervaltree.IntervalTree[int, AddrRangeT]",
     addrs: typing.Union[int, range],
     adjustment: int = 0,
-) -> typing.Iterable:
+) -> typing.Iterable[AddrRangeT]:
     """
     Implements nodes_at for an IntervalTree.
     :param tree: The IntervalTree to search.

@@ -18,7 +18,7 @@ from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
 from .cfg import CFG, Edge
 from .module import Module
-from .node import Node
+from .node import Node, _NodeMessage
 from .proto import CFG_pb2, IR_pb2
 from .section import Section
 from .symbol import Symbol
@@ -88,8 +88,9 @@ class IR(AuxDataContainer):
 
     @classmethod
     def _decode_protobuf(
-        cls, proto_ir: IR_pb2.IR, uuid: UUID, _: typing.Optional["IR"]
+        cls, proto_ir: _NodeMessage, uuid: UUID, _: typing.Optional["IR"]
     ) -> "IR":
+        assert isinstance(proto_ir, IR_pb2.IR)
         if proto_ir.version != PROTOBUF_VERSION:
             raise ValueError(
                 "Attempt to decode IR of version %s (expected version %s)"
@@ -102,7 +103,7 @@ class IR(AuxDataContainer):
         )
         ir.cfg = CFG._from_protobuf(proto_ir.cfg.edges, ir)
         ir.aux_data.update(
-            AuxDataContainer._read_protobuf_aux_data(proto_ir, ir)
+            AuxDataContainer._read_protobuf_aux_data(proto_ir.aux_data, ir)
         )
         return ir
 
@@ -115,10 +116,10 @@ class IR(AuxDataContainer):
         proto_cfg.vertices.extend(v.uuid.bytes for v in self.cfg_nodes)
         proto_cfg.edges.extend(self.cfg._to_protobuf())
         proto_ir.cfg.CopyFrom(proto_cfg)
-        self._write_protobuf_aux_data(proto_ir)
+        self._write_protobuf_aux_data(proto_ir.aux_data)
         return proto_ir
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not isinstance(other, IR) or not super().deep_eq(other):
             return False

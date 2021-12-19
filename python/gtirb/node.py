@@ -1,6 +1,9 @@
 import typing
 from uuid import UUID, uuid4
 
+import typing_extensions
+from google.protobuf.message import Message
+
 from .util import DeserializationError
 
 if typing.TYPE_CHECKING:
@@ -9,6 +12,10 @@ if typing.TYPE_CHECKING:
 
 
 _T = typing.TypeVar("_T", bound="Node")
+
+
+class _NodeMessage(typing_extensions.Protocol):
+    uuid: bytes
 
 
 class Node:
@@ -31,7 +38,7 @@ class Node:
     @classmethod
     def _decode_protobuf(
         cls: typing.Type[_T],
-        proto_object: typing.Any,
+        proto_object: _NodeMessage,
         uuid: UUID,
         ir: typing.Optional["IR"],
     ) -> _T:
@@ -47,7 +54,7 @@ class Node:
     @classmethod
     def _from_protobuf(
         cls: typing.Type[_T],
-        proto_object: typing.Any,
+        proto_object: _NodeMessage,
         ir: typing.Optional["IR"],
     ) -> _T:
         """Deserialize a Node from Protobuf.
@@ -71,14 +78,14 @@ class Node:
             node = cls._decode_protobuf(proto_object, uuid, ir)
         return node
 
-    def _to_protobuf(self) -> typing.Any:
+    def _to_protobuf(self) -> Message:
         """Get a Protobuf representation of ``self``.
         Must be overridden by subclasses.
         """
 
         raise NotImplementedError
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         """Check: is ``self`` structurally equal to ``other``?
 
         This method should be used only when deep structural equality checks

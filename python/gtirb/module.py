@@ -7,7 +7,7 @@ from uuid import UUID
 from .auxdata import AuxData, AuxDataContainer
 from .block import ByteBlock, CfgNode, CodeBlock, DataBlock, ProxyBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
-from .node import Node
+from .node import Node, _NodeMessage
 from .proto import Module_pb2
 from .section import Section
 from .symbol import Symbol
@@ -238,12 +238,10 @@ class Module(AuxDataContainer):
 
     @classmethod
     def _decode_protobuf(
-        cls,
-        proto_module: Module_pb2.Module,
-        uuid: UUID,
-        ir: typing.Optional["IR"],
+        cls, proto_module: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
     ) -> "Module":
         assert ir
+        assert isinstance(proto_module, Module_pb2.Module)
         m = cls(
             binary_path=proto_module.binary_path,
             isa=Module.ISA(proto_module.isa),
@@ -286,14 +284,14 @@ class Module(AuxDataContainer):
                 interval._decode_symbolic_expressions(ir)
         # aux data may depend on any node
         m.aux_data.update(
-            AuxDataContainer._read_protobuf_aux_data(proto_module, ir)
+            AuxDataContainer._read_protobuf_aux_data(proto_module.aux_data, ir)
         )
 
         return m
 
     def _to_protobuf(self) -> Module_pb2.Module:
         proto_module = Module_pb2.Module()
-        self._write_protobuf_aux_data(proto_module)
+        self._write_protobuf_aux_data(proto_module.aux_data)
         proto_module.binary_path = self.binary_path
         proto_module.isa = self.isa.value
         proto_module.file_format = self.file_format.value
@@ -309,7 +307,7 @@ class Module(AuxDataContainer):
         proto_module.uuid = self.uuid.bytes
         return proto_module
 
-    def deep_eq(self, other: typing.Any) -> bool:
+    def deep_eq(self, other: object) -> bool:
         # Do not move __eq__. See docstring for Node.deep_eq for more info.
         if not super().deep_eq(other):
             return False

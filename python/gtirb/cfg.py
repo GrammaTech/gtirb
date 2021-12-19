@@ -266,7 +266,9 @@ class CFG(MutableSet[Edge]):
                 proto_edge.label.direct = l.direct
             yield proto_edge
 
-    def nx(self) -> MultiDiGraph:
+    # Note: This returns a "bare" MultiDiGraph because MultiDiGraph is not
+    # actually a generic type.
+    def nx(self) -> MultiDiGraph:  # type: ignore[type-arg]
         return self._nxg
 
     def deep_eq(self, other: "CFG") -> bool:
