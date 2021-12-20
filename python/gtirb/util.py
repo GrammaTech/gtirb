@@ -355,7 +355,7 @@ def get_desired_range(addrs: typing.Union[int, range]) -> range:
 class AddrRange(typing_extensions.Protocol):
     """An object spanning a range of addresses."""
 
-    # Protocol field types mut match exactly, but properties are alloaed to
+    # Protocol field types must match exactly, but properties are allowed to
     # return subtypes. This means that a class whose address or size is an int
     # will match Optional[int] properties, but not Optional[int] fields.
 
