@@ -83,6 +83,9 @@ class SubtypeTree:
 
 
 class Variant:
+    # Because the Variant can contain arbitrary data, depending on the context
+    # in which it is used, it has type Any. This requires an exception to the
+    # project-wide mypy configuration that disallows Any.
     def __init__(self, index: int, val: Any):  # type: ignore[misc]
         self.index = index
         self.val = val
