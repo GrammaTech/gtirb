@@ -84,7 +84,7 @@ if(GTIRB_ENABLE_TESTS)
   if(ENABLE_MYPY)
     add_test(
       NAME mypy
-      COMMAND mypy --non-interactive --install-types gtirb
+      COMMAND mypy gtirb
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     )
   endif()
