@@ -201,7 +201,7 @@ test-default-install:
   needs: ['build-ubuntu18-gcc7']
   script:
     - make -t -C build
-    - make -C build install install-python && rm -rf build
+    - make -C build install && rm -rf build
     - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-all.sh
 
 test-default-install-static:
@@ -225,10 +225,8 @@ test-install-different-prefix:
     - make -t -C ./build
     - cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
     - cd ..
-    - echo /tmp/prefix/lib/python$(python3 -c "import sys; print('%s.%s' % sys.version_info[:2])")/site-packages > pydir
-    - mkdir -p $(cat pydir)
-    - PYTHONPATH=$(cat pydir) make -C build install install-python && rm -rf build
-    - PYTHONPATH=$(cat pydir) CPPFLAGS=-I/tmp/prefix/include LDFLAGS=-L/tmp/prefix/lib LD_LIBRARY_PATH=/tmp/prefix/lib .ci/test-install-all.sh
+    - make -C build install && rm -rf build
+    - CPPFLAGS=-I/tmp/prefix/include LDFLAGS=-L/tmp/prefix/lib LD_LIBRARY_PATH=/tmp/prefix/lib .ci/test-install-all.sh
 
 test-install-with-destdir:
   stage: test-packages1
@@ -240,7 +238,7 @@ test-install-with-destdir:
   needs: ['build-ubuntu18-gcc7']
   script:
     - make -t -C ./build
-    - DESTDIR=/tmp/destdir make -C ./build install install-python
+    - DESTDIR=/tmp/destdir make -C ./build install
 
 test-install-python-virtualenv:
   stage: test-packages1
