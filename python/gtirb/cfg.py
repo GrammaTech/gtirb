@@ -21,7 +21,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from .ir import IR
 
 
-class Type(Enum):
+class EdgeType(Enum):
     """The type of control flow transfer indicated by a
     :class:`gtirb.Edge`.
     """
@@ -75,15 +75,7 @@ class Type(Enum):
     """
 
 
-_Type = Type
-
-
-class Label(
-    NamedTuple(
-        "NamedTuple",
-        (("type", "Type"), ("conditional", bool), ("direct", bool)),
-    )
-):
+class EdgeLabel(NamedTuple):
     """Contains a more detailed description of a :class:`gtirb.Edge`
     in the CFG.
 
@@ -103,24 +95,18 @@ class Label(
         represents.
     """
 
-    __slots__ = ()
-
-    def __new__(
-        cls, type: Type, conditional: bool = False, direct: bool = True
-    ) -> "Label":
-        return super().__new__(cls, type, conditional, direct)
+    type: EdgeType
+    conditional: bool = False
+    direct: bool = True
 
     def __repr__(self) -> str:
         return (
             "Edge.Label("
-            "type=Edge.{type!s}, "
+            "type=Edge.Type.{type.name}, "
             "conditional={conditional!r}, "
             "direct={direct!r}, "
             ")".format(**self._asdict())
         )
-
-
-_Label = Label
 
 
 class Edge(
@@ -129,7 +115,7 @@ class Edge(
         (
             ("source", CfgNode),
             ("target", CfgNode),
-            ("label", "Optional[Label]"),
+            ("label", Optional[EdgeLabel]),
         ),
     )
 ):
@@ -144,12 +130,15 @@ class Edge(
     __slots__ = ()
 
     def __new__(
-        cls, source: CfgNode, target: CfgNode, label: Optional[Label] = None
+        cls,
+        source: CfgNode,
+        target: CfgNode,
+        label: Optional[EdgeLabel] = None,
     ) -> "Edge":
         return super().__new__(cls, source, target, label)
 
-    Type = _Type
-    Label = _Label
+    Type = EdgeType
+    Label = EdgeLabel
 
 
 class CFG(MutableSet[Edge]):
@@ -171,7 +160,7 @@ class CFG(MutableSet[Edge]):
     """
 
     def __init__(self, edges: Optional[Iterable[Edge]] = None):
-        self._nxg: "MultiDiGraph[CfgNode, Hashable, Optional[Label]]" = (
+        self._nxg: "MultiDiGraph[CfgNode, Hashable, Optional[EdgeLabel]]" = (
             MultiDiGraph()
         )
         if edges is not None:
@@ -243,7 +232,7 @@ class CFG(MutableSet[Edge]):
                     "CFG: UUID %s is not a CfgNode" % target_uuid
                 )
 
-            label: Optional[Label] = None
+            label: Optional[EdgeLabel] = None
             if edge.HasField("label"):
                 label = Edge.Label(
                     Edge.Type(edge.label.type),
