@@ -1,6 +1,7 @@
 # 1.10.6 (Unreleased)
 
-* TBA
+* Added type annotations to python API and made them available in package.
+* Removed install-python target.
 
 # 1.10.5
 
