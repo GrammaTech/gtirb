@@ -290,7 +290,7 @@ conan-linux-gcc7:
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
   script: &conan-build
-    - python3 -m pip install conan
+    - python3 -m pip install --upgrade conan
     - conan profile new default --detect
     - conan profile update settings.compiler.libcxx=libstdc++11 default
     - export PYTHONPATH="$(pwd)"
@@ -311,7 +311,7 @@ conan-linux-gcc9:
     - systeminfo
     - export PATH="C:\\Program Files\\Python38;$PATH"
     # Install conan
-    - python -m pip install conan
+    - python -m pip install --upgrade conan
     # Run build script
     - export PYTHONPATH="$(cygpath -w $(pwd))"
     - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
@@ -340,7 +340,7 @@ conan-windows-32:
     - systeminfo
     - export PATH="C:\\Program Files\\Python38;$PATH"
     # Install conan
-    - python -m pip install conan
+    - python -m pip install --upgrade conan
     # Run build script
     - export PYTHONPATH="$(cygpath -w $(pwd))"
     - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
