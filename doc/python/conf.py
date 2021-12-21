@@ -97,6 +97,6 @@ autodoc_default_options = {
 
 # -- Options for typehints extension -----------------------------------------
 
-set_type_checking_flag = True
+set_type_checking_flag = False
 typehints_fully_qualified = True
 always_document_param_types = False
