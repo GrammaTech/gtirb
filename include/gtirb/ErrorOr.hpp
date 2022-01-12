@@ -67,6 +67,7 @@ template <class T> class ErrorOr {
 
 public:
   using storage_type = std::conditional_t<isRef, wrap, T>;
+  struct ErrorInfo;
 
 private:
   using reference = std::remove_reference_t<T>&;
@@ -76,16 +77,29 @@ private:
 
 public:
   template <class E>
+  ErrorOr(E ErrorCode, const std::string& Msg,
+          std::enable_if_t<std::is_error_code_enum<E>::value ||
+                               std::is_error_condition_enum<E>::value,
+                           void*> = nullptr)
+      : HasError(true) {
+    new (getErrorStorage()) ErrorInfo{make_error_code(ErrorCode), Msg};
+  }
+
+  template <class E>
   ErrorOr(E ErrorCode,
           std::enable_if_t<std::is_error_code_enum<E>::value ||
                                std::is_error_condition_enum<E>::value,
                            void*> = nullptr)
       : HasError(true) {
-    new (getErrorStorage()) std::error_code(make_error_code(ErrorCode));
+    new (getErrorStorage()) ErrorInfo{make_error_code(ErrorCode), ""};
+  }
+
+  ErrorOr(std::error_code EC, const std::string& Msg) : HasError(true) {
+    new (getErrorStorage()) ErrorInfo{EC, Msg};
   }
 
   ErrorOr(std::error_code EC) : HasError(true) {
-    new (getErrorStorage()) std::error_code(EC);
+    new (getErrorStorage()) ErrorInfo{EC, ""};
   }
 
   template <class OtherT>
@@ -149,8 +163,8 @@ public:
   reference get() { return *getStorage(); }
   const_reference get() const { return const_cast<ErrorOr<T>*>(this)->get(); }
 
-  std::error_code getError() const {
-    return HasError ? *getErrorStorage() : std::error_code();
+  ErrorInfo getError() const {
+    return HasError ? *getErrorStorage() : ErrorInfo();
   }
 
   pointer operator->() { return toPointer(getStorage()); }
@@ -170,7 +184,7 @@ private:
     } else {
       // Get other's error.
       HasError = true;
-      new (getErrorStorage()) std::error_code(Other.getError());
+      new (getErrorStorage()) ErrorInfo(Other.getError());
     }
   }
 
@@ -200,7 +214,7 @@ private:
     } else {
       // Get other's error.
       HasError = true;
-      new (getErrorStorage()) std::error_code(Other.getError());
+      new (getErrorStorage()) ErrorInfo(std::move(*Other.getError()));
     }
   }
 
@@ -212,6 +226,13 @@ private:
     new (this) ErrorOr(std::move(Other));
   }
 
+public:
+  struct ErrorInfo {
+    std::error_code EC;
+    std::string Msg;
+  };
+
+private:
   pointer toPointer(pointer Val) { return Val; }
 
   const_pointer toPointer(const_pointer Val) const { return Val; }
@@ -230,18 +251,18 @@ private:
     return reinterpret_cast<const storage_type*>(TStorage);
   }
 
-  std::error_code* getErrorStorage() {
+  ErrorInfo* getErrorStorage() {
     assert(HasError && "Cannot get error when a value exists!");
-    return reinterpret_cast<std::error_code*>(ErrorStorage);
+    return reinterpret_cast<ErrorInfo*>(ErrorStorage);
   }
 
-  const std::error_code* getErrorStorage() const {
+  const ErrorInfo* getErrorStorage() const {
     return const_cast<ErrorOr<T>*>(this)->getErrorStorage();
   }
 
   union {
     alignas(storage_type) char TStorage[sizeof(storage_type)];
-    alignas(std::error_code) char ErrorStorage[sizeof(std::error_code)];
+    alignas(ErrorInfo) char ErrorStorage[sizeof(ErrorInfo)];
   };
   bool HasError : 1;
 };
@@ -251,7 +272,7 @@ std::enable_if_t<std::is_error_code_enum<E>::value ||
                      std::is_error_condition_enum<E>::value,
                  bool>
 operator==(const ErrorOr<T>& Err, E Code) {
-  return Err.getError() == Code;
+  return Err.getError().EC == Code;
 }
 
 } // end namespace gtirb
