@@ -1,3 +1,7 @@
+# 1.10.7 (unreleased)
+
+* TDB
+
 # 1.10.6
 
 * Added type annotations to python API and made them available in package.
