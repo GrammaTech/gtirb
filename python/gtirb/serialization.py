@@ -1,4 +1,5 @@
 import io
+import struct
 from re import findall
 from typing import (
     Any,
@@ -478,6 +479,58 @@ class Int8Codec(IntegerCodec):
     signed = True
 
 
+class FloatCodec(Codec):
+    """Generic base class for float-based Codecs"""
+
+    typname: str
+    bytesize: int
+    struct_format: str
+
+    @classmethod
+    def decode(
+        cls,
+        raw_bytes: BinaryIO,
+        *,
+        serialization: "Serialization" = None,
+        subtypes: Sequence[SubtypeTree] = (),
+        get_by_uuid: Optional[CacheLookupFn] = None,
+    ) -> float:
+        if subtypes != ():
+            raise DecodeError(f"{cls.typname} should have no subtypes")
+
+        return struct.unpack(cls.struct_format, raw_bytes.read(cls.bytesize))[
+            0
+        ]
+
+    @classmethod
+    def encode(
+        cls,
+        out: BinaryIO,
+        val: object,
+        *,
+        serialization: "Serialization" = None,
+        subtypes: Sequence[SubtypeTree] = (),
+    ) -> None:
+        if not isinstance(val, float):
+            raise EncodeError("Float codec only supports floats")
+        if subtypes != ():
+            raise EncodeError(f"{cls.typname} should have no subtypes")
+
+        out.write(struct.pack(cls.struct_format, val))
+
+
+class Float32Codec(FloatCodec):
+    typname = "float"
+    bytesize = 4
+    struct_format = "<f"
+
+
+class Float64Codec(FloatCodec):
+    typname = "double"
+    bytesize = 8
+    struct_format = "<d"
+
+
 class UUIDCodec(Codec):
     """A Codec for raw UUIDs or Nodes.
 
@@ -599,6 +652,8 @@ class Serialization:
             "int32_t": Int32Codec,
             "int16_t": Int16Codec,
             "int8_t": Int8Codec,
+            "float": Float32Codec,
+            "double": Float64Codec,
             "mapping": MappingCodec,
             "sequence": SequenceCodec,
             "set": SetCodec,

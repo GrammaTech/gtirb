@@ -205,20 +205,18 @@ class TestSerialization(unittest.TestCase):
         )
         self.assertEqual(mapping_val, mapping)
 
-    def test_int_serializers(self):
-        def _check_val(typename, val):
-            bstream = io.BytesIO()
-            gtirb.AuxData.serializer.encode(bstream, val, typename)
-            result = gtirb.AuxData.serializer.decode(
-                bstream.getvalue(), typename
-            )
-            self.assertEqual(result, val)
+    def _check_val(self, typename, val):
+        bstream = io.BytesIO()
+        gtirb.AuxData.serializer.encode(bstream, val, typename)
+        result = gtirb.AuxData.serializer.decode(bstream.getvalue(), typename)
+        self.assertEqual(result, val)
 
+    def test_int_serializers(self):
         # Signed types
         def _test_range(typename, minval, maxval):
-            _check_val(typename, 127)
-            _check_val(typename, minval)
-            _check_val(typename, maxval)
+            self._check_val(typename, 127)
+            self._check_val(typename, minval)
+            self._check_val(typename, maxval)
 
         _test_range("int8_t", -(2 ** 7), (2 ** 7) - 1)
         _test_range("int16_t", -(2 ** 15), (2 ** 15) - 1)
@@ -228,6 +226,10 @@ class TestSerialization(unittest.TestCase):
         _test_range("uint16_t", 0, (2 ** 16) - 1)
         _test_range("uint32_t", 0, (2 ** 32) - 1)
         _test_range("uint64_t", 0, (2 ** 64) - 1)
+
+    def test_float_serializers(self):
+        self._check_val("float", 0.4000000059604645)
+        self._check_val("double", 0.4)
 
 
 if __name__ == "__main__":
