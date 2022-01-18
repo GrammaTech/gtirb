@@ -116,7 +116,7 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
 ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::BadUUID, "Cannoot load module");
+    return createStringError(IR::load_error::BadUUID, "Cannot load module");
 
   auto Problem = createStringError(IR::load_error::CorruptModule,
                                    "Cannot load module " + Message.name());
@@ -148,15 +148,20 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
-        return joinErrors(Problem, "Could not parse ByteInterval");
+        return joinErrors(Problem,
+                          "Could not parse UUID for ByteInterval in section " +
+                              ProtoS.getName());
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
       if (!BI)
-        return joinErrors(Problem, "Could not find ByteInterval");
+        return joinErrors(Problem,
+                          "Could not find UUID for ByteInterval in section " +
+                              ProtoS.getName());
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI)) {
         std::stringstream msg{
-            "could not deserialize symbolic expression in ByteInterval"};
+            "Could not deserialize symbolic expression in ByteInterval"};
         if (auto Addr = BI->getAddress())
           msg << " @" << Addr;
+        msg << "in section " << ProtoS.getName();
         return joinErrors(Problem, msg.str());
       }
     }
@@ -164,10 +169,10 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
 
   if (!Message.entry_point().empty()) {
     if (!uuidFromBytes(Message.entry_point(), Id))
-      return joinErrors(Problem, "Bad entry point");
+      return joinErrors(Problem, "Could not parse UUID for entry point");
     M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
     if (!M->EntryPoint)
-      return joinErrors(Problem, "Missing entry point");
+      return joinErrors(Problem, "Could not find entry point");
   }
   M->ByteOrder = static_cast<gtirb::ByteOrder>(Message.byte_order());
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);

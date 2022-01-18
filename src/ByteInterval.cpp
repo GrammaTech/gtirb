@@ -118,19 +118,14 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     A = Addr(Message.address());
   }
 
-  std::string ErrMsg;
-  {
-    std::stringstream ss;
-    ss << "Could not load ByteInterval";
-    if (A)
-      ss << "at " << *A;
-    ErrMsg = ss.str();
-  }
+  std::stringstream ss;
+  ss << "Could not load ByteInterval";
+  if (A)
+    ss << "at " << *A;
 
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id)) {
-    ErrMsg += "Bad UUID";
-    return createStringError(IR::load_error::CorruptFile, ErrMsg);
+    return createStringError(IR::load_error::BadUUID, ss.str());
   }
 
   ByteInterval* BI = ByteInterval::Create(

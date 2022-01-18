@@ -29,7 +29,7 @@ ErrorOr<DataBlock*> DataBlock::fromProtobuf(Context& C,
                                             const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::BadUUID, "Cannot load data block");
+    return createStringError(IR::load_error::BadUUID, "Cannot load DataBlock");
 
   // Because we do not have an offset, we cannot create the data block and
   // set its parent at the same time.
