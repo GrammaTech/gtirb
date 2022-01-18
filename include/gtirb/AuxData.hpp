@@ -211,7 +211,8 @@ template <class T>
 struct is_endian_type
     : std::integral_constant<bool, std::is_class_v<T> ||
                                        (std::is_integral_v<T> &&
-                                        !std::is_same_v<T, bool>)> {};
+                                        !std::is_same_v<T, bool>) ||
+                                       std::is_floating_point<T>::value> {};
 
 template <typename T, typename Enable = void> struct default_serialization {};
 
@@ -283,6 +284,14 @@ struct auxdata_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
   static std::string type_name() {
     return "uint" + std::to_string(8 * sizeof(T)) + "_t";
   }
+};
+
+template <> struct auxdata_traits<float> : default_serialization<float> {
+  static std::string type_name() { return "float"; }
+};
+
+template <> struct auxdata_traits<double> : default_serialization<double> {
+  static std::string type_name() { return "double"; }
 };
 
 template <> struct auxdata_traits<std::string> {

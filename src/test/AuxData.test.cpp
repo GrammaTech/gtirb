@@ -115,6 +115,16 @@ struct AnInt32 {
   typedef int32_t Type;
 };
 
+struct AnDouble {
+  static constexpr const char* Name = "A 64-bit float";
+  typedef double Type;
+};
+
+struct AnFloat {
+  static constexpr const char* Name = "A 32-bit float";
+  typedef float Type;
+};
+
 struct ListInt64 {
   static constexpr const char* Name = "A list of 64-bit integers";
   typedef std::list<int64_t> Type;
@@ -455,6 +465,12 @@ TEST(Unit_AuxData, getPrimitiveTypes) {
 
   AuxDataImpl<AnInt64> SI64 = int64_t(-123);
   EXPECT_EQ(*SI64.get(), -123);
+
+  AuxDataImpl<AnFloat> F32 = float(0.4000000059604645);
+  EXPECT_EQ(*F32.get(), 0.4000000059604645);
+
+  AuxDataImpl<AnDouble> F64 = float(1.0);
+  EXPECT_EQ(*F64.get(), 1.0);
 
   AuxDataImpl<AUint8> UI8 = uint8_t(123);
   EXPECT_EQ(*UI8.get(), 123);
