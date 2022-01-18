@@ -298,7 +298,7 @@ TEST(Unit_IR, loadCorruptFile) {
   Context C;
   auto Result = IR::load(C, Stream);
   EXPECT_FALSE(Result);
-  EXPECT_EQ(Result, gtirb::IR::load_error::CorruptFile);
+  EXPECT_TRUE(Result == gtirb::IR::load_error::CorruptFile);
 }
 
 TEST(Unit_IR, setModuleName) {

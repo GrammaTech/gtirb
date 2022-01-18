@@ -31,17 +31,20 @@
 namespace gtirb {
 
 struct ErrorInfo {
+  friend std::ostream& operator<<(std::ostream&, const ErrorInfo&);
   std::error_code ErrorCode;
   std::string Msg;
   operator bool() { return (bool)ErrorCode || Msg.length(); }
-  std::ostream& operator<<(std::ostream& os) {
-    os << ErrorCode.msg();
+  std::ostream& log(std::ostream& os) const {
+    os << ErrorCode.message();
     if (Msg.length()) {
       os << " " << Msg;
     }
     return os;
   }
 };
+
+std::ostream& operator<<(std::ostream& os, const ErrorInfo& Info);
 
 /// Represents either an error or a value T.
 ///
@@ -233,7 +236,6 @@ private:
       HasError = true;
       new (getErrorStorage()) ErrorInfo(std::move(*Other.getError()));
     }
-    return createStringError(load_error::IncorrectVersion, ss.str());
   }
 
   template <class OtherT> void moveAssign(ErrorOr<OtherT>&& Other) {
