@@ -268,6 +268,7 @@ public:
   void saveJSON(std::ostream& Out) const;
 
   /// \enum load_error
+  ///
   /// \brief Specifies various failure modes when loading an IR.
   enum class load_error {
     IncorrectVersion = 1, ///< The version number in the file does not match.
@@ -275,7 +276,7 @@ public:
     CorruptModule,
     CorruptSection,
     CorruptByteInterval,
-    BadCFG, ///< The control flow graph could not be deserialized
+    CorruptCFG, ///< The control flow graph could not be deserialized
     BadUUID,
     MissingUUID,
   };

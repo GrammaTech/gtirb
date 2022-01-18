@@ -37,7 +37,7 @@ struct ErrorInfo {
   std::ostream& operator<<(std::ostream& os) {
     os << ErrorCode.msg();
     if (Msg.length()) {
-      os << ": " << Msg;
+      os << " " << Msg;
     }
     return os;
   }
