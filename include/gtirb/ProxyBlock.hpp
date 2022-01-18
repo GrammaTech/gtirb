@@ -28,7 +28,7 @@ namespace proto {
 class ProxyBlock;
 }
 
-template <class T> class Expected;
+template <class T> class ErrorOr;
 class Module;
 
 /// \class ProxyBlock
@@ -89,8 +89,8 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Block object, or null on failure.
-  static Expected<ProxyBlock*> fromProtobuf(Context& C,
-                                            const MessageType& Message);
+  static ErrorOr<ProxyBlock*> fromProtobuf(Context& C,
+                                           const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

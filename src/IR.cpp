@@ -152,7 +152,7 @@ void IR::toProtobuf(MessageType* Message) const {
   Message->set_version(Version);
 }
 
-Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
+ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
     return createStringError(load_error::CorruptFile, "Could not load file");
@@ -160,8 +160,8 @@ Expected<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
     auto M = Module::fromProtobuf(C, Elt);
-    if (auto ModErr = M.takeError()) {
-      return Expected<IR*>{std::move(ModErr)};
+    if (auto ModErr = M.getError()) {
+      return ErrorOr<IR*>{std::move(ModErr)};
     }
     I->addModule(*M);
   }
@@ -184,7 +184,7 @@ void IR::save(std::ostream& Out) const {
   Message.SerializeToOstream(&Out);
 }
 
-Expected<IR*> IR::load(Context& C, std::istream& In) {
+ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   google::protobuf::io::IstreamInputStream InputStream(&In);
   google::protobuf::io::CodedInputStream CodedStream(&InputStream);
 #ifdef PROTOBUF_SET_BYTES_LIMIT
@@ -198,7 +198,7 @@ Expected<IR*> IR::load(Context& C, std::istream& In) {
   // if (MaybeIR) {
   //   return *MaybeIR;
   // };
-  // return errorToErrorCode(MaybeIR.takeError());
+  // return errorToErrorCode(MaybeIR.getError());
 }
 
 void IR::saveJSON(std::ostream& Out) const {
@@ -209,7 +209,7 @@ void IR::saveJSON(std::ostream& Out) const {
   Out << S;
 }
 
-Expected<IR*> IR::loadJSON(Context& C, std::istream& In) {
+ErrorOr<IR*> IR::loadJSON(Context& C, std::istream& In) {
   MessageType Message;
   std::string S;
   google::protobuf::util::JsonStringToMessage(

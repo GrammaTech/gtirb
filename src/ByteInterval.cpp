@@ -111,8 +111,8 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
   }
 }
 
-Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
-                                                   const MessageType& Message) {
+ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
+                                                  const MessageType& Message) {
   std::optional<Addr> A;
   if (Message.has_address()) {
     A = Addr(Message.address());
@@ -142,13 +142,13 @@ Expected<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     case proto::Block::ValueCase::kCode: {
       auto B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
       if (!B)
-        return B.takeError();
+        return B.getError();
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     case proto::Block::ValueCase::kData: {
       auto B = DataBlock::fromProtobuf(C, ProtoBlock.data());
       if (!B)
-        return B.takeError();
+        return B.getError();
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     default: {
@@ -188,11 +188,10 @@ ByteInterval* ByteInterval::load(Context& C, std::istream& In) {
   MessageType Message;
   Message.ParseFromIstream(&In);
   auto BI = ByteInterval::fromProtobuf(C, Message);
-  if (auto err = BI.takeError()) {
-    consumeError(std::move(err));
-    return nullptr;
+  if (BI) {
+    return *BI;
   }
-  return *BI;
+  return nullptr;
 }
 
 // Present for testing purposes only.

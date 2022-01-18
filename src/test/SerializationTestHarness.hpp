@@ -63,10 +63,9 @@ public:
 
 template <>
 inline auto SerializationTestHarness::load<IR>(Context& C, std::istream& In) {
-  Expected<IR*> Result = IR::load(C, In);
+  ErrorOr<IR*> Result = IR::load(C, In);
   if (Result)
     return *Result;
-  consumeError(Result.takeError());
   return static_cast<IR*>(nullptr);
 }
 

@@ -383,7 +383,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized Symbol object, or null on failure.
-  static Expected<Symbol*> fromProtobuf(Context& C, const MessageType& Message);
+  static ErrorOr<Symbol*> fromProtobuf(Context& C, const MessageType& Message);
 
   // Present for testing purposes only.
   void save(std::ostream& Out) const;

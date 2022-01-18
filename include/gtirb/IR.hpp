@@ -19,7 +19,7 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/AuxDataContainer.hpp>
 #include <gtirb/CFG.hpp>
-#include <gtirb/Error.hpp>
+#include <gtirb/ErrorOr.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Observer.hpp>
@@ -286,7 +286,7 @@ public:
   /// \param In  The input stream.
   ///
   /// \return The deserialized IR object or an error.
-  static Expected<IR*> load(Context& C, std::istream& In);
+  static ErrorOr<IR*> load(Context& C, std::istream& In);
 
   /// \brief Deserialize JSON format from an input stream.
   ///
@@ -294,7 +294,7 @@ public:
   /// \param In  The input stream.
   ///
   /// \return The deserialized IR object or an error.
-  static Expected<IR*> loadJSON(Context& C, std::istream& In);
+  static ErrorOr<IR*> loadJSON(Context& C, std::istream& In);
 
   /// \name ProxyBlock-Related Public Types and Functions
   /// @{
@@ -1480,7 +1480,7 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized IR object, or null on failure.
-  static Expected<IR*> fromProtobuf(Context& C, const MessageType& Message);
+  static ErrorOr<IR*> fromProtobuf(Context& C, const MessageType& Message);
   /// @endcond
 
   ModuleSet Modules;
@@ -1501,10 +1501,6 @@ GTIRB_EXPORT_API const std::error_category& loadErrorCategory();
 /// \return The error code.
 inline std::error_code make_error_code(gtirb::IR::load_error e) {
   return std::error_code(static_cast<int>(e), loadErrorCategory());
-}
-
-inline Error createStringError(gtirb::IR::load_error e, std::string&& s) {
-  return createStringError(make_error_code(e), s);
 }
 
 } // namespace gtirb

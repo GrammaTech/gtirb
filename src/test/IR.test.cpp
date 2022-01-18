@@ -16,7 +16,6 @@
 #include <gtirb/AuxData.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/DataBlock.hpp>
-#include <gtirb/Error.hpp>
 #include <gtirb/IR.hpp>
 #include <gtirb/Module.hpp>
 #include <gtirb/Section.hpp>
@@ -299,8 +298,7 @@ TEST(Unit_IR, loadCorruptFile) {
   Context C;
   auto Result = IR::load(C, Stream);
   EXPECT_FALSE(Result);
-  EXPECT_EQ(errorToErrorCode(Result.takeError()),
-            gtirb::IR::load_error::CorruptFile);
+  EXPECT_EQ(Result, gtirb::IR::load_error::CorruptFile);
 }
 
 TEST(Unit_IR, setModuleName) {

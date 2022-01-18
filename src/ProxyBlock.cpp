@@ -23,8 +23,8 @@ void ProxyBlock::toProtobuf(MessageType* Message) const {
   nodeUUIDToBytes(this, *Message->mutable_uuid());
 }
 
-Expected<ProxyBlock*> ProxyBlock::fromProtobuf(Context& C,
-                                               const MessageType& Message) {
+ErrorOr<ProxyBlock*> ProxyBlock::fromProtobuf(Context& C,
+                                              const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
     return createStringError(IR::load_error::BadUUID,
@@ -47,6 +47,5 @@ ProxyBlock* ProxyBlock::load(Context& C, std::istream& In) {
   auto CB = ProxyBlock::fromProtobuf(C, Message);
   if (CB)
     return *CB;
-  consumeError(CB.takeError());
   return nullptr;
 }

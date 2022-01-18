@@ -1,4 +1,4 @@
-#include "gtirb/Error.hpp"
+#include "gtirb/ErrorOr.hpp"
 #include <iostream>
 #include <type_traits>
 

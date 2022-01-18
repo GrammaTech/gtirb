@@ -25,8 +25,8 @@ void DataBlock::toProtobuf(MessageType* Message) const {
   Message->set_size(this->Size);
 }
 
-Expected<DataBlock*> DataBlock::fromProtobuf(Context& C,
-                                             const MessageType& Message) {
+ErrorOr<DataBlock*> DataBlock::fromProtobuf(Context& C,
+                                            const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
     return createStringError(IR::load_error::CorruptFile,
@@ -67,6 +67,5 @@ DataBlock* DataBlock::load(Context& C, std::istream& In) {
   auto DB = DataBlock::fromProtobuf(C, Message);
   if (DB)
     return *DB;
-  consumeError(DB.takeError());
   return nullptr;
 }

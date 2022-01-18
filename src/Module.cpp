@@ -113,7 +113,7 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
   });
 }
 
-Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
+ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
     return createStringError(IR::load_error::CorruptModule,
@@ -131,56 +131,45 @@ Expected<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.proxies()) {
     auto PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB)
-      return joinErrors(std::move(Problem), PB.takeError());
+      return joinErrors(Problem, PB.getError());
     M->addProxyBlock(*PB);
   }
   for (const auto& Elt : Message.sections()) {
     auto S = Section::fromProtobuf(C, Elt);
     if (!S)
-      return joinErrors(std::move(Problem), S.takeError());
+      return joinErrors(Problem, S.getError());
     M->addSection(*S);
   }
   for (const auto& Elt : Message.symbols()) {
     auto S = Symbol::fromProtobuf(C, Elt);
     if (!S)
-      return joinErrors(std::move(Problem), S.takeError());
+      return joinErrors(Problem, S.getError());
     M->addSymbol(*S);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
-        return joinErrors(std::move(Problem),
-                          createStringError(IR::load_error::CorruptByteInterval,
-                                            "Could not parse ByteInterval"));
+        return joinErrors(Problem, "Could not parse ByteInterval");
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
       if (!BI)
-        return joinErrors(std::move(Problem),
-                          createStringError(IR::load_error::MissingUUID,
-                                            "could not find byteinterval"));
+        return joinErrors(Problem, "Could not find ByteInterval");
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI)) {
         std::stringstream msg{
             "could not deserialize symbolic expression in byteinterval"};
         if (auto Addr = BI->getAddress())
           msg << " @" << Addr;
-        return joinErrors(
-            std::move(Problem),
-            createStringError(IR::load_error::CorruptModule, msg.str()));
+        return joinErrors(Problem, msg.str());
       }
     }
   }
 
   if (!Message.entry_point().empty()) {
     if (!uuidFromBytes(Message.entry_point(), Id))
-      return joinErrors(
-          std::move(Problem),
-          createStringError(IR::load_error::BadUUID, "Bad entry point"));
+      return joinErrors(Problem, "Bad entry point");
     M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
     if (!M->EntryPoint)
-      return joinErrors(std::move(Problem),
-                        createStringError(IR::load_error::MissingUUID,
-                                          "could not find entry point"));
+      return joinErrors(Problem, "could not find entry point");
   }
-  consumeError(std::move(Problem));
   M->ByteOrder = static_cast<gtirb::ByteOrder>(Message.byte_order());
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);
   return M;
@@ -244,7 +233,6 @@ Module* Module::load(Context& C, std::istream& In) {
   if (M) {
     return *M;
   }
-  consumeError(M.takeError());
   return nullptr;
 }
 

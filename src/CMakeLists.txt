@@ -50,7 +50,7 @@ set(${PROJECT_NAME}_H
     "${CMAKE_SOURCE_DIR}/include/gtirb/CodeBlock.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Context.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/DataBlock.hpp"
-    "${CMAKE_SOURCE_DIR}/include/gtirb/Error.hpp"
+    "${CMAKE_SOURCE_DIR}/include/gtirb/ErrorOr.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Export.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/IR.hpp"
     "${CMAKE_SOURCE_DIR}/include/gtirb/Module.hpp"
@@ -74,7 +74,7 @@ set(${PROJECT_NAME}_SRC
     Context.cpp
     CFG.cpp
     DataBlock.cpp
-    Error.cpp
+    ErrorOr.cpp
     IR.cpp
     Module.cpp
     Node.cpp

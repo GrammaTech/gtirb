@@ -79,7 +79,7 @@ void Symbol::toProtobuf(MessageType* Message) const {
   Message->set_at_end(this->AtEnd);
 }
 
-Expected<Symbol*> Symbol::fromProtobuf(Context& C, const MessageType& Message) {
+ErrorOr<Symbol*> Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
     return createStringError(IR::load_error::CorruptFile,
@@ -122,6 +122,5 @@ Symbol* Symbol::load(Context& C, std::istream& In) {
   auto S = Symbol::fromProtobuf(C, Message);
   if (S)
     return *S;
-  consumeError(S.takeError());
   return nullptr;
 }

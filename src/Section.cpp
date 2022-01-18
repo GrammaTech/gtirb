@@ -78,8 +78,8 @@ void Section::toProtobuf(MessageType* Message) const {
   }
 }
 
-Expected<Section*> Section::fromProtobuf(Context& C,
-                                         const MessageType& Message) {
+ErrorOr<Section*> Section::fromProtobuf(Context& C,
+                                        const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
     return createStringError(IR::load_error::BadUUID, "Could not load section");
@@ -112,7 +112,6 @@ Section* Section::load(Context& C, std::istream& In) {
   auto S = Section::fromProtobuf(C, Message);
   if (S)
     return *S;
-  consumeError(S.takeError());
   return nullptr;
 }
 

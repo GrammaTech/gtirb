@@ -56,7 +56,7 @@ class CodeBlock; // Forward declared so Blocks can store CodeBlocks.
 class DataBlock; // Forward declared so Blocks can store DataBlocks.
 class ByteIntervalObserver;
 
-template <class T> class Expected;
+template <class T> class ErrorOr;
 
 ///
 /// \brief Interface for notifying observers when a CodeBlock is modified.
@@ -2217,8 +2217,8 @@ private:
   /// \param Message  The protobuf message from which to deserialize.
   ///
   /// \return The deserialized ByteInterval object, or null on failure.
-  static Expected<ByteInterval*> fromProtobuf(Context& C,
-                                              const MessageType& Message);
+  static ErrorOr<ByteInterval*> fromProtobuf(Context& C,
+                                             const MessageType& Message);
 
   /// \brief Populate symbolic expressions from a Protobuf message.
   ///

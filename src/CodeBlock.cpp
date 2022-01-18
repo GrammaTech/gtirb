@@ -26,8 +26,8 @@ void CodeBlock::toProtobuf(MessageType* Message) const {
   Message->set_decode_mode(this->DecodeMode);
 }
 
-Expected<CodeBlock*> CodeBlock::fromProtobuf(Context& C,
-                                             const MessageType& Message) {
+ErrorOr<CodeBlock*> CodeBlock::fromProtobuf(Context& C,
+                                            const MessageType& Message) {
   // Because we do not have an offset, we cannot create the code block and
   // set its parent at the same time.
   UUID Id;
@@ -68,6 +68,5 @@ CodeBlock* CodeBlock::load(Context& C, std::istream& In) {
   auto CB = CodeBlock::fromProtobuf(C, Message);
   if (CB)
     return *CB;
-  consumeError(CB.takeError());
   return nullptr;
 }
