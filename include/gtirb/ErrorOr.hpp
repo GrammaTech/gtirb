@@ -30,6 +30,8 @@
 
 namespace gtirb {
 
+/// A small struct to hold an error code
+/// along with a string holding additional details
 struct ErrorInfo {
   friend std::ostream& operator<<(std::ostream&, const ErrorInfo&);
   std::error_code ErrorCode;

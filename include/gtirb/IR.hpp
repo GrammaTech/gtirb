@@ -276,9 +276,9 @@ public:
     CorruptModule,
     CorruptSection,
     CorruptByteInterval,
-    CorruptCFG, ///< The control flow graph could not be deserialized
-    BadUUID,
-    MissingUUID,
+    CorruptCFG,  ///< The control flow graph could not be deserialized
+    BadUUID,     ///< An object had an incorrectly formatted UUID
+    MissingUUID, ///< A UUID did not refer to an object in the loading Context
   };
 
   /// \brief Deserialize binary format from an input stream.
