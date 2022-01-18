@@ -15,7 +15,9 @@ ErrorInfo& joinErrors(ErrorInfo& Error, const std::string& Msg,
 
 ErrorInfo& joinErrors(ErrorInfo& Error, const ErrorInfo& Info,
                       const std::string& sep) {
-  return joinErrors(Error, Info.Msg, sep);
+  std::stringstream ss;
+  ss << Info;
+  return joinErrors(Error, ss.str(), sep);
 }
 
 } // namespace gtirb
