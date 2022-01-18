@@ -56,6 +56,10 @@ public class AuxDataSerialization {
         case "int8_t":
         case "uint8_t":
             return new IntegerCodec(1);
+        case "double":
+            return new FloatCodec(8);
+        case "float":
+            return new FloatCodec(4);
         case "string":
             return new StringCodec();
         case "UUID":

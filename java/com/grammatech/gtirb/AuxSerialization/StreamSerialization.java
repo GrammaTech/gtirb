@@ -102,6 +102,34 @@ public class StreamSerialization {
     }
 
     /**
+     * Put an float (4 bytes) into the output stream.
+     *
+     * @param value The float.
+     */
+    public void putFloat(float value) {
+        try {
+            outstream.writeFloat(value);
+        } catch (IOException ex) {
+            throw new EncodeException("Error writing to aux data stream.");
+        }
+        return;
+    }
+
+    /**
+     * Put an double (8 bytes) into the output stream.
+     *
+     * @param value The double.
+     */
+    public void putDouble(double value) {
+        try {
+            outstream.writeDouble(value);
+        } catch (IOException ex) {
+            throw new EncodeException("Error writing to aux data stream.");
+        }
+        return;
+    }
+
+    /**
      * Put a byte-swapped int (4 bytes) into the output stream.
      *
      * @param value The int.

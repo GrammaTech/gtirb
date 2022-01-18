@@ -112,6 +112,40 @@ public class Serialization {
     }
 
     /**
+     * Get a single precision float (4 bytes) from the byte buffer.
+     *
+     * @return The float.
+     */
+    public float getFloat() {
+        float retval;
+        try {
+            retval = bb.getFloat();
+        } catch (Exception e) {
+            remaining = 0;
+            return 0;
+        }
+        remaining = remaining - 4;
+        return retval;
+    }
+
+    /**
+     * Get a double precision float (8 bytes) from the byte buffer.
+     *
+     * @return The double.
+     */
+    public double getDouble() {
+        double retval;
+        try {
+            retval = bb.getDouble();
+        } catch (Exception e) {
+            remaining = 0;
+            return 0;
+        }
+        remaining = remaining - 8;
+        return retval;
+    }
+
+    /**
      * Put a long int (8 bytes) into the byte buffer.
      *
      * @param value The long.

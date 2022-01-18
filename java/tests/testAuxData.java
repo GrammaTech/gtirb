@@ -9,6 +9,18 @@ import java.util.List;
 import java.util.Map;
 
 public class testAuxData {
+    private static void serializeSelf(String type, Object value) {
+        AuxDataSerialization auxDataSerialization = new AuxDataSerialization();
+        byte[] raw = auxDataSerialization.encode(value, type);
+        Object next = auxDataSerialization.decode(raw, type);
+
+        assert (value.equals(next));
+    }
+
+    public static void testSerialization() {
+        serializeSelf("float", new Float(0.4));
+        serializeSelf("double", new Double(1.0));
+    }
 
     public static boolean testAuxDataDecodeEncode(IR ir) {
         List<Module> modules = ir.getModules();
@@ -78,5 +90,7 @@ public class testAuxData {
             System.err.println("AuxData test failed.");
             System.exit(1);
         }
+
+        testSerialization();
     }
 }
