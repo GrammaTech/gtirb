@@ -23,6 +23,7 @@
 #define GTIRB_ERROROR_H
 
 #include <cassert>
+#include <iostream>
 #include <system_error>
 #include <type_traits>
 #include <utility>
@@ -33,6 +34,13 @@ struct ErrorInfo {
   std::error_code ErrorCode;
   std::string Msg;
   operator bool() { return (bool)ErrorCode || Msg.length(); }
+  std::ostream& operator<<(std::ostream& os) {
+    os << ErrorCode.msg();
+    if (Msg.length()) {
+      os << ": " << Msg;
+    }
+    return os;
+  }
 };
 
 /// Represents either an error or a value T.
@@ -225,6 +233,7 @@ private:
       HasError = true;
       new (getErrorStorage()) ErrorInfo(std::move(*Other.getError()));
     }
+    return createStringError(load_error::IncorrectVersion, ss.str());
   }
 
   template <class OtherT> void moveAssign(ErrorOr<OtherT>&& Other) {
