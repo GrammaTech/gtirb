@@ -94,8 +94,8 @@ ErrorOr<Section*> Section::fromProtobuf(Context& C,
       auto err = createStringError(IR::load_error::CorruptSection,
                                    "Could not load section" + Message.name());
       return joinErrors(err, BI.getError());
-      S->addByteInterval(*BI);
     }
+    S->addByteInterval(*BI);
   }
   return S;
 }
