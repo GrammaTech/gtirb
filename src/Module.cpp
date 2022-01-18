@@ -150,18 +150,18 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
       if (!uuidFromBytes(ProtoBI.uuid(), Id))
         return joinErrors(Problem,
                           "Could not parse UUID for ByteInterval in section " +
-                              ProtoS.getName());
+                              ProtoS.name());
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
       if (!BI)
         return joinErrors(Problem,
                           "Could not find UUID for ByteInterval in section " +
-                              ProtoS.getName());
+                              ProtoS.name());
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI)) {
         std::stringstream msg{
             "Could not deserialize symbolic expression in ByteInterval"};
         if (auto Addr = BI->getAddress())
           msg << " @" << Addr;
-        msg << "in section " << ProtoS.getName();
+        msg << "in section " << ProtoS.name();
         return joinErrors(Problem, msg.str());
       }
     }
