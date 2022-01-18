@@ -32,8 +32,7 @@ ErrorOr<CodeBlock*> CodeBlock::fromProtobuf(Context& C,
   // set its parent at the same time.
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::CorruptFile,
-                             "Cannot load code block");
+    return createStringError(IR::load_error::BadUUID, "Cannot load code block");
 
   return CodeBlock::Create(C, Message.size(), Message.decode_mode(), Id);
 }

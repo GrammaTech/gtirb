@@ -82,8 +82,7 @@ void Symbol::toProtobuf(MessageType* Message) const {
 ErrorOr<Symbol*> Symbol::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::CorruptFile,
-                             "could not load symbol");
+    return createStringError(IR::load_error::BadUUID, "could not load Symbol");
 
   Symbol* S = Symbol::Create(C, Message.name(), Message.at_end(), Id);
 

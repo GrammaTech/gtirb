@@ -24,7 +24,7 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/util/json_util.h>
-#include <iostream>
+#include <iostream>C
 
 using namespace gtirb;
 
@@ -127,8 +127,9 @@ public:
       return "Corrupted GTIRB section";
     case IR::load_error::CorruptByteInterval:
       return "Corrupted byte interval";
-    case IR::load_error::BadCFG:
-      return "Error in parsing CFG";
+    case IR::load_error::CorruptBlock:
+      return "Corrupted Block" case IR::load_error::CorruptCFG
+          : return "Error in parsing CFG";
     case IR::load_error::BadUUID:
       return "Bytes not valid UUID";
     case IR::load_error::MissingUUID:
@@ -155,7 +156,7 @@ void IR::toProtobuf(MessageType* Message) const {
 ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(load_error::CorruptFile, "Could not load file");
+    return createStringError(load_error::BadUUID, "Cannot load IR");
 
   auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
@@ -166,13 +167,14 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
     I->addModule(*M);
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
-    return createStringError(load_error::BadCFG, "Could not parse CFG");
+    return createStringError(load_error::CorruptCFG);
   static_cast<AuxDataContainer*>(I)->fromProtobuf(Message);
   I->Version = Message.version();
 
   if (I->Version != GTIRB_PROTOBUF_VERSION) {
-    std::ostringstream ss("file has protobuf version ");
-    ss << I->Version << "; expected " << GTIRB_PROTOBUF_VERSION;
+    std::ostringstream ss;
+    ss << "expected version " << GTIRB_PROTOBUF_VERSION << " but got"
+       << I->Version;
     return createStringError(load_error::IncorrectVersion, ss.str());
   }
   return I;
@@ -195,10 +197,6 @@ ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   Message.ParseFromCodedStream(&CodedStream);
 
   return IR::fromProtobuf(C, Message);
-  // if (MaybeIR) {
-  //   return *MaybeIR;
-  // };
-  // return errorToErrorCode(MaybeIR.getError());
 }
 
 void IR::saveJSON(std::ostream& Out) const {

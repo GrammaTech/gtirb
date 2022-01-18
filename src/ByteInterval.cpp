@@ -121,7 +121,7 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
   std::string ErrMsg;
   {
     std::stringstream ss;
-    ss << "Could not load byte interval ";
+    ss << "Could not load ByteInterval";
     if (A)
       ss << "at " << *A;
     ErrMsg = ss.str();
