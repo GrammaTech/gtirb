@@ -15,4 +15,5 @@ int main() {
 
     return ir2.get()->modules().empty() ? 0 : 1;
   };
+  return 1;
 }
