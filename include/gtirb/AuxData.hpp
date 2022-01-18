@@ -211,21 +211,27 @@ template <class T>
 struct is_endian_type
     : std::integral_constant<bool, std::is_class_v<T> ||
                                        (std::is_integral_v<T> &&
-                                        !std::is_same_v<T, bool>) ||
-                                       std::is_floating_point<T>::value> {};
+                                        !std::is_same_v<T, bool>)> {};
 
 template <typename T, typename Enable = void> struct default_serialization {};
 
 // Serialize and deserialize by copying the object representation directly.
 template <typename T>
 struct default_serialization<
-    T, typename std::enable_if_t<is_endian_type<T>::value>> {
+    T, typename std::enable_if_t<is_endian_type<T>::value ||
+                                 std::is_floating_point<T>::value>> {
   static void toBytes(const T& object, ToByteRange& TBR) {
     // Store as little-endian.
-    T reversed = boost::endian::conditional_reverse<
-        boost::endian::order::little, boost::endian::order::native>(object);
-    auto srcBytes_begin = reinterpret_cast<const std::byte*>(&reversed);
-    auto srcBytes_end = reinterpret_cast<const std::byte*>(&reversed + 1);
+    T ordered = object;
+
+    if constexpr (!std::is_floating_point<T>::value) {
+      // Do not reorder floating point values
+      boost::endian::conditional_reverse_inplace<boost::endian::order::little,
+                                                 boost::endian::order::native>(
+          ordered);
+    }
+    auto srcBytes_begin = reinterpret_cast<const std::byte*>(&ordered);
+    auto srcBytes_end = reinterpret_cast<const std::byte*>(&ordered + 1);
     std::for_each(srcBytes_begin, srcBytes_end, [&](auto b) { TBR.write(b); });
   }
 
@@ -242,9 +248,12 @@ struct default_serialization<
     }
 
     // Data stored as little-endian.
-    boost::endian::conditional_reverse_inplace<boost::endian::order::little,
-                                               boost::endian::order::native>(
-        object);
+    if constexpr (!std::is_floating_point<T>::value) {
+      boost::endian::conditional_reverse_inplace<boost::endian::order::little,
+                                                 boost::endian::order::native>(
+          object);
+    }
+
     return true;
   }
 };
