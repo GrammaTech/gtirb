@@ -236,7 +236,7 @@ private:
     } else {
       // Get other's error.
       HasError = true;
-      new (getErrorStorage()) ErrorInfo(std::move(*Other.getError()));
+      new (getErrorStorage()) ErrorInfo(std::move(*Other.getErrorStorage()));
     }
   }
 
