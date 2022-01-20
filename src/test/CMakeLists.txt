@@ -116,3 +116,4 @@ target_link_libraries(
 )
 
 add_subdirectory(testInputBinary)
+add_subdirectory(test-interop)

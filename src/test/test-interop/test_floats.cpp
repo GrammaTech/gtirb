@@ -16,7 +16,7 @@ void registerAuxData() {
   gtirb::AuxDataContainer::registerAuxDataType<ADouble>();
 };
 
-int test_float(const std::string& filename) {
+int test_floats(const std::string& filename) {
   gtirb::Context C;
   std::ifstream inpt(filename, std::ios::binary);
   auto ir = gtirb::IR::load(C, inpt);
