@@ -22,6 +22,7 @@
 #ifndef GTIRB_ERROROR_H
 #define GTIRB_ERROROR_H
 
+#include <gtirb/Export.hpp>
 #include <cassert>
 #include <iostream>
 #include <system_error>
@@ -46,6 +47,7 @@ struct ErrorInfo {
   }
 };
 
+GTIRB_EXPORT_API
 std::ostream& operator<<(std::ostream& os, const ErrorInfo& Info);
 
 /// Represents either an error or a value T.
@@ -290,11 +292,14 @@ operator==(const ErrorOr<T>& Err, E Code) {
   return Err.getError().ErrorCode == Code;
 }
 
+GTIRB_EXPORT_API
 ErrorInfo createStringError(std::error_code EC, const std::string& Msg);
 
+GTIRB_EXPORT_API
 ErrorInfo& joinErrors(ErrorInfo& Error, const std::string& Msg,
                       const std::string& sep = "\n");
 
+GTIRB_EXPORT_API
 ErrorInfo& joinErrors(ErrorInfo& Error, const ErrorInfo& Info,
                       const std::string& sep = "\n");
 
