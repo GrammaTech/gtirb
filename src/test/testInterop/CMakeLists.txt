@@ -8,7 +8,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb/test")
 
 target_link_libraries(${PROJECT_NAME} gtirb)
 
-set(${PROJECT_NAME}_SCRIPTS test_floats.py test-interop.sh)
+set(${PROJECT_NAME}_SCRIPTS test_floats.py)
 set(test_floats ${CMAKE_BINARY_DIR}/bin/test_floats)
 
 foreach(script_name ${${PROJECT_NAME}_SCRIPTS})
