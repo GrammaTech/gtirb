@@ -16,9 +16,3 @@ foreach(script_name ${${PROJECT_NAME}_SCRIPTS})
     ${script_name} ${CMAKE_CURRENT_BINARY_DIR}/${script_name} @ONLY
   )
 endforeach()
-
-add_test(
-  NAME interop_test
-  COMMAND ./test-interop.sh
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)

@@ -256,6 +256,14 @@ test-install-python-virtualenv:
     - rm -rf build
     - sh -c '. /tmp/myvenv/bin/activate ; python3 .ci/test-install.py'
 
+test-interop:
+  needs: ['build-ubuntu18-gcc7']
+  stage: build
+  image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu18
+  script:
+    - cd build/python && pip3 install .
+    - sh -c '.ci/test-interop.sh'
+
 test-centos8-gtirb-devel:
   needs: ['build-centos8-gcc-relwithdebuginfo']
   stage: test-packages1
@@ -482,6 +490,7 @@ build-ubuntu20-packages:
     - mkdir apt-repo
     - cp build/*.deb apt-repo
     - cd apt-repo && dpkg-scanpackages . /dev/null > Packages
+
 
 .test-ubuntu-libgtirb-dev: &test-ubuntu-libgtirb-dev
   stage: test-packages1
