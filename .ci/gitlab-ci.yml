@@ -261,8 +261,8 @@ test-interop:
   needs: ['build-ubuntu18-gcc7']
   image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu18
   script:
-    - cd build/python && pip3 install . && cd ..
-    - sh -c '../.ci/test-interop.sh'
+    - sh -c 'cd build/python && pip3 install .'
+    - sh -c '.ci/test-interop.sh'
 
 test-centos8-gtirb-devel:
   needs: ['build-centos8-gcc-relwithdebuginfo']
