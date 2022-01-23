@@ -257,8 +257,8 @@ test-install-python-virtualenv:
     - sh -c '. /tmp/myvenv/bin/activate ; python3 .ci/test-install.py'
 
 test-interop:
+  stage: test-packages1
   needs: ['build-ubuntu18-gcc7']
-  stage: build
   image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu18
   script:
     - cd build/python && pip3 install .
