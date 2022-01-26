@@ -34,7 +34,6 @@ namespace gtirb {
 /// A small struct to hold an error code
 /// along with a string holding additional details
 struct ErrorInfo {
-  friend std::ostream& operator<<(std::ostream&, const ErrorInfo&);
   std::error_code ErrorCode;
   std::string Msg;
   operator bool() { return (bool)ErrorCode || Msg.length(); }
@@ -47,8 +46,12 @@ struct ErrorInfo {
   }
 };
 
-GTIRB_EXPORT_API
-std::ostream& operator<<(std::ostream& os, const ErrorInfo& Info);
+template <typename CharT, typename Traits>
+GTIRB_EXPORT_API std::ostream& operator<<(std::basic_ostream<CharT, Traits>& os,
+                                          const ErrorInfo& Info) {
+  Info.log(os);
+  return os;
+}
 
 /// Represents either an error or a value T.
 ///
