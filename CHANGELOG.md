@@ -1,6 +1,6 @@
 # 1.10.7 (unreleased)
 
-* TDB
+* Added support for floating-point numbers in AuxData.
 
 # 1.10.6
 
