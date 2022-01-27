@@ -1,3 +1,18 @@
+# ===- test_floats.py ----------------------------------*- python -*-===//
+#
+#  Copyright (C) 2021 GrammaTech, Inc.
+#
+#  This code is licensed under the MIT license.
+#  See the LICENSE file in the project root for license terms.
+#
+#  This project is sponsored by the Office of Naval Research, One Liberty
+#  Center, 875 N. Randolph Street, Arlington, VA 22203 under contract #
+#  N68335-17-C-0700.  The content of the information does not necessarily
+#  reflect the position or policy of the Government and no official
+#  endorsement should be inferred.
+#
+# ===-----------------------------------------------------------------===//
+
 import argparse
 
 import gtirb
@@ -7,7 +22,7 @@ def create_floats(filename: str):
     ir = gtirb.IR()
     ir.aux_data["AFloat"] = gtirb.AuxData(0.5, "float")
     ir.aux_data["ADouble"] = gtirb.AuxData(2.0, "double")
-    ir.save_protobuf(filename)  # fixme
+    ir.save_protobuf(filename)
 
 
 def check_for_floats(filename: str) -> bool:
