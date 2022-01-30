@@ -1,18 +1,20 @@
-\tikzstyle{object} = [draw]
-\tikzstyle{owner} = [thick]
-\tikzstyle{owner-many} = [-triangle 90 reversed,thick]
-\tikzstyle{reference} = [owner, dashed]
-\begin{tikzpicture}
-
+\begin{tikzpicture}%% Caption: GrammaTech IR for Binaries is a data structure that implicitly represents binary structures required for modification.  Elements postifxed with "(1)" are singleton in any IR instance every other structure can appear in multiple.  Every elements is assigned a Universal Unique Identifier (UUID) which can be used to reference the element from an AuxData table.  AuxData tables hold open-ended analysis results.
+  %% #fig:gtirb
+  [
+    object/.style = {draw},
+    owner/.style = {thick},
+    owner-many/.style = {-triangle 90 reversed,thick},
+    reference/.style = {owner, dashed, ->},
+  ]
   \node[object, ] (ir) {IR (1)};
   \node[object, below right=1em and 2em of ir, text width=6.25em] (ad0) {AuxData};
-  \node[below=0.25em of ad0.south] (ad1) {ID1 & DATA1};
-  \node[below=0em of ad1] (ad2) {ID2 & DATA2};
-  \node[below=0em of ad2] (ad3) {ID3 & DATA3};
+  \node[below=0.25em of ad0.south] (ad1) {ID1 \& DATA1};
+  \node[below=0em of ad1] (ad2) {ID2 \& DATA2};
+  \node[below=0em of ad2] (ad3) {ID3 \& DATA3};
   \node[below=0em of ad3] (ad4) {\ldots{}};
   \node[fit={(ad1) (ad4)}, draw, thick, dotted, inner sep=0.25em] (auxdata) {};
   \node[right=2em of auxdata] (anything) {{\em any UUID}};
-  \node[object, above right=4em and 2em of ir] (cfg) {IPCFG (1)};
+  \node[object, above right=4.5em and 2em of ir] (cfg) {CFG (1)};
   \node[object, right=4em of cfg, text width=5em] (edges) {Edges};
 
   \node[object, right=4em of ir, text width=6em] (modules) {Modules};
@@ -26,11 +28,17 @@
   \node[object, right=2.5em of proxies, text width=7em] (codeblocks) {Code Blocks};
   \node[object, below=0.5em of codeblocks, text width=7em] (datablocks) {Data Blocks};
   \node[fit={(proxies) (codeblocks)}, draw, thick, dotted] (edgeblocks) {};
-  \node[above=0em of edgeblocks.165] (eblocks) {Edge Blocks};
+  \node[] at (edges -| proxies) (eblocks) {Edge Blocks};
   \node[fit={(codeblocks) (datablocks)}, draw, thick, dotted, inner sep=0.75em] (byteblocks) {};
-  \node[below=0em of byteblocks, text width=6em] (bblocks) {Byte Blocks};
+  \node[] at (eblocks -| byteblocks) (bblocks) {Byte Blocks};
 
   \node[object, below right=1em and 2.5em of byteintervals, text width=10.5em] (symexpr) {SymbolicExpressions};
+
+  %% References
+  \draw[reference] (edges.east) |- (eblocks);
+  \draw[reference] (edges.east) -| ++(2,1) -| (bblocks.north);
+  \draw[reference] (symbols.east) -| ++(2,-1) -| (symexpr.south);
+  \draw[reference] (auxdata) -- (anything);
 
   %% Ownership
   \draw[owner-many] (ir) -- (modules);
@@ -39,15 +47,13 @@
   \draw[owner-many] (cfg) -- (edges);
   \draw[owner-many] (modules) -- ++(1.5,0) |- (symbols);
   \draw[owner-many] (modules) -- (sections);
-  \draw[owner-many] (modules) -- ++(1.5,0) |- (proxies);
+  \draw[owner-many] (modules) -- ++(1.5,0) |- (edgeblocks);
   \draw[owner-many] (modules.south) -- (ad0.north-|modules.south);
   \draw[owner-many] (sections) -- (byteintervals);
   \draw[owner-many] (byteintervals) -- ++(1.75,0) |- (symexpr);
   \draw[owner-many] (byteintervals) -- ++(1.75,0) |- (bblocks);
 
-  %% References
-  \draw[reference] (edges.east) |- (eblocks);
-  \draw[reference] (symexpr.south) |- ++(-4,-1) |- (symbols.east);
-  \draw[reference] (auxdata) -- (anything);
-
+  %% Local Variables:
+  %% mode: latex
+  %% end:
 \end{tikzpicture}
