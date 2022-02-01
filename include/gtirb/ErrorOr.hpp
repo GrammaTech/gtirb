@@ -36,20 +36,15 @@ namespace gtirb {
 struct ErrorInfo {
   std::error_code ErrorCode;
   std::string Msg;
-  operator bool() { return (bool)ErrorCode || Msg.length(); }
-  std::ostream& log(std::ostream& os) const {
-    os << ErrorCode.message();
-    if (Msg.length()) {
-      os << " " << Msg;
-    }
-    return os;
-  }
 };
 
 template <typename CharT, typename Traits>
 GTIRB_EXPORT_API std::ostream& operator<<(std::basic_ostream<CharT, Traits>& os,
                                           const ErrorInfo& Info) {
-  Info.log(os);
+  os << Info.ErrorCode.message();
+  if (Info.Msg.length()) {
+    os << " " << Info.Msg;
+  }
   return os;
 }
 
