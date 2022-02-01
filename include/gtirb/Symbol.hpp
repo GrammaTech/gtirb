@@ -33,7 +33,7 @@ namespace proto {
 class Symbol;
 }
 
-template <class T> class Expected;
+template <class T> class ErrorOr;
 class Module; // Forward declared for the backpointer.
 class SymbolObserver;
 

@@ -50,7 +50,7 @@ class ByteInterval;
 class IR;
 class ModuleObserver;
 
-template <class T> class Expected;
+template <class T> class ErrorOr;
 
 /// \enum FileFormat
 ///

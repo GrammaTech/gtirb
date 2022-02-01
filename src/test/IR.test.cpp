@@ -285,6 +285,7 @@ TEST(Unit_IR, jsonRoundTrip) {
   }
   std::istringstream In(Out.str());
   auto ResultOrErr = IR::loadJSON(Ctx, In);
+  ASSERT_TRUE(ResultOrErr);
   auto* Result = *ResultOrErr;
 
   EXPECT_EQ(Result->modules_begin()->getUUID(), MainID);

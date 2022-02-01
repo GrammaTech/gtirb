@@ -42,6 +42,7 @@
 namespace gtirb {
 class Module; // Forward declared for the backpointer.
 class SectionObserver;
+template <typename T> class ErrorOr;
 
 /// \enum SectionFlag
 ///
