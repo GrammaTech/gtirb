@@ -160,8 +160,8 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   auto* I = IR::Create(C, Id);
   for (const auto& Elt : Message.modules()) {
     auto M = Module::fromProtobuf(C, Elt);
-    if (auto ModErr = M.getError()) {
-      return ErrorOr<IR*>{std::move(ModErr)};
+    if (!M) {
+      return ErrorOr<IR*>{M.getError()};
     }
     I->addModule(*M);
   }
