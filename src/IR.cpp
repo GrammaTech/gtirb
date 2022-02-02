@@ -118,7 +118,7 @@ public:
   std::string message(int Condition) const override {
     switch (static_cast<IR::load_error>(Condition)) {
     case IR::load_error::IncorrectVersion:
-      return "GTIRB file has an incompatible version number";
+      return "Incompatible protobuf version";
     case IR::load_error::CorruptFile:
       return "Corrupted GTIRB file";
     case IR::load_error::CorruptModule:
@@ -174,9 +174,8 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   I->Version = Message.version();
 
   if (I->Version != GTIRB_PROTOBUF_VERSION) {
-    std::ostringstream ss;
-    ss << "expected version " << GTIRB_PROTOBUF_VERSION << " but got"
-       << I->Version;
+    std::stringstream ss;
+    ss << I->Version << "; expected version " << GTIRB_PROTOBUF_VERSION;
     return createStringError(load_error::IncorrectVersion, ss.str());
   }
   return I;
