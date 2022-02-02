@@ -131,19 +131,23 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
   ByteInterval* BI = ByteInterval::Create(
       C, A, Message.contents().begin(), Message.contents().end(),
       Message.size(), Message.contents().size(), Id);
-
+  std::stringstream ss;
+  if (A) {
+    ss << "@" << A;
+  }
+  ErrorInfo Err{IR::load_error::CorruptByteInterval, ss.str()};
   for (const auto& ProtoBlock : Message.blocks()) {
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
       auto B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
       if (!B)
-        return B.getError();
+        return joinErrors(Err, B.getError());
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     case proto::Block::ValueCase::kData: {
       auto B = DataBlock::fromProtobuf(C, ProtoBlock.data());
       if (!B)
-        return B.getError();
+        return joinErrors(Err, B.getError());
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     default: {
