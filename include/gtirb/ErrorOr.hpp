@@ -36,15 +36,13 @@ namespace gtirb {
 struct ErrorInfo {
   std::error_code ErrorCode;
   std::string Msg;
+  std::string asString() const;
 };
 
 template <typename CharT, typename Traits>
 GTIRB_EXPORT_API std::ostream& operator<<(std::basic_ostream<CharT, Traits>& os,
                                           const ErrorInfo& Info) {
-  os << Info.ErrorCode.message();
-  if (Info.Msg.length()) {
-    os << " " << Info.Msg;
-  }
+  os << Info.asString();
   return os;
 }
 
@@ -95,7 +93,7 @@ private:
 
 public:
   template <class E>
-  ErrorOr(E ErrorCode, const std::string& Msg,
+  ErrorOr(E ErrorCode, const std::string& Msg = "",
           std::enable_if_t<std::is_error_code_enum<E>::value ||
                                std::is_error_condition_enum<E>::value,
                            void*> = nullptr)
@@ -103,21 +101,8 @@ public:
     new (getErrorStorage()) ErrorInfo{make_error_code(ErrorCode), Msg};
   }
 
-  template <class E>
-  ErrorOr(E ErrorCode,
-          std::enable_if_t<std::is_error_code_enum<E>::value ||
-                               std::is_error_condition_enum<E>::value,
-                           void*> = nullptr)
-      : HasError(true) {
-    new (getErrorStorage()) ErrorInfo{make_error_code(ErrorCode), ""};
-  }
-
-  ErrorOr(std::error_code EC, const std::string& Msg) : HasError(true) {
+  ErrorOr(std::error_code EC, const std::string& Msg = "") : HasError(true) {
     new (getErrorStorage()) ErrorInfo{EC, Msg};
-  }
-
-  ErrorOr(std::error_code EC) : HasError(true) {
-    new (getErrorStorage()) ErrorInfo{EC, ""};
   }
 
   ErrorOr(const ErrorInfo& EI) : HasError(true) {
@@ -293,10 +278,15 @@ operator==(const ErrorOr<T>& Err, E Code) {
 GTIRB_EXPORT_API
 ErrorInfo createStringError(std::error_code EC, const std::string& Msg);
 
+/// Adds additional text to `Error.Msg`, separated from
+/// the original text by `sep`
 GTIRB_EXPORT_API
 ErrorInfo& joinErrors(ErrorInfo& Error, const std::string& Msg,
                       const std::string& sep = "\n");
 
+/// Appends the string representation of `Info`
+/// to the Msg field of `Error`, joined by `sep`.
+/// Returns `Error` as a reference.
 GTIRB_EXPORT_API
 ErrorInfo& joinErrors(ErrorInfo& Error, const ErrorInfo& Info,
                       const std::string& sep = "\n");
