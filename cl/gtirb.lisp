@@ -894,20 +894,22 @@ elements as proxy blocks do not hold bytes.")
       [{map 'vector
             (lambda (pair)
               (destructuring-bind (offset . symbolic-expression) pair
-                (flet ((force-mod-14-array (array)
+                (flet ((force-attribute-flags-array (array)
                          (declare (type (simple-array) array))
-                         (make-array (length array) :element-type '(mod 14)
+                         (make-array (length array)
+                                     :element-type `(mod ,(length +se-attribute-flag-map+))
                                      :initial-contents array)))
                   (let ((it (make-instance
                                 'proto:byte-interval-symbolic-expressions-entry)))
                     (setf (proto:key it) offset
                           (proto:value it)
                           (let ((it (make-instance 'proto:symbolic-expression)))
-                            (setf (proto:attribute-flags it)
-                                  (force-mod-14-array
-                                   (map 'vector
-                                        [#'car {rassoc _ +se-attribute-flag-map+}]
-                                        (attribute-flags symbolic-expression))))
+                            (when (attribute-flags symbolic-expression)
+                              (setf (proto:attribute-flags it)
+                                    (force-attribute-flags-array
+                                     (map 'vector
+                                          [#'car {rassoc _ +se-attribute-flag-map+}]
+                                          (attribute-flags symbolic-expression)))))
                             (etypecase symbolic-expression
                               (sym-addr-const
                                (setf (proto:addr-const it)
