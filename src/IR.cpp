@@ -158,12 +158,15 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
     return createStringError(load_error::CorruptFile, "Cannot load IR");
 
   auto* I = IR::Create(C, Id);
+  int i = 0;
   for (const auto& Elt : Message.modules()) {
     auto M = Module::fromProtobuf(C, Elt);
     if (!M) {
-      return M.getError();
+      ErrorInfo Err{load_error::CorruptModule, "#" + std::to_string(i)};
+      return joinErrors(Err, M.getError());
     }
     I->addModule(*M);
+    ++i;
   }
   if (!gtirb::fromProtobuf(C, I->Cfg, Message.cfg()))
     return load_error::CorruptCFG;
