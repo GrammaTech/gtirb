@@ -161,7 +161,7 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.modules()) {
     auto M = Module::fromProtobuf(C, Elt);
     if (!M) {
-      return ErrorOr<IR*>{M.getError()};
+      return M.getError();
     }
     I->addModule(*M);
   }
