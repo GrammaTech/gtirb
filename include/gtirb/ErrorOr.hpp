@@ -39,13 +39,12 @@ struct ErrorInfo {
   ErrorInfo() = default;
   ErrorInfo(const std::error_code& EC, const std::string& S)
       : ErrorCode(EC), Msg(S){};
-  std::string asString() const;
 };
 
 template <typename CharT, typename Traits>
-GTIRB_EXPORT_API std::ostream& operator<<(std::basic_ostream<CharT, Traits>& os,
-                                          const ErrorInfo& Info) {
-  os << Info.asString();
+std::ostream& operator<<(std::basic_ostream<CharT, Traits>& os,
+                         const ErrorInfo& Info) {
+  os << Info.ErrorCode.message() << " " << Info.Msg;
   return os;
 }
 

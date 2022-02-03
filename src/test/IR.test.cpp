@@ -300,6 +300,8 @@ TEST(Unit_IR, loadCorruptFile) {
   auto Result = IR::load(C, Stream);
   EXPECT_FALSE(Result);
   EXPECT_EQ(Result, gtirb::IR::load_error::CorruptFile);
+  std::stringstream Err;
+  Err << Result.getError();
 }
 
 TEST(Unit_IR, setModuleName) {
