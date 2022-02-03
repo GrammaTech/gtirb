@@ -12,10 +12,6 @@ std::string ErrorInfo::asString() const {
   return Stream.str();
 }
 
-ErrorInfo createStringError(std::error_code EC, const std::string& Msg) {
-  return ErrorInfo{EC, Msg};
-}
-
 ErrorInfo& joinErrors(ErrorInfo& Error, const std::string& Msg,
                       const std::string& sep) {
   Error.Msg += sep;

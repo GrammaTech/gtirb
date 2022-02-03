@@ -275,9 +275,6 @@ operator==(const ErrorOr<T>& Err, E Code) {
   return Err.getError().ErrorCode == Code;
 }
 
-GTIRB_EXPORT_API
-ErrorInfo createStringError(std::error_code EC, const std::string& Msg);
-
 /// Adds additional text to `Error.Msg`, separated from
 /// the original text by `sep`
 GTIRB_EXPORT_API
