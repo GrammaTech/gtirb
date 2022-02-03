@@ -116,10 +116,10 @@ static void nodeMapFromProtobuf(Context& C, std::map<T, U*>& Values,
 ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::BadUUID, "Cannot load module");
+    return {IR::load_error::BadUUID, "Cannot load module"};
 
-  auto Problem = createStringError(IR::load_error::CorruptModule,
-                                   "Cannot load module " + Message.name());
+  ErrorInfo Problem{IR::load_error::CorruptModule,
+                    "Cannot load module " + Message.name()};
 
   Module* M = Module::Create(C, Message.name(), Id);
   M->BinaryPath = Message.binary_path();

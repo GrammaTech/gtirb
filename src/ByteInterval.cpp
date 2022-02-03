@@ -125,7 +125,7 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     if (A)
       ss << "@ " << *A;
 
-    return createStringError(IR::load_error::BadUUID, ss.str());
+    return {IR::load_error::BadUUID, ss.str()};
   }
 
   ByteInterval* BI = ByteInterval::Create(
@@ -151,9 +151,8 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     default: {
-      return createStringError(
-          IR::load_error::CorruptFile,
-          "unknown Block::ValueCase in ByteInterval::fromProtobuf");
+      return {IR::load_error::CorruptFile,
+              "unknown Block::ValueCase in ByteInterval::fromProtobuf"};
     }
     }
   }

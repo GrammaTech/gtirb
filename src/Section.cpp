@@ -82,7 +82,7 @@ ErrorOr<Section*> Section::fromProtobuf(Context& C,
                                         const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::BadUUID, "Could not load section");
+    return {IR::load_error::BadUUID, "Could not load section"};
 
   auto* S = Section::Create(C, Message.name(), Id);
   for (int I = 0, E = Message.section_flags_size(); I != E; ++I) {
@@ -91,8 +91,8 @@ ErrorOr<Section*> Section::fromProtobuf(Context& C,
   for (const auto& ProtoInterval : Message.byte_intervals()) {
     auto BI = ByteInterval::fromProtobuf(C, ProtoInterval);
     if (!BI) {
-      auto err = createStringError(IR::load_error::CorruptSection,
-                                   "Could not load section" + Message.name());
+      ErrorInfo err{IR::load_error::CorruptSection,
+                    "Could not load section" + Message.name()};
       return joinErrors(err, BI.getError());
     }
     S->addByteInterval(*BI);

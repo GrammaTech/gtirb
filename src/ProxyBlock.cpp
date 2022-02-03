@@ -27,8 +27,7 @@ ErrorOr<ProxyBlock*> ProxyBlock::fromProtobuf(Context& C,
                                               const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(IR::load_error::BadUUID,
-                             "Could not create proxy block");
+    return {IR::load_error::BadUUID, "Could not create proxy block"};
 
   return Create(C, Id);
 }

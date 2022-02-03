@@ -155,7 +155,7 @@ void IR::toProtobuf(MessageType* Message) const {
 ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   UUID Id;
   if (!uuidFromBytes(Message.uuid(), Id))
-    return createStringError(load_error::CorruptFile, "Cannot load IR");
+    return {load_error::CorruptFile, "Cannot load IR"};
 
   auto* I = IR::Create(C, Id);
   int i = 0;
@@ -176,7 +176,7 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
   if (I->Version != GTIRB_PROTOBUF_VERSION) {
     std::stringstream ss;
     ss << I->Version << "; expected version " << GTIRB_PROTOBUF_VERSION;
-    return createStringError(load_error::IncorrectVersion, ss.str());
+    return {load_error::IncorrectVersion, ss.str()};
   }
   return I;
 }
