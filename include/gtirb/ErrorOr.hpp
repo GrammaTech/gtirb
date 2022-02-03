@@ -36,6 +36,9 @@ namespace gtirb {
 struct ErrorInfo {
   std::error_code ErrorCode;
   std::string Msg;
+  ErrorInfo() = default;
+  ErrorInfo(const std::error_code& EC, const std::string& S)
+      : ErrorCode(EC), Msg(S){};
   std::string asString() const;
 };
 
