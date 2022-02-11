@@ -15,6 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.google.protobuf.ByteString;
+import com.grammatech.gtirb.AuxSerialization.AuxDataSerialization;
 import com.grammatech.gtirb.proto.AuxDataOuterClass;
 
 /**
@@ -84,6 +85,21 @@ public class AuxData {
      * @param data AuxData as a byte array.
      */
     public void setData(byte[] data) { this.data = data; }
+
+    /**
+     * Creates an AuxData object by serializing arbitrary data.
+     * See {@link AuxDataSerialization} for more details about this
+     * serialization.
+     *
+     * @param name The name of this AuxData.
+     * @param type The type string (schemata) of this AuxData.
+     * @param val  The object to be serialized
+     * @return A new AuxData object
+     */
+    public static AuxData encode(String name, String type, Object val) {
+        byte[] data = AuxDataSerialization.encode(val, type);
+        return new AuxData(data, name, type);
+    }
 
     /**
      * De-Serialize this AuxData from a protobuf .

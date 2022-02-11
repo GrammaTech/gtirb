@@ -34,7 +34,7 @@ public class Comments {
     /**
      * Get a comment.
      *
-     * @param {@link Offset} of a comment.
+     * @param uuid {@link Offset} of a comment.
      * @return  The comment.
      */
     public String getComment(Offset uuid) { return this.map.get(uuid); }

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.grammatech.gtirb.Serialization;
-import com.grammatech.gtirb.TwoTuple;
 
 /**
  * A Codec for tuple&lt;...&gt; entries. Implemented via ArrayList.
@@ -39,17 +38,20 @@ public class TupleCodec extends Codec {
 
     public void encode(StreamSerialization outstream, Object val,
                        List<AuxTypeTree> subtypes) {
-        if (val instanceof List<?>) {
-            List<Object> tuple = (List<Object>)val;
-            outstream.putByteSwappedLong(tuple.size());
-            if (tuple.size() != subtypes.size())
-                throw new EncodeException(
-                    "TupleCodec: length of tuple does not match subtype count.");
-            for (int i = 0; i < tuple.size(); i++)
-                AuxDataSerialization.encodeTree(outstream, tuple.get(i),
-                                                subtypes.get(i));
-        } else
+        // This allows TwoTuple, ThreeTuple, FiveTuple, and arbitrary-sized
+        // object Lists
+        if (!(val instanceof List<?>)) {
             throw new EncodeException(
                 "TupleCodec: attempt to encode non tuple.");
+        }
+
+        List<?> tupleList = (List<?>)val;
+        if (tupleList.size() != subtypes.size())
+            throw new EncodeException(String.format(
+                "TupleCodec: provided tuple data has %d items but schema expects %d.",
+                tupleList.size(), subtypes.size()));
+        for (int i = 0; i < tupleList.size(); i++)
+            AuxDataSerialization.encodeTree(outstream, tupleList.get(i),
+                                            subtypes.get(i));
     }
 }

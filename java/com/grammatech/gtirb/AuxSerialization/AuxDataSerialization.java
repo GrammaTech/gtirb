@@ -21,16 +21,83 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- *
  * Serialize and De-serialize AuxData.
  *
+ * The objects returned by {@link #decode(byte[], String)} and accepted by
+ * {@link #encode(Object, String)} always have a type that matches the type
+ * string provided to those methods. The type string is language-independent
+ * and shared by all implementations of GTIRB.
+ *
+ * Translation from GTIRB types to Java types:
+ * <p><table>
+ *     <thead>
+ *         <tr><th>GTIRB type</th><th>Java type</th><th>Notes</th></tr>
+ *     </thead>
+ *     <tr>
+ *         <td>sequence&lt;E&gt;</td>
+ *         <td>{@link java.util.List}&lt;E&gt;</td>
+ *     </tr>
+ *     <tr>
+ *         <td>set&lt;E&gt;</td>
+ *         <td>{@link java.util.Set}&lt;E&gt;</td>
+ *     </tr>
+ *     <tr>
+ *         <td>mapping&lt;K,V&gt;</td>
+ *         <td>{@link java.util.Map}&lt;K,V&gt;</td>
+ *     </tr>
+ *     <tr>
+ *         <td>tuple&lt;A,B&gt;</td>
+ *         <td>{@link TwoTuple}&lt;A,B&gt;</td>
+ *     </tr>
+ *     <tr>
+ *         <td>tuple&lt;A,B,C&gt;</td>
+ *         <td>{@link ThreeTuple}&lt;A,B,C&gt;</td>
+ *     </tr>
+ *     <tr>
+ *         <td>tuple&lt;A,B,C,D,E&gt;</td>
+ *         <td>{@link FiveTuple}&lt;A,B,C,D,E&gt;</td>
+ *     </tr>
+ *     <tr>
+ *         <td>tuple&lt;A,B,...&gt;</td>
+ *         <td>{@link java.util.List}&lt;{@link Object}&gt;</td>
+ *         <td>Any tuple size not listed above uses a generic List.</td>
+ *     </tr>
+ *     <tr><td>Offset</td><td>{@link Offset}</td><td></td></tr>
+ *     <tr><td>UUID</td><td>{@link java.util.UUID}</td><td></td></tr>
+ *     <tr><td>string</td><td>{@link String}</td><td></td></tr>
+ *     <tr><td>uint64_t</td><td>{@link Long}</td><td></td></tr>
+ *     <tr><td>int64_t</td><td>{@link Long}</td><td></td></tr>
+ *     <tr><td>uint32_t</td><td>{@link Integer}</td><td></td></tr>
+ *     <tr><td>int32_t</td><td>{@link Integer}</td><td></td></tr>
+ *     <tr><td>uint8_t</td><td>{@link Byte}</td><td></td></tr>
+ *     <tr><td>int8_t</td><td>{@link Byte}</td><td></td></tr>
+ *     <tr><td>double</td><td>{@link Double}</td><td></td></tr>
+ *     <tr><td>float</td><td>{@link Float}</td><td></td></tr>
+ * </table></p>
+ *
+ * GTIRB types can be nested with a similar format to the corresponding
+ * Java Generics. However, GTIRB AuxData type strings MUST NOT contain any
+ * whitespace. A few examples:
+ * <p><table>
+ *     <thead>
+ *         <tr><th>GTIRB type</th><th>Java type</th></tr>
+ *     </thead>
+ *     <tr>
+ *         <td>{@code mapping<UUID,string>}</td>
+ *         <td>{@code Map<UUID,String>}</td>
+ *     </tr>
+ *     <tr>
+ *         <td>{@code set<tuple<string,uint64_t>>}</td>
+ *         <td>{@code Set<TwoTuple<String,Long>>}</td>
+ *     </tr>
+ * </table></p>
  */
 public class AuxDataSerialization {
 
     /**
      * Class Constructor
      */
-    public AuxDataSerialization() {}
+    private AuxDataSerialization() {}
 
     public static Codec getCodec(String typeName) {
         switch (typeName) {
@@ -102,7 +169,7 @@ public class AuxDataSerialization {
      * @param typeName  The type name of the object encoded by 'rawNytes'.
      * @return          The object encoded by 'rawBytes'.
      */
-    public Object decode(byte[] rawBytes, String typeName) {
+    public static Object decode(byte[] rawBytes, String typeName) {
         Object result;
         try {
             AuxTypeTree parseTree = AuxTypeTree.parseTypeString(typeName);
@@ -124,7 +191,7 @@ public class AuxDataSerialization {
      * AuxData}
      * @return          An encoded byte array.
      */
-    public byte[] encode(Object val, String typeName) {
+    public static byte[] encode(Object val, String typeName) {
         if (val instanceof UnknownData)
             return ((UnknownData)val).bytes;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

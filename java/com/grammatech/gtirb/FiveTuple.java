@@ -13,12 +13,12 @@
  */
 
 package com.grammatech.gtirb;
-import java.util.Iterator;
+import java.util.AbstractList;
 
 /**
  * Immutable collection of five elements of any type.
  */
-public class FiveTuple<S1, S2, S3, S4, S5> implements Iterable<Object> {
+public class FiveTuple<S1, S2, S3, S4, S5> extends AbstractList<Object> {
 
     private final S1 first;
     private final S2 second;
@@ -99,43 +99,8 @@ public class FiveTuple<S1, S2, S3, S4, S5> implements Iterable<Object> {
     }
 
     /**
-     * Get an iterator for the {@link FiveTuple}.
-     *
-     * @return  An iterator.
+     * Get the size of this tuple. Every FiveTuple has size 5.
+     * @return Tuple size
      */
-    @Override
-    public Iterator<Object> iterator() {
-        Iterator<Object> it = new Iterator<Object>() {
-            private int currentIndex = 0;
-
-            @Override
-            public boolean hasNext() {
-                if (currentIndex < 5)
-                    return true;
-                return false;
-            }
-
-            @Override
-            public Object next() {
-                if (currentIndex++ == 0)
-                    return first;
-                else if (currentIndex++ == 1)
-                    return second;
-                else if (currentIndex++ == 2)
-                    return third;
-                else if (currentIndex++ == 3)
-                    return fourth;
-                else if (currentIndex++ == 4)
-                    return fifth;
-                // went past
-                return null;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-        return it;
-    }
+    public int size() { return 5; }
 }

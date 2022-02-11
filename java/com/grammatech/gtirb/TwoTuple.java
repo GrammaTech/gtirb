@@ -14,12 +14,12 @@
 
 package com.grammatech.gtirb;
 
-import java.util.Iterator;
+import java.util.AbstractList;
 
 /**
  * Immutable collection of two elements of any type.
  */
-public class TwoTuple<S1, S2> implements Iterable<Object> {
+public class TwoTuple<S1, S2> extends AbstractList<Object> {
 
     private final S1 first;
     private final S2 second;
@@ -64,37 +64,8 @@ public class TwoTuple<S1, S2> implements Iterable<Object> {
     }
 
     /**
-     * Get an iterator for the {@link TwoTuple}.
-     *
-     * @return  An iterator.
+     * Get the size of this tuple. Every TwoTuple has size 2.
+     * @return Tuple size
      */
-    @Override
-    public Iterator<Object> iterator() {
-        Iterator<Object> it = new Iterator<Object>() {
-            private int currentIndex = 0;
-
-            @Override
-            public boolean hasNext() {
-                if (currentIndex < 2)
-                    return true;
-                return false;
-            }
-
-            @Override
-            public Object next() {
-                if (currentIndex++ == 0)
-                    return first;
-                else if (currentIndex++ == 1)
-                    return second;
-                // went past
-                return null;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-        return it;
-    }
+    public int size() { return 2; }
 }

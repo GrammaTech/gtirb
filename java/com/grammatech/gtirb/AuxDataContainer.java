@@ -60,7 +60,7 @@ public class AuxDataContainer extends Node {
     }
 
     private List<String> importListOfString(AuxData auxData) {
-        List<String> entries = new ArrayList<String>();
+        List<String> entries = new ArrayList<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -100,8 +100,7 @@ public class AuxDataContainer extends Node {
 
     private Set<TwoTuple<String, Long>>
     importSetOfTupleOfStringAndLong(AuxData auxData) {
-        Set<TwoTuple<String, Long>> entries =
-            new HashSet<TwoTuple<String, Long>>();
+        Set<TwoTuple<String, Long>> entries = new HashSet<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -109,7 +108,7 @@ public class AuxDataContainer extends Node {
                 String elementOne = serialization.getString();
                 Long elementTwo = serialization.getLong();
                 TwoTuple<String, Long> tuple =
-                    new TwoTuple<String, Long>(elementOne, elementTwo);
+                    new TwoTuple<>(elementOne, elementTwo);
                 entries.add(tuple);
             }
         }
@@ -146,7 +145,7 @@ public class AuxDataContainer extends Node {
     }
 
     private Map<UUID, UUID> importMapOfUuidToUuid(AuxData auxData) {
-        Map<UUID, UUID> entries = new HashMap<UUID, UUID>();
+        Map<UUID, UUID> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -186,7 +185,7 @@ public class AuxDataContainer extends Node {
     }
 
     private Map<UUID, Long> importMapOfUuidToLong(AuxData auxData) {
-        Map<UUID, Long> entries = new HashMap<UUID, Long>();
+        Map<UUID, Long> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -226,7 +225,7 @@ public class AuxDataContainer extends Node {
     }
 
     private Map<UUID, String> importMapOfUuidToString(AuxData auxData) {
-        Map<UUID, String> entries = new HashMap<UUID, String>();
+        Map<UUID, String> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -272,8 +271,7 @@ public class AuxDataContainer extends Node {
 
     private Map<UUID, TwoTuple<Long, Long>>
     importMapOfUuidToTupleOf2xLong(AuxData auxData) {
-        Map<UUID, TwoTuple<Long, Long>> entries =
-            new HashMap<UUID, TwoTuple<Long, Long>>();
+        Map<UUID, TwoTuple<Long, Long>> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -281,8 +279,7 @@ public class AuxDataContainer extends Node {
                 UUID uuid = serialization.getUuid();
                 long valueOne = serialization.getLong();
                 long valueTwo = serialization.getLong();
-                TwoTuple<Long, Long> tuple =
-                    new TwoTuple<Long, Long>(valueOne, valueTwo);
+                TwoTuple<Long, Long> tuple = new TwoTuple<>(valueOne, valueTwo);
                 entries.put(uuid, tuple);
             }
         }
@@ -321,8 +318,7 @@ public class AuxDataContainer extends Node {
 
     private Map<Long, TwoTuple<Long, String>>
     importMapOfLongToTupleOfLongAndString(AuxData auxData) {
-        Map<Long, TwoTuple<Long, String>> entries =
-            new HashMap<Long, TwoTuple<Long, String>>();
+        Map<Long, TwoTuple<Long, String>> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -331,7 +327,7 @@ public class AuxDataContainer extends Node {
                 Long valueOne = serialization.getLong();
                 String valueTwo = serialization.getString();
                 TwoTuple<Long, String> tuple =
-                    new TwoTuple<Long, String>(valueOne, valueTwo);
+                    new TwoTuple<>(valueOne, valueTwo);
                 entries.put(key, tuple);
             }
         }
@@ -375,14 +371,14 @@ public class AuxDataContainer extends Node {
     }
 
     private Map<UUID, Set<UUID>> importMapOfUuidToSetOfUuid(AuxData auxData) {
-        Map<UUID, Set<UUID>> entries = new HashMap<UUID, Set<UUID>>();
+        Map<UUID, Set<UUID>> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
             for (int i = 0; i < numEntries; i++) {
                 UUID key = serialization.getUuid();
                 long numElements = serialization.getLong();
-                Set<UUID> value = new HashSet<UUID>();
+                Set<UUID> value = new HashSet<>();
                 for (int j = 0; j < numElements; j++) {
                     UUID element = serialization.getUuid();
                     value.add(element);
@@ -428,7 +424,7 @@ public class AuxDataContainer extends Node {
     }
 
     private Map<Offset, Long> importMapOfOffsetToLong(AuxData auxData) {
-        Map<Offset, Long> entries = new HashMap<Offset, Long>();
+        Map<Offset, Long> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -455,7 +451,7 @@ public class AuxDataContainer extends Node {
         serialization.putLong(entries.size());
         for (Offset offset : offsets) {
             UUID offsetUuid = offset.getElementId();
-            Long offsetDisplacement = offset.getDisplacement();
+            long offsetDisplacement = offset.getDisplacement();
             Long value = entries.get(offset);
             serialization.putUuid(offsetUuid);
             serialization.putLong(offsetDisplacement);
@@ -473,7 +469,7 @@ public class AuxDataContainer extends Node {
     }
 
     private Map<Offset, String> importMapOfOffsetToString(AuxData auxData) {
-        Map<Offset, String> entries = new HashMap<Offset, String>();
+        Map<Offset, String> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -505,7 +501,7 @@ public class AuxDataContainer extends Node {
         serialization.putLong(entries.size());
         for (Offset offset : offsets) {
             UUID offsetUuid = offset.getElementId();
-            Long offsetDisplacement = offset.getDisplacement();
+            long offsetDisplacement = offset.getDisplacement();
             String value = entries.get(offset);
             serialization.putUuid(offsetUuid);
             serialization.putLong(offsetDisplacement);
@@ -524,21 +520,19 @@ public class AuxDataContainer extends Node {
 
     private Map<UUID, List<TwoTuple<String, Long>>>
     importMapOfUuidToListOfTupleOfStringAndLong(AuxData auxData) {
-        Map<UUID, List<TwoTuple<String, Long>>> entries =
-            new HashMap<UUID, List<TwoTuple<String, Long>>>();
+        Map<UUID, List<TwoTuple<String, Long>>> entries = new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
             for (int i = 0; i < numEntries; i++) {
                 UUID key = serialization.getUuid();
                 long numElements = serialization.getLong();
-                List<TwoTuple<String, Long>> value =
-                    new ArrayList<TwoTuple<String, Long>>();
+                List<TwoTuple<String, Long>> value = new ArrayList<>();
                 for (int j = 0; j < numElements; j++) {
                     String elementOne = serialization.getString();
                     long elementTwo = serialization.getLong();
                     TwoTuple<String, Long> tuple =
-                        new TwoTuple<String, Long>(elementOne, elementTwo);
+                        new TwoTuple<>(elementOne, elementTwo);
                     value.add(tuple);
                 }
                 entries.put(key, value);
@@ -557,7 +551,7 @@ public class AuxDataContainer extends Node {
         Set<UUID> keys = entries.keySet();
         int bytesRequired = 8; // number of entries
         for (UUID key : keys) {
-            bytesRequired += 8; // size of list
+            bytesRequired += 24; // UUID + size of list
             List<TwoTuple<String, Long>> value = entries.get(key);
             for (TwoTuple<String, Long> tuple : value) {
                 String firstElement = tuple.getFirst();
@@ -570,6 +564,7 @@ public class AuxDataContainer extends Node {
         serialization.putLong(entries.size());
         for (UUID key : keys) {
             List<TwoTuple<String, Long>> value = entries.get(key);
+            serialization.putUuid(key);
             serialization.putLong(value.size());
             for (TwoTuple<String, Long> tuple : value) {
                 String firstElement = tuple.getFirst();
@@ -592,7 +587,7 @@ public class AuxDataContainer extends Node {
     private Map<UUID, FiveTuple<Long, String, String, String, Long>>
     importMapOfUuidToTupleOfLongAnd3xStringAndLong(AuxData auxData) {
         Map<UUID, FiveTuple<Long, String, String, String, Long>> entries =
-            new HashMap<UUID, FiveTuple<Long, String, String, String, Long>>();
+            new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -604,9 +599,8 @@ public class AuxDataContainer extends Node {
                 String elementFour = serialization.getString();
                 long elementFive = serialization.getLong();
                 FiveTuple<Long, String, String, String, Long> tuple =
-                    new FiveTuple<Long, String, String, String, Long>(
-                        elementOne, elementTwo, elementThree, elementFour,
-                        elementFive);
+                    new FiveTuple<>(elementOne, elementTwo, elementThree,
+                                    elementFour, elementFive);
                 entries.put(key, tuple);
             }
         }
@@ -629,7 +623,7 @@ public class AuxDataContainer extends Node {
             String fourthElement = tuple.getFourth();
             bytesRequired += secondElement.getBytes().length +
                              thirdElement.getBytes().length +
-                             fourthElement.getBytes().length + 40;
+                             fourthElement.getBytes().length + 56;
         }
         // Serialize the data
         byte[] data = new byte[bytesRequired];
@@ -638,6 +632,7 @@ public class AuxDataContainer extends Node {
         for (UUID key : keys) {
             FiveTuple<Long, String, String, String, Long> tuple =
                 entries.get(key);
+            serialization.putUuid(key);
             serialization.putLong(tuple.getFirst());
             serialization.putString(tuple.getSecond());
             serialization.putString(tuple.getThird());
@@ -659,7 +654,7 @@ public class AuxDataContainer extends Node {
     importMapOfOffsetToListOfTupleOfStringAndListOfLongAndUuid(
         AuxData auxData) {
         Map<Offset, List<ThreeTuple<String, List<Long>, UUID>>> entries =
-            new HashMap<Offset, List<ThreeTuple<String, List<Long>, UUID>>>();
+            new HashMap<>();
         if (auxData != null) {
             Serialization serialization = new Serialization(auxData.getData());
             long numEntries = serialization.getLong();
@@ -668,11 +663,11 @@ public class AuxDataContainer extends Node {
                 long offsetDisplacement = serialization.getLong();
                 Offset key = new Offset(offsetUuid, offsetDisplacement);
                 List<ThreeTuple<String, List<Long>, UUID>> tupleList =
-                    new ArrayList<ThreeTuple<String, List<Long>, UUID>>();
+                    new ArrayList<>();
                 long numNodes = serialization.getLong();
                 for (int j = 0; j < numNodes; j++) {
                     String elementOne = serialization.getString();
-                    List<Long> elementTwo = new ArrayList<Long>();
+                    List<Long> elementTwo = new ArrayList<>();
                     long numLongs = serialization.getLong();
                     for (int k = 0; k < numLongs; k++) {
                         Long node = serialization.getLong();
@@ -680,8 +675,7 @@ public class AuxDataContainer extends Node {
                     }
                     UUID elementThree = serialization.getUuid();
                     ThreeTuple<String, List<Long>, UUID> tuple =
-                        new ThreeTuple<String, List<Long>, UUID>(
-                            elementOne, elementTwo, elementThree);
+                        new ThreeTuple<>(elementOne, elementTwo, elementThree);
                     tupleList.add(tuple);
                 }
                 entries.put(key, tupleList);
@@ -719,7 +713,7 @@ public class AuxDataContainer extends Node {
         serialization.putLong(entries.size());
         for (Offset offset : offsets) {
             UUID offsetUuid = offset.getElementId();
-            Long offsetDisplacement = offset.getDisplacement();
+            long offsetDisplacement = offset.getDisplacement();
             serialization.putUuid(offsetUuid);
             serialization.putLong(offsetDisplacement);
             List<ThreeTuple<String, List<Long>, UUID>> tuples =
@@ -1019,9 +1013,9 @@ public class AuxDataContainer extends Node {
     }
 
     /**
-     * Import functionNames auxData into {@Link FunctionNames}.
+     * Import functionNames auxData into {@link FunctionNames}.
      *
-     * @return  The {@Link FunctionNames} from the functionNames AuxData.
+     * @return  The {@link FunctionNames} from the functionNames AuxData.
      */
     public FunctionNames getFunctionNames() {
         Map<UUID, UUID> map =
@@ -1030,9 +1024,9 @@ public class AuxDataContainer extends Node {
     }
 
     /**
-     * Export functionNames from {@Link FunctionNames} to AuxData.
+     * Export functionNames from {@link FunctionNames} to AuxData.
      *
-     * @param functionNames  The {@Link FunctionNames} to go into
+     * @param functionNames  The {@link FunctionNames} to go into
      * functionNames AuxData.
      */
     public void setFunctionNames(FunctionNames functionNames) {
@@ -1094,7 +1088,7 @@ public class AuxDataContainer extends Node {
      */
     public Map<UUID, List<TwoTuple<String, Long>>> getElfSymbolTableIdxInfo() {
         return (importMapOfUuidToListOfTupleOfStringAndLong(
-            this.auxDataMap.get("elfSymbolTableIdxInfo")));
+            this.auxDataMap.get("elfSymbolTabIdxInfo")));
     }
 
     /**
@@ -1106,7 +1100,7 @@ public class AuxDataContainer extends Node {
     public void setElfSymbolTableIdxInfo(
         Map<UUID, List<TwoTuple<String, Long>>> elfSymbolTableIdxInfoMap) {
         exportMapOfUuidToListOfTupleOfStringAndLong(
-            elfSymbolTableIdxInfoMap, "elfSymbolTableIdxInfo",
+            elfSymbolTableIdxInfoMap, "elfSymbolTabIdxInfo",
             "mapping<UUID,sequence<tuple<string,uint64_t>>>");
     }
 
@@ -1190,4 +1184,22 @@ public class AuxDataContainer extends Node {
      * @return The map of AuxData names to AuxData.
      */
     public Map<String, AuxData> getAuxDataMap() { return this.auxDataMap; }
+
+    /**
+     * Retrieve an arbitrary {@link AuxData} item from this container if it
+     * exists.
+     *
+     * @param name The schema name
+     * @return An {@link AuxData} object, or null if not found.
+     */
+    public AuxData getAuxData(String name) { return this.auxDataMap.get(name); }
+
+    /**
+     * Adds an arbitrary {@link AuxData} item to this container.
+     *
+     * @param auxData The data to add
+     */
+    public void putAuxData(AuxData auxData) {
+        this.auxDataMap.put(auxData.getName(), auxData);
+    }
 }

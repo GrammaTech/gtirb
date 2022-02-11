@@ -30,6 +30,26 @@ class AuxTypeTree {
     public List<AuxTypeTree> getChildren() { return this.children; }
     public boolean hasChild() { return !this.children.isEmpty(); }
 
+    public String toString() {
+        if (this.children.isEmpty()) {
+            return name;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(name);
+        stringBuilder.append('<');
+        boolean isFirst = true;
+        for (AuxTypeTree child : children) {
+            if (!isFirst) {
+                stringBuilder.append(',');
+            }
+            stringBuilder.append(child);
+            isFirst = false;
+        }
+        stringBuilder.append('>');
+        return stringBuilder.toString();
+    }
+
     private static String matchName(Matcher matcher) {
         if (!matcher.find())
             throw new DecodeException("AuxData type name missing.");
@@ -70,7 +90,7 @@ class AuxTypeTree {
                         "Unexpected ',' in AuxData type.");
                 }
                 curNode = new AuxTypeTree(matchName(matcher));
-                parseStack.getLast().children.add(curNode);
+                parseStack.getFirst().children.add(curNode);
             } else {
                 // Something like mapping<byte>foo
                 throw new DecodeException(
