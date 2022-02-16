@@ -283,7 +283,7 @@ public final class ByteInterval extends Node implements TreeListItem {
     // with a given address
     private <T extends TreeListItem> List<T>
     getItemsIntersectingAddress(long address, TreeMap<Long, List<T>> tree) {
-        if (this.address.isEmpty())
+        if (!this.address.isPresent())
             return null;
         long ownAddress = this.address.getAsLong();
 
@@ -300,7 +300,7 @@ public final class ByteInterval extends Node implements TreeListItem {
     private <T extends TreeListItem> List<T>
     getItemsIntersectingAddressRange(long startAddress, long endAddress,
                                      TreeMap<Long, List<T>> tree) {
-        if (this.address.isEmpty())
+        if (!this.address.isPresent())
             return null;
         long ownAddress = this.address.getAsLong();
 
@@ -322,7 +322,7 @@ public final class ByteInterval extends Node implements TreeListItem {
     // Generic method for retrieving items that start at a given address
     private <T extends TreeListItem> List<T>
     getItemsAtStartAddress(long address, TreeMap<Long, List<T>> tree) {
-        if (this.address.isEmpty())
+        if (!this.address.isPresent())
             return null;
         long ownAddress = this.address.getAsLong();
 
@@ -338,7 +338,7 @@ public final class ByteInterval extends Node implements TreeListItem {
     private <T extends TreeListItem> List<T>
     getItemsAtStartAddressRange(long startAddress, long endAddress,
                                 TreeMap<Long, List<T>> tree) {
-        if (this.address.isEmpty())
+        if (!this.address.isPresent())
             return null;
         long ownAddress = this.address.getAsLong();
 

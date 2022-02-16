@@ -19,7 +19,7 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.google.protobuf:protobuf-java:3.11.1'
+    implementation 'com.google.protobuf:protobuf-java:3.11.1'
 }
 
 compileJava {

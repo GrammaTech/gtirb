@@ -51,8 +51,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.9</maven.compiler.source>
-    <maven.compiler.target>1.9</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <build>
@@ -90,6 +90,7 @@
         <version>3.3.1</version>
         <configuration>
           <detectJavaApiLink>false</detectJavaApiLink>
+          <excludePackageNames>com.grammatech.gtirb.proto</excludePackageNames>
         </configuration>
         <executions>
           <execution>

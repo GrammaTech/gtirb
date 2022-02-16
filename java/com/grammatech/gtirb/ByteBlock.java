@@ -103,7 +103,7 @@ public abstract class ByteBlock extends Node implements TreeListItem {
         if (byteInterval == null)
             return OptionalLong.empty();
         OptionalLong biAddress = byteInterval.getAddress();
-        if (biAddress.isEmpty())
+        if (!biAddress.isPresent())
             return OptionalLong.empty();
         return OptionalLong.of(biAddress.getAsLong() + offset);
     }

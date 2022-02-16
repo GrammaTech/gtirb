@@ -208,11 +208,13 @@ public class Section extends Node implements TreeListItem {
         Iterator<ByteInterval> byteIntervalTreeIterator =
             this.getByteIntervalIterator();
         ByteInterval byteInterval = byteIntervalTreeIterator.next();
-        long sectionStart = byteInterval.getAddress().orElseThrow();
+        long sectionStart =
+            byteInterval.getAddress().orElseThrow(NoSuchElementException::new);
         long sectionEnd = sectionStart + byteInterval.getSize();
         while (byteIntervalTreeIterator.hasNext()) {
             byteInterval = byteIntervalTreeIterator.next();
-            long biStart = byteInterval.getAddress().orElseThrow();
+            long biStart = byteInterval.getAddress().orElseThrow(
+                NoSuchElementException::new);
             long biEnd = biStart + byteInterval.getSize();
             if (Long.compareUnsigned(biStart, sectionStart) < 0)
                 sectionStart = biStart;
@@ -244,12 +246,12 @@ public class Section extends Node implements TreeListItem {
         while (byteIntervalTreeIterator.hasNext()) {
             ByteInterval byteInterval = byteIntervalTreeIterator.next();
             OptionalLong biAddress = byteInterval.getAddress();
-            if (biAddress.isEmpty())
+            if (!biAddress.isPresent())
                 return OptionalLong.empty();
             // This iterator is sorted, but with signed comparison.
             // Checking every ByteInterval here instead of just using the first
             // iteration helps avoid any (unlikely) signedness issues.
-            if (minAddress.isEmpty() ||
+            if (!minAddress.isPresent() ||
                 Long.compareUnsigned(minAddress.getAsLong(),
                                      biAddress.getAsLong()) > 0)
                 minAddress = biAddress;
