@@ -140,14 +140,18 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     switch (ProtoBlock.value_case()) {
     case proto::Block::ValueCase::kCode: {
       auto B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
-      if (!B)
-        return joinErrors(Err, B.getError());
+      if (!B) {
+        Err.Msg += "\n" + B.getError().asString();
+        return Err;
+      }
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     case proto::Block::ValueCase::kData: {
       auto B = DataBlock::fromProtobuf(C, ProtoBlock.data());
-      if (!B)
-        return joinErrors(Err, B.getError());
+      if (!B) {
+        Err.Msg += "\n" + B.getError().asString();
+        return Err;
+      }
       BI->addBlock(ProtoBlock.offset(), *B);
     } break;
     default: {

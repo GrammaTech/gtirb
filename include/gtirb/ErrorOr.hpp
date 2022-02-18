@@ -39,6 +39,7 @@ struct ErrorInfo {
   ErrorInfo() = default;
   ErrorInfo(const std::error_code& EC, const std::string& S)
       : ErrorCode(EC), Msg(S){};
+  std::string asString();
 };
 
 template <typename CharT, typename Traits>
@@ -276,20 +277,6 @@ std::enable_if_t<std::is_error_code_enum<E>::value ||
 operator==(const ErrorOr<T>& Err, E Code) {
   return Err.getError().ErrorCode == Code;
 }
-
-/// Adds additional text to `Error.Msg`, separated from
-/// the original text by `sep`
-GTIRB_EXPORT_API
-ErrorInfo& joinErrors(ErrorInfo& Error, const std::string& Msg,
-                      const std::string& sep = "\n");
-
-/// Appends the string representation of `Info`
-/// to the Msg field of `Error`, joined by `sep`.
-/// Returns `Error` as a reference.
-GTIRB_EXPORT_API
-ErrorInfo& joinErrors(ErrorInfo& Error, const ErrorInfo& Info,
-                      const std::string& sep = "\n");
-
 } // end namespace gtirb
 
 #endif // GTIRB_ERROROR_H

@@ -129,50 +129,63 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   M->Isa = static_cast<ISA>(Message.isa());
   for (const auto& Elt : Message.proxies()) {
     auto PB = ProxyBlock::fromProtobuf(C, Elt);
-    if (!PB)
-      return joinErrors(Problem, PB.getError());
+    if (!PB) {
+      Problem.Msg += "\n" + PB.getError().asString();
+      return Problem;
+    }
     M->addProxyBlock(*PB);
   }
   for (const auto& Elt : Message.sections()) {
     auto S = Section::fromProtobuf(C, Elt);
-    if (!S)
-      return joinErrors(Problem, S.getError());
+    if (!S) {
+      Problem.Msg += "\n" + S.getError().asString();
+      return Problem;
+    }
     M->addSection(*S);
   }
   for (const auto& Elt : Message.symbols()) {
     auto S = Symbol::fromProtobuf(C, Elt);
-    if (!S)
-      return joinErrors(Problem, S.getError());
+    if (!S) {
+      Problem.Msg += "\n" + S.getError().asString();
+      return Problem;
+    }
     M->addSymbol(*S);
   }
   for (const auto& ProtoS : Message.sections()) {
     for (const auto& ProtoBI : ProtoS.byte_intervals()) {
-      if (!uuidFromBytes(ProtoBI.uuid(), Id))
-        return joinErrors(Problem,
-                          "Could not parse UUID for ByteInterval in section " +
-                              ProtoS.name());
+      if (!uuidFromBytes(ProtoBI.uuid(), Id)) {
+        Problem.Msg += "\nCould not parse UUID for ByteInterval in section " +
+                       ProtoS.name();
+        return Problem;
+      }
       auto* BI = dyn_cast_or_null<ByteInterval>(getByUUID(C, Id));
-      if (!BI)
-        return joinErrors(Problem,
-                          "Could not find UUID for ByteInterval in section " +
-                              ProtoS.name());
+      if (!BI) {
+        Problem.Msg += "\nCould not find UUID for ByteInterval in section " +
+                       ProtoS.name();
+        return Problem;
+      }
       if (!BI->symbolicExpressionsFromProtobuf(C, ProtoBI)) {
         std::stringstream msg{
             "Could not deserialize symbolic expression in ByteInterval"};
         if (auto Addr = BI->getAddress())
           msg << " @" << Addr;
         msg << "in section " << ProtoS.name();
-        return joinErrors(Problem, msg.str());
+        Problem.Msg += msg.str();
+        return Problem;
       }
     }
   }
 
   if (!Message.entry_point().empty()) {
-    if (!uuidFromBytes(Message.entry_point(), Id))
-      return joinErrors(Problem, "Could not parse UUID for entry point");
+    if (!uuidFromBytes(Message.entry_point(), Id)) {
+      Problem.Msg += "\nCould not parse UUID for entry point";
+      return Problem;
+    }
     M->EntryPoint = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id));
-    if (!M->EntryPoint)
-      return joinErrors(Problem, "Could not find entry point");
+    if (!M->EntryPoint) {
+      Problem.Msg += "\nCould not find entry point";
+      return Problem;
+    }
   }
   M->ByteOrder = static_cast<gtirb::ByteOrder>(Message.byte_order());
   static_cast<AuxDataContainer*>(M)->fromProtobuf(Message);

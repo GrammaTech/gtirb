@@ -92,8 +92,9 @@ ErrorOr<Section*> Section::fromProtobuf(Context& C,
     auto BI = ByteInterval::fromProtobuf(C, ProtoInterval);
     if (!BI) {
       ErrorInfo err{IR::load_error::CorruptSection,
-                    "Could not load section" + Message.name()};
-      return joinErrors(err, BI.getError());
+                    "Could not load section" + Message.name() + "\n" +
+                        BI.getError().asString()};
+      return err;
     }
     S->addByteInterval(*BI);
   }

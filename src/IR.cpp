@@ -114,8 +114,10 @@ IR::IR(Context& C, const UUID& U)
 
 class IRLoadErrorCategory : public std::error_category {
 public:
-  const char* name() const noexcept override { return "gt.gtirb.ir"; }
-  std::string message(int Condition) const override {
+  [[nodiscard]] const char* name() const noexcept override {
+    return "gt.gtirb.ir";
+  }
+  [[nodiscard]] std::string message(int Condition) const override {
     switch (static_cast<IR::load_error>(Condition)) {
     case IR::load_error::IncorrectVersion:
       return "Incompatible protobuf version";
@@ -163,7 +165,8 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
     auto M = Module::fromProtobuf(C, Elt);
     if (!M) {
       ErrorInfo Err{load_error::CorruptModule, "#" + std::to_string(i)};
-      return joinErrors(Err, M.getError());
+      Err.Msg += "\n" + M.getError().asString();
+      return Err;
     }
     I->addModule(*M);
     ++i;
