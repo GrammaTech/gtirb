@@ -1,6 +1,8 @@
 # 1.10.7 (unreleased)
 
 * Added support for floating-point numbers in AuxData.
+* Disabled testing the Python API using `setup.py test`. The tests can still be
+  run using ctest or Python's unittest module.
 
 # 1.10.6
 
