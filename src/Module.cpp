@@ -130,7 +130,7 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.proxies()) {
     auto PB = ProxyBlock::fromProtobuf(C, Elt);
     if (!PB) {
-      Problem.Msg += "\n" + PB.getError().asString();
+      Problem.Msg += "\n" + PB.getError().message();
       return Problem;
     }
     M->addProxyBlock(*PB);
@@ -138,7 +138,7 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.sections()) {
     auto S = Section::fromProtobuf(C, Elt);
     if (!S) {
-      Problem.Msg += "\n" + S.getError().asString();
+      Problem.Msg += "\n" + S.getError().message();
       return Problem;
     }
     M->addSection(*S);
@@ -146,7 +146,7 @@ ErrorOr<Module*> Module::fromProtobuf(Context& C, const MessageType& Message) {
   for (const auto& Elt : Message.symbols()) {
     auto S = Symbol::fromProtobuf(C, Elt);
     if (!S) {
-      Problem.Msg += "\n" + S.getError().asString();
+      Problem.Msg += "\n" + S.getError().message();
       return Problem;
     }
     M->addSymbol(*S);

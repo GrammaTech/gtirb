@@ -165,7 +165,7 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
     auto M = Module::fromProtobuf(C, Elt);
     if (!M) {
       ErrorInfo Err{load_error::CorruptModule, "#" + std::to_string(i)};
-      Err.Msg += "\n" + M.getError().asString();
+      Err.Msg += "\n" + M.getError().message();
       return Err;
     }
     I->addModule(*M);

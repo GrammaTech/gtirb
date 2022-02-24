@@ -3,7 +3,7 @@
 
 namespace gtirb {
 
-std::string ErrorInfo::asString() {
+std::string ErrorInfo::message() const {
   std::stringstream Stream;
   Stream << *this;
   return Stream.str();

@@ -141,7 +141,7 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     case proto::Block::ValueCase::kCode: {
       auto B = CodeBlock::fromProtobuf(C, ProtoBlock.code());
       if (!B) {
-        Err.Msg += "\n" + B.getError().asString();
+        Err.Msg += "\n" + B.getError().message();
         return Err;
       }
       BI->addBlock(ProtoBlock.offset(), *B);
@@ -149,7 +149,7 @@ ErrorOr<ByteInterval*> ByteInterval::fromProtobuf(Context& C,
     case proto::Block::ValueCase::kData: {
       auto B = DataBlock::fromProtobuf(C, ProtoBlock.data());
       if (!B) {
-        Err.Msg += "\n" + B.getError().asString();
+        Err.Msg += "\n" + B.getError().message();
         return Err;
       }
       BI->addBlock(ProtoBlock.offset(), *B);

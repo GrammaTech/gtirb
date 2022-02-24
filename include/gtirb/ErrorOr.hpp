@@ -33,13 +33,13 @@ namespace gtirb {
 
 /// A small struct to hold an error code
 /// along with a string holding additional details
-struct ErrorInfo {
+struct GTIRB_EXPORT_API ErrorInfo {
   std::error_code ErrorCode;
   std::string Msg;
   ErrorInfo() = default;
   ErrorInfo(const std::error_code& EC, const std::string& S)
       : ErrorCode(EC), Msg(S){};
-  std::string asString();
+  std::string message() const;
 };
 
 template <typename CharT, typename Traits>
