@@ -24,7 +24,6 @@ RUN pip3 install --upgrade pip
 # causes warnings about illegal reflective accesses.  The build on apache's
 # website fixes this bug, so we use that build instead.  On bionic, we get
 # version 3.6.0 by default, but that isn't available on their website.
-RUN wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /t
-mp
+RUN wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp
 RUN tar xf /tmp/apache-maven-*.tar.gz -C /opt
 RUN update-alternatives --install /usr/bin/mvn mvn /opt/apache-maven-3.6.3/bin/mvn 363
