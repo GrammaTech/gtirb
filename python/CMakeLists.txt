@@ -98,13 +98,14 @@ if(GTIRB_ENABLE_TESTS)
   if(ENABLE_CODE_COVERAGE)
     add_test(
       NAME testgtirbpy
-      COMMAND coverage run --source=gtirb setup.py test
+      COMMAND
+        coverage run --source=gtirb -m unittest discover tests
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     )
   else()
     add_test(
       NAME testgtirbpy
-      COMMAND ${PYTHON} setup.py test
+      COMMAND ${PYTHON} -m unittest discover tests
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     )
   endif()

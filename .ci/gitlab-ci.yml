@@ -82,6 +82,7 @@ build-docs:
     - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || RELEASE_VERSION=ON'
     - cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DGTIRB_STRIP_DEBUG_SYMBOLS=On -DGTIRB_RELEASE_VERSION=$RELEASE_VERSION
     - make -j
+    - pip3 install -e python
     - ctest -V
 
 build-ubuntu18-gcc7:
@@ -162,6 +163,7 @@ coverage:
     - pip install gcovr coverage
     - cmake -DENABLE_CODE_COVERAGE=ON ..
     - cmake --build .
+    - pip3 install -e python
     - ctest
     - gcovr --exclude=googletest-src --exclude=doc --exclude=..*/proto --exclude=..*/test --root ..
     - cd python

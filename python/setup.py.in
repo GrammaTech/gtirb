@@ -6,9 +6,18 @@ import unittest
 import os
 import shutil
 
+
+class UseUnitTest(unittest.TestCase):
+    def runTest(self):
+        self.fail(
+            "Running tests with setup.py is not supported because it installs "
+            "dependencies incorrectly. Please use unittest directly instead."
+        )
+
+
 def gtirb_test_suite():
-    test_loader = unittest.TestLoader()
-    test_suite = test_loader.discover("tests", pattern="test_*.py")
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(UseUnitTest())
     return test_suite
 
 
