@@ -223,6 +223,8 @@ The following are the provisional AuxData table schemata.
 | [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
 | [`"sccs"`](#sccs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
 | [`"symbolicExpressionSizes"`](#symbolicexpressionsizes)     | ```std::map<gtirb::Offset, uint64_t>```                                                                      |
+| [`"typeTable"`](#typetable)                                 | ```std::map<gtirb::UUID, std::variant<uint64_t, std::tuple<uint8_t>, std::tuple<int8_t, uint64_t>, uint64_t, uint64_t, std::tuple<gtirb::UUID, std::vector<gtirb::UUID>>, gtirb::UUID, std::tuple<gtirb::UUID, uint64_t>, tuple<uint64_t, std::vector<tuple<uint64_t, gtirb::UUID>>>, std::tuple<uint8_t>, gtirb::UUID>>``` |
+| [`"prototypeTable"`](#prototypetable)                       | ```std::map<gtirb::UUID, gtirb::UUID>```                                                                     |
 
 
 ### encodings
