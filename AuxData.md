@@ -429,3 +429,26 @@ The following are the provisional AuxData table schemata.
 | Value      | Version string for the included library.                                                                              |
 | AttachedTo | gtirb::Module                                                                                                         |
 | Notes      | Versions of libraries that are included in an executable (i.e., their code is intermingled with the executable code). |
+
+### typeTable
+
+| <!-- -->   | <!-- -->                                                                                                                                                                                                                                                                                                                    |
+|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Label      | ```"typeTable"```                                                                                                                                                                                                                                                                                                          |
+| Type       | ```std::map<gtirb::UUID, std::variant<uint64_t, std::tuple<uint8_t>, std::tuple<int8_t, uint64_t>, uint64_t, uint64_t, std::tuple<gtirb::UUID, std::vector<gtirb::UUID>>, gtirb::UUID, std::tuple<gtirb::UUID, uint64_t>, tuple<uint64_t, std::vector<tuple<uint64_t, gtirb::UUID>>>, std::tuple<uint8_t>, gtirb::UUID>>``` |
+| Key        | UUID of the type object                                                                                                                                                                                                                                                                                                     |
+| Value      | Variant of the object type, where the variants field each represent: Unknown, Bool, Int, Char, Float, Function, Pointer, Array, Struct, Void, Alias, in that order.                                                                                                                                                         |
+| AttachedTo | gtirb::Module                                                                                                                                                                                                                                                                                                               |
+| Notes      | Contains structured type information about objects in the variant. Some empty tuples have been replaced with ```std::tuple<uint8_t>``` which is default-initialized to zero since some GTIRB implementations cannot store a 0-length tuple. The corresponding semantics of each type's variant field is the following:<br>- **Unknown**: ```uint64_t``` - Size of the unknown type<br>- **Bool**: ```std::tuple<uint8_t>``` - default initialized to zero<br>- **Int**: ```std::tuple<int8_t, uint64_t>``` - A tuple of signedness (1 for signed, 0 for unsigned) and width of int<br>- **Char**: ```uint64_t``` - Size of the character<br>- **Float**: ```uint64_t``` - size of the floating point number<br>- **Function**: ```std::tuple<gtirb::UUID, std::vector<gtirb::UUID>>``` - A tuple of return type UUID, and a list of parameter type UUIDs<br>- **Pointer**: ```gtirb::UUID``` - UUID of pointed-to type<br>- **Array**: ```std::tuple<gtirb::UUID, uint64_t>``` - A tuple of UUID of the elements of the array, and the number of element sin that array<br>- **Alias**: ```gtirb::UUID``` - The type being aliased (note this is effectively a `typedef`)<br>- **Struct**: ```tuple<uint64_t, std::vector<std::tuple<uint64_t, gtirb::UUID>>>``` - A tuple of the size of the structure in total, and a vector of its fields. Each field is represented as a tuple of the offset at which the field is located, and the UUID of the type of that field.<br>- **Void**: ```std::tuple<uint8_t>``` - default initialized to zero |
+
+### prototypeTable
+
+
+| <!-- -->   | <!-- -->                                   |
+|------------|--------------------------------------------|
+| Label      | ```"prototypeTable"```                     |
+| Type       | ```std::map<gtirb::UUID, gtirb::UUID>```   |
+| Key        | UUID of the function                       |
+| Value      | UUID of the function type in the typeTable |
+| AttachedTo | gtirb::Module                              |
+| Notes      | Maps functions' UUIDs to their associated typeTable entry for the purpose of giving them prototypes. NOTE: The associated type table entry **must** be a Function type object. |
