@@ -40,6 +40,9 @@ public class CodeBlock extends ByteBlock {
                       ByteIntervalOuterClass.Block protoBlock, long size,
                       ByteInterval byteInterval) {
         super(protoUuid, protoBlock, size, byteInterval);
+        assert (protoBlock.getValueCase() ==
+                ByteIntervalOuterClass.Block.ValueCase.CODE);
+        CodeBlockOuterClass.CodeBlock protoCodeBlock = protoBlock.getCode();
         this.decodeMode =
             DecodeMode.values()[protoCodeBlock.getDecodeModeValue()];
     }
