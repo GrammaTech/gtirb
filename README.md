@@ -137,8 +137,8 @@ debugger's documentation.
 
 ## Ubuntu
 
-Packages for Ubuntu 18 and 20 are available in the GTIRB apt
-repository and may be installed per the following instructions.
+Packages for Ubuntu 18 and 20 are available in the GTIRB apt repository and may
+be installed per the following instructions.
 
 First, add GrammaTech's APT key.
 ```sh
@@ -150,16 +150,26 @@ Next update your sources.list file.
 echo "deb https://download.grammatech.com/gtirb/files/apt-repo [distribution] [component]"| sudo tee -a /etc/apt/sources.list
 ```
 Where:
-- `[distribution]` is either `bionic` or `focal` if you're on Ubuntu 18 or 20 respectively, and
-- `[component]` is either `stable`, which holds the last versioned release, or `unstable`, which holds the HEAD of the repository.
+- `[distribution]` is either `bionic` or `focal` if you're on Ubuntu 18 or 20
+respectively, and
+- `[component]` is either `stable`, which holds the last versioned release, or
+`unstable`, which holds the HEAD of the repository.
 
-> **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost package from a PPA.  You can add it like this: `add-apt-repository ppa:mhier/libboost-latest`
+> **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost
+> package from a PPA.  You can add it like this: `add-apt-repository
+ppa:mhier/libboost-latest`
 
 Finally update your package database and install the core GTIRB tools:
 ```sh
 sudo apt-get update
 sudo apt-get install libgtirb gtirb-pprinter ddisasm
 ```
+
+**Warning**:  There is a problem with the packages in the stable repository
+that will cause conflicts if you try `apt-get upgrade`.  In this case,
+uninstall and reinstall the packages you got from the GTIRB repository.  You
+may need to use `dpkg --remove` to remove the metapackages (e.g. `ddisasm`)
+before removing the concrete versioned packages (e.g. `ddisasm-1.5.1`).
 
 ## Arch Linux
 
