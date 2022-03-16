@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
   Ir->addAuxData<gtirb::schema::UnRegisteredType>(42);
 
   Ir->save(GtirbFile);
+  GtirbFile.close();
 
   return 0;
 }
