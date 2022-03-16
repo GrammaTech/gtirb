@@ -1,9 +1,11 @@
 #include "Main.test.hpp"
 #include <gtirb/Context.hpp>
 #include <gtirb/IR.hpp>
+#include <chrono>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <string>
+#include <thread>
 
 void registerAuxDataContainerTestAuxDataTypes();
 void registerIrTestAuxDataTypes();
@@ -16,6 +18,19 @@ static gtirb::Context Ctx;
 static gtirb::IR* TestIr = nullptr;
 
 const gtirb::IR* getTestIr() { return TestIr; }
+
+static void loadTestIr(std::string Filename) {
+  std::ifstream GtirbFile;
+  GtirbFile.open(Filename, std::ifstream::in);
+
+  if (GtirbFile) {
+    auto MaybeTestIr = gtirb::IR::load(Ctx, GtirbFile);
+    if (MaybeTestIr) {
+      TestIr = *MaybeTestIr;
+    }
+  }
+  GtirbFile.close();
+}
 
 int main(int argc, char** argv) {
   // Register aux data types needed by testing
@@ -34,14 +49,16 @@ int main(int argc, char** argv) {
     error_msgs << "*\n* No pre-built GTIRB file specified, cross-process tests "
                   "will fail!\n*\n";
   } else {
-    std::ifstream GtirbFile;
-    GtirbFile.open(GtirbFilename, std::ifstream::in);
+    loadTestIr(GtirbFilename);
 
-    if (GtirbFile) {
-      auto MaybeTestIr = gtirb::IR::load(Ctx, GtirbFile);
-      if (MaybeTestIr) {
-        TestIr = *MaybeTestIr;
-      }
+    // Sometimes the Windows file system has delays. If we didn't
+    // get anything the first time, wait a little and try again.
+    if (!TestIr) {
+      error_msgs << "*\n* Failed to load pre-build GTIRB file (1st try): "
+                 << GtirbFilename << "\n";
+      error_msgs << "* Will retry after short wait\n*\n";
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      loadTestIr(GtirbFilename);
     }
 
     if (!TestIr) {
