@@ -118,17 +118,12 @@ class ByteBlock(Block):
 
     @property
     def references(self) -> typing.Iterator["Symbol"]:
-        if (
-            self.byte_interval is None
-            or self.byte_interval.section is None
-            or self.byte_interval.section.module is None
-        ):
-            return iter(())
-        return (
-            s
-            for s in self.byte_interval.section.module.symbols
-            if s.referent == self
-        )
+        if not self.module:
+            return
+
+        symbol_set = self.module._symbol_referent_index.get(self)
+        if symbol_set:
+            yield from symbol_set
 
     @property
     def section(self) -> typing.Optional["Section"]:

@@ -25,6 +25,9 @@ class Symbol(Node):
     """
 
     name = _IndexedAttribute[str]()(lambda self: self.module)
+    _payload = _IndexedAttribute[typing.Optional[Payload]]()(
+        lambda self: self.module
+    )
 
     def __init__(
         self,
@@ -138,9 +141,9 @@ class Symbol(Node):
             "Symbol("
             "uuid={uuid!r}, "
             "name={name!r}, "
-            "payload={_payload!r}, "
+            "payload={payload!r}, "
             "at_end={at_end!r}, "
-            ")".format(name=self.name, **self.__dict__)
+            ")".format(name=self.name, payload=self._payload, **self.__dict__)
         )
 
     @property

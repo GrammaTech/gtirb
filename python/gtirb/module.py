@@ -23,6 +23,7 @@ from .util import (
 if typing.TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
     from .ir import IR  # noqa: F401
+    from .block import Block  # noqa: F401
 
 
 _T = typing.TypeVar("_T", bound=typing.Union[ProxyBlock, Section, Symbol])
@@ -215,8 +216,11 @@ class Module(AuxDataContainer):
         :param ir: The :class:`IR` this module belongs to.
         """
 
-        self._symbol_index: typing.MutableMapping[
+        self._symbol_name_index: typing.MutableMapping[
             str, typing.Set[Symbol]
+        ] = collections.defaultdict(set)
+        self._symbol_referent_index: typing.MutableMapping[
+            "Block", typing.Set[Symbol]
         ] = collections.defaultdict(set)
         self._ir: typing.Optional["IR"] = None
         self.binary_path = binary_path
@@ -365,20 +369,28 @@ class Module(AuxDataContainer):
         self, node: typing.Union[ProxyBlock, Section, Symbol]
     ) -> None:
         if isinstance(node, Symbol):
-            self._symbol_index[node.name].add(node)
+            self._symbol_name_index[node.name].add(node)
+            if node.referent:
+                self._symbol_referent_index[node.referent].add(node)
 
     def _index_discard(
         self, node: typing.Union[ProxyBlock, Section, Symbol]
     ) -> None:
         if isinstance(node, Symbol):
-            symbol_set = self._symbol_index[node.name]
+            symbol_set = self._symbol_name_index[node.name]
             symbol_set.discard(node)
             if not symbol_set:
-                del self._symbol_index[node.name]
+                del self._symbol_name_index[node.name]
+
+            if node.referent:
+                symbol_set = self._symbol_referent_index[node.referent]
+                symbol_set.discard(node)
+                if not symbol_set:
+                    del self._symbol_referent_index[node.referent]
 
     def symbols_named(self, name: str) -> typing.Iterator[Symbol]:
         "Finds all symbols with a given name."
-        symbols = self._symbol_index.get(name, None)
+        symbols = self._symbol_name_index.get(name, None)
         if symbols:
             yield from symbols
 
