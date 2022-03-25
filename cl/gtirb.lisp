@@ -1429,7 +1429,7 @@ OPEN-CHAR."
          (prog1 (utf-8-bytes-to-string (subseq *decode-data* 0 size))
            (advance size))))
       ((list :mapping key-t value-t)
-       (let ((result (make-hash-table)))
+       (let ((result (make-hash-table :test #'equal)))
          (dotimes (n (decode :uint64-t) result)
            (declare (ignorable n))
            (let* ((key (decode key-t))
