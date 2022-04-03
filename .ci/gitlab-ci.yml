@@ -288,7 +288,7 @@ conan-windows-release:
 
 conan-windows-32:
   stage: deploy
-  tags: [gtirb-windows]
+  tags: [ddisasm-windows]
   needs: []
   variables:
     ARCHITECTURE: x64
