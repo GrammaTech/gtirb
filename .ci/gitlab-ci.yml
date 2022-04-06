@@ -5,7 +5,7 @@ variables:
   # The follow two variables are used by the package-uploader.
   PROJECT_ID: $CI_PROJECT_ID
   PIPELINE_ID: $CI_PIPELINE_ID
-
+  CONAN_PASSWORD: $CI_JOB_TOKEN
 
 stages:
   - check-format
@@ -16,6 +16,7 @@ stages:
   - test-packages2
   - deploy
   - deploy-apt
+  - upload
 
 default:
   tags: [cluster]
@@ -249,6 +250,8 @@ conan-linux-gcc7:
     - python3 -m pip install --upgrade conan
     - conan profile new default --detect
     - conan profile update settings.compiler.libcxx=libstdc++11 default
+    - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
+    - conan user ci_user -r gitlab -p
     - export PYTHONPATH="$(pwd)"
     - python3 .ci/build.py
 
@@ -263,18 +266,51 @@ conan-linux-gcc9:
   stage: deploy
   needs: [check-format]
   tags: [ddisasm-windows]
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - gtirb*.zip
   script:
+    # Setting CI_PROJECT_DIR to $(pwd) because CI doesn't properly set CI_PROJECT_DIR with VirtualBox runners.
+    - export CI_PROJECT_DIR=`cygpath -w $(pwd)`
+    # Initialize
     - systeminfo
-    - export PATH="C:\\Program Files\\Python38;$PATH"
-    # Install conan
     - python -m pip install --upgrade conan
-    # Run build script
-    - export PYTHONPATH="$(cygpath -w $(pwd))"
-    - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
+    - export PYTHONPATH=$CI_PROJECT_DIR
     - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
-    - export PYTHON="C:\\Python38\\python.exe"
     - export BOOST_ROOT="C:\\Boost"
-    - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s build_type=$BUILD_TYPE
+    # Setup Remote and Authenticate
+    - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
+    - conan user ci_user -r gitlab -p
+    # Build
+    - python .ci/build.py -s build_type=$BUILD_TYPE
+    # Install
+      # Python print() on Windows returns CRLF and will cause issues in CI - use "print('string', end='')" when outputing from python.
+    - export PKG_INSTALL_NAME=`python -c "import conanfile; print(conanfile.Properties().conan_recipe, end='')"`
+    - conan install $PKG_INSTALL_NAME -g deploy --build=missing --install-folder="./packages"
+    # Package
+    - export PKG_NAME=`conan inspect . --raw name`
+    - export PKG_VERSION=`conan inspect . --raw version`
+    - export PKG_ARCH=`uname -m`
+    - export PKG_FILENAME="${CI_PROJECT_DIR}\\${PKG_NAME}-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
+    - |+
+      for PKG_DIR in ./packages/*/; do
+        PKG_DIR_NAME=`basename $PKG_DIR`
+        for PKG_SUBDIR in ./packages/$PKG_DIR_NAME/*/; do
+          PKG_SUBDIR_NAME=`basename $PKG_SUBDIR`
+          PKG_FILE_DEST="./package/${PKG_NAME}/${PKG_SUBDIR_NAME}"
+          [ -d $PKG_FILE_DEST ] || mkdir -p $PKG_FILE_DEST
+          if [ $PKG_SUBDIR_NAME != 'licenses' ]; then
+            cp -r $PKG_SUBDIR/* $PKG_FILE_DEST
+          else
+            for PKG_LICENSE in $PKG_SUBDIR/*; do
+              cp $PKG_LICENSE $PKG_FILE_DEST/LICENSE-$PKG_DIR_NAME
+            done
+          fi
+        done
+      done
+    - cd ./package
+    - zip -r $PKG_FILENAME ./
 
 conan-windows-debug:
   variables:
@@ -628,3 +664,30 @@ maven-central-upload:
   variables:
     JOB_NAME: build-ubuntu18-gcc7
     JAVA_POM_SUBDIR: ./build/java
+
+.windows-upload: &windows-upload
+  stage: upload
+  trigger:
+    project: rewriting/utility/package-uploader
+    strategy: depend
+  needs: [conan-windows-release]
+
+windows-upload-public:
+  <<: *windows-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+  variables:
+    JOB_NAME: conan-windows-release
+    FILESERVER: public
+    FILESERVER_SUBDIR: windows-release
+
+windows-upload-internal:
+  <<: *windows-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*-internal$/'
+    - if: '$CI_COMMIT_REF_NAME == "windows-support"'
+  variables:
+    JOB_NAME: conan-windows-release
+    FILESERVER: internal
+    FILESERVER_SUBDIR: windows-release
