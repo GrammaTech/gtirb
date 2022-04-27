@@ -285,7 +285,7 @@ conan-linux-gcc9:
     # Build
     - python .ci/build.py -s build_type=$BUILD_TYPE
     # Install
-      # Python print() on Windows returns CRLF and will cause issues in CI - use "print('string', end='')" when outputing from python.
+      # Python print() on Windows returns CRLF and will cause issues in CI - use "print('string', end='')" when outputting from python.
     - export PKG_INSTALL_NAME=`python -c "import conanfile; print(conanfile.Properties().conan_recipe, end='')"`
     - conan install $PKG_INSTALL_NAME -g deploy --build=missing --install-folder="./packages"
     # Package
@@ -339,6 +339,9 @@ conan-windows-32:
     - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
     - export PYTHON="C:\\Python38\\python.exe"
     - export BOOST_ROOT="C:\\Boost"
+    # Setup Remote and Authenticate
+    - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
+    - conan user ci_user -r gitlab -p
     # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
     - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=missing
 
@@ -680,14 +683,14 @@ windows-upload-public:
   variables:
     JOB_NAME: conan-windows-release
     FILESERVER: public
-    FILESERVER_SUBDIR: windows-release
+    FILESERVER_SUBDIR_NAME: windows-release
 
 windows-upload-internal:
   <<: *windows-upload
   rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*-internal$/'
-    - if: '$CI_COMMIT_REF_NAME == "windows-support"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+    - if: '$CI_COMMIT_REF_NAME == "master"'
   variables:
     JOB_NAME: conan-windows-release
     FILESERVER: internal
-    FILESERVER_SUBDIR: windows-release
+    FILESERVER_SUBDIR_NAME: windows-release
