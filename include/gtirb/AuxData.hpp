@@ -501,9 +501,10 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
               arg)>::type>::fromBytes(Val, FBR);
           if (!res_code)
             return;
-          Object = Val;
+          arg = Val;
         },
         V);
+    Object = V;
     if (!res_code)
       return false;
     return true;

@@ -203,6 +203,12 @@ struct ComplexVariant {
   typedef std::variant<uint8_t, int32_t, Map> Type;
 };
 
+struct DuplicateVariant {
+  static constexpr const char* Name =
+      "Variant with fields distinguished by position only";
+  typedef std::variant<uint16_t, int16_t, uint16_t> Type;
+};
+
 } // namespace schema
 } // namespace gtirb
 
@@ -427,6 +433,21 @@ TEST(Unit_AuxData, complexVariantProtobufThird) {
 
   EXPECT_EQ(Result->rawData().ProtobufType,
             "variant<uint8_t,int32_t,mapping<string,sequence<int64_t>>>");
+}
+
+TEST(Unit_AuxData, duplicateVariantProtobufFirst) {
+  using STH = gtirb::SerializationTestHarness;
+  std::variant<uint16_t, int16_t, uint16_t> Val{std::in_place_index<2>,
+                                                (uint8_t)5};
+  auto ValOrig = Val;
+  AuxDataImpl<DuplicateVariant> Original(std::move(Val));
+  std::stringstream ss;
+  STH::save(Original, ss);
+
+  auto Result = STH::load<AuxDataImpl<DuplicateVariant>>(Ctx, ss);
+  auto New = *Result->get();
+  EXPECT_EQ(New, ValOrig);
+  EXPECT_EQ(New.index(), 2);
 }
 
 TEST(Unit_AuxData, auxdata_traits_type_name) {
