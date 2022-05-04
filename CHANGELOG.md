@@ -4,6 +4,7 @@
 * Disabled testing the Python API using `setup.py test`. The tests can still be
   run using ctest or Python's unittest module.
 * Improved the performance of the Python API's ByteBlock.references property.
+* C++ API now supports variants with duplicate types
 
 # 1.10.6
 
