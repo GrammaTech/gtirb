@@ -457,11 +457,16 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
     return "variant<" + TypeId<Args...>::value() + ">";
   }
 
-  static std::variant<Args...> expand_type(uint64_t i) {
-    assert(i < sizeof...(Args));
-    static const std::variant<Args...> table[] = {Args{}...};
-    return table[i];
-  }
+  template <uint64_t I = 0>
+  static std::optional<std::variant<Args...>> expand_type(uint64_t i) {
+    if constexpr (I >= sizeof...(Args)) {
+      return std::nullopt;
+    } else {
+      return i == 0 ? std::variant<Args...>{std::in_place_index<I>,
+                                            std::variant_alternative_t<I, T>{}}
+                    : expand_type<I + 1>(i - 1);
+    }
+  };
 
   static void toBytes(const T& Object, ToByteRange& TBR) {
     uint64_t Index = Object.index();
@@ -483,7 +488,11 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
     if (Index > FBR.remainingBytesToRead())
       return false;
 
-    auto V = expand_type(Index);
+    auto maybeV = expand_type(Index);
+    if (!maybeV) {
+      return false;
+    }
+    auto V = *maybeV;
     bool res_code = false;
     std::visit(
         [&Object, &res_code, FBR](auto&& arg) mutable {
