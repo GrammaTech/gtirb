@@ -495,7 +495,7 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
     auto V = *maybeV;
     bool res_code = false;
     std::visit(
-        [&Object, &res_code, FBR](auto&& arg) mutable {
+        [&res_code, FBR](auto&& arg) mutable {
           typename std::remove_reference<decltype(arg)>::type Val;
           res_code = auxdata_traits<typename std::remove_reference<decltype(
               arg)>::type>::fromBytes(Val, FBR);
