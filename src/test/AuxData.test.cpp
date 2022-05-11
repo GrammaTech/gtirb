@@ -209,6 +209,16 @@ struct DuplicateVariant {
   typedef std::variant<uint16_t, int16_t, uint16_t> Type;
 };
 
+struct MapCharToVariant {
+  static constexpr const char* Name = "std::map<char,std::variant<Addr,char>>";
+  typedef std::map<char, std::variant<Addr, char>> Type;
+};
+
+struct VecOfVariants {
+  static constexpr const char* Name = "std::vector<std::variant<Addr, char>>";
+  typedef std::vector<std::variant<Addr, char>> Type;
+};
+
 } // namespace schema
 } // namespace gtirb
 
@@ -437,8 +447,7 @@ TEST(Unit_AuxData, complexVariantProtobufThird) {
 
 TEST(Unit_AuxData, duplicateVariantProtobufFirst) {
   using STH = gtirb::SerializationTestHarness;
-  std::variant<uint16_t, int16_t, uint16_t> Val{std::in_place_index<2>,
-                                                (uint8_t)5};
+  std::variant<uint16_t, int16_t, uint16_t> Val{std::in_place_index<2>, 5};
   auto ValOrig = Val;
   AuxDataImpl<DuplicateVariant> Original(std::move(Val));
   std::stringstream ss;
@@ -448,6 +457,42 @@ TEST(Unit_AuxData, duplicateVariantProtobufFirst) {
   auto New = *Result->get();
   EXPECT_EQ(New, ValOrig);
   EXPECT_EQ(New.index(), 2);
+  EXPECT_EQ(Result->rawData().ProtobufType,
+            "variant<uint16_t,int16_t,uint16_t>");
+}
+
+TEST(Unit_AuxData, VecOfVariants) {
+  using STH = gtirb::SerializationTestHarness;
+  using VariantT = std::variant<Addr, char>;
+  AuxDataImpl<VecOfVariants> Original =
+      std::vector<VariantT>{Addr(0xc0ffee), 'z', 'y', Addr(0xfeefaa)};
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VecOfVariants>>(Ctx, ss);
+
+  auto V = *Result->get();
+  EXPECT_EQ(V.size(), 4);
+  EXPECT_EQ(V[0], VariantT(0xc0ffee));
+  EXPECT_EQ(V[2], VariantT('y'));
+}
+
+TEST(Unit_AuxData, MapCharToVariant) {
+  using STH = gtirb::SerializationTestHarness;
+  using VariantT = std::variant<Addr, char>;
+  using MapT = std::map<char, VariantT>;
+
+  AuxDataImpl<MapCharToVariant> Original =
+      MapT({{'a', Addr(0x1111)}, {'b', 'x'}, {'z', Addr(0xdeadbeef)}});
+
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<MapCharToVariant>>(Ctx, ss);
+
+  MapT M = *Result->get();
+  EXPECT_EQ(M.size(), 3);
+  EXPECT_EQ(M['a'], VariantT{Addr(0x1111)});
+  EXPECT_EQ(M['b'], VariantT{'x'});
+  EXPECT_EQ(M['z'], VariantT{Addr(0xdeadbeef)});
 }
 
 TEST(Unit_AuxData, auxdata_traits_type_name) {

@@ -117,5 +117,5 @@ target_link_libraries(
 
 add_subdirectory(testInputBinary)
 if(${GTIRB_PY_API})
-  add_subdirectory(testInterop)
+  # add_subdirectory(testInterop)
 endif()
