@@ -483,13 +483,8 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
 
   static bool fromBytes(T& Object, FromByteRange& FBR) {
     uint64_t Index;
-    auto Len = FBR.remainingBytesToRead();
     if (!auxdata_traits<uint64_t>::fromBytes(Index, FBR))
       return false;
-    auto NewLen = FBR.remainingBytesToRead();
-    int64_t Diff = Len - NewLen;
-    std::cerr << "Read " << Diff << "bytes into Index\n";
-
     if (Index > FBR.remainingBytesToRead())
       return false;
 
@@ -502,12 +497,8 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
     std::visit(
         [&res_code, &FBR](auto&& arg) mutable {
           typename std::remove_reference<decltype(arg)>::type Val;
-          auto S0 = FBR.remainingBytesToRead();
           res_code = auxdata_traits<typename std::remove_reference<decltype(
               arg)>::type>::fromBytes(Val, FBR);
-          auto S1 = FBR.remainingBytesToRead();
-          std::cerr << "visitor traversed " << S0 - S1 << "bytes\n"
-                    << std::flush;
           if (!res_code)
             return;
           arg = Val;
@@ -516,9 +507,6 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
     if (!res_code)
       return false;
     Object = V;
-    auto NewNewLen = FBR.remainingBytesToRead();
-    Diff = NewLen - NewNewLen;
-    std::cerr << "read " << Diff << " bytes into object\n";
     return true;
   }
 };
