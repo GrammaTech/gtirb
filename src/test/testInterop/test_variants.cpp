@@ -1,4 +1,5 @@
 #include <gtirb/gtirb.hpp>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -37,9 +38,6 @@ void add_auxdata(gtirb::IR* Ir) {
   Ir->addAuxData<SimpleVariantMap>(std::move(NewSimpleMap));
   Ir->addAuxData<ComplexVariantMap>(std::move(NewComplexMap));
 }
-
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 
 bool write_ir(const std::string& filename) {
   std::ofstream dest{filename};
