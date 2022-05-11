@@ -1,6 +1,5 @@
 import os
 import tempfile
-from dataclasses import dataclass
 from typing import Any
 
 import gtirb
@@ -48,22 +47,28 @@ def test_mapvariant():
     compare_variant_maps(ad2, vmap)
 
 
-@dataclass
 class I1:
     GTIRB_TYPE = "int64_t"
     data: int
 
+    def __init__(self, data) -> None:
+        self.data = data
 
-@dataclass
+
 class I2:
     GTIRB_TYPE = "int64_t"
     data: int
 
+    def __init__(self, data) -> None:
+        self.data = data
 
-@dataclass
+
 class S1:
     GTIRB_TYPE = "string"
     data: str
+
+    def __init__(self, data) -> None:
+        self.data = data
 
 
 class MyMap:
