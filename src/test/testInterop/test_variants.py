@@ -3,7 +3,6 @@ import tempfile
 from typing import Any
 
 import gtirb
-import gtirb_test_helpers
 
 
 class V1(gtirb.Variant):
@@ -28,9 +27,7 @@ def make_simple_variant_map():
     vmap = {1: V1(1), 2: V1("a"), 3: V1("z"), 4: V1(-1)}
 
     ad = gtirb.AuxData(vmap, "mapping<uint32_t,variant<int32_t,string>>")
-    ir, _ = gtirb_test_helpers.create_test_module(
-        gtirb.Module.FileFormat.ELF, gtirb.Module.ISA.X64,
-    )
+    ir = gtirb.IR()
     ir.aux_data["simpleVariantMap"] = ad
     return ir, vmap
 
