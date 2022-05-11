@@ -100,6 +100,12 @@ struct TupleOfCharAndInt64 {
   typedef std::tuple<char, int64_t> Type;
 };
 
+struct TupleOfCharOrAddr {
+  static constexpr const char* Name = "3-Tuple of variant<Addr,char>";
+  typedef std::variant<Addr, char> VarT;
+  typedef std::tuple<VarT, VarT, VarT> Type;
+};
+
 struct PairOfCharAndInt64 {
   static constexpr const char* Name = "Pair of char and int64";
   typedef std::pair<char, int64_t> Type;
@@ -194,6 +200,11 @@ struct SimpleVariant {
   static constexpr const char* Name =
       "Simple variant of uint8_t, int32_t and Addr";
   typedef std::variant<uint8_t, int32_t, Addr> Type;
+};
+
+struct OtherSimpleVariant {
+  static constexpr const char* Name = "another simple variant";
+  typedef std::variant<Addr, char> Type;
 };
 
 struct ComplexVariant {
@@ -425,6 +436,25 @@ TEST(Unit_AuxData, simpleVariantProtobufThird) {
   EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
 }
 
+// TEST(Unit_AuxData, simpleVariantProtobufThird) {
+//   using STH = gtirb::SerializationTestHarness;
+//   Addr addr(0xc0ffee);
+//   std::variant<Addr, char> Val(addr);
+//   auto ValOrig = Val;
+
+//   AuxDataImpl<OtherSimpleVariant> Original(std::move(Val));
+//   std::stringstream ss;
+//   STH::save(Original, ss);
+
+//   auto Result = STH::load<AuxDataImpl<SimpleVariant>>(Ctx, ss);
+//   auto New = *Result->get();
+
+//   EXPECT_EQ(New, ValOrig);
+//   EXPECT_EQ(New, std::variant<Addr,char>(0xcoffee)
+
+//   EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
+// }
+
 TEST(Unit_AuxData, complexVariantProtobufThird) {
   using STH = gtirb::SerializationTestHarness;
   using Map = std::map<std::string, std::vector<int64_t>>;
@@ -461,6 +491,32 @@ TEST(Unit_AuxData, duplicateVariantProtobufFirst) {
             "variant<uint16_t,int16_t,uint16_t>");
 }
 
+TEST(Unit_AuxData, TupleofVariants) {
+  using VarT = std::variant<Addr, char>;
+  using STH = gtirb::SerializationTestHarness;
+  AuxDataImpl<TupleOfCharOrAddr> Original =
+      std::tuple<VarT, VarT, VarT>{Addr(0xc0ffee), 'z', 0x1};
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<TupleOfCharOrAddr>>(Ctx, ss);
+  auto T = *Result->get();
+  EXPECT_EQ(std::get<0>(T), VarT{Addr(0xc0ffee)});
+  EXPECT_EQ(std::get<1>(T), VarT{'z'});
+}
+
+TEST(Unit_AuxData, VecOfVariants2) {
+  using STH = gtirb::SerializationTestHarness;
+  using VariantT = std::variant<Addr, char>;
+  AuxDataImpl<VecOfVariants> Original = std::vector<VariantT>{Addr(0xc0ffee)};
+  std::stringstream ss;
+  STH::save(Original, ss);
+  auto Result = STH::load<AuxDataImpl<VecOfVariants>>(Ctx, ss);
+
+  auto V = *Result->get();
+  EXPECT_EQ(V.size(), 1);
+  EXPECT_EQ(V[0], VariantT(Addr(0xc0ffee)));
+}
+
 TEST(Unit_AuxData, VecOfVariants) {
   using STH = gtirb::SerializationTestHarness;
   using VariantT = std::variant<Addr, char>;
@@ -472,7 +528,7 @@ TEST(Unit_AuxData, VecOfVariants) {
 
   auto V = *Result->get();
   EXPECT_EQ(V.size(), 4);
-  EXPECT_EQ(V[0], VariantT(0xc0ffee));
+  EXPECT_EQ(V[0], VariantT(Addr(0xc0ffee)));
   EXPECT_EQ(V[2], VariantT('y'));
 }
 
