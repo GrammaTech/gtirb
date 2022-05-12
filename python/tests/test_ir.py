@@ -105,7 +105,7 @@ class BadProtobufTest(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             gtirb.IR.load_protobuf_file(file_content)
 
-        self.assertEqual(str(context.exception), "Error parsing message")
+        self.assertTrue("Error parsing message" in str(context.exception))
 
 
 if __name__ == "__main__":
