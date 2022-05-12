@@ -4,19 +4,17 @@
         :trivial-utf-8
         :gtirb/ranged
         :gtirb/utility
+        :gtirb/version
         :named-readtables :curry-compose-reader-macros)
   (:shadow :symbol)
   (:import-from :gtirb.proto)
   (:import-from :trivial-package-local-nicknames :add-package-local-nickname)
   (:import-from :uiop :nest)
-  (:import-from :asdf/system :system-relative-pathname)
   (:import-from :cl-intbytes
                 :int->octets
                 :octets->int64
                 :octets->uint64)
-  (:export :gtirb-version
-           :protobuf-version
-           :read-gtirb
+  (:export :read-gtirb
            :write-gtirb
            :is-equal-p
            :*is-equal-p-verbose-p*
@@ -93,29 +91,7 @@
 (in-readtable :curry-compose-reader-macros)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (add-package-local-nickname :proto :gtirb.proto)
-  (defvar version.txt
-    `#.(nest (let ((version-path
-                    (system-relative-pathname "gtirb" "../version.txt"))))
-             (with-open-file (in version-path))
-             (loop for line = (read-line in nil :eof)
-                until (eql line :eof)
-                collect (let ((delim (position #\Space line)))
-                          (cons (intern (subseq line 0 delim))
-                                (parse-integer (subseq line (1+ delim)))))))))
-
-(define-constant gtirb-version
-    (format nil "~d.~d.~d"
-            (cdr (assoc 'VERSION_MAJOR version.txt))
-            (cdr (assoc 'VERSION_MINOR version.txt))
-            (cdr (assoc 'VERSION_PATCH version.txt)))
-  :test #'string=
-  :documentation "GTIRB Version as a string of \"MAJOR.MINOR.PATCH\".")
-
-(define-constant protobuf-version
-    (cdr (assoc 'VERSION_PROTOBUF version.txt))
-  :test #'=
-  :documentation "GTIRB Protobuf Version as a non-negative integer.")
+  (add-package-local-nickname :proto :gtirb.proto))
 
 (defgeneric read-gtirb (source)
   (:documentation "Read a protobuf serialized GTIRB instance from SOURCE.")

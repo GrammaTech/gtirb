@@ -1,16 +1,18 @@
 (defpackage :gtirb/test
   (:use :common-lisp
         :alexandria
+        :flexi-streams
         :stefil
         :gtirb
         :gtirb/dot
-        :gtirb/update
         :gtirb/utility
         :gtirb/ranged
+        :gtirb/version
         :graph
         :named-readtables :curry-compose-reader-macros)
   (:import-from :trivial-package-local-nicknames :add-package-local-nickname)
   (:import-from :gtirb.proto)
+  (:import-from :gtirb/utility :check-magic-header :write-magic-header)
   (:import-from :md5 :md5sum-file :md5sum-sequence)
   (:import-from :uiop :nest :run-program :with-temporary-file :quit)
   (:import-from :asdf/system :system-relative-pathname)
@@ -45,25 +47,6 @@ The ERRNO used when exiting lisp indicates success or failure."
 
 
 ;;;; Fixtures.
-(defixture hello-v0
-  (:setup
-   (progn
-     #+live-w-ddisasm
-     (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
-       (with-temporary-file (:pathname bin-path)
-         (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
-                                           |gcc -x c - -o ~a"
-                              bin-path) :force-shell t)
-         (run-program (format nil "ddisasm --ir ~a ~a" gtirb-path bin-path))
-         (delete-file bin-path))
-       (setf *proto-path* gtirb-path))
-     #-live-w-ddisasm
-     (setf *proto-path*
-           (merge-pathnames "python/tests/hello.v0.gtirb" *gtirb-dir*))))
-  (:teardown (progn
-               #+live-w-ddisasm (delete-file *proto-path*)
-               (setf *proto-path* nil))))
-
 (defixture hello
   (:setup
    (progn
@@ -91,7 +74,7 @@ The ERRNO used when exiting lisp indicates success or failure."
        (setf *proto-path* gtirb-path))
      #-live-w-ddisasm
      (setf *proto-path*
-           (merge-pathnames "python/tests/hello.v1.gtirb" *gtirb-dir*))))
+           (merge-pathnames "python/tests/hello.gtirb" *gtirb-dir*))))
   (:teardown (progn
                #+live-w-ddisasm (delete-file *proto-path*)
                (setf *proto-path* nil))))
@@ -185,6 +168,21 @@ The ERRNO used when exiting lisp indicates success or failure."
                       name (aux-data-type aux-data)
                       (list orig new)))))
             (aux-data (first (modules hello)))))))
+
+(deftest test-check-magic-header ()
+  (is (signals gtirb-magic-error
+        (check-magic-header #())))
+  (is (signals gtirb-magic-error
+        (check-magic-header #(0 0 0 0 0 0 0 0))))
+  (is (signals gtirb-magic-error
+        (check-magic-header #(71 84 73 82 66 0 0 0))))
+  (is (null (check-magic-header (vector 71 84 73 82 66 0 0 protobuf-version)))))
+
+(deftest test-write-magic-header ()
+  (with-output-to-sequence (out)
+    (write-magic-header out)
+    (is (equalp (get-output-stream-sequence out)
+                (vector 71 84 73 82 66 0 0 protobuf-version)))))
 
 (deftest update-proto-to-disk-and-back ()
   (nest
@@ -600,86 +598,3 @@ The ERRNO used when exiting lisp indicates success or failure."
   (with-fixture hello
     (with-temporary-file (:pathname path)
       (to-dot-file (read-gtirb *proto-path*) path))))
-
-
-;;;; Update test suite
-;;;
-;;; NOTE: This is a place where property based testing would be very
-;;;       useful.  Consider this before starting any further work on
-;;;       the updater.  Probably would make sense to use check-it:
-;;;       https://github.com/DalekBaldwin/check-it
-;;;
-;;;       More generally, having check-it generators for GTIRB would
-;;;       be useful not just for testing this for for every other
-;;;       GTIRB-based library or tool.
-;;;
-(defun first-aux-data (ir)
-  (proto:value (aref (proto:aux-data (aref (proto:modules ir) 0)) 0)))
-
-(deftest read-and-upgrade ()
-  (nest
-   (with-fixture hello-v0)
-   (let* ((old (read-proto 'proto-v0:ir *proto-path*))
-          (new (upgrade old))))
-   ;; Same Symbol values.
-   (flet ((same-symbol-fields (old-field new-field)
-            (every #'equalp
-                   (map 'list old-field
-                        (proto-v0:symbols (aref (proto-v0:modules old) 0)))
-                   (map 'list new-field
-                        (proto:symbols (aref (proto:modules new) 0))))))
-     (is (eql 'proto:ir (class-name (class-of new))))
-     (is (eql 'proto:byte-interval
-              (class-name (class-of
-                           (aref (proto:byte-intervals
-                                  (aref (proto:sections
-                                         (aref (proto:modules new)
-                                               0)) 0)) 0)))))
-     ;; Test for non-empty AuxData.
-     (is (not (emptyp (proto:data (first-aux-data new)))))
-     ;; Test for equal Symbol fields.
-     (is (same-symbol-fields #'proto-v0:value #'proto:value))
-     (is (same-symbol-fields #'proto-v0:referent-uuid #'proto:referent-uuid))
-     ;; Return the new one in case you want it at the REPL.
-     new)))
-
-(deftest simple-update ()
-  (with-fixture hello-v0
-    (with-temporary-file (:pathname path)
-      (update *proto-path* path)
-      (let ((new (read-proto 'proto:ir path)))
-        (is (eql 'proto:ir (class-name (class-of new))))
-        (is (not (emptyp (proto:data (first-aux-data new)))))))))
-
-(deftest simple-update-populates-data-block-uuids ()
-  (with-fixture hello-v0
-    (with-temporary-file (:pathname path)
-      (update *proto-path* path)
-      (nest
-       (let ((new (read-gtirb path))))
-       (is)
-       (every [#'not #'emptyp])
-       (mapcar [#'proto:uuid #'gtirb/gtirb::proto])
-       (mappend #'blocks)
-       (mappend #'byte-intervals)
-       (mappend #'sections)
-       (modules new)))))
-
-(deftest simple-update-populates-byte-interval-addresses ()
-  (with-fixture hello-v0
-    (with-temporary-file (:pathname path)
-      (update *proto-path* path)
-      (nest
-       (let ((new (read-gtirb path))))
-       (is)
-       (every «and #'addressp [#'numberp #'address]»)
-       (mappend #'byte-intervals)
-       (mappend #'sections)
-       (modules new))
-      (nest
-       (let ((new (read-gtirb path))))
-       (is)
-       (every [#'proto:has-address #'gtirb/gtirb::proto])
-       (mappend #'byte-intervals)
-       (mappend #'sections)
-       (modules new)))))
