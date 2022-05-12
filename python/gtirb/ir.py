@@ -31,6 +31,8 @@ from .util import (
 )
 from .version import PROTOBUF_VERSION
 
+GTIRB_MAGIC_CHARS = b"GTIRB"
+
 
 class IR(AuxDataContainer):
     """A complete internal representation consisting of multiple Modules.
@@ -146,6 +148,24 @@ class IR(AuxDataContainer):
             information that is contained in ``protobuf_file``.
         """
 
+        # Magic signature
+        # Bytes 0-4 contain the ASCII characters: GTIRB.
+        # Bytes 5-6 are considered reserved for future use and should be 0.
+        # Byte 7 contains the GTIRB protobuf spec version in use.
+        magic = protobuf_file.read(len(GTIRB_MAGIC_CHARS))
+        if magic != GTIRB_MAGIC_CHARS:
+            raise ValueError("File missing GTIRB magic - not a GTIRB file?")
+
+        protobuf_file.read(1)
+        protobuf_file.read(1)
+
+        version = int.from_bytes(protobuf_file.read(1), byteorder="little")
+        if version != PROTOBUF_VERSION:
+            raise ValueError(
+                "Attempt to decode IR of version %s (expected version %s)"
+                % (version, PROTOBUF_VERSION)
+            )
+
         ir = IR_pb2.IR()
         ir.ParseFromString(protobuf_file.read())
         return IR._from_protobuf(ir, None)
@@ -167,6 +187,10 @@ class IR(AuxDataContainer):
             message to.
         """
 
+        protobuf_file.write(GTIRB_MAGIC_CHARS)
+        protobuf_file.write(b"\0")
+        protobuf_file.write(b"\0")
+        protobuf_file.write(PROTOBUF_VERSION.to_bytes(1, byteorder="little"))
         protobuf_file.write(self._to_protobuf().SerializeToString())
 
     def save_protobuf(self, file_name: str) -> None:

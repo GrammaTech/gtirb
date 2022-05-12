@@ -279,6 +279,7 @@ public:
     CorruptCFG,  ///< The control flow graph could not be deserialized
     BadUUID,     ///< An object had an incorrectly formatted UUID
     MissingUUID, ///< A UUID did not refer to an object in the loading Context
+    NotGTIRB,    ///< Indicates the GTIRB magic number was not found
   };
 
   /// \brief Deserialize binary format from an input stream.

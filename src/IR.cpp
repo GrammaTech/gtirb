@@ -28,6 +28,9 @@
 
 using namespace gtirb;
 
+static const char* GTIRB_MAGIC_CHARS = "GTIRB";
+static const size_t GTIRB_MAGIC_LENGTH = strlen(GTIRB_MAGIC_CHARS);
+
 class IR::ModuleObserverImpl : public ModuleObserver {
 public:
   explicit ModuleObserverImpl(IR* I_) : I(I_) {}
@@ -135,6 +138,8 @@ public:
       return "Bytes not valid UUID";
     case IR::load_error::MissingUUID:
       return "Could not locate UUID";
+    case IR::load_error::NotGTIRB:
+      return "File does not contain GTIRB";
     }
     assert(false && "Expected to handle all error codes");
     return "";
@@ -185,12 +190,42 @@ ErrorOr<IR*> IR::fromProtobuf(Context& C, const MessageType& Message) {
 }
 
 void IR::save(std::ostream& Out) const {
+  // Magic signature
+  // Magic signature
+  // Bytes 0-4 contain the ASCII characters: GTIRB.
+  // Bytes 5-6 are considered reserved for future use and should be 0.
+  // Byte 7 contains the GTIRB protobuf spec version in use.
+  Out << GTIRB_MAGIC_CHARS << static_cast<uint8_t>(0) << static_cast<uint8_t>(0)
+      << static_cast<uint8_t>(GTIRB_PROTOBUF_VERSION);
+
+  // Protobuf
   MessageType Message;
   this->toProtobuf(&Message);
   Message.SerializeToOstream(&Out);
 }
 
 ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
+  char magic[GTIRB_MAGIC_LENGTH];
+  In.read(reinterpret_cast<char*>(&magic), GTIRB_MAGIC_LENGTH);
+  if (memcmp(magic, GTIRB_MAGIC_CHARS, GTIRB_MAGIC_LENGTH) != 0) {
+    return {load_error::NotGTIRB, "GTIRB magic signature not found"};
+  }
+
+  uint8_t res0;
+  In >> res0;
+
+  uint8_t res1;
+  In >> res1;
+
+  uint8_t protobuf_version;
+  In >> protobuf_version;
+  if (protobuf_version != GTIRB_PROTOBUF_VERSION) {
+    std::stringstream ss;
+    ss << "GTIRB potobuf version mismatch. Expected: " << GTIRB_PROTOBUF_VERSION
+       << " Saw: " << protobuf_version;
+    return {load_error::IncorrectVersion, ss.str()};
+  }
+
   google::protobuf::io::IstreamInputStream InputStream(&In);
   google::protobuf::io::CodedInputStream CodedStream(&InputStream);
 #ifdef PROTOBUF_SET_BYTES_LIMIT
@@ -198,7 +233,9 @@ ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
 #endif
 
   MessageType Message;
-  Message.ParseFromCodedStream(&CodedStream);
+  if (!Message.ParseFromCodedStream(&CodedStream)) {
+    return {load_error::CorruptFile, "Protobuf unable to be parsed"};
+  }
 
   return IR::fromProtobuf(C, Message);
 }

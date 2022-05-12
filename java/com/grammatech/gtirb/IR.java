@@ -23,7 +23,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,6 +38,10 @@ public class IR extends AuxDataContainer {
     private List<Module> modules;
     private CFG cfg;
     private int version; // This is the protobuf version from the protoIr
+
+    static final private byte[] GTIRB_MAGIC_CHARS =
+        "GTIRB".getBytes(Charset.forName("ASCII"));
+    static final private int GTIRB_MAGIC_LENGTH = 5;
 
     /**
      * Default class constructor for IR.
@@ -82,6 +88,27 @@ public class IR extends AuxDataContainer {
      * @return  IR if load is successful, null otherwise.
      */
     public static IR loadFile(InputStream fileIn) {
+        byte[] magic = new byte[GTIRB_MAGIC_LENGTH];
+        try {
+            // Magic signature
+            // Bytes 0-4 contain the ASCII characters: GTIRB.
+            // Bytes 5-6 are considered reserved for future use and should be 0.
+            // Byte 7 contains the GTIRB protobuf spec version in use.
+            int bytes_read = fileIn.read(magic);
+            if (bytes_read != GTIRB_MAGIC_LENGTH ||
+                !Arrays.equals(magic, GTIRB_MAGIC_CHARS)) {
+                return null;
+            }
+            fileIn.read();
+            fileIn.read();
+            int ver = fileIn.read();
+            if (ver != Version.gtirbProtobufVersion) {
+                return null;
+            }
+        } catch (IOException ie) {
+            return null;
+        }
+
         IROuterClass.IR protoIr;
         try {
             protoIr = IROuterClass.IR.parseFrom(fileIn);
@@ -171,7 +198,7 @@ public class IR extends AuxDataContainer {
     public IROuterClass.IR.Builder toProtobuf() {
         IROuterClass.IR.Builder protoIr = IROuterClass.IR.newBuilder();
         protoIr.setUuid(Util.uuidToByteString(this.getUuid()));
-        protoIr.setVersion(this.version);
+        protoIr.setVersion(Version.gtirbProtobufVersion);
         // Add modules
         for (Module module : this.modules) {
             ModuleOuterClass.Module.Builder protoModule = module.toProtobuf();
@@ -186,6 +213,11 @@ public class IR extends AuxDataContainer {
      * Save IR to a protobuf file stream.
      */
     public void saveFile(OutputStream fileOut) throws IOException {
+        fileOut.write(GTIRB_MAGIC_CHARS);
+        fileOut.write(0);
+        fileOut.write(0);
+        fileOut.write(Version.gtirbProtobufVersion);
+
         IROuterClass.IR protoIr = this.toProtobuf().build();
         protoIr.writeTo(fileOut);
     }

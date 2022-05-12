@@ -252,9 +252,10 @@ by binary analysis and rewriting applications; see
 
 ## Using Serialized GTIRB Data
 
-The serialized [protobuf][] data produced by GTIRB allows for
-exploration and manipulation in the language of your choice. The
-[Google protocol buffers][] homepage lists the languages in which
+GTIRB uses a serialized format that consists of an 8-byte signature
+followed by serialized [protobuf][] data. The protobuf data allows
+for exploration and manipulation in the language of your choice.
+The [Google protocol buffers][] homepage lists the languages in which
 protocol buffers can be used directly; users of other languages can
 convert the protobuf-formatted data to JSON format and then use the
 JSON data in their applications.

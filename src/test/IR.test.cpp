@@ -294,8 +294,38 @@ TEST(Unit_IR, jsonRoundTrip) {
   EXPECT_EQ(*Result->getAuxData<TestInt32>(), 42);
 }
 
-TEST(Unit_IR, loadCorruptFile) {
+// Attempt to load something missing GTIRB's magic number
+// prefix.
+TEST(Unit_IR, loadNotGTIRB) {
   std::stringstream Stream("JUNK");
+  Context C;
+  auto Result = IR::load(C, Stream);
+  EXPECT_FALSE(Result);
+  EXPECT_EQ(Result, gtirb::IR::load_error::NotGTIRB);
+  std::stringstream Err;
+  Err << Result.getError();
+}
+
+// Attempt to load something w/ GTIRB magic but
+// invalid GTIRB protobuf version
+TEST(Unit_IR, loadWrongVersion) {
+  std::stringstream Stream("GTIRB\0\0\255JUNK");
+  Context C;
+  auto Result = IR::load(C, Stream);
+  EXPECT_FALSE(Result);
+  EXPECT_EQ(Result, gtirb::IR::load_error::IncorrectVersion);
+  std::stringstream Err;
+  Err << Result.getError();
+}
+
+// Attempt to load something w/ valid GTIRB prefix
+// but invalid protobuf content.
+TEST(Unit_IR, loadCorruptFile) {
+  std::stringstream Stream;
+  Stream << "GTIRB";
+  Stream << '\0' << '\0';
+  Stream << static_cast<uint8_t>(GTIRB_PROTOBUF_VERSION);
+  Stream << "JUNK";
   Context C;
   auto Result = IR::load(C, Stream);
   EXPECT_FALSE(Result);

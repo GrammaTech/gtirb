@@ -5,14 +5,23 @@ Using Serialized GTIRB Data
 > Lisp) using the GTIRB API is preferrable to manipulating protobuf
 > directly.
 
-The serialized [protobuf](https://github.com/google/protobuf/wiki)
-data produced by GTIRB allows for exploration and manipulation in the
-language of your choice. The [Google protocol
-buffers](https://developers.google.com/protocol-buffers/) homepage
-lists the languages in which protocol buffers can be used directly;
+GTIRB uses a serialized format that consists of an 8-byte signature
+followed by serialized [protobuf](https://github.com/google/protobuf/wiki)
+data. The protobuf data allows for exploration and manipulation in the
+language of your choice.
+The [Google protocol buffers](https://developers.google.com/protocol-buffers/)
+homepage lists the languages in which protocol buffers can be used directly;
 users of other languages can convert the protobuf-formatted data to
 JSON format and then use the JSON data in their applications. In the
 future we intend to define a standard JSON schema for GTIRB.
+
+The 8-byte signature that prefixes the protobuf data includes both
+GTIRB's magic number and the version fot GTIRB's protobuf specification
+that is in use. The layout is as follows:
+
+ - Bytes 0-4 contain the ASCII characters: `GTIRB`.
+ - Bytes 5-6 are considered reserved for future use and should be 0.
+ - Byte 7 contains the GTIRB protobuf spec version in use.
 
 Directory `gtirb/src/proto` contains the protocol buffer message type
 definitions for GTIRB. You can inspect these `.proto` files to

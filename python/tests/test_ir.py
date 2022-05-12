@@ -1,3 +1,4 @@
+import io
 import os
 import tempfile
 import unittest
@@ -70,6 +71,41 @@ class IRTest(unittest.TestCase):
             self.ir.modules[0].aux_data["key"].data,
             new_ir.modules[0].aux_data["key"].data,
         )
+
+
+class NotGTIRBTest(unittest.TestCase):
+    def test(self):
+        file_content = io.BytesIO(b"JUNK")
+        with self.assertRaises(Exception) as context:
+            gtirb.IR.load_protobuf_file(file_content)
+
+        self.assertEqual(
+            "File missing GTIRB magic - not a GTIRB file?",
+            str(context.exception),
+        )
+
+
+class BadVersionTest(unittest.TestCase):
+    def test(self):
+        file_content = io.BytesIO(b"GTIRB\x00\x00\xFF")
+        with self.assertRaises(Exception) as context:
+            gtirb.IR.load_protobuf_file(file_content)
+
+        self.assertTrue(
+            "Attempt to decode IR of version" in str(context.exception)
+        )
+
+
+class BadProtobufTest(unittest.TestCase):
+    def test(self):
+        bytes = b"GTIRB\x00\x00"
+        bytes += gtirb.version.PROTOBUF_VERSION.to_bytes(1, byteorder="little")
+        bytes += b"JUNK"
+        file_content = io.BytesIO(bytes)
+        with self.assertRaises(Exception) as context:
+            gtirb.IR.load_protobuf_file(file_content)
+
+        self.assertEqual(str(context.exception), "Error parsing message")
 
 
 if __name__ == "__main__":

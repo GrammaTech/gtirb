@@ -521,6 +521,7 @@ public class Module extends AuxDataContainer {
         // The enums values are mapped one-to-one
         protoModule.setFileFormatValue(this.fileFormat.ordinal());
         protoModule.setIsaValue(this.isa.ordinal());
+        protoModule.setName(this.getName());
         protoModule.setByteOrderValue(this.byteOrder.ordinal());
         CodeBlock entryPoint = this.getEntryPoint();
         if (entryPoint != null) {

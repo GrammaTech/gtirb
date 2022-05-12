@@ -74,6 +74,7 @@ TEST(Unit_AuxDataContainer, addAuxDataRegistered) {
   STH::save(*Ir, ss);
   Context ResultCtx;
   auto* Result = STH::load<IR>(ResultCtx, ss);
+  ASSERT_TRUE(Result);
 
   // Access it after serialization?
   {

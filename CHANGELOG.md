@@ -14,6 +14,10 @@
   run using ctest or Python's unittest module.
 * Improved the performance of the Python API's ByteBlock.references property.
 * Fixed a pair of bugs in C++ support for variants in AuxData
+* The GTIRB file format has changed to include a prefix containing a "magic"
+  identifier and the GTIRB protobuf version number to allow easier id of
+  GTIRB files. The change is not backwards compatible. Newer versions of
+  GTIRB will not be able to load older GTIRB files.
 
 # 1.10.6
 
