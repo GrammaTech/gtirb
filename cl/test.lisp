@@ -51,33 +51,20 @@ The ERRNO used when exiting lisp indicates success or failure."
   (:setup
    (progn
      #+live-w-ddisasm
-     (let ((gtirb-path (with-temporary-file (:pathname p :keep t) p)))
-       (with-temporary-file (:pathname gtirb-v0-path)
-         (with-temporary-file (:pathname gtirb-path-temp)
-           (with-temporary-file (:pathname bin-path)
-             (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
-                                           |gcc -x c - -o ~a"
-                                  bin-path) :force-shell t)
-             (run-program
-              (format nil "ddisasm --ir ~a ~a" gtirb-v0-path bin-path))
-             (delete-file bin-path))
-           ;; Convert GTIRB-V0 to current GTIRB.
-           (write-proto (upgrade (read-proto 'proto-v0:ir gtirb-v0-path))
-                        gtirb-path-temp)
-           ;; FIXME: There is a bug in update.lisp in which somehow
-           ;;        extra information is being packaged into the
-           ;;        serialized protobuf.  This is purged by this
-           ;;        extra through protobuf read/write, but it would
-           ;;        be good to find out what it is and remove it.
-           (write-proto (upgrade (read-proto 'proto:ir gtirb-path-temp))
-                        gtirb-path)))
-       (setf *proto-path* gtirb-path))
+     (with-temporary-file (:pathname bin-path)
+       (setf *proto-path* (with-temporary-file (:pathname p :keep t) p))
+       (run-program (format nil "echo 'main(){puts(\"hello world\");}'~
+                                     |gcc -x c - -o ~a"
+                            bin-path) :force-shell t)
+       (run-program
+        (format nil "ddisasm --ir ~a ~a" *proto-path* bin-path)))
      #-live-w-ddisasm
      (setf *proto-path*
            (merge-pathnames "python/tests/hello.gtirb" *gtirb-dir*))))
-  (:teardown (progn
-               #+live-w-ddisasm (delete-file *proto-path*)
-               (setf *proto-path* nil))))
+  (:teardown
+   (progn
+     #+live-w-ddisasm (delete-file *proto-path*)
+     (setf *proto-path* nil))))
 
 
 ;;;; Main test suite.
