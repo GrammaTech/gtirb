@@ -347,10 +347,18 @@ The ERRNO used when exiting lisp indicates success or failure."
     (let* ((it (read-gtirb *proto-path*))
            (a-block (first (blocks it))))
       (is (= 2 (length (address-range a-block))))
-      (is (member a-block (on-address it (first (address-range a-block)))))
-      (is (member a-block (at-address it (first (address-range a-block)))))
-      (is (not (member a-block (at-address it (second
-                                               (address-range a-block)))))))))
+      (is (member a-block (nest (mappend #'blocks)
+                                (on-address it)
+                                (first)
+                                (address-range a-block))))
+      (is (member a-block (nest (mappend #'blocks)
+                                (at-address it)
+                                (first)
+                                (address-range a-block))))
+      (is (not (member a-block (nest (mappend #'blocks)
+                                     (at-address it)
+                                     (second)
+                                     (address-range a-block))))))))
 
 (deftest symbolic-expressions-pushed-back ()
   (with-fixture hello
@@ -428,7 +436,7 @@ The ERRNO used when exiting lisp indicates success or failure."
               (aux-data-data) (cdr)
               (assoc "comments" (gtirb::aux-data-w-offsets (ir it))
                      :test #'equalp))
-        #'< :key #'offset))
+        #'< :key [#'second #'car]))
 
 (deftest offsets-pushed-back ()
   (nest (let ((gtirb::*update-aux-data-offsets* t)))
@@ -484,17 +492,11 @@ The ERRNO used when exiting lisp indicates success or failure."
   (with-fixture hello
     (let* ((it (read-gtirb *proto-path*))
            (symbols (mappend #'symbols (modules it)))
-           (value-symbol
-            (find-if [#'proto:has-value #'gtirb::proto] symbols))
            (referent-symbol
             (find-if [#'proto:has-referent-uuid #'gtirb::proto] symbols)))
       ;; Reading gives the right type of payload.
-      (is (subtypep (type-of (payload value-symbol)) 'number))
       (is (subtypep (type-of (payload referent-symbol)) 'gtirb::proto-backed))
       ;; Setting a payload has the right effect.
-      (setf (payload value-symbol) referent-symbol) ; Value to referent.
-      (is (subtypep (type-of (payload value-symbol)) 'gtirb::proto-backed))
-      (is (not (proto:has-value (gtirb::proto value-symbol))))
       (setf (payload referent-symbol) 42) ; Referent to value.
       (is (subtypep (type-of (payload referent-symbol)) 'number))
       (is (not (proto:has-referent-uuid (gtirb::proto referent-symbol)))))))

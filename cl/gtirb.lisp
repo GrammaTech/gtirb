@@ -1156,18 +1156,20 @@ intersecting the assigned part of the object.")
                       ;; NOTE: Only update offsets in the current
                       ;;       block.
                       (let* ((obj (get-uuid (first data) byte-interval))
-                             (obj-start (offset obj))
+                             (obj-start (if (typep obj 'gtirb-byte-block)
+                                            (offset obj)
+                                            most-positive-fixnum))
                              (obj-end (+ obj-start (size obj)))
                              (off (second data)))
-                        (when (and (typep obj 'gtirb-byte-block)
-                                   ;; Changes bytes intersect this block
-                                   (or (and (>= obj-start start)
-                                            (<= obj-start end))
-                                       (and (>= obj-end start)
-                                            (<= obj-end end)))
-                                   ;; This offset is after the start
-                                   ;; of the changed bytes
-                                   (>= (+ (offset obj) off) start))
+                        (when (and
+                               ;; Changes bytes intersect this block
+                               (or (and (>= obj-start start)
+                                        (<= obj-start end))
+                                   (and (>= obj-end start)
+                                        (<= obj-end end)))
+                               ;; This offset is after the start
+                               ;; of the changed bytes
+                               (>= (+ (offset obj) off) start))
                           (incf (second data) difference)))
                       data)
                      (t data))))
