@@ -25,11 +25,11 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/util/json_util.h>
 #include <iostream>
+#include <memory>
 
 using namespace gtirb;
 
-static const char* GTIRB_MAGIC_CHARS = "GTIRB";
-static const size_t GTIRB_MAGIC_LENGTH = strlen(GTIRB_MAGIC_CHARS);
+static constexpr const char* GTIRB_MAGIC_CHARS = "GTIRB";
 
 class IR::ModuleObserverImpl : public ModuleObserver {
 public:
@@ -205,9 +205,10 @@ void IR::save(std::ostream& Out) const {
 }
 
 ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
-  char magic[GTIRB_MAGIC_LENGTH];
-  In.read(reinterpret_cast<char*>(&magic), GTIRB_MAGIC_LENGTH);
-  if (memcmp(magic, GTIRB_MAGIC_CHARS, GTIRB_MAGIC_LENGTH) != 0) {
+  size_t magic_len = strlen(GTIRB_MAGIC_CHARS);
+  std::unique_ptr<char[]> magic(new char[magic_len]);
+  In.read(magic.get(), magic_len);
+  if (memcmp(magic.get(), GTIRB_MAGIC_CHARS, magic_len) != 0) {
     return {load_error::NotGTIRB, "GTIRB magic signature not found"};
   }
 
