@@ -6,9 +6,12 @@
 
 import com.grammatech.gtirb.*;
 import com.grammatech.gtirb.Module;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,6 +103,99 @@ public class testIrSanity {
         return true;
     }
 
+    static boolean testInvalidContents() {
+        // TODO: The tests here each test different ways the loadFile() function
+        // can fail. Unfortunately, in its current form, it only ever returns
+        // null in each case, so we can't really tell that we're getting the
+        // failure we expect. This should be improved if we ever make the error
+        // reporting richer in the Java API.
+
+        // A file with non-GTIRB contents.
+        {
+            byte contents[] = "JUNK".getBytes(Charset.forName("ASCII"));
+            ByteArrayInputStream file_proxy =
+                new ByteArrayInputStream(contents);
+            IR ir;
+            try {
+                ir = IR.loadFile(file_proxy);
+            } catch (Exception e) {
+                System.out.println("Exception thrown when it shouldn't have");
+                return false;
+            }
+            // IR should be null here
+            if (ir != null) {
+                System.out.println(
+                    "IR not null as expected when GTIRB magic is missing!");
+                return false;
+            }
+        }
+
+        // A GTIRB file w/ the wrong version.
+        {
+            ByteArrayOutputStream content_builder = new ByteArrayOutputStream();
+            try {
+                content_builder.write(
+                    "GTIRB".getBytes(Charset.forName("ASCII")));
+                content_builder.write(0);
+                content_builder.write(0);
+                content_builder.write(255);
+            } catch (Exception e) {
+                System.out.println("Exception thrown when it shouldn't have");
+                return false;
+            }
+            byte contents[] = content_builder.toByteArray();
+            ByteArrayInputStream file_proxy =
+                new ByteArrayInputStream(contents);
+            IR ir;
+            try {
+                ir = IR.loadFile(file_proxy);
+            } catch (Exception e) {
+                System.out.println("Exception thrown when it shouldn't have");
+                return false;
+            }
+            // IR should be null here
+            if (ir != null) {
+                System.out.println(
+                    "IR not null as expected when version number is wrong!");
+                return false;
+            }
+        }
+
+        // A GTIRB file w/ the right version but bad protobuf.
+        {
+            ByteArrayOutputStream content_builder = new ByteArrayOutputStream();
+            try {
+                content_builder.write(
+                    "GTIRB".getBytes(Charset.forName("ASCII")));
+                content_builder.write(0);
+                content_builder.write(0);
+                content_builder.write(Version.gtirbProtobufVersion);
+                content_builder.write(255);
+            } catch (Exception e) {
+                System.out.println("Exception thrown when it shouldn't have");
+                return false;
+            }
+            byte contents[] = content_builder.toByteArray();
+            ByteArrayInputStream file_proxy =
+                new ByteArrayInputStream(contents);
+            IR ir;
+            try {
+                ir = IR.loadFile(file_proxy);
+            } catch (Exception e) {
+                System.out.println("Exception thrown when it shouldn't have");
+                return false;
+            }
+            // IR should be null here
+            if (ir != null) {
+                System.out.println(
+                    "IR not null as expected when protobuf is invalid!");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static void main(String[] args) {
 
         if (args.length < 1) {
@@ -113,6 +209,7 @@ public class testIrSanity {
 
         testOk &= testLoadExistingIr(fileName);
         testOk &= testCreateSaveAndLoad();
+        testOk &= testInvalidContents();
 
         System.out.println("Version: " + Version.gtirbApiVersion);
         System.out.println("Protobuf Version: " + Version.gtirbProtobufVersion);
