@@ -436,25 +436,6 @@ TEST(Unit_AuxData, simpleVariantProtobufThird) {
   EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
 }
 
-// TEST(Unit_AuxData, simpleVariantProtobufThird) {
-//   using STH = gtirb::SerializationTestHarness;
-//   Addr addr(0xc0ffee);
-//   std::variant<Addr, char> Val(addr);
-//   auto ValOrig = Val;
-
-//   AuxDataImpl<OtherSimpleVariant> Original(std::move(Val));
-//   std::stringstream ss;
-//   STH::save(Original, ss);
-
-//   auto Result = STH::load<AuxDataImpl<SimpleVariant>>(Ctx, ss);
-//   auto New = *Result->get();
-
-//   EXPECT_EQ(New, ValOrig);
-//   EXPECT_EQ(New, std::variant<Addr,char>(0xcoffee)
-
-//   EXPECT_EQ(Result->rawData().ProtobufType, "variant<uint8_t,int32_t,Addr>");
-// }
-
 TEST(Unit_AuxData, complexVariantProtobufThird) {
   using STH = gtirb::SerializationTestHarness;
   using Map = std::map<std::string, std::vector<int64_t>>;
