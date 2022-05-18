@@ -4,7 +4,7 @@
 * Disabled testing the Python API using `setup.py test`. The tests can still be
   run using ctest or Python's unittest module.
 * Improved the performance of the Python API's ByteBlock.references property.
-* Fixed a number of bugs in C++ support for variants in AuxData
+* Fixed a pair of bugs in C++ support for variants in AuxData
 
 # 1.10.6
 
