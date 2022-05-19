@@ -99,8 +99,7 @@ public class IR extends AuxDataContainer {
                 !Arrays.equals(magic, GTIRB_MAGIC_CHARS)) {
                 return null;
             }
-            fileIn.read();
-            fileIn.read();
+            fileIn.skip(2);
             int ver = fileIn.read();
             if (ver != Version.gtirbProtobufVersion) {
                 return null;
