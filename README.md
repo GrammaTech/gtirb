@@ -145,7 +145,7 @@ wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key 
 
 Next update your sources.list file.
 ```sh
-echo "deb https://download.grammatech.com/gtirb/files/apt-repo [distribution] [component]"| sudo tee -a /etc/apt/sources.list
+echo "deb [arch=amd64] https://download.grammatech.com/gtirb/files/apt-repo [distribution] [component]"| sudo tee -a /etc/apt/sources.list
 ```
 Where:
 - `[distribution]` is `focal` (currently, only Ubuntu 20 packages are available)
