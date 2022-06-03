@@ -274,6 +274,7 @@ conan-linux-gcc9:
     - export PKG_VERSION=`conan inspect . --raw version`
     - export PKG_ARCH=`uname -m`
     - export PKG_FILENAME="${CI_PROJECT_DIR}\\${PKG_NAME}-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
+    - export PKG_FILENAME_LITE="${CI_PROJECT_DIR}\\${PKG_NAME}-lite-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
     - |+
       for PKG_DIR in ./packages/*/; do
         PKG_DIR_NAME=`basename $PKG_DIR`
@@ -292,6 +293,7 @@ conan-linux-gcc9:
       done
     - cd ./package
     - zip -r $PKG_FILENAME ./
+    - zip -r $PKG_FILENAME_LITE ./ -x "${PKG_NAME}/include/*"
 
 conan-windows-debug:
   variables:
