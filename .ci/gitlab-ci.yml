@@ -22,7 +22,7 @@ default:
   tags: [cluster]
 
 check-format:
-  image: $DOCKER_REGISTRY/rewriting/gtirb/formatter
+  image: $DOCKER_REGISTRY/rewriting/gtirb/formatter:ubuntu20
   stage: check-format
   script:
     - |+
