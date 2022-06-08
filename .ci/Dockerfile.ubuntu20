@@ -12,7 +12,7 @@ RUN apt-get -y update && \
         python3-pip python3-setuptools python3-venv wget \
         software-properties-common
 
-RUN pip3 install --upgrade pip mypy mypy-protobuf
+RUN pip3 install --upgrade pip mypy mypy-protobuf pre-commit
 
 # The default version of maven from the ubuntu repositories contains a bug that
 # causes warnings about illegal reflective accesses.  The build on apache's
@@ -21,3 +21,17 @@ RUN pip3 install --upgrade pip mypy mypy-protobuf
 RUN wget https://www.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp
 RUN tar xf /tmp/apache-maven-*.tar.gz -C /opt
 RUN update-alternatives --install /usr/bin/mvn mvn /opt/apache-maven-3.6.3/bin/mvn 363
+
+# Install the lisp-format pre-commit format checker.
+RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
+RUN chmod +x /usr/bin/lisp-format
+RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
+
+# Setup pre-commit
+WORKDIR /build/git-repo
+RUN git init
+COPY .pre-commit-config.yaml .
+RUN pre-commit install-hooks
+
+WORKDIR /
+RUN rm -rf /build/git-repo
