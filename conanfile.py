@@ -146,7 +146,8 @@ class GtirbConan(Properties, ConanFile):
             cmake = CMake(self, generator=None)
             defs.update({"GTIRB_STRIP_DEBUG_SYMBOLS:BOOL": "ON"})
         cmake.configure(
-            source_folder=".", defs=defs,
+            source_folder=".",
+            defs=defs,
         )
         cmake.build()
         cmake.test(output_on_failure=True)

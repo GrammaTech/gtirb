@@ -14,9 +14,8 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import java.util.List;
-
 import com.grammatech.gtirb.Serialization;
+import java.util.List;
 
 public class IntegerCodec extends Codec {
     int size;

@@ -17,7 +17,6 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Option;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
-
 import java.util.OptionalLong;
 
 /**

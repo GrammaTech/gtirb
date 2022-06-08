@@ -14,6 +14,8 @@
 
 package com.grammatech.gtirb;
 
+import com.google.protobuf.ByteString;
+import com.grammatech.gtirb.proto.AuxDataOuterClass;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,9 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import com.google.protobuf.ByteString;
-import com.grammatech.gtirb.proto.AuxDataOuterClass;
 
 /**
  * Provides functionality for associating auxiliary

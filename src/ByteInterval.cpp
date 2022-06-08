@@ -100,7 +100,9 @@ void ByteInterval::toProtobuf(MessageType* Message) const {
       ProtoBlock->set_offset(B.getOffset());
       B.toProtobuf(ProtoBlock->mutable_data());
     } break;
-    default: { assert(!"unknown Node::Kind in ByteInterval::toProtobuf"); }
+    default: {
+      assert(!"unknown Node::Kind in ByteInterval::toProtobuf");
+    }
     }
   }
 

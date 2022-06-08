@@ -14,11 +14,10 @@
 
 package com.grammatech.gtirb;
 
-import java.util.*;
-
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
+import java.util.*;
 
 /**
  * The ByteInterval class has an array of bytes and it stores references to them

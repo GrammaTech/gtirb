@@ -16,7 +16,6 @@ package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
-
 import java.util.*;
 
 /**

@@ -44,8 +44,7 @@ class _LazyDataContainer:
         return rv
 
     def get_raw_data(self) -> bytes:
-        """
-        """
+        """ """
         assert self.raw_data is not None
         return self.raw_data
 
@@ -109,7 +108,9 @@ class AuxData:
 
     @classmethod
     def _from_protobuf(
-        cls, aux_data: AuxData_pb2.AuxData, ir: Optional["IR"],
+        cls,
+        aux_data: AuxData_pb2.AuxData,
+        ir: Optional["IR"],
     ) -> "AuxData":
         """Deserialize AuxData from Protobuf. Lazy, will not perform
         deserialization until .data is accessed.

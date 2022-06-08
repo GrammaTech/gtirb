@@ -22,7 +22,9 @@ if("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-lib")
         "libstdc++6, libc6, libgcc1, libprotobuf17"
     )
   else()
-    message(SEND_ERROR "Uknown / missing value for CPACK_DEBIAN_PACKAGE_RELEASE.")
+    message(
+      SEND_ERROR "Uknown / missing value for CPACK_DEBIAN_PACKAGE_RELEASE."
+    )
   endif()
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-dev")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dev${CPACK_GTIRB_PKG_NAME_SUFFIX}")

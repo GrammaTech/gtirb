@@ -15,7 +15,8 @@ S = typing.TypeVar("S")
 
 
 DictLike = typing.Union[
-    typing.Mapping[K, V], typing.Iterable[typing.Tuple[K, V]],
+    typing.Mapping[K, V],
+    typing.Iterable[typing.Tuple[K, V]],
 ]
 """Any value that can be passed to the constructor of ``dict``;
 that is, a mapping or iterable yielding key-value tuples.
@@ -310,7 +311,9 @@ class _IndexedAttribute(typing.Generic[AttributeT]):
             self.parent_getter = parent_getter
 
         def __get__(
-            self, instance: InstanceT, owner: typing.Type[InstanceT] = None,
+            self,
+            instance: InstanceT,
+            owner: typing.Type[InstanceT] = None,
         ) -> AttributeT:
             return getattr(instance, self.attribute_name)
 
@@ -374,7 +377,8 @@ AddrRangeT = typing.TypeVar("AddrRangeT", bound=AddrRange)
 
 
 def nodes_on(
-    nodes: typing.Iterable[AddrRangeT], addrs: typing.Union[int, range],
+    nodes: typing.Iterable[AddrRangeT],
+    addrs: typing.Union[int, range],
 ) -> typing.Iterable[AddrRangeT]:
     desired_range = get_desired_range(addrs)
     for node in nodes:
@@ -391,7 +395,8 @@ def nodes_on(
 
 
 def nodes_at(
-    nodes: typing.Iterable[AddrRangeT], addrs: typing.Union[int, range],
+    nodes: typing.Iterable[AddrRangeT],
+    addrs: typing.Union[int, range],
 ) -> typing.Iterable[AddrRangeT]:
     desired_range = get_desired_range(addrs)
     for node in nodes:

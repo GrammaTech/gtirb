@@ -14,10 +14,9 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
 import java.util.List;
 import java.util.UUID;
-
-import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
 
 /**
  * The SymAddConst class represents a symbolic operand of the form "Sym +

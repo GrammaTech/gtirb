@@ -16,7 +16,6 @@ package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.IROuterClass;
 import com.grammatech.gtirb.proto.ModuleOuterClass;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

@@ -14,9 +14,9 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
 import java.util.ArrayList;
 import java.util.List;
-import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
 
 /**
  * The Symbolic Expression class is a base class for expressions such as

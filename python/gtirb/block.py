@@ -273,7 +273,10 @@ class CodeBlock(ByteBlock, CfgNode):
 
     @classmethod
     def _decode_protobuf(
-        cls, proto_block: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
+        cls,
+        proto_block: _NodeMessage,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
     ) -> "CodeBlock":
         assert ir
         assert isinstance(proto_block, CodeBlock_pb2.CodeBlock)
@@ -354,7 +357,10 @@ class ProxyBlock(CfgNode):
 
     @classmethod
     def _decode_protobuf(
-        cls, proto_proxy: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
+        cls,
+        proto_proxy: _NodeMessage,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
     ) -> "ProxyBlock":
         assert ir
         assert isinstance(proto_proxy, ProxyBlock_pb2.ProxyBlock)

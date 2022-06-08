@@ -57,7 +57,8 @@ class SymbolicExpression:
         )
 
     def __init__(
-        self, attributes: AttributesCtorType = set(),
+        self,
+        attributes: AttributesCtorType = set(),
     ):
         self.attributes = set(attributes)
 

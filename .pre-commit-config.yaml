@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 19.10b0
+    rev: 22.3.0
     hooks:
       - id: black
         args: ["--line-length", "79"]
@@ -29,6 +29,7 @@ repos:
         args: ["--chars"," \t"]
       - id: check-merge-conflict
       - id: check-yaml
+        args: [--allow-multiple-documents]
       - id: debug-statements
       - id: mixed-line-ending
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook

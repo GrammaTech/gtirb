@@ -14,11 +14,10 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
+import com.grammatech.gtirb.Serialization;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.grammatech.gtirb.Serialization;
 
 /**
  * A Codec for set<T> entries. Implemented via HashSet.

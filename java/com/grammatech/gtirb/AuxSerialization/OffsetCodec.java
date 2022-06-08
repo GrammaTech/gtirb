@@ -14,11 +14,10 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.grammatech.gtirb.Offset;
 import com.grammatech.gtirb.Serialization;
+import java.util.List;
+import java.util.UUID;
 
 public class OffsetCodec extends Codec {
 

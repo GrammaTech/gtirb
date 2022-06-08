@@ -175,7 +175,9 @@ class TestSerialization(unittest.TestCase):
         ostream = io.BytesIO()
         variant = Variant(1, 10)
         serializer.encode(
-            ostream, variant, "variant<string,int64_t,string>",
+            ostream,
+            variant,
+            "variant<string,int64_t,string>",
         )
         raw_bytes = ostream.getvalue()
         var_val = serializer.decode(
@@ -186,7 +188,9 @@ class TestSerialization(unittest.TestCase):
         ostream = io.BytesIO()
         variant = Variant(0, "zzzz")
         serializer.encode(
-            ostream, variant, "variant<string,int64_t,string>",
+            ostream,
+            variant,
+            "variant<string,int64_t,string>",
         )
         raw_bytes = ostream.getvalue()
         var_val = serializer.decode(
@@ -197,7 +201,9 @@ class TestSerialization(unittest.TestCase):
         ostream = io.BytesIO()
         mapping = {"aa": Variant(0, 5), "bbb": Variant(1, "ccccc")}
         serializer.encode(
-            ostream, mapping, "mapping<string,variant<int64_t,string>>",
+            ostream,
+            mapping,
+            "mapping<string,variant<int64_t,string>>",
         )
         raw_bytes = ostream.getvalue()
         mapping_val = serializer.decode(
@@ -218,14 +224,14 @@ class TestSerialization(unittest.TestCase):
             self._check_val(typename, minval)
             self._check_val(typename, maxval)
 
-        _test_range("int8_t", -(2 ** 7), (2 ** 7) - 1)
-        _test_range("int16_t", -(2 ** 15), (2 ** 15) - 1)
-        _test_range("int32_t", -(2 ** 31), (2 ** 31) - 1)
-        _test_range("int64_t", -(2 ** 63), (2 ** 63) - 1)
-        _test_range("uint8_t", 0, (2 ** 8) - 1)
-        _test_range("uint16_t", 0, (2 ** 16) - 1)
-        _test_range("uint32_t", 0, (2 ** 32) - 1)
-        _test_range("uint64_t", 0, (2 ** 64) - 1)
+        _test_range("int8_t", -(2**7), (2**7) - 1)
+        _test_range("int16_t", -(2**15), (2**15) - 1)
+        _test_range("int32_t", -(2**31), (2**31) - 1)
+        _test_range("int64_t", -(2**63), (2**63) - 1)
+        _test_range("uint8_t", 0, (2**8) - 1)
+        _test_range("uint16_t", 0, (2**16) - 1)
+        _test_range("uint32_t", 0, (2**32) - 1)
+        _test_range("uint64_t", 0, (2**64) - 1)
 
     def test_float_serializers(self):
         self._check_val("float", 0.4000000059604645)

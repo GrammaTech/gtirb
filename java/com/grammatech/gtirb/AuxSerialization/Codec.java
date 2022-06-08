@@ -19,9 +19,8 @@ package com.grammatech.gtirb.AuxSerialization;
 // If there are classes without implementations of encode/decode, maybe _they_
 // have a parent class.
 
-import java.util.List;
-
 import com.grammatech.gtirb.Serialization;
+import java.util.List;
 
 public class Codec {
 

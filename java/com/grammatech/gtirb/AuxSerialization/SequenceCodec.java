@@ -15,7 +15,6 @@
 package com.grammatech.gtirb.AuxSerialization;
 
 import com.grammatech.gtirb.Serialization;
-
 import java.util.ArrayList;
 import java.util.List;
 

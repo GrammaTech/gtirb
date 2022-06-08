@@ -18,7 +18,6 @@ import com.grammatech.gtirb.proto.ModuleOuterClass;
 import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
 import com.grammatech.gtirb.proto.SymbolOuterClass;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

@@ -140,7 +140,8 @@ class DeepEqTest(unittest.TestCase):
             attributes={gtirb.SymbolicExpression.Attribute.Part1},
         )
         s2 = gtirb.SymAddrConst(
-            offset=1, symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
+            offset=1,
+            symbol=gtirb.Symbol(name="name", payload=None, uuid=id1),
         )
         self.assertFalse(s1.deep_eq(s2))
 

@@ -14,9 +14,8 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
-
 import com.grammatech.gtirb.proto.CFGOuterClass;
+import java.util.UUID;
 
 /**
  * A CFG Edge represents an edge in the interprocedural control flow graph

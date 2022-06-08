@@ -642,7 +642,8 @@ class Serialization:
     """
 
     def __init__(self) -> None:
-        """Initialize with the built-in `gtirb.serialization.Codec` subclasses.
+        """Initialize with the built-in `gtirb.serialization.Codec`
+        subclasses.
         """
 
         self.codecs: Dict[str, Type[Codec]] = {
@@ -725,7 +726,8 @@ class Serialization:
         tokens = findall("[^<>,]+|<|>|,", type_name)
 
         def parse(
-            tokens: Sequence[str], tree: Iterable[SubtypeTree],
+            tokens: Sequence[str],
+            tree: Iterable[SubtypeTree],
         ) -> Tuple[Tuple[SubtypeTree, ...], Sequence[None]]:
             tree = list(tree)
             # It is an error to parse nothing

@@ -14,9 +14,8 @@
 
 package com.grammatech.gtirb;
 
-import java.util.UUID;
-
 import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
+import java.util.UUID;
 
 /**
  * ProxyBlock is a placeholder that serves as the end point (source or target)

@@ -15,7 +15,6 @@
 package com.grammatech.gtirb.AuxSerialization;
 
 import com.grammatech.gtirb.*;
-
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

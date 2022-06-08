@@ -134,8 +134,7 @@ class Module(AuxDataContainer):
         """An unknown or undefined ISA."""
 
     class ByteOrder(Enum):
-        """Identifies the endianness of a :class:`gtirb.Module`.
-        """
+        """Identifies the endianness of a :class:`gtirb.Module`."""
 
         Undefined = Module_pb2.ByteOrder.Value("ByteOrder_Undefined")
         """An unknown or uninitialized endianness."""
@@ -242,7 +241,10 @@ class Module(AuxDataContainer):
 
     @classmethod
     def _decode_protobuf(
-        cls, proto_module: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
+        cls,
+        proto_module: _NodeMessage,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
     ) -> "Module":
         assert ir
         assert isinstance(proto_module, Module_pb2.Module)

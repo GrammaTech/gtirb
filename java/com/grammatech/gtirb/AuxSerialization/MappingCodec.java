@@ -14,12 +14,11 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
+import com.grammatech.gtirb.Serialization;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.grammatech.gtirb.Serialization;
 
 /**
  * A Codec for mapping&lt;K,V&gt; entries. Implemented via HashMap.

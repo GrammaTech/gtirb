@@ -199,8 +199,9 @@ struct GTIRB_EXPORT_API AddressLess {
 
 /// \brief Compare CodeBlocks by address, size, decode mode, and UUID.
 template <>
-GTIRB_EXPORT_API bool AddressLess::
-operator()<CodeBlock>(const CodeBlock* B1, const CodeBlock* B2) const;
+GTIRB_EXPORT_API bool
+AddressLess::operator()<CodeBlock>(const CodeBlock* B1,
+                                   const CodeBlock* B2) const;
 
 /// \brief Compare DataBlocks by address, size, and UUID.
 ///
@@ -208,8 +209,9 @@ operator()<CodeBlock>(const CodeBlock* B1, const CodeBlock* B2) const;
 /// necessary for compatibility with the CodeBlock order so that CodeBlocks
 /// and DataBlocks can be handled uniformly by block_iterator and friends.
 template <>
-GTIRB_EXPORT_API bool AddressLess::
-operator()<DataBlock>(const DataBlock* B1, const DataBlock* B2) const;
+GTIRB_EXPORT_API bool
+AddressLess::operator()<DataBlock>(const DataBlock* B1,
+                                   const DataBlock* B2) const;
 
 /// \class BlockAddressLess
 ///

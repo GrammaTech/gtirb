@@ -174,7 +174,7 @@ class ByteInterval(Node):
         )
         self._proto_interval: typing.Optional[
             ByteInterval_pb2.ByteInterval
-        ] = (None)
+        ] = None
 
         # Use the property setter to ensure correct invariants.
         self.section = section

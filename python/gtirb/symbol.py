@@ -87,7 +87,10 @@ class Symbol(Node):
 
     @classmethod
     def _decode_protobuf(
-        cls, proto_symbol: _NodeMessage, uuid: UUID, ir: typing.Optional["IR"],
+        cls,
+        proto_symbol: _NodeMessage,
+        uuid: UUID,
+        ir: typing.Optional["IR"],
     ) -> "Symbol":
         assert ir
         assert isinstance(proto_symbol, Symbol_pb2.Symbol)
