@@ -169,7 +169,7 @@ test-default-install:
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
   needs: ['build-ubuntu20-gcc']
   script:
-    - make -t -C build
+    - cmake --build build
     - make -C build install && rm -rf build
     - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-all.sh
 
@@ -178,7 +178,7 @@ test-default-install-static:
   image: $DOCKER_REGISTRY/rewriting/gtirb/static
   needs: ['build-static']
   script:
-    - make -t -C build
+    - cmake --build build
     - make -C build install && rm -rf build
     - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH .ci/test-install-static.sh
 
@@ -191,7 +191,7 @@ test-install-different-prefix:
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
   needs: ['build-ubuntu20-gcc']
   script:
-    - make -t -C ./build
+    - cmake --build build
     - cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
     - cd ..
     - make -C build install && rm -rf build
@@ -206,7 +206,7 @@ test-install-with-destdir:
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
   needs: ['build-ubuntu20-gcc']
   script:
-    - make -t -C ./build
+    - cmake --build build
     - DESTDIR=/tmp/destdir make -C ./build install
 
 test-install-python-virtualenv:
@@ -337,7 +337,7 @@ python-wheel:
     paths:
       - gtirb-*-py*-none-any.whl
   script:
-    - make -t -C build
+    - cmake build build
     - make -C build python-wheel
     - cp build/python/dist/*.whl ./
 
