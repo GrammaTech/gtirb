@@ -1,6 +1,6 @@
 # 1.10.8 (Unreleased)
 
-* TBD
+* Ubuntu 18 and gcc7 are no longer supported.
 
 # 1.10.7
 

@@ -153,7 +153,8 @@ Where:
 - `[distribution]` is either `bionic` or `focal` if you're on Ubuntu 18 or 20
 respectively, and
 - `[component]` is either `stable`, which holds the last versioned release, or
-`unstable`, which holds the HEAD of the repository.
+`unstable`, which holds the HEAD of the repository.  Ubuntu 18 is no longer
+supported, and unstable packages are no longer available for that platform.
 
 > **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost
 > package from a PPA.  You can add it like this: `add-apt-repository
