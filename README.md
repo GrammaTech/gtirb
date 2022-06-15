@@ -155,6 +155,8 @@ respectively, and
 - `[component]` is either `stable`, which holds the last versioned release, or
 `unstable`, which holds the HEAD of the repository.  Ubuntu 18 is no longer
 supported, and unstable packages are no longer available for that platform.
+1.10.7 is the last supported release on Ubuntu 18. Unstable packages and newer
+stable packages will not be available for Ubuntu 18.
 
 > **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost
 > package from a PPA.  You can add it like this: `add-apt-repository
