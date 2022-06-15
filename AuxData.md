@@ -210,7 +210,7 @@ The following are the provisional AuxData table schemata.
 | [`"elfSectionProperties"`](#elfsectionproperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
 | [`"elfSymbolInfo"`](#elfsymbolinfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
 | [`"encodings"`](#encodings)                                 | ```std::map<gtirb::UUID, std::string>```                                                                     |
-| [`"functionNameProbabilities"`](#functionnameprobabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>``` |
+| [`"functionNameProbabilities"`](#functionnameprobabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, std::string, float>>>>``` |
 | [`"includedLibraryNames"`](#includedlibrarynames)           | ```std::map<gtirb::UUID, std::string>```                                                                     |
 | [`"includedLibraryVersions"`](#includedlibraryversions)     | ```std::map<gtirb::UUID, std::string>```                                                                     |
 | [`"libraries"`](#libraries)                                 | ```std::vector<std::string>```                                                                               |
@@ -221,10 +221,10 @@ The following are the provisional AuxData table schemata.
 | [`"peImportedSymbols"`](#peimportedsymbols)                 | ```std::vector<gtirb::UUID>```                                                                               |
 | [`"peResource"`](#peresource)                               | ```std::vector<std::tuple<std::vector<uint8_t>, gtirb::Offset, uint64_t>>```                                 |
 | [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
+| [`"prototypeTable"`](#prototypetable)                       | ```std::map<gtirb::UUID, gtirb::UUID>```                                                                     |
 | [`"sccs"`](#sccs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
 | [`"symbolicExpressionSizes"`](#symbolicexpressionsizes)     | ```std::map<gtirb::Offset, uint64_t>```                                                                      |
 | [`"typeTable"`](#typetable)                                 | ```std::map<gtirb::UUID, std::variant<uint64_t, std::tuple<uint8_t>, std::tuple<int8_t, uint64_t>, uint64_t, uint64_t, std::tuple<gtirb::UUID, std::vector<gtirb::UUID>>, gtirb::UUID, std::tuple<gtirb::UUID, uint64_t>, tuple<uint64_t, std::vector<tuple<uint64_t, gtirb::UUID>>>, std::tuple<uint8_t>, gtirb::UUID>>``` |
-| [`"prototypeTable"`](#prototypetable)                       | ```std::map<gtirb::UUID, gtirb::UUID>```                                                                     |
 
 
 ### encodings
@@ -402,9 +402,9 @@ The following are the provisional AuxData table schemata.
 | <!-- -->   | <!-- -->                                                                                                                                                                                                                                |
 |------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Label      | ```"functionNameProbabilities"```                                                                                                                                                                                                       |
-| Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, gtirb::UUID, float>>>>```                                                                                                                            |
+| Type       | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, std::string, float>>>>```                                                                                                                            |
 | Key        | Name of the tool that made the predictions.                                                                                                                                                                                             |
-| Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, IncludedLibrary UUID, score> where the score's meaning is tool dependent. Several existing tools use the convention that higher score is a better match and values ranging from 0.0 to 1.0.                                                      |
+| Value      | Map from function UUID to a list of weighted predictions.  Each prediction is a tuple of <function name, binary name, score> where the score's meaning is tool dependent. Several existing tools use the convention that higher score is a better match and values ranging from 0.0 to 1.0.                                                      |
 | AttachedTo | gtirb::Module                                                                                                                                                                                                                           |
 | Notes      | Used to collect results from tools that identify functions and their source libraries.  Source library information is tracked in [includedLibraryNames](#includedlibrarynames) and [includedlibraryVersions](#includedlibraryversions). |
 
