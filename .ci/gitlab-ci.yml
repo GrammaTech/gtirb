@@ -260,8 +260,6 @@ conan-linux-gcc9:
     - systeminfo
     - python -m pip install --upgrade conan
     - export PYTHONPATH=$CI_PROJECT_DIR
-    - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
-    - export BOOST_ROOT="C:\\Boost"
     # Setup Remote and Authenticate
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
     - conan user ci_user -r gitlab -p
@@ -314,14 +312,9 @@ conan-windows-32:
   script:
     - systeminfo
     - export PATH="C:\\Program Files\\Python38;$PATH"
+    - export PYTHONPATH="$(cygpath -w $(pwd))"
     # Install conan
     - python -m pip install --upgrade conan
-    # Run build script
-    - export PYTHONPATH="$(cygpath -w $(pwd))"
-    - export PATH="$PATH;C:\\Program Files\\CMake\\bin"
-    - export CMAKE_PREFIX_PATH="C:\\Program Files (x86)\\protobuf"
-    - export PYTHON="C:\\Python38\\python.exe"
-    - export BOOST_ROOT="C:\\Boost"
     # Setup Remote and Authenticate
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
     - conan user ci_user -r gitlab -p
