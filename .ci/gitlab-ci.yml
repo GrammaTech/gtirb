@@ -273,27 +273,23 @@ conan-linux-gcc9:
     - export PKG_NAME=`conan inspect . --raw name`
     - export PKG_VERSION=`conan inspect . --raw version`
     - export PKG_ARCH=`uname -m`
+    - cd ./packages
+      # Library Package
     - export PKG_FILENAME="${CI_PROJECT_DIR}\\${PKG_NAME}-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
-    - export PKG_FILENAME_LITE="${CI_PROJECT_DIR}\\${PKG_NAME}-lite-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
-    - |+
-      for PKG_DIR in ./packages/*/; do
-        PKG_DIR_NAME=`basename $PKG_DIR`
-        for PKG_SUBDIR in ./packages/$PKG_DIR_NAME/*/; do
-          PKG_SUBDIR_NAME=`basename $PKG_SUBDIR`
-          PKG_FILE_DEST="./package/${PKG_NAME}/${PKG_SUBDIR_NAME}"
-          [ -d $PKG_FILE_DEST ] || mkdir -p $PKG_FILE_DEST
-          if [ $PKG_SUBDIR_NAME != 'licenses' ]; then
-            cp -r $PKG_SUBDIR/* $PKG_FILE_DEST
-          else
-            for PKG_LICENSE in $PKG_SUBDIR/*; do
-              cp $PKG_LICENSE $PKG_FILE_DEST/LICENSE-$PKG_DIR_NAME
-            done
-          fi
-        done
-      done
-    - cd ./package
-    - zip -r $PKG_FILENAME ./
-    - zip -r $PKG_FILENAME_LITE ./ -x "${PKG_NAME}/include/*"
+    - export PKG_MANIFEST=(
+        "gtirb/bin/gtirb.dll"
+        "gtirb/licenses/gtirb/LICENSE.txt"
+      )
+    - zip -r $PKG_FILENAME ${PKG_MANIFEST[@]}
+      # Development Package
+    - export PKG_FILENAME_DEV="${CI_PROJECT_DIR}\\${PKG_NAME}-dev-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
+    - export PKG_MANIFEST_DEV=(
+        "gtirb/bin/gtirb.dll"
+        "gtirb/lib/gtirb.lib"
+        "gtirb/include/gtirb"
+        "gtirb/licenses/gtirb/LICENSE.txt"
+      )
+    - zip -r $PKG_FILENAME_DEV ${PKG_MANIFEST_DEV[@]}
 
 conan-windows-debug:
   variables:

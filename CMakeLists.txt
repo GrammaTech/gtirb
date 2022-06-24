@@ -504,6 +504,13 @@ if(CXX_API)
   )
 endif()
 
+# Install License
+install(
+  FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt"
+  COMPONENT license
+  DESTINATION licenses/gtirb
+)
+
 # ---------------------------------------------------------------------------
 # Package generation with cpack
 # ---------------------------------------------------------------------------
