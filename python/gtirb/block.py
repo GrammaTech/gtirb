@@ -245,8 +245,7 @@ class CodeBlock(ByteBlock, CfgNode):
     """
 
     class DecodeMode(Enum):
-        """ Variations on decoding a particular ISA
-        """
+        """Variations on decoding a particular ISA"""
 
         Default = CodeBlock_pb2.DecodeMode.Value("All_Default")
         """Default decode mode for all ISAs"""
