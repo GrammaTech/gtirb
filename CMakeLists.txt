@@ -508,7 +508,7 @@ endif()
 install(
   FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt"
   COMPONENT license
-  DESTINATION licenses/gtirb
+  DESTINATION share/doc/gtirb
 )
 
 # ---------------------------------------------------------------------------
