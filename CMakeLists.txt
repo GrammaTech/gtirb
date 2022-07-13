@@ -505,15 +505,25 @@ if(CXX_API)
   )
 endif()
 
+# ---------------------------------------------------------------------------
+# Package policy enforcement
+# ---------------------------------------------------------------------------
+
 if(CMAKE_PACKAGE_POLICY STREQUAL "debian")
+
+  # Provides copyright file required by Debian Package Policy
   install(
     FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt
-    COMPONENT license
+    COMPONENT copyright
     DESTINATION share/doc/gtirb
     RENAME copyright
   )
+
 elseif(CMAKE_PACKAGE_POLICY STREQUAL "conan")
+
+  # Provides LICENSE.txt for conan packages
   install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt DESTINATION licenses)
+
 endif()
 
 # ---------------------------------------------------------------------------

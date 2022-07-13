@@ -5,7 +5,7 @@ set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 
 # Reusable lists of components
-set(LIB_COMPONENTS library license)
+set(LIB_COMPONENTS library copyright)
 set(DEV_COMPONENTS headers proto_library cmake_config cmake_target)
 
 # Debian packages
