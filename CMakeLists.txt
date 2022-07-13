@@ -39,7 +39,7 @@ option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
 if(ENABLE_CONAN)
   set(CONAN_SYSTEM_INCLUDES ON)
-  set(PACKAGE_POLICY "conan")
+  set(CMAKE_PACKAGE_POLICY "conan")
   include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
   conan_basic_setup()
 endif()
@@ -505,14 +505,14 @@ if(CXX_API)
   )
 endif()
 
-if(PACKAGE_POLICY STREQUAL "debian")
+if(CMAKE_PACKAGE_POLICY STREQUAL "debian")
   install(
     FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt
     COMPONENT license
     DESTINATION share/doc/gtirb
     RENAME copyright
   )
-elseif(PACKAGE_POLICY STREQUAL "conan")
+elseif(CMAKE_PACKAGE_POLICY STREQUAL "conan")
   install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt DESTINATION licenses)
 endif()
 
