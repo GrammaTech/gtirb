@@ -278,7 +278,7 @@ conan-linux-gcc9:
     - export PKG_FILENAME="${CI_PROJECT_DIR}\\${PKG_NAME}-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
     - export PKG_MANIFEST=(
         "gtirb/bin/gtirb.dll"
-        "gtirb/licenses/gtirb/LICENSE.txt"
+        "gtirb/licenses/LICENSE.txt"
       )
     - zip -r $PKG_FILENAME ${PKG_MANIFEST[@]}
       # Development Package
