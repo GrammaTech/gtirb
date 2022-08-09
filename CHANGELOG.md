@@ -1,6 +1,6 @@
 # 1.10.9 (Unreleased)
 
-* TODO
+* Added support for bool values in AuxData.
 
 # 1.10.8
 

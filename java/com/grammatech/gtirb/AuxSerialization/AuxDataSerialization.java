@@ -108,6 +108,8 @@ public class AuxDataSerialization {
             return new TupleCodec();
         case "set":
             return new SetCodec();
+        case "bool":
+            return new BoolCodec();
         case "Offset":
             return new OffsetCodec();
         case "int64_t":

@@ -220,13 +220,15 @@ template <typename T, typename Enable = void> struct default_serialization {};
 template <typename T>
 struct default_serialization<
     T, typename std::enable_if_t<is_endian_type<T>::value ||
-                                 std::is_floating_point<T>::value>> {
+                                 std::is_floating_point<T>::value ||
+                                 std::is_same<T, bool>::value>> {
   static void toBytes(const T& object, ToByteRange& TBR) {
     // Store as little-endian.
     T ordered = object;
 
-    if constexpr (!std::is_floating_point<T>::value) {
-      // Do not reorder floating point values
+    if constexpr (!std::is_floating_point<T>::value &&
+                  !std::is_same<T, bool>::value) {
+      // Do not reorder floating point or boolean values
       boost::endian::conditional_reverse_inplace<boost::endian::order::little,
                                                  boost::endian::order::native>(
           ordered);
@@ -249,7 +251,8 @@ struct default_serialization<
     }
 
     // Data stored as little-endian.
-    if constexpr (!std::is_floating_point<T>::value) {
+    if constexpr (!std::is_floating_point<T>::value &&
+                  !std::is_same<T, bool>::value) {
       boost::endian::conditional_reverse_inplace<boost::endian::order::little,
                                                  boost::endian::order::native>(
           object);
@@ -294,6 +297,10 @@ struct auxdata_traits<T, typename std::enable_if_t<std::is_integral<T>::value &&
   static std::string type_name() {
     return "uint" + std::to_string(8 * sizeof(T)) + "_t";
   }
+};
+
+template <> struct auxdata_traits<bool> : default_serialization<bool> {
+  static std::string type_name() { return "bool"; }
 };
 
 template <> struct auxdata_traits<float> : default_serialization<float> {

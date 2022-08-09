@@ -375,6 +375,36 @@ class StringCodec(Codec):
         out.write(val.encode())
 
 
+class BoolCodec(Codec):
+    """A Codec for bool."""
+
+    @staticmethod
+    def decode(
+        raw_bytes: BinaryIO,
+        *,
+        serialization: "Serialization" = None,
+        subtypes: Sequence[SubtypeTree] = (),
+        get_by_uuid: Optional[CacheLookupFn] = None,
+    ) -> bool:
+        if subtypes != tuple():
+            raise DecodeError("bool should have no subtypes")
+        return bool(raw_bytes.read(1) != b"\x00")
+
+    @staticmethod
+    def encode(
+        out: BinaryIO,
+        val: object,
+        *,
+        serialization: "Serialization" = None,
+        subtypes: Sequence[SubtypeTree] = (),
+    ) -> None:
+        if not isinstance(val, bool):
+            raise EncodeError("Bool codec only supports bool")
+        if subtypes != ():
+            raise EncodeError("bool should have no subtypes")
+        out.write(bytes([val]))
+
+
 class IntegerCodec(Codec):
     """Generic base class for integer-based Codecs"""
 
@@ -648,6 +678,7 @@ class Serialization:
 
         self.codecs: Dict[str, Type[Codec]] = {
             "Addr": Uint64Codec,
+            "bool": BoolCodec,
             "Offset": OffsetCodec,
             "int64_t": Int64Codec,
             "int32_t": Int32Codec,

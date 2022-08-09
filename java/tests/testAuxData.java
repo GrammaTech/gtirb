@@ -19,6 +19,7 @@ public class testAuxData {
     public static void testSerialization() {
         serializeSelf("float", new Float(0.4));
         serializeSelf("double", new Double(1.0));
+        serializeSelf("bool", new Boolean(true));
     }
 
     public static boolean testAuxDataDecodeEncode(IR ir) {

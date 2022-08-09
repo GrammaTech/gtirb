@@ -71,6 +71,7 @@ configure_file(
 set(GTIRB_API_JAVAS
     AuxSerialization/AuxDataSerialization
     AuxSerialization/AuxTypeTree
+    AuxSerialization/BoolCodec
     AuxSerialization/Codec
     AuxSerialization/DecodeException
     AuxSerialization/EncodeException

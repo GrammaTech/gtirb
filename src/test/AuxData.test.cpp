@@ -166,6 +166,11 @@ struct AnUnsigned {
   typedef unsigned Type;
 };
 
+struct ABool {
+  static constexpr const char* Name = "A bool";
+  typedef bool Type;
+};
+
 struct AByte {
   static constexpr const char* Name = "A byte";
   typedef std::byte Type;
@@ -583,6 +588,9 @@ TEST(Unit_AuxData, getPrimitiveTypes) {
 
   AuxDataImpl<AnUnsigned> UI = unsigned(123);
   EXPECT_EQ(*UI.get(), 123);
+
+  AuxDataImpl<ABool> Bo = bool(true);
+  EXPECT_EQ(*Bo.get(), true);
 
   AuxDataImpl<AByte> B = std::byte(123);
   EXPECT_EQ(*B.get(), std::byte(123));
