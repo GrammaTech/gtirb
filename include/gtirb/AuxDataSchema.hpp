@@ -90,6 +90,35 @@ struct Profile {
   typedef std::map<gtirb::Offset, uint64_t> Type;
 };
 
+/// Version identifiers are 16 bit unsigned integers.
+using SymbolVersionId = uint16_t;
+/// Map from version identifiers to version definitions. These correspond
+/// to ELFxx_Verdef entries in the ELF section .gnu.version_d.
+/// The values in the map are tuples containing the list of versions strings and
+/// the verdef flags. The verdef flag may be VER_FLG_BASE (0x1), which indicates
+/// that the given version definiton is the file itself, and must not be
+/// used for matching a symbol. The first element of the list is the version
+/// itself, the subsequent elements are predecessor versions.
+using ElfSymVerDefs =
+    std::map<SymbolVersionId, std::tuple<std::vector<std::string>, uint16_t>>;
+/// Map from dynamic library names to the symbol versions that they need.
+/// For each library, we have a map from version identifiers to version strings.
+using ElfSymVerNeeded =
+    std::map<std::string, std::map<SymbolVersionId, std::string>>;
+//// Map from gtirb::Symbol UUIDs to a tuple of symbol version identifier and
+/// hidden attribute.
+using ElfSymbolVersionsEntries =
+    std::map<gtirb::UUID, std::tuple<SymbolVersionId, bool>>;
+
+/// \brief Auxiliary data for ELF symbol versions.
+/// This includes the symbol version definitions, the symbol version
+/// requirements, and the mapping from symbols to symbol versions.
+struct ElfSymbolVersions {
+  static constexpr const char* Name = "elfSymbolVersions";
+  typedef std::tuple<ElfSymVerDefs, ElfSymVerNeeded, ElfSymbolVersionsEntries>
+      Type;
+};
+
 } // namespace provisional_schema
 } // namespace gtirb
 

@@ -1,6 +1,7 @@
 # 1.10.9 (Unreleased)
 
 * Added support for bool values in AuxData.
+* Added elfSymbolVersions provisional AuxData definition.
 
 # 1.10.8
 

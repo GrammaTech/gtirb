@@ -209,6 +209,7 @@ The following are the provisional AuxData table schemata.
 | [`"cfiDirectives"`](#cfidirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
 | [`"elfSectionProperties"`](#elfsectionproperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
 | [`"elfSymbolInfo"`](#elfsymbolinfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
+| [`"elfSymbolVersions"`](#elfsymbolversions)                 | ```std::tuple<std::map<uint16_t, std::vector<std::string>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```           |
 | [`"encodings"`](#encodings)                                 | ```std::map<gtirb::UUID, std::string>```                                                                     |
 | [`"functionNameProbabilities"`](#functionnameprobabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, std::string, float>>>>``` |
 | [`"includedLibraryNames"`](#includedlibrarynames)           | ```std::map<gtirb::UUID, std::string>```                                                                     |
@@ -249,6 +250,18 @@ The following are the provisional AuxData table schemata.
 | Value    | The tuple with the ELF section types and flag.           |
 | AttachedTo | gtirb::Module |
 | Note     | Map from section UUIDs to tuples with the ELF section types and flags. |
+
+
+### elfSymbolVersions
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"elfSymbolVersions"```                                |
+| Type     | ```std::tuple<std::map<uint16_t, std::vector<std::string>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```        |
+| Key      | The gtirb::UUID of a section. |
+| Value    | The tuple with the ELF section types and flag.           |
+| AttachedTo | gtirb::Module |
+| Note     | Tuple with symbol version definitions, needed symbol versions, and a mapping of symbol UUIDs to symbol versions. Symbol version definitions are  `ElfSymDefs = std::map<SymbolVersionId, std::tuple<std::vector<std::string>>, uint16_t>`, a map from symbol version identifiers version definitions. These correspond to `ELFxx_Verdef` entries in the ELF section `.gnu.version_d`. The values in the map are tuples containing the list of versions strings and the verdef flags. The verdef flag may be `VER_FLG_BASE` (0x1), which indicates that the given version definiton is the file itself, and must not be used for matching a symbol. The first element of the list is the version itself, the subsequent elements are predecessor versions. The needed symbol versions are `ElfSymVerNeeded = std::map<std::string, std::map<SymbolVersionId, std::string>>`, a map from dynamic library names to the symbol versions that they need. For each library, we have a map from version identifiers to version strings. Finally, symbol UUIDs are mapped to symbol versions as `ElfSymbolVersionsEntries = std::map<gtirb::UUID, std::tuple<SymbolVersionId,bool>>`, where the `bool` represents the `HIDDEN` attribute. Symbol version identifiers are `SymbolVersionId = uint16_t` integers. |
 
 
 ### cfiDirectives
