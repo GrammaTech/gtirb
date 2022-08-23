@@ -209,7 +209,7 @@ The following are the provisional AuxData table schemata.
 | [`"cfiDirectives"`](#cfidirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
 | [`"elfSectionProperties"`](#elfsectionproperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
 | [`"elfSymbolInfo"`](#elfsymbolinfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
-| [`"elfSymbolVersions"`](#elfsymbolversions)                 | ```std::tuple<std::map<uint16_t, std::vector<std::string>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```           |
+| [`"elfSymbolVersions"`](#elfsymbolversions)                 | ```std::tuple<std::map<uint16_t, std::tuple<std::vector<std::string>, uint16_t>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```           |
 | [`"encodings"`](#encodings)                                 | ```std::map<gtirb::UUID, std::string>```                                                                     |
 | [`"functionNameProbabilities"`](#functionnameprobabilities) | ```std::map<std::string, std::map<gtirb::UUID, std::vector<std::tuple<std::string, std::string, float>>>>``` |
 | [`"includedLibraryNames"`](#includedlibrarynames)           | ```std::map<gtirb::UUID, std::string>```                                                                     |
@@ -257,7 +257,7 @@ The following are the provisional AuxData table schemata.
 | <!-- --> | <!-- -->                                       |
 |----------|------------------------------------------------|
 | Label    | ```"elfSymbolVersions"```                                |
-| Type     | ```std::tuple<std::map<uint16_t, std::vector<std::string>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```        |
+| Type     | ```std::tuple<std::map<uint16_t, std::tuple<std::vector<std::string>, uint16_t>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```        |
 | Key      | The gtirb::UUID of a section. |
 | Value    | The tuple with the ELF section types and flag.           |
 | AttachedTo | gtirb::Module |
