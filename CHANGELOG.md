@@ -6,12 +6,12 @@
   identifier and the GTIRB protobuf version number to allow easier id of
   GTIRB files. The change is not backwards compatible. Newer versions of
   GTIRB will not be able to load older GTIRB files.
+* Converted the decode mode from an arbitrary integer into a ProtoBuf enum.
+  This obviously breaks compatibility with older GTIRB files.
 
 # 1.10.8
 
 * Ubuntu 18 and gcc7 are no longer supported.
-* Converted the decode mode from an arbitrary integer into a ProtoBuf enum.
-  This obviously breaks compatibility with older GTIRB files.
 
 
 # 1.10.7
