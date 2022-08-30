@@ -1,6 +1,6 @@
 (defpackage :gtirb/gtirb
   (:nicknames :gtirb)
-  (:use :common-lisp :alexandria :graph :trivia
+  (:use :common-lisp :alexandria :cl-ppcre :graph :trivia
         :trivial-utf-8
         :gtirb/ranged
         :gtirb/utility
@@ -12,8 +12,8 @@
   (:import-from :uiop :nest)
   (:import-from :cl-intbytes
                 :int->octets
-                :octets->int64
-                :octets->uint64)
+                :octets->int
+                :octets->uint)
   (:export :read-gtirb
            :write-gtirb
            :is-equal-p
@@ -1283,6 +1283,9 @@ intersecting the assigned part of the object.")
                          (cons prefix body))))
                  body))))
 
+(defparameter +integer-typename-regex+ (create-scanner "(U?INT)([0-9]+)-T")
+  "Regex for deconstructing an integer typename.")
+
 (defun matching (open-char close-char string)
   "Return the first balanced offset of CLOSE-CHAR in STRING.
 STRING is assumed to already have one extant OPEN-CHAR which needs to
@@ -1327,7 +1330,14 @@ OPEN-CHAR."
       ("Addr" (cons :addr (aux-data-type-read type-string)))
       ("Offset" (cons :offset (aux-data-type-read type-string)))
       ("string" (cons :string (aux-data-type-read type-string)))
+      ("bool" (cons :bool (aux-data-type-read type-string)))
+      ("uint8_t" (cons :uint8-t (aux-data-type-read type-string)))
+      ("uint16_t" (cons :uint16-t (aux-data-type-read type-string)))
+      ("uint32_t" (cons :uint32-t (aux-data-type-read type-string)))
       ("uint64_t" (cons :uint64-t (aux-data-type-read type-string)))
+      ("int8_t" (cons :int8-t (aux-data-type-read type-string)))
+      ("int16_t" (cons :int16-t (aux-data-type-read type-string)))
+      ("int32_t" (cons :int32-t (aux-data-type-read type-string)))
       ("int64_t" (cons :int64-t (aux-data-type-read type-string)))
       (t (error "Junk in type string ~a" type-string)))))
 
@@ -1361,7 +1371,14 @@ OPEN-CHAR."
                          (:addr "Addr")
                          (:offset "Offset")
                          (:string "string")
+                         (:bool "bool")
+                         (:uint8-t "uint8_t")
+                         (:uint16-t "uint16_t")
+                         (:uint32-t "uint32_t")
                          (:uint64-t "uint64_t")
+                         (:int8-t "int8_t")
+                         (:int16-t "int16_t")
+                         (:int32-t "int32_t")
                          (:int64-t "int64_t"))))))
 
 (defmethod (setf aux-data-type) (new (obj aux-data))
@@ -1377,19 +1394,35 @@ OPEN-CHAR."
   (setf (proto:data (proto obj))
         (force-byte-array (aux-data-encode (aux-data-type obj) new))))
 
+(defun parse-num-bytes (num-bits-string)
+  (/ (parse-integer num-bits-string) 8))
+
 (declaim (special *decode-data*))
 (defun decode (type)
-  (flet ((advance (n) (setf *decode-data* (subseq *decode-data* n))))
+  (labels ((advance (n) (setf *decode-data* (subseq *decode-data* n)))
+           (decode-int (type)
+             (register-groups-bind (type-signage (#'parse-num-bytes num-bytes))
+                 (+integer-typename-regex+ (symbol-name type))
+               (prog1
+                   (if (string= type-signage "UINT")
+                       (octets->uint (subseq *decode-data* 0 num-bytes)
+                                     num-bytes)
+                       (octets->int (subseq *decode-data* 0 num-bytes)
+                                    num-bytes))
+                 (advance num-bytes)))))
     (declare (inline advance))
     (match type
-      ((or :addr :uint64-t)
+      ((or :uint8-t :int8-t :uint16-t :int16-t
+           :uint32-t :int32-t :uint64-t :int64-t)
+       (decode-int type))
+      (:addr
        (prog1
-           (octets->uint64 (subseq *decode-data* 0 8))
+           (octets->uint (subseq *decode-data* 0 8) 8)
          (advance 8)))
-      (:int64-t
+      (:bool
        (prog1
-           (octets->int64 (subseq *decode-data* 0 8))
-         (advance 8)))
+           (not (zerop (octets->uint (subseq *decode-data* 0 1) 1)))
+         (advance 1)))
       (:uuid
        (prog1 (uuid-to-integer (subseq *decode-data* 0 16)) (advance 16)))
       (:offset
@@ -1429,11 +1462,21 @@ OPEN-CHAR."
     (decode type)))
 
 (defun encode (type data)
-  (flet ((extend (it) (push it *decode-data*)))
+  (labels ((extend (it) (push it *decode-data*))
+           (encode-int (type data)
+             (register-groups-bind (_ (#'parse-num-bytes num-bytes))
+                 (+integer-typename-regex+ (symbol-name type))
+               (declare (ignorable _))
+               (extend (int->octets data num-bytes)))))
     (declare (inline extend))
     (match type
-      ((or :addr :uint64-t :int64-t)
+      ((or :uint8-t :int8-t :uint16-t :int16-t
+           :uint32-t :int32-t :uint64-t :int64-t)
+       (encode-int type data))
+      (:addr
        (extend (int->octets data 8)))
+      (:bool
+       (extend (int->octets (if data 1 0) 1)))
       (:uuid
        (extend (integer-to-uuid data)))
       (:offset

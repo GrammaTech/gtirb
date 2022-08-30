@@ -144,17 +144,12 @@ The ERRNO used when exiting lisp indicates success or failure."
                        (type (aux-data-type aux-data))
                        (new (gtirb::aux-data-encode
                              type (aux-data-data aux-data))))
-                  (is (if (and (listp type) (eql :mapping (car type)))
-                          ;; Hashmaps may differ due to unspecified sort order,
-                          ;; so check decoded set equality in this case.
-                          (set-equal
-                           (hash-table-alist (gtirb::aux-data-decode type new))
-                           (hash-table-alist (gtirb::aux-data-decode type orig))
-                           :test #'equalp)
-                          (equalp orig new))
+                  (is (equalp (gtirb::aux-data-decode type new)
+                              (gtirb::aux-data-decode type orig))
                       "~s with type ~a encodes/decodes is not idempotent~%~s"
                       name (aux-data-type aux-data)
-                      (list orig new)))))
+                      (list (gtirb::aux-data-decode type orig)
+                            (gtirb::aux-data-decode type new))))))
             (aux-data (first (modules hello)))))))
 
 (deftest test-check-magic-header ()
