@@ -574,3 +574,16 @@ windows-upload-internal:
     JOB_NAME: conan-windows-release
     FILESERVER: internal
     FILESERVER_SUBDIR_NAME: windows-release
+
+wheel-upload-public:
+  stage: upload
+  trigger:
+    project: rewriting/utility/package-uploader
+    strategy: depend
+  needs: [python-wheel]
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+  variables:
+    JOB_NAME: python-wheel
+    FILESERVER: public
+    FILESERVER_SUBDIR_NAME: python

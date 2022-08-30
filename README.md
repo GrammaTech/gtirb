@@ -119,6 +119,13 @@ packages as described below is recommended for use with every API.
 pip install gtirb
 ```
 
+The latest unstable version of the Python API can be installed from a
+prebuilt wheel (replacing `[VERSION]` with the latest version):
+
+```sh
+pip install https://download.grammatech.com/gtirb/files/gtirb-[VERSION].dev0-py3-none-any.whl
+```
+
 ## Windows
 
 Pre-built debug and release binaries are available for Windows at:
