@@ -99,6 +99,7 @@ The ERRNO used when exiting lisp indicates success or failure."
 (deftest read-gtirb-from-streams-and-files ()
   (with-fixture hello
     (is (typep (read-gtirb *proto-path*) 'gtirb))
+    (is (typep (read-gtirb (namestring *proto-path*)) 'gtirb))
     (is (typep (with-open-file (input *proto-path*) (read-gtirb input))
                'gtirb))))
 

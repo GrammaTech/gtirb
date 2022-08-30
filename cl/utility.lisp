@@ -43,10 +43,6 @@
     (assert (probe-file path) (path)
             "Can't read Protobuf from ~s, because the file doesn't exist."
             path))
-  (:method :before
-    (class (buffer array))
-    (declare (ignorable class))
-    (check-magic-header buffer))
   (:method (class (path string)) (read-proto class (pathname path)))
   (:method (class (path pathname))
     (with-open-file (input path :direction :input :element-type 'unsigned-byte)
@@ -56,6 +52,7 @@
                           (read-file-into-byte-vector input)
                           (read-stream-content-into-byte-vector input))))
   (:method (class (buffer array) &aux (gtirb (make-instance class)))
+    (check-magic-header buffer)
     (pb:merge-from-array gtirb buffer gtirb-magic-length (length buffer))
     gtirb))
 
