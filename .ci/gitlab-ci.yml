@@ -495,44 +495,44 @@ debian-installer-ubuntu20:
     project: rewriting/utility/package-uploader
     strategy: depend
 
-public-focal-unstable:
+apt-public-unstable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
-    APT_REPO_CODENAME: focal
+    APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: unstable
 
-public-focal-stable:
+apt-public-stable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
-    APT_REPO_CODENAME: focal
+    APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: stable
 
-internal-focal-unstable:
+apt-internal-unstable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
-    APT_REPO_CODENAME: focal
+    APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: unstable
 
-internal-focal-stable:
+apt-internal-stable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
-    APT_REPO_CODENAME: focal
+    APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: stable
 
 maven-central-upload:
