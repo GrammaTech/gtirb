@@ -521,7 +521,7 @@ if(PACKAGE_POLICY STREQUAL "unix")
   # Provides copyright file for Unix packages.
   install(
     FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt
-    COMPONENT copyright
+    COMPONENT license
     DESTINATION share/doc/gtirb
     RENAME copyright
   )
@@ -529,7 +529,11 @@ if(PACKAGE_POLICY STREQUAL "unix")
 elseif(PACKAGE_POLICY STREQUAL "conan")
 
   # Provides LICENSE.txt for Conan packages
-  install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt DESTINATION licenses)
+  install(
+    FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt
+    COMPONENT license
+    DESTINATION licenses
+  )
 
 endif()
 
