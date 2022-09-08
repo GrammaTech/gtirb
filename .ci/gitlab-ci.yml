@@ -334,6 +334,21 @@ python-wheel:
     - make -C build python-wheel
     - cp build/python/dist/*.whl ./
 
+python-wheel-unstable:
+  stage: build-installers
+  needs: [build-ubuntu20-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - gtirb-unstable-py3-none-any.whl
+  script:
+    - cmake build build
+    - make -C build python-wheel
+    - cp build/python/dist/*.whl ./gtirb-unstable-py3-none-any.whl
+
 external-pypi:
   stage: deploy
   needs: [build-ubuntu20-gcc, python-wheel]
@@ -580,7 +595,7 @@ wheel-upload-public:
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
-  needs: [python-wheel]
+  needs: [python-wheel-unstable]
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
   variables:
