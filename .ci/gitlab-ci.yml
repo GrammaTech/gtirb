@@ -599,6 +599,6 @@ wheel-upload-public:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
   variables:
-    JOB_NAME: python-wheel
+    JOB_NAME: python-wheel-unstable
     FILESERVER: public
     FILESERVER_SUBDIR_NAME: python
