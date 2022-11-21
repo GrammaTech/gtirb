@@ -19,7 +19,7 @@ stages:
   - upload
 
 default:
-  tags: [cluster]
+  tags: [shared]
 
 check-format:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
