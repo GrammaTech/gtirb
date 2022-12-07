@@ -13,7 +13,7 @@ RUN apt-get -y update && \
         software-properties-common sbcl slime
 
 # Install python dependencies
-RUN pip3 install --upgrade mypy==0.961 mypy-protobuf==3.3.0 pre-commit
+RUN pip3 install --upgrade mypy==0.961 mypy-protobuf==3.3.0 types-protobuf==3.20.4 pre-commit
 
 # The default version of maven from the ubuntu repositories contains a bug that
 # causes warnings about illegal reflective accesses.  The build on apache's
