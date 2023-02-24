@@ -9,6 +9,7 @@ variables:
   PROJECT_ID: $CI_PROJECT_ID
   PIPELINE_ID: $CI_PIPELINE_ID
   CONAN_PASSWORD: $CI_JOB_TOKEN
+  CONAN_VERSION: "1.59"
 
 stages:
   - build-images
@@ -285,7 +286,7 @@ conan-linux-gcc9:
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   script:
-    - python3 -m pip install --upgrade conan
+    - python3 -m pip install --upgrade conan~=$CONAN_VERSION
     - conan profile new default --detect
     - conan profile update settings.compiler.libcxx=libstdc++11 default
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
@@ -306,7 +307,7 @@ conan-linux-gcc9:
     - export CI_PROJECT_DIR=`cygpath -w $(pwd)`
     # Initialize
     - systeminfo
-    - python -m pip install --upgrade conan
+    - python -m pip install --upgrade conan~=$CONAN_VERSION
     - export PYTHONPATH=$CI_PROJECT_DIR
     # Setup Remote and Authenticate
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
@@ -359,7 +360,7 @@ conan-windows-32:
     - export PATH="C:\\Program Files\\Python38;$PATH"
     - export PYTHONPATH="$(cygpath -w $(pwd))"
     # Install conan
-    - python -m pip install --upgrade conan
+    - python -m pip install --upgrade conan~=$CONAN_VERSION
     # Setup Remote and Authenticate
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
     - conan user ci_user -r gitlab -p
