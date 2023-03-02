@@ -2,6 +2,7 @@
   (:nicknames :gtirb)
   (:use :common-lisp :alexandria :cl-ppcre :graph :trivia
         :trivial-utf-8
+        :ieee-floats
         :gtirb/ranged
         :gtirb/utility
         :gtirb/version
@@ -1381,6 +1382,8 @@ OPEN-CHAR."
       ("int16_t" (cons :int16-t (aux-data-type-read type-string)))
       ("int32_t" (cons :int32-t (aux-data-type-read type-string)))
       ("int64_t" (cons :int64-t (aux-data-type-read type-string)))
+      ("float" (cons :float (aux-data-type-read type-string)))
+      ("double" (cons :double (aux-data-type-read type-string)))
       (t (error "Junk in type string ~a" type-string)))))
 
 (defgeneric aux-data-type (aux-data)
@@ -1421,7 +1424,9 @@ OPEN-CHAR."
                          (:int8-t "int8_t")
                          (:int16-t "int16_t")
                          (:int32-t "int32_t")
-                         (:int64-t "int64_t"))))))
+                         (:int64-t "int64_t")
+                         (:float "float")
+                         (:double "double"))))))
 
 (defmethod (setf aux-data-type) (new (obj aux-data))
   (setf (proto:type-name (proto obj))
@@ -1457,6 +1462,10 @@ OPEN-CHAR."
       ((or :uint8-t :int8-t :uint16-t :int16-t
            :uint32-t :int32-t :uint64-t :int64-t)
        (decode-int type))
+      (:float
+       (decode-float32 (decode-int :uint32-t)))
+      (:double
+       (decode-float64 (decode-int :uint64-t)))
       (:addr
        (prog1
            (octets->uint (subseq *decode-data* 0 8) 8)
@@ -1515,6 +1524,10 @@ OPEN-CHAR."
       ((or :uint8-t :int8-t :uint16-t :int16-t
            :uint32-t :int32-t :uint64-t :int64-t)
        (encode-int type data))
+      (:float
+       (encode-int :uint32-t (encode-float32 data)))
+      (:double
+       (encode-int :uint64-t (encode-float64 data)))
       (:addr
        (extend (int->octets data 8)))
       (:bool
