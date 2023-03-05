@@ -30,5 +30,6 @@ scratch.lisp
 .mypy_cache/
 __pycache__/
 .vscode/
+.cache
 
 .gtirb.pdf

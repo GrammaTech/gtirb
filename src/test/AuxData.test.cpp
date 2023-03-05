@@ -101,9 +101,9 @@ struct TupleOfCharAndInt64 {
 };
 
 struct TupleOfCharOrAddr {
-  static constexpr const char* Name = "3-Tuple of variant<Addr,char>";
+  static constexpr const char* Name = "2-Tuple of variant<Addr,char>";
   typedef std::variant<Addr, char> VarT;
-  typedef std::tuple<VarT, VarT, VarT> Type;
+  typedef std::tuple<VarT, VarT> Type;
 };
 
 struct PairOfCharAndInt64 {
@@ -481,7 +481,7 @@ TEST(Unit_AuxData, TupleofVariants) {
   using VarT = std::variant<Addr, char>;
   using STH = gtirb::SerializationTestHarness;
   AuxDataImpl<TupleOfCharOrAddr> Original =
-      std::tuple<VarT, VarT, VarT>{Addr(0xc0ffee), 'z', 0x1};
+      std::tuple<VarT, VarT>{Addr(0xc0ffee), 'z'};
   std::stringstream ss;
   STH::save(Original, ss);
   auto Result = STH::load<AuxDataImpl<TupleOfCharOrAddr>>(Ctx, ss);
