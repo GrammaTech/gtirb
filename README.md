@@ -96,13 +96,13 @@ block) and an offset.
 
 Packages currently existing for easily installing GTIRB (and attendant
 tooling including the [ddisasm][] disassembler and [gtirb-pprinter][]
-pretty printer) on Windows, Ubuntu, and Arch Linux.  See below for
-instructions.  Additionally, a public Docker image exists at
-[grammatech/ddisasm][] with all of these tools installed.  GTIRB is
+pretty printer) on Windows, and Ubuntu 20. See below for
+instructions. Additionally, a public Docker image exists at
+[grammatech/ddisasm][] with all of these tools installed. GTIRB is
 versioned with Major.Minor.Patch versioning where Major version
 increments will require significant source changes but should be very
 rare, Minor version increments may require small source changes, and
-Patch version increments shouldn't break any downstream builds.  We do
+Patch version increments shouldn't break any downstream builds. We do
 not yet provide ABI compatibility across any version changes.
 
 [ddisasm]: https://github.com/GrammaTech/ddisasm
@@ -128,23 +128,12 @@ pip install https://download.grammatech.com/gtirb/files/python/gtirb-unstable-py
 
 ## Windows
 
-Pre-built debug and release binaries are available for Windows at:
-[windows-debug/][], and [windows-release/][].  A symbol server for the
-debugging symbols for both the release and debug binaries is available
-at [https://download.grammatech.com/gtirb/files/symbol-server/][].
-For information about how to use a symbol server with your debugger,
-please see [Specify_symbol_locations_and_loading_behavior][] or your
-debugger's documentation.
-
-[windows-debug/]: https://download.grammatech.com/gtirb/files/windows-debug/
-[windows-release/]: https://download.grammatech.com/gtirb/files/windows-release/
-[https://download.grammatech.com/gtirb/files/symbol-server/]: https://download.grammatech.com/gtirb/files/symbol-server/
-[Specify_symbol_locations_and_loading_behavior]: https://docs.microsoft.com/en-us/visualstudio/debugger/specify-symbol-dot-pdb-and-source-files-in-the-visual-studio-debugger?view=vs-2019#BKMK_Specify_symbol_locations_and_loading_behavior
-
+Windows releases are packaged as .zip files and are available at
+https://download.grammatech.com/gtirb/files/windows-release/.
 
 ## Ubuntu
 
-Packages for Ubuntu 18 and 20 are available in the GTIRB apt repository and may
+Packages for Ubuntu 20 are available in the GTIRB apt repository and may
 be installed per the following instructions.
 
 First, add GrammaTech's APT key.
@@ -157,17 +146,9 @@ Next update your sources.list file.
 echo "deb https://download.grammatech.com/gtirb/files/apt-repo [distribution] [component]"| sudo tee -a /etc/apt/sources.list
 ```
 Where:
-- `[distribution]` is either `bionic` or `focal` if you're on Ubuntu 18 or 20
-respectively, and
+- `[distribution]` is `focal` (currently, only Ubuntu 20 packages are available)
 - `[component]` is either `stable`, which holds the last versioned release, or
-`unstable`, which holds the HEAD of the repository.  Ubuntu 18 is no longer
-supported, and unstable packages are no longer available for that platform.
-1.10.7 is the last supported release on Ubuntu 18. Unstable packages and newer
-stable packages will not be available for Ubuntu 18.
-
-> **NOTE:** On ubuntu18, gtirb-pprinter and ddisasm packages depend on a boost
-> package from a PPA.  You can add it like this: `add-apt-repository
-ppa:mhier/libboost-latest`
+`unstable`, which holds the HEAD of the repository.
 
 Finally update your package database and install the core GTIRB tools:
 ```sh
@@ -180,21 +161,6 @@ that will cause conflicts if you try `apt-get upgrade`.  In this case,
 uninstall and reinstall the packages you got from the GTIRB repository.  You
 may need to use `dpkg --remove` to remove the metapackages (e.g. `ddisasm`)
 before removing the concrete versioned packages (e.g. `ddisasm-1.5.1`).
-
-## Arch Linux
-
-The Arch User Repository ([AUR][]) includes packages for GTIRB:
-`gtirb-git`, `gtirb-pprinter-git`, and `ddisasm-git`.  The following
-command will build and install all three packages using the popular
-[aur helper][] [yay][].
-```sh
-yay ddisasm-git
-```
-
-[AUR]: https://aur.archlinux.org/
-[aur helper]: https://wiki.archlinux.org/index.php/AUR_helpers
-[yay]: https://github.com/Jguer/yay
-
 
 # Building
 
