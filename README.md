@@ -94,7 +94,7 @@ block) and an offset.
 
 # Installing
 
-Packages currently existing for easily installing GTIRB (and attendant
+Packages currently exist for easily installing GTIRB (and attendant
 tooling including the [ddisasm][] disassembler and [gtirb-pprinter][]
 pretty printer) on Windows, and Ubuntu 20. See below for
 instructions. Additionally, a public Docker image exists at
