@@ -155,7 +155,7 @@ Where:
 Finally update your package database and install the core GTIRB tools:
 ```sh
 sudo apt-get update
-sudo apt-get install libgtirb gtirb-pprinter ddisasm
+sudo apt-get install gtirb-pprinter ddisasm
 ```
 
 **Warning**:  There is a problem with the packages in the stable repository
