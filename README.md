@@ -112,9 +112,8 @@ not yet provide ABI compatibility across any version changes.
 
 ## Python API
 
-The GTIRB Python API may be installed with the following.  Note
-however, that installation of the `ddisasm` and `gtirb-pprinter`
-packages as described below is recommended for use with every API.
+The latest stable GTIRB Python API may be installed from PyPI using pip:
+
 ```sh
 pip install gtirb
 ```
@@ -125,6 +124,9 @@ prebuilt wheel:
 ```sh
 pip install https://download.grammatech.com/gtirb/files/python/gtirb-unstable-py3-none-any.whl
 ```
+
+It is critical that the choice of a `stable` or `unstable` package matches the
+installed ddisasm and gtirb-pprinter packages.
 
 ## Windows
 
