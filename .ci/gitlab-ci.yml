@@ -423,7 +423,7 @@ external-pypi:
 internal-pypi:
   stage: deploy
   needs: [build-ubuntu20-gcc, python-wheel]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: python:3.9
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
