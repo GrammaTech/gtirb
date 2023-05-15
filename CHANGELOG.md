@@ -1,4 +1,4 @@
-# 1.11.0 (Unreleased)
+# 1.11.0
 
 Note that this release, due to changes to the protobuf definitions of symbolic
 expression attributes, is backwards-incompatible with previous GTIRB files.
