@@ -222,8 +222,8 @@ ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
   In >> protobuf_version;
   if (protobuf_version != GTIRB_PROTOBUF_VERSION) {
     std::stringstream ss;
-    ss << "GTIRB potobuf version mismatch. Expected: " << GTIRB_PROTOBUF_VERSION
-       << " Saw: " << protobuf_version;
+    ss << "GTIRB protobuf version mismatch. Expected: "
+       << GTIRB_PROTOBUF_VERSION << " Saw: " << protobuf_version;
     return {load_error::IncorrectVersion, ss.str()};
   }
 
