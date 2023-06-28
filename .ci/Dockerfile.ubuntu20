@@ -19,9 +19,9 @@ RUN pip3 install --upgrade pip && \
 # The default version of maven from the ubuntu repositories contains a bug that
 # causes warnings about illegal reflective accesses. The build on apache's
 # website fixes this bug, so we use that build instead.
-RUN wget https://dlcdn.apache.org/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz -P /tmp
+RUN wget https://dlcdn.apache.org/maven/maven-3/3.9.3/binaries/apache-maven-3.9.3-bin.tar.gz -P /tmp
 RUN tar xf /tmp/apache-maven-*.tar.gz -C /opt
-RUN update-alternatives --install /usr/bin/mvn mvn /opt/apache-maven-3.9.2/bin/mvn 392
+RUN update-alternatives --install /usr/bin/mvn mvn /opt/apache-maven-3.9.3/bin/mvn 392
 
 # Install the lisp-format pre-commit format checker.
 RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
