@@ -481,7 +481,7 @@ TEST(Unit_AuxData, TupleofVariants) {
   using VarT = std::variant<Addr, char>;
   using STH = gtirb::SerializationTestHarness;
   AuxDataImpl<TupleOfCharOrAddr> Original =
-      std::tuple<VarT, VarT, VarT>{Addr(0xc0ffee), 'z', 0x1};
+      std::tuple<VarT, VarT, VarT>{Addr(0xc0ffee), 'z', char(0x1)};
   std::stringstream ss;
   STH::save(Original, ss);
   auto Result = STH::load<AuxDataImpl<TupleOfCharOrAddr>>(Ctx, ss);

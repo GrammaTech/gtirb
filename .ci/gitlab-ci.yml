@@ -10,6 +10,7 @@ variables:
   PIPELINE_ID: $CI_PIPELINE_ID
   CONAN_PASSWORD: $CI_JOB_TOKEN
   CONAN_VERSION: "1.59"
+  CPACK_DEBIAN_PACKAGE_RELEASE: focal
 
 stages:
   - build-images
@@ -51,21 +52,33 @@ default:
       --cache=true
       --cache-repo=${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${IMAGE_NAME}/cache
       --context=$CI_PROJECT_DIR
-      --dockerfile=$CI_PROJECT_DIR/$DOCKERFILE_PATH
+      $DOCKERFILE_ARGS
       --destination=${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${IMAGE_NAME}:$IMAGE_TAG
       $EXTRA_DEST
 
 build-ci-image-ubuntu20:
   <<: *build-ci-image
   variables:
-    DOCKERFILE_PATH: .ci/Dockerfile.ubuntu20
+    DOCKERFILE_ARGS: --dockerfile=$CI_PROJECT_DIR/.ci/Dockerfile.ubuntu20
     IMAGE_NAME: ubuntu20
 
 build-ci-image-static:
   <<: *build-ci-image
   variables:
-    DOCKERFILE_PATH: .ci/Dockerfile.static
+    DOCKERFILE_ARGS: --dockerfile=$CI_PROJECT_DIR/.ci/Dockerfile.static
     IMAGE_NAME: static
+
+build-ci-image-rhel8:
+  <<: *build-ci-image
+  variables:
+    DOCKERFILE_ARGS: "--dockerfile=$CI_PROJECT_DIR/.ci/Dockerfile.rhel --build-arg BASE=registry.access.redhat.com/ubi8/ubi"
+    IMAGE_NAME: rhel8
+
+build-ci-image-rhel9:
+  <<: *build-ci-image
+  variables:
+    DOCKERFILE_ARGS: "--dockerfile=$CI_PROJECT_DIR/.ci/Dockerfile.rhel --build-arg BASE=registry.access.redhat.com/ubi9/ubi"
+    IMAGE_NAME: rhel9
 
 check-format:
   stage: prebuild
@@ -127,7 +140,7 @@ build-docs:
     - cd build
     - RELEASE_VERSION=OFF
     - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || RELEASE_VERSION=ON'
-    - cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DGTIRB_STRIP_DEBUG_SYMBOLS=On -DGTIRB_RELEASE_VERSION=$RELEASE_VERSION -DGTIRB_PACKAGE_POLICY=$PACKAGE_POLICY
+    - cmake ../ -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DGTIRB_STRIP_DEBUG_SYMBOLS=On -DGTIRB_RELEASE_VERSION=$RELEASE_VERSION -DGTIRB_PACKAGE_POLICY=$PACKAGE_POLICY
     - make -j
     - pip3 install -e python
     - ctest -V
@@ -138,7 +151,6 @@ build-ubuntu20-gcc:
   variables:
     OS: 'ubuntu20'
     CXX_COMPILER: 'g++'
-    CPACK_GENERATOR: 'DEB'
     BUILD_TYPE: 'RelWithDebInfo'
     PACKAGE_POLICY: "unix"
   <<: *build
@@ -179,6 +191,22 @@ build-static:
     # ensure that we produced a .a file instead of a .so
     - '[ -e lib/libgtirb.a ]'
     - '[ ! -e lib/libgtirb.so ]'
+
+.build-rhel-template: &build-rhel
+  stage: build
+  variables:
+    CXX_COMPILER: 'g++'
+    BUILD_TYPE: 'RelWithDebInfo'
+    PACKAGE_POLICY: "unix"
+  <<: *build
+
+build-rhel8:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/rhel8:$IMAGE_TAG
+  <<: *build-rhel
+
+build-rhel9:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/rhel9:$IMAGE_TAG
+  <<: *build-rhel
 
 test-capstone-example:
   stage: test-packages1
@@ -458,11 +486,9 @@ internal-pypi:
     - twine check dist/*
     - twine upload --verbose --repository repypi dist/*
 
-# Apt packaging related jobs
-build-ubuntu20-packages:
+# Apt/RPM packaging related jobs
+.build-packages-template: &build-packages
   stage: build-installers
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [build-ubuntu20-gcc]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -472,9 +498,35 @@ build-ubuntu20-packages:
     - cd build
     - CPACK_GTIRB_STABLE_PKG_NAME=OFF
     - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || CPACK_GTIRB_STABLE_PKG_NAME=ON'
-    - cpack -G "DEB" -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-lib;
-    - cpack -G "DEB" -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-dev;
-    - cpack -G "DEB" -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-debug;
+    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=lib $CPACK_EXTRA_ARGS
+    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=dev $CPACK_EXTRA_ARGS
+    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=debug $CPACK_EXTRA_ARGS
+
+build-ubuntu20-packages:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  needs: [build-ubuntu20-gcc]
+  variables:
+    CPACK_EXTRA_ARGS: "-G DEB -D CPACK_DEBIAN_PACKAGE_RELEASE=${CPACK_DEBIAN_PACKAGE_RELEASE}"
+  <<: *build-packages
+
+.build-rhel-packages-template: &build-rhel-packages
+  variables:
+    CPACK_EXTRA_ARGS: "-G RPM -D CPACK_RPM_PACKAGE_RELEASE=1.${OS_RELEASE}"
+  <<: *build-packages
+
+build-rhel8-packages:
+  needs: [build-rhel8]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/rhel8:$IMAGE_TAG
+  variables:
+    OS_RELEASE: el8
+  <<: *build-rhel-packages
+
+build-rhel9-packages:
+  needs: [build-rhel9]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/rhel9:$IMAGE_TAG
+  variables:
+    OS_RELEASE: el9
+  <<: *build-rhel-packages
 
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
@@ -563,7 +615,7 @@ apt-public-unstable:
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
-    APT_REPO_CODENAMES: focal
+    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
     APT_REPO_COMPONENT: unstable
 
 apt-public-stable:
@@ -573,7 +625,7 @@ apt-public-stable:
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
-    APT_REPO_CODENAMES: focal
+    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
     APT_REPO_COMPONENT: stable
 
 apt-internal-unstable:
@@ -583,7 +635,7 @@ apt-internal-unstable:
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
-    APT_REPO_CODENAMES: focal
+    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
     APT_REPO_COMPONENT: unstable
 
 apt-internal-stable:
@@ -593,7 +645,7 @@ apt-internal-stable:
   variables:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
-    APT_REPO_CODENAMES: focal
+    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
     APT_REPO_COMPONENT: stable
 
 maven-central-upload:

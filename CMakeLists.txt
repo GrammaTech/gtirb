@@ -34,6 +34,7 @@ include(CheckIncludeFile)
 include(Macros.cmake)
 include(AlignOf.cmake)
 include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
@@ -526,6 +527,16 @@ if(PACKAGE_POLICY STREQUAL "unix")
     RENAME copyright
   )
 
+  # Include protobuf library binary into RPM package for RedHat Also, resolve
+  # the symlink (e.g. /usr/local/lib64/libprotobuf.so ->
+  # /usr/local/lib64/libprotobuf.so.3.7.0.0)
+  get_filename_component(Protobuf_LIBRARY_RESOLVED ${Protobuf_LIBRARY} REALPATH)
+  install(
+    PROGRAMS ${Protobuf_LIBRARY_RESOLVED}
+    COMPONENT rpm_protobuf
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+
 elseif(PACKAGE_POLICY STREQUAL "conan")
 
   # Provides LICENSE.txt for Conan packages
@@ -540,6 +551,7 @@ endif()
 # ---------------------------------------------------------------------------
 # Package generation with cpack
 # ---------------------------------------------------------------------------
+set(CPACK_GENERATOR DEB RPM)
 set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cpack-config.cmake)
 
 set(CMAKE_PROJECT_HOMEPAGE_URL https://github.com/GrammaTech/gtirb)

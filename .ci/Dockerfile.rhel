@@ -1,0 +1,22 @@
+ARG BASE=registry.access.redhat.com/ubi9/ubi
+FROM ${BASE}
+
+RUN yum install -y cmake gcc-c++ git python3 python3-pip rpm-build wget
+
+ARG BOOST_VERSION=78
+RUN wget -O - https://boostorg.jfrog.io/artifactory/main/release/1.${BOOST_VERSION}.0/source/boost_1_${BOOST_VERSION}_0.tar.gz | tar -xzf -\
+    && cd boost_1_*\
+    && ./bootstrap.sh\
+    && ./b2 install\
+    && cd .. && rm -rf boost_1_*
+
+RUN git clone -b v3.7.0 https://github.com/protocolbuffers/protobuf.git\
+    && cd protobuf\
+    && git submodule update --init --recursive\
+        && cd cmake\
+        && sed -i 's|\$ORIGIN/../lib|\$ORIGIN/../lib64|g' install.cmake\
+        && cmake -D BUILD_SHARED_LIBS=ON -D protobuf_BUILD_TESTS=OFF .\
+        && cmake --build .\
+        && cmake --install .\
+        && cd ..\
+    && cd .. && rm -rf protobuf
