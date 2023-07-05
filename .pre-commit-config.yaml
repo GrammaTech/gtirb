@@ -29,7 +29,7 @@ repos:
         args: ["--chars"," \t"]
       - id: check-merge-conflict
       - id: check-yaml
-        args: [--allow-multiple-documents]
+        args: [--allow-multiple-documents, --unsafe] # pacify "could not determine a constructor for the tag '!reference' in ".ci/gitlab-ci.yml""
       - id: debug-statements
       - id: mixed-line-ending
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook

@@ -1,0 +1,15 @@
+# This is the easiest way to get "createrepo" utility for creating RPM repos.
+#
+# "ubuntu:18.04" is the latest ubuntu with "createrepo" package available.
+#
+# Alternatively, you can use a more recent Ubuntu version to build "createrepo" from
+# sources using "https://github.com/rpm-software-management/createrepo_c" and
+# "librpm-dev" package. See how it is done in "rewriting/utility/package-uploader" repo.
+#
+# It seems like RHEL deliberately excludes "createrepo" from its "Universal Base Images
+# for Docker". You can't build it from sources either because "rpm-devel" package is
+# unavailable. Both "createrepo" and "rpm-devel" are available in RHEL subscription.
+
+FROM ubuntu:18.04
+
+RUN apt update -y && apt install -y createrepo
