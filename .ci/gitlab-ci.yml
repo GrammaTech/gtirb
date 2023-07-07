@@ -136,7 +136,8 @@ build-docs:
     - make doc
     - mv doc/html ..
 
-.build-template: &build
+.build:
+  stage: build
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -151,43 +152,63 @@ build-docs:
     - pip3 install -e python
     - ctest -V
 
+# Apt/RPM packaging script
+.build-packages:
+  script:
+    - pip3 install setuptools wheel --upgrade
+    - CPACK_GTIRB_STABLE_PKG_NAME=OFF
+    - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || CPACK_GTIRB_STABLE_PKG_NAME=ON'
+    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=lib $CPACK_EXTRA_ARGS
+    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=dev $CPACK_EXTRA_ARGS
+    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=debug $CPACK_EXTRA_ARGS
+
+.build-rhel-packages:
+  extends: .build-packages
+  artifacts:
+    paths:
+      - rpm.tar.gz
+  script:
+    - !reference [.build-packages, script]
+    - tar -czvf ../rpm.tar.gz *.rpm
+
 build-ubuntu20-gcc:
-  stage: build
+  extends: [.build, .build-packages]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   variables:
     OS: 'ubuntu20'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'RelWithDebInfo'
     PACKAGE_POLICY: "unix"
-  <<: *build
+    CPACK_EXTRA_ARGS: "-G DEB -D CPACK_DEBIAN_PACKAGE_RELEASE=${CPACK_DEBIAN_PACKAGE_RELEASE}"
+  script:
+    - !reference [.build, script]
+    - !reference [.build-packages, script]
 
 build-ubuntu20-gcc-debug:
-  stage: build
+  extends: [.build]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   variables:
     OS: 'ubuntu20'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'Debug'
     PACKAGE_POLICY: "unix"
-  <<: *build
+  script:
+    - !reference [.build, script]
 
 build-ubuntu20-clang-debug:
-  stage: build
+  extends: [.build]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   variables:
     OS: 'ubuntu20'
     CXX_COMPILER: 'clang++'
     BUILD_TYPE: 'Debug'
     PACKAGE_POLICY: "unix"
-  <<: *build
+  script:
+    - !reference [.build, script]
 
 build-static:
-  stage: build
+  extends: [.build]
   image: $DOCKER_REGISTRY/rewriting/gtirb/static:$IMAGE_TAG
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - build
   script:
     - mkdir build
     - cd build
@@ -199,22 +220,31 @@ build-static:
     - '[ ! -e lib/libgtirb.so ]'
 
 .build-rhel:
-  stage: build
+  extends: [.build]
   variables:
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'RelWithDebInfo'
     PACKAGE_POLICY: "unix"
-  <<: *build
 
 build-rhel8:
-  extends: .build-rhel
+  extends: [.build-rhel, .build-rhel-packages]
   needs: [build-ci-image-rhel8]
   image: $DOCKER_REGISTRY/rewriting/gtirb/rhel8:$IMAGE_TAG
+  variables:
+    CPACK_EXTRA_ARGS: "-G RPM -D CPACK_RPM_PACKAGE_RELEASE=1.el8"
+  script:
+    - !reference [.build-rhel, script]
+    - !reference [.build-rhel-packages, script]
 
 build-rhel9:
-  extends: .build-rhel
+  extends: [.build-rhel, .build-rhel-packages]
   needs: [build-ci-image-rhel9]
   image: $DOCKER_REGISTRY/rewriting/gtirb/rhel9:$IMAGE_TAG
+  variables:
+    CPACK_EXTRA_ARGS: "-G RPM -D CPACK_RPM_PACKAGE_RELEASE=1.el9"
+  script:
+    - !reference [.build-rhel, script]
+    - !reference [.build-rhel-packages, script]
 
 test-capstone-example:
   stage: test-packages1
@@ -494,52 +524,6 @@ internal-pypi:
     - twine check dist/*
     - twine upload --verbose --repository repypi dist/*
 
-# Apt/RPM packaging related jobs
-.build-packages:
-  stage: build-installers
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
-    paths:
-      - build
-  script:
-    - pip3 install setuptools wheel --upgrade
-    - cd build
-    - CPACK_GTIRB_STABLE_PKG_NAME=OFF
-    - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || CPACK_GTIRB_STABLE_PKG_NAME=ON'
-    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=lib $CPACK_EXTRA_ARGS
-    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=dev $CPACK_EXTRA_ARGS
-    - cpack -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE_TYPE=debug $CPACK_EXTRA_ARGS
-
-build-ubuntu20-packages:
-  extends: .build-packages
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [build-ubuntu20-gcc]
-  variables:
-    CPACK_EXTRA_ARGS: "-G DEB -D CPACK_DEBIAN_PACKAGE_RELEASE=${CPACK_DEBIAN_PACKAGE_RELEASE}"
-
-.build-rhel-packages:
-  extends: .build-packages
-  artifacts:
-    paths:
-      - rpm.tar.gz
-  script:
-    - !reference [.build-packages, script]
-    - (cd build && tar -czvf ../rpm.tar.gz *.rpm)
-
-build-rhel8-packages:
-  extends: .build-rhel-packages
-  needs: [build-rhel8, build-ci-image-rhel8]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/rhel8:$IMAGE_TAG
-  variables:
-    CPACK_EXTRA_ARGS: "-G RPM -D CPACK_RPM_PACKAGE_RELEASE=1.el8"
-
-build-rhel9-packages:
-  extends: .build-rhel-packages
-  needs: [build-rhel9, build-ci-image-rhel9]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/rhel9:$IMAGE_TAG
-  variables:
-    CPACK_EXTRA_ARGS: "-G RPM -D CPACK_RPM_PACKAGE_RELEASE=1.el9"
-
 .build-rpm-repo:
   stage: test-setup
   image: $DOCKER_REGISTRY/rewriting/gtirb/rpm-repo:$IMAGE_TAG
@@ -567,11 +551,11 @@ build-rhel9-packages:
 
 build-rhel8-repo:
   extends: .build-rpm-repo
-  needs: [build-rhel8-packages, build-ci-image-rpm-repo]
+  needs: [build-rhel8]
 
 build-rhel9-repo:
   extends: .build-rpm-repo
-  needs: [build-rhel9-packages, build-ci-image-rpm-repo]
+  needs: [build-rhel9]
 
 .test-rhel-libgtirb-dev:
   extends: .test-install
@@ -660,7 +644,7 @@ test-rhel9-libgtirb-dbg:
 
 setup-ubuntu20-test-apt-repo:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [build-ubuntu20-packages]
+  needs: [build-ubuntu20-gcc]
   <<: *setup-test-apt-repo
 
 test-ubuntu20-libgtirb-dev:
@@ -681,7 +665,7 @@ test-ubuntu20-libgtirb:
 debian-installer-ubuntu20:
   stage: deploy
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [test-ubuntu20-libgtirb, build-ubuntu20-packages]
+  needs: [test-ubuntu20-libgtirb, build-ubuntu20-gcc]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -746,15 +730,15 @@ apt-internal-stable:
 
 rpm-rhel8-upload:
   extends: .rpm-upload
-  needs: [build-rhel8-packages]
+  needs: [build-rhel8, test-rhel8-libgtirb-dev, test-rhel8-libgtirb, test-rhel8-libgtirb-dbg]
   variables:
-    UPSTREAM_JOB: build-rhel8-packages
+    UPSTREAM_JOB: build-rhel8
 
 rpm-rhel9-upload:
   extends: .rpm-upload
-  needs: [build-rhel9-packages]
+  needs: [build-rhel9, test-rhel9-libgtirb-dev, test-rhel9-libgtirb, test-rhel9-libgtirb-dbg]
   variables:
-    UPSTREAM_JOB: build-rhel9-packages
+    UPSTREAM_JOB: build-rhel9
 
 maven-central-upload:
   stage: deploy
