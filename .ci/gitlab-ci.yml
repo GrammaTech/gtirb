@@ -517,15 +517,24 @@ build-ubuntu20-packages:
   variables:
     CPACK_EXTRA_ARGS: "-G DEB -D CPACK_DEBIAN_PACKAGE_RELEASE=${CPACK_DEBIAN_PACKAGE_RELEASE}"
 
-build-rhel8-packages:
+.build-rhel-packages:
   extends: .build-packages
+  artifacts:
+    paths:
+      - rpm.tar.gz
+  script:
+    - !reference [.build-packages, script]
+    - (cd build && tar -czvf ../rpm.tar.gz *.rpm)
+
+build-rhel8-packages:
+  extends: .build-rhel-packages
   needs: [build-rhel8, build-ci-image-rhel8]
   image: $DOCKER_REGISTRY/rewriting/gtirb/rhel8:$IMAGE_TAG
   variables:
     CPACK_EXTRA_ARGS: "-G RPM -D CPACK_RPM_PACKAGE_RELEASE=1.el8"
 
 build-rhel9-packages:
-  extends: .build-packages
+  extends: .build-rhel-packages
   needs: [build-rhel9, build-ci-image-rhel9]
   image: $DOCKER_REGISTRY/rewriting/gtirb/rhel9:$IMAGE_TAG
   variables:
@@ -539,8 +548,7 @@ build-rhel9-packages:
     paths:
       - rpm-repo
   script:
-    - mkdir rpm-repo
-    - mv build/*.rpm rpm-repo
+    - mkdir rpm-repo && tar -xvf rpm.tar.gz -C rpm-repo
     - createrepo rpm-repo
 
 .test-libgtirb-dbg:
@@ -726,6 +734,27 @@ apt-internal-stable:
     APT_REPO: internal
     APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
     APT_REPO_COMPONENT: stable
+
+.rpm-upload:
+  stage: deploy
+  variables:
+    UPSTREAM_REF: $CI_COMMIT_REF_NAME
+  trigger:
+    project: rewriting/utility/package-uploader
+    branch: vfolts/dev
+    strategy: depend
+
+rpm-rhel8-upload:
+  extends: .rpm-upload
+  needs: [build-rhel8-packages]
+  variables:
+    UPSTREAM_JOB: build-rhel8-packages
+
+rpm-rhel9-upload:
+  extends: .rpm-upload
+  needs: [build-rhel9-packages]
+  variables:
+    UPSTREAM_JOB: build-rhel9-packages
 
 maven-central-upload:
   stage: deploy
