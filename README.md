@@ -164,6 +164,30 @@ uninstall and reinstall the packages you got from the GTIRB repository.  You
 may need to use `dpkg --remove` to remove the metapackages (e.g. `ddisasm`)
 before removing the concrete versioned packages (e.g. `ddisasm-1.5.1`).
 
+## RedHat
+
+Packages for RHEL8 and RHEL9 are available in the GTIRB RPM repository and may
+be installed per the following instructions.
+
+First, add GrammaTech's GPG key.
+```sh
+rpm --import https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key
+```
+
+Next add the repository.
+```sh
+yum install -y yum-utils && yum-config-manager --add-repo=https://download.grammatech.com/gtirb/files/rpm-repo/[distribution]/[component]
+```
+Where:
+- `[distribution]` is `el8` or `el9`
+- `[component]` is either `stable`, which holds the last versioned release, or
+`unstable`, which holds the HEAD of the repository.
+
+Finally install GTIRB package:
+```sh
+yum install libgtirb
+```
+
 # Building
 
 GTIRB's C++ API should successfully build in 64-bits with GCC, Clang,
