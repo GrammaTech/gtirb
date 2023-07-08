@@ -21,7 +21,6 @@ stages:
   - test-packages1
   - test-packages2
   - deploy
-  - deploy-apt
   - upload
 
 default:
@@ -662,83 +661,101 @@ test-ubuntu20-libgtirb:
   needs: [setup-ubuntu20-test-apt-repo,test-ubuntu20-libgtirb-dev]
   <<: *test-ubuntu-libgtirb
 
-debian-installer-ubuntu20:
-  stage: deploy
+build-debian-ubuntu20-packages:
+  stage: build-installers
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [test-ubuntu20-libgtirb, build-ubuntu20-gcc]
+  needs: [build-ubuntu20-gcc]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - '*gtirb*.deb'
   script:
-    - cp build/*gtirb*.deb ./
+    - mv build/*gtirb*.deb ./
 
-.apt-upload: &apt-upload
-  stage: deploy-apt
+.upload-public:
+  variables:
+    REPO_ACCESS: public
+
+.upload-internal:
+  variables:
+    REPO_ACCESS: internal
+
+.upload-unstable:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    REPO_COMPONENT: unstable
+
+.upload-stable:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    REPO_COMPONENT: stable
+
+.upload:
+  stage: deploy
   trigger:
     project: rewriting/utility/package-uploader
+    branch: vfolts/dev # TODO: remove, should be default branch
     strategy: depend
+  variables:
+    UPSTREAM_PROJECT: $CI_PROJECT_PATH
+    UPSTREAM_REF: $CI_COMMIT_REF_NAME
+
+.apt-upload:
+  extends: .upload
+  needs: [build-debian-ubuntu20-packages, test-ubuntu20-libgtirb-dev, test-ubuntu20-libgtirb-dbg, test-ubuntu20-libgtirb]
+  variables:
+    JOB_NAME: build-debian-ubuntu20-packages
+    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
 
 apt-public-unstable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  variables:
-    JOB_NAME: debian-installer-ubuntu20
-    APT_REPO: public
-    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
-    APT_REPO_COMPONENT: unstable
+  extends: [.apt-upload, .upload-public, .upload-unstable]
 
 apt-public-stable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: debian-installer-ubuntu20
-    APT_REPO: public
-    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
-    APT_REPO_COMPONENT: stable
+  extends: [.apt-upload, .upload-public, .upload-stable]
 
 apt-internal-unstable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  variables:
-    JOB_NAME: debian-installer-ubuntu20
-    APT_REPO: internal
-    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
-    APT_REPO_COMPONENT: unstable
+  extends: [.apt-upload, .upload-internal, .upload-unstable]
 
 apt-internal-stable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: debian-installer-ubuntu20
-    APT_REPO: internal
-    APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
-    APT_REPO_COMPONENT: stable
+  extends: [.apt-upload, .upload-internal, .upload-stable]
 
-.rpm-upload:
-  stage: deploy
-  variables:
-    UPSTREAM_REF: $CI_COMMIT_REF_NAME
-  trigger:
-    project: rewriting/utility/package-uploader
-    branch: vfolts/dev
-    strategy: depend
-
-rpm-rhel8-upload:
-  extends: .rpm-upload
+.rpm-rhel8-upload:
+  extends: .upload
   needs: [build-rhel8, test-rhel8-libgtirb-dev, test-rhel8-libgtirb, test-rhel8-libgtirb-dbg]
   variables:
-    UPSTREAM_JOB: build-rhel8
+    JOB_NAME: build-rhel8
 
-rpm-rhel9-upload:
-  extends: .rpm-upload
+.rpm-rhel9-upload:
+  extends: .upload
   needs: [build-rhel9, test-rhel9-libgtirb-dev, test-rhel9-libgtirb, test-rhel9-libgtirb-dbg]
   variables:
-    UPSTREAM_JOB: build-rhel9
+    JOB_NAME: build-rhel9
+
+rpm-rhel8-upload-public-unstable:
+  extends: [.rpm-rhel8-upload, .upload-public, .upload-unstable]
+
+rpm-rhel9-upload-public-unstable:
+  extends: [.rpm-rhel9-upload, .upload-public, .upload-unstable]
+
+rpm-rhel8-upload-public-stable:
+  extends: [.rpm-rhel8-upload, .upload-public, .upload-stable]
+
+rpm-rhel9-upload-public-stable:
+  extends: [.rpm-rhel9-upload, .upload-public, .upload-stable]
+
+rpm-rhel8-upload-internal-unstable:
+  extends: [.rpm-rhel8-upload, .upload-internal, .upload-unstable]
+
+rpm-rhel9-upload-internal-unstable:
+  extends: [.rpm-rhel9-upload, .upload-internal, .upload-unstable]
+
+rpm-rhel8-upload-internal-stable:
+  extends: [.rpm-rhel8-upload, .upload-internal, .upload-stable]
+
+rpm-rhel9-upload-internal-stable:
+  extends: [.rpm-rhel9-upload, .upload-internal, .upload-stable]
 
 maven-central-upload:
   stage: deploy
