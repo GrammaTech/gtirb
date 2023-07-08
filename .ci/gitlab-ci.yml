@@ -8,7 +8,6 @@ variables:
   # The follow two variables are used by the package-uploader.
   PROJECT_ID: $CI_PROJECT_ID
   PIPELINE_ID: $CI_PIPELINE_ID
-  CONAN_PASSWORD: $CI_JOB_TOKEN
   CONAN_VERSION: "1.59"
   CPACK_DEBIAN_PACKAGE_RELEASE: focal
 
@@ -355,7 +354,7 @@ conan-linux-gcc9:
     - conan profile new default --detect
     - conan profile update settings.compiler.libcxx=libstdc++11 default
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
-    - conan user ci_user -r gitlab -p
+    - CONAN_PASSWORD=$CI_JOB_TOKEN conan user ci_user -r gitlab -p
     - export PYTHONPATH="$(pwd)"
     - python3 .ci/build.py
 
@@ -376,7 +375,7 @@ conan-linux-gcc9:
     - export PYTHONPATH=$CI_PROJECT_DIR
     # Setup Remote and Authenticate
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
-    - conan user ci_user -r gitlab -p
+    - CONAN_PASSWORD=$CI_JOB_TOKEN conan user ci_user -r gitlab -p
     # Build
     - python .ci/build.py -s build_type=$BUILD_TYPE
     # Install
@@ -428,7 +427,7 @@ conan-windows-32:
     - python -m pip install --upgrade conan~=$CONAN_VERSION
     # Setup Remote and Authenticate
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
-    - conan user ci_user -r gitlab -p
+    - CONAN_PASSWORD=$CI_JOB_TOKEN conan user ci_user -r gitlab -p
     # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
     - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=missing
 
@@ -450,7 +449,7 @@ python-wheel-unstable:
   needs: [build-ubuntu20-gcc]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -490,7 +489,7 @@ internal-pypi:
   needs: [build-ubuntu20-gcc, python-wheel]
   image: python:3.9
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
     # If you need to publish a package for a specific branch, change the
     # package version to something like, '0.0.0.dev0+mybranchname', uncomment
@@ -505,7 +504,7 @@ internal-pypi:
     - pip3 install gtirb-*-py*-none-any.whl
     - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
-    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+    - if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
           echo "[ERROR] Only .dev versions can be uploaded from the master branch.";
           exit 1;
@@ -682,7 +681,7 @@ build-debian-ubuntu20-packages:
 
 .upload-unstable:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   variables:
     REPO_COMPONENT: unstable
 
@@ -709,16 +708,16 @@ build-debian-ubuntu20-packages:
     JOB_NAME: build-debian-ubuntu20-packages
     APT_REPO_CODENAMES: ${CPACK_DEBIAN_PACKAGE_RELEASE}
 
-apt-public-unstable:
+apt-upload-public-unstable:
   extends: [.apt-upload, .upload-public, .upload-unstable]
 
-apt-public-stable:
+apt-upload-public-stable:
   extends: [.apt-upload, .upload-public, .upload-stable]
 
-apt-internal-unstable:
+apt-upload-internal-unstable:
   extends: [.apt-upload, .upload-internal, .upload-unstable]
 
-apt-internal-stable:
+apt-upload-internal-stable:
   extends: [.apt-upload, .upload-internal, .upload-stable]
 
 .rpm-rhel8-upload:
@@ -809,3 +808,19 @@ wheel-upload-public:
     JOB_NAME: python-wheel-unstable
     FILESERVER: public
     FILESERVER_SUBDIR_NAME: python
+
+mock-default-branch-pipeline:
+  stage: build-images
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+      when: never
+    - if: "$CI_COMMIT_BRANCH"
+      when: manual
+      allow_failure: true
+
+  trigger: # include this file
+    include: .ci/gitlab-ci.yml
+
+  variables:
+    CI_DEFAULT_BRANCH: $CI_COMMIT_BRANCH
+    MOCK_PRODUCTION_PIPELINE: "true"
