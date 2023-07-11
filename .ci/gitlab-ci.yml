@@ -164,10 +164,12 @@ build-docs:
   extends: .build-packages
   artifacts:
     paths:
-      - rpm.tar.gz
+      - artifacts
   script:
     - !reference [.build-packages, script]
-    - tar -czvf ../rpm.tar.gz *.rpm
+    - ARTIFACTS=$CI_PROJECT_DIR/artifacts
+    - mkdir $ARTIFACTS
+    - mv *.rpm $ARTIFACTS
 
 build-ubuntu20-gcc:
   extends: [.build, .build-packages]
@@ -365,7 +367,7 @@ conan-linux-gcc9:
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - gtirb*.zip
+      - artifacts
   script:
     # Setting CI_PROJECT_DIR to $(pwd) because CI doesn't properly set CI_PROJECT_DIR with VirtualBox runners.
     - export CI_PROJECT_DIR=`cygpath -w $(pwd)`
@@ -388,14 +390,16 @@ conan-linux-gcc9:
     - export PKG_ARCH=`uname -m`
     - cd ./packages
       # Library Package
-    - export PKG_FILENAME="${CI_PROJECT_DIR}\\${PKG_NAME}-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
+    - export ARTIFACTS_DIR="${CI_PROJECT_DIR}\\artifacts"
+    - mkdir "${ARTIFACTS_DIR}"
+    - export PKG_FILENAME="${ARTIFACTS_DIR}\\${PKG_NAME}-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
     - export PKG_MANIFEST=(
         "gtirb/bin/gtirb.dll"
         "gtirb/licenses/LICENSE.txt"
       )
     - zip -r $PKG_FILENAME ${PKG_MANIFEST[@]}
       # Development Package
-    - export PKG_FILENAME_DEV="${CI_PROJECT_DIR}\\${PKG_NAME}-dev-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
+    - export PKG_FILENAME_DEV="${ARTIFACTS_DIR}\\${PKG_NAME}-dev-${PKG_VERSION}.win10.${PKG_ARCH}.zip"
     - export PKG_MANIFEST_DEV=(
         "${PKG_MANIFEST[@]}"
         "gtirb/lib/gtirb.lib"
@@ -444,27 +448,34 @@ python-wheel:
     - make -C build python-wheel
     - cp build/python/dist/*.whl ./
 
+.unstable-rule:
+  - &unstable-rule
+    if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+
+.stable-rule:
+  - &stable-rule
+    if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+
 python-wheel-unstable:
   stage: build-installers
   needs: [build-ubuntu20-gcc]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  rules:
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+  rules: !reference [.unstable-rule]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
-      - gtirb-unstable-py3-none-any.whl
+      - artifacts
   script:
     - cmake build build
     - make -C build python-wheel
-    - cp build/python/dist/*.whl ./gtirb-unstable-py3-none-any.whl
+    - mkdir artifacts
+    - mv build/python/dist/*.whl artifacts/gtirb-unstable-py3-none-any.whl
 
 external-pypi:
   stage: deploy
   needs: [build-ubuntu20-gcc, python-wheel]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  rules: !reference [.stable-rule]
   script:
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
@@ -489,8 +500,8 @@ internal-pypi:
   needs: [build-ubuntu20-gcc, python-wheel]
   image: python:3.9
   rules:
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+    - *stable-rule
+    - *unstable-rule
     # If you need to publish a package for a specific branch, change the
     # package version to something like, '0.0.0.dev0+mybranchname', uncomment
     # the rule below and replace 'mybranchname' with your branch name.
@@ -530,7 +541,7 @@ internal-pypi:
     paths:
       - rpm-repo
   script:
-    - mkdir rpm-repo && tar -xvf rpm.tar.gz -C rpm-repo
+    - mv artifacts rpm-repo
     - createrepo rpm-repo
 
 .test-libgtirb-dbg:
@@ -673,29 +684,27 @@ build-debian-ubuntu20-packages:
 
 .upload-public:
   variables:
-    REPO_ACCESS: public
+    ACCESS: public
 
 .upload-internal:
   variables:
-    REPO_ACCESS: internal
+    ACCESS: internal
 
 .upload-unstable:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  rules: !reference [.unstable-rule]
   variables:
     REPO_COMPONENT: unstable
 
 .upload-stable:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  rules: !reference [.stable-rule]
   variables:
     REPO_COMPONENT: stable
 
 .upload:
-  stage: deploy
+  stage: upload
   trigger:
     project: rewriting/utility/package-uploader
-    branch: vfolts/dev # TODO: remove, should be default branch
+    branch: ci-refactoring # TODO: remove, should be default branch
     strategy: depend
   variables:
     UPSTREAM_PROJECT: $CI_PROJECT_PATH
@@ -757,56 +766,37 @@ rpm-rhel9-upload-internal-stable:
   extends: [.rpm-rhel9-upload, .upload-internal, .upload-stable]
 
 maven-central-upload:
-  stage: deploy
+  extends: [.upload]
   needs: [build-ubuntu20-gcc]
-  trigger:
-    project: rewriting/utility/package-uploader
-    strategy: depend
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+    - *stable-rule
+    - *unstable-rule
   variables:
     JOB_NAME: build-ubuntu20-gcc
     JAVA_POM_SUBDIR: ./build/java
 
-.windows-upload: &windows-upload
-  stage: upload
-  trigger:
-    project: rewriting/utility/package-uploader
-    strategy: depend
+.windows-upload:
+  extends: [.upload]
   needs: [conan-windows-release]
+  rules:
+    - *stable-rule
+    - *unstable-rule
+  variables:
+    JOB_NAME: conan-windows-release
+    FILESERVER_SUBDIR_NAME: windows-release
 
 windows-upload-public:
-  <<: *windows-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-  variables:
-    JOB_NAME: conan-windows-release
-    FILESERVER: public
-    FILESERVER_SUBDIR_NAME: windows-release
+  extends: [.windows-upload, .upload-public]
 
 windows-upload-internal:
-  <<: *windows-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-  variables:
-    JOB_NAME: conan-windows-release
-    FILESERVER: internal
-    FILESERVER_SUBDIR_NAME: windows-release
+  extends: [.windows-upload, .upload-internal]
 
 wheel-upload-public:
-  stage: upload
-  trigger:
-    project: rewriting/utility/package-uploader
-    strategy: depend
+  extends: [.upload, .upload-public]
   needs: [python-wheel-unstable]
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
+  rules: !reference [.unstable-rule]
   variables:
     JOB_NAME: python-wheel-unstable
-    FILESERVER: public
     FILESERVER_SUBDIR_NAME: python
 
 mock-default-branch-pipeline:
