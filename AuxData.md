@@ -92,6 +92,8 @@ The following are the sanctioned AuxData table schemata.
 
 | Label                                     | Type                                               |
 |-------------------------------------------|----------------------------------------------------|
+| [`"elfDynamicInit"`](#elfDynamicInit)     | ```gtirb::UUID```                                  |
+| [`"elfDynamicFini"`](#elfDynamicFini)     | ```gtirb::UUID```                                  |
 | [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | [`"functionNames"`](#functionnames)       | ```std::map<gtirb::UUID, gtirb::UUID>```           |
@@ -101,6 +103,26 @@ The following are the sanctioned AuxData table schemata.
 | [`"symbolForwarding"`](#symbolforwarding) | ```std::map<gtirb::UUID, gtirb::UUID>```           |
 | [`"padding"`](#padding)                   | ```std::map<gtirb::Offset, uint64_t>```            |
 
+
+### elfDynamicInit
+
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"elfDynamicInit"```                             |
+| Type     | ```gtirb::UUID```                                  |
+| Value    |  CodeBlock UUID                                    |
+| AttachedTo | gtirb::Module |
+| Note     | The CodeBlock to which a DT_INIT entry in an ELF file's .dynamic section refers. |
+
+### elfDynamicFini
+
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"elfDynamicFini"```                             |
+| Type     | ```gtirb::UUID```                                  |
+| Value    |  CodeBlock UUID                                    |
+| AttachedTo | gtirb::Module |
+| Note     | The CodeBlock to which a DT_FINI entry in an ELF file's .dynamic section refers. |
 
 ### functionBlocks
 

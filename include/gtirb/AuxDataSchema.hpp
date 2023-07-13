@@ -80,6 +80,20 @@ struct Padding {
   typedef std::map<gtirb::Offset, uint64_t> Type;
 };
 
+/// \brief Schema class for ELF file's dynamic entry DT_INIT.
+/// It contains a CodeBlock's UUID.
+struct ElfDynamicInit {
+  static constexpr const char* Name = "elfDynamicInit";
+  typedef gtirb::UUID Type;
+};
+
+/// \brief Schema class for ELF file's dynamic entry DT_FINI.
+/// It contains a CodeBlock's UUID.
+struct ElfDynamicFini {
+  static constexpr const char* Name = "elfDynamicFini";
+  typedef gtirb::UUID Type;
+};
+
 } // namespace schema
 
 namespace provisional_schema {
