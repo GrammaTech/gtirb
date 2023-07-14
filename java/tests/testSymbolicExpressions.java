@@ -33,7 +33,9 @@ public class testSymbolicExpressions {
         SymbolicExpression expr =
             new SymAddrConst(0, symbol.getUuid(), new ArrayList());
         expr.getAttributeFlags().add(SymbolicExpression.AttributeFlag.GOT);
-        expr.getUnknownAttributeFlags().add(0XBEEF);
+        List<Integer> unknownFlags = expr.getUnknownAttributeFlags();
+        unknowFlags.add(0xBEEF);
+        expr.setUnknownAttributeFlags(unknownFlags);
         byteInterval.insertSymbolicExpression(0, expr);
 
         modules.add(module);
