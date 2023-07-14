@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021, 2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -25,6 +25,7 @@ import java.util.UUID;
 public class SymAddrConst extends SymbolicExpression {
 
     private UUID symbol_uuid;
+    private long offset;
 
     /**
      * Class constructor for a SymAddrConst from a protobuf symbolic expression.
@@ -38,7 +39,7 @@ public class SymAddrConst extends SymbolicExpression {
             protoSymbolicExpression.getAddrConst();
         this.setSymbolUuid(
             Util.byteStringToUuid(protoSymAddrConst.getSymbolUuid()));
-        super.setOffset(protoSymAddrConst.getOffset());
+        this.offset = protoSymAddrConst.getOffset();
     }
 
     /**
@@ -49,8 +50,9 @@ public class SymAddrConst extends SymbolicExpression {
      */
     public SymAddrConst(long offset, UUID symbol_uuid,
                         List<AttributeFlag> attributeFlags) {
-        super(offset, attributeFlags);
+        super(attributeFlags);
         this.setSymbolUuid(symbol_uuid);
+        this.offset = offset;
     }
 
     /**
@@ -69,6 +71,18 @@ public class SymAddrConst extends SymbolicExpression {
     public void setSymbolUuid(UUID symbol_uuid) {
         this.symbol_uuid = symbol_uuid;
     }
+
+    /**
+     * Gets the symbol-relative constant offset of this SymAddrConst.
+     * @return The current offset value
+     */
+    public long getOffset() { return this.offset; }
+
+    /**
+     * Sets the symbol-relative constant offset of this SymAddrConst.
+     * @param offset New value for the constant offset.
+     */
+    public void setOffset(long offset) { this.offset = offset; }
 
     /**
      * De-serialize a {@link SymAddrConst} from a protobuf.
@@ -100,13 +114,11 @@ public class SymAddrConst extends SymbolicExpression {
             Util.uuidToByteString(this.getSymbolUuid()));
         protoSymAddrConst.setOffset(this.getOffset());
         protoSymbolicExpression.setAddrConst(protoSymAddrConst);
-        for (AttributeFlag attributeFlag : this.getAttributeFlags()) {
+        // NOTE for this to be valid, a one-to-one mapping of enums must be
+        // maintained
+        for (AttributeFlag attributeFlag : this.getAttributeFlags())
             protoSymbolicExpression.addAttributeFlagsValue(
-                attributeFlag.value());
-        }
-        for (Integer value : this.getUnknownAttributeFlags()) {
-            protoSymbolicExpression.addAttributeFlagsValue(value);
-        }
+                attributeFlag.ordinal());
         return protoSymbolicExpression;
     }
 }

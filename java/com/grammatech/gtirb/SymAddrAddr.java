@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021, 2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -27,6 +27,7 @@ import java.util.UUID;
 public class SymAddrAddr extends SymbolicExpression {
 
     private long scale;
+    private long offset;
     private UUID symbol1_uuid;
     private UUID symbol2_uuid;
 
@@ -46,20 +47,22 @@ public class SymAddrAddr extends SymbolicExpression {
         this.setSymbol2Uuid(
             Util.byteStringToUuid(protoSymAddrAddr.getSymbol2Uuid()));
         this.setScale(protoSymAddrAddr.getScale());
-        super.setOffset(protoSymAddrAddr.getOffset());
+        this.setOffset(protoSymAddrAddr.getOffset());
     }
 
     /**
      * Class constructor for a SymbolicExpression.
-     * @param  offset           The offset of this symbolic expression in the
-     * ByteInterval.
+     * @param  offset           The constant offset operand.
+     * @param  scale            The scale applied to the symbol difference.
      * @param  symbol1_uuid     The UUID of the first symbolic operand.
      * @param  symbol2_uuid     The UUID of the second symbolic operand.
+     * @param  attributeFlags   A list of applicable attributes. May be empty.
      */
     public SymAddrAddr(long offset, long scale, UUID symbol1_uuid,
                        UUID symbol2_uuid, List<AttributeFlag> attributeFlags) {
-        super(offset, attributeFlags);
+        super(attributeFlags);
         this.setScale(scale);
+        this.setOffset(offset);
         this.setSymbol1Uuid(symbol1_uuid);
         this.setSymbol2Uuid(symbol2_uuid);
     }
@@ -113,6 +116,18 @@ public class SymAddrAddr extends SymbolicExpression {
     public void setScale(long scale) { this.scale = scale; }
 
     /**
+     * Gets the constant offset of this SymAddrAddr
+     * @return The current offset value
+     */
+    public long getOffset() { return this.offset; }
+
+    /**
+     * Sets the constant offset of this SymAddrAddr.
+     * @param offset New value for the constant offset.
+     */
+    public void setOffset(long offset) { this.offset = offset; }
+
+    /**
      * De-serialize a {@link SymAddrAddr} from a protobuf .
      *
      * @param  protoSymbolicExpression     The symbolic expression as serialized
@@ -144,13 +159,12 @@ public class SymAddrAddr extends SymbolicExpression {
             Util.uuidToByteString(this.getSymbol2Uuid()));
         protoSymAddrAddr.setOffset(this.getOffset());
         protoSymbolicExpression.setAddrAddr(protoSymAddrAddr);
-        for (AttributeFlag attributeFlag : this.getAttributeFlags()) {
+
+        // NOTE for this to be valid, a one-to-one mapping of enums must be
+        // maintained
+        for (AttributeFlag attributeFlag : this.getAttributeFlags())
             protoSymbolicExpression.addAttributeFlagsValue(
-                attributeFlag.value());
-        }
-        for (Integer value : this.getUnknownAttributeFlags()) {
-            protoSymbolicExpression.addAttributeFlagsValue(value);
-        }
+                attributeFlag.ordinal());
         return protoSymbolicExpression;
     }
 }

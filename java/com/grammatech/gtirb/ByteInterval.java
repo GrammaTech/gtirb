@@ -26,7 +26,7 @@ import java.util.*;
 public final class ByteInterval extends Node implements TreeListItem {
 
     private TreeMap<Long, List<ByteBlock>> blockTree = new TreeMap<>();
-    private TreeMap<Long, List<SymbolicExpression>> symbolicExpressionTree =
+    private TreeMap<Long, SymbolicExpression> symbolicExpressionTree =
         new TreeMap<>();
     private OptionalLong address;
     private long size;
@@ -92,7 +92,7 @@ public final class ByteInterval extends Node implements TreeListItem {
                 throw new IllegalArgumentException(
                     "Symbolic Expression must be either a SymAddrConst or a SymAddrAddr.");
             }
-            this.insertSymbolicExpression(symbolicExpression);
+            this.insertSymbolicExpression(entry.getKey(), symbolicExpression);
         }
     }
 
@@ -633,54 +633,27 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Insert a symbolic expression into this ByteInterval.
      *
-     * The symbolic expression must already have an offset. This will be used to
-     * determine where to insert it.
-     *
-     * @param symbolicExpression    The SymbolicExpression to add to this
+     * @param offset The offset within this ByteInterval at which the address
+     * described by this Symbolic Expression belongs; not to be confused with
+     * the symbol-relative offset that may be part of a {@link SymAddrConst}.
+     * @param symbolicExpression The SymbolicExpression to add to this
      * ByteInterval.
-     * @return            An updated list of symbolic expressions at this
-     * offset, or null if the insert fails.
      */
-    public List<SymbolicExpression>
-    insertSymbolicExpression(SymbolicExpression symbolicExpression) {
-        List<SymbolicExpression> symbolicExpressionList;
-        Long offset = symbolicExpression.getOffset();
-        if (this.symbolicExpressionTree.containsKey(offset))
-            symbolicExpressionList = symbolicExpressionTree.get(offset);
-        else
-            symbolicExpressionList = new ArrayList<SymbolicExpression>();
-        symbolicExpressionList.add(symbolicExpression);
-        this.symbolicExpressionTree.put(offset, symbolicExpressionList);
-        return symbolicExpressionList;
+    public void
+    insertSymbolicExpression(long offset,
+                             SymbolicExpression symbolicExpression) {
+        this.symbolicExpressionTree.put(offset, symbolicExpression);
     }
 
     /**
      * Remove a symbolicExpression from this ByteInterval.
      *
-     * @param symbolicExpression    The SymbolicExpression to add to this
-     * ByteInterval.
-     * @return            An updated list of symbolic expressions at this
-     * offset, or null if the delete fails.
+     * @param offset The offset within this ByteInterval of the Symbolic
+     *               Expression.
      */
-    public List<SymbolicExpression>
-    removeSymbolicExpression(SymbolicExpression symbolicExpression) {
-        Long offset = symbolicExpression.getOffset();
-        List<SymbolicExpression> symbolicExpressionList =
-            this.symbolicExpressionTree.get(offset);
-        if (symbolicExpressionList == null)
-            // no symbolic expressions at this offset
-            return null;
-        if (!symbolicExpressionList.remove(symbolicExpression))
-            // didn't remove, maybe no matching symbolic expressions?
-            return null;
-        // Did remove. If the list is now empty, remove the node from the tree.
-        // Otherwise update the tree.
-        if (symbolicExpressionList.size() == 0)
-            this.symbolicExpressionTree.remove(offset);
-        else
-            this.symbolicExpressionTree.put(offset, symbolicExpressionList);
-        // Return the list, even if empty, because null means the remove failed.
-        return symbolicExpressionList;
+    public void
+    removeSymbolicExpression(long offset) {
+        this.symbolicExpressionTree.remove(offset);
     }
 
     /**
@@ -690,27 +663,21 @@ public final class ByteInterval extends Node implements TreeListItem {
      * in this ByteInterval.
      */
     public Iterator<SymbolicExpression> symbolicExpressionIterator() {
-        TreeListUtils<SymbolicExpression> symbolicExpressionTreeIterator =
-            new TreeListUtils<SymbolicExpression>(this.symbolicExpressionTree);
-        return symbolicExpressionTreeIterator.iterator();
+        return this.symbolicExpressionTree.values().iterator();
     }
 
     /**
      * Find all the symbolic expressions that start at an address.
      *
-     * Note that only one symbolic expression can be at any given offset, so
-     * this will only ever return 0 or 1 elements.
+     * Note that only one symbolic expression can be at any given offset, 
+     * so this will return at most one SymbolicExpression.
      *
      * @param address      The address to look for.
-     * @return             A list of Symbolic Expressions that that start at
-     * this address, or null if none.
+     * @return             A Symbolic Expression at this address, 
+     * or null if none.
      */
-    public List<SymbolicExpression> findSymbolicExpressionsAt(long address) {
-        List<SymbolicExpression> resultList =
-            getItemsAtStartAddress(address, this.symbolicExpressionTree);
-        if (resultList == null || resultList.size() == 0)
-            return null;
-        return resultList;
+    public SymbolicExpression findSymbolicExpressionAt(long address) {
+        return this.symbolicExpressionTree.get(address);
     }
 
     /**
@@ -720,15 +687,33 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @param startAddress      The beginning of the address range to look for.
      * @param endAddress        The last address in the address to look for.
      * @return                  A list of Symbolic Expressions that that start
-     * at this address, or null if none.
+     * at this address (or an empty list if none are found).
      */
     public List<SymbolicExpression> findSymbolicExpressionsAt(long startAddress,
                                                               long endAddress) {
-        List<SymbolicExpression> resultList = getItemsAtStartAddressRange(
-            startAddress, endAddress, this.symbolicExpressionTree);
-        if (resultList == null || resultList.size() == 0)
-            return null;
-        return resultList;
+        long start = startAddress;
+        long end = endAddress;
+        List<SymbolicExpression> resultsList = new ArrayList<SymbolicExpression>();
+
+        if (endAddress < startAddress) {
+            start = endAddress;
+            end = startAddress;
+        }
+        
+        for (long address = start; address <= end; address++) {
+            SymbolicExpression symbolicExpression = symbolicExpressionTree.get(address);
+            if (symbolicExpression != null)
+                resultsList.add(symbolicExpression);
+        }
+        return resultsList;
+    }
+
+    /**
+     * Gets the map of all Symbolic Expressions in this ByteInterval.
+     * @return The map of block offsets to Symbolic Expressions
+     */
+    public Map<Long, SymbolicExpression> getSymbolicExpressionTree() {
+        return this.symbolicExpressionTree;
     }
 
     /**
@@ -768,16 +753,14 @@ public final class ByteInterval extends Node implements TreeListItem {
         }
 
         // Iterate through symbolic expressions, adding them
-        Iterator<SymbolicExpression> symbolicExpressions =
-            this.symbolicExpressionIterator();
-        while (symbolicExpressions.hasNext()) {
-            SymbolicExpression symbolicExpression = symbolicExpressions.next();
+        for (Map.Entry<Long, SymbolicExpression> symbolicEntry :
+             symbolicExpressionTree.entrySet()) {
+            SymbolicExpression symbolicExpression = symbolicEntry.getValue();
             SymbolicExpressionOuterClass.SymbolicExpression
                 .Builder protoSymbolicExpression =
                 symbolicExpression.toProtobuf();
             protoByteInterval.putSymbolicExpressions(
-                symbolicExpression.getOffset(),
-                protoSymbolicExpression.build());
+                symbolicEntry.getKey(), protoSymbolicExpression.build());
         }
         if (this.bytes == null) {
             protoByteInterval.setContents(ByteString.EMPTY);

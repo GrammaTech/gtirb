@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021, 2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -25,7 +25,7 @@ import java.util.Map;
  * The Symbolic Expression class is a base class for expressions such as
  * SymAddrConst, SymAddrAddr, and SymStackConst.
  */
-public class SymbolicExpression implements TreeListItem {
+public class SymbolicExpression {
 
     /**
      * Attributes for Symbolic Expressions.
@@ -120,20 +120,16 @@ public class SymbolicExpression implements TreeListItem {
         }
     }
 
-    private long offset;
     private List<AttributeFlag> attributeFlags;
     private List<Integer> unknownAttributeFlags;
 
-    // This is the constructor used when instantiating a sub class
-    // NOTE: Offset is not set in constructor because subclasss doesn't
-    // have it yet when calling super, so it sets it afterward.
     /**
      * Class constructor for a SymbolicExpression from a protobuf symbolic
      * expression.
      * @param  protoSymbolicExpression     The symbolic expression as serialized
      * into a protocol buffer.
      */
-    public SymbolicExpression(SymbolicExpressionOuterClass
+    protected SymbolicExpression(SymbolicExpressionOuterClass
                                   .SymbolicExpression protoSymbolicExpression) {
         this.attributeFlags = new ArrayList<AttributeFlag>();
         this.unknownAttributeFlags = new ArrayList<Integer>();
@@ -150,34 +146,13 @@ public class SymbolicExpression implements TreeListItem {
 
     /**
      * Class constructor for a SymbolicExpression.
-     * @param  offset                      Address offset of this symbolic
-     * expression in the ByteInterval.
+     * @param  attributeFlags A set of flags that are applicable to this
+     *                        symbolic expression.
      */
-    public SymbolicExpression(long offset, List<AttributeFlag> attributeFlags) {
-        this.setOffset(offset);
+    protected SymbolicExpression(List<AttributeFlag> attributeFlags) {
         this.setAttributeFlags(attributeFlags);
         this.setUnknownAttributeFlags(new ArrayList<Integer>());
     }
-
-    /**
-     * Get the offset of this SymbolicExpression.
-     *
-     * @return  Difference in address from the start of the ByteInterval to the
-     * start of the SymbolicExpression.
-     */
-
-    public long getOffset() { return offset; }
-
-    /**
-     * Get the index to manage this SymbolicExpression with.
-     *
-     * This is the index is used for storing and retrieving the
-     * SymbolicExpression, as required by the TreeListItem interface.
-     * SymbolicExpressions are ordered by offset, so this method just returns
-     * the offset.
-     * @return  The SymbolicExpression index, which is it's offset.
-     */
-    public long getIndex() { return this.offset; }
 
     /**
      * Get the size of this SymbolicExpression.
@@ -186,14 +161,7 @@ public class SymbolicExpression implements TreeListItem {
      * size.
      */
 
-    public long getSize() { return offset; }
-
-    /**
-     * Set the address of this SymbolicExpression.
-     *
-     * @param offset  New value for offset of this SymbolicExpression.
-     */
-    public void setOffset(long offset) { this.offset = offset; }
+    public long getSize() { return 0; }
 
     /**
      * Get the flags applying to this SymbolicExpression.
@@ -224,10 +192,10 @@ public class SymbolicExpression implements TreeListItem {
     }
 
     /**
-     * Set the attribute flags of this SymbolicExpression.
+     * Set the unknown attribute flags of this SymbolicExpression.
      *
      * @param attributeFlags    A set of flags that will be applied to this
-     * symbolic expression.
+     * symbolic expression, but are not in the recognized set of flags.
      */
     public void setUnknownAttributeFlags(List<Integer> attributeFlags) {
         this.unknownAttributeFlags = attributeFlags;
