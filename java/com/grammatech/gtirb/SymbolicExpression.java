@@ -129,8 +129,8 @@ public class SymbolicExpression {
      * @param  protoSymbolicExpression     The symbolic expression as serialized
      * into a protocol buffer.
      */
-    protected SymbolicExpression(SymbolicExpressionOuterClass
-                                  .SymbolicExpression protoSymbolicExpression) {
+    protected SymbolicExpression(SymbolicExpressionOuterClass.SymbolicExpression
+                                     protoSymbolicExpression) {
         this.attributeFlags = new ArrayList<AttributeFlag>();
         this.unknownAttributeFlags = new ArrayList<Integer>();
         for (Integer value :

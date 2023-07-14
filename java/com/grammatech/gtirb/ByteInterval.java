@@ -651,8 +651,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @param offset The offset within this ByteInterval of the Symbolic
      *               Expression.
      */
-    public void
-    removeSymbolicExpression(long offset) {
+    public void removeSymbolicExpression(long offset) {
         this.symbolicExpressionTree.remove(offset);
     }
 
@@ -669,11 +668,11 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Find all the symbolic expressions that start at an address.
      *
-     * Note that only one symbolic expression can be at any given offset, 
+     * Note that only one symbolic expression can be at any given offset,
      * so this will return at most one SymbolicExpression.
      *
      * @param address      The address to look for.
-     * @return             A Symbolic Expression at this address, 
+     * @return             A Symbolic Expression at this address,
      * or null if none.
      */
     public SymbolicExpression findSymbolicExpressionAt(long address) {
@@ -693,15 +692,17 @@ public final class ByteInterval extends Node implements TreeListItem {
                                                               long endAddress) {
         long start = startAddress;
         long end = endAddress;
-        List<SymbolicExpression> resultsList = new ArrayList<SymbolicExpression>();
+        List<SymbolicExpression> resultsList =
+            new ArrayList<SymbolicExpression>();
 
         if (endAddress < startAddress) {
             start = endAddress;
             end = startAddress;
         }
-        
+
         for (long address = start; address <= end; address++) {
-            SymbolicExpression symbolicExpression = symbolicExpressionTree.get(address);
+            SymbolicExpression symbolicExpression =
+                symbolicExpressionTree.get(address);
             if (symbolicExpression != null)
                 resultsList.add(symbolicExpression);
         }
