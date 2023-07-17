@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public class testSymbolicExpressions {
             new SymAddrConst(0, symbol.getUuid(), new ArrayList());
         expr.getAttributeFlags().add(SymbolicExpression.AttributeFlag.GOT);
         List<Integer> unknownFlags = expr.getUnknownAttributeFlags();
-        unknowFlags.add(0xBEEF);
+        unknownFlags.add(0xBEEF);
         expr.setUnknownAttributeFlags(unknownFlags);
         byteInterval.insertSymbolicExpression(0, expr);
 
