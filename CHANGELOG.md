@@ -1,5 +1,7 @@
 # 1.11.1 (Unreleased)
 
+* Add elfDynamicInit and elfDynamicFini AuxData definitions
+
 # 1.11.0
 
 Note that this release, due to changes to the protobuf definitions of symbolic
