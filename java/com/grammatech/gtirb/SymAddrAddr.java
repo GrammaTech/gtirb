@@ -165,6 +165,9 @@ public class SymAddrAddr extends SymbolicExpression {
         for (AttributeFlag attributeFlag : this.getAttributeFlags())
             protoSymbolicExpression.addAttributeFlagsValue(
                 attributeFlag.ordinal());
+        for (Integer value : this.getUnknownAttributeFlags()) {
+            protoSymbolicExpression.addAttributeFlagsValue(value);
+        }
         return protoSymbolicExpression;
     }
 }

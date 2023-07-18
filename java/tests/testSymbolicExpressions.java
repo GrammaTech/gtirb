@@ -34,9 +34,7 @@ public class testSymbolicExpressions {
         SymbolicExpression expr =
             new SymAddrConst(0, symbol.getUuid(), new ArrayList());
         expr.getAttributeFlags().add(SymbolicExpression.AttributeFlag.GOT);
-        List<Integer> unknownFlags = expr.getUnknownAttributeFlags();
-        unknownFlags.add(0xBEEF);
-        expr.setUnknownAttributeFlags(unknownFlags);
+        expr.getUnknownAttributeFlags().add(0xBEEF);
         byteInterval.insertSymbolicExpression(0, expr);
 
         modules.add(module);
@@ -58,8 +56,7 @@ public class testSymbolicExpressions {
         module = ir.getModules().get(0);
         section = module.getSections().get(0);
         byteInterval = section.getByteIntervals().get(0);
-        // expr = byteInterval.symbolicExpressionIterator().next();
-        expr = byteInterval.findSymbolicExpressionAt(0);
+        expr = byteInterval.symbolicExpressionIterator().next();
 
         assert expr.getAttributeFlags().contains(
             SymbolicExpression.AttributeFlag.GOT);
