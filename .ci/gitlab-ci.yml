@@ -78,12 +78,6 @@ build-ci-image-rhel9:
     DOCKERFILE_ARGS: "--dockerfile=$CI_PROJECT_DIR/.ci/Dockerfile.rhel --build-arg BASE=registry.access.redhat.com/ubi9/ubi"
     IMAGE_NAME: rhel9
 
-build-ci-image-rpm-repo:
-  <<: *build-ci-image
-  variables:
-    DOCKERFILE_ARGS: "--dockerfile=$CI_PROJECT_DIR/.ci/Dockerfile.rpm-repo"
-    IMAGE_NAME: rpm-repo
-
 check-format:
   stage: prebuild
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
@@ -535,14 +529,14 @@ internal-pypi:
 
 .build-rpm-repo:
   stage: test-setup
-  image: $DOCKER_REGISTRY/rewriting/gtirb/rpm-repo:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/utility/package-uploader/package-uploader:ci-refactoring
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
       - rpm-repo
   script:
     - mv artifacts rpm-repo
-    - createrepo rpm-repo
+    - createrepo_c rpm-repo
 
 .test-libgtirb-dbg:
   script:
