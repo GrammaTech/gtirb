@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
+import com.grammatech.gtirb.TwoTuple;
 import java.util.*;
 
 /**
@@ -658,11 +659,22 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Get a SymbolicExpression iterator.
      *
-     * @return  An iterator for iterating through all the symbolic expressions
-     * in this ByteInterval.
+     * @return  An iterator for iterating through the symbolic expressions
+     * in this ByteInterval. Each value returned by the iterator is a list of
+     * <Long, SymbolicExpression> where the first element of the list is the
+     * offset of the symbolic expression in the ByteInterval.
      */
-    public Iterator<SymbolicExpression> symbolicExpressionIterator() {
-        return this.symbolicExpressionTree.values().iterator();
+    public Iterator<List<Object>> symbolicExpressionIterator() {
+        List<List<Object>> symbolicExpressionList =
+            new ArrayList<List<Object>>();
+        for (Map.Entry<Long, SymbolicExpression> entry :
+             this.symbolicExpressionTree.entrySet()) {
+            List<Object> thisList = new ArrayList<Object>();
+            thisList.add(entry.getKey());
+            thisList.add(entry.getValue());
+            symbolicExpressionList.add(thisList);
+        }
+        return symbolicExpressionList.iterator();
     }
 
     /**
@@ -685,36 +697,31 @@ public final class ByteInterval extends Node implements TreeListItem {
      *
      * @param startAddress      The beginning of the address range to look for.
      * @param endAddress        The last address in the address to look for.
-     * @return                  A list of Symbolic Expressions that that start
-     * at this address (or an empty list if none are found).
+     * @return                  A list of <Long, SymbolicExpression> lists
+     * of the SymbolicExpressions at this address (or an empty list if none
+     * are found), where the Long is the offset of the SymbolicExpression in
+     * the ByteInterval.
      */
-    public List<SymbolicExpression> findSymbolicExpressionsAt(long startAddress,
-                                                              long endAddress) {
+    public List<List<Object>> findSymbolicExpressionsAt(long startAddress,
+                                                        long endAddress) {
         long start = startAddress;
         long end = endAddress;
-        List<SymbolicExpression> resultsList =
-            new ArrayList<SymbolicExpression>();
+        List<List<Object>> resultsList = new ArrayList<List<Object>>();
 
         if (endAddress < startAddress) {
             start = endAddress;
             end = startAddress;
         }
 
-        for (long address = start; address <= end; address++) {
-            SymbolicExpression symbolicExpression =
-                symbolicExpressionTree.get(address);
-            if (symbolicExpression != null)
-                resultsList.add(symbolicExpression);
+        SortedMap<Long, SymbolicExpression> subTree =
+            symbolicExpressionTree.subMap(start, end);
+        for (Map.Entry<Long, SymbolicExpression> entry : subTree.entrySet()) {
+            List<Object> thisList = new ArrayList<Object>();
+            thisList.add(entry.getKey());
+            thisList.add(entry.getValue());
+            resultsList.add(thisList);
         }
         return resultsList;
-    }
-
-    /**
-     * Gets the map of all Symbolic Expressions in this ByteInterval.
-     * @return The map of block offsets to Symbolic Expressions
-     */
-    public Map<Long, SymbolicExpression> getSymbolicExpressionTree() {
-        return this.symbolicExpressionTree;
     }
 
     /**

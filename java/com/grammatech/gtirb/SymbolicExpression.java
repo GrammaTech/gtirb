@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021, 2023 GrammaTech, Inc.
+ *  Copyright (C) 2020-2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -153,15 +153,6 @@ public class SymbolicExpression {
         this.setAttributeFlags(attributeFlags);
         this.setUnknownAttributeFlags(new ArrayList<Integer>());
     }
-
-    /**
-     * Get the size of this SymbolicExpression.
-     *
-     * @return  Always 0, because SymbolicExpressions by definition have no
-     * size.
-     */
-
-    public long getSize() { return 0; }
 
     /**
      * Get the flags applying to this SymbolicExpression.

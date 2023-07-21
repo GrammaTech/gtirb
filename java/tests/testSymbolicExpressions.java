@@ -56,7 +56,9 @@ public class testSymbolicExpressions {
         module = ir.getModules().get(0);
         section = module.getSections().get(0);
         byteInterval = section.getByteIntervals().get(0);
-        expr = byteInterval.symbolicExpressionIterator().next();
+        expr = (SymbolicExpression)byteInterval.symbolicExpressionIterator()
+                   .next()
+                   .get(1);
 
         assert expr.getAttributeFlags().contains(
             SymbolicExpression.AttributeFlag.GOT);
