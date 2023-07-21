@@ -17,7 +17,6 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
-import com.grammatech.gtirb.TwoTuple;
 import java.util.*;
 
 /**
