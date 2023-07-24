@@ -58,7 +58,7 @@ public class testSymbolicExpressions {
         byteInterval = section.getByteIntervals().get(0);
         expr = (SymbolicExpression)byteInterval.symbolicExpressionIterator()
                    .next()
-                   .get(1);
+                   .getValue();
 
         assert expr.getAttributeFlags().contains(
             SymbolicExpression.AttributeFlag.GOT);

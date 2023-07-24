@@ -659,21 +659,13 @@ public final class ByteInterval extends Node implements TreeListItem {
      * Get a SymbolicExpression iterator.
      *
      * @return  An iterator for iterating through the symbolic expressions
-     * in this ByteInterval. Each value returned by the iterator is a list of
-     * <Long, SymbolicExpression> where the first element of the list is the
-     * offset of the symbolic expression in the ByteInterval.
+     * in this ByteInterval. Each value returned by the iterator is a of type
+     * Map.Entry<Long, SymbolicExpression>, where the key is the offset of
+     * the SYmbolicExpression in the ByteInterval.
      */
-    public Iterator<List<Object>> symbolicExpressionIterator() {
-        List<List<Object>> symbolicExpressionList =
-            new ArrayList<List<Object>>();
-        for (Map.Entry<Long, SymbolicExpression> entry :
-             this.symbolicExpressionTree.entrySet()) {
-            List<Object> thisList = new ArrayList<Object>();
-            thisList.add(entry.getKey());
-            thisList.add(entry.getValue());
-            symbolicExpressionList.add(thisList);
-        }
-        return symbolicExpressionList.iterator();
+    public Iterator<Map.Entry<Long, SymbolicExpression>>
+    symbolicExpressionIterator() {
+        return this.symbolicExpressionTree.entrySet().iterator();
     }
 
     /**
@@ -696,16 +688,14 @@ public final class ByteInterval extends Node implements TreeListItem {
      *
      * @param startAddress      The beginning of the address range to look for.
      * @param endAddress        The last address in the address to look for.
-     * @return                  A list of <Long, SymbolicExpression> lists
-     * of the SymbolicExpressions at this address (or an empty list if none
-     * are found), where the Long is the offset of the SymbolicExpression in
-     * the ByteInterval.
+     * @return                  An iterator of the set of SymbolicExpressions
+     * found, if any, as Map entries, where the key is the offset of the
+     * SymbolicExpression in the ByteInterval.
      */
-    public List<List<Object>> findSymbolicExpressionsAt(long startAddress,
-                                                        long endAddress) {
+    public Iterator<Map.Entry<Long, SymbolicExpression>>
+    findSymbolicExpressionsAt(long startAddress, long endAddress) {
         long start = startAddress;
         long end = endAddress;
-        List<List<Object>> resultsList = new ArrayList<List<Object>>();
 
         if (endAddress < startAddress) {
             start = endAddress;
@@ -714,13 +704,7 @@ public final class ByteInterval extends Node implements TreeListItem {
 
         SortedMap<Long, SymbolicExpression> subTree =
             symbolicExpressionTree.subMap(start, end);
-        for (Map.Entry<Long, SymbolicExpression> entry : subTree.entrySet()) {
-            List<Object> thisList = new ArrayList<Object>();
-            thisList.add(entry.getKey());
-            thisList.add(entry.getValue());
-            resultsList.add(thisList);
-        }
-        return resultsList;
+        return subTree.entrySet().iterator();
     }
 
     /**
