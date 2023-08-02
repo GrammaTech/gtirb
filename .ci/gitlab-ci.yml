@@ -87,7 +87,7 @@ check-format:
       NOTE FOR PROJECTS WITH C/C++ CODE:
       pre-commit will by default use the correct version of every formatting tool
       EXCEPT FOR clang-format. You need to ensure the version of clang-format you
-      use is EXACTLY version 6.0.0. This is available in Ubuntu 18 by default.
+      use is EXACTLY version 10.0.0. This is available in Ubuntu 20 by default.
 
       See also:
           https://git.grammatech.com/research/meta/-/wikis/infrastructure/infrastructure#running-ci-jobs-locally-for-debugging
