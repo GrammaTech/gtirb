@@ -1,38 +1,32 @@
-import com.grammatech.gtirb.ByteBlock;
-import com.grammatech.gtirb.ByteInterval;
-import com.grammatech.gtirb.IR;
-import com.grammatech.gtirb.Module;
-import com.grammatech.gtirb.Section;
-import com.grammatech.gtirb.SymAddrConst;
-import com.grammatech.gtirb.Symbol;
-import com.grammatech.gtirb.SymbolicExpression;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class testSymbolicExpressions {
+import com.grammatech.gtirb.*;
+import com.grammatech.gtirb.Module;
+import java.io.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
+
+class TestSymbolicExpressions {
+
     // Test forward compatibility for unknown symbolic expression attributes.
-    public static void testUnknownAttributes() throws Exception {
+    @Test
+    void testUnknownAttributes() throws Exception {
         // Build minimal IR.
-        ArrayList<Module> modules = new ArrayList();
-        ArrayList<Section> sections = new ArrayList();
-        ArrayList<ByteInterval> byteIntervals = new ArrayList();
+        ArrayList<Module> modules = new ArrayList<Module>();
+        ArrayList<Section> sections = new ArrayList<Section>();
+        ArrayList<ByteInterval> byteIntervals = new ArrayList<ByteInterval>();
 
         IR ir = new IR();
         Module module =
             new Module("", 0, 0, Module.FileFormat.ELF, Module.ISA.X64, "test");
         Section section =
-            new Section("foo", new ArrayList(), new ArrayList(), module);
+            new Section("foo", new ArrayList<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>(), module);
         Symbol symbol = new Symbol("bar", module);
         ByteInterval byteInterval = new ByteInterval(section);
         SymbolicExpression expr =
-            new SymAddrConst(0, symbol.getUuid(), new ArrayList());
+            new SymAddrConst(0, symbol.getUuid(),
+                             new ArrayList<SymbolicExpression.AttributeFlag>());
         expr.getAttributeFlags().add(SymbolicExpression.AttributeFlag.GOT);
         expr.getUnknownAttributeFlags().add(0xBEEF);
         byteInterval.insertSymbolicExpression(0, expr);
@@ -60,20 +54,8 @@ public class testSymbolicExpressions {
                    .next()
                    .getValue();
 
-        assert expr.getAttributeFlags().contains(
-            SymbolicExpression.AttributeFlag.GOT);
-        assert expr.getUnknownAttributeFlags().contains(0xBEEF);
-    }
-
-    public static void main(String[] args) {
-        try {
-            testUnknownAttributes();
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            System.exit(1);
-        }
-
-        System.err.println("Symbolic Expression Test OK.");
-        System.exit(0);
+        assertTrue(expr.getAttributeFlags().contains(
+            SymbolicExpression.AttributeFlag.GOT));
+        assertTrue(expr.getUnknownAttributeFlags().contains(0xBEEF));
     }
 }

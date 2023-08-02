@@ -180,72 +180,27 @@ if(GTIRB_ENABLE_TESTS)
        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests
   )
 
-  add_custom_command(
-    TARGET gtirb-java-api
-    POST_BUILD
-    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
-            ${CMAKE_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_BINARY_DIR}/tests/testIrSanity.java
-    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testIrSanity.class
-    COMMENT "Building testIrSanity"
+  set(GTIRB_JAVA_TESTS TestAuxData TestByteIntervals TestIrSanity
+                       TestSymbolicExpressions
   )
 
-  add_custom_command(
-    TARGET gtirb-java-api
-    POST_BUILD
-    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
-            ${CMAKE_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_BINARY_DIR}/tests/testByteIntervals.java
-    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testByteIntervals.class
-    COMMENT "Building testByteIntervals"
-  )
-
-  add_custom_command(
-    TARGET gtirb-java-api
-    POST_BUILD
-    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
-            ${CMAKE_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_BINARY_DIR}/tests/testAuxData.java
-    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testAuxData.class
-    COMMENT "Building testAuxData"
-  )
-
-  add_custom_command(
-    TARGET gtirb-java-api
-    POST_BUILD
-    COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST} -d
-            ${CMAKE_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_BINARY_DIR}/tests/testSymbolicExpressions.java
-    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/testSymbolicExpressions.class
-    COMMENT "Building testSymbolicExpressions"
-  )
-
-  add_test(NAME JavaSanityTest
-           COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-                   testIrSanity ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
-  )
+  foreach(GTIRB_JAVA_TEST ${GTIRB_JAVA_TESTS})
+    add_custom_command(
+      TARGET gtirb-java-api
+      POST_BUILD
+      COMMAND
+        ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST}:${JUNIT_STANDALONE_JAR} -d
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/tests/${GTIRB_JAVA_TEST}.java
+      COMMENT "Building ${GTIRB_JAVA_TEST}"
+    )
+  endforeach()
 
   add_test(
-    NAME JavaByteIntervalsTest
-    COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-            testByteIntervals ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
-  )
-
-  add_test(NAME JavaAuxDataTest
-           COMMAND ${Java_JAVA_EXECUTABLE} -cp ".${DIR_SEP}${JAR_FILE_LIST}"
-                   testAuxData ${CMAKE_CURRENT_BINARY_DIR}/tests/test3.gtirb
-  )
-
-  add_test(NAME JavaSymbolicExpressionsTest
-           COMMAND ${Java_JAVA_EXECUTABLE} -ea -cp
-                   ".${DIR_SEP}${JAR_FILE_LIST}" testSymbolicExpressions
-  )
-
-  set_tests_properties(
-    JavaSanityTest
-    PROPERTIES PASS_REGULAR_EXPRESSION "test OK." JavaByteIntervalsTest
-    PROPERTIES PASS_REGULAR_EXPRESSION "test OK." JavaAuxDataTest
-    PROPERTIES PASS_REGULAR_EXPRESSION "test OK."
+    NAME JUnitTests
+    COMMAND
+      ${Java_JAVA_EXECUTABLE} -jar ${JUNIT_STANDALONE_JAR} execute --class-path
+      ${CMAKE_CURRENT_BINARY_DIR}:${JAR_FILE_LIST} --scan-class-path
   )
 
 endif()

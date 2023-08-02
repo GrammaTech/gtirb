@@ -404,6 +404,27 @@ if(GTIRB_ENABLE_TESTS AND CXX_API)
 endif()
 
 # ---------------------------------------------------------------------------
+# JUnit Test Application
+# ---------------------------------------------------------------------------
+if(GTIRB_ENABLE_TESTS AND JAVA_API)
+  include(ExternalProject)
+  externalproject_add(
+    junit
+    PREFIX ${CMAKE_BINARY_DIR}/junit
+    URL "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    TEST_COMMAND ""
+    DOWNLOAD_NO_EXTRACT ON
+  )
+
+  set(JUNIT_STANDALONE_JAR
+      ${CMAKE_BINARY_DIR}/junit/src/junit-platform-console-standalone-1.10.0.jar
+  )
+endif()
+
+# ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
 if(CL_API)

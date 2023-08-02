@@ -460,8 +460,9 @@ public final class ByteInterval extends Node implements TreeListItem {
      * specified.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address of the address range to look
-     * for.
+     * for. (exclusive)
      * @return                  A list of Code Blocks that intersect this
      * address range, or null if none.
      */
@@ -507,7 +508,10 @@ public final class ByteInterval extends Node implements TreeListItem {
      * Find all the code blocks that start between a range of addresses.
      *
      * @param startAddress      The beginning of the address range to look for.
-     * @param endAddress        The last address in the address to look for.
+     * (inclusive)
+     * @param endAddress        The last address in the address range to look
+     *     for.
+     * (exclusive)
      * @return                  A list of Code Blocks that that start at this
      * address, or null if none.
      */
@@ -559,8 +563,9 @@ public final class ByteInterval extends Node implements TreeListItem {
      * range specified
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address of the address range to look
-     * for.
+     * for. (exclusive)
      * @return                  A list of Data Blocks that intersect this
      * address range, or null if none.
      */
@@ -606,7 +611,9 @@ public final class ByteInterval extends Node implements TreeListItem {
      * Find all the data blocks that start between a range of addresses.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address in the address to look for.
+     * (exclusive)
      * @return                  A list of Data Blocks that that start at this
      * address, or null if none.
      */
@@ -687,7 +694,9 @@ public final class ByteInterval extends Node implements TreeListItem {
      * addresses.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address in the address to look for.
+     * (exlusive)
      * @return                  An iterator of the set of SymbolicExpressions
      * found, if any, as Map entries, where the key is the offset of the
      * SymbolicExpression in the ByteInterval.

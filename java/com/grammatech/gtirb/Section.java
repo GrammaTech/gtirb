@@ -295,8 +295,9 @@ public class Section extends Node implements TreeListItem {
      * Get all ByteIntervals containing any address in a range.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address of the address range to look
-     * for.
+     * for. (exclusive)
      * @return                  A list of ByteIntervals that intersect this
      * address range, or empty list if none.
      */
@@ -322,7 +323,9 @@ public class Section extends Node implements TreeListItem {
      * Get all ByteIntervals that begin at a range of addressees.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address in the address to look for.
+     * (exlusive)
      * @return                  A list of ByteIntervals that that start at this
      * address, or null if none.
      */

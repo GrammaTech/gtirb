@@ -461,8 +461,9 @@ public class Module extends AuxDataContainer {
      * range specified.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address of the address range to look
-     * for.
+     * for. (exclusive)
      * @return                  A list of {@link Section} objects that intersect
      * this address range, or empty list if none.
      */
@@ -486,7 +487,9 @@ public class Module extends AuxDataContainer {
      * Find all the sections that start between a range of addresses.
      *
      * @param startAddress      The beginning of the address range to look for.
+     * (inclusive)
      * @param endAddress        The last address in the address to look for.
+     * (exclusive)
      * @return                  A list of {@link Section} objects that that
      * start at this address, or null if none.
      */

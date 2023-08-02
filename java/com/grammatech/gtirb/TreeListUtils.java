@@ -172,7 +172,8 @@ public class TreeListUtils<Type> implements Iterable<Type> {
      * Generic method for retrieving items that start at a given address range.
      *
      * @param startIndex  The start of the address range to be matched.
-     * @param endIndex    The end of the address range.
+     *     (inclusive)
+     * @param endIndex    The end of the address range. (exclusive)
      * @param tree        The tree to be matched in.
      * @return            A list of matching items.
      */
@@ -184,13 +185,13 @@ public class TreeListUtils<Type> implements Iterable<Type> {
         // First key in range can be found with ceilingKey()
         // Successive keys, if there are any, can be found with higherKey()
         Long key = tree.ceilingKey(startIndex);
-        if (key != null && key <= endIndex) {
+        if (key != null && key < endIndex) {
             resultList.addAll(tree.get(key));
             key = tree.higherKey(key);
         }
 
         // Keep adding as long as you find items in range
-        while (key != null && key <= endIndex) {
+        while (key != null && key < endIndex) {
             resultList.addAll(tree.get(key));
             key = tree.higherKey(key);
         }
