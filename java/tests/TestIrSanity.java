@@ -18,9 +18,7 @@ public class TestIrSanity {
             "foo.exe", new ArrayList<Section>(), new ArrayList<Symbol>(),
             new ArrayList<ProxyBlock>(), null, ir_orig);
         mod.setByteOrder(Module.ByteOrder.LittleEndian);
-        List<Module> mod_list = new ArrayList<Module>();
-        mod_list.add(mod);
-        ir_orig.setModules(mod_list);
+        ir_orig.addModule(mod);
         ir_orig.setCfg(new CFG(new ArrayList<Edge>(), new ArrayList<byte[]>()));
 
         File file;
@@ -45,9 +43,7 @@ public class TestIrSanity {
         file.delete();
 
         assertNotNull(ir_reloaded);
-        assertEquals(1, ir_reloaded.getModules().size());
-
-        Module mod_reloaded = ir_reloaded.getModules().get(0);
+        Module mod_reloaded = ir_reloaded.getModules().next();
         assertEquals("foo.exe", mod_reloaded.getName());
     }
 

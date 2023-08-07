@@ -12,7 +12,6 @@ class TestSymbolicExpressions {
     @Test
     void testUnknownAttributes() throws Exception {
         // Build minimal IR.
-        ArrayList<Module> modules = new ArrayList<Module>();
         ArrayList<Section> sections = new ArrayList<Section>();
         ArrayList<ByteInterval> byteIntervals = new ArrayList<ByteInterval>();
 
@@ -31,12 +30,11 @@ class TestSymbolicExpressions {
         expr.getUnknownAttributeFlags().add(0xBEEF);
         byteInterval.insertSymbolicExpression(0, expr);
 
-        modules.add(module);
         sections.add(section);
         byteIntervals.add(byteInterval);
         section.setByteIntervals(byteIntervals);
         module.setSections(sections);
-        ir.setModules(modules);
+        ir.addModule(module);
 
         // Write IR to file.
         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -47,7 +45,7 @@ class TestSymbolicExpressions {
             new ByteArrayInputStream(output.toByteArray());
         ir = IR.loadFile(input);
 
-        module = ir.getModules().get(0);
+        module = ir.getModules().next();
         section = module.getSections().get(0);
         byteInterval = section.getByteIntervals().get(0);
         expr = (SymbolicExpression)byteInterval.symbolicExpressionIterator()

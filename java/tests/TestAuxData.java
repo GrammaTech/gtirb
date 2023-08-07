@@ -35,23 +35,19 @@ public class TestAuxData {
             "test", 0xDEADBEEF, 0, Module.FileFormat.ELF, Module.ISA.IA32,
             "test", new ArrayList<Section>(), new ArrayList<Symbol>(),
             new ArrayList<ProxyBlock>(), null, ir1);
-        ArrayList<Module> mods1 = new ArrayList<>();
-        mods1.add(m1);
-        ir1.setModules(mods1);
+        ir1.addModule(m1);
+
         TreeMap<UUID, Long> sccMap1 = new TreeMap<>();
         UUID uuid = UUID.randomUUID();
         sccMap1.put(uuid, 42l);
         m1.setSccs(sccMap1);
-
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ir1.saveFile(os);
+
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
         IR ir2 = IR.loadFile(is);
         assertNotNull(ir2);
-        List<Module> mods2 = ir2.getModules();
-        assertNotNull(mods2);
-        Module m2 = mods2.get(0);
-
+        Module m2 = ir2.getModules.next();
         Map<UUID, Long> sccMap2 = m2.getSccs();
         assertNotNull(sccMap2);
         Long v = sccMap2.get(uuid);

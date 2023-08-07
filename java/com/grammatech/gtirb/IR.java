@@ -141,16 +141,61 @@ public class IR extends AuxDataContainer {
     /**
      * Get the list of modules belonging to this {@link IR}.
      *
-     * @return  A {@link Module} list.
+     * @return  A {@link Module} iterator for iterating though all the
+     * modules in this {@link IR}
      */
-    public List<Module> getModules() { return this.modules; }
+    public Iterator<Module> getModules() { return this.modules.iterator(); }
 
     /**
-     * Set the list of modules belonging to this {@link IR}.
+     * Add a module to this {@link IR}.
      *
-     * @param modules  A {@link Module} list.
+     * @param module  {@link Module} to add.
      */
-    public void setModules(List<Module> modules) { this.modules = modules; }
+    public void addModule(Module module) {
+        this.modules.add(module); 
+    }
+
+    /**
+     * Add a new module to this {@link IR}.
+     *
+     * @param  binaryPath       The binary path of this Module.
+     * @param  preferredAddr    The preferred address of this Module.
+     * @param  rebaseDelta      The rebase delta of this Module.
+     * @param  fileFormat       The file format of this Module.
+     * @param  isa              The ISA of this Module.
+     * @param  name             The name of this Module.
+     * @return  The newly constructed module, or null if unable to construct.
+     */
+    public Module addModule(String binaryPath, long preferredAddr, long rebaseDelta,
+                  FileFormat fileFormat, ISA isa, String name) {
+        Module module = new Module(binaryPath, preferredAddr, rebaseDelta,
+                  fileFormat, isa, name);
+        if (module) {
+            this.modules.add(module);
+            return module;
+        }
+        return null;
+    }
+
+    /**
+     * Add a list of modules to this {@link IR}.
+     *
+     * @param modules  Modules to add.
+     */
+    public void addModules(List<Modute> modules) {
+        for (Module module : modules) {
+            this.modules.add(module); 
+        }
+    }
+
+    /**
+     * Remove a module from this {@link IR}.
+     *
+     * @param module  {@link Module} to remove.
+     */
+    public void removeModule(Module modules) { 
+        this.modules.remove(module); 
+    }
 
     /**
      * Get the CFG belonging to this {@link IR}.
