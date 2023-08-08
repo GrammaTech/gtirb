@@ -15,8 +15,6 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.Module;
-// import com.grammatech.gtirb.Module.ISA;
-// import com.grammatech.gtirb.Module.FileFormat;
 import com.grammatech.gtirb.proto.IROuterClass;
 import com.grammatech.gtirb.proto.ModuleOuterClass;
 import java.io.File;
@@ -52,8 +50,7 @@ public class IR extends AuxDataContainer {
      */
     public IR() {
         super();
-        // shouldn't this be null?
-        this.protoIR = IROuterClass.IR.getDefaultInstance();
+        this.protoIR = null;
         this.modules = new ArrayList<Module>();
     }
 
@@ -214,15 +211,6 @@ public class IR extends AuxDataContainer {
      * @param cfg  A {@link CFG}.
      */
     public void setCfg(CFG cfg) { this.cfg = cfg; }
-
-    /**
-     * Get the original protobuf of this {@link IR}.
-     *
-     * @return The protobuf the IR was imported from, or the IR
-     * {@link com.grammatech.gtirb.proto.IROuterClass.IR#getDefaultInstance()
-     * DefaultInstance} if it was not imported from a protobuf.
-     */
-    public IROuterClass.IR getProtoIR() { return this.protoIR; }
 
     /**
      * Get the protobuf version of this {@link IR}.
