@@ -163,9 +163,9 @@ public class Module extends AuxDataContainer {
         this.fileFormat = fileFormat;
         this.isa = isa;
         this.name = name;
-        this.symbolList = new ArrayList<>();
-        this.sectionList = new ArrayList<>();
-        this.proxyBlockList = new ArrayList<>();
+        this.symbolList = new ArrayList<Symbol>();
+        this.sectionTree = new TreeMap<Long, List<Section>>();
+        this.proxyBlockList = new ArrayList<ProxyBlock>();
         this.entryPoint = null;
     }
 
