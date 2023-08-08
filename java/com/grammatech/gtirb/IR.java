@@ -14,6 +14,9 @@
 
 package com.grammatech.gtirb;
 
+import com.grammatech.gtirb.Module;
+// import com.grammatech.gtirb.Module.ISA;
+// import com.grammatech.gtirb.Module.FileFormat;
 import com.grammatech.gtirb.proto.IROuterClass;
 import com.grammatech.gtirb.proto.ModuleOuterClass;
 import java.io.File;
@@ -26,6 +29,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -151,9 +155,7 @@ public class IR extends AuxDataContainer {
      *
      * @param module  {@link Module} to add.
      */
-    public void addModule(Module module) {
-        this.modules.add(module); 
-    }
+    public void addModule(Module module) { this.modules.add(module); }
 
     /**
      * Add a new module to this {@link IR}.
@@ -166,11 +168,12 @@ public class IR extends AuxDataContainer {
      * @param  name             The name of this Module.
      * @return  The newly constructed module, or null if unable to construct.
      */
-    public Module addModule(String binaryPath, long preferredAddr, long rebaseDelta,
-                  FileFormat fileFormat, ISA isa, String name) {
+    public Module addModule(String binaryPath, long preferredAddr,
+                            long rebaseDelta, Module.FileFormat fileFormat,
+                            Module.ISA isa, String name) {
         Module module = new Module(binaryPath, preferredAddr, rebaseDelta,
-                  fileFormat, isa, name);
-        if (module) {
+                                   fileFormat, isa, name);
+        if (module != null) {
             this.modules.add(module);
             return module;
         }
@@ -182,9 +185,9 @@ public class IR extends AuxDataContainer {
      *
      * @param modules  Modules to add.
      */
-    public void addModules(List<Modute> modules) {
+    public void addModules(List<Module> modules) {
         for (Module module : modules) {
-            this.modules.add(module); 
+            this.modules.add(module);
         }
     }
 
@@ -193,9 +196,7 @@ public class IR extends AuxDataContainer {
      *
      * @param module  {@link Module} to remove.
      */
-    public void removeModule(Module modules) { 
-        this.modules.remove(module); 
-    }
+    public void removeModule(Module module) { this.modules.remove(module); }
 
     /**
      * Get the CFG belonging to this {@link IR}.
