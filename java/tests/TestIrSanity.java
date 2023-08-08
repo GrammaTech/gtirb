@@ -99,4 +99,32 @@ public class TestIrSanity {
         // IR should be null here
         assertNull(ir);
     }
+
+    @Test
+    void testAddAndRemoveModules() throws Exception {
+        // Create a simple IR
+        IR ir = new IR();
+        Module mod0 = new Module("/usr/bin/mod0", 0x0000, 0x0FFF,
+                                 Module.FileFormat.ELF, Module.ISA.X64, "mod0");
+        ir.addModule(mod0);
+        Module mod1 = new Module("/usr/bin/mod0", 0x1000, 0x1FFF,
+                                 Module.FileFormat.ELF, Module.ISA.X64, "mod1");
+        ir.addModule(mod1);
+        Module mod2 = new Module("/usr/bin/mod2", 0x2000, 0x2FFF,
+                                 Module.FileFormat.ELF, Module.ISA.X64, "mod2");
+        ir.addModule(mod2);
+        Iterator modules = ir.getModules();
+        int moduleCount = 0;
+        while (modules.hasNext()) {
+            moduleCount += 1;
+            modules.next();
+        }
+        assertEquals(moduleCount, 3);
+
+        ir.removeModule(mod0);
+        ir.removeModule(mod2);
+
+        // Now the only module left should be "mod1"
+        assertEquals("mod1", ir.getModules().next().getName());
+    }
 }
