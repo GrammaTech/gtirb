@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -164,6 +164,7 @@ public class Module extends AuxDataContainer {
         this.isa = isa;
         this.name = name;
         this.symbolList = new ArrayList<>();
+        this.sectionList = new ArrayList<>();
         this.proxyBlockList = new ArrayList<>();
         this.entryPoint = null;
     }

@@ -13,12 +13,10 @@ public class TestIrSanity {
     void testCreateSaveAndLoad() throws Exception {
         // Just create a simple IR w/ 1 module
         IR ir_orig = new IR();
-        Module mod = new Module(
-            "c:/foo.exe", 0xCAFE, 0xBEEF, Module.FileFormat.PE, Module.ISA.X64,
-            "foo.exe", new ArrayList<Section>(), new ArrayList<Symbol>(),
-            new ArrayList<ProxyBlock>(), null, ir_orig);
+        Module mod =
+            ir_orig.addModule("c:/foo.exe", 0xCAFE, 0xBEEF,
+                              Module.FileFormat.PE, Module.ISA.X64, "foo.exe");
         mod.setByteOrder(Module.ByteOrder.LittleEndian);
-        ir_orig.addModule(mod);
         ir_orig.setCfg(new CFG(new ArrayList<Edge>(), new ArrayList<byte[]>()));
 
         File file;

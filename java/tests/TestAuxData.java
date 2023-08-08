@@ -47,7 +47,7 @@ public class TestAuxData {
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
         IR ir2 = IR.loadFile(is);
         assertNotNull(ir2);
-        Module m2 = ir2.getModules.next();
+        Module m2 = ir2.getModules().next();
         Map<UUID, Long> sccMap2 = m2.getSccs();
         assertNotNull(sccMap2);
         Long v = sccMap2.get(uuid);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -54,6 +54,7 @@ public class IR extends AuxDataContainer {
         super();
         // shouldn't this be null?
         this.protoIR = IROuterClass.IR.getDefaultInstance();
+        this.modules = new ArrayList<Module>();
     }
 
     /**
@@ -171,8 +172,10 @@ public class IR extends AuxDataContainer {
     public Module addModule(String binaryPath, long preferredAddr,
                             long rebaseDelta, Module.FileFormat fileFormat,
                             Module.ISA isa, String name) {
-        Module module = new Module(binaryPath, preferredAddr, rebaseDelta,
-                                   fileFormat, isa, name);
+        Module module =
+            new Module(binaryPath, preferredAddr, rebaseDelta, fileFormat, isa,
+                       name, new ArrayList<Section>(), new ArrayList<Symbol>(),
+                       new ArrayList<ProxyBlock>(), null, this);
         if (module != null) {
             this.modules.add(module);
             return module;
