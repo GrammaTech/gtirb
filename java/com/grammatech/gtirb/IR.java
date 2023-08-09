@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,7 +37,6 @@ import java.util.List;
  */
 public class IR extends AuxDataContainer {
 
-    private IROuterClass.IR protoIR;
     private List<Module> modules;
     private CFG cfg;
     private int version; // This is the protobuf version from the protoIr
@@ -50,7 +50,6 @@ public class IR extends AuxDataContainer {
      */
     public IR() {
         super();
-        this.protoIR = null;
         this.modules = new ArrayList<Module>();
     }
 
@@ -60,7 +59,6 @@ public class IR extends AuxDataContainer {
      */
     public IR(IROuterClass.IR protoIr) {
         super(protoIr.getUuid(), protoIr.getAuxDataMap());
-        this.protoIR = protoIr;
     }
 
     /**
@@ -68,19 +66,19 @@ public class IR extends AuxDataContainer {
      *
      * @return  true if load is successful, false otherwise.
      */
-    private boolean loadProtobuf() {
+    private boolean loadProtobuf(IROuterClass.IR protoIr) {
         // If no protobuf, can't load it.
-        if (this.protoIR == null)
+        if (protoIr == null)
             return false;
-        this.version = protoIR.getVersion();
+        this.version = protoIr.getVersion();
         // Import the modules
         this.modules = new ArrayList<Module>();
-        for (ModuleOuterClass.Module protoModule : protoIR.getModulesList()) {
+        for (ModuleOuterClass.Module protoModule : protoIr.getModulesList()) {
             Module module = Module.fromProtobuf(protoModule, this);
             this.modules.add(module);
         }
         // Import the CFG
-        this.cfg = new CFG(protoIR.getCfg());
+        this.cfg = new CFG(protoIr.getCfg());
         return true;
     }
 
@@ -119,7 +117,7 @@ public class IR extends AuxDataContainer {
             return null;
         }
         IR ir = new IR(protoIr);
-        boolean rv = ir.loadProtobuf();
+        boolean rv = ir.loadProtobuf(protoIr);
         if (rv == true)
             return ir;
         return null;
@@ -144,40 +142,21 @@ public class IR extends AuxDataContainer {
      * Get the list of modules belonging to this {@link IR}.
      *
      * @return  A {@link Module} iterator for iterating though all the
-     * modules in this {@link IR}
+     * modules in this {@link IR}. Any attempt to remove an element of
+     * the iterator will throw an UnsupportedOperationException.
      */
-    public Iterator<Module> getModules() { return this.modules.iterator(); }
+    public Iterator<Module> getModules() {
+        return Collections.unmodifiableList(this.modules).iterator();
+    }
 
     /**
      * Add a module to this {@link IR}.
      *
      * @param module  {@link Module} to add.
      */
-    public void addModule(Module module) { this.modules.add(module); }
-
-    /**
-     * Add a new module to this {@link IR}.
-     *
-     * @param  binaryPath       The binary path of this Module.
-     * @param  preferredAddr    The preferred address of this Module.
-     * @param  rebaseDelta      The rebase delta of this Module.
-     * @param  fileFormat       The file format of this Module.
-     * @param  isa              The ISA of this Module.
-     * @param  name             The name of this Module.
-     * @return  The newly constructed module, or null if unable to construct.
-     */
-    public Module addModule(String binaryPath, long preferredAddr,
-                            long rebaseDelta, Module.FileFormat fileFormat,
-                            Module.ISA isa, String name) {
-        Module module =
-            new Module(binaryPath, preferredAddr, rebaseDelta, fileFormat, isa,
-                       name, new ArrayList<Section>(), new ArrayList<Symbol>(),
-                       new ArrayList<ProxyBlock>(), null, this);
-        if (module != null) {
-            this.modules.add(module);
-            return module;
-        }
-        return null;
+    public void addModule(Module module) {
+        this.modules.add(module);
+        module.setIr(this);
     }
 
     /**
@@ -187,7 +166,7 @@ public class IR extends AuxDataContainer {
      */
     public void addModules(List<Module> modules) {
         for (Module module : modules) {
-            this.modules.add(module);
+            this.addModule(module);
         }
     }
 
@@ -196,7 +175,10 @@ public class IR extends AuxDataContainer {
      *
      * @param module  {@link Module} to remove.
      */
-    public void removeModule(Module module) { this.modules.remove(module); }
+    public void removeModule(Module module) {
+        this.modules.remove(module);
+        module.setIr(null);
+    }
 
     /**
      * Get the CFG belonging to this {@link IR}.

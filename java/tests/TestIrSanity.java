@@ -1,3 +1,4 @@
+package tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
@@ -14,8 +15,9 @@ public class TestIrSanity {
         // Just create a simple IR w/ 1 module
         IR ir_orig = new IR();
         Module mod =
-            ir_orig.addModule("c:/foo.exe", 0xCAFE, 0xBEEF,
-                              Module.FileFormat.PE, Module.ISA.X64, "foo.exe");
+            new Module("c:/foo.exe", 0xCAFE, 0xBEEF, Module.FileFormat.PE,
+                       Module.ISA.X64, "foo.exe");
+        ir_orig.addModule(mod);
         mod.setByteOrder(Module.ByteOrder.LittleEndian);
         ir_orig.setCfg(new CFG(new ArrayList<Edge>(), new ArrayList<byte[]>()));
 
@@ -113,7 +115,7 @@ public class TestIrSanity {
         Module mod2 = new Module("/usr/bin/mod2", 0x2000, 0x2FFF,
                                  Module.FileFormat.ELF, Module.ISA.X64, "mod2");
         ir.addModule(mod2);
-        Iterator modules = ir.getModules();
+        Iterator<Module> modules = ir.getModules();
         int moduleCount = 0;
         while (modules.hasNext()) {
             moduleCount += 1;
@@ -126,5 +128,8 @@ public class TestIrSanity {
 
         // Now the only module left should be "mod1"
         assertEquals("mod1", ir.getModules().next().getName());
+        assertEquals(mod1.getIr(), ir);
+        assertNull(mod0.getIr());
+        assertNull(mod2.getIr());
     }
 }

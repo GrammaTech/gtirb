@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -69,7 +70,7 @@ public class Module extends AuxDataContainer {
 
     private final ModuleOuterClass.Module protoModule;
 
-    private IR ir;
+    private Optional<IR> ir;
     private String binaryPath;
     private long preferredAddr;
     private long rebaseDelta;
@@ -97,7 +98,7 @@ public class Module extends AuxDataContainer {
         this.isa = ISA.values()[protoModule.getIsaValue()];
         this.name = protoModule.getName();
         this.byteOrder = ByteOrder.values()[protoModule.getByteOrderValue()];
-        this.ir = ir;
+        this.ir = Optional.of(ir);
 
         initializeSectionList();
         initializeSymbolList();
@@ -122,12 +123,11 @@ public class Module extends AuxDataContainer {
      * @param  symbols          A list of Symbols belonging to this Module.
      * @param  proxyBlocks      A list of ProxyBlocks belonging to this Module.
      * @param  entryPoint       The entry point of this module or null.
-     * @param  ir               The IR that owns this Module.
      */
     public Module(String binaryPath, long preferredAddr, long rebaseDelta,
                   FileFormat fileFormat, ISA isa, String name,
                   List<Section> sections, List<Symbol> symbols,
-                  List<ProxyBlock> proxyBlocks, CodeBlock entryPoint, IR ir) {
+                  List<ProxyBlock> proxyBlocks, CodeBlock entryPoint) {
         super();
         this.protoModule = null;
         this.binaryPath = binaryPath;
@@ -139,7 +139,6 @@ public class Module extends AuxDataContainer {
         this.symbolList = symbols;
         this.proxyBlockList = proxyBlocks;
         this.entryPoint = entryPoint;
-        this.ir = ir;
         this.setSections(sections);
     }
 
@@ -172,9 +171,17 @@ public class Module extends AuxDataContainer {
     /**
      * Get the {@link IR} this Module belongs to.
      *
-     * @return  The IR this module belongs to.
+     * @return  The IR this module belongs to, or null if it does
+     * not belong to an IR.
      */
-    public IR getIr() { return this.ir; }
+    public IR getIr() { return this.ir.orElse(null); }
+
+    /**
+     * Set the {@link IR} this Module belongs to.
+     *
+     * @param  The IR this module will now belong to.
+     */
+    public void setIr(IR ir) { this.ir = Optional.ofNullable(ir); }
 
     /**
      * Get the location of the corresponding binary on disk.

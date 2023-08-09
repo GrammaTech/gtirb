@@ -1,3 +1,4 @@
+package tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;

@@ -1,9 +1,10 @@
+package tests;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
 import com.grammatech.gtirb.AuxSerialization.AuxDataSerialization;
 import com.grammatech.gtirb.Module;
-import com.grammatech.gtirb.proto.*;
 import java.io.*;
 import java.util.*;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class TestAuxData {
         Module m1 = new Module(
             "test", 0xDEADBEEF, 0, Module.FileFormat.ELF, Module.ISA.IA32,
             "test", new ArrayList<Section>(), new ArrayList<Symbol>(),
-            new ArrayList<ProxyBlock>(), null, ir1);
+            new ArrayList<ProxyBlock>(), null);
         ir1.addModule(m1);
 
         TreeMap<UUID, Long> sccMap1 = new TreeMap<>();
