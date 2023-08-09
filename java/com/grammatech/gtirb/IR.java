@@ -64,22 +64,23 @@ public class IR extends AuxDataContainer {
     /**
      * Load IR from protobuf.
      *
-     * @return  true if load is successful, false otherwise.
+     * @return  The {@link IR} loaded from the protobuf.
      */
-    private boolean loadProtobuf(IROuterClass.IR protoIr) {
+    private static IR loadProtobuf(IROuterClass.IR protoIr) {
         // If no protobuf, can't load it.
         if (protoIr == null)
-            return false;
-        this.version = protoIr.getVersion();
+            return null;
+        IR ir = new IR(protoIr);
+        ir.version = protoIr.getVersion();
         // Import the modules
-        this.modules = new ArrayList<Module>();
+        ir.modules = new ArrayList<Module>();
         for (ModuleOuterClass.Module protoModule : protoIr.getModulesList()) {
-            Module module = Module.fromProtobuf(protoModule, this);
-            this.modules.add(module);
+            Module module = Module.fromProtobuf(protoModule, ir);
+            ir.modules.add(module);
         }
         // Import the CFG
-        this.cfg = new CFG(protoIr.getCfg());
-        return true;
+        ir.cfg = new CFG(protoIr.getCfg());
+        return ir;
     }
 
     /**
@@ -116,11 +117,8 @@ public class IR extends AuxDataContainer {
         } catch (IOException ie) {
             return null;
         }
-        IR ir = new IR(protoIr);
-        boolean rv = ir.loadProtobuf(protoIr);
-        if (rv == true)
-            return ir;
-        return null;
+        IR ir = IR.loadProtobuf(protoIr);
+        return ir;
     }
 
     /**
