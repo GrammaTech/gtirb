@@ -123,8 +123,8 @@ public class TestIrSanity {
 
         // Now the only module left should be "mod1"
         assertEquals("mod1", ir.getModules().get(0).getName());
-        assertEquals(mod1.getIr(), ir);
-        assertNull(mod0.getIr());
-        assertNull(mod2.getIr());
+        assertEquals(mod1.getIr().get(), ir);
+        assertTrue(mod0.getIr().isEmpty());
+        assertTrue(mod2.getIr().isEmpty());
     }
 }

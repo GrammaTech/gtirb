@@ -171,17 +171,18 @@ public class Module extends AuxDataContainer {
     /**
      * Get the {@link IR} this Module belongs to.
      *
-     * @return  The IR this module belongs to, or null if it does
-     * not belong to an IR.
+     * @return  An Optional that contains the IR this module belongs to,
+     * or empty if it does not belong to an IR.
      */
-    public IR getIr() { return this.ir.orElse(null); }
+    public Optional<IR> getIr() { return this.ir; }
 
     /**
      * Set the {@link IR} this Module belongs to.
      *
-     * @param  The IR this module will now belong to.
+     * @param  An Optional that contains the IR this module will belongs
+     * to, or empty if it should not belong to an IR.
      */
-    public void setIr(IR ir) { this.ir = Optional.ofNullable(ir); }
+    public void setIr(Optional<IR> ir) { this.ir = ir; }
 
     /**
      * Get the location of the corresponding binary on disk.

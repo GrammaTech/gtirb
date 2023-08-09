@@ -28,8 +28,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A complete internal representation. IR describes the internal representation
@@ -57,7 +57,7 @@ public class IR extends AuxDataContainer {
      * Class constructor for IR from an IR protobuf.
      * @param  protoIr  The {@link IR} as serialized into a protocol buffer.
      */
-    public IR(IROuterClass.IR protoIr) {
+    private IR(IROuterClass.IR protoIr) {
         super(protoIr.getUuid(), protoIr.getAuxDataMap());
     }
 
@@ -139,9 +139,9 @@ public class IR extends AuxDataContainer {
     /**
      * Get the list of modules belonging to this {@link IR}.
      *
-     * @return  A {@link Module} iterator for iterating though all the
+     * @return  A {@link Module} An unmodifiable list of all the
      * modules in this {@link IR}. Any attempt to remove an element of
-     * the iterator will throw an UnsupportedOperationException.
+     * this list will throw an UnsupportedOperationException.
      */
     public List<Module> getModules() {
         return Collections.unmodifiableList(this.modules);
@@ -154,7 +154,7 @@ public class IR extends AuxDataContainer {
      */
     public void addModule(Module module) {
         this.modules.add(module);
-        module.setIr(this);
+        module.setIr(Optional.of(this));
     }
 
     /**
@@ -175,7 +175,7 @@ public class IR extends AuxDataContainer {
      */
     public void removeModule(Module module) {
         this.modules.remove(module);
-        module.setIr(null);
+        module.setIr(Optional.empty());
     }
 
     /**
