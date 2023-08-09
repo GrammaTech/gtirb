@@ -145,8 +145,8 @@ public class IR extends AuxDataContainer {
      * modules in this {@link IR}. Any attempt to remove an element of
      * the iterator will throw an UnsupportedOperationException.
      */
-    public Iterator<Module> getModules() {
-        return Collections.unmodifiableList(this.modules).iterator();
+    public List<Module> getModules() {
+        return Collections.unmodifiableList(this.modules);
     }
 
     /**

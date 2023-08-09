@@ -46,7 +46,7 @@ class TestSymbolicExpressions {
             new ByteArrayInputStream(output.toByteArray());
         ir = IR.loadFile(input);
 
-        module = ir.getModules().next();
+        module = ir.getModules().get(0);
         section = module.getSections().get(0);
         byteInterval = section.getByteIntervals().get(0);
         expr = (SymbolicExpression)byteInterval.symbolicExpressionIterator()

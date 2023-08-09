@@ -43,7 +43,7 @@ public class TestIrSanity {
         file.delete();
 
         assertNotNull(ir_reloaded);
-        Module mod_reloaded = ir_reloaded.getModules().next();
+        Module mod_reloaded = ir_reloaded.getModules().get(0);
         assertEquals("foo.exe", mod_reloaded.getName());
     }
 
@@ -115,19 +115,14 @@ public class TestIrSanity {
         Module mod2 = new Module("/usr/bin/mod2", 0x2000, 0x2FFF,
                                  Module.FileFormat.ELF, Module.ISA.X64, "mod2");
         ir.addModule(mod2);
-        Iterator<Module> modules = ir.getModules();
-        int moduleCount = 0;
-        while (modules.hasNext()) {
-            moduleCount += 1;
-            modules.next();
-        }
-        assertEquals(moduleCount, 3);
+        List<Module> modules = ir.getModules();
+        assertEquals(modules.size(), 3);
 
         ir.removeModule(mod0);
         ir.removeModule(mod2);
 
         // Now the only module left should be "mod1"
-        assertEquals("mod1", ir.getModules().next().getName());
+        assertEquals("mod1", ir.getModules().get(0).getName());
         assertEquals(mod1.getIr(), ir);
         assertNull(mod0.getIr());
         assertNull(mod2.getIr());
