@@ -1,4 +1,5 @@
 package tests;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
@@ -104,7 +105,6 @@ public class TestIrSanity {
 
     @Test
     void testAddAndRemoveModules() throws Exception {
-        // Create a simple IR
         IR ir = new IR();
         Module mod0 = new Module("/usr/bin/mod0", 0x0000, 0x0FFF,
                                  Module.FileFormat.ELF, Module.ISA.X64, "mod0");
@@ -126,5 +126,34 @@ public class TestIrSanity {
         assertEquals(mod1.getIr().get(), ir);
         assertTrue(mod0.getIr().isEmpty());
         assertTrue(mod2.getIr().isEmpty());
+    }
+
+    @Test
+    void testAddAndRemoveSections() throws Exception {
+        Module module =
+            new Module("/my/module", 0x0000, 0x0FFF, Module.FileFormat.ELF,
+                       Module.ISA.X64, "module");
+        Section section0 =
+            new Section("section0", new ArrayList<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+        Section section1 =
+            new Section("section1", new ArrayList<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+        Section section2 =
+            new Section("section2", new ArrayList<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+
+        module.addSection(section0);
+        module.addSection(section1);
+        module.addSection(section2);
+
+        List<Section> sections = module.getSections();
+        assertEquals(sections.size(), 3);
+
+        module.removeSection(section0);
+        module.removeSection(section1);
+
+        // Now the only section left should be "section2"
+        assertEquals("section2", module.getSections().get(0).getName());
     }
 }

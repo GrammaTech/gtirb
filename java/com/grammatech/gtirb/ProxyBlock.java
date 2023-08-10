@@ -15,7 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
-import java.util.UUID;
+import java.util.Optional;
 
 /**
  * ProxyBlock is a placeholder that serves as the end point (source or target)
@@ -23,48 +23,42 @@ import java.util.UUID;
  */
 public class ProxyBlock extends Node {
 
-    private ProxyBlockOuterClass.ProxyBlock protoProxyBlock;
-    private Module module;
+    private Optional<Module> module;
 
     /**
      * Class constructor for a ProxyBlock from a protobuf section.
      * @param  protoProxyBlock  The ProxyBlock as serialized into a protocol
      * buffer.
-     * @param  module        The Module that owns this Section.
      */
     private ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock,
                        Module module) {
         super(Util.byteStringToUuid(protoProxyBlock.getUuid()));
-        this.module = module;
-        this.protoProxyBlock = protoProxyBlock;
+        this.module = Optional.empty();
     }
 
     /**
      * Class Constructor.
      */
-    public ProxyBlock(Module module) {
+    public ProxyBlock() {
         super();
-        this.module = module;
-        this.protoProxyBlock = null;
+        this.module = Optional.empty();
     }
 
     /**
-     * Get the original protobuf of this {@link ProxyBlock}.
+     * Get the {@link Module} this ProxyBlock belongs to.
      *
-     * @return The protobuf the proxy block was imported from, or
-     * null if it was not imported from a protobuf.
+     * @return  An Optional that contains the Module this
+     * proxy block belongs to, or empty if it does not belong to a Module.
      */
-    public ProxyBlockOuterClass.ProxyBlock getProtoProxyBlock() {
-        return this.protoProxyBlock;
-    }
+    public Optional<Module> getModule() { return this.module; }
 
     /**
-     * Get the Module this ProxyBlock belongs to.
+     * Set the Module this ProxyBlock belongs to.
      *
-     * @return  The Module that this ProxyBlock belongs to, or null if it
-     * does not belong to any Module.
+     * @param  An Optional that contains the Module this
+     * proxy block belongs to, or empty if it does not belong to a Module.
      */
-    public Module getModule() { return this.module; }
+    void setModule(Optional<Module> module) { this.module = module; }
 
     /**
      * De-serialize a {@link ProxyBlock} from a protobuf .

@@ -75,7 +75,7 @@ public class IR extends AuxDataContainer {
         // Import the modules
         ir.modules = new ArrayList<Module>();
         for (ModuleOuterClass.Module protoModule : protoIr.getModulesList()) {
-            Module module = Module.fromProtobuf(protoModule, ir);
+            Module module = Module.fromProtobuf(protoModule);
             ir.modules.add(module);
         }
         // Import the CFG
@@ -139,7 +139,7 @@ public class IR extends AuxDataContainer {
     /**
      * Get the list of modules belonging to this {@link IR}.
      *
-     * @return  A {@link Module} An unmodifiable list of all the
+     * @return  An unmodifiable {@link Module} list of all the
      * modules in this {@link IR}. Any attempt to remove an element of
      * this list will throw an UnsupportedOperationException.
      */

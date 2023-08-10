@@ -1,4 +1,5 @@
 package tests;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
@@ -13,7 +14,6 @@ class TestSymbolicExpressions {
     @Test
     void testUnknownAttributes() throws Exception {
         // Build minimal IR.
-        ArrayList<Section> sections = new ArrayList<Section>();
         ArrayList<ByteInterval> byteIntervals = new ArrayList<ByteInterval>();
 
         IR ir = new IR();
@@ -21,8 +21,8 @@ class TestSymbolicExpressions {
             new Module("", 0, 0, Module.FileFormat.ELF, Module.ISA.X64, "test");
         Section section =
             new Section("foo", new ArrayList<Section.SectionFlag>(),
-                        new ArrayList<ByteInterval>(), module);
-        Symbol symbol = new Symbol("bar", module);
+                        new ArrayList<ByteInterval>());
+        Symbol symbol = new Symbol("bar", 0);
         ByteInterval byteInterval = new ByteInterval(section);
         SymbolicExpression expr =
             new SymAddrConst(0, symbol.getUuid(),
@@ -31,10 +31,9 @@ class TestSymbolicExpressions {
         expr.getUnknownAttributeFlags().add(0xBEEF);
         byteInterval.insertSymbolicExpression(0, expr);
 
-        sections.add(section);
         byteIntervals.add(byteInterval);
         section.setByteIntervals(byteIntervals);
-        module.setSections(sections);
+        module.addSection(section);
         ir.addModule(module);
 
         // Write IR to file.

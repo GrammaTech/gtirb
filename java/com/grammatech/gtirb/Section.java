@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GrammaTech, Inc.
+ *  Copyright (C) 2020-2023 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -16,7 +16,13 @@ package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.TreeMap;
 
 /**
  * The Section class represents a named section or segment of a program file,
@@ -38,23 +44,20 @@ public class Section extends Node implements TreeListItem {
         ThreadLocal
     }
 
+    private Optional<Module> module;
     private String name;
     private final TreeMap<Long, List<ByteInterval>> byteIntervalTree;
     private List<SectionFlag> sectionFlags;
-    private final SectionOuterClass.Section protoSection;
-    private Module module;
 
     /**
      * Class constructor for a Section from a protobuf section.
      * @param  protoSection  The section as serialized into a protocol buffer.
-     * @param  module        The Module that owns this Section.
      */
-    private Section(SectionOuterClass.Section protoSection, Module module) {
+    private Section(SectionOuterClass.Section protoSection) {
         super(Util.byteStringToUuid(protoSection.getUuid()));
 
-        this.protoSection = protoSection;
         this.name = protoSection.getName();
-        this.module = module;
+        this.module = Optional.empty();
 
         byteIntervalTree = new TreeMap<Long, List<ByteInterval>>();
         List<ByteIntervalOuterClass.ByteInterval> protoByteIntervalList =
@@ -79,19 +82,33 @@ public class Section extends Node implements TreeListItem {
      * @param  flags           A list of flags to apply to this Section.
      * @param  byteIntervals   A list of ByteIntervals belonging to this
      * Section.
-     * @param  module          The Module that owns this Section.
      */
     public Section(String name, List<SectionFlag> flags,
-                   List<ByteInterval> byteIntervals, Module module) {
+                   List<ByteInterval> byteIntervals) {
         super();
-        this.protoSection = null;
+        this.module = Optional.empty();
         this.setName(name);
         this.setSectionFlags(flags);
-        this.setModule(module);
         byteIntervalTree = new TreeMap<Long, List<ByteInterval>>();
         for (ByteInterval byteInterval : byteIntervals)
             TreeListUtils.insertItem(byteInterval, byteIntervalTree);
     }
+
+    /**
+     * Get the {@link Module} this Section belongs to.
+     *
+     * @return  An Optional that contains the Module this
+     * section belongs to, or empty if it does not belong to a Module.
+     */
+    public Optional<Module> getModule() { return this.module; }
+
+    /**
+     * Set the Module this Section belongs to.
+     *
+     * @param  An Optional that contains the Module this
+     * section belongs to, or empty if it does not belong to a Module.
+     */
+    void setModule(Optional<Module> module) { this.module = module; }
 
     /**
      * Get the name of a {@link Section Section}.
@@ -106,22 +123,6 @@ public class Section extends Node implements TreeListItem {
      * @param name    The section name.
      */
     public void setName(String name) { this.name = name; }
-
-    /**
-     * Get the {@link Module} this Section belongs to.
-     *
-     * @return  The Module that this Section belongs to, or null if it
-     * does not belong to any Module.
-     */
-    public Module getModule() { return this.module; }
-
-    /**
-     * Set the Module this Section belongs to.
-     *
-     * @param module    The Module that this Section belongs to, or null if it
-     * does not belong to any Module.
-     */
-    public void setModule(Module module) { this.module = module; }
 
     /**
      * Get a ByteInterval iterator.
@@ -270,16 +271,6 @@ public class Section extends Node implements TreeListItem {
     public long getIndex() { return this.getAddress().orElse(0); }
 
     /**
-     * Get the original protobuf of this {@link Section}.
-     *
-     * @return The protobuf the section was imported from, or
-     * null of it was not imported from a protobuf.
-     */
-    public SectionOuterClass.Section getProtoSection() {
-        return this.protoSection;
-    }
-
-    /**
      * Get all ByteIntervals containing an address.
      *
      * @param address      The address to look for.
@@ -342,7 +333,7 @@ public class Section extends Node implements TreeListItem {
      */
     static Section fromProtobuf(SectionOuterClass.Section protoSection,
                                 Module module) {
-        return new Section(protoSection, module);
+        return new Section(protoSection);
     }
 
     /**
