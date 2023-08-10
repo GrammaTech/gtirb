@@ -182,7 +182,7 @@ public class Module extends AuxDataContainer {
      * @param  An Optional that contains the IR this module will belongs
      * to, or empty if it should not belong to an IR.
      */
-    public void setIr(Optional<IR> ir) { this.ir = ir; }
+    void setIr(Optional<IR> ir) { this.ir = ir; }
 
     /**
      * Get the location of the corresponding binary on disk.
