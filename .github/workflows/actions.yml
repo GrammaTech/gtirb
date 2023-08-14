@@ -1,0 +1,89 @@
+name: GTIRB Docs
+on: [push]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        os: [focal]
+        include:
+          - os: focal
+            file_suffix: ubuntu20
+    outputs:
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+      image_path: ${{ steps.vars.outputs.image_path }}
+    steps:
+        # We must generate output variables here in order to ensure the
+        # reference is lowercase, even if the repository reference is not
+        # (e.g., because of the organization "GrammaTech").
+        # For the tag, we replace forward slashes with hyphens and use the tag
+        # the "latest" for the "master" branch.
+        # We'd like to just generate the environment variables, but the `env`
+        # context is not available in the "jobs.<id>.container" field, despite
+        # what the Context Availability documentation says. See:
+        # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+      - id: vars
+        run: |
+          export IMAGE_TAG=$([ "${{ github.ref_name }}" == "master" ] && echo latest || echo ${{ github.ref_name }} | sed -e "s/\//-/g")
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          export IMAGE_PATH=$(echo ghcr.io/${{ github.repository }}/ | awk '{print tolower($0)}')
+          echo "image_path=$IMAGE_PATH" >> $GITHUB_ENV
+          echo "image_path=$IMAGE_PATH" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@master
+      - name: Kaniko build
+        uses: aevea/action-kaniko@v0.9.0
+        with:
+          registry: ghcr.io
+          image: ${{ matrix.os }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          cache: true
+          cache_registry: ${{ matrix.os }}-cache
+          tag: ${{ env.image_tag }}
+          build_file: .ci/Dockerfile.${{ matrix.file_suffix }}
+
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    strategy:
+      matrix:
+        os: [focal]
+    needs: docker
+    container: ${{ needs.docker.outputs.image_path }}${{ matrix.os }}:${{ needs.docker.outputs.image_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Generate documentation
+        run: |
+          cmake -DGTIRB_ENABLE_TESTS=OFF -B build .
+          cd build/python
+          pip install -e '.[doc]'
+          cd ..
+          cmake ..
+          make doc
+          mv doc/html ../public
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v1.0.8
+        with:
+          path: public
+
+  deploy-pages:
+    needs: docs
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
