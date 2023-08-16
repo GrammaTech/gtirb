@@ -16,6 +16,7 @@ package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -56,7 +57,8 @@ public class Section extends Node implements TreeListItem {
      * Class constructor for a Section from a protobuf section.
      * @param  protoSection  The section as serialized into a protocol buffer.
      */
-    private Section(SectionOuterClass.Section protoSection) {
+    private Section(SectionOuterClass.Section protoSection)
+        throws IOException {
         super(Util.byteStringToUuid(protoSection.getUuid()));
 
         this.name = protoSection.getName();
@@ -370,7 +372,7 @@ public class Section extends Node implements TreeListItem {
      *
      * @return An initialized section.
      */
-    static Section fromProtobuf(SectionOuterClass.Section protoSection) {
+    static Section fromProtobuf(SectionOuterClass.Section protoSection) throws IOException {
         return new Section(protoSection);
     }
 

@@ -14,39 +14,26 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import java.io.*;
+import java.nio.ByteBuffer;
 
-public class FloatCodec extends Codec {
-    int size;
+public class FloatCodec implements Codec<Float> {
 
-    /**
-     * Constructor
-     * @param size  Number of bytes to decode/encode
-     */
-    public FloatCodec(int size) { this.size = size; }
+    public String getTypeName() { return "float"; }
 
-    public Object decode(Serialization serialization,
-                         List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new DecodeException("floats should have no subtypes");
-        if (size == 8)
-            return serialization.getDouble();
-        else if (size == 4)
-            return serialization.getFloat();
-        throw new DecodeException("Invalid float size: " + size);
+    public Float decode(InputStream in) throws IOException {
+        byte[] b = new byte[4];
+        if (in.read(b, 0, 4) != 4) {
+            throw new EOFException("Insufficient bytes to read a Float from.");
+        }
+        ByteBuffer bb = ByteBuffer.wrap(b);
+        return bb.getFloat();
     }
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new EncodeException("floats should have no subtypes");
-
-        if (size == 8)
-            outstream.putDouble((Double)val);
-        else if (size == 4)
-            outstream.putFloat((Float)val);
-        else
-            throw new EncodeException("invalid float size: " + size);
+    public void encode(OutputStream out, Float val) throws IOException {
+        byte[] b = new byte[4];
+        ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.putFloat(val);
+        out.write(b, 0, 4);
     }
 }

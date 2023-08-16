@@ -14,24 +14,25 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import java.io.*;
 
 /**
  * A Codec for bool.
  */
-public class BoolCodec extends Codec {
+public class BoolCodec implements Codec<Boolean> {
 
-    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new DecodeException("bool should have no subtypes");
-        return Boolean.valueOf(byteBuffer.getByte() != 0 ? true : false);
+    public String getTypeName() { return "bool"; }
+
+    public Boolean decode(InputStream in) throws IOException {
+        byte[] b = new byte[1];
+        if (in.read(b, 0, 1) != 1) {
+            throw new EOFException(
+                "Insufficient bytes to read a Boolean from.");
+        }
+        return Boolean.valueOf(b[0] != 0);
     }
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new EncodeException("bool should have no subtypes");
-        outstream.putByte((byte)((Boolean)val ? 1 : 0));
+    public void encode(OutputStream out, Boolean val) throws IOException {
+        out.write((byte)(val ? 1 : 0));
     }
 }

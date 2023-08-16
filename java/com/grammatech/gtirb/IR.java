@@ -57,7 +57,7 @@ public class IR extends AuxDataContainer {
      * Class constructor for IR from an IR protobuf.
      * @param  protoIr  The {@link IR} as serialized into a protocol buffer.
      */
-    private IR(IROuterClass.IR protoIr) {
+    private IR(IROuterClass.IR protoIr) throws IOException {
         super(protoIr.getUuid(), protoIr.getAuxDataMap());
     }
 
@@ -66,7 +66,7 @@ public class IR extends AuxDataContainer {
      *
      * @return  The {@link IR} loaded from the protobuf.
      */
-    private static IR loadProtobuf(IROuterClass.IR protoIr) {
+    private static IR loadProtobuf(IROuterClass.IR protoIr) throws IOException {
         // If no protobuf, can't load it.
         if (protoIr == null)
             return null;
@@ -117,8 +117,12 @@ public class IR extends AuxDataContainer {
         } catch (IOException ie) {
             return null;
         }
-        IR ir = IR.loadProtobuf(protoIr);
-        return ir;
+        try {
+            IR ir = IR.loadProtobuf(protoIr);
+            return ir;
+        } catch (IOException ie) {
+            return null;
+        }
     }
 
     /**

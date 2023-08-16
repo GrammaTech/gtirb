@@ -18,6 +18,7 @@ import com.grammatech.gtirb.proto.ModuleOuterClass;
 import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
 import com.grammatech.gtirb.proto.SymbolOuterClass;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -86,7 +87,7 @@ public class Module extends AuxDataContainer {
      * Class constructor for a Module from a protobuf module.
      * @param  protoModule   The module as serialized into a protocol buffer.
      */
-    Module(ModuleOuterClass.Module protoModule) {
+    Module(ModuleOuterClass.Module protoModule) throws IOException {
         super(protoModule.getUuid(), protoModule.getAuxDataMap());
         this.ir = Optional.empty();
         this.binaryPath = protoModule.getBinaryPath();
@@ -482,7 +483,7 @@ public class Module extends AuxDataContainer {
      *
      */
     private void
-    initializeSectionList(List<SectionOuterClass.Section> protoSectionList) {
+    initializeSectionList(List<SectionOuterClass.Section> protoSectionList) throws IOException {
         this.sectionTree = new TreeMap<>();
         // For each section, add to sectionList in this class
         for (SectionOuterClass.Section protoSection : protoSectionList) {
@@ -500,7 +501,7 @@ public class Module extends AuxDataContainer {
      *
      */
     private void
-    initializeSymbolList(List<SymbolOuterClass.Symbol> protoSymbolList) {
+    initializeSymbolList(List<SymbolOuterClass.Symbol> protoSymbolList) throws IOException {
         this.symbolList = new ArrayList<Symbol>();
         // For each symbol, add to symbolList in this class
         for (SymbolOuterClass.Symbol protoSymbol : protoSymbolList) {
@@ -518,7 +519,7 @@ public class Module extends AuxDataContainer {
      *
      */
     private void initializeProxyBlockList(
-        List<ProxyBlockOuterClass.ProxyBlock> protoProxyBlockList) {
+        List<ProxyBlockOuterClass.ProxyBlock> protoProxyBlockList) throws IOException {
         this.proxyBlockList = new ArrayList<ProxyBlock>();
         // For each proxy block, add to proxyBlockList in this class
         for (ProxyBlockOuterClass.ProxyBlock protoProxyBlock :
@@ -590,7 +591,8 @@ public class Module extends AuxDataContainer {
      * @param  protoModule   The module as serialized into a protocol buffer.
      * @return An initialized Module.
      */
-    static Module fromProtobuf(ModuleOuterClass.Module protoModule) {
+    static Module fromProtobuf(ModuleOuterClass.Module protoModule)
+        throws IOException {
         return new Module(protoModule);
     }
 
@@ -630,11 +632,12 @@ public class Module extends AuxDataContainer {
             protoModule.addSections(section.toProtobuf());
         }
         // Add auxData by calling toProtobuf on each type
-        Map<String, AuxData> auxDataMap = getAuxDataMap();
-        Set<String> auxDataNames = auxDataMap.keySet();
-        for (String auxDataName : auxDataNames) {
-            AuxData auxData = auxDataMap.get(auxDataName);
-            protoModule.putAuxData(auxDataName, auxData.toProtobuf().build());
+        // TODO: Can this be done by AuxDataContainer, itself?
+        // Doing it here, we have to access the protected member AuxDataMap
+        // from the container.
+        for (Map.Entry<String, AuxData> entry : this.auxDataMap.entrySet()) {
+            protoModule.putAuxData(entry.getKey(),
+                                   entry.getValue().toProtobuf().build());
         }
         return protoModule;
     }

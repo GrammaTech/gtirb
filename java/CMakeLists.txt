@@ -69,55 +69,45 @@ configure_file(
 )
 
 set(GTIRB_API_JAVAS
-    AuxSerialization/AuxDataSerialization
-    AuxSerialization/AuxTypeTree
+    AuxSerialization/ArrayListCodec
     AuxSerialization/BoolCodec
     AuxSerialization/Codec
     AuxSerialization/DecodeException
     AuxSerialization/EncodeException
+    AuxSerialization/HashMapCodec
+    AuxSerialization/HashSetCodec
     AuxSerialization/IntegerCodec
-    AuxSerialization/MappingCodec
+    AuxSerialization/LongCodec
     AuxSerialization/OffsetCodec
-    AuxSerialization/SequenceCodec
-    AuxSerialization/SetCodec
-    AuxSerialization/StreamSerialization
     AuxSerialization/StringCodec
-    AuxSerialization/TupleCodec
     AuxSerialization/UnknownCodecException
     AuxSerialization/UnknownData
     AuxSerialization/UuidCodec
-    Alignment
     AuxDataContainer
-    AuxData
+    AuxDataSchema
+    AuxDataSchemas
     ByteBlock
     ByteInterval
     CFG
     CodeBlock
-    Comments
     DataBlock
     Edge
     FiveTuple
-    FunctionBlocks
-    FunctionEntries
-    FunctionNames
+    InconsistentAuxDataSchemaException
     IR
     Module
     Node
     Offset
-    Padding
     ProxyBlock
     Section
-    Serialization
     SymAddrAddr
     SymAddrConst
-    SymbolForwarding
     SymbolicExpression
     Symbol
     ThreeTuple
     TreeListItem
     TreeListUtils
     TwoTuple
-    Types
     Util
     Version
 )

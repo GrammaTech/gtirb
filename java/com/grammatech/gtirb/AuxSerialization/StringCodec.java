@@ -14,25 +14,33 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A Codec for strings.
  */
-public class StringCodec extends Codec {
+public class StringCodec implements Codec<String> {
 
-    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new DecodeException("string should have no subtypes");
-        String string = byteBuffer.getString();
-        return string;
+    public String getTypeName() { return "string"; }
+
+    public String decode(InputStream in) throws IOException {
+        int length = (int)LongCodec.decodeStatic(in);
+        if (length == 0) {
+            return "";
+        }
+        byte[] strBytes = new byte[length];
+        if (in.read(strBytes, 0, length) != length) {
+            throw new EOFException(
+                "Insufficient bytes to read expected String length.");
+        }
+
+        return new String(strBytes, StandardCharsets.UTF_8);
     }
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new EncodeException("string should have no subtypes");
-        outstream.putString((String)val);
+    public void encode(OutputStream out, String val) throws IOException {
+        byte[] strBytes = val.getBytes(StandardCharsets.UTF_8);
+        LongCodec.encodeStatic(out, (long)strBytes.length);
+        out.write(strBytes, 0, strBytes.length);
     }
 }

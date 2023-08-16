@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,7 +57,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      * protocol buffer.
      */
     private ByteInterval(
-        ByteIntervalOuterClass.ByteInterval protoByteInterval) {
+        ByteIntervalOuterClass.ByteInterval protoByteInterval) throws IOException {
         super(Util.byteStringToUuid(protoByteInterval.getUuid()));
         this.section = Optional.empty();
         if (protoByteInterval.getHasAddress()) {
@@ -762,7 +763,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @return An initialized ByteInterval.
      */
     static ByteInterval
-    fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval) {
+    fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval) throws IOException {
         return new ByteInterval(protoByteInterval);
     }
 

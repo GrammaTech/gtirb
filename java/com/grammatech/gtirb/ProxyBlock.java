@@ -15,6 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -30,7 +31,7 @@ public class ProxyBlock extends Node {
      * @param  protoProxyBlock  The ProxyBlock as serialized into a protocol
      * buffer.
      */
-    private ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock) {
+    private ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock) throws IOException {
         super(Util.byteStringToUuid(protoProxyBlock.getUuid()));
         this.module = Optional.empty();
     }
@@ -68,8 +69,8 @@ public class ProxyBlock extends Node {
      * @return An initialized proxy block.
      */
     static ProxyBlock
-    fromProtobuf(ProxyBlockOuterClass.ProxyBlock protoProxyBlock,
-                 Module module) {
+    fromProtobuf(ProxyBlockOuterClass.ProxyBlock protoProxyBlock, Module module)
+        throws IOException {
         return new ProxyBlock(protoProxyBlock);
     }
 

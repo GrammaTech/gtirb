@@ -15,6 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.CFGOuterClass;
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -46,7 +47,7 @@ public class Edge {
      * Class constructor for an Edge from a protobuf edge.
      * @param  protoEdge  The edge as serialized into a protocol buffer.
      */
-    public Edge(CFGOuterClass.Edge protoEdge) {
+    public Edge(CFGOuterClass.Edge protoEdge) throws IOException {
         this.setSourceUuid(Util.byteStringToUuid(protoEdge.getSourceUuid()));
         this.setTargetUuid(Util.byteStringToUuid(protoEdge.getTargetUuid()));
         if (protoEdge.hasLabel()) {
@@ -156,7 +157,8 @@ public class Edge {
      * @param  protoEdge  The edge as serialized into a protocol buffer.
      * @return An initialized Edge.
      */
-    public static Edge fromProtobuf(CFGOuterClass.Edge protoEdge) {
+    public static Edge fromProtobuf(CFGOuterClass.Edge protoEdge)
+        throws IOException {
         return new Edge(protoEdge);
     }
 

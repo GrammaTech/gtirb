@@ -50,4 +50,19 @@ public class Offset {
      * @return  The displacement.
      */
     public long getDisplacement() { return this.displacement; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof Offset)) {
+            return false;
+        }
+
+        Offset off = (Offset)o;
+        return this.elementId.equals(off.elementId) &&
+            this.displacement == off.displacement;
+    }
 }

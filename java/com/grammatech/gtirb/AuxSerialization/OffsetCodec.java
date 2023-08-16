@@ -15,31 +15,21 @@
 package com.grammatech.gtirb.AuxSerialization;
 
 import com.grammatech.gtirb.Offset;
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import java.io.*;
 import java.util.UUID;
 
-public class OffsetCodec extends Codec {
+public class OffsetCodec implements Codec<Offset> {
 
-    public Object decode(Serialization serialization,
-                         List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new DecodeException("Offset should have no subtypes");
-        UUID elementUuid = serialization.getUuid();
-        long displacement = serialization.getLong();
-        return new Offset(elementUuid, displacement);
+    public String getTypeName() { return "Offset"; }
+
+    public Offset decode(InputStream in) throws IOException {
+        UUID uuid = UuidCodec.decodeStatic(in);
+        long disp = LongCodec.decodeStatic(in);
+        return new Offset(uuid, disp);
     }
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new EncodeException("Offset should have no subtypes");
-        if (val instanceof Offset) {
-            Offset offset = (Offset)val;
-            outstream.putUuid(offset.getElementId());
-            outstream.putByteSwappedLong(offset.getDisplacement());
-        } else
-            throw new EncodeException(
-                "UuidCodec: attempt to encode non-UUID object");
+    public void encode(OutputStream out, Offset val) throws IOException {
+        UuidCodec.encodeStatic(out, val.getElementId());
+        LongCodec.encodeStatic(out, val.getDisplacement());
     }
 }

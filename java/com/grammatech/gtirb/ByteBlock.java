@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import java.util.Optional;
+import java.io.IOException;
 import java.util.OptionalLong;
 
 /**
@@ -35,7 +36,7 @@ public abstract class ByteBlock extends Node implements TreeListItem {
      * @param  size           The size of this ByteBlock in bytes.
      */
     ByteBlock(ByteString protoUuid, ByteIntervalOuterClass.Block protoBlock,
-              long size) {
+              long size) throws IOException {
         super(Util.byteStringToUuid(protoUuid));
         this.size = size;
         this.offset = protoBlock.getOffset();

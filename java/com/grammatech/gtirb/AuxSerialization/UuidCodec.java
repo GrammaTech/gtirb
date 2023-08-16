@@ -14,29 +14,28 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import com.grammatech.gtirb.Util;
+import java.io.*;
 import java.util.UUID;
 
-public class UuidCodec extends Codec {
+public class UuidCodec implements Codec<UUID> {
 
-    public Object decode(Serialization byteBuffer, List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new DecodeException("UUID should have no subtypes");
-        UUID uuid = byteBuffer.getUuid();
-        return uuid;
+    public String getTypeName() { return "UUID"; }
+
+    public static UUID decodeStatic(InputStream in) throws IOException {
+        return Util.readUUID(in);
     }
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new EncodeException("UUID should have no subtypes");
-        if (val instanceof UUID) {
-            String asString = val.toString();
-            UUID uuid = UUID.fromString(asString);
-            outstream.putUuid(uuid);
-        } else
-            throw new EncodeException(
-                "UuidCodec: attempt to encode non-UUID object");
+    public UUID decode(InputStream in) throws IOException {
+        return Util.readUUID(in);
+    }
+
+    public static void encodeStatic(OutputStream out, UUID val)
+        throws IOException {
+        Util.writeUUID(out, val);
+    }
+
+    public void encode(OutputStream out, UUID val) throws IOException {
+        Util.writeUUID(out, val);
     }
 }

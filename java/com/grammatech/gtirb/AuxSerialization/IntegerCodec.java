@@ -14,45 +14,27 @@
 
 package com.grammatech.gtirb.AuxSerialization;
 
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import java.io.*;
+import java.nio.ByteBuffer;
 
-public class IntegerCodec extends Codec {
-    int size;
+public class IntegerCodec implements Codec<Integer> {
 
-    /**
-     * Constructor
-     * @param size  Number of bytes to decode/encode
-     */
-    public IntegerCodec(int size) { this.size = size; }
+    public String getTypeName() { return "int32_t"; }
 
-    public Object decode(Serialization serialization,
-                         List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new DecodeException("integer should have no subtypes");
-        if (size == 8)
-            return serialization.getLong();
-        else if (size == 4)
-            return serialization.getInt();
-        else if (size == 2)
-            return serialization.getShort();
-        else if (size == 1)
-            return serialization.getByte();
-        throw new DecodeException("Invalid integer size: " + size);
+    public Integer decode(InputStream in) throws IOException {
+        byte[] b = new byte[4];
+        if (in.read(b, 0, 4) != 4) {
+            throw new EOFException(
+                "Insufficient bytes to read an Integer from.");
+        }
+        ByteBuffer bb = ByteBuffer.wrap(b);
+        return bb.getInt();
     }
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        if (subtypes.size() != 0)
-            throw new EncodeException("integer should have no subtypes");
-
-        if (size == 8)
-            outstream.putByteSwappedLong((Long)val);
-        else if (size == 4)
-            outstream.putByteSwappedInt((Integer)val);
-        else if (size == 2)
-            outstream.putByteSwappedShort((Short)val);
-        else if (size == 1)
-            outstream.putByte((Byte)val);
+    public void encode(OutputStream out, Integer val) throws IOException {
+        byte[] b = new byte[4];
+        ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.putInt(val);
+        out.write(b, 0, 4);
     }
 }

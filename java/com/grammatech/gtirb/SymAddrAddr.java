@@ -15,6 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,8 +38,9 @@ public class SymAddrAddr extends SymbolicExpression {
      * @param  protoSymbolicExpression  The SymAddrAddr symbolic expression, as
      * serialized into a protocol buffer.
      */
-    public SymAddrAddr(SymbolicExpressionOuterClass
-                           .SymbolicExpression protoSymbolicExpression) {
+    public SymAddrAddr(
+        SymbolicExpressionOuterClass.SymbolicExpression protoSymbolicExpression)
+        throws IOException {
         super(protoSymbolicExpression);
         SymbolicExpressionOuterClass.SymAddrAddr protoSymAddrAddr =
             protoSymbolicExpression.getAddrAddr();
@@ -134,9 +136,9 @@ public class SymAddrAddr extends SymbolicExpression {
      * into a protocol buffer.
      * @return An initialized SymAddrAddr.
      */
-    public static SymAddrAddr
-    fromProtobuf(SymbolicExpressionOuterClass
-                     .SymbolicExpression protoSymbolicExpression) {
+    public static SymAddrAddr fromProtobuf(
+        SymbolicExpressionOuterClass.SymbolicExpression protoSymbolicExpression)
+        throws IOException {
         return new SymAddrAddr(protoSymbolicExpression);
     }
 

@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.DataBlockOuterClass;
+import java.io.IOException;
 
 /**
  * DataBlock represents a data object, possibly symbolic.
@@ -28,7 +29,7 @@ public class DataBlock extends ByteBlock {
      * @param  protoBlock  The DataBlock as serialized into a protocol buffer.
      */
     private DataBlock(ByteString protoUuid,
-                      ByteIntervalOuterClass.Block protoBlock, long size) {
+                      ByteIntervalOuterClass.Block protoBlock, long size) throws IOException {
         super(protoUuid, protoBlock, size);
     }
 
@@ -42,7 +43,8 @@ public class DataBlock extends ByteBlock {
      *
      * @return An initialized DataBlock.
      */
-    static DataBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock) {
+    static DataBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock)
+        throws IOException {
         // Avoid using protoBlock.hasData() for compatibility with older
         // protobuf
         if (protoBlock.getValueCase() !=

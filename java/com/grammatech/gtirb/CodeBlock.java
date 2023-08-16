@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.CodeBlockOuterClass;
+import java.io.IOException;
 
 /**
  * CodeBlock represents a basic block in the binary.
@@ -37,7 +38,7 @@ public class CodeBlock extends ByteBlock {
      * @param  protoBlock  The CodeBlock as serialized into a protocol buffer.
      */
     private CodeBlock(ByteString protoUuid,
-                      ByteIntervalOuterClass.Block protoBlock, long size) {
+                      ByteIntervalOuterClass.Block protoBlock, long size) throws IOException {
         super(protoUuid, protoBlock, size);
         assert (protoBlock.getValueCase() ==
                 ByteIntervalOuterClass.Block.ValueCase.CODE);
@@ -75,7 +76,8 @@ public class CodeBlock extends ByteBlock {
      *
      * @return An initialized CodeBlock.
      */
-    static CodeBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock) {
+    static CodeBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock)
+        throws IOException {
         // Avoid using protoBlock.hasCode() for compatibility with older
         // protobuf
         if (protoBlock.getValueCase() !=

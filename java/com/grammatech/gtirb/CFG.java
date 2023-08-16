@@ -16,6 +16,7 @@ package com.grammatech.gtirb;
 
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.CFGOuterClass;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class CFG {
      * Class constructor for a {@link CFG} from a protobuf CFG.
      * @param  protoCfg  The CFG as serialized into a protocol buffer.
      */
-    public CFG(CFGOuterClass.CFG protoCfg) {
+    public CFG(CFGOuterClass.CFG protoCfg) throws IOException {
         this.edgeList = new ArrayList<Edge>();
         this.verticeList = new ArrayList<byte[]>();
         for (CFGOuterClass.Edge protoEdge : protoCfg.getEdgesList()) {
@@ -98,7 +99,8 @@ public class CFG {
      * @param  protoCFG  The CFG as serialized into a protocol buffer.
      * @return An initialized CFG.
      */
-    public static CFG fromProtobuf(CFGOuterClass.CFG protoCFG) {
+    public static CFG fromProtobuf(CFGOuterClass.CFG protoCFG)
+        throws IOException {
         return new CFG(protoCFG);
     }
 

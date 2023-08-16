@@ -15,6 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,8 +130,9 @@ public class SymbolicExpression {
      * @param  protoSymbolicExpression     The symbolic expression as serialized
      * into a protocol buffer.
      */
-    protected SymbolicExpression(SymbolicExpressionOuterClass.SymbolicExpression
-                                     protoSymbolicExpression) {
+    protected SymbolicExpression(
+        SymbolicExpressionOuterClass.SymbolicExpression protoSymbolicExpression)
+        throws IOException {
         this.attributeFlags = new HashSet<AttributeFlag>();
         this.unknownAttributeFlags = new HashSet<Integer>();
 
@@ -228,9 +230,9 @@ public class SymbolicExpression {
      * symbolicExpression
      * @return An initialized SymbolicExpression.
      */
-    public static SymbolicExpression
-    fromProtobuf(SymbolicExpressionOuterClass
-                     .SymbolicExpression protoSymbolicExpression) {
+    public static SymbolicExpression fromProtobuf(
+        SymbolicExpressionOuterClass.SymbolicExpression protoSymbolicExpression)
+        throws IOException {
         return new SymbolicExpression(protoSymbolicExpression);
     }
 

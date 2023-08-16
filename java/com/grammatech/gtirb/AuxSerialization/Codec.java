@@ -19,23 +19,30 @@ package com.grammatech.gtirb.AuxSerialization;
 // If there are classes without implementations of encode/decode, maybe _they_
 // have a parent class.
 
-import com.grammatech.gtirb.Serialization;
-import java.util.List;
+import java.io.*;
 
-public class Codec {
+public interface Codec<T> {
 
     /**
-     * Default constructor
+     * Gets the portable name for the type used in protobuf.
+     *
+     * @return The name of the type.
      */
-    public Codec() {}
+    public String getTypeName();
 
-    public Object decode(Serialization serialization,
-                         List<AuxTypeTree> subtypes) {
-        throw new Error("Codec.decode: Unknown Codec");
-    }
+    /**
+     * Decode a serialized instance into an in-memory object of type T.
+     *
+     * @param in The input stream the object is to be decoded from.
+     * @return The decoded object.
+     */
+    public T decode(InputStream in) throws IOException;
 
-    public void encode(StreamSerialization outstream, Object val,
-                       List<AuxTypeTree> subtypes) {
-        throw new Error("Codec.encode: Unknown Codec");
-    }
+    /**
+     * Encode an in-memory object into serialized form.
+     *
+     * @param out The output stream to send the serialized object to.
+     * @param val The in-memory object to be serialized.
+     */
+    public void encode(OutputStream out, T val) throws IOException;
 }
