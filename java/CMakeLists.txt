@@ -79,10 +79,18 @@ set(GTIRB_API_JAVAS
     auxdatacodec/IntegerCodec
     auxdatacodec/LongCodec
     auxdatacodec/OffsetCodec
+    auxdatacodec/PairCodec
+    auxdatacodec/QuadrupleCodec
+    auxdatacodec/QuintupleCodec
     auxdatacodec/StringCodec
+    auxdatacodec/TripleCodec
     auxdatacodec/UnknownCodecException
     auxdatacodec/UnknownData
     auxdatacodec/UuidCodec
+    tuple/Pair
+    tuple/Triple
+    tuple/Quadruple
+    tuple/Quintuple
     AuxDataContainer
     AuxDataSchema
     AuxDataSchemas
@@ -92,7 +100,6 @@ set(GTIRB_API_JAVAS
     CodeBlock
     DataBlock
     Edge
-    FiveTuple
     InconsistentAuxDataSchemaException
     IR
     Module
@@ -104,10 +111,8 @@ set(GTIRB_API_JAVAS
     SymAddrConst
     SymbolicExpression
     Symbol
-    ThreeTuple
     TreeListItem
     TreeListUtils
-    TwoTuple
     Util
     Version
 )

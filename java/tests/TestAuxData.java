@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.grammatech.gtirb.*;
 import com.grammatech.gtirb.Module;
 import com.grammatech.gtirb.auxdatacodec.*;
+import com.grammatech.gtirb.tuple.*;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -30,6 +31,28 @@ public class TestAuxData {
         hs.add("foo");
         hs.add("bar");
 
+        class FooPair extends Pair<String, Long> {
+            public FooPair(String s, Long l) { super(s, l); }
+        }
+
+        class FooTriple extends Triple<String, Long, Float> {
+            public FooTriple(String s, Long l, Float f) { super(s, l, f); }
+        }
+
+        class FooQuadruple extends Quadruple<String, Long, Float, Boolean> {
+            public FooQuadruple(String s, Long l, Float f, Boolean b) {
+                super(s, l, f, b);
+            }
+        }
+
+        class FooQuintuple
+            extends Quintuple<String, Long, Float, Boolean, Integer> {
+            public FooQuintuple(String s, Long l, Float f, Boolean b,
+                                Integer i) {
+                super(s, l, f, b, i);
+            }
+        }
+
         return Stream.of(
             Arguments.of("bool", new BoolCodec(), false),
             Arguments.of("bool", new BoolCodec(), true),
@@ -54,7 +77,27 @@ public class TestAuxData {
                                    new ArrayListCodec<>(new FloatCodec())),
                 hm),
             Arguments.of("set<string>", new HashSetCodec<>(new StringCodec()),
-                         hs));
+                         hs),
+            Arguments.of("tuple<string,int64_t>",
+                         new PairCodec<>(new StringCodec(), new LongCodec(),
+                                         FooPair::new),
+                         new FooPair("hello", 27L)),
+            Arguments.of("tuple<string,int64_t,float>",
+                         new TripleCodec<>(new StringCodec(), new LongCodec(),
+                                           new FloatCodec(), FooTriple::new),
+                         new FooTriple("hello", 27L, 3.14f)),
+            Arguments.of("tuple<string,int64_t,float,bool>",
+                         new QuadrupleCodec<>(new StringCodec(),
+                                              new LongCodec(), new FloatCodec(),
+                                              new BoolCodec(),
+                                              FooQuadruple::new),
+                         new FooQuadruple("hello", 27L, 3.14f, true)),
+            Arguments.of(
+                "tuple<string,int64_t,float,bool,int32_t>",
+                new QuintupleCodec<>(new StringCodec(), new LongCodec(),
+                                     new FloatCodec(), new BoolCodec(),
+                                     new IntegerCodec(), FooQuintuple::new),
+                new FooQuintuple("hello", 27L, 3.14f, true, 42)));
     }
 
     @ParameterizedTest(name = "Test codec for protobuf type: {0}")
