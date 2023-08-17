@@ -1,6 +1,6 @@
 package com.grammatech.gtirb;
 
-import com.grammatech.gtirb.AuxSerialization.Codec;
+import com.grammatech.gtirb.auxdatacodec.Codec;
 
 public final class AuxDataSchema<T> {
     private String name;

@@ -1,6 +1,6 @@
 package com.grammatech.gtirb;
 
-import com.grammatech.gtirb.AuxSerialization.*;
+import com.grammatech.gtirb.auxdatacodec.*;
 import java.util.*;
 
 public class AuxDataSchemas {

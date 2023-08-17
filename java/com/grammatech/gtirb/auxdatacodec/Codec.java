@@ -12,7 +12,7 @@
  *
  */
 
-package com.grammatech.gtirb.AuxSerialization;
+package com.grammatech.gtirb.auxdatacodec;
 
 // CONSIDER: Should this be an interface rather than an object hierarchy?
 // What at all is gained from doing it this way?

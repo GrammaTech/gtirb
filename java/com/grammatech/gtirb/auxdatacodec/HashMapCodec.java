@@ -12,9 +12,8 @@
  *
  */
 
-package com.grammatech.gtirb.AuxSerialization;
+package com.grammatech.gtirb.auxdatacodec;
 
-import com.grammatech.gtirb.AuxSerialization.LongCodec;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;

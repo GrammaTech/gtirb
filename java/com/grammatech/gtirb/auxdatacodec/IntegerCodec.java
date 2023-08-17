@@ -12,28 +12,29 @@
  *
  */
 
-package com.grammatech.gtirb.AuxSerialization;
+package com.grammatech.gtirb.auxdatacodec;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 
-public class FloatCodec implements Codec<Float> {
+public class IntegerCodec implements Codec<Integer> {
 
-    public String getTypeName() { return "float"; }
+    public String getTypeName() { return "int32_t"; }
 
-    public Float decode(InputStream in) throws IOException {
+    public Integer decode(InputStream in) throws IOException {
         byte[] b = new byte[4];
         if (in.read(b, 0, 4) != 4) {
-            throw new EOFException("Insufficient bytes to read a Float from.");
+            throw new EOFException(
+                "Insufficient bytes to read an Integer from.");
         }
         ByteBuffer bb = ByteBuffer.wrap(b);
-        return bb.getFloat();
+        return bb.getInt();
     }
 
-    public void encode(OutputStream out, Float val) throws IOException {
+    public void encode(OutputStream out, Integer val) throws IOException {
         byte[] b = new byte[4];
         ByteBuffer bb = ByteBuffer.wrap(b);
-        bb.putFloat(val);
+        bb.putInt(val);
         out.write(b, 0, 4);
     }
 }

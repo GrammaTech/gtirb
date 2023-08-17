@@ -69,20 +69,20 @@ configure_file(
 )
 
 set(GTIRB_API_JAVAS
-    AuxSerialization/ArrayListCodec
-    AuxSerialization/BoolCodec
-    AuxSerialization/Codec
-    AuxSerialization/DecodeException
-    AuxSerialization/EncodeException
-    AuxSerialization/HashMapCodec
-    AuxSerialization/HashSetCodec
-    AuxSerialization/IntegerCodec
-    AuxSerialization/LongCodec
-    AuxSerialization/OffsetCodec
-    AuxSerialization/StringCodec
-    AuxSerialization/UnknownCodecException
-    AuxSerialization/UnknownData
-    AuxSerialization/UuidCodec
+    auxdatacodec/ArrayListCodec
+    auxdatacodec/BoolCodec
+    auxdatacodec/Codec
+    auxdatacodec/DecodeException
+    auxdatacodec/EncodeException
+    auxdatacodec/HashMapCodec
+    auxdatacodec/HashSetCodec
+    auxdatacodec/IntegerCodec
+    auxdatacodec/LongCodec
+    auxdatacodec/OffsetCodec
+    auxdatacodec/StringCodec
+    auxdatacodec/UnknownCodecException
+    auxdatacodec/UnknownData
+    auxdatacodec/UuidCodec
     AuxDataContainer
     AuxDataSchema
     AuxDataSchemas

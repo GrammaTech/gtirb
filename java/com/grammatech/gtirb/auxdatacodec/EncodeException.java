@@ -12,14 +12,17 @@
  *
  */
 
-package com.grammatech.gtirb.AuxSerialization;
+package com.grammatech.gtirb.auxdatacodec;
 
-public class UnknownCodecException extends RuntimeException {
+/**
+ * An exception during encoding.
+ */
+public class EncodeException extends RuntimeException {
 
     /**
-     * Default version serial ID.
+     * Auto-generated default serial version iD.
      */
     private static final long serialVersionUID = 1L;
 
-    public UnknownCodecException(String errorMessage) { super(errorMessage); }
+    public EncodeException(String errorMessage) { super(errorMessage); }
 }

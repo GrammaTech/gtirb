@@ -12,7 +12,7 @@
  *
  */
 
-package com.grammatech.gtirb.AuxSerialization;
+package com.grammatech.gtirb.auxdatacodec;
 
 import com.grammatech.gtirb.Offset;
 import java.io.*;
