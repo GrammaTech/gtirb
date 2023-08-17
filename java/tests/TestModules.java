@@ -31,11 +31,18 @@ public class TestModules {
         List<Section> sections = module.getSections();
         assertEquals(sections.size(), 3);
 
+        assertEquals(section0.getModule(), module);
+        assertEquals(section1.getModule(), module);
+        assertEquals(section2.getModule(), module);
         module.removeSection(section0);
         module.removeSection(section1);
+        assertTrue(section0.getModule().isEmpty());
+        assertTrue(section1.getModule().isEmpty());
+        assertEquals(section2.getModule(), module);
 
         // Now the only section left should be "section2"
         assertEquals("section2", module.getSections().get(0).getName());
+        assertEquals(sections.size(), 1);
     }
 
     @Test
@@ -54,11 +61,18 @@ public class TestModules {
         List<Symbol> symbols = module.getSymbols();
         assertEquals(symbols.size(), 3);
 
-        module.removeSymbol(symbol0);
+        assertEquals(symbol0.getModule(), module);
+        assertEquals(symbol1.getModule(), module);
+        assertEquals(symbol2.getModule(), module);
         module.removeSymbol(symbol2);
+        module.removeSymbol(symbol0);
+        assertEquals(symbol0.getModule().isEmpty());
+        assertEquals(symbol1.getModule(), module);
+        assertEquals(symbol2.getModule().isEmpty());
 
         // Now the only symbol left should be "symbol1"
         assertEquals("symbol1", module.getSymbols().get(0).getName());
+        assertEquals(symbols.size(), 3);
     }
 
     @Test
@@ -77,9 +91,15 @@ public class TestModules {
         List<ProxyBlock> proxyBlocks = module.getProxyBlocks();
         assertEquals(proxyBlocks.size(), 3);
 
+        assertEquals(proxyBlock0.getModule(), module);
+        assertEquals(proxyBlock1.getModule(), module);
+        assertEquals(proxyBlock2.getModule(), module);
         module.removeProxyBlock(proxyBlock0);
         module.removeProxyBlock(proxyBlock2);
         module.removeProxyBlock(proxyBlock1);
+        assertEquals(proxyBlock0.getModule().isEmpty());
+        assertEquals(proxyBlock1.getModule().isEmpty());
+        assertEquals(proxyBlock2.getModule().isEmpty());
 
         proxyBlocks = module.getProxyBlocks();
         assertEquals(proxyBlocks.size(), 0);

@@ -133,9 +133,9 @@ public class Module extends AuxDataContainer {
         this.fileFormat = fileFormat;
         this.isa = isa;
         this.name = name;
-        this.symbolList = symbols;
-        this.proxyBlockList = proxyBlocks;
         this.entryPoint = entryPoint;
+        this.setSymbols(symbols);
+        this.setProxyBlocks(proxyBlocks);
         this.setSections(sections);
     }
 
@@ -284,8 +284,7 @@ public class Module extends AuxDataContainer {
      * Get the sections of this Module.
      *
      * @return  An unmodifiable {@link Section} list of all the
-     * sections in this {@link Module}. Any attempt to remove an element of
-     * this list will throw an UnsupportedOperationException.
+     * sections in this {@link Module}.
      */
     public List<Section> getSections() {
         List<Section> sectionList = new ArrayList<Section>();
@@ -334,8 +333,7 @@ public class Module extends AuxDataContainer {
      * Get the symbols of this Module.
      *
      * @return  An unmodifiable {@link Symbol} list of all the
-     * symbols in this {@link Module}. Any attempt to remove an element of
-     * this list will throw an UnsupportedOperationException.
+     * symbols in this {@link Module}.
      */
     public List<Symbol> getSymbols() {
         return Collections.unmodifiableList(this.symbolList);
@@ -362,11 +360,23 @@ public class Module extends AuxDataContainer {
     }
 
     /**
+     * Set the symbol list of this Module.
+     *
+     * @param symbolList    The module symbol list.
+     */
+    private void setSymbols(List<Symbol> symbolList) {
+        if (this.symbolList == null) {
+            this.symbolList = new ArrayList<Symbol>();
+        }
+        for (Symbol symbol : symbolList)
+            this.addSymbol(symbol);
+    }
+
+    /**
      * Get the proxy block list of this Module.
      *
      * @return  An unmodifiable {@link ProxyBlock} list of all the
-     * proxy blocks in this {@link Module}. Any attempt to remove an element of
-     * this list will throw an UnsupportedOperationException.
+     * proxy blocks in this {@link Module}.
      */
     public List<ProxyBlock> getProxyBlocks() {
         return Collections.unmodifiableList(this.proxyBlockList);
@@ -392,6 +402,19 @@ public class Module extends AuxDataContainer {
     public void removeProxyBlock(ProxyBlock proxyBlock) {
         this.proxyBlockList.remove(proxyBlock);
         proxyBlock.setModule(Optional.empty());
+    }
+
+    /**
+     * Set the proxy block list of this Module.
+     *
+     * @param proxyBlockList    The module proxyBlock list.
+     */
+    private void setProxyBlocks(List<ProxyBlock> proxyBlockList) {
+        if (this.proxyBlockList == null) {
+            this.proxyBlockList = new ArrayList<ProxyBlock>();
+        }
+        for (ProxyBlock proxyBlock : proxyBlockList)
+            this.addProxyBlock(proxyBlock);
     }
 
     /**
@@ -441,7 +464,7 @@ public class Module extends AuxDataContainer {
         // For each section, add to sectionList in this class
         for (SectionOuterClass.Section protoSection : protoSectionList) {
             Section newSection = Section.fromProtobuf(protoSection, this);
-            TreeListUtils.insertItem(newSection, this.sectionTree);
+            this.addSection(newSection);
         }
     }
 
@@ -459,7 +482,7 @@ public class Module extends AuxDataContainer {
         // For each symbol, add to symbolList in this class
         for (SymbolOuterClass.Symbol protoSymbol : protoSymbolList) {
             Symbol newSymbol = Symbol.fromProtobuf(protoSymbol, this);
-            symbolList.add(newSymbol);
+            this.addSymbol(newSymbol);
         }
     }
 
@@ -479,7 +502,7 @@ public class Module extends AuxDataContainer {
              protoProxyBlockList) {
             ProxyBlock newProxyBlock =
                 ProxyBlock.fromProtobuf(protoProxyBlock, this);
-            proxyBlockList.add(newProxyBlock);
+            this.addProxyBlock(newProxyBlock);
         }
     }
 

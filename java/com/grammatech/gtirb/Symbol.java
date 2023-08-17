@@ -213,11 +213,9 @@ public class Symbol extends Node {
      * De-serialize a {@link Symbol} from a protobuf .
      *
      * @param protoSymbol The protobuf version of this symbol
-     * @param module The module this symbols to, or null if none.
      * @return An initialized symbol.
      */
-    static Symbol fromProtobuf(SymbolOuterClass.Symbol protoSymbol,
-                               Module module) {
+    static Symbol fromProtobuf(SymbolOuterClass.Symbol protoSymbol) {
         return new Symbol(protoSymbol);
     }
 

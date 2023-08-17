@@ -331,8 +331,7 @@ public class Section extends Node implements TreeListItem {
      *
      * @return An initialized section.
      */
-    static Section fromProtobuf(SectionOuterClass.Section protoSection,
-                                Module module) {
+    static Section fromProtobuf(SectionOuterClass.Section protoSection) {
         return new Section(protoSection);
     }
 
